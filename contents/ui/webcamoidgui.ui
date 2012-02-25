@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WebcamoidGui</class>
+ <widget class="QWidget" name="WebcamoidGui">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>320</width>
+    <height>240</height>
+   </rect>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgba(0, 0, 0, 0);</string>
+  </property>
+  <widget class="QLabel" name="lblFrame">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>320</width>
+     <height>240</height>
+    </rect>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QWidget" name="wdgControls" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>176</y>
+     <width>320</width>
+     <height>64</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <spacer name="hspLeft">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="btnTakePhoto">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(34, 31, 30);
+background-color: rgb(223, 220, 217);
+alternate-background-color: rgb(224, 223, 222);
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QComboBox" name="cbxSetWebcam">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(34, 31, 30);
+background-color: rgb(223, 220, 217);
+alternate-background-color: rgb(224, 223, 222);
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="3">
+     <widget class="QPushButton" name="btnStartStop">
+      <property name="maximumSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(34, 31, 30);
+background-color: rgb(223, 220, 217);
+alternate-background-color: rgb(224, 223, 222);
+</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="4">
+     <spacer name="hspRight">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

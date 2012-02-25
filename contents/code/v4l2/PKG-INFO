@@ -1,0 +1,20 @@
+Metadata-Version: 1.1
+Name: v4l2
+Version: 0.2
+Summary: Python bindings for the v4l2 userspace api.
+Home-page: http://pypi.python.org/pypi/v4l2
+Author: python-v4l2-devel
+Author-email: https://launchpad.net/~python-v4l2-devel/+contactuser
+License: GPLv2
+Description: UNKNOWN
+Keywords: v4l2 video4linux video4linux2 binding ctypes
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: C
+Classifier: Programming Language :: Python
+Classifier: Topic :: Multimedia :: Video
+Classifier: Topic :: Multimedia :: Video :: Capture
+Requires: ctypes

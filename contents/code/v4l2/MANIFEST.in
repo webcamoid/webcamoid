@@ -1,0 +1,8 @@
+include NEWS
+include README
+include LICENSE
+include AUTHORS
+include MANIFEST.in
+include setup.py
+include tests.py
+include v4l2.py

@@ -1,0 +1,20 @@
+[Desktop Entry]
+Name=Webcamoid
+Comment=Show and take Photos with your webcam
+Icon=camera-web
+Type=Service
+ServiceTypes=Plasma/Applet,Plasma/PopupApplet
+Encoding=UTF-8
+X-Plasma-API=python
+X-Plasma-MainScript=code/main.py
+X-Plasma-DefaultSize=320,240
+X-KDE-PluginInfo-Author=Gonzalo Exequiel Pedone
+X-KDE-PluginInfo-Email=hipersayan.x@gmail.com
+X-KDE-PluginInfo-Name=webcamoid
+X-KDE-PluginInfo-Version=2.0.0
+X-KDE-PluginInfo-Website=http://hipersayanx.bolgspot.com/
+X-KDE-PluginInfo-Category=Multimedia
+X-KDE-PluginInfo-Depends=
+X-KDE-PluginInfo-License=GPLv3
+X-KDE-PluginInfo-EnabledByDefault=true
+X-Plasma-NotificationArea=true
