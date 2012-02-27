@@ -34,23 +34,28 @@ class Webcamoid(plasmascript.Applet):
 
     def init(self):
         self.defaultPlasmoidSize = QtCore.QSizeF(320, 240)
-        self.minimumPlasmoidSize = QtCore.QSizeF(128, 96)
-
-        self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
-        self.webcamoidGui.setFFmpegExecutable(str(self.config().readEntry('ffmpegExecutable', 'ffmpeg').toString()))
-
-        self.proxyWidget = QtGui.QGraphicsProxyWidget(self.applet)
-        self.proxyWidget.setWidget(self.webcamoidGui)
-        self.proxyWidget.resize(self.defaultPlasmoidSize)
-        self.proxyWidget.setMinimumSize(self.minimumPlasmoidSize)
-
+        self.minimumPlasmoidSize = QtCore.QSizeF(32, 32)
         self.applet.setPassivePopup(True)
-        self.setGraphicsWidget(self.proxyWidget)
-        self.setPopupIcon(KIcon("camera-web"))
+        self.setPopupIcon('camera-web')
         self.setHasConfigurationInterface(True)
         self.setAspectRatioMode(Plasma.IgnoreAspectRatio)
         self.resize(self.defaultPlasmoidSize)
         self.setMinimumSize(self.minimumPlasmoidSize)
+
+        self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
+        self.webcamoidGui.setFFmpegExecutable(str(self.config().readEntry('ffmpegExecutable', 'ffmpeg').toString()))
+
+        self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
+        self.setGraphicsWidget(self.graphicsWidget)
+
+        self.glyGraphicsWidget = QtGui.QGraphicsGridLayout(self.graphicsWidget)
+        self.graphicsWidget.setLayout(self.glyGraphicsWidget)
+
+        self.proxyWidget = QtGui.QGraphicsProxyWidget(self.graphicsWidget)
+        self.proxyWidget.setWidget(self.webcamoidGui)
+        self.proxyWidget.resize(self.defaultPlasmoidSize)
+        self.proxyWidget.setMinimumSize(self.minimumPlasmoidSize)
+        self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
 
     def createConfigurationInterface(self, parent):
         parent.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel))
