@@ -1,3 +1,12 @@
+2012-02-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/main.py: Popup applet working :D
+
+2012-02-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, contents/code/main.py, contents/code/main.py.orig: 
+	Fixed new GUI design issue.
+
 2012-02-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* Created Git repository. Redesigned Gui. Working on popup

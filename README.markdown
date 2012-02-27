@@ -10,6 +10,7 @@
 * Written in Python.
 * Requires FFmpeg to capture images from the webcam.
 * Custom controls for each webcam.
+* Popup applet support (you can embed Webcamoid in the panel).
 
 ## Installing ##
 
