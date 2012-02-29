@@ -28,7 +28,7 @@ import config
 
 class WebcamoidGui(QtGui.QWidget):
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self)#, parent.applet)
+        QtGui.QWidget.__init__(self)
 
         try:
             uic.loadUi('../ui/webcamoidgui.ui', self)

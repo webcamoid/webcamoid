@@ -40,6 +40,7 @@ class V4L2Tools(QtCore.QObject):
         self.current_dev_name = ''
         self.videoSize = QtCore.QSize()
         self.videoPipe = QtCore.QFile()
+        self.devnull = None
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -366,6 +367,7 @@ class V4L2Tools(QtCore.QObject):
             pass
 
         os.mkfifo(pipefile, 0644)
+        self.devnull = open(os.devnull, 'w')
 
         try:
             self.process = subprocess.Popen([self.ffmpeg_executable,
@@ -379,8 +381,8 @@ class V4L2Tools(QtCore.QObject):
                                             '-pix_fmt', 'rgb24',
                                             pipefile],
                                             stdin=subprocess.PIPE,
-                                            stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE)
+                                            stdout=self.devnull,
+                                            stderr=self.devnull)
         except:
             os.remove(pipefile)
             self.process = None
@@ -401,6 +403,10 @@ class V4L2Tools(QtCore.QObject):
             self.videoPipe.close()
             pipefile = os.path.join(tempfile.gettempdir(), os.path.basename(self.current_dev_name) + '.tmp')
             os.remove(pipefile)
+
+            if self.devnull != None:
+                self.devnull.close()
+
             self.process = None
             self.current_dev_name = ''
             self.videoSize = QtCore.QSize()
