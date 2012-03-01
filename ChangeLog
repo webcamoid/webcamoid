@@ -1,3 +1,9 @@
+2012-02-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, contents/code/v4l2tools.py,
+	contents/code/webcamoidgui.py, metadata.desktop: Fixed Popen pipe
+	limit.
+
 2012-02-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* ChangeLog, README.markdown: Updated README and ChangeLog files
