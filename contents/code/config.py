@@ -130,7 +130,7 @@ class Config(QtGui.QWidget):
                     chkControl.setText(control[0])
                     chkControl.setChecked(False if control[6] == 0 else True)
                     chkControl.toggled.connect(self.on_checkbox_toggled)
-                    gridLayout.addWidget(chkControl, cindex, 0, 1, 1)
+                    gridLayout.addWidget(chkControl, cindex, 0, 1, 3)
                 elif control[1] == v4l2.V4L2_CTRL_TYPE_MENU:
                     lblControl = QtGui.QLabel(page)
                     lblControl.setText(control[0])

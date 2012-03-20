@@ -22,7 +22,7 @@
 
 import sys
 from PyQt4 import uic, QtGui, QtCore
-from PyKDE4.kdeui import KIcon
+from PyKDE4.kdeui import KIcon, KNotification
 import v4l2tools
 import config
 

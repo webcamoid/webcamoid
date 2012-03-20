@@ -34,12 +34,11 @@ class V4L2Tools(QtCore.QObject):
 
     def __init__(self, parent=None, watchDevices=False):
         QtCore.QObject.__init__(self, parent)
-        self.ffmpeg_executable = 'ffmpeg'
+        self.ffmpegPath = 'ffmpeg'
         self.fps = 30
-        self.process = None
+        self.ffmpeg = None
         self.current_dev_name = ''
         self.videoSize = QtCore.QSize()
-        self.videoPipe = QtCore.QFile()
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -54,11 +53,11 @@ class V4L2Tools(QtCore.QObject):
         return True
 
     def ffmpegExecutable(self):
-        return self.ffmpeg_executable
+        return self.ffmpegPath
 
     @QtCore.pyqtSlot(str)
     def setFFmpegExecutable(self, path='ffmpeg'):
-        self.ffmpeg_executable = path
+        self.ffmpegPath = path
 
     def currentDevice(self):
         return self.current_dev_name
@@ -361,14 +360,7 @@ class V4L2Tools(QtCore.QObject):
         pipefile = os.path.join(tempfile.gettempdir(), os.path.basename(dev_name) + '.tmp')
 
         try:
-            os.remove(pipefile)
-        except:
-            pass
-
-        os.mkfifo(pipefile, 0644)
-
-        try:
-            self.process = subprocess.Popen([self.ffmpeg_executable,
+            self.ffmpeg = subprocess.Popen([self.ffmpegPath,
                                             '-y',
                                             '-loglevel', 'quiet',
                                             '-f', 'video4linux2',
@@ -378,35 +370,30 @@ class V4L2Tools(QtCore.QObject):
                                             '-f', 'rawvideo',
                                             '-vcodec', 'rawvideo',
                                             '-pix_fmt', 'rgb24',
-                                            pipefile])
+                                            '-'],
+                                            stdout=subprocess.PIPE)
         except:
-            os.remove(pipefile)
-            self.process = None
+            self.ffmpeg = None
 
             return False
 
-        self.videoPipe.setFileName(pipefile)
-        self.videoPipe.open(QtCore.QIODevice.ReadOnly)
         self.videoSize = QtCore.QSize(fmt[0], fmt[1])
         self.current_dev_name = dev_name
 
         return True
 
     def stopCurrentDevice(self):
-        if self.process != None:
-            self.process.kill()
-            self.process.wait()
-            self.videoPipe.close()
-            pipefile = os.path.join(tempfile.gettempdir(), os.path.basename(self.current_dev_name) + '.tmp')
-            os.remove(pipefile)
-            self.process = None
+        if self.ffmpeg != None:
+            self.ffmpeg.stdout.close()
+            self.ffmpeg.wait()
+            self.ffmpeg = None
             self.current_dev_name = ''
             self.videoSize = QtCore.QSize()
 
     @QtCore.pyqtSlot()
     def readFrame(self):
-        if self.process != None:
-            frame = self.videoPipe.read(3 * self.videoSize.width() * self.videoSize.height())
+        if self.ffmpeg != None:
+            frame = self.ffmpeg.stdout.read(3 * self.videoSize.width() * self.videoSize.height())
 
             return QtGui.QImage(frame, self.videoSize.width(), self.videoSize.height(), QtGui.QImage.Format_RGB888)
 
