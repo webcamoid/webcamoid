@@ -25,8 +25,10 @@ from PyKDE4 import plasmascript
 from PyKDE4.plasma import Plasma
 from PyKDE4.kdeui import KIcon, KDialog, KNotification
 from PyKDE4.kdecore import KConfigGroup
+
 import webcamoidgui
 import config
+
 
 class Webcamoid(plasmascript.Applet):
     def __init__(self, parent, args=None):
@@ -43,7 +45,9 @@ class Webcamoid(plasmascript.Applet):
         self.setMinimumSize(self.minimumPlasmoidSize)
 
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
-        self.webcamoidGui.setFFmpegExecutable(str(self.config().readEntry('ffmpegExecutable', 'ffmpeg').toString()))
+
+        self.webcamoidGui.setFFmpegExecutable(
+        str(self.config().readEntry('ffmpegExecutable', 'ffmpeg').toString()))
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
@@ -60,14 +64,21 @@ class Webcamoid(plasmascript.Applet):
     def createConfigurationInterface(self, parent):
         parent.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel))
         self.cfgDialog = config.Config(self, self.webcamoidGui.v4l2Tools())
-        parent.addPage(self.cfgDialog, 'Webcam Settings',  'camera-web', 'Set Webcam Properties',  False)
+
+        parent.addPage(self.cfgDialog,
+                       'Webcam Settings',
+                       'camera-web',
+                       'Set Webcam Properties',
+                       False)
 
         parent.okClicked.connect(self.saveConfigs)
         parent.cancelClicked.connect(self.saveConfigs)
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
-        self.config().writeEntry('ffmpegExecutable', self.webcamoidGui.ffmpegExecutable())
+        self.config().writeEntry('ffmpegExecutable',
+                                 self.webcamoidGui.ffmpegExecutable())
+
         self.emit(QtCore.SIGNAL("configNeedsSaving()"))
 
 def CreateApplet(parent):

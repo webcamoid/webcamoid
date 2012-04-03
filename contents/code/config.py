@@ -21,9 +21,12 @@
 # Web-Site: http://hipersayanx.blogspot.com/
 
 import sys
+
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
+
 import v4l2tools
+
 
 class Config(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
@@ -61,10 +64,14 @@ class Config(QtGui.QWidget):
             lblVideoFormat.setText('Video Format')
             gridLayout.addWidget(lblVideoFormat, cindex, 0, 1, 1)
 
-            self.videoFormats[captureDevice[0]] = self.tools.videoFormats(captureDevice[0])
+            self.videoFormats[captureDevice[0]] = \
+                 self.tools.videoFormats(captureDevice[0])
 
             wdgVideoFormat = QtGui.QWidget(page)
-            wdgVideoFormat.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+
+            wdgVideoFormat.setSizePolicy(QtGui.QSizePolicy.Preferred,
+                                         QtGui.QSizePolicy.Maximum)
+
             hlyVideoFormat = QtGui.QHBoxLayout(wdgVideoFormat)
 
             cbxVideoFormat = QtGui.QComboBox(wdgVideoFormat)
@@ -72,13 +79,28 @@ class Config(QtGui.QWidget):
             cbxVideoFormat.setProperty('controlName', '')
             cbxVideoFormat.setProperty('controlDefaultValue', 0)
             cbxVideoFormat.setProperty('deviceOption', 'videoFormat')
-            cbxVideoFormat.addItems(['{}x{} {}'.format(videoFormat[0], videoFormat[1], self.tools.fcc2s(videoFormat[2])) for videoFormat in self.videoFormats[captureDevice[0]]])
+
+            cbxVideoFormat.addItems(
+                        ['{}x{} {}'.format(videoFormat[0],
+                        videoFormat[1],
+                        self.tools.fcc2s(videoFormat[2]))
+                        for videoFormat in self.videoFormats[captureDevice[0]]])
+
             currentVideoFormat = self.tools.currentVideoFormat(captureDevice[0])
-            cbxVideoFormat.setCurrentIndex(self.videoFormats[captureDevice[0]].index(currentVideoFormat))
-            cbxVideoFormat.currentIndexChanged.connect(self.on_combobox_currentIndexChanged)
+
+            cbxVideoFormat.setCurrentIndex(self.videoFormats[captureDevice[0]].\
+                                                index(currentVideoFormat))
+
+            cbxVideoFormat.currentIndexChanged.\
+                           connect(self.on_combobox_currentIndexChanged)
+
             hlyVideoFormat.addWidget(cbxVideoFormat)
 
-            hspVideoFormat = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+            hspVideoFormat = QtGui.QSpacerItem(0,
+                                               0,
+                                               QtGui.QSizePolicy.Expanding,
+                                               QtGui.QSizePolicy.Minimum)
+
             hlyVideoFormat.addItem(hspVideoFormat)
 
             gridLayout.addWidget(wdgVideoFormat, cindex, 1, 1, 1)
@@ -94,7 +116,8 @@ class Config(QtGui.QWidget):
             cindex = 1
 
             for control in self.tools.listControls(captureDevice[0]):
-                if control[1] == v4l2.V4L2_CTRL_TYPE_INTEGER or control[1] == v4l2.V4L2_CTRL_TYPE_INTEGER64:
+                if control[1] == v4l2.V4L2_CTRL_TYPE_INTEGER or \
+                   control[1] == v4l2.V4L2_CTRL_TYPE_INTEGER64:
                     lblControl = QtGui.QLabel(page)
                     lblControl.setText(control[0])
                     gridLayout.addWidget(lblControl, cindex, 0, 1, 1)
@@ -117,7 +140,10 @@ class Config(QtGui.QWidget):
                     spbControl.setRange(control[2], control[3])
                     spbControl.setSingleStep(control[4])
                     spbControl.setValue(control[6])
-                    spbControl.valueChanged.connect(self.on_spinbox_valueChanged)
+
+                    spbControl.valueChanged.\
+                               connect(self.on_spinbox_valueChanged)
+
                     gridLayout.addWidget(spbControl, cindex, 2, 1, 1)
 
                     sldControl.sliderMoved.connect(spbControl.setValue)
@@ -137,7 +163,10 @@ class Config(QtGui.QWidget):
                     gridLayout.addWidget(lblControl, cindex, 0, 1, 1)
 
                     wdgControl = QtGui.QWidget(page)
-                    wdgControl.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+
+                    wdgControl.setSizePolicy(QtGui.QSizePolicy.Preferred,
+                                             QtGui.QSizePolicy.Maximum)
+
                     hlyControl = QtGui.QHBoxLayout(wdgControl)
 
                     cbxControl = QtGui.QComboBox(wdgControl)
@@ -146,10 +175,17 @@ class Config(QtGui.QWidget):
                     cbxControl.setProperty('controlDefaultValue', control[5])
                     cbxControl.addItems(control[7])
                     cbxControl.setCurrentIndex(control[6])
-                    cbxControl.currentIndexChanged.connect(self.on_combobox_currentIndexChanged)
+
+                    cbxControl.currentIndexChanged.\
+                               connect(self.on_combobox_currentIndexChanged)
+
                     hlyControl.addWidget(cbxControl)
 
-                    hspControl = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+                    hspControl = QtGui.QSpacerItem(0,
+                                                   0,
+                                                   QtGui.QSizePolicy.Expanding,
+                                                   QtGui.QSizePolicy.Minimum)
+
                     hlyControl.addItem(hspControl)
 
                     gridLayout.addWidget(wdgControl, cindex, 1, 1, 1)
@@ -158,7 +194,11 @@ class Config(QtGui.QWidget):
 
                 cindex += 1
 
-            spacerItem = QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.MinimumExpanding)
+            spacerItem = QtGui.QSpacerItem(0,
+                                           0,
+                                           QtGui.QSizePolicy.Preferred,
+                                           QtGui.QSizePolicy.MinimumExpanding)
+
             self.gridLayout.addItem(spacerItem, cindex, 0, 1, 1)
             self.tabWidget.addTab(page, captureDevice[1])
 
@@ -168,11 +208,16 @@ class Config(QtGui.QWidget):
     def resetControls(self, deviceName):
         for children in self.findChildren(QtCore.QObject):
             variantChildrenDeviceName = children.property('deviceName')
-            variantChildrenControlDefaultValue = children.property('controlDefaultValue')
 
-            if variantChildrenDeviceName.isValid() and variantChildrenControlDefaultValue.isValid():
+            variantChildrenControlDefaultValue = children.\
+                                                 property('controlDefaultValue')
+
+            if variantChildrenDeviceName.isValid() and \
+               variantChildrenControlDefaultValue.isValid():
                 childrenDeviceName = str(variantChildrenDeviceName.toString())
-                childrenControlDefaultValue = variantChildrenControlDefaultValue.toInt()[0]
+
+                childrenControlDefaultValue = \
+                                variantChildrenControlDefaultValue.toInt()[0]
 
                 if childrenDeviceName == deviceName:
                     if type(children) == QtGui.QComboBox:
@@ -182,7 +227,8 @@ class Config(QtGui.QWidget):
                     elif type(children) == QtGui.QSpinBox:
                         children.setValue(childrenControlDefaultValue)
                     elif type(children) == QtGui.QCheckBox:
-                        children.setChecked(False if childrenControlDefaultValue == 0 else True)
+                        children.setChecked(
+                            False if childrenControlDefaultValue == 0 else True)
 
     @QtCore.pyqtSlot()
     def on_pushButton_clicked(self):
@@ -226,13 +272,17 @@ class Config(QtGui.QWidget):
 
         if controlName == '':
             if deviceOption == 'videoFormat':
-                self.tools.setVideoFormat(deviceName, self.videoFormats[deviceName][index])
+                self.tools.setVideoFormat(deviceName,
+                                          self.videoFormats[deviceName][index])
         else:
             self.tools.setControls(deviceName, {controlName: index})
 
     @QtCore.pyqtSlot()
     def searchFFmpegExecutable(self):
-        saveFileDialog = QtGui.QFileDialog(self, 'Select FFmpeg Executable', '/usr/bin/ffmpeg')
+        saveFileDialog = QtGui.QFileDialog(self,
+                                           'Select FFmpeg Executable',
+                                           '/usr/bin/ffmpeg')
+
         saveFileDialog.setModal(True)
         saveFileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)
         saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
@@ -242,6 +292,7 @@ class Config(QtGui.QWidget):
 
         if not selected_files.isEmpty():
             self.txtFFmpeg.setText(selected_files[0])
+
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

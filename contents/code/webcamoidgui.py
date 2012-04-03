@@ -21,10 +21,13 @@
 # Web-Site: http://hipersayanx.blogspot.com/
 
 import sys
+
 from PyQt4 import uic, QtGui, QtCore
 from PyKDE4.kdeui import KIcon, KNotification
+
 import v4l2tools
 import config
+
 
 class WebcamoidGui(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -56,7 +59,12 @@ class WebcamoidGui(QtGui.QWidget):
         QtGui.QWidget.resizeEvent(self, event)
         size = event.size()
         self.lblFrame.resize(size)
-        geometry = QtCore.QRect(0, size.height() - self.wdgControls.height(), size.width(), self.wdgControls.height())
+
+        geometry = QtCore.QRect(0,
+                                size.height() - self.wdgControls.height(),
+                                size.width(),
+                                self.wdgControls.height())
+
         self.wdgControls.setGeometry(geometry)
 
     def enterEvent(self, event):
@@ -121,7 +129,8 @@ class WebcamoidGui(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def on_cbxSetWebcam_currentIndexChanged(self, index):
         if self.timer.isActive():
-            if not self.tools.startDevice(self.tools.captureDevices()[index][0]):
+            if not self.tools.startDevice(
+                   self.tools.captureDevices()[index][0]):
                 self.showFFmpegError()
 
     @QtCore.pyqtSlot()
@@ -134,7 +143,8 @@ class WebcamoidGui(QtGui.QWidget):
             self.webcamFrame = QtGui.QImage()
             self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
         else:
-            if self.tools.startDevice(self.tools.captureDevices()[self.cbxSetWebcam.currentIndex()][0]):
+            if self.tools.startDevice(self.tools.captureDevices()\
+                                      [self.cbxSetWebcam.currentIndex()][0]):
                 self.btnTakePhoto.setEnabled(True)
                 self.btnStartStop.setIcon(KIcon('media-playback-stop'))
                 self.timer.start()
@@ -142,23 +152,32 @@ class WebcamoidGui(QtGui.QWidget):
                 self.showFFmpegError()
 
     def showFFmpegError(self):
-        KNotification.event(KNotification.Error,
-                            'FFmpeg not installed or configured',
-                            'Please install FFmpeg:\n'
-                            '\n'
-                            '<strong>Arch/Chakra</strong>: pacman -S ffmpeg\n'
-                            '<strong>Debian/Ubuntu</strong>: apt-get install ffmpeg\n'
-                            '<strong>Fedora</strong>: yum install ffmpeg\n'
-                            '<strong>OpenSuSE</strong>: zypper install ffmpeg\n'
-                            '<strong>Mandriva</strong>: urpmi ffmpeg\n'
-                            '<strong>Pardus</strong>: pisi it ffmpeg',
-                            QtGui.QPixmap(),
-                            None,
-                            KNotification.Persistent)
+        KNotification.event(
+                    KNotification.Error,
+                    'FFmpeg not installed or configured',
+                    'Please install FFmpeg:\n'
+                    '\n'
+                    '<strong>Arch/Chakra</strong>: pacman -S ffmpeg\n'
+                    '<strong>Debian/Ubuntu</strong>: apt-get install ffmpeg\n'
+                    '<strong>Fedora</strong>: yum install ffmpeg\n'
+                    '<strong>OpenSuSE</strong>: zypper install ffmpeg\n'
+                    '<strong>Mandriva</strong>: urpmi ffmpeg\n'
+                    '<strong>Pardus</strong>: pisi it ffmpeg',
+                    QtGui.QPixmap(),
+                    None,
+                    KNotification.Persistent)
 
     def saveFile(self):
-        filters = 'PNG file (*.png);;JPEG file (*.jpg);;BMP file (*.bmp);;GIF file (*.gif)'
-        saveFileDialog = QtGui.QFileDialog(None, 'Save Image As...', './image.png', filters)
+        filters = 'PNG file (*.png);;'\
+                  'JPEG file (*.jpg);;'\
+                  'BMP file (*.bmp);;'\
+                  'GIF file (*.gif)'
+
+        saveFileDialog = QtGui.QFileDialog(None,
+                                           'Save Image As...',
+                                           './image.png',
+                                           filters)
+
         saveFileDialog.setModal(True)
         saveFileDialog.setDefaultSuffix('png')
         saveFileDialog.setFileMode(QtGui.QFileDialog.AnyFile)
@@ -168,6 +187,7 @@ class WebcamoidGui(QtGui.QWidget):
         selected_files = saveFileDialog.selectedFiles()
 
         return '' if selected_files.isEmpty() else selected_files[0]
+
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

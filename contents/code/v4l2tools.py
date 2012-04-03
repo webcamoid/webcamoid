@@ -26,8 +26,10 @@ import ctypes
 import fcntl
 import subprocess
 import tempfile
-from v4l2 import v4l2
+
 from PyQt4 import QtCore, QtGui
+from v4l2 import v4l2
+
 
 class V4L2Tools(QtCore.QObject):
     devicesModified = QtCore.pyqtSignal()
@@ -81,7 +83,9 @@ class V4L2Tools(QtCore.QObject):
         except:
             return formats
 
-        for type in [v4l2.V4L2_BUF_TYPE_VIDEO_CAPTURE, v4l2.V4L2_BUF_TYPE_VIDEO_OUTPUT, v4l2.V4L2_BUF_TYPE_VIDEO_OVERLAY]:
+        for type in [v4l2.V4L2_BUF_TYPE_VIDEO_CAPTURE,
+                     v4l2.V4L2_BUF_TYPE_VIDEO_OUTPUT,
+                     v4l2.V4L2_BUF_TYPE_VIDEO_OVERLAY]:
             fmt = v4l2.v4l2_fmtdesc()
             fmt.index = 0
             fmt.type = type
@@ -93,9 +97,13 @@ class V4L2Tools(QtCore.QObject):
                     frmsize.index = 0
 
                     try:
-                        while fcntl.ioctl(dev_fd, v4l2.VIDIOC_ENUM_FRAMESIZES, frmsize) >= 0:
+                        while fcntl.ioctl(dev_fd,
+                                          v4l2.VIDIOC_ENUM_FRAMESIZES,
+                                          frmsize) >= 0:
                             if frmsize.type == v4l2.V4L2_FRMSIZE_TYPE_DISCRETE:
-                                formats.append((frmsize.discrete.width, frmsize.discrete.height, fmt.pixelformat))
+                                formats.append((frmsize.discrete.width,
+                                                frmsize.discrete.height,
+                                                fmt.pixelformat))
 
                             frmsize.index += 1
                     except:
@@ -118,7 +126,13 @@ class V4L2Tools(QtCore.QObject):
         fmt = v4l2.v4l2_format()
         fmt.type = v4l2.V4L2_BUF_TYPE_VIDEO_CAPTURE
 
-        videoFormat = (fmt.fmt.pix.width, fmt.fmt.pix.height, fmt.fmt.pix.pixelformat) if fcntl.ioctl(dev_fd, v4l2.VIDIOC_G_FMT, fmt) == 0 else tuple()
+        if fcntl.ioctl(dev_fd, v4l2.VIDIOC_G_FMT, fmt) == 0:
+            videoFormat = (fmt.fmt.pix.width,
+                        fmt.fmt.pix.height,
+                        fmt.fmt.pix.pixelformat)
+        else:
+            videoFormat =tuple()
+
         os.close(dev_fd)
 
         return videoFormat
@@ -178,7 +192,8 @@ class V4L2Tools(QtCore.QObject):
 
         return webcamsDevices
 
-    # queryControl(dev_fd, queryctrl) -> (name, type, min, max, step, default, value, menu)
+    # queryControl(dev_fd, queryctrl) ->
+    #                       (name, type, min, max, step, default, value, menu)
     def queryControl(self, dev_fd, queryctrl):
         ctrl = v4l2.v4l2_control(0)
         ext_ctrl = v4l2.v4l2_ext_control(0)
@@ -195,7 +210,8 @@ class V4L2Tools(QtCore.QObject):
         ctrls.count = 1
         ctrls.controls = ctypes.pointer(ext_ctrl)
 
-        if (v4l2.V4L2_CTRL_ID2CLASS(queryctrl.id) != v4l2.V4L2_CTRL_CLASS_USER and queryctrl.id < v4l2.V4L2_CID_PRIVATE_BASE):
+        if (v4l2.V4L2_CTRL_ID2CLASS(queryctrl.id) != v4l2.V4L2_CTRL_CLASS_USER \
+            and queryctrl.id < v4l2.V4L2_CID_PRIVATE_BASE):
             if fcntl.ioctl(dev_fd, v4l2.VIDIOC_G_EXT_CTRLS, ctrls):
                 return tuple()
         else:
@@ -219,7 +235,14 @@ class V4L2Tools(QtCore.QObject):
 
                 menu.append(qmenu.name)
 
-        return (queryctrl.name, queryctrl.type, queryctrl.minimum, queryctrl.maximum, queryctrl.step, queryctrl.default, ext_ctrl.value, menu)
+        return (queryctrl.name,
+                queryctrl.type,
+                queryctrl.minimum,
+                queryctrl.maximum,
+                queryctrl.step,
+                queryctrl.default,
+                ext_ctrl.value,
+                menu)
 
     def listControls(self, dev_name='/dev/video0'):
         queryctrl = v4l2.v4l2_queryctrl(v4l2.V4L2_CTRL_FLAG_NEXT_CTRL)
@@ -276,7 +299,8 @@ class V4L2Tools(QtCore.QObject):
 
         try:
             while fcntl.ioctl(dev_fd, v4l2.VIDIOC_QUERYCTRL, qctrl) == 0:
-                if qctrl.type != v4l2.V4L2_CTRL_TYPE_CTRL_CLASS and not (qctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED):
+                if qctrl.type != v4l2.V4L2_CTRL_TYPE_CTRL_CLASS and \
+                   not (qctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED):
                     controls[qctrl.name] = qctrl.id
 
                 qctrl.id |= v4l2.V4L2_CTRL_FLAG_NEXT_CTRL
@@ -289,7 +313,8 @@ class V4L2Tools(QtCore.QObject):
         for id in range(v4l2.V4L2_CID_USER_BASE, v4l2.V4L2_CID_LASTP1):
             qctrl.id = id
 
-            if fcntl.ioctl(dev_fd, v4l2.v4l2.VIDIOC_QUERYCTRL, qctrl) == 0 and not (qctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED):
+            if fcntl.ioctl(dev_fd, v4l2.v4l2.VIDIOC_QUERYCTRL, qctrl) == 0 and \
+               not (qctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED):
                 controls[qctrl.name] = qctrl.id
 
         qctrl.id = v4l2.V4L2_CID_PRIVATE_BASE
@@ -344,7 +369,9 @@ class V4L2Tools(QtCore.QObject):
         self.setVideoFormat(dev_name, videoFormats[0])
 
         controls = self.listControls(dev_name)
-        self.setControls(dev_name, {control[0]: control[5] for control in controls})
+
+        self.setControls(dev_name,
+                         {control[0]: control[5] for control in controls})
 
     def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple()):
         self.stopCurrentDevice()
@@ -357,14 +384,13 @@ class V4L2Tools(QtCore.QObject):
         else:
             fmt = forcedFormat
 
-        pipefile = os.path.join(tempfile.gettempdir(), os.path.basename(dev_name) + '.tmp')
-
         try:
             self.ffmpeg = subprocess.Popen([self.ffmpegPath,
                                             '-y',
                                             '-loglevel', 'quiet',
                                             '-f', 'video4linux2',
-                                            '-s', '{}x{}'.format(fmt[0], fmt[1]),
+                                            '-s', '{}x{}'.format(fmt[0],
+                                                                 fmt[1]),
                                             '-r', str(self.fps),
                                             '-i', dev_name,
                                             '-f', 'rawvideo',
@@ -393,9 +419,14 @@ class V4L2Tools(QtCore.QObject):
     @QtCore.pyqtSlot()
     def readFrame(self):
         if self.ffmpeg != None:
-            frame = self.ffmpeg.stdout.read(3 * self.videoSize.width() * self.videoSize.height())
+            frame = self.ffmpeg.stdout.read(3 * self.videoSize.width() *
+                                                self.videoSize.height())
 
-            return QtGui.QImage(frame, self.videoSize.width(), self.videoSize.height(), QtGui.QImage.Format_RGB888)
+            return QtGui.QImage(frame,
+                                self.videoSize.width(),
+                                self.videoSize.height(),
+                                QtGui.QImage.Format_RGB888)
+
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
