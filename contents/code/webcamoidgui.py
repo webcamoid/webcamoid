@@ -26,7 +26,7 @@ from PyQt4 import uic, QtGui, QtCore
 from PyKDE4.kdeui import KIcon, KNotification
 
 import v4l2tools
-import config
+import translator
 
 
 class WebcamoidGui(QtGui.QWidget):
@@ -37,6 +37,8 @@ class WebcamoidGui(QtGui.QWidget):
             uic.loadUi('../ui/webcamoidgui.ui', self)
         except:
             uic.loadUi(parent.package().filePath('ui', 'webcamoidgui.ui'), self)
+
+        self.translator = translator.Translator('self.translator', self)
 
         self.tools = v4l2tools.V4L2Tools(self, True)
         self.tools.devicesModified.connect(self.updateWebcams)
@@ -143,8 +145,8 @@ class WebcamoidGui(QtGui.QWidget):
             self.webcamFrame = QtGui.QImage()
             self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
         else:
-            if self.tools.startDevice(self.tools.captureDevices()\
-                                      [self.cbxSetWebcam.currentIndex()][0]):
+            if self.tools.startDevice(self.tools.\
+                        captureDevices()[self.cbxSetWebcam.currentIndex()][0]):
                 self.btnTakePhoto.setEnabled(True)
                 self.btnStartStop.setIcon(KIcon('media-playback-stop'))
                 self.timer.start()
@@ -154,8 +156,8 @@ class WebcamoidGui(QtGui.QWidget):
     def showFFmpegError(self):
         KNotification.event(
                     KNotification.Error,
-                    'FFmpeg not installed or configured',
-                    'Please install FFmpeg:\n'
+                    self.translator.tr('FFmpeg not installed or configured'),
+                    self.translator.tr('Please install FFmpeg:\n') +
                     '\n'
                     '<strong>Arch/Chakra</strong>: pacman -S ffmpeg\n'
                     '<strong>Debian/Ubuntu</strong>: apt-get install ffmpeg\n'
@@ -174,7 +176,7 @@ class WebcamoidGui(QtGui.QWidget):
                   'GIF file (*.gif)'
 
         saveFileDialog = QtGui.QFileDialog(None,
-                                           'Save Image As...',
+                                           self.translator.tr('Save Image As...'),
                                            './image.png',
                                            filters)
 

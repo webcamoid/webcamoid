@@ -131,7 +131,7 @@ class V4L2Tools(QtCore.QObject):
                         fmt.fmt.pix.height,
                         fmt.fmt.pix.pixelformat)
         else:
-            videoFormat =tuple()
+            videoFormat = tuple()
 
         os.close(dev_fd)
 
@@ -180,10 +180,10 @@ class V4L2Tools(QtCore.QObject):
         capability = v4l2.v4l2_capability()
 
         for device in devices:
-            fd.setFileName(devicesDir.absoluteFilePath(device));
+            fd.setFileName(devicesDir.absoluteFilePath(device))
 
             if fd.open(QtCore.QIODevice.ReadWrite):
-                fcntl.ioctl(fd.handle(), v4l2.VIDIOC_QUERYCAP, capability);
+                fcntl.ioctl(fd.handle(), v4l2.VIDIOC_QUERYCAP, capability)
 
                 if capability.capabilities & v4l2.V4L2_CAP_VIDEO_CAPTURE:
                     webcamsDevices.append((str(fd.fileName()), capability.card))
@@ -277,7 +277,6 @@ class V4L2Tools(QtCore.QObject):
 
                 if control != tuple():
                     controls.append(control)
-
 
         queryctrl.id = v4l2.V4L2_CID_PRIVATE_BASE
 

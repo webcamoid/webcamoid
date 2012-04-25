@@ -1,3 +1,22 @@
+2012-04-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/config.py, contents/code/main.py,
+	contents/code/v4l2tools.py, contents/code/webcamoidgui.py: Fixed to
+	follow the PEP 8 style guide.
+
+2012-03-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/config.py, contents/code/effects.py,
+	contents/code/v4l2tools.py, contents/code/webcamoidgui.py,
+	metadata.desktop: Bug fix. Pipe file is no needed anymore.
+
+2012-03-01  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, contents/code/config.py, contents/code/main.py,
+	contents/code/v4l2tools.py, contents/code/webcamoidgui.py: Removed
+	stdin, stderr and stdout pipes. Added -loglevel quiet. Apparently,
+	suppress the output using pipes is a very bad idea.
+
 2012-02-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* ChangeLog, contents/code/v4l2tools.py,

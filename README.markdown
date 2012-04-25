@@ -32,3 +32,21 @@ __install__
 __uninstall__
 
 	plasmapkg -r webcamoid && kbuildsycoca4
+
+## Installing from Github ##
+
+Be careful, the GIT repository is unstable, it could work or not.
+
+    git clone https://github.com/hipersayanX/Webcamoid.git
+    zip -r webcamoid.plasmoid Webcamoid
+    plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
+
+## Translating ##
+
+In the root directory of the project run:
+
+    pylupdate4 Webcamoid.pro
+
+Then a _contents/ts/lang.ts_ will be created. Translate that file to your language using Qt Linguist, and change _lang.ts_ to your code language, for instance, if you speak Spanish call it _es.ts_. Then run the following command:
+
+    lrelease contents/ts/lang.ts

@@ -20,14 +20,14 @@
 # Email   : hipersayan.x@gmail.com
 # Web-Site: http://hipersayanx.blogspot.com/
 
-from PyQt4 import QtCore, QtGui, uic
+from PyQt4 import QtCore, QtGui
 from PyKDE4 import plasmascript
 from PyKDE4.plasma import Plasma
-from PyKDE4.kdeui import KIcon, KDialog, KNotification
-from PyKDE4.kdecore import KConfigGroup
+from PyKDE4.kdeui import KDialog
 
 import webcamoidgui
 import config
+import translator
 
 
 class Webcamoid(plasmascript.Applet):
@@ -35,6 +35,7 @@ class Webcamoid(plasmascript.Applet):
         plasmascript.Applet.__init__(self, parent)
 
     def init(self):
+        self.translator = translator.Translator('self.translator', self)
         self.defaultPlasmoidSize = QtCore.QSizeF(320, 240)
         self.minimumPlasmoidSize = QtCore.QSizeF(32, 32)
         self.applet.setPassivePopup(True)
@@ -66,9 +67,9 @@ class Webcamoid(plasmascript.Applet):
         self.cfgDialog = config.Config(self, self.webcamoidGui.v4l2Tools())
 
         parent.addPage(self.cfgDialog,
-                       'Webcam Settings',
+                       self.translator.tr('Webcam Settings'),
                        'camera-web',
-                       'Set Webcam Properties',
+                       self.translator.tr('Set Webcam Properties'),
                        False)
 
         parent.okClicked.connect(self.saveConfigs)
@@ -80,6 +81,7 @@ class Webcamoid(plasmascript.Applet):
                                  self.webcamoidGui.ffmpegExecutable())
 
         self.emit(QtCore.SIGNAL("configNeedsSaving()"))
+
 
 def CreateApplet(parent):
     return Webcamoid(parent)

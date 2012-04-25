@@ -60,6 +60,9 @@
         <height>24</height>
        </size>
       </property>
+      <property name="toolTip">
+       <string>Take a Picture</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">color: rgb(34, 31, 30);
 background-color: rgb(223, 220, 217);
@@ -76,6 +79,9 @@ alternate-background-color: rgb(224, 223, 222);
         <height>24</height>
        </size>
       </property>
+      <property name="toolTip">
+       <string>Select Capture Device</string>
+      </property>
       <property name="styleSheet">
        <string notr="true">color: rgb(34, 31, 30);
 background-color: rgb(223, 220, 217);
@@ -91,6 +97,9 @@ alternate-background-color: rgb(224, 223, 222);
         <width>24</width>
         <height>24</height>
        </size>
+      </property>
+      <property name="toolTip">
+       <string>Start Capturing</string>
       </property>
       <property name="styleSheet">
        <string notr="true">color: rgb(34, 31, 30);

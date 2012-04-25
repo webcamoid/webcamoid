@@ -26,11 +26,14 @@ from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
 
 import v4l2tools
+import translator
 
 
 class Config(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self)
+
+        self.translator = translator.Translator('self.translator', self)
 
         self.tools = v4l2tools.V4L2Tools(self) if tools == None else tools
         self.captureDevices = self.tools.captureDevices()
@@ -39,7 +42,7 @@ class Config(QtGui.QWidget):
         self.gridLayout = QtGui.QGridLayout(self)
 
         lblFFmpeg = QtGui.QLabel(self)
-        lblFFmpeg.setText('FFmpeg executable')
+        lblFFmpeg.setText(self.translator.tr('FFmpeg executable'))
         self.gridLayout.addWidget(lblFFmpeg, 0, 0, 1, 1)
 
         self.txtFFmpeg = QtGui.QLineEdit(self)
@@ -61,7 +64,7 @@ class Config(QtGui.QWidget):
             cindex = 0
 
             lblVideoFormat = QtGui.QLabel(page)
-            lblVideoFormat.setText('Video Format')
+            lblVideoFormat.setText(self.translator.tr('Video Format'))
             gridLayout.addWidget(lblVideoFormat, cindex, 0, 1, 1)
 
             self.videoFormats[captureDevice[0]] = \
@@ -109,7 +112,7 @@ class Config(QtGui.QWidget):
             btnResetDevice.setProperty('deviceName', captureDevice[0])
             btnResetDevice.setProperty('controlName', '')
             btnResetDevice.setProperty('deviceOption', 'resetDevice')
-            btnResetDevice.setText("Reset")
+            btnResetDevice.setText(self.translator.tr("Reset"))
             btnResetDevice.clicked.connect(self.on_pushButton_clicked)
             gridLayout.addWidget(btnResetDevice, cindex, 2, 1, 1)
 
@@ -264,7 +267,7 @@ class Config(QtGui.QWidget):
         self.tools.setControls(deviceName, {controlName: 1 if checked else 0})
 
     @QtCore.pyqtSlot(int)
-    def on_combobox_currentIndexChanged(self,  index):
+    def on_combobox_currentIndexChanged(self, index):
         control = self.sender()
         deviceName = str(control.property('deviceName').toString())
         controlName = str(control.property('controlName').toString())
@@ -280,7 +283,7 @@ class Config(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def searchFFmpegExecutable(self):
         saveFileDialog = QtGui.QFileDialog(self,
-                                           'Select FFmpeg Executable',
+                                           self.translator.tr('Select FFmpeg Executable'),
                                            '/usr/bin/ffmpeg')
 
         saveFileDialog.setModal(True)
