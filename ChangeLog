@@ -1,3 +1,11 @@
+2012-04-24  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, README.markdown, Webcamoid.nja, Webcamoid.pro,
+	contents/code/config.py, contents/code/main.py,
+	contents/code/translator.py, contents/code/v4l2/v4l2.py,
+	contents/code/v4l2tools.py, contents/code/webcamoidgui.py,
+	contents/ts/es.ts, contents/ui/webcamoidgui.ui: Added i18n.
+
 2012-04-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* contents/code/config.py, contents/code/main.py,
