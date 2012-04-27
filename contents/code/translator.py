@@ -20,8 +20,10 @@
 # Email   : hipersayan.x@gmail.com
 # Web-Site: http://hipersayanx.blogspot.com/
 
-from PyQt4 import QtCore
 import os
+
+from PyQt4 import QtCore
+from PyKDE4 import plasmascript
 
 
 class Translator(QtCore.QTranslator):
@@ -29,7 +31,13 @@ class Translator(QtCore.QTranslator):
         QtCore.QTranslator.__init__(self, parent)
 
         locale = QtCore.QLocale.system().name()
-        self.load(locale + '.qm', 'contents/ts')
+
+        if isinstance(parent, plasmascript.Applet):
+            i18nDir = os.path.join(str(parent.package().path()), 'contents', 'ts')
+        else:
+            i18nDir = 'contents/ts'
+
+        self.load(locale + '.qm', i18nDir)
         self.context = context
 
     def tr(self, sourceText):

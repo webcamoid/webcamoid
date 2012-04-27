@@ -1,3 +1,10 @@
+2012-04-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, contents/ts/de.ts, contents/ts/el.ts,
+	contents/ts/fr.ts, contents/ts/it.ts, contents/ts/ja.ts,
+	contents/ts/ko.ts, contents/ts/pt.ts, contents/ts/ru.ts,
+	contents/ts/zh_CN.ts, contents/ts/zh_TW.ts: Added more translations.
+
 2012-04-24  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* ChangeLog, README.markdown, Webcamoid.nja, Webcamoid.pro,

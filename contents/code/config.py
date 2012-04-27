@@ -33,7 +33,7 @@ class Config(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self)
 
-        self.translator = translator.Translator('self.translator', self)
+        self.translator = translator.Translator('self.translator', parent)
 
         self.tools = v4l2tools.V4L2Tools(self) if tools == None else tools
         self.captureDevices = self.tools.captureDevices()

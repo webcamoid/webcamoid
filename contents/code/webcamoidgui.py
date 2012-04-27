@@ -38,7 +38,7 @@ class WebcamoidGui(QtGui.QWidget):
         except:
             uic.loadUi(parent.package().filePath('ui', 'webcamoidgui.ui'), self)
 
-        self.translator = translator.Translator('self.translator', self)
+        self.translator = translator.Translator('self.translator', parent)
 
         self.tools = v4l2tools.V4L2Tools(self, True)
         self.tools.devicesModified.connect(self.updateWebcams)
