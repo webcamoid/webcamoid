@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <widget class="QLabel" name="lblEffects">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Effects</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QLabel" name="lblApply">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Apply</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="3">
+    <widget class="QListWidget" name="lswEffects">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>agingtv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>bulge</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>burn</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>chromium</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>dicetv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>edgetv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>exclusion</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>fisheye</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>kaleidoscope</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>marble</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>mirror</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>optv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>pinch</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>quarktv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>radioactv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>revtv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>rippletv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>shagadelictv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>solarize</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>sphere</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>square</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>streaktv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>stretch</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>tunnel</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>twirl</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>vertigotv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>warptv</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>waterripple</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <spacer name="vspTop">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>38</width>
+       <height>105</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="2" rowspan="3">
+    <widget class="QListWidget" name="lswApply">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btnUp">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="icon">
+        <iconset theme="arrow-up"/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="btnAdd">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="icon">
+        <iconset theme="arrow-right"/>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="btnDown">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="icon">
+        <iconset theme="arrow-down"/>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="btnRemove">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="icon">
+        <iconset theme="arrow-left"/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="1">
+    <spacer name="vspBottom">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>105</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lswEffects</tabstop>
+  <tabstop>lswApply</tabstop>
+  <tabstop>btnRemove</tabstop>
+  <tabstop>btnAdd</tabstop>
+  <tabstop>btnUp</tabstop>
+  <tabstop>btnDown</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

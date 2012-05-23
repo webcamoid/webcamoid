@@ -284,7 +284,7 @@ class Config(QtGui.QWidget):
     def searchFFmpegExecutable(self):
         saveFileDialog = QtGui.QFileDialog(self,
                                            self.translator.tr('Select FFmpeg Executable'),
-                                           '/usr/bin/ffmpeg')
+                                           '/usr/bin/gst-launch-0.10')
 
         saveFileDialog.setModal(True)
         saveFileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)

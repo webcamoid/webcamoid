@@ -36,9 +36,9 @@ class V4L2Tools(QtCore.QObject):
 
     def __init__(self, parent=None, watchDevices=False):
         QtCore.QObject.__init__(self, parent)
-        self.ffmpegPath = 'ffmpeg'
+        self.processPath = 'gst-launch-0.10'
         self.fps = 30
-        self.ffmpeg = None
+        self.process = None
         self.current_dev_name = ''
         self.videoSize = QtCore.QSize()
 
@@ -55,11 +55,11 @@ class V4L2Tools(QtCore.QObject):
         return True
 
     def ffmpegExecutable(self):
-        return self.ffmpegPath
+        return self.processPath
 
     @QtCore.pyqtSlot(str)
-    def setFFmpegExecutable(self, path='ffmpeg'):
-        self.ffmpegPath = path
+    def setFFmpegExecutable(self, path='gst-launch-0.10'):
+        self.processPath = path
 
     def currentDevice(self):
         return self.current_dev_name
@@ -384,21 +384,25 @@ class V4L2Tools(QtCore.QObject):
             fmt = forcedFormat
 
         try:
-            self.ffmpeg = subprocess.Popen([self.ffmpegPath,
-                                            '-y',
-                                            '-loglevel', 'quiet',
-                                            '-f', 'video4linux2',
-                                            '-s', '{}x{}'.format(fmt[0],
-                                                                 fmt[1]),
-                                            '-r', str(self.fps),
-                                            '-i', dev_name,
-                                            '-f', 'rawvideo',
-                                            '-vcodec', 'rawvideo',
-                                            '-pix_fmt', 'rgb24',
-                                            '-'],
+            self.process = subprocess.Popen([self.processPath,
+                                            '-q',
+                                            'v4l2src',
+                                            'device={}'.format(dev_name),
+                                            '!',
+                                            'video/x-raw-yuv,width={},height={},framerate={}/1'.format(fmt[0], fmt[1], self.fps),
+                                            '!',
+                                            'ffmpegcolorspace',
+                                            '!',
+                                            'dicetv',
+                                            '!',
+                                            'ffmpegcolorspace',
+                                            '!',
+                                            'video/x-raw-rgb,bpp=24,depth=24',
+                                            '!',
+                                            'fdsink'],
                                             stdout=subprocess.PIPE)
         except:
-            self.ffmpeg = None
+            self.process = None
 
             return False
 
@@ -408,17 +412,17 @@ class V4L2Tools(QtCore.QObject):
         return True
 
     def stopCurrentDevice(self):
-        if self.ffmpeg != None:
-            self.ffmpeg.stdout.close()
-            self.ffmpeg.wait()
-            self.ffmpeg = None
+        if self.process != None:
+            self.process.stdout.close()
+            self.process.wait()
+            self.process = None
             self.current_dev_name = ''
             self.videoSize = QtCore.QSize()
 
     @QtCore.pyqtSlot()
     def readFrame(self):
-        if self.ffmpeg != None:
-            frame = self.ffmpeg.stdout.read(3 * self.videoSize.width() *
+        if self.process != None:
+            frame = self.process.stdout.read(3 * self.videoSize.width() *
                                                 self.videoSize.height())
 
             return QtGui.QImage(frame,

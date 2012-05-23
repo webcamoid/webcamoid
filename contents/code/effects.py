@@ -21,3 +21,71 @@
 # Web-Site: http://hipersayanx.blogspot.com/
 
 #http://pygstdocs.berlios.de/
+
+import sys
+
+from PyQt4 import uic, QtGui, QtCore
+
+
+class Effects(QtGui.QWidget):
+    def __init__(self, parent=None, tools=None):
+        QtGui.QWidget.__init__(self, parent)
+
+        try:
+            uic.loadUi('../ui/effects.ui', self)
+        except:
+            uic.loadUi(parent.package().filePath('ui', 'effects.ui'), self)
+
+        self.tools = tools
+
+    @QtCore.pyqtSlot()
+    def on_btnAdd_clicked(self):
+        for item in self.lswEffects.selectedItems():
+            self.lswApply.addItem(self.lswEffects.takeItem(self.lswEffects.row(item)))
+
+        self.update()
+
+    @QtCore.pyqtSlot()
+    def on_btnRemove_clicked(self):
+        for item in self.lswApply.selectedItems():
+            self.lswEffects.addItem(self.lswApply.takeItem(self.lswApply.row(item)))
+
+        self.lswEffects.sortItems()
+        self.update()
+
+    @QtCore.pyqtSlot()
+    def on_btnUp_clicked(self):
+        for item in self.lswApply.selectedItems():
+            row = self.lswApply.row(item)
+            row_ = row - 1 if row >= 1 else 0
+            item_ = self.lswApply.takeItem(row)
+            self.lswApply.insertItem(row_, item_)
+            item_.setSelected(True)
+
+        self.update()
+
+    @QtCore.pyqtSlot()
+    def on_btnDown_clicked(self):
+        for item in self.lswApply.selectedItems():
+            row = self.lswApply.row(item)
+            row_ = row + 1 if row < self.lswApply.count() - 1 else self.lswApply.count() - 1
+            item_ = self.lswApply.takeItem(row)
+            self.lswApply.insertItem(row_, item_)
+            item_.setSelected(True)
+
+        self.update()
+
+    def update(self):
+        if not self.tools:
+            return
+
+        effects = []
+
+        for i in range(self.lswApply.count()):
+            effects.append(self.lswApply.item(i).text())
+
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    effects = Effects()
+    effects.show()
+    app.exec_()

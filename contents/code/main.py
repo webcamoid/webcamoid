@@ -48,7 +48,7 @@ class Webcamoid(plasmascript.Applet):
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
 
         self.webcamoidGui.setFFmpegExecutable(
-        str(self.config().readEntry('ffmpegExecutable', 'ffmpeg').toString()))
+        str(self.config().readEntry('ffmpegExecutable', 'gst-launch-0.10').toString()))
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
