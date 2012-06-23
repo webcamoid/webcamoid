@@ -29,7 +29,7 @@ from PyQt4 import uic, QtGui, QtCore
 
 class Effects(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtGui.QWidget.__init__(self)
 
         try:
             uic.loadUi('../ui/effects.ui', self)
@@ -83,6 +83,8 @@ class Effects(QtGui.QWidget):
 
         for i in range(self.lswApply.count()):
             effects.append(self.lswApply.item(i).text())
+
+        self.tools.setEffects(effects)
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

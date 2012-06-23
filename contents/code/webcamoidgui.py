@@ -82,12 +82,12 @@ class WebcamoidGui(QtGui.QWidget):
     def v4l2Tools(self):
         return self.tools
 
-    def ffmpegExecutable(self):
-        return self.tools.ffmpegExecutable()
+    def processExecutable(self):
+        return self.tools.processExecutable()
 
     @QtCore.pyqtSlot(str)
-    def setFFmpegExecutable(self, ffmpegExecutable):
-        self.tools.setFFmpegExecutable(ffmpegExecutable)
+    def setProcessExecutable(self, processExecutable):
+        self.tools.setProcessExecutable(processExecutable)
 
     @QtCore.pyqtSlot()
     def showFrame(self):
@@ -118,7 +118,7 @@ class WebcamoidGui(QtGui.QWidget):
                 self.btnStartStop.setIcon(KIcon('media-playback-stop'))
                 self.timer.start()
             else:
-                self.showFFmpegError()
+                self.showProcessError()
 
     @QtCore.pyqtSlot()
     def on_btnTakePhoto_clicked(self):
@@ -133,7 +133,7 @@ class WebcamoidGui(QtGui.QWidget):
         if self.timer.isActive():
             if not self.tools.startDevice(
                    self.tools.captureDevices()[index][0]):
-                self.showFFmpegError()
+                self.showProcessError()
 
     @QtCore.pyqtSlot()
     def on_btnStartStop_clicked(self):
@@ -151,13 +151,13 @@ class WebcamoidGui(QtGui.QWidget):
                 self.btnStartStop.setIcon(KIcon('media-playback-stop'))
                 self.timer.start()
             else:
-                self.showFFmpegError()
+                self.showProcessError()
 
-    def showFFmpegError(self):
+    def showProcessError(self):
         KNotification.event(
                     KNotification.Error,
-                    self.translator.tr('FFmpeg not installed or configured'),
-                    self.translator.tr('Please install FFmpeg:\n') +
+                    self.translator.tr('GStreamer not installed or configured'),
+                    self.translator.tr('Please install GStreamer:\n') +
                     '\n'
                     '<strong>Arch/Chakra</strong>: pacman -S ffmpeg\n'
                     '<strong>Debian/Ubuntu</strong>: apt-get install ffmpeg\n'

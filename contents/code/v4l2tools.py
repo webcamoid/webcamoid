@@ -41,6 +41,7 @@ class V4L2Tools(QtCore.QObject):
         self.process = None
         self.current_dev_name = ''
         self.videoSize = QtCore.QSize()
+        self.effects = []
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -54,11 +55,11 @@ class V4L2Tools(QtCore.QObject):
 
         return True
 
-    def ffmpegExecutable(self):
+    def processExecutable(self):
         return self.processPath
 
     @QtCore.pyqtSlot(str)
-    def setFFmpegExecutable(self, path='gst-launch-0.10'):
+    def setProcessExecutable(self, path='gst-launch-0.10'):
         self.processPath = path
 
     def currentDevice(self):
@@ -372,6 +373,12 @@ class V4L2Tools(QtCore.QObject):
         self.setControls(dev_name,
                          {control[0]: control[5] for control in controls})
 
+    def setEffects(self, effects=[]):
+        self.effects = effects
+
+        if self.current_dev_name != '':
+            self.startDevice(self.current_dev_name)
+
     def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple()):
         self.stopCurrentDevice()
 
@@ -383,24 +390,23 @@ class V4L2Tools(QtCore.QObject):
         else:
             fmt = forcedFormat
 
+        params = [self.processPath,
+                  '-q',
+                  'v4l2src',
+                  'device={}'.format(dev_name),
+                  '!',
+                  'video/x-raw-yuv,width={},height={},framerate={}/1'.format(fmt[0], fmt[1], self.fps),
+                  '!',
+                  'ffmpegcolorspace',
+                  '!']
+
+        for effect in self.effects:
+            params += [effect, '!', 'ffmpegcolorspace', '!']
+
+        params += ['video/x-raw-rgb,bpp=24,depth=24', '!', 'fdsink']
+
         try:
-            self.process = subprocess.Popen([self.processPath,
-                                            '-q',
-                                            'v4l2src',
-                                            'device={}'.format(dev_name),
-                                            '!',
-                                            'video/x-raw-yuv,width={},height={},framerate={}/1'.format(fmt[0], fmt[1], self.fps),
-                                            '!',
-                                            'ffmpegcolorspace',
-                                            '!',
-                                            'dicetv',
-                                            '!',
-                                            'ffmpegcolorspace',
-                                            '!',
-                                            'video/x-raw-rgb,bpp=24,depth=24',
-                                            '!',
-                                            'fdsink'],
-                                            stdout=subprocess.PIPE)
+            self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
         except:
             self.process = None
 

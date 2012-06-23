@@ -41,19 +41,19 @@ class Config(QtGui.QWidget):
 
         self.gridLayout = QtGui.QGridLayout(self)
 
-        lblFFmpeg = QtGui.QLabel(self)
-        lblFFmpeg.setText(self.translator.tr('FFmpeg executable'))
-        self.gridLayout.addWidget(lblFFmpeg, 0, 0, 1, 1)
+        lblProcess = QtGui.QLabel(self)
+        lblProcess.setText(self.translator.tr('GStreamer executable'))
+        self.gridLayout.addWidget(lblProcess, 0, 0, 1, 1)
 
-        self.txtFFmpeg = QtGui.QLineEdit(self)
-        self.txtFFmpeg.setText(self.tools.ffmpegExecutable())
-        self.txtFFmpeg.textChanged.connect(self.tools.setFFmpegExecutable)
-        self.gridLayout.addWidget(self.txtFFmpeg, 0, 1, 1, 1)
+        self.txtProcess = QtGui.QLineEdit(self)
+        self.txtProcess.setText(self.tools.processExecutable())
+        self.txtProcess.textChanged.connect(self.tools.setProcessExecutable)
+        self.gridLayout.addWidget(self.txtProcess, 0, 1, 1, 1)
 
-        btnFFmpeg = QtGui.QPushButton(self)
-        btnFFmpeg.setText('...')
-        btnFFmpeg.clicked.connect(self.searchFFmpegExecutable)
-        self.gridLayout.addWidget(btnFFmpeg, 0, 2, 1, 1)
+        btnProcess = QtGui.QPushButton(self)
+        btnProcess.setText('...')
+        btnProcess.clicked.connect(self.searchProcessExecutable)
+        self.gridLayout.addWidget(btnProcess, 0, 2, 1, 1)
 
         self.tabWidget = QtGui.QTabWidget(self)
 
@@ -281,9 +281,9 @@ class Config(QtGui.QWidget):
             self.tools.setControls(deviceName, {controlName: index})
 
     @QtCore.pyqtSlot()
-    def searchFFmpegExecutable(self):
+    def searchProcessExecutable(self):
         saveFileDialog = QtGui.QFileDialog(self,
-                                           self.translator.tr('Select FFmpeg Executable'),
+                                           self.translator.tr('Select GStreamer Executable'),
                                            '/usr/bin/gst-launch-0.10')
 
         saveFileDialog.setModal(True)
@@ -294,7 +294,7 @@ class Config(QtGui.QWidget):
         selected_files = saveFileDialog.selectedFiles()
 
         if not selected_files.isEmpty():
-            self.txtFFmpeg.setText(selected_files[0])
+            self.txtProcess.setText(selected_files[0])
 
 
 if __name__ == '__main__':

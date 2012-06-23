@@ -27,6 +27,7 @@ from PyKDE4.kdeui import KDialog
 
 import webcamoidgui
 import config
+import effects
 import translator
 
 
@@ -47,8 +48,8 @@ class Webcamoid(plasmascript.Applet):
 
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
 
-        self.webcamoidGui.setFFmpegExecutable(
-        str(self.config().readEntry('ffmpegExecutable', 'gst-launch-0.10').toString()))
+        self.webcamoidGui.setProcessExecutable(
+        str(self.config().readEntry('processExecutable', 'gst-launch-0.10').toString()))
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
@@ -64,12 +65,21 @@ class Webcamoid(plasmascript.Applet):
 
     def createConfigurationInterface(self, parent):
         parent.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel))
+
         self.cfgDialog = config.Config(self, self.webcamoidGui.v4l2Tools())
 
         parent.addPage(self.cfgDialog,
                        self.translator.tr('Webcam Settings'),
                        'camera-web',
-                       self.translator.tr('Set Webcam Properties'),
+                       self.translator.tr('Set webcam properties'),
+                       False)
+
+        self.cfgEffects = effects.Effects(self, self.webcamoidGui.v4l2Tools())
+
+        parent.addPage(self.cfgEffects,
+                       self.translator.tr('Configure Webcam Effects'),
+                       'tools-wizard',
+                       self.translator.tr('Add funny effects to the webcam'),
                        False)
 
         parent.okClicked.connect(self.saveConfigs)
@@ -77,8 +87,8 @@ class Webcamoid(plasmascript.Applet):
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
-        self.config().writeEntry('ffmpegExecutable',
-                                 self.webcamoidGui.ffmpegExecutable())
+        self.config().writeEntry('processExecutable',
+                                 self.webcamoidGui.processExecutable())
 
         self.emit(QtCore.SIGNAL("configNeedsSaving()"))
 
