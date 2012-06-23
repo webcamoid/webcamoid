@@ -82,6 +82,13 @@ class WebcamoidGui(QtGui.QWidget):
     def v4l2Tools(self):
         return self.tools
 
+    def effects(self):
+        return self.tools.currentEffects()
+
+    @QtCore.pyqtSlot(list)
+    def setEffects(self, effects):
+        return self.tools.setEffects(effects)
+
     def processExecutable(self):
         return self.tools.processExecutable()
 
@@ -159,12 +166,12 @@ class WebcamoidGui(QtGui.QWidget):
                     self.translator.tr('GStreamer not installed or configured'),
                     self.translator.tr('Please install GStreamer:\n') +
                     '\n'
-                    '<strong>Arch/Chakra</strong>: pacman -S ffmpeg\n'
-                    '<strong>Debian/Ubuntu</strong>: apt-get install ffmpeg\n'
-                    '<strong>Fedora</strong>: yum install ffmpeg\n'
-                    '<strong>OpenSuSE</strong>: zypper install ffmpeg\n'
-                    '<strong>Mandriva</strong>: urpmi ffmpeg\n'
-                    '<strong>Pardus</strong>: pisi it ffmpeg',
+                    '<strong>Arch/Chakra</strong>: pacman -S gstreamer0.10\n'
+                    '<strong>Debian/Ubuntu</strong>: apt-get install gstreamer0.10-tools\n'
+                    '<strong>Fedora/CentOS</strong>: yum install gstreamer\n'
+                    '<strong>OpenSuSE</strong>: zypper install gstreamer-0_10-utils\n'
+                    '<strong>Mandriva/Mageia</strong>: urpmi gstreamer0.10-tools\n'
+                    '<strong>Pardus</strong>: pisi it gstreamer',
                     QtGui.QPixmap(),
                     None,
                     KNotification.Persistent)

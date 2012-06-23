@@ -51,6 +51,11 @@ class Webcamoid(plasmascript.Applet):
         self.webcamoidGui.setProcessExecutable(
         str(self.config().readEntry('processExecutable', 'gst-launch-0.10').toString()))
 
+        effects = str(self.config().readEntry('effects', '').toString())
+
+        if effects != '':
+            self.webcamoidGui.setEffects(effects.split(','))
+
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
 
@@ -89,6 +94,9 @@ class Webcamoid(plasmascript.Applet):
     def saveConfigs(self):
         self.config().writeEntry('processExecutable',
                                  self.webcamoidGui.processExecutable())
+
+        self.config().writeEntry('effects',
+                                 ','.join(self.webcamoidGui.effects()))
 
         self.emit(QtCore.SIGNAL("configNeedsSaving()"))
 

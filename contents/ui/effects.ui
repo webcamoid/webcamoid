@@ -230,7 +230,9 @@
         </size>
        </property>
        <property name="icon">
-        <iconset theme="arrow-up"/>
+        <iconset theme="arrow-up">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -249,7 +251,9 @@
         </size>
        </property>
        <property name="icon">
-        <iconset theme="arrow-right"/>
+        <iconset theme="arrow-right">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -268,7 +272,9 @@
         </size>
        </property>
        <property name="icon">
-        <iconset theme="arrow-down"/>
+        <iconset theme="arrow-down">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
@@ -287,7 +293,28 @@
         </size>
        </property>
        <property name="icon">
-        <iconset theme="arrow-left"/>
+        <iconset theme="arrow-left">
+         <normaloff/>
+        </iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="btnReset">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="icon">
+        <iconset theme="edit-undo"/>
        </property>
       </widget>
      </item>
@@ -311,9 +338,10 @@
  <tabstops>
   <tabstop>lswEffects</tabstop>
   <tabstop>lswApply</tabstop>
-  <tabstop>btnRemove</tabstop>
-  <tabstop>btnAdd</tabstop>
   <tabstop>btnUp</tabstop>
+  <tabstop>btnRemove</tabstop>
+  <tabstop>btnReset</tabstop>
+  <tabstop>btnAdd</tabstop>
   <tabstop>btnDown</tabstop>
  </tabstops>
  <resources/>

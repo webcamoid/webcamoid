@@ -379,6 +379,9 @@ class V4L2Tools(QtCore.QObject):
         if self.current_dev_name != '':
             self.startDevice(self.current_dev_name)
 
+    def currentEffects(self):
+        return self.effects
+
     def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple()):
         self.stopCurrentDevice()
 

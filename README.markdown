@@ -8,20 +8,21 @@
 * Manages multiple webcams.
 * Play/Stop capture, this saves resources while the plasmoid is not in use.
 * Written in Python.
-* Requires FFmpeg to capture images from the webcam.
+* Requires GStreamer to capture images from the webcam.
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
+* Add funny effects to the webcam (requires GStreamer plugins).
 
 ## Installing ##
 
-Webcamoid requires the FFmpeg executable, you can install it with:
+Webcamoid requires the _gst-launch-0.10_ executable (GStreamer), you can install it with:
 
-* __Arch/Chakra__: _pacman -S ffmpeg_
-* __Debian/Ubuntu__: _apt-get install ffmpeg_
-* __Fedora__: _yum install ffmpeg_
-* __OpenSuSE__: _zypper install ffmpeg_
-* __Mandriva__: _urpmi ffmpeg_
-* __Pardus__: _pisi it ffmpeg_
+* __Arch/Chakra__: _pacman -S gstreamer0.10_
+* __Debian/Ubuntu__: _apt-get install gstreamer0.10-tools_
+* __Fedora/CentOS__: _yum install gstreamer_
+* __OpenSuSE__: _zypper install gstreamer-0_10-utils_
+* __Mandriva/Mageia__: _urpmi gstreamer0.10-tools_
+* __Pardus__: _pisi it gstreamer_
 
 You can follow [these](http://userbase.kde.org/Plasma/Installing_Plasmoids) instructions to install Webcamoid. Alternatively, you can install/uninstall Webcamoid from console:
 
@@ -47,6 +48,6 @@ In the root directory of the project run:
 
     pylupdate4 Webcamoid.pro
 
-Then a _contents/ts/lang.ts_ will be created. Translate that file to your language using Qt Linguist, and change _lang.ts_ to your code language, for instance, if you speak Spanish call it _es.ts_. Then run the following command:
+Then a _contents/ts/lang.ts_ will be created. Translate that file to your language using Qt Linguist, and change _lang.ts_ to your code language, for instance, if you speak Spanish rename it to _es.ts_. Then run the following command:
 
     lrelease contents/ts/lang.ts

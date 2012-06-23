@@ -38,6 +38,15 @@ class Effects(QtGui.QWidget):
 
         self.tools = tools
 
+        if not self.tools:
+            return
+
+        for effect in self.tools.currentEffects():
+            items = self.lswEffects.findItems(effect, QtCore.Qt.MatchExactly)
+
+            if len(items) > 0:
+                self.lswApply.addItem(self.lswEffects.takeItem(self.lswEffects.row(items[0])))
+
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):
         for item in self.lswEffects.selectedItems():
@@ -73,6 +82,14 @@ class Effects(QtGui.QWidget):
             self.lswApply.insertItem(row_, item_)
             item_.setSelected(True)
 
+        self.update()
+
+    @QtCore.pyqtSlot()
+    def on_btnReset_clicked(self):
+        while self.lswApply.count() > 0:
+            self.lswEffects.addItem(self.lswApply.takeItem(0))
+
+        self.lswEffects.sortItems()
         self.update()
 
     def update(self):
