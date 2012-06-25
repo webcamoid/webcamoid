@@ -238,8 +238,8 @@ def get_device_controls(fd):
             break
         yield queryctrl
         queryctrl = v4l2.v4l2_queryctrl(queryctrl.id + 1)
-    
-    
+
+
 def get_device_controls_by_class(fd, control_class):
     # enumeration by control class
     queryctrl = v4l2.v4l2_queryctrl(
@@ -256,7 +256,7 @@ def get_device_controls_by_class(fd, control_class):
         yield queryctrl
         queryctrl = v4l2.v4l2_queryctrl(
             queryctrl.id | v4l2.V4L2_CTRL_FLAG_NEXT_CTRL)
-    
+
 
 def get_device_controls_menu(fd, queryctrl):
     querymenu = v4l2.v4l2_querymenu(queryctrl.id, queryctrl.minimum)
@@ -569,7 +569,7 @@ def test_VIDIOC_QUERYMENU(fd):
                 for querymenu in get_device_controls_menu(fd, queryctrl):
                     assert valid_string(querymenu.name)
                     assert querymenu.reserved == 0
-        
+
     # general test
     foreach_device_input(fd, test_query_menu)
 
@@ -585,7 +585,7 @@ def test_VIDIOC_QUERYMENU(fd):
 def test_VIDIOC_G_CTRL(fd):
     cap = v4l2.v4l2_capability()
     ioctl(fd, v4l2.VIDIOC_QUERYCAP, cap)
-    
+
     def test_get_control(fd, input_or_output):
         for queryctrl in get_device_controls(fd):
             if queryctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED:
@@ -612,7 +612,7 @@ def test_VIDIOC_G_CTRL(fd):
 def test_VIDIOC_S_CTRL(fd):
     cap = v4l2.v4l2_capability()
     ioctl(fd, v4l2.VIDIOC_QUERYCAP, cap)
-    
+
     def test_set_control(fd, input_or_output):
         for queryctrl in get_device_controls(fd):
             if queryctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED:

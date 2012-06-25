@@ -45,6 +45,7 @@ class WebcamoidGui(QtGui.QWidget):
 
         self.btnTakePhoto.setIcon(KIcon('camera-photo'))
         self.btnStartStop.setIcon(KIcon('media-playback-start'))
+        self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
 
         self.wdgControls.hide()
 
@@ -108,6 +109,7 @@ class WebcamoidGui(QtGui.QWidget):
         timer_isActive = self.timer.isActive()
         self.tools.stopCurrentDevice()
         self.btnTakePhoto.setEnabled(False)
+        self.btnVideoRecord.setEnabled(False)
         self.btnStartStop.setIcon(KIcon('media-playback-start'))
         self.timer.stop()
         self.webcamFrame = QtGui.QImage()
@@ -122,10 +124,16 @@ class WebcamoidGui(QtGui.QWidget):
         if oldDevice in dev_names and timer_isActive:
             if self.tools.startDevice(oldDevice):
                 self.btnTakePhoto.setEnabled(True)
+                self.btnVideoRecord.setEnabled(True)
                 self.btnStartStop.setIcon(KIcon('media-playback-stop'))
                 self.timer.start()
             else:
                 self.showProcessError()
+
+        if self.tools.isRecording():
+            self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
+        else:
+            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
 
     @QtCore.pyqtSlot()
     def on_btnTakePhoto_clicked(self):
@@ -135,6 +143,16 @@ class WebcamoidGui(QtGui.QWidget):
         if filename != '':
             image.save(filename)
 
+    @QtCore.pyqtSlot()
+    def on_btnVideoRecord_clicked(self):
+        if self.tools.isRecording():
+            self.tools.stopVideoRecord()
+            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+        elif self.tools.startVideoRecord(self.saveFile(True)):
+            self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
+        else:
+            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+
     @QtCore.pyqtSlot(int)
     def on_cbxSetWebcam_currentIndexChanged(self, index):
         if self.timer.isActive():
@@ -142,19 +160,30 @@ class WebcamoidGui(QtGui.QWidget):
                    self.tools.captureDevices()[index][0]):
                 self.showProcessError()
 
+        if self.tools.isRecording():
+            self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
+        else:
+            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+
     @QtCore.pyqtSlot()
     def on_btnStartStop_clicked(self):
         if self.timer.isActive():
             self.tools.stopCurrentDevice()
             self.btnTakePhoto.setEnabled(False)
+            self.btnVideoRecord.setEnabled(False)
             self.btnStartStop.setIcon(KIcon('media-playback-start'))
             self.timer.stop()
             self.webcamFrame = QtGui.QImage()
             self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
+
+            if self.tools.isRecording():
+                self.tools.stopVideoRecord()
+                self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
         else:
             if self.tools.startDevice(self.tools.\
                         captureDevices()[self.cbxSetWebcam.currentIndex()][0]):
                 self.btnTakePhoto.setEnabled(True)
+                self.btnVideoRecord.setEnabled(True)
                 self.btnStartStop.setIcon(KIcon('media-playback-stop'))
                 self.timer.start()
             else:
@@ -176,19 +205,31 @@ class WebcamoidGui(QtGui.QWidget):
                     None,
                     KNotification.Persistent)
 
-    def saveFile(self):
-        filters = 'PNG file (*.png);;'\
-                  'JPEG file (*.jpg);;'\
-                  'BMP file (*.bmp);;'\
-                  'GIF file (*.gif)'
+    def saveFile(self, video=False):
+        if video:
+            filters = 'WEBM file (*.webm);;'\
+                      'OGV file (*.ogv)'
+
+            defaultFileName = './video.webm'
+
+            defaultSuffix = 'webm'
+        else:
+            filters = 'PNG file (*.png);;'\
+                      'JPEG file (*.jpg);;'\
+                      'BMP file (*.bmp);;'\
+                      'GIF file (*.gif)'
+
+            defaultFileName = './image.png'
+
+            defaultSuffix = 'png'
 
         saveFileDialog = QtGui.QFileDialog(None,
-                                           self.translator.tr('Save Image As...'),
-                                           './image.png',
+                                           self.translator.tr('Save File As...'),
+                                           defaultFileName,
                                            filters)
 
         saveFileDialog.setModal(True)
-        saveFileDialog.setDefaultSuffix('png')
+        saveFileDialog.setDefaultSuffix(defaultSuffix)
         saveFileDialog.setFileMode(QtGui.QFileDialog.AnyFile)
         saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
         saveFileDialog.exec_()

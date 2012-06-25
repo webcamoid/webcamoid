@@ -20,11 +20,10 @@
 # Email   : hipersayan.x@gmail.com
 # Web-Site: http://hipersayanx.blogspot.com/
 
-#http://pygstdocs.berlios.de/
-
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
+from PyKDE4.kdeui import KIcon
 
 
 class Effects(QtGui.QWidget):
@@ -35,6 +34,12 @@ class Effects(QtGui.QWidget):
             uic.loadUi('../ui/effects.ui', self)
         except:
             uic.loadUi(parent.package().filePath('ui', 'effects.ui'), self)
+
+        self.btnUp.setIcon(KIcon('arrow-up'))
+        self.btnAdd.setIcon(KIcon('arrow-right'))
+        self.btnDown.setIcon(KIcon('arrow-down'))
+        self.btnRemove.setIcon(KIcon('arrow-left'))
+        self.btnReset.setIcon(KIcon('edit-undo'))
 
         self.tools = tools
 

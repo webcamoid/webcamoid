@@ -28,6 +28,7 @@ from PyKDE4.kdeui import KDialog
 import webcamoidgui
 import config
 import effects
+import videorecordconfig
 import translator
 
 
@@ -85,6 +86,14 @@ class Webcamoid(plasmascript.Applet):
                        self.translator.tr('Configure Webcam Effects'),
                        'tools-wizard',
                        self.translator.tr('Add funny effects to the webcam'),
+                       False)
+
+        self.cfgVideoFormats = videorecordconfig.VideoRecordConfig(self, self.webcamoidGui.v4l2Tools())
+
+        parent.addPage(self.cfgVideoFormats,
+                       self.translator.tr('Configure Video Recording Formats'),
+                       'video-x-generic',
+                       self.translator.tr('Add or remove video formats for recording.'),
                        False)
 
         parent.okClicked.connect(self.saveConfigs)

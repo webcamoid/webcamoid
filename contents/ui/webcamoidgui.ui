@@ -69,9 +69,14 @@ background-color: rgb(223, 220, 217);
 alternate-background-color: rgb(224, 223, 222);
 </string>
       </property>
+      <property name="icon">
+       <iconset theme="camera-photo">
+        <normaloff/>
+       </iconset>
+      </property>
      </widget>
     </item>
-    <item row="0" column="2">
+    <item row="0" column="3">
      <widget class="QComboBox" name="cbxSetWebcam">
       <property name="maximumSize">
        <size>
@@ -90,7 +95,7 @@ alternate-background-color: rgb(224, 223, 222);
       </property>
      </widget>
     </item>
-    <item row="0" column="3">
+    <item row="0" column="4">
      <widget class="QPushButton" name="btnStartStop">
       <property name="maximumSize">
        <size>
@@ -107,9 +112,14 @@ background-color: rgb(223, 220, 217);
 alternate-background-color: rgb(224, 223, 222);
 </string>
       </property>
+      <property name="icon">
+       <iconset theme="media-playback-start">
+        <normaloff/>
+       </iconset>
+      </property>
      </widget>
     </item>
-    <item row="0" column="4">
+    <item row="0" column="5">
      <spacer name="hspRight">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -121,6 +131,31 @@ alternate-background-color: rgb(224, 223, 222);
        </size>
       </property>
      </spacer>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="btnVideoRecord">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Record Video</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(34, 31, 30);
+background-color: rgb(223, 220, 217);
+alternate-background-color: rgb(224, 223, 222);
+</string>
+      </property>
+      <property name="icon">
+       <iconset theme="video-x-generic"/>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

@@ -1,3 +1,28 @@
+2012-06-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.markdown, contents/code/config.py,
+	contents/code/effects.py, contents/code/main.py,
+	contents/code/v4l2tools.py, contents/code/webcamoidgui.py,
+	contents/ui/effects.ui: Effects Beta 2. Updated info.
+
+2012-06-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/config.py, contents/code/effects.py,
+	contents/code/main.py, contents/code/v4l2tools.py,
+	contents/code/webcamoidgui.py: Added Effects (Beta).
+
+2012-05-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/config.py, contents/code/effects.py,
+	contents/code/main.py, contents/code/v4l2tools.py,
+	contents/ui/effects.ui: FFmpeg -> GStreamer. Working on Effects.
+
+2012-04-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, contents/code/config.py, contents/code/translator.py,
+	contents/code/webcamoidgui.py, metadata.desktop: Fixed translations.
+	Updated info.
+
 2012-04-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* ChangeLog, contents/ts/de.ts, contents/ts/el.ts,

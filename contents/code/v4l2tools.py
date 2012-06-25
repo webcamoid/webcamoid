@@ -42,6 +42,7 @@ class V4L2Tools(QtCore.QObject):
         self.current_dev_name = ''
         self.videoSize = QtCore.QSize()
         self.effects = []
+        self.recording = False
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -364,15 +365,6 @@ class V4L2Tools(QtCore.QObject):
 
         return True
 
-    def reset(self, dev_name='/dev/video0'):
-        videoFormats = self.videoFormats(dev_name)
-        self.setVideoFormat(dev_name, videoFormats[0])
-
-        controls = self.listControls(dev_name)
-
-        self.setControls(dev_name,
-                         {control[0]: control[5] for control in controls})
-
     def setEffects(self, effects=[]):
         self.effects = effects
 
@@ -381,6 +373,15 @@ class V4L2Tools(QtCore.QObject):
 
     def currentEffects(self):
         return self.effects
+
+    def reset(self, dev_name='/dev/video0'):
+        videoFormats = self.videoFormats(dev_name)
+        self.setVideoFormat(dev_name, videoFormats[0])
+
+        controls = self.listControls(dev_name)
+
+        self.setControls(dev_name,
+                         {control[0]: control[5] for control in controls})
 
     def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple()):
         self.stopCurrentDevice()
@@ -438,6 +439,34 @@ class V4L2Tools(QtCore.QObject):
                                 self.videoSize.width(),
                                 self.videoSize.height(),
                                 QtGui.QImage.Format_RGB888)
+
+    @QtCore.pyqtSlot()
+    def setVideoMedia(self, suffix='', vcodec='', vbitrate=0, fps='', acodec='', abitrate=0, oformat=''):
+        pass
+
+    @QtCore.pyqtSlot()
+    def removeVideoMedia(self, suffix=''):
+        pass
+
+    @QtCore.pyqtSlot()
+    def hasVideoMedia(self, suffix=''):
+        return False
+
+    @QtCore.pyqtSlot()
+    def videoMedias(self):
+        return []
+
+    @QtCore.pyqtSlot()
+    def isRecording(self):
+        return self.recording
+
+    @QtCore.pyqtSlot()
+    def startVideoRecord(self, fileName=''):
+        return self.recording
+
+    @QtCore.pyqtSlot()
+    def stopVideoRecord(self):
+        pass
 
 
 if __name__ == '__main__':
