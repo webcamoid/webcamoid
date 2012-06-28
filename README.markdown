@@ -39,7 +39,7 @@ __uninstall__
 Be careful, the GIT repository is unstable, it could work or not.
 
     git clone https://github.com/hipersayanX/Webcamoid.git
-    zip -r webcamoid.plasmoid Webcamoid
+    zip -r webcamoid.plasmoid Webcamoid -x \*.git\*
     plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
 
 ## Translating ##

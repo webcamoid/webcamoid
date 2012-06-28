@@ -41,21 +41,9 @@ class Config(QtGui.QWidget):
 
         self.gridLayout = QtGui.QGridLayout(self)
 
-        lblProcess = QtGui.QLabel(self)
-        lblProcess.setText(self.translator.tr('GStreamer executable'))
-        self.gridLayout.addWidget(lblProcess, 0, 0, 1, 1)
-
-        self.txtProcess = QtGui.QLineEdit(self)
-        self.txtProcess.setText(self.tools.processExecutable())
-        self.txtProcess.textChanged.connect(self.tools.setProcessExecutable)
-        self.gridLayout.addWidget(self.txtProcess, 0, 1, 1, 1)
-
-        btnProcess = QtGui.QPushButton(self)
-        btnProcess.setText('...')
-        btnProcess.clicked.connect(self.searchProcessExecutable)
-        self.gridLayout.addWidget(btnProcess, 0, 2, 1, 1)
-
         self.tabWidget = QtGui.QTabWidget(self)
+
+        self.resetting = False
 
         for captureDevice in self.captureDevices:
             page = QtGui.QWidget()
@@ -242,29 +230,37 @@ class Config(QtGui.QWidget):
 
         if controlName == '':
             if deviceOption == 'resetDevice':
+                self.resetting = True
                 self.tools.reset(deviceName)
                 self.resetControls(deviceName)
+                self.resetting = False
 
     @QtCore.pyqtSlot(int)
     def on_slider_sliderMoved(self, value):
         control = self.sender()
         deviceName = str(control.property('deviceName').toString())
         controlName = str(control.property('controlName').toString())
-        self.tools.setControls(deviceName, {controlName: value})
+
+        if not self.resetting:
+            self.tools.setControls(deviceName, {controlName: value})
 
     @QtCore.pyqtSlot(int)
     def on_spinbox_valueChanged(self, i):
         control = self.sender()
         deviceName = str(control.property('deviceName').toString())
         controlName = str(control.property('controlName').toString())
-        self.tools.setControls(deviceName, {controlName: i})
+
+        if not self.resetting:
+            self.tools.setControls(deviceName, {controlName: i})
 
     @QtCore.pyqtSlot(bool)
     def on_checkbox_toggled(self, checked):
         control = self.sender()
         deviceName = str(control.property('deviceName').toString())
         controlName = str(control.property('controlName').toString())
-        self.tools.setControls(deviceName, {controlName: 1 if checked else 0})
+
+        if not self.resetting:
+            self.tools.setControls(deviceName, {controlName: 1 if checked else 0})
 
     @QtCore.pyqtSlot(int)
     def on_combobox_currentIndexChanged(self, index):
@@ -274,27 +270,11 @@ class Config(QtGui.QWidget):
         deviceOption = str(control.property('deviceOption').toString())
 
         if controlName == '':
-            if deviceOption == 'videoFormat':
+            if deviceOption == 'videoFormat' and not self.resetting:
                 self.tools.setVideoFormat(deviceName,
                                           self.videoFormats[deviceName][index])
         else:
             self.tools.setControls(deviceName, {controlName: index})
-
-    @QtCore.pyqtSlot()
-    def searchProcessExecutable(self):
-        saveFileDialog = QtGui.QFileDialog(self,
-                                           self.translator.tr('Select GStreamer Executable'),
-                                           '/usr/bin/gst-launch-0.10')
-
-        saveFileDialog.setModal(True)
-        saveFileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)
-        saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
-        saveFileDialog.exec_()
-
-        selected_files = saveFileDialog.selectedFiles()
-
-        if not selected_files.isEmpty():
-            self.txtProcess.setText(selected_files[0])
 
 
 if __name__ == '__main__':

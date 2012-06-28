@@ -49,9 +49,6 @@ class Webcamoid(plasmascript.Applet):
 
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
 
-        self.webcamoidGui.setProcessExecutable(
-        str(self.config().readEntry('processExecutable', 'gst-launch-0.10').toString()))
-
         effects = str(self.config().readEntry('effects', '').toString())
 
         if effects != '':
@@ -101,9 +98,6 @@ class Webcamoid(plasmascript.Applet):
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
-        self.config().writeEntry('processExecutable',
-                                 self.webcamoidGui.processExecutable())
-
         self.config().writeEntry('effects',
                                  ','.join(self.webcamoidGui.effects()))
 

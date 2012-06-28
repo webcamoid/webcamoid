@@ -90,13 +90,6 @@ class WebcamoidGui(QtGui.QWidget):
     def setEffects(self, effects):
         return self.tools.setEffects(effects)
 
-    def processExecutable(self):
-        return self.tools.processExecutable()
-
-    @QtCore.pyqtSlot(str)
-    def setProcessExecutable(self, processExecutable):
-        self.tools.setProcessExecutable(processExecutable)
-
     @QtCore.pyqtSlot()
     def showFrame(self):
         if self.timer.isActive():
@@ -195,12 +188,11 @@ class WebcamoidGui(QtGui.QWidget):
                     self.translator.tr('GStreamer not installed or configured'),
                     self.translator.tr('Please install GStreamer:\n') +
                     '\n'
-                    '<strong>Arch/Chakra</strong>: pacman -S gstreamer0.10\n'
-                    '<strong>Debian/Ubuntu</strong>: apt-get install gstreamer0.10-tools\n'
-                    '<strong>Fedora/CentOS</strong>: yum install gstreamer\n'
-                    '<strong>OpenSuSE</strong>: zypper install gstreamer-0_10-utils\n'
-                    '<strong>Mandriva/Mageia</strong>: urpmi gstreamer0.10-tools\n'
-                    '<strong>Pardus</strong>: pisi it gstreamer',
+                    '<strong>Arch/Chakra</strong>: pacman -S gstreamer0.10 gstreamer0.10-good gstreamer0.10-bad\n'
+                    '<strong>Debian/Ubuntu</strong>: apt-get install gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad\n'
+                    '<strong>Fedora/CentOS</strong>: yum install gstreamer gstreamer-plugins-good gstreamer-plugins-bad-free\n'
+                    '<strong>OpenSuSE</strong>: zypper install gstreamer-0_10-utils gstreamer-0_10-plugins-good gstreamer-0_10-plugins-bad\n'
+                    '<strong>Mandriva/Mageia</strong>: urpmi gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad',
                     QtGui.QPixmap(),
                     None,
                     KNotification.Persistent)
