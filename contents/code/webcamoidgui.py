@@ -42,6 +42,9 @@ class WebcamoidGui(QtGui.QWidget):
 
         self.tools = v4l2tools.V4L2Tools(self, True)
         self.tools.devicesModified.connect(self.updateWebcams)
+        self.tools.playingStateChanged.connect(self.playingStateChanged)
+        self.tools.recordingStateChanged.connect(self.recordingStateChanged)
+        self.tools.gstError.connect(self.showGstError)
 
         self.btnTakePhoto.setIcon(KIcon('camera-photo'))
         self.btnStartStop.setIcon(KIcon('media-playback-start'))
@@ -101,12 +104,6 @@ class WebcamoidGui(QtGui.QWidget):
         oldDevice = self.tools.currentDevice()
         timer_isActive = self.timer.isActive()
         self.tools.stopCurrentDevice()
-        self.btnTakePhoto.setEnabled(False)
-        self.btnVideoRecord.setEnabled(False)
-        self.btnStartStop.setIcon(KIcon('media-playback-start'))
-        self.timer.stop()
-        self.webcamFrame = QtGui.QImage()
-        self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
         self.cbxSetWebcam.clear()
         webcams = self.tools.captureDevices()
         dev_names = [device[0] for device in webcams]
@@ -115,15 +112,26 @@ class WebcamoidGui(QtGui.QWidget):
             self.cbxSetWebcam.addItem(webcam[1])
 
         if oldDevice in dev_names and timer_isActive:
-            if self.tools.startDevice(oldDevice):
-                self.btnTakePhoto.setEnabled(True)
-                self.btnVideoRecord.setEnabled(True)
-                self.btnStartStop.setIcon(KIcon('media-playback-stop'))
-                self.timer.start()
-            else:
-                self.showProcessError()
+            self.tools.startDevice(oldDevice)
 
-        if self.tools.isRecording():
+    @QtCore.pyqtSlot(bool)
+    def playingStateChanged(self, playing):
+        if playing:
+            self.btnTakePhoto.setEnabled(True)
+            self.btnVideoRecord.setEnabled(True)
+            self.btnStartStop.setIcon(KIcon('media-playback-stop'))
+            self.timer.start()
+        else:
+            self.btnTakePhoto.setEnabled(False)
+            self.btnVideoRecord.setEnabled(False)
+            self.btnStartStop.setIcon(KIcon('media-playback-start'))
+            self.timer.stop()
+            self.webcamFrame = QtGui.QImage()
+            self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
+
+    @QtCore.pyqtSlot(bool)
+    def recordingStateChanged(self, recording):
+        if recording:
             self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
         else:
             self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
@@ -140,49 +148,24 @@ class WebcamoidGui(QtGui.QWidget):
     def on_btnVideoRecord_clicked(self):
         if self.tools.isRecording():
             self.tools.stopVideoRecord()
-            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
-        elif self.tools.startVideoRecord(self.saveFile(True)):
-            self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
         else:
-            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+            self.tools.startVideoRecord(self.saveFile(True))
 
     @QtCore.pyqtSlot(int)
     def on_cbxSetWebcam_currentIndexChanged(self, index):
         if self.timer.isActive():
-            if not self.tools.startDevice(
-                   self.tools.captureDevices()[index][0]):
-                self.showProcessError()
-
-        if self.tools.isRecording():
-            self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
-        else:
-            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+            self.tools.startDevice(self.tools.captureDevices()[index][0])
 
     @QtCore.pyqtSlot()
     def on_btnStartStop_clicked(self):
-        if self.timer.isActive():
+        if self.tools.isPlaying():
             self.tools.stopCurrentDevice()
-            self.btnTakePhoto.setEnabled(False)
-            self.btnVideoRecord.setEnabled(False)
-            self.btnStartStop.setIcon(KIcon('media-playback-start'))
-            self.timer.stop()
-            self.webcamFrame = QtGui.QImage()
-            self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
-
-            if self.tools.isRecording():
-                self.tools.stopVideoRecord()
-                self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
         else:
-            if self.tools.startDevice(self.tools.\
-                        captureDevices()[self.cbxSetWebcam.currentIndex()][0]):
-                self.btnTakePhoto.setEnabled(True)
-                self.btnVideoRecord.setEnabled(True)
-                self.btnStartStop.setIcon(KIcon('media-playback-stop'))
-                self.timer.start()
-            else:
-                self.showProcessError()
+            self.tools.startDevice(self.tools.\
+                        captureDevices()[self.cbxSetWebcam.currentIndex()][0])
 
-    def showProcessError(self):
+    @QtCore.pyqtSlot(int)
+    def showGstError(self, errorType):
         KNotification.event(
                     KNotification.Error,
                     self.translator.tr('GStreamer not installed or configured'),
@@ -228,7 +211,7 @@ class WebcamoidGui(QtGui.QWidget):
 
         selected_files = saveFileDialog.selectedFiles()
 
-        return '' if selected_files.isEmpty() else selected_files[0]
+        return '' if selected_files.isEmpty() else str(selected_files[0])
 
 
 if __name__ == '__main__':
