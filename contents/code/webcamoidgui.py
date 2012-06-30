@@ -45,16 +45,13 @@ class WebcamoidGui(QtGui.QWidget):
         self.tools.playingStateChanged.connect(self.playingStateChanged)
         self.tools.recordingStateChanged.connect(self.recordingStateChanged)
         self.tools.gstError.connect(self.showGstError)
+        self.tools.frameReady.connect(self.showFrame)
 
         self.btnTakePhoto.setIcon(KIcon('camera-photo'))
         self.btnStartStop.setIcon(KIcon('media-playback-start'))
         self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
 
         self.wdgControls.hide()
-
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(1)
-        self.timer.timeout.connect(self.showFrame)
 
         for webcam in self.tools.captureDevices():
             self.cbxSetWebcam.addItem(webcam[1])
@@ -93,16 +90,14 @@ class WebcamoidGui(QtGui.QWidget):
     def setEffects(self, effects):
         return self.tools.setEffects(effects)
 
-    @QtCore.pyqtSlot()
-    def showFrame(self):
-        if self.timer.isActive():
-            self.webcamFrame = self.tools.readFrame()
-            self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
+    @QtCore.pyqtSlot(QtGui.QImage)
+    def showFrame(self, webcamFrame):
+        self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(webcamFrame))
 
     @QtCore.pyqtSlot()
     def updateWebcams(self):
         oldDevice = self.tools.currentDevice()
-        timer_isActive = self.timer.isActive()
+        timer_isActive = self.tools.isPlaying()
         self.tools.stopCurrentDevice()
         self.cbxSetWebcam.clear()
         webcams = self.tools.captureDevices()
@@ -120,12 +115,10 @@ class WebcamoidGui(QtGui.QWidget):
             self.btnTakePhoto.setEnabled(True)
             self.btnVideoRecord.setEnabled(True)
             self.btnStartStop.setIcon(KIcon('media-playback-stop'))
-            self.timer.start()
         else:
             self.btnTakePhoto.setEnabled(False)
             self.btnVideoRecord.setEnabled(False)
             self.btnStartStop.setIcon(KIcon('media-playback-start'))
-            self.timer.stop()
             self.webcamFrame = QtGui.QImage()
             self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
 
@@ -153,7 +146,7 @@ class WebcamoidGui(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def on_cbxSetWebcam_currentIndexChanged(self, index):
-        if self.timer.isActive():
+        if self.tools.isPlaying():
             self.tools.startDevice(self.tools.captureDevices()[index][0])
 
     @QtCore.pyqtSlot()

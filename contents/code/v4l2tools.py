@@ -24,6 +24,7 @@ import os
 import sys
 import ctypes
 import fcntl
+import time
 
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
@@ -33,6 +34,7 @@ class V4L2Tools(QtCore.QObject):
     playingStateChanged = QtCore.pyqtSignal(bool)
     recordingStateChanged = QtCore.pyqtSignal(bool)
     gstError = QtCore.pyqtSignal(int)
+    frameReady = QtCore.pyqtSignal(QtGui.QImage)
 
     GST_ERROR_GOBJECT = 1
     GST_ERROR_GST = 2
@@ -49,9 +51,8 @@ class V4L2Tools(QtCore.QObject):
         self.gst = None
 
         self.camerabin = None
-        self.fdDisplay = -1
-        self.fdSink = -1
         self.on_gst_message_id = -1
+        self.data = ''
 
         self.fps = 30
         self.current_dev_name = ''
@@ -433,11 +434,13 @@ class V4L2Tools(QtCore.QObject):
 
         self.camerabin.set_property('video-source-filter', effectsBin)
 
-        # appsink
-        # fakesink
-        # fdsink
-        self.fdDisplay, self.fdSink = os.pipe()
-        displayBin = self.gst.parse_bin_from_description('ffmpegcolorspace ! capsfilter caps=video/x-raw-rgb,bpp=24,depth=24 ! fdsink fd={}'.format(self.fdSink), True)
+        displayBin = self.gst.parse_bin_from_description('ffmpegcolorspace ! capsfilter caps=video/x-raw-rgb,bpp=24,depth=24 ! appsink name=appsink', True)
+        appsink = displayBin.get_by_name('appsink')
+        appsink.set_property('emit-signals', True)
+        appsink.set_property('drop', True)
+        appsink.set_property('max-buffers', 5)
+        appsink.set_property('sync', False)
+        appsink.connect_after('new-buffer', self.readFrame)
         self.camerabin.set_property('viewfinder-sink', displayBin)
 
         audioBin = self.gst.parse_bin_from_description('alsasrc name=audio ! queue ! audioconvert ! queue', True)
@@ -464,7 +467,7 @@ class V4L2Tools(QtCore.QObject):
 
         bus = self.camerabin.get_bus()
         bus.add_signal_watch()
-        self.on_gst_message_id = bus.connect('message', self.on_gst_message)
+        self.on_gst_message_id = bus.connect_after('message', self.gstMessage)
 
         return True
 
@@ -474,14 +477,6 @@ class V4L2Tools(QtCore.QObject):
             bus.disconnect(self.on_gst_message_id)
             self.on_gst_message_id = -1
             bus.remove_signal_watch()
-
-        if self.fdDisplay != -1:
-            os.close(self.fdDisplay)
-            self.fdDisplay == -1
-
-        if self.fdSink != -1:
-            os.close(self.fdSink)
-            self.fdSink == -1
 
         self.camerabin = None
 
@@ -535,30 +530,30 @@ class V4L2Tools(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def stopCurrentDevice(self):
-        if self.current_dev_name != '':
-            self.current_dev_name = ''
-            self.playingStateChanged.emit(False)
+        if self.current_dev_name == '':
+            return
 
-            self.camerabin.set_state(self.gst.STATE_NULL)
+        self.current_dev_name = ''
+        self.playingStateChanged.emit(False)
 
-            self.destroyPipeline()
-            self.videoSize = QtCore.QSize()
+        self.camerabin.set_state(self.gst.STATE_NULL)
 
-    @QtCore.pyqtSlot()
-    def readFrame(self):
-        if self.current_dev_name != '':
-            frame = os.read(self.fdDisplay, 3 * self.videoSize.width()
-                                              * self.videoSize.height())
+        self.destroyPipeline()
+        self.videoSize = QtCore.QSize()
 
-            return QtGui.QImage(frame,
-                                self.videoSize.width(),
-                                self.videoSize.height(),
-                                QtGui.QImage.Format_RGB888)
-        else:
-            return QtGui.QImage()
+    def readFrame(self, appsink):
+        try:
+            frame = appsink.emit('pull-buffer')
+            self.data = ''.join(frame.data)
 
-    @QtCore.pyqtSlot()
-    def on_gst_message(self, bus, message):
+            self.frameReady.emit(QtGui.QImage(self.data,
+                                              self.videoSize.width(),
+                                              self.videoSize.height(),
+                                              QtGui.QImage.Format_RGB888))
+        except:
+            pass
+
+    def gstMessage(self, bus, message):
         pass
 
     @QtCore.pyqtSlot()
@@ -609,13 +604,13 @@ class V4L2Tools(QtCore.QObject):
 
 
 if __name__ == '__main__':
+    @QtCore.pyqtSlot(QtGui.QImage)
+    def readFrame(frame):
+        print(frame.size())
+
     app = QtGui.QApplication(sys.argv)
     tools = V4L2Tools()
     tools.startDevice('/dev/video0')
+    tools.frameReady.connect(readFrame)
 
-    for i in range(100):
-        tools.readFrame()
-        QtCore.QCoreApplication.processEvents()
-
-    tools.stopCurrentDevice()
     app.exec_()
