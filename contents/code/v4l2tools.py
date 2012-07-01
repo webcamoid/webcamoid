@@ -24,7 +24,6 @@ import os
 import sys
 import ctypes
 import fcntl
-import time
 
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
@@ -524,6 +523,8 @@ class V4L2Tools(QtCore.QObject):
         self.videoSize = QtCore.QSize(fmt[0], fmt[1])
         self.createPipeline()
         self.camerabin.set_state(self.gst.STATE_PLAYING)
+        s, n, t = self.camerabin.get_state()
+        print(s)
         self.playingStateChanged.emit(True)
 
         return True
@@ -604,11 +605,15 @@ class V4L2Tools(QtCore.QObject):
 
 
 if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    label = QtGui.QLabel()
+    label.resize(640, 480)
+    label.show()
+
     @QtCore.pyqtSlot(QtGui.QImage)
     def readFrame(frame):
-        print(frame.size())
+        label.setPixmap(QtGui.QPixmap.fromImage(frame))
 
-    app = QtGui.QApplication(sys.argv)
     tools = V4L2Tools()
     tools.startDevice('/dev/video0')
     tools.frameReady.connect(readFrame)
