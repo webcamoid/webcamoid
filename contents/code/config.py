@@ -41,6 +41,21 @@ class Config(QtGui.QWidget):
 
         self.gridLayout = QtGui.QGridLayout(self)
 
+        lblProcess = QtGui.QLabel(self)
+        lblProcess.setText(self.translator.tr('GStreamer executable'))
+
+        self.gridLayout.addWidget(lblProcess, 0, 0, 1, 1)
+
+        self.txtProcess = QtGui.QLineEdit(self)
+        self.txtProcess.setText(self.tools.processExecutable())
+        self.txtProcess.textChanged.connect(self.tools.setProcessExecutable)
+        self.gridLayout.addWidget(self.txtProcess, 0, 1, 1, 1)
+
+        btnProcess = QtGui.QPushButton(self)
+        btnProcess.setText('...')
+        btnProcess.clicked.connect(self.searchProcessExecutable)
+        self.gridLayout.addWidget(btnProcess, 0, 2, 1, 1)
+
         self.tabWidget = QtGui.QTabWidget(self)
 
         self.resetting = False
@@ -260,7 +275,8 @@ class Config(QtGui.QWidget):
         controlName = str(control.property('controlName').toString())
 
         if not self.resetting:
-            self.tools.setControls(deviceName, {controlName: 1 if checked else 0})
+            self.tools.setControls(deviceName,
+                                   {controlName: 1 if checked else 0})
 
     @QtCore.pyqtSlot(int)
     def on_combobox_currentIndexChanged(self, index):
@@ -276,6 +292,21 @@ class Config(QtGui.QWidget):
         else:
             self.tools.setControls(deviceName, {controlName: index})
 
+    @QtCore.pyqtSlot()
+    def searchProcessExecutable(self):
+        saveFileDialog = QtGui.QFileDialog(self,
+                                           self.translator.tr('Select GStreamer Executable'),
+                                           '/usr/bin/gst-launch-0.10')
+
+        saveFileDialog.setModal(True)
+        saveFileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)
+        saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
+        saveFileDialog.exec_()
+
+        selected_files = saveFileDialog.selectedFiles()
+
+        if not selected_files.isEmpty():
+            self.txtProcess.setText(selected_files[0])
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

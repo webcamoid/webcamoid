@@ -24,43 +24,40 @@ import os
 import sys
 import ctypes
 import fcntl
+import signal
+import subprocess
 
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
+
 
 class V4L2Tools(QtCore.QObject):
     devicesModified = QtCore.pyqtSignal()
     playingStateChanged = QtCore.pyqtSignal(bool)
     recordingStateChanged = QtCore.pyqtSignal(bool)
-    gstError = QtCore.pyqtSignal(int)
+    gstError = QtCore.pyqtSignal()
     frameReady = QtCore.pyqtSignal(QtGui.QImage)
-
-    GST_ERROR_GOBJECT = 1
-    GST_ERROR_GST = 2
-    GST_ERROR_PLUGINS_BASE = 4
-    GST_ERROR_PLUGINS_GOOD = 8
-    GST_ERROR_PLUGINS_BAD = 16
-    GST_ERROR_PYGST = 32
 
     def __init__(self, parent=None, watchDevices=False):
         QtCore.QObject.__init__(self, parent)
-        self.hasPyGst = False
-        self.gobject = None
-        self.pygst = None
-        self.gst = None
 
-        self.camerabin = None
-        self.on_gst_message_id = -1
-        self.data = ''
+        self.processPath = 'gst-launch-0.10'
 
         self.fps = 30
+        self.process = None
         self.current_dev_name = ''
         self.videoSize = QtCore.QSize()
         self.effects = []
+        self.playing = False
         self.recording = False
 
         self.curOutVidFmt = 'webm'
         self.fileName = ''
+        self.videoRecordFormats = []
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.setInterval(1)
+        self.timer.timeout.connect(self.readFrame)
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -73,6 +70,13 @@ class V4L2Tools(QtCore.QObject):
         self.stopCurrentDevice()
 
         return True
+
+    def processExecutable(self):
+        return self.processPath
+
+    @QtCore.pyqtSlot(str)
+    def setProcessExecutable(self, path='gst-launch-0.10'):
+        self.processPath = path
 
     def currentDevice(self):
         return self.current_dev_name
@@ -376,123 +380,19 @@ class V4L2Tools(QtCore.QObject):
 
         return True
 
-    def initGst(self):
-        if not self.hasPyGst:
-            #self.gstError.emit(self.GST_ERROR_PLUGINS_BASE)
-            #self.gstError.emit(self.GST_ERROR_PLUGINS_GOOD)
-            #self.gstError.emit(self.GST_ERROR_PLUGINS_BAD)
-
-            try:
-                self.gobject = __import__('gobject')
-            except:
-                self.gstError.emit(self.GST_ERROR_GOBJECT)
-
-                return self.hasPyGst
-
-            try:
-                self.pygst = __import__('pygst')
-                self.pygst.require('0.10')
-            except:
-                self.gstError.emit(self.GST_ERROR_PYGST)
-
-                return self.hasPyGst
-
-            try:
-                self.gst = __import__('gst')
-            except:
-                self.gstError.emit(self.GST_ERROR_GST)
-
-                return self.hasPyGst
-
-            self.gobject.threads_init()
-
-            self.hasPyGst = True
-
-        return self.hasPyGst
-
-    def createPipeline(self):
-        if not self.hasPyGst:
-            return False
-
-        self.camerabin = self.gst.element_factory_make('camerabin')
-        self.camerabin.set_property('video-capture-width', self.videoSize.width())
-        self.camerabin.set_property('video-capture-height', self.videoSize.height())
-        self.camerabin.set_property('video-capture-framerate', self.gst.Fraction(self.fps, 1))
-        self.camerabin.set_property('mode', 1)
-        self.camerabin.set_property('filename', self.fileName)
-
-        videoSource = self.gst.element_factory_make('v4l2src')
-        videoSource.set_property('device', self.current_dev_name)
-        self.camerabin.set_property('video-source', videoSource)
-
-        if self.effects == []:
-            effectsBin = None
-        else:
-            effectsBinSrc = 'ffmpegcolorspace ! ' + ' ! ffmpegcolorspace ! '.join(self.effects) + ' ! ffmpegcolorspace'
-            effectsBin = self.gst.parse_bin_from_description(effectsBinSrc, True)
-
-        self.camerabin.set_property('video-source-filter', effectsBin)
-
-        displayBin = self.gst.parse_bin_from_description('ffmpegcolorspace ! capsfilter caps=video/x-raw-rgb,bpp=24,depth=24 ! appsink name=appsink', True)
-        appsink = displayBin.get_by_name('appsink')
-        appsink.set_property('emit-signals', True)
-        appsink.set_property('drop', True)
-        appsink.set_property('max-buffers', 5)
-        appsink.set_property('sync', False)
-        appsink.connect_after('new-buffer', self.readFrame)
-        self.camerabin.set_property('viewfinder-sink', displayBin)
-
-        audioBin = self.gst.parse_bin_from_description('alsasrc name=audio ! queue ! audioconvert ! queue', True)
-        audio = audioBin.get_by_name('audio')
-        audio.set_property('device', 'plughw:0,0')
-        self.camerabin.set_property('audio-source', audioBin)
-
-        if self.curOutVidFmt == 'webm':
-            videoEncoder = self.gst.element_factory_make('vp8enc')
-            videoEncoder.set_property('quality', 10)
-            videoEncoder.set_property('speed', 7)
-            videoEncoder.set_property('bitrate', 1000000000)
-
-            videoMuxer = self.gst.element_factory_make('webmmux')
-        elif self.curOutVidFmt == 'ogv':
-            videoEncoder = self.gst.element_factory_make('theoraenc')
-            videoEncoder.set_property('quality', 63)
-            videoEncoder.set_property('bitrate', 16777215)
-
-            videoMuxer = self.gst.element_factory_make('oggmux')
-
-        self.camerabin.set_property('video-encoder', videoEncoder)
-        self.camerabin.set_property('video-muxer', videoMuxer)
-
-        bus = self.camerabin.get_bus()
-        bus.add_signal_watch()
-        self.on_gst_message_id = bus.connect_after('message', self.gstMessage)
-
-        return True
-
-    def destroyPipeline(self):
-        if self.camerabin:
-            bus = self.camerabin.get_bus()
-            bus.disconnect(self.on_gst_message_id)
-            self.on_gst_message_id = -1
-            bus.remove_signal_watch()
-
-        self.camerabin = None
-
     def setEffects(self, effects=[]):
         self.effects = [str(effect) for effect in effects]
 
-        if self.current_dev_name == '':
+        if not self.process:
             return
 
-        dev_name = self.current_dev_name
-        self.startDevice(dev_name)
+        self.startDevice(self.current_dev_name)
 
     def currentEffects(self):
         return self.effects
 
     def isPlaying(self):
-        return False if self.current_dev_name == '' else True
+        return self.playing
 
     def reset(self, dev_name='/dev/video0'):
         videoFormats = self.videoFormats(dev_name)
@@ -503,12 +403,7 @@ class V4L2Tools(QtCore.QObject):
         self.setControls(dev_name,
                          {control[0]: control[5] for control in controls})
 
-    def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple()):
-        if not self.initGst():
-            self.playingStateChanged.emit(False)
-
-            return False
-
+    def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple(), record=False):
         self.stopCurrentDevice()
 
         if forcedFormat == tuple():
@@ -519,43 +414,83 @@ class V4L2Tools(QtCore.QObject):
         else:
             fmt = forcedFormat
 
-        self.current_dev_name = dev_name
-        self.videoSize = QtCore.QSize(fmt[0], fmt[1])
-        self.createPipeline()
-        self.camerabin.set_state(self.gst.STATE_PLAYING)
-        s, n, t = self.camerabin.get_state()
-        print(s)
-        self.playingStateChanged.emit(True)
+        params = [self.processPath,
+                  '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
+                  'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.format(fmt[0], fmt[1], self.fps), '!']
 
-        return True
+        for effect in self.effects:
+            params += ['ffmpegcolorspace', '!', effect, '!']
+
+        if record:
+            params += ['tee', 'name=rawvideo']
+            params += ['rawvideo.', '!']
+
+        params += ['queue', '!', 'ffmpegcolorspace', '!', 'video/x-raw-rgb,bpp=24,depth=24', '!', 'fdsink']
+
+        if record:
+            suffix, videoEncoder, audioEncoder, muxer = self.bestVideoRecordFormat(self.fileName)
+
+            if suffix == '':
+                self.process = None
+                self.videoSize = QtCore.QSize()
+                self.current_dev_name = ''
+
+                return
+
+            params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!'] + videoEncoder.split() + ['!', 'queue', '!', 'muxer.']
+            params += ['alsasrc', 'device=plughw:0,0', '!', 'queue', '!', 'audioconvert', '!', 'queue', '!'] + audioEncoder.split() + ['!', 'queue', '!', 'muxer.']
+            params += muxer.split() + ['name=muxer', '!', 'filesink', 'location={0}'.format(self.fileName)]
+
+        try:
+            self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
+            self.videoSize = QtCore.QSize(fmt[0], fmt[1])
+            self.current_dev_name = dev_name
+            self.playing = True
+            self.timer.start()
+            self.playingStateChanged.emit(True)
+        except:
+            self.process = None
+            self.videoSize = QtCore.QSize()
+            self.current_dev_name = ''
+            self.gstError.emit()
 
     @QtCore.pyqtSlot()
     def stopCurrentDevice(self):
-        if self.current_dev_name == '':
+        if not self.playing:
             return
 
+        os.kill(self.process.pid, signal.SIGINT)
+
+        while True:
+            frame = self.process.stdout.read(3 * self.videoSize.width() * self.videoSize.height())
+
+            if frame == '':
+                break
+
+            self.frameReady.emit(QtGui.QImage(frame,
+                                             self.videoSize.width(),
+                                             self.videoSize.height(),
+                                             QtGui.QImage.Format_RGB888))
+
+        self.process.wait()
+        self.timer.stop()
+
+        self.process = None
+        self.videoSize = QtCore.QSize()
         self.current_dev_name = ''
+
+        self.playing = False
         self.playingStateChanged.emit(False)
 
-        self.camerabin.set_state(self.gst.STATE_NULL)
+    @QtCore.pyqtSlot()
+    def readFrame(self):
+        frame = self.process.stdout.read(3 * self.videoSize.width() *
+                                             self.videoSize.height())
 
-        self.destroyPipeline()
-        self.videoSize = QtCore.QSize()
-
-    def readFrame(self, appsink):
-        try:
-            frame = appsink.emit('pull-buffer')
-            self.data = ''.join(frame.data)
-
-            self.frameReady.emit(QtGui.QImage(self.data,
-                                              self.videoSize.width(),
-                                              self.videoSize.height(),
-                                              QtGui.QImage.Format_RGB888))
-        except:
-            pass
-
-    def gstMessage(self, bus, message):
-        pass
+        self.frameReady.emit(QtGui.QImage(frame,
+                                          self.videoSize.width(),
+                                          self.videoSize.height(),
+                                          QtGui.QImage.Format_RGB888))
 
     @QtCore.pyqtSlot()
     def isRecording(self):
@@ -563,45 +498,51 @@ class V4L2Tools(QtCore.QObject):
 
     @QtCore.pyqtSlot(str)
     def startVideoRecord(self, fileName=''):
-        self.recording = True
-        root, ext = os.path.splitext(fileName)
-
-        if ext == '':
-            self.recording = False
-            self.recordingStateChanged.emit(False)
-
-            return
-
-        ext = ext[1:].lower()
-
-        if ext == 'webm':
-            self.curOutVidFmt = 'webm'
-        elif ext == 'ogv' or ext == 'ogg':
-            self.curOutVidFmt = 'ogv'
-        else:
-            self.recording = False
-            self.recordingStateChanged.emit(False)
-
-            return
-
+        self.stopVideoRecord()
         self.fileName = fileName
+        self.startDevice(self.current_dev_name, tuple(), True)
 
-        if not self.startDevice(self.current_dev_name):
-            self.recording = False
-            self.recordingStateChanged.emit(False)
-
+        if not self.process:
             return
 
-        self.camerabin.emit('capture-start')
         self.recordingStateChanged.emit(True)
+        self.recording = True
 
     @QtCore.pyqtSlot()
     def stopVideoRecord(self):
         if self.recording:
+            dev_name = self.current_dev_name
+            self.stopCurrentDevice()
             self.recording = False
-            self.recordingStateChanged.emit(False)
-            self.camerabin.emit('capture-stop')
             self.fileName = ''
+            self.recordingStateChanged.emit(False)
+            self.startDevice(dev_name)
+
+    def supportedVideoRecordFormats(self):
+        return self.videoRecordFormats
+
+    @QtCore.pyqtSlot()
+    def clearVideoRecordFormats(self):
+        self.videoRecordFormats = []
+
+    @QtCore.pyqtSlot(str, str, str, str)
+    def setVideoRecordFormat(self, suffix='', videoEncoder='', audioEncoder='', muxer=''):
+        self.videoRecordFormats.append((suffix, videoEncoder, audioEncoder, muxer))
+
+    def bestVideoRecordFormat(self, fileName=''):
+        root, ext = os.path.splitext(fileName)
+
+        if ext == '':
+            return '', '', '', ''
+
+        ext = ext[1:].lower()
+
+        for suffix, videoEncoder, audioEncoder, muxer in self.videoRecordFormats:
+            for s in suffix.split(','):
+                if s.lower().strip() == ext:
+                    return suffix, videoEncoder, audioEncoder, muxer
+
+        return '', '', '', ''
 
 
 if __name__ == '__main__':

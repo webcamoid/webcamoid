@@ -86,6 +86,20 @@ class WebcamoidGui(QtGui.QWidget):
     def effects(self):
         return self.tools.currentEffects()
 
+    def processExecutable(self):
+        return self.tools.processExecutable()
+
+    def supportedVideoRecordFormats(self):
+        return self.tools.supportedVideoRecordFormats()
+
+    @QtCore.pyqtSlot(str, str, str, str)
+    def setVideoRecordFormat(self, suffix='', videoEncoder='', audioEncoder='', muxer=''):
+        return self.tools.setVideoRecordFormat(suffix, videoEncoder, audioEncoder, muxer)
+
+    @QtCore.pyqtSlot(str)
+    def setProcessExecutable(self, processExecutable):
+        self.tools.setProcessExecutable(processExecutable)
+
     @QtCore.pyqtSlot(list)
     def setEffects(self, effects):
         return self.tools.setEffects(effects)
@@ -157,8 +171,8 @@ class WebcamoidGui(QtGui.QWidget):
             self.tools.startDevice(self.tools.\
                         captureDevices()[self.cbxSetWebcam.currentIndex()][0])
 
-    @QtCore.pyqtSlot(int)
-    def showGstError(self, errorType):
+    @QtCore.pyqtSlot()
+    def showGstError(self):
         KNotification.event(
                     KNotification.Error,
                     self.translator.tr('GStreamer not installed or configured'),
@@ -175,21 +189,34 @@ class WebcamoidGui(QtGui.QWidget):
 
     def saveFile(self, video=False):
         if video:
-            filters = 'WEBM file (*.webm);;'\
-                      'OGV file (*.ogv)'
+            videoRecordFormats = self.tools.supportedVideoRecordFormats()
 
-            defaultFileName = './video.webm'
+            filters = []
+            fst = True
+            defaultSuffix = ''
 
-            defaultSuffix = 'webm'
+            for suffix, videoEncoder, audioEncoder, muxer in videoRecordFormats:
+                for s in suffix.split(','):
+                    s = s.strip()
+                    filters.append('{0} file (*.{1})'.format(s.upper(), s.lower()))
+
+                    if fst:
+                        defaultSuffix = s.lower()
+                        fst = False
+
+            filters = ';;'.join(filters)
+            defaultFileName = './video.{0}'.format(defaultSuffix)
         else:
             filters = 'PNG file (*.png);;'\
                       'JPEG file (*.jpg);;'\
                       'BMP file (*.bmp);;'\
                       'GIF file (*.gif)'
 
+            defaultSuffix = 'png'
             defaultFileName = './image.png'
 
-            defaultSuffix = 'png'
+        if defaultSuffix == '':
+            return ''
 
         saveFileDialog = QtGui.QFileDialog(None,
                                            self.translator.tr('Save File As...'),

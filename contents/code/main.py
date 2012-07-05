@@ -49,10 +49,20 @@ class Webcamoid(plasmascript.Applet):
 
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
 
-        effects = str(self.config().readEntry('effects', '').toString())
+        self.webcamoidGui.setProcessExecutable(str(self.config().readEntry('processExecutable', 'gst-launch-0.10').toString()))
 
-        if effects != '':
-            self.webcamoidGui.setEffects(effects.split(','))
+        effcts = str(self.config().readEntry('effects', '').toString())
+
+        if effcts != '':
+            self.webcamoidGui.setEffects(effcts.split('&'))
+
+        videoRecordFormats = str(self.config().readEntry('videoRecordFormats', 'webm;;vp8enc quality=10 speed=7 bitrate=1000000000;;vorbisenc;;webmmux&&' \
+                                                                               'ogv, ogg;;theoraenc quality=63 bitrate=16777215;;vorbisenc;;oggmux').toString())
+
+        if videoRecordFormats != '':
+            for fmt in videoRecordFormats.split('&&'):
+                params = fmt.split(';;')
+                self.webcamoidGui.setVideoRecordFormat(params[0], params[1], params[2], params[3])
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
@@ -98,8 +108,18 @@ class Webcamoid(plasmascript.Applet):
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
+        self.config().writeEntry('processExecutable',
+                                 self.webcamoidGui.processExecutable())
+
         self.config().writeEntry('effects',
-                                 ','.join(self.webcamoidGui.effects()))
+                                 '&&'.join(self.webcamoidGui.effects()))
+
+        videoRecordFormats = []
+
+        for suffix, videoEncoder, audioEncoder, muxer in self.webcamoidGui.supportedVideoRecordFormats():
+            videoRecordFormats.append('{0};;{1};;{2};;{3}'.format(suffix, videoEncoder, audioEncoder, muxer))
+
+        self.config().writeEntry('videoRecordFormats', '&&'.join(videoRecordFormats))
 
         self.emit(QtCore.SIGNAL("configNeedsSaving()"))
 

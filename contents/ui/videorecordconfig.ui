@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>603</width>
-    <height>444</height>
+    <width>480</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,9 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="icon">
-      <iconset theme="arrow-up"/>
+      <iconset theme="arrow-up">
+       <normaloff/>
+      </iconset>
      </property>
     </widget>
    </item>
@@ -42,32 +44,17 @@
      </column>
      <column>
       <property name="text">
-       <string>Video Codec</string>
+       <string>Video Encoder</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Video Bitrate</string>
+       <string>Audio Encoder</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>FPS</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Audio Codec</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Audio Bitrate</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Output Format</string>
+       <string>Muxer</string>
       </property>
      </column>
     </widget>
@@ -78,7 +65,9 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new video format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="icon">
-      <iconset theme="list-add"/>
+      <iconset theme="list-add">
+       <normaloff/>
+      </iconset>
      </property>
     </widget>
    </item>
@@ -88,7 +77,9 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove video format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="icon">
-      <iconset theme="list-remove"/>
+      <iconset theme="list-remove">
+       <normaloff/>
+      </iconset>
      </property>
     </widget>
    </item>
@@ -111,7 +102,9 @@
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To Down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="icon">
-      <iconset theme="arrow-down"/>
+      <iconset theme="arrow-down">
+       <normaloff/>
+      </iconset>
      </property>
     </widget>
    </item>

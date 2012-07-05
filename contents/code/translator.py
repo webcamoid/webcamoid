@@ -33,7 +33,9 @@ class Translator(QtCore.QTranslator):
         locale = QtCore.QLocale.system().name()
 
         if isinstance(parent, plasmascript.Applet):
-            i18nDir = os.path.join(str(parent.package().path()), 'contents', 'ts')
+            i18nDir = os.path.join(str(parent.package().path()),
+                                   'contents',
+                                   'ts')
         else:
             i18nDir = 'contents/ts'
 
