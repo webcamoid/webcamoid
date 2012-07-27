@@ -11,22 +11,17 @@
         <license>gpl</icense>
     </file>
     <file>
+        <path>contents/code/infotools.py</path>
+        <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
         <path>contents/code/main.py</path>
         <type>python</type>
         <license>gpl</icense>
     </file>
     <file>
         <path>contents/code/translator.py</path>
-        <type>python</type>
-        <license>gpl</icense>
-    </file>
-    <file>
-        <path>contents/code/v4l2tools.py</path>
-        <type>python</type>
-        <license>gpl</icense>
-    </file>
-    <file>
-        <path>contents/code/webcamoidgui.py</path>
         <type>python</type>
         <license>gpl</icense>
     </file>
@@ -46,8 +41,23 @@
         <license>gpl</icense>
     </file>
     <file>
+        <path>contents/code/v4l2tools.py</path>
+        <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
         <path>contents/code/v4l2/v4l2.py</path>
         <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
+        <path>contents/code/videorecordconfig.py</path>
+        <type>xml</type>
+        <license>gpl</icense>
+    </file>
+    <file>
+        <path>contents/code/webcamoidgui.py</path>
+        <type>xml</type>
         <license>gpl</icense>
     </file>
     <file>

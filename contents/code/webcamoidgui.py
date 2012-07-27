@@ -2,23 +2,25 @@
 # -*- coding: utf-8 -*-
 #
 # Webcamod, Show and take Photos with your webcam.
-# Copyright (C) 2011  Gonzalo Exequiel Pedone
+# Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
 #
-# This program is free software: you can redistribute it and/or modify
+# Webcamod is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful,
+# Webcamod is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with This program. If not, see <http://www.gnu.org/licenses/>.
+# along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
 # Email   : hipersayan.x@gmail.com
 # Web-Site: http://hipersayanx.blogspot.com/
+
+# .kde4/share/config/kdeglobals
 
 import sys
 
@@ -27,6 +29,7 @@ from PyKDE4.kdeui import KIcon, KNotification
 
 import v4l2tools
 import translator
+import infotools
 
 
 class WebcamoidGui(QtGui.QWidget):
@@ -57,6 +60,8 @@ class WebcamoidGui(QtGui.QWidget):
             self.cbxSetWebcam.addItem(webcam[1])
 
         self.webcamFrame = QtGui.QImage()
+
+        self.infoTools = infotools.InfoTools(self)
 
     def resizeEvent(self, event):
         QtGui.QWidget.resizeEvent(self, event)
@@ -93,8 +98,15 @@ class WebcamoidGui(QtGui.QWidget):
         return self.tools.supportedVideoRecordFormats()
 
     @QtCore.pyqtSlot(str, str, str, str)
-    def setVideoRecordFormat(self, suffix='', videoEncoder='', audioEncoder='', muxer=''):
-        return self.tools.setVideoRecordFormat(suffix, videoEncoder, audioEncoder, muxer)
+    def setVideoRecordFormat(self,
+                             suffix='',
+                             videoEncoder='',
+                             audioEncoder='',
+                             muxer=''):
+        return self.tools.setVideoRecordFormat(suffix,
+                                               videoEncoder,
+                                               audioEncoder,
+                                               muxer)
 
     @QtCore.pyqtSlot(str)
     def setProcessExecutable(self, processExecutable):
@@ -173,16 +185,18 @@ class WebcamoidGui(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def showGstError(self):
+        cmd, isCmd = self.infoTools.gstInstallCommand()
+
+        if isCmd:
+            msg = self.translator.tr('Please install GStreamer:\n\n')
+        else:
+            msg = self.translator.tr('Please install the following '\
+                                     'packages:\n\n')
+
         KNotification.event(
                     KNotification.Error,
                     self.translator.tr('GStreamer not installed or configured'),
-                    self.translator.tr('Please install GStreamer:\n') +
-                    '\n'
-                    '<strong>Arch/Chakra</strong>: pacman -S gstreamer0.10 gstreamer0.10-good gstreamer0.10-bad\n'
-                    '<strong>Debian/Ubuntu</strong>: apt-get install gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad\n'
-                    '<strong>Fedora/CentOS</strong>: yum install gstreamer gstreamer-plugins-good gstreamer-plugins-bad-free\n'
-                    '<strong>OpenSuSE</strong>: zypper install gstreamer-0_10-utils gstreamer-0_10-plugins-good gstreamer-0_10-plugins-bad\n'
-                    '<strong>Mandriva/Mageia</strong>: urpmi gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad',
+                    msg + cmd,
                     QtGui.QPixmap(),
                     None,
                     KNotification.Persistent)
@@ -198,7 +212,8 @@ class WebcamoidGui(QtGui.QWidget):
             for suffix, videoEncoder, audioEncoder, muxer in videoRecordFormats:
                 for s in suffix.split(','):
                     s = s.strip()
-                    filters.append('{0} file (*.{1})'.format(s.upper(), s.lower()))
+                    filters.append('{0} file (*.{1})'. \
+                                   format(s.upper(), s.lower()))
 
                     if fst:
                         defaultSuffix = s.lower()
@@ -219,7 +234,8 @@ class WebcamoidGui(QtGui.QWidget):
             return ''
 
         saveFileDialog = QtGui.QFileDialog(None,
-                                           self.translator.tr('Save File As...'),
+                                           self.translator.\
+                                                tr('Save File As...'),
                                            defaultFileName,
                                            filters)
 

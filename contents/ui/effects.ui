@@ -229,6 +229,9 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Effect to Up</string>
+       </property>
        <property name="icon">
         <iconset theme="arrow-up">
          <normaloff/>
@@ -249,6 +252,9 @@
          <width>24</width>
          <height>24</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Add Effects</string>
        </property>
        <property name="icon">
         <iconset theme="arrow-right">
@@ -271,6 +277,9 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Effect to Down</string>
+       </property>
        <property name="icon">
         <iconset theme="arrow-down">
          <normaloff/>
@@ -291,6 +300,9 @@
          <width>24</width>
          <height>24</height>
         </size>
+       </property>
+       <property name="toolTip">
+        <string>Remove Effects</string>
        </property>
        <property name="icon">
         <iconset theme="arrow-left">
@@ -313,8 +325,13 @@
          <height>24</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Reset Effects</string>
+       </property>
        <property name="icon">
-        <iconset theme="edit-undo"/>
+        <iconset theme="edit-undo">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>
