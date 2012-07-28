@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="el" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.0" language="ca">
 <context>
     <name>Form</name>
     <message>
         <location filename="contents/ui/effects.ui" line="14"/>
         <source>Form</source>
-        <translation>μορφή</translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="26"/>
         <source>Effects</source>
-        <translation>Επιδράσεις</translation>
+        <translation>Efectes</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="42"/>
         <source>Apply</source>
-        <translation>Εφαρμόστε</translation>
+        <translation>Aplicar</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="56"/>
@@ -160,72 +161,72 @@
     <message>
         <location filename="contents/ui/effects.ui" line="233"/>
         <source>Effect to Up</source>
-        <translation>Επίδραση μέχρι</translation>
+        <translation>Efecte a un màxim de</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="257"/>
         <source>Add Effects</source>
-        <translation>Προσθέστε εφέ</translation>
+        <translation>Afegir efectes</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="281"/>
         <source>Effect to Down</source>
-        <translation>Επίδραση προς τα κάτω</translation>
+        <translation>Efecte de sota</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="305"/>
         <source>Remove Effects</source>
-        <translation>Κατάργηση εφέ</translation>
+        <translation>Eliminar els efectes</translation>
     </message>
     <message>
         <location filename="contents/ui/effects.ui" line="329"/>
         <source>Reset Effects</source>
-        <translation>Επαναφορά αποτελέσματα</translation>
+        <translation>Restablir els efectes</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="14"/>
         <source>Video Formats Configuration</source>
-        <translation>Βίντεο διαμόρφωσης μορφές</translation>
+        <translation>Formats de configuració de vídeo</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="20"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Προς τα πάνω.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Per dalt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="42"/>
         <source>Suffix</source>
-        <translation>κατάληξη</translation>
+        <translation>Sufix</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="47"/>
         <source>Video Encoder</source>
-        <translation>κωδικοποιητή βίντεο</translation>
+        <translation>Video Encoder</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="52"/>
         <source>Audio Encoder</source>
-        <translation>κωδικοποιητή ήχου</translation>
+        <translation>Audio Encoder</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="57"/>
         <source>Muxer</source>
-        <translation></translation>
+        <translation>Muxer</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="65"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new video format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Προσθήκη νέου φορμά βίντεο.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Afegeix nou format de vídeo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="77"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove video format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Αφαιρέστε μορφή βίντεο.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Treure el format de vídeo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="contents/ui/videorecordconfig.ui" line="102"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To Down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Προς τα κάτω.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Per baix.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -233,82 +234,82 @@
     <message>
         <location filename="contents/ui/webcamoidgui.ui" line="61"/>
         <source>Take a Picture</source>
-        <translation>Τραβήξτε μια φωτογραφία</translation>
+        <translation>Prengui una fotografia</translation>
     </message>
     <message>
         <location filename="contents/ui/webcamoidgui.ui" line="79"/>
         <source>Select Capture Device</source>
-        <translation>Επιλέξτε Λήψη συσκευής</translation>
+        <translation>Seleccionar dispositiu de captura</translation>
     </message>
     <message>
         <location filename="contents/ui/webcamoidgui.ui" line="92"/>
         <source>Start Capturing</source>
-        <translation>ξεκινήσετε τη λήψη</translation>
+        <translation>Inicieu la captura</translation>
     </message>
     <message>
         <location filename="contents/ui/webcamoidgui.ui" line="126"/>
         <source>Record Video</source>
-        <translation>Εγγραφή βίντεο</translation>
+        <translation>Enregistrament de vídeo</translation>
     </message>
 </context>
 <context>
     <name>self.translator</name>
     <message>
+        <location filename="contents/code/config.py" line="46"/>
+        <source>GStreamer executable</source>
+        <translation>GStreamer executable</translation>
+    </message>
+    <message>
         <location filename="contents/code/config.py" line="71"/>
         <source>Video Format</source>
-        <translation>Μορφή βίντεο</translation>
+        <translation>Format de vídeo</translation>
     </message>
     <message>
         <location filename="contents/code/config.py" line="119"/>
         <source>Reset</source>
-        <translation>επαναφορά</translation>
-    </message>
-    <message>
-        <location filename="contents/code/main.py" line="97"/>
-        <source>Webcam Settings</source>
-        <translation>Ρυθμίσεις κάμερα</translation>
-    </message>
-    <message>
-        <location filename="contents/code/config.py" line="46"/>
-        <source>GStreamer executable</source>
-        <translation>εκτελέσιμο GStreamer</translation>
+        <translation>Reajustar</translation>
     </message>
     <message>
         <location filename="contents/code/config.py" line="298"/>
         <source>Select GStreamer Executable</source>
-        <translation>Επιλογή εκτελέσιμο GStreamer</translation>
+        <translation>Seleccioneu executable del GStreamer</translation>
+    </message>
+    <message>
+        <location filename="contents/code/main.py" line="97"/>
+        <source>Webcam Settings</source>
+        <translation>Configuració de cambra Web</translation>
     </message>
     <message>
         <location filename="contents/code/main.py" line="97"/>
         <source>Set webcam properties</source>
-        <translation>Ορισμός ιδιοτήτων κάμερα</translation>
+        <translation>Establir les propietats de la càmera web</translation>
     </message>
     <message>
         <location filename="contents/code/main.py" line="105"/>
         <source>Configure Webcam Effects</source>
-        <translation>Ρύθμιση αποτελέσματα κάμερα</translation>
+        <translation>Configureu els efectes de càmera web</translation>
     </message>
     <message>
         <location filename="contents/code/main.py" line="105"/>
         <source>Add funny effects to the webcam</source>
-        <translation>Προσθήκη αστεία αποτελέσματα στην κάμερα</translation>
+        <translation>Afegir divertits efectes a la càmera web</translation>
     </message>
     <message>
         <location filename="contents/code/main.py" line="114"/>
         <source>Configure Video Recording Formats</source>
-        <translation>Ρύθμιση φορμά εγγραφής βίντεο</translation>
+        <translation>Configuració dels formats de gravació de vídeo</translation>
     </message>
     <message>
         <location filename="contents/code/main.py" line="114"/>
         <source>Add or remove video formats for recording.</source>
-        <translation>Προσθήκη ή κατάργηση μορφές βίντεο για εγγραφή.</translation>
+        <translation>Afegir o treure formats de vídeo per a la gravació.</translation>
     </message>
     <message>
         <location filename="contents/code/webcamoidgui.py" line="233"/>
         <source>Please install GStreamer:
 
 </source>
-        <translation>Παρακαλείσθε να εγκαταστήσετε το GStreamer:
+        <translation>Instal · leu GStreamer:
 
 </translation>
     </message>
@@ -317,19 +318,19 @@
         <source>Please install the following packages:
 
 </source>
-        <translation>Παρακαλείσθε να εγκαταστήσετε τα ακόλουθα πακέτα:
+        <translation>Instal · leu els següents paquets:
 
 </translation>
     </message>
     <message>
         <location filename="contents/code/webcamoidgui.py" line="238"/>
         <source>GStreamer not installed or configured</source>
-        <translation>GStreamer δεν εγκαταστάθηκε ή ρυθμίστηκε</translation>
+        <translation>GStreamer no s&apos;instal · la i configura</translation>
     </message>
     <message>
         <location filename="contents/code/webcamoidgui.py" line="278"/>
         <source>Save File As...</source>
-        <translation>Αποθήκευση ως αρχείο...</translation>
+        <translation>Desa arxiu com...</translation>
     </message>
 </context>
 </TS>

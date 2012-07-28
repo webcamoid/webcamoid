@@ -5,6 +5,7 @@
 ## Features ##
 
 * Take pictures with the webcam.
+* Record videos.
 * Manages multiple webcams.
 * Play/Stop capture, this saves resources while the plasmoid is not in use.
 * Written in Python.
@@ -12,6 +13,7 @@
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
 * Add funny effects to the webcam (requires GStreamer plugins).
+* Translated to many languages.
 
 ## Installing ##
 
@@ -43,13 +45,32 @@ Be careful, the GIT repository is unstable, it could work or not.
 
 ## Translating ##
 
-In the root directory of the project run:
+Edit the _Webcamoid.pro_ file and add you language code to the _TRANSLATIONS_ macro, then, in the root directory of the project run:
 
-    pylupdate4 Webcamoid.pro
+    pylupdate4 -verbose -noobsolete Webcamoid.pro
 
-Then a _contents/ts/lang.ts_ will be created. Translate that file to your language using Qt Linguist, and change _lang.ts_ to your code language, for instance, if you speak Spanish rename it to _es.ts_. Then run the following command:
+A _contents/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist. Then run the following command:
 
-    lrelease contents/ts/lang.ts
+    lrelease -removeidentical Webcamoid.pro
+
+### Supported languages ###
+
+Some languages are officially supported and other are supported through [Google Translator](http://translate.google.com/).
+
+* Catalan
+* Chinese Simplified
+* Chinese Traditional
+* English (official)
+* French
+* Galician
+* German
+* Greek
+* Italian
+* Japanese (official)
+* Korean
+* Portuguese
+* Russian
+* Spanish (official)
 
 ## Adding distro detection support ##
 

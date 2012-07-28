@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan.x@gmail.com
-# Web-Site: http://hipersayanx.blogspot.com/
+# Email     : hipersayan DOT x AT gmail DOT com
+# Web-Site 1: http://github.com/hipersayanX/Webcamoid
+# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 import os
 import sys
@@ -403,7 +404,8 @@ class V4L2Tools(QtCore.QObject):
         self.setControls(dev_name,
                          {control[0]: control[5] for control in controls})
 
-    def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple(), record=False):
+    def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple(),
+                                                  record=False):
         self.stopCurrentDevice()
 
         if forcedFormat == tuple():
@@ -416,7 +418,8 @@ class V4L2Tools(QtCore.QObject):
 
         params = [self.processPath,
                   '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
-                  'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.format(fmt[0], fmt[1], self.fps), '!']
+                  'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.\
+                                        format(fmt[0], fmt[1], self.fps), '!']
 
         for effect in self.effects:
             params += ['ffmpegcolorspace', '!', effect, '!']
@@ -425,10 +428,12 @@ class V4L2Tools(QtCore.QObject):
             params += ['tee', 'name=rawvideo']
             params += ['rawvideo.', '!']
 
-        params += ['queue', '!', 'ffmpegcolorspace', '!', 'video/x-raw-rgb,bpp=24,depth=24', '!', 'fdsink']
+        params += ['queue', '!', 'ffmpegcolorspace', '!',
+                   'video/x-raw-rgb,bpp=24,depth=24', '!', 'fdsink']
 
         if record:
-            suffix, videoEncoder, audioEncoder, muxer = self.bestVideoRecordFormat(self.fileName)
+            suffix, videoEncoder, audioEncoder, muxer = \
+                                    self.bestVideoRecordFormat(self.fileName)
 
             if suffix == '':
                 self.process = None
@@ -437,9 +442,16 @@ class V4L2Tools(QtCore.QObject):
 
                 return
 
-            params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!'] + videoEncoder.split() + ['!', 'queue', '!', 'muxer.']
-            params += ['alsasrc', 'device=plughw:0,0', '!', 'queue', '!', 'audioconvert', '!', 'queue', '!'] + audioEncoder.split() + ['!', 'queue', '!', 'muxer.']
-            params += muxer.split() + ['name=muxer', '!', 'filesink', 'location={0}'.format(self.fileName)]
+            params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace',
+                       '!'] + videoEncoder.split() + ['!', 'queue', '!',
+                                                      'muxer.']
+
+            params += ['alsasrc', 'device=plughw:0,0', '!', 'queue', '!',
+                       'audioconvert', '!', 'queue', '!'] + \
+                       audioEncoder.split() + ['!', 'queue', '!', 'muxer.']
+
+            params += muxer.split() + ['name=muxer', '!', 'filesink',
+                                       'location={0}'.format(self.fileName)]
 
         try:
             self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
@@ -462,7 +474,8 @@ class V4L2Tools(QtCore.QObject):
         os.kill(self.process.pid, signal.SIGINT)
 
         while True:
-            frame = self.process.stdout.read(3 * self.videoSize.width() * self.videoSize.height())
+            frame = self.process.stdout.read(3 * self.videoSize.width() * \
+                                                 self.videoSize.height())
 
             if frame == '':
                 break
@@ -526,8 +539,10 @@ class V4L2Tools(QtCore.QObject):
         self.videoRecordFormats = []
 
     @QtCore.pyqtSlot(str, str, str, str)
-    def setVideoRecordFormat(self, suffix='', videoEncoder='', audioEncoder='', muxer=''):
-        self.videoRecordFormats.append((suffix, videoEncoder, audioEncoder, muxer))
+    def setVideoRecordFormat(self, suffix='', videoEncoder='',
+                                              audioEncoder='', muxer=''):
+        self.videoRecordFormats.append((suffix, videoEncoder,
+                                                audioEncoder, muxer))
 
     def bestVideoRecordFormat(self, fileName=''):
         root, ext = os.path.splitext(fileName)
@@ -537,7 +552,8 @@ class V4L2Tools(QtCore.QObject):
 
         ext = ext[1:].lower()
 
-        for suffix, videoEncoder, audioEncoder, muxer in self.videoRecordFormats:
+        for suffix, videoEncoder, audioEncoder, muxer in \
+                                                        self.videoRecordFormats:
             for s in suffix.split(','):
                 if s.lower().strip() == ext:
                     return suffix, videoEncoder, audioEncoder, muxer

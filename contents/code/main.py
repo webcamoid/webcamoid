@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan.x@gmail.com
-# Web-Site: http://hipersayanx.blogspot.com/
+# Email     : hipersayan DOT x AT gmail DOT com
+# Web-Site 1: http://github.com/hipersayanX/Webcamoid
+# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 from PyQt4 import QtCore, QtGui
 from PyKDE4 import plasmascript
@@ -49,20 +50,32 @@ class Webcamoid(plasmascript.Applet):
 
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
 
-        self.webcamoidGui.setProcessExecutable(str(self.config().readEntry('processExecutable', 'gst-launch-0.10').toString()))
+        self.webcamoidGui.setProcessExecutable(str(self.config().\
+                readEntry('processExecutable', 'gst-launch-0.10').toString()))
 
         effcts = str(self.config().readEntry('effects', '').toString())
 
         if effcts != '':
             self.webcamoidGui.setEffects(effcts.split('&'))
 
-        videoRecordFormats = str(self.config().readEntry('videoRecordFormats', 'webm;;vp8enc quality=10 speed=7 bitrate=1000000000;;vorbisenc;;webmmux&&' \
-                                                                               'ogv, ogg;;theoraenc quality=63 bitrate=16777215;;vorbisenc;;oggmux').toString())
+        videoRecordFormats = str(self.config().\
+                    readEntry('videoRecordFormats',
+                              'webm;;'\
+                              'vp8enc quality=10 speed=7 bitrate=1000000000;;'\
+                              'vorbisenc;;'\
+                              'webmmux&&' \
+                              'ogv, ogg;;'\
+                              'theoraenc quality=63 bitrate=16777215;;'\
+                              'vorbisenc;;'\
+                              'oggmux').toString())
 
         if videoRecordFormats != '':
             for fmt in videoRecordFormats.split('&&'):
                 params = fmt.split(';;')
-                self.webcamoidGui.setVideoRecordFormat(params[0], params[1], params[2], params[3])
+                self.webcamoidGui.setVideoRecordFormat(params[0],
+                                                       params[1],
+                                                       params[2],
+                                                       params[3])
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
@@ -95,12 +108,14 @@ class Webcamoid(plasmascript.Applet):
                        self.translator.tr('Add funny effects to the webcam'),
                        False)
 
-        self.cfgVideoFormats = videorecordconfig.VideoRecordConfig(self, self.webcamoidGui.v4l2Tools())
+        self.cfgVideoFormats = videorecordconfig.\
+                        VideoRecordConfig(self, self.webcamoidGui.v4l2Tools())
 
         parent.addPage(self.cfgVideoFormats,
                        self.translator.tr('Configure Video Recording Formats'),
                        'video-x-generic',
-                       self.translator.tr('Add or remove video formats for recording.'),
+                       self.translator.tr('Add or remove video formats for '\
+                                                                'recording.'),
                        False)
 
         parent.okClicked.connect(self.saveConfigs)
@@ -116,10 +131,15 @@ class Webcamoid(plasmascript.Applet):
 
         videoRecordFormats = []
 
-        for suffix, videoEncoder, audioEncoder, muxer in self.webcamoidGui.supportedVideoRecordFormats():
-            videoRecordFormats.append('{0};;{1};;{2};;{3}'.format(suffix, videoEncoder, audioEncoder, muxer))
+        for suffix, videoEncoder, audioEncoder, muxer in self.webcamoidGui.\
+                                                supportedVideoRecordFormats():
+            videoRecordFormats.append('{0};;{1};;{2};;{3}'.format(suffix,
+                                                                  videoEncoder,
+                                                                  audioEncoder,
+                                                                  muxer))
 
-        self.config().writeEntry('videoRecordFormats', '&&'.join(videoRecordFormats))
+        self.config().writeEntry('videoRecordFormats',
+                                 '&&'.join(videoRecordFormats))
 
         self.emit(QtCore.SIGNAL("configNeedsSaving()"))
 

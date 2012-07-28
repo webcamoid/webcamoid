@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan.x@gmail.com
-# Web-Site: http://hipersayanx.blogspot.com/
-
-# .kde4/share/config/kdeglobals
+# Email     : hipersayan DOT x AT gmail DOT com
+# Web-Site 1: http://github.com/hipersayanX/Webcamoid
+# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
+from PyKDE4.kdecore import KStandardDirs
 from PyKDE4.kdeui import KIcon, KNotification
 
 import v4l2tools
@@ -40,6 +40,7 @@ class WebcamoidGui(QtGui.QWidget):
             uic.loadUi('../ui/webcamoidgui.ui', self)
         except:
             uic.loadUi(parent.package().filePath('ui', 'webcamoidgui.ui'), self)
+            self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
 
         self.translator = translator.Translator('self.translator', parent)
 
@@ -54,6 +55,7 @@ class WebcamoidGui(QtGui.QWidget):
         self.btnStartStop.setIcon(KIcon('media-playback-start'))
         self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
 
+        self.updateColors()
         self.wdgControls.hide()
 
         for webcam in self.tools.captureDevices():
@@ -62,6 +64,12 @@ class WebcamoidGui(QtGui.QWidget):
         self.webcamFrame = QtGui.QImage()
 
         self.infoTools = infotools.InfoTools(self)
+
+    def changeEvent(self, event):
+        QtGui.QWidget.changeEvent(self, event)
+
+        if event == QtCore.QEvent.StyleChange:
+            self.updateColors()
 
     def resizeEvent(self, event):
         QtGui.QWidget.resizeEvent(self, event)
@@ -84,6 +92,40 @@ class WebcamoidGui(QtGui.QWidget):
 
         if not self.rect().contains(self.mapFromGlobal(QtGui.QCursor.pos())):
             self.wdgControls.hide()
+
+    def updateColors(self):
+        # ~/.kde4/share/config/kdeglobals
+        kdeglobals = KStandardDirs.locate('config', 'kdeglobals')
+
+        settings = QtCore.QSettings(kdeglobals,
+                                    QtCore.QSettings.IniFormat,
+                                    self)
+
+        r, g, b = settings.value('Colors:Button/ForegroundNormal').toList()
+
+        c = 'color: rgb({0}, {1}, {2});'.format(r.toInt()[0],
+                                                g.toInt()[0],
+                                                b.toInt()[0])
+
+        r, g, b = settings.value('Colors:Button/BackgroundNormal').toList()
+
+        bc = 'background-color: rgb({0}, {1}, {2});'.format(r.toInt()[0],
+                                                            g.toInt()[0],
+                                                            b.toInt()[0])
+
+        r, g, b = settings.value('Colors:Button/BackgroundAlternate').toList()
+
+        abc = 'alternate-background-color: rgb({0}, {1}, {2});'.\
+                                                            format(r.toInt()[0],
+                                                                   g.toInt()[0],
+                                                                   b.toInt()[0])
+
+        styleSheet = '{0}{1}{2}'.format(c, bc, abc)
+
+        self.btnTakePhoto.setStyleSheet(styleSheet)
+        self.btnVideoRecord.setStyleSheet(styleSheet)
+        self.cbxSetWebcam.setStyleSheet(styleSheet)
+        self.btnStartStop.setStyleSheet(styleSheet)
 
     def v4l2Tools(self):
         return self.tools

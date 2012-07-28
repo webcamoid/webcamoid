@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan.x@gmail.com
-# Web-Site: http://hipersayanx.blogspot.com/
+# Email     : hipersayan DOT x AT gmail DOT com
+# Web-Site 1: http://github.com/hipersayanX/Webcamoid
+# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 import sys
 
@@ -33,7 +34,8 @@ class VideoRecordConfig(QtGui.QWidget):
         try:
             uic.loadUi('../ui/videorecordconfig.ui', self)
         except:
-            uic.loadUi(parent.package().filePath('ui', 'videorecordconfig.ui'), self)
+            uic.loadUi(parent.package().filePath('ui',
+                                                 'videorecordconfig.ui'), self)
 
         self.btnAdd.setIcon(KIcon('list-add'))
         self.btnRemove.setIcon(KIcon('list-remove'))
@@ -52,7 +54,9 @@ class VideoRecordConfig(QtGui.QWidget):
 
         for row, fmt in enumerate(videoRecordFormats):
             for column, param in enumerate(fmt):
-                self.tbwVideoFormats.setItem(row, column, QtGui.QTableWidgetItem(param))
+                self.tbwVideoFormats.setItem(row,
+                                             column,
+                                             QtGui.QTableWidgetItem(param))
 
         self.isInit = False
 
@@ -81,7 +85,9 @@ class VideoRecordConfig(QtGui.QWidget):
             self.tbwVideoFormats.item(currentRow, column).setText(nextText)
             self.tbwVideoFormats.item(nextRow, column).setText(currentText)
 
-        self.tbwVideoFormats.setCurrentCell(nextRow, self.tbwVideoFormats.currentColumn())
+        self.tbwVideoFormats.\
+                setCurrentCell(nextRow, self.tbwVideoFormats.currentColumn())
+
         self.update()
 
     @QtCore.pyqtSlot()
@@ -99,7 +105,9 @@ class VideoRecordConfig(QtGui.QWidget):
             self.tbwVideoFormats.item(currentRow, column).setText(nextText)
             self.tbwVideoFormats.item(nextRow, column).setText(currentText)
 
-        self.tbwVideoFormats.setCurrentCell(nextRow, self.tbwVideoFormats.currentColumn())
+        self.tbwVideoFormats.\
+                setCurrentCell(nextRow, self.tbwVideoFormats.currentColumn())
+
         self.update()
 
     @QtCore.pyqtSlot(int, int)
@@ -119,7 +127,10 @@ class VideoRecordConfig(QtGui.QWidget):
                 audioEncoder = str(self.tbwVideoFormats.item(row, 2).text())
                 muxer = str(self.tbwVideoFormats.item(row, 3).text())
 
-                self.tools.setVideoRecordFormat(suffix, videoEncoder, audioEncoder, muxer)
+                self.tools.setVideoRecordFormat(suffix,
+                                                videoEncoder,
+                                                audioEncoder,
+                                                muxer)
             except:
                 pass
 

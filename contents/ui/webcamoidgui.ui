@@ -10,9 +10,6 @@
     <height>240</height>
    </rect>
   </property>
-  <property name="styleSheet">
-   <string notr="true">background-color: rgba(0, 0, 0, 0);</string>
-  </property>
   <widget class="QLabel" name="lblFrame">
    <property name="geometry">
     <rect>
@@ -63,12 +60,6 @@
       <property name="toolTip">
        <string>Take a Picture</string>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(34, 31, 30);
-background-color: rgb(223, 220, 217);
-alternate-background-color: rgb(224, 223, 222);
-</string>
-      </property>
       <property name="icon">
        <iconset theme="camera-photo">
         <normaloff/>
@@ -87,12 +78,6 @@ alternate-background-color: rgb(224, 223, 222);
       <property name="toolTip">
        <string>Select Capture Device</string>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(34, 31, 30);
-background-color: rgb(223, 220, 217);
-alternate-background-color: rgb(224, 223, 222);
-</string>
-      </property>
      </widget>
     </item>
     <item row="0" column="4">
@@ -105,12 +90,6 @@ alternate-background-color: rgb(224, 223, 222);
       </property>
       <property name="toolTip">
        <string>Start Capturing</string>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(34, 31, 30);
-background-color: rgb(223, 220, 217);
-alternate-background-color: rgb(224, 223, 222);
-</string>
       </property>
       <property name="icon">
        <iconset theme="media-playback-start">
@@ -146,14 +125,10 @@ alternate-background-color: rgb(224, 223, 222);
       <property name="toolTip">
        <string>Record Video</string>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(34, 31, 30);
-background-color: rgb(223, 220, 217);
-alternate-background-color: rgb(224, 223, 222);
-</string>
-      </property>
       <property name="icon">
-       <iconset theme="video-x-generic"/>
+       <iconset theme="video-x-generic">
+        <normaloff/>
+       </iconset>
       </property>
      </widget>
     </item>

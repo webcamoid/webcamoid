@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan.x@gmail.com
-# Web-Site: http://hipersayanx.blogspot.com/
+# Email     : hipersayan DOT x AT gmail DOT com
+# Web-Site 1: http://github.com/hipersayanX/Webcamoid
+# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 import sys
 
@@ -50,19 +51,22 @@ class Effects(QtGui.QWidget):
             items = self.lswEffects.findItems(effect, QtCore.Qt.MatchExactly)
 
             if len(items) > 0:
-                self.lswApply.addItem(self.lswEffects.takeItem(self.lswEffects.row(items[0])))
+                self.lswApply.addItem(self.lswEffects.\
+                                        takeItem(self.lswEffects.row(items[0])))
 
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):
         for item in self.lswEffects.selectedItems():
-            self.lswApply.addItem(self.lswEffects.takeItem(self.lswEffects.row(item)))
+            self.lswApply.addItem(self.lswEffects.\
+                                            takeItem(self.lswEffects.row(item)))
 
         self.update()
 
     @QtCore.pyqtSlot()
     def on_btnRemove_clicked(self):
         for item in self.lswApply.selectedItems():
-            self.lswEffects.addItem(self.lswApply.takeItem(self.lswApply.row(item)))
+            self.lswEffects.addItem(self.lswApply.\
+                                            takeItem(self.lswApply.row(item)))
 
         self.lswEffects.sortItems()
         self.update()
@@ -82,7 +86,8 @@ class Effects(QtGui.QWidget):
     def on_btnDown_clicked(self):
         for item in self.lswApply.selectedItems():
             row = self.lswApply.row(item)
-            row_ = row + 1 if row < self.lswApply.count() - 1 else self.lswApply.count() - 1
+            row_ = row + 1 if row < self.lswApply.count() - 1 \
+                                                else self.lswApply.count() - 1
             item_ = self.lswApply.takeItem(row)
             self.lswApply.insertItem(row_, item_)
             item_.setSelected(True)

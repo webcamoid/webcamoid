@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan.x@gmail.com
-# Web-Site: http://hipersayanx.blogspot.com/
+# Email     : hipersayan DOT x AT gmail DOT com
+# Web-Site 1: http://github.com/hipersayanX/Webcamoid
+# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 import sys
 
@@ -295,7 +296,8 @@ class Config(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def searchProcessExecutable(self):
         saveFileDialog = QtGui.QFileDialog(self,
-                                           self.translator.tr('Select GStreamer Executable'),
+                                           self.translator.tr('Select '\
+                                                        'GStreamer Executable'),
                                            '/usr/bin/gst-launch-0.10')
 
         saveFileDialog.setModal(True)
