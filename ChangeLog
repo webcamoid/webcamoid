@@ -1,3 +1,64 @@
+2012-07-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md, Webcamoid.pro, contents/code/config.py,
+	contents/code/effects.py, contents/code/infotools.py,
+	contents/code/main.py, contents/code/translator.py,
+	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
+	contents/code/webcamoidgui.py, contents/ts/ca.ts,
+	contents/ts/de.ts, contents/ts/el.ts, contents/ts/es.ts,
+	contents/ts/fr.ts, contents/ts/gl.ts, contents/ts/it.ts,
+	contents/ts/ja.ts, contents/ts/ko.ts, contents/ts/pt.ts,
+	contents/ts/ru.ts, contents/ts/zh_CN.ts, contents/ts/zh_TW.ts,
+	contents/ui/webcamoidgui.ui: Updated translations. Added Catalan and
+	Galician
+
+2012-07-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.markdown, README.md, contents/code/config.py,
+	contents/code/effects.py, contents/code/infotools.py,
+	contents/code/main.py, contents/code/translator.py,
+	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
+	contents/code/webcamoidgui.py, contents/ui/effects.ui,
+	packagemap.xml: Many fixes.
+
+2012-07-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Webcamoid.nja, contents/code/config.py,
+	contents/code/infotools.py, contents/code/main.py,
+	contents/code/translator.py, contents/code/v4l2tools.py,
+	contents/code/videorecordconfig.py, contents/code/webcamoidgui.py,
+	contents/ui/videorecordconfig.ui: PyGst -> gst-launch (no more
+	bugs). Added video record config. Working on distro detection.
+
+2012-07-01  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/v4l2tools.py: Modified basic test in v4l2tools.
+
+2012-06-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/v4l2tools.py, contents/code/webcamoidgui.py: fdsink
+	-> appsink (more bugs).
+
+2012-06-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/v4l2tools.py, contents/code/webcamoidgui.py: Added
+	video recording (many bugs).
+
+2012-06-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.markdown, contents/code/config.py, contents/code/main.py,
+	contents/code/v4l2tools.py, contents/code/webcamoidgui.py: 
+	gst-launch -> PyGst (camerabin).
+
+2012-06-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, Webcamoid.nja, Webcamoid.pro,
+	contents/code/effects.py, contents/code/main.py,
+	contents/code/v4l2/tests.py, contents/code/v4l2tools.py,
+	contents/code/videorecordconfig.py, contents/code/webcamoidgui.py,
+	contents/ui/videorecordconfig.ui, contents/ui/webcamoidgui.ui,
+	metadata.desktop, packagemap.xml: Working on video recording.
+
 2012-06-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* README.markdown, contents/code/config.py,
