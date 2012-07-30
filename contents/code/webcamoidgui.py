@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2 -B
 # -*- coding: utf-8 -*-
 #
-# Webcamod, Show and take Photos with your webcam.
+# Webcamod, webcam capture plasmoid.
 # Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
@@ -21,11 +21,11 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
+import os
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
-from PyKDE4.kdecore import KStandardDirs
-from PyKDE4.kdeui import KIcon, KNotification
+from PyKDE4 import kdecore, kdeui, plasmascript
 
 import v4l2tools
 import translator
@@ -36,11 +36,11 @@ class WebcamoidGui(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
 
-        try:
-            uic.loadUi('../ui/webcamoidgui.ui', self)
-        except:
+        if isinstance(parent, plasmascript.Applet):
             uic.loadUi(parent.package().filePath('ui', 'webcamoidgui.ui'), self)
             self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
+        else:
+            uic.loadUi(self.resolvePath('../ui/webcamoidgui.ui'), self)
 
         self.translator = translator.Translator('self.translator', parent)
 
@@ -51,9 +51,9 @@ class WebcamoidGui(QtGui.QWidget):
         self.tools.gstError.connect(self.showGstError)
         self.tools.frameReady.connect(self.showFrame)
 
-        self.btnTakePhoto.setIcon(KIcon('camera-photo'))
-        self.btnStartStop.setIcon(KIcon('media-playback-start'))
-        self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+        self.btnTakePhoto.setIcon(kdeui.KIcon('camera-photo'))
+        self.btnStartStop.setIcon(kdeui.KIcon('media-playback-start'))
+        self.btnVideoRecord.setIcon(kdeui.KIcon('video-x-generic'))
 
         self.updateColors()
         self.wdgControls.hide()
@@ -64,6 +64,10 @@ class WebcamoidGui(QtGui.QWidget):
         self.webcamFrame = QtGui.QImage()
 
         self.infoTools = infotools.InfoTools(self)
+
+    def resolvePath(self, relpath=''):
+        return os.path.normpath(os.path.join(os.path.\
+                                dirname(os.path.realpath(__file__)), relpath))
 
     def changeEvent(self, event):
         QtGui.QWidget.changeEvent(self, event)
@@ -95,7 +99,7 @@ class WebcamoidGui(QtGui.QWidget):
 
     def updateColors(self):
         # ~/.kde4/share/config/kdeglobals
-        kdeglobals = KStandardDirs.locate('config', 'kdeglobals')
+        kdeglobals = kdecore.KStandardDirs.locate('config', 'kdeglobals')
 
         settings = QtCore.QSettings(kdeglobals,
                                     QtCore.QSettings.IniFormat,
@@ -182,20 +186,20 @@ class WebcamoidGui(QtGui.QWidget):
         if playing:
             self.btnTakePhoto.setEnabled(True)
             self.btnVideoRecord.setEnabled(True)
-            self.btnStartStop.setIcon(KIcon('media-playback-stop'))
+            self.btnStartStop.setIcon(kdeui.KIcon('media-playback-stop'))
         else:
             self.btnTakePhoto.setEnabled(False)
             self.btnVideoRecord.setEnabled(False)
-            self.btnStartStop.setIcon(KIcon('media-playback-start'))
+            self.btnStartStop.setIcon(kdeui.KIcon('media-playback-start'))
             self.webcamFrame = QtGui.QImage()
             self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(self.webcamFrame))
 
     @QtCore.pyqtSlot(bool)
     def recordingStateChanged(self, recording):
         if recording:
-            self.btnVideoRecord.setIcon(KIcon('media-playback-stop'))
+            self.btnVideoRecord.setIcon(kdeui.KIcon('media-playback-stop'))
         else:
-            self.btnVideoRecord.setIcon(KIcon('video-x-generic'))
+            self.btnVideoRecord.setIcon(kdeui.KIcon('video-x-generic'))
 
     @QtCore.pyqtSlot()
     def on_btnTakePhoto_clicked(self):
@@ -235,13 +239,13 @@ class WebcamoidGui(QtGui.QWidget):
             msg = self.translator.tr('Please install the following '\
                                      'packages:\n\n')
 
-        KNotification.event(
-                    KNotification.Error,
+        kdeui.KNotification.event(
+                    kdeui.KNotification.Error,
                     self.translator.tr('GStreamer not installed or configured'),
                     msg + cmd,
                     QtGui.QPixmap(),
                     None,
-                    KNotification.Persistent)
+                    kdeui.KNotification.Persistent)
 
     def saveFile(self, video=False):
         if video:

@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2 -B
 # -*- coding: utf-8 -*-
 #
-# Webcamod, Show and take Photos with your webcam.
+# Webcamod, webcam capture plasmoid.
 # Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
@@ -38,10 +38,14 @@ class Translator(QtCore.QTranslator):
                                    'contents',
                                    'ts')
         else:
-            i18nDir = 'contents/ts'
+            i18nDir = self.resolvePath('../ts')
 
         self.load(locale + '.qm', i18nDir)
         self.context = context
+
+    def resolvePath(self, relpath=''):
+        return os.path.normpath(os.path.join(os.path.\
+                                dirname(os.path.realpath(__file__)), relpath))
 
     def tr(self, sourceText):
         res = self.translate(self.context, sourceText)

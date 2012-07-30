@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2 -B
 # -*- coding: utf-8 -*-
 #
-# Webcamod, Show and take Photos with your webcam.
+# Webcamod, webcam capture plasmoid.
 # Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
@@ -24,23 +24,23 @@
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
-from PyKDE4.kdeui import KIcon
+from PyKDE4 import kdeui, plasmascript
 
 
 class Effects(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self)
 
-        try:
-            uic.loadUi('../ui/effects.ui', self)
-        except:
+        if isinstance(parent, plasmascript.Applet):
             uic.loadUi(parent.package().filePath('ui', 'effects.ui'), self)
+        else:
+            uic.loadUi(self.resolvePath('../ui/effects.ui'), self)
 
-        self.btnUp.setIcon(KIcon('arrow-up'))
-        self.btnAdd.setIcon(KIcon('arrow-right'))
-        self.btnDown.setIcon(KIcon('arrow-down'))
-        self.btnRemove.setIcon(KIcon('arrow-left'))
-        self.btnReset.setIcon(KIcon('edit-undo'))
+        self.btnUp.setIcon(kdeui.KIcon('arrow-up'))
+        self.btnAdd.setIcon(kdeui.KIcon('arrow-right'))
+        self.btnDown.setIcon(kdeui.KIcon('arrow-down'))
+        self.btnRemove.setIcon(kdeui.KIcon('arrow-left'))
+        self.btnReset.setIcon(kdeui.KIcon('edit-undo'))
 
         self.tools = tools
 
@@ -53,6 +53,10 @@ class Effects(QtGui.QWidget):
             if len(items) > 0:
                 self.lswApply.addItem(self.lswEffects.\
                                         takeItem(self.lswEffects.row(items[0])))
+
+    def resolvePath(self, relpath=''):
+        return os.path.normpath(os.path.join(os.path.\
+                                dirname(os.path.realpath(__file__)), relpath))
 
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):

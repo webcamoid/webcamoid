@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2 -B
 # -*- coding: utf-8 -*-
 #
-# Webcamod, Show and take Photos with your webcam.
+# Webcamod, webcam capture plasmoid.
 # Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
@@ -22,9 +22,7 @@
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 from PyQt4 import QtCore, QtGui
-from PyKDE4 import plasmascript
-from PyKDE4.plasma import Plasma
-from PyKDE4.kdeui import KDialog
+from PyKDE4 import plasmascript, plasma, kdeui
 
 import webcamoidgui
 import config
@@ -44,7 +42,7 @@ class Webcamoid(plasmascript.Applet):
         self.applet.setPassivePopup(True)
         self.setPopupIcon('camera-web')
         self.setHasConfigurationInterface(True)
-        self.setAspectRatioMode(Plasma.IgnoreAspectRatio)
+        self.setAspectRatioMode(plasma.Plasma.IgnoreAspectRatio)
         self.resize(self.defaultPlasmoidSize)
         self.setMinimumSize(self.minimumPlasmoidSize)
 
@@ -90,7 +88,8 @@ class Webcamoid(plasmascript.Applet):
         self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
 
     def createConfigurationInterface(self, parent):
-        parent.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel))
+        parent.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok | \
+                                                   kdeui.KDialog.Cancel))
 
         self.cfgDialog = config.Config(self, self.webcamoidGui.v4l2Tools())
 

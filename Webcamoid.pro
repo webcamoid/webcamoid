@@ -1,4 +1,4 @@
-# Webcamod, Show and take Photos with your webcam.
+# Webcamod, webcam capture plasmoid.
 # Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify

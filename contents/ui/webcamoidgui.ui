@@ -10,6 +10,9 @@
     <height>240</height>
    </rect>
   </property>
+  <property name="windowTitle">
+   <string>Webcamoid</string>
+  </property>
   <widget class="QLabel" name="lblFrame">
    <property name="geometry">
     <rect>
