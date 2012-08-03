@@ -1,6 +1,6 @@
-# Webcamoid, Show and take Photos with your webcam #
+# Webcamoid, webcam capture plasmoid #
 
-[Webcamoid](http://kde-apps.org/content/show.php/Webcamoid?content=144796) is a plasmoid for the KDE desktop environment.
+[Webcamoid](http://kde-apps.org/content/show.php/Webcamoid?content=144796) is a webcam plasmoid for the KDE desktop environment.
 
 ## Features ##
 
@@ -14,6 +14,7 @@
 * Popup applet support (you can embed Webcamoid in the panel).
 * Add funny effects to the webcam (requires GStreamer plugins).
 * Translated to many languages.
+* Stand alone installation mode (use it as a normal program).
 
 ## Installing ##
 
@@ -25,17 +26,28 @@ Webcamoid requires the _gst-launch-0.10_ executable (GStreamer), you can install
 * __OpenSuSE__: _zypper install gstreamer-0_10-utils gstreamer-0_10-plugins-good gstreamer-0_10-plugins-bad_
 * __Mandriva/Mageia__: _urpmi gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad_
 
+### The easy way ###
+
 You can follow [these](http://userbase.kde.org/Plasma/Installing_Plasmoids) instructions to install Webcamoid. Alternatively, you can install/uninstall Webcamoid from console:
 
 __install__
 
-	plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
+    plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
 
 __uninstall__
 
-	plasmapkg -r webcamoid && kbuildsycoca4
+    plasmapkg -r webcamoid && kbuildsycoca4
 
-## Installing from Github ##
+### As stand alone program ###
+
+The stand alone installation mode will allow you to use Webcamoid as a plasmoid, but also as a normal program. This installation way requires root access. The stand alone mode is still experimental, it will not crash, but you will be not able to access to the configuration dialog, for the moment.
+
+    unzip webcamoid.plasmoid
+    cd Webcamoid
+    su -c 'python2 setup.py install --prefix=/usr'
+    kbuildsycoca4
+
+### From Github ###
 
 Be careful, the GIT repository is unstable, it could work or not.
 

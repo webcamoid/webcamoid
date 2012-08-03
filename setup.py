@@ -26,7 +26,6 @@ import sys
 import glob
 from distutils import core, sysconfig
 
-# python2 setup.py install --prefix='/usr'
 
 prefix = sysconfig.PREFIX
 

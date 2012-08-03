@@ -400,9 +400,12 @@ class V4L2Tools(QtCore.QObject):
         self.setVideoFormat(dev_name, videoFormats[0])
 
         controls = self.listControls(dev_name)
+        ctrls = {}
 
-        self.setControls(dev_name,
-                         {control[0]: control[5] for control in controls})
+        for control in controls:
+            ctrls[control[0]] = control[5]
+
+        self.setControls(dev_name, ctrls)
 
     def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple(),
                                                   record=False):
