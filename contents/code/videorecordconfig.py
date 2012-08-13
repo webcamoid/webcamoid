@@ -21,6 +21,7 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
+import os
 import sys
 
 from PyQt4 import uic, QtGui, QtCore

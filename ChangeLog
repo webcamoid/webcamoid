@@ -1,3 +1,21 @@
+2012-08-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md, contents/code/main.py, contents/code/v4l2tools.py,
+	setup.py: Fixed some bugs.
+
+2012-07-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Webcamoid.pro, contents/code/config.py, contents/code/effects.py,
+	contents/code/infotools.py, contents/code/main.py,
+	contents/code/translator.py, contents/code/v4l2tools.py,
+	contents/code/videorecordconfig.py, contents/code/webcamoidgui.py,
+	contents/ui/effects.ui, contents/ui/webcamoidgui.ui,
+	metadata.desktop, setup.py: Added Stand alone app setup.
+
+2012-07-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog: Updated ChangeLog.
+
 2012-07-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* README.md, Webcamoid.pro, contents/code/config.py,

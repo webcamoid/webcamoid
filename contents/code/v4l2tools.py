@@ -508,7 +508,6 @@ class V4L2Tools(QtCore.QObject):
                                           self.videoSize.height(),
                                           QtGui.QImage.Format_RGB888))
 
-    @QtCore.pyqtSlot()
     def isRecording(self):
         return self.recording
 

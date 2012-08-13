@@ -19,16 +19,19 @@
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 SOURCES = \
+    contents/code/about.py \
     contents/code/config.py \
     contents/code/effects.py \
     contents/code/infotools.py \
     contents/code/main.py \
     contents/code/translator.py \
+    contents/code/upload.py \
     contents/code/v4l2tools.py \
     contents/code/videorecordconfig.py \
     contents/code/webcamoidgui.py
 
 FORMS = \
+    contents/ui/about.ui \
     contents/ui/effects.ui \
     contents/ui/videorecordconfig.ui \
     contents/ui/webcamoidgui.ui

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fileset>
     <file>
+        <path>contents/code/about.py</path>
+        <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
         <path>contents/code/config.py</path>
         <type>python</type>
         <license>gpl</icense>
@@ -22,6 +27,11 @@
     </file>
     <file>
         <path>contents/code/translator.py</path>
+        <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
+        <path>contents/code/upload.py</path>
         <type>python</type>
         <license>gpl</icense>
     </file>
@@ -57,6 +67,11 @@
     </file>
     <file>
         <path>contents/code/webcamoidgui.py</path>
+        <type>xml</type>
+        <license>gpl</icense>
+    </file>
+    <file>
+        <path>contents/ui/about.ui</path>
         <type>xml</type>
         <license>gpl</icense>
     </file>

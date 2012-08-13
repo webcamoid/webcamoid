@@ -21,6 +21,7 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
+import os
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
@@ -54,9 +55,17 @@ class Effects(QtGui.QWidget):
                 self.lswApply.addItem(self.lswEffects.\
                                         takeItem(self.lswEffects.row(items[0])))
 
+        self.tools.recordingStateChanged.connect(self.recordingStateChanged)
+        self.recordingStateChanged(self.tools.isRecording())
+
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.\
                                 dirname(os.path.realpath(__file__)), relpath))
+
+    @QtCore.pyqtSlot(bool)
+    def recordingStateChanged(self, recording):
+        self.lswEffects.setEnabled(not recording)
+        self.lswApply.setEnabled(not recording)
 
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):

@@ -30,6 +30,7 @@ from PyKDE4 import kdecore, kdeui, plasmascript
 import v4l2tools
 import translator
 import infotools
+import about
 
 
 class WebcamoidGui(QtGui.QWidget):

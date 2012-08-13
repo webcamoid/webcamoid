@@ -9,7 +9,7 @@
 * Manages multiple webcams.
 * Play/Stop capture, this saves resources while the plasmoid is not in use.
 * Written in Python.
-* Requires GStreamer to capture images from the webcam.
+* Uses GStreamer as capture engine.
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
 * Add funny effects to the webcam (requires GStreamer plugins).
@@ -97,15 +97,15 @@ Give me the output of this command:
 
     cat /etc/os-release
 
-If your distro doesn't contains this file please go to de next step.
+If your distro doesn't contains this file please go to the next step.
 
 ### For oldest distributions ###
 
-Give the output of this command:
+Give me the output of this command:
 
     python2 -c 'import platform; print(platform.linux_distribution())'
 
-Also, you must find wich packages contains these files:
+In both cases, you must find wich packages contains these files:
 
     /usr/bin/gst-launch-0.10
     /usr/lib/gstreamer-0.10/libgstcoreelements.so
@@ -121,3 +121,20 @@ Also, you must find wich packages contains these files:
     /usr/lib/gstreamer-0.10/libgstvp8.so
 
 Please provide all this info in the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
+
+## Reporting Bugs ##
+
+In the root folder of webcamoid run this command:
+
+    plasmoidviewer
+
+use Webcamoid until an abnormal event happen, write a list with the following information:
+
+1. Your Webcamoid version.
+2. Your distribution name and version (numeric, please).
+3. Your KDE and Qt version.
+4. Your Python version.
+5. The output of the previous command.
+6. Any other useful information.
+
+Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
