@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Webcamoid</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="camera-web"/>
+  </property>
   <widget class="QLabel" name="lblFrame">
    <property name="geometry">
     <rect>
@@ -36,6 +39,24 @@
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="6">
+     <widget class="QPushButton" name="btnAbout">
+      <property name="maximumSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>About</string>
+      </property>
+      <property name="icon">
+       <iconset theme="help-about">
+        <normaloff/>
+       </iconset>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <spacer name="hspLeft">
       <property name="orientation">
@@ -83,6 +104,19 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="7">
+     <spacer name="hspRight">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
     <item row="0" column="4">
      <widget class="QPushButton" name="btnStartStop">
       <property name="maximumSize">
@@ -100,19 +134,6 @@
        </iconset>
       </property>
      </widget>
-    </item>
-    <item row="0" column="5">
-     <spacer name="hspRight">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
     </item>
     <item row="0" column="2">
      <widget class="QPushButton" name="btnVideoRecord">
@@ -135,9 +156,35 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="5">
+     <widget class="QPushButton" name="btnConfigure">
+      <property name="maximumSize">
+       <size>
+        <width>24</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Configure Webcamoid</string>
+      </property>
+      <property name="icon">
+       <iconset theme="configure">
+        <normaloff/>
+       </iconset>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>btnTakePhoto</tabstop>
+  <tabstop>btnVideoRecord</tabstop>
+  <tabstop>cbxSetWebcam</tabstop>
+  <tabstop>btnStartStop</tabstop>
+  <tabstop>btnConfigure</tabstop>
+  <tabstop>btnAbout</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

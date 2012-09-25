@@ -37,6 +37,7 @@ class Effects(QtGui.QWidget):
         else:
             uic.loadUi(self.resolvePath('../ui/effects.ui'), self)
 
+        self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.btnUp.setIcon(kdeui.KIcon('arrow-up'))
         self.btnAdd.setIcon(kdeui.KIcon('arrow-right'))
         self.btnDown.setIcon(kdeui.KIcon('arrow-down'))

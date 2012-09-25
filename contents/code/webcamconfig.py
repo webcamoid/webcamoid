@@ -24,16 +24,18 @@
 import sys
 
 from PyQt4 import QtCore, QtGui
+from PyKDE4 import kdeui
 from v4l2 import v4l2
 
 import v4l2tools
 import translator
 
 
-class Config(QtGui.QWidget):
+class WebcamConfig(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self)
 
+        self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.translator = translator.Translator('self.translator', parent)
 
         self.tools = v4l2tools.V4L2Tools(self) if tools == None else tools
@@ -312,6 +314,6 @@ class Config(QtGui.QWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    config = Config()
-    config.show()
+    webcamConfig = WebcamConfig()
+    webcamConfig.show()
     app.exec_()

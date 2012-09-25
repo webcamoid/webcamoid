@@ -25,10 +25,6 @@ from PyQt4 import QtCore, QtGui
 from PyKDE4 import kdeui, plasma, plasmascript
 
 import webcamoidgui
-import config
-import effects
-import videorecordconfig
-import translator
 
 
 class Webcamoid(plasmascript.Applet):
@@ -36,7 +32,6 @@ class Webcamoid(plasmascript.Applet):
         plasmascript.Applet.__init__(self, parent)
 
     def init(self):
-        self.translator = translator.Translator('self.translator', self)
         self.defaultPlasmoidSize = QtCore.QSizeF(320, 240)
         self.minimumPlasmoidSize = QtCore.QSizeF(32, 32)
         self.applet.setPassivePopup(True)
@@ -47,33 +42,6 @@ class Webcamoid(plasmascript.Applet):
         self.setMinimumSize(self.minimumPlasmoidSize)
 
         self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
-
-        self.webcamoidGui.setProcessExecutable(str(self.config().\
-                readEntry('processExecutable', 'gst-launch-0.10').toString()))
-
-        effcts = str(self.config().readEntry('effects', '').toString())
-
-        if effcts != '':
-            self.webcamoidGui.setEffects(effcts.split('&'))
-
-        videoRecordFormats = str(self.config().\
-                    readEntry('videoRecordFormats',
-                              'webm;;'\
-                              'vp8enc quality=10 speed=7 bitrate=1000000000;;'\
-                              'vorbisenc;;'\
-                              'webmmux&&' \
-                              'ogv, ogg;;'\
-                              'theoraenc quality=63 bitrate=16777215;;'\
-                              'vorbisenc;;'\
-                              'oggmux').toString())
-
-        if videoRecordFormats != '':
-            for fmt in videoRecordFormats.split('&&'):
-                params = fmt.split(';;')
-                self.webcamoidGui.setVideoRecordFormat(params[0],
-                                                       params[1],
-                                                       params[2],
-                                                       params[3])
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
@@ -87,60 +55,16 @@ class Webcamoid(plasmascript.Applet):
         self.proxyWidget.setMinimumSize(self.minimumPlasmoidSize)
         self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
 
-    def createConfigurationInterface(self, parent):
-        parent.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok | \
-                                                   kdeui.KDialog.Cancel))
+    def createConfigurationInterface(self, configDialog):
+        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok | \
+                                                         kdeui.KDialog.Cancel))
 
-        self.cfgDialog = config.Config(self, self.webcamoidGui.v4l2Tools())
+        self.webcamoidGui.addWebcamConfigDialog(configDialog)
+        self.webcamoidGui.addEffectsConfigDialog(configDialog)
+        self.webcamoidGui.addVideoFormatsConfigDialog(configDialog)
 
-        parent.addPage(self.cfgDialog,
-                       self.translator.tr('Webcam Settings'),
-                       'camera-web',
-                       self.translator.tr('Set webcam properties'),
-                       False)
-
-        self.cfgEffects = effects.Effects(self, self.webcamoidGui.v4l2Tools())
-
-        parent.addPage(self.cfgEffects,
-                       self.translator.tr('Configure Webcam Effects'),
-                       'tools-wizard',
-                       self.translator.tr('Add funny effects to the webcam'),
-                       False)
-
-        self.cfgVideoFormats = videorecordconfig.\
-                        VideoRecordConfig(self, self.webcamoidGui.v4l2Tools())
-
-        parent.addPage(self.cfgVideoFormats,
-                       self.translator.tr('Configure Video Recording Formats'),
-                       'video-x-generic',
-                       self.translator.tr('Add or remove video formats for '\
-                                                                'recording.'),
-                       False)
-
-        parent.okClicked.connect(self.saveConfigs)
-        parent.cancelClicked.connect(self.saveConfigs)
-
-    @QtCore.pyqtSlot()
-    def saveConfigs(self):
-        self.config().writeEntry('processExecutable',
-                                 self.webcamoidGui.processExecutable())
-
-        self.config().writeEntry('effects',
-                                 '&&'.join(self.webcamoidGui.effects()))
-
-        videoRecordFormats = []
-
-        for suffix, videoEncoder, audioEncoder, muxer in self.webcamoidGui.\
-                                                supportedVideoRecordFormats():
-            videoRecordFormats.append('{0};;{1};;{2};;{3}'.format(suffix,
-                                                                  videoEncoder,
-                                                                  audioEncoder,
-                                                                  muxer))
-
-        self.config().writeEntry('videoRecordFormats',
-                                 '&&'.join(videoRecordFormats))
-
-        self.emit(QtCore.SIGNAL("configNeedsSaving()"))
+        configDialog.okClicked.connect(self.webcamoidGui.saveConfigs)
+        configDialog.cancelClicked.connect(self.webcamoidGui.saveConfigs)
 
 
 def CreateApplet(parent):

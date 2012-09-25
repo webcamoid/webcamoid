@@ -23,14 +23,17 @@
 
 import os
 import sys
+import time
 
 from PyQt4 import uic, QtGui, QtCore
 from PyKDE4 import kdecore, kdeui, plasmascript
 
-import v4l2tools
-import translator
+import effects
 import infotools
-import about
+import translator
+import v4l2tools
+import videorecordconfig
+import webcamconfig
 
 
 class WebcamoidGui(QtGui.QWidget):
@@ -52,9 +55,12 @@ class WebcamoidGui(QtGui.QWidget):
         self.tools.gstError.connect(self.showGstError)
         self.tools.frameReady.connect(self.showFrame)
 
+        self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.btnTakePhoto.setIcon(kdeui.KIcon('camera-photo'))
         self.btnStartStop.setIcon(kdeui.KIcon('media-playback-start'))
         self.btnVideoRecord.setIcon(kdeui.KIcon('video-x-generic'))
+        self.btnConfigure.setIcon(kdeui.KIcon('configure'))
+        self.btnAbout.setIcon(kdeui.KIcon('help-about'))
 
         self.updateColors()
         self.wdgControls.hide()
@@ -65,6 +71,41 @@ class WebcamoidGui(QtGui.QWidget):
         self.webcamFrame = QtGui.QImage()
 
         self.infoTools = infotools.InfoTools(self)
+
+        config = kdecore.KSharedConfig.openConfig('webcamoidrc')
+
+        webcamConfigs = config.group('Webcam')
+
+        self.tools.setProcessExecutable(str(webcamConfigs.\
+                readEntry('processExecutable', 'gst-launch-0.10').toString()))
+
+        effectsConfigs = config.group('Effects')
+
+        effcts = str(effectsConfigs.readEntry('effects', '').toString())
+
+        if effcts != '':
+            self.tools.setEffects(effcts.split('&'))
+
+        videoFormatsConfigs = config.group('VideoRecordFormats')
+
+        videoRecordFormats = str(videoFormatsConfigs.\
+                    readEntry('formats',
+                              'webm::'
+                              'vp8enc quality=10 speed=7 bitrate=1000000000::'
+                              'vorbisenc::'
+                              'webmmux&&'
+                              'ogv, ogg::'
+                              'theoraenc quality=63 bitrate=16777215::'
+                              'vorbisenc::'
+                              'oggmux').toString())
+
+        if videoRecordFormats != '':
+            for fmt in videoRecordFormats.split('&&'):
+                params = fmt.split('::')
+                self.tools.setVideoRecordFormat(params[0],
+                                                params[1],
+                                                params[2],
+                                                params[3])
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.\
@@ -131,37 +172,8 @@ class WebcamoidGui(QtGui.QWidget):
         self.btnVideoRecord.setStyleSheet(styleSheet)
         self.cbxSetWebcam.setStyleSheet(styleSheet)
         self.btnStartStop.setStyleSheet(styleSheet)
-
-    def v4l2Tools(self):
-        return self.tools
-
-    def effects(self):
-        return self.tools.currentEffects()
-
-    def processExecutable(self):
-        return self.tools.processExecutable()
-
-    def supportedVideoRecordFormats(self):
-        return self.tools.supportedVideoRecordFormats()
-
-    @QtCore.pyqtSlot(str, str, str, str)
-    def setVideoRecordFormat(self,
-                             suffix='',
-                             videoEncoder='',
-                             audioEncoder='',
-                             muxer=''):
-        return self.tools.setVideoRecordFormat(suffix,
-                                               videoEncoder,
-                                               audioEncoder,
-                                               muxer)
-
-    @QtCore.pyqtSlot(str)
-    def setProcessExecutable(self, processExecutable):
-        self.tools.setProcessExecutable(processExecutable)
-
-    @QtCore.pyqtSlot(list)
-    def setEffects(self, effects):
-        return self.tools.setEffects(effects)
+        self.btnConfigure.setStyleSheet(styleSheet)
+        self.btnAbout.setStyleSheet(styleSheet)
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def showFrame(self, webcamFrame):
@@ -230,6 +242,115 @@ class WebcamoidGui(QtGui.QWidget):
             self.tools.startDevice(self.tools.\
                         captureDevices()[self.cbxSetWebcam.currentIndex()][0])
 
+    def addWebcamConfigDialog(self, configDialog):
+        self.cfgWebcamDialog = webcamconfig.\
+                            WebcamConfig(self, self.tools)
+
+        configDialog.addPage(self.cfgWebcamDialog,
+                             self.translator.tr('Webcam Settings'),
+                             'camera-web',
+                             self.translator.tr('Set webcam properties'),
+                             False)
+
+    def addEffectsConfigDialog(self, configDialog):
+        self.cfgEffects = effects.Effects(self, self.tools)
+
+        configDialog.\
+               addPage(self.cfgEffects,
+                       self.translator.tr('Configure Webcam Effects'),
+                       'tools-wizard',
+                       self.translator.tr('Add funny effects to the webcam'),
+                       False)
+
+    def addVideoFormatsConfigDialog(self, configDialog):
+        self.cfgVideoFormats = videorecordconfig.\
+                        VideoRecordConfig(self, self.tools)
+
+        configDialog.\
+               addPage(self.cfgVideoFormats,
+                       self.translator.tr('Configure Video Recording Formats'),
+                       'video-x-generic',
+                       self.translator.tr('Add or remove video formats for '
+                                                                'recording.'),
+                       False)
+
+    @QtCore.pyqtSlot()
+    def on_btnConfigure_clicked(self):
+        config = kdeui.KConfigSkeleton('',
+                                       self)
+
+        configDialog = kdeui.KConfigDialog(self,
+                                           'Webcamoid Settings',
+                                           config)
+
+        configDialog.setWindowTitle(self.translator.tr('Webcamoid Settings'))
+
+        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok | \
+                                                         kdeui.KDialog.Cancel))
+
+        self.addWebcamConfigDialog(configDialog)
+        self.addEffectsConfigDialog(configDialog)
+        self.addVideoFormatsConfigDialog(configDialog)
+
+        configDialog.okClicked.connect(self.saveConfigs)
+        configDialog.cancelClicked.connect(self.saveConfigs)
+
+        configDialog.exec_()
+
+    @QtCore.pyqtSlot()
+    def saveConfigs(self):
+        config = kdecore.KSharedConfig.openConfig('webcamoidrc')
+
+        webcamConfigs = config.group('Webcam')
+
+        webcamConfigs.writeEntry('processExecutable',
+                                 self.tools.processExecutable())
+
+        effectsConfigs = config.group('Effects')
+
+        effectsConfigs.writeEntry('effects',
+                                  '&&'.join(self.tools.currentEffects()))
+
+        videoFormatsConfigs = config.group('VideoRecordFormats')
+
+        videoRecordFormats = []
+
+        for suffix, videoEncoder, audioEncoder, muxer in self.tools.\
+                                                supportedVideoRecordFormats():
+            videoRecordFormats.append('{0}::{1}::{2}::{3}'.format(suffix,
+                                                                  videoEncoder,
+                                                                  audioEncoder,
+                                                                  muxer))
+
+        videoFormatsConfigs.writeEntry('formats',
+                                       '&&'.join(videoRecordFormats))
+
+        config.sync()
+
+    @QtCore.pyqtSlot()
+    def on_btnAbout_clicked(self):
+        aboutData = kdecore.\
+            KAboutData('Webcamoid',
+                       'Webcamoid',
+                       kdecore.ki18n('Webcamoid'),
+                       '3.2.0',
+                       kdecore.ki18n(self.translator.\
+                                                tr('webcam capture plasmoid.')),
+                       kdecore.KAboutData.License_GPL_V3,
+                       kdecore.ki18n(self.translator.\
+                           tr('Copyright (C) 2011-2012  Gonzalo Exequiel '
+                              'Pedone')),
+                       kdecore.ki18n(self.translator.\
+                           tr('A simple webcam plasmoid and stand-alone app '
+                              'for picture and video capture.')),
+                       'http://github.com/hipersayanX/Webcamoid',
+                       'submit@bugs.kde.org')
+
+        aboutData.setProgramIconName('camera-web')
+
+        aboutDialog = kdeui.KAboutApplicationDialog(aboutData, self)
+        aboutDialog.exec_()
+
     @QtCore.pyqtSlot()
     def showGstError(self):
         cmd, isCmd = self.infoTools.gstInstallCommand()
@@ -237,7 +358,7 @@ class WebcamoidGui(QtGui.QWidget):
         if isCmd:
             msg = self.translator.tr('Please install GStreamer:\n\n')
         else:
-            msg = self.translator.tr('Please install the following '\
+            msg = self.translator.tr('Please install the following '
                                      'packages:\n\n')
 
         kdeui.KNotification.event(
@@ -249,7 +370,11 @@ class WebcamoidGui(QtGui.QWidget):
                     kdeui.KNotification.Persistent)
 
     def saveFile(self, video=False):
+        curTime = time.strftime('%Y-%m-%d %H-%M-%S')
+
         if video:
+            videosPath = str(kdeui.KGlobalSettings.videosPath())
+
             videoRecordFormats = self.tools.supportedVideoRecordFormats()
 
             filters = []
@@ -267,15 +392,20 @@ class WebcamoidGui(QtGui.QWidget):
                         fst = False
 
             filters = ';;'.join(filters)
-            defaultFileName = './video.{0}'.format(defaultSuffix)
+            defaultFileName = os.path.join(videosPath,
+                                           'Video {0}.{1}'.\
+                                                format(curTime, defaultSuffix))
         else:
+            picturesPath = str(kdeui.KGlobalSettings.picturesPath())
+
             filters = 'PNG file (*.png);;'\
                       'JPEG file (*.jpg);;'\
                       'BMP file (*.bmp);;'\
                       'GIF file (*.gif)'
 
             defaultSuffix = 'png'
-            defaultFileName = './image.png'
+            defaultFileName = os.path.join(picturesPath,
+                                           'Picture {0}.png'.format(curTime))
 
         if defaultSuffix == '':
             return ''

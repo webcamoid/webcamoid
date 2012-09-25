@@ -38,6 +38,7 @@ class VideoRecordConfig(QtGui.QWidget):
         else:
             uic.loadUi(self.resolvePath('../ui/videorecordconfig.ui'), self)
 
+        self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.btnAdd.setIcon(kdeui.KIcon('list-add'))
         self.btnRemove.setIcon(kdeui.KIcon('list-remove'))
         self.btnUp.setIcon(kdeui.KIcon('arrow-up'))
