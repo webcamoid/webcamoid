@@ -31,6 +31,9 @@ class Translator(QtCore.QTranslator):
     def __init__(self, context='', parent=None):
         QtCore.QTranslator.__init__(self, parent)
 
+        QtCore.QTextCodec.setCodecForCStrings(QtCore.
+                                            QTextCodec.codecForName('UTF-8'))
+
         locale = QtCore.QLocale.system().name()
 
         if isinstance(parent, plasmascript.Applet):
@@ -44,7 +47,7 @@ class Translator(QtCore.QTranslator):
         self.context = context
 
     def resolvePath(self, relpath=''):
-        return os.path.normpath(os.path.join(os.path.\
+        return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
 
     def tr(self, sourceText):

@@ -181,7 +181,7 @@ def foreach_device_output(fd, func):
     ioctl(fd, v4l2.VIDIOC_G_OUTPUT, original_index)
 
     for output in get_device_outputs(fd):
-        if output_.index != original_index.value:
+        if output.index != original_index.value:
             try:
                 ioctl(fd, v4l2.VIDIOC_S_OUTPUT, v4l2.c_int(output.index))
             except IOError, e:
@@ -366,7 +366,7 @@ def test_VIDIOC_ENUMINPUT(fd):
         assert input_.audioset < 32
         assert valid_v4l2_std_id(input_.std)
         if input_.status:
-            assert valid_input_status(status)
+            assert valid_input_status(input_.status)
         assert input_.reserved[0] == 0
         assert input_.reserved[1] == 0
         assert input_.reserved[2] == 0
@@ -394,7 +394,7 @@ def test_VIDIOC_ENUMOUTPUT(fd):
         assert valid_v4l2_std_id(output.std)
         assert output.reserved == 0
 
-    foreach_device_output(fd, assert_valid_ouput)
+    foreach_device_output(fd, assert_valid_output)
 
 
 def test_VIDIOC_ENUMSTD(fd):

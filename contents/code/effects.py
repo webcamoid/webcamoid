@@ -53,14 +53,14 @@ class Effects(QtGui.QWidget):
             items = self.lswEffects.findItems(effect, QtCore.Qt.MatchExactly)
 
             if len(items) > 0:
-                self.lswApply.addItem(self.lswEffects.\
-                                        takeItem(self.lswEffects.row(items[0])))
+                self.lswApply.addItem(self.lswEffects.
+                                    takeItem(self.lswEffects.row(items[0])))
 
         self.tools.recordingStateChanged.connect(self.recordingStateChanged)
         self.recordingStateChanged(self.tools.isRecording())
 
     def resolvePath(self, relpath=''):
-        return os.path.normpath(os.path.join(os.path.\
+        return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
 
     @QtCore.pyqtSlot(bool)
@@ -71,15 +71,15 @@ class Effects(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):
         for item in self.lswEffects.selectedItems():
-            self.lswApply.addItem(self.lswEffects.\
-                                            takeItem(self.lswEffects.row(item)))
+            self.lswApply.addItem(self.lswEffects.
+                                        takeItem(self.lswEffects.row(item)))
 
         self.update()
 
     @QtCore.pyqtSlot()
     def on_btnRemove_clicked(self):
         for item in self.lswApply.selectedItems():
-            self.lswEffects.addItem(self.lswApply.\
+            self.lswEffects.addItem(self.lswApply.
                                             takeItem(self.lswApply.row(item)))
 
         self.lswEffects.sortItems()

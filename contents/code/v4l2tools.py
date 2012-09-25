@@ -204,7 +204,8 @@ class V4L2Tools(QtCore.QObject):
                 fcntl.ioctl(fd.handle(), v4l2.VIDIOC_QUERYCAP, capability)
 
                 if capability.capabilities & v4l2.V4L2_CAP_VIDEO_CAPTURE:
-                    webcamsDevices.append((str(fd.fileName()), capability.card))
+                    webcamsDevices.append((str(fd.fileName()),
+                                               capability.card))
 
                 fd.close()
 
@@ -228,8 +229,8 @@ class V4L2Tools(QtCore.QObject):
         ctrls.count = 1
         ctrls.controls = ctypes.pointer(ext_ctrl)
 
-        if (v4l2.V4L2_CTRL_ID2CLASS(queryctrl.id) != v4l2.V4L2_CTRL_CLASS_USER \
-            and queryctrl.id < v4l2.V4L2_CID_PRIVATE_BASE):
+        if v4l2.V4L2_CTRL_ID2CLASS(queryctrl.id) != v4l2.V4L2_CTRL_CLASS_USER \
+            and queryctrl.id < v4l2.V4L2_CID_PRIVATE_BASE:
             if fcntl.ioctl(dev_fd, v4l2.VIDIOC_G_EXT_CTRLS, ctrls):
                 return tuple()
         else:
@@ -330,8 +331,8 @@ class V4L2Tools(QtCore.QObject):
         for id in range(v4l2.V4L2_CID_USER_BASE, v4l2.V4L2_CID_LASTP1):
             qctrl.id = id
 
-            if fcntl.ioctl(dev_fd, v4l2.v4l2.VIDIOC_QUERYCTRL, qctrl) == 0 and \
-               not (qctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED):
+            if fcntl.ioctl(dev_fd, v4l2.v4l2.VIDIOC_QUERYCTRL, qctrl) == 0 \
+               and not (qctrl.flags & v4l2.V4L2_CTRL_FLAG_DISABLED):
                 controls[qctrl.name] = qctrl.id
 
         qctrl.id = v4l2.V4L2_CID_PRIVATE_BASE
@@ -421,7 +422,7 @@ class V4L2Tools(QtCore.QObject):
 
         params = [self.processPath,
                   '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
-                  'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.\
+                  'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.
                                         format(fmt[0], fmt[1], self.fps), '!']
 
         for effect in self.effects:
@@ -477,16 +478,16 @@ class V4L2Tools(QtCore.QObject):
         os.kill(self.process.pid, signal.SIGINT)
 
         while True:
-            frame = self.process.stdout.read(3 * self.videoSize.width() * \
-                                                 self.videoSize.height())
+            frame = self.process.stdout.read(3 * self.videoSize.width()
+                                               * self.videoSize.height())
 
             if frame == '':
                 break
 
             self.frameReady.emit(QtGui.QImage(frame,
-                                             self.videoSize.width(),
-                                             self.videoSize.height(),
-                                             QtGui.QImage.Format_RGB888))
+                                              self.videoSize.width(),
+                                              self.videoSize.height(),
+                                              QtGui.QImage.Format_RGB888))
 
         self.process.wait()
         self.timer.stop()
@@ -500,8 +501,8 @@ class V4L2Tools(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def readFrame(self):
-        frame = self.process.stdout.read(3 * self.videoSize.width() *
-                                             self.videoSize.height())
+        frame = self.process.stdout.read(3 * self.videoSize.width()
+                                           * self.videoSize.height())
 
         self.frameReady.emit(QtGui.QImage(frame,
                                           self.videoSize.width(),
@@ -555,7 +556,7 @@ class V4L2Tools(QtCore.QObject):
         ext = ext[1:].lower()
 
         for suffix, videoEncoder, audioEncoder, muxer in \
-                                                        self.videoRecordFormats:
+                                                    self.videoRecordFormats:
             for s in suffix.split(','):
                 if s.lower().strip() == ext:
                     return suffix, videoEncoder, audioEncoder, muxer

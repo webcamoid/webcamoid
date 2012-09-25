@@ -33,14 +33,14 @@ for arg in sys.argv:
     if arg.startswith('--prefix='):
         prefix = arg.split('=', 1)[1]
 
-webcamoidGui = os.path.join(prefix,
-                            'share/apps/plasma/plasmoids/Webcamoid/contents/'
-                            'code/webcamoidgui.py')
+mainWindow = os.path.join(prefix,
+                          'share/apps/plasma/plasmoids/Webcamoid/contents/'
+                          'code/mainwindow.py')
 
 with open('webcamoid', 'w') as launcher:
-    launcher.write('#!/bin/sh\n' \
-                   '\n' \
-                   'python2 -B \'{0}\'\n'.format(webcamoidGui))
+    launcher.write('#!/bin/sh\n'
+                   '\n'
+                   'python2 -B \'{0}\'\n'.format(mainWindow))
 
 os.chmod('webcamoid', 0744)
 launcherPath = os.path.join(prefix, 'bin/webcamoid')
@@ -102,7 +102,8 @@ core.setup(
     maintainer='Gonzalo Exequiel Pedone',
     maintainer_email='hipersayan DOT x AT gmail DOT com',
     url='http://github.com/hipersayanX/Webcamoid',
-    download_url='http://kde-apps.org/content/show.php/Webcamoid?content=144796',
+    download_url='http://kde-apps.org/content/show.php/Webcamoid?'
+                                                            'content=144796',
     platforms=('linux',),
     description='A webcam plasmoid for the KDE desktop environment.',
 
@@ -116,32 +117,32 @@ core.setup(
                  glob.glob('contents/ts/*.qm')),
                 ('share/apps/plasma/plasmoids/Webcamoid/contents/ui',
                  glob.glob('contents/ui/*.ui')),
-                ('share/apps/plasma/plasmoids/Webcamoid', ['metadata.desktop']),
+                ('share/apps/plasma/plasmoids/Webcamoid',
+                 ['metadata.desktop']),
                 ('share/applications/kde4', ['Webcamoid.desktop']),
                 ('share/licenses/Webcamoid', ['COPYING'])],
     scripts=['webcamoid'],
-    classifiers= \
-       ('Topic :: Multimedia :: Video :: Capture',
-        'Environment :: X11 Applications :: KDE',
-        'Environment :: X11 Applications :: Qt',
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: End Users/Desktop',
-        'License :: OSI Approved :: '
-        'GNU General Public License v3 or later (GPLv3+)',
-        'Natural Language :: Catalan',
-        'Natural Language :: Chinese (Simplified)',
-        'Natural Language :: Chinese (Traditional)',
-        'Natural Language :: English',
-        'Natural Language :: French',
-        'Natural Language :: Galician',
-        'Natural Language :: German',
-        'Natural Language :: Greek',
-        'Natural Language :: Italian',
-        'Natural Language :: Japanese',
-        'Natural Language :: Korean',
-        'Natural Language :: Portuguese',
-        'Natural Language :: Russian',
-        'Natural Language :: Spanish',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.7'),
+    classifiers=('Topic :: Multimedia :: Video :: Capture',
+                 'Environment :: X11 Applications :: KDE',
+                 'Environment :: X11 Applications :: Qt',
+                 'Development Status :: 5 - Production/Stable',
+                 'Intended Audience :: End Users/Desktop',
+                 'License :: OSI Approved :: '
+                 'GNU General Public License v3 or later (GPLv3+)',
+                 'Natural Language :: Catalan',
+                 'Natural Language :: Chinese (Simplified)',
+                 'Natural Language :: Chinese (Traditional)',
+                 'Natural Language :: English',
+                 'Natural Language :: French',
+                 'Natural Language :: Galician',
+                 'Natural Language :: German',
+                 'Natural Language :: Greek',
+                 'Natural Language :: Italian',
+                 'Natural Language :: Japanese',
+                 'Natural Language :: Korean',
+                 'Natural Language :: Portuguese',
+                 'Natural Language :: Russian',
+                 'Natural Language :: Spanish',
+                 'Operating System :: POSIX :: Linux',
+                 'Programming Language :: Python :: 2.7'),
 )

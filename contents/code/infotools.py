@@ -88,7 +88,8 @@ class InfoTools(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
 
         self.distName, self.distVersion, self.distId = self.parseOsRelease()
-        self.distNameF, self.distVersionF, self.distIdF = self.forcedDetection()
+        self.distNameF, self.distVersionF, self.distIdF = \
+                                                        self.forcedDetection()
 
     def gstInstallCommand(self):
         isCmd = True
@@ -97,7 +98,8 @@ class InfoTools(QtCore.QObject):
            self.distId == 'chakra' or \
            self.distId == 'parabola':
             # Arch/Chakra/Parabola
-            cmd = 'pacman -S gstreamer0.10 gstreamer0.10-good gstreamer0.10-bad'
+            cmd = 'pacman -S gstreamer0.10 gstreamer0.10-good ' \
+                  'gstreamer0.10-bad'
         elif self.distId == 'debian' or \
              self.distNameF == 'Ubuntu':
             # Debian/Ubuntu
@@ -133,7 +135,7 @@ class InfoTools(QtCore.QObject):
                     try:
                         pair = line.split('=', 1)
                         osInfo[pair[0].strip().replace('"', '')] = \
-                                                pair[1].strip().replace('"', '')
+                                            pair[1].strip().replace('"', '')
                     except:
                         pass
         except:

@@ -38,7 +38,7 @@ class WebcamConfig(QtGui.QWidget):
         self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.translator = translator.Translator('self.translator', parent)
 
-        self.tools = v4l2tools.V4L2Tools(self) if tools == None else tools
+        self.tools = v4l2tools.V4L2Tools(self) if tools is None else tools
         self.captureDevices = self.tools.captureDevices()
         self.videoFormats = {}
 
@@ -89,15 +89,16 @@ class WebcamConfig(QtGui.QWidget):
             cbxVideoFormat.setProperty('controlDefaultValue', 0)
             cbxVideoFormat.setProperty('deviceOption', 'videoFormat')
 
-            cbxVideoFormat.addItems(
-                        ['{}x{} {}'.format(videoFormat[0],
-                        videoFormat[1],
-                        self.tools.fcc2s(videoFormat[2]))
-                        for videoFormat in self.videoFormats[captureDevice[0]]])
+            cbxVideoFormat.addItems(['{}x{} {}'.format(videoFormat[0],
+                                     videoFormat[1],
+                                     self.tools.fcc2s(videoFormat[2]))
+                                     for videoFormat in self.
+                                            videoFormats[captureDevice[0]]])
 
-            currentVideoFormat = self.tools.currentVideoFormat(captureDevice[0])
+            currentVideoFormat = self.tools.\
+                                        currentVideoFormat(captureDevice[0])
 
-            cbxVideoFormat.setCurrentIndex(self.videoFormats[captureDevice[0]].\
+            cbxVideoFormat.setCurrentIndex(self.videoFormats[captureDevice[0]].
                                                 index(currentVideoFormat))
 
             cbxVideoFormat.currentIndexChanged.\
@@ -218,8 +219,8 @@ class WebcamConfig(QtGui.QWidget):
         for children in self.findChildren(QtCore.QObject):
             variantChildrenDeviceName = children.property('deviceName')
 
-            variantChildrenControlDefaultValue = children.\
-                                                 property('controlDefaultValue')
+            variantChildrenControlDefaultValue = \
+                                    children.property('controlDefaultValue')
 
             if variantChildrenDeviceName.isValid() and \
                variantChildrenControlDefaultValue.isValid():
@@ -237,7 +238,8 @@ class WebcamConfig(QtGui.QWidget):
                         children.setValue(childrenControlDefaultValue)
                     elif type(children) == QtGui.QCheckBox:
                         children.setChecked(
-                            False if childrenControlDefaultValue == 0 else True)
+                                    False if childrenControlDefaultValue == 0
+                                    else True)
 
     @QtCore.pyqtSlot()
     def on_pushButton_clicked(self):
@@ -298,8 +300,8 @@ class WebcamConfig(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def searchProcessExecutable(self):
         saveFileDialog = QtGui.QFileDialog(self,
-                                           self.translator.tr('Select '\
-                                                        'GStreamer Executable'),
+                                           self.translator.
+                                           tr('Select GStreamer Executable'),
                                            '/usr/bin/gst-launch-0.10')
 
         saveFileDialog.setModal(True)

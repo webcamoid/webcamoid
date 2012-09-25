@@ -24,7 +24,7 @@
 from PyQt4 import QtCore, QtGui
 from PyKDE4 import kdeui, plasma, plasmascript
 
-import webcamoidgui
+import mainwindow
 
 
 class Webcamoid(plasmascript.Applet):
@@ -41,7 +41,7 @@ class Webcamoid(plasmascript.Applet):
         self.resize(self.defaultPlasmoidSize)
         self.setMinimumSize(self.minimumPlasmoidSize)
 
-        self.webcamoidGui = webcamoidgui.WebcamoidGui(self)
+        self.mainWindow = mainwindow.MainWindow(self)
 
         self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
         self.setGraphicsWidget(self.graphicsWidget)
@@ -50,21 +50,21 @@ class Webcamoid(plasmascript.Applet):
         self.graphicsWidget.setLayout(self.glyGraphicsWidget)
 
         self.proxyWidget = QtGui.QGraphicsProxyWidget(self.graphicsWidget)
-        self.proxyWidget.setWidget(self.webcamoidGui)
+        self.proxyWidget.setWidget(self.mainWindow)
         self.proxyWidget.resize(self.defaultPlasmoidSize)
         self.proxyWidget.setMinimumSize(self.minimumPlasmoidSize)
         self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
 
     def createConfigurationInterface(self, configDialog):
-        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok | \
+        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok |
                                                          kdeui.KDialog.Cancel))
 
-        self.webcamoidGui.addWebcamConfigDialog(configDialog)
-        self.webcamoidGui.addEffectsConfigDialog(configDialog)
-        self.webcamoidGui.addVideoFormatsConfigDialog(configDialog)
+        self.mainWindow.addWebcamConfigDialog(configDialog)
+        self.mainWindow.addEffectsConfigDialog(configDialog)
+        self.mainWindow.addVideoFormatsConfigDialog(configDialog)
 
-        configDialog.okClicked.connect(self.webcamoidGui.saveConfigs)
-        configDialog.cancelClicked.connect(self.webcamoidGui.saveConfigs)
+        configDialog.okClicked.connect(self.mainWindow.saveConfigs)
+        configDialog.cancelClicked.connect(self.mainWindow.saveConfigs)
 
 
 def CreateApplet(parent):

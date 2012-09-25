@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>VideoFormatsConfig</class>
+ <widget class="QWidget" name="VideoFormatsConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,7 +14,9 @@
    <string>Video Formats Configuration</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="camera-web"/>
+   <iconset theme="camera-web">
+    <normaloff/>
+   </iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="1">

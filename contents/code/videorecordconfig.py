@@ -63,7 +63,7 @@ class VideoRecordConfig(QtGui.QWidget):
         self.isInit = False
 
     def resolvePath(self, relpath=''):
-        return os.path.normpath(os.path.join(os.path.\
+        return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
 
     @QtCore.pyqtSlot()

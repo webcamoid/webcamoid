@@ -36,15 +36,15 @@ import videorecordconfig
 import webcamconfig
 
 
-class WebcamoidGui(QtGui.QWidget):
+class MainWindow(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
 
         if isinstance(parent, plasmascript.Applet):
-            uic.loadUi(parent.package().filePath('ui', 'webcamoidgui.ui'), self)
+            uic.loadUi(parent.package().filePath('ui', 'mainwindow.ui'), self)
             self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         else:
-            uic.loadUi(self.resolvePath('../ui/webcamoidgui.ui'), self)
+            uic.loadUi(self.resolvePath('../ui/mainwindow.ui'), self)
 
         self.translator = translator.Translator('self.translator', parent)
 
@@ -76,7 +76,7 @@ class WebcamoidGui(QtGui.QWidget):
 
         webcamConfigs = config.group('Webcam')
 
-        self.tools.setProcessExecutable(str(webcamConfigs.\
+        self.tools.setProcessExecutable(str(webcamConfigs.
                 readEntry('processExecutable', 'gst-launch-0.10').toString()))
 
         effectsConfigs = config.group('Effects')
@@ -88,7 +88,7 @@ class WebcamoidGui(QtGui.QWidget):
 
         videoFormatsConfigs = config.group('VideoRecordFormats')
 
-        videoRecordFormats = str(videoFormatsConfigs.\
+        videoRecordFormats = str(videoFormatsConfigs.
                     readEntry('formats',
                               'webm::'
                               'vp8enc quality=10 speed=7 bitrate=1000000000::'
@@ -108,7 +108,7 @@ class WebcamoidGui(QtGui.QWidget):
                                                 params[3])
 
     def resolvePath(self, relpath=''):
-        return os.path.normpath(os.path.join(os.path.\
+        return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
 
     def changeEvent(self, event):
@@ -162,9 +162,9 @@ class WebcamoidGui(QtGui.QWidget):
         r, g, b = settings.value('Colors:Button/BackgroundAlternate').toList()
 
         abc = 'alternate-background-color: rgb({0}, {1}, {2});'.\
-                                                            format(r.toInt()[0],
-                                                                   g.toInt()[0],
-                                                                   b.toInt()[0])
+                                                        format(r.toInt()[0],
+                                                               g.toInt()[0],
+                                                               b.toInt()[0])
 
         styleSheet = '{0}{1}{2}'.format(c, bc, abc)
 
@@ -239,7 +239,7 @@ class WebcamoidGui(QtGui.QWidget):
         if self.tools.isPlaying():
             self.tools.stopCurrentDevice()
         else:
-            self.tools.startDevice(self.tools.\
+            self.tools.startDevice(self.tools.
                         captureDevices()[self.cbxSetWebcam.currentIndex()][0])
 
     def addWebcamConfigDialog(self, configDialog):
@@ -285,7 +285,7 @@ class WebcamoidGui(QtGui.QWidget):
 
         configDialog.setWindowTitle(self.translator.tr('Webcamoid Settings'))
 
-        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok | \
+        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok |
                                                          kdeui.KDialog.Cancel))
 
         self.addWebcamConfigDialog(configDialog)
@@ -334,14 +334,14 @@ class WebcamoidGui(QtGui.QWidget):
                        'Webcamoid',
                        kdecore.ki18n('Webcamoid'),
                        '3.2.0',
-                       kdecore.ki18n(self.translator.\
-                                                tr('webcam capture plasmoid.')),
+                       kdecore.ki18n(self.translator.
+                                               tr('webcam capture plasmoid.')),
                        kdecore.KAboutData.License_GPL_V3,
-                       kdecore.ki18n(self.translator.\
+                       kdecore.ki18n(self.translator.
                            tr('Copyright (C) 2011-2012  Gonzalo Exequiel '
                               'Pedone')),
-                       kdecore.ki18n(self.translator.\
-                           tr('A simple webcam plasmoid and stand-alone app '
+                       kdecore.ki18n(self.translator.
+                           tr('A simple webcam plasmoid and stand alone app '
                               'for picture and video capture.')),
                        'http://github.com/hipersayanX/Webcamoid',
                        'submit@bugs.kde.org')
@@ -363,7 +363,8 @@ class WebcamoidGui(QtGui.QWidget):
 
         kdeui.KNotification.event(
                     kdeui.KNotification.Error,
-                    self.translator.tr('GStreamer not installed or configured'),
+                    self.translator.
+                                tr('GStreamer not installed or configured'),
                     msg + cmd,
                     QtGui.QPixmap(),
                     None,
@@ -381,10 +382,11 @@ class WebcamoidGui(QtGui.QWidget):
             fst = True
             defaultSuffix = ''
 
-            for suffix, videoEncoder, audioEncoder, muxer in videoRecordFormats:
+            for suffix, videoEncoder, audioEncoder, muxer in \
+                                                            videoRecordFormats:
                 for s in suffix.split(','):
                     s = s.strip()
-                    filters.append('{0} file (*.{1})'. \
+                    filters.append('{0} file (*.{1})'.
                                    format(s.upper(), s.lower()))
 
                     if fst:
@@ -393,7 +395,7 @@ class WebcamoidGui(QtGui.QWidget):
 
             filters = ';;'.join(filters)
             defaultFileName = os.path.join(videosPath,
-                                           'Video {0}.{1}'.\
+                                           'Video {0}.{1}'.
                                                 format(curTime, defaultSuffix))
         else:
             picturesPath = str(kdeui.KGlobalSettings.picturesPath())
@@ -411,8 +413,8 @@ class WebcamoidGui(QtGui.QWidget):
             return ''
 
         saveFileDialog = QtGui.QFileDialog(None,
-                                           self.translator.\
-                                                tr('Save File As...'),
+                                           self.translator.
+                                                       tr('Save File As...'),
                                            defaultFileName,
                                            filters)
 
@@ -429,6 +431,6 @@ class WebcamoidGui(QtGui.QWidget):
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    webcamoidGui = WebcamoidGui()
-    webcamoidGui.show()
+    mainWindow = MainWindow()
+    mainWindow.show()
     app.exec_()
