@@ -28,15 +28,16 @@ from PyKDE4 import kdeui
 from v4l2 import v4l2
 
 import v4l2tools
-import translator
+import appenvironment
 
 
 class WebcamConfig(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self)
 
+        self.appEnvironment = appenvironment.AppEnvironment()
+        self.setWindowTitle(self.tr('Set Webcam Preferences'))
         self.setWindowIcon(kdeui.KIcon('camera-web'))
-        self.translator = translator.Translator('self.translator', parent)
 
         self.tools = v4l2tools.V4L2Tools(self) if tools is None else tools
         self.captureDevices = self.tools.captureDevices()
@@ -45,7 +46,7 @@ class WebcamConfig(QtGui.QWidget):
         self.gridLayout = QtGui.QGridLayout(self)
 
         lblProcess = QtGui.QLabel(self)
-        lblProcess.setText(self.translator.tr('GStreamer executable'))
+        lblProcess.setText(self.tr('GStreamer executable'))
 
         self.gridLayout.addWidget(lblProcess, 0, 0, 1, 1)
 
@@ -70,7 +71,7 @@ class WebcamConfig(QtGui.QWidget):
             cindex = 0
 
             lblVideoFormat = QtGui.QLabel(page)
-            lblVideoFormat.setText(self.translator.tr('Video Format'))
+            lblVideoFormat.setText(self.tr('Video Format'))
             gridLayout.addWidget(lblVideoFormat, cindex, 0, 1, 1)
 
             self.videoFormats[captureDevice[0]] = \
@@ -119,7 +120,7 @@ class WebcamConfig(QtGui.QWidget):
             btnResetDevice.setProperty('deviceName', captureDevice[0])
             btnResetDevice.setProperty('controlName', '')
             btnResetDevice.setProperty('deviceOption', 'resetDevice')
-            btnResetDevice.setText(self.translator.tr("Reset"))
+            btnResetDevice.setText(self.tr("Reset"))
             btnResetDevice.clicked.connect(self.on_pushButton_clicked)
             gridLayout.addWidget(btnResetDevice, cindex, 2, 1, 1)
 
@@ -300,8 +301,7 @@ class WebcamConfig(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def searchProcessExecutable(self):
         saveFileDialog = QtGui.QFileDialog(self,
-                                           self.translator.
-                                           tr('Select GStreamer Executable'),
+                                           self.tr('Select GStreamer Executable'),
                                            '/usr/bin/gst-launch-0.10')
 
         saveFileDialog.setModal(True)

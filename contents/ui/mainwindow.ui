@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Webcamoid</string>
+   <string>Main Window</string>
   </property>
   <property name="windowIcon">
    <iconset theme="camera-web">

@@ -19,11 +19,11 @@
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 SOURCES = \
+    contents/code/appenvironment.py \
     contents/code/effects.py \
     contents/code/infotools.py \
     contents/code/main.py \
     contents/code/mainwindow.py \
-    contents/code/translator.py \
     contents/code/v4l2tools.py \
     contents/code/videorecordconfig.py \
     contents/code/webcamconfig.py

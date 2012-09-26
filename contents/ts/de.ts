@@ -187,11 +187,6 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="contents/ui/mainwindow.ui" line="14"/>
-        <source>Webcamoid</source>
-        <translation>Webcamoid</translation>
-    </message>
-    <message>
         <location filename="contents/ui/mainwindow.ui" line="53"/>
         <source>About</source>
         <translation>Über</translation>
@@ -220,6 +215,89 @@
         <location filename="contents/ui/mainwindow.ui" line="170"/>
         <source>Configure Webcamoid</source>
         <translation>Konfigurieren Webcamoid</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="252"/>
+        <source>Webcam Settings</source>
+        <translation>Webcam-Einstellungen</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="252"/>
+        <source>Set webcam properties</source>
+        <translation>Stellen Sie Webcam-Eigenschaften</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="262"/>
+        <source>Configure Webcam Effects</source>
+        <translation>Konfigurieren Sie Webcam-Effekte</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="262"/>
+        <source>Add funny effects to the webcam</source>
+        <translation>Fügen Sie lustige Effekte auf die Webcam</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="273"/>
+        <source>Configure Video Recording Formats</source>
+        <translation>Konfigurieren Sie Video-Aufnahme-Formate</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="273"/>
+        <source>Add or remove video formats for recording.</source>
+        <translation>Hinzufügen oder Entfernen von Video-Formate für die Aufnahme.</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>webcam capture plasmoid.</source>
+        <translation>Webcam-Capture plasmoid.</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
+        <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
+        <translation>Eine einfache Webcam plasmoid und allein App für Bild-und Video-Capture.</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="355"/>
+        <source>Please install GStreamer:
+
+</source>
+        <translation>Bitte installieren Sie GStreamer:
+
+</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="357"/>
+        <source>Please install the following packages:
+
+</source>
+        <translation>Bitte installieren Sie die folgenden Pakete:
+
+</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="359"/>
+        <source>GStreamer not installed or configured</source>
+        <translation>GStreamer nicht installiert oder konfiguriert</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="409"/>
+        <source>Save File As...</source>
+        <translation>Datei speichern unter...</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/mainwindow.ui" line="14"/>
+        <source>Main Window</source>
+        <translation>Hauptfenster</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="288"/>
+        <source>{0} Settings</source>
+        <translation>{0} Einstellungen</translation>
     </message>
 </context>
 <context>
@@ -271,104 +349,31 @@
     </message>
 </context>
 <context>
-    <name>self.translator</name>
+    <name>WebcamConfig</name>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="73"/>
-        <source>Video Format</source>
-        <translation>Video-Format</translation>
-    </message>
-    <message>
-        <location filename="contents/code/webcamconfig.py" line="122"/>
-        <source>Reset</source>
-        <translation>Zurücksetzen</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="249"/>
-        <source>Webcam Settings</source>
-        <translation>Webcam-Einstellungen</translation>
-    </message>
-    <message>
-        <location filename="contents/code/webcamconfig.py" line="48"/>
+        <location filename="contents/code/webcamconfig.py" line="49"/>
         <source>GStreamer executable</source>
         <translation>GStreamer ausführbaren</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="302"/>
+        <location filename="contents/code/webcamconfig.py" line="74"/>
+        <source>Video Format</source>
+        <translation>Video-Format</translation>
+    </message>
+    <message>
+        <location filename="contents/code/webcamconfig.py" line="123"/>
+        <source>Reset</source>
+        <translation>Zurücksetzen</translation>
+    </message>
+    <message>
+        <location filename="contents/code/webcamconfig.py" line="303"/>
         <source>Select GStreamer Executable</source>
         <translation>Wählen Sie GStreamer ausführbaren</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="249"/>
-        <source>Set webcam properties</source>
-        <translation>Stellen Sie Webcam-Eigenschaften</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="259"/>
-        <source>Configure Webcam Effects</source>
-        <translation>Konfigurieren Sie Webcam-Effekte</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="259"/>
-        <source>Add funny effects to the webcam</source>
-        <translation>Fügen Sie lustige Effekte auf die Webcam</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="270"/>
-        <source>Configure Video Recording Formats</source>
-        <translation>Konfigurieren Sie Video-Aufnahme-Formate</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="270"/>
-        <source>Add or remove video formats for recording.</source>
-        <translation>Hinzufügen oder Entfernen von Video-Formate für die Aufnahme.</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="359"/>
-        <source>Please install GStreamer:
-
-</source>
-        <translation>Bitte installieren Sie GStreamer:
-
-</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="361"/>
-        <source>Please install the following packages:
-
-</source>
-        <translation>Bitte installieren Sie die folgenden Pakete:
-
-</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="364"/>
-        <source>GStreamer not installed or configured</source>
-        <translation>GStreamer nicht installiert oder konfiguriert</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="415"/>
-        <source>Save File As...</source>
-        <translation>Datei speichern unter...</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="286"/>
-        <source>Webcamoid Settings</source>
-        <translation>Webcamoid Einstellungen</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>webcam capture plasmoid.</source>
-        <translation>Webcam-Capture plasmoid.</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
-        <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
-        <translation>Eine einfache Webcam plasmoid und allein App für Bild-und Video-Capture.</translation>
+        <location filename="contents/code/webcamconfig.py" line="39"/>
+        <source>Set Webcam Preferences</source>
+        <translation>Set Webcam Präferenzen</translation>
     </message>
 </context>
 </TS>

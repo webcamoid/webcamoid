@@ -187,11 +187,6 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="contents/ui/mainwindow.ui" line="14"/>
-        <source>Webcamoid</source>
-        <translation>Webcamoid</translation>
-    </message>
-    <message>
         <location filename="contents/ui/mainwindow.ui" line="53"/>
         <source>About</source>
         <translation>Σχετικά με</translation>
@@ -220,6 +215,89 @@
         <location filename="contents/ui/mainwindow.ui" line="170"/>
         <source>Configure Webcamoid</source>
         <translation>Διαμόρφωση Webcamoid</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="252"/>
+        <source>Webcam Settings</source>
+        <translation>Ρυθμίσεις κάμερα</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="252"/>
+        <source>Set webcam properties</source>
+        <translation>Ορισμός ιδιοτήτων κάμερα</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="262"/>
+        <source>Configure Webcam Effects</source>
+        <translation>Ρύθμιση αποτελέσματα κάμερα</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="262"/>
+        <source>Add funny effects to the webcam</source>
+        <translation>Προσθήκη αστεία αποτελέσματα στην κάμερα</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="273"/>
+        <source>Configure Video Recording Formats</source>
+        <translation>Ρύθμιση φορμά εγγραφής βίντεο</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="273"/>
+        <source>Add or remove video formats for recording.</source>
+        <translation>Προσθήκη ή κατάργηση μορφές βίντεο για εγγραφή.</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>webcam capture plasmoid.</source>
+        <translation>κάμερα σύλληψη plasmoid.</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
+        <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
+        <translation>Μια απλή plasmoid κάμερα και να σταθεί μόνη της app για εικόνα και λήψη βίντεο.</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="355"/>
+        <source>Please install GStreamer:
+
+</source>
+        <translation>Παρακαλείσθε να εγκαταστήσετε το GStreamer:
+
+</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="357"/>
+        <source>Please install the following packages:
+
+</source>
+        <translation>Παρακαλείσθε να εγκαταστήσετε τα ακόλουθα πακέτα:
+
+</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="359"/>
+        <source>GStreamer not installed or configured</source>
+        <translation>GStreamer δεν εγκαταστάθηκε ή ρυθμίστηκε</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="409"/>
+        <source>Save File As...</source>
+        <translation>Αποθήκευση ως αρχείο...</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/mainwindow.ui" line="14"/>
+        <source>Main Window</source>
+        <translation>Κύριο Παράθυρο</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="288"/>
+        <source>{0} Settings</source>
+        <translation>Ρυθμίσεις {0}</translation>
     </message>
 </context>
 <context>
@@ -271,104 +349,31 @@
     </message>
 </context>
 <context>
-    <name>self.translator</name>
+    <name>WebcamConfig</name>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="73"/>
-        <source>Video Format</source>
-        <translation>Μορφή βίντεο</translation>
-    </message>
-    <message>
-        <location filename="contents/code/webcamconfig.py" line="122"/>
-        <source>Reset</source>
-        <translation>επαναφορά</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="249"/>
-        <source>Webcam Settings</source>
-        <translation>Ρυθμίσεις κάμερα</translation>
-    </message>
-    <message>
-        <location filename="contents/code/webcamconfig.py" line="48"/>
+        <location filename="contents/code/webcamconfig.py" line="49"/>
         <source>GStreamer executable</source>
         <translation>εκτελέσιμο GStreamer</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="302"/>
+        <location filename="contents/code/webcamconfig.py" line="74"/>
+        <source>Video Format</source>
+        <translation>Μορφή βίντεο</translation>
+    </message>
+    <message>
+        <location filename="contents/code/webcamconfig.py" line="123"/>
+        <source>Reset</source>
+        <translation>επαναφορά</translation>
+    </message>
+    <message>
+        <location filename="contents/code/webcamconfig.py" line="303"/>
         <source>Select GStreamer Executable</source>
         <translation>Επιλογή εκτελέσιμο GStreamer</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="249"/>
-        <source>Set webcam properties</source>
-        <translation>Ορισμός ιδιοτήτων κάμερα</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="259"/>
-        <source>Configure Webcam Effects</source>
-        <translation>Ρύθμιση αποτελέσματα κάμερα</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="259"/>
-        <source>Add funny effects to the webcam</source>
-        <translation>Προσθήκη αστεία αποτελέσματα στην κάμερα</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="270"/>
-        <source>Configure Video Recording Formats</source>
-        <translation>Ρύθμιση φορμά εγγραφής βίντεο</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="270"/>
-        <source>Add or remove video formats for recording.</source>
-        <translation>Προσθήκη ή κατάργηση μορφές βίντεο για εγγραφή.</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="359"/>
-        <source>Please install GStreamer:
-
-</source>
-        <translation>Παρακαλείσθε να εγκαταστήσετε το GStreamer:
-
-</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="361"/>
-        <source>Please install the following packages:
-
-</source>
-        <translation>Παρακαλείσθε να εγκαταστήσετε τα ακόλουθα πακέτα:
-
-</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="364"/>
-        <source>GStreamer not installed or configured</source>
-        <translation>GStreamer δεν εγκαταστάθηκε ή ρυθμίστηκε</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="415"/>
-        <source>Save File As...</source>
-        <translation>Αποθήκευση ως αρχείο...</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="286"/>
-        <source>Webcamoid Settings</source>
-        <translation>Ρυθμίσεις Webcamoid</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>webcam capture plasmoid.</source>
-        <translation>κάμερα σύλληψη plasmoid.</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
-        <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
-        <translation>Μια απλή plasmoid κάμερα και να σταθεί μόνη της app για εικόνα και λήψη βίντεο.</translation>
+        <location filename="contents/code/webcamconfig.py" line="39"/>
+        <source>Set Webcam Preferences</source>
+        <translation>Ορισμός προτιμήσεων κάμερα</translation>
     </message>
 </context>
 </TS>

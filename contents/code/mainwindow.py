@@ -30,7 +30,7 @@ from PyKDE4 import kdecore, kdeui, plasmascript
 
 import effects
 import infotools
-import translator
+import appenvironment
 import v4l2tools
 import videorecordconfig
 import webcamconfig
@@ -40,13 +40,16 @@ class MainWindow(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
 
+        self.appEnvironment = appenvironment.AppEnvironment(self)
+
         if isinstance(parent, plasmascript.Applet):
             uic.loadUi(parent.package().filePath('ui', 'mainwindow.ui'), self)
             self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
         else:
             uic.loadUi(self.resolvePath('../ui/mainwindow.ui'), self)
 
-        self.translator = translator.Translator('self.translator', parent)
+        self.setWindowTitle('{0} {1}'.format(QtCore.QCoreApplication.applicationName(),
+                                             QtCore.QCoreApplication.applicationVersion()))
 
         self.tools = v4l2tools.V4L2Tools(self, True)
         self.tools.devicesModified.connect(self.updateWebcams)
@@ -72,7 +75,7 @@ class MainWindow(QtGui.QWidget):
 
         self.infoTools = infotools.InfoTools(self)
 
-        config = kdecore.KSharedConfig.openConfig('webcamoidrc')
+        config = kdecore.KSharedConfig.openConfig('{0}rc'.format(QtCore.QCoreApplication.applicationName().toLower()))
 
         webcamConfigs = config.group('Webcam')
 
@@ -247,9 +250,9 @@ class MainWindow(QtGui.QWidget):
                             WebcamConfig(self, self.tools)
 
         configDialog.addPage(self.cfgWebcamDialog,
-                             self.translator.tr('Webcam Settings'),
+                             self.tr('Webcam Settings'),
                              'camera-web',
-                             self.translator.tr('Set webcam properties'),
+                             self.tr('Set webcam properties'),
                              False)
 
     def addEffectsConfigDialog(self, configDialog):
@@ -257,9 +260,9 @@ class MainWindow(QtGui.QWidget):
 
         configDialog.\
                addPage(self.cfgEffects,
-                       self.translator.tr('Configure Webcam Effects'),
+                       self.tr('Configure Webcam Effects'),
                        'tools-wizard',
-                       self.translator.tr('Add funny effects to the webcam'),
+                       self.tr('Add funny effects to the webcam'),
                        False)
 
     def addVideoFormatsConfigDialog(self, configDialog):
@@ -268,10 +271,9 @@ class MainWindow(QtGui.QWidget):
 
         configDialog.\
                addPage(self.cfgVideoFormats,
-                       self.translator.tr('Configure Video Recording Formats'),
+                       self.tr('Configure Video Recording Formats'),
                        'video-x-generic',
-                       self.translator.tr('Add or remove video formats for '
-                                                                'recording.'),
+                       self.tr('Add or remove video formats for recording.'),
                        False)
 
     @QtCore.pyqtSlot()
@@ -280,13 +282,10 @@ class MainWindow(QtGui.QWidget):
                                        self)
 
         configDialog = kdeui.KConfigDialog(self,
-                                           'Webcamoid Settings',
+                                           str(self.tr('{0} Settings')).format(QtCore.QCoreApplication.applicationName()),
                                            config)
 
-        configDialog.setWindowTitle(self.translator.tr('Webcamoid Settings'))
-
-        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok |
-                                                         kdeui.KDialog.Cancel))
+        configDialog.setWindowTitle(str(self.tr('{0} Settings')).format(QtCore.QCoreApplication.applicationName()))
 
         self.addWebcamConfigDialog(configDialog)
         self.addEffectsConfigDialog(configDialog)
@@ -299,7 +298,7 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
-        config = kdecore.KSharedConfig.openConfig('webcamoidrc')
+        config = kdecore.KSharedConfig.openConfig('{0}rc'.format(QtCore.QCoreApplication.applicationName().toLower()))
 
         webcamConfigs = config.group('Webcam')
 
@@ -330,18 +329,15 @@ class MainWindow(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def on_btnAbout_clicked(self):
         aboutData = kdecore.\
-            KAboutData('Webcamoid',
-                       'Webcamoid',
-                       kdecore.ki18n('Webcamoid'),
-                       '3.2.0',
-                       kdecore.ki18n(self.translator.
-                                               tr('webcam capture plasmoid.')),
+            KAboutData(str(QtCore.QCoreApplication.applicationName()),
+                       str(QtCore.QCoreApplication.applicationName()),
+                       kdecore.ki18n(QtCore.QCoreApplication.applicationName()),
+                       str(QtCore.QCoreApplication.applicationVersion()),
+                       kdecore.ki18n(self.tr('webcam capture plasmoid.')),
                        kdecore.KAboutData.License_GPL_V3,
-                       kdecore.ki18n(self.translator.
-                           tr('Copyright (C) 2011-2012  Gonzalo Exequiel '
+                       kdecore.ki18n(self.tr('Copyright (C) 2011-2012  Gonzalo Exequiel '
                               'Pedone')),
-                       kdecore.ki18n(self.translator.
-                           tr('A simple webcam plasmoid and stand alone app '
+                       kdecore.ki18n(self.tr('A simple webcam plasmoid and stand alone app '
                               'for picture and video capture.')),
                        'http://github.com/hipersayanX/Webcamoid',
                        'submit@bugs.kde.org')
@@ -356,15 +352,13 @@ class MainWindow(QtGui.QWidget):
         cmd, isCmd = self.infoTools.gstInstallCommand()
 
         if isCmd:
-            msg = self.translator.tr('Please install GStreamer:\n\n')
+            msg = self.tr('Please install GStreamer:\n\n')
         else:
-            msg = self.translator.tr('Please install the following '
-                                     'packages:\n\n')
+            msg = self.tr('Please install the following packages:\n\n')
 
         kdeui.KNotification.event(
                     kdeui.KNotification.Error,
-                    self.translator.
-                                tr('GStreamer not installed or configured'),
+                    self.tr('GStreamer not installed or configured'),
                     msg + cmd,
                     QtGui.QPixmap(),
                     None,
@@ -413,8 +407,7 @@ class MainWindow(QtGui.QWidget):
             return ''
 
         saveFileDialog = QtGui.QFileDialog(None,
-                                           self.translator.
-                                                       tr('Save File As...'),
+                                           self.tr('Save File As...'),
                                            defaultFileName,
                                            filters)
 

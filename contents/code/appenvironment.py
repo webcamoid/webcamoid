@@ -27,10 +27,12 @@ from PyQt4 import QtCore
 from PyKDE4 import plasmascript
 
 
-class Translator(QtCore.QTranslator):
+class AppEnvironment(QtCore.QObject):
     def __init__(self, context='', parent=None):
-        QtCore.QTranslator.__init__(self, parent)
+        QtCore.QObject.__init__(self, parent)
 
+        QtCore.QCoreApplication.setApplicationName('Webcamoid')
+        QtCore.QCoreApplication.setApplicationVersion('3.2.0')
         QtCore.QTextCodec.setCodecForCStrings(QtCore.
                                             QTextCodec.codecForName('UTF-8'))
 
@@ -43,14 +45,10 @@ class Translator(QtCore.QTranslator):
         else:
             i18nDir = self.resolvePath('../ts')
 
-        self.load(locale + '.qm', i18nDir)
-        self.context = context
+        self.translator = QtCore.QTranslator()
+        self.translator.load('{0}.qm'.format(locale), i18nDir)
+        QtCore.QCoreApplication.installTranslator(self.translator)
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
-
-    def tr(self, sourceText):
-        res = self.translate(self.context, sourceText)
-
-        return QtCore.QString(sourceText) if len(res) == 0 else res

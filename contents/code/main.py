@@ -56,9 +56,6 @@ class Webcamoid(plasmascript.Applet):
         self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
 
     def createConfigurationInterface(self, configDialog):
-        configDialog.setButtons(kdeui.KDialog.ButtonCode(kdeui.KDialog.Ok |
-                                                         kdeui.KDialog.Cancel))
-
         self.mainWindow.addWebcamConfigDialog(configDialog)
         self.mainWindow.addEffectsConfigDialog(configDialog)
         self.mainWindow.addVideoFormatsConfigDialog(configDialog)

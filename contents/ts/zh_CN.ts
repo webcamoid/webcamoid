@@ -187,11 +187,6 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="contents/ui/mainwindow.ui" line="14"/>
-        <source>Webcamoid</source>
-        <translation>Webcamoid</translation>
-    </message>
-    <message>
         <location filename="contents/ui/mainwindow.ui" line="53"/>
         <source>About</source>
         <translation>关于</translation>
@@ -220,6 +215,89 @@
         <location filename="contents/ui/mainwindow.ui" line="170"/>
         <source>Configure Webcamoid</source>
         <translation>配置Webcamoid</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="252"/>
+        <source>Webcam Settings</source>
+        <translation>摄像头设置</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="252"/>
+        <source>Set webcam properties</source>
+        <translation>设置摄像头属性</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="262"/>
+        <source>Configure Webcam Effects</source>
+        <translation>配置的摄像头效果</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="262"/>
+        <source>Add funny effects to the webcam</source>
+        <translation>摄像头添加有趣的效果</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="273"/>
+        <source>Configure Video Recording Formats</source>
+        <translation>配置视频录制格式</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="273"/>
+        <source>Add or remove video formats for recording.</source>
+        <translation>添加或删除录制的视频格式。</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>webcam capture plasmoid.</source>
+        <translation>摄像头捕捉的plasmoid。</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
+        <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="332"/>
+        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
+        <translation>一个简单的摄像头等离子体团和独立应用程序的图片和视频拍摄。</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="355"/>
+        <source>Please install GStreamer:
+
+</source>
+        <translation>请安装GStreamer的:
+
+</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="357"/>
+        <source>Please install the following packages:
+
+</source>
+        <translation>请安装以下软件包:
+
+</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="359"/>
+        <source>GStreamer not installed or configured</source>
+        <translation>GStreamer的未安装或配置</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="409"/>
+        <source>Save File As...</source>
+        <translation>文件另存为...</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/mainwindow.ui" line="14"/>
+        <source>Main Window</source>
+        <translation>主窗口</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="288"/>
+        <source>{0} Settings</source>
+        <translation>{0}设置</translation>
     </message>
 </context>
 <context>
@@ -271,104 +349,31 @@
     </message>
 </context>
 <context>
-    <name>self.translator</name>
+    <name>WebcamConfig</name>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="73"/>
-        <source>Video Format</source>
-        <translation>视频格式</translation>
-    </message>
-    <message>
-        <location filename="contents/code/webcamconfig.py" line="122"/>
-        <source>Reset</source>
-        <translation>重置</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="249"/>
-        <source>Webcam Settings</source>
-        <translation>摄像头设置</translation>
-    </message>
-    <message>
-        <location filename="contents/code/webcamconfig.py" line="48"/>
+        <location filename="contents/code/webcamconfig.py" line="49"/>
         <source>GStreamer executable</source>
         <translation>GStreamer的可执行文件</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="302"/>
+        <location filename="contents/code/webcamconfig.py" line="74"/>
+        <source>Video Format</source>
+        <translation>视频格式</translation>
+    </message>
+    <message>
+        <location filename="contents/code/webcamconfig.py" line="123"/>
+        <source>Reset</source>
+        <translation>重置</translation>
+    </message>
+    <message>
+        <location filename="contents/code/webcamconfig.py" line="303"/>
         <source>Select GStreamer Executable</source>
         <translation>选择GStreamer的可执行文件</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="249"/>
-        <source>Set webcam properties</source>
-        <translation>设置摄像头属性</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="259"/>
-        <source>Configure Webcam Effects</source>
-        <translation>配置的摄像头效果</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="259"/>
-        <source>Add funny effects to the webcam</source>
-        <translation>摄像头添加有趣的效果</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="270"/>
-        <source>Configure Video Recording Formats</source>
-        <translation>配置视频录制格式</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="270"/>
-        <source>Add or remove video formats for recording.</source>
-        <translation>添加或删除录制的视频格式。</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="359"/>
-        <source>Please install GStreamer:
-
-</source>
-        <translation>请安装GStreamer的:
-
-</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="361"/>
-        <source>Please install the following packages:
-
-</source>
-        <translation>请安装以下软件包:
-
-</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="364"/>
-        <source>GStreamer not installed or configured</source>
-        <translation>GStreamer的未安装或配置</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="415"/>
-        <source>Save File As...</source>
-        <translation>文件另存为...</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="286"/>
-        <source>Webcamoid Settings</source>
-        <translation>Webcamoid设置</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>webcam capture plasmoid.</source>
-        <translation>摄像头捕捉的plasmoid。</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
-        <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
-    </message>
-    <message>
-        <location filename="contents/code/mainwindow.py" line="333"/>
-        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
-        <translation>一个简单的摄像头等离子体团和独立应用程序的图片和视频拍摄。</translation>
+        <location filename="contents/code/webcamconfig.py" line="39"/>
+        <source>Set Webcam Preferences</source>
+        <translation>设置摄像头首选项</translation>
     </message>
 </context>
 </TS>

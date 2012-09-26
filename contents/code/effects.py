@@ -27,10 +27,14 @@ import sys
 from PyQt4 import uic, QtGui, QtCore
 from PyKDE4 import kdeui, plasmascript
 
+import appenvironment
+
 
 class Effects(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self)
+
+        self.appEnvironment = appenvironment.AppEnvironment(self)
 
         if isinstance(parent, plasmascript.Applet):
             uic.loadUi(parent.package().filePath('ui', 'effects.ui'), self)
