@@ -31,7 +31,8 @@ SOURCES = \
 FORMS = \
     contents/ui/effects.ui \
     contents/ui/mainwindow.ui \
-    contents/ui/videorecordconfig.ui
+    contents/ui/videorecordconfig.ui \
+    contents/ui/webcamconfig.ui
 
 # http://www.loc.gov/standards/iso639-2/php/code_list.php
 

@@ -22,7 +22,7 @@
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 from PyQt4 import QtCore, QtGui
-from PyKDE4 import kdeui, plasma, plasmascript
+from PyKDE4 import plasma, plasmascript
 
 import mainwindow
 

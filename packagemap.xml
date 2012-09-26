@@ -80,4 +80,9 @@
         <type>xml</type>
         <license>gpl</icense>
     </file>
+    <file>
+        <path>contents/ui/webcamconfig.ui</path>
+        <type>xml</type>
+        <license>gpl</icense>
+    </file>
 </fileset>

@@ -25,7 +25,7 @@ import os
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
-from PyKDE4 import kdeui, plasmascript
+from PyKDE4 import kdeui
 
 import appenvironment
 

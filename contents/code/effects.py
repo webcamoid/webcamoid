@@ -25,7 +25,7 @@ import os
 import sys
 
 from PyQt4 import uic, QtGui, QtCore
-from PyKDE4 import kdeui, plasmascript
+from PyKDE4 import kdeui
 
 import appenvironment
 
@@ -54,7 +54,7 @@ class Effects(QtGui.QWidget):
 
             if len(items) > 0:
                 self.lswApply.addItem(self.lswEffects.
-                                    takeItem(self.lswEffects.row(items[0])))
+                                      takeItem(self.lswEffects.row(items[0])))
 
         self.tools.recordingStateChanged.connect(self.recordingStateChanged)
         self.recordingStateChanged(self.tools.isRecording())

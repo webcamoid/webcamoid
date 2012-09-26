@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="it" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.0" language="it">
 <context>
     <name>EffectsConfig</name>
     <message>
@@ -216,52 +217,52 @@
         <translation>Configurare Webcamoid</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="207"/>
+        <location filename="contents/code/mainwindow.py" line="213"/>
         <source>Webcam Settings</source>
         <translation>Impostazioni della WebCam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="207"/>
+        <location filename="contents/code/mainwindow.py" line="213"/>
         <source>Set webcam properties</source>
         <translation>Impostare le proprietà webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="217"/>
+        <location filename="contents/code/mainwindow.py" line="223"/>
         <source>Configure Webcam Effects</source>
         <translation>Configurare gli effetti webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="217"/>
+        <location filename="contents/code/mainwindow.py" line="223"/>
         <source>Add funny effects to the webcam</source>
         <translation>Aggiungere effetti divertenti alla webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="228"/>
+        <location filename="contents/code/mainwindow.py" line="234"/>
         <source>Configure Video Recording Formats</source>
         <translation>Configurare i formati di registrazione video</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="228"/>
+        <location filename="contents/code/mainwindow.py" line="234"/>
         <source>Add or remove video formats for recording.</source>
         <translation>Aggiungere o rimuovere i formati video per la registrazione.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="286"/>
+        <location filename="contents/code/mainwindow.py" line="292"/>
         <source>webcam capture plasmoid.</source>
         <translation>cattura webcam plasmoide.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="286"/>
+        <location filename="contents/code/mainwindow.py" line="292"/>
         <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
         <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="286"/>
+        <location filename="contents/code/mainwindow.py" line="292"/>
         <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
         <translation>Un plasmoide semplice webcam e stand alone app per foto e video.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="309"/>
+        <location filename="contents/code/mainwindow.py" line="315"/>
         <source>Please install GStreamer:
 
 </source>
@@ -270,7 +271,7 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="311"/>
+        <location filename="contents/code/mainwindow.py" line="317"/>
         <source>Please install the following packages:
 
 </source>
@@ -279,12 +280,12 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="313"/>
+        <location filename="contents/code/mainwindow.py" line="319"/>
         <source>GStreamer not installed or configured</source>
         <translation>GStreamer non è installato o configurato</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="363"/>
+        <location filename="contents/code/mainwindow.py" line="369"/>
         <source>Save File As...</source>
         <translation>Salva file con nome...</translation>
     </message>
@@ -294,7 +295,7 @@
         <translation>Finestra Principale</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="242"/>
+        <location filename="contents/code/mainwindow.py" line="248"/>
         <source>{0} Settings</source>
         <translation>Impostazioni {0}</translation>
     </message>
@@ -350,29 +351,54 @@
 <context>
     <name>WebcamConfig</name>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="49"/>
+        <location filename="contents/ui/webcamconfig.ui" line="25"/>
         <source>GStreamer executable</source>
         <translation>GStreamer eseguibile</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="74"/>
+        <location filename="contents/code/webcamconfig.py" line="56"/>
         <source>Video Format</source>
         <translation>Formato video</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="123"/>
+        <location filename="contents/code/webcamconfig.py" line="105"/>
         <source>Reset</source>
         <translation>Azzerare</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="303"/>
+        <location filename="contents/code/webcamconfig.py" line="288"/>
         <source>Select GStreamer Executable</source>
         <translation>Seleziona eseguibile GStreamer</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="39"/>
+        <location filename="contents/ui/webcamconfig.ui" line="14"/>
         <source>Set Webcam Preferences</source>
         <translation>Impostare le preferenze di Webcam</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/webcamconfig.ui" line="32"/>
+        <source>GStreamer executable file</source>
+        <translation>GStreamer file eseguibile</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/webcamconfig.ui" line="35"/>
+        <source>gst-launch-0.10</source>
+        <translation>gst-launch-0.10</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/webcamconfig.ui" line="42"/>
+        <source>Search for the GStreamer executable file</source>
+        <translation>Cercare il file eseguibile GStreamer</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/webcamconfig.ui" line="45"/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/webcamconfig.ui" line="60"/>
+        <source>Set the parameters of the webcam</source>
+        <translation>Impostare i parametri della webcam</translation>
     </message>
 </context>
 </TS>

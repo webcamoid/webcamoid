@@ -21,9 +21,10 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
+import os
 import sys
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
 from v4l2 import v4l2
 
@@ -36,32 +37,13 @@ class WebcamConfig(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
-        self.setWindowTitle(self.tr('Set Webcam Preferences'))
+        uic.loadUi(self.resolvePath('../ui/webcamconfig.ui'), self)
+
         self.setWindowIcon(kdeui.KIcon('camera-web'))
 
         self.tools = v4l2tools.V4L2Tools(self) if tools is None else tools
         self.captureDevices = self.tools.captureDevices()
         self.videoFormats = {}
-
-        self.gridLayout = QtGui.QGridLayout(self)
-
-        lblProcess = QtGui.QLabel(self)
-        lblProcess.setText(self.tr('GStreamer executable'))
-
-        self.gridLayout.addWidget(lblProcess, 0, 0, 1, 1)
-
-        self.txtProcess = QtGui.QLineEdit(self)
-        self.txtProcess.setText(self.tools.processExecutable())
-        self.txtProcess.textChanged.connect(self.tools.setProcessExecutable)
-        self.gridLayout.addWidget(self.txtProcess, 0, 1, 1, 1)
-
-        btnProcess = QtGui.QPushButton(self)
-        btnProcess.setText('...')
-        btnProcess.clicked.connect(self.searchProcessExecutable)
-        self.gridLayout.addWidget(btnProcess, 0, 2, 1, 1)
-
-        self.tabWidget = QtGui.QTabWidget(self)
-
         self.resetting = False
 
         for captureDevice in self.captureDevices:
@@ -211,10 +193,13 @@ class WebcamConfig(QtGui.QWidget):
                                            QtGui.QSizePolicy.MinimumExpanding)
 
             self.gridLayout.addItem(spacerItem, cindex, 0, 1, 1)
-            self.tabWidget.addTab(page, captureDevice[1])
+            self.tabWebcams.addTab(page, captureDevice[1])
 
-        self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 3)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWebcams.setCurrentIndex(0)
+
+    def resolvePath(self, relpath=''):
+        return os.path.normpath(os.path.join(os.path.
+                                dirname(os.path.realpath(__file__)), relpath))
 
     def resetControls(self, deviceName):
         for children in self.findChildren(QtCore.QObject):
@@ -299,9 +284,10 @@ class WebcamConfig(QtGui.QWidget):
             self.tools.setControls(deviceName, {controlName: index})
 
     @QtCore.pyqtSlot()
-    def searchProcessExecutable(self):
+    def on_btnProcess_clicked(self):
         saveFileDialog = QtGui.QFileDialog(self,
-                                           self.tr('Select GStreamer Executable'),
+                                           self.tr('Select GStreamer '
+                                                   'Executable'),
                                            '/usr/bin/gst-launch-0.10')
 
         saveFileDialog.setModal(True)

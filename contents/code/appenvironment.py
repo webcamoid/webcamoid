@@ -24,7 +24,6 @@
 import os
 
 from PyQt4 import QtCore
-from PyKDE4 import plasmascript
 
 
 class AppEnvironment(QtCore.QObject):
@@ -39,7 +38,7 @@ class AppEnvironment(QtCore.QObject):
         self.translator = QtCore.QTranslator()
 
         self.translator.load(QtCore.QLocale.system().name(),
-                             self.resolvePath('../ts'))
+                                                    self.resolvePath('../ts'))
 
         QtCore.QCoreApplication.installTranslator(self.translator)
 

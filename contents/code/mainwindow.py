@@ -41,14 +41,15 @@ class MainWindow(QtGui.QWidget):
         QtGui.QWidget.__init__(self)
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
-
         uic.loadUi(self.resolvePath('../ui/mainwindow.ui'), self)
 
         if isinstance(parent, plasmascript.Applet):
-            self.setStyleSheet('QWidget#MainWindow{background-color: rgba(0, 0, 0, 0);}')
+            self.setStyleSheet('QWidget#MainWindow{background-color: '
+                               'rgba(0, 0, 0, 0);}')
 
-        self.setWindowTitle('{0} {1}'.format(QtCore.QCoreApplication.applicationName(),
-                                             QtCore.QCoreApplication.applicationVersion()))
+        self.setWindowTitle('{0} {1}'.
+                        format(QtCore.QCoreApplication.applicationName(),
+                               QtCore.QCoreApplication.applicationVersion()))
 
         self.tools = v4l2tools.V4L2Tools(self, True)
         self.tools.devicesModified.connect(self.updateWebcams)
@@ -73,7 +74,8 @@ class MainWindow(QtGui.QWidget):
 
         self.infoTools = infotools.InfoTools(self)
 
-        config = kdecore.KSharedConfig.openConfig('{0}rc'.format(QtCore.QCoreApplication.applicationName().toLower()))
+        config = kdecore.KSharedConfig.openConfig('{0}rc'.
+                format(QtCore.QCoreApplication.applicationName().toLower()))
 
         webcamConfigs = config.group('Webcam')
 
@@ -103,6 +105,7 @@ class MainWindow(QtGui.QWidget):
         if videoRecordFormats != '':
             for fmt in videoRecordFormats.split('&&'):
                 params = fmt.split('::')
+
                 self.tools.setVideoRecordFormat(params[0],
                                                 params[1],
                                                 params[2],
@@ -133,6 +136,12 @@ class MainWindow(QtGui.QWidget):
 
         if not self.rect().contains(self.mapFromGlobal(QtGui.QCursor.pos())):
             self.wdgControls.hide()
+
+    def closeEvent(self, event):
+        QtGui.QWidget.closeEvent(self, event)
+
+        self.tools.stopVideoRecord()
+        event.accept()
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def showFrame(self, webcamFrame):
@@ -213,12 +222,11 @@ class MainWindow(QtGui.QWidget):
     def addEffectsConfigDialog(self, configDialog):
         self.cfgEffects = effects.Effects(self, self.tools)
 
-        configDialog.\
-               addPage(self.cfgEffects,
-                       self.tr('Configure Webcam Effects'),
-                       'tools-wizard',
-                       self.tr('Add funny effects to the webcam'),
-                       False)
+        configDialog.addPage(self.cfgEffects,
+                             self.tr('Configure Webcam Effects'),
+                             'tools-wizard',
+                             self.tr('Add funny effects to the webcam'),
+                             False)
 
     def addVideoFormatsConfigDialog(self, configDialog):
         self.cfgVideoFormats = videorecordconfig.\
@@ -235,11 +243,15 @@ class MainWindow(QtGui.QWidget):
     def on_btnConfigure_clicked(self):
         config = kdeui.KConfigSkeleton('', self)
 
-        configDialog = kdeui.KConfigDialog(self,
-                                           self.tr(b'{0} Settings').toUtf8().data().format(QtCore.QCoreApplication.applicationName()),
-                                           config)
+        configDialog = kdeui.\
+                         KConfigDialog(self,
+                                       self.tr(b'{0} Settings').toUtf8().
+                                       data().format(QtCore.QCoreApplication.
+                                                     applicationName()),
+                                       config)
 
-        configDialog.setWindowTitle(self.tr('{0} Settings').toUtf8().data().format(QtCore.QCoreApplication.applicationName()))
+        configDialog.setWindowTitle(self.tr('{0} Settings').toUtf8().data().
+                            format(QtCore.QCoreApplication.applicationName()))
 
         self.addWebcamConfigDialog(configDialog)
         self.addEffectsConfigDialog(configDialog)
@@ -252,7 +264,8 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
-        config = kdecore.KSharedConfig.openConfig('{0}rc'.format(QtCore.QCoreApplication.applicationName().toLower()))
+        config = kdecore.KSharedConfig.openConfig('{0}rc'.
+                format(QtCore.QCoreApplication.applicationName().toLower()))
 
         webcamConfigs = config.group('Webcam')
 
@@ -285,14 +298,16 @@ class MainWindow(QtGui.QWidget):
         aboutData = kdecore.\
             KAboutData(str(QtCore.QCoreApplication.applicationName()),
                        str(QtCore.QCoreApplication.applicationName()),
-                       kdecore.ki18n(QtCore.QCoreApplication.applicationName()),
+                       kdecore.ki18n(QtCore.QCoreApplication.
+                                            applicationName()),
                        str(QtCore.QCoreApplication.applicationVersion()),
                        kdecore.ki18n(self.tr('webcam capture plasmoid.')),
                        kdecore.KAboutData.License_GPL_V3,
-                       kdecore.ki18n(self.tr('Copyright (C) 2011-2012  Gonzalo Exequiel '
-                              'Pedone')),
-                       kdecore.ki18n(self.tr('A simple webcam plasmoid and stand alone app '
-                              'for picture and video capture.')),
+                       kdecore.ki18n(self.tr('Copyright (C) 2011-2012  '
+                                             'Gonzalo Exequiel Pedone')),
+                       kdecore.ki18n(self.tr('A simple webcam plasmoid and '
+                                             'stand alone app for picture and '
+                                             'video capture.')),
                        'http://github.com/hipersayanX/Webcamoid',
                        'submit@bugs.kde.org')
 
@@ -310,20 +325,19 @@ class MainWindow(QtGui.QWidget):
         else:
             msg = self.tr('Please install the following packages:\n\n')
 
-        kdeui.KNotification.event(
-                    kdeui.KNotification.Error,
-                    self.tr('GStreamer not installed or configured'),
-                    msg + cmd,
-                    QtGui.QPixmap(),
-                    None,
-                    kdeui.KNotification.Persistent)
+        kdeui.KNotification.\
+                        event(kdeui.KNotification.Error,
+                              self.tr('GStreamer not installed or configured'),
+                              msg + cmd,
+                              QtGui.QPixmap(),
+                              None,
+                              kdeui.KNotification.Persistent)
 
     def saveFile(self, video=False):
         curTime = time.strftime('%Y-%m-%d %H-%M-%S')
 
         if video:
             videosPath = str(kdeui.KGlobalSettings.videosPath())
-
             videoRecordFormats = self.tools.supportedVideoRecordFormats()
 
             filters = []
