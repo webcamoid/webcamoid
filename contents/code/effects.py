@@ -32,14 +32,10 @@ import appenvironment
 
 class Effects(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
-        QtGui.QWidget.__init__(self)
+        QtGui.QWidget.__init__(self, parent)
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
-
-        if isinstance(parent, plasmascript.Applet):
-            uic.loadUi(parent.package().filePath('ui', 'effects.ui'), self)
-        else:
-            uic.loadUi(self.resolvePath('../ui/effects.ui'), self)
+        uic.loadUi(self.resolvePath('../ui/effects.ui'), self)
 
         self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.btnUp.setIcon(kdeui.KIcon('arrow-up'))

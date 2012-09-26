@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="ko">
+<!DOCTYPE TS><TS version="2.0" language="ko" sourcelanguage="">
 <context>
     <name>EffectsConfig</name>
     <message>
@@ -217,52 +216,52 @@
         <translation>Webcamoid 구성</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="252"/>
+        <location filename="contents/code/mainwindow.py" line="207"/>
         <source>Webcam Settings</source>
         <translation>웹캠 설정</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="252"/>
+        <location filename="contents/code/mainwindow.py" line="207"/>
         <source>Set webcam properties</source>
         <translation>웹캠 속성을 설정합니다</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="262"/>
+        <location filename="contents/code/mainwindow.py" line="217"/>
         <source>Configure Webcam Effects</source>
         <translation>웹캠 효과 설정</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="262"/>
+        <location filename="contents/code/mainwindow.py" line="217"/>
         <source>Add funny effects to the webcam</source>
         <translation>웹캠으로 재미있는 효과를 추가</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="273"/>
+        <location filename="contents/code/mainwindow.py" line="228"/>
         <source>Configure Video Recording Formats</source>
         <translation>비디오 녹화 포맷을 구성</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="273"/>
+        <location filename="contents/code/mainwindow.py" line="228"/>
         <source>Add or remove video formats for recording.</source>
         <translation>추가 또는 녹음을위한 비디오 포맷을 제거합니다.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>webcam capture plasmoid.</source>
         <translation>웹캠 캡처는 plasmoid.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
         <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
         <translation>간단한 웹캠 plasmoid은 혼자 서서 사진과 비디오 캡처를위한 응용 프로그램.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="355"/>
+        <location filename="contents/code/mainwindow.py" line="309"/>
         <source>Please install GStreamer:
 
 </source>
@@ -271,7 +270,7 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="357"/>
+        <location filename="contents/code/mainwindow.py" line="311"/>
         <source>Please install the following packages:
 
 </source>
@@ -280,12 +279,12 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="359"/>
+        <location filename="contents/code/mainwindow.py" line="313"/>
         <source>GStreamer not installed or configured</source>
         <translation>GStreamer가 설치되거나 구성되지 않을 경우</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="409"/>
+        <location filename="contents/code/mainwindow.py" line="363"/>
         <source>Save File As...</source>
         <translation>로 파일을 저장...</translation>
     </message>
@@ -295,7 +294,7 @@
         <translation>메인 창</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="288"/>
+        <location filename="contents/code/mainwindow.py" line="242"/>
         <source>{0} Settings</source>
         <translation>{0} 설정</translation>
     </message>

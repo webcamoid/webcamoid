@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fileset>
     <file>
-        <path>contents/code/about.py</path>
-        <type>python</type>
+        <path>setup.py</path>
+        <type>xml</type>
         <license>gpl</icense>
     </file>
     <file>
-        <path>contents/code/config.py</path>
+        <path>contents/code/appenvironment.py</path>
         <type>python</type>
         <license>gpl</icense>
     </file>
@@ -26,12 +26,22 @@
         <license>gpl</icense>
     </file>
     <file>
-        <path>contents/code/translator.py</path>
+        <path>contents/code/mainwindow.py</path>
         <type>python</type>
         <license>gpl</icense>
     </file>
     <file>
-        <path>contents/code/upload.py</path>
+        <path>contents/code/v4l2tools.py</path>
+        <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
+        <path>contents/code/videorecordconfig.py</path>
+        <type>python</type>
+        <license>gpl</icense>
+    </file>
+    <file>
+        <path>contents/code/webcamconfig.py</path>
         <type>python</type>
         <license>gpl</icense>
     </file>
@@ -51,28 +61,8 @@
         <license>gpl</icense>
     </file>
     <file>
-        <path>contents/code/v4l2tools.py</path>
-        <type>python</type>
-        <license>gpl</icense>
-    </file>
-    <file>
         <path>contents/code/v4l2/v4l2.py</path>
         <type>python</type>
-        <license>gpl</icense>
-    </file>
-    <file>
-        <path>contents/code/videorecordconfig.py</path>
-        <type>xml</type>
-        <license>gpl</icense>
-    </file>
-    <file>
-        <path>contents/code/webcamoidgui.py</path>
-        <type>xml</type>
-        <license>gpl</icense>
-    </file>
-    <file>
-        <path>contents/ui/about.ui</path>
-        <type>xml</type>
         <license>gpl</icense>
     </file>
     <file>
@@ -81,12 +71,12 @@
         <license>gpl</icense>
     </file>
     <file>
-        <path>contents/ui/videorecordconfig.ui</path>
+        <path>contents/ui/mainwindow.ui</path>
         <type>xml</type>
         <license>gpl</icense>
     </file>
     <file>
-        <path>contents/ui/webcamoidgui.ui</path>
+        <path>contents/ui/videorecordconfig.ui</path>
         <type>xml</type>
         <license>gpl</icense>
     </file>

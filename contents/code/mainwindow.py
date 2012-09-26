@@ -42,11 +42,10 @@ class MainWindow(QtGui.QWidget):
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
 
+        uic.loadUi(self.resolvePath('../ui/mainwindow.ui'), self)
+
         if isinstance(parent, plasmascript.Applet):
-            uic.loadUi(parent.package().filePath('ui', 'mainwindow.ui'), self)
-            self.setStyleSheet('background-color: rgba(0, 0, 0, 0);')
-        else:
-            uic.loadUi(self.resolvePath('../ui/mainwindow.ui'), self)
+            self.setStyleSheet('QWidget#MainWindow{background-color: rgba(0, 0, 0, 0);}')
 
         self.setWindowTitle('{0} {1}'.format(QtCore.QCoreApplication.applicationName(),
                                              QtCore.QCoreApplication.applicationVersion()))
@@ -65,7 +64,6 @@ class MainWindow(QtGui.QWidget):
         self.btnConfigure.setIcon(kdeui.KIcon('configure'))
         self.btnAbout.setIcon(kdeui.KIcon('help-about'))
 
-        self.updateColors()
         self.wdgControls.hide()
 
         for webcam in self.tools.captureDevices():
@@ -114,12 +112,6 @@ class MainWindow(QtGui.QWidget):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
 
-    def changeEvent(self, event):
-        QtGui.QWidget.changeEvent(self, event)
-
-        if event == QtCore.QEvent.StyleChange:
-            self.updateColors()
-
     def resizeEvent(self, event):
         QtGui.QWidget.resizeEvent(self, event)
         size = event.size()
@@ -141,42 +133,6 @@ class MainWindow(QtGui.QWidget):
 
         if not self.rect().contains(self.mapFromGlobal(QtGui.QCursor.pos())):
             self.wdgControls.hide()
-
-    def updateColors(self):
-        # ~/.kde4/share/config/kdeglobals
-        kdeglobals = kdecore.KStandardDirs.locate('config', 'kdeglobals')
-
-        settings = QtCore.QSettings(kdeglobals,
-                                    QtCore.QSettings.IniFormat,
-                                    self)
-
-        r, g, b = settings.value('Colors:Button/ForegroundNormal').toList()
-
-        c = 'color: rgb({0}, {1}, {2});'.format(r.toInt()[0],
-                                                g.toInt()[0],
-                                                b.toInt()[0])
-
-        r, g, b = settings.value('Colors:Button/BackgroundNormal').toList()
-
-        bc = 'background-color: rgb({0}, {1}, {2});'.format(r.toInt()[0],
-                                                            g.toInt()[0],
-                                                            b.toInt()[0])
-
-        r, g, b = settings.value('Colors:Button/BackgroundAlternate').toList()
-
-        abc = 'alternate-background-color: rgb({0}, {1}, {2});'.\
-                                                        format(r.toInt()[0],
-                                                               g.toInt()[0],
-                                                               b.toInt()[0])
-
-        styleSheet = '{0}{1}{2}'.format(c, bc, abc)
-
-        self.btnTakePhoto.setStyleSheet(styleSheet)
-        self.btnVideoRecord.setStyleSheet(styleSheet)
-        self.cbxSetWebcam.setStyleSheet(styleSheet)
-        self.btnStartStop.setStyleSheet(styleSheet)
-        self.btnConfigure.setStyleSheet(styleSheet)
-        self.btnAbout.setStyleSheet(styleSheet)
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def showFrame(self, webcamFrame):
@@ -246,8 +202,7 @@ class MainWindow(QtGui.QWidget):
                         captureDevices()[self.cbxSetWebcam.currentIndex()][0])
 
     def addWebcamConfigDialog(self, configDialog):
-        self.cfgWebcamDialog = webcamconfig.\
-                            WebcamConfig(self, self.tools)
+        self.cfgWebcamDialog = webcamconfig.WebcamConfig(self, self.tools)
 
         configDialog.addPage(self.cfgWebcamDialog,
                              self.tr('Webcam Settings'),
@@ -267,7 +222,7 @@ class MainWindow(QtGui.QWidget):
 
     def addVideoFormatsConfigDialog(self, configDialog):
         self.cfgVideoFormats = videorecordconfig.\
-                        VideoRecordConfig(self, self.tools)
+                                            VideoRecordConfig(self, self.tools)
 
         configDialog.\
                addPage(self.cfgVideoFormats,
@@ -278,14 +233,13 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def on_btnConfigure_clicked(self):
-        config = kdeui.KConfigSkeleton('',
-                                       self)
+        config = kdeui.KConfigSkeleton('', self)
 
         configDialog = kdeui.KConfigDialog(self,
-                                           str(self.tr('{0} Settings')).format(QtCore.QCoreApplication.applicationName()),
+                                           self.tr(b'{0} Settings').toUtf8().data().format(QtCore.QCoreApplication.applicationName()),
                                            config)
 
-        configDialog.setWindowTitle(str(self.tr('{0} Settings')).format(QtCore.QCoreApplication.applicationName()))
+        configDialog.setWindowTitle(self.tr('{0} Settings').toUtf8().data().format(QtCore.QCoreApplication.applicationName()))
 
         self.addWebcamConfigDialog(configDialog)
         self.addEffectsConfigDialog(configDialog)

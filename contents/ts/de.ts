@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="de">
+<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="">
 <context>
     <name>EffectsConfig</name>
     <message>
@@ -217,52 +216,52 @@
         <translation>Konfigurieren Webcamoid</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="252"/>
+        <location filename="contents/code/mainwindow.py" line="207"/>
         <source>Webcam Settings</source>
         <translation>Webcam-Einstellungen</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="252"/>
+        <location filename="contents/code/mainwindow.py" line="207"/>
         <source>Set webcam properties</source>
         <translation>Stellen Sie Webcam-Eigenschaften</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="262"/>
+        <location filename="contents/code/mainwindow.py" line="217"/>
         <source>Configure Webcam Effects</source>
         <translation>Konfigurieren Sie Webcam-Effekte</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="262"/>
+        <location filename="contents/code/mainwindow.py" line="217"/>
         <source>Add funny effects to the webcam</source>
         <translation>Fügen Sie lustige Effekte auf die Webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="273"/>
+        <location filename="contents/code/mainwindow.py" line="228"/>
         <source>Configure Video Recording Formats</source>
         <translation>Konfigurieren Sie Video-Aufnahme-Formate</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="273"/>
+        <location filename="contents/code/mainwindow.py" line="228"/>
         <source>Add or remove video formats for recording.</source>
         <translation>Hinzufügen oder Entfernen von Video-Formate für die Aufnahme.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>webcam capture plasmoid.</source>
         <translation>Webcam-Capture plasmoid.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
         <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
         <translation>Eine einfache Webcam plasmoid und allein App für Bild-und Video-Capture.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="355"/>
+        <location filename="contents/code/mainwindow.py" line="309"/>
         <source>Please install GStreamer:
 
 </source>
@@ -271,7 +270,7 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="357"/>
+        <location filename="contents/code/mainwindow.py" line="311"/>
         <source>Please install the following packages:
 
 </source>
@@ -280,12 +279,12 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="359"/>
+        <location filename="contents/code/mainwindow.py" line="313"/>
         <source>GStreamer not installed or configured</source>
         <translation>GStreamer nicht installiert oder konfiguriert</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="409"/>
+        <location filename="contents/code/mainwindow.py" line="363"/>
         <source>Save File As...</source>
         <translation>Datei speichern unter...</translation>
     </message>
@@ -295,7 +294,7 @@
         <translation>Hauptfenster</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="288"/>
+        <location filename="contents/code/mainwindow.py" line="242"/>
         <source>{0} Settings</source>
         <translation>{0} Einstellungen</translation>
     </message>

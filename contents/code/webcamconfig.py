@@ -33,9 +33,9 @@ import appenvironment
 
 class WebcamConfig(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
-        QtGui.QWidget.__init__(self)
+        QtGui.QWidget.__init__(self, parent)
 
-        self.appEnvironment = appenvironment.AppEnvironment()
+        self.appEnvironment = appenvironment.AppEnvironment(self)
         self.setWindowTitle(self.tr('Set Webcam Preferences'))
         self.setWindowIcon(kdeui.KIcon('camera-web'))
 

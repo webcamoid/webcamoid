@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="zh_CN">
+<!DOCTYPE TS><TS version="2.0" language="zh_CN" sourcelanguage="">
 <context>
     <name>EffectsConfig</name>
     <message>
@@ -217,52 +216,52 @@
         <translation>配置Webcamoid</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="252"/>
+        <location filename="contents/code/mainwindow.py" line="207"/>
         <source>Webcam Settings</source>
         <translation>摄像头设置</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="252"/>
+        <location filename="contents/code/mainwindow.py" line="207"/>
         <source>Set webcam properties</source>
         <translation>设置摄像头属性</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="262"/>
+        <location filename="contents/code/mainwindow.py" line="217"/>
         <source>Configure Webcam Effects</source>
         <translation>配置的摄像头效果</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="262"/>
+        <location filename="contents/code/mainwindow.py" line="217"/>
         <source>Add funny effects to the webcam</source>
         <translation>摄像头添加有趣的效果</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="273"/>
+        <location filename="contents/code/mainwindow.py" line="228"/>
         <source>Configure Video Recording Formats</source>
         <translation>配置视频录制格式</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="273"/>
+        <location filename="contents/code/mainwindow.py" line="228"/>
         <source>Add or remove video formats for recording.</source>
         <translation>添加或删除录制的视频格式。</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>webcam capture plasmoid.</source>
         <translation>摄像头捕捉的plasmoid。</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
         <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="332"/>
+        <location filename="contents/code/mainwindow.py" line="286"/>
         <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
         <translation>一个简单的摄像头等离子体团和独立应用程序的图片和视频拍摄。</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="355"/>
+        <location filename="contents/code/mainwindow.py" line="309"/>
         <source>Please install GStreamer:
 
 </source>
@@ -271,7 +270,7 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="357"/>
+        <location filename="contents/code/mainwindow.py" line="311"/>
         <source>Please install the following packages:
 
 </source>
@@ -280,12 +279,12 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="359"/>
+        <location filename="contents/code/mainwindow.py" line="313"/>
         <source>GStreamer not installed or configured</source>
         <translation>GStreamer的未安装或配置</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="409"/>
+        <location filename="contents/code/mainwindow.py" line="363"/>
         <source>Save File As...</source>
         <translation>文件另存为...</translation>
     </message>
@@ -295,7 +294,7 @@
         <translation>主窗口</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="288"/>
+        <location filename="contents/code/mainwindow.py" line="242"/>
         <source>{0} Settings</source>
         <translation>{0}设置</translation>
     </message>

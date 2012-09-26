@@ -36,17 +36,11 @@ class AppEnvironment(QtCore.QObject):
         QtCore.QTextCodec.setCodecForCStrings(QtCore.
                                             QTextCodec.codecForName('UTF-8'))
 
-        locale = QtCore.QLocale.system().name()
-
-        if isinstance(parent, plasmascript.Applet):
-            i18nDir = os.path.join(str(parent.package().path()),
-                                   'contents',
-                                   'ts')
-        else:
-            i18nDir = self.resolvePath('../ts')
-
         self.translator = QtCore.QTranslator()
-        self.translator.load('{0}.qm'.format(locale), i18nDir)
+
+        self.translator.load(QtCore.QLocale.system().name(),
+                             self.resolvePath('../ts'))
+
         QtCore.QCoreApplication.installTranslator(self.translator)
 
     def resolvePath(self, relpath=''):

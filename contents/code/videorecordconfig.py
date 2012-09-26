@@ -32,15 +32,10 @@ import appenvironment
 
 class VideoRecordConfig(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
-        QtGui.QWidget.__init__(self)
+        QtGui.QWidget.__init__(self, parent)
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
-
-        if isinstance(parent, plasmascript.Applet):
-            uic.loadUi(parent.package().filePath('ui',
-                                                 'videorecordconfig.ui'), self)
-        else:
-            uic.loadUi(self.resolvePath('../ui/videorecordconfig.ui'), self)
+        uic.loadUi(self.resolvePath('../ui/videorecordconfig.ui'), self)
 
         self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.btnAdd.setIcon(kdeui.KIcon('list-add'))

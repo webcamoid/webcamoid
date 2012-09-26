@@ -40,7 +40,8 @@ __uninstall__
 
 ### As stand alone program ###
 
-The stand alone installation mode will allow you to use Webcamoid as a plasmoid, but also as a normal program. This installation way requires root access. The stand alone mode is still experimental, it will not crash, but you will be not able to access to the configuration dialog, for the moment.
+This install mode is highly encouraged since it gives the best user experience.  
+The stand alone installation mode allow you to use Webcamoid as a plasmoid, but also as a normal program. This installation way requires root access.
 
     unzip webcamoid.plasmoid
     cd Webcamoid
