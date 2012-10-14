@@ -151,7 +151,7 @@ v4l2_field = enum
     V4L2_FIELD_ALTERNATE,
     V4L2_FIELD_INTERLACED_TB,
     V4L2_FIELD_INTERLACED_BT,
-) = range(10)
+) = list(range(10))
 
 
 def V4L2_FIELD_HAS_TOP(field):
@@ -193,7 +193,7 @@ v4l2_buf_type = enum
     V4L2_BUF_TYPE_SLICED_VBI_OUTPUT,
     V4L2_BUF_TYPE_VIDEO_OUTPUT_OVERLAY,
     V4L2_BUF_TYPE_PRIVATE,
-) = range(1, 9) + [0x80]
+) = list(range(1, 9)) + [0x80]
 
 
 v4l2_ctrl_type = enum
@@ -205,7 +205,7 @@ v4l2_ctrl_type = enum
     V4L2_CTRL_TYPE_INTEGER64,
     V4L2_CTRL_TYPE_CTRL_CLASS,
     V4L2_CTRL_TYPE_STRING,
-) = range(1, 8)
+) = list(range(1, 8))
 
 
 v4l2_tuner_type = enum
@@ -213,7 +213,7 @@ v4l2_tuner_type = enum
     V4L2_TUNER_RADIO,
     V4L2_TUNER_ANALOG_TV,
     V4L2_TUNER_DIGITAL_TV,
-) = range(1, 4)
+) = list(range(1, 4))
 
 
 v4l2_memory = enum
@@ -221,7 +221,7 @@ v4l2_memory = enum
     V4L2_MEMORY_MMAP,
     V4L2_MEMORY_USERPTR,
     V4L2_MEMORY_OVERLAY,
-) = range(1, 4)
+) = list(range(1, 4))
 
 
 v4l2_colorspace = enum
@@ -234,7 +234,7 @@ v4l2_colorspace = enum
     V4L2_COLORSPACE_470_SYSTEM_BG,
     V4L2_COLORSPACE_JPEG,
     V4L2_COLORSPACE_SRGB,
-) = range(1, 9)
+) = list(range(1, 9))
 
 
 v4l2_priority = enum
@@ -244,7 +244,7 @@ v4l2_priority = enum
     V4L2_PRIORITY_INTERACTIVE,
     V4L2_PRIORITY_RECORD,
     V4L2_PRIORITY_DEFAULT,
-) = range(0, 4) + [2]
+) = list(range(0, 4)) + [2]
 
 
 class v4l2_rect(ctypes.Structure):
@@ -433,7 +433,7 @@ v4l2_frmsizetypes = enum
     V4L2_FRMSIZE_TYPE_DISCRETE,
     V4L2_FRMSIZE_TYPE_CONTINUOUS,
     V4L2_FRMSIZE_TYPE_STEPWISE,
-) = range(1, 4)
+) = list(range(1, 4))
 
 
 class v4l2_frmsize_discrete(ctypes.Structure):
@@ -481,7 +481,7 @@ v4l2_frmivaltypes = enum
     V4L2_FRMIVAL_TYPE_DISCRETE,
     V4L2_FRMIVAL_TYPE_CONTINUOUS,
     V4L2_FRMIVAL_TYPE_STEPWISE,
-) = range(1, 4)
+) = list(range(1, 4))
 
 
 class v4l2_frmival_stepwise(ctypes.Structure):
@@ -1107,7 +1107,7 @@ v4l2_power_line_frequency = enum
     V4L2_CID_POWER_LINE_FREQUENCY_DISABLED,
     V4L2_CID_POWER_LINE_FREQUENCY_50HZ,
     V4L2_CID_POWER_LINE_FREQUENCY_60HZ,
-) = range(3)
+) = list(range(3))
 
 V4L2_CID_HUE_AUTO = V4L2_CID_BASE + 25
 V4L2_CID_WHITE_BALANCE_TEMPERATURE = V4L2_CID_BASE + 26
@@ -1122,7 +1122,7 @@ v4l2_colorfx = enum
     V4L2_COLORFX_NONE,
     V4L2_COLORFX_BW,
     V4L2_COLORFX_SEPIA,
-) = range(3)
+) = list(range(3))
 
 V4L2_CID_AUTOBRIGHTNESS = V4L2_CID_BASE + 32
 V4L2_CID_BAND_STOP_FILTER = V4L2_CID_BASE + 33
@@ -1145,7 +1145,7 @@ v4l2_mpeg_stream_type = enum
     V4L2_MPEG_STREAM_TYPE_MPEG2_DVD,
     V4L2_MPEG_STREAM_TYPE_MPEG1_VCD,
     V4L2_MPEG_STREAM_TYPE_MPEG2_SVCD,
-) = range(6)
+) = list(range(6))
 
 V4L2_CID_MPEG_STREAM_PID_PMT = V4L2_CID_MPEG_BASE + 1
 V4L2_CID_MPEG_STREAM_PID_AUDIO = V4L2_CID_MPEG_BASE + 2
@@ -1159,7 +1159,7 @@ v4l2_mpeg_stream_vbi_fmt = enum
 (
     V4L2_MPEG_STREAM_VBI_FMT_NONE,
     V4L2_MPEG_STREAM_VBI_FMT_IVTV,
-) = range(2)
+) = list(range(2))
 
 V4L2_CID_MPEG_AUDIO_SAMPLING_FREQ = V4L2_CID_MPEG_BASE + 100
 
@@ -1168,7 +1168,7 @@ v4l2_mpeg_audio_sampling_freq = enum
     V4L2_MPEG_AUDIO_SAMPLING_FREQ_44100,
     V4L2_MPEG_AUDIO_SAMPLING_FREQ_48000,
     V4L2_MPEG_AUDIO_SAMPLING_FREQ_32000,
-) = range(3)
+) = list(range(3))
 
 V4L2_CID_MPEG_AUDIO_ENCODING = V4L2_CID_MPEG_BASE + 101
 
@@ -1179,7 +1179,7 @@ v4l2_mpeg_audio_encoding = enum
     V4L2_MPEG_AUDIO_ENCODING_LAYER_3,
     V4L2_MPEG_AUDIO_ENCODING_AAC,
     V4L2_MPEG_AUDIO_ENCODING_AC3,
-) = range(5)
+) = list(range(5))
 
 V4L2_CID_MPEG_AUDIO_L1_BITRATE = V4L2_CID_MPEG_BASE + 102
 
@@ -1199,7 +1199,7 @@ v4l2_mpeg_audio_l1_bitrate = enum
     V4L2_MPEG_AUDIO_L1_BITRATE_384K,
     V4L2_MPEG_AUDIO_L1_BITRATE_416K,
     V4L2_MPEG_AUDIO_L1_BITRATE_448K,
-) = range(14)
+) = list(range(14))
 
 V4L2_CID_MPEG_AUDIO_L2_BITRATE = V4L2_CID_MPEG_BASE + 103
 
@@ -1219,7 +1219,7 @@ v4l2_mpeg_audio_l2_bitrate = enum
     V4L2_MPEG_AUDIO_L2_BITRATE_256K,
     V4L2_MPEG_AUDIO_L2_BITRATE_320K,
     V4L2_MPEG_AUDIO_L2_BITRATE_384K,
-) = range(14)
+) = list(range(14))
 
 V4L2_CID_MPEG_AUDIO_L3_BITRATE = V4L2_CID_MPEG_BASE + 104
 
@@ -1239,7 +1239,7 @@ v4l2_mpeg_audio_l3_bitrate = enum
     V4L2_MPEG_AUDIO_L3_BITRATE_224K,
     V4L2_MPEG_AUDIO_L3_BITRATE_256K,
     V4L2_MPEG_AUDIO_L3_BITRATE_320K,
-) = range(14)
+) = list(range(14))
 
 V4L2_CID_MPEG_AUDIO_MODE = V4L2_CID_MPEG_BASE + 105
 
@@ -1249,7 +1249,7 @@ v4l2_mpeg_audio_mode = enum
     V4L2_MPEG_AUDIO_MODE_JOINT_STEREO,
     V4L2_MPEG_AUDIO_MODE_DUAL,
     V4L2_MPEG_AUDIO_MODE_MONO,
-) = range(4)
+) = list(range(4))
 
 V4L2_CID_MPEG_AUDIO_MODE_EXTENSION = V4L2_CID_MPEG_BASE + 106
 
@@ -1259,7 +1259,7 @@ v4l2_mpeg_audio_mode_extension = enum
     V4L2_MPEG_AUDIO_MODE_EXTENSION_BOUND_8,
     V4L2_MPEG_AUDIO_MODE_EXTENSION_BOUND_12,
     V4L2_MPEG_AUDIO_MODE_EXTENSION_BOUND_16,
-) = range(4)
+) = list(range(4))
 
 V4L2_CID_MPEG_AUDIO_EMPHASIS = V4L2_CID_MPEG_BASE + 107
 
@@ -1268,7 +1268,7 @@ v4l2_mpeg_audio_emphasis = enum
     V4L2_MPEG_AUDIO_EMPHASIS_NONE,
     V4L2_MPEG_AUDIO_EMPHASIS_50_DIV_15_uS,
     V4L2_MPEG_AUDIO_EMPHASIS_CCITT_J17,
-) = range(3)
+) = list(range(3))
 
 V4L2_CID_MPEG_AUDIO_CRC = V4L2_CID_MPEG_BASE + 108
 
@@ -1276,7 +1276,7 @@ v4l2_mpeg_audio_crc = enum
 (
     V4L2_MPEG_AUDIO_CRC_NONE,
     V4L2_MPEG_AUDIO_CRC_CRC16,
-) = range(2)
+) = list(range(2))
 
 V4L2_CID_MPEG_AUDIO_MUTE = V4L2_CID_MPEG_BASE + 109
 V4L2_CID_MPEG_AUDIO_AAC_BITRATE = V4L2_CID_MPEG_BASE + 110
@@ -1303,7 +1303,7 @@ v4l2_mpeg_audio_ac3_bitrate = enum
     V4L2_MPEG_AUDIO_AC3_BITRATE_512K,
     V4L2_MPEG_AUDIO_AC3_BITRATE_576K,
     V4L2_MPEG_AUDIO_AC3_BITRATE_640K,
-) = range(19)
+) = list(range(19))
 
 V4L2_CID_MPEG_VIDEO_ENCODING = V4L2_CID_MPEG_BASE + 200
 
@@ -1312,7 +1312,7 @@ v4l2_mpeg_video_encoding = enum
     V4L2_MPEG_VIDEO_ENCODING_MPEG_1,
     V4L2_MPEG_VIDEO_ENCODING_MPEG_2,
     V4L2_MPEG_VIDEO_ENCODING_MPEG_4_AVC,
-) = range(3)
+) = list(range(3))
 
 V4L2_CID_MPEG_VIDEO_ASPECT = V4L2_CID_MPEG_BASE + 201
 
@@ -1322,7 +1322,7 @@ v4l2_mpeg_video_aspect = enum
     V4L2_MPEG_VIDEO_ASPECT_4x3,
     V4L2_MPEG_VIDEO_ASPECT_16x9,
     V4L2_MPEG_VIDEO_ASPECT_221x100,
-) = range(4)
+) = list(range(4))
 
 V4L2_CID_MPEG_VIDEO_B_FRAMES = V4L2_CID_MPEG_BASE + 202
 V4L2_CID_MPEG_VIDEO_GOP_SIZE = V4L2_CID_MPEG_BASE + 203
@@ -1334,7 +1334,7 @@ v4l2_mpeg_video_bitrate_mode = enum
 (
     V4L2_MPEG_VIDEO_BITRATE_MODE_VBR,
     V4L2_MPEG_VIDEO_BITRATE_MODE_CBR,
-) = range(2)
+) = list(range(2))
 
 V4L2_CID_MPEG_VIDEO_BITRATE = V4L2_CID_MPEG_BASE + 207
 V4L2_CID_MPEG_VIDEO_BITRATE_PEAK = V4L2_CID_MPEG_BASE + 208
@@ -1350,7 +1350,7 @@ v4l2_mpeg_cx2341x_video_spatial_filter_mode = enum
 (
     V4L2_MPEG_CX2341X_VIDEO_SPATIAL_FILTER_MODE_MANUAL,
     V4L2_MPEG_CX2341X_VIDEO_SPATIAL_FILTER_MODE_AUTO,
-) = range(2)
+) = list(range(2))
 
 V4L2_CID_MPEG_CX2341X_VIDEO_SPATIAL_FILTER = V4L2_CID_MPEG_CX2341X_BASE + 1
 
@@ -1364,7 +1364,7 @@ v4l2_mpeg_cx2341x_video_luma_spatial_filter_type = enum
     V4L2_MPEG_CX2341X_VIDEO_LUMA_SPATIAL_FILTER_TYPE_1D_VERT,
     V4L2_MPEG_CX2341X_VIDEO_LUMA_SPATIAL_FILTER_TYPE_2D_HV_SEPARABLE,
     V4L2_MPEG_CX2341X_VIDEO_LUMA_SPATIAL_FILTER_TYPE_2D_SYM_NON_SEPARABLE,
-) = range(5)
+) = list(range(5))
 
 V4L2_CID_MPEG_CX2341X_VIDEO_CHROMA_SPATIAL_FILTER_TYPE = \
                                                 V4L2_CID_MPEG_CX2341X_BASE + 3
@@ -1373,7 +1373,7 @@ v4l2_mpeg_cx2341x_video_chroma_spatial_filter_type = enum
 (
     V4L2_MPEG_CX2341X_VIDEO_CHROMA_SPATIAL_FILTER_TYPE_OFF,
     V4L2_MPEG_CX2341X_VIDEO_CHROMA_SPATIAL_FILTER_TYPE_1D_HOR,
-) = range(2)
+) = list(range(2))
 
 V4L2_CID_MPEG_CX2341X_VIDEO_TEMPORAL_FILTER_MODE = \
                                                 V4L2_CID_MPEG_CX2341X_BASE + 4
@@ -1382,7 +1382,7 @@ v4l2_mpeg_cx2341x_video_temporal_filter_mode = enum
 (
     V4L2_MPEG_CX2341X_VIDEO_TEMPORAL_FILTER_MODE_MANUAL,
     V4L2_MPEG_CX2341X_VIDEO_TEMPORAL_FILTER_MODE_AUTO,
-) = range(2)
+) = list(range(2))
 
 V4L2_CID_MPEG_CX2341X_VIDEO_TEMPORAL_FILTER = V4L2_CID_MPEG_CX2341X_BASE + 5
 V4L2_CID_MPEG_CX2341X_VIDEO_MEDIAN_FILTER_TYPE = V4L2_CID_MPEG_CX2341X_BASE + 6
@@ -1394,7 +1394,7 @@ v4l2_mpeg_cx2341x_video_median_filter_type = enum
     V4L2_MPEG_CX2341X_VIDEO_MEDIAN_FILTER_TYPE_VERT,
     V4L2_MPEG_CX2341X_VIDEO_MEDIAN_FILTER_TYPE_HOR_VERT,
     V4L2_MPEG_CX2341X_VIDEO_MEDIAN_FILTER_TYPE_DIAG,
-) = range(5)
+) = list(range(5))
 
 V4L2_CID_MPEG_CX2341X_VIDEO_LUMA_MEDIAN_FILTER_BOTTOM = \
                                                 V4L2_CID_MPEG_CX2341X_BASE + 7
@@ -1422,7 +1422,7 @@ v4l2_exposure_auto_type = enum
     V4L2_EXPOSURE_MANUAL,
     V4L2_EXPOSURE_SHUTTER_PRIORITY,
     V4L2_EXPOSURE_APERTURE_PRIORITY,
-) = range(4)
+) = list(range(4))
 
 V4L2_CID_EXPOSURE_ABSOLUTE = V4L2_CID_CAMERA_CLASS_BASE + 2
 V4L2_CID_EXPOSURE_AUTO_PRIORITY = V4L2_CID_CAMERA_CLASS_BASE + 3
@@ -1475,7 +1475,7 @@ v4l2_preemphasis = enum
     V4L2_PREEMPHASIS_DISABLED,
     V4L2_PREEMPHASIS_50_uS,
     V4L2_PREEMPHASIS_75_uS,
-) = range(3)
+) = list(range(3))
 
 V4L2_CID_TUNE_POWER_LEVEL = V4L2_CID_FM_TX_CLASS_BASE + 113
 V4L2_CID_TUNE_ANTENNA_CAPACITOR = V4L2_CID_FM_TX_CLASS_BASE + 114

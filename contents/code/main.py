@@ -24,6 +24,8 @@
 from PyQt4 import QtCore, QtGui
 from PyKDE4 import plasma, plasmascript
 
+# plasmascript.Applet -> plasma.Plasma.PopupApplet
+
 import mainwindow
 
 
@@ -65,4 +67,4 @@ class Webcamoid(plasmascript.Applet):
 
 
 def CreateApplet(parent):
-    return Webcamoid(parent)
+    return Webcamoid(parent, [])
