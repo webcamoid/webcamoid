@@ -31,7 +31,7 @@ class AppEnvironment(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
 
         QtCore.QCoreApplication.setApplicationName('Webcamoid')
-        QtCore.QCoreApplication.setApplicationVersion('3.2.0')
+        QtCore.QCoreApplication.setApplicationVersion('4.0.0')
         QtCore.QTextCodec.setCodecForCStrings(QtCore.
                                             QTextCodec.codecForName('UTF-8'))
 

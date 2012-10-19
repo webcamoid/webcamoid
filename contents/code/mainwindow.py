@@ -34,6 +34,7 @@ import appenvironment
 import v4l2tools
 import videorecordconfig
 import webcamconfig
+import networkstreamsconfig
 
 
 class MainWindow(QtGui.QWidget):
@@ -110,6 +111,17 @@ class MainWindow(QtGui.QWidget):
                                                 params[1],
                                                 params[2],
                                                 params[3])
+
+        networkStreamsConfig = config.group('NetworkStreams')
+
+        networkStreams = str(networkStreamsConfig.
+                    readEntry('streams', '').toString())
+
+        if networkStreams != '':
+            for fmt in networkStreams.split('&&'):
+                params = fmt.split('::')
+
+                self.tools.setNetworkStream(params[0], params[1])
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
@@ -239,6 +251,17 @@ class MainWindow(QtGui.QWidget):
                        self.tr('Add or remove video formats for recording.'),
                        False)
 
+    def addNetworkStreamsConfigDialog(self, configDialog):
+        self.cfgNetworkStreams = networkstreamsconfig.\
+                                        NetworkStreamsConfig(self, self.tools)
+
+        configDialog.\
+               addPage(self.cfgNetworkStreams,
+                       self.tr('Configure IP Cameras and Network Streams'),
+                       'network-workgroup',
+                       self.tr('Add or remove live network streams.'),
+                       False)
+
     @QtCore.pyqtSlot()
     def on_btnConfigure_clicked(self):
         config = kdeui.KConfigSkeleton('', self)
@@ -256,6 +279,7 @@ class MainWindow(QtGui.QWidget):
         self.addWebcamConfigDialog(configDialog)
         self.addEffectsConfigDialog(configDialog)
         self.addVideoFormatsConfigDialog(configDialog)
+        self.addNetworkStreamsConfigDialog(configDialog)
 
         configDialog.okClicked.connect(self.saveConfigs)
         configDialog.cancelClicked.connect(self.saveConfigs)
@@ -290,6 +314,15 @@ class MainWindow(QtGui.QWidget):
 
         videoFormatsConfigs.writeEntry('formats',
                                        '&&'.join(videoRecordFormats))
+
+        networkStreamsConfigs = config.group('NetworkStreams')
+
+        networkStreams = []
+
+        for deviceName, url in self.tools.customNetworkStreams():
+            networkStreams.append('{0}::{1}'.format(deviceName, url))
+
+        networkStreamsConfigs.writeEntry('formats', '&&'.join(networkStreams))
 
         config.sync()
 

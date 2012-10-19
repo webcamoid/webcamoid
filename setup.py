@@ -87,7 +87,7 @@ with open('Webcamoid.desktop', 'w') as desktopLauncher:
 
 core.setup(
     name='Webcamoid',
-    version='3.2.0',
+    version='4.0.0',
     license='GPLv3',
     requires=('ctypes',
               'fcntl',

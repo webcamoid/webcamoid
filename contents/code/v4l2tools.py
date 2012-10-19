@@ -55,6 +55,7 @@ class V4L2Tools(QtCore.QObject):
         self.curOutVidFmt = 'webm'
         self.fileName = ''
         self.videoRecordFormats = []
+        self.networkStreams = []
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(1)
@@ -562,6 +563,17 @@ class V4L2Tools(QtCore.QObject):
                     return suffix, videoEncoder, audioEncoder, muxer
 
         return '', '', '', ''
+
+    def customNetworkStreams(self):
+        return self.networkStreams
+
+    @QtCore.pyqtSlot()
+    def clearNetworkStreams(self):
+        self.networkStreams = []
+
+    @QtCore.pyqtSlot(str, str, str, str)
+    def setNetworkStream(self, devName='', url=''):
+        self.networkStreams.append((devName, url))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 - Add effects live preview.
 - Add IP cameras support.
+- Uninterrupted video record.
 - Port it to Python 3.
 
 Will not TODO
