@@ -47,6 +47,9 @@ class WebcamConfig(QtGui.QWidget):
         self.resetting = False
 
         for captureDevice in self.captureDevices:
+            if captureDevice[2] != v4l2tools.V4L2Tools.StreamTypeWebcam:
+                continue
+
             page = QtGui.QWidget()
             gridLayout = QtGui.QGridLayout(page)
 

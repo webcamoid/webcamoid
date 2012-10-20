@@ -88,7 +88,7 @@ class MainWindow(QtGui.QWidget):
         effcts = str(effectsConfigs.readEntry('effects', '').toString())
 
         if effcts != '':
-            self.tools.setEffects(effcts.split('&'))
+            self.tools.setEffects(effcts.split('&&'))
 
         videoFormatsConfigs = config.group('VideoRecordFormats')
 
@@ -233,12 +233,15 @@ class MainWindow(QtGui.QWidget):
 
     def addEffectsConfigDialog(self, configDialog):
         self.cfgEffects = effects.Effects(self, self.tools)
+        self.tools.previewFrameReady.connect(self.cfgEffects.setEffectPreview)
 
         configDialog.addPage(self.cfgEffects,
                              self.tr('Configure Webcam Effects'),
                              'tools-wizard',
                              self.tr('Add funny effects to the webcam'),
                              False)
+
+        configDialog.finished.connect(lambda: self.tools.previewFrameReady.disconnect(self.cfgEffects.setEffectPreview))
 
     def addVideoFormatsConfigDialog(self, configDialog):
         self.cfgVideoFormats = videorecordconfig.\
@@ -319,10 +322,10 @@ class MainWindow(QtGui.QWidget):
 
         networkStreams = []
 
-        for deviceName, url in self.tools.customNetworkStreams():
-            networkStreams.append('{0}::{1}'.format(deviceName, url))
+        for dev_name, description, streamType in self.tools.customNetworkStreams():
+            networkStreams.append('{0}::{1}'.format(dev_name, description))
 
-        networkStreamsConfigs.writeEntry('formats', '&&'.join(networkStreams))
+        networkStreamsConfigs.writeEntry('streams', '&&'.join(networkStreams))
 
         config.sync()
 

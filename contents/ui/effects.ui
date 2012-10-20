@@ -56,146 +56,12 @@
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
      </property>
-     <item>
-      <property name="text">
-       <string>agingtv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>bulge</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>burn</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>chromium</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>dicetv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>edgetv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>exclusion</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>fisheye</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>kaleidoscope</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>marble</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>mirror</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>optv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>pinch</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>quarktv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>radioactv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>revtv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>rippletv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>shagadelictv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>solarize</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>sphere</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>square</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>streaktv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>stretch</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>tunnel</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>twirl</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>vertigotv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>warptv</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>waterripple</string>
-      </property>
-     </item>
+     <property name="iconSize">
+      <size>
+       <width>128</width>
+       <height>96</height>
+      </size>
+     </property>
     </widget>
    </item>
    <item row="1" column="1">
@@ -215,6 +81,12 @@
     <widget class="QListWidget" name="lswApply">
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>128</width>
+       <height>96</height>
+      </size>
      </property>
     </widget>
    </item>

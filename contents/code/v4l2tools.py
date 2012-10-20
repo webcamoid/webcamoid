@@ -27,38 +27,53 @@ import ctypes
 import fcntl
 import signal
 import subprocess
+import struct
+import tempfile
+import threading
 
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
 
+import appenvironment
+
 
 class V4L2Tools(QtCore.QObject):
+    StreamTypeUnknown = 0
+    StreamTypeWebcam = 1
+    StreamTypeNetwork = 2
+
     devicesModified = QtCore.pyqtSignal()
     playingStateChanged = QtCore.pyqtSignal(bool)
     recordingStateChanged = QtCore.pyqtSignal(bool)
     gstError = QtCore.pyqtSignal()
     frameReady = QtCore.pyqtSignal(QtGui.QImage)
+    previewFrameReady = QtCore.pyqtSignal(QtGui.QImage, str)
 
     def __init__(self, parent=None, watchDevices=False):
         QtCore.QObject.__init__(self, parent)
+
+        self.appEnvironment = appenvironment.AppEnvironment(self)
 
         self.processPath = 'gst-launch-0.10'
 
         self.fps = 30
         self.process = None
         self.current_dev_name = ''
-        self.videoSize = QtCore.QSize()
         self.effects = []
         self.playing = False
         self.recording = False
+        self.recordAudio = True
+        self.effectsPreview = True #False
 
         self.curOutVidFmt = 'webm'
         self.fileName = ''
         self.videoRecordFormats = []
+        self.webcams = []
         self.networkStreams = []
+        self.videoPipes = {}
 
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(1)
+        self.timer.setInterval(int(1000 / self.fps))
         self.timer.timeout.connect(self.readFrame)
 
         if watchDevices:
@@ -206,11 +221,14 @@ class V4L2Tools(QtCore.QObject):
 
                 if capability.capabilities & v4l2.V4L2_CAP_VIDEO_CAPTURE:
                     webcamsDevices.append((str(fd.fileName()),
-                                               capability.card))
+                                               capability.card,
+                                               self.StreamTypeWebcam))
 
                 fd.close()
 
-        return webcamsDevices
+        self.webcams = webcamsDevices
+
+        return webcamsDevices + self.networkStreams
 
     # queryControl(dev_fd, queryctrl) ->
     #                       (name, type, min, max, step, default, value, menu)
@@ -383,6 +401,84 @@ class V4L2Tools(QtCore.QObject):
 
         return True
 
+    def availableEffects(self):
+        return {'agingtv': self.tr('Old'),
+                'bulge': self.tr('Bulge'),
+                'burn': self.tr('Burn'),
+                'chromium': self.tr('Chromium'),
+                'dicetv': self.tr('Dices'),
+                'edgetv': self.tr('Edges'),
+                'exclusion': self.tr('Exclusion'),
+                'fisheye': self.tr('Fish Eye'),
+                'kaleidoscope': self.tr('Kaleidoscope'),
+                'marble': self.tr('Marble'),
+                'mirror': self.tr('Mirror'),
+                'optv': self.tr('Hypnotic'),
+                'pinch': self.tr('Pinch'),
+                'quarktv': self.tr('Quark'),
+                'radioactv': self.tr('Radioactive'),
+                'revtv': self.tr('Scan Lines'),
+                'rippletv': self.tr('Ripple'),
+                'shagadelictv': self.tr('Psychedelic'),
+                'solarize': self.tr('Solarize'),
+                'sphere': self.tr('Sphere'),
+                'square': self.tr('Square'),
+                'streaktv': self.tr('Streak'),
+                'stretch': self.tr('Stretch'),
+                'tunnel': self.tr('Tunnel'),
+                'twirl': self.tr('Twirl'),
+                'vertigotv': self.tr('Vertigo'),
+                'warptv': self.tr('Warp'),
+                'waterripple': self.tr('Water Ripple')}
+
+    def createPreviewPipes(self):
+        params = []
+        videoPipes = {}
+
+        for effect in self.availableEffects().keys():
+            pipefile = os.path.join(tempfile.gettempdir(), '{0}_preview.tmp'.format(effect))
+
+            try:
+                os.remove(pipefile)
+            except:
+                pass
+
+            os.mkfifo(pipefile, 0644)
+
+            videoPipes[effect] = QtCore.QFile()
+            videoPipes[effect].setFileName(pipefile)
+
+            params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!',
+                       'videoscale', '!', 'video/x-raw-yuv,width={0},height={1}'.format(128, 96), '!', 'ffmpegcolorspace', '!',
+                       effect, '!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'image/bmp', '!',
+                       'filesink', 'location={0}'.format(videoPipes[effect].fileName())]
+
+        return params, videoPipes
+
+    def openPipe(self, pipe=None):
+        pipe.open(QtCore.QIODevice.ReadOnly)
+
+    def closePipe(self, pipe=None):
+        pipe.readAll()
+        pipe.close()
+
+    def startPreviewPipes(self, videoPipes={}):
+        for effect in videoPipes:
+            threading.Thread(target=self.openPipe, args=(videoPipes[effect], )).start()
+
+    def destroyPreviewPipes(self, videoPipes={}):
+        for effect in videoPipes:
+            threading.Thread(target=self.closePipe, args=(videoPipes[effect], )).start()
+            os.remove(videoPipes[effect].fileName())
+
+    @QtCore.pyqtSlot()
+    def readPreviewFrames(self, videoPipes):
+        for effect in videoPipes:
+            frameHeader = videoPipes[effect].read(14)
+            dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
+            frameData = videoPipes[effect].read(dataSize)
+            self.previewFrameReady.emit(QtGui.QImage.fromData(frameHeader + frameData), effect)
+
     def setEffects(self, effects=[]):
         self.effects = [str(effect) for effect in effects]
 
@@ -396,6 +492,20 @@ class V4L2Tools(QtCore.QObject):
 
     def isPlaying(self):
         return self.playing
+
+    def enableAudioRecording(self, enable=True):
+        self.recordAudio = enable
+
+    def audioRecordingIsEnabled(self):
+        return self.recordAudio
+
+    def deviceType(self, dev_name='/dev/video0'):
+        if dev_name in [device[0] for device in self.webcams]:
+            return self.StreamTypeWebcam
+        elif dev_name in [device[0] for device in self.networkStreams]:
+            return self.StreamTypeNetwork
+        else:
+            return self.StreamTypeUnknown
 
     def reset(self, dev_name='/dev/video0'):
         videoFormats = self.videoFormats(dev_name)
@@ -412,29 +522,41 @@ class V4L2Tools(QtCore.QObject):
     def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple(),
                                                   record=False):
         self.stopCurrentDevice()
+        deviceType = self.deviceType(dev_name)
 
-        if forcedFormat == tuple():
-            fmt = self.currentVideoFormat(dev_name)
+        if deviceType == self.StreamTypeWebcam:
+            if forcedFormat == tuple():
+                fmt = self.currentVideoFormat(dev_name)
 
-            if fmt == tuple():
-                fmt = self.videoFormats(dev_name)[0]
-        else:
-            fmt = forcedFormat
+                if fmt == tuple():
+                    fmt = self.videoFormats(dev_name)[0]
+            else:
+                fmt = forcedFormat
 
-        params = [self.processPath,
-                  '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
-                  'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.
+            params = [self.processPath,
+                      '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
+                      'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.
                                         format(fmt[0], fmt[1], self.fps), '!']
+        elif deviceType == self.StreamTypeNetwork:
+            params = [self.processPath,
+                    '-qe', 'souphttpsrc', 'location={0}'.format(dev_name), 'timeout=5', '!',
+                    'decodebin', '!']
+        else:
+            return
+
+        params += ['tee', 'name=rawvideo']
+        params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!']
 
         for effect in self.effects:
-            params += ['ffmpegcolorspace', '!', effect, '!']
+            params += [effect, '!']
 
-        if record:
-            params += ['tee', 'name=rawvideo']
-            params += ['rawvideo.', '!']
+        params += ['tee', 'name=effects']
 
-        params += ['queue', '!', 'ffmpegcolorspace', '!',
-                   'video/x-raw-rgb,bpp=24,depth=24', '!', 'fdsink']
+        params += ['effects.', '!', 'queue', '!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'fdsink']
+
+        if self.effectsPreview:
+            parms, self.videoPipes = self.createPreviewPipes()
+            params += parms
 
         if record:
             suffix, videoEncoder, audioEncoder, muxer = \
@@ -442,32 +564,34 @@ class V4L2Tools(QtCore.QObject):
 
             if suffix == '':
                 self.process = None
-                self.videoSize = QtCore.QSize()
                 self.current_dev_name = ''
 
                 return
 
-            params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace',
+            params += ['effects.', '!', 'queue', '!', 'ffmpegcolorspace',
                        '!'] + videoEncoder.split() + ['!', 'queue', '!',
                                                       'muxer.']
 
-            params += ['alsasrc', 'device=plughw:0,0', '!', 'queue', '!',
-                       'audioconvert', '!', 'queue', '!'] + \
-                       audioEncoder.split() + ['!', 'queue', '!', 'muxer.']
+            if self.recordAudio:
+                params += ['alsasrc', 'device=plughw:0,0', '!', 'queue', '!',
+                        'audioconvert', '!', 'queue', '!'] + \
+                        audioEncoder.split() + ['!', 'queue', '!', 'muxer.']
 
             params += muxer.split() + ['name=muxer', '!', 'filesink',
                                        'location={0}'.format(self.fileName)]
 
         try:
             self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
-            self.videoSize = QtCore.QSize(fmt[0], fmt[1])
+
+            if self.effectsPreview:
+                self.startPreviewPipes(self.videoPipes)
+
             self.current_dev_name = dev_name
             self.playing = True
             self.timer.start()
             self.playingStateChanged.emit(True)
         except:
             self.process = None
-            self.videoSize = QtCore.QSize()
             self.current_dev_name = ''
             self.gstError.emit()
 
@@ -478,23 +602,16 @@ class V4L2Tools(QtCore.QObject):
 
         os.kill(self.process.pid, signal.SIGINT)
 
-        while True:
-            frame = self.process.stdout.read(3 * self.videoSize.width()
-                                               * self.videoSize.height())
+        if self.effectsPreview:
+            self.destroyPreviewPipes(self.videoPipes)
 
-            if frame == '':
-                break
-
-            self.frameReady.emit(QtGui.QImage(frame,
-                                              self.videoSize.width(),
-                                              self.videoSize.height(),
-                                              QtGui.QImage.Format_RGB888))
+        # Flush buffer.
+        self.process.stdout.read()
 
         self.process.wait()
         self.timer.stop()
 
         self.process = None
-        self.videoSize = QtCore.QSize()
         self.current_dev_name = ''
 
         self.playing = False
@@ -502,13 +619,13 @@ class V4L2Tools(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def readFrame(self):
-        frame = self.process.stdout.read(3 * self.videoSize.width()
-                                           * self.videoSize.height())
+        frameHeader = self.process.stdout.read(14)
+        dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
+        frameData = self.process.stdout.read(dataSize)
+        self.frameReady.emit(QtGui.QImage.fromData(frameHeader + frameData))
 
-        self.frameReady.emit(QtGui.QImage(frame,
-                                          self.videoSize.width(),
-                                          self.videoSize.height(),
-                                          QtGui.QImage.Format_RGB888))
+        if self.effectsPreview:
+            self.readPreviewFrames(self.videoPipes)
 
     def isRecording(self):
         return self.recording
@@ -570,10 +687,12 @@ class V4L2Tools(QtCore.QObject):
     @QtCore.pyqtSlot()
     def clearNetworkStreams(self):
         self.networkStreams = []
+        self.devicesModified.emit()
 
-    @QtCore.pyqtSlot(str, str, str, str)
-    def setNetworkStream(self, devName='', url=''):
-        self.networkStreams.append((devName, url))
+    @QtCore.pyqtSlot(str, str)
+    def setNetworkStream(self, dev_name='', description=''):
+        self.networkStreams.append((dev_name, description, self.StreamTypeNetwork))
+        self.devicesModified.emit()
 
 
 if __name__ == '__main__':

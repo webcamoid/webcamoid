@@ -24,7 +24,7 @@
 import os
 import sys
 
-from PyQt4 import uic, QtGui, QtCore
+from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
 
 import appenvironment
@@ -43,18 +43,27 @@ class Effects(QtGui.QWidget):
         self.btnDown.setIcon(kdeui.KIcon('arrow-down'))
         self.btnRemove.setIcon(kdeui.KIcon('arrow-left'))
         self.btnReset.setIcon(kdeui.KIcon('edit-undo'))
-
         self.tools = tools
+        self.effects = []
 
         if not self.tools:
             return
 
-        for effect in self.tools.currentEffects():
-            items = self.lswEffects.findItems(effect, QtCore.Qt.MatchExactly)
+        effects = self.tools.availableEffects()
 
-            if len(items) > 0:
-                self.lswApply.addItem(self.lswEffects.
-                                      takeItem(self.lswEffects.row(items[0])))
+        for index, effect in enumerate(sorted(effects.keys())):
+            item = [effect, QtGui.QListWidgetItem(effects[effect])]
+            self.effects.append(item)
+            self.lswEffects.addItem(item[1])
+
+        for effect in self.tools.currentEffects():
+            item, index = self.findEffect(effect)
+
+            if item == []:
+                continue
+
+            listWidgetItem = self.lswEffects.takeItem(self.lswEffects.row(item[1]))
+            self.lswApply.addItem(listWidgetItem)
 
         self.tools.recordingStateChanged.connect(self.recordingStateChanged)
         self.recordingStateChanged(self.tools.isRecording())
@@ -62,6 +71,25 @@ class Effects(QtGui.QWidget):
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
+
+    def findEffectWidget(self, widget=None):
+        for index, effect in enumerate(self.effects):
+            if effect[1] == widget:
+                return effect, index
+
+        return [], -1
+
+    def findEffect(self, effect=''):
+        for index, effect_ in enumerate(self.effects):
+            if effect_[0] == effect:
+                return effect_, index
+
+        return [], -1
+
+    @QtCore.pyqtSlot(QtGui.QImage, str)
+    def setEffectPreview(self, image=None, effect=''):
+        item, index = self.findEffect(effect)
+        item[1].setIcon(QtGui.QIcon(QtGui.QPixmap.fromImage(image)))
 
     @QtCore.pyqtSlot(bool)
     def recordingStateChanged(self, recording):
@@ -72,7 +100,7 @@ class Effects(QtGui.QWidget):
     def on_btnAdd_clicked(self):
         for item in self.lswEffects.selectedItems():
             self.lswApply.addItem(self.lswEffects.
-                                        takeItem(self.lswEffects.row(item)))
+                                            takeItem(self.lswEffects.row(item)))
 
         self.update()
 
@@ -123,7 +151,8 @@ class Effects(QtGui.QWidget):
         effects = []
 
         for i in range(self.lswApply.count()):
-            effects.append(self.lswApply.item(i).text())
+            item, index = self.findEffectWidget(self.lswApply.item(i))
+            effects.append(item[0])
 
         self.tools.setEffects(effects)
 

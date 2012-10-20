@@ -31,7 +31,9 @@ import appenvironment
 
 # Find IP Cameras -> http://www.google.com/search?q=filetype:mjpg
 #
-# gst-launch-0.10 souphttpsrc location=http://208.42.203.54:8588/mjpg/video.mjpg timeout=5 ! decodebin ! autovideosink
+# Example:
+#
+# http://208.42.203.54:8588/mjpg/video.mjpg
 
 class NetworkStreamsConfig(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
@@ -56,11 +58,11 @@ class NetworkStreamsConfig(QtGui.QWidget):
 
         self.tbwNetworkStreams.setRowCount(len(networkStreams))
 
-        for row, fmt in enumerate(networkStreams):
+        for row, fmt in enumerate([(description, dev_name) for dev_name, description, streamType in networkStreams]):
             for column, param in enumerate(fmt):
                 self.tbwNetworkStreams.setItem(row,
-                                             column,
-                                             QtGui.QTableWidgetItem(param))
+                                               column,
+                                               QtGui.QTableWidgetItem(param))
 
         self.isInit = False
 
@@ -130,10 +132,10 @@ class NetworkStreamsConfig(QtGui.QWidget):
 
         for row in range(self.tbwNetworkStreams.rowCount()):
             try:
-                devName = str(self.tbwNetworkStreams.item(row, 0).text())
-                url = str(self.tbwNetworkStreams.item(row, 1).text())
+                description = str(self.tbwNetworkStreams.item(row, 0).text())
+                dev_name = str(self.tbwNetworkStreams.item(row, 1).text())
 
-                self.tools.setNetworkStreams(devName, url)
+                self.tools.setNetworkStream(dev_name, description)
             except:
                 pass
 
