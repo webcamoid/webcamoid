@@ -19,167 +19,27 @@
         <translation>Applicare</translation>
     </message>
     <message>
-        <location filename="contents/ui/effects.ui" line="61"/>
-        <source>agingtv</source>
-        <translation>agingtv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="66"/>
-        <source>bulge</source>
-        <translation>bulge</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="71"/>
-        <source>burn</source>
-        <translation>burn</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="76"/>
-        <source>chromium</source>
-        <translation>chromium</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="81"/>
-        <source>dicetv</source>
-        <translation>dicetv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="86"/>
-        <source>edgetv</source>
-        <translation>edgetv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="91"/>
-        <source>exclusion</source>
-        <translation>exclusion</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="96"/>
-        <source>fisheye</source>
-        <translation>fisheye</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="101"/>
-        <source>kaleidoscope</source>
-        <translation>kaleidoscope</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="106"/>
-        <source>marble</source>
-        <translation>marble</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="111"/>
-        <source>mirror</source>
-        <translation>mirror</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="116"/>
-        <source>optv</source>
-        <translation>optv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="121"/>
-        <source>pinch</source>
-        <translation>pinch</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="126"/>
-        <source>quarktv</source>
-        <translation>quarktv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="131"/>
-        <source>radioactv</source>
-        <translation>radioactv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="136"/>
-        <source>revtv</source>
-        <translation>revtv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="141"/>
-        <source>rippletv</source>
-        <translation>rippletv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="146"/>
-        <source>shagadelictv</source>
-        <translation>shagadelictv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="151"/>
-        <source>solarize</source>
-        <translation>solarize</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="156"/>
-        <source>sphere</source>
-        <translation>sphere</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="161"/>
-        <source>square</source>
-        <translation>square</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="166"/>
-        <source>streaktv</source>
-        <translation>streaktv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="171"/>
-        <source>stretch</source>
-        <translation>stretch</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="176"/>
-        <source>tunnel</source>
-        <translation>tunnel</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="181"/>
-        <source>twirl</source>
-        <translation>twirl</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="186"/>
-        <source>vertigotv</source>
-        <translation>vertigotv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="191"/>
-        <source>warptv</source>
-        <translation>warptv</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="196"/>
-        <source>waterripple</source>
-        <translation>waterripple</translation>
-    </message>
-    <message>
-        <location filename="contents/ui/effects.ui" line="238"/>
+        <location filename="contents/ui/effects.ui" line="110"/>
         <source>Effect to Up</source>
         <translation>Effetto fino</translation>
     </message>
     <message>
-        <location filename="contents/ui/effects.ui" line="262"/>
+        <location filename="contents/ui/effects.ui" line="134"/>
         <source>Add Effects</source>
         <translation>Aggiungere effetti</translation>
     </message>
     <message>
-        <location filename="contents/ui/effects.ui" line="286"/>
+        <location filename="contents/ui/effects.ui" line="158"/>
         <source>Effect to Down</source>
         <translation>Effetto a giù</translation>
     </message>
     <message>
-        <location filename="contents/ui/effects.ui" line="310"/>
+        <location filename="contents/ui/effects.ui" line="182"/>
         <source>Remove Effects</source>
         <translation>Rimuovere gli effetti</translation>
     </message>
     <message>
-        <location filename="contents/ui/effects.ui" line="334"/>
+        <location filename="contents/ui/effects.ui" line="206"/>
         <source>Reset Effects</source>
         <translation>Ripristino degli effetti</translation>
     </message>
@@ -217,52 +77,52 @@
         <translation>Configurare Webcamoid</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="213"/>
+        <location filename="contents/code/mainwindow.py" line="227"/>
         <source>Webcam Settings</source>
         <translation>Impostazioni della WebCam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="213"/>
+        <location filename="contents/code/mainwindow.py" line="227"/>
         <source>Set webcam properties</source>
         <translation>Impostare le proprietà webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="223"/>
+        <location filename="contents/code/mainwindow.py" line="237"/>
         <source>Configure Webcam Effects</source>
         <translation>Configurare gli effetti webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="223"/>
+        <location filename="contents/code/mainwindow.py" line="237"/>
         <source>Add funny effects to the webcam</source>
         <translation>Aggiungere effetti divertenti alla webcam</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="234"/>
+        <location filename="contents/code/mainwindow.py" line="250"/>
         <source>Configure Video Recording Formats</source>
         <translation>Configurare i formati di registrazione video</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="234"/>
+        <location filename="contents/code/mainwindow.py" line="250"/>
         <source>Add or remove video formats for recording.</source>
         <translation>Aggiungere o rimuovere i formati video per la registrazione.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="292"/>
+        <location filename="contents/code/mainwindow.py" line="333"/>
         <source>webcam capture plasmoid.</source>
         <translation>cattura webcam plasmoide.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="292"/>
+        <location filename="contents/code/mainwindow.py" line="333"/>
         <source>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</source>
         <translation>Copyright (C) 2011-2012  Gonzalo Exequiel Pedone</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="292"/>
+        <location filename="contents/code/mainwindow.py" line="333"/>
         <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
         <translation>Un plasmoide semplice webcam e stand alone app per foto e video.</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="315"/>
+        <location filename="contents/code/mainwindow.py" line="358"/>
         <source>Please install GStreamer:
 
 </source>
@@ -271,7 +131,7 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="317"/>
+        <location filename="contents/code/mainwindow.py" line="360"/>
         <source>Please install the following packages:
 
 </source>
@@ -280,12 +140,12 @@
 </translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="319"/>
+        <location filename="contents/code/mainwindow.py" line="363"/>
         <source>GStreamer not installed or configured</source>
         <translation>GStreamer non è installato o configurato</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="369"/>
+        <location filename="contents/code/mainwindow.py" line="411"/>
         <source>Save File As...</source>
         <translation>Salva file con nome...</translation>
     </message>
@@ -295,9 +155,205 @@
         <translation>Finestra Principale</translation>
     </message>
     <message>
-        <location filename="contents/code/mainwindow.py" line="248"/>
+        <location filename="contents/code/mainwindow.py" line="277"/>
         <source>{0} Settings</source>
         <translation>Impostazioni {0}</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="260"/>
+        <source>Configure Custom Streams</source>
+        <translation>Configurare i flussi personalizzati</translation>
+    </message>
+    <message>
+        <location filename="contents/code/mainwindow.py" line="260"/>
+        <source>Add or remove local or network live streams.</source>
+        <translation>Aggiungere o rimuovere i flussi dal vivo locali o di rete.</translation>
+    </message>
+</context>
+<context>
+    <name>StreamsConfig</name>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="14"/>
+        <source>Local and Network Streams Setup</source>
+        <translation>Locale e la configurazione di rete in streaming</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="26"/>
+        <source>Device Name</source>
+        <translation>Nome dispositivo</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="31"/>
+        <source>URI</source>
+        <translation>Identificatore di Risorsa Universale</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="39"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new stream device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiungere un nuovo dispositivo flusso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="51"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove a stream device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rimozione di un dispositivo di flusso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="63"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dispositivo fino.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="contents/ui/streamsconfig.ui" line="75"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dispositivo per il basso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>V4L2Tools</name>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="240"/>
+        <source>Desktop</source>
+        <translation>Tavolo</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="414"/>
+        <source>Old</source>
+        <translation>Vecchio</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="415"/>
+        <source>Bulge</source>
+        <translation>Rigonfiamento</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="416"/>
+        <source>Burn</source>
+        <translation>Bruciare</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="417"/>
+        <source>Chromium</source>
+        <translation>Cromo</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="418"/>
+        <source>Dices</source>
+        <translation>Dadi</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="419"/>
+        <source>Edges</source>
+        <translation>Bordi</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="420"/>
+        <source>Exclusion</source>
+        <translation>Esclusione</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="421"/>
+        <source>Fish Eye</source>
+        <translation>Occhio di Pesce</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="422"/>
+        <source>Kaleidoscope</source>
+        <translation>Caleidoscopio</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="423"/>
+        <source>Marble</source>
+        <translation>Marmo</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="424"/>
+        <source>Mirror</source>
+        <translation>Specchio</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="425"/>
+        <source>Hypnotic</source>
+        <translation>Ipnotico</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="426"/>
+        <source>Pinch</source>
+        <translation>Pizzicare</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="427"/>
+        <source>Quark</source>
+        <translation>Quark</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="428"/>
+        <source>Radioactive</source>
+        <translation>Radioattivo</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="429"/>
+        <source>Scan Lines</source>
+        <translation>Linee di Scansione</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="430"/>
+        <source>Ripple</source>
+        <translation>Ondulazione</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="431"/>
+        <source>Psychedelic</source>
+        <translation>Psichedelico</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="432"/>
+        <source>Solarize</source>
+        <translation>Solarizzare</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="433"/>
+        <source>Sphere</source>
+        <translation>Sfera</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="434"/>
+        <source>Square</source>
+        <translation>Quadrato</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="435"/>
+        <source>Streak</source>
+        <translation>Striscia</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="436"/>
+        <source>Stretch</source>
+        <translation>Allungare</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="437"/>
+        <source>Tunnel</source>
+        <translation>Tunnel</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="438"/>
+        <source>Twirl</source>
+        <translation>Piroetta</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="439"/>
+        <source>Vertigo</source>
+        <translation>Vertigine</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="440"/>
+        <source>Warp</source>
+        <translation>Deformare</translation>
+    </message>
+    <message>
+        <location filename="contents/code/v4l2tools.py" line="441"/>
+        <source>Water Ripple</source>
+        <translation>Acqua Ondulazione</translation>
     </message>
 </context>
 <context>
@@ -356,17 +412,17 @@
         <translation>GStreamer eseguibile</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="56"/>
+        <location filename="contents/code/webcamconfig.py" line="59"/>
         <source>Video Format</source>
         <translation>Formato video</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="105"/>
+        <location filename="contents/code/webcamconfig.py" line="108"/>
         <source>Reset</source>
         <translation>Azzerare</translation>
     </message>
     <message>
-        <location filename="contents/code/webcamconfig.py" line="288"/>
+        <location filename="contents/code/webcamconfig.py" line="291"/>
         <source>Select GStreamer Executable</source>
         <translation>Seleziona eseguibile GStreamer</translation>
     </message>

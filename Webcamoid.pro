@@ -24,6 +24,7 @@ SOURCES = \
     contents/code/infotools.py \
     contents/code/main.py \
     contents/code/mainwindow.py \
+    contents/code/streamsconfig.py \
     contents/code/v4l2tools.py \
     contents/code/videorecordconfig.py \
     contents/code/webcamconfig.py
@@ -31,6 +32,7 @@ SOURCES = \
 FORMS = \
     contents/ui/effects.ui \
     contents/ui/mainwindow.ui \
+    contents/ui/streamsconfig.ui \
     contents/ui/videorecordconfig.ui \
     contents/ui/webcamconfig.ui
 

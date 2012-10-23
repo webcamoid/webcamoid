@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NetworkStreamsConfig</class>
- <widget class="QWidget" name="NetworkStreamsConfig">
+ <class>StreamsConfig</class>
+ <widget class="QWidget" name="StreamsConfig">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>IP Cameras and Streaming Setup</string>
+   <string>Local and Network Streams Setup</string>
   </property>
   <property name="windowIcon">
    <iconset theme="camera-web">
@@ -20,7 +20,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" rowspan="5">
-    <widget class="QTableWidget" name="tbwNetworkStreams">
+    <widget class="QTableWidget" name="tbwCustomStreams">
      <column>
       <property name="text">
        <string>Device Name</string>
@@ -28,7 +28,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Url</string>
+       <string>URI</string>
       </property>
      </column>
     </widget>
@@ -36,7 +36,7 @@
    <item row="0" column="1">
     <widget class="QPushButton" name="btnAdd">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new network device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new stream device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="icon">
       <iconset theme="list-add">
@@ -48,7 +48,7 @@
    <item row="1" column="1">
     <widget class="QPushButton" name="btnRemove">
      <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove a network device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove a stream device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="icon">
       <iconset theme="list-remove">
@@ -97,7 +97,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tbwNetworkStreams</tabstop>
+  <tabstop>tbwCustomStreams</tabstop>
   <tabstop>btnAdd</tabstop>
   <tabstop>btnRemove</tabstop>
   <tabstop>btnUp</tabstop>

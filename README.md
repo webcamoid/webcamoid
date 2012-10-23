@@ -13,8 +13,11 @@
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
 * Add funny effects to the webcam (requires GStreamer plugins).
+* Effects with live previews.
 * Translated to many languages.
 * Stand alone installation mode (use it as a normal program).
+* Use custom network and local files as capture devices.
+* Capture from desktop.
 
 ## Installing ##
 
@@ -55,6 +58,18 @@ Be careful, the GIT repository is unstable, it could work or not.
     git clone https://github.com/hipersayanX/Webcamoid.git
     zip -r webcamoid.plasmoid Webcamoid -x \*.git\*
     plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
+
+### Custom Streams ###
+
+Webcamoid is not just a webcam capture software. You can, for example, use it to capture from a video, image file, IP cameras, or the desktop.  
+If you want to add a new stream, go to the "Configure Custom Streams" option, and click in the "Add" button. Give it a human readable "Device Name" and write the path to the stream in the "URI" field. Here are some examples:
+
+* file:///home/YourHome/Videos/SomeFunnyVideo.ogv
+* http://1.2.3.4:1234/mjpg/video.mjpg
+* http://www.somesite.com/mjpg/video.mjpg
+* rtsp://user:password@livecamera.somesite.com/mpeg4
+
+You can search some online IP cameras [here](http://www.google.com/search?q=filetype:mjpg) and [here](http://www.google.com/search?q=rtsp+ip+cameras+demo)
 
 ## Translating ##
 

@@ -1,7 +1,2 @@
-- Desktop capture.
 - Uninterrupted video record.
 - Port it to Python 3.
-
-Will not TODO
-
-- Add video/image upload. Most websites requires a developer key, there are no a common API, and there are not portable.

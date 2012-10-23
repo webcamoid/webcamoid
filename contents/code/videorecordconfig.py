@@ -24,7 +24,7 @@
 import os
 import sys
 
-from PyQt4 import uic, QtGui, QtCore
+from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
 
 import appenvironment
@@ -127,10 +127,10 @@ class VideoRecordConfig(QtGui.QWidget):
 
         for row in range(self.tbwVideoFormats.rowCount()):
             try:
-                suffix = str(self.tbwVideoFormats.item(row, 0).text())
-                videoEncoder = str(self.tbwVideoFormats.item(row, 1).text())
-                audioEncoder = str(self.tbwVideoFormats.item(row, 2).text())
-                muxer = str(self.tbwVideoFormats.item(row, 3).text())
+                suffix = self.tbwVideoFormats.item(row, 0).text().toUtf8().data()
+                videoEncoder = self.tbwVideoFormats.item(row, 1).text().toUtf8().data()
+                audioEncoder = self.tbwVideoFormats.item(row, 2).text().toUtf8().data()
+                muxer = self.tbwVideoFormats.item(row, 3).text().toUtf8().data()
 
                 self.tools.setVideoRecordFormat(suffix,
                                                 videoEncoder,

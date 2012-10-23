@@ -24,23 +24,18 @@
 import os
 import sys
 
-from PyQt4 import uic, QtGui, QtCore
+from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
 
 import appenvironment
 
-# Find IP Cameras -> http://www.google.com/search?q=filetype:mjpg
-#
-# Example:
-#
-# http://208.42.203.54:8588/mjpg/video.mjpg
 
-class NetworkStreamsConfig(QtGui.QWidget):
+class StreamsConfig(QtGui.QWidget):
     def __init__(self, parent=None, tools=None):
         QtGui.QWidget.__init__(self, parent)
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
-        uic.loadUi(self.resolvePath('../ui/networkstreamsconfig.ui'), self)
+        uic.loadUi(self.resolvePath('../ui/streamsconfig.ui'), self)
 
         self.setWindowIcon(kdeui.KIcon('camera-web'))
         self.btnAdd.setIcon(kdeui.KIcon('list-add'))
@@ -54,15 +49,15 @@ class NetworkStreamsConfig(QtGui.QWidget):
             return
 
         self.isInit = True
-        networkStreams = self.tools.customNetworkStreams()
+        streams = self.tools.customStreams()
 
-        self.tbwNetworkStreams.setRowCount(len(networkStreams))
+        self.tbwCustomStreams.setRowCount(len(streams))
 
-        for row, fmt in enumerate([(description, dev_name) for dev_name, description, streamType in networkStreams]):
+        for row, fmt in enumerate([(description, dev_name) for dev_name, description, streamType in streams]):
             for column, param in enumerate(fmt):
-                self.tbwNetworkStreams.setItem(row,
-                                               column,
-                                               QtGui.QTableWidgetItem(param))
+                self.tbwCustomStreams.setItem(row,
+                                              column,
+                                              QtGui.QTableWidgetItem(param))
 
         self.isInit = False
 
@@ -72,76 +67,76 @@ class NetworkStreamsConfig(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):
-        self.tbwNetworkStreams.insertRow(self.tbwNetworkStreams.rowCount())
+        self.tbwCustomStreams.insertRow(self.tbwCustomStreams.rowCount())
         self.update()
 
     @QtCore.pyqtSlot()
     def on_btnRemove_clicked(self):
-        self.tbwNetworkStreams.removeRow(self.tbwNetworkStreams.currentRow())
+        self.tbwCustomStreams.removeRow(self.tbwCustomStreams.currentRow())
         self.update()
 
     @QtCore.pyqtSlot()
     def on_btnUp_clicked(self):
-        currentRow = self.tbwNetworkStreams.currentRow()
+        currentRow = self.tbwCustomStreams.currentRow()
         nextRow = currentRow - 1
 
         if nextRow < 0:
             return
 
-        for column in range(self.tbwNetworkStreams.columnCount()):
-            currentText = self.tbwNetworkStreams.item(currentRow, column).text()
-            nextText = self.tbwNetworkStreams.item(nextRow, column).text()
+        for column in range(self.tbwCustomStreams.columnCount()):
+            currentText = self.tbwCustomStreams.item(currentRow, column).text()
+            nextText = self.tbwCustomStreams.item(nextRow, column).text()
 
-            self.tbwNetworkStreams.item(currentRow, column).setText(nextText)
-            self.tbwNetworkStreams.item(nextRow, column).setText(currentText)
+            self.tbwCustomStreams.item(currentRow, column).setText(nextText)
+            self.tbwCustomStreams.item(nextRow, column).setText(currentText)
 
-        self.tbwNetworkStreams.\
-                setCurrentCell(nextRow, self.tbwNetworkStreams.currentColumn())
+        self.tbwCustomStreams.\
+                setCurrentCell(nextRow, self.tbwCustomStreams.currentColumn())
 
         self.update()
 
     @QtCore.pyqtSlot()
     def on_btnDown_clicked(self):
-        currentRow = self.tbwNetworkStreams.currentRow()
+        currentRow = self.tbwCustomStreams.currentRow()
         nextRow = currentRow + 1
 
-        if nextRow >= self.tbwNetworkStreams.rowCount():
+        if nextRow >= self.tbwCustomStreams.rowCount():
             return
 
-        for column in range(self.tbwNetworkStreams.columnCount()):
-            currentText = self.tbwNetworkStreams.item(currentRow, column).text()
-            nextText = self.tbwNetworkStreams.item(nextRow, column).text()
+        for column in range(self.tbwCustomStreams.columnCount()):
+            currentText = self.tbwCustomStreams.item(currentRow, column).text()
+            nextText = self.tbwCustomStreams.item(nextRow, column).text()
 
-            self.tbwNetworkStreams.item(currentRow, column).setText(nextText)
-            self.tbwNetworkStreams.item(nextRow, column).setText(currentText)
+            self.tbwCustomStreams.item(currentRow, column).setText(nextText)
+            self.tbwCustomStreams.item(nextRow, column).setText(currentText)
 
-        self.tbwNetworkStreams.\
-                setCurrentCell(nextRow, self.tbwNetworkStreams.currentColumn())
+        self.tbwCustomStreams.\
+                setCurrentCell(nextRow, self.tbwCustomStreams.currentColumn())
 
         self.update()
 
     @QtCore.pyqtSlot(int, int)
-    def on_tbwNetworkStreams_cellChanged(self, row, column):
+    def on_tbwCustomStreams_cellChanged(self, row, column):
         self.update()
 
     def update(self):
         if not self.tools or self.isInit:
             return
 
-        self.tools.clearNetworkStreams()
+        self.tools.clearCustomStreams()
 
-        for row in range(self.tbwNetworkStreams.rowCount()):
+        for row in range(self.tbwCustomStreams.rowCount()):
             try:
-                description = str(self.tbwNetworkStreams.item(row, 0).text())
-                dev_name = str(self.tbwNetworkStreams.item(row, 1).text())
+                description = self.tbwCustomStreams.item(row, 0).text().toUtf8().data()
+                dev_name = self.tbwCustomStreams.item(row, 1).text().toUtf8().data()
 
-                self.tools.setNetworkStream(dev_name, description)
+                self.tools.setCustomStream(dev_name, description)
             except:
                 pass
 
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    networkStreamsConfig = NetworkStreamsConfig()
-    networkStreamsConfig.show()
+    streamsConfig = StreamsConfig()
+    streamsConfig.show()
     app.exec_()

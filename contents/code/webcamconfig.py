@@ -213,7 +213,7 @@ class WebcamConfig(QtGui.QWidget):
 
             if variantChildrenDeviceName.isValid() and \
                variantChildrenControlDefaultValue.isValid():
-                childrenDeviceName = str(variantChildrenDeviceName.toString())
+                childrenDeviceName = variantChildrenDeviceName.toString().toUtf8().data()
 
                 childrenControlDefaultValue = \
                                 variantChildrenControlDefaultValue.toInt()[0]
@@ -247,8 +247,8 @@ class WebcamConfig(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def on_slider_sliderMoved(self, value):
         control = self.sender()
-        deviceName = str(control.property('deviceName').toString())
-        controlName = str(control.property('controlName').toString())
+        deviceName = control.property('deviceName').toString().toUtf8().data()
+        controlName = control.property('controlName').toString().toUtf8().data()
 
         if not self.resetting:
             self.tools.setControls(deviceName, {controlName: value})
@@ -256,8 +256,8 @@ class WebcamConfig(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def on_spinbox_valueChanged(self, i):
         control = self.sender()
-        deviceName = str(control.property('deviceName').toString())
-        controlName = str(control.property('controlName').toString())
+        deviceName = control.property('deviceName').toString().toUtf8().data()
+        controlName = control.property('controlName').toString().toUtf8().data()
 
         if not self.resetting:
             self.tools.setControls(deviceName, {controlName: i})
@@ -265,8 +265,8 @@ class WebcamConfig(QtGui.QWidget):
     @QtCore.pyqtSlot(bool)
     def on_checkbox_toggled(self, checked):
         control = self.sender()
-        deviceName = str(control.property('deviceName').toString())
-        controlName = str(control.property('controlName').toString())
+        deviceName = control.property('deviceName').toString().toUtf8().data()
+        controlName = control.property('controlName').toString().toUtf8().data()
 
         if not self.resetting:
             self.tools.setControls(deviceName,
@@ -275,9 +275,9 @@ class WebcamConfig(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def on_combobox_currentIndexChanged(self, index):
         control = self.sender()
-        deviceName = str(control.property('deviceName').toString())
-        controlName = str(control.property('controlName').toString())
-        deviceOption = str(control.property('deviceOption').toString())
+        deviceName = control.property('deviceName').toString().toUtf8().data()
+        controlName = control.property('controlName').toString().toUtf8().data()
+        deviceOption = control.property('deviceOption').toString().toUtf8().data()
 
         if controlName == '':
             if deviceOption == 'videoFormat' and not self.resetting:

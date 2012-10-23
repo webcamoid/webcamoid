@@ -25,7 +25,7 @@ import os
 import sys
 import time
 
-from PyQt4 import uic, QtGui, QtCore
+from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdecore, kdeui, plasmascript
 
 import effects
@@ -34,7 +34,7 @@ import appenvironment
 import v4l2tools
 import videorecordconfig
 import webcamconfig
-import networkstreamsconfig
+import streamsconfig
 
 
 class MainWindow(QtGui.QWidget):
@@ -80,19 +80,19 @@ class MainWindow(QtGui.QWidget):
 
         webcamConfigs = config.group('Webcam')
 
-        self.tools.setProcessExecutable(str(webcamConfigs.
-                readEntry('processExecutable', 'gst-launch-0.10').toString()))
+        self.tools.setProcessExecutable(webcamConfigs.
+                readEntry('processExecutable', 'gst-launch-0.10').toString().toUtf8().data())
 
         effectsConfigs = config.group('Effects')
 
-        effcts = str(effectsConfigs.readEntry('effects', '').toString())
+        effcts = effectsConfigs.readEntry('effects', '').toString().toUtf8().data()
 
         if effcts != '':
             self.tools.setEffects(effcts.split('&&'))
 
         videoFormatsConfigs = config.group('VideoRecordFormats')
 
-        videoRecordFormats = str(videoFormatsConfigs.
+        videoRecordFormats = videoFormatsConfigs. \
                     readEntry('formats',
                               'webm::'
                               'vp8enc quality=10 speed=7 bitrate=1000000000::'
@@ -101,7 +101,7 @@ class MainWindow(QtGui.QWidget):
                               'ogv, ogg::'
                               'theoraenc quality=63 bitrate=16777215::'
                               'vorbisenc::'
-                              'oggmux').toString())
+                              'oggmux').toString().toUtf8().data()
 
         if videoRecordFormats != '':
             for fmt in videoRecordFormats.split('&&'):
@@ -112,16 +112,14 @@ class MainWindow(QtGui.QWidget):
                                                 params[2],
                                                 params[3])
 
-        networkStreamsConfig = config.group('NetworkStreams')
+        streamsConfig = config.group('CustomStreams')
+        streams = streamsConfig.readEntry('streams', '').toString().toUtf8().data()
 
-        networkStreams = str(networkStreamsConfig.
-                    readEntry('streams', '').toString())
-
-        if networkStreams != '':
-            for fmt in networkStreams.split('&&'):
+        if streams != '':
+            for fmt in streams.split('&&'):
                 params = fmt.split('::')
 
-                self.tools.setNetworkStream(params[0], params[1])
+                self.tools.setCustomStream(params[0], params[1])
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
@@ -157,7 +155,8 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def showFrame(self, webcamFrame):
-        self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(webcamFrame))
+        if self.tools.isPlaying():
+            self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(webcamFrame))
 
     @QtCore.pyqtSlot()
     def updateWebcams(self):
@@ -254,15 +253,14 @@ class MainWindow(QtGui.QWidget):
                        self.tr('Add or remove video formats for recording.'),
                        False)
 
-    def addNetworkStreamsConfigDialog(self, configDialog):
-        self.cfgNetworkStreams = networkstreamsconfig.\
-                                        NetworkStreamsConfig(self, self.tools)
+    def addStreamsConfigDialog(self, configDialog):
+        self.cfgStreams = streamsconfig.StreamsConfig(self, self.tools)
 
         configDialog.\
-               addPage(self.cfgNetworkStreams,
-                       self.tr('Configure IP Cameras and Network Streams'),
+               addPage(self.cfgStreams,
+                       self.tr('Configure Custom Streams'),
                        'network-workgroup',
-                       self.tr('Add or remove live network streams.'),
+                       self.tr('Add or remove local or network live streams.'),
                        False)
 
     @QtCore.pyqtSlot()
@@ -282,12 +280,12 @@ class MainWindow(QtGui.QWidget):
         self.addWebcamConfigDialog(configDialog)
         self.addEffectsConfigDialog(configDialog)
         self.addVideoFormatsConfigDialog(configDialog)
-        self.addNetworkStreamsConfigDialog(configDialog)
+        self.addStreamsConfigDialog(configDialog)
 
         configDialog.okClicked.connect(self.saveConfigs)
         configDialog.cancelClicked.connect(self.saveConfigs)
 
-        configDialog.exec_()
+        configDialog.show()
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
@@ -318,25 +316,25 @@ class MainWindow(QtGui.QWidget):
         videoFormatsConfigs.writeEntry('formats',
                                        '&&'.join(videoRecordFormats))
 
-        networkStreamsConfigs = config.group('NetworkStreams')
+        streamsConfigs = config.group('CustomStreams')
 
-        networkStreams = []
+        streams = []
 
-        for dev_name, description, streamType in self.tools.customNetworkStreams():
-            networkStreams.append('{0}::{1}'.format(dev_name, description))
+        for dev_name, description, streamType in self.tools.customStreams():
+            streams.append('{0}::{1}'.format(dev_name, description))
 
-        networkStreamsConfigs.writeEntry('streams', '&&'.join(networkStreams))
+        streamsConfigs.writeEntry('streams', '&&'.join(streams))
 
         config.sync()
 
     @QtCore.pyqtSlot()
     def on_btnAbout_clicked(self):
         aboutData = kdecore.\
-            KAboutData(str(QtCore.QCoreApplication.applicationName()),
-                       str(QtCore.QCoreApplication.applicationName()),
+            KAboutData(QtCore.QCoreApplication.applicationName().toUtf8().data(),
+                       QtCore.QCoreApplication.applicationName().toUtf8().data(),
                        kdecore.ki18n(QtCore.QCoreApplication.
                                             applicationName()),
-                       str(QtCore.QCoreApplication.applicationVersion()),
+                       QtCore.QCoreApplication.applicationVersion().toUtf8().data(),
                        kdecore.ki18n(self.tr('webcam capture plasmoid.')),
                        kdecore.KAboutData.License_GPL_V3,
                        kdecore.ki18n(self.tr('Copyright (C) 2011-2012  '
@@ -350,7 +348,7 @@ class MainWindow(QtGui.QWidget):
         aboutData.setProgramIconName('camera-web')
 
         aboutDialog = kdeui.KAboutApplicationDialog(aboutData, self)
-        aboutDialog.exec_()
+        aboutDialog.show()
 
     @QtCore.pyqtSlot()
     def showGstError(self):
@@ -373,7 +371,7 @@ class MainWindow(QtGui.QWidget):
         curTime = time.strftime('%Y-%m-%d %H-%M-%S')
 
         if video:
-            videosPath = str(kdeui.KGlobalSettings.videosPath())
+            videosPath = kdeui.KGlobalSettings.videosPath().toUtf8().data()
             videoRecordFormats = self.tools.supportedVideoRecordFormats()
 
             filters = []
@@ -396,7 +394,7 @@ class MainWindow(QtGui.QWidget):
                                            'Video {0}.{1}'.
                                                 format(curTime, defaultSuffix))
         else:
-            picturesPath = str(kdeui.KGlobalSettings.picturesPath())
+            picturesPath = kdeui.KGlobalSettings.picturesPath().toUtf8().data()
 
             filters = 'PNG file (*.png);;'\
                       'JPEG file (*.jpg);;'\
@@ -423,7 +421,7 @@ class MainWindow(QtGui.QWidget):
 
         selected_files = saveFileDialog.selectedFiles()
 
-        return '' if selected_files.isEmpty() else str(selected_files[0])
+        return '' if selected_files.isEmpty() else selected_files[0].toUtf8().data()
 
 
 if __name__ == '__main__':

@@ -40,7 +40,8 @@ import appenvironment
 class V4L2Tools(QtCore.QObject):
     StreamTypeUnknown = 0
     StreamTypeWebcam = 1
-    StreamTypeNetwork = 2
+    StreamTypeURI = 2
+    StreamTypeDesktop = 3
 
     devicesModified = QtCore.pyqtSignal()
     playingStateChanged = QtCore.pyqtSignal(bool)
@@ -53,6 +54,8 @@ class V4L2Tools(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
 
         self.appEnvironment = appenvironment.AppEnvironment(self)
+
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.aboutToQuit)
 
         self.processPath = 'gst-launch-0.10'
 
@@ -69,12 +72,14 @@ class V4L2Tools(QtCore.QObject):
         self.fileName = ''
         self.videoRecordFormats = []
         self.webcams = []
-        self.networkStreams = []
+        self.streams = []
         self.videoPipes = {}
 
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(int(1000 / self.fps))
         self.timer.timeout.connect(self.readFrame)
+
+        self.lock = threading.Lock()
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -87,6 +92,10 @@ class V4L2Tools(QtCore.QObject):
         self.stopCurrentDevice()
 
         return True
+
+    @QtCore.pyqtSlot()
+    def aboutToQuit(self):
+        self.stopCurrentDevice()
 
     def processExecutable(self):
         return self.processPath
@@ -228,7 +237,7 @@ class V4L2Tools(QtCore.QObject):
 
         self.webcams = webcamsDevices
 
-        return webcamsDevices + self.networkStreams
+        return webcamsDevices + self.streams + [('desktop', self.tr('Desktop'), self.StreamTypeDesktop)]
 
     # queryControl(dev_fd, queryctrl) ->
     #                       (name, type, min, max, step, default, value, menu)
@@ -474,10 +483,14 @@ class V4L2Tools(QtCore.QObject):
     @QtCore.pyqtSlot()
     def readPreviewFrames(self, videoPipes):
         for effect in videoPipes:
-            frameHeader = videoPipes[effect].read(14)
-            dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
-            frameData = videoPipes[effect].read(dataSize)
-            self.previewFrameReady.emit(QtGui.QImage.fromData(frameHeader + frameData), effect)
+            try:
+                if videoPipes[effect].isOpen():
+                    frameHeader = videoPipes[effect].read(14)
+                    dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
+                    frameData = videoPipes[effect].read(dataSize)
+                    self.previewFrameReady.emit(QtGui.QImage.fromData(frameHeader + frameData), effect)
+            except:
+                pass
 
     def setEffects(self, effects=[]):
         self.effects = [str(effect) for effect in effects]
@@ -502,8 +515,10 @@ class V4L2Tools(QtCore.QObject):
     def deviceType(self, dev_name='/dev/video0'):
         if dev_name in [device[0] for device in self.webcams]:
             return self.StreamTypeWebcam
-        elif dev_name in [device[0] for device in self.networkStreams]:
-            return self.StreamTypeNetwork
+        elif dev_name in [device[0] for device in self.streams]:
+            return self.StreamTypeURI
+        elif dev_name == 'desktop':
+            return self.StreamTypeDesktop
         else:
             return self.StreamTypeUnknown
 
@@ -537,10 +552,13 @@ class V4L2Tools(QtCore.QObject):
                       '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
                       'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.
                                         format(fmt[0], fmt[1], self.fps), '!']
-        elif deviceType == self.StreamTypeNetwork:
+        elif deviceType == self.StreamTypeURI:
             params = [self.processPath,
-                    '-qe', 'souphttpsrc', 'location={0}'.format(dev_name), 'timeout=5', '!',
+                    '-qe', 'uridecodebin', 'uri={0}'.format(dev_name), '!',
                     'decodebin', '!']
+        elif deviceType == self.StreamTypeDesktop:
+            params = [self.processPath,
+                    '-qe', 'ximagesrc', 'show-pointer=true', '!']
         else:
             return
 
@@ -617,15 +635,26 @@ class V4L2Tools(QtCore.QObject):
         self.playing = False
         self.playingStateChanged.emit(False)
 
-    @QtCore.pyqtSlot()
-    def readFrame(self):
-        frameHeader = self.process.stdout.read(14)
-        dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
-        frameData = self.process.stdout.read(dataSize)
-        self.frameReady.emit(QtGui.QImage.fromData(frameHeader + frameData))
+    def threadReadFrame(self):
+        self.lock.acquire()
+
+        try:
+            if self.process and not self.process.stdout.closed:
+                frameHeader = self.process.stdout.read(14)
+                dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
+                frameData = self.process.stdout.read(dataSize)
+                self.frameReady.emit(QtGui.QImage.fromData(frameHeader + frameData))
+        except:
+            pass
 
         if self.effectsPreview:
             self.readPreviewFrames(self.videoPipes)
+
+        self.lock.release()
+
+    @QtCore.pyqtSlot()
+    def readFrame(self):
+        threading.Thread(target=self.threadReadFrame).start()
 
     def isRecording(self):
         return self.recording
@@ -681,17 +710,17 @@ class V4L2Tools(QtCore.QObject):
 
         return '', '', '', ''
 
-    def customNetworkStreams(self):
-        return self.networkStreams
+    def customStreams(self):
+        return self.streams
 
     @QtCore.pyqtSlot()
-    def clearNetworkStreams(self):
-        self.networkStreams = []
+    def clearCustomStreams(self):
+        self.streams = []
         self.devicesModified.emit()
 
     @QtCore.pyqtSlot(str, str)
-    def setNetworkStream(self, dev_name='', description=''):
-        self.networkStreams.append((dev_name, description, self.StreamTypeNetwork))
+    def setCustomStream(self, dev_name='', description=''):
+        self.streams.append((dev_name, description, self.StreamTypeURI))
         self.devicesModified.emit()
 
 
