@@ -33,9 +33,8 @@ for arg in sys.argv:
     if arg.startswith('--prefix='):
         prefix = arg.split('=', 1)[1]
 
-mainWindow = os.path.join(prefix,
-                          'share/apps/plasma/plasmoids/Webcamoid/contents/'
-                          'code/mainwindow.py')
+mainWindow = '/usr/share/apps/plasma/plasmoids/Webcamoid/contents/code/' \
+                                                                'mainwindow.py'
 
 with open('webcamoid', 'w') as launcher:
     launcher.write('#!/bin/sh\n'
@@ -43,7 +42,6 @@ with open('webcamoid', 'w') as launcher:
                    'python2 -B \'{0}\'\n'.format(mainWindow))
 
 os.chmod('webcamoid', 0744)
-launcherPath = os.path.join(prefix, 'bin/webcamoid')
 
 with open('Webcamoid.desktop', 'w') as desktopLauncher:
     desktopLauncher.\
@@ -78,16 +76,16 @@ with open('Webcamoid.desktop', 'w') as desktopLauncher:
               'Comment[ru]=Веб-камера захвата программного обеспечения\n'
               'Comment[zh_CN]=摄像头捕捉软件\n'
               'Comment[zh_TW]=攝像頭捕捉軟件\n'
-              'Exec=\'{0}\'\n'
+              'Exec=webcamoid\n'
               'Icon=camera-web\n'
               'Terminal=false\n'
               'Type=Application\n'
-              'Categories=AudioVideo;KDE;Qt\n'
-              'StartupNotify=true\n'.format(launcherPath))
+              'Categories=AudioVideo;KDE;\n'
+              'StartupNotify=true\n')
 
 core.setup(
     name='Webcamoid',
-    version='3.2.0',
+    version='3.2.1',
     license='GPLv3',
     requires=('ctypes',
               'fcntl',
