@@ -60,6 +60,8 @@ class VideoRecordConfig(QtGui.QWidget):
                                              QtGui.QTableWidgetItem(param))
 
         self.isInit = False
+        self.tbwVideoFormats.resizeRowsToContents()
+        self.tbwVideoFormats.resizeColumnsToContents()
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
@@ -120,6 +122,9 @@ class VideoRecordConfig(QtGui.QWidget):
         self.update()
 
     def update(self):
+        self.tbwVideoFormats.resizeRowsToContents()
+        self.tbwVideoFormats.resizeColumnsToContents()
+
         if not self.tools or self.isInit:
             return
 

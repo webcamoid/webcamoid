@@ -23,15 +23,12 @@
 
 import os
 import sys
-import re
 import ctypes
 import fcntl
 import signal
 import subprocess
 import struct
-import tempfile
 import threading
-import urllib
 
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
@@ -470,59 +467,6 @@ class V4L2Tools(QtCore.QObject):
                 'warptv': self.tr('Warp'),
                 'waterripple': self.tr('Water Ripple')}
 
-    def createPreviewPipes(self):
-        params = []
-        videoPipes = {}
-
-        for effect in self.availableEffects().keys():
-            pipefile = os.path.join(tempfile.gettempdir(), '{0}_preview.tmp'.format(effect))
-
-            try:
-                os.remove(pipefile)
-            except:
-                pass
-
-            os.mkfifo(pipefile, 0644)
-
-            videoPipes[effect] = QtCore.QFile()
-            videoPipes[effect].setFileName(pipefile)
-
-            params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!',
-                       'videoscale', '!', 'video/x-raw-yuv,width={0},height={1}'.format(128, 96), '!', 'ffmpegcolorspace', '!'] + \
-                       effect.split() + \
-                      ['!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'image/bmp', '!',
-                       'filesink', 'location={0}'.format(videoPipes[effect].fileName())]
-
-        return params, videoPipes
-
-    def openPipe(self, pipe=None):
-        pipe.open(QtCore.QIODevice.ReadOnly)
-
-    def closePipe(self, pipe=None):
-        pipe.readAll()
-        pipe.close()
-
-    def startPreviewPipes(self, videoPipes={}):
-        for effect in videoPipes:
-            threading.Thread(target=self.openPipe, args=(videoPipes[effect], )).start()
-
-    def destroyPreviewPipes(self, videoPipes={}):
-        for effect in videoPipes:
-            threading.Thread(target=self.closePipe, args=(videoPipes[effect], )).start()
-            os.remove(videoPipes[effect].fileName())
-
-    @QtCore.pyqtSlot()
-    def readPreviewFrames(self, videoPipes):
-        for effect in videoPipes:
-            try:
-                if videoPipes[effect].isOpen():
-                    frameHeader = videoPipes[effect].read(14)
-                    dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
-                    frameData = videoPipes[effect].read(dataSize)
-                    self.previewFrameReady.emit(QtGui.QImage.fromData(frameHeader + frameData), effect)
-            except:
-                pass
-
     def setEffects(self, effects=[]):
         self.effects = [str(effect) for effect in effects]
 
@@ -595,15 +539,23 @@ class V4L2Tools(QtCore.QObject):
         params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!']
 
         for effect in self.effects:
-            params += effect.split() + ['!']
+            params += effect.split() + ['!', 'ffmpegcolorspace', '!']
 
         params += ['tee', 'name=effects']
 
         params += ['effects.', '!', 'queue', '!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'fdsink']
 
         if self.effectsPreview:
-            parms, self.videoPipes = self.createPreviewPipes()
-            params += parms
+            self.videoPipes = {}
+
+            for effect in self.availableEffects().keys():
+                self.videoPipes[effect] = os.pipe()
+
+                params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!',
+                        'videoscale', '!', 'video/x-raw-yuv,width={0},height={1}'.format(128, 96), '!', 'ffmpegcolorspace', '!'] + \
+                        effect.split() + \
+                        ['!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'image/bmp', '!',
+                        'fdsink', 'fd={0}'.format(self.videoPipes[effect][1])]
 
         if record:
             suffix, videoEncoder, audioEncoder, muxer = \
@@ -629,10 +581,6 @@ class V4L2Tools(QtCore.QObject):
 
         try:
             self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
-
-            if self.effectsPreview:
-                self.startPreviewPipes(self.videoPipes)
-
             self.current_dev_name = dev_name
             self.playing = True
             self.timer.start()
@@ -648,19 +596,17 @@ class V4L2Tools(QtCore.QObject):
             return
 
         os.kill(self.process.pid, signal.SIGINT)
+        self.process.wait()
 
         if self.effectsPreview:
-            self.destroyPreviewPipes(self.videoPipes)
+            for effect in self.videoPipes:
+                os.close(self.videoPipes[effect][0])
+                os.close(self.videoPipes[effect][1])
 
-        # Flush buffer.
-        self.process.stdout.read()
-
-        self.process.wait()
         self.timer.stop()
-
+        self.videoPipes = {}
         self.process = None
         self.current_dev_name = ''
-
         self.playing = False
         self.playingStateChanged.emit(False)
 
@@ -668,16 +614,34 @@ class V4L2Tools(QtCore.QObject):
         self.lock.acquire()
 
         try:
-            if self.process and not self.process.stdout.closed:
+            if self.process:
                 frameHeader = self.process.stdout.read(14)
-                dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
-                frameData = self.process.stdout.read(dataSize)
-                self.frameReady.emit(QtGui.QImage.fromData(frameHeader + frameData))
+
+                if len(frameHeader) == 14:
+                    dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
+                    frameData = self.process.stdout.read(dataSize)
+                    self.frameReady.emit(QtGui.QImage.fromData(frameHeader + frameData))
         except:
             pass
 
         if self.effectsPreview:
-            self.readPreviewFrames(self.videoPipes)
+            effects = self.videoPipes.keys()
+
+            for effect in effects:
+                try:
+                    if not effect in self.videoPipes:
+                        continue
+
+                    frameHeader = os.read(self.videoPipes[effect][0], 14)
+
+                    if len(frameHeader) != 14:
+                        continue
+
+                    dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
+                    frameData = os.read(self.videoPipes[effect][0], dataSize)
+                    self.previewFrameReady.emit(QtGui.QImage.fromData(frameHeader + frameData), effect)
+                except:
+                    pass
 
         self.lock.release()
 

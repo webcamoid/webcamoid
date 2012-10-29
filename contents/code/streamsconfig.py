@@ -60,6 +60,8 @@ class StreamsConfig(QtGui.QWidget):
                                               QtGui.QTableWidgetItem(param))
 
         self.isInit = False
+        self.tbwCustomStreams.resizeRowsToContents()
+        self.tbwCustomStreams.resizeColumnsToContents()
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
@@ -120,6 +122,9 @@ class StreamsConfig(QtGui.QWidget):
         self.update()
 
     def update(self):
+        self.tbwCustomStreams.resizeRowsToContents()
+        self.tbwCustomStreams.resizeColumnsToContents()
+
         if not self.tools or self.isInit:
             return
 
