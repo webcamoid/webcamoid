@@ -13,6 +13,7 @@
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
 * Add funny effects to the webcam (requires GStreamer plugins).
+* +50 effects available.
 * Effects with live previews.
 * Translated to many languages.
 * Stand alone installation mode (use it as a normal program).

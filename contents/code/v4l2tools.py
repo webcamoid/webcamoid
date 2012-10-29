@@ -23,6 +23,7 @@
 
 import os
 import sys
+import re
 import ctypes
 import fcntl
 import signal
@@ -30,6 +31,7 @@ import subprocess
 import struct
 import tempfile
 import threading
+import urllib
 
 from PyQt4 import QtCore, QtGui
 from v4l2 import v4l2
@@ -415,10 +417,27 @@ class V4L2Tools(QtCore.QObject):
                 'bulge': self.tr('Bulge'),
                 'burn': self.tr('Burn'),
                 'chromium': self.tr('Chromium'),
+                'coloreffects preset=heat': self.tr('Heat'),
+                'coloreffects preset=sepia': self.tr('Sepia'),
+                'coloreffects preset=xray': self.tr('X-Ray'),
+                'coloreffects preset=xpro': self.tr('X-Pro'),
                 'dicetv': self.tr('Dices'),
                 'edgetv': self.tr('Edges'),
                 'exclusion': self.tr('Exclusion'),
                 'fisheye': self.tr('Fish Eye'),
+                'frei0r-filter-cartoon': self.tr('Cartoon'),
+                'frei0r-filter-delaygrab': self.tr('Past'),
+                'frei0r-filter-distort0r': self.tr('Distort'),
+                'frei0r-filter-equaliz0r': self.tr('Equalize'),
+                'frei0r-filter-hqdn3d spatial=0.5 temporal=1.0': self.tr('Drugs'),
+                'frei0r-filter-invert0r': self.tr('Invert'),
+                'frei0r-filter-nervous': self.tr('Nervous'),
+                'frei0r-filter-pixeliz0r': self.tr('Pixelate'),
+                'frei0r-filter-primaries': self.tr('Primary Colors'),
+                'frei0r-filter-sobel': self.tr('Sobel'),
+                'frei0r-filter-sop-sat': self.tr('Crazy Colors'),
+                'frei0r-filter-threelay0r': self.tr('The Godfather'),
+                'frei0r-filter-twolay0r': self.tr('Che Guevara'),
                 'kaleidoscope': self.tr('Kaleidoscope'),
                 'marble': self.tr('Marble'),
                 'mirror': self.tr('Mirror'),
@@ -437,6 +456,17 @@ class V4L2Tools(QtCore.QObject):
                 'tunnel': self.tr('Tunnel'),
                 'twirl': self.tr('Twirl'),
                 'vertigotv': self.tr('Vertigo'),
+                'videobalance saturation=1.5 hue=-0.5': self.tr('Hulk'),
+                'videobalance saturation=1.5 hue=+0.5': self.tr('Mauve'),
+                'videobalance saturation=0': self.tr('Noir'),
+                'videobalance saturation=2': self.tr('Saturation'),
+                'videoflip method=clockwise': self.tr('Rotate Right'),
+                'videoflip method=rotate-180': self.tr('Rotate 180'),
+                'videoflip method=counterclockwise': self.tr('Rotate Left'),
+                'videoflip method=horizontal-flip': self.tr('Flip horizontally'),
+                'videoflip method=vertical-flip': self.tr('Flip vertically'),
+                'videoflip method=upper-left-diagonal': self.tr('Flip Top Left'),
+                'videoflip method=upper-right-diagonal': self.tr('Flip Top Right'),
                 'warptv': self.tr('Warp'),
                 'waterripple': self.tr('Water Ripple')}
 
@@ -458,8 +488,9 @@ class V4L2Tools(QtCore.QObject):
             videoPipes[effect].setFileName(pipefile)
 
             params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!',
-                       'videoscale', '!', 'video/x-raw-yuv,width={0},height={1}'.format(128, 96), '!', 'ffmpegcolorspace', '!',
-                       effect, '!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'image/bmp', '!',
+                       'videoscale', '!', 'video/x-raw-yuv,width={0},height={1}'.format(128, 96), '!', 'ffmpegcolorspace', '!'] + \
+                       effect.split() + \
+                      ['!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'image/bmp', '!',
                        'filesink', 'location={0}'.format(videoPipes[effect].fileName())]
 
         return params, videoPipes
@@ -539,6 +570,8 @@ class V4L2Tools(QtCore.QObject):
         self.stopCurrentDevice()
         deviceType = self.deviceType(dev_name)
 
+        params = [self.processPath, '-qe']
+
         if deviceType == self.StreamTypeWebcam:
             if forcedFormat == tuple():
                 fmt = self.currentVideoFormat(dev_name)
@@ -548,17 +581,13 @@ class V4L2Tools(QtCore.QObject):
             else:
                 fmt = forcedFormat
 
-            params = [self.processPath,
-                      '-qe', 'v4l2src', 'device={0}'.format(dev_name), '!',
+            params += ['v4l2src', 'device={0}'.format(dev_name), '!',
                       'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.
                                         format(fmt[0], fmt[1], self.fps), '!']
         elif deviceType == self.StreamTypeURI:
-            params = [self.processPath,
-                    '-qe', 'uridecodebin', 'uri={0}'.format(dev_name), '!',
-                    'decodebin', '!']
+            params += ['uridecodebin', 'uri={0}'.format(dev_name), '!']
         elif deviceType == self.StreamTypeDesktop:
-            params = [self.processPath,
-                    '-qe', 'ximagesrc', 'show-pointer=true', '!']
+            params += ['ximagesrc', 'show-pointer=true', '!']
         else:
             return
 
@@ -566,7 +595,7 @@ class V4L2Tools(QtCore.QObject):
         params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!']
 
         for effect in self.effects:
-            params += [effect, '!']
+            params += effect.split() + ['!']
 
         params += ['tee', 'name=effects']
 
