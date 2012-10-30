@@ -29,12 +29,12 @@ from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdecore, kdeui, plasmascript
 
 import effects
-import infotools
 import appenvironment
 import v4l2tools
 import videorecordconfig
 import webcamconfig
 import streamsconfig
+import featuresinfo
 
 
 class MainWindow(QtGui.QWidget):
@@ -72,8 +72,6 @@ class MainWindow(QtGui.QWidget):
             self.cbxSetWebcam.addItem(webcam[1])
 
         self.webcamFrame = QtGui.QImage()
-
-        self.infoTools = infotools.InfoTools(self)
 
         config = kdecore.KSharedConfig.openConfig('{0}rc'.
                 format(QtCore.QCoreApplication.applicationName().toLower()))
@@ -263,6 +261,16 @@ class MainWindow(QtGui.QWidget):
                        self.tr('Add or remove local or network live streams.'),
                        False)
 
+    def addFeaturesInfoDialog(self, configDialog):
+        self.cfgFeaturesInfo = featuresinfo.FeaturesInfo(self, self.tools)
+
+        configDialog.\
+               addPage(self.cfgFeaturesInfo,
+                       self.tr('Features'),
+                       'dialog-information',
+                       self.tr('This table will show you what packages you need.'),
+                       False)
+
     @QtCore.pyqtSlot()
     def on_btnConfigure_clicked(self):
         config = kdeui.KConfigSkeleton('', self)
@@ -281,6 +289,7 @@ class MainWindow(QtGui.QWidget):
         self.addEffectsConfigDialog(configDialog)
         self.addVideoFormatsConfigDialog(configDialog)
         self.addStreamsConfigDialog(configDialog)
+        self.addFeaturesInfoDialog(configDialog)
 
         configDialog.okClicked.connect(self.saveConfigs)
         configDialog.cancelClicked.connect(self.saveConfigs)
@@ -352,17 +361,10 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def showGstError(self):
-        cmd, isCmd = self.infoTools.gstInstallCommand()
-
-        if isCmd:
-            msg = self.tr('Please install GStreamer:\n\n')
-        else:
-            msg = self.tr('Please install the following packages:\n\n')
-
         kdeui.KNotification.\
                         event(kdeui.KNotification.Error,
-                              self.tr('GStreamer not installed or configured'),
-                              msg + cmd,
+                              self.tr('An error has occurred'),
+                              self.tr('Please, check the "Features" section.'),
                               QtGui.QPixmap(),
                               None,
                               kdeui.KNotification.Persistent)

@@ -303,6 +303,7 @@ class WebcamConfig(QtGui.QWidget):
         if not selected_files.isEmpty():
             self.txtProcess.setText(selected_files[0])
 
+
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     webcamConfig = WebcamConfig()
