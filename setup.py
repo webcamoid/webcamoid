@@ -1,4 +1,4 @@
-#!/usr/bin/python2 -B
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 # Webcamod, webcam capture plasmoid.
@@ -24,6 +24,7 @@
 import os
 import sys
 import glob
+import compileall
 from distutils import core, sysconfig
 
 
@@ -39,7 +40,7 @@ mainWindow = '/usr/share/apps/plasma/plasmoids/Webcamoid/contents/code/' \
 with open('webcamoid', 'w') as launcher:
     launcher.write('#!/bin/sh\n'
                    '\n'
-                   'python2 -B \'{0}\'\n'.format(mainWindow))
+                   'python2 \'{0}\'\n'.format(mainWindow))
 
 os.chmod('webcamoid', 0744)
 
@@ -83,6 +84,8 @@ with open('Webcamoid.desktop', 'w') as desktopLauncher:
               'Categories=AudioVideo;KDE;\n'
               'StartupNotify=true\n')
 
+compileall.compile_dir('contents/code')
+
 core.setup(
     name='Webcamoid',
     version='4.0.0',
@@ -106,11 +109,12 @@ core.setup(
     description='A webcam plasmoid for the KDE desktop environment.',
 
     data_files=[('share/apps/plasma/plasmoids/Webcamoid/contents/code',
-                 glob.glob('contents/code/*.py')),
+                 glob.glob('contents/code/*.py') +
+                 glob.glob('contents/code/*.pyc')),
                 ('share/apps/plasma/plasmoids/Webcamoid/contents/code/v4l2',
-                 ['contents/code/v4l2/__init__.py',
-                  'contents/code/v4l2/v4l2.py',
-                  'contents/code/v4l2/LICENSE']),
+                 glob.glob('contents/code/v4l2/*.py') +
+                 glob.glob('contents/code/v4l2/*.pyc') +
+                 ['contents/code/v4l2/LICENSE']),
                 ('share/apps/plasma/plasmoids/Webcamoid/contents/ts',
                  glob.glob('contents/ts/*.qm')),
                 ('share/apps/plasma/plasmoids/Webcamoid/contents/ui',
