@@ -31,6 +31,7 @@ import struct
 import threading
 
 from PyQt4 import QtCore, QtGui
+from PyKDE4 import kdecore
 from v4l2 import v4l2
 
 import appenvironment
@@ -56,11 +57,13 @@ class V4L2Tools(QtCore.QObject):
 
         QtCore.QCoreApplication.instance().aboutToQuit.connect(self.aboutToQuit)
 
-        self.processPath = 'gst-launch-0.10'
+        self.launcher = 'gst-launch-0.10'
+        self.pluginsPath = '/usr/lib/gstreamer-0.10'
+        self.extraPluginsPath = '/usr/lib/frei0r-1'
 
         self.fps = 30
         self.process = None
-        self.current_dev_name = ''
+        self.curDevName = ''
         self.effects = []
         self.playing = False
         self.recording = False
@@ -84,27 +87,128 @@ class V4L2Tools(QtCore.QObject):
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
             self.fsWatcher.directoryChanged.connect(self.devicesModified)
 
+        self.loadConfigs()
+
     def __enter__(self):
+        self.loadConfigs()
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stopCurrentDevice()
+        self.saveConfigs()
 
         return True
 
     @QtCore.pyqtSlot()
+    def loadConfigs(self):
+        config = kdecore.KSharedConfig.openConfig(self.appEnvironment.configFileName())
+
+        webcamConfigs = config.group('GeneralConfigs')
+
+        self.setLauncher(webcamConfigs.
+                readEntry('launcher', 'gst-launch-0.10').toString().toUtf8().data())
+
+        self.pluginsPath = webcamConfigs.readEntry('pluginsPath', '/usr/lib/gstreamer-0.10').toString().toUtf8().data()
+        self.extraPluginsPath = webcamConfigs.readEntry('extraPluginsPath', '/usr/lib/frei0r-1').toString().toUtf8().data()
+        self.setFps(webcamConfigs.readEntry('fps', 30).toInt()[0])
+        self.enableAudioRecording(webcamConfigs.readEntry('recordAudio', True).toBool())
+
+        effectsConfigs = config.group('Effects')
+
+        effcts = effectsConfigs.readEntry('effects', '').toString().toUtf8().data()
+
+        if effcts != '':
+            self.setEffects(effcts.split('&&'))
+
+        videoFormatsConfigs = config.group('VideoRecordFormats')
+
+        videoRecordFormats = videoFormatsConfigs. \
+                    readEntry('formats',
+                              'webm::'
+                              'vp8enc quality=10 speed=7 bitrate=1000000000::'
+                              'vorbisenc::'
+                              'webmmux&&'
+                              'ogv, ogg::'
+                              'theoraenc quality=63 bitrate=16777215::'
+                              'vorbisenc::'
+                              'oggmux').toString().toUtf8().data()
+
+        if videoRecordFormats != '':
+            for fmt in videoRecordFormats.split('&&'):
+                params = fmt.split('::')
+
+                self.setVideoRecordFormat(params[0],
+                                          params[1],
+                                          params[2],
+                                          params[3])
+
+        streamsConfig = config.group('CustomStreams')
+        streams = streamsConfig.readEntry('streams', '').toString().toUtf8().data()
+
+        if streams != '':
+            for fmt in streams.split('&&'):
+                params = fmt.split('::')
+
+                self.setCustomStream(params[0], params[1])
+
+    @QtCore.pyqtSlot()
+    def saveConfigs(self):
+        config = kdecore.KSharedConfig.openConfig(self.appEnvironment.configFileName())
+
+        webcamConfigs = config.group('GeneralConfigs')
+
+        webcamConfigs.writeEntry('launcher', self.launcher)
+        webcamConfigs.writeEntry('pluginsPath', self.pluginsPath)
+        webcamConfigs.writeEntry('extraPluginsPath', self.extraPluginsPath)
+        webcamConfigs.writeEntry('fps', self.fps)
+        webcamConfigs.writeEntry('recordAudio', self.recordAudio)
+
+        effectsConfigs = config.group('Effects')
+
+        effectsConfigs.writeEntry('effects', '&&'.join(self.effects))
+
+        videoFormatsConfigs = config.group('VideoRecordFormats')
+
+        videoRecordFormats = []
+
+        for suffix, videoEncoder, audioEncoder, muxer in self.\
+                                                            videoRecordFormats:
+            videoRecordFormats.append('{0}::{1}::{2}::{3}'.format(suffix,
+                                                                  videoEncoder,
+                                                                  audioEncoder,
+                                                                  muxer))
+
+        videoFormatsConfigs.writeEntry('formats',
+                                       '&&'.join(videoRecordFormats))
+
+        streamsConfigs = config.group('CustomStreams')
+
+        streams = []
+
+        for dev_name, description, streamType in self.streams:
+            streams.append('{0}::{1}'.format(dev_name, description))
+
+        streamsConfigs.writeEntry('streams', '&&'.join(streams))
+
+        config.sync()
+
+    @QtCore.pyqtSlot()
     def aboutToQuit(self):
         self.stopCurrentDevice()
-
-    def processExecutable(self):
-        return self.processPath
+        self.saveConfigs()
 
     @QtCore.pyqtSlot(str)
-    def setProcessExecutable(self, path='gst-launch-0.10'):
-        self.processPath = path
+    def setLauncher(self, path='gst-launch-0.10'):
+        self.launcher = path
 
-    def currentDevice(self):
-        return self.current_dev_name
+    @QtCore.pyqtSlot(str)
+    def setPluginsPath(self, path='/usr/lib/gstreamer-0.10'):
+        self.pluginsPath = path
+
+    @QtCore.pyqtSlot(str)
+    def setExtraPluginsPath(self, path='/usr/lib/frei0r-1'):
+        self.extraPluginsPath = path
 
     def fcc2s(self, val=0):
         s = ''
@@ -409,63 +513,169 @@ class V4L2Tools(QtCore.QObject):
 
         return True
 
+    def featuresMatrix(self):
+        features = {}
+
+        libAvailable = True
+
+        # GStreamer Core:
+        for lib in ['libgstcoreelements.so']:
+            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+                libAvailable = False
+
+                break
+
+        features['gst-core'] = [libAvailable, 'GStreamer Core', self.tr('Basic functionality.')]
+
+        libAvailable = True
+
+        # GStreamer Base Plugins:
+        for lib in ['libgstalsa.so',
+                    'libgstaudioconvert.so',
+                    'libgstdecodebin2.so',
+                    'libgstffmpegcolorspace.so',
+                    'libgsttheora.so',
+                    'libgstvideoscale.so',
+                    'libgstvorbis.so']:
+            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+                libAvailable = False
+
+                break
+
+        features['gst-base-plugins'] = [libAvailable, 'GStreamer Base Plugins', self.tr('Transcoding and audio source.')]
+
+        libAvailable = True
+
+        # GStreamer Good Plugins:
+        for lib in ['libgsteffectv.so',
+                    'libgstvideo4linux2.so',
+                    'libgstvideofilter.so',
+                    'libgstximagesrc.so']:
+            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+                libAvailable = False
+
+                break
+
+        features['gst-good-plugins'] = [libAvailable, 'GStreamer Good Plugins', self.tr('Basic sources and effects.')]
+
+        libAvailable = True
+
+        # GStreamer Bad Plugins:
+        for lib in ['libgstcoloreffects.so',
+                    'libgstfrei0r.so',
+                    'libgstgaudieffects.so',
+                    'libgstgeometrictransform.so',
+                    'libgstvp8.so']:
+            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+                libAvailable = False
+
+                break
+
+        features['gst-bad-plugins'] = [libAvailable, 'GStreamer Bad Plugins', self.tr('Effects and some codecs.')]
+
+        libAvailable = True
+
+        # frei0r Plugins:
+        for lib in ['cartoon.so',
+                    'delaygrab.so',
+                    'distort0r.so',
+                    'equaliz0r.so',
+                    'hqdn3d.so',
+                    'invert0r.so',
+                    'nervous.so',
+                    'pixeliz0r.so',
+                    'primaries.so',
+                    'sobel.so',
+                    'sopsat.so',
+                    'threelay0r.so',
+                    'twolay0r.so']:
+            if not os.path.exists(os.path.join(self.extraPluginsPath, lib)):
+                libAvailable = False
+
+                break
+
+        features['frei0r-plugins'] = [libAvailable, 'frei0r Plugins', self.tr('Extra effects.')]
+
+        libAvailable = True
+
+        # GStreamer FFmpeg Plugins:
+        for lib in ['libgstffmpeg.so']:
+            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+                libAvailable = False
+
+                break
+
+        features['gst-ffmpeg'] = [libAvailable, 'GStreamer FFmpeg Plugins', self.tr('Basic functionality.')]
+
+        return features
+
     def availableEffects(self):
-        return {'agingtv': self.tr('Old'),
-                'bulge': self.tr('Bulge'),
-                'burn': self.tr('Burn'),
-                'chromium': self.tr('Chromium'),
-                'coloreffects preset=heat': self.tr('Heat'),
-                'coloreffects preset=sepia': self.tr('Sepia'),
-                'coloreffects preset=xray': self.tr('X-Ray'),
-                'coloreffects preset=xpro': self.tr('X-Pro'),
-                'dicetv': self.tr('Dices'),
-                'edgetv': self.tr('Edges'),
-                'exclusion': self.tr('Exclusion'),
-                'fisheye': self.tr('Fish Eye'),
-                'frei0r-filter-cartoon': self.tr('Cartoon'),
-                'frei0r-filter-delaygrab': self.tr('Past'),
-                'frei0r-filter-distort0r': self.tr('Distort'),
-                'frei0r-filter-equaliz0r': self.tr('Equalize'),
-                'frei0r-filter-hqdn3d spatial=0.5 temporal=1.0': self.tr('Drugs'),
-                'frei0r-filter-invert0r': self.tr('Invert'),
-                'frei0r-filter-nervous': self.tr('Nervous'),
-                'frei0r-filter-pixeliz0r': self.tr('Pixelate'),
-                'frei0r-filter-primaries': self.tr('Primary Colors'),
-                'frei0r-filter-sobel': self.tr('Sobel'),
-                'frei0r-filter-sop-sat': self.tr('Crazy Colors'),
-                'frei0r-filter-threelay0r': self.tr('The Godfather'),
-                'frei0r-filter-twolay0r': self.tr('Che Guevara'),
-                'kaleidoscope': self.tr('Kaleidoscope'),
-                'marble': self.tr('Marble'),
-                'mirror': self.tr('Mirror'),
-                'optv': self.tr('Hypnotic'),
-                'pinch': self.tr('Pinch'),
-                'quarktv': self.tr('Quark'),
-                'radioactv': self.tr('Radioactive'),
-                'revtv': self.tr('Scan Lines'),
-                'rippletv': self.tr('Ripple'),
-                'shagadelictv': self.tr('Psychedelic'),
-                'solarize': self.tr('Solarize'),
-                'sphere': self.tr('Sphere'),
-                'square': self.tr('Square'),
-                'streaktv': self.tr('Streak'),
-                'stretch': self.tr('Stretch'),
-                'tunnel': self.tr('Tunnel'),
-                'twirl': self.tr('Twirl'),
-                'vertigotv': self.tr('Vertigo'),
-                'videobalance saturation=1.5 hue=-0.5': self.tr('Hulk'),
-                'videobalance saturation=1.5 hue=+0.5': self.tr('Mauve'),
-                'videobalance saturation=0': self.tr('Noir'),
-                'videobalance saturation=2': self.tr('Saturation'),
-                'videoflip method=clockwise': self.tr('Rotate Right'),
-                'videoflip method=rotate-180': self.tr('Rotate 180'),
-                'videoflip method=counterclockwise': self.tr('Rotate Left'),
-                'videoflip method=horizontal-flip': self.tr('Flip horizontally'),
-                'videoflip method=vertical-flip': self.tr('Flip vertically'),
-                'videoflip method=upper-left-diagonal': self.tr('Flip Top Left'),
-                'videoflip method=upper-right-diagonal': self.tr('Flip Top Right'),
-                'warptv': self.tr('Warp'),
-                'waterripple': self.tr('Water Ripple')}
+        features = self.featuresMatrix()
+        effects = {}
+
+        if features['gst-good-plugins'][0]:
+            effects.update({'agingtv': self.tr('Old'),
+                            'dicetv': self.tr('Dices'),
+                            'edgetv': self.tr('Edges'),
+                            'optv': self.tr('Hypnotic'),
+                            'quarktv': self.tr('Quark'),
+                            'radioactv': self.tr('Radioactive'),
+                            'revtv': self.tr('Scan Lines'),
+                            'rippletv': self.tr('Ripple'),
+                            'shagadelictv': self.tr('Psychedelic'),
+                            'streaktv': self.tr('Streak'),
+                            'vertigotv': self.tr('Vertigo'),
+                            'videobalance saturation=1.5 hue=-0.5': self.tr('Hulk'),
+                            'videobalance saturation=1.5 hue=+0.5': self.tr('Mauve'),
+                            'videobalance saturation=0': self.tr('Noir'),
+                            'videobalance saturation=2': self.tr('Saturation'),
+                            'videoflip method=clockwise': self.tr('Rotate Right'),
+                            'videoflip method=rotate-180': self.tr('Rotate 180'),
+                            'videoflip method=counterclockwise': self.tr('Rotate Left'),
+                            'videoflip method=horizontal-flip': self.tr('Flip horizontally'),
+                            'videoflip method=vertical-flip': self.tr('Flip vertically'),
+                            'videoflip method=upper-left-diagonal': self.tr('Flip Top Left'),
+                            'videoflip method=upper-right-diagonal': self.tr('Flip Top Right'),
+                            'warptv': self.tr('Warp')})
+
+        if features['gst-bad-plugins'][0]:
+            effects.update({'bulge': self.tr('Bulge'),
+                            'burn': self.tr('Burn'),
+                            'chromium': self.tr('Chromium'),
+                            'coloreffects preset=heat': self.tr('Heat'),
+                            'coloreffects preset=sepia': self.tr('Sepia'),
+                            'coloreffects preset=xray': self.tr('X-Ray'),
+                            'coloreffects preset=xpro': self.tr('X-Pro'),
+                            'exclusion': self.tr('Exclusion'),
+                            'fisheye': self.tr('Fish Eye'),
+                            'kaleidoscope': self.tr('Kaleidoscope'),
+                            'marble': self.tr('Marble'),
+                            'mirror': self.tr('Mirror'),
+                            'pinch': self.tr('Pinch'),
+                            'solarize': self.tr('Solarize'),
+                            'sphere': self.tr('Sphere'),
+                            'sphere': self.tr('Square'),
+                            'stretch': self.tr('Stretch'),
+                            'tunnel': self.tr('Tunnel'),
+                            'twirl': self.tr('Twirl'),
+                            'waterripple': self.tr('Water Ripple')})
+
+        if features['frei0r-plugins'][0]:
+            effects.update({'frei0r-filter-cartoon': self.tr('Cartoon'),
+                            'frei0r-filter-delaygrab': self.tr('Past'),
+                            'frei0r-filter-distort0r': self.tr('Distort'),
+                            'frei0r-filter-equaliz0r': self.tr('Equalize'),
+                            'frei0r-filter-hqdn3d spatial=0.5 temporal=1.0': self.tr('Drugs'),
+                            'frei0r-filter-invert0r': self.tr('Invert'),
+                            'frei0r-filter-nervous': self.tr('Nervous'),
+                            'frei0r-filter-pixeliz0r': self.tr('Pixelate'),
+                            'frei0r-filter-primaries': self.tr('Primary Colors'),
+                            'frei0r-filter-sobel': self.tr('Sobel'),
+                            'frei0r-filter-sop-sat': self.tr('Crazy Colors'),
+                            'frei0r-filter-threelay0r': self.tr('The Godfather'),
+                            'frei0r-filter-twolay0r': self.tr('Che Guevara')})
+
+        return effects
 
     def setEffects(self, effects=[]):
         self.effects = [str(effect) for effect in effects]
@@ -473,19 +683,18 @@ class V4L2Tools(QtCore.QObject):
         if not self.process:
             return
 
-        self.startDevice(self.current_dev_name)
+        self.startDevice(self.curDevName)
 
     def currentEffects(self):
         return self.effects
 
-    def isPlaying(self):
-        return self.playing
+    @QtCore.pyqtSlot(int)
+    def setFps(self, fps):
+        self.fps = fps
+        self.timer.setInterval(int(1000 / self.fps))
 
     def enableAudioRecording(self, enable=True):
         self.recordAudio = enable
-
-    def audioRecordingIsEnabled(self):
-        return self.recordAudio
 
     def deviceType(self, dev_name='/dev/video0'):
         if dev_name in [device[0] for device in self.webcams]:
@@ -514,7 +723,7 @@ class V4L2Tools(QtCore.QObject):
         self.stopCurrentDevice()
         deviceType = self.deviceType(dev_name)
 
-        params = [self.processPath, '-qe']
+        params = [self.launcher, '-qe']
 
         if deviceType == self.StreamTypeWebcam:
             if forcedFormat == tuple():
@@ -563,7 +772,7 @@ class V4L2Tools(QtCore.QObject):
 
             if suffix == '':
                 self.process = None
-                self.current_dev_name = ''
+                self.curDevName = ''
 
                 return
 
@@ -581,13 +790,13 @@ class V4L2Tools(QtCore.QObject):
 
         try:
             self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
-            self.current_dev_name = dev_name
+            self.curDevName = dev_name
             self.playing = True
             self.timer.start()
             self.playingStateChanged.emit(True)
         except:
             self.process = None
-            self.current_dev_name = ''
+            self.curDevName = ''
             self.gstError.emit()
 
     @QtCore.pyqtSlot()
@@ -606,7 +815,7 @@ class V4L2Tools(QtCore.QObject):
         self.timer.stop()
         self.videoPipes = {}
         self.process = None
-        self.current_dev_name = ''
+        self.curDevName = ''
         self.playing = False
         self.playingStateChanged.emit(False)
 
@@ -649,14 +858,11 @@ class V4L2Tools(QtCore.QObject):
     def readFrame(self):
         threading.Thread(target=self.threadReadFrame).start()
 
-    def isRecording(self):
-        return self.recording
-
     @QtCore.pyqtSlot(str)
     def startVideoRecord(self, fileName=''):
         self.stopVideoRecord()
         self.fileName = fileName
-        self.startDevice(self.current_dev_name, tuple(), True)
+        self.startDevice(self.curDevName, tuple(), True)
 
         if not self.process:
             return
@@ -667,15 +873,12 @@ class V4L2Tools(QtCore.QObject):
     @QtCore.pyqtSlot()
     def stopVideoRecord(self):
         if self.recording:
-            dev_name = self.current_dev_name
+            dev_name = self.curDevName
             self.stopCurrentDevice()
             self.recording = False
             self.fileName = ''
             self.recordingStateChanged.emit(False)
             self.startDevice(dev_name)
-
-    def supportedVideoRecordFormats(self):
-        return self.videoRecordFormats
 
     @QtCore.pyqtSlot()
     def clearVideoRecordFormats(self):
@@ -702,9 +905,6 @@ class V4L2Tools(QtCore.QObject):
                     return suffix, videoEncoder, audioEncoder, muxer
 
         return '', '', '', ''
-
-    def customStreams(self):
-        return self.streams
 
     @QtCore.pyqtSlot()
     def clearCustomStreams(self):

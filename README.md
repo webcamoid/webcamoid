@@ -101,44 +101,6 @@ Some languages are officially supported and other are supported through [Google 
 * Russian
 * Spanish (official)
 
-## Adding distro detection support ##
-
-If you had no installed the required GStreamer packages, Webcamoid will show you a dialog telling what packages you must install. The problem is that there are a lot of GNU/Linux distros arround the world, and I can't waste my time testing one-by-one each of these.  
-If you want support for your distro distro, please follow these steps:
-
-### For newest distributions ###
-
-Since February of 2012 the /etc/os-release file becomes the standard way of detecting the current working distribution. See more at [this link](http://www.freedesktop.org/software/systemd/man/os-release.html).
-
-Give me the output of this command:
-
-    cat /etc/os-release
-
-If your distro doesn't contains this file please go to the next step.
-
-### For oldest distributions ###
-
-Give me the output of this command:
-
-    python2 -c 'import platform; print(platform.linux_distribution())'
-
-In both cases, you must find wich packages contains these files:
-
-    /usr/bin/gst-launch-0.10
-    /usr/lib/gstreamer-0.10/libgstcoreelements.so
-    /usr/lib/gstreamer-0.10/libgstalsa.so
-    /usr/lib/gstreamer-0.10/libgstaudioconvert.so
-    /usr/lib/gstreamer-0.10/libgstffmpegcolorspace.so
-    /usr/lib/gstreamer-0.10/libgsttheora.so
-    /usr/lib/gstreamer-0.10/libgstvorbis.so
-    /usr/lib/gstreamer-0.10/libgsteffectv.so
-    /usr/lib/gstreamer-0.10/libgstvideo4linux2.so
-    /usr/lib/gstreamer-0.10/libgstgaudieffects.so
-    /usr/lib/gstreamer-0.10/libgstgeometrictransform.so
-    /usr/lib/gstreamer-0.10/libgstvp8.so
-
-Please provide all this info in the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
-
 ## Reporting Bugs ##
 
 In the root folder of webcamoid run this command:

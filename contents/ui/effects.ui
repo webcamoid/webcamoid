@@ -19,7 +19,7 @@
    </iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="lblEffects">
      <property name="font">
       <font>
@@ -35,7 +35,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
+   <item row="1" column="2">
     <widget class="QLabel" name="lblApply">
      <property name="font">
       <font>
@@ -51,20 +51,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" rowspan="3">
-    <widget class="QListWidget" name="lswEffects">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::MultiSelection</enum>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>128</width>
-       <height>96</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <spacer name="vspTop">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -77,7 +64,7 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="2" rowspan="3">
+   <item row="2" column="2" rowspan="3">
     <widget class="QListWidget" name="lswApply">
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
@@ -90,7 +77,20 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="4" column="1">
+    <spacer name="vspBottom">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>105</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="1">
       <widget class="QPushButton" name="btnUp">
@@ -214,18 +214,25 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="1">
-    <spacer name="vspBottom">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+   <item row="0" column="0" colspan="3">
+    <widget class="QLineEdit" name="txtSearch">
+     <property name="placeholderText">
+      <string>Search...</string>
      </property>
-     <property name="sizeHint" stdset="0">
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="3">
+    <widget class="QListWidget" name="lswEffects">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+     <property name="iconSize">
       <size>
-       <width>20</width>
-       <height>105</height>
+       <width>128</width>
+       <height>96</height>
       </size>
      </property>
-    </spacer>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -286,23 +286,6 @@ class WebcamConfig(QtGui.QWidget):
         else:
             self.tools.setControls(deviceName, {controlName: index})
 
-    @QtCore.pyqtSlot()
-    def on_btnProcess_clicked(self):
-        saveFileDialog = QtGui.QFileDialog(self,
-                                           self.tr('Select GStreamer '
-                                                   'Executable'),
-                                           '/usr/bin/gst-launch-0.10')
-
-        saveFileDialog.setModal(True)
-        saveFileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)
-        saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
-        saveFileDialog.exec_()
-
-        selected_files = saveFileDialog.selectedFiles()
-
-        if not selected_files.isEmpty():
-            self.txtProcess.setText(selected_files[0])
-
 
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)

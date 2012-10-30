@@ -34,6 +34,7 @@ import v4l2tools
 import videorecordconfig
 import webcamconfig
 import streamsconfig
+import generalconfig
 import featuresinfo
 
 
@@ -73,52 +74,6 @@ class MainWindow(QtGui.QWidget):
 
         self.webcamFrame = QtGui.QImage()
 
-        config = kdecore.KSharedConfig.openConfig('{0}rc'.
-                format(QtCore.QCoreApplication.applicationName().toLower()))
-
-        webcamConfigs = config.group('Webcam')
-
-        self.tools.setProcessExecutable(webcamConfigs.
-                readEntry('processExecutable', 'gst-launch-0.10').toString().toUtf8().data())
-
-        effectsConfigs = config.group('Effects')
-
-        effcts = effectsConfigs.readEntry('effects', '').toString().toUtf8().data()
-
-        if effcts != '':
-            self.tools.setEffects(effcts.split('&&'))
-
-        videoFormatsConfigs = config.group('VideoRecordFormats')
-
-        videoRecordFormats = videoFormatsConfigs. \
-                    readEntry('formats',
-                              'webm::'
-                              'vp8enc quality=10 speed=7 bitrate=1000000000::'
-                              'vorbisenc::'
-                              'webmmux&&'
-                              'ogv, ogg::'
-                              'theoraenc quality=63 bitrate=16777215::'
-                              'vorbisenc::'
-                              'oggmux').toString().toUtf8().data()
-
-        if videoRecordFormats != '':
-            for fmt in videoRecordFormats.split('&&'):
-                params = fmt.split('::')
-
-                self.tools.setVideoRecordFormat(params[0],
-                                                params[1],
-                                                params[2],
-                                                params[3])
-
-        streamsConfig = config.group('CustomStreams')
-        streams = streamsConfig.readEntry('streams', '').toString().toUtf8().data()
-
-        if streams != '':
-            for fmt in streams.split('&&'):
-                params = fmt.split('::')
-
-                self.tools.setCustomStream(params[0], params[1])
-
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
@@ -153,13 +108,13 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot(QtGui.QImage)
     def showFrame(self, webcamFrame):
-        if self.tools.isPlaying():
+        if self.tools.playing:
             self.lblFrame.setPixmap(QtGui.QPixmap.fromImage(webcamFrame))
 
     @QtCore.pyqtSlot()
     def updateWebcams(self):
-        oldDevice = self.tools.currentDevice()
-        timer_isActive = self.tools.isPlaying()
+        oldDevice = self.tools.curDevName
+        timer_isActive = self.tools.playing
         self.tools.stopCurrentDevice()
         self.cbxSetWebcam.clear()
         webcams = self.tools.captureDevices()
@@ -201,19 +156,19 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def on_btnVideoRecord_clicked(self):
-        if self.tools.isRecording():
+        if self.tools.recording:
             self.tools.stopVideoRecord()
         else:
             self.tools.startVideoRecord(self.saveFile(True))
 
     @QtCore.pyqtSlot(int)
     def on_cbxSetWebcam_currentIndexChanged(self, index):
-        if self.tools.isPlaying():
+        if self.tools.playing:
             self.tools.startDevice(self.tools.captureDevices()[index][0])
 
     @QtCore.pyqtSlot()
     def on_btnStartStop_clicked(self):
-        if self.tools.isPlaying():
+        if self.tools.playing:
             self.tools.stopCurrentDevice()
         else:
             self.tools.startDevice(self.tools.
@@ -225,7 +180,7 @@ class MainWindow(QtGui.QWidget):
         configDialog.addPage(self.cfgWebcamDialog,
                              self.tr('Webcam Settings'),
                              'camera-web',
-                             self.tr('Set webcam properties'),
+                             self.tr('Configure the parameters of the webcam.'),
                              False)
 
     def addEffectsConfigDialog(self, configDialog):
@@ -261,6 +216,16 @@ class MainWindow(QtGui.QWidget):
                        self.tr('Add or remove local or network live streams.'),
                        False)
 
+    def addGeneralConfigsDialog(self, configDialog):
+        self.cfgGeneralConfig = generalconfig.GeneralConfig(self, self.tools)
+
+        configDialog.\
+               addPage(self.cfgGeneralConfig,
+                       self.tr('General Options'),
+                       'configure',
+                       self.tr('Setup the basic capture options.'),
+                       False)
+
     def addFeaturesInfoDialog(self, configDialog):
         self.cfgFeaturesInfo = featuresinfo.FeaturesInfo(self, self.tools)
 
@@ -289,6 +254,7 @@ class MainWindow(QtGui.QWidget):
         self.addEffectsConfigDialog(configDialog)
         self.addVideoFormatsConfigDialog(configDialog)
         self.addStreamsConfigDialog(configDialog)
+        self.addGeneralConfigsDialog(configDialog)
         self.addFeaturesInfoDialog(configDialog)
 
         configDialog.okClicked.connect(self.saveConfigs)
@@ -298,43 +264,7 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def saveConfigs(self):
-        config = kdecore.KSharedConfig.openConfig('{0}rc'.
-                format(QtCore.QCoreApplication.applicationName().toLower()))
-
-        webcamConfigs = config.group('Webcam')
-
-        webcamConfigs.writeEntry('processExecutable',
-                                 self.tools.processExecutable())
-
-        effectsConfigs = config.group('Effects')
-
-        effectsConfigs.writeEntry('effects',
-                                  '&&'.join(self.tools.currentEffects()))
-
-        videoFormatsConfigs = config.group('VideoRecordFormats')
-
-        videoRecordFormats = []
-
-        for suffix, videoEncoder, audioEncoder, muxer in self.tools.\
-                                                supportedVideoRecordFormats():
-            videoRecordFormats.append('{0}::{1}::{2}::{3}'.format(suffix,
-                                                                  videoEncoder,
-                                                                  audioEncoder,
-                                                                  muxer))
-
-        videoFormatsConfigs.writeEntry('formats',
-                                       '&&'.join(videoRecordFormats))
-
-        streamsConfigs = config.group('CustomStreams')
-
-        streams = []
-
-        for dev_name, description, streamType in self.tools.customStreams():
-            streams.append('{0}::{1}'.format(dev_name, description))
-
-        streamsConfigs.writeEntry('streams', '&&'.join(streams))
-
-        config.sync()
+        self.tools.saveConfigs()
 
     @QtCore.pyqtSlot()
     def on_btnAbout_clicked(self):
@@ -374,7 +304,7 @@ class MainWindow(QtGui.QWidget):
 
         if video:
             videosPath = kdeui.KGlobalSettings.videosPath().toUtf8().data()
-            videoRecordFormats = self.tools.supportedVideoRecordFormats()
+            videoRecordFormats = self.tools.videoRecordFormats
 
             filters = []
             fst = True

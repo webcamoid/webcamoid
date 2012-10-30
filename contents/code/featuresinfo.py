@@ -26,9 +26,9 @@ import sys
 
 from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
+import v4l2tools
 
 import appenvironment
-import features
 
 
 class FeaturesInfo(QtGui.QWidget):
@@ -39,8 +39,7 @@ class FeaturesInfo(QtGui.QWidget):
         uic.loadUi(self.resolvePath('../ui/featuresinfo.ui'), self)
 
         self.setWindowIcon(kdeui.KIcon('camera-web'))
-
-        self.features = features.Features()
+        self.tools = tools if tools else v4l2tools.V4L2Tools(self, True)
         self.on_btnRecheck_clicked()
 
     def resolvePath(self, relpath=''):
@@ -49,7 +48,7 @@ class FeaturesInfo(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def on_btnRecheck_clicked(self):
-        features = self.features.matrix()
+        features = self.tools.featuresMatrix()
         self.tbwFeatures.setRowCount(len(features))
 
         table = []
@@ -60,9 +59,7 @@ class FeaturesInfo(QtGui.QWidget):
 
         for row, feature in enumerate(table):
             for column, param in enumerate(feature):
-                self.tbwFeatures.setItem(row,
-                                         column,
-                                         param)
+                self.tbwFeatures.setItem(row, column, param)
 
         self.tbwFeatures.resizeRowsToContents()
         self.tbwFeatures.resizeColumnsToContents()

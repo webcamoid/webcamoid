@@ -45,3 +45,6 @@ class AppEnvironment(QtCore.QObject):
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
+
+    def configFileName(self):
+        return '{0}rc'.format(QtCore.QCoreApplication.applicationName().toLower())

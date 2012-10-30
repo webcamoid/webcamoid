@@ -26,6 +26,7 @@ import sys
 
 from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
+import v4l2tools
 
 import appenvironment
 
@@ -43,18 +44,17 @@ class Effects(QtGui.QWidget):
         self.btnDown.setIcon(kdeui.KIcon('arrow-down'))
         self.btnRemove.setIcon(kdeui.KIcon('arrow-left'))
         self.btnReset.setIcon(kdeui.KIcon('edit-undo'))
-        self.tools = tools
+
+        self.tools = tools if tools else v4l2tools.V4L2Tools(self, True)
         self.effects = []
-
-        if not self.tools:
-            return
-
         effects = self.tools.availableEffects()
 
-        for index, effect in enumerate(sorted(effects.keys())):
+        for index, effect in enumerate(effects.keys()):
             item = [effect, QtGui.QListWidgetItem(effects[effect])]
             self.effects.append(item)
             self.lswEffects.addItem(item[1])
+
+        self.lswEffects.sortItems()
 
         for effect in self.tools.currentEffects():
             item, index = self.findEffect(effect)
@@ -66,7 +66,7 @@ class Effects(QtGui.QWidget):
             self.lswApply.addItem(listWidgetItem)
 
         self.tools.recordingStateChanged.connect(self.recordingStateChanged)
-        self.recordingStateChanged(self.tools.isRecording())
+        self.recordingStateChanged(self.tools.recording)
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
@@ -95,6 +95,22 @@ class Effects(QtGui.QWidget):
     def recordingStateChanged(self, recording):
         self.lswEffects.setEnabled(not recording)
         self.lswApply.setEnabled(not recording)
+
+    @QtCore.pyqtSlot(str)
+    def on_txtSearch_textChanged(self, text):
+        regexp = QtCore.QRegExp(text, QtCore.Qt.CaseInsensitive, QtCore.QRegExp.Wildcard)
+
+        for i in range(self.lswEffects.count()):
+            if regexp.indexIn(self.lswEffects.item(i).text()) == -1:
+                self.lswEffects.item(i).setHidden(True)
+            else:
+                self.lswEffects.item(i).setHidden(False)
+
+        for i in range(self.lswApply.count()):
+            if regexp.indexIn(self.lswApply.item(i).text()) == -1:
+                self.lswApply.item(i).setHidden(True)
+            else:
+                self.lswApply.item(i).setHidden(False)
 
     @QtCore.pyqtSlot()
     def on_btnAdd_clicked(self):

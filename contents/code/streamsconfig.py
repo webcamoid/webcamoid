@@ -26,6 +26,7 @@ import sys
 
 from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
+import v4l2tools
 
 import appenvironment
 
@@ -43,13 +44,9 @@ class StreamsConfig(QtGui.QWidget):
         self.btnUp.setIcon(kdeui.KIcon('arrow-up'))
         self.btnDown.setIcon(kdeui.KIcon('arrow-down'))
 
-        self.tools = tools
-
-        if not self.tools:
-            return
-
+        self.tools = tools if tools else v4l2tools.V4L2Tools(self, True)
         self.isInit = True
-        streams = self.tools.customStreams()
+        streams = self.tools.streams
 
         self.tbwCustomStreams.setRowCount(len(streams))
 
@@ -125,7 +122,7 @@ class StreamsConfig(QtGui.QWidget):
         self.tbwCustomStreams.resizeRowsToContents()
         self.tbwCustomStreams.resizeColumnsToContents()
 
-        if not self.tools or self.isInit:
+        if self.isInit:
             return
 
         self.tools.clearCustomStreams()
