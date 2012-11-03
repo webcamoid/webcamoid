@@ -41,82 +41,11 @@ class GeneralConfig(QtGui.QWidget):
         self.setWindowIcon(kdeui.KIcon('camera-web'))
 
         self.tools = tools if tools else v4l2tools.V4L2Tools(self, True)
-        self.txtLauncher.setText(self.tools.launcher)
-        self.txtPluginsPath.setText(self.tools.pluginsPath)
-        self.txtExtraPlugins.setText(self.tools.extraPluginsPath)
-        self.spnFps.setValue(self.tools.fps)
         self.chkAudioRecord.setCheckState(QtCore.Qt.Checked if self.tools.recordAudio else QtCore.Qt.Unchecked)
 
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
-
-    @QtCore.pyqtSlot(str)
-    def on_txtLauncher_textChanged(self, text):
-        self.tools.setLauncher(text.toUtf8().data())
-
-    @QtCore.pyqtSlot(str)
-    def on_txtPluginsPath_textChanged(self, text):
-        self.tools.setPluginsPath(text.toUtf8().data())
-
-    @QtCore.pyqtSlot(str)
-    def on_txtExtraPlugins_textChanged(self, text):
-        self.tools.setExtraPluginsPath(text.toUtf8().data())
-
-    @QtCore.pyqtSlot()
-    def on_btnLauncher_clicked(self):
-        saveFileDialog = QtGui.QFileDialog(self,
-                                           self.tr('Select GStreamer '
-                                                   'Executable'),
-                                           '/usr/bin/gst-launch-0.10')
-
-        saveFileDialog.setModal(True)
-        saveFileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)
-        saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
-        saveFileDialog.exec_()
-
-        selected_files = saveFileDialog.selectedFiles()
-
-        if not selected_files.isEmpty():
-            self.txtLauncher.setText(selected_files[0].toUtf8().data())
-
-    @QtCore.pyqtSlot()
-    def on_btnPluginsPath_clicked(self):
-        saveFileDialog = QtGui.QFileDialog(self,
-                                           self.tr('Select GStreamer '
-                                                   'Plugins Path'),
-                                           '/usr/lib/gstreamer-0.10')
-
-        saveFileDialog.setModal(True)
-        saveFileDialog.setFileMode(QtGui.QFileDialog.Directory)
-        saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
-        saveFileDialog.exec_()
-
-        selected_files = saveFileDialog.selectedFiles()
-
-        if not selected_files.isEmpty():
-            self.txtPluginsPath.setText(selected_files[0].toUtf8().data())
-
-    @QtCore.pyqtSlot()
-    def on_btnExtraPlugins_clicked(self):
-        saveFileDialog = QtGui.QFileDialog(self,
-                                           self.tr('Select Frei0r '
-                                                   'Plugins Path'),
-                                           '/usr/lib/frei0r-1')
-
-        saveFileDialog.setModal(True)
-        saveFileDialog.setFileMode(QtGui.QFileDialog.Directory)
-        saveFileDialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
-        saveFileDialog.exec_()
-
-        selected_files = saveFileDialog.selectedFiles()
-
-        if not selected_files.isEmpty():
-            self.txtExtraPlugins.setText(selected_files[0].toUtf8().data())
-
-    @QtCore.pyqtSlot(int)
-    def on_spnFps_valueChanged(self, i):
-        self.tools.setFps(i)
 
     @QtCore.pyqtSlot(int)
     def on_chkAudioRecord_stateChanged(self, state):

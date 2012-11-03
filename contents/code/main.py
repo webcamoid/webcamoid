@@ -58,12 +58,7 @@ class Webcamoid(plasmascript.Applet):
         self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
 
     def createConfigurationInterface(self, configDialog):
-        self.mainWindow.addWebcamConfigDialog(configDialog)
-        self.mainWindow.addEffectsConfigDialog(configDialog)
-        self.mainWindow.addVideoFormatsConfigDialog(configDialog)
-
-        configDialog.okClicked.connect(self.mainWindow.saveConfigs)
-        configDialog.cancelClicked.connect(self.mainWindow.saveConfigs)
+        self.mainWindow.showConfigDialog(configDialog)
 
 
 def CreateApplet(parent):

@@ -28,8 +28,8 @@ from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdeui
 from v4l2 import v4l2
 
-import v4l2tools
 import appenvironment
+import v4l2tools
 
 
 class WebcamConfig(QtGui.QWidget):

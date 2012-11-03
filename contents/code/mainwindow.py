@@ -28,14 +28,14 @@ import time
 from PyQt4 import QtCore, QtGui, uic
 from PyKDE4 import kdecore, kdeui, plasmascript
 
-import effects
 import appenvironment
+import effects
+import featuresinfo
+import generalconfig
+import streamsconfig
 import v4l2tools
 import videorecordconfig
 import webcamconfig
-import streamsconfig
-import generalconfig
-import featuresinfo
 
 
 class MainWindow(QtGui.QWidget):
@@ -238,17 +238,21 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def on_btnConfigure_clicked(self):
-        config = kdeui.KConfigSkeleton('', self)
+        self.showConfigDialog()
 
-        configDialog = kdeui.\
-                         KConfigDialog(self,
-                                       self.tr(b'{0} Settings').toUtf8().
-                                       data().format(QtCore.QCoreApplication.
-                                                     applicationName()),
-                                       config)
+    def showConfigDialog(self, configDialog=None):
+        if not configDialog:
+            config = kdeui.KConfigSkeleton('', self)
 
-        configDialog.setWindowTitle(self.tr('{0} Settings').toUtf8().data().
-                            format(QtCore.QCoreApplication.applicationName()))
+            configDialog = kdeui.\
+                            KConfigDialog(self,
+                                        self.tr(b'{0} Settings').toUtf8().
+                                        data().format(QtCore.QCoreApplication.
+                                                        applicationName()),
+                                        config)
+
+            configDialog.setWindowTitle(self.tr('{0} Settings').toUtf8().data().
+                                format(QtCore.QCoreApplication.applicationName()))
 
         self.addWebcamConfigDialog(configDialog)
         self.addEffectsConfigDialog(configDialog)

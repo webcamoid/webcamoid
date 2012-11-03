@@ -21,20 +21,17 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-import os
-import sys
 import ctypes
 import fcntl
-import signal
-import subprocess
-import struct
-import threading
+import os
+import sys
 
 from PyQt4 import QtCore, QtGui
 from PyKDE4 import kdecore
 from v4l2 import v4l2
 
 import appenvironment
+import pipeline
 
 
 class V4L2Tools(QtCore.QObject):
@@ -57,31 +54,30 @@ class V4L2Tools(QtCore.QObject):
 
         QtCore.QCoreApplication.instance().aboutToQuit.connect(self.aboutToQuit)
 
-        self.launcher = 'gst-launch-0.10'
-        self.pluginsPath = '/usr/lib/gstreamer-0.10'
-        self.extraPluginsPath = '/usr/lib/frei0r-1'
-
-        self.fps = 30
         self.process = None
         self.curDevName = ''
         self.effects = []
         self.playing = False
         self.recording = False
         self.recordAudio = True
-        self.effectsPreview = True #False
 
         self.curOutVidFmt = 'webm'
-        self.fileName = ''
         self.videoRecordFormats = []
         self.webcams = []
         self.streams = []
-        self.videoPipes = {}
 
-        self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(int(1000 / self.fps))
-        self.timer.timeout.connect(self.readFrame)
+        self.captureBuffer = {}
 
-        self.lock = threading.Lock()
+        self.pipeCaptureDevice = pipeline.Pipeline(parent=self)
+        self.pipeEffectsPreview = pipeline.Pipeline(parent=self)
+        self.pipeEffects = pipeline.Pipeline(blocking=False, parent=self)
+        self.pipeRecordVideo = pipeline.Pipeline(parent=self, debug=True)
+
+        self.pipeCaptureDevice.oStream.connect(self.pipeEffectsPreview.iStream)
+        self.pipeEffectsPreview.oStream.connect(self.readFrame)
+        self.pipeCaptureDevice.oStream.connect(self.pipeEffects.iStream)
+        self.pipeEffects.oStream.connect(self.pipeRecordVideo.iStream)
+        self.pipeEffects.oStream.connect(self.readFrame)
 
         if watchDevices:
             self.fsWatcher = QtCore.QFileSystemWatcher(['/dev'], self)
@@ -106,12 +102,6 @@ class V4L2Tools(QtCore.QObject):
 
         webcamConfigs = config.group('GeneralConfigs')
 
-        self.setLauncher(webcamConfigs.
-                readEntry('launcher', 'gst-launch-0.10').toString().toUtf8().data())
-
-        self.pluginsPath = webcamConfigs.readEntry('pluginsPath', '/usr/lib/gstreamer-0.10').toString().toUtf8().data()
-        self.extraPluginsPath = webcamConfigs.readEntry('extraPluginsPath', '/usr/lib/frei0r-1').toString().toUtf8().data()
-        self.setFps(webcamConfigs.readEntry('fps', 30).toInt()[0])
         self.enableAudioRecording(webcamConfigs.readEntry('recordAudio', True).toBool())
 
         effectsConfigs = config.group('Effects')
@@ -158,10 +148,6 @@ class V4L2Tools(QtCore.QObject):
 
         webcamConfigs = config.group('GeneralConfigs')
 
-        webcamConfigs.writeEntry('launcher', self.launcher)
-        webcamConfigs.writeEntry('pluginsPath', self.pluginsPath)
-        webcamConfigs.writeEntry('extraPluginsPath', self.extraPluginsPath)
-        webcamConfigs.writeEntry('fps', self.fps)
         webcamConfigs.writeEntry('recordAudio', self.recordAudio)
 
         effectsConfigs = config.group('Effects')
@@ -197,18 +183,6 @@ class V4L2Tools(QtCore.QObject):
     def aboutToQuit(self):
         self.stopCurrentDevice()
         self.saveConfigs()
-
-    @QtCore.pyqtSlot(str)
-    def setLauncher(self, path='gst-launch-0.10'):
-        self.launcher = path
-
-    @QtCore.pyqtSlot(str)
-    def setPluginsPath(self, path='/usr/lib/gstreamer-0.10'):
-        self.pluginsPath = path
-
-    @QtCore.pyqtSlot(str)
-    def setExtraPluginsPath(self, path='/usr/lib/frei0r-1'):
-        self.extraPluginsPath = path
 
     def fcc2s(self, val=0):
         s = ''
@@ -515,12 +489,18 @@ class V4L2Tools(QtCore.QObject):
 
     def featuresMatrix(self):
         features = {}
+        availableElements = [element for element, type in pipeline.Pipeline().availableElements()]
 
         libAvailable = True
 
         # GStreamer Core:
-        for lib in ['libgstcoreelements.so']:
-            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+        for element in ['appsink',
+                        'appsrc',
+                        'filesink',
+                        'queue',
+                        'tee',
+                        'uridecodebin']:
+            if not element in availableElements:
                 libAvailable = False
 
                 break
@@ -530,14 +510,14 @@ class V4L2Tools(QtCore.QObject):
         libAvailable = True
 
         # GStreamer Base Plugins:
-        for lib in ['libgstalsa.so',
-                    'libgstaudioconvert.so',
-                    'libgstdecodebin2.so',
-                    'libgstffmpegcolorspace.so',
-                    'libgsttheora.so',
-                    'libgstvideoscale.so',
-                    'libgstvorbis.so']:
-            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+        for element in ['alsasrc',
+                        'audioconvert',
+                        'decodebin',
+                        'ffmpegcolorspace',
+                        'theoraenc',
+                        'videoscale',
+                        'vorbisenc']:
+            if not element in availableElements:
                 libAvailable = False
 
                 break
@@ -547,11 +527,23 @@ class V4L2Tools(QtCore.QObject):
         libAvailable = True
 
         # GStreamer Good Plugins:
-        for lib in ['libgsteffectv.so',
-                    'libgstvideo4linux2.so',
-                    'libgstvideofilter.so',
-                    'libgstximagesrc.so']:
-            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+        for element in ['agingtv',
+                        'dicetv',
+                        'edgetv',
+                        'optv',
+                        'quarktv',
+                        'radioactv',
+                        'revtv',
+                        'rippletv',
+                        'shagadelictv',
+                        'streaktv',
+                        'v4l2src',
+                        'vertigotv',
+                        'videobalance',
+                        'videoflip',
+                        'warptv',
+                        'ximagesrc']:
+            if not element in availableElements:
                 libAvailable = False
 
                 break
@@ -561,12 +553,25 @@ class V4L2Tools(QtCore.QObject):
         libAvailable = True
 
         # GStreamer Bad Plugins:
-        for lib in ['libgstcoloreffects.so',
-                    'libgstfrei0r.so',
-                    'libgstgaudieffects.so',
-                    'libgstgeometrictransform.so',
-                    'libgstvp8.so']:
-            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+        for element in ['bulge',
+                        'burn',
+                        'chromium',
+                        'coloreffects',
+                        'exclusion',
+                        'fisheye',
+                        'kaleidoscope',
+                        'marble',
+                        'mirror',
+                        'pinch',
+                        'solarize',
+                        'sphere',
+                        'sphere',
+                        'stretch',
+                        'tunnel',
+                        'twirl',
+                        'vp8enc',
+                        'waterripple']:
+            if not element in availableElements:
                 libAvailable = False
 
                 break
@@ -576,20 +581,20 @@ class V4L2Tools(QtCore.QObject):
         libAvailable = True
 
         # frei0r Plugins:
-        for lib in ['cartoon.so',
-                    'delaygrab.so',
-                    'distort0r.so',
-                    'equaliz0r.so',
-                    'hqdn3d.so',
-                    'invert0r.so',
-                    'nervous.so',
-                    'pixeliz0r.so',
-                    'primaries.so',
-                    'sobel.so',
-                    'sopsat.so',
-                    'threelay0r.so',
-                    'twolay0r.so']:
-            if not os.path.exists(os.path.join(self.extraPluginsPath, lib)):
+        for element in ['frei0r-filter-cartoon',
+                        'frei0r-filter-delaygrab',
+                        'frei0r-filter-distort0r',
+                        'frei0r-filter-equaliz0r',
+                        'frei0r-filter-hqdn3d',
+                        'frei0r-filter-invert0r',
+                        'frei0r-filter-nervous',
+                        'frei0r-filter-pixeliz0r',
+                        'frei0r-filter-primaries',
+                        'frei0r-filter-sobel',
+                        'frei0r-filter-sop-sat',
+                        'frei0r-filter-threelay0r',
+                        'frei0r-filter-twolay0r']:
+            if not element in availableElements:
                 libAvailable = False
 
                 break
@@ -599,8 +604,9 @@ class V4L2Tools(QtCore.QObject):
         libAvailable = True
 
         # GStreamer FFmpeg Plugins:
-        for lib in ['libgstffmpeg.so']:
-            if not os.path.exists(os.path.join(self.pluginsPath, lib)):
+        for element in ['ffdec_bmp',
+                        'ffenc_bmp']:
+            if not element in availableElements:
                 libAvailable = False
 
                 break
@@ -680,18 +686,43 @@ class V4L2Tools(QtCore.QObject):
     def setEffects(self, effects=[]):
         self.effects = [str(effect) for effect in effects]
 
-        if not self.process:
-            return
+        if self.effects == []:
+            pipeline = ''
+        else:
+            pipeline = 'appsrc name={capture} emit-signals=true ! ffdec_bmp ! '
 
-        self.startDevice(self.curDevName)
+            for effect in self.effects:
+                pipeline += 'ffmpegcolorspace ! {0} ! '.format(effect)
+
+            pipeline += 'ffmpegcolorspace ! ffenc_bmp ! appsink name={capture} emit-signals=true'
+
+        self.pipeEffects.setPipeline(pipeline)
+
+        if self.playing and not self.pipeEffects.playing:
+            self.pipeEffects.start()
 
     def currentEffects(self):
         return self.effects
 
-    @QtCore.pyqtSlot(int)
-    def setFps(self, fps):
-        self.fps = fps
-        self.timer.setInterval(int(1000 / self.fps))
+    @QtCore.pyqtSlot()
+    def startEffectsPreview(self):
+        if not self.playing:
+            return
+
+        pipeline = 'appsrc name={capture} emit-signals=true ! ffdec_bmp ! ffmpegcolorspace ! ' + \
+                   'videoscale ! video/x-raw-rgb,width={0},height={1} ! tee name=preview'.format(128, 96)
+
+        for effect in self.availableEffects().keys():
+            pipeline += ' preview. ! queue ! ffmpegcolorspace ! {0} ! ' \
+                        'ffmpegcolorspace ! ffenc_bmp ! appsink '.format(effect) + \
+                        'name={' + str(effect) + '} emit-signals=true'
+
+        self.pipeEffectsPreview.setPipeline(pipeline)
+        self.pipeEffectsPreview.start()
+
+    @QtCore.pyqtSlot()
+    def stopEffectsPreview(self):
+        self.pipeEffectsPreview.stop()
 
     def enableAudioRecording(self, enable=True):
         self.recordAudio = enable
@@ -718,12 +749,11 @@ class V4L2Tools(QtCore.QObject):
 
         self.setControls(dev_name, ctrls)
 
-    def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple(),
-                                                  record=False):
+    def startDevice(self, dev_name='/dev/video0', forcedFormat=tuple()):
         self.stopCurrentDevice()
+        self.captureBuffer = {}
+        self.previewsBuffer = {}
         deviceType = self.deviceType(dev_name)
-
-        params = [self.launcher, '-qe']
 
         if deviceType == self.StreamTypeWebcam:
             if forcedFormat == tuple():
@@ -734,139 +764,71 @@ class V4L2Tools(QtCore.QObject):
             else:
                 fmt = forcedFormat
 
-            params += ['v4l2src', 'device={0}'.format(dev_name), '!',
-                      'video/x-raw-yuv,width={0},height={1},framerate={2}/1'.
-                                        format(fmt[0], fmt[1], self.fps), '!']
+            pipeline = 'v4l2src device={0} ! video/x-raw-yuv,width={1},height={2}'.format(dev_name, fmt[0], fmt[1])
         elif deviceType == self.StreamTypeURI:
-            params += ['uridecodebin', 'uri={0}'.format(dev_name), '!']
+            pipeline = 'uridecodebin uri="{0}"'.format(dev_name)
         elif deviceType == self.StreamTypeDesktop:
-            params += ['ximagesrc', 'show-pointer=true', '!']
+            pipeline = 'ximagesrc show-pointer=true'
         else:
             return
 
-        params += ['tee', 'name=rawvideo']
-        params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!']
+        pipeline += ' ! ffmpegcolorspace ! ffenc_bmp ! appsink name={capture} emit-signals=true'
 
-        for effect in self.effects:
-            params += effect.split() + ['!', 'ffmpegcolorspace', '!']
+        self.pipeCaptureDevice.setPipeline(pipeline)
+        self.pipeCaptureDevice.start()
+        self.pipeEffects.start()
+        self.curDevName = dev_name
+        self.playing = True
+        self.playingStateChanged.emit(True)
 
-        params += ['tee', 'name=effects']
-
-        params += ['effects.', '!', 'queue', '!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'fdsink']
-
-        if self.effectsPreview:
-            self.videoPipes = {}
-
-            for effect in self.availableEffects().keys():
-                self.videoPipes[effect] = os.pipe()
-
-                params += ['rawvideo.', '!', 'queue', '!', 'ffmpegcolorspace', '!',
-                        'videoscale', '!', 'video/x-raw-yuv,width={0},height={1}'.format(128, 96), '!', 'ffmpegcolorspace', '!'] + \
-                        effect.split() + \
-                        ['!', 'ffmpegcolorspace', '!', 'ffenc_bmp', '!', 'image/bmp', '!',
-                        'fdsink', 'fd={0}'.format(self.videoPipes[effect][1])]
-
-        if record:
-            suffix, videoEncoder, audioEncoder, muxer = \
-                                    self.bestVideoRecordFormat(self.fileName)
-
-            if suffix == '':
-                self.process = None
-                self.curDevName = ''
-
-                return
-
-            params += ['effects.', '!', 'queue', '!', 'ffmpegcolorspace',
-                       '!'] + videoEncoder.split() + ['!', 'queue', '!',
-                                                      'muxer.']
-
-            if self.recordAudio:
-                params += ['alsasrc', 'device=plughw:0,0', '!', 'queue', '!',
-                        'audioconvert', '!', 'queue', '!'] + \
-                        audioEncoder.split() + ['!', 'queue', '!', 'muxer.']
-
-            params += muxer.split() + ['name=muxer', '!', 'filesink',
-                                       'location={0}'.format(self.fileName)]
-
-        try:
-            self.process = subprocess.Popen(params, stdout=subprocess.PIPE)
-            self.curDevName = dev_name
-            self.playing = True
-            self.timer.start()
-            self.playingStateChanged.emit(True)
-        except:
-            self.process = None
-            self.curDevName = ''
-            self.gstError.emit()
+        #self.gstError.emit()
 
     @QtCore.pyqtSlot()
     def stopCurrentDevice(self):
         if not self.playing:
             return
 
-        os.kill(self.process.pid, signal.SIGINT)
-        self.process.wait()
-
-        if self.effectsPreview:
-            for effect in self.videoPipes:
-                os.close(self.videoPipes[effect][0])
-                os.close(self.videoPipes[effect][1])
-
-        self.timer.stop()
-        self.videoPipes = {}
-        self.process = None
+        self.stopVideoRecord()
+        self.stopEffectsPreview()
+        self.pipeEffects.stop()
+        self.pipeCaptureDevice.stop()
         self.curDevName = ''
         self.playing = False
         self.playingStateChanged.emit(False)
 
-    def threadReadFrame(self):
-        self.lock.acquire()
+    @QtCore.pyqtSlot(QtGui.QImage, str)
+    def readFrame(self, frame, pipename):
+        pipename = str(pipename)
 
-        try:
-            if self.process:
-                frameHeader = self.process.stdout.read(14)
-
-                if len(frameHeader) == 14:
-                    dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
-                    frameData = self.process.stdout.read(dataSize)
-                    self.frameReady.emit(QtGui.QImage.fromData(frameHeader + frameData))
-        except:
-            pass
-
-        if self.effectsPreview:
-            effects = self.videoPipes.keys()
-
-            for effect in effects:
-                try:
-                    if not effect in self.videoPipes:
-                        continue
-
-                    frameHeader = os.read(self.videoPipes[effect][0], 14)
-
-                    if len(frameHeader) != 14:
-                        continue
-
-                    dataSize = struct.unpack('i', frameHeader[2: 6])[0] - 14
-                    frameData = os.read(self.videoPipes[effect][0], dataSize)
-                    self.previewFrameReady.emit(QtGui.QImage.fromData(frameHeader + frameData), effect)
-                except:
-                    pass
-
-        self.lock.release()
-
-    @QtCore.pyqtSlot()
-    def readFrame(self):
-        threading.Thread(target=self.threadReadFrame).start()
+        if pipename == 'capture':
+            self.frameReady.emit(frame)
+        else:
+            self.previewFrameReady.emit(frame, pipename)
 
     @QtCore.pyqtSlot(str)
     def startVideoRecord(self, fileName=''):
         self.stopVideoRecord()
-        self.fileName = fileName
-        self.startDevice(self.curDevName, tuple(), True)
 
-        if not self.process:
+        if not self.playing:
             return
 
+        suffix, videoEncoder, audioEncoder, muxer = self.bestVideoRecordFormat(fileName)
+
+        if suffix == '':
+            return
+
+        pipeline = 'appsrc name={capture} emit-signals=true do-timestamp=true ! ffdec_bmp ! ' + \
+                   'ffmpegcolorspace ! {0} ! queue ! muxer. '.format(videoEncoder)
+
+        if self.recordAudio:
+            # autoaudiosrc
+            pipeline += 'alsasrc device=plughw:0,0 ! queue ! audioconvert ! ' \
+                        'queue ! {0} ! queue ! muxer. '.format(audioEncoder)
+
+        pipeline += '{0} name=muxer ! filesink location="{1}"'.format(muxer, fileName)
+
+        self.pipeRecordVideo.setPipeline(pipeline)
+        self.pipeRecordVideo.start()
         self.recordingStateChanged.emit(True)
         self.recording = True
 
@@ -874,11 +836,9 @@ class V4L2Tools(QtCore.QObject):
     def stopVideoRecord(self):
         if self.recording:
             dev_name = self.curDevName
-            self.stopCurrentDevice()
+            self.pipeRecordVideo.stop()
             self.recording = False
-            self.fileName = ''
             self.recordingStateChanged.emit(False)
-            self.startDevice(dev_name)
 
     @QtCore.pyqtSlot()
     def clearVideoRecordFormats(self):

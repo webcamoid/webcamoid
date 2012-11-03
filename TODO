@@ -1,2 +1,4 @@
-- Uninterrupted video record.
+- Port GUI to Qml
 - Port it to Python 3.
+- Add support for GData API.
+- GStreamer doesn't work with some uri directions.

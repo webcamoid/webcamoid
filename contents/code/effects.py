@@ -65,9 +65,6 @@ class Effects(QtGui.QWidget):
             listWidgetItem = self.lswEffects.takeItem(self.lswEffects.row(item[1]))
             self.lswApply.addItem(listWidgetItem)
 
-        self.tools.recordingStateChanged.connect(self.recordingStateChanged)
-        self.recordingStateChanged(self.tools.recording)
-
     def resolvePath(self, relpath=''):
         return os.path.normpath(os.path.join(os.path.
                                 dirname(os.path.realpath(__file__)), relpath))
@@ -86,15 +83,20 @@ class Effects(QtGui.QWidget):
 
         return [], -1
 
+    def showEvent(self, event):
+        QtGui.QWidget.showEvent(self, event)
+
+        self.tools.startEffectsPreview()
+
+    def hideEvent(self, event):
+        QtGui.QWidget.hideEvent(self, event)
+
+        self.tools.stopEffectsPreview()
+
     @QtCore.pyqtSlot(QtGui.QImage, str)
     def setEffectPreview(self, image=None, effect=''):
         item, index = self.findEffect(effect)
         item[1].setIcon(QtGui.QIcon(QtGui.QPixmap.fromImage(image)))
-
-    @QtCore.pyqtSlot(bool)
-    def recordingStateChanged(self, recording):
-        self.lswEffects.setEnabled(not recording)
-        self.lswApply.setEnabled(not recording)
 
     @QtCore.pyqtSlot(str)
     def on_txtSearch_textChanged(self, text):
