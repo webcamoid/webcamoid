@@ -24,24 +24,38 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
-TEMPLATE = subdirs
+CONFIG += qt
 
-CONFIG += ordered
+INCLUDEPATH += \
+    include \
+    /usr/include/KDE
 
-SUBDIRS += \
-    Lib.pro \
-    Plasmoid.pro \
-    StandAlone.pro
+LIBS += -lkdecore -lkdeui -lkutils -lkio
 
-# Install rules
+OTHER_FILES += \
+    Webcamoid.desktop
 
-INSTALLS += \
-    docs \
-    license
+QT += core gui
 
-docs.extra = qdoc3 Webcamoid.qdocconf
-docs.files = share/docs/html
-docs.path = $${COMMONS_DOCS_INSTALL_PATH}
+SOURCES = \
+    src/main.cpp
 
-license.files = COPYING
-license.path = $${COMMONS_LICENSE_INSTALL_PATH}
+TARGET = Webcamoid
+
+TEMPLATE = lib
+
+# http://www.loc.gov/standards/iso639-2/php/code_list.php
+
+CODECFORTR = UTF-8
+CODECFORSRC = UTF-8
+
+unix {
+    INSTALLS += target \
+                desktop
+
+    desktop.path = /usr/share/kde4/services/
+    desktop.files += Webcamoid.desktop
+
+    target.path  = /usr/lib/kde4/
+    target.files += Webcamoid.so
+}
