@@ -35,14 +35,14 @@ class COMMONSSHARED_EXPORT WebcamConfig: public QWidget, public Ui::WebcamConfig
     Q_OBJECT
 
     public:
-        explicit WebcamConfig(V4L2Tools *tools=NULL, QObject *parent=NULL);
+        explicit WebcamConfig(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
 
     private:
-        AppEnvironment *appEnvironment;
-        V4L2Tools *tools;
-        QVariantList captureDevices;
-        QVariantMap videoFormats;
-        bool resetting;
+        AppEnvironment *m_appEnvironment;
+        V4L2Tools *m_tools;
+        QVariantList m_captureDevices;
+        QVariantMap m_videoFormats;
+        bool m_resetting;
 
         void resetControls(QString deviceName);
 

@@ -25,7 +25,7 @@
 
 GeneralConfig::GeneralConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 {
-    this->appEnvironment = new AppEnvironment(this);
+    this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 

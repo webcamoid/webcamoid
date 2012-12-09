@@ -25,18 +25,18 @@
 
 FeaturesInfo::FeaturesInfo(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 {
-    this->appEnvironment = new AppEnvironment(this);
+    this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
     this->setWindowIcon(KIcon("camera-web"));
-    this->tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
     this->on_btnRecheck_clicked();
 }
 
 void FeaturesInfo::on_btnRecheck_clicked()
 {
-    QVariantMap features = this->tools->featuresMatrix();
+    QVariantMap features = this->m_tools->featuresMatrix();
     this->tbwFeatures->setRowCount(features.size());
 
     QStringList featuresList = features.keys();

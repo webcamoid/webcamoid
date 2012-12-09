@@ -29,9 +29,34 @@
 #include "commons.h"
 #include "appenvironment.h"
 
-class COMMONSSHARED_EXPORT V4L2Tools: public QWidget
+class COMMONSSHARED_EXPORT V4L2Tools: public QObject
 {
     Q_OBJECT
+    Q_ENUMS(StreamType)
+
+    Q_PROPERTY(bool playing READ playing
+                                WRITE setPlaying
+                                RESET resetPlaying)
+
+    Q_PROPERTY(bool recordAudio READ recordAudio
+                                WRITE setRecordAudio
+                                RESET resetRecordAudio)
+
+    Q_PROPERTY(bool recording READ recording
+                              WRITE setRecording
+                              RESET resetRecording)
+
+    Q_PROPERTY(QVariantList videoRecordFormats READ videoRecordFormats
+                                               WRITE setVideoRecordFormats
+                                               RESET resetVideoRecordFormats)
+
+    Q_PROPERTY(QString curDevName READ curDevName
+                                  WRITE setCurDevName
+                                  RESET resetCurDevName)
+
+    Q_PROPERTY(QVariantList streams READ streams
+                                    WRITE setStreams
+                                    RESET resetStreams)
 
     public:
         enum StreamType
@@ -44,6 +69,13 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QWidget
 
         explicit V4L2Tools(bool watchDevices=false, QObject *parent=NULL);
         ~V4L2Tools();
+
+        bool playing();
+        bool recordAudio();
+        bool recording();
+        QVariantList videoRecordFormats();
+        QString curDevName();
+        QVariantList streams();
 
         Q_INVOKABLE QString fcc2s(uint val=0);
         Q_INVOKABLE QVariantList videoFormats(QString dev_name="/dev/video0");
@@ -58,23 +90,24 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QWidget
         Q_INVOKABLE QStringList bestVideoRecordFormat(QString fileName="");
 
     private:
-        AppEnvironment *appEnvironment;
-        bool playing;
-        bool recordAudio;
-        bool recording;
-        QFileSystemWatcher *fsWatcher;
-        QGst::BinPtr captureDevice;
-        QGst::BinPtr effectsBin;
-        QGst::BinPtr effectsPreviewBin;
-        QGst::BinPtr mainBin;
-        QGst::PipelinePtr mainPipeline;
-        QMutex mutex;
-        QString curDevName;
-        QString curOutVidFmt;
-        QStringList effects;
-        QVariantList streams;
-        QVariantList videoRecordFormats;
-        QVariantList webcams;
+        bool m_playing;
+        bool m_recordAudio;
+        bool m_recording;
+        QVariantList m_videoRecordFormats;
+        QString m_curDevName;
+        QVariantList m_streams;
+
+        AppEnvironment *m_appEnvironment;
+        QFileSystemWatcher *m_fsWatcher;
+        QGst::BinPtr m_captureDevice;
+        QGst::BinPtr m_effectsBin;
+        QGst::BinPtr m_effectsPreviewBin;
+        QGst::BinPtr m_mainBin;
+        QGst::PipelinePtr m_mainPipeline;
+        QMutex m_mutex;
+        QStringList m_effects;
+        QString m_curOutVidFmt;
+        QVariantList m_webcams;
 
         QVariantList queryControl(int dev_fd, struct v4l2_queryctrl *queryctrl);
         QMap<QString, uint> findControls(int dev_fd);
@@ -84,16 +117,30 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QWidget
 
     signals:
         void devicesModified();
-        void playingStateChanged(bool playing);
-        void recordingStateChanged(bool recording);
+        void playingStateChanged(bool m_playing);
+        void recordingStateChanged(bool m_recording);
         void gstError();
         void frameReady(const QImage &frame);
         void previewFrameReady(const QImage &frame, QString effectName);
 
     public slots:
+        void setPlaying(bool playing);
+        void setRecordAudio(bool recordAudio);
+        void setRecording(bool recording);
+        void setVideoRecordFormats(QVariantList videoRecordFormats);
+        void setCurDevName(QString curDevName);
+        void setStreams(QVariantList streams);
+        void resetPlaying();
+        void resetRecordAudio();
+        void resetRecording();
+        void resetVideoRecordFormats();
+        void resetCurDevName();
+        void resetStreams();
+
+        void reset(QString dev_name="/dev/video0");
         void loadConfigs();
         void saveConfigs();
-        void setEffects(QStringList effects=QStringList());
+        void setEffects(QStringList m_effects=QStringList());
         void startEffectsPreview();
         void stopEffectsPreview();
         void startDevice(QString dev_name="/dev/video0", QVariantList forcedFormat=QVariantList());
@@ -110,7 +157,6 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QWidget
     private slots:
         void aboutToQuit();
         void busMessage(const QGst::MessagePtr &message);
-        void reset(QString dev_name="/dev/video0");
         void readFrame(QGst::ElementPtr sink);
 };
 

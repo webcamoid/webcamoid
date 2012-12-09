@@ -35,12 +35,12 @@ class COMMONSSHARED_EXPORT VideoRecordConfig: public QWidget, public Ui::VideoRe
     Q_OBJECT
 
     public:
-        explicit VideoRecordConfig(V4L2Tools *tools=NULL, QObject *parent=NULL);
+        explicit VideoRecordConfig(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
 
     private:
-        AppEnvironment *appEnvironment;
-        V4L2Tools *tools;
-        bool isInit;
+        AppEnvironment *m_appEnvironment;
+        V4L2Tools *m_tools;
+        bool m_isInit;
 
         void update();
 

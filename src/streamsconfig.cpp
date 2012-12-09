@@ -23,9 +23,9 @@
 
 #include "streamsconfig.h"
 
-StreamsConfig::StreamsConfig(V4L2Tools *tools, QObject *parent): QWidget(parent)
+StreamsConfig::StreamsConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 {
-    this->appEnvironment = new AppEnvironment(this);
+    this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
@@ -35,9 +35,9 @@ StreamsConfig::StreamsConfig(V4L2Tools *tools, QObject *parent): QWidget(parent)
     this->btnUp->setIcon(KIcon("arrow-up"));
     this->btnDown->setIcon(KIcon("arrow-down"));
 
-    this->tools = (tools)? tools: new V4L2Tools(true, this);
-    this->isInit = true;
-    QVariantList streams = this->tools->streams();
+    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_isInit = true;
+    QVariantList streams = this->m_tools->streams();
 
     this->tbwCustomStreams->setRowCount(streams.length());
 
@@ -49,18 +49,18 @@ StreamsConfig::StreamsConfig(V4L2Tools *tools, QObject *parent): QWidget(parent)
 
         this->tbwCustomStreams->setItem(row,
                                         0,
-                                        QTableWidgetItem(param));
+                                        new QTableWidgetItem(param));
 
         param = stream.toStringList().at(0);
 
         this->tbwCustomStreams->setItem(row,
                                         1,
-                                        QTableWidgetItem(param));
+                                        new QTableWidgetItem(param));
 
         row++;
     }
 
-    this->isInit = false;
+    this->m_isInit = false;
     this->tbwCustomStreams->resizeRowsToContents();
     this->tbwCustomStreams->resizeColumnsToContents();
 }
@@ -70,17 +70,17 @@ void StreamsConfig::update()
     this->tbwCustomStreams->resizeRowsToContents();
     this->tbwCustomStreams->resizeColumnsToContents();
 
-    if (this->isInit)
+    if (this->m_isInit)
         return;
 
-    this->tools->clearCustomStreams();
+    this->m_tools->clearCustomStreams();
 
     for (int row = 0; row < this->tbwCustomStreams->rowCount(); row++)
     {
         QString description = this->tbwCustomStreams->item(row, 0)->text();
         QString devName = this->tbwCustomStreams->item(row, 1)->text();
 
-        this->tools->setCustomStream(devName, description);
+        this->m_tools->setCustomStream(devName, description);
     }
 }
 

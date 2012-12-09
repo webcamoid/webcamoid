@@ -38,7 +38,7 @@ class COMMONSSHARED_EXPORT GeneralConfig: public QWidget, public Ui::GeneralConf
         explicit GeneralConfig(V4L2Tools *tools=NULL, QWidget *parent=NULL);
 
     private:
-        AppEnvironment *appEnvironment;
+        AppEnvironment *m_appEnvironment;
         V4L2Tools *tools;
 
     public slots:

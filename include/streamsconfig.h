@@ -35,12 +35,12 @@ class COMMONSSHARED_EXPORT StreamsConfig: public QWidget, public Ui::StreamsConf
     Q_OBJECT
 
     public:
-        explicit StreamsConfig(V4L2Tools *tools=NULL, QObject *parent=NULL);
+        explicit StreamsConfig(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
 
     private:
-        AppEnvironment *appEnvironment;
-        V4L2Tools *tools;
-        bool isInit;
+        AppEnvironment *m_appEnvironment;
+        V4L2Tools *m_tools;
+        bool m_isInit;
 
         void update();
 

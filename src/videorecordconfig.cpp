@@ -23,9 +23,9 @@
 
 #include "videorecordconfig.h"
 
-VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QObject *parent): QWidget(parent)
+VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 {
-    this->appEnvironment = new AppEnvironment(this);
+    this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
@@ -35,9 +35,9 @@ VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QObject *parent): QWidget
     this->btnUp->setIcon(KIcon("arrow-up"));
     this->btnDown->setIcon(KIcon("arrow-down"));
 
-    this->tools = (tools)? tools: new V4L2Tools(true, this);
-    this->isInit = true;
-    QVariantList videoRecordFormats = this->tools->videoRecordFormats();
+    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_isInit = true;
+    QVariantList videoRecordFormats = this->m_tools->videoRecordFormats();
 
     this->tbwVideoFormats->setRowCount(videoRecordFormats.length());
 
@@ -51,7 +51,7 @@ VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QObject *parent): QWidget
         {
             this->tbwVideoFormats->setItem(row,
                                            column,
-                                           QTableWidgetItem(param));
+                                           new QTableWidgetItem(param));
 
             column++;
         }
@@ -59,7 +59,7 @@ VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QObject *parent): QWidget
         row++;
     }
 
-    this->isInit = false;
+    this->m_isInit = false;
     this->tbwVideoFormats->resizeRowsToContents();
     this->tbwVideoFormats->resizeColumnsToContents();
 }
@@ -69,10 +69,10 @@ void VideoRecordConfig::update()
     this->tbwVideoFormats->resizeRowsToContents();
     this->tbwVideoFormats->resizeColumnsToContents();
 
-    if (this->isInit)
+    if (this->m_isInit)
         return;
 
-    this->tools->clearVideoRecordFormats();
+    this->m_tools->clearVideoRecordFormats();
 
     for (int row = 0; row < this->tbwVideoFormats->rowCount(); row++)
     {
@@ -81,7 +81,7 @@ void VideoRecordConfig::update()
         QString audioEncoder = this->tbwVideoFormats->item(row, 2)->text();
         QString muxer = this->tbwVideoFormats->item(row, 3)->text();
 
-        this->tools->setVideoRecordFormat(suffix,
+        this->m_tools->setVideoRecordFormat(suffix,
                                           videoEncoder,
                                           audioEncoder,
                                           muxer);
@@ -110,8 +110,8 @@ void VideoRecordConfig::on_btnUp_clicked()
 
     for (int column = 0; column < this->tbwVideoFormats->columnCount(); column++)
     {
-        QString currentText = this->tbwVideoFormats->item(currentRow, column).text();
-        QString nextText = this->tbwVideoFormats->item(nextRow, column).text();
+        QString currentText = this->tbwVideoFormats->item(currentRow, column)->text();
+        QString nextText = this->tbwVideoFormats->item(nextRow, column)->text();
 
         this->tbwVideoFormats->item(currentRow, column)->setText(nextText);
         this->tbwVideoFormats->item(nextRow, column)->setText(currentText);
@@ -148,5 +148,8 @@ void VideoRecordConfig::on_btnDown_clicked()
 
 void VideoRecordConfig::on_tbwVideoFormats_cellChanged(int row, int column)
 {
+    Q_UNUSED(row)
+    Q_UNUSED(column)
+
     this->update();
 }

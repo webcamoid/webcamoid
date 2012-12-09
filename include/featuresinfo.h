@@ -35,11 +35,11 @@ class COMMONSSHARED_EXPORT FeaturesInfo: public QWidget, public Ui::FeaturesInfo
     Q_OBJECT
 
     public:
-        explicit FeaturesInfo(V4L2Tools *tools=NULL, QWidget *parent=NULL);
+        explicit FeaturesInfo(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
 
     private:
-        AppEnvironment *appEnvironment;
-        V4L2Tools *tools;
+        AppEnvironment *m_appEnvironment;
+        V4L2Tools *m_tools;
 
     private slots:
         void on_btnRecheck_clicked();

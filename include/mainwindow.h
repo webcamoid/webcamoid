@@ -42,18 +42,18 @@ class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
     Q_OBJECT
 
     public:
-        explicit MainWindow(QObject *parent=NULL);
+        explicit MainWindow(QWidget *parent=NULL);
 
     private:
-        AppEnvironment *appEnvironment;
-        Effects *cfgEffects;
-        FeaturesInfo *cfgFeaturesInfo;
-        GeneralConfig *cfgGeneralConfig;
-        QImage webcamFrame;
-        StreamsConfig *cfgStreams;
-        V4L2Tools *tools;
-        VideoRecordConfig *cfgVideoFormats;
-        WebcamConfig *cfgWebcamDialog;
+        AppEnvironment *m_appEnvironment;
+        Effects *m_cfgEffects;
+        FeaturesInfo *m_cfgFeaturesInfo;
+        GeneralConfig *m_cfgGeneralConfig;
+        QImage m_webcamFrame;
+        StreamsConfig *m_cfgStreams;
+        V4L2Tools *m_tools;
+        VideoRecordConfig *m_cfgVideoFormats;
+        WebcamConfig *m_cfgWebcamDialog;
 
         void addWebcamConfigDialog(KConfigDialog *configDialog);
         void addEffectsConfigDialog(KConfigDialog *configDialog);
@@ -71,7 +71,7 @@ class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
         void closeEvent(QCloseEvent *event);
 
     public slots:
-        void showFrame(const QImage &webcamFrame);
+        void showFrame(const QImage &m_webcamFrame);
 
     private slots:
         void updateWebcams();
