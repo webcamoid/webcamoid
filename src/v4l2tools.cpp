@@ -20,17 +20,19 @@
  */
 
 // http://gstreamer.freedesktop.org/data/doc/gstreamer/head/qt-gstreamer/html/index.html
-// http://cgit.freedesktop.org/gstreamer/gstreamer/tree/tools/gst-inspect.c
+// LD_PRELOAD='./libWebcamoid.so' ./Webcamoid
 
 #include <sys/ioctl.h>
 #include <KSharedConfig>
 #include <KConfigGroup>
+
 #include <QGlib/Error>
 #include <QGlib/Connect>
 #include <QGst/Init>
 #include <QGst/Message>
 #include <QGst/Utils/ApplicationSink>
 #include <QGst/Bus>
+
 #include <gst/gst.h>
 #include <gst/gstregistry.h>
 #include <linux/videodev2.h>
@@ -39,6 +41,8 @@
 
 V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
 {
+    QGst::init();
+
     this->m_appEnvironment = new AppEnvironment(this);
 
     QObject::connect(QCoreApplication::instance(),
@@ -66,10 +70,10 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
     QString captureHash = this->hashFromName("capture");
 
     this->m_mainBin = QGst::Bin::fromDescription(QString("tee name=CaptureTee ! "
-                                                       "tee name=EffectsTee ! "
-                                                       "ffmpegcolorspace ! "
-                                                       "ffenc_bmp ! "
-                                                       "appsink name=%1 emit-signals=true").arg(captureHash));
+                                                         "tee name=EffectsTee ! "
+                                                         "ffmpegcolorspace ! "
+                                                         "ffenc_bmp ! "
+                                                         "appsink name=%1 emit-signals=true").arg(captureHash));
 
     QGst::ElementPtr capture = this->m_mainBin->getElementByName(captureHash.toUtf8().constData());
 
@@ -85,9 +89,9 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
         this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
 
         QObject::connect(this->m_fsWatcher,
-                         SIGNAL(directoryChanged()),
+                         SIGNAL(directoryChanged(const QString &)),
                          this,
-                         SIGNAL(devicesModified()));
+                         SLOT(onDirectoryChanged(const QString &)));
     }
 
     this->loadConfigs();
@@ -179,7 +183,7 @@ QVariantList V4L2Tools::videoFormats(QString dev_name)
                            << frmsize.discrete.height
                            << fmt.pixelformat;
 
-                    formats << format;
+                    formats << QVariant(format);
                 }
 
                 frmsize.index++;
@@ -278,7 +282,7 @@ QVariantList V4L2Tools::captureDevices()
                     << QString((const char *) capability.card)
                     << StreamTypeWebcam;
 
-                webcamsDevices << cap;
+                webcamsDevices << QVariant(cap);
             }
 
             device.close();
@@ -287,11 +291,15 @@ QVariantList V4L2Tools::captureDevices()
 
     this->m_webcams = webcamsDevices;
 
-    return webcamsDevices +
-           this->m_streams +
-           QVariantList() << "desktop"
-                          << this->tr("Desktop")
-                          << StreamTypeDesktop;
+    QVariantList desktopDevice = QVariantList() << "desktop"
+                                                << this->tr("Desktop")
+                                                << StreamTypeDesktop;
+
+    QVariantList allDevices = webcamsDevices +
+                              this->m_streams +
+                              QVariantList() << QVariant(desktopDevice);
+
+    return allDevices;
 }
 
 QVariantList V4L2Tools::listControls(QString dev_name)
@@ -310,7 +318,7 @@ QVariantList V4L2Tools::listControls(QString dev_name)
         QVariantList control = this->queryControl(device.handle(), &queryctrl);
 
         if (!control.isEmpty())
-            controls << control;
+            controls << QVariant(control);
 
         queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
     }
@@ -331,7 +339,7 @@ QVariantList V4L2Tools::listControls(QString dev_name)
             QVariantList control = this->queryControl(device.handle(), &queryctrl);
 
             if (!control.isEmpty())
-                controls << control;
+                controls << QVariant(control);
         }
     }
 
@@ -340,7 +348,7 @@ QVariantList V4L2Tools::listControls(QString dev_name)
         QVariantList control = this->queryControl(device.handle(), &queryctrl);
 
         if (!control.isEmpty())
-            controls << control;
+            controls << QVariant(control);
     }
 
     device.close();
@@ -398,17 +406,17 @@ QVariantMap V4L2Tools::featuresMatrix()
     QVariantMap features;
     QStringList availableElements;
 
-    GList *headElement = gst_registry_get_plugin_list(gst_registry_get_default());
+    GList *headElement = gst_registry_get_feature_list(gst_registry_get_default(), GST_TYPE_ELEMENT_FACTORY);
     GList *element = headElement;
 
     while (element)
     {
-        GstPlugin *plugin = (GstPlugin *) element->data;
-        availableElements << QString(gst_plugin_get_name(plugin));
+        GstPluginFeature *pluginFeature = GST_PLUGIN_FEATURE(element->data);
+        availableElements << QString(gst_plugin_feature_get_name(pluginFeature));
         element = g_list_next(element);
     }
 
-    gst_plugin_list_free(headElement);
+    gst_plugin_feature_list_free(headElement);
 
     QStringList elements;
     bool libAvailable = true;
@@ -691,7 +699,7 @@ QVariantList V4L2Tools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
     if (V4L2_CTRL_ID2CLASS(queryctrl->id) != V4L2_CTRL_CLASS_USER &&
         queryctrl->id < V4L2_CID_PRIVATE_BASE)
     {
-        if (ioctl(dev_fd, VIDIOC_G_EXT_CTRLS, &ctrls) >= 0)
+        if (ioctl(dev_fd, VIDIOC_G_EXT_CTRLS, &ctrls))
             return QVariantList();
     }
     else
@@ -699,7 +707,7 @@ QVariantList V4L2Tools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
         v4l2_control ctrl;
         ctrl.id = queryctrl->id;
 
-        if (ioctl(dev_fd, VIDIOC_G_CTRL, &ctrl) >= 0)
+        if (ioctl(dev_fd, VIDIOC_G_CTRL, &ctrl))
             return QVariantList();
 
         ext_ctrl.value = ctrl.value;
@@ -714,7 +722,7 @@ QVariantList V4L2Tools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
         {
             qmenu.index = i;
 
-            if (ioctl(dev_fd, VIDIOC_QUERYMENU, &qmenu) >= 0)
+            if (ioctl(dev_fd, VIDIOC_QUERYMENU, &qmenu))
                 continue;
 
             menu << QString((const char *) qmenu.name);
@@ -929,7 +937,10 @@ void V4L2Tools::saveConfigs()
     QStringList videoRecordFormats;
 
     foreach (QVariant format, this->m_videoRecordFormats)
-        videoRecordFormats << format.toStringList().join("::");
+        videoRecordFormats << QString("%1::%2::%3::%4").arg(format.toList().at(0).toString())
+                                                       .arg(format.toList().at(1).toString())
+                                                       .arg(format.toList().at(2).toString())
+                                                       .arg(format.toList().at(3).toString());
 
     videoFormatsConfigs.writeEntry("formats",
                                    videoRecordFormats.join("&&"));
@@ -939,7 +950,8 @@ void V4L2Tools::saveConfigs()
     QStringList streams;
 
     foreach (QVariant stream, this->m_streams)
-        streams << stream.toStringList().join("::");
+        streams << QString("%1::%2").arg(stream.toList().at(0).toString())
+                                    .arg(stream.toList().at(1).toString());
 
     streamsConfigs.writeEntry("streams", streams.join("&&"));
 
@@ -1090,11 +1102,13 @@ void V4L2Tools::startDevice(QString dev_name, QVariantList forcedFormat)
         else
             fmt = forcedFormat;
 
-        this->m_captureDevice = QGst::Bin::fromDescription(QString("v4l2src device=%1 ! "
-                                                                   "capsfilter name=capture "
-                                                                   "caps=video/x-raw-yuv,width=%2,height=%3").arg(dev_name)
-                                                                                                             .arg(fmt.at(0).toInt())
-                                                                                                             .arg(fmt.at(1).toInt()));
+        QString description = QString("v4l2src device=%1 ! "
+                                      "capsfilter name=capture "
+                                      "caps=video/x-raw-yuv,width=%2,height=%3").arg(dev_name)
+                                                                                .arg(fmt.at(0).toInt())
+                                                                                .arg(fmt.at(1).toInt());
+
+        this->m_captureDevice = QGst::Bin::fromDescription(description);
     }
     else if (deviceType == StreamTypeURI)
     {
@@ -1195,9 +1209,9 @@ void V4L2Tools::clearCustomStreams()
 
 void V4L2Tools::setCustomStream(QString dev_name, QString description)
 {
-    this->m_streams << (QVariantList() << dev_name
-                                     << description
-                                     << StreamTypeURI);
+    this->m_streams << QVariant(QVariantList() << dev_name
+                                               << description
+                                               << StreamTypeURI);
 
     emit this->devicesModified();
 }
@@ -1210,10 +1224,10 @@ void V4L2Tools::enableAudioRecording(bool enable)
 void V4L2Tools::setVideoRecordFormat(QString suffix, QString videoEncoder,
                                      QString audioEncoder, QString muxer)
 {
-    this->m_videoRecordFormats << (QVariantList() << suffix
-                                                << videoEncoder
-                                                << audioEncoder
-                                                << muxer);
+    this->m_videoRecordFormats << QVariant(QVariantList() << suffix
+                                                          << videoEncoder
+                                                          << audioEncoder
+                                                          << muxer);
 }
 
 void V4L2Tools::aboutToQuit()
@@ -1262,4 +1276,11 @@ void V4L2Tools::readFrame(QGst::ElementPtr sink)
         emit this->previewFrameReady(frame, pipename);
 
     this->m_mutex.unlock();
+}
+
+void V4L2Tools::onDirectoryChanged(const QString &path)
+{
+    Q_UNUSED(path)
+
+    emit this->devicesModified();
 }

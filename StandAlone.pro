@@ -26,20 +26,58 @@ exists(commons.pri) {
 
 CONFIG += qt
 
+FORMS = \
+    share/ui/effects.ui \
+    share/ui/featuresinfo.ui \
+    share/ui/generalconfig.ui \
+    share/ui/mainwindow.ui \
+    share/ui/streamsconfig.ui \
+    share/ui/videorecordconfig.ui \
+    share/ui/webcamconfig.ui
+
+HEADERS = \
+    include/appenvironment.h \
+    include/effects.h \
+    include/featuresinfo.h \
+    include/generalconfig.h \
+    include/mainwindow.h \
+    include/streamsconfig.h \
+    include/v4l2tools.h \
+    include/videorecordconfig.h \
+    include/webcamconfig.h \
+    include/commons.h
+
 INCLUDEPATH += \
     include \
-    /usr/include/KDE
+    /usr/include/KDE \
+    /usr/include/glib-2.0 \
+    /usr/include/gstreamer-0.10 \
+    /usr/include/QtGStreamer
 
-LIBS += -lkdecore -lkdeui -lkutils -lkio
+LIBS += \
+    -lkdecore \
+    -lkdeui
 
 QT += core gui
 
+RESOURCES += \
+    Webcamoid.qrc
+
 SOURCES = \
+    src/appenvironment.cpp \
+    src/effects.cpp \
+    src/featuresinfo.cpp \
+    src/generalconfig.cpp \
+    src/mainwindow.cpp \
+    src/streamsconfig.cpp \
+    src/v4l2tools.cpp \
+    src/videorecordconfig.cpp \
+    src/webcamconfig.cpp \
     src/main.cpp
 
-TARGET = Webcamoid
+TARGET = $${COMMONS_APPNAME}
 
-TEMPLATE = lib
+TEMPLATE = app
 
 # http://www.loc.gov/standards/iso639-2/php/code_list.php
 
@@ -47,12 +85,18 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 unix {
-    INSTALLS += target \
-                desktop
+    CONFIG += link_pkgconfig
 
-    desktop.path = /usr/share/kde4/services/
-    desktop.files += Webcamoid.desktop
+    PKGCONFIG += \
+        libv4l2 \
+        gstreamer-0.10 \
+        QtGLib-2.0 \
+        QtGStreamer-0.10 \
+        QtGStreamerUi-0.10 \
+        QtGStreamerUtils-0.10 \
+        QtGui
 
-    target.path  = /usr/lib/kde4/
-    target.files += Webcamoid.so
+    INSTALLS += target
+
+    target.path = $${COMMONS_BINS_INSTALL_PATH}
 }

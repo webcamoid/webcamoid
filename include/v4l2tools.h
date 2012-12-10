@@ -114,6 +114,7 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QObject
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
         StreamType deviceType(QString dev_name="/dev/video0");
+        void onDirectoryChanged();
 
     signals:
         void devicesModified();
@@ -158,6 +159,7 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QObject
         void aboutToQuit();
         void busMessage(const QGst::MessagePtr &message);
         void readFrame(QGst::ElementPtr sink);
+        void onDirectoryChanged(const QString &path);
 };
 
 #endif // V4L2TOOLS_H

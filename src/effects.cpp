@@ -19,8 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KIcon>
-
 #include "effects.h"
 
 Effects::Effects(V4L2Tools *tools, QWidget *parent): QWidget(parent)
@@ -28,13 +26,6 @@ Effects::Effects(V4L2Tools *tools, QWidget *parent): QWidget(parent)
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
-
-    this->setWindowIcon(KIcon("camera-web"));
-    this->btnUp->setIcon(KIcon("arrow-up"));
-    this->btnAdd->setIcon(KIcon("arrow-right"));
-    this->btnDown->setIcon(KIcon("arrow-down"));
-    this->btnRemove->setIcon(KIcon("arrow-left"));
-    this->btnReset->setIcon(KIcon("edit-undo"));
 
     this->m_tools = (tools)? tools: new V4L2Tools(true, this);
 

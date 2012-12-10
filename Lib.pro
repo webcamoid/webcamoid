@@ -28,6 +28,15 @@ CONFIG += qt
 
 DEFINES += COMMONS_LIBRARY
 
+FORMS = \
+    share/ui/effects.ui \
+    share/ui/featuresinfo.ui \
+    share/ui/generalconfig.ui \
+    share/ui/mainwindow.ui \
+    share/ui/streamsconfig.ui \
+    share/ui/videorecordconfig.ui \
+    share/ui/webcamconfig.ui
+
 HEADERS = \
     include/appenvironment.h \
     include/effects.h \
@@ -48,44 +57,8 @@ INCLUDEPATH += \
     /usr/include/QtGStreamer
 
 LIBS += \
-    -lkcmutils \
-    -lkde3support \
-    -lkdeclarative \
     -lkdecore \
-    -lkdefakes \
-    -lkdesu \
-    -lkdeui \
-    -lkdewebkit \
-    -lkdnssd \
-    -lkemoticons \
-    -lkfile \
-    -lkhtml \
-    -lkidletime \
-    -lkimproxy \
-    -lkio \
-    -lkjs \
-    -lkjsapi \
-    -lkjsembed \
-    -lkmediaplayer \
-    -lknewstuff2 \
-    -lknewstuff3 \
-    -lknotifyconfig \
-    -lkntlm \
-    -lkparts \
-    -lkprintutils \
-    -lkpty \
-    -lkrosscore \
-    -lkrossui \
-    -lktexteditor \
-    -lkunitconversion \
-    -lkunittest \
-    -lkutils \
-    -lnepomuk \
-    -lnepomukquery \
-    -lnepomukutils \
-    -lplasma \
-    -lsolid \
-    -lthreadweaver
+    -lkdeui
 
 QT += core gui
 
@@ -103,16 +76,7 @@ SOURCES = \
     src/videorecordconfig.cpp \
     src/webcamconfig.cpp
 
-FORMS = \
-    share/ui/effects.ui \
-    share/ui/featuresinfo.ui \
-    share/ui/generalconfig.ui \
-    share/ui/mainwindow.ui \
-    share/ui/streamsconfig.ui \
-    share/ui/videorecordconfig.ui \
-    share/ui/webcamconfig.ui
-
-TARGET = Webcamoid
+TARGET = $${COMMONS_APPNAME}
 
 TEMPLATE = lib
 

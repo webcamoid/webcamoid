@@ -71,7 +71,7 @@ class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
         void closeEvent(QCloseEvent *event);
 
     public slots:
-        void showFrame(const QImage &m_webcamFrame);
+        void showFrame(const QImage &webcamFrame);
 
     private slots:
         void updateWebcams();

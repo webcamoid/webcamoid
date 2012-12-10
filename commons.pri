@@ -45,7 +45,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 
     unix {
-        COMMONS_TARGET_INSTALL_PATH = /usr/bin
+        COMMONS_BINS_INSTALL_PATH = /usr/bin
         COMMONS_LIBS_INSTALL_PATH = /usr/lib
         COMMONS_HEADERS_INSTALL_PATH = /usr/include/$${COMMONS_TARGET}
         COMMONS_DATA_INSTALL_PATH = /usr/share/$${COMMONS_TARGET}

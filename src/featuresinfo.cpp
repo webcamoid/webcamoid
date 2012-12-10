@@ -19,8 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KIcon>
-
 #include "featuresinfo.h"
 
 FeaturesInfo::FeaturesInfo(V4L2Tools *tools, QWidget *parent): QWidget(parent)
@@ -29,7 +27,6 @@ FeaturesInfo::FeaturesInfo(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 
     this->setupUi(this);
 
-    this->setWindowIcon(KIcon("camera-web"));
     this->m_tools = (tools)? tools: new V4L2Tools(true, this);
     this->on_btnRecheck_clicked();
 }
@@ -50,7 +47,7 @@ void FeaturesInfo::on_btnRecheck_clicked()
 
         this->tbwFeatures->setItem(row,
                                    0,
-                                   new QTableWidgetItem(KIcon(iconName), features[module].toList().at(1).toString()));
+                                   new QTableWidgetItem(QIcon::fromTheme(iconName), features[module].toList().at(1).toString()));
 
         this->tbwFeatures->setItem(row,
                                    1,

@@ -23,7 +23,6 @@
 #include <KAboutData>
 #include <KConfigSkeleton>
 #include <KGlobalSettings>
-#include <KIcon>
 #include <KLocalizedString>
 #include <KNotification>
 
@@ -51,14 +50,14 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent)
                      SLOT(updateWebcams()));
 
     QObject::connect(this->m_tools,
-                     SIGNAL(playingStateChanged(bool playing)),
+                     SIGNAL(playingStateChanged(bool)),
                      this,
-                     SLOT(playingStateChanged(bool playing)));
+                     SLOT(playingStateChanged(bool)));
 
     QObject::connect(this->m_tools,
-                     SIGNAL(recordingStateChanged(bool recording)),
+                     SIGNAL(recordingStateChanged(bool)),
                      this,
-                     SLOT(recordingStateChanged(bool recording)));
+                     SLOT(recordingStateChanged(bool)));
 
     QObject::connect(this->m_tools,
                      SIGNAL(gstError()),
@@ -66,16 +65,9 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent)
                      SLOT(showGstError()));
 
     QObject::connect(this->m_tools,
-                     SIGNAL(frameReady()),
+                     SIGNAL(frameReady(const QImage &)),
                      this,
-                     SLOT(showFrame()));
-
-    this->setWindowIcon(KIcon("camera-web"));
-    this->btnTakePhoto->setIcon(KIcon("camera-photo"));
-    this->btnStartStop->setIcon(KIcon("media-playback-start"));
-    this->btnVideoRecord->setIcon(KIcon("video-x-generic"));
-    this->btnConfigure->setIcon(KIcon("configure"));
-    this->btnAbout->setIcon(KIcon("help-about"));
+                     SLOT(showFrame(const QImage &)));
 
     this->wdgControls->hide();
 
@@ -105,11 +97,9 @@ void MainWindow::addEffectsConfigDialog(KConfigDialog *configDialog)
     this->m_cfgEffects = new Effects(this->m_tools, this);
 
     QObject::connect(this->m_tools,
-                     SIGNAL(previewFrameReady(const QImage &image,
-                                              QString effect)),
+                     SIGNAL(previewFrameReady(const QImage &, QString)),
                      this->m_cfgEffects,
-                     SLOT(setEffectPreview(const QImage &image,
-                                           QString effect)));
+                     SLOT(setEffectPreview(const QImage &, QString)));
 
     configDialog->addPage(this->m_cfgEffects,
                           this->tr("Configure Webcam Effects"),
@@ -180,14 +170,14 @@ void MainWindow::showConfigDialog(KConfigDialog *configDialog)
     {
         KConfigSkeleton *config = new KConfigSkeleton("", this);
 
-        KConfigDialog *configDialog = \
+        configDialog = \
                 new KConfigDialog(this,
                                   this->tr("%1 Settings").arg(QCoreApplication::
-                                                applicationName()).toUtf8().data(),
+                                                applicationName()),
                                   config);
 
         configDialog->setWindowTitle(this->tr("%1 Settings").arg(QCoreApplication::
-                                            applicationName()).toUtf8().data());
+                                            applicationName()));
     }
 
     this->addWebcamConfigDialog(configDialog);
@@ -349,13 +339,13 @@ void MainWindow::playingStateChanged(bool playing)
     {
         this->btnTakePhoto->setEnabled(true);
         this->btnVideoRecord->setEnabled(true);
-        this->btnStartStop->setIcon(KIcon("media-playback-stop"));
+        this->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
     }
     else
     {
         this->btnTakePhoto->setEnabled(false);
         this->btnVideoRecord->setEnabled(false);
-        this->btnStartStop->setIcon(KIcon("media-playback-start"));
+        this->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
         this->m_webcamFrame = QImage();
         this->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
     }
@@ -364,9 +354,9 @@ void MainWindow::playingStateChanged(bool playing)
 void MainWindow::recordingStateChanged(bool recording)
 {
     if (recording)
-        this->btnVideoRecord->setIcon(KIcon("media-playback-stop"));
+        this->btnVideoRecord->setIcon(QIcon::fromTheme("media-playback-stop"));
     else
-        this->btnVideoRecord->setIcon(KIcon("video-x-generic"));
+        this->btnVideoRecord->setIcon(QIcon::fromTheme("video-x-generic"));
 }
 
 void MainWindow::saveConfigs()
@@ -387,11 +377,9 @@ void MainWindow::showGstError()
 void MainWindow::stopEffectsPreview()
 {
     QObject::disconnect(this->m_tools,
-                        SIGNAL(previewFrameReady(const QImage &image,
-                                                 QString effect)),
+                        SIGNAL(previewFrameReady(const QImage &, QString)),
                         this->m_cfgEffects,
-                        SLOT(setEffectPreview(const QImage &image,
-                                              QString effect)));
+                        SLOT(setEffectPreview(const QImage &, QString)));
 }
 
 void MainWindow::on_btnTakePhoto_clicked()

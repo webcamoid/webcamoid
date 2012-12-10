@@ -8,6 +8,7 @@
 *.so
 *.so.*
 *.so.debug
+Webcamoid
 
 # Packages #
 ############

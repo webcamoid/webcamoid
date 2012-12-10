@@ -19,7 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KIcon>
 #include <linux/videodev2.h>
 
 #include "webcamconfig.h"
@@ -29,8 +28,6 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
-
-    this->setWindowIcon(KIcon("camera-web"));
 
     this->m_tools = (tools)? tools: new V4L2Tools(this);
     this->m_captureDevices = this->m_tools->captureDevices();
@@ -81,7 +78,7 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
         QObject::connect(cbxVideoFormat,
                          SIGNAL(currentIndexChanged(int)),
                          this,
-                         SLOT(on_combobox_currentIndexChanged(int)));
+                         SLOT(comboboxCurrentIndexChanged(int)));
 
         hlyVideoFormat->addWidget(cbxVideoFormat);
 
@@ -103,7 +100,7 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
         QObject::connect(btnResetDevice,
                          SIGNAL(clicked()),
                          this,
-                         SLOT(on_pushButton_clicked()));
+                         SLOT(pushButtonClicked()));
 
         gridLayout->addWidget(btnResetDevice, cindex, 2, 1, 1);
 
@@ -130,7 +127,7 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
                 QObject::connect(sldControl,
                                  SIGNAL(sliderMoved(int)),
                                  this,
-                                 SLOT(on_slider_sliderMoved(int)));
+                                 SLOT(sliderMoved(int)));
 
                 gridLayout->addWidget(sldControl, cindex, 1, 1, 1);
 
@@ -145,7 +142,7 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
                 QObject::connect(spbControl,
                                  SIGNAL(valueChanged(int)),
                                  this,
-                                 SLOT(on_spinbox_valueChanged(int)));
+                                 SLOT(spinboxValueChanged(int)));
 
                 gridLayout->addWidget(spbControl, cindex, 2, 1, 1);
 
@@ -171,7 +168,7 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
                 QObject::connect(chkControl,
                                  SIGNAL(toggled(bool)),
                                  this,
-                                 SLOT(on_checkbox_toggled(bool)));
+                                 SLOT(checkboxToggled(bool)));
 
                 gridLayout->addWidget(chkControl, cindex, 0, 1, 3);
             }
@@ -198,7 +195,7 @@ WebcamConfig::WebcamConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
                 QObject::connect(cbxControl,
                                  SIGNAL(currentIndexChanged(int)),
                                  this,
-                                 SLOT(on_combobox_currentIndexChanged(int)));
+                                 SLOT(comboboxCurrentIndexChanged(int)));
 
                 hlyControl->addWidget(cbxControl);
 
@@ -258,7 +255,7 @@ void WebcamConfig::resetControls(QString deviceName)
     }
 }
 
-void WebcamConfig::on_pushButton_clicked(void)
+void WebcamConfig::pushButtonClicked()
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -275,7 +272,7 @@ void WebcamConfig::on_pushButton_clicked(void)
     }
 }
 
-void WebcamConfig::on_slider_sliderMoved(int value)
+void WebcamConfig::sliderMoved(int value)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -290,7 +287,7 @@ void WebcamConfig::on_slider_sliderMoved(int value)
     }
 }
 
-void WebcamConfig::on_spinbox_valueChanged(int i)
+void WebcamConfig::spinboxValueChanged(int i)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -305,7 +302,7 @@ void WebcamConfig::on_spinbox_valueChanged(int i)
     }
 }
 
-void WebcamConfig::on_checkbox_toggled(bool checked)
+void WebcamConfig::checkboxToggled(bool checked)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -320,7 +317,7 @@ void WebcamConfig::on_checkbox_toggled(bool checked)
     }
 }
 
-void WebcamConfig::on_combobox_currentIndexChanged(int index)
+void WebcamConfig::comboboxCurrentIndexChanged(int index)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();

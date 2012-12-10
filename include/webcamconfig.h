@@ -35,7 +35,7 @@ class COMMONSSHARED_EXPORT WebcamConfig: public QWidget, public Ui::WebcamConfig
     Q_OBJECT
 
     public:
-        explicit WebcamConfig(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
+        explicit WebcamConfig(V4L2Tools *tools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
@@ -47,11 +47,11 @@ class COMMONSSHARED_EXPORT WebcamConfig: public QWidget, public Ui::WebcamConfig
         void resetControls(QString deviceName);
 
     private slots:
-        void on_pushButton_clicked(void);
-        void on_slider_sliderMoved(int value);
-        void on_spinbox_valueChanged(int i);
-        void on_checkbox_toggled(bool checked);
-        void on_combobox_currentIndexChanged(int index);
+        void pushButtonClicked();
+        void sliderMoved(int value);
+        void spinboxValueChanged(int i);
+        void checkboxToggled(bool checked);
+        void comboboxCurrentIndexChanged(int index);
 };
 
 #endif // WEBCAMCONFIG_H

@@ -19,8 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KIcon>
-
 #include "videorecordconfig.h"
 
 VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
@@ -28,12 +26,6 @@ VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QWidget *parent): QWidget
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
-
-    this->setWindowIcon(KIcon("camera-web"));
-    this->btnAdd->setIcon(KIcon("list-add"));
-    this->btnRemove->setIcon(KIcon("list-remove"));
-    this->btnUp->setIcon(KIcon("arrow-up"));
-    this->btnDown->setIcon(KIcon("arrow-down"));
 
     this->m_tools = (tools)? tools: new V4L2Tools(true, this);
     this->m_isInit = true;

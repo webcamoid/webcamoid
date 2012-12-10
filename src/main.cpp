@@ -19,45 +19,14 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-from PyQt4 import QtCore, QtGui
-from PyKDE4 import plasma, plasmascript
-
-// http://api.kde.org/
-// plasmascript.Applet -> plasma.Plasma.PopupApplet
-
 #include "mainwindow.h"
 
-class Webcamoid(plasmascript.Applet):
-    def __init__(self, parent, args=None):
-        plasmascript.Applet.__init__(self, parent)
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
 
-    def init(self):
-        self.defaultPlasmoidSize = QtCore.QSizeF(320, 240)
-        self.minimumPlasmoidSize = QtCore.QSizeF(32, 32)
-        self.applet.setPassivePopup(True)
-        self.setPopupIcon('camera-web')
-        self.setHasConfigurationInterface(True)
-        self.setAspectRatioMode(plasma.Plasma.IgnoreAspectRatio)
-        self.resize(self.defaultPlasmoidSize)
-        self.setMinimumSize(self.minimumPlasmoidSize)
+    MainWindow mainWindow;
+    mainWindow.show();
 
-        self.mainWindow = mainwindow.MainWindow(self)
-
-        self.graphicsWidget = QtGui.QGraphicsWidget(self.applet)
-        self.setGraphicsWidget(self.graphicsWidget)
-
-        self.glyGraphicsWidget = QtGui.QGraphicsGridLayout(self.graphicsWidget)
-        self.graphicsWidget.setLayout(self.glyGraphicsWidget)
-
-        self.proxyWidget = QtGui.QGraphicsProxyWidget(self.graphicsWidget)
-        self.proxyWidget.setWidget(self.mainWindow)
-        self.proxyWidget.resize(self.defaultPlasmoidSize)
-        self.proxyWidget.setMinimumSize(self.minimumPlasmoidSize)
-        self.glyGraphicsWidget.addItem(self.proxyWidget, 0, 0, 1, 1)
-
-    def createConfigurationInterface(self, configDialog):
-        self.mainWindow.showConfigDialog(configDialog)
-
-
-def CreateApplet(parent):
-    return Webcamoid(parent, [])
+    return app.exec();
+}

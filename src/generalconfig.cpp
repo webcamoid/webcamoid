@@ -19,8 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KIcon>
-
 #include "generalconfig.h"
 
 GeneralConfig::GeneralConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
@@ -28,8 +26,6 @@ GeneralConfig::GeneralConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
-
-    this->setWindowIcon(KIcon("camera-web"));
 
     this->tools = (tools)? tools: new V4L2Tools(true, this);
     this->chkAudioRecord->setCheckState((this->tools->recordAudio())? Qt::Checked: Qt::Unchecked);
