@@ -23,8 +23,7 @@
 #define V4L2TOOLS_H
 
 #include <QtGui>
-#include <QGst/Bin>
-#include <QGst/Pipeline>
+#include <gst/gst.h>
 
 #include "commons.h"
 #include "appenvironment.h"
@@ -99,22 +98,24 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QObject
 
         AppEnvironment *m_appEnvironment;
         QFileSystemWatcher *m_fsWatcher;
-        QGst::BinPtr m_captureDevice;
-        QGst::BinPtr m_effectsBin;
-        QGst::BinPtr m_effectsPreviewBin;
-        QGst::BinPtr m_mainBin;
-        QGst::PipelinePtr m_mainPipeline;
+        GstElement *m_captureDevice;
+        GstElement *m_effectsBin;
+        GstElement *m_effectsPreviewBin;
+        GstElement *m_mainBin;
+        GstElement *m_mainPipeline;
         QMutex m_mutex;
         QStringList m_effects;
         QString m_curOutVidFmt;
         QVariantList m_webcams;
+        guint m_busWatchId;
 
         QVariantList queryControl(int dev_fd, struct v4l2_queryctrl *queryctrl);
         QMap<QString, uint> findControls(int dev_fd);
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
         StreamType deviceType(QString dev_name="/dev/video0");
-        void onDirectoryChanged();
+        static gboolean busMessage(GstBus *bus, GstMessage *message, gpointer self);
+        static void readFrame(GstElement *appsink, gpointer self);
 
     signals:
         void devicesModified();
@@ -157,8 +158,6 @@ class COMMONSSHARED_EXPORT V4L2Tools: public QObject
 
     private slots:
         void aboutToQuit();
-        void busMessage(const QGst::MessagePtr &message);
-        void readFrame(QGst::ElementPtr sink);
         void onDirectoryChanged(const QString &path);
 };
 

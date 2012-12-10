@@ -20,28 +20,22 @@
  */
 
 // http://gstreamer.freedesktop.org/data/doc/gstreamer/head/qt-gstreamer/html/index.html
+// http://gstreamer.freedesktop.org/documentation/
+// http://api.kde.org/
+// http://extragear.kde.org/apps/kipi/
 // LD_PRELOAD='./libWebcamoid.so' ./Webcamoid
 
 #include <sys/ioctl.h>
 #include <KSharedConfig>
 #include <KConfigGroup>
-
-#include <QGlib/Error>
-#include <QGlib/Connect>
-#include <QGst/Init>
-#include <QGst/Message>
-#include <QGst/Utils/ApplicationSink>
-#include <QGst/Bus>
-
-#include <gst/gst.h>
-#include <gst/gstregistry.h>
+#include <gst/app/gstappsink.h>
 #include <linux/videodev2.h>
 
 #include "v4l2tools.h"
 
 V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
 {
-    QGst::init();
+    gst_init(NULL, NULL);
 
     this->m_appEnvironment = new AppEnvironment(this);
 
@@ -59,30 +53,36 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
 
     this->m_curOutVidFmt = "webm";
 
-    this->m_mainPipeline = QGst::Pipeline::create("MainPipeline");
-    this->m_mainPipeline->bus()->addSignalWatch();
+    this->m_mainPipeline = gst_pipeline_new("MainPipeline");
 
-    QGlib::connect(this->m_mainPipeline->bus(),
-                   "message",
-                   this,
-                   &V4L2Tools::busMessage);
+    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_mainPipeline));
+    this->m_busWatchId = gst_bus_add_watch(bus, V4L2Tools::busMessage, this);
+    gst_object_unref(GST_OBJECT(bus));
 
     QString captureHash = this->hashFromName("capture");
+    QString mainBinDescription = QString("tee name=CaptureTee ! "
+                                         "tee name=EffectsTee ! "
+                                         "ffmpegcolorspace ! "
+                                         "ffenc_bmp ! "
+                                         "appsink name=%1 emit-signals=true").arg(captureHash);
 
-    this->m_mainBin = QGst::Bin::fromDescription(QString("tee name=CaptureTee ! "
-                                                         "tee name=EffectsTee ! "
-                                                         "ffmpegcolorspace ! "
-                                                         "ffenc_bmp ! "
-                                                         "appsink name=%1 emit-signals=true").arg(captureHash));
+    GError *error = NULL;
 
-    QGst::ElementPtr capture = this->m_mainBin->getElementByName(captureHash.toUtf8().constData());
+    this->m_mainBin = gst_parse_bin_from_description(mainBinDescription.toUtf8().constData(),
+                                                     FALSE,
+                                                     &error);
 
-    QGlib::connect(capture,
-                   "new-buffer",
-                   this,
-                   &V4L2Tools::readFrame);
+    g_object_set(GST_OBJECT(this->m_mainBin), "name", "mainBin", NULL);
 
-    this->m_mainPipeline->add(this->m_mainBin);
+    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_mainBin), captureHash.toUtf8().constData());
+    g_signal_connect(capture, "new-buffer",  G_CALLBACK(V4L2Tools::readFrame), this);
+    gst_object_unref(GST_OBJECT(capture));
+
+    gst_bin_add(GST_BIN(this->m_mainPipeline), this->m_mainBin);
+
+    this->m_captureDevice = NULL;
+    this->m_effectsBin = NULL;
+    this->m_effectsPreviewBin = NULL;
 
     if (watchDevices)
     {
@@ -101,6 +101,9 @@ V4L2Tools::~V4L2Tools()
 {
     this->stopCurrentDevice();
     this->saveConfigs();
+
+    g_source_remove(this->m_busWatchId);
+    gst_object_unref(GST_OBJECT(this->m_mainPipeline));
 }
 
 bool V4L2Tools::playing()
@@ -810,6 +813,55 @@ V4L2Tools::StreamType V4L2Tools::deviceType(QString dev_name)
         return StreamTypeUnknown;
 }
 
+gboolean V4L2Tools::busMessage(GstBus *bus, GstMessage *message, gpointer self)
+{
+    Q_UNUSED(bus)
+
+    V4L2Tools *v4l2Tools = (V4L2Tools* ) self;
+
+    if (GST_MESSAGE_TYPE(message) == GST_MESSAGE_EOS)
+        gst_element_set_state(v4l2Tools->m_mainPipeline, GST_STATE_NULL);
+    else if (GST_MESSAGE_TYPE(message) == GST_MESSAGE_ERROR)
+    {
+        GError *err;
+        gchar *debug;
+
+        gst_message_parse_error (message, &err, &debug);
+        qDebug() << "Error: " << err->message;
+        g_error_free (err);
+        g_free (debug);
+
+        gst_element_set_state(v4l2Tools->m_mainPipeline, GST_STATE_NULL);
+    }
+    else
+    {
+    }
+
+    return TRUE;
+}
+
+void V4L2Tools::readFrame(GstElement *appsink, gpointer self)
+{
+    V4L2Tools *v4l2Tools = (V4L2Tools* ) self;
+
+    v4l2Tools->m_mutex.lock();
+
+    gchar *elementName = gst_element_get_name(appsink);
+    QString pipename = v4l2Tools->nameFromHash(elementName);
+    g_free(elementName);
+
+    GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
+    QImage frame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer), GST_BUFFER_SIZE(buffer));
+    gst_buffer_unref(buffer);
+
+    if (pipename == "capture")
+        emit v4l2Tools->frameReady(frame);
+    else
+        emit v4l2Tools->previewFrameReady(frame, pipename);
+
+    v4l2Tools->m_mutex.unlock();
+}
+
 void V4L2Tools::setPlaying(bool playing)
 {
     this->m_playing = playing;
@@ -965,28 +1017,30 @@ void V4L2Tools::setEffects(QStringList effects)
 
     this->m_effects = effects;
 
-    QGst::State state;
-    QGst::State pending;
+    GstState state;
+    GstState pending;
 
-    this->m_mainPipeline->getState(&state, &pending, QGst::ClockTime());
+    gst_element_get_state(this->m_mainPipeline, &state, &pending, GST_CLOCK_TIME_NONE);
 
-    if (pending == QGst::StatePlaying)
-        this->m_mainPipeline->setState(QGst::StatePaused);
+    if (pending == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
 
-    QGst::ElementPtr captureTee = this->m_mainBin->getElementByName("CaptureTee");
-    QGst::ElementPtr effectsTee = this->m_mainBin->getElementByName("EffectsTee");
+    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+    GstElement *effectsTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "EffectsTee");
 
-    if (!this->m_effectsBin.isNull())
+    if (this->m_effectsBin)
     {
-        QGst::ElementPtr effectsBinIn = this->m_effectsBin->getElementByName("EffectsBinIn");
-        QGst::ElementPtr effectsBinOut = this->m_effectsBin->getElementByName("EffectsBinOut");
+        GstElement *effectsBinIn = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinIn");
+        GstElement *effectsBinOut = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinOut");
 
-        captureTee->unlink(effectsBinIn);
-        effectsBinOut->unlink(effectsTee);
-        this->m_mainBin->remove(this->m_effectsBin);
-        captureTee->link(effectsTee);
+        gst_element_unlink(captureTee, effectsBinIn);
+        gst_element_unlink(effectsBinOut, effectsTee);
+        gst_bin_remove(GST_BIN(this->m_mainBin), this->m_effectsBin);
+        gst_element_link(captureTee, effectsTee);
 
-        this->m_effectsBin.clear();
+        gst_object_unref(GST_OBJECT(this->m_effectsBin));
+        gst_object_unref(GST_OBJECT(effectsBinIn));
+        gst_object_unref(GST_OBJECT(effectsBinOut));
     }
 
     if (!this->m_effects.isEmpty())
@@ -998,32 +1052,44 @@ void V4L2Tools::setEffects(QStringList effects)
 
         pipeline += " ! identity name=EffectsBinOut";
 
-        this->m_effectsBin = QGst::Bin::fromDescription(pipeline);
+        GError *error = NULL;
 
-        QGst::ElementPtr effectsBinIn = this->m_effectsBin->getElementByName("EffectsBinIn");
-        QGst::ElementPtr effectsBinOut = this->m_effectsBin->getElementByName("EffectsBinOut");
+        this->m_effectsBin = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
+                                                            FALSE,
+                                                            &error);
 
-        captureTee->unlink(effectsTee);
-        this->m_mainBin->add(this->m_effectsBin);
-        captureTee->link(effectsBinIn);
-        effectsBinOut->link(effectsTee);
+        g_object_set(GST_OBJECT(this->m_effectsBin), "name", "effectsBin", NULL);
+
+        GstElement *effectsBinIn = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinIn");
+        GstElement *effectsBinOut = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinOut");
+
+        gst_element_unlink(captureTee, effectsTee);
+        gst_bin_add(GST_BIN(this->m_mainBin), this->m_effectsBin);
+        gst_element_link(captureTee, effectsBinIn);
+        gst_element_link(effectsBinOut, effectsTee);
+
+        gst_object_unref(GST_OBJECT(effectsBinIn));
+        gst_object_unref(GST_OBJECT(effectsBinOut));
     }
 
-    if (pending == QGst::StatePlaying)
-        this->m_mainPipeline->setState(QGst::StatePlaying);
+    gst_object_unref(GST_OBJECT(captureTee));
+    gst_object_unref(GST_OBJECT(effectsTee));
+
+    if (pending == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
 }
 
 void V4L2Tools::startEffectsPreview()
 {
-    QGst::State state;
-    QGst::State pending;
+    GstState state;
+    GstState pending;
 
-    this->m_mainPipeline->getState(&state, &pending, QGst::ClockTime());
+    gst_element_get_state(this->m_mainPipeline, &state, &pending, GST_CLOCK_TIME_NONE);
 
-    if (pending == QGst::StatePlaying)
-        this->m_mainPipeline->setState(QGst::StatePaused);
+    if (pending == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
 
-    if (this->m_effectsPreviewBin.isNull())
+    if (!this->m_effectsPreviewBin)
     {
         QString pipeline = QString("queue name=EffectsPreview ! valve name=EffectsPreviewValve drop=true ! ffmpegcolorspace ! "
                                    "videoscale ! video/x-raw-rgb,width=%1,height=%2 ! tee name=preview").arg(128)
@@ -1038,48 +1104,59 @@ void V4L2Tools::startEffectsPreview()
                                 "appsink name=%2 emit-signals=true").arg(effect).arg(previewHash);
         }
 
-        this->m_effectsPreviewBin = QGst::Bin::fromDescription(pipeline);
-        this->m_mainBin->add(this->m_effectsPreviewBin);
-        QGst::ElementPtr queueEffectsPreview = this->m_effectsPreviewBin->getElementByName("EffectsPreview");
-        QGst::ElementPtr captureTee = this->m_mainBin->getElementByName("CaptureTee");
-        captureTee->link(queueEffectsPreview);
+        GError *error = NULL;
+
+        this->m_effectsPreviewBin = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
+                                                                   FALSE,
+                                                                   &error);
+
+        g_object_set(GST_OBJECT(this->m_effectsPreviewBin), "name", "effectsPreviewBin", NULL);
+
+        gst_bin_add(GST_BIN(this->m_mainBin), this->m_effectsPreviewBin);
+        GstElement *queueEffectsPreview = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreview");
+        GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+        gst_element_link(captureTee, queueEffectsPreview);
 
         foreach (QString effect, this->availableEffects().keys())
         {
             QString previewHash = this->hashFromName(effect);
-            QGst::ElementPtr preview = this->m_mainBin->getElementByName(previewHash.toUtf8().constData());
+            GstElement *preview = gst_bin_get_by_name(GST_BIN(this->m_mainBin), previewHash.toUtf8().constData());
 
-            QGlib::connect(preview,
-                           "new-buffer",
-                           this,
-                           &V4L2Tools::readFrame);
+            g_signal_connect(preview, "new-buffer",  G_CALLBACK(V4L2Tools::readFrame), this);
+
+            gst_object_unref(GST_OBJECT(preview));
         }
+
+        gst_object_unref(GST_OBJECT(queueEffectsPreview));
+        gst_object_unref(GST_OBJECT(captureTee));
     }
 
-    QGst::ElementPtr effectsPreviewValve = this->m_effectsPreviewBin->getElementByName("EffectsPreviewValve");
-    effectsPreviewValve->setProperty("drop", false);
+    GstElement *effectsPreviewValve = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreviewValve");
+    g_object_set(GST_OBJECT(effectsPreviewValve), "drop", FALSE, NULL);
+    gst_object_unref(GST_OBJECT(effectsPreviewValve));
 
-    if (pending == QGst::StatePlaying)
-        this->m_mainPipeline->setState(QGst::StatePlaying);
+    if (pending == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
 }
 
 void V4L2Tools::stopEffectsPreview()
 {
-    if (!m_effectsPreviewBin.isNull())
+    if (m_effectsPreviewBin)
     {
-        QGst::State state;
-        QGst::State pending;
+        GstState state;
+        GstState pending;
 
-        this->m_mainPipeline->getState(&state, &pending, QGst::ClockTime());
+        gst_element_get_state(this->m_mainPipeline, &state, &pending, GST_CLOCK_TIME_NONE);
 
-        if (pending == QGst::StatePlaying)
-            this->m_mainPipeline->setState(QGst::StatePaused);
+        if (pending == GST_STATE_PLAYING)
+            gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
 
-        QGst::ElementPtr effectsPreviewValve = this->m_effectsPreviewBin->getElementByName("EffectsPreviewValve");
-        effectsPreviewValve->setProperty("drop", true);
+        GstElement *effectsPreviewValve = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreviewValve");
+        g_object_set(GST_OBJECT(effectsPreviewValve), "drop", FALSE, NULL);
+        gst_object_unref(GST_OBJECT(effectsPreviewValve));
 
-        if (pending == QGst::StatePlaying)
-            this->m_mainPipeline->setState(QGst::StatePlaying);
+        if (pending == GST_STATE_PLAYING)
+            gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
     }
 }
 
@@ -1087,6 +1164,7 @@ void V4L2Tools::startDevice(QString dev_name, QVariantList forcedFormat)
 {
     this->stopCurrentDevice();
     StreamType deviceType = this->deviceType(dev_name);
+    GError *error = NULL;
 
     if (deviceType == StreamTypeWebcam)
     {
@@ -1108,25 +1186,43 @@ void V4L2Tools::startDevice(QString dev_name, QVariantList forcedFormat)
                                                                                 .arg(fmt.at(0).toInt())
                                                                                 .arg(fmt.at(1).toInt());
 
-        this->m_captureDevice = QGst::Bin::fromDescription(description);
+        this->m_captureDevice = gst_parse_bin_from_description(description.toUtf8().constData(),
+                                                               FALSE,
+                                                               &error);
+
+        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
     }
     else if (deviceType == StreamTypeURI)
     {
-        this->m_captureDevice = QGst::Bin::fromDescription("uridecodebin name=capture");
-        QGst::ElementPtr capture = this->m_captureDevice->getElementByName("capture");
-        capture->setProperty("uri", dev_name);
+        this->m_captureDevice = gst_parse_bin_from_description("uridecodebin name=capture",
+                                                               FALSE,
+                                                               &error);
+
+        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+
+        GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
+        g_object_set(GST_OBJECT(capture), "uri", dev_name.toUtf8().constData(), NULL);
+        gst_object_unref(GST_OBJECT(capture));
     }
     else if (deviceType == StreamTypeDesktop)
-        this->m_captureDevice = QGst::Bin::fromDescription("ximagesrc name=capture show-pointer=true");
+    {
+        this->m_captureDevice = gst_parse_bin_from_description("ximagesrc name=capture show-pointer=true",
+                                                               FALSE,
+                                                               &error);
+
+        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+    }
     else
         return;
 
-    this->m_mainBin->add(this->m_captureDevice);
-    QGst::ElementPtr capture = this->m_captureDevice->getElementByName("capture");
-    QGst::ElementPtr captureTee = this->m_mainBin->getElementByName("CaptureTee");
-    capture->link(captureTee);
+    gst_bin_add(GST_BIN(this->m_mainBin), this->m_captureDevice);
+    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
+    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+    gst_element_link(capture, captureTee);
+    gst_object_unref(GST_OBJECT(capture));
+    gst_object_unref(GST_OBJECT(captureTee));
 
-    this->m_mainPipeline->setState(QGst::StatePlaying);
+    gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
     this->m_curDevName = dev_name;
     this->m_playing = true;
 
@@ -1140,13 +1236,14 @@ void V4L2Tools::stopCurrentDevice()
     if (!this->m_playing)
         return;
 
-    this->m_mainPipeline->setState(QGst::StateNull);
+    gst_element_set_state(this->m_mainPipeline, GST_STATE_NULL);
 
-    QGst::ElementPtr capture = this->m_captureDevice->getElementByName("capture");
-    QGst::ElementPtr captureTee = this->m_mainBin->getElementByName("CaptureTee");
-    capture->unlink(captureTee);
-    this->m_mainBin->remove(this->m_captureDevice);
-    this->m_captureDevice.clear();
+    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
+    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+    gst_element_unlink(capture, captureTee);
+    gst_bin_remove(GST_BIN(this->m_mainBin), this->m_captureDevice);
+    gst_object_unref(GST_OBJECT(capture));
+    gst_object_unref(GST_OBJECT(captureTee));
 
     this->m_curDevName = "";
     this->m_playing = false;
@@ -1236,18 +1333,6 @@ void V4L2Tools::aboutToQuit()
     this->saveConfigs();
 }
 
-void V4L2Tools::busMessage(const QGst::MessagePtr &message)
-{
-    if (message->type() == QGst::MessageEos)
-        this->m_mainPipeline->setState(QGst::StateNull);
-    else if (message->type() == QGst::MessageError)
-    {
-        this->m_mainPipeline->setState(QGst::StateNull);
-
-        qDebug() << message.staticCast<QGst::ErrorMessage>()->error();
-    }
-}
-
 void V4L2Tools::reset(QString dev_name)
 {
     QVariantList videoFormats = this->videoFormats(dev_name);
@@ -1260,22 +1345,6 @@ void V4L2Tools::reset(QString dev_name)
         ctrls[control.toList().at(0).toString()] = control.toList().at(5).toUInt();
 
     this->setControls(dev_name, ctrls);
-}
-
-void V4L2Tools::readFrame(QGst::ElementPtr sink)
-{
-    this->m_mutex.lock();
-    QString pipename = this->nameFromHash(sink->name());
-    QGst::Utils::ApplicationSink appsink;
-    appsink.setElement(sink);
-    QImage frame = QImage::fromData((const char *) appsink.pullBuffer()->data());
-
-    if (pipename == "capture")
-        emit this->frameReady(frame);
-    else
-        emit this->previewFrameReady(frame, pipename);
-
-    this->m_mutex.unlock();
 }
 
 void V4L2Tools::onDirectoryChanged(const QString &path)

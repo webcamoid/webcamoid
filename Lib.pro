@@ -52,9 +52,7 @@ HEADERS = \
 INCLUDEPATH += \
     include \
     /usr/include/KDE \
-    /usr/include/glib-2.0 \
-    /usr/include/gstreamer-0.10 \
-    /usr/include/QtGStreamer
+    /usr/include/gstreamer-0.10
 
 LIBS += \
     -lkdecore \
@@ -105,11 +103,8 @@ unix {
 
     PKGCONFIG += \
         libv4l2 \
-        QtGLib-2.0 \
-        QtGStreamer-0.10 \
-        QtGStreamerUi-0.10 \
-        QtGStreamerUtils-0.10 \
-        QtGui
+        gstreamer-0.10 \
+        gstreamer-app-0.10
 
     INSTALLS += target
 
