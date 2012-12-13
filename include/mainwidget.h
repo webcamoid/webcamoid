@@ -42,7 +42,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
     Q_OBJECT
 
     public:
-        explicit MainWidget(QWidget *parent=NULL);
+        explicit MainWidget(QWidget *parentWidget=NULL, QObject *parentObject=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
@@ -55,12 +55,6 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
         VideoRecordConfig *m_cfgVideoFormats;
         WebcamConfig *m_cfgWebcamDialog;
 
-        void addWebcamConfigDialog(KConfigDialog *configDialog);
-        void addEffectsConfigDialog(KConfigDialog *configDialog);
-        void addVideoFormatsConfigDialog(KConfigDialog *configDialog);
-        void addStreamsConfigDialog(KConfigDialog *configDialog);
-        void addGeneralConfigsDialog(KConfigDialog *configDialog);
-        void addFeaturesInfoDialog(KConfigDialog *configDialog);
         void showConfigDialog(KConfigDialog *configDialog=NULL);
         QString saveFile(bool video=false);
 
@@ -68,9 +62,14 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
         void resizeEvent(QResizeEvent *event);
         void enterEvent(QEvent *event);
         void leaveEvent(QEvent *event);
-        void closeEvent(QCloseEvent *event);
 
     public slots:
+        void addWebcamConfigDialog(KConfigDialog *configDialog);
+        void addEffectsConfigDialog(KConfigDialog *configDialog);
+        void addVideoFormatsConfigDialog(KConfigDialog *configDialog);
+        void addStreamsConfigDialog(KConfigDialog *configDialog);
+        void addGeneralConfigsDialog(KConfigDialog *configDialog);
+        void addFeaturesInfoDialog(KConfigDialog *configDialog);
         void showFrame(const QImage &webcamFrame);
 
     private slots:
@@ -80,6 +79,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
         void saveConfigs();
         void showGstError();
         void stopEffectsPreview();
+        void updateContents(QSize pixmapSize=QSize());
 
         void on_btnTakePhoto_clicked();
         void on_btnVideoRecord_clicked();

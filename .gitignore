@@ -9,6 +9,7 @@
 *.so.*
 *.so.debug
 Webcamoid
+webcamoid
 
 # Packages #
 ############

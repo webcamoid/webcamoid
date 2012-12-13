@@ -106,7 +106,8 @@ unix {
         gstreamer-0.10 \
         gstreamer-app-0.10
 
-    INSTALLS += target
+    INSTALLS += \
+        target
 
     target.path = $${COMMONS_LIBS_INSTALL_PATH}
 }

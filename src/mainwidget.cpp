@@ -28,13 +28,13 @@
 
 #include "mainwidget.h"
 
-MainWidget::MainWidget(QWidget *parent): QWidget(parent)
+MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject): QWidget(parentWidget)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
-    if (parent != NULL)
+    if (parentWidget || parentObject)
         this->setStyleSheet("QWidget#MainWindow{background-color: "
                             "rgba(0, 0, 0, 0);}");
 
@@ -43,6 +43,8 @@ MainWidget::MainWidget(QWidget *parent): QWidget(parent)
                          arg(QCoreApplication::applicationVersion()));
 
     this->m_mediaTools = new MediaTools(true, this);
+
+    this->resize(this->m_mediaTools->windowSize());
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(devicesModified()),
@@ -68,6 +70,11 @@ MainWidget::MainWidget(QWidget *parent): QWidget(parent)
                      SIGNAL(frameReady(const QImage &)),
                      this,
                      SLOT(showFrame(const QImage &)));
+
+    QObject::connect(this->m_mediaTools,
+                     SIGNAL(frameSizeChanged(QSize)),
+                     this,
+                     SLOT(updateContents(QSize)));
 
     this->wdgControls->hide();
 
@@ -274,15 +281,9 @@ void MainWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    QSize size = event->size();
-    this->lblFrame->resize(size);
+    this->m_mediaTools->setWindowSize(event->size());
 
-    QRect geometry(0,
-                   size.height() - this->wdgControls->height(),
-                   size.width(),
-                   this->wdgControls->height());
-
-    this->wdgControls->setGeometry(geometry);
+    this->updateContents();
 }
 
 void MainWidget::enterEvent(QEvent *event)
@@ -298,14 +299,6 @@ void MainWidget::leaveEvent(QEvent *event)
 
     if (!this->rect().contains(this->mapFromGlobal(QCursor::pos())))
         this->wdgControls->hide();
-}
-
-void MainWidget::closeEvent(QCloseEvent *event)
-{
-    QWidget::closeEvent(event);
-
-    this->m_mediaTools->stopVideoRecord();
-    event->accept();
 }
 
 void MainWidget::showFrame(const QImage &webcamFrame)
@@ -382,6 +375,26 @@ void MainWidget::stopEffectsPreview()
                         SLOT(setEffectPreview(const QImage &, QString)));
 }
 
+void MainWidget::updateContents(QSize pixmapSize)
+{
+    QSize size = this->size();
+
+    QSize curPixmapSize = pixmapSize.isValid()? pixmapSize: this->lblFrame->pixmap()? this->lblFrame->pixmap()->size(): QSize();
+
+    curPixmapSize.scale(size, Qt::KeepAspectRatio);
+    int x = (size.width() - curPixmapSize.width()) >> 1;
+    int y = (size.height() - curPixmapSize.height()) >> 1;
+
+    this->lblFrame->setGeometry(x, y, curPixmapSize.width(), curPixmapSize.height());
+
+    QRect geometry(0,
+                   size.height() - this->wdgControls->height(),
+                   size.width(),
+                   this->wdgControls->height());
+
+    this->wdgControls->setGeometry(geometry);
+}
+
 void MainWidget::on_btnTakePhoto_clicked()
 {
     this->m_mediaTools->mutexLock();
@@ -400,9 +413,12 @@ void MainWidget::on_btnVideoRecord_clicked()
     this->m_mediaTools->mutexLock();
 
     if (this->m_mediaTools->recording())
-        this->m_mediaTools->stopVideoRecord();
+        this->m_mediaTools->resetRecording();
     else
-        this->m_mediaTools->startVideoRecord(this->saveFile(true));
+    {
+        QString fileName = this->saveFile(true);
+        this->m_mediaTools->setRecording(true, fileName);
+    }
 
     this->m_mediaTools->mutexUnlock();
 }

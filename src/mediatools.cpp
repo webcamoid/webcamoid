@@ -60,6 +60,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     this->resetRecording();
     this->resetVideoRecordFormats();
     this->resetStreams();
+    this->resetWindowSize();
 
     this->m_mainPipeline = gst_pipeline_new("MainPipeline");
 
@@ -159,6 +160,11 @@ QVariantList MediaTools::videoRecordFormats()
 QVariantList MediaTools::streams()
 {
     return this->m_streams;
+}
+
+QSize MediaTools::windowSize()
+{
+    return this->m_windowSize;
 }
 
 QString MediaTools::fcc2s(uint val)
@@ -829,7 +835,15 @@ void MediaTools::readFrame(GstElement *appsink, gpointer self)
     gst_buffer_unref(buffer);
 
     if (pipename == "capture")
+    {
         emit mediaTools->frameReady(frame);
+
+        if (frame.size() != mediaTools->m_curFrameSize)
+        {
+            emit mediaTools->frameSizeChanged(frame.size());
+            mediaTools->m_curFrameSize = frame.size();
+        }
+    }
     else
         emit mediaTools->previewFrameReady(frame, pipename);
 
@@ -841,8 +855,45 @@ void MediaTools::setRecordAudio(bool recordAudio)
     this->m_recordAudio = recordAudio;
 }
 
-void MediaTools::setRecording(bool recording)
+void MediaTools::setRecording(bool recording, QString fileName)
 {
+    Q_UNUSED(fileName)
+    /*
+    this->stopVideoRecord();
+
+    if (!this->m_playing)
+        return;
+
+    // suffix, videoEncoder, audioEncoder, muxer
+    QStringList format = this->bestVideoRecordFormat(fileName);
+
+    if (format.at(0).isEmpty())
+        return;
+
+    QString pipeline = QString("appsrc name={capture} emit-signals=true do-timestamp=true ! ffdec_bmp ! "
+                               "ffmpegcolorspace ! %1 ! queue ! muxer. ").arg(videoEncoder);
+
+    if (this->m_recordAudio)
+        // autoaudiosrc
+        pipeline += QString("alsasrc device=plughw:0,0 ! queue ! audioconvert ! "
+                            "queue ! %1 ! queue ! muxer. ").arg(audioEncoder);
+
+    pipeline += QString("%1 name=muxer ! filesink location=\"%2\"").arg(muxer)
+                                                                   .arg(fileName);
+
+    this->pipeRecordVideo->setPipeline(pipeline);
+    self.pipeRecordVideo.start()
+    emit this->recordingStateChanged(true);
+    this->m_recording = True;*/
+
+    if (this->m_recording)
+    {
+        //dev_name = this->curDevName
+        //this->pipeRecordVideo->stop();
+        this->m_recording = false;
+        emit this->recordingStateChanged(false);
+    }
+
     this->m_recording = recording;
 }
 
@@ -1067,6 +1118,11 @@ void MediaTools::setStreams(QVariantList streams)
     this->m_streams = streams;
 }
 
+void MediaTools::setWindowSize(QSize windowSize)
+{
+    this->m_windowSize = windowSize;
+}
+
 void MediaTools::resetDevice()
 {
     this->setDevice("");
@@ -1108,12 +1164,20 @@ void MediaTools::resetStreams()
     this->setStreams(QVariantList());
 }
 
+void MediaTools::resetWindowSize()
+{
+    this->setWindowSize(QSize());
+}
+
 void MediaTools::loadConfigs()
 {
     KSharedConfig::Ptr config = KSharedConfig::openConfig(this->m_appEnvironment->configFileName());
 
     KConfigGroup webcamConfigs = config->group("GeneralConfigs");
     this->enableAudioRecording(webcamConfigs.readEntry("recordAudio", true));
+    QStringList windowSize = webcamConfigs.readEntry("windowSize", "320,240").split(",", QString::SkipEmptyParts);
+    this->m_windowSize = QSize(windowSize.at(0).trimmed().toInt(),
+                               windowSize.at(1).trimmed().toInt());
 
     KConfigGroup effectsConfigs = config->group("Effects");
 
@@ -1165,6 +1229,9 @@ void MediaTools::saveConfigs()
     KConfigGroup webcamConfigs = config->group("GeneralConfigs");
 
     webcamConfigs.writeEntry("recordAudio", this->m_recordAudio);
+
+    webcamConfigs.writeEntry("windowSize", QString("%1,%2").arg(this->m_windowSize.width())
+                                                           .arg(this->m_windowSize.height()));
 
     KConfigGroup effectsConfigs = config->group("Effects");
 
@@ -1264,49 +1331,6 @@ void MediaTools::setEffects(QStringList effects)
 
     if (state == GST_STATE_PLAYING)
         gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
-}
-
-void MediaTools::startVideoRecord(QString fileName)
-{
-    Q_UNUSED(fileName)
-    /*
-    this->stopVideoRecord();
-
-    if (!this->m_playing)
-        return;
-
-    // suffix, videoEncoder, audioEncoder, muxer
-    QStringList format = this->bestVideoRecordFormat(fileName);
-
-    if (format.at(0).isEmpty())
-        return;
-
-    QString pipeline = QString("appsrc name={capture} emit-signals=true do-timestamp=true ! ffdec_bmp ! "
-                               "ffmpegcolorspace ! %1 ! queue ! muxer. ").arg(videoEncoder);
-
-    if (this->m_recordAudio)
-        // autoaudiosrc
-        pipeline += QString("alsasrc device=plughw:0,0 ! queue ! audioconvert ! "
-                            "queue ! %1 ! queue ! muxer. ").arg(audioEncoder);
-
-    pipeline += QString("%1 name=muxer ! filesink location=\"%2\"").arg(muxer)
-                                                                   .arg(fileName);
-
-    this->pipeRecordVideo->setPipeline(pipeline);
-    self.pipeRecordVideo.start()
-    emit this->recordingStateChanged(true);
-    this->m_recording = True;*/
-}
-
-void MediaTools::stopVideoRecord()
-{
-    if (this->m_recording)
-    {
-        //dev_name = this->curDevName
-        //this->pipeRecordVideo->stop();
-        this->m_recording = false;
-        emit this->recordingStateChanged(false);
-    }
 }
 
 void MediaTools::clearVideoRecordFormats()

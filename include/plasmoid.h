@@ -19,27 +19,31 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#ifndef PLASMOID_H
+#define PLASMOID_H
+
+#include <Plasma/PopupApplet>
+
 #include "mainwidget.h"
 
-int main(int argc, char *argv[])
+class Plasmoid: public Plasma::PopupApplet
 {
-    QApplication app(argc, argv);
+    Q_OBJECT
 
-    QMainWindow mainWindow;
-    MainWidget *mainWidget = new MainWidget();
+    public:
+        Plasmoid(QObject *parent, const QVariantList &args);
+        ~Plasmoid();
 
-    mainWindow.setWindowIcon(mainWidget->windowIcon());
-    mainWindow.setWindowTitle(mainWidget->windowTitle());
+        void init();
+        void createConfigurationInterface(KConfigDialog *configDialog);
 
-    QRect geometry = mainWidget->geometry();
-    QDesktopWidget desktopWidget;
+    private:
+        QSizeF m_defaultPlasmoidSize;
+        QSizeF m_minimumPlasmoidSize;
+        MainWidget *m_mainWidget;
+        QGraphicsWidget *m_graphicsWidget;
+        QGraphicsGridLayout *m_glyGraphicsWidget;
+        QGraphicsProxyWidget *m_proxyWidget;
+};
 
-    geometry.moveCenter(desktopWidget.availableGeometry().center());
-    mainWindow.setGeometry(geometry);
-
-    mainWindow.setCentralWidget(mainWidget);
-
-    mainWindow.show();
-
-    return app.exec();
-}
+#endif // PLASMOID_H

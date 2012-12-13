@@ -30,8 +30,8 @@ CONFIG += ordered
 
 SUBDIRS += \
     Lib.pro \
-    StandAlone.pro
-#    Plasmoid.pro
+    StandAlone.pro \
+    Plasmoid.pro
 
 # Install rules
 
@@ -39,9 +39,9 @@ INSTALLS += \
     docs \
     license
 
-docs.extra = qdoc3 Webcamoid.qdocconf
+docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
 docs.files = share/docs/html
-docs.path = $${COMMONS_DOCS_INSTALL_PATH}
+docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
 
 license.files = COPYING
 license.path = $${COMMONS_LICENSE_INSTALL_PATH}

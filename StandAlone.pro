@@ -73,7 +73,7 @@ SOURCES = \
     src/videorecordconfig.cpp \
     src/webcamconfig.cpp
 
-TARGET = $${COMMONS_APPNAME}
+TARGET = $${COMMONS_TARGET}
 
 TEMPLATE = app
 
@@ -90,7 +90,12 @@ unix {
         gstreamer-0.10 \
         gstreamer-app-0.10
 
-    INSTALLS += target
+    INSTALLS += \
+        target \
+        desktop
+
+    desktop.files = $${COMMONS_TARGET}.desktop
+    desktop.path = $${COMMONS_APPS_INSTALL_PATH}/kde4
 
     target.path = $${COMMONS_BINS_INSTALL_PATH}
 }

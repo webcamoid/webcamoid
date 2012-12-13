@@ -26,21 +26,58 @@ exists(commons.pri) {
 
 CONFIG += qt
 
+FORMS = \
+    share/ui/effects.ui \
+    share/ui/featuresinfo.ui \
+    share/ui/generalconfig.ui \
+    share/ui/mainwidget.ui \
+    share/ui/streamsconfig.ui \
+    share/ui/videorecordconfig.ui \
+    share/ui/webcamconfig.ui
+
+HEADERS = \
+    include/appenvironment.h \
+    include/commons.h \
+    include/effects.h \
+    include/featuresinfo.h \
+    include/generalconfig.h \
+    include/plasmoid.h \
+    include/mainwidget.h \
+    include/mediatools.h \
+    include/streamsconfig.h \
+    include/videorecordconfig.h \
+    include/webcamconfig.h
+
 INCLUDEPATH += \
     include \
-    /usr/include/KDE
+    /usr/include/KDE \
+    /usr/include/gstreamer-0.10
 
-LIBS += -lkdecore -lkdeui -lkutils -lkio
+LIBS += \
+    -lkdecore \
+    -lkdeui
 
 OTHER_FILES += \
     Webcamoid.desktop
 
 QT += core gui
 
-SOURCES = \
-    src/main.cpp
+RESOURCES += \
+    Webcamoid.qrc
 
-TARGET = Webcamoid
+SOURCES = \
+    src/appenvironment.cpp \
+    src/effects.cpp \
+    src/featuresinfo.cpp \
+    src/generalconfig.cpp \
+    src/plasmoid.cpp \
+    src/mainwidget.cpp \
+    src/mediatools.cpp \
+    src/streamsconfig.cpp \
+    src/videorecordconfig.cpp \
+    src/webcamconfig.cpp
+
+TARGET = $${COMMONS_APPNAME}-plasmoid
 
 TEMPLATE = lib
 
@@ -50,12 +87,20 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 unix {
-    INSTALLS += target \
-                desktop
+    CONFIG += link_pkgconfig
 
-    desktop.path = /usr/share/kde4/services/
-    desktop.files += Webcamoid.desktop
+    PKGCONFIG += \
+        libv4l2 \
+        gstreamer-0.10 \
+        gstreamer-app-0.10
 
-    target.path  = /usr/lib/kde4/
-    target.files += Webcamoid.so
+    INSTALLS += \
+        target \
+        desktop
+
+    desktop.files = plasma-applet-$${COMMONS_TARGET}.desktop
+    desktop.path = $${COMMONS_DATA_INSTALL_PATH}/kde4/services
+
+    target.files = lib$${COMMONS_APPNAME}-plasmoid.$${VERSION}.$${TARGET_EXT}
+    target.path  = $${COMMONS_LIBS_INSTALL_PATH}/kde4/plasma_applet_$${COMMONS_TARGET}.$${TARGET_EXT}
 }
