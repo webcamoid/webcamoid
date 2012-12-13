@@ -21,19 +21,19 @@
 
 #include "featuresinfo.h"
 
-FeaturesInfo::FeaturesInfo(V4L2Tools *tools, QWidget *parent): QWidget(parent)
+FeaturesInfo::FeaturesInfo(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
-    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->on_btnRecheck_clicked();
 }
 
 void FeaturesInfo::on_btnRecheck_clicked()
 {
-    QVariantMap features = this->m_tools->featuresMatrix();
+    QVariantMap features = this->m_mediaTools->featuresMatrix();
     this->tbwFeatures->setRowCount(features.size());
 
     QStringList featuresList = features.keys();
@@ -43,7 +43,7 @@ void FeaturesInfo::on_btnRecheck_clicked()
 
     foreach (QString module, featuresList)
     {
-        QString iconName = (features[module].toList().at(0).toBool())? "ok": "cancel";
+        QString iconName = features[module].toList().at(0).toBool()? "ok": "cancel";
 
         this->tbwFeatures->setItem(row,
                                    0,

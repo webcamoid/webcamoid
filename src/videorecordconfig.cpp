@@ -21,15 +21,15 @@
 
 #include "videorecordconfig.h"
 
-VideoRecordConfig::VideoRecordConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
+VideoRecordConfig::VideoRecordConfig(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
-    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->m_isInit = true;
-    QVariantList videoRecordFormats = this->m_tools->videoRecordFormats();
+    QVariantList videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 
     this->tbwVideoFormats->setRowCount(videoRecordFormats.length());
 
@@ -64,7 +64,7 @@ void VideoRecordConfig::update()
     if (this->m_isInit)
         return;
 
-    this->m_tools->clearVideoRecordFormats();
+    this->m_mediaTools->clearVideoRecordFormats();
 
     for (int row = 0; row < this->tbwVideoFormats->rowCount(); row++)
     {
@@ -73,7 +73,7 @@ void VideoRecordConfig::update()
         QString audioEncoder = this->tbwVideoFormats->item(row, 2)->text();
         QString muxer = this->tbwVideoFormats->item(row, 3)->text();
 
-        this->m_tools->setVideoRecordFormat(suffix,
+        this->m_mediaTools->setVideoRecordFormat(suffix,
                                           videoEncoder,
                                           audioEncoder,
                                           muxer);

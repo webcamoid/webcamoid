@@ -28,18 +28,18 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 
 class COMMONSSHARED_EXPORT Effects: public QWidget, public Ui::Effects
 {
     Q_OBJECT
 
     public:
-        explicit Effects(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
+        explicit Effects(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
-        V4L2Tools *m_tools;
+        MediaTools *m_mediaTools;
         QStringList m_effectsNames;
         QList<QListWidgetItem *> m_effectsWidgets;
 
@@ -53,6 +53,7 @@ class COMMONSSHARED_EXPORT Effects: public QWidget, public Ui::Effects
         void setEffectPreview(const QImage &image, QString effect);
 
     private slots:
+        void deviceChanged(QString device);
         void on_txtSearch_textChanged(QString text);
         void on_btnAdd_clicked();
         void on_btnRemove_clicked();

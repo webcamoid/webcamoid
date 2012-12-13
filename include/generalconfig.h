@@ -28,18 +28,18 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 
 class COMMONSSHARED_EXPORT GeneralConfig: public QWidget, public Ui::GeneralConfig
 {
     Q_OBJECT
 
     public:
-        explicit GeneralConfig(V4L2Tools *tools=NULL, QWidget *parent=NULL);
+        explicit GeneralConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
-        V4L2Tools *tools;
+        MediaTools *m_mediaTools;
 
     public slots:
         void on_chkAudioRecord_stateChanged(int state);

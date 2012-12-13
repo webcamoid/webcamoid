@@ -19,10 +19,13 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/qt-gstreamer/html/index.html
 // http://gstreamer.freedesktop.org/documentation/
 // http://api.kde.org/
 // http://extragear.kde.org/apps/kipi/
+// http://cgit.freedesktop.org/gstreamer/gstreamer/tree/docs/design/part-probes.txt
+// gst_element_send_event (pipeline, gst_event_new_eos())
+// http://amarghosh.blogspot.com.ar/2012/01/gstreamer-appsrc-in-action.html
+// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-events-definitions.html#section-events-flush-stop
 // LD_PRELOAD='./libWebcamoid.so' ./Webcamoid
 
 #include <sys/ioctl.h>
@@ -31,9 +34,9 @@
 #include <gst/app/gstappsink.h>
 #include <linux/videodev2.h>
 
-#include "v4l2tools.h"
+#include "mediatools.h"
 
-V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
+MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
 {
     gst_init(NULL, NULL);
 
@@ -44,19 +47,24 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
                      this,
                      SLOT(aboutToQuit()));
 
-    this->resetPlaying();
+    this->m_mainBin = NULL;
+    this->m_mainPipeline = NULL;
+    this->m_captureDevice = NULL;
+    this->m_effectsBin = NULL;
+    this->m_effectsPreviewBin = NULL;
+
+    this->resetDevice();
+    this->resetVideoFormat();
+    this->resetEffectsPreview();
     this->resetRecordAudio();
     this->resetRecording();
     this->resetVideoRecordFormats();
-    this->resetCurDevName();
     this->resetStreams();
-
-    this->m_curOutVidFmt = "webm";
 
     this->m_mainPipeline = gst_pipeline_new("MainPipeline");
 
     GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_mainPipeline));
-    this->m_busWatchId = gst_bus_add_watch(bus, V4L2Tools::busMessage, this);
+    this->m_busWatchId = gst_bus_add_watch(bus, MediaTools::busMessage, this);
     gst_object_unref(GST_OBJECT(bus));
 
     QString captureHash = this->hashFromName("capture");
@@ -64,7 +72,7 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
                                          "tee name=EffectsTee ! "
                                          "ffmpegcolorspace ! "
                                          "ffenc_bmp ! "
-                                         "appsink name=%1 emit-signals=true").arg(captureHash);
+                                         "appsink name=%1 emit-signals=true max_buffers=1 drop=true").arg(captureHash);
 
     GError *error = NULL;
 
@@ -75,14 +83,10 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
     g_object_set(GST_OBJECT(this->m_mainBin), "name", "mainBin", NULL);
 
     GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_mainBin), captureHash.toUtf8().constData());
-    g_signal_connect(capture, "new-buffer",  G_CALLBACK(V4L2Tools::readFrame), this);
+    this->m_callBacks[captureHash] = g_signal_connect(capture, "new-buffer",  G_CALLBACK(MediaTools::readFrame), this);
     gst_object_unref(GST_OBJECT(capture));
 
     gst_bin_add(GST_BIN(this->m_mainPipeline), this->m_mainBin);
-
-    this->m_captureDevice = NULL;
-    this->m_effectsBin = NULL;
-    this->m_effectsPreviewBin = NULL;
 
     if (watchDevices)
     {
@@ -97,46 +101,67 @@ V4L2Tools::V4L2Tools(bool watchDevices, QObject *parent): QObject(parent)
     this->loadConfigs();
 }
 
-V4L2Tools::~V4L2Tools()
+MediaTools::~MediaTools()
 {
-    this->stopCurrentDevice();
+    this->resetDevice();
     this->saveConfigs();
 
     g_source_remove(this->m_busWatchId);
     gst_object_unref(GST_OBJECT(this->m_mainPipeline));
 }
 
-bool V4L2Tools::playing()
+QString MediaTools::device()
 {
-    return this->m_playing;
+    return this->m_device;
 }
 
-bool V4L2Tools::recordAudio()
+QVariantList MediaTools::videoFormat(QString device)
+{
+    QFile deviceFile(device.isEmpty()? this->device(): device);
+    QVariantList format;
+
+    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
+        return format;
+
+    v4l2_format fmt;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
+        format << fmt.fmt.pix.width
+               << fmt.fmt.pix.height
+               << fmt.fmt.pix.pixelformat;
+
+    deviceFile.close();
+
+    return format;
+}
+
+bool MediaTools::effectsPreview()
+{
+    return this->m_effectsPreview;
+}
+
+bool MediaTools::recordAudio()
 {
     return this->m_recordAudio;
 }
 
-bool V4L2Tools::recording()
+bool MediaTools::recording()
 {
     return this->m_recording;
 }
 
-QVariantList V4L2Tools::videoRecordFormats()
+QVariantList MediaTools::videoRecordFormats()
 {
     return this->m_videoRecordFormats;
 }
 
-QString V4L2Tools::curDevName()
-{
-    return this->m_curDevName;
-}
-
-QVariantList V4L2Tools::streams()
+QVariantList MediaTools::streams()
 {
     return this->m_streams;
 }
 
-QString V4L2Tools::fcc2s(uint val)
+QString MediaTools::fcc2s(uint val)
 {
     QString s = "";
 
@@ -148,12 +173,12 @@ QString V4L2Tools::fcc2s(uint val)
     return s;
 }
 
-QVariantList V4L2Tools::videoFormats(QString dev_name)
+QVariantList MediaTools::videoFormats(QString device)
 {
-    QFile device(dev_name);
+    QFile deviceFile(device);
     QVariantList formats;
 
-    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
+    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
         return formats;
 
     QList<v4l2_buf_type> bufType;
@@ -168,13 +193,13 @@ QVariantList V4L2Tools::videoFormats(QString dev_name)
         fmt.index = 0;
         fmt.type = type;
 
-        while (ioctl(device.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0)
+        while (ioctl(deviceFile.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0)
         {
             v4l2_frmsizeenum frmsize;
             frmsize.pixel_format = fmt.pixelformat;
             frmsize.index = 0;
 
-            while (ioctl(device.handle(),
+            while (ioctl(deviceFile.handle(),
                          VIDIOC_ENUM_FRAMESIZES,
                          &frmsize) >= 0)
             {
@@ -196,63 +221,12 @@ QVariantList V4L2Tools::videoFormats(QString dev_name)
         }
     }
 
-    device.close();
+    deviceFile.close();
 
     return formats;
 }
 
-QVariantList V4L2Tools::currentVideoFormat(QString dev_name)
-{
-    QFile device(dev_name);
-    QVariantList format;
-
-    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return format;
-
-    v4l2_format fmt;
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(device.handle(), VIDIOC_G_FMT, &fmt) >= 0)
-        format << fmt.fmt.pix.width
-               << fmt.fmt.pix.height
-               << fmt.fmt.pix.pixelformat;
-
-    device.close();
-
-    return format;
-}
-
-bool V4L2Tools::setVideoFormat(QString dev_name, QVariantList videoFormat)
-{
-    QFile device(dev_name);
-
-    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return false;
-
-    v4l2_format fmt;
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(device.handle(), VIDIOC_G_FMT, &fmt) >= 0)
-    {
-        fmt.fmt.pix.width = videoFormat.at(0).toUInt();
-        fmt.fmt.pix.height = videoFormat.at(1).toUInt();
-        fmt.fmt.pix.pixelformat = videoFormat.at(2).toUInt();
-
-        if (ioctl(device.handle(), VIDIOC_S_FMT, &fmt) < 0)
-        {
-            device.close();
-            this->startDevice(dev_name, videoFormat);
-
-            return true;
-        }
-    }
-
-    device.close();
-
-    return true;
-}
-
-QVariantList V4L2Tools::captureDevices()
+QVariantList MediaTools::captureDevices()
 {
     QVariantList webcamsDevices;
     QDir devicesDir("/dev");
@@ -305,7 +279,7 @@ QVariantList V4L2Tools::captureDevices()
     return allDevices;
 }
 
-QVariantList V4L2Tools::listControls(QString dev_name)
+QVariantList MediaTools::listControls(QString dev_name)
 {
     v4l2_queryctrl queryctrl;
     queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
@@ -359,7 +333,7 @@ QVariantList V4L2Tools::listControls(QString dev_name)
     return controls;
 }
 
-bool V4L2Tools::setControls(QString dev_name, QMap<QString, uint> controls)
+bool MediaTools::setControls(QString dev_name, QMap<QString, uint> controls)
 {
     QFile device(dev_name);
 
@@ -404,7 +378,7 @@ bool V4L2Tools::setControls(QString dev_name, QMap<QString, uint> controls)
     return true;
 }
 
-QVariantMap V4L2Tools::featuresMatrix()
+QVariantMap MediaTools::featuresMatrix()
 {
     QVariantMap features;
     QStringList availableElements;
@@ -587,7 +561,7 @@ QVariantMap V4L2Tools::featuresMatrix()
     return features;
 }
 
-QMap<QString, QString> V4L2Tools::availableEffects()
+QMap<QString, QString> MediaTools::availableEffects()
 {
     QVariantMap features = this->featuresMatrix();
     QMap<QString, QString> effects;
@@ -636,7 +610,7 @@ QMap<QString, QString> V4L2Tools::availableEffects()
         effects["pinch"] = this->tr("Pinch");
         effects["solarize"] = this->tr("Solarize");
         effects["sphere"] = this->tr("Sphere");
-        effects["sphere"] = this->tr("Square");
+        effects["square"] = this->tr("Square");
         effects["stretch"] = this->tr("Stretch");
         effects["tunnel"] = this->tr("Tunnel");
         effects["twirl"] = this->tr("Twirl");
@@ -663,12 +637,12 @@ QMap<QString, QString> V4L2Tools::availableEffects()
     return effects;
 }
 
-QStringList V4L2Tools::currentEffects()
+QStringList MediaTools::currentEffects()
 {
     return this->m_effects;
 }
 
-QStringList V4L2Tools::bestVideoRecordFormat(QString fileName)
+QStringList MediaTools::bestVideoRecordFormat(QString fileName)
 {
     QString ext = QFileInfo(fileName).completeSuffix();
 
@@ -683,7 +657,7 @@ QStringList V4L2Tools::bestVideoRecordFormat(QString fileName)
     return QStringList();
 }
 
-QVariantList V4L2Tools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
+QVariantList MediaTools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
 {
     if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
         return QVariantList();
@@ -741,7 +715,7 @@ QVariantList V4L2Tools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
                           << menu;
 }
 
-QMap<QString, uint> V4L2Tools::findControls(int dev_fd)
+QMap<QString, uint> MediaTools::findControls(int dev_fd)
 {
     v4l2_queryctrl qctrl;
     qctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
@@ -781,46 +755,46 @@ QMap<QString, uint> V4L2Tools::findControls(int dev_fd)
     return controls;
 }
 
-QString V4L2Tools::hashFromName(QString name)
+QString MediaTools::hashFromName(QString name)
 {
     return QString("x") + name.toUtf8().toHex();
 }
 
-QString V4L2Tools::nameFromHash(QString hash)
+QString MediaTools::nameFromHash(QString hash)
 {
     return QByteArray::fromHex(hash.mid(1).toUtf8());
 }
 
-V4L2Tools::StreamType V4L2Tools::deviceType(QString dev_name)
+MediaTools::StreamType MediaTools::deviceType(QString device)
 {
     QStringList webcams;
 
-    foreach (QVariant device, this->m_webcams)
-        webcams << device.toList().at(0).toString();
+    foreach (QVariant deviceName, this->m_webcams)
+        webcams << deviceName.toList().at(0).toString();
 
     QStringList streams;
 
-    foreach (QVariant device, this->m_streams)
-        streams << device.toList().at(0).toString();
+    foreach (QVariant deviceName, this->m_streams)
+        streams << deviceName.toList().at(0).toString();
 
-    if (webcams.contains(dev_name))
+    if (webcams.contains(device))
         return StreamTypeWebcam;
-    else if (streams.contains(dev_name))
+    else if (streams.contains(device))
         return StreamTypeURI;
-    else if (dev_name == "desktop")
+    else if (device == "desktop")
         return StreamTypeDesktop;
     else
         return StreamTypeUnknown;
 }
 
-gboolean V4L2Tools::busMessage(GstBus *bus, GstMessage *message, gpointer self)
+gboolean MediaTools::busMessage(GstBus *bus, GstMessage *message, gpointer self)
 {
     Q_UNUSED(bus)
 
-    V4L2Tools *v4l2Tools = (V4L2Tools* ) self;
+    MediaTools *mediaTools = (MediaTools* ) self;
 
     if (GST_MESSAGE_TYPE(message) == GST_MESSAGE_EOS)
-        gst_element_set_state(v4l2Tools->m_mainPipeline, GST_STATE_NULL);
+        gst_element_set_state(mediaTools->m_mainPipeline, GST_STATE_NULL);
     else if (GST_MESSAGE_TYPE(message) == GST_MESSAGE_ERROR)
     {
         GError *err;
@@ -831,7 +805,7 @@ gboolean V4L2Tools::busMessage(GstBus *bus, GstMessage *message, gpointer self)
         g_error_free (err);
         g_free (debug);
 
-        gst_element_set_state(v4l2Tools->m_mainPipeline, GST_STATE_NULL);
+        gst_element_set_state(mediaTools->m_mainPipeline, GST_STATE_NULL);
     }
     else
     {
@@ -840,14 +814,14 @@ gboolean V4L2Tools::busMessage(GstBus *bus, GstMessage *message, gpointer self)
     return TRUE;
 }
 
-void V4L2Tools::readFrame(GstElement *appsink, gpointer self)
+void MediaTools::readFrame(GstElement *appsink, gpointer self)
 {
-    V4L2Tools *v4l2Tools = (V4L2Tools* ) self;
+    MediaTools *mediaTools = (MediaTools* ) self;
 
-    v4l2Tools->m_mutex.lock();
+    mediaTools->m_mutex.lock();
 
     gchar *elementName = gst_element_get_name(appsink);
-    QString pipename = v4l2Tools->nameFromHash(elementName);
+    QString pipename = mediaTools->nameFromHash(elementName);
     g_free(elementName);
 
     GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
@@ -855,74 +829,286 @@ void V4L2Tools::readFrame(GstElement *appsink, gpointer self)
     gst_buffer_unref(buffer);
 
     if (pipename == "capture")
-        emit v4l2Tools->frameReady(frame);
+        emit mediaTools->frameReady(frame);
     else
-        emit v4l2Tools->previewFrameReady(frame, pipename);
+        emit mediaTools->previewFrameReady(frame, pipename);
 
-    v4l2Tools->m_mutex.unlock();
+    mediaTools->m_mutex.unlock();
 }
 
-void V4L2Tools::setPlaying(bool playing)
-{
-    this->m_playing = playing;
-}
-
-void V4L2Tools::setRecordAudio(bool recordAudio)
+void MediaTools::setRecordAudio(bool recordAudio)
 {
     this->m_recordAudio = recordAudio;
 }
 
-void V4L2Tools::setRecording(bool recording)
+void MediaTools::setRecording(bool recording)
 {
     this->m_recording = recording;
 }
 
-void V4L2Tools::setVideoRecordFormats(QVariantList videoRecordFormats)
+void MediaTools::setDevice(QString device)
+{
+    if (!this->m_mainPipeline)
+    {
+        this->m_device = "";
+
+        return;
+    }
+
+    bool effectsPreview = this->effectsPreview();
+
+    GstState state;
+
+    gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
+
+    if (state == GST_STATE_PLAYING)
+    {
+        this->resetEffectsPreview();
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_NULL);
+
+        GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
+        GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+        gst_element_unlink(capture, captureTee);
+        gst_bin_remove(GST_BIN(this->m_mainBin), this->m_captureDevice);
+        gst_object_unref(GST_OBJECT(capture));
+        gst_object_unref(GST_OBJECT(captureTee));
+        this->m_device = "";
+        emit this->deviceChanged(this->m_device);
+        this->setEffectsPreview(effectsPreview);
+    }
+
+    if (device.isEmpty())
+        return;
+
+    this->m_device = device;
+
+    StreamType deviceType = this->deviceType(device);
+    GError *error = NULL;
+
+    if (deviceType == StreamTypeWebcam)
+    {
+        QVariantList fmt = this->videoFormat();
+
+        QString description = QString("v4l2src device=%1 ! "
+                                      "capsfilter name=capture "
+                                      "caps=video/x-raw-yuv,width=%2,height=%3").arg(device)
+                                                                                .arg(fmt.at(0).toInt())
+                                                                                .arg(fmt.at(1).toInt());
+
+        this->m_captureDevice = gst_parse_bin_from_description(description.toUtf8().constData(),
+                                                               FALSE,
+                                                               &error);
+
+        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+    }
+    else if (deviceType == StreamTypeURI)
+    {
+        this->m_captureDevice = gst_parse_bin_from_description("uridecodebin name=capture",
+                                                               FALSE,
+                                                               &error);
+
+        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+
+        GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
+        g_object_set(GST_OBJECT(capture), "uri", device.toUtf8().constData(), NULL);
+        gst_object_unref(GST_OBJECT(capture));
+    }
+    else if (deviceType == StreamTypeDesktop)
+    {
+        this->m_captureDevice = gst_parse_bin_from_description("ximagesrc name=capture show-pointer=true",
+                                                               FALSE,
+                                                               &error);
+
+        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+    }
+    else
+        return;
+
+    gst_bin_add(GST_BIN(this->m_mainBin), this->m_captureDevice);
+    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
+    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+    gst_element_link(capture, captureTee);
+    gst_object_unref(GST_OBJECT(capture));
+    gst_object_unref(GST_OBJECT(captureTee));
+
+    gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
+
+    this->setEffectsPreview(effectsPreview);
+
+    emit this->deviceChanged(this->m_device);
+
+    //self.gstError.emit()
+}
+
+void MediaTools::setVideoFormat(QVariantList videoFormat, QString device)
+{
+    QString curDevice = this->device();
+    GstState state;
+
+    gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
+
+    if (state == GST_STATE_PLAYING && (device.isEmpty() || device == curDevice))
+        this->resetDevice();
+
+    QFile deviceFile(device.isEmpty()? curDevice: device);
+
+    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
+        return;
+
+    v4l2_format fmt;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0)
+    {
+        fmt.fmt.pix.width = videoFormat.at(0).toUInt();
+        fmt.fmt.pix.height = videoFormat.at(1).toUInt();
+        fmt.fmt.pix.pixelformat = videoFormat.at(2).toUInt();
+
+        ioctl(deviceFile.handle(), VIDIOC_S_FMT, &fmt);
+    }
+
+    deviceFile.close();
+
+    if (state == GST_STATE_PLAYING && (device.isEmpty() || device == curDevice))
+        this->setDevice(device.isEmpty()? curDevice: device);
+}
+
+void MediaTools::setEffectsPreview(bool effectsPreview)
+{
+    this->m_effectsPreview = effectsPreview;
+
+    if (!this->m_mainPipeline)
+        return;
+
+    GstState state;
+
+    gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
+
+    if (state == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
+
+    if (this->m_effectsPreviewBin)
+    {
+        gst_element_set_state(this->m_effectsPreviewBin, GST_STATE_NULL);
+
+        foreach (QString effect, this->availableEffects().keys())
+        {
+            QString previewHash = this->hashFromName(effect);
+            GstElement *preview = gst_bin_get_by_name(GST_BIN(this->m_mainBin), previewHash.toUtf8().constData());
+
+            g_signal_handler_disconnect(preview, this->m_callBacks[previewHash]);
+            gst_object_unref(GST_OBJECT(preview));
+        }
+
+        GstElement *queueEffectsPreview = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreview");
+        GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+        gst_element_unlink(captureTee, queueEffectsPreview);
+        gst_object_unref(GST_OBJECT(queueEffectsPreview));
+        gst_object_unref(GST_OBJECT(captureTee));
+
+        gst_bin_remove(GST_BIN(this->m_mainBin), this->m_effectsPreviewBin);
+        this->m_effectsPreviewBin = NULL;
+    }
+
+    if (effectsPreview)
+    {
+        QString pipeline = QString("queue name=EffectsPreview ! ffmpegcolorspace ! "
+                                   "videoscale ! video/x-raw-rgb,width=%1,height=%2 ! tee name=preview").arg(128)
+                                                                                                        .arg(96);
+
+        foreach (QString effect, this->availableEffects().keys())
+        {
+            QString previewHash = this->hashFromName(effect);
+
+            pipeline += QString(" preview. ! queue ! ffmpegcolorspace ! %1 ! "
+                                "ffmpegcolorspace ! ffenc_bmp ! "
+                                "appsink name=%2 emit-signals=true max_buffers=1 drop=true").arg(effect).arg(previewHash);
+        }
+
+        GError *error = NULL;
+
+        this->m_effectsPreviewBin = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
+                                                                   FALSE,
+                                                                   &error);
+
+        g_object_set(GST_OBJECT(this->m_effectsPreviewBin), "name", "effectsPreviewBin", NULL);
+        gst_bin_add(GST_BIN(this->m_mainBin), this->m_effectsPreviewBin);
+
+        gst_element_set_state(this->m_effectsPreviewBin, GST_STATE_PAUSED);
+
+        GstElement *queueEffectsPreview = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreview");
+        GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+        gst_element_link(captureTee, queueEffectsPreview);
+        gst_object_unref(GST_OBJECT(queueEffectsPreview));
+        gst_object_unref(GST_OBJECT(captureTee));
+
+        foreach (QString effect, this->availableEffects().keys())
+        {
+            QString previewHash = this->hashFromName(effect);
+            GstElement *preview = gst_bin_get_by_name(GST_BIN(this->m_mainBin), previewHash.toUtf8().constData());
+
+            this->m_callBacks[previewHash] = g_signal_connect(preview, "new-buffer", G_CALLBACK(MediaTools::readFrame), this);
+
+            gst_object_unref(GST_OBJECT(preview));
+        }
+    }
+
+    if (state == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
+}
+
+void MediaTools::setVideoRecordFormats(QVariantList videoRecordFormats)
 {
     this->m_videoRecordFormats = videoRecordFormats;
 }
 
-void V4L2Tools::setCurDevName(QString curDevName)
-{
-    this->m_curDevName = curDevName;
-}
-
-void V4L2Tools::setStreams(QVariantList streams)
+void MediaTools::setStreams(QVariantList streams)
 {
     this->m_streams = streams;
 }
 
-void V4L2Tools::resetPlaying()
+void MediaTools::resetDevice()
 {
-    this->setPlaying(false);
+    this->setDevice("");
 }
 
-void V4L2Tools::resetRecordAudio()
+void MediaTools::resetVideoFormat(QString device)
+{
+    device = device.isEmpty()? this->device(): device;
+
+    if (!device.isEmpty())
+    {
+        QVariantList videoFormats = this->videoFormats(device);
+        this->setVideoFormat(videoFormats.at(0).toList(), device);
+    }
+}
+
+void MediaTools::resetEffectsPreview()
+{
+    this->setEffectsPreview(false);
+}
+
+void MediaTools::resetRecordAudio()
 {
     this->setRecordAudio(true);
 }
 
-void V4L2Tools::resetRecording()
+void MediaTools::resetRecording()
 {
     this->setRecording(false);
 }
 
-void V4L2Tools::resetVideoRecordFormats()
+void MediaTools::resetVideoRecordFormats()
 {
     this->setVideoRecordFormats(QVariantList());
 }
 
-void V4L2Tools::resetCurDevName()
-{
-    this->setCurDevName("");
-}
-
-void V4L2Tools::resetStreams()
+void MediaTools::resetStreams()
 {
     this->setStreams(QVariantList());
 }
 
-void V4L2Tools::loadConfigs()
+void MediaTools::loadConfigs()
 {
     KSharedConfig::Ptr config = KSharedConfig::openConfig(this->m_appEnvironment->configFileName());
 
@@ -972,7 +1158,7 @@ void V4L2Tools::loadConfigs()
         }
 }
 
-void V4L2Tools::saveConfigs()
+void MediaTools::saveConfigs()
 {
     KSharedConfig::Ptr config = KSharedConfig::openConfig(this->m_appEnvironment->configFileName());
 
@@ -1010,7 +1196,7 @@ void V4L2Tools::saveConfigs()
     config->sync();
 }
 
-void V4L2Tools::setEffects(QStringList effects)
+void MediaTools::setEffects(QStringList effects)
 {
     if (this->m_effects == effects)
         return;
@@ -1018,11 +1204,10 @@ void V4L2Tools::setEffects(QStringList effects)
     this->m_effects = effects;
 
     GstState state;
-    GstState pending;
 
-    gst_element_get_state(this->m_mainPipeline, &state, &pending, GST_CLOCK_TIME_NONE);
+    gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
 
-    if (pending == GST_STATE_PLAYING)
+    if (state == GST_STATE_PLAYING)
         gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
 
     GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
@@ -1030,6 +1215,8 @@ void V4L2Tools::setEffects(QStringList effects)
 
     if (this->m_effectsBin)
     {
+        gst_element_set_state(this->m_effectsBin, GST_STATE_NULL);
+
         GstElement *effectsBinIn = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinIn");
         GstElement *effectsBinOut = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinOut");
 
@@ -1038,9 +1225,9 @@ void V4L2Tools::setEffects(QStringList effects)
         gst_bin_remove(GST_BIN(this->m_mainBin), this->m_effectsBin);
         gst_element_link(captureTee, effectsTee);
 
-        gst_object_unref(GST_OBJECT(this->m_effectsBin));
         gst_object_unref(GST_OBJECT(effectsBinIn));
         gst_object_unref(GST_OBJECT(effectsBinOut));
+        this->m_effectsBin = NULL;
     }
 
     if (!this->m_effects.isEmpty())
@@ -1075,182 +1262,11 @@ void V4L2Tools::setEffects(QStringList effects)
     gst_object_unref(GST_OBJECT(captureTee));
     gst_object_unref(GST_OBJECT(effectsTee));
 
-    if (pending == GST_STATE_PLAYING)
+    if (state == GST_STATE_PLAYING)
         gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
 }
 
-void V4L2Tools::startEffectsPreview()
-{
-    GstState state;
-    GstState pending;
-
-    gst_element_get_state(this->m_mainPipeline, &state, &pending, GST_CLOCK_TIME_NONE);
-
-    if (pending == GST_STATE_PLAYING)
-        gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
-
-    if (!this->m_effectsPreviewBin)
-    {
-        QString pipeline = QString("queue name=EffectsPreview ! valve name=EffectsPreviewValve drop=true ! ffmpegcolorspace ! "
-                                   "videoscale ! video/x-raw-rgb,width=%1,height=%2 ! tee name=preview").arg(128)
-                                                                                                        .arg(96);
-
-        foreach (QString effect, this->availableEffects().keys())
-        {
-            QString previewHash = this->hashFromName(effect);
-
-            pipeline += QString(" preview. ! queue ! ffmpegcolorspace ! %1 ! "
-                                "ffmpegcolorspace ! ffenc_bmp ! "
-                                "appsink name=%2 emit-signals=true").arg(effect).arg(previewHash);
-        }
-
-        GError *error = NULL;
-
-        this->m_effectsPreviewBin = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
-                                                                   FALSE,
-                                                                   &error);
-
-        g_object_set(GST_OBJECT(this->m_effectsPreviewBin), "name", "effectsPreviewBin", NULL);
-
-        gst_bin_add(GST_BIN(this->m_mainBin), this->m_effectsPreviewBin);
-        GstElement *queueEffectsPreview = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreview");
-        GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
-        gst_element_link(captureTee, queueEffectsPreview);
-
-        foreach (QString effect, this->availableEffects().keys())
-        {
-            QString previewHash = this->hashFromName(effect);
-            GstElement *preview = gst_bin_get_by_name(GST_BIN(this->m_mainBin), previewHash.toUtf8().constData());
-
-            g_signal_connect(preview, "new-buffer",  G_CALLBACK(V4L2Tools::readFrame), this);
-
-            gst_object_unref(GST_OBJECT(preview));
-        }
-
-        gst_object_unref(GST_OBJECT(queueEffectsPreview));
-        gst_object_unref(GST_OBJECT(captureTee));
-    }
-
-    GstElement *effectsPreviewValve = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreviewValve");
-    g_object_set(GST_OBJECT(effectsPreviewValve), "drop", FALSE, NULL);
-    gst_object_unref(GST_OBJECT(effectsPreviewValve));
-
-    if (pending == GST_STATE_PLAYING)
-        gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
-}
-
-void V4L2Tools::stopEffectsPreview()
-{
-    if (m_effectsPreviewBin)
-    {
-        GstState state;
-        GstState pending;
-
-        gst_element_get_state(this->m_mainPipeline, &state, &pending, GST_CLOCK_TIME_NONE);
-
-        if (pending == GST_STATE_PLAYING)
-            gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
-
-        GstElement *effectsPreviewValve = gst_bin_get_by_name(GST_BIN(this->m_effectsPreviewBin), "EffectsPreviewValve");
-        g_object_set(GST_OBJECT(effectsPreviewValve), "drop", FALSE, NULL);
-        gst_object_unref(GST_OBJECT(effectsPreviewValve));
-
-        if (pending == GST_STATE_PLAYING)
-            gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
-    }
-}
-
-void V4L2Tools::startDevice(QString dev_name, QVariantList forcedFormat)
-{
-    this->stopCurrentDevice();
-    StreamType deviceType = this->deviceType(dev_name);
-    GError *error = NULL;
-
-    if (deviceType == StreamTypeWebcam)
-    {
-        QVariantList fmt;
-
-        if (forcedFormat.isEmpty())
-        {
-            fmt = this->currentVideoFormat(dev_name);
-
-            if (fmt.isEmpty())
-                fmt = this->videoFormats(dev_name).at(0).toList();
-        }
-        else
-            fmt = forcedFormat;
-
-        QString description = QString("v4l2src device=%1 ! "
-                                      "capsfilter name=capture "
-                                      "caps=video/x-raw-yuv,width=%2,height=%3").arg(dev_name)
-                                                                                .arg(fmt.at(0).toInt())
-                                                                                .arg(fmt.at(1).toInt());
-
-        this->m_captureDevice = gst_parse_bin_from_description(description.toUtf8().constData(),
-                                                               FALSE,
-                                                               &error);
-
-        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
-    }
-    else if (deviceType == StreamTypeURI)
-    {
-        this->m_captureDevice = gst_parse_bin_from_description("uridecodebin name=capture",
-                                                               FALSE,
-                                                               &error);
-
-        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
-
-        GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
-        g_object_set(GST_OBJECT(capture), "uri", dev_name.toUtf8().constData(), NULL);
-        gst_object_unref(GST_OBJECT(capture));
-    }
-    else if (deviceType == StreamTypeDesktop)
-    {
-        this->m_captureDevice = gst_parse_bin_from_description("ximagesrc name=capture show-pointer=true",
-                                                               FALSE,
-                                                               &error);
-
-        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
-    }
-    else
-        return;
-
-    gst_bin_add(GST_BIN(this->m_mainBin), this->m_captureDevice);
-    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
-    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
-    gst_element_link(capture, captureTee);
-    gst_object_unref(GST_OBJECT(capture));
-    gst_object_unref(GST_OBJECT(captureTee));
-
-    gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
-    this->m_curDevName = dev_name;
-    this->m_playing = true;
-
-    emit this->playingStateChanged(true);
-
-    //self.gstError.emit()
-}
-
-void V4L2Tools::stopCurrentDevice()
-{
-    if (!this->m_playing)
-        return;
-
-    gst_element_set_state(this->m_mainPipeline, GST_STATE_NULL);
-
-    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
-    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
-    gst_element_unlink(capture, captureTee);
-    gst_bin_remove(GST_BIN(this->m_mainBin), this->m_captureDevice);
-    gst_object_unref(GST_OBJECT(capture));
-    gst_object_unref(GST_OBJECT(captureTee));
-
-    this->m_curDevName = "";
-    this->m_playing = false;
-    emit this->playingStateChanged(false);
-}
-
-void V4L2Tools::startVideoRecord(QString fileName)
+void MediaTools::startVideoRecord(QString fileName)
 {
     Q_UNUSED(fileName)
     /*
@@ -1282,7 +1298,7 @@ void V4L2Tools::startVideoRecord(QString fileName)
     this->m_recording = True;*/
 }
 
-void V4L2Tools::stopVideoRecord()
+void MediaTools::stopVideoRecord()
 {
     if (this->m_recording)
     {
@@ -1293,18 +1309,18 @@ void V4L2Tools::stopVideoRecord()
     }
 }
 
-void V4L2Tools::clearVideoRecordFormats()
+void MediaTools::clearVideoRecordFormats()
 {
     this->m_videoRecordFormats.clear();
 }
 
-void V4L2Tools::clearCustomStreams()
+void MediaTools::clearCustomStreams()
 {
     this->m_streams.clear();
     emit this->devicesModified();
 }
 
-void V4L2Tools::setCustomStream(QString dev_name, QString description)
+void MediaTools::setCustomStream(QString dev_name, QString description)
 {
     this->m_streams << QVariant(QVariantList() << dev_name
                                                << description
@@ -1313,12 +1329,12 @@ void V4L2Tools::setCustomStream(QString dev_name, QString description)
     emit this->devicesModified();
 }
 
-void V4L2Tools::enableAudioRecording(bool enable)
+void MediaTools::enableAudioRecording(bool enable)
 {
     this->m_recordAudio = enable;
 }
 
-void V4L2Tools::setVideoRecordFormat(QString suffix, QString videoEncoder,
+void MediaTools::setVideoRecordFormat(QString suffix, QString videoEncoder,
                                      QString audioEncoder, QString muxer)
 {
     this->m_videoRecordFormats << QVariant(QVariantList() << suffix
@@ -1327,27 +1343,36 @@ void V4L2Tools::setVideoRecordFormat(QString suffix, QString videoEncoder,
                                                           << muxer);
 }
 
-void V4L2Tools::aboutToQuit()
+void MediaTools::aboutToQuit()
 {
-    this->stopCurrentDevice();
+    this->resetDevice();
     this->saveConfigs();
 }
 
-void V4L2Tools::reset(QString dev_name)
+void MediaTools::mutexLock()
 {
-    QVariantList videoFormats = this->videoFormats(dev_name);
-    this->setVideoFormat(dev_name, videoFormats.at(0).toList());
+    this->m_mutex.lock();
+}
 
-    QVariantList controls = this->listControls(dev_name);
+void MediaTools::mutexUnlock()
+{
+    this->m_mutex.unlock();
+}
+
+void MediaTools::reset(QString device)
+{
+    this->resetVideoFormat(device);
+
+    QVariantList controls = this->listControls(device);
     QMap<QString, uint> ctrls;
 
     foreach (QVariant control, controls)
         ctrls[control.toList().at(0).toString()] = control.toList().at(5).toUInt();
 
-    this->setControls(dev_name, ctrls);
+    this->setControls(device, ctrls);
 }
 
-void V4L2Tools::onDirectoryChanged(const QString &path)
+void MediaTools::onDirectoryChanged(const QString &path)
 {
     Q_UNUSED(path)
 

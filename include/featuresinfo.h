@@ -28,18 +28,18 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 
 class COMMONSSHARED_EXPORT FeaturesInfo: public QWidget, public Ui::FeaturesInfo
 {
     Q_OBJECT
 
     public:
-        explicit FeaturesInfo(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
+        explicit FeaturesInfo(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
-        V4L2Tools *m_tools;
+        MediaTools *m_mediaTools;
 
     private slots:
         void on_btnRecheck_clicked();

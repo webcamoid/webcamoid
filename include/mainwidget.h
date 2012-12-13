@@ -19,13 +19,13 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAINWIDGET_H
+#define MAINWIDGET_H
 
 #include <QtGui>
 #include <KConfigDialog>
 
-#include "ui_mainwindow.h"
+#include "ui_mainwidget.h"
 
 #include "commons.h"
 #include "appenvironment.h"
@@ -33,16 +33,16 @@
 #include "featuresinfo.h"
 #include "generalconfig.h"
 #include "streamsconfig.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 #include "videorecordconfig.h"
 #include "webcamconfig.h"
 
-class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
+class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
 {
     Q_OBJECT
 
     public:
-        explicit MainWindow(QWidget *parent=NULL);
+        explicit MainWidget(QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
@@ -51,7 +51,7 @@ class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
         GeneralConfig *m_cfgGeneralConfig;
         QImage m_webcamFrame;
         StreamsConfig *m_cfgStreams;
-        V4L2Tools *m_tools;
+        MediaTools *m_mediaTools;
         VideoRecordConfig *m_cfgVideoFormats;
         WebcamConfig *m_cfgWebcamDialog;
 
@@ -75,7 +75,7 @@ class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
 
     private slots:
         void updateWebcams();
-        void playingStateChanged(bool playing);
+        void deviceChanged(QString device);
         void recordingStateChanged(bool recording);
         void saveConfigs();
         void showGstError();
@@ -89,4 +89,4 @@ class COMMONSSHARED_EXPORT MainWindow: public QWidget, public Ui::MainWindow
         void on_btnAbout_clicked();
 };
 
-#endif // MAINWINDOW_H
+#endif // MAINWIDGET_H

@@ -21,17 +21,17 @@
 
 #include "generalconfig.h"
 
-GeneralConfig::GeneralConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
+GeneralConfig::GeneralConfig(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
-    this->tools = (tools)? tools: new V4L2Tools(true, this);
-    this->chkAudioRecord->setCheckState((this->tools->recordAudio())? Qt::Checked: Qt::Unchecked);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
+    this->chkAudioRecord->setCheckState(this->m_mediaTools->recordAudio()? Qt::Checked: Qt::Unchecked);
 }
 
 void GeneralConfig::on_chkAudioRecord_stateChanged(int state)
 {
-    this->tools->enableAudioRecording((state == Qt::Checked)? true: false);
+    this->m_mediaTools->enableAudioRecording((state == Qt::Checked)? true: false);
 }

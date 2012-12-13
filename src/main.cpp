@@ -19,13 +19,17 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "mainwindow.h"
+#include "mainwidget.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    MainWindow mainWindow;
+    QMainWindow mainWindow;
+    MainWidget *mainWidget = new MainWidget();
+    mainWindow.setCentralWidget(mainWidget);
+    mainWindow.setWindowTitle(mainWidget->windowTitle());
+    mainWindow.resize(mainWidget->size());
     mainWindow.show();
 
     return app.exec();

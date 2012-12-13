@@ -26,9 +26,9 @@
 #include <KLocalizedString>
 #include <KNotification>
 
-#include "mainwindow.h"
+#include "mainwidget.h"
 
-MainWindow::MainWindow(QWidget *parent): QWidget(parent)
+MainWidget::MainWidget(QWidget *parent): QWidget(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
@@ -42,45 +42,45 @@ MainWindow::MainWindow(QWidget *parent): QWidget(parent)
                          arg(QCoreApplication::applicationName()).
                          arg(QCoreApplication::applicationVersion()));
 
-    this->m_tools = new V4L2Tools(true, this);
+    this->m_mediaTools = new MediaTools(true, this);
 
-    QObject::connect(this->m_tools,
+    QObject::connect(this->m_mediaTools,
                      SIGNAL(devicesModified()),
                      this,
                      SLOT(updateWebcams()));
 
-    QObject::connect(this->m_tools,
-                     SIGNAL(playingStateChanged(bool)),
+    QObject::connect(this->m_mediaTools,
+                     SIGNAL(deviceChanged(QString)),
                      this,
-                     SLOT(playingStateChanged(bool)));
+                     SLOT(deviceChanged(QString)));
 
-    QObject::connect(this->m_tools,
+    QObject::connect(this->m_mediaTools,
                      SIGNAL(recordingStateChanged(bool)),
                      this,
                      SLOT(recordingStateChanged(bool)));
 
-    QObject::connect(this->m_tools,
+    QObject::connect(this->m_mediaTools,
                      SIGNAL(gstError()),
                      this,
                      SLOT(showGstError()));
 
-    QObject::connect(this->m_tools,
+    QObject::connect(this->m_mediaTools,
                      SIGNAL(frameReady(const QImage &)),
                      this,
                      SLOT(showFrame(const QImage &)));
 
     this->wdgControls->hide();
 
-    foreach (QVariant webcam, this->m_tools->captureDevices())
+    foreach (QVariant webcam, this->m_mediaTools->captureDevices())
         this->cbxSetWebcam->addItem(webcam.toList().at(1).toString());
 }
 
-void MainWindow::addWebcamConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addWebcamConfigDialog(KConfigDialog *configDialog)
 {
     if (!configDialog)
         return;
 
-    this->m_cfgWebcamDialog = new WebcamConfig(this->m_tools, this);
+    this->m_cfgWebcamDialog = new WebcamConfig(this->m_mediaTools, this);
 
     configDialog->addPage(this->m_cfgWebcamDialog,
                           this->tr("Webcam Settings"),
@@ -89,14 +89,14 @@ void MainWindow::addWebcamConfigDialog(KConfigDialog *configDialog)
                           false);
 }
 
-void MainWindow::addEffectsConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addEffectsConfigDialog(KConfigDialog *configDialog)
 {
     if (!configDialog)
         return;
 
-    this->m_cfgEffects = new Effects(this->m_tools, this);
+    this->m_cfgEffects = new Effects(this->m_mediaTools, this);
 
-    QObject::connect(this->m_tools,
+    QObject::connect(this->m_mediaTools,
                      SIGNAL(previewFrameReady(const QImage &, QString)),
                      this->m_cfgEffects,
                      SLOT(setEffectPreview(const QImage &, QString)));
@@ -113,12 +113,12 @@ void MainWindow::addEffectsConfigDialog(KConfigDialog *configDialog)
                      SLOT(stopEffectsPreview()));
 }
 
-void MainWindow::addVideoFormatsConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addVideoFormatsConfigDialog(KConfigDialog *configDialog)
 {
     if (!configDialog)
         return;
 
-    this->m_cfgVideoFormats = new VideoRecordConfig(this->m_tools, this);
+    this->m_cfgVideoFormats = new VideoRecordConfig(this->m_mediaTools, this);
 
     configDialog->
            addPage(this->m_cfgVideoFormats,
@@ -128,9 +128,9 @@ void MainWindow::addVideoFormatsConfigDialog(KConfigDialog *configDialog)
                    false);
 }
 
-void MainWindow::addStreamsConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addStreamsConfigDialog(KConfigDialog *configDialog)
 {
-    this->m_cfgStreams = new StreamsConfig(this->m_tools, this);
+    this->m_cfgStreams = new StreamsConfig(this->m_mediaTools, this);
 
     configDialog->
            addPage(this->m_cfgStreams,
@@ -140,9 +140,9 @@ void MainWindow::addStreamsConfigDialog(KConfigDialog *configDialog)
                    false);
 }
 
-void MainWindow::addGeneralConfigsDialog(KConfigDialog *configDialog)
+void MainWidget::addGeneralConfigsDialog(KConfigDialog *configDialog)
 {
-    this->m_cfgGeneralConfig = new GeneralConfig(this->m_tools, this);
+    this->m_cfgGeneralConfig = new GeneralConfig(this->m_mediaTools, this);
 
     configDialog->
            addPage(this->m_cfgGeneralConfig,
@@ -152,9 +152,9 @@ void MainWindow::addGeneralConfigsDialog(KConfigDialog *configDialog)
                    false);
 }
 
-void MainWindow::addFeaturesInfoDialog(KConfigDialog *configDialog)
+void MainWidget::addFeaturesInfoDialog(KConfigDialog *configDialog)
 {
-    this->m_cfgFeaturesInfo = new FeaturesInfo(this->m_tools, this);
+    this->m_cfgFeaturesInfo = new FeaturesInfo(this->m_mediaTools, this);
 
     configDialog->
            addPage(this->m_cfgFeaturesInfo,
@@ -164,7 +164,7 @@ void MainWindow::addFeaturesInfoDialog(KConfigDialog *configDialog)
                    false);
 }
 
-void MainWindow::showConfigDialog(KConfigDialog *configDialog)
+void MainWidget::showConfigDialog(KConfigDialog *configDialog)
 {
     if (!configDialog)
     {
@@ -197,10 +197,10 @@ void MainWindow::showConfigDialog(KConfigDialog *configDialog)
                      this,
                      SLOT(saveConfigs()));
 
-    configDialog->show();
+    configDialog->exec();
 }
 
-QString MainWindow::saveFile(bool video)
+QString MainWidget::saveFile(bool video)
 {
     QString curTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
     QString defaultSuffix;
@@ -210,7 +210,7 @@ QString MainWindow::saveFile(bool video)
     if (video)
     {
         QString videosPath = KGlobalSettings::videosPath();
-        QVariantList videoRecordFormats = this->m_tools->videoRecordFormats();
+        QVariantList videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 
         QStringList filtersList;
         bool fst = true;
@@ -267,10 +267,10 @@ QString MainWindow::saveFile(bool video)
 
     QStringList selectedFiles = saveFileDialog.selectedFiles();
 
-    return (selectedFiles.isEmpty())? "": selectedFiles.at(0);
+    return selectedFiles.isEmpty()? "": selectedFiles.at(0);
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event)
+void MainWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
@@ -285,14 +285,14 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     this->wdgControls->setGeometry(geometry);
 }
 
-void MainWindow::enterEvent(QEvent *event)
+void MainWidget::enterEvent(QEvent *event)
 {
     QWidget::enterEvent(event);
 
     this->wdgControls->show();
 }
 
-void MainWindow::leaveEvent(QEvent *event)
+void MainWidget::leaveEvent(QEvent *event)
 {
     QWidget::leaveEvent(event);
 
@@ -300,27 +300,27 @@ void MainWindow::leaveEvent(QEvent *event)
         this->wdgControls->hide();
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWidget::closeEvent(QCloseEvent *event)
 {
     QWidget::closeEvent(event);
 
-    this->m_tools->stopVideoRecord();
+    this->m_mediaTools->stopVideoRecord();
     event->accept();
 }
 
-void MainWindow::showFrame(const QImage &webcamFrame)
+void MainWidget::showFrame(const QImage &webcamFrame)
 {
-    if (this->m_tools->playing())
+    if (!this->m_mediaTools->device().isEmpty())
         this->lblFrame->setPixmap(QPixmap::fromImage(webcamFrame));
 }
 
-void MainWindow::updateWebcams()
+void MainWidget::updateWebcams()
 {
-    QString oldDevice = this->m_tools->curDevName();
-    bool timerIsActive = this->m_tools->playing();
-    this->m_tools->stopCurrentDevice();
+    QString oldDevice = this->m_mediaTools->device();
+    bool timerIsActive = !this->m_mediaTools->device().isEmpty();
+    this->m_mediaTools->resetDevice();
     this->cbxSetWebcam->clear();
-    QVariantList webcams = this->m_tools->captureDevices();
+    QVariantList webcams = this->m_mediaTools->captureDevices();
     QStringList devices;
 
     foreach (QVariant webcam, webcams)
@@ -330,18 +330,12 @@ void MainWindow::updateWebcams()
     }
 
     if (devices.contains(oldDevice) && timerIsActive)
-        this->m_tools->startDevice(oldDevice);
+        this->m_mediaTools->setDevice(oldDevice);
 }
 
-void MainWindow::playingStateChanged(bool playing)
+void MainWidget::deviceChanged(QString device)
 {
-    if (playing)
-    {
-        this->btnTakePhoto->setEnabled(true);
-        this->btnVideoRecord->setEnabled(true);
-        this->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
-    }
-    else
+    if (device.isEmpty())
     {
         this->btnTakePhoto->setEnabled(false);
         this->btnVideoRecord->setEnabled(false);
@@ -349,9 +343,15 @@ void MainWindow::playingStateChanged(bool playing)
         this->m_webcamFrame = QImage();
         this->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
     }
+    else
+    {
+        this->btnTakePhoto->setEnabled(true);
+        this->btnVideoRecord->setEnabled(true);
+        this->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
+    }
 }
 
-void MainWindow::recordingStateChanged(bool recording)
+void MainWidget::recordingStateChanged(bool recording)
 {
     if (recording)
         this->btnVideoRecord->setIcon(QIcon::fromTheme("media-playback-stop"));
@@ -359,12 +359,12 @@ void MainWindow::recordingStateChanged(bool recording)
         this->btnVideoRecord->setIcon(QIcon::fromTheme("video-x-generic"));
 }
 
-void MainWindow::saveConfigs()
+void MainWidget::saveConfigs()
 {
-    this->m_tools->saveConfigs();
+    this->m_mediaTools->saveConfigs();
 }
 
-void MainWindow::showGstError()
+void MainWidget::showGstError()
 {
     KNotification::event(KNotification::Error,
                          this->tr("An error has occurred"),
@@ -374,52 +374,60 @@ void MainWindow::showGstError()
                          KNotification::Persistent);
 }
 
-void MainWindow::stopEffectsPreview()
+void MainWidget::stopEffectsPreview()
 {
-    QObject::disconnect(this->m_tools,
+    QObject::disconnect(this->m_mediaTools,
                         SIGNAL(previewFrameReady(const QImage &, QString)),
                         this->m_cfgEffects,
                         SLOT(setEffectPreview(const QImage &, QString)));
 }
 
-void MainWindow::on_btnTakePhoto_clicked()
+void MainWidget::on_btnTakePhoto_clicked()
 {
+    this->m_mediaTools->mutexLock();
+
     QImage image(this->m_webcamFrame);
     QString filename = this->saveFile();
 
     if (!filename.isEmpty())
         image.save(filename);
+
+    this->m_mediaTools->mutexUnlock();
 }
 
-void MainWindow::on_btnVideoRecord_clicked()
+void MainWidget::on_btnVideoRecord_clicked()
 {
-    if (this->m_tools->recording())
-        this->m_tools->stopVideoRecord();
+    this->m_mediaTools->mutexLock();
+
+    if (this->m_mediaTools->recording())
+        this->m_mediaTools->stopVideoRecord();
     else
-        this->m_tools->startVideoRecord(this->saveFile(true));
+        this->m_mediaTools->startVideoRecord(this->saveFile(true));
+
+    this->m_mediaTools->mutexUnlock();
 }
 
-void MainWindow::on_cbxSetWebcam_currentIndexChanged(int index)
+void MainWidget::on_cbxSetWebcam_currentIndexChanged(int index)
 {
-    if (this->m_tools->playing())
-        this->m_tools->startDevice(this->m_tools->captureDevices().at(index).toStringList().at(0));
+    if (!this->m_mediaTools->device().isEmpty())
+        this->m_mediaTools->setDevice(this->m_mediaTools->captureDevices().at(index).toStringList().at(0));
 }
 
-void MainWindow::on_btnStartStop_clicked()
+void MainWidget::on_btnStartStop_clicked()
 {
-    if (this->m_tools->playing())
-        this->m_tools->stopCurrentDevice();
+    if (!this->m_mediaTools->device().isEmpty())
+        this->m_mediaTools->resetDevice();
     else
-        this->m_tools->startDevice(this->m_tools->
+        this->m_mediaTools->setDevice(this->m_mediaTools->
                     captureDevices().at(this->cbxSetWebcam->currentIndex()).toStringList().at(0));
 }
 
-void MainWindow::on_btnConfigure_clicked()
+void MainWidget::on_btnConfigure_clicked()
 {
     this->showConfigDialog();
 }
 
-void MainWindow::on_btnAbout_clicked()
+void MainWidget::on_btnAbout_clicked()
 {
     KAboutData *aboutData = new \
         KAboutData(QCoreApplication::applicationName().toUtf8().data(),
@@ -439,5 +447,5 @@ void MainWindow::on_btnAbout_clicked()
     aboutData->setProgramIconName("camera-web");
 
     KAboutApplicationDialog *aboutDialog = new KAboutApplicationDialog(aboutData, this);
-    aboutDialog->show();
+    aboutDialog->exec();
 }

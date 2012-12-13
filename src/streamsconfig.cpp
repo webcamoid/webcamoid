@@ -21,15 +21,15 @@
 
 #include "streamsconfig.h"
 
-StreamsConfig::StreamsConfig(V4L2Tools *tools, QWidget *parent): QWidget(parent)
+StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
-    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->m_isInit = true;
-    QVariantList streams = this->m_tools->streams();
+    QVariantList streams = this->m_mediaTools->streams();
 
     this->tbwCustomStreams->setRowCount(streams.length());
 
@@ -65,14 +65,14 @@ void StreamsConfig::update()
     if (this->m_isInit)
         return;
 
-    this->m_tools->clearCustomStreams();
+    this->m_mediaTools->clearCustomStreams();
 
     for (int row = 0; row < this->tbwCustomStreams->rowCount(); row++)
     {
         QString description = this->tbwCustomStreams->item(row, 0)->text();
         QString devName = this->tbwCustomStreams->item(row, 1)->text();
 
-        this->m_tools->setCustomStream(devName, description);
+        this->m_mediaTools->setCustomStream(devName, description);
     }
 }
 

@@ -32,22 +32,22 @@ FORMS = \
     share/ui/effects.ui \
     share/ui/featuresinfo.ui \
     share/ui/generalconfig.ui \
-    share/ui/mainwindow.ui \
+    share/ui/mainwidget.ui \
     share/ui/streamsconfig.ui \
     share/ui/videorecordconfig.ui \
     share/ui/webcamconfig.ui
 
 HEADERS = \
     include/appenvironment.h \
+    include/commons.h \
     include/effects.h \
     include/featuresinfo.h \
     include/generalconfig.h \
-    include/mainwindow.h \
+    include/mainwidget.h \
+    include/mediatools.h \
     include/streamsconfig.h \
-    include/v4l2tools.h \
     include/videorecordconfig.h \
-    include/webcamconfig.h \
-    include/commons.h
+    include/webcamconfig.h
 
 INCLUDEPATH += \
     include \
@@ -68,9 +68,9 @@ SOURCES = \
     src/effects.cpp \
     src/featuresinfo.cpp \
     src/generalconfig.cpp \
-    src/mainwindow.cpp \
+    src/mainwidget.cpp \
+    src/mediatools.cpp \
     src/streamsconfig.cpp \
-    src/v4l2tools.cpp \
     src/videorecordconfig.cpp \
     src/webcamconfig.cpp
 

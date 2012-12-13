@@ -28,18 +28,18 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 
 class COMMONSSHARED_EXPORT VideoRecordConfig: public QWidget, public Ui::VideoRecordConfig
 {
     Q_OBJECT
 
     public:
-        explicit VideoRecordConfig(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
+        explicit VideoRecordConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
-        V4L2Tools *m_tools;
+        MediaTools *m_mediaTools;
         bool m_isInit;
 
         void update();

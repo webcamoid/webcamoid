@@ -28,18 +28,18 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 
 class COMMONSSHARED_EXPORT WebcamConfig: public QWidget, public Ui::WebcamConfig
 {
     Q_OBJECT
 
     public:
-        explicit WebcamConfig(V4L2Tools *tools=NULL, QWidget *parent=NULL);
+        explicit WebcamConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
-        V4L2Tools *m_tools;
+        MediaTools *m_mediaTools;
         QVariantList m_captureDevices;
         QVariantMap m_videoFormats;
         bool m_resetting;

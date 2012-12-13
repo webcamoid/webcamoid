@@ -21,15 +21,20 @@
 
 #include "effects.h"
 
-Effects::Effects(V4L2Tools *tools, QWidget *parent): QWidget(parent)
+Effects::Effects(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
     this->setupUi(this);
 
-    this->m_tools = (tools)? tools: new V4L2Tools(true, this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
 
-    QMap<QString, QString> effects = this->m_tools->availableEffects();
+    QObject::connect(this->m_mediaTools,
+                     SIGNAL(deviceChanged(QString)),
+                     this,
+                     SLOT(deviceChanged(QString)));
+
+    QMap<QString, QString> effects = this->m_mediaTools->availableEffects();
 
     foreach (QString effect, effects.keys())
     {
@@ -42,7 +47,7 @@ Effects::Effects(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 
     this->lswEffects->sortItems();
 
-    foreach (QString effect, this->m_tools->currentEffects())
+    foreach (QString effect, this->m_mediaTools->currentEffects())
     {
         int index = this->m_effectsNames.indexOf(effect);
 
@@ -56,7 +61,7 @@ Effects::Effects(V4L2Tools *tools, QWidget *parent): QWidget(parent)
 
 void Effects::update()
 {
-   if (!this->m_tools)
+   if (!this->m_mediaTools)
        return;
 
    QStringList effects;
@@ -68,27 +73,37 @@ void Effects::update()
        effects << this->m_effectsNames[index];
    }
 
-   this->m_tools->setEffects(effects);
+   this->m_mediaTools->setEffects(effects);
 }
 
 void Effects::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    this->m_tools->startEffectsPreview();
+    this->m_mediaTools->setEffectsPreview(true);
 }
 
 void Effects::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
 
-    this->m_tools->stopEffectsPreview();
+    this->m_mediaTools->resetEffectsPreview();
 }
 
 void Effects::setEffectPreview(const QImage &image, QString effect)
 {
-    int index = this->m_effectsNames.indexOf(effect);
-    this->m_effectsWidgets[index]->setIcon(QIcon(QPixmap::fromImage(image)));
+    if (!this->m_mediaTools->device().isEmpty())
+    {
+        int index = this->m_effectsNames.indexOf(effect);
+        this->m_effectsWidgets[index]->setIcon(QIcon(QPixmap::fromImage(image)));
+    }
+}
+
+void Effects::deviceChanged(QString device)
+{
+    if (device.isEmpty())
+        foreach (QListWidgetItem *effectWidget, this->m_effectsWidgets)
+            effectWidget->setIcon(QIcon());
 }
 
 void Effects::on_txtSearch_textChanged(QString text)

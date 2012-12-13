@@ -28,18 +28,18 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "v4l2tools.h"
+#include "mediatools.h"
 
 class COMMONSSHARED_EXPORT StreamsConfig: public QWidget, public Ui::StreamsConfig
 {
     Q_OBJECT
 
     public:
-        explicit StreamsConfig(V4L2Tools *m_tools=NULL, QWidget *parent=NULL);
+        explicit StreamsConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
 
     private:
         AppEnvironment *m_appEnvironment;
-        V4L2Tools *m_tools;
+        MediaTools *m_mediaTools;
         bool m_isInit;
 
         void update();
