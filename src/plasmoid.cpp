@@ -85,4 +85,4 @@ void Plasmoid::createConfigurationInterface(KConfigDialog *configDialog)
                      SLOT(saveConfigs()));
 }
 
-K_EXPORT_PLASMA_APPLET(Webcamoid, Plasmoid)
+K_EXPORT_PLASMA_APPLET(webcamoid, Plasmoid)

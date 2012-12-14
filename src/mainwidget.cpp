@@ -35,7 +35,7 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject): QWidget(pa
     this->setupUi(this);
 
     if (parentWidget || parentObject)
-        this->setStyleSheet("QWidget#MainWindow{background-color: "
+        this->setStyleSheet("QWidget#MainWidget{background-color: "
                             "rgba(0, 0, 0, 0);}");
 
     this->setWindowTitle(QString("%1 %2").
@@ -57,9 +57,9 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject): QWidget(pa
                      SLOT(deviceChanged(QString)));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(recordingStateChanged(bool)),
+                     SIGNAL(recordingChanged(bool)),
                      this,
-                     SLOT(recordingStateChanged(bool)));
+                     SLOT(recordingChanged(bool)));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(gstError()),
@@ -301,6 +301,13 @@ void MainWidget::leaveEvent(QEvent *event)
         this->wdgControls->hide();
 }
 
+void MainWidget::closeEvent(QCloseEvent *event)
+{
+    QWidget::closeEvent(event);
+
+    this->m_mediaTools->setWindowSize(this->size());
+}
+
 void MainWidget::showFrame(const QImage &webcamFrame)
 {
     if (!this->m_mediaTools->device().isEmpty())
@@ -344,7 +351,7 @@ void MainWidget::deviceChanged(QString device)
     }
 }
 
-void MainWidget::recordingStateChanged(bool recording)
+void MainWidget::recordingChanged(bool recording)
 {
     if (recording)
         this->btnVideoRecord->setIcon(QIcon::fromTheme("media-playback-stop"));
@@ -410,17 +417,15 @@ void MainWidget::on_btnTakePhoto_clicked()
 
 void MainWidget::on_btnVideoRecord_clicked()
 {
-    this->m_mediaTools->mutexLock();
-
     if (this->m_mediaTools->recording())
         this->m_mediaTools->resetRecording();
     else
     {
+        this->m_mediaTools->mutexLock();
         QString fileName = this->saveFile(true);
+        this->m_mediaTools->mutexUnlock();
         this->m_mediaTools->setRecording(true, fileName);
     }
-
-    this->m_mediaTools->mutexUnlock();
 }
 
 void MainWidget::on_cbxSetWebcam_currentIndexChanged(int index)

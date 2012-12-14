@@ -1,3 +1,206 @@
+2012-12-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Lib.pro, Plasmoid.pro, StandAlone.pro,
+	Webcamoid.desktop, Webcamoid.pro, commons.pri,
+	include/mainwidget.h, include/mediatools.h, include/plasmoid.h,
+	plasma-applet-webcamoid.desktop, src/main.cpp, src/mainwidget.cpp,
+	src/mediatools.cpp, src/plasmoid.cpp, webcamoid.desktop: Keep frame
+	aspect ratio. Keep widget size after close. Added plasmoid project.
+	Fix install scripts.
+
+2012-12-12  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, StandAlone.pro, include/effects.h,
+	include/featuresinfo.h, include/generalconfig.h,
+	include/mainwidget.h, include/mainwindow.h, include/mediatools.h,
+	include/streamsconfig.h, include/v4l2tools.h,
+	include/videorecordconfig.h, include/webcamconfig.h,
+	share/ui/mainwidget.ui, share/ui/mainwindow.ui, src/effects.cpp,
+	src/featuresinfo.cpp, src/generalconfig.cpp, src/main.cpp,
+	src/mainwidget.cpp, src/mainwindow.cpp, src/mediatools.cpp,
+	src/streamsconfig.cpp, src/v4l2tools.cpp,
+	src/videorecordconfig.cpp, src/webcamconfig.cpp: Effects preview and
+	settings, video format settings, ready.
+
+2012-12-10  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, StandAlone.pro, include/v4l2tools.h, src/v4l2tools.cpp: 
+	Removed QtGstreamer from dependencies. Bug fix. Capture now works
+	again.
+
+2012-12-09  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Lib.pro, StandAlone.pro, Webcamoid.pro, commons.pri,
+	include/mainwindow.h, include/v4l2tools.h, include/webcamconfig.h,
+	src/effects.cpp, src/featuresinfo.cpp, src/generalconfig.cpp,
+	src/main.cpp, src/mainwindow.cpp, src/streamsconfig.cpp,
+	src/v4l2tools.cpp, src/videorecordconfig.cpp, src/webcamconfig.cpp: 
+	Bug fix and code cleanning.
+
+2012-12-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* include/featuresinfo.h, include/generalconfig.h,
+	include/mainwindow.h, include/streamsconfig.h, include/v4l2tools.h,
+	include/videorecordconfig.h, include/webcamconfig.h,
+	src/featuresinfo.cpp, src/generalconfig.cpp, src/mainwindow.cpp,
+	src/streamsconfig.cpp, src/v4l2tools.cpp,
+	src/videorecordconfig.cpp, src/webcamconfig.cpp: libWebcamoid.so
+	ready.
+
+2012-12-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Lib.pro, Plasmoid.pro, StandAlone.pro,
+	Webcamoid.desktop, Webcamoid.nja, Webcamoid.pro,
+	Webcamoid.qdocconf, Webcamoid.qrc, commons.pri,
+	contents/code/appenvironment.py, contents/code/effects.py,
+	contents/code/featuresinfo.py, contents/code/generalconfig.py,
+	contents/code/main.py, contents/code/mainwindow.py,
+	contents/code/pipeline.py, contents/code/streamsconfig.py,
+	contents/code/v4l2/AUTHORS, contents/code/v4l2/LICENSE,
+	contents/code/v4l2/MANIFEST.in, contents/code/v4l2/NEWS,
+	contents/code/v4l2/PKG-INFO, contents/code/v4l2/README,
+	contents/code/v4l2/__init__.py, contents/code/v4l2/setup.py,
+	contents/code/v4l2/tests.py, contents/code/v4l2/v4l2.py,
+	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
+	contents/code/webcamconfig.py, contents/ts/ca.ts,
+	contents/ts/de.ts, contents/ts/el.ts, contents/ts/es.ts,
+	contents/ts/fr.ts, contents/ts/gl.ts, contents/ts/it.ts,
+	contents/ts/ja.ts, contents/ts/ko.ts, contents/ts/pt.ts,
+	contents/ts/ru.ts, contents/ts/zh_CN.ts, contents/ts/zh_TW.ts,
+	contents/ui/effects.ui, contents/ui/featuresinfo.ui,
+	contents/ui/generalconfig.ui, contents/ui/mainwindow.ui,
+	contents/ui/streamsconfig.ui, contents/ui/videorecordconfig.ui,
+	contents/ui/webcamconfig.ui, include/appenvironment.h,
+	include/commons.h, include/effects.h, include/featuresinfo.h,
+	include/generalconfig.h, include/mainwindow.h,
+	include/streamsconfig.h, include/v4l2tools.h,
+	include/videorecordconfig.h, include/webcamconfig.h,
+	metadata.desktop, setup.py, share/ts/ca.ts, share/ts/de.ts,
+	share/ts/el.ts, share/ts/es.ts, share/ts/fr.ts, share/ts/gl.ts,
+	share/ts/it.ts, share/ts/ja.ts, share/ts/ko.ts, share/ts/pt.ts,
+	share/ts/ru.ts, share/ts/zh_CN.ts, share/ts/zh_TW.ts,
+	share/ui/effects.ui, share/ui/featuresinfo.ui,
+	share/ui/generalconfig.ui, share/ui/mainwindow.ui,
+	share/ui/streamsconfig.ui, share/ui/videorecordconfig.ui,
+	share/ui/webcamconfig.ui, src/appenvironment.cpp, src/effects.cpp,
+	src/featuresinfo.cpp, src/generalconfig.cpp, src/main.cpp,
+	src/mainwindow.cpp, src/streamsconfig.cpp, src/v4l2tools.cpp,
+	src/videorecordconfig.cpp, src/webcamconfig.cpp: Python -> C++.
+
+2012-11-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* TODO, contents/code/effects.py, contents/code/generalconfig.py,
+	contents/code/main.py, contents/code/mainwindow.py,
+	contents/code/pipeline.py, contents/code/v4l2tools.py,
+	contents/code/webcamconfig.py, contents/ui/generalconfig.ui: Working
+	with PyGst again. Added uninterrupted video recording.
+
+2012-10-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, contents/code/appenvironment.py,
+	contents/code/effects.py, contents/code/featuresinfo.py,
+	contents/code/generalconfig.py, contents/code/main.py,
+	contents/code/mainwindow.py, contents/code/streamsconfig.py,
+	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
+	contents/code/webcamconfig.py, setup.py: Added .gitignore file and
+	removed -B option in Python.
+
+2012-10-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md, contents/code/appenvironment.py,
+	contents/code/effects.py, contents/code/features.py,
+	contents/code/featuresinfo.py, contents/code/generalconfig.py,
+	contents/code/mainwindow.py, contents/code/streamsconfig.py,
+	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
+	contents/code/webcamconfig.py, contents/ui/effects.ui,
+	contents/ui/featuresinfo.ui, contents/ui/generalconfig.ui,
+	contents/ui/streamsconfig.ui, contents/ui/videorecordconfig.ui,
+	contents/ui/webcamconfig.ui: Added "General Configs" page. Added
+	effects search filter.
+
+2012-10-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/effects.py, contents/code/features.py,
+	contents/code/featuresinfo.py, contents/code/infotools.py,
+	contents/code/mainwindow.py, contents/code/webcamconfig.py,
+	contents/ui/featuresinfo.ui: Added Features page.
+
+2012-10-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* contents/code/streamsconfig.py, contents/code/v4l2tools.py,
+	contents/code/videorecordconfig.py, contents/ui/streamsconfig.ui,
+	contents/ui/videorecordconfig.ui: Removed named pipes. Fixed
+	hang-ups and segfaults. Added columns and rows auto resize.
+
+2012-10-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md, contents/code/v4l2tools.py: Added more effects.
+
+2012-10-24  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* packagemap.xml, setup.py: Updated packagemap. Updated setup.py
+	(Bug #2).
+
+2012-10-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md, TODO, Webcamoid.pro, contents/code/mainwindow.py,
+	contents/code/networkstreamsconfig.py,
+	contents/code/streamsconfig.py, contents/code/v4l2tools.py,
+	contents/code/videorecordconfig.py, contents/code/webcamconfig.py,
+	contents/ts/ca.ts, contents/ts/de.ts, contents/ts/el.ts,
+	contents/ts/es.ts, contents/ts/fr.ts, contents/ts/gl.ts,
+	contents/ts/it.ts, contents/ts/ja.ts, contents/ts/ko.ts,
+	contents/ts/pt.ts, contents/ts/ru.ts, contents/ts/zh_CN.ts,
+	contents/ts/zh_TW.ts, contents/ui/networkstreamsconfig.ui,
+	contents/ui/streamsconfig.ui: Added desktop capture. Updated
+	translations. Updated README. Bug fix.
+
+2012-10-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* TODO, contents/code/effects.py, contents/code/mainwindow.py,
+	contents/code/networkstreamsconfig.py, contents/code/v4l2tools.py,
+	contents/code/webcamconfig.py, contents/ui/effects.ui: Added live
+	previews. Added IP cameras and streaming support..
+
+2012-10-19  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* TODO, contents/code/appenvironment.py, contents/code/ipcamera.py,
+	contents/code/mainwindow.py, contents/code/networkstreamsconfig.py,
+	contents/code/v4l2tools.py, contents/ui/networkstreamsconfig.ui,
+	metadata.desktop, setup.py: Added network camera configs.
+
+2012-10-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* TODO, contents/code/ipcamera.py, contents/code/main.py,
+	contents/code/v4l2/v4l2.py: Added TODO list. Preparing for the next
+	release.
+
+2012-09-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Webcamoid.pro, contents/code/appenvironment.py,
+	contents/code/effects.py, contents/code/main.py,
+	contents/code/mainwindow.py, contents/code/videorecordconfig.py,
+	contents/code/webcamconfig.py, contents/ts/ca.ts,
+	contents/ts/de.ts, contents/ts/el.ts, contents/ts/es.ts,
+	contents/ts/fr.ts, contents/ts/gl.ts, contents/ts/it.ts,
+	contents/ts/ja.ts, contents/ts/ko.ts, contents/ts/pt.ts,
+	contents/ts/ru.ts, contents/ts/zh_CN.ts, contents/ts/zh_TW.ts,
+	contents/ui/webcamconfig.ui, packagemap.xml: Webcamoid 3.2.0
+	finished :D
+
+2012-09-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, README.md, contents/code/appenvironment.py,
+	contents/code/effects.py, contents/code/mainwindow.py,
+	contents/code/videorecordconfig.py, contents/code/webcamconfig.py,
+	contents/ts/ca.ts, contents/ts/de.ts, contents/ts/el.ts,
+	contents/ts/es.ts, contents/ts/fr.ts, contents/ts/gl.ts,
+	contents/ts/it.ts, contents/ts/ja.ts, contents/ts/ko.ts,
+	contents/ts/pt.ts, contents/ts/ru.ts, contents/ts/zh_CN.ts,
+	contents/ts/zh_TW.ts, packagemap.xml: Many improvements and bug
+	fixes to the i18n, stylesheets and the stand alone install. Updated
+	Info.
+
 2012-09-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* Webcamoid.pro, contents/code/appenvironment.py,

@@ -19,8 +19,8 @@
 
 isEmpty(COMMONS_PRI_INCLUDE) {
     REQ_QT_MAJ = 4
-    REQ_QT_MIN = 8
-    REQ_QT_PAT = 4
+    REQ_QT_MIN = 7
+    REQ_QT_PAT = 0
 
     isEqual(QT_MAJOR_VERSION, $$REQ_QT_MAJ) {
         lessThan(QT_MINOR_VERSION, $$REQ_QT_MIN) {
@@ -62,21 +62,17 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     }
 
     DESTDIR = .
-    COMMONS_BUILD_PATH = build
-    COMMONS_DEBUG_BUILD_PATH = $${COMMONS_BUILD_PATH}/debug
-    COMMONS_RELEASE_BUILD_PATH = $${COMMONS_BUILD_PATH}/release
 
     CONFIG(debug, debug|release) {
-        MOC_DIR = $${COMMONS_DEBUG_BUILD_PATH}/moc
-        OBJECTS_DIR = $${COMMONS_DEBUG_BUILD_PATH}/obj
-        RCC_DIR = $${COMMONS_DEBUG_BUILD_PATH}/rcc
-        UI_DIR = $${COMMONS_DEBUG_BUILD_PATH}/ui
+        COMMONS_BUILD_PATH = build/debug
     } else {
-        MOC_DIR = $${COMMONS_RELEASE_BUILD_PATH}/moc
-        OBJECTS_DIR = $${COMMONS_RELEASE_BUILD_PATH}/obj
-        RCC_DIR = $${COMMONS_RELEASE_BUILD_PATH}/rcc
-        UI_DIR = $${COMMONS_RELEASE_BUILD_PATH}/ui
+        COMMONS_BUILD_PATH = build/release
     }
+
+    MOC_DIR = $${COMMONS_BUILD_PATH}/moc
+    OBJECTS_DIR = $${COMMONS_BUILD_PATH}/obj
+    RCC_DIR = $${COMMONS_BUILD_PATH}/rcc
+    UI_DIR = $${COMMONS_BUILD_PATH}/ui
 
     COMMONS_PRI_INCLUDE = 1
 }

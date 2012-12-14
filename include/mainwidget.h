@@ -62,6 +62,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
         void resizeEvent(QResizeEvent *event);
         void enterEvent(QEvent *event);
         void leaveEvent(QEvent *event);
+        void closeEvent(QCloseEvent *event);
 
     public slots:
         void addWebcamConfigDialog(KConfigDialog *configDialog);
@@ -75,7 +76,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
     private slots:
         void updateWebcams();
         void deviceChanged(QString device);
-        void recordingStateChanged(bool recording);
+        void recordingChanged(bool recording);
         void saveConfigs();
         void showGstError();
         void stopEffectsPreview();

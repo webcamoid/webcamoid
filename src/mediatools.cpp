@@ -52,6 +52,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     this->m_captureDevice = NULL;
     this->m_effectsBin = NULL;
     this->m_effectsPreviewBin = NULL;
+    this->m_recordingBin = NULL;
 
     this->resetDevice();
     this->resetVideoFormat();
@@ -71,7 +72,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     QString captureHash = this->hashFromName("capture");
     QString mainBinDescription = QString("tee name=CaptureTee ! "
                                          "tee name=EffectsTee ! "
-                                         "ffmpegcolorspace ! "
+                                         "queue ! ffmpegcolorspace ! "
                                          "ffenc_bmp ! "
                                          "appsink name=%1 emit-signals=true max_buffers=1 drop=true").arg(captureHash);
 
@@ -857,44 +858,84 @@ void MediaTools::setRecordAudio(bool recordAudio)
 
 void MediaTools::setRecording(bool recording, QString fileName)
 {
-    Q_UNUSED(fileName)
-    /*
-    this->stopVideoRecord();
-
-    if (!this->m_playing)
-        return;
-
-    // suffix, videoEncoder, audioEncoder, muxer
-    QStringList format = this->bestVideoRecordFormat(fileName);
-
-    if (format.at(0).isEmpty())
-        return;
-
-    QString pipeline = QString("appsrc name={capture} emit-signals=true do-timestamp=true ! ffdec_bmp ! "
-                               "ffmpegcolorspace ! %1 ! queue ! muxer. ").arg(videoEncoder);
-
-    if (this->m_recordAudio)
-        // autoaudiosrc
-        pipeline += QString("alsasrc device=plughw:0,0 ! queue ! audioconvert ! "
-                            "queue ! %1 ! queue ! muxer. ").arg(audioEncoder);
-
-    pipeline += QString("%1 name=muxer ! filesink location=\"%2\"").arg(muxer)
-                                                                   .arg(fileName);
-
-    this->pipeRecordVideo->setPipeline(pipeline);
-    self.pipeRecordVideo.start()
-    emit this->recordingStateChanged(true);
-    this->m_recording = True;*/
-
-    if (this->m_recording)
+    if (!this->m_mainPipeline)
     {
-        //dev_name = this->curDevName
-        //this->pipeRecordVideo->stop();
         this->m_recording = false;
-        emit this->recordingStateChanged(false);
+        emit this->recordingChanged(this->m_recording);
+
+        return;
     }
 
-    this->m_recording = recording;
+    GstState state;
+
+    gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
+
+    if (state == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
+
+    if (this->m_recordingBin)
+    {
+        gst_element_set_state(this->m_recordingBin, GST_STATE_NULL);
+
+        GstElement *effectsTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "EffectsTee");
+        GstElement *queueVideoRecording = gst_bin_get_by_name(GST_BIN(this->m_recordingBin), "VideoRecording");
+        gst_element_unlink(effectsTee, queueVideoRecording);
+        gst_object_unref(GST_OBJECT(effectsTee));
+        gst_object_unref(GST_OBJECT(queueVideoRecording));
+
+        gst_bin_remove(GST_BIN(this->m_mainBin), this->m_recordingBin);
+        this->m_recordingBin = NULL;
+
+        this->m_recording = false;
+        emit this->recordingChanged(this->m_recording);
+    }
+
+    if (recording)
+    {
+        QStringList format = this->bestVideoRecordFormat(fileName);
+
+        if (format.isEmpty())
+        {
+            this->m_recording = false;
+            emit this->recordingChanged(this->m_recording);
+
+            return;
+        }
+
+        QString pipeline = QString("queue name=VideoRecording ! ffmpegcolorspace ! "
+                                   "%1 ! queue ! muxer. ").arg(format.at(1));
+
+        if (this->m_recordAudio)
+            // autoaudiosrc
+            pipeline += QString("alsasrc device=plughw:0,0 ! queue ! audioconvert ! "
+                                "queue ! %1 ! queue ! muxer. ").arg(format.at(2));
+
+        pipeline += QString("%1 name=muxer ! filesink location=\"%2\"").arg(format.at(3))
+                                                                       .arg(fileName);
+
+        GError *error = NULL;
+
+        this->m_recordingBin = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
+                                                              FALSE,
+                                                              &error);
+
+        g_object_set(GST_OBJECT(this->m_recordingBin), "name", "recordingBin", NULL);
+        gst_bin_add(GST_BIN(this->m_mainBin), this->m_recordingBin);
+
+        gst_element_set_state(this->m_recordingBin, GST_STATE_PAUSED);
+
+        GstElement *effectsTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "EffectsTee");
+        GstElement *queueVideoRecording = gst_bin_get_by_name(GST_BIN(this->m_recordingBin), "VideoRecording");
+        gst_element_link(effectsTee, queueVideoRecording);
+        gst_object_unref(GST_OBJECT(effectsTee));
+        gst_object_unref(GST_OBJECT(queueVideoRecording));
+
+        this->m_recording = true;
+        emit this->recordingChanged(this->m_recording);
+    }
+
+    if (state == GST_STATE_PLAYING)
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
 }
 
 void MediaTools::setDevice(QString device)

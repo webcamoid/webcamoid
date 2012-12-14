@@ -77,8 +77,6 @@ TARGET = $${COMMONS_TARGET}
 
 TEMPLATE = app
 
-# http://www.loc.gov/standards/iso639-2/php/code_list.php
-
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 

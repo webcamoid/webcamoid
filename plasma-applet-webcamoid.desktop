@@ -1,11 +1,24 @@
 [Desktop Entry]
-Name=plasma_applet_Webcamoid
-Comment=Show and take Photos with your webcam
+Name=Webcamoid
+Comment=Webcam Capture Software
+Comment[ca]=Programari de Captura de Càmera web
+Comment[de]=Webcam-Capture-Software
+Comment[el]=κάμερα συλλαμβάνει το λογισμικό
+Comment[es]=Programa para Captura de la Webcam
+Comment[fr]=Logiciel de Capture Webcam
+Comment[gl]=Programa de Captura de Webcam
+Comment[it]=Webcam Capture Software
+Comment[ja]=ウェブカメラのキャプチャソフトウェア
+Comment[ko]=웹캠 캡처 소프트웨어
+Comment[pt]=Software de Captura de Webcam
+Comment[ru]=Веб-камера захвата программного обеспечения
+Comment[zh_CN]=摄像头捕捉软件
+Comment[zh_TW]=攝像頭捕捉軟件
 Icon=camera-web
 Type=Service
 ServiceTypes=Plasma/Applet,Plasma/PopupApplet
 Encoding=UTF-8
-X-KDE-Library=Webcamoid
+X-KDE-Library=plasma_applet_webcamoid
 X-KDE-PluginInfo-Name=webcamoid
 X-KDE-PluginInfo-Category=Multimedia
 X-KDE-PluginInfo-Author=Gonzalo Exequiel Pedone

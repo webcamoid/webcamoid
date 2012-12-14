@@ -24,7 +24,12 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
-CONFIG += qt
+CONFIG += \
+    qt \
+    plugin \
+    no_plugin_name_prefix
+
+DEFINES += COMMONS_LIBRARY
 
 FORMS = \
     share/ui/effects.ui \
@@ -77,11 +82,9 @@ SOURCES = \
     src/videorecordconfig.cpp \
     src/webcamconfig.cpp
 
-TARGET = $${COMMONS_APPNAME}-plasmoid
+TARGET = plasma_applet_$${COMMONS_TARGET}
 
 TEMPLATE = lib
-
-# http://www.loc.gov/standards/iso639-2/php/code_list.php
 
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
@@ -101,6 +104,5 @@ unix {
     desktop.files = plasma-applet-$${COMMONS_TARGET}.desktop
     desktop.path = $${COMMONS_DATA_INSTALL_PATH}/kde4/services
 
-    target.files = lib$${COMMONS_APPNAME}-plasmoid.$${VERSION}.$${TARGET_EXT}
-    target.path  = $${COMMONS_LIBS_INSTALL_PATH}/kde4/plasma_applet_$${COMMONS_TARGET}.$${TARGET_EXT}
+    target.path  = $${COMMONS_LIBS_INSTALL_PATH}/kde4
 }

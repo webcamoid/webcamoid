@@ -24,6 +24,22 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
+isEmpty(QMAKE_LRELEASE) {
+    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
+    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+}
+
+# http://www.qtcentre.org/wiki/index.php?title=Undocumented_qmake
+
+compiletr.input = TRANSLATIONS
+compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+compiletr.CONFIG += no_link
+
+QMAKE_EXTRA_COMPILERS += compiletr
+
+PRE_TARGETDEPS += compiler_compiletr_make_all
+
 CONFIG += qt
 
 DEFINES += COMMONS_LIBRARY

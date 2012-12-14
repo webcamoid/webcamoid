@@ -112,6 +112,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         GstElement *m_captureDevice;
         GstElement *m_effectsBin;
         GstElement *m_effectsPreviewBin;
+        GstElement *m_recordingBin;
         GstElement *m_mainBin;
         GstElement *m_mainPipeline;
         QMutex m_mutex;
@@ -133,7 +134,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void devicesModified();
         void frameSizeChanged(QSize size);
         void deviceChanged(QString device);
-        void recordingStateChanged(bool recording);
+        void recordingChanged(bool recording);
         void frameReady(const QImage &frame);
         void previewFrameReady(const QImage &frame, QString effectName);
         void gstError();
