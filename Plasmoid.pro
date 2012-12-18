@@ -29,29 +29,8 @@ CONFIG += \
     plugin \
     no_plugin_name_prefix
 
-DEFINES += COMMONS_LIBRARY
-
-FORMS = \
-    share/ui/effects.ui \
-    share/ui/featuresinfo.ui \
-    share/ui/generalconfig.ui \
-    share/ui/mainwidget.ui \
-    share/ui/streamsconfig.ui \
-    share/ui/videorecordconfig.ui \
-    share/ui/webcamconfig.ui
-
 HEADERS = \
-    include/appenvironment.h \
-    include/commons.h \
-    include/effects.h \
-    include/featuresinfo.h \
-    include/generalconfig.h \
-    include/plasmoid.h \
-    include/mainwidget.h \
-    include/mediatools.h \
-    include/streamsconfig.h \
-    include/videorecordconfig.h \
-    include/webcamconfig.h
+    include/plasmoid.h
 
 INCLUDEPATH += \
     include \
@@ -59,6 +38,8 @@ INCLUDEPATH += \
     /usr/include/gstreamer-0.10
 
 LIBS += \
+    -L. \
+    -lWebcamoid \
     -lkdecore \
     -lkdeui
 
@@ -67,20 +48,8 @@ OTHER_FILES += \
 
 QT += core gui
 
-RESOURCES += \
-    Webcamoid.qrc
-
 SOURCES = \
-    src/appenvironment.cpp \
-    src/effects.cpp \
-    src/featuresinfo.cpp \
-    src/generalconfig.cpp \
-    src/plasmoid.cpp \
-    src/mainwidget.cpp \
-    src/mediatools.cpp \
-    src/streamsconfig.cpp \
-    src/videorecordconfig.cpp \
-    src/webcamconfig.cpp
+    src/plasmoid.cpp
 
 TARGET = plasma_applet_$${COMMONS_TARGET}
 

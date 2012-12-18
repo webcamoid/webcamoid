@@ -19,117 +19,176 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include "ui_streamsconfig.h"
+
 #include "streamsconfig.h"
 
-StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
+StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
+    QWidget(parent),
+    ui(new Ui::StreamsConfig)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
-    this->setupUi(this);
+    this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->m_isInit = true;
     QVariantList streams = this->m_mediaTools->streams();
 
-    this->tbwCustomStreams->setRowCount(streams.length());
+    this->ui->tbwCustomStreams->setRowCount(streams.length());
 
     int row = 0;
 
     foreach (QVariant stream, streams)
     {
-        QString param = stream.toStringList().at(1);
+        QString name = stream.toList().at(1).toString();
 
-        this->tbwCustomStreams->setItem(row,
-                                        0,
-                                        new QTableWidgetItem(param));
+        this->ui->tbwCustomStreams->setItem(row,
+                                            0,
+                                            new QTableWidgetItem(name));
 
-        param = stream.toStringList().at(0);
+        QString uri = stream.toList().at(0).toString();
 
-        this->tbwCustomStreams->setItem(row,
-                                        1,
-                                        new QTableWidgetItem(param));
+        this->ui->tbwCustomStreams->setItem(row,
+                                            1,
+                                            new QTableWidgetItem(uri));
+
+        bool hasAudio = stream.toList().at(2).toBool();
+        QTableWidgetItem *item = new QTableWidgetItem();
+        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        item->setCheckState(hasAudio? Qt::Checked: Qt::Unchecked);
+
+        this->ui->tbwCustomStreams->setItem(row,
+                                            2,
+                                            item);
+
+        bool playAudio = stream.toList().at(3).toBool();
+        item = new QTableWidgetItem();
+        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        item->setCheckState(playAudio? Qt::Checked: Qt::Unchecked);
+
+        this->ui->tbwCustomStreams->setItem(row,
+                                            3,
+                                            item);
 
         row++;
     }
 
     this->m_isInit = false;
-    this->tbwCustomStreams->resizeRowsToContents();
-    this->tbwCustomStreams->resizeColumnsToContents();
+    this->ui->tbwCustomStreams->resizeRowsToContents();
+    this->ui->tbwCustomStreams->resizeColumnsToContents();
+}
+
+StreamsConfig::~StreamsConfig()
+{
+    delete this->ui;
 }
 
 void StreamsConfig::update()
 {
-    this->tbwCustomStreams->resizeRowsToContents();
-    this->tbwCustomStreams->resizeColumnsToContents();
+    this->ui->tbwCustomStreams->resizeRowsToContents();
+    this->ui->tbwCustomStreams->resizeColumnsToContents();
 
     if (this->m_isInit)
         return;
 
     this->m_mediaTools->clearCustomStreams();
 
-    for (int row = 0; row < this->tbwCustomStreams->rowCount(); row++)
+    for (int row = 0; row < this->ui->tbwCustomStreams->rowCount(); row++)
     {
-        QString description = this->tbwCustomStreams->item(row, 0)->text();
-        QString devName = this->tbwCustomStreams->item(row, 1)->text();
+        QTableWidgetItem *item;
+        QString description;
+        QString devName;
+        bool hasAudio = false;
+        bool playAudio = false;
 
-        this->m_mediaTools->setCustomStream(devName, description);
+        if ((item = this->ui->tbwCustomStreams->item(row, 0)))
+            description = item->text();
+
+        if ((item = this->ui->tbwCustomStreams->item(row, 1)))
+            devName = item->text();
+
+        if ((item = this->ui->tbwCustomStreams->item(row, 2)))
+            hasAudio = item->checkState() == Qt::Checked? true: false;
+
+        if ((item = this->ui->tbwCustomStreams->item(row, 3)))
+            playAudio = item->checkState() == Qt::Checked? true: false;
+
+        this->m_mediaTools->setCustomStream(devName,
+                                            description,
+                                            hasAudio,
+                                            playAudio);
     }
 }
 
 void StreamsConfig::on_btnAdd_clicked()
 {
-    this->tbwCustomStreams->insertRow(this->tbwCustomStreams->rowCount());
+    int row = this->ui->tbwCustomStreams->rowCount();
+    this->ui->tbwCustomStreams->insertRow(row);
+    this->ui->tbwCustomStreams->setItem(row, 0, new QTableWidgetItem());
+    this->ui->tbwCustomStreams->setItem(row, 1, new QTableWidgetItem());
+
+    QTableWidgetItem *item = new QTableWidgetItem();
+    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+    item->setCheckState(Qt::Unchecked);
+    this->ui->tbwCustomStreams->setItem(row, 2, item);
+
+    item = new QTableWidgetItem();
+    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+    item->setCheckState(Qt::Unchecked);
+    this->ui->tbwCustomStreams->setItem(row, 3, item);
+
     this->update();
 }
 
 void StreamsConfig::on_btnRemove_clicked()
 {
-    this->tbwCustomStreams->removeRow(this->tbwCustomStreams->currentRow());
+    this->ui->tbwCustomStreams->removeRow(this->ui->tbwCustomStreams->currentRow());
     this->update();
 }
 
 void StreamsConfig::on_btnUp_clicked()
 {
-    int currentRow = this->tbwCustomStreams->currentRow();
+    int currentRow = this->ui->tbwCustomStreams->currentRow();
     int nextRow = currentRow - 1;
 
     if (nextRow < 0)
         return;
 
-    for (int column = 0; column < this->tbwCustomStreams->columnCount(); column++)
+    for (int column = 0; column < this->ui->tbwCustomStreams->columnCount(); column++)
     {
-        QString currentText = this->tbwCustomStreams->item(currentRow, column)->text();
-        QString nextText = this->tbwCustomStreams->item(nextRow, column)->text();
+        QTableWidgetItem *currentItem = this->ui->tbwCustomStreams->takeItem(currentRow, column);
+        QTableWidgetItem *nextItem = this->ui->tbwCustomStreams->takeItem(nextRow, column);
 
-        this->tbwCustomStreams->item(currentRow, column)->setText(nextText);
-        this->tbwCustomStreams->item(nextRow, column)->setText(currentText);
+        this->ui->tbwCustomStreams->setItem(currentRow, column, nextItem);
+        this->ui->tbwCustomStreams->setItem(nextRow, column, currentItem);
     }
 
-    this->tbwCustomStreams->
-            setCurrentCell(nextRow, this->tbwCustomStreams->currentColumn());
+    this->ui->tbwCustomStreams->
+            setCurrentCell(nextRow, this->ui->tbwCustomStreams->currentColumn());
 
     this->update();
 }
 
 void StreamsConfig::on_btnDown_clicked()
 {
-    int currentRow = this->tbwCustomStreams->currentRow();
+    int currentRow = this->ui->tbwCustomStreams->currentRow();
     int nextRow = currentRow + 1;
 
-    if (nextRow >= this->tbwCustomStreams->rowCount())
+    if (nextRow >= this->ui->tbwCustomStreams->rowCount())
         return;
 
-    for (int column = 0; column < this->tbwCustomStreams->columnCount(); column++)
+    for (int column = 0; column < this->ui->tbwCustomStreams->columnCount(); column++)
     {
-        QString currentText = this->tbwCustomStreams->item(currentRow, column)->text();
-        QString nextText = this->tbwCustomStreams->item(nextRow, column)->text();
+        QTableWidgetItem *currentItem = this->ui->tbwCustomStreams->takeItem(currentRow, column);
+        QTableWidgetItem *nextItem = this->ui->tbwCustomStreams->takeItem(nextRow, column);
 
-        this->tbwCustomStreams->item(currentRow, column)->setText(nextText);
-        this->tbwCustomStreams->item(nextRow, column)->setText(currentText);
+        this->ui->tbwCustomStreams->setItem(currentRow, column, nextItem);
+        this->ui->tbwCustomStreams->setItem(nextRow, column, currentItem);
     }
 
-    this->tbwCustomStreams->
-            setCurrentCell(nextRow, this->tbwCustomStreams->currentColumn());
+    this->ui->tbwCustomStreams->
+            setCurrentCell(nextRow, this->ui->tbwCustomStreams->currentColumn());
 
     this->update();
 }

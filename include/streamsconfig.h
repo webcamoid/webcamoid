@@ -24,20 +24,26 @@
 
 #include <QtGui>
 
-#include "ui_streamsconfig.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "mediatools.h"
 
-class COMMONSSHARED_EXPORT StreamsConfig: public QWidget, public Ui::StreamsConfig
+namespace Ui
+{
+    class StreamsConfig;
+}
+
+class COMMONSSHARED_EXPORT StreamsConfig: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit StreamsConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~StreamsConfig();
 
     private:
+        Ui::StreamsConfig *ui;
+
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         bool m_isInit;

@@ -121,6 +121,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QMap<QString, int> m_callBacks;
         QSize m_curFrameSize;
         guint m_busWatchId;
+        bool m_waitForEOS;
 
         QVariantList queryControl(int dev_fd, struct v4l2_queryctrl *queryctrl);
         QMap<QString, uint> findControls(int dev_fd);
@@ -165,7 +166,10 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void setEffects(QStringList effects=QStringList());
         void clearVideoRecordFormats();
         void clearCustomStreams();
-        void setCustomStream(QString dev_name="", QString description="");
+        void setCustomStream(QString dev_name="",
+                             QString description="",
+                             bool hasAudio=false,
+                             bool playAudio=false);
         void enableAudioRecording(bool enable);
         void setVideoRecordFormat(QString suffix="", QString videoEncoder="",
                                   QString audioEncoder="", QString muxer="");

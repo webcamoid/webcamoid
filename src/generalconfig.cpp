@@ -19,16 +19,25 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include "ui_generalconfig.h"
+
 #include "generalconfig.h"
 
-GeneralConfig::GeneralConfig(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
+GeneralConfig::GeneralConfig(MediaTools *mediaTools, QWidget *parent):
+    QWidget(parent),
+    ui(new Ui::GeneralConfig)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
-    this->setupUi(this);
+    this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
-    this->chkAudioRecord->setCheckState(this->m_mediaTools->recordAudio()? Qt::Checked: Qt::Unchecked);
+    this->ui->chkAudioRecord->setCheckState(this->m_mediaTools->recordAudio()? Qt::Checked: Qt::Unchecked);
+}
+
+GeneralConfig::~GeneralConfig()
+{
+    delete this->ui;
 }
 
 void GeneralConfig::on_chkAudioRecord_stateChanged(int state)

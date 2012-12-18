@@ -24,20 +24,26 @@
 
 #include <QtGui>
 
-#include "ui_featuresinfo.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "mediatools.h"
 
-class COMMONSSHARED_EXPORT FeaturesInfo: public QWidget, public Ui::FeaturesInfo
+namespace Ui
+{
+    class FeaturesInfo;
+}
+
+class COMMONSSHARED_EXPORT FeaturesInfo: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit FeaturesInfo(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~FeaturesInfo();
 
     private:
+        Ui::FeaturesInfo *ui;
+
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
 

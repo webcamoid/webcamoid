@@ -30,8 +30,8 @@ CONFIG += ordered
 
 SUBDIRS += \
     Lib.pro \
-    StandAlone.pro \
-    Plasmoid.pro
+    Plasmoid.pro \
+    StandAlone.pro
 
 # Install rules
 

@@ -19,22 +19,31 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include "ui_featuresinfo.h"
+
 #include "featuresinfo.h"
 
-FeaturesInfo::FeaturesInfo(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
+FeaturesInfo::FeaturesInfo(MediaTools *mediaTools, QWidget *parent):
+    QWidget(parent),
+    ui(new Ui::FeaturesInfo)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
-    this->setupUi(this);
+    this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->on_btnRecheck_clicked();
 }
 
+FeaturesInfo::~FeaturesInfo()
+{
+    delete this->ui;
+}
+
 void FeaturesInfo::on_btnRecheck_clicked()
 {
     QVariantMap features = this->m_mediaTools->featuresMatrix();
-    this->tbwFeatures->setRowCount(features.size());
+    this->ui->tbwFeatures->setRowCount(features.size());
 
     QStringList featuresList = features.keys();
 
@@ -45,17 +54,17 @@ void FeaturesInfo::on_btnRecheck_clicked()
     {
         QString iconName = features[module].toList().at(0).toBool()? "ok": "cancel";
 
-        this->tbwFeatures->setItem(row,
+        this->ui->tbwFeatures->setItem(row,
                                    0,
                                    new QTableWidgetItem(QIcon::fromTheme(iconName), features[module].toList().at(1).toString()));
 
-        this->tbwFeatures->setItem(row,
+        this->ui->tbwFeatures->setItem(row,
                                    1,
                                    new QTableWidgetItem(features[module].toList().at(2).toString()));
 
         row++;
     }
 
-    this->tbwFeatures->resizeRowsToContents();
-    this->tbwFeatures->resizeColumnsToContents();
+    this->ui->tbwFeatures->resizeRowsToContents();
+    this->ui->tbwFeatures->resizeColumnsToContents();
 }

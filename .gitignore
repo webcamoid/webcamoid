@@ -53,6 +53,7 @@ Makefile*
 *.pro.user*
 *.qmlproject.user*
 *.autosave
+*.qm
 
 # VIM temporary files #
 #######################

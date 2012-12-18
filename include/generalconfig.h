@@ -24,20 +24,26 @@
 
 #include <QtGui>
 
-#include "ui_generalconfig.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "mediatools.h"
 
-class COMMONSSHARED_EXPORT GeneralConfig: public QWidget, public Ui::GeneralConfig
+namespace Ui
+{
+    class GeneralConfig;
+}
+
+class COMMONSSHARED_EXPORT GeneralConfig: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit GeneralConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~GeneralConfig();
 
     private:
+        Ui::GeneralConfig *ui;
+
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
 

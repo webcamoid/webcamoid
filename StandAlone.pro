@@ -26,52 +26,19 @@ exists(commons.pri) {
 
 CONFIG += qt
 
-FORMS = \
-    share/ui/effects.ui \
-    share/ui/featuresinfo.ui \
-    share/ui/generalconfig.ui \
-    share/ui/mainwidget.ui \
-    share/ui/streamsconfig.ui \
-    share/ui/videorecordconfig.ui \
-    share/ui/webcamconfig.ui
-
-HEADERS = \
-    include/appenvironment.h \
-    include/commons.h \
-    include/effects.h \
-    include/featuresinfo.h \
-    include/generalconfig.h \
-    include/mainwidget.h \
-    include/mediatools.h \
-    include/streamsconfig.h \
-    include/videorecordconfig.h \
-    include/webcamconfig.h
-
 INCLUDEPATH += \
     include \
     /usr/include/KDE \
     /usr/include/gstreamer-0.10
 
 LIBS += \
-    -lkdecore \
-    -lkdeui
+    -L. \
+    -lWebcamoid
 
 QT += core gui
 
-RESOURCES += \
-    Webcamoid.qrc
-
 SOURCES = \
-    src/appenvironment.cpp \
-    src/effects.cpp \
-    src/featuresinfo.cpp \
-    src/generalconfig.cpp \
-    src/main.cpp \
-    src/mainwidget.cpp \
-    src/mediatools.cpp \
-    src/streamsconfig.cpp \
-    src/videorecordconfig.cpp \
-    src/webcamconfig.cpp
+    src/main.cpp
 
 TARGET = $${COMMONS_TARGET}
 

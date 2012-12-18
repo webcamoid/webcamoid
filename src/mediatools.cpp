@@ -22,11 +22,7 @@
 // http://gstreamer.freedesktop.org/documentation/
 // http://api.kde.org/
 // http://extragear.kde.org/apps/kipi/
-// http://cgit.freedesktop.org/gstreamer/gstreamer/tree/docs/design/part-probes.txt
-// gst_element_send_event (pipeline, gst_event_new_eos())
-// http://amarghosh.blogspot.com.ar/2012/01/gstreamer-appsrc-in-action.html
-// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-events-definitions.html#section-events-flush-stop
-// LD_PRELOAD='./libWebcamoid.so' ./Webcamoid
+// LD_PRELOAD='./libWebcamoid.so' ./webcamoid
 
 #include <sys/ioctl.h>
 #include <KSharedConfig>
@@ -46,6 +42,8 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                      SIGNAL(aboutToQuit()),
                      this,
                      SLOT(aboutToQuit()));
+
+    this->m_waitForEOS = false;
 
     this->m_mainBin = NULL;
     this->m_mainPipeline = NULL;
@@ -82,13 +80,16 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                                                      FALSE,
                                                      &error);
 
-    g_object_set(GST_OBJECT(this->m_mainBin), "name", "mainBin", NULL);
+    if (!error)
+    {
+        g_object_set(GST_OBJECT(this->m_mainBin), "name", "mainBin", NULL);
 
-    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_mainBin), captureHash.toUtf8().constData());
-    this->m_callBacks[captureHash] = g_signal_connect(capture, "new-buffer",  G_CALLBACK(MediaTools::readFrame), this);
-    gst_object_unref(GST_OBJECT(capture));
+        GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_mainBin), captureHash.toUtf8().constData());
+        this->m_callBacks[captureHash] = g_signal_connect(capture, "new-buffer",  G_CALLBACK(MediaTools::readFrame), this);
+        gst_object_unref(GST_OBJECT(capture));
 
-    gst_bin_add(GST_BIN(this->m_mainPipeline), this->m_mainBin);
+        gst_bin_add(GST_BIN(this->m_mainPipeline), this->m_mainBin);
+    }
 
     if (watchDevices)
     {
@@ -801,16 +802,21 @@ gboolean MediaTools::busMessage(GstBus *bus, GstMessage *message, gpointer self)
     MediaTools *mediaTools = (MediaTools* ) self;
 
     if (GST_MESSAGE_TYPE(message) == GST_MESSAGE_EOS)
-        gst_element_set_state(mediaTools->m_mainPipeline, GST_STATE_NULL);
+    {
+        if (mediaTools->m_waitForEOS)
+            mediaTools->m_waitForEOS = false;
+        else
+            gst_element_set_state(mediaTools->m_mainPipeline, GST_STATE_NULL);
+    }
     else if (GST_MESSAGE_TYPE(message) == GST_MESSAGE_ERROR)
     {
         GError *err;
         gchar *debug;
 
-        gst_message_parse_error (message, &err, &debug);
+        gst_message_parse_error(message, &err, &debug);
         qDebug() << "Error: " << err->message;
         g_error_free (err);
-        g_free (debug);
+        g_free(debug);
 
         gst_element_set_state(mediaTools->m_mainPipeline, GST_STATE_NULL);
     }
@@ -866,17 +872,26 @@ void MediaTools::setRecording(bool recording, QString fileName)
         return;
     }
 
+    this->m_waitForEOS = true;
+
+    if (this->m_recordingBin &&
+        gst_element_send_event(this->m_mainPipeline, gst_event_new_eos()))
+    {
+        while (this->m_waitForEOS)
+            QCoreApplication::processEvents();
+    }
+
+    this->m_waitForEOS = false;
+
     GstState state;
 
     gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
 
     if (state == GST_STATE_PLAYING)
-        gst_element_set_state(this->m_mainPipeline, GST_STATE_PAUSED);
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_NULL);
 
     if (this->m_recordingBin)
     {
-        gst_element_set_state(this->m_recordingBin, GST_STATE_NULL);
-
         GstElement *effectsTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "EffectsTee");
         GstElement *queueVideoRecording = gst_bin_get_by_name(GST_BIN(this->m_recordingBin), "VideoRecording");
         gst_element_unlink(effectsTee, queueVideoRecording);
@@ -906,8 +921,7 @@ void MediaTools::setRecording(bool recording, QString fileName)
                                    "%1 ! queue ! muxer. ").arg(format.at(1));
 
         if (this->m_recordAudio)
-            // autoaudiosrc
-            pipeline += QString("alsasrc device=plughw:0,0 ! queue ! audioconvert ! "
+            pipeline += QString("autoaudiosrc ! queue ! audioconvert ! "
                                 "queue ! %1 ! queue ! muxer. ").arg(format.at(2));
 
         pipeline += QString("%1 name=muxer ! filesink location=\"%2\"").arg(format.at(3))
@@ -919,10 +933,17 @@ void MediaTools::setRecording(bool recording, QString fileName)
                                                               FALSE,
                                                               &error);
 
+        if (error)
+        {
+            this->m_recordingBin = NULL;
+            this->m_recording = false;
+            emit this->recordingChanged(this->m_recording);
+
+            return;
+        }
+
         g_object_set(GST_OBJECT(this->m_recordingBin), "name", "recordingBin", NULL);
         gst_bin_add(GST_BIN(this->m_mainBin), this->m_recordingBin);
-
-        gst_element_set_state(this->m_recordingBin, GST_STATE_PAUSED);
 
         GstElement *effectsTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "EffectsTee");
         GstElement *queueVideoRecording = gst_bin_get_by_name(GST_BIN(this->m_recordingBin), "VideoRecording");
@@ -947,89 +968,145 @@ void MediaTools::setDevice(QString device)
         return;
     }
 
-    bool effectsPreview = this->effectsPreview();
-
     GstState state;
 
     gst_element_get_state(this->m_mainPipeline, &state, NULL, GST_CLOCK_TIME_NONE);
 
     if (state == GST_STATE_PLAYING)
-    {
-        this->resetEffectsPreview();
         gst_element_set_state(this->m_mainPipeline, GST_STATE_NULL);
+
+    if (this->m_captureDevice)
+    {
+        this->resetRecording();
+        this->resetEffectsPreview();
 
         GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
         GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
         gst_element_unlink(capture, captureTee);
-        gst_bin_remove(GST_BIN(this->m_mainBin), this->m_captureDevice);
         gst_object_unref(GST_OBJECT(capture));
         gst_object_unref(GST_OBJECT(captureTee));
+
+        gst_bin_remove(GST_BIN(this->m_mainBin), this->m_captureDevice);
+        this->m_captureDevice = NULL;
+
         this->m_device = "";
         emit this->deviceChanged(this->m_device);
-        this->setEffectsPreview(effectsPreview);
     }
 
-    if (device.isEmpty())
-        return;
-
-    this->m_device = device;
-
-    StreamType deviceType = this->deviceType(device);
-    GError *error = NULL;
-
-    if (deviceType == StreamTypeWebcam)
+    if (!device.isEmpty())
     {
-        QVariantList fmt = this->videoFormat();
+        StreamType deviceType = this->deviceType(device);
+        GError *error = NULL;
 
-        QString description = QString("v4l2src device=%1 ! "
-                                      "capsfilter name=capture "
-                                      "caps=video/x-raw-yuv,width=%2,height=%3").arg(device)
-                                                                                .arg(fmt.at(0).toInt())
-                                                                                .arg(fmt.at(1).toInt());
+        if (deviceType == StreamTypeWebcam)
+        {
+            QVariantList fmt = this->videoFormat(device);
 
-        this->m_captureDevice = gst_parse_bin_from_description(description.toUtf8().constData(),
-                                                               FALSE,
-                                                               &error);
+            QString description = QString("v4l2src device=%1 ! "
+                                          "capsfilter name=capture "
+                                          "caps=video/x-raw-yuv,width=%2,height=%3").arg(device)
+                                                                                    .arg(fmt.at(0).toInt())
+                                                                                    .arg(fmt.at(1).toInt());
 
-        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
-    }
-    else if (deviceType == StreamTypeURI)
-    {
-        this->m_captureDevice = gst_parse_bin_from_description("uridecodebin name=capture",
-                                                               FALSE,
-                                                               &error);
+            this->m_captureDevice = gst_parse_bin_from_description(description.toUtf8().constData(),
+                                                                   FALSE,
+                                                                   &error);
 
-        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+            g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+        }
+        else if (deviceType == StreamTypeURI)
+        {
+            QString scheme = QUrl(device).scheme();
+            QString pipeline;
+
+            bool hasAudio = false;
+            bool playAudio = false;
+
+            foreach (QVariant stream, this->m_streams)
+                if (stream.toList().at(0).toString() == device)
+                {
+                    hasAudio = stream.toList().at(2).toBool();
+                    playAudio = stream.toList().at(3).toBool();
+
+                    break;
+                }
+
+            if (scheme.isEmpty() || scheme == "file")
+            {
+                device.replace(QRegExp("^file://"), "");
+
+                if (!QFile::exists(device))
+                {
+                    this->m_device = "";
+
+                    return;
+                }
+
+                pipeline = "filesrc";
+            }
+            else if (scheme == "mms" || scheme == "mmsu" || scheme == "mmst")
+                pipeline = "mmssrc";
+            else if (scheme == "rtsp")
+                pipeline = "rtspsrc";
+            else
+                pipeline = "souphttpsrc";
+
+            pipeline += " name=captureResource ! decodebin name=dec ! ffmpegcolorspace name=capture";
+
+            if (hasAudio)
+            {
+                pipeline += " dec. ! ";
+
+                if (playAudio)
+                    pipeline += "autoaudiosink";
+                else
+                    pipeline += "fakesink";
+            }
+
+            this->m_captureDevice = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
+                                                                   FALSE,
+                                                                   &error);
+
+            g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+
+            GstElement *captureResource = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "captureResource");
+            g_object_set(GST_OBJECT(captureResource), "location", device.toUtf8().constData(), NULL);
+            gst_object_unref(GST_OBJECT(captureResource));
+        }
+        else if (deviceType == StreamTypeDesktop)
+        {
+            this->m_captureDevice = gst_parse_bin_from_description("ximagesrc name=capture show-pointer=true",
+                                                                   FALSE,
+                                                                   &error);
+
+            g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
+        }
+        else
+            return;
+
+        if (error)
+        {
+            this->m_captureDevice = NULL;
+            this->m_device = "";
+
+            return;
+        }
+
+        gst_bin_add(GST_BIN(this->m_mainBin), this->m_captureDevice);
 
         GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
-        g_object_set(GST_OBJECT(capture), "uri", device.toUtf8().constData(), NULL);
+        GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
+        gst_element_link(capture, captureTee);
         gst_object_unref(GST_OBJECT(capture));
+        gst_object_unref(GST_OBJECT(captureTee));
+
+        gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
+
+        this->m_device = device;
+        emit this->deviceChanged(this->m_device);
+
+        //self.gstError.emit()
     }
-    else if (deviceType == StreamTypeDesktop)
-    {
-        this->m_captureDevice = gst_parse_bin_from_description("ximagesrc name=capture show-pointer=true",
-                                                               FALSE,
-                                                               &error);
-
-        g_object_set(GST_OBJECT(this->m_captureDevice), "name", "captureDevice", NULL);
-    }
-    else
-        return;
-
-    gst_bin_add(GST_BIN(this->m_mainBin), this->m_captureDevice);
-    GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_captureDevice), "capture");
-    GstElement *captureTee = gst_bin_get_by_name(GST_BIN(this->m_mainBin), "CaptureTee");
-    gst_element_link(capture, captureTee);
-    gst_object_unref(GST_OBJECT(capture));
-    gst_object_unref(GST_OBJECT(captureTee));
-
-    gst_element_set_state(this->m_mainPipeline, GST_STATE_PLAYING);
-
-    this->setEffectsPreview(effectsPreview);
-
-    emit this->deviceChanged(this->m_device);
-
-    //self.gstError.emit()
 }
 
 void MediaTools::setVideoFormat(QVariantList videoFormat, QString device)
@@ -1122,6 +1199,13 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
         this->m_effectsPreviewBin = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
                                                                    FALSE,
                                                                    &error);
+
+        if (error)
+        {
+            this->m_effectsPreviewBin = NULL;
+
+            return;
+        }
 
         g_object_set(GST_OBJECT(this->m_effectsPreviewBin), "name", "effectsPreviewBin", NULL);
         gst_bin_add(GST_BIN(this->m_mainBin), this->m_effectsPreviewBin);
@@ -1255,11 +1339,14 @@ void MediaTools::loadConfigs()
     QString streams = streamsConfig.readEntry("streams", "");
 
     if (!streams.isEmpty())
-        foreach (QString fmt, streams.split("&&", QString::SkipEmptyParts))
+        foreach (QString fmt, streams.split("&&"))
         {
-            QStringList params = fmt.split("::", QString::SkipEmptyParts);
+            QStringList params = fmt.split("::");
 
-            this->setCustomStream(params.at(0), params.at(1));
+            this->setCustomStream(params.at(0).trimmed(),
+                                  params.at(1).trimmed(),
+                                  params.at(2).trimmed().toInt()? true: false,
+                                  params.at(3).trimmed().toInt()? true: false);
         }
 }
 
@@ -1296,8 +1383,10 @@ void MediaTools::saveConfigs()
     QStringList streams;
 
     foreach (QVariant stream, this->m_streams)
-        streams << QString("%1::%2").arg(stream.toList().at(0).toString())
-                                    .arg(stream.toList().at(1).toString());
+        streams << QString("%1::%2::%3::%4").arg(stream.toList().at(0).toString())
+                                            .arg(stream.toList().at(1).toString())
+                                            .arg(stream.toList().at(2).toInt())
+                                            .arg(stream.toList().at(3).toInt());
 
     streamsConfigs.writeEntry("streams", streams.join("&&"));
 
@@ -1353,6 +1442,13 @@ void MediaTools::setEffects(QStringList effects)
                                                             FALSE,
                                                             &error);
 
+        if (error)
+        {
+            this->m_effectsBin = NULL;
+
+            return;
+        }
+
         g_object_set(GST_OBJECT(this->m_effectsBin), "name", "effectsBin", NULL);
 
         GstElement *effectsBinIn = gst_bin_get_by_name(GST_BIN(this->m_effectsBin), "EffectsBinIn");
@@ -1385,10 +1481,12 @@ void MediaTools::clearCustomStreams()
     emit this->devicesModified();
 }
 
-void MediaTools::setCustomStream(QString dev_name, QString description)
+void MediaTools::setCustomStream(QString dev_name, QString description, bool hasAudio, bool playAudio)
 {
     this->m_streams << QVariant(QVariantList() << dev_name
                                                << description
+                                               << hasAudio
+                                               << playAudio
                                                << StreamTypeURI);
 
     emit this->devicesModified();

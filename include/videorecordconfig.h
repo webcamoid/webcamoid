@@ -24,20 +24,26 @@
 
 #include <QtGui>
 
-#include "ui_videorecordconfig.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "mediatools.h"
 
-class COMMONSSHARED_EXPORT VideoRecordConfig: public QWidget, public Ui::VideoRecordConfig
+namespace Ui
+{
+    class VideoRecordConfig;
+}
+
+class COMMONSSHARED_EXPORT VideoRecordConfig: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit VideoRecordConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~VideoRecordConfig();
 
     private:
+        Ui::VideoRecordConfig *ui;
+
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         bool m_isInit;

@@ -25,8 +25,6 @@
 #include <QtGui>
 #include <KConfigDialog>
 
-#include "ui_mainwidget.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "effects.h"
@@ -37,14 +35,22 @@
 #include "videorecordconfig.h"
 #include "webcamconfig.h"
 
-class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
+namespace Ui
+{
+    class MainWidget;
+}
+
+class COMMONSSHARED_EXPORT MainWidget: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit MainWidget(QWidget *parentWidget=NULL, QObject *parentObject=NULL);
+        ~MainWidget();
 
     private:
+        Ui::MainWidget *ui;
+
         AppEnvironment *m_appEnvironment;
         Effects *m_cfgEffects;
         FeaturesInfo *m_cfgFeaturesInfo;
@@ -79,7 +85,6 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget, public Ui::MainWidget
         void recordingChanged(bool recording);
         void saveConfigs();
         void showGstError();
-        void stopEffectsPreview();
         void updateContents(QSize pixmapSize=QSize());
 
         void on_btnTakePhoto_clicked();

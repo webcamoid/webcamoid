@@ -19,13 +19,17 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include "ui_effects.h"
+
 #include "effects.h"
 
-Effects::Effects(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
+Effects::Effects(MediaTools *mediaTools, QWidget *parent):
+    QWidget(parent),
+    ui(new Ui::Effects)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
-    this->setupUi(this);
+    this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
 
@@ -33,6 +37,11 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
                      SIGNAL(deviceChanged(QString)),
                      this,
                      SLOT(deviceChanged(QString)));
+
+    QObject::connect(this->m_mediaTools,
+                     SIGNAL(previewFrameReady(const QImage &, QString)),
+                     this,
+                     SLOT(setEffectPreview(const QImage &, QString)));
 
     QMap<QString, QString> effects = this->m_mediaTools->availableEffects();
 
@@ -42,10 +51,10 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
 
         this->m_effectsNames << effect;
         this->m_effectsWidgets << listWidgetItem;
-        this->lswEffects->addItem(listWidgetItem);
+        this->ui->lswEffects->addItem(listWidgetItem);
     }
 
-    this->lswEffects->sortItems();
+    this->ui->lswEffects->sortItems();
 
     foreach (QString effect, this->m_mediaTools->currentEffects())
     {
@@ -54,9 +63,14 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
         if (index < 0)
             continue;
 
-        QListWidgetItem *listWidgetItem = this->lswEffects->takeItem(this->lswEffects->row(this->m_effectsWidgets[index]));
-        this->lswApply->addItem(listWidgetItem);
+        QListWidgetItem *listWidgetItem = this->ui->lswEffects->takeItem(this->ui->lswEffects->row(this->m_effectsWidgets[index]));
+        this->ui->lswApply->addItem(listWidgetItem);
     }
+}
+
+Effects::~Effects()
+{
+    delete this->ui;
 }
 
 void Effects::update()
@@ -66,9 +80,9 @@ void Effects::update()
 
    QStringList effects;
 
-   for (int i = 0; i < this->lswApply->count(); i++)
+   for (int i = 0; i < this->ui->lswApply->count(); i++)
    {
-       int index = this->m_effectsWidgets.indexOf(this->lswApply->item(i));
+       int index = this->m_effectsWidgets.indexOf(this->ui->lswApply->item(i));
 
        effects << this->m_effectsNames[index];
    }
@@ -80,14 +94,35 @@ void Effects::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    this->m_mediaTools->setEffectsPreview(true);
+    if (this->m_mediaTools->recording())
+    {
+        this->ui->lswApply->setEnabled(false);
+        this->ui->lswEffects->setEnabled(false);
+        this->ui->btnAdd->setEnabled(false);
+        this->ui->btnRemove->setEnabled(false);
+        this->ui->btnUp->setEnabled(false);
+        this->ui->btnDown->setEnabled(false);
+        this->ui->btnReset->setEnabled(false);
+    }
+    else
+    {
+        this->ui->lswApply->setEnabled(true);
+        this->ui->lswEffects->setEnabled(true);
+        this->ui->btnAdd->setEnabled(true);
+        this->ui->btnRemove->setEnabled(true);
+        this->ui->btnUp->setEnabled(true);
+        this->ui->btnDown->setEnabled(true);
+        this->ui->btnReset->setEnabled(true);
+        this->m_mediaTools->setEffectsPreview(true);
+    }
 }
 
 void Effects::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
 
-    this->m_mediaTools->resetEffectsPreview();
+    if (!this->m_mediaTools->recording())
+        this->m_mediaTools->resetEffectsPreview();
 }
 
 void Effects::setEffectPreview(const QImage &image, QString effect)
@@ -104,52 +139,76 @@ void Effects::deviceChanged(QString device)
     if (device.isEmpty())
         foreach (QListWidgetItem *effectWidget, this->m_effectsWidgets)
             effectWidget->setIcon(QIcon());
+    else if (this->isVisible())
+    {
+        if (this->m_mediaTools->recording())
+        {
+            this->ui->lswApply->setEnabled(false);
+            this->ui->lswEffects->setEnabled(false);
+            this->ui->btnAdd->setEnabled(false);
+            this->ui->btnRemove->setEnabled(false);
+            this->ui->btnUp->setEnabled(false);
+            this->ui->btnDown->setEnabled(false);
+            this->ui->btnReset->setEnabled(false);
+        }
+        else
+        {
+            this->ui->lswApply->setEnabled(true);
+            this->ui->lswEffects->setEnabled(true);
+            this->ui->btnAdd->setEnabled(true);
+            this->ui->btnRemove->setEnabled(true);
+            this->ui->btnUp->setEnabled(true);
+            this->ui->btnDown->setEnabled(true);
+            this->ui->btnReset->setEnabled(true);
+            this->m_mediaTools->setEffectsPreview(true);
+        }
+    }
 }
 
 void Effects::on_txtSearch_textChanged(QString text)
 {
     QRegExp regexp(text, Qt::CaseInsensitive, QRegExp::Wildcard);
 
-    for (int i = 0; i < this->lswEffects->count(); i++)
-        if (regexp.indexIn(this->lswEffects->item(i)->text()) == -1)
-            this->lswEffects->item(i)->setHidden(true);
+    for (int i = 0; i < this->ui->lswEffects->count(); i++)
+        if (regexp.indexIn(this->ui->lswEffects->item(i)->text()) == -1)
+            this->ui->lswEffects->item(i)->setHidden(true);
         else
-            this->lswEffects->item(i)->setHidden(false);
+            this->ui->lswEffects->item(i)->setHidden(false);
 
-    for (int i = 0; i < this->lswApply->count(); i++)
-        if (regexp.indexIn(this->lswApply->item(i)->text()) == -1)
-            this->lswApply->item(i)->setHidden(true);
+    for (int i = 0; i < this->ui->lswApply->count(); i++)
+        if (regexp.indexIn(this->ui->lswApply->item(i)->text()) == -1)
+            this->ui->lswApply->item(i)->setHidden(true);
         else
-            this->lswApply->item(i)->setHidden(false);
+            this->ui->lswApply->item(i)->setHidden(false);
 }
 
 void Effects::on_btnAdd_clicked()
 {
-    foreach (QListWidgetItem *item, this->lswEffects->selectedItems())
-        this->lswApply->addItem(this->lswEffects->
-                                        takeItem(this->lswEffects->row(item)));
+    foreach (QListWidgetItem *item, this->ui->lswEffects->selectedItems())
+        this->ui->lswApply->addItem(this->ui->lswEffects->
+                                    takeItem(this->ui->lswEffects->row(item)));
 
     this->update();
 }
 
 void Effects::on_btnRemove_clicked()
 {
-    foreach (QListWidgetItem *item, this->lswApply->selectedItems())
-        this->lswEffects->addItem(this->lswApply->
-                                        takeItem(this->lswApply->row(item)));
+    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems())
+        this->ui->lswEffects->addItem(this->ui->lswApply->
+                                      takeItem(this->ui->lswApply->row(item)));
 
-    this->lswEffects->sortItems();
+    this->ui->lswEffects->sortItems();
     this->update();
 }
 
 void Effects::on_btnUp_clicked()
 {
-    foreach (QListWidgetItem *item, this->lswApply->selectedItems())
+    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems())
     {
-        int row = this->lswApply->row(item);
+        int row = this->ui->lswApply->row(item);
         int row_ = (row >= 1)? row - 1: 0;
-        QListWidgetItem *item_ = this->lswApply->takeItem(row);
-        this->lswApply->insertItem(row_, item_);
+        QListWidgetItem *item_ = this->ui->lswApply->takeItem(row);
+        this->ui->lswApply->insertItem(row_, item_);
         item_->setSelected(true);
     }
 
@@ -158,12 +217,12 @@ void Effects::on_btnUp_clicked()
 
 void Effects::on_btnDown_clicked()
 {
-    foreach (QListWidgetItem *item, this->lswApply->selectedItems())
+    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems())
     {
-        int row = this->lswApply->row(item);
-        int row_ = (row < this->lswApply->count() - 1)? row + 1: this->lswApply->count() - 1;
-        QListWidgetItem *item_ = this->lswApply->takeItem(row);
-        this->lswApply->insertItem(row_, item_);
+        int row = this->ui->lswApply->row(item);
+        int row_ = (row < this->ui->lswApply->count() - 1)? row + 1: this->ui->lswApply->count() - 1;
+        QListWidgetItem *item_ = this->ui->lswApply->takeItem(row);
+        this->ui->lswApply->insertItem(row_, item_);
         item_->setSelected(true);
     }
 
@@ -172,9 +231,9 @@ void Effects::on_btnDown_clicked()
 
 void Effects::on_btnReset_clicked()
 {
-    while (this->lswApply->count() > 0)
-        this->lswEffects->addItem(this->lswApply->takeItem(0));
+    while (this->ui->lswApply->count() > 0)
+        this->ui->lswEffects->addItem(this->ui->lswApply->takeItem(0));
 
-    this->lswEffects->sortItems();
+    this->ui->lswEffects->sortItems();
     this->update();
 }

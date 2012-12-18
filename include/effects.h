@@ -24,20 +24,26 @@
 
 #include <QtGui>
 
-#include "ui_effects.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "mediatools.h"
 
-class COMMONSSHARED_EXPORT Effects: public QWidget, public Ui::Effects
+namespace Ui
+{
+    class Effects;
+}
+
+class COMMONSSHARED_EXPORT Effects: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit Effects(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~Effects();
 
     private:
+        Ui::Effects *ui;
+
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         QStringList m_effectsNames;

@@ -19,30 +19,41 @@
    </iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" rowspan="5">
-    <widget class="QTableWidget" name="tbwCustomStreams">
-     <property name="alternatingRowColors">
-      <bool>true</bool>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="btnUp">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
+     <property name="icon">
+      <iconset theme="arrow-up">
+       <normaloff/>
+      </iconset>
      </property>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Device Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>URI</string>
-      </property>
-     </column>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>353</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="btnDown">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="arrow-down">
+       <normaloff/>
+      </iconset>
+     </property>
     </widget>
    </item>
    <item row="0" column="1">
@@ -69,42 +80,41 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="btnUp">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   <item row="0" column="0" rowspan="5">
+    <widget class="QTableWidget" name="tbwCustomStreams">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
      </property>
-     <property name="icon">
-      <iconset theme="arrow-up">
-       <normaloff/>
-      </iconset>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
      </property>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Device Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>URI</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Has Audio</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Play Audio</string>
+      </property>
+     </column>
     </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QPushButton" name="btnDown">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="icon">
-      <iconset theme="arrow-down">
-       <normaloff/>
-      </iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>353</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

@@ -26,13 +26,17 @@
 #include <KLocalizedString>
 #include <KNotification>
 
+#include "ui_mainwidget.h"
+
 #include "mainwidget.h"
 
-MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject): QWidget(parentWidget)
+MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
+    QWidget(parentWidget),
+    ui(new Ui::MainWidget)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
-    this->setupUi(this);
+    this->ui->setupUi(this);
 
     if (parentWidget || parentObject)
         this->setStyleSheet("QWidget#MainWidget{background-color: "
@@ -76,10 +80,15 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject): QWidget(pa
                      this,
                      SLOT(updateContents(QSize)));
 
-    this->wdgControls->hide();
+    this->ui->wdgControls->hide();
 
     foreach (QVariant webcam, this->m_mediaTools->captureDevices())
-        this->cbxSetWebcam->addItem(webcam.toList().at(1).toString());
+        this->ui->cbxSetWebcam->addItem(webcam.toList().at(1).toString());
+}
+
+MainWidget::~MainWidget()
+{
+    delete this->ui;
 }
 
 void MainWidget::addWebcamConfigDialog(KConfigDialog *configDialog)
@@ -103,21 +112,11 @@ void MainWidget::addEffectsConfigDialog(KConfigDialog *configDialog)
 
     this->m_cfgEffects = new Effects(this->m_mediaTools, this);
 
-    QObject::connect(this->m_mediaTools,
-                     SIGNAL(previewFrameReady(const QImage &, QString)),
-                     this->m_cfgEffects,
-                     SLOT(setEffectPreview(const QImage &, QString)));
-
     configDialog->addPage(this->m_cfgEffects,
                           this->tr("Configure Webcam Effects"),
                           "tools-wizard",
                           this->tr("Add funny effects to the webcam"),
                           false);
-
-    QObject::connect(configDialog,
-                     SIGNAL(finished()),
-                     this,
-                     SLOT(stopEffectsPreview()));
 }
 
 void MainWidget::addVideoFormatsConfigDialog(KConfigDialog *configDialog)
@@ -290,7 +289,7 @@ void MainWidget::enterEvent(QEvent *event)
 {
     QWidget::enterEvent(event);
 
-    this->wdgControls->show();
+    this->ui->wdgControls->show();
 }
 
 void MainWidget::leaveEvent(QEvent *event)
@@ -298,7 +297,7 @@ void MainWidget::leaveEvent(QEvent *event)
     QWidget::leaveEvent(event);
 
     if (!this->rect().contains(this->mapFromGlobal(QCursor::pos())))
-        this->wdgControls->hide();
+        this->ui->wdgControls->hide();
 }
 
 void MainWidget::closeEvent(QCloseEvent *event)
@@ -311,7 +310,10 @@ void MainWidget::closeEvent(QCloseEvent *event)
 void MainWidget::showFrame(const QImage &webcamFrame)
 {
     if (!this->m_mediaTools->device().isEmpty())
-        this->lblFrame->setPixmap(QPixmap::fromImage(webcamFrame));
+    {
+        this->m_webcamFrame = webcamFrame;
+        this->ui->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
+    }
 }
 
 void MainWidget::updateWebcams()
@@ -319,14 +321,14 @@ void MainWidget::updateWebcams()
     QString oldDevice = this->m_mediaTools->device();
     bool timerIsActive = !this->m_mediaTools->device().isEmpty();
     this->m_mediaTools->resetDevice();
-    this->cbxSetWebcam->clear();
+    this->ui->cbxSetWebcam->clear();
     QVariantList webcams = this->m_mediaTools->captureDevices();
     QStringList devices;
 
     foreach (QVariant webcam, webcams)
     {
         devices << webcam.toStringList().at(0);
-        this->cbxSetWebcam->addItem(webcam.toStringList().at(1));
+        this->ui->cbxSetWebcam->addItem(webcam.toStringList().at(1));
     }
 
     if (devices.contains(oldDevice) && timerIsActive)
@@ -337,26 +339,26 @@ void MainWidget::deviceChanged(QString device)
 {
     if (device.isEmpty())
     {
-        this->btnTakePhoto->setEnabled(false);
-        this->btnVideoRecord->setEnabled(false);
-        this->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
+        this->ui->btnTakePhoto->setEnabled(false);
+        this->ui->btnVideoRecord->setEnabled(false);
+        this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
         this->m_webcamFrame = QImage();
-        this->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
+        this->ui->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
     }
     else
     {
-        this->btnTakePhoto->setEnabled(true);
-        this->btnVideoRecord->setEnabled(true);
-        this->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
+        this->ui->btnTakePhoto->setEnabled(true);
+        this->ui->btnVideoRecord->setEnabled(true);
+        this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
     }
 }
 
 void MainWidget::recordingChanged(bool recording)
 {
     if (recording)
-        this->btnVideoRecord->setIcon(QIcon::fromTheme("media-playback-stop"));
+        this->ui->btnVideoRecord->setIcon(QIcon::fromTheme("media-playback-stop"));
     else
-        this->btnVideoRecord->setIcon(QIcon::fromTheme("video-x-generic"));
+        this->ui->btnVideoRecord->setIcon(QIcon::fromTheme("video-x-generic"));
 }
 
 void MainWidget::saveConfigs()
@@ -374,43 +376,36 @@ void MainWidget::showGstError()
                          KNotification::Persistent);
 }
 
-void MainWidget::stopEffectsPreview()
-{
-    QObject::disconnect(this->m_mediaTools,
-                        SIGNAL(previewFrameReady(const QImage &, QString)),
-                        this->m_cfgEffects,
-                        SLOT(setEffectPreview(const QImage &, QString)));
-}
-
 void MainWidget::updateContents(QSize pixmapSize)
 {
     QSize size = this->size();
 
-    QSize curPixmapSize = pixmapSize.isValid()? pixmapSize: this->lblFrame->pixmap()? this->lblFrame->pixmap()->size(): QSize();
+    QSize curPixmapSize = pixmapSize.isValid()? pixmapSize: this->ui->lblFrame->pixmap()? this->ui->lblFrame->pixmap()->size(): QSize();
 
     curPixmapSize.scale(size, Qt::KeepAspectRatio);
     int x = (size.width() - curPixmapSize.width()) >> 1;
     int y = (size.height() - curPixmapSize.height()) >> 1;
 
-    this->lblFrame->setGeometry(x, y, curPixmapSize.width(), curPixmapSize.height());
+    this->ui->lblFrame->setGeometry(x, y, curPixmapSize.width(), curPixmapSize.height());
 
     QRect geometry(0,
-                   size.height() - this->wdgControls->height(),
+                   size.height() - this->ui->wdgControls->height(),
                    size.width(),
-                   this->wdgControls->height());
+                   this->ui->wdgControls->height());
 
-    this->wdgControls->setGeometry(geometry);
+    this->ui->wdgControls->setGeometry(geometry);
 }
 
 void MainWidget::on_btnTakePhoto_clicked()
 {
+    QImage image(this->m_webcamFrame);
+
     this->m_mediaTools->mutexLock();
 
-    QImage image(this->m_webcamFrame);
-    QString filename = this->saveFile();
+    QString fileName = this->saveFile();
 
-    if (!filename.isEmpty())
-        image.save(filename);
+    if (!fileName.isEmpty())
+        image.save(fileName);
 
     this->m_mediaTools->mutexUnlock();
 }
@@ -440,7 +435,7 @@ void MainWidget::on_btnStartStop_clicked()
         this->m_mediaTools->resetDevice();
     else
         this->m_mediaTools->setDevice(this->m_mediaTools->
-                    captureDevices().at(this->cbxSetWebcam->currentIndex()).toStringList().at(0));
+                    captureDevices().at(this->ui->cbxSetWebcam->currentIndex()).toStringList().at(0));
 }
 
 void MainWidget::on_btnConfigure_clicked()
@@ -467,6 +462,6 @@ void MainWidget::on_btnAbout_clicked()
 
     aboutData->setProgramIconName("camera-web");
 
-    KAboutApplicationDialog *aboutDialog = new KAboutApplicationDialog(aboutData, this);
-    aboutDialog->exec();
+    KAboutApplicationDialog aboutDialog(aboutData, this);
+    aboutDialog.exec();
 }

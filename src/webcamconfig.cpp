@@ -21,13 +21,17 @@
 
 #include <linux/videodev2.h>
 
+#include "ui_webcamconfig.h"
+
 #include "webcamconfig.h"
 
-WebcamConfig::WebcamConfig(MediaTools *mediaTools, QWidget *parent): QWidget(parent)
+WebcamConfig::WebcamConfig(MediaTools *mediaTools, QWidget *parent):
+    QWidget(parent),
+    ui(new Ui::WebcamConfig)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
-    this->setupUi(this);
+    this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
     this->m_captureDevices = this->m_mediaTools->captureDevices();
@@ -217,11 +221,16 @@ WebcamConfig::WebcamConfig(MediaTools *mediaTools, QWidget *parent): QWidget(par
                                                   QSizePolicy::Preferred,
                                                   QSizePolicy::MinimumExpanding);
 
-        this->gridLayout->addItem(spacerItem, cindex, 0, 1, 1);
-        this->tabWebcams->addTab(page, captureDevice.toList().at(1).toString());
+        this->ui->gridLayout->addItem(spacerItem, cindex, 0, 1, 1);
+        this->ui->tabWebcams->addTab(page, captureDevice.toList().at(1).toString());
     }
 
-    this->tabWebcams->setCurrentIndex(0);
+    this->ui->tabWebcams->setCurrentIndex(0);
+}
+
+WebcamConfig::~WebcamConfig()
+{
+    delete this->ui;
 }
 
 void WebcamConfig::resetControls(QString deviceName)

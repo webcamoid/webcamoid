@@ -24,20 +24,26 @@
 
 #include <QtGui>
 
-#include "ui_webcamconfig.h"
-
 #include "commons.h"
 #include "appenvironment.h"
 #include "mediatools.h"
 
-class COMMONSSHARED_EXPORT WebcamConfig: public QWidget, public Ui::WebcamConfig
+namespace Ui
+{
+    class WebcamConfig;
+}
+
+class COMMONSSHARED_EXPORT WebcamConfig: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit WebcamConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~WebcamConfig();
 
     private:
+        Ui::WebcamConfig *ui;
+
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         QVariantList m_captureDevices;
