@@ -20,6 +20,7 @@
  */
 
 // http://gstreamer.freedesktop.org/documentation/
+// http://lists.freedesktop.org/mailman/listinfo/gstreamer-devel
 // http://api.kde.org/
 // http://extragear.kde.org/apps/kipi/
 // LD_PRELOAD='./libWebcamoid.so' ./webcamoid

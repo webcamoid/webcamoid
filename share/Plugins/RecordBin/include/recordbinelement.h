@@ -19,27 +19,29 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#ifndef RECORDBINELEMENT_H
+#define RECORDBINELEMENT_H
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+#include <QtGui>
+
+#include "element.h"
+
+class RecordBinElement: public Element
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    Q_OBJECT
 
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
+    public:
+        explicit RecordBinElement();
 
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
+        Q_INVOKABLE ElementState state();
 
-    this->m_translator.load(trPath);
+    private:
+        QImage m_oFrame;
 
-    QCoreApplication::installTranslator(&this->m_translator);
-}
+    public slots:
+        void iStream(const void *data, int datalen, QString dataType);
+        void setState(ElementState state);
+        void resetState();
+};
 
-QString AppEnvironment::configFileName()
-{
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
-}
+#endif // RECORDBINELEMENT_H

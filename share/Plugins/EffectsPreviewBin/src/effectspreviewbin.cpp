@@ -19,27 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#include "effectspreviewbin.h"
+#include "effectspreviewbinelement.h"
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+Element *EffectsPreviewBin::newElement()
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
-
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
-
-    this->m_translator.load(trPath);
-
-    QCoreApplication::installTranslator(&this->m_translator);
+    return new EffectsPreviewBinElement();
 }
 
-QString AppEnvironment::configFileName()
-{
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
-}
+Q_EXPORT_PLUGIN2(EffectsPreviewBin, EffectsPreviewBin)

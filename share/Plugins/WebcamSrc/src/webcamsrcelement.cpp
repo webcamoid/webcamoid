@@ -19,27 +19,62 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#include <gst/app/gstappsink.h>
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+#include "webcamsrcelement.h"
+
+WebcamSrcElement::WebcamSrcElement(): Element()
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
-
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
-
-    this->m_translator.load(trPath);
-
-    QCoreApplication::installTranslator(&this->m_translator);
 }
 
-QString AppEnvironment::configFileName()
+WebcamSrcElement::~WebcamSrcElement()
 {
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
+}
+
+QString WebcamSrcElement::device()
+{
+}
+
+QSize WebcamSrcElement::size()
+{
+}
+
+Element::ElementState WebcamSrcElement::state()
+{
+}
+
+void WebcamSrcElement::newBuffer(GstElement *appsink, gpointer self)
+{
+}
+
+void WebcamSrcElement::setDevice(QString device)
+{
+}
+
+void WebcamSrcElement::setSize(QSize size)
+{
+}
+
+void WebcamSrcElement::resetDevice()
+{
+}
+
+void WebcamSrcElement::resetSize()
+{
+}
+
+void WebcamSrcElement::iStream(const void *data, int datalen, QString dataType)
+{
+    Q_UNUSED(data)
+    Q_UNUSED(datalen)
+    Q_UNUSED(dataType)
+}
+
+void WebcamSrcElement::setState(ElementState state)
+{
+    Q_UNUSED(state)
+}
+
+void WebcamSrcElement::resetState()
+{
 }

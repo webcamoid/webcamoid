@@ -19,27 +19,28 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#include "recordbinelement.h"
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+RecordBinElement::RecordBinElement(): Element()
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
-
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
-
-    this->m_translator.load(trPath);
-
-    QCoreApplication::installTranslator(&this->m_translator);
 }
 
-QString AppEnvironment::configFileName()
+Element::ElementState RecordBinElement::state()
 {
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
+}
+
+void RecordBinElement::iStream(const void *data, int datalen, QString dataType)
+{
+    Q_UNUSED(data)
+    Q_UNUSED(datalen)
+    Q_UNUSED(dataType)
+}
+
+void RecordBinElement::setState(ElementState state)
+{
+    Q_UNUSED(state)
+}
+
+void RecordBinElement::resetState()
+{
 }

@@ -21,28 +21,40 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    error("commons.pri file not found.")
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
 }
 
-TEMPLATE = subdirs
+CONFIG += plugin
 
-CONFIG += ordered
+HEADERS += \
+    include/desktopsrc.h \
+    include/desktopsrcelement.h
 
-SUBDIRS += \
-    share/Plugins \
-    Lib.pro \
-    Plasmoid.pro \
-    StandAlone.pro
+INCLUDEPATH += \
+    include \
+    ../../../include \
+    /usr/include/gstreamer-0.10
 
-# Install rules
+QT += core gui
 
-INSTALLS += \
-    docs \
-    license
+SOURCES += \
+    src/desktopsrc.cpp \
+    src/desktopsrcelement.cpp
 
-docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
-docs.files = share/docs/html
-docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
+TEMPLATE = lib
 
-license.files = COPYING
-license.path = $${COMMONS_LICENSE_INSTALL_PATH}
+unix {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        gstreamer-0.10 \
+        gstreamer-app-0.10
+
+    INSTALLS += target
+
+    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
+}

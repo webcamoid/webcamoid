@@ -21,28 +21,33 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    error("commons.pri file not found.")
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
 }
 
-TEMPLATE = subdirs
+CONFIG += plugin
 
-CONFIG += ordered
+HEADERS += \
+    include/effectspreviewbin.h \
+    include/effectspreviewbinelement.h
 
-SUBDIRS += \
-    share/Plugins \
-    Lib.pro \
-    Plasmoid.pro \
-    StandAlone.pro
+INCLUDEPATH += \
+    include \
+    ../../../include
+
+QT += core gui
+
+SOURCES += \
+    src/effectspreviewbin.cpp \
+    src/effectspreviewbinelement.cpp
+
+TEMPLATE = lib
 
 # Install rules
 
-INSTALLS += \
-    docs \
-    license
+INSTALLS += target
 
-docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
-docs.files = share/docs/html
-docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
-
-license.files = COPYING
-license.path = $${COMMONS_LICENSE_INSTALL_PATH}
+target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}

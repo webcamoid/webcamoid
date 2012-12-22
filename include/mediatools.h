@@ -27,6 +27,7 @@
 
 #include "commons.h"
 #include "appenvironment.h"
+#include "baseelement.h"
 
 class COMMONSSHARED_EXPORT MediaTools: public QObject
 {

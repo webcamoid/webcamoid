@@ -19,27 +19,21 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+#include <QtPlugin>
+
+#include "element.h"
+
+class Plugin
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    public:
+        virtual Element *newElement() = 0;
 
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
+        virtual ~Plugin() {}
+};
 
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
+Q_DECLARE_INTERFACE(Plugin, "Webcamoid.Plugin")
 
-    this->m_translator.load(trPath);
-
-    QCoreApplication::installTranslator(&this->m_translator);
-}
-
-QString AppEnvironment::configFileName()
-{
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
-}
+#endif // PLUGIN_H

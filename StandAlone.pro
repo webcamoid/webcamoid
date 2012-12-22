@@ -59,8 +59,8 @@ unix {
         target \
         desktop
 
+    target.path = $${COMMONS_BINS_INSTALL_PATH}
+
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${COMMONS_APPS_INSTALL_PATH}/kde4
-
-    target.path = $${COMMONS_BINS_INSTALL_PATH}
 }

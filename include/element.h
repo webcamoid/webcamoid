@@ -19,27 +19,36 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#ifndef ELEMENT_H
+#define ELEMENT_H
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+#include <QtCore>
+
+/// Plugin template.
+class Element: public QObject
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    Q_OBJECT
+    Q_ENUMS(ElementState)
+    Q_PROPERTY(ElementState state READ state WRITE setState RESET resetState)
 
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
+    public:
+        enum ElementState
+        {
+            Null,
+            Ready,
+            Paused,
+            Playing
+        };
 
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
+        Q_INVOKABLE virtual ElementState state() = 0;
 
-    this->m_translator.load(trPath);
+    signals:
+        void oStream(const void *data, int datalen, QString dataType);
 
-    QCoreApplication::installTranslator(&this->m_translator);
-}
+    public slots:
+        virtual void iStream(const void *data, int datalen, QString dataType) = 0;
+        virtual void setState(ElementState state) = 0;
+        virtual void resetState() = 0;
+};
 
-QString AppEnvironment::configFileName()
-{
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
-}
+#endif // ELEMENT_H

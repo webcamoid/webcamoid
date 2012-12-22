@@ -18,31 +18,14 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    error("commons.pri file not found.")
-}
-
 TEMPLATE = subdirs
 
 CONFIG += ordered
 
 SUBDIRS += \
-    share/Plugins \
-    Lib.pro \
-    Plasmoid.pro \
-    StandAlone.pro
-
-# Install rules
-
-INSTALLS += \
-    docs \
-    license
-
-docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
-docs.files = share/docs/html
-docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
-
-license.files = COPYING
-license.path = $${COMMONS_LICENSE_INSTALL_PATH}
+    DesktopSrc \
+    EffectsBin \
+    EffectsPreviewBin \
+    RecordBin \
+    UriSrc \
+    WebcamSrc

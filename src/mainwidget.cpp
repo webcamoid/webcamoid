@@ -452,13 +452,12 @@ void MainWidget::on_btnAbout_clicked()
                    QCoreApplication::applicationVersion().toUtf8().data(),
                    ki18n(this->tr("webcam capture plasmoid.").toUtf8().constData()),
                    KAboutData::License_GPL_V3,
-                   ki18n("Copyright (C) 2011-2012  "
-                         "Gonzalo Exequiel Pedone"),
+                   ki18n(COMMONS_COPYRIGHT_NOTICE),
                    ki18n(this->tr("A simple webcam plasmoid and "
                                   "stand alone app for picture and "
                                   "video capture.").toUtf8().constData()),
-                   "http://github.com/hipersayanX/Webcamoid",
-                   "submit@bugs.kde.org");
+                   COMMONS_PROJECT_URL,
+                   COMMONS_PROJECT_BUG_URL);
 
     aboutData->setProgramIconName("camera-web");
 

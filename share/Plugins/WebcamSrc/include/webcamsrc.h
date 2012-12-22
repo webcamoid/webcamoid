@@ -19,27 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "appenvironment.h"
+#ifndef WEBCAMSRC_H
+#define WEBCAMSRC_H
 
-AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
+#include "plugin.h"
+
+class WebcamSrc: public QObject, public Plugin
 {
-    QCoreApplication::setApplicationName(COMMONS_APPNAME);
-    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    Q_OBJECT
+    Q_INTERFACES(Plugin)
 
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
+    public:
+        Element *newElement();
+};
 
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
-
-    this->m_translator.load(trPath);
-
-    QCoreApplication::installTranslator(&this->m_translator);
-}
-
-QString AppEnvironment::configFileName()
-{
-    return QString("%1rc").arg(QCoreApplication::applicationName().toLower());
-}
+#endif // WEBCAMSRC_H

@@ -57,13 +57,16 @@ HEADERS = \
     include/appenvironment.h \
     include/commons.h \
     include/effects.h \
+    include/element.h \
     include/featuresinfo.h \
     include/generalconfig.h \
     include/mainwidget.h \
     include/mediatools.h \
+    include/plugin.h \
     include/streamsconfig.h \
     include/videorecordconfig.h \
-    include/webcamconfig.h
+    include/webcamconfig.h \
+    include/baseelement.h
 
 INCLUDEPATH += \
     include \
@@ -76,8 +79,7 @@ LIBS += \
 
 QT += core gui
 
-RESOURCES += \
-    Webcamoid.qrc
+RESOURCES +=
 
 SOURCES = \
     src/appenvironment.cpp \
@@ -88,7 +90,8 @@ SOURCES = \
     src/mediatools.cpp \
     src/streamsconfig.cpp \
     src/videorecordconfig.cpp \
-    src/webcamconfig.cpp
+    src/webcamconfig.cpp \
+    src/baseelement.cpp
 
 TARGET = $${COMMONS_APPNAME}
 
@@ -123,7 +126,11 @@ unix {
         gstreamer-app-0.10
 
     INSTALLS += \
-        target
+        target \
+        translations
 
     target.path = $${COMMONS_LIBS_INSTALL_PATH}
+
+    translations.files = share/ts/*.qm
+    translations.path = $${COMMONS_APP_TR_INSTALL_PATH}
 }
