@@ -43,13 +43,19 @@ DesktopSrcElement::DesktopSrcElement(): Element()
     GError *error = NULL;
 
     this->m_pipeline = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
-                                                        FALSE,
-                                                        &error);
+                                                      FALSE,
+                                                      &error);
 
     if (this->m_pipeline && !error)
     {
-        GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "output");
-        this->m_callBack = g_signal_connect(appsink, "new-buffer", G_CALLBACK(DesktopSrcElement::newBuffer), this);
+        GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
+                                                  "output");
+
+        this->m_callBack = g_signal_connect(appsink,
+                                            "new-buffer",
+                                            G_CALLBACK(DesktopSrcElement::newBuffer),
+                                            this);
+
         gst_object_unref(GST_OBJECT(appsink));
     }
 }
@@ -58,11 +64,14 @@ DesktopSrcElement::~DesktopSrcElement()
 {
     if (this->m_pipeline)
     {
-        GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "output");
+        this->setState(Null);
+
+        GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
+                                                  "output");
+
         g_signal_handler_disconnect(appsink, this->m_callBack);
         gst_object_unref(GST_OBJECT(appsink));
 
-        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
         gst_object_unref(GST_OBJECT(this->m_pipeline));
     }
 }
@@ -84,7 +93,10 @@ void DesktopSrcElement::newBuffer(GstElement *appsink, gpointer self)
     element->m_mutex.lock();
 
     GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
-    element->m_oFrame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer), GST_BUFFER_SIZE(buffer));
+
+    element->m_oFrame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer),
+                                         GST_BUFFER_SIZE(buffer));
+
     gst_buffer_unref(buffer);
 
     emit element->oStream((const void *) &element->m_oFrame, 0, "QImage");
@@ -97,7 +109,10 @@ void DesktopSrcElement::setShowPointer(bool showPointer)
     this->m_showPointer = showPointer;
 
     if (this->m_pipeline)
-        g_object_set(GST_OBJECT(this->m_pipeline), "show-pointer", showPointer, NULL);
+        g_object_set(GST_OBJECT(this->m_pipeline),
+                     "show-pointer",
+                     showPointer,
+                     NULL);
 }
 
 void DesktopSrcElement::resetShowPointer()

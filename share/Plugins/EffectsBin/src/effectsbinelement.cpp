@@ -38,6 +38,8 @@ EffectsBinElement::~EffectsBinElement()
 {
     if (this->m_pipeline)
     {
+        this->setState(Null);
+
         GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
         g_signal_handler_disconnect(appsrc, this->m_callBack["need-data"]);
         gst_object_unref(GST_OBJECT(appsrc));
@@ -46,7 +48,6 @@ EffectsBinElement::~EffectsBinElement()
         g_signal_handler_disconnect(appsink, this->m_callBack["new-buffer"]);
         gst_object_unref(GST_OBJECT(appsink));
 
-        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
         gst_object_unref(GST_OBJECT(this->m_pipeline));
     }
 }
@@ -73,7 +74,7 @@ void EffectsBinElement::needData(GstElement *appsrc, guint size, gpointer self)
 
     if (iFrame.size() != element->m_curFrameSize)
     {
-        gst_element_set_state(element->m_pipeline, GST_STATE_NULL);
+        element->setState(Null);
 
         g_object_set(GST_OBJECT(appsrc),
                      "caps",
@@ -85,7 +86,7 @@ void EffectsBinElement::needData(GstElement *appsrc, guint size, gpointer self)
                                          NULL),
                      NULL);
 
-        gst_element_set_state(element->m_pipeline, GST_STATE_PLAYING);
+        element->setState(Playing);
 
         element->m_curFrameSize = iFrame.size();
     }
@@ -125,7 +126,7 @@ void EffectsBinElement::setEffects(QStringList effects)
 
     if (this->m_pipeline)
     {
-        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
+        this->setState(Null);
 
         GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
         g_signal_handler_disconnect(appsrc, this->m_callBack["need-data"]);

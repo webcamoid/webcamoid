@@ -23,6 +23,7 @@
 #define EFFECTSPREVIEWBINELEMENT_H
 
 #include <QtGui>
+#include <gst/gst.h>
 
 #include "element.h"
 
@@ -30,15 +31,46 @@ class EffectsPreviewBinElement: public Element
 {
     Q_OBJECT
 
+    Q_PROPERTY(QStringList effects READ effects
+                                   WRITE setEffects
+                                   RESET resetEffects)
+
+    Q_PROPERTY(QSize frameSize READ frameSize
+                               WRITE setFrameSize
+                               RESET resetFrameSize)
+
     public:
         explicit EffectsPreviewBinElement();
+        ~EffectsPreviewBinElement();
+
+        Q_INVOKABLE QStringList effects();
+        Q_INVOKABLE QSize frameSize();
 
         Q_INVOKABLE ElementState state();
 
     private:
+        QStringList m_effects;
+        QSize m_frameSize;
+        ElementState m_state;
+
+        QMutex m_mutex;
+        QMap<QString, int> m_callBack;
+        GstElement *m_pipeline;
+        QImage m_iFrame;
         QImage m_oFrame;
+        QSize m_curFrameSize;
+
+        QString hashFromName(QString name="");
+        QString nameFromHash(QString hash="");
+        static void needData(GstElement *appsrc, guint size, gpointer self);
+        static void newBuffer(GstElement *appsink, gpointer self);
 
     public slots:
+        void setEffects(QStringList effects);
+        void setFrameSize(QSize frameSize);
+        void resetEffects();
+        void resetFrameSize();
+
         void iStream(const void *data, int datalen, QString dataType);
         void setState(ElementState state);
         void resetState();

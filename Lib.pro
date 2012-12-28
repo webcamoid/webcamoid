@@ -79,8 +79,6 @@ LIBS += \
 
 QT += core gui
 
-RESOURCES +=
-
 SOURCES = \
     src/appenvironment.cpp \
     src/effects.cpp \
