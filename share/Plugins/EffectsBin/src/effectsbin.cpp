@@ -22,7 +22,7 @@
 #include "effectsbin.h"
 #include "effectsbinelement.h"
 
-Element *EffectsBin::newElement()
+QbElement *EffectsBin::newElement()
 {
     return new EffectsBinElement();
 }

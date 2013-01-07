@@ -19,40 +19,37 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef DESKTOPSRCELEMENT_H
-#define DESKTOPSRCELEMENT_H
+#ifndef VIDEOSTREAM_H
+#define VIDEOSTREAM_H
 
 #include <QtGui>
 
-#include "qbelement.h"
+extern "C"
+{
+    #include <libswscale/swscale.h>
+}
 
-class DesktopSrcElement: public QbElement
+#include "abstractstream.h"
+
+class VideoStream: public AbstractStream
 {
     Q_OBJECT
 
     public:
-        explicit DesktopSrcElement();
-        ~DesktopSrcElement();
+        explicit VideoStream(QObject *parent=NULL);
+        VideoStream(AVFormatContext *formatContext, uint index);
+        VideoStream(const VideoStream &other);
+        ~VideoStream();
 
-        Q_INVOKABLE ElementState state();
-        Q_INVOKABLE QList<QbElement *> srcs();
-        Q_INVOKABLE QList<QbElement *> sinks();
+        VideoStream &operator =(const VideoStream &other);
+
+        Q_INVOKABLE QImage readFrame(AVPacket *packet);
 
     private:
-        QImage m_oFrame;
-        QTimer m_timer;
-
-    public slots:
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
-        void setSrcs(QList<QbElement *> srcs);
-        void setSinks(QList<QbElement *> sinks);
-        void resetState();
-        void resetSrcs();
-        void resetSinks();
-
-    private slots:
-        void captureFrame();
+        struct SwsContext *m_scaleContext;
+        AVFrame *m_picture;
+        AVFrame *m_pictureRgb;
+        uint8_t *m_bufferRgb;
 };
 
-#endif // DESKTOPSRCELEMENT_H
+#endif // VIDEOSTREAM_H

@@ -308,12 +308,12 @@ void MainWidget::closeEvent(QCloseEvent *event)
 }
 
 void MainWidget::showFrame(const QImage &webcamFrame)
-{
+{/*
     if (!this->m_mediaTools->device().isEmpty())
-    {
+    {*/
         this->m_webcamFrame = webcamFrame;
         this->ui->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
-    }
+//    }
 }
 
 void MainWidget::updateWebcams()

@@ -22,7 +22,7 @@
 #include "webcamsrc.h"
 #include "webcamsrcelement.h"
 
-Element *WebcamSrc::newElement()
+QbElement *WebcamSrc::newElement()
 {
     return new WebcamSrcElement();
 }

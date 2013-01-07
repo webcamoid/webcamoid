@@ -25,9 +25,9 @@
 #include <QtGui>
 #include <gst/gst.h>
 
-#include "element.h"
+#include "qbelement.h"
 
-class EffectsPreviewBinElement: public Element
+class EffectsPreviewBinElement: public QbElement
 {
     Q_OBJECT
 
@@ -47,22 +47,25 @@ class EffectsPreviewBinElement: public Element
         Q_INVOKABLE QSize frameSize();
 
         Q_INVOKABLE ElementState state();
+        Q_INVOKABLE QList<QbElement *> srcs();
+        Q_INVOKABLE QList<QbElement *> sinks();
 
     private:
         QStringList m_effects;
         QSize m_frameSize;
-        ElementState m_state;
 
         QMutex m_mutex;
         QMap<QString, int> m_callBack;
         GstElement *m_pipeline;
-        QImage m_iFrame;
+        GstElement *m_appsrc;
         QImage m_oFrame;
         QSize m_curFrameSize;
+        bool m_readFrames;
 
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
         static void needData(GstElement *appsrc, guint size, gpointer self);
+        static void enoughData(GstElement *appsrc, gpointer self);
         static void newBuffer(GstElement *appsink, gpointer self);
 
     public slots:
@@ -71,9 +74,13 @@ class EffectsPreviewBinElement: public Element
         void resetEffects();
         void resetFrameSize();
 
-        void iStream(const void *data, int datalen, QString dataType);
+        void iStream(const QbPacket &packet);
         void setState(ElementState state);
+        void setSrcs(QList<QbElement *> srcs);
+        void setSinks(QList<QbElement *> sinks);
         void resetState();
+        void resetSrcs();
+        void resetSinks();
 };
 
 #endif // EFFECTSPREVIEWBINELEMENT_H

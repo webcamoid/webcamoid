@@ -22,7 +22,7 @@
 #include "urisrc.h"
 #include "urisrcelement.h"
 
-Element *UriSrc::newElement()
+QbElement *UriSrc::newElement()
 {
     return new UriSrcElement();
 }

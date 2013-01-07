@@ -22,15 +22,15 @@
 #ifndef DESKTOPSRC_H
 #define DESKTOPSRC_H
 
-#include "plugin.h"
+#include "qbplugin.h"
 
-class DesktopSrc: public QObject, public Plugin
+class DesktopSrc: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        Element *newElement();
+        QbElement *newElement();
 };
 
 #endif // DESKTOPSRC_H

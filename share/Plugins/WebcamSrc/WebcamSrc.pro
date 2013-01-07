@@ -37,7 +37,7 @@ HEADERS += \
 INCLUDEPATH += \
     include \
     ../../../include \
-    /usr/include/gstreamer-0.10
+    /usr/include/gstreamer-1.0
 
 QT += core gui
 
@@ -51,8 +51,8 @@ unix {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        gstreamer-0.10 \
-        gstreamer-app-0.10
+        gstreamer-1.0 \
+        gstreamer-app-1.0
 
     INSTALLS += target
 

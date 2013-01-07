@@ -22,7 +22,7 @@
 #include "desktopsrc.h"
 #include "desktopsrcelement.h"
 
-Element *DesktopSrc::newElement()
+QbElement *DesktopSrc::newElement()
 {
     return new DesktopSrcElement();
 }

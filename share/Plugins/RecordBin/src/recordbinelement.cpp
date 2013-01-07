@@ -23,11 +23,12 @@
 
 #include "recordbinelement.h"
 
-RecordBinElement::RecordBinElement(): Element()
+RecordBinElement::RecordBinElement(): QbElement()
 {
     gst_init(NULL, NULL);
 
     this->m_pipeline = NULL;
+    this->m_readFrames = true;
 
     this->resetFileName();
     this->resetVideoEncoder();
@@ -42,11 +43,11 @@ RecordBinElement::~RecordBinElement()
 {
     if (this->m_pipeline)
     {
-        this->setState(Null);
+        this->setState(ElementStateNull);
 
-        GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
-        g_signal_handler_disconnect(appsrc, this->m_callBack);
-        gst_object_unref(GST_OBJECT(appsrc));
+        g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["need-data"]);
+        g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["enough-data"]);
+        gst_object_unref(GST_OBJECT(this->m_appsrc));
 
         gst_object_unref(GST_OBJECT(this->m_pipeline));
     }
@@ -82,33 +83,38 @@ QSize RecordBinElement::frameSize()
     return this->m_frameSize;
 }
 
-Element::ElementState RecordBinElement::state()
+QbElement::ElementState RecordBinElement::state()
 {
     return this->m_state;
 }
 
+QList<QbElement *> RecordBinElement::srcs()
+{
+    return this->m_srcs;
+}
+
+QList<QbElement *> RecordBinElement::sinks()
+{
+    return this->m_sinks;
+}
+
 void RecordBinElement::needData(GstElement *appsrc, guint size, gpointer self)
 {
+    Q_UNUSED(appsrc)
     Q_UNUSED(size)
 
     RecordBinElement *element = (RecordBinElement *) self;
-    QImage iFrame = element->m_iFrame;
 
-    if (!iFrame.size().isValid())
-        return;
+    element->m_readFrames = true;
+}
 
-    GstBuffer *buffer = gst_buffer_new_and_alloc(iFrame.byteCount());
+void RecordBinElement::enoughData(GstElement *appsrc, gpointer self)
+{
+    Q_UNUSED(appsrc)
 
-    memcpy(GST_BUFFER_DATA(buffer),
-           iFrame.constBits(),
-           iFrame.byteCount());
+    RecordBinElement *element = (RecordBinElement *) self;
 
-    GstFlowReturn ret;
-
-    g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);
-
-    if (ret != GST_FLOW_OK)
-        element->setState(Null);
+    element->m_readFrames = false;
 }
 
 void RecordBinElement::setFileName(QString fileName)
@@ -171,34 +177,61 @@ void RecordBinElement::resetFrameSize()
     this->setFrameSize(QSize());
 }
 
-void RecordBinElement::iStream(const void *data, int datalen, QString dataType)
+void RecordBinElement::iStream(const QbPacket &packet)
 {
-    Q_UNUSED(datalen)
-
-    if (dataType != "QImage" || this->m_state != Playing || !this->m_pipeline)
+    if (!this->m_pipeline ||
+        !packet.caps().isValid() ||
+        packet.caps().mimeType() != "video/x-raw" ||
+        packet.caps().property("format") != "RGB" ||
+        this->m_state != ElementStatePlaying ||
+        !this->m_readFrames)
         return;
 
     this->m_mutex.lock();
 
-    QImage iFrame = *((const QImage *) data);
+    QImage iFrame((const uchar *) packet.data(),
+                  packet.caps().property("width").toInt(),
+                  packet.caps().property("height").toInt(),
+                  QImage::Format_RGB888);
 
-    if (iFrame.size() == this->m_frameSize)
-        this->m_iFrame = iFrame;
-    else
+    if (!iFrame.size().isValid())
+        return;
+
+    if (iFrame.size() != this->m_frameSize)
     {
-        this->m_iFrame = QImage(this->m_frameSize, QImage::Format_RGB888);
-        this->m_iFrame.fill(QColor(0, 0, 0));
-
         QImage scaledFrame(iFrame.scaled(this->m_frameSize, Qt::KeepAspectRatio));
+
         QPoint point((this->m_frameSize.width() - scaledFrame.width()) >> 1,
                      (this->m_frameSize.height() - scaledFrame.height()) >> 1);
 
+        iFrame = QImage(this->m_frameSize, QImage::Format_RGB888);
+        iFrame.fill(QColor(0, 0, 0));
+
         QPainter painter;
 
-        painter.begin(&this->m_iFrame);
+        painter.begin(&iFrame);
         painter.drawImage(point, scaledFrame);
         painter.end();
     }
+
+    GstBuffer *buffer = gst_buffer_new_and_alloc(iFrame.byteCount());
+    GstMapInfo mapInfo;
+
+    if (gst_buffer_map(buffer, &mapInfo, GST_MAP_WRITE))
+    {
+        memcpy(mapInfo.data,
+               iFrame.constBits(),
+               iFrame.byteCount());
+
+        gst_buffer_unmap(buffer, &mapInfo);
+    }
+
+    GstFlowReturn ret;
+
+    g_signal_emit_by_name(this->m_appsrc, "push-buffer", buffer, &ret);
+
+    if (ret != GST_FLOW_OK)
+        this->setState(ElementStateNull);
 
     this->m_mutex.unlock();
 }
@@ -207,51 +240,53 @@ void RecordBinElement::setState(ElementState state)
 {
     switch (state)
     {
-        case Null:
+        case ElementStateNull:
             if (this->m_pipeline)
             {
                 gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
 
-                GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
-                                                         "input");
-
-                g_signal_handler_disconnect(appsrc, this->m_callBack);
-                gst_object_unref(GST_OBJECT(appsrc));
+                g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["need-data"]);
+                g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["enough-data"]);
+                gst_object_unref(GST_OBJECT(this->m_appsrc));
 
                 gst_object_unref(GST_OBJECT(this->m_pipeline));
                 this->m_pipeline = NULL;
             }
         break;
 
-        case Ready:
+        case ElementStateReady:
             if (this->m_pipeline)
                 gst_element_set_state(this->m_pipeline, GST_STATE_READY);
             else
-                state = Null;
+                state = ElementStateNull;
         break;
 
-        case Paused:
+        case ElementStatePaused:
             if (this->m_pipeline)
                 gst_element_set_state(this->m_pipeline, GST_STATE_PAUSED);
             else
-                state = Null;
+                state = ElementStateNull;
         break;
 
-        case Playing:
+        case ElementStatePlaying:
         {
             if (this->m_pipeline)
-                this->setState(Null);
+                this->setState(ElementStateNull);
 
             QString pipeline = QString("appsrc name=input "
-                                       "caps=video/x-raw,format=RGB,width=%1,heigth=%2,framerate=0/1 "
                                        "stream-type=stream "
                                        "is-live=true "
                                        "do-timestamp=true "
                                        "min-latency=0 "
-                                       "format=time ! ").arg(this->m_frameSize.width())
-                                                        .arg(this->m_frameSize.height());
+                                       "format=time ! "
+                                       "videoparse name=parser "
+                                       "format=rgb "
+                                       "width=%1 "
+                                       "height=%2 ! "
+                                       "videoconvert ! ").arg(this->m_frameSize.width())
+                                                         .arg(this->m_frameSize.height());
 
-            pipeline += QString("ffmpegcolorspace ! "
+            pipeline += QString("videoconvert ! "
                                 "%1 ! queue ! muxer. ").arg(this->m_videoEncoder);
 
             if (this->m_recordAudio)
@@ -267,16 +302,22 @@ void RecordBinElement::setState(ElementState state)
                                                               FALSE,
                                                               &error);
 
+            if (error)
+                qDebug() << error->message;
+
             if (this->m_pipeline && !error)
             {
-                GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
+                this->m_appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
 
-                this->m_callBack = g_signal_connect(appsrc,
-                                                    "need-data",
-                                                    G_CALLBACK(RecordBinElement::needData),
-                                                    this);
+                this->m_callBack["need-data"] = g_signal_connect(this->m_appsrc,
+                                                                 "need-data",
+                                                                 G_CALLBACK(RecordBinElement::needData),
+                                                                 this);
 
-                gst_object_unref(GST_OBJECT(appsrc));
+                this->m_callBack["enough-data"] = g_signal_connect(this->m_appsrc,
+                                                                   "enough-data",
+                                                                   G_CALLBACK(RecordBinElement::enoughData),
+                                                                   this);
             }
             else
                 this->m_pipeline = NULL;
@@ -292,7 +333,27 @@ void RecordBinElement::setState(ElementState state)
     this->m_state = state;
 }
 
+void RecordBinElement::setSrcs(QList<QbElement *> srcs)
+{
+    this->m_srcs = srcs;
+}
+
+void RecordBinElement::setSinks(QList<QbElement *> sinks)
+{
+    this->m_sinks = sinks;
+}
+
 void RecordBinElement::resetState()
 {
-    this->setState(Null);
+    this->setState(ElementStateNull);
+}
+
+void RecordBinElement::resetSrcs()
+{
+    this->setSrcs(QList<QbElement *>());
+}
+
+void RecordBinElement::resetSinks()
+{
+    this->setSinks(QList<QbElement *>());
 }

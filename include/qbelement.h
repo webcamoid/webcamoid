@@ -19,36 +19,49 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef ELEMENT_H
-#define ELEMENT_H
+#ifndef QBELEMENT_H
+#define QBELEMENT_H
 
-#include <QtCore>
+#include "qbpacket.h"
 
 /// Plugin template.
-class Element: public QObject
+class QbElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
     Q_PROPERTY(ElementState state READ state WRITE setState RESET resetState)
+    Q_PROPERTY(QList<QbElement *> srcs READ srcs WRITE setSrcs RESET resetSrcs)
+    Q_PROPERTY(QList<QbElement *> sinks READ sinks WRITE setSinks RESET resetSinks)
 
     public:
         enum ElementState
         {
-            Null,
-            Ready,
-            Paused,
-            Playing
+            ElementStateNull,
+            ElementStateReady,
+            ElementStatePaused,
+            ElementStatePlaying
         };
 
         Q_INVOKABLE virtual ElementState state() = 0;
+        Q_INVOKABLE virtual QList<QbElement *> srcs() = 0;
+        Q_INVOKABLE virtual QList<QbElement *> sinks() = 0;
+
+    protected:
+        ElementState m_state;
+        QList<QbElement *> m_srcs;
+        QList<QbElement *> m_sinks;
 
     signals:
-        void oStream(const void *data, int datalen, QString dataType);
+        void oStream(const QbPacket &packet);
 
     public slots:
-        virtual void iStream(const void *data, int datalen, QString dataType) = 0;
+        virtual void iStream(const QbPacket &packet) = 0;
         virtual void setState(ElementState state) = 0;
+        virtual void setSrcs(QList<QbElement *> srcs) = 0;
+        virtual void setSinks(QList<QbElement *> sinks) = 0;
         virtual void resetState() = 0;
+        virtual void resetSrcs() = 0;
+        virtual void resetSinks() = 0;
 };
 
-#endif // ELEMENT_H
+#endif // QBELEMENT_H

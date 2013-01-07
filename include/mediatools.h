@@ -27,7 +27,7 @@
 
 #include "commons.h"
 #include "appenvironment.h"
-#include "baseelement.h"
+#include "qbpipeline.h"
 
 class COMMONSSHARED_EXPORT MediaTools: public QObject
 {
@@ -123,6 +123,9 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QSize m_curFrameSize;
         guint m_busWatchId;
         bool m_waitForEOS;
+        QbPipeline m_pipeline;
+        QbElement *m_captureSrc;
+        QbElement *m_effectsbin;
 
         QVariantList queryControl(int dev_fd, struct v4l2_queryctrl *queryctrl);
         QMap<QString, uint> findControls(int dev_fd);
@@ -176,6 +179,8 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
                                   QString audioEncoder="", QString muxer="");
 
     private slots:
+        void iStream(const QbPacket &packet);
+
         void aboutToQuit();
         void onDirectoryChanged(const QString &path);
 };

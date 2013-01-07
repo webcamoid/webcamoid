@@ -22,15 +22,15 @@
 #ifndef EFFECTSBIN_H
 #define EFFECTSBIN_H
 
-#include "plugin.h"
+#include "qbplugin.h"
 
-class EffectsBin: public QObject, public Plugin
+class EffectsBin: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        Element *newElement();
+        QbElement *newElement();
 };
 
 #endif // EFFECTSBIN_H

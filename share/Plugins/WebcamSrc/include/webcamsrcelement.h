@@ -25,11 +25,12 @@
 #include <QtGui>
 #include <gst/gst.h>
 
-#include "element.h"
+#include "qbelement.h"
 
-class WebcamSrcElement: public Element
+class WebcamSrcElement: public QbElement
 {
     Q_OBJECT
+    Q_ENUMS(IoMethod)
 
     Q_PROPERTY(QString device READ device
                               WRITE setDevice
@@ -40,6 +41,13 @@ class WebcamSrcElement: public Element
                           RESET resetSize)
 
     public:
+        enum IoMethod
+        {
+            IoMethodRead,
+            IoMethodMmap,
+            IoMethodUserPtr
+        };
+
         explicit WebcamSrcElement();
         ~WebcamSrcElement();
 
@@ -47,18 +55,42 @@ class WebcamSrcElement: public Element
         Q_INVOKABLE QSize size();
 
         Q_INVOKABLE ElementState state();
+        Q_INVOKABLE QList<QbElement *> srcs();
+        Q_INVOKABLE QList<QbElement *> sinks();
 
     private:
+        struct buffer
+        {
+            unsigned char *start;
+            size_t length;
+        };
+
         QString m_device;
         QSize m_size;
-        ElementState m_state;
 
         QMutex m_mutex;
         int m_callBack;
         GstElement *m_pipeline;
         QImage m_oFrame;
+        QFile m_camera;
+        IoMethod m_ioMethod;
+        QList<struct buffer *> m_buffers;
+        bool m_forceFormat;
 
         static void newBuffer(GstElement *appsink, gpointer self);
+        int xioctl(int fd, int request, void *arg);
+        bool openDevice();
+        bool initDevice();
+        bool initRead(unsigned int bufferSize);
+        bool initMmap();
+        bool initUserPtr(unsigned int bufferSize);
+        bool startCapturing();
+        bool mainLoop();
+        bool readFrame();
+        void processImage(const void *image, int size);
+        void stopCapturing();
+        void uninitDevice();
+        void closeDevice();
 
     public slots:
         void setDevice(QString device);
@@ -66,9 +98,13 @@ class WebcamSrcElement: public Element
         void resetDevice();
         void resetSize();
 
-        void iStream(const void *data, int datalen, QString dataType);
+        void iStream(const QbPacket &packet);
         void setState(ElementState state);
+        void setSrcs(QList<QbElement *> srcs);
+        void setSinks(QList<QbElement *> sinks);
         void resetState();
+        void resetSrcs();
+        void resetSinks();
 };
 
 #endif // WEBCAMSRCELEMENT_H

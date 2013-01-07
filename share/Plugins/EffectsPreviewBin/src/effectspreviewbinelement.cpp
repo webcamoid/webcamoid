@@ -23,12 +23,13 @@
 
 #include "effectspreviewbinelement.h"
 
-EffectsPreviewBinElement::EffectsPreviewBinElement(): Element()
+EffectsPreviewBinElement::EffectsPreviewBinElement(): QbElement()
 {
     gst_init(NULL, NULL);
 
     this->m_pipeline = NULL;
     this->m_curFrameSize = QSize(640, 480);
+    this->m_readFrames = true;
 
     this->resetEffects();
     this->resetFrameSize();
@@ -39,11 +40,11 @@ EffectsPreviewBinElement::~EffectsPreviewBinElement()
 {
     if (this->m_pipeline)
     {
-        this->setState(Null);
+        this->setState(ElementStateNull);
 
-        GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
-        g_signal_handler_disconnect(appsrc, this->m_callBack["need-data"]);
-        gst_object_unref(GST_OBJECT(appsrc));
+        g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["need-data"]);
+        g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["enough-data"]);
+        gst_object_unref(GST_OBJECT(this->m_appsrc));
 
         foreach (QString effect, this->m_effects)
         {
@@ -70,9 +71,19 @@ QSize EffectsPreviewBinElement::frameSize()
     return this->m_frameSize;
 }
 
-Element::ElementState EffectsPreviewBinElement::state()
+QbElement::ElementState EffectsPreviewBinElement::state()
 {
     return this->m_state;
+}
+
+QList<QbElement *> EffectsPreviewBinElement::srcs()
+{
+    return this->m_srcs;
+}
+
+QList<QbElement *> EffectsPreviewBinElement::sinks()
+{
+    return this->m_sinks;
 }
 
 QString EffectsPreviewBinElement::hashFromName(QString name)
@@ -87,44 +98,21 @@ QString EffectsPreviewBinElement::nameFromHash(QString hash)
 
 void EffectsPreviewBinElement::needData(GstElement *appsrc, guint size, gpointer self)
 {
+    Q_UNUSED(appsrc)
     Q_UNUSED(size)
 
     EffectsPreviewBinElement *element = (EffectsPreviewBinElement *) self;
-    QImage iFrame = element->m_iFrame;
 
-    if (!iFrame.size().isValid())
-        return;
+    element->m_readFrames = true;
+}
 
-    if (iFrame.size() != element->m_curFrameSize)
-    {
-        element->setState(Null);
+void EffectsPreviewBinElement::enoughData(GstElement *appsrc, gpointer self)
+{
+    Q_UNUSED(appsrc)
 
-        g_object_set(GST_OBJECT(appsrc),
-                     "caps",
-                     gst_caps_new_simple("video/x-raw",
-                                         "format", G_TYPE_STRING, "RGB",
-                                         "width", G_TYPE_INT, iFrame.size().width(),
-                                         "height", G_TYPE_INT, iFrame.size().height(),
-                                         "framerate", GST_TYPE_FRACTION, 0, 1,
-                                         NULL),
-                     NULL);
+    EffectsPreviewBinElement *element = (EffectsPreviewBinElement *) self;
 
-        element->setState(Playing);
-        element->m_curFrameSize = iFrame.size();
-    }
-
-    GstBuffer *buffer = gst_buffer_new_and_alloc(iFrame.byteCount());
-
-    memcpy(GST_BUFFER_DATA(buffer),
-           iFrame.constBits(),
-           iFrame.byteCount());
-
-    GstFlowReturn ret;
-
-    g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);
-
-    if (ret != GST_FLOW_OK)
-        element->setState(Null);
+    element->m_readFrames = false;
 }
 
 void EffectsPreviewBinElement::newBuffer(GstElement *appsink, gpointer self)
@@ -133,15 +121,29 @@ void EffectsPreviewBinElement::newBuffer(GstElement *appsink, gpointer self)
 
     element->m_mutex.lock();
 
-    GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
-    element->m_oFrame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer), GST_BUFFER_SIZE(buffer));
+    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(appsink));
+    GstBuffer *buffer = gst_sample_get_buffer(sample);
+    GstMapInfo mapInfo;
+
+    if (gst_buffer_map(buffer, &mapInfo, GST_MAP_READ))
+    {
+        element->m_oFrame = QImage::fromData((const uchar *) mapInfo.data, mapInfo.size);
+        gst_buffer_unmap(buffer, &mapInfo);
+    }
+
     gst_buffer_unref(buffer);
+    gst_sample_unref(sample);
 
     gchar *name = gst_element_get_name(appsink);
     element->m_oFrame.setText("output", element->nameFromHash(name));
     g_free(name);
 
-    emit element->oStream((const void *) &element->m_oFrame, 0, "QImage");
+    QbPacket packet(QString("video/x-raw,format=RGB,width=%1,height=%2").arg(element->m_oFrame.width())
+                                                                        .arg(element->m_oFrame.height()),
+                    element->m_oFrame.constBits(),
+                    element->m_oFrame.byteCount());
+
+    emit element->oStream(packet);
 
     element->m_mutex.unlock();
 }
@@ -150,11 +152,11 @@ void EffectsPreviewBinElement::setEffects(QStringList effects)
 {
     if (this->m_pipeline)
     {
-        this->setState(Null);
+        this->setState(ElementStateNull);
 
-        GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
-        g_signal_handler_disconnect(appsrc, this->m_callBack["need-data"]);
-        gst_object_unref(GST_OBJECT(appsrc));
+        g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["need-data"]);
+        g_signal_handler_disconnect(this->m_appsrc, this->m_callBack["enough-data"]);
+        gst_object_unref(GST_OBJECT(this->m_appsrc));
 
         foreach (QString effect, this->m_effects)
         {
@@ -176,13 +178,16 @@ void EffectsPreviewBinElement::setEffects(QStringList effects)
     if (!effects.isEmpty())
     {
         QString pipeline = QString("appsrc name=input "
-                                   "caps=video/x-raw,format=RGB,width=%1,heigth=%2,framerate=0/1 "
                                    "stream-type=stream "
                                    "is-live=true "
                                    "do-timestamp=true "
                                    "min-latency=0 "
                                    "format=time ! "
-                                   "ffmpegcolorspace ! "
+                                   "videoparse name=parser "
+                                   "format=rgb "
+                                   "width=%1 "
+                                   "height=%2 ! "
+                                   "videoconvert ! "
                                    "videoscale ! "
                                    "capsfilter name=scalecaps "
                                    "caps=video/x-raw,format=RGB,width=%3,height=%4 ! "
@@ -197,10 +202,10 @@ void EffectsPreviewBinElement::setEffects(QStringList effects)
 
             pipeline += QString(" preview. ! "
                                 "queue ! "
-                                "ffmpegcolorspace ! "
+                                "videoconvert ! "
                                 "%1 ! "
-                                "ffmpegcolorspace ! "
-                                "ffenc_bmp ! "
+                                "videoconvert ! "
+                                "avenc_bmp ! "
                                 "appsink name=%2 "
                                 "emit-signals=true "
                                 "max_buffers=1 "
@@ -214,16 +219,22 @@ void EffectsPreviewBinElement::setEffects(QStringList effects)
                                                           FALSE,
                                                           &error);
 
+        if (error)
+            qDebug() << error->message;
+
         if (this->m_pipeline && !error)
         {
-            GstElement *appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
+            this->m_appsrc = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "input");
 
-            this->m_callBack["need-data"] = g_signal_connect(appsrc,
+            this->m_callBack["need-data"] = g_signal_connect(this->m_appsrc,
                                                              "need-data",
                                                              G_CALLBACK(EffectsPreviewBinElement::needData),
                                                              this);
 
-            gst_object_unref(GST_OBJECT(appsrc));
+            this->m_callBack["enough-data"] = g_signal_connect(this->m_appsrc,
+                                                               "enough-data",
+                                                               G_CALLBACK(EffectsPreviewBinElement::enoughData),
+                                                               this);
 
             foreach (QString effect, this->m_effects)
             {
@@ -233,7 +244,7 @@ void EffectsPreviewBinElement::setEffects(QStringList effects)
                                                           previewHash.toUtf8().constData());
 
                 this->m_callBack[previewHash] = g_signal_connect(appsink,
-                                                                 "new-buffer",
+                                                                 "new-sample",
                                                                  G_CALLBACK(EffectsPreviewBinElement::newBuffer),
                                                                  this);
 
@@ -257,8 +268,8 @@ void EffectsPreviewBinElement::setFrameSize(QSize frameSize)
 
     ElementState state = this->m_state;
 
-    if (this->m_state != Null)
-        this->setState(Null);
+    if (this->m_state != ElementStateNull)
+        this->setState(ElementStateNull);
 
     GstElement *scalecaps = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "scalecaps");
 
@@ -285,40 +296,85 @@ void EffectsPreviewBinElement::resetFrameSize()
     this->setFrameSize(QSize(128, 96));
 }
 
-void EffectsPreviewBinElement::iStream(const void *data, int datalen, QString dataType)
+void EffectsPreviewBinElement::iStream(const QbPacket &packet)
 {
-    Q_UNUSED(datalen)
-
-    if (!this->m_pipeline || dataType != "QImage" || this->m_state != Playing)
+    if (!this->m_pipeline ||
+        !packet.caps().isValid() ||
+        packet.caps().mimeType() != "video/x-raw" ||
+        packet.caps().property("format") != "RGB" ||
+        this->m_state != ElementStatePlaying ||
+        !this->m_readFrames)
         return;
 
-    this->m_iFrame = *((const QImage *) data);
+    QImage iFrame((const uchar *) packet.data(),
+                  packet.caps().property("width").toInt(),
+                  packet.caps().property("height").toInt(),
+                  QImage::Format_RGB888);
+
+    if (!iFrame.size().isValid())
+        return;
+
+    if (iFrame.size() != this->m_curFrameSize)
+    {
+        this->setState(ElementStateNull);
+
+        GstElement *parser = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "parser");
+
+        g_object_set(GST_OBJECT(parser),
+                     "width", iFrame.size().width(),
+                     "height", iFrame.size().height(),
+                     NULL);
+
+        gst_object_unref(GST_OBJECT(parser));
+
+        this->setState(ElementStatePlaying);
+        this->m_curFrameSize = iFrame.size();
+    }
+
+    GstBuffer *buffer = gst_buffer_new_and_alloc(iFrame.byteCount());
+    GstMapInfo mapInfo;
+
+    if (gst_buffer_map(buffer, &mapInfo, GST_MAP_WRITE))
+    {
+        memcpy(mapInfo.data,
+               iFrame.constBits(),
+               iFrame.byteCount());
+
+        gst_buffer_unmap(buffer, &mapInfo);
+    }
+
+    GstFlowReturn ret;
+
+    g_signal_emit_by_name(this->m_appsrc, "push-buffer", buffer, &ret);
+
+    if (ret != GST_FLOW_OK)
+        this->setState(ElementStateNull);
 }
 
 void EffectsPreviewBinElement::setState(ElementState state)
 {
     if (!this->m_pipeline)
     {
-        this->m_state = Null;
+        this->m_state = ElementStateNull;
 
         return;
     }
 
     switch (state)
     {
-        case Null:
+        case ElementStateNull:
             gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
         break;
 
-        case Ready:
+        case ElementStateReady:
             gst_element_set_state(this->m_pipeline, GST_STATE_READY);
         break;
 
-        case Paused:
+        case ElementStatePaused:
             gst_element_set_state(this->m_pipeline, GST_STATE_PAUSED);
         break;
 
-        case Playing:
+        case ElementStatePlaying:
             gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
         break;
 
@@ -329,7 +385,27 @@ void EffectsPreviewBinElement::setState(ElementState state)
     this->m_state = state;
 }
 
+void EffectsPreviewBinElement::setSrcs(QList<QbElement *> srcs)
+{
+    this->m_srcs = srcs;
+}
+
+void EffectsPreviewBinElement::setSinks(QList<QbElement *> sinks)
+{
+    this->m_sinks = sinks;
+}
+
 void EffectsPreviewBinElement::resetState()
 {
-    this->setState(Null);
+    this->setState(ElementStateNull);
+}
+
+void EffectsPreviewBinElement::resetSrcs()
+{
+    this->setSrcs(QList<QbElement *>());
+}
+
+void EffectsPreviewBinElement::resetSinks()
+{
+    this->setSinks(QList<QbElement *>());
 }

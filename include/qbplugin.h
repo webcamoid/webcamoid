@@ -19,40 +19,21 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef DESKTOPSRCELEMENT_H
-#define DESKTOPSRCELEMENT_H
+#ifndef QBPLUGIN_H
+#define QBPLUGIN_H
 
-#include <QtGui>
+#include <QtPlugin>
 
 #include "qbelement.h"
 
-class DesktopSrcElement: public QbElement
+class QbPlugin
 {
-    Q_OBJECT
-
     public:
-        explicit DesktopSrcElement();
-        ~DesktopSrcElement();
+        virtual QbElement *newElement() = 0;
 
-        Q_INVOKABLE ElementState state();
-        Q_INVOKABLE QList<QbElement *> srcs();
-        Q_INVOKABLE QList<QbElement *> sinks();
-
-    private:
-        QImage m_oFrame;
-        QTimer m_timer;
-
-    public slots:
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
-        void setSrcs(QList<QbElement *> srcs);
-        void setSinks(QList<QbElement *> sinks);
-        void resetState();
-        void resetSrcs();
-        void resetSinks();
-
-    private slots:
-        void captureFrame();
+        virtual ~QbPlugin() {}
 };
 
-#endif // DESKTOPSRCELEMENT_H
+Q_DECLARE_INTERFACE(QbPlugin, "Qb.Plugin")
+
+#endif // QBPLUGIN_H

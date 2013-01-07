@@ -57,21 +57,23 @@ HEADERS = \
     include/appenvironment.h \
     include/commons.h \
     include/effects.h \
-    include/element.h \
     include/featuresinfo.h \
     include/generalconfig.h \
     include/mainwidget.h \
     include/mediatools.h \
-    include/plugin.h \
     include/streamsconfig.h \
     include/videorecordconfig.h \
     include/webcamconfig.h \
-    include/baseelement.h
+    include/qbelement.h \
+    include/qbplugin.h \
+    include/qbpipeline.h \
+    include/qbpacket.h \
+    include/qbcaps.h
 
 INCLUDEPATH += \
     include \
     /usr/include/KDE \
-    /usr/include/gstreamer-0.10
+    /usr/include/gstreamer-1.0
 
 LIBS += \
     -lkdecore \
@@ -89,7 +91,9 @@ SOURCES = \
     src/streamsconfig.cpp \
     src/videorecordconfig.cpp \
     src/webcamconfig.cpp \
-    src/baseelement.cpp
+    src/qbpipeline.cpp \
+    src/qbpacket.cpp \
+    src/qbcaps.cpp
 
 TARGET = $${COMMONS_APPNAME}
 
@@ -120,8 +124,8 @@ unix {
 
     PKGCONFIG += \
         libv4l2 \
-        gstreamer-0.10 \
-        gstreamer-app-0.10
+        gstreamer-1.0 \
+        gstreamer-app-1.0
 
     INSTALLS += \
         target \

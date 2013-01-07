@@ -23,59 +23,63 @@
 #define URISRCELEMENT_H
 
 #include <QtGui>
-#include <gst/gst.h>
 
-#include "element.h"
+// https://www.libav.org/doxygen/master/index.html
+extern "C"
+{
+    #include <libavdevice/avdevice.h>
+}
 
-class UriSrcElement: public Element
+#include "videostream.h"
+#include "qbelement.h"
+
+class UriSrcElement: public QbElement
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString uri READ uri
-                           WRITE setUri
-                           RESET resetUri)
-
-    Q_PROPERTY(bool hasAudio READ hasAudio
-                             WRITE setHasAudio
-                             RESET resetHasAudio)
-
-    Q_PROPERTY(bool playAudio READ playAudio
-                              WRITE setPlayAudio
-                              RESET resetPlayAudio)
+    Q_PROPERTY(QString uri READ uri WRITE setUri RESET resetUri)
+    Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
 
     public:
         explicit UriSrcElement();
         ~UriSrcElement();
 
         Q_INVOKABLE QString uri();
-        Q_INVOKABLE bool hasAudio();
-        Q_INVOKABLE bool playAudio();
+        Q_INVOKABLE bool loop();
+
         Q_INVOKABLE ElementState state();
+        Q_INVOKABLE QList<QbElement *> srcs();
+        Q_INVOKABLE QList<QbElement *> sinks();
 
     private:
         QString m_uri;
-        bool m_hasAudio;
-        bool m_playAudio;
-        ElementState m_state;
+        bool m_loop;
 
-        QMutex m_mutex;
-        int m_callBack;
-        GstElement *m_pipeline;
         QImage m_oFrame;
 
-        static void newBuffer(GstElement *appsink, gpointer self);
+        AVFormatContext *m_inputContext;
+        QTimer m_timer;
+        QMap<int, AbstractStream *> m_streams;
+
+        bool initCapture();
+        void uninitCapture();
 
     public slots:
         void setUri(QString uri);
-        void setHasAudio(bool hasAudio);
-        void setPlayAudio(bool playAudio);
+        void setLoop(bool loop);
         void resetUri();
-        void resetHasAudio();
-        void resetPlayAudio();
+        void resetLoop();
 
-        void iStream(const void *data, int datalen, QString dataType);
+        void iStream(const QbPacket &packet);
         void setState(ElementState state);
+        void setSrcs(QList<QbElement *> srcs);
+        void setSinks(QList<QbElement *> sinks);
         void resetState();
+        void resetSrcs();
+        void resetSinks();
+
+    private slots:
+        void readPackets();
 };
 
 #endif // URISRCELEMENT_H

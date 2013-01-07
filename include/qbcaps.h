@@ -19,21 +19,36 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#ifndef QBCAPS_H
+#define QBCAPS_H
 
-#include <QtPlugin>
+// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-types-definitions.html
 
-#include "element.h"
+#include <QtCore>
 
-class Plugin
+class QbCaps: public QObject
 {
-    public:
-        virtual Element *newElement() = 0;
+    Q_OBJECT
 
-        virtual ~Plugin() {}
+    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType RESET resetMimeType)
+
+    public:
+        explicit QbCaps(QObject *parent=NULL);
+        QbCaps(QString capsString);
+        QbCaps(const QbCaps &other);
+        QbCaps &operator =(const QbCaps &other);
+
+        Q_INVOKABLE bool isValid() const;
+        Q_INVOKABLE QString mimeType() const;
+        Q_INVOKABLE QString toString();
+
+    private:
+        bool m_isValid;
+        QString m_mimeType;
+
+    public slots:
+        void setMimeType(QString mimeType);
+        void resetMimeType();
 };
 
-Q_DECLARE_INTERFACE(Plugin, "Webcamoid.Plugin")
-
-#endif // PLUGIN_H
+#endif // QBCAPS_H

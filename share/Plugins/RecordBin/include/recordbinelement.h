@@ -25,9 +25,9 @@
 #include <QtGui>
 #include <gst/gst.h>
 
-#include "element.h"
+#include "qbelement.h"
 
-class RecordBinElement: public Element
+class RecordBinElement: public QbElement
 {
     Q_OBJECT
 
@@ -67,6 +67,8 @@ class RecordBinElement: public Element
         Q_INVOKABLE QSize frameSize();
 
         Q_INVOKABLE ElementState state();
+        Q_INVOKABLE QList<QbElement *> srcs();
+        Q_INVOKABLE QList<QbElement *> sinks();
 
     private:
         QString m_fileName;
@@ -75,14 +77,15 @@ class RecordBinElement: public Element
         QString m_muxer;
         bool m_recordAudio;
         QSize m_frameSize;
-        ElementState m_state;
 
         QMutex m_mutex;
-        int m_callBack;
+        QMap<QString, int>  m_callBack;
         GstElement *m_pipeline;
-        QImage m_iFrame;
+        GstElement *m_appsrc;
+        bool m_readFrames;
 
         static void needData(GstElement *appsrc, guint size, gpointer self);
+        static void enoughData(GstElement *appsrc, gpointer self);
 
     public slots:
         void setFileName(QString fileName);
@@ -98,9 +101,13 @@ class RecordBinElement: public Element
         void resetRecordAudio();
         void resetFrameSize();
 
-        void iStream(const void *data, int datalen, QString dataType);
+        void iStream(const QbPacket &packet);
         void setState(ElementState state);
+        void setSrcs(QList<QbElement *> srcs);
+        void setSinks(QList<QbElement *> sinks);
         void resetState();
+        void resetSrcs();
+        void resetSinks();
 };
 
 #endif // RECORDBINELEMENT_H

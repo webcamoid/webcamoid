@@ -22,15 +22,15 @@
 #ifndef WEBCAMSRC_H
 #define WEBCAMSRC_H
 
-#include "plugin.h"
+#include "qbplugin.h"
 
-class WebcamSrc: public QObject, public Plugin
+class WebcamSrc: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        Element *newElement();
+        QbElement *newElement();
 };
 
 #endif // WEBCAMSRC_H

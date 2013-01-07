@@ -22,15 +22,15 @@
 #ifndef URISRC_H
 #define URISRC_H
 
-#include "plugin.h"
+#include "qbplugin.h"
 
-class UriSrc: public QObject, public Plugin
+class UriSrc: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        Element *newElement();
+        QbElement *newElement();
 };
 
 #endif // URISRC_H

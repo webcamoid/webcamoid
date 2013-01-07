@@ -19,149 +19,92 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <gst/app/gstappsink.h>
-
 #include "desktopsrcelement.h"
 
-DesktopSrcElement::DesktopSrcElement(): Element()
+DesktopSrcElement::DesktopSrcElement(): QbElement()
 {
-    gst_init(NULL, NULL);
-
-    this->m_pipeline = NULL;
-
-    this->resetShowPointer();
     this->resetState();
 
-    QString pipeline = "ximagesrc show-pointer=false ! "
-                       "ffmpegcolorspace ! "
-                       "ffenc_bmp ! "
-                       "appsink name=output "
-                       "emit-signals=true "
-                       "max_buffers=1 "
-                       "drop=true";
-
-    GError *error = NULL;
-
-    this->m_pipeline = gst_parse_bin_from_description(pipeline.toUtf8().constData(),
-                                                      FALSE,
-                                                      &error);
-
-    if (this->m_pipeline && !error)
-    {
-        GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
-                                                  "output");
-
-        this->m_callBack = g_signal_connect(appsink,
-                                            "new-buffer",
-                                            G_CALLBACK(DesktopSrcElement::newBuffer),
-                                            this);
-
-        gst_object_unref(GST_OBJECT(appsink));
-    }
+    QObject::connect(&this->m_timer,
+                     SIGNAL(timeout()),
+                     this,
+                     SLOT(captureFrame()));
 }
 
 DesktopSrcElement::~DesktopSrcElement()
 {
-    if (this->m_pipeline)
-    {
-        this->setState(Null);
-
-        GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
-                                                  "output");
-
-        g_signal_handler_disconnect(appsink, this->m_callBack);
-        gst_object_unref(GST_OBJECT(appsink));
-
-        gst_object_unref(GST_OBJECT(this->m_pipeline));
-    }
+    this->setState(ElementStateNull);
 }
 
-bool DesktopSrcElement::showPointer()
-{
-    return this->m_showPointer;
-}
-
-Element::ElementState DesktopSrcElement::state()
+QbElement::ElementState DesktopSrcElement::state()
 {
     return this->m_state;
 }
 
-void DesktopSrcElement::newBuffer(GstElement *appsink, gpointer self)
+QList<QbElement *> DesktopSrcElement::srcs()
 {
-    DesktopSrcElement *element = (DesktopSrcElement *) self;
-
-    element->m_mutex.lock();
-
-    GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
-
-    element->m_oFrame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer),
-                                         GST_BUFFER_SIZE(buffer));
-
-    gst_buffer_unref(buffer);
-
-    emit element->oStream((const void *) &element->m_oFrame, 0, "QImage");
-
-    element->m_mutex.unlock();
+    return this->m_srcs;
 }
 
-void DesktopSrcElement::setShowPointer(bool showPointer)
+QList<QbElement *> DesktopSrcElement::sinks()
 {
-    this->m_showPointer = showPointer;
-
-    if (this->m_pipeline)
-        g_object_set(GST_OBJECT(this->m_pipeline),
-                     "show-pointer",
-                     showPointer,
-                     NULL);
+    return this->m_sinks;
 }
 
-void DesktopSrcElement::resetShowPointer()
+void DesktopSrcElement::iStream(const QbPacket &packet)
 {
-    this->setShowPointer(false);
-}
-
-void DesktopSrcElement::iStream(const void *data, int datalen, QString dataType)
-{
-    Q_UNUSED(data)
-    Q_UNUSED(datalen)
-    Q_UNUSED(dataType)
+    Q_UNUSED(packet)
 }
 
 void DesktopSrcElement::setState(ElementState state)
 {
-    if (!this->m_pipeline)
-    {
-        this->m_state = Null;
-
-        return;
-    }
-
     switch (state)
     {
-        case Null:
-            gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
-        break;
-
-        case Ready:
-            gst_element_set_state(this->m_pipeline, GST_STATE_READY);
-        break;
-
-        case Paused:
-            gst_element_set_state(this->m_pipeline, GST_STATE_PAUSED);
-        break;
-
-        case Playing:
-            gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
+        case ElementStatePlaying:
+            this->m_timer.start();
         break;
 
         default:
+            this->m_timer.stop();
         break;
     }
 
     this->m_state = state;
 }
 
+void DesktopSrcElement::setSrcs(QList<QbElement *> srcs)
+{
+    this->m_srcs = srcs;
+}
+
+void DesktopSrcElement::setSinks(QList<QbElement *> sinks)
+{
+    this->m_sinks = sinks;
+}
+
 void DesktopSrcElement::resetState()
 {
-    this->setState(Null);
+    this->setState(ElementStateNull);
+}
+
+void DesktopSrcElement::resetSrcs()
+{
+    this->setSrcs(QList<QbElement *>());
+}
+
+void DesktopSrcElement::resetSinks()
+{
+    this->setSinks(QList<QbElement *>());
+}
+
+void DesktopSrcElement::captureFrame()
+{
+    this->m_oFrame = QPixmap::grabWindow(QApplication::desktop()->winId()).toImage();
+
+    QbPacket packet(QString("video/x-raw,format=RGB,width=%1,height=%2").arg(this->m_oFrame.width())
+                                                                        .arg(this->m_oFrame.height()),
+                    this->m_oFrame.constBits(),
+                    this->m_oFrame.byteCount());
+
+    emit this->oStream(packet);
 }

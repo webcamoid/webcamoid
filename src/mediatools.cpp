@@ -23,6 +23,8 @@
 // http://lists.freedesktop.org/mailman/listinfo/gstreamer-devel
 // http://api.kde.org/
 // http://extragear.kde.org/apps/kipi/
+// http://www.mltframework.org/bin/view/MLT/WebHome
+// http://cgit.freedesktop.org/gstreamer/gstreamer/tree/docs/random/porting-to-1.0.txt
 // LD_PRELOAD='./libWebcamoid.so' ./webcamoid
 
 #include <sys/ioctl.h>
@@ -62,6 +64,25 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     this->resetStreams();
     this->resetWindowSize();
 
+    this->m_pipeline.setPluginsPaths(QStringList() << "share/Plugins/DesktopSrc"
+                                                   << "share/Plugins/EffectsBin"
+                                                   << "share/Plugins/EffectsPreviewBin"
+                                                   << "share/Plugins/RecordBin"
+                                                   << "share/Plugins/UriSrc"
+                                                   << "share/Plugins/WebcamSrc");
+
+    this->m_captureSrc = this->m_pipeline.add("WebcamSrc");
+    this->m_captureSrc->setProperty("device", "/dev/video0");
+    this->m_captureSrc->setProperty("size", QSize(640, 480));
+
+    this->m_effectsbin = this->m_pipeline.add("EffectsBin");
+    this->m_effectsbin->setProperty("effects", QStringList() << "frei0r-filter-threelay0r"
+                                                             << "coloreffects preset=sepia"
+                                                             << "agingtv");
+
+    QbPipeline::link(this->m_captureSrc, this->m_effectsbin);
+    QbPipeline::link(this->m_captureSrc, this);
+
     this->m_mainPipeline = gst_pipeline_new("MainPipeline");
 
     GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_mainPipeline));
@@ -71,8 +92,8 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     QString captureHash = this->hashFromName("capture");
     QString mainBinDescription = QString("tee name=CaptureTee ! "
                                          "tee name=EffectsTee ! "
-                                         "queue ! ffmpegcolorspace ! "
-                                         "ffenc_bmp ! "
+                                         "queue ! videoconvert ! "
+                                         "avenc_bmp ! "
                                          "appsink name=%1 emit-signals=true max_buffers=1 drop=true").arg(captureHash);
 
     GError *error = NULL;
@@ -86,7 +107,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
         g_object_set(GST_OBJECT(this->m_mainBin), "name", "mainBin", NULL);
 
         GstElement *capture = gst_bin_get_by_name(GST_BIN(this->m_mainBin), captureHash.toUtf8().constData());
-        this->m_callBacks[captureHash] = g_signal_connect(capture, "new-buffer",  G_CALLBACK(MediaTools::readFrame), this);
+        this->m_callBacks[captureHash] = g_signal_connect(capture, "new-sample",  G_CALLBACK(MediaTools::readFrame), this);
         gst_object_unref(GST_OBJECT(capture));
 
         gst_bin_add(GST_BIN(this->m_mainPipeline), this->m_mainBin);
@@ -103,6 +124,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     }
 
     this->loadConfigs();
+    this->m_pipeline.setState(QbElement::ElementStatePlaying);
 }
 
 MediaTools::~MediaTools()
@@ -112,6 +134,21 @@ MediaTools::~MediaTools()
 
     g_source_remove(this->m_busWatchId);
     gst_object_unref(GST_OBJECT(this->m_mainPipeline));
+}
+
+void MediaTools::iStream(const QbPacket &packet)
+{
+    if (!packet.caps().isValid() ||
+        packet.caps().mimeType() != "video/x-raw" ||
+        packet.caps().property("format") != "RGB")
+        return;
+
+    QImage iFrame((const uchar *) packet.data(),
+                  packet.caps().property("width").toInt(),
+                  packet.caps().property("height").toInt(),
+                  QImage::Format_RGB888);
+
+    emit this->frameReady(iFrame);
 }
 
 QString MediaTools::device()
@@ -392,7 +429,7 @@ QVariantMap MediaTools::featuresMatrix()
     QVariantMap features;
     QStringList availableElements;
 
-    GList *headElement = gst_registry_get_feature_list(gst_registry_get_default(), GST_TYPE_ELEMENT_FACTORY);
+    GList *headElement = gst_registry_get_feature_list(gst_registry_get(), GST_TYPE_ELEMENT_FACTORY);
     GList *element = headElement;
 
     while (element)
@@ -433,7 +470,7 @@ QVariantMap MediaTools::featuresMatrix()
     elements << "alsasrc"
              << "audioconvert"
              << "decodebin"
-             << "ffmpegcolorspace"
+             << "videoconvert"
              << "theoraenc"
              << "videoscale"
              << "vorbisenc";
@@ -551,8 +588,8 @@ QVariantMap MediaTools::featuresMatrix()
     elements.clear();
     libAvailable = true;
 
-    elements << "ffdec_bmp"
-             << "ffenc_bmp";
+    elements << "avdec_bmp"
+             << "avenc_bmp";
 
     // GStreamer FFmpeg Plugins:
     foreach (QString element, elements)
@@ -838,9 +875,19 @@ void MediaTools::readFrame(GstElement *appsink, gpointer self)
     QString pipename = mediaTools->nameFromHash(elementName);
     g_free(elementName);
 
-    GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
-    QImage frame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer), GST_BUFFER_SIZE(buffer));
+    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(appsink));
+    GstBuffer *buffer = gst_sample_get_buffer(sample);
+    GstMapInfo mapInfo;
+    QImage frame;
+
+    if (gst_buffer_map(buffer, &mapInfo, GST_MAP_READ))
+    {
+        frame = QImage::fromData((const uchar *) mapInfo.data, mapInfo.size);
+        gst_buffer_unmap(buffer, &mapInfo);
+    }
+
     gst_buffer_unref(buffer);
+    gst_sample_unref(sample);
 
     if (pipename == "capture")
     {
@@ -918,7 +965,7 @@ void MediaTools::setRecording(bool recording, QString fileName)
             return;
         }
 
-        QString pipeline = QString("queue name=VideoRecording ! ffmpegcolorspace ! "
+        QString pipeline = QString("queue name=VideoRecording ! videoconvert ! "
                                    "%1 ! queue ! muxer. ").arg(format.at(1));
 
         if (this->m_recordAudio)
@@ -1005,7 +1052,7 @@ void MediaTools::setDevice(QString device)
 
             QString description = QString("v4l2src device=%1 ! "
                                           "capsfilter name=capture "
-                                          "caps=video/x-raw-yuv,width=%2,height=%3").arg(device)
+                                          "caps=video/x-raw,width=%2,height=%3").arg(device)
                                                                                     .arg(fmt.at(0).toInt())
                                                                                     .arg(fmt.at(1).toInt());
 
@@ -1052,7 +1099,7 @@ void MediaTools::setDevice(QString device)
             else
                 pipeline = "souphttpsrc";
 
-            pipeline += " name=captureResource ! decodebin name=dec ! ffmpegcolorspace name=capture";
+            pipeline += " name=captureResource ! decodebin name=dec ! videoconvert name=capture";
 
             if (hasAudio)
             {
@@ -1182,16 +1229,16 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
 
     if (effectsPreview)
     {
-        QString pipeline = QString("queue name=EffectsPreview ! ffmpegcolorspace ! "
-                                   "videoscale ! video/x-raw-rgb,width=%1,height=%2 ! tee name=preview").arg(128)
+        QString pipeline = QString("queue name=EffectsPreview ! videoconvert ! "
+                                   "videoscale ! video/x-raw,format=RGB,width=%1,height=%2 ! tee name=preview").arg(128)
                                                                                                         .arg(96);
 
         foreach (QString effect, this->availableEffects().keys())
         {
             QString previewHash = this->hashFromName(effect);
 
-            pipeline += QString(" preview. ! queue ! ffmpegcolorspace ! %1 ! "
-                                "ffmpegcolorspace ! ffenc_bmp ! "
+            pipeline += QString(" preview. ! queue ! videoconvert ! %1 ! "
+                                "videoconvert ! avenc_bmp ! "
                                 "appsink name=%2 emit-signals=true max_buffers=1 drop=true").arg(effect).arg(previewHash);
         }
 
@@ -1224,7 +1271,7 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
             QString previewHash = this->hashFromName(effect);
             GstElement *preview = gst_bin_get_by_name(GST_BIN(this->m_mainBin), previewHash.toUtf8().constData());
 
-            this->m_callBacks[previewHash] = g_signal_connect(preview, "new-buffer", G_CALLBACK(MediaTools::readFrame), this);
+            this->m_callBacks[previewHash] = g_signal_connect(preview, "new-sample", G_CALLBACK(MediaTools::readFrame), this);
 
             gst_object_unref(GST_OBJECT(preview));
         }
@@ -1433,7 +1480,7 @@ void MediaTools::setEffects(QStringList effects)
         QString pipeline = "queue name=EffectsBinIn";
 
         foreach (QString effect, this->m_effects)
-            pipeline += QString(" ! ffmpegcolorspace ! %1").arg(effect);
+            pipeline += QString(" ! videoconvert ! %1").arg(effect);
 
         pipeline += " ! identity name=EffectsBinOut";
 

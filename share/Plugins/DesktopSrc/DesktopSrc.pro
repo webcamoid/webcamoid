@@ -36,8 +36,7 @@ HEADERS += \
 
 INCLUDEPATH += \
     include \
-    ../../../include \
-    /usr/include/gstreamer-0.10
+    ../../../include
 
 QT += core gui
 
@@ -48,12 +47,6 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        gstreamer-0.10 \
-        gstreamer-app-0.10
-
     INSTALLS += target
 
     target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}

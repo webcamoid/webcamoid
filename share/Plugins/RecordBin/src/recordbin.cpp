@@ -22,7 +22,7 @@
 #include "recordbin.h"
 #include "recordbinelement.h"
 
-Element *RecordBin::newElement()
+QbElement *RecordBin::newElement()
 {
     return new RecordBinElement();
 }

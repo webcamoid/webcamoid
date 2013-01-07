@@ -20,10 +20,18 @@
  */
 
 #include <gst/app/gstappsink.h>
+#include <linux/videodev2.h>
+#include <stropts.h>
+#include <sys/mman.h>
 
 #include "webcamsrcelement.h"
 
-WebcamSrcElement::WebcamSrcElement(): Element()
+// https://github.com/hatstand/Video-capture.git
+// https://www.archlinux.org/packages/extra/x86_64/ffmpeg/files/
+// https://www.libav.org/doxygen/master/index.html
+// http://ffmpeg.org/trac/ffmpeg/wiki
+
+WebcamSrcElement::WebcamSrcElement(): QbElement()
 {
     gst_init(NULL, NULL);
 
@@ -35,9 +43,9 @@ WebcamSrcElement::WebcamSrcElement(): Element()
 
     QString pipeline = QString("v4l2src name=webcam device=%1 ! "
                                "capsfilter name=webcamcaps "
-                               "caps=video/x-raw,format=YUV,width=%2,height=%3 ! "
-                               "ffmpegcolorspace ! "
-                               "ffenc_bmp ! "
+                               "caps=video/x-raw,width=%2,height=%3 ! "
+                               "videoconvert ! "
+                               "video/x-raw,format=RGB ! "
                                "appsink name=output "
                                "emit-signals=true "
                                "max_buffers=1 "
@@ -51,10 +59,13 @@ WebcamSrcElement::WebcamSrcElement(): Element()
                                                       FALSE,
                                                       &error);
 
+    if (error)
+        qDebug() << error->message;
+
     if (this->m_pipeline && !error)
     {
         GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "output");
-        this->m_callBack = g_signal_connect(appsink, "new-buffer", G_CALLBACK(WebcamSrcElement::newBuffer), this);
+        this->m_callBack = g_signal_connect(appsink, "new-sample", G_CALLBACK(WebcamSrcElement::newBuffer), this);
         gst_object_unref(GST_OBJECT(appsink));
     }
 }
@@ -63,7 +74,7 @@ WebcamSrcElement::~WebcamSrcElement()
 {
     if (this->m_pipeline)
     {
-        this->setState(Null);
+        this->setState(ElementStateNull);
 
         GstElement *appsink = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "output");
         g_signal_handler_disconnect(appsink, this->m_callBack);
@@ -83,9 +94,19 @@ QSize WebcamSrcElement::size()
     return this->m_size;
 }
 
-Element::ElementState WebcamSrcElement::state()
+QbElement::ElementState WebcamSrcElement::state()
 {
     return this->m_state;
+}
+
+QList<QbElement *> WebcamSrcElement::srcs()
+{
+    return this->m_srcs;
+}
+
+QList<QbElement *> WebcamSrcElement::sinks()
+{
+    return this->m_sinks;
 }
 
 void WebcamSrcElement::newBuffer(GstElement *appsink, gpointer self)
@@ -94,13 +115,439 @@ void WebcamSrcElement::newBuffer(GstElement *appsink, gpointer self)
 
     element->m_mutex.lock();
 
-    GstBuffer *buffer = gst_app_sink_pull_buffer(GST_APP_SINK(appsink));
-    element->m_oFrame = QImage::fromData((const uchar *) GST_BUFFER_DATA(buffer), GST_BUFFER_SIZE(buffer));
-    gst_buffer_unref(buffer);
+    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(appsink));
+    GstCaps *caps = gst_sample_get_caps(sample);
+    const GstStructure *capsStructure = gst_caps_get_structure(caps, 0);
+    int width;
+    int height;
 
-    emit element->oStream((const void *) &element->m_oFrame, 0, "QImage");
+    if (gst_structure_get_int(capsStructure, "width", &width) &&
+        gst_structure_get_int(capsStructure, "height", &height))
+    {
+        GstBuffer *buffer = gst_sample_get_buffer(sample);
+        GstMapInfo mapInfo;
+
+        if (gst_buffer_map(buffer, &mapInfo, GST_MAP_READ))
+        {
+            element->m_oFrame = QImage((const uchar *) mapInfo.data,
+                                       width,
+                                       height,
+                                       QImage::Format_RGB888);
+
+            gst_buffer_unmap(buffer, &mapInfo);
+        }
+
+        gst_buffer_unref(buffer);
+    }
+
+    gst_caps_unref(caps);
+    gst_sample_unref(sample);
+
+    QbPacket packet(QString("video/x-raw,format=RGB,width=%1,height=%2").arg(element->m_oFrame.width())
+                                                                        .arg(element->m_oFrame.height()),
+                    element->m_oFrame.constBits(),
+                    element->m_oFrame.byteCount());
+
+    emit element->oStream(packet);
 
     element->m_mutex.unlock();
+}
+
+int WebcamSrcElement::xioctl(int fd, int request, void *arg)
+{
+    while (true)
+    {
+        int r = ioctl(fd, request, arg);
+
+        if (r != -1 || errno != EINTR)
+            return r;
+    }
+}
+
+bool WebcamSrcElement::openDevice()
+{
+    this->m_camera.setFileName(this->m_device);
+
+    return this->m_camera.open(QIODevice::ReadOnly | QIODevice::Unbuffered);
+}
+
+bool WebcamSrcElement::initDevice()
+{
+    struct v4l2_capability cap;
+
+    if (this->xioctl(this->m_camera.handle(), VIDIOC_QUERYCAP, &cap) == -1)
+        return false;
+
+    if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
+        return false;
+
+    switch (this->m_ioMethod)
+    {
+        case IoMethodRead:
+            if (!(cap.capabilities & V4L2_CAP_READWRITE))
+                return false;
+        break;
+
+        case IoMethodMmap:
+        case IoMethodUserPtr:
+            if (!(cap.capabilities & V4L2_CAP_STREAMING))
+                return false;
+        break;
+    }
+
+    struct v4l2_cropcap cropcap;
+    memset(&cropcap, 0, sizeof(cropcap));
+    cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (this->xioctl(this->m_camera.handle(), VIDIOC_CROPCAP, &cropcap) == 0)
+    {
+        struct v4l2_crop crop;
+        crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        crop.c = cropcap.defrect;
+
+        this->xioctl(this->m_camera.handle(), VIDIOC_S_CROP, &crop);
+    }
+
+    struct v4l2_format fmt;
+    memset(&fmt, 0, sizeof(fmt));
+
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (this->m_forceFormat)
+    {
+        fmt.fmt.pix.width       = 640;
+        fmt.fmt.pix.height      = 480;
+        fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+        fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
+
+        if (this->xioctl(this->m_camera.handle(), VIDIOC_S_FMT, &fmt) == -1)
+            return false;
+    }
+    else if (this->xioctl(this->m_camera.handle(), VIDIOC_G_FMT, &fmt) == -1)
+        return false;
+
+    unsigned int min = 2 * fmt.fmt.pix.width;
+
+    if (fmt.fmt.pix.bytesperline < min)
+            fmt.fmt.pix.bytesperline = min;
+
+    min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
+
+    if (fmt.fmt.pix.sizeimage < min)
+            fmt.fmt.pix.sizeimage = min;
+
+    switch (this->m_ioMethod)
+    {
+        case IoMethodRead:
+            return this->initRead(fmt.fmt.pix.sizeimage);
+        break;
+
+        case IoMethodMmap:
+            return this->initMmap();
+        break;
+
+        case IoMethodUserPtr:
+            return this->initUserPtr(fmt.fmt.pix.sizeimage);
+        break;
+
+        default:
+        break;
+    }
+
+    return false;
+}
+
+bool WebcamSrcElement::initRead(unsigned int bufferSize)
+{
+    this->m_buffers.reserve(1);
+
+    if (this->m_buffers.isEmpty())
+        return false;
+
+    this->m_buffers[0]->length = bufferSize;
+    this->m_buffers[0]->start = new unsigned char[bufferSize];
+
+    if (!this->m_buffers[0]->start)
+        return false;
+
+    return true;
+}
+
+bool WebcamSrcElement::initMmap()
+{
+    struct v4l2_requestbuffers req;
+    memset(&req, 0, sizeof(req));
+
+    req.count = 4;
+    req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    req.memory = V4L2_MEMORY_MMAP;
+
+    if (this->xioctl(this->m_camera.handle(), VIDIOC_REQBUFS, &req) == -1)
+        return false;
+
+    if (req.count < 2)
+        return false;
+
+    this->m_buffers.reserve(req.count);
+
+    if (this->m_buffers.isEmpty())
+        return false;
+
+    for (uint nBuffer = 0; nBuffer < req.count; nBuffer++)
+    {
+        struct v4l2_buffer buffer;
+        memset(&buffer, 0, sizeof(buffer));
+
+        buffer.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        buffer.memory = V4L2_MEMORY_MMAP;
+        buffer.index  = nBuffer;
+
+        if (xioctl(this->m_camera.handle(), VIDIOC_QUERYBUF, &buffer) == -1)
+            return false;
+
+        this->m_buffers[nBuffer]->length = buffer.length;
+        this->m_buffers[nBuffer]->start = (uchar *) mmap(NULL,
+                                                         buffer.length,
+                                                         PROT_READ | PROT_WRITE,
+                                                         MAP_SHARED,
+                                                         this->m_camera.handle(),
+                                                         buffer.m.offset);
+
+        if (this->m_buffers[nBuffer]->start == MAP_FAILED)
+            return false;
+    }
+
+    return true;
+}
+
+bool WebcamSrcElement::initUserPtr(unsigned int bufferSize)
+{
+    struct v4l2_requestbuffers req;
+    memset(&req, 0, sizeof(req));
+
+    req.count  = 4;
+    req.type   = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    req.memory = V4L2_MEMORY_USERPTR;
+
+    if (this->xioctl(this->m_camera.handle(), VIDIOC_REQBUFS, &req) == -1)
+        return false;
+
+    this->m_buffers.reserve(4);
+
+    if (this->m_buffers.isEmpty())
+        return false;
+
+    for (int nBuffer = 0; nBuffer < 4; nBuffer++)
+    {
+        this->m_buffers[nBuffer]->length = bufferSize;
+        this->m_buffers[nBuffer]->start = new unsigned char[bufferSize];
+
+        if (!this->m_buffers[nBuffer]->start)
+            return false;
+    }
+
+    return true;
+}
+
+bool WebcamSrcElement::startCapturing()
+{/*
+    enum v4l2_buf_type type;
+
+    switch (this->m_ioMethod)
+    {
+        case IoMethodRead:
+        break;
+
+        case IoMethodMmap:
+            for (uint i = 0; i < this->m_buffers.length(); i++)
+            {
+                    struct v4l2_buffer buffer;
+                    memset(&buffer, 0, sizeof(buffer));
+
+                    buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+                    buffer.memory = V4L2_MEMORY_MMAP;
+                    buffer.index = i;
+
+                    if (this->xioctl(this->m_camera.handle(), VIDIOC_QBUF, &buffer) == -1)
+                        return false;
+            }
+
+            type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+            if (this->xioctl(this->m_camera.handle(), VIDIOC_STREAMON, &type) == -1)
+                return false;
+        break;
+
+        case IoMethodUserPtr:
+            for (uint i = 0; i < this->m_buffers.length(); i++)
+            {
+                    struct v4l2_buffer buffer;
+                    memset(&buffer, 0, sizeof(buffer));
+
+                    buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+                    buffer.memory = V4L2_MEMORY_USERPTR;
+                    buffer.index = i;
+                    buffer.m.userptr = (unsigned long)buffers[i].start;
+                    buffer.length = this->m_buffers[i]->length;
+
+                    if (this->xioctl(this->m_camera.handle(), VIDIOC_QBUF, &buffer) == -1)
+                        return false;
+            }
+
+            type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+            if (this->xioctl(this->m_camera.handle(), VIDIOC_STREAMON, &type) == -1)
+                return false;
+        break;
+    }
+
+    return true;*/
+}
+
+bool WebcamSrcElement::mainLoop()
+{
+    while (true)
+    {
+        fd_set fds;
+
+        FD_ZERO(&fds);
+        FD_SET(this->m_camera.handle(), &fds);
+
+        struct timeval tv;
+
+        tv.tv_sec = 2;
+        tv.tv_usec = 0;
+
+        int r = select(this->m_camera.handle() + 1, &fds, NULL, NULL, &tv);
+
+        if (r == -1)
+        {
+            if (errno == EINTR)
+                continue;
+
+            return true;
+        }
+
+        if (r == 0)
+            return false;
+
+        if (this->readFrame())
+            break;
+    }
+
+    return true;
+}
+
+bool WebcamSrcElement::readFrame()
+{/*
+    struct v4l2_buffer buffer;
+    uint i;
+
+    switch (this->m_ioMethod)
+    {
+        case IoMethodRead:
+            if (this->m_camera.read(this->m_buffers[0]->start, this->m_buffers[0]->length) == -1)
+                return false;
+
+            this->processImage(this->m_buffers[0]->start, this->m_buffers[0]->length);
+        break;
+
+        case IoMethodMmap:
+            memset(&buffer, 0, sizeof(buffer));
+
+            buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            buffer.memory = V4L2_MEMORY_MMAP;
+
+            if (this->xioctl(this->m_camera.handle(), VIDIOC_DQBUF, &buffer) == -1)
+                return false;
+
+            if (buffer.index >= this->m_buffers.length())
+                return false;
+
+            this->processImage(this->m_buffers[buffer.index]->start, buffer.bytesused);
+
+            if (this->xioctl(this->m_camera.handle(), VIDIOC_QBUF, &buffer) == -1)
+                return false;
+        break;
+
+        case IoMethodUserPtr:
+            memset(&buffer, 0, sizeof(buffer));
+
+            buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            buffer.memory = V4L2_MEMORY_USERPTR;
+
+            if (this->xioctl(this->m_camera.handle(), VIDIOC_DQBUF, &buffer) == -1)
+                return false;
+
+            for (i = 0; i < this->m_buffers.length(); i++)
+                if (buffer.m.userptr == (ulong) this->m_buffers[i]->start &&
+                    buffer.length == this->m_buffers[i]->length)
+                        break;
+
+            if (i >= this->m_buffers.length())
+                return false;
+
+            this->processImage((void *) buffer.m.userptr, buffer.bytesused);
+
+            if (this->xioctl(this->m_camera.handle(), VIDIOC_QBUF, &buffer) == -1)
+                return false;
+        break;
+    }
+
+    return true;*/
+}
+
+void WebcamSrcElement::processImage(const void *image, int size)
+{
+}
+
+void WebcamSrcElement::stopCapturing()
+{/*
+    enum v4l2_buf_type type;
+
+    switch (this->m_ioMethod)
+    {
+        case IoMethodRead:
+        break;
+
+        case IoMethodMmap:
+        case IoMethodUserPtr:
+            type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+            if (xioctl(this->m_camera.handle(), VIDIOC_STREAMOFF, &type) == -1)
+                return false;
+        break;
+    }
+
+    return true;*/
+}
+
+void WebcamSrcElement::uninitDevice()
+{
+    switch (this->m_ioMethod)
+    {
+        case IoMethodRead:
+            delete this->m_buffers[0]->start;
+        break;
+
+        case IoMethodMmap:
+            foreach (struct buffer *buffer, this->m_buffers)
+                if (munmap(buffer->start, buffer->length) == -1)
+                    break;
+        break;
+
+        case IoMethodUserPtr:
+            foreach (struct buffer *buffer, this->m_buffers)
+                delete buffer->start;
+        break;
+    }
+
+    this->m_buffers.clear();
+}
+
+void WebcamSrcElement::closeDevice()
+{
+    this->m_camera.close();
 }
 
 void WebcamSrcElement::setDevice(QString device)
@@ -112,8 +559,8 @@ void WebcamSrcElement::setDevice(QString device)
 
     ElementState state = this->m_state;
 
-    if (state != Null)
-        this->setState(Null);
+    if (state != ElementStateNull)
+        this->setState(ElementStateNull);
 
     GstElement *webcam = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "webcam");
     g_object_set(GST_OBJECT(webcam), "device", device.toUtf8().constData(), NULL);
@@ -131,14 +578,14 @@ void WebcamSrcElement::setSize(QSize size)
 
     ElementState state = this->m_state;
 
-    if (state != Null)
-        this->setState(Null);
+    if (state != ElementStateNull)
+        this->setState(ElementStateNull);
 
     GstElement *webcamcaps = gst_bin_get_by_name(GST_BIN(this->m_pipeline), "webcamcaps");
 
     g_object_set(GST_OBJECT(webcamcaps),
                  "caps",
-                 gst_caps_new_simple("video/x-raw-yuv",
+                 gst_caps_new_simple("video/x-raw",
                                      "width", G_TYPE_INT, size.width(),
                                      "height", G_TYPE_INT, size.height(),
                                      NULL),
@@ -159,37 +606,35 @@ void WebcamSrcElement::resetSize()
     this->setSize(QSize(640, 480));
 }
 
-void WebcamSrcElement::iStream(const void *data, int datalen, QString dataType)
+void WebcamSrcElement::iStream(const QbPacket &packet)
 {
-    Q_UNUSED(data)
-    Q_UNUSED(datalen)
-    Q_UNUSED(dataType)
+    Q_UNUSED(packet)
 }
 
 void WebcamSrcElement::setState(ElementState state)
 {
     if (!this->m_pipeline)
     {
-        this->m_state = Null;
+        this->m_state = ElementStateNull;
 
         return;
     }
 
     switch (state)
     {
-        case Null:
+        case ElementStateNull:
             gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
         break;
 
-        case Ready:
+        case ElementStateReady:
             gst_element_set_state(this->m_pipeline, GST_STATE_READY);
         break;
 
-        case Paused:
+        case ElementStatePaused:
             gst_element_set_state(this->m_pipeline, GST_STATE_PAUSED);
         break;
 
-        case Playing:
+        case ElementStatePlaying:
             gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
         break;
 
@@ -200,7 +645,27 @@ void WebcamSrcElement::setState(ElementState state)
     this->m_state = state;
 }
 
+void WebcamSrcElement::setSrcs(QList<QbElement *> srcs)
+{
+    this->m_srcs = srcs;
+}
+
+void WebcamSrcElement::setSinks(QList<QbElement *> sinks)
+{
+    this->m_sinks = sinks;
+}
+
 void WebcamSrcElement::resetState()
 {
-    this->setState(Null);
+    this->setState(ElementStateNull);
+}
+
+void WebcamSrcElement::resetSrcs()
+{
+    this->setSrcs(QList<QbElement *>());
+}
+
+void WebcamSrcElement::resetSinks()
+{
+    this->setSinks(QList<QbElement *>());
 }

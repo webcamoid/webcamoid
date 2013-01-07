@@ -22,7 +22,7 @@
 #include "effectspreviewbin.h"
 #include "effectspreviewbinelement.h"
 
-Element *EffectsPreviewBin::newElement()
+QbElement *EffectsPreviewBin::newElement()
 {
     return new EffectsPreviewBinElement();
 }

@@ -22,15 +22,15 @@
 #ifndef RECORDBIN_H
 #define RECORDBIN_H
 
-#include "plugin.h"
+#include "qbplugin.h"
 
-class RecordBin: public QObject, public Plugin
+class RecordBin: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(Plugin)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        Element *newElement();
+        QbElement *newElement();
 };
 
 #endif // RECORDBIN_H
