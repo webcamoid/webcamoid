@@ -76,6 +76,19 @@ QbCaps &QbCaps::operator =(const QbCaps &other)
     return *this;
 }
 
+bool QbCaps::operator ==(const QbCaps &other) const
+{
+    if (this->toString() == other.toString())
+        return true;
+
+    return false;
+}
+
+bool QbCaps::operator !=(const QbCaps &other) const
+{
+    return !(*this == other);
+}
+
 bool QbCaps::isValid() const
 {
     return this->m_isValid;
@@ -86,13 +99,22 @@ QString QbCaps::mimeType() const
     return this->m_mimeType;
 }
 
-QString QbCaps::toString()
+QString QbCaps::toString() const
 {
+    if (!this->isValid())
+        return "";
+
     QString caps = this->mimeType();
+    QStringList properties;
 
     foreach (QByteArray property, this->dynamicPropertyNames())
-        caps.append(QString(",%1=%2").arg(QString::fromUtf8(property.constData()))
-                                     .arg(this->property(property.constData()).toString()));
+        properties << QString::fromUtf8(property.constData());
+
+    properties.sort();
+
+    foreach (QString property, properties)
+        caps.append(QString(",%1=%2").arg(property)
+                                     .arg(this->property(property.toUtf8().constData()).toString()));
 
     return caps;
 }

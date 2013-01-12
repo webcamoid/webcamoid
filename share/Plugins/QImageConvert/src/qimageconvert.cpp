@@ -19,29 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef DESKTOPSRCELEMENT_H
-#define DESKTOPSRCELEMENT_H
+#include "qimageconvert.h"
+#include "qimageconvertelement.h"
 
-#include <QtGui>
-
-#include "qbelement.h"
-
-class DesktopSrcElement: public QbElement
+QbElement *QImageConvert::newElement()
 {
-    Q_OBJECT
+    return new QImageConvertElement();
+}
 
-    public:
-        explicit DesktopSrcElement();
-
-    private:
-        QImage m_oFrame;
-        QTimer m_timer;
-
-    public slots:
-        void setState(ElementState state);
-
-    private slots:
-        void captureFrame();
-};
-
-#endif // DESKTOPSRCELEMENT_H
+Q_EXPORT_PLUGIN2(QImageConvert, QImageConvert)

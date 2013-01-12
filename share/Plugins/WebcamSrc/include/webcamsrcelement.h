@@ -54,10 +54,6 @@ class WebcamSrcElement: public QbElement
         Q_INVOKABLE QString device();
         Q_INVOKABLE QSize size();
 
-        Q_INVOKABLE ElementState state();
-        Q_INVOKABLE QList<QbElement *> srcs();
-        Q_INVOKABLE QList<QbElement *> sinks();
-
     private:
         struct buffer
         {
@@ -98,13 +94,7 @@ class WebcamSrcElement: public QbElement
         void resetDevice();
         void resetSize();
 
-        void iStream(const QbPacket &packet);
         void setState(ElementState state);
-        void setSrcs(QList<QbElement *> srcs);
-        void setSinks(QList<QbElement *> sinks);
-        void resetState();
-        void resetSrcs();
-        void resetSinks();
 };
 
 #endif // WEBCAMSRCELEMENT_H

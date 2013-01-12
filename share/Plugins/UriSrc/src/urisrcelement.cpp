@@ -19,6 +19,8 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include "videostream.h"
+#include "audiostream.h"
 #include "urisrcelement.h"
 
 UriSrcElement::UriSrcElement(): QbElement()
@@ -52,19 +54,14 @@ bool UriSrcElement::loop()
     return this->m_loop;
 }
 
-QbElement::ElementState UriSrcElement::state()
+QSize UriSrcElement::size()
 {
-    return this->m_state;
-}
-
-QList<QbElement *> UriSrcElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> UriSrcElement::sinks()
-{
-    return this->m_sinks;
+    if (this->state() == ElementStateNull)
+    {
+    }
+    else
+    {
+    }
 }
 
 bool UriSrcElement::initCapture()
@@ -85,9 +82,11 @@ bool UriSrcElement::initCapture()
 
     mmsSchemes << "mms://" << "mmsh://" << "mmst://";
 
+    QString uri;
+
     foreach (QString scheme, mmsSchemes)
     {
-        QString uri = this->uri();
+        uri = this->uri();
 
         foreach (QString schemer, mmsSchemes)
             uri.replace(QRegExp(QString("^%1").arg(schemer)),
@@ -115,33 +114,30 @@ bool UriSrcElement::initCapture()
         return false;
     }
 
+    av_dump_format(this->m_inputContext, 0, uri.toUtf8().constData(), false);
+
     foreach (AbstractStream *stream, this->m_streams)
-        if (stream->mediaType() == AVMEDIA_TYPE_VIDEO)
-            delete (VideoStream *) stream;
-        else
-            delete stream;
+        delete stream;
 
     this->m_streams.clear();
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++)
-        if (AbstractStream::type(this->m_inputContext, i) == AVMEDIA_TYPE_VIDEO)
-        {
-            VideoStream *videoStream = new VideoStream(this->m_inputContext, i);
+    {
+        AVMediaType type = AbstractStream::type(this->m_inputContext, i);
+        AbstractStream *stream;
 
-            if (videoStream->isValid())
-                this->m_streams[i] = videoStream;
-            else
-                delete videoStream;
-        }
+        if (type == AVMEDIA_TYPE_VIDEO)
+            stream = new VideoStream(this->m_inputContext, i);
+        else if (type == AVMEDIA_TYPE_AUDIO)
+            stream = new AudioStream(this->m_inputContext, i);
         else
-        {
-            AbstractStream *abstractStream = new AbstractStream(this->m_inputContext, i);
+            stream = new AbstractStream(this->m_inputContext, i);
 
-            if (abstractStream->isValid())
-                this->m_streams[i] = abstractStream;
-            else
-                delete abstractStream;
-        }
+        if (stream->isValid())
+            this->m_streams[i] = stream;
+        else
+            delete stream;
+    }
 
     return true;
 }
@@ -149,10 +145,7 @@ bool UriSrcElement::initCapture()
 void UriSrcElement::uninitCapture()
 {
     foreach (AbstractStream *stream, this->m_streams)
-        if (stream->mediaType() == AVMEDIA_TYPE_VIDEO)
-            delete (VideoStream *) stream;
-        else
-            delete stream;
+        delete stream;
 
     this->m_streams.clear();
 
@@ -293,36 +286,9 @@ void UriSrcElement::setState(ElementState state)
     }
 }
 
-void UriSrcElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void UriSrcElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
-void UriSrcElement::resetState()
-{
-    this->setState(ElementStateNull);
-}
-
-void UriSrcElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void UriSrcElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
-}
-
 void UriSrcElement::readPackets()
 {
-    AVPacket packet;
-
-    if (av_read_frame(this->m_inputContext, &packet) < 0)
+    if (av_read_frame(this->m_inputContext, &this->m_packet) < 0)
     {
         this->setState(ElementStateNull);
 
@@ -332,43 +298,11 @@ void UriSrcElement::readPackets()
         return;
     }
 
-    AbstractStream *stream = this->m_streams[packet.stream_index];
+    AbstractStream *stream = this->m_streams[this->m_packet.stream_index];
+    QbPacket oPacket = stream->readPacket(&this->m_packet);
 
-    if (stream->mediaType() == AVMEDIA_TYPE_UNKNOWN)
-    {
-    }
-    else if (stream->mediaType() == AVMEDIA_TYPE_VIDEO)
-    {
-        this->m_oFrame = static_cast<VideoStream *>(stream)->readFrame(&packet);
+    if (oPacket.caps().isValid())
+        emit this->oStream(oPacket);
 
-        if (!this->m_oFrame.isNull())
-        {
-
-            QbPacket packet(QString("video/x-raw,format=RGB,width=%1,height=%2").arg(this->m_oFrame.width())
-                                                                                .arg(this->m_oFrame.height()),
-                            this->m_oFrame.constBits(),
-                            this->m_oFrame.byteCount());
-
-            emit this->oStream(packet);
-        }
-    }
-    else if (stream->mediaType() == AVMEDIA_TYPE_AUDIO)
-    {
-//        avcodec_decode_audio4();
-    }
-    else if (stream->mediaType() == AVMEDIA_TYPE_DATA)
-    {
-    }
-    else if (stream->mediaType() == AVMEDIA_TYPE_SUBTITLE)
-    {
-//        avcodec_decode_subtitle2();
-    }
-    else if (stream->mediaType() == AVMEDIA_TYPE_ATTACHMENT)
-    {
-    }
-    else if (stream->mediaType() == AVMEDIA_TYPE_NB)
-    {
-    }
-
-    av_free_packet(&packet);
+    av_free_packet(&this->m_packet);
 }

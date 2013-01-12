@@ -29,9 +29,9 @@
 class QbPlugin
 {
     public:
-        virtual QbElement *newElement() = 0;
-
         virtual ~QbPlugin() {}
+
+        virtual QbElement *newElement() = 0;
 };
 
 Q_DECLARE_INTERFACE(QbPlugin, "Qb.Plugin")

@@ -31,14 +31,13 @@ int main(int argc, char *argv[])
     mainWindow.setWindowIcon(mainWidget->windowIcon());
     mainWindow.setWindowTitle(mainWidget->windowTitle());
 
-    QRect geometry = mainWidget->geometry();
+    QRect geometry = QRect(0, 0, 640, 480); //mainWidget->geometry();
     QDesktopWidget desktopWidget;
 
     geometry.moveCenter(desktopWidget.availableGeometry().center());
     mainWindow.setGeometry(geometry);
 
     mainWindow.setCentralWidget(mainWidget);
-
     mainWindow.show();
 
     return app.exec();

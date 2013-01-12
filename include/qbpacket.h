@@ -36,6 +36,7 @@ class QbPacket: public QObject
     Q_PROPERTY(int64_t dts READ dts WRITE setDts RESET resetDts)
     Q_PROPERTY(int64_t pts READ pts WRITE setPts RESET resetPts)
     Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
+    Q_PROPERTY(int index READ index WRITE setIndex RESET resetIndex)
 
     public:
         explicit QbPacket(QObject *parent=NULL);
@@ -44,7 +45,8 @@ class QbPacket: public QObject
                  ulong dataSize=0,
                  int64_t dts=0,
                  int64_t pts=0,
-                 int duration=0);
+                 int duration=0,
+                 int index=-1);
 
         QbPacket(const QbPacket &other);
         QbPacket &operator =(const QbPacket &other);
@@ -55,7 +57,7 @@ class QbPacket: public QObject
         Q_INVOKABLE int64_t dts() const;
         Q_INVOKABLE int64_t pts() const;
         Q_INVOKABLE int duration() const;
-        Q_INVOKABLE QbCaps caps();
+        Q_INVOKABLE int index() const;
 
     private:
         QbCaps m_caps;
@@ -64,6 +66,7 @@ class QbPacket: public QObject
         int64_t m_dts;
         int64_t m_pts;
         int m_duration;
+        int m_index;
 
     public slots:
         void setCaps(QbCaps caps);
@@ -72,12 +75,14 @@ class QbPacket: public QObject
         void setDts(int64_t dts);
         void setPts(int64_t pts);
         void setDuration(int duration);
+        void setIndex(int index);
         void resetCaps();
         void resetData();
         void resetDataSize();
         void resetDts();
         void resetPts();
         void resetDuration();
+        void resetIndex();
 };
 
 #endif // QBPACKET_H

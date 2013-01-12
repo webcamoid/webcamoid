@@ -37,10 +37,12 @@ class QbCaps: public QObject
         QbCaps(QString capsString);
         QbCaps(const QbCaps &other);
         QbCaps &operator =(const QbCaps &other);
+        bool operator ==(const QbCaps &other) const;
+        bool operator !=(const QbCaps &other) const;
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString mimeType() const;
-        Q_INVOKABLE QString toString();
+        Q_INVOKABLE QString toString() const;
 
     private:
         bool m_isValid;

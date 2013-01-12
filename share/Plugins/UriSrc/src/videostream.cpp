@@ -19,102 +19,117 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+extern "C"
+{
+    #include <libavutil/imgutils.h>
+}
+
 #include "videostream.h"
 
 VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
 {
-    this->m_scaleContext = NULL;
-    this->m_picture = NULL;
-    this->m_pictureRgb = NULL;
-    this->m_bufferRgb = NULL;
+    this->m_oBufferSize = 0;
 }
 
-VideoStream::VideoStream(AVFormatContext *formatContext, uint index): AbstractStream(formatContext, index)
+VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
+    AbstractStream(formatContext, index)
 {
-    this->m_scaleContext = NULL;
-    this->m_picture = NULL;
-    this->m_pictureRgb = NULL;
-    this->m_bufferRgb = NULL;
+    this->m_oBufferSize = 0;
 
     if (!this->isValid())
+    {
+        this->cleanUp();
+
         return;
+    }
 
     this->m_isValid = false;
 
-    this->m_picture = avcodec_alloc_frame();
+    this->m_oBufferSize = av_image_alloc(this->m_oBuffer,
+                                         this->m_oBufferLineSize,
+                                         this->codecContext()->width,
+                                         this->codecContext()->height,
+                                         this->codecContext()->pix_fmt,
+                                         1);
 
-    if (!this->m_picture)
-        return;
-
-    this->m_pictureRgb = avcodec_alloc_frame();
-
-    if(!this->m_pictureRgb)
+    if (this->m_oBufferSize < 0)
     {
-        avcodec_free_frame(&this->m_picture);
+        this->cleanUp();
 
         return;
     }
 
-    this->m_scaleContext = NULL;
-
-    int pictureRgbSize = avpicture_get_size(PIX_FMT_RGB24,
-                                            this->codecContext()->width,
-                                            this->codecContext()->height);
-
-    this->m_bufferRgb = (uint8_t *) av_malloc(pictureRgbSize * sizeof(uint8_t));
-
-    if (!this->m_bufferRgb)
-    {
-        avcodec_free_frame(&this->m_pictureRgb);
-        avcodec_free_frame(&this->m_picture);
-
-        return;
-    }
-
-    avpicture_fill((AVPicture *) this->m_pictureRgb,
-                   this->m_bufferRgb,
-                   PIX_FMT_RGB24,
-                   this->codecContext()->width,
-                   this->codecContext()->height);
+    this->m_ffToMime[PIX_FMT_YUV420P] = "I420";
+    this->m_ffToMime[PIX_FMT_YUV422P] = "YUY2";
+    this->m_ffToMime[PIX_FMT_UYVY422] = "UYVY";
+    this->m_ffToMime[PIX_FMT_YUVA420P] = "AYUV";
+    this->m_ffToMime[PIX_FMT_RGB0] = "RGBx";
+    this->m_ffToMime[PIX_FMT_BGR0] = "BGRx";
+    this->m_ffToMime[PIX_FMT_0RGB] = "xRGB";
+    this->m_ffToMime[PIX_FMT_0BGR] = "xBGR";
+    this->m_ffToMime[PIX_FMT_RGBA] = "RGBA";
+    this->m_ffToMime[PIX_FMT_BGRA] = "BGRA";
+    this->m_ffToMime[PIX_FMT_ARGB] = "ARGB";
+    this->m_ffToMime[PIX_FMT_ABGR] = "ABGR";
+    this->m_ffToMime[PIX_FMT_RGB24] = "RGB";
+    this->m_ffToMime[PIX_FMT_BGR24] = "BGR";
+    this->m_ffToMime[PIX_FMT_YUV411P] = "Y41B";
+    this->m_ffToMime[PIX_FMT_YUV444P] = "Y444";
+    this->m_ffToMime[PIX_FMT_YUV422P16LE] = "v216";
+    this->m_ffToMime[PIX_FMT_NV12] = "NV12";
+    this->m_ffToMime[PIX_FMT_NV21] = "NV21";
+    this->m_ffToMime[PIX_FMT_GRAY8] = "GRAY8";
+    this->m_ffToMime[PIX_FMT_GRAY16BE] = "GRAY16_BE";
+    this->m_ffToMime[PIX_FMT_GRAY16LE] = "GRAY16_LE";
+    this->m_ffToMime[PIX_FMT_RGB565LE] = "RGB16";
+    this->m_ffToMime[PIX_FMT_BGR565LE] = "BGR16";
+    this->m_ffToMime[PIX_FMT_RGB555LE] = "RGB15";
+    this->m_ffToMime[PIX_FMT_BGR555LE] = "BGR15";
+    this->m_ffToMime[PIX_FMT_YUV422P12LE] = "UYVP";
+    this->m_ffToMime[PIX_FMT_RGB8] = "RGB8P";
+    this->m_ffToMime[PIX_FMT_YUV420P10LE] = "I420_10LE";
+    this->m_ffToMime[PIX_FMT_YUV420P10BE] = "I420_10BE";
+    this->m_ffToMime[PIX_FMT_YUV422P10LE] = "I422_10LE";
+    this->m_ffToMime[PIX_FMT_YUV422P10BE] = "I422_10BE";
 
     this->m_isValid = true;
 }
 
 VideoStream::VideoStream(const VideoStream &other):
     AbstractStream(other),
-    m_scaleContext(other.m_scaleContext),
-    m_picture(other.m_picture),
-    m_pictureRgb(other.m_pictureRgb),
-    m_bufferRgb(other.m_bufferRgb)
+    m_oFrame(other.m_oFrame),
+    m_oBufferSize(other.m_oBufferSize),
+    m_ffToMime(other.m_ffToMime)
 {
+    for (int i = 0; i < 4; i++)
+    {
+        this->m_oBuffer[i] = other.m_oBuffer[i];
+        this->m_oBufferLineSize[i] = other.m_oBufferLineSize[i];
+    }
 }
 
 VideoStream::~VideoStream()
 {
-    if (this->m_orig || !this->m_copy.isEmpty() || !this->isValid())
+    if (this->m_orig || !this->m_copy.isEmpty())
         return;
 
-    if (this->m_bufferRgb)
-        av_free(this->m_bufferRgb);
-
-    if (this->m_scaleContext)
-        sws_freeContext(this->m_scaleContext);
-
-    if (this->m_pictureRgb)
-        avcodec_free_frame(&this->m_pictureRgb);
-
-    if (this->m_picture)
-        avcodec_free_frame(&this->m_picture);
+    this->cleanUp();
 }
 
 VideoStream &VideoStream::operator =(const VideoStream &other)
 {
     if (this != &other)
     {
-        this->m_scaleContext = other.m_scaleContext;
-        this->m_picture = other.m_picture;
-        this->m_pictureRgb = other.m_pictureRgb;
-        this->m_bufferRgb = other.m_bufferRgb;
+        this->m_oFrame = other.m_oFrame;
+
+        for (int i = 0; i < 4; i++)
+        {
+            this->m_oBuffer[i] = other.m_oBuffer[i];
+            this->m_oBufferLineSize[i] = other.m_oBufferLineSize[i];
+        }
+
+        this->m_oBufferSize = other.m_oBufferSize;
+        this->m_ffToMime = other.m_ffToMime;
 
         AbstractStream::operator =(other);
     }
@@ -122,49 +137,58 @@ VideoStream &VideoStream::operator =(const VideoStream &other)
     return *this;
 }
 
-QImage VideoStream::readFrame(AVPacket *packet)
+QbPacket VideoStream::readPacket(AVPacket *packet)
 {
     if (!this->isValid())
-        return QImage();
+        return QbPacket();
 
-    int gotPicture;
+    int gotFrame;
 
     avcodec_decode_video2(this->codecContext(),
-                          this->m_picture,
-                          &gotPicture,
+                          this->m_iFrame,
+                          &gotFrame,
                           packet);
 
-    if (!gotPicture)
-        return QImage();
+    if (!gotFrame)
+        return QbPacket();
 
-    this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
-                                                this->codecContext()->width,
-                                                this->codecContext()->height,
-                                                this->codecContext()->pix_fmt,
-                                                this->codecContext()->width,
-                                                this->codecContext()->height,
-                                                PIX_FMT_RGB24,
-                                                SWS_FAST_BILINEAR,
-                                                NULL,
-                                                NULL,
-                                                NULL);
+    this->m_oFrame.resize(avpicture_get_size(this->codecContext()->pix_fmt,
+                                             this->codecContext()->width,
+                                             this->codecContext()->height));
 
-    sws_scale(this->m_scaleContext,
-              (uint8_t **) this->m_picture->data,
-              this->m_picture->linesize,
-              0,
-              this->codecContext()->height,
-              this->m_pictureRgb->data,
-              this->m_pictureRgb->linesize);
+    avpicture_layout((AVPicture *) this->m_iFrame,
+                     this->codecContext()->pix_fmt,
+                     this->codecContext()->width,
+                     this->codecContext()->height,
+                     (uint8_t *) this->m_oFrame.data(),
+                     this->m_oFrame.size());
 
-    QImage image = QImage(this->codecContext()->width,
-                          this->codecContext()->height,
-                          QImage::Format_RGB888);
+    PixelFormat fmt = this->codecContext()->pix_fmt;
 
-    for(int y = 0; y < this->codecContext()->height; y++)
-       memcpy(image.scanLine(y),
-              this->m_pictureRgb->data[0] + y * this->m_pictureRgb->linesize[0],
-              3 * this->codecContext()->width);
+    if (!this->m_ffToMime.contains(fmt))
+        return QbPacket();
 
-    return image;
+    QbPacket oPacket(QString("video/x-raw,"
+                             "format=%1,"
+                             "width=%2,"
+                             "height=%3").arg(this->m_ffToMime[fmt])
+                                         .arg(this->codecContext()->width)
+                                         .arg(this->codecContext()->height),
+                    this->m_oFrame.constData(),
+                    this->m_oFrame.size());
+
+    oPacket.setDts(packet->dts);
+    oPacket.setPts(packet->pts);
+    oPacket.setDuration(packet->duration);
+    oPacket.setIndex(this->index());
+
+    return oPacket;
+}
+
+void VideoStream::cleanUp()
+{
+    if (this->m_oBuffer)
+        av_free(this->m_oBuffer[0]);
+
+    AbstractStream::cleanUp();
 }

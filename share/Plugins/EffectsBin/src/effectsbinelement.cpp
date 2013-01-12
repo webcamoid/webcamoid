@@ -33,7 +33,6 @@ EffectsBinElement::EffectsBinElement(): QbElement()
     this->m_readFrames = true;
 
     this->resetEffects();
-    this->resetState();
 }
 
 EffectsBinElement::~EffectsBinElement()
@@ -57,21 +56,6 @@ EffectsBinElement::~EffectsBinElement()
 QStringList EffectsBinElement::effects()
 {
     return this->m_effects;
-}
-
-QbElement::ElementState EffectsBinElement::state()
-{
-    return this->m_state;
-}
-
-QList<QbElement *> EffectsBinElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> EffectsBinElement::sinks()
-{
-    return this->m_sinks;
 }
 
 void EffectsBinElement::needData(GstElement *appsrc, guint size, gpointer self)
@@ -302,29 +286,4 @@ void EffectsBinElement::setState(ElementState state)
     }
 
     this->m_state = state;
-}
-
-void EffectsBinElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void EffectsBinElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
-void EffectsBinElement::resetState()
-{
-    this->setState(ElementStateNull);
-}
-
-void EffectsBinElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void EffectsBinElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
 }

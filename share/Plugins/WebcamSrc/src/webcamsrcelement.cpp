@@ -39,7 +39,6 @@ WebcamSrcElement::WebcamSrcElement(): QbElement()
 
     this->resetDevice();
     this->resetSize();
-    this->resetState();
 
     QString pipeline = QString("v4l2src name=webcam device=%1 ! "
                                "capsfilter name=webcamcaps "
@@ -92,21 +91,6 @@ QString WebcamSrcElement::device()
 QSize WebcamSrcElement::size()
 {
     return this->m_size;
-}
-
-QbElement::ElementState WebcamSrcElement::state()
-{
-    return this->m_state;
-}
-
-QList<QbElement *> WebcamSrcElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> WebcamSrcElement::sinks()
-{
-    return this->m_sinks;
 }
 
 void WebcamSrcElement::newBuffer(GstElement *appsink, gpointer self)
@@ -606,11 +590,6 @@ void WebcamSrcElement::resetSize()
     this->setSize(QSize(640, 480));
 }
 
-void WebcamSrcElement::iStream(const QbPacket &packet)
-{
-    Q_UNUSED(packet)
-}
-
 void WebcamSrcElement::setState(ElementState state)
 {
     if (!this->m_pipeline)
@@ -643,29 +622,4 @@ void WebcamSrcElement::setState(ElementState state)
     }
 
     this->m_state = state;
-}
-
-void WebcamSrcElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void WebcamSrcElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
-void WebcamSrcElement::resetState()
-{
-    this->setState(ElementStateNull);
-}
-
-void WebcamSrcElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void WebcamSrcElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
 }

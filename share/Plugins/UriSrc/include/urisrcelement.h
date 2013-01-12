@@ -24,14 +24,13 @@
 
 #include <QtGui>
 
-// https://www.libav.org/doxygen/master/index.html
 extern "C"
 {
     #include <libavdevice/avdevice.h>
 }
 
-#include "videostream.h"
 #include "qbelement.h"
+#include "abstractstream.h"
 
 class UriSrcElement: public QbElement
 {
@@ -39,6 +38,7 @@ class UriSrcElement: public QbElement
 
     Q_PROPERTY(QString uri READ uri WRITE setUri RESET resetUri)
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
+    Q_PROPERTY(QSize size READ size WRITE setSize RESET resetSize)
 
     public:
         explicit UriSrcElement();
@@ -46,18 +46,19 @@ class UriSrcElement: public QbElement
 
         Q_INVOKABLE QString uri();
         Q_INVOKABLE bool loop();
-
-        Q_INVOKABLE ElementState state();
-        Q_INVOKABLE QList<QbElement *> srcs();
-        Q_INVOKABLE QList<QbElement *> sinks();
+        Q_INVOKABLE QSize size();
 
     private:
         QString m_uri;
         bool m_loop;
+        QSize m_size;
 
-        QImage m_oFrame;
-
+        int m_audioStream;
+        int m_videoStream;
+        QImage m_oVideoFrame;
+        QByteArray m_oAudioFrame;
         AVFormatContext *m_inputContext;
+        AVPacket m_packet;
         QTimer m_timer;
         QMap<int, AbstractStream *> m_streams;
 
@@ -67,16 +68,13 @@ class UriSrcElement: public QbElement
     public slots:
         void setUri(QString uri);
         void setLoop(bool loop);
+        void setSize(QSize size);
         void resetUri();
         void resetLoop();
+        void resetSize();
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
-        void setSrcs(QList<QbElement *> srcs);
-        void setSinks(QList<QbElement *> sinks);
-        void resetState();
-        void resetSrcs();
-        void resetSinks();
 
     private slots:
         void readPackets();

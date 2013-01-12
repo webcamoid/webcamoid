@@ -36,7 +36,6 @@ RecordBinElement::RecordBinElement(): QbElement()
     this->resetMuxer();
     this->resetRecordAudio();
     this->resetFrameSize();
-    this->resetState();
 }
 
 RecordBinElement::~RecordBinElement()
@@ -81,21 +80,6 @@ bool RecordBinElement::recordAudio()
 QSize RecordBinElement::frameSize()
 {
     return this->m_frameSize;
-}
-
-QbElement::ElementState RecordBinElement::state()
-{
-    return this->m_state;
-}
-
-QList<QbElement *> RecordBinElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> RecordBinElement::sinks()
-{
-    return this->m_sinks;
 }
 
 void RecordBinElement::needData(GstElement *appsrc, guint size, gpointer self)
@@ -330,30 +314,5 @@ void RecordBinElement::setState(ElementState state)
         break;
     }
 
-    this->m_state = state;
-}
-
-void RecordBinElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void RecordBinElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
-void RecordBinElement::resetState()
-{
-    this->setState(ElementStateNull);
-}
-
-void RecordBinElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void RecordBinElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
+    QbElement::setState(state);
 }

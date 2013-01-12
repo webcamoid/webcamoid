@@ -30,6 +30,7 @@ AbstractStream::AbstractStream(QObject *parent): QObject(parent)
     this->m_codecContext = NULL;
     this->m_codec = NULL;
     this->m_codecOptions = NULL;
+    this->m_iFrame = NULL;
     this->m_orig = NULL;
 }
 
@@ -42,6 +43,7 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
     this->m_codecContext = formatContext->streams[index]->codec;
     this->m_codec = avcodec_find_decoder(this->m_codecContext->codec_id);
     this->m_codecOptions = NULL;
+    this->m_iFrame = NULL;
     this->m_orig = NULL;
 
     if (!this->m_codec)
@@ -53,12 +55,22 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
     if (avcodec_open2(this->m_codecContext, this->m_codec, &this->m_codecOptions) < 0)
         return;
 
+    this->m_iFrame = avcodec_alloc_frame();
+
+    if (!this->m_iFrame)
+    {
+        this->cleanUp();
+
+        return;
+    }
+
     this->m_isValid = true;
 }
 
 AbstractStream::AbstractStream(const AbstractStream &other):
     QObject(NULL),
     m_isValid(other.m_isValid),
+    m_iFrame(other.m_iFrame),
     m_index(other.m_index),
     m_mediaType(other.m_mediaType),
     m_formatContext(other.m_formatContext),
@@ -85,16 +97,7 @@ AbstractStream::~AbstractStream()
         }
     }
     else if (this->m_copy.isEmpty())
-    {
-        if (!this->isValid())
-            return;
-
-        if (this->m_codecOptions)
-            av_dict_free(&this->m_codecOptions);
-
-        if (this->m_codecContext)
-            avcodec_close(this->m_codecContext);
-    }
+        this->cleanUp();
     else
         foreach (AbstractStream *copy, this->m_copy)
             copy->m_orig = NULL;
@@ -111,6 +114,7 @@ AbstractStream &AbstractStream::operator =(const AbstractStream &other)
         this->m_codecContext = other.m_codecContext;
         this->m_codec = other.m_codec;
         this->m_codecOptions = other.m_codecOptions;
+        this->m_iFrame = other.m_iFrame;
 
         if (this->m_orig)
         {
@@ -170,7 +174,26 @@ AVDictionary *AbstractStream::codecOptions() const
     return this->m_codecOptions;
 }
 
+QbPacket AbstractStream::readPacket(AVPacket *packet)
+{
+    Q_UNUSED(packet)
+
+    return QbPacket();
+}
+
 AVMediaType AbstractStream::type(AVFormatContext *formatContext, uint index)
 {
     return formatContext->streams[index]->codec->codec_type;
+}
+
+void AbstractStream::cleanUp()
+{/*
+    if (this->m_iFrame)
+        av_free(this->m_iFrame);*/
+
+    if (this->m_codecOptions)
+        av_dict_free(&this->m_codecOptions);
+
+    if (this->m_codecContext)
+        avcodec_close(this->m_codecContext);
 }

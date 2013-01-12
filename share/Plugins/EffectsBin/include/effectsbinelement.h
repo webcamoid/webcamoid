@@ -40,11 +40,11 @@ class EffectsBinElement: public QbElement
         ~EffectsBinElement();
 
         Q_INVOKABLE QStringList effects();
-
+/*
         Q_INVOKABLE ElementState state();
         Q_INVOKABLE QList<QbElement *> srcs();
         Q_INVOKABLE QList<QbElement *> sinks();
-
+*/
     private:
         QStringList m_effects;
 
@@ -66,11 +66,11 @@ class EffectsBinElement: public QbElement
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
-        void setSrcs(QList<QbElement *> srcs);
+/*        void setSrcs(QList<QbElement *> srcs);
         void setSinks(QList<QbElement *> sinks);
         void resetState();
         void resetSrcs();
-        void resetSinks();
+        void resetSinks();*/
 };
 
 #endif // EFFECTSBINELEMENT_H

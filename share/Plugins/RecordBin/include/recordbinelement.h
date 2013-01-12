@@ -66,10 +66,6 @@ class RecordBinElement: public QbElement
         Q_INVOKABLE bool recordAudio();
         Q_INVOKABLE QSize frameSize();
 
-        Q_INVOKABLE ElementState state();
-        Q_INVOKABLE QList<QbElement *> srcs();
-        Q_INVOKABLE QList<QbElement *> sinks();
-
     private:
         QString m_fileName;
         QString m_videoEncoder;
@@ -103,11 +99,6 @@ class RecordBinElement: public QbElement
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
-        void setSrcs(QList<QbElement *> srcs);
-        void setSinks(QList<QbElement *> sinks);
-        void resetState();
-        void resetSrcs();
-        void resetSinks();
 };
 
 #endif // RECORDBINELEMENT_H

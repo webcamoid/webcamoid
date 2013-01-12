@@ -29,13 +29,15 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetDts();
     this->resetPts();
     this->resetDuration();
+    this->resetIndex();
 }
 
 QbPacket::QbPacket(QbCaps caps, const void *data,
                    ulong dataSize,
                    int64_t dts,
                    int64_t pts,
-                   int duration)
+                   int duration,
+                   int index)
 {
     this->setCaps(caps);
     bool isValid = this->caps().isValid();
@@ -44,6 +46,7 @@ QbPacket::QbPacket(QbCaps caps, const void *data,
     this->setDts(isValid? dts: 0);
     this->setPts(isValid? pts: 0);
     this->setDuration(isValid? duration: 0);
+    this->setIndex(isValid? index: -1);
 }
 
 QbPacket::QbPacket(const QbPacket &other):
@@ -53,7 +56,8 @@ QbPacket::QbPacket(const QbPacket &other):
     m_dataSize(other.m_dataSize),
     m_dts(other.m_pts),
     m_pts(other.m_pts),
-    m_duration(other.m_duration)
+    m_duration(other.m_duration),
+    m_index(other.m_index)
 {
 }
 
@@ -67,6 +71,7 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
         this->m_dts = other.m_dts;
         this->m_pts = other.m_pts;
         this->m_duration = other.m_duration;
+        this->m_index = other.m_index;
     }
 
     return *this;
@@ -102,9 +107,9 @@ int QbPacket::duration() const
     return this->m_duration;
 }
 
-QbCaps QbPacket::caps()
+int QbPacket::index() const
 {
-    return this->m_caps;
+    return this->m_index;
 }
 
 void QbPacket::setCaps(QbCaps mimeType)
@@ -137,6 +142,11 @@ void QbPacket::setDuration(int duration)
     this->m_duration = duration;
 }
 
+void QbPacket::setIndex(int index)
+{
+    this->m_index = index;
+}
+
 void QbPacket::resetCaps()
 {
     this->setCaps(QbCaps());
@@ -165,4 +175,9 @@ void QbPacket::resetPts()
 void QbPacket::resetDuration()
 {
     this->setDuration(0);
+}
+
+void QbPacket::resetIndex()
+{
+    this->setIndex(-1);
 }

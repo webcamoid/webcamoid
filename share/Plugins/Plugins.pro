@@ -26,6 +26,7 @@ SUBDIRS += \
     DesktopSrc \
     EffectsBin \
     EffectsPreviewBin \
+    QImageConvert \
     RecordBin \
     UriSrc \
     WebcamSrc

@@ -23,37 +23,10 @@
 
 DesktopSrcElement::DesktopSrcElement(): QbElement()
 {
-    this->resetState();
-
     QObject::connect(&this->m_timer,
                      SIGNAL(timeout()),
                      this,
                      SLOT(captureFrame()));
-}
-
-DesktopSrcElement::~DesktopSrcElement()
-{
-    this->setState(ElementStateNull);
-}
-
-QbElement::ElementState DesktopSrcElement::state()
-{
-    return this->m_state;
-}
-
-QList<QbElement *> DesktopSrcElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> DesktopSrcElement::sinks()
-{
-    return this->m_sinks;
-}
-
-void DesktopSrcElement::iStream(const QbPacket &packet)
-{
-    Q_UNUSED(packet)
 }
 
 void DesktopSrcElement::setState(ElementState state)
@@ -69,32 +42,7 @@ void DesktopSrcElement::setState(ElementState state)
         break;
     }
 
-    this->m_state = state;
-}
-
-void DesktopSrcElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void DesktopSrcElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
-void DesktopSrcElement::resetState()
-{
-    this->setState(ElementStateNull);
-}
-
-void DesktopSrcElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void DesktopSrcElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
+    QbElement::setState(state);
 }
 
 void DesktopSrcElement::captureFrame()

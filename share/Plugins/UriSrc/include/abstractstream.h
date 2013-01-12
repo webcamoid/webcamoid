@@ -29,6 +29,8 @@ extern "C"
     #include <libavformat/avformat.h>
 }
 
+#include "qbpacket.h"
+
 class AbstractStream: public QObject
 {
     Q_OBJECT
@@ -37,7 +39,7 @@ class AbstractStream: public QObject
         explicit AbstractStream(QObject *parent=NULL);
         AbstractStream(AVFormatContext *formatContext, uint index);
         AbstractStream(const AbstractStream &other);
-        ~AbstractStream();
+        virtual ~AbstractStream();
 
         AbstractStream & operator =(const AbstractStream &other);
 
@@ -48,13 +50,17 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVCodecContext *codecContext() const;
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
+        Q_INVOKABLE virtual QbPacket readPacket(AVPacket *packet);
 
         static AVMediaType type(AVFormatContext *formatContext, uint index);
 
     protected:
         bool m_isValid;
+        AVFrame *m_iFrame;
         AbstractStream *m_orig;
         QList<AbstractStream *> m_copy;
+
+        virtual void cleanUp();
 
     private:
         uint m_index;

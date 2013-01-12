@@ -71,18 +71,18 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                                                    << "share/Plugins/UriSrc"
                                                    << "share/Plugins/WebcamSrc");
 
-    this->m_captureSrc = this->m_pipeline.add("WebcamSrc");
-    this->m_captureSrc->setProperty("device", "/dev/video0");
-    this->m_captureSrc->setProperty("size", QSize(640, 480));
-
+    this->m_captureSrc = this->m_pipeline.add("UriSrc");
+    this->m_captureSrc->setProperty("uri", "file:///home/hipersayan_x/Videos/Hatsune Miku Popipo sub esp!! + mp3.MP4");
+//    this->m_captureSrc->setProperty("size", QSize(640, 480));
+/*
     this->m_effectsbin = this->m_pipeline.add("EffectsBin");
     this->m_effectsbin->setProperty("effects", QStringList() << "frei0r-filter-threelay0r"
                                                              << "coloreffects preset=sepia"
                                                              << "agingtv");
 
-    QbPipeline::link(this->m_captureSrc, this->m_effectsbin);
+    QbPipeline::link(this->m_captureSrc, this->m_effectsbin);*/
     QbPipeline::link(this->m_captureSrc, this);
-
+/*
     this->m_mainPipeline = gst_pipeline_new("MainPipeline");
 
     GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_mainPipeline));
@@ -111,7 +111,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
         gst_object_unref(GST_OBJECT(capture));
 
         gst_bin_add(GST_BIN(this->m_mainPipeline), this->m_mainBin);
-    }
+    }*/
 
     if (watchDevices)
     {
@@ -122,8 +122,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                          this,
                          SLOT(onDirectoryChanged(const QString &)));
     }
-
-    this->loadConfigs();
+//    this->loadConfigs();
     this->m_pipeline.setState(QbElement::ElementStatePlaying);
 }
 

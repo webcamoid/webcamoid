@@ -43,13 +43,18 @@ class VideoStream: public AbstractStream
 
         VideoStream &operator =(const VideoStream &other);
 
-        Q_INVOKABLE QImage readFrame(AVPacket *packet);
+        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
+
+    protected:
+        void cleanUp();
 
     private:
-        struct SwsContext *m_scaleContext;
-        AVFrame *m_picture;
-        AVFrame *m_pictureRgb;
-        uint8_t *m_bufferRgb;
+        QByteArray m_oFrame;
+        uint8_t *m_oBuffer[4];
+        int m_oBufferLineSize[4];
+        int m_oBufferSize;
+
+        QMap<PixelFormat, QString> m_ffToMime;
 };
 
 #endif // VIDEOSTREAM_H

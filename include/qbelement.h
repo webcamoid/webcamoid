@@ -42,9 +42,12 @@ class QbElement: public QObject
             ElementStatePlaying
         };
 
-        Q_INVOKABLE virtual ElementState state() = 0;
-        Q_INVOKABLE virtual QList<QbElement *> srcs() = 0;
-        Q_INVOKABLE virtual QList<QbElement *> sinks() = 0;
+        explicit QbElement(QObject *parent=NULL);
+        virtual ~QbElement();
+
+        Q_INVOKABLE virtual ElementState state();
+        Q_INVOKABLE virtual QList<QbElement *> srcs();
+        Q_INVOKABLE virtual QList<QbElement *> sinks();
 
     protected:
         ElementState m_state;
@@ -55,13 +58,13 @@ class QbElement: public QObject
         void oStream(const QbPacket &packet);
 
     public slots:
-        virtual void iStream(const QbPacket &packet) = 0;
-        virtual void setState(ElementState state) = 0;
-        virtual void setSrcs(QList<QbElement *> srcs) = 0;
-        virtual void setSinks(QList<QbElement *> sinks) = 0;
-        virtual void resetState() = 0;
-        virtual void resetSrcs() = 0;
-        virtual void resetSinks() = 0;
+        virtual void iStream(const QbPacket &packet);
+        virtual void setState(ElementState state);
+        virtual void setSrcs(QList<QbElement *> srcs);
+        virtual void setSinks(QList<QbElement *> sinks);
+        virtual void resetState();
+        virtual void resetSrcs();
+        virtual void resetSinks();
 };
 
 #endif // QBELEMENT_H

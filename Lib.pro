@@ -93,7 +93,8 @@ SOURCES = \
     src/webcamconfig.cpp \
     src/qbpipeline.cpp \
     src/qbpacket.cpp \
-    src/qbcaps.cpp
+    src/qbcaps.cpp \
+    src/qbelement.cpp
 
 TARGET = $${COMMONS_APPNAME}
 

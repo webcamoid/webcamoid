@@ -19,29 +19,53 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef DESKTOPSRCELEMENT_H
-#define DESKTOPSRCELEMENT_H
+#ifndef QIMAGECONVERTELEMENT_H
+#define QIMAGECONVERTELEMENT_H
 
 #include <QtGui>
 
+extern "C"
+{
+    #include <libavformat/avformat.h>
+    #include <libswscale/swscale.h>
+}
+
 #include "qbelement.h"
 
-class DesktopSrcElement: public QbElement
+class QImageConvertElement: public QbElement
 {
     Q_OBJECT
 
+    Q_PROPERTY(QString format READ format WRITE setFormat RESET resetFormat)
+
     public:
-        explicit DesktopSrcElement();
+        explicit QImageConvertElement();
+        ~QImageConvertElement();
+
+        Q_INVOKABLE QString format();
 
     private:
+        QString m_format;
+        QImage::Format m_qFormat;
+
         QImage m_oFrame;
-        QTimer m_timer;
+        struct SwsContext *m_scaleContext;
+        AVPicture m_iPicture;
+        AVPicture m_oPicture;
+        int m_iPictureAlloc;
+        int m_oPictureAlloc;
+        QbCaps m_curCaps;
+
+        QMap<QString, PixelFormat> m_mimeToFF;
+        QMap<QImage::Format, PixelFormat> m_imageToFF;
+
+        void cleanAll();
 
     public slots:
-        void setState(ElementState state);
+        void setFormat(QString format);
+        void resetFormat();
 
-    private slots:
-        void captureFrame();
+        void iStream(const QbPacket &packet);
 };
 
-#endif // DESKTOPSRCELEMENT_H
+#endif // QIMAGECONVERTELEMENT_H

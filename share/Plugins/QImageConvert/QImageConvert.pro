@@ -33,11 +33,8 @@ CONFIG += plugin
 DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
-    include/abstractstream.h \
-    include/urisrc.h \
-    include/urisrcelement.h \
-    include/videostream.h \
-    include/audiostream.h
+    include/qimageconvert.h \
+    include/qimageconvertelement.h
 
 INCLUDEPATH += \
     include \
@@ -46,11 +43,8 @@ INCLUDEPATH += \
 QT += core gui
 
 SOURCES += \
-    src/abstractstream.cpp \
-    src/urisrc.cpp \
-    src/urisrcelement.cpp \
-    src/videostream.cpp \
-    src/audiostream.cpp
+    src/qimageconvert.cpp \
+    src/qimageconvertelement.cpp
 
 TEMPLATE = lib
 

@@ -19,29 +19,34 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef DESKTOPSRCELEMENT_H
-#define DESKTOPSRCELEMENT_H
+#ifndef AUDIOSTREAM_H
+#define AUDIOSTREAM_H
 
-#include <QtGui>
+#include <QtCore>
 
-#include "qbelement.h"
+#include "abstractstream.h"
 
-class DesktopSrcElement: public QbElement
+class AudioStream: public AbstractStream
 {
     Q_OBJECT
 
     public:
-        explicit DesktopSrcElement();
+        explicit AudioStream(QObject *parent=NULL);
+        AudioStream(AVFormatContext *formatContext, uint index);
+        AudioStream(const AudioStream &other);
+        ~AudioStream();
+
+        AudioStream &operator =(const AudioStream &other);
+
+        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
+
+    protected:
+        void cleanUp();
 
     private:
-        QImage m_oFrame;
-        QTimer m_timer;
-
-    public slots:
-        void setState(ElementState state);
-
-    private slots:
-        void captureFrame();
+        QByteArray m_oFrame;
+        uint8_t **m_oBuffer;
+        QMap<AVSampleFormat, QString> m_ffToMime;
 };
 
-#endif // DESKTOPSRCELEMENT_H
+#endif // AUDIOSTREAM_H

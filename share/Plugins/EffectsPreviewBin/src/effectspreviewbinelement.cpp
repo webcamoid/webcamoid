@@ -33,7 +33,6 @@ EffectsPreviewBinElement::EffectsPreviewBinElement(): QbElement()
 
     this->resetEffects();
     this->resetFrameSize();
-    this->resetState();
 }
 
 EffectsPreviewBinElement::~EffectsPreviewBinElement()
@@ -69,21 +68,6 @@ QStringList EffectsPreviewBinElement::effects()
 QSize EffectsPreviewBinElement::frameSize()
 {
     return this->m_frameSize;
-}
-
-QbElement::ElementState EffectsPreviewBinElement::state()
-{
-    return this->m_state;
-}
-
-QList<QbElement *> EffectsPreviewBinElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> EffectsPreviewBinElement::sinks()
-{
-    return this->m_sinks;
 }
 
 QString EffectsPreviewBinElement::hashFromName(QString name)
@@ -383,29 +367,4 @@ void EffectsPreviewBinElement::setState(ElementState state)
     }
 
     this->m_state = state;
-}
-
-void EffectsPreviewBinElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void EffectsPreviewBinElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
-void EffectsPreviewBinElement::resetState()
-{
-    this->setState(ElementStateNull);
-}
-
-void EffectsPreviewBinElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void EffectsPreviewBinElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
 }
