@@ -23,10 +23,8 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-    DesktopSrc \
     EffectsBin \
     EffectsPreviewBin \
-    QImageConvert \
-    RecordBin \
-    UriSrc \
-    WebcamSrc
+    MultiSink \
+    MultiSrc \
+    QImageConvert

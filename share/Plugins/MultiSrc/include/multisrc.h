@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef RECORDBIN_H
-#define RECORDBIN_H
+#ifndef MULTISRC_H
+#define MULTISRC_H
 
 #include "qbplugin.h"
 
-class RecordBin: public QObject, public QbPlugin
+class MultiSrc: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
@@ -33,4 +33,4 @@ class RecordBin: public QObject, public QbPlugin
         QbElement *newElement();
 };
 
-#endif // RECORDBIN_H
+#endif // MULTISRC_H

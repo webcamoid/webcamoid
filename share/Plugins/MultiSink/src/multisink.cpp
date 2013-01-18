@@ -19,18 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef WEBCAMSRC_H
-#define WEBCAMSRC_H
+#include "multisink.h"
+#include "multisinkelement.h"
 
-#include "qbplugin.h"
-
-class WebcamSrc: public QObject, public QbPlugin
+QbElement *MultiSink::newElement()
 {
-    Q_OBJECT
-    Q_INTERFACES(QbPlugin)
+    return new MultiSinkElement();
+}
 
-    public:
-        QbElement *newElement();
-};
-
-#endif // WEBCAMSRC_H
+Q_EXPORT_PLUGIN2(MultiSink, MultiSink)

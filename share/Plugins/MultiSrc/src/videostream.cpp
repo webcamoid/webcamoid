@@ -19,45 +19,24 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-extern "C"
-{
-    #include <libavutil/imgutils.h>
-}
-
 #include "videostream.h"
 
 VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
 {
-    this->m_oBufferSize = 0;
+    this->m_pixFmt = PIX_FMT_NONE;
+    this->m_width = 0;
+    this->m_height = 0;
 }
 
 VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
     AbstractStream(formatContext, index)
 {
-    this->m_oBufferSize = 0;
-
     if (!this->isValid())
-    {
-        this->cleanUp();
-
         return;
-    }
 
-    this->m_isValid = false;
-
-    this->m_oBufferSize = av_image_alloc(this->m_oBuffer,
-                                         this->m_oBufferLineSize,
-                                         this->codecContext()->width,
-                                         this->codecContext()->height,
-                                         this->codecContext()->pix_fmt,
-                                         1);
-
-    if (this->m_oBufferSize < 0)
-    {
-        this->cleanUp();
-
-        return;
-    }
+    this->m_pixFmt = PIX_FMT_NONE;
+    this->m_width = 0;
+    this->m_height = 0;
 
     this->m_ffToMime[PIX_FMT_YUV420P] = "I420";
     this->m_ffToMime[PIX_FMT_YUV422P] = "YUY2";
@@ -91,29 +70,17 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
     this->m_ffToMime[PIX_FMT_YUV420P10BE] = "I420_10BE";
     this->m_ffToMime[PIX_FMT_YUV422P10LE] = "I422_10LE";
     this->m_ffToMime[PIX_FMT_YUV422P10BE] = "I422_10BE";
-
-    this->m_isValid = true;
 }
 
 VideoStream::VideoStream(const VideoStream &other):
     AbstractStream(other),
     m_oFrame(other.m_oFrame),
-    m_oBufferSize(other.m_oBufferSize),
+    m_pixFmt(other.m_pixFmt),
+    m_width(other.m_width),
+    m_height(other.m_height),
+    m_oCaps(other.m_oCaps),
     m_ffToMime(other.m_ffToMime)
 {
-    for (int i = 0; i < 4; i++)
-    {
-        this->m_oBuffer[i] = other.m_oBuffer[i];
-        this->m_oBufferLineSize[i] = other.m_oBufferLineSize[i];
-    }
-}
-
-VideoStream::~VideoStream()
-{
-    if (this->m_orig || !this->m_copy.isEmpty())
-        return;
-
-    this->cleanUp();
 }
 
 VideoStream &VideoStream::operator =(const VideoStream &other)
@@ -121,14 +88,10 @@ VideoStream &VideoStream::operator =(const VideoStream &other)
     if (this != &other)
     {
         this->m_oFrame = other.m_oFrame;
-
-        for (int i = 0; i < 4; i++)
-        {
-            this->m_oBuffer[i] = other.m_oBuffer[i];
-            this->m_oBufferLineSize[i] = other.m_oBufferLineSize[i];
-        }
-
-        this->m_oBufferSize = other.m_oBufferSize;
+        this->m_pixFmt = other.m_pixFmt;
+        this->m_width = other.m_width;
+        this->m_height = other.m_height;
+        this->m_oCaps = other.m_oCaps;
         this->m_ffToMime = other.m_ffToMime;
 
         AbstractStream::operator =(other);
@@ -152,9 +115,30 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     if (!gotFrame)
         return QbPacket();
 
-    this->m_oFrame.resize(avpicture_get_size(this->codecContext()->pix_fmt,
-                                             this->codecContext()->width,
-                                             this->codecContext()->height));
+    if (this->codecContext()->pix_fmt != this->m_pixFmt ||
+        this->codecContext()->width != this->m_width ||
+        this->codecContext()->height != this->m_height)
+    {
+        this->m_oFrame.resize(avpicture_get_size(this->codecContext()->pix_fmt,
+                                                 this->codecContext()->width,
+                                                 this->codecContext()->height));
+
+        PixelFormat fmt = this->codecContext()->pix_fmt;
+
+        if (!this->m_ffToMime.contains(fmt))
+            return QbPacket();
+
+        this->m_oCaps = QString("video/x-raw,"
+                                "format=%1,"
+                                "width=%2,"
+                                "height=%3").arg(this->m_ffToMime[fmt])
+                                            .arg(this->codecContext()->width)
+                                            .arg(this->codecContext()->height);
+
+        this->m_pixFmt = this->codecContext()->pix_fmt;
+        this->m_width = this->codecContext()->width;
+        this->m_height = this->codecContext()->height;
+    }
 
     avpicture_layout((AVPicture *) this->m_iFrame,
                      this->codecContext()->pix_fmt,
@@ -163,19 +147,9 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                      (uint8_t *) this->m_oFrame.data(),
                      this->m_oFrame.size());
 
-    PixelFormat fmt = this->codecContext()->pix_fmt;
-
-    if (!this->m_ffToMime.contains(fmt))
-        return QbPacket();
-
-    QbPacket oPacket(QString("video/x-raw,"
-                             "format=%1,"
-                             "width=%2,"
-                             "height=%3").arg(this->m_ffToMime[fmt])
-                                         .arg(this->codecContext()->width)
-                                         .arg(this->codecContext()->height),
-                    this->m_oFrame.constData(),
-                    this->m_oFrame.size());
+    QbPacket oPacket(this->m_oCaps,
+                     this->m_oFrame.constData(),
+                     this->m_oFrame.size());
 
     oPacket.setDts(packet->dts);
     oPacket.setPts(packet->pts);
@@ -185,10 +159,8 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     return oPacket;
 }
 
-void VideoStream::cleanUp()
+QSize VideoStream::size()
 {
-    if (this->m_oBuffer)
-        av_free(this->m_oBuffer[0]);
-
-    AbstractStream::cleanUp();
+    return QSize(this->codecContext()->width,
+                 this->codecContext()->height);
 }

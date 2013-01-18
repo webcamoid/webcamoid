@@ -19,12 +19,35 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "webcamsrc.h"
-#include "webcamsrcelement.h"
+#ifndef VIDEOSTREAM_H
+#define VIDEOSTREAM_H
 
-QbElement *WebcamSrc::newElement()
+#include <QtGui>
+
+#include "abstractstream.h"
+
+class VideoStream: public AbstractStream
 {
-    return new WebcamSrcElement();
-}
+    Q_OBJECT
+    Q_PROPERTY(QSize size READ size)
 
-Q_EXPORT_PLUGIN2(WebcamSrc, WebcamSrc)
+    public:
+        explicit VideoStream(QObject *parent=NULL);
+        VideoStream(AVFormatContext *formatContext, uint index);
+        VideoStream(const VideoStream &other);
+
+        VideoStream &operator =(const VideoStream &other);
+
+        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
+        Q_INVOKABLE QSize size();
+
+    private:
+        QByteArray m_oFrame;
+        PixelFormat m_pixFmt;
+        int m_width;
+        int m_height;
+        QString m_oCaps;
+        QMap<PixelFormat, QString> m_ffToMime;
+};
+
+#endif // VIDEOSTREAM_H

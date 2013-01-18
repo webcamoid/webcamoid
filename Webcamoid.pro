@@ -31,8 +31,9 @@ CONFIG += ordered
 SUBDIRS += \
     share/Plugins \
     Lib.pro \
-    Plasmoid.pro \
-    StandAlone.pro
+    Qb
+#    Plasmoid.pro \
+#    StandAlone.pro
 
 # Install rules
 

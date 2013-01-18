@@ -34,10 +34,10 @@ DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
     include/abstractstream.h \
-    include/urisrc.h \
-    include/urisrcelement.h \
     include/videostream.h \
-    include/audiostream.h
+    include/audiostream.h \
+    include/multisrc.h \
+    include/multisrcelement.h
 
 INCLUDEPATH += \
     include \
@@ -47,10 +47,10 @@ QT += core gui
 
 SOURCES += \
     src/abstractstream.cpp \
-    src/urisrc.cpp \
-    src/urisrcelement.cpp \
     src/videostream.cpp \
-    src/audiostream.cpp
+    src/audiostream.cpp \
+    src/multisrc.cpp \
+    src/multisrcelement.cpp
 
 TEMPLATE = lib
 
@@ -58,6 +58,7 @@ unix {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
+        libv4l2 \
         libavcodec \
         libavdevice \
         libavformat \

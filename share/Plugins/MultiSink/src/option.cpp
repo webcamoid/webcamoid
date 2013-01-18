@@ -19,40 +19,64 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "desktopsrcelement.h"
+#include "option.h"
 
-DesktopSrcElement::DesktopSrcElement(): QbElement()
+Option::Option(QObject *parent): QObject(parent)
 {
-    QObject::connect(&this->m_timer,
-                     SIGNAL(timeout()),
-                     this,
-                     SLOT(captureFrame()));
+    this->resetName();
+    this->resetFlags();
 }
 
-void DesktopSrcElement::setState(ElementState state)
+Option::Option(QString name, OptionFlags flags): QObject(parent)
 {
-    switch (state)
-    {
-        case ElementStatePlaying:
-            this->m_timer.start();
-        break;
+    this->setName(name);
+    this->setFlags(flags);
+}
 
-        default:
-            this->m_timer.stop();
-        break;
+Option::Option(const Option &other):
+    QObject(NULL),
+    m_name(other.m_name),
+    m_flags(other.m_flags)
+{
+}
+
+Option &Option::operator =(const Option &other)
+{
+    if (this != &other)
+    {
+        this->m_name = other.m_name;
+        this->m_flags = other.m_flags;
     }
 
-    QbElement::setState(state);
+    return *this;
 }
 
-void DesktopSrcElement::captureFrame()
+QString Option::name()
 {
-    this->m_oFrame = QPixmap::grabWindow(QApplication::desktop()->winId()).toImage();
+    return this->m_name;
+}
 
-    QbPacket packet(QString("video/x-raw,format=RGB,width=%1,height=%2").arg(this->m_oFrame.width())
-                                                                        .arg(this->m_oFrame.height()),
-                    this->m_oFrame.constBits(),
-                    this->m_oFrame.byteCount());
+Option::OptionFlags Option::flags()
+{
+    return this->m_flags;
+}
 
-    emit this->oStream(packet);
+void Option::setName(QString name)
+{
+    this->m_name = name;
+}
+
+void Option::setFlags(OptionFlags flags)
+{
+    this->m_flags = flags;
+}
+
+void Option::resetName()
+{
+    this->setName("");
+}
+
+void Option::resetFlags()
+{
+    this->setFlags(OptionFlagsNoFlags);
 }

@@ -19,12 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "desktopsrc.h"
-#include "desktopsrcelement.h"
+#ifndef OPTIONPARSER_H
+#define OPTIONPARSER_H
 
-QbElement *DesktopSrc::newElement()
+#include "option.h"
+
+class OptionParser: public QObject
 {
-    return new DesktopSrcElement();
-}
+    Q_OBJECT
 
-Q_EXPORT_PLUGIN2(DesktopSrc, DesktopSrc)
+    public:
+        explicit OptionParser(QObject *parent=NULL);
+
+        Q_INVOKABLE void addOption(QString name, Option::OptionFlags flags=Option::OptionFlagsNoFlags);
+        Q_INVOKABLE QVariantMap parse(QString cmd);
+
+    private:
+        QList<Option> m_options;
+};
+
+#endif // OPTIONPARSER_H

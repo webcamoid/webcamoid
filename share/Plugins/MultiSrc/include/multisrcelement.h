@@ -19,8 +19,8 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef URISRCELEMENT_H
-#define URISRCELEMENT_H
+#ifndef MULTISRCELEMENT_H
+#define MULTISRCELEMENT_H
 
 #include <QtGui>
 
@@ -32,52 +32,74 @@ extern "C"
 #include "qbelement.h"
 #include "abstractstream.h"
 
-class UriSrcElement: public QbElement
+class MultiSrcElement: public QbElement
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString uri READ uri WRITE setUri RESET resetUri)
+    Q_ENUMS(StreamType)
+    Q_PROPERTY(QString location READ location WRITE setLocation RESET resetLocation)
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
     Q_PROPERTY(QSize size READ size WRITE setSize RESET resetSize)
+    Q_PROPERTY(int streamsCount READ streamsCount)
+    Q_PROPERTY(QList<QSize> availableSize READ availableSize)
 
     public:
-        explicit UriSrcElement();
-        ~UriSrcElement();
+        enum StreamType
+        {
+            StreamTypeUnknown,
+            StreamTypeVideo,
+            StreamTypeAudio,
+            StreamTypeData,
+            StreamTypeSubtitle,
+            StreamTypeAttachment,
+            StreamTypeNb
+        };
 
-        Q_INVOKABLE QString uri();
+        explicit MultiSrcElement();
+        ~MultiSrcElement();
+
+        Q_INVOKABLE QString location();
         Q_INVOKABLE bool loop();
         Q_INVOKABLE QSize size();
+        Q_INVOKABLE int streamsCount();
+        Q_INVOKABLE StreamType streamType(int streamIndex);
+        Q_INVOKABLE int defaultIndex(StreamType streamType);
+        Q_INVOKABLE QList<QSize> availableSize();
 
     private:
-        QString m_uri;
+        QString m_location;
         bool m_loop;
         QSize m_size;
+        int m_streamsCount;
 
         int m_audioStream;
         int m_videoStream;
-        QImage m_oVideoFrame;
-        QByteArray m_oAudioFrame;
         AVFormatContext *m_inputContext;
         AVPacket m_packet;
         QTimer m_timer;
         QMap<int, AbstractStream *> m_streams;
 
-        bool initCapture();
-        void uninitCapture();
+        bool init();
+        void uninit();
+        QSize webcamSize();
+        QList<QSize> webcamAvailableSize();
+
+        inline int roundDown(int value, int multiply)
+        {
+            return value - value % multiply;
+        }
 
     public slots:
-        void setUri(QString uri);
+        void setLocation(QString location);
         void setLoop(bool loop);
         void setSize(QSize size);
-        void resetUri();
+        void resetLocation();
         void resetLoop();
         void resetSize();
 
-        void iStream(const QbPacket &packet);
         void setState(ElementState state);
 
     private slots:
         void readPackets();
 };
 
-#endif // URISRCELEMENT_H
+#endif // MULTISRCELEMENT_H

@@ -19,42 +19,44 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef OPTION_H
+#define OPTION_H
 
-#include <QtGui>
+#include <QtCore>
 
-extern "C"
-{
-    #include <libswscale/swscale.h>
-}
-
-#include "abstractstream.h"
-
-class VideoStream: public AbstractStream
+class Option: public QObject
 {
     Q_OBJECT
+    Q_ENUMS(OptionFlags)
+    Q_PROPERTY(QString name READ name WRITE setName RESET resetName)
+    Q_PROPERTY(OptionFlags flags READ flags WRITE setFlags RESET resetFlags)
 
     public:
-        explicit VideoStream(QObject *parent=NULL);
-        VideoStream(AVFormatContext *formatContext, uint index);
-        VideoStream(const VideoStream &other);
-        ~VideoStream();
+        enum OptionFlags
+        {
+            OptionFlagsNoFlags,
+            OptionFlagsHasValue,
+            OptionFlagsIsLong
+        };
 
-        VideoStream &operator =(const VideoStream &other);
+        explicit Option(QObject *parent=NULL);
+        Option(QString name, OptionFlags flags=OptionFlagsNoFlags);
+        Option(const Option &other);
 
-        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
+        Option &operator =(const Option &other);
 
-    protected:
-        void cleanUp();
+        Q_INVOKABLE QString name();
+        Q_INVOKABLE OptionFlags flags();
 
     private:
-        QByteArray m_oFrame;
-        uint8_t *m_oBuffer[4];
-        int m_oBufferLineSize[4];
-        int m_oBufferSize;
+        QString m_name;
+        OptionFlags m_flags;
 
-        QMap<PixelFormat, QString> m_ffToMime;
+    public slots:
+        void setName(QString name);
+        void setFlags(OptionFlags flags);
+        void resetName();
+        void resetFlags();
 };
 
-#endif // VIDEOSTREAM_H
+#endif // OPTION_H

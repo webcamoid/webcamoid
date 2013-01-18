@@ -19,12 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "recordbin.h"
-#include "recordbinelement.h"
+#ifndef MULTISINK_H
+#define MULTISINK_H
 
-QbElement *RecordBin::newElement()
+#include "qbplugin.h"
+
+class MultiSink: public QObject, public QbPlugin
 {
-    return new RecordBinElement();
-}
+    Q_OBJECT
+    Q_INTERFACES(QbPlugin)
 
-Q_EXPORT_PLUGIN2(RecordBin, RecordBin)
+    public:
+        QbElement *newElement();
+};
+
+#endif // MULTISINK_H
