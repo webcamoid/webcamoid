@@ -22,8 +22,6 @@
 #ifndef QBPACKET_H
 #define QBPACKET_H
 
-// http://ffmpeg-users.933282.n4.nabble.com/understanding-DTS-PTS-td940270.html
-
 #include "qbcaps.h"
 
 class QbPacket: public QObject

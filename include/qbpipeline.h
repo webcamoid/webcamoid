@@ -22,63 +22,58 @@
 #ifndef QBPIPELINE_H
 #define QBPIPELINE_H
 
-#include "qbplugin.h"
+#include "qbpluginloader.h"
 
 class QbPipeline: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList pluginsPaths
-               READ pluginsPaths
-               WRITE setPluginsPaths
-               RESET resetPluginsPaths)
+    Q_PROPERTY(QStringList pluginsPaths READ pluginsPaths
+                                        WRITE setPluginsPaths
+                                        RESET resetPluginsPaths)
+
+    Q_PROPERTY(QList<QbElement *> elements READ elements)
 
     public:
-        explicit QbPipeline(QObject *parent=0);
+        explicit QbPipeline(QObject *parent=NULL);
         ~QbPipeline();
 
         Q_INVOKABLE QStringList pluginsPaths();
         Q_INVOKABLE QbElement *element(QString elementName);
+        Q_INVOKABLE QList<QbElement *> elements();
         Q_INVOKABLE QbElement *add(QString pluginId, QString elementName="");
         Q_INVOKABLE void remove(QbElement *element);
         Q_INVOKABLE void remove(QString elementName);
-        static void link(QbElement *elementSrc, QbElement *elementDst);
-        static void link(QbElement *elementSrc, QObject *elementDst);
-        static void link(QObject *elementSrc, QbElement *elementDst);
-        static void link(QbPipeline *pipeline, QString elementSrc, QString elementDst);
-        static void link(QbPipeline *pipeline, QString elementSrc, QObject *elementDst);
-        static void link(QbPipeline *pipeline, QObject *elementSrc, QString elementDst);
-        static void link(QbPipeline *pipeline, QbElement *elementSrc, QString elementDst);
-        static void link(QbPipeline *pipeline, QString elementSrc, QbElement *elementDst);
-        void link(QString elementSrc, QString elementDst);
-        void link(QString elementSrc, QObject *elementDst);
-        void link(QObject *elementSrc, QString elementDst);
-        void link(QbElement *elementSrc, QString elementDst);
-        void link(QString elementSrc, QbElement *elementDst);
-        static void unlink(QbElement *elementSrc, QbElement *elementDst);
-        static void unlink(QbElement *elementSrc, QObject *elementDst);
-        static void unlink(QObject *elementSrc, QbElement *elementDst);
-        static void unlink(QbPipeline *pipeline, QString elementSrc, QString elementDst);
-        static void unlink(QbPipeline *pipeline, QString elementSrc, QObject *elementDst);
-        static void unlink(QbPipeline *pipeline, QObject *elementSrc, QString elementDst);
-        static void unlink(QbPipeline *pipeline, QbElement *elementSrc, QString elementDst);
-        static void unlink(QbPipeline *pipeline, QString elementSrc, QbElement *elementDst);
-        void unlink(QString elementSrc, QString elementDst);
-        void unlink(QString elementSrc, QObject *elementDst);
-        void unlink(QObject *elementSrc, QString elementDst);
-        void unlink(QbElement *elementSrc, QString elementDst);
-        void unlink(QString elementSrc, QbElement *elementDst);
+        Q_INVOKABLE static void link(QbElement *elementSrc, QbElement *elementDst);
+        Q_INVOKABLE static void link(QbElement *elementSrc, QObject *elementDst);
+        Q_INVOKABLE static void link(QObject *elementSrc, QbElement *elementDst);
+        Q_INVOKABLE static void link(QbPipeline *pipeline, QString elementSrc, QString elementDst);
+        Q_INVOKABLE static void link(QbPipeline *pipeline, QString elementSrc, QObject *elementDst);
+        Q_INVOKABLE static void link(QbPipeline *pipeline, QObject *elementSrc, QString elementDst);
+        Q_INVOKABLE static void link(QbPipeline *pipeline, QbElement *elementSrc, QString elementDst);
+        Q_INVOKABLE static void link(QbPipeline *pipeline, QString elementSrc, QbElement *elementDst);
+        Q_INVOKABLE void link(QString elementSrc, QString elementDst);
+        Q_INVOKABLE void link(QString elementSrc, QObject *elementDst);
+        Q_INVOKABLE void link(QObject *elementSrc, QString elementDst);
+        Q_INVOKABLE void link(QbElement *elementSrc, QString elementDst);
+        Q_INVOKABLE void link(QString elementSrc, QbElement *elementDst);
+        Q_INVOKABLE static void unlink(QbElement *elementSrc, QbElement *elementDst);
+        Q_INVOKABLE static void unlink(QbElement *elementSrc, QObject *elementDst);
+        Q_INVOKABLE static void unlink(QObject *elementSrc, QbElement *elementDst);
+        Q_INVOKABLE static void unlink(QbPipeline *pipeline, QString elementSrc, QString elementDst);
+        Q_INVOKABLE static void unlink(QbPipeline *pipeline, QString elementSrc, QObject *elementDst);
+        Q_INVOKABLE static void unlink(QbPipeline *pipeline, QObject *elementSrc, QString elementDst);
+        Q_INVOKABLE static void unlink(QbPipeline *pipeline, QbElement *elementSrc, QString elementDst);
+        Q_INVOKABLE static void unlink(QbPipeline *pipeline, QString elementSrc, QbElement *elementDst);
+        Q_INVOKABLE void unlink(QString elementSrc, QString elementDst);
+        Q_INVOKABLE void unlink(QString elementSrc, QObject *elementDst);
+        Q_INVOKABLE void unlink(QObject *elementSrc, QString elementDst);
+        Q_INVOKABLE void unlink(QbElement *elementSrc, QString elementDst);
+        Q_INVOKABLE void unlink(QString elementSrc, QbElement *elementDst);
 
     private:
-        QStringList m_pluginsPaths;
-        QPluginLoader m_pluginLoader;
-        QMap<QString, QbPlugin *> m_plugins;
+        QbPluginLoader *m_pluginLoader;
         QMap<QbElement *, QString> m_elements;
-        QMap<QString, QString> m_pluginPath;
-
-        bool isLoaded(QString pluginId);
-        bool load(QString pluginId);
-        bool unload(QString pluginId);
 
     public slots:
         void setState(QbElement::ElementState state);

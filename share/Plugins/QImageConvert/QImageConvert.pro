@@ -30,8 +30,6 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
-
 HEADERS += \
     include/qimageconvert.h \
     include/qimageconvertelement.h
@@ -49,15 +47,6 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libavcodec \
-        libavdevice \
-        libavformat \
-        libavutil \
-        libswscale
-
     INSTALLS += target
 
     target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}

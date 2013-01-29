@@ -31,7 +31,7 @@ extern "C"
     #include <libswscale/swscale.h>
 }
 
-#include "qbelement.h"
+#include "qbpipeline.h"
 #include "optionparser.h"
 
 class MultiSinkElement: public QbElement
@@ -63,13 +63,27 @@ class MultiSinkElement: public QbElement
         QString m_options;
         QSize m_frameSize;
 
+        AVPicture m_oPicture;
         AVFormatContext *m_outputContext;
         OptionParser m_optionParser;
         QVariantMap m_optionsMap;
+        AVStream *m_audioStream;
+        AVStream *m_videoStream;
+        QbPipeline m_pipeline;
+        QbElement *m_vFilter;
+        QbCaps m_curInputCaps;
+        int m_pictureAlloc;
+
+        QMap<QString, PixelFormat> m_mimeToFF;
 
         bool init();
         void uninit();
-        AVStream *addStream(AVCodec **codec, QString codecName);
+        QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
+        QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
+        QList<int> sampleRates(AVCodec *audioCodec);
+        AVStream *addStream(AVCodec **codec, QString codecName="");
+        void adjustToInputFrameSize(QSize frameSize);
+        void cleanAll();
 
     public slots:
         void setLocation(QString location);
@@ -78,6 +92,7 @@ class MultiSinkElement: public QbElement
         void resetLocation();
         void resetOptions();
         void resetFrameSize();
+        void processVFrame(const QbPacket &packet);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

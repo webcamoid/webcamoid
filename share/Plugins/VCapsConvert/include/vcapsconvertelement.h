@@ -19,42 +19,52 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QIMAGECONVERTELEMENT_H
-#define QIMAGECONVERTELEMENT_H
+#ifndef VCAPSCONVERTELEMENT_H
+#define VCAPSCONVERTELEMENT_H
 
-#include <QtGui>
+extern "C"
+{
+    #include <libavformat/avformat.h>
+    #include <libswscale/swscale.h>
+}
 
-#include "qbpipeline.h"
+#include "qbelement.h"
 
-class QImageConvertElement: public QbElement
+class VCapsConvertElement: public QbElement
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString format READ format WRITE setFormat RESET resetFormat)
+    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
 
     public:
-        explicit QImageConvertElement();
+        explicit VCapsConvertElement();
+        ~VCapsConvertElement();
 
-        Q_INVOKABLE QString format();
+        Q_INVOKABLE QString caps();
 
     private:
-        QString m_format;
-        QImage::Format m_qFormat;
+        QbCaps m_caps;
 
-        QImage m_oFrame;
-        QbPipeline m_pipeline;
-        QbElement *m_capsConvert;
+        int m_oWidth;
+        int m_oHeight;
+        PixelFormat m_oFormat;
+        QByteArray m_oFrame;
+        struct SwsContext *m_scaleContext;
+        AVPicture m_iPicture;
+        AVPicture m_oPicture;
+        int m_iPictureAlloc;
+        int m_oPictureAlloc;
+        QbCaps m_curInputCaps;
 
-        QMap<QString, QString> m_imageToMime;
-        QMap<QString, QImage::Format> m_imageToQt;
+        QMap<QString, PixelFormat> m_mimeToFF;
+
+        void cleanAll();
 
     public slots:
-        void setFormat(QString format);
-        void resetFormat();
-        void processFrame(const QbPacket &packet);
+        void setCaps(QString caps);
+        void resetCaps();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
 };
 
-#endif // QIMAGECONVERTELEMENT_H
+#endif // CAPSCONVERTELEMENT_H

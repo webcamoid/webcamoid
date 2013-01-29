@@ -27,7 +27,7 @@ Option::Option(QObject *parent): QObject(parent)
     this->resetFlags();
 }
 
-Option::Option(QString name, OptionFlags flags): QObject(parent)
+Option::Option(QString name, OptionFlags flags)
 {
     this->setName(name);
     this->setFlags(flags);

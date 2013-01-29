@@ -22,8 +22,6 @@
 #ifndef QBCAPS_H
 #define QBCAPS_H
 
-// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-types-definitions.html
-
 #include <QtCore>
 
 class QbCaps: public QObject

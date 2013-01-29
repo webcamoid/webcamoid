@@ -65,6 +65,8 @@ class QbElement: public QObject
         virtual void resetState();
         virtual void resetSrcs();
         virtual void resetSinks();
+
+    friend class QbPipeline;
 };
 
 #endif // QBELEMENT_H

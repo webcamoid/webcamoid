@@ -23,7 +23,7 @@
 
 QbPipeline::QbPipeline(QObject *parent): QObject(parent)
 {
-    this->resetPluginsPaths();
+    this->m_pluginLoader = QbPluginLoader::current();
 }
 
 QbPipeline::~QbPipeline()
@@ -36,7 +36,7 @@ QbPipeline::~QbPipeline()
 
 QStringList QbPipeline::pluginsPaths()
 {
-    return this->m_pluginsPaths;
+    return this->m_pluginLoader->pluginsPaths();
 }
 
 QbElement *QbPipeline::element(QString elementName)
@@ -48,12 +48,18 @@ QbElement *QbPipeline::element(QString elementName)
     return NULL;
 }
 
+QList<QbElement *> QbPipeline::elements()
+{
+    return this->m_elements.keys();
+}
+
 QbElement *QbPipeline::add(QString pluginId, QString elementName)
 {
-    if (!this->load(pluginId))
-        return NULL;
+    QbElement *element = this->m_pluginLoader->newInstance(pluginId);
 
-    QbElement *element = this->m_plugins[pluginId]->newElement();
+    if (!element)
+        return element;
+
     element->setObjectName(elementName);
 
     if (element)
@@ -71,9 +77,7 @@ void QbPipeline::remove(QbElement *element)
     QString pluginId = this->m_elements[element];
     delete element;
     this->m_elements.remove(element);
-
-    if (!this->m_elements.values().contains(pluginId))
-        this->unload(pluginId);
+    this->m_pluginLoader->deleteInstance(pluginId);
 }
 
 void QbPipeline::remove(QString elementName)
@@ -247,66 +251,6 @@ void QbPipeline::unlink(QString elementSrc, QbElement *elementDst)
     this->unlink(this, elementSrc, elementDst);
 }
 
-bool QbPipeline::isLoaded(QString pluginId)
-{
-    return this->m_plugins.contains(pluginId);
-}
-
-bool QbPipeline::load(QString pluginId)
-{
-    if (this->isLoaded(pluginId))
-        return true;
-
-    QString fileName;
-
-    foreach (QString path, this->m_pluginsPaths)
-    {
-        QString filePath = QString("%1/lib%2.so").arg(path).arg(pluginId);
-
-        if (QFileInfo(filePath).exists())
-        {
-            fileName = filePath;
-
-            break;
-        }
-    }
-
-    if (fileName.isEmpty() || !QLibrary::isLibrary(fileName))
-        return false;
-
-    this->m_pluginPath[pluginId] = fileName;
-    this->m_pluginLoader.setFileName(fileName);
-
-    if (!this->m_pluginLoader.load())
-    {
-        qDebug() << this->m_pluginLoader.errorString();
-
-        return false;
-    }
-
-    QbPlugin *plugin = qobject_cast<QbPlugin *>(this->m_pluginLoader.instance());
-
-    if (!plugin)
-        return false;
-
-    this->m_plugins[pluginId] = plugin;
-
-    return true;
-}
-
-bool QbPipeline::unload(QString pluginId)
-{
-    if(!this->isLoaded(pluginId))
-         return true;
-
-    delete this->m_plugins[pluginId];
-    this->m_plugins.remove(pluginId);
-    this->m_pluginLoader.setFileName(this->m_pluginPath[pluginId]);
-    this->m_pluginLoader.unload();
-
-    return true;
-}
-
 void QbPipeline::setState(QbElement::ElementState state)
 {
     foreach (QbElement *element, this->m_elements.keys())
@@ -320,7 +264,7 @@ void QbPipeline::resetState()
 
 void QbPipeline::setPluginsPaths(QStringList pluginsPaths)
 {
-    this->m_pluginsPaths = pluginsPaths;
+    this->m_pluginLoader->setPluginsPaths(pluginsPaths);
 }
 
 void QbPipeline::resetPluginsPaths()

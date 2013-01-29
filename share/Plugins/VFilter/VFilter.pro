@@ -18,15 +18,48 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS += \
-    EffectsBin \
-    EffectsPreviewBin \
-    MultiSink \
-    MultiSrc \
-    QImageConvert \
-    VCapsConvert \
-    VFilter
+DEFINES += __STDC_CONSTANT_MACROS
+
+HEADERS += \
+    include/vfilter.h \
+    include/vfilterelement.h
+
+INCLUDEPATH += \
+    include \
+    ../../../include
+
+QT += core gui
+
+SOURCES += \
+    src/vfilter.cpp \
+    src/vfilterelement.cpp
+
+TEMPLATE = lib
+
+unix {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        libavcodec \
+        libavdevice \
+        libavfilter \
+        libavformat \
+        libavutil \
+        libswscale
+
+    INSTALLS += target
+
+    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
+}

@@ -19,42 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QIMAGECONVERTELEMENT_H
-#define QIMAGECONVERTELEMENT_H
+#ifndef VCAPSCONVERT_H
+#define VCAPSCONVERT_H
 
-#include <QtGui>
+#include "qbplugin.h"
 
-#include "qbpipeline.h"
-
-class QImageConvertElement: public QbElement
+class VCapsConvert: public QObject, public QbPlugin
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString format READ format WRITE setFormat RESET resetFormat)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        explicit QImageConvertElement();
-
-        Q_INVOKABLE QString format();
-
-    private:
-        QString m_format;
-        QImage::Format m_qFormat;
-
-        QImage m_oFrame;
-        QbPipeline m_pipeline;
-        QbElement *m_capsConvert;
-
-        QMap<QString, QString> m_imageToMime;
-        QMap<QString, QImage::Format> m_imageToQt;
-
-    public slots:
-        void setFormat(QString format);
-        void resetFormat();
-        void processFrame(const QbPacket &packet);
-
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        QbElement *newElement();
 };
 
-#endif // QIMAGECONVERTELEMENT_H
+#endif // VCAPSCONVERT_H

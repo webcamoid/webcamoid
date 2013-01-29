@@ -19,14 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-// http://gstreamer.freedesktop.org/documentation/
-// http://lists.freedesktop.org/mailman/listinfo/gstreamer-devel
-// http://api.kde.org/
-// http://extragear.kde.org/apps/kipi/
-// http://www.mltframework.org/bin/view/MLT/WebHome
-// http://cgit.freedesktop.org/gstreamer/gstreamer/tree/docs/random/porting-to-1.0.txt
-// LD_PRELOAD='./libWebcamoid.so' ./webcamoid
-
 #include <sys/ioctl.h>
 #include <KSharedConfig>
 #include <KConfigGroup>
