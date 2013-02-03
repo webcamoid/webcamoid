@@ -47,7 +47,7 @@ class VideoStream: public AbstractStream
         int m_width;
         int m_height;
         QString m_oCaps;
-        QMap<PixelFormat, QString> m_ffToMime;
+        QMap<PixelFormat, QString> m_ffToFormat;
 };
 
 #endif // VIDEOSTREAM_H

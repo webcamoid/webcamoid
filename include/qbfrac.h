@@ -19,37 +19,41 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBCAPS_H
-#define QBCAPS_H
+#ifndef QBFRAC_H
+#define QBFRAC_H
 
 #include <QtCore>
 
-class QbCaps: public QObject
+class QbFrac: public QObject
 {
     Q_OBJECT
-
+    Q_PROPERTY(int num READ num WRITE setNum RESET resetNum)
+    Q_PROPERTY(int den READ den WRITE setDen RESET resetDen)
     Q_PROPERTY(bool isValid READ isValid)
-    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType RESET resetMimeType)
 
     public:
-        explicit QbCaps(QObject *parent=NULL);
-        QbCaps(QString capsString);
-        QbCaps(const QbCaps &other);
-        QbCaps &operator =(const QbCaps &other);
-        bool operator ==(const QbCaps &other) const;
-        bool operator !=(const QbCaps &other) const;
+        explicit QbFrac(QObject *parent=NULL);
+        QbFrac(QString fracString);
+        QbFrac(const QbFrac &other);
+        QbFrac &operator =(const QbFrac &other);
+        bool operator ==(const QbFrac &other) const;
+        bool operator !=(const QbFrac &other) const;
 
+        Q_INVOKABLE int num() const;
+        Q_INVOKABLE int den() const;
         Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE QString mimeType() const;
         Q_INVOKABLE QString toString() const;
 
     private:
+        int m_num;
+        int m_den;
         bool m_isValid;
-        QString m_mimeType;
 
     public slots:
-        void setMimeType(QString mimeType);
-        void resetMimeType();
+        void setNum(int num);
+        void setDen(int den);
+        void resetNum();
+        void resetDen();
 };
 
-#endif // QBCAPS_H
+#endif // QBFRAC_H

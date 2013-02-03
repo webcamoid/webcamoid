@@ -36,44 +36,44 @@ VFilterElement::VFilterElement(): QbElement()
     this->resetTimeBase();
     this->resetPixelAspect();
 
-    this->m_mimeToFF["I420"] = PIX_FMT_YUV420P;
-    this->m_mimeToFF["YUY2"] = PIX_FMT_YUV422P;
-    this->m_mimeToFF["UYVY"] = PIX_FMT_UYVY422;
-    this->m_mimeToFF["AYUV"] = PIX_FMT_YUVA420P;
-    this->m_mimeToFF["RGBx"] = PIX_FMT_RGB0;
-    this->m_mimeToFF["BGRx"] = PIX_FMT_BGR0;
-    this->m_mimeToFF["xRGB"] = PIX_FMT_0RGB;
-    this->m_mimeToFF["xBGR"] = PIX_FMT_0BGR;
-    this->m_mimeToFF["RGBA"] = PIX_FMT_RGBA;
-    this->m_mimeToFF["BGRA"] = PIX_FMT_BGRA;
-    this->m_mimeToFF["ARGB"] = PIX_FMT_ARGB;
-    this->m_mimeToFF["ABGR"] = PIX_FMT_ABGR;
-    this->m_mimeToFF["RGB"] = PIX_FMT_RGB24;
-    this->m_mimeToFF["BGR"] = PIX_FMT_BGR24;
-    this->m_mimeToFF["Y41B"] = PIX_FMT_YUV411P;
-    this->m_mimeToFF["Y42B"] = PIX_FMT_YUV422P;
-    this->m_mimeToFF["YVYU"] = PIX_FMT_UYVY422;
-    this->m_mimeToFF["Y444"] = PIX_FMT_YUV444P;
-    this->m_mimeToFF["v210"] = PIX_FMT_YUV422P10LE;
-    this->m_mimeToFF["v216"] = PIX_FMT_YUV422P16LE;
-    this->m_mimeToFF["NV12"] = PIX_FMT_NV12;
-    this->m_mimeToFF["NV21"] = PIX_FMT_NV21;
-    this->m_mimeToFF["GRAY8"] = PIX_FMT_GRAY8;
-    this->m_mimeToFF["GRAY16_BE"] = PIX_FMT_GRAY16BE;
-    this->m_mimeToFF["GRAY16_LE"] = PIX_FMT_GRAY16LE;
-    this->m_mimeToFF["v308"] = PIX_FMT_YUV444P;
-    this->m_mimeToFF["RGB16"] = PIX_FMT_RGB565LE;
-    this->m_mimeToFF["BGR16"] = PIX_FMT_BGR565LE;
-    this->m_mimeToFF["RGB15"] = PIX_FMT_RGB555LE;
-    this->m_mimeToFF["BGR15"] = PIX_FMT_BGR555LE;
-    this->m_mimeToFF["UYVP"] = PIX_FMT_YUV422P12LE;
-    this->m_mimeToFF["A420"] = PIX_FMT_YUVA420P;
-    this->m_mimeToFF["RGB8P"] = PIX_FMT_RGB8;
-    this->m_mimeToFF["IYU1"] = PIX_FMT_YUV411P;
-    this->m_mimeToFF["I420_10LE"] = PIX_FMT_YUV420P10LE;
-    this->m_mimeToFF["I420_10BE"] = PIX_FMT_YUV420P10BE;
-    this->m_mimeToFF["I422_10LE"] = PIX_FMT_YUV422P10LE;
-    this->m_mimeToFF["I422_10BE"] = PIX_FMT_YUV422P10BE;
+    this->m_formatToFF["I420"] = PIX_FMT_YUV420P;
+    this->m_formatToFF["YUY2"] = PIX_FMT_YUV422P;
+    this->m_formatToFF["UYVY"] = PIX_FMT_UYVY422;
+    this->m_formatToFF["AYUV"] = PIX_FMT_YUVA420P;
+    this->m_formatToFF["RGBx"] = PIX_FMT_RGB0;
+    this->m_formatToFF["BGRx"] = PIX_FMT_BGR0;
+    this->m_formatToFF["xRGB"] = PIX_FMT_0RGB;
+    this->m_formatToFF["xBGR"] = PIX_FMT_0BGR;
+    this->m_formatToFF["RGBA"] = PIX_FMT_RGBA;
+    this->m_formatToFF["BGRA"] = PIX_FMT_BGRA;
+    this->m_formatToFF["ARGB"] = PIX_FMT_ARGB;
+    this->m_formatToFF["ABGR"] = PIX_FMT_ABGR;
+    this->m_formatToFF["RGB"] = PIX_FMT_RGB24;
+    this->m_formatToFF["BGR"] = PIX_FMT_BGR24;
+    this->m_formatToFF["Y41B"] = PIX_FMT_YUV411P;
+    this->m_formatToFF["Y42B"] = PIX_FMT_YUV422P;
+    this->m_formatToFF["YVYU"] = PIX_FMT_UYVY422;
+    this->m_formatToFF["Y444"] = PIX_FMT_YUV444P;
+    this->m_formatToFF["v210"] = PIX_FMT_YUV422P10LE;
+    this->m_formatToFF["v216"] = PIX_FMT_YUV422P16LE;
+    this->m_formatToFF["NV12"] = PIX_FMT_NV12;
+    this->m_formatToFF["NV21"] = PIX_FMT_NV21;
+    this->m_formatToFF["GRAY8"] = PIX_FMT_GRAY8;
+    this->m_formatToFF["GRAY16_BE"] = PIX_FMT_GRAY16BE;
+    this->m_formatToFF["GRAY16_LE"] = PIX_FMT_GRAY16LE;
+    this->m_formatToFF["v308"] = PIX_FMT_YUV444P;
+    this->m_formatToFF["RGB16"] = PIX_FMT_RGB565LE;
+    this->m_formatToFF["BGR16"] = PIX_FMT_BGR565LE;
+    this->m_formatToFF["RGB15"] = PIX_FMT_RGB555LE;
+    this->m_formatToFF["BGR15"] = PIX_FMT_BGR555LE;
+    this->m_formatToFF["UYVP"] = PIX_FMT_YUV422P12LE;
+    this->m_formatToFF["A420"] = PIX_FMT_YUVA420P;
+    this->m_formatToFF["RGB8P"] = PIX_FMT_RGB8;
+    this->m_formatToFF["IYU1"] = PIX_FMT_YUV411P;
+    this->m_formatToFF["I420_10LE"] = PIX_FMT_YUV420P10LE;
+    this->m_formatToFF["I420_10BE"] = PIX_FMT_YUV420P10BE;
+    this->m_formatToFF["I422_10LE"] = PIX_FMT_YUV422P10LE;
+    this->m_formatToFF["I422_10BE"] = PIX_FMT_YUV422P10BE;
 }
 
 VFilterElement::~VFilterElement()
@@ -120,7 +120,7 @@ bool VFilterElement::init()
     QString args = QString("video_size=%1x%2:"
                            "pix_fmt=%3").arg(width)
                                         .arg(height)
-                                        .arg(this->m_mimeToFF[format]);
+                                        .arg(this->m_formatToFF[format]);
 
     if (this->m_timeBaseNum || this->m_timeBaseDen)
         args.append(QString(":time_base=%1/%2").arg(this->m_timeBaseNum)
@@ -144,17 +144,17 @@ bool VFilterElement::init()
     {
         QString format = this->m_curInputCaps.property("format").toString();
 
-        if (format.isEmpty() || !this->m_mimeToFF.contains(format))
+        if (format.isEmpty() || !this->m_formatToFF.contains(format))
             return false;
 
-        oFormat = this->m_mimeToFF[format];
+        oFormat = this->m_formatToFF[format];
     }
     else
     {
-        if (!this->m_mimeToFF.contains(this->format()))
+        if (!this->m_formatToFF.contains(this->format()))
             return false;
 
-        oFormat = this->m_mimeToFF[this->format()];
+        oFormat = this->m_formatToFF[this->format()];
     }
 
     PixelFormat pixelFormats[2];
@@ -297,11 +297,11 @@ void VFilterElement::iStream(const QbPacket &packet)
 
     avpicture_fill((AVPicture *) &frame,
                    (uint8_t *) packet.data(),
-                   this->m_mimeToFF[mimeType],
+                   this->m_formatToFF[mimeType],
                    iWidth,
                    iHeight);
 
-    frame.format = this->m_mimeToFF[mimeType],
+    frame.format = this->m_formatToFF[mimeType],
     frame.width = iWidth,
     frame.height = iHeight;
     frame.type = AVMEDIA_TYPE_VIDEO;
@@ -348,7 +348,7 @@ void VFilterElement::iStream(const QbPacket &packet)
                          (uint8_t *) this->m_oFrame.data(),
                          this->m_oFrame.size());
 
-        QString format = this->m_mimeToFF.key((PixelFormat) filterBufferRef->format);
+        QString format = this->m_formatToFF.key((PixelFormat) filterBufferRef->format);
 
         QbPacket oPacket(QString("video/x-raw,"
                                  "format=%1,"

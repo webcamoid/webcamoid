@@ -69,7 +69,8 @@ HEADERS = \
     include/qbpipeline.h \
     include/qbpacket.h \
     include/qbcaps.h \
-    include/qbpluginloader.h
+    include/qbpluginloader.h \
+    include/qbfrac.h
 
 INCLUDEPATH += \
     include \
@@ -96,7 +97,8 @@ SOURCES = \
     src/qbpacket.cpp \
     src/qbcaps.cpp \
     src/qbelement.cpp \
-    src/qbpluginloader.cpp
+    src/qbpluginloader.cpp \
+    src/qbfrac.cpp
 
 TARGET = $${COMMONS_APPNAME}
 

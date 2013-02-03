@@ -73,7 +73,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                                                              << "agingtv");
 
     QbPipeline::link(this->m_captureSrc, this->m_effectsbin);*/
-    QbPipeline::link(this->m_captureSrc, this);
+    this->m_captureSrc->link(this);
 /*
     this->m_mainPipeline = gst_pipeline_new("MainPipeline");
 

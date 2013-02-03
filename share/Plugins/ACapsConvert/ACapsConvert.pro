@@ -18,16 +18,48 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS += \
-    ACapsConvert \
-    EffectsBin \
-    EffectsPreviewBin \
-    MultiSink \
-    MultiSrc \
-    QImageConvert \
-    VCapsConvert \
-    VFilter
+DEFINES += __STDC_CONSTANT_MACROS
+
+HEADERS += \
+    include/acapsconvert.h \
+    include/acapsconvertelement.h
+
+INCLUDEPATH += \
+    include \
+    ../../../include
+
+QT += core gui
+
+SOURCES += \
+    src/acapsconvert.cpp \
+    src/acapsconvertelement.cpp
+
+TEMPLATE = lib
+
+unix {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        libavcodec \
+        libavdevice \
+        libavformat \
+        libavutil \
+        libswscale \
+        libswresample
+
+    INSTALLS += target
+
+    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
+}

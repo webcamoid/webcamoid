@@ -77,7 +77,7 @@ class VFilterElement: public QbElement
         AVFilterContext *m_bufferSrcContext;
         AVFilterGraph *m_filterGraph;
 
-        QMap<QString, PixelFormat> m_mimeToFF;
+        QMap<QString, PixelFormat> m_formatToFF;
 
         bool init();
         void uninit();

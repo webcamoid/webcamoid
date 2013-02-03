@@ -19,45 +19,54 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#ifndef ACAPSCONVERTELEMENT_H
+#define ACAPSCONVERTELEMENT_H
 
 extern "C"
 {
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
+    #include <libavutil/opt.h>
+    #include <libavutil/samplefmt.h>
+    #include <libavutil/audioconvert.h>
+    #include <libswresample/swresample.h>
 }
 
 #include "qbelement.h"
 
-class VCapsConvertElement: public QbElement
+class ACapsConvertElement: public QbElement
 {
     Q_OBJECT
 
     Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
 
     public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
+        explicit ACapsConvertElement();
+        ~ACapsConvertElement();
 
         Q_INVOKABLE QString caps();
 
     private:
         QbCaps m_caps;
 
-        int m_oWidth;
-        int m_oHeight;
-        PixelFormat m_oFormat;
         QByteArray m_oFrame;
-        struct SwsContext *m_scaleContext;
-        AVPicture m_iPicture;
-        AVPicture m_oPicture;
-        int m_iPictureAlloc;
-        int m_oPictureAlloc;
         QbCaps m_curInputCaps;
+        SwrContext *m_resampleContext;
+        uint8_t **m_iData;
+        uint8_t **m_oData;
+        AVSampleFormat m_iSampleFormat;
+        int m_iNSamples;
+        int m_iNChannels;
+        int m_iSampleRate;
+        int m_oMaxNSamples;
+        int m_oSampleRate;
+        int m_oNChannels;
+        int64_t m_oChannelLayout;
+        AVSampleFormat m_oSampleFormat;
 
-        QMap<QString, PixelFormat> m_formatToFF;
+        QMap<QString, AVSampleFormat> m_formatToFF;
+        QMap<QString, int64_t> m_layoutToFF;
 
+        bool init();
+        void uninit();
         void cleanAll();
 
     public slots:
@@ -67,4 +76,4 @@ class VCapsConvertElement: public QbElement
         void iStream(const QbPacket &packet);
 };
 
-#endif // VCAPSCONVERTELEMENT_H
+#endif // ACAPSCONVERTELEMENT_H

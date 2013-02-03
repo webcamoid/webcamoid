@@ -45,7 +45,7 @@ class QImageConvertElement: public QbElement
         QbPipeline m_pipeline;
         QbElement *m_capsConvert;
 
-        QMap<QString, QString> m_imageToMime;
+        QMap<QString, QString> m_imageToFormat;
         QMap<QString, QImage::Format> m_imageToQt;
 
     public slots:

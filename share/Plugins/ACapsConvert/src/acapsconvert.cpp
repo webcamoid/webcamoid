@@ -19,37 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBCAPS_H
-#define QBCAPS_H
+#include "acapsconvert.h"
+#include "acapsconvertelement.h"
 
-#include <QtCore>
-
-class QbCaps: public QObject
+QbElement *ACapsConvert::newElement()
 {
-    Q_OBJECT
+    return new ACapsConvertElement();
+}
 
-    Q_PROPERTY(bool isValid READ isValid)
-    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType RESET resetMimeType)
-
-    public:
-        explicit QbCaps(QObject *parent=NULL);
-        QbCaps(QString capsString);
-        QbCaps(const QbCaps &other);
-        QbCaps &operator =(const QbCaps &other);
-        bool operator ==(const QbCaps &other) const;
-        bool operator !=(const QbCaps &other) const;
-
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE QString mimeType() const;
-        Q_INVOKABLE QString toString() const;
-
-    private:
-        bool m_isValid;
-        QString m_mimeType;
-
-    public slots:
-        void setMimeType(QString mimeType);
-        void resetMimeType();
-};
-
-#endif // QBCAPS_H
+Q_EXPORT_PLUGIN2(ACapsConvert, ACapsConvert)

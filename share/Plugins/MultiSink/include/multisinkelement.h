@@ -63,6 +63,7 @@ class MultiSinkElement: public QbElement
         QString m_options;
         QSize m_frameSize;
 
+        AVFrame m_frame;
         AVPicture m_oPicture;
         AVFormatContext *m_outputContext;
         OptionParser m_optionParser;
@@ -70,18 +71,25 @@ class MultiSinkElement: public QbElement
         AVStream *m_audioStream;
         AVStream *m_videoStream;
         QbPipeline m_pipeline;
+        QbElement *m_aCapsConvert;
         QbElement *m_vFilter;
-        QbCaps m_curInputCaps;
+        QbCaps m_curAInputCaps;
+        QbCaps m_curVInputCaps;
         int m_pictureAlloc;
+        int m_iNChannels;
+        int m_iSampleRate;
+        uint64_t m_iChannelLayout;
 
-        QMap<QString, PixelFormat> m_mimeToFF;
+        QMap<QString, PixelFormat> m_vFormatToFF;
+        QMap<QString, AVSampleFormat> m_aFormatToFF;
 
         bool init();
         void uninit();
         QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
-        AVStream *addStream(AVCodec **codec, QString codecName="");
+        QList<uint64_t> channelLayouts(AVCodec *audioCodec);
+        AVStream *addStream(AVCodec **codec, QString codecName="", AVMediaType mediaType=AVMEDIA_TYPE_UNKNOWN);
         void adjustToInputFrameSize(QSize frameSize);
         void cleanAll();
 
@@ -93,6 +101,7 @@ class MultiSinkElement: public QbElement
         void resetOptions();
         void resetFrameSize();
         void processVFrame(const QbPacket &packet);
+        void processAFrame(const QbPacket &packet);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

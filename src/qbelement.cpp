@@ -50,6 +50,59 @@ QList<QbElement *> QbElement::sinks()
     return this->m_sinks;
 }
 
+bool QbElement::link(QObject *dstElement)
+{
+    if (!dstElement)
+        return false;
+
+    if (!QObject::connect(this,
+                          SIGNAL(oStream(const QbPacket &)),
+                          dstElement,
+                          SLOT(iStream(const QbPacket &))))
+        return false;
+
+    return true;
+}
+
+bool QbElement::link(QbElement *dstElement)
+{
+    if (!this->link(static_cast<QObject *>(dstElement)))
+        return false;
+
+    this->m_sinks << dstElement;
+    dstElement->setSrcs(dstElement->srcs() << this);
+
+    return true;
+}
+
+bool QbElement::unlink(QObject *dstElement)
+{
+    if (!dstElement)
+        return false;
+
+    if (!QObject::disconnect(this,
+                             SIGNAL(oStream(const QbPacket &)),
+                             dstElement,
+                             SLOT(iStream(const QbPacket &))))
+        return false;
+
+    return true;
+}
+
+bool QbElement::unlink(QbElement *dstElement)
+{
+    if (!this->unlink(static_cast<QObject *>(dstElement)))
+        return false;
+
+    this->m_sinks.removeOne(dstElement);
+
+    QList<QbElement *> dstSrcs = dstElement->srcs();
+    dstSrcs.removeOne(this);
+    dstElement->setSrcs(dstSrcs);
+
+    return true;
+}
+
 void QbElement::iStream(const QbPacket &packet)
 {
     Q_UNUSED(packet)

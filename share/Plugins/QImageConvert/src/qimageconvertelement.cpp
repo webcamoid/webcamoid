@@ -23,11 +23,11 @@
 
 QImageConvertElement::QImageConvertElement(): QbElement()
 {
-    this->m_imageToMime["RGB32"] = "BGRx";
-    this->m_imageToMime["ARGB32"] = "BGRA";
-    this->m_imageToMime["RGB16"] = "RGB16";
-    this->m_imageToMime["RGB555"] = "RGB15";
-    this->m_imageToMime["RGB888"] = "RGB";
+    this->m_imageToFormat["RGB32"] = "BGRx";
+    this->m_imageToFormat["ARGB32"] = "BGRA";
+    this->m_imageToFormat["RGB16"] = "RGB16";
+    this->m_imageToFormat["RGB555"] = "RGB15";
+    this->m_imageToFormat["RGB888"] = "RGB";
 
     this->m_imageToQt["RGB32"] = QImage::Format_RGB32;
     this->m_imageToQt["ARGB32"] = QImage::Format_ARGB32;
@@ -97,7 +97,7 @@ void QImageConvertElement::iStream(const QbPacket &packet)
 
     if (this->m_capsConvert->property("caps").toString() == "")
         this->m_capsConvert->setProperty("caps",
-                                         QString("video/x-raw,format=%1").arg(this->m_imageToMime[this->m_format]));
+                                         QString("video/x-raw,format=%1").arg(this->m_imageToFormat[this->m_format]));
 
     this->m_capsConvert->iStream(packet);
 }

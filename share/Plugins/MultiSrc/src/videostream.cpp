@@ -38,38 +38,38 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
     this->m_width = 0;
     this->m_height = 0;
 
-    this->m_ffToMime[PIX_FMT_YUV420P] = "I420";
-    this->m_ffToMime[PIX_FMT_YUV422P] = "YUY2";
-    this->m_ffToMime[PIX_FMT_UYVY422] = "UYVY";
-    this->m_ffToMime[PIX_FMT_YUVA420P] = "AYUV";
-    this->m_ffToMime[PIX_FMT_RGB0] = "RGBx";
-    this->m_ffToMime[PIX_FMT_BGR0] = "BGRx";
-    this->m_ffToMime[PIX_FMT_0RGB] = "xRGB";
-    this->m_ffToMime[PIX_FMT_0BGR] = "xBGR";
-    this->m_ffToMime[PIX_FMT_RGBA] = "RGBA";
-    this->m_ffToMime[PIX_FMT_BGRA] = "BGRA";
-    this->m_ffToMime[PIX_FMT_ARGB] = "ARGB";
-    this->m_ffToMime[PIX_FMT_ABGR] = "ABGR";
-    this->m_ffToMime[PIX_FMT_RGB24] = "RGB";
-    this->m_ffToMime[PIX_FMT_BGR24] = "BGR";
-    this->m_ffToMime[PIX_FMT_YUV411P] = "Y41B";
-    this->m_ffToMime[PIX_FMT_YUV444P] = "Y444";
-    this->m_ffToMime[PIX_FMT_YUV422P16LE] = "v216";
-    this->m_ffToMime[PIX_FMT_NV12] = "NV12";
-    this->m_ffToMime[PIX_FMT_NV21] = "NV21";
-    this->m_ffToMime[PIX_FMT_GRAY8] = "GRAY8";
-    this->m_ffToMime[PIX_FMT_GRAY16BE] = "GRAY16_BE";
-    this->m_ffToMime[PIX_FMT_GRAY16LE] = "GRAY16_LE";
-    this->m_ffToMime[PIX_FMT_RGB565LE] = "RGB16";
-    this->m_ffToMime[PIX_FMT_BGR565LE] = "BGR16";
-    this->m_ffToMime[PIX_FMT_RGB555LE] = "RGB15";
-    this->m_ffToMime[PIX_FMT_BGR555LE] = "BGR15";
-    this->m_ffToMime[PIX_FMT_YUV422P12LE] = "UYVP";
-    this->m_ffToMime[PIX_FMT_RGB8] = "RGB8P";
-    this->m_ffToMime[PIX_FMT_YUV420P10LE] = "I420_10LE";
-    this->m_ffToMime[PIX_FMT_YUV420P10BE] = "I420_10BE";
-    this->m_ffToMime[PIX_FMT_YUV422P10LE] = "I422_10LE";
-    this->m_ffToMime[PIX_FMT_YUV422P10BE] = "I422_10BE";
+    this->m_ffToFormat[PIX_FMT_YUV420P] = "I420";
+    this->m_ffToFormat[PIX_FMT_YUV422P] = "YUY2";
+    this->m_ffToFormat[PIX_FMT_UYVY422] = "UYVY";
+    this->m_ffToFormat[PIX_FMT_YUVA420P] = "AYUV";
+    this->m_ffToFormat[PIX_FMT_RGB0] = "RGBx";
+    this->m_ffToFormat[PIX_FMT_BGR0] = "BGRx";
+    this->m_ffToFormat[PIX_FMT_0RGB] = "xRGB";
+    this->m_ffToFormat[PIX_FMT_0BGR] = "xBGR";
+    this->m_ffToFormat[PIX_FMT_RGBA] = "RGBA";
+    this->m_ffToFormat[PIX_FMT_BGRA] = "BGRA";
+    this->m_ffToFormat[PIX_FMT_ARGB] = "ARGB";
+    this->m_ffToFormat[PIX_FMT_ABGR] = "ABGR";
+    this->m_ffToFormat[PIX_FMT_RGB24] = "RGB";
+    this->m_ffToFormat[PIX_FMT_BGR24] = "BGR";
+    this->m_ffToFormat[PIX_FMT_YUV411P] = "Y41B";
+    this->m_ffToFormat[PIX_FMT_YUV444P] = "Y444";
+    this->m_ffToFormat[PIX_FMT_YUV422P16LE] = "v216";
+    this->m_ffToFormat[PIX_FMT_NV12] = "NV12";
+    this->m_ffToFormat[PIX_FMT_NV21] = "NV21";
+    this->m_ffToFormat[PIX_FMT_GRAY8] = "GRAY8";
+    this->m_ffToFormat[PIX_FMT_GRAY16BE] = "GRAY16_BE";
+    this->m_ffToFormat[PIX_FMT_GRAY16LE] = "GRAY16_LE";
+    this->m_ffToFormat[PIX_FMT_RGB565LE] = "RGB16";
+    this->m_ffToFormat[PIX_FMT_BGR565LE] = "BGR16";
+    this->m_ffToFormat[PIX_FMT_RGB555LE] = "RGB15";
+    this->m_ffToFormat[PIX_FMT_BGR555LE] = "BGR15";
+    this->m_ffToFormat[PIX_FMT_YUV422P12LE] = "UYVP";
+    this->m_ffToFormat[PIX_FMT_RGB8] = "RGB8P";
+    this->m_ffToFormat[PIX_FMT_YUV420P10LE] = "I420_10LE";
+    this->m_ffToFormat[PIX_FMT_YUV420P10BE] = "I420_10BE";
+    this->m_ffToFormat[PIX_FMT_YUV422P10LE] = "I422_10LE";
+    this->m_ffToFormat[PIX_FMT_YUV422P10BE] = "I422_10BE";
 }
 
 VideoStream::VideoStream(const VideoStream &other):
@@ -79,7 +79,7 @@ VideoStream::VideoStream(const VideoStream &other):
     m_width(other.m_width),
     m_height(other.m_height),
     m_oCaps(other.m_oCaps),
-    m_ffToMime(other.m_ffToMime)
+    m_ffToFormat(other.m_ffToFormat)
 {
 }
 
@@ -92,7 +92,7 @@ VideoStream &VideoStream::operator =(const VideoStream &other)
         this->m_width = other.m_width;
         this->m_height = other.m_height;
         this->m_oCaps = other.m_oCaps;
-        this->m_ffToMime = other.m_ffToMime;
+        this->m_ffToFormat = other.m_ffToFormat;
 
         AbstractStream::operator =(other);
     }
@@ -125,13 +125,13 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
 
         PixelFormat fmt = this->codecContext()->pix_fmt;
 
-        if (!this->m_ffToMime.contains(fmt))
+        if (!this->m_ffToFormat.contains(fmt))
             return QbPacket();
 
         this->m_oCaps = QString("video/x-raw,"
                                 "format=%1,"
                                 "width=%2,"
-                                "height=%3").arg(this->m_ffToMime[fmt])
+                                "height=%3").arg(this->m_ffToFormat[fmt])
                                             .arg(this->codecContext()->width)
                                             .arg(this->codecContext()->height);
 
