@@ -56,6 +56,7 @@ class VFilterElement: public QbElement
         explicit VFilterElement();
         ~VFilterElement();
 
+        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString description();
         Q_INVOKABLE QString format();
         Q_INVOKABLE QString timeBase();

@@ -38,6 +38,7 @@ class AudioStream: public AbstractStream
 
         AudioStream &operator =(const AudioStream &other);
 
+        Q_INVOKABLE QbCaps oCaps();
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
 
     protected:

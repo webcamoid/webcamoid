@@ -81,6 +81,26 @@ VFilterElement::~VFilterElement()
     this->uninit();
 }
 
+QList<QbCaps> VFilterElement::oCaps()
+{
+    QList<QbCaps> caps;
+
+    if (!this->m_srcs.isEmpty())
+    {
+        foreach (QbElement *src, this->m_srcs)
+            foreach (QbCaps cap, src->oCaps())
+                if (cap.mimeType() == "video/x-raw")
+                {
+                    cap.setProperty("format", this->m_format);
+                    caps << cap;
+
+                    return caps;
+                }
+    }
+
+    return caps;
+}
+
 QString VFilterElement::description()
 {
     return this->m_description;
@@ -289,7 +309,7 @@ void VFilterElement::iStream(const QbPacket &packet)
 
     int iWidth = packet.caps().property("width").toInt();
     int iHeight = packet.caps().property("height").toInt();
-    QString mimeType = packet.caps().property("format").toString();
+    QString iFormat = packet.caps().property("format").toString();
 
     AVFrame frame;
 
@@ -297,11 +317,11 @@ void VFilterElement::iStream(const QbPacket &packet)
 
     avpicture_fill((AVPicture *) &frame,
                    (uint8_t *) packet.data(),
-                   this->m_formatToFF[mimeType],
+                   this->m_formatToFF[iFormat],
                    iWidth,
                    iHeight);
 
-    frame.format = this->m_formatToFF[mimeType],
+    frame.format = this->m_formatToFF[iFormat],
     frame.width = iWidth,
     frame.height = iHeight;
     frame.type = AVMEDIA_TYPE_VIDEO;
@@ -362,6 +382,7 @@ void VFilterElement::iStream(const QbPacket &packet)
         oPacket.setDts(packet.dts());
         oPacket.setPts(packet.pts());
         oPacket.setDuration(packet.duration());
+        oPacket.setTimeBase(packet.timeBase());
         oPacket.setIndex(packet.index());
 
         emit this->oStream(oPacket);

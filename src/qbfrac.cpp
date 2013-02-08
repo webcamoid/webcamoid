@@ -28,6 +28,13 @@ QbFrac::QbFrac(QObject *parent): QObject(parent)
     this->m_isValid = false;
 }
 
+QbFrac::QbFrac(int num, int den):
+    m_num(num),
+    m_den(den)
+{
+    this->m_isValid = den? true: false;
+}
+
 QbFrac::QbFrac(QString fracString)
 {
     this->m_num = 0;
@@ -54,6 +61,10 @@ QbFrac::QbFrac(const QbFrac &other):
     m_num(other.m_num),
     m_den(other.m_den),
     m_isValid(other.m_isValid)
+{
+}
+
+QbFrac::~QbFrac()
 {
 }
 
@@ -92,6 +103,11 @@ int QbFrac::den() const
     return this->m_den;
 }
 
+double QbFrac::value() const
+{
+    return this->m_num / (double) this->m_den;
+}
+
 bool QbFrac::isValid() const
 {
     return this->m_isValid;
@@ -103,9 +119,36 @@ QString QbFrac::toString() const
                            .arg(this->m_den);
 }
 
+int QbFrac::gcd() const
+{
+    int tmp;
+    int num = abs(this->m_num);
+    int den = abs(this->m_den);
+
+    while (num > 0)
+    {
+        tmp = num;
+        num = den % num;
+        den = tmp;
+    }
+
+    return den;
+}
+
 void QbFrac::setNum(int num)
 {
     this->m_num = num;
+}
+
+void QbFrac::reduce()
+{
+    int gcd = this->gcd();
+
+    if (!gcd)
+        return;
+
+    this->m_num /= gcd;
+    this->m_den /= gcd;
 }
 
 void QbFrac::setDen(int den)

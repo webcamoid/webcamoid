@@ -23,9 +23,6 @@
 
 VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
 {
-    this->m_pixFmt = PIX_FMT_NONE;
-    this->m_width = 0;
-    this->m_height = 0;
 }
 
 VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
@@ -33,10 +30,6 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
 {
     if (!this->isValid())
         return;
-
-    this->m_pixFmt = PIX_FMT_NONE;
-    this->m_width = 0;
-    this->m_height = 0;
 
     this->m_ffToFormat[PIX_FMT_YUV420P] = "I420";
     this->m_ffToFormat[PIX_FMT_YUV422P] = "YUY2";
@@ -75,9 +68,6 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
 VideoStream::VideoStream(const VideoStream &other):
     AbstractStream(other),
     m_oFrame(other.m_oFrame),
-    m_pixFmt(other.m_pixFmt),
-    m_width(other.m_width),
-    m_height(other.m_height),
     m_oCaps(other.m_oCaps),
     m_ffToFormat(other.m_ffToFormat)
 {
@@ -88,9 +78,6 @@ VideoStream &VideoStream::operator =(const VideoStream &other)
     if (this != &other)
     {
         this->m_oFrame = other.m_oFrame;
-        this->m_pixFmt = other.m_pixFmt;
-        this->m_width = other.m_width;
-        this->m_height = other.m_height;
         this->m_oCaps = other.m_oCaps;
         this->m_ffToFormat = other.m_ffToFormat;
 
@@ -98,6 +85,23 @@ VideoStream &VideoStream::operator =(const VideoStream &other)
     }
 
     return *this;
+}
+
+QbCaps VideoStream::oCaps()
+{
+    PixelFormat fmt = this->codecContext()->pix_fmt;
+
+    if (!this->m_ffToFormat.contains(fmt))
+        return QbCaps();
+
+    QString caps = QString("video/x-raw,"
+                           "format=%1,"
+                           "width=%2,"
+                           "height=%3").arg(this->m_ffToFormat[fmt])
+                                       .arg(this->codecContext()->width)
+                                       .arg(this->codecContext()->height);
+
+    return QbCaps(caps);
 }
 
 QbPacket VideoStream::readPacket(AVPacket *packet)
@@ -115,30 +119,17 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     if (!gotFrame)
         return QbPacket();
 
-    if (this->codecContext()->pix_fmt != this->m_pixFmt ||
-        this->codecContext()->width != this->m_width ||
-        this->codecContext()->height != this->m_height)
+    if (this->oCaps() != this->m_oCaps)
     {
         this->m_oFrame.resize(avpicture_get_size(this->codecContext()->pix_fmt,
                                                  this->codecContext()->width,
                                                  this->codecContext()->height));
 
-        PixelFormat fmt = this->codecContext()->pix_fmt;
-
-        if (!this->m_ffToFormat.contains(fmt))
-            return QbPacket();
-
-        this->m_oCaps = QString("video/x-raw,"
-                                "format=%1,"
-                                "width=%2,"
-                                "height=%3").arg(this->m_ffToFormat[fmt])
-                                            .arg(this->codecContext()->width)
-                                            .arg(this->codecContext()->height);
-
-        this->m_pixFmt = this->codecContext()->pix_fmt;
-        this->m_width = this->codecContext()->width;
-        this->m_height = this->codecContext()->height;
+        this->m_oCaps = this->oCaps();
     }
+
+    this->m_iFrame->pts = av_frame_get_best_effort_timestamp(this->m_iFrame);
+    this->m_iFrame->pkt_duration = av_frame_get_pkt_duration(this->m_iFrame);
 
     avpicture_layout((AVPicture *) this->m_iFrame,
                      this->codecContext()->pix_fmt,
@@ -151,9 +142,10 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                      this->m_oFrame.constData(),
                      this->m_oFrame.size());
 
-    oPacket.setDts(packet->dts);
-    oPacket.setPts(packet->pts);
-    oPacket.setDuration(packet->duration);
+    oPacket.setDts(this->m_iFrame->pts);
+    oPacket.setPts(this->m_iFrame->pkt_dts);
+    oPacket.setDuration(m_iFrame->pkt_duration);
+    oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 
     return oPacket;

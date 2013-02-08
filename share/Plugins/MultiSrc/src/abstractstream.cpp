@@ -27,6 +27,7 @@ AbstractStream::AbstractStream(QObject *parent): QObject(parent)
     this->m_index = -1;
     this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
     this->m_formatContext = NULL;
+    this->m_stream = NULL;
     this->m_codecContext = NULL;
     this->m_codec = NULL;
     this->m_codecOptions = NULL;
@@ -38,13 +39,17 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
 {
     this->m_isValid = false;
     this->m_index = index;
-    this->m_mediaType = formatContext->streams[index]->codec->codec_type;
+    this->m_stream = formatContext->streams[index];
+    this->m_mediaType = this->m_stream->codec->codec_type;
     this->m_formatContext = formatContext;
-    this->m_codecContext = formatContext->streams[index]->codec;
+    this->m_codecContext = this->m_stream->codec;
     this->m_codec = avcodec_find_decoder(this->m_codecContext->codec_id);
     this->m_codecOptions = NULL;
     this->m_iFrame = NULL;
     this->m_orig = NULL;
+
+    this->m_timeBase = QbFrac(this->m_stream->time_base.num,
+                              this->m_stream->time_base.den);
 
     if (!this->m_codec)
         return;
@@ -72,8 +77,10 @@ AbstractStream::AbstractStream(const AbstractStream &other):
     m_isValid(other.m_isValid),
     m_iFrame(other.m_iFrame),
     m_index(other.m_index),
+    m_timeBase(other.m_timeBase),
     m_mediaType(other.m_mediaType),
     m_formatContext(other.m_formatContext),
+    m_stream(other.m_stream),
     m_codecContext(other.m_codecContext),
     m_codec(other.m_codec),
     m_codecOptions(other.m_codecOptions)
@@ -109,8 +116,10 @@ AbstractStream &AbstractStream::operator =(const AbstractStream &other)
     {
         this->m_isValid = other.m_isValid;
         this->m_index = other.m_index;
+        this->m_timeBase = other.m_timeBase;
         this->m_mediaType = other.m_mediaType;
         this->m_formatContext = other.m_formatContext;
+        this->m_stream = other.m_stream;
         this->m_codecContext = other.m_codecContext;
         this->m_codec = other.m_codec;
         this->m_codecOptions = other.m_codecOptions;
@@ -149,6 +158,11 @@ uint AbstractStream::index() const
     return this->m_index;
 }
 
+QbFrac AbstractStream::timeBase() const
+{
+    return this->m_timeBase;
+}
+
 AVMediaType AbstractStream::mediaType() const
 {
     return this->m_mediaType;
@@ -157,6 +171,11 @@ AVMediaType AbstractStream::mediaType() const
 AVFormatContext *AbstractStream::formatContext() const
 {
     return this->m_formatContext;
+}
+
+AVStream *AbstractStream::stream() const
+{
+    return this->m_stream;
 }
 
 AVCodecContext *AbstractStream::codecContext() const
@@ -172,6 +191,11 @@ AVCodec *AbstractStream::codec() const
 AVDictionary *AbstractStream::codecOptions() const
 {
     return this->m_codecOptions;
+}
+
+QbCaps AbstractStream::oCaps()
+{
+    return QbCaps();
 }
 
 QbPacket AbstractStream::readPacket(AVPacket *packet)

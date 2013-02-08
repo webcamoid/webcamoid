@@ -42,6 +42,7 @@ class ACapsConvertElement: public QbElement
         explicit ACapsConvertElement();
         ~ACapsConvertElement();
 
+        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString caps();
 
     private:

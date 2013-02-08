@@ -40,6 +40,11 @@ QbElement::ElementState QbElement::state()
     return this->m_state;
 }
 
+QList<QbCaps> QbElement::oCaps()
+{
+    return this->m_oCaps;
+}
+
 QList<QbElement *> QbElement::srcs()
 {
     return this->m_srcs;
@@ -49,7 +54,6 @@ QList<QbElement *> QbElement::sinks()
 {
     return this->m_sinks;
 }
-
 bool QbElement::link(QObject *dstElement)
 {
     if (!dstElement)
@@ -69,7 +73,7 @@ bool QbElement::link(QbElement *dstElement)
     if (!this->link(static_cast<QObject *>(dstElement)))
         return false;
 
-    this->m_sinks << dstElement;
+    this->setSinks(this->sinks() << dstElement);
     dstElement->setSrcs(dstElement->srcs() << this);
 
     return true;
@@ -94,11 +98,13 @@ bool QbElement::unlink(QbElement *dstElement)
     if (!this->unlink(static_cast<QObject *>(dstElement)))
         return false;
 
-    this->m_sinks.removeOne(dstElement);
+    QList<QbElement *> sinks = this->m_sinks;
+    sinks.removeOne(dstElement);
+    this->setSinks(sinks);
 
-    QList<QbElement *> dstSrcs = dstElement->srcs();
-    dstSrcs.removeOne(this);
-    dstElement->setSrcs(dstSrcs);
+    QList<QbElement *> srcs = dstElement->m_srcs;
+    srcs.removeOne(this);
+    dstElement->setSrcs(srcs);
 
     return true;
 }

@@ -41,6 +41,25 @@ ACapsConvertElement::~ACapsConvertElement()
     this->cleanAll();
 }
 
+QList<QbCaps> ACapsConvertElement::oCaps()
+{
+    QList<QbCaps> caps;
+
+    if (!this->m_srcs.isEmpty())
+    {
+        foreach (QbElement *src, this->m_srcs)
+            foreach (QbCaps cap, src->oCaps())
+                if (cap.mimeType() == this->m_caps.mimeType())
+                {
+                    caps << cap.update(this->m_caps);
+
+                    return caps;
+                }
+    }
+
+    return caps;
+}
+
 QString ACapsConvertElement::caps()
 {
     return this->m_caps.toString();
@@ -289,6 +308,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());
     oPacket.setDuration(packet.duration());
+    oPacket.setTimeBase(packet.timeBase());
     oPacket.setIndex(packet.index());
 
     emit this->oStream(oPacket);

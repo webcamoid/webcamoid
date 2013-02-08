@@ -30,6 +30,7 @@ class QbElement: public QObject
     Q_OBJECT
     Q_ENUMS(ElementState)
     Q_PROPERTY(ElementState state READ state WRITE setState RESET resetState)
+    Q_PROPERTY(QList<QbCaps> oCaps READ oCaps)
     Q_PROPERTY(QList<QbElement *> srcs READ srcs WRITE setSrcs RESET resetSrcs)
     Q_PROPERTY(QList<QbElement *> sinks READ sinks WRITE setSinks RESET resetSinks)
 
@@ -46,6 +47,7 @@ class QbElement: public QObject
         virtual ~QbElement();
 
         Q_INVOKABLE virtual ElementState state();
+        Q_INVOKABLE virtual QList<QbCaps> oCaps();
         Q_INVOKABLE virtual QList<QbElement *> srcs();
         Q_INVOKABLE virtual QList<QbElement *> sinks();
         Q_INVOKABLE virtual bool link(QObject *dstElement);
@@ -55,6 +57,7 @@ class QbElement: public QObject
 
     protected:
         ElementState m_state;
+        QList<QbCaps> m_oCaps;
         QList<QbElement *> m_srcs;
         QList<QbElement *> m_sinks;
 

@@ -29,6 +29,7 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetDts();
     this->resetPts();
     this->resetDuration();
+    this->resetTimeBase();
     this->resetIndex();
 }
 
@@ -37,6 +38,7 @@ QbPacket::QbPacket(QbCaps caps, const void *data,
                    int64_t dts,
                    int64_t pts,
                    int duration,
+                   QbFrac timeBase,
                    int index)
 {
     this->setCaps(caps);
@@ -46,6 +48,7 @@ QbPacket::QbPacket(QbCaps caps, const void *data,
     this->setDts(isValid? dts: 0);
     this->setPts(isValid? pts: 0);
     this->setDuration(isValid? duration: 0);
+    this->setTimeBase(isValid? timeBase: QbFrac());
     this->setIndex(isValid? index: -1);
 }
 
@@ -57,7 +60,12 @@ QbPacket::QbPacket(const QbPacket &other):
     m_dts(other.m_pts),
     m_pts(other.m_pts),
     m_duration(other.m_duration),
+    m_timeBase(other.m_timeBase),
     m_index(other.m_index)
+{
+}
+
+QbPacket::~QbPacket()
 {
 }
 
@@ -71,6 +79,7 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
         this->m_dts = other.m_dts;
         this->m_pts = other.m_pts;
         this->m_duration = other.m_duration;
+        this->m_timeBase = other.m_timeBase;
         this->m_index = other.m_index;
     }
 
@@ -105,6 +114,11 @@ int64_t QbPacket::pts() const
 int QbPacket::duration() const
 {
     return this->m_duration;
+}
+
+QbFrac QbPacket::timeBase() const
+{
+    return this->m_timeBase;
 }
 
 int QbPacket::index() const
@@ -142,6 +156,11 @@ void QbPacket::setDuration(int duration)
     this->m_duration = duration;
 }
 
+void QbPacket::setTimeBase(QbFrac timeBase)
+{
+    this->m_timeBase = timeBase;
+}
+
 void QbPacket::setIndex(int index)
 {
     this->m_index = index;
@@ -175,6 +194,11 @@ void QbPacket::resetPts()
 void QbPacket::resetDuration()
 {
     this->setDuration(0);
+}
+
+void QbPacket::resetTimeBase()
+{
+    this->setTimeBase(QbFrac());
 }
 
 void QbPacket::resetIndex()

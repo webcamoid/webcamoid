@@ -57,6 +57,7 @@ class MultiSrcElement: public QbElement
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
+        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString location();
         Q_INVOKABLE bool loop();
         Q_INVOKABLE QSize size();

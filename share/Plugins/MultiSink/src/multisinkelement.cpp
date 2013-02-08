@@ -25,10 +25,9 @@ MultiSinkElement::MultiSinkElement(): QbElement()
 {
     av_register_all();
 
+    this->m_outputContext = NULL;
+
     this->m_pictureAlloc = -1;
-    this->m_iNChannels = 0;
-    this->m_iSampleRate = 0;
-    this->m_iChannelLayout = 0;
 
     this->m_vFilter = this->m_pipeline.add("VFilter");
     this->m_aCapsConvert = this->m_pipeline.add("ACapsConvert");
@@ -133,6 +132,9 @@ QSize MultiSinkElement::frameSize()
 
 bool MultiSinkElement::init()
 {
+    if (this->m_outputContext)
+        this->uninit();
+
     if (this->m_optionsMap.contains("f"))
         avformat_alloc_output_context2(&this->m_outputContext,
                                        NULL,
@@ -192,14 +194,20 @@ bool MultiSinkElement::init()
     if (avformat_write_header(this->m_outputContext, NULL) < 0)
         return false;
 
-    avcodec_get_frame_defaults(&this->m_frame);
-    this->m_frame.pts = 0;
+    avcodec_get_frame_defaults(&this->m_vFrame);
+    this->m_vFrame.pts = 0;
+
+    avcodec_get_frame_defaults(&this->m_aFrame);
+    this->m_aFrame.pts = 0;
 
     return true;
 }
 
 void MultiSinkElement::uninit()
 {
+    if (!this->m_outputContext)
+        return;
+
     // Write the trailer, if any. The trailer must be written before you
     // close the CodecContexts open when you wrote the header; otherwise
     // av_write_trailer() may try to use memory that was freed on
@@ -220,16 +228,14 @@ void MultiSinkElement::uninit()
         av_freep(&this->m_outputContext->streams[i]);
     }
 
-    if (!(m_outputContext->oformat->flags & AVFMT_NOFILE))
+    if (!(this->m_outputContext->oformat->flags & AVFMT_NOFILE))
         // Close the output file.
         avio_close(this->m_outputContext->pb);
 
     // free the stream
     av_free(this->m_outputContext);
 
-    this->m_iNChannels = 0;
-    this->m_iSampleRate = 0;
-    this->m_iChannelLayout = 0;
+    this->m_outputContext = NULL;
 }
 
 QList<PixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
@@ -280,6 +286,37 @@ QList<uint64_t> MultiSinkElement::channelLayouts(AVCodec *audioCodec)
     return channelLayouts;
 }
 
+void MultiSinkElement::writeFrame(AVPacket *packet, AVStream *stream)
+{
+    AVCodecContext *codecContext = stream->codec;
+/*
+    if ((codecContext->codec_type == AVMEDIA_TYPE_VIDEO && video_sync_method == 0xff) ||
+        (codecContext->codec_type == AVMEDIA_TYPE_AUDIO && audio_sync_method < 0))
+        packet->pts = packet->dts = AV_NOPTS_VALUE;
+*/
+    if ((codecContext->codec_type == AVMEDIA_TYPE_AUDIO ||
+         codecContext->codec_type == AVMEDIA_TYPE_VIDEO) &&
+        packet->dts != AV_NOPTS_VALUE)
+    {
+        int64_t max = stream->cur_dts +
+                      !(this->m_outputContext->oformat->flags &
+                        AVFMT_TS_NONSTRICT);
+
+        if (stream->cur_dts &&
+            stream->cur_dts != AV_NOPTS_VALUE &&
+            max > packet->dts)
+        {
+            if(packet->pts >= packet->dts)
+                packet->pts = FFMAX(packet->pts, max);
+
+            packet->dts = max;
+        }
+    }
+
+    packet->stream_index = stream->index;
+    av_interleaved_write_frame(this->m_outputContext, packet);
+}
+
 AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMediaType mediaType)
 {
     AVOutputFormat *outputFormat = this->m_outputContext->oformat;
@@ -323,6 +360,34 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
     QList<int> sampleRates = this->sampleRates(*codec);
     QList<uint64_t> channelLayouts = this->channelLayouts(*codec);
 
+    int iNChannels = 0;
+    int iSampleRate = 0;
+    uint64_t iChannelLayout = 0;
+
+    if (mediaType == AVMEDIA_TYPE_AUDIO)
+    {
+        QbCaps caps;
+
+        foreach (QbElement *src, this->m_srcs)
+        {
+            foreach (QbCaps cap, src->oCaps())
+                if (cap.mimeType() == "audio/x-raw")
+                {
+                    caps = cap;
+
+                    break;
+                }
+
+            if (caps.isValid())
+                break;
+        }
+
+        iNChannels = caps.property("channels").toInt();
+        iSampleRate = caps.property("rate").toInt();
+        const char *layout = caps.property("layout").toString().toUtf8().constData();
+        iChannelLayout = av_get_channel_layout(layout);
+    }
+
     switch ((*codec)->type)
     {
         case AVMEDIA_TYPE_AUDIO:
@@ -340,13 +405,13 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
                 codecContext->sample_rate = sampleRates[0];
 
             if (!codecContext->sample_rate)
-                codecContext->sample_rate = this->m_iSampleRate;
+                codecContext->sample_rate = iSampleRate;
 
             if (this->m_optionsMap.contains("ac"))
                 codecContext->channels = this->m_optionsMap["ac"].toInt();
 
             if (!codecContext->channels)
-                codecContext->channels = this->m_iNChannels;
+                codecContext->channels = iNChannels;
 
             if (this->m_optionsMap.contains("channel_layout"))
                 codecContext->channel_layout = av_get_channel_layout(this->m_optionsMap["channel_layout"].toString()
@@ -356,7 +421,7 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
                 codecContext->channel_layout = channelLayouts[0];
 
             if (!codecContext->channel_layout)
-                codecContext->channel_layout = this->m_iChannelLayout;
+                codecContext->channel_layout = iChannelLayout;
         break;
 
         case AVMEDIA_TYPE_VIDEO:
@@ -405,13 +470,6 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
     // Some formats want stream headers to be separate.
     if (this->m_outputContext->oformat->flags & AVFMT_GLOBALHEADER)
         codecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
-
-    if (mediaType == AVMEDIA_TYPE_AUDIO)
-    {
-        this->m_iNChannels = codecContext->channels;
-        this->m_iSampleRate = codecContext->sample_rate;
-        this->m_iChannelLayout = codecContext->channel_layout;
-    }
 
     return stream;
 }
@@ -477,6 +535,84 @@ void MultiSinkElement::resetFrameSize()
     this->setFrameSize(QSize());
 }
 
+void MultiSinkElement::iStream(const QbPacket &packet)
+{
+    if (!packet.caps().isValid() ||
+        this->state() != ElementStatePlaying)
+        return;
+
+    QString mimeType = packet.caps().mimeType();
+
+    if (!this->m_outputContext)
+        this->init();
+
+    if (this->m_audioStream)
+        this->m_audioPts = (double) this->m_audioStream->pts.val *
+                                    this->m_audioStream->time_base.num /
+                                    this->m_audioStream->time_base.den;
+    else
+        this->m_audioPts = 0.0;
+
+    if (mimeType == "audio/x-raw")
+    {
+        if (!this->m_audioStream)
+            return;
+
+        if (packet.caps() != this->m_curAInputCaps)
+        {
+            AVCodecContext *codecContext = this->m_audioStream->codec;
+
+            char layout[256];
+
+            av_get_channel_layout_string(layout,
+                                         sizeof(layout),
+                                         codecContext->channels,
+                                         codecContext->channel_layout);
+
+            QString caps = QString("audio/x-raw,"
+                                   "format=%1,"
+                                   "channels=%2,"
+                                   "rate=%3,"
+                                   "layout=%4").arg(this->m_aFormatToFF.key(codecContext->sample_fmt))
+                                               .arg(codecContext->channels)
+                                               .arg(codecContext->sample_rate)
+                                               .arg(layout);
+
+            this->m_aCapsConvert->setProperty("caps", caps);
+            this->m_curAInputCaps = packet.caps();
+        }
+
+        this->m_aCapsConvert->iStream(packet);
+    }
+    else if (mimeType == "video/x-raw")
+    {
+        if (packet.caps() != this->m_curVInputCaps)
+        {
+            QSize size(packet.caps().property("width").toInt(),
+                       packet.caps().property("height").toInt());
+
+            QSize curSize(this->m_curVInputCaps.property("width").toInt(),
+                          this->m_curVInputCaps.property("height").toInt());
+
+            if (size != curSize)
+                this->adjustToInputFrameSize(size);
+
+            this->m_curVInputCaps = packet.caps();
+        }
+
+        this->m_vFilter->iStream(packet);
+    }
+}
+
+void MultiSinkElement::setState(ElementState state)
+{
+    QbElement::setState(state);
+    this->m_pipeline.setState(this->m_state);
+
+    if (this->m_state == ElementStateNull)
+        this->uninit();
+}
+
 void MultiSinkElement::processVFrame(const QbPacket &packet)
 {
     int iWidth = packet.caps().property("width").toInt();
@@ -490,12 +626,12 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     else
         return;
 
+    AVPacket pkt;
+    av_init_packet(&pkt);
+
     if (this->m_outputContext->oformat->flags & AVFMT_RAWPICTURE)
     {
         // Raw video case - directly store the picture in the packet
-        AVPacket pkt;
-        av_init_packet(&pkt);
-
         static QbCaps caps;
 
         if (packet.caps() != caps)
@@ -526,27 +662,32 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     else
     {
         // encode the image
-        AVPacket pkt;
-        int got_output;
-
-        av_init_packet(&pkt);
         pkt.data = NULL; // packet data will be allocated by the encoder
         pkt.size = 0;
 
-        avpicture_fill((AVPicture *) &this->m_frame,
+        avpicture_fill((AVPicture *) &this->m_vFrame,
                        (uint8_t *) packet.data(),
                        iFormat,
                        iWidth,
                        iHeight);
 
-        this->m_frame.format = iFormat,
-        this->m_frame.width = iWidth,
-        this->m_frame.height = iHeight;
-        this->m_frame.type = AVMEDIA_TYPE_VIDEO;
+        this->m_vFrame.format = iFormat,
+        this->m_vFrame.width = iWidth,
+        this->m_vFrame.height = iHeight;
+        this->m_vFrame.type = AVMEDIA_TYPE_VIDEO;
+
+        AVRational timeBase = {packet.timeBase().num(),
+                               packet.timeBase().den()};
+
+        this->m_vFrame.pts = av_rescale_q(packet.pts(),
+                                          timeBase,
+                                          this->m_videoStream->time_base);
+
+        int got_output;
 
         if (avcodec_encode_video2(this->m_videoStream->codec,
                                   &pkt,
-                                  &this->m_frame,
+                                  &this->m_vFrame,
                                   &got_output) < 0)
             return;
 
@@ -558,180 +699,56 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
 
             pkt.stream_index = this->m_videoStream->index;
 
-            /// Write the compressed frame to the media file.
+            // Write the compressed frame to the media file.
             av_interleaved_write_frame(this->m_outputContext, &pkt);
         }
-
-        this->m_frame.pts += av_rescale_q(1,
-                                          this->m_videoStream->codec->time_base,
-                                          this->m_videoStream->time_base);
     }
 }
 
 void MultiSinkElement::processAFrame(const QbPacket &packet)
 {
-    qDebug() << "o: " << packet.caps().toString();
-}
+    AVCodecContext *codecContext = this->m_audioStream->codec;
 
-void MultiSinkElement::iStream(const QbPacket &packet)
-{
-    Q_UNUSED(packet)
+    this->m_aFrame.nb_samples = codecContext->frame_size;
+    uint8_t *data = (uint8_t *) packet.data();
+    int bytesPerSample = av_get_bytes_per_sample(codecContext->sample_fmt);
+    int sampleDiff =  bytesPerSample * codecContext->frame_size * codecContext->channels;
 
-    QString mimeType = packet.caps().mimeType();
-
-    if (mimeType == "audio/x-raw")
+    for (int samples = packet.caps().property("samples").toInt();
+         samples >= codecContext->frame_size;
+         samples -= codecContext->frame_size)
     {
-        if (packet.caps() != this->m_curAInputCaps)
-        {
-            AVCodecContext *codecContext = this->m_audioStream->codec;
+        avcodec_fill_audio_frame(&this->m_aFrame,
+                                 codecContext->channels,
+                                 codecContext->sample_fmt,
+                                 data,
+                                 sampleDiff,
+                                 1);
 
-            char layout[256];
+        AVPacket pkt;
+        av_init_packet(&pkt);
 
-            av_get_channel_layout_string(layout,
-                                         sizeof(layout),
-                                         codecContext->channels,
-                                         codecContext->channel_layout);
-/*
-            if (!codecContext->channels ||
-                !codecContext->sample_rate ||
-                !codecContext->channel_layout)
-            {
-                this->m_iNChannels = codecContext->channels;
-                this->m_iSampleRate = codecContext->sample_rate;
-                this->m_iChannelLayout = codecContext->channel_layout;
-            }
-*/
+        // data and size must be 0;
+        pkt.data = 0;
+        pkt.size = 0;
 
-            QString caps = QString("audio/x-raw,"
-                                   "format=%1,"
-                                   "channels=%2,"
-                                   "rate=%3,"
-                                   "layout=%4").arg(this->m_aFormatToFF.key(codecContext->sample_fmt))
-                                               .arg(codecContext->channels)
-                                               .arg(codecContext->sample_rate)
-                                               .arg(layout);
+        AVRational timeBase = {packet.timeBase().num(),
+                               packet.timeBase().den()};
 
-            qDebug() << "caps: " << caps;
+        this->m_aFrame.pts = av_rescale_q(packet.pts(),
+                                          timeBase,
+                                          this->m_audioStream->time_base);
 
-            this->m_vFilter->setProperty("caps", caps);
-            this->m_curAInputCaps = packet.caps();
-        }
+        int got_packet;
 
-        qDebug() << "i: " << packet.caps().toString();
-        this->m_aCapsConvert->iStream(packet);
+        if (avcodec_encode_audio2(codecContext, &pkt, &this->m_aFrame, &got_packet) < 0 ||
+            !got_packet)
+            continue;
+
+        pkt.stream_index = this->m_audioStream->index;
+
+        av_interleaved_write_frame(this->m_outputContext, &pkt);
+
+        data += sampleDiff;
     }
-    else if (mimeType == "video/x-raw")
-    {
-        if (packet.caps() != this->m_curVInputCaps)
-        {
-            QSize size(packet.caps().property("width").toInt(),
-                       packet.caps().property("height").toInt());
-
-            QSize curSize(this->m_curVInputCaps.property("width").toInt(),
-                          this->m_curVInputCaps.property("height").toInt());
-
-            if (size != curSize)
-                this->adjustToInputFrameSize(size);
-
-            this->m_curVInputCaps = packet.caps();
-        }
-
-        this->m_vFilter->iStream(packet);
-    }
-}
-
-void MultiSinkElement::setState(ElementState state)
-{
-    ElementState preState = this->state();
-
-    switch (state)
-    {
-        case ElementStateNull:
-            switch (preState)
-            {
-                case ElementStatePaused:
-                case ElementStatePlaying:
-                    this->setState(ElementStateReady);
-
-                    if (this->state() != ElementStateReady)
-                        return;
-
-                case ElementStateReady:
-                    this->uninit();
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStateReady:
-            switch (preState)
-            {
-                case ElementStateNull:
-                    if (this->init())
-                        this->m_state = state;
-                    else
-                        this->m_state = ElementStateNull;
-                break;
-
-                case ElementStatePlaying:
-                    this->setState(ElementStatePaused);
-
-                    if (this->state() != ElementStatePaused)
-                        return;
-
-                case ElementStatePaused:
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStatePaused:
-            switch (preState)
-            {
-                case ElementStateNull:
-                    this->setState(ElementStateReady);
-
-                    if (this->state() != ElementStateReady)
-                        return;
-
-                case ElementStateReady:
-                case ElementStatePlaying:
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStatePlaying:
-            switch (preState)
-            {
-                case ElementStateNull:
-                case ElementStateReady:
-                    this->setState(ElementStatePaused);
-
-                    if (this->state() != ElementStatePaused)
-                        return;
-
-                case ElementStatePaused:
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        default:
-        break;
-    }
-
-    this->m_pipeline.setState(this->m_state);
 }

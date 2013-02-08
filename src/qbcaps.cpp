@@ -56,9 +56,11 @@ QbCaps::QbCaps(const QbCaps &other):
     m_isValid(other.m_isValid),
     m_mimeType(other.m_mimeType)
 {
-    foreach (QByteArray property, other.dynamicPropertyNames())
-        this->setProperty(property.constData(),
-                          other.property(property.constData()));
+    this->update(other);
+}
+
+QbCaps::~QbCaps()
+{
 }
 
 QbCaps &QbCaps::operator =(const QbCaps &other)
@@ -67,10 +69,7 @@ QbCaps &QbCaps::operator =(const QbCaps &other)
     {
         this->m_isValid = other.m_isValid;
         this->m_mimeType = other.m_mimeType;
-
-        foreach (QByteArray property, other.dynamicPropertyNames())
-            this->setProperty(property.constData(),
-                              other.property(property.constData()));
+        this->update(other);
     }
 
     return *this;
@@ -117,6 +116,18 @@ QString QbCaps::toString() const
                                      .arg(this->property(property.toUtf8().constData()).toString()));
 
     return caps;
+}
+
+QbCaps &QbCaps::update(const QbCaps &other)
+{
+    if (this->mimeType() != other.mimeType())
+        return *this;
+
+    foreach (QByteArray property, other.dynamicPropertyNames())
+        this->setProperty(property.constData(),
+                          other.property(property.constData()));
+
+    return *this;
 }
 
 void QbCaps::setMimeType(QString mimeType)

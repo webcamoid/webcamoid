@@ -63,7 +63,9 @@ class MultiSinkElement: public QbElement
         QString m_options;
         QSize m_frameSize;
 
-        AVFrame m_frame;
+        AVFrame m_vFrame;
+        AVFrame m_aFrame;
+        double m_audioPts;
         AVPicture m_oPicture;
         AVFormatContext *m_outputContext;
         OptionParser m_optionParser;
@@ -76,9 +78,6 @@ class MultiSinkElement: public QbElement
         QbCaps m_curAInputCaps;
         QbCaps m_curVInputCaps;
         int m_pictureAlloc;
-        int m_iNChannels;
-        int m_iSampleRate;
-        uint64_t m_iChannelLayout;
 
         QMap<QString, PixelFormat> m_vFormatToFF;
         QMap<QString, AVSampleFormat> m_aFormatToFF;
@@ -89,6 +88,7 @@ class MultiSinkElement: public QbElement
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
         QList<uint64_t> channelLayouts(AVCodec *audioCodec);
+        void writeFrame(AVPacket *packet, AVStream *stream);
         AVStream *addStream(AVCodec **codec, QString codecName="", AVMediaType mediaType=AVMEDIA_TYPE_UNKNOWN);
         void adjustToInputFrameSize(QSize frameSize);
         void cleanAll();
@@ -100,11 +100,13 @@ class MultiSinkElement: public QbElement
         void resetLocation();
         void resetOptions();
         void resetFrameSize();
-        void processVFrame(const QbPacket &packet);
-        void processAFrame(const QbPacket &packet);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
+
+    private slots:
+        void processVFrame(const QbPacket &packet);
+        void processAFrame(const QbPacket &packet);
 };
 
 #endif // MULTISINKELEMENT_H

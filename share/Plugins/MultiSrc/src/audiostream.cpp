@@ -91,6 +91,32 @@ AudioStream &AudioStream::operator =(const AudioStream &other)
     return *this;
 }
 
+QbCaps AudioStream::oCaps()
+{
+    AVSampleFormat fmt = this->codecContext()->sample_fmt;
+
+    if (!this->m_ffToFormat.contains(fmt))
+        return QbCaps();
+
+    char layout[256];
+
+    av_get_channel_layout_string(layout,
+                                 sizeof(layout),
+                                 this->codecContext()->channels,
+                                 this->codecContext()->channel_layout);
+
+    QString caps = QString("audio/x-raw,"
+                           "format=%1,"
+                           "channels=%2,"
+                           "rate=%3,"
+                           "layout=%4").arg(this->m_ffToFormat[fmt])
+                                       .arg(this->codecContext()->channels)
+                                       .arg(this->codecContext()->sample_rate)
+                                       .arg(layout);
+
+    return QbCaps(caps);
+}
+
 QbPacket AudioStream::readPacket(AVPacket *packet)
 {
     if (!this->isValid())
@@ -105,6 +131,9 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
 
     if (!gotFrame)
         return QbPacket();
+
+    this->m_iFrame->pts = av_frame_get_best_effort_timestamp(this->m_iFrame);
+    this->m_iFrame->pkt_duration = av_frame_get_pkt_duration(this->m_iFrame);
 
     int oBufferLineSize;
 
@@ -135,36 +164,18 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     this->m_oFrame = QByteArray((const char *) this->m_oBuffer[0], oBufferSize);
     av_freep(&this->m_oBuffer[0]);
 
-    AVSampleFormat fmt = this->codecContext()->sample_fmt;
+    QbCaps caps = this->oCaps();
 
-    if (!this->m_ffToFormat.contains(fmt))
-        return QbPacket();
-
-    char layout[256];
-
-    av_get_channel_layout_string(layout,
-                                 sizeof(layout),
-                                 this->m_iFrame->channels,
-                                 this->codecContext()->channel_layout);
-
-    QString caps = QString("audio/x-raw,"
-                           "format=%1,"
-                           "channels=%2,"
-                           "rate=%3,"
-                           "layout=%4,"
-                           "samples=%5").arg(this->m_ffToFormat[fmt])
-                                        .arg(this->m_iFrame->channels)
-                                        .arg(this->m_iFrame->sample_rate)
-                                        .arg(layout)
-                                        .arg(this->m_iFrame->nb_samples);
+    caps.setProperty("samples", this->m_iFrame->nb_samples);
 
     QbPacket oPacket(caps,
                      this->m_oFrame.constData(),
                      this->m_oFrame.size());
 
-    oPacket.setDts(packet->dts);
-    oPacket.setPts(packet->pts);
-    oPacket.setDuration(packet->duration);
+    oPacket.setDts(this->m_iFrame->pts);
+    oPacket.setPts(this->m_iFrame->pkt_dts);
+    oPacket.setDuration(m_iFrame->pkt_duration);
+    oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 
     return oPacket;

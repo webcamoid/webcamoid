@@ -35,6 +35,7 @@ class QbCaps: public QObject
         explicit QbCaps(QObject *parent=NULL);
         QbCaps(QString capsString);
         QbCaps(const QbCaps &other);
+        virtual ~QbCaps();
         QbCaps &operator =(const QbCaps &other);
         bool operator ==(const QbCaps &other) const;
         bool operator !=(const QbCaps &other) const;
@@ -42,6 +43,7 @@ class QbCaps: public QObject
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString mimeType() const;
         Q_INVOKABLE QString toString() const;
+        Q_INVOKABLE QbCaps &update(const QbCaps &other);
 
     private:
         bool m_isValid;
@@ -51,5 +53,7 @@ class QbCaps: public QObject
         void setMimeType(QString mimeType);
         void resetMimeType();
 };
+
+Q_DECLARE_METATYPE(QbCaps)
 
 #endif // QBCAPS_H

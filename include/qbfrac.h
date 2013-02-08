@@ -29,18 +29,22 @@ class QbFrac: public QObject
     Q_OBJECT
     Q_PROPERTY(int num READ num WRITE setNum RESET resetNum)
     Q_PROPERTY(int den READ den WRITE setDen RESET resetDen)
+    Q_PROPERTY(double value READ value)
     Q_PROPERTY(bool isValid READ isValid)
 
     public:
         explicit QbFrac(QObject *parent=NULL);
+        QbFrac(int num, int den);
         QbFrac(QString fracString);
         QbFrac(const QbFrac &other);
+        virtual ~QbFrac();
         QbFrac &operator =(const QbFrac &other);
         bool operator ==(const QbFrac &other) const;
         bool operator !=(const QbFrac &other) const;
 
         Q_INVOKABLE int num() const;
         Q_INVOKABLE int den() const;
+        Q_INVOKABLE double value() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString toString() const;
 
@@ -49,11 +53,16 @@ class QbFrac: public QObject
         int m_den;
         bool m_isValid;
 
+        int gcd() const;
+
     public slots:
+        void reduce();
         void setNum(int num);
         void setDen(int den);
         void resetNum();
         void resetDen();
 };
+
+Q_DECLARE_METATYPE(QbFrac)
 
 #endif // QBFRAC_H

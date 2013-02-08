@@ -47,6 +47,23 @@ MultiSrcElement::~MultiSrcElement()
     this->setState(ElementStateNull);
 }
 
+QList<QbCaps> MultiSrcElement::oCaps()
+{
+    ElementState preState = this->state();
+
+    if (preState == ElementStateNull)
+        this->setState(ElementStateReady);
+
+    QList<QbCaps> caps;
+
+    foreach (AbstractStream *stream, this->m_streams)
+        caps << stream->oCaps();
+
+    this->setState(preState);
+
+    return caps;
+}
+
 QString MultiSrcElement::location()
 {
     return this->m_location;
@@ -316,6 +333,8 @@ bool MultiSrcElement::init()
             delete stream;
     }
 
+    av_init_packet(&this->m_packet);
+
     return true;
 }
 
@@ -413,6 +432,8 @@ void MultiSrcElement::setLocation(QString location)
 
     this->setState(ElementStateNull);
     this->m_location = location;
+
+//    this->m_oCaps;
 
     if (!this->location().isEmpty())
         this->setState(preState);

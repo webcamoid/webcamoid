@@ -26,6 +26,7 @@ VCapsConvertElement::VCapsConvertElement(): QbElement()
     av_register_all();
 
     this->m_scaleContext = NULL;
+
     this->m_iPictureAlloc = -1;
     this->m_oPictureAlloc = -1;
     this->m_oWidth = -1;
@@ -77,6 +78,25 @@ VCapsConvertElement::~VCapsConvertElement()
     this->cleanAll();
 }
 
+QList<QbCaps> VCapsConvertElement::oCaps()
+{
+    QList<QbCaps> caps;
+
+    if (!this->m_srcs.isEmpty())
+    {
+        foreach (QbElement *src, this->m_srcs)
+            foreach (QbCaps cap, src->oCaps())
+                if (cap.mimeType() == this->m_caps.mimeType())
+                {
+                    caps << cap.update(this->m_caps);
+
+                    return caps;
+                }
+    }
+
+    return caps;
+}
+
 QString VCapsConvertElement::caps()
 {
     return this->m_caps.toString();
@@ -106,6 +126,7 @@ void VCapsConvertElement::cleanAll()
 void VCapsConvertElement::setCaps(QString format)
 {
     this->m_caps = QbCaps(format);
+
     QList<QByteArray> props = this->m_caps.dynamicPropertyNames();
 
     if (props.contains("width"))
@@ -226,13 +247,15 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                      (uint8_t *) this->m_oFrame.data(),
                      this->m_oFrame.size());
 
-    QbPacket oPacket(QbCaps(this->m_caps.toString()),
+    QbPacket oPacket(this->m_caps,
                      this->m_oFrame.constData(),
                      this->m_oFrame.size());
 
     oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());
     oPacket.setDuration(packet.duration());
+    oPacket.setTimeBase(packet.timeBase());
+    oPacket.setIndex(packet.index());
 
     emit this->oStream(oPacket);
 }

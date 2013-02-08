@@ -45,11 +45,14 @@ class AbstractStream: public QObject
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
+        Q_INVOKABLE QbFrac timeBase() const;
         Q_INVOKABLE AVMediaType mediaType() const;
         Q_INVOKABLE AVFormatContext *formatContext() const;
+        Q_INVOKABLE AVStream *stream() const;
         Q_INVOKABLE AVCodecContext *codecContext() const;
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
+        Q_INVOKABLE virtual QbCaps oCaps();
         Q_INVOKABLE virtual QbPacket readPacket(AVPacket *packet);
 
         static AVMediaType type(AVFormatContext *formatContext, uint index);
@@ -64,8 +67,10 @@ class AbstractStream: public QObject
 
     private:
         uint m_index;
+        QbFrac m_timeBase;
         AVMediaType m_mediaType;
         AVFormatContext *m_formatContext;
+        AVStream *m_stream;
         AVCodecContext *m_codecContext;
         AVCodec *m_codec;
         AVDictionary *m_codecOptions;
