@@ -142,7 +142,11 @@ bool ACapsConvertElement::init()
                          this->m_iNSamples,
                          this->m_iSampleFormat,
                          0) < 0)
+    {
+        av_freep(this->m_iData);
+
         return false;
+    }
 
     // compute the number of converted samples: buffering is avoided
     // ensuring that the output buffer will contain at least all the
@@ -161,7 +165,12 @@ bool ACapsConvertElement::init()
     this->m_oData = (uint8_t **) av_malloc(sizeof(this->m_oData) * oNPlanes);
 
     if (!this->m_oData)
+    {
+        av_freep(this->m_iData[0]);
+        av_freep(this->m_iData);
+
         return false;
+    }
 
     int oLineSize;
 
@@ -171,7 +180,12 @@ bool ACapsConvertElement::init()
                      oNSamples,
                      this->m_oSampleFormat,
                      0) < 0)
+    {
+        av_freep(this->m_iData[0]);
+        av_freep(this->m_iData);
+
         return false;
+    }
 
     return true;
 }

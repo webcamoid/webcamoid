@@ -56,14 +56,14 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     this->resetStreams();
     this->resetWindowSize();
 
-    this->m_pipeline.setPluginsPaths(QStringList() << "share/Plugins/DesktopSrc"
-                                                   << "share/Plugins/EffectsBin"
-                                                   << "share/Plugins/EffectsPreviewBin"
-                                                   << "share/Plugins/RecordBin"
-                                                   << "share/Plugins/UriSrc"
-                                                   << "share/Plugins/WebcamSrc");
+    Qb::setPluginsPaths(QStringList() << "share/Plugins/DesktopSrc"
+                                      << "share/Plugins/EffectsBin"
+                                      << "share/Plugins/EffectsPreviewBin"
+                                      << "share/Plugins/RecordBin"
+                                      << "share/Plugins/UriSrc"
+                                      << "share/Plugins/WebcamSrc");
 
-    this->m_captureSrc = this->m_pipeline.add("UriSrc");
+    this->m_captureSrc = Qb::create("UriSrc");
     this->m_captureSrc->setProperty("uri", "file:///home/hipersayan_x/Videos/Hatsune Miku Popipo sub esp!! + mp3.MP4");
 //    this->m_captureSrc->setProperty("size", QSize(640, 480));
 /*
@@ -115,7 +115,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                          SLOT(onDirectoryChanged(const QString &)));
     }
 //    this->loadConfigs();
-    this->m_pipeline.setState(QbElement::ElementStatePlaying);
+    this->m_captureSrc->setState(QbElement::ElementStatePlaying);
 }
 
 MediaTools::~MediaTools()

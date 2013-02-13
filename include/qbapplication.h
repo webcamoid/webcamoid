@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBPLUGINLOADER_H
-#define QBPLUGINLOADER_H
+#ifndef QBAPPLICATION_H
+#define QBAPPLICATION_H
 
 #include "qbplugin.h"
 
-class QbPluginLoader: public QObject
+class QbApplication: public QObject
 {
     Q_OBJECT
 
@@ -33,12 +33,11 @@ class QbPluginLoader: public QObject
                                         RESET resetPluginsPaths)
 
     public:
-        explicit QbPluginLoader(QObject *parent=NULL);
-        ~QbPluginLoader();
+        explicit QbApplication(QObject *parent=NULL);
+        ~QbApplication();
 
         Q_INVOKABLE QStringList pluginsPaths();
-        Q_INVOKABLE static QbPluginLoader *current();
-        Q_INVOKABLE QbElement *newInstance(QString pluginId);
+        Q_INVOKABLE QbElementPtr newInstance(QString pluginId);
         Q_INVOKABLE void deleteInstance(QString pluginId);
 
     private:
@@ -57,4 +56,4 @@ class QbPluginLoader: public QObject
         void resetPluginsPaths();
 };
 
-#endif // QBPLUGINLOADER_H
+#endif // QBAPPLICATION_H

@@ -22,7 +22,7 @@
 #ifndef MULTISINKELEMENT_H
 #define MULTISINKELEMENT_H
 
-#include <QtGui>
+#include <QtCore>
 
 extern "C"
 {
@@ -31,7 +31,7 @@ extern "C"
     #include <libswscale/swscale.h>
 }
 
-#include "qbpipeline.h"
+#include "qb.h"
 #include "optionparser.h"
 
 class MultiSinkElement: public QbElement
@@ -64,7 +64,6 @@ class MultiSinkElement: public QbElement
         QSize m_frameSize;
 
         AVFrame m_vFrame;
-        AVFrame m_aFrame;
         double m_audioPts;
         AVPicture m_oPicture;
         AVFormatContext *m_outputContext;
@@ -72,9 +71,8 @@ class MultiSinkElement: public QbElement
         QVariantMap m_optionsMap;
         AVStream *m_audioStream;
         AVStream *m_videoStream;
-        QbPipeline m_pipeline;
-        QbElement *m_aCapsConvert;
-        QbElement *m_vFilter;
+        QbElementPtr m_aCapsConvert;
+        QbElementPtr m_vFilter;
         QbCaps m_curAInputCaps;
         QbCaps m_curVInputCaps;
         int m_pictureAlloc;
@@ -88,7 +86,6 @@ class MultiSinkElement: public QbElement
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
         QList<uint64_t> channelLayouts(AVCodec *audioCodec);
-        void writeFrame(AVPacket *packet, AVStream *stream);
         AVStream *addStream(AVCodec **codec, QString codecName="", AVMediaType mediaType=AVMEDIA_TYPE_UNKNOWN);
         void adjustToInputFrameSize(QSize frameSize);
         void cleanAll();

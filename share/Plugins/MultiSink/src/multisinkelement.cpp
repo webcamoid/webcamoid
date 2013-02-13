@@ -29,15 +29,15 @@ MultiSinkElement::MultiSinkElement(): QbElement()
 
     this->m_pictureAlloc = -1;
 
-    this->m_vFilter = this->m_pipeline.add("VFilter");
-    this->m_aCapsConvert = this->m_pipeline.add("ACapsConvert");
+    this->m_vFilter = Qb::create("VFilter");
+    this->m_aCapsConvert = Qb::create("ACapsConvert");
 
-    QObject::connect(this->m_vFilter,
+    QObject::connect(this->m_vFilter.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processVFrame(const QbPacket &)));
 
-    QObject::connect(this->m_aCapsConvert,
+    QObject::connect(this->m_aCapsConvert.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processAFrame(const QbPacket &)));
@@ -197,9 +197,6 @@ bool MultiSinkElement::init()
     avcodec_get_frame_defaults(&this->m_vFrame);
     this->m_vFrame.pts = 0;
 
-    avcodec_get_frame_defaults(&this->m_aFrame);
-    this->m_aFrame.pts = 0;
-
     return true;
 }
 
@@ -284,37 +281,6 @@ QList<uint64_t> MultiSinkElement::channelLayouts(AVCodec *audioCodec)
         channelLayouts << *channelLayout;
 
     return channelLayouts;
-}
-
-void MultiSinkElement::writeFrame(AVPacket *packet, AVStream *stream)
-{
-    AVCodecContext *codecContext = stream->codec;
-/*
-    if ((codecContext->codec_type == AVMEDIA_TYPE_VIDEO && video_sync_method == 0xff) ||
-        (codecContext->codec_type == AVMEDIA_TYPE_AUDIO && audio_sync_method < 0))
-        packet->pts = packet->dts = AV_NOPTS_VALUE;
-*/
-    if ((codecContext->codec_type == AVMEDIA_TYPE_AUDIO ||
-         codecContext->codec_type == AVMEDIA_TYPE_VIDEO) &&
-        packet->dts != AV_NOPTS_VALUE)
-    {
-        int64_t max = stream->cur_dts +
-                      !(this->m_outputContext->oformat->flags &
-                        AVFMT_TS_NONSTRICT);
-
-        if (stream->cur_dts &&
-            stream->cur_dts != AV_NOPTS_VALUE &&
-            max > packet->dts)
-        {
-            if(packet->pts >= packet->dts)
-                packet->pts = FFMAX(packet->pts, max);
-
-            packet->dts = max;
-        }
-    }
-
-    packet->stream_index = stream->index;
-    av_interleaved_write_frame(this->m_outputContext, packet);
 }
 
 AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMediaType mediaType)
@@ -586,6 +552,9 @@ void MultiSinkElement::iStream(const QbPacket &packet)
     }
     else if (mimeType == "video/x-raw")
     {
+        if (!this->m_videoStream)
+            return;
+
         if (packet.caps() != this->m_curVInputCaps)
         {
             QSize size(packet.caps().property("width").toInt(),
@@ -607,7 +576,8 @@ void MultiSinkElement::iStream(const QbPacket &packet)
 void MultiSinkElement::setState(ElementState state)
 {
     QbElement::setState(state);
-    this->m_pipeline.setState(this->m_state);
+    this->m_vFilter->setState(this->m_state);
+    this->m_aCapsConvert->setState(this->m_state);
 
     if (this->m_state == ElementStateNull)
         this->uninit();
@@ -709,21 +679,62 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
 {
     AVCodecContext *codecContext = this->m_audioStream->codec;
 
-    this->m_aFrame.nb_samples = codecContext->frame_size;
-    uint8_t *data = (uint8_t *) packet.data();
-    int bytesPerSample = av_get_bytes_per_sample(codecContext->sample_fmt);
-    int sampleDiff =  bytesPerSample * codecContext->frame_size * codecContext->channels;
+    AVRational timeBase = {packet.timeBase().num(),
+                           packet.timeBase().den()};
 
-    for (int samples = packet.caps().property("samples").toInt();
-         samples >= codecContext->frame_size;
-         samples -= codecContext->frame_size)
-    {
-        avcodec_fill_audio_frame(&this->m_aFrame,
+    int64_t pts = av_rescale_q(packet.pts(),
+                               timeBase,
+                               this->m_audioStream->time_base);
+
+    int64_t ptsDiff = codecContext->frame_size /
+                      (packet.caps().property("rate").toFloat() *
+                       packet.timeBase().value());
+
+    int samples = packet.caps().property("samples").toInt();
+
+    static AVFrame iFrame;
+    avcodec_get_frame_defaults(&iFrame);
+
+    iFrame.nb_samples = samples;
+
+    if (avcodec_fill_audio_frame(&iFrame,
                                  codecContext->channels,
                                  codecContext->sample_fmt,
-                                 data,
-                                 sampleDiff,
-                                 1);
+                                 (uint8_t *) packet.data(),
+                                 packet.dataSize(),
+                                 1) < 0)
+        return;
+
+    for (int offset = 0; offset < samples; offset += codecContext->frame_size)
+    {
+        QByteArray oBuffer(codecContext->frame_size *
+                           av_get_bytes_per_sample(codecContext->sample_fmt) *
+                           codecContext->channels,
+                           0);
+
+        static AVFrame oFrame;
+        avcodec_get_frame_defaults(&oFrame);
+
+        oFrame.nb_samples = codecContext->frame_size;
+
+        if (avcodec_fill_audio_frame(&oFrame,
+                                     codecContext->channels,
+                                     codecContext->sample_fmt,
+                                     (const uint8_t *) oBuffer.constData(),
+                                     codecContext->frame_size *
+                                     av_get_bytes_per_sample(codecContext->sample_fmt) *
+                                     codecContext->channels,
+                                     1) < 0)
+            continue;
+
+        if (av_samples_copy(oFrame.data,
+                            iFrame.data,
+                            0,
+                            offset,
+                            codecContext->frame_size,
+                            codecContext->channels,
+                            codecContext->sample_fmt) < 0)
+            continue;
 
         AVPacket pkt;
         av_init_packet(&pkt);
@@ -732,23 +743,17 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         pkt.data = 0;
         pkt.size = 0;
 
-        AVRational timeBase = {packet.timeBase().num(),
-                               packet.timeBase().den()};
-
-        this->m_aFrame.pts = av_rescale_q(packet.pts(),
-                                          timeBase,
-                                          this->m_audioStream->time_base);
+        oFrame.pts = pts;
+        pts += ptsDiff;
 
         int got_packet;
 
-        if (avcodec_encode_audio2(codecContext, &pkt, &this->m_aFrame, &got_packet) < 0 ||
+        if (avcodec_encode_audio2(codecContext, &pkt, &oFrame, &got_packet) < 0 ||
             !got_packet)
             continue;
 
         pkt.stream_index = this->m_audioStream->index;
 
         av_interleaved_write_frame(this->m_outputContext, &pkt);
-
-        data += sampleDiff;
     }
 }

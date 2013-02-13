@@ -23,6 +23,8 @@
 
 QbElement::QbElement(QObject *parent): QObject(parent)
 {
+    this->m_application = NULL;
+
     this->resetState();
     this->resetSrcs();
     this->resetSinks();
@@ -33,6 +35,9 @@ QbElement::~QbElement()
     this->resetState();
     this->resetSrcs();
     this->resetSinks();
+
+    if (this->m_application)
+        QMetaObject::invokeMethod(this->m_application, "deleteInstance", Q_ARG(QString, this->m_pluginId));
 }
 
 QbElement::ElementState QbElement::state()
@@ -68,12 +73,12 @@ bool QbElement::link(QObject *dstElement)
     return true;
 }
 
-bool QbElement::link(QbElement *dstElement)
+bool QbElement::link(QbElementPtr dstElement)
 {
-    if (!this->link(static_cast<QObject *>(dstElement)))
+    if (!this->link(static_cast<QObject *>(dstElement.data())))
         return false;
 
-    this->setSinks(this->sinks() << dstElement);
+    this->setSinks(this->sinks() << dstElement.data());
     dstElement->setSrcs(dstElement->srcs() << this);
 
     return true;
@@ -93,13 +98,13 @@ bool QbElement::unlink(QObject *dstElement)
     return true;
 }
 
-bool QbElement::unlink(QbElement *dstElement)
+bool QbElement::unlink(QbElementPtr dstElement)
 {
-    if (!this->unlink(static_cast<QObject *>(dstElement)))
+    if (!this->unlink(static_cast<QObject *>(dstElement.data())))
         return false;
 
     QList<QbElement *> sinks = this->m_sinks;
-    sinks.removeOne(dstElement);
+    sinks.removeOne(dstElement.data());
     this->setSinks(sinks);
 
     QList<QbElement *> srcs = dstElement->m_srcs;

@@ -18,17 +18,37 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS += \
-    ACapsConvert \
-    EffectsBin \
-    EffectsPreviewBin \
-    Frei0r \
-    MultiSink \
-    MultiSrc \
-    QImageConvert \
-    VCapsConvert \
-    VFilter
+HEADERS += \
+    include/frei0r.h \
+    include/frei0relement.h \
+    include/frei0rdefs.h
+
+INCLUDEPATH += \
+    include \
+    ../../../include
+
+QT += core gui
+
+SOURCES += \
+    src/frei0r.cpp \
+    src/frei0relement.cpp
+
+TEMPLATE = lib
+
+unix {
+    INSTALLS += target
+
+    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
+}

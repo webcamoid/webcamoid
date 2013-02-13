@@ -19,15 +19,13 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "qbpluginloader.h"
+#include "qbapplication.h"
 
-static QbPluginLoader pluginLoader;
-
-QbPluginLoader::QbPluginLoader(QObject *parent): QObject(parent)
+QbApplication::QbApplication(QObject *parent): QObject(parent)
 {
 }
 
-QbPluginLoader::~QbPluginLoader()
+QbApplication::~QbApplication()
 {
     QStringList plugins = this->m_plugins.keys();
 
@@ -35,22 +33,20 @@ QbPluginLoader::~QbPluginLoader()
         this->unload(pluginId);
 }
 
-QStringList QbPluginLoader::pluginsPaths()
+QStringList QbApplication::pluginsPaths()
 {
     return this->m_pluginsPaths;
 }
 
-QbPluginLoader *QbPluginLoader::QbPluginLoader::current()
-{
-    return &pluginLoader;
-}
-
-QbElement *QbPluginLoader::newInstance(QString pluginId)
+QSharedPointer<QbElement> QbApplication::newInstance(QString pluginId)
 {
     if (!this->load(pluginId))
-        return NULL;
+        return QbElementPtr();
 
-    QbElement *element = this->m_plugins[pluginId]->newElement();
+    QbElementPtr element(this->m_plugins[pluginId]->newElement());
+
+    element->m_application = this;
+    element->m_pluginId = pluginId;
 
     if (this->m_instances.contains(pluginId))
         this->m_instances[pluginId]++;
@@ -60,7 +56,7 @@ QbElement *QbPluginLoader::newInstance(QString pluginId)
     return element;
 }
 
-void QbPluginLoader::deleteInstance(QString pluginId)
+void QbApplication::deleteInstance(QString pluginId)
 {
     if (!this->isLoaded(pluginId))
         return;
@@ -75,12 +71,12 @@ void QbPluginLoader::deleteInstance(QString pluginId)
     }
 }
 
-bool QbPluginLoader::isLoaded(QString pluginId)
+bool QbApplication::isLoaded(QString pluginId)
 {
     return this->m_plugins.contains(pluginId);
 }
 
-bool QbPluginLoader::load(QString pluginId)
+bool QbApplication::load(QString pluginId)
 {
     if (this->isLoaded(pluginId))
         return true;
@@ -89,7 +85,9 @@ bool QbPluginLoader::load(QString pluginId)
 
     foreach (QString path, this->m_pluginsPaths)
     {
-        QString filePath = QString("%1/lib%2.so").arg(path).arg(pluginId);
+        QString filePath = QString("%1%2lib%3.so").arg(path)
+                                                  .arg(QDir::separator())
+                                                  .arg(pluginId);
 
         if (QFileInfo(filePath).exists())
         {
@@ -122,7 +120,7 @@ bool QbPluginLoader::load(QString pluginId)
     return true;
 }
 
-bool QbPluginLoader::unload(QString pluginId)
+bool QbApplication::unload(QString pluginId)
 {
     if(!this->isLoaded(pluginId))
          return true;
@@ -135,12 +133,12 @@ bool QbPluginLoader::unload(QString pluginId)
     return true;
 }
 
-void QbPluginLoader::setPluginsPaths(QStringList pluginsPaths)
+void QbApplication::setPluginsPaths(QStringList pluginsPaths)
 {
     this->m_pluginsPaths = pluginsPaths;
 }
 
-void QbPluginLoader::resetPluginsPaths()
+void QbApplication::resetPluginsPaths()
 {
     this->setPluginsPaths(QStringList());
 }

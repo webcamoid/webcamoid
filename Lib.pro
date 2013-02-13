@@ -66,11 +66,11 @@ HEADERS = \
     include/webcamconfig.h \
     include/qbelement.h \
     include/qbplugin.h \
-    include/qbpipeline.h \
     include/qbpacket.h \
     include/qbcaps.h \
-    include/qbpluginloader.h \
-    include/qbfrac.h
+    include/qbfrac.h \
+    include/qb.h \
+    include/qbapplication.h
 
 INCLUDEPATH += \
     include \
@@ -93,12 +93,12 @@ SOURCES = \
     src/streamsconfig.cpp \
     src/videorecordconfig.cpp \
     src/webcamconfig.cpp \
-    src/qbpipeline.cpp \
     src/qbpacket.cpp \
     src/qbcaps.cpp \
     src/qbelement.cpp \
-    src/qbpluginloader.cpp \
-    src/qbfrac.cpp
+    src/qbfrac.cpp \
+    src/qb.cpp \
+    src/qbapplication.cpp
 
 TARGET = $${COMMONS_APPNAME}
 

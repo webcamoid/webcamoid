@@ -19,41 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QIMAGECONVERTELEMENT_H
-#define QIMAGECONVERTELEMENT_H
+#ifndef FREI0R_H
+#define FREI0R_H
 
-#include <QtGui>
+#include "qbplugin.h"
 
-#include "qb.h"
-
-class QImageConvertElement: public QbElement
+class Frei0r: public QObject, public QbPlugin
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString format READ format WRITE setFormat RESET resetFormat)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        explicit QImageConvertElement();
-
-        Q_INVOKABLE QString format();
-
-    private:
-        QString m_format;
-        QImage::Format m_qFormat;
-
-        QImage m_oFrame;
-        QbElementPtr m_capsConvert;
-
-        QMap<QString, QString> m_imageToFormat;
-        QMap<QString, QImage::Format> m_imageToQt;
-
-    public slots:
-        void setFormat(QString format);
-        void resetFormat();
-        void processFrame(const QbPacket &packet);
-
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        QbElement *newElement();
 };
 
-#endif // QIMAGECONVERTELEMENT_H
+#endif // FREI0R_H

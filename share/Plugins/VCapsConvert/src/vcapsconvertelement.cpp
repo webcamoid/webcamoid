@@ -109,13 +109,13 @@ void VCapsConvertElement::cleanAll()
         avpicture_free(&this->m_oPicture);
         this->m_oPictureAlloc = -1;
     }
-/*
+
     if (this->m_iPictureAlloc >= 0)
     {
-        avpicture_free(&this->m_iPicture);
+//        avpicture_free(&this->m_iPicture);
         this->m_iPictureAlloc = -1;
     }
-*/
+
     if (this->m_scaleContext)
     {
         sws_freeContext(this->m_scaleContext);
@@ -258,4 +258,12 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     oPacket.setIndex(packet.index());
 
     emit this->oStream(oPacket);
+}
+
+void VCapsConvertElement::setState(ElementState state)
+{
+    QbElement::setState(state);
+
+    if (this->m_state == ElementStateNull)
+        this->cleanAll();
 }

@@ -19,41 +19,31 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QIMAGECONVERTELEMENT_H
-#define QIMAGECONVERTELEMENT_H
-
-#include <QtGui>
-
 #include "qb.h"
+#include "qbapplication.h"
 
-class QImageConvertElement: public QbElement
+static QbApplication application;
+
+QStringList Qb::pluginsPaths()
 {
-    Q_OBJECT
+    return application.pluginsPaths();
+}
 
-    Q_PROPERTY(QString format READ format WRITE setFormat RESET resetFormat)
+QbElementPtr Qb::create(QString pluginId, QString elementName)
+{
+    QbElementPtr element = application.newInstance(pluginId);
 
-    public:
-        explicit QImageConvertElement();
+    element->setObjectName(elementName);
 
-        Q_INVOKABLE QString format();
+    return element;
+}
 
-    private:
-        QString m_format;
-        QImage::Format m_qFormat;
+void Qb::setPluginsPaths(QStringList pluginsPaths)
+{
+    application.setPluginsPaths(pluginsPaths);
+}
 
-        QImage m_oFrame;
-        QbElementPtr m_capsConvert;
-
-        QMap<QString, QString> m_imageToFormat;
-        QMap<QString, QImage::Format> m_imageToQt;
-
-    public slots:
-        void setFormat(QString format);
-        void resetFormat();
-        void processFrame(const QbPacket &packet);
-
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
-};
-
-#endif // QIMAGECONVERTELEMENT_H
+void Qb::resetPluginsPaths()
+{
+    application.resetPluginsPaths();
+}

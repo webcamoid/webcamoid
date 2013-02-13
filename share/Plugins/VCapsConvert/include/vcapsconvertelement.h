@@ -66,6 +66,7 @@ class VCapsConvertElement: public QbElement
         void resetCaps();
 
         void iStream(const QbPacket &packet);
+        void setState(ElementState state);
 };
 
 #endif // VCAPSCONVERTELEMENT_H

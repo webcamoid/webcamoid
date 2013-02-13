@@ -35,9 +35,9 @@ QImageConvertElement::QImageConvertElement(): QbElement()
     this->m_imageToQt["RGB555"] = QImage::Format_RGB555;
     this->m_imageToQt["RGB888"] = QImage::Format_RGB888;
 
-    this->m_capsConvert = this->m_pipeline.add("VCapsConvert");
+    this->m_capsConvert = Qb::create("VCapsConvert");
 
-    QObject::connect(this->m_capsConvert,
+    QObject::connect(this->m_capsConvert.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
@@ -105,5 +105,5 @@ void QImageConvertElement::iStream(const QbPacket &packet)
 void QImageConvertElement::setState(ElementState state)
 {
     QbElement::setState(state);
-    this->m_pipeline.setState(state);
+    this->m_capsConvert->setState(state);
 }

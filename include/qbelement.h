@@ -24,6 +24,11 @@
 
 #include "qbpacket.h"
 
+class QbApplication;
+class QbElement;
+
+typedef QSharedPointer<QbElement> QbElementPtr;
+
 /// Plugin template.
 class QbElement: public QObject
 {
@@ -51,15 +56,19 @@ class QbElement: public QObject
         Q_INVOKABLE virtual QList<QbElement *> srcs();
         Q_INVOKABLE virtual QList<QbElement *> sinks();
         Q_INVOKABLE virtual bool link(QObject *dstElement);
-        Q_INVOKABLE virtual bool link(QbElement *dstElement);
+        Q_INVOKABLE virtual bool link(QbElementPtr dstElement);
         Q_INVOKABLE virtual bool unlink(QObject *dstElement);
-        Q_INVOKABLE virtual bool unlink(QbElement *dstElement);
+        Q_INVOKABLE virtual bool unlink(QbElementPtr dstElement);
 
     protected:
         ElementState m_state;
         QList<QbCaps> m_oCaps;
         QList<QbElement *> m_srcs;
         QList<QbElement *> m_sinks;
+
+    private:
+        QString m_pluginId;
+        QObject *m_application;
 
     signals:
         void oStream(const QbPacket &packet);
@@ -73,7 +82,7 @@ class QbElement: public QObject
         virtual void resetSrcs();
         virtual void resetSinks();
 
-    friend class QbPipeline;
+    friend class QbApplication;
 };
 
 #endif // QBELEMENT_H
