@@ -32,74 +32,20 @@ VCapsConvertElement::VCapsConvertElement(): QbElement()
     this->m_oWidth = -1;
     this->m_oHeight = -1;
     this->resetCaps();
-
-    this->m_formatToFF["I420"] = PIX_FMT_YUV420P;
-    this->m_formatToFF["YUY2"] = PIX_FMT_YUV422P;
-    this->m_formatToFF["UYVY"] = PIX_FMT_UYVY422;
-    this->m_formatToFF["AYUV"] = PIX_FMT_YUVA420P;
-    this->m_formatToFF["RGBx"] = PIX_FMT_RGB0;
-    this->m_formatToFF["BGRx"] = PIX_FMT_BGR0;
-    this->m_formatToFF["xRGB"] = PIX_FMT_0RGB;
-    this->m_formatToFF["xBGR"] = PIX_FMT_0BGR;
-    this->m_formatToFF["RGBA"] = PIX_FMT_RGBA;
-    this->m_formatToFF["BGRA"] = PIX_FMT_BGRA;
-    this->m_formatToFF["ARGB"] = PIX_FMT_ARGB;
-    this->m_formatToFF["ABGR"] = PIX_FMT_ABGR;
-    this->m_formatToFF["RGB"] = PIX_FMT_RGB24;
-    this->m_formatToFF["BGR"] = PIX_FMT_BGR24;
-    this->m_formatToFF["Y41B"] = PIX_FMT_YUV411P;
-    this->m_formatToFF["Y42B"] = PIX_FMT_YUV422P;
-    this->m_formatToFF["YVYU"] = PIX_FMT_UYVY422;
-    this->m_formatToFF["Y444"] = PIX_FMT_YUV444P;
-    this->m_formatToFF["v210"] = PIX_FMT_YUV422P10LE;
-    this->m_formatToFF["v216"] = PIX_FMT_YUV422P16LE;
-    this->m_formatToFF["NV12"] = PIX_FMT_NV12;
-    this->m_formatToFF["NV21"] = PIX_FMT_NV21;
-    this->m_formatToFF["GRAY8"] = PIX_FMT_GRAY8;
-    this->m_formatToFF["GRAY16_BE"] = PIX_FMT_GRAY16BE;
-    this->m_formatToFF["GRAY16_LE"] = PIX_FMT_GRAY16LE;
-    this->m_formatToFF["v308"] = PIX_FMT_YUV444P;
-    this->m_formatToFF["RGB16"] = PIX_FMT_RGB565LE;
-    this->m_formatToFF["BGR16"] = PIX_FMT_BGR565LE;
-    this->m_formatToFF["RGB15"] = PIX_FMT_RGB555LE;
-    this->m_formatToFF["BGR15"] = PIX_FMT_BGR555LE;
-    this->m_formatToFF["UYVP"] = PIX_FMT_YUV422P12LE;
-    this->m_formatToFF["A420"] = PIX_FMT_YUVA420P;
-    this->m_formatToFF["RGB8P"] = PIX_FMT_RGB8;
-    this->m_formatToFF["IYU1"] = PIX_FMT_YUV411P;
-    this->m_formatToFF["I420_10LE"] = PIX_FMT_YUV420P10LE;
-    this->m_formatToFF["I420_10BE"] = PIX_FMT_YUV420P10BE;
-    this->m_formatToFF["I422_10LE"] = PIX_FMT_YUV422P10LE;
-    this->m_formatToFF["I422_10BE"] = PIX_FMT_YUV422P10BE;
 }
 
 VCapsConvertElement::~VCapsConvertElement()
 {
-    this->cleanAll();
-}
-
-QList<QbCaps> VCapsConvertElement::oCaps()
-{
-    QList<QbCaps> caps;
-
-    if (!this->m_srcs.isEmpty())
-    {
-        foreach (QbElement *src, this->m_srcs)
-            foreach (QbCaps cap, src->oCaps())
-                if (cap.mimeType() == this->m_caps.mimeType())
-                {
-                    caps << cap.update(this->m_caps);
-
-                    return caps;
-                }
-    }
-
-    return caps;
 }
 
 QString VCapsConvertElement::caps()
 {
     return this->m_caps.toString();
+}
+
+void VCapsConvertElement::uninit()
+{
+    this->cleanAll();
 }
 
 void VCapsConvertElement::cleanAll()
@@ -139,12 +85,8 @@ void VCapsConvertElement::setCaps(QString format)
     else
         this->m_oHeight = -1;
 
-    QString mimeType = this->m_caps.property("format").toString();
-
-    if (this->m_formatToFF.contains(mimeType))
-        this->m_oFormat = this->m_formatToFF[mimeType];
-    else
-        this->m_oFormat = PIX_FMT_NONE;
+    QString oFormat = this->m_caps.property("format").toString();
+    this->m_oFormat = av_get_pix_fmt(oFormat.toUtf8().constData());
 }
 
 void VCapsConvertElement::resetCaps()
@@ -168,14 +110,9 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
 
     int iWidth = packet.caps().property("width").toInt();
     int iHeight = packet.caps().property("height").toInt();
-    QString mimeType = packet.caps().property("format").toString();
+    QString format = packet.caps().property("format").toString();
 
-    PixelFormat iFormat;
-
-    if (this->m_formatToFF.contains(mimeType))
-        iFormat = this->m_formatToFF[mimeType];
-    else
-        return;
+    PixelFormat iFormat = av_get_pix_fmt(format.toUtf8().constData());
 
     if (packet.caps() != this->m_curInputCaps)
     {
@@ -258,12 +195,4 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     oPacket.setIndex(packet.index());
 
     emit this->oStream(oPacket);
-}
-
-void VCapsConvertElement::setState(ElementState state)
-{
-    QbElement::setState(state);
-
-    if (this->m_state == ElementStateNull)
-        this->cleanAll();
 }

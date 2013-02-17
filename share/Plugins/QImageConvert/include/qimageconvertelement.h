@@ -50,10 +50,12 @@ class QImageConvertElement: public QbElement
     public slots:
         void setFormat(QString format);
         void resetFormat();
-        void processFrame(const QbPacket &packet);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
+
+    private slots:
+        void processFrame(const QbPacket &packet);
 };
 
 #endif // QIMAGECONVERTELEMENT_H

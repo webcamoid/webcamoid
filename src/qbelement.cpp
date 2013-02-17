@@ -24,8 +24,8 @@
 QbElement::QbElement(QObject *parent): QObject(parent)
 {
     this->m_application = NULL;
+    this->m_state = ElementStateNull;
 
-    this->resetState();
     this->resetSrcs();
     this->resetSinks();
 }
@@ -43,11 +43,6 @@ QbElement::~QbElement()
 QbElement::ElementState QbElement::state()
 {
     return this->m_state;
-}
-
-QList<QbCaps> QbElement::oCaps()
-{
-    return this->m_oCaps;
 }
 
 QList<QbElement *> QbElement::srcs()
@@ -114,6 +109,15 @@ bool QbElement::unlink(QbElementPtr dstElement)
     return true;
 }
 
+bool QbElement::init()
+{
+    return true;
+}
+
+void QbElement::uninit()
+{
+}
+
 void QbElement::iStream(const QbPacket &packet)
 {
     Q_UNUSED(packet)
@@ -121,7 +125,96 @@ void QbElement::iStream(const QbPacket &packet)
 
 void QbElement::setState(ElementState state)
 {
-    this->m_state = state;
+    ElementState preState = this->state();
+
+    switch (state)
+    {
+        case ElementStateNull:
+            switch (preState)
+            {
+                case ElementStatePaused:
+                case ElementStatePlaying:
+                    this->setState(ElementStateReady);
+
+                    if (this->state() != ElementStateReady)
+                        return;
+
+                case ElementStateReady:
+                    this->uninit();
+                    this->m_state = state;
+                break;
+
+                default:
+                break;
+            }
+        break;
+
+        case ElementStateReady:
+            switch (preState)
+            {
+                case ElementStateNull:
+                    if (this->init())
+                        this->m_state = state;
+                    else
+                        this->m_state = ElementStateNull;
+                break;
+
+                case ElementStatePlaying:
+                    this->setState(ElementStatePaused);
+
+                    if (this->state() != ElementStatePaused)
+                        return;
+
+                case ElementStatePaused:
+                    this->m_state = state;
+                break;
+
+                default:
+                break;
+            }
+        break;
+
+        case ElementStatePaused:
+            switch (preState)
+            {
+                case ElementStateNull:
+                    this->setState(ElementStateReady);
+
+                    if (this->state() != ElementStateReady)
+                        return;
+
+                case ElementStateReady:
+                case ElementStatePlaying:
+                    this->m_state = state;
+                break;
+
+                default:
+                break;
+            }
+        break;
+
+        case ElementStatePlaying:
+            switch (preState)
+            {
+                case ElementStateNull:
+                case ElementStateReady:
+                    this->setState(ElementStatePaused);
+
+                    if (this->state() != ElementStatePaused)
+                        return;
+
+                case ElementStatePaused:
+                    this->m_state = state;
+                break;
+
+                default:
+                break;
+            }
+        break;
+
+        default:
+        break;
+    }
 }
 
 void QbElement::setSrcs(QList<QbElement *> srcs)

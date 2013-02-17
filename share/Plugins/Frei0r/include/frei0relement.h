@@ -22,7 +22,7 @@
 #ifndef FREI0RELEMENT_H
 #define FREI0RELEMENT_H
 
-#include "qbelement.h"
+#include "qb.h"
 #include "frei0rdefs.h"
 
 class Frei0rElement: public QbElement
@@ -39,6 +39,8 @@ class Frei0rElement: public QbElement
 
     Q_PROPERTY(QVariantMap info READ info)
 
+    Q_PROPERTY(QStringList plugins READ plugins)
+
     Q_PROPERTY(QStringList frei0rPaths READ frei0rPaths
                                        WRITE setFrei0rPaths
                                        RESET resetFrei0rPaths)
@@ -48,21 +50,28 @@ class Frei0rElement: public QbElement
         ~Frei0rElement();
 
         Q_INVOKABLE QString pluginName() const;
-        Q_INVOKABLE QVariantMap params() const;
+        Q_INVOKABLE QVariantMap params();
         Q_INVOKABLE QVariantMap info();
+        Q_INVOKABLE QStringList plugins() const;
         Q_INVOKABLE QStringList frei0rPaths() const;
+
+    protected:
+        bool init();
+        void uninit();
+        bool initBuffers();
+        void uninitBuffers();
 
     private:
         QString m_pluginName;
         QVariantMap m_params;
         QVariantMap m_info;
         QStringList m_frei0rPaths;
-        QSize m_frameSize;
-        QbCaps m_curAInputCaps;
+        QByteArray m_oBuffer;
+        QbCaps m_curInputCaps;
+        QbElementPtr m_capsConvert;
         QLibrary m_library;
+        f0r_instance_t m_f0rInstance;
 
-        bool init();
-        void uninit();
         void cleanAll();
 
         typedef int (*f0r_init_t)();
@@ -118,6 +127,9 @@ class Frei0rElement: public QbElement
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
+
+    private slots:
+        void processFrame(const QbPacket &packet);
 };
 
 #endif // FREI0RELEMENT_H

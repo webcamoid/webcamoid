@@ -193,11 +193,6 @@ AVDictionary *AbstractStream::codecOptions() const
     return this->m_codecOptions;
 }
 
-QbCaps AbstractStream::oCaps()
-{
-    return QbCaps();
-}
-
 QbPacket AbstractStream::readPacket(AVPacket *packet)
 {
     Q_UNUSED(packet)

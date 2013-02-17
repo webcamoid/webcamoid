@@ -546,7 +546,7 @@ void f0r_get_param_value(f0r_instance_t instance,
  * inframe and outframe must be aligned to an integer multiple of 16 bytes
  * in memory.
  *
- * This funcition should not alter the parameters of the effect in any
+ * This function should not alter the parameters of the effect in any
  * way (\ref f0r_get_param_value should return the same values after a call
  * to \ref f0r_update as before the call).
  *

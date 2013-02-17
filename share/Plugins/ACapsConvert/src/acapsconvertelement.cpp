@@ -28,12 +28,6 @@ ACapsConvertElement::ACapsConvertElement(): QbElement()
     this->m_resampleContext = NULL;
 
     this->resetCaps();
-
-    this->m_formatToFF["U8"] = AV_SAMPLE_FMT_U8;
-    this->m_formatToFF["S16LE"] = AV_SAMPLE_FMT_S16;
-    this->m_formatToFF["S32LE"] = AV_SAMPLE_FMT_S32;
-    this->m_formatToFF["F32LE"] = AV_SAMPLE_FMT_FLT;
-    this->m_formatToFF["F64LE"] = AV_SAMPLE_FMT_DBL;
 }
 
 ACapsConvertElement::~ACapsConvertElement()
@@ -41,31 +35,12 @@ ACapsConvertElement::~ACapsConvertElement()
     this->cleanAll();
 }
 
-QList<QbCaps> ACapsConvertElement::oCaps()
-{
-    QList<QbCaps> caps;
-
-    if (!this->m_srcs.isEmpty())
-    {
-        foreach (QbElement *src, this->m_srcs)
-            foreach (QbCaps cap, src->oCaps())
-                if (cap.mimeType() == this->m_caps.mimeType())
-                {
-                    caps << cap.update(this->m_caps);
-
-                    return caps;
-                }
-    }
-
-    return caps;
-}
-
 QString ACapsConvertElement::caps()
 {
     return this->m_caps.toString();
 }
 
-bool ACapsConvertElement::init()
+bool ACapsConvertElement::initBuffers()
 {
     // create resampler context
     this->m_resampleContext = swr_alloc();
@@ -74,7 +49,7 @@ bool ACapsConvertElement::init()
         return false;
 
     // Input Format
-    this->m_iSampleFormat = this->m_formatToFF[this->m_curInputCaps.property("format").toString()];
+    this->m_iSampleFormat = av_get_sample_fmt(this->m_curInputCaps.property("format").toString().toUtf8().constData());
     this->m_iNChannels = this->m_curInputCaps.property("channels").toInt();
     int64_t iChannelLayout = av_get_channel_layout(this->m_curInputCaps.property("layout").toString().toUtf8().constData());
     this->m_iSampleRate = this->m_curInputCaps.property("rate").toInt();
@@ -87,7 +62,7 @@ bool ACapsConvertElement::init()
     if (this->m_curInputCaps.mimeType() == this->m_caps.mimeType())
     {
         if (this->m_caps.dynamicPropertyNames().contains("format"))
-            this->m_oSampleFormat = this->m_formatToFF[this->m_caps.property("format").toString()];
+            this->m_oSampleFormat = av_get_sample_fmt(this->m_caps.property("format").toString().toUtf8().constData());
         else
             this->m_oSampleFormat = this->m_iSampleFormat;
 
@@ -190,7 +165,7 @@ bool ACapsConvertElement::init()
     return true;
 }
 
-void ACapsConvertElement::uninit()
+void ACapsConvertElement::uninitBuffers()
 {
     if (this->m_iData)
     {
@@ -236,9 +211,9 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
 
     if (packet.caps() != this->m_curInputCaps)
     {
-        this->uninit();
+        this->uninitBuffers();
         this->m_curInputCaps = packet.caps();
-        this->init();
+        this->initBuffers();
     }
 
     int iLineSize;
@@ -295,7 +270,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
 
     this->m_oFrame = QByteArray((const char *) this->m_oData[0], oBufferSize);
 
-    QString format = this->m_formatToFF.key(this->m_oSampleFormat);
+    const char *format = av_get_sample_fmt_name(this->m_oSampleFormat);
 
     char layout[256];
 

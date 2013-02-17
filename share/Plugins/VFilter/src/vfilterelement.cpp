@@ -35,70 +35,11 @@ VFilterElement::VFilterElement(): QbElement()
     this->resetFormat();
     this->resetTimeBase();
     this->resetPixelAspect();
-
-    this->m_formatToFF["I420"] = PIX_FMT_YUV420P;
-    this->m_formatToFF["YUY2"] = PIX_FMT_YUV422P;
-    this->m_formatToFF["UYVY"] = PIX_FMT_UYVY422;
-    this->m_formatToFF["AYUV"] = PIX_FMT_YUVA420P;
-    this->m_formatToFF["RGBx"] = PIX_FMT_RGB0;
-    this->m_formatToFF["BGRx"] = PIX_FMT_BGR0;
-    this->m_formatToFF["xRGB"] = PIX_FMT_0RGB;
-    this->m_formatToFF["xBGR"] = PIX_FMT_0BGR;
-    this->m_formatToFF["RGBA"] = PIX_FMT_RGBA;
-    this->m_formatToFF["BGRA"] = PIX_FMT_BGRA;
-    this->m_formatToFF["ARGB"] = PIX_FMT_ARGB;
-    this->m_formatToFF["ABGR"] = PIX_FMT_ABGR;
-    this->m_formatToFF["RGB"] = PIX_FMT_RGB24;
-    this->m_formatToFF["BGR"] = PIX_FMT_BGR24;
-    this->m_formatToFF["Y41B"] = PIX_FMT_YUV411P;
-    this->m_formatToFF["Y42B"] = PIX_FMT_YUV422P;
-    this->m_formatToFF["YVYU"] = PIX_FMT_UYVY422;
-    this->m_formatToFF["Y444"] = PIX_FMT_YUV444P;
-    this->m_formatToFF["v210"] = PIX_FMT_YUV422P10LE;
-    this->m_formatToFF["v216"] = PIX_FMT_YUV422P16LE;
-    this->m_formatToFF["NV12"] = PIX_FMT_NV12;
-    this->m_formatToFF["NV21"] = PIX_FMT_NV21;
-    this->m_formatToFF["GRAY8"] = PIX_FMT_GRAY8;
-    this->m_formatToFF["GRAY16_BE"] = PIX_FMT_GRAY16BE;
-    this->m_formatToFF["GRAY16_LE"] = PIX_FMT_GRAY16LE;
-    this->m_formatToFF["v308"] = PIX_FMT_YUV444P;
-    this->m_formatToFF["RGB16"] = PIX_FMT_RGB565LE;
-    this->m_formatToFF["BGR16"] = PIX_FMT_BGR565LE;
-    this->m_formatToFF["RGB15"] = PIX_FMT_RGB555LE;
-    this->m_formatToFF["BGR15"] = PIX_FMT_BGR555LE;
-    this->m_formatToFF["UYVP"] = PIX_FMT_YUV422P12LE;
-    this->m_formatToFF["A420"] = PIX_FMT_YUVA420P;
-    this->m_formatToFF["RGB8P"] = PIX_FMT_RGB8;
-    this->m_formatToFF["IYU1"] = PIX_FMT_YUV411P;
-    this->m_formatToFF["I420_10LE"] = PIX_FMT_YUV420P10LE;
-    this->m_formatToFF["I420_10BE"] = PIX_FMT_YUV420P10BE;
-    this->m_formatToFF["I422_10LE"] = PIX_FMT_YUV422P10LE;
-    this->m_formatToFF["I422_10BE"] = PIX_FMT_YUV422P10BE;
 }
 
 VFilterElement::~VFilterElement()
 {
     this->uninit();
-}
-
-QList<QbCaps> VFilterElement::oCaps()
-{
-    QList<QbCaps> caps;
-
-    if (!this->m_srcs.isEmpty())
-    {
-        foreach (QbElement *src, this->m_srcs)
-            foreach (QbCaps cap, src->oCaps())
-                if (cap.mimeType() == "video/x-raw")
-                {
-                    cap.setProperty("format", this->m_format);
-                    caps << cap;
-
-                    return caps;
-                }
-    }
-
-    return caps;
 }
 
 QString VFilterElement::description()
@@ -126,7 +67,7 @@ QString VFilterElement::pixelAspect()
                            .arg(this->m_pixelAspectDen);
 }
 
-bool VFilterElement::init()
+bool VFilterElement::initBuffers()
 {
     AVFilter *buffersrc = avfilter_get_by_name("buffer");
     AVFilter *buffersink = avfilter_get_by_name("ffbuffersink");
@@ -140,7 +81,7 @@ bool VFilterElement::init()
     QString args = QString("video_size=%1x%2:"
                            "pix_fmt=%3").arg(width)
                                         .arg(height)
-                                        .arg(this->m_formatToFF[format]);
+                                        .arg(av_get_pix_fmt(format.toUtf8().constData()));
 
     if (this->m_timeBaseNum || this->m_timeBaseDen)
         args.append(QString(":time_base=%1/%2").arg(this->m_timeBaseNum)
@@ -164,18 +105,13 @@ bool VFilterElement::init()
     {
         QString format = this->m_curInputCaps.property("format").toString();
 
-        if (format.isEmpty() || !this->m_formatToFF.contains(format))
+        if (format.isEmpty())
             return false;
 
-        oFormat = this->m_formatToFF[format];
+        oFormat = av_get_pix_fmt(format.toUtf8().constData());
     }
     else
-    {
-        if (!this->m_formatToFF.contains(this->format()))
-            return false;
-
-        oFormat = this->m_formatToFF[this->format()];
-    }
+        oFormat = av_get_pix_fmt(this->format().toUtf8().constData());
 
     PixelFormat pixelFormats[2];
     pixelFormats[0] = oFormat;
@@ -225,7 +161,7 @@ bool VFilterElement::init()
     return true;
 }
 
-void VFilterElement::uninit()
+void VFilterElement::uninitBuffers()
 {
     if (this->m_filterGraph)
         avfilter_graph_free(&this->m_filterGraph);
@@ -302,9 +238,9 @@ void VFilterElement::iStream(const QbPacket &packet)
 
     if (packet.caps() != this->m_curInputCaps)
     {
-        this->uninit();
+        this->uninitBuffers();
         this->m_curInputCaps = packet.caps();
-        this->init();
+        this->initBuffers();
     }
 
     int iWidth = packet.caps().property("width").toInt();
@@ -317,12 +253,12 @@ void VFilterElement::iStream(const QbPacket &packet)
 
     avpicture_fill((AVPicture *) &frame,
                    (uint8_t *) packet.data(),
-                   this->m_formatToFF[iFormat],
+                   av_get_pix_fmt(iFormat.toUtf8().constData()),
                    iWidth,
                    iHeight);
 
-    frame.format = this->m_formatToFF[iFormat],
-    frame.width = iWidth,
+    frame.format = av_get_pix_fmt(iFormat.toUtf8().constData());
+    frame.width = iWidth;
     frame.height = iHeight;
     frame.type = AVMEDIA_TYPE_VIDEO;
 
@@ -368,7 +304,7 @@ void VFilterElement::iStream(const QbPacket &packet)
                          (uint8_t *) this->m_oFrame.data(),
                          this->m_oFrame.size());
 
-        QString format = this->m_formatToFF.key((PixelFormat) filterBufferRef->format);
+        QString format = av_get_pix_fmt_name((PixelFormat) filterBufferRef->format);
 
         QbPacket oPacket(QString("video/x-raw,"
                                  "format=%1,"

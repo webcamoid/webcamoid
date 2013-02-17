@@ -38,14 +38,12 @@ class VideoStream: public AbstractStream
 
         VideoStream &operator =(const VideoStream &other);
 
-        Q_INVOKABLE QbCaps oCaps();
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
         Q_INVOKABLE QSize size();
 
     private:
         QByteArray m_oFrame;
         QbCaps m_oCaps;
-        QMap<PixelFormat, QString> m_ffToFormat;
 };
 
 #endif // VIDEOSTREAM_H

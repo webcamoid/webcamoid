@@ -44,13 +44,13 @@ MultiSinkElement::MultiSinkElement(): QbElement()
 
     this->resetLocation();
     this->resetOptions();
-    this->resetFrameSize();
 
     // File options:
     this->m_optionParser.addOption("f", Option::OptionFlagsHasValue);
 
     // Video options:
     this->m_optionParser.addOption("r", Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption("s", Option::OptionFlagsHasValue);
     this->m_optionParser.addOption("vn");
     this->m_optionParser.addOption("vcodec", Option::OptionFlagsHasValue);
     this->m_optionParser.addOption("b:v", Option::OptionFlagsHasValue);
@@ -62,51 +62,6 @@ MultiSinkElement::MultiSinkElement(): QbElement()
     this->m_optionParser.addOption("acodec", Option::OptionFlagsHasValue);
     this->m_optionParser.addOption("b:a", Option::OptionFlagsHasValue);
     this->m_optionParser.addOption("channel_layout", Option::OptionFlagsHasValue);
-
-    this->m_vFormatToFF["I420"] = PIX_FMT_YUV420P;
-    this->m_vFormatToFF["YUY2"] = PIX_FMT_YUV422P;
-    this->m_vFormatToFF["UYVY"] = PIX_FMT_UYVY422;
-    this->m_vFormatToFF["AYUV"] = PIX_FMT_YUVA420P;
-    this->m_vFormatToFF["RGBx"] = PIX_FMT_RGB0;
-    this->m_vFormatToFF["BGRx"] = PIX_FMT_BGR0;
-    this->m_vFormatToFF["xRGB"] = PIX_FMT_0RGB;
-    this->m_vFormatToFF["xBGR"] = PIX_FMT_0BGR;
-    this->m_vFormatToFF["RGBA"] = PIX_FMT_RGBA;
-    this->m_vFormatToFF["BGRA"] = PIX_FMT_BGRA;
-    this->m_vFormatToFF["ARGB"] = PIX_FMT_ARGB;
-    this->m_vFormatToFF["ABGR"] = PIX_FMT_ABGR;
-    this->m_vFormatToFF["RGB"] = PIX_FMT_RGB24;
-    this->m_vFormatToFF["BGR"] = PIX_FMT_BGR24;
-    this->m_vFormatToFF["Y41B"] = PIX_FMT_YUV411P;
-    this->m_vFormatToFF["Y42B"] = PIX_FMT_YUV422P;
-    this->m_vFormatToFF["YVYU"] = PIX_FMT_UYVY422;
-    this->m_vFormatToFF["Y444"] = PIX_FMT_YUV444P;
-    this->m_vFormatToFF["v210"] = PIX_FMT_YUV422P10LE;
-    this->m_vFormatToFF["v216"] = PIX_FMT_YUV422P16LE;
-    this->m_vFormatToFF["NV12"] = PIX_FMT_NV12;
-    this->m_vFormatToFF["NV21"] = PIX_FMT_NV21;
-    this->m_vFormatToFF["GRAY8"] = PIX_FMT_GRAY8;
-    this->m_vFormatToFF["GRAY16_BE"] = PIX_FMT_GRAY16BE;
-    this->m_vFormatToFF["GRAY16_LE"] = PIX_FMT_GRAY16LE;
-    this->m_vFormatToFF["v308"] = PIX_FMT_YUV444P;
-    this->m_vFormatToFF["RGB16"] = PIX_FMT_RGB565LE;
-    this->m_vFormatToFF["BGR16"] = PIX_FMT_BGR565LE;
-    this->m_vFormatToFF["RGB15"] = PIX_FMT_RGB555LE;
-    this->m_vFormatToFF["BGR15"] = PIX_FMT_BGR555LE;
-    this->m_vFormatToFF["UYVP"] = PIX_FMT_YUV422P12LE;
-    this->m_vFormatToFF["A420"] = PIX_FMT_YUVA420P;
-    this->m_vFormatToFF["RGB8P"] = PIX_FMT_RGB8;
-    this->m_vFormatToFF["IYU1"] = PIX_FMT_YUV411P;
-    this->m_vFormatToFF["I420_10LE"] = PIX_FMT_YUV420P10LE;
-    this->m_vFormatToFF["I420_10BE"] = PIX_FMT_YUV420P10BE;
-    this->m_vFormatToFF["I422_10LE"] = PIX_FMT_YUV422P10LE;
-    this->m_vFormatToFF["I422_10BE"] = PIX_FMT_YUV422P10BE;
-
-    this->m_aFormatToFF["U8"] = AV_SAMPLE_FMT_U8;
-    this->m_aFormatToFF["S16LE"] = AV_SAMPLE_FMT_S16;
-    this->m_aFormatToFF["S32LE"] = AV_SAMPLE_FMT_S32;
-    this->m_aFormatToFF["F32LE"] = AV_SAMPLE_FMT_FLT;
-    this->m_aFormatToFF["F64LE"] = AV_SAMPLE_FMT_DBL;
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -123,11 +78,6 @@ QString MultiSinkElement::location()
 QString MultiSinkElement::options()
 {
     return this->m_options;
-}
-
-QSize MultiSinkElement::frameSize()
-{
-    return this->m_frameSize;
 }
 
 bool MultiSinkElement::init()
@@ -326,33 +276,10 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
     QList<int> sampleRates = this->sampleRates(*codec);
     QList<uint64_t> channelLayouts = this->channelLayouts(*codec);
 
-    int iNChannels = 0;
-    int iSampleRate = 0;
-    uint64_t iChannelLayout = 0;
-
-    if (mediaType == AVMEDIA_TYPE_AUDIO)
-    {
-        QbCaps caps;
-
-        foreach (QbElement *src, this->m_srcs)
-        {
-            foreach (QbCaps cap, src->oCaps())
-                if (cap.mimeType() == "audio/x-raw")
-                {
-                    caps = cap;
-
-                    break;
-                }
-
-            if (caps.isValid())
-                break;
-        }
-
-        iNChannels = caps.property("channels").toInt();
-        iSampleRate = caps.property("rate").toInt();
-        const char *layout = caps.property("layout").toString().toUtf8().constData();
-        iChannelLayout = av_get_channel_layout(layout);
-    }
+    uint64_t iChannelLayout = av_get_channel_layout("stereo");
+    int iNChannels = av_get_channel_layout_nb_channels(iChannelLayout);
+    int iSampleRate = 44100;
+    QSize iFrameSize(640, 480);
 
     switch ((*codec)->type)
     {
@@ -398,8 +325,23 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
                 codecContext->bit_rate = this->m_optionsMap["b:v"].toInt();
 
             // Resolution must be a multiple of two.
-            codecContext->width = this->m_frameSize.width();
-            codecContext->height = this->m_frameSize.height();
+            if (this->m_optionsMap.contains("s"))
+            {
+                QString sizeString = this->m_optionsMap["s"].toString();
+
+                if (QRegExp("\\s*\\d+x\\d+\\s*").exactMatch(sizeString))
+                {
+                    QStringList sizeList = sizeString.split(QRegExp("x"), QString::SkipEmptyParts);
+
+                    iFrameSize.setWidth(sizeList[0].toInt());
+                    iFrameSize.setHeight(sizeList[1].toInt());
+                }
+            }
+
+            this->m_frameSize = iFrameSize;
+
+            codecContext->width = iFrameSize.width();
+            codecContext->height = iFrameSize.height();
 
             // timebase: This is the fundamental unit of time (in seconds) in terms
             // of which frame timestamps are represented. For fixed-fps content,
@@ -416,7 +358,7 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
             else
                 codecContext->pix_fmt = pixelFormats[0];
 
-            this->m_vFilter->setProperty("format", this->m_vFormatToFF.key(codecContext->pix_fmt));
+            this->m_vFilter->setProperty("format", av_get_pix_fmt_name(codecContext->pix_fmt));
 
             if (codecContext->codec_id == AV_CODEC_ID_MPEG2VIDEO)
                 // just for testing, we also add B frames
@@ -481,11 +423,6 @@ void MultiSinkElement::setOptions(QString options)
         this->m_optionsMap = this->m_optionParser.parse(this->m_options);
 }
 
-void MultiSinkElement::setFrameSize(QSize frameSize)
-{
-    this->m_frameSize = frameSize;
-}
-
 void MultiSinkElement::resetLocation()
 {
     this->setLocation("");
@@ -494,11 +431,6 @@ void MultiSinkElement::resetLocation()
 void MultiSinkElement::resetOptions()
 {
     this->setOptions("");
-}
-
-void MultiSinkElement::resetFrameSize()
-{
-    this->setFrameSize(QSize());
 }
 
 void MultiSinkElement::iStream(const QbPacket &packet)
@@ -528,6 +460,7 @@ void MultiSinkElement::iStream(const QbPacket &packet)
         {
             AVCodecContext *codecContext = this->m_audioStream->codec;
 
+            const char *format = av_get_sample_fmt_name(codecContext->sample_fmt);
             char layout[256];
 
             av_get_channel_layout_string(layout,
@@ -539,7 +472,7 @@ void MultiSinkElement::iStream(const QbPacket &packet)
                                    "format=%1,"
                                    "channels=%2,"
                                    "rate=%3,"
-                                   "layout=%4").arg(this->m_aFormatToFF.key(codecContext->sample_fmt))
+                                   "layout=%4").arg(format)
                                                .arg(codecContext->channels)
                                                .arg(codecContext->sample_rate)
                                                .arg(layout);
@@ -576,25 +509,18 @@ void MultiSinkElement::iStream(const QbPacket &packet)
 void MultiSinkElement::setState(ElementState state)
 {
     QbElement::setState(state);
-    this->m_vFilter->setState(this->m_state);
-    this->m_aCapsConvert->setState(this->m_state);
 
-    if (this->m_state == ElementStateNull)
-        this->uninit();
+    this->m_vFilter->setState(this->state());
+    this->m_aCapsConvert->setState(this->state());
 }
 
 void MultiSinkElement::processVFrame(const QbPacket &packet)
 {
     int iWidth = packet.caps().property("width").toInt();
     int iHeight = packet.caps().property("height").toInt();
-    QString mimeType = packet.caps().property("format").toString();
+    QString format = packet.caps().property("format").toString();
 
-    PixelFormat iFormat;
-
-    if (this->m_vFormatToFF.contains(mimeType))
-        iFormat = this->m_vFormatToFF[mimeType];
-    else
-        return;
+    PixelFormat iFormat = av_get_pix_fmt(format.toUtf8().constData());
 
     AVPacket pkt;
     av_init_packet(&pkt);

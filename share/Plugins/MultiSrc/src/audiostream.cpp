@@ -48,24 +48,12 @@ AudioStream::AudioStream(AVFormatContext *formatContext, uint index):
         return;
     }
 
-    this->m_ffToFormat[AV_SAMPLE_FMT_U8] = "U8";
-    this->m_ffToFormat[AV_SAMPLE_FMT_S16] = "S16LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_S32] = "S32LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_FLT] = "F32LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_DBL] = "F64LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_U8P] = "U8";
-    this->m_ffToFormat[AV_SAMPLE_FMT_S16P] = "S16LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_S32P] = "S32LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_FLTP] = "F32LE";
-    this->m_ffToFormat[AV_SAMPLE_FMT_DBLP] = "F64LE";
-
     this->m_isValid = true;
 }
 
 AudioStream::AudioStream(const AudioStream &other):
     AbstractStream(other),
-    m_oBuffer(other.m_oBuffer),
-    m_ffToFormat(other.m_ffToFormat)
+    m_oBuffer(other.m_oBuffer)
 {
 }
 
@@ -83,38 +71,11 @@ AudioStream &AudioStream::operator =(const AudioStream &other)
     if (this != &other)
     {
         this->m_oBuffer = other.m_oBuffer;
-        this->m_ffToFormat = other.m_ffToFormat;
 
         AbstractStream::operator =(other);
     }
 
     return *this;
-}
-
-QbCaps AudioStream::oCaps()
-{
-    AVSampleFormat fmt = this->codecContext()->sample_fmt;
-
-    if (!this->m_ffToFormat.contains(fmt))
-        return QbCaps();
-
-    char layout[256];
-
-    av_get_channel_layout_string(layout,
-                                 sizeof(layout),
-                                 this->codecContext()->channels,
-                                 this->codecContext()->channel_layout);
-
-    QString caps = QString("audio/x-raw,"
-                           "format=%1,"
-                           "channels=%2,"
-                           "rate=%3,"
-                           "layout=%4").arg(this->m_ffToFormat[fmt])
-                                       .arg(this->codecContext()->channels)
-                                       .arg(this->codecContext()->sample_rate)
-                                       .arg(layout);
-
-    return QbCaps(caps);
 }
 
 QbPacket AudioStream::readPacket(AVPacket *packet)
@@ -164,9 +125,24 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     this->m_oFrame = QByteArray((const char *) this->m_oBuffer[0], oBufferSize);
     av_freep(&this->m_oBuffer[0]);
 
-    QbCaps caps = this->oCaps();
+    const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
+    char layout[256];
 
-    caps.setProperty("samples", this->m_iFrame->nb_samples);
+    av_get_channel_layout_string(layout,
+                                 sizeof(layout),
+                                 this->codecContext()->channels,
+                                 this->codecContext()->channel_layout);
+
+    QbCaps caps(QString("audio/x-raw,"
+                        "format=%1,"
+                        "channels=%2,"
+                        "rate=%3,"
+                        "layout=%4,"
+                        "samples=%5").arg(format)
+                                     .arg(this->codecContext()->channels)
+                                     .arg(this->codecContext()->sample_rate)
+                                     .arg(layout)
+                                     .arg(this->m_iFrame->nb_samples));
 
     QbPacket oPacket(caps,
                      this->m_oFrame.constData(),

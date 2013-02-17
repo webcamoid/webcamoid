@@ -25,6 +25,7 @@
 extern "C"
 {
     #include <libavformat/avformat.h>
+    #include <libavutil/imgutils.h>
     #include <libswscale/swscale.h>
 }
 
@@ -40,8 +41,10 @@ class VCapsConvertElement: public QbElement
         explicit VCapsConvertElement();
         ~VCapsConvertElement();
 
-        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString caps();
+
+    protected:
+        void uninit();
 
     private:
         QbCaps m_caps;
@@ -57,8 +60,6 @@ class VCapsConvertElement: public QbElement
         int m_oPictureAlloc;
         QbCaps m_curInputCaps;
 
-        QMap<QString, PixelFormat> m_formatToFF;
-
         void cleanAll();
 
     public slots:
@@ -66,7 +67,6 @@ class VCapsConvertElement: public QbElement
         void resetCaps();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
 };
 
 #endif // VCAPSCONVERTELEMENT_H

@@ -42,8 +42,11 @@ class ACapsConvertElement: public QbElement
         explicit ACapsConvertElement();
         ~ACapsConvertElement();
 
-        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString caps();
+
+    protected:
+        bool initBuffers();
+        void uninitBuffers();
 
     private:
         QbCaps m_caps;
@@ -63,11 +66,6 @@ class ACapsConvertElement: public QbElement
         int64_t m_oChannelLayout;
         AVSampleFormat m_oSampleFormat;
 
-        QMap<QString, AVSampleFormat> m_formatToFF;
-        QMap<QString, int64_t> m_layoutToFF;
-
-        bool init();
-        void uninit();
         void cleanAll();
 
     public slots:

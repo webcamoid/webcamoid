@@ -57,7 +57,6 @@ class MultiSrcElement: public QbElement
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
-        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString location();
         Q_INVOKABLE bool loop();
         Q_INVOKABLE QSize size();
@@ -65,6 +64,10 @@ class MultiSrcElement: public QbElement
         Q_INVOKABLE StreamType streamType(int streamIndex);
         Q_INVOKABLE int defaultIndex(StreamType streamType);
         Q_INVOKABLE QList<QSize> availableSize();
+
+    protected:
+        bool init();
+        void uninit();
 
     private:
         QString m_location;
@@ -79,8 +82,6 @@ class MultiSrcElement: public QbElement
         QTimer m_timer;
         QMap<int, AbstractStream *> m_streams;
 
-        bool init();
-        void uninit();
         QSize webcamSize();
         QList<QSize> webcamAvailableSize();
 

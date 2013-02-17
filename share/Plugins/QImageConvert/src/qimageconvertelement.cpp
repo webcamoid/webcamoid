@@ -23,17 +23,23 @@
 
 QImageConvertElement::QImageConvertElement(): QbElement()
 {
-    this->m_imageToFormat["RGB32"] = "BGRx";
-    this->m_imageToFormat["ARGB32"] = "BGRA";
-    this->m_imageToFormat["RGB16"] = "RGB16";
-    this->m_imageToFormat["RGB555"] = "RGB15";
-    this->m_imageToFormat["RGB888"] = "RGB";
+    this->m_imageToFormat["Mono"] = "monob";
+    this->m_imageToFormat["Indexed8"] = "rgb8";
+    this->m_imageToFormat["RGB32"] = "bgr0";
+    this->m_imageToFormat["ARGB32"] = "bgra";
+    this->m_imageToFormat["RGB16"] = "rgb565le";
+    this->m_imageToFormat["RGB555"] = "rgb555le";
+    this->m_imageToFormat["RGB888"] = "rgb24";
+    this->m_imageToFormat["RGB444"] = "rgb444le";
 
+    this->m_imageToQt["Mono"] = QImage::Format_Mono;
+    this->m_imageToQt["Indexed8"] = QImage::Format_Indexed8;
     this->m_imageToQt["RGB32"] = QImage::Format_RGB32;
     this->m_imageToQt["ARGB32"] = QImage::Format_ARGB32;
     this->m_imageToQt["RGB16"] = QImage::Format_RGB16;
     this->m_imageToQt["RGB555"] = QImage::Format_RGB555;
     this->m_imageToQt["RGB888"] = QImage::Format_RGB888;
+    this->m_imageToQt["RGB444"] = QImage::Format_RGB444;
 
     this->m_capsConvert = Qb::create("VCapsConvert");
 
@@ -68,25 +74,6 @@ void QImageConvertElement::resetFormat()
     this->setFormat("RGB888");
 }
 
-void QImageConvertElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    this->m_oFrame = QImage((const uchar *) packet.data(),
-                            width,
-                            height,
-                            this->m_qFormat);
-
-    QbPacket oPacket(QbCaps("application/x-qt-image"), &this->m_oFrame);
-
-    oPacket.setDts(packet.dts());
-    oPacket.setPts(packet.pts());
-    oPacket.setDuration(packet.duration());
-
-    emit this->oStream(oPacket);
-}
-
 void QImageConvertElement::iStream(const QbPacket &packet)
 {
     if (!packet.caps().isValid() ||
@@ -105,5 +92,24 @@ void QImageConvertElement::iStream(const QbPacket &packet)
 void QImageConvertElement::setState(ElementState state)
 {
     QbElement::setState(state);
-    this->m_capsConvert->setState(state);
+    this->m_capsConvert->setState(this->state());
+}
+
+void QImageConvertElement::processFrame(const QbPacket &packet)
+{
+    int width = packet.caps().property("width").toInt();
+    int height = packet.caps().property("height").toInt();
+
+    this->m_oFrame = QImage((const uchar *) packet.data(),
+                            width,
+                            height,
+                            this->m_qFormat);
+
+    QbPacket oPacket(QbCaps("application/x-qt-image"), &this->m_oFrame);
+
+    oPacket.setDts(packet.dts());
+    oPacket.setPts(packet.pts());
+    oPacket.setDuration(packet.duration());
+
+    emit this->oStream(oPacket);
 }

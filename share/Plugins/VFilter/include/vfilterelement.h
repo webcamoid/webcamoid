@@ -27,6 +27,7 @@ extern "C"
     #include <libavfilter/avcodec.h>
     #include <libavfilter/avfilter.h>
     #include <libavfilter/avfiltergraph.h>
+    #include <libavutil/imgutils.h>
     #include <libavfilter/buffersink.h>
 }
 
@@ -56,11 +57,14 @@ class VFilterElement: public QbElement
         explicit VFilterElement();
         ~VFilterElement();
 
-        Q_INVOKABLE QList<QbCaps> oCaps();
         Q_INVOKABLE QString description();
         Q_INVOKABLE QString format();
         Q_INVOKABLE QString timeBase();
         Q_INVOKABLE QString pixelAspect();
+
+    protected:
+        bool initBuffers();
+        void uninitBuffers();
 
     private:
         QString m_description;
@@ -77,11 +81,6 @@ class VFilterElement: public QbElement
         AVFilterContext *m_bufferSinkContext;
         AVFilterContext *m_bufferSrcContext;
         AVFilterGraph *m_filterGraph;
-
-        QMap<QString, PixelFormat> m_formatToFF;
-
-        bool init();
-        void uninit();
 
     public slots:
         void setDescription(QString description);

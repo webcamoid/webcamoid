@@ -28,6 +28,7 @@ extern "C"
 {
     #include <libavutil/mathematics.h>
     #include <libavformat/avformat.h>
+    #include <libavutil/imgutils.h>
     #include <libswscale/swscale.h>
 }
 
@@ -46,17 +47,16 @@ class MultiSinkElement: public QbElement
                                WRITE setOptions
                                RESET resetOptions)
 
-    Q_PROPERTY(QSize frameSize READ frameSize
-                               WRITE setFrameSize
-                               RESET resetFrameSize)
-
     public:
         explicit MultiSinkElement();
         ~MultiSinkElement();
 
         Q_INVOKABLE QString location();
         Q_INVOKABLE QString options();
-        Q_INVOKABLE QSize frameSize();
+
+    protected:
+        bool init();
+        void uninit();
 
     private:
         QString m_location;
@@ -77,11 +77,6 @@ class MultiSinkElement: public QbElement
         QbCaps m_curVInputCaps;
         int m_pictureAlloc;
 
-        QMap<QString, PixelFormat> m_vFormatToFF;
-        QMap<QString, AVSampleFormat> m_aFormatToFF;
-
-        bool init();
-        void uninit();
         QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
@@ -93,10 +88,8 @@ class MultiSinkElement: public QbElement
     public slots:
         void setLocation(QString location);
         void setOptions(QString options);
-        void setFrameSize(QSize frameSize);
         void resetLocation();
         void resetOptions();
-        void resetFrameSize();
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

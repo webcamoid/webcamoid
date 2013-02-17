@@ -47,23 +47,6 @@ MultiSrcElement::~MultiSrcElement()
     this->setState(ElementStateNull);
 }
 
-QList<QbCaps> MultiSrcElement::oCaps()
-{
-    ElementState preState = this->state();
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
-
-    QList<QbCaps> caps;
-
-    foreach (AbstractStream *stream, this->m_streams)
-        caps << stream->oCaps();
-
-    this->setState(preState);
-
-    return caps;
-}
-
 QString MultiSrcElement::location()
 {
     return this->m_location;
@@ -433,8 +416,6 @@ void MultiSrcElement::setLocation(QString location)
     this->setState(ElementStateNull);
     this->m_location = location;
 
-//    this->m_oCaps;
-
     if (!this->location().isEmpty())
         this->setState(preState);
 }
@@ -493,96 +474,16 @@ void MultiSrcElement::resetSize()
 
 void MultiSrcElement::setState(ElementState state)
 {
-    ElementState preState = this->state();
+    QbElement::setState(state);
 
-    switch (state)
+    switch (this->state())
     {
-        case ElementStateNull:
-            switch (preState)
-            {
-                case ElementStatePaused:
-                case ElementStatePlaying:
-                    this->setState(ElementStateReady);
-
-                    if (this->state() != ElementStateReady)
-                        return;
-
-                case ElementStateReady:
-                    this->uninit();
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStateReady:
-            switch (preState)
-            {
-                case ElementStateNull:
-                    if (this->init())
-                        this->m_state = state;
-                    else
-                        this->m_state = ElementStateNull;
-                break;
-
-                case ElementStatePlaying:
-                    this->setState(ElementStatePaused);
-
-                    if (this->state() != ElementStatePaused)
-                        return;
-
-                case ElementStatePaused:
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
-        break;
-
         case ElementStatePaused:
-            switch (preState)
-            {
-                case ElementStateNull:
-                    this->setState(ElementStateReady);
-
-                    if (this->state() != ElementStateReady)
-                        return;
-
-                case ElementStateReady:
-                    this->m_state = state;
-                break;
-
-                case ElementStatePlaying:
-                    this->m_timer.stop();
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
+            this->m_timer.stop();
         break;
 
         case ElementStatePlaying:
-            switch (preState)
-            {
-                case ElementStateNull:
-                case ElementStateReady:
-                    this->setState(ElementStatePaused);
-
-                    if (this->state() != ElementStatePaused)
-                        return;
-
-                case ElementStatePaused:
-                    this->m_timer.start();
-                    this->m_state = state;
-                break;
-
-                default:
-                break;
-            }
+            this->m_timer.start();
         break;
 
         default:

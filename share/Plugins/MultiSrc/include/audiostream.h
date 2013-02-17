@@ -38,7 +38,6 @@ class AudioStream: public AbstractStream
 
         AudioStream &operator =(const AudioStream &other);
 
-        Q_INVOKABLE QbCaps oCaps();
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
 
     protected:
@@ -47,7 +46,6 @@ class AudioStream: public AbstractStream
     private:
         QByteArray m_oFrame;
         uint8_t **m_oBuffer;
-        QMap<AVSampleFormat, QString> m_ffToFormat;
 };
 
 #endif // AUDIOSTREAM_H

@@ -27,6 +27,7 @@
 extern "C"
 {
     #include <libavformat/avformat.h>
+    #include <libavutil/imgutils.h>
 }
 
 #include "qbpacket.h"
@@ -52,7 +53,6 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVCodecContext *codecContext() const;
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
-        Q_INVOKABLE virtual QbCaps oCaps();
         Q_INVOKABLE virtual QbPacket readPacket(AVPacket *packet);
 
         static AVMediaType type(AVFormatContext *formatContext, uint index);
