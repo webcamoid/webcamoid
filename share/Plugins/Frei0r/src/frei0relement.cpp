@@ -27,6 +27,9 @@ Frei0rElement::Frei0rElement(): QbElement()
 {
     this->cleanAll();
     this->resetPluginName();
+    this->resetFrameSize();
+    this->resetFps();
+    this->resetIndexMap();
     this->resetParams();
     this->resetFrei0rPaths();
 
@@ -36,6 +39,11 @@ Frei0rElement::Frei0rElement(): QbElement()
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
+
+    QObject::connect(&this->m_timer,
+                     SIGNAL(timeout()),
+                     this,
+                     SLOT(processFrame()));
 }
 
 Frei0rElement::~Frei0rElement()
@@ -45,6 +53,21 @@ Frei0rElement::~Frei0rElement()
 QString Frei0rElement::pluginName() const
 {
     return this->m_pluginName;
+}
+
+QSize Frei0rElement::frameSize() const
+{
+    return this->m_frameSize;
+}
+
+double Frei0rElement::fps() const
+{
+    return this->m_fps;
+}
+
+QVariantList Frei0rElement::indexMap() const
+{
+    return this->m_indexMap;
 }
 
 QVariantMap Frei0rElement::params()
@@ -251,27 +274,39 @@ bool Frei0rElement::init()
         break;
     }
 
+    QbCaps caps;
+
     switch (infoStruct.color_model)
     {
         case F0R_COLOR_MODEL_BGRA8888:
             this->m_info["color_model"] = "bgra8888";
-            this->m_capsConvert->setProperty("caps", "video/x-raw,format=bgra");
+            caps = QbCaps("video/x-raw,format=bgra");
         break;
 
         case F0R_COLOR_MODEL_RGBA8888:
             this->m_info["color_model"] = "rgba8888";
-            this->m_capsConvert->setProperty("caps", "video/x-raw,format=rgba");
+            caps = QbCaps("video/x-raw,format=rgba");
         break;
 
         case F0R_COLOR_MODEL_PACKED32:
             this->m_info["color_model"] = "packed32";
-            this->m_capsConvert->setProperty("caps", "video/x-raw,format=rgba");
+            caps = QbCaps("video/x-raw,format=rgba");
         break;
 
         default:
             this->m_info["color_model"] = "";
         break;
     }
+
+    if (this->m_info["plugin_type"] == "mixer2" ||
+        this->m_info["plugin_type"] == "mixer3")
+    {
+        caps.setProperty("width", this->m_frameSize.width());
+        caps.setProperty("height", this->m_frameSize.height());
+    }
+
+    if (caps.isValid())
+        this->m_capsConvert->setProperty("caps", caps.toString());
 
     this->m_info["frei0r_version"] = infoStruct.frei0r_version;
     this->m_info["major_version"] = infoStruct.major_version;
@@ -310,6 +345,14 @@ bool Frei0rElement::init()
         !this->f0rGetParamValue)
         return false;
 
+    if (this->m_info["plugin_type"] == "source")
+    {
+        this->m_oBuffer.resize(4 * this->m_frameSize.width() *
+                                   this->m_frameSize.height());
+
+        this->initBuffers();
+    }
+
     return true;
 }
 
@@ -317,6 +360,9 @@ void Frei0rElement::uninit()
 {
     if (!this->m_library.isLoaded())
         return;
+
+    if (this->m_info["plugin_type"] == "source")
+        this->uninitBuffers();
 
     this->m_info.clear();
     this->f0rDeinit();
@@ -331,15 +377,16 @@ bool Frei0rElement::initBuffers()
     int width;
     int height;
 
-    if (this->m_curInputCaps.isValid())
+    if (this->m_info["plugin_type"] == "filter" &&
+        this->m_curInputCaps.isValid())
     {
         width = this->m_curInputCaps.property("width").toInt();
         height = this->m_curInputCaps.property("height").toInt();
     }
     else
     {
-        width = 640;
-        height = 480;
+        width = this->m_frameSize.width();
+        height = this->m_frameSize.height();
     }
 
     this->m_f0rInstance = this->f0rConstruct(width, height);
@@ -385,6 +432,29 @@ void Frei0rElement::setPluginName(QString pluginName)
 
     if (!this->pluginName().isEmpty())
         this->setState(preState);
+}
+
+void Frei0rElement::setFrameSize(QSize frameSize)
+{
+    ElementState preState = this->state();
+
+    this->setState(ElementStateNull);
+    this->m_frameSize = frameSize;
+
+    if (!this->pluginName().isEmpty())
+        this->setState(preState);
+}
+
+void Frei0rElement::setFps(double fps)
+{
+    this->m_fps = (fps <= 0)? 0.001: fps;
+    this->m_duration = 1000.0 / this->m_fps;
+    this->m_timer.setInterval(this->m_duration);
+}
+
+void Frei0rElement::setIndexMap(QVariantList indexMap)
+{
+    this->m_indexMap = indexMap;
 }
 
 void Frei0rElement::setParams(QVariantMap params)
@@ -482,6 +552,21 @@ void Frei0rElement::resetPluginName()
     this->setPluginName("");
 }
 
+void Frei0rElement::resetFrameSize()
+{
+    this->setFrameSize(QSize(640, 480));
+}
+
+void Frei0rElement::resetFps()
+{
+    this->setFps(30);
+}
+
+void Frei0rElement::resetIndexMap()
+{
+    this->setIndexMap(QVariantList());
+}
+
 void Frei0rElement::resetParams()
 {
     this->setParams(QVariantMap());
@@ -502,18 +587,41 @@ void Frei0rElement::iStream(const QbPacket &packet)
 {
     if (!packet.caps().isValid() ||
         packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
+        this->state() != ElementStatePlaying ||
+        this->m_info["plugin_type"] == "source")
         return;
 
     if (!this->m_f0rInstance || packet.caps() != this->m_curInputCaps)
     {
         this->m_curInputCaps = packet.caps();
 
-        int width = this->m_curInputCaps.property("width").toInt();
-        int height = this->m_curInputCaps.property("height").toInt();
+        int width;
+        int height;
+
+        if (this->m_info["plugin_type"] == "filter")
+        {
+            width = this->m_curInputCaps.property("width").toInt();
+            height = this->m_curInputCaps.property("height").toInt();
+        }
+        else
+        {
+            width = this->m_frameSize.width();
+            height = this->m_frameSize.height();
+        }
 
         this->initBuffers();
         this->setParams(this->m_params);
+
+        if (this->m_info["plugin_type"] == "mixer2" ||
+            this->m_info["plugin_type"] == "mixer3")
+        {
+            this->m_iBuffer0.resize(4 * width * height);
+            this->m_iBuffer1.resize(4 * width * height);
+        }
+
+        if (this->m_info["plugin_type"] == "mixer3")
+            this->m_iBuffer2.resize(4 * width * height);
+
         this->m_oBuffer.resize(4 * width * height);
     }
 
@@ -523,51 +631,132 @@ void Frei0rElement::iStream(const QbPacket &packet)
 void Frei0rElement::setState(ElementState state)
 {
     QbElement::setState(state);
-    this->m_capsConvert->setState(this->state());
+
+    if (this->m_capsConvert)
+        this->m_capsConvert->setState(this->state());
 
     if (this->state() == ElementStateNull ||
         this->state() == ElementStateReady)
-        this->uninitBuffers();
+    {
+        if (this->m_info["plugin_type"] != "source")
+            this->uninitBuffers();
+
+        this->m_t = 0;
+    }
+
+    if (this->state() == ElementStatePaused)
+        this->m_timer.stop();
+
+    if (this->state() == ElementStatePlaying &&
+        this->m_info["plugin_type"] == "source")
+        this->m_timer.start();
 }
 
 void Frei0rElement::processFrame(const QbPacket &packet)
 {
+    if (!this->m_f0rInstance)
+        return;
+
+    if (this->m_info["plugin_type"] == "mixer2" ||
+        this->m_info["plugin_type"] == "mixer3")
+        foreach (QVariant map, this->m_indexMap)
+        {
+            QVariantList pair = map.toList();
+
+            if (pair[0].toInt() == packet.index())
+            {
+                if (pair[1].toInt() == 0)
+                    memcpy(this->m_iBuffer0.data(),
+                           packet.data(),
+                           packet.dataSize());
+
+                if (pair[1].toInt() == 1)
+                    memcpy(this->m_iBuffer1.data(),
+                           packet.data(),
+                           packet.dataSize());
+
+                if (pair[1].toInt() == 2 &&
+                    this->m_info["plugin_type"] == "mixer3")
+                    memcpy(this->m_iBuffer2.data(),
+                           packet.data(),
+                           packet.dataSize());
+            }
+        }
+
+    QbCaps caps;
+    int64_t dts;
+    int64_t pts;
+    int duration;
+    QbFrac timeBase;
+    int index;
+
+    if (this->m_info["plugin_type"] == "source")
+    {
+        QString format;
+
+        if (this->m_info["color_model"] == "bgra8888")
+            format = "bgra";
+        else
+            format = "rgba";
+
+        caps = QbCaps(QString("video/x-raw,"
+                              "format=%1,"
+                              "width=%2,"
+                              "height=%3").arg(format)
+                                          .arg(this->m_frameSize.width())
+                                          .arg(this->m_frameSize.height()));
+
+        dts = pts = this->m_t;
+        duration = this->m_duration;
+        timeBase = QbFrac(1, 1000);
+        index = 0;
+    }
+    else
+    {
+        caps = packet.caps();
+        dts = packet.dts();
+        pts = packet.pts();
+        duration = packet.duration();
+        timeBase = packet.timeBase();
+        index = packet.index();
+    }
+
     if (this->m_info["plugin_type"] == "filter")
         this->f0rUpdate(this->m_f0rInstance,
-                        packet.pts() * packet.timeBase().value(),
+                        pts * timeBase.value(),
                         (uint32_t *) packet.data(),
                         (uint32_t *) this->m_oBuffer.data());
     else if (this->m_info["plugin_type"] == "source")
         this->f0rUpdate(this->m_f0rInstance,
-                        packet.pts() * packet.timeBase().value(),
+                        this->m_t,
                         NULL,
                         (uint32_t *) this->m_oBuffer.data());
     else if (this->m_info["plugin_type"] == "mixer2")
-    {
-        return;
-    }
+        this->f0rUpdate2(this->m_f0rInstance,
+                         pts * timeBase.value(),
+                         (uint32_t *) this->m_iBuffer0.data(),
+                         (uint32_t *) this->m_iBuffer1.data(),
+                         NULL,
+                         (uint32_t *) this->m_oBuffer.data());
     else if (this->m_info["plugin_type"] == "mixer3")
-    {
-        return;
-    }
+        this->f0rUpdate2(this->m_f0rInstance,
+                         pts * timeBase.value(),
+                         (uint32_t *) this->m_iBuffer0.data(),
+                         (uint32_t *) this->m_iBuffer1.data(),
+                         (uint32_t *) this->m_iBuffer2.data(),
+                         (uint32_t *) this->m_oBuffer.data());
 
-    QbPacket oPacket(packet.caps(),
+    this->m_t += this->m_duration;
+
+    QbPacket oPacket(caps,
                      this->m_oBuffer.constData(),
                      this->m_oBuffer.size());
 
-    oPacket.setDts(packet.dts());
-    oPacket.setPts(packet.pts());
-    oPacket.setDuration(packet.duration());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
+    oPacket.setDts(dts);
+    oPacket.setPts(pts);
+    oPacket.setDuration(duration);
+    oPacket.setTimeBase(timeBase);
+    oPacket.setIndex(index);
 
     emit this->oStream(oPacket);
-
-/*
-    this->f0rUpdate2(this->m_f0rInstance,
-                     packet.pts() * packet.timeBase().value(),
-                     const uint32_t* inframe1,
-                     const uint32_t* inframe2,
-                     const uint32_t* inframe3,
-                     (uint32_t *) this->m_oBuffer.data());*/
 }

@@ -33,6 +33,18 @@ class Frei0rElement: public QbElement
                                   WRITE setPluginName
                                   RESET resetPluginName)
 
+    Q_PROPERTY(QSize frameSize READ frameSize
+                               WRITE setFrameSize
+                               RESET resetFrameSize)
+
+    Q_PROPERTY(double fps READ fps
+                          WRITE setFps
+                          RESET resetFps)
+
+    Q_PROPERTY(QVariantList indexMap READ indexMap
+                                     WRITE setIndexMap
+                                     RESET resetIndexMap)
+
     Q_PROPERTY(QVariantMap params READ params
                                   WRITE setParams
                                   RESET resetParams)
@@ -50,6 +62,9 @@ class Frei0rElement: public QbElement
         ~Frei0rElement();
 
         Q_INVOKABLE QString pluginName() const;
+        Q_INVOKABLE QSize frameSize() const;
+        Q_INVOKABLE double fps() const;
+        Q_INVOKABLE QVariantList indexMap() const;
         Q_INVOKABLE QVariantMap params();
         Q_INVOKABLE QVariantMap info();
         Q_INVOKABLE QStringList plugins() const;
@@ -63,13 +78,22 @@ class Frei0rElement: public QbElement
 
     private:
         QString m_pluginName;
+        QSize m_frameSize;
+        double m_fps;
+        double m_t;
+        double m_duration;
+        QVariantList m_indexMap;
         QVariantMap m_params;
         QVariantMap m_info;
         QStringList m_frei0rPaths;
+        QByteArray m_iBuffer0;
+        QByteArray m_iBuffer1;
+        QByteArray m_iBuffer2;
         QByteArray m_oBuffer;
         QbCaps m_curInputCaps;
         QbElementPtr m_capsConvert;
         QLibrary m_library;
+        QTimer m_timer;
         f0r_instance_t m_f0rInstance;
 
         void cleanAll();
@@ -119,9 +143,15 @@ class Frei0rElement: public QbElement
 
     public slots:
         void setPluginName(QString pluginName);
+        void setFrameSize(QSize frameSize);
+        void setFps(double fps);
+        void setIndexMap(QVariantList indexMap);
         void setParams(QVariantMap params);
         void setFrei0rPaths(QStringList frei0rPaths);
         void resetPluginName();
+        void resetFrameSize();
+        void resetFps();
+        void resetIndexMap();
         void resetParams();
         void resetFrei0rPaths();
 
@@ -129,7 +159,7 @@ class Frei0rElement: public QbElement
         void setState(ElementState state);
 
     private slots:
-        void processFrame(const QbPacket &packet);
+        void processFrame(const QbPacket &packet=QbPacket());
 };
 
 #endif // FREI0RELEMENT_H

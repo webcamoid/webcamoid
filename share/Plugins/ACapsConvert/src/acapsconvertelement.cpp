@@ -92,11 +92,11 @@ bool ACapsConvertElement::initBuffers()
     // set options
     av_opt_set_int(this->m_resampleContext, "in_channel_layout", iChannelLayout, 0);
     av_opt_set_int(this->m_resampleContext, "in_sample_rate", this->m_iSampleRate, 0);
-    av_opt_set_int(this->m_resampleContext, "in_sample_fmt", this->m_iSampleFormat, 0);
+    av_opt_set_sample_fmt(this->m_resampleContext, "in_sample_fmt", this->m_iSampleFormat, 0);
 
     av_opt_set_int(this->m_resampleContext, "out_channel_layout", this->m_oChannelLayout, 0);
     av_opt_set_int(this->m_resampleContext, "out_sample_rate", this->m_oSampleRate, 0);
-    av_opt_set_int(this->m_resampleContext, "out_sample_fmt", this->m_oSampleFormat, 0);
+    av_opt_set_sample_fmt(this->m_resampleContext, "out_sample_fmt", this->m_oSampleFormat, 0);
 
     // initialize the resampling context
     if (swr_init(this->m_resampleContext) < 0)
