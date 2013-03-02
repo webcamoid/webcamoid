@@ -72,3 +72,9 @@ Makefile*
 # Ignore Directories #
 ######################
 build
+
+
+# Ignore Auto Generated Files #
+###############################
+*_auto.h
+*_auto.cpp

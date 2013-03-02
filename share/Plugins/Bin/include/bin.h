@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef EFFECTSPREVIEWBIN_H
-#define EFFECTSPREVIEWBIN_H
+#ifndef FREI0R_H
+#define FREI0R_H
 
 #include "qbplugin.h"
 
-class EffectsPreviewBin: public QObject, public QbPlugin
+class Bin: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
@@ -33,4 +33,4 @@ class EffectsPreviewBin: public QObject, public QbPlugin
         QbElement *newElement();
 };
 
-#endif // EFFECTSPREVIEWBIN_H
+#endif // FREI0R_H

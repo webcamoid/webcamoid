@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "effectspreviewbin.h"
-#include "effectspreviewbinelement.h"
+#include "bin.h"
+#include "binelement.h"
 
-QbElement *EffectsPreviewBin::newElement()
+QbElement *Bin::newElement()
 {
-    return new EffectsPreviewBinElement();
+    return new BinElement();
 }
 
-Q_EXPORT_PLUGIN2(EffectsPreviewBin, EffectsPreviewBin)
+Q_EXPORT_PLUGIN2(Bin, Bin)

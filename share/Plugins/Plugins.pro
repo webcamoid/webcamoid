@@ -24,8 +24,7 @@ CONFIG += ordered
 
 SUBDIRS += \
     ACapsConvert \
-    EffectsBin \
-    EffectsPreviewBin \
+    Bin \
     Frei0r \
     MultiSink \
     MultiSrc \
