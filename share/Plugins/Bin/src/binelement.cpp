@@ -24,7 +24,6 @@
 BinElement::BinElement(): QbElement()
 {
     this->resetDescription();
-    this->resetRoutingMode();
 }
 
 BinElement::~BinElement()
@@ -32,41 +31,109 @@ BinElement::~BinElement()
 }
 
 QString BinElement::description() const
-{/*
-    QString str("IN. ! Element prop = color(0, 127, 255) signal > element.slot slot < element.signal ! A. ! OUT.");
-
-    YY_BUFFER_STATE bufferState = yy_scan_string(str.toUtf8().constData());
-    yyparse();
-    yy_delete_buffer(bufferState);
-*/
-    return this->m_description;
-}
-
-BinElement::RoutingMode BinElement::routingMode() const
 {
-    return this->m_routingMode;
+    return this->m_description;
 }
 
 QbElementPtr BinElement::element(QString elementName)
 {
+    return this->m_elements[elementName];
 }
 
-bool BinElement::add(QbElementPtr element)
+void BinElement::add(QbElementPtr element)
 {
+    this->m_pipelineDescription.addElement(element);
 }
 
-bool BinElement::remove(QString elementName)
+void BinElement::remove(QString elementName)
 {
+    this->m_pipelineDescription.removeElement(elementName);
 }
 
 void BinElement::setDescription(QString description)
 {
-    this->m_description = description;
-}
+    if (this->m_description == description)
+        return;
 
-void BinElement::setRoutingMode(RoutingMode pipelineRoutingMode)
-{
-    this->m_routingMode = pipelineRoutingMode;
+    ElementState preState = this->state();
+
+    this->setState(ElementStateNull);
+
+    if (this->m_description.isEmpty())
+    {
+        YY_BUFFER_STATE bufferState = yy_scan_string(description.toUtf8().constData());
+        yyparse(&this->m_pipelineDescription);
+        yy_delete_buffer(bufferState);
+
+        QString error = this->m_pipelineDescription.error();
+
+        if (error.isEmpty())
+        {
+            this->m_description = description;
+
+            this->m_elements = this->m_pipelineDescription.elements();
+            this->m_inputs = this->m_pipelineDescription.inputs();
+            this->m_outputs = this->m_pipelineDescription.outputs();
+
+            foreach (QbElementPtr element, this->m_outputs)
+                QObject::connect(element.data(),
+                                 SIGNAL(oStream(const QbPacket &)),
+                                 this,
+                                 SIGNAL(oStream(const QbPacket &)));
+        }
+        else
+        {
+            this->m_pipelineDescription.cleanAll();
+
+            qDebug() << error;
+        }
+    }
+    else if (description.isEmpty())
+    {
+        this->m_pipelineDescription.cleanAll();
+        this->m_description = description;
+    }
+    else
+    {
+        foreach (QbElementPtr element, this->m_outputs)
+            QObject::disconnect(element.data(),
+                                SIGNAL(oStream(const QbPacket &)),
+                                this,
+                                SIGNAL(oStream(const QbPacket &)));
+
+        this->m_pipelineDescription.cleanAll();
+
+        YY_BUFFER_STATE bufferState = yy_scan_string(description.toUtf8().constData());
+        yyparse(&this->m_pipelineDescription);
+        yy_delete_buffer(bufferState);
+
+        QString error = this->m_pipelineDescription.error();
+
+        if (error.isEmpty())
+        {
+            this->m_description = description;
+
+            this->m_elements = this->m_pipelineDescription.elements();
+            this->m_inputs = this->m_pipelineDescription.inputs();
+            this->m_outputs = this->m_pipelineDescription.outputs();
+
+            foreach (QbElementPtr element, this->m_outputs)
+                QObject::connect(element.data(),
+                                 SIGNAL(oStream(const QbPacket &)),
+                                 this,
+                                 SIGNAL(oStream(const QbPacket &)));
+        }
+        else
+        {
+            this->m_pipelineDescription.cleanAll();
+            this->m_description = "";
+
+            qDebug() << error;
+        }
+    }
+
+    if (!this->description().isEmpty())
+        this->setState(preState);
 }
 
 void BinElement::resetDescription()
@@ -74,12 +141,16 @@ void BinElement::resetDescription()
     this->setDescription("");
 }
 
-void BinElement::resetRoutingMode()
-{
-    this->setRoutingMode(RoutingModeNoCheck);
-}
-
 void BinElement::iStream(const QbPacket &packet)
 {
-    Q_UNUSED(packet);
+    foreach (QbElementPtr element, this->m_inputs)
+        element->iStream(packet);
+}
+
+void BinElement::setState(ElementState state)
+{
+    QbElement::setState(state);
+
+    foreach (QbElementPtr element, this->m_elements)
+        element->setState(this->state());
 }

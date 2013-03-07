@@ -33,7 +33,8 @@ QbElementPtr Qb::create(QString pluginId, QString elementName)
 {
     QbElementPtr element = application.newInstance(pluginId);
 
-    element->setObjectName(elementName);
+    if (!elementName.isEmpty())
+        element->setObjectName(elementName);
 
     return element;
 }

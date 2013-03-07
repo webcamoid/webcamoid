@@ -25,54 +25,39 @@
 #include "qb.h"
 #include "lexer_auto.h"
 #include "parser_auto.h"
+#include "pipeline.h"
 
 class BinElement: public QbElement
 {
     Q_OBJECT
-    Q_ENUMS(RoutingMode)
 
     Q_PROPERTY(QString description READ description
                                    WRITE setDescription
                                    RESET resetDescription)
 
-    Q_PROPERTY(RoutingMode routingMode READ routingMode
-                                       WRITE setRoutingMode
-                                       RESET resetRoutingMode)
-
     public:
-        /// Actions to do if some element doesn't exist
-        enum RoutingMode
-        {
-            RoutingModeNoCheck, // Build the pipeline as is.
-            RoutingModeFail,    // If an element doesn't exist, create a void
-                                // graph.
-            RoutingModeRemove,  // If an element doesn't exist, create a graph
-                                // without the element and it's connections.
-            RoutingModeForce    // If an element doesn't exist try to connect
-                                // all elements connected to the lost element.
-        };
-
         explicit BinElement();
         ~BinElement();
 
         Q_INVOKABLE QString description() const;
-        Q_INVOKABLE RoutingMode routingMode() const;
 
         Q_INVOKABLE QbElementPtr element(QString elementName);
-        Q_INVOKABLE bool add(QbElementPtr element);
-        Q_INVOKABLE bool remove(QString elementName);
+        Q_INVOKABLE void add(QbElementPtr element);
+        Q_INVOKABLE void remove(QString elementName);
 
     private:
         QString m_description;
-        RoutingMode m_routingMode;
+        QMap<QString, QbElementPtr> m_elements;
+        QList<QbElementPtr> m_inputs;
+        QList<QbElementPtr> m_outputs;
+        Pipeline m_pipelineDescription;
 
     public slots:
         void setDescription(QString description);
-        void setRoutingMode(RoutingMode routingMode);
         void resetDescription();
-        void resetRoutingMode();
 
         void iStream(const QbPacket &packet);
+        void setState(ElementState state);
 };
 
 #endif // BINELEMENT_H

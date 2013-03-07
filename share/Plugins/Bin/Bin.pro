@@ -32,7 +32,8 @@ CONFIG += plugin
 
 HEADERS += \
     include/bin.h \
-    include/binelement.h
+    include/binelement.h \
+    include/pipeline.h
 
 INCLUDEPATH += \
     include \
@@ -51,7 +52,8 @@ QT += core gui script
 
 SOURCES += \
     src/bin.cpp \
-    src/binelement.cpp
+    src/binelement.cpp \
+    src/pipeline.cpp
 
 TEMPLATE = lib
 

@@ -1,18 +1,43 @@
-%{
+/* Webcamod, webcam capture plasmoid.
+ * Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+ *
+ * Webcamod is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Webcamod is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Email     : hipersayan DOT x AT gmail DOT com
+ * Web-Site 1: http://github.com/hipersayanX/Webcamoid
+ * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ */
+
+%code requires {
 #include <QtGui>
 
+#include "pipeline.h"
+
 extern int yylex(void);
-void yyerror(const char *s);
-%}
+void yyerror(Pipeline *pipelineDescription, const char *s);
+}
 
 %union {
     QVariant *QVariant_t;
     QString *QString_t;
+    QStringList *QStringList_t;
 }
 
 %error-verbose
 %define parse.lac full
 %locations
+%parse-param {Pipeline *pipelineDescription}
 
 /* Terminals */
 %token <QVariant_t> TOK_INTIGER
@@ -79,6 +104,11 @@ void yyerror(const char *s);
 %type <QVariant_t> variantMapPair
 %type <QVariant_t> variantMapItems
 %type <QVariant_t> variantMap
+%type <QStringList_t> signalSlot
+%type <QStringList_t> signalSlotLt
+%type <QStringList_t> signalSlotGt
+%type <QString_t> element
+%type <QStringList_t> pipe
 
 %destructor {delete $$;} variant
 %destructor {delete $$;} size
@@ -102,43 +132,125 @@ void yyerror(const char *s);
 %destructor {delete $$;} variantMapPair
 %destructor {delete $$;} variantMapItems
 %destructor {delete $$;} variantMap
+%destructor {delete $$;} signalSlot
+%destructor {delete $$;} signalSlotLt
+%destructor {delete $$;} signalSlotGt
+%destructor {delete $$;} element
+%destructor {delete $$;} pipe
 
 %%
+
+start: pipeline {
+           if (!pipelineDescription->linkAll())
+           {
+               yyerror(pipelineDescription, pipelineDescription->error().toUtf8().constData());
+
+               YYABORT;
+           }
+
+           if (!pipelineDescription->connectAll())
+           {
+               yyerror(pipelineDescription, pipelineDescription->error().toUtf8().constData());
+
+               YYABORT;
+           }
+       }
+     ;
 
 pipeline: extendedPipe
         | extendedPipe TOK_COMMA extendedPipe
         ;
 
-extendedPipe: pipe
+extendedPipe: pipe {
+                  pipelineDescription->addLinks(*$1);
+
+                  delete $1;
+              }
             | TOK_REFIN TOK_EXCL pipe TOK_EXCL TOK_REFOUT {
-                  qDebug() << "IN." << "OUT.";
+                  $3->prepend("IN.");
+                  $3->append("OUT.");
+
+                  pipelineDescription->addLinks(*$3);
+
+                  delete $3;
               }
             | TOK_REFIN TOK_EXCL pipe {
-                  qDebug() << "IN.";
+                  $3->prepend("IN.");
+
+                  pipelineDescription->addLinks(*$3);
+
+                  delete $3;
               }
             | pipe TOK_EXCL TOK_REFOUT {
-                  qDebug() << "OUT.";
+                  $1->append("OUT.");
+
+                  pipelineDescription->addLinks(*$1);
+
+                  delete $1;
               }
             ;
 
-pipe: element
-    | pipe TOK_EXCL element
+pipe: element {
+          $$ = new QStringList();
+
+          *$$ << *$1;
+
+          delete $1;
+      }
+    | pipe TOK_EXCL element {
+          $$ = $1;
+
+          *$$ << *$3;
+
+          delete $3;
+      }
     ;
 
 element: TOK_IDENTIFIER {
-             qDebug() << *$1;
+             QbElementPtr element = Qb::create(*$1);
+
+             if (!element)
+             {
+                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toUtf8().constData());
+                 delete $1;
+
+                 YYABORT;
+             }
+
+             QString name = pipelineDescription->addElement(element);
+             $$ = new QString();
+             *$$ = name;
 
              delete $1;
          }
        | TOK_IDENTIFIER configs {
-             qDebug() << *$1;
+             QbElementPtr element = Qb::create(*$1);
+
+             if (!element)
+             {
+                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toUtf8().constData());
+                 delete $1;
+
+                 YYABORT;
+             }
+
+             QVariantMap properties = pipelineDescription->properties();
+
+             foreach (QString key, properties.keys())
+                 element->setProperty(key.toUtf8().constData(),
+                                      properties[key]);
+
+             pipelineDescription->resetProperties();
+             QString name = pipelineDescription->addElement(element);
+             pipelineDescription->solveConnections(name);
+
+             $$ = new QString();
+             *$$ = name;
 
              delete $1;
          }
        | TOK_IDENTIFIER TOK_DOT {
-             qDebug() << *$1 << ".";
-
-             delete $1;
+             $$ = $1;
          }
        ;
 
@@ -147,7 +259,11 @@ configs: config
        ;
 
 config: property
-      | signalSlot
+      | signalSlot {
+            pipelineDescription->setConnections(pipelineDescription->connections() << *$1);
+
+            delete $1;
+        }
       ;
 
 signalSlot: signalSlotLt
@@ -155,20 +271,24 @@ signalSlot: signalSlotLt
           ;
 
 signalSlotLt: TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER TOK_LEFTANGLEBRACKET TOK_IDENTIFIER {
-                  qDebug() << "connect(" << "this" << ","
-                                         << *$5 << ","
-                                         << *$1 << ","
-                                         << *$3 << ")";
+                 $$ = new QStringList();
+
+                 *$$ << "this?"
+                     << *$5
+                     << *$1
+                     << *$3;
 
                   delete $1;
                   delete $3;
                   delete $5;
               }
             | TOK_IDENTIFIER TOK_LEFTANGLEBRACKET TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER {
-                  qDebug() << "connect(" << *$3 << ","
-                                         << *$5 << ","
-                                         << "this" << ","
-                                         << *$1 << ")";
+                  $$ = new QStringList();
+
+                  *$$ << *$3
+                      << *$5
+                      << "this?"
+                      << *$1;
 
                   delete $1;
                   delete $3;
@@ -177,20 +297,24 @@ signalSlotLt: TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER TOK_LEFTANGLEBRACKET TOK_IDE
             ;
 
 signalSlotGt: TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER TOK_RIGHTANGLEBRACKET TOK_IDENTIFIER {
-                  qDebug() << "connect(" << *$1 << ","
-                                         << *$3 << ","
-                                         << "this" << ","
-                                         << *$5 << ")";
+                  $$ = new QStringList();
+
+                  *$$ << *$1
+                      << *$3
+                      << "this?"
+                      << *$5;
 
                   delete $1;
                   delete $3;
                   delete $5;
               }
             | TOK_IDENTIFIER TOK_RIGHTANGLEBRACKET TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER {
-                  qDebug() << "connect(" << "this" << ","
-                                         << *$1 << ","
-                                         << *$3 << ","
-                                         << *$5 << ")";
+                  $$ = new QStringList();
+
+                  *$$ << "this?"
+                      << *$1
+                      << *$3
+                      << *$5;
 
                   delete $1;
                   delete $3;
@@ -199,7 +323,9 @@ signalSlotGt: TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER TOK_RIGHTANGLEBRACKET TOK_ID
             ;
 
 property: TOK_IDENTIFIER TOK_EQUAL variant {
-              qDebug() << *$1 << "=" << *$3;
+              QVariantMap properties = pipelineDescription->properties();
+              properties[*$1] = *$3;
+              pipelineDescription->setProperties(properties);
 
               delete $1;
               delete $3;
@@ -578,11 +704,14 @@ number: TOK_INTIGER
 
 %%
 
-void yyerror(const char *s)
+void yyerror(Pipeline *pipelineDescription, const char *s)
 {
-    qDebug() << "from(lin: " << yylloc.first_line << ", col:"
-                             << yylloc.first_column << "),"
-             << "to(lin: " << yylloc.last_line << ", col:"
-                           << yylloc.last_column << "):"
-             << s;
+    QString error = QString("from(lin: %1, col: %2), to(lin: %3, col: %4): %5")
+                        .arg(yylloc.first_line)
+                        .arg(yylloc.first_column)
+                        .arg(yylloc.last_line)
+                        .arg(yylloc.last_column)
+                        .arg(s);
+
+    pipelineDescription->setError(error);
 }
