@@ -24,6 +24,7 @@
 BinElement::BinElement(): QbElement()
 {
     this->resetDescription();
+    this->resetBlocking();
 }
 
 BinElement::~BinElement()
@@ -33,6 +34,11 @@ BinElement::~BinElement()
 QString BinElement::description() const
 {
     return this->m_description;
+}
+
+bool BinElement::blocking() const
+{
+    return this->m_blocking;
 }
 
 QbElementPtr BinElement::element(QString elementName)
@@ -136,15 +142,34 @@ void BinElement::setDescription(QString description)
         this->setState(preState);
 }
 
+void BinElement::setBlocking(bool blocking)
+{
+    this->m_blocking = blocking;
+}
+
 void BinElement::resetDescription()
 {
     this->setDescription("");
 }
 
+void BinElement::resetBlocking()
+{
+    this->setBlocking(false);
+}
+
 void BinElement::iStream(const QbPacket &packet)
 {
-    foreach (QbElementPtr element, this->m_inputs)
-        element->iStream(packet);
+    if (this->state() != ElementStatePlaying)
+        return;
+
+    if (this->description().isEmpty())
+    {
+        if (!this->blocking())
+            emit this->oStream(packet);
+    }
+    else
+        foreach (QbElementPtr element, this->m_inputs)
+            element->iStream(packet);
 }
 
 void BinElement::setState(ElementState state)

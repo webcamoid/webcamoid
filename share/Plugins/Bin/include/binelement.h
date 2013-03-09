@@ -35,11 +35,16 @@ class BinElement: public QbElement
                                    WRITE setDescription
                                    RESET resetDescription)
 
+    Q_PROPERTY(bool blocking READ blocking
+                             WRITE setBlocking
+                             RESET resetBlocking)
+
     public:
         explicit BinElement();
         ~BinElement();
 
         Q_INVOKABLE QString description() const;
+        Q_INVOKABLE bool blocking() const;
 
         Q_INVOKABLE QbElementPtr element(QString elementName);
         Q_INVOKABLE void add(QbElementPtr element);
@@ -47,6 +52,7 @@ class BinElement: public QbElement
 
     private:
         QString m_description;
+        bool m_blocking;
         QMap<QString, QbElementPtr> m_elements;
         QList<QbElementPtr> m_inputs;
         QList<QbElementPtr> m_outputs;
@@ -54,7 +60,9 @@ class BinElement: public QbElement
 
     public slots:
         void setDescription(QString description);
+        void setBlocking(bool blocking);
         void resetDescription();
+        void resetBlocking();
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

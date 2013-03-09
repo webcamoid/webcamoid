@@ -26,6 +26,7 @@ SUBDIRS += \
     ACapsConvert \
     Bin \
     Frei0r \
+    ImgMagick \
     MultiSink \
     MultiSrc \
     QImageConvert \
