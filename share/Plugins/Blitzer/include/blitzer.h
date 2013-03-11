@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef IMGMAGICK_H
-#define IMGMAGICK_H
+#ifndef BLITZER_H
+#define BLITZER_H
 
 #include "qbplugin.h"
 
-class ImgMagick: public QObject, public QbPlugin
+class Blitzer: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
@@ -33,4 +33,4 @@ class ImgMagick: public QObject, public QbPlugin
         QbElement *newElement();
 };
 
-#endif // IMGMAGICK_H
+#endif // BLITZER_H

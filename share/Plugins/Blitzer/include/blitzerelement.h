@@ -19,22 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef IMGMAGICKELEMENT_H
-#define IMGMAGICKELEMENT_H
+#ifndef BLITZERELEMENT_H
+#define BLITZERELEMENT_H
 
-#include <Magick++.h>
+#include <QtGui>
+#include <qimageblitz/qimageblitz.h>
 
 #include "qb.h"
 
-class ImgMagickElement: public QbElement
+class BlitzerElement: public QbElement
 {
     Q_OBJECT
     Q_PROPERTY(QString method READ method WRITE setMethod RESET resetMethod)
     Q_PROPERTY(QVariantList params READ params WRITE setParams RESET resetParams)
 
     public:
-        explicit ImgMagickElement();
-        ~ImgMagickElement();
+        explicit BlitzerElement();
+        ~BlitzerElement();
 
         Q_INVOKABLE QString method() const;
         Q_INVOKABLE QVariantList params() const;
@@ -42,8 +43,16 @@ class ImgMagickElement: public QbElement
     private:
         QString m_method;
         QVariantList m_params;
-        QbElementPtr m_capsConvert;
-        Magick::Image m_magickimage;
+        QbElementPtr m_convert;
+        QImage m_oFrame;
+        QMap<QString, Blitz::RGBChannel> m_stringToRGBChannel;
+        QMap<QString, Blitz::EffectQuality> m_stringToEffectQuality;
+        QMap<QString, Blitz::GradientType> m_stringToGradientType;
+        QMap<QString, QImage::InvertMode> m_stringToInvertMode;
+        QMap<QString, Blitz::ModulationType> m_stringToModulationType;
+        QMap<QString, Qt::AspectRatioMode> m_stringToAspectRatioMode;
+        QMap<QString, Blitz::ScaleFilterType> m_stringToScaleFilterType;
+        QMap<QImage::Format, QString> m_qtToFormat;
 
     public slots:
         void setMethod(QString method);
@@ -58,4 +67,4 @@ class ImgMagickElement: public QbElement
         void processFrame(const QbPacket &packet);
 };
 
-#endif // IMGMAGICKELEMENT_H
+#endif // BLITZERELEMENT_H

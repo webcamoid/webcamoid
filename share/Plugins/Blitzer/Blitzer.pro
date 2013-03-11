@@ -28,46 +28,28 @@ exists(commons.pri) {
     }
 }
 
-CPPFLAGS = $$system(Magick++-config --cppflags)
-
-for(param, CPPFLAGS) {
-    dparam = $$replace(param, -D,)
-    iparam = $$replace(param, -I,)
-
-    !contains(param, $$dparam) {
-        DEFINES += $${dparam}
-    }
-
-    !contains(param, $$iparam) {
-        INCLUDEPATH += $${iparam}
-    }
-}
-
 CONFIG += plugin
 
 HEADERS += \
-    include/imgmagick.h \
-    include/imgmagickelement.h
+    include/blitzer.h \
+    include/blitzerelement.h
 
 INCLUDEPATH += \
     include \
     ../../../include
 
-LIBS += $$system(Magick++-config --libs)
-
 QT += core
 
 SOURCES += \
-    src/imgmagick.cpp \
-    src/imgmagickelement.cpp
+    src/blitzer.cpp \
+    src/blitzerelement.cpp
 
 TEMPLATE = lib
 
 unix {
     CONFIG += link_pkgconfig
 
-    PKGCONFIG += \
-        libavutil
+    PKGCONFIG += qimageblitz
 
     INSTALLS += target
 

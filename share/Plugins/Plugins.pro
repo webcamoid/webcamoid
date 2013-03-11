@@ -25,8 +25,8 @@ CONFIG += ordered
 SUBDIRS += \
     ACapsConvert \
     Bin \
+    Blitzer \
     Frei0r \
-    ImgMagick \
     MultiSink \
     MultiSrc \
     QImageConvert \

@@ -71,7 +71,7 @@ void QImageConvertElement::setFormat(QString format)
 
 void QImageConvertElement::resetFormat()
 {
-    this->setFormat("RGB888");
+    this->setFormat("ARGB32");
 }
 
 void QImageConvertElement::iStream(const QbPacket &packet)
@@ -110,6 +110,8 @@ void QImageConvertElement::processFrame(const QbPacket &packet)
     oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());
     oPacket.setDuration(packet.duration());
+    oPacket.setTimeBase(packet.timeBase());
+    oPacket.setIndex(packet.index());
 
     emit this->oStream(oPacket);
 }

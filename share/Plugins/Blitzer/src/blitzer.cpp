@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "imgmagick.h"
-#include "imgmagickelement.h"
+#include "blitzer.h"
+#include "blitzerelement.h"
 
-QbElement *ImgMagick::newElement()
+QbElement *Blitzer::newElement()
 {
-    return new ImgMagickElement();
+    return new BlitzerElement();
 }
 
-Q_EXPORT_PLUGIN2(ImgMagick, ImgMagick)
+Q_EXPORT_PLUGIN2(Blitzer, Blitzer)
