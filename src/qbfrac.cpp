@@ -29,13 +29,15 @@ QbFrac::QbFrac(QObject *parent): QObject(parent)
 }
 
 QbFrac::QbFrac(int num, int den):
+    QObject(NULL),
     m_num(num),
     m_den(den)
 {
     this->m_isValid = den? true: false;
 }
 
-QbFrac::QbFrac(QString fracString)
+QbFrac::QbFrac(QString fracString):
+    QObject(NULL)
 {
     this->m_num = 0;
     this->m_den = 0;
@@ -57,7 +59,7 @@ QbFrac::QbFrac(QString fracString)
 }
 
 QbFrac::QbFrac(const QbFrac &other):
-    QObject(NULL),
+    QObject(other.parent()),
     m_num(other.m_num),
     m_den(other.m_den),
     m_isValid(other.m_isValid)

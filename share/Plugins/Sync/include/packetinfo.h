@@ -19,42 +19,39 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBCAPS_H
-#define QBCAPS_H
+#ifndef PACKETINFO_H
+#define PACKETINFO_H
 
-#include <QtCore>
+#include "qb.h"
 
-class QbCaps: public QObject
+class PacketInfo: public QObject
 {
     Q_OBJECT
-
-    Q_PROPERTY(bool isValid READ isValid)
-    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType RESET resetMimeType)
+    Q_PROPERTY(QbPacket packet READ packet WRITE setPacket RESET resetPacket)
+    Q_PROPERTY(QByteArray data READ data WRITE setData RESET resetData)
 
     public:
-        explicit QbCaps(QObject *parent=NULL);
-        QbCaps(QString capsString);
-        QbCaps(const QbCaps &other);
-        virtual ~QbCaps();
-        QbCaps &operator =(const QbCaps &other);
-        bool operator ==(const QbCaps &other) const;
-        bool operator !=(const QbCaps &other) const;
+        explicit PacketInfo(QObject *parent=NULL);
+        PacketInfo(const QbPacket &packet, const QByteArray &data);
+        PacketInfo(const PacketInfo &other);
+        ~PacketInfo();
 
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE QString mimeType() const;
-        Q_INVOKABLE QString toString() const;
-        Q_INVOKABLE QbCaps &update(const QbCaps &other);
-        Q_INVOKABLE bool isCompatible(const QbCaps &other) const;
+        PacketInfo &operator =(const PacketInfo &other);
+
+        Q_INVOKABLE QbPacket packet() const;
+        Q_INVOKABLE QByteArray data() const;
 
     private:
-        bool m_isValid;
-        QString m_mimeType;
+        QbPacket m_packet;
+        QByteArray m_data;
 
     public slots:
-        void setMimeType(QString mimeType);
-        void resetMimeType();
+        void setPacket(const QbPacket &packet);
+        void setData(const QByteArray &data);
+        void resetPacket();
+        void resetData();
 };
 
-Q_DECLARE_METATYPE(QbCaps)
+Q_DECLARE_METATYPE(PacketInfo)
 
-#endif // QBCAPS_H
+#endif // PACKETINFO_H

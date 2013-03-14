@@ -612,11 +612,15 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                timeBase,
                                this->m_audioStream->time_base);
 
-    int64_t ptsDiff = codecContext->frame_size /
+    int samples = packet.caps().property("samples").toInt();
+    int frame_size = codecContext->frame_size;
+
+    if (!frame_size)
+        frame_size = samples;
+
+    int64_t ptsDiff = frame_size /
                       (packet.caps().property("rate").toFloat() *
                        packet.timeBase().value());
-
-    int samples = packet.caps().property("samples").toInt();
 
     static AVFrame iFrame;
     avcodec_get_frame_defaults(&iFrame);
@@ -631,9 +635,9 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                  1) < 0)
         return;
 
-    for (int offset = 0; offset < samples; offset += codecContext->frame_size)
+    for (int offset = 0; offset < samples; offset += frame_size)
     {
-        QByteArray oBuffer(codecContext->frame_size *
+        QByteArray oBuffer(frame_size *
                            av_get_bytes_per_sample(codecContext->sample_fmt) *
                            codecContext->channels,
                            0);
@@ -641,13 +645,13 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         static AVFrame oFrame;
         avcodec_get_frame_defaults(&oFrame);
 
-        oFrame.nb_samples = codecContext->frame_size;
+        oFrame.nb_samples = frame_size;
 
         if (avcodec_fill_audio_frame(&oFrame,
                                      codecContext->channels,
                                      codecContext->sample_fmt,
                                      (const uint8_t *) oBuffer.constData(),
-                                     codecContext->frame_size *
+                                     frame_size *
                                      av_get_bytes_per_sample(codecContext->sample_fmt) *
                                      codecContext->channels,
                                      1) < 0)
@@ -657,7 +661,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                             iFrame.data,
                             0,
                             offset,
-                            codecContext->frame_size,
+                            frame_size,
                             codecContext->channels,
                             codecContext->sample_fmt) < 0)
             continue;

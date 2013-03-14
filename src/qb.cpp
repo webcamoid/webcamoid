@@ -24,6 +24,14 @@
 
 static QbApplication application;
 
+void Qb::init()
+{
+    qRegisterMetaType<QbCaps>("QbCaps");
+    qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");
+    qRegisterMetaType<QbFrac>("QbFrac");
+    qRegisterMetaType<QbPacket>("QbPacket");
+}
+
 QStringList Qb::pluginsPaths()
 {
     return application.pluginsPaths();

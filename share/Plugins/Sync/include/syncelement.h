@@ -19,42 +19,38 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBCAPS_H
-#define QBCAPS_H
+#ifndef SYNCELEMENT_H
+#define SYNCELEMENT_H
 
-#include <QtCore>
+#include "worker.h"
 
-class QbCaps: public QObject
+class SyncElement: public QbElement
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool isValid READ isValid)
-    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType RESET resetMimeType)
-
     public:
-        explicit QbCaps(QObject *parent=NULL);
-        QbCaps(QString capsString);
-        QbCaps(const QbCaps &other);
-        virtual ~QbCaps();
-        QbCaps &operator =(const QbCaps &other);
-        bool operator ==(const QbCaps &other) const;
-        bool operator !=(const QbCaps &other) const;
-
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE QString mimeType() const;
-        Q_INVOKABLE QString toString() const;
-        Q_INVOKABLE QbCaps &update(const QbCaps &other);
-        Q_INVOKABLE bool isCompatible(const QbCaps &other) const;
+        explicit SyncElement();
+        ~SyncElement();
 
     private:
-        bool m_isValid;
-        QString m_mimeType;
+        bool m_ready;
+        bool m_clockReady;
+        quint64 m_clock;
+        Worker *m_worker;
+        QThread *m_thread;
+
+    signals:
+        void ready(int id);
 
     public slots:
-        void setMimeType(QString mimeType);
-        void resetMimeType();
+        void setClockReady(bool ready);
+        void setClock(quint64 msecs);
+
+        void iStream(const QbPacket &packet);
+        void setState(ElementState state);
+
+    private slots:
+        void threadFinished();
 };
 
-Q_DECLARE_METATYPE(QbCaps)
-
-#endif // QBCAPS_H
+#endif // SYNCELEMENT_H

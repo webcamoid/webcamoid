@@ -18,19 +18,36 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS += \
-    ACapsConvert \
-    Bin \
-    Blitzer \
-    Frei0r \
-    Multiplex \
-    MultiSink \
-    MultiSrc \
-    QImageConvert \
-    Sync \
-    VCapsConvert \
-    VFilter
+HEADERS += \
+    include/multiplex.h \
+    include/multiplexelement.h
+
+INCLUDEPATH += \
+    include \
+    ../../../include
+
+QT += core
+
+SOURCES += \
+    src/multiplex.cpp \
+    src/multiplexelement.cpp
+
+TEMPLATE = lib
+
+unix {
+    INSTALLS += target
+
+    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
+}

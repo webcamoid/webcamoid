@@ -19,18 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QB_H
-#define QB_H
+#ifndef SYNC_H
+#define SYNC_H
 
 #include "qbplugin.h"
 
-namespace Qb
+class Sync: public QObject, public QbPlugin
 {
-    void init();
-    QStringList pluginsPaths();
-    QbElementPtr create(QString pluginId, QString elementName="");
-    void setPluginsPaths(QStringList pluginsPaths);
-    void resetPluginsPaths();
-}
+    Q_OBJECT
+    Q_INTERFACES(QbPlugin)
 
-#endif // QB_H
+    public:
+        QbElement *newElement();
+};
+
+#endif // SYNC_H

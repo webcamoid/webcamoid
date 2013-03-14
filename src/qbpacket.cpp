@@ -53,7 +53,7 @@ QbPacket::QbPacket(QbCaps caps, const void *data,
 }
 
 QbPacket::QbPacket(const QbPacket &other):
-    QObject(NULL),
+    QObject(other.parent()),
     m_caps(other.m_caps),
     m_data(other.m_data),
     m_dataSize(other.m_dataSize),

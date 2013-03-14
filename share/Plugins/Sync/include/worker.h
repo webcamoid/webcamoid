@@ -19,42 +19,35 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBCAPS_H
-#define QBCAPS_H
+#ifndef WORKER_H
+#define WORKER_H
 
-#include <QtCore>
+#include "packetinfo.h"
 
-class QbCaps: public QObject
+class Worker: public QObject
 {
     Q_OBJECT
-
-    Q_PROPERTY(bool isValid READ isValid)
-    Q_PROPERTY(QString mimeType READ mimeType WRITE setMimeType RESET resetMimeType)
+    Q_PROPERTY(QbElement::ElementState state READ state WRITE setState RESET resetState)
 
     public:
-        explicit QbCaps(QObject *parent=NULL);
-        QbCaps(QString capsString);
-        QbCaps(const QbCaps &other);
-        virtual ~QbCaps();
-        QbCaps &operator =(const QbCaps &other);
-        bool operator ==(const QbCaps &other) const;
-        bool operator !=(const QbCaps &other) const;
+        explicit Worker(QObject *parent=NULL);
+        ~Worker();
 
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE QString mimeType() const;
-        Q_INVOKABLE QString toString() const;
-        Q_INVOKABLE QbCaps &update(const QbCaps &other);
-        Q_INVOKABLE bool isCompatible(const QbCaps &other) const;
+        Q_INVOKABLE QbElement::ElementState state() const;
 
     private:
-        bool m_isValid;
-        QString m_mimeType;
+        QbElement::ElementState m_state;
+        QQueue<PacketInfo *> m_queue;
+        QByteArray m_data;
+
+    signals:
+        void oStream(const QbPacket &packet);
 
     public slots:
-        void setMimeType(QString mimeType);
-        void resetMimeType();
+        void doWork();
+        void appendPacketInfo(const PacketInfo &packetInfo);
+        void setState(QbElement::ElementState state);
+        void resetState();
 };
 
-Q_DECLARE_METATYPE(QbCaps)
-
-#endif // QBCAPS_H
+#endif // WORKER_H

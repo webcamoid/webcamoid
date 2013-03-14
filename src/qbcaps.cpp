@@ -52,7 +52,7 @@ QbCaps::QbCaps(QString capsString)
 }
 
 QbCaps::QbCaps(const QbCaps &other):
-    QObject(NULL),
+    QObject(other.parent()),
     m_isValid(other.m_isValid),
     m_mimeType(other.m_mimeType)
 {
@@ -128,6 +128,25 @@ QbCaps &QbCaps::update(const QbCaps &other)
                           other.property(property.constData()));
 
     return *this;
+}
+
+bool QbCaps::isCompatible(const QbCaps &other) const
+{
+    if (this->mimeType() != other.mimeType())
+        return false;
+
+    bool compatible = true;
+
+    foreach (QByteArray property, other.dynamicPropertyNames())
+        if (!this->dynamicPropertyNames().contains(property) ||
+            this->property(property.constData()) != other.property(property.constData()))
+        {
+            compatible = false;
+
+            break;
+        }
+
+    return compatible;
 }
 
 void QbCaps::setMimeType(QString mimeType)

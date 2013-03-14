@@ -19,18 +19,46 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QB_H
-#define QB_H
+#include "sleep.h"
 
-#include "qbplugin.h"
+/*!
+  \class Sleep
 
-namespace Qb
+  \brief This class stop the program execution by a desired amount of time.
+ */
+
+/*!
+  \fn void Sleep::usleep(unsigned long usecs)
+
+  \param usecs Micro seconds.
+
+  \brief Causes the program to sleep for \i usecs milliseconds.
+ */
+void Sleep::usleep(unsigned long usecs)
 {
-    void init();
-    QStringList pluginsPaths();
-    QbElementPtr create(QString pluginId, QString elementName="");
-    void setPluginsPaths(QStringList pluginsPaths);
-    void resetPluginsPaths();
+    QThread::usleep(usecs);
 }
 
-#endif // QB_H
+/*!
+  \fn void Sleep::msleep(unsigned long msecs)
+
+  \param msecs Mili seconds.
+
+  \brief Causes the program to sleep for \i msecs milliseconds.
+ */
+void Sleep::msleep(unsigned long msecs)
+{
+    QThread::msleep(msecs);
+}
+
+/*!
+  \fn void Sleep::sleep(unsigned long secs)
+
+  \param secs Seconds.
+
+  \brief Causes the program to sleep for \i secs milliseconds.
+ */
+void Sleep::sleep(unsigned long secs)
+{
+    QThread::sleep(secs);
+}

@@ -86,4 +86,6 @@ class QbElement: public QObject
     friend class QbApplication;
 };
 
+Q_DECLARE_METATYPE(QbElement::ElementState)
+
 #endif // QBELEMENT_H
