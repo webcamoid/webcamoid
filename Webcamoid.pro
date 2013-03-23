@@ -29,11 +29,10 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-    share/Plugins \
+    Qb \
     Lib.pro \
-    Qb
-#    Plasmoid.pro \
-#    StandAlone.pro
+    Plasmoid.pro \
+    StandAlone.pro
 
 # Install rules
 

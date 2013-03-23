@@ -33,21 +33,21 @@ VideoRecordConfig::VideoRecordConfig(MediaTools *mediaTools, QWidget *parent):
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->m_isInit = true;
-    QVariantList videoRecordFormats = this->m_mediaTools->videoRecordFormats();
+    QList<QStringList> videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 
     this->ui->tbwVideoFormats->setRowCount(videoRecordFormats.length());
 
     int row = 0;
 
-    foreach (QVariant fmt, videoRecordFormats)
+    foreach (QStringList format, videoRecordFormats)
     {
         int column = 0;
 
-        foreach (QString param, fmt.toStringList())
+        foreach (QString param, format)
         {
             this->ui->tbwVideoFormats->setItem(row,
-                                           column,
-                                           new QTableWidgetItem(param));
+                                               column,
+                                               new QTableWidgetItem(param));
 
             column++;
         }
@@ -78,14 +78,9 @@ void VideoRecordConfig::update()
     for (int row = 0; row < this->ui->tbwVideoFormats->rowCount(); row++)
     {
         QString suffix = this->ui->tbwVideoFormats->item(row, 0)->text();
-        QString videoEncoder = this->ui->tbwVideoFormats->item(row, 1)->text();
-        QString audioEncoder = this->ui->tbwVideoFormats->item(row, 2)->text();
-        QString muxer = this->ui->tbwVideoFormats->item(row, 3)->text();
+        QString options = this->ui->tbwVideoFormats->item(row, 1)->text();
 
-        this->m_mediaTools->setVideoRecordFormat(suffix,
-                                          videoEncoder,
-                                          audioEncoder,
-                                          muxer);
+        this->m_mediaTools->setVideoRecordFormat(suffix, options);
     }
 }
 

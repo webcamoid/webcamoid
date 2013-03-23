@@ -72,7 +72,6 @@ void Plasmoid::createConfigurationInterface(KConfigDialog *configDialog)
     this->m_mainWidget->addVideoFormatsConfigDialog(configDialog);
     this->m_mainWidget->addStreamsConfigDialog(configDialog);
     this->m_mainWidget->addGeneralConfigsDialog(configDialog);
-    this->m_mainWidget->addFeaturesInfoDialog(configDialog);
 
     QObject::connect(configDialog,
                      SIGNAL(okClicked()),

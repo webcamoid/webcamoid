@@ -73,7 +73,6 @@ Makefile*
 ######################
 build
 
-
 # Ignore Auto Generated Files #
 ###############################
 *_auto.h

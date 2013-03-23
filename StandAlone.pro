@@ -28,12 +28,12 @@ CONFIG += qt
 
 INCLUDEPATH += \
     include \
-    /usr/include/KDE \
-    /usr/include/gstreamer-0.10
+    Qb/include \
+    /usr/include/KDE
 
 LIBS += \
-    -L. \
-    -lWebcamoid
+    -L./Qb -lQb \
+    -L. -lWebcamoid \
 
 QT += core gui
 
@@ -48,13 +48,6 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libv4l2 \
-        gstreamer-0.10 \
-        gstreamer-app-0.10
-
     INSTALLS += \
         target \
         desktop

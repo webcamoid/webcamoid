@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/webcamoid">
+        <file>share/effects.xml</file>
+    </qresource>
+</RCC>

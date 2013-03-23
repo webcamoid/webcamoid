@@ -28,7 +28,6 @@
 #include "commons.h"
 #include "appenvironment.h"
 #include "effects.h"
-#include "featuresinfo.h"
 #include "generalconfig.h"
 #include "streamsconfig.h"
 #include "mediatools.h"
@@ -53,7 +52,6 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
 
         AppEnvironment *m_appEnvironment;
         Effects *m_cfgEffects;
-        FeaturesInfo *m_cfgFeaturesInfo;
         GeneralConfig *m_cfgGeneralConfig;
         QImage m_webcamFrame;
         StreamsConfig *m_cfgStreams;
@@ -76,7 +74,6 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void addVideoFormatsConfigDialog(KConfigDialog *configDialog);
         void addStreamsConfigDialog(KConfigDialog *configDialog);
         void addGeneralConfigsDialog(KConfigDialog *configDialog);
-        void addFeaturesInfoDialog(KConfigDialog *configDialog);
         void showFrame(const QImage &webcamFrame);
 
     private slots:

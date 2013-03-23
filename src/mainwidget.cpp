@@ -158,18 +158,6 @@ void MainWidget::addGeneralConfigsDialog(KConfigDialog *configDialog)
                    false);
 }
 
-void MainWidget::addFeaturesInfoDialog(KConfigDialog *configDialog)
-{
-    this->m_cfgFeaturesInfo = new FeaturesInfo(this->m_mediaTools, this);
-
-    configDialog->
-           addPage(this->m_cfgFeaturesInfo,
-                   this->tr("Features"),
-                   "dialog-information",
-                   this->tr("This table will show you what packages you need."),
-                   false);
-}
-
 void MainWidget::showConfigDialog(KConfigDialog *configDialog)
 {
     if (!configDialog)
@@ -191,7 +179,6 @@ void MainWidget::showConfigDialog(KConfigDialog *configDialog)
     this->addVideoFormatsConfigDialog(configDialog);
     this->addStreamsConfigDialog(configDialog);
     this->addGeneralConfigsDialog(configDialog);
-    this->addFeaturesInfoDialog(configDialog);
 
     QObject::connect(configDialog,
                      SIGNAL(okClicked()),
@@ -216,13 +203,13 @@ QString MainWidget::saveFile(bool video)
     if (video)
     {
         QString videosPath = KGlobalSettings::videosPath();
-        QVariantList videoRecordFormats = this->m_mediaTools->videoRecordFormats();
+        QList<QStringList> videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 
         QStringList filtersList;
         bool fst = true;
 
-        foreach (QVariant format, videoRecordFormats)
-            foreach (QString s, format.toList().at(0).toString().split(",", QString::SkipEmptyParts))
+        foreach (QStringList format, videoRecordFormats)
+            foreach (QString s, format.at(0).split(",", QString::SkipEmptyParts))
             {
                 s = s.trimmed();
                 filtersList << QString("%1 file (*.%2)").arg(s.toUpper()).arg(s.toLower());
@@ -308,12 +295,12 @@ void MainWidget::closeEvent(QCloseEvent *event)
 }
 
 void MainWidget::showFrame(const QImage &webcamFrame)
-{/*
+{
     if (!this->m_mediaTools->device().isEmpty())
-    {*/
+    {
         this->m_webcamFrame = webcamFrame;
         this->ui->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
-//    }
+    }
 }
 
 void MainWidget::updateWebcams()

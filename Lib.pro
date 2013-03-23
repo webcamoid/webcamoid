@@ -46,7 +46,6 @@ DEFINES += COMMONS_LIBRARY
 
 FORMS = \
     share/ui/effects.ui \
-    share/ui/featuresinfo.ui \
     share/ui/generalconfig.ui \
     share/ui/mainwidget.ui \
     share/ui/streamsconfig.ui \
@@ -57,48 +56,40 @@ HEADERS = \
     include/appenvironment.h \
     include/commons.h \
     include/effects.h \
-    include/featuresinfo.h \
     include/generalconfig.h \
     include/mainwidget.h \
     include/mediatools.h \
     include/streamsconfig.h \
     include/videorecordconfig.h \
-    include/webcamconfig.h \
-    include/qbelement.h \
-    include/qbplugin.h \
-    include/qbpacket.h \
-    include/qbcaps.h \
-    include/qbfrac.h \
-    include/qb.h \
-    include/qbapplication.h
+    include/webcamconfig.h
 
 INCLUDEPATH += \
     include \
-    /usr/include/KDE \
-    /usr/include/gstreamer-1.0
+    Qb/include \
+    /usr/include/KDE
 
 LIBS += \
+    -L./Qb -lQb \
     -lkdecore \
     -lkdeui
 
-QT += core gui
+OTHER_FILES = \
+    share/effects.xml
+
+QT += core gui xml
+
+RESOURCES += \
+    Effects.qrc
 
 SOURCES = \
     src/appenvironment.cpp \
     src/effects.cpp \
-    src/featuresinfo.cpp \
     src/generalconfig.cpp \
     src/mainwidget.cpp \
     src/mediatools.cpp \
     src/streamsconfig.cpp \
     src/videorecordconfig.cpp \
-    src/webcamconfig.cpp \
-    src/qbpacket.cpp \
-    src/qbcaps.cpp \
-    src/qbelement.cpp \
-    src/qbfrac.cpp \
-    src/qb.cpp \
-    src/qbapplication.cpp
+    src/webcamconfig.cpp
 
 TARGET = $${COMMONS_APPNAME}
 
@@ -125,13 +116,6 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libv4l2 \
-        gstreamer-1.0 \
-        gstreamer-app-1.0
-
     INSTALLS += \
         target \
         translations
