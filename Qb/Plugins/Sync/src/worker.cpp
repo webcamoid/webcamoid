@@ -27,6 +27,9 @@ Worker::Worker(QObject *parent): QObject(parent)
     this->m_fps = 0;
     this->m_state = QbElement::ElementStateNull;
     this->m_unlocked = true;
+
+    QObject::connect(&this->m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
+
     this->resetWaitUnlock();
     this->resetTime();
 }
@@ -58,47 +61,44 @@ void Worker::resetWaitUnlock()
 
 void Worker::doWork()
 {
-    while (this->state() == QbElement::ElementStatePlaying)
+    if (!this->m_unlocked)
+        return;
+
+    if (this->m_queue.isEmpty())
     {
-        if (!this->m_unlocked)
-            continue;
-
-        if (this->m_queue.isEmpty())
-        {
-            if (!this->m_packet.caps().isValid() || this->m_data.isEmpty())
-                continue;
-        }
-        else
-        {
-            PacketInfo *packetInfo = this->m_queue.dequeue();
-            this->m_packet = packetInfo->packet();
-            this->m_data = packetInfo->data();
-            delete packetInfo;
-        }
-
-        QString fpsString = this->m_packet.caps().property("fps").toString();
-        double fps = QbFrac(fpsString).value();
-
-        if (this->m_fps != fps)
-        {
-            this->m_fps = fps;
-            this->resetTime();
-        }
-
-        this->m_packet.setData(this->m_data.constData());
-        emit this->oStream(this->m_packet);
-
-        quint64 diff = this->m_t - this->m_ti;
-        quint64 wait = this->m_dti + diff;
-        Sleep::usleep(wait);
-        this->m_t += this->m_dt;
-        this->m_ti += wait;
+        if (!this->m_packet.caps().isValid() || this->m_data.isEmpty())
+            return;
     }
+    else
+    {
+        QSharedPointer<PacketInfo> packetInfo = this->m_queue.dequeue();
+        this->m_packet = packetInfo->packet();
+        this->m_data = packetInfo->data();
+    }
+
+    QString fpsString = this->m_packet.caps().property("fps").toString();
+    double fps = QbFrac(fpsString).value();
+
+    if (this->m_fps != fps)
+    {
+        this->m_fps = fps;
+        this->resetTime();
+    }
+
+    this->m_packet.setData(this->m_data.constData());
+    emit this->oStream(this->m_packet);
+
+    quint64 diff = this->m_t - this->m_ti;
+    quint64 wait = this->m_dti + diff;
+
+    Sleep::usleep(wait);
+    this->m_t += this->m_dt;
+    this->m_ti += wait;
 }
 
 void Worker::appendPacketInfo(const PacketInfo &packetInfo)
 {
-    this->m_queue.enqueue(new PacketInfo(packetInfo));
+    this->m_queue.enqueue(QSharedPointer<PacketInfo>(new PacketInfo(packetInfo)));
 }
 
 void Worker::dropBuffers()
@@ -121,14 +121,18 @@ void Worker::setState(QbElement::ElementState state)
     if (state == QbElement::ElementStateReady ||
         state == QbElement::ElementStateNull)
     {
+        this->m_timer.stop();
         this->m_unlocked = !this->m_waitUnlock;
         this->resetTime();
         this->dropBuffers();
     }
 
+    if (state == QbElement::ElementStatePaused)
+        this->m_timer.stop();
+
     if (preState != QbElement::ElementStatePlaying &&
         state == QbElement::ElementStatePlaying)
-        this->doWork();
+        this->m_timer.start();
 }
 
 void Worker::resetState()

@@ -81,7 +81,7 @@ QSize MultiSrcElement::size()
 
     if (index >= 0)
     {
-        VideoStream *stream = static_cast<VideoStream *>(this->m_streams[index]);
+        VideoStream *stream = static_cast<VideoStream *>(this->m_streams[index].data());
 
         if (stream)
             size = stream->size();
@@ -253,6 +253,11 @@ bool MultiSrcElement::init()
 
         // draw_mouse (int)
     }
+    else if (this->location() == "pulse" ||
+             QRegExp("hw:\\d+").exactMatch(this->location()))
+        inputFormat = av_find_input_format("alsa");
+    else if (this->location() == "/dev/dsp")
+        inputFormat = av_find_input_format("oss");
 
     QStringList mmsSchemes;
 
@@ -292,28 +297,23 @@ bool MultiSrcElement::init()
 
     av_dump_format(this->m_inputContext, 0, uri.toUtf8().constData(), false);
 
-    foreach (AbstractStream *stream, this->m_streams)
-        delete stream;
-
     this->m_streamsCount = this->m_inputContext->nb_streams;
     this->m_streams.clear();
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++)
     {
         AVMediaType type = AbstractStream::type(this->m_inputContext, i);
-        AbstractStream *stream;
+        QSharedPointer<AbstractStream> stream;
 
         if (type == AVMEDIA_TYPE_VIDEO)
-            stream = new VideoStream(this->m_inputContext, i);
+            stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext, i));
         else if (type == AVMEDIA_TYPE_AUDIO)
-            stream = new AudioStream(this->m_inputContext, i);
+            stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext, i));
         else
-            stream = new AbstractStream(this->m_inputContext, i);
+            stream = QSharedPointer<AbstractStream>(new AbstractStream(this->m_inputContext, i));
 
         if (stream->isValid())
             this->m_streams[i] = stream;
-        else
-            delete stream;
     }
 
     av_init_packet(&this->m_packet);
@@ -323,9 +323,6 @@ bool MultiSrcElement::init()
 
 void MultiSrcElement::uninit()
 {
-    foreach (AbstractStream *stream, this->m_streams)
-        delete stream;
-
     this->m_streams.clear();
 
     if (this->m_inputContext)
@@ -503,7 +500,7 @@ void MultiSrcElement::readPackets()
         return;
     }
 
-    AbstractStream *stream = this->m_streams[this->m_packet.stream_index];
+    AbstractStream *stream = this->m_streams[this->m_packet.stream_index].data();
     QbPacket oPacket = stream->readPacket(&this->m_packet);
 
     if (oPacket.caps().isValid())

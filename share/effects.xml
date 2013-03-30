@@ -1,59 +1,96 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
-    <effect name="Bulge">bulge</effect>
-    <effect name="Burn">burn</effect>
-    <effect name="Cartoon">frei0r-filter-cartoon</effect>
-    <effect name="Che Guevara">frei0r-filter-twolay0r</effect>
-    <effect name="Chromium">chromium</effect>
-    <effect name="Crazy Colors">frei0r-filter-sop-sat</effect>
+    <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
+    <effect name="Cartoon">Frei0r pluginName='cartoon'</effect>
+    <effect name="Inverted BW">Frei0r pluginName='colordistance'</effect>
+    <effect name="Hulk">Frei0r pluginName='colorize' params={'saturation': 1, 'hue': 0.29}</effect>
+    <effect name="Mauve">Frei0r pluginName='colorize' params={'saturation': 1, 'hue': 0.86}</effect>
+    <effect name="Noir">Frei0r pluginName='colorize' params={'saturation': 0}</effect>
+    <effect name="Saturation">Frei0r pluginName='colorize' params={'saturation': 1}</effect>
+    <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
+    <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
+    <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
+    <effect name="X-Pro">Frei0r pluginName='colortap' params={'table': 'xpro'}</effect>
+    <effect name="Sepia">Frei0r pluginName='colortap' params={'table': 'sepia'}</effect>
+    <effect name="Heat">Frei0r pluginName='colortap' params={'table': 'heat'}</effect>
+    <effect name="Red Green">Frei0r pluginName='colortap' params={'table': 'red_green'}</effect>
+    <effect name="Old Photo">Frei0r pluginName='colortap' params={'table': 'old_photo'}</effect>
+    <effect name="X-Ray">Frei0r pluginName='colortap' params={'table': 'xray'}</effect>
+    <effect name="Chromium">Frei0r pluginName='colortap' params={'table': 'esses'}</effect>
+    <effect name="Yellow Blue">Frei0r pluginName='colortap' params={'table': 'yellow_blue'}</effect>
+    <effect name="Past">Frei0r pluginName='delaygrab'</effect>
+    <effect name="Distort">Frei0r pluginName='distort0r'</effect>
+    <effect name="Dither">Frei0r pluginName='dither'</effect>
+    <effect name="Emboss">Frei0r pluginName='emboss'</effect>
+    <effect name="Equalize">Frei0r pluginName='equaliz0r'</effect>
+    <effect name="Face Detect">
+    Frei0r pluginName='facedetect' params={
+        'Recheck': 0.001,
+        'Threads': 0.02,
+        'Stroke': 0.04,
+        'Scale': 0.25,
+        'Smallest': 0.004,
+        'Color 1': color(255, 0, 0),
+        'Color 2': color(0, 255, 0),
+        'Color 3': color(0, 0, 255),
+        'Color 4': color(0, 255, 255),
+        'Color 5': color(255, 0, 255),
+        'Classifier': '/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml'
+    }
+    </effect>
+    <effect name="Vertical Mirror">Frei0r pluginName='flippo' params={'X axis': 0, 'Y axis': 1}</effect>
+    <effect name="Horizontal Mirror">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 0}</effect>
+    <effect name="Flip Top Left">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 1}</effect>
+    <effect name="Invert">Frei0r pluginName='invert0r'</effect>
+    <effect name="Cinema">Frei0r pluginName='letterb0xed'</effect>
+    <effect name="Nervous">Frei0r pluginName='nervous'</effect>
+    <effect name="Pixelate">Frei0r pluginName='pixeliz0r'</effect>
+    <effect name="Primary Colors">Frei0r pluginName='primaries' params={'Factor': 1}</effect>
+    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>
+    <effect name="Photocopy">Frei0r pluginName='sigmoidaltransfer'</effect>
+    <effect name="Sobel">Frei0r pluginName='sobel'</effect>
+    <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
+    <effect name="The Godfather">Frei0r pluginName='threelay0r'</effect>
+    <effect name="Che Guevara">Frei0r pluginName='twolay0r'</effect>
+    <effect name="Vignette">Frei0r pluginName='vignette' params={'soft': 0.3, 'clearCenter': 0.5}</effect>
+    <effect name="Charcoal">Blitzer method='charcoal'</effect>
+    <effect name="Edges">Blitzer method='edge'</effect>
+    <effect name="Emboss">Blitzer method='emboss'</effect>
+    <effect name="implode">Blitzer method='implode' params=[0.5]</effect>
+    <effect name="Normalize">Blitzer method='normalize'</effect>
+    <effect name="Oil Paint">Blitzer method='oilPaint' params=[2, 'Low']</effect>
+    <effect name="Swirl">Blitzer method='swirl' params=[90]</effect>
+    <effect name="Wave">Blitzer method='wave'</effect>
+    <effect name="Old">Aging</effect>
+
+<!--
     <effect name="Dices">dicetv</effect>
-    <effect name="Distort">frei0r-filter-distort0r</effect>
-    <effect name="Drugs">frei0r-filter-hqdn3d spatial=0.5 temporal=1.0</effect>
-    <effect name="Edges">edgetv</effect>
-    <effect name="Equalize">frei0r-filter-equaliz0r</effect>
-    <effect name="Exclusion">exclusion</effect>
-    <effect name="Fish Eye">fisheye</effect>
-    <effect name="Flip Top Left">videoflip method=upper-left-diagonal</effect>
-    <effect name="Flip Top Right">videoflip method=upper-right-diagonal</effect>
-    <effect name="Flip horizontally">videoflip method=horizontal-flip</effect>
-    <effect name="Flip vertically">videoflip method=vertical-flip</effect>
-    <effect name="Heat">coloreffects preset=heat</effect>
-    <effect name="Hulk">videobalance saturation=1.5 hue=-0.5</effect>
     <effect name="Hypnotic">optv</effect>
-    <effect name="Invert">frei0r-filter-invert0r</effect>
-    <effect name="Kaleidoscope">kaleidoscope</effect>
-    <effect name="Marble">marble</effect>
-    <effect name="Mauve">videobalance saturation=1.5 hue=+0.5</effect>
-    <effect name="Mirror">mirror</effect>
-    <effect name="Nervous">frei0r-filter-nervous</effect>
-    <effect name="Noir">videobalance saturation=0</effect>
-    <effect name="Old">agingtv</effect>
-    <effect name="Past">frei0r-filter-delaygrab</effect>
-    <effect name="Pinch">pinch</effect>
-    <effect name="Pixelate">frei0r-filter-pixeliz0r</effect>
-    <effect name="Primary Colors">frei0r-filter-primaries</effect>
     <effect name="Psychedelic">shagadelictv</effect>
     <effect name="Quark">quarktv</effect>
     <effect name="Radioactive">radioactv</effect>
     <effect name="Ripple">rippletv</effect>
+    <effect name="Streak">streaktv</effect>
+    <effect name="Vertigo">vertigotv</effect>
+    <effect name="Warp">warptv</effect>
+
     <effect name="Rotate 180">videoflip method=rotate-180</effect>
     <effect name="Rotate Left">videoflip method=counterclockwise</effect>
     <effect name="Rotate Right">videoflip method=clockwise</effect>
-    <effect name="Saturation">videobalance saturation=2</effect>
-    <effect name="Scan Lines">revtv</effect>
-    <effect name="Sepia">coloreffects preset=sepia</effect>
-    <effect name="Sobel">frei0r-filter-sobel</effect>
+
+    <effect name="Bulge">bulge</effect>
+    <effect name="Burn">burn</effect>
+    <effect name="Exclusion">exclusion</effect>
+    <effect name="Fish Eye">fisheye</effect>
+    <effect name="Kaleidoscope">kaleidoscope</effect>
+    <effect name="Marble">marble</effect>
+    <effect name="Pinch">pinch</effect>
     <effect name="Solarize">solarize</effect>
     <effect name="Sphere">sphere</effect>
     <effect name="Square">square</effect>
-    <effect name="Streak">streaktv</effect>
     <effect name="Stretch">stretch</effect>
-    <effect name="The Godfather">frei0r-filter-threelay0r</effect>
     <effect name="Tunnel">tunnel</effect>
     <effect name="Twirl">twirl</effect>
-    <effect name="Vertigo">vertigotv</effect>
-    <effect name="Warp">warptv</effect>
     <effect name="Water Ripple">waterripple</effect>
-    <effect name="X-Pro">coloreffects preset=xpro</effect>
-    <effect name="X-Ray">coloreffects preset=xray</effect>
+-->
 </effects>

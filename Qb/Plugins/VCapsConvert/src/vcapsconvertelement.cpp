@@ -27,7 +27,6 @@ VCapsConvertElement::VCapsConvertElement(): QbElement()
 
     this->m_scaleContext = NULL;
 
-    this->m_iPictureAlloc = -1;
     this->m_oPictureAlloc = -1;
     this->m_oWidth = -1;
     this->m_oHeight = -1;
@@ -56,17 +55,13 @@ void VCapsConvertElement::cleanAll()
         this->m_oPictureAlloc = -1;
     }
 
-    if (this->m_iPictureAlloc >= 0)
-    {
-//        avpicture_free(&this->m_iPicture);
-        this->m_iPictureAlloc = -1;
-    }
-
     if (this->m_scaleContext)
     {
         sws_freeContext(this->m_scaleContext);
         this->m_scaleContext = NULL;
     }
+
+    this->m_curInputCaps = QbCaps();
 }
 
 void VCapsConvertElement::setCaps(QString format)
@@ -120,15 +115,18 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
 
     PixelFormat iFormat = av_get_pix_fmt(format.toUtf8().constData());
 
+    AVPicture iPicture;
+
+    if (avpicture_alloc(&iPicture,
+                        iFormat,
+                        iWidth,
+                        iHeight) < 0)
+        return;
+
     if (packet.caps() != this->m_curInputCaps)
     {
         this->cleanAll();
         this->m_scaleContext = NULL;
-
-        this->m_iPictureAlloc = avpicture_alloc(&this->m_iPicture,
-                                                iFormat,
-                                                iWidth,
-                                                iHeight);
 
         if (this->m_oWidth < 0)
         {
@@ -163,7 +161,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
         this->m_curInputCaps = packet.caps();
     }
 
-    if (this->m_iPictureAlloc < 0 || this->m_oPictureAlloc < 0)
+    if (this->m_oPictureAlloc < 0)
         return;
 
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
@@ -178,15 +176,15 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                                                 NULL,
                                                 NULL);
 
-    avpicture_fill(&this->m_iPicture,
+    avpicture_fill(&iPicture,
                    (uint8_t *) packet.data(),
                    iFormat,
                    iWidth,
                    iHeight);
 
     sws_scale(this->m_scaleContext,
-              (uint8_t **) this->m_iPicture.data,
-              this->m_iPicture.linesize,
+              (uint8_t **) iPicture.data,
+              iPicture.linesize,
               0,
               iHeight,
               this->m_oPicture.data,

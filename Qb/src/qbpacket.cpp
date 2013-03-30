@@ -86,6 +86,25 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
     return *this;
 }
 
+QString QbPacket::toString() const
+{
+    QString packetInfo = QString("Caps     : %1\n"
+                                 "Data Size: %2\n"
+                                 "Dts      : %3\n"
+                                 "Pts      : %4\n"
+                                 "Duration : %5\n"
+                                 "Time Base: %6\n"
+                                 "Index    : %7\n").arg(this->caps().toString())
+                                                   .arg(this->dataSize())
+                                                   .arg(this->dts())
+                                                   .arg(this->pts())
+                                                   .arg(this->duration())
+                                                   .arg(this->timeBase().toString())
+                                                   .arg(this->index());
+
+    return packetInfo;
+}
+
 QbCaps QbPacket::caps() const
 {
     return this->m_caps;
@@ -204,4 +223,11 @@ void QbPacket::resetTimeBase()
 void QbPacket::resetIndex()
 {
     this->setIndex(-1);
+}
+
+QDebug operator <<(QDebug debug, const QbPacket &packet)
+{
+    debug.nospace() << packet.toString();
+
+    return debug.space();
 }

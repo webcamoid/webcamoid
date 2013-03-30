@@ -161,7 +161,7 @@ start: pipeline {
      ;
 
 pipeline: extendedPipe
-        | extendedPipe TOK_COMMA extendedPipe
+        | pipeline TOK_COMMA extendedPipe
         ;
 
 extendedPipe: pipe {

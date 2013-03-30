@@ -55,17 +55,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Video Encoder</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Audio Encoder</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Muxer</string>
+       <string>Options</string>
       </property>
      </column>
     </widget>

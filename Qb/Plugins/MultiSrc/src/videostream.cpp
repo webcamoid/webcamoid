@@ -67,6 +67,14 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
 
     const char *format = av_get_pix_fmt_name(this->codecContext()->pix_fmt);
 
+    QbFrac fps;
+
+    if (this->stream()->avg_frame_rate.num &&
+        this->stream()->avg_frame_rate.den)
+        fps = QbFrac(this->stream()->avg_frame_rate.num, this->stream()->avg_frame_rate.den);
+    else
+        fps = QbFrac(this->stream()->r_frame_rate.num, this->stream()->r_frame_rate.den);
+
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
                         "width=%2,"
@@ -74,8 +82,8 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                         "fps=%4/%5").arg(format)
                                    .arg(this->codecContext()->width)
                                    .arg(this->codecContext()->height)
-                                   .arg(this->stream()->avg_frame_rate.num)
-                                   .arg(this->stream()->avg_frame_rate.den));
+                                   .arg(fps.num())
+                                   .arg(fps.den()));
 
     if (caps != this->m_oCaps)
     {

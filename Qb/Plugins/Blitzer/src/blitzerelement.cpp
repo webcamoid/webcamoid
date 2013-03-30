@@ -212,21 +212,19 @@ void BlitzerElement::processFrame(const QbPacket &packet)
 
             if (matrixList.length() > 0)
             {
-                float *matrix = new float[matrixList.length()];
+                QSharedPointer<float> matrix(new float[matrixList.length()]);
                 bool ok = true;
 
                 for (int i = 0; i < matrixList.length(); i++)
                 {
-                    matrix[i] = matrixList[i].toFloat(&ok);
+                    matrix.data()[i] = matrixList[i].toFloat(&ok);
 
                     if (!ok)
                         break;
                 }
 
                 if (ok)
-                    this->m_oFrame = Blitz::convolve(this->m_oFrame, matrixList.length(), matrix);
-
-                delete matrix;
+                    this->m_oFrame = Blitz::convolve(this->m_oFrame, matrixList.length(), matrix.data());
             }
         }
     }
@@ -271,21 +269,19 @@ void BlitzerElement::processFrame(const QbPacket &packet)
 
             if (matrixList.length() > 0)
             {
-                int *matrix = new int[matrixList.length()];
+                QSharedPointer <int> matrix(new int[matrixList.length()]);
                 bool ok = true;
 
                 for (int i = 0; i < matrixList.length(); i++)
                 {
-                    matrix[i] = matrixList[i].toInt(&ok);
+                    matrix.data()[i] = matrixList[i].toInt(&ok);
 
                     if (!ok)
                         break;
                 }
 
                 if (ok)
-                    this->m_oFrame = Blitz::convolveInteger(this->m_oFrame, matrixList.length(), matrix);
-
-                delete matrix;
+                    this->m_oFrame = Blitz::convolveInteger(this->m_oFrame, matrixList.length(), matrix.data());
             }
         }
         else if (this->params().length() > 1)
@@ -294,12 +290,12 @@ void BlitzerElement::processFrame(const QbPacket &packet)
 
             if (matrixList.length() > 0)
             {
-                int *matrix = new int[matrixList.length()];
+                QSharedPointer<int> matrix(new int[matrixList.length()]);
                 bool ok = true;
 
                 for (int i = 0; i < matrixList.length(); i++)
                 {
-                    matrix[i] = matrixList[i].toInt(&ok);
+                    matrix.data()[i] = matrixList[i].toInt(&ok);
 
                     if (!ok)
                         break;
@@ -310,10 +306,8 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     int divisor = this->params()[0].toInt(&ok);
 
                     if (ok)
-                        this->m_oFrame = Blitz::convolveInteger(this->m_oFrame, matrixList.length(), matrix, divisor);
+                        this->m_oFrame = Blitz::convolveInteger(this->m_oFrame, matrixList.length(), matrix.data(), divisor);
                 }
-
-                delete matrix;
             }
         }
     }

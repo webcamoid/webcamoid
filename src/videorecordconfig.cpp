@@ -62,7 +62,6 @@ VideoRecordConfig::VideoRecordConfig(MediaTools *mediaTools, QWidget *parent):
 
 VideoRecordConfig::~VideoRecordConfig()
 {
-    delete this->ui;
 }
 
 void VideoRecordConfig::update()

@@ -70,7 +70,6 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
 
 Effects::~Effects()
 {
-    delete this->ui;
 }
 
 void Effects::update()
@@ -130,6 +129,10 @@ void Effects::setEffectPreview(const QImage &image, QString effect)
     if (!this->m_mediaTools->device().isEmpty())
     {
         int index = this->m_effectsNames.indexOf(effect);
+
+        if (index < 0)
+            return;
+
         this->m_effectsWidgets[index]->setIcon(QIcon(QPixmap::fromImage(image)));
     }
 }

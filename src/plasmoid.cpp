@@ -33,9 +33,6 @@ Plasmoid::~Plasmoid()
     else
     {
     }
-
-    if (this->m_mainWidget)
-        delete this->m_mainWidget;
 }
 
 void Plasmoid::init()
@@ -47,7 +44,7 @@ void Plasmoid::init()
     this->setAspectRatioMode(Plasma::IgnoreAspectRatio);
     this->setMinimumSize(this->m_minimumPlasmoidSize);
 
-    this->m_mainWidget = new MainWidget(NULL, this);
+    this->m_mainWidget = QSharedPointer<MainWidget>(new MainWidget(NULL, this));
 
     this->m_defaultPlasmoidSize = QSizeF(this->m_mainWidget->size());
     this->resize(this->m_defaultPlasmoidSize);
@@ -59,7 +56,7 @@ void Plasmoid::init()
     this->m_graphicsWidget->setLayout(this->m_glyGraphicsWidget);
 
     this->m_proxyWidget = new QGraphicsProxyWidget(this->m_graphicsWidget);
-    this->m_proxyWidget->setWidget(this->m_mainWidget);
+    this->m_proxyWidget->setWidget(this->m_mainWidget.data());
     this->m_proxyWidget->resize(this->m_defaultPlasmoidSize);
     this->m_proxyWidget->setMinimumSize(this->m_minimumPlasmoidSize);
     this->m_glyGraphicsWidget->addItem(this->m_proxyWidget, 0, 0, 1, 1);
@@ -75,12 +72,12 @@ void Plasmoid::createConfigurationInterface(KConfigDialog *configDialog)
 
     QObject::connect(configDialog,
                      SIGNAL(okClicked()),
-                     this->m_mainWidget,
+                     this->m_mainWidget.data(),
                      SLOT(saveConfigs()));
 
     QObject::connect(configDialog,
                      SIGNAL(cancelClicked()),
-                     this->m_mainWidget,
+                     this->m_mainWidget.data(),
                      SLOT(saveConfigs()));
 }
 

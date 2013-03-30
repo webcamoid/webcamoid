@@ -33,43 +33,25 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
     this->m_isInit = true;
-    QVariantList streams = this->m_mediaTools->streams();
+    QList<QStringList> streams = this->m_mediaTools->streams();
 
     this->ui->tbwCustomStreams->setRowCount(streams.length());
 
     int row = 0;
 
-    foreach (QVariant stream, streams)
+    foreach (QStringList stream, streams)
     {
-        QString name = stream.toList().at(1).toString();
+        QString name = stream.at(1);
 
         this->ui->tbwCustomStreams->setItem(row,
                                             0,
                                             new QTableWidgetItem(name));
 
-        QString uri = stream.toList().at(0).toString();
+        QString uri = stream.at(0);
 
         this->ui->tbwCustomStreams->setItem(row,
                                             1,
                                             new QTableWidgetItem(uri));
-
-        bool hasAudio = stream.toList().at(2).toBool();
-        QTableWidgetItem *item = new QTableWidgetItem();
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(hasAudio? Qt::Checked: Qt::Unchecked);
-
-        this->ui->tbwCustomStreams->setItem(row,
-                                            2,
-                                            item);
-
-        bool playAudio = stream.toList().at(3).toBool();
-        item = new QTableWidgetItem();
-        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-        item->setCheckState(playAudio? Qt::Checked: Qt::Unchecked);
-
-        this->ui->tbwCustomStreams->setItem(row,
-                                            3,
-                                            item);
 
         row++;
     }
@@ -81,7 +63,6 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
 
 StreamsConfig::~StreamsConfig()
 {
-    delete this->ui;
 }
 
 void StreamsConfig::update()
@@ -92,15 +73,13 @@ void StreamsConfig::update()
     if (this->m_isInit)
         return;
 
-    this->m_mediaTools->clearCustomStreams();
+    this->m_mediaTools->resetStreams();
 
     for (int row = 0; row < this->ui->tbwCustomStreams->rowCount(); row++)
     {
         QTableWidgetItem *item;
         QString description;
         QString devName;
-        bool hasAudio = false;
-        bool playAudio = false;
 
         if ((item = this->ui->tbwCustomStreams->item(row, 0)))
             description = item->text();
@@ -108,16 +87,7 @@ void StreamsConfig::update()
         if ((item = this->ui->tbwCustomStreams->item(row, 1)))
             devName = item->text();
 
-        if ((item = this->ui->tbwCustomStreams->item(row, 2)))
-            hasAudio = item->checkState() == Qt::Checked? true: false;
-
-        if ((item = this->ui->tbwCustomStreams->item(row, 3)))
-            playAudio = item->checkState() == Qt::Checked? true: false;
-
-        this->m_mediaTools->setCustomStream(devName,
-                                            description,
-                                            hasAudio,
-                                            playAudio);
+        this->m_mediaTools->setStream(devName, description);
     }
 }
 
@@ -127,16 +97,6 @@ void StreamsConfig::on_btnAdd_clicked()
     this->ui->tbwCustomStreams->insertRow(row);
     this->ui->tbwCustomStreams->setItem(row, 0, new QTableWidgetItem());
     this->ui->tbwCustomStreams->setItem(row, 1, new QTableWidgetItem());
-
-    QTableWidgetItem *item = new QTableWidgetItem();
-    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-    item->setCheckState(Qt::Unchecked);
-    this->ui->tbwCustomStreams->setItem(row, 2, item);
-
-    item = new QTableWidgetItem();
-    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-    item->setCheckState(Qt::Unchecked);
-    this->ui->tbwCustomStreams->setItem(row, 3, item);
 
     this->update();
 }

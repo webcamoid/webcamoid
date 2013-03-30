@@ -42,7 +42,7 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
         ~Effects();
 
     private:
-        Ui::Effects *ui;
+        QSharedPointer<Ui::Effects> ui;
 
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;

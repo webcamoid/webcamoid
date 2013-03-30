@@ -131,7 +131,6 @@ QMetaMethod Pipeline::methodByName(QObject *object, QString methodName, QMetaMet
         QMetaMethod method = object->metaObject()->method(i);
 
         if (method.methodType() == methodType &&
-            method.access() == QMetaMethod::Public &&
             QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(method.signature()))
         {
             rMethod = method;

@@ -19,52 +19,45 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#ifndef SCRATCH_H
+#define SCRATCH_H
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
-}
+#include <QtCore>
 
-#include "qbelement.h"
-
-class VCapsConvertElement: public QbElement
+class Scratch: public QObject
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+    Q_PROPERTY(int life READ life WRITE setLife RESET resetLife)
+    Q_PROPERTY(int x READ x WRITE setX RESET resetX)
+    Q_PROPERTY(int dx READ dx WRITE setDx RESET resetDx)
+    Q_PROPERTY(int init READ init WRITE setInit RESET resetInit)
 
     public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
+        explicit Scratch(QObject *parent=NULL);
+        Scratch(const Scratch &other);
+        virtual ~Scratch();
+        Scratch &operator =(const Scratch &other);
 
-        Q_INVOKABLE QString caps();
-
-    protected:
-        void uninit();
+        Q_INVOKABLE int life() const;
+        Q_INVOKABLE int x() const;
+        Q_INVOKABLE int dx() const;
+        Q_INVOKABLE int init() const;
 
     private:
-        QbCaps m_caps;
-
-        int m_oWidth;
-        int m_oHeight;
-        PixelFormat m_oFormat;
-        QByteArray m_oFrame;
-        struct SwsContext *m_scaleContext;
-        AVPicture m_oPicture;
-        int m_oPictureAlloc;
-        QbCaps m_curInputCaps;
-
-        void cleanAll();
+        int m_life;
+        int m_x;
+        int m_dx;
+        int m_init;
 
     public slots:
-        void setCaps(QString caps);
-        void resetCaps();
-
-        void iStream(const QbPacket &packet);
+        void setLife(int life);
+        void setX(int x);
+        void setDx(int dx);
+        void setInit(int init);
+        void resetLife();
+        void resetX();
+        void resetDx();
+        void resetInit();
 };
 
-#endif // VCAPSCONVERTELEMENT_H
+#endif // SCRATCH_H

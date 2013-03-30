@@ -159,3 +159,10 @@ void QbCaps::resetMimeType()
 {
     this->setMimeType("");
 }
+
+QDebug operator <<(QDebug debug, const QbCaps &caps)
+{
+    debug.nospace() << caps.toString();
+
+    return debug.space();
+}

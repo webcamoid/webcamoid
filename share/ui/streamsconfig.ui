@@ -104,16 +104,6 @@
        <string>URI</string>
       </property>
      </column>
-     <column>
-      <property name="text">
-       <string>Has Audio</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Play Audio</string>
-      </property>
-     </column>
     </widget>
    </item>
   </layout>

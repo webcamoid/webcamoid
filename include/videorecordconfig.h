@@ -42,7 +42,7 @@ class COMMONSSHARED_EXPORT VideoRecordConfig: public QWidget
         ~VideoRecordConfig();
 
     private:
-        Ui::VideoRecordConfig *ui;
+        QSharedPointer<Ui::VideoRecordConfig> ui;
 
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;

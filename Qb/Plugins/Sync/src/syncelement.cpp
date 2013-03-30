@@ -77,9 +77,7 @@ void SyncElement::iStream(const QbPacket &packet)
         emit this->ready(packet.index());
     }
 
-    this->m_worker->appendPacketInfo(PacketInfo(packet,
-                                                QByteArray((const char *) packet.data(),
-                                                           packet.dataSize())));
+    this->m_worker->appendPacketInfo(PacketInfo(packet));
 }
 
 void SyncElement::setState(ElementState state)
@@ -90,8 +88,5 @@ void SyncElement::setState(ElementState state)
         this->state() == ElementStateReady)
         this->m_ready = false;
 
-    QMetaObject::invokeMethod(this->m_worker,
-                              "setState",
-                              Qt::QueuedConnection,
-                              Q_ARG(QbElement::ElementState, state));
+    this->m_worker->setState(state);
 }

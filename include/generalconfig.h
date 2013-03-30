@@ -42,13 +42,16 @@ class COMMONSSHARED_EXPORT GeneralConfig: public QWidget
         ~GeneralConfig();
 
     private:
-        Ui::GeneralConfig *ui;
+        QSharedPointer<Ui::GeneralConfig> ui;
 
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
 
     public slots:
-        void on_chkAudioRecord_stateChanged(int state);
+        void on_chkPlaySource_stateChanged(int state);
+        void on_radMic_toggled(bool checked);
+        void on_radNone_toggled(bool checked);
+        void on_radSource_toggled(bool checked);
 };
 
 #endif // GENERALCONFIG_H

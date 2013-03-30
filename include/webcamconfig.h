@@ -42,11 +42,10 @@ class COMMONSSHARED_EXPORT WebcamConfig: public QWidget
         ~WebcamConfig();
 
     private:
-        Ui::WebcamConfig *ui;
+        QSharedPointer<Ui::WebcamConfig> ui;
 
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
-        QVariantList m_captureDevices;
         QVariantMap m_videoFormats;
         bool m_resetting;
 

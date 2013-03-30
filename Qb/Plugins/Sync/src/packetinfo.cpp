@@ -27,11 +27,11 @@ PacketInfo::PacketInfo(QObject *parent): QObject(parent)
     this->resetData();
 }
 
-PacketInfo::PacketInfo(const QbPacket &packet, const QByteArray &data):
+PacketInfo::PacketInfo(const QbPacket &packet):
     QObject(NULL),
-    m_packet(packet),
-    m_data(data)
+    m_packet(packet)
 {
+    this->m_data = QByteArray((const char *) packet.data(), packet.dataSize());
 }
 
 PacketInfo::PacketInfo(const PacketInfo &other):

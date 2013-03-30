@@ -55,6 +55,8 @@ class QbFrac: public QObject
 
         int gcd() const;
 
+        friend QDebug operator <<(QDebug debug, const QbFrac &frac);
+
     public slots:
         void reduce();
         void setNum(int num);
@@ -62,6 +64,8 @@ class QbFrac: public QObject
         void resetNum();
         void resetDen();
 };
+
+QDebug operator <<(QDebug debug, const QbFrac &frac);
 
 Q_DECLARE_METATYPE(QbFrac)
 

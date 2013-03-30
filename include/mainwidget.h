@@ -48,7 +48,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         ~MainWidget();
 
     private:
-        Ui::MainWidget *ui;
+        QSharedPointer<Ui::MainWidget> ui;
 
         AppEnvironment *m_appEnvironment;
         Effects *m_cfgEffects;

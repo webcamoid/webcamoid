@@ -19,52 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#ifndef AGING_H
+#define AGING_H
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
-}
+#include "qbplugin.h"
 
-#include "qbelement.h"
-
-class VCapsConvertElement: public QbElement
+class Aging: public QObject, public QbPlugin
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
-
-        Q_INVOKABLE QString caps();
-
-    protected:
-        void uninit();
-
-    private:
-        QbCaps m_caps;
-
-        int m_oWidth;
-        int m_oHeight;
-        PixelFormat m_oFormat;
-        QByteArray m_oFrame;
-        struct SwsContext *m_scaleContext;
-        AVPicture m_oPicture;
-        int m_oPictureAlloc;
-        QbCaps m_curInputCaps;
-
-        void cleanAll();
-
-    public slots:
-        void setCaps(QString caps);
-        void resetCaps();
-
-        void iStream(const QbPacket &packet);
+        QbElement *newElement();
 };
 
-#endif // VCAPSCONVERTELEMENT_H
+#endif // AGING_H

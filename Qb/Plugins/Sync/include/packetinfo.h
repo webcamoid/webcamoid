@@ -32,7 +32,7 @@ class PacketInfo: public QObject
 
     public:
         explicit PacketInfo(QObject *parent=NULL);
-        PacketInfo(const QbPacket &packet, const QByteArray &data);
+        PacketInfo(const QbPacket &packet);
         PacketInfo(const PacketInfo &other);
         ~PacketInfo();
 

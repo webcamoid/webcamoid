@@ -39,7 +39,8 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     this->resetDevice();
     this->resetVideoFormat();
     this->resetEffectsPreview();
-    this->resetRecordAudio();
+    this->resetPlayAudioFromSource();
+    this->m_recordAudioFrom = RecordFromMic;
     this->resetRecording();
     this->resetVideoRecordFormats();
     this->resetStreams();
@@ -47,7 +48,9 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
 
     Qb::init();
 
+#ifdef QT_DEBUG
     Qb::setPluginsPaths(Qb::pluginsPaths() << "Qb/Plugins/ACapsConvert"
+                                           << "Qb/Plugins/Aging"
                                            << "Qb/Plugins/Bin"
                                            << "Qb/Plugins/Blitzer"
                                            << "Qb/Plugins/Filter"
@@ -59,32 +62,61 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                                            << "Qb/Plugins/QImageConvert"
                                            << "Qb/Plugins/Sync"
                                            << "Qb/Plugins/VCapsConvert");
+#endif
+/*
+    QbElementPtr f = Qb::create("Frei0r");
 
-// MultiSink objectName='audioOutput' location='pulse' options='-vn -ac 2 -f alsa'
+    foreach (QString plugin, f->property("plugins").toStringList())
+    {
+        f->setProperty("pluginName", plugin);
 
+        QVariantMap info = f->property("info").toMap();
+
+        if (info["plugin_type"].toString() == "filter")
+        {
+            qDebug() << "#" << plugin << "#";
+
+            foreach (QString key, info.keys())
+                qDebug() << key << ": " << info[key];
+
+            qDebug() << "---";
+
+            QVariantMap params = f->property("params").toMap();
+
+            foreach (QString key, params.keys())
+                qDebug() << key << ": " << params[key];
+
+            qDebug() << " ";
+        }
+    }
+*/
     this->m_pipeline = Qb::create("Bin", "pipeline");
 
-    this->m_pipeline->setProperty("description",
-                                  "MultiSrc objectName='source' loop=true "
-                                  "stateChanged>videoMux.setState "
-                                  "stateChanged>effects.setState "
-                                  "stateChanged>videoSync.setState "
-                                  "stateChanged>videoOutput.setState !"
-                                  "Multiplex objectName='videoMux' "
-                                  "caps='video/x-raw' outputIndex=0 !"
-                                  "Bin objectName='effects' blocking=false !"
-                                  "Sync objectName='videoSync' !"
-                                  "QImageConvert objectName='videoOutput' ! "
-                                  "OUT. ,"
-                                  "source. !"
-                                  "Multiplex caps='audio/x-raw' outputIndex=0 !"
-                                  "Multiplex objectName='audioSwitch' "
-                                  "outputIndex=1 !"
-                                  "MultiSink objectName='audioOutput' ,"
-                                  "MultiSrc objectName='mic' !"
-                                  "Multiplex outputIndex=1 ! audioSwitch. ,"
-                                  "effects. ! MultiSink objectName='record' ,"
-                                  "audioSwitch. ! record.");
+    QString description("MultiSrc objectName='source' loop=true "
+                        "stateChanged>videoMux.setState "
+                        "stateChanged>effects.setState "
+                        "stateChanged>muxAudioInput.setState !"
+                        "Multiplex objectName='videoMux' "
+                        "caps='video/x-raw' outputIndex=0 !"
+                        "Bin objectName='effects' blocking=false !"
+                        "Sync source.stateChanged>setState !"
+                        "Probe log=false source.stateChanged>setState !"
+                        "QImageConvert source.stateChanged>setState !"
+                        "OUT. ,"
+                        "source. !"
+                        "Multiplex objectName='muxAudioInput' "
+                        "caps='audio/x-raw' outputIndex=0 !"
+                        "Multiplex objectName='audioSwitch' "
+                        "outputIndex=1 ,"
+                        "muxAudioInput. !"
+                        "MultiSink objectName='audioOutput' ,"
+                        "MultiSrc objectName='mic' !"
+                        "Multiplex outputIndex=1 "
+                        "mic.stateChanged>setState ! audioSwitch. ,"
+                        "effects. ! MultiSink objectName='record' ,"
+                        "audioSwitch. ! record.");
+
+    this->m_pipeline->setProperty("description", description);
 
     this->m_effectsPreview = Qb::create("Bin");
 
@@ -121,6 +153,8 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     this->m_pipeline->link(this);
     this->m_source->link(this->m_effectsPreview);
 
+    this->audioSetup();
+
     if (watchDevices)
     {
         this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
@@ -156,7 +190,11 @@ void MediaTools::iStream(const QbPacket &packet)
         }
     }
     else
-        emit this->previewFrameReady(*frame, sender);
+    {
+        QString name = this->nameFromHash(sender);
+
+        emit this->previewFrameReady(*frame, name);
+    }
 }
 
 QString MediaTools::device()
@@ -190,9 +228,14 @@ bool MediaTools::effectsPreview()
     return this->m_showEffectsPreview;
 }
 
-bool MediaTools::recordAudio()
+bool MediaTools::playAudioFromSource()
 {
-    return this->m_recordAudio;
+    return this->m_playAudioFromSource;
+}
+
+MediaTools::RecordFrom MediaTools::recordAudioFrom()
+{
+    return this->m_recordAudioFrom;
 }
 
 bool MediaTools::recording()
@@ -205,7 +248,7 @@ QList<QStringList> MediaTools::videoRecordFormats()
     return this->m_videoRecordFormats;
 }
 
-QVariantList MediaTools::streams()
+QList<QStringList> MediaTools::streams()
 {
     return this->m_streams;
 }
@@ -280,9 +323,9 @@ QVariantList MediaTools::videoFormats(QString device)
     return formats;
 }
 
-QVariantList MediaTools::captureDevices()
+QList<QStringList> MediaTools::captureDevices()
 {
-    QVariantList webcamsDevices;
+    QList<QStringList> webcamsDevices;
     QDir devicesDir("/dev");
 
     QStringList devices = devicesDir.entryList(QStringList() << "video*",
@@ -307,28 +350,25 @@ QVariantList MediaTools::captureDevices()
 
             if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
             {
-                QVariantList cap;
+                QStringList cap;
 
                 cap << device.fileName()
-                    << QString((const char *) capability.card)
-                    << StreamTypeWebcam;
+                    << QString((const char *) capability.card);
 
-                webcamsDevices << QVariant(cap);
+                webcamsDevices << cap;
             }
 
             device.close();
         }
     }
 
-    this->m_webcams = webcamsDevices;
+    QStringList desktopDevice;
 
-    QVariantList desktopDevice = QVariantList() << "desktop"
-                                                << this->tr("Desktop")
-                                                << StreamTypeDesktop;
+    desktopDevice << ":0.0" << this->tr("Desktop");
 
-    QVariantList allDevices = webcamsDevices +
-                              this->m_streams +
-                              QVariantList() << QVariant(desktopDevice);
+    QList<QStringList> allDevices = webcamsDevices +
+                                    this->m_streams +
+                                    QList<QStringList>() << desktopDevice;
 
     return allDevices;
 }
@@ -447,6 +487,10 @@ QMap<QString, QString> MediaTools::availableEffects()
     for (int effect = 0; effect < effectNodes.count(); effect++)
     {
         QDomNode effectNode = effectNodes.item(effect);
+
+        if (!effectNode.isElement())
+            continue;
+
         QDomNamedNodeMap attributtes = effectNode.attributes();
         QString effectName = attributtes.namedItem("name").nodeValue();
         QString effectDescription = effectNode.firstChild().toText().data();
@@ -585,31 +629,82 @@ QString MediaTools::nameFromHash(QString hash)
     return QByteArray::fromHex(hash.mid(1).toUtf8());
 }
 
-MediaTools::StreamType MediaTools::deviceType(QString device)
+void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
 {
-    QStringList webcams;
+    if (this->m_recordAudioFrom == recordAudio)
+        return;
 
-    foreach (QVariant deviceName, this->m_webcams)
-        webcams << deviceName.toList().at(0).toString();
+    if (!this->m_mic ||
+        !this->m_audioSwitch ||
+        !this->m_record)
+    {
+        this->m_recordAudioFrom = recordAudio;
 
-    QStringList streams;
+        return;
+    }
 
-    foreach (QVariant deviceName, this->m_streams)
-        streams << deviceName.toList().at(0).toString();
+    if (recordAudio == RecordFromNone)
+    {
+        if (this->m_recordAudioFrom == RecordFromMic)
+            this->m_mic->setState(QbElement::ElementStateNull);
 
-    if (webcams.contains(device))
-        return StreamTypeWebcam;
-    else if (streams.contains(device))
-        return StreamTypeURI;
-    else if (device == "desktop")
-        return StreamTypeDesktop;
+        this->m_audioSwitch->setState(QbElement::ElementStateNull);
+
+        QObject::disconnect(this->m_record.data(),
+                            SIGNAL(stateChanged(ElementState)),
+                            this->m_audioSwitch.data(),
+                            SLOT(setState(ElementState)));
+
+        if (this->m_recordAudioFrom == RecordFromMic)
+            QObject::disconnect(this->m_record.data(),
+                                SIGNAL(stateChanged(ElementState)),
+                                this->m_mic.data(),
+                                SLOT(setState(ElementState)));
+    }
     else
-        return StreamTypeUnknown;
-}
+    {
+        if (recordAudio == RecordFromSource)
+        {
+            if (this->m_recordAudioFrom == RecordFromMic)
+            {
+                this->m_mic->setState(QbElement::ElementStateNull);
 
-void MediaTools::setRecordAudio(bool recordAudio)
-{
-    this->m_recordAudio = recordAudio;
+                QObject::disconnect(this->m_record.data(),
+                                    SIGNAL(stateChanged(ElementState)),
+                                    this->m_mic.data(),
+                                    SLOT(setState(ElementState)));
+            }
+
+            this->m_audioSwitch->setProperty("inputIndex", 0);
+        }
+        else if (recordAudio == RecordFromMic)
+        {
+            if (this->m_record->state() == QbElement::ElementStatePlaying ||
+                this->m_record->state() == QbElement::ElementStatePaused)
+                this->m_mic->setState(this->m_record->state());
+
+            QObject::connect(this->m_record.data(),
+                             SIGNAL(stateChanged(ElementState)),
+                             this->m_mic.data(),
+                             SLOT(setState(ElementState)));
+
+            this->m_audioSwitch->setProperty("inputIndex", 1);
+        }
+
+        if (this->m_recordAudioFrom == RecordFromNone)
+        {
+            if (this->m_record->state() == QbElement::ElementStatePlaying ||
+                this->m_record->state() == QbElement::ElementStatePaused)
+                this->m_audioSwitch->setState(this->m_record->state());
+
+            QObject::connect(this->m_record.data(),
+                             SIGNAL(stateChanged(ElementState)),
+                             this->m_audioSwitch.data(),
+                             SLOT(setState(ElementState)));
+        }
+    }
+
+    this->m_recordAudioFrom = recordAudio;
 }
 
 void MediaTools::setRecording(bool recording, QString fileName)
@@ -677,7 +772,8 @@ void MediaTools::setDevice(QString device)
         this->resetRecording();
         this->resetEffectsPreview();
 
-        this->m_source->setState(QbElement::ElementStateNull);
+        if (this->m_source)
+            this->m_source->setState(QbElement::ElementStateNull);
 
         this->m_device = "";
         emit this->deviceChanged(this->m_device);
@@ -726,9 +822,13 @@ void MediaTools::setVideoFormat(QVariantList videoFormat, QString device)
 void MediaTools::setEffectsPreview(bool effectsPreview)
 {
     this->m_showEffectsPreview = effectsPreview;
+
+    if (!this->m_effectsPreview)
+        return;
+
     this->m_effectsPreview->setState(QbElement::ElementStateNull);
 
-    if (effectsPreview && this->m_source->state() != QbElement::ElementStatePlaying)
+    if (effectsPreview && this->m_source->state() == QbElement::ElementStatePlaying)
     {
         QString description = this->m_effectsPreview->property("description").toString();
 
@@ -770,14 +870,47 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
     }
 }
 
+void MediaTools::setPlayAudioFromSource(bool playAudio)
+{
+    this->m_playAudioFromSource = playAudio;
+
+    if (!this->m_source || !this->m_audioOutput)
+        return;
+
+    QbElement::ElementState sourceState = this->m_source->state();
+
+    if (playAudio)
+    {
+        if (sourceState == QbElement::ElementStatePlaying ||
+            sourceState == QbElement::ElementStatePaused)
+            this->m_audioOutput->setState(sourceState);
+
+        QObject::connect(this->m_source.data(),
+                         SIGNAL(stateChanged(ElementState)),
+                         this->m_audioOutput.data(),
+                         SLOT(setState(ElementState)));
+    }
+    else
+    {
+        this->m_audioOutput->setState(QbElement::ElementStateNull);
+
+        QObject::disconnect(this->m_source.data(),
+                            SIGNAL(stateChanged(ElementState)),
+                            this->m_audioOutput.data(),
+                            SLOT(setState(ElementState)));
+    }
+}
+
 void MediaTools::setVideoRecordFormats(QList<QStringList> videoRecordFormats)
 {
     this->m_videoRecordFormats = videoRecordFormats;
 }
 
-void MediaTools::setStreams(QVariantList streams)
+void MediaTools::setStreams(QList<QStringList> streams)
 {
     this->m_streams = streams;
+
+    emit this->devicesModified();
 }
 
 void MediaTools::setWindowSize(QSize windowSize)
@@ -806,9 +939,14 @@ void MediaTools::resetEffectsPreview()
     this->setEffectsPreview(false);
 }
 
-void MediaTools::resetRecordAudio()
+void MediaTools::resetPlayAudioFromSource()
 {
-    this->setRecordAudio(true);
+    this->setPlayAudioFromSource(true);
+}
+
+void MediaTools::resetRecordAudioFrom()
+{
+    this->setRecordAudioFrom(RecordFromMic);
 }
 
 void MediaTools::resetRecording()
@@ -823,7 +961,7 @@ void MediaTools::resetVideoRecordFormats()
 
 void MediaTools::resetStreams()
 {
-    this->setStreams(QVariantList());
+    this->setStreams(QList<QStringList>());
 }
 
 void MediaTools::resetWindowSize()
@@ -836,7 +974,13 @@ void MediaTools::loadConfigs()
     KSharedConfig::Ptr config = KSharedConfig::openConfig(this->m_appEnvironment->configFileName());
 
     KConfigGroup webcamConfigs = config->group("GeneralConfigs");
-    this->enableAudioRecording(webcamConfigs.readEntry("recordAudio", true));
+    this->setPlayAudioFromSource(webcamConfigs.readEntry("playAudio", true));
+
+    int recordFrom = webcamConfigs.readEntry("recordAudioFrom",
+                                             static_cast<int>(RecordFromMic));
+
+    this->setRecordAudioFrom(static_cast<RecordFrom>(recordFrom));
+
     QStringList windowSize = webcamConfigs.readEntry("windowSize", "320,240").split(",", QString::SkipEmptyParts);
     this->m_windowSize = QSize(windowSize.at(0).trimmed().toInt(),
                                windowSize.at(1).trimmed().toInt());
@@ -874,10 +1018,8 @@ void MediaTools::loadConfigs()
         {
             QStringList params = fmt.split("::");
 
-            this->setCustomStream(params.at(0).trimmed(),
-                                  params.at(1).trimmed(),
-                                  params.at(2).trimmed().toInt()? true: false,
-                                  params.at(3).trimmed().toInt()? true: false);
+            this->setStream(params.at(0).trimmed(),
+                            params.at(1).trimmed());
         }
 }
 
@@ -887,7 +1029,10 @@ void MediaTools::saveConfigs()
 
     KConfigGroup webcamConfigs = config->group("GeneralConfigs");
 
-    webcamConfigs.writeEntry("recordAudio", this->m_recordAudio);
+    webcamConfigs.writeEntry("playAudio", this->playAudioFromSource());
+
+    webcamConfigs.writeEntry("recordAudioFrom",
+                             static_cast<int>(this->recordAudioFrom()));
 
     webcamConfigs.writeEntry("windowSize", QString("%1,%2").arg(this->m_windowSize.width())
                                                            .arg(this->m_windowSize.height()));
@@ -911,11 +1056,9 @@ void MediaTools::saveConfigs()
 
     QStringList streams;
 
-    foreach (QVariant stream, this->m_streams)
-        streams << QString("%1::%2::%3::%4").arg(stream.toList().at(0).toString())
-                                            .arg(stream.toList().at(1).toString())
-                                            .arg(stream.toList().at(2).toInt())
-                                            .arg(stream.toList().at(3).toInt());
+    foreach (QStringList stream, this->m_streams)
+        streams << QString("%1::%2").arg(stream.at(0))
+                                    .arg(stream.at(1));
 
     streamsConfigs.writeEntry("streams", streams.join("&&"));
 
@@ -949,26 +1092,12 @@ void MediaTools::clearVideoRecordFormats()
     this->m_videoRecordFormats.clear();
 }
 
-void MediaTools::clearCustomStreams()
+void MediaTools::setStream(QString dev_name, QString description)
 {
-    this->m_streams.clear();
-    emit this->devicesModified();
-}
-
-void MediaTools::setCustomStream(QString dev_name, QString description, bool hasAudio, bool playAudio)
-{
-    this->m_streams << QVariant(QVariantList() << dev_name
-                                               << description
-                                               << hasAudio
-                                               << playAudio
-                                               << StreamTypeURI);
+    this->m_streams << (QStringList() << dev_name
+                                      << description);
 
     emit this->devicesModified();
-}
-
-void MediaTools::enableAudioRecording(bool enable)
-{
-    this->m_recordAudio = enable;
 }
 
 void MediaTools::setVideoRecordFormat(QString suffix, QString options)
@@ -1001,4 +1130,26 @@ void MediaTools::onDirectoryChanged(const QString &path)
     Q_UNUSED(path)
 
     emit this->devicesModified();
+}
+
+void MediaTools::audioSetup()
+{
+    if (QFileInfo("/usr/bin/pulseaudio").exists())
+    {
+        this->m_mic->setProperty("location", "pulse");
+        this->m_audioOutput->setProperty("location", "pulse");
+        this->m_audioOutput->setProperty("options", "-vn -ac 2 -f alsa");
+    }
+    else if (QFileInfo("/proc/asound/version").exists())
+    {
+        this->m_mic->setProperty("location", "hw:0");
+        this->m_audioOutput->setProperty("location", "hw:0");
+        this->m_audioOutput->setProperty("options", "-vn -ac 2 -f alsa");
+    }
+    else if (QFileInfo("/dev/dsp").exists())
+    {
+        this->m_mic->setProperty("location", "/dev/dsp");
+        this->m_audioOutput->setProperty("location", "/dev/dsp");
+        this->m_audioOutput->setProperty("options", "-vn -ac 2 -f oss");
+    }
 }

@@ -31,7 +31,7 @@
 class COMMONSSHARED_EXPORT MediaTools: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(StreamType)
+    Q_ENUMS(RecordFrom)
 
     Q_PROPERTY(QString device READ device
                               WRITE setDevice
@@ -46,9 +46,13 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
                                    WRITE setEffectsPreview
                                    RESET resetEffectsPreview)
 
-    Q_PROPERTY(bool recordAudio READ recordAudio
-                                WRITE setRecordAudio
-                                RESET resetRecordAudio)
+    Q_PROPERTY(bool playAudioFromSource READ playAudioFromSource
+                                        WRITE setPlayAudioFromSource
+                                        RESET resetPlayAudioFromSource)
+
+    Q_PROPERTY(RecordFrom recordAudioFrom READ recordAudioFrom
+                                          WRITE setRecordAudioFrom
+                                          RESET resetRecordAudioFrom)
 
     Q_PROPERTY(bool recording READ recording
                               WRITE setRecording
@@ -58,21 +62,20 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
                                                      WRITE setVideoRecordFormats
                                                      RESET resetVideoRecordFormats)
 
-    Q_PROPERTY(QVariantList streams READ streams
-                                    WRITE setStreams
-                                    RESET resetStreams)
+    Q_PROPERTY(QList<QStringList> streams READ streams
+                                          WRITE setStreams
+                                          RESET resetStreams)
 
     Q_PROPERTY(QSize windowSize READ windowSize
                                 WRITE setWindowSize
                                 RESET resetWindowSize)
 
     public:
-        enum StreamType
+        enum RecordFrom
         {
-            StreamTypeUnknown,
-            StreamTypeWebcam,
-            StreamTypeURI,
-            StreamTypeDesktop
+            RecordFromNone,
+            RecordFromSource,
+            RecordFromMic
         };
 
         explicit MediaTools(bool watchDevices=false, QObject *parent=NULL);
@@ -81,15 +84,16 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         Q_INVOKABLE QString device();
         Q_INVOKABLE QVariantList videoFormat(QString device="");
         Q_INVOKABLE bool effectsPreview();
-        Q_INVOKABLE bool recordAudio();
+        Q_INVOKABLE bool playAudioFromSource();
+        Q_INVOKABLE RecordFrom recordAudioFrom();
         Q_INVOKABLE bool recording();
         Q_INVOKABLE QList<QStringList> videoRecordFormats();
-        Q_INVOKABLE QVariantList streams();
+        Q_INVOKABLE QList<QStringList> streams();
         Q_INVOKABLE QSize windowSize();
 
         Q_INVOKABLE QString fcc2s(uint val=0);
         Q_INVOKABLE QVariantList videoFormats(QString device="/dev/video0");
-        Q_INVOKABLE QVariantList captureDevices();
+        Q_INVOKABLE QList<QStringList> captureDevices();
         Q_INVOKABLE QVariantList listControls(QString dev_name="/dev/video0");
         Q_INVOKABLE bool setControls(QString dev_name="/dev/video0", QMap<QString, uint> controls=QMap<QString, uint>());
         Q_INVOKABLE QMap<QString, QString> availableEffects();
@@ -100,10 +104,11 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QString m_device;
         QVariantList m_videoFormat;
         bool m_showEffectsPreview;
-        bool m_recordAudio;
+        bool m_playAudioFromSource;
+        RecordFrom m_recordAudioFrom;
         bool m_recording;
         QList<QStringList> m_videoRecordFormats;
-        QVariantList m_streams;
+        QList<QStringList> m_streams;
         QSize m_windowSize;
 
         AppEnvironment *m_appEnvironment;
@@ -117,8 +122,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QbElementPtr m_mic;
         QbElementPtr m_record;
         QStringList m_effectsList;
-        QVariantList m_webcams;
-        QMap<QString, int> m_callBacks;
         QSize m_curFrameSize;
         QMutex m_mutex;
 
@@ -126,7 +129,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QMap<QString, uint> findControls(int dev_fd);
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
-        StreamType deviceType(QString device="/dev/video0");
 
     signals:
         void devicesModified();
@@ -143,18 +145,19 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void setDevice(QString device);
         void setVideoFormat(QVariantList videoFormat, QString device="");
         void setEffectsPreview(bool effectsPreview);
-        void setRecordAudio(bool recordAudio);
+        void setPlayAudioFromSource(bool playAudioFromSource);
+        void setRecordAudioFrom(RecordFrom recordAudioFrom);
         void setRecording(bool recording, QString fileName="");
         void setVideoRecordFormats(QList<QStringList> videoRecordFormats);
-        void setStreams(QVariantList streams);
+        void setStreams(QList<QStringList> streams);
         void setWindowSize(QSize windowSize);
         void resetDevice();
         void resetVideoFormat(QString device="");
         void resetEffectsPreview();
-        void resetRecordAudio();
+        void resetPlayAudioFromSource();
+        void resetRecordAudioFrom();
         void resetRecording();
         void resetVideoRecordFormats();
-        void resetStreams();
         void resetWindowSize();
 
         void reset(QString device="/dev/video0");
@@ -162,12 +165,8 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void saveConfigs();
         void setEffects(QStringList effects=QStringList());
         void clearVideoRecordFormats();
-        void clearCustomStreams();
-        void setCustomStream(QString dev_name="",
-                             QString description="",
-                             bool hasAudio=false,
-                             bool playAudio=false);
-        void enableAudioRecording(bool enable);
+        void resetStreams();
+        void setStream(QString dev_name="", QString description="");
         void setVideoRecordFormat(QString suffix="", QString options="");
 
     private slots:
@@ -175,6 +174,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
         void aboutToQuit();
         void onDirectoryChanged(const QString &path);
+        void audioSetup();
 };
 
 #endif // MEDIATOOLS_H

@@ -111,7 +111,7 @@ bool QbApplication::load(QString pluginId)
         return false;
     }
 
-    QbPlugin *plugin = qobject_cast<QbPlugin *>(this->m_pluginLoader.instance());
+    QSharedPointer<QbPlugin> plugin(qobject_cast<QbPlugin *>(this->m_pluginLoader.instance()));
 
     if (!plugin)
         return false;
@@ -126,7 +126,6 @@ bool QbApplication::unload(QString pluginId)
     if(!this->isLoaded(pluginId))
          return true;
 
-    delete this->m_plugins[pluginId];
     this->m_plugins.remove(pluginId);
     this->m_pluginLoader.setFileName(this->m_pluginPath[pluginId]);
     this->m_pluginLoader.unload();
@@ -141,5 +140,5 @@ void QbApplication::setPluginsPaths(QStringList pluginsPaths)
 
 void QbApplication::resetPluginsPaths()
 {
-    this->setPluginsPaths(QStringList());
+    this->setPluginsPaths(QStringList() << COMMONS_APP_PLUGINS_INSTALL_PATH);
 }

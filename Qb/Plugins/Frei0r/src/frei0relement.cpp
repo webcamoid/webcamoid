@@ -389,6 +389,9 @@ bool Frei0rElement::initBuffers()
         height = this->m_frameSize.height();
     }
 
+    if (!this->f0rConstruct)
+        return false;
+
     this->m_f0rInstance = this->f0rConstruct(width, height);
 
     if (!this->m_f0rInstance)
@@ -540,7 +543,7 @@ void Frei0rElement::setParams(QVariantMap params)
         }
     }
 
-    this->m_params = this->params();
+    this->m_params = params;
 
     if (!curInstance)
         this->uninitBuffers();

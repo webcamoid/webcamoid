@@ -82,13 +82,12 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
 
     this->ui->wdgControls->hide();
 
-    foreach (QVariant webcam, this->m_mediaTools->captureDevices())
-        this->ui->cbxSetWebcam->addItem(webcam.toList().at(1).toString());
+    foreach (QStringList webcam, this->m_mediaTools->captureDevices())
+        this->ui->cbxSetWebcam->addItem(webcam.at(1));
 }
 
 MainWidget::~MainWidget()
 {
-    delete this->ui;
 }
 
 void MainWidget::addWebcamConfigDialog(KConfigDialog *configDialog)
@@ -309,13 +308,13 @@ void MainWidget::updateWebcams()
     bool timerIsActive = !this->m_mediaTools->device().isEmpty();
     this->m_mediaTools->resetDevice();
     this->ui->cbxSetWebcam->clear();
-    QVariantList webcams = this->m_mediaTools->captureDevices();
+    QList<QStringList> webcams = this->m_mediaTools->captureDevices();
     QStringList devices;
 
-    foreach (QVariant webcam, webcams)
+    foreach (QStringList webcam, webcams)
     {
-        devices << webcam.toStringList().at(0);
-        this->ui->cbxSetWebcam->addItem(webcam.toStringList().at(1));
+        devices << webcam.at(0);
+        this->ui->cbxSetWebcam->addItem(webcam.at(1));
     }
 
     if (devices.contains(oldDevice) && timerIsActive)
@@ -413,7 +412,7 @@ void MainWidget::on_btnVideoRecord_clicked()
 void MainWidget::on_cbxSetWebcam_currentIndexChanged(int index)
 {
     if (!this->m_mediaTools->device().isEmpty())
-        this->m_mediaTools->setDevice(this->m_mediaTools->captureDevices().at(index).toStringList().at(0));
+        this->m_mediaTools->setDevice(this->m_mediaTools->captureDevices().at(index).at(0));
 }
 
 void MainWidget::on_btnStartStop_clicked()
@@ -422,7 +421,7 @@ void MainWidget::on_btnStartStop_clicked()
         this->m_mediaTools->resetDevice();
     else
         this->m_mediaTools->setDevice(this->m_mediaTools->
-                    captureDevices().at(this->ui->cbxSetWebcam->currentIndex()).toStringList().at(0));
+                    captureDevices().at(this->ui->cbxSetWebcam->currentIndex()).at(0));
 }
 
 void MainWidget::on_btnConfigure_clicked()

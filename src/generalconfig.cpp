@@ -32,15 +32,51 @@ GeneralConfig::GeneralConfig(MediaTools *mediaTools, QWidget *parent):
     this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
-    this->ui->chkAudioRecord->setCheckState(this->m_mediaTools->recordAudio()? Qt::Checked: Qt::Unchecked);
+
+    switch (this->m_mediaTools->recordAudioFrom())
+    {
+        case MediaTools::RecordFromNone:
+            this->ui->radNone->setChecked(true);
+        break;
+
+        case MediaTools::RecordFromSource:
+            this->ui->radSource->setChecked(true);
+        break;
+
+        case MediaTools::RecordFromMic:
+            this->ui->radMic->setChecked(true);
+        break;
+
+        default:
+        break;
+    }
+
+    this->ui->chkPlaySource->setCheckState(this->m_mediaTools->playAudioFromSource()? Qt::Checked: Qt::Unchecked);
 }
 
 GeneralConfig::~GeneralConfig()
 {
-    delete this->ui;
 }
 
-void GeneralConfig::on_chkAudioRecord_stateChanged(int state)
+void GeneralConfig::on_chkPlaySource_stateChanged(int state)
 {
-    this->m_mediaTools->enableAudioRecording((state == Qt::Checked)? true: false);
+    this->m_mediaTools->setPlayAudioFromSource((state == Qt::Checked)? true: false);
+}
+
+void GeneralConfig::on_radMic_toggled(bool checked)
+{
+    if (checked)
+        this->m_mediaTools->setRecordAudioFrom(MediaTools::RecordFromMic);
+}
+
+void GeneralConfig::on_radNone_toggled(bool checked)
+{
+    if (checked)
+        this->m_mediaTools->setRecordAudioFrom(MediaTools::RecordFromNone);
+}
+
+void GeneralConfig::on_radSource_toggled(bool checked)
+{
+    if (checked)
+        this->m_mediaTools->setRecordAudioFrom(MediaTools::RecordFromSource);
 }

@@ -19,43 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef STREAMSCONFIG_H
-#define STREAMSCONFIG_H
+#include "aging.h"
+#include "agingelement.h"
 
-#include <QtGui>
-
-#include "commons.h"
-#include "appenvironment.h"
-#include "mediatools.h"
-
-namespace Ui
+QbElement *Aging::newElement()
 {
-    class StreamsConfig;
+    return new AgingElement();
 }
 
-class COMMONSSHARED_EXPORT StreamsConfig: public QWidget
-{
-    Q_OBJECT
-
-    public:
-        explicit StreamsConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
-        ~StreamsConfig();
-
-    private:
-        QSharedPointer<Ui::StreamsConfig> ui;
-
-        AppEnvironment *m_appEnvironment;
-        MediaTools *m_mediaTools;
-        bool m_isInit;
-
-        void update();
-
-    private slots:
-        void on_btnAdd_clicked();
-        void on_btnRemove_clicked();
-        void on_btnUp_clicked();
-        void on_btnDown_clicked();
-        void on_tbwCustomStreams_cellChanged(int row, int column);
-};
-
-#endif // STREAMSCONFIG_H
+Q_EXPORT_PLUGIN2(Aging, Aging)

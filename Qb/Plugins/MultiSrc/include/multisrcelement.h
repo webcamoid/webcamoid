@@ -80,7 +80,7 @@ class MultiSrcElement: public QbElement
         AVFormatContext *m_inputContext;
         AVPacket m_packet;
         QTimer m_timer;
-        QMap<int, AbstractStream *> m_streams;
+        QMap<int, QSharedPointer<AbstractStream> > m_streams;
 
         QSize webcamSize();
         QList<QSize> webcamAvailableSize();

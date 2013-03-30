@@ -170,3 +170,10 @@ void QbFrac::resetDen()
 {
     this->setDen(0);
 }
+
+QDebug operator <<(QDebug debug, const QbFrac &frac)
+{
+    debug.nospace() << frac.toString();
+
+    return debug.space();
+}

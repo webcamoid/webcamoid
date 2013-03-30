@@ -53,6 +53,7 @@ class QbPacket: public QObject
         virtual ~QbPacket();
         QbPacket &operator =(const QbPacket &other);
 
+        Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps caps() const;
         Q_INVOKABLE const void *data() const;
         Q_INVOKABLE ulong dataSize() const;
@@ -72,6 +73,8 @@ class QbPacket: public QObject
         QbFrac m_timeBase;
         int m_index;
 
+        friend QDebug operator <<(QDebug debug, const QbPacket &frac);
+
     public slots:
         void setCaps(QbCaps caps);
         void setData(const void *data);
@@ -90,6 +93,8 @@ class QbPacket: public QObject
         void resetTimeBase();
         void resetIndex();
 };
+
+QDebug operator <<(QDebug debug, const QbPacket &frac);
 
 Q_DECLARE_METATYPE(QbPacket)
 

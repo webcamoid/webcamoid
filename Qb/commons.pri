@@ -38,14 +38,14 @@ isEmpty(COMMONS_PRI_INCLUDE) {
                                        Please, install Qt $${REQ_QT_MAJ}.$${REQ_QT_MIN}.$${REQ_QT_PAT} or later.")
 
     COMMONS_APPNAME = "Qb"
-    COMMONS_TARGET = $$replace(COMMONS_APPNAME, W, w)
+    COMMONS_TARGET = $${COMMONS_APPNAME}
     VER_MAJ = 5
     VER_MIN = 0
     VER_PAT = 0
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
     COMMONS_PROJECT_URL = "http://github.com/hipersayanX/Webcamoid"
     COMMONS_PROJECT_BUG_URL = "https://github.com/hipersayanX/Webcamoid/issues"
-    COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2012  Gonzalo Exequiel Pedone"
+    COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2013  Gonzalo Exequiel Pedone"
 
     unix {
         isEmpty(PREFIX) {
@@ -90,6 +90,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
 
     CONFIG(debug, debug|release) {
         COMMONS_BUILD_PATH = build/debug
+        DEFINES += QT_DEBUG
     } else {
         COMMONS_BUILD_PATH = build/release
     }

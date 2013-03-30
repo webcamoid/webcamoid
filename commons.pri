@@ -90,6 +90,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
 
     CONFIG(debug, debug|release) {
         COMMONS_BUILD_PATH = build/debug
+        DEFINES += QT_DEBUG
     } else {
         COMMONS_BUILD_PATH = build/release
     }

@@ -50,10 +50,14 @@ class QbCaps: public QObject
         bool m_isValid;
         QString m_mimeType;
 
+        friend QDebug operator <<(QDebug debug, const QbCaps &caps);
+
     public slots:
         void setMimeType(QString mimeType);
         void resetMimeType();
 };
+
+QDebug operator <<(QDebug debug, const QbCaps &caps);
 
 Q_DECLARE_METATYPE(QbCaps)
 

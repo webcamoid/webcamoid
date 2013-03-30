@@ -40,7 +40,7 @@ class Plasmoid: public Plasma::PopupApplet
     private:
         QSizeF m_defaultPlasmoidSize;
         QSizeF m_minimumPlasmoidSize;
-        MainWidget *m_mainWidget;
+        QSharedPointer<MainWidget> m_mainWidget;
         QGraphicsWidget *m_graphicsWidget;
         QGraphicsGridLayout *m_glyGraphicsWidget;
         QGraphicsProxyWidget *m_proxyWidget;

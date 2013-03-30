@@ -39,9 +39,10 @@ class Worker: public QObject
 
     private:
         QbElement::ElementState m_state;
-        QQueue<PacketInfo *> m_queue;
+        QQueue<QSharedPointer<PacketInfo> > m_queue;
         QbPacket m_packet;
         QByteArray m_data;
+        QTimer m_timer;
         double m_fps;
         double m_t;
         double m_dt;
