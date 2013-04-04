@@ -342,6 +342,7 @@ QSize MultiSrcElement::webcamSize()
         return size;
 
     v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
@@ -374,12 +375,14 @@ QList<QSize> MultiSrcElement::webcamAvailableSize()
     foreach (v4l2_buf_type type, bufType)
     {
         v4l2_fmtdesc fmt;
+        memset(&fmt, 0, sizeof(v4l2_fmtdesc));
         fmt.index = 0;
         fmt.type = type;
 
         while (ioctl(deviceFile.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0)
         {
             v4l2_frmsizeenum frmSize;
+            memset(&frmSize, 0, sizeof(v4l2_frmsizeenum));
             frmSize.pixel_format = fmt.pixelformat;
             frmSize.index = 0;
 
@@ -438,6 +441,7 @@ void MultiSrcElement::setSize(QSize size)
         return;
 
     v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0)

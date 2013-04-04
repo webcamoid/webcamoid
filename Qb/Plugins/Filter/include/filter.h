@@ -22,7 +22,7 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Filter: public QObject, public QbPlugin
 {

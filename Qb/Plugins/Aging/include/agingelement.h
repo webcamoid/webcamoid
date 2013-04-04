@@ -23,8 +23,8 @@
 #define AGINGELEMENT_H
 
 #include <QtGui>
+#include <qb.h>
 
-#include "qb.h"
 #include "scratch.h"
 
 class AgingElement: public QbElement

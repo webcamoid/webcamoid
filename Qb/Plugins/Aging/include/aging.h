@@ -22,7 +22,7 @@
 #ifndef AGING_H
 #define AGING_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Aging: public QObject, public QbPlugin
 {

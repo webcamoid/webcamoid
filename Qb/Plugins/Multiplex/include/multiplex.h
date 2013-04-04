@@ -22,7 +22,7 @@
 #ifndef MULTIPLEX_H
 #define MULTIPLEX_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Multiplex: public QObject, public QbPlugin
 {

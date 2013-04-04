@@ -30,26 +30,6 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
 {
 }
 
-VideoStream::VideoStream(const VideoStream &other):
-    AbstractStream(other),
-    m_oFrame(other.m_oFrame),
-    m_oCaps(other.m_oCaps)
-{
-}
-
-VideoStream &VideoStream::operator =(const VideoStream &other)
-{
-    if (this != &other)
-    {
-        this->m_oFrame = other.m_oFrame;
-        this->m_oCaps = other.m_oCaps;
-
-        AbstractStream::operator =(other);
-    }
-
-    return *this;
-}
-
 QbPacket VideoStream::readPacket(AVPacket *packet)
 {
     if (!this->isValid())
@@ -58,7 +38,7 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     int gotFrame;
 
     avcodec_decode_video2(this->codecContext(),
-                          this->m_iFrame,
+                          &this->m_iFrame,
                           &gotFrame,
                           packet);
 
@@ -94,10 +74,10 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
         this->m_oCaps = caps;
     }
 
-    this->m_iFrame->pts = av_frame_get_best_effort_timestamp(this->m_iFrame);
-    this->m_iFrame->pkt_duration = av_frame_get_pkt_duration(this->m_iFrame);
+    this->m_iFrame.pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
+    this->m_iFrame.pkt_duration = av_frame_get_pkt_duration(&this->m_iFrame);
 
-    avpicture_layout((AVPicture *) this->m_iFrame,
+    avpicture_layout((AVPicture *) &this->m_iFrame,
                      this->codecContext()->pix_fmt,
                      this->codecContext()->width,
                      this->codecContext()->height,
@@ -108,9 +88,9 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                      this->m_oFrame.constData(),
                      this->m_oFrame.size());
 
-    oPacket.setDts(this->m_iFrame->pts);
-    oPacket.setPts(this->m_iFrame->pkt_dts);
-    oPacket.setDuration(m_iFrame->pkt_duration);
+    oPacket.setDts(this->m_iFrame.pts);
+    oPacket.setPts(this->m_iFrame.pkt_dts);
+    oPacket.setDuration(m_iFrame.pkt_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 

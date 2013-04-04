@@ -23,14 +23,13 @@
 #define ABSTRACTSTREAM_H
 
 #include <QtCore>
+#include <qbpacket.h>
 
 extern "C"
 {
     #include <libavformat/avformat.h>
     #include <libavutil/imgutils.h>
 }
-
-#include "qbpacket.h"
 
 class AbstractStream: public QObject
 {
@@ -39,10 +38,7 @@ class AbstractStream: public QObject
     public:
         explicit AbstractStream(QObject *parent=NULL);
         AbstractStream(AVFormatContext *formatContext, uint index);
-        AbstractStream(const AbstractStream &other);
         virtual ~AbstractStream();
-
-        AbstractStream & operator =(const AbstractStream &other);
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
@@ -59,9 +55,7 @@ class AbstractStream: public QObject
 
     protected:
         bool m_isValid;
-        AVFrame *m_iFrame;
-        AbstractStream *m_orig;
-        QList<AbstractStream *> m_copy;
+        AVFrame m_iFrame;
 
         virtual void cleanUp();
 

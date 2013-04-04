@@ -29,8 +29,9 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS += \
-    Plugins \
-    Lib.pro
+    Lib.pro \
+    3dparty \
+    Plugins
 
 # Install rules
 

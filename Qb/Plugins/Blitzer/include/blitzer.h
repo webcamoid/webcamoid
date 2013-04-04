@@ -22,7 +22,7 @@
 #ifndef BLITZER_H
 #define BLITZER_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Blitzer: public QObject, public QbPlugin
 {

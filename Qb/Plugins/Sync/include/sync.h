@@ -22,7 +22,7 @@
 #ifndef SYNC_H
 #define SYNC_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Sync: public QObject, public QbPlugin
 {

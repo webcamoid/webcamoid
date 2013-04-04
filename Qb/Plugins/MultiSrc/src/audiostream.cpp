@@ -51,31 +51,10 @@ AudioStream::AudioStream(AVFormatContext *formatContext, uint index):
     this->m_isValid = true;
 }
 
-AudioStream::AudioStream(const AudioStream &other):
-    AbstractStream(other),
-    m_oBuffer(other.m_oBuffer)
-{
-}
-
 AudioStream::~AudioStream()
 {
-    if (this->m_orig || !this->m_copy.isEmpty())
-        return;
-
     av_free(this->m_oBuffer);
     this->cleanUp();
-}
-
-AudioStream &AudioStream::operator =(const AudioStream &other)
-{
-    if (this != &other)
-    {
-        this->m_oBuffer = other.m_oBuffer;
-
-        AbstractStream::operator =(other);
-    }
-
-    return *this;
 }
 
 QbPacket AudioStream::readPacket(AVPacket *packet)
@@ -86,41 +65,41 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     int gotFrame;
 
     avcodec_decode_audio4(this->codecContext(),
-                          this->m_iFrame,
+                          &this->m_iFrame,
                           &gotFrame,
                           packet);
 
     if (!gotFrame)
         return QbPacket();
 
-    this->m_iFrame->pts = av_frame_get_best_effort_timestamp(this->m_iFrame);
-    this->m_iFrame->pkt_duration = av_frame_get_pkt_duration(this->m_iFrame);
+    this->m_iFrame.pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
+    this->m_iFrame.pkt_duration = av_frame_get_pkt_duration(&this->m_iFrame);
 
     int oBufferLineSize;
 
     int ret = av_samples_alloc(this->m_oBuffer,
                                &oBufferLineSize,
-                               this->m_iFrame->channels,
-                               this->m_iFrame->nb_samples,
-                               (AVSampleFormat) this->m_iFrame->format,
+                               this->m_iFrame.channels,
+                               this->m_iFrame.nb_samples,
+                               (AVSampleFormat) this->m_iFrame.format,
                                1);
 
     if (ret < 0)
         return QbPacket();
 
     int oBufferSize = av_samples_get_buffer_size(NULL,
-                                                 this->m_iFrame->channels,
-                                                 this->m_iFrame->nb_samples,
-                                                 (AVSampleFormat) this->m_iFrame->format,
+                                                 this->m_iFrame.channels,
+                                                 this->m_iFrame.nb_samples,
+                                                 (AVSampleFormat) this->m_iFrame.format,
                                                  1);
 
     av_samples_copy(this->m_oBuffer,
-                    this->m_iFrame->data,
+                    this->m_iFrame.data,
                     0,
                     0,
-                    this->m_iFrame->nb_samples,
-                    this->m_iFrame->channels,
-                    (AVSampleFormat) this->m_iFrame->format);
+                    this->m_iFrame.nb_samples,
+                    this->m_iFrame.channels,
+                    (AVSampleFormat) this->m_iFrame.format);
 
     this->m_oFrame = QByteArray((const char *) this->m_oBuffer[0], oBufferSize);
     av_freep(&this->m_oBuffer[0]);
@@ -142,15 +121,15 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                                      .arg(this->codecContext()->channels)
                                      .arg(this->codecContext()->sample_rate)
                                      .arg(layout)
-                                     .arg(this->m_iFrame->nb_samples));
+                                     .arg(this->m_iFrame.nb_samples));
 
     QbPacket oPacket(caps,
                      this->m_oFrame.constData(),
                      this->m_oFrame.size());
 
-    oPacket.setDts(this->m_iFrame->pts);
-    oPacket.setPts(this->m_iFrame->pkt_dts);
-    oPacket.setDuration(m_iFrame->pkt_duration);
+    oPacket.setDts(this->m_iFrame.pts);
+    oPacket.setPts(this->m_iFrame.pkt_dts);
+    oPacket.setDuration(m_iFrame.pkt_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 
@@ -158,9 +137,6 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
 }
 
 void AudioStream::cleanUp()
-{/*
-    if (this->m_oBuffer)
-        av_free(this->m_oBuffer);*/
-
+{
     AbstractStream::cleanUp();
 }

@@ -22,7 +22,7 @@
 #ifndef FREI0R_H
 #define FREI0R_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Frei0r: public QObject, public QbPlugin
 {

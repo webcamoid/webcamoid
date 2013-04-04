@@ -22,7 +22,8 @@
 #ifndef FREI0RELEMENT_H
 #define FREI0RELEMENT_H
 
-#include "qb.h"
+#include <qb.h>
+
 #include "frei0rdefs.h"
 
 class Frei0rElement: public QbElement

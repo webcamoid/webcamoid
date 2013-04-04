@@ -22,7 +22,7 @@
 #ifndef MULTISRC_H
 #define MULTISRC_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class MultiSrc: public QObject, public QbPlugin
 {

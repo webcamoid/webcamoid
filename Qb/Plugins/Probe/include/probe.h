@@ -22,7 +22,7 @@
 #ifndef PROBE_H
 #define PROBE_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Probe: public QObject, public QbPlugin
 {

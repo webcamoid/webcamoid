@@ -34,9 +34,6 @@ class VideoStream: public AbstractStream
     public:
         explicit VideoStream(QObject *parent=NULL);
         VideoStream(AVFormatContext *formatContext, uint index);
-        VideoStream(const VideoStream &other);
-
-        VideoStream &operator =(const VideoStream &other);
 
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
         Q_INVOKABLE QSize size();

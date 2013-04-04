@@ -22,7 +22,6 @@
 #ifndef BINELEMENT_H
 #define BINELEMENT_H
 
-#include "qb.h"
 #include "lexer_auto.h"
 #include "parser_auto.h"
 #include "pipeline.h"

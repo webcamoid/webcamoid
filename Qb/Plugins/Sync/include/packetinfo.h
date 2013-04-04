@@ -22,7 +22,7 @@
 #ifndef PACKETINFO_H
 #define PACKETINFO_H
 
-#include "qb.h"
+#include <qb.h>
 
 class PacketInfo: public QObject
 {

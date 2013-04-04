@@ -23,13 +23,13 @@
 #define MULTISRCELEMENT_H
 
 #include <QtGui>
+#include <qbelement.h>
 
 extern "C"
 {
     #include <libavdevice/avdevice.h>
 }
 
-#include "qbelement.h"
 #include "abstractstream.h"
 
 class MultiSrcElement: public QbElement

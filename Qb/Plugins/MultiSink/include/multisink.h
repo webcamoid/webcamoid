@@ -22,7 +22,7 @@
 #ifndef MULTISINK_H
 #define MULTISINK_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class MultiSink: public QObject, public QbPlugin
 {

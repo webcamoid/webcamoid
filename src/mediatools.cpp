@@ -49,47 +49,15 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
     Qb::init();
 
 #ifdef QT_DEBUG
-    Qb::setPluginsPaths(Qb::pluginsPaths() << "Qb/Plugins/ACapsConvert"
-                                           << "Qb/Plugins/Aging"
-                                           << "Qb/Plugins/Bin"
-                                           << "Qb/Plugins/Blitzer"
-                                           << "Qb/Plugins/Filter"
-                                           << "Qb/Plugins/Frei0r"
-                                           << "Qb/Plugins/MultiSink"
-                                           << "Qb/Plugins/MultiSrc"
-                                           << "Qb/Plugins/Multiplex"
-                                           << "Qb/Plugins/Probe"
-                                           << "Qb/Plugins/QImageConvert"
-                                           << "Qb/Plugins/Sync"
-                                           << "Qb/Plugins/VCapsConvert");
+    QDir pluginsDir("Qb/Plugins");
+    QStringList pluginsPaths = Qb::pluginsPaths();
+
+    foreach (QString pluginPath, pluginsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
+        pluginsPaths << pluginsDir.absoluteFilePath(pluginPath);
+
+    Qb::setPluginsPaths(pluginsPaths);
 #endif
-/*
-    QbElementPtr f = Qb::create("Frei0r");
 
-    foreach (QString plugin, f->property("plugins").toStringList())
-    {
-        f->setProperty("pluginName", plugin);
-
-        QVariantMap info = f->property("info").toMap();
-
-        if (info["plugin_type"].toString() == "filter")
-        {
-            qDebug() << "#" << plugin << "#";
-
-            foreach (QString key, info.keys())
-                qDebug() << key << ": " << info[key];
-
-            qDebug() << "---";
-
-            QVariantMap params = f->property("params").toMap();
-
-            foreach (QString key, params.keys())
-                qDebug() << key << ": " << params[key];
-
-            qDebug() << " ";
-        }
-    }
-*/
     this->m_pipeline = Qb::create("Bin", "pipeline");
 
     QString description("MultiSrc objectName='source' loop=true "
@@ -211,6 +179,7 @@ QVariantList MediaTools::videoFormat(QString device)
         return format;
 
     v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
@@ -287,12 +256,14 @@ QVariantList MediaTools::videoFormats(QString device)
     foreach (v4l2_buf_type type, bufType)
     {
         v4l2_fmtdesc fmt;
+        memset(&fmt, 0, sizeof(v4l2_fmtdesc));
         fmt.index = 0;
         fmt.type = type;
 
         while (ioctl(deviceFile.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0)
         {
             v4l2_frmsizeenum frmsize;
+            memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
             frmsize.pixel_format = fmt.pixelformat;
             frmsize.index = 0;
 
@@ -339,6 +310,7 @@ QList<QStringList> MediaTools::captureDevices()
 
     QFile device;
     v4l2_capability capability;
+    memset(&capability, 0, sizeof(v4l2_capability));
 
     foreach (QString devicePath, devices)
     {
@@ -375,14 +347,16 @@ QList<QStringList> MediaTools::captureDevices()
 
 QVariantList MediaTools::listControls(QString dev_name)
 {
-    v4l2_queryctrl queryctrl;
-    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
     QVariantList controls;
 
     QFile device(dev_name);
 
     if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
         return controls;
+
+    v4l2_queryctrl queryctrl;
+    memset(&queryctrl, 0, sizeof(v4l2_queryctrl));
+    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
 
     while (ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0)
     {
@@ -453,6 +427,7 @@ bool MediaTools::setControls(QString dev_name, QMap<QString, uint> controls)
     foreach (v4l2_ext_control user_ctrl, user_ctrls)
     {
         v4l2_control ctrl;
+        memset(&ctrl, 0, sizeof(v4l2_control));
         ctrl.id = user_ctrl.id;
         ctrl.value = user_ctrl.value;
         ioctl(device.handle(), VIDIOC_S_CTRL, &ctrl);
@@ -461,6 +436,7 @@ bool MediaTools::setControls(QString dev_name, QMap<QString, uint> controls)
     if (!mpeg_ctrls.empty())
     {
         v4l2_ext_controls ctrls;
+        memset(&ctrls, 0, sizeof(v4l2_ext_control));
         ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
         ctrls.count = mpeg_ctrls.size();
         ctrls.controls = &mpeg_ctrls[0];
@@ -546,6 +522,7 @@ QVariantList MediaTools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
     else
     {
         v4l2_control ctrl;
+        memset(&ctrl, 0, sizeof(v4l2_control));
         ctrl.id = queryctrl->id;
 
         if (ioctl(dev_fd, VIDIOC_G_CTRL, &ctrl))
@@ -582,6 +559,7 @@ QVariantList MediaTools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
 QMap<QString, uint> MediaTools::findControls(int dev_fd)
 {
     v4l2_queryctrl qctrl;
+    memset(&qctrl, 0, sizeof(v4l2_queryctrl));
     qctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
     QMap<QString, uint> controls;
 
@@ -802,6 +780,7 @@ void MediaTools::setVideoFormat(QVariantList videoFormat, QString device)
         return;
 
     v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0)

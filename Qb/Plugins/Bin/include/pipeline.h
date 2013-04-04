@@ -24,7 +24,7 @@
 
 #include <QtCore>
 
-#include "qb.h"
+#include <qb.h>
 
 typedef QMap<QString, QbElementPtr> ElementMap;
 

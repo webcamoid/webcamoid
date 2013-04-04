@@ -22,7 +22,7 @@
 #ifndef PROBEELEMENT_H
 #define PROBEELEMENT_H
 
-#include "qbelement.h"
+#include <qbelement.h>
 
 class ProbeElement: public QbElement
 {

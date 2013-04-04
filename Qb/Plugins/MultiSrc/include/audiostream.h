@@ -33,10 +33,7 @@ class AudioStream: public AbstractStream
     public:
         explicit AudioStream(QObject *parent=NULL);
         AudioStream(AVFormatContext *formatContext, uint index);
-        AudioStream(const AudioStream &other);
         ~AudioStream();
-
-        AudioStream &operator =(const AudioStream &other);
 
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
 

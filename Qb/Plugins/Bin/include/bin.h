@@ -22,7 +22,7 @@
 #ifndef BIN_H
 #define BIN_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class Bin: public QObject, public QbPlugin
 {

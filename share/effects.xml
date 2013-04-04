@@ -62,6 +62,9 @@
     <effect name="Swirl">Blitzer method='swirl' params=[90]</effect>
     <effect name="Wave">Blitzer method='wave'</effect>
     <effect name="Old">Aging</effect>
+    <effect name="Fire">Fire</effect>
+    <effect name="Andy Warhol">Warhol</effect>
+    <effect name="Matrix">Matrix</effect>
 
 <!--
     <effect name="Dices">dicetv</effect>

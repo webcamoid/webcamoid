@@ -22,14 +22,14 @@
 #ifndef VCAPSCONVERTELEMENT_H
 #define VCAPSCONVERTELEMENT_H
 
+#include <qbelement.h>
+
 extern "C"
 {
     #include <libavformat/avformat.h>
     #include <libavutil/imgutils.h>
     #include <libswscale/swscale.h>
 }
-
-#include "qbelement.h"
 
 class VCapsConvertElement: public QbElement
 {
@@ -43,9 +43,6 @@ class VCapsConvertElement: public QbElement
 
         Q_INVOKABLE QString caps();
 
-    protected:
-        void uninit();
-
     private:
         QbCaps m_caps;
 
@@ -53,18 +50,15 @@ class VCapsConvertElement: public QbElement
         int m_oHeight;
         PixelFormat m_oFormat;
         QByteArray m_oFrame;
-        struct SwsContext *m_scaleContext;
-        AVPicture m_oPicture;
-        int m_oPictureAlloc;
+        SwsContext *m_scaleContext;
         QbCaps m_curInputCaps;
-
-        void cleanAll();
 
     public slots:
         void setCaps(QString caps);
         void resetCaps();
 
         void iStream(const QbPacket &packet);
+        void setState(ElementState state);
 };
 
 #endif // VCAPSCONVERTELEMENT_H

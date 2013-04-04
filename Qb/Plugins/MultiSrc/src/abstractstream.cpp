@@ -31,8 +31,6 @@ AbstractStream::AbstractStream(QObject *parent): QObject(parent)
     this->m_codecContext = NULL;
     this->m_codec = NULL;
     this->m_codecOptions = NULL;
-    this->m_iFrame = NULL;
-    this->m_orig = NULL;
 }
 
 AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
@@ -45,8 +43,6 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
     this->m_codecContext = this->m_stream->codec;
     this->m_codec = avcodec_find_decoder(this->m_codecContext->codec_id);
     this->m_codecOptions = NULL;
-    this->m_iFrame = NULL;
-    this->m_orig = NULL;
 
     this->m_timeBase = QbFrac(this->m_stream->time_base.num,
                               this->m_stream->time_base.den);
@@ -60,92 +56,14 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
     if (avcodec_open2(this->m_codecContext, this->m_codec, &this->m_codecOptions) < 0)
         return;
 
-    this->m_iFrame = avcodec_alloc_frame();
-
-    if (!this->m_iFrame)
-    {
-        this->cleanUp();
-
-        return;
-    }
+    avcodec_get_frame_defaults(&this->m_iFrame);
 
     this->m_isValid = true;
 }
 
-AbstractStream::AbstractStream(const AbstractStream &other):
-    QObject(NULL),
-    m_isValid(other.m_isValid),
-    m_iFrame(other.m_iFrame),
-    m_index(other.m_index),
-    m_timeBase(other.m_timeBase),
-    m_mediaType(other.m_mediaType),
-    m_formatContext(other.m_formatContext),
-    m_stream(other.m_stream),
-    m_codecContext(other.m_codecContext),
-    m_codec(other.m_codec),
-    m_codecOptions(other.m_codecOptions)
-{
-    this->m_orig = (AbstractStream *) &other;
-    this->m_orig->m_copy << this;
-}
-
 AbstractStream::~AbstractStream()
 {
-    if (this->m_orig)
-    {
-        this->m_orig->m_copy.removeAll(this);
-
-        if (!this->m_copy.isEmpty())
-        {
-            this->m_orig->m_copy << this->m_copy;
-
-            foreach (AbstractStream *copy, this->m_copy)
-                copy->m_orig = this->m_orig;
-        }
-    }
-    else if (this->m_copy.isEmpty())
-        this->cleanUp();
-    else
-        foreach (AbstractStream *copy, this->m_copy)
-            copy->m_orig = NULL;
-}
-
-AbstractStream &AbstractStream::operator =(const AbstractStream &other)
-{
-    if (this != &other)
-    {
-        this->m_isValid = other.m_isValid;
-        this->m_index = other.m_index;
-        this->m_timeBase = other.m_timeBase;
-        this->m_mediaType = other.m_mediaType;
-        this->m_formatContext = other.m_formatContext;
-        this->m_stream = other.m_stream;
-        this->m_codecContext = other.m_codecContext;
-        this->m_codec = other.m_codec;
-        this->m_codecOptions = other.m_codecOptions;
-        this->m_iFrame = other.m_iFrame;
-
-        if (this->m_orig)
-        {
-            this->m_orig->m_copy.removeAll(this);
-
-            if (!this->m_copy.isEmpty())
-            {
-                this->m_orig->m_copy << this->m_copy;
-
-                foreach (AbstractStream *copy, this->m_copy)
-                    copy->m_orig = this->m_orig;
-            }
-        }
-        else if (!this->m_copy.isEmpty())
-                foreach (AbstractStream *copy, this->m_copy)
-                    copy->m_orig = NULL;
-
-        this->m_orig = (AbstractStream *) &other;
-        this->m_orig->m_copy << this;
-    }
-
-    return *this;
+    this->cleanUp();
 }
 
 bool AbstractStream::isValid() const
@@ -206,10 +124,7 @@ AVMediaType AbstractStream::type(AVFormatContext *formatContext, uint index)
 }
 
 void AbstractStream::cleanUp()
-{/*
-    if (this->m_iFrame)
-        av_free(this->m_iFrame);*/
-
+{
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);
 

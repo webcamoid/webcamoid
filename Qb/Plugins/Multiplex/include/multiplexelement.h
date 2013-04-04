@@ -22,7 +22,7 @@
 #ifndef MULTIPLEXELEMENT_H
 #define MULTIPLEXELEMENT_H
 
-#include "qbelement.h"
+#include <qbelement.h>
 
 class MultiplexElement: public QbElement
 {

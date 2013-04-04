@@ -22,7 +22,7 @@
 #ifndef ACAPSCONVERT_H
 #define ACAPSCONVERT_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class ACapsConvert: public QObject, public QbPlugin
 {

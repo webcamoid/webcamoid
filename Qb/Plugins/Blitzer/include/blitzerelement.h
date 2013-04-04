@@ -23,9 +23,8 @@
 #define BLITZERELEMENT_H
 
 #include <QtGui>
+#include <qb.h>
 #include <qimageblitz/qimageblitz.h>
-
-#include "qb.h"
 
 class BlitzerElement: public QbElement
 {

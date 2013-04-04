@@ -30,7 +30,7 @@ extern "C"
     #include <libswresample/swresample.h>
 }
 
-#include "qbelement.h"
+#include <qbelement.h>
 
 class ACapsConvertElement: public QbElement
 {

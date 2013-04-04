@@ -22,7 +22,7 @@
 #ifndef QIMAGECONVERT_H
 #define QIMAGECONVERT_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class QImageConvert: public QObject, public QbPlugin
 {

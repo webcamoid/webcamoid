@@ -31,7 +31,7 @@ extern "C"
     #include <libavfilter/buffersink.h>
 }
 
-#include "qbelement.h"
+#include <qbelement.h>
 
 class FilterElement: public QbElement
 {

@@ -24,7 +24,7 @@
 
 #include <QtGui>
 
-#include "qb.h"
+#include <qb.h>
 
 class QImageConvertElement: public QbElement
 {

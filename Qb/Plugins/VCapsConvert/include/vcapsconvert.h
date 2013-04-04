@@ -22,7 +22,7 @@
 #ifndef VCAPSCONVERT_H
 #define VCAPSCONVERT_H
 
-#include "qbplugin.h"
+#include <qbplugin.h>
 
 class VCapsConvert: public QObject, public QbPlugin
 {

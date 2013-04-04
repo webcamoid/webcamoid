@@ -23,6 +23,7 @@
 #define MULTISINKELEMENT_H
 
 #include <QtCore>
+#include <qb.h>
 
 extern "C"
 {
@@ -32,7 +33,6 @@ extern "C"
     #include <libswscale/swscale.h>
 }
 
-#include "qb.h"
 #include "optionparser.h"
 
 class MultiSinkElement: public QbElement

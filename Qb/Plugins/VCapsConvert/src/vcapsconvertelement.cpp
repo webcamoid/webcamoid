@@ -27,7 +27,6 @@ VCapsConvertElement::VCapsConvertElement(): QbElement()
 
     this->m_scaleContext = NULL;
 
-    this->m_oPictureAlloc = -1;
     this->m_oWidth = -1;
     this->m_oHeight = -1;
     this->resetCaps();
@@ -40,28 +39,6 @@ VCapsConvertElement::~VCapsConvertElement()
 QString VCapsConvertElement::caps()
 {
     return this->m_caps.toString();
-}
-
-void VCapsConvertElement::uninit()
-{
-    this->cleanAll();
-}
-
-void VCapsConvertElement::cleanAll()
-{
-    if (this->m_oPictureAlloc >= 0)
-    {
-        avpicture_free(&this->m_oPicture);
-        this->m_oPictureAlloc = -1;
-    }
-
-    if (this->m_scaleContext)
-    {
-        sws_freeContext(this->m_scaleContext);
-        this->m_scaleContext = NULL;
-    }
-
-    this->m_curInputCaps = QbCaps();
 }
 
 void VCapsConvertElement::setCaps(QString format)
@@ -115,19 +92,8 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
 
     PixelFormat iFormat = av_get_pix_fmt(format.toUtf8().constData());
 
-    AVPicture iPicture;
-
-    if (avpicture_alloc(&iPicture,
-                        iFormat,
-                        iWidth,
-                        iHeight) < 0)
-        return;
-
     if (packet.caps() != this->m_curInputCaps)
     {
-        this->cleanAll();
-        this->m_scaleContext = NULL;
-
         if (this->m_oWidth < 0)
         {
             this->m_oWidth = iWidth;
@@ -146,11 +112,6 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
             this->m_caps.setProperty("format", format);
         }
 
-        this->m_oPictureAlloc = avpicture_alloc(&this->m_oPicture,
-                                                this->m_oFormat,
-                                                this->m_oWidth,
-                                                this->m_oHeight);
-
         this->m_oFrame.resize(avpicture_get_size(this->m_oFormat,
                                                  this->m_oWidth,
                                                  this->m_oHeight));
@@ -160,9 +121,6 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
         this->m_caps.setProperty("fps", fps);
         this->m_curInputCaps = packet.caps();
     }
-
-    if (this->m_oPictureAlloc < 0)
-        return;
 
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                 iWidth,
@@ -176,26 +134,29 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                                                 NULL,
                                                 NULL);
 
+    AVPicture iPicture;
+
     avpicture_fill(&iPicture,
                    (uint8_t *) packet.data(),
                    iFormat,
                    iWidth,
                    iHeight);
 
+    AVPicture oPicture;
+
+    avpicture_fill(&oPicture,
+                   (uint8_t *) this->m_oFrame.data(),
+                   this->m_oFormat,
+                   this->m_oWidth,
+                   this->m_oHeight);
+
     sws_scale(this->m_scaleContext,
               (uint8_t **) iPicture.data,
               iPicture.linesize,
               0,
               iHeight,
-              this->m_oPicture.data,
-              this->m_oPicture.linesize);
-
-    avpicture_layout(&this->m_oPicture,
-                     this->m_oFormat,
-                     this->m_oWidth,
-                     this->m_oHeight,
-                     (uint8_t *) this->m_oFrame.data(),
-                     this->m_oFrame.size());
+              oPicture.data,
+              oPicture.linesize);
 
     QbPacket oPacket(this->m_caps,
                      this->m_oFrame.constData(),
@@ -208,4 +169,21 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     oPacket.setIndex(packet.index());
 
     emit this->oStream(oPacket);
+}
+
+void VCapsConvertElement::setState(QbElement::ElementState state)
+{
+    QbElement::setState(state);
+
+    if (this->state() == ElementStateNull ||
+        this->state() == ElementStateReady)
+    {
+        if (this->m_scaleContext)
+        {
+            sws_freeContext(this->m_scaleContext);
+            this->m_scaleContext = NULL;
+        }
+
+        this->m_curInputCaps = QbCaps();
+    }
 }
