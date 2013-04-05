@@ -28,57 +28,22 @@ exists(commons.pri) {
     }
 }
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    include(../../3dparty/ffmpeg_auto.pri)
-}
-
-CONFIG += plugin
-
-DEFINES += __STDC_CONSTANT_MACROS
-
-HEADERS += \
-    include/acapsconvert.h \
-    include/acapsconvertelement.h
-
-INCLUDEPATH += \
-    include \
-    ../../include
-
-exists(../../3dparty/ffmpeg_auto.pri) {
-    INCLUDEPATH += $${FFMPEGHEADERSPATH}
-
-    LIBS += \
-        -L$${FFMPEGLIBSPATH} \
-        -lavcodec \
-        -lavdevice \
-        -lavformat \
-        -lavutil \
-        -lswscale \
-        -lswresample
-}
-
-QT += core gui
-
-SOURCES += \
-    src/acapsconvert.cpp \
-    src/acapsconvertelement.cpp
+PACKAGENAME=ffmpeg
+PACKAGEVERSION=1.2
+PACKAGEFOLDER=$${PACKAGENAME}-$${PACKAGEVERSION}
+FILEEXT=tar.bz2
+PACKAGEFILE=$${PACKAGEFOLDER}.$${FILEEXT}
+INSTALLPREFIX=$${PWD}/$${PACKAGENAME}_priv/usr
 
 TEMPLATE = lib
 
-unix {
-    ! exists(../../3dparty/ffmpeg_auto.pri) {
-        CONFIG += link_pkgconfig
+CONFIG -= qt
+OTHER_FILES += ffmpeg.sh
 
-        PKGCONFIG += \
-            libavcodec \
-            libavdevice \
-            libavformat \
-            libavutil \
-            libswscale \
-            libswresample
-    }
+configureMake.input = OTHER_FILES
+configureMake.output = $${INSTALLPREFIX}
+configureMake.commands = bash ./${QMAKE_FILE_IN} $${PACKAGENAME} $${PACKAGEVERSION} '$${INSTALLPREFIX}'
+configureMake.variable_out = FFMPEGLIBS
+configureMake.CONFIG += target_predeps
 
-    INSTALLS += target
-
-    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
-}
+QMAKE_EXTRA_COMPILERS += configureMake

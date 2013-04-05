@@ -8,11 +8,11 @@
 * Record videos.
 * Manages multiple webcams.
 * Play/Stop capture, this saves resources while the plasmoid is not in use.
-* Written in Python.
-* Uses GStreamer as capture engine.
+* Written in C++.
+* 100% Qt based software, for KDE/Qt purists.
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
-* Add funny effects to the webcam (requires GStreamer plugins).
+* Add funny effects to the webcam (requires Frei0r plugins and QImageBlitz).
 * +50 effects available.
 * Effects with live previews.
 * Translated to many languages.
@@ -20,45 +20,30 @@
 * Use custom network and local files as capture devices.
 * Capture from desktop.
 
-## Installing ##
+## Build and install ##
 
-Webcamoid requires the _gst-launch-0.10_ executable (GStreamer), you can install it with:
+Webcamoid's dependencies are:
 
-* __Arch/Chakra/Parabola__: _pacman -S gstreamer0.10 gstreamer0.10-good gstreamer0.10-bad_
-* __Debian/Ubuntu__: _apt-get install gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad_
-* __Fedora/CentOS__: _yum install gstreamer gstreamer-plugins-good gstreamer-plugins-bad-free_
-* __OpenSuSE__: _zypper install gstreamer-0_10-utils gstreamer-0_10-plugins-good gstreamer-0_10-plugins-bad_
-* __Mandriva/Mageia__: _urpmi gstreamer0.10-tools gstreamer0.10-plugins-good gstreamer0.10-plugins-bad_
+* [Qt](https://qt-project.org/) (Qt >= 4.7, Qt5 not sopported)
+* [kdelibs](https://projects.kde.org/projects/kde/kdelibs)
+* [Frei0r plugins](http://www.piksel.org/frei0r)
+* [QImageBlitz](http://download.kde.org/stable/qimageblitz/)
 
-### The easy way ###
+Build dependecies:
 
-You can follow [these](http://userbase.kde.org/Plasma/Installing_Plasmoids) instructions to install Webcamoid. Alternatively, you can install/uninstall Webcamoid from console:
+* [Wget](http://www.gnu.org/software/wget/wget.html)
+* [Bison](http://www.gnu.org/software/bison/bison.html)
+* [Flex](http://flex.sourceforge.net)
 
-__install__
+__NOTE__: Webcamoid uses its own [FFmpeg](http://ffmpeg.org/) versión, you must include its dependencies too.
 
-    plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
-
-__uninstall__
-
-    plasmapkg -r webcamoid && kbuildsycoca4
-
-### As stand alone program ###
-
-This install mode is highly encouraged since it gives the best user experience.  
-The stand alone installation mode allow you to use Webcamoid as a plasmoid, but also as a normal program. This installation way requires root access.
-
-    unzip webcamoid.plasmoid
-    cd Webcamoid
-    su -c 'python2 setup.py install --prefix=/usr'
-    kbuildsycoca4
-
-### From Github ###
-
-Be careful, the GIT repository is unstable, it could work or not.
+You can build Webcamoid with the following commands:
 
     git clone https://github.com/hipersayanX/Webcamoid.git
-    zip -r webcamoid.plasmoid Webcamoid -x \*.git\*
-    plasmapkg -i webcamoid.plasmoid && kbuildsycoca4
+    qmake
+    make -j $(grep -c "^processor" /proc/cpuinfo)
+    su -c 'make install'
+    kbuildsycoca4
 
 ### Custom Streams ###
 
@@ -103,16 +88,16 @@ Some languages are officially supported and other are supported through [Google 
 
 ## Reporting Bugs ##
 
-In the root folder of webcamoid run this command:
+Run this command:
 
-    plasmoidviewer
+    plasma-windowed webcamoid
 
 use Webcamoid until an abnormal event happen, write a list with the following information:
 
 1. Your Webcamoid version.
 2. Your distribution name and version (numeric, please).
 3. Your KDE and Qt version.
-4. Your Python version.
+4. Your GCC version.
 5. The output of the previous command.
 6. Any other useful information.
 

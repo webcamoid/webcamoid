@@ -28,6 +28,10 @@ exists(commons.pri) {
     }
 }
 
+exists(../../3dparty/ffmpeg_auto.pri) {
+    include(../../3dparty/ffmpeg_auto.pri)
+}
+
 CONFIG += plugin
 
 DEFINES += __STDC_CONSTANT_MACROS
@@ -42,6 +46,18 @@ INCLUDEPATH += \
     include \
     ../../include
 
+exists(../../3dparty/ffmpeg_auto.pri) {
+    INCLUDEPATH += $${FFMPEGHEADERSPATH}
+
+    LIBS += \
+        -L$${FFMPEGLIBSPATH} \
+        -lavcodec \
+        -lavdevice \
+        -lavformat \
+        -lavutil \
+        -lswscale
+}
+
 QT += core gui
 
 SOURCES += \
@@ -53,14 +69,16 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
-    CONFIG += link_pkgconfig
+    ! exists(../../3dparty/ffmpeg_auto.pri) {
+        CONFIG += link_pkgconfig
 
-    PKGCONFIG += \
-        libavcodec \
-        libavdevice \
-        libavformat \
-        libavutil \
-        libswscale
+        PKGCONFIG += \
+            libavcodec \
+            libavdevice \
+            libavformat \
+            libavutil \
+            libswscale
+    }
 
     INSTALLS += target
 

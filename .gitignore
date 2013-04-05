@@ -75,5 +75,9 @@ build
 
 # Ignore Auto Generated Files #
 ###############################
-*_auto.h
-*_auto.cpp
+*_auto.*
+
+# Ignore Private Files and Folders #
+####################################
+*_priv
+*_priv.*
