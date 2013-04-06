@@ -24,6 +24,12 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
+!isEmpty(USE3DPARTYLIBS) {
+    !exists(/usr/bin/wget) {
+        error("USE3DPARTYLIBS option requires Wget.")
+    }
+}
+
 TEMPLATE = subdirs
 
 CONFIG += ordered
@@ -41,7 +47,7 @@ INSTALLS += \
     license
 
 docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
-docs.files = share/docs/html
+docs.files = share/docs/html/*
 docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
 
 license.files = COPYING

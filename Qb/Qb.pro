@@ -28,10 +28,13 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS += \
-    Lib.pro \
-    3dparty \
-    Plugins
+SUBDIRS += Lib.pro
+
+!isEmpty(USE3DPARTYLIBS) {
+    SUBDIRS += 3dparty
+}
+
+SUBDIRS += Plugins
 
 # Install rules
 
@@ -40,7 +43,7 @@ INSTALLS += \
     license
 
 docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
-docs.files = share/docs/html
+docs.files = share/docs/html/*
 docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
 
 license.files = COPYING

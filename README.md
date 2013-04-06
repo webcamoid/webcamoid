@@ -29,25 +29,24 @@ Webcamoid's dependencies are:
 * [Frei0r plugins](http://www.piksel.org/frei0r)
 * [QImageBlitz](http://download.kde.org/stable/qimageblitz/)
 
+__NOTE__: Also, Webcamoid requires [FFmpeg](http://ffmpeg.org/), you must include its dependencies too. Some distributions doesn't provides FFmpeg packages, if this is your case, enable the __USE3DPARTYLIBS__ options in qmake.
+
 Build dependecies:
 
-* [Wget](http://www.gnu.org/software/wget/wget.html)
+* [Wget](http://www.gnu.org/software/wget/wget.html) (if __USE3DPARTYLIBS__ is enabled)
 * [Bison](http://www.gnu.org/software/bison/bison.html)
 * [Flex](http://flex.sourceforge.net)
 
-__NOTE__: Webcamoid uses its own [FFmpeg](http://ffmpeg.org/) versión, you must include its dependencies too.
-
 You can build Webcamoid with the following commands:
 
-    git clone https://github.com/hipersayanX/Webcamoid.git
-    qmake
+    qmake-qt4 Webcamoid.pro PREFIX=/usr #USE3DPARTYLIBS
     make -j $(grep -c "^processor" /proc/cpuinfo)
     su -c 'make install'
     kbuildsycoca4
 
 ### Custom Streams ###
 
-Webcamoid is not just a webcam capture software. You can, for example, use it to capture from a video, image file, IP cameras, or the desktop.  
+Webcamoid is not just a webcam capture software. You can, for example, use it to capture from a video, image file, IP cameras, or the desktop. 
 If you want to add a new stream, go to the "Configure Custom Streams" option, and click in the "Add" button. Give it a human readable "Device Name" and write the path to the stream in the "URI" field. Here are some examples:
 
 * file:///home/YourHome/Videos/SomeFunnyVideo.ogv
@@ -59,13 +58,11 @@ You can search some online IP cameras [here](http://www.google.com/search?q=file
 
 ## Translating ##
 
-Edit the _Webcamoid.pro_ file and add you language code to the _TRANSLATIONS_ macro, then, in the root directory of the project run:
+Edit the _Lib.pro_ file and add you language code to the _TRANSLATIONS_ macro, then, in the root directory of the project run:
 
-    pylupdate4 -verbose -noobsolete Webcamoid.pro
+    lupdate4 -verbose -noobsolete Webcamoid.pro
 
-A _contents/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist. Then run the following command:
-
-    lrelease -removeidentical Webcamoid.pro
+A _share/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist.
 
 ### Supported languages ###
 

@@ -59,7 +59,11 @@ CODECFORSRC = UTF-8
 
 unix {
     INSTALLS += \
+        headers \
         target
+
+    headers.files = include/*
+    headers.path = $${COMMONS_APP_HEADERS_INSTALL_PATH}
 
     target.path = $${COMMONS_LIBS_INSTALL_PATH}
 }

@@ -74,8 +74,9 @@ LIBS += \
     -lkdeui
 
 OTHER_FILES = \
-    share/effects.xml \
-    .gitignore
+    .gitignore \
+    README.md \
+    share/effects.xml
 
 QT += core gui xml
 
