@@ -23,6 +23,7 @@
 
 QbApplication::QbApplication(QObject *parent): QObject(parent)
 {
+    this->resetPluginsPaths();
 }
 
 QbApplication::~QbApplication()
