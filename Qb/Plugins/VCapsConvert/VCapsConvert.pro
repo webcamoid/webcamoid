@@ -44,6 +44,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
+LIBS += -L../../ -lQb
+
 exists(../../3dparty/ffmpeg_auto.pri) {
     INCLUDEPATH += $${FFMPEGHEADERSPATH}
 

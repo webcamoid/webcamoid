@@ -39,10 +39,17 @@ Build dependecies:
 
 You can build Webcamoid with the following commands:
 
-    qmake-qt4 Webcamoid.pro PREFIX=/usr #USE3DPARTYLIBS
+    qmake-qt4 Webcamoid.pro PREFIX=/usr PLUGINPREFIX=/usr #USE3DPARTYLIBS
     make -j $(grep -c "^processor" /proc/cpuinfo)
     su -c 'make install'
     kbuildsycoca4
+    
+The __PREFIX__ variable is where the files will be copyed with the _make install_ command. 
+The __PLUGINPREFIX__ is the prefix path where Webcamoid will search for the plugins. For example if:
+
+    PLUGINPREFIX=/some/path
+    
+Then, Webcamoid will search for plugins in the _/some/path/lib/Qb_ directory. If __PLUGINPREFIX__ is not specified, __PLUGINPREFIX__ will be equal to __PREFIX__ (the default plugin search directory is _/usr/lib/Qb_).
 
 ### Custom Streams ###
 

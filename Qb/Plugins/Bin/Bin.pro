@@ -39,7 +39,7 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -lfl -ly
+LIBS += -L../../ -lQb -lfl -ly
 
 FLEXSOURCES = parser/lexer.l
 BISONSOURCES = parser/parser.y

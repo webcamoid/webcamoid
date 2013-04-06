@@ -141,5 +141,5 @@ void QbApplication::setPluginsPaths(QStringList pluginsPaths)
 
 void QbApplication::resetPluginsPaths()
 {
-    this->setPluginsPaths(QStringList() << COMMONS_APP_PLUGINS_INSTALL_PATH);
+    this->setPluginsPaths(QStringList());
 }

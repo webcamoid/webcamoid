@@ -30,6 +30,8 @@ void Qb::init()
     qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");
     qRegisterMetaType<QbFrac>("QbFrac");
     qRegisterMetaType<QbPacket>("QbPacket");
+
+    application.setPluginsPaths(QStringList() << COMMONS_APP_PLUGINS_INSTALL_PATH_SYSTEM);
 }
 
 QStringList Qb::pluginsPaths()

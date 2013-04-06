@@ -39,6 +39,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
+LIBS += -L../../ -lQb
+
 QT += core gui
 
 SOURCES += \

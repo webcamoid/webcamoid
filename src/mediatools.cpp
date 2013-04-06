@@ -60,68 +60,71 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
 
     this->m_pipeline = Qb::create("Bin", "pipeline");
 
-    QString description("MultiSrc objectName='source' loop=true "
-                        "stateChanged>videoMux.setState "
-                        "stateChanged>effects.setState "
-                        "stateChanged>muxAudioInput.setState !"
-                        "Multiplex objectName='videoMux' "
-                        "caps='video/x-raw' outputIndex=0 !"
-                        "Bin objectName='effects' blocking=false !"
-                        "Sync source.stateChanged>setState !"
-                        "Probe log=false source.stateChanged>setState !"
-                        "QImageConvert source.stateChanged>setState !"
-                        "OUT. ,"
-                        "source. !"
-                        "Multiplex objectName='muxAudioInput' "
-                        "caps='audio/x-raw' outputIndex=0 !"
-                        "Multiplex objectName='audioSwitch' "
-                        "outputIndex=1 ,"
-                        "muxAudioInput. !"
-                        "MultiSink objectName='audioOutput' ,"
-                        "MultiSrc objectName='mic' !"
-                        "Multiplex outputIndex=1 "
-                        "mic.stateChanged>setState ! audioSwitch. ,"
-                        "effects. ! MultiSink objectName='record' ,"
-                        "audioSwitch. ! record.");
+    if (this->m_pipeline)
+    {
+        QString description("MultiSrc objectName='source' loop=true "
+                            "stateChanged>videoMux.setState "
+                            "stateChanged>effects.setState "
+                            "stateChanged>muxAudioInput.setState !"
+                            "Multiplex objectName='videoMux' "
+                            "caps='video/x-raw' outputIndex=0 !"
+                            "Bin objectName='effects' blocking=false !"
+                            "Sync source.stateChanged>setState !"
+                            "Probe log=false source.stateChanged>setState !"
+                            "QImageConvert source.stateChanged>setState !"
+                            "OUT. ,"
+                            "source. !"
+                            "Multiplex objectName='muxAudioInput' "
+                            "caps='audio/x-raw' outputIndex=0 !"
+                            "Multiplex objectName='audioSwitch' "
+                            "outputIndex=1 ,"
+                            "muxAudioInput. !"
+                            "MultiSink objectName='audioOutput' ,"
+                            "MultiSrc objectName='mic' !"
+                            "Multiplex outputIndex=1 "
+                            "mic.stateChanged>setState ! audioSwitch. ,"
+                            "effects. ! MultiSink objectName='record' ,"
+                            "audioSwitch. ! record.");
 
-    this->m_pipeline->setProperty("description", description);
+        this->m_pipeline->setProperty("description", description);
 
-    this->m_effectsPreview = Qb::create("Bin");
+        this->m_effectsPreview = Qb::create("Bin");
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(QbElementPtr, this->m_source),
-                              Q_ARG(QString, "source"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_source),
+                                  Q_ARG(QString, "source"));
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(QbElementPtr, this->m_effects),
-                              Q_ARG(QString, "effects"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_effects),
+                                  Q_ARG(QString, "effects"));
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(QbElementPtr, this->m_audioSwitch),
-                              Q_ARG(QString, "audioSwitch"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_audioSwitch),
+                                  Q_ARG(QString, "audioSwitch"));
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(QbElementPtr, this->m_audioOutput),
-                              Q_ARG(QString, "audioOutput"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_audioOutput),
+                                  Q_ARG(QString, "audioOutput"));
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(QbElementPtr, this->m_mic),
-                              Q_ARG(QString, "mic"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_mic),
+                                  Q_ARG(QString, "mic"));
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(QbElementPtr, this->m_record),
-                              Q_ARG(QString, "record"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_record),
+                                  Q_ARG(QString, "record"));
 
-    this->m_pipeline->link(this);
-    this->m_source->link(this->m_effectsPreview);
+        this->m_pipeline->link(this);
+        this->m_source->link(this->m_effectsPreview);
 
-    this->audioSetup();
+        this->audioSetup();
+    }
 
     if (watchDevices)
     {
