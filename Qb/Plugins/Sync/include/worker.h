@@ -22,13 +22,14 @@
 #ifndef WORKER_H
 #define WORKER_H
 
-#include "packetinfo.h"
+#include <qb.h>
 
 class Worker: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QbElement::ElementState state READ state WRITE setState RESET resetState)
     Q_PROPERTY(bool waitUnlock READ waitUnlock WRITE setWaitUnlock RESET resetWaitUnlock)
+    Q_PROPERTY(bool noFps READ noFps WRITE setNoFps RESET resetNoFps)
 
     public:
         explicit Worker(QObject *parent=NULL);
@@ -36,12 +37,12 @@ class Worker: public QObject
 
         Q_INVOKABLE QbElement::ElementState state() const;
         Q_INVOKABLE bool waitUnlock() const;
+        Q_INVOKABLE bool noFps() const;
 
     private:
         QbElement::ElementState m_state;
-        QQueue<QSharedPointer<PacketInfo> > m_queue;
         QbPacket m_packet;
-        QByteArray m_data;
+        QQueue<QbPacket> m_queue;
         QTimer m_timer;
         double m_fps;
         double m_t;
@@ -50,19 +51,25 @@ class Worker: public QObject
         quint64 m_dti;
         bool m_waitUnlock;
         bool m_unlocked;
+        bool m_noFps;
+        QMutex m_mutex;
 
     signals:
         void oStream(const QbPacket &packet);
+        void oDiscardFrames(int nFrames);
 
     public slots:
         void setWaitUnlock(bool waitUnlock);
+        void setNoFps(bool noFps);
         void resetWaitUnlock();
+        void resetNoFps();
         void doWork();
-        void appendPacketInfo(const PacketInfo &packetInfo);
+        void appendPacketInfo(const QbPacket &packet);
         void dropBuffers();
         void unlock();
         void setState(QbElement::ElementState state);
         void resetState();
+        void iDiscardFrames(int nFrames);
 
     private slots:
         void resetTime();

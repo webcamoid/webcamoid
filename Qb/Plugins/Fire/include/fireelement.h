@@ -52,7 +52,6 @@ class FireElement: public QbElement
 
         QbCaps m_caps;
         QbElementPtr m_convert;
-        QImage m_oFrame;
         QImage m_background;
         QImage m_diff;
         QByteArray m_buffer;

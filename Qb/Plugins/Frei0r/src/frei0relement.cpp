@@ -361,6 +361,12 @@ void Frei0rElement::uninit()
     if (!this->m_library.isLoaded())
         return;
 
+    if (this->m_f0rInstance)
+    {
+        this->f0rDestruct(this->m_f0rInstance);
+        this->m_f0rInstance = NULL;
+    }
+
     if (this->m_info["plugin_type"] == "source")
         this->uninitBuffers();
 
@@ -405,6 +411,7 @@ void Frei0rElement::uninitBuffers()
     if (!this->m_f0rInstance)
         return;
 
+    this->f0rDestruct(this->m_f0rInstance);
     this->m_f0rInstance = NULL;
 }
 
@@ -679,28 +686,28 @@ void Frei0rElement::processFrame(const QbPacket &packet)
             {
                 if (pair[1].toInt() == 0)
                     memcpy(this->m_iBuffer0.data(),
-                           packet.data(),
-                           packet.dataSize());
+                           packet.buffer().data(),
+                           packet.bufferSize());
 
                 if (pair[1].toInt() == 1)
                     memcpy(this->m_iBuffer1.data(),
-                           packet.data(),
-                           packet.dataSize());
+                           packet.buffer().data(),
+                           packet.bufferSize());
 
                 if (pair[1].toInt() == 2 &&
                     this->m_info["plugin_type"] == "mixer3")
                     memcpy(this->m_iBuffer2.data(),
-                           packet.data(),
-                           packet.dataSize());
+                           packet.buffer().data(),
+                           packet.bufferSize());
             }
         }
 
     QbCaps caps;
-    int64_t dts;
-    int64_t pts;
-    int duration;
+    int64_t dts = 0;
+    int64_t pts = 0;
+    int duration = 0;
     QbFrac timeBase;
-    int index;
+    int index = 0;
 
     if (this->m_info["plugin_type"] == "source")
     {
@@ -735,10 +742,13 @@ void Frei0rElement::processFrame(const QbPacket &packet)
         index = packet.index();
     }
 
+    if (this->m_oBuffer.isEmpty())
+        return;
+
     if (this->m_info["plugin_type"] == "filter")
         this->f0rUpdate(this->m_f0rInstance,
                         pts * timeBase.value(),
-                        (uint32_t *) packet.data(),
+                        (uint32_t *) packet.buffer().data(),
                         (uint32_t *) this->m_oBuffer.data());
     else if (this->m_info["plugin_type"] == "source")
         this->f0rUpdate(this->m_f0rInstance,
@@ -762,8 +772,11 @@ void Frei0rElement::processFrame(const QbPacket &packet)
 
     this->m_t += this->m_duration;
 
+    QSharedPointer<uchar> oBuffer(new uchar[this->m_oBuffer.size()]);
+    memcpy(oBuffer.data(), this->m_oBuffer.constData(), this->m_oBuffer.size());
+
     QbPacket oPacket(caps,
-                     this->m_oBuffer.constData(),
+                     oBuffer,
                      this->m_oBuffer.size());
 
     oPacket.setDts(dts);

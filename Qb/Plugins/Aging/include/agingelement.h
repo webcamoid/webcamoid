@@ -47,7 +47,6 @@ class AgingElement: public QbElement
         int m_agingMode;
 
         QbElementPtr m_convert;
-        QImage m_oFrame;
         QVector<Scratch> m_scratches;
         QList<int> m_dx;
         QList<int> m_dy;

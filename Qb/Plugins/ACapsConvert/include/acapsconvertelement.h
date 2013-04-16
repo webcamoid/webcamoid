@@ -44,29 +44,13 @@ class ACapsConvertElement: public QbElement
 
         Q_INVOKABLE QString caps();
 
-    protected:
-        bool initBuffers();
-        void uninitBuffers();
-
     private:
         QbCaps m_caps;
 
-        QByteArray m_oFrame;
         QbCaps m_curInputCaps;
-        SwrContext *m_resampleContext;
-        uint8_t **m_iData;
-        uint8_t **m_oData;
-        AVSampleFormat m_iSampleFormat;
-        int m_iNSamples;
-        int m_iNChannels;
-        int m_iSampleRate;
-        int m_oMaxNSamples;
-        int m_oSampleRate;
-        int m_oNChannels;
-        int64_t m_oChannelLayout;
-        AVSampleFormat m_oSampleFormat;
+        QSharedPointer<SwrContext> m_resampleContext;
 
-        void cleanAll();
+        static void deleteSwrContext(SwrContext *context);
 
     public slots:
         void setCaps(QString caps);

@@ -286,11 +286,16 @@ bool MultiSrcElement::init()
         av_dict_free(&inputOptions);
 
     if (!this->m_inputContext)
+    {
+        emit this->error(QString("Cann't open \"%1\" stream.").arg(this->location()));
+
         return false;
+    }
 
     if (avformat_find_stream_info(this->m_inputContext, NULL) < 0)
     {
         avformat_close_input(&this->m_inputContext);
+        emit this->error(QString("Cann't retrieve information from \"%1\" stream.").arg(this->location()));
 
         return false;
     }

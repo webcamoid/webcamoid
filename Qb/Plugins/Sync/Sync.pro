@@ -34,7 +34,6 @@ HEADERS += \
     include/sleep.h \
     include/sync.h \
     include/syncelement.h \
-    include/packetinfo.h \
     include/worker.h
 
 INCLUDEPATH += \
@@ -49,7 +48,6 @@ SOURCES += \
     src/sleep.cpp \
     src/sync.cpp \
     src/syncelement.cpp \
-    src/packetinfo.cpp \
     src/worker.cpp
 
 TEMPLATE = lib

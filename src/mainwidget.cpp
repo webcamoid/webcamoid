@@ -66,9 +66,9 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
                      SLOT(recordingChanged(bool)));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(gstError()),
+                     SIGNAL(error(QString)),
                      this,
-                     SLOT(showGstError()));
+                     SLOT(showError(QString)));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(frameReady(const QImage &)),
@@ -352,11 +352,11 @@ void MainWidget::saveConfigs()
     this->m_mediaTools->saveConfigs();
 }
 
-void MainWidget::showGstError()
+void MainWidget::showError(QString message)
 {
     KNotification::event(KNotification::Error,
                          this->tr("An error has occurred"),
-                         this->tr("Please, check the \"Features\" section."),
+                         message,
                          QPixmap(),
                          NULL,
                          KNotification::Persistent);

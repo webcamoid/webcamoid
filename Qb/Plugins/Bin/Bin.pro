@@ -48,7 +48,7 @@ OTHER_FILES +=  \
     $$FLEXSOURCES \
     $$BISONSOURCES
 
-QT += core gui script
+QT += core gui
 
 SOURCES += \
     src/bin.cpp \

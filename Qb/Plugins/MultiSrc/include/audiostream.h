@@ -41,7 +41,6 @@ class AudioStream: public AbstractStream
         void cleanUp();
 
     private:
-        QByteArray m_oFrame;
         uint8_t **m_oBuffer;
 };
 

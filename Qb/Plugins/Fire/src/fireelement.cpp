@@ -25,8 +25,8 @@
 
 FireElement::FireElement(): QbElement()
 {
-    this->m_convert = Qb::create("QImageConvert");
-    this->m_convert->setProperty("format", "RGB32");
+    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
     QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
@@ -284,7 +284,14 @@ void FireElement::setState(ElementState state)
 
 void FireElement::processFrame(const QbPacket &packet)
 {
-    QImage src = *static_cast<const QImage *>(packet.data());
+    int width = packet.caps().property("width").toInt();
+    int height = packet.caps().property("height").toInt();
+
+    QImage src = QImage(packet.buffer().data(),
+                        width,
+                        height,
+                        QImage::Format_RGB32);
+
     int videoArea = src.width() * src.height();
 
     if (packet.caps() != this->m_caps)
@@ -342,8 +349,8 @@ void FireElement::processFrame(const QbPacket &packet)
         }
     }
 
-    this->m_oFrame = QImage(src.size(), src.format());
-    quint32 *destBits = (quint32 *) this->m_oFrame.bits();
+    QImage oFrame(src.size(), src.format());
+    quint32 *destBits = (quint32 *) oFrame.bits();
 
     for (int y = 0; y < src.height(); y++)
         for (int x = 1; x < src.width() - 1; x++)
@@ -352,18 +359,21 @@ void FireElement::processFrame(const QbPacket &packet)
             destBits[y * src.width() + x] = this->m_palette[v];
         }
 
+    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
+
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
                         "width=%2,"
                         "height=%3,"
                         "fps=%4").arg("bgr0")
-                                 .arg(this->m_oFrame.width())
-                                 .arg(this->m_oFrame.height())
+                                 .arg(oFrame.width())
+                                 .arg(oFrame.height())
                                  .arg(packet.caps().property("fps").toString()));
 
     QbPacket oPacket(caps,
-                     this->m_oFrame.constBits(),
-                     this->m_oFrame.byteCount());
+                     oBuffer,
+                     oFrame.byteCount());
 
     oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());

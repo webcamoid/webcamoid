@@ -22,7 +22,7 @@
 #ifndef VCAPSCONVERTELEMENT_H
 #define VCAPSCONVERTELEMENT_H
 
-#include <qbelement.h>
+#include <qb.h>
 
 extern "C"
 {
@@ -46,19 +46,11 @@ class VCapsConvertElement: public QbElement
     private:
         QbCaps m_caps;
 
-        int m_oWidth;
-        int m_oHeight;
-        PixelFormat m_oFormat;
-        QByteArray m_oFrame;
-        SwsContext *m_scaleContext;
-        QbCaps m_curInputCaps;
-
     public slots:
         void setCaps(QString caps);
         void resetCaps();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
 };
 
 #endif // VCAPSCONVERTELEMENT_H

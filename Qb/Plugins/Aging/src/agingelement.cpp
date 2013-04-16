@@ -23,8 +23,8 @@
 
 AgingElement::AgingElement(): QbElement()
 {
-    this->m_convert = Qb::create("QImageConvert");
-    this->m_convert->setProperty("format", "RGB32");
+    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
     QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
@@ -296,26 +296,36 @@ void AgingElement::setState(ElementState state)
 
 void AgingElement::processFrame(const QbPacket &packet)
 {
-    this->m_oFrame = *static_cast<const QImage *>(packet.data());
-    this->m_oFrame = this->colorAging(this->m_oFrame);
-    this->scratching(this->m_oFrame);
-    this->pits(this->m_oFrame);
+    int width = packet.caps().property("width").toInt();
+    int height = packet.caps().property("height").toInt();
+
+    QImage oFrame = QImage(packet.buffer().data(),
+                           width,
+                           height,
+                           QImage::Format_RGB32);
+
+    oFrame = this->colorAging(oFrame);
+    this->scratching(oFrame);
+    this->pits(oFrame);
 
     if (this->agingMode() == 0)
-        this->dusts(this->m_oFrame);
+        this->dusts(oFrame);
+
+    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
                         "width=%2,"
                         "height=%3,"
                         "fps=%4").arg("bgr0")
-                                 .arg(this->m_oFrame.width())
-                                 .arg(this->m_oFrame.height())
+                                 .arg(width)
+                                 .arg(height)
                                  .arg(packet.caps().property("fps").toString()));
 
     QbPacket oPacket(caps,
-                     this->m_oFrame.constBits(),
-                     this->m_oFrame.byteCount());
+                     oBuffer,
+                     oFrame.byteCount());
 
     oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());

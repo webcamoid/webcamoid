@@ -41,7 +41,6 @@ class WarholElement: public QbElement
         int m_nFrames;
 
         QbElementPtr m_convert;
-        QImage m_oFrame;
         QList<quint32> m_colorTable;
 
     public slots:

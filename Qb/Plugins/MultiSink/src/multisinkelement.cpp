@@ -543,7 +543,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
         }
 
         avpicture_fill(&this->m_oPicture,
-                       (uint8_t *) packet.data(),
+                       (uint8_t *) packet.buffer().data(),
                        iFormat,
                        iWidth,
                        iHeight);
@@ -562,7 +562,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
         pkt.size = 0;
 
         avpicture_fill((AVPicture *) &this->m_vFrame,
-                       (uint8_t *) packet.data(),
+                       (uint8_t *) packet.buffer().data(),
                        iFormat,
                        iWidth,
                        iHeight);
@@ -630,8 +630,8 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     if (avcodec_fill_audio_frame(&iFrame,
                                  codecContext->channels,
                                  codecContext->sample_fmt,
-                                 (uint8_t *) packet.data(),
-                                 packet.dataSize(),
+                                 (uint8_t *) packet.buffer().data(),
+                                 packet.bufferSize(),
                                  1) < 0)
         return;
 

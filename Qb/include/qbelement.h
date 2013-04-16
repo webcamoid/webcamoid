@@ -69,7 +69,9 @@ class QbElement: public QObject
     private:
         QString m_pluginId;
         QObject *m_application;
-        QMap<QbElement *, QbCaps> m_iCaps;
+
+        QList<QMetaMethod> methodsByName(QObject *object, QString methodName);
+        bool methodCompat(QMetaMethod method1, QMetaMethod method2);
 
     signals:
         void stateChanged(ElementState state);

@@ -101,7 +101,8 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                     this->m_iFrame.channels,
                     (AVSampleFormat) this->m_iFrame.format);
 
-    this->m_oFrame = QByteArray((const char *) this->m_oBuffer[0], oBufferSize);
+    QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
+    memcpy(oBuffer.data(), this->m_oBuffer[0], oBufferSize);
     av_freep(&this->m_oBuffer[0]);
 
     const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
@@ -124,8 +125,8 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                                      .arg(this->m_iFrame.nb_samples));
 
     QbPacket oPacket(caps,
-                     this->m_oFrame.constData(),
-                     this->m_oFrame.size());
+                     oBuffer,
+                     oBufferSize);
 
     oPacket.setDts(this->m_iFrame.pts);
     oPacket.setPts(this->m_iFrame.pkt_dts);

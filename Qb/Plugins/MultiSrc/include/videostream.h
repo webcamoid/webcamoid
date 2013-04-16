@@ -37,10 +37,6 @@ class VideoStream: public AbstractStream
 
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
         Q_INVOKABLE QSize size();
-
-    private:
-        QByteArray m_oFrame;
-        QbCaps m_oCaps;
 };
 
 #endif // VIDEOSTREAM_H

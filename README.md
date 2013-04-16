@@ -39,17 +39,17 @@ Build dependecies:
 
 You can build Webcamoid with the following commands:
 
-    qmake-qt4 Webcamoid.pro PREFIX=/usr PLUGINPREFIX=/usr #USE3DPARTYLIBS
+    qmake-qt4 Webcamoid.pro PREFIX=/usr DATAPREFIX=/usr #USE3DPARTYLIBS
     make -j $(grep -c "^processor" /proc/cpuinfo)
     su -c 'make install'
     kbuildsycoca4
-    
-The __PREFIX__ variable is where the files will be copyed with the _make install_ command. 
-The __PLUGINPREFIX__ is the prefix path where Webcamoid will search for the plugins. For example if:
 
-    PLUGINPREFIX=/some/path
-    
-Then, Webcamoid will search for plugins in the _/some/path/lib/Qb_ directory. If __PLUGINPREFIX__ is not specified, __PLUGINPREFIX__ will be equal to __PREFIX__ (the default plugin search directory is _/usr/lib/Qb_).
+The __PREFIX__ variable is where the files will be copyed with the _make install_ command. 
+The __DATAPREFIX__ is the prefix path where Webcamoid will search for the data. For example if:
+
+    DATAPREFIX=/some/path
+
+Then, Webcamoid will search for plugins in the _/some/path/lib/Qb_ directory. If __DATAPREFIX__ is not specified, __DATAPREFIX__ will be equal to __PREFIX__.
 
 ### Custom Streams ###
 
@@ -67,7 +67,7 @@ You can search some online IP cameras [here](http://www.google.com/search?q=file
 
 Edit the _Lib.pro_ file and add you language code to the _TRANSLATIONS_ macro, then, in the root directory of the project run:
 
-    lupdate4 -verbose -noobsolete Webcamoid.pro
+    lupdate-qt4 -verbose -noobsolete Webcamoid.pro
 
 A _share/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist.
 

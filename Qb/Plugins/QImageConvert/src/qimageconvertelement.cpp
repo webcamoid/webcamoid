@@ -100,21 +100,10 @@ void QImageConvertElement::processFrame(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    this->m_oFrame = QImage((const uchar *) packet.data(),
-                            width,
-                            height,
-                            this->m_qFormat);
+    QSharedPointer<const QImage> oFrame(new QImage((const uchar *) packet.buffer().data(),
+                                                   width,
+                                                   height,
+                                                   this->m_qFormat));
 
-    QString fps = packet.caps().property("fps").toString();
-
-    QbPacket oPacket(QbCaps(QString("application/x-qt-image,fps=%1").arg(fps)),
-                     &this->m_oFrame);
-
-    oPacket.setDts(packet.dts());
-    oPacket.setPts(packet.pts());
-    oPacket.setDuration(packet.duration());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    emit this->oStream(oFrame);
 }

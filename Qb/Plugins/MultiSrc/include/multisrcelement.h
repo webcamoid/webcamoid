@@ -90,6 +90,9 @@ class MultiSrcElement: public QbElement
             return value - value % multiply;
         }
 
+    signals:
+        void error(QString message);
+
     public slots:
         void setLocation(QString location);
         void setLoop(bool loop);

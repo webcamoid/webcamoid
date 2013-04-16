@@ -71,7 +71,6 @@ class MatrixElement: public QbElement
         bool m_pause;
 
         QbElementPtr m_convert;
-        QImage m_oFrame;
         QbCaps m_caps;
         int m_mapWidth;
         int m_mapHeight;

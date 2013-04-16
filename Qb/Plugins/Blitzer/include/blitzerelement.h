@@ -43,7 +43,6 @@ class BlitzerElement: public QbElement
         QString m_method;
         QVariantList m_params;
         QbElementPtr m_convert;
-        QImage m_oFrame;
         QMap<QString, Blitz::RGBChannel> m_stringToRGBChannel;
         QMap<QString, Blitz::EffectQuality> m_stringToEffectQuality;
         QMap<QString, Blitz::GradientType> m_stringToGradientType;

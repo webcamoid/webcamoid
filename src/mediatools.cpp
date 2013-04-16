@@ -68,10 +68,11 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "stateChanged>muxAudioInput.setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
+//                            "Sync objectName='syncFirst' noFps=true source.stateChanged>setState !"
                             "Bin objectName='effects' blocking=false !"
-                            "Sync source.stateChanged>setState !"
+                            "Sync source.stateChanged>setState !" //"oDiscardFrames>syncFirst.iDiscardFrames !"
                             "Probe log=false source.stateChanged>setState !"
-                            "QImageConvert source.stateChanged>setState !"
+                            "VCapsConvert caps='video/x-raw,format=bgra' source.stateChanged>setState !"
                             "OUT. ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
@@ -123,6 +124,11 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
         this->m_pipeline->link(this);
         this->m_source->link(this->m_effectsPreview);
 
+        QObject::connect(this->m_source.data(),
+                         SIGNAL(error(QString)),
+                         this,
+                         SIGNAL(error(QString)));
+
         this->audioSetup();
     }
 
@@ -148,23 +154,27 @@ MediaTools::~MediaTools()
 void MediaTools::iStream(const QbPacket &packet)
 {
     QString sender = this->sender()->objectName();
-    const QImage *frame = static_cast<const QImage *>(packet.data());
+
+    QImage frame(packet.buffer().data(),
+                 packet.caps().property("width").toInt(),
+                 packet.caps().property("height").toInt(),
+                 QImage::Format_ARGB32);
 
     if (sender == "pipeline")
     {
-        emit this->frameReady(*frame);
+        emit this->frameReady(frame);
 
-        if (frame->size() != this->m_curFrameSize)
+        if (frame.size() != this->m_curFrameSize)
         {
-            emit this->frameSizeChanged(frame->size());
-            this->m_curFrameSize = frame->size();
+            emit this->frameSizeChanged(frame.size());
+            this->m_curFrameSize = frame.size();
         }
     }
     else
     {
         QString name = this->nameFromHash(sender);
 
-        emit this->previewFrameReady(*frame, name);
+        emit this->previewFrameReady(frame, name);
     }
 }
 
@@ -535,6 +545,7 @@ QVariantList MediaTools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
     }
 
     v4l2_querymenu qmenu;
+    memset(&qmenu, 0, sizeof(v4l2_querymenu));
     qmenu.id = queryctrl->id;
     QStringList menu;
 
@@ -559,14 +570,14 @@ QVariantList MediaTools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
                           << menu;
 }
 
-QMap<QString, uint> MediaTools::findControls(int dev_fd)
+QMap<QString, uint> MediaTools::findControls(int devFd)
 {
     v4l2_queryctrl qctrl;
     memset(&qctrl, 0, sizeof(v4l2_queryctrl));
     qctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
     QMap<QString, uint> controls;
 
-    while (ioctl(dev_fd, VIDIOC_QUERYCTRL, &qctrl) == 0)
+    while (ioctl(devFd, VIDIOC_QUERYCTRL, &qctrl) == 0)
     {
         if (qctrl.type != V4L2_CTRL_TYPE_CTRL_CLASS &&
             !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
@@ -582,14 +593,14 @@ QMap<QString, uint> MediaTools::findControls(int dev_fd)
     {
         qctrl.id = id;
 
-        if (ioctl(dev_fd, VIDIOC_QUERYCTRL, &qctrl) == 0 &&
+        if (ioctl(devFd, VIDIOC_QUERYCTRL, &qctrl) == 0 &&
            !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
             controls[QString((const char *) qctrl.name)] = qctrl.id;
     }
 
     qctrl.id = V4L2_CID_PRIVATE_BASE;
 
-    while (ioctl(dev_fd, VIDIOC_QUERYCTRL, &qctrl) == 0)
+    while (ioctl(devFd, VIDIOC_QUERYCTRL, &qctrl) == 0)
     {
         if (!(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
             controls[QString((const char *) qctrl.name)] = qctrl.id;
@@ -720,18 +731,13 @@ void MediaTools::setRecording(bool recording, QString fileName)
 
         this->m_record->setProperty("location", fileName);
         this->m_record->setProperty("options", options);
-
-/*
-        if (error)
-        {
-            this->m_recording = false;
-            emit this->recordingChanged(this->m_recording);
-
-            return;
-        }
-*/
         this->m_record->setState(QbElement::ElementStatePlaying);
-        this->m_recording = true;
+
+        if (this->m_record->state() == QbElement::ElementStatePlaying)
+            this->m_recording = true;
+        else
+            this->m_recording = false;
+
         emit this->recordingChanged(this->m_recording);
     }
 }
@@ -764,7 +770,12 @@ void MediaTools::setDevice(QString device)
         this->m_source->setProperty("location", device);
 
         this->m_source->setState(QbElement::ElementStatePlaying);
-        this->m_device = device;
+
+        if (this->m_source->state() == QbElement::ElementStatePlaying)
+            this->m_device = device;
+        else
+            this->m_device = "";
+
         emit this->deviceChanged(this->m_device);
     }
 }
@@ -828,8 +839,9 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
 
                 description += QString(", preview. !"
                                        "%1 !"
-                                       "QImageConvert objectName='%2'").arg(effect)
-                                                                       .arg(previewHash);
+                                       "VCapsConvert objectName='%2' "
+                                       "caps='video/x-raw,format=bgra'").arg(effect)
+                                                                        .arg(previewHash);
             }
 
             this->m_effectsPreview->setProperty("description", description);

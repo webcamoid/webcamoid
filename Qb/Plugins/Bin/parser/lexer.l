@@ -20,8 +20,6 @@
  */
 
 %{
-#include <QtScript>
-
 #include "parser_auto.h"
 
 int yycolumn = 1;
@@ -31,6 +29,73 @@ int yycolumn = 1;
                        yylloc.last_line = yylineno; \
                        yylloc.last_column = yycolumn + yyleng - 1; \
                        yycolumn += yyleng;
+
+
+bool isOctal(QString str)
+{
+    bool ok;
+
+    str.toUInt(&ok, 8);
+
+    return ok;
+}
+
+bool isHex(QString str)
+{
+    bool ok;
+
+    str.toUInt(&ok, 16);
+
+    return ok;
+}
+
+QString stringRepToString(QString strRep)
+{
+    QString str = strRep;
+    str.remove(0, 1);
+    str.remove(str.length() - 1, 1);
+    int start = 0;
+
+    while (true)
+    {
+        start = str.indexOf('\\', start);
+        int next = start + 1;
+
+        if (start < 0 || next >= str.length())
+            break;
+
+        if (str[next] == '0')
+            str.replace(start, 2, QChar('\0'));
+        else if (str[next] == 'a')
+            str.replace(start, 2, QChar('\a'));
+        else if (str[next] == 'b')
+            str.replace(start, 2, QChar('\b'));
+        else if (str[next] == 'f')
+            str.replace(start, 2, QChar('\f'));
+        else if (str[next] == 'n')
+            str.replace(start, 2, QChar('\n'));
+        else if (str[next] == 'r')
+            str.replace(start, 2, QChar('\r'));
+        else if (str[next] == 't')
+            str.replace(start, 2, QChar('\t'));
+        else if (str[next] == 'v')
+            str.replace(start, 2, QChar('\v'));
+        else if (next + 2 < str.length() && isOctal(str.mid(next, 3)))
+            str.replace(start, 4, QChar(str.mid(next, 3).toUInt(NULL, 8)));
+        else if (str[next] == 'x' && next + 2 < str.length() && isHex(str.mid(next + 1, 2)))
+            str.replace(start, 4, QChar(str.mid(next + 1, 2).toUInt(NULL, 16)));
+        else if (str[next] == 'u' && next + 4 < str.length() && isHex(str.mid(next + 1, 4)))
+            str.replace(start, 6, QChar(str.mid(next + 1, 4).toUInt(NULL, 16)));
+        else if (str[next] == 'U' && next + 8 < str.length() && isHex(str.mid(next + 1, 8)))
+            str.replace(start, 10, QChar(str.mid(next + 1, 8).toUInt(NULL, 16)));
+        else
+            str.remove(start, 1);
+
+        start++;
+    }
+
+    return str;
+}
 %}
 
 %option yylineno
@@ -128,8 +193,7 @@ bits {
 
 \"([^"\\]*|\\.)*\"|'([^'\\]*|\\.)*' {
     yylval.QVariant_t = new QVariant();
-    QScriptEngine scriptEngine;
-    *yylval.QVariant_t = scriptEngine.evaluate(QString(yytext)).toString();
+    *yylval.QVariant_t = stringRepToString(yytext);
 
     return TOK_STRING;
 }

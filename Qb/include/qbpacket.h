@@ -30,8 +30,8 @@ class QbPacket: public QObject
     Q_OBJECT
 
     Q_PROPERTY(QbCaps caps READ caps WRITE setCaps RESET resetCaps)
-    Q_PROPERTY(const void *data READ data WRITE setData RESET resetData)
-    Q_PROPERTY(ulong dataSize READ dataSize WRITE setDataSize RESET resetDataSize)
+    Q_PROPERTY(QSharedPointer<uchar> buffer READ buffer WRITE setBuffer RESET resetBuffer)
+    Q_PROPERTY(ulong bufferSize READ bufferSize WRITE setBufferSize RESET resetBufferSize)
     Q_PROPERTY(int64_t dts READ dts WRITE setDts RESET resetDts)
     Q_PROPERTY(int64_t pts READ pts WRITE setPts RESET resetPts)
     Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
@@ -41,8 +41,9 @@ class QbPacket: public QObject
     public:
         explicit QbPacket(QObject *parent=NULL);
 
-        QbPacket(QbCaps caps, const void *data=NULL,
-                 ulong dataSize=0,
+        QbPacket(QbCaps caps,
+                 const QSharedPointer<uchar> &buffer=QSharedPointer<uchar>(),
+                 ulong bufferSize=0,
                  int64_t dts=0,
                  int64_t pts=0,
                  int duration=0,
@@ -55,8 +56,8 @@ class QbPacket: public QObject
 
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE const void *data() const;
-        Q_INVOKABLE ulong dataSize() const;
+        Q_INVOKABLE QSharedPointer<uchar> buffer() const;
+        Q_INVOKABLE ulong bufferSize() const;
         Q_INVOKABLE int64_t dts() const;
         Q_INVOKABLE int64_t pts() const;
         Q_INVOKABLE int duration() const;
@@ -65,8 +66,8 @@ class QbPacket: public QObject
 
     private:
         QbCaps m_caps;
-        const void *m_data;
-        ulong m_dataSize;
+        QSharedPointer<uchar> m_buffer;
+        ulong m_bufferSize;
         int64_t m_dts;
         int64_t m_pts;
         int m_duration;
@@ -77,16 +78,16 @@ class QbPacket: public QObject
 
     public slots:
         void setCaps(QbCaps caps);
-        void setData(const void *data);
-        void setDataSize(ulong dataSize);
+        void setBuffer(const QSharedPointer<uchar> &buffer);
+        void setBufferSize(ulong bufferSize);
         void setDts(int64_t dts);
         void setPts(int64_t pts);
         void setDuration(int duration);
         void setTimeBase(QbFrac timeBase);
         void setIndex(int index);
         void resetCaps();
-        void resetData();
-        void resetDataSize();
+        void resetBuffer();
+        void resetBufferSize();
         void resetDts();
         void resetPts();
         void resetDuration();

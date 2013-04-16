@@ -41,11 +41,13 @@ class QImageConvertElement: public QbElement
         QString m_format;
         QImage::Format m_qFormat;
 
-        QImage m_oFrame;
         QbElementPtr m_capsConvert;
 
         QMap<QString, QString> m_imageToFormat;
         QMap<QString, QImage::Format> m_imageToQt;
+
+    signals:
+        void oStream(QSharedPointer<const QImage> frame);
 
     public slots:
         void setFormat(QString format);

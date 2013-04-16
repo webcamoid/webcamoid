@@ -31,6 +31,7 @@ Worker::Worker(QObject *parent): QObject(parent)
     QObject::connect(&this->m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
 
     this->resetWaitUnlock();
+    this->resetNoFps();
     this->resetTime();
 }
 
@@ -49,9 +50,19 @@ bool Worker::waitUnlock() const
     return this->m_waitUnlock;
 }
 
+bool Worker::noFps() const
+{
+    return this->m_noFps;
+}
+
 void Worker::setWaitUnlock(bool waitUnlock)
 {
     this->m_waitUnlock = waitUnlock;
+}
+
+void Worker::setNoFps(bool noFps)
+{
+    this->m_noFps = noFps;
 }
 
 void Worker::resetWaitUnlock()
@@ -59,22 +70,33 @@ void Worker::resetWaitUnlock()
     this->setWaitUnlock(false);
 }
 
+void Worker::resetNoFps()
+{
+    this->setNoFps(false);
+}
+
 void Worker::doWork()
 {
     if (!this->m_unlocked)
         return;
 
+    this->m_mutex.lock();
+
     if (this->m_queue.isEmpty())
     {
-        if (!this->m_packet.caps().isValid() || this->m_data.isEmpty())
+        if (!this->m_packet.caps().isValid())
+        {
+            this->m_mutex.unlock();
+
             return;
+        }
+
+        emit this->oDiscardFrames(1);
     }
     else
-    {
-        QSharedPointer<PacketInfo> packetInfo = this->m_queue.dequeue();
-        this->m_packet = packetInfo->packet();
-        this->m_data = packetInfo->data();
-    }
+        this->m_packet = this->m_queue.dequeue();
+
+    this->m_mutex.unlock();
 
     QString fpsString = this->m_packet.caps().property("fps").toString();
     double fps = QbFrac(fpsString).value();
@@ -85,27 +107,30 @@ void Worker::doWork()
         this->resetTime();
     }
 
-    this->m_packet.setData(this->m_data.constData());
     emit this->oStream(this->m_packet);
 
     quint64 diff = this->m_t - this->m_ti;
     quint64 wait = this->m_dti + diff;
 
-    Sleep::usleep(wait);
+    if (!this->noFps())
+        Sleep::usleep(wait);
+
     this->m_t += this->m_dt;
     this->m_ti += wait;
 }
 
-void Worker::appendPacketInfo(const PacketInfo &packetInfo)
+void Worker::appendPacketInfo(const QbPacket &packet)
 {
-    this->m_queue.enqueue(QSharedPointer<PacketInfo>(new PacketInfo(packetInfo)));
+    this->m_mutex.lock();
+    this->m_queue.enqueue(packet);
+    this->m_mutex.unlock();
 }
 
 void Worker::dropBuffers()
 {
+    this->m_mutex.lock();
     this->m_queue.clear();
-    this->m_packet = QbPacket();
-    this->m_data = QByteArray();
+    this->m_mutex.unlock();
 }
 
 void Worker::unlock()
@@ -125,6 +150,7 @@ void Worker::setState(QbElement::ElementState state)
         this->m_unlocked = !this->m_waitUnlock;
         this->resetTime();
         this->dropBuffers();
+        this->m_packet = QbPacket();
     }
 
     if (state == QbElement::ElementStatePaused)
@@ -138,6 +164,16 @@ void Worker::setState(QbElement::ElementState state)
 void Worker::resetState()
 {
     this->setState(QbElement::ElementStateNull);
+}
+
+void Worker::iDiscardFrames(int nFrames)
+{
+    this->m_mutex.lock();
+
+    for (int i = 0; i < nFrames; i++)
+        this->m_queue.dequeue();
+
+    this->m_mutex.unlock();
 }
 
 void Worker::resetTime()

@@ -27,12 +27,33 @@ AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
     QCoreApplication::setApplicationVersion(COMMONS_VERSION);
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 
-    QString trPath = QString("%1/%2.qm").arg("share/ts")
-                                        .arg(QLocale::system().name());
+    QString trPath;
+    QStringList trPaths;
+    QStringList locales;
 
-    if (!QFileInfo(trPath).exists())
-        trPath = QString("%1/%2.qm").arg(COMMONS_APP_TR_INSTALL_PATH)
-                                    .arg(QLocale::system().name());
+    trPaths << "share/ts" << COMMONS_APP_TR_INSTALL_PATH_SYSTEM;
+    locales << QLocale::system().name() << QLocale::system().name().split("_")[0];
+
+    foreach (QString path, trPaths)
+    {
+        bool localeExists = false;
+
+        foreach (QString locale, locales)
+        {
+            trPath = QString("%1/%2.qm").arg(path)
+                                        .arg(locale);
+
+            if (QFileInfo(trPath).exists())
+            {
+                localeExists = true;
+
+                break;
+            }
+        }
+
+        if (localeExists)
+            break;
+    }
 
     this->m_translator.load(trPath);
 

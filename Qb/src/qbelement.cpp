@@ -59,11 +59,12 @@ bool QbElement::link(QObject *dstElement)
     if (!dstElement)
         return false;
 
-    if (!QObject::connect(this,
-                          SIGNAL(oStream(const QbPacket &)),
-                          dstElement,
-                          SLOT(iStream(const QbPacket &))))
-        return false;
+    foreach (QMetaMethod signal, this->methodsByName(this, "oStream"))
+        foreach (QMetaMethod slot, this->methodsByName(dstElement, "iStream"))
+            if (this->methodCompat(signal, slot) &&
+                signal.methodType() == QMetaMethod::Signal &&
+                slot.methodType() == QMetaMethod::Slot)
+                QObject::connect(this, signal, dstElement, slot);
 
     return true;
 }
@@ -84,11 +85,12 @@ bool QbElement::unlink(QObject *dstElement)
     if (!dstElement)
         return false;
 
-    if (!QObject::disconnect(this,
-                             SIGNAL(oStream(const QbPacket &)),
-                             dstElement,
-                             SLOT(iStream(const QbPacket &))))
-        return false;
+    foreach (QMetaMethod signal, this->methodsByName(this, "oStream"))
+        foreach (QMetaMethod slot, this->methodsByName(dstElement, "iStream"))
+            if (this->methodCompat(signal, slot) &&
+                signal.methodType() == QMetaMethod::Signal &&
+                slot.methodType() == QMetaMethod::Slot)
+                QObject::disconnect(this, signal, dstElement, slot);
 
     return true;
 }
@@ -116,6 +118,34 @@ bool QbElement::init()
 
 void QbElement::uninit()
 {
+}
+
+QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
+{
+    QList<QMetaMethod> methods;
+    QStringList methodSignatures;
+
+    for (int i = 0; i < object->metaObject()->methodCount(); i++)
+    {
+        QMetaMethod method = object->metaObject()->method(i);
+
+        if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(method.signature()))
+            if (!methodSignatures.contains(method.signature()))
+            {
+                methods << method;
+                methodSignatures << method.signature();
+            }
+    }
+
+    return methods;
+}
+
+bool QbElement::methodCompat(QMetaMethod method1, QMetaMethod method2)
+{
+    if (method1.parameterTypes() == method2.parameterTypes())
+        return true;
+
+    return false;
 }
 
 void QbElement::iStream(const QbPacket &packet)

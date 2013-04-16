@@ -81,7 +81,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void deviceChanged(QString device);
         void recordingChanged(bool recording);
         void saveConfigs();
-        void showGstError();
+        void showError(QString message);
         void updateContents(QSize pixmapSize=QSize());
 
         void on_btnTakePhoto_clicked();

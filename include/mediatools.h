@@ -126,7 +126,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QMutex m_mutex;
 
         QVariantList queryControl(int dev_fd, struct v4l2_queryctrl *queryctrl);
-        QMap<QString, uint> findControls(int dev_fd);
+        QMap<QString, uint> findControls(int devFd);
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
 
@@ -137,7 +137,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void recordingChanged(bool recording);
         void frameReady(const QImage &frame);
         void previewFrameReady(const QImage &frame, QString effectName);
-        void gstError();
+        void error(QString message);
 
     public slots:
         void mutexLock();

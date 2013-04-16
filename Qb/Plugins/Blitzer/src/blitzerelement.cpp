@@ -81,7 +81,8 @@ BlitzerElement::BlitzerElement(): QbElement()
     this->m_stringToScaleFilterType["BesselFilter"] = Blitz::BesselFilter;
     this->m_stringToScaleFilterType["SincFilter"] = Blitz::SincFilter;
 
-    this->m_convert = Qb::create("QImageConvert");
+    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
     QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
@@ -144,21 +145,30 @@ void BlitzerElement::setState(ElementState state)
 
 void BlitzerElement::processFrame(const QbPacket &packet)
 {
-    this->m_oFrame = *static_cast<const QImage *>(packet.data());
+    int width = packet.caps().property("width").toInt();
+    int height = packet.caps().property("height").toInt();
+
+    QImage oFrame = QImage(packet.buffer().data(),
+                           width,
+                           height,
+                           QImage::Format_RGB32);
+
+    if (oFrame.isNull())
+        return;
 
     if (this->method() == "antialias")
-        this->m_oFrame = Blitz::antialias(this->m_oFrame);
+        oFrame = Blitz::antialias(oFrame);
     else if (this->method() == "blur")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::blur(this->m_oFrame);
+            oFrame = Blitz::blur(oFrame);
         else
         {
             bool ok;
             int radius = this->params()[0].toInt(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::blur(this->m_oFrame, radius);
+                oFrame = Blitz::blur(oFrame, radius);
         }
     }
     else if (this->method() == "channelIntensity")
@@ -180,19 +190,19 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     ok = false;
 
                 if (ok)
-                    this->m_oFrame = Blitz::channelIntensity(this->m_oFrame, percent, channel);
+                    oFrame = Blitz::channelIntensity(oFrame, percent, channel);
             }
         }
     }
     else if (this->method() == "charcoal")
-        this->m_oFrame = Blitz::charcoal(this->m_oFrame);
+        oFrame = Blitz::charcoal(oFrame);
     else if (this->method() == "contrast")
     {
         if (this->params().length() == 1)
         {
             bool sharpen = this->params()[0].toBool();
 
-            this->m_oFrame = Blitz::contrast(this->m_oFrame, sharpen);
+            oFrame = Blitz::contrast(oFrame, sharpen);
         }
         else if (this->params().length() > 1)
         {
@@ -201,7 +211,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
             int weight = this->params()[1].toInt(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::contrast(this->m_oFrame, sharpen, weight);
+                oFrame = Blitz::contrast(oFrame, sharpen, weight);
         }
     }
     else if (this->method() == "convolve")
@@ -224,21 +234,21 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 }
 
                 if (ok)
-                    this->m_oFrame = Blitz::convolve(this->m_oFrame, matrixList.length(), matrix.data());
+                    oFrame = Blitz::convolve(oFrame, matrixList.length(), matrix.data());
             }
         }
     }
     else if (this->method() == "convolveEdge")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::convolveEdge(this->m_oFrame);
+            oFrame = Blitz::convolveEdge(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             float radius = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::convolveEdge(this->m_oFrame, radius);
+                oFrame = Blitz::convolveEdge(oFrame, radius);
         }
         else if (this->params().length() > 1)
         {
@@ -257,7 +267,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     ok = false;
 
                 if (ok)
-                    this->m_oFrame = Blitz::convolveEdge(this->m_oFrame, radius, quality);
+                    oFrame = Blitz::convolveEdge(oFrame, radius, quality);
             }
         }
     }
@@ -281,7 +291,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 }
 
                 if (ok)
-                    this->m_oFrame = Blitz::convolveInteger(this->m_oFrame, matrixList.length(), matrix.data());
+                    oFrame = Blitz::convolveInteger(oFrame, matrixList.length(), matrix.data());
             }
         }
         else if (this->params().length() > 1)
@@ -306,7 +316,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     int divisor = this->params()[0].toInt(&ok);
 
                     if (ok)
-                        this->m_oFrame = Blitz::convolveInteger(this->m_oFrame, matrixList.length(), matrix.data(), divisor);
+                        oFrame = Blitz::convolveInteger(oFrame, matrixList.length(), matrix.data(), divisor);
                 }
             }
         }
@@ -314,31 +324,31 @@ void BlitzerElement::processFrame(const QbPacket &packet)
     else if (this->method() == "desaturate")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::desaturate(this->m_oFrame);
+            oFrame = Blitz::desaturate(oFrame);
         else
         {
             bool ok;
             float desat = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::desaturate(this->m_oFrame, desat);
+                oFrame = Blitz::desaturate(oFrame, desat);
         }
     }
     else if (this->method() == "despeckle")
-        this->m_oFrame = Blitz::despeckle(this->m_oFrame);
+        oFrame = Blitz::despeckle(oFrame);
     else if (this->method() == "edge")
-        this->m_oFrame = Blitz::edge(this->m_oFrame);
+        oFrame = Blitz::edge(oFrame);
     else if (this->method() == "emboss")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::emboss(this->m_oFrame);
+            oFrame = Blitz::emboss(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             float radius = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::emboss(this->m_oFrame, radius);
+                oFrame = Blitz::emboss(oFrame, radius);
         }
         else if (this->params().length() == 2)
         {
@@ -350,7 +360,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 float sigma = this->params()[1].toFloat(&ok);
 
                 if (ok)
-                    this->m_oFrame = Blitz::emboss(this->m_oFrame, radius, sigma);
+                    oFrame = Blitz::emboss(oFrame, radius, sigma);
             }
         }
         else if (this->params().length() > 2)
@@ -374,13 +384,13 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         ok = false;
 
                     if (ok)
-                        this->m_oFrame = Blitz::emboss(this->m_oFrame, radius, sigma, quality);
+                        oFrame = Blitz::emboss(oFrame, radius, sigma, quality);
                 }
             }
         }
     }
     else if (this->method() == "equalize")
-        Blitz::equalize(this->m_oFrame);
+        Blitz::equalize(oFrame);
     else if (this->method() == "fade")
     {
         if (this->params().length() == 2)
@@ -391,7 +401,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
             QColor color = this->params()[1].value<QColor>();
 
             if (ok)
-                this->m_oFrame = Blitz::fade(this->m_oFrame, val, color);
+                oFrame = Blitz::fade(oFrame, val, color);
         }
     }
     else if (this->method() == "flatten")
@@ -401,20 +411,20 @@ void BlitzerElement::processFrame(const QbPacket &packet)
             QColor ca = this->params()[0].value<QColor>();
             QColor cb = this->params()[1].value<QColor>();
 
-            this->m_oFrame = Blitz::flatten(this->m_oFrame, ca, cb);
+            oFrame = Blitz::flatten(oFrame, ca, cb);
         }
     }
     else if (this->method() == "gaussianBlur")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::gaussianBlur(this->m_oFrame);
+            oFrame = Blitz::gaussianBlur(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             float radius = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::gaussianBlur(this->m_oFrame, radius);
+                oFrame = Blitz::gaussianBlur(oFrame, radius);
         }
         else if (this->params().length() > 1)
         {
@@ -426,21 +436,21 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 float sigma = this->params()[1].toFloat(&ok);
 
                 if (ok)
-                    this->m_oFrame = Blitz::gaussianBlur(this->m_oFrame, radius, sigma);
+                    oFrame = Blitz::gaussianBlur(oFrame, radius, sigma);
             }
         }
     }
     else if (this->method() == "gaussianSharpen")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::gaussianSharpen(this->m_oFrame);
+            oFrame = Blitz::gaussianSharpen(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             float radius = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::gaussianSharpen(this->m_oFrame, radius);
+                oFrame = Blitz::gaussianSharpen(oFrame, radius);
         }
         else if (this->params().length() == 2)
         {
@@ -452,7 +462,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 float sigma = this->params()[1].toFloat(&ok);
 
                 if (ok)
-                    this->m_oFrame = Blitz::gaussianSharpen(this->m_oFrame, radius, sigma);
+                    oFrame = Blitz::gaussianSharpen(oFrame, radius, sigma);
             }
         }
         else if (this->params().length() > 2)
@@ -476,7 +486,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         ok = false;
 
                     if (ok)
-                        this->m_oFrame = Blitz::gaussianSharpen(this->m_oFrame, radius, sigma, quality);
+                        oFrame = Blitz::gaussianSharpen(oFrame, radius, sigma, quality);
                 }
             }
         }
@@ -499,7 +509,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 ok = false;
 
             if (ok)
-                this->m_oFrame = Blitz::gradient(size, ca, cb, type);
+                oFrame = Blitz::gradient(size, ca, cb, type);
         }
     }
     else if (this->method() == "grayGradient")
@@ -520,18 +530,18 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 ok = false;
 
             if (ok)
-                this->m_oFrame = Blitz::grayGradient(size, ca, cb, type);
+                oFrame = Blitz::grayGradient(size, ca, cb, type);
         }
     }
     else if (this->method() == "grayscale")
     {
         if (this->params().isEmpty())
-            Blitz::grayscale(this->m_oFrame);
+            Blitz::grayscale(oFrame);
         else
         {
             bool reduceDepth = this->params()[0].toBool();
 
-            Blitz::grayscale(this->m_oFrame, reduceDepth);
+            Blitz::grayscale(oFrame, reduceDepth);
         }
     }
     else if (this->method() == "grayUnbalancedGradient")
@@ -552,7 +562,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 ok = false;
 
             if (ok)
-                this->m_oFrame = Blitz::grayUnbalancedGradient(size, ca, cb, type);
+                oFrame = Blitz::grayUnbalancedGradient(size, ca, cb, type);
         }
         if (this->params().length() == 5)
         {
@@ -574,7 +584,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 int xfactor = this->params()[4].toInt(&ok);
 
                 if (ok)
-                    this->m_oFrame = Blitz::grayUnbalancedGradient(size, ca, cb, type, xfactor);
+                    oFrame = Blitz::grayUnbalancedGradient(size, ca, cb, type, xfactor);
             }
         }
         if (this->params().length() > 5)
@@ -601,7 +611,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     int yfactor = this->params()[5].toInt(&ok);
 
                     if (ok)
-                        this->m_oFrame = Blitz::grayUnbalancedGradient(size, ca, cb, type, xfactor, yfactor);
+                        oFrame = Blitz::grayUnbalancedGradient(size, ca, cb, type, xfactor, yfactor);
                 }
             }
         }
@@ -609,14 +619,14 @@ void BlitzerElement::processFrame(const QbPacket &packet)
     else if (this->method() == "implode")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::implode(this->m_oFrame);
+            oFrame = Blitz::implode(oFrame);
         else
         {
             bool ok;
             float amount = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::implode(this->m_oFrame, amount);
+                oFrame = Blitz::implode(oFrame, amount);
         }
     }
     else if (this->method() == "intensity")
@@ -627,13 +637,13 @@ void BlitzerElement::processFrame(const QbPacket &packet)
             float percent = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::intensity(this->m_oFrame, percent);
+                oFrame = Blitz::intensity(oFrame, percent);
         }
     }
     else if (this->method() == "invert")
     {
         if (this->params().isEmpty())
-            Blitz::invert(this->m_oFrame);
+            Blitz::invert(oFrame);
         else
         {
             QString modeString = this->params()[0].toString();
@@ -647,7 +657,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 ok = false;
 
             if (ok)
-                Blitz::invert(this->m_oFrame, mode);
+                Blitz::invert(oFrame, mode);
         }
     }
     else if (this->method() == "modulate")
@@ -684,24 +694,24 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         ok = false;
 
                     if (ok)
-                        this->m_oFrame = Blitz::modulate(this->m_oFrame, modImg, reverse, type, factor, channel);
+                        oFrame = Blitz::modulate(oFrame, modImg, reverse, type, factor, channel);
                 }
             }
         }
     }
     else if (this->method() == "normalize")
-        Blitz::normalize(this->m_oFrame);
+        Blitz::normalize(oFrame);
     else if (this->method() == "oilPaint")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::oilPaint(this->m_oFrame);
+            oFrame = Blitz::oilPaint(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             float radius = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::oilPaint(this->m_oFrame, radius);
+                oFrame = Blitz::oilPaint(oFrame, radius);
         }
         else if (this->params().length() > 1)
         {
@@ -720,21 +730,21 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     ok = false;
 
                 if (ok)
-                    this->m_oFrame = Blitz::oilPaint(this->m_oFrame, radius, quality);
+                    oFrame = Blitz::oilPaint(oFrame, radius, quality);
             }
         }
     }
     else if (this->method() == "sharpen")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::sharpen(this->m_oFrame);
+            oFrame = Blitz::sharpen(oFrame);
         else
         {
             bool ok;
             int radius = this->params()[0].toInt(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::sharpen(this->m_oFrame, radius);
+                oFrame = Blitz::sharpen(oFrame, radius);
         }
     }
     else if (this->method() == "smoothScale")
@@ -747,7 +757,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 {
                     QSize sz = this->params()[0].toSize();
 
-                    this->m_oFrame = Blitz::smoothScale(this->m_oFrame, sz);
+                    oFrame = Blitz::smoothScale(oFrame, sz);
                 }
                 else if (this->params().length() > 1)
                 {
@@ -763,7 +773,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         ok = false;
 
                     if (ok)
-                        this->m_oFrame = Blitz::smoothScale(this->m_oFrame, sz, aspectRatio);
+                        oFrame = Blitz::smoothScale(oFrame, sz, aspectRatio);
                 }
             }
             else if (this->params()[0].canConvert<int>())
@@ -778,7 +788,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         int dh = this->params()[1].toInt(&ok);
 
                         if (ok)
-                            this->m_oFrame = Blitz::smoothScale(this->m_oFrame, dw, dh);
+                            oFrame = Blitz::smoothScale(oFrame, dw, dh);
                     }
                 }
                 else if (this->params().length() > 2)
@@ -802,7 +812,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                                 ok = false;
 
                             if (ok)
-                                this->m_oFrame = Blitz::smoothScale(this->m_oFrame, dw, dh, aspectRatio);
+                                oFrame = Blitz::smoothScale(oFrame, dw, dh, aspectRatio);
                         }
                     }
                 }
@@ -819,7 +829,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 {
                     QSize sz = this->params()[0].toSize();
 
-                    this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, sz);
+                    oFrame = Blitz::smoothScaleFilter(oFrame, sz);
                 }
                 else if (this->params().length() == 2)
                 {
@@ -828,7 +838,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     float blur = this->params()[1].toFloat(&ok);
 
                     if (ok)
-                        this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, sz, blur);
+                        oFrame = Blitz::smoothScaleFilter(oFrame, sz, blur);
                 }
                 else if (this->params().length() == 3)
                 {
@@ -848,7 +858,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                             ok = false;
 
                         if (ok)
-                            this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, sz, blur, filter);
+                            oFrame = Blitz::smoothScaleFilter(oFrame, sz, blur, filter);
                     }
                 }
                 else if (this->params().length() > 3)
@@ -879,7 +889,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                             else
                                 ok = false;
 
-                            this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, sz, blur, filter, aspectRatio);
+                            oFrame = Blitz::smoothScaleFilter(oFrame, sz, blur, filter, aspectRatio);
                         }
                     }
                 }
@@ -896,7 +906,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         int dwY = this->params()[1].toInt(&ok);
 
                         if (ok)
-                            this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, dwX, dwY);
+                            oFrame = Blitz::smoothScaleFilter(oFrame, dwX, dwY);
                     }
                 }
                 else if (this->params().length() == 3)
@@ -913,7 +923,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                             float blur = this->params()[2].toFloat(&ok);
 
                             if (ok)
-                                this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, dwX, dwY, blur);
+                                oFrame = Blitz::smoothScaleFilter(oFrame, dwX, dwY, blur);
                         }
                     }
                 }
@@ -942,7 +952,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                                     ok = false;
 
                                 if (ok)
-                                    this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, dwX, dwY, blur, filter);
+                                    oFrame = Blitz::smoothScaleFilter(oFrame, dwX, dwY, blur, filter);
                             }
                         }
                     }
@@ -983,7 +993,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                                         ok = false;
 
                                     if (ok)
-                                        this->m_oFrame = Blitz::smoothScaleFilter(this->m_oFrame, dwX, dwY, blur, filter, aspectRatio);
+                                        oFrame = Blitz::smoothScaleFilter(oFrame, dwX, dwY, blur, filter, aspectRatio);
                                 }
                             }
                         }
@@ -995,27 +1005,27 @@ void BlitzerElement::processFrame(const QbPacket &packet)
     else if (this->method() == "swirl")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::swirl(this->m_oFrame);
+            oFrame = Blitz::swirl(oFrame);
         else
         {
             bool ok;
             float degrees = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::swirl(this->m_oFrame, degrees);
+                oFrame = Blitz::swirl(oFrame, degrees);
         }
     }
     else if (this->method() == "threshold")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::threshold(this->m_oFrame);
+            oFrame = Blitz::threshold(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             int thresholdValue = this->params()[0].toInt(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::threshold(this->m_oFrame, thresholdValue);
+                oFrame = Blitz::threshold(oFrame, thresholdValue);
         }
         else if (this->params().length() == 2)
         {
@@ -1035,7 +1045,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     ok = false;
 
                 if (ok)
-                    this->m_oFrame = Blitz::threshold(this->m_oFrame, thresholdValue, channel);
+                    oFrame = Blitz::threshold(oFrame, thresholdValue, channel);
             }
         }
         else if (this->params().length() == 3)
@@ -1060,7 +1070,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     QColor ac = this->params()[2].value<QColor>();
                     QRgb aboveColor = qRgb(ac.red(), ac.green(), ac.blue());
 
-                    this->m_oFrame = Blitz::threshold(this->m_oFrame, thresholdValue, channel, aboveColor);
+                    oFrame = Blitz::threshold(oFrame, thresholdValue, channel, aboveColor);
                 }
             }
         }
@@ -1089,7 +1099,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     QColor bc = this->params()[3].value<QColor>();
                     QRgb belowColor = qRgb(bc.red(), bc.green(), bc.blue());
 
-                    this->m_oFrame = Blitz::threshold(this->m_oFrame, thresholdValue, channel, aboveColor, belowColor);
+                    oFrame = Blitz::threshold(oFrame, thresholdValue, channel, aboveColor, belowColor);
                 }
             }
         }
@@ -1112,7 +1122,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 ok = false;
 
             if (ok)
-                this->m_oFrame = Blitz::unbalancedGradient(size, ca, cb, type);
+                oFrame = Blitz::unbalancedGradient(size, ca, cb, type);
         }
         else if (this->params().length() == 5)
         {
@@ -1134,7 +1144,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 int xfactor = this->params()[4].toInt(&ok);
 
                 if (ok)
-                    this->m_oFrame = Blitz::unbalancedGradient(size, ca, cb, type, xfactor);
+                    oFrame = Blitz::unbalancedGradient(size, ca, cb, type, xfactor);
             }
         }
         else if (this->params().length() > 5)
@@ -1161,7 +1171,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     int yfactor = this->params()[5].toInt(&ok);
 
                     if (ok)
-                        this->m_oFrame = Blitz::unbalancedGradient(size, ca, cb, type, xfactor, yfactor);
+                        oFrame = Blitz::unbalancedGradient(size, ca, cb, type, xfactor, yfactor);
                 }
             }
         }
@@ -1169,14 +1179,14 @@ void BlitzerElement::processFrame(const QbPacket &packet)
     else if (this->method() == "wave")
     {
         if (this->params().isEmpty())
-            this->m_oFrame = Blitz::wave(this->m_oFrame);
+            oFrame = Blitz::wave(oFrame);
         else if (this->params().length() == 1)
         {
             bool ok;
             float amplitude = this->params()[0].toFloat(&ok);
 
             if (ok)
-                this->m_oFrame = Blitz::wave(this->m_oFrame, amplitude);
+                oFrame = Blitz::wave(oFrame, amplitude);
         }
         else if (this->params().length() == 2)
         {
@@ -1188,7 +1198,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                 float frequency = this->params()[1].toFloat(&ok);
 
                 if (ok)
-                    this->m_oFrame = Blitz::wave(this->m_oFrame, amplitude, frequency);
+                    oFrame = Blitz::wave(oFrame, amplitude, frequency);
             }
         }
         else if (this->params().length() > 2)
@@ -1205,27 +1215,30 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     QColor bc = this->params()[2].value<QColor>();
                     QRgb background = qRgb(bc.red(), bc.green(), bc.blue());
 
-                    this->m_oFrame = Blitz::wave(this->m_oFrame, amplitude, frequency, background);
+                    oFrame = Blitz::wave(oFrame, amplitude, frequency, background);
                 }
             }
         }
     }
 
-    if (!this->m_qtToFormat.contains(this->m_oFrame.format()))
-        this->m_oFrame = this->m_oFrame.convertToFormat(QImage::Format_ARGB32);
+    if (!this->m_qtToFormat.contains(oFrame.format()))
+        oFrame = oFrame.convertToFormat(QImage::Format_ARGB32);
+
+    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
                         "width=%2,"
                         "height=%3,"
-                        "fps=%4").arg(this->m_qtToFormat[this->m_oFrame.format()])
-                                 .arg(this->m_oFrame.width())
-                                 .arg(this->m_oFrame.height())
+                        "fps=%4").arg(this->m_qtToFormat[oFrame.format()])
+                                 .arg(oFrame.width())
+                                 .arg(oFrame.height())
                                  .arg(packet.caps().property("fps").toString()));
 
     QbPacket oPacket(caps,
-                     this->m_oFrame.constBits(),
-                     this->m_oFrame.byteCount());
+                     oBuffer,
+                     oFrame.byteCount());
 
     oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());

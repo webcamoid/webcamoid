@@ -53,19 +53,19 @@ void ProbeElement::iStream(const QbPacket &packet)
     if (this->log())
     {
         QString packetInfo = QString("%1: %2\n"
-                                     "\tData Size: %3\n"
-                                     "\tDts      : %4\n"
-                                     "\tPts      : %5\n"
-                                     "\tDuration : %6\n"
-                                     "\tTime Base: %7\n"
-                                     "\tIndex    : %8\n").arg(this->objectName())
-                                                         .arg(packet.caps().toString())
-                                                         .arg(packet.dataSize())
-                                                         .arg(packet.dts())
-                                                         .arg(packet.pts())
-                                                         .arg(packet.duration())
-                                                         .arg(packet.timeBase().toString())
-                                                         .arg(packet.index());
+                                     "\tBuffer Size: %3\n"
+                                     "\tDts        : %4\n"
+                                     "\tPts        : %5\n"
+                                     "\tDuration   : %6\n"
+                                     "\tTime Base  : %7\n"
+                                     "\tIndex      : %8\n").arg(this->objectName())
+                                                           .arg(packet.caps().toString())
+                                                           .arg(packet.bufferSize())
+                                                           .arg(packet.dts())
+                                                           .arg(packet.pts())
+                                                           .arg(packet.duration())
+                                                           .arg(packet.timeBase().toString())
+                                                           .arg(packet.index());
 
         qDebug() << packetInfo.toUtf8().constData();
     }

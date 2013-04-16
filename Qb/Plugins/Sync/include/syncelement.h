@@ -28,15 +28,16 @@ class SyncElement: public QbElement
 {
     Q_OBJECT
     Q_PROPERTY(bool waitUnlock READ waitUnlock WRITE setWaitUnlock RESET resetWaitUnlock)
+    Q_PROPERTY(bool noFps READ noFps WRITE setNoFps RESET resetNoFps)
 
     public:
         explicit SyncElement();
         ~SyncElement();
 
         Q_INVOKABLE bool waitUnlock() const;
+        Q_INVOKABLE bool noFps() const;
 
     private:
-        bool m_waitUnlock;
         bool m_ready;
         bool m_unlocked;
         Worker *m_worker;
@@ -44,10 +45,14 @@ class SyncElement: public QbElement
 
     signals:
         void ready(int id);
+        void oDiscardFrames(int nFrames);
 
     public slots:
         void setWaitUnlock(bool waitUnlock);
+        void setNoFps(bool noFps);
         void resetWaitUnlock();
+        void resetNoFps();
+        void iDiscardFrames(int nFrames);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

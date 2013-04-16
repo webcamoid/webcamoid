@@ -46,7 +46,7 @@
     <effect name="Nervous">Frei0r pluginName='nervous'</effect>
     <effect name="Pixelate">Frei0r pluginName='pixeliz0r'</effect>
     <effect name="Primary Colors">Frei0r pluginName='primaries' params={'Factor': 1}</effect>
-    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>
+<!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
     <effect name="Photocopy">Frei0r pluginName='sigmoidaltransfer'</effect>
     <effect name="Sobel">Frei0r pluginName='sobel'</effect>
     <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>

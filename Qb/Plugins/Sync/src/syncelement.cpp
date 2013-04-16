@@ -33,6 +33,11 @@ SyncElement::SyncElement(): QbElement()
                      this,
                      SIGNAL(oStream(const QbPacket &)));
 
+    QObject::connect(this->m_worker,
+                     SIGNAL(oDiscardFrames(int)),
+                     this,
+                     SIGNAL(oDiscardFrames(int)));
+
     QObject::connect(this->m_thread,
                      SIGNAL(finished()),
                      this->m_worker,
@@ -41,6 +46,7 @@ SyncElement::SyncElement(): QbElement()
     this->m_worker->moveToThread(this->m_thread);
     this->m_thread->start();
     this->resetWaitUnlock();
+    this->resetNoFps();
 }
 
 SyncElement::~SyncElement()
@@ -55,14 +61,34 @@ bool SyncElement::waitUnlock() const
     return this->m_worker->waitUnlock();
 }
 
+bool SyncElement::noFps() const
+{
+    return this->m_worker->noFps();
+}
+
 void SyncElement::setWaitUnlock(bool waitUnlock)
 {
     this->m_worker->setWaitUnlock(waitUnlock);
 }
 
+void SyncElement::setNoFps(bool noFps)
+{
+    this->m_worker->setNoFps(noFps);
+}
+
 void SyncElement::resetWaitUnlock()
 {
     this->m_worker->resetWaitUnlock();
+}
+
+void SyncElement::resetNoFps()
+{
+    this->m_worker->resetNoFps();
+}
+
+void SyncElement::iDiscardFrames(int nFrames)
+{
+    this->m_worker->iDiscardFrames(nFrames);
 }
 
 void SyncElement::iStream(const QbPacket &packet)
@@ -77,7 +103,7 @@ void SyncElement::iStream(const QbPacket &packet)
         emit this->ready(packet.index());
     }
 
-    this->m_worker->appendPacketInfo(PacketInfo(packet));
+    this->m_worker->appendPacketInfo(packet);
 }
 
 void SyncElement::setState(ElementState state)

@@ -73,7 +73,6 @@ class FilterElement: public QbElement
         QbFrac m_pixelAspect;
 
         PixelFormat m_oFormat;
-        QByteArray m_oFrame;
         QbCaps m_curInputCaps;
         AVFilterContext *m_bufferSinkContext;
         AVFilterContext *m_bufferSrcContext;

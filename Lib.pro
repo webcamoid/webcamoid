@@ -26,7 +26,7 @@ exists(commons.pri) {
 
 isEmpty(QMAKE_LRELEASE) {
     win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
-    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+    else:QMAKE_LRELEASE = /usr/bin/lrelease-qt4
 }
 
 # http://www.qtcentre.org/wiki/index.php?title=Undocumented_qmake
@@ -81,7 +81,7 @@ OTHER_FILES = \
 QT += core gui xml
 
 RESOURCES += \
-    Effects.qrc
+    Webcamoid.qrc
 
 SOURCES = \
     src/appenvironment.cpp \
@@ -124,6 +124,6 @@ unix {
 
     target.path = $${COMMONS_LIBS_INSTALL_PATH}
 
-    translations.files = share/ts/*.qm
+    translations.files = $$files(share/ts/*.qm)
     translations.path = $${COMMONS_APP_TR_INSTALL_PATH}
 }

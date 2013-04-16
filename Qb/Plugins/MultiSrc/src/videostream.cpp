@@ -60,19 +60,19 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                         "width=%2,"
                         "height=%3,"
                         "fps=%4/%5").arg(format)
-                                   .arg(this->codecContext()->width)
-                                   .arg(this->codecContext()->height)
-                                   .arg(fps.num())
-                                   .arg(fps.den()));
+                                    .arg(this->codecContext()->width)
+                                    .arg(this->codecContext()->height)
+                                    .arg(fps.num())
+                                    .arg(fps.den()));
 
-    if (caps != this->m_oCaps)
-    {
-        this->m_oFrame.resize(avpicture_get_size(this->codecContext()->pix_fmt,
-                                                 this->codecContext()->width,
-                                                 this->codecContext()->height));
+    int frameSize = avpicture_get_size(this->codecContext()->pix_fmt,
+                                       this->codecContext()->width,
+                                       this->codecContext()->height);
 
-        this->m_oCaps = caps;
-    }
+    QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
+
+    if (!oBuffer)
+        return QbPacket();
 
     this->m_iFrame.pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
     this->m_iFrame.pkt_duration = av_frame_get_pkt_duration(&this->m_iFrame);
@@ -81,12 +81,12 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                      this->codecContext()->pix_fmt,
                      this->codecContext()->width,
                      this->codecContext()->height,
-                     (uint8_t *) this->m_oFrame.data(),
-                     this->m_oFrame.size());
+                     (uint8_t *) oBuffer.data(),
+                     frameSize);
 
-    QbPacket oPacket(this->m_oCaps,
-                     this->m_oFrame.constData(),
-                     this->m_oFrame.size());
+    QbPacket oPacket(caps,
+                     oBuffer,
+                     frameSize);
 
     oPacket.setDts(this->m_iFrame.pts);
     oPacket.setPts(this->m_iFrame.pkt_dts);

@@ -24,8 +24,8 @@
 QbPacket::QbPacket(QObject *parent): QObject(parent)
 {
     this->resetCaps();
-    this->resetData();
-    this->resetDataSize();
+    this->resetBuffer();
+    this->resetBufferSize();
     this->resetDts();
     this->resetPts();
     this->resetDuration();
@@ -33,8 +33,9 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetIndex();
 }
 
-QbPacket::QbPacket(QbCaps caps, const void *data,
-                   ulong dataSize,
+QbPacket::QbPacket(QbCaps caps,
+                   const QSharedPointer<uchar> &buffer,
+                   ulong bufferSize,
                    int64_t dts,
                    int64_t pts,
                    int duration,
@@ -43,8 +44,8 @@ QbPacket::QbPacket(QbCaps caps, const void *data,
 {
     this->setCaps(caps);
     bool isValid = this->caps().isValid();
-    this->setData(isValid? data: NULL);
-    this->setDataSize(isValid? dataSize: 0);
+    this->setBuffer(isValid? buffer: QSharedPointer<uchar>());
+    this->setBufferSize(isValid? bufferSize: 0);
     this->setDts(isValid? dts: 0);
     this->setPts(isValid? pts: 0);
     this->setDuration(isValid? duration: 0);
@@ -55,8 +56,8 @@ QbPacket::QbPacket(QbCaps caps, const void *data,
 QbPacket::QbPacket(const QbPacket &other):
     QObject(other.parent()),
     m_caps(other.m_caps),
-    m_data(other.m_data),
-    m_dataSize(other.m_dataSize),
+    m_buffer(other.m_buffer),
+    m_bufferSize(other.m_bufferSize),
     m_dts(other.m_pts),
     m_pts(other.m_pts),
     m_duration(other.m_duration),
@@ -74,8 +75,8 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
     if (this != &other)
     {
         this->m_caps = other.m_caps;
-        this->m_data = other.m_data;
-        this->m_dataSize = other.m_dataSize;
+        this->m_buffer = other.m_buffer;
+        this->m_bufferSize = other.m_bufferSize;
         this->m_dts = other.m_dts;
         this->m_pts = other.m_pts;
         this->m_duration = other.m_duration;
@@ -88,19 +89,19 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
 
 QString QbPacket::toString() const
 {
-    QString packetInfo = QString("Caps     : %1\n"
-                                 "Data Size: %2\n"
-                                 "Dts      : %3\n"
-                                 "Pts      : %4\n"
-                                 "Duration : %5\n"
-                                 "Time Base: %6\n"
-                                 "Index    : %7\n").arg(this->caps().toString())
-                                                   .arg(this->dataSize())
-                                                   .arg(this->dts())
-                                                   .arg(this->pts())
-                                                   .arg(this->duration())
-                                                   .arg(this->timeBase().toString())
-                                                   .arg(this->index());
+    QString packetInfo = QString("Caps       : %1\n"
+                                 "Buffer Size: %2\n"
+                                 "Dts        : %3\n"
+                                 "Pts        : %4\n"
+                                 "Duration   : %5\n"
+                                 "Time Base  : %6\n"
+                                 "Index      : %7\n").arg(this->caps().toString())
+                                                     .arg(this->bufferSize())
+                                                     .arg(this->dts())
+                                                     .arg(this->pts())
+                                                     .arg(this->duration())
+                                                     .arg(this->timeBase().toString())
+                                                     .arg(this->index());
 
     return packetInfo;
 }
@@ -110,14 +111,14 @@ QbCaps QbPacket::caps() const
     return this->m_caps;
 }
 
-const void *QbPacket::data() const
+QSharedPointer<uchar> QbPacket::buffer() const
 {
-    return this->m_data;
+    return this->m_buffer;
 }
 
-ulong QbPacket::dataSize() const
+ulong QbPacket::bufferSize() const
 {
-    return this->m_dataSize;
+    return this->m_bufferSize;
 }
 
 int64_t QbPacket::dts() const
@@ -150,14 +151,14 @@ void QbPacket::setCaps(QbCaps mimeType)
     this->m_caps = mimeType;
 }
 
-void QbPacket::setData(const void *data)
+void QbPacket::setBuffer(const QSharedPointer<uchar> &buffer)
 {
-    this->m_data = data;
+    this->m_buffer = buffer;
 }
 
-void QbPacket::setDataSize(ulong dataSize)
+void QbPacket::setBufferSize(ulong bufferSize)
 {
-    this->m_dataSize = dataSize;
+    this->m_bufferSize = bufferSize;
 }
 
 void QbPacket::setDts(int64_t dts)
@@ -190,14 +191,14 @@ void QbPacket::resetCaps()
     this->setCaps(QbCaps());
 }
 
-void QbPacket::resetData()
+void QbPacket::resetBuffer()
 {
-    this->setData(NULL);
+    this->setBuffer(QSharedPointer<uchar>());
 }
 
-void QbPacket::resetDataSize()
+void QbPacket::resetBufferSize()
 {
-    this->setDataSize(0);
+    this->setBufferSize(0);
 }
 
 void QbPacket::resetDts()
