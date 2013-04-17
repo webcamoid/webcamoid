@@ -88,13 +88,13 @@ bool MultiSinkElement::init()
     if (this->m_optionsMap.contains("f"))
         avformat_alloc_output_context2(&this->m_outputContext,
                                        NULL,
-                                       this->m_optionsMap["f"].toString().toUtf8().constData(),
-                                       this->location().toUtf8().constData());
+                                       this->m_optionsMap["f"].toString().toStdString().c_str(),
+                                       this->location().toStdString().c_str());
     else
         avformat_alloc_output_context2(&this->m_outputContext,
                                        NULL,
                                        NULL,
-                                       this->location().toUtf8().constData());
+                                       this->location().toStdString().c_str());
 
     if (!this->m_outputContext)
         return false;
@@ -132,12 +132,12 @@ bool MultiSinkElement::init()
 
     av_dump_format(this->m_outputContext,
                    0,
-                   this->location().toUtf8().constData(),
+                   this->location().toStdString().c_str(),
                    1);
 
     if (!(outputFormat->flags & AVFMT_NOFILE))
         if (avio_open(&this->m_outputContext->pb,
-                      this->location().toUtf8().constData(),
+                      this->location().toStdString().c_str(),
                       AVIO_FLAG_WRITE) < 0)
             return false;
 
@@ -256,7 +256,7 @@ AVStream *MultiSinkElement::addStream(AVCodec **codec, QString codecName, AVMedi
         }
     }
     else
-        *codec = avcodec_find_encoder_by_name(codecName.toUtf8().constData());
+        *codec = avcodec_find_encoder_by_name(codecName.toStdString().c_str());
 
     if (!(*codec))
         return NULL;
@@ -520,7 +520,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     int iHeight = packet.caps().property("height").toInt();
     QString format = packet.caps().property("format").toString();
 
-    PixelFormat iFormat = av_get_pix_fmt(format.toUtf8().constData());
+    PixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
 
     AVPacket pkt;
     av_init_packet(&pkt);

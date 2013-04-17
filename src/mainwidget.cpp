@@ -434,14 +434,14 @@ void MainWidget::on_btnAbout_clicked()
     KAboutData *aboutData = new \
         KAboutData(QCoreApplication::applicationName().toUtf8().data(),
                    QCoreApplication::applicationName().toUtf8().data(),
-                   ki18n(QCoreApplication::applicationName().toUtf8().constData()),
+                   ki18n(QCoreApplication::applicationName().toStdString().c_str()),
                    QCoreApplication::applicationVersion().toUtf8().data(),
-                   ki18n(this->tr("webcam capture plasmoid.").toUtf8().constData()),
+                   ki18n(this->tr("webcam capture plasmoid.").toStdString().c_str()),
                    KAboutData::License_GPL_V3,
                    ki18n(COMMONS_COPYRIGHT_NOTICE),
                    ki18n(this->tr("A simple webcam plasmoid and "
                                   "stand alone app for picture and "
-                                  "video capture.").toUtf8().constData()),
+                                  "video capture.").toStdString().c_str()),
                    COMMONS_PROJECT_URL,
                    COMMONS_PROJECT_BUG_URL);
 

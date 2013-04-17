@@ -67,7 +67,7 @@ void BinElement::setDescription(QString description)
 
     if (this->m_description.isEmpty())
     {
-        YY_BUFFER_STATE bufferState = yy_scan_string(description.toUtf8().constData());
+        YY_BUFFER_STATE bufferState = yy_scan_string(description.toStdString().c_str());
         yyparse(&this->m_pipelineDescription);
         yy_delete_buffer(bufferState);
 
@@ -109,7 +109,7 @@ void BinElement::setDescription(QString description)
 
         this->m_pipelineDescription.cleanAll();
 
-        YY_BUFFER_STATE bufferState = yy_scan_string(description.toUtf8().constData());
+        YY_BUFFER_STATE bufferState = yy_scan_string(description.toStdString().c_str());
         yyparse(&this->m_pipelineDescription);
         yy_delete_buffer(bufferState);
 
@@ -138,8 +138,7 @@ void BinElement::setDescription(QString description)
         }
     }
 
-    if (!this->description().isEmpty())
-        this->setState(preState);
+    this->setState(preState);
 }
 
 void BinElement::setBlocking(bool blocking)

@@ -79,7 +79,7 @@ bool FilterElement::initBuffers()
         args = QString("video_size=%1x%2:"
                        "pix_fmt=%3").arg(width)
                                     .arg(height)
-                                    .arg(av_get_pix_fmt(format.toUtf8().constData()));
+                                    .arg(av_get_pix_fmt(format.toStdString().c_str()));
 
         if (this->m_timeBase.num() || this->m_timeBase.den())
             args.append(QString(":time_base=%1").arg(this->m_timeBase.toString()));
@@ -94,7 +94,7 @@ bool FilterElement::initBuffers()
         QString format = this->m_curInputCaps.property("format").toString();
         int rate = this->m_curInputCaps.property("rate").toInt();
         QString layoutString = this->m_curInputCaps.property("layout").toString();
-        uint64_t layout = av_get_channel_layout(layoutString.toUtf8().constData());
+        uint64_t layout = av_get_channel_layout(layoutString.toStdString().c_str());
 
         args = QString("sample_fmt=%1:"
                        "sample_rate=%2:"
@@ -114,7 +114,7 @@ bool FilterElement::initBuffers()
     if (avfilter_graph_create_filter(&this->m_bufferSrcContext,
                                      buffersrc,
                                      "in",
-                                     args.toUtf8().constData(),
+                                     args.toStdString().c_str(),
                                      NULL,
                                      this->m_filterGraph) < 0)
         return false;
@@ -134,10 +134,10 @@ bool FilterElement::initBuffers()
             if (format.isEmpty())
                 return false;
 
-            oFormat = av_get_pix_fmt(format.toUtf8().constData());
+            oFormat = av_get_pix_fmt(format.toStdString().c_str());
         }
         else
-            oFormat = av_get_pix_fmt(this->format().toUtf8().constData());
+            oFormat = av_get_pix_fmt(this->format().toStdString().c_str());
 
         PixelFormat pixelFormats[2];
         pixelFormats[0] = oFormat;
@@ -159,10 +159,10 @@ bool FilterElement::initBuffers()
             if (format.isEmpty())
                 return false;
 
-            oFormat = av_get_sample_fmt(format.toUtf8().constData());
+            oFormat = av_get_sample_fmt(format.toStdString().c_str());
         }
         else
-            oFormat = av_get_sample_fmt(this->format().toUtf8().constData());
+            oFormat = av_get_sample_fmt(this->format().toStdString().c_str());
 
         AVSampleFormat sampleFormats[2];
         sampleFormats[0] = oFormat;
@@ -207,7 +207,7 @@ bool FilterElement::initBuffers()
     inputs->next = NULL;
 
     if (avfilter_graph_parse(this->m_filterGraph,
-                             this->m_description.toUtf8().constData(),
+                             this->m_description.toStdString().c_str(),
                              &inputs,
                              &outputs,
                              NULL) < 0)
@@ -289,12 +289,12 @@ void FilterElement::iStream(const QbPacket &packet)
 
         if (avpicture_fill((AVPicture *) &frame,
                            (uint8_t *) packet.buffer().data(),
-                           av_get_pix_fmt(format.toUtf8().constData()),
+                           av_get_pix_fmt(format.toStdString().c_str()),
                            width,
                            height) < 0)
             return;
 
-        frame.format = av_get_pix_fmt(format.toUtf8().constData());
+        frame.format = av_get_pix_fmt(format.toStdString().c_str());
         frame.width = width;
         frame.height = height;
         frame.type = AVMEDIA_TYPE_VIDEO;
@@ -307,10 +307,10 @@ void FilterElement::iStream(const QbPacket &packet)
         QString layout = packet.caps().property("layout").toString();
         int samples = packet.caps().property("samples").toInt();
 
-        frame.format = av_get_sample_fmt(format.toUtf8().constData());
+        frame.format = av_get_sample_fmt(format.toStdString().c_str());
         frame.channels = channels;
         frame.sample_rate = rate;
-        frame.channel_layout = av_get_channel_layout(layout.toUtf8().constData());
+        frame.channel_layout = av_get_channel_layout(layout.toStdString().c_str());
         frame.nb_samples = samples;
         frame.type = AVMEDIA_TYPE_AUDIO;
 

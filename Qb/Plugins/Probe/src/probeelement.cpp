@@ -67,7 +67,7 @@ void ProbeElement::iStream(const QbPacket &packet)
                                                            .arg(packet.timeBase().toString())
                                                            .arg(packet.index());
 
-        qDebug() << packetInfo.toUtf8().constData();
+        qDebug() << packetInfo.toStdString().c_str();
     }
 
     emit this->oStream(packet);

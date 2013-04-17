@@ -30,6 +30,8 @@ Worker::Worker(QObject *parent): QObject(parent)
 
     QObject::connect(&this->m_timer, SIGNAL(timeout()), this, SLOT(doWork()));
 
+    this->m_timer.setInterval(20);
+
     this->resetWaitUnlock();
     this->resetNoFps();
     this->resetTime();
@@ -84,7 +86,7 @@ void Worker::doWork()
 
     if (this->m_queue.isEmpty())
     {
-        if (!this->m_packet.caps().isValid())
+        if (!this->m_packet.caps().isValid() || this->noFps())
         {
             this->m_mutex.unlock();
 
@@ -171,7 +173,8 @@ void Worker::iDiscardFrames(int nFrames)
     this->m_mutex.lock();
 
     for (int i = 0; i < nFrames; i++)
-        this->m_queue.dequeue();
+        if (!this->m_queue.isEmpty())
+            this->m_queue.dequeue();
 
     this->m_mutex.unlock();
 }

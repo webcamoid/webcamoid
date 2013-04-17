@@ -65,7 +65,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     int iHeight = packet.caps().property("height").toInt();
     QString format = packet.caps().property("format").toString();
 
-    PixelFormat iFormat = av_get_pix_fmt(format.toUtf8().constData());
+    PixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
 
     QList<QByteArray> props = this->m_caps.dynamicPropertyNames();
 
@@ -83,7 +83,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     {
         QString oFormatString = this->m_caps.property("format").toString();
 
-        oFormat = av_get_pix_fmt(oFormatString.toUtf8().constData());
+        oFormat = av_get_pix_fmt(oFormatString.toStdString().c_str());
     }
     else
         oFormat = iFormat;

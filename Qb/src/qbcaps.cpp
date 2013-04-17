@@ -44,7 +44,7 @@ QbCaps::QbCaps(QString capsString)
         QStringList pair = capsChunks[i].split(QRegExp("\\s*=\\s*"),
                                                QString::SkipEmptyParts);
 
-        this->setProperty(pair[0].trimmed().toUtf8().constData(),
+        this->setProperty(pair[0].trimmed().toStdString().c_str(),
                           pair[1].trimmed());
     }
 
@@ -113,7 +113,7 @@ QString QbCaps::toString() const
 
     foreach (QString property, properties)
         caps.append(QString(",%1=%2").arg(property)
-                                     .arg(this->property(property.toUtf8().constData()).toString()));
+                                     .arg(this->property(property.toStdString().c_str()).toString()));
 
     return caps;
 }

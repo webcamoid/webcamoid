@@ -146,14 +146,14 @@ void yyerror(Pipeline *pipelineDescription, const char *s);
 start: pipeline {
            if (!pipelineDescription->linkAll())
            {
-               yyerror(pipelineDescription, pipelineDescription->error().toUtf8().constData());
+               yyerror(pipelineDescription, pipelineDescription->error().toStdString().c_str());
 
                YYABORT;
            }
 
            if (!pipelineDescription->connectAll())
            {
-               yyerror(pipelineDescription, pipelineDescription->error().toUtf8().constData());
+               yyerror(pipelineDescription, pipelineDescription->error().toStdString().c_str());
 
                YYABORT;
            }
@@ -214,7 +214,7 @@ element: TOK_IDENTIFIER {
 
              if (!element)
              {
-                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toUtf8().constData());
+                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toStdString().c_str());
                  delete $1;
 
                  YYABORT;
@@ -231,7 +231,7 @@ element: TOK_IDENTIFIER {
 
              if (!element)
              {
-                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toUtf8().constData());
+                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toStdString().c_str());
                  delete $1;
 
                  YYABORT;
@@ -240,7 +240,7 @@ element: TOK_IDENTIFIER {
              QVariantMap properties = pipelineDescription->properties();
 
              foreach (QString key, properties.keys())
-                 element->setProperty(key.toUtf8().constData(),
+                 element->setProperty(key.toStdString().c_str(),
                                       properties[key]);
 
              pipelineDescription->resetProperties();

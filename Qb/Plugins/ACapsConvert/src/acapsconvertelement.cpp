@@ -58,9 +58,9 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
         return;
 
     // Input Format
-    AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toUtf8().constData());
+    AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
     int iNChannels = packet.caps().property("channels").toInt();
-    int64_t iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toUtf8().constData());
+    int64_t iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toStdString().c_str());
     int iNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
     int iSampleRate = packet.caps().property("rate").toInt();
     int iNSamples = packet.caps().property("samples").toInt();
@@ -72,7 +72,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
 
     // Output Format
     AVSampleFormat oSampleFormat = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("format"))?
-                                        av_get_sample_fmt(this->m_caps.property("format").toString().toUtf8().constData()):
+                                        av_get_sample_fmt(this->m_caps.property("format").toString().toStdString().c_str()):
                                         iSampleFormat;
 
     int oNChannels = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("channels"))?
@@ -80,7 +80,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                          iNChannels;
 
     int64_t oChannelLayout = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("layout"))?
-                                 av_get_channel_layout(this->m_caps.property("layout").toString().toUtf8().constData()):
+                                 av_get_channel_layout(this->m_caps.property("layout").toString().toStdString().c_str()):
                                  iChannelLayout;
 
     int oSampleRate = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("rate"))?

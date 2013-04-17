@@ -234,7 +234,7 @@ bool MultiSrcElement::init()
                     "video_size",
                     QString("%1x%2").arg(size.width())
                                     .arg(size.height())
-                                    .toUtf8().constData(),
+                                    .toStdString().c_str(),
                     0);
     }
     else if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(this->location()))
@@ -248,7 +248,7 @@ bool MultiSrcElement::init()
                     "video_size",
                     QString("%1x%2").arg(width)
                                     .arg(height)
-                                    .toUtf8().constData(),
+                                    .toStdString().c_str(),
                     0);
 
         // draw_mouse (int)
@@ -276,7 +276,7 @@ bool MultiSrcElement::init()
         this->m_inputContext = NULL;
 
         if (avformat_open_input(&this->m_inputContext,
-                                uri.toUtf8().constData(),
+                                uri.toStdString().c_str(),
                                 inputFormat,
                                 &inputOptions) >= 0)
             break;
@@ -300,7 +300,7 @@ bool MultiSrcElement::init()
         return false;
     }
 
-    av_dump_format(this->m_inputContext, 0, uri.toUtf8().constData(), false);
+    av_dump_format(this->m_inputContext, 0, uri.toStdString().c_str(), false);
 
     this->m_streamsCount = this->m_inputContext->nb_streams;
     this->m_streams.clear();
