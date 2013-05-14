@@ -369,16 +369,13 @@ void FilterElement::iStream(const QbPacket &packet)
                              frameSize);
 
             QString format = av_get_pix_fmt_name((PixelFormat) filterBufferRef->format);
-            QString fps = packet.caps().property("fps").toString();
 
-            oPacket = QbPacket(QString("video/x-raw,"
-                                       "format=%1,"
-                                       "width=%2,"
-                                       "height=%3,"
-                                       "fps=%4").arg(format)
-                                                .arg(filterBufferRef->video->w)
-                                                .arg(filterBufferRef->video->h)
-                                                .arg(fps),
+            QbCaps caps(packet.caps());
+            caps.setProperty("format", format);
+            caps.setProperty("width", filterBufferRef->video->w);
+            caps.setProperty("height", filterBufferRef->video->w);
+
+            oPacket = QbPacket(caps,
                                oBuffer,
                                frameSize);
         }
@@ -424,16 +421,14 @@ void FilterElement::iStream(const QbPacket &packet)
                                          filterBufferRef->audio->channels,
                                          filterBufferRef->audio->channel_layout);
 
-            oPacket = QbPacket(QString("audio/x-raw,"
-                                       "format=%1,"
-                                       "channels=%2,"
-                                       "rate=%3,"
-                                       "layout=%4,"
-                                       "samples=%5").arg(format)
-                                                    .arg(filterBufferRef->audio->channels)
-                                                    .arg(filterBufferRef->audio->sample_rate)
-                                                    .arg(layout)
-                                                    .arg(filterBufferRef->audio->nb_samples),
+            QbCaps caps(packet.caps());
+            caps.setProperty("format", format);
+            caps.setProperty("channels", filterBufferRef->audio->channels);
+            caps.setProperty("rate", filterBufferRef->audio->sample_rate);
+            caps.setProperty("layout", layout);
+            caps.setProperty("samples", filterBufferRef->audio->nb_samples);
+
+            oPacket = QbPacket(caps,
                                oBuffer,
                                frameSize);
         }

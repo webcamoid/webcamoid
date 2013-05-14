@@ -31,10 +31,8 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/sleep.h \
     include/sync.h \
-    include/syncelement.h \
-    include/worker.h
+    include/syncelement.h
 
 INCLUDEPATH += \
     include \
@@ -45,10 +43,8 @@ LIBS += -L../../ -lQb
 QT += core
 
 SOURCES += \
-    src/sleep.cpp \
     src/sync.cpp \
-    src/syncelement.cpp \
-    src/worker.cpp
+    src/syncelement.cpp
 
 TEMPLATE = lib
 

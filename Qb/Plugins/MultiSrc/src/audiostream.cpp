@@ -128,8 +128,8 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                      oBuffer,
                      oBufferSize);
 
-    oPacket.setDts(this->m_iFrame.pts);
-    oPacket.setPts(this->m_iFrame.pkt_dts);
+    oPacket.setDts(this->m_iFrame.pkt_dts);
+    oPacket.setPts(this->m_iFrame.pkt_pts);
     oPacket.setDuration(m_iFrame.pkt_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());

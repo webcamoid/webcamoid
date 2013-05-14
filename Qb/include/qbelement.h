@@ -35,6 +35,7 @@ class QbElement: public QObject
     Q_OBJECT
     Q_ENUMS(ElementState)
     Q_PROPERTY(ElementState state READ state WRITE setState RESET resetState NOTIFY stateChanged)
+    Q_PROPERTY(bool threaded READ threaded WRITE setThreaded RESET resetThreaded)
     Q_PROPERTY(QList<QbElement *> srcs READ srcs WRITE setSrcs RESET resetSrcs)
     Q_PROPERTY(QList<QbElement *> sinks READ sinks WRITE setSinks RESET resetSinks)
 
@@ -51,6 +52,7 @@ class QbElement: public QObject
         virtual ~QbElement();
 
         Q_INVOKABLE virtual ElementState state();
+        Q_INVOKABLE virtual bool threaded();
         Q_INVOKABLE virtual QList<QbElement *> srcs();
         Q_INVOKABLE virtual QList<QbElement *> sinks();
         Q_INVOKABLE virtual bool link(QObject *dstElement);
@@ -69,6 +71,8 @@ class QbElement: public QObject
     private:
         QString m_pluginId;
         QObject *m_application;
+        QSharedPointer<QThread> m_elementThread;
+        QThread *m_mainThread;
 
         QList<QMetaMethod> methodsByName(QObject *object, QString methodName);
         bool methodCompat(QMetaMethod method1, QMetaMethod method2);
@@ -80,9 +84,11 @@ class QbElement: public QObject
     public slots:
         virtual void iStream(const QbPacket &packet);
         virtual void setState(ElementState state);
+        virtual void setThreaded(bool threaded);
         virtual void setSrcs(QList<QbElement *> srcs);
         virtual void setSinks(QList<QbElement *> sinks);
         virtual void resetState();
+        virtual void resetThreaded();
         virtual void resetSrcs();
         virtual void resetSinks();
 

@@ -571,14 +571,10 @@ void MatrixElement::processFrame(const QbPacket &packet)
             *destBits++ = a | b;
         }
 
-    QbCaps caps(QString("video/x-raw,"
-                        "format=%1,"
-                        "width=%2,"
-                        "height=%3,"
-                        "fps=%4").arg("bgr0")
-                                 .arg(oFrame.width())
-                                 .arg(oFrame.height())
-                                 .arg(packet.caps().property("fps").toString()));
+    QbCaps caps(packet.caps());
+    caps.setProperty("format", "bgr0");
+    caps.setProperty("width", oFrame.width());
+    caps.setProperty("height", oFrame.height());
 
     QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());

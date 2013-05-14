@@ -25,16 +25,16 @@ QbElement::QbElement(QObject *parent): QObject(parent)
 {
     this->m_application = NULL;
     this->m_state = ElementStateNull;
+    this->m_mainThread = this->thread();
 
+    this->resetThreaded();
     this->resetSrcs();
     this->resetSinks();
 }
 
 QbElement::~QbElement()
 {
-    this->resetState();
-    this->resetSrcs();
-    this->resetSinks();
+    this->resetThreaded();
 
     if (this->m_application)
         QMetaObject::invokeMethod(this->m_application, "deleteInstance", Q_ARG(QString, this->m_pluginId));
@@ -43,6 +43,11 @@ QbElement::~QbElement()
 QbElement::ElementState QbElement::state()
 {
     return this->m_state;
+}
+
+bool QbElement::threaded()
+{
+    return this->m_mainThread != this->thread();
 }
 
 QList<QbElement *> QbElement::srcs()
@@ -253,6 +258,26 @@ void QbElement::setState(ElementState state)
     }
 }
 
+void QbElement::setThreaded(bool threaded)
+{
+    if (threaded)
+    {
+        if (!this->threaded())
+        {
+            this->m_elementThread = QSharedPointer<QThread>(new QThread);
+            this->m_elementThread->start();
+            this->moveToThread(this->m_elementThread.data());
+        }
+    }
+    else if (this->threaded())
+    {
+        this->m_elementThread->exit(0);
+        this->m_elementThread->wait();
+        this->m_elementThread.clear();
+        this->moveToThread(this->m_mainThread);
+    }
+}
+
 void QbElement::setSrcs(QList<QbElement *> srcs)
 {
     this->m_srcs = srcs;
@@ -266,6 +291,11 @@ void QbElement::setSinks(QList<QbElement *> sinks)
 void QbElement::resetState()
 {
     this->setState(ElementStateNull);
+}
+
+void QbElement::resetThreaded()
+{
+    this->setThreaded(false);
 }
 
 void QbElement::resetSrcs()

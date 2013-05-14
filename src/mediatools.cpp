@@ -68,11 +68,11 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "stateChanged>muxAudioInput.setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
-                            "Sync objectName='syncFirst' noFps=true source.stateChanged>setState !"
+//                            "Sync objectName='syncFirst' noSync=true source.stateChanged>setState !"
                             "Bin objectName='effects' blocking=false !"
-                            "Sync source.stateChanged>setState oDiscardFrames>syncFirst.iDiscardFrames !"
-                            "Probe log=false source.stateChanged>setState !"
                             "VCapsConvert caps='video/x-raw,format=bgra' source.stateChanged>setState !"
+//                            "Probe objectName='videoProbe' log=true source.stateChanged>setState !"
+                            "Sync source.stateChanged>setState !" //"oDiscardFrames>syncFirst.iDiscardFrames !"
                             "OUT. ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
@@ -80,6 +80,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
                             "muxAudioInput. !"
+//                            "Probe objectName='audioProbe' log=true audioOutput.stateChanged>setState !"
                             "MultiSink objectName='audioOutput' ,"
                             "MultiSrc objectName='mic' !"
                             "Multiplex outputIndex=1 "
@@ -92,42 +93,46 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
         this->m_effectsPreview = Qb::create("Bin");
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
+                                  "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_source),
                                   Q_ARG(QString, "source"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
+                                  "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_effects),
                                   Q_ARG(QString, "effects"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
+                                  "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_audioSwitch),
                                   Q_ARG(QString, "audioSwitch"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
+                                  "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_audioOutput),
                                   Q_ARG(QString, "audioOutput"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
+                                  "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_mic),
                                   Q_ARG(QString, "mic"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
+                                  "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_record),
                                   Q_ARG(QString, "record"));
 
         this->m_pipeline->link(this);
-        this->m_source->link(this->m_effectsPreview);
 
-        QObject::connect(this->m_source.data(),
-                         SIGNAL(error(QString)),
-                         this,
-                         SIGNAL(error(QString)));
+        if (this->m_source)
+        {
+            this->m_source->link(this->m_effectsPreview);
+
+            QObject::connect(this->m_source.data(),
+                             SIGNAL(error(QString)),
+                             this,
+                             SIGNAL(error(QString)));
+        }
 
         this->audioSetup();
     }
@@ -701,7 +706,7 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
 
 void MediaTools::setRecording(bool recording, QString fileName)
 {
-    if (!this->m_pipeline)
+    if (!this->m_pipeline || !this->m_record)
     {
         this->m_recording = false;
         emit this->recordingChanged(this->m_recording);
@@ -767,6 +772,9 @@ void MediaTools::setDevice(QString device)
     }
     else
     {
+        if (!this->m_source)
+            return;
+
         this->m_source->setProperty("location", device);
 
         this->m_source->setState(QbElement::ElementStatePlaying);
@@ -816,7 +824,7 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
 {
     this->m_showEffectsPreview = effectsPreview;
 
-    if (!this->m_effectsPreview)
+    if (!this->m_effectsPreview || !this->m_source)
         return;
 
     this->m_effectsPreview->setState(QbElement::ElementStateNull);
@@ -852,7 +860,7 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
                 QbElementPtr preview;
 
                 QMetaObject::invokeMethod(this->m_effectsPreview.data(),
-                                          "element",
+                                          "element", Qt::DirectConnection,
                                           Q_RETURN_ARG(QbElementPtr, preview),
                                           Q_ARG(QString, previewHash));
 
@@ -1128,6 +1136,9 @@ void MediaTools::onDirectoryChanged(const QString &path)
 
 void MediaTools::audioSetup()
 {
+    if (!this->m_mic || !this->m_audioOutput)
+        return;
+
     if (QFileInfo("/usr/bin/pulseaudio").exists())
     {
         this->m_mic->setProperty("location", "pulse");

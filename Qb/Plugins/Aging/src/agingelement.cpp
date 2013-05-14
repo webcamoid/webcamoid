@@ -314,14 +314,8 @@ void AgingElement::processFrame(const QbPacket &packet)
     QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
-    QbCaps caps(QString("video/x-raw,"
-                        "format=%1,"
-                        "width=%2,"
-                        "height=%3,"
-                        "fps=%4").arg("bgr0")
-                                 .arg(width)
-                                 .arg(height)
-                                 .arg(packet.caps().property("fps").toString()));
+    QbCaps caps(packet.caps());
+    caps.setProperty("format", "bgr0");
 
     QbPacket oPacket(caps,
                      oBuffer,

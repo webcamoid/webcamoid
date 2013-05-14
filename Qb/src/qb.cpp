@@ -28,6 +28,7 @@ void Qb::init()
 {
     qRegisterMetaType<QbCaps>("QbCaps");
     qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");
+    qRegisterMetaType<QbElement::ElementState>("ElementState");
     qRegisterMetaType<QbFrac>("QbFrac");
     qRegisterMetaType<QbPacket>("QbPacket");
 

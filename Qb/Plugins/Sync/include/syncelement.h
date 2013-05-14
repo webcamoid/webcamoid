@@ -22,26 +22,32 @@
 #ifndef SYNCELEMENT_H
 #define SYNCELEMENT_H
 
-#include "worker.h"
+#include <qb.h>
 
 class SyncElement: public QbElement
 {
     Q_OBJECT
     Q_PROPERTY(bool waitUnlock READ waitUnlock WRITE setWaitUnlock RESET resetWaitUnlock)
-    Q_PROPERTY(bool noFps READ noFps WRITE setNoFps RESET resetNoFps)
 
     public:
         explicit SyncElement();
         ~SyncElement();
 
         Q_INVOKABLE bool waitUnlock() const;
-        Q_INVOKABLE bool noFps() const;
 
     private:
         bool m_ready;
+        bool m_waitUnlock;
         bool m_unlocked;
-        Worker *m_worker;
-        QThread *m_thread;
+        bool m_sync;
+        bool m_fst;
+        double m_iPts;
+        double m_duration;
+        QQueue<QbPacket> m_queue;
+        QbPacket m_lastPacket;
+        QElapsedTimer m_elapsedTimer;
+        QTimer m_timer;
+        QMutex m_mutex;
 
     signals:
         void ready(int id);
@@ -49,13 +55,14 @@ class SyncElement: public QbElement
 
     public slots:
         void setWaitUnlock(bool waitUnlock);
-        void setNoFps(bool noFps);
         void resetWaitUnlock();
-        void resetNoFps();
         void iDiscardFrames(int nFrames);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
+
+    private slots:
+        void sendFrame();
 };
 
 #endif // SYNCELEMENT_H

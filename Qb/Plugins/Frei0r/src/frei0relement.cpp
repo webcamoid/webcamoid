@@ -718,14 +718,11 @@ void Frei0rElement::processFrame(const QbPacket &packet)
         else
             format = "rgba";
 
-        caps = QbCaps(QString("video/x-raw,"
-                              "format=%1,"
-                              "width=%2,"
-                              "height=%3,"
-                              "fps=%4").arg(format)
-                                       .arg(this->m_frameSize.width())
-                                       .arg(this->m_frameSize.height())
-                                       .arg(this->m_fps.toString()));
+        caps = packet.caps();
+        caps.setProperty("format", format);
+        caps.setProperty("width", this->m_frameSize.width());
+        caps.setProperty("height", this->m_frameSize.height());
+        caps.setProperty("fps", this->m_fps.toString());
 
         dts = pts = this->m_t;
         duration = this->m_duration;

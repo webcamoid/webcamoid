@@ -1227,14 +1227,10 @@ void BlitzerElement::processFrame(const QbPacket &packet)
     QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
-    QbCaps caps(QString("video/x-raw,"
-                        "format=%1,"
-                        "width=%2,"
-                        "height=%3,"
-                        "fps=%4").arg(this->m_qtToFormat[oFrame.format()])
-                                 .arg(oFrame.width())
-                                 .arg(oFrame.height())
-                                 .arg(packet.caps().property("fps").toString()));
+    QbCaps caps(packet.caps());
+    caps.setProperty("format", this->m_qtToFormat[oFrame.format()]);
+    caps.setProperty("width", oFrame.width());
+    caps.setProperty("height", oFrame.height());
 
     QbPacket oPacket(caps,
                      oBuffer,

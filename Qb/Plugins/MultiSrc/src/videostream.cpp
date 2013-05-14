@@ -23,11 +23,13 @@
 
 VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
 {
+    this->m_fst = true;
 }
 
 VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
     AbstractStream(formatContext, index)
 {
+    this->m_fst = true;
 }
 
 QbPacket VideoStream::readPacket(AVPacket *packet)
@@ -74,8 +76,22 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     if (!oBuffer)
         return QbPacket();
 
-    this->m_iFrame.pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
+    int64_t pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
     this->m_iFrame.pkt_duration = av_frame_get_pkt_duration(&this->m_iFrame);
+
+    static bool sync;
+
+    if (this->m_fst)
+    {
+        sync = pts? false: true;
+        this->m_iPts = pts;
+        pts = 0;
+        this->m_fst = false;
+    }
+    else
+        pts -= this->m_iPts;
+
+    caps.setProperty("sync", sync);
 
     avpicture_layout((AVPicture *) &this->m_iFrame,
                      this->codecContext()->pix_fmt,
@@ -88,8 +104,8 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                      oBuffer,
                      frameSize);
 
-    oPacket.setDts(this->m_iFrame.pts);
-    oPacket.setPts(this->m_iFrame.pkt_dts);
+    oPacket.setDts(pts);
+    oPacket.setPts(pts);
     oPacket.setDuration(m_iFrame.pkt_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());

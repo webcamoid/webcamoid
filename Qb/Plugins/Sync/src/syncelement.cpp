@@ -25,70 +25,33 @@ SyncElement::SyncElement(): QbElement()
 {
     this->m_ready = false;
 
-    this->m_worker = new Worker;
-    this->m_thread = new QThread(this);
+    QObject::connect(&this->m_timer, SIGNAL(timeout()), this, SLOT(sendFrame()));
 
-    QObject::connect(this->m_worker,
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SIGNAL(oStream(const QbPacket &)));
-
-    QObject::connect(this->m_worker,
-                     SIGNAL(oDiscardFrames(int)),
-                     this,
-                     SIGNAL(oDiscardFrames(int)));
-
-    QObject::connect(this->m_thread,
-                     SIGNAL(finished()),
-                     this->m_worker,
-                     SLOT(deleteLater()));
-
-    this->m_worker->moveToThread(this->m_thread);
-    this->m_thread->start();
     this->resetWaitUnlock();
-    this->resetNoFps();
 }
 
 SyncElement::~SyncElement()
 {
-    this->m_worker->setState(ElementStateNull);
-    this->m_thread->quit();
-    this->m_thread->wait();
 }
 
 bool SyncElement::waitUnlock() const
 {
-    return this->m_worker->waitUnlock();
-}
-
-bool SyncElement::noFps() const
-{
-    return this->m_worker->noFps();
+    return this->m_waitUnlock;
 }
 
 void SyncElement::setWaitUnlock(bool waitUnlock)
 {
-    this->m_worker->setWaitUnlock(waitUnlock);
-}
-
-void SyncElement::setNoFps(bool noFps)
-{
-    this->m_worker->setNoFps(noFps);
+    this->m_waitUnlock = waitUnlock;
 }
 
 void SyncElement::resetWaitUnlock()
 {
-    this->m_worker->resetWaitUnlock();
-}
-
-void SyncElement::resetNoFps()
-{
-    this->m_worker->resetNoFps();
+    this->setWaitUnlock(false);
 }
 
 void SyncElement::iDiscardFrames(int nFrames)
 {
-    this->m_worker->iDiscardFrames(nFrames);
+    Q_UNUSED(nFrames);
 }
 
 void SyncElement::iStream(const QbPacket &packet)
@@ -103,16 +66,136 @@ void SyncElement::iStream(const QbPacket &packet)
         emit this->ready(packet.index());
     }
 
-    this->m_worker->appendPacketInfo(packet);
+    if (packet.caps().property("sync").toBool())
+    {
+        this->m_mutex.lock();
+        this->m_queue.enqueue(packet);
+        this->m_mutex.unlock();
+
+        if (!this->m_timer.isActive())
+            this->m_timer.start();
+    }
+    else
+    {
+        emit this->oStream(packet);
+
+        if (this->m_timer.isActive())
+            this->m_timer.stop();
+    }
 }
 
 void SyncElement::setState(ElementState state)
 {
+    QbElement::ElementState preState = this->state();
     QbElement::setState(state);
 
-    if (this->state() == ElementStateNull ||
-        this->state() == ElementStateReady)
+    if (this->state() == QbElement::ElementStateReady ||
+        this->state() == QbElement::ElementStateNull)
+    {
         this->m_ready = false;
+        this->m_timer.stop();
+        this->m_fst = true;
+        this->m_timer.setInterval(0);
+        this->m_queue.clear();
+        this->m_unlocked = !this->m_waitUnlock;
+    }
 
-    this->m_worker->setState(state);
+    if (this->state() == QbElement::ElementStatePaused)
+        this->m_timer.stop();
+
+    if (preState != QbElement::ElementStatePlaying &&
+        this->state() == QbElement::ElementStatePlaying)
+    {
+        this->m_timer.start();
+    }
+}
+
+void SyncElement::sendFrame()
+{
+    if (this->m_fst)
+    {
+        this->m_mutex.lock();
+
+        if (!this->m_queue.isEmpty())
+        {
+            this->m_lastPacket = this->m_queue.dequeue();
+            this->m_mutex.unlock();
+
+            this->m_iPts = this->m_lastPacket.pts() * this->m_lastPacket.timeBase().value();
+            this->m_duration = this->m_lastPacket.duration() * this->m_lastPacket.timeBase().value();
+            this->m_timer.setInterval(1e3 * this->m_duration);
+            this->m_elapsedTimer.start();
+            emit this->oStream(this->m_lastPacket);
+            this->m_fst = false;
+        }
+        else
+            this->m_mutex.unlock();
+    }
+    else
+    {
+        this->m_mutex.lock();
+
+        if (this->m_queue.isEmpty())
+        {
+            this->m_mutex.unlock();
+            this->m_timer.setInterval(this->m_duration);
+        }
+        else
+        {
+            double pts = this->m_queue[0].pts() * this->m_queue[0].timeBase().value();
+            this->m_mutex.unlock();
+
+            int clockN = this->m_elapsedTimer.nsecsElapsed() / 1.0e9 / this->m_duration;
+            int packetN = (pts - this->m_iPts) / this->m_duration;
+
+            if (packetN < clockN)
+            {
+                int n = clockN - packetN;
+                int queueSize = this->m_queue.size();
+
+                this->m_mutex.lock();
+
+                for (int i = 0; i < n && !this->m_queue.isEmpty(); i++)
+                    this->m_lastPacket = this->m_queue.dequeue();
+
+                this->m_mutex.unlock();
+
+                if (n > queueSize)
+                {
+                    double loadSpeed = 1.0e6 * (packetN + queueSize) / this->m_elapsedTimer.nsecsElapsed();
+                    int waitLoad = (n - queueSize) / loadSpeed;
+
+                    if (waitLoad < 0)
+                        waitLoad = 0;
+
+                    this->m_timer.setInterval(waitLoad);
+                }
+                else
+                    this->m_timer.setInterval(0);
+            }
+            else if (packetN > clockN)
+            {
+                double duration = 1.0e3 * (pts - this->m_iPts) - this->m_elapsedTimer.nsecsElapsed() / 1.0e6;
+
+                if (duration < 0)
+                    duration = 0;
+
+                this->m_timer.setInterval(duration);
+            }
+            else
+            {
+                this->m_mutex.lock();
+                this->m_lastPacket = this->m_queue.dequeue();
+                this->m_mutex.unlock();
+
+                double duration = pts - this->m_iPts + this->m_duration - this->m_elapsedTimer.nsecsElapsed() / 1.0e9;
+
+                if (duration < 0)
+                    duration = 0;
+
+                this->m_timer.setInterval(duration);
+                emit this->oStream(this->m_lastPacket);
+            }
+        }
+    }
 }
