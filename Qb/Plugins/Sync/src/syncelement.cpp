@@ -50,11 +50,6 @@ void SyncElement::resetNoQueue()
     this->setNoQueue(true);
 }
 
-void SyncElement::iDiscardFrames(int nFrames)
-{
-    Q_UNUSED(nFrames);
-}
-
 void SyncElement::iStream(const QbPacket &packet)
 {
     if (!packet.caps().isValid() ||
@@ -115,6 +110,7 @@ void SyncElement::setState(ElementState state)
     }
 }
 
+// This probably will be removed
 void SyncElement::sendFrame()
 {
     if (this->m_fst)

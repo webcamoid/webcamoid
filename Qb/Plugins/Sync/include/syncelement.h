@@ -56,7 +56,6 @@ class SyncElement: public QbElement
     public slots:
         void setNoQueue(bool noQueue);
         void resetNoQueue();
-        void iDiscardFrames(int nFrames);
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

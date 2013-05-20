@@ -39,17 +39,14 @@ Build dependecies:
 
 You can build Webcamoid with the following commands:
 
-    qmake-qt4 Webcamoid.pro PREFIX=/usr DATAPREFIX=/usr #USE3DPARTYLIBS
+    qmake-qt4 Webcamoid.pro PREFIX=/usr INSTALLPREFIX=/usr #USE3DPARTYLIBS
     make -j $(grep -c "^processor" /proc/cpuinfo)
     su -c 'make install'
     kbuildsycoca4
 
 The __PREFIX__ variable is where the files will be copyed with the _make install_ command. 
-The __DATAPREFIX__ is the prefix path where Webcamoid will search for the data. For example if:
-
-    DATAPREFIX=/some/path
-
-Then, Webcamoid will search for plugins in the _/some/path/lib/Qb_ directory. If __DATAPREFIX__ is not specified, __DATAPREFIX__ will be equal to __PREFIX__.
+The __INSTALLPREFIX__ is the final installation path of Webcamoid.
+If __INSTALLPREFIX__ is not specified, __INSTALLPREFIX__ will be equal to __PREFIX__.
 
 ### Custom Streams ###
 
