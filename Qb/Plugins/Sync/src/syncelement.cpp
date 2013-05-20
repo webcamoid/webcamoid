@@ -19,6 +19,7 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include "sleep.h"
 #include "syncelement.h"
 
 SyncElement::SyncElement(): QbElement()
@@ -27,26 +28,26 @@ SyncElement::SyncElement(): QbElement()
 
     QObject::connect(&this->m_timer, SIGNAL(timeout()), this, SLOT(sendFrame()));
 
-    this->resetWaitUnlock();
+    this->resetNoQueue();
 }
 
 SyncElement::~SyncElement()
 {
 }
 
-bool SyncElement::waitUnlock() const
+bool SyncElement::noQueue() const
 {
-    return this->m_waitUnlock;
+    return this->m_noQueue;
 }
 
-void SyncElement::setWaitUnlock(bool waitUnlock)
+void SyncElement::setNoQueue(bool noQueue)
 {
-    this->m_waitUnlock = waitUnlock;
+    this->m_noQueue = noQueue;
 }
 
-void SyncElement::resetWaitUnlock()
+void SyncElement::resetNoQueue()
 {
-    this->setWaitUnlock(false);
+    this->setNoQueue(true);
 }
 
 void SyncElement::iDiscardFrames(int nFrames)
@@ -68,12 +69,17 @@ void SyncElement::iStream(const QbPacket &packet)
 
     if (packet.caps().property("sync").toBool())
     {
-        this->m_mutex.lock();
-        this->m_queue.enqueue(packet);
-        this->m_mutex.unlock();
+        if (this->noQueue())
+            this->sendFrame(packet);
+        else
+        {
+            this->m_mutex.lock();
+            this->m_queue.enqueue(packet);
+            this->m_mutex.unlock();
 
-        if (!this->m_timer.isActive())
-            this->m_timer.start();
+            if (!this->m_timer.isActive())
+                this->m_timer.start();
+        }
     }
     else
     {
@@ -97,7 +103,6 @@ void SyncElement::setState(ElementState state)
         this->m_fst = true;
         this->m_timer.setInterval(0);
         this->m_queue.clear();
-        this->m_unlocked = !this->m_waitUnlock;
     }
 
     if (this->state() == QbElement::ElementStatePaused)
@@ -193,9 +198,63 @@ void SyncElement::sendFrame()
                 if (duration < 0)
                     duration = 0;
 
-                this->m_timer.setInterval(duration);
+                this->m_timer.setInterval(1e3 * duration);
                 emit this->oStream(this->m_lastPacket);
             }
+        }
+    }
+}
+
+void SyncElement::sendFrame(const QbPacket &packet)
+{
+    if (this->m_fst)
+    {
+        this->m_iPts = packet.pts() * packet.timeBase().value();
+        this->m_duration = packet.duration() * packet.timeBase().value();
+        this->m_elapsedTimer.start();
+        emit this->oStream(packet);
+        Sleep::usleep(1e6 * this->m_duration);
+        this->m_fst = false;
+    }
+    else
+    {
+        double pts = packet.pts() * packet.timeBase().value();
+
+        int clockN = this->m_elapsedTimer.nsecsElapsed() / 1.0e9 / this->m_duration;
+        int packetN = (pts - this->m_iPts) / this->m_duration;
+
+        if (packetN < clockN)
+        {
+            int diff = clockN - packetN;
+
+            if (diff > 5)
+            {
+                this->m_iPts = packet.pts() * packet.timeBase().value();
+                this->m_duration = packet.duration() * packet.timeBase().value();
+                this->m_elapsedTimer.restart();
+                emit this->oStream(packet);
+                Sleep::usleep(1e6 * this->m_duration);
+            }
+        }
+        else if (packetN > clockN)
+        {
+            double duration = 1.0e6 * (pts - this->m_iPts) - this->m_elapsedTimer.nsecsElapsed() / 1.0e3;
+
+            if (duration < 0)
+                duration = 0;
+
+            Sleep::usleep(duration);
+            emit this->oStream(packet);
+        }
+        else
+        {
+            double duration = pts - this->m_iPts + this->m_duration - this->m_elapsedTimer.nsecsElapsed() / 1.0e9;
+
+            if (duration < 0)
+                duration = 0;
+
+            emit this->oStream(packet);
+            Sleep::usleep(1e3 * duration);
         }
     }
 }

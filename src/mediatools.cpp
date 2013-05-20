@@ -68,7 +68,6 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "stateChanged>muxAudioInput.setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
-//                            "Sync objectName='syncFirst' noSync=true source.stateChanged>setState !"
                             "Bin objectName='effects' blocking=false !"
                             "VCapsConvert caps='video/x-raw,format=bgra' source.stateChanged>setState !"
 //                            "Probe objectName='videoProbe' log=true source.stateChanged>setState !"
