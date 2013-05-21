@@ -46,22 +46,52 @@ MultiSinkElement::MultiSinkElement(): QbElement()
     this->resetOptions();
 
     // File options:
-    this->m_optionParser.addOption("f", Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption("f",
+                                   "File format.",
+                                   Option::OptionFlagsHasValue);
 
     // Video options:
-    this->m_optionParser.addOption("r", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("s", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("vn");
-    this->m_optionParser.addOption("vcodec", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("b:v", Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption("r",
+                                   "Video frame rate.",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("s",
+                                   "Video size.",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("vn",
+                                   "Disable video record.");
+
+    this->m_optionParser.addOption("vcodec",
+                                   "Video codec.",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("b:v",
+                                   "Video bitrate.",
+                                   Option::OptionFlagsHasValue);
 
     // Audio options:
-    this->m_optionParser.addOption("ar", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("ac", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("an");
-    this->m_optionParser.addOption("acodec", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("b:a", Option::OptionFlagsHasValue);
-    this->m_optionParser.addOption("channel_layout", Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption("ar",
+                                   "",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("ac",
+                                   "Number of audio channels.",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("an", "Disable audio record.");
+
+    this->m_optionParser.addOption("acodec",
+                                   "Audio codec.",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("b:a",
+                                   "Audio bitrate.",
+                                   Option::OptionFlagsHasValue);
+
+    this->m_optionParser.addOption("channel_layout",
+                                   "",
+                                   Option::OptionFlagsHasValue);
 }
 
 MultiSinkElement::~MultiSinkElement()

@@ -25,9 +25,9 @@ OptionParser::OptionParser(QObject *parent): QObject(parent)
 {
 }
 
-void OptionParser::addOption(QString name, Option::OptionFlags flags)
+void OptionParser::addOption(QString name, QString comment, Option::OptionFlags flags)
 {
-    this->m_options << Option(name, flags);
+    this->m_options << Option(name, comment, flags);
 }
 
 QVariantMap OptionParser::parse(QString cmd)

@@ -326,7 +326,7 @@ void FilterElement::iStream(const QbPacket &packet)
         return;
 
     frame.pkt_pts = packet.pts();
-    frame.pkt_dts = packet.dts();
+    frame.pkt_dts = packet.pts();
     frame.pkt_duration = packet.duration();
     frame.pts = packet.pts();
 
@@ -443,7 +443,6 @@ void FilterElement::iStream(const QbPacket &packet)
         else
             return;
 
-        oPacket.setDts(packet.dts());
         oPacket.setPts(filterBufferRef->pts);
         oPacket.setDuration(packet.duration());
         oPacket.setTimeBase(packet.timeBase());

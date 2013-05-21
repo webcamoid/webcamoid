@@ -714,6 +714,7 @@ void MediaTools::setRecording(bool recording, QString fileName)
     if (this->m_record->state() != QbElement::ElementStateNull)
     {
         this->m_record->setState(QbElement::ElementStateNull);
+        this->m_audioSwitch->setState(QbElement::ElementStateNull);
 
         this->m_recording = false;
         emit this->recordingChanged(this->m_recording);
@@ -739,6 +740,11 @@ void MediaTools::setRecording(bool recording, QString fileName)
             this->m_recording = true;
         else
             this->m_recording = false;
+
+        if (this->recordAudioFrom() != RecordFromNone)
+            this->m_audioSwitch->setState(QbElement::ElementStatePlaying);
+        else
+            this->m_audioSwitch->setState(QbElement::ElementStateNull);
 
         emit this->recordingChanged(this->m_recording);
     }

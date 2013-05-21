@@ -54,14 +54,12 @@ void ProbeElement::iStream(const QbPacket &packet)
     {
         QString packetInfo = QString("%1: %2\n"
                                      "\tBuffer Size: %3\n"
-                                     "\tDts        : %4\n"
-                                     "\tPts        : %5\n"
-                                     "\tDuration   : %6\n"
-                                     "\tTime Base  : %7\n"
-                                     "\tIndex      : %8\n").arg(this->objectName())
+                                     "\tPts        : %4\n"
+                                     "\tDuration   : %5\n"
+                                     "\tTime Base  : %6\n"
+                                     "\tIndex      : %7\n").arg(this->objectName())
                                                            .arg(packet.caps().toString())
                                                            .arg(packet.bufferSize())
-                                                           .arg(packet.dts())
                                                            .arg(packet.pts())
                                                            .arg(packet.duration())
                                                            .arg(packet.timeBase().toString())

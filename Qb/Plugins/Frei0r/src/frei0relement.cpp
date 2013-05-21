@@ -703,7 +703,6 @@ void Frei0rElement::processFrame(const QbPacket &packet)
         }
 
     QbCaps caps;
-    int64_t dts = 0;
     int64_t pts = 0;
     int duration = 0;
     QbFrac timeBase;
@@ -724,7 +723,7 @@ void Frei0rElement::processFrame(const QbPacket &packet)
         caps.setProperty("height", this->m_frameSize.height());
         caps.setProperty("fps", this->m_fps.toString());
 
-        dts = pts = this->m_t;
+        pts = this->m_t;
         duration = this->m_duration;
         timeBase = QbFrac(1, 1000);
         index = 0;
@@ -732,7 +731,6 @@ void Frei0rElement::processFrame(const QbPacket &packet)
     else
     {
         caps = packet.caps();
-        dts = packet.dts();
         pts = packet.pts();
         duration = packet.duration();
         timeBase = packet.timeBase();
@@ -776,7 +774,6 @@ void Frei0rElement::processFrame(const QbPacket &packet)
                      oBuffer,
                      this->m_oBuffer.size());
 
-    oPacket.setDts(dts);
     oPacket.setPts(pts);
     oPacket.setDuration(duration);
     oPacket.setTimeBase(timeBase);

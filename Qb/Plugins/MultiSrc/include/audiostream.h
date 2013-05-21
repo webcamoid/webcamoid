@@ -41,6 +41,9 @@ class AudioStream: public AbstractStream
         void cleanUp();
 
     private:
+        bool m_fst;
+        int64_t m_pts;
+        int64_t m_duration;
         uint8_t **m_oBuffer;
 };
 

@@ -86,7 +86,7 @@ void MultiplexElement::iStream(const QbPacket &packet)
     if ((this->inputIndex() < 0 ||
          (this->inputIndex() >= 0 &&
           packet.index() == this->inputIndex())) &&
-        packet.caps().isCompatible(this->caps()))
+        (this->caps().isEmpty() || packet.caps().isCompatible(this->caps())))
     {
         QbPacket oPacket = packet;
 

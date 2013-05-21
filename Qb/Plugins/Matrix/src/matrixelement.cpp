@@ -583,7 +583,6 @@ void MatrixElement::processFrame(const QbPacket &packet)
                      oBuffer,
                      oFrame.byteCount());
 
-    oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());
     oPacket.setDuration(packet.duration());
     oPacket.setTimeBase(packet.timeBase());

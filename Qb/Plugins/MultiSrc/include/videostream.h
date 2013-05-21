@@ -40,7 +40,8 @@ class VideoStream: public AbstractStream
 
     private:
         bool m_fst;
-        int64_t  m_iPts;
+        int64_t m_pts;
+        int64_t m_duration;
 };
 
 #endif // VIDEOSTREAM_H

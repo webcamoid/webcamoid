@@ -139,7 +139,6 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                      oBuffer,
                      oBufferSize);
 
-    oPacket.setDts(packet.dts());
     oPacket.setPts(packet.pts());
     oPacket.setDuration(packet.duration());
     oPacket.setTimeBase(packet.timeBase());

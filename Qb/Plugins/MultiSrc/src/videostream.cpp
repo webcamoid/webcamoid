@@ -76,20 +76,17 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     if (!oBuffer)
         return QbPacket();
 
-    int64_t pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
-    this->m_iFrame.pkt_duration = av_frame_get_pkt_duration(&this->m_iFrame);
-
     static bool sync;
 
     if (this->m_fst)
     {
-        sync = pts? false: true;
-        this->m_iPts = pts;
-        pts = 0;
+        sync = av_frame_get_best_effort_timestamp(&this->m_iFrame)? false: true;
+        this->m_pts = 0;
+        this->m_duration = av_frame_get_pkt_duration(&this->m_iFrame);
         this->m_fst = false;
     }
     else
-        pts -= this->m_iPts;
+        this->m_pts += this->m_duration;
 
     caps.setProperty("sync", sync);
 
@@ -104,9 +101,8 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                      oBuffer,
                      frameSize);
 
-    oPacket.setDts(pts);
-    oPacket.setPts(pts);
-    oPacket.setDuration(m_iFrame.pkt_duration);
+    oPacket.setPts(this->m_pts);
+    oPacket.setDuration(this->m_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 

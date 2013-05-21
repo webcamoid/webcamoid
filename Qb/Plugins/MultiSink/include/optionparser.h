@@ -31,7 +31,7 @@ class OptionParser: public QObject
     public:
         explicit OptionParser(QObject *parent=NULL);
 
-        Q_INVOKABLE void addOption(QString name, Option::OptionFlags flags=Option::OptionFlagsNoFlags);
+        Q_INVOKABLE void addOption(QString name, QString comment="", Option::OptionFlags flags=Option::OptionFlagsNoFlags);
         Q_INVOKABLE QVariantMap parse(QString cmd);
 
     private:

@@ -24,11 +24,14 @@
 AudioStream::AudioStream(QObject *parent): AbstractStream(parent)
 {
     this->m_oBuffer = NULL;
+    this->m_fst = true;
 }
 
 AudioStream::AudioStream(AVFormatContext *formatContext, uint index):
     AbstractStream(formatContext, index)
 {
+    this->m_fst = true;
+
     if (!this->isValid())
     {
         this->cleanUp();
@@ -72,8 +75,14 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     if (!gotFrame)
         return QbPacket();
 
-    this->m_iFrame.pts = av_frame_get_best_effort_timestamp(&this->m_iFrame);
-    this->m_iFrame.pkt_duration = av_frame_get_pkt_duration(&this->m_iFrame);
+    if (this->m_fst)
+    {
+        this->m_pts = 0;
+        this->m_duration = av_frame_get_pkt_duration(&this->m_iFrame);
+        this->m_fst = false;
+    }
+    else
+        this->m_pts += this->m_duration;
 
     int oBufferLineSize;
 
@@ -128,9 +137,8 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                      oBuffer,
                      oBufferSize);
 
-    oPacket.setDts(this->m_iFrame.pkt_dts);
-    oPacket.setPts(this->m_iFrame.pkt_pts);
-    oPacket.setDuration(m_iFrame.pkt_duration);
+    oPacket.setPts(this->m_pts);
+    oPacket.setDuration(this->m_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 

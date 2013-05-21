@@ -32,7 +32,6 @@ class QbPacket: public QObject
     Q_PROPERTY(QbCaps caps READ caps WRITE setCaps RESET resetCaps)
     Q_PROPERTY(QSharedPointer<uchar> buffer READ buffer WRITE setBuffer RESET resetBuffer)
     Q_PROPERTY(ulong bufferSize READ bufferSize WRITE setBufferSize RESET resetBufferSize)
-    Q_PROPERTY(int64_t dts READ dts WRITE setDts RESET resetDts)
     Q_PROPERTY(int64_t pts READ pts WRITE setPts RESET resetPts)
     Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
     Q_PROPERTY(QbFrac timeBase READ timeBase WRITE setTimeBase RESET resetTimeBase)
@@ -44,7 +43,6 @@ class QbPacket: public QObject
         QbPacket(QbCaps caps,
                  const QSharedPointer<uchar> &buffer=QSharedPointer<uchar>(),
                  ulong bufferSize=0,
-                 int64_t dts=0,
                  int64_t pts=0,
                  int duration=0,
                  QbFrac timeBase=QbFrac(),
@@ -58,7 +56,6 @@ class QbPacket: public QObject
         Q_INVOKABLE QbCaps caps() const;
         Q_INVOKABLE QSharedPointer<uchar> buffer() const;
         Q_INVOKABLE ulong bufferSize() const;
-        Q_INVOKABLE int64_t dts() const;
         Q_INVOKABLE int64_t pts() const;
         Q_INVOKABLE int duration() const;
         Q_INVOKABLE QbFrac timeBase() const;
@@ -68,7 +65,6 @@ class QbPacket: public QObject
         QbCaps m_caps;
         QSharedPointer<uchar> m_buffer;
         ulong m_bufferSize;
-        int64_t m_dts;
         int64_t m_pts;
         int m_duration;
         QbFrac m_timeBase;
@@ -80,7 +76,6 @@ class QbPacket: public QObject
         void setCaps(QbCaps caps);
         void setBuffer(const QSharedPointer<uchar> &buffer);
         void setBufferSize(ulong bufferSize);
-        void setDts(int64_t dts);
         void setPts(int64_t pts);
         void setDuration(int duration);
         void setTimeBase(QbFrac timeBase);
@@ -88,7 +83,6 @@ class QbPacket: public QObject
         void resetCaps();
         void resetBuffer();
         void resetBufferSize();
-        void resetDts();
         void resetPts();
         void resetDuration();
         void resetTimeBase();

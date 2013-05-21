@@ -29,6 +29,7 @@ class Option: public QObject
     Q_OBJECT
     Q_ENUMS(OptionFlags)
     Q_PROPERTY(QString name READ name WRITE setName RESET resetName)
+    Q_PROPERTY(QString comment READ comment WRITE setComment RESET resetComment)
     Q_PROPERTY(OptionFlags flags READ flags WRITE setFlags RESET resetFlags)
 
     public:
@@ -40,22 +41,26 @@ class Option: public QObject
         };
 
         explicit Option(QObject *parent=NULL);
-        Option(QString name, OptionFlags flags=OptionFlagsNoFlags);
+        Option(QString name, QString comment="", OptionFlags flags=OptionFlagsNoFlags);
         Option(const Option &other);
 
         Option &operator =(const Option &other);
 
         Q_INVOKABLE QString name();
+        Q_INVOKABLE QString comment();
         Q_INVOKABLE OptionFlags flags();
 
     private:
         QString m_name;
+        QString m_comment;
         OptionFlags m_flags;
 
     public slots:
         void setName(QString name);
+        void setComment(QString comment);
         void setFlags(OptionFlags flags);
         void resetName();
+        void resetComment();
         void resetFlags();
 };
 
