@@ -125,5 +125,5 @@ unix {
     target.path = $${COMMONS_LIBS_INSTALL_PATH}
 
     translations.files = $$files(share/ts/*.qm)
-    translations.path = $${COMMONS_APP_TR_INSTALL_PATH}
+    translations.path = $${COMMONS_APP_TR_INSTALL_PATH_SYSTEM}
 }

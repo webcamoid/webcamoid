@@ -9,7 +9,7 @@ license=('GPL')
 arch=('i686' 'x86_64')
 depends=('qt4' 'kdelibs' 'ffmpeg' 'frei0r-plugins' 'qimageblitz')
 makedepends=('bison' 'flex')
-source=("https://github.com/hipersayanX/Webcamoid/archive/v5.0.0b1.tar.gz")
+source=("https://github.com/hipersayanX/Webcamoid/archive/v${pkgver}.tar.gz")
 md5sums=('ebd0d1f4ed00c6418ac3ed46818c946f')
 
 build() {
