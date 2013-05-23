@@ -35,7 +35,7 @@ HEADERS = \
 INCLUDEPATH += \
     include \
     Qb/include \
-    /usr/include/KDE
+    $$INSTALLKDEINCLUDEDIR
 
 LIBS += \
     -L./Qb -lQb \
@@ -64,7 +64,7 @@ unix {
         desktop
 
     desktop.files = plasma-applet-$${COMMONS_TARGET}.desktop
-    desktop.path = $${COMMONS_DATA_INSTALL_PATH}/kde4/services
+    desktop.path = $${DATAROOTDIR}/kde4/services
 
-    target.path  = $${COMMONS_LIBS_INSTALL_PATH}/kde4
+    target.path  = $${LIBDIR}/kde4
 }

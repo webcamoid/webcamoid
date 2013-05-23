@@ -66,7 +66,7 @@ HEADERS = \
 INCLUDEPATH += \
     include \
     Qb/include \
-    /usr/include/KDE
+    $$INSTALLKDEINCLUDEDIR
 
 LIBS += \
     -L./Qb -lQb \
@@ -99,20 +99,7 @@ TEMPLATE = lib
 
 # http://www.loc.gov/standards/iso639-2/php/code_list.php
 
-TRANSLATIONS = \
-    share/ts/ca.ts \
-    share/ts/de.ts \
-    share/ts/el.ts \
-    share/ts/es.ts \
-    share/ts/fr.ts \
-    share/ts/gl.ts \
-    share/ts/it.ts \
-    share/ts/ja.ts \
-    share/ts/ko.ts \
-    share/ts/pt.ts \
-    share/ts/ru.ts \
-    share/ts/zh_CN.ts \
-    share/ts/zh_TW.ts
+TRANSLATIONS = $$files(share/ts/*.ts)
 
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
@@ -122,8 +109,9 @@ unix {
         target \
         translations
 
-    target.path = $${COMMONS_LIBS_INSTALL_PATH}
+    target.path = $${LIBDIR}
 
-    translations.files = $$files(share/ts/*.qm)
-    translations.path = $${COMMONS_APP_TR_INSTALL_PATH_SYSTEM}
+    translations.files = share/ts/*.qm
+    translations.path = $${DATADIR}/tr
+    translations.CONFIG += no_check_exist
 }

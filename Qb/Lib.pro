@@ -63,7 +63,7 @@ unix {
         target
 
     headers.files = include/*
-    headers.path = $${COMMONS_APP_HEADERS_INSTALL_PATH}
+    headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
 
-    target.path = $${COMMONS_LIBS_INSTALL_PATH}
+    target.path = $${LIBDIR}
 }

@@ -29,7 +29,7 @@ CONFIG += qt
 INCLUDEPATH += \
     include \
     Qb/include \
-    /usr/include/KDE
+    $$INSTALLKDEINCLUDEDIR
 
 LIBS += \
     -L./Qb -lQb \
@@ -52,8 +52,8 @@ unix {
         target \
         desktop
 
-    target.path = $${COMMONS_BINS_INSTALL_PATH}
+    target.path = $${BINDIR}
 
     desktop.files = $${COMMONS_TARGET}.desktop
-    desktop.path = $${COMMONS_APPS_INSTALL_PATH}/kde4
+    desktop.path = $${DATAROOTDIR}/applications/kde4
 }

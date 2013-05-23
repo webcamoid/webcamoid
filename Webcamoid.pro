@@ -48,7 +48,8 @@ INSTALLS += \
 
 docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
 docs.files = share/docs/html/*
-docs.path = $${COMMONS_APP_DOCS_INSTALL_PATH}
+docs.path = $${HTMLDIR}
+docs.CONFIG += no_check_exist
 
 license.files = COPYING
-license.path = $${COMMONS_LICENSE_INSTALL_PATH}
+license.path = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}

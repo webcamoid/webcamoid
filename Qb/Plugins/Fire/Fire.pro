@@ -51,5 +51,5 @@ TEMPLATE = lib
 unix {
     INSTALLS += target
 
-    target.path = $${COMMONS_APP_PLUGINS_INSTALL_PATH}
+    target.path = $${LIBDIR}/$${COMMONS_TARGET}
 }

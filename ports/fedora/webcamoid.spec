@@ -45,7 +45,12 @@ Features:
 %setup -q -n Webcamoid
 
 %build
-qmake-qt4 Webcamoid.pro PREFIX="%{buildroot}/usr" INSTALLPREFIX=/usr
+qmake-qt4 Webcamoid.pro \
+    PREFIX="%{buildroot}/usr" \
+    INSTALLPREFIX=/usr \
+    KDEINCLUDEDIR=%{_includedir}/kde4/KDE \
+    LIBDIR=%{_libdir}
+
 make
 
 %install
@@ -85,10 +90,27 @@ rm -rf %{buildroot}
 %{_libdir}/libQb.so.5.0.0
 %{_libdir}/libWebcamoid.so.5.0.0
 %{_datadir}/applications/kde4/webcamoid.desktop
-%{_datadir}/docs/Qb
-%{_datadir}/docs/webcamoid
+%{_defaultdocdir}/Qb/html/qb.index
+%{_defaultdocdir}/Qb/html/qb.pageindex
+%{_defaultdocdir}/Qb/html/qt-dita-map.xml
+%{_defaultdocdir}/webcamoid/html/qt-dita-map.xml
+%{_defaultdocdir}/webcamoid/html/webcamoid.index
+%{_defaultdocdir}/webcamoid/html/webcamoid.pageindex
 %{_datadir}/kde4/services/plasma-applet-webcamoid.desktop
 %{_datadir}/licenses/webcamoid/COPYING
+%{_datadir}/webcamoid/tr/ca.qm
+%{_datadir}/webcamoid/tr/de.qm
+%{_datadir}/webcamoid/tr/el.qm
+%{_datadir}/webcamoid/tr/es.qm
+%{_datadir}/webcamoid/tr/fr.qm
+%{_datadir}/webcamoid/tr/gl.qm
+%{_datadir}/webcamoid/tr/it.qm
+%{_datadir}/webcamoid/tr/ja.qm
+%{_datadir}/webcamoid/tr/ko.qm
+%{_datadir}/webcamoid/tr/pt.qm
+%{_datadir}/webcamoid/tr/ru.qm
+%{_datadir}/webcamoid/tr/zh_CN.qm
+%{_datadir}/webcamoid/tr/zh_TW.qm
 
 %changelog
 * Wed May 22 2013 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0b1-1
