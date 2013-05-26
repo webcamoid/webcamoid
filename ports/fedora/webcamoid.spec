@@ -48,7 +48,7 @@ Features:
 qmake-qt4 Webcamoid.pro \
     PREFIX="%{buildroot}/usr" \
     INSTALLPREFIX=/usr \
-    KDEINCLUDEDIR=%{_includedir}/kde4/KDE \
+    INSTALLKDEINCLUDEDIR=%{_includedir}/kde4/KDE \
     LIBDIR=%{_libdir}
 
 make

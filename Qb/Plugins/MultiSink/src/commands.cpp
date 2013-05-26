@@ -19,33 +19,8 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef OPTIONPARSER_H
-#define OPTIONPARSER_H
+#include "commands.h"
 
-#include "option.h"
-#include "parsedoption.h"
-
-class OptionParser: public QObject
+Commands::Commands(QObject *parent): OptionParser(parent)
 {
-    Q_OBJECT
-        Q_PROPERTY(QString error READ error)
-
-    public:
-        explicit OptionParser(QObject *parent=NULL);
-
-        Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QList<ParsedOption> parse(QString cmd, bool *ok=NULL);
-
-    private:
-        QList<Option> m_options;
-        QString m_error;
-
-        Option findOption(QString option, bool isLong=false, bool *ok=NULL);
-
-        virtual QVariant convertValue(QString key, QString value);
-
-    public slots:
-        Q_INVOKABLE void addOption(Option option);
-};
-
-#endif // OPTIONPARSER_H
+}

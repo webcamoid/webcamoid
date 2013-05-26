@@ -40,7 +40,9 @@ HEADERS += \
     include/multisink.h \
     include/multisinkelement.h \
     include/option.h \
-    include/optionparser.h
+    include/optionparser.h \
+    include/parsedoption.h \
+    include/commands.h
 
 INCLUDEPATH += \
     include \
@@ -66,7 +68,9 @@ SOURCES += \
     src/multisink.cpp \
     src/multisinkelement.cpp \
     src/option.cpp \
-    src/optionparser.cpp
+    src/optionparser.cpp \
+    src/parsedoption.cpp \
+    src/commands.cpp
 
 TEMPLATE = lib
 

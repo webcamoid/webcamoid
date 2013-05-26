@@ -25,20 +25,27 @@ Option::Option(QObject *parent): QObject(parent)
 {
     this->resetName();
     this->resetComment();
+    this->resetValregex();
     this->resetFlags();
 }
 
-Option::Option(QString name, QString comment, OptionFlags flags)
+Option::Option(QString name,
+               QString comment,
+               QString valregex,
+               OptionFlags flags):
+    QObject(NULL),
+    m_name(name),
+    m_comment(comment),
+    m_valregex(valregex),
+    m_flags(flags)
 {
-    this->setName(name);
-    this->setComment(comment);
-    this->setFlags(flags);
 }
 
 Option::Option(const Option &other):
     QObject(NULL),
     m_name(other.m_name),
     m_comment(other.m_comment),
+    m_valregex(other.m_valregex),
     m_flags(other.m_flags)
 {
 }
@@ -49,23 +56,29 @@ Option &Option::operator =(const Option &other)
     {
         this->m_name = other.m_name;
         this->m_comment = other.m_comment;
+        this->m_valregex = other.m_valregex;
         this->m_flags = other.m_flags;
     }
 
     return *this;
 }
 
-QString Option::name()
+QString Option::name() const
 {
     return this->m_name;
 }
 
-QString Option::comment()
+QString Option::comment() const
 {
     return this->m_comment;
 }
 
-Option::OptionFlags Option::flags()
+QString Option::valregex() const
+{
+    return this->m_valregex;
+}
+
+Option::OptionFlags Option::flags() const
 {
     return this->m_flags;
 }
@@ -78,6 +91,11 @@ void Option::setName(QString name)
 void Option::setComment(QString comment)
 {
     this->m_comment = comment;
+}
+
+void Option::setValregex(QString valregex)
+{
+    this->m_valregex = valregex;
 }
 
 void Option::setFlags(OptionFlags flags)
@@ -95,7 +113,22 @@ void Option::resetComment()
     this->setComment("");
 }
 
+void Option::resetValregex()
+{
+    this->setValregex(".*");
+}
+
 void Option::resetFlags()
 {
     this->setFlags(OptionFlagsNoFlags);
+}
+
+QDebug operator <<(QDebug debug, const Option &option)
+{
+    debug.nospace() << QString("Option(%1, %2, %3, %4)").arg(option.name())
+                                                        .arg(option.comment())
+                                                        .arg(option.valregex())
+                                                        .arg(option.flags());
+
+    return debug.space();
 }

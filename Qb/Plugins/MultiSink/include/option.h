@@ -30,6 +30,7 @@ class Option: public QObject
     Q_ENUMS(OptionFlags)
     Q_PROPERTY(QString name READ name WRITE setName RESET resetName)
     Q_PROPERTY(QString comment READ comment WRITE setComment RESET resetComment)
+    Q_PROPERTY(QString valregex READ valregex WRITE setValregex RESET resetValregex)
     Q_PROPERTY(OptionFlags flags READ flags WRITE setFlags RESET resetFlags)
 
     public:
@@ -41,27 +42,41 @@ class Option: public QObject
         };
 
         explicit Option(QObject *parent=NULL);
-        Option(QString name, QString comment="", OptionFlags flags=OptionFlagsNoFlags);
-        Option(const Option &other);
 
+        Option(QString name,
+               QString comment="",
+               QString valregex=".*",
+               OptionFlags flags=OptionFlagsNoFlags);
+
+        Option(const Option &other);
         Option &operator =(const Option &other);
 
-        Q_INVOKABLE QString name();
-        Q_INVOKABLE QString comment();
-        Q_INVOKABLE OptionFlags flags();
+        Q_INVOKABLE QString name() const;
+        Q_INVOKABLE QString comment() const;
+        Q_INVOKABLE QString valregex() const;
+        Q_INVOKABLE OptionFlags flags() const;
 
     private:
         QString m_name;
         QString m_comment;
+        QString m_valregex;
         OptionFlags m_flags;
+
+        friend QDebug operator <<(QDebug debug, const Option &option);
 
     public slots:
         void setName(QString name);
         void setComment(QString comment);
+        void setValregex(QString valregex);
         void setFlags(OptionFlags flags);
         void resetName();
         void resetComment();
+        void resetValregex();
         void resetFlags();
 };
+
+QDebug operator <<(QDebug debug, const Option &option);
+
+Q_DECLARE_METATYPE(Option)
 
 #endif // OPTION_H

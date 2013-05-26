@@ -45,53 +45,82 @@ MultiSinkElement::MultiSinkElement(): QbElement()
     this->resetLocation();
     this->resetOptions();
 
+    // Stream specifiers:
+    this->m_optionParser.addOption(Option("i",
+                                          "Input.",
+                                          "[a-z]:\\d+(:\\d+)?",
+                                          Option::OptionFlagsHasValue));
+
+    this->m_optionParser.addOption(Option("o",
+                                          "Output."));
+
     // File options:
-    this->m_optionParser.addOption("f",
-                                   "File format.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("f",
+                                          "File format.",
+                                          "[0-9a-z_]+",
+                                          Option::OptionFlagsHasValue));
 
     // Video options:
-    this->m_optionParser.addOption("r",
-                                   "Video frame rate.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("r",
+                                          "Video frame rate.",
+                                          "\\d+(/\\d+)?",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("s",
-                                   "Video size.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("s",
+                                          "Video size.",
+                                          "\\d+x\\d+",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("vn",
-                                   "Disable video record.");
+    this->m_optionParser.addOption(Option("vn",
+                                          "Disable video record."));
 
-    this->m_optionParser.addOption("vcodec",
-                                   "Video codec.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("vcodec",
+                                          "Video codec.",
+                                          "[0-9a-z_]+",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("b:v",
-                                   "Video bitrate.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("b:v",
+                                          "Video bitrate.",
+                                          "\\d+(k|M|G|T)?",
+                                          Option::OptionFlagsHasValue));
 
     // Audio options:
-    this->m_optionParser.addOption("ar",
-                                   "",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("ar",
+                                          "audio sampling rate",
+                                          "\\d+",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("ac",
-                                   "Number of audio channels.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("ac",
+                                          "Number of audio channels.",
+                                          "\\d+",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("an", "Disable audio record.");
+    this->m_optionParser.addOption(Option("an",
+                                          "Disable audio record."));
 
-    this->m_optionParser.addOption("acodec",
-                                   "Audio codec.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("acodec",
+                                          "Audio codec.",
+                                          "[0-9a-z_]+",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("b:a",
-                                   "Audio bitrate.",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("b:a",
+                                          "Audio bitrate.",
+                                          "\\d+(k|M|G|T)?",
+                                          Option::OptionFlagsHasValue));
 
-    this->m_optionParser.addOption("channel_layout",
-                                   "",
-                                   Option::OptionFlagsHasValue);
+    this->m_optionParser.addOption(Option("channel_layout",
+                                          "Audio channel layout.",
+                                          "([a-z]+|[2-7]\\.[0-1])(\\([a-z]+(-[a-z]+)?\\))?",
+                                          Option::OptionFlagsHasValue));
+
+    bool ok;
+
+    QList<ParsedOption> r = this->m_optionParser.parse("-i v:0 -r 25 -vcodec libvpx -i a:1 -acodec libvorbis -o -f webm", &ok);
+
+    if (ok)
+        qDebug() << r;
+    else
+        qDebug() << this->m_optionParser.error();
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -446,11 +475,11 @@ void MultiSinkElement::setLocation(QString fileName)
 void MultiSinkElement::setOptions(QString options)
 {
     this->m_options = options;
-
+/*
     if (this->m_options.isEmpty())
         this->m_options.clear();
     else
-        this->m_optionsMap = this->m_optionParser.parse(this->m_options);
+        this->m_optionsMap = this->m_optionParser.parse(this->m_options);*/
 }
 
 void MultiSinkElement::resetLocation()

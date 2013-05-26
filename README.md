@@ -34,8 +34,8 @@ __NOTE__: Also, Webcamoid requires [FFmpeg](http://ffmpeg.org/), you must includ
 Build dependecies:
 
 * [Wget](http://www.gnu.org/software/wget/wget.html) (if __USE3DPARTYLIBS__ is enabled)
-* [Bison](http://www.gnu.org/software/bison/bison.html)
-* [Flex](http://flex.sourceforge.net)
+* [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.7
+* [Flex](http://flex.sourceforge.net) >= 1.2
 
 You can build Webcamoid with the following commands:
 
