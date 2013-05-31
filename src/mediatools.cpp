@@ -1002,9 +1002,9 @@ void MediaTools::loadConfigs()
     QString videoRecordFormats = videoFormatsConfigs.
                     readEntry("formats",
                               "webm::"
-                              "-r 25 -vcodec libvpx -acodec libvorbis -f webm&&"
+                              "-i v:0 -vcodec libvpx -i a:1 -acodec libvorbis -o -f webm&&"
                               "ogv, ogg::"
-                              "-r 25 -vcodec libtheora -acodec libvorbis -f ogg");
+                              "-i v:0 -vcodec libtheora -i a:1 -acodec libvorbis -o -f ogg");
 
     if (!videoRecordFormats.isEmpty())
         foreach (QString fmt, videoRecordFormats.split("&&", QString::SkipEmptyParts))
@@ -1146,18 +1146,18 @@ void MediaTools::audioSetup()
     {
         this->m_mic->setProperty("location", "pulse");
         this->m_audioOutput->setProperty("location", "pulse");
-        this->m_audioOutput->setProperty("options", "-vn -ac 2 -f alsa");
+        this->m_audioOutput->setProperty("options", "-vn -i a:0 -ac 2 -o -f alsa");
     }
     else if (QFileInfo("/proc/asound/version").exists())
     {
         this->m_mic->setProperty("location", "hw:0");
         this->m_audioOutput->setProperty("location", "hw:0");
-        this->m_audioOutput->setProperty("options", "-vn -ac 2 -f alsa");
+        this->m_audioOutput->setProperty("options", "-vn -i a:0 -ac 2 -o -f alsa");
     }
     else if (QFileInfo("/dev/dsp").exists())
     {
         this->m_mic->setProperty("location", "/dev/dsp");
         this->m_audioOutput->setProperty("location", "/dev/dsp");
-        this->m_audioOutput->setProperty("options", "-vn -ac 2 -f oss");
+        this->m_audioOutput->setProperty("options", "-vn -i a:0 -ac 2 -o -f oss");
     }
 }

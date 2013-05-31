@@ -36,9 +36,11 @@ class OptionParser: public QObject
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QList<ParsedOption> parse(QString cmd, bool *ok=NULL);
 
+    protected:
+        QString m_error;
+
     private:
         QList<Option> m_options;
-        QString m_error;
 
         Option findOption(QString option, bool isLong=false, bool *ok=NULL);
 

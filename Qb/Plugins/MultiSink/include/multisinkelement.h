@@ -22,7 +22,6 @@
 #ifndef MULTISINKELEMENT_H
 #define MULTISINKELEMENT_H
 
-#include <QtCore>
 #include <qb.h>
 
 extern "C"
@@ -33,7 +32,9 @@ extern "C"
     #include <libswscale/swscale.h>
 }
 
-#include "optionparser.h"
+#include "commands.h"
+
+typedef QMap<QString, QString> StringMap;
 
 class MultiSinkElement: public QbElement
 {
@@ -47,12 +48,17 @@ class MultiSinkElement: public QbElement
                                WRITE setOptions
                                RESET resetOptions)
 
+    Q_PROPERTY(StringMap streamCaps READ streamCaps
+                                    WRITE setStreamCaps
+                                    RESET resetStreamCaps)
+
     public:
         explicit MultiSinkElement();
         ~MultiSinkElement();
 
         Q_INVOKABLE QString location();
         Q_INVOKABLE QString options();
+        Q_INVOKABLE StringMap streamCaps();
 
     protected:
         bool init();
@@ -61,13 +67,14 @@ class MultiSinkElement: public QbElement
     private:
         QString m_location;
         QString m_options;
+        StringMap m_streamCaps;
         QSize m_frameSize;
 
         AVFrame m_vFrame;
         double m_audioPts;
         AVPicture m_oPicture;
         AVFormatContext *m_outputContext;
-        OptionParser m_optionParser;
+        Commands m_commands;
         QVariantMap m_optionsMap;
         AVStream *m_audioStream;
         AVStream *m_videoStream;
@@ -88,8 +95,10 @@ class MultiSinkElement: public QbElement
     public slots:
         void setLocation(QString location);
         void setOptions(QString options);
+        void setStreamCaps(StringMap streamCaps);
         void resetLocation();
         void resetOptions();
+        void resetStreamCaps();
 
         void iStream(const QbPacket &packet);
         void setState(ElementState state);

@@ -44,83 +44,7 @@ MultiSinkElement::MultiSinkElement(): QbElement()
 
     this->resetLocation();
     this->resetOptions();
-
-    // Stream specifiers:
-    this->m_optionParser.addOption(Option("i",
-                                          "Input.",
-                                          "[a-z]:\\d+(:\\d+)?",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("o",
-                                          "Output."));
-
-    // File options:
-    this->m_optionParser.addOption(Option("f",
-                                          "File format.",
-                                          "[0-9a-z_]+",
-                                          Option::OptionFlagsHasValue));
-
-    // Video options:
-    this->m_optionParser.addOption(Option("r",
-                                          "Video frame rate.",
-                                          "\\d+(/\\d+)?",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("s",
-                                          "Video size.",
-                                          "\\d+x\\d+",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("vn",
-                                          "Disable video record."));
-
-    this->m_optionParser.addOption(Option("vcodec",
-                                          "Video codec.",
-                                          "[0-9a-z_]+",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("b:v",
-                                          "Video bitrate.",
-                                          "\\d+(k|M|G|T)?",
-                                          Option::OptionFlagsHasValue));
-
-    // Audio options:
-    this->m_optionParser.addOption(Option("ar",
-                                          "audio sampling rate",
-                                          "\\d+",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("ac",
-                                          "Number of audio channels.",
-                                          "\\d+",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("an",
-                                          "Disable audio record."));
-
-    this->m_optionParser.addOption(Option("acodec",
-                                          "Audio codec.",
-                                          "[0-9a-z_]+",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("b:a",
-                                          "Audio bitrate.",
-                                          "\\d+(k|M|G|T)?",
-                                          Option::OptionFlagsHasValue));
-
-    this->m_optionParser.addOption(Option("channel_layout",
-                                          "Audio channel layout.",
-                                          "([a-z]+|[2-7]\\.[0-1])(\\([a-z]+(-[a-z]+)?\\))?",
-                                          Option::OptionFlagsHasValue));
-
-    bool ok;
-
-    QList<ParsedOption> r = this->m_optionParser.parse("-i v:0 -r 25 -vcodec libvpx -i a:1 -acodec libvorbis -o -f webm", &ok);
-
-    if (ok)
-        qDebug() << r;
-    else
-        qDebug() << this->m_optionParser.error();
+    this->resetStreamCaps();
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -137,6 +61,11 @@ QString MultiSinkElement::location()
 QString MultiSinkElement::options()
 {
     return this->m_options;
+}
+
+StringMap MultiSinkElement::streamCaps()
+{
+    return this->m_streamCaps;
 }
 
 bool MultiSinkElement::init()
@@ -475,11 +404,16 @@ void MultiSinkElement::setLocation(QString fileName)
 void MultiSinkElement::setOptions(QString options)
 {
     this->m_options = options;
-/*
+
     if (this->m_options.isEmpty())
-        this->m_options.clear();
-    else
-        this->m_optionsMap = this->m_optionParser.parse(this->m_options);*/
+        this->m_commands.clear();
+    else if (!this->m_commands.parseCmd(this->m_options))
+        qDebug() << this->m_commands.error();
+}
+
+void MultiSinkElement::setStreamCaps(StringMap streamCaps)
+{
+    this->m_streamCaps = streamCaps;
 }
 
 void MultiSinkElement::resetLocation()
@@ -490,6 +424,11 @@ void MultiSinkElement::resetLocation()
 void MultiSinkElement::resetOptions()
 {
     this->setOptions("");
+}
+
+void MultiSinkElement::resetStreamCaps()
+{
+    this->setStreamCaps(StringMap());
 }
 
 void MultiSinkElement::iStream(const QbPacket &packet)

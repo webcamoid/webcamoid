@@ -19,7 +19,7 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "include/parsedoption.h"
+#include "parsedoption.h"
 
 ParsedOption::ParsedOption(QObject *parent): QObject(parent)
 {
