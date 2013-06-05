@@ -1,5 +1,5 @@
 /* Webcamod, webcam capture plasmoid.
- * Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,18 +135,17 @@ bool QbCaps::isCompatible(const QbCaps &other) const
     if (this->mimeType() != other.mimeType())
         return false;
 
-    bool compatible = true;
-
     foreach (QByteArray property, other.dynamicPropertyNames())
         if (!this->dynamicPropertyNames().contains(property) ||
             this->property(property.constData()) != other.property(property.constData()))
-        {
-            compatible = false;
+            return false;
 
-            break;
-        }
+    return true;
+}
 
-    return compatible;
+bool QbCaps::contains(const QString &property) const
+{
+    return this->dynamicPropertyNames().contains(property.toUtf8());
 }
 
 void QbCaps::setMimeType(QString mimeType)

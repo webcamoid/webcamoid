@@ -1,5 +1,5 @@
 /* Webcamod, webcam capture plasmoid.
- * Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ extern "C"
 }
 
 #include "commands.h"
+#include "outputoptions.h"
 
 typedef QMap<QString, QString> StringMap;
 
@@ -83,6 +84,9 @@ class MultiSinkElement: public QbElement
         QbCaps m_curAInputCaps;
         QbCaps m_curVInputCaps;
         int m_pictureAlloc;
+
+        OutputOptions createOutputOptions(const QbCaps &inputCaps,
+                                          const QVariantMap &options);
 
         QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);

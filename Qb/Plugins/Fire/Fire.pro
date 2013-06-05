@@ -1,5 +1,5 @@
 # Webcamod, webcam capture plasmoid.
-# Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+# Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

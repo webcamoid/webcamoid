@@ -1,5 +1,5 @@
 /* Webcamod, webcam capture plasmoid.
- * Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@
 
 QbFrac::QbFrac(QObject *parent): QObject(parent)
 {
-    this->m_num = 0;
-    this->m_den = 0;
+    this->resetNum();
+    this->resetDen();
     this->m_isValid = false;
 }
 

@@ -1,5 +1,5 @@
 # Webcamod, webcam capture plasmoid.
-# Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+# Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,13 +37,15 @@ CONFIG += plugin
 DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
+    include/commands.h \
+    include/customdeleters.h \
     include/multisink.h \
     include/multisinkelement.h \
     include/option.h \
     include/optionparser.h \
     include/parsedoption.h \
-    include/commands.h \
-    include/streaminput.h
+    include/streaminput.h \
+    include/outputoptions.h
 
 INCLUDEPATH += \
     include \
@@ -66,13 +68,15 @@ exists(../../3dparty/ffmpeg_auto.pri) {
 QT += core gui
 
 SOURCES += \
+    src/commands.cpp \
+    src/customdeleters.cpp \
     src/multisink.cpp \
     src/multisinkelement.cpp \
     src/option.cpp \
     src/optionparser.cpp \
     src/parsedoption.cpp \
-    src/commands.cpp \
-    src/streaminput.cpp
+    src/streaminput.cpp \
+    src/outputoptions.cpp
 
 TEMPLATE = lib
 
