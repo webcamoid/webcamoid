@@ -40,7 +40,7 @@ Build dependecies:
 
 You can build Webcamoid with the following commands:
 
-    qmake-qt4 Webcamoid.pro PREFIX=/usr INSTALLPREFIX=/usr #USE3DPARTYLIBS
+    qmake-qt4 Webcamoid.pro PREFIX=/usr INSTALLPREFIX=/usr #USE3DPARTYLIBS=1
     make -j $(grep -c "^processor" /proc/cpuinfo)
     su -c 'make install'
     kbuildsycoca4
