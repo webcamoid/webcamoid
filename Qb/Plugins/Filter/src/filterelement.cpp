@@ -31,7 +31,6 @@ FilterElement::FilterElement(): QbElement()
 
     this->resetDescription();
     this->resetFormat();
-    this->resetTimeBase();
     this->resetPixelAspect();
 }
 
@@ -51,11 +50,6 @@ QString FilterElement::format()
         return this->m_curInputCaps.property("format").toString();
     else
         return this->m_format;
-}
-
-QbFrac FilterElement::timeBase()
-{
-    return this->m_timeBase;
 }
 
 QbFrac FilterElement::pixelAspect()
@@ -235,11 +229,6 @@ void FilterElement::setFormat(QString format)
     this->m_format = format;
 }
 
-void FilterElement::setTimeBase(QbFrac timeBase)
-{
-    this->m_timeBase = timeBase;
-}
-
 void FilterElement::setPixelAspect(QbFrac pixelAspect)
 {
     this->m_pixelAspect = pixelAspect;
@@ -255,14 +244,9 @@ void FilterElement::resetFormat()
     this->setFormat("");
 }
 
-void FilterElement::resetTimeBase()
-{
-    this->setTimeBase(QbFrac());
-}
-
 void FilterElement::resetPixelAspect()
 {
-    this->setPixelAspect(QbFrac());
+    this->setPixelAspect(QbFrac(1, 1));
 }
 
 void FilterElement::iStream(const QbPacket &packet)
@@ -275,6 +259,7 @@ void FilterElement::iStream(const QbPacket &packet)
     {
         this->uninitBuffers();
         this->m_curInputCaps = packet.caps();
+        this->m_timeBase = packet.timeBase();
         this->initBuffers();
     }
 
@@ -339,11 +324,9 @@ void FilterElement::iStream(const QbPacket &packet)
     // pull filtered pictures from the filtergraph
     while (true)
     {
-        int ret = av_buffersink_get_buffer_ref(this->m_bufferSinkContext,
-                                               &filterBufferRef,
-                                               0);
-
-        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0 || !filterBufferRef)
+        if (av_buffersink_get_buffer_ref(this->m_bufferSinkContext,
+                                         &filterBufferRef,
+                                         0) < 0)
             return;
 
         QbPacket oPacket;
@@ -351,40 +334,44 @@ void FilterElement::iStream(const QbPacket &packet)
 
         avfilter_copy_buf_props(&oFrame, filterBufferRef);
 
-        if (filterBufferRef->type == AVMEDIA_TYPE_UNKNOWN)
+        QbFrac timeBase(this->m_bufferSinkContext->inputs[0]->time_base.num,
+                        this->m_bufferSinkContext->inputs[0]->time_base.den);
+
+        if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_UNKNOWN)
             return;
-        else if (filterBufferRef->type == AVMEDIA_TYPE_VIDEO)
+        else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_VIDEO)
         {
-            int frameSize = avpicture_get_size((PixelFormat) filterBufferRef->format,
-                                               filterBufferRef->video->w,
-                                               filterBufferRef->video->h);
+            int frameSize = avpicture_get_size((PixelFormat) oFrame.format,
+                                               oFrame.width,
+                                               oFrame.height);
 
             QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
 
             avpicture_layout((AVPicture *) &oFrame,
-                             (PixelFormat) filterBufferRef->format,
-                             filterBufferRef->video->w,
-                             filterBufferRef->video->h,
+                             (PixelFormat) oFrame.format,
+                             oFrame.width,
+                             oFrame.height,
                              (uint8_t *) oBuffer.data(),
                              frameSize);
 
-            QString format = av_get_pix_fmt_name((PixelFormat) filterBufferRef->format);
+            QString format = av_get_pix_fmt_name((PixelFormat) oFrame.format);
 
             QbCaps caps(packet.caps());
             caps.setProperty("format", format);
-            caps.setProperty("width", filterBufferRef->video->w);
-            caps.setProperty("height", filterBufferRef->video->w);
+            caps.setProperty("width", oFrame.width);
+            caps.setProperty("height", oFrame.height);
+            caps.setProperty("fps", timeBase.invert().toString());
 
             oPacket = QbPacket(caps,
                                oBuffer,
                                frameSize);
         }
-        else if (filterBufferRef->type == AVMEDIA_TYPE_AUDIO)
+        else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_AUDIO)
         {
             int frameSize = av_samples_get_buffer_size(NULL,
-                                                       filterBufferRef->audio->channels,
-                                                       filterBufferRef->audio->nb_samples,
-                                                       (AVSampleFormat) filterBufferRef->format,
+                                                       oFrame.channels,
+                                                       oFrame.nb_samples,
+                                                       (AVSampleFormat) oFrame.format,
                                                        1);
 
             uint8_t **oFrameBuffer = NULL;
@@ -393,9 +380,9 @@ void FilterElement::iStream(const QbPacket &packet)
 
             int ret = av_samples_alloc(oFrameBuffer,
                                        &oBufferLineSize,
-                                       filterBufferRef->audio->channels,
-                                       filterBufferRef->audio->nb_samples,
-                                       (AVSampleFormat) filterBufferRef->format,
+                                       oFrame.channels,
+                                       oFrame.nb_samples,
+                                       (AVSampleFormat) oFrame.format,
                                        1);
 
             if (ret < 0)
@@ -405,47 +392,47 @@ void FilterElement::iStream(const QbPacket &packet)
                             oFrame.data,
                             0,
                             0,
-                            filterBufferRef->audio->nb_samples,
-                            filterBufferRef->audio->channels,
-                            (AVSampleFormat) filterBufferRef->format);
+                            oFrame.nb_samples,
+                            oFrame.channels,
+                            (AVSampleFormat) oFrame.format);
 
             QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
             memcpy(oBuffer.data(), oFrameBuffer[0], frameSize);
             av_freep(&oFrameBuffer[0]);
 
-            const char *format = av_get_sample_fmt_name((AVSampleFormat) filterBufferRef->format);
+            const char *format = av_get_sample_fmt_name((AVSampleFormat) oFrame.format);
             char layout[256];
 
             av_get_channel_layout_string(layout,
                                          sizeof(layout),
-                                         filterBufferRef->audio->channels,
-                                         filterBufferRef->audio->channel_layout);
+                                         oFrame.channels,
+                                         oFrame.channel_layout);
 
             QbCaps caps(packet.caps());
             caps.setProperty("format", format);
-            caps.setProperty("channels", filterBufferRef->audio->channels);
-            caps.setProperty("rate", filterBufferRef->audio->sample_rate);
+            caps.setProperty("channels", oFrame.channels);
+            caps.setProperty("rate", oFrame.sample_rate);
             caps.setProperty("layout", layout);
-            caps.setProperty("samples", filterBufferRef->audio->nb_samples);
+            caps.setProperty("samples", oFrame.nb_samples);
 
             oPacket = QbPacket(caps,
                                oBuffer,
                                frameSize);
         }
-        else if (filterBufferRef->type == AVMEDIA_TYPE_DATA)
+        else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_DATA)
             return;
-        else if (filterBufferRef->type == AVMEDIA_TYPE_SUBTITLE)
+        else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_SUBTITLE)
             return;
-        else if (filterBufferRef->type == AVMEDIA_TYPE_ATTACHMENT)
+        else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_ATTACHMENT)
             return;
-        else if (filterBufferRef->type == AVMEDIA_TYPE_NB)
+        else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_NB)
             return;
         else
             return;
 
         oPacket.setPts(filterBufferRef->pts);
-        oPacket.setDuration(packet.duration());
-        oPacket.setTimeBase(packet.timeBase());
+        oPacket.setDuration((packet.timeBase() == timeBase)? packet.duration(): 1);
+        oPacket.setTimeBase(timeBase);
         oPacket.setIndex(packet.index());
 
         emit this->oStream(oPacket);

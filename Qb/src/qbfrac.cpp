@@ -118,7 +118,13 @@ bool QbFrac::isValid() const
 QString QbFrac::toString() const
 {
     return QString("%1/%2").arg(this->m_num)
-                           .arg(this->m_den);
+            .arg(this->m_den);
+}
+
+QbFrac QbFrac::invert() const
+{
+    return QbFrac(this->den(),
+                  this->num());
 }
 
 int QbFrac::gcd() const

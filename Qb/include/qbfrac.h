@@ -47,6 +47,7 @@ class QbFrac: public QObject
         Q_INVOKABLE double value() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString toString() const;
+        Q_INVOKABLE QbFrac invert() const;
 
     private:
         int m_num;

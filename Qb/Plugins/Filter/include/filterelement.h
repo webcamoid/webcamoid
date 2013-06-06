@@ -27,8 +27,8 @@ extern "C"
     #include <libavfilter/avcodec.h>
     #include <libavfilter/avfilter.h>
     #include <libavfilter/avfiltergraph.h>
-    #include <libavutil/imgutils.h>
     #include <libavfilter/buffersink.h>
+    #include <libavutil/imgutils.h>
 }
 
 #include <qbelement.h>
@@ -45,10 +45,6 @@ class FilterElement: public QbElement
                               WRITE setFormat
                               RESET resetFormat)
 
-    Q_PROPERTY(QbFrac timeBase READ timeBase
-                               WRITE setTimeBase
-                               RESET resetTimeBase)
-
     Q_PROPERTY(QbFrac pixelAspect READ pixelAspect
                                   WRITE setPixelAspect
                                   RESET resetPixelAspect)
@@ -59,7 +55,6 @@ class FilterElement: public QbElement
 
         Q_INVOKABLE QString description();
         Q_INVOKABLE QString format();
-        Q_INVOKABLE QbFrac timeBase();
         Q_INVOKABLE QbFrac pixelAspect();
 
     protected:
@@ -81,11 +76,9 @@ class FilterElement: public QbElement
     public slots:
         void setDescription(QString description);
         void setFormat(QString format);
-        void setTimeBase(QbFrac timeBase);
         void setPixelAspect(QbFrac pixelAspect);
         void resetDescription();
         void resetFormat();
-        void resetTimeBase();
         void resetPixelAspect();
 
         void iStream(const QbPacket &packet);
