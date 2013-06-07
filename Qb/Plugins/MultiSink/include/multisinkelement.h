@@ -33,7 +33,7 @@ extern "C"
 }
 
 #include "commands.h"
-#include "outputoptions.h"
+#include "outputparams.h"
 
 typedef QMap<QString, QString> StringMap;
 
@@ -85,8 +85,8 @@ class MultiSinkElement: public QbElement
         QbCaps m_curVInputCaps;
         int m_pictureAlloc;
 
-        OutputOptions createOutputOptions(const QbCaps &inputCaps,
-                                          const QVariantMap &options);
+        OutputParams createOutputParams(const QbCaps &inputCaps,
+                                        const QVariantMap &options);
 
         QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);

@@ -440,3 +440,15 @@ void FilterElement::iStream(const QbPacket &packet)
         avfilter_unref_bufferp(&filterBufferRef);
     }
 }
+
+void FilterElement::setState(QbElement::ElementState state)
+{
+    QbElement::setState(state);
+
+    if (this->state() == QbElement::ElementStateReady ||
+        this->state() == QbElement::ElementStateNull)
+    {
+        this->uninitBuffers();
+        this->m_curInputCaps = QbCaps();
+    }
+}

@@ -19,65 +19,65 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "outputoptions.h"
+#include "outputparams.h"
 
-OutputOptions::OutputOptions(QObject *parent): QObject(parent)
+OutputParams::OutputParams(QObject *parent): QObject(parent)
 {
     this->resetCodecContext();
-    this->resetCaps();
+    this->resetFilter();
 }
 
-OutputOptions::OutputOptions(CodecContextPtr codecContext, QbCaps caps):
+OutputParams::OutputParams(CodecContextPtr codecContext, QbElementPtr filter):
     QObject(NULL),
     m_codecContext(codecContext),
-    m_caps(caps)
+    m_filter(filter)
 {
 }
 
-OutputOptions::OutputOptions(const OutputOptions &other):
+OutputParams::OutputParams(const OutputParams &other):
     QObject(other.parent()),
     m_codecContext(other.m_codecContext),
-    m_caps(other.m_caps)
+    m_filter(other.m_filter)
 {
 }
 
-OutputOptions &OutputOptions::operator =(const OutputOptions &other)
+OutputParams &OutputParams::operator =(const OutputParams &other)
 {
     if (this != &other)
     {
         this->m_codecContext = other.m_codecContext;
-        this->m_caps = other.m_caps;
+        this->m_filter = other.m_filter;
     }
 
     return *this;
 }
 
-CodecContextPtr OutputOptions::codecContext() const
+CodecContextPtr OutputParams::codecContext() const
 {
     return this->m_codecContext;
 }
 
-QbCaps OutputOptions::caps() const
+QbElementPtr OutputParams::filter() const
 {
-    return this->m_caps;
+    return this->m_filter;
 }
 
-void OutputOptions::setCodecContext(CodecContextPtr codecContext)
+void OutputParams::setCodecContext(CodecContextPtr codecContext)
 {
     this->m_codecContext = codecContext;
 }
 
-void OutputOptions::setCaps(QbCaps caps)
+void OutputParams::setFilter(QbElementPtr filter)
 {
-    this->m_caps = caps;
+    this->m_filter = filter;
 }
 
-void OutputOptions::resetCodecContext()
+void OutputParams::resetCodecContext()
 {
     this->m_codecContext.clear();
 }
 
-void OutputOptions::resetCaps()
+void OutputParams::resetFilter()
 {
-    this->setCaps(QbCaps());
+    this->m_filter.clear();
 }

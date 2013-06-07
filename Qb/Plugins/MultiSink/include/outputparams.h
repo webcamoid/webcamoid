@@ -19,40 +19,40 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef OUTPUTOPTIONS_H
-#define OUTPUTOPTIONS_H
+#ifndef OUTPUTPARAMS_H
+#define OUTPUTPARAMS_H
 
 #include <qb.h>
 #include "customdeleters.h"
 
 typedef QSharedPointer<AVCodecContext> CodecContextPtr;
 
-class OutputOptions: public QObject
+class OutputParams: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(CodecContextPtr codecContext READ codecContext WRITE setCodecContext RESET resetCodecContext)
-    Q_PROPERTY(QbCaps caps READ caps WRITE setCaps RESET resetCaps)
+    Q_PROPERTY(QbElementPtr filter READ filter WRITE setFilter RESET resetFilter)
 
     public:
-        explicit OutputOptions(QObject *parent=NULL);
-        OutputOptions(CodecContextPtr codecContext, QbCaps caps);
-        OutputOptions(const OutputOptions &other);
-        OutputOptions &operator =(const OutputOptions &other);
+        explicit OutputParams(QObject *parent=NULL);
+        OutputParams(CodecContextPtr codecContext, QbElementPtr filter);
+        OutputParams(const OutputParams &other);
+        OutputParams &operator =(const OutputParams &other);
 
         Q_INVOKABLE CodecContextPtr codecContext() const;
-        Q_INVOKABLE QbCaps caps() const;
+        Q_INVOKABLE QbElementPtr filter() const;
 
     private:
         CodecContextPtr m_codecContext;
-        QbCaps m_caps;
+        QbElementPtr m_filter;
 
     public slots:
         void setCodecContext(CodecContextPtr codecContext);
-        void setCaps(QbCaps caps);
+        void setFilter(QbElementPtr filter);
         void resetCodecContext();
-        void resetCaps();
+        void resetFilter();
 };
 
-Q_DECLARE_METATYPE(OutputOptions)
+Q_DECLARE_METATYPE(OutputParams)
 
-#endif // OUTPUTOPTIONS_H
+#endif // OUTPUTPARAMS_H

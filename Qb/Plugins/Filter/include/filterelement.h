@@ -82,6 +82,7 @@ class FilterElement: public QbElement
         void resetPixelAspect();
 
         void iStream(const QbPacket &packet);
+        void setState(ElementState state);
 };
 
 #endif // FILTERELEMENT_H

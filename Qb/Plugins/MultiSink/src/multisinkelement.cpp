@@ -174,8 +174,8 @@ void MultiSinkElement::uninit()
     this->m_outputContext = NULL;
 }
 
-OutputOptions MultiSinkElement::createOutputOptions(const QbCaps &inputCaps,
-                                                    const QVariantMap &options)
+OutputParams MultiSinkElement::createOutputParams(const QbCaps &inputCaps,
+                                                  const QVariantMap &options)
 {
     QString fmt = this->m_commands.outputOptions()["f"].toString();
     AVOutputFormat *outputFormat = av_guess_format(fmt.toStdString().c_str(), NULL, NULL);
@@ -351,7 +351,21 @@ OutputOptions MultiSinkElement::createOutputOptions(const QbCaps &inputCaps,
             codecContext->mb_decision = 2;
     }
 
-    return OutputOptions(codecContext, outputCaps);
+    QbElementPtr filter;
+
+    if (inputCaps.mimeType() == "audio/x-raw")
+    {
+        filter = Qb::create("ACapsConvert");
+        filter->setProperty("caps", outputCaps.toString());
+    }
+    else if (inputCaps.mimeType() == "video/x-raw")
+    {
+        filter = Qb::create("VCapsConvert");
+        filter->setProperty("caps", outputCaps.toString());
+        filter->setProperty("keepAspectRatio", true);
+    }
+
+    return OutputParams(codecContext, filter);
 }
 
 QList<PixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)

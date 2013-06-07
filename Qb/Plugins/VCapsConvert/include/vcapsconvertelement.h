@@ -24,31 +24,31 @@
 
 #include <qb.h>
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
-}
-
 class VCapsConvertElement: public QbElement
 {
     Q_OBJECT
 
     Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+    Q_PROPERTY(bool keepAspectRatio READ keepAspectRatio WRITE setKeepAspectRatio RESET resetKeepAspectRatio)
 
     public:
         explicit VCapsConvertElement();
-        ~VCapsConvertElement();
 
-        Q_INVOKABLE QString caps();
+        Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE bool keepAspectRatio() const;
 
     private:
         QbCaps m_caps;
+        bool m_keepAspectRatio;
+
+        QbElementPtr m_filter;
+        QbCaps m_curInputCaps;
 
     public slots:
         void setCaps(QString caps);
+        void setKeepAspectRatio(bool keepAspectRatio);
         void resetCaps();
+        void resetKeepAspectRatio();
 
         void iStream(const QbPacket &packet);
 };
