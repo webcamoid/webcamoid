@@ -27,41 +27,26 @@
 class SyncElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(bool noQueue READ noQueue WRITE setNoQueue RESET resetNoQueue)
 
     public:
         explicit SyncElement();
-        ~SyncElement();
-
-        Q_INVOKABLE bool noQueue() const;
 
     private:
         bool m_ready;
-        bool m_noQueue;
-        bool m_unlocked;
-        bool m_sync;
         bool m_fst;
         double m_iPts;
         double m_duration;
-        QQueue<QbPacket> m_queue;
-        QbPacket m_lastPacket;
         QElapsedTimer m_elapsedTimer;
-        QTimer m_timer;
-        QMutex m_mutex;
 
     signals:
         void ready(int id);
         void oDiscardFrames(int nFrames);
 
     public slots:
-        void setNoQueue(bool noQueue);
-        void resetNoQueue();
-
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
 
     private slots:
-        void sendFrame();
         void sendFrame(const QbPacket &packet);
 };
 

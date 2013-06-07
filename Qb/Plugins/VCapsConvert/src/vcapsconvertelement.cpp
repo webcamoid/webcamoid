@@ -76,12 +76,11 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
         this->state() != ElementStatePlaying)
         return;
 
-    if (packet.caps() != this->m_curInputCaps)
+    QbCaps caps(packet.caps());
+    caps.update(this->m_caps);
+
+    if (caps != this->m_curInputCaps)
     {
-        QbCaps caps(packet.caps());
-
-        caps.update(this->m_caps);
-
         QSize frameSize(packet.caps().property("width").toInt(),
                         packet.caps().property("height").toInt());
 
@@ -117,7 +116,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                                                          .arg(padY)
                                                          .arg(caps.property("fps").toString()));
 
-        this->m_curInputCaps = packet.caps();
+        this->m_curInputCaps = caps;
     }
 
     this->m_filter->iStream(packet);

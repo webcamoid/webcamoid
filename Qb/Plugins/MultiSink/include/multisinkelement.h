@@ -26,10 +26,8 @@
 
 extern "C"
 {
-    #include <libavutil/mathematics.h>
     #include <libavformat/avformat.h>
     #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
 }
 
 #include "commands.h"
@@ -71,19 +69,15 @@ class MultiSinkElement: public QbElement
         StringMap m_streamCaps;
         QSize m_frameSize;
 
-        AVFrame m_vFrame;
-        double m_audioPts;
-        AVPicture m_oPicture;
         AVFormatContext *m_outputContext;
         Commands m_commands;
         QVariantMap m_optionsMap;
         AVStream *m_audioStream;
         AVStream *m_videoStream;
-        QbElementPtr m_aCapsConvert;
         QbElementPtr m_filter;
         QbCaps m_curAInputCaps;
         QbCaps m_curVInputCaps;
-        int m_pictureAlloc;
+        QMap<QString, OutputParams> m_outputParams;
 
         OutputParams createOutputParams(const QbCaps &inputCaps,
                                         const QVariantMap &options);
@@ -93,8 +87,6 @@ class MultiSinkElement: public QbElement
         QList<int> sampleRates(AVCodec *audioCodec);
         QList<uint64_t> channelLayouts(AVCodec *audioCodec);
         AVStream *addStream(AVCodec **codec, QString codecName="", AVMediaType mediaType=AVMEDIA_TYPE_UNKNOWN);
-        void adjustToInputFrameSize(QSize frameSize);
-        void cleanAll();
 
     public slots:
         void setLocation(QString location);
@@ -110,6 +102,7 @@ class MultiSinkElement: public QbElement
     private slots:
         void processVFrame(const QbPacket &packet);
         void processAFrame(const QbPacket &packet);
+        void updateOutputParams();
 };
 
 #endif // MULTISINKELEMENT_H

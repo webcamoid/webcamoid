@@ -29,7 +29,7 @@ Commands::Commands(QObject *parent): OptionParser(parent)
     // Stream specifiers:
     this->addOption(Option("i",
                           "Input stream.",
-                          "[a-z]:\\d+(:\\d+)?",
+                          "\\d+",
                           Option::OptionFlagsHasValue));
 
     this->addOption(Option("o",
@@ -52,9 +52,6 @@ Commands::Commands(QObject *parent): OptionParser(parent)
                            "\\d+x\\d+",
                            Option::OptionFlagsHasValue));
 
-    this->addOption(Option("vn",
-                           "Disable video record."));
-
     this->addOption(Option("vcodec",
                            "Video codec.",
                            "[0-9a-z_]+",
@@ -76,9 +73,6 @@ Commands::Commands(QObject *parent): OptionParser(parent)
                            "\\d+",
                            Option::OptionFlagsHasValue));
 
-    this->addOption(Option("an",
-                           "Disable audio record."));
-
     this->addOption(Option("acodec",
                            "Audio codec.",
                            "[0-9a-z_]+",
@@ -93,14 +87,15 @@ Commands::Commands(QObject *parent): OptionParser(parent)
                            "Audio channel layout.",
                            "([a-z]+|[2-7]\\.[0-1])(\\([a-z]+(-[a-z]+)?\\))?",
                            Option::OptionFlagsHasValue));
+
+    // Common input options:
+    this->addOption(Option("oi",
+                           "Output index.",
+                           "\\d+",
+                           Option::OptionFlagsHasValue));
 }
 
-QVariantMap Commands::generalOptions() const
-{
-    return this->m_generalOptions;
-}
-
-StreamInputMap Commands::inputs() const
+QVariantMap Commands::inputs() const
 {
     return this->m_inputs;
 }
@@ -122,24 +117,14 @@ bool Commands::parseCmd(QString cmd)
     this->clear();
 
     QString curStream;
-    StreamInput curInput;
+    QString curInput;
     QVariantMap curOptions;
     bool hasOutputOptions = false;
 
     foreach (ParsedOption option, options)
         if (option.key() == "i")
         {
-            StreamInput input(option.value().toString());
-            QStringList validInputTypes;
-
-            validInputTypes << "a" << "v";
-
-            if (!validInputTypes.contains(input.type()))
-            {
-                this->m_error = QString("Invalid input type: %1.").arg(input.type());
-
-                return false;
-            }
+            QString input = option.value().toString();
 
             if (curStream.isEmpty())
             {
@@ -181,17 +166,6 @@ bool Commands::parseCmd(QString cmd)
                 hasOutputOptions = true;
             }
         }
-        else if (option.key() == "an" || option.key() == "vn")
-        {
-            if (curStream == "i")
-            {
-                this->m_inputs[curInput] = curOptions;
-                curOptions.clear();
-            }
-
-            curStream = "";
-            this->m_generalOptions[option.key()] = QVariant();
-        }
         else
         {
             if (option.type() == ParsedOption::OptionTypeNone ||
@@ -210,31 +184,21 @@ bool Commands::parseCmd(QString cmd)
             else if (curStream == "i")
             {
                 QStringList validOptions;
-                QString type;
 
-                if (curInput.type() == "a")
-                {
-                    validOptions << "ar"
-                                 << "ac"
-                                 << "acodec"
-                                 << "b:a"
-                                 << "channel_layout";
-
-                    type = "audio";
-                }
-                else if (curInput.type() == "v")
-                {
-                    validOptions << "r"
-                                 << "s"
-                                 << "vcodec"
-                                 << "b:v";
-
-                    type = "video";
-                }
+                validOptions << "ar"
+                             << "ac"
+                             << "acodec"
+                             << "b:a"
+                             << "channel_layout"
+                             << "r"
+                             << "s"
+                             << "vcodec"
+                             << "b:v"
+                             << "oi";
 
                 if (!validOptions.contains(option.key()))
                 {
-                    this->m_error = QString("Invalid %1 input option: %2.").arg(type).arg(option.key());
+                    this->m_error = QString("Invalid input option in %1: %2.").arg(curInput).arg(option.key());
 
                     return false;
                 }
@@ -270,8 +234,8 @@ bool Commands::parseCmd(QString cmd)
 
 QVariant Commands::convertValue(QString key, QString value)
 {
-    if (key == "i")
-        return QVariant::fromValue(StreamInput(value));
+    if (key == "i" || key == "ar" ||  key == "ac" || key == "oi")
+        return value.toInt();
     else if (key == "r")
     {
         QbFrac frac = value.contains("/")?
@@ -300,15 +264,12 @@ QVariant Commands::convertValue(QString key, QString value)
                         .replace("G", QString("%1").arg(1e9))
                         .replace("T", QString("%1").arg(1e12)).toInt();
     }
-    else if (key == "ar" ||  key == "ac")
-        return value.toInt();
 
     return value;
 }
 
 void Commands::clear()
 {
-    this->m_generalOptions.clear();
     this->m_inputs.clear();
     this->m_outputOptions.clear();
 }

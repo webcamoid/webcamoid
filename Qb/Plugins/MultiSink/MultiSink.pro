@@ -44,7 +44,6 @@ HEADERS += \
     include/option.h \
     include/optionparser.h \
     include/parsedoption.h \
-    include/streaminput.h \
     include/outputparams.h
 
 INCLUDEPATH += \
@@ -75,7 +74,6 @@ SOURCES += \
     src/option.cpp \
     src/optionparser.cpp \
     src/parsedoption.cpp \
-    src/streaminput.cpp \
     src/outputparams.cpp
 
 TEMPLATE = lib
