@@ -25,6 +25,7 @@
 #include "pipeline.h"
 
 extern int yylex(void);
+extern int yyparse(Pipeline *pipelineDescription);
 void yyerror(Pipeline *pipelineDescription, const char *s);
 }
 
