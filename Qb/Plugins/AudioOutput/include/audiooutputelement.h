@@ -19,20 +19,36 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "customdeleters.h"
+#ifndef AUDIOOUTPUTELEMENT_H
+#define AUDIOOUTPUTELEMENT_H
 
-void CustomDeleters::deleteCodecContext(AVCodecContext *codecContext)
-{
-    av_free(codecContext);
-}
+#include <qb.h>
 
-void CustomDeleters::deleteFormatContext(AVFormatContext *formatContext)
+class AudioOutputElement: public QbElement
 {
-    av_free(formatContext);
-}
+    Q_OBJECT
+    Q_PROPERTY(QString audioSystem READ audioSystem
+                                   WRITE setAudioSystem
+                                   RESET resetAudioSystem)
 
-void CustomDeleters::deleteStream(AVStream *stream)
-{
-    av_free(stream->codec);
-    av_free(stream);
-}
+    Q_PROPERTY(QStringList availableAudioSystem READ availableAudioSystem)
+
+    public:
+        explicit AudioOutputElement();
+
+        Q_INVOKABLE QString audioSystem();
+        Q_INVOKABLE QStringList availableAudioSystem();
+
+    private:
+        QString m_audioSystem;
+
+        QbElementPtr m_output;
+
+    public slots:
+        void setAudioSystem(QString audioSystem);
+        void resetAudioSystem();
+
+        void iStream(const QbPacket &packet);
+};
+
+#endif // AUDIOOUTPUTELEMENT_H

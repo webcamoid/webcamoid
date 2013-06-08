@@ -19,20 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "customdeleters.h"
+#include "audiooutput.h"
+#include "audiooutputelement.h"
 
-void CustomDeleters::deleteCodecContext(AVCodecContext *codecContext)
+QbElement *AudioOutput::newElement()
 {
-    av_free(codecContext);
+    return new AudioOutputElement();
 }
 
-void CustomDeleters::deleteFormatContext(AVFormatContext *formatContext)
-{
-    av_free(formatContext);
-}
-
-void CustomDeleters::deleteStream(AVStream *stream)
-{
-    av_free(stream->codec);
-    av_free(stream);
-}
+Q_EXPORT_PLUGIN2(AudioOutput, AudioOutput)

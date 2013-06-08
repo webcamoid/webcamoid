@@ -24,12 +24,14 @@
 
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
+    #include <libavformat/avformat.h>
 }
 
 namespace CustomDeleters
 {
     void deleteCodecContext(AVCodecContext *codecContext);
+    void deleteFormatContext(AVFormatContext *formatContext);
+    void deleteStream(AVStream *stream);
 }
 
 #endif // CUSTOMDELETERS_H

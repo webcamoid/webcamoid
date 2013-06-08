@@ -24,14 +24,8 @@
 
 #include <qb.h>
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-}
-
 #include "commands.h"
-#include "outputparams.h"
+#include "outputformat.h"
 
 typedef QMap<QString, QString> StringMap;
 
@@ -67,26 +61,22 @@ class MultiSinkElement: public QbElement
         QString m_location;
         QString m_options;
         StringMap m_streamCaps;
-        QSize m_frameSize;
 
         AVFormatContext *m_outputContext;
         Commands m_commands;
-        QVariantMap m_optionsMap;
         AVStream *m_audioStream;
         AVStream *m_videoStream;
-        QbElementPtr m_filter;
-        QbCaps m_curAInputCaps;
-        QbCaps m_curVInputCaps;
         QMap<QString, OutputParams> m_outputParams;
-
-        OutputParams createOutputParams(const QbCaps &inputCaps,
-                                        const QVariantMap &options);
+        OutputFormat m_outputFormat;
 
         QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
         QList<uint64_t> channelLayouts(AVCodec *audioCodec);
-        AVStream *addStream(AVCodec **codec, QString codecName="", AVMediaType mediaType=AVMEDIA_TYPE_UNKNOWN);
+
+        OutputParams createOutputParams(int inputIndex,
+                                        const QbCaps &inputCaps,
+                                        const QVariantMap &options);
 
     public slots:
         void setLocation(QString location);
@@ -97,7 +87,6 @@ class MultiSinkElement: public QbElement
         void resetStreamCaps();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
 
     private slots:
         void processVFrame(const QbPacket &packet);

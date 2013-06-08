@@ -28,24 +28,11 @@ exists(commons.pri) {
     }
 }
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    include(../../3dparty/ffmpeg_auto.pri)
-}
-
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
-
 HEADERS += \
-    include/commands.h \
-    include/customdeleters.h \
-    include/multisink.h \
-    include/multisinkelement.h \
-    include/option.h \
-    include/optionparser.h \
-    include/parsedoption.h \
-    include/outputparams.h \
-    include/outputformat.h
+    include/audiooutput.h \
+    include/audiooutputelement.h
 
 INCLUDEPATH += \
     include \
@@ -53,45 +40,15 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    INCLUDEPATH += $${FFMPEGHEADERSPATH}
-
-    LIBS += \
-        -L$${FFMPEGLIBSPATH} \
-        -lavcodec \
-        -lavdevice \
-        -lavformat \
-        -lavutil \
-        -lswscale
-}
-
 QT += core gui
 
 SOURCES += \
-    src/commands.cpp \
-    src/customdeleters.cpp \
-    src/multisink.cpp \
-    src/multisinkelement.cpp \
-    src/option.cpp \
-    src/optionparser.cpp \
-    src/parsedoption.cpp \
-    src/outputparams.cpp \
-    src/outputformat.cpp
+    src/audiooutput.cpp \
+    src/audiooutputelement.cpp
 
 TEMPLATE = lib
 
 unix {
-    ! exists(../../3dparty/ffmpeg_auto.pri) {
-        CONFIG += link_pkgconfig
-
-        PKGCONFIG += \
-            libavcodec \
-            libavdevice \
-            libavformat \
-            libavutil \
-            libswscale
-    }
-
     INSTALLS += target
 
     target.path = $${LIBDIR}/$${COMMONS_TARGET}

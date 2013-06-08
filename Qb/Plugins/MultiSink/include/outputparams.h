@@ -32,25 +32,34 @@ class OutputParams: public QObject
     Q_OBJECT
     Q_PROPERTY(CodecContextPtr codecContext READ codecContext WRITE setCodecContext RESET resetCodecContext)
     Q_PROPERTY(QbElementPtr filter READ filter WRITE setFilter RESET resetFilter)
+    Q_PROPERTY(int outputIndex READ outputIndex WRITE setOutputIndex RESET resetOutputIndex)
 
     public:
         explicit OutputParams(QObject *parent=NULL);
-        OutputParams(CodecContextPtr codecContext, QbElementPtr filter);
+
+        OutputParams(CodecContextPtr codecContext,
+                     QbElementPtr filter,
+                     int outputIndex);
+
         OutputParams(const OutputParams &other);
         OutputParams &operator =(const OutputParams &other);
 
         Q_INVOKABLE CodecContextPtr codecContext() const;
         Q_INVOKABLE QbElementPtr filter() const;
+        Q_INVOKABLE int outputIndex() const;
 
     private:
         CodecContextPtr m_codecContext;
         QbElementPtr m_filter;
+        int m_outputIndex;
 
     public slots:
         void setCodecContext(CodecContextPtr codecContext);
         void setFilter(QbElementPtr filter);
+        void setOutputIndex(int outputIndex);
         void resetCodecContext();
         void resetFilter();
+        void resetOutputIndex();
 };
 
 Q_DECLARE_METATYPE(OutputParams)

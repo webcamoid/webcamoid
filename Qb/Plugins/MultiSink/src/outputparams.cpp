@@ -25,19 +25,24 @@ OutputParams::OutputParams(QObject *parent): QObject(parent)
 {
     this->resetCodecContext();
     this->resetFilter();
+    this->resetOutputIndex();
 }
 
-OutputParams::OutputParams(CodecContextPtr codecContext, QbElementPtr filter):
+OutputParams::OutputParams(CodecContextPtr codecContext,
+                           QbElementPtr filter,
+                           int outputIndex):
     QObject(NULL),
     m_codecContext(codecContext),
-    m_filter(filter)
+    m_filter(filter),
+    m_outputIndex(outputIndex)
 {
 }
 
 OutputParams::OutputParams(const OutputParams &other):
     QObject(other.parent()),
     m_codecContext(other.m_codecContext),
-    m_filter(other.m_filter)
+    m_filter(other.m_filter),
+    m_outputIndex(other.m_outputIndex)
 {
 }
 
@@ -47,6 +52,7 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
     {
         this->m_codecContext = other.m_codecContext;
         this->m_filter = other.m_filter;
+        this->m_outputIndex = other.m_outputIndex;
     }
 
     return *this;
@@ -62,6 +68,11 @@ QbElementPtr OutputParams::filter() const
     return this->m_filter;
 }
 
+int OutputParams::outputIndex() const
+{
+    return this->m_outputIndex;
+}
+
 void OutputParams::setCodecContext(CodecContextPtr codecContext)
 {
     this->m_codecContext = codecContext;
@@ -72,6 +83,11 @@ void OutputParams::setFilter(QbElementPtr filter)
     this->m_filter = filter;
 }
 
+void OutputParams::setOutputIndex(int outputIndex)
+{
+    this->m_outputIndex = outputIndex;
+}
+
 void OutputParams::resetCodecContext()
 {
     this->m_codecContext.clear();
@@ -80,4 +96,9 @@ void OutputParams::resetCodecContext()
 void OutputParams::resetFilter()
 {
     this->m_filter.clear();
+}
+
+void OutputParams::resetOutputIndex()
+{
+    this->setOutputIndex(0);
 }
