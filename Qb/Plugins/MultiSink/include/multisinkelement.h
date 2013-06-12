@@ -27,8 +27,6 @@
 #include "commands.h"
 #include "outputformat.h"
 
-typedef QMap<QString, QString> StringMap;
-
 class MultiSinkElement: public QbElement
 {
     Q_OBJECT
@@ -41,9 +39,9 @@ class MultiSinkElement: public QbElement
                                WRITE setOptions
                                RESET resetOptions)
 
-    Q_PROPERTY(StringMap streamCaps READ streamCaps
-                                    WRITE setStreamCaps
-                                    RESET resetStreamCaps)
+    Q_PROPERTY(QVariantMap streamCaps READ streamCaps
+                                      WRITE setStreamCaps
+                                      RESET resetStreamCaps)
 
     public:
         explicit MultiSinkElement();
@@ -51,7 +49,7 @@ class MultiSinkElement: public QbElement
 
         Q_INVOKABLE QString location();
         Q_INVOKABLE QString options();
-        Q_INVOKABLE StringMap streamCaps();
+        Q_INVOKABLE QVariantMap streamCaps();
 
     protected:
         bool init();
@@ -60,12 +58,9 @@ class MultiSinkElement: public QbElement
     private:
         QString m_location;
         QString m_options;
-        StringMap m_streamCaps;
+        QVariantMap m_streamCaps;
 
-        AVFormatContext *m_outputContext;
         Commands m_commands;
-        AVStream *m_audioStream;
-        AVStream *m_videoStream;
         QMap<QString, OutputParams> m_outputParams;
         OutputFormat m_outputFormat;
 
@@ -81,7 +76,7 @@ class MultiSinkElement: public QbElement
     public slots:
         void setLocation(QString location);
         void setOptions(QString options);
-        void setStreamCaps(StringMap streamCaps);
+        void setStreamCaps(QVariantMap streamCaps);
         void resetLocation();
         void resetOptions();
         void resetStreamCaps();

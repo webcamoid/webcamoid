@@ -42,7 +42,7 @@ INSTALLS += \
     docs \
     license
 
-docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
+docs.extra = $${QDOCTOOL} $${COMMONS_APPNAME}.qdocconf
 docs.files = share/docs/html/*
 docs.path = $${HTMLDIR}
 docs.CONFIG += no_check_exist

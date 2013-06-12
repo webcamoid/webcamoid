@@ -321,8 +321,6 @@ bool MultiSrcElement::init()
             this->m_streams[i] = stream;
     }
 
-    av_init_packet(&this->m_packet);
-
     return true;
 }
 
@@ -499,7 +497,11 @@ void MultiSrcElement::setState(ElementState state)
 
 void MultiSrcElement::readPackets()
 {
-    if (av_read_frame(this->m_inputContext, &this->m_packet) < 0)
+    AVPacket packet;
+
+    av_init_packet(&packet);
+
+    if (av_read_frame(this->m_inputContext, &packet) < 0)
     {
         this->setState(ElementStateNull);
 
@@ -509,11 +511,11 @@ void MultiSrcElement::readPackets()
         return;
     }
 
-    AbstractStream *stream = this->m_streams[this->m_packet.stream_index].data();
-    QbPacket oPacket = stream->readPacket(&this->m_packet);
+    AbstractStream *stream = this->m_streams[packet.stream_index].data();
+    QbPacket oPacket = stream->readPacket(&packet);
 
     if (oPacket.caps().isValid())
         emit this->oStream(oPacket);
 
-    av_free_packet(&this->m_packet);
+    av_free_packet(&packet);
 }

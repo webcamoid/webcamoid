@@ -46,7 +46,13 @@ INSTALLS += \
     docs \
     license
 
-docs.extra = qdoc3 $${COMMONS_APPNAME}.qdocconf
+!isEmpty(USE3DPARTYLIBS) {
+    !exists(/usr/bin/wget) {
+        error("USE3DPARTYLIBS option requires Wget.")
+    }
+}
+
+docs.extra = $${QDOCTOOL} $${COMMONS_APPNAME}.qdocconf
 docs.files = share/docs/html/*
 docs.path = $${HTMLDIR}
 docs.CONFIG += no_check_exist

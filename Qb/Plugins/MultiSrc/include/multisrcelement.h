@@ -32,6 +32,8 @@ extern "C"
 
 #include "abstractstream.h"
 
+typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
+
 class MultiSrcElement: public QbElement
 {
     Q_OBJECT
@@ -78,9 +80,8 @@ class MultiSrcElement: public QbElement
         int m_audioStream;
         int m_videoStream;
         AVFormatContext *m_inputContext;
-        AVPacket m_packet;
         QTimer m_timer;
-        QMap<int, QSharedPointer<AbstractStream> > m_streams;
+        QMap<int, AbstractStreamPtr> m_streams;
 
         QSize webcamSize();
         QList<QSize> webcamAvailableSize();

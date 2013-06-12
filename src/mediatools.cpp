@@ -78,7 +78,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
                             "muxAudioInput. !"
-                            "MultiSink objectName='audioOutput' ,"
+                            "AudioOutput objectName='audioOutput' ,"
                             "MultiSrc objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
@@ -1139,25 +1139,13 @@ void MediaTools::onDirectoryChanged(const QString &path)
 
 void MediaTools::audioSetup()
 {
-    if (!this->m_mic || !this->m_audioOutput)
+    if (!this->m_mic)
         return;
 
     if (QFileInfo("/usr/bin/pulseaudio").exists())
-    {
         this->m_mic->setProperty("location", "pulse");
-        this->m_audioOutput->setProperty("location", "pulse");
-        this->m_audioOutput->setProperty("options", "-i 0 -ac 2 -o -f alsa");
-    }
     else if (QFileInfo("/proc/asound/version").exists())
-    {
         this->m_mic->setProperty("location", "hw:0");
-        this->m_audioOutput->setProperty("location", "hw:0");
-        this->m_audioOutput->setProperty("options", "-i 0 -ac 2 -o -f alsa");
-    }
     else if (QFileInfo("/dev/dsp").exists())
-    {
         this->m_mic->setProperty("location", "/dev/dsp");
-        this->m_audioOutput->setProperty("location", "/dev/dsp");
-        this->m_audioOutput->setProperty("options", "-i 0 -ac 2 -o -f oss");
-    }
 }

@@ -30,11 +30,6 @@ AudioOutputElement::AudioOutputElement(): QbElement()
                      this,
                      SIGNAL(oStream(const QbPacket &)));
 
-    QObject::connect(this,
-                     SIGNAL(stateChanged(ElementState)),
-                     this->m_output.data(),
-                     SLOT(setState(ElementState)));
-
     this->resetAudioSystem();
 }
 
@@ -73,5 +68,59 @@ void AudioOutputElement::resetAudioSystem()
 
 void AudioOutputElement::iStream(const QbPacket &packet)
 {
+    if (!packet.caps().isValid() ||
+        packet.caps().mimeType() != "audio/x-raw" ||
+        this->state() != ElementStatePlaying)
+        return;
+
+    static QbCaps curCaps;
+    static QString curAudioSystem;
+
+    if (packet.caps() != curCaps ||
+        this->audioSystem() != curAudioSystem)
+    {
+        int inputIndex = packet.index();
+        QString location;
+        QString options;
+
+        if (this->audioSystem() == "pulseaudio")
+        {
+            location = "pulse";
+            options = QString("-i %1 -o -f alsa").arg(inputIndex);
+        }
+        else if (this->audioSystem() == "alsa")
+        {
+            location = "hw:0";
+            options = QString("-i %1 -o -f alsa").arg(inputIndex);
+        }
+        else if (this->audioSystem() == "oss")
+        {
+            location = "/dev/dsp";
+            options = QString("-i %1 -o -f oss").arg(inputIndex);
+        }
+
+        this->m_output->setProperty("location", location);
+        this->m_output->setProperty("options", options);
+
+        QVariantMap streamCaps;
+        streamCaps[QString("%1").arg(inputIndex)] = packet.caps().toString();
+
+        this->m_output->setProperty("streamCaps", streamCaps);
+
+        curCaps = packet.caps();
+        curAudioSystem = this->audioSystem();
+    }
+
+    if (this->m_output->state() != QbElement::ElementStatePlaying)
+        this->m_output->setState(QbElement::ElementStatePlaying);
+
     this->m_output->iStream(packet);
+}
+
+void AudioOutputElement::setState(QbElement::ElementState state)
+{
+    QbElement::setState(state);
+
+    if (state != QbElement::ElementStatePlaying)
+        this->m_output->setState(state);
 }
