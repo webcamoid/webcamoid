@@ -60,6 +60,28 @@ AudioStream::~AudioStream()
     this->cleanUp();
 }
 
+QbCaps AudioStream::caps() const
+{
+    const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
+    char layout[256];
+
+    av_get_channel_layout_string(layout,
+                                 sizeof(layout),
+                                 this->codecContext()->channels,
+                                 this->codecContext()->channel_layout);
+
+    QbCaps caps(QString("audio/x-raw,"
+                        "format=%1,"
+                        "channels=%2,"
+                        "rate=%3,"
+                        "layout=%4").arg(format)
+                                    .arg(this->codecContext()->channels)
+                                    .arg(this->codecContext()->sample_rate)
+                                    .arg(layout));
+
+    return caps;
+}
+
 QbPacket AudioStream::readPacket(AVPacket *packet)
 {
     if (!this->isValid())
@@ -114,24 +136,8 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     memcpy(oBuffer.data(), this->m_oBuffer[0], oBufferSize);
     av_freep(&this->m_oBuffer[0]);
 
-    const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
-    char layout[256];
-
-    av_get_channel_layout_string(layout,
-                                 sizeof(layout),
-                                 this->codecContext()->channels,
-                                 this->codecContext()->channel_layout);
-
-    QbCaps caps(QString("audio/x-raw,"
-                        "format=%1,"
-                        "channels=%2,"
-                        "rate=%3,"
-                        "layout=%4,"
-                        "samples=%5").arg(format)
-                                     .arg(this->codecContext()->channels)
-                                     .arg(this->codecContext()->sample_rate)
-                                     .arg(layout)
-                                     .arg(this->m_iFrame.nb_samples));
+    QbCaps caps = this->caps();
+    caps.setProperty("samples", this->m_iFrame.nb_samples);
 
     QbPacket oPacket(caps,
                      oBuffer,

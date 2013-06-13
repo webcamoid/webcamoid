@@ -174,7 +174,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
         void aboutToQuit();
         void onDirectoryChanged(const QString &path);
-        void audioSetup();
 };
 
 #endif // MEDIATOOLS_H

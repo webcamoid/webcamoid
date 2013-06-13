@@ -217,6 +217,23 @@ QList<QSize> MultiSrcElement::availableSize()
     return availableSize;
 }
 
+QVariantMap MultiSrcElement::streamCaps()
+{
+    QVariantMap caps;
+    ElementState preState = this->state();
+
+    if (preState == ElementStateNull)
+        this->setState(ElementStateReady);
+
+    foreach (int i, this->m_streams.keys())
+        caps[QString("%1").arg(i)] = this->m_streams[i]->caps().toString();
+
+    if (preState == ElementStateNull)
+        this->setState(ElementStateNull);
+
+    return caps;
+}
+
 bool MultiSrcElement::init()
 {
     if (this->location().isEmpty())
@@ -511,7 +528,7 @@ void MultiSrcElement::readPackets()
         return;
     }
 
-    AbstractStream *stream = this->m_streams[packet.stream_index].data();
+    AbstractStreamPtr stream = this->m_streams[packet.stream_index];
     QbPacket oPacket = stream->readPacket(&packet);
 
     if (oPacket.caps().isValid())

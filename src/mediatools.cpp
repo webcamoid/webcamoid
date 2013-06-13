@@ -79,7 +79,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "outputIndex=1 ,"
                             "muxAudioInput. !"
                             "AudioOutput objectName='audioOutput' ,"
-                            "MultiSrc objectName='mic' !"
+                            "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
@@ -130,8 +130,6 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                              this,
                              SIGNAL(error(QString)));
         }
-
-        this->audioSetup();
     }
 
     if (watchDevices)
@@ -1135,17 +1133,4 @@ void MediaTools::onDirectoryChanged(const QString &path)
     Q_UNUSED(path)
 
     emit this->devicesModified();
-}
-
-void MediaTools::audioSetup()
-{
-    if (!this->m_mic)
-        return;
-
-    if (QFileInfo("/usr/bin/pulseaudio").exists())
-        this->m_mic->setProperty("location", "pulse");
-    else if (QFileInfo("/proc/asound/version").exists())
-        this->m_mic->setProperty("location", "hw:0");
-    else if (QFileInfo("/dev/dsp").exists())
-        this->m_mic->setProperty("location", "/dev/dsp");
 }

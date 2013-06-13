@@ -43,6 +43,7 @@ class MultiSrcElement: public QbElement
     Q_PROPERTY(QSize size READ size WRITE setSize RESET resetSize)
     Q_PROPERTY(int streamsCount READ streamsCount)
     Q_PROPERTY(QList<QSize> availableSize READ availableSize)
+    Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
 
     public:
         enum StreamType
@@ -66,6 +67,7 @@ class MultiSrcElement: public QbElement
         Q_INVOKABLE StreamType streamType(int streamIndex);
         Q_INVOKABLE int defaultIndex(StreamType streamType);
         Q_INVOKABLE QList<QSize> availableSize();
+        Q_INVOKABLE QVariantMap streamCaps();
 
     protected:
         bool init();

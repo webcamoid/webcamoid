@@ -32,21 +32,8 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
     this->m_fst = true;
 }
 
-QbPacket VideoStream::readPacket(AVPacket *packet)
+QbCaps VideoStream::caps() const
 {
-    if (!this->isValid())
-        return QbPacket();
-
-    int gotFrame;
-
-    avcodec_decode_video2(this->codecContext(),
-                          &this->m_iFrame,
-                          &gotFrame,
-                          packet);
-
-    if (!gotFrame)
-        return QbPacket();
-
     const char *format = av_get_pix_fmt_name(this->codecContext()->pix_fmt);
 
     QbFrac fps;
@@ -66,6 +53,24 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                                     .arg(this->codecContext()->height)
                                     .arg(fps.num())
                                     .arg(fps.den()));
+
+    return caps;
+}
+
+QbPacket VideoStream::readPacket(AVPacket *packet)
+{
+    if (!this->isValid())
+        return QbPacket();
+
+    int gotFrame;
+
+    avcodec_decode_video2(this->codecContext(),
+                          &this->m_iFrame,
+                          &gotFrame,
+                          packet);
+
+    if (!gotFrame)
+        return QbPacket();
 
     int frameSize = avpicture_get_size(this->codecContext()->pix_fmt,
                                        this->codecContext()->width,
@@ -88,14 +93,15 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     else
         this->m_pts += this->m_duration;
 
-    caps.setProperty("sync", sync);
-
     avpicture_layout((AVPicture *) &this->m_iFrame,
                      this->codecContext()->pix_fmt,
                      this->codecContext()->width,
                      this->codecContext()->height,
                      (uint8_t *) oBuffer.data(),
                      frameSize);
+
+    QbCaps caps = this->caps();
+    caps.setProperty("sync", sync);
 
     QbPacket oPacket(caps,
                      oBuffer,

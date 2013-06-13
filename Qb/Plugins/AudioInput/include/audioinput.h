@@ -19,33 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef AUDIOSTREAM_H
-#define AUDIOSTREAM_H
+#ifndef AUDIOINPUT_H
+#define AUDIOINPUT_H
 
-#include <QtCore>
+#include <qbplugin.h>
 
-#include "abstractstream.h"
-
-class AudioStream: public AbstractStream
+class AudioInput: public QObject, public QbPlugin
 {
     Q_OBJECT
+    Q_INTERFACES(QbPlugin)
 
     public:
-        explicit AudioStream(QObject *parent=NULL);
-        AudioStream(AVFormatContext *formatContext, uint index);
-        ~AudioStream();
-
-        Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
-
-    protected:
-        void cleanUp();
-
-    private:
-        bool m_fst;
-        int64_t m_pts;
-        int64_t m_duration;
-        uint8_t **m_oBuffer;
+        QbElement *newElement();
 };
 
-#endif // AUDIOSTREAM_H
+#endif // AUDIOINPUT_H
