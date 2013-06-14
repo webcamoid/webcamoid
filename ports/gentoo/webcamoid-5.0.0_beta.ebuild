@@ -26,10 +26,10 @@ src_unpack() {
 }
 
 src_compile() {
-    eqmake4  Webcamoid.pro PREFIX="${D}/usr" INSTALLPREFIX=/usr
+    eqmake4  Webcamoid.pro
     emake || die
 }
 
 src_install() {
-    emake install || die
+    emake INSTALL_ROOT="${D}" install || die
 }

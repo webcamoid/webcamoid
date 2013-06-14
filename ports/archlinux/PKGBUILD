@@ -14,11 +14,11 @@ md5sums=('ebd0d1f4ed00c6418ac3ed46818c946f')
 
 build() {
     cd $srcdir/Webcamoid-${pkgver}
-    qmake-qt4 Webcamoid.pro PREFIX="${pkgdir}/usr" INSTALLPREFIX=/usr
+    qmake-qt4 Webcamoid.pro
     make
 }
 
 package() {
     cd $srcdir/Webcamoid-${pkgver}
-    make install
+    make INSTALL_ROOT="${pkgdir}" install
 }

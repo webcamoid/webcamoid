@@ -77,7 +77,7 @@ HEADERS = \
 INCLUDEPATH += \
     include \
     Qb/include \
-    $$INSTALLKDEINCLUDEDIR
+    $$KDEINCLUDEDIR
 
 LIBS += \
     -L./Qb -lQb \

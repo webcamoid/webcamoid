@@ -32,7 +32,7 @@ void Qb::init()
     qRegisterMetaType<QbFrac>("QbFrac");
     qRegisterMetaType<QbPacket>("QbPacket");
 
-    application.setPluginsPaths(QStringList() << QString("%1/%2").arg(INSTALLLIBDIR).arg(COMMONS_TARGET));
+    application.setPluginsPaths(QStringList() << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET));
 }
 
 QStringList Qb::pluginsPaths()

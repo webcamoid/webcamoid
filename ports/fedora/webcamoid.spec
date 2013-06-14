@@ -46,16 +46,14 @@ Features:
 
 %build
 qmake-qt4 Webcamoid.pro \
-    PREFIX="%{buildroot}/usr" \
-    INSTALLPREFIX=/usr \
-    INSTALLKDEINCLUDEDIR=%{_includedir}/kde4/KDE \
+    KDEINCLUDEDIR=%{_includedir}/kde4/KDE \
     LIBDIR=%{_libdir}
 
 make
 
 %install
 rm -rf %{buildroot}
-make install
+make INSTALL_ROOT="%{buildroot}" install
 
 %clean
 rm -rf %{buildroot}

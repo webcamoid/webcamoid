@@ -31,7 +31,7 @@ AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
     QStringList trPaths;
     QStringList locales;
 
-    trPaths << "share/ts" << QString("%1/tr").arg(INSTALLDATADIR);
+    trPaths << "share/ts" << QString("%1/tr").arg(DATADIR);
     locales << QLocale::system().name() << QLocale::system().name().split("_")[0];
 
     foreach (QString path, trPaths)
