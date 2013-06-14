@@ -649,7 +649,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
             QString modeString = this->params()[0].toString();
 
             bool ok = true;
-            QImage::InvertMode mode;
+            QImage::InvertMode mode = QImage::InvertRgb;
 
             if (this->m_stringToInvertMode.contains(modeString))
                 mode = this->m_stringToInvertMode[modeString];
@@ -722,7 +722,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
             {
                 QString qualityString = this->params()[1].toString();
 
-                Blitz::EffectQuality quality;
+                Blitz::EffectQuality quality = Blitz::Low;
 
                 if (this->m_stringToEffectQuality.contains(qualityString))
                     quality = this->m_stringToEffectQuality[qualityString];
@@ -765,7 +765,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     QString aspectRatioString = this->params()[1].toString();
 
                     bool ok = true;
-                    Qt::AspectRatioMode aspectRatio;
+                    Qt::AspectRatioMode aspectRatio = Qt::KeepAspectRatio;
 
                     if (this->m_stringToAspectRatioMode.contains(aspectRatioString))
                         aspectRatio = this->m_stringToAspectRatioMode[aspectRatioString];
@@ -804,7 +804,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         {
                             QString aspectRatioString = this->params()[2].toString();
 
-                            Qt::AspectRatioMode aspectRatio;
+                            Qt::AspectRatioMode aspectRatio = Qt::KeepAspectRatio;
 
                             if (this->m_stringToAspectRatioMode.contains(aspectRatioString))
                                 aspectRatio = this->m_stringToAspectRatioMode[aspectRatioString];
@@ -850,7 +850,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                     {
                         QString filterString = this->params()[2].toString();
 
-                        Blitz::ScaleFilterType filter;
+                        Blitz::ScaleFilterType filter = Blitz::UndefinedFilter;
 
                         if (this->m_stringToScaleFilterType.contains(filterString))
                             filter = this->m_stringToScaleFilterType[filterString];
@@ -882,7 +882,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
                         {
                             QString aspectRatioString = this->params()[3].toString();
 
-                            Qt::AspectRatioMode aspectRatio;
+                            Qt::AspectRatioMode aspectRatio = Qt::KeepAspectRatio;
 
                             if (this->m_stringToAspectRatioMode.contains(aspectRatioString))
                                 aspectRatio = this->m_stringToAspectRatioMode[aspectRatioString];

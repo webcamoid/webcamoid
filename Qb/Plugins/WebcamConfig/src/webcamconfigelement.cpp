@@ -19,29 +19,52 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef PROBEELEMENT_H
-#define PROBEELEMENT_H
+#include "webcamconfigelement.h"
 
-#include <qbelement.h>
-
-class ProbeElement: public QbElement
+WebcamConfigElement::WebcamConfigElement(): QbElement()
 {
-    Q_OBJECT
-    Q_PROPERTY(bool log READ log WRITE setLog RESET resetLog)
+}
 
-    public:
-        explicit ProbeElement();
+QStringList WebcamConfigElement::webcams() const
+{
+}
 
-        Q_INVOKABLE bool log() const;
+QString WebcamConfigElement::description(const QString &webcam) const
+{
+}
 
-    private:
-        bool m_log;
+QVariantList WebcamConfigElement::availableSizes(const QString &webcam) const
+{
+}
 
-    public slots:
-        void setLog(bool log);
-        void resetLog();
+QSize WebcamConfigElement::size(const QString &webcam) const
+{
+}
 
-        void iStream(const QbPacket &packet);
-};
+bool WebcamConfigElement::setSize(const QString &webcam, const QSize &size)
+{
+}
 
-#endif // PROBEELEMENT_H
+bool WebcamConfigElement::resetSize(const QString &webcam)
+{
+}
+
+QVariantList WebcamConfigElement::controls(const QString &webcam) const
+{
+}
+
+void WebcamConfigElement::setControls(const QString &webcam, const QVariantMap &controls)
+{
+}
+
+void WebcamConfigElement::resetControls(const QString &webcam)
+{
+}
+
+void WebcamConfigElement::reset(const QString &webcam)
+{
+}
+
+void WebcamConfigElement::reset()
+{
+}

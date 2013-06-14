@@ -71,6 +71,7 @@ flexsource.name = Flex Sources ${QMAKE_FILE_IN}
 flexsource.CONFIG += target_predeps
 
 QMAKE_EXTRA_COMPILERS += flexsource
+PRE_TARGETDEPS += compiler_flexsource_make_all
 
 flexheader.input = FLEXSOURCES
 flexheader.output = include/${QMAKE_FILE_BASE}_auto.h
@@ -80,6 +81,7 @@ flexheader.name = Flex Headers ${QMAKE_FILE_IN}
 flexheader.CONFIG += target_predeps no_link
 
 QMAKE_EXTRA_COMPILERS += flexheader
+PRE_TARGETDEPS += compiler_flexheader_make_all
 
 bisonsource.input = BISONSOURCES
 bisonsource.output = src/${QMAKE_FILE_BASE}_auto.cpp
@@ -89,6 +91,7 @@ bisonsource.name = Bison Sources ${QMAKE_FILE_IN}
 bisonsource.CONFIG += target_predeps
 
 QMAKE_EXTRA_COMPILERS += bisonsource
+PRE_TARGETDEPS += compiler_bisonsource_make_all
 
 bisonheader.input = BISONSOURCES
 bisonheader.output = include/${QMAKE_FILE_BASE}_auto.h
@@ -98,3 +101,4 @@ bisonheader.name = Bison Headers ${QMAKE_FILE_IN}
 bisonheader.CONFIG += target_predeps no_link
 
 QMAKE_EXTRA_COMPILERS += bisonheader
+PRE_TARGETDEPS += compiler_bisonheader_make_all

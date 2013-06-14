@@ -15,7 +15,7 @@ md5sums=('ebd0d1f4ed00c6418ac3ed46818c946f')
 build() {
     cd $srcdir/Webcamoid-${pkgver}
     qmake-qt4 Webcamoid.pro PREFIX="${pkgdir}/usr" INSTALLPREFIX=/usr
-    make -j $(grep -c "^processor" /proc/cpuinfo)
+    make
 }
 
 package() {

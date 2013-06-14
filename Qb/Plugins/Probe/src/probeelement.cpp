@@ -26,10 +26,6 @@ ProbeElement::ProbeElement(): QbElement()
     this->resetLog();
 }
 
-ProbeElement::~ProbeElement()
-{
-}
-
 bool ProbeElement::log() const
 {
     return this->m_log;

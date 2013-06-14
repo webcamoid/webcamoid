@@ -75,7 +75,7 @@ build
 
 # Ignore Auto Generated Files #
 ###############################
-*_auto.*
+*_auto*
 
 # Ignore Private Files and Folders #
 ####################################

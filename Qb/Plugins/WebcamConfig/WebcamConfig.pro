@@ -21,27 +21,35 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    error("commons.pri file not found.")
+    exists(../../commons.pri) {
+        include(../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
 }
 
-!isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0):!exists(/usr/bin/wget) {
-    error("USE3DPARTYLIBS option requires Wget.")
+CONFIG += plugin
+
+HEADERS += \
+    include/webcamconfig.h \
+    include/webcamconfigelement.h
+
+INCLUDEPATH += \
+    include \
+    ../../include
+
+LIBS += -L../../ -lQb
+
+QT += core gui
+
+SOURCES += \
+    src/webcamconfig.cpp \
+    src/webcamconfigelement.cpp
+
+TEMPLATE = lib
+
+unix {
+    INSTALLS += target
+
+    target.path = $${LIBDIR}/$${COMMONS_TARGET}
 }
-
-TEMPLATE = subdirs
-
-CONFIG += ordered
-
-SUBDIRS += \
-    Qb \
-    Lib.pro \
-    Plasmoid.pro \
-    StandAlone.pro
-
-# Install rules
-
-INSTALLS += \
-    license
-
-license.files = COPYING
-license.path = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}

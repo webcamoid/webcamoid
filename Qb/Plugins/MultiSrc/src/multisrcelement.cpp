@@ -59,55 +59,16 @@ bool MultiSrcElement::loop()
 
 QSize MultiSrcElement::size()
 {
-    ElementState preState = this->state();
-    QSize size;
-
-    if (preState == ElementStateNull)
+    foreach (QVariant capsVariant, this->streamCaps())
     {
-        size = this->webcamSize();
+        QbCaps caps(capsVariant.toString());
 
-        if (!size.isEmpty())
-            return size;
-
-        this->setState(ElementStateReady);
+        if (caps.mimeType() == "video/x-raw")
+            return QSize(caps.property("width").toInt(),
+                         caps.property("height").toInt());
     }
 
-    int index = av_find_best_stream(this->m_inputContext,
-                                    AVMEDIA_TYPE_VIDEO,
-                                    -1,
-                                    -1,
-                                    NULL,
-                                    0);
-
-    if (index >= 0)
-    {
-        VideoStream *stream = static_cast<VideoStream *>(this->m_streams[index].data());
-
-        if (stream)
-            size = stream->size();
-    }
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateNull);
-
-    return size;
-}
-
-int MultiSrcElement::streamsCount()
-{
-    int streamsCount;
-
-    ElementState preState = this->state();
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
-
-    streamsCount = this->m_streamsCount;
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateNull);
-
-    return streamsCount;
+    return QSize();
 }
 
 MultiSrcElement::StreamType MultiSrcElement::streamType(int streamIndex)
@@ -207,9 +168,9 @@ int MultiSrcElement::defaultIndex(StreamType streamType)
     return streamIndex;
 }
 
-QList<QSize> MultiSrcElement::availableSize()
+QVariantList MultiSrcElement::availableSize()
 {
-    QList<QSize> availableSize = this->webcamAvailableSize();
+    QVariantList availableSize = this->webcamAvailableSize();
 
     if (availableSize.isEmpty())
         availableSize << this->size();
@@ -319,7 +280,6 @@ bool MultiSrcElement::init()
 
     av_dump_format(this->m_inputContext, 0, uri.toStdString().c_str(), false);
 
-    this->m_streamsCount = this->m_inputContext->nb_streams;
     this->m_streams.clear();
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++)
@@ -374,9 +334,9 @@ QSize MultiSrcElement::webcamSize()
     return size;
 }
 
-QList<QSize> MultiSrcElement::webcamAvailableSize()
+QVariantList MultiSrcElement::webcamAvailableSize()
 {
-    QList<QSize> availableSize;
+    QVariantList availableSize;
 
     if (!QRegExp("/dev/video\\d*").exactMatch(this->location()))
         return availableSize;
@@ -490,7 +450,7 @@ void MultiSrcElement::resetLoop()
 
 void MultiSrcElement::resetSize()
 {
-    this->setSize(this->availableSize()[0]);
+    this->setSize(this->availableSize()[0].toSize());
 }
 
 void MultiSrcElement::setState(ElementState state)

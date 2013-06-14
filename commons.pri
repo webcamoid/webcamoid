@@ -47,6 +47,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_PROJECT_BUG_URL = "https://github.com/hipersayanX/Webcamoid/issues"
     COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2013  Gonzalo Exequiel Pedone"
 
+    isEmpty(BUILDDOCS): BUILDDOCS = 0
     isEmpty(QDOCTOOL): QDOCTOOL = qdoc3-qt4
 
     unix {

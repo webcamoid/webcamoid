@@ -18,7 +18,7 @@ tabsize            = 4
 # The outputdir variable specifies the directory
 # where QDoc will put the generated documentation.
 
-outputdir      = share/docs/html
+outputdir      = share/docs_auto/html
 outputformats += HTML \
                  DITAXML
 

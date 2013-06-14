@@ -19,29 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef PROBEELEMENT_H
-#define PROBEELEMENT_H
+#ifndef WEBCAMCONFIG_H
+#define WEBCAMCONFIG_H
 
-#include <qbelement.h>
+#include <qbplugin.h>
 
-class ProbeElement: public QbElement
+class WebcamConfig: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_PROPERTY(bool log READ log WRITE setLog RESET resetLog)
+    Q_INTERFACES(QbPlugin)
 
     public:
-        explicit ProbeElement();
-
-        Q_INVOKABLE bool log() const;
-
-    private:
-        bool m_log;
-
-    public slots:
-        void setLog(bool log);
-        void resetLog();
-
-        void iStream(const QbPacket &packet);
+        QbElement *newElement();
 };
 
-#endif // PROBEELEMENT_H
+#endif // WEBCAMCONFIG_H

@@ -24,12 +24,24 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
+!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+    DOCSOURCES += $${COMMONS_APPNAME}.qdocconf
+
+    builddocs.input = DOCSOURCES
+    builddocs.output = share/docs_auto/html/$${COMMONS_TARGET}.index
+    builddocs.commands = $${QDOCTOOL} ${QMAKE_FILE_IN}
+    builddocs.variable_out = DOCSOUTPUT
+    builddocs.name = Docs ${QMAKE_FILE_IN}
+    builddocs.CONFIG += target_predeps
+
+    QMAKE_EXTRA_COMPILERS += builddocs
+    PRE_TARGETDEPS += compiler_builddocs_make_all
+}
+
 isEmpty(QMAKE_LRELEASE) {
     win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
     else:QMAKE_LRELEASE = /usr/bin/lrelease-qt4
 }
-
-# http://www.qtcentre.org/wiki/index.php?title=Undocumented_qmake
 
 compiletr.input = TRANSLATIONS
 compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
@@ -37,7 +49,6 @@ compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN
 compiletr.CONFIG += no_link
 
 QMAKE_EXTRA_COMPILERS += compiletr
-
 PRE_TARGETDEPS += compiler_compiletr_make_all
 
 CONFIG += qt
@@ -114,4 +125,12 @@ unix {
     translations.files = share/ts/*.qm
     translations.path = $${DATADIR}/tr
     translations.CONFIG += no_check_exist
+
+    !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+        INSTALLS += docs
+
+        docs.files = share/docs_auto/html
+        docs.path = $${HTMLDIR}
+        docs.CONFIG += no_check_exist
+    }
 }

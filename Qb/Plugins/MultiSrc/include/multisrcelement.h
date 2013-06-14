@@ -41,8 +41,7 @@ class MultiSrcElement: public QbElement
     Q_PROPERTY(QString location READ location WRITE setLocation RESET resetLocation)
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
     Q_PROPERTY(QSize size READ size WRITE setSize RESET resetSize)
-    Q_PROPERTY(int streamsCount READ streamsCount)
-    Q_PROPERTY(QList<QSize> availableSize READ availableSize)
+    Q_PROPERTY(QVariantList availableSize READ availableSize)
     Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
 
     public:
@@ -63,10 +62,9 @@ class MultiSrcElement: public QbElement
         Q_INVOKABLE QString location();
         Q_INVOKABLE bool loop();
         Q_INVOKABLE QSize size();
-        Q_INVOKABLE int streamsCount();
         Q_INVOKABLE StreamType streamType(int streamIndex);
         Q_INVOKABLE int defaultIndex(StreamType streamType);
-        Q_INVOKABLE QList<QSize> availableSize();
+        Q_INVOKABLE QVariantList availableSize();
         Q_INVOKABLE QVariantMap streamCaps();
 
     protected:
@@ -77,7 +75,6 @@ class MultiSrcElement: public QbElement
         QString m_location;
         bool m_loop;
         QSize m_size;
-        int m_streamsCount;
 
         int m_audioStream;
         int m_videoStream;
@@ -86,7 +83,7 @@ class MultiSrcElement: public QbElement
         QMap<int, AbstractStreamPtr> m_streams;
 
         QSize webcamSize();
-        QList<QSize> webcamAvailableSize();
+        QVariantList webcamAvailableSize();
 
         inline int roundDown(int value, int multiply)
         {

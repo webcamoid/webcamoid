@@ -24,6 +24,20 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
+!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+    DOCSOURCES += $${COMMONS_APPNAME}.qdocconf
+
+    builddocs.input = DOCSOURCES
+    builddocs.output = share/docs_auto/html/$$replace(COMMONS_APPNAME, Q, q).index
+    builddocs.commands = $${QDOCTOOL} ${QMAKE_FILE_IN}
+    builddocs.variable_out = DOCSOUTPUT
+    builddocs.name = Docs ${QMAKE_FILE_IN}
+    builddocs.CONFIG += target_predeps
+
+    QMAKE_EXTRA_COMPILERS += builddocs
+    PRE_TARGETDEPS += compiler_builddocs_make_all
+}
+
 CONFIG += qt
 
 DEFINES += COMMONS_LIBRARY
@@ -59,11 +73,19 @@ CODECFORSRC = UTF-8
 
 unix {
     INSTALLS += \
-        headers \
-        target
+        target \
+        headers
+
+    target.path = $${LIBDIR}
 
     headers.files = include/*
     headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
 
-    target.path = $${LIBDIR}
+    !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+        INSTALLS += docs
+
+        docs.files = share/docs_auto/html
+        docs.path = $${HTMLDIR}
+        docs.CONFIG += no_check_exist
+    }
 }

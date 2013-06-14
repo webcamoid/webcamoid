@@ -30,7 +30,7 @@ CONFIG += ordered
 
 SUBDIRS += Lib.pro
 
-!isEmpty(USE3DPARTYLIBS) {
+!isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0) {
     SUBDIRS += 3dparty
 }
 
@@ -39,13 +39,7 @@ SUBDIRS += Plugins
 # Install rules
 
 INSTALLS += \
-    docs \
     license
-
-docs.extra = $${QDOCTOOL} $${COMMONS_APPNAME}.qdocconf
-docs.files = share/docs/html/*
-docs.path = $${HTMLDIR}
-docs.CONFIG += no_check_exist
 
 license.files = COPYING
 license.path = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
