@@ -1,3 +1,1114 @@
+2013-06-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Lib.pro, Qb/Lib.pro, Qb/Plugins/Bin/Bin.pro,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/Probe/include/probeelement.h,
+	Qb/Plugins/Probe/src/probeelement.cpp,
+	Qb/Plugins/WebcamConfig/WebcamConfig.pro,
+	Qb/Plugins/WebcamConfig/include/webcamconfig.h,
+	Qb/Plugins/WebcamConfig/include/webcamconfigelement.h,
+	Qb/Plugins/WebcamConfig/src/webcamconfig.cpp,
+	Qb/Plugins/WebcamConfig/src/webcamconfigelement.cpp, Qb/Qb.pro,
+	Qb/Qb.qdocconf, Qb/commons.pri, README.md, Webcamoid.pro,
+	Webcamoid.qdocconf, commons.pri, ports/archlinux/PKGBUILD: Modified
+	gitignore. Modified building and installation. Added BUILDDOCS
+	variable. Updated README. Updated PKGBUILD. Working on WebcamConfig.
+
+2013-06-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ports/debian/control, ports/ubuntu/control: Changed
+	ports/ubuntu/control -> ports/debian/control.
+
+2013-06-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/AudioInput/AudioInput.pro,
+	Qb/Plugins/AudioInput/include/audioinput.h,
+	Qb/Plugins/AudioInput/include/audioinputelement.h,
+	Qb/Plugins/AudioInput/src/audioinput.cpp,
+	Qb/Plugins/AudioInput/src/audioinputelement.cpp,
+	Qb/Plugins/MultiSrc/include/abstractstream.h,
+	Qb/Plugins/MultiSrc/include/audiostream.h,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp, include/mediatools.h,
+	src/mediatools.cpp: Added AudioInput.
+
+2013-06-12  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/AudioOutput/include/audiooutputelement.h,
+	Qb/Plugins/AudioOutput/src/audiooutputelement.cpp,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp, Qb/Qb.pro,
+	Qb/commons.pri, Webcamoid.pro, commons.pri, src/mediatools.cpp: 
+	AudioOutput ready. Added QDOCTOOL variable.
+
+2013-06-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/AudioOutput/AudioOutput.pro,
+	Qb/Plugins/AudioOutput/include/audiooutput.h,
+	Qb/Plugins/AudioOutput/include/audiooutputelement.h,
+	Qb/Plugins/AudioOutput/src/audiooutput.cpp,
+	Qb/Plugins/AudioOutput/src/audiooutputelement.cpp,
+	Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/customdeleters.h,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/include/outputformat.h,
+	Qb/Plugins/MultiSink/include/outputparams.h,
+	Qb/Plugins/MultiSink/src/customdeleters.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/outputformat.cpp,
+	Qb/Plugins/MultiSink/src/outputparams.cpp: MultiSink ready. Added
+	AudioOutput element.
+
+2013-06-07  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Bin/parser/parser.y: Bug #3, case closed. Thank you
+	very much to everyone who collaborated :)
+
+2013-06-07  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Bin/parser/lexer.l,
+	Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/commands.h,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/include/streaminput.h,
+	Qb/Plugins/MultiSink/src/commands.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/streaminput.cpp,
+	Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/src/syncelement.cpp,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	src/mediatools.cpp: Multi stream recording comming soon.
+	VCapsConvert can resample. Removed obsolete code in Sync.
+
+2013-06-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Filter/include/filterelement.h,
+	Qb/Plugins/Filter/src/filterelement.cpp,
+	Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/include/outputoptions.h,
+	Qb/Plugins/MultiSink/include/outputparams.h,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/outputoptions.cpp,
+	Qb/Plugins/MultiSink/src/outputparams.cpp,
+	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp: Modified
+	VCapsConvert. One filter per stream.
+
+2013-06-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Filter/include/filterelement.h,
+	Qb/Plugins/Filter/src/filterelement.cpp, Qb/include/qbfrac.h,
+	Qb/src/qbfrac.cpp: Fixed Filter.
+
+2013-06-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md: Updated README.
+
+2013-06-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, Plasmoid.pro, Qb/3dparty/3dparty.pro,
+	Qb/3dparty/ffmpeg/ffmpeg.pro, Qb/Lib.pro,
+	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
+	Qb/Plugins/ACapsConvert/include/acapsconvert.h,
+	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	Qb/Plugins/ACapsConvert/src/acapsconvert.cpp,
+	Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Aging/include/aging.h,
+	Qb/Plugins/Aging/include/agingelement.h,
+	Qb/Plugins/Aging/include/scratch.h, Qb/Plugins/Aging/src/aging.cpp,
+	Qb/Plugins/Aging/src/agingelement.cpp,
+	Qb/Plugins/Aging/src/scratch.cpp, Qb/Plugins/Bin/Bin.pro,
+	Qb/Plugins/Bin/include/bin.h, Qb/Plugins/Bin/include/binelement.h,
+	Qb/Plugins/Bin/include/pipeline.h, Qb/Plugins/Bin/parser/lexer.l,
+	Qb/Plugins/Bin/parser/parser.y, Qb/Plugins/Bin/src/bin.cpp,
+	Qb/Plugins/Bin/src/binelement.cpp, Qb/Plugins/Bin/src/pipeline.cpp,
+	Qb/Plugins/Blitzer/Blitzer.pro,
+	Qb/Plugins/Blitzer/include/blitzer.h,
+	Qb/Plugins/Blitzer/include/blitzerelement.h,
+	Qb/Plugins/Blitzer/src/blitzer.cpp,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/Filter/Filter.pro, Qb/Plugins/Filter/include/filter.h,
+	Qb/Plugins/Filter/include/filterelement.h,
+	Qb/Plugins/Filter/src/filter.cpp,
+	Qb/Plugins/Filter/src/filterelement.cpp, Qb/Plugins/Fire/Fire.pro,
+	Qb/Plugins/Fire/include/fire.h,
+	Qb/Plugins/Fire/include/fireelement.h,
+	Qb/Plugins/Fire/src/fire.cpp, Qb/Plugins/Fire/src/fireelement.cpp,
+	Qb/Plugins/Frei0r/Frei0r.pro, Qb/Plugins/Frei0r/include/frei0r.h,
+	Qb/Plugins/Frei0r/include/frei0relement.h,
+	Qb/Plugins/Frei0r/src/frei0r.cpp,
+	Qb/Plugins/Frei0r/src/frei0relement.cpp,
+	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/Matrix/include/blip.h,
+	Qb/Plugins/Matrix/include/matrix.h,
+	Qb/Plugins/Matrix/include/matrixelement.h,
+	Qb/Plugins/Matrix/src/blip.cpp, Qb/Plugins/Matrix/src/matrix.cpp,
+	Qb/Plugins/Matrix/src/matrixelement.cpp,
+	Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/commands.h,
+	Qb/Plugins/MultiSink/include/customdeleters.h,
+	Qb/Plugins/MultiSink/include/multisink.h,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/include/option.h,
+	Qb/Plugins/MultiSink/include/optionparser.h,
+	Qb/Plugins/MultiSink/include/outputoptions.h,
+	Qb/Plugins/MultiSink/include/parsedoption.h,
+	Qb/Plugins/MultiSink/include/streaminput.h,
+	Qb/Plugins/MultiSink/src/commands.cpp,
+	Qb/Plugins/MultiSink/src/customdeleters.cpp,
+	Qb/Plugins/MultiSink/src/multisink.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/option.cpp,
+	Qb/Plugins/MultiSink/src/optionparser.cpp,
+	Qb/Plugins/MultiSink/src/outputoptions.cpp,
+	Qb/Plugins/MultiSink/src/parsedoption.cpp,
+	Qb/Plugins/MultiSink/src/streaminput.cpp,
+	Qb/Plugins/MultiSrc/MultiSrc.pro,
+	Qb/Plugins/MultiSrc/include/abstractstream.h,
+	Qb/Plugins/MultiSrc/include/audiostream.h,
+	Qb/Plugins/MultiSrc/include/multisrc.h,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/multisrc.cpp,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp,
+	Qb/Plugins/Multiplex/Multiplex.pro,
+	Qb/Plugins/Multiplex/include/multiplex.h,
+	Qb/Plugins/Multiplex/include/multiplexelement.h,
+	Qb/Plugins/Multiplex/src/multiplex.cpp,
+	Qb/Plugins/Multiplex/src/multiplexelement.cpp,
+	Qb/Plugins/Plugins.pro, Qb/Plugins/Probe/Probe.pro,
+	Qb/Plugins/Probe/include/probe.h,
+	Qb/Plugins/Probe/include/probeelement.h,
+	Qb/Plugins/Probe/src/probe.cpp,
+	Qb/Plugins/Probe/src/probeelement.cpp,
+	Qb/Plugins/QImageConvert/QImageConvert.pro,
+	Qb/Plugins/QImageConvert/include/qimageconvert.h,
+	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
+	Qb/Plugins/QImageConvert/src/qimageconvert.cpp,
+	Qb/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/sleep.h,
+	Qb/Plugins/Sync/include/sync.h,
+	Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/src/sleep.cpp, Qb/Plugins/Sync/src/sync.cpp,
+	Qb/Plugins/Sync/src/syncelement.cpp,
+	Qb/Plugins/VCapsConvert/VCapsConvert.pro,
+	Qb/Plugins/VCapsConvert/include/vcapsconvert.h,
+	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	Qb/Plugins/VCapsConvert/src/vcapsconvert.cpp,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	Qb/Plugins/Warhol/Warhol.pro, Qb/Plugins/Warhol/include/warhol.h,
+	Qb/Plugins/Warhol/include/warholelement.h,
+	Qb/Plugins/Warhol/src/warhol.cpp,
+	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/Qb.pro, Qb/Qb.qdocconf,
+	Qb/commons.pri, Qb/include/qb.h, Qb/include/qbapplication.h,
+	Qb/include/qbcaps.h, Qb/include/qbelement.h, Qb/include/qbfrac.h,
+	Qb/include/qbpacket.h, Qb/include/qbplugin.h, Qb/src/qb.cpp,
+	Qb/src/qbapplication.cpp, Qb/src/qbcaps.cpp, Qb/src/qbelement.cpp,
+	Qb/src/qbfrac.cpp, Qb/src/qbpacket.cpp, StandAlone.pro,
+	Webcamoid.pro, Webcamoid.qdocconf, commons.pri,
+	include/appenvironment.h, include/commons.h, include/effects.h,
+	include/generalconfig.h, include/mainwidget.h,
+	include/mediatools.h, include/plasmoid.h, include/streamsconfig.h,
+	include/videorecordconfig.h, include/webcamconfig.h,
+	ports/fedora/webcamoid.spec,
+	ports/gentoo/webcamoid-5.0.0_beta.ebuild,
+	ports/pisilinux/actions.py, ports/pisilinux/pspec.xml,
+	ports/ubuntu/control, src/appenvironment.cpp, src/effects.cpp,
+	src/generalconfig.cpp, src/main.cpp, src/mainwidget.cpp,
+	src/mediatools.cpp, src/plasmoid.cpp, src/streamsconfig.cpp,
+	src/videorecordconfig.cpp, src/webcamconfig.cpp: Added new ports for
+	Gentoo, PiSi Linux and Ubuntu. Updated copyright year :P. Many
+	internal changes.
+
+2013-05-31  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/commands.h,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/include/optionparser.h,
+	Qb/Plugins/MultiSink/include/streaminput.h,
+	Qb/Plugins/MultiSink/src/commands.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/parsedoption.cpp,
+	Qb/Plugins/MultiSink/src/streaminput.cpp, src/mediatools.cpp: New
+	MultiSink options format. Preparing multi-stream recording.
+
+2013-05-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* README.md: Updated README.
+
+2013-05-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/commands.h,
+	Qb/Plugins/MultiSink/include/option.h,
+	Qb/Plugins/MultiSink/include/optionparser.h,
+	Qb/Plugins/MultiSink/include/parsedoption.h,
+	Qb/Plugins/MultiSink/src/commands.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/option.cpp,
+	Qb/Plugins/MultiSink/src/optionparser.cpp,
+	Qb/Plugins/MultiSink/src/parsedoption.cpp, README.md,
+	ports/fedora/webcamoid.spec: Updated Compile info. Working in a new
+	MultiSink command line parser.
+
+2013-05-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, Plasmoid.pro, Qb/Lib.pro,
+	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
+	Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Bin/Bin.pro,
+	Qb/Plugins/Blitzer/Blitzer.pro, Qb/Plugins/Filter/Filter.pro,
+	Qb/Plugins/Fire/Fire.pro, Qb/Plugins/Frei0r/Frei0r.pro,
+	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSrc/MultiSrc.pro,
+	Qb/Plugins/Multiplex/Multiplex.pro, Qb/Plugins/Probe/Probe.pro,
+	Qb/Plugins/QImageConvert/QImageConvert.pro,
+	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/VCapsConvert/VCapsConvert.pro,
+	Qb/Plugins/Warhol/Warhol.pro, Qb/Qb.pro, Qb/commons.pri,
+	Qb/src/qb.cpp, StandAlone.pro, Webcamoid.pro, commons.pri,
+	ports/fedora/webcamoid.spec, src/appenvironment.cpp: Updated install
+	macros. Updated Fedora SPEC.
+
+2013-05-22  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, ports/archlinux/PKGBUILD, ports/fedora/webcamoid.spec: 
+	Added SPEC for Fedora.
+
+2013-05-22  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ports/archlinux/PKGBUILD: Added PKGBUILD for ArchLinux.
+
+2013-05-21  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	Qb/Plugins/Aging/src/agingelement.cpp,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/Filter/src/filterelement.cpp,
+	Qb/Plugins/Fire/src/fireelement.cpp,
+	Qb/Plugins/Frei0r/src/frei0relement.cpp,
+	Qb/Plugins/Matrix/src/matrixelement.cpp,
+	Qb/Plugins/MultiSink/include/option.h,
+	Qb/Plugins/MultiSink/include/optionparser.h,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/option.cpp,
+	Qb/Plugins/MultiSink/src/optionparser.cpp,
+	Qb/Plugins/MultiSrc/include/audiostream.h,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp,
+	Qb/Plugins/Multiplex/src/multiplexelement.cpp,
+	Qb/Plugins/Probe/src/probeelement.cpp,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/include/qbpacket.h,
+	Qb/src/qbpacket.cpp, src/mediatools.cpp: Removed DTS property in
+	QbPacket. Fixed Multiplex.
+
+2013-05-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/src/syncelement.cpp, Qb/commons.pri, README.md,
+	commons.pri, src/mediatools.cpp: Some updates and fixes.
+
+2013-05-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/sleep.h,
+	Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/src/sleep.cpp, Qb/Plugins/Sync/src/syncelement.cpp,
+	src/mediatools.cpp: Added non-queued sync.
+
+2013-05-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Aging/src/agingelement.cpp,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/Filter/src/filterelement.cpp,
+	Qb/Plugins/Fire/src/fireelement.cpp,
+	Qb/Plugins/Frei0r/src/frei0relement.cpp,
+	Qb/Plugins/Matrix/src/matrixelement.cpp,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp, Qb/Plugins/Sync/Sync.pro,
+	Qb/Plugins/Sync/include/sleep.h,
+	Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/include/worker.h, Qb/Plugins/Sync/src/sleep.cpp,
+	Qb/Plugins/Sync/src/syncelement.cpp,
+	Qb/Plugins/Sync/src/worker.cpp,
+	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/include/qbelement.h,
+	Qb/src/qb.cpp, Qb/src/qbelement.cpp, src/mediatools.cpp: Fixed video
+	sync.
+
+2013-04-17  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	Qb/Plugins/Bin/parser/parser.y, Qb/Plugins/Bin/src/binelement.cpp,
+	Qb/Plugins/Filter/src/filterelement.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/Probe/src/probeelement.cpp,
+	Qb/Plugins/Sync/src/worker.cpp,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	Qb/src/qbcaps.cpp, src/mainwidget.cpp, src/mediatools.cpp: Fixed
+	Sync and some bugs.
+
+2013-04-16  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Effects.qrc, Lib.pro,
+	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	Qb/Plugins/Aging/include/agingelement.h,
+	Qb/Plugins/Aging/src/agingelement.cpp, Qb/Plugins/Bin/Bin.pro,
+	Qb/Plugins/Bin/parser/lexer.l,
+	Qb/Plugins/Blitzer/include/blitzerelement.h,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/Filter/include/filterelement.h,
+	Qb/Plugins/Filter/src/filterelement.cpp,
+	Qb/Plugins/Fire/include/fireelement.h,
+	Qb/Plugins/Fire/src/fireelement.cpp,
+	Qb/Plugins/Frei0r/src/frei0relement.cpp,
+	Qb/Plugins/Matrix/include/matrixelement.h,
+	Qb/Plugins/Matrix/src/matrixelement.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSrc/include/audiostream.h,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp,
+	Qb/Plugins/Probe/src/probeelement.cpp,
+	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
+	Qb/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/packetinfo.h,
+	Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/include/worker.h,
+	Qb/Plugins/Sync/src/packetinfo.cpp,
+	Qb/Plugins/Sync/src/syncelement.cpp,
+	Qb/Plugins/Sync/src/worker.cpp,
+	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	Qb/Plugins/Warhol/include/warholelement.h,
+	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/commons.pri,
+	Qb/include/qbelement.h, Qb/include/qbpacket.h,
+	Qb/src/qbelement.cpp, Qb/src/qbpacket.cpp, README.md,
+	Webcamoid.qrc, commons.pri, include/mainwidget.h,
+	include/mediatools.h, share/effects.xml, share/ts/ca.ts,
+	share/ts/de.ts, share/ts/el.ts, share/ts/es.ts, share/ts/fr.ts,
+	share/ts/gl.ts, share/ts/it.ts, share/ts/ja.ts, share/ts/ko.ts,
+	share/ts/pt.ts, share/ts/ru.ts, share/ts/zh_CN.ts,
+	share/ts/zh_TW.ts, src/appenvironment.cpp, src/mainwidget.cpp,
+	src/mediatools.cpp: Fixed memory leaks and segfaults. Updated
+	translations.
+
+2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/ACapsConvert/ACapsConvert.pro,
+	Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Bin/Bin.pro,
+	Qb/Plugins/Blitzer/Blitzer.pro, Qb/Plugins/Filter/Filter.pro,
+	Qb/Plugins/Fire/Fire.pro, Qb/Plugins/Frei0r/Frei0r.pro,
+	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSrc/MultiSrc.pro,
+	Qb/Plugins/Multiplex/Multiplex.pro, Qb/Plugins/Probe/Probe.pro,
+	Qb/Plugins/QImageConvert/QImageConvert.pro,
+	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/VCapsConvert/VCapsConvert.pro,
+	Qb/Plugins/Warhol/Warhol.pro, Qb/commons.pri, Qb/src/qb.cpp,
+	Qb/src/qbapplication.cpp, README.md, src/mediatools.cpp: Fixed
+	install, again :P
+
+2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/src/qbapplication.cpp: Fixed plugins path.
+
+2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Qb.qdocconf: Added Qb/Qb.qdocconf.
+
+2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, Qb/Lib.pro, Qb/Qb.pro, README.md, Webcamoid.pro: Fixed
+	install. updated README.
+
+2013-04-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Lib.pro, Qb/3dparty/ffmpeg/ffmpeg.pro,
+	Qb/3dparty/ffmpeg/ffmpeg.sh,
+	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
+	Qb/Plugins/Filter/Filter.pro, Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSrc/MultiSrc.pro,
+	Qb/Plugins/VCapsConvert/VCapsConvert.pro, README.md: Switched to
+	in-house FFmpeg. Updated README. Ready for merge :)
+
+2013-04-04  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/3dparty/3dparty.pro,
+	Qb/Plugins/ACapsConvert/include/acapsconvert.h,
+	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	Qb/Plugins/Aging/include/aging.h,
+	Qb/Plugins/Aging/include/agingelement.h,
+	Qb/Plugins/Bin/include/bin.h, Qb/Plugins/Bin/include/binelement.h,
+	Qb/Plugins/Bin/include/pipeline.h,
+	Qb/Plugins/Blitzer/include/blitzer.h,
+	Qb/Plugins/Blitzer/include/blitzerelement.h,
+	Qb/Plugins/Filter/include/filter.h,
+	Qb/Plugins/Filter/include/filterelement.h,
+	Qb/Plugins/Fire/Fire.pro, Qb/Plugins/Fire/include/fire.h,
+	Qb/Plugins/Fire/include/fireelement.h,
+	Qb/Plugins/Fire/src/fire.cpp, Qb/Plugins/Fire/src/fireelement.cpp,
+	Qb/Plugins/Frei0r/include/frei0r.h,
+	Qb/Plugins/Frei0r/include/frei0relement.h,
+	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/Matrix/Matrix.qrc,
+	Qb/Plugins/Matrix/include/blip.h,
+	Qb/Plugins/Matrix/include/matrix.h,
+	Qb/Plugins/Matrix/include/matrixelement.h,
+	Qb/Plugins/Matrix/share/matrixFont.xpm,
+	Qb/Plugins/Matrix/src/blip.cpp, Qb/Plugins/Matrix/src/matrix.cpp,
+	Qb/Plugins/Matrix/src/matrixelement.cpp,
+	Qb/Plugins/MultiSink/include/multisink.h,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSrc/include/abstractstream.h,
+	Qb/Plugins/MultiSrc/include/audiostream.h,
+	Qb/Plugins/MultiSrc/include/multisrc.h,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp,
+	Qb/Plugins/Multiplex/include/multiplex.h,
+	Qb/Plugins/Multiplex/include/multiplexelement.h,
+	Qb/Plugins/Probe/include/probe.h,
+	Qb/Plugins/Probe/include/probeelement.h,
+	Qb/Plugins/QImageConvert/include/qimageconvert.h,
+	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
+	Qb/Plugins/Sync/include/packetinfo.h,
+	Qb/Plugins/Sync/include/sync.h,
+	Qb/Plugins/VCapsConvert/include/vcapsconvert.h,
+	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	Qb/Plugins/Warhol/Warhol.pro, Qb/Plugins/Warhol/include/warhol.h,
+	Qb/Plugins/Warhol/include/warholelement.h,
+	Qb/Plugins/Warhol/src/warhol.cpp,
+	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/Qb.pro,
+	share/effects.xml, src/mediatools.cpp: Fixed memory leak. Added 3
+	new Effects.
+
+2013-03-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Aging/include/aging.h,
+	Qb/Plugins/Aging/include/agingelement.h,
+	Qb/Plugins/Aging/include/scratch.h, Qb/Plugins/Aging/src/aging.cpp,
+	Qb/Plugins/Aging/src/agingelement.cpp,
+	Qb/Plugins/Aging/src/scratch.cpp, Qb/Plugins/Bin/parser/parser.y,
+	Qb/Plugins/Bin/src/pipeline.cpp,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/Frei0r/src/frei0relement.cpp,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp,
+	Qb/Plugins/Sync/include/packetinfo.h,
+	Qb/Plugins/Sync/include/worker.h,
+	Qb/Plugins/Sync/src/packetinfo.cpp,
+	Qb/Plugins/Sync/src/syncelement.cpp,
+	Qb/Plugins/Sync/src/worker.cpp,
+	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	Qb/commons.pri, Qb/include/qbapplication.h, Qb/include/qbcaps.h,
+	Qb/include/qbfrac.h, Qb/include/qbpacket.h,
+	Qb/src/qbapplication.cpp, Qb/src/qbcaps.cpp, Qb/src/qbfrac.cpp,
+	Qb/src/qbpacket.cpp, commons.pri, include/effects.h,
+	include/generalconfig.h, include/mainwidget.h,
+	include/mediatools.h, include/plasmoid.h, include/streamsconfig.h,
+	include/videorecordconfig.h, include/webcamconfig.h,
+	share/effects.xml, share/ui/generalconfig.ui,
+	share/ui/streamsconfig.ui, share/ui/videorecordconfig.ui,
+	src/effects.cpp, src/generalconfig.cpp, src/mainwidget.cpp,
+	src/mediatools.cpp, src/plasmoid.cpp, src/streamsconfig.cpp,
+	src/videorecordconfig.cpp, src/webcamconfig.cpp: The new pipeline
+	system based in Qb is working very well, as expected.
+
+2013-03-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Effects.qrc, Lib.pro, Plasmoid.pro, Qb/Lib.pro,
+	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
+	Qb/Plugins/ACapsConvert/include/acapsconvert.h,
+	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	Qb/Plugins/ACapsConvert/src/acapsconvert.cpp,
+	Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	Qb/Plugins/Bin/Bin.pro, Qb/Plugins/Bin/include/bin.h,
+	Qb/Plugins/Bin/include/binelement.h,
+	Qb/Plugins/Bin/include/pipeline.h, Qb/Plugins/Bin/parser/lexer.l,
+	Qb/Plugins/Bin/parser/parser.y, Qb/Plugins/Bin/src/bin.cpp,
+	Qb/Plugins/Bin/src/binelement.cpp, Qb/Plugins/Bin/src/pipeline.cpp,
+	Qb/Plugins/Blitzer/Blitzer.pro,
+	Qb/Plugins/Blitzer/include/blitzer.h,
+	Qb/Plugins/Blitzer/include/blitzerelement.h,
+	Qb/Plugins/Blitzer/src/blitzer.cpp,
+	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
+	Qb/Plugins/Filter/Filter.pro, Qb/Plugins/Filter/include/filter.h,
+	Qb/Plugins/Filter/include/filterelement.h,
+	Qb/Plugins/Filter/src/filter.cpp,
+	Qb/Plugins/Filter/src/filterelement.cpp,
+	Qb/Plugins/Frei0r/Frei0r.pro, Qb/Plugins/Frei0r/include/frei0r.h,
+	Qb/Plugins/Frei0r/include/frei0rdefs.h,
+	Qb/Plugins/Frei0r/include/frei0relement.h,
+	Qb/Plugins/Frei0r/src/frei0r.cpp,
+	Qb/Plugins/Frei0r/src/frei0relement.cpp,
+	Qb/Plugins/MultiSink/MultiSink.pro,
+	Qb/Plugins/MultiSink/include/multisink.h,
+	Qb/Plugins/MultiSink/include/multisinkelement.h,
+	Qb/Plugins/MultiSink/include/option.h,
+	Qb/Plugins/MultiSink/include/optionparser.h,
+	Qb/Plugins/MultiSink/src/multisink.cpp,
+	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
+	Qb/Plugins/MultiSink/src/option.cpp,
+	Qb/Plugins/MultiSink/src/optionparser.cpp,
+	Qb/Plugins/MultiSrc/MultiSrc.pro,
+	Qb/Plugins/MultiSrc/include/abstractstream.h,
+	Qb/Plugins/MultiSrc/include/audiostream.h,
+	Qb/Plugins/MultiSrc/include/multisrc.h,
+	Qb/Plugins/MultiSrc/include/multisrcelement.h,
+	Qb/Plugins/MultiSrc/include/videostream.h,
+	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
+	Qb/Plugins/MultiSrc/src/audiostream.cpp,
+	Qb/Plugins/MultiSrc/src/multisrc.cpp,
+	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
+	Qb/Plugins/MultiSrc/src/videostream.cpp,
+	Qb/Plugins/Multiplex/Multiplex.pro,
+	Qb/Plugins/Multiplex/include/multiplex.h,
+	Qb/Plugins/Multiplex/include/multiplexelement.h,
+	Qb/Plugins/Multiplex/src/multiplex.cpp,
+	Qb/Plugins/Multiplex/src/multiplexelement.cpp,
+	Qb/Plugins/Plugins.pro, Qb/Plugins/Probe/Probe.pro,
+	Qb/Plugins/Probe/include/probe.h,
+	Qb/Plugins/Probe/include/probeelement.h,
+	Qb/Plugins/Probe/src/probe.cpp,
+	Qb/Plugins/Probe/src/probeelement.cpp,
+	Qb/Plugins/QImageConvert/QImageConvert.pro,
+	Qb/Plugins/QImageConvert/include/qimageconvert.h,
+	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
+	Qb/Plugins/QImageConvert/src/qimageconvert.cpp,
+	Qb/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/packetinfo.h,
+	Qb/Plugins/Sync/include/sleep.h, Qb/Plugins/Sync/include/sync.h,
+	Qb/Plugins/Sync/include/syncelement.h,
+	Qb/Plugins/Sync/include/worker.h,
+	Qb/Plugins/Sync/src/packetinfo.cpp, Qb/Plugins/Sync/src/sleep.cpp,
+	Qb/Plugins/Sync/src/sync.cpp, Qb/Plugins/Sync/src/syncelement.cpp,
+	Qb/Plugins/Sync/src/worker.cpp,
+	Qb/Plugins/VCapsConvert/VCapsConvert.pro,
+	Qb/Plugins/VCapsConvert/include/vcapsconvert.h,
+	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	Qb/Plugins/VCapsConvert/src/vcapsconvert.cpp,
+	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp, Qb/Qb.pro,
+	Qb/commons.pri, Qb/include/qb.h, Qb/include/qbapplication.h,
+	Qb/include/qbcaps.h, Qb/include/qbelement.h, Qb/include/qbfrac.h,
+	Qb/include/qbpacket.h, Qb/include/qbplugin.h, Qb/src/qb.cpp,
+	Qb/src/qbapplication.cpp, Qb/src/qbcaps.cpp, Qb/src/qbelement.cpp,
+	Qb/src/qbfrac.cpp, Qb/src/qbpacket.cpp, StandAlone.pro,
+	Webcamoid.pro, commons.pri, include/featuresinfo.h,
+	include/mainwidget.h, include/mediatools.h, include/qb.h,
+	include/qbapplication.h, include/qbcaps.h, include/qbelement.h,
+	include/qbfrac.h, include/qbpacket.h, include/qbplugin.h,
+	share/Plugins/ACapsConvert/ACapsConvert.pro,
+	share/Plugins/ACapsConvert/include/acapsconvert.h,
+	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	share/Plugins/ACapsConvert/src/acapsconvert.cpp,
+	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	share/Plugins/Bin/Bin.pro, share/Plugins/Bin/include/bin.h,
+	share/Plugins/Bin/include/binelement.h,
+	share/Plugins/Bin/include/pipeline.h,
+	share/Plugins/Bin/parser/lexer.l,
+	share/Plugins/Bin/parser/parser.y, share/Plugins/Bin/src/bin.cpp,
+	share/Plugins/Bin/src/binelement.cpp,
+	share/Plugins/Bin/src/pipeline.cpp,
+	share/Plugins/Blitzer/Blitzer.pro,
+	share/Plugins/Blitzer/include/blitzer.h,
+	share/Plugins/Blitzer/include/blitzerelement.h,
+	share/Plugins/Blitzer/src/blitzer.cpp,
+	share/Plugins/Blitzer/src/blitzerelement.cpp,
+	share/Plugins/Frei0r/Frei0r.pro,
+	share/Plugins/Frei0r/include/frei0r.h,
+	share/Plugins/Frei0r/include/frei0rdefs.h,
+	share/Plugins/Frei0r/include/frei0relement.h,
+	share/Plugins/Frei0r/src/frei0r.cpp,
+	share/Plugins/Frei0r/src/frei0relement.cpp,
+	share/Plugins/MultiSink/MultiSink.pro,
+	share/Plugins/MultiSink/include/multisink.h,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/include/option.h,
+	share/Plugins/MultiSink/include/optionparser.h,
+	share/Plugins/MultiSink/src/multisink.cpp,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/MultiSink/src/option.cpp,
+	share/Plugins/MultiSink/src/optionparser.cpp,
+	share/Plugins/MultiSrc/MultiSrc.pro,
+	share/Plugins/MultiSrc/include/abstractstream.h,
+	share/Plugins/MultiSrc/include/audiostream.h,
+	share/Plugins/MultiSrc/include/multisrc.h,
+	share/Plugins/MultiSrc/include/multisrcelement.h,
+	share/Plugins/MultiSrc/include/videostream.h,
+	share/Plugins/MultiSrc/src/abstractstream.cpp,
+	share/Plugins/MultiSrc/src/audiostream.cpp,
+	share/Plugins/MultiSrc/src/multisrc.cpp,
+	share/Plugins/MultiSrc/src/multisrcelement.cpp,
+	share/Plugins/MultiSrc/src/videostream.cpp,
+	share/Plugins/Multiplex/Multiplex.pro,
+	share/Plugins/Multiplex/include/multiplex.h,
+	share/Plugins/Multiplex/include/multiplexelement.h,
+	share/Plugins/Multiplex/src/multiplex.cpp,
+	share/Plugins/Multiplex/src/multiplexelement.cpp,
+	share/Plugins/Plugins.pro,
+	share/Plugins/QImageConvert/QImageConvert.pro,
+	share/Plugins/QImageConvert/include/qimageconvert.h,
+	share/Plugins/QImageConvert/include/qimageconvertelement.h,
+	share/Plugins/QImageConvert/src/qimageconvert.cpp,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	share/Plugins/Sync/Sync.pro,
+	share/Plugins/Sync/include/packetinfo.h,
+	share/Plugins/Sync/include/sleep.h,
+	share/Plugins/Sync/include/sync.h,
+	share/Plugins/Sync/include/syncelement.h,
+	share/Plugins/Sync/include/worker.h,
+	share/Plugins/Sync/src/packetinfo.cpp,
+	share/Plugins/Sync/src/sleep.cpp, share/Plugins/Sync/src/sync.cpp,
+	share/Plugins/Sync/src/syncelement.cpp,
+	share/Plugins/Sync/src/worker.cpp,
+	share/Plugins/VCapsConvert/VCapsConvert.pro,
+	share/Plugins/VCapsConvert/include/vcapsconvert.h,
+	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	share/Plugins/VCapsConvert/src/vcapsconvert.cpp,
+	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	share/Plugins/VFilter/VFilter.pro,
+	share/Plugins/VFilter/include/vfilter.h,
+	share/Plugins/VFilter/include/vfilterelement.h,
+	share/Plugins/VFilter/src/vfilter.cpp,
+	share/Plugins/VFilter/src/vfilterelement.cpp, share/effects.xml,
+	share/ui/featuresinfo.ui, src/featuresinfo.cpp, src/main.cpp,
+	src/mainwidget.cpp, src/mediatools.cpp, src/plasmoid.cpp,
+	src/qb.cpp, src/qbapplication.cpp, src/qbcaps.cpp,
+	src/qbelement.cpp, src/qbfrac.cpp, src/qbpacket.cpp,
+	src/videorecordconfig.cpp: Webcamoid and Qt splited. Plasmoid and
+	Stand alene ported to Qb.
+
+2013-03-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* include/qb.h, include/qbcaps.h, include/qbelement.h,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/Multiplex/Multiplex.pro,
+	share/Plugins/Multiplex/include/multiplex.h,
+	share/Plugins/Multiplex/include/multiplexelement.h,
+	share/Plugins/Multiplex/src/multiplex.cpp,
+	share/Plugins/Multiplex/src/multiplexelement.cpp,
+	share/Plugins/Plugins.pro, share/Plugins/Sync/Sync.pro,
+	share/Plugins/Sync/include/packetinfo.h,
+	share/Plugins/Sync/include/sleep.h,
+	share/Plugins/Sync/include/sync.h,
+	share/Plugins/Sync/include/syncelement.h,
+	share/Plugins/Sync/include/worker.h,
+	share/Plugins/Sync/src/packetinfo.cpp,
+	share/Plugins/Sync/src/sleep.cpp, share/Plugins/Sync/src/sync.cpp,
+	share/Plugins/Sync/src/syncelement.cpp,
+	share/Plugins/Sync/src/worker.cpp, src/qb.cpp, src/qbcaps.cpp,
+	src/qbfrac.cpp, src/qbpacket.cpp: Added a Multiplexer and a Sync
+	element.
+
+2013-03-11  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* share/Plugins/Blitzer/Blitzer.pro,
+	share/Plugins/Blitzer/include/blitzer.h,
+	share/Plugins/Blitzer/include/blitzerelement.h,
+	share/Plugins/Blitzer/src/blitzer.cpp,
+	share/Plugins/Blitzer/src/blitzerelement.cpp,
+	share/Plugins/ImgMagick/ImgMagick.pro,
+	share/Plugins/ImgMagick/include/imgmagick.h,
+	share/Plugins/ImgMagick/include/imgmagickelement.h,
+	share/Plugins/ImgMagick/src/imgmagick.cpp,
+	share/Plugins/ImgMagick/src/imgmagickelement.cpp,
+	share/Plugins/Plugins.pro,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp: Image
+	Magick was replaced by QImageBlitz.
+
+2013-03-09  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* share/Plugins/Bin/include/binelement.h,
+	share/Plugins/Bin/src/binelement.cpp,
+	share/Plugins/ImgMagick/ImgMagick.pro,
+	share/Plugins/ImgMagick/include/imgmagick.h,
+	share/Plugins/ImgMagick/include/imgmagickelement.h,
+	share/Plugins/ImgMagick/src/imgmagick.cpp,
+	share/Plugins/ImgMagick/src/imgmagickelement.cpp,
+	share/Plugins/Plugins.pro: Working in the Image Magick plugin.
+
+2013-03-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* share/Plugins/Bin/Bin.pro,
+	share/Plugins/Bin/include/binelement.h,
+	share/Plugins/Bin/include/pipeline.h,
+	share/Plugins/Bin/parser/lexer.l,
+	share/Plugins/Bin/parser/parser.y,
+	share/Plugins/Bin/src/binelement.cpp,
+	share/Plugins/Bin/src/pipeline.cpp, src/qb.cpp: Bin element working
+	very well.
+
+2013-03-02  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, share/Plugins/Bin/Bin.pro,
+	share/Plugins/Bin/include/bin.h,
+	share/Plugins/Bin/include/binelement.h,
+	share/Plugins/Bin/parser/lexer.l,
+	share/Plugins/Bin/parser/parser.y, share/Plugins/Bin/src/bin.cpp,
+	share/Plugins/Bin/src/binelement.cpp,
+	share/Plugins/EffectsBin/EffectsBin.pro,
+	share/Plugins/EffectsBin/include/effectsbin.h,
+	share/Plugins/EffectsBin/include/effectsbinelement.h,
+	share/Plugins/EffectsBin/src/effectsbin.cpp,
+	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
+	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbin.h,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbin.cpp,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
+	share/Plugins/Plugins.pro: Removed old GStreamer based plugins.
+	Added Bin element.
+
+2013-02-19  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	share/Plugins/Frei0r/include/frei0relement.h,
+	share/Plugins/Frei0r/src/frei0relement.cpp: Frei0r plugins ready.
+
+2013-02-16  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* include/qbelement.h,
+	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	share/Plugins/Frei0r/include/frei0rdefs.h,
+	share/Plugins/Frei0r/include/frei0relement.h,
+	share/Plugins/Frei0r/src/frei0relement.cpp,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/MultiSrc/include/abstractstream.h,
+	share/Plugins/MultiSrc/include/audiostream.h,
+	share/Plugins/MultiSrc/include/multisrcelement.h,
+	share/Plugins/MultiSrc/include/videostream.h,
+	share/Plugins/MultiSrc/src/abstractstream.cpp,
+	share/Plugins/MultiSrc/src/audiostream.cpp,
+	share/Plugins/MultiSrc/src/multisrcelement.cpp,
+	share/Plugins/MultiSrc/src/videostream.cpp,
+	share/Plugins/QImageConvert/include/qimageconvertelement.h,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	share/Plugins/VFilter/include/vfilterelement.h,
+	share/Plugins/VFilter/src/vfilterelement.cpp, src/qbelement.cpp: 
+	Switched to FFmpeg stream format (more pixel and sample formats are
+	supported). Frei0r plugin mostly finished.
+
+2013-02-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, include/mediatools.h, include/qb.h,
+	include/qbapplication.h, include/qbelement.h, include/qbpipeline.h,
+	include/qbpluginloader.h,
+	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	share/Plugins/Frei0r/Frei0r.pro,
+	share/Plugins/Frei0r/include/frei0r.h,
+	share/Plugins/Frei0r/include/frei0rdefs.h,
+	share/Plugins/Frei0r/include/frei0relement.h,
+	share/Plugins/Frei0r/src/frei0r.cpp,
+	share/Plugins/Frei0r/src/frei0relement.cpp,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/Plugins.pro,
+	share/Plugins/QImageConvert/include/qimageconvertelement.h,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	src/mediatools.cpp, src/qb.cpp, src/qbapplication.cpp,
+	src/qbelement.cpp, src/qbpipeline.cpp, src/qbpluginloader.cpp: 
+	Plugin system enhancements. Working in Frei0r plugins.
+
+2013-02-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* include/qbcaps.h, include/qbelement.h, include/qbfrac.h,
+	include/qbpacket.h,
+	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/MultiSrc/include/abstractstream.h,
+	share/Plugins/MultiSrc/include/audiostream.h,
+	share/Plugins/MultiSrc/include/multisrcelement.h,
+	share/Plugins/MultiSrc/include/videostream.h,
+	share/Plugins/MultiSrc/src/abstractstream.cpp,
+	share/Plugins/MultiSrc/src/audiostream.cpp,
+	share/Plugins/MultiSrc/src/multisrcelement.cpp,
+	share/Plugins/MultiSrc/src/videostream.cpp,
+	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	share/Plugins/VFilter/include/vfilterelement.h,
+	share/Plugins/VFilter/src/vfilterelement.cpp, src/qbcaps.cpp,
+	src/qbelement.cpp, src/qbfrac.cpp, src/qbpacket.cpp: Crap sound, but
+	video record working :D
+
+2013-02-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, include/qbcaps.h, include/qbelement.h, include/qbfrac.h,
+	include/qbpipeline.h, share/Plugins/ACapsConvert/ACapsConvert.pro,
+	share/Plugins/ACapsConvert/include/acapsconvert.h,
+	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
+	share/Plugins/ACapsConvert/src/acapsconvert.cpp,
+	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/MultiSrc/include/audiostream.h,
+	share/Plugins/MultiSrc/include/videostream.h,
+	share/Plugins/MultiSrc/src/audiostream.cpp,
+	share/Plugins/MultiSrc/src/videostream.cpp,
+	share/Plugins/Plugins.pro,
+	share/Plugins/QImageConvert/include/qimageconvertelement.h,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	share/Plugins/VFilter/include/vfilterelement.h,
+	share/Plugins/VFilter/src/vfilterelement.cpp, src/mediatools.cpp,
+	src/qbelement.cpp, src/qbfrac.cpp, src/qbpipeline.cpp: Added
+	ACapsConvert. Simplified Element linking. Working on audio record.
+
+2013-01-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, include/qbcaps.h, include/qbelement.h,
+	include/qbpacket.h, include/qbpipeline.h, include/qbpluginloader.h,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/MultiSink/src/option.cpp, share/Plugins/Plugins.pro,
+	share/Plugins/QImageConvert/QImageConvert.pro,
+	share/Plugins/QImageConvert/include/qimageconvertelement.h,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	share/Plugins/VCapsConvert/VCapsConvert.pro,
+	share/Plugins/VCapsConvert/include/vcapsconvert.h,
+	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
+	share/Plugins/VCapsConvert/src/vcapsconvert.cpp,
+	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
+	share/Plugins/VFilter/VFilter.pro,
+	share/Plugins/VFilter/include/vfilter.h,
+	share/Plugins/VFilter/include/vfilterelement.h,
+	share/Plugins/VFilter/src/vfilter.cpp,
+	share/Plugins/VFilter/src/vfilterelement.cpp, src/mediatools.cpp,
+	src/qbpipeline.cpp, src/qbpluginloader.cpp: MultiSink and pipeline
+	system reworked.
+
+2013-01-17  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Webcamoid.pro, share/Plugins/DesktopSrc/DesktopSrc.pro,
+	share/Plugins/DesktopSrc/include/desktopsrc.h,
+	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
+	share/Plugins/DesktopSrc/src/desktopsrc.cpp,
+	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
+	share/Plugins/MultiSink/MultiSink.pro,
+	share/Plugins/MultiSink/include/multisink.h,
+	share/Plugins/MultiSink/include/multisinkelement.h,
+	share/Plugins/MultiSink/include/option.h,
+	share/Plugins/MultiSink/include/optionparser.h,
+	share/Plugins/MultiSink/src/multisink.cpp,
+	share/Plugins/MultiSink/src/multisinkelement.cpp,
+	share/Plugins/MultiSink/src/option.cpp,
+	share/Plugins/MultiSink/src/optionparser.cpp,
+	share/Plugins/MultiSrc/MultiSrc.pro,
+	share/Plugins/MultiSrc/include/abstractstream.h,
+	share/Plugins/MultiSrc/include/audiostream.h,
+	share/Plugins/MultiSrc/include/multisrc.h,
+	share/Plugins/MultiSrc/include/multisrcelement.h,
+	share/Plugins/MultiSrc/include/videostream.h,
+	share/Plugins/MultiSrc/src/abstractstream.cpp,
+	share/Plugins/MultiSrc/src/audiostream.cpp,
+	share/Plugins/MultiSrc/src/multisrc.cpp,
+	share/Plugins/MultiSrc/src/multisrcelement.cpp,
+	share/Plugins/MultiSrc/src/videostream.cpp,
+	share/Plugins/Plugins.pro, share/Plugins/RecordBin/RecordBin.pro,
+	share/Plugins/RecordBin/include/recordbin.h,
+	share/Plugins/RecordBin/include/recordbinelement.h,
+	share/Plugins/RecordBin/src/recordbin.cpp,
+	share/Plugins/RecordBin/src/recordbinelement.cpp,
+	share/Plugins/UriSrc/UriSrc.pro,
+	share/Plugins/UriSrc/include/abstractstream.h,
+	share/Plugins/UriSrc/include/audiostream.h,
+	share/Plugins/UriSrc/include/urisrc.h,
+	share/Plugins/UriSrc/include/urisrcelement.h,
+	share/Plugins/UriSrc/include/videostream.h,
+	share/Plugins/UriSrc/src/abstractstream.cpp,
+	share/Plugins/UriSrc/src/audiostream.cpp,
+	share/Plugins/UriSrc/src/urisrc.cpp,
+	share/Plugins/UriSrc/src/urisrcelement.cpp,
+	share/Plugins/UriSrc/src/videostream.cpp,
+	share/Plugins/WebcamSrc/WebcamSrc.pro,
+	share/Plugins/WebcamSrc/include/webcamsrc.h,
+	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
+	share/Plugins/WebcamSrc/src/webcamsrc.cpp,
+	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp: MultiSrc ready.
+	Working in MultiSink.
+
+2013-01-12  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, include/qbcaps.h, include/qbelement.h,
+	include/qbpacket.h, include/qbplugin.h,
+	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
+	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
+	share/Plugins/EffectsBin/include/effectsbinelement.h,
+	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
+	share/Plugins/Plugins.pro,
+	share/Plugins/QImageConvert/QImageConvert.pro,
+	share/Plugins/QImageConvert/include/qimageconvert.h,
+	share/Plugins/QImageConvert/include/qimageconvertelement.h,
+	share/Plugins/QImageConvert/src/qimageconvert.cpp,
+	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
+	share/Plugins/RecordBin/include/recordbinelement.h,
+	share/Plugins/RecordBin/src/recordbinelement.cpp,
+	share/Plugins/UriSrc/UriSrc.pro,
+	share/Plugins/UriSrc/include/abstractstream.h,
+	share/Plugins/UriSrc/include/audiostream.h,
+	share/Plugins/UriSrc/include/urisrcelement.h,
+	share/Plugins/UriSrc/include/videostream.h,
+	share/Plugins/UriSrc/src/abstractstream.cpp,
+	share/Plugins/UriSrc/src/audiostream.cpp,
+	share/Plugins/UriSrc/src/urisrcelement.cpp,
+	share/Plugins/UriSrc/src/videostream.cpp,
+	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
+	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp, src/main.cpp,
+	src/mediatools.cpp, src/qbcaps.cpp, src/qbelement.cpp,
+	src/qbpacket.cpp: Many improvements to the pipeline system. Now
+	UriSrc can handle any type of source.
+
+2013-01-07  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, include/baseelement.h, include/element.h,
+	include/mediatools.h, include/plugin.h, include/qbcaps.h,
+	include/qbelement.h, include/qbpacket.h, include/qbpipeline.h,
+	include/qbplugin.h, share/Plugins/DesktopSrc/DesktopSrc.pro,
+	share/Plugins/DesktopSrc/include/desktopsrc.h,
+	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
+	share/Plugins/DesktopSrc/src/desktopsrc.cpp,
+	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
+	share/Plugins/EffectsBin/EffectsBin.pro,
+	share/Plugins/EffectsBin/include/effectsbin.h,
+	share/Plugins/EffectsBin/include/effectsbinelement.h,
+	share/Plugins/EffectsBin/src/effectsbin.cpp,
+	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
+	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbin.h,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbin.cpp,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
+	share/Plugins/RecordBin/RecordBin.pro,
+	share/Plugins/RecordBin/include/recordbin.h,
+	share/Plugins/RecordBin/include/recordbinelement.h,
+	share/Plugins/RecordBin/src/recordbin.cpp,
+	share/Plugins/RecordBin/src/recordbinelement.cpp,
+	share/Plugins/UriSrc/UriSrc.pro,
+	share/Plugins/UriSrc/include/abstractstream.h,
+	share/Plugins/UriSrc/include/urisrc.h,
+	share/Plugins/UriSrc/include/urisrcelement.h,
+	share/Plugins/UriSrc/include/videostream.h,
+	share/Plugins/UriSrc/src/abstractstream.cpp,
+	share/Plugins/UriSrc/src/urisrc.cpp,
+	share/Plugins/UriSrc/src/urisrcelement.cpp,
+	share/Plugins/UriSrc/src/videostream.cpp,
+	share/Plugins/WebcamSrc/WebcamSrc.pro,
+	share/Plugins/WebcamSrc/include/webcamsrc.h,
+	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
+	share/Plugins/WebcamSrc/src/webcamsrc.cpp,
+	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp,
+	src/baseelement.cpp, src/mainwidget.cpp, src/mediatools.cpp,
+	src/qbcaps.cpp, src/qbpacket.cpp, src/qbpipeline.cpp: GStreamer 0.10
+	-> 1.0, IT'S HORRIBLE! preparing the transition to FFmpeg, hopefully
+	it will work better, huehuehue :)
+
+2012-12-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
+	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
+	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
+	share/Plugins/RecordBin/RecordBin.pro,
+	share/Plugins/RecordBin/include/recordbinelement.h,
+	share/Plugins/RecordBin/src/recordbinelement.cpp,
+	share/Plugins/UriSrc/UriSrc.pro,
+	share/Plugins/UriSrc/include/urisrcelement.h,
+	share/Plugins/UriSrc/src/urisrcelement.cpp,
+	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp: New plugin system
+	ready.
+
+2012-12-22  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* Lib.pro, StandAlone.pro, Webcamoid.pro, Webcamoid.qrc,
+	commons.pri, include/baseelement.h, include/element.h,
+	include/mediatools.h, include/plugin.h,
+	share/Plugins/DesktopSrc/DesktopSrc.pro,
+	share/Plugins/DesktopSrc/include/desktopsrc.h,
+	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
+	share/Plugins/DesktopSrc/src/desktopsrc.cpp,
+	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
+	share/Plugins/EffectsBin/EffectsBin.pro,
+	share/Plugins/EffectsBin/include/effectsbin.h,
+	share/Plugins/EffectsBin/include/effectsbinelement.h,
+	share/Plugins/EffectsBin/src/effectsbin.cpp,
+	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
+	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbin.h,
+	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbin.cpp,
+	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
+	share/Plugins/Plugins.pro, share/Plugins/RecordBin/RecordBin.pro,
+	share/Plugins/RecordBin/include/recordbin.h,
+	share/Plugins/RecordBin/include/recordbinelement.h,
+	share/Plugins/RecordBin/src/recordbin.cpp,
+	share/Plugins/RecordBin/src/recordbinelement.cpp,
+	share/Plugins/UriSrc/UriSrc.pro,
+	share/Plugins/UriSrc/include/urisrc.h,
+	share/Plugins/UriSrc/include/urisrcelement.h,
+	share/Plugins/UriSrc/src/urisrc.cpp,
+	share/Plugins/UriSrc/src/urisrcelement.cpp,
+	share/Plugins/WebcamSrc/WebcamSrc.pro,
+	share/Plugins/WebcamSrc/include/webcamsrc.h,
+	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
+	share/Plugins/WebcamSrc/src/webcamsrc.cpp,
+	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp,
+	src/appenvironment.cpp, src/baseelement.cpp, src/mainwidget.cpp,
+	src/mediatools.cpp: F*cking GStreamer, always a new problem DX<.
+	Implementing Carnival-LiveCam pipeline system in Webcamoid.
+
+2012-12-18  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* .gitignore, Plasmoid.pro, StandAlone.pro, TODO, Webcamoid.pro,
+	include/effects.h, include/featuresinfo.h, include/generalconfig.h,
+	include/mainwidget.h, include/mediatools.h,
+	include/streamsconfig.h, include/videorecordconfig.h,
+	include/webcamconfig.h, packagemap.xml, share/ui/streamsconfig.ui,
+	src/effects.cpp, src/featuresinfo.cpp, src/generalconfig.cpp,
+	src/mainwidget.cpp, src/mediatools.cpp, src/streamsconfig.cpp,
+	src/videorecordconfig.cpp, src/webcamconfig.cpp: Updated Packagemap.
+	Fixed some video recording bugs. Plasmoid and StandAlone linked are
+	to Lib.
+
+2012-12-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+
+	* ChangeLog, Lib.pro, Plasmoid.pro, StandAlone.pro, commons.pri,
+	include/mainwidget.h, include/mediatools.h,
+	plasma-applet-webcamoid.desktop, src/mainwidget.cpp,
+	src/mediatools.cpp, src/plasmoid.cpp: Added video recording.
+	Installer ready. Plasmoid bug fix. Removed translations. Now are
+	auto-generated at compile time.
+
 2012-12-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 	* .gitignore, Lib.pro, Plasmoid.pro, StandAlone.pro,
