@@ -19,8 +19,8 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef WEBCAMCONFIG_H
-#define WEBCAMCONFIG_H
+#ifndef CAMERACONFIG_H
+#define CAMERACONFIG_H
 
 #include <QtGui>
 
@@ -30,19 +30,19 @@
 
 namespace Ui
 {
-    class WebcamConfig;
+    class CameraConfig;
 }
 
-class COMMONSSHARED_EXPORT WebcamConfig: public QWidget
+class COMMONSSHARED_EXPORT CameraConfig: public QWidget
 {
     Q_OBJECT
 
     public:
-        explicit WebcamConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
-        ~WebcamConfig();
+        explicit CameraConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~CameraConfig();
 
     private:
-        QSharedPointer<Ui::WebcamConfig> ui;
+        QSharedPointer<Ui::CameraConfig> ui;
 
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
@@ -59,4 +59,4 @@ class COMMONSSHARED_EXPORT WebcamConfig: public QWidget
         void comboboxCurrentIndexChanged(int index);
 };
 
-#endif // WEBCAMCONFIG_H
+#endif // CAMERACONFIG_H

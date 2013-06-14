@@ -22,6 +22,9 @@
 #ifndef WEBCAMCONFIGELEMENT_H
 #define WEBCAMCONFIGELEMENT_H
 
+#include <sys/ioctl.h>
+#include <linux/videodev2.h>
+
 #include <qbelement.h>
 
 class WebcamConfigElement: public QbElement
@@ -36,22 +39,32 @@ class WebcamConfigElement: public QbElement
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
-        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size);
-        Q_INVOKABLE bool resetSize(const QString &webcam);
+        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size) const;
+        Q_INVOKABLE bool resetSize(const QString &webcam) const;
         Q_INVOKABLE QVariantList controls(const QString &webcam) const;
+        Q_INVOKABLE bool setControls(const QString &webcam, const QVariantMap &controls) const;
+        Q_INVOKABLE bool resetControls(const QString &webcam) const;
 
     private:
+        QStringList m_webcams;
+        QMap<v4l2_ctrl_type, QString> m_ctrlTypeToString;
+        QFileSystemWatcher *m_fsWatcher;
+
+        __u32 format(const QString &webcam, const QSize &size) const;
+        QVariantList queryControl(int handle, v4l2_queryctrl *queryctrl) const;
+        QMap<QString, uint> findControls(int handle) const;
 
     signals:
-        void webcamsChanged(const QStringList &webcams);
-        void sizeChanged(const QString &webcam, const QSize &size);
-        void controlsChanged(const QString &webcam, const QVariantMap &controls);
+        void webcamsChanged(const QStringList &webcams) const;
+        void sizeChanged(const QString &webcam, const QSize &size) const;
+        void controlsChanged(const QString &webcam, const QVariantMap &controls) const;
 
     public slots:
-        void setControls(const QString &webcam, const QVariantMap &controls);
-        void resetControls(const QString &webcam);
-        void reset(const QString &webcam);
-        void reset();
+        void reset(const QString &webcam) const;
+        void reset() const;
+
+    private slots:
+        void onDirectoryChanged(const QString &path);
 };
 
 #endif // WEBCAMCONFIGELEMENT_H

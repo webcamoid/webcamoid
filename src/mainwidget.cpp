@@ -95,7 +95,7 @@ void MainWidget::addWebcamConfigDialog(KConfigDialog *configDialog)
     if (!configDialog)
         return;
 
-    this->m_cfgWebcamDialog = new WebcamConfig(this->m_mediaTools, this);
+    this->m_cfgWebcamDialog = new CameraConfig(this->m_mediaTools, this);
 
     configDialog->addPage(this->m_cfgWebcamDialog,
                           this->tr("Webcam Settings"),

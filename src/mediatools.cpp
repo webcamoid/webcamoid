@@ -83,7 +83,8 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
-                            "audioSwitch. ! record.");
+                            "audioSwitch. ! record. ,"
+                            "WebcamConfig objectName='webcamConfig'");
 
         this->m_pipeline->setProperty("description", description);
 
@@ -118,6 +119,11 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                                   "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_record),
                                   Q_ARG(QString, "record"));
+
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QbElementPtr, this->m_webcamConfig),
+                                  Q_ARG(QString, "webcamConfig"));
 
         this->m_pipeline->link(this);
 

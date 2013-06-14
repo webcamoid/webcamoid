@@ -21,13 +21,13 @@
 
 #include <linux/videodev2.h>
 
-#include "ui_webcamconfig.h"
+#include "ui_cameraconfig.h"
 
-#include "webcamconfig.h"
+#include "cameraconfig.h"
 
-WebcamConfig::WebcamConfig(MediaTools *mediaTools, QWidget *parent):
+CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
     QWidget(parent),
-    ui(new Ui::WebcamConfig)
+    ui(new Ui::CameraConfig)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
@@ -227,11 +227,11 @@ WebcamConfig::WebcamConfig(MediaTools *mediaTools, QWidget *parent):
     this->ui->tabWebcams->setCurrentIndex(0);
 }
 
-WebcamConfig::~WebcamConfig()
+CameraConfig::~CameraConfig()
 {
 }
 
-void WebcamConfig::resetControls(QString deviceName)
+void CameraConfig::resetControls(QString deviceName)
 {
     foreach (QObject *children, this->findChildren<QObject *>())
     {
@@ -261,7 +261,7 @@ void WebcamConfig::resetControls(QString deviceName)
     }
 }
 
-void WebcamConfig::pushButtonClicked()
+void CameraConfig::pushButtonClicked()
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -278,7 +278,7 @@ void WebcamConfig::pushButtonClicked()
     }
 }
 
-void WebcamConfig::sliderMoved(int value)
+void CameraConfig::sliderMoved(int value)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -293,7 +293,7 @@ void WebcamConfig::sliderMoved(int value)
     }
 }
 
-void WebcamConfig::spinboxValueChanged(int i)
+void CameraConfig::spinboxValueChanged(int i)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -308,7 +308,7 @@ void WebcamConfig::spinboxValueChanged(int i)
     }
 }
 
-void WebcamConfig::checkboxToggled(bool checked)
+void CameraConfig::checkboxToggled(bool checked)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();
@@ -323,7 +323,7 @@ void WebcamConfig::checkboxToggled(bool checked)
     }
 }
 
-void WebcamConfig::comboboxCurrentIndexChanged(int index)
+void CameraConfig::comboboxCurrentIndexChanged(int index)
 {
     QObject *control = this->sender();
     QString deviceName = control->property("deviceName").toString();

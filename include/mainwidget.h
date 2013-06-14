@@ -32,7 +32,7 @@
 #include "streamsconfig.h"
 #include "mediatools.h"
 #include "videorecordconfig.h"
-#include "webcamconfig.h"
+#include "cameraconfig.h"
 
 namespace Ui
 {
@@ -57,7 +57,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         StreamsConfig *m_cfgStreams;
         MediaTools *m_mediaTools;
         VideoRecordConfig *m_cfgVideoFormats;
-        WebcamConfig *m_cfgWebcamDialog;
+        CameraConfig *m_cfgWebcamDialog;
 
         void showConfigDialog(KConfigDialog *configDialog=NULL);
         QString saveFile(bool video=false);

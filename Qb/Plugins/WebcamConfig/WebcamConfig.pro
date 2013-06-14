@@ -30,6 +30,8 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
+DEFINES += __STDC_CONSTANT_MACROS
+
 HEADERS += \
     include/webcamconfig.h \
     include/webcamconfigelement.h
@@ -49,6 +51,10 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += libv4l2
+
     INSTALLS += target
 
     target.path = $${LIBDIR}/$${COMMONS_TARGET}
