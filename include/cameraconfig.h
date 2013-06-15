@@ -46,7 +46,7 @@ class COMMONSSHARED_EXPORT CameraConfig: public QWidget
 
         AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
-        QVariantMap m_videoFormats;
+        QVariantMap m_videoSizes;
         bool m_resetting;
 
         void resetControls(QString deviceName);

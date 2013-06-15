@@ -19,15 +19,13 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <sys/ioctl.h>
 #include <QtXml>
 #include <KSharedConfig>
 #include <KConfigGroup>
-#include <linux/videodev2.h>
 
 #include "mediatools.h"
 
-MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
+MediaTools::MediaTools(QObject *parent): QObject(parent)
 {
     this->m_appEnvironment = new AppEnvironment(this);
 
@@ -37,7 +35,7 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                      SLOT(aboutToQuit()));
 
     this->resetDevice();
-    this->resetVideoFormat();
+    this->resetVideoSize("");
     this->resetEffectsPreview();
     this->resetPlayAudioFromSource();
     this->m_recordAudioFrom = RecordFromMic;
@@ -136,16 +134,12 @@ MediaTools::MediaTools(bool watchDevices, QObject *parent): QObject(parent)
                              this,
                              SIGNAL(error(QString)));
         }
-    }
 
-    if (watchDevices)
-    {
-        this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
-
-        QObject::connect(this->m_fsWatcher,
-                         SIGNAL(directoryChanged(const QString &)),
-                         this,
-                         SLOT(onDirectoryChanged(const QString &)));
+        if (this->m_webcamConfig)
+            QObject::connect(this->m_webcamConfig.data(),
+                             SIGNAL(webcamsChanged(const QStringList &)),
+                             this,
+                             SLOT(webcamsChanged(const QStringList &)));
     }
 
     this->loadConfigs();
@@ -189,26 +183,17 @@ QString MediaTools::device()
     return this->m_device;
 }
 
-QVariantList MediaTools::videoFormat(QString device)
+QSize MediaTools::videoSize(const QString &device)
 {
-    QFile deviceFile(device.isEmpty()? this->device(): device);
-    QVariantList format;
+    QSize size;
+    QString webcam = device.isEmpty()? this->device(): device;
 
-    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return format;
+    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                              "size", Qt::DirectConnection,
+                              Q_RETURN_ARG(QSize, size),
+                              Q_ARG(QString, webcam));
 
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
-        format << fmt.fmt.pix.width
-               << fmt.fmt.pix.height
-               << fmt.fmt.pix.pixelformat;
-
-    deviceFile.close();
-
-    return format;
+    return size;
 }
 
 bool MediaTools::effectsPreview()
@@ -246,111 +231,41 @@ QSize MediaTools::windowSize()
     return this->m_windowSize;
 }
 
-QString MediaTools::fcc2s(uint val)
+QVariantList MediaTools::videoSizes(const QString &device)
 {
-    QString s = "";
+    QVariantList sizes;
 
-    s += QChar(val & 0xff);
-    s += QChar((val >> 8) & 0xff);
-    s += QChar((val >> 16) & 0xff);
-    s += QChar((val >> 24) & 0xff);
+    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                              "availableSizes", Qt::DirectConnection,
+                              Q_RETURN_ARG(QVariantList, sizes),
+                              Q_ARG(QString, device));
 
-    return s;
-}
-
-QVariantList MediaTools::videoFormats(QString device)
-{
-    QFile deviceFile(device);
-    QVariantList formats;
-
-    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return formats;
-
-    QList<v4l2_buf_type> bufType;
-
-    bufType << V4L2_BUF_TYPE_VIDEO_CAPTURE
-            << V4L2_BUF_TYPE_VIDEO_OUTPUT
-            << V4L2_BUF_TYPE_VIDEO_OVERLAY;
-
-    foreach (v4l2_buf_type type, bufType)
-    {
-        v4l2_fmtdesc fmt;
-        memset(&fmt, 0, sizeof(v4l2_fmtdesc));
-        fmt.index = 0;
-        fmt.type = type;
-
-        while (ioctl(deviceFile.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0)
-        {
-            v4l2_frmsizeenum frmsize;
-            memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
-            frmsize.pixel_format = fmt.pixelformat;
-            frmsize.index = 0;
-
-            while (ioctl(deviceFile.handle(),
-                         VIDIOC_ENUM_FRAMESIZES,
-                         &frmsize) >= 0)
-            {
-                if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE)
-                {
-                    QVariantList format;
-
-                    format << frmsize.discrete.width
-                           << frmsize.discrete.height
-                           << fmt.pixelformat;
-
-                    formats << QVariant(format);
-                }
-
-                frmsize.index++;
-            }
-
-            fmt.index++;
-        }
-    }
-
-    deviceFile.close();
-
-    return formats;
+    return sizes;
 }
 
 QList<QStringList> MediaTools::captureDevices()
 {
+    QStringList webcams;
+
+    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                              "webcams", Qt::DirectConnection,
+                              Q_RETURN_ARG(QStringList, webcams));
+
     QList<QStringList> webcamsDevices;
-    QDir devicesDir("/dev");
 
-    QStringList devices = devicesDir.entryList(QStringList() << "video*",
-                                               QDir::System |
-                                               QDir::Readable |
-                                               QDir::Writable |
-                                               QDir::NoSymLinks |
-                                               QDir::NoDotAndDotDot |
-                                               QDir::CaseSensitive,
-                                               QDir::Name);
-
-    QFile device;
-    v4l2_capability capability;
-    memset(&capability, 0, sizeof(v4l2_capability));
-
-    foreach (QString devicePath, devices)
+    foreach (QString webcam, webcams)
     {
-        device.setFileName(devicesDir.absoluteFilePath(devicePath));
+        QString description;
 
-        if (device.open(QIODevice::ReadWrite))
-        {
-            ioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
+        QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                                  "description", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QString, description),
+                                  Q_ARG(QString, webcam));
 
-            if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
-            {
-                QStringList cap;
+        QStringList cap;
 
-                cap << device.fileName()
-                    << QString((const char *) capability.card);
-
-                webcamsDevices << cap;
-            }
-
-            device.close();
-        }
+        cap << webcam << description;
+        webcamsDevices << cap;
     }
 
     QStringList desktopDevice;
@@ -364,107 +279,24 @@ QList<QStringList> MediaTools::captureDevices()
     return allDevices;
 }
 
-QVariantList MediaTools::listControls(QString dev_name)
+QVariantList MediaTools::listControls(const QString &device)
 {
     QVariantList controls;
 
-    QFile device(dev_name);
-
-    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return controls;
-
-    v4l2_queryctrl queryctrl;
-    memset(&queryctrl, 0, sizeof(v4l2_queryctrl));
-    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
-
-    while (ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0)
-    {
-        QVariantList control = this->queryControl(device.handle(), &queryctrl);
-
-        if (!control.isEmpty())
-            controls << QVariant(control);
-
-        queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
-    }
-
-    if (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)
-    {
-        device.close();
-
-        return controls;
-    }
-
-    for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++)
-    {
-        queryctrl.id = id;
-
-        if (ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0)
-        {
-            QVariantList control = this->queryControl(device.handle(), &queryctrl);
-
-            if (!control.isEmpty())
-                controls << QVariant(control);
-        }
-    }
-
-    for (queryctrl.id = V4L2_CID_PRIVATE_BASE; ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0; queryctrl.id++)
-    {
-        QVariantList control = this->queryControl(device.handle(), &queryctrl);
-
-        if (!control.isEmpty())
-            controls << QVariant(control);
-    }
-
-    device.close();
+    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                              "controls", Qt::DirectConnection,
+                              Q_RETURN_ARG(QVariantList, controls),
+                              Q_ARG(QString, device));
 
     return controls;
 }
 
-bool MediaTools::setControls(QString dev_name, QMap<QString, uint> controls)
+void MediaTools::setControls(const QString &device, const QVariantMap &controls)
 {
-    QFile device(dev_name);
-
-    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return false;
-
-    QMap<QString, uint> ctrl2id = this->findControls(device.handle());
-    std::vector<v4l2_ext_control> mpeg_ctrls;
-    std::vector<v4l2_ext_control> user_ctrls;
-
-    foreach (QString control, controls.keys())
-    {
-        v4l2_ext_control ctrl;
-        ctrl.id = ctrl2id[control];
-        ctrl.value = controls[control];
-
-        if (V4L2_CTRL_ID2CLASS(ctrl.id) == V4L2_CTRL_CLASS_MPEG)
-            mpeg_ctrls.push_back(ctrl);
-        else
-            user_ctrls.push_back(ctrl);
-    }
-
-    foreach (v4l2_ext_control user_ctrl, user_ctrls)
-    {
-        v4l2_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_control));
-        ctrl.id = user_ctrl.id;
-        ctrl.value = user_ctrl.value;
-        ioctl(device.handle(), VIDIOC_S_CTRL, &ctrl);
-    }
-
-    if (!mpeg_ctrls.empty())
-    {
-        v4l2_ext_controls ctrls;
-        memset(&ctrls, 0, sizeof(v4l2_ext_control));
-        ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
-        ctrls.count = mpeg_ctrls.size();
-        ctrls.controls = &mpeg_ctrls[0];
-        ioctl(device.handle(), VIDIOC_S_EXT_CTRLS, &ctrls);
-    }
-
-    device.close();
-
-    return true;
+    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                              "setControls", Qt::DirectConnection,
+                              Q_ARG(QString, device),
+                              Q_ARG(QVariantMap, controls));
 }
 
 QMap<QString, QString> MediaTools::availableEffects()
@@ -514,107 +346,6 @@ QString MediaTools::bestRecordFormatOptions(QString fileName)
                 return format[1];
 
     return "";
-}
-
-QVariantList MediaTools::queryControl(int dev_fd, v4l2_queryctrl *queryctrl)
-{
-    if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
-        return QVariantList();
-
-    if (queryctrl->type == V4L2_CTRL_TYPE_CTRL_CLASS)
-        return QVariantList();
-
-    v4l2_ext_control ext_ctrl;
-    ext_ctrl.id = queryctrl->id;
-
-    v4l2_ext_controls ctrls;
-    ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(queryctrl->id);
-    ctrls.count = 1;
-    ctrls.controls = &ext_ctrl;
-
-    if (V4L2_CTRL_ID2CLASS(queryctrl->id) != V4L2_CTRL_CLASS_USER &&
-        queryctrl->id < V4L2_CID_PRIVATE_BASE)
-    {
-        if (ioctl(dev_fd, VIDIOC_G_EXT_CTRLS, &ctrls))
-            return QVariantList();
-    }
-    else
-    {
-        v4l2_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_control));
-        ctrl.id = queryctrl->id;
-
-        if (ioctl(dev_fd, VIDIOC_G_CTRL, &ctrl))
-            return QVariantList();
-
-        ext_ctrl.value = ctrl.value;
-    }
-
-    v4l2_querymenu qmenu;
-    memset(&qmenu, 0, sizeof(v4l2_querymenu));
-    qmenu.id = queryctrl->id;
-    QStringList menu;
-
-    if (queryctrl->type == V4L2_CTRL_TYPE_MENU)
-        for (int i = 0; i < queryctrl->maximum + 1; i++)
-        {
-            qmenu.index = i;
-
-            if (ioctl(dev_fd, VIDIOC_QUERYMENU, &qmenu))
-                continue;
-
-            menu << QString((const char *) qmenu.name);
-        }
-
-    return QVariantList() << QString((const char *) queryctrl->name)
-                          << queryctrl->type
-                          << queryctrl->minimum
-                          << queryctrl->maximum
-                          << queryctrl->step
-                          << queryctrl->default_value
-                          << ext_ctrl.value
-                          << menu;
-}
-
-QMap<QString, uint> MediaTools::findControls(int devFd)
-{
-    v4l2_queryctrl qctrl;
-    memset(&qctrl, 0, sizeof(v4l2_queryctrl));
-    qctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
-    QMap<QString, uint> controls;
-
-    while (ioctl(devFd, VIDIOC_QUERYCTRL, &qctrl) == 0)
-    {
-        if (qctrl.type != V4L2_CTRL_TYPE_CTRL_CLASS &&
-            !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
-            controls[QString((const char *) qctrl.name)] = qctrl.id;
-
-        qctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
-    }
-
-    if (qctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)
-        return controls;
-
-    for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++)
-    {
-        qctrl.id = id;
-
-        if (ioctl(devFd, VIDIOC_QUERYCTRL, &qctrl) == 0 &&
-           !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
-            controls[QString((const char *) qctrl.name)] = qctrl.id;
-    }
-
-    qctrl.id = V4L2_CID_PRIVATE_BASE;
-
-    while (ioctl(devFd, VIDIOC_QUERYCTRL, &qctrl) == 0)
-    {
-        if (!(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
-            controls[QString((const char *) qctrl.name)] = qctrl.id;
-
-        qctrl.id++;
-    }
-
-    return controls;
 }
 
 QString MediaTools::hashFromName(QString name)
@@ -795,7 +526,7 @@ void MediaTools::setDevice(QString device)
     }
 }
 
-void MediaTools::setVideoFormat(QVariantList videoFormat, QString device)
+void MediaTools::setVideoSize(const QString &device, const QSize &size)
 {
     QString curDevice = this->device();
     QbElement::ElementState state = this->m_source->state();
@@ -803,25 +534,12 @@ void MediaTools::setVideoFormat(QVariantList videoFormat, QString device)
     if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
         this->resetDevice();
 
-    QFile deviceFile(device.isEmpty()? curDevice: device);
+    QString webcam = device.isEmpty()? curDevice: device;
 
-    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return;
-
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0)
-    {
-        fmt.fmt.pix.width = videoFormat.at(0).toUInt();
-        fmt.fmt.pix.height = videoFormat.at(1).toUInt();
-        fmt.fmt.pix.pixelformat = videoFormat.at(2).toUInt();
-
-        ioctl(deviceFile.handle(), VIDIOC_S_FMT, &fmt);
-    }
-
-    deviceFile.close();
+    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                              "setSize", Qt::DirectConnection,
+                              Q_ARG(QString, webcam),
+                              Q_ARG(QSize, size));
 
     if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
         this->setDevice(device.isEmpty()? curDevice: device);
@@ -932,15 +650,25 @@ void MediaTools::resetDevice()
     this->setDevice("");
 }
 
-void MediaTools::resetVideoFormat(QString device)
+void MediaTools::resetVideoSize(const QString &device)
 {
-    device = device.isEmpty()? this->device(): device;
+    QString curDevice = this->device();
+    QbElement::ElementState state = this->m_source?
+                                        this->m_source->state():
+                                        QbElement::ElementStateNull;
 
-    if (!device.isEmpty())
-    {
-        QVariantList videoFormats = this->videoFormats(device);
-        this->setVideoFormat(videoFormats.at(0).toList(), device);
-    }
+    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+        this->resetDevice();
+
+    QString webcam = device.isEmpty()? curDevice: device;
+
+    if (!webcam.isEmpty())
+        QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                                  "resetSize", Qt::DirectConnection,
+                                  Q_ARG(QString, webcam));
+
+    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+        this->setDevice(device.isEmpty()? curDevice: device);
 }
 
 void MediaTools::resetEffectsPreview()
@@ -1123,20 +851,26 @@ void MediaTools::aboutToQuit()
 
 void MediaTools::reset(QString device)
 {
-    this->resetVideoFormat(device);
+    QString curDevice = this->device();
+    QbElement::ElementState state = this->m_source->state();
 
-    QVariantList controls = this->listControls(device);
-    QMap<QString, uint> ctrls;
+    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+        this->resetDevice();
 
-    foreach (QVariant control, controls)
-        ctrls[control.toList().at(0).toString()] = control.toList().at(5).toUInt();
+    QString webcam = device.isEmpty()? curDevice: device;
 
-    this->setControls(device, ctrls);
+    if (!webcam.isEmpty())
+        QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+                                  "reset", Qt::DirectConnection,
+                                  Q_ARG(QString, webcam));
+
+    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+        this->setDevice(device.isEmpty()? curDevice: device);
 }
 
-void MediaTools::onDirectoryChanged(const QString &path)
+void MediaTools::webcamsChanged(const QStringList &webcams)
 {
-    Q_UNUSED(path)
+    Q_UNUSED(webcams)
 
     emit this->devicesModified();
 }

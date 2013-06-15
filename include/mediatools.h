@@ -38,10 +38,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
                               RESET resetDevice
                               NOTIFY deviceChanged)
 
-    Q_PROPERTY(QVariantList videoFormat READ videoFormat
-                                        WRITE setVideoFormat
-                                        RESET resetVideoFormat)
-
     Q_PROPERTY(bool effectsPreview READ effectsPreview
                                    WRITE setEffectsPreview
                                    RESET resetEffectsPreview)
@@ -78,11 +74,11 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
             RecordFromMic
         };
 
-        explicit MediaTools(bool watchDevices=false, QObject *parent=NULL);
+        explicit MediaTools(QObject *parent=NULL);
         ~MediaTools();
 
         Q_INVOKABLE QString device();
-        Q_INVOKABLE QVariantList videoFormat(QString device="");
+        Q_INVOKABLE QSize videoSize(const QString &device);
         Q_INVOKABLE bool effectsPreview();
         Q_INVOKABLE bool playAudioFromSource();
         Q_INVOKABLE RecordFrom recordAudioFrom();
@@ -91,18 +87,16 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         Q_INVOKABLE QList<QStringList> streams();
         Q_INVOKABLE QSize windowSize();
 
-        Q_INVOKABLE QString fcc2s(uint val=0);
-        Q_INVOKABLE QVariantList videoFormats(QString device="/dev/video0");
+        Q_INVOKABLE QVariantList videoSizes(const QString &device);
         Q_INVOKABLE QList<QStringList> captureDevices();
-        Q_INVOKABLE QVariantList listControls(QString dev_name="/dev/video0");
-        Q_INVOKABLE bool setControls(QString dev_name="/dev/video0", QMap<QString, uint> controls=QMap<QString, uint>());
+        Q_INVOKABLE QVariantList listControls(const QString &device);
+        Q_INVOKABLE void setControls(const QString &device, const QVariantMap &controls);
         Q_INVOKABLE QMap<QString, QString> availableEffects();
         Q_INVOKABLE QStringList currentEffects();
         Q_INVOKABLE QString bestRecordFormatOptions(QString fileName="");
 
     private:
         QString m_device;
-        QVariantList m_videoFormat;
         bool m_showEffectsPreview;
         bool m_playAudioFromSource;
         RecordFrom m_recordAudioFrom;
@@ -112,7 +106,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QSize m_windowSize;
 
         AppEnvironment *m_appEnvironment;
-        QFileSystemWatcher *m_fsWatcher;
         QbElementPtr m_pipeline;
         QbElementPtr m_source;
         QbElementPtr m_effects;
@@ -126,8 +119,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QSize m_curFrameSize;
         QMutex m_mutex;
 
-        QVariantList queryControl(int dev_fd, struct v4l2_queryctrl *queryctrl);
-        QMap<QString, uint> findControls(int devFd);
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
 
@@ -144,7 +135,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void mutexLock();
         void mutexUnlock();
         void setDevice(QString device);
-        void setVideoFormat(QVariantList videoFormat, QString device="");
+        void setVideoSize(const QString &device, const QSize &size);
         void setEffectsPreview(bool effectsPreview);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(RecordFrom recordAudioFrom);
@@ -153,7 +144,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void setStreams(QList<QStringList> streams);
         void setWindowSize(QSize windowSize);
         void resetDevice();
-        void resetVideoFormat(QString device="");
+        void resetVideoSize(const QString &device);
         void resetEffectsPreview();
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
@@ -161,7 +152,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void resetVideoRecordFormats();
         void resetWindowSize();
 
-        void reset(QString device="/dev/video0");
+        void reset(QString device);
         void loadConfigs();
         void saveConfigs();
         void setEffects(QStringList effects=QStringList());
@@ -174,7 +165,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void iStream(const QbPacket &packet);
 
         void aboutToQuit();
-        void onDirectoryChanged(const QString &path);
+        void webcamsChanged(const QStringList &webcams);
 };
 
 #endif // MEDIATOOLS_H

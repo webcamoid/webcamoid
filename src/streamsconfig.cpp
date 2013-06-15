@@ -31,7 +31,7 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
 
     this->ui->setupUi(this);
 
-    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
     this->m_isInit = true;
     QList<QStringList> streams = this->m_mediaTools->streams();
 

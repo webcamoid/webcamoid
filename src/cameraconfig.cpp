@@ -19,8 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <linux/videodev2.h>
-
 #include "ui_cameraconfig.h"
 
 #include "cameraconfig.h"
@@ -38,7 +36,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
     foreach (QStringList captureDevice, this->m_mediaTools->captureDevices())
     {
-        if (!QRegExp("/dev/video\\d+").exactMatch(captureDevice.at(0)))
+        if (!QRegExp("/dev/video\\d+").exactMatch(captureDevice[0]))
             continue;
 
         QWidget *page = new QWidget();
@@ -50,8 +48,8 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
         lblVideoFormat->setText(this->tr("Video Format"));
         gridLayout->addWidget(lblVideoFormat, cindex, 0, 1, 1);
 
-        this->m_videoFormats[captureDevice.at(0)] = \
-             this->m_mediaTools->videoFormats(captureDevice.at(0));
+        this->m_videoSizes[captureDevice[0]] = \
+             this->m_mediaTools->videoSizes(captureDevice[0]);
 
         QWidget *wdgVideoFormat = new QWidget(page);
 
@@ -61,21 +59,20 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
         QHBoxLayout *hlyVideoFormat = new QHBoxLayout(wdgVideoFormat);
 
         QComboBox *cbxVideoFormat = new QComboBox(wdgVideoFormat);
-        cbxVideoFormat->setProperty("deviceName", captureDevice.at(0));
+        cbxVideoFormat->setProperty("deviceName", captureDevice[0]);
         cbxVideoFormat->setProperty("controlName", "");
         cbxVideoFormat->setProperty("controlDefaultValue", 0);
         cbxVideoFormat->setProperty("deviceOption", "videoFormat");
 
-        foreach (QVariant videoFormat, this->m_videoFormats[captureDevice.at(0)].toList())
-            cbxVideoFormat->addItem(QString("%1x%2 %3").arg(videoFormat.toList().at(0).toInt())
-                                                       .arg(videoFormat.toList().at(1).toInt())
-                                                       .arg(this->m_mediaTools->fcc2s(videoFormat.toList().at(2).toUInt())));
+        foreach (QVariant videoSize, this->m_videoSizes[captureDevice[0]].toList())
+            cbxVideoFormat->addItem(QString("%1x%2").arg(videoSize.toSize().width())
+                                                    .arg(videoSize.toSize().height()));
 
-        QVariantList currentVideoFormat = this->m_mediaTools->videoFormat(captureDevice.at(0));
+        QSize currentVideoSize = this->m_mediaTools->videoSize(captureDevice[0]);
 
-        cbxVideoFormat->setCurrentIndex(this->m_videoFormats[captureDevice.at(0)]
+        cbxVideoFormat->setCurrentIndex(this->m_videoSizes[captureDevice[0]]
                                             .toList()
-                                            .indexOf(currentVideoFormat));
+                                            .indexOf(currentVideoSize));
 
         QObject::connect(cbxVideoFormat,
                          SIGNAL(currentIndexChanged(int)),
@@ -94,7 +91,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
         gridLayout->addWidget(wdgVideoFormat, cindex, 1, 1, 1);
 
         QPushButton *btnResetDevice = new QPushButton(page);
-        btnResetDevice->setProperty("deviceName", captureDevice.at(0));
+        btnResetDevice->setProperty("deviceName", captureDevice[0]);
         btnResetDevice->setProperty("controlName", "");
         btnResetDevice->setProperty("deviceOption", "resetDevice");
         btnResetDevice->setText(this->tr("Reset"));
@@ -108,23 +105,23 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
         cindex = 1;
 
-        foreach (QVariant control, this->m_mediaTools->listControls(captureDevice.at(0)))
+        foreach (QVariant control, this->m_mediaTools->listControls(captureDevice[0]))
         {
-            if (control.toList().at(1).toInt() == V4L2_CTRL_TYPE_INTEGER ||
-                control.toList().at(1).toInt() == V4L2_CTRL_TYPE_INTEGER64)
+            if (control.toList()[1].toString() == "integer" ||
+                control.toList()[1].toString() == "integer64")
             {
                 QLabel *lblControl = new QLabel(page);
-                lblControl->setText(control.toList().at(0).toString());
+                lblControl->setText(control.toList()[0].toString());
                 gridLayout->addWidget(lblControl, cindex, 0, 1, 1);
 
                 QSlider *sldControl = new QSlider(page);
-                sldControl->setProperty("deviceName", captureDevice.at(0));
-                sldControl->setProperty("controlName", control.toList().at(0).toString());
-                sldControl->setProperty("controlDefaultValue", control.toList().at(5).toInt());
+                sldControl->setProperty("deviceName", captureDevice[0]);
+                sldControl->setProperty("controlName", control.toList()[0].toString());
+                sldControl->setProperty("controlDefaultValue", control.toList()[5].toInt());
                 sldControl->setOrientation(Qt::Horizontal);
-                sldControl->setRange(control.toList().at(2).toInt(), control.toList().at(3).toInt());
-                sldControl->setSingleStep(control.toList().at(4).toInt());
-                sldControl->setValue(control.toList().at(6).toInt());
+                sldControl->setRange(control.toList()[2].toInt(), control.toList()[3].toInt());
+                sldControl->setSingleStep(control.toList()[4].toInt());
+                sldControl->setValue(control.toList()[6].toInt());
 
                 QObject::connect(sldControl,
                                  SIGNAL(sliderMoved(int)),
@@ -134,12 +131,12 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                 gridLayout->addWidget(sldControl, cindex, 1, 1, 1);
 
                 QSpinBox *spbControl = new QSpinBox(page);
-                spbControl->setProperty("deviceName", captureDevice.at(0));
-                spbControl->setProperty("controlName", control.toList().at(0).toString());
-                spbControl->setProperty("controlDefaultValue", control.toList().at(5).toInt());
-                spbControl->setRange(control.toList().at(2).toInt(), control.toList().at(3).toInt());
-                spbControl->setSingleStep(control.toList().at(4).toInt());
-                spbControl->setValue(control.toList().at(6).toInt());
+                spbControl->setProperty("deviceName", captureDevice[0]);
+                spbControl->setProperty("controlName", control.toList()[0].toString());
+                spbControl->setProperty("controlDefaultValue", control.toList()[5].toInt());
+                spbControl->setRange(control.toList()[2].toInt(), control.toList()[3].toInt());
+                spbControl->setSingleStep(control.toList()[4].toInt());
+                spbControl->setValue(control.toList()[6].toInt());
 
                 QObject::connect(spbControl,
                                  SIGNAL(valueChanged(int)),
@@ -158,14 +155,14 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                                  sldControl,
                                  SLOT(setValue(int)));
             }
-            else if (control.toList().at(1) == V4L2_CTRL_TYPE_BOOLEAN)
+            else if (control.toList()[1].toString() == "boolean")
             {
                 QCheckBox *chkControl = new QCheckBox(page);
-                chkControl->setProperty("deviceName", captureDevice.at(0));
-                chkControl->setProperty("controlName", control.toList().at(0));
-                chkControl->setProperty("controlDefaultValue", control.toList().at(5));
-                chkControl->setText(control.toList().at(0).toString());
-                chkControl->setChecked((control.toList().at(6) == 0)? false: true);
+                chkControl->setProperty("deviceName", captureDevice[0]);
+                chkControl->setProperty("controlName", control.toList()[0]);
+                chkControl->setProperty("controlDefaultValue", control.toList()[5]);
+                chkControl->setText(control.toList()[0].toString());
+                chkControl->setChecked((control.toList()[6] == 0)? false: true);
 
                 QObject::connect(chkControl,
                                  SIGNAL(toggled(bool)),
@@ -174,10 +171,10 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
                 gridLayout->addWidget(chkControl, cindex, 0, 1, 3);
             }
-            else if (control.toList().at(1) == V4L2_CTRL_TYPE_MENU)
+            else if (control.toList()[1].toString() == "menu")
             {
                 QLabel *lblControl = new QLabel(page);
-                lblControl->setText(control.toList().at(0).toString());
+                lblControl->setText(control.toList()[0].toString());
                 gridLayout->addWidget(lblControl, cindex, 0, 1, 1);
 
                 QWidget *wdgControl = new QWidget(page);
@@ -188,11 +185,11 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                 QHBoxLayout *hlyControl = new QHBoxLayout(wdgControl);
 
                 QComboBox *cbxControl = new QComboBox(wdgControl);
-                cbxControl->setProperty("deviceName", captureDevice.at(0));
-                cbxControl->setProperty("controlName", control.toList().at(0));
-                cbxControl->setProperty("controlDefaultValue", control.toList().at(5));
-                cbxControl->addItems(control.toList().at(7).toStringList());
-                cbxControl->setCurrentIndex(control.toList().at(6).toInt());
+                cbxControl->setProperty("deviceName", captureDevice[0]);
+                cbxControl->setProperty("controlName", control.toList()[0]);
+                cbxControl->setProperty("controlDefaultValue", control.toList()[5]);
+                cbxControl->addItems(control.toList()[7].toStringList());
+                cbxControl->setCurrentIndex(control.toList()[6].toInt());
 
                 QObject::connect(cbxControl,
                                  SIGNAL(currentIndexChanged(int)),
@@ -221,7 +218,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                                                   QSizePolicy::MinimumExpanding);
 
         this->ui->gridLayout->addItem(spacerItem, cindex, 0, 1, 1);
-        this->ui->tabWebcams->addTab(page, captureDevice.at(1));
+        this->ui->tabWebcams->addTab(page, captureDevice[1]);
     }
 
     this->ui->tabWebcams->setCurrentIndex(0);
@@ -286,7 +283,7 @@ void CameraConfig::sliderMoved(int value)
 
     if (!this->m_resetting)
     {
-        QMap<QString, uint> controlMap;
+        QVariantMap controlMap;
 
         controlMap[controlName] = value;
         this->m_mediaTools->setControls(deviceName, controlMap);
@@ -301,7 +298,7 @@ void CameraConfig::spinboxValueChanged(int i)
 
     if (!this->m_resetting)
     {
-        QMap<QString, uint> controlMap;
+        QVariantMap controlMap;
 
         controlMap[controlName] = i;
         this->m_mediaTools->setControls(deviceName, controlMap);
@@ -316,7 +313,7 @@ void CameraConfig::checkboxToggled(bool checked)
 
     if (!this->m_resetting)
     {
-        QMap<QString, uint> controlMap;
+        QVariantMap controlMap;
 
         controlMap[controlName] = checked? 1: 0;
         this->m_mediaTools->setControls(deviceName, controlMap);
@@ -333,11 +330,11 @@ void CameraConfig::comboboxCurrentIndexChanged(int index)
     if (controlName.isEmpty())
     {
         if (deviceOption == "videoFormat" && !this->m_resetting)
-            this->m_mediaTools->setVideoFormat(this->m_videoFormats[deviceName].toList().at(index).toList(), deviceName);
+            this->m_mediaTools->setVideoSize(deviceName, this->m_videoSizes[deviceName].toList()[index].toSize());
     }
     else
     {
-        QMap<QString, uint> controlMap;
+        QVariantMap controlMap;
 
         controlMap[controlName] = index;
         this->m_mediaTools->setControls(deviceName, controlMap);

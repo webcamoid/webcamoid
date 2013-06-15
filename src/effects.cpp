@@ -31,7 +31,7 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
 
     this->ui->setupUi(this);
 
-    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(true, this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(deviceChanged(QString)),

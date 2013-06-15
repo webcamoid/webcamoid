@@ -46,7 +46,7 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
                          arg(QCoreApplication::applicationName()).
                          arg(QCoreApplication::applicationVersion()));
 
-    this->m_mediaTools = new MediaTools(true, this);
+    this->m_mediaTools = new MediaTools(this);
 
     this->resize(this->m_mediaTools->windowSize());
 
