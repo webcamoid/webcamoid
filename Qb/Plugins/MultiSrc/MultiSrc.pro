@@ -73,11 +73,9 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += libv4l2
-
     ! exists(../../3dparty/ffmpeg_auto.pri) {
+        CONFIG += link_pkgconfig
+
         PKGCONFIG += \
             libavcodec \
             libavdevice \

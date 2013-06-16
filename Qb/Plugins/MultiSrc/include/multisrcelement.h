@@ -32,39 +32,22 @@ extern "C"
 
 #include "abstractstream.h"
 
+typedef QSharedPointer<AVFormatContext> FormatContextPtr;
 typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 
 class MultiSrcElement: public QbElement
 {
     Q_OBJECT
-    Q_ENUMS(StreamType)
     Q_PROPERTY(QString location READ location WRITE setLocation RESET resetLocation)
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
-    Q_PROPERTY(QSize size READ size WRITE setSize RESET resetSize)
-    Q_PROPERTY(QVariantList availableSize READ availableSize)
     Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
 
     public:
-        enum StreamType
-        {
-            StreamTypeUnknown,
-            StreamTypeVideo,
-            StreamTypeAudio,
-            StreamTypeData,
-            StreamTypeSubtitle,
-            StreamTypeAttachment,
-            StreamTypeNb
-        };
-
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
         Q_INVOKABLE QString location();
         Q_INVOKABLE bool loop();
-        Q_INVOKABLE QSize size();
-        Q_INVOKABLE StreamType streamType(int streamIndex);
-        Q_INVOKABLE int defaultIndex(StreamType streamType);
-        Q_INVOKABLE QVariantList availableSize();
         Q_INVOKABLE QVariantMap streamCaps();
 
     protected:
@@ -74,16 +57,12 @@ class MultiSrcElement: public QbElement
     private:
         QString m_location;
         bool m_loop;
-        QSize m_size;
 
-        int m_audioStream;
-        int m_videoStream;
-        AVFormatContext *m_inputContext;
+        FormatContextPtr m_inputContext;
         QTimer m_timer;
         QMap<int, AbstractStreamPtr> m_streams;
 
-        QSize webcamSize();
-        QVariantList webcamAvailableSize();
+        static void deleteFormatContext(AVFormatContext *context);
 
         inline int roundDown(int value, int multiply)
         {
@@ -94,12 +73,10 @@ class MultiSrcElement: public QbElement
         void error(QString message);
 
     public slots:
-        void setLocation(QString location);
+        void setLocation(const QString &location);
         void setLoop(bool loop);
-        void setSize(QSize size);
         void resetLocation();
         void resetLoop();
-        void resetSize();
 
         void setState(ElementState state);
 

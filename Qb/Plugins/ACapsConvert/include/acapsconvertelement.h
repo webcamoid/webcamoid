@@ -32,6 +32,8 @@ extern "C"
 
 #include <qbelement.h>
 
+typedef QSharedPointer<SwrContext> SwrContextPtr;
+
 class ACapsConvertElement: public QbElement
 {
     Q_OBJECT
@@ -48,7 +50,7 @@ class ACapsConvertElement: public QbElement
         QbCaps m_caps;
 
         QbCaps m_curInputCaps;
-        QSharedPointer<SwrContext> m_resampleContext;
+        SwrContextPtr m_resampleContext;
 
         static void deleteSwrContext(SwrContext *context);
 

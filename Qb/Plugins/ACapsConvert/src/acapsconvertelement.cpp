@@ -102,7 +102,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     if (packet.caps() != this->m_curInputCaps)
     {
         // create resampler context
-        this->m_resampleContext = QSharedPointer<SwrContext>(swr_alloc(), this->deleteSwrContext);
+        this->m_resampleContext = SwrContextPtr(swr_alloc(), this->deleteSwrContext);
 
         if (!this->m_resampleContext)
             return;

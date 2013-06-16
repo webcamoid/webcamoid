@@ -19,9 +19,6 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <sys/ioctl.h>
-#include <linux/videodev2.h>
-
 #include "videostream.h"
 #include "audiostream.h"
 #include "multisrcelement.h"
@@ -32,9 +29,7 @@ MultiSrcElement::MultiSrcElement(): QbElement()
     avdevice_register_all();
     avformat_network_init();
 
-    this->m_location = "";
     this->resetLoop();
-    this->m_state = ElementStateNull;
 
     QObject::connect(&this->m_timer,
                      SIGNAL(timeout()),
@@ -55,127 +50,6 @@ QString MultiSrcElement::location()
 bool MultiSrcElement::loop()
 {
     return this->m_loop;
-}
-
-QSize MultiSrcElement::size()
-{
-    foreach (QVariant capsVariant, this->streamCaps())
-    {
-        QbCaps caps(capsVariant.toString());
-
-        if (caps.mimeType() == "video/x-raw")
-            return QSize(caps.property("width").toInt(),
-                         caps.property("height").toInt());
-    }
-
-    return QSize();
-}
-
-MultiSrcElement::StreamType MultiSrcElement::streamType(int streamIndex)
-{
-    ElementState preState = this->state();
-    StreamType streamType;
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
-
-    AVMediaType type = AbstractStream::type(this->m_inputContext, streamIndex);
-
-    switch (type)
-    {
-        case AVMEDIA_TYPE_VIDEO:
-            streamType = StreamTypeVideo;
-        break;
-
-        case AVMEDIA_TYPE_AUDIO:
-            streamType = StreamTypeAudio;
-        break;
-
-        case AVMEDIA_TYPE_DATA:
-            streamType = StreamTypeData;
-        break;
-
-        case AVMEDIA_TYPE_SUBTITLE:
-            streamType = StreamTypeSubtitle;
-        break;
-
-        case AVMEDIA_TYPE_ATTACHMENT:
-            streamType = StreamTypeAttachment;
-        break;
-
-        case AVMEDIA_TYPE_NB:
-            streamType = StreamTypeNb;
-        break;
-
-        default:
-            streamType = StreamTypeUnknown;
-        break;
-
-    }
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateNull);
-
-    return streamType;
-}
-
-int MultiSrcElement::defaultIndex(StreamType streamType)
-{
-    ElementState preState = this->state();
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
-
-    AVMediaType mediaType;
-
-    switch (streamType)
-    {
-        case StreamTypeVideo:
-            mediaType = AVMEDIA_TYPE_VIDEO;
-        break;
-
-        case StreamTypeAudio:
-            mediaType = AVMEDIA_TYPE_AUDIO;
-        break;
-
-        case StreamTypeData:
-            mediaType = AVMEDIA_TYPE_DATA;
-        break;
-
-        case StreamTypeSubtitle:
-            mediaType = AVMEDIA_TYPE_SUBTITLE;
-        break;
-
-        case StreamTypeAttachment:
-            mediaType = AVMEDIA_TYPE_ATTACHMENT;
-        break;
-
-        case StreamTypeNb:
-            mediaType = AVMEDIA_TYPE_NB;
-        break;
-
-        default:
-            mediaType = AVMEDIA_TYPE_UNKNOWN;
-        break;
-
-    }
-
-    int streamIndex = av_find_best_stream(this->m_inputContext, mediaType, -1, -1, NULL, 0);
-
-    if (preState == ElementStateNull)
-        this->setState(ElementStateNull);
-
-    return streamIndex;
-}
-
-QVariantList MultiSrcElement::availableSize()
-{
-    QVariantList availableSize = this->webcamAvailableSize();
-
-    if (availableSize.isEmpty())
-        availableSize << this->size();
-
-    return availableSize;
 }
 
 QVariantMap MultiSrcElement::streamCaps()
@@ -204,17 +78,7 @@ bool MultiSrcElement::init()
     AVDictionary *inputOptions = NULL;
 
     if (QRegExp("/dev/video\\d*").exactMatch(this->location()))
-    {
-        QSize size = this->webcamSize();
         inputFormat = av_find_input_format("v4l2");
-
-        av_dict_set(&inputOptions,
-                    "video_size",
-                    QString("%1x%2").arg(size.width())
-                                    .arg(size.height())
-                                    .toStdString().c_str(),
-                    0);
-    }
     else if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(this->location()))
     {
         inputFormat = av_find_input_format("x11grab");
@@ -242,6 +106,7 @@ bool MultiSrcElement::init()
     mmsSchemes << "mms://" << "mmsh://" << "mmst://";
 
     QString uri;
+    AVFormatContext *inputContext;
 
     foreach (QString scheme, mmsSchemes)
     {
@@ -251,9 +116,9 @@ bool MultiSrcElement::init()
             uri.replace(QRegExp(QString("^%1").arg(schemer)),
                         scheme);
 
-        this->m_inputContext = NULL;
+        inputContext = NULL;
 
-        if (avformat_open_input(&this->m_inputContext,
+        if (avformat_open_input(&inputContext,
                                 uri.toStdString().c_str(),
                                 inputFormat,
                                 &inputOptions) >= 0)
@@ -263,36 +128,38 @@ bool MultiSrcElement::init()
     if (inputOptions)
         av_dict_free(&inputOptions);
 
-    if (!this->m_inputContext)
+    if (!inputContext)
     {
         emit this->error(QString("Cann't open \"%1\" stream.").arg(this->location()));
 
         return false;
     }
 
-    if (avformat_find_stream_info(this->m_inputContext, NULL) < 0)
+    this->m_inputContext = FormatContextPtr(inputContext, this->deleteFormatContext);
+
+    if (avformat_find_stream_info(this->m_inputContext.data(), NULL) < 0)
     {
-        avformat_close_input(&this->m_inputContext);
+        this->m_inputContext.clear();
         emit this->error(QString("Cann't retrieve information from \"%1\" stream.").arg(this->location()));
 
         return false;
     }
 
-    av_dump_format(this->m_inputContext, 0, uri.toStdString().c_str(), false);
+    av_dump_format(this->m_inputContext.data(), 0, uri.toStdString().c_str(), false);
 
     this->m_streams.clear();
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++)
     {
-        AVMediaType type = AbstractStream::type(this->m_inputContext, i);
+        AVMediaType type = AbstractStream::type(this->m_inputContext.data(), i);
         QSharedPointer<AbstractStream> stream;
 
         if (type == AVMEDIA_TYPE_VIDEO)
-            stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext, i));
+            stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext.data(), i));
         else if (type == AVMEDIA_TYPE_AUDIO)
-            stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext, i));
+            stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext.data(), i));
         else
-            stream = QSharedPointer<AbstractStream>(new AbstractStream(this->m_inputContext, i));
+            stream = QSharedPointer<AbstractStream>(new AbstractStream(this->m_inputContext.data(), i));
 
         if (stream->isValid())
             this->m_streams[i] = stream;
@@ -304,89 +171,15 @@ bool MultiSrcElement::init()
 void MultiSrcElement::uninit()
 {
     this->m_streams.clear();
-
-    if (this->m_inputContext)
-        avformat_close_input(&this->m_inputContext);
+    this->m_inputContext.clear();
 }
 
-QSize MultiSrcElement::webcamSize()
+void MultiSrcElement::deleteFormatContext(AVFormatContext *context)
 {
-    QSize size;
-
-    if (!QRegExp("/dev/video\\d*").exactMatch(this->location()))
-        return size;
-
-    QFile deviceFile(this->location());
-
-    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return size;
-
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
-        size = QSize(fmt.fmt.pix.width,
-                     fmt.fmt.pix.height);
-
-    deviceFile.close();
-
-    return size;
+    avformat_close_input(&context);
 }
 
-QVariantList MultiSrcElement::webcamAvailableSize()
-{
-    QVariantList availableSize;
-
-    if (!QRegExp("/dev/video\\d*").exactMatch(this->location()))
-        return availableSize;
-
-    QFile deviceFile(this->location());
-
-    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return availableSize;
-
-    QList<v4l2_buf_type> bufType;
-
-    bufType << V4L2_BUF_TYPE_VIDEO_CAPTURE
-            << V4L2_BUF_TYPE_VIDEO_OUTPUT
-            << V4L2_BUF_TYPE_VIDEO_OVERLAY;
-
-    foreach (v4l2_buf_type type, bufType)
-    {
-        v4l2_fmtdesc fmt;
-        memset(&fmt, 0, sizeof(v4l2_fmtdesc));
-        fmt.index = 0;
-        fmt.type = type;
-
-        while (ioctl(deviceFile.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0)
-        {
-            v4l2_frmsizeenum frmSize;
-            memset(&frmSize, 0, sizeof(v4l2_frmsizeenum));
-            frmSize.pixel_format = fmt.pixelformat;
-            frmSize.index = 0;
-
-            while (ioctl(deviceFile.handle(),
-                         VIDIOC_ENUM_FRAMESIZES,
-                         &frmSize) >= 0)
-            {
-                if (frmSize.type == V4L2_FRMSIZE_TYPE_DISCRETE)
-                    availableSize << QSize(frmSize.discrete.width,
-                                           frmSize.discrete.height);
-
-                frmSize.index++;
-            }
-
-            fmt.index++;
-        }
-    }
-
-    deviceFile.close();
-
-    return availableSize;
-}
-
-void MultiSrcElement::setLocation(QString location)
+void MultiSrcElement::setLocation(const QString &location)
 {
     if (location == this->location())
         return;
@@ -405,39 +198,6 @@ void MultiSrcElement::setLoop(bool loop)
     this->m_loop = loop;
 }
 
-void MultiSrcElement::setSize(QSize size)
-{
-    if (!QRegExp("/dev/video\\d*").exactMatch(this->location()))
-        return;
-
-    ElementState preState = this->state();
-
-    if (preState != ElementStateNull)
-        this->setState(ElementStateNull);
-
-    QFile deviceFile(this->location());
-
-    if (!deviceFile.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return;
-
-    v4l2_format fmt;
-    memset(&fmt, 0, sizeof(v4l2_format));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0)
-    {
-        fmt.fmt.pix.width = size.width();
-        fmt.fmt.pix.height = size.height();
-
-        ioctl(deviceFile.handle(), VIDIOC_S_FMT, &fmt);
-    }
-
-    deviceFile.close();
-
-    this->setState(preState);
-    this->m_size = size;
-}
-
 void MultiSrcElement::resetLocation()
 {
     this->setLocation("");
@@ -446,11 +206,6 @@ void MultiSrcElement::resetLocation()
 void MultiSrcElement::resetLoop()
 {
     this->setLoop(false);
-}
-
-void MultiSrcElement::resetSize()
-{
-    this->setSize(this->availableSize()[0].toSize());
 }
 
 void MultiSrcElement::setState(ElementState state)
@@ -478,7 +233,7 @@ void MultiSrcElement::readPackets()
 
     av_init_packet(&packet);
 
-    if (av_read_frame(this->m_inputContext, &packet) < 0)
+    if (av_read_frame(this->m_inputContext.data(), &packet) < 0)
     {
         this->setState(ElementStateNull);
 
