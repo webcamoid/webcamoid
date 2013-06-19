@@ -21,6 +21,7 @@
 
 #include "videostream.h"
 #include "audiostream.h"
+#include "subtitlestream.h"
 #include "multisrcelement.h"
 
 MultiSrcElement::MultiSrcElement(): QbElement()
@@ -158,6 +159,8 @@ bool MultiSrcElement::init()
             stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext.data(), i));
         else if (type == AVMEDIA_TYPE_AUDIO)
             stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext.data(), i));
+        else if (type == AVMEDIA_TYPE_SUBTITLE)
+            stream = QSharedPointer<AbstractStream>(new SubtitleStream(this->m_inputContext.data(), i));
         else
             stream = QSharedPointer<AbstractStream>(new AbstractStream(this->m_inputContext.data(), i));
 
@@ -230,7 +233,6 @@ void MultiSrcElement::setState(ElementState state)
 void MultiSrcElement::readPackets()
 {
     AVPacket packet;
-
     av_init_packet(&packet);
 
     if (av_read_frame(this->m_inputContext.data(), &packet) < 0)
@@ -243,11 +245,14 @@ void MultiSrcElement::readPackets()
         return;
     }
 
-    AbstractStreamPtr stream = this->m_streams[packet.stream_index];
-    QbPacket oPacket = stream->readPacket(&packet);
+    if (this->m_streams.contains(packet.stream_index))
+    {
+        AbstractStreamPtr stream = this->m_streams[packet.stream_index];
+        QbPacket oPacket = stream->readPacket(&packet);
 
-    if (oPacket.caps().isValid())
-        emit this->oStream(oPacket);
+        if (oPacket.caps().isValid())
+            emit this->oStream(oPacket);
+    }
 
     av_free_packet(&packet);
 }

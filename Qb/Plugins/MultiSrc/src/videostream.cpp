@@ -35,14 +35,7 @@ VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
 QbCaps VideoStream::caps() const
 {
     const char *format = av_get_pix_fmt_name(this->codecContext()->pix_fmt);
-
-    QbFrac fps;
-
-    if (this->stream()->avg_frame_rate.num &&
-        this->stream()->avg_frame_rate.den)
-        fps = QbFrac(this->stream()->avg_frame_rate.num, this->stream()->avg_frame_rate.den);
-    else
-        fps = QbFrac(this->stream()->r_frame_rate.num, this->stream()->r_frame_rate.den);
+    QbFrac fps = this->fps();
 
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
@@ -62,10 +55,13 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     if (!this->isValid())
         return QbPacket();
 
+    AVFrame iFrame;
+    avcodec_get_frame_defaults(&iFrame);
+
     int gotFrame;
 
     avcodec_decode_video2(this->codecContext(),
-                          &this->m_iFrame,
+                          &iFrame,
                           &gotFrame,
                           packet);
 
@@ -85,15 +81,15 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
 
     if (this->m_fst)
     {
-        sync = av_frame_get_best_effort_timestamp(&this->m_iFrame)? false: true;
+        sync = av_frame_get_best_effort_timestamp(&iFrame)? false: true;
         this->m_pts = 0;
-        this->m_duration = av_frame_get_pkt_duration(&this->m_iFrame);
+        this->m_duration = (1 / (this->fps() * this->timeBase())).value();
         this->m_fst = false;
     }
     else
         this->m_pts += this->m_duration;
 
-    avpicture_layout((AVPicture *) &this->m_iFrame,
+    avpicture_layout((AVPicture *) &iFrame,
                      this->codecContext()->pix_fmt,
                      this->codecContext()->width,
                      this->codecContext()->height,
@@ -115,8 +111,15 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     return oPacket;
 }
 
-QSize VideoStream::size()
+QbFrac VideoStream::fps() const
 {
-    return QSize(this->codecContext()->width,
-                 this->codecContext()->height);
+    QbFrac fps;
+
+    if (this->stream()->avg_frame_rate.num &&
+        this->stream()->avg_frame_rate.den)
+        fps = QbFrac(this->stream()->avg_frame_rate.num, this->stream()->avg_frame_rate.den);
+    else
+        fps = QbFrac(this->stream()->r_frame_rate.num, this->stream()->r_frame_rate.den);
+
+    return fps;
 }

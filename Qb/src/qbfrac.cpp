@@ -34,6 +34,7 @@ QbFrac::QbFrac(int num, int den):
     m_den(den)
 {
     this->m_isValid = den? true: false;
+    this->reduce();
 }
 
 QbFrac::QbFrac(QString fracString):
@@ -93,6 +94,12 @@ bool QbFrac::operator ==(const QbFrac &other) const
 bool QbFrac::operator !=(const QbFrac &other) const
 {
     return !(*this == other);
+}
+
+QbFrac QbFrac::operator *(const QbFrac &other) const
+{
+    return QbFrac(this->num() * other.num(),
+                  this->den() * other.den());
 }
 
 int QbFrac::num() const
@@ -182,4 +189,15 @@ QDebug operator <<(QDebug debug, const QbFrac &frac)
     debug.nospace() << frac.toString();
 
     return debug.space();
+}
+
+QbFrac operator *(int number, const QbFrac &frac)
+{
+    return QbFrac(number * frac.num(),
+                  frac.den());
+}
+
+QbFrac operator /(int number, const QbFrac &frac)
+{
+    return number * frac.invert();
 }

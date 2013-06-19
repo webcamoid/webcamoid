@@ -76,9 +76,17 @@ void AudioOutputElement::iStream(const QbPacket &packet)
     static QbCaps curCaps;
     static QString curAudioSystem;
 
-    if (packet.caps() != curCaps ||
+    QbCaps caps1(packet.caps());
+    QbCaps caps2(curCaps);
+
+    caps1.setProperty("samples", QVariant());
+    caps2.setProperty("samples", QVariant());
+
+    if (caps1 != caps2 ||
         this->audioSystem() != curAudioSystem)
     {
+        this->m_output->setState(QbElement::ElementStateNull);
+
         int inputIndex = packet.index();
         QString location;
         QString options;

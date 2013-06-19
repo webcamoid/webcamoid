@@ -41,6 +41,7 @@ class QbFrac: public QObject
         QbFrac &operator =(const QbFrac &other);
         bool operator ==(const QbFrac &other) const;
         bool operator !=(const QbFrac &other) const;
+        QbFrac operator *(const QbFrac &other) const;
 
         Q_INVOKABLE int num() const;
         Q_INVOKABLE int den() const;
@@ -67,6 +68,8 @@ class QbFrac: public QObject
 };
 
 QDebug operator <<(QDebug debug, const QbFrac &frac);
+QbFrac operator *(int number, const QbFrac &frac);
+QbFrac operator /(int number, const QbFrac &frac);
 
 Q_DECLARE_METATYPE(QbFrac)
 

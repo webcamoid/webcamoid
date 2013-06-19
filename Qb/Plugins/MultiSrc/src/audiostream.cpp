@@ -87,10 +87,13 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     if (!this->isValid())
         return QbPacket();
 
+    AVFrame iFrame;
+    avcodec_get_frame_defaults(&iFrame);
+
     int gotFrame;
 
     avcodec_decode_audio4(this->codecContext(),
-                          &this->m_iFrame,
+                          &iFrame,
                           &gotFrame,
                           packet);
 
@@ -100,7 +103,7 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     if (this->m_fst)
     {
         this->m_pts = 0;
-        this->m_duration = av_frame_get_pkt_duration(&this->m_iFrame);
+        this->m_duration = av_frame_get_pkt_duration(&iFrame);
         this->m_fst = false;
     }
     else
@@ -110,34 +113,34 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
 
     int ret = av_samples_alloc(this->m_oBuffer,
                                &oBufferLineSize,
-                               this->m_iFrame.channels,
-                               this->m_iFrame.nb_samples,
-                               (AVSampleFormat) this->m_iFrame.format,
+                               iFrame.channels,
+                               iFrame.nb_samples,
+                               (AVSampleFormat) iFrame.format,
                                1);
 
     if (ret < 0)
         return QbPacket();
 
     int oBufferSize = av_samples_get_buffer_size(NULL,
-                                                 this->m_iFrame.channels,
-                                                 this->m_iFrame.nb_samples,
-                                                 (AVSampleFormat) this->m_iFrame.format,
+                                                 iFrame.channels,
+                                                 iFrame.nb_samples,
+                                                 (AVSampleFormat) iFrame.format,
                                                  1);
 
     av_samples_copy(this->m_oBuffer,
-                    this->m_iFrame.data,
+                    iFrame.data,
                     0,
                     0,
-                    this->m_iFrame.nb_samples,
-                    this->m_iFrame.channels,
-                    (AVSampleFormat) this->m_iFrame.format);
+                    iFrame.nb_samples,
+                    iFrame.channels,
+                    (AVSampleFormat) iFrame.format);
 
     QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
     memcpy(oBuffer.data(), this->m_oBuffer[0], oBufferSize);
     av_freep(&this->m_oBuffer[0]);
 
     QbCaps caps = this->caps();
-    caps.setProperty("samples", this->m_iFrame.nb_samples);
+    caps.setProperty("samples", iFrame.nb_samples);
 
     QbPacket oPacket(caps,
                      oBuffer,

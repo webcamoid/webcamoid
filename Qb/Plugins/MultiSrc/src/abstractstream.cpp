@@ -56,8 +56,6 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
     if (avcodec_open2(this->m_codecContext, this->m_codec, &this->m_codecOptions) < 0)
         return;
 
-    avcodec_get_frame_defaults(&this->m_iFrame);
-
     this->m_isValid = true;
 }
 

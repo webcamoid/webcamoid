@@ -31,7 +31,7 @@ QbCaps::QbCaps(QString capsString)
 {
     this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
                               "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
-                              "\\s*(?:\\d+/\\d+|\\w+))*\\s*").exactMatch(capsString);
+                              "\\s*[^,=]+)*\\s*").exactMatch(capsString);
 
     QStringList capsChunks;
 

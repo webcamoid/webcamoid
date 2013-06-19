@@ -19,20 +19,20 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef SUBTITLESTREAM_H
+#define SUBTITLESTREAM_H
 
-#include <QtGui>
+#include <QtCore>
 
 #include "abstractstream.h"
 
-class VideoStream: public AbstractStream
+class SubtitleStream: public AbstractStream
 {
     Q_OBJECT
 
     public:
-        explicit VideoStream(QObject *parent=NULL);
-        VideoStream(AVFormatContext *formatContext, uint index);
+        explicit SubtitleStream(QObject *parent=NULL);
+        SubtitleStream(AVFormatContext *formatContext, uint index);
 
         Q_INVOKABLE QbCaps caps() const;
         Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
@@ -41,8 +41,6 @@ class VideoStream: public AbstractStream
         bool m_fst;
         int64_t m_pts;
         int64_t m_duration;
-
-        QbFrac fps() const;
 };
 
-#endif // VIDEOSTREAM_H
+#endif // SUBTITLESTREAM_H

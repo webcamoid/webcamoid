@@ -56,7 +56,6 @@ class AbstractStream: public QObject
 
     protected:
         bool m_isValid;
-        AVFrame m_iFrame;
 
         virtual void cleanUp();
 

@@ -64,6 +64,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "stateChanged>videoMux.setState "
                             "stateChanged>effects.setState "
                             "stateChanged>muxAudioInput.setState !"
+//                            "Probe objectName='input' log=true source.stateChanged>setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
                             "Bin objectName='effects' blocking=false !"

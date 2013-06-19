@@ -99,7 +99,13 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                1) < 0)
         return;
 
-    if (packet.caps() != this->m_curInputCaps)
+    QbCaps caps1(packet.caps());
+    QbCaps caps2(this->m_curInputCaps);
+
+    caps1.setProperty("samples", QVariant());
+    caps2.setProperty("samples", QVariant());
+
+    if (caps1 != caps2)
     {
         // create resampler context
         this->m_resampleContext = SwrContextPtr(swr_alloc(), this->deleteSwrContext);
