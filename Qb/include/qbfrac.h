@@ -34,7 +34,7 @@ class QbFrac: public QObject
 
     public:
         explicit QbFrac(QObject *parent=NULL);
-        QbFrac(int num, int den);
+        QbFrac(qint64 num, qint64 den);
         QbFrac(QString fracString);
         QbFrac(const QbFrac &other);
         virtual ~QbFrac();
@@ -43,8 +43,8 @@ class QbFrac: public QObject
         bool operator !=(const QbFrac &other) const;
         QbFrac operator *(const QbFrac &other) const;
 
-        Q_INVOKABLE int num() const;
-        Q_INVOKABLE int den() const;
+        Q_INVOKABLE qint64 num() const;
+        Q_INVOKABLE qint64 den() const;
         Q_INVOKABLE double value() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString toString() const;
@@ -55,14 +55,14 @@ class QbFrac: public QObject
         int m_den;
         bool m_isValid;
 
-        int gcd() const;
+        qint64 gcd() const;
 
         friend QDebug operator <<(QDebug debug, const QbFrac &frac);
 
     public slots:
         void reduce();
-        void setNum(int num);
-        void setDen(int den);
+        void setNum(qint64 num);
+        void setDen(qint64 den);
         void resetNum();
         void resetDen();
 };

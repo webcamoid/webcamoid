@@ -85,7 +85,7 @@ QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
     {
         sync = av_frame_get_best_effort_timestamp(&iFrame)? false: true;
         this->m_pts = 0;
-        this->m_duration = (1 / (this->fps() * this->timeBase())).value();
+        this->m_duration = this->fps().invert().value() * this->timeBase().invert().value();
         this->m_fst = false;
     }
     else

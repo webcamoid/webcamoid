@@ -28,7 +28,7 @@ QbFrac::QbFrac(QObject *parent): QObject(parent)
     this->m_isValid = false;
 }
 
-QbFrac::QbFrac(int num, int den):
+QbFrac::QbFrac(qint64 num, qint64 den):
     QObject(NULL),
     m_num(num),
     m_den(den)
@@ -102,12 +102,12 @@ QbFrac QbFrac::operator *(const QbFrac &other) const
                   this->den() * other.den());
 }
 
-int QbFrac::num() const
+qint64 QbFrac::num() const
 {
     return this->m_num;
 }
 
-int QbFrac::den() const
+qint64 QbFrac::den() const
 {
     return this->m_den;
 }
@@ -134,11 +134,11 @@ QbFrac QbFrac::invert() const
                   this->num());
 }
 
-int QbFrac::gcd() const
+qint64 QbFrac::gcd() const
 {
-    int tmp;
-    int num = abs(this->m_num);
-    int den = abs(this->m_den);
+    qint64 tmp;
+    qint64 num = abs(this->m_num);
+    qint64 den = abs(this->m_den);
 
     while (num > 0)
     {
@@ -150,14 +150,14 @@ int QbFrac::gcd() const
     return den;
 }
 
-void QbFrac::setNum(int num)
+void QbFrac::setNum(qint64 num)
 {
     this->m_num = num;
 }
 
 void QbFrac::reduce()
 {
-    int gcd = this->gcd();
+    qint64 gcd = this->gcd();
 
     if (!gcd)
         return;
@@ -166,7 +166,7 @@ void QbFrac::reduce()
     this->m_den /= gcd;
 }
 
-void QbFrac::setDen(int den)
+void QbFrac::setDen(qint64 den)
 {
     this->m_den = den;
 

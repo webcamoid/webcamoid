@@ -31,6 +31,7 @@ MultiSrcElement::MultiSrcElement(): QbElement()
     avformat_network_init();
 
     this->resetLoop();
+    this->resetFilterStreams();
 
     QObject::connect(&this->m_timer,
                      SIGNAL(timeout()),
@@ -43,12 +44,12 @@ MultiSrcElement::~MultiSrcElement()
     this->setState(ElementStateNull);
 }
 
-QString MultiSrcElement::location()
+QString MultiSrcElement::location() const
 {
     return this->m_location;
 }
 
-bool MultiSrcElement::loop()
+bool MultiSrcElement::loop() const
 {
     return this->m_loop;
 }
@@ -68,6 +69,30 @@ QVariantMap MultiSrcElement::streamCaps()
         this->setState(ElementStateNull);
 
     return caps;
+}
+
+QStringList MultiSrcElement::filterStreams() const
+{
+    return this->m_filterStreams;
+}
+
+int MultiSrcElement::defaultStream(QString mimeType)
+{
+    int stream = -1;
+    ElementState preState = this->state();
+
+    if (preState == ElementStateNull)
+        this->setState(ElementStateReady);
+
+    foreach (int i, this->m_streams.keys())
+        if (this->m_streams[i]->caps().mimeType() == mimeType)
+            if (stream < 0 || i < stream)
+                stream = i;
+
+    if (preState == ElementStateNull)
+        this->setState(ElementStateNull);
+
+    return stream;
 }
 
 bool MultiSrcElement::init()
@@ -201,6 +226,11 @@ void MultiSrcElement::setLoop(bool loop)
     this->m_loop = loop;
 }
 
+void MultiSrcElement::setFilterStreams(QStringList filterStreams)
+{
+    this->m_filterStreams = filterStreams;
+}
+
 void MultiSrcElement::resetLocation()
 {
     this->setLocation("");
@@ -209,6 +239,11 @@ void MultiSrcElement::resetLocation()
 void MultiSrcElement::resetLoop()
 {
     this->setLoop(false);
+}
+
+void MultiSrcElement::resetFilterStreams()
+{
+    this->setFilterStreams(QStringList());
 }
 
 void MultiSrcElement::setState(ElementState state)
@@ -245,7 +280,9 @@ void MultiSrcElement::readPackets()
         return;
     }
 
-    if (this->m_streams.contains(packet.stream_index))
+    if (this->m_streams.contains(packet.stream_index) &&
+        (this->m_filterStreams.isEmpty() ||
+         this->m_filterStreams.contains(QString("%1").arg(packet.stream_index))))
     {
         AbstractStreamPtr stream = this->m_streams[packet.stream_index];
 

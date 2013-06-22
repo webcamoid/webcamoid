@@ -516,6 +516,31 @@ void MediaTools::setDevice(QString device)
 
         this->m_source->setProperty("location", device);
 
+        int videoStream;
+
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, videoStream),
+                                  Q_ARG(QString, "video/x-raw"));
+        int audioStream;
+
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, audioStream),
+                                  Q_ARG(QString, "audio/x-raw"));
+
+        QStringList streams;
+
+        if (videoStream >= 0)
+            streams << QString("%1").arg(videoStream);
+
+        if (audioStream >= 0)
+            streams << QString("%1").arg(audioStream);
+
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "setFilterStreams", Qt::DirectConnection,
+                                  Q_ARG(QStringList, streams));
+
         this->m_source->setState(QbElement::ElementStatePlaying);
 
         if (this->m_source->state() == QbElement::ElementStatePlaying)

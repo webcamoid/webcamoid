@@ -429,8 +429,8 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
         oFrame.height = iHeight;
         oFrame.type = AVMEDIA_TYPE_VIDEO;
 
-        AVRational timeBase = {packet.timeBase().num(),
-                               packet.timeBase().den()};
+        AVRational timeBase = {(int) packet.timeBase().num(),
+                               (int) packet.timeBase().den()};
 
         oFrame.pts = av_rescale_q(packet.pts(),
                                   timeBase,
@@ -467,8 +467,8 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
 
     AVCodecContext *codecContext = audioStream->codec;
 
-    AVRational timeBase = {packet.timeBase().num(),
-                           packet.timeBase().den()};
+    AVRational timeBase = {(int) packet.timeBase().num(),
+                           (int) packet.timeBase().den()};
 
     int64_t pts = av_rescale_q(packet.pts(),
                                timeBase,

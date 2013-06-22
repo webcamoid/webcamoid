@@ -42,13 +42,20 @@ class MultiSrcElement: public QbElement
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
     Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
 
+    Q_PROPERTY(QStringList filterStreams READ filterStreams
+                                         WRITE setFilterStreams
+                                         RESET resetFilterStreams)
+
     public:
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
-        Q_INVOKABLE QString location();
-        Q_INVOKABLE bool loop();
+        Q_INVOKABLE QString location() const;
+        Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QVariantMap streamCaps();
+        Q_INVOKABLE QStringList filterStreams() const;
+
+        Q_INVOKABLE int defaultStream(QString mimeType);
 
     protected:
         bool init();
@@ -57,6 +64,7 @@ class MultiSrcElement: public QbElement
     private:
         QString m_location;
         bool m_loop;
+        QStringList m_filterStreams;
 
         FormatContextPtr m_inputContext;
         QTimer m_timer;
@@ -75,8 +83,10 @@ class MultiSrcElement: public QbElement
     public slots:
         void setLocation(const QString &location);
         void setLoop(bool loop);
+        void setFilterStreams(QStringList filterStreams);
         void resetLocation();
         void resetLoop();
+        void resetFilterStreams();
 
         void setState(ElementState state);
 
