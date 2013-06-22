@@ -35,7 +35,7 @@ class VideoStream: public AbstractStream
         VideoStream(AVFormatContext *formatContext, uint index);
 
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
+        Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
 
     private:
         bool m_fst;

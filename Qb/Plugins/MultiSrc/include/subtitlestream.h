@@ -35,12 +35,7 @@ class SubtitleStream: public AbstractStream
         SubtitleStream(AVFormatContext *formatContext, uint index);
 
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
-
-    private:
-        bool m_fst;
-        int64_t m_pts;
-        int64_t m_duration;
+        Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
 };
 
 #endif // SUBTITLESTREAM_H

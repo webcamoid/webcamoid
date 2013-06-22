@@ -82,10 +82,12 @@ QbCaps AudioStream::caps() const
     return caps;
 }
 
-QbPacket AudioStream::readPacket(AVPacket *packet)
+QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
 {
+    QList<QbPacket> packets;
+
     if (!this->isValid())
-        return QbPacket();
+        return packets;
 
     AVFrame iFrame;
     avcodec_get_frame_defaults(&iFrame);
@@ -98,7 +100,7 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                           packet);
 
     if (!gotFrame)
-        return QbPacket();
+        return packets;
 
     if (this->m_fst)
     {
@@ -119,7 +121,7 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
                                1);
 
     if (ret < 0)
-        return QbPacket();
+        return packets;
 
     int oBufferSize = av_samples_get_buffer_size(NULL,
                                                  iFrame.channels,
@@ -151,10 +153,7 @@ QbPacket AudioStream::readPacket(AVPacket *packet)
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 
-    return oPacket;
-}
+    packets << oPacket;
 
-void AudioStream::cleanUp()
-{
-    AbstractStream::cleanUp();
+    return packets;
 }

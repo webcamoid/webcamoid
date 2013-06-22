@@ -50,10 +50,12 @@ QbCaps VideoStream::caps() const
     return caps;
 }
 
-QbPacket VideoStream::readPacket(AVPacket *packet)
+QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
 {
+    QList<QbPacket> packets;
+
     if (!this->isValid())
-        return QbPacket();
+        return packets;
 
     AVFrame iFrame;
     avcodec_get_frame_defaults(&iFrame);
@@ -66,7 +68,7 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
                           packet);
 
     if (!gotFrame)
-        return QbPacket();
+        return packets;
 
     int frameSize = avpicture_get_size(this->codecContext()->pix_fmt,
                                        this->codecContext()->width,
@@ -75,7 +77,7 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
 
     if (!oBuffer)
-        return QbPacket();
+        return packets;
 
     static bool sync;
 
@@ -108,7 +110,9 @@ QbPacket VideoStream::readPacket(AVPacket *packet)
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 
-    return oPacket;
+    packets << oPacket;
+
+    return packets;
 }
 
 QbFrac VideoStream::fps() const

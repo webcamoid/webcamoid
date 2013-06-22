@@ -248,10 +248,10 @@ void MultiSrcElement::readPackets()
     if (this->m_streams.contains(packet.stream_index))
     {
         AbstractStreamPtr stream = this->m_streams[packet.stream_index];
-        QbPacket oPacket = stream->readPacket(&packet);
 
-        if (oPacket.caps().isValid())
-            emit this->oStream(oPacket);
+        foreach (QbPacket oPacket, stream->readPackets(&packet))
+            if (oPacket.caps().isValid())
+                emit this->oStream(oPacket);
     }
 
     av_free_packet(&packet);

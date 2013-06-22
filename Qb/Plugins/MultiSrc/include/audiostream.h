@@ -36,10 +36,7 @@ class AudioStream: public AbstractStream
         ~AudioStream();
 
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QbPacket readPacket(AVPacket *packet);
-
-    protected:
-        void cleanUp();
+        Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
 
     private:
         bool m_fst;

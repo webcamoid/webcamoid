@@ -50,7 +50,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
         Q_INVOKABLE virtual QbCaps caps() const;
-        Q_INVOKABLE virtual QbPacket readPacket(AVPacket *packet);
+        Q_INVOKABLE virtual QList<QbPacket> readPackets(AVPacket *packet);
 
         static AVMediaType type(AVFormatContext *formatContext, uint index);
 

@@ -50,8 +50,13 @@ AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
     if (!this->m_codec)
         return;
 
-    if (this->m_codec->capabilities & CODEC_CAP_TRUNCATED)
-        this->m_codecContext->flags |= CODEC_FLAG_TRUNCATED;
+    this->m_stream->discard = AVDISCARD_DEFAULT;
+    this->m_codecContext->workaround_bugs = 1;
+    this->m_codecContext->idct_algo = FF_IDCT_AUTO;
+    this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+
+    if(this->m_codec->capabilities & CODEC_CAP_DR1)
+        this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
 
     if (avcodec_open2(this->m_codecContext, this->m_codec, &this->m_codecOptions) < 0)
         return;
@@ -114,11 +119,11 @@ QbCaps AbstractStream::caps() const
     return QbCaps();
 }
 
-QbPacket AbstractStream::readPacket(AVPacket *packet)
+QList<QbPacket> AbstractStream::readPackets(AVPacket *packet)
 {
     Q_UNUSED(packet)
 
-    return QbPacket();
+    return QList<QbPacket>();
 }
 
 AVMediaType AbstractStream::type(AVFormatContext *formatContext, uint index)
