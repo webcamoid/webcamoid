@@ -56,6 +56,49 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
     Qb::setPluginsPaths(pluginsPaths);
 #endif
 
+    /*
+     * Webcamoid pipeline
+     * ==================
+     *
+     *          __ Webcam
+     *         |__ File
+     *         |__ Url
+     *         |__ Desktop
+     *         |
+     *         v
+     *    +----------+  +-----------+  +---------+  +--------------+
+     *    | MultiSrc |->| Multiplex |->|   Bin   |->| VCapsConvert |
+     *    |  source  |  |  videoMux |  | effects |  +--------------+
+     *    +----------+  +-----------+  +---------+          |
+     *         |                            |               v
+     *         |                            |            +------+    +========+
+     *         v                            |            | Sync |==> ||Screen||
+     * +---------------+  +-------------+   |            +------+    ||      ||
+     * |   Multiplex   |->| AudioOutput |   |                        +========+
+     * | muxAudioInput |  | audioOutput |   |
+     * +---------------+  +-------------+   | v=0
+     *         |                 |          |
+     *         |                 v          |
+     *         | a=0             /|         |
+     *         |               || | Speaker |
+     *         |                 \|         |
+     *         v                            v           _______
+     *  +-------------+      a=1      +-----------+    /|      |
+     *  |  Multiplex  |-------------->| MultiSink |==>/_| File |
+     *  | audioSwitch |               |  record   |   |        |
+     *  +-------------+               +-----------+   |________|
+     *         ^
+     *         | a=1
+     *   +------------+
+     *   | Multiplex  |
+     *   +------------+
+     *         ^
+     *         |
+     *   +------------+    O         +--------------+
+     *   | AudioInput |<== |         | WebcamConfig |
+     *   |     mic    |   Mic        | webcamConfig |
+     *   +------------+              +--------------+
+     */
     this->m_pipeline = Qb::create("Bin", "pipeline");
 
     if (this->m_pipeline)
@@ -498,6 +541,7 @@ void MediaTools::mutexUnlock()
 
 void MediaTools::setDevice(QString device)
 {
+    // If no device identifier is provided stop current device.
     if (device.isEmpty())
     {
         this->resetRecording();
@@ -509,13 +553,16 @@ void MediaTools::setDevice(QString device)
         this->m_device = "";
         emit this->deviceChanged(this->m_device);
     }
+    // Prepare the device.
     else
     {
         if (!this->m_source)
             return;
 
+        // Set device.
         this->m_source->setProperty("location", device);
 
+        // Find the defaults audio and video streams.
         int videoStream;
 
         QMetaObject::invokeMethod(this->m_source.data(),
@@ -537,10 +584,45 @@ void MediaTools::setDevice(QString device)
         if (audioStream >= 0)
             streams << QString("%1").arg(audioStream);
 
+        // Only decode the default streams.
         QMetaObject::invokeMethod(this->m_source.data(),
                                   "setFilterStreams", Qt::DirectConnection,
                                   Q_ARG(QStringList, streams));
 
+        // Now setup the recording streams caps.
+        QVariantMap streamCaps;
+
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "streamCaps", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QVariantMap, streamCaps));
+
+        QVariantMap recordStreams;
+
+        // Stream 0 = Video.
+        if (videoStream >= 0)
+            recordStreams["0"] = streamCaps[QString("%1").arg(videoStream)];
+
+        // Stream 1 = Audio.
+        if (this->recordAudioFrom() == RecordFromMic)
+        {
+            QVariantMap audioCaps;
+
+            QMetaObject::invokeMethod(this->m_mic.data(),
+                                      "streamCaps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(QVariantMap, audioCaps));
+
+            recordStreams["1"] = audioCaps["0"];
+        }
+        else if (this->recordAudioFrom() == RecordFromSource &&
+                 audioStream >= 0)
+            recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
+
+        // Set recording caps.
+        QMetaObject::invokeMethod(this->m_record.data(),
+                                  "setStreamCaps", Qt::DirectConnection,
+                                  Q_ARG(QVariantMap, recordStreams));
+
+        // Start capturing.
         this->m_source->setState(QbElement::ElementStatePlaying);
 
         if (this->m_source->state() == QbElement::ElementStatePlaying)
