@@ -27,7 +27,7 @@ Webcamoid's dependencies are:
 * [Qt](https://qt-project.org/) (Qt >= 4.7, Qt5 not sopported)
 * [kdelibs](https://projects.kde.org/projects/kde/kdelibs)
 * [Frei0r plugins](http://www.piksel.org/frei0r)
-* [QImageBlitz](http://download.kde.org/stable/qimageblitz/)
+* [QImageBlitz](http://download.kde.org/stable/qimageblitz/) >= 0.0.6
 * [FFmpeg](http://ffmpeg.org/) >= 1.2
 
 __NOTE__: Some distributions doesn't provides FFmpeg packages, if this is your case, enable the __USE3DPARTYLIBS__ options in qmake.
@@ -35,7 +35,7 @@ __NOTE__: Some distributions doesn't provides FFmpeg packages, if this is your c
 Build dependecies:
 
 * [Wget](http://www.gnu.org/software/wget/wget.html) (if __USE3DPARTYLIBS__ is enabled)
-* [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.7
+* [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
 * [Flex](http://flex.sourceforge.net)
 
 You can build Webcamoid with the following commands:
@@ -81,7 +81,7 @@ Some languages are officially supported and other are supported through [Google 
 * Galician
 * German
 * Greek
-* Italian
+* Italian (official)
 * Japanese (official)
 * Korean
 * Portuguese
