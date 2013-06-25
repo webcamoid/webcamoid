@@ -26,15 +26,21 @@ OutputParams::OutputParams(QObject *parent): QObject(parent)
     this->resetCodecContext();
     this->resetFilter();
     this->resetOutputIndex();
+    this->resetPts();
+    this->resetDuration();
 }
 
 OutputParams::OutputParams(CodecContextPtr codecContext,
                            QbElementPtr filter,
-                           int outputIndex):
+                           int outputIndex,
+                           int64_t pts,
+                           int duration):
     QObject(NULL),
     m_codecContext(codecContext),
     m_filter(filter),
-    m_outputIndex(outputIndex)
+    m_outputIndex(outputIndex),
+    m_pts(pts),
+    m_duration(duration)
 {
 }
 
@@ -42,7 +48,9 @@ OutputParams::OutputParams(const OutputParams &other):
     QObject(other.parent()),
     m_codecContext(other.m_codecContext),
     m_filter(other.m_filter),
-    m_outputIndex(other.m_outputIndex)
+    m_outputIndex(other.m_outputIndex),
+    m_pts(other.m_pts),
+    m_duration(other.m_duration)
 {
 }
 
@@ -53,6 +61,8 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
         this->m_codecContext = other.m_codecContext;
         this->m_filter = other.m_filter;
         this->m_outputIndex = other.m_outputIndex;
+        this->m_pts = other.m_pts;
+        this->m_duration = other.m_duration;
     }
 
     return *this;
@@ -73,6 +83,16 @@ int OutputParams::outputIndex() const
     return this->m_outputIndex;
 }
 
+int64_t OutputParams::pts() const
+{
+    return this->m_pts;
+}
+
+int OutputParams::duration() const
+{
+    return this->m_duration;
+}
+
 void OutputParams::setCodecContext(CodecContextPtr codecContext)
 {
     this->m_codecContext = codecContext;
@@ -88,6 +108,16 @@ void OutputParams::setOutputIndex(int outputIndex)
     this->m_outputIndex = outputIndex;
 }
 
+void OutputParams::setPts(int64_t pts)
+{
+    this->m_pts = pts;
+}
+
+void OutputParams::setDuration(int duration)
+{
+    this->m_duration = duration;
+}
+
 void OutputParams::resetCodecContext()
 {
     this->m_codecContext.clear();
@@ -101,4 +131,19 @@ void OutputParams::resetFilter()
 void OutputParams::resetOutputIndex()
 {
     this->setOutputIndex(0);
+}
+
+void OutputParams::resetPts()
+{
+    this->setPts(0);
+}
+
+void OutputParams::resetDuration()
+{
+    this->setDuration(0);
+}
+
+void OutputParams::increasePts()
+{
+    this->m_pts += this->m_duration;
 }

@@ -65,10 +65,17 @@ QbCaps AudioStream::caps() const
     const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
     char layout[256];
 
+    int64_t channelLayout;
+
+    if (this->codecContext()->channel_layout)
+        channelLayout = this->codecContext()->channel_layout;
+    else
+        channelLayout = av_get_default_channel_layout(this->codecContext()->channels);
+
     av_get_channel_layout_string(layout,
                                  sizeof(layout),
                                  this->codecContext()->channels,
-                                 this->codecContext()->channel_layout);
+                                 channelLayout);
 
     QbCaps caps(QString("audio/x-raw,"
                         "format=%1,"
