@@ -1,5 +1,5 @@
 # Webcamod, webcam capture plasmoid.
-# Copyright (C) 2011-2012  Gonzalo Exequiel Pedone
+# Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
 #
 # Webcamod is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,38 +18,30 @@
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
 # Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
-SOURCES = \
-    contents/code/appenvironment.py \
-    contents/code/effects.py \
-    contents/code/infotools.py \
-    contents/code/main.py \
-    contents/code/mainwindow.py \
-    contents/code/v4l2tools.py \
-    contents/code/videorecordconfig.py \
-    contents/code/webcamconfig.py
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    error("commons.pri file not found.")
+}
 
-FORMS = \
-    contents/ui/effects.ui \
-    contents/ui/mainwindow.ui \
-    contents/ui/videorecordconfig.ui \
-    contents/ui/webcamconfig.ui
+!isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0):!exists(/usr/bin/wget) {
+    error("USE3DPARTYLIBS option requires Wget.")
+}
 
-# http://www.loc.gov/standards/iso639-2/php/code_list.php
+TEMPLATE = subdirs
 
-TRANSLATIONS = \
-    contents/ts/ca.ts \
-    contents/ts/de.ts \
-    contents/ts/el.ts \
-    contents/ts/es.ts \
-    contents/ts/fr.ts \
-    contents/ts/gl.ts \
-    contents/ts/it.ts \
-    contents/ts/ja.ts \
-    contents/ts/ko.ts \
-    contents/ts/pt.ts \
-    contents/ts/ru.ts \
-    contents/ts/zh_CN.ts \
-    contents/ts/zh_TW.ts
+CONFIG += ordered
 
-CODECFORTR = UTF-8
-CODECFORSRC = UTF-8
+SUBDIRS += \
+    Qb \
+    Lib.pro \
+    Plasmoid.pro \
+    StandAlone.pro
+
+# Install rules
+
+INSTALLS += \
+    license
+
+license.files = COPYING
+license.path = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}

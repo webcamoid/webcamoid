@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Qb/Plugins/Matrix">
+        <file>share/matrixFont.xpm</file>
+        <file>share/matrixfont.png</file>
+    </qresource>
+</RCC>
