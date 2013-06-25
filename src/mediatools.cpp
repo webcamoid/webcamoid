@@ -50,7 +50,9 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
     QDir pluginsDir("Qb/Plugins");
     QStringList pluginsPaths = Qb::pluginsPaths();
 
-    foreach (QString pluginPath, pluginsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name))
+    foreach (QString pluginPath, pluginsDir.entryList(QDir::Dirs |
+                                                      QDir::NoDotAndDotDot,
+                                                      QDir::Name))
         pluginsPaths << pluginsDir.absoluteFilePath(pluginPath);
 
     Qb::setPluginsPaths(pluginsPaths);
@@ -111,7 +113,8 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
                             "Bin objectName='effects' blocking=false !"
-                            "VCapsConvert caps='video/x-raw,format=bgra' source.stateChanged>setState !"
+                            "VCapsConvert caps='video/x-raw,format=bgra' "
+                            "source.stateChanged>setState !"
                             "Sync source.stateChanged>setState !"
                             "OUT. ,"
                             "source. !"
@@ -494,6 +497,7 @@ void MediaTools::setRecording(bool recording, QString fileName)
     {
         this->m_record->setState(QbElement::ElementStateNull);
         this->m_audioSwitch->setState(QbElement::ElementStateNull);
+        this->m_mic->setState(QbElement::ElementStateNull);
 
         this->m_recording = false;
         emit this->recordingChanged(this->m_recording);
@@ -521,9 +525,17 @@ void MediaTools::setRecording(bool recording, QString fileName)
             this->m_recording = false;
 
         if (this->recordAudioFrom() != RecordFromNone)
+        {
             this->m_audioSwitch->setState(QbElement::ElementStatePlaying);
+
+            if (this->recordAudioFrom() == RecordFromMic)
+                this->m_mic->setState(QbElement::ElementStatePlaying);
+        }
         else
+        {
             this->m_audioSwitch->setState(QbElement::ElementStateNull);
+            this->m_mic->setState(QbElement::ElementStateNull);
+        }
 
         emit this->recordingChanged(this->m_recording);
     }
@@ -639,7 +651,8 @@ void MediaTools::setVideoSize(const QString &device, const QSize &size)
     QString curDevice = this->device();
     QbElement::ElementState state = this->m_source->state();
 
-    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+    if (state == QbElement::ElementStatePlaying &&
+        (device.isEmpty() || device == curDevice))
         this->resetDevice();
 
     QString webcam = device.isEmpty()? curDevice: device;
@@ -649,7 +662,8 @@ void MediaTools::setVideoSize(const QString &device, const QSize &size)
                               Q_ARG(QString, webcam),
                               Q_ARG(QSize, size));
 
-    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+    if (state == QbElement::ElementStatePlaying &&
+        (device.isEmpty() || device == curDevice))
         this->setDevice(device.isEmpty()? curDevice: device);
 }
 
@@ -662,7 +676,8 @@ void MediaTools::setEffectsPreview(bool effectsPreview)
 
     this->m_effectsPreview->setState(QbElement::ElementStateNull);
 
-    if (effectsPreview && this->m_source->state() == QbElement::ElementStatePlaying)
+    if (effectsPreview &&
+        this->m_source->state() == QbElement::ElementStatePlaying)
     {
         QString description = this->m_effectsPreview->property("description").toString();
 
@@ -765,7 +780,8 @@ void MediaTools::resetVideoSize(const QString &device)
                                         this->m_source->state():
                                         QbElement::ElementStateNull;
 
-    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+    if (state == QbElement::ElementStatePlaying &&
+        (device.isEmpty() || device == curDevice))
         this->resetDevice();
 
     QString webcam = device.isEmpty()? curDevice: device;
@@ -775,7 +791,8 @@ void MediaTools::resetVideoSize(const QString &device)
                                   "resetSize", Qt::DirectConnection,
                                   Q_ARG(QString, webcam));
 
-    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+    if (state == QbElement::ElementStatePlaying &&
+        (device.isEmpty() || device == curDevice))
         this->setDevice(device.isEmpty()? curDevice: device);
 }
 
@@ -826,7 +843,9 @@ void MediaTools::loadConfigs()
 
     this->setRecordAudioFrom(static_cast<RecordFrom>(recordFrom));
 
-    QStringList windowSize = webcamConfigs.readEntry("windowSize", "320,240").split(",", QString::SkipEmptyParts);
+    QStringList windowSize = webcamConfigs.readEntry("windowSize", "320,240")
+                                          .split(",", QString::SkipEmptyParts);
+
     this->m_windowSize = QSize(windowSize.at(0).trimmed().toInt(),
                                windowSize.at(1).trimmed().toInt());
 
@@ -879,8 +898,9 @@ void MediaTools::saveConfigs()
     webcamConfigs.writeEntry("recordAudioFrom",
                              static_cast<int>(this->recordAudioFrom()));
 
-    webcamConfigs.writeEntry("windowSize", QString("%1,%2").arg(this->m_windowSize.width())
-                                                           .arg(this->m_windowSize.height()));
+    webcamConfigs.writeEntry("windowSize",
+                             QString("%1,%2").arg(this->m_windowSize.width())
+                                             .arg(this->m_windowSize.height()));
 
     KConfigGroup effectsConfigs = config->group("Effects");
 
@@ -962,7 +982,8 @@ void MediaTools::reset(QString device)
     QString curDevice = this->device();
     QbElement::ElementState state = this->m_source->state();
 
-    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+    if (state == QbElement::ElementStatePlaying &&
+        (device.isEmpty() || device == curDevice))
         this->resetDevice();
 
     QString webcam = device.isEmpty()? curDevice: device;
@@ -972,7 +993,8 @@ void MediaTools::reset(QString device)
                                   "reset", Qt::DirectConnection,
                                   Q_ARG(QString, webcam));
 
-    if (state == QbElement::ElementStatePlaying && (device.isEmpty() || device == curDevice))
+    if (state == QbElement::ElementStatePlaying &&
+        (device.isEmpty() || device == curDevice))
         this->setDevice(device.isEmpty()? curDevice: device);
 }
 

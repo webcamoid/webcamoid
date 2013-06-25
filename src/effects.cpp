@@ -68,10 +68,6 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
     }
 }
 
-Effects::~Effects()
-{
-}
-
 void Effects::update()
 {
    if (!this->m_mediaTools)
@@ -93,35 +89,14 @@ void Effects::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    if (this->m_mediaTools->recording())
-    {
-        this->ui->lswApply->setEnabled(false);
-        this->ui->lswEffects->setEnabled(false);
-        this->ui->btnAdd->setEnabled(false);
-        this->ui->btnRemove->setEnabled(false);
-        this->ui->btnUp->setEnabled(false);
-        this->ui->btnDown->setEnabled(false);
-        this->ui->btnReset->setEnabled(false);
-    }
-    else
-    {
-        this->ui->lswApply->setEnabled(true);
-        this->ui->lswEffects->setEnabled(true);
-        this->ui->btnAdd->setEnabled(true);
-        this->ui->btnRemove->setEnabled(true);
-        this->ui->btnUp->setEnabled(true);
-        this->ui->btnDown->setEnabled(true);
-        this->ui->btnReset->setEnabled(true);
-        this->m_mediaTools->setEffectsPreview(true);
-    }
+    this->m_mediaTools->setEffectsPreview(true);
 }
 
 void Effects::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
 
-    if (!this->m_mediaTools->recording())
-        this->m_mediaTools->resetEffectsPreview();
+    this->m_mediaTools->resetEffectsPreview();
 }
 
 void Effects::setEffectPreview(const QImage &image, QString effect)
@@ -143,29 +118,7 @@ void Effects::deviceChanged(QString device)
         foreach (QListWidgetItem *effectWidget, this->m_effectsWidgets)
             effectWidget->setIcon(QIcon());
     else if (this->isVisible())
-    {
-        if (this->m_mediaTools->recording())
-        {
-            this->ui->lswApply->setEnabled(false);
-            this->ui->lswEffects->setEnabled(false);
-            this->ui->btnAdd->setEnabled(false);
-            this->ui->btnRemove->setEnabled(false);
-            this->ui->btnUp->setEnabled(false);
-            this->ui->btnDown->setEnabled(false);
-            this->ui->btnReset->setEnabled(false);
-        }
-        else
-        {
-            this->ui->lswApply->setEnabled(true);
-            this->ui->lswEffects->setEnabled(true);
-            this->ui->btnAdd->setEnabled(true);
-            this->ui->btnRemove->setEnabled(true);
-            this->ui->btnUp->setEnabled(true);
-            this->ui->btnDown->setEnabled(true);
-            this->ui->btnReset->setEnabled(true);
-            this->m_mediaTools->setEffectsPreview(true);
-        }
-    }
+        this->m_mediaTools->setEffectsPreview(true);
 }
 
 void Effects::on_txtSearch_textChanged(QString text)

@@ -281,18 +281,6 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         codecContext->time_base.den = fps.num();
 
         outputCaps.setProperty("fps", fps.toString());
-
-        codecContext->gop_size = 12; // emit one intra frame every twelve frames at most.
-
-        if (codecContext->codec_id == AV_CODEC_ID_MPEG2VIDEO)
-            // just for testing, we also add B frames
-            codecContext->max_b_frames = 2;
-
-        if (codecContext->codec_id == AV_CODEC_ID_MPEG1VIDEO)
-            // Needed to avoid using macroblocks in which some coeffs overflow.
-            // This does not happen with normal video, it just happens here as
-            // the motion of the chroma plane does not match the luma plane.
-            codecContext->mb_decision = 2;
     }
 
     QbElementPtr filter;
@@ -407,6 +395,18 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     int outputIndex = this->m_outputParams[inputIndex].outputIndex();
     StreamPtr videoStream = this->m_outputFormat.streams()[inputIndex];
 
+    if (!this->m_outputParams[inputIndex].duration())
+    {
+        AVRational timeBase = {(int) packet.timeBase().num(),
+                               (int) packet.timeBase().den()};
+
+        int duration = av_rescale_q(packet.duration(),
+                                    timeBase,
+                                    videoStream->time_base);
+
+        this->m_outputParams[inputIndex].setDuration(duration);
+    }
+
     if (this->m_outputFormat.outputContext()->oformat->flags & AVFMT_RAWPICTURE)
     {
         // Raw video case - directly store the picture in the packet
@@ -414,6 +414,8 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
         pkt.stream_index = outputIndex;
         pkt.data = oFrame.data[0];
         pkt.size = sizeof(AVPicture);
+
+        pkt.pts = this->m_outputParams[inputIndex].pts();
 
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
@@ -429,12 +431,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
         oFrame.height = iHeight;
         oFrame.type = AVMEDIA_TYPE_VIDEO;
 
-        AVRational timeBase = {(int) packet.timeBase().num(),
-                               (int) packet.timeBase().den()};
-
-        oFrame.pts = av_rescale_q(packet.pts(),
-                                  timeBase,
-                                  videoStream->time_base);
+        oFrame.pts = this->m_outputParams[inputIndex].pts();
 
         int got_output;
 
@@ -457,6 +454,8 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
                                        &pkt);
         }
     }
+
+    this->m_outputParams[inputIndex].increasePts();
 }
 
 void MultiSinkElement::processAFrame(const QbPacket &packet)
@@ -467,22 +466,27 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
 
     AVCodecContext *codecContext = audioStream->codec;
 
-    AVRational timeBase = {(int) packet.timeBase().num(),
-                           (int) packet.timeBase().den()};
-
-    int64_t pts = av_rescale_q(packet.pts(),
-                               timeBase,
-                               audioStream->time_base);
-
     int samples = packet.caps().property("samples").toInt();
     int frameSize = codecContext->frame_size;
 
     if (!frameSize)
         frameSize = samples;
 
-    int64_t ptsDiff = frameSize /
-                      (packet.caps().property("rate").toFloat() *
-                       packet.timeBase().value());
+    if (!this->m_outputParams[inputIndex].duration())
+    {
+        AVRational timeBase = {(int) packet.timeBase().num(),
+                               (int) packet.timeBase().den()};
+
+        int64_t ptsDiff = frameSize /
+                          (packet.caps().property("rate").toFloat() *
+                           packet.timeBase().value());
+
+        int duration = av_rescale_q(ptsDiff,
+                                    timeBase,
+                                    audioStream->time_base);
+
+        this->m_outputParams[inputIndex].setDuration(duration);
+    }
 
     static AVFrame iFrame;
     avcodec_get_frame_defaults(&iFrame);
@@ -532,11 +536,11 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         av_init_packet(&pkt);
 
         // data and size must be 0;
-        pkt.data = 0;
+        pkt.data = NULL;
         pkt.size = 0;
 
-        oFrame.pts = pts;
-        pts += ptsDiff;
+        oFrame.pts = this->m_outputParams[inputIndex].pts();
+        this->m_outputParams[inputIndex].increasePts();
 
         int got_packet;
 
