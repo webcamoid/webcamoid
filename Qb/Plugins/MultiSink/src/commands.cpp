@@ -59,7 +59,7 @@ Commands::Commands(QObject *parent): OptionParser(parent)
 
     this->addOption(Option("b:v",
                            "Video bitrate.",
-                           "\\d+(k|M|G|T)?",
+                           "\\d+(\\.\\d+)?(k|M|G|T)?",
                            Option::OptionFlagsHasValue));
 
     // Audio options:
@@ -80,7 +80,7 @@ Commands::Commands(QObject *parent): OptionParser(parent)
 
     this->addOption(Option("b:a",
                            "Audio bitrate.",
-                           "\\d+(k|M|G|T)?",
+                           "\\d+(\\.\\d+)?(k|M|G|T)?",
                            Option::OptionFlagsHasValue));
 
     this->addOption(Option("channel_layout",
@@ -234,9 +234,9 @@ bool Commands::parseCmd(QString cmd)
 
 QVariant Commands::convertValue(QString key, QString value)
 {
-    if (key == "i" || key == "ar" ||  key == "ac" || key == "oi")
+    if (key == "-i" || key == "-ar" ||  key == "-ac" || key == "-oi")
         return value.toInt();
-    else if (key == "r")
+    else if (key == "-r")
     {
         QbFrac frac = value.contains("/")?
                           QbFrac(value):
@@ -244,25 +244,30 @@ QVariant Commands::convertValue(QString key, QString value)
 
         return QVariant::fromValue(frac);
     }
-    else if (key == "s")
+    else if (key == "-s")
     {
         QStringList size = value.split("x", QString::SkipEmptyParts);
 
         return QSize(size[0].toInt(), size[1].toInt());
     }
-    else if (key == "b:v" || key == "b:a")
+    else if (key == "-b:v" || key == "-b:a")
     {
-        bool ok;
+        quint64 multiplier;
 
-        int val = value.toInt(&ok);
-
-        if (ok)
-            return val;
+        if (value.contains("k"))
+            multiplier = 1e3;
+        else if (value.contains("M"))
+            multiplier = 1e6;
+        else if (value.contains("G"))
+            multiplier = 1e9;
+        else if (value.contains("T"))
+            multiplier = 1e12;
         else
-            return value.replace("k", QString("%1").arg(1e3))
-                        .replace("M", QString("%1").arg(1e6))
-                        .replace("G", QString("%1").arg(1e9))
-                        .replace("T", QString("%1").arg(1e12)).toInt();
+            multiplier = 1;
+
+        quint64 val = value.remove(QRegExp("\\D")).toInt();
+
+        return val * multiplier;
     }
 
     return value;

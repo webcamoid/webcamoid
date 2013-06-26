@@ -863,7 +863,7 @@ void MediaTools::loadConfigs()
                               "webm::"
                               "-i 0 -vcodec libvpx -i 1 -acodec libvorbis -o -f webm&&"
                               "ogv, ogg::"
-                              "-i 0 -vcodec libtheora -i 1 -acodec libvorbis -o -f ogg");
+                              "-i 0 -vcodec libtheora -b:v 3M -i 1 -acodec libvorbis -o -f ogg");
 
     if (!videoRecordFormats.isEmpty())
         foreach (QString fmt, videoRecordFormats.split("&&", QString::SkipEmptyParts))
