@@ -29,6 +29,7 @@ Webcamoid's dependencies are:
 * [Frei0r plugins](http://www.piksel.org/frei0r)
 * [QImageBlitz](http://download.kde.org/stable/qimageblitz/) >= 0.0.6
 * [FFmpeg](http://ffmpeg.org/) >= 1.2
+* [linux-api-headers](http://www.gnu.org/software/libc) >= 3.6.x
 
 __NOTE__: Some distributions doesn't provides FFmpeg packages, if this is your case, enable the __USE3DPARTYLIBS__ options in qmake.
 

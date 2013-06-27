@@ -68,6 +68,10 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
     }
 }
 
+Effects::~Effects()
+{
+}
+
 void Effects::update()
 {
    if (!this->m_mediaTools)

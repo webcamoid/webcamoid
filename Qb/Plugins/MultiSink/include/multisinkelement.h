@@ -87,6 +87,8 @@ class MultiSinkElement: public QbElement
         void processVFrame(const QbPacket &packet);
         void processAFrame(const QbPacket &packet);
         void updateOutputParams();
+        void flushStream(AVCodecContext *encoder);
+        void flushStreams();
 };
 
 #endif // MULTISINKELEMENT_H

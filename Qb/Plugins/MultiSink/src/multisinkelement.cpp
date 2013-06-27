@@ -65,6 +65,7 @@ bool MultiSinkElement::init()
 
 void MultiSinkElement::uninit()
 {
+    this->flushStreams();
     this->m_outputFormat.close();
 }
 
@@ -433,16 +434,16 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
 
         oFrame.pts = this->m_outputParams[inputIndex].pts();
 
-        int got_output;
+        int gotPacket;
 
         if (avcodec_encode_video2(videoStream->codec,
                                   &pkt,
                                   &oFrame,
-                                  &got_output) < 0)
+                                  &gotPacket) < 0)
             return;
 
         // If size is zero, it means the image was buffered.
-        if (got_output)
+        if (gotPacket)
         {
             if (videoStream->codec->coded_frame->key_frame)
                 pkt.flags |= AV_PKT_FLAG_KEY;
@@ -542,10 +543,10 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         oFrame.pts = this->m_outputParams[inputIndex].pts();
         this->m_outputParams[inputIndex].increasePts();
 
-        int got_packet;
+        int gotPacket;
 
-        if (avcodec_encode_audio2(codecContext, &pkt, &oFrame, &got_packet) < 0 ||
-            !got_packet)
+        if (avcodec_encode_audio2(codecContext, &pkt, &oFrame, &gotPacket) < 0 ||
+            !gotPacket)
             continue;
 
         pkt.stream_index = outputIndex;
@@ -566,4 +567,55 @@ void MultiSinkElement::updateOutputParams()
             this->m_outputParams[input] = this->createOutputParams(input.toInt(),
                                                                    inputCaps[input].toString(),
                                                                    inputOptions[input].toMap());
+}
+
+void MultiSinkElement::flushStream(AVCodecContext *encoder)
+{
+    while (true)
+    {
+        AVPacket pkt;
+        av_init_packet(&pkt);
+        pkt.data = NULL;
+        pkt.size = 0;
+
+        int gotPacket;
+        int ret;
+
+        if (encoder->codec_type == AVMEDIA_TYPE_AUDIO)
+            ret = avcodec_encode_audio2(encoder, &pkt, NULL, &gotPacket);
+        else if (encoder->codec_type == AVMEDIA_TYPE_VIDEO)
+            ret = avcodec_encode_video2(encoder, &pkt, NULL, &gotPacket);
+        else
+            return;
+
+        if (ret < 0 || !gotPacket)
+            return;
+
+        av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
+                                   &pkt);
+    }
+}
+
+void MultiSinkElement::flushStreams()
+{
+    StreamMapPtr streams = this->m_outputFormat.streams();
+    int oFlags = this->m_outputFormat.outputContext()->oformat->flags;
+
+    for (int i = 0; i < streams.count(); i++)
+    {
+        QString streamIndex = QString("%1").arg(i);
+        StreamPtr stream = streams[streamIndex];
+        AVCodecContext *encoder = stream->codec;
+
+        if (encoder->codec_type == AVMEDIA_TYPE_AUDIO &&
+            encoder->frame_size <= 1)
+            continue;
+
+        if (encoder->codec_type == AVMEDIA_TYPE_VIDEO &&
+            (oFlags & AVFMT_RAWPICTURE) &&
+            encoder->codec->id == AV_CODEC_ID_RAWVIDEO)
+            continue;
+
+        this->flushStream(encoder);
+    }
 }

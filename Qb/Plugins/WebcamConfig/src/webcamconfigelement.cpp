@@ -31,7 +31,10 @@ WebcamConfigElement::WebcamConfigElement(): QbElement()
     this->m_ctrlTypeToString[V4L2_CTRL_TYPE_CTRL_CLASS] = "ctrlClass";
     this->m_ctrlTypeToString[V4L2_CTRL_TYPE_STRING] = "string";
     this->m_ctrlTypeToString[V4L2_CTRL_TYPE_BITMASK] = "bitmask";
+
+#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
     this->m_ctrlTypeToString[V4L2_CTRL_TYPE_INTEGER_MENU] = "integerMenu";
+#endif
 
     this->m_webcams = this->webcams();
 
