@@ -39,6 +39,7 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
 
     public:
         explicit Effects(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        ~Effects();
 
     private:
         QSharedPointer<Ui::Effects> ui;

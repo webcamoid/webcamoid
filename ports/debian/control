@@ -8,7 +8,7 @@ Maintainer: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 Uploaders: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
 
 Build-Depends: qt4-qmake, libqt4-dev, qt4-dev-tools, kdelibs5-dev, bison, flex,
- frei0r-plugins-dev, libqimageblitz-dev
+ frei0r-plugins-dev, libqimageblitz-dev, linux-libc-dev
 Depends: libqtgui4, libkdeui5, frei0r-plugins, libqimageblitz4
 
 Vcs-Browser: https://github.com/hipersayanX/Webcamoid
