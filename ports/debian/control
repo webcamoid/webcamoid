@@ -4,8 +4,8 @@ Homepage: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 Architecture: all
 Section: video
 Priority: optional
-Maintainer: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-Uploaders: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Maintainer: Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com>
+Uploaders: Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com>
 
 Build-Depends: qt4-qmake, libqt4-dev, qt4-dev-tools, kdelibs5-dev, bison, flex,
  frei0r-plugins-dev, libqimageblitz-dev, linux-libc-dev

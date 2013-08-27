@@ -77,14 +77,19 @@ QbCaps AudioStream::caps() const
                                  this->codecContext()->channels,
                                  channelLayout);
 
+    double maxFrameDuration = (this->formatContext()->iformat->flags &
+                               AVFMT_TS_DISCONT)? 10.0: 3600.0;
+
     QbCaps caps(QString("audio/x-raw,"
                         "format=%1,"
                         "channels=%2,"
                         "rate=%3,"
-                        "layout=%4").arg(format)
-                                    .arg(this->codecContext()->channels)
-                                    .arg(this->codecContext()->sample_rate)
-                                    .arg(layout));
+                        "layout=%4,"
+                        "maxFrameDuration=%5").arg(format)
+                                              .arg(this->codecContext()->channels)
+                                              .arg(this->codecContext()->sample_rate)
+                                              .arg(layout)
+                                              .arg(maxFrameDuration));
 
     return caps;
 }

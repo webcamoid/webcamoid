@@ -46,8 +46,8 @@ Features:
 
 %build
 qmake-qt4 Webcamoid.pro \
-    KDEINCLUDEDIR=%{_includedir}/kde4/KDE \
-    LIBDIR=%{_libdir}
+    LIBDIR=%{_libdir} \
+    USE3DPARTYLIBS=1
 
 make
 

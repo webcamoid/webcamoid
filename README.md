@@ -28,7 +28,7 @@ Webcamoid's dependencies are:
 * [kdelibs](https://projects.kde.org/projects/kde/kdelibs)
 * [Frei0r plugins](http://www.piksel.org/frei0r)
 * [QImageBlitz](http://download.kde.org/stable/qimageblitz/) >= 0.0.6
-* [FFmpeg](http://ffmpeg.org/) >= 1.2
+* [FFmpeg](http://ffmpeg.org/) >= 2.0
 * [linux-api-headers](http://www.gnu.org/software/libc) >= 3.6.x
 
 __NOTE__: Some distributions doesn't provides FFmpeg packages, if this is your case, enable the __USE3DPARTYLIBS__ options in qmake.
@@ -38,6 +38,27 @@ Build dependecies:
 * [Wget](http://www.gnu.org/software/wget/wget.html) (if __USE3DPARTYLIBS__ is enabled)
 * [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
 * [Flex](http://flex.sourceforge.net)
+
+Build dependecies for __USE3DPARTYLIBS__:
+
+* yasm
+* libass
+* libbluray
+* libgsm
+* libmodplug
+* libmp3lame
+* libopencore_amrnb
+* libopenjpeg
+* opus
+* libpulse-simple
+* librtmp
+* schroedinger
+* libspeex
+* libtheora
+* libvorbis
+* libvpx
+* libx264
+* libxvid
 
 You can build Webcamoid with the following commands:
 

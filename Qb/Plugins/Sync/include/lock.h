@@ -19,38 +19,30 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#ifndef LOCK_H
+#define LOCK_H
 
-#include <qb.h>
+#include <QtCore>
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
-}
-
-class VCapsConvertElement: public QbElement
+class Lock: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
-
     public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
-
-        Q_INVOKABLE QString caps();
+        explicit Lock(QObject *parent=NULL);
+        Lock(int nLocks);
 
     private:
-        QbCaps m_caps;
+        QMutex m_lock;
+        QMutex m_counterLock;
+        int m_nLocked;
+        int m_nLocks;
 
     public slots:
-        void setCaps(QString caps);
-        void resetCaps();
-
-        void iStream(const QbPacket &packet);
+        void init(int nLocks=1);
+        void lock();
+        void unlock();
+        void wait();
 };
 
-#endif // VCAPSCONVERTELEMENT_H
+#endif // LOCK_H

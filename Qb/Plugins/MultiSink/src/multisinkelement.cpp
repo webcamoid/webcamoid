@@ -69,12 +69,12 @@ void MultiSinkElement::uninit()
     this->m_outputFormat.close();
 }
 
-QList<PixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
+QList<AVPixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
 {
-    QList<PixelFormat> pixelFormats;
+    QList<AVPixelFormat> pixelFormats;
 
-    for (const PixelFormat *pixelFmt = videoCodec->pix_fmts;
-         pixelFmt && *pixelFmt != PIX_FMT_NONE;
+    for (const AVPixelFormat *pixelFmt = videoCodec->pix_fmts;
+         pixelFmt && *pixelFmt != AV_PIX_FMT_NONE;
          pixelFmt++)
         pixelFormats << *pixelFmt;
 
@@ -233,13 +233,13 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
     }
     else if (inputCaps.mimeType() == "video/x-raw")
     {
-        QList<PixelFormat> pixelFormats = this->pixelFormats(codec);
+        QList<AVPixelFormat> pixelFormats = this->pixelFormats(codec);
 
-        PixelFormat defaultPixelFormat = pixelFormats.isEmpty()?
+        AVPixelFormat defaultPixelFormat = pixelFormats.isEmpty()?
                                              codecContext->pix_fmt:
                                              pixelFormats[0];
 
-        PixelFormat iPixelFormat = av_get_pix_fmt(inputCaps.property("format")
+        AVPixelFormat iPixelFormat = av_get_pix_fmt(inputCaps.property("format")
                                                            .toString()
                                                            .toStdString()
                                                            .c_str());
@@ -378,7 +378,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     int iHeight = packet.caps().property("height").toInt();
     QString format = packet.caps().property("format").toString();
 
-    PixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
+    AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
 
     AVPacket pkt;
     av_init_packet(&pkt);
@@ -430,7 +430,6 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
         oFrame.format = iFormat,
         oFrame.width = iWidth,
         oFrame.height = iHeight;
-        oFrame.type = AVMEDIA_TYPE_VIDEO;
 
         oFrame.pts = this->m_outputParams[inputIndex].pts();
 
@@ -540,6 +539,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         pkt.data = NULL;
         pkt.size = 0;
 
+//        av_rescale_q(pkt.pts, enc->time_base, ost->st->time_base);
         oFrame.pts = this->m_outputParams[inputIndex].pts();
         this->m_outputParams[inputIndex].increasePts();
 
@@ -569,8 +569,12 @@ void MultiSinkElement::updateOutputParams()
                                                                    inputOptions[input].toMap());
 }
 
-void MultiSinkElement::flushStream(AVCodecContext *encoder)
+void MultiSinkElement::flushStream(int inputIndex, AVCodecContext *encoder)
 {
+    QString inputIndexStr = QString("%1").arg(inputIndex);
+    int64_t pts = this->m_outputParams[inputIndexStr].pts();
+    int duration = this->m_outputParams[inputIndexStr].duration();
+
     while (true)
     {
         AVPacket pkt;
@@ -590,6 +594,11 @@ void MultiSinkElement::flushStream(AVCodecContext *encoder)
 
         if (ret < 0 || !gotPacket)
             return;
+
+        pkt.pts = pts;
+        pkt.dts = pts;
+        pkt.duration = duration;
+        pts += duration;
 
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
@@ -616,6 +625,6 @@ void MultiSinkElement::flushStreams()
             encoder->codec->id == AV_CODEC_ID_RAWVIDEO)
             continue;
 
-        this->flushStream(encoder);
+        this->flushStream(i, encoder);
     }
 }

@@ -104,7 +104,13 @@ bool MultiSrcElement::init()
     AVDictionary *inputOptions = NULL;
 
     if (QRegExp("/dev/video\\d*").exactMatch(this->location()))
+    {
         inputFormat = av_find_input_format("v4l2");
+
+        //av_dict_set(&inputOptions, "timestamps", "default", 0);
+        av_dict_set(&inputOptions, "timestamps", "abs", 0);
+        //av_dict_set(&inputOptions, "timestamps", "mono2abs", 0);
+    }
     else if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(this->location()))
     {
         inputFormat = av_find_input_format("x11grab");

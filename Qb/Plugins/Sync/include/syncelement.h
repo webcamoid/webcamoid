@@ -24,6 +24,9 @@
 
 #include <qb.h>
 
+#include "clock.h"
+#include "lock.h"
+
 class SyncElement: public QbElement
 {
     Q_OBJECT
@@ -34,9 +37,14 @@ class SyncElement: public QbElement
     private:
         bool m_ready;
         bool m_fst;
-        double m_iPts;
-        double m_duration;
-        QElapsedTimer m_elapsedTimer;
+
+        Clock m_audioClock;
+        Clock m_videoClock;
+        Clock m_extrnClock;
+
+        QMutex m_audioLock;
+        QMutex m_videoLock;
+        Lock m_globlLock;
 
     signals:
         void ready(int id);
@@ -47,7 +55,8 @@ class SyncElement: public QbElement
         void setState(ElementState state);
 
     private slots:
-        void sendFrame(const QbPacket &packet);
+        void processAudioFrame(const QbPacket &packet);
+        void processVideoFrame(const QbPacket &packet);
 };
 
 #endif // SYNCELEMENT_H

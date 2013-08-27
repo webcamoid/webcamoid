@@ -37,15 +37,20 @@ QbCaps VideoStream::caps() const
     const char *format = av_get_pix_fmt_name(this->codecContext()->pix_fmt);
     QbFrac fps = this->fps();
 
+    double maxFrameDuration = (this->formatContext()->iformat->flags &
+                               AVFMT_TS_DISCONT)? 10.0: 3600.0;
+
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
                         "width=%2,"
                         "height=%3,"
-                        "fps=%4/%5").arg(format)
-                                    .arg(this->codecContext()->width)
-                                    .arg(this->codecContext()->height)
-                                    .arg(fps.num())
-                                    .arg(fps.den()));
+                        "fps=%4/%5,"
+                        "maxFrameDuration=%6").arg(format)
+                                              .arg(this->codecContext()->width)
+                                              .arg(this->codecContext()->height)
+                                              .arg(fps.num())
+                                              .arg(fps.den())
+                                              .arg(maxFrameDuration));
 
     return caps;
 }

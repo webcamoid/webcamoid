@@ -24,11 +24,14 @@
 
 extern "C"
 {
+    #include <libavcodec/avcodec.h>
     #include <libavfilter/avcodec.h>
     #include <libavfilter/avfilter.h>
     #include <libavfilter/avfiltergraph.h>
+    #include <libavfilter/buffersrc.h>
     #include <libavfilter/buffersink.h>
     #include <libavutil/imgutils.h>
+    #include <libavutil/channel_layout.h>
 }
 
 #include <qbelement.h>
@@ -67,7 +70,7 @@ class FilterElement: public QbElement
         QbFrac m_timeBase;
         QbFrac m_pixelAspect;
 
-        PixelFormat m_oFormat;
+        AVPixelFormat m_oFormat;
         QbCaps m_curInputCaps;
         AVFilterContext *m_bufferSinkContext;
         AVFilterContext *m_bufferSrcContext;

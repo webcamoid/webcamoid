@@ -77,10 +77,11 @@ HEADERS = \
 INCLUDEPATH += \
     include \
     Qb/include \
-    $$KDEINCLUDEDIR
+    $${KDEINCLUDEDIR}
 
 LIBS += \
     -L./Qb -lQb \
+    -L$${KDELIBDIR} \
     -lkdecore \
     -lkdeui
 
