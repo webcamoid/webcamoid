@@ -23,30 +23,18 @@
 
 VCapsConvertElement::VCapsConvertElement(): QbElement()
 {
-    this->m_filter = Qb::create("Filter");
-
-    QObject::connect(this,
-                     SIGNAL(stateChanged(ElementState)),
-                     this->m_filter.data(),
-                     SLOT(setState(ElementState)));
-
-    QObject::connect(this->m_filter.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SIGNAL(oStream(const QbPacket &)));
+    av_register_all();
 
     this->resetCaps();
-    this->resetKeepAspectRatio();
 }
 
-QString VCapsConvertElement::caps() const
+VCapsConvertElement::~VCapsConvertElement()
+{
+}
+
+QString VCapsConvertElement::caps()
 {
     return this->m_caps.toString();
-}
-
-bool VCapsConvertElement::keepAspectRatio() const
-{
-    return this->m_keepAspectRatio;
 }
 
 void VCapsConvertElement::setCaps(QString format)
@@ -54,19 +42,9 @@ void VCapsConvertElement::setCaps(QString format)
     this->m_caps = QbCaps(format);
 }
 
-void VCapsConvertElement::setKeepAspectRatio(bool keepAspectRatio)
-{
-    this->m_keepAspectRatio = keepAspectRatio;
-}
-
 void VCapsConvertElement::resetCaps()
 {
     this->setCaps("");
-}
-
-void VCapsConvertElement::resetKeepAspectRatio()
-{
-    this->setKeepAspectRatio(false);
 }
 
 void VCapsConvertElement::iStream(const QbPacket &packet)
@@ -76,48 +54,95 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
         this->state() != ElementStatePlaying)
         return;
 
-    QbCaps caps(packet.caps());
-    caps.update(this->m_caps);
-
-    if (caps != this->m_curInputCaps)
+    if (packet.caps() == this->m_caps)
     {
-        QSize frameSize(packet.caps().property("width").toInt(),
-                        packet.caps().property("height").toInt());
+        emit this->oStream(packet);
 
-        QSize newFrameSize(caps.property("width").toInt(),
-                           caps.property("height").toInt());
-
-        int padX;
-        int padY;
-
-        if (this->keepAspectRatio())
-        {
-            frameSize.scale(newFrameSize, Qt::KeepAspectRatio);
-            padX = (newFrameSize.width() - frameSize.width()) >> 1;
-            padY = (newFrameSize.height() - frameSize.height()) >> 1;
-        }
-        else
-        {
-            frameSize = newFrameSize;
-            padX = 0;
-            padY = 0;
-        }
-
-        this->m_filter->setProperty("format", caps.property("format"));
-
-        this->m_filter->setProperty("description",
-                                    QString("scale=%1:%2,"
-                                            "pad=%3:%4:%5:%6:black,"
-                                            "fps=fps=%7").arg(frameSize.width())
-                                                         .arg(frameSize.height())
-                                                         .arg(newFrameSize.width())
-                                                         .arg(newFrameSize.height())
-                                                         .arg(padX)
-                                                         .arg(padY)
-                                                         .arg(caps.property("fps").toString()));
-
-        this->m_curInputCaps = caps;
+        return;
     }
 
-    this->m_filter->iStream(packet);
+    int iWidth = packet.caps().property("width").toInt();
+    int iHeight = packet.caps().property("height").toInt();
+    QString format = packet.caps().property("format").toString();
+
+    PixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
+
+    QList<QByteArray> props = this->m_caps.dynamicPropertyNames();
+
+    int oWidth = props.contains("width")?
+                     this->m_caps.property("width").toInt():
+                     iWidth;
+
+    int oHeight = props.contains("height")?
+                      this->m_caps.property("height").toInt():
+                      iHeight;
+
+    PixelFormat oFormat;
+
+    if (props.contains("format"))
+    {
+        QString oFormatString = this->m_caps.property("format").toString();
+
+        oFormat = av_get_pix_fmt(oFormatString.toStdString().c_str());
+    }
+    else
+        oFormat = iFormat;
+
+    SwsContext *scaleContext = sws_getCachedContext(NULL,
+                                                    iWidth,
+                                                    iHeight,
+                                                    iFormat,
+                                                    oWidth,
+                                                    oHeight,
+                                                    oFormat,
+                                                    SWS_FAST_BILINEAR,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL);
+
+    if (!scaleContext)
+        return;
+
+    int oBufferSize = avpicture_get_size(oFormat,
+                                         oWidth,
+                                         oHeight);
+
+    QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
+
+    AVPicture iPicture;
+
+    avpicture_fill(&iPicture,
+                   (uint8_t *) packet.buffer().data(),
+                   iFormat,
+                   iWidth,
+                   iHeight);
+
+    AVPicture oPicture;
+
+    avpicture_fill(&oPicture,
+                   (uint8_t *) oBuffer.data(),
+                   oFormat,
+                   oWidth,
+                   oHeight);
+
+    sws_scale(scaleContext,
+              (uint8_t **) iPicture.data,
+              iPicture.linesize,
+              0,
+              iHeight,
+              oPicture.data,
+              oPicture.linesize);
+
+    sws_freeContext(scaleContext);
+
+    QbPacket oPacket(packet.caps().update(this->m_caps),
+                     oBuffer,
+                     oBufferSize);
+
+    oPacket.setPts(packet.pts());
+    oPacket.setDuration(packet.duration());
+    oPacket.setTimeBase(packet.timeBase());
+    oPacket.setIndex(packet.index());
+
+    emit this->oStream(oPacket);
 }

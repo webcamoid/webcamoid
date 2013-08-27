@@ -23,7 +23,7 @@
 #define MAINWIDGET_H
 
 #include <QtGui>
-#include <KConfigDialog>
+#include <KDE/KConfigDialog>
 
 #include "commons.h"
 #include "appenvironment.h"

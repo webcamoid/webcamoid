@@ -86,13 +86,15 @@ QString QbPacket::toString() const
 {
     QString packetInfo = QString("Caps       : %1\n"
                                  "Buffer Size: %2\n"
-                                 "Pts        : %3\n"
-                                 "Duration   : %4\n"
-                                 "Time Base  : %5\n"
-                                 "Index      : %6\n").arg(this->caps().toString())
+                                 "Pts        : %3 (%4)\n"
+                                 "Duration   : %5 (%6)\n"
+                                 "Time Base  : %7\n"
+                                 "Index      : %8\n").arg(this->caps().toString())
                                                      .arg(this->bufferSize())
                                                      .arg(this->pts())
+                                                     .arg(this->pts() * this->timeBase().value())
                                                      .arg(this->duration())
+                                                     .arg(this->duration() * this->timeBase().value())
                                                      .arg(this->timeBase().toString())
                                                      .arg(this->index());
 

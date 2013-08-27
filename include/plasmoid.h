@@ -22,7 +22,7 @@
 #ifndef PLASMOID_H
 #define PLASMOID_H
 
-#include <Plasma/PopupApplet>
+#include <KDE/Plasma/PopupApplet>
 
 #include "mainwidget.h"
 

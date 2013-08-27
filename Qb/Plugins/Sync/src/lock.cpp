@@ -19,38 +19,48 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#include "lock.h"
 
-#include <qb.h>
-
-extern "C"
+Lock::Lock(QObject *parent): QObject(parent)
 {
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
+    this->init();
 }
 
-class VCapsConvertElement: public QbElement
+Lock::Lock(int nLocks)
 {
-    Q_OBJECT
+    this->init(nLocks);
+}
 
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+void Lock::init(int nLocks)
+{
+    this->m_nLocked = 0;
+    this->m_nLocks = nLocks;
+}
 
-    public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
+void Lock::lock()
+{
+    this->m_counterLock.lock();
+    this->m_nLocked += 1;
 
-        Q_INVOKABLE QString caps();
+    if (this->m_nLocked == this->m_nLocks)
+        this->m_lock.lock();
 
-    private:
-        QbCaps m_caps;
+    this->m_counterLock.unlock();
+}
 
-    public slots:
-        void setCaps(QString caps);
-        void resetCaps();
+void Lock::unlock()
+{
+    this->m_counterLock.lock();
 
-        void iStream(const QbPacket &packet);
-};
+    if (this->m_nLocked == this->m_nLocks)
+        this->m_lock.unlock();
 
-#endif // VCAPSCONVERTELEMENT_H
+    this->m_nLocked -= 1;
+    this->m_counterLock.unlock();
+}
+
+void Lock::wait()
+{
+    this->m_lock.lock();
+    this->m_lock.unlock();
+}

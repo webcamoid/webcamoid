@@ -33,7 +33,9 @@ CONFIG += plugin
 HEADERS += \
     include/sleep.h \
     include/sync.h \
-    include/syncelement.h
+    include/syncelement.h \
+    include/clock.h \
+    include/lock.h
 
 INCLUDEPATH += \
     include \
@@ -46,7 +48,9 @@ QT += core
 SOURCES += \
     src/sleep.cpp \
     src/sync.cpp \
-    src/syncelement.cpp
+    src/syncelement.cpp \
+    src/clock.cpp \
+    src/lock.cpp
 
 TEMPLATE = lib
 

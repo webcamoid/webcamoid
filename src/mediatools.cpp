@@ -20,8 +20,8 @@
  */
 
 #include <QtXml>
-#include <KSharedConfig>
-#include <KConfigGroup>
+#include <KDE/KSharedConfig>
+#include <KDE/KConfigGroup>
 
 #include "mediatools.h"
 
@@ -109,26 +109,26 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "stateChanged>videoMux.setState "
                             "stateChanged>effects.setState "
                             "stateChanged>muxAudioInput.setState !"
-//                            "Probe objectName='input' log=true source.stateChanged>setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
                             "Bin objectName='effects' blocking=false !"
                             "VCapsConvert caps='video/x-raw,format=bgra' "
-                            "source.stateChanged>setState !"
-                            "Sync source.stateChanged>setState !"
-                            "OUT. ,"
+                            "source.stateChanged>setState ! sync. ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
                             "caps='audio/x-raw' outputIndex=0 !"
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
-                            "muxAudioInput. !"
+                            "muxAudioInput. ! sync. !"
                             "AudioOutput objectName='audioOutput' ,"
                             "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
+                            "Sync objectName='sync' source.stateChanged>setState !"
+                            "Multiplex caps='video/x-raw' source.stateChanged>setState !"
+                            "OUT. ,"
                             "WebcamConfig objectName='webcamConfig'");
 
         this->m_pipeline->setProperty("description", description);

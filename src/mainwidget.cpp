@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KAboutApplicationDialog>
-#include <KAboutData>
-#include <KConfigSkeleton>
-#include <KGlobalSettings>
-#include <KLocalizedString>
-#include <KNotification>
+#include <KDE/KAboutApplicationDialog>
+#include <KDE/KAboutData>
+#include <KDE/KConfigSkeleton>
+#include <KDE/KGlobalSettings>
+#include <KDE/KLocalizedString>
+#include <KDE/KNotification>
 
 #include "ui_mainwidget.h"
 

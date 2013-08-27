@@ -19,38 +19,44 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#ifndef CLOCK_H
+#define CLOCK_H
 
-#include <qb.h>
+#include <QtCore>
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
-}
+// no AV sync correction is done if below the minimum AV sync threshold
+#define AV_SYNC_THRESHOLD_MIN 0.01
 
-class VCapsConvertElement: public QbElement
+// AV sync correction is done if above the maximum AV sync threshold
+#define AV_SYNC_THRESHOLD_MAX 0.1
+
+// If a frame duration is longer than this, it will not be duplicated to compensate AV sync
+#define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
+
+// no AV correction is done if too big error
+#define AV_NOSYNC_THRESHOLD 10.0
+
+class Clock: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
-
     public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
+        explicit Clock(QObject *parent=NULL);
+        Clock(bool slave);
+        Clock(const Clock &other);
+        Clock &operator =(const Clock &other);
 
-        Q_INVOKABLE QString caps();
+        Q_INVOKABLE double clock(double pts=0);
 
     private:
-        QbCaps m_caps;
+        double m_lastClock;
+        double m_drift;
+        bool m_slave;
+        double m_clock0;
 
     public slots:
-        void setCaps(QString caps);
-        void resetCaps();
-
-        void iStream(const QbPacket &packet);
+        void init(bool slave=false);
+        void syncTo(double pts);
 };
 
-#endif // VCAPSCONVERTELEMENT_H
+#endif // CLOCK_H

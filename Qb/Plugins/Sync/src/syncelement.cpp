@@ -24,6 +24,7 @@
 
 SyncElement::SyncElement(): QbElement()
 {
+    this->m_fst = true;
     this->m_ready = false;
 }
 
@@ -39,10 +40,25 @@ void SyncElement::iStream(const QbPacket &packet)
         emit this->ready(packet.index());
     }
 
-    if (packet.caps().property("sync").toBool())
-        this->sendFrame(packet);
+    this->m_globlLock.wait();
+
+    if (this->m_fst)
+    {
+        this->m_audioClock.init(true);
+        this->m_videoClock.init(true);
+        this->m_extrnClock.init();
+
+        this->m_globlLock.init(2);
+
+        this->m_fst = false;
+    }
+
+    QString streamType = packet.caps().mimeType();
+
+    if (streamType == "audio/x-raw")
+        QtConcurrent::run(this, &SyncElement::processAudioFrame, packet);
     else
-        emit this->oStream(packet);
+        QtConcurrent::run(this, &SyncElement::processVideoFrame, packet);
 }
 
 void SyncElement::setState(ElementState state)
@@ -57,56 +73,56 @@ void SyncElement::setState(ElementState state)
     }
 }
 
-void SyncElement::sendFrame(const QbPacket &packet)
+void SyncElement::processAudioFrame(const QbPacket &packet)
 {
-    if (this->m_fst)
+    emit this->oStream(packet);
+}
+
+void SyncElement::processVideoFrame(const QbPacket &packet)
+{
+    this->m_videoLock.lock();
+    this->m_globlLock.lock();
+
+    double clock = this->m_extrnClock.clock();
+    double pts = this->m_videoClock.clock(packet.pts() * packet.timeBase().value());
+    double diff = clock - pts;
+    bool show = false;
+
+    if (fabs(diff) < AV_SYNC_THRESHOLD_MIN)
     {
-        this->m_iPts = packet.pts() * packet.timeBase().value();
-        this->m_duration = packet.duration() * packet.timeBase().value();
-        this->m_elapsedTimer.start();
+        show = true;
         emit this->oStream(packet);
-        Sleep::usleep(1e6 * this->m_duration);
-        this->m_fst = false;
     }
-    else
+    else if (fabs(diff) < AV_SYNC_THRESHOLD_MAX)
     {
-        double pts = packet.pts() * packet.timeBase().value();
-
-        int clockN = this->m_elapsedTimer.nsecsElapsed() / 1.0e9 / this->m_duration;
-        int packetN = (pts - this->m_iPts) / this->m_duration;
-
-        if (packetN < clockN)
+        if (diff < 0)
         {
-            int diff = clockN - packetN;
+            // Add a delay
+            show = true;
+            Sleep::usleep(1e6 * abs(diff));
 
-            if (diff > 5)
-            {
-                this->m_iPts = packet.pts() * packet.timeBase().value();
-                this->m_duration = packet.duration() * packet.timeBase().value();
-                this->m_elapsedTimer.restart();
-                emit this->oStream(packet);
-                Sleep::usleep(1e6 * this->m_duration);
-            }
-        }
-        else if (packetN > clockN)
-        {
-            double duration = 1.0e6 * (pts - this->m_iPts) - this->m_elapsedTimer.nsecsElapsed() / 1.0e3;
-
-            if (duration < 0)
-                duration = 0;
-
-            Sleep::usleep(duration);
             emit this->oStream(packet);
         }
         else
         {
-            double duration = pts - this->m_iPts + this->m_duration - this->m_elapsedTimer.nsecsElapsed() / 1.0e9;
-
-            if (duration < 0)
-                duration = 0;
-
-            emit this->oStream(packet);
-            Sleep::usleep(1e3 * duration);
+            // Discard frame
         }
     }
+    else
+    {
+        // Resync to the master clock
+        show = true;
+        this->m_videoClock.syncTo(clock);
+
+        emit this->oStream(packet);
+    }
+/*
+    print(packet['mimeType'][0],
+          '{0:.2f}'.format(clock),
+          '{0:.2f}'.format(pts),
+          '{0:.2f}'.format(diff),
+          show)
+*/
+    this->m_globlLock.unlock();
+    this->m_videoLock.unlock();
 }

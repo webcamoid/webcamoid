@@ -35,11 +35,12 @@ HEADERS = \
 INCLUDEPATH += \
     include \
     Qb/include \
-    $$KDEINCLUDEDIR
+    $${KDEINCLUDEDIR}
 
 LIBS += \
     -L./Qb -lQb \
     -L. -lWebcamoid \
+    -L$${KDELIBDIR} \
     -lkdecore \
     -lkdeui
 
@@ -66,5 +67,5 @@ unix {
     desktop.files = plasma-applet-$${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/kde4/services
 
-    target.path  = $${LIBDIR}/kde4
+    target.path = $${LIBDIR}/kde4
 }

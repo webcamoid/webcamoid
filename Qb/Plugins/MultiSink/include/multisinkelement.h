@@ -64,7 +64,7 @@ class MultiSinkElement: public QbElement
         QMap<QString, OutputParams> m_outputParams;
         OutputFormat m_outputFormat;
 
-        QList<PixelFormat> pixelFormats(AVCodec *videoCodec);
+        QList<AVPixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
         QList<uint64_t> channelLayouts(AVCodec *audioCodec);
@@ -87,7 +87,7 @@ class MultiSinkElement: public QbElement
         void processVFrame(const QbPacket &packet);
         void processAFrame(const QbPacket &packet);
         void updateOutputParams();
-        void flushStream(AVCodecContext *encoder);
+        void flushStream(int inputIndex, AVCodecContext *encoder);
         void flushStreams();
 };
 

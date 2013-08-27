@@ -119,7 +119,7 @@ bool FilterElement::initBuffers()
 
     if (this->m_curInputCaps.mimeType() == "video/x-raw")
     {
-        PixelFormat oFormat;
+        AVPixelFormat oFormat;
 
         if (this->format().isEmpty())
         {
@@ -133,9 +133,9 @@ bool FilterElement::initBuffers()
         else
             oFormat = av_get_pix_fmt(this->format().toStdString().c_str());
 
-        PixelFormat pixelFormats[2];
+        AVPixelFormat pixelFormats[2];
         pixelFormats[0] = oFormat;
-        pixelFormats[1] = PIX_FMT_NONE;
+        pixelFormats[1] = AV_PIX_FMT_NONE;
 
         AVBufferSinkParams *params = av_buffersink_params_alloc();
         params->pixel_fmts = pixelFormats;
@@ -200,11 +200,11 @@ bool FilterElement::initBuffers()
     inputs->pad_idx = 0;
     inputs->next = NULL;
 
-    if (avfilter_graph_parse(this->m_filterGraph,
-                             this->m_description.toStdString().c_str(),
-                             &inputs,
-                             &outputs,
-                             NULL) < 0)
+    if (avfilter_graph_parse_ptr(this->m_filterGraph,
+                                 this->m_description.toStdString().c_str(),
+                                 &inputs,
+                                 &outputs,
+                                 NULL) < 0)
         return false;
 
     if (avfilter_graph_config(this->m_filterGraph, NULL) < 0)
@@ -282,7 +282,6 @@ void FilterElement::iStream(const QbPacket &packet)
         frame.format = av_get_pix_fmt(format.toStdString().c_str());
         frame.width = width;
         frame.height = height;
-        frame.type = AVMEDIA_TYPE_VIDEO;
     }
     else if (packet.caps().mimeType() == "audio/x-raw")
     {
@@ -297,7 +296,6 @@ void FilterElement::iStream(const QbPacket &packet)
         frame.sample_rate = rate;
         frame.channel_layout = av_get_channel_layout(layout.toStdString().c_str());
         frame.nb_samples = samples;
-        frame.type = AVMEDIA_TYPE_AUDIO;
 
         if (avcodec_fill_audio_frame(&frame,
                                      frame.channels,
@@ -316,23 +314,18 @@ void FilterElement::iStream(const QbPacket &packet)
     frame.pts = packet.pts();
 
     // push the decoded frame into the filtergraph
-    if (av_buffersrc_add_frame(this->m_bufferSrcContext, &frame, 0) < 0)
+    if (av_buffersrc_add_frame(this->m_bufferSrcContext, &frame) < 0)
         return;
-
-    AVFilterBufferRef *filterBufferRef = NULL;
 
     // pull filtered pictures from the filtergraph
     while (true)
     {
-        if (av_buffersink_get_buffer_ref(this->m_bufferSinkContext,
-                                         &filterBufferRef,
-                                         0) < 0)
+        AVFrame oFrame;
+
+        if (av_buffersink_get_frame(this->m_bufferSinkContext, &oFrame) < 0)
             return;
 
         QbPacket oPacket;
-        AVFrame oFrame;
-
-        avfilter_copy_buf_props(&oFrame, filterBufferRef);
 
         QbFrac timeBase(this->m_bufferSinkContext->inputs[0]->time_base.num,
                         this->m_bufferSinkContext->inputs[0]->time_base.den);
@@ -341,20 +334,20 @@ void FilterElement::iStream(const QbPacket &packet)
             return;
         else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_VIDEO)
         {
-            int frameSize = avpicture_get_size((PixelFormat) oFrame.format,
+            int frameSize = avpicture_get_size((AVPixelFormat) oFrame.format,
                                                oFrame.width,
                                                oFrame.height);
 
             QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
 
             avpicture_layout((AVPicture *) &oFrame,
-                             (PixelFormat) oFrame.format,
+                             (AVPixelFormat) oFrame.format,
                              oFrame.width,
                              oFrame.height,
                              (uint8_t *) oBuffer.data(),
                              frameSize);
 
-            QString format = av_get_pix_fmt_name((PixelFormat) oFrame.format);
+            QString format = av_get_pix_fmt_name((AVPixelFormat) oFrame.format);
 
             QbCaps caps(packet.caps());
             caps.setProperty("format", format);
@@ -430,14 +423,14 @@ void FilterElement::iStream(const QbPacket &packet)
         else
             return;
 
-        oPacket.setPts(filterBufferRef->pts);
+        oPacket.setPts(oFrame.pts);
         oPacket.setDuration((packet.timeBase() == timeBase)? packet.duration(): 1);
         oPacket.setTimeBase(timeBase);
         oPacket.setIndex(packet.index());
 
         emit this->oStream(oPacket);
 
-        avfilter_unref_bufferp(&filterBufferRef);
+        av_frame_unref(&oFrame);
     }
 }
 
