@@ -39,9 +39,7 @@ DEFINES += __STDC_CONSTANT_MACROS
 HEADERS += \
     include/sleep.h \
     include/sync.h \
-    include/syncelement.h \
-    include/clock.h \
-    include/lock.h
+    include/syncelement.h
 
 INCLUDEPATH += \
     include \
@@ -63,9 +61,7 @@ QT += core
 SOURCES += \
     src/sleep.cpp \
     src/sync.cpp \
-    src/syncelement.cpp \
-    src/clock.cpp \
-    src/lock.cpp
+    src/syncelement.cpp
 
 TEMPLATE = lib
 
