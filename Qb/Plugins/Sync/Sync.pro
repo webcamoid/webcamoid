@@ -28,7 +28,13 @@ exists(commons.pri) {
     }
 }
 
+exists(../../3dparty/ffmpeg_auto.pri) {
+    include(../../3dparty/ffmpeg_auto.pri)
+}
+
 CONFIG += plugin
+
+DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
     include/sleep.h \
@@ -43,6 +49,15 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
+exists(../../3dparty/ffmpeg_auto.pri) {
+    INCLUDEPATH += $${FFMPEGHEADERSPATH}
+
+    LIBS += \
+        -L$${FFMPEGLIBSPATH} \
+        -lavutil \
+        -lswresample
+}
+
 QT += core
 
 SOURCES += \
@@ -55,6 +70,14 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
+    ! exists(../../3dparty/ffmpeg_auto.pri) {
+        CONFIG += link_pkgconfig
+
+        PKGCONFIG += \
+            libavutil \
+            libswresample
+    }
+
     INSTALLS += target
 
     target.path = $${LIBDIR}/$${COMMONS_TARGET}

@@ -22,10 +22,20 @@
 #ifndef SYNCELEMENT_H
 #define SYNCELEMENT_H
 
+extern "C"
+{
+    #include <libavutil/opt.h>
+    #include <libavutil/samplefmt.h>
+    #include <libavutil/audioconvert.h>
+    #include <libswresample/swresample.h>
+}
+
 #include <qb.h>
 
 #include "clock.h"
 #include "lock.h"
+
+typedef QSharedPointer<SwrContext> SwrContextPtr;
 
 class SyncElement: public QbElement
 {
@@ -45,6 +55,17 @@ class SyncElement: public QbElement
         QMutex m_audioLock;
         QMutex m_videoLock;
         Lock m_globlLock;
+
+        double m_audioDiffCum;
+        double m_audioDiffAvgCoef;
+        double m_audioDiffThreshold;
+        int m_audioDiffAvgCount;
+
+        SwrContextPtr m_resampleContext;
+        QbCaps m_curInputCaps;
+
+        static void deleteSwrContext(SwrContext *context);
+        int synchronizeAudio(const QbPacket &packet);
 
     signals:
         void ready(int id);

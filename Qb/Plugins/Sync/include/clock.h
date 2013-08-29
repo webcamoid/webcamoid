@@ -36,6 +36,12 @@
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
+// maximum audio speed change to get correct sync
+#define SAMPLE_CORRECTION_PERCENT_MAX 0.1
+
+// we use about AUDIO_DIFF_AVG_NB A-V differences to make the average
+#define AUDIO_DIFF_AVG_NB 20
+
 class Clock: public QObject
 {
     Q_OBJECT
