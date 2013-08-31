@@ -59,7 +59,7 @@ QList<QbElement *> QbElement::sinks()
 {
     return this->m_sinks;
 }
-bool QbElement::link(QObject *dstElement)
+bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
 {
     if (!dstElement)
         return false;
@@ -69,14 +69,14 @@ bool QbElement::link(QObject *dstElement)
             if (this->methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
-                QObject::connect(this, signal, dstElement, slot);
+                QObject::connect(this, signal, dstElement, slot, connectionType);
 
     return true;
 }
 
-bool QbElement::link(QbElementPtr dstElement)
+bool QbElement::link(QbElementPtr dstElement, Qt::ConnectionType connectionType)
 {
-    if (!this->link(static_cast<QObject *>(dstElement.data())))
+    if (!this->link(static_cast<QObject *>(dstElement.data()), connectionType))
         return false;
 
     this->setSinks(this->sinks() << dstElement.data());

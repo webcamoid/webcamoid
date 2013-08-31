@@ -52,7 +52,7 @@ int SyncElement::synchronizeAudio(const QbPacket &packet)
     int nbSamples = packet.caps().property("samples").toInt();
     int wantedNbSamples = nbSamples;
 // ----------------------------------------------------------------------------------
-    this->m_audioDiffThreshold = 0; //2.0 * 1024 / packet.caps().property("rate").toInt();
+    this->m_audioDiffThreshold = 2.0 * 1024 / packet.caps().property("rate").toInt();
 // ----------------------------------------------------------------------------------
     double clock = this->m_extrnClock.clock();
     double pts = this->m_audioClock.clock(packet.pts() * packet.timeBase().value());
@@ -156,8 +156,7 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
     caps1.setProperty("samples", QVariant());
     caps2.setProperty("samples", QVariant());
 
-    if (caps1 != caps2 ||
-        wantedNbSamples != iNSamples)
+    if (caps1 != caps2)
     {
         // create resampler context
         this->m_resampleContext = SwrContextPtr(swr_alloc(), this->deleteSwrContext);
@@ -257,9 +256,11 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
 
     int oNSamples = swr_convert(this->m_resampleContext.data(),
                                 oData.data(),
-                                256 * wantedNbSamples,
+                                wantedNbSamples,
                                 (const uint8_t **) iData.data(),
                                 iNSamples);
+
+    qDebug() << oNSamples << wantedNbSamples;
 
     if (oNSamples < 0)
     {

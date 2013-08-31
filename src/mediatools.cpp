@@ -119,15 +119,15 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "caps='audio/x-raw' outputIndex=0 !"
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
-                            "muxAudioInput. ! sync. !"
+                            "muxAudioInput. ! sync. ! DirectConnection ?"
                             "AudioOutput objectName='audioOutput' ,"
                             "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
-                            "Sync objectName='sync' source.stateChanged>setState !"
-                            "Multiplex caps='video/x-raw' source.stateChanged>setState !"
+                            "Sync objectName='sync' source.stateChanged>setState ! DirectConnection ?"
+                            "Multiplex caps='video/x-raw' source.stateChanged>setState ! DirectConnection ?"
                             "OUT. ,"
                             "WebcamConfig objectName='webcamConfig'");
 

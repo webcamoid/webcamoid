@@ -55,8 +55,13 @@ class QbElement: public QObject
         Q_INVOKABLE virtual bool threaded();
         Q_INVOKABLE virtual QList<QbElement *> srcs();
         Q_INVOKABLE virtual QList<QbElement *> sinks();
-        Q_INVOKABLE virtual bool link(QObject *dstElement);
-        Q_INVOKABLE virtual bool link(QbElementPtr dstElement);
+
+        Q_INVOKABLE virtual bool link(QObject *dstElement,
+                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+
+        Q_INVOKABLE virtual bool link(QbElementPtr dstElement,
+                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+
         Q_INVOKABLE virtual bool unlink(QObject *dstElement);
         Q_INVOKABLE virtual bool unlink(QbElementPtr dstElement);
 

@@ -19,7 +19,7 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "pipeline.h"
+#include "include/pipeline.h"
 
 Pipeline::Pipeline(QObject *parent): QObject(parent)
 {
@@ -122,6 +122,38 @@ QList<QbElementPtr> Pipeline::outputs() const
     return outputs;
 }
 
+QList<Qt::ConnectionType> Pipeline::outputConnectionTypes() const
+{
+    QList<Qt::ConnectionType> outputoutputConnectionTypes;
+
+    int index = this->staticQtMetaObject.indexOfEnumerator("ConnectionType");
+    QMetaEnum enumerator = this->staticQtMetaObject.enumerator(index);
+
+    foreach (QStringList link, this->m_links)
+        if (link[1] == "OUT.")
+        {
+            QString connectionTypeString;
+
+            if (link.length() > 2)
+                connectionTypeString = link[2];
+            else
+                connectionTypeString = "AutoConnection";
+
+            int value = enumerator.keyToValue(connectionTypeString.toStdString().c_str());
+
+            Qt::ConnectionType connectionType;
+
+            if (value < 0)
+                connectionType = Qt::AutoConnection;
+            else
+                connectionType = static_cast<Qt::ConnectionType>(value);
+
+            outputoutputConnectionTypes << connectionType;
+        }
+
+    return outputoutputConnectionTypes;
+}
+
 QMetaMethod Pipeline::methodByName(QObject *object, QString methodName, QMetaMethod::MethodType methodType)
 {
     QMetaMethod rMethod;
@@ -154,15 +186,21 @@ void Pipeline::solveConnections(QString self)
 void Pipeline::addLinks(QStringList links)
 {
     QStringList link;
+    QString connectionType = "AutoConnection";
 
     foreach (QString element,  links)
     {
-        link << element;
+        if (element.endsWith("?"))
+            connectionType = element.remove("?");
+        else
+            link << element;
 
         if (link.length() == 2)
         {
+            link << connectionType;
             this->m_links << link;
             link.removeFirst();
+            link.removeLast();
         }
     }
 }
@@ -186,7 +224,30 @@ bool Pipeline::linkAll()
                 return false;
             }
             else
-                this->m_elements[link[0]]->link(this->m_elements[link[1]]);
+            {
+                QString connectionTypeString;
+
+                if (link.length() > 2)
+                    connectionTypeString = link[2];
+                else
+                    connectionTypeString = "AutoConnection";
+
+                int index = this->staticQtMetaObject.indexOfEnumerator("ConnectionType");
+                QMetaEnum enumerator = this->staticQtMetaObject.enumerator(index);
+
+                int value = enumerator.keyToValue(connectionTypeString.toStdString().c_str());
+
+                if (value < 0)
+                {
+                    this->m_error = QString("Invalid connection type: '%1'").arg(connectionTypeString);
+
+                    return false;
+                }
+
+                Qt::ConnectionType connectionType = static_cast<Qt::ConnectionType>(value);
+
+                this->m_elements[link[0]]->link(this->m_elements[link[1]], connectionType);
+            }
         }
 
     return true;
