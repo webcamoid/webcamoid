@@ -51,6 +51,7 @@ class Pipeline: public QObject
         Q_INVOKABLE void removeElement(QString elementName);
         Q_INVOKABLE QList<QbElementPtr> inputs() const;
         Q_INVOKABLE QList<QbElementPtr> outputs() const;
+        Q_INVOKABLE QList<Qt::ConnectionType> outputConnectionTypes() const;
         Q_INVOKABLE bool linkAll();
         Q_INVOKABLE bool unlinkAll();
         Q_INVOKABLE bool connectAll();

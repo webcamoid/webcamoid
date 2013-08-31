@@ -81,11 +81,19 @@ void BinElement::setDescription(QString description)
             this->m_inputs = this->m_pipelineDescription.inputs();
             this->m_outputs = this->m_pipelineDescription.outputs();
 
+            QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
+            int i = 0;
+
             foreach (QbElementPtr element, this->m_outputs)
+            {
                 QObject::connect(element.data(),
                                  SIGNAL(oStream(const QbPacket &)),
                                  this,
-                                 SIGNAL(oStream(const QbPacket &)));
+                                 SIGNAL(oStream(const QbPacket &)),
+                                 connectionTypes[i]);
+
+                i++;
+            }
         }
         else
         {
@@ -123,11 +131,19 @@ void BinElement::setDescription(QString description)
             this->m_inputs = this->m_pipelineDescription.inputs();
             this->m_outputs = this->m_pipelineDescription.outputs();
 
+            QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
+            int i = 0;
+
             foreach (QbElementPtr element, this->m_outputs)
+            {
                 QObject::connect(element.data(),
                                  SIGNAL(oStream(const QbPacket &)),
                                  this,
-                                 SIGNAL(oStream(const QbPacket &)));
+                                 SIGNAL(oStream(const QbPacket &)),
+                                 connectionTypes[i]);
+
+                i++;
+            }
         }
         else
         {

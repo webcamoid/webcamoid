@@ -38,6 +38,7 @@ Build dependecies:
 * [Wget](http://www.gnu.org/software/wget/wget.html) (if __USE3DPARTYLIBS__ is enabled)
 * [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
 * [Flex](http://flex.sourceforge.net)
+* [mlocate](https://fedorahosted.org/mlocate/)
 
 Build dependecies for __USE3DPARTYLIBS__:
 
