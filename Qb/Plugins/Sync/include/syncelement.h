@@ -25,6 +25,7 @@
 extern "C"
 {
     #include <libavutil/opt.h>
+    #include <libavutil/time.h>
     #include <libavutil/samplefmt.h>
     #include <libavutil/audioconvert.h>
     #include <libswresample/swresample.h>
@@ -61,10 +62,15 @@ class SyncElement: public QbElement
         double m_audioDiffThreshold;
         int m_audioDiffAvgCount;
 
+        double m_frameLastPts;
+        double m_frameLastDuration;
+        double m_frameTimer;
+
         SwrContextPtr m_resampleContext;
         QbCaps m_curInputCaps;
 
         static void deleteSwrContext(SwrContext *context);
+        double computeTargetDelay(const QbPacket &packet, double delay);
         int synchronizeAudio(const QbPacket &packet);
 
     signals:
@@ -78,6 +84,7 @@ class SyncElement: public QbElement
     private slots:
         void processAudioFrame(const QbPacket &packet);
         void processVideoFrame(const QbPacket &packet);
+        void updateVideoPts(double pts);
 };
 
 #endif // SYNCELEMENT_H

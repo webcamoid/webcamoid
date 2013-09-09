@@ -42,27 +42,30 @@
 // we use about AUDIO_DIFF_AVG_NB A-V differences to make the average
 #define AUDIO_DIFF_AVG_NB 20
 
+// polls for possible required screen refresh at least this often, should be less than 1/fps
+#define REFRESH_RATE 0.01
+
 class Clock: public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(double clock READ clock WRITE setClock)
+
     public:
         explicit Clock(QObject *parent=NULL);
-        Clock(bool slave);
         Clock(const Clock &other);
         Clock &operator =(const Clock &other);
 
-        Q_INVOKABLE double clock(double pts=0);
+        Q_INVOKABLE double clock() const;
 
     private:
-        double m_lastClock;
-        double m_drift;
-        bool m_slave;
-        double m_clock0;
+        double m_pts;
+        double m_ptsDrift;
 
     public slots:
-        void init(bool slave=false);
-        void syncTo(double pts);
+        void setClockAt(double pts, double time);
+        void setClock(double pts);
+        void syncTo(const Clock &slave);
 };
 
 #endif // CLOCK_H
