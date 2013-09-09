@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Webcamod, webcam capture plasmoid.
 # Copyright (C) 2011-2012  Gonzalo Exequiel Pedone

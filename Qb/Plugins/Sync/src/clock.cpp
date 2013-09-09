@@ -23,20 +23,13 @@
 
 Clock::Clock(QObject *parent): QObject(parent)
 {
-    this->init();
-}
-
-Clock::Clock(bool slave): QObject(NULL)
-{
-    this->init(slave);
+    this->setClock(NAN);
 }
 
 Clock::Clock(const Clock &other):
     QObject(other.parent()),
-    m_lastClock(other.m_lastClock),
-    m_drift(other.m_drift),
-    m_slave(other.m_slave),
-    m_clock0(other.m_clock0)
+    m_pts(other.m_pts),
+    m_ptsDrift(other.m_ptsDrift)
 {
 }
 
@@ -44,39 +37,39 @@ Clock &Clock::operator =(const Clock &other)
 {
     if (this != &other)
     {
-        this->m_lastClock = other.m_lastClock;
-        this->m_drift = other.m_drift;
-        this->m_slave = other.m_slave;
-        this->m_clock0 = other.m_clock0;
+        this->m_pts = other.m_pts;
+        this->m_ptsDrift = other.m_ptsDrift;
     }
 
     return *this;
 }
 
-double Clock::clock(double pts)
+double Clock::clock() const
 {
-    double clock = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
+    double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
 
-    if (isnan(this->m_clock0))
-        this->m_clock0 = this->m_slave? pts: clock;
-
-    if (!this->m_slave)
-        pts = clock;
-
-    this->m_lastClock = pts - this->m_clock0 + this->m_drift;
-
-    return this->m_lastClock;
+    return time + this->m_ptsDrift;
 }
 
-void Clock::init(bool slave)
+void Clock::setClockAt(double pts, double time)
 {
-    this->m_lastClock = 0.0;
-    this->m_drift = 0.0;
-    this->m_slave = slave;
-    this->m_clock0 = NAN;
+    this->m_pts = pts;
+    this->m_ptsDrift = this->m_pts - time;
 }
 
-void Clock::syncTo(double pts)
+void Clock::setClock(double pts)
 {
-    this->m_drift += pts - this->m_lastClock;
+    double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
+    this->setClockAt(pts, time);
+}
+
+void Clock::syncTo(const Clock &slave)
+{
+    double clock = this->clock();
+    double slaveClock = slave.clock();
+
+    if (!isnan(slaveClock) &&
+        (isnan(clock) ||
+         fabs(clock - slaveClock) > AV_NOSYNC_THRESHOLD))
+        this->setClock(slaveClock);
 }
