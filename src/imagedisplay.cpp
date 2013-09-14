@@ -41,7 +41,7 @@ QImage ImageDisplay::image() const
 
 void ImageDisplay::paintEvent(QPaintEvent *event)
 {
-    QWidget::paintEvent(event);
+    Q_UNUSED(event)
 
     QSize size = this->m_image.size();
     size.scale(this->size(), Qt::KeepAspectRatio);
@@ -50,9 +50,17 @@ void ImageDisplay::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
 
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
+    painter.setRenderHint(QPainter::HighQualityAntialiasing, false);
+
+    painter.beginNativePainting();
+
     painter.drawImage(rect,
                       this->m_image,
                       this->m_image.rect());
+
+    painter.endNativePainting();
 }
 
 void ImageDisplay::setImage(const QImage &image)
