@@ -48,36 +48,6 @@ void SyncElement::deleteSwrContext(SwrContext *context)
     swr_free(&context);
 }
 
-double SyncElement::computeTargetDelay(const QbPacket &packet, double delay)
-{
-    // if video is slave, we try to correct big delays by
-    // duplicating or deleting a frame
-    double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
-
-    // skip or repeat frame. We take into account the
-    // delay to compute the threshold. I still don't know
-    // if it is the best guess
-    double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN, delay, AV_SYNC_THRESHOLD_MAX);
-    double maxFrameDuration = packet.caps().property("maxFrameDuration").toDouble();
-
-    if (!isnan(diff) && fabs(diff) < maxFrameDuration)
-    {
-        // video is backward the external clock.
-        if (diff <= -syncThreshold)
-            delay = qMax(0.0, delay + diff);
-        // video is ahead the external clock, and delay is over AV_SYNC_FRAMEDUP_THRESHOLD.
-        else if (diff >= syncThreshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD)
-            delay = delay + diff;
-        // video is ahead the external clock.
-        else if (diff >= syncThreshold)
-            delay = 2 * delay;
-    }
-
-    qDebug() << "video: delay=" << delay << "A-V=" << -diff;
-
-    return delay;
-}
-
 // return the wanted number of samples to get better sync if sync_type is video
 // or external master clock
 int SyncElement::synchronizeAudio(const QbPacket &packet)
@@ -325,53 +295,56 @@ void SyncElement::processVideoFrame()
 
     QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
 
-    double remainingTime = 0.0;
+    double pts = packet.pts() * packet.timeBase().value();
+    double delay = pts - this->m_frameLastPts;
 
-    while (true)
+    double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN, delay, AV_SYNC_THRESHOLD_MAX);
+
+    // if video is slave, we try to correct big delays by
+    // duplicating or deleting a frame
+    double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
+
+    qDebug() << "A-V=" << -diff;
+
+    if (!isnan(diff) && fabs(diff) < AV_SYNC_THRESHOLD_MAX)
     {
-//        this->checkExternalClockSpeed();
-
-        if (remainingTime > 0.0)
-            Sleep::usleep(1.0e6 * remainingTime);
-
-        double pts = packet.pts() * packet.timeBase().value();
-        double lastDuration = pts - this->m_frameLastPts;
-
-        double maxFrameDuration = packet.caps()
-                                        .property("maxFrameDuration")
-                                        .toDouble();
-
-        if (!isnan(lastDuration) &&
-            lastDuration > 0 &&
-            lastDuration < maxFrameDuration)
-            // if duration of the last frame was sane, update last_duration in video state
-            this->m_frameLastDuration = lastDuration;
-
-        double delay = this->computeTargetDelay(packet,
-                                                this->m_frameLastDuration);
-
-        double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
-
-        if (time < this->m_frameTimer + delay)
+        // video is backward the external clock.
+        if (diff < 0)
         {
-            remainingTime = qMin(this->m_frameTimer + delay - time, REFRESH_RATE);
+            if (fabs(diff) > syncThreshold)
+            {
+                this->m_videoLock.unlock();
+                qDebug() << "discard";
 
-            continue;
+                return;
+            }
+            else
+            {
+                qDebug() << "show";
+            }
         }
-
-        this->m_frameTimer += delay;
-
-        if (delay > 0 && time - this->m_frameTimer > AV_SYNC_THRESHOLD_MAX)
-            this->m_frameTimer = time;
-
-        if (!isnan(pts))
-            this->updateVideoPts(pts);
-
-        // display picture
-        emit this->oStream(packet);
-
-        break;
+        else if (diff > 0)
+        {/*
+            if (fabs(diff) > syncThreshold)
+            {*/
+                Sleep::usleep(1.0e6 * diff);
+                qDebug() << "wait";
+/*            }
+            else
+            {
+                qDebug() << "show";
+            }*/
+        }
     }
+    else
+    {
+        qDebug() << "show";
+    }
+
+    this->updateVideoPts(pts);
+
+    // display picture
+    emit this->oStream(packet);
 
     this->m_videoLock.unlock();
 }
@@ -382,9 +355,4 @@ void SyncElement::updateVideoPts(double pts)
     this->m_videoClock.setClock(pts);
     this->m_extrnClock.syncTo(this->m_videoClock);
     this->m_frameLastPts = pts;
-}
-
-void SyncElement::checkExternalClockSpeed()
-{
-    this->m_extrnClock.setSpeed(qMax(EXTERNAL_CLOCK_SPEED_MIN, this->m_extrnClock.speed() - EXTERNAL_CLOCK_SPEED_STEP));
 }

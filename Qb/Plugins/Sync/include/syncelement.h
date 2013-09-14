@@ -69,7 +69,6 @@ class SyncElement: public QbElement
         QbCaps m_curInputCaps;
 
         static void deleteSwrContext(SwrContext *context);
-        double computeTargetDelay(const QbPacket &packet, double delay);
         int synchronizeAudio(const QbPacket &packet);
 
     signals:
@@ -84,7 +83,6 @@ class SyncElement: public QbElement
         void processAudioFrame();
         void processVideoFrame();
         void updateVideoPts(double pts);
-        void checkExternalClockSpeed();
 };
 
 #endif // SYNCELEMENT_H
