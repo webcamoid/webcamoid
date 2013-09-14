@@ -19,30 +19,50 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef LOCK_H
-#define LOCK_H
+#include "ui_imagedisplay.h"
 
-#include <QtCore>
+#include "imagedisplay.h"
 
-class Lock: public QObject
+ImageDisplay::ImageDisplay(QWidget *parent):
+    QWidget(parent),
+    ui(new Ui::ImageDisplay)
 {
-    Q_OBJECT
+    this->ui->setupUi(this);
+}
 
-    public:
-        explicit Lock(QObject *parent=NULL);
-        Lock(int nLocks);
+ImageDisplay::~ImageDisplay()
+{
+}
 
-    private:
-        QMutex m_lock;
-        QMutex m_counterLock;
-        int m_nLocked;
-        int m_nLocks;
+QImage ImageDisplay::image() const
+{
+    return this->m_image;
+}
 
-    public slots:
-        void init(int nLocks=1);
-        void lock();
-        void unlock();
-        void wait();
-};
+void ImageDisplay::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
 
-#endif // LOCK_H
+    QSize size = this->m_image.size();
+    size.scale(this->size(), Qt::KeepAspectRatio);
+    QRect rect(QPoint(), size);
+    rect.moveCenter(this->rect().center());
+
+    QPainter painter(this);
+
+    painter.drawImage(rect,
+                      this->m_image,
+                      this->m_image.rect());
+}
+
+void ImageDisplay::setImage(const QImage &image)
+{
+    this->m_image = image;
+
+    this->update();
+}
+
+void ImageDisplay::resetImage()
+{
+    this->setImage(QImage());
+}

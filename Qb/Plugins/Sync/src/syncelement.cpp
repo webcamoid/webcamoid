@@ -73,6 +73,8 @@ double SyncElement::computeTargetDelay(const QbPacket &packet, double delay)
             delay = 2 * delay;
     }
 
+    qDebug() << "video: delay=" << delay << "A-V=" << -diff;
+
     return delay;
 }
 
@@ -132,27 +134,24 @@ void SyncElement::iStream(const QbPacket &packet)
         emit this->ready(packet.index());
     }
 
-    this->m_globlLock.wait();
-
     if (this->m_fst)
     {
         this->m_audioClock = Clock();
         this->m_videoClock = Clock();
         this->m_extrnClock = Clock();
 
-        this->m_globlLock.init(2);
-
         this->m_frameTimer = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
 
         this->m_fst = false;
     }
 
-    QString streamType = packet.caps().mimeType();
+    this->m_avqueue.enqueue(packet);
 
-    if (streamType == "audio/x-raw")
-        QtConcurrent::run(this, &SyncElement::processAudioFrame, packet);
-    else
-        QtConcurrent::run(this, &SyncElement::processVideoFrame, packet);
+    if (!this->m_avqueue.isEmpty("audio/x-raw"))
+        QtConcurrent::run(this, &SyncElement::processAudioFrame);
+
+    if (!this->m_avqueue.isEmpty("video/x-raw"))
+        QtConcurrent::run(this, &SyncElement::processVideoFrame);
 }
 
 void SyncElement::setState(ElementState state)
@@ -167,10 +166,18 @@ void SyncElement::setState(ElementState state)
     }
 }
 
-void SyncElement::processAudioFrame(const QbPacket &packet)
+void SyncElement::processAudioFrame()
 {
     this->m_audioLock.lock();
-    this->m_globlLock.lock();
+
+    if (this->m_avqueue.isEmpty("audio/x-raw"))
+    {
+        this->m_audioLock.unlock();
+
+        return;
+    }
+
+    QbPacket packet = this->m_avqueue.dequeue("audio/x-raw");
 
     AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
     int iNChannels = packet.caps().property("channels").toInt();
@@ -194,7 +201,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
 
         if (!this->m_resampleContext)
         {
-            this->m_globlLock.unlock();
             this->m_audioLock.unlock();
 
             return;
@@ -212,7 +218,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
         // initialize the resampling context
         if (swr_init(this->m_resampleContext.data()) < 0)
         {
-            this->m_globlLock.unlock();
             this->m_audioLock.unlock();
 
             return;
@@ -226,7 +231,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
                                  wantedNbSamples - iNSamples,
                                  wantedNbSamples) < 0)
         {
-            this->m_globlLock.unlock();
             this->m_audioLock.unlock();
 
             return;
@@ -248,7 +252,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
 
     if (!oBuffer)
     {
-        this->m_globlLock.unlock();
         this->m_audioLock.unlock();
 
         return;
@@ -262,7 +265,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
                                iSampleFormat,
                                1) < 0)
     {
-        this->m_globlLock.unlock();
         this->m_audioLock.unlock();
 
         return;
@@ -279,7 +281,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
                                iSampleFormat,
                                1) < 0)
     {
-        this->m_globlLock.unlock();
         this->m_audioLock.unlock();
 
         return;
@@ -293,7 +294,6 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
 
     if (oNSamples < 0)
     {
-        this->m_globlLock.unlock();
         this->m_audioLock.unlock();
 
         return;
@@ -309,25 +309,30 @@ void SyncElement::processAudioFrame(const QbPacket &packet)
 
     emit this->oStream(oPacket);
 
-    this->m_globlLock.unlock();
     this->m_audioLock.unlock();
 }
 
-void SyncElement::processVideoFrame(const QbPacket &packet)
+void SyncElement::processVideoFrame()
 {
     this->m_videoLock.lock();
-    this->m_globlLock.lock();
+
+    if (this->m_avqueue.isEmpty("video/x-raw"))
+    {
+        this->m_videoLock.unlock();
+
+        return;
+    }
+
+    QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
 
     double remainingTime = 0.0;
 
     while (true)
     {
+//        this->checkExternalClockSpeed();
+
         if (remainingTime > 0.0)
             Sleep::usleep(1.0e6 * remainingTime);
-
-        remainingTime = REFRESH_RATE;
-
-        bool redisplay = false;
 
         double pts = packet.pts() * packet.timeBase().value();
         double lastDuration = pts - this->m_frameLastPts;
@@ -342,14 +347,14 @@ void SyncElement::processVideoFrame(const QbPacket &packet)
             // if duration of the last frame was sane, update last_duration in video state
             this->m_frameLastDuration = lastDuration;
 
-        double delay = redisplay? 0.0: this->computeTargetDelay(packet,
-                                                         this->m_frameLastDuration);
+        double delay = this->computeTargetDelay(packet,
+                                                this->m_frameLastDuration);
 
         double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
 
-        if (time < this->m_frameTimer + delay && !redisplay)
+        if (time < this->m_frameTimer + delay)
         {
-            remainingTime = qMin(this->m_frameTimer + delay - time, remainingTime);
+            remainingTime = qMin(this->m_frameTimer + delay - time, REFRESH_RATE);
 
             continue;
         }
@@ -359,10 +364,8 @@ void SyncElement::processVideoFrame(const QbPacket &packet)
         if (delay > 0 && time - this->m_frameTimer > AV_SYNC_THRESHOLD_MAX)
             this->m_frameTimer = time;
 
-        if (!redisplay && !isnan(pts))
+        if (!isnan(pts))
             this->updateVideoPts(pts);
-
-// -----------------------------------------------------------------------------
 
         // display picture
         emit this->oStream(packet);
@@ -370,7 +373,6 @@ void SyncElement::processVideoFrame(const QbPacket &packet)
         break;
     }
 
-    this->m_globlLock.unlock();
     this->m_videoLock.unlock();
 }
 
@@ -380,4 +382,9 @@ void SyncElement::updateVideoPts(double pts)
     this->m_videoClock.setClock(pts);
     this->m_extrnClock.syncTo(this->m_videoClock);
     this->m_frameLastPts = pts;
+}
+
+void SyncElement::checkExternalClockSpeed()
+{
+    this->m_extrnClock.setSpeed(qMax(EXTERNAL_CLOCK_SPEED_MIN, this->m_extrnClock.speed() - EXTERNAL_CLOCK_SPEED_STEP));
 }

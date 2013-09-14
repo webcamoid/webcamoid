@@ -18,19 +18,6 @@
     <normaloff/>
    </iconset>
   </property>
-  <widget class="QLabel" name="lblFrame">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>320</width>
-     <height>240</height>
-    </rect>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QWidget" name="wdgControls" native="true">
    <property name="geometry">
     <rect>

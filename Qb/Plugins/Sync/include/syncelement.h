@@ -31,10 +31,8 @@ extern "C"
     #include <libswresample/swresample.h>
 }
 
-#include <qb.h>
-
+#include "avqueue.h"
 #include "clock.h"
-#include "lock.h"
 
 typedef QSharedPointer<SwrContext> SwrContextPtr;
 
@@ -55,7 +53,8 @@ class SyncElement: public QbElement
 
         QMutex m_audioLock;
         QMutex m_videoLock;
-        Lock m_globlLock;
+
+        AVQueue m_avqueue;
 
         double m_audioDiffCum;
         double m_audioDiffAvgCoef;
@@ -82,9 +81,10 @@ class SyncElement: public QbElement
         void setState(ElementState state);
 
     private slots:
-        void processAudioFrame(const QbPacket &packet);
-        void processVideoFrame(const QbPacket &packet);
+        void processAudioFrame();
+        void processVideoFrame();
         void updateVideoPts(double pts);
+        void checkExternalClockSpeed();
 };
 
 #endif // SYNCELEMENT_H

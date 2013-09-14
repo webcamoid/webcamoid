@@ -61,7 +61,8 @@ FORMS = \
     share/ui/mainwidget.ui \
     share/ui/streamsconfig.ui \
     share/ui/videorecordconfig.ui \
-    share/ui/cameraconfig.ui
+    share/ui/cameraconfig.ui \
+    share/ui/imagedisplay.ui
 
 HEADERS = \
     include/appenvironment.h \
@@ -72,7 +73,8 @@ HEADERS = \
     include/mediatools.h \
     include/streamsconfig.h \
     include/videorecordconfig.h \
-    include/cameraconfig.h
+    include/cameraconfig.h \
+    include/imagedisplay.h
 
 INCLUDEPATH += \
     include \
@@ -103,7 +105,8 @@ SOURCES = \
     src/mediatools.cpp \
     src/streamsconfig.cpp \
     src/videorecordconfig.cpp \
-    src/cameraconfig.cpp
+    src/cameraconfig.cpp \
+    src/imagedisplay.cpp
 
 TARGET = $${COMMONS_APPNAME}
 

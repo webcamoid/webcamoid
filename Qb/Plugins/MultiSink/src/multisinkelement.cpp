@@ -464,6 +464,9 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     int outputIndex = this->m_outputParams[QString("%1").arg(packet.index())].outputIndex();
     StreamPtr audioStream = this->m_outputFormat.streams()[inputIndex];
 
+    if (!audioStream)
+        return;
+
     AVCodecContext *codecContext = audioStream->codec;
 
     int samples = packet.caps().property("samples").toInt();

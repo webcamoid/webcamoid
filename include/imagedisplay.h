@@ -19,48 +19,40 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "lock.h"
+#ifndef IMAGEDISPLAY_H
+#define IMAGEDISPLAY_H
 
-Lock::Lock(QObject *parent): QObject(parent)
+#include <QtGui>
+
+#include "commons.h"
+
+namespace Ui
 {
-    this->init();
+    class ImageDisplay;
 }
 
-Lock::Lock(int nLocks)
+class COMMONSSHARED_EXPORT ImageDisplay: public QWidget
 {
-    this->init(nLocks);
-}
+    Q_OBJECT
+    Q_PROPERTY(QImage image READ image WRITE setImage RESET resetImage)
 
-void Lock::init(int nLocks)
-{
-    this->m_nLocked = 0;
-    this->m_nLocks = nLocks;
-}
+    public:
+        explicit ImageDisplay(QWidget *parent=NULL);
+        ~ImageDisplay();
 
-void Lock::lock()
-{
-    this->m_counterLock.lock();
-    this->m_nLocked += 1;
+        Q_INVOKABLE QImage image() const;
 
-    if (this->m_nLocked == this->m_nLocks)
-        this->m_lock.lock();
+    protected:
+        void paintEvent(QPaintEvent *event);
 
-    this->m_counterLock.unlock();
-}
+    private:
+        QSharedPointer<Ui::ImageDisplay> ui;
 
-void Lock::unlock()
-{
-    this->m_counterLock.lock();
+        QImage m_image;
 
-    if (this->m_nLocked == this->m_nLocks)
-        this->m_lock.unlock();
+    public slots:
+        void setImage(const QImage &image);
+        void resetImage();
+};
 
-    this->m_nLocked -= 1;
-    this->m_counterLock.unlock();
-}
-
-void Lock::wait()
-{
-    this->m_lock.lock();
-    this->m_lock.unlock();
-}
+#endif // IMAGEDISPLAY_H
