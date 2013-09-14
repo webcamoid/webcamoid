@@ -100,10 +100,10 @@ void QImageConvertElement::processFrame(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    QSharedPointer<const QImage> oFrame(new QImage((const uchar *) packet.buffer().data(),
-                                                   width,
-                                                   height,
-                                                   this->m_qFormat));
+    QImage oFrame((const uchar *) packet.buffer().data(),
+                  width,
+                  height,
+                  this->m_qFormat);
 
     emit this->oStream(oFrame);
 }

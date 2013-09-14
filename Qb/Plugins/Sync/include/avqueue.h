@@ -19,45 +19,29 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QIMAGECONVERTELEMENT_H
-#define QIMAGECONVERTELEMENT_H
-
-#include <QtGui>
+#ifndef AVQUEUE_H
+#define AVQUEUE_H
 
 #include <qb.h>
 
-class QImageConvertElement: public QbElement
+class AVQueue: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString format READ format WRITE setFormat RESET resetFormat)
-
     public:
-        explicit QImageConvertElement();
-
-        Q_INVOKABLE QString format();
+        explicit AVQueue(QObject *parent=NULL);
+        Q_INVOKABLE bool isEmpty(QString mimeType);
+        Q_INVOKABLE QbPacket dequeue(QString mimeType);
+        Q_INVOKABLE QbPacket check(QString mimeType);
 
     private:
-        QString m_format;
-        QImage::Format m_qFormat;
-
-        QbElementPtr m_capsConvert;
-
-        QMap<QString, QString> m_imageToFormat;
-        QMap<QString, QImage::Format> m_imageToQt;
-
-    signals:
-        void oStream(const QImage &frame);
+        QMutex m_queueMutex;
+        QMutex m_enqueueMutex;
+        QQueue<QbPacket> m_audioQueue;
+        QQueue<QbPacket> m_videoQueue;
 
     public slots:
-        void setFormat(QString format);
-        void resetFormat();
-
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        void enqueue(const QbPacket &packet);
 };
 
-#endif // QIMAGECONVERTELEMENT_H
+#endif // AVQUEUE_H

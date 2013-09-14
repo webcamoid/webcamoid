@@ -39,6 +39,11 @@
 // maximum audio speed change to get correct sync
 #define SAMPLE_CORRECTION_PERCENT_MAX 0.1
 
+// external clock speed adjustment constants for realtime sources based on buffer fullness
+#define EXTERNAL_CLOCK_SPEED_MIN  0.900
+#define EXTERNAL_CLOCK_SPEED_MAX  1.010
+#define EXTERNAL_CLOCK_SPEED_STEP 0.001
+
 // we use about AUDIO_DIFF_AVG_NB A-V differences to make the average
 #define AUDIO_DIFF_AVG_NB 20
 
@@ -49,7 +54,8 @@ class Clock: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(double clock READ clock WRITE setClock)
+        Q_PROPERTY(double clock READ clock WRITE setClock)
+        Q_PROPERTY(double speed READ speed WRITE setSpeed)
 
     public:
         explicit Clock(QObject *parent=NULL);
@@ -57,14 +63,18 @@ class Clock: public QObject
         Clock &operator =(const Clock &other);
 
         Q_INVOKABLE double clock() const;
+        Q_INVOKABLE double speed() const;
 
     private:
         double m_pts;
         double m_ptsDrift;
+        double m_speed;
+        double m_lastUpdated;
 
     public slots:
         void setClockAt(double pts, double time);
         void setClock(double pts);
+        void setSpeed(double speed);
         void syncTo(const Clock &slave);
 };
 

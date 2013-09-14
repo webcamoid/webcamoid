@@ -41,7 +41,7 @@ HEADERS += \
     include/sync.h \
     include/syncelement.h \
     include/clock.h \
-    include/lock.h
+    include/avqueue.h
 
 INCLUDEPATH += \
     include \
@@ -65,7 +65,7 @@ SOURCES += \
     src/sync.cpp \
     src/syncelement.cpp \
     src/clock.cpp \
-    src/lock.cpp
+    src/avqueue.cpp
 
 TEMPLATE = lib
 

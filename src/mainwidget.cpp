@@ -38,6 +38,12 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
 
     this->ui->setupUi(this);
 
+    this->m_imageDispay = new ImageDisplay(this);
+
+    QWidget *parent = qobject_cast<QWidget *>(this->ui->wdgControls->parent());
+    this->ui->wdgControls->setParent(NULL);
+    this->ui->wdgControls->setParent(parent);
+
     if (parentWidget || parentObject)
         this->setStyleSheet("QWidget#MainWidget{background-color: "
                             "rgba(0, 0, 0, 0);}");
@@ -74,11 +80,6 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
                      SIGNAL(frameReady(const QImage &)),
                      this,
                      SLOT(showFrame(const QImage &)));
-
-    QObject::connect(this->m_mediaTools,
-                     SIGNAL(frameSizeChanged(QSize)),
-                     this,
-                     SLOT(updateContents(QSize)));
 
     this->ui->wdgControls->hide();
 
@@ -298,7 +299,8 @@ void MainWidget::showFrame(const QImage &webcamFrame)
     if (!this->m_mediaTools->device().isEmpty())
     {
         this->m_webcamFrame = webcamFrame;
-        this->ui->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
+
+        this->m_imageDispay->setImage(this->m_webcamFrame);
     }
 }
 
@@ -329,7 +331,7 @@ void MainWidget::deviceChanged(QString device)
         this->ui->btnVideoRecord->setEnabled(false);
         this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
         this->m_webcamFrame = QImage();
-        this->ui->lblFrame->setPixmap(QPixmap::fromImage(this->m_webcamFrame));
+        this->m_imageDispay->setImage(this->m_webcamFrame);
     }
     else
     {
@@ -362,21 +364,13 @@ void MainWidget::showError(QString message)
                          KNotification::Persistent);
 }
 
-void MainWidget::updateContents(QSize pixmapSize)
+void MainWidget::updateContents()
 {
-    QSize size = this->size();
-
-    QSize curPixmapSize = pixmapSize.isValid()? pixmapSize: this->ui->lblFrame->pixmap()? this->ui->lblFrame->pixmap()->size(): QSize();
-
-    curPixmapSize.scale(size, Qt::KeepAspectRatio);
-    int x = (size.width() - curPixmapSize.width()) >> 1;
-    int y = (size.height() - curPixmapSize.height()) >> 1;
-
-    this->ui->lblFrame->setGeometry(x, y, curPixmapSize.width(), curPixmapSize.height());
+    this->m_imageDispay->setGeometry(0, 0, this->width(), this->height());
 
     QRect geometry(0,
-                   size.height() - this->ui->wdgControls->height(),
-                   size.width(),
+                   this->height() - this->ui->wdgControls->height(),
+                   this->width(),
                    this->ui->wdgControls->height());
 
     this->ui->wdgControls->setGeometry(geometry);
