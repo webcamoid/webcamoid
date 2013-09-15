@@ -54,7 +54,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         AppEnvironment *m_appEnvironment;
         Effects *m_cfgEffects;
         GeneralConfig *m_cfgGeneralConfig;
-        QImage m_webcamFrame;
+        QbPacket m_webcamFrame;
         StreamsConfig *m_cfgStreams;
         MediaTools *m_mediaTools;
         VideoRecordConfig *m_cfgVideoFormats;
@@ -76,7 +76,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void addVideoFormatsConfigDialog(KConfigDialog *configDialog);
         void addStreamsConfigDialog(KConfigDialog *configDialog);
         void addGeneralConfigsDialog(KConfigDialog *configDialog);
-        void showFrame(const QImage &webcamFrame);
+        void showFrame(const QbPacket &webcamFrame);
 
     private slots:
         void updateWebcams();

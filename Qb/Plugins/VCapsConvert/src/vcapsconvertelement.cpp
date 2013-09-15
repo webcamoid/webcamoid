@@ -37,6 +37,11 @@ QString VCapsConvertElement::caps()
     return this->m_caps.toString();
 }
 
+void VCapsConvertElement::deleteSwsContext(SwsContext *context)
+{
+    sws_freeContext(context);
+}
+
 void VCapsConvertElement::setCaps(QString format)
 {
     this->m_caps = QbCaps(format);
@@ -61,51 +66,33 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
         return;
     }
 
-    int iWidth = packet.caps().property("width").toInt();
-    int iHeight = packet.caps().property("height").toInt();
-    QString format = packet.caps().property("format").toString();
+    ConvertIO convertIO(packet, this->m_caps);
 
-    PixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
-
-    QList<QByteArray> props = this->m_caps.dynamicPropertyNames();
-
-    int oWidth = props.contains("width")?
-                     this->m_caps.property("width").toInt():
-                     iWidth;
-
-    int oHeight = props.contains("height")?
-                      this->m_caps.property("height").toInt():
-                      iHeight;
-
-    PixelFormat oFormat;
-
-    if (props.contains("format"))
+    if (convertIO.check() != this->m_check)
     {
-        QString oFormatString = this->m_caps.property("format").toString();
+        this->m_scaleContext =
+                SwsContextPtr(sws_getCachedContext(NULL,
+                                                   convertIO.iWidth(),
+                                                   convertIO.iHeight(),
+                                                   convertIO.iFormat(),
+                                                   convertIO.oWidth(),
+                                                   convertIO.oHeight(),
+                                                   convertIO.oFormat(),
+                                                   SWS_FAST_BILINEAR,
+                                                   NULL,
+                                                   NULL,
+                                                   NULL),
+                              this->deleteSwsContext);
 
-        oFormat = av_get_pix_fmt(oFormatString.toStdString().c_str());
+        this->m_check = convertIO.check();
     }
-    else
-        oFormat = iFormat;
 
-    SwsContext *scaleContext = sws_getCachedContext(NULL,
-                                                    iWidth,
-                                                    iHeight,
-                                                    iFormat,
-                                                    oWidth,
-                                                    oHeight,
-                                                    oFormat,
-                                                    SWS_FAST_BILINEAR,
-                                                    NULL,
-                                                    NULL,
-                                                    NULL);
-
-    if (!scaleContext)
+    if (!this->m_scaleContext)
         return;
 
-    int oBufferSize = avpicture_get_size(oFormat,
-                                         oWidth,
-                                         oHeight);
+    int oBufferSize = avpicture_get_size(convertIO.oFormat(),
+                                         convertIO.oWidth(),
+                                         convertIO.oHeight());
 
     QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
 
@@ -113,27 +100,25 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
 
     avpicture_fill(&iPicture,
                    (uint8_t *) packet.buffer().data(),
-                   iFormat,
-                   iWidth,
-                   iHeight);
+                   convertIO.iFormat(),
+                   convertIO.iWidth(),
+                   convertIO.iHeight());
 
     AVPicture oPicture;
 
     avpicture_fill(&oPicture,
                    (uint8_t *) oBuffer.data(),
-                   oFormat,
-                   oWidth,
-                   oHeight);
+                   convertIO.oFormat(),
+                   convertIO.oWidth(),
+                   convertIO.oHeight());
 
-    sws_scale(scaleContext,
+    sws_scale(this->m_scaleContext.data(),
               (uint8_t **) iPicture.data,
               iPicture.linesize,
               0,
-              iHeight,
+              convertIO.iHeight(),
               oPicture.data,
               oPicture.linesize);
-
-    sws_freeContext(scaleContext);
 
     QbPacket oPacket(packet.caps().update(this->m_caps),
                      oBuffer,

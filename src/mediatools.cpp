@@ -202,27 +202,13 @@ void MediaTools::iStream(const QbPacket &packet)
 {
     QString sender = this->sender()->objectName();
 
-    QImage frame(packet.caps().property("width").toInt(),
-                 packet.caps().property("height").toInt(),
-                 QImage::Format_ARGB32);
-
-    memcpy(frame.bits(), packet.buffer().data(), packet.bufferSize());
-
     if (sender == "pipeline")
-    {
-        emit this->frameReady(frame);
-
-        if (frame.size() != this->m_curFrameSize)
-        {
-            emit this->frameSizeChanged(frame.size());
-            this->m_curFrameSize = frame.size();
-        }
-    }
+        emit this->frameReady(packet);
     else
     {
         QString name = this->nameFromHash(sender);
 
-        emit this->previewFrameReady(frame, name);
+        emit this->previewFrameReady(packet, name);
     }
 }
 
