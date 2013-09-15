@@ -23,6 +23,7 @@
 #define IMAGEDISPLAY_H
 
 #include <QtGui>
+#include <qb.h>
 
 #include "commons.h"
 
@@ -34,13 +35,13 @@ namespace Ui
 class COMMONSSHARED_EXPORT ImageDisplay: public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QImage image READ image WRITE setImage RESET resetImage)
+    Q_PROPERTY(QbPacket image READ image WRITE setImage RESET resetImage)
 
     public:
         explicit ImageDisplay(QWidget *parent=NULL);
         ~ImageDisplay();
 
-        Q_INVOKABLE QImage image() const;
+        Q_INVOKABLE QbPacket image() const;
 
     protected:
         void paintEvent(QPaintEvent *event);
@@ -48,10 +49,10 @@ class COMMONSSHARED_EXPORT ImageDisplay: public QWidget
     private:
         QSharedPointer<Ui::ImageDisplay> ui;
 
-        QImage m_image;
+        QbPacket m_image;
 
     public slots:
-        void setImage(const QImage &image);
+        void setImage(const QbPacket &image);
         void resetImage();
 };
 

@@ -77,9 +77,9 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
                      SLOT(showError(QString)));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(frameReady(const QImage &)),
+                     SIGNAL(frameReady(const QbPacket &)),
                      this,
-                     SLOT(showFrame(const QImage &)));
+                     SLOT(showFrame(const QbPacket &)));
 
     this->ui->wdgControls->hide();
 
@@ -294,7 +294,7 @@ void MainWidget::closeEvent(QCloseEvent *event)
     this->m_mediaTools->setWindowSize(this->size());
 }
 
-void MainWidget::showFrame(const QImage &webcamFrame)
+void MainWidget::showFrame(const QbPacket &webcamFrame)
 {
     if (!this->m_mediaTools->device().isEmpty())
     {
@@ -330,7 +330,7 @@ void MainWidget::deviceChanged(QString device)
         this->ui->btnTakePhoto->setEnabled(false);
         this->ui->btnVideoRecord->setEnabled(false);
         this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
-        this->m_webcamFrame = QImage();
+        this->m_webcamFrame = QbPacket();
         this->m_imageDispay->setImage(this->m_webcamFrame);
     }
     else
@@ -378,7 +378,10 @@ void MainWidget::updateContents()
 
 void MainWidget::on_btnTakePhoto_clicked()
 {
-    QImage image(this->m_webcamFrame);
+    QImage image(this->m_webcamFrame.buffer().data(),
+                 this->m_webcamFrame.caps().property("width").toInt(),
+                 this->m_webcamFrame.caps().property("height").toInt(),
+                 QImage::Format_ARGB32);
 
     this->m_mediaTools->mutexLock();
 

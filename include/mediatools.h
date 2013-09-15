@@ -124,11 +124,10 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
     signals:
         void devicesModified();
-        void frameSizeChanged(QSize size);
         void deviceChanged(QString device);
         void recordingChanged(bool recording);
-        void frameReady(const QImage &frame);
-        void previewFrameReady(const QImage &frame, QString effectName);
+        void frameReady(const QbPacket &frame);
+        void previewFrameReady(const QbPacket &frame, QString effectName);
         void error(QString message);
 
     public slots:

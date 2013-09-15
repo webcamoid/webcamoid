@@ -34,7 +34,7 @@ ImageDisplay::~ImageDisplay()
 {
 }
 
-QImage ImageDisplay::image() const
+QbPacket ImageDisplay::image() const
 {
     return this->m_image;
 }
@@ -43,7 +43,12 @@ void ImageDisplay::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
-    QSize size = this->m_image.size();
+    QImage image(this->m_image.buffer().data(),
+                 this->m_image.caps().property("width").toInt(),
+                 this->m_image.caps().property("height").toInt(),
+                 QImage::Format_ARGB32);
+
+    QSize size = image.size();
     size.scale(this->size(), Qt::KeepAspectRatio);
     QRect rect(QPoint(), size);
     rect.moveCenter(this->rect().center());
@@ -57,13 +62,13 @@ void ImageDisplay::paintEvent(QPaintEvent *event)
     painter.beginNativePainting();
 
     painter.drawImage(rect,
-                      this->m_image,
-                      this->m_image.rect());
+                      image,
+                      image.rect());
 
     painter.endNativePainting();
 }
 
-void ImageDisplay::setImage(const QImage &image)
+void ImageDisplay::setImage(const QbPacket &image)
 {
     this->m_image = image;
 
@@ -72,5 +77,5 @@ void ImageDisplay::setImage(const QImage &image)
 
 void ImageDisplay::resetImage()
 {
-    this->setImage(QImage());
+    this->setImage(QbPacket());
 }
