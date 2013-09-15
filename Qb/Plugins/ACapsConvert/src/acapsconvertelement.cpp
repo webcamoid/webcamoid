@@ -96,7 +96,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                iNChannels,
                                iNSamples,
                                iSampleFormat,
-                               1) < 0)
+                               0) < 0)
         return;
 
     QbCaps caps1(packet.caps());
@@ -147,7 +147,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                                  oNChannels,
                                                  oNSamples,
                                                  oSampleFormat,
-                                                 1);
+                                                 0);
 
     QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
 
@@ -160,7 +160,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                oNChannels,
                                oNSamples,
                                oSampleFormat,
-                               1) < 0)
+                               0) < 0)
         return;
 
     // convert to destination format

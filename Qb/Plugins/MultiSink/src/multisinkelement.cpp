@@ -501,7 +501,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                  codecContext->sample_fmt,
                                  (uint8_t *) packet.buffer().data(),
                                  packet.bufferSize(),
-                                 1) < 0)
+                                 0) < 0)
         return;
 
     for (int offset = 0; offset < samples; offset += frameSize)
@@ -523,7 +523,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                      frameSize *
                                      av_get_bytes_per_sample(codecContext->sample_fmt) *
                                      codecContext->channels,
-                                     1) < 0)
+                                     0) < 0)
             continue;
 
         if (av_samples_copy(oFrame.data,

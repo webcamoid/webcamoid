@@ -361,37 +361,35 @@ void FilterElement::iStream(const QbPacket &packet)
         }
         else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_AUDIO)
         {
-            int frameSize = av_samples_get_buffer_size(NULL,
-                                                       oFrame.channels,
-                                                       oFrame.nb_samples,
-                                                       (AVSampleFormat) oFrame.format,
-                                                       1);
+            int oBufferSize = av_samples_get_buffer_size(NULL,
+                                                         oFrame.channels,
+                                                         oFrame.nb_samples,
+                                                         (AVSampleFormat) oFrame.format,
+                                                         1);
 
-            uint8_t **oFrameBuffer = NULL;
+            int oLineSize;
 
-            int oBufferLineSize;
+            QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
 
-            int ret = av_samples_alloc(oFrameBuffer,
-                                       &oBufferLineSize,
+            int planes = av_sample_fmt_is_planar((AVSampleFormat) oFrame.format)? oFrame.channels: 1;
+            QVector<uint8_t *> oData(planes);
+
+            if (av_samples_fill_arrays(&oData.data()[0],
+                                       &oLineSize,
+                                       (const uint8_t *) oBuffer.data(),
                                        oFrame.channels,
                                        oFrame.nb_samples,
                                        (AVSampleFormat) oFrame.format,
-                                       1);
-
-            if (ret < 0)
+                                       0) < 0)
                 return;
 
-            av_samples_copy(oFrameBuffer,
+            av_samples_copy(&oData.data()[0],
                             oFrame.data,
                             0,
                             0,
                             oFrame.nb_samples,
                             oFrame.channels,
                             (AVSampleFormat) oFrame.format);
-
-            QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
-            memcpy(oBuffer.data(), oFrameBuffer[0], frameSize);
-            av_freep(&oFrameBuffer[0]);
 
             const char *format = av_get_sample_fmt_name((AVSampleFormat) oFrame.format);
             char layout[256];
@@ -410,7 +408,7 @@ void FilterElement::iStream(const QbPacket &packet)
 
             oPacket = QbPacket(caps,
                                oBuffer,
-                               frameSize);
+                               oBufferSize);
         }
         else if (this->m_bufferSinkContext->inputs[0]->type == AVMEDIA_TYPE_DATA)
             return;
