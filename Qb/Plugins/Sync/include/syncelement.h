@@ -44,6 +44,13 @@ class SyncElement: public QbElement
         explicit SyncElement();
 
     private:
+        enum PackageProcessing
+        {
+            PackageProcessingRelease,
+            PackageProcessingDiscard,
+            PackageProcessingReSync
+        };
+
         bool m_ready;
         bool m_fst;
 
@@ -70,6 +77,7 @@ class SyncElement: public QbElement
 
         static void deleteSwrContext(SwrContext *context);
         int synchronizeAudio(const QbPacket &packet);
+        PackageProcessing synchronizeVideo(double diff, double delay);
 
     signals:
         void ready(int id);
@@ -82,7 +90,6 @@ class SyncElement: public QbElement
     private slots:
         void processAudioFrame();
         void processVideoFrame();
-        void updateVideoPts(double pts);
 };
 
 #endif // SYNCELEMENT_H

@@ -23,7 +23,6 @@
 
 Clock::Clock(QObject *parent): QObject(parent)
 {
-    this->m_speed = 1.0;
     this->setClock(NAN);
 }
 
@@ -49,18 +48,12 @@ double Clock::clock() const
 {
     double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
 
-    return time + this->m_ptsDrift - (time - this->m_lastUpdated) * (1.0 - this->m_speed);
-}
-
-double Clock::speed() const
-{
-    return this->m_speed;
+    return time + this->m_ptsDrift;
 }
 
 void Clock::setClockAt(double pts, double time)
 {
     this->m_pts = pts;
-    this->m_lastUpdated = time;
     this->m_ptsDrift = this->m_pts - time;
 }
 
@@ -68,12 +61,6 @@ void Clock::setClock(double pts)
 {
     double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
     this->setClockAt(pts, time);
-}
-
-void Clock::setSpeed(double speed)
-{
-    this->setClock(this->clock());
-    this->m_speed = speed;
 }
 
 void Clock::syncTo(const Clock &slave)
