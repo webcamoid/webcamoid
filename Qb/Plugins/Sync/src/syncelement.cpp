@@ -52,12 +52,26 @@ void SyncElement::deleteSwrContext(SwrContext *context)
 // or external master clock
 int SyncElement::synchronizeAudio(const QbPacket &packet)
 {
+    // syncThreshold = 2 * delay;
+    //
+    // (resync)
+    // -syncThreshold
+    // (discard)
+    // [-delay * SAMPLE_CORRECTION_PERCENT_MAX]
+    // (release)
+    // [delay * SAMPLE_CORRECTION_PERCENT_MAX]
+    // (wait)
+    // -syncThreshold
+    // (resync)
+
     int nbSamples = packet.caps().property("samples").toInt();
     int wantedNbSamples = nbSamples;
 // ----------------------------------------------------------------------------------
     this->m_audioDiffThreshold = 2.0 * 0 / packet.caps().property("rate").toInt();
 // ----------------------------------------------------------------------------------
     double diff = this->m_audioClock.clock() - this->m_extrnClock.clock();
+
+    qDebug() << "a: A-V=" << -diff;
 
     if (!isnan(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD)
     {
@@ -90,6 +104,43 @@ int SyncElement::synchronizeAudio(const QbPacket &packet)
     }
 
     return wantedNbSamples;
+}
+
+SyncElement::PackageProcessing SyncElement::synchronizeVideo(double diff, double delay)
+{
+    // (resync)
+    // -AV_SYNC_THRESHOLD_MAX
+    // (discard)
+    // -syncThreshold
+    // (release)
+    // AV_SYNC_THRESHOLD_MIN
+    // (wait)
+    // AV_NOSYNC_THRESHOLD
+    // (resync)
+
+    double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
+                                  delay,
+                                  AV_SYNC_THRESHOLD_MAX);
+
+
+    if (!isnan(diff) && diff < AV_NOSYNC_THRESHOLD)
+    {
+        if (diff > -syncThreshold)
+        {
+            // stream is ahead the external clock.
+            if (diff > AV_SYNC_THRESHOLD_MIN)
+                Sleep::usleep(1.0e6 * diff);
+
+            return PackageProcessingRelease;
+        }
+        // stream is backward the external clock.
+        else if (diff > -AV_SYNC_THRESHOLD_MAX)
+            return PackageProcessingDiscard;
+    }
+
+    // Update clocks.
+
+    return PackageProcessingReSync;
 }
 
 void SyncElement::iStream(const QbPacket &packet)
@@ -298,61 +349,29 @@ void SyncElement::processVideoFrame()
     double pts = packet.pts() * packet.timeBase().value();
     double delay = pts - this->m_frameLastPts;
 
-    double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN, delay, AV_SYNC_THRESHOLD_MAX);
-
     // if video is slave, we try to correct big delays by
     // duplicating or deleting a frame
     double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
 
-    qDebug() << "A-V=" << -diff;
+    this->m_videoClock.setClock(pts);
+    this->m_frameLastPts = pts;
 
-    if (!isnan(diff) && fabs(diff) < AV_SYNC_THRESHOLD_MAX)
+    qDebug() << "v: A-V=" << -diff;
+
+    PackageProcessing operation = this->synchronizeVideo(diff, delay);
+
+    if (operation == PackageProcessingDiscard)
     {
-        // video is backward the external clock.
-        if (diff < 0)
-        {
-            if (fabs(diff) > syncThreshold)
-            {
-                this->m_videoLock.unlock();
-                qDebug() << "discard";
+        this->m_videoLock.unlock();
 
-                return;
-            }
-            else
-            {
-                qDebug() << "show";
-            }
-        }
-        else if (diff > 0)
-        {/*
-            if (fabs(diff) > syncThreshold)
-            {*/
-                Sleep::usleep(1.0e6 * diff);
-                qDebug() << "wait";
-/*            }
-            else
-            {
-                qDebug() << "show";
-            }*/
-        }
+        return;
     }
-    else
-    {
-        qDebug() << "show";
-    }
-
-    this->updateVideoPts(pts);
+    if (operation == PackageProcessingReSync)
+        // update current video pts
+        this->m_extrnClock.syncTo(this->m_videoClock);
 
     // display picture
     emit this->oStream(packet);
 
     this->m_videoLock.unlock();
-}
-
-void SyncElement::updateVideoPts(double pts)
-{
-    // update current video pts
-    this->m_videoClock.setClock(pts);
-    this->m_extrnClock.syncTo(this->m_videoClock);
-    this->m_frameLastPts = pts;
 }

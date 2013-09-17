@@ -23,6 +23,12 @@
 
 AVQueue::AVQueue(QObject *parent): QObject(parent)
 {
+    this->resetSize();
+}
+
+int AVQueue::size() const
+{
+    return this->m_size;
 }
 
 bool AVQueue::isEmpty(QString mimeType)
@@ -45,6 +51,8 @@ QbPacket AVQueue::dequeue(QString mimeType)
 {
     QbPacket packet;
 
+    qDebug() << "aq:" << this->m_audioQueue.size() << "vq:" << this->m_videoQueue.size();
+
     this->m_queueMutex.lock();
 
     if (mimeType == "audio/x-raw")
@@ -52,7 +60,8 @@ QbPacket AVQueue::dequeue(QString mimeType)
     else
         packet = this->m_videoQueue.dequeue();
 
-    if (this->m_audioQueue.isEmpty() || this->m_videoQueue.isEmpty())
+    if (this->m_audioQueue.size() < this->size() ||
+        this->m_videoQueue.size() < this->size())
         this->m_enqueueMutex.unlock();
 
     this->m_queueMutex.unlock();
@@ -88,8 +97,19 @@ void AVQueue::enqueue(const QbPacket &packet)
     else
         this->m_videoQueue.enqueue(packet);
 
-    if (!this->m_audioQueue.isEmpty() && !this->m_videoQueue.isEmpty())
+    if (this->m_audioQueue.size() >= this->size() &&
+        this->m_videoQueue.size() >= this->size())
         this->m_enqueueMutex.lock();
 
     this->m_queueMutex.unlock();
+}
+
+void AVQueue::setSize(int size)
+{
+    this->m_size = size;
+}
+
+void AVQueue::resetSize()
+{
+    this->setSize(5);
 }

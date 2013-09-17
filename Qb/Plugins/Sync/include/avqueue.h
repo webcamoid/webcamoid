@@ -27,14 +27,20 @@
 class AVQueue: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int size READ size WRITE setSize RESET resetSize)
 
     public:
         explicit AVQueue(QObject *parent=NULL);
+
+        Q_INVOKABLE int size() const;
+
         Q_INVOKABLE bool isEmpty(QString mimeType);
         Q_INVOKABLE QbPacket dequeue(QString mimeType);
         Q_INVOKABLE QbPacket check(QString mimeType);
 
     private:
+        int m_size;
+
         QMutex m_queueMutex;
         QMutex m_enqueueMutex;
         QQueue<QbPacket> m_audioQueue;
@@ -42,6 +48,8 @@ class AVQueue: public QObject
 
     public slots:
         void enqueue(const QbPacket &packet);
+        void setSize(int size);
+        void resetSize();
 };
 
 #endif // AVQUEUE_H
