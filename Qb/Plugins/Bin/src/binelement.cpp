@@ -174,17 +174,11 @@ void BinElement::resetBlocking()
 
 void BinElement::iStream(const QbPacket &packet)
 {
-    if (this->state() != ElementStatePlaying)
-        return;
-
-    if (this->description().isEmpty())
-    {
-        if (!this->blocking())
-            emit this->oStream(packet);
-    }
-    else
+    if (!this->description().isEmpty())
         foreach (QbElementPtr element, this->m_inputs)
             element->iStream(packet);
+    else if (!this->blocking())
+        emit this->oStream(packet);
 }
 
 void BinElement::setState(ElementState state)

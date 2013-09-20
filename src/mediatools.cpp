@@ -113,21 +113,21 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "caps='video/x-raw' outputIndex=0 !"
                             "Bin objectName='effects' blocking=false !"
                             "VCapsConvert caps='video/x-raw,format=bgra' "
-                            "source.stateChanged>setState ! sync. ,"
+                            "source.stateChanged>setState !"
+                            "sync. ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
                             "caps='audio/x-raw' outputIndex=0 !"
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
-                            "muxAudioInput. ! sync. ! DirectConnection ?"
+                            "muxAudioInput. ! sync. ! DirectConnection?"
                             "AudioOutput objectName='audioOutput' ,"
                             "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
-                            "Sync objectName='sync' source.stateChanged>setState ! DirectConnection ?"
-                            "Multiplex caps='video/x-raw' source.stateChanged>setState ! DirectConnection ?"
+                            "Sync objectName='sync' source.stateChanged>setState ! DirectConnection?"
                             "OUT. ,"
                             "WebcamConfig objectName='webcamConfig'");
 
@@ -200,6 +200,9 @@ MediaTools::~MediaTools()
 
 void MediaTools::iStream(const QbPacket &packet)
 {
+    if (packet.caps().mimeType() != "video/x-raw")
+        return;
+
     QString sender = this->sender()->objectName();
 
     if (sender == "pipeline")

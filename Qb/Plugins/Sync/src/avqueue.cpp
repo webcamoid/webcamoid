@@ -24,11 +24,22 @@
 AVQueue::AVQueue(QObject *parent): QObject(parent)
 {
     this->resetSize();
+    this->resetSizeThreshold();
+    this->m_full = false;
+}
+
+AVQueue::~AVQueue()
+{
 }
 
 int AVQueue::size() const
 {
     return this->m_size;
+}
+
+int AVQueue::sizeThreshold() const
+{
+    return this->m_sizeThreshold;
 }
 
 bool AVQueue::isEmpty(QString mimeType)
@@ -109,7 +120,17 @@ void AVQueue::setSize(int size)
     this->m_size = size;
 }
 
+void AVQueue::setSizeThreshold(int sizeThreshold)
+{
+    this->m_sizeThreshold = sizeThreshold;
+}
+
 void AVQueue::resetSize()
 {
     this->setSize(5);
+}
+
+void AVQueue::resetSizeThreshold()
+{
+    this->setSizeThreshold(0);
 }

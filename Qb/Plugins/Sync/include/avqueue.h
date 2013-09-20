@@ -28,11 +28,14 @@ class AVQueue: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int size READ size WRITE setSize RESET resetSize)
+    Q_PROPERTY(int sizeThreshold READ sizeThreshold WRITE setSizeThreshold RESET resetSizeThreshold)
 
     public:
         explicit AVQueue(QObject *parent=NULL);
+        ~AVQueue();
 
         Q_INVOKABLE int size() const;
+        Q_INVOKABLE int sizeThreshold() const;
 
         Q_INVOKABLE bool isEmpty(QString mimeType);
         Q_INVOKABLE QbPacket dequeue(QString mimeType);
@@ -40,6 +43,8 @@ class AVQueue: public QObject
 
     private:
         int m_size;
+        int m_sizeThreshold;
+        bool m_full;
 
         QMutex m_queueMutex;
         QMutex m_enqueueMutex;
@@ -49,7 +54,9 @@ class AVQueue: public QObject
     public slots:
         void enqueue(const QbPacket &packet);
         void setSize(int size);
+        void setSizeThreshold(int sizeThreshold);
         void resetSize();
+        void resetSizeThreshold();
 };
 
 #endif // AVQUEUE_H

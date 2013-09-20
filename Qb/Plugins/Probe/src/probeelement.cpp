@@ -43,27 +43,13 @@ void ProbeElement::resetLog()
 
 void ProbeElement::iStream(const QbPacket &packet)
 {
-    if (this->state() != ElementStatePlaying)
-        return;
-
     if (this->log())
     {
-        QString packetInfo = QString("%1: %2\n"
-                                     "\tBuffer Size: %3\n"
-                                     "\tPts        : %4 (%5)\n"
-                                     "\tDuration   : %6 (%7)\n"
-                                     "\tTime Base  : %8\n"
-                                     "\tIndex      : %9\n").arg(this->objectName())
-                                                           .arg(packet.caps().toString())
-                                                           .arg(packet.bufferSize())
-                                                           .arg(packet.pts())
-                                                           .arg(packet.pts() * packet.timeBase().value())
-                                                           .arg(packet.duration())
-                                                           .arg(packet.duration() * packet.timeBase().value())
-                                                           .arg(packet.timeBase().toString())
-                                                           .arg(packet.index());
+        qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
 
-        qDebug() << packetInfo.toStdString().c_str();
+        foreach (QString line, packet.toString().split('\n'))
+            qDebug().nospace() << "\t"
+                               << line.toStdString().c_str();
     }
 
     emit this->oStream(packet);

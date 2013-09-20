@@ -54,9 +54,7 @@ void VCapsConvertElement::resetCaps()
 
 void VCapsConvertElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
+    if (packet.caps().mimeType() != "video/x-raw")
         return;
 
     if (packet.caps() == this->m_caps)
@@ -94,7 +92,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                                          convertIO.oWidth(),
                                          convertIO.oHeight());
 
-    QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
+    QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
     AVPicture iPicture;
 

@@ -103,7 +103,7 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
                                                  (AVSampleFormat) iFrame.format,
                                                  0);
 
-    QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
+    QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
     int planes = av_sample_fmt_is_planar((AVSampleFormat) iFrame.format)? iFrame.channels: 1;
     QVector<uint8_t *> oData(planes);

@@ -35,7 +35,7 @@ class QbFrac: public QObject
     public:
         explicit QbFrac(QObject *parent=NULL);
         QbFrac(qint64 num, qint64 den);
-        QbFrac(QString fracString);
+        QbFrac(const QString &fracString);
         QbFrac(const QbFrac &other);
         virtual ~QbFrac();
         QbFrac &operator =(const QbFrac &other);

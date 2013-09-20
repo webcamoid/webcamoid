@@ -55,7 +55,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
         for (uint i = 0; i < subtitle.num_rects; i++)
         {
             QbCaps caps(this->caps());
-            QSharedPointer<uchar> oBuffer;
+            QbBufferPtr oBuffer;
             int dataLenght = 0;
 
             if (subtitle.rects[i]->type == SUBTITLE_BITMAP)
@@ -82,7 +82,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
                                 subtitle.rects[i]->w *
                                 subtitle.rects[i]->h;
 
-                QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
+                QbBufferPtr oBuffer(new uchar[frameSize]);
 
                 if (!oBuffer)
                     break;
@@ -101,7 +101,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
                 caps.setProperty("type", "text");
                 int textLenght = sizeof(subtitle.rects[i]->text);
 
-                oBuffer = QSharedPointer<uchar>(new uchar[textLenght]);
+                oBuffer = QbBufferPtr(new uchar[textLenght]);
 
                 if (!oBuffer)
                     break;
@@ -114,7 +114,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
                 caps.setProperty("type", "ass");
                 int assLenght = sizeof(subtitle.rects[i]->ass);
 
-                oBuffer = QSharedPointer<uchar>(new uchar[assLenght]);
+                oBuffer = QbBufferPtr(new uchar[assLenght]);
 
                 if (!oBuffer)
                     break;
@@ -141,12 +141,12 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
     {
         // Some subtitles seams to have a problem when decoding.
         QbCaps caps(this->caps());
-        QSharedPointer<uchar> oBuffer;
+        QbBufferPtr oBuffer;
 
         caps.setProperty("type", "ass");
         int assLenght = packet->size;
 
-        oBuffer = QSharedPointer<uchar>(new uchar[assLenght]);
+        oBuffer = QbBufferPtr(new uchar[assLenght]);
 
         if (oBuffer)
         {

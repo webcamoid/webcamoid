@@ -40,7 +40,7 @@ QStringList Qb::pluginsPaths()
     return application.pluginsPaths();
 }
 
-QbElementPtr Qb::create(QString pluginId, QString elementName)
+QbElementPtr Qb::create(const QString &pluginId, const QString &elementName)
 {
     QbElementPtr element = application.newInstance(pluginId);
 
@@ -50,7 +50,7 @@ QbElementPtr Qb::create(QString pluginId, QString elementName)
     return element;
 }
 
-void Qb::setPluginsPaths(QStringList pluginsPaths)
+void Qb::setPluginsPaths(const QStringList &pluginsPaths)
 {
     application.setPluginsPaths(pluginsPaths);
 }
