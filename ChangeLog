@@ -1,1524 +1,605 @@
-2013-06-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Lib.pro, Qb/Lib.pro, Qb/Plugins/Bin/Bin.pro,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/Probe/include/probeelement.h,
-	Qb/Plugins/Probe/src/probeelement.cpp,
-	Qb/Plugins/WebcamConfig/WebcamConfig.pro,
-	Qb/Plugins/WebcamConfig/include/webcamconfig.h,
-	Qb/Plugins/WebcamConfig/include/webcamconfigelement.h,
-	Qb/Plugins/WebcamConfig/src/webcamconfig.cpp,
-	Qb/Plugins/WebcamConfig/src/webcamconfigelement.cpp, Qb/Qb.pro,
-	Qb/Qb.qdocconf, Qb/commons.pri, README.md, Webcamoid.pro,
-	Webcamoid.qdocconf, commons.pri, ports/archlinux/PKGBUILD: Modified
-	gitignore. Modified building and installation. Added BUILDDOCS
-	variable. Updated README. Updated PKGBUILD. Working on WebcamConfig.
-
-2013-06-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ports/debian/control, ports/ubuntu/control: Changed
-	ports/ubuntu/control -> ports/debian/control.
-
-2013-06-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/AudioInput/AudioInput.pro,
-	Qb/Plugins/AudioInput/include/audioinput.h,
-	Qb/Plugins/AudioInput/include/audioinputelement.h,
-	Qb/Plugins/AudioInput/src/audioinput.cpp,
-	Qb/Plugins/AudioInput/src/audioinputelement.cpp,
-	Qb/Plugins/MultiSrc/include/abstractstream.h,
-	Qb/Plugins/MultiSrc/include/audiostream.h,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp, include/mediatools.h,
-	src/mediatools.cpp: Added AudioInput.
-
-2013-06-12  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/AudioOutput/include/audiooutputelement.h,
-	Qb/Plugins/AudioOutput/src/audiooutputelement.cpp,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp, Qb/Qb.pro,
-	Qb/commons.pri, Webcamoid.pro, commons.pri, src/mediatools.cpp: 
-	AudioOutput ready. Added QDOCTOOL variable.
-
-2013-06-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/AudioOutput/AudioOutput.pro,
-	Qb/Plugins/AudioOutput/include/audiooutput.h,
-	Qb/Plugins/AudioOutput/include/audiooutputelement.h,
-	Qb/Plugins/AudioOutput/src/audiooutput.cpp,
-	Qb/Plugins/AudioOutput/src/audiooutputelement.cpp,
-	Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/customdeleters.h,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/include/outputformat.h,
-	Qb/Plugins/MultiSink/include/outputparams.h,
-	Qb/Plugins/MultiSink/src/customdeleters.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/outputformat.cpp,
-	Qb/Plugins/MultiSink/src/outputparams.cpp: MultiSink ready. Added
-	AudioOutput element.
-
-2013-06-07  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Bin/parser/parser.y: Bug #3, case closed. Thank you
-	very much to everyone who collaborated :)
-
-2013-06-07  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Bin/parser/lexer.l,
-	Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/commands.h,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/include/streaminput.h,
-	Qb/Plugins/MultiSink/src/commands.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/streaminput.cpp,
-	Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/src/syncelement.cpp,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	src/mediatools.cpp: Multi stream recording comming soon.
-	VCapsConvert can resample. Removed obsolete code in Sync.
-
-2013-06-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Filter/include/filterelement.h,
-	Qb/Plugins/Filter/src/filterelement.cpp,
-	Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/include/outputoptions.h,
-	Qb/Plugins/MultiSink/include/outputparams.h,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/outputoptions.cpp,
-	Qb/Plugins/MultiSink/src/outputparams.cpp,
-	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp: Modified
-	VCapsConvert. One filter per stream.
-
-2013-06-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Filter/include/filterelement.h,
-	Qb/Plugins/Filter/src/filterelement.cpp, Qb/include/qbfrac.h,
-	Qb/src/qbfrac.cpp: Fixed Filter.
-
-2013-06-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md: Updated README.
-
-2013-06-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, Plasmoid.pro, Qb/3dparty/3dparty.pro,
-	Qb/3dparty/ffmpeg/ffmpeg.pro, Qb/Lib.pro,
-	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
-	Qb/Plugins/ACapsConvert/include/acapsconvert.h,
-	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	Qb/Plugins/ACapsConvert/src/acapsconvert.cpp,
-	Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Aging/include/aging.h,
-	Qb/Plugins/Aging/include/agingelement.h,
-	Qb/Plugins/Aging/include/scratch.h, Qb/Plugins/Aging/src/aging.cpp,
-	Qb/Plugins/Aging/src/agingelement.cpp,
-	Qb/Plugins/Aging/src/scratch.cpp, Qb/Plugins/Bin/Bin.pro,
-	Qb/Plugins/Bin/include/bin.h, Qb/Plugins/Bin/include/binelement.h,
-	Qb/Plugins/Bin/include/pipeline.h, Qb/Plugins/Bin/parser/lexer.l,
-	Qb/Plugins/Bin/parser/parser.y, Qb/Plugins/Bin/src/bin.cpp,
-	Qb/Plugins/Bin/src/binelement.cpp, Qb/Plugins/Bin/src/pipeline.cpp,
-	Qb/Plugins/Blitzer/Blitzer.pro,
-	Qb/Plugins/Blitzer/include/blitzer.h,
-	Qb/Plugins/Blitzer/include/blitzerelement.h,
-	Qb/Plugins/Blitzer/src/blitzer.cpp,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/Filter/Filter.pro, Qb/Plugins/Filter/include/filter.h,
-	Qb/Plugins/Filter/include/filterelement.h,
-	Qb/Plugins/Filter/src/filter.cpp,
-	Qb/Plugins/Filter/src/filterelement.cpp, Qb/Plugins/Fire/Fire.pro,
-	Qb/Plugins/Fire/include/fire.h,
-	Qb/Plugins/Fire/include/fireelement.h,
-	Qb/Plugins/Fire/src/fire.cpp, Qb/Plugins/Fire/src/fireelement.cpp,
-	Qb/Plugins/Frei0r/Frei0r.pro, Qb/Plugins/Frei0r/include/frei0r.h,
-	Qb/Plugins/Frei0r/include/frei0relement.h,
-	Qb/Plugins/Frei0r/src/frei0r.cpp,
-	Qb/Plugins/Frei0r/src/frei0relement.cpp,
-	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/Matrix/include/blip.h,
-	Qb/Plugins/Matrix/include/matrix.h,
-	Qb/Plugins/Matrix/include/matrixelement.h,
-	Qb/Plugins/Matrix/src/blip.cpp, Qb/Plugins/Matrix/src/matrix.cpp,
-	Qb/Plugins/Matrix/src/matrixelement.cpp,
-	Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/commands.h,
-	Qb/Plugins/MultiSink/include/customdeleters.h,
-	Qb/Plugins/MultiSink/include/multisink.h,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/include/option.h,
-	Qb/Plugins/MultiSink/include/optionparser.h,
-	Qb/Plugins/MultiSink/include/outputoptions.h,
-	Qb/Plugins/MultiSink/include/parsedoption.h,
-	Qb/Plugins/MultiSink/include/streaminput.h,
-	Qb/Plugins/MultiSink/src/commands.cpp,
-	Qb/Plugins/MultiSink/src/customdeleters.cpp,
-	Qb/Plugins/MultiSink/src/multisink.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/option.cpp,
-	Qb/Plugins/MultiSink/src/optionparser.cpp,
-	Qb/Plugins/MultiSink/src/outputoptions.cpp,
-	Qb/Plugins/MultiSink/src/parsedoption.cpp,
-	Qb/Plugins/MultiSink/src/streaminput.cpp,
-	Qb/Plugins/MultiSrc/MultiSrc.pro,
-	Qb/Plugins/MultiSrc/include/abstractstream.h,
-	Qb/Plugins/MultiSrc/include/audiostream.h,
-	Qb/Plugins/MultiSrc/include/multisrc.h,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/multisrc.cpp,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp,
-	Qb/Plugins/Multiplex/Multiplex.pro,
-	Qb/Plugins/Multiplex/include/multiplex.h,
-	Qb/Plugins/Multiplex/include/multiplexelement.h,
-	Qb/Plugins/Multiplex/src/multiplex.cpp,
-	Qb/Plugins/Multiplex/src/multiplexelement.cpp,
-	Qb/Plugins/Plugins.pro, Qb/Plugins/Probe/Probe.pro,
-	Qb/Plugins/Probe/include/probe.h,
-	Qb/Plugins/Probe/include/probeelement.h,
-	Qb/Plugins/Probe/src/probe.cpp,
-	Qb/Plugins/Probe/src/probeelement.cpp,
-	Qb/Plugins/QImageConvert/QImageConvert.pro,
-	Qb/Plugins/QImageConvert/include/qimageconvert.h,
-	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
-	Qb/Plugins/QImageConvert/src/qimageconvert.cpp,
-	Qb/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/sleep.h,
-	Qb/Plugins/Sync/include/sync.h,
-	Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/src/sleep.cpp, Qb/Plugins/Sync/src/sync.cpp,
-	Qb/Plugins/Sync/src/syncelement.cpp,
-	Qb/Plugins/VCapsConvert/VCapsConvert.pro,
-	Qb/Plugins/VCapsConvert/include/vcapsconvert.h,
-	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	Qb/Plugins/VCapsConvert/src/vcapsconvert.cpp,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	Qb/Plugins/Warhol/Warhol.pro, Qb/Plugins/Warhol/include/warhol.h,
-	Qb/Plugins/Warhol/include/warholelement.h,
-	Qb/Plugins/Warhol/src/warhol.cpp,
-	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/Qb.pro, Qb/Qb.qdocconf,
-	Qb/commons.pri, Qb/include/qb.h, Qb/include/qbapplication.h,
-	Qb/include/qbcaps.h, Qb/include/qbelement.h, Qb/include/qbfrac.h,
-	Qb/include/qbpacket.h, Qb/include/qbplugin.h, Qb/src/qb.cpp,
-	Qb/src/qbapplication.cpp, Qb/src/qbcaps.cpp, Qb/src/qbelement.cpp,
-	Qb/src/qbfrac.cpp, Qb/src/qbpacket.cpp, StandAlone.pro,
-	Webcamoid.pro, Webcamoid.qdocconf, commons.pri,
-	include/appenvironment.h, include/commons.h, include/effects.h,
-	include/generalconfig.h, include/mainwidget.h,
-	include/mediatools.h, include/plasmoid.h, include/streamsconfig.h,
-	include/videorecordconfig.h, include/webcamconfig.h,
-	ports/fedora/webcamoid.spec,
-	ports/gentoo/webcamoid-5.0.0_beta.ebuild,
-	ports/pisilinux/actions.py, ports/pisilinux/pspec.xml,
-	ports/ubuntu/control, src/appenvironment.cpp, src/effects.cpp,
-	src/generalconfig.cpp, src/main.cpp, src/mainwidget.cpp,
-	src/mediatools.cpp, src/plasmoid.cpp, src/streamsconfig.cpp,
-	src/videorecordconfig.cpp, src/webcamconfig.cpp: Added new ports for
-	Gentoo, PiSi Linux and Ubuntu. Updated copyright year :P. Many
-	internal changes.
-
-2013-05-31  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/commands.h,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/include/optionparser.h,
-	Qb/Plugins/MultiSink/include/streaminput.h,
-	Qb/Plugins/MultiSink/src/commands.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/parsedoption.cpp,
-	Qb/Plugins/MultiSink/src/streaminput.cpp, src/mediatools.cpp: New
-	MultiSink options format. Preparing multi-stream recording.
-
-2013-05-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md: Updated README.
-
-2013-05-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/commands.h,
-	Qb/Plugins/MultiSink/include/option.h,
-	Qb/Plugins/MultiSink/include/optionparser.h,
-	Qb/Plugins/MultiSink/include/parsedoption.h,
-	Qb/Plugins/MultiSink/src/commands.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/option.cpp,
-	Qb/Plugins/MultiSink/src/optionparser.cpp,
-	Qb/Plugins/MultiSink/src/parsedoption.cpp, README.md,
-	ports/fedora/webcamoid.spec: Updated Compile info. Working in a new
-	MultiSink command line parser.
-
-2013-05-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, Plasmoid.pro, Qb/Lib.pro,
-	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
-	Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Bin/Bin.pro,
-	Qb/Plugins/Blitzer/Blitzer.pro, Qb/Plugins/Filter/Filter.pro,
-	Qb/Plugins/Fire/Fire.pro, Qb/Plugins/Frei0r/Frei0r.pro,
-	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSrc/MultiSrc.pro,
-	Qb/Plugins/Multiplex/Multiplex.pro, Qb/Plugins/Probe/Probe.pro,
-	Qb/Plugins/QImageConvert/QImageConvert.pro,
-	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/VCapsConvert/VCapsConvert.pro,
-	Qb/Plugins/Warhol/Warhol.pro, Qb/Qb.pro, Qb/commons.pri,
-	Qb/src/qb.cpp, StandAlone.pro, Webcamoid.pro, commons.pri,
-	ports/fedora/webcamoid.spec, src/appenvironment.cpp: Updated install
-	macros. Updated Fedora SPEC.
-
-2013-05-22  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, ports/archlinux/PKGBUILD, ports/fedora/webcamoid.spec: 
-	Added SPEC for Fedora.
-
-2013-05-22  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ports/archlinux/PKGBUILD: Added PKGBUILD for ArchLinux.
-
-2013-05-21  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	Qb/Plugins/Aging/src/agingelement.cpp,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/Filter/src/filterelement.cpp,
-	Qb/Plugins/Fire/src/fireelement.cpp,
-	Qb/Plugins/Frei0r/src/frei0relement.cpp,
-	Qb/Plugins/Matrix/src/matrixelement.cpp,
-	Qb/Plugins/MultiSink/include/option.h,
-	Qb/Plugins/MultiSink/include/optionparser.h,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/option.cpp,
-	Qb/Plugins/MultiSink/src/optionparser.cpp,
-	Qb/Plugins/MultiSrc/include/audiostream.h,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp,
-	Qb/Plugins/Multiplex/src/multiplexelement.cpp,
-	Qb/Plugins/Probe/src/probeelement.cpp,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/include/qbpacket.h,
-	Qb/src/qbpacket.cpp, src/mediatools.cpp: Removed DTS property in
-	QbPacket. Fixed Multiplex.
-
-2013-05-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/src/syncelement.cpp, Qb/commons.pri, README.md,
-	commons.pri, src/mediatools.cpp: Some updates and fixes.
-
-2013-05-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/sleep.h,
-	Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/src/sleep.cpp, Qb/Plugins/Sync/src/syncelement.cpp,
-	src/mediatools.cpp: Added non-queued sync.
-
-2013-05-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Aging/src/agingelement.cpp,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/Filter/src/filterelement.cpp,
-	Qb/Plugins/Fire/src/fireelement.cpp,
-	Qb/Plugins/Frei0r/src/frei0relement.cpp,
-	Qb/Plugins/Matrix/src/matrixelement.cpp,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp, Qb/Plugins/Sync/Sync.pro,
-	Qb/Plugins/Sync/include/sleep.h,
-	Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/include/worker.h, Qb/Plugins/Sync/src/sleep.cpp,
-	Qb/Plugins/Sync/src/syncelement.cpp,
-	Qb/Plugins/Sync/src/worker.cpp,
-	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/include/qbelement.h,
-	Qb/src/qb.cpp, Qb/src/qbelement.cpp, src/mediatools.cpp: Fixed video
-	sync.
-
-2013-04-17  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	Qb/Plugins/Bin/parser/parser.y, Qb/Plugins/Bin/src/binelement.cpp,
-	Qb/Plugins/Filter/src/filterelement.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/Probe/src/probeelement.cpp,
-	Qb/Plugins/Sync/src/worker.cpp,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	Qb/src/qbcaps.cpp, src/mainwidget.cpp, src/mediatools.cpp: Fixed
-	Sync and some bugs.
-
-2013-04-16  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Effects.qrc, Lib.pro,
-	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	Qb/Plugins/Aging/include/agingelement.h,
-	Qb/Plugins/Aging/src/agingelement.cpp, Qb/Plugins/Bin/Bin.pro,
-	Qb/Plugins/Bin/parser/lexer.l,
-	Qb/Plugins/Blitzer/include/blitzerelement.h,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/Filter/include/filterelement.h,
-	Qb/Plugins/Filter/src/filterelement.cpp,
-	Qb/Plugins/Fire/include/fireelement.h,
-	Qb/Plugins/Fire/src/fireelement.cpp,
-	Qb/Plugins/Frei0r/src/frei0relement.cpp,
-	Qb/Plugins/Matrix/include/matrixelement.h,
-	Qb/Plugins/Matrix/src/matrixelement.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSrc/include/audiostream.h,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp,
-	Qb/Plugins/Probe/src/probeelement.cpp,
-	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
-	Qb/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/packetinfo.h,
-	Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/include/worker.h,
-	Qb/Plugins/Sync/src/packetinfo.cpp,
-	Qb/Plugins/Sync/src/syncelement.cpp,
-	Qb/Plugins/Sync/src/worker.cpp,
-	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	Qb/Plugins/Warhol/include/warholelement.h,
-	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/commons.pri,
-	Qb/include/qbelement.h, Qb/include/qbpacket.h,
-	Qb/src/qbelement.cpp, Qb/src/qbpacket.cpp, README.md,
-	Webcamoid.qrc, commons.pri, include/mainwidget.h,
-	include/mediatools.h, share/effects.xml, share/ts/ca.ts,
-	share/ts/de.ts, share/ts/el.ts, share/ts/es.ts, share/ts/fr.ts,
-	share/ts/gl.ts, share/ts/it.ts, share/ts/ja.ts, share/ts/ko.ts,
-	share/ts/pt.ts, share/ts/ru.ts, share/ts/zh_CN.ts,
-	share/ts/zh_TW.ts, src/appenvironment.cpp, src/mainwidget.cpp,
-	src/mediatools.cpp: Fixed memory leaks and segfaults. Updated
-	translations.
-
-2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/ACapsConvert/ACapsConvert.pro,
-	Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Bin/Bin.pro,
-	Qb/Plugins/Blitzer/Blitzer.pro, Qb/Plugins/Filter/Filter.pro,
-	Qb/Plugins/Fire/Fire.pro, Qb/Plugins/Frei0r/Frei0r.pro,
-	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSrc/MultiSrc.pro,
-	Qb/Plugins/Multiplex/Multiplex.pro, Qb/Plugins/Probe/Probe.pro,
-	Qb/Plugins/QImageConvert/QImageConvert.pro,
-	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/VCapsConvert/VCapsConvert.pro,
-	Qb/Plugins/Warhol/Warhol.pro, Qb/commons.pri, Qb/src/qb.cpp,
-	Qb/src/qbapplication.cpp, README.md, src/mediatools.cpp: Fixed
-	install, again :P
-
-2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/src/qbapplication.cpp: Fixed plugins path.
-
-2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Qb.qdocconf: Added Qb/Qb.qdocconf.
-
-2013-04-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, Qb/Lib.pro, Qb/Qb.pro, README.md, Webcamoid.pro: Fixed
-	install. updated README.
-
-2013-04-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Lib.pro, Qb/3dparty/ffmpeg/ffmpeg.pro,
-	Qb/3dparty/ffmpeg/ffmpeg.sh,
-	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
-	Qb/Plugins/Filter/Filter.pro, Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSrc/MultiSrc.pro,
-	Qb/Plugins/VCapsConvert/VCapsConvert.pro, README.md: Switched to
-	in-house FFmpeg. Updated README. Ready for merge :)
-
-2013-04-04  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/3dparty/3dparty.pro,
-	Qb/Plugins/ACapsConvert/include/acapsconvert.h,
-	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	Qb/Plugins/Aging/include/aging.h,
-	Qb/Plugins/Aging/include/agingelement.h,
-	Qb/Plugins/Bin/include/bin.h, Qb/Plugins/Bin/include/binelement.h,
-	Qb/Plugins/Bin/include/pipeline.h,
-	Qb/Plugins/Blitzer/include/blitzer.h,
-	Qb/Plugins/Blitzer/include/blitzerelement.h,
-	Qb/Plugins/Filter/include/filter.h,
-	Qb/Plugins/Filter/include/filterelement.h,
-	Qb/Plugins/Fire/Fire.pro, Qb/Plugins/Fire/include/fire.h,
-	Qb/Plugins/Fire/include/fireelement.h,
-	Qb/Plugins/Fire/src/fire.cpp, Qb/Plugins/Fire/src/fireelement.cpp,
-	Qb/Plugins/Frei0r/include/frei0r.h,
-	Qb/Plugins/Frei0r/include/frei0relement.h,
-	Qb/Plugins/Matrix/Matrix.pro, Qb/Plugins/Matrix/Matrix.qrc,
-	Qb/Plugins/Matrix/include/blip.h,
-	Qb/Plugins/Matrix/include/matrix.h,
-	Qb/Plugins/Matrix/include/matrixelement.h,
-	Qb/Plugins/Matrix/share/matrixFont.xpm,
-	Qb/Plugins/Matrix/src/blip.cpp, Qb/Plugins/Matrix/src/matrix.cpp,
-	Qb/Plugins/Matrix/src/matrixelement.cpp,
-	Qb/Plugins/MultiSink/include/multisink.h,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSrc/include/abstractstream.h,
-	Qb/Plugins/MultiSrc/include/audiostream.h,
-	Qb/Plugins/MultiSrc/include/multisrc.h,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp,
-	Qb/Plugins/Multiplex/include/multiplex.h,
-	Qb/Plugins/Multiplex/include/multiplexelement.h,
-	Qb/Plugins/Probe/include/probe.h,
-	Qb/Plugins/Probe/include/probeelement.h,
-	Qb/Plugins/QImageConvert/include/qimageconvert.h,
-	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
-	Qb/Plugins/Sync/include/packetinfo.h,
-	Qb/Plugins/Sync/include/sync.h,
-	Qb/Plugins/VCapsConvert/include/vcapsconvert.h,
-	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	Qb/Plugins/Warhol/Warhol.pro, Qb/Plugins/Warhol/include/warhol.h,
-	Qb/Plugins/Warhol/include/warholelement.h,
-	Qb/Plugins/Warhol/src/warhol.cpp,
-	Qb/Plugins/Warhol/src/warholelement.cpp, Qb/Qb.pro,
-	share/effects.xml, src/mediatools.cpp: Fixed memory leak. Added 3
-	new Effects.
-
-2013-03-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Qb/Plugins/Aging/Aging.pro, Qb/Plugins/Aging/include/aging.h,
-	Qb/Plugins/Aging/include/agingelement.h,
-	Qb/Plugins/Aging/include/scratch.h, Qb/Plugins/Aging/src/aging.cpp,
-	Qb/Plugins/Aging/src/agingelement.cpp,
-	Qb/Plugins/Aging/src/scratch.cpp, Qb/Plugins/Bin/parser/parser.y,
-	Qb/Plugins/Bin/src/pipeline.cpp,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/Frei0r/src/frei0relement.cpp,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp,
-	Qb/Plugins/Sync/include/packetinfo.h,
-	Qb/Plugins/Sync/include/worker.h,
-	Qb/Plugins/Sync/src/packetinfo.cpp,
-	Qb/Plugins/Sync/src/syncelement.cpp,
-	Qb/Plugins/Sync/src/worker.cpp,
-	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	Qb/commons.pri, Qb/include/qbapplication.h, Qb/include/qbcaps.h,
-	Qb/include/qbfrac.h, Qb/include/qbpacket.h,
-	Qb/src/qbapplication.cpp, Qb/src/qbcaps.cpp, Qb/src/qbfrac.cpp,
-	Qb/src/qbpacket.cpp, commons.pri, include/effects.h,
-	include/generalconfig.h, include/mainwidget.h,
-	include/mediatools.h, include/plasmoid.h, include/streamsconfig.h,
-	include/videorecordconfig.h, include/webcamconfig.h,
-	share/effects.xml, share/ui/generalconfig.ui,
-	share/ui/streamsconfig.ui, share/ui/videorecordconfig.ui,
-	src/effects.cpp, src/generalconfig.cpp, src/mainwidget.cpp,
-	src/mediatools.cpp, src/plasmoid.cpp, src/streamsconfig.cpp,
-	src/videorecordconfig.cpp, src/webcamconfig.cpp: The new pipeline
-	system based in Qb is working very well, as expected.
-
-2013-03-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Effects.qrc, Lib.pro, Plasmoid.pro, Qb/Lib.pro,
-	Qb/Plugins/ACapsConvert/ACapsConvert.pro,
-	Qb/Plugins/ACapsConvert/include/acapsconvert.h,
-	Qb/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	Qb/Plugins/ACapsConvert/src/acapsconvert.cpp,
-	Qb/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	Qb/Plugins/Bin/Bin.pro, Qb/Plugins/Bin/include/bin.h,
-	Qb/Plugins/Bin/include/binelement.h,
-	Qb/Plugins/Bin/include/pipeline.h, Qb/Plugins/Bin/parser/lexer.l,
-	Qb/Plugins/Bin/parser/parser.y, Qb/Plugins/Bin/src/bin.cpp,
-	Qb/Plugins/Bin/src/binelement.cpp, Qb/Plugins/Bin/src/pipeline.cpp,
-	Qb/Plugins/Blitzer/Blitzer.pro,
-	Qb/Plugins/Blitzer/include/blitzer.h,
-	Qb/Plugins/Blitzer/include/blitzerelement.h,
-	Qb/Plugins/Blitzer/src/blitzer.cpp,
-	Qb/Plugins/Blitzer/src/blitzerelement.cpp,
-	Qb/Plugins/Filter/Filter.pro, Qb/Plugins/Filter/include/filter.h,
-	Qb/Plugins/Filter/include/filterelement.h,
-	Qb/Plugins/Filter/src/filter.cpp,
-	Qb/Plugins/Filter/src/filterelement.cpp,
-	Qb/Plugins/Frei0r/Frei0r.pro, Qb/Plugins/Frei0r/include/frei0r.h,
-	Qb/Plugins/Frei0r/include/frei0rdefs.h,
-	Qb/Plugins/Frei0r/include/frei0relement.h,
-	Qb/Plugins/Frei0r/src/frei0r.cpp,
-	Qb/Plugins/Frei0r/src/frei0relement.cpp,
-	Qb/Plugins/MultiSink/MultiSink.pro,
-	Qb/Plugins/MultiSink/include/multisink.h,
-	Qb/Plugins/MultiSink/include/multisinkelement.h,
-	Qb/Plugins/MultiSink/include/option.h,
-	Qb/Plugins/MultiSink/include/optionparser.h,
-	Qb/Plugins/MultiSink/src/multisink.cpp,
-	Qb/Plugins/MultiSink/src/multisinkelement.cpp,
-	Qb/Plugins/MultiSink/src/option.cpp,
-	Qb/Plugins/MultiSink/src/optionparser.cpp,
-	Qb/Plugins/MultiSrc/MultiSrc.pro,
-	Qb/Plugins/MultiSrc/include/abstractstream.h,
-	Qb/Plugins/MultiSrc/include/audiostream.h,
-	Qb/Plugins/MultiSrc/include/multisrc.h,
-	Qb/Plugins/MultiSrc/include/multisrcelement.h,
-	Qb/Plugins/MultiSrc/include/videostream.h,
-	Qb/Plugins/MultiSrc/src/abstractstream.cpp,
-	Qb/Plugins/MultiSrc/src/audiostream.cpp,
-	Qb/Plugins/MultiSrc/src/multisrc.cpp,
-	Qb/Plugins/MultiSrc/src/multisrcelement.cpp,
-	Qb/Plugins/MultiSrc/src/videostream.cpp,
-	Qb/Plugins/Multiplex/Multiplex.pro,
-	Qb/Plugins/Multiplex/include/multiplex.h,
-	Qb/Plugins/Multiplex/include/multiplexelement.h,
-	Qb/Plugins/Multiplex/src/multiplex.cpp,
-	Qb/Plugins/Multiplex/src/multiplexelement.cpp,
-	Qb/Plugins/Plugins.pro, Qb/Plugins/Probe/Probe.pro,
-	Qb/Plugins/Probe/include/probe.h,
-	Qb/Plugins/Probe/include/probeelement.h,
-	Qb/Plugins/Probe/src/probe.cpp,
-	Qb/Plugins/Probe/src/probeelement.cpp,
-	Qb/Plugins/QImageConvert/QImageConvert.pro,
-	Qb/Plugins/QImageConvert/include/qimageconvert.h,
-	Qb/Plugins/QImageConvert/include/qimageconvertelement.h,
-	Qb/Plugins/QImageConvert/src/qimageconvert.cpp,
-	Qb/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	Qb/Plugins/Sync/Sync.pro, Qb/Plugins/Sync/include/packetinfo.h,
-	Qb/Plugins/Sync/include/sleep.h, Qb/Plugins/Sync/include/sync.h,
-	Qb/Plugins/Sync/include/syncelement.h,
-	Qb/Plugins/Sync/include/worker.h,
-	Qb/Plugins/Sync/src/packetinfo.cpp, Qb/Plugins/Sync/src/sleep.cpp,
-	Qb/Plugins/Sync/src/sync.cpp, Qb/Plugins/Sync/src/syncelement.cpp,
-	Qb/Plugins/Sync/src/worker.cpp,
-	Qb/Plugins/VCapsConvert/VCapsConvert.pro,
-	Qb/Plugins/VCapsConvert/include/vcapsconvert.h,
-	Qb/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	Qb/Plugins/VCapsConvert/src/vcapsconvert.cpp,
-	Qb/Plugins/VCapsConvert/src/vcapsconvertelement.cpp, Qb/Qb.pro,
-	Qb/commons.pri, Qb/include/qb.h, Qb/include/qbapplication.h,
-	Qb/include/qbcaps.h, Qb/include/qbelement.h, Qb/include/qbfrac.h,
-	Qb/include/qbpacket.h, Qb/include/qbplugin.h, Qb/src/qb.cpp,
-	Qb/src/qbapplication.cpp, Qb/src/qbcaps.cpp, Qb/src/qbelement.cpp,
-	Qb/src/qbfrac.cpp, Qb/src/qbpacket.cpp, StandAlone.pro,
-	Webcamoid.pro, commons.pri, include/featuresinfo.h,
-	include/mainwidget.h, include/mediatools.h, include/qb.h,
-	include/qbapplication.h, include/qbcaps.h, include/qbelement.h,
-	include/qbfrac.h, include/qbpacket.h, include/qbplugin.h,
-	share/Plugins/ACapsConvert/ACapsConvert.pro,
-	share/Plugins/ACapsConvert/include/acapsconvert.h,
-	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	share/Plugins/ACapsConvert/src/acapsconvert.cpp,
-	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	share/Plugins/Bin/Bin.pro, share/Plugins/Bin/include/bin.h,
-	share/Plugins/Bin/include/binelement.h,
-	share/Plugins/Bin/include/pipeline.h,
-	share/Plugins/Bin/parser/lexer.l,
-	share/Plugins/Bin/parser/parser.y, share/Plugins/Bin/src/bin.cpp,
-	share/Plugins/Bin/src/binelement.cpp,
-	share/Plugins/Bin/src/pipeline.cpp,
-	share/Plugins/Blitzer/Blitzer.pro,
-	share/Plugins/Blitzer/include/blitzer.h,
-	share/Plugins/Blitzer/include/blitzerelement.h,
-	share/Plugins/Blitzer/src/blitzer.cpp,
-	share/Plugins/Blitzer/src/blitzerelement.cpp,
-	share/Plugins/Frei0r/Frei0r.pro,
-	share/Plugins/Frei0r/include/frei0r.h,
-	share/Plugins/Frei0r/include/frei0rdefs.h,
-	share/Plugins/Frei0r/include/frei0relement.h,
-	share/Plugins/Frei0r/src/frei0r.cpp,
-	share/Plugins/Frei0r/src/frei0relement.cpp,
-	share/Plugins/MultiSink/MultiSink.pro,
-	share/Plugins/MultiSink/include/multisink.h,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/include/option.h,
-	share/Plugins/MultiSink/include/optionparser.h,
-	share/Plugins/MultiSink/src/multisink.cpp,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/MultiSink/src/option.cpp,
-	share/Plugins/MultiSink/src/optionparser.cpp,
-	share/Plugins/MultiSrc/MultiSrc.pro,
-	share/Plugins/MultiSrc/include/abstractstream.h,
-	share/Plugins/MultiSrc/include/audiostream.h,
-	share/Plugins/MultiSrc/include/multisrc.h,
-	share/Plugins/MultiSrc/include/multisrcelement.h,
-	share/Plugins/MultiSrc/include/videostream.h,
-	share/Plugins/MultiSrc/src/abstractstream.cpp,
-	share/Plugins/MultiSrc/src/audiostream.cpp,
-	share/Plugins/MultiSrc/src/multisrc.cpp,
-	share/Plugins/MultiSrc/src/multisrcelement.cpp,
-	share/Plugins/MultiSrc/src/videostream.cpp,
-	share/Plugins/Multiplex/Multiplex.pro,
-	share/Plugins/Multiplex/include/multiplex.h,
-	share/Plugins/Multiplex/include/multiplexelement.h,
-	share/Plugins/Multiplex/src/multiplex.cpp,
-	share/Plugins/Multiplex/src/multiplexelement.cpp,
-	share/Plugins/Plugins.pro,
-	share/Plugins/QImageConvert/QImageConvert.pro,
-	share/Plugins/QImageConvert/include/qimageconvert.h,
-	share/Plugins/QImageConvert/include/qimageconvertelement.h,
-	share/Plugins/QImageConvert/src/qimageconvert.cpp,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	share/Plugins/Sync/Sync.pro,
-	share/Plugins/Sync/include/packetinfo.h,
-	share/Plugins/Sync/include/sleep.h,
-	share/Plugins/Sync/include/sync.h,
-	share/Plugins/Sync/include/syncelement.h,
-	share/Plugins/Sync/include/worker.h,
-	share/Plugins/Sync/src/packetinfo.cpp,
-	share/Plugins/Sync/src/sleep.cpp, share/Plugins/Sync/src/sync.cpp,
-	share/Plugins/Sync/src/syncelement.cpp,
-	share/Plugins/Sync/src/worker.cpp,
-	share/Plugins/VCapsConvert/VCapsConvert.pro,
-	share/Plugins/VCapsConvert/include/vcapsconvert.h,
-	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	share/Plugins/VCapsConvert/src/vcapsconvert.cpp,
-	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	share/Plugins/VFilter/VFilter.pro,
-	share/Plugins/VFilter/include/vfilter.h,
-	share/Plugins/VFilter/include/vfilterelement.h,
-	share/Plugins/VFilter/src/vfilter.cpp,
-	share/Plugins/VFilter/src/vfilterelement.cpp, share/effects.xml,
-	share/ui/featuresinfo.ui, src/featuresinfo.cpp, src/main.cpp,
-	src/mainwidget.cpp, src/mediatools.cpp, src/plasmoid.cpp,
-	src/qb.cpp, src/qbapplication.cpp, src/qbcaps.cpp,
-	src/qbelement.cpp, src/qbfrac.cpp, src/qbpacket.cpp,
-	src/videorecordconfig.cpp: Webcamoid and Qt splited. Plasmoid and
-	Stand alene ported to Qb.
-
-2013-03-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* include/qb.h, include/qbcaps.h, include/qbelement.h,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/Multiplex/Multiplex.pro,
-	share/Plugins/Multiplex/include/multiplex.h,
-	share/Plugins/Multiplex/include/multiplexelement.h,
-	share/Plugins/Multiplex/src/multiplex.cpp,
-	share/Plugins/Multiplex/src/multiplexelement.cpp,
-	share/Plugins/Plugins.pro, share/Plugins/Sync/Sync.pro,
-	share/Plugins/Sync/include/packetinfo.h,
-	share/Plugins/Sync/include/sleep.h,
-	share/Plugins/Sync/include/sync.h,
-	share/Plugins/Sync/include/syncelement.h,
-	share/Plugins/Sync/include/worker.h,
-	share/Plugins/Sync/src/packetinfo.cpp,
-	share/Plugins/Sync/src/sleep.cpp, share/Plugins/Sync/src/sync.cpp,
-	share/Plugins/Sync/src/syncelement.cpp,
-	share/Plugins/Sync/src/worker.cpp, src/qb.cpp, src/qbcaps.cpp,
-	src/qbfrac.cpp, src/qbpacket.cpp: Added a Multiplexer and a Sync
-	element.
-
-2013-03-11  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* share/Plugins/Blitzer/Blitzer.pro,
-	share/Plugins/Blitzer/include/blitzer.h,
-	share/Plugins/Blitzer/include/blitzerelement.h,
-	share/Plugins/Blitzer/src/blitzer.cpp,
-	share/Plugins/Blitzer/src/blitzerelement.cpp,
-	share/Plugins/ImgMagick/ImgMagick.pro,
-	share/Plugins/ImgMagick/include/imgmagick.h,
-	share/Plugins/ImgMagick/include/imgmagickelement.h,
-	share/Plugins/ImgMagick/src/imgmagick.cpp,
-	share/Plugins/ImgMagick/src/imgmagickelement.cpp,
-	share/Plugins/Plugins.pro,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp: Image
-	Magick was replaced by QImageBlitz.
-
-2013-03-09  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* share/Plugins/Bin/include/binelement.h,
-	share/Plugins/Bin/src/binelement.cpp,
-	share/Plugins/ImgMagick/ImgMagick.pro,
-	share/Plugins/ImgMagick/include/imgmagick.h,
-	share/Plugins/ImgMagick/include/imgmagickelement.h,
-	share/Plugins/ImgMagick/src/imgmagick.cpp,
-	share/Plugins/ImgMagick/src/imgmagickelement.cpp,
-	share/Plugins/Plugins.pro: Working in the Image Magick plugin.
-
-2013-03-06  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* share/Plugins/Bin/Bin.pro,
-	share/Plugins/Bin/include/binelement.h,
-	share/Plugins/Bin/include/pipeline.h,
-	share/Plugins/Bin/parser/lexer.l,
-	share/Plugins/Bin/parser/parser.y,
-	share/Plugins/Bin/src/binelement.cpp,
-	share/Plugins/Bin/src/pipeline.cpp, src/qb.cpp: Bin element working
-	very well.
-
-2013-03-02  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, share/Plugins/Bin/Bin.pro,
-	share/Plugins/Bin/include/bin.h,
-	share/Plugins/Bin/include/binelement.h,
-	share/Plugins/Bin/parser/lexer.l,
-	share/Plugins/Bin/parser/parser.y, share/Plugins/Bin/src/bin.cpp,
-	share/Plugins/Bin/src/binelement.cpp,
-	share/Plugins/EffectsBin/EffectsBin.pro,
-	share/Plugins/EffectsBin/include/effectsbin.h,
-	share/Plugins/EffectsBin/include/effectsbinelement.h,
-	share/Plugins/EffectsBin/src/effectsbin.cpp,
-	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
-	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbin.h,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbin.cpp,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
-	share/Plugins/Plugins.pro: Removed old GStreamer based plugins.
-	Added Bin element.
-
-2013-02-19  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	share/Plugins/Frei0r/include/frei0relement.h,
-	share/Plugins/Frei0r/src/frei0relement.cpp: Frei0r plugins ready.
-
-2013-02-16  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* include/qbelement.h,
-	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	share/Plugins/Frei0r/include/frei0rdefs.h,
-	share/Plugins/Frei0r/include/frei0relement.h,
-	share/Plugins/Frei0r/src/frei0relement.cpp,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/MultiSrc/include/abstractstream.h,
-	share/Plugins/MultiSrc/include/audiostream.h,
-	share/Plugins/MultiSrc/include/multisrcelement.h,
-	share/Plugins/MultiSrc/include/videostream.h,
-	share/Plugins/MultiSrc/src/abstractstream.cpp,
-	share/Plugins/MultiSrc/src/audiostream.cpp,
-	share/Plugins/MultiSrc/src/multisrcelement.cpp,
-	share/Plugins/MultiSrc/src/videostream.cpp,
-	share/Plugins/QImageConvert/include/qimageconvertelement.h,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	share/Plugins/VFilter/include/vfilterelement.h,
-	share/Plugins/VFilter/src/vfilterelement.cpp, src/qbelement.cpp: 
-	Switched to FFmpeg stream format (more pixel and sample formats are
-	supported). Frei0r plugin mostly finished.
-
-2013-02-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, include/mediatools.h, include/qb.h,
-	include/qbapplication.h, include/qbelement.h, include/qbpipeline.h,
-	include/qbpluginloader.h,
-	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	share/Plugins/Frei0r/Frei0r.pro,
-	share/Plugins/Frei0r/include/frei0r.h,
-	share/Plugins/Frei0r/include/frei0rdefs.h,
-	share/Plugins/Frei0r/include/frei0relement.h,
-	share/Plugins/Frei0r/src/frei0r.cpp,
-	share/Plugins/Frei0r/src/frei0relement.cpp,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/Plugins.pro,
-	share/Plugins/QImageConvert/include/qimageconvertelement.h,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	src/mediatools.cpp, src/qb.cpp, src/qbapplication.cpp,
-	src/qbelement.cpp, src/qbpipeline.cpp, src/qbpluginloader.cpp: 
-	Plugin system enhancements. Working in Frei0r plugins.
-
-2013-02-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* include/qbcaps.h, include/qbelement.h, include/qbfrac.h,
-	include/qbpacket.h,
-	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/MultiSrc/include/abstractstream.h,
-	share/Plugins/MultiSrc/include/audiostream.h,
-	share/Plugins/MultiSrc/include/multisrcelement.h,
-	share/Plugins/MultiSrc/include/videostream.h,
-	share/Plugins/MultiSrc/src/abstractstream.cpp,
-	share/Plugins/MultiSrc/src/audiostream.cpp,
-	share/Plugins/MultiSrc/src/multisrcelement.cpp,
-	share/Plugins/MultiSrc/src/videostream.cpp,
-	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	share/Plugins/VFilter/include/vfilterelement.h,
-	share/Plugins/VFilter/src/vfilterelement.cpp, src/qbcaps.cpp,
-	src/qbelement.cpp, src/qbfrac.cpp, src/qbpacket.cpp: Crap sound, but
-	video record working :D
-
-2013-02-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, include/qbcaps.h, include/qbelement.h, include/qbfrac.h,
-	include/qbpipeline.h, share/Plugins/ACapsConvert/ACapsConvert.pro,
-	share/Plugins/ACapsConvert/include/acapsconvert.h,
-	share/Plugins/ACapsConvert/include/acapsconvertelement.h,
-	share/Plugins/ACapsConvert/src/acapsconvert.cpp,
-	share/Plugins/ACapsConvert/src/acapsconvertelement.cpp,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/MultiSrc/include/audiostream.h,
-	share/Plugins/MultiSrc/include/videostream.h,
-	share/Plugins/MultiSrc/src/audiostream.cpp,
-	share/Plugins/MultiSrc/src/videostream.cpp,
-	share/Plugins/Plugins.pro,
-	share/Plugins/QImageConvert/include/qimageconvertelement.h,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	share/Plugins/VFilter/include/vfilterelement.h,
-	share/Plugins/VFilter/src/vfilterelement.cpp, src/mediatools.cpp,
-	src/qbelement.cpp, src/qbfrac.cpp, src/qbpipeline.cpp: Added
-	ACapsConvert. Simplified Element linking. Working on audio record.
-
-2013-01-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, include/qbcaps.h, include/qbelement.h,
-	include/qbpacket.h, include/qbpipeline.h, include/qbpluginloader.h,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/MultiSink/src/option.cpp, share/Plugins/Plugins.pro,
-	share/Plugins/QImageConvert/QImageConvert.pro,
-	share/Plugins/QImageConvert/include/qimageconvertelement.h,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	share/Plugins/VCapsConvert/VCapsConvert.pro,
-	share/Plugins/VCapsConvert/include/vcapsconvert.h,
-	share/Plugins/VCapsConvert/include/vcapsconvertelement.h,
-	share/Plugins/VCapsConvert/src/vcapsconvert.cpp,
-	share/Plugins/VCapsConvert/src/vcapsconvertelement.cpp,
-	share/Plugins/VFilter/VFilter.pro,
-	share/Plugins/VFilter/include/vfilter.h,
-	share/Plugins/VFilter/include/vfilterelement.h,
-	share/Plugins/VFilter/src/vfilter.cpp,
-	share/Plugins/VFilter/src/vfilterelement.cpp, src/mediatools.cpp,
-	src/qbpipeline.cpp, src/qbpluginloader.cpp: MultiSink and pipeline
-	system reworked.
-
-2013-01-17  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Webcamoid.pro, share/Plugins/DesktopSrc/DesktopSrc.pro,
-	share/Plugins/DesktopSrc/include/desktopsrc.h,
-	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
-	share/Plugins/DesktopSrc/src/desktopsrc.cpp,
-	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
-	share/Plugins/MultiSink/MultiSink.pro,
-	share/Plugins/MultiSink/include/multisink.h,
-	share/Plugins/MultiSink/include/multisinkelement.h,
-	share/Plugins/MultiSink/include/option.h,
-	share/Plugins/MultiSink/include/optionparser.h,
-	share/Plugins/MultiSink/src/multisink.cpp,
-	share/Plugins/MultiSink/src/multisinkelement.cpp,
-	share/Plugins/MultiSink/src/option.cpp,
-	share/Plugins/MultiSink/src/optionparser.cpp,
-	share/Plugins/MultiSrc/MultiSrc.pro,
-	share/Plugins/MultiSrc/include/abstractstream.h,
-	share/Plugins/MultiSrc/include/audiostream.h,
-	share/Plugins/MultiSrc/include/multisrc.h,
-	share/Plugins/MultiSrc/include/multisrcelement.h,
-	share/Plugins/MultiSrc/include/videostream.h,
-	share/Plugins/MultiSrc/src/abstractstream.cpp,
-	share/Plugins/MultiSrc/src/audiostream.cpp,
-	share/Plugins/MultiSrc/src/multisrc.cpp,
-	share/Plugins/MultiSrc/src/multisrcelement.cpp,
-	share/Plugins/MultiSrc/src/videostream.cpp,
-	share/Plugins/Plugins.pro, share/Plugins/RecordBin/RecordBin.pro,
-	share/Plugins/RecordBin/include/recordbin.h,
-	share/Plugins/RecordBin/include/recordbinelement.h,
-	share/Plugins/RecordBin/src/recordbin.cpp,
-	share/Plugins/RecordBin/src/recordbinelement.cpp,
-	share/Plugins/UriSrc/UriSrc.pro,
-	share/Plugins/UriSrc/include/abstractstream.h,
-	share/Plugins/UriSrc/include/audiostream.h,
-	share/Plugins/UriSrc/include/urisrc.h,
-	share/Plugins/UriSrc/include/urisrcelement.h,
-	share/Plugins/UriSrc/include/videostream.h,
-	share/Plugins/UriSrc/src/abstractstream.cpp,
-	share/Plugins/UriSrc/src/audiostream.cpp,
-	share/Plugins/UriSrc/src/urisrc.cpp,
-	share/Plugins/UriSrc/src/urisrcelement.cpp,
-	share/Plugins/UriSrc/src/videostream.cpp,
-	share/Plugins/WebcamSrc/WebcamSrc.pro,
-	share/Plugins/WebcamSrc/include/webcamsrc.h,
-	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
-	share/Plugins/WebcamSrc/src/webcamsrc.cpp,
-	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp: MultiSrc ready.
-	Working in MultiSink.
-
-2013-01-12  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, include/qbcaps.h, include/qbelement.h,
-	include/qbpacket.h, include/qbplugin.h,
-	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
-	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
-	share/Plugins/EffectsBin/include/effectsbinelement.h,
-	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
-	share/Plugins/Plugins.pro,
-	share/Plugins/QImageConvert/QImageConvert.pro,
-	share/Plugins/QImageConvert/include/qimageconvert.h,
-	share/Plugins/QImageConvert/include/qimageconvertelement.h,
-	share/Plugins/QImageConvert/src/qimageconvert.cpp,
-	share/Plugins/QImageConvert/src/qimageconvertelement.cpp,
-	share/Plugins/RecordBin/include/recordbinelement.h,
-	share/Plugins/RecordBin/src/recordbinelement.cpp,
-	share/Plugins/UriSrc/UriSrc.pro,
-	share/Plugins/UriSrc/include/abstractstream.h,
-	share/Plugins/UriSrc/include/audiostream.h,
-	share/Plugins/UriSrc/include/urisrcelement.h,
-	share/Plugins/UriSrc/include/videostream.h,
-	share/Plugins/UriSrc/src/abstractstream.cpp,
-	share/Plugins/UriSrc/src/audiostream.cpp,
-	share/Plugins/UriSrc/src/urisrcelement.cpp,
-	share/Plugins/UriSrc/src/videostream.cpp,
-	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
-	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp, src/main.cpp,
-	src/mediatools.cpp, src/qbcaps.cpp, src/qbelement.cpp,
-	src/qbpacket.cpp: Many improvements to the pipeline system. Now
-	UriSrc can handle any type of source.
-
-2013-01-07  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, include/baseelement.h, include/element.h,
-	include/mediatools.h, include/plugin.h, include/qbcaps.h,
-	include/qbelement.h, include/qbpacket.h, include/qbpipeline.h,
-	include/qbplugin.h, share/Plugins/DesktopSrc/DesktopSrc.pro,
-	share/Plugins/DesktopSrc/include/desktopsrc.h,
-	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
-	share/Plugins/DesktopSrc/src/desktopsrc.cpp,
-	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
-	share/Plugins/EffectsBin/EffectsBin.pro,
-	share/Plugins/EffectsBin/include/effectsbin.h,
-	share/Plugins/EffectsBin/include/effectsbinelement.h,
-	share/Plugins/EffectsBin/src/effectsbin.cpp,
-	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
-	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbin.h,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbin.cpp,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
-	share/Plugins/RecordBin/RecordBin.pro,
-	share/Plugins/RecordBin/include/recordbin.h,
-	share/Plugins/RecordBin/include/recordbinelement.h,
-	share/Plugins/RecordBin/src/recordbin.cpp,
-	share/Plugins/RecordBin/src/recordbinelement.cpp,
-	share/Plugins/UriSrc/UriSrc.pro,
-	share/Plugins/UriSrc/include/abstractstream.h,
-	share/Plugins/UriSrc/include/urisrc.h,
-	share/Plugins/UriSrc/include/urisrcelement.h,
-	share/Plugins/UriSrc/include/videostream.h,
-	share/Plugins/UriSrc/src/abstractstream.cpp,
-	share/Plugins/UriSrc/src/urisrc.cpp,
-	share/Plugins/UriSrc/src/urisrcelement.cpp,
-	share/Plugins/UriSrc/src/videostream.cpp,
-	share/Plugins/WebcamSrc/WebcamSrc.pro,
-	share/Plugins/WebcamSrc/include/webcamsrc.h,
-	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
-	share/Plugins/WebcamSrc/src/webcamsrc.cpp,
-	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp,
-	src/baseelement.cpp, src/mainwidget.cpp, src/mediatools.cpp,
-	src/qbcaps.cpp, src/qbpacket.cpp, src/qbpipeline.cpp: GStreamer 0.10
-	-> 1.0, IT'S HORRIBLE! preparing the transition to FFmpeg, hopefully
-	it will work better, huehuehue :)
-
-2012-12-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
-	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
-	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
-	share/Plugins/RecordBin/RecordBin.pro,
-	share/Plugins/RecordBin/include/recordbinelement.h,
-	share/Plugins/RecordBin/src/recordbinelement.cpp,
-	share/Plugins/UriSrc/UriSrc.pro,
-	share/Plugins/UriSrc/include/urisrcelement.h,
-	share/Plugins/UriSrc/src/urisrcelement.cpp,
-	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp: New plugin system
-	ready.
-
-2012-12-22  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, StandAlone.pro, Webcamoid.pro, Webcamoid.qrc,
-	commons.pri, include/baseelement.h, include/element.h,
-	include/mediatools.h, include/plugin.h,
-	share/Plugins/DesktopSrc/DesktopSrc.pro,
-	share/Plugins/DesktopSrc/include/desktopsrc.h,
-	share/Plugins/DesktopSrc/include/desktopsrcelement.h,
-	share/Plugins/DesktopSrc/src/desktopsrc.cpp,
-	share/Plugins/DesktopSrc/src/desktopsrcelement.cpp,
-	share/Plugins/EffectsBin/EffectsBin.pro,
-	share/Plugins/EffectsBin/include/effectsbin.h,
-	share/Plugins/EffectsBin/include/effectsbinelement.h,
-	share/Plugins/EffectsBin/src/effectsbin.cpp,
-	share/Plugins/EffectsBin/src/effectsbinelement.cpp,
-	share/Plugins/EffectsPreviewBin/EffectsPreviewBin.pro,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbin.h,
-	share/Plugins/EffectsPreviewBin/include/effectspreviewbinelement.h,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbin.cpp,
-	share/Plugins/EffectsPreviewBin/src/effectspreviewbinelement.cpp,
-	share/Plugins/Plugins.pro, share/Plugins/RecordBin/RecordBin.pro,
-	share/Plugins/RecordBin/include/recordbin.h,
-	share/Plugins/RecordBin/include/recordbinelement.h,
-	share/Plugins/RecordBin/src/recordbin.cpp,
-	share/Plugins/RecordBin/src/recordbinelement.cpp,
-	share/Plugins/UriSrc/UriSrc.pro,
-	share/Plugins/UriSrc/include/urisrc.h,
-	share/Plugins/UriSrc/include/urisrcelement.h,
-	share/Plugins/UriSrc/src/urisrc.cpp,
-	share/Plugins/UriSrc/src/urisrcelement.cpp,
-	share/Plugins/WebcamSrc/WebcamSrc.pro,
-	share/Plugins/WebcamSrc/include/webcamsrc.h,
-	share/Plugins/WebcamSrc/include/webcamsrcelement.h,
-	share/Plugins/WebcamSrc/src/webcamsrc.cpp,
-	share/Plugins/WebcamSrc/src/webcamsrcelement.cpp,
-	src/appenvironment.cpp, src/baseelement.cpp, src/mainwidget.cpp,
-	src/mediatools.cpp: F*cking GStreamer, always a new problem DX<.
-	Implementing Carnival-LiveCam pipeline system in Webcamoid.
-
-2012-12-18  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Plasmoid.pro, StandAlone.pro, TODO, Webcamoid.pro,
-	include/effects.h, include/featuresinfo.h, include/generalconfig.h,
-	include/mainwidget.h, include/mediatools.h,
-	include/streamsconfig.h, include/videorecordconfig.h,
-	include/webcamconfig.h, packagemap.xml, share/ui/streamsconfig.ui,
-	src/effects.cpp, src/featuresinfo.cpp, src/generalconfig.cpp,
-	src/mainwidget.cpp, src/mediatools.cpp, src/streamsconfig.cpp,
-	src/videorecordconfig.cpp, src/webcamconfig.cpp: Updated Packagemap.
-	Fixed some video recording bugs. Plasmoid and StandAlone linked are
-	to Lib.
-
-2012-12-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, Lib.pro, Plasmoid.pro, StandAlone.pro, commons.pri,
-	include/mainwidget.h, include/mediatools.h,
-	plasma-applet-webcamoid.desktop, src/mainwidget.cpp,
-	src/mediatools.cpp, src/plasmoid.cpp: Added video recording.
-	Installer ready. Plasmoid bug fix. Removed translations. Now are
-	auto-generated at compile time.
-
-2012-12-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Lib.pro, Plasmoid.pro, StandAlone.pro,
-	Webcamoid.desktop, Webcamoid.pro, commons.pri,
-	include/mainwidget.h, include/mediatools.h, include/plasmoid.h,
-	plasma-applet-webcamoid.desktop, src/main.cpp, src/mainwidget.cpp,
-	src/mediatools.cpp, src/plasmoid.cpp, webcamoid.desktop: Keep frame
-	aspect ratio. Keep widget size after close. Added plasmoid project.
-	Fix install scripts.
-
-2012-12-12  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, StandAlone.pro, include/effects.h,
-	include/featuresinfo.h, include/generalconfig.h,
-	include/mainwidget.h, include/mainwindow.h, include/mediatools.h,
-	include/streamsconfig.h, include/v4l2tools.h,
-	include/videorecordconfig.h, include/webcamconfig.h,
-	share/ui/mainwidget.ui, share/ui/mainwindow.ui, src/effects.cpp,
-	src/featuresinfo.cpp, src/generalconfig.cpp, src/main.cpp,
-	src/mainwidget.cpp, src/mainwindow.cpp, src/mediatools.cpp,
-	src/streamsconfig.cpp, src/v4l2tools.cpp,
-	src/videorecordconfig.cpp, src/webcamconfig.cpp: Effects preview and
-	settings, video format settings, ready.
-
-2012-12-10  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Lib.pro, StandAlone.pro, include/v4l2tools.h, src/v4l2tools.cpp: 
-	Removed QtGstreamer from dependencies. Bug fix. Capture now works
-	again.
-
-2012-12-09  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Lib.pro, StandAlone.pro, Webcamoid.pro, commons.pri,
-	include/mainwindow.h, include/v4l2tools.h, include/webcamconfig.h,
-	src/effects.cpp, src/featuresinfo.cpp, src/generalconfig.cpp,
-	src/main.cpp, src/mainwindow.cpp, src/streamsconfig.cpp,
-	src/v4l2tools.cpp, src/videorecordconfig.cpp, src/webcamconfig.cpp: 
-	Bug fix and code cleanning.
-
-2012-12-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* include/featuresinfo.h, include/generalconfig.h,
-	include/mainwindow.h, include/streamsconfig.h, include/v4l2tools.h,
-	include/videorecordconfig.h, include/webcamconfig.h,
-	src/featuresinfo.cpp, src/generalconfig.cpp, src/mainwindow.cpp,
-	src/streamsconfig.cpp, src/v4l2tools.cpp,
-	src/videorecordconfig.cpp, src/webcamconfig.cpp: libWebcamoid.so
-	ready.
-
-2012-12-08  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, Lib.pro, Plasmoid.pro, StandAlone.pro,
-	Webcamoid.desktop, Webcamoid.nja, Webcamoid.pro,
-	Webcamoid.qdocconf, Webcamoid.qrc, commons.pri,
-	contents/code/appenvironment.py, contents/code/effects.py,
-	contents/code/featuresinfo.py, contents/code/generalconfig.py,
-	contents/code/main.py, contents/code/mainwindow.py,
-	contents/code/pipeline.py, contents/code/streamsconfig.py,
-	contents/code/v4l2/AUTHORS, contents/code/v4l2/LICENSE,
-	contents/code/v4l2/MANIFEST.in, contents/code/v4l2/NEWS,
-	contents/code/v4l2/PKG-INFO, contents/code/v4l2/README,
-	contents/code/v4l2/__init__.py, contents/code/v4l2/setup.py,
-	contents/code/v4l2/tests.py, contents/code/v4l2/v4l2.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamconfig.py, contents/ts/ca.ts,
-	contents/ts/de.ts, contents/ts/el.ts, contents/ts/es.ts,
-	contents/ts/fr.ts, contents/ts/gl.ts, contents/ts/it.ts,
-	contents/ts/ja.ts, contents/ts/ko.ts, contents/ts/pt.ts,
-	contents/ts/ru.ts, contents/ts/zh_CN.ts, contents/ts/zh_TW.ts,
-	contents/ui/effects.ui, contents/ui/featuresinfo.ui,
-	contents/ui/generalconfig.ui, contents/ui/mainwindow.ui,
-	contents/ui/streamsconfig.ui, contents/ui/videorecordconfig.ui,
-	contents/ui/webcamconfig.ui, include/appenvironment.h,
-	include/commons.h, include/effects.h, include/featuresinfo.h,
-	include/generalconfig.h, include/mainwindow.h,
-	include/streamsconfig.h, include/v4l2tools.h,
-	include/videorecordconfig.h, include/webcamconfig.h,
-	metadata.desktop, setup.py, share/ts/ca.ts, share/ts/de.ts,
-	share/ts/el.ts, share/ts/es.ts, share/ts/fr.ts, share/ts/gl.ts,
-	share/ts/it.ts, share/ts/ja.ts, share/ts/ko.ts, share/ts/pt.ts,
-	share/ts/ru.ts, share/ts/zh_CN.ts, share/ts/zh_TW.ts,
-	share/ui/effects.ui, share/ui/featuresinfo.ui,
-	share/ui/generalconfig.ui, share/ui/mainwindow.ui,
-	share/ui/streamsconfig.ui, share/ui/videorecordconfig.ui,
-	share/ui/webcamconfig.ui, src/appenvironment.cpp, src/effects.cpp,
-	src/featuresinfo.cpp, src/generalconfig.cpp, src/main.cpp,
-	src/mainwindow.cpp, src/streamsconfig.cpp, src/v4l2tools.cpp,
-	src/videorecordconfig.cpp, src/webcamconfig.cpp: Python -> C++.
-
-2012-11-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* TODO, contents/code/effects.py, contents/code/generalconfig.py,
-	contents/code/main.py, contents/code/mainwindow.py,
-	contents/code/pipeline.py, contents/code/v4l2tools.py,
-	contents/code/webcamconfig.py, contents/ui/generalconfig.ui: Working
-	with PyGst again. Added uninterrupted video recording.
-
-2012-10-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* .gitignore, contents/code/appenvironment.py,
-	contents/code/effects.py, contents/code/featuresinfo.py,
-	contents/code/generalconfig.py, contents/code/main.py,
-	contents/code/mainwindow.py, contents/code/streamsconfig.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamconfig.py, setup.py: Added .gitignore file and
-	removed -B option in Python.
-
-2012-10-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md, contents/code/appenvironment.py,
-	contents/code/effects.py, contents/code/features.py,
-	contents/code/featuresinfo.py, contents/code/generalconfig.py,
-	contents/code/mainwindow.py, contents/code/streamsconfig.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamconfig.py, contents/ui/effects.ui,
-	contents/ui/featuresinfo.ui, contents/ui/generalconfig.ui,
-	contents/ui/streamsconfig.ui, contents/ui/videorecordconfig.ui,
-	contents/ui/webcamconfig.ui: Added "General Configs" page. Added
-	effects search filter.
-
-2012-10-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/effects.py, contents/code/features.py,
-	contents/code/featuresinfo.py, contents/code/infotools.py,
-	contents/code/mainwindow.py, contents/code/webcamconfig.py,
-	contents/ui/featuresinfo.ui: Added Features page.
-
-2012-10-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/streamsconfig.py, contents/code/v4l2tools.py,
-	contents/code/videorecordconfig.py, contents/ui/streamsconfig.ui,
-	contents/ui/videorecordconfig.ui: Removed named pipes. Fixed
-	hang-ups and segfaults. Added columns and rows auto resize.
-
-2012-10-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md, contents/code/v4l2tools.py: Added more effects.
-
-2012-10-24  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* packagemap.xml, setup.py: Updated packagemap. Updated setup.py
-	(Bug #2).
-
-2012-10-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md, TODO, Webcamoid.pro, contents/code/mainwindow.py,
-	contents/code/networkstreamsconfig.py,
-	contents/code/streamsconfig.py, contents/code/v4l2tools.py,
-	contents/code/videorecordconfig.py, contents/code/webcamconfig.py,
-	contents/ts/ca.ts, contents/ts/de.ts, contents/ts/el.ts,
-	contents/ts/es.ts, contents/ts/fr.ts, contents/ts/gl.ts,
-	contents/ts/it.ts, contents/ts/ja.ts, contents/ts/ko.ts,
-	contents/ts/pt.ts, contents/ts/ru.ts, contents/ts/zh_CN.ts,
-	contents/ts/zh_TW.ts, contents/ui/networkstreamsconfig.ui,
-	contents/ui/streamsconfig.ui: Added desktop capture. Updated
-	translations. Updated README. Bug fix.
-
-2012-10-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* TODO, contents/code/effects.py, contents/code/mainwindow.py,
-	contents/code/networkstreamsconfig.py, contents/code/v4l2tools.py,
-	contents/code/webcamconfig.py, contents/ui/effects.ui: Added live
-	previews. Added IP cameras and streaming support..
-
-2012-10-19  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* TODO, contents/code/appenvironment.py, contents/code/ipcamera.py,
-	contents/code/mainwindow.py, contents/code/networkstreamsconfig.py,
-	contents/code/v4l2tools.py, contents/ui/networkstreamsconfig.ui,
-	metadata.desktop, setup.py: Added network camera configs.
-
-2012-10-14  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* TODO, contents/code/ipcamera.py, contents/code/main.py,
-	contents/code/v4l2/v4l2.py: Added TODO list. Preparing for the next
-	release.
-
-2012-09-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Webcamoid.pro, contents/code/appenvironment.py,
-	contents/code/effects.py, contents/code/main.py,
-	contents/code/mainwindow.py, contents/code/videorecordconfig.py,
-	contents/code/webcamconfig.py, contents/ts/ca.ts,
-	contents/ts/de.ts, contents/ts/el.ts, contents/ts/es.ts,
-	contents/ts/fr.ts, contents/ts/gl.ts, contents/ts/it.ts,
-	contents/ts/ja.ts, contents/ts/ko.ts, contents/ts/pt.ts,
-	contents/ts/ru.ts, contents/ts/zh_CN.ts, contents/ts/zh_TW.ts,
-	contents/ui/webcamconfig.ui, packagemap.xml: Webcamoid 3.2.0
-	finished :D
-
-2012-09-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, README.md, contents/code/appenvironment.py,
-	contents/code/effects.py, contents/code/mainwindow.py,
-	contents/code/videorecordconfig.py, contents/code/webcamconfig.py,
-	contents/ts/ca.ts, contents/ts/de.ts, contents/ts/el.ts,
-	contents/ts/es.ts, contents/ts/fr.ts, contents/ts/gl.ts,
-	contents/ts/it.ts, contents/ts/ja.ts, contents/ts/ko.ts,
-	contents/ts/pt.ts, contents/ts/ru.ts, contents/ts/zh_CN.ts,
-	contents/ts/zh_TW.ts, packagemap.xml: Many improvements and bug
-	fixes to the i18n, stylesheets and the stand alone install. Updated
-	Info.
-
-2012-09-26  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Webcamoid.pro, contents/code/appenvironment.py,
-	contents/code/effects.py, contents/code/main.py,
-	contents/code/mainwindow.py, contents/code/translator.py,
-	contents/code/videorecordconfig.py, contents/code/webcamconfig.py,
-	contents/ts/ca.ts, contents/ts/de.ts, contents/ts/el.ts,
-	contents/ts/es.ts, contents/ts/fr.ts, contents/ts/gl.ts,
-	contents/ts/it.ts, contents/ts/ja.ts, contents/ts/ko.ts,
-	contents/ts/pt.ts, contents/ts/ru.ts, contents/ts/zh_CN.ts,
-	contents/ts/zh_TW.ts, contents/ui/mainwindow.ui: Many internal
-	changes. Enhanced i18n.
-
-2012-09-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, Webcamoid.pro, contents/code/effects.py,
-	contents/code/infotools.py, contents/code/main.py,
-	contents/code/mainwindow.py, contents/code/translator.py,
-	contents/code/v4l2/tests.py, contents/code/v4l2/v4l2.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamconfig.py, contents/code/webcamoidgui.py,
-	contents/ts/ca.ts, contents/ts/de.ts, contents/ts/el.ts,
-	contents/ts/es.ts, contents/ts/fr.ts, contents/ts/gl.ts,
-	contents/ts/it.ts, contents/ts/ja.ts, contents/ts/ko.ts,
-	contents/ts/pt.ts, contents/ts/ru.ts, contents/ts/zh_CN.ts,
-	contents/ts/zh_TW.ts, contents/ui/effects.ui,
-	contents/ui/mainwindow.ui, contents/ui/videorecordconfig.ui,
-	contents/ui/webcamoidgui.ui, setup.py: Updated i18n.
-
-2012-09-24  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/about.py, contents/code/config.py,
-	contents/code/effects.py, contents/code/main.py,
-	contents/code/upload.py, contents/code/videorecordconfig.py,
-	contents/code/webcamconfig.py, contents/code/webcamoidgui.py,
-	contents/ui/about.ui, contents/ui/effects.ui,
-	contents/ui/videorecordconfig.ui, contents/ui/webcamoidgui.ui,
-	setup.py: Enhanced Stand-Alone mode.
-
-2012-08-13  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, README.md, Webcamoid.pro, contents/code/about.py,
-	contents/code/effects.py, contents/code/upload.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamoidgui.py, contents/ui/about.ui,
-	metadata.desktop, packagemap.xml, setup.py: Fixed some bugs. Added
-	more Info.
-
-2012-08-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md, contents/code/main.py, contents/code/v4l2tools.py,
-	setup.py: Fixed some bugs.
-
-2012-07-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Webcamoid.pro, contents/code/config.py, contents/code/effects.py,
-	contents/code/infotools.py, contents/code/main.py,
-	contents/code/translator.py, contents/code/v4l2tools.py,
-	contents/code/videorecordconfig.py, contents/code/webcamoidgui.py,
-	contents/ui/effects.ui, contents/ui/webcamoidgui.ui,
-	metadata.desktop, setup.py: Added Stand alone app setup.
-
-2012-07-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog: Updated ChangeLog.
-
-2012-07-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.md, Webcamoid.pro, contents/code/config.py,
-	contents/code/effects.py, contents/code/infotools.py,
-	contents/code/main.py, contents/code/translator.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamoidgui.py, contents/ts/ca.ts,
-	contents/ts/de.ts, contents/ts/el.ts, contents/ts/es.ts,
-	contents/ts/fr.ts, contents/ts/gl.ts, contents/ts/it.ts,
-	contents/ts/ja.ts, contents/ts/ko.ts, contents/ts/pt.ts,
-	contents/ts/ru.ts, contents/ts/zh_CN.ts, contents/ts/zh_TW.ts,
-	contents/ui/webcamoidgui.ui: Updated translations. Added Catalan and
-	Galician
-
-2012-07-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.markdown, README.md, contents/code/config.py,
-	contents/code/effects.py, contents/code/infotools.py,
-	contents/code/main.py, contents/code/translator.py,
-	contents/code/v4l2tools.py, contents/code/videorecordconfig.py,
-	contents/code/webcamoidgui.py, contents/ui/effects.ui,
-	packagemap.xml: Many fixes.
-
-2012-07-05  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Webcamoid.nja, contents/code/config.py,
-	contents/code/infotools.py, contents/code/main.py,
-	contents/code/translator.py, contents/code/v4l2tools.py,
-	contents/code/videorecordconfig.py, contents/code/webcamoidgui.py,
-	contents/ui/videorecordconfig.ui: PyGst -> gst-launch (no more
-	bugs). Added video record config. Working on distro detection.
-
-2012-07-01  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/v4l2tools.py: Modified basic test in v4l2tools.
-
-2012-06-30  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/v4l2tools.py, contents/code/webcamoidgui.py: fdsink
-	-> appsink (more bugs).
-
-2012-06-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/v4l2tools.py, contents/code/webcamoidgui.py: Added
-	video recording (many bugs).
-
-2012-06-28  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.markdown, contents/code/config.py, contents/code/main.py,
-	contents/code/v4l2tools.py, contents/code/webcamoidgui.py: 
-	gst-launch -> PyGst (camerabin).
-
-2012-06-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, Webcamoid.nja, Webcamoid.pro,
-	contents/code/effects.py, contents/code/main.py,
-	contents/code/v4l2/tests.py, contents/code/v4l2tools.py,
-	contents/code/videorecordconfig.py, contents/code/webcamoidgui.py,
-	contents/ui/videorecordconfig.ui, contents/ui/webcamoidgui.ui,
-	metadata.desktop, packagemap.xml: Working on video recording.
-
-2012-06-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* README.markdown, contents/code/config.py,
-	contents/code/effects.py, contents/code/main.py,
-	contents/code/v4l2tools.py, contents/code/webcamoidgui.py,
-	contents/ui/effects.ui: Effects Beta 2. Updated info.
-
-2012-06-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/config.py, contents/code/effects.py,
-	contents/code/main.py, contents/code/v4l2tools.py,
-	contents/code/webcamoidgui.py: Added Effects (Beta).
-
-2012-05-23  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/config.py, contents/code/effects.py,
-	contents/code/main.py, contents/code/v4l2tools.py,
-	contents/ui/effects.ui: FFmpeg -> GStreamer. Working on Effects.
-
-2012-04-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, contents/code/config.py, contents/code/translator.py,
-	contents/code/webcamoidgui.py, metadata.desktop: Fixed translations.
-	Updated info.
-
-2012-04-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, contents/ts/de.ts, contents/ts/el.ts,
-	contents/ts/fr.ts, contents/ts/it.ts, contents/ts/ja.ts,
-	contents/ts/ko.ts, contents/ts/pt.ts, contents/ts/ru.ts,
-	contents/ts/zh_CN.ts, contents/ts/zh_TW.ts: Added more translations.
-
-2012-04-24  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, README.markdown, Webcamoid.nja, Webcamoid.pro,
-	contents/code/config.py, contents/code/main.py,
-	contents/code/translator.py, contents/code/v4l2/v4l2.py,
-	contents/code/v4l2tools.py, contents/code/webcamoidgui.py,
-	contents/ts/es.ts, contents/ui/webcamoidgui.ui: Added i18n.
-
-2012-04-03  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/config.py, contents/code/main.py,
-	contents/code/v4l2tools.py, contents/code/webcamoidgui.py: Fixed to
-	follow the PEP 8 style guide.
-
-2012-03-20  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/config.py, contents/code/effects.py,
-	contents/code/v4l2tools.py, contents/code/webcamoidgui.py,
-	metadata.desktop: Bug fix. Pipe file is no needed anymore.
-
-2012-03-01  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, contents/code/config.py, contents/code/main.py,
-	contents/code/v4l2tools.py, contents/code/webcamoidgui.py: Removed
-	stdin, stderr and stdout pipes. Added -loglevel quiet. Apparently,
-	suppress the output using pipes is a very bad idea.
-
-2012-02-29  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, contents/code/v4l2tools.py,
-	contents/code/webcamoidgui.py, metadata.desktop: Fixed Popen pipe
-	limit.
-
-2012-02-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, README.markdown: Updated README and ChangeLog files
-
-2012-02-27  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* contents/code/main.py: Popup applet working :D
-
-2012-02-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* ChangeLog, contents/code/main.py, contents/code/main.py.orig: 
-	Fixed new GUI design issue.
-
-2012-02-25  Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
-
-	* Created Git repository. Redesigned Gui. Working on popup
-	integration.
+commit 5136dd5d3cafc684d10e625eaa7f0827f477b2d1 (HEAD, origin/syncfps, syncfps)
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Sep 17 14:10:53 2013 -0300
 
+    The problem is the cache (AVQueue) filling speed.
+
+commit b136c94410e944c7a251ae4ee82d3640b593c1f2
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun Sep 15 16:55:04 2013 -0300
+
+    More optimizations.
+
+commit 8a0fa2a57f9db77c99fbdc39373decb3ec8e3179
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun Sep 15 13:52:24 2013 -0300
+
+    Reduced memcpy usage.
+
+commit 9c70434218ea6cfc648cc6fa55c69034735c98d5
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Sep 14 13:02:19 2013 -0300
+
+    Faster video rendering.
+
+commit 0466ab7c24d76999c4d72d5895da5e2b704df6d5
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Sep 13 22:17:52 2013 -0300
+
+    Better sync. Better rendering.
+
+commit b803edb9e7d528440a22ce49c6e0eee60eae05e1
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Sep 9 16:15:49 2013 -0300
+
+    Copied synching algorithm from ffplay.
+
+commit 4736208bd8384908da89e1526106e9c4f63bdf8b
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Aug 30 21:17:32 2013 -0300
+
+    Added connection type specifier in Bin element. Audio synchronization seems to work slighly better with the new hack, but memory consumption is out of control.
+
+commit 6cbf8362134a092c1e5dd1efa75c2904f9507d52
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Aug 29 18:00:35 2013 -0300
+
+    Working in audio synchronization.
+
+commit 83b6f24c6f5ab52a0baa2677fd82fbaae5275681
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Aug 27 19:29:34 2013 -0300
+
+    Threaded sync. Improved KDE libraries detection.
+
+commit 446581c1b9468bfda207ae962a90ea481e8f55fb
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 27 10:16:02 2013 -0300
+
+    Added stream flush (bug #8), but bad time stamp at close in OGG/OGV files. Added ifdef V4L2_CTRL_TYPE_INTEGER_MENU in webcamconfigelement.cpp as suggested in bug #4.
+
+commit 7d81476bc34dd7909eb809d61c6aef7a48f9c7db
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Jun 26 12:18:33 2013 -0300
+
+    Bug #7 solved.
+
+commit be7bc0503968e51641103405db1ba11e0b69e764
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Jun 25 14:55:44 2013 -0300
+
+    Fixed some recording issues. Removed effects setting restrictions on recording.
+
+commit 0c09b114ece88f33e38de2c05c5467f309a7643b
+Merge: a6aaf1e 3b13edf
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Jun 25 10:04:12 2013 -0300
+
+    Updated fix branch.
+
+commit 3b13edf64790c62fd7ba38b4cc062123def50c5f
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Jun 25 09:58:27 2013 -0300
+
+    Updated README.
+
+commit 7ec5202fe95fa88118e34533e57d2ea7fa385796
+Merge: b3e801c b937aba
+Author: hipersayanX <hipersayan.x@gmail.com>
+Date:   Mon Jun 24 15:02:47 2013 -0700
+
+    Merge pull request #6 from Ascaf0/master
+
+    Updated Italian translation.
+
+commit b937abaaba937fbcd0fdbc0ae3ed5bb36a26e246
+Author: Ascaf0 <fa0sck@gmail.com>
+Date:   Mon Jun 24 22:42:45 2013 +0200
+
+    Update it.ts
+
+    Reviewed translation, completed (partially) untranslated messages
+
+commit b3e801cba82a7c0f454e8fd72534cb7137427e36
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Jun 24 17:25:33 2013 -0300
+
+    Added configuration for stream recording and some nice comments.
+
+commit ebb1c82b156c35296a0fd12c296518aebbc5236f
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Jun 22 16:18:02 2013 -0300
+
+    Added stream filtering in MultiSrc.
+
+commit 3b024558c490b823d75be7cd28523887d47bd5cb
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Jun 22 14:45:38 2013 -0300
+
+    Added subtitles support to MultiSrc.
+
+commit d2a33bb770705876091223f6015cbe1bc4d3955e
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Jun 19 18:26:51 2013 -0300
+
+    Fixed many playback issues.
+
+commit 5e5ea451f34c413d6c9a277071e17e21e83130f7
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun Jun 16 11:52:33 2013 -0300
+
+    Removed old stuff in MultiSrc.
+
+commit 2b853b016f838d793b125a83e79e4c525f383e98
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Jun 15 16:22:23 2013 -0300
+
+    WebcamConfig integrated.
+
+commit 51c390a4deda766885f9344d04d0043d8be4f28c
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Jun 14 18:31:20 2013 -0300
+
+    make install now uses INSTALL_ROOT.
+
+commit 511bfcc30314bedad0e087026e9442ea3805ac5c
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Jun 14 14:26:34 2013 -0300
+
+    WebcamConfig element ready.
+
+commit 8b33a5d61a3adf4ded46c5211dbc0567e471d835
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 13 22:39:54 2013 -0300
+
+    Updated ChangeLog.
+
+commit 4a80045a0a9a4b0958207038b286f9abc08d9a8e
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 13 22:37:38 2013 -0300
+
+    Modified gitignore. Modified building and installation. Added BUILDDOCS variable. Updated README. Updated PKGBUILD. Working on WebcamConfig.
+
+commit d6791e534a4d1919e660a42a183bc9dcf8985c3d
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 13 14:48:04 2013 -0300
+
+    Changed ports/ubuntu/control -> ports/debian/control.
+
+commit 77befd5bff103a807be365f8d4a3fb8ef41e0475
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 13 13:40:51 2013 -0300
+
+    Added AudioInput.
+
+commit 036059e106462da8ac5da4dcba57d5014889d776
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Jun 12 17:46:58 2013 -0300
+
+    AudioOutput ready. Added QDOCTOOL variable.
+
+commit 942f52b995d056e2b3ab404f147f8d4d27823d6b
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Jun 8 17:47:56 2013 -0300
+
+    MultiSink ready. Added AudioOutput element.
+
+commit 64842a0023bdac432e4197c19166c4b37f109f29
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Jun 7 23:35:33 2013 -0300
+
+    Bug #3, case closed. Thank you very much to everyone who collaborated :)
+
+commit 14335cf68774c30f2ea2f33fe0c373643c4c7f3d
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Jun 7 18:08:54 2013 -0300
+
+    Multi stream recording comming soon. VCapsConvert can resample. Removed obsolete code in Sync.
+
+commit b9fb2634cbd88591265a8d65a10e418786ae0225
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 6 22:24:29 2013 -0300
+
+    Modified VCapsConvert. One filter per stream.
+
+commit b1ed2999bb1356d6a015ba37d5c18c24ff2d4e3a
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jun 6 16:15:33 2013 -0300
+
+    Fixed Filter.
+
+commit ee250becf69fb34090847262b62e648bf4bf4f3d
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Jun 5 22:47:49 2013 -0300
+
+    Updated README.
+
+commit b684e75f64eb3b7b10ec9c79cf554610a3de0ab0
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Jun 5 14:39:17 2013 -0300
+
+    Added new ports for Gentoo, PiSi Linux and Ubuntu. Updated copyright year :P. Many internal changes.
+
+commit 63e472482385140037c05b29d624e8cb40fff37b
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri May 31 12:04:37 2013 -0300
+
+    New MultiSink options format. Preparing multi-stream recording.
+
+commit 4d2d53b52166dce2bf74fdc0f2a4aa5c64f00873
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun May 26 12:02:00 2013 -0300
+
+    Updated README.
+
+commit 7094741784d276c84989629a2255000af355cf2c
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun May 26 11:40:36 2013 -0300
+
+    Updated Compile info. Working in a new MultiSink command line parser.
+
+commit d41da6e37cb60f9ac8d25cdec4b273b322fc05ab
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu May 23 13:11:16 2013 -0300
+
+    Updated install macros. Updated Fedora SPEC.
+
+commit e57ec6a370ec6991438b440d7eaa9057b3528196
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed May 22 16:12:25 2013 -0300
+
+    Added SPEC for Fedora.
+
+commit a3efff7800cc4741808eaf0a7b111367713081f3
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed May 22 12:16:18 2013 -0300
+
+    Added PKGBUILD for ArchLinux.
+
+commit 035ad2fd559d203479250e4a8ea1ca76bbff5687
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue May 21 16:17:56 2013 -0300
+
+    Removed DTS property in QbPacket. Fixed Multiplex.
+
+commit 9363adc336756957a4150de85128c152ab4562a2 (tag: v5.0.0b1)
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon May 20 19:14:00 2013 -0300
+
+    Some updates and fixes.
+
+commit 091e8af3ae187685961305e8b9cd9f77ed380e22
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon May 20 17:48:00 2013 -0300
+
+    Added non-queued sync.
+
+commit a995c931fea4483830f187b099c190dd636175df
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue May 14 15:39:20 2013 -0300
+
+    Fixed video sync.
+
+commit 8db98ab2435ff695e6b9312e6cd82ea12c89aab9
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Apr 17 11:54:33 2013 -0300
+
+    Fixed Sync and some bugs.
+
+commit af87de56e5996c91cd92081a3a786e9c56a663dd
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Apr 16 12:59:56 2013 -0300
+
+    Fixed memory leaks and segfaults. Updated translations.
+
+commit 57e61b56a7073c0b7d26a2126473f95d7b0b7a59 (tag: v5.0.0a1)
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Apr 6 16:39:21 2013 -0300
+
+    Fixed install, again :P
+
+commit 5590a95fd26293baacff3a2922d5eb654e945359
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Apr 6 13:42:30 2013 -0300
+
+    Fixed plugins path.
+
+commit 17933c974082590a2724d481d3b9ce98b5a70368
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Apr 6 12:14:18 2013 -0300
+
+    Added Qb/Qb.qdocconf.
+
+commit d664bdff533a0ad0cef05ab0ccd595f1884bed95
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Apr 6 11:48:00 2013 -0300
+
+    Fixed install. updated README.
+
+commit f7edb4d066127f991da588689875bd0d9e46debf
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Apr 5 16:24:05 2013 -0300
+
+    Switched to in-house FFmpeg. Updated README. Ready for merge :)
+
+commit 9f85d7c37174c0410e0608aba69ddd97b948a6eb
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Apr 4 16:38:55 2013 -0300
+
+    Fixed memory leak. Added 3 new Effects.
+
+commit 0ba0b302b0e2455f8a2a4ceab0aa76f0fa825715
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Mar 30 19:50:32 2013 -0300
+
+    The new pipeline system based in Qb is working very well, as expected.
+
+commit 14e40390c801c4ce529624454f1b511787822408
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Mar 23 18:16:05 2013 -0300
+
+    Webcamoid and Qt splited. Plasmoid and Stand alene ported to Qb.
+
+commit 37b8946e671d007ac82271b10ebbfc516421fbf6
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Mar 14 19:12:04 2013 -0300
+
+    Added a Multiplexer and a Sync element.
+
+commit 7e6f2a3aa850926c71c7765b6d43e9df5d1cfb02
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Mar 11 18:46:22 2013 -0300
+
+    Image Magick was replaced by QImageBlitz.
+
+commit 1b8a43f0d0d486bc906e2a53f34200f3987d24e3
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Mar 9 14:07:08 2013 -0300
+
+    Working in the Image Magick plugin.
+
+commit 9a974adf6ed542572c47c49355ca296bbd4d2d14
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Mar 6 21:03:30 2013 -0300
+
+    Bin element working very well.
+
+commit 9ad62e3fb720c4bfcf9503b48c1cba94aa65e439
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Mar 2 15:32:59 2013 -0300
+
+    Removed old GStreamer based plugins. Added Bin element.
+
+commit 0067a12eb917ba4a08a2211c0e573f3696d8d8ac
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Feb 19 16:46:58 2013 -0300
+
+    Frei0r plugins ready.
+
+commit 6cd13399fb09787758600cf15369b614058236b4
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Feb 16 21:41:17 2013 -0300
+
+    Switched to FFmpeg stream format (more pixel and sample formats are supported). Frei0r plugin mostly finished.
+
+commit 2001fda65b10e37f6b5f50e18e693dcf0719b8b4
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Feb 13 17:31:51 2013 -0300
+
+    Plugin system enhancements. Working in Frei0r plugins.
+
+commit 1719d4f8e48ba6a6b56720f44626b74cc6fc4fec
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Feb 8 13:17:29 2013 -0300
+
+    Crap sound, but video record working :D
+
+commit 3fe53ec4f1c8af6a170d7d522ef7108947101d5d
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun Feb 3 20:16:19 2013 -0300
+
+    Added ACapsConvert. Simplified Element linking. Working on audio record.
+
+commit 2877c01aff32c63f62635667ac98dd6ba50c31fc
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Jan 28 22:37:17 2013 -0300
+
+    MultiSink and pipeline system reworked.
+
+commit 9f53836a4d6b56e436b0b3ea84a2062dc81eb19f
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Jan 17 23:40:05 2013 -0300
+
+    MultiSrc ready. Working in MultiSink.
+
+commit d0308187eb8fdbc07bfaac3075257dec3fb0e83a
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Jan 12 16:49:01 2013 -0300
+
+    Many improvements to the pipeline system. Now UriSrc can handle any type of source.
+
+commit d31f57950b9de980c33dd25858b19bea383470c3
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Jan 7 19:34:50 2013 -0300
+
+    GStreamer 0.10 -> 1.0, IT'S HORRIBLE! preparing the transition to FFmpeg, hopefully it will work better, huehuehue :)
+
+commit 0e35d2eecb2bb303fd6586a93f2304827b39b72c
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Dec 28 19:07:51 2012 -0300
+
+    New plugin system ready.
+
+commit 20ff272a9c5d3ef814d7d12546959d961e6951c8
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Dec 22 19:47:37 2012 -0300
+
+    F*cking GStreamer, always a new problem DX<. Implementing Carnival-LiveCam pipeline system in Webcamoid.
+
+commit 01c557728d37db522df6e0f17f5c133d61cbc7c3
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Dec 18 18:34:27 2012 -0300
+
+    Updated Packagemap. Fixed some video recording bugs. Plasmoid and StandAlone linked are to Lib.
+
+commit 70636cc12b1c9e484cc31732d1131e053f417fb2
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Dec 14 14:15:31 2012 -0300
+
+    Added video recording. Installer ready. Plasmoid bug fix. Removed translations. Now are auto-generated at compile time.
+
+commit 568f7d7b84d9102f683bd961455d2402a6eb32fc
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Thu Dec 13 15:22:07 2012 -0300
+
+    Keep frame aspect ratio. Keep widget size after close. Added plasmoid project. Fix install scripts.
+
+commit 674a517b940cec1d600d1343c1b1bd458559043c
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Dec 12 21:36:14 2012 -0300
+
+    Effects preview and settings, video format settings, ready.
+
+commit 9c3606ff0a5f9dd74770892a8458a2fe6116fc8a
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Dec 10 20:50:03 2012 -0300
+
+    Removed QtGstreamer from dependencies. Bug fix. Capture now works again.
+
+commit ae5682390353c092f069666c2feafad48165cdbf
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun Dec 9 21:02:11 2012 -0300
+
+    Bug fix and code cleanning.
+
+commit 9c7cb0759169793f2ae5e54e22151f5e72e5b7d2
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Dec 8 22:18:58 2012 -0300
+
+    libWebcamoid.so ready.
+
+commit f5dbfbc9751d38d6776c21146c284172e35d58b5
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Dec 8 11:33:39 2012 -0300
+
+    Python -> C++.
+
+commit 520c8b79fe25eea5859e52d2ae6cd91719400eef
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Nov 3 20:03:30 2012 -0300
+
+    Working with PyGst again. Added uninterrupted video recording.
+
+commit 976da1dbd1d5bf480e1956fcfbf4fa008de960a4
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Oct 30 20:30:35 2012 -0300
+
+    Added .gitignore file and removed -B option in Python.
+
+commit 4d766ec265f72279f55ab6e765fced358ecf6fb0
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Oct 30 18:30:26 2012 -0300
+
+    Added "General Configs" page. Added effects search filter.
+
+commit d3544f20a6781e827b71e754754b420898f38ff0
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Oct 30 00:38:31 2012 -0300
+
+    Added Features page.
+
+commit 21218d8cf1d904c11c867b00662da413b4bab82a
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Oct 29 18:18:22 2012 -0300
+
+    Removed named pipes. Fixed hang-ups and segfaults. Added columns and rows auto resize.
+
+commit 0153c2627dbb4be014252a6971538b471ad7c1ac
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Oct 29 01:22:38 2012 -0300
+
+    Added more effects.
+
+commit a6aaf1ea839bb1825a051431700cdbf13f28546a (tag: v3.2.1)
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Oct 24 13:26:24 2012 -0300
+
+    Fixed bug #2.
+
+commit 6564faa156b6b00ed758737f2367f707b0908ce5
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Oct 24 13:18:44 2012 -0300
+
+    Updated packagemap. Updated setup.py (Bug #2).
+
+commit b7f2825d8b6ca2d2f9241043d7836158501ba3dc
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Oct 23 15:37:14 2012 -0300
+
+    Added desktop capture. Updated translations. Updated README. Bug fix.
+
+commit 41eadd98731f0fe9ddf30b874e960207cc6ee148
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sat Oct 20 18:50:37 2012 -0300
+
+    Added live previews. Added IP cameras and streaming support..
+
+commit 9bf1888008e3d5ef6ca4e6c3659bb36743cbc3cf
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Oct 19 17:51:35 2012 -0300
+
+    Added network camera configs.
+
+commit 4f4e352b6c70c301eaaa89b93a9eca0530a1d029
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Sun Oct 14 17:08:05 2012 -0300
+
+    Added TODO list. Preparing for the next release.
+
+commit a5f5f7aa6fc1db7fa7feeef6d89fc05590385273 (tag: v3.2.0)
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Sep 26 16:21:44 2012 -0300
+
+    Webcamoid 3.2.0 finished :D
+
+commit e80f0b06cd9c75a6742a9c453e66c1bc69b992e6
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Sep 26 13:29:44 2012 -0300
+
+    Many improvements and bug fixes to the i18n, stylesheets and the stand alone install. Updated Info.
+
+commit 26e06abee84cc60168624a9a651dbd553f9ce75f
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Wed Sep 26 01:33:48 2012 -0300
+
+    Many internal changes. Enhanced i18n.
+
+commit ef7630f54fba5548152f6ccf06fc09da3fbb5735
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Tue Sep 25 15:11:18 2012 -0300
+
+    Updated i18n.
+
+commit 1a0d96424237023b55079165df3af7d73b655f51
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Sep 24 21:14:27 2012 -0300
+
+    Enhanced Stand-Alone mode.
+
+commit 81e37fe984feb173b179569508a5ae5606ee40f8
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Aug 13 16:29:54 2012 -0300
+
+    Fixed some bugs. Added more Info.
+
+commit a2ec9e7b99da689a6101160ba5fec2f9ea00d302
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Fri Aug 3 16:42:33 2012 -0300
+
+    Fixed some bugs.
+
+commit 7c4f8018c0c1688de0797b038df9b6657d9991ee
+Author: Gonzalo Exequiel Pedone <hipersayan.x@gmail.com>
+Date:   Mon Jul 30 13:44:08 2012 -0300
+
+    Added Stand alone app setup.

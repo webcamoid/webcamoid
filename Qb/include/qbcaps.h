@@ -33,7 +33,7 @@ class QbCaps: public QObject
 
     public:
         explicit QbCaps(QObject *parent=NULL);
-        QbCaps(QString capsString);
+        QbCaps(const QString &capsString);
         QbCaps(const QbCaps &other);
         virtual ~QbCaps();
         QbCaps &operator =(const QbCaps &other);
@@ -54,7 +54,7 @@ class QbCaps: public QObject
         friend QDebug operator <<(QDebug debug, const QbCaps &caps);
 
     public slots:
-        void setMimeType(QString mimeType);
+        void setMimeType(const QString &mimeType);
         void resetMimeType();
 };
 

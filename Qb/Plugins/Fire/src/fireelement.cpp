@@ -268,12 +268,8 @@ void FireElement::resetMaxColor()
 
 void FireElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
-        return;
-
-    this->m_convert->iStream(packet);
+    if (packet.caps().mimeType() == "video/x-raw")
+        this->m_convert->iStream(packet);
 }
 
 void FireElement::setState(ElementState state)
@@ -359,7 +355,7 @@ void FireElement::processFrame(const QbPacket &packet)
             destBits[y * src.width() + x] = this->m_palette[v];
         }
 
-    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());

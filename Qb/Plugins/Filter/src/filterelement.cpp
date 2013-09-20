@@ -338,7 +338,7 @@ void FilterElement::iStream(const QbPacket &packet)
                                                oFrame.width,
                                                oFrame.height);
 
-            QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
+            QbBufferPtr oBuffer(new uchar[frameSize]);
 
             avpicture_layout((AVPicture *) &oFrame,
                              (AVPixelFormat) oFrame.format,
@@ -369,7 +369,7 @@ void FilterElement::iStream(const QbPacket &packet)
 
             int oLineSize;
 
-            QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
+            QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
             int planes = av_sample_fmt_is_planar((AVSampleFormat) oFrame.format)? oFrame.channels: 1;
             QVector<uint8_t *> oData(planes);

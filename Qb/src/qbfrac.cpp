@@ -37,7 +37,7 @@ QbFrac::QbFrac(qint64 num, qint64 den):
     this->reduce();
 }
 
-QbFrac::QbFrac(QString fracString):
+QbFrac::QbFrac(const QString &fracString):
     QObject(NULL)
 {
     this->m_num = 0;

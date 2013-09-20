@@ -149,7 +149,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                                  oSampleFormat,
                                                  0);
 
-    QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
+    QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
     if (!oBuffer)
         return;

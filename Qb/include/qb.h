@@ -28,8 +28,8 @@ namespace Qb
 {
     void init();
     QStringList pluginsPaths();
-    QbElementPtr create(QString pluginId, QString elementName="");
-    void setPluginsPaths(QStringList pluginsPaths);
+    QbElementPtr create(const QString &pluginId, const QString &elementName="");
+    void setPluginsPaths(const QStringList &pluginsPaths);
     void resetPluginsPaths();
 }
 

@@ -36,9 +36,9 @@ class QbApplication: public QObject
         explicit QbApplication(QObject *parent=NULL);
         ~QbApplication();
 
-        Q_INVOKABLE QStringList pluginsPaths();
-        Q_INVOKABLE QbElementPtr newInstance(QString pluginId);
-        Q_INVOKABLE void deleteInstance(QString pluginId);
+        Q_INVOKABLE QStringList pluginsPaths() const;
+        Q_INVOKABLE QbElementPtr newInstance(const QString &pluginId);
+        Q_INVOKABLE void deleteInstance(const QString &pluginId);
 
     private:
         QStringList m_pluginsPaths;
@@ -47,12 +47,12 @@ class QbApplication: public QObject
         QMap<QString, QString> m_pluginPath;
         QMap<QString, int> m_instances;
 
-        bool isLoaded(QString pluginId);
-        bool load(QString pluginId);
-        bool unload(QString pluginId);
+        bool isLoaded(const QString &pluginId);
+        bool load(const QString &pluginId);
+        bool unload(const QString &pluginId);
 
     public slots:
-        void setPluginsPaths(QStringList pluginsPaths);
+        void setPluginsPaths(const QStringList &pluginsPaths);
         void resetPluginsPaths();
 };
 

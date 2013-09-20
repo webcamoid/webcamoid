@@ -79,16 +79,14 @@ void MultiplexElement::resetCaps()
 
 void MultiplexElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        this->state() != ElementStatePlaying)
-        return;
-
-    if ((this->inputIndex() < 0 ||
-         (this->inputIndex() >= 0 &&
-          packet.index() == this->inputIndex())) &&
-        (this->caps().isEmpty() || packet.caps().isCompatible(this->caps())))
+    if (packet.caps().isValid()
+        && (this->inputIndex() < 0
+            || (this->inputIndex() >= 0
+                && packet.index() == this->inputIndex()))
+        && (this->caps().isEmpty()
+            || packet.caps().isCompatible(this->caps())))
     {
-        QbPacket oPacket = packet;
+        QbPacket oPacket(packet);
 
         if (this->outputIndex() >= 0)
             oPacket.setIndex(this->outputIndex());

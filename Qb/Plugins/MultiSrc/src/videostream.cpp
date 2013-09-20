@@ -79,7 +79,7 @@ QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
                                        this->codecContext()->width,
                                        this->codecContext()->height);
 
-    QSharedPointer<uchar> oBuffer(new uchar[frameSize]);
+    QbBufferPtr oBuffer(new uchar[frameSize]);
 
     if (!oBuffer)
         return packets;

@@ -479,12 +479,8 @@ void MatrixElement::resetPause()
 
 void MatrixElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
-        return;
-
-    this->m_convert->iStream(packet);
+    if (packet.caps().mimeType() == "video/x-raw")
+        this->m_convert->iStream(packet);
 }
 
 void MatrixElement::setState(ElementState state)
@@ -576,7 +572,7 @@ void MatrixElement::processFrame(const QbPacket &packet)
     caps.setProperty("width", oFrame.width());
     caps.setProperty("height", oFrame.height());
 
-    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbPacket oPacket(caps,
