@@ -40,8 +40,15 @@ class SyncElement: public QbElement
 {
     Q_OBJECT
 
+    Q_PROPERTY(int outputAudioBufferSize READ outputAudioBufferSize
+                                         WRITE setOutputAudioBufferSize
+                                         RESET resetOutputAudioBufferSize)
+
     public:
         explicit SyncElement();
+        ~SyncElement();
+
+        Q_INVOKABLE int outputAudioBufferSize() const;
 
     private:
         enum PackageProcessing
@@ -53,37 +60,40 @@ class SyncElement: public QbElement
 
         bool m_ready;
         bool m_fst;
+        bool m_isAlive;
+
+        bool m_log;
+
+        double m_audioDiffCum;
+        double m_audioDiffAvgCoef;
+        int m_audioDiffAvgCount;
+        int m_outputAudioBufferSize;
+
+        double m_frameLastPts;
+
+        AVQueue m_avqueue;
 
         Clock m_audioClock;
         Clock m_videoClock;
         Clock m_extrnClock;
 
-        QMutex m_audioLock;
-        QMutex m_videoLock;
-
-        AVQueue m_avqueue;
-
-        double m_audioDiffCum;
-        double m_audioDiffAvgCoef;
-        double m_audioDiffThreshold;
-        int m_audioDiffAvgCount;
-
-        double m_frameLastPts;
-        double m_frameLastDuration;
-        double m_frameTimer;
-
-        SwrContextPtr m_resampleContext;
         QbCaps m_curInputCaps;
+        SwrContextPtr m_resampleContext;
 
         static void deleteSwrContext(SwrContext *context);
-        int synchronizeAudio(const QbPacket &packet);
+        QbPacket compensateAudio(const QbPacket &packet, int wantedSamples);
+        int synchronizeAudio(double diff, QbPacket packet);
         PackageProcessing synchronizeVideo(double diff, double delay);
+        void printLog(const QbPacket &packet, double diff);
 
     signals:
         void ready(int id);
         void oDiscardFrames(int nFrames);
 
     public slots:
+        void setOutputAudioBufferSize(int outputAudioBufferSize);
+        void resetOutputAudioBufferSize();
+
         void iStream(const QbPacket &packet);
         void setState(ElementState state);
 

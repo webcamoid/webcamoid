@@ -112,8 +112,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
                             "Bin objectName='effects' blocking=false !"
-                            "VCapsConvert caps='video/x-raw,format=bgra' "
-                            "source.stateChanged>setState !"
                             "sync. ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
@@ -127,7 +125,9 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
-                            "Sync objectName='sync' source.stateChanged>setState ! DirectConnection?"
+                            "Sync objectName='sync' source.stateChanged>setState !"
+                            "VCapsConvert caps='video/x-raw,format=bgra' "
+                            "source.stateChanged>setState !"
                             "OUT. ,"
                             "WebcamConfig objectName='webcamConfig'");
 

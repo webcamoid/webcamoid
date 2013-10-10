@@ -27,36 +27,43 @@
 class AVQueue: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int size READ size WRITE setSize RESET resetSize)
-    Q_PROPERTY(int sizeThreshold READ sizeThreshold WRITE setSizeThreshold RESET resetSizeThreshold)
+    Q_PROPERTY(int size READ size)
+    Q_PROPERTY(int maxSize READ maxSize WRITE setMaxSize RESET resetMaxSize)
 
     public:
         explicit AVQueue(QObject *parent=NULL);
         ~AVQueue();
 
-        Q_INVOKABLE int size() const;
-        Q_INVOKABLE int sizeThreshold() const;
-
-        Q_INVOKABLE bool isEmpty(QString mimeType);
+        Q_INVOKABLE int size(const QString &mimeType="");
+        Q_INVOKABLE int maxSize() const;
         Q_INVOKABLE QbPacket dequeue(QString mimeType);
-        Q_INVOKABLE QbPacket check(QString mimeType);
 
     private:
-        int m_size;
-        int m_sizeThreshold;
-        bool m_full;
+        bool m_log;
 
-        QMutex m_queueMutex;
-        QMutex m_enqueueMutex;
+        int m_maxSize;
+
         QQueue<QbPacket> m_audioQueue;
         QQueue<QbPacket> m_videoQueue;
 
+        bool m_fill;
+
+        QMutex m_queueMutex;
+        QMutex m_iMutex;
+        QMutex m_aoMutex;
+        QMutex m_voMutex;
+
+        QWaitCondition m_queueNotFull;
+        QWaitCondition m_audioQueueNotEmpty;
+        QWaitCondition m_videoQueueNotEmpty;
+
+        QbPacket dequeueAudio();
+        QbPacket dequeueVideo();
+
     public slots:
         void enqueue(const QbPacket &packet);
-        void setSize(int size);
-        void setSizeThreshold(int sizeThreshold);
-        void resetSize();
-        void resetSizeThreshold();
+        void setMaxSize(int maxSize);
+        void resetMaxSize();
 };
 
 #endif // AVQUEUE_H
