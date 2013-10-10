@@ -23,114 +23,167 @@
 
 AVQueue::AVQueue(QObject *parent): QObject(parent)
 {
-    this->resetSize();
-    this->resetSizeThreshold();
-    this->m_full = false;
+    this->resetMaxSize();
+    this->m_fill = false;
+
+    this->m_log = true;
 }
 
 AVQueue::~AVQueue()
 {
 }
 
-int AVQueue::size() const
-{
-    return this->m_size;
-}
-
-int AVQueue::sizeThreshold() const
-{
-    return this->m_sizeThreshold;
-}
-
-bool AVQueue::isEmpty(QString mimeType)
+int AVQueue::size(const QString &mimeType)
 {
     this->m_queueMutex.lock();
 
-    bool isEmpty;
+    int size;
 
     if (mimeType == "audio/x-raw")
-        isEmpty = this->m_audioQueue.isEmpty();
+        size = this->m_audioQueue.size();
+    else if (mimeType == "video/x-raw")
+        size = this->m_videoQueue.size();
     else
-        isEmpty = this->m_videoQueue.isEmpty();
+        size = this->m_audioQueue.size() + this->m_videoQueue.size();
 
     this->m_queueMutex.unlock();
 
-    return isEmpty;
+    return size;
+}
+
+int AVQueue::maxSize() const
+{
+    return this->m_maxSize;
 }
 
 QbPacket AVQueue::dequeue(QString mimeType)
 {
-    QbPacket packet;
+    if (mimeType == "audio/x-raw")
+        return this->dequeueAudio();
+    else if (mimeType == "video/x-raw")
+        return this->dequeueVideo();
 
-    qDebug() << "aq:" << this->m_audioQueue.size() << "vq:" << this->m_videoQueue.size();
+    return QbPacket();
+}
+
+QbPacket AVQueue::dequeueAudio()
+{
+    this->m_aoMutex.lock();
+
+    if (this->size("audio/x-raw") < 1)
+        this->m_audioQueueNotEmpty.wait(&this->m_aoMutex);
 
     this->m_queueMutex.lock();
 
-    if (mimeType == "audio/x-raw")
-        packet = this->m_audioQueue.dequeue();
-    else
-        packet = this->m_videoQueue.dequeue();
+    QbPacket packet;
 
-    if (this->m_audioQueue.size() < this->size() ||
-        this->m_videoQueue.size() < this->size())
-        this->m_enqueueMutex.unlock();
+    if (this->m_audioQueue.size() > 0)
+        packet = this->m_audioQueue.dequeue();
 
     this->m_queueMutex.unlock();
+
+    this->m_iMutex.lock();
+    this->m_queueNotFull.wakeAll();
+    this->m_iMutex.unlock();
+
+    this->m_aoMutex.unlock();
 
     return packet;
 }
 
-QbPacket AVQueue::check(QString mimeType)
+QbPacket AVQueue::dequeueVideo()
 {
-    QbPacket packet;
+    this->m_voMutex.lock();
+
+    if (this->size("video/x-raw") < 1)
+        this->m_videoQueueNotEmpty.wait(&this->m_voMutex);
 
     this->m_queueMutex.lock();
-
-    if (mimeType == "audio/x-raw")
-        packet = this->m_audioQueue.head();
-    else
-        packet = this->m_videoQueue.head();
-
+    QbPacket packet = this->m_videoQueue.dequeue();
     this->m_queueMutex.unlock();
+
+    this->m_iMutex.lock();
+    this->m_queueNotFull.wakeAll();
+    this->m_iMutex.unlock();
+
+    this->m_voMutex.unlock();
 
     return packet;
 }
 
 void AVQueue::enqueue(const QbPacket &packet)
 {
-    this->m_enqueueMutex.lock();
-    this->m_enqueueMutex.unlock();
+    this->m_iMutex.lock();
+
+    int bufferSize = this->size();
+
+    if (bufferSize < 1)
+        this->m_fill = true;
+
+    if (bufferSize >= this->m_maxSize)
+    {
+        if (this->m_fill)
+        {
+            if (this->size("audio/x-raw") > 0)
+            {
+                this->m_aoMutex.lock();
+                this->m_audioQueueNotEmpty.wakeAll();
+                this->m_aoMutex.unlock();
+            }
+
+            if (this->size("video/x-raw") > 0)
+            {
+                this->m_voMutex.lock();
+                this->m_videoQueueNotEmpty.wakeAll();
+                this->m_voMutex.unlock();
+            }
+
+            this->m_fill = false;
+        }
+
+        this->m_queueNotFull.wait(&this->m_iMutex);
+    }
+
+    this->m_iMutex.unlock();
 
     this->m_queueMutex.lock();
 
     if (packet.caps().mimeType() == "audio/x-raw")
         this->m_audioQueue.enqueue(packet);
-    else
+    else if (packet.caps().mimeType() == "video/x-raw")
         this->m_videoQueue.enqueue(packet);
 
-    if (this->m_audioQueue.size() >= this->size() &&
-        this->m_videoQueue.size() >= this->size())
-        this->m_enqueueMutex.lock();
-
     this->m_queueMutex.unlock();
+
+    if (this->m_fill && this->m_log)
+        qDebug() << QString("filling buffer %1").arg(100
+                                                     * this->size()
+                                                     / this->m_maxSize, 3, 'f', 1).toStdString().c_str();
+
+    if (!this->m_fill)
+    {
+        if (this->size("audio/x-raw") > 0)
+        {
+            this->m_aoMutex.lock();
+            this->m_audioQueueNotEmpty.wakeAll();
+            this->m_aoMutex.unlock();
+        }
+
+        if (this->size("video/x-raw") > 0)
+        {
+            this->m_voMutex.lock();
+            this->m_videoQueueNotEmpty.wakeAll();
+            this->m_voMutex.unlock();
+        }
+    }
 }
 
-void AVQueue::setSize(int size)
+void AVQueue::setMaxSize(int size)
 {
-    this->m_size = size;
+    this->m_maxSize = size;
 }
 
-void AVQueue::setSizeThreshold(int sizeThreshold)
+void AVQueue::resetMaxSize()
 {
-    this->m_sizeThreshold = sizeThreshold;
-}
-
-void AVQueue::resetSize()
-{
-    this->setSize(5);
-}
-
-void AVQueue::resetSizeThreshold()
-{
-    this->setSizeThreshold(0);
+    this->setMaxSize(128);
 }

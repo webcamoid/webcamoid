@@ -26,21 +26,29 @@ SyncElement::SyncElement(): QbElement()
 {
     this->m_fst = true;
     this->m_ready = false;
+    this->m_isAlive = true;
 
-    this->m_audioDiffCum = 0;
+    this->m_log = true;
+
     this->m_audioDiffAvgCoef  = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
-/*
-    this->m_audioDiffThreshold = 2.0 * this->m_audio_hw_buf_size
-                                 / av_samples_get_buffer_size(NULL,
-                                                              this->m_audio_tgt.channels,
-                                                              this->m_audio_tgt.freq,
-                                                              this->m_audio_tgt.fmt,
-                                                              1);
-*/
+    this->m_audioDiffCum = 0;
     this->m_audioDiffAvgCount = 0;
+    this->resetOutputAudioBufferSize();
 
-    this->m_frameLastDuration = 0;
     this->m_frameLastPts = AV_NOPTS_VALUE;
+
+    QtConcurrent::run(this, &SyncElement::processAudioFrame);
+    QtConcurrent::run(this, &SyncElement::processVideoFrame);
+}
+
+SyncElement::~SyncElement()
+{
+    this->m_isAlive = false;
+}
+
+int SyncElement::outputAudioBufferSize() const
+{
+    return this->m_outputAudioBufferSize;
 }
 
 void SyncElement::deleteSwrContext(SwrContext *context)
@@ -48,30 +56,124 @@ void SyncElement::deleteSwrContext(SwrContext *context)
     swr_free(&context);
 }
 
+QbPacket SyncElement::compensateAudio(const QbPacket &packet, int wantedSamples)
+{
+    int iNSamples = packet.caps().property("samples").toInt();
+
+    if (iNSamples == wantedSamples)
+        return packet;
+
+    AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
+    int iNChannels = packet.caps().property("channels").toInt();
+    int64_t iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toStdString().c_str());
+    int iNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
+    int iSampleRate = packet.caps().property("rate").toInt();
+
+    QbCaps caps1(packet.caps());
+    QbCaps caps2(this->m_curInputCaps);
+
+    caps1.setProperty("samples", QVariant());
+    caps2.setProperty("samples", QVariant());
+
+    if (caps1 != caps2)
+    {
+        // create resampler context
+        this->m_resampleContext = SwrContextPtr(swr_alloc(), this->deleteSwrContext);
+
+        if (!this->m_resampleContext)
+            return packet;
+
+        // set options
+        av_opt_set_int(this->m_resampleContext.data(), "in_channel_layout", iChannelLayout, 0);
+        av_opt_set_int(this->m_resampleContext.data(), "in_sample_rate", iSampleRate, 0);
+        av_opt_set_sample_fmt(this->m_resampleContext.data(), "in_sample_fmt", iSampleFormat, 0);
+
+        av_opt_set_int(this->m_resampleContext.data(), "out_channel_layout", iChannelLayout, 0);
+        av_opt_set_int(this->m_resampleContext.data(), "out_sample_rate", iSampleRate, 0);
+        av_opt_set_sample_fmt(this->m_resampleContext.data(), "out_sample_fmt", iSampleFormat, 0);
+
+        // initialize the resampling context
+        if (swr_init(this->m_resampleContext.data()) < 0)
+            return packet;
+
+        this->m_curInputCaps = packet.caps();
+    }
+
+    if (swr_set_compensation(this->m_resampleContext.data(),
+                             wantedSamples - iNSamples,
+                             wantedSamples) < 0)
+        return packet;
+
+    // buffer is going to be directly written to a rawaudio file, no alignment
+    int oNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
+    QVector<uint8_t *> oData(oNPlanes);
+
+    int oLineSize;
+
+    int oBufferSize = av_samples_get_buffer_size(&oLineSize,
+                                                 iNChannels,
+                                                 wantedSamples,
+                                                 iSampleFormat,
+                                                 0);
+
+    QbBufferPtr oBuffer(new uchar[oBufferSize]);
+
+    if (!oBuffer)
+        return packet;
+
+    if (av_samples_fill_arrays(&oData.data()[0],
+                               &oLineSize,
+                               (const uint8_t *) oBuffer.data(),
+                               iNChannels,
+                               wantedSamples,
+                               iSampleFormat,
+                               0) < 0)
+        return packet;
+
+    QVector<uint8_t *> iData(iNPlanes);
+    int iLineSize;
+
+    if (av_samples_fill_arrays(&iData.data()[0],
+                               &iLineSize,
+                               (const uint8_t *) packet.buffer().data(),
+                               iNChannels,
+                               iNSamples,
+                               iSampleFormat,
+                               0) < 0)
+        return packet;
+
+    int oNSamples = swr_convert(this->m_resampleContext.data(),
+                                oData.data(),
+                                wantedSamples,
+                                (const uint8_t **) iData.data(),
+                                iNSamples);
+
+    if (oNSamples < 0)
+        return packet;
+
+    QbPacket oPacket(packet);
+    QbCaps caps(oPacket.caps());
+    caps.setProperty("samples", oNSamples);
+
+    oPacket.setBuffer(oBuffer);
+    oPacket.setBufferSize(oBufferSize);
+    oPacket.setCaps(caps);
+
+    double duration = (double) oNSamples
+                      / (double) iSampleRate
+                      / packet.timeBase().value();
+
+    oPacket.setDuration(duration);
+
+    return oPacket;
+}
+
 // return the wanted number of samples to get better sync if sync_type is video
 // or external master clock
-int SyncElement::synchronizeAudio(const QbPacket &packet)
+int SyncElement::synchronizeAudio(double diff, QbPacket packet)
 {
-    // syncThreshold = 2 * delay;
-    //
-    // (resync)
-    // -syncThreshold
-    // (discard)
-    // [-delay * SAMPLE_CORRECTION_PERCENT_MAX]
-    // (release)
-    // [delay * SAMPLE_CORRECTION_PERCENT_MAX]
-    // (wait)
-    // -syncThreshold
-    // (resync)
-
-    int nbSamples = packet.caps().property("samples").toInt();
-    int wantedNbSamples = nbSamples;
-// ----------------------------------------------------------------------------------
-    this->m_audioDiffThreshold = 2.0 * 0 / packet.caps().property("rate").toInt();
-// ----------------------------------------------------------------------------------
-    double diff = this->m_audioClock.clock() - this->m_extrnClock.clock();
-
-    qDebug() << "a: A-V=" << -diff;
+    int samples = packet.caps().property("samples").toInt();
+    int wantedSamples = samples;
 
     if (!isnan(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD)
     {
@@ -79,31 +181,32 @@ int SyncElement::synchronizeAudio(const QbPacket &packet)
 
         if (this->m_audioDiffAvgCount < AUDIO_DIFF_AVG_NB)
             // not enough measures to have a correct estimate
-            this->m_audioDiffAvgCount++;
+            this->m_audioDiffAvgCount += 1;
         else
         {
             // estimate the A-V difference
             double avgDiff = this->m_audioDiffCum * (1.0 - this->m_audioDiffAvgCoef);
+            double rate = packet.caps().property("rate").toDouble();
+            double audioDiffThreshold = 2.0 * this->m_outputAudioBufferSize / rate;
 
-            if (fabs(avgDiff) >= this->m_audioDiffThreshold)
+            if (fabs(avgDiff) >= audioDiffThreshold)
             {
-                int rate = packet.caps().property("rate").toInt();
-                wantedNbSamples = nbSamples + (int) (diff * rate);
-                int minNbSamples = nbSamples * (1.0 - SAMPLE_CORRECTION_PERCENT_MAX);
-                int maxNbSamples = nbSamples * (1.0 + SAMPLE_CORRECTION_PERCENT_MAX);
-                wantedNbSamples = qBound(minNbSamples, wantedNbSamples, maxNbSamples);
+                wantedSamples = samples + diff * rate;
+                int minSamples = samples * (1.0 - SAMPLE_CORRECTION_PERCENT_MAX);
+                int maxSamples = samples * (1.0 + SAMPLE_CORRECTION_PERCENT_MAX);
+                wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
             }
         }
     }
     else
     {
-        // too big difference : may be initial PTS errors, so
+        // too big difference: may be initial PTS errors, so
         // reset A-V filter
         this->m_audioDiffAvgCount = 0;
         this->m_audioDiffCum = 0;
     }
 
-    return wantedNbSamples;
+    return wantedSamples;
 }
 
 SyncElement::PackageProcessing SyncElement::synchronizeVideo(double diff, double delay)
@@ -122,25 +225,50 @@ SyncElement::PackageProcessing SyncElement::synchronizeVideo(double diff, double
                                   delay,
                                   AV_SYNC_THRESHOLD_MAX);
 
-
-    if (!isnan(diff) && diff < AV_NOSYNC_THRESHOLD)
+    if (!isnan(diff) && abs(diff) < AV_NOSYNC_THRESHOLD)
     {
         if (diff > -syncThreshold)
         {
             // stream is ahead the external clock.
-            if (diff > AV_SYNC_THRESHOLD_MIN)
+            if (diff > syncThreshold)
                 Sleep::usleep(1.0e6 * diff);
 
             return PackageProcessingRelease;
         }
         // stream is backward the external clock.
-        else if (diff > -AV_SYNC_THRESHOLD_MAX)
+        else
             return PackageProcessingDiscard;
     }
 
     // Update clocks.
 
     return PackageProcessingReSync;
+}
+
+void SyncElement::printLog(const QbPacket &packet, double diff)
+{
+    if (this->m_log)
+    {
+        QString logFmt("%1 %2 A-V: %3 aq=%4 vq=%5");
+
+        QString log = logFmt.arg(packet.caps().mimeType()[0])
+                            .arg(this->m_extrnClock.clock(), 7, 'f', 2)
+                            .arg(-diff, 7, 'f', 3)
+                            .arg(this->m_avqueue.size("audio/x-raw"), 5)
+                            .arg(this->m_avqueue.size("video/x-raw"), 5);
+
+        qDebug() << log.toStdString().c_str();
+    }
+}
+
+void SyncElement::setOutputAudioBufferSize(int outputAudioBufferSize)
+{
+    this->m_outputAudioBufferSize = outputAudioBufferSize;
+}
+
+void SyncElement::resetOutputAudioBufferSize()
+{
+    this->setOutputAudioBufferSize(1024);
 }
 
 void SyncElement::iStream(const QbPacket &packet)
@@ -161,18 +289,10 @@ void SyncElement::iStream(const QbPacket &packet)
         this->m_videoClock = Clock();
         this->m_extrnClock = Clock();
 
-        this->m_frameTimer = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
-
         this->m_fst = false;
     }
 
     this->m_avqueue.enqueue(packet);
-
-    if (!this->m_avqueue.isEmpty("audio/x-raw"))
-        QtConcurrent::run(this, &SyncElement::processAudioFrame);
-
-    if (!this->m_avqueue.isEmpty("video/x-raw"))
-        QtConcurrent::run(this, &SyncElement::processVideoFrame);
 }
 
 void SyncElement::setState(ElementState state)
@@ -189,189 +309,53 @@ void SyncElement::setState(ElementState state)
 
 void SyncElement::processAudioFrame()
 {
-    this->m_audioLock.lock();
-
-    if (this->m_avqueue.isEmpty("audio/x-raw"))
+    while (this->m_isAlive)
     {
-        this->m_audioLock.unlock();
+        QbPacket packet = this->m_avqueue.dequeue("audio/x-raw");
 
-        return;
+        double pts = packet.pts() * packet.timeBase().value();
+
+        // if video is slave, we try to correct big delays by
+        // duplicating or deleting a frame
+        double diff = this->m_audioClock.clock() - this->m_extrnClock.clock();
+        this->m_audioClock.setClock(pts);
+
+        int wantedSamples = this->synchronizeAudio(diff, packet);
+        QbPacket oPacket = this->compensateAudio(packet, wantedSamples);
+
+        this->printLog(oPacket, diff);
+
+        emit this->oStream(oPacket);
+        this->m_extrnClock.syncTo(this->m_audioClock);
     }
-
-    QbPacket packet = this->m_avqueue.dequeue("audio/x-raw");
-
-    AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
-    int iNChannels = packet.caps().property("channels").toInt();
-    int64_t iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toStdString().c_str());
-    int iNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
-    int iSampleRate = packet.caps().property("rate").toInt();
-    int iNSamples = packet.caps().property("samples").toInt();
-
-    int wantedNbSamples = this->synchronizeAudio(packet);
-
-    QbCaps caps1(packet.caps());
-    QbCaps caps2(this->m_curInputCaps);
-
-    caps1.setProperty("samples", QVariant());
-    caps2.setProperty("samples", QVariant());
-
-    if (caps1 != caps2)
-    {
-        // create resampler context
-        this->m_resampleContext = SwrContextPtr(swr_alloc(), this->deleteSwrContext);
-
-        if (!this->m_resampleContext)
-        {
-            this->m_audioLock.unlock();
-
-            return;
-        }
-
-        // set options
-        av_opt_set_int(this->m_resampleContext.data(), "in_channel_layout", iChannelLayout, 0);
-        av_opt_set_int(this->m_resampleContext.data(), "in_sample_rate", iSampleRate, 0);
-        av_opt_set_sample_fmt(this->m_resampleContext.data(), "in_sample_fmt", iSampleFormat, 0);
-
-        av_opt_set_int(this->m_resampleContext.data(), "out_channel_layout", iChannelLayout, 0);
-        av_opt_set_int(this->m_resampleContext.data(), "out_sample_rate", iSampleRate, 0);
-        av_opt_set_sample_fmt(this->m_resampleContext.data(), "out_sample_fmt", iSampleFormat, 0);
-
-        // initialize the resampling context
-        if (swr_init(this->m_resampleContext.data()) < 0)
-        {
-            this->m_audioLock.unlock();
-
-            return;
-        }
-
-        this->m_curInputCaps = packet.caps();
-    }
-
-    if (wantedNbSamples != iNSamples)
-        if (swr_set_compensation(this->m_resampleContext.data(),
-                                 wantedNbSamples - iNSamples,
-                                 wantedNbSamples) < 0)
-        {
-            this->m_audioLock.unlock();
-
-            return;
-        }
-
-    // buffer is going to be directly written to a rawaudio file, no alignment
-    int oNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
-    QVector<uint8_t *> oData(oNPlanes);
-
-    int oLineSize;
-
-    int oBufferSize = av_samples_get_buffer_size(&oLineSize,
-                                                 iNChannels,
-                                                 wantedNbSamples,
-                                                 iSampleFormat,
-                                                 1);
-
-    QbBufferPtr oBuffer(new uchar[oBufferSize]);
-
-    if (!oBuffer)
-    {
-        this->m_audioLock.unlock();
-
-        return;
-    }
-
-    if (av_samples_fill_arrays(&oData.data()[0],
-                               &oLineSize,
-                               (const uint8_t *) oBuffer.data(),
-                               iNChannels,
-                               wantedNbSamples,
-                               iSampleFormat,
-                               1) < 0)
-    {
-        this->m_audioLock.unlock();
-
-        return;
-    }
-
-    QVector<uint8_t *> iData(iNPlanes);
-    int iLineSize;
-
-    if (av_samples_fill_arrays(&iData.data()[0],
-                               &iLineSize,
-                               (const uint8_t *) packet.buffer().data(),
-                               iNChannels,
-                               iNSamples,
-                               iSampleFormat,
-                               1) < 0)
-    {
-        this->m_audioLock.unlock();
-
-        return;
-    }
-
-    int oNSamples = swr_convert(this->m_resampleContext.data(),
-                                oData.data(),
-                                wantedNbSamples,
-                                (const uint8_t **) iData.data(),
-                                iNSamples);
-
-    if (oNSamples < 0)
-    {
-        this->m_audioLock.unlock();
-
-        return;
-    }
-
-    QbPacket oPacket(packet);
-    QbCaps caps(oPacket.caps());
-    caps.setProperty("samples", oNSamples);
-
-    oPacket.setBuffer(oBuffer);
-    oPacket.setBufferSize(oBufferSize);
-    oPacket.setCaps(caps);
-
-    emit this->oStream(oPacket);
-
-    this->m_audioLock.unlock();
 }
 
 void SyncElement::processVideoFrame()
 {
-    this->m_videoLock.lock();
-
-    if (this->m_avqueue.isEmpty("video/x-raw"))
+    while (this->m_isAlive)
     {
-        this->m_videoLock.unlock();
+        QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
 
-        return;
+        // if video is slave, we try to correct big delays by
+        // duplicating or deleting a frame
+        double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
+        double pts = packet.pts() * packet.timeBase().value();
+        double delay = pts - this->m_frameLastPts;
+
+        this->m_videoClock.setClock(pts);
+        this->m_frameLastPts = pts;
+
+        PackageProcessing operation = this->synchronizeVideo(diff, delay);
+
+        if (operation == PackageProcessingDiscard)
+            continue;
+        else if (operation == PackageProcessingReSync)
+            // update current video pts
+            this->m_extrnClock.syncTo(this->m_videoClock);
+
+        this->printLog(packet, diff);
+
+        // display picture
+        emit this->oStream(packet);
     }
-
-    QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
-
-    double pts = packet.pts() * packet.timeBase().value();
-    double delay = pts - this->m_frameLastPts;
-
-    // if video is slave, we try to correct big delays by
-    // duplicating or deleting a frame
-    double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
-
-    this->m_videoClock.setClock(pts);
-    this->m_frameLastPts = pts;
-
-    qDebug() << "v: A-V=" << -diff;
-
-    PackageProcessing operation = this->synchronizeVideo(diff, delay);
-
-    if (operation == PackageProcessingDiscard)
-    {
-        this->m_videoLock.unlock();
-
-        return;
-    }
-    if (operation == PackageProcessingReSync)
-        // update current video pts
-        this->m_extrnClock.syncTo(this->m_videoClock);
-
-    // display picture
-    emit this->oStream(packet);
-
-    this->m_videoLock.unlock();
 }

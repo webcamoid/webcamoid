@@ -164,11 +164,13 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
         return;
 
     // convert to destination format
-    if (swr_convert(this->m_resampleContext.data(),
-                    oData.data(),
-                    oNSamples,
-                    (const uint8_t **) iData.data(),
-                    iNSamples) < 0)
+    oNSamples = swr_convert(this->m_resampleContext.data(),
+                            oData.data(),
+                            oNSamples,
+                            (const uint8_t **) iData.data(),
+                            iNSamples);
+
+    if (oNSamples < 0)
         return;
 
     const char *format = av_get_sample_fmt_name(oSampleFormat);
@@ -179,12 +181,16 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                  oNChannels,
                                  oChannelLayout);
 
+    int oBps = av_get_bytes_per_sample(oSampleFormat);
+
     QString caps = QString("audio/x-raw,"
                            "format=%1,"
-                           "channels=%2,"
-                           "rate=%3,"
-                           "layout=%4,"
-                           "samples=%5").arg(format)
+                           "bps=%2,"
+                           "channels=%3,"
+                           "rate=%4,"
+                           "layout=%5,"
+                           "samples=%6").arg(format)
+                                        .arg(oBps)
                                         .arg(oNChannels)
                                         .arg(oSampleRate)
                                         .arg(layout)
