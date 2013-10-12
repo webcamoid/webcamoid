@@ -56,7 +56,7 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
         void hideEvent(QHideEvent *event);
 
     public slots:
-        void setEffectPreview(const QImage &image, QString effect);
+        void setEffectPreview(const QbPacket &packet, QString effect);
 
     private slots:
         void deviceChanged(QString device);

@@ -48,7 +48,7 @@ class WarholElement: public QbElement
         void resetNFrames();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        void setState(QbElement::ElementState state);
 
     private slots:
         void processFrame(const QbPacket &packet);

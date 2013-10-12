@@ -23,7 +23,6 @@
 
 AudioStream::AudioStream(QObject *parent): AbstractStream(parent)
 {
-    this->m_oBuffer = NULL;
     this->m_fst = true;
 }
 
@@ -31,33 +30,6 @@ AudioStream::AudioStream(AVFormatContext *formatContext, uint index):
     AbstractStream(formatContext, index)
 {
     this->m_fst = true;
-
-    if (!this->isValid())
-    {
-        this->cleanUp();
-
-        return;
-    }
-
-    this->m_isValid = false;
-
-    int nPlanes = av_sample_fmt_is_planar(this->codecContext()->sample_fmt)? this->codecContext()->channels: 1;
-    this->m_oBuffer = (uint8_t **) av_mallocz(sizeof(uint8_t *) * nPlanes);
-
-    if (!this->m_oBuffer)
-    {
-        this->cleanUp();
-
-        return;
-    }
-
-    this->m_isValid = true;
-}
-
-AudioStream::~AudioStream()
-{
-    av_free(this->m_oBuffer);
-    this->cleanUp();
 }
 
 QbCaps AudioStream::caps() const
@@ -80,12 +52,16 @@ QbCaps AudioStream::caps() const
     double maxFrameDuration = (this->formatContext()->iformat->flags &
                                AVFMT_TS_DISCONT)? 10.0: 3600.0;
 
+    int bytesPerSample = av_get_bytes_per_sample(this->codecContext()->sample_fmt);
+
     QbCaps caps(QString("audio/x-raw,"
                         "format=%1,"
-                        "channels=%2,"
-                        "rate=%3,"
-                        "layout=%4,"
-                        "maxFrameDuration=%5").arg(format)
+                        "bps=%2,"
+                        "channels=%3,"
+                        "rate=%4,"
+                        "layout=%5,"
+                        "maxFrameDuration=%6").arg(format)
+                                              .arg(bytesPerSample)
                                               .arg(this->codecContext()->channels)
                                               .arg(this->codecContext()->sample_rate)
                                               .arg(layout)
@@ -123,35 +99,35 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
     else
         this->m_pts += this->m_duration;
 
-    int oBufferLineSize;
+    int oLineSize;
 
-    int ret = av_samples_alloc(this->m_oBuffer,
-                               &oBufferLineSize,
-                               iFrame.channels,
-                               iFrame.nb_samples,
-                               (AVSampleFormat) iFrame.format,
-                               1);
-
-    if (ret < 0)
-        return packets;
-
-    int oBufferSize = av_samples_get_buffer_size(NULL,
+    int oBufferSize = av_samples_get_buffer_size(&oLineSize,
                                                  iFrame.channels,
                                                  iFrame.nb_samples,
                                                  (AVSampleFormat) iFrame.format,
-                                                 1);
+                                                 0);
 
-    av_samples_copy(this->m_oBuffer,
+    QbBufferPtr oBuffer(new uchar[oBufferSize]);
+
+    int planes = av_sample_fmt_is_planar((AVSampleFormat) iFrame.format)? iFrame.channels: 1;
+    QVector<uint8_t *> oData(planes);
+
+    if (av_samples_fill_arrays(&oData.data()[0],
+                               &oLineSize,
+                               (const uint8_t *) oBuffer.data(),
+                               iFrame.channels,
+                               iFrame.nb_samples,
+                               (AVSampleFormat) iFrame.format,
+                               0) < 0)
+        return packets;
+
+    av_samples_copy(&oData.data()[0],
                     iFrame.data,
                     0,
                     0,
                     iFrame.nb_samples,
                     iFrame.channels,
                     (AVSampleFormat) iFrame.format);
-
-    QSharedPointer<uchar> oBuffer(new uchar[oBufferSize]);
-    memcpy(oBuffer.data(), this->m_oBuffer[0], oBufferSize);
-    av_freep(&this->m_oBuffer[0]);
 
     QbCaps caps = this->caps();
     caps.setProperty("samples", iFrame.nb_samples);

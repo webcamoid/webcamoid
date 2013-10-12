@@ -21,8 +21,10 @@
 
 #include "qb.h"
 #include "qbapplication.h"
+#include "qbthreadstock.h"
 
 static QbApplication application;
+static QbThreadStock threadStock;
 
 void Qb::init()
 {
@@ -32,7 +34,9 @@ void Qb::init()
     qRegisterMetaType<QbFrac>("QbFrac");
     qRegisterMetaType<QbPacket>("QbPacket");
 
-    application.setPluginsPaths(QStringList() << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET));
+    application.setPluginsPaths(QStringList()
+                                << QString("%1/%2").arg(LIBDIR)
+                                                   .arg(COMMONS_TARGET));
 }
 
 QStringList Qb::pluginsPaths()
@@ -40,7 +44,7 @@ QStringList Qb::pluginsPaths()
     return application.pluginsPaths();
 }
 
-QbElementPtr Qb::create(QString pluginId, QString elementName)
+QbElementPtr Qb::create(const QString &pluginId, const QString &elementName)
 {
     QbElementPtr element = application.newInstance(pluginId);
 
@@ -50,7 +54,7 @@ QbElementPtr Qb::create(QString pluginId, QString elementName)
     return element;
 }
 
-void Qb::setPluginsPaths(QStringList pluginsPaths)
+void Qb::setPluginsPaths(const QStringList &pluginsPaths)
 {
     application.setPluginsPaths(pluginsPaths);
 }
@@ -58,4 +62,27 @@ void Qb::setPluginsPaths(QStringList pluginsPaths)
 void Qb::resetPluginsPaths()
 {
     application.resetPluginsPaths();
+}
+
+QbThreadPtr Qb::requestThread(const QString &threadName)
+{
+    return threadStock.requestInstance(threadName);
+}
+
+
+QbThreadPtr Qb::findThread(const QThread *thread)
+{
+    return threadStock.findThread(thread);
+}
+
+
+void Qb::setThread(const QString &threadName)
+{
+    threadStock.setThread(threadName);
+}
+
+
+QbThreadPtr Qb::currentThread()
+{
+    return threadStock.currentThread();
 }

@@ -27,7 +27,7 @@ QbCaps::QbCaps(QObject *parent): QObject(parent)
     this->m_isValid = false;
 }
 
-QbCaps::QbCaps(QString capsString)
+QbCaps::QbCaps(const QString &capsString)
 {
     this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
                               "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
@@ -148,7 +148,7 @@ bool QbCaps::contains(const QString &property) const
     return this->dynamicPropertyNames().contains(property.toUtf8());
 }
 
-void QbCaps::setMimeType(QString mimeType)
+void QbCaps::setMimeType(const QString &mimeType)
 {
     this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*\\s*").exactMatch(mimeType);
     this->m_mimeType = this->m_isValid? mimeType.trimmed(): "";

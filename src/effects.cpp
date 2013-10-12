@@ -39,9 +39,9 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
                      SLOT(deviceChanged(QString)));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(previewFrameReady(const QImage &, QString)),
+                     SIGNAL(previewFrameReady(const QbPacket &, QString)),
                      this,
-                     SLOT(setEffectPreview(const QImage &, QString)));
+                     SLOT(setEffectPreview(const QbPacket &, QString)));
 
     QMap<QString, QString> effects = this->m_mediaTools->availableEffects();
 
@@ -103,7 +103,7 @@ void Effects::hideEvent(QHideEvent *event)
     this->m_mediaTools->resetEffectsPreview();
 }
 
-void Effects::setEffectPreview(const QImage &image, QString effect)
+void Effects::setEffectPreview(const QbPacket &packet, QString effect)
 {
     if (!this->m_mediaTools->device().isEmpty())
     {
@@ -111,6 +111,11 @@ void Effects::setEffectPreview(const QImage &image, QString effect)
 
         if (index < 0)
             return;
+
+        QImage image(packet.buffer().data(),
+                     packet.caps().property("width").toInt(),
+                     packet.caps().property("height").toInt(),
+                     QImage::Format_ARGB32);
 
         this->m_effectsWidgets[index]->setIcon(QIcon(QPixmap::fromImage(image)));
     }

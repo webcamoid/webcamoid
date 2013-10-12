@@ -32,17 +32,17 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetIndex();
 }
 
-QbPacket::QbPacket(QbCaps caps,
-                   const QSharedPointer<uchar> &buffer,
+QbPacket::QbPacket(const QbCaps &caps,
+                   const QbBufferPtr &buffer,
                    ulong bufferSize,
                    int64_t pts,
                    int duration,
-                   QbFrac timeBase,
+                   const QbFrac &timeBase,
                    int index)
 {
     this->setCaps(caps);
     bool isValid = this->caps().isValid();
-    this->setBuffer(isValid? buffer: QSharedPointer<uchar>());
+    this->setBuffer(isValid? buffer: QbBufferPtr());
     this->setBufferSize(isValid? bufferSize: 0);
     this->setPts(isValid? pts: 0);
     this->setDuration(isValid? duration: 0);
@@ -53,6 +53,7 @@ QbPacket::QbPacket(QbCaps caps,
 QbPacket::QbPacket(const QbPacket &other):
     QObject(other.parent()),
     m_caps(other.m_caps),
+    m_data(other.m_data),
     m_buffer(other.m_buffer),
     m_bufferSize(other.m_bufferSize),
     m_pts(other.m_pts),
@@ -71,6 +72,7 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
     if (this != &other)
     {
         this->m_caps = other.m_caps;
+        this->m_data = other.m_data;
         this->m_buffer = other.m_buffer;
         this->m_bufferSize = other.m_bufferSize;
         this->m_pts = other.m_pts;
@@ -84,19 +86,35 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
 
 QString QbPacket::toString() const
 {
-    QString packetInfo = QString("Caps       : %1\n"
-                                 "Buffer Size: %2\n"
-                                 "Pts        : %3 (%4)\n"
-                                 "Duration   : %5 (%6)\n"
-                                 "Time Base  : %7\n"
-                                 "Index      : %8\n").arg(this->caps().toString())
-                                                     .arg(this->bufferSize())
-                                                     .arg(this->pts())
-                                                     .arg(this->pts() * this->timeBase().value())
-                                                     .arg(this->duration())
-                                                     .arg(this->duration() * this->timeBase().value())
-                                                     .arg(this->timeBase().toString())
-                                                     .arg(this->index());
+    QString packetInfo;
+    QDebug debug(&packetInfo);
+
+    debug.nospace() << "Caps       : "
+                    << this->caps().toString().toStdString().c_str()
+                    << "\n";
+
+    debug.nospace() << "Data       : "
+                    << this->data()
+                    << "\n";
+
+    debug.nospace() << "Buffer Size: "
+                    << this->bufferSize()
+                    << "\n";
+
+    debug.nospace() << "Pts        : "
+                    << this->pts() * this->timeBase().value()
+                    << "\n";
+
+    debug.nospace() << "Duration   : "
+                    << this->duration() * this->timeBase().value()
+                    << "\n";
+
+    debug.nospace() << "Time Base  : "
+                    << this->timeBase().toString().toStdString().c_str()
+                    << "\n";
+
+    debug.nospace() << "Index      : "
+                    << this->index();
 
     return packetInfo;
 }
@@ -106,7 +124,12 @@ QbCaps QbPacket::caps() const
     return this->m_caps;
 }
 
-QSharedPointer<uchar> QbPacket::buffer() const
+QVariant QbPacket::data() const
+{
+    return this->m_data;
+}
+
+QbBufferPtr QbPacket::buffer() const
 {
     return this->m_buffer;
 }
@@ -136,12 +159,17 @@ int QbPacket::index() const
     return this->m_index;
 }
 
-void QbPacket::setCaps(QbCaps mimeType)
+void QbPacket::setCaps(const QbCaps &mimeType)
 {
     this->m_caps = mimeType;
 }
 
-void QbPacket::setBuffer(const QSharedPointer<uchar> &buffer)
+void QbPacket::setData(const QVariant &data)
+{
+    this->m_data = data;
+}
+
+void QbPacket::setBuffer(const QbBufferPtr &buffer)
 {
     this->m_buffer = buffer;
 }
@@ -161,7 +189,7 @@ void QbPacket::setDuration(int duration)
     this->m_duration = duration;
 }
 
-void QbPacket::setTimeBase(QbFrac timeBase)
+void QbPacket::setTimeBase(const QbFrac &timeBase)
 {
     this->m_timeBase = timeBase;
 }
@@ -176,9 +204,14 @@ void QbPacket::resetCaps()
     this->setCaps(QbCaps());
 }
 
+void QbPacket::resetData()
+{
+    this->setData(QVariant());
+}
+
 void QbPacket::resetBuffer()
 {
-    this->setBuffer(QSharedPointer<uchar>());
+    this->setBuffer(QbBufferPtr());
 }
 
 void QbPacket::resetBufferSize()
@@ -208,7 +241,7 @@ void QbPacket::resetIndex()
 
 QDebug operator <<(QDebug debug, const QbPacket &packet)
 {
-    debug.nospace() << packet.toString();
+    debug.nospace() << packet.toString().toStdString().c_str();
 
     return debug.space();
 }

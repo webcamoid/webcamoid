@@ -88,7 +88,7 @@ class MultiSrcElement: public QbElement
         void resetLoop();
         void resetFilterStreams();
 
-        void setState(ElementState state);
+        void setState(QbElement::ElementState state);
 
     private slots:
         void readPackets();

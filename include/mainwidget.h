@@ -33,6 +33,7 @@
 #include "mediatools.h"
 #include "videorecordconfig.h"
 #include "cameraconfig.h"
+#include "imagedisplay.h"
 
 namespace Ui
 {
@@ -53,11 +54,12 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         AppEnvironment *m_appEnvironment;
         Effects *m_cfgEffects;
         GeneralConfig *m_cfgGeneralConfig;
-        QImage m_webcamFrame;
+        QbPacket m_webcamFrame;
         StreamsConfig *m_cfgStreams;
         MediaTools *m_mediaTools;
         VideoRecordConfig *m_cfgVideoFormats;
         CameraConfig *m_cfgWebcamDialog;
+        ImageDisplay *m_imageDispay;
 
         void showConfigDialog(KConfigDialog *configDialog=NULL);
         QString saveFile(bool video=false);
@@ -74,7 +76,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void addVideoFormatsConfigDialog(KConfigDialog *configDialog);
         void addStreamsConfigDialog(KConfigDialog *configDialog);
         void addGeneralConfigsDialog(KConfigDialog *configDialog);
-        void showFrame(const QImage &webcamFrame);
+        void showFrame(const QbPacket &webcamFrame);
 
     private slots:
         void updateWebcams();
@@ -82,7 +84,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void recordingChanged(bool recording);
         void saveConfigs();
         void showError(QString message);
-        void updateContents(QSize pixmapSize=QSize());
+        void updateContents();
 
         void on_btnTakePhoto_clicked();
         void on_btnVideoRecord_clicked();

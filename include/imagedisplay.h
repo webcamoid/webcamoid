@@ -19,38 +19,41 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "probeelement.h"
+#ifndef IMAGEDISPLAY_H
+#define IMAGEDISPLAY_H
 
-ProbeElement::ProbeElement(): QbElement()
+#include <QtGui>
+#include <qb.h>
+
+#include "commons.h"
+
+namespace Ui
 {
-    this->resetLog();
+    class ImageDisplay;
 }
 
-bool ProbeElement::log() const
+class COMMONSSHARED_EXPORT ImageDisplay: public QWidget
 {
-    return this->m_log;
-}
+    Q_OBJECT
+    Q_PROPERTY(QbPacket image READ image WRITE setImage RESET resetImage)
 
-void ProbeElement::setLog(bool on)
-{
-    this->m_log = on;
-}
+    public:
+        explicit ImageDisplay(QWidget *parent=NULL);
+        ~ImageDisplay();
 
-void ProbeElement::resetLog()
-{
-    this->setLog(true);
-}
+        Q_INVOKABLE QbPacket image() const;
 
-void ProbeElement::iStream(const QbPacket &packet)
-{
-    if (this->log())
-    {
-        qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
+    protected:
+        void paintEvent(QPaintEvent *event);
 
-        foreach (QString line, packet.toString().split('\n'))
-            qDebug().nospace() << "\t"
-                               << line.toStdString().c_str();
-    }
+    private:
+        QSharedPointer<Ui::ImageDisplay> ui;
 
-    emit this->oStream(packet);
-}
+        QbPacket m_image;
+
+    public slots:
+        void setImage(const QbPacket &image);
+        void resetImage();
+};
+
+#endif // IMAGEDISPLAY_H

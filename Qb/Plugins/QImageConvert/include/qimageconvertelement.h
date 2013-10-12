@@ -47,14 +47,14 @@ class QImageConvertElement: public QbElement
         QMap<QString, QImage::Format> m_imageToQt;
 
     signals:
-        void oStream(QSharedPointer<const QImage> frame);
+        void oStream(const QImage &frame);
 
     public slots:
         void setFormat(QString format);
         void resetFormat();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        void setState(QbElement::ElementState state);
 
     private slots:
         void processFrame(const QbPacket &packet);

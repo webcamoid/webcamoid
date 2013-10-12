@@ -89,7 +89,7 @@ void QImageConvertElement::iStream(const QbPacket &packet)
     this->m_capsConvert->iStream(packet);
 }
 
-void QImageConvertElement::setState(ElementState state)
+void QImageConvertElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_capsConvert->setState(this->state());
@@ -100,10 +100,8 @@ void QImageConvertElement::processFrame(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    QSharedPointer<const QImage> oFrame(new QImage((const uchar *) packet.buffer().data(),
-                                                   width,
-                                                   height,
-                                                   this->m_qFormat));
+    QImage oFrame(width, height, this->m_qFormat);
+    memcpy(oFrame.bits(), packet.buffer().data(), oFrame.byteCount());
 
     emit this->oStream(oFrame);
 }

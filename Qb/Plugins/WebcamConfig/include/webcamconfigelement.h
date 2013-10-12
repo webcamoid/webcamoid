@@ -25,7 +25,7 @@
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
 
-#include <qbelement.h>
+#include <qb.h>
 
 class WebcamConfigElement: public QbElement
 {

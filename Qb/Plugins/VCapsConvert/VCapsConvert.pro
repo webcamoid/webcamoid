@@ -38,7 +38,8 @@ DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
     include/vcapsconvert.h \
-    include/vcapsconvertelement.h
+    include/vcapsconvertelement.h \
+    include/convertio.h
 
 INCLUDEPATH += \
     include \
@@ -62,7 +63,8 @@ QT += core gui
 
 SOURCES += \
     src/vcapsconvert.cpp \
-    src/vcapsconvertelement.cpp
+    src/vcapsconvertelement.cpp \
+    src/convertio.cpp
 
 TEMPLATE = lib
 

@@ -129,15 +129,11 @@ void BlitzerElement::resetParams()
 
 void BlitzerElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
-        return;
-
-    this->m_convert->iStream(packet);
+    if (packet.caps().mimeType() == "video/x-raw")
+        this->m_convert->iStream(packet);
 }
 
-void BlitzerElement::setState(ElementState state)
+void BlitzerElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());
@@ -1224,7 +1220,7 @@ void BlitzerElement::processFrame(const QbPacket &packet)
     if (!this->m_qtToFormat.contains(oFrame.format()))
         oFrame = oFrame.convertToFormat(QImage::Format_ARGB32);
 
-    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());

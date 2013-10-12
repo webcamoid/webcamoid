@@ -49,7 +49,7 @@ class AudioOutputElement: public QbElement
         void resetAudioSystem();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        void setState(QbElement::ElementState state);
 };
 
 #endif // AUDIOOUTPUTELEMENT_H
