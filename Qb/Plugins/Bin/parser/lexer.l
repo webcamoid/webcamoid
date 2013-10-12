@@ -125,6 +125,7 @@ QString stringRepToString(QString strRep)
 ,  return TOK_COMMA;
 :  return TOK_COLON;
 =  return TOK_EQUAL;
+\? return TOK_QUESTIONMARK;
 
 <PARSEBITS>(1|0)+([ \t\r\n]*(1|0)+)* {
     yylval.QVariant_t = new QVariant();

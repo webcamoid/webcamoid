@@ -33,7 +33,6 @@ class AudioStream: public AbstractStream
     public:
         explicit AudioStream(QObject *parent=NULL);
         AudioStream(AVFormatContext *formatContext, uint index);
-        ~AudioStream();
 
         Q_INVOKABLE QbCaps caps() const;
         Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
@@ -42,7 +41,6 @@ class AudioStream: public AbstractStream
         bool m_fst;
         int64_t m_pts;
         int64_t m_duration;
-        uint8_t **m_oBuffer;
 };
 
 #endif // AUDIOSTREAM_H

@@ -19,38 +19,29 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "probeelement.h"
+#ifndef QBTHREADSTOCK_H
+#define QBTHREADSTOCK_H
 
-ProbeElement::ProbeElement(): QbElement()
+#include "qbthread.h"
+
+class QbThreadStock: public QObject
 {
-    this->resetLog();
-}
+    Q_OBJECT
 
-bool ProbeElement::log() const
-{
-    return this->m_log;
-}
+    public:
+        explicit QbThreadStock(QObject *parent=NULL);
+        ~QbThreadStock();
 
-void ProbeElement::setLog(bool on)
-{
-    this->m_log = on;
-}
+        Q_INVOKABLE QbThreadPtr requestInstance(const QString &threadName);
+        Q_INVOKABLE void deleteInstance(const QString &threadName);
+        Q_INVOKABLE QbThreadPtr findThread(const QThread *thread) const;
+        Q_INVOKABLE void setThread(const QString &threadName);
+        Q_INVOKABLE QbThreadPtr currentThread() const;
 
-void ProbeElement::resetLog()
-{
-    this->setLog(true);
-}
+    private:
+        QMap<QString, QbThreadPtr> m_threads;
+        QbThreadPtr m_currentThread;
+        QString m_currentThreadName;
+};
 
-void ProbeElement::iStream(const QbPacket &packet)
-{
-    if (this->log())
-    {
-        qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
-
-        foreach (QString line, packet.toString().split('\n'))
-            qDebug().nospace() << "\t"
-                               << line.toStdString().c_str();
-    }
-
-    emit this->oStream(packet);
-}
+#endif // QBTHREADSTOCK_H

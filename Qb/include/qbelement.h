@@ -23,6 +23,7 @@
 #define QBELEMENT_H
 
 #include "qbpacket.h"
+#include "qbthread.h"
 
 class QbApplication;
 class QbElement;
@@ -34,8 +35,8 @@ class QbElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
-    Q_PROPERTY(ElementState state READ state WRITE setState RESET resetState NOTIFY stateChanged)
-    Q_PROPERTY(bool threaded READ threaded WRITE setThreaded RESET resetThreaded)
+    Q_PROPERTY(QbElement::ElementState state READ state WRITE setState RESET resetState NOTIFY stateChanged)
+    Q_PROPERTY(QString eThread READ eThread)
     Q_PROPERTY(QList<QbElement *> srcs READ srcs WRITE setSrcs RESET resetSrcs)
     Q_PROPERTY(QList<QbElement *> sinks READ sinks WRITE setSinks RESET resetSinks)
 
@@ -51,17 +52,22 @@ class QbElement: public QObject
         explicit QbElement(QObject *parent=NULL);
         virtual ~QbElement();
 
-        Q_INVOKABLE virtual ElementState state();
-        Q_INVOKABLE virtual bool threaded();
+        Q_INVOKABLE virtual QbElement::ElementState state();
+        Q_INVOKABLE virtual QString eThread();
         Q_INVOKABLE virtual QList<QbElement *> srcs();
         Q_INVOKABLE virtual QList<QbElement *> sinks();
-        Q_INVOKABLE virtual bool link(QObject *dstElement);
-        Q_INVOKABLE virtual bool link(QbElementPtr dstElement);
+
+        Q_INVOKABLE virtual bool link(QObject *dstElement,
+                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+
+        Q_INVOKABLE virtual bool link(QbElementPtr dstElement,
+                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+
         Q_INVOKABLE virtual bool unlink(QObject *dstElement);
         Q_INVOKABLE virtual bool unlink(QbElementPtr dstElement);
 
     protected:
-        ElementState m_state;
+        QbElement::ElementState m_state;
         QList<QbElement *> m_srcs;
         QList<QbElement *> m_sinks;
 
@@ -71,24 +77,21 @@ class QbElement: public QObject
     private:
         QString m_pluginId;
         QObject *m_application;
-        QSharedPointer<QThread> m_elementThread;
-        QThread *m_mainThread;
+        QbThreadPtr m_elementThread;
 
         QList<QMetaMethod> methodsByName(QObject *object, QString methodName);
         bool methodCompat(QMetaMethod method1, QMetaMethod method2);
 
     signals:
-        void stateChanged(ElementState state);
+        void stateChanged(QbElement::ElementState state);
         void oStream(const QbPacket &packet);
 
     public slots:
         virtual void iStream(const QbPacket &packet);
-        virtual void setState(ElementState state);
-        virtual void setThreaded(bool threaded);
+        virtual void setState(QbElement::ElementState state);
         virtual void setSrcs(QList<QbElement *> srcs);
         virtual void setSinks(QList<QbElement *> sinks);
         virtual void resetState();
-        virtual void resetThreaded();
         virtual void resetSrcs();
         virtual void resetSinks();
 

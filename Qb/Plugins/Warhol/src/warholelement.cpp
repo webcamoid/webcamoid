@@ -59,15 +59,11 @@ void WarholElement::resetNFrames()
 
 void WarholElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
-        return;
-
-    this->m_convert->iStream(packet);
+    if (packet.caps().mimeType() == "video/x-raw")
+        this->m_convert->iStream(packet);
 }
 
-void WarholElement::setState(ElementState state)
+void WarholElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());
@@ -99,7 +95,7 @@ void WarholElement::processFrame(const QbPacket &packet)
             *destBits++ = srcBits[q * src.width() + p] ^ this->m_colorTable[i];
         }
 
-    QSharedPointer<uchar> oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());

@@ -63,6 +63,7 @@ void yyerror(Pipeline *pipelineDescription, const char *s);
 %token TOK_COMMA
 %token TOK_COLON
 %token TOK_EQUAL
+%token TOK_QUESTIONMARK
 
 /* Keywords */
 %token TOK_SIZE
@@ -192,6 +193,29 @@ extendedPipe: pipe {
 
                   delete $1;
               }
+            // IN. ! pipe ! ConnectionType ? OUT.
+            | TOK_REFIN TOK_EXCL pipe TOK_EXCL TOK_IDENTIFIER TOK_QUESTIONMARK TOK_REFOUT {
+                  $3->prepend("IN.");
+                  $5->append("?");
+                  $3->append(*$5);
+                  $3->append("OUT.");
+
+                  pipelineDescription->addLinks(*$3);
+
+                  delete $3;
+                  delete $5;
+              }
+            // pipe ! ConnectionType ? OUT.
+            | pipe TOK_EXCL TOK_IDENTIFIER TOK_QUESTIONMARK TOK_REFOUT {
+                  $3->append("?");
+                  $1->append(*$3);
+                  $1->append("OUT.");
+
+                  pipelineDescription->addLinks(*$1);
+
+                  delete $1;
+                  delete $3;
+              }
             ;
 
 pipe: element {
@@ -207,6 +231,17 @@ pipe: element {
           *$$ << *$3;
 
           delete $3;
+      }
+    // pipe ! ConnectionType ? Element
+    | pipe TOK_EXCL TOK_IDENTIFIER TOK_QUESTIONMARK element {
+          $$ = $1;
+
+          $3->append("?");
+
+          *$$ << *$3 << *$5;
+
+          delete $3;
+          delete $5;
       }
     ;
 

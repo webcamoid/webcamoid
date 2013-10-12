@@ -19,38 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "probeelement.h"
+#include "qbthread.h"
 
-ProbeElement::ProbeElement(): QbElement()
+QbThread::QbThread(QObject *parent):
+    QThread(parent)
 {
-    this->resetLog();
+   this->m_threadList = NULL;
 }
 
-bool ProbeElement::log() const
+QbThread::~QbThread()
 {
-    return this->m_log;
-}
-
-void ProbeElement::setLog(bool on)
-{
-    this->m_log = on;
-}
-
-void ProbeElement::resetLog()
-{
-    this->setLog(true);
-}
-
-void ProbeElement::iStream(const QbPacket &packet)
-{
-    if (this->log())
-    {
-        qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
-
-        foreach (QString line, packet.toString().split('\n'))
-            qDebug().nospace() << "\t"
-                               << line.toStdString().c_str();
-    }
-
-    emit this->oStream(packet);
+    if (this->m_threadList)
+        QMetaObject::invokeMethod(this->m_threadList,
+                                  "deleteInstance",
+                                  Q_ARG(QString, this->objectName()));
 }

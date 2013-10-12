@@ -19,38 +19,28 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "probeelement.h"
+#ifndef QBTHREAD_H
+#define QBTHREAD_H
 
-ProbeElement::ProbeElement(): QbElement()
+#include <QtCore>
+
+class QbThreadStock;
+class QbThread;
+
+typedef QSharedPointer<QbThread> QbThreadPtr;
+
+class QbThread: public QThread
 {
-    this->resetLog();
-}
+    Q_OBJECT
 
-bool ProbeElement::log() const
-{
-    return this->m_log;
-}
+    public:
+        explicit QbThread(QObject *parent=NULL);
+        ~QbThread();
 
-void ProbeElement::setLog(bool on)
-{
-    this->m_log = on;
-}
+    private:
+        QObject *m_threadList;
 
-void ProbeElement::resetLog()
-{
-    this->setLog(true);
-}
+    friend class QbThreadStock;
+};
 
-void ProbeElement::iStream(const QbPacket &packet)
-{
-    if (this->log())
-    {
-        qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
-
-        foreach (QString line, packet.toString().split('\n'))
-            qDebug().nospace() << "\t"
-                               << line.toStdString().c_str();
-    }
-
-    emit this->oStream(packet);
-}
+#endif // QBTHREAD_H

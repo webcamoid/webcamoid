@@ -19,25 +19,31 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "qbelement.h"
+#include "qb.h"
 
 QbElement::QbElement(QObject *parent): QObject(parent)
 {
+    QbThreadPtr thread = Qb::currentThread();
+
+    if (!thread.isNull())
+    {
+        this->moveToThread(thread.data());
+        this->m_elementThread = thread;
+    }
+
     this->m_application = NULL;
     this->m_state = ElementStateNull;
-    this->m_mainThread = this->thread();
 
-    this->resetThreaded();
     this->resetSrcs();
     this->resetSinks();
 }
 
 QbElement::~QbElement()
 {
-    this->resetThreaded();
-
     if (this->m_application)
-        QMetaObject::invokeMethod(this->m_application, "deleteInstance", Q_ARG(QString, this->m_pluginId));
+        QMetaObject::invokeMethod(this->m_application,
+                                  "deleteInstance",
+                                  Q_ARG(QString, this->m_pluginId));
 }
 
 QbElement::ElementState QbElement::state()
@@ -45,9 +51,10 @@ QbElement::ElementState QbElement::state()
     return this->m_state;
 }
 
-bool QbElement::threaded()
+QString QbElement::eThread()
 {
-    return this->m_mainThread != this->thread();
+    return this->m_elementThread.isNull()? "":
+                                           this->m_elementThread->objectName();
 }
 
 QList<QbElement *> QbElement::srcs()
@@ -59,7 +66,7 @@ QList<QbElement *> QbElement::sinks()
 {
     return this->m_sinks;
 }
-bool QbElement::link(QObject *dstElement)
+bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
 {
     if (!dstElement)
         return false;
@@ -69,14 +76,14 @@ bool QbElement::link(QObject *dstElement)
             if (this->methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
-                QObject::connect(this, signal, dstElement, slot);
+                QObject::connect(this, signal, dstElement, slot, connectionType);
 
     return true;
 }
 
-bool QbElement::link(QbElementPtr dstElement)
+bool QbElement::link(QbElementPtr dstElement, Qt::ConnectionType connectionType)
 {
-    if (!this->link(static_cast<QObject *>(dstElement.data())))
+    if (!this->link(static_cast<QObject *>(dstElement.data()), connectionType))
         return false;
 
     this->setSinks(this->sinks() << dstElement.data());
@@ -158,9 +165,9 @@ void QbElement::iStream(const QbPacket &packet)
     Q_UNUSED(packet)
 }
 
-void QbElement::setState(ElementState state)
+void QbElement::setState(QbElement::ElementState state)
 {
-    ElementState preState = this->state();
+    QbElement::ElementState preState = this->state();
 
     switch (state)
     {
@@ -258,26 +265,6 @@ void QbElement::setState(ElementState state)
     }
 }
 
-void QbElement::setThreaded(bool threaded)
-{
-    if (threaded)
-    {
-        if (!this->threaded())
-        {
-            this->m_elementThread = QSharedPointer<QThread>(new QThread);
-            this->m_elementThread->start();
-            this->moveToThread(this->m_elementThread.data());
-        }
-    }
-    else if (this->threaded())
-    {
-        this->m_elementThread->exit(0);
-        this->m_elementThread->wait();
-        this->m_elementThread.clear();
-        this->moveToThread(this->m_mainThread);
-    }
-}
-
 void QbElement::setSrcs(QList<QbElement *> srcs)
 {
     this->m_srcs = srcs;
@@ -291,11 +278,6 @@ void QbElement::setSinks(QList<QbElement *> sinks)
 void QbElement::resetState()
 {
     this->setState(ElementStateNull);
-}
-
-void QbElement::resetThreaded()
-{
-    this->setThreaded(false);
 }
 
 void QbElement::resetSrcs()

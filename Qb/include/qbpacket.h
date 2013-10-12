@@ -25,12 +25,15 @@
 #include "qbcaps.h"
 #include "qbfrac.h"
 
+typedef QSharedPointer<uchar> QbBufferPtr;
+
 class QbPacket: public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(QbCaps caps READ caps WRITE setCaps RESET resetCaps)
-    Q_PROPERTY(QSharedPointer<uchar> buffer READ buffer WRITE setBuffer RESET resetBuffer)
+    Q_PROPERTY(QVariant data READ data WRITE setData RESET resetData)
+    Q_PROPERTY(QbBufferPtr buffer READ buffer WRITE setBuffer RESET resetBuffer)
     Q_PROPERTY(ulong bufferSize READ bufferSize WRITE setBufferSize RESET resetBufferSize)
     Q_PROPERTY(int64_t pts READ pts WRITE setPts RESET resetPts)
     Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
@@ -40,12 +43,12 @@ class QbPacket: public QObject
     public:
         explicit QbPacket(QObject *parent=NULL);
 
-        QbPacket(QbCaps caps,
-                 const QSharedPointer<uchar> &buffer=QSharedPointer<uchar>(),
+        QbPacket(const QbCaps &caps,
+                 const QbBufferPtr &buffer=QbBufferPtr(),
                  ulong bufferSize=0,
                  int64_t pts=0,
                  int duration=0,
-                 QbFrac timeBase=QbFrac(),
+                 const QbFrac &timeBase=QbFrac(),
                  int index=-1);
 
         QbPacket(const QbPacket &other);
@@ -54,7 +57,8 @@ class QbPacket: public QObject
 
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QSharedPointer<uchar> buffer() const;
+        Q_INVOKABLE QVariant data() const;
+        Q_INVOKABLE QbBufferPtr buffer() const;
         Q_INVOKABLE ulong bufferSize() const;
         Q_INVOKABLE int64_t pts() const;
         Q_INVOKABLE int duration() const;
@@ -63,7 +67,8 @@ class QbPacket: public QObject
 
     private:
         QbCaps m_caps;
-        QSharedPointer<uchar> m_buffer;
+        QVariant m_data;
+        QbBufferPtr m_buffer;
         ulong m_bufferSize;
         int64_t m_pts;
         int m_duration;
@@ -73,14 +78,16 @@ class QbPacket: public QObject
         friend QDebug operator <<(QDebug debug, const QbPacket &frac);
 
     public slots:
-        void setCaps(QbCaps caps);
-        void setBuffer(const QSharedPointer<uchar> &buffer);
+        void setCaps(const QbCaps &caps);
+        void setData(const QVariant &data);
+        void setBuffer(const QbBufferPtr &buffer);
         void setBufferSize(ulong bufferSize);
         void setPts(int64_t pts);
         void setDuration(int duration);
-        void setTimeBase(QbFrac timeBase);
+        void setTimeBase(const QbFrac &timeBase);
         void setIndex(int index);
         void resetCaps();
+        void resetData();
         void resetBuffer();
         void resetBufferSize();
         void resetPts();

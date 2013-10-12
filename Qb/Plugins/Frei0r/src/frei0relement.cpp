@@ -602,9 +602,7 @@ void Frei0rElement::resetFrei0rPaths()
 
 void Frei0rElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying ||
+    if (packet.caps().mimeType() != "video/x-raw" ||
         this->m_info["plugin_type"] == "source")
         return;
 
@@ -647,7 +645,7 @@ void Frei0rElement::iStream(const QbPacket &packet)
     this->m_capsConvert->iStream(packet);
 }
 
-void Frei0rElement::setState(ElementState state)
+void Frei0rElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
@@ -767,7 +765,7 @@ void Frei0rElement::processFrame(const QbPacket &packet)
 
     this->m_t += this->m_duration;
 
-    QSharedPointer<uchar> oBuffer(new uchar[this->m_oBuffer.size()]);
+    QbBufferPtr oBuffer(new uchar[this->m_oBuffer.size()]);
     memcpy(oBuffer.data(), this->m_oBuffer.constData(), this->m_oBuffer.size());
 
     QbPacket oPacket(caps,

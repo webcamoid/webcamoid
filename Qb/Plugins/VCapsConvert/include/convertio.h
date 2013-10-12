@@ -19,46 +19,50 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VCAPSCONVERTELEMENT_H
-#define VCAPSCONVERTELEMENT_H
+#ifndef CONVERTIO_H
+#define CONVERTIO_H
 
 #include <qb.h>
 
 extern "C"
 {
-    #include <libavformat/avformat.h>
     #include <libavutil/imgutils.h>
     #include <libswscale/swscale.h>
 }
 
-#include "convertio.h"
-
-typedef QSharedPointer<SwsContext> SwsContextPtr;
-
-class VCapsConvertElement: public QbElement
+class ConvertIO: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+    Q_PROPERTY(int iWidth READ iWidth)
+    Q_PROPERTY(int iHeight READ iHeight)
+    Q_PROPERTY(PixelFormat iFormat READ iFormat)
+    Q_PROPERTY(int oWidth READ oWidth)
+    Q_PROPERTY(int oHeight READ oHeight)
+    Q_PROPERTY(PixelFormat oFormat READ oFormat)
+    Q_PROPERTY(QList<int> check READ check)
 
     public:
-        explicit VCapsConvertElement();
-        ~VCapsConvertElement();
+        explicit ConvertIO(QObject *parent=NULL);
+        ConvertIO(const QbPacket &iPacket, const QbCaps &oCaps);
+        ConvertIO(const ConvertIO &other);
+        ConvertIO &operator =(const ConvertIO &other);
 
-        Q_INVOKABLE QString caps();
+        Q_INVOKABLE int iWidth() const;
+        Q_INVOKABLE int iHeight() const;
+        Q_INVOKABLE PixelFormat iFormat() const;
+        Q_INVOKABLE int oWidth() const;
+        Q_INVOKABLE int oHeight() const;
+        Q_INVOKABLE PixelFormat oFormat() const;
+        Q_INVOKABLE QList<int> check() const;
 
     private:
-        QbCaps m_caps;
-        SwsContextPtr m_scaleContext;
-        QList<int> m_check;
-
-        static void deleteSwsContext(SwsContext *context);
-
-    public slots:
-        void setCaps(QString caps);
-        void resetCaps();
-
-        void iStream(const QbPacket &packet);
+        int m_iWidth;
+        int m_iHeight;
+        PixelFormat m_iFormat;
+        int m_oWidth;
+        int m_oHeight;
+        PixelFormat m_oFormat;
 };
 
-#endif // VCAPSCONVERTELEMENT_H
+#endif // CONVERTIO_H

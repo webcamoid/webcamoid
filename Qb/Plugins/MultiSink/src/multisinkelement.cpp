@@ -309,9 +309,9 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
     }
 
     QObject::connect(this,
-                     SIGNAL(stateChanged(ElementState)),
+                     SIGNAL(stateChanged(QbElement::ElementState)),
                      filter.data(),
-                     SLOT(setState(ElementState)));
+                     SLOT(setState(QbElement::ElementState)));
 
     int outputIndex = options.contains("oi")? options["oi"].toInt(): inputIndex;
 
@@ -464,6 +464,9 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     int outputIndex = this->m_outputParams[QString("%1").arg(packet.index())].outputIndex();
     StreamPtr audioStream = this->m_outputFormat.streams()[inputIndex];
 
+    if (!audioStream)
+        return;
+
     AVCodecContext *codecContext = audioStream->codec;
 
     int samples = packet.caps().property("samples").toInt();
@@ -498,15 +501,18 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                  codecContext->sample_fmt,
                                  (uint8_t *) packet.buffer().data(),
                                  packet.bufferSize(),
-                                 1) < 0)
+                                 0) < 0)
         return;
 
     for (int offset = 0; offset < samples; offset += frameSize)
     {
-        QByteArray oBuffer(frameSize *
-                           av_get_bytes_per_sample(codecContext->sample_fmt) *
-                           codecContext->channels,
-                           0);
+        int oBufferSize = av_samples_get_buffer_size(NULL,
+                                                     codecContext->channels,
+                                                     frameSize,
+                                                     codecContext->sample_fmt,
+                                                     0);
+
+        QByteArray oBuffer(oBufferSize, 0);
 
         static AVFrame oFrame;
         avcodec_get_frame_defaults(&oFrame);
@@ -517,10 +523,8 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                      codecContext->channels,
                                      codecContext->sample_fmt,
                                      (const uint8_t *) oBuffer.constData(),
-                                     frameSize *
-                                     av_get_bytes_per_sample(codecContext->sample_fmt) *
-                                     codecContext->channels,
-                                     1) < 0)
+                                     oBufferSize,
+                                     0) < 0)
             continue;
 
         if (av_samples_copy(oFrame.data,

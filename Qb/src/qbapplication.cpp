@@ -34,12 +34,12 @@ QbApplication::~QbApplication()
         this->unload(pluginId);
 }
 
-QStringList QbApplication::pluginsPaths()
+QStringList QbApplication::pluginsPaths() const
 {
     return this->m_pluginsPaths;
 }
 
-QSharedPointer<QbElement> QbApplication::newInstance(QString pluginId)
+QbElementPtr QbApplication::newInstance(const QString &pluginId)
 {
     if (!this->load(pluginId))
         return QbElementPtr();
@@ -57,7 +57,7 @@ QSharedPointer<QbElement> QbApplication::newInstance(QString pluginId)
     return element;
 }
 
-void QbApplication::deleteInstance(QString pluginId)
+void QbApplication::deleteInstance(const QString &pluginId)
 {
     if (!this->isLoaded(pluginId))
         return;
@@ -72,12 +72,12 @@ void QbApplication::deleteInstance(QString pluginId)
     }
 }
 
-bool QbApplication::isLoaded(QString pluginId)
+bool QbApplication::isLoaded(const QString &pluginId)
 {
     return this->m_plugins.contains(pluginId);
 }
 
-bool QbApplication::load(QString pluginId)
+bool QbApplication::load(const QString &pluginId)
 {
     if (this->isLoaded(pluginId))
         return true;
@@ -112,7 +112,7 @@ bool QbApplication::load(QString pluginId)
         return false;
     }
 
-    QSharedPointer<QbPlugin> plugin(qobject_cast<QbPlugin *>(this->m_pluginLoader.instance()));
+    QbPluginPtr plugin(qobject_cast<QbPlugin *>(this->m_pluginLoader.instance()));
 
     if (!plugin)
         return false;
@@ -122,7 +122,7 @@ bool QbApplication::load(QString pluginId)
     return true;
 }
 
-bool QbApplication::unload(QString pluginId)
+bool QbApplication::unload(const QString &pluginId)
 {
     if(!this->isLoaded(pluginId))
          return true;
@@ -134,7 +134,7 @@ bool QbApplication::unload(QString pluginId)
     return true;
 }
 
-void QbApplication::setPluginsPaths(QStringList pluginsPaths)
+void QbApplication::setPluginsPaths(const QStringList &pluginsPaths)
 {
     this->m_pluginsPaths = pluginsPaths;
 }
