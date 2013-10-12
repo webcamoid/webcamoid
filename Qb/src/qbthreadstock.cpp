@@ -39,6 +39,9 @@ QbThreadStock::~QbThreadStock()
 
 QbThreadPtr QbThreadStock::requestInstance(const QString &threadName)
 {
+    if (threadName.isEmpty())
+        return QbThreadPtr();
+
     if (this->m_threads.contains(threadName))
         return this->m_threads[threadName];
 
