@@ -645,7 +645,7 @@ void Frei0rElement::iStream(const QbPacket &packet)
     this->m_capsConvert->iStream(packet);
 }
 
-void Frei0rElement::setState(ElementState state)
+void Frei0rElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 

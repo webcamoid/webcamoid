@@ -63,7 +63,7 @@ void WarholElement::iStream(const QbPacket &packet)
         this->m_convert->iStream(packet);
 }
 
-void WarholElement::setState(ElementState state)
+void WarholElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());

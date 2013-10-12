@@ -417,15 +417,15 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
         this->m_audioSwitch->setState(QbElement::ElementStateNull);
 
         QObject::disconnect(this->m_record.data(),
-                            SIGNAL(stateChanged(ElementState)),
+                            SIGNAL(stateChanged(QbElement::ElementState)),
                             this->m_audioSwitch.data(),
-                            SLOT(setState(ElementState)));
+                            SLOT(setState(QbElement::ElementState)));
 
         if (this->m_recordAudioFrom == RecordFromMic)
             QObject::disconnect(this->m_record.data(),
-                                SIGNAL(stateChanged(ElementState)),
+                                SIGNAL(stateChanged(QbElement::ElementState)),
                                 this->m_mic.data(),
-                                SLOT(setState(ElementState)));
+                                SLOT(setState(QbElement::ElementState)));
     }
     else
     {
@@ -436,9 +436,9 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
                 this->m_mic->setState(QbElement::ElementStateNull);
 
                 QObject::disconnect(this->m_record.data(),
-                                    SIGNAL(stateChanged(ElementState)),
+                                    SIGNAL(stateChanged(QbElement::ElementState)),
                                     this->m_mic.data(),
-                                    SLOT(setState(ElementState)));
+                                    SLOT(setState(QbElement::ElementState)));
             }
 
             this->m_audioSwitch->setProperty("inputIndex", 0);
@@ -450,9 +450,9 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
                 this->m_mic->setState(this->m_record->state());
 
             QObject::connect(this->m_record.data(),
-                             SIGNAL(stateChanged(ElementState)),
+                             SIGNAL(stateChanged(QbElement::ElementState)),
                              this->m_mic.data(),
-                             SLOT(setState(ElementState)));
+                             SLOT(setState(QbElement::ElementState)));
 
             this->m_audioSwitch->setProperty("inputIndex", 1);
         }
@@ -464,9 +464,9 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
                 this->m_audioSwitch->setState(this->m_record->state());
 
             QObject::connect(this->m_record.data(),
-                             SIGNAL(stateChanged(ElementState)),
+                             SIGNAL(stateChanged(QbElement::ElementState)),
                              this->m_audioSwitch.data(),
-                             SLOT(setState(ElementState)));
+                             SLOT(setState(QbElement::ElementState)));
         }
     }
 
@@ -726,18 +726,18 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
             this->m_audioOutput->setState(sourceState);
 
         QObject::connect(this->m_source.data(),
-                         SIGNAL(stateChanged(ElementState)),
+                         SIGNAL(stateChanged(QbElement::ElementState)),
                          this->m_audioOutput.data(),
-                         SLOT(setState(ElementState)));
+                         SLOT(setState(QbElement::ElementState)));
     }
     else
     {
         this->m_audioOutput->setState(QbElement::ElementStateNull);
 
         QObject::disconnect(this->m_source.data(),
-                            SIGNAL(stateChanged(ElementState)),
+                            SIGNAL(stateChanged(QbElement::ElementState)),
                             this->m_audioOutput.data(),
-                            SLOT(setState(ElementState)));
+                            SLOT(setState(QbElement::ElementState)));
     }
 }
 

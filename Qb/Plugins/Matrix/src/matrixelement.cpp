@@ -483,7 +483,7 @@ void MatrixElement::iStream(const QbPacket &packet)
         this->m_convert->iStream(packet);
 }
 
-void MatrixElement::setState(ElementState state)
+void MatrixElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());

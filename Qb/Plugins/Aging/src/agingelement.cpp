@@ -284,7 +284,7 @@ void AgingElement::iStream(const QbPacket &packet)
         this->m_convert->iStream(packet);
 }
 
-void AgingElement::setState(ElementState state)
+void AgingElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());

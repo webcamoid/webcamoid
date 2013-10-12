@@ -65,7 +65,7 @@ class AgingElement: public QbElement
         void resetAgingMode();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        void setState(QbElement::ElementState state);
 
     private slots:
         void processFrame(const QbPacket &packet);

@@ -31,9 +31,9 @@ AudioInputElement::AudioInputElement(): QbElement()
                      SIGNAL(oStream(const QbPacket &)));
 
     QObject::connect(this,
-                     SIGNAL(stateChanged(ElementState)),
+                     SIGNAL(stateChanged(QbElement::ElementState)),
                      this->m_input.data(),
-                     SLOT(setState(ElementState)));
+                     SLOT(setState(QbElement::ElementState)));
 
     this->resetAudioSystem();
 }

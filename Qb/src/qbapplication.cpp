@@ -112,7 +112,7 @@ bool QbApplication::load(const QString &pluginId)
         return false;
     }
 
-    QSharedPointer<QbPlugin> plugin(qobject_cast<QbPlugin *>(this->m_pluginLoader.instance()));
+    QbPluginPtr plugin(qobject_cast<QbPlugin *>(this->m_pluginLoader.instance()));
 
     if (!plugin)
         return false;

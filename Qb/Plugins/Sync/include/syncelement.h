@@ -95,7 +95,7 @@ class SyncElement: public QbElement
         void resetOutputAudioBufferSize();
 
         void iStream(const QbPacket &packet);
-        void setState(ElementState state);
+        void setState(QbElement::ElementState state);
 
     private slots:
         void processAudioFrame();

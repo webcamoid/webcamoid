@@ -19,37 +19,28 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef AUDIOOUTPUTELEMENT_H
-#define AUDIOOUTPUTELEMENT_H
+#ifndef QBTHREAD_H
+#define QBTHREAD_H
 
-#include <qb.h>
+#include <QtCore>
 
-class AudioOutputElement: public QbElement
+class QbThreadStock;
+class QbThread;
+
+typedef QSharedPointer<QbThread> QbThreadPtr;
+
+class QbThread: public QThread
 {
     Q_OBJECT
-    Q_PROPERTY(QString audioSystem READ audioSystem
-                                   WRITE setAudioSystem
-                                   RESET resetAudioSystem)
-
-    Q_PROPERTY(QStringList availableAudioSystem READ availableAudioSystem)
 
     public:
-        explicit AudioOutputElement();
-
-        Q_INVOKABLE QString audioSystem();
-        Q_INVOKABLE QStringList availableAudioSystem();
+        explicit QbThread(QObject *parent=NULL);
+        ~QbThread();
 
     private:
-        QString m_audioSystem;
+        QObject *m_threadList;
 
-        QbElementPtr m_output;
-
-    public slots:
-        void setAudioSystem(QString audioSystem);
-        void resetAudioSystem();
-
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
+    friend class QbThreadStock;
 };
 
-#endif // AUDIOOUTPUTELEMENT_H
+#endif // QBTHREAD_H

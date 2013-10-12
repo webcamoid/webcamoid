@@ -309,9 +309,9 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
     }
 
     QObject::connect(this,
-                     SIGNAL(stateChanged(ElementState)),
+                     SIGNAL(stateChanged(QbElement::ElementState)),
                      filter.data(),
-                     SLOT(setState(ElementState)));
+                     SLOT(setState(QbElement::ElementState)));
 
     int outputIndex = options.contains("oi")? options["oi"].toInt(): inputIndex;
 
