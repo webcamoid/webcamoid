@@ -19,37 +19,29 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef AUDIOOUTPUTELEMENT_H
-#define AUDIOOUTPUTELEMENT_H
+#ifndef QBTHREADSTOCK_H
+#define QBTHREADSTOCK_H
 
-#include <qb.h>
+#include "qbthread.h"
 
-class AudioOutputElement: public QbElement
+class QbThreadStock: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString audioSystem READ audioSystem
-                                   WRITE setAudioSystem
-                                   RESET resetAudioSystem)
-
-    Q_PROPERTY(QStringList availableAudioSystem READ availableAudioSystem)
 
     public:
-        explicit AudioOutputElement();
+        explicit QbThreadStock(QObject *parent=NULL);
+        ~QbThreadStock();
 
-        Q_INVOKABLE QString audioSystem();
-        Q_INVOKABLE QStringList availableAudioSystem();
+        Q_INVOKABLE QbThreadPtr requestInstance(const QString &threadName);
+        Q_INVOKABLE void deleteInstance(const QString &threadName);
+        Q_INVOKABLE QbThreadPtr findThread(const QThread *thread) const;
+        Q_INVOKABLE void setThread(const QString &threadName);
+        Q_INVOKABLE QbThreadPtr currentThread() const;
 
     private:
-        QString m_audioSystem;
-
-        QbElementPtr m_output;
-
-    public slots:
-        void setAudioSystem(QString audioSystem);
-        void resetAudioSystem();
-
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
+        QMap<QString, QbThreadPtr> m_threads;
+        QbThreadPtr m_currentThread;
+        QString m_currentThreadName;
 };
 
-#endif // AUDIOOUTPUTELEMENT_H
+#endif // QBTHREADSTOCK_H

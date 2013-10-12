@@ -89,7 +89,7 @@ void QImageConvertElement::iStream(const QbPacket &packet)
     this->m_capsConvert->iStream(packet);
 }
 
-void QImageConvertElement::setState(ElementState state)
+void QImageConvertElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_capsConvert->setState(this->state());

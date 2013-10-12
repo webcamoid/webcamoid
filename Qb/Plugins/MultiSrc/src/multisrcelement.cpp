@@ -252,23 +252,14 @@ void MultiSrcElement::resetFilterStreams()
     this->setFilterStreams(QStringList());
 }
 
-void MultiSrcElement::setState(ElementState state)
+void MultiSrcElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    switch (this->state())
-    {
-        case ElementStatePaused:
-            this->m_timer.stop();
-        break;
-
-        case ElementStatePlaying:
-            this->m_timer.start();
-        break;
-
-        default:
-        break;
-    }
+    if (this->state() == ElementStatePaused)
+        this->m_timer.stop();
+    else if (this->state() == ElementStatePlaying)
+        this->m_timer.start();
 }
 
 void MultiSrcElement::readPackets()

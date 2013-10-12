@@ -133,7 +133,7 @@ void BlitzerElement::iStream(const QbPacket &packet)
         this->m_convert->iStream(packet);
 }
 
-void BlitzerElement::setState(ElementState state)
+void BlitzerElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());

@@ -26,6 +26,10 @@
 
 #include "qbelement.h"
 
+class QbPlugin;
+
+typedef QSharedPointer<QbPlugin> QbPluginPtr;
+
 class QbPlugin
 {
     public:

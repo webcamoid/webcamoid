@@ -38,7 +38,14 @@ WebcamConfigElement::WebcamConfigElement(): QbElement()
 
     this->m_webcams = this->webcams();
 
-    this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
+    this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
+
+    QbThreadPtr thread = Qb::requestThread(this->eThread());
+
+    if (!thread.isNull())
+        this->m_fsWatcher->moveToThread(thread.data());
+
+    this->m_fsWatcher->setParent(this);
 
     QObject::connect(this->m_fsWatcher,
                      SIGNAL(directoryChanged(const QString &)),

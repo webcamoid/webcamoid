@@ -181,7 +181,7 @@ void BinElement::iStream(const QbPacket &packet)
         emit this->oStream(packet);
 }
 
-void BinElement::setState(ElementState state)
+void BinElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 

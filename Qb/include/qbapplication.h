@@ -43,7 +43,7 @@ class QbApplication: public QObject
     private:
         QStringList m_pluginsPaths;
         QPluginLoader m_pluginLoader;
-        QMap<QString, QSharedPointer<QbPlugin> > m_plugins;
+        QMap<QString, QbPluginPtr> m_plugins;
         QMap<QString, QString> m_pluginPath;
         QMap<QString, int> m_instances;
 

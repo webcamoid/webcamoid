@@ -63,7 +63,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         isEmpty(LOCALSTATEDIR): LOCALSTATEDIR = $${PREFIX}/var
         isEmpty(INCLUDEDIR): INCLUDEDIR = $${PREFIX}/include
         isEmpty(KDEINCLUDEDIR): KDEINCLUDEDIR = $$system(kde4-config --path include)
-        isEmpty(KDELIBDIR): KDELIBDIR = $$system(dirname $(locate -b '\\\\libkdecore.so'))
+        isEmpty(KDELIBDIR): KDELIBDIR = $${PREFIX}/lib
         isEmpty(DOCDIR): DOCDIR = $${DATAROOTDIR}/doc/$${COMMONS_TARGET}
         isEmpty(INFODIR): INFODIR = $${DATAROOTDIR}/info
         isEmpty(HTMLDIR): HTMLDIR = $${DOCDIR}/html

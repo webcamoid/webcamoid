@@ -295,7 +295,7 @@ void SyncElement::iStream(const QbPacket &packet)
     this->m_avqueue.enqueue(packet);
 }
 
-void SyncElement::setState(ElementState state)
+void SyncElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
