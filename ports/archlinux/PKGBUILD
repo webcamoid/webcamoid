@@ -1,7 +1,7 @@
 # Maintainer: Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com>
 
 pkgname=kdeplasma-applets-webcamoid
-pkgver=5.0.0b1
+pkgver=5.0.0b2
 pkgrel=1
 pkgdesc="Webcamoid, the full webcam and multimedia suite."
 url='http://kde-apps.org/content/show.php/Webcamoid?content=144796'
@@ -10,7 +10,7 @@ arch=('i686' 'x86_64')
 depends=('qt4' 'kdelibs' 'ffmpeg' 'frei0r-plugins' 'qimageblitz')
 makedepends=('bison' 'flex')
 source=("https://github.com/hipersayanX/Webcamoid/archive/v${pkgver}.tar.gz")
-md5sums=('ebd0d1f4ed00c6418ac3ed46818c946f')
+md5sums=('71310e161580584db4b9946bbe0fbfef')
 
 build() {
     cd $srcdir/Webcamoid-${pkgver}

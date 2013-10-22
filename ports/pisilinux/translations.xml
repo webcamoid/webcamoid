@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<PISI>
+    <Source>
+        <Name>webcamoid</Name>
+        <Summary xml:lang="es">Webcamoid es el único plasmoide para KDE que permite tomar fotos y grabar video desde la webcam</Summary>
+        <Description xml:lang="es">Webcamoid es el único plasmoide para KDE que permite tomar fotos y grabar video desde la webcam, así como también puede utilizarse como una aplicación de escritorio tradicional sin importar que escritorio se esté utilizando.</Description>
+    </Source>
+</PISI>

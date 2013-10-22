@@ -24,7 +24,7 @@
 
 Webcamoid's dependencies are:
 
-* [Qt](https://qt-project.org/) (Qt >= 4.7, Qt5 not sopported)
+* [Qt](https://qt-project.org/) (Qt >= 4.7, Qt5 not supported)
 * [kdelibs](https://projects.kde.org/projects/kde/kdelibs)
 * [Frei0r plugins](http://www.piksel.org/frei0r)
 * [QImageBlitz](http://download.kde.org/stable/qimageblitz/) >= 0.0.6
@@ -39,37 +39,16 @@ Build dependecies:
 * [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
 * [Flex](http://flex.sourceforge.net)
 
-Build dependecies for __USE3DPARTYLIBS__:
-
-* yasm
-* libass
-* libbluray
-* libgsm
-* libmodplug
-* libmp3lame
-* libopencore_amrnb
-* libopenjpeg
-* opus
-* libpulse-simple
-* librtmp
-* schroedinger
-* libspeex
-* libtheora
-* libvorbis
-* libvpx
-* libx264
-* libxvid
-
 You can build Webcamoid with the following commands:
 
-    qmake-qt4 Webcamoid.pro PREFIX=/usr #USE3DPARTYLIBS=1
+    qmake-qt4 Webcamoid.pro #USE3DPARTYLIBS=1
     make
-    su -c 'make install'
+    su -c 'make INSTALL_ROOT=/usr install'
     kbuildsycoca4
 
-The __PREFIX__ variable is where the files will be copyed with the _make install_ command. 
-The __INSTALLPREFIX__ is the final installation path of Webcamoid.
-If __INSTALLPREFIX__ is not specified, __INSTALLPREFIX__ will be equal to __PREFIX__.
+### Precompiled Packages ###
+
+Follow and take part of Webcamoid package development in the [OBS](https://build.opensuse.org/package/show/home:hipersayan_x/Webcamoid)
 
 ### Custom Streams ###
 

@@ -51,12 +51,12 @@ exists(../../3dparty/ffmpeg_auto.pri) {
 
     LIBS += \
         -L$${FFMPEGLIBSPATH} \
-        -lavcodec \
-        -lavdevice \
-        -lavformat \
-        -lavutil \
-        -lswscale \
-        -lswresample
+        -lavcodec$${FFMPEGBUILDSUFFIX} \
+        -lavdevice$${FFMPEGBUILDSUFFIX} \
+        -lavformat$${FFMPEGBUILDSUFFIX} \
+        -lavutil$${FFMPEGBUILDSUFFIX} \
+        -lswscale$${FFMPEGBUILDSUFFIX} \
+        -lswresample$${FFMPEGBUILDSUFFIX}
 }
 
 QT += core gui

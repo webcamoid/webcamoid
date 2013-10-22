@@ -44,4 +44,4 @@ INSTALLS += \
     license
 
 license.files = COPYING
-license.path = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
+license.path = $${LICENSEDIR}

@@ -36,10 +36,14 @@ SUBDIRS += Lib.pro
 
 SUBDIRS += Plugins
 
+!isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0) {
+    Plugins.depends = 3dparty
+}
+
 # Install rules
 
 INSTALLS += \
     license
 
 license.files = COPYING
-license.path = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
+license.path = $${LICENSEDIR}
