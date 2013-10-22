@@ -23,6 +23,8 @@
 packageName=$1
 packageVersion=$2
 packageInstallPrefix=$3
+extraOptions=$4
+buildSuffix=$5
 packagePrivateFolder=${packageName}_priv
 packageFolder="$packageName-$packageVersion"
 fileExt='tar.bz2'
@@ -57,47 +59,24 @@ cd "$packageFolder"
 
 ./configure --prefix="${packageInstallPrefix}" \
             --disable-debug \
-            --disable-doc \
+            --enable-gpl \
+            --enable-version3 \
+            --build-suffix=${buildSuffix} \
+            --enable-runtime-cpudetect \
+            --disable-programs \
             --disable-ffmpeg \
             --disable-ffplay \
             --disable-ffprobe \
             --disable-ffserver \
+            --disable-doc \
             --disable-htmlpages \
             --disable-manpages \
             --disable-podpages \
-            --disable-programs \
-            --disable-shared \
             --disable-txtpages \
+            --enable-shared \
+            --disable-static \
             --enable-avresample \
-            --enable-dxva2 \
-            --enable-fontconfig \
-            --enable-gpl \
-            --enable-libass \
-            --enable-libbluray \
-            --enable-libfreetype \
-            --enable-libgsm \
-            --enable-libmodplug \
-            --enable-libmp3lame \
-            --enable-libopencore_amrnb \
-            --enable-libopencore_amrwb \
-            --enable-libopenjpeg \
-            --enable-libopus \
-            --enable-libpulse \
-            --enable-librtmp \
-            --enable-libschroedinger \
-            --enable-libspeex \
-            --enable-libtheora \
-            --enable-libv4l2 \
-            --enable-libvorbis \
-            --enable-libvpx \
-            --enable-libx264 \
-            --enable-libxvid \
-            --enable-postproc \
-            --enable-runtime-cpudetect \
-            --enable-static \
-            --enable-vdpau \
-            --enable-version3 \
-            --enable-x11grab
+            ${extraOptions}
 
 if [ $? != '0' ];then
     exit 3
@@ -122,4 +101,5 @@ if [ ! -f "$priFile" ];then
 
     echo ${packageVarName}HEADERSPATH=\"${packageInstallPrefix}/include\" >> $priFile
     echo ${packageVarName}LIBSPATH=\"${packageInstallPrefix}/lib\" >> $priFile
+    echo ${packageVarName}BUILDSUFFIX=${buildSuffix} >> $priFile
 fi

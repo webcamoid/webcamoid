@@ -6,7 +6,7 @@
 
 # Use this as variables:
 # Package Name : webcamoid
-# Version : 5.0.0b1
+# Version : 5.0.0b2
 # Summary : Webcamoid, the full webcam and multimedia suite.
 
 from pisi.actionsapi import qt4

@@ -1,24 +1,73 @@
 Name: webcamoid
-Version: 5.0.0b1
+Version: 5.0.0b2
 Release: 1%{?dist}
 Summary: Webcamoid, the full webcam and multimedia suite.
 Group: Applications/Multimedia
 License: GPLv3+
 URL: http://kde-apps.org/content/show.php/Webcamoid?content=144796
-Source0: https://github.com/hipersayanX/Webcamoid/archive/v${version}.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+Source0: webcamoid_%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-build
+
+%if %{defined fedora}
+BuildRequires: bison
+BuildRequires: bison-devel
+BuildRequires: flex
+BuildRequires: flex-devel
+BuildRequires: wget
+BuildRequires: yasm
+BuildRequires: libass-devel
+BuildRequires: libbluray-devel
+BuildRequires: gsm-devel
+BuildRequires: libmodplug-devel
+BuildRequires: openjpeg-devel
+BuildRequires: opus-devel
+BuildRequires: pulseaudio-libs-devel
+BuildRequires: schroedinger-devel
+BuildRequires: speex-devel
+BuildRequires: libtheora-devel
+BuildRequires: libv4l-devel
+BuildRequires: libvorbis-devel
+BuildRequires: libvpx-devel
 BuildRequires: qt-devel
 BuildRequires: kdelibs-devel
-BuildRequires: ffmpeg-devel
-BuildRequires: bison
-BuildRequires: flex
 BuildRequires: frei0r-devel
 BuildRequires: qimageblitz-devel
+
 Requires: qt
 Requires: kdelibs
-Requires: ffmpeg-libs
 Requires: frei0r-plugins
 Requires: qimageblitz
+%endif
+
+%if %{defined suse_version}
+BuildRequires: bison
+BuildRequires: flex
+BuildRequires: wget
+BuildRequires: make
+BuildRequires: yasm
+BuildRequires: libass-devel
+BuildRequires: libbluray-devel
+BuildRequires: libgsm-devel
+BuildRequires: libmodplug-devel
+BuildRequires: openjpeg-devel
+BuildRequires: libopus-devel
+BuildRequires: libpulse-devel
+BuildRequires: schroedinger-devel
+BuildRequires: libspeex-devel
+BuildRequires: libtheora-devel
+BuildRequires: libv4l-devel
+BuildRequires: libvorbis-devel
+BuildRequires: libvpx-devel
+BuildRequires: libqt4-devel
+BuildRequires: libkde4-devel
+BuildRequires: frei0r-plugins-devel
+BuildRequires: libqimageblitz-devel
+
+Requires: libqt4
+Requires: libkdecore4
+Requires: frei0r-plugins
+Requires: libqimageblitz4
+%endif
 
 %description
 Webcamoid is a webcam plasmoid for the KDE desktop environment.
@@ -42,12 +91,23 @@ Features:
     * Capture from desktop.
 
 %prep
-%setup -q -n Webcamoid
+%setup -q -n %{name}_%{version}
 
 %build
+%if %{defined fedora}
 qmake-qt4 Webcamoid.pro \
     LIBDIR=%{_libdir} \
-    USE3DPARTYLIBS=1
+    USE3DPARTYLIBS=1 \
+    KDEINCLUDEDIR=/usr/include/kde4 \
+    KDELIBDIR=/usr/lib/kde4/devel
+%endif
+
+%if %{defined suse_version}
+qmake Webcamoid.pro \
+    LIBDIR=%{_libdir} \
+    USE3DPARTYLIBS=1 \
+    QMAKE_LRELEASE=/usr/bin/lrelease
+%endif
 
 make
 
@@ -64,52 +124,19 @@ rm -rf %{buildroot}
 %{_datadir}/applications/kde4/webcamoid.desktop
 %{_datadir}/kde4/services/plasma-applet-webcamoid.desktop
 %{_datadir}/licenses/webcamoid/COPYING
-%{_datadir}/webcamoid/tr/ca.qm
-%{_datadir}/webcamoid/tr/de.qm
-%{_datadir}/webcamoid/tr/el.qm
-%{_datadir}/webcamoid/tr/es.qm
-%{_datadir}/webcamoid/tr/fr.qm
-%{_datadir}/webcamoid/tr/gl.qm
-%{_datadir}/webcamoid/tr/it.qm
-%{_datadir}/webcamoid/tr/ja.qm
-%{_datadir}/webcamoid/tr/ko.qm
-%{_datadir}/webcamoid/tr/pt.qm
-%{_datadir}/webcamoid/tr/ru.qm
-%{_datadir}/webcamoid/tr/zh_CN.qm
-%{_datadir}/webcamoid/tr/zh_TW.qm
-%{_defaultdocdir}/Qb/html/qb.index
-%{_defaultdocdir}/Qb/html/qb.pageindex
-%{_defaultdocdir}/Qb/html/qt-dita-map.xml
-%{_defaultdocdir}/webcamoid/html/qt-dita-map.xml
-%{_defaultdocdir}/webcamoid/html/webcamoid.index
-%{_defaultdocdir}/webcamoid/html/webcamoid.pageindex
-%{_includedir}/Qb/qb.h
-%{_includedir}/Qb/qbapplication.h
-%{_includedir}/Qb/qbcaps.h
-%{_includedir}/Qb/qbelement.h
-%{_includedir}/Qb/qbfrac.h
-%{_includedir}/Qb/qbpacket.h
-%{_includedir}/Qb/qbplugin.h
-%{_libdir}/Qb/libACapsConvert.so
-%{_libdir}/Qb/libAging.so
-%{_libdir}/Qb/libBin.so
-%{_libdir}/Qb/libBlitzer.so
-%{_libdir}/Qb/libFilter.so
-%{_libdir}/Qb/libFire.so
-%{_libdir}/Qb/libFrei0r.so
-%{_libdir}/Qb/libMatrix.so
-%{_libdir}/Qb/libMultiSink.so
-%{_libdir}/Qb/libMultiSrc.so
-%{_libdir}/Qb/libMultiplex.so
-%{_libdir}/Qb/libProbe.so
-%{_libdir}/Qb/libQImageConvert.so
-%{_libdir}/Qb/libSync.so
-%{_libdir}/Qb/libVCapsConvert.so
-%{_libdir}/Qb/libWarhol.so
+%{_datadir}/webcamoid/
+%{_includedir}/Qb/
+%{_libdir}/Qb
 %{_libdir}/kde4/plasma_applet_webcamoid.so
+%{_libdir}/libQb.so
+%{_libdir}/libQb.so.5
+%{_libdir}/libQb.so.5.0
 %{_libdir}/libQb.so.5.0.0
+%{_libdir}/libWebcamoid.so
+%{_libdir}/libWebcamoid.so.5
+%{_libdir}/libWebcamoid.so.5.0
 %{_libdir}/libWebcamoid.so.5.0.0
 
 %changelog
-* Wed May 22 2013 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0b1-1
-- Initial release for Fedora 18
+* Wed Oct 16 2013 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0b2-1
+- Working with OBS.

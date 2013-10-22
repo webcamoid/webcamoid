@@ -34,7 +34,7 @@
                 * Use custom network and local files as capture devices.
                 * Capture from desktop.
         </Description>
-        <Archive sha1sum="1ff6436efeb08fb4270dd03cb3e4dcbe58714ebc" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.0.0b1.tar.gz</Archive>
+        <Archive sha1sum="1ff6436efeb08fb4270dd03cb3e4dcbe58714ebc" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.0.0b2.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>qt-devel</Dependency>
             <Dependency>kdelibs-devel</Dependency>
@@ -43,6 +43,27 @@
             <Dependency>flex</Dependency>
             <Dependency>frei0r-plugins-devel</Dependency>
             <Dependency>qimageblitz-devel</Dependency>
+	     <Dependency>libv4l-devel</Dependency>
+	     <Dependency>yasm-devel</Dependency>
+	     <Dependency>libass-devel</Dependency>
+	     <Dependency>libbluray-devel</Dependency>
+	     <Dependency>yasm-devel</Dependency>
+	     <Dependency>gsm-devel</Dependency>
+	     <Dependency>libmodplug-devel</Dependency>
+	     <Dependency>lame-devel</Dependency>
+	     <Dependency>opencore-amr-devel</Dependency>
+	     <Dependency>yasm-devel</Dependency>
+	     <Dependency>openjpeg-devel</Dependency>
+	     <Dependency>libopus-devel</Dependency>
+	     <Dependency>rtmpdump-devel</Dependency>
+	     <Dependency>schroedinger-devel</Dependency>
+	     <Dependency>speex-devel</Dependency>
+	     <Dependency>libtheora-devel</Dependency>
+	     <Dependency>libvorbis-devel</Dependency>
+	     <Dependency>libvpx-devel</Dependency>
+	     <Dependency>x264-devel</Dependency>
+	     <Dependency>xvid-devel</Dependency>
+	      <Dependency>pulseaudio-libs-devel</Dependency>
         </BuildDependencies>
     </Source>
 
@@ -73,8 +94,8 @@
     <History>
         <Update release="1">
             <Date>2013-06-03</Date>
-            <Version>5.0.0b1</Version>
-            <Comment>Initial release for PiSI Linux</Comment>
+            <Version>5.0.0</Version>
+            <Comment>Initial release for Pisi Linux</Comment>
             <Name>Gonzalo Exequiel Pedone</Name>
             <Email>hipersayan.x@gmail.com</Email>
         </Update>
