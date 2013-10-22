@@ -1,24 +1,42 @@
-Package: webcamoid
 Source: webcamoid
-Homepage: http://kde-apps.org/content/show.php/Webcamoid?content=144796
-Architecture: all
 Section: video
 Priority: optional
 Maintainer: Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com>
-Uploaders: Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com>
+Build-Depends: debhelper (>= 4.1.16),
+ qt4-qmake,
+ libqt4-dev,
+ qt4-dev-tools,
+ kdelibs5-dev,
+ bison,
+ flex,
+ frei0r-plugins-dev,
+ libqimageblitz-dev,
+ linux-libc-dev,
+ wget,
+ pkg-config,
+ yasm,
+ libass-dev,
+ libbluray-dev,
+ libgsm1-dev,
+ libmodplug-dev,
+ libopenjpeg-dev,
+ libopus-dev,
+ libpulse-dev,
+ libschroedinger-dev,
+ libspeex-dev,
+ libtheora-dev,
+ libv4l-dev,
+ libvorbis-dev,
+ libvpx-dev,
+ libx11-dev,
+ libxext-dev,
+ libxfixes-dev
 
-Build-Depends: qt4-qmake, libqt4-dev, qt4-dev-tools, kdelibs5-dev, bison, flex,
- frei0r-plugins-dev, libqimageblitz-dev, linux-libc-dev
+Package: webcamoid
+Architecture: any
 Depends: libqtgui4, libkdeui5, frei0r-plugins, libqimageblitz4
-
-Vcs-Browser: https://github.com/hipersayanX/Webcamoid
-Vcs-Git: git://github.com/hipersayanX/Webcamoid.git
-
-Description: Webcamoid, the full webcam and multimedia suite.
- Webcamoid is a webcam plasmoid for the KDE desktop environment.
-
+Description: Webcamoid is a webcam plasmoid for the KDE desktop environment.
  Features:
-
      * Take pictures with the webcam.
      * Record videos.
      * Manages multiple webcams.
