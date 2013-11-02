@@ -39,6 +39,27 @@ Build dependecies:
 * [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
 * [Flex](http://flex.sourceforge.net)
 
+Build dependecies for __USE3DPARTYLIBS__:
+
+* yasm
+* libass
+* libbluray
+* libgsm
+* libmodplug
+* libmp3lame
+* libopencore_amrnb
+* libopenjpeg
+* opus
+* libpulse-simple
+* librtmp
+* schroedinger
+* libspeex
+* libtheora
+* libvorbis
+* libvpx
+* libx264
+* libxvid
+
 You can build Webcamoid with the following commands:
 
     qmake-qt4 Webcamoid.pro #USE3DPARTYLIBS=1
