@@ -1,0 +1,5 @@
+webcamoid (5.0.0b2-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Gonzalo Pedone <hipersayan.x@gmail.com>  Fri, 01 Nov 2013 17:40:31 -0300

@@ -34,7 +34,7 @@
                 * Use custom network and local files as capture devices.
                 * Capture from desktop.
         </Description>
-        <Archive sha1sum="1ff6436efeb08fb4270dd03cb3e4dcbe58714ebc" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.0.0b1.tar.gz</Archive>
+        <Archive sha1sum="1ff6436efeb08fb4270dd03cb3e4dcbe58714ebc" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.0.0b2.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>qt-devel</Dependency>
             <Dependency>kdelibs-devel</Dependency>
