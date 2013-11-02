@@ -66,17 +66,6 @@ You can build Webcamoid with the following commands:
     make
     su -c 'make INSTALL_ROOT=/usr install'
     kbuildsycoca4
-    
-http://ppa.launchpad.net/samrog131/ubuntu/pool/main/f/ffmpeg/
-
-libavcodec-ffmpeg-dev
-libavdevice-ffmpeg-dev
-libavfilter-ffmpeg-dev
-libavformat-ffmpeg-dev
-libavutil-ffmpeg-dev
-libpostproc-ffmpeg-dev
-libswresample-ffmpeg-dev
-libswscale-ffmpeg-dev
 
 ### Precompiled Packages ###
 
