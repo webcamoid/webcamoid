@@ -1,0 +1,59 @@
+Source: webcamoid
+Section: video
+Priority: extra
+Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
+Build-Depends: debhelper (>= 8.0.0),
+ qt4-qmake,
+ libqt4-dev,
+ qt4-dev-tools,
+ kdelibs5-dev,
+ bison,
+ flex,
+ frei0r-plugins-dev,
+ libqimageblitz-dev,
+ linux-libc-dev,
+ wget,
+ pkg-config,
+ yasm,
+ libass-dev,
+ libbluray-dev,
+ libgsm1-dev,
+ libmodplug-dev,
+ libopenjpeg-dev,
+ libopus-dev,
+ libpulse-dev,
+ libschroedinger-dev,
+ libspeex-dev,
+ libtheora-dev,
+ libv4l-dev,
+ libvorbis-dev,
+ libvpx-dev,
+ libx11-dev,
+ libxext-dev,
+ libxfixes-dev
+Standards-Version: 3.9.4
+Homepage: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+#Vcs-Git: git://github.com/hipersayanX/Webcamoid.git
+#Vcs-Browser: https://github.com/hipersayanX/Webcamoid
+
+Package: webcamoid
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libqtgui4, libkdeui5, frei0r-plugins, libqimageblitz4
+Description: Webcamoid is a webcam plasmoid for the KDE desktop environment.
+ Features:
+ .
+ * Take pictures with the webcam.
+ * Record videos.
+ * Manages multiple webcams.
+ * Play/Stop capture, this saves resources while the plasmoid is not in use.
+ * Written in C++.
+ * 100% Qt based software, for KDE/Qt purists.
+ * Custom controls for each webcam.
+ * Popup applet support (you can embed Webcamoid in the panel).
+ * Add funny effects to the webcam (requires Frei0r plugins and QImageBlitz).
+ * +50 effects available.
+ * Effects with live previews.
+ * Translated to many languages.
+ * Stand alone installation mode (use it as a normal program).
+ * Use custom network and local files as capture devices.
+ * Capture from desktop.

@@ -24,10 +24,8 @@
 
 extern "C"
 {
+    #include <libavdevice/avdevice.h>
     #include <libavutil/opt.h>
-    #include <libavutil/time.h>
-    #include <libavutil/samplefmt.h>
-    #include <libavutil/audioconvert.h>
     #include <libswresample/swresample.h>
 }
 
