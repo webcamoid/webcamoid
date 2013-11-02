@@ -24,10 +24,9 @@
 
 extern "C"
 {
-    #include <libavutil/opt.h>
-    #include <libavutil/samplefmt.h>
-    #include <libavutil/audioconvert.h>
+    #include <libavdevice/avdevice.h>
     #include <libswresample/swresample.h>
+    #include <libavutil/opt.h>
 }
 
 #include <qbelement.h>

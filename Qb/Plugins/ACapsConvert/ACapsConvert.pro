@@ -51,12 +51,15 @@ exists(../../3dparty/ffmpeg_auto.pri) {
 
     LIBS += \
         -L$${FFMPEGLIBSPATH} \
-        -lavcodec$${FFMPEGBUILDSUFFIX} \
         -lavdevice$${FFMPEGBUILDSUFFIX} \
+        -lavfilter$${FFMPEGBUILDSUFFIX} \
         -lavformat$${FFMPEGBUILDSUFFIX} \
-        -lavutil$${FFMPEGBUILDSUFFIX} \
+        -lavcodec$${FFMPEGBUILDSUFFIX} \
+        -lavresample$${FFMPEGBUILDSUFFIX} \
+        -lpostproc$${FFMPEGBUILDSUFFIX} \
+        -lswresample$${FFMPEGBUILDSUFFIX} \
         -lswscale$${FFMPEGBUILDSUFFIX} \
-        -lswresample$${FFMPEGBUILDSUFFIX}
+        -lavutil$${FFMPEGBUILDSUFFIX}
 }
 
 QT += core gui
@@ -72,12 +75,15 @@ unix {
         CONFIG += link_pkgconfig
 
         PKGCONFIG += \
-            libavcodec \
             libavdevice \
+            libavfilter \
             libavformat \
-            libavutil \
+            libavcodec \
+            libavresample \
+            libpostproc \
+            libswresample \
             libswscale \
-            libswresample
+            libavutil
     }
 
     INSTALLS += target
