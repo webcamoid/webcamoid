@@ -14,35 +14,8 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	ffmpegOptions='--enable-dxva2
-			--enable-fontconfig
-			--enable-libass
-			--enable-libbluray
-			--enable-libfreetype
-			--enable-libgsm
-			--enable-libmodplug
-			--enable-libmp3lame
-			--enable-libopenjpeg
-			--enable-libopus
-			--enable-libpulse
-			--enable-librtmp
-			--enable-libschroedinger
-			--enable-libspeex
-			--enable-libtheora
-			--enable-libv4l2
-			--enable-libvorbis
-			--enable-libvpx
-			--enable-libx264
-			--enable-libxvid
-			--enable-postproc
-			--enable-vdpau
-			--enable-x11grab'
-
-	ffmpegOptions="$(echo ${ffmpegOptions})"
-
 	qmake-qt4 Webcamoid.pro \
-	    USE3DPARTYLIBS=1 \
-	    FFMPEGOPTIONS="${ffmpegOptions}"
+	    USE3DPARTYLIBS=1
 
 	make
 	# --- end custom part for compiling
