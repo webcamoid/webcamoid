@@ -107,8 +107,8 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         LIBDIR=\"\\\"$$LIBDIR\\\"\" \
         LOCALEDIR=\"\\\"$$LOCALEDIR\\\"\" \
         MANDIR=\"\\\"$$MANDIR\\\"\" \
-        LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\"
-        LOCALDIR=\"\\\"$$LOCALDIR\\\"\"
+        LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\" \
+        LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
         LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\"
 
     DESTDIR = .

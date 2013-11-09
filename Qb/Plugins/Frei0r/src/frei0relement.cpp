@@ -592,7 +592,7 @@ void Frei0rElement::resetParams()
 void Frei0rElement::resetFrei0rPaths()
 {
     QStringList paths;
-    QChar separator = QDir::separator()
+    QChar separator = QDir::separator();
 
     paths << QString("%2%1.frei0r-1%1lib").arg(separator).arg(QDir::homePath())
           << QString("%2%1frei0r-1").arg(separator).arg(LOCALLIBDIR)
