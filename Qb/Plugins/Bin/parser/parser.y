@@ -262,6 +262,30 @@ element: TOK_IDENTIFIER {
 
              delete $1;
          }
+       | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPARE {
+             QbThreadPtr curThread = Qb::currentThread();
+             Qb::setThread(*$3);
+
+             QbElementPtr element = Qb::create(*$1);
+
+             if (!element)
+             {
+                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toStdString().c_str());
+                 delete $1;
+
+                 YYABORT;
+             }
+
+             QString name = pipelineDescription->addElement(element);
+             $$ = new QString();
+             *$$ = name;
+
+             delete $1;
+
+             Qb::setThread(curThread? curThread->objectName(): "");
+
+             delete $3;
+         }
        | TOK_IDENTIFIER configs {
              QbElementPtr element = Qb::create(*$1);
 
@@ -287,6 +311,39 @@ element: TOK_IDENTIFIER {
              *$$ = name;
 
              delete $1;
+         }
+       | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPARE configs {
+             QbThreadPtr curThread = Qb::currentThread();
+             Qb::setThread(*$3);
+
+             QbElementPtr element = Qb::create(*$1);
+
+             if (!element)
+             {
+                 yyerror(pipelineDescription, QString("Element '%1' not found").arg(*$1).toStdString().c_str());
+                 delete $1;
+
+                 YYABORT;
+             }
+
+             QVariantMap properties = pipelineDescription->properties();
+
+             foreach (QString key, properties.keys())
+                 element->setProperty(key.toStdString().c_str(),
+                                      properties[key]);
+
+             pipelineDescription->resetProperties();
+             QString name = pipelineDescription->addElement(element);
+             pipelineDescription->solveConnections(name);
+
+             $$ = new QString();
+             *$$ = name;
+
+             delete $1;
+
+             Qb::setThread(curThread? curThread->objectName(): "");
+
+             delete $3;
          }
        | TOK_IDENTIFIER TOK_DOT {
              $$ = $1;

@@ -74,6 +74,8 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         isEmpty(LOCALEDIR): LOCALEDIR = $${DATAROOTDIR}/locale
         isEmpty(MANDIR): MANDIR = $${DATAROOTDIR}/man
         isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
+        isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
+        isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
     }
 
     DEFINES += \
@@ -105,7 +107,9 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         LIBDIR=\"\\\"$$LIBDIR\\\"\" \
         LOCALEDIR=\"\\\"$$LOCALEDIR\\\"\" \
         MANDIR=\"\\\"$$MANDIR\\\"\" \
-        LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\"
+        LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\" \
+        LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
+        LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\"
 
     DESTDIR = .
 

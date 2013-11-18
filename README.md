@@ -69,7 +69,7 @@ You can build Webcamoid with the following commands:
 
 ### Precompiled Packages ###
 
-Follow and take part of Webcamoid package development in the [OBS](https://build.opensuse.org/package/show/home:hipersayan_x/Webcamoid)
+You can download precompiled packages for Arch, Debian, OpenSUSE and Ubuntu from my [OwnDrive](https://my.owndrive.com/public.php?service=files&t=11c46708181f96b4ec052ae74b7b8bef)
 
 ### Custom Streams ###
 
