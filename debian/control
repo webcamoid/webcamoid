@@ -4,14 +4,13 @@ Priority: extra
 Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
  qt4-qmake,
- libqt4-dev,
  qt4-dev-tools,
  kdelibs5-dev,
- bison,
- flex,
  frei0r-plugins-dev,
  libqimageblitz-dev,
  linux-libc-dev,
+ bison,
+ flex,
  wget,
  pkg-config,
  yasm,
@@ -30,7 +29,13 @@ Build-Depends: debhelper (>= 8.0.0),
  libvpx-dev,
  libx11-dev,
  libxext-dev,
- libxfixes-dev
+ libxfixes-dev,
+ libmp3lame-dev,
+ libopencore-amrnb-dev,
+ libopencore-amrwb-dev,
+ librtmp-dev,
+ libx264-dev,
+ libxvidcore-dev
 Standards-Version: 3.9.4
 Homepage: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 #Vcs-Git: git://github.com/hipersayanX/Webcamoid.git
@@ -38,7 +43,34 @@ Homepage: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 
 Package: webcamoid
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libqtgui4, libkdeui5, frei0r-plugins, libqimageblitz4
+Depends: ${shlibs:Depends},
+ ${misc:Depends},
+ libkdeui5,
+ frei0r-plugins,
+ libqimageblitz4,
+ libass4,
+ libbluray1,
+ libgsm1,
+ libmodplug1,
+ libopenjpeg2,
+ libopus0,
+ libpulse0,
+ libschroedinger-1.0-0,
+ libspeex1,
+ libtheora0,
+ libv4l-0,
+ libvorbisenc2,
+ libvorbisfile3,
+ libvpx1,
+ libx11-6,
+ libxext6,
+ libxfixes3,
+ libmp3lame0,
+ libopencore-amrnb0,
+ libopencore-amrwb0,
+ librtmp0,
+ libx264-123,
+ libxvidcore4
 Description: Webcamoid is a webcam plasmoid for the KDE desktop environment.
  Features:
  .
