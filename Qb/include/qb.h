@@ -35,6 +35,7 @@ namespace Qb
     QbThreadPtr findThread(const QThread *thread);
     void setThread(const QString &threadName);
     QbThreadPtr currentThread();
+    QString currentThreadName();
 }
 
 #endif // QB_H

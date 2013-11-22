@@ -101,6 +101,8 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
      *   |     mic    |   Mic        | webcamConfig |
      *   +------------+              +--------------+
      */
+    Qb::setThread("DecodingTh");
+
     this->m_pipeline = Qb::create("Bin", "pipeline");
 
     if (this->m_pipeline)
@@ -111,27 +113,28 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "stateChanged>muxAudioInput.setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
-                            "Bin objectName='effects' blocking=false !"
-                            "sync. ,"
+                            "Sync objectName='sync' audioTh='AudioTh' videoTh='MAIN' source.stateChanged>setState !"
+                            "Bin(MAIN) objectName='effects' blocking=false !"
+                            "VCapsConvert(MAIN) caps='video/x-raw,format=bgra' "
+                            "source.stateChanged>setState !"
+                            "OUT. ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
                             "caps='audio/x-raw' outputIndex=0 !"
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
-                            "muxAudioInput. ! sync. ! DirectConnection?"
-                            "AudioOutput objectName='audioOutput' ,"
-                            "AudioInput objectName='mic' !"
+                            "muxAudioInput. ! sync. !"
+                            "AudioOutput(AudioTh) objectName='audioOutput' ,"
+                            "AudioInput(AudioTh) objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
-                            "Sync objectName='sync' source.stateChanged>setState !"
-                            "VCapsConvert caps='video/x-raw,format=bgra' "
-                            "source.stateChanged>setState !"
-                            "OUT. ,"
-                            "WebcamConfig objectName='webcamConfig'");
+                            "WebcamConfig(MAIN) objectName='webcamConfig'");
 
         this->m_pipeline->setProperty("description", description);
+
+        Qb::setThread("");
 
         this->m_effectsPreview = Qb::create("Bin");
 
@@ -180,6 +183,11 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                              SIGNAL(error(QString)),
                              this,
                              SIGNAL(error(QString)));
+
+            QObject::connect(this->m_source.data(),
+                             SIGNAL(stateChanged(QbElement::ElementState)),
+                             this,
+                             SLOT(sourceStateChanged(QbElement::ElementState)));
         }
 
         if (this->m_webcamConfig)
@@ -213,6 +221,16 @@ void MediaTools::iStream(const QbPacket &packet)
 
         emit this->previewFrameReady(packet, name);
     }
+}
+
+void MediaTools::sourceStateChanged(QbElement::ElementState state)
+{
+    if (state == QbElement::ElementStatePlaying)
+        this->m_device = this->m_source->property("location").toString();
+    else
+        this->m_device = "";
+
+    emit this->deviceChanged(this->m_device);
 }
 
 QString MediaTools::device()
@@ -550,10 +568,9 @@ void MediaTools::setDevice(QString device)
         this->resetEffectsPreview();
 
         if (this->m_source)
-            this->m_source->setState(QbElement::ElementStateNull);
-
-        this->m_device = "";
-        emit this->deviceChanged(this->m_device);
+            QMetaObject::invokeMethod(this->m_source.data(),
+                                      "setState",
+                                      Q_ARG(QbElement::ElementState, QbElement::ElementStateNull));
     }
     // Prepare the device.
     else
@@ -625,14 +642,9 @@ void MediaTools::setDevice(QString device)
                                   Q_ARG(QVariantMap, recordStreams));
 
         // Start capturing.
-        this->m_source->setState(QbElement::ElementStatePlaying);
-
-        if (this->m_source->state() == QbElement::ElementStatePlaying)
-            this->m_device = device;
-        else
-            this->m_device = "";
-
-        emit this->deviceChanged(this->m_device);
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "setState",
+                                  Q_ARG(QbElement::ElementState, QbElement::ElementStatePlaying));
     }
 }
 

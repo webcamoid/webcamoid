@@ -32,6 +32,7 @@ MultiSrcElement::MultiSrcElement(): QbElement()
 
     this->resetLoop();
     this->resetFilterStreams();
+    this->m_timer.moveToThread(this->thread());
 
     QObject::connect(&this->m_timer,
                      SIGNAL(timeout()),
