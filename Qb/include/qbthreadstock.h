@@ -37,6 +37,7 @@ class QbThreadStock: public QObject
         Q_INVOKABLE QbThreadPtr findThread(const QThread *thread) const;
         Q_INVOKABLE void setThread(const QString &threadName);
         Q_INVOKABLE QbThreadPtr currentThread() const;
+        Q_INVOKABLE QString currentThreadName() const;
 
     private:
         QMap<QString, QbThreadPtr> m_threads;

@@ -33,6 +33,7 @@ extern "C"
 #include "clock.h"
 
 typedef QSharedPointer<SwrContext> SwrContextPtr;
+typedef QSharedPointer<QTimer> TimerPtr;
 
 class SyncElement: public QbElement
 {
@@ -42,11 +43,21 @@ class SyncElement: public QbElement
                                          WRITE setOutputAudioBufferSize
                                          RESET resetOutputAudioBufferSize)
 
+    Q_PROPERTY(QString audioTh READ audioTh
+                               WRITE setAudioTh
+                               RESET resetAudioTh)
+
+    Q_PROPERTY(QString videoTh READ videoTh
+                               WRITE setVideoTh
+                               RESET resetVideoTh)
+
     public:
         explicit SyncElement();
         ~SyncElement();
 
         Q_INVOKABLE int outputAudioBufferSize() const;
+        Q_INVOKABLE QString audioTh() const;
+        Q_INVOKABLE QString videoTh() const;
 
     private:
         enum PackageProcessing
@@ -58,7 +69,6 @@ class SyncElement: public QbElement
 
         bool m_ready;
         bool m_fst;
-        bool m_isAlive;
 
         bool m_log;
 
@@ -67,7 +77,13 @@ class SyncElement: public QbElement
         int m_audioDiffAvgCount;
         int m_outputAudioBufferSize;
 
+        QString m_audioTh;
+        QString m_videoTh;
+
         double m_frameLastPts;
+        double m_frameLastDuration;
+        double m_frameTimer;
+        double m_frameLastDroppedPts;
 
         AVQueue m_avqueue;
 
@@ -78,11 +94,19 @@ class SyncElement: public QbElement
         QbCaps m_curInputCaps;
         SwrContextPtr m_resampleContext;
 
+        TimerPtr m_audioTimer;
+        TimerPtr m_videoTimer;
+
+        QbThreadPtr m_audioThread;
+        QbThreadPtr m_videoThread;
+
         static void deleteSwrContext(SwrContext *context);
         QbPacket compensateAudio(const QbPacket &packet, int wantedSamples);
         int synchronizeAudio(double diff, QbPacket packet);
         PackageProcessing synchronizeVideo(double diff, double delay);
         void printLog(const QbPacket &packet, double diff);
+        TimerPtr runThread(QThread *thread, const char *method);
+        double computeTargetDelay(double delay, double *diff=NULL);
 
     signals:
         void ready(int id);
@@ -90,7 +114,11 @@ class SyncElement: public QbElement
 
     public slots:
         void setOutputAudioBufferSize(int outputAudioBufferSize);
+        void setAudioTh(const QString &audioTh);
+        void setVideoTh(const QString &videoTh);
         void resetOutputAudioBufferSize();
+        void resetAudioTh();
+        void resetVideoTh();
 
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
@@ -98,6 +126,8 @@ class SyncElement: public QbElement
     private slots:
         void processAudioFrame();
         void processVideoFrame();
+        void videoRefresh(double *remainingTime);
+        void updateVideoPts(double pts);
 };
 
 #endif // SYNCELEMENT_H

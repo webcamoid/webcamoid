@@ -77,7 +77,7 @@ QbThreadPtr QbThreadStock::findThread(const QThread *thread) const
 
 void QbThreadStock::setThread(const QString &threadName)
 {
-    this->m_currentThread = threadName.isNull()?
+    this->m_currentThread = (threadName.isNull() || threadName == "MAIN")?
                                 QbThreadPtr():
                                 this->requestInstance(threadName);
 
@@ -87,4 +87,9 @@ void QbThreadStock::setThread(const QString &threadName)
 QbThreadPtr QbThreadStock::currentThread() const
 {
     return this->m_currentThread;
+}
+
+QString QbThreadStock::currentThreadName() const
+{
+    return this->m_currentThreadName;
 }

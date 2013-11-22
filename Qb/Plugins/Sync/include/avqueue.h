@@ -29,6 +29,7 @@ class AVQueue: public QObject
     Q_OBJECT
     Q_PROPERTY(int size READ size)
     Q_PROPERTY(int maxSize READ maxSize WRITE setMaxSize RESET resetMaxSize)
+    Q_PROPERTY(bool useCache READ useCache WRITE setUseCache RESET resetUseCache)
 
     public:
         explicit AVQueue(QObject *parent=NULL);
@@ -36,12 +37,15 @@ class AVQueue: public QObject
 
         Q_INVOKABLE int size(const QString &mimeType="");
         Q_INVOKABLE int maxSize() const;
+        Q_INVOKABLE bool useCache() const;
+        Q_INVOKABLE QbPacket read(QString mimeType);
         Q_INVOKABLE QbPacket dequeue(QString mimeType);
 
     private:
         bool m_log;
 
         int m_maxSize;
+        bool m_useCache;
 
         QQueue<QbPacket> m_audioQueue;
         QQueue<QbPacket> m_videoQueue;
@@ -63,7 +67,9 @@ class AVQueue: public QObject
     public slots:
         void enqueue(const QbPacket &packet);
         void setMaxSize(int maxSize);
+        void setUseCache(bool useCache);
         void resetMaxSize();
+        void resetUseCache();
 };
 
 #endif // AVQUEUE_H

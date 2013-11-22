@@ -26,7 +26,6 @@ SyncElement::SyncElement(): QbElement()
 {
     this->m_fst = true;
     this->m_ready = false;
-    this->m_isAlive = true;
 
     this->m_log = true;
 
@@ -36,19 +35,32 @@ SyncElement::SyncElement(): QbElement()
     this->resetOutputAudioBufferSize();
 
     this->m_frameLastPts = AV_NOPTS_VALUE;
+    this->m_frameLastDuration = 0;
+    this->m_frameTimer = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
+    this->m_frameLastDroppedPts = AV_NOPTS_VALUE;
 
-    QtConcurrent::run(this, &SyncElement::processAudioFrame);
-    QtConcurrent::run(this, &SyncElement::processVideoFrame);
+    this->resetAudioTh();
+    this->resetVideoTh();
 }
 
 SyncElement::~SyncElement()
 {
-    this->m_isAlive = false;
+    this->setState(QbElement::ElementStateNull);
 }
 
 int SyncElement::outputAudioBufferSize() const
 {
     return this->m_outputAudioBufferSize;
+}
+
+QString SyncElement::audioTh() const
+{
+    return this->m_audioTh;
+}
+
+QString SyncElement::videoTh() const
+{
+    return this->m_videoTh;
 }
 
 void SyncElement::deleteSwrContext(SwrContext *context)
@@ -261,14 +273,108 @@ void SyncElement::printLog(const QbPacket &packet, double diff)
     }
 }
 
+TimerPtr SyncElement::runThread(QThread *thread, const char *method)
+{
+    TimerPtr timer = TimerPtr(new QTimer());
+
+    QObject::connect(timer.data(), SIGNAL(timeout()), this, method, Qt::DirectConnection);
+    timer->moveToThread(thread);
+
+    return timer;
+}
+
+double SyncElement::computeTargetDelay(double delay, double *diff)
+{
+    double nDiff;
+
+    if (!diff)
+        diff = &nDiff;
+
+    // if video is slave, we try to correct big delays by
+    // duplicating or deleting a frame
+    *diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
+
+    // skip or repeat frame. We take into account the
+    // delay to compute the threshold. I still don't know
+    // if it is the best guess
+    double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN, delay, AV_SYNC_THRESHOLD_MAX);
+
+    if (!isnan(*diff) && fabs(*diff) < 10.0)
+    {
+        // video is backward the external clock.
+        if (*diff <= -syncThreshold)
+            delay = qMax(0.0, delay + *diff);
+        // video is ahead the external clock, and delay is over AV_SYNC_FRAMEDUP_THRESHOLD.
+        else if (*diff >= syncThreshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD)
+            delay = delay + *diff;
+        // video is ahead the external clock.
+        else if (*diff >= syncThreshold)
+            delay = 2 * delay;
+    }
+
+    return delay;
+}
+
 void SyncElement::setOutputAudioBufferSize(int outputAudioBufferSize)
 {
     this->m_outputAudioBufferSize = outputAudioBufferSize;
 }
 
+void SyncElement::setAudioTh(const QString &audioTh)
+{
+    QbElement::ElementState state = this->state();
+    this->setState(QbElement::ElementStateNull);
+
+    this->m_audioTh = audioTh;
+    this->m_audioThread = Qb::requestThread(this->m_audioTh);
+
+    if (this->m_videoTh == "MAIN")
+        this->m_audioTimer = this->runThread(QCoreApplication::instance()->thread(),
+                                             SLOT(processAudioFrame()));
+    else if (!this->m_audioThread)
+        this->m_audioTimer = this->runThread(this->thread(),
+                                             SLOT(processAudioFrame()));
+    else
+        this->m_audioTimer = this->runThread(this->m_audioThread.data(),
+                                             SLOT(processAudioFrame()));
+
+    this->setState(state);
+}
+
+void SyncElement::setVideoTh(const QString &videoTh)
+{
+    QbElement::ElementState state = this->state();
+    this->setState(QbElement::ElementStateNull);
+
+    this->m_videoTh = videoTh;
+    this->m_videoThread = Qb::requestThread(this->m_videoTh);
+
+    if (this->m_videoTh == "MAIN")
+        this->m_videoTimer = this->runThread(QCoreApplication::instance()->thread(),
+                                             SLOT(processVideoFrame()));
+    else if (!this->m_videoThread)
+        this->m_videoTimer = this->runThread(this->thread(),
+                                             SLOT(processVideoFrame()));
+    else
+        this->m_videoTimer = this->runThread(this->m_videoThread.data(),
+                                             SLOT(processVideoFrame()));
+
+    this->setState(state);
+}
+
 void SyncElement::resetOutputAudioBufferSize()
 {
     this->setOutputAudioBufferSize(1024);
+}
+
+void SyncElement::resetAudioTh()
+{
+    this->setAudioTh("");
+}
+
+void SyncElement::resetVideoTh()
+{
+    this->setVideoTh("");
 }
 
 void SyncElement::iStream(const QbPacket &packet)
@@ -305,57 +411,150 @@ void SyncElement::setState(QbElement::ElementState state)
         this->m_ready = false;
         this->m_fst = true;
     }
+
+    if (this->state() == QbElement::ElementStatePlaying)
+    {
+        if (this->m_audioTimer)
+            QMetaObject::invokeMethod(this->m_audioTimer.data(), "start");
+
+        if (this->m_videoTimer)
+            QMetaObject::invokeMethod(this->m_videoTimer.data(), "start");
+    }
+    else
+    {
+        if (this->m_audioTimer)
+            QMetaObject::invokeMethod(this->m_audioTimer.data(), "stop");
+
+        if (this->m_videoTimer)
+            QMetaObject::invokeMethod(this->m_videoTimer.data(), "stop");
+    }
 }
 
 void SyncElement::processAudioFrame()
 {
-    while (this->m_isAlive)
-    {
-        QbPacket packet = this->m_avqueue.dequeue("audio/x-raw");
+    QbPacket packet = this->m_avqueue.dequeue("audio/x-raw");
+/*
+    double pts = packet.pts() * packet.timeBase().value();
 
-        double pts = packet.pts() * packet.timeBase().value();
+    // if video is slave, we try to correct big delays by
+    // duplicating or deleting a frame
+    double diff = this->m_audioClock.clock() - this->m_extrnClock.clock();
+    this->m_audioClock.setClock(pts);
 
-        // if video is slave, we try to correct big delays by
-        // duplicating or deleting a frame
-        double diff = this->m_audioClock.clock() - this->m_extrnClock.clock();
-        this->m_audioClock.setClock(pts);
+    int wantedSamples = this->synchronizeAudio(diff, packet);
+    QbPacket oPacket = this->compensateAudio(packet, wantedSamples);
 
-        int wantedSamples = this->synchronizeAudio(diff, packet);
-        QbPacket oPacket = this->compensateAudio(packet, wantedSamples);
+    this->printLog(oPacket, diff);
 
-        this->printLog(oPacket, diff);
-
-        emit this->oStream(oPacket);
-        this->m_extrnClock.syncTo(this->m_audioClock);
-    }
+    emit this->oStream(oPacket);*/
+    emit this->oStream(packet);
+//    this->m_extrnClock.syncTo(this->m_audioClock);
 }
 
 void SyncElement::processVideoFrame()
-{
-    while (this->m_isAlive)
+{/*
+    QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
+
+    // if video is slave, we try to correct big delays by
+    // duplicating or deleting a frame
+    double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
+    double pts = packet.pts() * packet.timeBase().value();
+    double delay = pts - this->m_frameLastPts;
+
+    this->m_videoClock.setClock(pts);
+    this->m_frameLastPts = pts;
+
+    PackageProcessing operation = this->synchronizeVideo(diff, delay);
+
+    if (operation == PackageProcessingDiscard)
+        return;
+    else if (operation == PackageProcessingReSync)
+        // update current video pts
+        this->m_extrnClock.syncTo(this->m_videoClock);
+
+    this->printLog(packet, diff);
+
+    // display picture
+    emit this->oStream(packet);
+    */
+    double remainingTime = 0.0;
+
+    forever
     {
-        QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
+        QCoreApplication::processEvents();
 
-        // if video is slave, we try to correct big delays by
-        // duplicating or deleting a frame
-        double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
-        double pts = packet.pts() * packet.timeBase().value();
-        double delay = pts - this->m_frameLastPts;
+        if (remainingTime > 0.0)
+            Sleep::usleep(1.0e6 * remainingTime);
 
-        this->m_videoClock.setClock(pts);
-        this->m_frameLastPts = pts;
+        remainingTime = 0.01;//REFRESH_RATE;
 
-        PackageProcessing operation = this->synchronizeVideo(diff, delay);
-
-        if (operation == PackageProcessingDiscard)
-            continue;
-        else if (operation == PackageProcessingReSync)
-            // update current video pts
-            this->m_extrnClock.syncTo(this->m_videoClock);
-
-        this->printLog(packet, diff);
-
-        // display picture
-        emit this->oStream(packet);
+        this->videoRefresh(&remainingTime);
     }
+
+}
+
+void SyncElement::videoRefresh(double *remainingTime)
+{
+    forever
+    {
+        if (this->m_avqueue.size("video/x-raw") < 1)
+        {
+            // nothing to do, no picture to display in the queue
+
+            if (this->m_frameLastDroppedPts != AV_NOPTS_VALUE
+                && this->m_frameLastDroppedPts > this->m_frameLastPts)
+            {
+                this->updateVideoPts(this->m_frameLastDroppedPts);
+                this->m_frameLastDroppedPts = AV_NOPTS_VALUE;
+            }
+        }
+        else
+        {
+            // dequeue the picture
+            QbPacket packet = this->m_avqueue.read("video/x-raw");
+
+            // compute nominal last_duration
+            double pts = packet.pts() * packet.timeBase().value();
+            double lastDuration = pts - this->m_frameLastPts;
+
+            if (!isnan(lastDuration) && lastDuration > 0
+                && lastDuration < 10.0)
+                // if duration of the last frame was sane, update last_duration in video state
+                this->m_frameLastDuration = lastDuration;
+
+            double diff;
+            double delay = this->computeTargetDelay(this->m_frameLastDuration, &diff);
+            double time = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
+
+            if (time < this->m_frameTimer + delay)
+            {
+                *remainingTime = qMin(this->m_frameTimer + delay - time, *remainingTime);
+
+                return;
+            }
+
+            this->m_frameTimer += delay;
+
+            if (delay > 0 && time - this->m_frameTimer > AV_SYNC_THRESHOLD_MAX)
+                this->m_frameTimer = time;
+
+            this->updateVideoPts(pts);
+
+            this->printLog(packet, diff);
+
+            // display picture
+            emit this->oStream(packet);
+
+            this->m_avqueue.dequeue("video/x-raw");
+        }
+
+        break;
+    }
+}
+
+void SyncElement::updateVideoPts(double pts)
+{
+    this->m_videoClock.setClock(pts);
+    this->m_extrnClock.syncTo(this->m_videoClock);
+    this->m_frameLastPts = pts;
 }

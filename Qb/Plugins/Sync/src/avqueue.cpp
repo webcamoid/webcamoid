@@ -24,6 +24,7 @@
 AVQueue::AVQueue(QObject *parent): QObject(parent)
 {
     this->resetMaxSize();
+    this->resetUseCache();
     this->m_fill = false;
 
     this->m_log = true;
@@ -54,6 +55,21 @@ int AVQueue::size(const QString &mimeType)
 int AVQueue::maxSize() const
 {
     return this->m_maxSize;
+}
+
+bool AVQueue::useCache() const
+{
+    return this->m_useCache;
+}
+
+QbPacket AVQueue::read(QString mimeType)
+{
+    if (mimeType == "audio/x-raw")
+        return this->m_audioQueue[0];
+    else if (mimeType == "video/x-raw")
+        return this->m_videoQueue[0];
+
+    return QbPacket();
 }
 
 QbPacket AVQueue::dequeue(QString mimeType)
@@ -122,7 +138,7 @@ void AVQueue::enqueue(const QbPacket &packet)
 
     if (bufferSize >= this->m_maxSize)
     {
-        if (this->m_fill)
+        if (this->useCache() && this->m_fill)
         {
             if (this->size("audio/x-raw") > 0)
             {
@@ -155,7 +171,7 @@ void AVQueue::enqueue(const QbPacket &packet)
 
     this->m_queueMutex.unlock();
 
-    if (this->m_fill && this->m_log)
+    if (this->useCache() && this->m_fill && this->m_log)
         qDebug() << QString("filling buffer %1").arg(100.0
                                                      * this->size()
                                                      / this->m_maxSize, 3, 'f', 1).toStdString().c_str();
@@ -183,7 +199,17 @@ void AVQueue::setMaxSize(int size)
     this->m_maxSize = size;
 }
 
+void AVQueue::setUseCache(bool useCache)
+{
+    this->m_useCache = useCache;
+}
+
 void AVQueue::resetMaxSize()
 {
     this->setMaxSize(128);
+}
+
+void AVQueue::resetUseCache()
+{
+    this->setUseCache(true);
 }
