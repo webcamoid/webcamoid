@@ -39,27 +39,6 @@ Build dependecies:
 * [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
 * [Flex](http://flex.sourceforge.net)
 
-Build dependecies for __USE3DPARTYLIBS__:
-
-* yasm
-* libass
-* libbluray
-* libgsm
-* libmodplug
-* libmp3lame
-* libopencore_amrnb
-* libopenjpeg
-* opus
-* libpulse-simple
-* librtmp
-* schroedinger
-* libspeex
-* libtheora
-* libvorbis
-* libvpx
-* libx264
-* libxvid
-
 You can build Webcamoid with the following commands:
 
     qmake-qt4 Webcamoid.pro #USE3DPARTYLIBS=1
@@ -126,3 +105,23 @@ use Webcamoid until an abnormal event happen, write a list with the following in
 6. Any other useful information.
 
 Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
+
+## Donate ##
+
+Can you share some BTC with me to keep alive the project? :)
+
+<script src="http://coinwidget.com/widget/coin.js" type="text/javascript"></script>
+<script type="text/javascript">
+CoinWidgetCom.go({
+        wallet_address: "1Gj7THPrfrXFQ5BzVSVmRu2GxvwzYzbacj"
+        , currency: "bitcoin"
+        , counter: "count"
+        , alignment: "bl"
+        , qrcode: true
+        , auto_show: false
+        , lbl_button: "Donate"
+        , lbl_address: "My Bitcoin Address:"
+        , lbl_count: "donations"
+        , lbl_amount: "BTC"
+});
+</script>

@@ -22,7 +22,14 @@
 #ifndef AUDIOOUTPUTELEMENT_H
 #define AUDIOOUTPUTELEMENT_H
 
+#include <QtMultimedia>
 #include <qb.h>
+
+extern "C"
+{
+    #include <libavformat/avformat.h>
+    #include <libswresample/swresample.h>
+}
 
 class AudioOutputElement: public QbElement
 {

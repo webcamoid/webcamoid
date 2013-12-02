@@ -179,6 +179,11 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                              SIGNAL(error(QString)),
                              this,
                              SIGNAL(error(QString)));
+
+            QObject::connect(this->m_source.data(),
+                             SIGNAL(stateChanged(QbElement::ElementState)),
+                             this,
+                             SLOT(sourceStateChanged(QbElement::ElementState)));
         }
 
         if (this->m_webcamConfig)
@@ -212,6 +217,16 @@ void MediaTools::iStream(const QbPacket &packet)
 
         emit this->previewFrameReady(packet, name);
     }
+}
+
+void MediaTools::sourceStateChanged(QbElement::ElementState state)
+{
+    if (state == QbElement::ElementStatePlaying)
+        this->m_device = this->m_source->property("location").toString();
+    else
+        this->m_device = "";
+
+    emit this->deviceChanged(this->m_device);
 }
 
 QString MediaTools::device()
@@ -549,10 +564,9 @@ void MediaTools::setDevice(QString device)
         this->resetEffectsPreview();
 
         if (this->m_source)
-            this->m_source->setState(QbElement::ElementStateNull);
-
-        this->m_device = "";
-        emit this->deviceChanged(this->m_device);
+            QMetaObject::invokeMethod(this->m_source.data(),
+                                      "setState",
+                                      Q_ARG(QbElement::ElementState, QbElement::ElementStateNull));
     }
     // Prepare the device.
     else
@@ -624,14 +638,9 @@ void MediaTools::setDevice(QString device)
                                   Q_ARG(QVariantMap, recordStreams));
 
         // Start capturing.
-        this->m_source->setState(QbElement::ElementStatePlaying);
-
-        if (this->m_source->state() == QbElement::ElementStatePlaying)
-            this->m_device = device;
-        else
-            this->m_device = "";
-
-        emit this->deviceChanged(this->m_device);
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "setState",
+                                  Q_ARG(QbElement::ElementState, QbElement::ElementStatePlaying));
     }
 }
 

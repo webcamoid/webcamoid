@@ -86,3 +86,8 @@ QbThreadPtr Qb::currentThread()
 {
     return threadStock.currentThread();
 }
+
+QString Qb::currentThreadName()
+{
+    return threadStock.currentThreadName();
+}

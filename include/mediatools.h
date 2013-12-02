@@ -162,6 +162,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
     private slots:
         void iStream(const QbPacket &packet);
+        void sourceStateChanged(QbElement::ElementState state);
 
         void aboutToQuit();
         void webcamsChanged(const QStringList &webcams);
