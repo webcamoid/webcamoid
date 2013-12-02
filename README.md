@@ -110,18 +110,4 @@ Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issu
 
 Can you share some BTC with me to keep alive the project? :)
 
-<script src="http://coinwidget.com/widget/coin.js" type="text/javascript"></script>
-<script type="text/javascript">
-CoinWidgetCom.go({
-        wallet_address: "1Gj7THPrfrXFQ5BzVSVmRu2GxvwzYzbacj"
-        , currency: "bitcoin"
-        , counter: "count"
-        , alignment: "bl"
-        , qrcode: true
-        , auto_show: false
-        , lbl_button: "Donate"
-        , lbl_address: "My Bitcoin Address:"
-        , lbl_count: "donations"
-        , lbl_amount: "BTC"
-});
-</script>
+[Donate Now](https://blockchain.info/address/1Gj7THPrfrXFQ5BzVSVmRu2GxvwzYzbacj)
