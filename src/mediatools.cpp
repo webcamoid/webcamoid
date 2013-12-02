@@ -124,7 +124,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
                             "muxAudioInput. ! sync. !"
-                            "AudioOutput(AudioTh) objectName='audioOutput' ,"
+                            "AudioOutput(AudioTh) objectName='audioOutput' audioSystem='alsa' ,"
                             "AudioInput(AudioTh) objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"

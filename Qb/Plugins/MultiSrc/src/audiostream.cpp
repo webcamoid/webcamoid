@@ -36,7 +36,6 @@ QbCaps AudioStream::caps() const
 {
     const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
     char layout[256];
-
     int64_t channelLayout;
 
     if (this->codecContext()->channel_layout)
