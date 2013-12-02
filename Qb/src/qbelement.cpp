@@ -25,7 +25,7 @@ QbElement::QbElement(QObject *parent): QObject(parent)
 {
     QbThreadPtr thread = Qb::currentThread();
 
-    if (!thread.isNull())
+    if (thread)
     {
         this->moveToThread(thread.data());
         this->m_elementThread = thread;

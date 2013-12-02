@@ -262,7 +262,7 @@ element: TOK_IDENTIFIER {
 
              delete $1;
          }
-       | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPARE {
+       | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPAREN {
              QbThreadPtr curThread = Qb::currentThread();
              Qb::setThread(*$3);
 
@@ -312,7 +312,7 @@ element: TOK_IDENTIFIER {
 
              delete $1;
          }
-       | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPARE configs {
+       | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPAREN configs {
              QbThreadPtr curThread = Qb::currentThread();
              Qb::setThread(*$3);
 
