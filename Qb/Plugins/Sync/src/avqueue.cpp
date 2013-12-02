@@ -170,12 +170,12 @@ void AVQueue::enqueue(const QbPacket &packet)
         this->m_videoQueue.enqueue(packet);
 
     this->m_queueMutex.unlock();
-
+/*
     if (this->useCache() && this->m_fill && this->m_log)
         qDebug() << QString("filling buffer %1").arg(100.0
                                                      * this->size()
                                                      / this->m_maxSize, 3, 'f', 1).toStdString().c_str();
-
+*/
     if (!this->m_fill)
     {
         if (this->size("audio/x-raw") > 0)
