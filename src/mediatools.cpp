@@ -108,6 +108,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
     if (this->m_pipeline)
     {
         QString description("MultiSrc objectName='source' loop=true "
+                            "audioAlign=true "
                             "stateChanged>videoMux.setState "
                             "stateChanged>effects.setState "
                             "stateChanged>muxAudioInput.setState !"
@@ -124,7 +125,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
                             "muxAudioInput. ! sync. !"
-                            "AudioOutput(AudioTh) objectName='audioOutput' audioSystem='alsa' ,"
+                            "AudioOutput(AudioTh) objectName='audioOutput' ,"
                             "AudioInput(AudioTh) objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
@@ -976,6 +977,16 @@ void MediaTools::setVideoRecordFormat(QString suffix, QString options)
 void MediaTools::aboutToQuit()
 {
     this->resetDevice();
+
+    QStringList threads = Qb::threadsList();
+
+    foreach (QString thread, threads)
+    {
+        QbThreadPtr threadPtr = Qb::requestThread(thread);
+        threadPtr->quit();
+        threadPtr->wait();
+    }
+
     this->saveConfigs();
 }
 

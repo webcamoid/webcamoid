@@ -30,7 +30,8 @@
 // AV sync correction is done if above the maximum AV sync threshold
 #define AV_SYNC_THRESHOLD_MAX 0.1
 
-// If a frame duration is longer than this, it will not be duplicated to compensate AV sync
+// If a frame duration is longer than this,
+// it will not be duplicated to compensate AV sync
 #define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
 
 // no AV correction is done if too big error
@@ -41,6 +42,10 @@
 
 // we use about AUDIO_DIFF_AVG_NB A-V differences to make the average
 #define AUDIO_DIFF_AVG_NB 20
+
+// polls for possible required screen refresh at least this often,
+// should be less than 1/fps
+#define REFRESH_RATE 0.01
 
 class Clock: public QObject
 {

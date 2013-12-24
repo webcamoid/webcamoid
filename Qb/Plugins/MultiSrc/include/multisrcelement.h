@@ -23,7 +23,7 @@
 #define MULTISRCELEMENT_H
 
 #include <QtGui>
-#include <qbelement.h>
+#include <qb.h>
 
 extern "C"
 {
@@ -46,6 +46,10 @@ class MultiSrcElement: public QbElement
                                          WRITE setFilterStreams
                                          RESET resetFilterStreams)
 
+    Q_PROPERTY(bool audioAlign READ audioAlign
+                               WRITE setAudioAlign
+                               RESET resetAudioAlign)
+
     public:
         explicit MultiSrcElement();
         ~MultiSrcElement();
@@ -54,8 +58,9 @@ class MultiSrcElement: public QbElement
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QVariantMap streamCaps();
         Q_INVOKABLE QStringList filterStreams() const;
+        Q_INVOKABLE bool audioAlign() const;
 
-        Q_INVOKABLE int defaultStream(QString mimeType);
+        Q_INVOKABLE int defaultStream(const QString &mimeType);
 
     protected:
         bool init();
@@ -65,6 +70,7 @@ class MultiSrcElement: public QbElement
         QString m_location;
         bool m_loop;
         QStringList m_filterStreams;
+        bool m_audioAlign;
 
         FormatContextPtr m_inputContext;
         QTimer m_timer;
@@ -83,10 +89,12 @@ class MultiSrcElement: public QbElement
     public slots:
         void setLocation(const QString &location);
         void setLoop(bool loop);
-        void setFilterStreams(QStringList filterStreams);
+        void setFilterStreams(const QStringList &filterStreams);
+        void setAudioAlign(bool audioAlign);
         void resetLocation();
         void resetLoop();
         void resetFilterStreams();
+        void resetAudioAlign();
 
         void setState(QbElement::ElementState state);
 

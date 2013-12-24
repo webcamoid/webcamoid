@@ -80,12 +80,15 @@ QbPacket SyncElement::compensateAudio(const QbPacket &packet, int wantedSamples)
     int64_t iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toStdString().c_str());
     int iNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
     int iSampleRate = packet.caps().property("rate").toInt();
+    int iAlign = packet.caps().property("align").toBool();
 
     QbCaps caps1(packet.caps());
     QbCaps caps2(this->m_curInputCaps);
 
     caps1.setProperty("samples", QVariant());
     caps2.setProperty("samples", QVariant());
+    caps1.setProperty("align", QVariant());
+    caps2.setProperty("align", QVariant());
 
     if (caps1 != caps2)
     {
@@ -126,7 +129,7 @@ QbPacket SyncElement::compensateAudio(const QbPacket &packet, int wantedSamples)
                                                  iNChannels,
                                                  wantedSamples,
                                                  iSampleFormat,
-                                                 0);
+                                                 iAlign? 0: 1);
 
     QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
@@ -139,7 +142,7 @@ QbPacket SyncElement::compensateAudio(const QbPacket &packet, int wantedSamples)
                                iNChannels,
                                wantedSamples,
                                iSampleFormat,
-                               0) < 0)
+                               iAlign? 0: 1) < 0)
         return packet;
 
     QVector<uint8_t *> iData(iNPlanes);
@@ -151,7 +154,7 @@ QbPacket SyncElement::compensateAudio(const QbPacket &packet, int wantedSamples)
                                iNChannels,
                                iNSamples,
                                iSampleFormat,
-                               0) < 0)
+                               iAlign? 0: 1) < 0)
         return packet;
 
     int oNSamples = swr_convert(this->m_resampleContext.data(),
@@ -166,6 +169,7 @@ QbPacket SyncElement::compensateAudio(const QbPacket &packet, int wantedSamples)
     QbPacket oPacket(packet);
     QbCaps caps(oPacket.caps());
     caps.setProperty("samples", oNSamples);
+    caps.setProperty("align", iAlign);
 
     oPacket.setBuffer(oBuffer);
     oPacket.setBufferSize(oBufferSize);
@@ -219,42 +223,6 @@ int SyncElement::synchronizeAudio(double diff, QbPacket packet)
     }
 
     return wantedSamples;
-}
-
-SyncElement::PackageProcessing SyncElement::synchronizeVideo(double diff, double delay)
-{
-    // (resync)
-    // -AV_SYNC_THRESHOLD_MAX
-    // (discard)
-    // -syncThreshold
-    // (release)
-    // AV_SYNC_THRESHOLD_MIN
-    // (wait)
-    // AV_NOSYNC_THRESHOLD
-    // (resync)
-
-    double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
-                                  delay,
-                                  AV_SYNC_THRESHOLD_MAX);
-
-    if (!isnan(diff) && abs(diff) < AV_NOSYNC_THRESHOLD)
-    {
-        if (diff > -syncThreshold)
-        {
-            // stream is ahead the external clock.
-            if (diff > syncThreshold)
-                Sleep::usleep(1.0e6 * diff);
-
-            return PackageProcessingRelease;
-        }
-        // stream is backward the external clock.
-        else
-            return PackageProcessingDiscard;
-    }
-
-    // Update clocks.
-
-    return PackageProcessingReSync;
 }
 
 void SyncElement::printLog(const QbPacket &packet, double diff)
@@ -410,6 +378,7 @@ void SyncElement::setState(QbElement::ElementState state)
     {
         this->m_ready = false;
         this->m_fst = true;
+        this->m_avqueue.clear();
     }
 
     if (this->state() == QbElement::ElementStatePlaying)
@@ -452,41 +421,17 @@ void SyncElement::processAudioFrame()
 }
 
 void SyncElement::processVideoFrame()
-{/*
-    QbPacket packet = this->m_avqueue.dequeue("video/x-raw");
-
-    // if video is slave, we try to correct big delays by
-    // duplicating or deleting a frame
-    double diff = this->m_videoClock.clock() - this->m_extrnClock.clock();
-    double pts = packet.pts() * packet.timeBase().value();
-    double delay = pts - this->m_frameLastPts;
-
-    this->m_videoClock.setClock(pts);
-    this->m_frameLastPts = pts;
-
-    PackageProcessing operation = this->synchronizeVideo(diff, delay);
-
-    if (operation == PackageProcessingDiscard)
-        return;
-    else if (operation == PackageProcessingReSync)
-        // update current video pts
-        this->m_extrnClock.syncTo(this->m_videoClock);
-
-    this->printLog(packet, diff);
-
-    // display picture
-    emit this->oStream(packet);
-    */
+{
     double remainingTime = 0.0;
 
-    forever
+    while (QThread::currentThread()->isRunning())
     {
         QCoreApplication::processEvents();
 
         if (remainingTime > 0.0)
             Sleep::usleep(1.0e6 * remainingTime);
 
-        remainingTime = 0.01;//REFRESH_RATE;
+        remainingTime = REFRESH_RATE;
 
         this->videoRefresh(&remainingTime);
     }
@@ -495,7 +440,7 @@ void SyncElement::processVideoFrame()
 
 void SyncElement::videoRefresh(double *remainingTime)
 {
-    forever
+    while (QThread::currentThread()->isRunning())
     {
         if (this->m_avqueue.size("video/x-raw") < 1)
         {
