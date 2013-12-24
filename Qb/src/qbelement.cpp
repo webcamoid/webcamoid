@@ -53,8 +53,7 @@ QbElement::ElementState QbElement::state()
 
 QString QbElement::eThread()
 {
-    return this->m_elementThread.isNull()? "":
-                                           this->m_elementThread->objectName();
+    return this->m_elementThread? this->m_elementThread->objectName(): "";
 }
 
 QList<QbElement *> QbElement::srcs()

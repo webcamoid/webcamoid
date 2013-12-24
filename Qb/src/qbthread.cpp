@@ -34,3 +34,8 @@ QbThread::~QbThread()
                                   "deleteInstance",
                                   Q_ARG(QString, this->objectName()));
 }
+
+void QbThread::run()
+{
+    this->exec();
+}

@@ -19,30 +19,30 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBTHREADSTOCK_H
-#define QBTHREADSTOCK_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include "qbthread.h"
+#include <QtGui>
 
-class QbThreadStock: public QObject
+#include "commons.h"
+
+namespace Ui
+{
+    class MainWindow;
+}
+
+class COMMONSSHARED_EXPORT MainWindow: public QMainWindow
 {
     Q_OBJECT
 
     public:
-        explicit QbThreadStock(QObject *parent=NULL);
-        ~QbThreadStock();
+        explicit MainWindow(QWidget *parent=NULL);
 
-        Q_INVOKABLE QStringList threadsList() const;
-        Q_INVOKABLE QbThreadPtr requestInstance(const QString &threadName);
-        Q_INVOKABLE void deleteInstance(const QString &threadName);
-        Q_INVOKABLE void setThread(const QString &threadName);
-        Q_INVOKABLE QbThreadPtr currentThread() const;
-        Q_INVOKABLE QString currentThreadName() const;
+    protected:
+        void changeEvent(QEvent *event);
 
     private:
-        QMap<QString, QbThreadPtr> m_threads;
-        QbThreadPtr m_currentThread;
-        QString m_currentThreadName;
+        QSharedPointer<Ui::MainWindow> ui;
 };
 
-#endif // QBTHREADSTOCK_H
+#endif // MAINWINDOW_H

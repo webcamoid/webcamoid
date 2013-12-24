@@ -27,7 +27,6 @@
 #include <KDE/KNotification>
 
 #include "ui_mainwidget.h"
-
 #include "mainwidget.h"
 
 MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):

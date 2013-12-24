@@ -42,7 +42,7 @@ WebcamConfigElement::WebcamConfigElement(): QbElement()
 
     QbThreadPtr thread = Qb::requestThread(this->eThread());
 
-    if (!thread.isNull())
+    if (thread)
         this->m_fsWatcher->moveToThread(thread.data());
 
     this->m_fsWatcher->setParent(this);

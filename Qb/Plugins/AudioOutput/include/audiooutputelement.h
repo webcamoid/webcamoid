@@ -34,44 +34,36 @@ extern "C"
 class AudioOutputElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString audioSystem READ audioSystem
-                                   WRITE setAudioSystem
-                                   RESET resetAudioSystem)
-
-    Q_PROPERTY(QStringList availableAudioSystem READ availableAudioSystem)
-    Q_PROPERTY(QString dataMode READ dataMode WRITE setDataMode RESET resetDataMode)
+    Q_PROPERTY(int bufferSize READ bufferSize NOTIFY bufferSizeChanged)
 
     public:
         explicit AudioOutputElement();
-
-        Q_INVOKABLE QString audioSystem() const;
-        Q_INVOKABLE QStringList availableAudioSystem() const;
-        Q_INVOKABLE QString dataMode() const;
+        Q_INVOKABLE int bufferSize() const;
 
     private:
-        QString m_audioSystem;
-        QString m_dataMode;
-
         QbElementPtr m_audioConvert;
-        QbElementPtr m_outputSink;
-        QAudioDeviceInfo m_qtOutputInfo;
+        QAudioDeviceInfo m_audioDeviceInfo;
         QAudioOutput *m_audioOutput;
-        QBuffer m_outputBuffer;
-        QIODevice *m_outputBufferPtr;
+        QIODevice *m_outputDevice;
+        QByteArray m_audioBuffer;
+        QTimer m_pullTimer;
+        QMutex m_mutex;
+        QWaitCondition m_waitCondition;
 
         QbCaps findBestOptions(const QbCaps &caps,
                                const QAudioDeviceInfo &deviceInfo,
                                QAudioFormat *bestOption=NULL) const;
 
-    public slots:
-        void setAudioSystem(const QString &audioSystem);
-        void setDataMode(const QString &dataMode);
-        void resetAudioSystem();
-        void resetDataMode();
-        void processFrame(const QbPacket &packet);
+    signals:
+        void bufferSizeChanged();
 
+    public slots:
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
+
+    private slots:
+        void processFrame(const QbPacket &packet);
+        void pullFrame();
 };
 
 #endif // AUDIOOUTPUTELEMENT_H

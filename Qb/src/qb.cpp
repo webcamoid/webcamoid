@@ -69,18 +69,10 @@ QbThreadPtr Qb::requestThread(const QString &threadName)
     return threadStock.requestInstance(threadName);
 }
 
-
-QbThreadPtr Qb::findThread(const QThread *thread)
-{
-    return threadStock.findThread(thread);
-}
-
-
 void Qb::setThread(const QString &threadName)
 {
     threadStock.setThread(threadName);
 }
-
 
 QbThreadPtr Qb::currentThread()
 {
@@ -90,4 +82,9 @@ QbThreadPtr Qb::currentThread()
 QString Qb::currentThreadName()
 {
     return threadStock.currentThreadName();
+}
+
+QStringList Qb::threadsList()
+{
+    return threadStock.threadsList();
 }

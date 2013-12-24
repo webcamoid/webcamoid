@@ -60,13 +60,6 @@ class SyncElement: public QbElement
         Q_INVOKABLE QString videoTh() const;
 
     private:
-        enum PackageProcessing
-        {
-            PackageProcessingRelease,
-            PackageProcessingDiscard,
-            PackageProcessingReSync
-        };
-
         bool m_ready;
         bool m_fst;
 
@@ -103,7 +96,6 @@ class SyncElement: public QbElement
         static void deleteSwrContext(SwrContext *context);
         QbPacket compensateAudio(const QbPacket &packet, int wantedSamples);
         int synchronizeAudio(double diff, QbPacket packet);
-        PackageProcessing synchronizeVideo(double diff, double delay);
         void printLog(const QbPacket &packet, double diff);
         TimerPtr runThread(QThread *thread, const char *method);
         double computeTargetDelay(double delay, double *diff=NULL);

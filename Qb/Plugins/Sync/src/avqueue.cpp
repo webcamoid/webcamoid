@@ -24,10 +24,6 @@
 AVQueue::AVQueue(QObject *parent): QObject(parent)
 {
     this->resetMaxSize();
-    this->resetUseCache();
-    this->m_fill = false;
-
-    this->m_log = true;
 }
 
 AVQueue::~AVQueue()
@@ -55,11 +51,6 @@ int AVQueue::size(const QString &mimeType)
 int AVQueue::maxSize() const
 {
     return this->m_maxSize;
-}
-
-bool AVQueue::useCache() const
-{
-    return this->m_useCache;
 }
 
 QbPacket AVQueue::read(QString mimeType)
@@ -112,7 +103,11 @@ QbPacket AVQueue::dequeueVideo()
     this->m_voMutex.lock();
 
     if (this->size("video/x-raw") < 1)
-        this->m_videoQueueNotEmpty.wait(&this->m_voMutex);
+    {
+        this->m_voMutex.unlock();
+
+        return QbPacket();
+    }
 
     this->m_queueMutex.lock();
     QbPacket packet = this->m_videoQueue.dequeue();
@@ -127,38 +122,29 @@ QbPacket AVQueue::dequeueVideo()
     return packet;
 }
 
+void AVQueue::clear()
+{
+    this->m_iMutex.lock();
+
+    this->m_aoMutex.lock();
+    this->m_audioQueue.clear();
+    this->m_aoMutex.unlock();
+
+    this->m_voMutex.lock();
+    this->m_videoQueue.clear();
+    this->m_voMutex.unlock();
+
+    this->m_iMutex.unlock();
+}
+
 void AVQueue::enqueue(const QbPacket &packet)
 {
     this->m_iMutex.lock();
 
     int bufferSize = this->size();
 
-    if (bufferSize < 1)
-        this->m_fill = true;
-
     if (bufferSize >= this->m_maxSize)
-    {
-        if (this->useCache() && this->m_fill)
-        {
-            if (this->size("audio/x-raw") > 0)
-            {
-                this->m_aoMutex.lock();
-                this->m_audioQueueNotEmpty.wakeAll();
-                this->m_aoMutex.unlock();
-            }
-
-            if (this->size("video/x-raw") > 0)
-            {
-                this->m_voMutex.lock();
-                this->m_videoQueueNotEmpty.wakeAll();
-                this->m_voMutex.unlock();
-            }
-
-            this->m_fill = false;
-        }
-
         this->m_queueNotFull.wait(&this->m_iMutex);
-    }
 
     this->m_iMutex.unlock();
 
@@ -170,27 +156,19 @@ void AVQueue::enqueue(const QbPacket &packet)
         this->m_videoQueue.enqueue(packet);
 
     this->m_queueMutex.unlock();
-/*
-    if (this->useCache() && this->m_fill && this->m_log)
-        qDebug() << QString("filling buffer %1").arg(100.0
-                                                     * this->size()
-                                                     / this->m_maxSize, 3, 'f', 1).toStdString().c_str();
-*/
-    if (!this->m_fill)
-    {
-        if (this->size("audio/x-raw") > 0)
-        {
-            this->m_aoMutex.lock();
-            this->m_audioQueueNotEmpty.wakeAll();
-            this->m_aoMutex.unlock();
-        }
 
-        if (this->size("video/x-raw") > 0)
-        {
-            this->m_voMutex.lock();
-            this->m_videoQueueNotEmpty.wakeAll();
-            this->m_voMutex.unlock();
-        }
+    if (this->size("audio/x-raw") > 0)
+    {
+        this->m_aoMutex.lock();
+        this->m_audioQueueNotEmpty.wakeAll();
+        this->m_aoMutex.unlock();
+    }
+
+    if (this->size("video/x-raw") > 0)
+    {
+        this->m_voMutex.lock();
+        this->m_videoQueueNotEmpty.wakeAll();
+        this->m_voMutex.unlock();
     }
 }
 
@@ -199,17 +177,7 @@ void AVQueue::setMaxSize(int size)
     this->m_maxSize = size;
 }
 
-void AVQueue::setUseCache(bool useCache)
-{
-    this->m_useCache = useCache;
-}
-
 void AVQueue::resetMaxSize()
 {
     this->setMaxSize(128);
-}
-
-void AVQueue::resetUseCache()
-{
-    this->setUseCache(true);
 }
