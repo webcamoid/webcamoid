@@ -31,24 +31,35 @@ extern "C"
     #include <libswresample/swresample.h>
 }
 
+typedef QSharedPointer<QTimer> TimerPtr;
+
 class AudioOutputElement: public QbElement
 {
     Q_OBJECT
     Q_PROPERTY(int bufferSize READ bufferSize NOTIFY bufferSizeChanged)
 
+    Q_PROPERTY(QString outputThread READ outputThread
+                                    WRITE setOutputThread
+                                    RESET resetOutputThread)
+
     public:
         explicit AudioOutputElement();
         Q_INVOKABLE int bufferSize() const;
+        Q_INVOKABLE QString outputThread() const;
 
     private:
+        QString m_outputTh;
         QbElementPtr m_audioConvert;
         QAudioDeviceInfo m_audioDeviceInfo;
         QAudioOutput *m_audioOutput;
         QIODevice *m_outputDevice;
         QByteArray m_audioBuffer;
-        QTimer m_pullTimer;
+        TimerPtr m_pullTimer;
         QMutex m_mutex;
         QWaitCondition m_waitCondition;
+        QbThreadPtr m_outputThread;
+
+        TimerPtr runThread(QThread *thread, const char *method);
 
         QbCaps findBestOptions(const QbCaps &caps,
                                const QAudioDeviceInfo &deviceInfo,
@@ -58,6 +69,8 @@ class AudioOutputElement: public QbElement
         void bufferSizeChanged();
 
     public slots:
+        void setOutputThread(const QString &outputThread);
+        void resetOutputThread();
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
 

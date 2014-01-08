@@ -186,5 +186,8 @@ void BinElement::setState(QbElement::ElementState state)
     QbElement::setState(state);
 
     foreach (QbElementPtr element, this->m_elements)
-        element->setState(this->state());
+        QMetaObject::invokeMethod(element.data(),
+                                  "setState",
+                                  Q_ARG(QbElement::ElementState,
+                                        this->state()));
 }

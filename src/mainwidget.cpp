@@ -303,6 +303,11 @@ void MainWidget::showFrame(const QbPacket &webcamFrame)
     }
 }
 
+void MainWidget::cleanAll()
+{
+    this->m_mediaTools->cleanAll();
+}
+
 void MainWidget::updateWebcams()
 {
     QString oldDevice = this->m_mediaTools->device();

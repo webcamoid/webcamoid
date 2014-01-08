@@ -36,3 +36,10 @@ void MainWindow::changeEvent(QEvent *event)
     if (event->type() == QEvent::LanguageChange)
         this->ui->retranslateUi(this);
 }
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMainWindow::closeEvent(event);
+
+    emit this->windowClosed();
+}

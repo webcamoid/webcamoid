@@ -38,6 +38,7 @@ SyncElement::SyncElement(): QbElement()
     this->m_frameLastDuration = 0;
     this->m_frameTimer = QDateTime::currentMSecsSinceEpoch() / 1.0e3;
     this->m_frameLastDroppedPts = AV_NOPTS_VALUE;
+    this->m_remainingTime = 0.0;
 
     this->resetAudioTh();
     this->resetVideoTh();
@@ -416,31 +417,23 @@ void SyncElement::processAudioFrame()
     this->printLog(oPacket, diff);
 
     emit this->oStream(oPacket);*/
-    emit this->oStream(packet);
+//    emit this->oStream(packet);
 //    this->m_extrnClock.syncTo(this->m_audioClock);
 }
 
 void SyncElement::processVideoFrame()
 {
-    double remainingTime = 0.0;
+    if (this->m_remainingTime > 0.0)
+        Sleep::usleep(1.0e6 * this->m_remainingTime);
 
-    while (QThread::currentThread()->isRunning())
-    {
-        QCoreApplication::processEvents();
+    this->m_remainingTime = REFRESH_RATE;
 
-        if (remainingTime > 0.0)
-            Sleep::usleep(1.0e6 * remainingTime);
-
-        remainingTime = REFRESH_RATE;
-
-        this->videoRefresh(&remainingTime);
-    }
-
+    this->videoRefresh(&this->m_remainingTime);
 }
 
 void SyncElement::videoRefresh(double *remainingTime)
 {
-    while (QThread::currentThread()->isRunning())
+    while (true)
     {
         if (this->m_avqueue.size("video/x-raw") < 1)
         {

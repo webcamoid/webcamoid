@@ -23,6 +23,7 @@
 
 AudioOutputElement::AudioOutputElement(): QbElement()
 {
+//    this->resetOutputThread();
     this->m_audioOutput = NULL;
     this->m_audioDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
     this->m_audioConvert = Qb::create("ACapsConvert");
@@ -31,18 +32,26 @@ AudioOutputElement::AudioOutputElement(): QbElement()
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
-
-    this->m_pullTimer.moveToThread(this->thread());
-
-    QObject::connect(&this->m_pullTimer,
-                     SIGNAL(timeout()),
-                     this,
-                     SLOT(pullFrame()));
 }
 
 int AudioOutputElement::bufferSize() const
 {
     return this->m_audioOutput? this->m_audioOutput->bufferSize(): 0;
+}
+
+QString AudioOutputElement::outputThread() const
+{
+    return this->m_outputTh;
+}
+
+TimerPtr AudioOutputElement::runThread(QThread *thread, const char *method)
+{
+    TimerPtr timer = TimerPtr(new QTimer());
+
+    QObject::connect(timer.data(), SIGNAL(timeout()), this, method, Qt::DirectConnection);
+    timer->moveToThread(thread);
+
+    return timer;
 }
 
 QbCaps AudioOutputElement::findBestOptions(const QbCaps &caps,
@@ -114,6 +123,32 @@ QbCaps AudioOutputElement::findBestOptions(const QbCaps &caps,
         *bestOption = bestAudioFormat;
 
     return oCaps;
+}
+
+void AudioOutputElement::setOutputThread(const QString &outputThread)
+{
+    QbElement::ElementState state = this->state();
+    this->setState(QbElement::ElementStateNull);
+
+    this->m_outputTh = outputThread;
+    this->m_outputThread = Qb::requestThread(this->m_outputTh);
+
+    if (this->m_outputTh == "MAIN")
+        this->m_pullTimer = this->runThread(QCoreApplication::instance()->thread(),
+                                            SLOT(pullFrame()));
+    else if (!this->m_outputThread)
+        this->m_pullTimer = this->runThread(this->thread(),
+                                            SLOT(pullFrame()));
+    else
+        this->m_pullTimer = this->runThread(this->m_outputThread.data(),
+                                            SLOT(pullFrame()));
+
+    this->setState(state);
+}
+
+void AudioOutputElement::resetOutputThread()
+{
+    this->setOutputThread("");
 }
 
 void AudioOutputElement::processFrame(const QbPacket &packet)
@@ -203,11 +238,11 @@ void AudioOutputElement::setState(QbElement::ElementState state)
     if (state == QbElement::ElementStateNull)
         if (this->m_audioOutput)
             delete this->m_audioOutput;
-
+/*
     if (state == QbElement::ElementStatePlaying)
         this->m_pullTimer.start();
     else
         this->m_pullTimer.stop();
-
+*/
     this->m_audioConvert->setState(state);
 }

@@ -159,6 +159,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void resetStreams();
         void setStream(QString dev_name="", QString description="");
         void setVideoRecordFormat(QString suffix="", QString options="");
+        void cleanAll();
 
     private slots:
         void iStream(const QbPacket &packet);

@@ -77,6 +77,7 @@ class SyncElement: public QbElement
         double m_frameLastDuration;
         double m_frameTimer;
         double m_frameLastDroppedPts;
+        double m_remainingTime;
 
         AVQueue m_avqueue;
 

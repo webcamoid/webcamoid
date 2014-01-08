@@ -971,10 +971,10 @@ void MediaTools::setStream(QString dev_name, QString description)
 void MediaTools::setVideoRecordFormat(QString suffix, QString options)
 {
     this->m_videoRecordFormats << (QStringList() << suffix
-                                                 << options);
+                                   << options);
 }
 
-void MediaTools::aboutToQuit()
+void MediaTools::cleanAll()
 {
     this->resetDevice();
 
@@ -988,6 +988,11 @@ void MediaTools::aboutToQuit()
     }
 
     this->saveConfigs();
+}
+
+void MediaTools::aboutToQuit()
+{
+    this->cleanAll();
 }
 
 void MediaTools::reset(QString device)

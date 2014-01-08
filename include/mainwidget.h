@@ -77,6 +77,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void addStreamsConfigDialog(KConfigDialog *configDialog);
         void addGeneralConfigsDialog(KConfigDialog *configDialog);
         void showFrame(const QbPacket &webcamFrame);
+        void cleanAll();
 
     private slots:
         void updateWebcams();
