@@ -55,12 +55,18 @@ int AVQueue::maxSize() const
 
 QbPacket AVQueue::read(QString mimeType)
 {
-    if (mimeType == "audio/x-raw")
-        return this->m_audioQueue[0];
-    else if (mimeType == "video/x-raw")
-        return this->m_videoQueue[0];
+    QbPacket packet;
 
-    return QbPacket();
+    this->m_iMutex.lock();
+
+    if (mimeType == "audio/x-raw" && this->m_audioQueue.size() > 0)
+        packet = this->m_audioQueue.at(0);
+    else if (mimeType == "video/x-raw" && this->m_videoQueue.size() > 0)
+        packet = this->m_videoQueue.at(0);
+
+    this->m_iMutex.unlock();
+
+    return packet;
 }
 
 QbPacket AVQueue::dequeue(QString mimeType)
@@ -78,15 +84,14 @@ QbPacket AVQueue::dequeueAudio()
     this->m_aoMutex.lock();
 
     if (this->size("audio/x-raw") < 1)
-        this->m_audioQueueNotEmpty.wait(&this->m_aoMutex);
+    {
+        this->m_aoMutex.unlock();
+
+        return QbPacket();
+    }
 
     this->m_queueMutex.lock();
-
-    QbPacket packet;
-
-    if (this->m_audioQueue.size() > 0)
-        packet = this->m_audioQueue.dequeue();
-
+    QbPacket packet = this->m_audioQueue.dequeue();
     this->m_queueMutex.unlock();
 
     this->m_iMutex.lock();

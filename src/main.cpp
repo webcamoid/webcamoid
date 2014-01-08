@@ -32,6 +32,11 @@ int main(int argc, char *argv[])
     mainWindow.setWindowIcon(mainWidget->windowIcon());
     mainWindow.setWindowTitle(mainWidget->windowTitle());
 
+    QObject::connect(&mainWindow,
+                     SIGNAL(windowClosed()),
+                     mainWidget,
+                     SLOT(cleanAll()));
+
     QRect geometry = mainWidget->geometry();
     QDesktopWidget desktopWidget;
 
