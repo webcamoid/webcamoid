@@ -19,30 +19,27 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBTHREADSTOCK_H
-#define QBTHREADSTOCK_H
+#include "ui_mainwindow.h"
+#include "mainwindow.h"
 
-#include "qbthread.h"
-
-class QbThreadStock: public QObject
+MainWindow::MainWindow(QWidget *parent):
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
-    Q_OBJECT
+    this->ui->setupUi(this);
+}
 
-    public:
-        explicit QbThreadStock(QObject *parent=NULL);
-        ~QbThreadStock();
+void MainWindow::changeEvent(QEvent *event)
+{
+    QMainWindow::changeEvent(event);
 
-        Q_INVOKABLE QStringList threadsList() const;
-        Q_INVOKABLE QbThreadPtr requestInstance(const QString &threadName);
-        Q_INVOKABLE void deleteInstance(const QString &threadName);
-        Q_INVOKABLE void setThread(const QString &threadName);
-        Q_INVOKABLE QbThreadPtr currentThread() const;
-        Q_INVOKABLE QString currentThreadName() const;
+    if (event->type() == QEvent::LanguageChange)
+        this->ui->retranslateUi(this);
+}
 
-    private:
-        QMap<QString, QbThreadPtr> m_threads;
-        QbThreadPtr m_currentThread;
-        QString m_currentThreadName;
-};
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMainWindow::closeEvent(event);
 
-#endif // QBTHREADSTOCK_H
+    emit this->windowClosed();
+}

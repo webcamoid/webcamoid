@@ -27,7 +27,6 @@
 #include <KDE/KNotification>
 
 #include "ui_mainwidget.h"
-
 #include "mainwidget.h"
 
 MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
@@ -302,6 +301,11 @@ void MainWidget::showFrame(const QbPacket &webcamFrame)
 
         this->m_imageDispay->setImage(this->m_webcamFrame);
     }
+}
+
+void MainWidget::cleanAll()
+{
+    this->m_mediaTools->cleanAll();
 }
 
 void MainWidget::updateWebcams()

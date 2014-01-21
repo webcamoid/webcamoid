@@ -969,10 +969,25 @@ void MediaTools::setVideoRecordFormat(QString suffix, QString options)
                                                  << options);
 }
 
-void MediaTools::aboutToQuit()
+void MediaTools::cleanAll()
 {
     this->resetDevice();
+
+    QStringList threads = Qb::threadsList();
+
+    foreach (QString thread, threads)
+    {
+        QbThreadPtr threadPtr = Qb::requestThread(thread);
+        threadPtr->quit();
+        threadPtr->wait();
+    }
+
     this->saveConfigs();
+}
+
+void MediaTools::aboutToQuit()
+{
+    this->cleanAll();
 }
 
 void MediaTools::reset(QString device)

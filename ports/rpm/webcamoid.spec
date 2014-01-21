@@ -2,15 +2,47 @@ Name: webcamoid
 Version: 5.0.0b2
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
+
+%if %{defined fedora}
+Group: Applications/Multimedia
+License: GPL
+%endif
+
+%if %{defined suse_version}
 Group: Productivity/Multimedia/Video/Players
 License: GPL-3.0+
+%endif
+
 URL: http://kde-apps.org/content/show.php/Webcamoid?content=144796
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
-
-%if %{defined suse_version}
 AutoReqProv: no
 
+%if %{defined fedora}
+BuildRequires: fdupes
+BuildRequires: bison
+BuildRequires: bison-devel
+BuildRequires: flex
+BuildRequires: flex-devel
+BuildRequires: make
+BuildRequires: gcc-c++
+BuildRequires: qt-devel
+BuildRequires: kdelibs-devel
+BuildRequires: frei0r-devel
+BuildRequires: qimageblitz-devel
+BuildRequires: ffmpeg-devel
+BuildRequires: libv4l-devel
+
+Requires: qt-x11
+Requires: kdelibs
+Requires: frei0r-plugins
+Requires: frei0r-plugins-opencv
+Requires: qimageblitz
+Requires: ffmpeg-libs
+Requires: libv4l
+%endif
+
+%if %{defined suse_version}
 BuildRequires: fdupes
 BuildRequires: bison
 BuildRequires: flex
@@ -67,11 +99,19 @@ Features:
 %setup -q -n %{name}-%{version}
 
 %build
+%if %{defined fedora}
+qmake-qt4 Webcamoid.pro \
+    LIBDIR=%{_libdir} \
+    LICENSEDIR=%{_defaultdocdir}/webcamoid \
+    KDEINCLUDEDIR=%{_includedir}/kde4 \
+    KDELIBDIR=%{_libdir}/kde4/devel \
+%endif
+
 %if %{defined suse_version}
 qmake Webcamoid.pro \
     LIBDIR=%{_libdir} \
     LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    QMAKE_LRELEASE=/usr/bin/lrelease
+    QMAKE_LRELEASE=%{_bindir}/lrelease
 %endif
 
 make

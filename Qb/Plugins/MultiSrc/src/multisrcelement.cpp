@@ -30,6 +30,7 @@ MultiSrcElement::MultiSrcElement(): QbElement()
     avdevice_register_all();
     avformat_network_init();
 
+    this->resetAudioAlign();
     this->resetLoop();
     this->resetFilterStreams();
     this->m_timer.moveToThread(this->thread());
@@ -77,7 +78,12 @@ QStringList MultiSrcElement::filterStreams() const
     return this->m_filterStreams;
 }
 
-int MultiSrcElement::defaultStream(QString mimeType)
+bool MultiSrcElement::audioAlign() const
+{
+    return this->m_audioAlign;
+}
+
+int MultiSrcElement::defaultStream(const QString &mimeType)
 {
     int stream = -1;
     ElementState preState = this->state();
@@ -190,7 +196,10 @@ bool MultiSrcElement::init()
         if (type == AVMEDIA_TYPE_VIDEO)
             stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext.data(), i));
         else if (type == AVMEDIA_TYPE_AUDIO)
+        {
             stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext.data(), i));
+            stream->setProperty("align", this->audioAlign());
+        }
         else if (type == AVMEDIA_TYPE_SUBTITLE)
             stream = QSharedPointer<AbstractStream>(new SubtitleStream(this->m_inputContext.data(), i));
         else
@@ -233,9 +242,14 @@ void MultiSrcElement::setLoop(bool loop)
     this->m_loop = loop;
 }
 
-void MultiSrcElement::setFilterStreams(QStringList filterStreams)
+void MultiSrcElement::setFilterStreams(const QStringList &filterStreams)
 {
     this->m_filterStreams = filterStreams;
+}
+
+void MultiSrcElement::setAudioAlign(bool audioAlign)
+{
+    this->m_audioAlign = audioAlign;
 }
 
 void MultiSrcElement::resetLocation()
@@ -251,6 +265,11 @@ void MultiSrcElement::resetLoop()
 void MultiSrcElement::resetFilterStreams()
 {
     this->setFilterStreams(QStringList());
+}
+
+void MultiSrcElement::resetAudioAlign()
+{
+    this->setAudioAlign(false);
 }
 
 void MultiSrcElement::setState(QbElement::ElementState state)

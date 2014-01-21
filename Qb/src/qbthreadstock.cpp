@@ -28,13 +28,15 @@ QbThreadStock::QbThreadStock(QObject *parent):
 
 QbThreadStock::~QbThreadStock()
 {
-    foreach (QString threadName, this->m_threads.keys())
-    {
-        this->m_threads[threadName]->quit();
-        this->m_threads[threadName]->wait();
-    }
+    QStringList threads = this->m_threads.keys();
 
-    this->m_threads.clear();
+    foreach (QString threadName, threads)
+        this->deleteInstance(threadName);
+}
+
+QStringList QbThreadStock::threadsList() const
+{
+    return this->m_threads.keys();
 }
 
 QbThreadPtr QbThreadStock::requestInstance(const QString &threadName)
@@ -61,18 +63,10 @@ void QbThreadStock::deleteInstance(const QString &threadName)
     if (!this->m_threads.contains(threadName))
         return;
 
+    this->m_threads[threadName]->m_threadList = NULL;
     this->m_threads[threadName]->quit();
     this->m_threads[threadName]->wait();
     this->m_threads.remove(threadName);
-}
-
-QbThreadPtr QbThreadStock::findThread(const QThread *thread) const
-{
-    foreach (QString threadName, this->m_threads.keys())
-        if (this->m_threads[threadName].data() == thread)
-            return this->m_threads[threadName];
-
-    return QbThreadPtr();
 }
 
 void QbThreadStock::setThread(const QString &threadName)
