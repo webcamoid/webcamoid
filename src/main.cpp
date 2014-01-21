@@ -20,16 +20,22 @@
  */
 
 #include "mainwidget.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QMainWindow mainWindow;
+    MainWindow mainWindow;
     MainWidget *mainWidget = new MainWidget();
 
     mainWindow.setWindowIcon(mainWidget->windowIcon());
     mainWindow.setWindowTitle(mainWidget->windowTitle());
+
+    QObject::connect(&mainWindow,
+                     SIGNAL(windowClosed()),
+                     mainWidget,
+                     SLOT(cleanAll()));
 
     QRect geometry = mainWidget->geometry();
     QDesktopWidget desktopWidget;

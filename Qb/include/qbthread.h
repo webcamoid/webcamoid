@@ -40,6 +40,9 @@ class QbThread: public QThread
     private:
         QObject *m_threadList;
 
+    protected:
+        void run();
+
     friend class QbThreadStock;
 };
 

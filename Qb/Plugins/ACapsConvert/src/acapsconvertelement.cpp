@@ -64,6 +64,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     int iNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
     int iSampleRate = packet.caps().property("rate").toInt();
     int iNSamples = packet.caps().property("samples").toInt();
+    bool iAlign = packet.caps().property("align").toBool();
 
     if (iNSamples < 1)
         iNSamples = 1024;
@@ -87,6 +88,10 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                           this->m_caps.property("rate").toInt():
                           iSampleRate;
 
+    bool oAlign = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("align"))?
+                      this->m_caps.property("align").toBool():
+                      iAlign;
+
     QVector<uint8_t *> iData(iNPlanes);
     int iLineSize;
 
@@ -96,7 +101,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                iNChannels,
                                iNSamples,
                                iSampleFormat,
-                               0) < 0)
+                               iAlign? 0: 1) < 0)
         return;
 
     QbCaps caps1(packet.caps());
@@ -104,6 +109,8 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
 
     caps1.setProperty("samples", QVariant());
     caps2.setProperty("samples", QVariant());
+    caps1.setProperty("align", QVariant());
+    caps2.setProperty("align", QVariant());
 
     if (caps1 != caps2)
     {
@@ -141,13 +148,14 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     int oNPlanes = av_sample_fmt_is_planar(oSampleFormat)? oNChannels: 1;
     QVector<uint8_t *> oData(oNPlanes);
 
+    int oBps = av_get_bytes_per_sample(oSampleFormat);
     int oLineSize;
 
     int oBufferSize = av_samples_get_buffer_size(&oLineSize,
                                                  oNChannels,
                                                  oNSamples,
                                                  oSampleFormat,
-                                                 0);
+                                                 oAlign? 0: 1);
 
     QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
@@ -160,7 +168,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                oNChannels,
                                oNSamples,
                                oSampleFormat,
-                               0) < 0)
+                               oAlign? 0: 1) < 0)
         return;
 
     // convert to destination format
@@ -181,20 +189,20 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                  oNChannels,
                                  oChannelLayout);
 
-    int oBps = av_get_bytes_per_sample(oSampleFormat);
-
     QString caps = QString("audio/x-raw,"
                            "format=%1,"
                            "bps=%2,"
                            "channels=%3,"
                            "rate=%4,"
                            "layout=%5,"
-                           "samples=%6").arg(format)
-                                        .arg(oBps)
-                                        .arg(oNChannels)
-                                        .arg(oSampleRate)
-                                        .arg(layout)
-                                        .arg(oNSamples);
+                           "samples=%6,"
+                           "align=%7").arg(format)
+                                      .arg(oBps)
+                                      .arg(oNChannels)
+                                      .arg(oSampleRate)
+                                      .arg(layout)
+                                      .arg(oNSamples)
+                                      .arg(oAlign);
 
     QbPacket oPacket(caps,
                      oBuffer,
