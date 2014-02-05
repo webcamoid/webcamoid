@@ -106,6 +106,10 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
     else
         this->m_pts += this->m_duration;
 
+    int64_t pts = (iFrame.pts != AV_NOPTS_VALUE)? iFrame.pts:
+                  (iFrame.pkt_pts != AV_NOPTS_VALUE)? iFrame.pkt_pts:
+                  this->m_pts;
+
     int oLineSize;
 
     int oBufferSize = av_samples_get_buffer_size(&oLineSize,
@@ -143,7 +147,7 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
                      oBuffer,
                      oBufferSize);
 
-    oPacket.setPts(this->m_pts);
+    oPacket.setPts(pts);
     oPacket.setDuration(this->m_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());

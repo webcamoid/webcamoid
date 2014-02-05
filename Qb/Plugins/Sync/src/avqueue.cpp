@@ -184,5 +184,5 @@ void AVQueue::setMaxSize(int size)
 
 void AVQueue::resetMaxSize()
 {
-    this->setMaxSize(128);
+    this->setMaxSize(1024);
 }

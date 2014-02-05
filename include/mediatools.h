@@ -115,6 +115,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QbElementPtr m_mic;
         QbElementPtr m_record;
         QbElementPtr m_webcamConfig;
+        QbElementPtr m_sync;
         QStringList m_effectsList;
         QSize m_curFrameSize;
         QMutex m_mutex;
