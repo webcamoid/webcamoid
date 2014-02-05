@@ -23,7 +23,7 @@
 
 AudioOutputElement::AudioOutputElement(): QbElement()
 {
-//    this->resetOutputThread();
+    this->resetOutputThread();
     this->m_audioOutput = NULL;
     this->m_audioDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
     this->m_audioConvert = Qb::create("ACapsConvert");
@@ -32,6 +32,12 @@ AudioOutputElement::AudioOutputElement(): QbElement()
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
+}
+
+AudioOutputElement::~AudioOutputElement()
+{
+    if (this->m_audioOutput)
+        delete this->m_audioOutput;
 }
 
 int AudioOutputElement::bufferSize() const
@@ -163,21 +169,41 @@ void AudioOutputElement::processFrame(const QbPacket &packet)
 
 void AudioOutputElement::pullFrame()
 {
-    if (this->m_audioOutput)
+    if (!this->m_audioOutput)
     {
-        int writeBytes = qMin(qMin(this->m_audioOutput->bytesFree(),
-                                   this->m_audioOutput->periodSize()),
-                              this->m_audioBuffer.size());
+        emit this->requestFrame(0);
 
-        if (writeBytes > 0)
-        {
-            qDebug() << "writeBytes" << writeBytes;
-            this->m_outputDevice->write(this->m_audioBuffer.mid(0, writeBytes));
-            this->m_audioBuffer.remove(0, writeBytes);
+        return;
+    }
+
+    if (this->m_audioBuffer.size() < this->m_audioOutput->bufferSize())
+        emit this->requestFrame(this->m_audioOutput->bufferSize());
+
+    int writeBytes = qMin(qMin(this->m_audioOutput->bytesFree(),
+                               this->m_audioOutput->periodSize()),
+                          this->m_audioBuffer.size());
+
+    if (writeBytes > 0)
+    {
+        int bytesInBuffer = this->m_audioOutput->bufferSize()
+                            - this->m_audioOutput->bytesFree();
+
+        double usInBuffer = 8.0 * bytesInBuffer
+                            / (this->m_audioOutput->format().channels()
+                               * this->m_audioOutput->format().sampleSize()
+                               * this->m_audioOutput->format().frequency());
+
+        double pts = this->m_audioOutput->processedUSecs()
+                     / 1.0e6
+                     - usInBuffer;
+
+        emit this->elapsedTime(pts);
+
+        this->m_outputDevice->write(this->m_audioBuffer.mid(0, writeBytes));
+        this->m_audioBuffer.remove(0, writeBytes);
 /*
-            if (this->m_audioBuffer.size() < this->m_audioOutput->bufferSize())
-                this->m_waitCondition.wakeAll();*/
-        }
+        if (this->m_audioBuffer.size() < this->m_audioOutput->bufferSize())
+            this->m_waitCondition.wakeAll();*/
     }
 }
 
@@ -221,7 +247,7 @@ void AudioOutputElement::iStream(const QbPacket &packet)
                                                this);
 
         this->m_outputDevice = this->m_audioOutput->start();
-
+        emit this->bufferSizeChanged(this->m_audioOutput->bufferSize());
         curCaps = packet.caps();
     }
 
@@ -235,14 +261,14 @@ void AudioOutputElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (state == QbElement::ElementStateNull)
-        if (this->m_audioOutput)
-            delete this->m_audioOutput;
-/*
-    if (state == QbElement::ElementStatePlaying)
-        this->m_pullTimer.start();
-    else
-        this->m_pullTimer.stop();
-*/
-    this->m_audioConvert->setState(state);
+    if (this->m_pullTimer)
+    {
+        if (state == QbElement::ElementStatePlaying)
+            QMetaObject::invokeMethod(this->m_pullTimer.data(), "start");
+        else
+            QMetaObject::invokeMethod(this->m_pullTimer.data(), "stop");
+    }
+
+    if (this->m_audioConvert)
+        this->m_audioConvert->setState(state);
 }

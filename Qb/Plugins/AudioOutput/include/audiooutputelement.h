@@ -44,6 +44,7 @@ class AudioOutputElement: public QbElement
 
     public:
         explicit AudioOutputElement();
+        ~AudioOutputElement();
         Q_INVOKABLE int bufferSize() const;
         Q_INVOKABLE QString outputThread() const;
 
@@ -66,7 +67,9 @@ class AudioOutputElement: public QbElement
                                QAudioFormat *bestOption=NULL) const;
 
     signals:
-        void bufferSizeChanged();
+        void elapsedTime(double pts);
+        void bufferSizeChanged(int size);
+        void requestFrame(int size);
 
     public slots:
         void setOutputThread(const QString &outputThread);

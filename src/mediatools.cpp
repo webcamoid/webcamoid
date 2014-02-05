@@ -114,7 +114,10 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "stateChanged>muxAudioInput.setState !"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
-                            "Sync objectName='sync' audioTh='AudioTh' videoTh='MAIN' source.stateChanged>setState !"
+                            "Sync objectName='sync' "
+                            "videoTh='MAIN' "
+                            "audioOutput.elapsedTime>setAudioPts "
+                            "source.stateChanged>setState !"
                             "Bin(MAIN) objectName='effects' blocking=false !"
                             "VCapsConvert(MAIN) caps='video/x-raw,format=bgra' "
                             "source.stateChanged>setState !"
@@ -173,6 +176,17 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                                   "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_webcamConfig),
                                   Q_ARG(QString, "webcamConfig"));
+
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QbElementPtr, this->m_sync),
+                                  Q_ARG(QString, "sync"));
+
+        QObject::connect(this->m_audioOutput.data(),
+                         SIGNAL(requestFrame(int)),
+                         this->m_sync.data(),
+                         SLOT(releaseAudioFrame(int)),
+                         Qt::DirectConnection);
 
         this->m_pipeline->link(this);
 

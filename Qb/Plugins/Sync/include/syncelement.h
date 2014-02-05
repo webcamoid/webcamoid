@@ -22,30 +22,14 @@
 #ifndef SYNCELEMENT_H
 #define SYNCELEMENT_H
 
-extern "C"
-{
-    #include <libavdevice/avdevice.h>
-    #include <libavutil/opt.h>
-    #include <libswresample/swresample.h>
-}
-
 #include "avqueue.h"
 #include "clock.h"
 
-typedef QSharedPointer<SwrContext> SwrContextPtr;
 typedef QSharedPointer<QTimer> TimerPtr;
 
 class SyncElement: public QbElement
 {
     Q_OBJECT
-
-    Q_PROPERTY(int outputAudioBufferSize READ outputAudioBufferSize
-                                         WRITE setOutputAudioBufferSize
-                                         RESET resetOutputAudioBufferSize)
-
-    Q_PROPERTY(QString audioTh READ audioTh
-                               WRITE setAudioTh
-                               RESET resetAudioTh)
 
     Q_PROPERTY(QString videoTh READ videoTh
                                WRITE setVideoTh
@@ -55,8 +39,6 @@ class SyncElement: public QbElement
         explicit SyncElement();
         ~SyncElement();
 
-        Q_INVOKABLE int outputAudioBufferSize() const;
-        Q_INVOKABLE QString audioTh() const;
         Q_INVOKABLE QString videoTh() const;
 
     private:
@@ -65,61 +47,33 @@ class SyncElement: public QbElement
 
         bool m_log;
 
-        double m_audioDiffCum;
-        double m_audioDiffAvgCoef;
-        int m_audioDiffAvgCount;
-        int m_outputAudioBufferSize;
-
-        QString m_audioTh;
         QString m_videoTh;
-
-        double m_frameLastPts;
-        double m_frameLastDuration;
-        double m_frameTimer;
-        double m_frameLastDroppedPts;
-        double m_remainingTime;
-
         AVQueue m_avqueue;
 
-        Clock m_audioClock;
         Clock m_videoClock;
         Clock m_extrnClock;
 
-        QbCaps m_curInputCaps;
-        SwrContextPtr m_resampleContext;
-
-        TimerPtr m_audioTimer;
         TimerPtr m_videoTimer;
-
-        QbThreadPtr m_audioThread;
         QbThreadPtr m_videoThread;
 
-        static void deleteSwrContext(SwrContext *context);
-        QbPacket compensateAudio(const QbPacket &packet, int wantedSamples);
-        int synchronizeAudio(double diff, QbPacket packet);
         void printLog(const QbPacket &packet, double diff);
         TimerPtr runThread(QThread *thread, const char *method);
-        double computeTargetDelay(double delay, double *diff=NULL);
 
     signals:
         void ready(int id);
         void oDiscardFrames(int nFrames);
 
     public slots:
-        void setOutputAudioBufferSize(int outputAudioBufferSize);
-        void setAudioTh(const QString &audioTh);
+        void setAudioPts(double pts);
         void setVideoTh(const QString &videoTh);
-        void resetOutputAudioBufferSize();
-        void resetAudioTh();
         void resetVideoTh();
+        void releaseAudioFrame(int frameSize);
+        void processVideoFrame();
 
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
 
     private slots:
-        void processAudioFrame();
-        void processVideoFrame();
-        void videoRefresh(double *remainingTime);
         void updateVideoPts(double pts);
 };
 

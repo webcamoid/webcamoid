@@ -289,10 +289,13 @@ void MultiSrcElement::readPackets()
 
     if (av_read_frame(this->m_inputContext.data(), &packet) < 0)
     {
-        this->setState(ElementStateNull);
-
         if (this->loop())
-            this->setState(ElementStatePlaying);
+        {
+            this->uninit();
+            this->init();
+        }
+        else
+            this->setState(ElementStateNull);
 
         return;
     }
