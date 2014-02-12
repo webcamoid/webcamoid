@@ -27,40 +27,31 @@
 class AVQueue: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int size READ size)
-    Q_PROPERTY(int maxSize READ maxSize WRITE setMaxSize RESET resetMaxSize)
+    Q_PROPERTY(qint64 size READ size)
+    Q_PROPERTY(qint64 maxSize READ maxSize WRITE setMaxSize RESET resetMaxSize)
 
     public:
         explicit AVQueue(QObject *parent=NULL);
         ~AVQueue();
 
-        Q_INVOKABLE int size(const QString &mimeType="");
-        Q_INVOKABLE int maxSize() const;
+        Q_INVOKABLE qint64 size(const QString &mimeType="", bool lock=true);
+        Q_INVOKABLE qint64 maxSize() const;
         Q_INVOKABLE QbPacket read(QString mimeType);
         Q_INVOKABLE QbPacket dequeue(QString mimeType);
 
     private:
-        int m_maxSize;
+        qint64 m_maxSize;
 
-        QQueue<QbPacket> m_audioQueue;
-        QQueue<QbPacket> m_videoQueue;
+        QQueue<QbPacket> m_avQueue;
+        QMap<QString, qint64> m_queueSize;
 
-        QMutex m_queueMutex;
-        QMutex m_iMutex;
-        QMutex m_aoMutex;
-        QMutex m_voMutex;
-
+        QMutex m_mutex;
         QWaitCondition m_queueNotFull;
-        QWaitCondition m_audioQueueNotEmpty;
-        QWaitCondition m_videoQueueNotEmpty;
-
-        QbPacket dequeueAudio();
-        QbPacket dequeueVideo();
 
     public slots:
         void clear();
         void enqueue(const QbPacket &packet);
-        void setMaxSize(int maxSize);
+        void setMaxSize(qint64 maxSize);
         void resetMaxSize();
 };
 

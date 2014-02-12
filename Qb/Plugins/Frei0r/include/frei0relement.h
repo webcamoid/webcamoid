@@ -74,6 +74,7 @@ class Frei0rElement: public QbElement
     protected:
         bool init();
         void uninit();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
         bool initBuffers();
         void uninitBuffers();
 

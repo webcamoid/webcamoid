@@ -54,6 +54,7 @@ class QbPacket: public QObject
         QbPacket(const QbPacket &other);
         virtual ~QbPacket();
         QbPacket &operator =(const QbPacket &other);
+        operator bool() const;
 
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps caps() const;

@@ -66,7 +66,7 @@ class FireElement: public QbElement
         void setBackground(QImage &src);
 
     protected:
-        bool init();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     public slots:
         void setMode(int mode);

@@ -49,6 +49,7 @@ class AudioOutputElement: public QbElement
         Q_INVOKABLE QString outputThread() const;
 
     private:
+        QbCaps m_curCaps;
         QString m_outputTh;
         QbElementPtr m_audioConvert;
         QAudioDeviceInfo m_audioDeviceInfo;
@@ -66,6 +67,11 @@ class AudioOutputElement: public QbElement
                                const QAudioDeviceInfo &deviceInfo,
                                QAudioFormat *bestOption=NULL) const;
 
+    protected:
+        bool init();
+        void uninit();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+
     signals:
         void elapsedTime(double pts);
         void bufferSizeChanged(int size);
@@ -75,7 +81,6 @@ class AudioOutputElement: public QbElement
         void setOutputThread(const QString &outputThread);
         void resetOutputThread();
         void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
 
     private slots:
         void processFrame(const QbPacket &packet);

@@ -30,25 +30,28 @@ AVQueue::~AVQueue()
 {
 }
 
-int AVQueue::size(const QString &mimeType)
+qint64 AVQueue::size(const QString &mimeType, bool lock)
 {
-    this->m_queueMutex.lock();
+    if (lock)
+        this->m_mutex.lock();
 
-    int size;
+    qint64 size = 0;
 
-    if (mimeType == "audio/x-raw")
-        size = this->m_audioQueue.size();
-    else if (mimeType == "video/x-raw")
-        size = this->m_videoQueue.size();
-    else
-        size = this->m_audioQueue.size() + this->m_videoQueue.size();
+    if (mimeType.isEmpty())
+    {
+        foreach (int s, this->m_queueSize.values())
+            size += s;
+    }
+    else if (this->m_queueSize.contains(mimeType))
+        size = this->m_queueSize[mimeType];
 
-    this->m_queueMutex.unlock();
+    if (lock)
+        this->m_mutex.unlock();
 
     return size;
 }
 
-int AVQueue::maxSize() const
+qint64 AVQueue::maxSize() const
 {
     return this->m_maxSize;
 }
@@ -57,132 +60,89 @@ QbPacket AVQueue::read(QString mimeType)
 {
     QbPacket packet;
 
-    this->m_iMutex.lock();
+    this->m_mutex.lock();
 
-    if (mimeType == "audio/x-raw" && this->m_audioQueue.size() > 0)
-        packet = this->m_audioQueue.at(0);
-    else if (mimeType == "video/x-raw" && this->m_videoQueue.size() > 0)
-        packet = this->m_videoQueue.at(0);
+    foreach (QbPacket qPacket, this->m_avQueue)
+        if (qPacket.caps().mimeType() == mimeType)
+        {
+            packet = qPacket;
 
-    this->m_iMutex.unlock();
+            break;
+        }
+
+    this->m_mutex.unlock();
 
     return packet;
 }
 
 QbPacket AVQueue::dequeue(QString mimeType)
 {
-    if (mimeType == "audio/x-raw")
-        return this->dequeueAudio();
-    else if (mimeType == "video/x-raw")
-        return this->dequeueVideo();
+    QbPacket packet;
+    int i = 0;
 
-    return QbPacket();
-}
+    this->m_mutex.lock();
 
-QbPacket AVQueue::dequeueAudio()
-{
-    this->m_aoMutex.lock();
-
-    if (this->size("audio/x-raw") < 1)
+    foreach (QbPacket qPacket, this->m_avQueue)
     {
-        this->m_aoMutex.unlock();
+        if (qPacket.caps().mimeType() == mimeType)
+        {
+            packet = qPacket;
 
-        return QbPacket();
+            break;
+        }
+
+        i++;
     }
 
-    this->m_queueMutex.lock();
-    QbPacket packet = this->m_audioQueue.dequeue();
-    this->m_queueMutex.unlock();
-
-    this->m_iMutex.lock();
-    this->m_queueNotFull.wakeAll();
-    this->m_iMutex.unlock();
-
-    this->m_aoMutex.unlock();
-
-    return packet;
-}
-
-QbPacket AVQueue::dequeueVideo()
-{
-    this->m_voMutex.lock();
-
-    if (this->size("video/x-raw") < 1)
+    if (packet)
     {
-        this->m_voMutex.unlock();
-
-        return QbPacket();
+        this->m_avQueue.removeAt(i);
+        qint64 dataSize = packet.bufferSize();
+        this->m_queueSize[mimeType] -= dataSize;
+        this->m_queueNotFull.wakeAll();
     }
 
-    this->m_queueMutex.lock();
-    QbPacket packet = this->m_videoQueue.dequeue();
-    this->m_queueMutex.unlock();
-
-    this->m_iMutex.lock();
-    this->m_queueNotFull.wakeAll();
-    this->m_iMutex.unlock();
-
-    this->m_voMutex.unlock();
+    this->m_mutex.unlock();
 
     return packet;
 }
 
 void AVQueue::clear()
 {
-    this->m_iMutex.lock();
-
-    this->m_aoMutex.lock();
-    this->m_audioQueue.clear();
-    this->m_aoMutex.unlock();
-
-    this->m_voMutex.lock();
-    this->m_videoQueue.clear();
-    this->m_voMutex.unlock();
-
-    this->m_iMutex.unlock();
+    this->m_mutex.lock();
+    this->m_avQueue.clear();
+    this->m_queueSize.clear();
+    this->m_queueNotFull.wakeAll();
+    this->m_mutex.unlock();
 }
 
 void AVQueue::enqueue(const QbPacket &packet)
 {
-    this->m_iMutex.lock();
+    this->m_mutex.lock();
 
-    int bufferSize = this->size();
+    int bufferSize = this->size("", false);
 
     if (bufferSize >= this->m_maxSize)
-        this->m_queueNotFull.wait(&this->m_iMutex);
+        this->m_queueNotFull.wait(&this->m_mutex);
 
-    this->m_iMutex.unlock();
+    this->m_avQueue.enqueue(packet);
+    QString mimeType = packet.caps().mimeType();
+    qint64 dataSize = packet.bufferSize();
 
-    this->m_queueMutex.lock();
+    if (this->m_queueSize.contains(mimeType))
+        this->m_queueSize[mimeType] += dataSize;
+    else
+        this->m_queueSize[mimeType] = dataSize;
 
-    if (packet.caps().mimeType() == "audio/x-raw")
-        this->m_audioQueue.enqueue(packet);
-    else if (packet.caps().mimeType() == "video/x-raw")
-        this->m_videoQueue.enqueue(packet);
-
-    this->m_queueMutex.unlock();
-
-    if (this->size("audio/x-raw") > 0)
-    {
-        this->m_aoMutex.lock();
-        this->m_audioQueueNotEmpty.wakeAll();
-        this->m_aoMutex.unlock();
-    }
-
-    if (this->size("video/x-raw") > 0)
-    {
-        this->m_voMutex.lock();
-        this->m_videoQueueNotEmpty.wakeAll();
-        this->m_voMutex.unlock();
-    }
+    this->m_mutex.unlock();
 }
 
-void AVQueue::setMaxSize(int size)
+void AVQueue::setMaxSize(qint64 size)
 {
     this->m_maxSize = size;
 }
 
 void AVQueue::resetMaxSize()
 {
-    this->setMaxSize(1024);
+    this->setMaxSize(15 * 1024 * 1024);
 }

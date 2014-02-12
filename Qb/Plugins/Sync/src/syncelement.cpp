@@ -45,13 +45,13 @@ void SyncElement::printLog(const QbPacket &packet, double diff)
 {
     if (this->m_log)
     {
-        QString logFmt("%1 %2 A-V: %3 aq=%4 vq=%5");
+        QString logFmt("%1 %2 A-V: %3 aq=%4KB vq=%5KB");
 
         QString log = logFmt.arg(packet.caps().mimeType()[0])
                             .arg(this->m_extrnClock.clock(), 7, 'f', 2)
                             .arg(-diff, 7, 'f', 3)
-                            .arg(this->m_avqueue.size("audio/x-raw"), 5)
-                            .arg(this->m_avqueue.size("video/x-raw"), 5);
+                            .arg(this->m_avqueue.size("audio/x-raw") / 1024, 5)
+                            .arg(this->m_avqueue.size("video/x-raw") / 1024, 5);
 
         qDebug() << log.toStdString().c_str();
     }
@@ -101,7 +101,7 @@ void SyncElement::resetVideoTh()
 
 void SyncElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
+    if (!packet ||
         this->state() != ElementStatePlaying)
         return;
 
@@ -126,8 +126,7 @@ void SyncElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (this->state() == QbElement::ElementStateReady ||
-        this->state() == QbElement::ElementStateNull)
+    if (this->state() == QbElement::ElementStateNull)
     {
         this->m_ready = false;
         this->m_fst = true;
@@ -151,7 +150,9 @@ void SyncElement::releaseAudioFrame(int frameSize)
     Q_UNUSED(frameSize)
 
     QbPacket packet = this->m_avqueue.dequeue("audio/x-raw");
-    emit this->oStream(packet);
+
+    if (packet)
+        emit this->oStream(packet);
 }
 
 void SyncElement::processVideoFrame()

@@ -34,11 +34,6 @@ FilterElement::FilterElement(): QbElement()
     this->resetPixelAspect();
 }
 
-FilterElement::~FilterElement()
-{
-    this->uninit();
-}
-
 QString FilterElement::description()
 {
     return this->m_description;
@@ -436,8 +431,7 @@ void FilterElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (this->state() == QbElement::ElementStateReady ||
-        this->state() == QbElement::ElementStateNull)
+    if (this->state() == QbElement::ElementStateNull)
     {
         this->uninitBuffers();
         this->m_curInputCaps = QbCaps();

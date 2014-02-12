@@ -50,7 +50,6 @@ class FilterElement: public QbElement
 
     public:
         explicit FilterElement();
-        ~FilterElement();
 
         Q_INVOKABLE QString description();
         Q_INVOKABLE QString format();

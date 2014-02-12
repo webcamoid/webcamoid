@@ -25,15 +25,7 @@
 #include <QtGui>
 #include <qb.h>
 
-extern "C"
-{
-    #include <libavdevice/avdevice.h>
-}
-
 #include "abstractstream.h"
-
-typedef QSharedPointer<AVFormatContext> FormatContextPtr;
-typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 
 class MultiSrcElement: public QbElement
 {
@@ -65,6 +57,7 @@ class MultiSrcElement: public QbElement
     protected:
         bool init();
         void uninit();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
         QString m_location;

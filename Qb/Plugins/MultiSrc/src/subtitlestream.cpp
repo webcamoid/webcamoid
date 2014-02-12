@@ -25,7 +25,7 @@ SubtitleStream::SubtitleStream(QObject *parent): AbstractStream(parent)
 {
 }
 
-SubtitleStream::SubtitleStream(AVFormatContext *formatContext, uint index):
+SubtitleStream::SubtitleStream(const FormatContextPtr &formatContext, uint index):
     AbstractStream(formatContext, index)
 {
 }

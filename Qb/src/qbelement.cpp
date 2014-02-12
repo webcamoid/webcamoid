@@ -122,13 +122,10 @@ bool QbElement::unlink(QbElementPtr dstElement)
     return true;
 }
 
-bool QbElement::init()
+void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
-    return true;
-}
-
-void QbElement::uninit()
-{
+    Q_UNUSED(from)
+    Q_UNUSED(to)
 }
 
 QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
@@ -166,101 +163,40 @@ void QbElement::iStream(const QbPacket &packet)
 
 void QbElement::setState(QbElement::ElementState state)
 {
-    QbElement::ElementState preState = this->state();
+    QbElement::ElementState preState = this->m_state;
 
-    switch (state)
+    if (state == ElementStateNull
+        && preState != state)
     {
-        case ElementStateNull:
-            switch (preState)
-            {
-                case ElementStatePaused:
-                case ElementStatePlaying:
-                    this->setState(ElementStateReady);
+        if (preState == ElementStatePlaying)
+        {
+            this->setState(ElementStatePaused);
+            preState = this->m_state;
+        }
 
-                    if (this->state() != ElementStateReady)
-                        return;
+        this->m_state = state;
+        emit this->stateChanged(state);
+        emit this->stateChange(preState, state);
+    }
+    else if (state == ElementStatePaused
+             && preState != state)
+    {
+        this->m_state = state;
+        emit this->stateChanged(state);
+        emit this->stateChange(preState, state);
+    }
+    else if (state == ElementStatePlaying
+             && preState != state)
+    {
+        if (preState == ElementStateNull)
+        {
+            this->setState(ElementStatePaused);
+            preState = this->m_state;
+        }
 
-                case ElementStateReady:
-                    this->uninit();
-                    this->m_state = state;
-                    emit this->stateChanged(state);
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStateReady:
-            switch (preState)
-            {
-                case ElementStateNull:
-                    if (this->init())
-                        this->m_state = state;
-                    else
-                        this->m_state = ElementStateNull;
-
-                    emit this->stateChanged(state);
-                break;
-
-                case ElementStatePlaying:
-                    this->setState(ElementStatePaused);
-
-                    if (this->state() != ElementStatePaused)
-                        return;
-
-                case ElementStatePaused:
-                    this->m_state = state;
-                    emit this->stateChanged(state);
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStatePaused:
-            switch (preState)
-            {
-                case ElementStateNull:
-                    this->setState(ElementStateReady);
-
-                    if (this->state() != ElementStateReady)
-                        return;
-
-                case ElementStateReady:
-                case ElementStatePlaying:
-                    this->m_state = state;
-                    emit this->stateChanged(state);
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        case ElementStatePlaying:
-            switch (preState)
-            {
-                case ElementStateNull:
-                case ElementStateReady:
-                    this->setState(ElementStatePaused);
-
-                    if (this->state() != ElementStatePaused)
-                        return;
-
-                case ElementStatePaused:
-                    this->m_state = state;
-                    emit this->stateChanged(state);
-                break;
-
-                default:
-                break;
-            }
-        break;
-
-        default:
-        break;
+        this->m_state = state;
+        emit this->stateChanged(state);
+        emit this->stateChange(preState, state);
     }
 }
 

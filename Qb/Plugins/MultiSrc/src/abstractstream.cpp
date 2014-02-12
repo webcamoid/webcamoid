@@ -26,14 +26,13 @@ AbstractStream::AbstractStream(QObject *parent): QObject(parent)
     this->m_isValid = false;
     this->m_index = -1;
     this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
-    this->m_formatContext = NULL;
     this->m_stream = NULL;
     this->m_codecContext = NULL;
     this->m_codec = NULL;
     this->m_codecOptions = NULL;
 }
 
-AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
+AbstractStream::AbstractStream(const FormatContextPtr &formatContext, uint index)
 {
     this->m_isValid = false;
     this->m_index = index;
@@ -89,7 +88,7 @@ AVMediaType AbstractStream::mediaType() const
     return this->m_mediaType;
 }
 
-AVFormatContext *AbstractStream::formatContext() const
+FormatContextPtr AbstractStream::formatContext() const
 {
     return this->m_formatContext;
 }
@@ -126,7 +125,7 @@ QList<QbPacket> AbstractStream::readPackets(AVPacket *packet)
     return QList<QbPacket>();
 }
 
-AVMediaType AbstractStream::type(AVFormatContext *formatContext, uint index)
+AVMediaType AbstractStream::type(const FormatContextPtr &formatContext, uint index)
 {
     return formatContext->streams[index]->codec->codec_type;
 }

@@ -27,7 +27,7 @@ AudioStream::AudioStream(QObject *parent): AbstractStream(parent)
     this->resetAlign();
 }
 
-AudioStream::AudioStream(AVFormatContext *formatContext, uint index):
+AudioStream::AudioStream(const FormatContextPtr &formatContext, uint index):
     AbstractStream(formatContext, index)
 {
     this->m_fst = true;

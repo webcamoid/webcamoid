@@ -75,7 +75,7 @@ QVariantMap Frei0rElement::params()
     ElementState preState = this->state();
 
     if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
 
     f0r_instance_t curInstance = this->m_f0rInstance;
 
@@ -161,7 +161,7 @@ QVariantMap Frei0rElement::info()
 
     if (this->state() == ElementStateNull)
     {
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
         info = this->m_info;
         this->setState(ElementStateNull);
     }
@@ -375,6 +375,16 @@ void Frei0rElement::uninit()
     this->m_library.unload();
 }
 
+void Frei0rElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->init();
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+        this->uninit();
+}
+
 bool Frei0rElement::initBuffers()
 {
     if (this->m_f0rInstance)
@@ -482,7 +492,7 @@ void Frei0rElement::setParams(QVariantMap params)
     ElementState preState = this->state();
 
     if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
 
     f0r_instance_t curInstance = this->m_f0rInstance;
 
@@ -653,8 +663,7 @@ void Frei0rElement::setState(QbElement::ElementState state)
     if (this->m_capsConvert)
         this->m_capsConvert->setState(this->state());
 
-    if (this->state() == ElementStateNull ||
-        this->state() == ElementStateReady)
+    if (this->state() == ElementStateNull)
     {
         if (this->m_info["plugin_type"] != "source")
             this->uninitBuffers();
