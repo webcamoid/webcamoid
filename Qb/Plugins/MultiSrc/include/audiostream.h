@@ -33,7 +33,7 @@ class AudioStream: public AbstractStream
 
     public:
         explicit AudioStream(QObject *parent=NULL);
-        AudioStream(AVFormatContext *formatContext, uint index);
+        AudioStream(const FormatContextPtr &formatContext, uint index);
 
         Q_INVOKABLE bool align() const;
         Q_INVOKABLE QbCaps caps() const;

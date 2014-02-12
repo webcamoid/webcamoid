@@ -88,6 +88,11 @@ bool QbCaps::operator !=(const QbCaps &other) const
     return !(*this == other);
 }
 
+QbCaps::operator bool() const
+{
+    return this->m_isValid;
+}
+
 bool QbCaps::isValid() const
 {
     return this->m_isValid;

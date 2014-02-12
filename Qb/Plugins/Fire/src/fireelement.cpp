@@ -219,11 +219,11 @@ void FireElement::setBackground(QImage &src)
     this->m_bgIsSet = true;
 }
 
-bool FireElement::init()
+void FireElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
-    this->m_bgIsSet = false;
-
-    return true;
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->m_bgIsSet = false;
 }
 
 void FireElement::setMode(int mode)

@@ -84,6 +84,11 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
     return *this;
 }
 
+QbPacket::operator bool() const
+{
+    return this->m_caps.isValid();
+}
+
 QString QbPacket::toString() const
 {
     QString packetInfo;

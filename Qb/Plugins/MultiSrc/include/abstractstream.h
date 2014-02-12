@@ -27,9 +27,14 @@
 
 extern "C"
 {
-    #include <libavformat/avformat.h>
+    #include <libavdevice/avdevice.h>
     #include <libavutil/imgutils.h>
 }
+
+class AbstractStream;
+
+typedef QSharedPointer<AVFormatContext> FormatContextPtr;
+typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 
 class AbstractStream: public QObject
 {
@@ -37,14 +42,14 @@ class AbstractStream: public QObject
 
     public:
         explicit AbstractStream(QObject *parent=NULL);
-        AbstractStream(AVFormatContext *formatContext, uint index);
+        AbstractStream(const FormatContextPtr &formatContext, uint index);
         virtual ~AbstractStream();
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
         Q_INVOKABLE QbFrac timeBase() const;
         Q_INVOKABLE AVMediaType mediaType() const;
-        Q_INVOKABLE AVFormatContext *formatContext() const;
+        Q_INVOKABLE FormatContextPtr formatContext() const;
         Q_INVOKABLE AVStream *stream() const;
         Q_INVOKABLE AVCodecContext *codecContext() const;
         Q_INVOKABLE AVCodec *codec() const;
@@ -52,7 +57,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE virtual QbCaps caps() const;
         Q_INVOKABLE virtual QList<QbPacket> readPackets(AVPacket *packet);
 
-        static AVMediaType type(AVFormatContext *formatContext, uint index);
+        static AVMediaType type(const FormatContextPtr &formatContext, uint index);
 
     protected:
         bool m_isValid;
@@ -63,7 +68,7 @@ class AbstractStream: public QObject
         uint m_index;
         QbFrac m_timeBase;
         AVMediaType m_mediaType;
-        AVFormatContext *m_formatContext;
+        FormatContextPtr m_formatContext;
         AVStream *m_stream;
         AVCodecContext *m_codecContext;
         AVCodec *m_codec;

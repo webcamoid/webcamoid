@@ -44,7 +44,6 @@ class QbElement: public QObject
         enum ElementState
         {
             ElementStateNull,
-            ElementStateReady,
             ElementStatePaused,
             ElementStatePlaying
         };
@@ -71,8 +70,7 @@ class QbElement: public QObject
         QList<QbElement *> m_srcs;
         QList<QbElement *> m_sinks;
 
-        virtual bool init();
-        virtual void uninit();
+        virtual void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
         QString m_pluginId;

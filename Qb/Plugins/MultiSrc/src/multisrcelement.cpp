@@ -62,7 +62,7 @@ QVariantMap MultiSrcElement::streamCaps()
     ElementState preState = this->state();
 
     if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
 
     foreach (int i, this->m_streams.keys())
         caps[QString("%1").arg(i)] = this->m_streams[i]->caps().toString();
@@ -89,7 +89,7 @@ int MultiSrcElement::defaultStream(const QString &mimeType)
     ElementState preState = this->state();
 
     if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
 
     foreach (int i, this->m_streams.keys())
         if (this->m_streams[i]->caps().mimeType() == mimeType)
@@ -185,25 +185,24 @@ bool MultiSrcElement::init()
     }
 
     av_dump_format(this->m_inputContext.data(), 0, uri.toStdString().c_str(), false);
-
     this->m_streams.clear();
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++)
     {
-        AVMediaType type = AbstractStream::type(this->m_inputContext.data(), i);
+        AVMediaType type = AbstractStream::type(this->m_inputContext, i);
         QSharedPointer<AbstractStream> stream;
 
         if (type == AVMEDIA_TYPE_VIDEO)
-            stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext.data(), i));
+            stream = QSharedPointer<AbstractStream>(new VideoStream(this->m_inputContext, i));
         else if (type == AVMEDIA_TYPE_AUDIO)
         {
-            stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext.data(), i));
+            stream = QSharedPointer<AbstractStream>(new AudioStream(this->m_inputContext, i));
             stream->setProperty("align", this->audioAlign());
         }
         else if (type == AVMEDIA_TYPE_SUBTITLE)
-            stream = QSharedPointer<AbstractStream>(new SubtitleStream(this->m_inputContext.data(), i));
+            stream = QSharedPointer<AbstractStream>(new SubtitleStream(this->m_inputContext, i));
         else
-            stream = QSharedPointer<AbstractStream>(new AbstractStream(this->m_inputContext.data(), i));
+            stream = QSharedPointer<AbstractStream>(new AbstractStream(this->m_inputContext, i));
 
         if (stream->isValid())
             this->m_streams[i] = stream;
@@ -216,6 +215,16 @@ void MultiSrcElement::uninit()
 {
     this->m_streams.clear();
     this->m_inputContext.clear();
+}
+
+void MultiSrcElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->init();
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+        this->uninit();
 }
 
 void MultiSrcElement::deleteFormatContext(AVFormatContext *context)
@@ -276,14 +285,17 @@ void MultiSrcElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (this->state() == ElementStatePaused)
-        this->m_timer.stop();
-    else if (this->state() == ElementStatePlaying)
+    if (this->state() == ElementStatePlaying)
         this->m_timer.start();
+    else
+        this->m_timer.stop();
 }
 
 void MultiSrcElement::readPackets()
 {
+    if (!this->m_inputContext)
+        return;
+
     AVPacket packet;
     av_init_packet(&packet);
 

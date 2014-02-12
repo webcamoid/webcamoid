@@ -32,7 +32,7 @@ class SubtitleStream: public AbstractStream
 
     public:
         explicit SubtitleStream(QObject *parent=NULL);
-        SubtitleStream(AVFormatContext *formatContext, uint index);
+        SubtitleStream(const FormatContextPtr &formatContext, uint index);
 
         Q_INVOKABLE QbCaps caps() const;
         Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);

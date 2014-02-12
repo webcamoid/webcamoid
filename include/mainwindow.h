@@ -37,13 +37,14 @@ class COMMONSSHARED_EXPORT MainWindow: public QMainWindow
 
     public:
         explicit MainWindow(QWidget *parent=NULL);
+        ~MainWindow();
 
     protected:
         void changeEvent(QEvent *event);
         void closeEvent(QCloseEvent *event);
 
     private:
-        QSharedPointer<Ui::MainWindow> ui;
+        Ui::MainWindow *ui;
 
     signals:
         void windowClosed();

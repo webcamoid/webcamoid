@@ -52,8 +52,7 @@ class MultiSinkElement: public QbElement
         Q_INVOKABLE QVariantMap streamCaps();
 
     protected:
-        bool init();
-        void uninit();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
         QString m_location;

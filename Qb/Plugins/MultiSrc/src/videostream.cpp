@@ -25,7 +25,7 @@ VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
 {
 }
 
-VideoStream::VideoStream(AVFormatContext *formatContext, uint index):
+VideoStream::VideoStream(const FormatContextPtr &formatContext, uint index):
     AbstractStream(formatContext, index)
 {
 }
