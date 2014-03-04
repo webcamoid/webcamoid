@@ -50,14 +50,22 @@ class AudioOutputElement: public QbElement
 
     private:
         QbCaps m_curCaps;
+        QbCaps m_inCaps;
         QString m_outputTh;
         QbElementPtr m_audioConvert;
         QAudioDeviceInfo m_audioDeviceInfo;
         QAudioOutput *m_audioOutput;
         QIODevice *m_outputDevice;
         QByteArray m_audioBuffer;
+        QQueue<QbPacket> m_packetQueue;
+
         TimerPtr m_pullTimer;
+        TimerPtr m_soundInitTimer;
+        TimerPtr m_soundUninitTimer;
+
         QMutex m_mutex;
+        QMutex m_packetQueueMutex;
+
         QWaitCondition m_waitCondition;
         QbThreadPtr m_outputThread;
 
@@ -68,8 +76,6 @@ class AudioOutputElement: public QbElement
                                QAudioFormat *bestOption=NULL) const;
 
     protected:
-        bool init();
-        void uninit();
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     signals:
@@ -83,8 +89,11 @@ class AudioOutputElement: public QbElement
         void iStream(const QbPacket &packet);
 
     private slots:
+        bool init(QbCaps caps=QbCaps());
+        void uninit(bool lock=true);
         void processFrame(const QbPacket &packet);
         void pullFrame();
+        void feedAudio();
 };
 
 #endif // AUDIOOUTPUTELEMENT_H
