@@ -1,0 +1,55 @@
+language: cpp
+compiler: gcc
+
+before_install:
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install qt4-qmake
+  - sudo apt-get install qt4-dev-tools
+  - sudo apt-get install kdelibs5-dev
+  - sudo apt-get install frei0r-plugins-dev
+  - sudo apt-get install libqimageblitz-dev
+  - sudo apt-get install linux-libc-dev
+  - sudo apt-get install bison
+  - sudo apt-get install flex
+  - sudo apt-get install wget
+  - sudo apt-get install pkg-config
+  - sudo apt-get install yasm
+  - sudo apt-get install libass-dev
+  - sudo apt-get install libbluray-dev
+  - sudo apt-get install libgsm1-dev
+  - sudo apt-get install libmodplug-dev
+  - sudo apt-get install libopenjpeg-dev
+  - sudo apt-get install libopus-dev
+  - sudo apt-get install libpulse-dev
+  - sudo apt-get install libschroedinger-dev
+  - sudo apt-get install libspeex-dev
+  - sudo apt-get install libtheora-dev
+  - sudo apt-get install libv4l-dev
+  - sudo apt-get install libvorbis-dev
+  - sudo apt-get install libvpx-dev
+  - sudo apt-get install libx11-dev
+  - sudo apt-get install libxext-dev
+  - sudo apt-get install libxfixes-dev
+  - sudo apt-get install libmp3lame-dev
+  - sudo apt-get install libopencore-amrnb-dev
+  - sudo apt-get install libopencore-amrwb-dev
+  - sudo apt-get install librtmp-dev
+  - sudo apt-get install libx264-dev
+  - sudo apt-get install libxvidcore-dev
+
+script:
+  - qmake-qt4 Webcamoid.pro USE3DPARTYLIBS=1
+  - make
+
+branches:
+  only:
+    - master
+
+notifications:
+  recipients:
+    - hipersayan.x@gmail.com
+  email:
+    on_success: change
+    on_failure: always
