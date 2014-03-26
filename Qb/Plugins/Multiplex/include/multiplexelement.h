@@ -33,7 +33,6 @@ class MultiplexElement: public QbElement
 
     public:
         explicit MultiplexElement();
-        ~MultiplexElement();
 
         Q_INVOKABLE int inputIndex() const;
         Q_INVOKABLE int outputIndex() const;

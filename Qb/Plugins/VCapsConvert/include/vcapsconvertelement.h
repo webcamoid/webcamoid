@@ -43,7 +43,6 @@ class VCapsConvertElement: public QbElement
 
     public:
         explicit VCapsConvertElement();
-        ~VCapsConvertElement();
 
         Q_INVOKABLE QString caps();
 

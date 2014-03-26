@@ -34,10 +34,10 @@ class BlitzerElement: public QbElement
 
     public:
         explicit BlitzerElement();
-        ~BlitzerElement();
 
         Q_INVOKABLE QString method() const;
         Q_INVOKABLE QVariantList params() const;
+        bool event(QEvent *event);
 
     private:
         QString m_method;

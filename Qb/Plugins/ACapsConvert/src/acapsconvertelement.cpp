@@ -53,8 +53,7 @@ void ACapsConvertElement::resetCaps()
 void ACapsConvertElement::iStream(const QbPacket &packet)
 {
     if (!packet.caps().isValid() ||
-        packet.caps().mimeType() != "audio/x-raw" ||
-        this->state() != ElementStatePlaying)
+        packet.caps().mimeType() != "audio/x-raw")
         return;
 
     // Input Format

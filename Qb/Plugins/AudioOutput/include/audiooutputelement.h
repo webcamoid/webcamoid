@@ -31,45 +31,48 @@ extern "C"
     #include <libswresample/swresample.h>
 }
 
-typedef QSharedPointer<QTimer> TimerPtr;
+typedef QSharedPointer<QThread> ThreadPtr;
+typedef QSharedPointer<QAudioOutput> AudioOutputPtr;
 
 class AudioOutputElement: public QbElement
 {
     Q_OBJECT
     Q_PROPERTY(int bufferSize READ bufferSize NOTIFY bufferSizeChanged)
 
-    Q_PROPERTY(QString outputThread READ outputThread
-                                    WRITE setOutputThread
-                                    RESET resetOutputThread)
+    Q_PROPERTY(QThread *outputThread READ outputThread
+                                     WRITE setOutputThread
+                                     RESET resetOutputThread)
+
+    Q_PROPERTY(QString inputCaps READ inputCaps
+                                 WRITE setInputCaps
+                                 RESET resetInputCaps)
 
     public:
         explicit AudioOutputElement();
-        ~AudioOutputElement();
         Q_INVOKABLE int bufferSize() const;
-        Q_INVOKABLE QString outputThread() const;
+        Q_INVOKABLE QThread *outputThread() const;
+        Q_INVOKABLE QString inputCaps() const;
+        bool event(QEvent *event);
 
     private:
-        QbCaps m_curCaps;
-        QbCaps m_inCaps;
-        QString m_outputTh;
-        QbElementPtr m_audioConvert;
+        QThread *m_outputThread;
+        QString m_inputCaps;
+        QbElementPtr m_convert;
         QAudioDeviceInfo m_audioDeviceInfo;
-        QAudioOutput *m_audioOutput;
+        AudioOutputPtr m_audioOutput;
         QIODevice *m_outputDevice;
         QByteArray m_audioBuffer;
-        QQueue<QbPacket> m_packetQueue;
 
-        TimerPtr m_pullTimer;
-        TimerPtr m_soundInitTimer;
-        TimerPtr m_soundUninitTimer;
+        QTimer m_pullTimer;
+        QTimer m_soundInitTimer;
+        QTimer m_soundUninitTimer;
 
         QMutex m_mutex;
-        QMutex m_packetQueueMutex;
+        QWaitCondition m_bufferNotEmpty;
+        QWaitCondition m_bufferNotFull;
+        ThreadPtr m_outputThreadPtr;
 
-        QWaitCondition m_waitCondition;
-        QbThreadPtr m_outputThread;
-
-        TimerPtr runThread(QThread *thread, const char *method);
+        static void deleteThread(QThread *thread);
 
         QbCaps findBestOptions(const QbCaps &caps,
                                const QAudioDeviceInfo &deviceInfo,
@@ -81,19 +84,20 @@ class AudioOutputElement: public QbElement
     signals:
         void elapsedTime(double pts);
         void bufferSizeChanged(int size);
-        void requestFrame(int size);
+        void requestFrame();
 
     public slots:
-        void setOutputThread(const QString &outputThread);
+        void setOutputThread(const QThread *outputThread);
+        void setInputCaps(const QString &inputCaps);
         void resetOutputThread();
+        void resetInputCaps();
         void iStream(const QbPacket &packet);
 
     private slots:
-        bool init(QbCaps caps=QbCaps());
+        bool init();
         void uninit(bool lock=true);
         void processFrame(const QbPacket &packet);
         void pullFrame();
-        void feedAudio();
 };
 
 #endif // AUDIOOUTPUTELEMENT_H

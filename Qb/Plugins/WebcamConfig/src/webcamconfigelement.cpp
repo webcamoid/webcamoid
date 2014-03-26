@@ -37,14 +37,7 @@ WebcamConfigElement::WebcamConfigElement(): QbElement()
 #endif
 
     this->m_webcams = this->webcams();
-
     this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
-
-    QbThreadPtr thread = Qb::requestThread(this->eThread());
-
-    if (thread)
-        this->m_fsWatcher->moveToThread(thread.data());
-
     this->m_fsWatcher->setParent(this);
 
     QObject::connect(this->m_fsWatcher,
@@ -328,6 +321,31 @@ bool WebcamConfigElement::resetControls(const QString &webcam) const
     }
 
     return this->setControls(webcam, controls);
+}
+
+bool WebcamConfigElement::event(QEvent *event)
+{
+    bool r;
+
+    if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_fsWatcher,
+                            SIGNAL(directoryChanged(const QString &)),
+                            this,
+                            SLOT(onDirectoryChanged(const QString &)));
+
+        r = QObject::event(event);
+        this->m_fsWatcher->moveToThread(this->thread());
+
+        QObject::connect(this->m_fsWatcher,
+                         SIGNAL(directoryChanged(const QString &)),
+                         this,
+                         SLOT(onDirectoryChanged(const QString &)));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
 }
 
 __u32 WebcamConfigElement::format(const QString &webcam, const QSize &size) const

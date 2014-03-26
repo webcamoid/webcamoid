@@ -23,14 +23,6 @@
 
 QbElement::QbElement(QObject *parent): QObject(parent)
 {
-    QbThreadPtr thread = Qb::currentThread();
-
-    if (thread)
-    {
-        this->moveToThread(thread.data());
-        this->m_elementThread = thread;
-    }
-
     this->m_application = NULL;
     this->m_state = ElementStateNull;
 
@@ -40,6 +32,8 @@ QbElement::QbElement(QObject *parent): QObject(parent)
 
 QbElement::~QbElement()
 {
+    this->setState(QbElement::ElementStateNull);
+
     if (this->m_application)
         QMetaObject::invokeMethod(this->m_application,
                                   "deleteInstance",
@@ -49,11 +43,6 @@ QbElement::~QbElement()
 QbElement::ElementState QbElement::state()
 {
     return this->m_state;
-}
-
-QString QbElement::eThread()
-{
-    return this->m_elementThread? this->m_elementThread->objectName(): "";
 }
 
 QList<QbElement *> QbElement::srcs()

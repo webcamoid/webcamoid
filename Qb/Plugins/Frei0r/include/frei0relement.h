@@ -70,6 +70,7 @@ class Frei0rElement: public QbElement
         Q_INVOKABLE QVariantMap info();
         Q_INVOKABLE QStringList plugins() const;
         Q_INVOKABLE QStringList frei0rPaths() const;
+        bool event(QEvent *event);
 
     protected:
         bool init();
@@ -93,7 +94,7 @@ class Frei0rElement: public QbElement
         QByteArray m_iBuffer2;
         QByteArray m_oBuffer;
         QbCaps m_curInputCaps;
-        QbElementPtr m_capsConvert;
+        QbElementPtr m_convert;
         QLibrary m_library;
         QTimer m_timer;
         f0r_instance_t m_f0rInstance;

@@ -25,7 +25,7 @@ VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
 {
 }
 
-VideoStream::VideoStream(const FormatContextPtr &formatContext, uint index):
+VideoStream::VideoStream(const AVFormatContext *formatContext, uint index):
     AbstractStream(formatContext, index)
 {
 }
@@ -35,30 +35,23 @@ QbCaps VideoStream::caps() const
     const char *format = av_get_pix_fmt_name(this->codecContext()->pix_fmt);
     QbFrac fps = this->fps();
 
-    double maxFrameDuration = (this->formatContext()->iformat->flags &
-                               AVFMT_TS_DISCONT)? 10.0: 3600.0;
-
     QbCaps caps(QString("video/x-raw,"
                         "format=%1,"
                         "width=%2,"
                         "height=%3,"
-                        "fps=%4/%5,"
-                        "maxFrameDuration=%6").arg(format)
-                                              .arg(this->codecContext()->width)
-                                              .arg(this->codecContext()->height)
-                                              .arg(fps.num())
-                                              .arg(fps.den())
-                                              .arg(maxFrameDuration));
+                        "fps=%4/%5").arg(format)
+                                    .arg(this->codecContext()->width)
+                                    .arg(this->codecContext()->height)
+                                    .arg(fps.num())
+                                    .arg(fps.den()));
 
     return caps;
 }
 
-QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
+void VideoStream::processPacket(const PacketPtr &packet)
 {
-    QList<QbPacket> packets;
-
     if (!this->isValid())
-        return packets;
+        return;
 
     AVFrame iFrame;
     avcodec_get_frame_defaults(&iFrame);
@@ -68,10 +61,10 @@ QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
     avcodec_decode_video2(this->codecContext(),
                           &iFrame,
                           &gotFrame,
-                          packet);
+                          packet.data());
 
     if (!gotFrame)
-        return packets;
+        return;
 
     int frameSize = avpicture_get_size(this->codecContext()->pix_fmt,
                                        this->codecContext()->width,
@@ -80,7 +73,7 @@ QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
     QbBufferPtr oBuffer(new uchar[frameSize]);
 
     if (!oBuffer)
-        return packets;
+        return;
 
     int64_t pts = av_frame_get_best_effort_timestamp(&iFrame);
     int64_t duration = this->fps().invert().value()
@@ -102,20 +95,20 @@ QList<QbPacket> VideoStream::readPackets(AVPacket *packet)
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
 
-    packets << oPacket;
-
-    return packets;
+    emit this->oStream(oPacket);
 }
 
 QbFrac VideoStream::fps() const
 {
     QbFrac fps;
 
-    if (this->stream()->avg_frame_rate.num &&
-        this->stream()->avg_frame_rate.den)
-        fps = QbFrac(this->stream()->avg_frame_rate.num, this->stream()->avg_frame_rate.den);
+    if (this->stream()->avg_frame_rate.num
+        && this->stream()->avg_frame_rate.den)
+        fps = QbFrac(this->stream()->avg_frame_rate.num,
+                     this->stream()->avg_frame_rate.den);
     else
-        fps = QbFrac(this->stream()->r_frame_rate.num, this->stream()->r_frame_rate.den);
+        fps = QbFrac(this->stream()->r_frame_rate.num,
+                     this->stream()->r_frame_rate.den);
 
     return fps;
 }

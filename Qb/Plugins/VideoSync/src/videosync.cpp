@@ -19,23 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "qbthread.h"
+#include "videosync.h"
+#include "videosyncelement.h"
 
-QbThread::QbThread(QObject *parent):
-    QThread(parent)
+QbElement *VideoSync::newElement()
 {
-   this->m_threadList = NULL;
+    return new VideoSyncElement();
 }
 
-QbThread::~QbThread()
-{
-    if (this->m_threadList)
-        QMetaObject::invokeMethod(this->m_threadList,
-                                  "deleteInstance",
-                                  Q_ARG(QString, this->objectName()));
-}
-
-void QbThread::run()
-{
-    this->exec();
-}
+Q_EXPORT_PLUGIN2(VideoSync, VideoSync)

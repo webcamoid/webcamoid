@@ -28,10 +28,6 @@ MultiplexElement::MultiplexElement(): QbElement()
     this->resetCaps();
 }
 
-MultiplexElement::~MultiplexElement()
-{
-}
-
 int MultiplexElement::inputIndex() const
 {
     return this->m_inputIndex;

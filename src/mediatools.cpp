@@ -101,8 +101,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
      *   |     mic    |   Mic        | webcamConfig |
      *   +------------+              +--------------+
      */
-    Qb::setThread("DecodingTh");
-
     this->m_pipeline = Qb::create("Bin", "pipeline");
 
     if (this->m_pipeline)
@@ -111,36 +109,31 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "audioAlign=true "
                             "stateChanged>videoMux.setState "
                             "stateChanged>effects.setState "
-                            "stateChanged>muxAudioInput.setState !"
+                            "stateChanged>muxAudioInput.setState ! DirectConnection?"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
-                            "Sync objectName='sync' "
-                            "videoTh='MAIN' "
+                            "VideoSync objectName='videoSync' "
                             "audioOutput.elapsedTime>setAudioPts "
-                            "source.stateChanged>setState !"
-                            "Bin(MAIN) objectName='effects' blocking=false !"
-                            "VCapsConvert(MAIN) caps='video/x-raw,format=bgra' "
-                            "source.stateChanged>setState !"
-                            "OUT. ,"
+                            "source.stateChanged>setState ! "
+                            "Bin objectName='effects' blocking=false !"
+                            "VCapsConvert objectName='videoConvert' "
+                            "caps='video/x-raw,format=bgra' "
+                            "source.stateChanged>setState ,"
                             "source. !"
                             "Multiplex objectName='muxAudioInput' "
                             "caps='audio/x-raw' outputIndex=0 !"
                             "Multiplex objectName='audioSwitch' "
                             "outputIndex=1 ,"
-                            "muxAudioInput. ! sync. !"
-                            "AudioOutput(AudioTh) objectName='audioOutput' "
-                            "outputThread='AudioOutTh' ,"
-                            "AudioInput(AudioTh) objectName='mic' !"
+                            "muxAudioInput. ! DirectConnection? "
+                            "AudioOutput objectName='audioOutput' ,"
+                            "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
                             "effects. ! MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
-                            "WebcamConfig(MAIN) objectName='webcamConfig'");
+                            "WebcamConfig objectName='webcamConfig'");
 
         this->m_pipeline->setProperty("description", description);
-
-        Qb::setThread("");
-
         this->m_effectsPreview = Qb::create("Bin");
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
@@ -180,16 +173,15 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbElementPtr, this->m_sync),
-                                  Q_ARG(QString, "sync"));
+                                  Q_RETURN_ARG(QbElementPtr, this->m_videoSync),
+                                  Q_ARG(QString, "videoSync"));
 
-        QObject::connect(this->m_audioOutput.data(),
-                         SIGNAL(requestFrame(int)),
-                         this->m_sync.data(),
-                         SLOT(releaseAudioFrame(int)),
-                         Qt::DirectConnection);
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QbElementPtr, this->m_videoConvert),
+                                  Q_ARG(QString, "videoConvert"));
 
-        this->m_pipeline->link(this);
+        this->m_videoConvert->link(this, Qt::DirectConnection);
 
         if (this->m_source)
         {
@@ -226,17 +218,17 @@ void MediaTools::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() != "video/x-raw")
         return;
-
+/*
     QString sender = this->sender()->objectName();
 
-    if (sender == "pipeline")
+    if (sender == "videoConvert")*/
         emit this->frameReady(packet);
-    else
+/*    else
     {
         QString name = this->nameFromHash(sender);
 
         emit this->previewFrameReady(packet, name);
-    }
+    }*/
 }
 
 void MediaTools::sourceStateChanged(QbElement::ElementState state)
@@ -429,6 +421,13 @@ QString MediaTools::nameFromHash(QString hash)
     return QByteArray::fromHex(hash.mid(1).toUtf8());
 }
 
+void MediaTools::deleteThread(QThread *thread)
+{
+    thread->quit();
+    thread->wait();
+    delete thread;
+}
+
 void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
 {
     if (this->m_recordAudioFrom == recordAudio)
@@ -611,18 +610,18 @@ void MediaTools::setDevice(QString device)
                                   Q_RETURN_ARG(int, audioStream),
                                   Q_ARG(QString, "audio/x-raw"));
 
-        QStringList streams;
+        QList<int> streams;
 
         if (videoStream >= 0)
-            streams << QString("%1").arg(videoStream);
+            streams << videoStream;
 
         if (audioStream >= 0)
-            streams << QString("%1").arg(audioStream);
+            streams << audioStream;
 
         // Only decode the default streams.
         QMetaObject::invokeMethod(this->m_source.data(),
                                   "setFilterStreams", Qt::DirectConnection,
-                                  Q_ARG(QStringList, streams));
+                                  Q_ARG(QList<int>, streams));
 
         // Now setup the recording streams caps.
         QVariantMap streamCaps;
@@ -651,6 +650,16 @@ void MediaTools::setDevice(QString device)
         else if (this->recordAudioFrom() == RecordFromSource &&
                  audioStream >= 0)
             recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
+
+        if (audioStream >= 0)
+        {
+            QString audioCapsIndex = QString("%1").arg(audioStream);
+            QString audioCaps = streamCaps[audioCapsIndex].toString();
+
+            QMetaObject::invokeMethod(this->m_audioOutput.data(),
+                                      "setInputCaps", Qt::DirectConnection,
+                                      Q_ARG(QString, audioCaps));
+        }
 
         // Set recording caps.
         QMetaObject::invokeMethod(this->m_record.data(),
@@ -992,16 +1001,6 @@ void MediaTools::setVideoRecordFormat(QString suffix, QString options)
 void MediaTools::cleanAll()
 {
     this->resetDevice();
-
-    QStringList threads = Qb::threadsList();
-
-    foreach (QString thread, threads)
-    {
-        QbThreadPtr threadPtr = Qb::requestThread(thread);
-        threadPtr->quit();
-        threadPtr->wait();
-    }
-
     this->saveConfigs();
 }
 

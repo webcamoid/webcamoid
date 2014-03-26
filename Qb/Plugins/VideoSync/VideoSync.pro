@@ -31,10 +31,8 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/sync.h \
-    include/syncelement.h \
-    include/clock.h \
-    include/avqueue.h
+    include/videosync.h \
+    include/videosyncelement.h
 
 INCLUDEPATH += \
     include \
@@ -45,10 +43,8 @@ LIBS += -L../../ -lQb
 QT += core
 
 SOURCES += \
-    src/sync.cpp \
-    src/syncelement.cpp \
-    src/clock.cpp \
-    src/avqueue.cpp
+    src/videosync.cpp \
+    src/videosyncelement.cpp
 
 TEMPLATE = lib
 

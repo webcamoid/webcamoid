@@ -19,30 +19,18 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBTHREADSTOCK_H
-#define QBTHREADSTOCK_H
+#ifndef VIDEOSYNC_H
+#define VIDEOSYNC_H
 
-#include "qbthread.h"
+#include <qbplugin.h>
 
-class QbThreadStock: public QObject
+class VideoSync: public QObject, public QbPlugin
 {
     Q_OBJECT
+    Q_INTERFACES(QbPlugin)
 
     public:
-        explicit QbThreadStock(QObject *parent=NULL);
-        ~QbThreadStock();
-
-        Q_INVOKABLE QStringList threadsList() const;
-        Q_INVOKABLE QbThreadPtr requestInstance(const QString &threadName);
-        Q_INVOKABLE void deleteInstance(const QString &threadName);
-        Q_INVOKABLE void setThread(const QString &threadName);
-        Q_INVOKABLE QbThreadPtr currentThread() const;
-        Q_INVOKABLE QString currentThreadName() const;
-
-    private:
-        QMap<QString, QbThreadPtr> m_threads;
-        QbThreadPtr m_currentThread;
-        QString m_currentThreadName;
+        QbElement *newElement();
 };
 
-#endif // QBTHREADSTOCK_H
+#endif // VIDEOSYNC_H

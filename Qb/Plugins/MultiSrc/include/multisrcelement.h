@@ -27,6 +27,8 @@
 
 #include "abstractstream.h"
 
+typedef QMap<int, QThread *> IntThreadPtrMap;
+
 class MultiSrcElement: public QbElement
 {
     Q_OBJECT
@@ -34,13 +36,21 @@ class MultiSrcElement: public QbElement
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
     Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
 
-    Q_PROPERTY(QStringList filterStreams READ filterStreams
-                                         WRITE setFilterStreams
-                                         RESET resetFilterStreams)
+    Q_PROPERTY(QList<int> filterStreams READ filterStreams
+                                        WRITE setFilterStreams
+                                        RESET resetFilterStreams)
 
     Q_PROPERTY(bool audioAlign READ audioAlign
                                WRITE setAudioAlign
                                RESET resetAudioAlign)
+
+    Q_PROPERTY(IntThreadPtrMap outputThreads READ outputThreads
+                                             WRITE setOutputThreads
+                                             RESET resetOutputThreads)
+
+    Q_PROPERTY(QList<int> asPull READ asPull
+                                 WRITE setAsPull
+                                 RESET resetAsPull)
 
     public:
         explicit MultiSrcElement();
@@ -49,27 +59,45 @@ class MultiSrcElement: public QbElement
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QVariantMap streamCaps();
-        Q_INVOKABLE QStringList filterStreams() const;
+        Q_INVOKABLE QList<int> filterStreams() const;
         Q_INVOKABLE bool audioAlign() const;
-
+        Q_INVOKABLE IntThreadPtrMap outputThreads() const;
+        Q_INVOKABLE QList<int> asPull() const;
         Q_INVOKABLE int defaultStream(const QString &mimeType);
 
     protected:
-        bool init();
-        void uninit();
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
         QString m_location;
         bool m_loop;
-        QStringList m_filterStreams;
+        QList<int> m_filterStreams;
         bool m_audioAlign;
+        IntThreadPtrMap m_outputThreads;
+        QList<int> m_asPull;
+
+        QTimer m_decodingTimer;
+        ThreadPtr m_decodingThread;
 
         FormatContextPtr m_inputContext;
-        QTimer m_timer;
+
+        qint64 m_maxPacketQueueSize;
+        QMutex m_dataMutex;
+        QWaitCondition m_decodingFinished;
+        QWaitCondition m_packetQueueNotFull;
+        bool m_runInit;
+        bool m_runPostClean;
+        bool m_runDecoding;
+        bool m_userAction;
+
         QMap<int, AbstractStreamPtr> m_streams;
 
+        QMap<AVMediaType, QString> m_avMediaTypeToMimeType;
+
+        qint64 packetQueueSize();
+        static void deleteThread(QThread *thread);
         static void deleteFormatContext(AVFormatContext *context);
+        AbstractStreamPtr createStream(int index);
 
         inline int roundDown(int value, int multiply)
         {
@@ -78,21 +106,33 @@ class MultiSrcElement: public QbElement
 
     signals:
         void error(QString message);
+        void queueSizeUpdated(const QMap<int, qint64> &queueSize);
 
     public slots:
         void setLocation(const QString &location);
         void setLoop(bool loop);
-        void setFilterStreams(const QStringList &filterStreams);
+        void setFilterStreams(const QList<int> &filterStreams);
         void setAudioAlign(bool audioAlign);
+        void setOutputThreads(const IntThreadPtrMap &outputThreads);
+        void setAsPull(const QList<int> &asPull);
         void resetLocation();
         void resetLoop();
         void resetFilterStreams();
         void resetAudioAlign();
+        void resetOutputThreads();
+        void resetAsPull();
+        void pullFrame(int stream);
 
         void setState(QbElement::ElementState state);
 
     private slots:
-        void readPackets();
+        void pullData();
+        void packetConsumed();
+        void unlockQueue();
+        bool init();
+        bool initContext();
+        void uninit();
+        void threadExited(uint index);
 };
 
 #endif // MULTISRCELEMENT_H

@@ -40,6 +40,7 @@ class AudioInputElement: public QbElement
         Q_INVOKABLE QString audioSystem();
         Q_INVOKABLE QStringList availableAudioSystem();
         Q_INVOKABLE QVariantMap streamCaps();
+        bool event(QEvent *event);
 
     private:
         QString m_audioSystem;
