@@ -33,9 +33,9 @@ class WarholElement: public QbElement
 
     public:
         explicit WarholElement();
-        ~WarholElement();
 
         Q_INVOKABLE int nFrames() const;
+        bool event(QEvent *event);
 
     private:
         int m_nFrames;

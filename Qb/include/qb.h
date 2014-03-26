@@ -31,11 +31,6 @@ namespace Qb
     QbElementPtr create(const QString &pluginId, const QString &elementName="");
     void setPluginsPaths(const QStringList &pluginsPaths);
     void resetPluginsPaths();
-    QStringList threadsList();
-    QbThreadPtr requestThread(const QString &threadName);
-    void setThread(const QString &threadName);
-    QbThreadPtr currentThread();
-    QString currentThreadName();
 }
 
 #endif // QB_H

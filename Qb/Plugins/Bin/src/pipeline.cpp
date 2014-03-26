@@ -28,6 +28,7 @@ Pipeline::Pipeline(QObject *parent): QObject(parent)
     this->resetConnections();
     this->resetProperties();
     this->resetError();
+    this->resetThreads();
 }
 
 QMap<QString, QbElementPtr> Pipeline::elements() const
@@ -120,6 +121,11 @@ QList<QbElementPtr> Pipeline::outputs() const
             outputs << this->m_elements[link[0]];
 
     return outputs;
+}
+
+ThreadsMap Pipeline::threads() const
+{
+    return this->m_threads;
 }
 
 QList<Qt::ConnectionType> Pipeline::outputConnectionTypes() const
@@ -375,6 +381,11 @@ void Pipeline::setError(QString error)
     this->m_error = error;
 }
 
+void Pipeline::setThreads(const ThreadsMap &threads)
+{
+    this->m_threads = threads;
+}
+
 void Pipeline::resetElements()
 {
     this->setElements(QMap<QString, QbElementPtr>());
@@ -398,4 +409,9 @@ void Pipeline::resetProperties()
 void Pipeline::resetError()
 {
     this->setError("");
+}
+
+void Pipeline::resetThreads()
+{
+    this->m_threads.clear();
 }

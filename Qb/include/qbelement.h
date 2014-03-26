@@ -23,7 +23,6 @@
 #define QBELEMENT_H
 
 #include "qbpacket.h"
-#include "qbthread.h"
 
 class QbApplication;
 class QbElement;
@@ -36,7 +35,6 @@ class QbElement: public QObject
     Q_OBJECT
     Q_ENUMS(ElementState)
     Q_PROPERTY(QbElement::ElementState state READ state WRITE setState RESET resetState NOTIFY stateChanged)
-    Q_PROPERTY(QString eThread READ eThread)
     Q_PROPERTY(QList<QbElement *> srcs READ srcs WRITE setSrcs RESET resetSrcs)
     Q_PROPERTY(QList<QbElement *> sinks READ sinks WRITE setSinks RESET resetSinks)
 
@@ -52,7 +50,6 @@ class QbElement: public QObject
         virtual ~QbElement();
 
         Q_INVOKABLE virtual QbElement::ElementState state();
-        Q_INVOKABLE virtual QString eThread();
         Q_INVOKABLE virtual QList<QbElement *> srcs();
         Q_INVOKABLE virtual QList<QbElement *> sinks();
 
@@ -75,7 +72,6 @@ class QbElement: public QObject
     private:
         QString m_pluginId;
         QObject *m_application;
-        QbThreadPtr m_elementThread;
 
         QList<QMetaMethod> methodsByName(QObject *object, QString methodName);
         bool methodCompat(QMetaMethod method1, QMetaMethod method2);

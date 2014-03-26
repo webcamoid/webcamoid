@@ -41,9 +41,9 @@ QImageConvertElement::QImageConvertElement(): QbElement()
     this->m_imageToQt["RGB888"] = QImage::Format_RGB888;
     this->m_imageToQt["RGB444"] = QImage::Format_RGB444;
 
-    this->m_capsConvert = Qb::create("VCapsConvert");
+    this->m_convert = Qb::create("VCapsConvert");
 
-    QObject::connect(this->m_capsConvert.data(),
+    QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
@@ -54,6 +54,31 @@ QImageConvertElement::QImageConvertElement(): QbElement()
 QString QImageConvertElement::format()
 {
     return this->m_format;
+}
+
+bool QImageConvertElement::event(QEvent *event)
+{
+    bool r;
+
+    if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_convert.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(processFrame(const QbPacket &)));
+
+        r = QObject::event(event);
+        this->m_convert->moveToThread(this->thread());
+
+        QObject::connect(this->m_convert.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(processFrame(const QbPacket &)));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
 }
 
 void QImageConvertElement::setFormat(QString format)
@@ -79,20 +104,20 @@ void QImageConvertElement::iStream(const QbPacket &packet)
     if (!packet.caps().isValid() ||
         packet.caps().mimeType() != "video/x-raw" ||
         this->state() != ElementStatePlaying ||
-        !this->m_capsConvert)
+        !this->m_convert)
         return;
 
-    if (this->m_capsConvert->property("caps").toString() == "")
-        this->m_capsConvert->setProperty("caps",
+    if (this->m_convert->property("caps").toString() == "")
+        this->m_convert->setProperty("caps",
                                          QString("video/x-raw,format=%1").arg(this->m_imageToFormat[this->m_format]));
 
-    this->m_capsConvert->iStream(packet);
+    this->m_convert->iStream(packet);
 }
 
 void QImageConvertElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
-    this->m_capsConvert->setState(this->state());
+    this->m_convert->setState(this->state());
 }
 
 void QImageConvertElement::processFrame(const QbPacket &packet)

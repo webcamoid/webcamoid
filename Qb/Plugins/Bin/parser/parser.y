@@ -256,6 +256,7 @@ element: TOK_IDENTIFIER {
                  YYABORT;
              }
 
+             element->moveToThread(pipelineDescription->parent()->thread());
              QString name = pipelineDescription->addElement(element);
              $$ = new QString();
              *$$ = name;
@@ -263,9 +264,6 @@ element: TOK_IDENTIFIER {
              delete $1;
          }
        | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPAREN {
-             QbThreadPtr curThread = Qb::currentThread();
-             Qb::setThread(*$3);
-
              QbElementPtr element = Qb::create(*$1);
 
              if (!element)
@@ -276,14 +274,18 @@ element: TOK_IDENTIFIER {
                  YYABORT;
              }
 
+             ThreadsMap threads = pipelineDescription->threads();
+
+             QThread *thread = threads.contains(*$3)?
+                                    threads[*$3]:
+                                    pipelineDescription->parent()->thread();
+
+             element->moveToThread(thread);
              QString name = pipelineDescription->addElement(element);
              $$ = new QString();
              *$$ = name;
 
              delete $1;
-
-             Qb::setThread(curThread? curThread->objectName(): "");
-
              delete $3;
          }
        | TOK_IDENTIFIER configs {
@@ -297,6 +299,7 @@ element: TOK_IDENTIFIER {
                  YYABORT;
              }
 
+             element->moveToThread(pipelineDescription->parent()->thread());
              QVariantMap properties = pipelineDescription->properties();
 
              foreach (QString key, properties.keys())
@@ -313,9 +316,6 @@ element: TOK_IDENTIFIER {
              delete $1;
          }
        | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPAREN configs {
-             QbThreadPtr curThread = Qb::currentThread();
-             Qb::setThread(*$3);
-
              QbElementPtr element = Qb::create(*$1);
 
              if (!element)
@@ -326,6 +326,13 @@ element: TOK_IDENTIFIER {
                  YYABORT;
              }
 
+             ThreadsMap threads = pipelineDescription->threads();
+
+             QThread *thread = threads.contains(*$3)?
+                                    threads[*$3]:
+                                    pipelineDescription->parent()->thread();
+
+             element->moveToThread(thread);
              QVariantMap properties = pipelineDescription->properties();
 
              foreach (QString key, properties.keys())
@@ -340,9 +347,6 @@ element: TOK_IDENTIFIER {
              *$$ = name;
 
              delete $1;
-
-             Qb::setThread(curThread? curThread->objectName(): "");
-
              delete $3;
          }
        | TOK_IDENTIFIER TOK_DOT {

@@ -45,10 +45,6 @@ MatrixElement::MatrixElement(): QbElement()
     this->m_palette.resize(256 * this->fontDepth());
 }
 
-MatrixElement::~MatrixElement()
-{
-}
-
 int MatrixElement::nChars() const
 {
     return this->m_nChars;
@@ -84,11 +80,13 @@ bool MatrixElement::pause() const
     return this->m_pause;
 }
 
-bool MatrixElement::event(QEvent *e)
+bool MatrixElement::event(QEvent *event)
 {
-    if (e->type() == QEvent::KeyPress)
+    bool r;
+
+    if (event->type() == QEvent::KeyPress)
     {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
 
         if (ke->key() == Qt::Key_Space)
         {
@@ -113,15 +111,34 @@ bool MatrixElement::event(QEvent *e)
             return true;
         }
     }
-    else if (e->type() == QEvent::KeyRelease)
+    else if (event->type() == QEvent::KeyRelease)
     {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
 
         if (ke->key() == Qt::Key_Space)
             this->setPause(false);
-    }
 
-    return QObject::event(e);
+        r = QObject::event(event);
+    }
+    else if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_convert.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(processFrame(const QbPacket &)));
+
+        r = QObject::event(event);
+        this->m_convert->moveToThread(this->thread());
+
+        QObject::connect(this->m_convert.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(processFrame(const QbPacket &)));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
 }
 
 void MatrixElement::setPattern()
