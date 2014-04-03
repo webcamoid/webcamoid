@@ -21,12 +21,9 @@
 
 #include "videostream.h"
 
-VideoStream::VideoStream(QObject *parent): AbstractStream(parent)
-{
-}
-
-VideoStream::VideoStream(const AVFormatContext *formatContext, uint index):
-    AbstractStream(formatContext, index)
+VideoStream::VideoStream(const AVFormatContext *formatContext,
+                         uint index, qint64 id, bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, noModify, parent)
 {
 }
 
@@ -48,20 +45,20 @@ QbCaps VideoStream::caps() const
     return caps;
 }
 
-void VideoStream::processPacket(const PacketPtr &packet)
+void VideoStream::processPacket(AVPacket *packet)
 {
     if (!this->isValid())
         return;
 
     AVFrame iFrame;
-    avcodec_get_frame_defaults(&iFrame);
+    memset(&iFrame, 0, sizeof(AVFrame));
 
     int gotFrame;
 
     avcodec_decode_video2(this->codecContext(),
                           &iFrame,
                           &gotFrame,
-                          packet.data());
+                          packet);
 
     if (!gotFrame)
         return;
@@ -94,6 +91,7 @@ void VideoStream::processPacket(const PacketPtr &packet)
     oPacket.setDuration(duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
+    oPacket.setId(this->id());
 
     emit this->oStream(oPacket);
 }

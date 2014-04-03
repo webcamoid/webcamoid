@@ -21,46 +21,37 @@
 
 #include "abstractstream.h"
 
-AbstractStream::AbstractStream(QObject *parent): QObject(parent)
-{
-    this->m_isValid = false;
-    this->m_index = -1;
-    this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
-    this->m_stream = NULL;
-    this->m_codecContext = NULL;
-    this->m_codec = NULL;
-    this->m_codecOptions = NULL;
-    this->m_queueSize = 0;
-
-    this->resetOutputThread();
-}
-
-AbstractStream::AbstractStream(const AVFormatContext *formatContext, uint index)
+AbstractStream::AbstractStream(const AVFormatContext *formatContext,
+                               uint index, qint64 id, bool noModify,
+                               QObject *parent): QObject(parent)
 {
     this->m_isValid = false;
     this->m_index = index;
-    this->m_stream = formatContext->streams[index];
-    this->m_mediaType = this->m_stream->codec->codec_type;
-    this->m_codecContext = this->m_stream->codec;
-    this->m_codec = avcodec_find_decoder(this->m_codecContext->codec_id);
+    this->m_id = id;
+    this->m_stream = formatContext? formatContext->streams[index]: NULL;
+    this->m_mediaType = formatContext? this->m_stream->codec->codec_type: AVMEDIA_TYPE_UNKNOWN;
+    this->m_codecContext = formatContext? this->m_stream->codec: NULL;
+    this->m_codec = formatContext? avcodec_find_decoder(this->m_codecContext->codec_id): NULL;
     this->m_codecOptions = NULL;
     this->m_queueSize = 0;
-
-    this->m_timeBase = QbFrac(this->m_stream->time_base.num,
-                              this->m_stream->time_base.den);
+    this->m_outputThread = NULL;
 
     if (!this->m_codec)
         return;
 
-    this->m_stream->discard = AVDISCARD_DEFAULT;
-    this->m_codecContext->workaround_bugs = 1;
-    this->m_codecContext->idct_algo = FF_IDCT_AUTO;
-    this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+    if (formatContext)
+        this->m_timeBase = QbFrac(this->m_stream->time_base.num,
+                                  this->m_stream->time_base.den);
 
-    if (this->m_codec->capabilities & CODEC_CAP_DR1)
-        this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+    if (!noModify) {
+        this->m_stream->discard = AVDISCARD_DEFAULT;
+        this->m_codecContext->workaround_bugs = 1;
+        this->m_codecContext->idct_algo = FF_IDCT_AUTO;
+        this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
-    this->resetOutputThread();
+        if (this->m_codec->capabilities & CODEC_CAP_DR1)
+            this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+    }
 
     this->m_isValid = true;
 }
@@ -73,6 +64,11 @@ bool AbstractStream::isValid() const
 uint AbstractStream::index() const
 {
     return this->m_index;
+}
+
+qint64 AbstractStream::id() const
+{
+    return this->m_id;
 }
 
 QbFrac AbstractStream::timeBase() const
@@ -110,18 +106,11 @@ QbCaps AbstractStream::caps() const
     return QbCaps();
 }
 
-void AbstractStream::enqueue(const AVPacket *packet)
+void AbstractStream::enqueue(AVPacket *packet)
 {
     this->m_mutex.lock();
-
-    if (packet) {
-        this->m_packets.enqueue(PacketPtr(const_cast<AVPacket *>(packet),
-                                          this->deletePacket));
-        this->m_queueSize += packet->size;
-    }
-    else
-        this->m_packets.insert(0, PacketPtr());
-
+    this->m_packets.enqueue(packet);
+    this->m_queueSize += packet->size;
     this->m_queueNotEmpty.wakeAll();
     this->m_mutex.unlock();
 }
@@ -131,53 +120,15 @@ qint64 AbstractStream::queueSize()
     return this->m_queueSize;
 }
 
-QThread *AbstractStream::outputThread() const
-{
-    return this->m_outputThread;
-}
-
-AVMediaType AbstractStream::type(const FormatContextPtr &formatContext,
+AVMediaType AbstractStream::type(const AVFormatContext *formatContext,
                                  uint index)
 {
     return formatContext->streams[index]->codec->codec_type;
 }
 
-void AbstractStream::processPacket(const PacketPtr &packet)
+void AbstractStream::processPacket(AVPacket *packet)
 {
     Q_UNUSED(packet)
-}
-
-void AbstractStream::deletePacket(AVPacket *packet)
-{
-    av_free_packet(packet);
-    delete packet;
-}
-
-void AbstractStream::deleteThread(QThread *thread)
-{
-    thread->quit();
-    thread->wait();
-    delete thread;
-}
-
-void AbstractStream::setOutputThread(const QThread *outputThread)
-{
-    this->m_outputThread = const_cast<QThread *>(outputThread);
-}
-
-void AbstractStream::resetOutputThread()
-{
-    this->setOutputThread(NULL);
-}
-
-void AbstractStream::setPull(bool pull)
-{
-    this->m_timer.setSingleShot(pull);
-}
-
-void AbstractStream::pull()
-{
-    QMetaObject::invokeMethod(&this->m_timer, "start");
 }
 
 void AbstractStream::init()
@@ -186,49 +137,60 @@ void AbstractStream::init()
                       &this->m_codecOptions) < 0)
         return;
 
-    if (this->m_outputThread)
-        this->m_timer.moveToThread(const_cast<QThread *>(this->m_outputThread));
-    else {
-        this->m_outputThreadPtr = ThreadPtr(new QThread(), this->deleteThread);
-        this->m_outputThreadPtr->start();
-        this->m_timer.moveToThread(this->m_outputThreadPtr.data());
-    }
+    this->m_outputThread = new Thread();
 
-    QObject::connect(&this->m_timer,
-                     SIGNAL(timeout()),
+    QObject::connect(this->m_outputThread,
+                     SIGNAL(runTh()),
                      this,
                      SLOT(pullFrame()),
                      Qt::DirectConnection);
 
-    if (!this->m_timer.isSingleShot())
-        QMetaObject::invokeMethod(&this->m_timer, "start");
+    this->m_run = true;
+    this->m_outputThread->start();
+}
+
+void AbstractStream::uninit()
+{
+    this->m_mutex.lock();
+    this->m_run = false;
+    this->m_queueNotEmpty.wakeAll();
+    this->m_mutex.unlock();
+
+    if (this->m_outputThread) {
+        this->m_outputThread->quit();
+        this->m_outputThread->wait();
+        delete this->m_outputThread;
+        this->m_outputThread = NULL;
+    }
+
+    if (this->m_codecOptions)
+        av_dict_free(&this->m_codecOptions);
+
+    if (this->m_codecContext)
+        avcodec_close(this->m_codecContext);
+
+    this->m_codecContext = NULL;
 }
 
 void AbstractStream::pullFrame()
 {
-    this->m_mutex.lock();
+    while (this->m_run)
+    {
+        this->m_mutex.lock();
 
-    if (this->m_packets.isEmpty())
-        this->m_queueNotEmpty.wait(&this->m_mutex);
+        if (this->m_packets.isEmpty())
+            this->m_queueNotEmpty.wait(&this->m_mutex);
 
-    PacketPtr packet = this->m_packets.dequeue();
+        if (!this->m_packets.isEmpty())
+        {
+            AVPacket *packet = this->m_packets.dequeue();
+            this->processPacket(packet);
+            this->m_queueSize -= packet->size;
+            av_free_packet(packet);
+            delete packet;
+            emit this->notify();
+        }
 
-    if (packet) {
-        this->processPacket(packet);
-        this->m_queueSize -= packet->size;
-        emit this->notify();
+        this->m_mutex.unlock();
     }
-    else {
-        this->m_timer.stop();
-
-        if (this->m_codecOptions)
-            av_dict_free(&this->m_codecOptions);
-
-        if (this->m_codecContext)
-            avcodec_close(this->m_codecContext);
-
-        emit this->exited(this->m_index);
-    }
-
-    this->m_mutex.unlock();
 }

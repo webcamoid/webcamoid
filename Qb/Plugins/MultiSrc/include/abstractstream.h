@@ -22,7 +22,6 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
-#include <QtCore>
 #include <qb.h>
 
 extern "C"
@@ -31,23 +30,20 @@ extern "C"
     #include <libavutil/imgutils.h>
 }
 
-class AbstractStream;
-
-typedef QSharedPointer<AVFormatContext> FormatContextPtr;
-typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
-typedef QSharedPointer<AVPacket> PacketPtr;
-typedef QSharedPointer<QThread> ThreadPtr;
+#include "thread.h"
 
 class AbstractStream: public QObject
 {
     Q_OBJECT
 
     public:
-        explicit AbstractStream(QObject *parent=NULL);
-        AbstractStream(const AVFormatContext *formatContext, uint index);
+        explicit AbstractStream(const AVFormatContext *formatContext=NULL,
+                                uint index=-1, qint64 id=-1, bool noModify=false,
+                                QObject *parent=NULL);
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
+        Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE QbFrac timeBase() const;
         Q_INVOKABLE AVMediaType mediaType() const;
         Q_INVOKABLE AVStream *stream() const;
@@ -55,50 +51,40 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
         Q_INVOKABLE virtual QbCaps caps() const;
-        Q_INVOKABLE void enqueue(const AVPacket *packet);
+        Q_INVOKABLE void enqueue(AVPacket *packet);
         Q_INVOKABLE qint64 queueSize();
-        Q_INVOKABLE QThread *outputThread() const;
 
-        static AVMediaType type(const FormatContextPtr &formatContext,
+        static AVMediaType type(const AVFormatContext *formatContext,
                                 uint index);
 
     protected:
         bool m_isValid;
 
-        virtual void processPacket(const PacketPtr &packet);
+        virtual void processPacket(AVPacket *packet);
 
     private:
         uint m_index;
+        qint64 m_id;
         QbFrac m_timeBase;
         AVMediaType m_mediaType;
         AVStream *m_stream;
         AVCodecContext *m_codecContext;
         AVCodec *m_codec;
         AVDictionary *m_codecOptions;
-        QString m_threadName;
-        QTimer m_timer;
+        bool m_run;
+        Thread *m_outputThread;
         QMutex m_mutex;
-        ThreadPtr m_outputThreadPtr;
-        QThread *m_outputThread;
         QWaitCondition m_queueNotEmpty;
-        QQueue<PacketPtr> m_packets;
+        QQueue<AVPacket *> m_packets;
         qint64 m_queueSize;
-
-        static void deletePacket(AVPacket *packet);
-        static void deleteThread(QThread *thread);
 
     signals:
         void oStream(const QbPacket &packet);
         void notify();
-        void exited(uint index);
 
     public slots:
-        void setOutputThread(const QThread *outputThread);
-        void resetOutputThread();
-        void setPull(bool pull);
-        void pull();
-
         void init();
+        void uninit();
 
     private slots:
         void pullFrame();

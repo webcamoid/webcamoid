@@ -21,13 +21,9 @@
 
 #include "subtitlestream.h"
 
-SubtitleStream::SubtitleStream(QObject *parent): AbstractStream(parent)
-{
-}
-
 SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
-                               uint index):
-    AbstractStream(formatContext, index)
+                               uint index, qint64 id, bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, noModify, parent)
 {
 }
 
@@ -36,7 +32,7 @@ QbCaps SubtitleStream::caps() const
     return QbCaps("application/x-subtitle");
 }
 
-void SubtitleStream::processPacket(const PacketPtr &packet)
+void SubtitleStream::processPacket(AVPacket *packet)
 {
     if (!this->isValid())
         return;
@@ -47,7 +43,7 @@ void SubtitleStream::processPacket(const PacketPtr &packet)
     avcodec_decode_subtitle2(this->codecContext(),
                              &subtitle,
                              &gotSubtitle,
-                             packet.data());
+                             packet);
 
     if (gotSubtitle) {
         for (uint i = 0; i < subtitle.num_rects; i++) {
@@ -124,6 +120,7 @@ void SubtitleStream::processPacket(const PacketPtr &packet)
             oPacket.setDuration(packet->duration);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
+            oPacket.setId(this->id());
 
             emit this->oStream(oPacket);
         }
@@ -151,6 +148,7 @@ void SubtitleStream::processPacket(const PacketPtr &packet)
             oPacket.setDuration(packet->duration);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
+            oPacket.setId(this->id());
 
             emit this->oStream(oPacket);
         }

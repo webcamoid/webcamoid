@@ -31,6 +31,7 @@ namespace Qb
     QbElementPtr create(const QString &pluginId, const QString &elementName="");
     void setPluginsPaths(const QStringList &pluginsPaths);
     void resetPluginsPaths();
+    qint64 id();
 }
 
 #endif // QB_H

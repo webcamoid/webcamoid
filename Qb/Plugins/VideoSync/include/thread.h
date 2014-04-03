@@ -19,29 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef THREAD_H
+#define THREAD_H
 
-#include <QtGui>
+#include <QtCore>
 
-#include "abstractstream.h"
-
-class VideoStream: public AbstractStream
+class Thread: public QThread
 {
     Q_OBJECT
 
     public:
-        explicit VideoStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1, bool noModify=false,
-                             QObject *parent=NULL);
-
-        Q_INVOKABLE QbCaps caps() const;
+        explicit Thread(QObject *parent = NULL);
 
     protected:
-        void processPacket(AVPacket *packet);
+        void run();
 
-    private:
-        QbFrac fps() const;
+    signals:
+        void runTh();
 };
 
-#endif // VIDEOSTREAM_H
+#endif // THREAD_H

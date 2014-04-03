@@ -113,7 +113,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
                             "VideoSync objectName='videoSync' "
-                            "audioOutput.elapsedTime>setAudioPts "
+                            "audioOutput.elapsedTime>setClock "
                             "source.stateChanged>setState ! "
                             "Bin objectName='effects' blocking=false !"
                             "VCapsConvert objectName='videoConvert' "
