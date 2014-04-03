@@ -264,7 +264,7 @@ void AudioOutputElement::uninit(bool lock)
 }
 
 void AudioOutputElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
-{
+{/*
     if (from == QbElement::ElementStateNull
         && to == QbElement::ElementStatePaused)
         QMetaObject::invokeMethod(&this->m_soundInitTimer, "start");
@@ -276,7 +276,7 @@ void AudioOutputElement::stateChange(QbElement::ElementState from, QbElement::El
         QMetaObject::invokeMethod(&this->m_pullTimer, "stop");
     else if (from == QbElement::ElementStatePaused
              && to == QbElement::ElementStatePlaying)
-        QMetaObject::invokeMethod(&this->m_pullTimer, "start");
+        QMetaObject::invokeMethod(&this->m_pullTimer, "start");*/
 }
 
 void AudioOutputElement::setOutputThread(const QThread *outputThread)

@@ -24,6 +24,8 @@
 
 #include <qb.h>
 
+#include "thread.h"
+
 // no AV sync correction is done if below the minimum AV sync threshold
 #define AV_SYNC_THRESHOLD_MIN 0.01
 
@@ -33,15 +35,9 @@
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-typedef QSharedPointer<QThread> ThreadPtr;
-
 class VideoSyncElement: public QbElement
 {
     Q_OBJECT
-
-    Q_PROPERTY(QThread *outputThread READ outputThread
-                                     WRITE setOutputThread
-                                     RESET resetOutputThread)
 
     Q_PROPERTY(int maxQueueSize READ maxQueueSize
                                 WRITE setMaxQueueSize
@@ -49,8 +45,8 @@ class VideoSyncElement: public QbElement
 
     public:
         explicit VideoSyncElement();
+        ~VideoSyncElement();
 
-        Q_INVOKABLE QThread *outputThread() const;
         Q_INVOKABLE int maxQueueSize() const;
 
     protected:
@@ -60,8 +56,9 @@ class VideoSyncElement: public QbElement
         int m_maxQueueSize;
         bool m_log;
 
-        ThreadPtr m_outputThreadPtr;
-        QThread *m_outputThread;
+        Thread *m_outputThread;
+        bool m_run;
+
         QMutex m_mutex;
         QWaitCondition m_queueNotEmpty;
         QWaitCondition m_queueNotFull;
@@ -72,20 +69,16 @@ class VideoSyncElement: public QbElement
         double m_timeDrift;
 
         void printLog(const QbPacket &packet, double diff);
-        static void deleteThread(QThread *thread);
 
     public slots:
         void setClock(double clock);
-        void setOutputThread(const QThread *outputThread);
         void setMaxQueueSize(int maxQueueSize);
-        void resetOutputThread();
         void resetMaxQueueSize();
         void processFrame();
         void init();
         void uninit();
 
         void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
 };
 
 #endif // VIDEOSYNCELEMENT_H

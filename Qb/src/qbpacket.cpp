@@ -26,6 +26,7 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetCaps();
     this->resetBuffer();
     this->resetBufferSize();
+    this->resetId();
     this->resetPts();
     this->resetDuration();
     this->resetTimeBase();
@@ -106,6 +107,10 @@ QString QbPacket::toString() const
                     << this->bufferSize()
                     << "\n";
 
+    debug.nospace() << "Id         : "
+                    << this->id()
+                    << "\n";
+
     debug.nospace() << "Pts        : "
                     << this->pts() * this->timeBase().value()
                     << "\n";
@@ -142,6 +147,11 @@ QbBufferPtr QbPacket::buffer() const
 ulong QbPacket::bufferSize() const
 {
     return this->m_bufferSize;
+}
+
+qint64 QbPacket::id() const
+{
+    return this->m_id;
 }
 
 int64_t QbPacket::pts() const
@@ -184,6 +194,11 @@ void QbPacket::setBufferSize(ulong bufferSize)
     this->m_bufferSize = bufferSize;
 }
 
+void QbPacket::setId(qint64 id)
+{
+    this->m_id = id;
+}
+
 void QbPacket::setPts(int64_t pts)
 {
     this->m_pts = pts;
@@ -222,6 +237,11 @@ void QbPacket::resetBuffer()
 void QbPacket::resetBufferSize()
 {
     this->setBufferSize(0);
+}
+
+void QbPacket::resetId()
+{
+    this->setId(-1);
 }
 
 void QbPacket::resetPts()

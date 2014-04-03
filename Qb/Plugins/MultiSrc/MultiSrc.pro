@@ -42,7 +42,8 @@ HEADERS += \
     include/audiostream.h \
     include/multisrc.h \
     include/multisrcelement.h \
-    include/subtitlestream.h
+    include/subtitlestream.h \
+    include/thread.h
 
 INCLUDEPATH += \
     include \
@@ -74,7 +75,8 @@ SOURCES += \
     src/audiostream.cpp \
     src/multisrc.cpp \
     src/multisrcelement.cpp \
-    src/subtitlestream.cpp
+    src/subtitlestream.cpp \
+    src/thread.cpp
 
 TEMPLATE = lib
 

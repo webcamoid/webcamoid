@@ -61,3 +61,10 @@ void Qb::resetPluginsPaths()
 {
     application()->resetPluginsPaths();
 }
+
+qint64 Qb::id()
+{
+    static qint64 id = 0;
+
+    return id++;
+}

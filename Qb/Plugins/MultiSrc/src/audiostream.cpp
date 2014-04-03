@@ -21,14 +21,9 @@
 
 #include "audiostream.h"
 
-AudioStream::AudioStream(QObject *parent): AbstractStream(parent)
-{
-    this->m_fst = true;
-    this->resetAlign();
-}
-
-AudioStream::AudioStream(const AVFormatContext *formatContext, uint index):
-    AbstractStream(formatContext, index)
+AudioStream::AudioStream(const AVFormatContext *formatContext,
+                         uint index, qint64 id, bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, noModify, parent)
 {
     this->m_fst = true;
     this->resetAlign();
@@ -73,20 +68,20 @@ QbCaps AudioStream::caps() const
     return caps;
 }
 
-void AudioStream::processPacket(const PacketPtr &packet)
+void AudioStream::processPacket(AVPacket *packet)
 {
     if (!this->isValid())
         return;
 
     AVFrame iFrame;
-    avcodec_get_frame_defaults(&iFrame);
+    memset(&iFrame, 0, sizeof(AVFrame));
 
     int gotFrame;
 
     avcodec_decode_audio4(this->codecContext(),
                           &iFrame,
                           &gotFrame,
-                          packet.data());
+                          packet);
 
     if (!gotFrame)
         return;
@@ -145,6 +140,7 @@ void AudioStream::processPacket(const PacketPtr &packet)
     oPacket.setDuration(this->m_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
+    oPacket.setId(this->id());
 
     emit this->oStream(oPacket);
 }
