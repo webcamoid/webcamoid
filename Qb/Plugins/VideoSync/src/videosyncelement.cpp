@@ -20,12 +20,14 @@
  */
 
 #include "videosyncelement.h"
+#include "sleep.h"
 
 VideoSyncElement::VideoSyncElement(): QbElement()
 {
     this->m_log = true;
-    this->m_run = NULL;
+    this->m_run = false;
     this->m_outputThread = NULL;
+    this->m_lastPts = 0;
 
     this->resetMaxQueueSize();
 }
@@ -53,8 +55,7 @@ void VideoSyncElement::stateChange(QbElement::ElementState from,
 
 void VideoSyncElement::printLog(const QbPacket &packet, double diff)
 {
-    if (this->m_log)
-    {
+    if (this->m_log) {
         QString logFmt("%1 %2 A-V: %3 q=%4");
 
         QString log = logFmt.arg(packet.caps().mimeType()[0])
@@ -84,11 +85,12 @@ void VideoSyncElement::resetMaxQueueSize()
 
 void VideoSyncElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() != "video/x-raw" ||
-        this->state() != ElementStatePlaying)
+    if (packet.caps().mimeType() != "video/x-raw"
+        || !this->m_run)
         return;
 
     this->m_mutex.lock();
+    qDebug() << "VideoSyncElement::iStream lock";
 
     if (this->m_queue.size() >= this->m_maxQueueSize)
         this->m_queueNotFull.wait(&this->m_mutex);
@@ -96,6 +98,7 @@ void VideoSyncElement::iStream(const QbPacket &packet)
     this->m_queue.enqueue(packet);
     this->m_queueNotEmpty.wakeAll();
 
+    qDebug() << "VideoSyncElement::iStream unlock";
     this->m_mutex.unlock();
 }
 
@@ -103,6 +106,7 @@ void VideoSyncElement::processFrame()
 {
     while (this->m_run) {
         this->m_mutex.lock();
+        qDebug() << "VideoSyncElement::processFrame lock";
 
         if (this->m_queue.isEmpty())
             this->m_queueNotEmpty.wait(&this->m_mutex);
@@ -115,8 +119,7 @@ void VideoSyncElement::processFrame()
             double diff = pts - this->m_elapsedTimer.elapsed() * 1.0e-3
                               + this->m_timeDrift;
 
-            QString fps = packet.caps().property("fps").toString();
-            double delay = QbFrac(fps).invert().value();
+            double delay = pts - this->m_lastPts;
 
             // skip or repeat frame. We take into account the
             // delay to compute the threshold. I still don't know
@@ -125,18 +128,23 @@ void VideoSyncElement::processFrame()
                                           delay,
                                           AV_SYNC_THRESHOLD_MAX);
 
-            if (!isnan(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD) {
+            if (!isnan(diff)
+                && fabs(diff) < AV_NOSYNC_THRESHOLD
+                && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
                 // video is backward the external clock.
                 if (diff <= -syncThreshold) {
                     this->m_queue.removeFirst();
                     this->m_queueNotFull.wakeAll();
+                    this->m_lastPts = pts;
+                    qDebug() << "VideoSyncElement::processFrame unlock";
                     this->m_mutex.unlock();
 
                     continue;
                 }
                 // video is ahead the external clock.
                 else if (diff > syncThreshold) {
-                    // sleep(500 * diff);
+                    Sleep::usleep(1e6 * (diff - syncThreshold));
+                    qDebug() << "VideoSyncElement::processFrame unlock";
                     this->m_mutex.unlock();
 
                     continue;
@@ -150,8 +158,10 @@ void VideoSyncElement::processFrame()
             emit this->oStream(packet);
             this->m_queue.removeFirst();
             this->m_queueNotFull.wakeAll();
+            this->m_lastPts = pts;
         }
 
+        qDebug() << "VideoSyncElement::processFrame unlock";
         this->m_mutex.unlock();
     }
 }
@@ -159,8 +169,9 @@ void VideoSyncElement::processFrame()
 void VideoSyncElement::init()
 {
     this->m_timeDrift = 0;
+    this->m_lastPts = 0;
     this->m_elapsedTimer.start();
-
+    this->m_queue.clear();
     this->m_outputThread = new Thread();
 
     QObject::connect(this->m_outputThread,
@@ -175,15 +186,20 @@ void VideoSyncElement::init()
 
 void VideoSyncElement::uninit()
 {
+    if (!this->m_run)
+        return;
+
     this->m_mutex.lock();
+    qDebug() << "VideoSyncElement::uninit lock";
     this->m_run = false;
     this->m_queue.clear();
     this->m_queueNotFull.wakeAll();
     this->m_queueNotEmpty.wakeAll();
+    qDebug() << "VideoSyncElement::uninit unlock";
     this->m_mutex.unlock();
 
     if (this->m_outputThread) {
-        this->m_outputThread->quit();
+//        this->m_outputThread->quit();
         this->m_outputThread->wait();
         delete this->m_outputThread;
         this->m_outputThread = NULL;

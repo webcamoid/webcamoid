@@ -33,7 +33,8 @@ CONFIG += plugin
 HEADERS += \
     include/videosync.h \
     include/videosyncelement.h \
-    include/thread.h
+    include/thread.h \
+    include/sleep.h
 
 INCLUDEPATH += \
     include \
@@ -46,7 +47,8 @@ QT += core
 SOURCES += \
     src/videosync.cpp \
     src/videosyncelement.cpp \
-    src/thread.cpp
+    src/thread.cpp \
+    src/sleep.cpp
 
 TEMPLATE = lib
 

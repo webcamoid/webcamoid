@@ -39,7 +39,8 @@ QbPacket::QbPacket(const QbCaps &caps,
                    int64_t pts,
                    int duration,
                    const QbFrac &timeBase,
-                   int index)
+                   int index,
+                   qint64 id)
 {
     this->setCaps(caps);
     bool isValid = this->caps().isValid();
@@ -49,6 +50,7 @@ QbPacket::QbPacket(const QbCaps &caps,
     this->setDuration(isValid? duration: 0);
     this->setTimeBase(isValid? timeBase: QbFrac());
     this->setIndex(isValid? index: -1);
+    this->setId(isValid? id: -1);
 }
 
 QbPacket::QbPacket(const QbPacket &other):
@@ -60,7 +62,8 @@ QbPacket::QbPacket(const QbPacket &other):
     m_pts(other.m_pts),
     m_duration(other.m_duration),
     m_timeBase(other.m_timeBase),
-    m_index(other.m_index)
+    m_index(other.m_index),
+    m_id(other.m_id)
 {
 }
 
@@ -70,8 +73,7 @@ QbPacket::~QbPacket()
 
 QbPacket &QbPacket::operator =(const QbPacket &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_caps = other.m_caps;
         this->m_data = other.m_data;
         this->m_buffer = other.m_buffer;
@@ -80,6 +82,7 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
         this->m_duration = other.m_duration;
         this->m_timeBase = other.m_timeBase;
         this->m_index = other.m_index;
+        this->m_id = other.m_id;
     }
 
     return *this;

@@ -73,8 +73,7 @@ QbFrac::~QbFrac()
 
 QbFrac &QbFrac::operator =(const QbFrac &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_num = other.m_num;
         this->m_den = other.m_den;
         this->m_isValid = other.m_isValid;
@@ -140,8 +139,7 @@ qint64 QbFrac::gcd() const
     qint64 num = abs(this->m_num);
     qint64 den = abs(this->m_den);
 
-    while (num > 0)
-    {
+    while (num > 0) {
         tmp = num;
         num = den % num;
         den = tmp;

@@ -50,7 +50,8 @@ class QbPacket: public QObject
                  int64_t pts=0,
                  int duration=0,
                  const QbFrac &timeBase=QbFrac(),
-                 int index=-1);
+                 int index=-1,
+                 qint64 id=-1);
 
         QbPacket(const QbPacket &other);
         virtual ~QbPacket();
@@ -73,11 +74,11 @@ class QbPacket: public QObject
         QVariant m_data;
         QbBufferPtr m_buffer;
         ulong m_bufferSize;
-        qint64 m_id;
         int64_t m_pts;
         int m_duration;
         QbFrac m_timeBase;
         int m_index;
+        qint64 m_id;
 
         friend QDebug operator <<(QDebug debug, const QbPacket &frac);
 

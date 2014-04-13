@@ -161,8 +161,7 @@ AbstractStreamPtr MultiSrcElement::createStream(int index, bool noModify)
     if (type == AVMEDIA_TYPE_VIDEO)
         stream = AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
                                                    index, id, noModify));
-    else if (type == AVMEDIA_TYPE_AUDIO)
-    {
+    else if (type == AVMEDIA_TYPE_AUDIO) {
         stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
                                                    index, id, noModify));
         stream->setProperty("align", this->m_audioAlign);
@@ -240,12 +239,10 @@ void MultiSrcElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (this->state() == ElementStatePlaying)
-    {
+    if (this->state() == ElementStatePlaying) {
 //        QMetaObject::invokeMethod(&this->m_decodingTimer, "start");
     }
-    else
-    {
+    else {
 //        QMetaObject::invokeMethod(&this->m_decodingTimer, "stop");
     }
 }
@@ -260,6 +257,7 @@ void MultiSrcElement::pullData()
 {
     while (this->m_run) {
         this->m_dataMutex.lock();
+        qDebug() << "MultiSrcElement::pullData lock";
 
         if (this->packetQueueSize() >= this->m_maxPacketQueueSize)
             this->m_packetQueueNotFull.wait(&this->m_dataMutex);
@@ -284,11 +282,11 @@ void MultiSrcElement::pullData()
             delete packet;
         }
 
-        if (r < 0)
-        {
+        if (r < 0) {
             if (this->m_loop)
                 QMetaObject::invokeMethod(this, "doLoop");
 
+            qDebug() << "MultiSrcElement::pullData unlock";
             this->m_dataMutex.unlock();
 
             return;
@@ -301,22 +299,26 @@ void MultiSrcElement::pullData()
 
         emit this->queueSizeUpdated(queueSize);
 
+        qDebug() << "MultiSrcElement::pullData unlock";
         this->m_dataMutex.unlock();
     }
 }
 
 void MultiSrcElement::packetConsumed()
 {
+    // NOTE: Replace with QThread.
     QtConcurrent::run(this, &MultiSrcElement::unlockQueue);
 }
 
 void MultiSrcElement::unlockQueue()
 {
     this->m_dataMutex.lock();
+//    qDebug() << "MultiSrcElement::unlockQueue lock";
 
     if (this->packetQueueSize() < this->m_maxPacketQueueSize)
         this->m_packetQueueNotFull.wakeAll();
 
+//    qDebug() << "MultiSrcElement::unlockQueue unlock";
     this->m_dataMutex.unlock();
 }
 
@@ -388,15 +390,8 @@ bool MultiSrcElement::initContext()
     AVDictionary *inputOptions = NULL;
 
     if (QRegExp("/dev/video\\d*").exactMatch(uri))
-    {
         inputFormat = av_find_input_format("v4l2");
-
-        //av_dict_set(&inputOptions, "timestamps", "default", 0);
-        //av_dict_set(&inputOptions, "timestamps", "abs", 0);
-        av_dict_set(&inputOptions, "timestamps", "mono2abs", 0);
-    }
-    else if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(uri))
-    {
+    else if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(uri)) {
         inputFormat = av_find_input_format("x11grab");
 
         int width = this->roundDown(QApplication::desktop()->width(), 4);
@@ -422,8 +417,7 @@ bool MultiSrcElement::initContext()
 
     AVFormatContext *inputContext = NULL;
 
-    foreach (QString scheme, mmsSchemes)
-    {
+    foreach (QString scheme, mmsSchemes) {
         QString uriCopy = uri;
 
         foreach (QString schemer, mmsSchemes)
@@ -456,12 +450,14 @@ bool MultiSrcElement::initContext()
 void MultiSrcElement::uninit()
 {
     this->m_dataMutex.lock();
+    qDebug() << "MultiSrcElement::uninit lock";
     this->m_run = false;
     this->m_packetQueueNotFull.wakeAll();
+    qDebug() << "MultiSrcElement::uninit unlock";
     this->m_dataMutex.unlock();
 
     if (this->m_decodingThread) {
-        this->m_decodingThread->quit();
+//        this->m_decodingThread->quit();
         this->m_decodingThread->wait();
         delete this->m_decodingThread;
         this->m_decodingThread = NULL;

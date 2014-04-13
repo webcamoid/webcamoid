@@ -122,13 +122,11 @@ QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
     QList<QMetaMethod> methods;
     QStringList methodSignatures;
 
-    for (int i = 0; i < object->metaObject()->methodCount(); i++)
-    {
+    for (int i = 0; i < object->metaObject()->methodCount(); i++) {
         QMetaMethod method = object->metaObject()->method(i);
 
         if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(method.signature()))
-            if (!methodSignatures.contains(method.signature()))
-            {
+            if (!methodSignatures.contains(method.signature())) {
                 methods << method;
                 methodSignatures << method.signature();
             }
@@ -155,10 +153,8 @@ void QbElement::setState(QbElement::ElementState state)
     QbElement::ElementState preState = this->m_state;
 
     if (state == ElementStateNull
-        && preState != state)
-    {
-        if (preState == ElementStatePlaying)
-        {
+        && preState != state) {
+        if (preState == ElementStatePlaying) {
             this->setState(ElementStatePaused);
             preState = this->m_state;
         }
@@ -168,17 +164,14 @@ void QbElement::setState(QbElement::ElementState state)
         emit this->stateChange(preState, state);
     }
     else if (state == ElementStatePaused
-             && preState != state)
-    {
+             && preState != state) {
         this->m_state = state;
         emit this->stateChanged(state);
         emit this->stateChange(preState, state);
     }
     else if (state == ElementStatePlaying
-             && preState != state)
-    {
-        if (preState == ElementStateNull)
-        {
+             && preState != state) {
+        if (preState == ElementStateNull) {
             this->setState(ElementStatePaused);
             preState = this->m_state;
         }
