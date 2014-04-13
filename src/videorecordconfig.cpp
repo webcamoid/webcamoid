@@ -39,12 +39,10 @@ VideoRecordConfig::VideoRecordConfig(MediaTools *mediaTools, QWidget *parent):
 
     int row = 0;
 
-    foreach (QStringList format, videoRecordFormats)
-    {
+    foreach (QStringList format, videoRecordFormats) {
         int column = 0;
 
-        foreach (QString param, format)
-        {
+        foreach (QString param, format) {
             this->ui->tbwVideoFormats->setItem(row,
                                                column,
                                                new QTableWidgetItem(param));
@@ -74,8 +72,7 @@ void VideoRecordConfig::update()
 
     this->m_mediaTools->clearVideoRecordFormats();
 
-    for (int row = 0; row < this->ui->tbwVideoFormats->rowCount(); row++)
-    {
+    for (int row = 0; row < this->ui->tbwVideoFormats->rowCount(); row++) {
         QString suffix = this->ui->tbwVideoFormats->item(row, 0)->text();
         QString options = this->ui->tbwVideoFormats->item(row, 1)->text();
 
@@ -103,8 +100,7 @@ void VideoRecordConfig::on_btnUp_clicked()
     if (nextRow < 0)
         return;
 
-    for (int column = 0; column < this->ui->tbwVideoFormats->columnCount(); column++)
-    {
+    for (int column = 0; column < this->ui->tbwVideoFormats->columnCount(); column++) {
         QString currentText = this->ui->tbwVideoFormats->item(currentRow, column)->text();
         QString nextText = this->ui->tbwVideoFormats->item(nextRow, column)->text();
 
@@ -126,8 +122,7 @@ void VideoRecordConfig::on_btnDown_clicked()
     if (nextRow >= this->ui->tbwVideoFormats->rowCount())
         return;
 
-    for (int column = 0; column < this->ui->tbwVideoFormats->columnCount(); column++)
-    {
+    for (int column = 0; column < this->ui->tbwVideoFormats->columnCount(); column++) {
         QString currentText = this->ui->tbwVideoFormats->item(currentRow, column)->text();
         QString nextText = this->ui->tbwVideoFormats->item(nextRow, column)->text();
 

@@ -39,8 +39,7 @@ QbCaps::QbCaps(const QString &capsString)
         capsChunks = capsString.split(QRegExp("\\s*,\\s*"),
                                       QString::SkipEmptyParts);
 
-    for (int i = 1; i < capsChunks.length(); i++)
-    {
+    for (int i = 1; i < capsChunks.length(); i++) {
         QStringList pair = capsChunks[i].split(QRegExp("\\s*=\\s*"),
                                                QString::SkipEmptyParts);
 
@@ -65,8 +64,7 @@ QbCaps::~QbCaps()
 
 QbCaps &QbCaps::operator =(const QbCaps &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_isValid = other.m_isValid;
         this->m_mimeType = other.m_mimeType;
         this->update(other);

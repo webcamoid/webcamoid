@@ -32,6 +32,9 @@
 // AV sync correction is done if above the maximum AV sync threshold
 #define AV_SYNC_THRESHOLD_MAX 0.1
 
+// If a frame duration is longer than this, it will not be duplicated to compensate AV sync
+#define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
+
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
@@ -67,6 +70,7 @@ class VideoSyncElement: public QbElement
         QTimer m_timer;
         QElapsedTimer m_elapsedTimer;
         double m_timeDrift;
+        double m_lastPts;
 
         void printLog(const QbPacket &packet, double diff);
 
