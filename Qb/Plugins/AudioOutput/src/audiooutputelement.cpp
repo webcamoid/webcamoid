@@ -201,9 +201,8 @@ bool AudioOutputElement::init()
 
 void AudioOutputElement::uninit()
 {
-    this->m_mutex.lock();
-    qDebug() << "AudioOutputElement::uninit lock";
     this->m_run = false;
+    this->m_mutex.lock();
 
     if (this->m_audioOutput) {
         this->m_audioOutput->stop();
@@ -216,7 +215,6 @@ void AudioOutputElement::uninit()
     this->m_bufferEmpty.wakeAll();
     this->m_bufferNotFull.wakeAll();
     this->m_bufferNotEmpty.wakeAll();
-    qDebug() << "AudioOutputElement::uninit unlock";
     this->m_mutex.unlock();
 
     if (this->m_outputThread) {
@@ -272,13 +270,11 @@ void AudioOutputElement::pullFrame()
 {
     while (this->m_run) {
         this->m_mutex.lock();
-        qDebug() << "AudioOutputElement::pullFrame lock";
 
         if (this->m_audioBuffer.isEmpty())
             this->m_bufferNotEmpty.wait(&this->m_mutex);
 
         if (!this->m_audioOutput) {
-            qDebug() << "AudioOutputElement::pullFrame unlock";
             this->m_mutex.unlock();
 
             continue;
@@ -289,7 +285,6 @@ void AudioOutputElement::pullFrame()
                               this->m_audioBuffer.size());
 
         if (writeBytes < 1) {
-            qDebug() << "AudioOutputElement::pullFrame unlock";
             this->m_mutex.unlock();
 
             continue;
@@ -306,7 +301,6 @@ void AudioOutputElement::pullFrame()
         if (this->m_audioBuffer.size() < this->m_maxBufferSize)
             this->m_bufferNotFull.wakeAll();
 
-        qDebug() << "AudioOutputElement::pullFrame unlock";
         this->m_mutex.unlock();
     }
 }
@@ -319,7 +313,6 @@ void AudioOutputElement::iStream(const QbPacket &packet)
         return;
 
     this->m_mutex.lock();
-    qDebug() << "AudioOutputElement::iStream lock";
 
     if (packet.id() != this->m_streamId) {
         if (!this->m_audioBuffer.isEmpty())
@@ -337,6 +330,5 @@ void AudioOutputElement::iStream(const QbPacket &packet)
 
     this->m_convert->iStream(packet);
     this->m_bufferNotEmpty.wakeAll();
-    qDebug() << "AudioOutputElement::iStream unlock";
     this->m_mutex.unlock();
 }

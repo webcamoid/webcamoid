@@ -257,7 +257,6 @@ void MultiSrcElement::pullData()
 {
     while (this->m_run) {
         this->m_dataMutex.lock();
-        qDebug() << "MultiSrcElement::pullData lock";
 
         if (this->packetQueueSize() >= this->m_maxPacketQueueSize)
             this->m_packetQueueNotFull.wait(&this->m_dataMutex);
@@ -286,7 +285,6 @@ void MultiSrcElement::pullData()
             if (this->m_loop)
                 QMetaObject::invokeMethod(this, "doLoop");
 
-            qDebug() << "MultiSrcElement::pullData unlock";
             this->m_dataMutex.unlock();
 
             return;
@@ -299,26 +297,22 @@ void MultiSrcElement::pullData()
 
         emit this->queueSizeUpdated(queueSize);
 
-        qDebug() << "MultiSrcElement::pullData unlock";
         this->m_dataMutex.unlock();
     }
 }
 
 void MultiSrcElement::packetConsumed()
 {
-    // NOTE: Replace with QThread.
     QtConcurrent::run(this, &MultiSrcElement::unlockQueue);
 }
 
 void MultiSrcElement::unlockQueue()
 {
-    this->m_dataMutex.lock();
-//    qDebug() << "MultiSrcElement::unlockQueue lock";
+    this->m_dataMutex.tryLock();
 
     if (this->packetQueueSize() < this->m_maxPacketQueueSize)
         this->m_packetQueueNotFull.wakeAll();
 
-//    qDebug() << "MultiSrcElement::unlockQueue unlock";
     this->m_dataMutex.unlock();
 }
 
@@ -449,11 +443,9 @@ bool MultiSrcElement::initContext()
 
 void MultiSrcElement::uninit()
 {
-    this->m_dataMutex.lock();
-    qDebug() << "MultiSrcElement::uninit lock";
     this->m_run = false;
+    this->m_dataMutex.lock();
     this->m_packetQueueNotFull.wakeAll();
-    qDebug() << "MultiSrcElement::uninit unlock";
     this->m_dataMutex.unlock();
 
     if (this->m_decodingThread) {

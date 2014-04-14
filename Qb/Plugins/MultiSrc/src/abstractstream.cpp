@@ -166,8 +166,8 @@ void AbstractStream::init()
 
 void AbstractStream::uninit()
 {
-    this->m_mutex.lock();
     this->m_run = false;
+    this->m_mutex.lock();
     this->m_queueNotEmpty.wakeAll();
     this->m_mutex.unlock();
 

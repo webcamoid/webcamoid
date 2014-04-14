@@ -90,7 +90,6 @@ void VideoSyncElement::iStream(const QbPacket &packet)
         return;
 
     this->m_mutex.lock();
-    qDebug() << "VideoSyncElement::iStream lock";
 
     if (this->m_queue.size() >= this->m_maxQueueSize)
         this->m_queueNotFull.wait(&this->m_mutex);
@@ -98,7 +97,6 @@ void VideoSyncElement::iStream(const QbPacket &packet)
     this->m_queue.enqueue(packet);
     this->m_queueNotEmpty.wakeAll();
 
-    qDebug() << "VideoSyncElement::iStream unlock";
     this->m_mutex.unlock();
 }
 
@@ -106,7 +104,6 @@ void VideoSyncElement::processFrame()
 {
     while (this->m_run) {
         this->m_mutex.lock();
-        qDebug() << "VideoSyncElement::processFrame lock";
 
         if (this->m_queue.isEmpty())
             this->m_queueNotEmpty.wait(&this->m_mutex);
@@ -136,7 +133,6 @@ void VideoSyncElement::processFrame()
                     this->m_queue.removeFirst();
                     this->m_queueNotFull.wakeAll();
                     this->m_lastPts = pts;
-                    qDebug() << "VideoSyncElement::processFrame unlock";
                     this->m_mutex.unlock();
 
                     continue;
@@ -144,7 +140,6 @@ void VideoSyncElement::processFrame()
                 // video is ahead the external clock.
                 else if (diff > syncThreshold) {
                     Sleep::usleep(1e6 * (diff - syncThreshold));
-                    qDebug() << "VideoSyncElement::processFrame unlock";
                     this->m_mutex.unlock();
 
                     continue;
@@ -161,7 +156,6 @@ void VideoSyncElement::processFrame()
             this->m_lastPts = pts;
         }
 
-        qDebug() << "VideoSyncElement::processFrame unlock";
         this->m_mutex.unlock();
     }
 }
@@ -189,13 +183,11 @@ void VideoSyncElement::uninit()
     if (!this->m_run)
         return;
 
-    this->m_mutex.lock();
-    qDebug() << "VideoSyncElement::uninit lock";
     this->m_run = false;
+    this->m_mutex.lock();
     this->m_queue.clear();
     this->m_queueNotFull.wakeAll();
     this->m_queueNotEmpty.wakeAll();
-    qDebug() << "VideoSyncElement::uninit unlock";
     this->m_mutex.unlock();
 
     if (this->m_outputThread) {
