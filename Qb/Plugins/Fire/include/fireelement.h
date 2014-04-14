@@ -35,14 +35,13 @@ class FireElement: public QbElement
 
     public:
         explicit FireElement();
-        ~FireElement();
 
         Q_INVOKABLE int mode();
         Q_INVOKABLE int decay();
         Q_INVOKABLE int threshold();
         Q_INVOKABLE int maxColor();
 
-        bool event(QEvent *e);
+        bool event(QEvent *event);
 
     private:
         int m_mode;
@@ -66,7 +65,7 @@ class FireElement: public QbElement
         void setBackground(QImage &src);
 
     protected:
-        bool init();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     public slots:
         void setMode(int mode);

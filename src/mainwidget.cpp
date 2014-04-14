@@ -159,8 +159,7 @@ void MainWidget::addGeneralConfigsDialog(KConfigDialog *configDialog)
 
 void MainWidget::showConfigDialog(KConfigDialog *configDialog)
 {
-    if (!configDialog)
-    {
+    if (!configDialog) {
         KConfigSkeleton *config = new KConfigSkeleton("", this);
 
         configDialog = \
@@ -199,8 +198,7 @@ QString MainWidget::saveFile(bool video)
     QString filters;
     QString defaultFileName;
 
-    if (video)
-    {
+    if (video) {
         QString videosPath = KGlobalSettings::videosPath();
         QList<QStringList> videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 
@@ -208,13 +206,11 @@ QString MainWidget::saveFile(bool video)
         bool fst = true;
 
         foreach (QStringList format, videoRecordFormats)
-            foreach (QString s, format.at(0).split(",", QString::SkipEmptyParts))
-            {
+            foreach (QString s, format.at(0).split(",", QString::SkipEmptyParts)) {
                 s = s.trimmed();
                 filtersList << QString("%1 file (*.%2)").arg(s.toUpper()).arg(s.toLower());
 
-                if (fst)
-                {
+                if (fst) {
                     defaultSuffix = s.toLower();
                     fst = false;
                 }
@@ -227,8 +223,7 @@ QString MainWidget::saveFile(bool video)
                                                    arg(curTime).
                                                    arg(defaultSuffix));
     }
-    else
-    {
+    else {
         QString picturesPath = KGlobalSettings::picturesPath();
 
         filters = "PNG file (*.png);;" \
@@ -295,8 +290,7 @@ void MainWidget::closeEvent(QCloseEvent *event)
 
 void MainWidget::showFrame(const QbPacket &webcamFrame)
 {
-    if (!this->m_mediaTools->device().isEmpty())
-    {
+    if (!this->m_mediaTools->device().isEmpty()) {
         this->m_webcamFrame = webcamFrame;
 
         this->m_imageDispay->setImage(this->m_webcamFrame);
@@ -317,8 +311,7 @@ void MainWidget::updateWebcams()
     QList<QStringList> webcams = this->m_mediaTools->captureDevices();
     QStringList devices;
 
-    foreach (QStringList webcam, webcams)
-    {
+    foreach (QStringList webcam, webcams) {
         devices << webcam.at(0);
         this->ui->cbxSetWebcam->addItem(webcam.at(1));
     }
@@ -329,16 +322,14 @@ void MainWidget::updateWebcams()
 
 void MainWidget::deviceChanged(QString device)
 {
-    if (device.isEmpty())
-    {
+    if (device.isEmpty()) {
         this->ui->btnTakePhoto->setEnabled(false);
         this->ui->btnVideoRecord->setEnabled(false);
         this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
         this->m_webcamFrame = QbPacket();
         this->m_imageDispay->setImage(this->m_webcamFrame);
     }
-    else
-    {
+    else {
         this->ui->btnTakePhoto->setEnabled(true);
         this->ui->btnVideoRecord->setEnabled(true);
         this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
@@ -401,8 +392,7 @@ void MainWidget::on_btnVideoRecord_clicked()
 {
     if (this->m_mediaTools->recording())
         this->m_mediaTools->resetRecording();
-    else
-    {
+    else {
         this->m_mediaTools->mutexLock();
         QString fileName = this->saveFile(true);
         this->m_mediaTools->mutexUnlock();

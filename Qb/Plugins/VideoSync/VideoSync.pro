@@ -28,18 +28,13 @@ exists(commons.pri) {
     }
 }
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    include(../../3dparty/ffmpeg_auto.pri)
-}
-
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
-
 HEADERS += \
-    include/sleep.h \
-    include/sync.h \
-    include/syncelement.h
+    include/videosync.h \
+    include/videosyncelement.h \
+    include/thread.h \
+    include/sleep.h
 
 INCLUDEPATH += \
     include \
@@ -47,33 +42,17 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    INCLUDEPATH += $${FFMPEGHEADERSPATH}
-
-    LIBS += \
-        -L$${FFMPEGLIBSPATH} \
-        -lavutil$${FFMPEGBUILDSUFFIX} \
-        -lswresample$${FFMPEGBUILDSUFFIX}
-}
-
 QT += core
 
 SOURCES += \
-    src/sleep.cpp \
-    src/sync.cpp \
-    src/syncelement.cpp
+    src/videosync.cpp \
+    src/videosyncelement.cpp \
+    src/thread.cpp \
+    src/sleep.cpp
 
 TEMPLATE = lib
 
 unix {
-    ! exists(../../3dparty/ffmpeg_auto.pri) {
-        CONFIG += link_pkgconfig
-
-        PKGCONFIG += \
-            libavutil \
-            libswresample
-    }
-
     INSTALLS += target
 
     target.path = $${LIBDIR}/$${COMMONS_TARGET}

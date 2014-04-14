@@ -21,8 +21,6 @@
 
 #include "fireelement.h"
 
-// file:///home/hipersayan_x/Documentos/CarpetaPersonal/Proyectos/webcamoid-extras/effectv-0.3.11/image.c
-
 FireElement::FireElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
@@ -40,10 +38,6 @@ FireElement::FireElement(): QbElement()
     this->resetThreshold();
     this->resetMaxColor();
     this->makePalette();
-}
-
-FireElement::~FireElement()
-{
 }
 
 int FireElement::mode()
@@ -66,11 +60,13 @@ int FireElement::maxColor()
     return this->m_maxColor;
 }
 
-bool FireElement::event(QEvent *e)
+bool FireElement::event(QEvent *event)
 {
-    if (e->type() == QEvent::KeyPress)
+    bool r;
+
+    if (event->type() == QEvent::KeyPress)
     {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
 
         if (ke->key() == Qt::Key_Space)
         {
@@ -98,8 +94,25 @@ bool FireElement::event(QEvent *e)
             return true;
         }
     }
+    else if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_convert.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(processFrame(const QbPacket &)));
 
-    return QObject::event(e);
+        r = QObject::event(event);
+        this->m_convert->moveToThread(this->thread());
+
+        QObject::connect(this->m_convert.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(processFrame(const QbPacket &)));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
 }
 
 int FireElement::trunc(double f)
@@ -219,11 +232,11 @@ void FireElement::setBackground(QImage &src)
     this->m_bgIsSet = true;
 }
 
-bool FireElement::init()
+void FireElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
-    this->m_bgIsSet = false;
-
-    return true;
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->m_bgIsSet = false;
 }
 
 void FireElement::setMode(int mode)

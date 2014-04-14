@@ -21,52 +21,49 @@
 
 #include "abstractstream.h"
 
-AbstractStream::AbstractStream(QObject *parent): QObject(parent)
-{
-    this->m_isValid = false;
-    this->m_index = -1;
-    this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
-    this->m_formatContext = NULL;
-    this->m_stream = NULL;
-    this->m_codecContext = NULL;
-    this->m_codec = NULL;
-    this->m_codecOptions = NULL;
-}
-
-AbstractStream::AbstractStream(AVFormatContext *formatContext, uint index)
+AbstractStream::AbstractStream(const AVFormatContext *formatContext,
+                               uint index, qint64 id, bool noModify,
+                               QObject *parent): QObject(parent)
 {
     this->m_isValid = false;
     this->m_index = index;
-    this->m_stream = formatContext->streams[index];
-    this->m_mediaType = this->m_stream->codec->codec_type;
-    this->m_formatContext = formatContext;
-    this->m_codecContext = this->m_stream->codec;
-    this->m_codec = avcodec_find_decoder(this->m_codecContext->codec_id);
-    this->m_codecOptions = NULL;
+    this->m_id = id;
 
-    this->m_timeBase = QbFrac(this->m_stream->time_base.num,
-                              this->m_stream->time_base.den);
+    this->m_stream = (formatContext && index < formatContext->nb_streams)?
+                         formatContext->streams[index]: NULL;
+
+    this->m_mediaType = this->m_stream?
+                            this->m_stream->codec->codec_type:
+                            AVMEDIA_TYPE_UNKNOWN;
+
+    this->m_codecContext = this->m_stream? this->m_stream->codec: NULL;
+
+    this->m_codec = this->m_codecContext?
+                        avcodec_find_decoder(this->m_codecContext->codec_id):
+                        NULL;
+
+    this->m_codecOptions = NULL;
+    this->m_queueSize = 0;
+    this->m_outputThread = NULL;
 
     if (!this->m_codec)
         return;
 
-    this->m_stream->discard = AVDISCARD_DEFAULT;
-    this->m_codecContext->workaround_bugs = 1;
-    this->m_codecContext->idct_algo = FF_IDCT_AUTO;
-    this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+    if (this->m_stream)
+        this->m_timeBase = QbFrac(this->m_stream->time_base.num,
+                                  this->m_stream->time_base.den);
 
-    if(this->m_codec->capabilities & CODEC_CAP_DR1)
-        this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+    if (!noModify) {
+        this->m_stream->discard = AVDISCARD_DEFAULT;
+        this->m_codecContext->workaround_bugs = 1;
+        this->m_codecContext->idct_algo = FF_IDCT_AUTO;
+        this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
-    if (avcodec_open2(this->m_codecContext, this->m_codec, &this->m_codecOptions) < 0)
-        return;
+        if (this->m_codec->capabilities & CODEC_CAP_DR1)
+            this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+    }
 
     this->m_isValid = true;
-}
-
-AbstractStream::~AbstractStream()
-{
-    this->cleanUp();
 }
 
 bool AbstractStream::isValid() const
@@ -79,6 +76,11 @@ uint AbstractStream::index() const
     return this->m_index;
 }
 
+qint64 AbstractStream::id() const
+{
+    return this->m_id;
+}
+
 QbFrac AbstractStream::timeBase() const
 {
     return this->m_timeBase;
@@ -87,11 +89,6 @@ QbFrac AbstractStream::timeBase() const
 AVMediaType AbstractStream::mediaType() const
 {
     return this->m_mediaType;
-}
-
-AVFormatContext *AbstractStream::formatContext() const
-{
-    return this->m_formatContext;
 }
 
 AVStream *AbstractStream::stream() const
@@ -119,23 +116,94 @@ QbCaps AbstractStream::caps() const
     return QbCaps();
 }
 
-QList<QbPacket> AbstractStream::readPackets(AVPacket *packet)
+void AbstractStream::enqueue(AVPacket *packet)
+{
+    this->m_mutex.lock();
+    this->m_packets.enqueue(packet);
+    this->m_queueSize += packet->size;
+    this->m_queueNotEmpty.wakeAll();
+    this->m_mutex.unlock();
+}
+
+qint64 AbstractStream::queueSize()
+{
+    return this->m_queueSize;
+}
+
+AVMediaType AbstractStream::type(const AVFormatContext *formatContext,
+                                 uint index)
+{
+    return index < formatContext->nb_streams?
+                formatContext->streams[index]->codec->codec_type:
+                AVMEDIA_TYPE_UNKNOWN;
+}
+
+void AbstractStream::processPacket(AVPacket *packet)
 {
     Q_UNUSED(packet)
-
-    return QList<QbPacket>();
 }
 
-AVMediaType AbstractStream::type(AVFormatContext *formatContext, uint index)
+void AbstractStream::init()
 {
-    return formatContext->streams[index]->codec->codec_type;
+    if (!this->m_codecContext)
+        return;
+
+    if (avcodec_open2(this->m_codecContext, this->m_codec,
+                      &this->m_codecOptions) < 0)
+        return;
+
+    this->m_outputThread = new Thread();
+
+    QObject::connect(this->m_outputThread,
+                     SIGNAL(runTh()),
+                     this,
+                     SLOT(pullFrame()),
+                     Qt::DirectConnection);
+
+    this->m_run = true;
+    this->m_outputThread->start();
 }
 
-void AbstractStream::cleanUp()
+void AbstractStream::uninit()
 {
+    this->m_run = false;
+    this->m_mutex.lock();
+    this->m_queueNotEmpty.wakeAll();
+    this->m_mutex.unlock();
+
+    if (this->m_outputThread) {
+//        this->m_outputThread->quit();
+        this->m_outputThread->wait();
+        delete this->m_outputThread;
+        this->m_outputThread = NULL;
+    }
+
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);
 
     if (this->m_codecContext)
         avcodec_close(this->m_codecContext);
+
+    this->m_codecContext = NULL;
+}
+
+void AbstractStream::pullFrame()
+{
+    while (this->m_run) {
+        this->m_mutex.lock();
+
+        if (this->m_packets.isEmpty())
+            this->m_queueNotEmpty.wait(&this->m_mutex);
+
+        if (!this->m_packets.isEmpty()) {
+            AVPacket *packet = this->m_packets.dequeue();
+            this->processPacket(packet);
+            this->m_queueSize -= packet->size;
+            av_free_packet(packet);
+            delete packet;
+            emit this->notify();
+        }
+
+        this->m_mutex.unlock();
+    }
 }

@@ -38,7 +38,8 @@ DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
     include/audiooutput.h \
-    include/audiooutputelement.h
+    include/audiooutputelement.h \
+    include/thread.h
 
 INCLUDEPATH += \
     include \
@@ -66,7 +67,8 @@ QT += core gui multimedia
 
 SOURCES += \
     src/audiooutput.cpp \
-    src/audiooutputelement.cpp
+    src/audiooutputelement.cpp \
+    src/thread.cpp
 
 TEMPLATE = lib
 

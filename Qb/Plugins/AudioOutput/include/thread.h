@@ -19,30 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBTHREADSTOCK_H
-#define QBTHREADSTOCK_H
+#ifndef THREAD_H
+#define THREAD_H
 
-#include "qbthread.h"
+#include <QtCore>
 
-class QbThreadStock: public QObject
+class Thread: public QThread
 {
     Q_OBJECT
 
     public:
-        explicit QbThreadStock(QObject *parent=NULL);
-        ~QbThreadStock();
+        explicit Thread(QObject *parent = NULL);
 
-        Q_INVOKABLE QStringList threadsList() const;
-        Q_INVOKABLE QbThreadPtr requestInstance(const QString &threadName);
-        Q_INVOKABLE void deleteInstance(const QString &threadName);
-        Q_INVOKABLE void setThread(const QString &threadName);
-        Q_INVOKABLE QbThreadPtr currentThread() const;
-        Q_INVOKABLE QString currentThreadName() const;
+    protected:
+        void run();
 
-    private:
-        QMap<QString, QbThreadPtr> m_threads;
-        QbThreadPtr m_currentThread;
-        QString m_currentThreadName;
+    signals:
+        void runTh();
 };
 
-#endif // QBTHREADSTOCK_H
+#endif // THREAD_H

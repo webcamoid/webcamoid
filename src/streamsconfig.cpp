@@ -39,8 +39,7 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
 
     int row = 0;
 
-    foreach (QStringList stream, streams)
-    {
+    foreach (QStringList stream, streams) {
         QString name = stream.at(1);
 
         this->ui->tbwCustomStreams->setItem(row,
@@ -75,8 +74,7 @@ void StreamsConfig::update()
 
     this->m_mediaTools->resetStreams();
 
-    for (int row = 0; row < this->ui->tbwCustomStreams->rowCount(); row++)
-    {
+    for (int row = 0; row < this->ui->tbwCustomStreams->rowCount(); row++) {
         QTableWidgetItem *item;
         QString description;
         QString devName;
@@ -115,8 +113,7 @@ void StreamsConfig::on_btnUp_clicked()
     if (nextRow < 0)
         return;
 
-    for (int column = 0; column < this->ui->tbwCustomStreams->columnCount(); column++)
-    {
+    for (int column = 0; column < this->ui->tbwCustomStreams->columnCount(); column++) {
         QTableWidgetItem *currentItem = this->ui->tbwCustomStreams->takeItem(currentRow, column);
         QTableWidgetItem *nextItem = this->ui->tbwCustomStreams->takeItem(nextRow, column);
 
@@ -138,8 +135,7 @@ void StreamsConfig::on_btnDown_clicked()
     if (nextRow >= this->ui->tbwCustomStreams->rowCount())
         return;
 
-    for (int column = 0; column < this->ui->tbwCustomStreams->columnCount(); column++)
-    {
+    for (int column = 0; column < this->ui->tbwCustomStreams->columnCount(); column++) {
         QTableWidgetItem *currentItem = this->ui->tbwCustomStreams->takeItem(currentRow, column);
         QTableWidgetItem *nextItem = this->ui->tbwCustomStreams->takeItem(nextRow, column);
 

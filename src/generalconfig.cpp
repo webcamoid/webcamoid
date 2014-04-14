@@ -33,21 +33,20 @@ GeneralConfig::GeneralConfig(MediaTools *mediaTools, QWidget *parent):
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
 
-    switch (this->m_mediaTools->recordAudioFrom())
-    {
-        case MediaTools::RecordFromNone:
-            this->ui->radNone->setChecked(true);
+    switch (this->m_mediaTools->recordAudioFrom()) {
+    case MediaTools::RecordFromNone:
+        this->ui->radNone->setChecked(true);
         break;
 
-        case MediaTools::RecordFromSource:
-            this->ui->radSource->setChecked(true);
+    case MediaTools::RecordFromSource:
+        this->ui->radSource->setChecked(true);
         break;
 
-        case MediaTools::RecordFromMic:
-            this->ui->radMic->setChecked(true);
+    case MediaTools::RecordFromMic:
+        this->ui->radMic->setChecked(true);
         break;
 
-        default:
+    default:
         break;
     }
 

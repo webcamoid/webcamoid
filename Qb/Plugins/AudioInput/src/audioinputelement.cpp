@@ -64,6 +64,41 @@ QVariantMap AudioInputElement::streamCaps()
     return this->m_input->property("streamCaps").toMap();
 }
 
+bool AudioInputElement::event(QEvent *event)
+{
+    bool r;
+
+    if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_input.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(oStream(const QbPacket &)));
+
+        QObject::disconnect(this,
+                            SIGNAL(stateChanged(QbElement::ElementState)),
+                            this->m_input.data(),
+                            SLOT(setState(QbElement::ElementState)));
+
+        r = QObject::event(event);
+        this->m_input->moveToThread(this->thread());
+
+        QObject::connect(this->m_input.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(oStream(const QbPacket &)));
+
+        QObject::connect(this,
+                         SIGNAL(stateChanged(QbElement::ElementState)),
+                         this->m_input.data(),
+                         SLOT(setState(QbElement::ElementState)));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
+}
+
 void AudioInputElement::setAudioSystem(QString audioSystem)
 {
     if (audioSystem != this->m_audioSystem)

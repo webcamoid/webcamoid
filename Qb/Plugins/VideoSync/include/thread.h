@@ -19,18 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef FILTER_H
-#define FILTER_H
+#ifndef THREAD_H
+#define THREAD_H
 
-#include <qbplugin.h>
+#include <QtCore>
 
-class Filter: public QObject, public QbPlugin
+class Thread: public QThread
 {
     Q_OBJECT
-    Q_INTERFACES(QbPlugin)
 
     public:
-        QbElement *newElement();
+        explicit Thread(QObject *parent = NULL);
+
+    protected:
+        void run();
+
+    signals:
+        void runTh();
 };
 
-#endif // FILTER_H
+#endif // THREAD_H

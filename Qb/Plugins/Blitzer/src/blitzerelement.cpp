@@ -93,10 +93,6 @@ BlitzerElement::BlitzerElement(): QbElement()
     this->resetParams();
 }
 
-BlitzerElement::~BlitzerElement()
-{
-}
-
 QString BlitzerElement::method() const
 {
     return this->m_method;
@@ -105,6 +101,31 @@ QString BlitzerElement::method() const
 QVariantList BlitzerElement::params() const
 {
     return this->m_params;
+}
+
+bool BlitzerElement::event(QEvent *event)
+{
+    bool r;
+
+    if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_convert.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(processFrame(const QbPacket &)));
+
+        r = QObject::event(event);
+        this->m_convert->moveToThread(this->thread());
+
+        QObject::connect(this->m_convert.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(processFrame(const QbPacket &)));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
 }
 
 void BlitzerElement::setMethod(QString method)

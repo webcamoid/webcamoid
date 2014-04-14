@@ -28,10 +28,6 @@ VCapsConvertElement::VCapsConvertElement(): QbElement()
     this->resetCaps();
 }
 
-VCapsConvertElement::~VCapsConvertElement()
-{
-}
-
 QString VCapsConvertElement::caps()
 {
     return this->m_caps.toString();

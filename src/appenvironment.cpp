@@ -34,17 +34,14 @@ AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
     trPaths << "share/ts" << QString("%1/tr").arg(DATADIR);
     locales << QLocale::system().name() << QLocale::system().name().split("_")[0];
 
-    foreach (QString path, trPaths)
-    {
+    foreach (QString path, trPaths) {
         bool localeExists = false;
 
-        foreach (QString locale, locales)
-        {
+        foreach (QString locale, locales) {
             trPath = QString("%1/%2.qm").arg(path)
                                         .arg(locale);
 
-            if (QFileInfo(trPath).exists())
-            {
+            if (QFileInfo(trPath).exists()) {
                 localeExists = true;
 
                 break;

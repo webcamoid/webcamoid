@@ -19,31 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QBTHREAD_H
-#define QBTHREAD_H
+#include "videosync.h"
+#include "videosyncelement.h"
 
-#include <QtCore>
-
-class QbThreadStock;
-class QbThread;
-
-typedef QSharedPointer<QbThread> QbThreadPtr;
-
-class QbThread: public QThread
+QbElement *VideoSync::newElement()
 {
-    Q_OBJECT
+    return new VideoSyncElement();
+}
 
-    public:
-        explicit QbThread(QObject *parent=NULL);
-        ~QbThread();
-
-    private:
-        QObject *m_threadList;
-
-    protected:
-        void run();
-
-    friend class QbThreadStock;
-};
-
-#endif // QBTHREAD_H
+Q_EXPORT_PLUGIN2(VideoSync, VideoSync)

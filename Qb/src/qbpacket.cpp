@@ -26,6 +26,7 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetCaps();
     this->resetBuffer();
     this->resetBufferSize();
+    this->resetId();
     this->resetPts();
     this->resetDuration();
     this->resetTimeBase();
@@ -38,7 +39,8 @@ QbPacket::QbPacket(const QbCaps &caps,
                    int64_t pts,
                    int duration,
                    const QbFrac &timeBase,
-                   int index)
+                   int index,
+                   qint64 id)
 {
     this->setCaps(caps);
     bool isValid = this->caps().isValid();
@@ -48,6 +50,7 @@ QbPacket::QbPacket(const QbCaps &caps,
     this->setDuration(isValid? duration: 0);
     this->setTimeBase(isValid? timeBase: QbFrac());
     this->setIndex(isValid? index: -1);
+    this->setId(isValid? id: -1);
 }
 
 QbPacket::QbPacket(const QbPacket &other):
@@ -59,7 +62,8 @@ QbPacket::QbPacket(const QbPacket &other):
     m_pts(other.m_pts),
     m_duration(other.m_duration),
     m_timeBase(other.m_timeBase),
-    m_index(other.m_index)
+    m_index(other.m_index),
+    m_id(other.m_id)
 {
 }
 
@@ -69,8 +73,7 @@ QbPacket::~QbPacket()
 
 QbPacket &QbPacket::operator =(const QbPacket &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_caps = other.m_caps;
         this->m_data = other.m_data;
         this->m_buffer = other.m_buffer;
@@ -79,9 +82,15 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
         this->m_duration = other.m_duration;
         this->m_timeBase = other.m_timeBase;
         this->m_index = other.m_index;
+        this->m_id = other.m_id;
     }
 
     return *this;
+}
+
+QbPacket::operator bool() const
+{
+    return this->m_caps.isValid();
 }
 
 QString QbPacket::toString() const
@@ -99,6 +108,10 @@ QString QbPacket::toString() const
 
     debug.nospace() << "Buffer Size: "
                     << this->bufferSize()
+                    << "\n";
+
+    debug.nospace() << "Id         : "
+                    << this->id()
                     << "\n";
 
     debug.nospace() << "Pts        : "
@@ -137,6 +150,11 @@ QbBufferPtr QbPacket::buffer() const
 ulong QbPacket::bufferSize() const
 {
     return this->m_bufferSize;
+}
+
+qint64 QbPacket::id() const
+{
+    return this->m_id;
 }
 
 int64_t QbPacket::pts() const
@@ -179,6 +197,11 @@ void QbPacket::setBufferSize(ulong bufferSize)
     this->m_bufferSize = bufferSize;
 }
 
+void QbPacket::setId(qint64 id)
+{
+    this->m_id = id;
+}
+
 void QbPacket::setPts(int64_t pts)
 {
     this->m_pts = pts;
@@ -217,6 +240,11 @@ void QbPacket::resetBuffer()
 void QbPacket::resetBufferSize()
 {
     this->setBufferSize(0);
+}
+
+void QbPacket::resetId()
+{
+    this->setId(-1);
 }
 
 void QbPacket::resetPts()

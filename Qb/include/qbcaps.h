@@ -39,6 +39,7 @@ class QbCaps: public QObject
         QbCaps &operator =(const QbCaps &other);
         bool operator ==(const QbCaps &other) const;
         bool operator !=(const QbCaps &other) const;
+        operator bool() const;
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString mimeType() const;

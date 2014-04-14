@@ -19,12 +19,14 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "sync.h"
-#include "syncelement.h"
+#include "thread.h"
 
-QbElement *Sync::newElement()
+Thread::Thread(QObject *parent):
+    QThread(parent)
 {
-    return new SyncElement();
 }
 
-Q_EXPORT_PLUGIN2(Sync, Sync)
+void Thread::run()
+{
+    emit this->runTh();
+}

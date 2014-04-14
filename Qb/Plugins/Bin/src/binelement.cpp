@@ -23,12 +23,11 @@
 
 BinElement::BinElement(): QbElement()
 {
+    this->m_pipelineDescription.setParent(this);
+
     this->resetDescription();
     this->resetBlocking();
-}
-
-BinElement::~BinElement()
-{
+    this->resetThreads();
 }
 
 QString BinElement::description() const
@@ -41,7 +40,12 @@ bool BinElement::blocking() const
     return this->m_blocking;
 }
 
-QbElementPtr BinElement::element(QString elementName)
+ThreadsMap BinElement::threads() const
+{
+    return this->m_threads;
+}
+
+QbElementPtr BinElement::element(const QString &elementName)
 {
     return this->m_elements[elementName];
 }
@@ -51,12 +55,43 @@ void BinElement::add(QbElementPtr element)
     this->m_pipelineDescription.addElement(element);
 }
 
-void BinElement::remove(QString elementName)
+void BinElement::remove(const QString &elementName)
 {
     this->m_pipelineDescription.removeElement(elementName);
 }
 
-void BinElement::setDescription(QString description)
+bool BinElement::event(QEvent *event)
+{
+    bool r;
+
+    if (event->type() == QEvent::ThreadChange)
+    {
+        QList<QbElementPtr> elements;
+
+        foreach (QbElementPtr element, this->m_pipelineDescription.elements().values())
+            if (element->thread() == this->thread())
+                elements << element;
+
+        this->m_pipelineDescription.unlinkAll();
+        this->m_pipelineDescription.disconnectAll();
+        this->disconnectOutputs();
+
+        r = QObject::event(event);
+
+        foreach (QbElementPtr element, elements)
+            element->moveToThread(this->thread());
+
+        this->m_pipelineDescription.linkAll();
+        this->m_pipelineDescription.connectAll();
+        this->connectOutputs();
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
+}
+
+void BinElement::setDescription(const QString &description)
 {
     if (this->m_description == description)
         return;
@@ -80,20 +115,7 @@ void BinElement::setDescription(QString description)
             this->m_elements = this->m_pipelineDescription.elements();
             this->m_inputs = this->m_pipelineDescription.inputs();
             this->m_outputs = this->m_pipelineDescription.outputs();
-
-            QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
-            int i = 0;
-
-            foreach (QbElementPtr element, this->m_outputs)
-            {
-                QObject::connect(element.data(),
-                                 SIGNAL(oStream(const QbPacket &)),
-                                 this,
-                                 SIGNAL(oStream(const QbPacket &)),
-                                 connectionTypes[i]);
-
-                i++;
-            }
+            this->connectOutputs();
         }
         else
         {
@@ -130,20 +152,7 @@ void BinElement::setDescription(QString description)
             this->m_elements = this->m_pipelineDescription.elements();
             this->m_inputs = this->m_pipelineDescription.inputs();
             this->m_outputs = this->m_pipelineDescription.outputs();
-
-            QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
-            int i = 0;
-
-            foreach (QbElementPtr element, this->m_outputs)
-            {
-                QObject::connect(element.data(),
-                                 SIGNAL(oStream(const QbPacket &)),
-                                 this,
-                                 SIGNAL(oStream(const QbPacket &)),
-                                 connectionTypes[i]);
-
-                i++;
-            }
+            this->connectOutputs();
         }
         else
         {
@@ -162,6 +171,12 @@ void BinElement::setBlocking(bool blocking)
     this->m_blocking = blocking;
 }
 
+void BinElement::setThreads(const ThreadsMap &threads)
+{
+    this->m_threads = threads;
+    this->m_pipelineDescription.setThreads(threads);
+}
+
 void BinElement::resetDescription()
 {
     this->setDescription("");
@@ -170,6 +185,12 @@ void BinElement::resetDescription()
 void BinElement::resetBlocking()
 {
     this->setBlocking(false);
+}
+
+void BinElement::resetThreads()
+{
+    this->m_threads.clear();
+    this->m_pipelineDescription.resetThreads();
 }
 
 void BinElement::iStream(const QbPacket &packet)
@@ -190,4 +211,30 @@ void BinElement::setState(QbElement::ElementState state)
                                   "setState",
                                   Q_ARG(QbElement::ElementState,
                                         this->state()));
+}
+
+void BinElement::connectOutputs()
+{
+    QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
+    int i = 0;
+
+    foreach (QbElementPtr element, this->m_outputs)
+    {
+        QObject::connect(element.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(oStream(const QbPacket &)),
+                         connectionTypes[i]);
+
+        i++;
+    }
+}
+
+void BinElement::disconnectOutputs()
+{
+    foreach (QbElementPtr element, this->m_outputs)
+        QObject::disconnect(element.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(oStream(const QbPacket &)));
 }

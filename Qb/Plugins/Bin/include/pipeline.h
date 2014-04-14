@@ -23,10 +23,10 @@
 #define PIPELINE_H
 
 #include <QtCore>
-
 #include <qb.h>
 
 typedef QMap<QString, QbElementPtr> ElementMap;
+typedef QMap<QString, QThread *> ThreadsMap;
 
 class Pipeline: public QObject
 {
@@ -39,6 +39,7 @@ class Pipeline: public QObject
     Q_PROPERTY(QString error READ error WRITE setError RESET resetError)
     Q_PROPERTY(QList<QbElementPtr> inputs READ inputs)
     Q_PROPERTY(QList<QbElementPtr> outputs READ outputs)
+    Q_PROPERTY(ThreadsMap threads READ threads WRITE setThreads RESET resetThreads)
 
     public:
         explicit Pipeline(QObject *parent=NULL);
@@ -51,6 +52,7 @@ class Pipeline: public QObject
         Q_INVOKABLE void removeElement(QString elementName);
         Q_INVOKABLE QList<QbElementPtr> inputs() const;
         Q_INVOKABLE QList<QbElementPtr> outputs() const;
+        Q_INVOKABLE ThreadsMap threads() const;
         Q_INVOKABLE QList<Qt::ConnectionType> outputConnectionTypes() const;
         Q_INVOKABLE bool linkAll();
         Q_INVOKABLE bool unlinkAll();
@@ -63,6 +65,7 @@ class Pipeline: public QObject
         QList<QStringList> m_connections;
         QVariantMap m_properties;
         QString m_error;
+        ThreadsMap m_threads;
 
         QMetaMethod methodByName(QObject *object, QString methodName, QMetaMethod::MethodType methodType);
 
@@ -75,11 +78,13 @@ class Pipeline: public QObject
         void setConnections(const QList<QStringList> &connections);
         void setProperties(const QVariantMap &properties);
         void setError(QString error);
+        void setThreads(const ThreadsMap &threads);
         void resetElements();
         void resetLinks();
         void resetConnections();
         void resetProperties();
         void resetError();
+        void resetThreads();
 };
 
 #endif // PIPELINE_H

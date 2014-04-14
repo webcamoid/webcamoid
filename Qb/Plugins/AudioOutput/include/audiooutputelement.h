@@ -25,38 +25,83 @@
 #include <QtMultimedia>
 #include <qb.h>
 
+#include "thread.h"
+
 extern "C"
 {
     #include <libavformat/avformat.h>
     #include <libswresample/swresample.h>
 }
 
+typedef QSharedPointer<QAudioOutput> AudioOutputPtr;
+
 class AudioOutputElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString audioSystem READ audioSystem
-                                   WRITE setAudioSystem
-                                   RESET resetAudioSystem)
+    Q_PROPERTY(int bufferSize READ bufferSize NOTIFY bufferSizeChanged)
 
-    Q_PROPERTY(QStringList availableAudioSystem READ availableAudioSystem)
+    Q_PROPERTY(QString inputCaps READ inputCaps
+                                 WRITE setInputCaps
+                                 RESET resetInputCaps)
+
+    Q_PROPERTY(int maxBufferSize READ maxBufferSize
+                                 WRITE setMaxBufferSize
+                                 RESET resetMaxBufferSize)
+
+    Q_PROPERTY(double clock READ clock NOTIFY elapsedTime)
 
     public:
         explicit AudioOutputElement();
-
-        Q_INVOKABLE QString audioSystem();
-        Q_INVOKABLE QStringList availableAudioSystem();
+        ~AudioOutputElement();
+        Q_INVOKABLE int bufferSize() const;
+        Q_INVOKABLE QString inputCaps() const;
+        Q_INVOKABLE int maxBufferSize() const;
+        Q_INVOKABLE double clock() const;
 
     private:
-        QString m_audioSystem;
+        QString m_inputCaps;
+        int m_maxBufferSize;
+        QbElementPtr m_convert;
+        QAudioDeviceInfo m_audioDeviceInfo;
+        AudioOutputPtr m_audioOutput;
+        QIODevice *m_outputDevice;
+        QByteArray m_audioBuffer;
+        qint64 m_streamId;
 
-        QbElementPtr m_output;
+        bool m_run;
+        QMutex m_mutex;
+        QWaitCondition m_bufferEmpty;
+        QWaitCondition m_bufferNotEmpty;
+        QWaitCondition m_bufferNotFull;
+        Thread *m_outputThread;
+        double m_timeDrift;
+
+        QbCaps findBestOptions(const QbCaps &caps,
+                               const QAudioDeviceInfo &deviceInfo,
+                               QAudioFormat *bestOption=NULL) const;
+
+        double hwClock() const;
+
+    protected:
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+
+    signals:
+        void elapsedTime(double pts);
+        void bufferSizeChanged(int size);
+        void requestFrame();
 
     public slots:
-        void setAudioSystem(QString audioSystem);
-        void resetAudioSystem();
-
+        void setInputCaps(const QString &inputCaps);
+        void setMaxBufferSize(int maxBufferSize);
+        void resetInputCaps();
+        void resetMaxBufferSize();
         void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
+
+    private slots:
+        bool init();
+        void uninit();
+        void processFrame(const QbPacket &packet);
+        void pullFrame();
 };
 
 #endif // AUDIOOUTPUTELEMENT_H

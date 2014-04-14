@@ -21,16 +21,12 @@
 
 #include "audiostream.h"
 
-AudioStream::AudioStream(QObject *parent): AbstractStream(parent)
+AudioStream::AudioStream(const AVFormatContext *formatContext,
+                         uint index, qint64 id, bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, noModify, parent)
 {
     this->m_fst = true;
     this->resetAlign();
-}
-
-AudioStream::AudioStream(AVFormatContext *formatContext, uint index):
-    AbstractStream(formatContext, index)
-{
-    this->m_fst = true;
 }
 
 bool AudioStream::align() const
@@ -54,9 +50,6 @@ QbCaps AudioStream::caps() const
                                  this->codecContext()->channels,
                                  channelLayout);
 
-    double maxFrameDuration = (this->formatContext()->iformat->flags &
-                               AVFMT_TS_DISCONT)? 10.0: 3600.0;
-
     int bytesPerSample = av_get_bytes_per_sample(this->codecContext()->sample_fmt);
 
     QbCaps caps(QString("audio/x-raw,"
@@ -65,27 +58,23 @@ QbCaps AudioStream::caps() const
                         "channels=%3,"
                         "rate=%4,"
                         "layout=%5,"
-                        "maxFrameDuration=%6,"
-                        "align=%7").arg(format)
+                        "align=%6").arg(format)
                                    .arg(bytesPerSample)
                                    .arg(this->codecContext()->channels)
                                    .arg(this->codecContext()->sample_rate)
                                    .arg(layout)
-                                   .arg(maxFrameDuration)
                                    .arg(this->align()));
 
     return caps;
 }
 
-QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
+void AudioStream::processPacket(AVPacket *packet)
 {
-    QList<QbPacket> packets;
-
     if (!this->isValid())
-        return packets;
+        return;
 
     AVFrame iFrame;
-    avcodec_get_frame_defaults(&iFrame);
+    memset(&iFrame, 0, sizeof(AVFrame));
 
     int gotFrame;
 
@@ -95,10 +84,9 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
                           packet);
 
     if (!gotFrame)
-        return packets;
+        return;
 
-    if (this->m_fst)
-    {
+    if (this->m_fst) {
         this->m_pts = 0;
         this->m_duration = av_frame_get_pkt_duration(&iFrame);
         this->m_fst = false;
@@ -106,17 +94,22 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
     else
         this->m_pts += this->m_duration;
 
+    int64_t pts = (iFrame.pts != AV_NOPTS_VALUE) ? iFrame.pts :
+                  (iFrame.pkt_pts != AV_NOPTS_VALUE) ? iFrame.pkt_pts :
+                  this->m_pts;
+
     int oLineSize;
 
     int oBufferSize = av_samples_get_buffer_size(&oLineSize,
-                                                 iFrame.channels,
-                                                 iFrame.nb_samples,
-                                                 (AVSampleFormat) iFrame.format,
-                                                 this->align()? 0: 1);
+                      iFrame.channels,
+                      iFrame.nb_samples,
+                      (AVSampleFormat) iFrame.format,
+                      this->align() ? 0 : 1);
 
     QbBufferPtr oBuffer(new uchar[oBufferSize]);
 
-    int planes = av_sample_fmt_is_planar((AVSampleFormat) iFrame.format)? iFrame.channels: 1;
+    int planes = av_sample_fmt_is_planar((AVSampleFormat) iFrame.format) ?
+                 iFrame.channels : 1;
     QVector<uint8_t *> oData(planes);
 
     if (av_samples_fill_arrays(&oData.data()[0],
@@ -125,8 +118,8 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
                                iFrame.channels,
                                iFrame.nb_samples,
                                (AVSampleFormat) iFrame.format,
-                               this->align()? 0: 1) < 0)
-        return packets;
+                               this->align() ? 0 : 1) < 0)
+        return;
 
     av_samples_copy(&oData.data()[0],
                     iFrame.data,
@@ -143,14 +136,13 @@ QList<QbPacket> AudioStream::readPackets(AVPacket *packet)
                      oBuffer,
                      oBufferSize);
 
-    oPacket.setPts(this->m_pts);
+    oPacket.setPts(pts);
     oPacket.setDuration(this->m_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
+    oPacket.setId(this->id());
 
-    packets << oPacket;
-
-    return packets;
+    emit this->oStream(oPacket);
 }
 
 void AudioStream::setAlign(bool align)

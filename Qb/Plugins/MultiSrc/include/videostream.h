@@ -31,17 +31,16 @@ class VideoStream: public AbstractStream
     Q_OBJECT
 
     public:
-        explicit VideoStream(QObject *parent=NULL);
-        VideoStream(AVFormatContext *formatContext, uint index);
+        explicit VideoStream(const AVFormatContext *formatContext=NULL,
+                             uint index=-1, qint64 id=-1, bool noModify=false,
+                             QObject *parent=NULL);
 
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
+
+    protected:
+        void processPacket(AVPacket *packet);
 
     private:
-        bool m_fst;
-        int64_t m_pts;
-        int64_t m_duration;
-
         QbFrac fps() const;
 };
 

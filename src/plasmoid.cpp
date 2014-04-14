@@ -27,11 +27,9 @@ Plasmoid::Plasmoid(QObject *parent, const QVariantList &args): Plasma::PopupAppl
 
 Plasmoid::~Plasmoid()
 {
-    if (this->hasFailedToLaunch())
-    {
+    if (this->hasFailedToLaunch()) {
     }
-    else
-    {
+    else {
     }
 }
 

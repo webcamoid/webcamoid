@@ -35,6 +35,7 @@ class QbPacket: public QObject
     Q_PROPERTY(QVariant data READ data WRITE setData RESET resetData)
     Q_PROPERTY(QbBufferPtr buffer READ buffer WRITE setBuffer RESET resetBuffer)
     Q_PROPERTY(ulong bufferSize READ bufferSize WRITE setBufferSize RESET resetBufferSize)
+    Q_PROPERTY(qint64 id READ id WRITE setId RESET resetId)
     Q_PROPERTY(int64_t pts READ pts WRITE setPts RESET resetPts)
     Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
     Q_PROPERTY(QbFrac timeBase READ timeBase WRITE setTimeBase RESET resetTimeBase)
@@ -49,17 +50,20 @@ class QbPacket: public QObject
                  int64_t pts=0,
                  int duration=0,
                  const QbFrac &timeBase=QbFrac(),
-                 int index=-1);
+                 int index=-1,
+                 qint64 id=-1);
 
         QbPacket(const QbPacket &other);
         virtual ~QbPacket();
         QbPacket &operator =(const QbPacket &other);
+        operator bool() const;
 
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps caps() const;
         Q_INVOKABLE QVariant data() const;
         Q_INVOKABLE QbBufferPtr buffer() const;
         Q_INVOKABLE ulong bufferSize() const;
+        Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE int64_t pts() const;
         Q_INVOKABLE int duration() const;
         Q_INVOKABLE QbFrac timeBase() const;
@@ -74,6 +78,7 @@ class QbPacket: public QObject
         int m_duration;
         QbFrac m_timeBase;
         int m_index;
+        qint64 m_id;
 
         friend QDebug operator <<(QDebug debug, const QbPacket &frac);
 
@@ -82,6 +87,7 @@ class QbPacket: public QObject
         void setData(const QVariant &data);
         void setBuffer(const QbBufferPtr &buffer);
         void setBufferSize(ulong bufferSize);
+        void setId(qint64 id);
         void setPts(int64_t pts);
         void setDuration(int duration);
         void setTimeBase(const QbFrac &timeBase);
@@ -90,6 +96,7 @@ class QbPacket: public QObject
         void resetData();
         void resetBuffer();
         void resetBufferSize();
+        void resetId();
         void resetPts();
         void resetDuration();
         void resetTimeBase();

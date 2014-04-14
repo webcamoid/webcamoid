@@ -19,35 +19,14 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef SYNCELEMENT_H
-#define SYNCELEMENT_H
+#include "thread.h"
 
-#include <qb.h>
-
-class SyncElement: public QbElement
+Thread::Thread(QObject *parent):
+    QThread(parent)
 {
-    Q_OBJECT
+}
 
-    public:
-        explicit SyncElement();
-
-    private:
-        bool m_ready;
-        bool m_fst;
-        double m_iPts;
-        double m_duration;
-        QElapsedTimer m_elapsedTimer;
-
-    signals:
-        void ready(int id);
-        void oDiscardFrames(int nFrames);
-
-    public slots:
-        void iStream(const QbPacket &packet);
-        void setState(ElementState state);
-
-    private slots:
-        void sendFrame(const QbPacket &packet);
-};
-
-#endif // SYNCELEMENT_H
+void Thread::run()
+{
+    emit this->runTh();
+}

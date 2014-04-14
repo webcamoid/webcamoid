@@ -8,8 +8,6 @@
 *.so
 *.so.*
 *.so.debug
-Webcamoid
-webcamoid
 
 # Packages #
 ############
@@ -45,6 +43,7 @@ Thumbs.db
 *.a
 *.moc
 moc_*.cpp
+ui_*.h
 *.obj
 *.dylib
 Makefile*
@@ -68,6 +67,11 @@ Makefile*
 ################
 *.orig
 *.rej
+
+# Project Files #
+#################
+Webcamoid
+webcamoid
 
 # Ignore Directories #
 ######################

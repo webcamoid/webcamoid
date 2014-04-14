@@ -36,11 +36,11 @@ class AgingElement: public QbElement
 
     public:
         explicit AgingElement();
-        ~AgingElement();
 
         Q_INVOKABLE int nScratches() const;
         Q_INVOKABLE int scratchLines() const;
         Q_INVOKABLE int agingMode() const;
+        bool event(QEvent *event);
 
     private:
         int m_scratchLines;
