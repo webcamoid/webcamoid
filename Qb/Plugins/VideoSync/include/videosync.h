@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef SYNC_H
-#define SYNC_H
+#ifndef VIDEOSYNC_H
+#define VIDEOSYNC_H
 
 #include <qbplugin.h>
 
-class Sync: public QObject, public QbPlugin
+class VideoSync: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
@@ -33,4 +33,4 @@ class Sync: public QObject, public QbPlugin
         QbElement *newElement();
 };
 
-#endif // SYNC_H
+#endif // VIDEOSYNC_H

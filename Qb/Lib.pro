@@ -49,9 +49,7 @@ HEADERS = \
     include/qbelement.h \
     include/qbfrac.h \
     include/qbpacket.h \
-    include/qbplugin.h \
-    include/qbthread.h \
-    include/qbthreadstock.h
+    include/qbplugin.h
 
 INCLUDEPATH += \
     include
@@ -64,9 +62,7 @@ SOURCES = \
     src/qbcaps.cpp \
     src/qbelement.cpp \
     src/qbfrac.cpp \
-    src/qbpacket.cpp \
-    src/qbthread.cpp \
-    src/qbthreadstock.cpp
+    src/qbpacket.cpp
 
 TARGET = $${COMMONS_APPNAME}
 

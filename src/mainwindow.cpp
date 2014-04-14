@@ -29,6 +29,11 @@ MainWindow::MainWindow(QWidget *parent):
     this->ui->setupUi(this);
 }
 
+MainWindow::~MainWindow()
+{
+    delete this->ui;
+}
+
 void MainWindow::changeEvent(QEvent *event)
 {
     QMainWindow::changeEvent(event);

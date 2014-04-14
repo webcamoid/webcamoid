@@ -21,12 +21,9 @@
 
 #include "subtitlestream.h"
 
-SubtitleStream::SubtitleStream(QObject *parent): AbstractStream(parent)
-{
-}
-
-SubtitleStream::SubtitleStream(AVFormatContext *formatContext, uint index):
-    AbstractStream(formatContext, index)
+SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
+                               uint index, qint64 id, bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, noModify, parent)
 {
 }
 
@@ -35,12 +32,10 @@ QbCaps SubtitleStream::caps() const
     return QbCaps("application/x-subtitle");
 }
 
-QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
+void SubtitleStream::processPacket(AVPacket *packet)
 {
-    QList<QbPacket> packets;
-
     if (!this->isValid())
-        return packets;
+        return;
 
     AVSubtitle subtitle;
     int gotSubtitle;
@@ -50,21 +45,17 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
                              &gotSubtitle,
                              packet);
 
-    if (gotSubtitle)
-    {
-        for (uint i = 0; i < subtitle.num_rects; i++)
-        {
+    if (gotSubtitle) {
+        for (uint i = 0; i < subtitle.num_rects; i++) {
             QbCaps caps(this->caps());
             QbBufferPtr oBuffer;
             int dataLenght = 0;
 
-            if (subtitle.rects[i]->type == SUBTITLE_BITMAP)
-            {
+            if (subtitle.rects[i]->type == SUBTITLE_BITMAP) {
                 AVPixelFormat pixFmt;
                 const char *format;
 
-                if (subtitle.rects[i]->nb_colors == 4)
-                {
+                if (subtitle.rects[i]->nb_colors == 4) {
                     pixFmt = AV_PIX_FMT_ARGB;
                     format = av_get_pix_fmt_name(pixFmt);
                 }
@@ -96,8 +87,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
 
                 dataLenght = frameSize;
             }
-            else if (subtitle.rects[i]->type == SUBTITLE_TEXT)
-            {
+            else if (subtitle.rects[i]->type == SUBTITLE_TEXT) {
                 caps.setProperty("type", "text");
                 int textLenght = sizeof(subtitle.rects[i]->text);
 
@@ -109,8 +99,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
                 memcpy(oBuffer.data(), subtitle.rects[i]->text, textLenght);
                 dataLenght = textLenght;
             }
-            else if (subtitle.rects[i]->type == SUBTITLE_ASS)
-            {
+            else if (subtitle.rects[i]->type == SUBTITLE_ASS) {
                 caps.setProperty("type", "ass");
                 int assLenght = sizeof(subtitle.rects[i]->ass);
 
@@ -131,14 +120,14 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
             oPacket.setDuration(packet->duration);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
+            oPacket.setId(this->id());
 
-            packets << oPacket;
+            emit this->oStream(oPacket);
         }
 
         avsubtitle_free(&subtitle);
     }
-    else
-    {
+    else {
         // Some subtitles seams to have a problem when decoding.
         QbCaps caps(this->caps());
         QbBufferPtr oBuffer;
@@ -148,8 +137,7 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
 
         oBuffer = QbBufferPtr(new uchar[assLenght]);
 
-        if (oBuffer)
-        {
+        if (oBuffer) {
             memcpy(oBuffer.data(), packet->data, assLenght);
 
             QbPacket oPacket(caps,
@@ -160,10 +148,9 @@ QList<QbPacket> SubtitleStream::readPackets(AVPacket *packet)
             oPacket.setDuration(packet->duration);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
+            oPacket.setId(this->id());
 
-            packets << oPacket;
+            emit this->oStream(oPacket);
         }
     }
-
-    return packets;
 }

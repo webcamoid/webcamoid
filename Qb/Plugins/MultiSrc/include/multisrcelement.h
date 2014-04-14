@@ -25,11 +25,6 @@
 #include <QtGui>
 #include <qb.h>
 
-extern "C"
-{
-    #include <libavdevice/avdevice.h>
-}
-
 #include "abstractstream.h"
 
 typedef QSharedPointer<AVFormatContext> FormatContextPtr;
@@ -42,13 +37,17 @@ class MultiSrcElement: public QbElement
     Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
     Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
 
-    Q_PROPERTY(QStringList filterStreams READ filterStreams
-                                         WRITE setFilterStreams
-                                         RESET resetFilterStreams)
+    Q_PROPERTY(QList<int> filterStreams READ filterStreams
+                                        WRITE setFilterStreams
+                                        RESET resetFilterStreams)
 
     Q_PROPERTY(bool audioAlign READ audioAlign
                                WRITE setAudioAlign
                                RESET resetAudioAlign)
+
+    Q_PROPERTY(qint64 maxPacketQueueSize READ maxPacketQueueSize
+                                         WRITE setMaxPacketQueueSize
+                                         RESET resetMaxPacketQueueSize)
 
     public:
         explicit MultiSrcElement();
@@ -57,26 +56,36 @@ class MultiSrcElement: public QbElement
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QVariantMap streamCaps();
-        Q_INVOKABLE QStringList filterStreams() const;
+        Q_INVOKABLE QList<int> filterStreams() const;
         Q_INVOKABLE bool audioAlign() const;
-
+        Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE int defaultStream(const QString &mimeType);
 
     protected:
-        bool init();
-        void uninit();
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
         QString m_location;
         bool m_loop;
-        QStringList m_filterStreams;
+        QList<int> m_filterStreams;
         bool m_audioAlign;
 
+        Thread *m_decodingThread;
+        bool m_run;
+
         FormatContextPtr m_inputContext;
-        QTimer m_timer;
+
+        qint64 m_maxPacketQueueSize;
+        QMutex m_dataMutex;
+        QWaitCondition m_packetQueueNotFull;
+
         QMap<int, AbstractStreamPtr> m_streams;
 
+        QMap<AVMediaType, QString> m_avMediaTypeToMimeType;
+
+        qint64 packetQueueSize();
         static void deleteFormatContext(AVFormatContext *context);
+        AbstractStreamPtr createStream(int index, bool noModify=false);
 
         inline int roundDown(int value, int multiply)
         {
@@ -85,21 +94,30 @@ class MultiSrcElement: public QbElement
 
     signals:
         void error(QString message);
+        void queueSizeUpdated(const QMap<int, qint64> &queueSize);
 
     public slots:
         void setLocation(const QString &location);
         void setLoop(bool loop);
-        void setFilterStreams(const QStringList &filterStreams);
+        void setFilterStreams(const QList<int> &filterStreams);
         void setAudioAlign(bool audioAlign);
+        void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void resetLocation();
         void resetLoop();
         void resetFilterStreams();
         void resetAudioAlign();
+        void resetMaxPacketQueueSize();
 
         void setState(QbElement::ElementState state);
 
     private slots:
-        void readPackets();
+        void doLoop();
+        void pullData();
+        void packetConsumed();
+        void unlockQueue();
+        bool init();
+        bool initContext();
+        void uninit();
 };
 
 #endif // MULTISRCELEMENT_H

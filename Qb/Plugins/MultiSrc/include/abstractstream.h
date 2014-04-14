@@ -22,52 +22,72 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
-#include <QtCore>
-#include <qbpacket.h>
+#include <qb.h>
 
 extern "C"
 {
-    #include <libavformat/avformat.h>
+    #include <libavdevice/avdevice.h>
     #include <libavutil/imgutils.h>
 }
+
+#include "thread.h"
 
 class AbstractStream: public QObject
 {
     Q_OBJECT
 
     public:
-        explicit AbstractStream(QObject *parent=NULL);
-        AbstractStream(AVFormatContext *formatContext, uint index);
-        virtual ~AbstractStream();
+        explicit AbstractStream(const AVFormatContext *formatContext=NULL,
+                                uint index=-1, qint64 id=-1, bool noModify=false,
+                                QObject *parent=NULL);
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
+        Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE QbFrac timeBase() const;
         Q_INVOKABLE AVMediaType mediaType() const;
-        Q_INVOKABLE AVFormatContext *formatContext() const;
         Q_INVOKABLE AVStream *stream() const;
         Q_INVOKABLE AVCodecContext *codecContext() const;
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
         Q_INVOKABLE virtual QbCaps caps() const;
-        Q_INVOKABLE virtual QList<QbPacket> readPackets(AVPacket *packet);
+        Q_INVOKABLE void enqueue(AVPacket *packet);
+        Q_INVOKABLE qint64 queueSize();
 
-        static AVMediaType type(AVFormatContext *formatContext, uint index);
+        static AVMediaType type(const AVFormatContext *formatContext,
+                                uint index);
 
     protected:
         bool m_isValid;
 
-        virtual void cleanUp();
+        virtual void processPacket(AVPacket *packet);
 
     private:
         uint m_index;
+        qint64 m_id;
         QbFrac m_timeBase;
         AVMediaType m_mediaType;
-        AVFormatContext *m_formatContext;
         AVStream *m_stream;
         AVCodecContext *m_codecContext;
         AVCodec *m_codec;
         AVDictionary *m_codecOptions;
+        bool m_run;
+        Thread *m_outputThread;
+        QMutex m_mutex;
+        QWaitCondition m_queueNotEmpty;
+        QQueue<AVPacket *> m_packets;
+        qint64 m_queueSize;
+
+    signals:
+        void oStream(const QbPacket &packet);
+        void notify();
+
+    public slots:
+        void init();
+        void uninit();
+
+    private slots:
+        void pullFrame();
 };
 
 #endif // ABSTRACTSTREAM_H

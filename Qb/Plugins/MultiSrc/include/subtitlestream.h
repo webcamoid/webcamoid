@@ -31,11 +31,14 @@ class SubtitleStream: public AbstractStream
     Q_OBJECT
 
     public:
-        explicit SubtitleStream(QObject *parent=NULL);
-        SubtitleStream(AVFormatContext *formatContext, uint index);
+        explicit SubtitleStream(const AVFormatContext *formatContext=NULL,
+                                uint index=-1, qint64 id=-1, bool noModify=false,
+                                QObject *parent=NULL);
 
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
+
+    protected:
+        void processPacket(AVPacket *packet);
 };
 
 #endif // SUBTITLESTREAM_H

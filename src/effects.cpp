@@ -45,8 +45,7 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
 
     QMap<QString, QString> effects = this->m_mediaTools->availableEffects();
 
-    foreach (QString effect, effects.keys())
-    {
+    foreach (QString effect, effects.keys()) {
         QListWidgetItem *listWidgetItem = new QListWidgetItem(effects[effect]);
 
         this->m_effectsNames << effect;
@@ -56,8 +55,7 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
 
     this->ui->lswEffects->sortItems();
 
-    foreach (QString effect, this->m_mediaTools->currentEffects())
-    {
+    foreach (QString effect, this->m_mediaTools->currentEffects()) {
         int index = this->m_effectsNames.indexOf(effect);
 
         if (index < 0)
@@ -79,8 +77,7 @@ void Effects::update()
 
    QStringList effects;
 
-   for (int i = 0; i < this->ui->lswApply->count(); i++)
-   {
+   for (int i = 0; i < this->ui->lswApply->count(); i++) {
        int index = this->m_effectsWidgets.indexOf(this->ui->lswApply->item(i));
 
        effects << this->m_effectsNames[index];
@@ -105,8 +102,7 @@ void Effects::hideEvent(QHideEvent *event)
 
 void Effects::setEffectPreview(const QbPacket &packet, QString effect)
 {
-    if (!this->m_mediaTools->device().isEmpty())
-    {
+    if (!this->m_mediaTools->device().isEmpty()) {
         int index = this->m_effectsNames.indexOf(effect);
 
         if (index < 0)
@@ -168,8 +164,7 @@ void Effects::on_btnRemove_clicked()
 
 void Effects::on_btnUp_clicked()
 {
-    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems())
-    {
+    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems()) {
         int row = this->ui->lswApply->row(item);
         int row_ = (row >= 1)? row - 1: 0;
         QListWidgetItem *item_ = this->ui->lswApply->takeItem(row);
@@ -182,8 +177,7 @@ void Effects::on_btnUp_clicked()
 
 void Effects::on_btnDown_clicked()
 {
-    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems())
-    {
+    foreach (QListWidgetItem *item, this->ui->lswApply->selectedItems()) {
         int row = this->ui->lswApply->row(item);
         int row_ = (row < this->ui->lswApply->count() - 1)? row + 1: this->ui->lswApply->count() - 1;
         QListWidgetItem *item_ = this->ui->lswApply->takeItem(row);

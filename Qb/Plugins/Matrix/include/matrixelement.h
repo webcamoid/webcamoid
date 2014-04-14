@@ -49,7 +49,6 @@ class MatrixElement: public QbElement
         };
 
         explicit MatrixElement();
-        ~MatrixElement();
 
         Q_INVOKABLE int nChars() const;
         Q_INVOKABLE int fontWidth() const;
@@ -59,7 +58,7 @@ class MatrixElement: public QbElement
         Q_INVOKABLE float white() const;
         Q_INVOKABLE bool pause() const;
 
-        bool event(QEvent *e);
+        bool event(QEvent *event);
 
     private:
         int m_nChars;

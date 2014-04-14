@@ -32,12 +32,15 @@ class AudioStream: public AbstractStream
     Q_PROPERTY(bool align READ align WRITE setAlign RESET resetAlign)
 
     public:
-        explicit AudioStream(QObject *parent=NULL);
-        AudioStream(AVFormatContext *formatContext, uint index);
+        explicit AudioStream(const AVFormatContext *formatContext=NULL,
+                             uint index=-1, qint64 id=-1, bool noModify=false,
+                             QObject *parent=NULL);
 
         Q_INVOKABLE bool align() const;
         Q_INVOKABLE QbCaps caps() const;
-        Q_INVOKABLE QList<QbPacket> readPackets(AVPacket *packet);
+
+    protected:
+        void processPacket(AVPacket *packet);
 
     private:
         bool m_align;

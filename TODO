@@ -1,3 +1,2 @@
 - Port GUI to Qml
 - Add libKIPI support.
-- GStreamer doesn't work with some uri directions.

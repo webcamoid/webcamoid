@@ -115,12 +115,16 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QbElementPtr m_mic;
         QbElementPtr m_record;
         QbElementPtr m_webcamConfig;
+        QbElementPtr m_videoSync;
+        QbElementPtr m_videoConvert;
         QStringList m_effectsList;
         QSize m_curFrameSize;
         QMutex m_mutex;
 
         QString hashFromName(QString name="");
         QString nameFromHash(QString hash="");
+
+        static void deleteThread(QThread *thread);
 
     signals:
         void devicesModified();

@@ -64,8 +64,7 @@ void QbApplication::deleteInstance(const QString &pluginId)
 
     this->m_instances[pluginId]--;
 
-    if (this->m_instances[pluginId] < 1)
-    {
+    if (this->m_instances[pluginId] < 1) {
         this->unload(pluginId);
 
         this->m_instances.remove(pluginId);
@@ -84,15 +83,13 @@ bool QbApplication::load(const QString &pluginId)
 
     QString fileName;
 
-    for (int i = this->m_pluginsPaths.length() - 1; i >= 0; i--)
-    {
+    for (int i = this->m_pluginsPaths.length() - 1; i >= 0; i--) {
         QString path = this->m_pluginsPaths[i];
         QString filePath = QString("%1%2lib%3.so").arg(path)
                                                   .arg(QDir::separator())
                                                   .arg(pluginId);
 
-        if (QFileInfo(filePath).exists())
-        {
+        if (QFileInfo(filePath).exists()) {
             fileName = filePath;
 
             break;
@@ -105,8 +102,7 @@ bool QbApplication::load(const QString &pluginId)
     this->m_pluginPath[pluginId] = fileName;
     this->m_pluginLoader.setFileName(fileName);
 
-    if (!this->m_pluginLoader.load())
-    {
+    if (!this->m_pluginLoader.load()) {
         qDebug() << this->m_pluginLoader.errorString();
 
         return false;

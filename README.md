@@ -111,3 +111,7 @@ Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issu
 Can you share some BTC with me to keep alive the project? :)
 
 [Donate Now](https://blockchain.info/address/1Gj7THPrfrXFQ5BzVSVmRu2GxvwzYzbacj)
+
+## Build State ##
+
+[![Build Status](https://travis-ci.org/hipersayanX/Webcamoid.png?branch=master)](https://github.com/hipersayanX/Webcamoid)

@@ -44,6 +44,7 @@ class WebcamConfigElement: public QbElement
         Q_INVOKABLE QVariantList controls(const QString &webcam) const;
         Q_INVOKABLE bool setControls(const QString &webcam, const QVariantMap &controls) const;
         Q_INVOKABLE bool resetControls(const QString &webcam) const;
+        bool event(QEvent *event);
 
     private:
         QStringList m_webcams;

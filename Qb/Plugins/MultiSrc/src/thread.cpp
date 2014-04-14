@@ -19,12 +19,14 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "filter.h"
-#include "filterelement.h"
+#include "thread.h"
 
-QbElement *Filter::newElement()
+Thread::Thread(QObject *parent):
+    QThread(parent)
 {
-    return new FilterElement();
 }
 
-Q_EXPORT_PLUGIN2(Filter, Filter)
+void Thread::run()
+{
+    emit this->runTh();
+}

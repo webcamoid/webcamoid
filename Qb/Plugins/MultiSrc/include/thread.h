@@ -19,23 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "qbthread.h"
+#ifndef THREAD_H
+#define THREAD_H
 
-QbThread::QbThread(QObject *parent):
-    QThread(parent)
-{
-   this->m_threadList = NULL;
-}
+#include <QtCore>
 
-QbThread::~QbThread()
+class Thread: public QThread
 {
-    if (this->m_threadList)
-        QMetaObject::invokeMethod(this->m_threadList,
-                                  "deleteInstance",
-                                  Q_ARG(QString, this->objectName()));
-}
+    Q_OBJECT
 
-void QbThread::run()
-{
-    this->exec();
-}
+    public:
+        explicit Thread(QObject *parent = NULL);
+
+    protected:
+        void run();
+
+    signals:
+        void runTh();
+};
+
+#endif // THREAD_H

@@ -34,8 +34,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
     this->m_resetting = false;
 
-    foreach (QStringList captureDevice, this->m_mediaTools->captureDevices())
-    {
+    foreach (QStringList captureDevice, this->m_mediaTools->captureDevices()) {
         if (!QRegExp("/dev/video\\d+").exactMatch(captureDevice[0]))
             continue;
 
@@ -105,11 +104,9 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
         cindex = 1;
 
-        foreach (QVariant control, this->m_mediaTools->listControls(captureDevice[0]))
-        {
+        foreach (QVariant control, this->m_mediaTools->listControls(captureDevice[0])) {
             if (control.toList()[1].toString() == "integer" ||
-                control.toList()[1].toString() == "integer64")
-            {
+                control.toList()[1].toString() == "integer64") {
                 QLabel *lblControl = new QLabel(page);
                 lblControl->setText(control.toList()[0].toString());
                 gridLayout->addWidget(lblControl, cindex, 0, 1, 1);
@@ -155,8 +152,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                                  sldControl,
                                  SLOT(setValue(int)));
             }
-            else if (control.toList()[1].toString() == "boolean")
-            {
+            else if (control.toList()[1].toString() == "boolean") {
                 QCheckBox *chkControl = new QCheckBox(page);
                 chkControl->setProperty("deviceName", captureDevice[0]);
                 chkControl->setProperty("controlName", control.toList()[0]);
@@ -171,8 +167,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
                 gridLayout->addWidget(chkControl, cindex, 0, 1, 3);
             }
-            else if (control.toList()[1].toString() == "menu")
-            {
+            else if (control.toList()[1].toString() == "menu") {
                 QLabel *lblControl = new QLabel(page);
                 lblControl->setText(control.toList()[0].toString());
                 gridLayout->addWidget(lblControl, cindex, 0, 1, 1);
@@ -230,21 +225,19 @@ CameraConfig::~CameraConfig()
 
 void CameraConfig::resetControls(QString deviceName)
 {
-    foreach (QObject *children, this->findChildren<QObject *>())
-    {
+    foreach (QObject *children, this->findChildren<QObject *>()) {
         QVariant variantChildrenDeviceName = children->property("deviceName");
-        QVariant variantChildrenControlDefaultValue = children->property("controlDefaultValue");
+        QVariant variantChildrenControlDefaultValue = \
+                children->property("controlDefaultValue");
 
         if (variantChildrenDeviceName.isValid() &&
-            variantChildrenControlDefaultValue.isValid())
-        {
+            variantChildrenControlDefaultValue.isValid()) {
             QString childrenDeviceName = variantChildrenDeviceName.toString();
 
             int childrenControlDefaultValue = \
                             variantChildrenControlDefaultValue.toInt();
 
-            if (childrenDeviceName == deviceName)
-            {
+            if (childrenDeviceName == deviceName) {
                 if (QComboBox *comboBox = qobject_cast<QComboBox *>(children))
                     comboBox->setCurrentIndex(childrenControlDefaultValue);
                 else if (QSlider *slider = qobject_cast<QSlider *>(children))
@@ -265,9 +258,7 @@ void CameraConfig::pushButtonClicked()
     QString controlName = control->property("controlName").toString();
     QString deviceOption = control->property("deviceOption").toString();
 
-    if (controlName.isEmpty() &&
-        deviceOption == "resetDevice")
-    {
+    if (controlName.isEmpty() && deviceOption == "resetDevice") {
             this->m_resetting = true;
             this->m_mediaTools->reset(deviceName);
             this->resetControls(deviceName);
@@ -281,8 +272,7 @@ void CameraConfig::sliderMoved(int value)
     QString deviceName = control->property("deviceName").toString();
     QString controlName = control->property("controlName").toString();
 
-    if (!this->m_resetting)
-    {
+    if (!this->m_resetting) {
         QVariantMap controlMap;
 
         controlMap[controlName] = value;
@@ -296,8 +286,7 @@ void CameraConfig::spinboxValueChanged(int i)
     QString deviceName = control->property("deviceName").toString();
     QString controlName = control->property("controlName").toString();
 
-    if (!this->m_resetting)
-    {
+    if (!this->m_resetting) {
         QVariantMap controlMap;
 
         controlMap[controlName] = i;
@@ -311,8 +300,7 @@ void CameraConfig::checkboxToggled(bool checked)
     QString deviceName = control->property("deviceName").toString();
     QString controlName = control->property("controlName").toString();
 
-    if (!this->m_resetting)
-    {
+    if (!this->m_resetting) {
         QVariantMap controlMap;
 
         controlMap[controlName] = checked? 1: 0;
@@ -327,13 +315,11 @@ void CameraConfig::comboboxCurrentIndexChanged(int index)
     QString controlName = control->property("controlName").toString();
     QString deviceOption = control->property("deviceOption").toString();
 
-    if (controlName.isEmpty())
-    {
+    if (controlName.isEmpty()) {
         if (deviceOption == "videoFormat" && !this->m_resetting)
             this->m_mediaTools->setVideoSize(deviceName, this->m_videoSizes[deviceName].toList()[index].toSize());
     }
-    else
-    {
+    else {
         QVariantMap controlMap;
 
         controlMap[controlName] = index;

@@ -36,13 +36,12 @@ class QImageConvertElement: public QbElement
         explicit QImageConvertElement();
 
         Q_INVOKABLE QString format();
+        bool event(QEvent *event);
 
     private:
         QString m_format;
         QImage::Format m_qFormat;
-
-        QbElementPtr m_capsConvert;
-
+        QbElementPtr m_convert;
         QMap<QString, QString> m_imageToFormat;
         QMap<QString, QImage::Format> m_imageToQt;
 

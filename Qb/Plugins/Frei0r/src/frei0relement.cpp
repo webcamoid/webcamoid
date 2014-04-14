@@ -33,9 +33,9 @@ Frei0rElement::Frei0rElement(): QbElement()
     this->resetParams();
     this->resetFrei0rPaths();
 
-    this->m_capsConvert = Qb::create("VCapsConvert");
+    this->m_convert = Qb::create("VCapsConvert");
 
-    QObject::connect(this->m_capsConvert.data(),
+    QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
@@ -75,7 +75,7 @@ QVariantMap Frei0rElement::params()
     ElementState preState = this->state();
 
     if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
 
     f0r_instance_t curInstance = this->m_f0rInstance;
 
@@ -161,7 +161,7 @@ QVariantMap Frei0rElement::info()
 
     if (this->state() == ElementStateNull)
     {
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
         info = this->m_info;
         this->setState(ElementStateNull);
     }
@@ -192,6 +192,42 @@ QStringList Frei0rElement::plugins() const
 QStringList Frei0rElement::frei0rPaths() const
 {
     return this->m_frei0rPaths;
+}
+
+bool Frei0rElement::event(QEvent *event)
+{
+    bool r;
+
+    if (event->type() == QEvent::ThreadChange)
+    {
+        QObject::disconnect(this->m_convert.data(),
+                            SIGNAL(oStream(const QbPacket &)),
+                            this,
+                            SIGNAL(processFrame(const QbPacket &)));
+
+        QObject::disconnect(&this->m_timer,
+                            SIGNAL(timeout()),
+                            this,
+                            SLOT(processFrame()));
+
+        r = QObject::event(event);
+        this->m_convert->moveToThread(this->thread());
+        this->m_timer.moveToThread(this->thread());
+
+        QObject::connect(this->m_convert.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(processFrame(const QbPacket &)));
+
+        QObject::connect(&this->m_timer,
+                         SIGNAL(timeout()),
+                         this,
+                         SLOT(processFrame()));
+    }
+    else
+        r = QObject::event(event);
+
+    return r;
 }
 
 bool Frei0rElement::init()
@@ -306,7 +342,7 @@ bool Frei0rElement::init()
     }
 
     if (caps.isValid())
-        this->m_capsConvert->setProperty("caps", caps.toString());
+        this->m_convert->setProperty("caps", caps.toString());
 
     this->m_info["frei0r_version"] = infoStruct.frei0r_version;
     this->m_info["major_version"] = infoStruct.major_version;
@@ -373,6 +409,16 @@ void Frei0rElement::uninit()
     this->m_info.clear();
     this->f0rDeinit();
     this->m_library.unload();
+}
+
+void Frei0rElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->init();
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+        this->uninit();
 }
 
 bool Frei0rElement::initBuffers()
@@ -482,7 +528,7 @@ void Frei0rElement::setParams(QVariantMap params)
     ElementState preState = this->state();
 
     if (preState == ElementStateNull)
-        this->setState(ElementStateReady);
+        this->setState(ElementStatePaused);
 
     f0r_instance_t curInstance = this->m_f0rInstance;
 
@@ -643,18 +689,17 @@ void Frei0rElement::iStream(const QbPacket &packet)
 
     this->m_fps = QbFrac(this->m_curInputCaps.property("fps").toString());
 
-    this->m_capsConvert->iStream(packet);
+    this->m_convert->iStream(packet);
 }
 
 void Frei0rElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (this->m_capsConvert)
-        this->m_capsConvert->setState(this->state());
+    if (this->m_convert)
+        this->m_convert->setState(this->state());
 
-    if (this->state() == ElementStateNull ||
-        this->state() == ElementStateReady)
+    if (this->state() == ElementStateNull)
     {
         if (this->m_info["plugin_type"] != "source")
             this->uninitBuffers();

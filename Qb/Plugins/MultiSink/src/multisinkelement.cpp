@@ -56,17 +56,19 @@ QVariantMap MultiSinkElement::streamCaps()
     return this->m_streamCaps;
 }
 
-bool MultiSinkElement::init()
+void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
-    return this->m_outputFormat.open(this->location(),
-                                     this->m_outputParams,
-                                     this->m_commands.outputOptions());
-}
-
-void MultiSinkElement::uninit()
-{
-    this->flushStreams();
-    this->m_outputFormat.close();
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->m_outputFormat.open(this->location(),
+                                             this->m_outputParams,
+                                             this->m_commands.outputOptions());
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+    {
+        this->flushStreams();
+        this->m_outputFormat.close();
+    }
 }
 
 QList<AVPixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
@@ -364,7 +366,9 @@ void MultiSinkElement::iStream(const QbPacket &packet)
         return;
 
     if (!this->m_outputFormat.outputContext())
-        this->init();
+        this->m_outputFormat.open(this->location(),
+                                  this->m_outputParams,
+                                  this->m_commands.outputOptions());
 
     QString input = QString("%1").arg(packet.index());
 
@@ -384,7 +388,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     av_init_packet(&pkt);
 
     AVFrame oFrame;
-    avcodec_get_frame_defaults(&oFrame);
+    memset(&oFrame, 0, sizeof(AVFrame));
 
     avpicture_fill((AVPicture *) &oFrame,
                    (uint8_t *) packet.buffer().data(),
@@ -492,7 +496,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     }
 
     static AVFrame iFrame;
-    avcodec_get_frame_defaults(&iFrame);
+    memset(&iFrame, 0, sizeof(AVFrame));
 
     iFrame.nb_samples = samples;
 
@@ -515,7 +519,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         QByteArray oBuffer(oBufferSize, 0);
 
         static AVFrame oFrame;
-        avcodec_get_frame_defaults(&oFrame);
+        memset(&oFrame, 0, sizeof(AVFrame));
 
         oFrame.nb_samples = frameSize;
 
