@@ -88,7 +88,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                                          convertIO.oWidth(),
                                          convertIO.oHeight());
 
-    QbBufferPtr oBuffer(new uchar[oBufferSize]);
+    QbBufferPtr oBuffer(new char[oBufferSize]);
 
     AVPicture iPicture;
 

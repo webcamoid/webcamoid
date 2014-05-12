@@ -91,9 +91,9 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         Q_INVOKABLE QList<QStringList> captureDevices();
         Q_INVOKABLE QVariantList listControls(const QString &device);
         Q_INVOKABLE void setControls(const QString &device, const QVariantMap &controls);
-        Q_INVOKABLE QMap<QString, QString> availableEffects();
-        Q_INVOKABLE QStringList currentEffects();
-        Q_INVOKABLE QString bestRecordFormatOptions(QString fileName="");
+        Q_INVOKABLE QMap<QString, QString> availableEffects() const;
+        Q_INVOKABLE QStringList currentEffects() const;
+        Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
 
     private:
         QString m_device;
@@ -128,16 +128,16 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
     signals:
         void devicesModified();
-        void deviceChanged(QString device);
+        void deviceChanged(const QString &device);
         void recordingChanged(bool recording);
         void frameReady(const QbPacket &frame);
         void previewFrameReady(const QbPacket &frame, QString effectName);
-        void error(QString message);
+        void error(const QString &message);
 
     public slots:
         void mutexLock();
         void mutexUnlock();
-        void setDevice(QString device);
+        void setDevice(const QString &device);
         void setVideoSize(const QString &device, const QSize &size);
         void setEffectsPreview(bool effectsPreview);
         void setPlayAudioFromSource(bool playAudioFromSource);
@@ -155,10 +155,10 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void resetVideoRecordFormats();
         void resetWindowSize();
 
-        void reset(QString device);
+        void reset(const QString &device);
         void loadConfigs();
         void saveConfigs();
-        void setEffects(QStringList effects=QStringList());
+        void setEffects(const QStringList &effects=QStringList());
         void clearVideoRecordFormats();
         void resetStreams();
         void setStream(QString dev_name="", QString description="");

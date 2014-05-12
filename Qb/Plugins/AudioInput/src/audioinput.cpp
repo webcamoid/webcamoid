@@ -22,9 +22,19 @@
 #include "audioinput.h"
 #include "audioinputelement.h"
 
-QbElement *AudioInput::newElement()
+QObject *AudioInput::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new AudioInputElement();
 }
 
+QStringList AudioInput::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(AudioInput, AudioInput)
+#endif // QT_VERSION < 0x050000

@@ -22,9 +22,19 @@
 #include "vcapsconvert.h"
 #include "vcapsconvertelement.h"
 
-QbElement *VCapsConvert::newElement()
+QObject *VCapsConvert::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new VCapsConvertElement();
 }
 
+QStringList VCapsConvert::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(VCapsConvert, VCapsConvert)
+#endif // QT_VERSION < 0x050000

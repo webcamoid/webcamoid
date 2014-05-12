@@ -106,7 +106,7 @@ void AudioStream::processPacket(AVPacket *packet)
                       (AVSampleFormat) iFrame.format,
                       this->align() ? 0 : 1);
 
-    QbBufferPtr oBuffer(new uchar[oBufferSize]);
+    QbBufferPtr oBuffer(new char[oBufferSize]);
 
     int planes = av_sample_fmt_is_planar((AVSampleFormat) iFrame.format) ?
                  iFrame.channels : 1;

@@ -125,10 +125,16 @@ QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
     for (int i = 0; i < object->metaObject()->methodCount(); i++) {
         QMetaMethod method = object->metaObject()->method(i);
 
-        if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(method.signature()))
-            if (!methodSignatures.contains(method.signature())) {
+#if QT_VERSION >= 0x050000
+        const char *signature = method.methodSignature().constData();
+#else
+        const char *signature = method.signature();
+#endif // QT_VERSION >= 0x050000
+
+        if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(signature))
+            if (!methodSignatures.contains(signature)) {
                 methods << method;
-                methodSignatures << method.signature();
+                methodSignatures << signature;
             }
     }
 

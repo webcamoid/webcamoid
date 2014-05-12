@@ -22,7 +22,7 @@
 #ifndef STREAMSCONFIG_H
 #define STREAMSCONFIG_H
 
-#include <QtGui>
+#include <QWidget>
 
 #include "commons.h"
 #include "appenvironment.h"

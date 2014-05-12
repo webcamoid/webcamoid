@@ -22,9 +22,19 @@
 #include "multisrc.h"
 #include "multisrcelement.h"
 
-QbElement *MultiSrc::newElement()
+QObject *MultiSrc::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new MultiSrcElement();
 }
 
+QStringList MultiSrc::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(MultiSrc, MultiSrc)
+#endif // QT_VERSION < 0x050000

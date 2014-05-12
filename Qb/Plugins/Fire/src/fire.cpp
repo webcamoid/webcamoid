@@ -22,9 +22,19 @@
 #include "fire.h"
 #include "fireelement.h"
 
-QbElement *Fire::newElement()
+QObject *Fire::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new FireElement();
 }
 
+QStringList Fire::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Fire, Fire)
+#endif // QT_VERSION < 0x050000

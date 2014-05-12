@@ -44,7 +44,8 @@ LIBS += -L../../ -lQb -lfl -ly
 FLEXSOURCES = parser/lexer.l
 BISONSOURCES = parser/parser.y
 
-OTHER_FILES +=  \
+OTHER_FILES += \
+    pspec.json \
     $$FLEXSOURCES \
     $$BISONSOURCES
 

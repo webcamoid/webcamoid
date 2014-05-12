@@ -108,7 +108,7 @@ void Effects::setEffectPreview(const QbPacket &packet, QString effect)
         if (index < 0)
             return;
 
-        QImage image(packet.buffer().data(),
+        QImage image(reinterpret_cast<uchar *>(packet.buffer().data()),
                      packet.caps().property("width").toInt(),
                      packet.caps().property("height").toInt(),
                      QImage::Format_ARGB32);

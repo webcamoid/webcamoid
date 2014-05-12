@@ -22,7 +22,7 @@
 #ifndef VIDEORECORDCONFIG_H
 #define VIDEORECORDCONFIG_H
 
-#include <QtGui>
+#include <QWidget>
 
 #include "commons.h"
 #include "appenvironment.h"

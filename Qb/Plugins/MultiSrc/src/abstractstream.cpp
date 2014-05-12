@@ -172,7 +172,6 @@ void AbstractStream::uninit()
     this->m_mutex.unlock();
 
     if (this->m_outputThread) {
-//        this->m_outputThread->quit();
         this->m_outputThread->wait();
         delete this->m_outputThread;
         this->m_outputThread = NULL;

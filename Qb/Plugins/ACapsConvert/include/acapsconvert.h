@@ -22,15 +22,20 @@
 #ifndef ACAPSCONVERT_H
 #define ACAPSCONVERT_H
 
-#include <qbplugin.h>
+#include <qb.h>
 
 class ACapsConvert: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
 
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
+#endif // QT_VERSION >= 0x050000
+
     public:
-        QbElement *newElement();
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
 #endif // ACAPSCONVERT_H

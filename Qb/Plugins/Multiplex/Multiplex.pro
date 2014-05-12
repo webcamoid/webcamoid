@@ -40,7 +40,9 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
-QT += core
+OTHER_FILES += pspec.json
+
+QT += core gui
 
 SOURCES += \
     src/multiplex.cpp \

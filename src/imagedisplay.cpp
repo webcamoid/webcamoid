@@ -43,7 +43,7 @@ void ImageDisplay::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
-    QImage image(this->m_image.buffer().data(),
+    QImage image(reinterpret_cast<uchar *>(this->m_image.buffer().data()),
                  this->m_image.caps().property("width").toInt(),
                  this->m_image.caps().property("height").toInt(),
                  QImage::Format_ARGB32);

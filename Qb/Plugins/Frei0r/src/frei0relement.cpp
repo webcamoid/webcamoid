@@ -811,7 +811,7 @@ void Frei0rElement::processFrame(const QbPacket &packet)
 
     this->m_t += this->m_duration;
 
-    QbBufferPtr oBuffer(new uchar[this->m_oBuffer.size()]);
+    QbBufferPtr oBuffer(new char[this->m_oBuffer.size()]);
     memcpy(oBuffer.data(), this->m_oBuffer.constData(), this->m_oBuffer.size());
 
     QbPacket oPacket(caps,

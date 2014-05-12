@@ -19,14 +19,8 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <KDE/KAboutApplicationDialog>
-#include <KDE/KAboutData>
-#include <KDE/KConfigSkeleton>
-#include <KDE/KGlobalSettings>
-#include <KDE/KLocalizedString>
-#include <KDE/KNotification>
-
 #include "ui_mainwidget.h"
+#include "about.h"
 #include "mainwidget.h"
 
 MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
@@ -61,9 +55,9 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
                      SLOT(updateWebcams()));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(deviceChanged(QString)),
+                     SIGNAL(deviceChanged(const QString &)),
                      this,
-                     SLOT(deviceChanged(QString)));
+                     SLOT(deviceChanged(const QString &)));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(recordingChanged(bool)),
@@ -71,9 +65,9 @@ MainWidget::MainWidget(QWidget *parentWidget, QObject *parentObject):
                      SLOT(recordingChanged(bool)));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(error(QString)),
+                     SIGNAL(error(const QString &)),
                      this,
-                     SLOT(showError(QString)));
+                     SLOT(showError(const QString &)));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(frameReady(const QbPacket &)),
@@ -90,83 +84,72 @@ MainWidget::~MainWidget()
 {
 }
 
-void MainWidget::addWebcamConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addWebcamConfigDialog(ConfigDialog *configDialog)
 {
     if (!configDialog)
         return;
 
-    this->m_cfgWebcamDialog = new CameraConfig(this->m_mediaTools, this);
+    this->m_cfgWebcamDialog = new CameraConfig(this->m_mediaTools);
 
     configDialog->addPage(this->m_cfgWebcamDialog,
                           this->tr("Webcam Settings"),
-                          "camera-web",
-                          this->tr("Configure the parameters of the webcam."),
-                          false);
+                          QIcon::fromTheme("camera-web"),
+                          this->tr("Configure the parameters of the webcam."));
 }
 
-void MainWidget::addEffectsConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addEffectsConfigDialog(ConfigDialog *configDialog)
 {
     if (!configDialog)
         return;
 
-    this->m_cfgEffects = new Effects(this->m_mediaTools, this);
+    this->m_cfgEffects = new Effects(this->m_mediaTools);
 
     configDialog->addPage(this->m_cfgEffects,
                           this->tr("Configure Webcam Effects"),
-                          "tools-wizard",
-                          this->tr("Add funny effects to the webcam"),
-                          false);
+                          QIcon::fromTheme("tools-wizard"),
+                          this->tr("Add funny effects to the webcam"));
 }
 
-void MainWidget::addVideoFormatsConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addVideoFormatsConfigDialog(ConfigDialog *configDialog)
 {
     if (!configDialog)
         return;
 
-    this->m_cfgVideoFormats = new VideoRecordConfig(this->m_mediaTools, this);
+    this->m_cfgVideoFormats = new VideoRecordConfig(this->m_mediaTools);
 
     configDialog->
            addPage(this->m_cfgVideoFormats,
                    this->tr("Configure Video Recording Formats"),
-                   "video-x-generic",
-                   this->tr("Add or remove video formats for recording."),
-                   false);
+                   QIcon::fromTheme("video-x-generic"),
+                   this->tr("Add or remove video formats for recording."));
 }
 
-void MainWidget::addStreamsConfigDialog(KConfigDialog *configDialog)
+void MainWidget::addStreamsConfigDialog(ConfigDialog *configDialog)
 {
-    this->m_cfgStreams = new StreamsConfig(this->m_mediaTools, this);
+    this->m_cfgStreams = new StreamsConfig(this->m_mediaTools);
 
     configDialog->
            addPage(this->m_cfgStreams,
                    this->tr("Configure Custom Streams"),
-                   "network-workgroup",
-                   this->tr("Add or remove local or network live streams."),
-                   false);
+                   QIcon::fromTheme("network-workgroup"),
+                   this->tr("Add or remove local or network live streams."));
 }
 
-void MainWidget::addGeneralConfigsDialog(KConfigDialog *configDialog)
+void MainWidget::addGeneralConfigsDialog(ConfigDialog *configDialog)
 {
-    this->m_cfgGeneralConfig = new GeneralConfig(this->m_mediaTools, this);
+    this->m_cfgGeneralConfig = new GeneralConfig(this->m_mediaTools);
 
     configDialog->
            addPage(this->m_cfgGeneralConfig,
                    this->tr("General Options"),
-                   "configure",
-                   this->tr("Setup the basic capture options."),
-                   false);
+                   QIcon::fromTheme("configure"),
+                   this->tr("Setup the basic capture options."));
 }
 
-void MainWidget::showConfigDialog(KConfigDialog *configDialog)
+void MainWidget::showConfigDialog(ConfigDialog *configDialog)
 {
     if (!configDialog) {
-        KConfigSkeleton *config = new KConfigSkeleton("", this);
-
-        configDialog = \
-                new KConfigDialog(this,
-                                  this->tr("%1 Settings").arg(QCoreApplication::
-                                                applicationName()),
-                                  config);
+        configDialog = new ConfigDialog(this);
 
         configDialog->setWindowTitle(this->tr("%1 Settings").arg(QCoreApplication::
                                             applicationName()));
@@ -199,7 +182,16 @@ QString MainWidget::saveFile(bool video)
     QString defaultFileName;
 
     if (video) {
-        QString videosPath = KGlobalSettings::videosPath();
+        QString videosPath(".");
+#if QT_VERSION >= 0x050000
+        QStringList videosPaths = QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
+
+        if (!videosPaths.isEmpty())
+            videosPath = videosPaths[0];
+#else
+        videosPath = QDesktopServices::storageLocation(QDesktopServices::MoviesLocation);
+#endif // QT_VERSION >= 0x050000
+
         QList<QStringList> videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 
         QStringList filtersList;
@@ -224,7 +216,15 @@ QString MainWidget::saveFile(bool video)
                                                    arg(defaultSuffix));
     }
     else {
-        QString picturesPath = KGlobalSettings::picturesPath();
+        QString picturesPath(".");
+#if QT_VERSION >= 0x050000
+        QStringList picturesPaths = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+
+        if (!picturesPaths.isEmpty())
+            picturesPath = picturesPaths[0];
+#else
+        picturesPath = QDesktopServices::storageLocation(QDesktopServices::MoviesLocation);
+#endif // QT_VERSION >= 0x050000
 
         filters = "PNG file (*.png);;" \
                   "JPEG file (*.jpg);;" \
@@ -320,7 +320,7 @@ void MainWidget::updateWebcams()
         this->m_mediaTools->setDevice(oldDevice);
 }
 
-void MainWidget::deviceChanged(QString device)
+void MainWidget::deviceChanged(const QString &device)
 {
     if (device.isEmpty()) {
         this->ui->btnTakePhoto->setEnabled(false);
@@ -349,14 +349,15 @@ void MainWidget::saveConfigs()
     this->m_mediaTools->saveConfigs();
 }
 
-void MainWidget::showError(QString message)
+void MainWidget::showError(const QString &message)
 {
-    KNotification::event(KNotification::Error,
-                         this->tr("An error has occurred"),
-                         message,
-                         QPixmap(),
-                         NULL,
-                         KNotification::Persistent);
+    QMessageBox messageBox(QMessageBox::Critical,
+                           this->tr("An error has occurred"),
+                           message,
+                           QMessageBox::Ok,
+                           this);
+
+    messageBox.exec();
 }
 
 void MainWidget::updateContents()
@@ -373,7 +374,7 @@ void MainWidget::updateContents()
 
 void MainWidget::on_btnTakePhoto_clicked()
 {
-    QImage image(this->m_webcamFrame.buffer().data(),
+    QImage image(reinterpret_cast<uchar *>(this->m_webcamFrame.buffer().data()),
                  this->m_webcamFrame.caps().property("width").toInt(),
                  this->m_webcamFrame.caps().property("height").toInt(),
                  QImage::Format_ARGB32);
@@ -422,22 +423,18 @@ void MainWidget::on_btnConfigure_clicked()
 
 void MainWidget::on_btnAbout_clicked()
 {
-    KAboutData *aboutData = new \
-        KAboutData(QCoreApplication::applicationName().toUtf8().data(),
-                   QCoreApplication::applicationName().toUtf8().data(),
-                   ki18n(QCoreApplication::applicationName().toStdString().c_str()),
-                   QCoreApplication::applicationVersion().toUtf8().data(),
-                   ki18n(this->tr("webcam capture plasmoid.").toStdString().c_str()),
-                   KAboutData::License_GPL_V3,
-                   ki18n(COMMONS_COPYRIGHT_NOTICE),
-                   ki18n(this->tr("A simple webcam plasmoid and "
-                                  "stand alone app for picture and "
-                                  "video capture.").toStdString().c_str()),
-                   COMMONS_PROJECT_URL,
-                   COMMONS_PROJECT_BUG_URL);
+    About aboutDialog(this);
 
-    aboutData->setProgramIconName("camera-web");
+    aboutDialog.setIcon(QIcon::fromTheme("camera-web"));
+    aboutDialog.setAppName(QCoreApplication::applicationName());
+    aboutDialog.setVersion(QCoreApplication::applicationVersion());
+    aboutDialog.setShortDescription(this->tr("webcam capture plasmoid."));
+    aboutDialog.setDescription(this->tr("A simple webcam plasmoid and "
+                                        "stand alone app for picture and "
+                                        "video capture."));
+    aboutDialog.setCopyrightNotice(COMMONS_COPYRIGHT_NOTICE);
+    aboutDialog.setWebsiteLink(COMMONS_PROJECT_URL);
+    aboutDialog.setWebsiteLicense(COMMONS_PROJECT_LICENSE_URL);
 
-    KAboutApplicationDialog aboutDialog(aboutData, this);
     aboutDialog.exec();
 }

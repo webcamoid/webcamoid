@@ -62,6 +62,8 @@ exists(../../3dparty/ffmpeg_auto.pri) {
         -lavutil$${FFMPEGBUILDSUFFIX}
 }
 
+OTHER_FILES += pspec.json
+
 QT += core gui
 
 SOURCES += \

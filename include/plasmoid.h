@@ -35,7 +35,6 @@ class Plasmoid: public Plasma::PopupApplet
         ~Plasmoid();
 
         void init();
-        void createConfigurationInterface(KConfigDialog *configDialog);
 
     private:
         QSizeF m_defaultPlasmoidSize;

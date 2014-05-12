@@ -22,9 +22,19 @@
 #include "multisink.h"
 #include "multisinkelement.h"
 
-QbElement *MultiSink::newElement()
+QObject *MultiSink::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new MultiSinkElement();
 }
 
+QStringList MultiSink::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(MultiSink, MultiSink)
+#endif // QT_VERSION < 0x050000

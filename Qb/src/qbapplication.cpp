@@ -44,7 +44,7 @@ QbElementPtr QbApplication::newInstance(const QString &pluginId)
     if (!this->load(pluginId))
         return QbElementPtr();
 
-    QbElementPtr element(this->m_plugins[pluginId]->newElement());
+    QbElementPtr element(qobject_cast<QbElement *>(this->m_plugins[pluginId]->create("", "")));
 
     element->m_application = this;
     element->m_pluginId = pluginId;

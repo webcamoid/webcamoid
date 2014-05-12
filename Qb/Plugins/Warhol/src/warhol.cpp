@@ -22,9 +22,19 @@
 #include "warhol.h"
 #include "warholelement.h"
 
-QbElement *Warhol::newElement()
+QObject *Warhol::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new WarholElement();
 }
 
+QStringList Warhol::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Warhol, Warhol)
+#endif // QT_VERSION < 0x050000

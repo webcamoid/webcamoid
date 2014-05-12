@@ -168,8 +168,14 @@ QMetaMethod Pipeline::methodByName(QObject *object, QString methodName, QMetaMet
     {
         QMetaMethod method = object->metaObject()->method(i);
 
+#if QT_VERSION >= 0x050000
+        const char *signature = method.methodSignature().constData();
+#else
+        const char *signature = method.signature();
+#endif // QT_VERSION >= 0x050000
+
         if (method.methodType() == methodType &&
-            QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(method.signature()))
+            QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(signature))
         {
             rMethod = method;
 

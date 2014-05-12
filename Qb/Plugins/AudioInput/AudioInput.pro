@@ -40,6 +40,8 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
+OTHER_FILES += pspec.json
+
 QT += core gui
 
 SOURCES += \
