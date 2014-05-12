@@ -54,7 +54,7 @@ HEADERS = \
 INCLUDEPATH += \
     include
 
-QT += core
+QT += core gui
 
 SOURCES = \
     src/qb.cpp \

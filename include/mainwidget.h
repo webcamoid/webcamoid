@@ -22,8 +22,8 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
-#include <QtGui>
-#include <KDE/KConfigDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "commons.h"
 #include "appenvironment.h"
@@ -34,6 +34,7 @@
 #include "videorecordconfig.h"
 #include "cameraconfig.h"
 #include "imagedisplay.h"
+#include <configdialog.h>
 
 namespace Ui
 {
@@ -61,7 +62,7 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         CameraConfig *m_cfgWebcamDialog;
         ImageDisplay *m_imageDispay;
 
-        void showConfigDialog(KConfigDialog *configDialog=NULL);
+        void showConfigDialog(ConfigDialog *configDialog=NULL);
         QString saveFile(bool video=false);
 
     protected:
@@ -71,20 +72,20 @@ class COMMONSSHARED_EXPORT MainWidget: public QWidget
         void closeEvent(QCloseEvent *event);
 
     public slots:
-        void addWebcamConfigDialog(KConfigDialog *configDialog);
-        void addEffectsConfigDialog(KConfigDialog *configDialog);
-        void addVideoFormatsConfigDialog(KConfigDialog *configDialog);
-        void addStreamsConfigDialog(KConfigDialog *configDialog);
-        void addGeneralConfigsDialog(KConfigDialog *configDialog);
+        void addWebcamConfigDialog(ConfigDialog *configDialog);
+        void addEffectsConfigDialog(ConfigDialog *configDialog);
+        void addVideoFormatsConfigDialog(ConfigDialog *configDialog);
+        void addStreamsConfigDialog(ConfigDialog *configDialog);
+        void addGeneralConfigsDialog(ConfigDialog *configDialog);
         void showFrame(const QbPacket &webcamFrame);
         void cleanAll();
 
     private slots:
         void updateWebcams();
-        void deviceChanged(QString device);
+        void deviceChanged(const QString &device);
         void recordingChanged(bool recording);
         void saveConfigs();
-        void showError(QString message);
+        void showError(const QString &message);
         void updateContents();
 
         void on_btnTakePhoto_clicked();

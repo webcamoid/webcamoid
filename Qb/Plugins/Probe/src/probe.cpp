@@ -22,9 +22,19 @@
 #include "probe.h"
 #include "probeelement.h"
 
-QbElement *Probe::newElement()
+QObject *Probe::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new ProbeElement();
 }
 
+QStringList Probe::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Probe, Probe)
+#endif // QT_VERSION < 0x050000

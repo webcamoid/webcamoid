@@ -73,7 +73,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
                                 subtitle.rects[i]->w *
                                 subtitle.rects[i]->h;
 
-                QbBufferPtr oBuffer(new uchar[frameSize]);
+                QbBufferPtr oBuffer(new char[frameSize]);
 
                 if (!oBuffer)
                     break;
@@ -91,7 +91,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
                 caps.setProperty("type", "text");
                 int textLenght = sizeof(subtitle.rects[i]->text);
 
-                oBuffer = QbBufferPtr(new uchar[textLenght]);
+                oBuffer = QbBufferPtr(new char[textLenght]);
 
                 if (!oBuffer)
                     break;
@@ -103,7 +103,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
                 caps.setProperty("type", "ass");
                 int assLenght = sizeof(subtitle.rects[i]->ass);
 
-                oBuffer = QbBufferPtr(new uchar[assLenght]);
+                oBuffer = QbBufferPtr(new char[assLenght]);
 
                 if (!oBuffer)
                     break;
@@ -135,7 +135,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
         caps.setProperty("type", "ass");
         int assLenght = packet->size;
 
-        oBuffer = QbBufferPtr(new uchar[assLenght]);
+        oBuffer = QbBufferPtr(new char[assLenght]);
 
         if (oBuffer) {
             memcpy(oBuffer.data(), packet->data, assLenght);

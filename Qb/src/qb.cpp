@@ -46,7 +46,7 @@ QbElementPtr Qb::create(const QString &pluginId, const QString &elementName)
 {
     QbElementPtr element = application()->newInstance(pluginId);
 
-    if (!elementName.isEmpty())
+    if (element && !elementName.isEmpty())
         element->setObjectName(elementName);
 
     return element;

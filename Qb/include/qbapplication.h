@@ -22,7 +22,7 @@
 #ifndef QBAPPLICATION_H
 #define QBAPPLICATION_H
 
-#include "qbplugin.h"
+#include "qb.h"
 
 class QbApplication: public QObject
 {

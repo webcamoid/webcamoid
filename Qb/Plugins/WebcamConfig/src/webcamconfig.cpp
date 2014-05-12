@@ -22,9 +22,19 @@
 #include "webcamconfig.h"
 #include "webcamconfigelement.h"
 
-QbElement *WebcamConfig::newElement()
+QObject *WebcamConfig::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new WebcamConfigElement();
 }
 
+QStringList WebcamConfig::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(WebcamConfig, WebcamConfig)
+#endif // QT_VERSION < 0x050000

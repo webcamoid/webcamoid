@@ -22,9 +22,19 @@
 #include "aging.h"
 #include "agingelement.h"
 
-QbElement *Aging::newElement()
+QObject *Aging::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new AgingElement();
 }
 
+QStringList Aging::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Aging, Aging)
+#endif // QT_VERSION < 0x050000

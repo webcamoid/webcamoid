@@ -35,8 +35,9 @@ CONFIG += ordered
 SUBDIRS += \
     Qb \
     Lib.pro \
-    Plasmoid.pro \
     StandAlone.pro
+
+lessThan(QT_MAJOR_VERSION, 5): SUBDIRS += Plasmoid.pro
 
 # Install rules
 

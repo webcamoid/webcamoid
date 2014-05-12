@@ -156,7 +156,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                                  oSampleFormat,
                                                  oAlign? 0: 1);
 
-    QbBufferPtr oBuffer(new uchar[oBufferSize]);
+    QbBufferPtr oBuffer(new char[oBufferSize]);
 
     if (!oBuffer)
         return;

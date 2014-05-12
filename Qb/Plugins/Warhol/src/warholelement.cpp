@@ -116,7 +116,7 @@ void WarholElement::processFrame(const QbPacket &packet)
             *destBits++ = srcBits[q * src.width() + p] ^ this->m_colorTable[i];
         }
 
-    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());

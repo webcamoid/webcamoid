@@ -18,25 +18,6 @@
 # Web-Site: https://github.com/hipersayanX/Carnival-LiveCam
 
 isEmpty(COMMONS_PRI_INCLUDE) {
-    REQ_QT_MAJ = 4
-    REQ_QT_MIN = 7
-    REQ_QT_PAT = 0
-
-    isEqual(QT_MAJOR_VERSION, $$REQ_QT_MAJ) {
-        lessThan(QT_MINOR_VERSION, $$REQ_QT_MIN) {
-            REQ_QT_NOTEXISTS = 1
-        } else {
-            lessThan(QT_PATCH_VERSION, $$REQ_QT_PAT) {
-                REQ_QT_NOTEXISTS = 1
-            }
-        }
-    } else {
-        REQ_QT_NOTEXISTS = 1
-    }
-
-    !isEmpty(REQ_QT_NOTEXISTS): error("Your Qt version is $${QT_VERSION}. \
-                                       Please, install Qt $${REQ_QT_MAJ}.$${REQ_QT_MIN}.$${REQ_QT_PAT} or later.")
-
     COMMONS_APPNAME = "Qb"
     COMMONS_TARGET = $${COMMONS_APPNAME}
     VER_MAJ = 5
@@ -44,7 +25,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     VER_PAT = 0
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
     COMMONS_PROJECT_URL = "http://github.com/hipersayanX/Webcamoid"
-    COMMONS_PROJECT_BUG_URL = "https://github.com/hipersayanX/Webcamoid/issues"
+    COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/hipersayanX/Webcamoid/master/COPYING"
     COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2013  Gonzalo Exequiel Pedone"
 
     isEmpty(BUILDDOCS): BUILDDOCS = 0
@@ -83,7 +64,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         COMMONS_TARGET=\"\\\"$$COMMONS_TARGET\\\"\" \
         COMMONS_VERSION=\"\\\"$$VERSION\\\"\" \
         COMMONS_PROJECT_URL=\"\\\"$$COMMONS_PROJECT_URL\\\"\" \
-        COMMONS_PROJECT_BUG_URL=\"\\\"$$COMMONS_PROJECT_BUG_URL\\\"\" \
+        COMMONS_PROJECT_LICENSE_URL=\"\\\"$$COMMONS_PROJECT_LICENSE_URL\\\"\" \
         COMMONS_COPYRIGHT_NOTICE=\"\\\"$$COMMONS_COPYRIGHT_NOTICE\\\"\" \
         PREFIX=\"\\\"$$PREFIX\\\"\" \
         EXECPREFIX=\"\\\"$$EXECPREFIX\\\"\" \
@@ -114,10 +95,10 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     DESTDIR = .
 
     CONFIG(debug, debug|release) {
-        COMMONS_BUILD_PATH = build/debug
+        COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/debug
         DEFINES += QT_DEBUG
     } else {
-        COMMONS_BUILD_PATH = build/release
+        COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/release
     }
 
     MOC_DIR = $${COMMONS_BUILD_PATH}/moc

@@ -22,7 +22,12 @@
 #ifndef CAMERACONFIG_H
 #define CAMERACONFIG_H
 
-#include <QtGui>
+#include <QWidget>
+#include <QLabel>
+#include <QComboBox>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QCheckBox>
 
 #include "commons.h"
 #include "appenvironment.h"

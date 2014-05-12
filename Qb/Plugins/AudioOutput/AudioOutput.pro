@@ -39,7 +39,7 @@ DEFINES += __STDC_CONSTANT_MACROS
 HEADERS += \
     include/audiooutput.h \
     include/audiooutputelement.h \
-    include/thread.h
+    include/audiobuffer.h
 
 INCLUDEPATH += \
     include \
@@ -63,12 +63,14 @@ exists(../../3dparty/ffmpeg_auto.pri) {
         -lavutil$${FFMPEGBUILDSUFFIX}
 }
 
+OTHER_FILES += pspec.json
+
 QT += core gui multimedia
 
 SOURCES += \
     src/audiooutput.cpp \
     src/audiooutputelement.cpp \
-    src/thread.cpp
+    src/audiobuffer.cpp
 
 TEMPLATE = lib
 

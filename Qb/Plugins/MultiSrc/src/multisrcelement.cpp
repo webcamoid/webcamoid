@@ -249,6 +249,9 @@ void MultiSrcElement::setState(QbElement::ElementState state)
 
 void MultiSrcElement::doLoop()
 {
+    if (!this->m_run)
+        return;
+
     this->uninit();
     this->init();
 }
@@ -282,8 +285,12 @@ void MultiSrcElement::pullData()
         }
 
         if (r < 0) {
-            if (this->m_loop)
+            if (this->m_loop) {
+                if (this->packetQueueSize() > 0)
+                    this->m_packetQueueEmpty.wait(&this->m_dataMutex);
+
                 QMetaObject::invokeMethod(this, "doLoop");
+            }
 
             this->m_dataMutex.unlock();
 
@@ -312,6 +319,9 @@ void MultiSrcElement::unlockQueue()
 
     if (this->packetQueueSize() < this->m_maxPacketQueueSize)
         this->m_packetQueueNotFull.wakeAll();
+
+    if (this->packetQueueSize() < 1)
+        this->m_packetQueueEmpty.wakeAll();
 
     this->m_dataMutex.unlock();
 }
@@ -446,10 +456,10 @@ void MultiSrcElement::uninit()
     this->m_run = false;
     this->m_dataMutex.lock();
     this->m_packetQueueNotFull.wakeAll();
+    this->m_packetQueueEmpty.wakeAll();
     this->m_dataMutex.unlock();
 
     if (this->m_decodingThread) {
-//        this->m_decodingThread->quit();
         this->m_decodingThread->wait();
         delete this->m_decodingThread;
         this->m_decodingThread = NULL;

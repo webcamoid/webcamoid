@@ -316,7 +316,7 @@ void AgingElement::processFrame(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    QImage oFrame = QImage(packet.buffer().data(),
+    QImage oFrame = QImage(reinterpret_cast<uchar *>(packet.buffer().data()),
                            width,
                            height,
                            QImage::Format_RGB32);
@@ -328,7 +328,7 @@ void AgingElement::processFrame(const QbPacket &packet)
     if (this->agingMode() == 0)
         this->dusts(oFrame);
 
-    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());

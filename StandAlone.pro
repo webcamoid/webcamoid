@@ -33,9 +33,10 @@ INCLUDEPATH += \
 
 LIBS += \
     -L./Qb -lQb \
-    -L. -lWebcamoid \
+    -L. -lWebcamoid
 
 QT += core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 SOURCES = \
     src/main.cpp

@@ -67,7 +67,7 @@ void VideoStream::processPacket(AVPacket *packet)
                                        this->codecContext()->width,
                                        this->codecContext()->height);
 
-    QbBufferPtr oBuffer(new uchar[frameSize]);
+    QbBufferPtr oBuffer(new char[frameSize]);
 
     if (!oBuffer)
         return;

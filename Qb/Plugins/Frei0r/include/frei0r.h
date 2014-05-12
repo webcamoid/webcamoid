@@ -22,15 +22,20 @@
 #ifndef FREI0R_H
 #define FREI0R_H
 
-#include <qbplugin.h>
+#include <qb.h>
 
 class Frei0r: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
 
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
+#endif // QT_VERSION >= 0x050000
+
     public:
-        QbElement *newElement();
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
 #endif // FREI0R_H

@@ -22,9 +22,19 @@
 #include "qimageconvert.h"
 #include "qimageconvertelement.h"
 
-QbElement *QImageConvert::newElement()
+QObject *QImageConvert::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new QImageConvertElement();
 }
 
+QStringList QImageConvert::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(QImageConvert, QImageConvert)
+#endif // QT_VERSION < 0x050000

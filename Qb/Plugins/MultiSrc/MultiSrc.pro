@@ -67,7 +67,13 @@ exists(../../3dparty/ffmpeg_auto.pri) {
         -lavutil$${FFMPEGBUILDSUFFIX}
 }
 
+OTHER_FILES += pspec.json
+
 QT += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += concurrent widgets
+}
 
 SOURCES += \
     src/abstractstream.cpp \

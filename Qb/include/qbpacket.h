@@ -25,7 +25,7 @@
 #include "qbcaps.h"
 #include "qbfrac.h"
 
-typedef QSharedPointer<uchar> QbBufferPtr;
+typedef QSharedPointer<char> QbBufferPtr;
 
 class QbPacket: public QObject
 {

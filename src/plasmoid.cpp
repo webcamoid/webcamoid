@@ -38,7 +38,7 @@ void Plasmoid::init()
     this->m_minimumPlasmoidSize = QSizeF(32, 32);
     this->setPassivePopup(true);
     this->setPopupIcon(QIcon::fromTheme("camera-web"));
-    this->setHasConfigurationInterface(true);
+    this->setHasConfigurationInterface(false);
     this->setAspectRatioMode(Plasma::IgnoreAspectRatio);
     this->setMinimumSize(this->m_minimumPlasmoidSize);
 
@@ -58,25 +58,6 @@ void Plasmoid::init()
     this->m_proxyWidget->resize(this->m_defaultPlasmoidSize);
     this->m_proxyWidget->setMinimumSize(this->m_minimumPlasmoidSize);
     this->m_glyGraphicsWidget->addItem(this->m_proxyWidget, 0, 0, 1, 1);
-}
-
-void Plasmoid::createConfigurationInterface(KConfigDialog *configDialog)
-{
-    this->m_mainWidget->addWebcamConfigDialog(configDialog);
-    this->m_mainWidget->addEffectsConfigDialog(configDialog);
-    this->m_mainWidget->addVideoFormatsConfigDialog(configDialog);
-    this->m_mainWidget->addStreamsConfigDialog(configDialog);
-    this->m_mainWidget->addGeneralConfigsDialog(configDialog);
-
-    QObject::connect(configDialog,
-                     SIGNAL(okClicked()),
-                     this->m_mainWidget.data(),
-                     SLOT(saveConfigs()));
-
-    QObject::connect(configDialog,
-                     SIGNAL(cancelClicked()),
-                     this->m_mainWidget.data(),
-                     SLOT(saveConfigs()));
 }
 
 K_EXPORT_PLASMA_APPLET(webcamoid, Plasmoid)

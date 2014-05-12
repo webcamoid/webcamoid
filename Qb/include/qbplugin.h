@@ -23,8 +23,7 @@
 #define QBPLUGIN_H
 
 #include <QtPlugin>
-
-#include "qbelement.h"
+#include <QSharedPointer>
 
 class QbPlugin;
 
@@ -35,7 +34,8 @@ class QbPlugin
     public:
         virtual ~QbPlugin() {}
 
-        virtual QbElement *newElement() = 0;
+        virtual QObject *create(const QString& name, const QString &spec) = 0;
+        virtual QStringList keys() const = 0;
 };
 
 Q_DECLARE_INTERFACE(QbPlugin, "Qb.Plugin")

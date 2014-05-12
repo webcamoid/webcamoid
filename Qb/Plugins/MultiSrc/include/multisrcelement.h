@@ -23,6 +23,12 @@
 #define MULTISRCELEMENT_H
 
 #include <QtGui>
+
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#include <QtConcurrent>
+#endif // QT_VERSION >= 0x050000
+
 #include <qb.h>
 
 #include "abstractstream.h"
@@ -78,6 +84,7 @@ class MultiSrcElement: public QbElement
         qint64 m_maxPacketQueueSize;
         QMutex m_dataMutex;
         QWaitCondition m_packetQueueNotFull;
+        QWaitCondition m_packetQueueEmpty;
 
         QMap<int, AbstractStreamPtr> m_streams;
 

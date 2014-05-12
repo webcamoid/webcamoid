@@ -22,7 +22,8 @@
 #ifndef EFFECTS_H
 #define EFFECTS_H
 
-#include <QtGui>
+#include <QWidget>
+#include <QListWidgetItem>
 
 #include "commons.h"
 #include "appenvironment.h"

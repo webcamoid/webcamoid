@@ -22,9 +22,19 @@
 #include "multiplex.h"
 #include "multiplexelement.h"
 
-QbElement *Multiplex::newElement()
+QObject *Multiplex::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new MultiplexElement();
 }
 
+QStringList Multiplex::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Multiplex, Multiplex)
+#endif // QT_VERSION < 0x050000

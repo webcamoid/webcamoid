@@ -23,6 +23,7 @@
 #define QB_H
 
 #include "qbplugin.h"
+#include "qbelement.h"
 
 namespace Qb
 {

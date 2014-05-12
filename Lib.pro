@@ -63,7 +63,9 @@ FORMS = \
     share/ui/videorecordconfig.ui \
     share/ui/cameraconfig.ui \
     share/ui/imagedisplay.ui \
-    share/ui/mainwindow.ui
+    share/ui/mainwindow.ui \
+    share/ui/about.ui \
+    share/ui/configdialog.ui
 
 HEADERS = \
     include/appenvironment.h \
@@ -76,18 +78,16 @@ HEADERS = \
     include/videorecordconfig.h \
     include/cameraconfig.h \
     include/imagedisplay.h \
-    include/mainwindow.h
+    include/mainwindow.h \
+    include/about.h \
+    include/configdialog.h
 
 INCLUDEPATH += \
     include \
-    Qb/include \
-    $${KDEINCLUDEDIR}
+    Qb/include
 
 LIBS += \
-    -L./Qb -lQb \
-    -L$${KDELIBDIR} \
-    -lkdecore \
-    -lkdeui
+    -L./Qb -lQb
 
 OTHER_FILES = \
     .gitignore \
@@ -95,6 +95,7 @@ OTHER_FILES = \
     share/effects.xml
 
 QT += core gui xml
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 RESOURCES += \
     Webcamoid.qrc
@@ -109,7 +110,9 @@ SOURCES = \
     src/videorecordconfig.cpp \
     src/cameraconfig.cpp \
     src/imagedisplay.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/about.cpp \
+    src/configdialog.cpp
 
 TARGET = $${COMMONS_APPNAME}
 

@@ -19,6 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QApplication>
+#include <QDesktopWidget>
+
 #include "mainwidget.h"
 #include "mainwindow.h"
 

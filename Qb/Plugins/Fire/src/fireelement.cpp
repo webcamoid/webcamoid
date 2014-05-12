@@ -296,7 +296,7 @@ void FireElement::processFrame(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    QImage src = QImage(packet.buffer().data(),
+    QImage src = QImage(reinterpret_cast<uchar *>(packet.buffer().data()),
                         width,
                         height,
                         QImage::Format_RGB32);
@@ -368,7 +368,7 @@ void FireElement::processFrame(const QbPacket &packet)
             destBits[y * src.width() + x] = this->m_palette[v];
         }
 
-    QbBufferPtr oBuffer(new uchar[oFrame.byteCount()]);
+    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());

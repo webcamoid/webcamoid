@@ -22,7 +22,7 @@
 #ifndef GENERALCONFIG_H
 #define GENERALCONFIG_H
 
-#include <QtGui>
+#include <QWidget>
 
 #include "commons.h"
 #include "appenvironment.h"

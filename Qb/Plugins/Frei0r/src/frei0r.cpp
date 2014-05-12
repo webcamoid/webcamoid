@@ -22,9 +22,19 @@
 #include "frei0r.h"
 #include "frei0relement.h"
 
-QbElement *Frei0r::newElement()
+QObject *Frei0r::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new Frei0rElement();
 }
 
+QStringList Frei0r::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Frei0r, Frei0r)
+#endif // QT_VERSION < 0x050000

@@ -22,9 +22,19 @@
 #include "videosync.h"
 #include "videosyncelement.h"
 
-QbElement *VideoSync::newElement()
+QObject *VideoSync::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
     return new VideoSyncElement();
 }
 
+QStringList VideoSync::keys() const
+{
+    return QStringList();
+}
+
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(VideoSync, VideoSync)
+#endif // QT_VERSION < 0x050000

@@ -20,8 +20,6 @@
  */
 
 #include <QtXml>
-#include <KDE/KSharedConfig>
-#include <KDE/KConfigGroup>
 
 #include "mediatools.h"
 
@@ -318,7 +316,7 @@ void MediaTools::setControls(const QString &device, const QVariantMap &controls)
                               Q_ARG(QVariantMap, controls));
 }
 
-QMap<QString, QString> MediaTools::availableEffects()
+QMap<QString, QString> MediaTools::availableEffects() const
 {
     QMap<QString, QString> effects;
 
@@ -346,12 +344,12 @@ QMap<QString, QString> MediaTools::availableEffects()
     return effects;
 }
 
-QStringList MediaTools::currentEffects()
+QStringList MediaTools::currentEffects() const
 {
     return this->m_effectsList;
 }
 
-QString MediaTools::bestRecordFormatOptions(QString fileName)
+QString MediaTools::bestRecordFormatOptions(const QString &fileName) const
 {
     QString ext = QFileInfo(fileName).completeSuffix();
 
@@ -516,7 +514,7 @@ void MediaTools::mutexUnlock()
     this->m_mutex.unlock();
 }
 
-void MediaTools::setDevice(QString device)
+void MediaTools::setDevice(const QString &device)
 {
     // If no device identifier is provided stop current device.
     if (device.isEmpty()) {
@@ -791,102 +789,124 @@ void MediaTools::resetWindowSize()
 
 void MediaTools::loadConfigs()
 {
-    KSharedConfig::Ptr config = KSharedConfig::openConfig(this->m_appEnvironment->configFileName());
+    QSettings config;
 
-    KConfigGroup webcamConfigs = config->group("GeneralConfigs");
-    this->setPlayAudioFromSource(webcamConfigs.readEntry("playAudio", true));
+    config.beginGroup("GeneralConfigs");
 
-    int recordFrom = webcamConfigs.readEntry("recordAudioFrom",
-                                             static_cast<int>(RecordFromMic));
+    this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
+
+    int recordFrom = config.value("recordAudioFrom",
+                                  static_cast<int>(RecordFromMic)).toInt();
 
     this->setRecordAudioFrom(static_cast<RecordFrom>(recordFrom));
 
-    QStringList windowSize = webcamConfigs.readEntry("windowSize", "320,240")
-                                          .split(",", QString::SkipEmptyParts);
+    this->m_windowSize = config.value("windowSize", QSize(320, 240)).toSize();
 
-    this->m_windowSize = QSize(windowSize.at(0).trimmed().toInt(),
-                               windowSize.at(1).trimmed().toInt());
+    config.endGroup();
 
-    KConfigGroup effectsConfigs = config->group("Effects");
+    config.beginGroup("Effects");
+    int size = config.beginReadArray("effects");
+    QStringList effects;
 
-    QString effcts = effectsConfigs.readEntry("effects", "");
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        effects << config.value("effect").toString();
+    }
 
-    if (!effcts.isEmpty())
-        this->setEffects(effcts.split("&&", QString::SkipEmptyParts));
+    this->setEffects(effects);
+    config.endArray();
+    config.endGroup();
 
-    KConfigGroup videoFormatsConfigs = config->group("VideoRecordFormats");
+    config.beginGroup("VideoRecordFormats");
+    size = config.beginReadArray("formats");
 
-    QString videoRecordFormats = videoFormatsConfigs.
-                    readEntry("formats",
-                              "webm::"
-                              "-i 0 -vcodec libvpx -i 1 -acodec libvorbis -o -f webm&&"
-                              "ogv, ogg::"
-                              "-i 0 -vcodec libtheora -b:v 3M -i 1 -acodec libvorbis -o -f ogg");
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        QString format = config.value("format").toString();
+        QString params = config.value("params").toString();
+        this->setVideoRecordFormat(format, params);
+    }
 
-    if (!videoRecordFormats.isEmpty())
-        foreach (QString fmt, videoRecordFormats.split("&&", QString::SkipEmptyParts)) {
-            QStringList params = fmt.split("::", QString::SkipEmptyParts);
+    if (size < 1) {
+        this->setVideoRecordFormat("webm",
+                                   "-i 0 -vcodec libvpx -i 1 -acodec libvorbis -o -f webm");
 
-            this->setVideoRecordFormat(params.at(0),
-                                       params.at(1));
-        }
+        this->setVideoRecordFormat("ogv, ogg",
+                                   "-i 0 -vcodec libtheora -b:v 3M -i 1 -acodec libvorbis -o -f ogg");
+    }
 
-    KConfigGroup streamsConfig = config->group("CustomStreams");
-    QString streams = streamsConfig.readEntry("streams", "");
+    config.endArray();
+    config.endGroup();
 
-    if (!streams.isEmpty())
-        foreach (QString fmt, streams.split("&&")) {
-            QStringList params = fmt.split("::");
+    config.beginGroup("CustomStreams");
+    size = config.beginReadArray("streams");
 
-            this->setStream(params.at(0).trimmed(),
-                            params.at(1).trimmed());
-        }
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        QString devName = config.value("dev").toString();
+        QString description = config.value("description").toString();
+        this->setStream(devName, description);
+    }
+
+    config.endArray();
+    config.endGroup();
 }
 
 void MediaTools::saveConfigs()
 {
-    KSharedConfig::Ptr config = KSharedConfig::openConfig(this->m_appEnvironment->configFileName());
+    QSettings config;
 
-    KConfigGroup webcamConfigs = config->group("GeneralConfigs");
+    config.beginGroup("GeneralConfigs");
 
-    webcamConfigs.writeEntry("playAudio", this->playAudioFromSource());
+    config.setValue("playAudio", this->playAudioFromSource());
 
-    webcamConfigs.writeEntry("recordAudioFrom",
-                             static_cast<int>(this->recordAudioFrom()));
+    config.setValue("recordAudioFrom",
+                    static_cast<int>(this->recordAudioFrom()));
 
-    webcamConfigs.writeEntry("windowSize",
-                             QString("%1,%2").arg(this->m_windowSize.width())
-                                             .arg(this->m_windowSize.height()));
+    config.setValue("windowSize", this->m_windowSize);
 
-    KConfigGroup effectsConfigs = config->group("Effects");
+    config.endGroup();
 
-    effectsConfigs.writeEntry("effects", this->m_effectsList.join("&&"));
+    config.beginGroup("Effects");
+    config.beginWriteArray("effects");
 
-    KConfigGroup videoFormatsConfigs = config->group("VideoRecordFormats");
+    for (int i = 0; i < this->m_effectsList.size(); i++) {
+        config.setArrayIndex(i);
+        QString effect = this->m_effectsList[i];
+        config.setValue("effect", effect);
+    }
 
-    QStringList videoRecordFormats;
+    config.endArray();
+    config.endGroup();
 
-    foreach (QStringList format, this->m_videoRecordFormats)
-        videoRecordFormats << QString("%1::%2").arg(format[0])
-                                               .arg(format[1]);
+    config.beginGroup("VideoRecordFormats");
+    config.beginWriteArray("formats");
 
-    videoFormatsConfigs.writeEntry("formats",
-                                   videoRecordFormats.join("&&"));
+    for (int i = 0; i < this->m_videoRecordFormats.size(); i++) {
+        config.setArrayIndex(i);
+        QStringList format = this->m_videoRecordFormats[i];
+        config.setValue("format", format[0]);
+        config.setValue("params", format[1]);
+    }
 
-    KConfigGroup streamsConfigs = config->group("CustomStreams");
+    config.endArray();
+    config.endGroup();
 
-    QStringList streams;
+    config.beginGroup("CustomStreams");
+    config.beginWriteArray("streams");
 
-    foreach (QStringList stream, this->m_streams)
-        streams << QString("%1::%2").arg(stream.at(0))
-                                    .arg(stream.at(1));
+    for (int i = 0; i < this->m_streams.size(); i++) {
+        config.setArrayIndex(i);
+        QStringList stream = this->m_streams[i];
+        config.setValue("dev", stream[0]);
+        config.setValue("description", stream[1]);
+    }
 
-    streamsConfigs.writeEntry("streams", streams.join("&&"));
-
-    config->sync();
+    config.endArray();
+    config.endGroup();
 }
 
-void MediaTools::setEffects(QStringList effects)
+void MediaTools::setEffects(const QStringList &effects)
 {
     if (this->m_effectsList == effects)
         return;
@@ -937,7 +957,7 @@ void MediaTools::aboutToQuit()
     this->cleanAll();
 }
 
-void MediaTools::reset(QString device)
+void MediaTools::reset(const QString &device)
 {
     QString curDevice = this->device();
     QbElement::ElementState state = this->m_source->state();

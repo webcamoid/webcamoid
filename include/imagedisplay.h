@@ -22,7 +22,8 @@
 #ifndef IMAGEDISPLAY_H
 #define IMAGEDISPLAY_H
 
-#include <QtGui>
+#include <QWidget>
+#include <QPainter>
 #include <qb.h>
 
 #include "commons.h"

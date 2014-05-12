@@ -25,7 +25,12 @@ AppEnvironment::AppEnvironment(QObject *parent): QObject(parent)
 {
     QCoreApplication::setApplicationName(COMMONS_APPNAME);
     QCoreApplication::setApplicationVersion(COMMONS_VERSION);
+    QCoreApplication::setOrganizationName(COMMONS_APPNAME);
+    QCoreApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
+
+#if QT_VERSION < 0x050000
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+#endif // QT_VERSION < 0x050000
 
     QString trPath;
     QStringList trPaths;
