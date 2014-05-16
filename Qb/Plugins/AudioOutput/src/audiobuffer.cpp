@@ -94,54 +94,77 @@ qint64 AudioBuffer::size() const
     return this->bytesAvailable();
 }
 
-qint64 AudioBuffer::readData(char *data, qint64 maxSize)
+qint64 AudioBuffer::writePacket(const QbPacket &packet)
 {
+    qint64 bufferSize = 0;
+
     this->m_mutex.lock();
 
     if (this->isOpen()) {
-        if (data) {
-            memset(data, 0, maxSize);
-            qint64 bytes = qMin((qint64) this->m_audioBuffer.size(), maxSize);
-            memcpy(data, this->m_audioBuffer.constData(), bytes);
-            this->m_audioBuffer.remove(0, bytes);
+        if (this->m_audioBuffer.size() >= this->m_maxSize)
+            this->m_bufferNotFull.wait(&this->m_mutex);
+
+        bufferSize = packet.bufferSize();
+
+        if (bufferSize > 0 && packet.buffer()) {
+            this->m_audioBuffer.append(const_cast<char *>(packet.buffer().data()), bufferSize);
+            emit this->bytesWritten(bufferSize);
+            emit this->readyRead();
         }
+    }
 
-        if (this->m_audioBuffer.size() < this->m_maxSize) {
+    this->m_mutex.unlock();
+
+    return bufferSize;
+}
+
+qint64 AudioBuffer::readData(char *data, qint64 maxSize)
+{
+    if (this->isOpen()) {
+        this->m_mutex.lock();
+        int bufferSize = this->m_audioBuffer.size();
+        this->m_mutex.unlock();
+
+        if (data) {
+            int size = qMin((qint64) bufferSize, maxSize);
+
+            if (size) {
+                this->m_mutex.lock();
+                memcpy(data, this->m_audioBuffer.constData(), size);
+                this->m_audioBuffer.remove(0, size);
+                this->m_mutex.unlock();
+
+                bufferSize -= size;
+
+                emit this->bytesConsumed();
+            }
+
+            maxSize = size;
+        }
+        else
+            maxSize = 0;
+
+        if (bufferSize < this->m_maxSize) {
+            this->m_mutex.lock();
             this->m_bufferNotFull.wakeAll();
+            this->m_mutex.unlock();
 
-            if (this->m_audioBuffer.size() < 1)
+            if (bufferSize < 1)
                 emit this->cleared();
         }
     }
     else
-        maxSize = -1;
-
-    this->m_mutex.unlock();
+        maxSize = 0;
 
     return maxSize;
 }
 
 qint64 AudioBuffer::writeData(const char *data, qint64 maxSize)
 {
-    this->m_mutex.lock();
+    Q_UNUSED(data)
+    Q_UNUSED(maxSize)
 
-    if (this->isOpen()) {
-        if (this->m_audioBuffer.size() >= this->m_maxSize) {
-            this->m_bufferNotFull.wait(&this->m_mutex);
-        }
-
-        if (maxSize > 0 && data) {
-            this->m_audioBuffer.append(data, maxSize);
-            emit this->bytesWritten(maxSize);
-            emit this->readyRead();
-        }
-    }
-    else
-        maxSize = -1;
-
-    this->m_mutex.unlock();
-
-    return maxSize;
+    return 0;
 }
 
 void AudioBuffer::setMaxSize(qint64 maxSize)

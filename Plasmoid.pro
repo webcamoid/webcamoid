@@ -37,9 +37,13 @@ INCLUDEPATH += \
     Qb/include \
     $${KDEINCLUDEDIR}
 
+!isEmpty(QT5COMPAT): DEFINES += QT5COMPAT
+
+isEmpty(QT5COMPAT): LIBS += \
+                        -L./Qb -lQb \
+                        -L. -lWebcamoid
+
 LIBS += \
-    -L./Qb -lQb \
-    -L. -lWebcamoid \
     -L$${KDELIBDIR} \
     -lkdecore \
     -lkdeui

@@ -22,8 +22,6 @@
 #ifndef VCAPSCONVERTELEMENT_H
 #define VCAPSCONVERTELEMENT_H
 
-#include <qb.h>
-
 extern "C"
 {
     #include <libavformat/avformat.h>
@@ -33,8 +31,6 @@ extern "C"
 
 #include "convertio.h"
 
-typedef QSharedPointer<SwsContext> SwsContextPtr;
-
 class VCapsConvertElement: public QbElement
 {
     Q_OBJECT
@@ -43,18 +39,19 @@ class VCapsConvertElement: public QbElement
 
     public:
         explicit VCapsConvertElement();
+        ~VCapsConvertElement();
 
-        Q_INVOKABLE QString caps();
+        Q_INVOKABLE QString caps() const;
 
     private:
         QbCaps m_caps;
-        SwsContextPtr m_scaleContext;
+        SwsContext *m_scaleContext;
         QList<int> m_check;
 
-        static void deleteSwsContext(SwsContext *context);
+        void deleteSwsContext();
 
     public slots:
-        void setCaps(QString caps);
+        void setCaps(const QString &caps);
         void resetCaps();
 
         void iStream(const QbPacket &packet);

@@ -24,7 +24,17 @@
 
 #include <KDE/Plasma/PopupApplet>
 
+#ifdef QT5COMPAT
+#include <QWidget>
+#include <QX11EmbedContainer>
+#include <QGraphicsProxyWidget>
+#include <QGraphicsGridLayout>
+#include <QProcess>
+#else
 #include "mainwidget.h"
+#endif
+
+typedef QSharedPointer<QWidget> WidgetPtr;
 
 class Plasmoid: public Plasma::PopupApplet
 {
@@ -39,7 +49,7 @@ class Plasmoid: public Plasma::PopupApplet
     private:
         QSizeF m_defaultPlasmoidSize;
         QSizeF m_minimumPlasmoidSize;
-        QSharedPointer<MainWidget> m_mainWidget;
+        WidgetPtr m_mainWidget;
         QGraphicsWidget *m_graphicsWidget;
         QGraphicsGridLayout *m_glyGraphicsWidget;
         QGraphicsProxyWidget *m_proxyWidget;

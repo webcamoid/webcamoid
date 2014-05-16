@@ -28,8 +28,7 @@ CONFIG += qt
 
 INCLUDEPATH += \
     include \
-    Qb/include \
-    $${KDEINCLUDEDIR}
+    Qb/include
 
 LIBS += \
     -L./Qb -lQb \

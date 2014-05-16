@@ -24,21 +24,30 @@
 VCapsConvertElement::VCapsConvertElement(): QbElement()
 {
     av_register_all();
+    this->m_scaleContext = NULL;
 
     this->resetCaps();
 }
 
-QString VCapsConvertElement::caps()
+VCapsConvertElement::~VCapsConvertElement()
+{
+    this->deleteSwsContext();
+}
+
+QString VCapsConvertElement::caps() const
 {
     return this->m_caps.toString();
 }
 
-void VCapsConvertElement::deleteSwsContext(SwsContext *context)
+void VCapsConvertElement::deleteSwsContext()
 {
-    sws_freeContext(context);
+    if (this->m_scaleContext) {
+        sws_freeContext(this->m_scaleContext);
+        this->m_scaleContext = NULL;
+    }
 }
 
-void VCapsConvertElement::setCaps(QString format)
+void VCapsConvertElement::setCaps(const QString &format)
 {
     this->m_caps = QbCaps(format);
 }
@@ -64,19 +73,17 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
 
     if (convertIO.check() != this->m_check)
     {
-        this->m_scaleContext =
-                SwsContextPtr(sws_getCachedContext(NULL,
-                                                   convertIO.iWidth(),
-                                                   convertIO.iHeight(),
-                                                   convertIO.iFormat(),
-                                                   convertIO.oWidth(),
-                                                   convertIO.oHeight(),
-                                                   convertIO.oFormat(),
-                                                   SWS_FAST_BILINEAR,
-                                                   NULL,
-                                                   NULL,
-                                                   NULL),
-                              this->deleteSwsContext);
+        this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
+                                                    convertIO.iWidth(),
+                                                    convertIO.iHeight(),
+                                                    convertIO.iFormat(),
+                                                    convertIO.oWidth(),
+                                                    convertIO.oHeight(),
+                                                    convertIO.oFormat(),
+                                                    SWS_FAST_BILINEAR,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL);
 
         this->m_check = convertIO.check();
     }
@@ -106,7 +113,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
                    convertIO.oWidth(),
                    convertIO.oHeight());
 
-    sws_scale(this->m_scaleContext.data(),
+    sws_scale(this->m_scaleContext,
               (uint8_t **) iPicture.data,
               iPicture.linesize,
               0,

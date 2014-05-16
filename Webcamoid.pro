@@ -24,10 +24,6 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
-!isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0):!exists(/usr/bin/wget) {
-    error("USE3DPARTYLIBS option requires Wget.")
-}
-
 TEMPLATE = subdirs
 
 CONFIG += ordered

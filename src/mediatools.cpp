@@ -586,15 +586,6 @@ void MediaTools::setDevice(const QString &device)
                  audioStream >= 0)
             recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
 
-        if (audioStream >= 0) {
-            QString audioCapsIndex = QString("%1").arg(audioStream);
-            QString audioCaps = streamCaps[audioCapsIndex].toString();
-
-            QMetaObject::invokeMethod(this->m_audioOutput.data(),
-                                      "setInputCaps", Qt::DirectConnection,
-                                      Q_ARG(QString, audioCaps));
-        }
-
         // Set recording caps.
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "setStreamCaps", Qt::DirectConnection,

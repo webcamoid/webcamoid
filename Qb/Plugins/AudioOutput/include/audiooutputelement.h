@@ -23,7 +23,6 @@
 #define AUDIOOUTPUTELEMENT_H
 
 #include <QtMultimedia>
-#include <qb.h>
 
 extern "C"
 {
@@ -42,21 +41,15 @@ class AudioOutputElement: public QbElement
                               WRITE setBufferSize
                               RESET resetBufferSize)
 
-    Q_PROPERTY(QString inputCaps READ inputCaps
-                                 WRITE setInputCaps
-                                 RESET resetInputCaps)
-
     Q_PROPERTY(double clock READ clock NOTIFY elapsedTime)
 
     public:
         explicit AudioOutputElement();
         ~AudioOutputElement();
         Q_INVOKABLE int bufferSize() const;
-        Q_INVOKABLE QString inputCaps() const;
         Q_INVOKABLE double clock() const;
 
     private:
-        QString m_inputCaps;
         int m_bufferSize;
         QbElementPtr m_convert;
         QAudioDeviceInfo m_audioDeviceInfo;
@@ -69,8 +62,7 @@ class AudioOutputElement: public QbElement
         QWaitCondition m_bufferEmpty;
         double m_timeDrift;
 
-        QbCaps findBestOptions(const QbCaps &caps,
-                               const QAudioDeviceInfo &deviceInfo,
+        QbCaps findBestOptions(const QAudioDeviceInfo &deviceInfo,
                                QAudioFormat *bestOption=NULL) const;
 
         double hwClock() const;
@@ -84,9 +76,7 @@ class AudioOutputElement: public QbElement
 
     public slots:
         void setBufferSize(int bufferSize);
-        void setInputCaps(const QString &inputCaps);
         void resetBufferSize();
-        void resetInputCaps();
         void iStream(const QbPacket &packet);
 
     private slots:
@@ -94,6 +84,7 @@ class AudioOutputElement: public QbElement
         void uninit();
         void processFrame(const QbPacket &packet);
         void releaseInput();
+        void updateClock();
 };
 
 #endif // AUDIOOUTPUTELEMENT_H

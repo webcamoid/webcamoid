@@ -45,6 +45,11 @@ AudioOutputElement::AudioOutputElement(): QbElement()
                      SIGNAL(cleared()),
                      this,
                      SLOT(releaseInput()));
+
+    QObject::connect(&this->m_audioBuffer,
+                     SIGNAL(bytesConsumed()),
+                     this,
+                     SLOT(updateClock()));
 }
 
 AudioOutputElement::~AudioOutputElement()
@@ -57,18 +62,12 @@ int AudioOutputElement::bufferSize() const
     return this->m_bufferSize;
 }
 
-QString AudioOutputElement::inputCaps() const
-{
-    return this->m_inputCaps;
-}
-
 double AudioOutputElement::clock() const
 {
     return this->hwClock() + this->m_timeDrift;
 }
 
-QbCaps AudioOutputElement::findBestOptions(const QbCaps &caps,
-                                           const QAudioDeviceInfo &deviceInfo,
+QbCaps AudioOutputElement::findBestOptions(const QAudioDeviceInfo &deviceInfo,
                                            QAudioFormat *bestOption) const
 {
     QMap<AVSampleFormat, QAudioFormat::SampleType> formatToType;
@@ -84,27 +83,7 @@ QbCaps AudioOutputElement::findBestOptions(const QbCaps &caps,
     formatToType[AV_SAMPLE_FMT_FLTP] = QAudioFormat::Float;
     formatToType[AV_SAMPLE_FMT_DBLP] = QAudioFormat::Float;
 
-    QAudioFormat bestAudioFormat;
-
-    if (caps.mimeType() == "audio/x-raw") {
-        AVSampleFormat sampleFormat = av_get_sample_fmt(caps.property("format")
-                                                            .toString()
-                                                            .toStdString()
-                                                            .c_str());
-
-        QAudioFormat preferredAudioFormat;
-        preferredAudioFormat.setByteOrder(QAudioFormat::BigEndian);
-        preferredAudioFormat.setChannelCount(caps.property("channels").toInt());
-        preferredAudioFormat.setCodec("audio/pcm");
-        preferredAudioFormat.setSampleRate(caps.property("rate").toInt());
-        preferredAudioFormat.setSampleSize(8 * caps.property("bps").toInt());
-        preferredAudioFormat.setSampleType(formatToType[sampleFormat]);
-
-        bestAudioFormat = deviceInfo.nearestFormat(preferredAudioFormat);
-    }
-    else
-        bestAudioFormat = deviceInfo.preferredFormat();
-
+    QAudioFormat bestAudioFormat = deviceInfo.preferredFormat();
     AVSampleFormat oFormat = AV_SAMPLE_FMT_NONE;
 
     foreach (AVSampleFormat format, formatToType.keys(bestAudioFormat.sampleType()))
@@ -170,8 +149,7 @@ bool AudioOutputElement::init()
     QAudioDeviceInfo audioDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
     QAudioFormat outputFormat;
 
-    QbCaps bestCaps = this->findBestOptions(this->m_inputCaps,
-                                            audioDeviceInfo,
+    QbCaps bestCaps = this->findBestOptions(audioDeviceInfo,
                                             &outputFormat);
 
     this->m_convert->setProperty("caps", bestCaps.toString());
@@ -186,7 +164,7 @@ bool AudioOutputElement::init()
         qint64 bufferSize = bps * channels * this->m_bufferSize;
 
         this->m_audioOutput->setBufferSize(bufferSize);
-        this->m_audioBuffer.setMaxSize(bufferSize);
+        this->m_audioBuffer.setMaxSize(bufferSize << 5);
         this->m_audioBuffer.open(QIODevice::ReadWrite);
         this->m_audioOutput->start(&this->m_audioBuffer);
     }
@@ -225,24 +203,14 @@ void AudioOutputElement::setBufferSize(int bufferSize)
     this->m_bufferSize = bufferSize;
 }
 
-void AudioOutputElement::setInputCaps(const QString &inputCaps)
-{
-    this->m_inputCaps = inputCaps;
-}
-
 void AudioOutputElement::resetBufferSize()
 {
-    this->setBufferSize(32024);
-}
-
-void AudioOutputElement::resetInputCaps()
-{
-    this->m_inputCaps = "";
+    this->setBufferSize(4096);
 }
 
 void AudioOutputElement::processFrame(const QbPacket &packet)
 {
-    this->m_audioBuffer.write(const_cast<char *>(packet.buffer().data()), packet.bufferSize());
+    this->m_audioBuffer.writePacket(packet);
 }
 
 void AudioOutputElement::releaseInput()
@@ -250,6 +218,11 @@ void AudioOutputElement::releaseInput()
     this->m_mutex.lock();
     this->m_bufferEmpty.wakeAll();
     this->m_mutex.unlock();
+}
+
+void AudioOutputElement::updateClock()
+{
+    emit this->elapsedTime(this->clock());
 }
 
 void AudioOutputElement::iStream(const QbPacket &packet)

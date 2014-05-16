@@ -21,7 +21,8 @@
 
 #include "plasmoid.h"
 
-Plasmoid::Plasmoid(QObject *parent, const QVariantList &args): Plasma::PopupApplet(parent, args)
+Plasmoid::Plasmoid(QObject *parent, const QVariantList &args):
+    Plasma::PopupApplet(parent, args)
 {
 }
 
@@ -42,7 +43,14 @@ void Plasmoid::init()
     this->setAspectRatioMode(Plasma::IgnoreAspectRatio);
     this->setMinimumSize(this->m_minimumPlasmoidSize);
 
-    this->m_mainWidget = QSharedPointer<MainWidget>(new MainWidget(NULL, this));
+#ifdef QT5COMPAT
+    // Here it's supposed that we must embed Webcamoid Qt5 but
+    // QX11EmbedContainer shit doesn't works, so no plasmoid for Qt5 build.
+    this->m_mainWidget = WidgetPtr(new QWidget());
+    this->m_mainWidget->resize(320, 240);
+#else
+    this->m_mainWidget = WidgetPtr(new MainWidget(NULL, this));
+#endif
 
     this->m_defaultPlasmoidSize = QSizeF(this->m_mainWidget->size());
     this->resize(this->m_defaultPlasmoidSize);
