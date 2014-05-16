@@ -29,9 +29,7 @@ extern "C"
     #include <libavutil/opt.h>
 }
 
-#include <qbelement.h>
-
-typedef QSharedPointer<SwrContext> SwrContextPtr;
+#include <qb.h>
 
 class ACapsConvertElement: public QbElement
 {
@@ -43,18 +41,18 @@ class ACapsConvertElement: public QbElement
         explicit ACapsConvertElement();
         ~ACapsConvertElement();
 
-        Q_INVOKABLE QString caps();
+        Q_INVOKABLE QString caps() const;
 
     private:
         QbCaps m_caps;
 
         QbCaps m_curInputCaps;
-        SwrContextPtr m_resampleContext;
+        SwrContext *m_resampleContext;
 
-        static void deleteSwrContext(SwrContext *context);
+        void deleteSwrContext();
 
     public slots:
-        void setCaps(QString caps);
+        void setCaps(const QString &caps);
         void resetCaps();
 
         void iStream(const QbPacket &packet);

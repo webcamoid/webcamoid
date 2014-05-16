@@ -23,24 +23,29 @@
 
 ACapsConvertElement::ACapsConvertElement(): QbElement()
 {
+    this->m_resampleContext = NULL;
     this->resetCaps();
 }
 
 ACapsConvertElement::~ACapsConvertElement()
 {
+    this->deleteSwrContext();
 }
 
-QString ACapsConvertElement::caps()
+QString ACapsConvertElement::caps() const
 {
     return this->m_caps.toString();
 }
 
-void ACapsConvertElement::deleteSwrContext(SwrContext *context)
+void ACapsConvertElement::deleteSwrContext()
 {
-    swr_free(&context);
+    if (this->m_resampleContext) {
+        swr_free(&this->m_resampleContext);
+        this->m_resampleContext = NULL;
+    }
 }
 
-void ACapsConvertElement::setCaps(QString format)
+void ACapsConvertElement::setCaps(const QString &format)
 {
     this->m_caps = QbCaps(format);
 }
@@ -113,30 +118,32 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
 
     if (caps1 != caps2)
     {
-        // create resampler context
-        this->m_resampleContext = SwrContextPtr(swr_alloc(), this->deleteSwrContext);
+        this->deleteSwrContext();
+
+            // create resampler context
+        this->m_resampleContext = swr_alloc();
 
         if (!this->m_resampleContext)
             return;
 
         // set options
-        av_opt_set_int(this->m_resampleContext.data(), "in_channel_layout", iChannelLayout, 0);
-        av_opt_set_int(this->m_resampleContext.data(), "in_sample_rate", iSampleRate, 0);
-        av_opt_set_sample_fmt(this->m_resampleContext.data(), "in_sample_fmt", iSampleFormat, 0);
+        av_opt_set_int(this->m_resampleContext, "in_channel_layout", iChannelLayout, 0);
+        av_opt_set_int(this->m_resampleContext, "in_sample_rate", iSampleRate, 0);
+        av_opt_set_sample_fmt(this->m_resampleContext, "in_sample_fmt", iSampleFormat, 0);
 
-        av_opt_set_int(this->m_resampleContext.data(), "out_channel_layout", oChannelLayout, 0);
-        av_opt_set_int(this->m_resampleContext.data(), "out_sample_rate", oSampleRate, 0);
-        av_opt_set_sample_fmt(this->m_resampleContext.data(), "out_sample_fmt", oSampleFormat, 0);
+        av_opt_set_int(this->m_resampleContext, "out_channel_layout", oChannelLayout, 0);
+        av_opt_set_int(this->m_resampleContext, "out_sample_rate", oSampleRate, 0);
+        av_opt_set_sample_fmt(this->m_resampleContext, "out_sample_fmt", oSampleFormat, 0);
 
         // initialize the resampling context
-        if (swr_init(this->m_resampleContext.data()) < 0)
+        if (swr_init(this->m_resampleContext) < 0)
             return;
 
         this->m_curInputCaps = packet.caps();
     }
 
     // compute destination number of samples
-    int oNSamples = av_rescale_rnd(swr_get_delay(this->m_resampleContext.data(),
+    int oNSamples = av_rescale_rnd(swr_get_delay(this->m_resampleContext,
                                                  iSampleRate) +
                                    iNSamples,
                                    oSampleRate,
@@ -171,13 +178,13 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
         return;
 
     // convert to destination format
-    oNSamples = swr_convert(this->m_resampleContext.data(),
+    oNSamples = swr_convert(this->m_resampleContext,
                             oData.data(),
                             oNSamples,
                             (const uint8_t **) iData.data(),
                             iNSamples);
 
-    if (oNSamples < 0)
+    if (oNSamples < 1)
         return;
 
     const char *format = av_get_sample_fmt_name(oSampleFormat);
@@ -202,6 +209,11 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                       .arg(layout)
                                       .arg(oNSamples)
                                       .arg(oAlign);
+
+    int bufferSize = oBps * oNChannels * oNSamples;
+
+    if (bufferSize < oBufferSize)
+        oBufferSize = bufferSize;
 
     QbPacket oPacket(caps,
                      oBuffer,

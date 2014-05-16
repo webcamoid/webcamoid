@@ -40,22 +40,22 @@ FireElement::FireElement(): QbElement()
     this->makePalette();
 }
 
-int FireElement::mode()
+int FireElement::mode() const
 {
     return this->m_mode;
 }
 
-int FireElement::decay()
+int FireElement::decay() const
 {
     return this->m_decay;
 }
 
-int FireElement::threshold()
+int FireElement::threshold() const
 {
     return this->m_threshold / 7;
 }
 
-int FireElement::maxColor()
+int FireElement::maxColor() const
 {
     return this->m_maxColor;
 }

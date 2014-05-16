@@ -22,7 +22,7 @@
 #ifndef AUDIOBUFFER_H
 #define AUDIOBUFFER_H
 
-#include <QtCore>
+#include <qb.h>
 
 class AudioBuffer: public QIODevice
 {
@@ -42,6 +42,7 @@ class AudioBuffer: public QIODevice
         qint64 pos() const;
         bool seek(qint64 pos);
         qint64 size() const;
+        qint64 writePacket(const QbPacket &packet);
 
     private:
         qint64 m_maxSize;
@@ -56,6 +57,7 @@ class AudioBuffer: public QIODevice
 
     signals:
         void cleared();
+        void bytesConsumed();
 
     public slots:
         void setMaxSize(qint64 maxSize);

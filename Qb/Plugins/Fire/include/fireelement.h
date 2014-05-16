@@ -36,10 +36,10 @@ class FireElement: public QbElement
     public:
         explicit FireElement();
 
-        Q_INVOKABLE int mode();
-        Q_INVOKABLE int decay();
-        Q_INVOKABLE int threshold();
-        Q_INVOKABLE int maxColor();
+        Q_INVOKABLE int mode() const;
+        Q_INVOKABLE int decay() const;
+        Q_INVOKABLE int threshold() const;
+        Q_INVOKABLE int maxColor() const;
 
         bool event(QEvent *event);
 

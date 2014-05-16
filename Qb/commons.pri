@@ -29,7 +29,19 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2013  Gonzalo Exequiel Pedone"
 
     isEmpty(BUILDDOCS): BUILDDOCS = 0
-    isEmpty(QDOCTOOL): QDOCTOOL = qdoc3-qt4
+
+    isEmpty(QDOCTOOL) {
+        greaterThan(QT_MAJOR_VERSION, 4): QDOCTOOL = qdoc-qt5
+        lessThan(QT_MAJOR_VERSION, 5): QDOCTOOL = qdoc3-qt4
+    }
+
+    isEmpty(QMAKE_LRELEASE) {
+        win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
+        else {
+            greaterThan(QT_MAJOR_VERSION, 4): QDOCTOOL = lrelease-qt5
+            lessThan(QT_MAJOR_VERSION, 5): QMAKE_LRELEASE = lrelease-qt4
+        }
+    }
 
     unix {
         isEmpty(PREFIX): PREFIX = /usr
