@@ -22,4 +22,5 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS += $$system(find -mindepth 1 -maxdepth 1 -type d -not -name \'.*\' -exec basename {} \\;)
+unix: SUBDIRS += $$system(find -mindepth 1 -maxdepth 1 -type d -not -name \'.*\' -exec basename {} \\;)
+win32: SUBDIRS += $$system(dir /a:d-h /b /o:n)

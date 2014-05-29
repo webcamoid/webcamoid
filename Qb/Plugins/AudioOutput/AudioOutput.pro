@@ -89,8 +89,8 @@ unix {
             libswscale \
             libavutil
     }
-
-    INSTALLS += target
-
-    target.path = $${LIBDIR}/$${COMMONS_TARGET}
 }
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}

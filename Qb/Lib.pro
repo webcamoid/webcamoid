@@ -71,21 +71,19 @@ TEMPLATE = lib
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
-unix {
-    INSTALLS += \
-        target \
-        headers
+INSTALLS += \
+    target \
+    headers
 
-    target.path = $${LIBDIR}
+target.path = $${LIBDIR}
 
-    headers.files = include/*
-    headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
+headers.files = include/*
+headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
 
-    !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
-        INSTALLS += docs
+!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+    INSTALLS += docs
 
-        docs.files = share/docs_auto/html
-        docs.path = $${HTMLDIR}
-        docs.CONFIG += no_check_exist
-    }
+    docs.files = share/docs_auto/html
+    docs.path = $${HTMLDIR}
+    docs.CONFIG += no_check_exist
 }
