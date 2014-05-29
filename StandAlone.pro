@@ -47,12 +47,12 @@ TEMPLATE = app
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
-unix {
-    INSTALLS += \
-        target \
-        desktop
+INSTALLS += target
 
-    target.path = $${BINDIR}
+target.path = $${BINDIR}
+
+unix {
+    INSTALLS += desktop
 
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications/kde4

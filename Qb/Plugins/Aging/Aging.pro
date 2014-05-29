@@ -52,8 +52,6 @@ SOURCES += \
 
 TEMPLATE = lib
 
-unix {
-    INSTALLS += target
+INSTALLS += target
 
-    target.path = $${LIBDIR}/$${COMMONS_TARGET}
-}
+target.path = $${LIBDIR}/$${COMMONS_TARGET}

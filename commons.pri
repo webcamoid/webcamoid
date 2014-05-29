@@ -43,32 +43,35 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         }
     }
 
+    unix: isEmpty(PREFIX): PREFIX = /usr
+    win32: isEmpty(PREFIX): PREFIX = "C:/Program Files/$${COMMONS_APPNAME}"
+
+    isEmpty(EXECPREFIX): EXECPREFIX = $${PREFIX}
+    isEmpty(BINDIR): BINDIR = $${EXECPREFIX}/bin
+    isEmpty(SBINDIR): SBINDIR = $${EXECPREFIX}/sbin
+    isEmpty(LIBEXECDIR): LIBEXECDIR = $${EXECPREFIX}/libexec
+    isEmpty(DATAROOTDIR): DATAROOTDIR = $${PREFIX}/share
+    isEmpty(DATADIR): DATADIR = $${DATAROOTDIR}/$${COMMONS_TARGET}
+    isEmpty(SYSCONFDIR): SYSCONFDIR = $${PREFIX}/etc
+    isEmpty(SHAREDSTATEDIR): SHAREDSTATEDIR = $${PREFIX}/com
+    isEmpty(LOCALSTATEDIR): LOCALSTATEDIR = $${PREFIX}/var
+    isEmpty(INCLUDEDIR): INCLUDEDIR = $${PREFIX}/include
+    isEmpty(DOCDIR): DOCDIR = $${DATAROOTDIR}/doc/$${COMMONS_TARGET}
+    isEmpty(INFODIR): INFODIR = $${DATAROOTDIR}/info
+    isEmpty(HTMLDIR): HTMLDIR = $${DOCDIR}/html
+    isEmpty(DVIDIR): DVIDIR = $${DOCDIR}/dvi
+    isEmpty(PDFDIR): PDFDIR = $${DOCDIR}/pdf
+    isEmpty(PSDIR): PSDIR = $${DOCDIR}/ps
+    isEmpty(LIBDIR): LIBDIR = $${EXECPREFIX}/lib
+    isEmpty(LOCALEDIR): LOCALEDIR = $${DATAROOTDIR}/locale
+    isEmpty(MANDIR): MANDIR = $${DATAROOTDIR}/man
+    isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
+    isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
+    isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
+
     unix {
-        isEmpty(PREFIX): PREFIX = /usr
-        isEmpty(EXECPREFIX): EXECPREFIX = $${PREFIX}
-        isEmpty(BINDIR): BINDIR = $${EXECPREFIX}/bin
-        isEmpty(SBINDIR): SBINDIR = $${EXECPREFIX}/sbin
-        isEmpty(LIBEXECDIR): LIBEXECDIR = $${EXECPREFIX}/libexec
-        isEmpty(DATAROOTDIR): DATAROOTDIR = $${PREFIX}/share
-        isEmpty(DATADIR): DATADIR = $${DATAROOTDIR}/$${COMMONS_TARGET}
-        isEmpty(SYSCONFDIR): SYSCONFDIR = $${PREFIX}/etc
-        isEmpty(SHAREDSTATEDIR): SHAREDSTATEDIR = $${PREFIX}/com
-        isEmpty(LOCALSTATEDIR): LOCALSTATEDIR = $${PREFIX}/var
-        isEmpty(INCLUDEDIR): INCLUDEDIR = $${PREFIX}/include
         isEmpty(KDEINCLUDEDIR): KDEINCLUDEDIR = $$system(kde4-config --path include)
         isEmpty(KDELIBDIR): KDELIBDIR = $${PREFIX}/lib
-        isEmpty(DOCDIR): DOCDIR = $${DATAROOTDIR}/doc/$${COMMONS_TARGET}
-        isEmpty(INFODIR): INFODIR = $${DATAROOTDIR}/info
-        isEmpty(HTMLDIR): HTMLDIR = $${DOCDIR}/html
-        isEmpty(DVIDIR): DVIDIR = $${DOCDIR}/dvi
-        isEmpty(PDFDIR): PDFDIR = $${DOCDIR}/pdf
-        isEmpty(PSDIR): PSDIR = $${DOCDIR}/ps
-        isEmpty(LIBDIR): LIBDIR = $${EXECPREFIX}/lib
-        isEmpty(LOCALEDIR): LOCALEDIR = $${DATAROOTDIR}/locale
-        isEmpty(MANDIR): MANDIR = $${DATAROOTDIR}/man
-        isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
-        isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
-        isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
     }
 
     DEFINES += \
@@ -89,8 +92,6 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         SHAREDSTATEDIR=\"\\\"$$SHAREDSTATEDIR\\\"\" \
         LOCALSTATEDIR=\"\\\"$$LOCALSTATEDIR\\\"\" \
         INCLUDEDIR=\"\\\"$$INCLUDEDIR\\\"\" \
-        KDEINCLUDEDIR=\"\\\"$$KDEINCLUDEDIR\\\"\" \
-        KDELIBDIR=\"\\\"$$KDELIBDIR\\\"\" \
         DOCDIR=\"\\\"$$DOCDIR\\\"\" \
         INFODIR=\"\\\"$$INFODIR\\\"\" \
         HTMLDIR=\"\\\"$$HTMLDIR\\\"\" \
@@ -104,6 +105,12 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
         LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\"
 
+    unix {
+        DEFINES += \
+            KDEINCLUDEDIR=\"\\\"$$KDEINCLUDEDIR\\\"\" \
+            KDELIBDIR=\"\\\"$$KDELIBDIR\\\"\"
+    }
+
     DESTDIR = .
 
     CONFIG(debug, debug|release) {
@@ -112,7 +119,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     } else {
         COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/release
     }
-    
+
     MOC_DIR = $${COMMONS_BUILD_PATH}/moc
     OBJECTS_DIR = $${COMMONS_BUILD_PATH}/obj
     RCC_DIR = $${COMMONS_BUILD_PATH}/rcc

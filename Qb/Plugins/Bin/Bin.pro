@@ -58,11 +58,9 @@ SOURCES += \
 
 TEMPLATE = lib
 
-unix {
-    INSTALLS += target
+INSTALLS += target
 
-    target.path = $${LIBDIR}/$${COMMONS_TARGET}
-}
+target.path = $${LIBDIR}/$${COMMONS_TARGET}
 
 flexsource.input = FLEXSOURCES
 flexsource.output = src/${QMAKE_FILE_BASE}_auto.cpp
