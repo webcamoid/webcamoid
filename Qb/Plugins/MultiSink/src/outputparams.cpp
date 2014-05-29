@@ -33,7 +33,7 @@ OutputParams::OutputParams(QObject *parent): QObject(parent)
 OutputParams::OutputParams(CodecContextPtr codecContext,
                            QbElementPtr filter,
                            int outputIndex,
-                           int64_t pts,
+                           qint64 pts,
                            int duration):
     QObject(NULL),
     m_codecContext(codecContext),
@@ -83,7 +83,7 @@ int OutputParams::outputIndex() const
     return this->m_outputIndex;
 }
 
-int64_t OutputParams::pts() const
+qint64 OutputParams::pts() const
 {
     return this->m_pts;
 }
@@ -108,7 +108,7 @@ void OutputParams::setOutputIndex(int outputIndex)
     this->m_outputIndex = outputIndex;
 }
 
-void OutputParams::setPts(int64_t pts)
+void OutputParams::setPts(qint64 pts)
 {
     this->m_pts = pts;
 }

@@ -52,7 +52,12 @@ Commands::Commands(QObject *parent): OptionParser(parent)
                            "\\d+x\\d+",
                            Option::OptionFlagsHasValue));
 
-    this->addOption(Option("vcodec",
+    this->addOption(Option("g",
+                           "Distance of keyframes to seek.",
+                           "\\d+",
+                           Option::OptionFlagsHasValue));
+
+    this->addOption(Option("c:v",
                            "Video codec.",
                            "[0-9a-z_]+",
                            Option::OptionFlagsHasValue));
@@ -64,7 +69,7 @@ Commands::Commands(QObject *parent): OptionParser(parent)
 
     // Audio options:
     this->addOption(Option("ar",
-                           "audio sampling rate",
+                           "Audio sampling rate",
                            "\\d+",
                            Option::OptionFlagsHasValue));
 
@@ -73,7 +78,7 @@ Commands::Commands(QObject *parent): OptionParser(parent)
                            "\\d+",
                            Option::OptionFlagsHasValue));
 
-    this->addOption(Option("acodec",
+    this->addOption(Option("c:a",
                            "Audio codec.",
                            "[0-9a-z_]+",
                            Option::OptionFlagsHasValue));
@@ -187,12 +192,13 @@ bool Commands::parseCmd(QString cmd)
 
                 validOptions << "ar"
                              << "ac"
-                             << "acodec"
+                             << "c:a"
                              << "b:a"
                              << "channel_layout"
                              << "r"
                              << "s"
-                             << "vcodec"
+                             << "g"
+                             << "c:v"
                              << "b:v"
                              << "oi";
 
@@ -234,7 +240,11 @@ bool Commands::parseCmd(QString cmd)
 
 QVariant Commands::convertValue(QString key, QString value)
 {
-    if (key == "-i" || key == "-ar" ||  key == "-ac" || key == "-oi")
+    if (key == "-i"
+        || key == "-g"
+        || key == "-ar"
+        || key == "-ac"
+        || key == "-oi")
         return value.toInt();
     else if (key == "-r")
     {
@@ -250,7 +260,8 @@ QVariant Commands::convertValue(QString key, QString value)
 
         return QSize(size[0].toInt(), size[1].toInt());
     }
-    else if (key == "-b:v" || key == "-b:a")
+    else if (key == "-b:v"
+             || key == "-b:a")
     {
         quint64 multiplier;
 

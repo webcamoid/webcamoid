@@ -83,7 +83,8 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
-                            "effects. ! MultiSink objectName='record' ,"
+                            "effects. ! RtPts record.stateChanged>setState !"
+                            "MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
                             "WebcamConfig objectName='webcamConfig'");
 
@@ -820,10 +821,10 @@ void MediaTools::loadConfigs()
 
     if (size < 1) {
         this->setVideoRecordFormat("webm",
-                                   "-i 0 -vcodec libvpx -i 1 -acodec libvorbis -o -f webm");
+                                   "-i 0 -c:v libvpx -b:v 3M -i 1 -c:a libvorbis -o -f webm");
 
         this->setVideoRecordFormat("ogv, ogg",
-                                   "-i 0 -vcodec libtheora -b:v 3M -i 1 -acodec libvorbis -o -f ogg");
+                                   "-i 0 -c:v libtheora -b:v 3M -i 1 -c:a libvorbis -o -f ogg");
     }
 
     config.endArray();

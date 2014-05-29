@@ -62,40 +62,23 @@ int FireElement::maxColor() const
 
 bool FireElement::event(QEvent *event)
 {
-    bool r;
+    bool r = true;
 
-    if (event->type() == QEvent::KeyPress)
-    {
+    if (event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
 
-        if (ke->key() == Qt::Key_Space)
-        {
+        if (ke->key() == Qt::Key_Space) {
             if (this->mode() == 0)
                 this->m_bgIsSet = false;
-
-            return true;
         }
         else if (ke->key() == Qt::Key_1)
-        {
             this->setMode(0);
-
-            return true;
-        }
         else if (ke->key() == Qt::Key_2)
-        {
             this->setMode(1);
-
-            return true;
-        }
         else if (ke->key() == Qt::Key_3)
-        {
             this->setMode(2);
-
-            return true;
-        }
     }
-    else if (event->type() == QEvent::ThreadChange)
-    {
+    else if (event->type() == QEvent::ThreadChange) {
         QObject::disconnect(this->m_convert.data(),
                             SIGNAL(oStream(const QbPacket &)),
                             this,
@@ -149,8 +132,7 @@ void FireElement::imageBgSetY(QImage &src)
     short *q = (short *) this->m_background.bits();
     int videoArea = src.width() * src.height();
 
-    for (int  i = 0; i < videoArea; i++)
-    {
+    for (int  i = 0; i < videoArea; i++) {
         int r = ((*p) & 0xff0000) >> (16 - 1);
         int g = ((*p) & 0xff00) >> (8 - 2);
         int b = (*p) & 0xff;
@@ -169,8 +151,7 @@ QImage FireElement::imageBgSubtractY(QImage &src)
     uchar *r = this->m_diff.bits();
     int videoArea = src.width() * src.height();
 
-    for (int i = 0; i < videoArea; i++)
-    {
+    for (int i = 0; i < videoArea; i++) {
         int R = ((*p) & 0xff0000) >> (16 - 1);
         int G = ((*p) & 0xff00) >> (8 - 2);
         int B = (*p) & 0xff;
@@ -189,8 +170,7 @@ void FireElement::makePalette()
 {
     int r, g, b;
 
-    for (int i = 0; i < this->maxColor(); i++)
-    {
+    for (int i = 0; i < this->maxColor(); i++) {
             this->hsiToRgb(4.6 - 1.5 * i / this->maxColor(),
                      (double) i / this->maxColor(),
                      (double) i / this->maxColor(),
@@ -199,30 +179,29 @@ void FireElement::makePalette()
             this->m_palette[i] = (r << 16) | (g << 8) | b;
     }
 
-    for (int i = this->maxColor(); i < 256; i++)
-    {
-            if (r < 255)
-                r++;
+    for (int i = this->maxColor(); i < 256; i++) {
+        if (r < 255)
+            r++;
 
-            if (r < 255)
-                r++;
+        if (r < 255)
+            r++;
 
-            if (r < 255)
-                r++;
+        if (r < 255)
+            r++;
 
-            if (g < 255)
-                g++;
+        if (g < 255)
+            g++;
 
-            if (g < 255)
-                g++;
+        if (g < 255)
+            g++;
 
-            if (b < 255)
-                b++;
+        if (b < 255)
+            b++;
 
-            if (b < 255)
-                b++;
+        if (b < 255)
+            b++;
 
-            this->m_palette[i] = (r << 16) | (g << 8) | b;
+        this->m_palette[i] = (r << 16) | (g << 8) | b;
     }
 }
 
@@ -303,8 +282,7 @@ void FireElement::processFrame(const QbPacket &packet)
 
     int videoArea = src.width() * src.height();
 
-    if (packet.caps() != this->m_caps)
-    {
+    if (packet.caps() != this->m_caps) {
         this->m_background = QImage(src.width(), src.height(), QImage::Format_RGB32);
         this->m_diff = QImage(src.width(), src.height(), QImage::Format_Indexed8);
         this->m_buffer.resize(videoArea);
@@ -318,35 +296,30 @@ void FireElement::processFrame(const QbPacket &packet)
     quint32 *srcBits = (quint32 *) src.constBits();
 
     if (this->mode() == 1)
-        for (int i = 0; i < videoArea - src.width(); i++)
-        {
+        for (int i = 0; i < videoArea - src.width(); i++) {
             uchar v = (srcBits[i] >> 16) & 0xff;
 
             if (v > 150)
                 this->m_buffer[i] = this->m_buffer[i] | v;
         }
     else if (this->mode() == 2)
-        for (int i = 0; i < videoArea - src.width(); i++)
-        {
+        for (int i = 0; i < videoArea - src.width(); i++) {
             uchar v = srcBits[i] & 0xff;
 
             if (v < 60)
                 this->m_buffer[i] = this->m_buffer[i] | (0xff - v);
         }
-    else
-    {
+    else {
         QImage diff = this->imageBgSubtractY(src);
 
         for (int i = 0; i < videoArea - src.width(); i++)
             this->m_buffer[i] = this->m_buffer[i] | diff.constBits()[i];
     }
 
-    for (int x = 1; x < src.width() - 1; x++)
-    {
+    for (int x = 1; x < src.width() - 1; x++) {
         int i = src.width() + x;
 
-        for (int y = 1; y < src.height(); y++)
-        {
+        for (int y = 1; y < src.height(); y++) {
             uchar v = this->m_buffer[i];
 
             if (v < this->decay())
@@ -362,8 +335,7 @@ void FireElement::processFrame(const QbPacket &packet)
     quint32 *destBits = (quint32 *) oFrame.bits();
 
     for (int y = 0; y < src.height(); y++)
-        for (int x = 1; x < src.width() - 1; x++)
-        {
+        for (int x = 1; x < src.width() - 1; x++) {
             uchar v = this->m_buffer[y * src.width() + x];
             destBits[y * src.width() + x] = this->m_palette[v];
         }

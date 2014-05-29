@@ -72,8 +72,8 @@ void VideoStream::processPacket(AVPacket *packet)
     if (!oBuffer)
         return;
 
-    int64_t pts = av_frame_get_best_effort_timestamp(&iFrame);
-    int64_t duration = this->fps().invert().value()
+    qint64 pts = av_frame_get_best_effort_timestamp(&iFrame);
+    qint64 duration = this->fps().invert().value()
                        * this->timeBase().invert().value();
 
     avpicture_layout((AVPicture *) &iFrame,

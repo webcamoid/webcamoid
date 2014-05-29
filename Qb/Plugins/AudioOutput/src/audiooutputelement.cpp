@@ -94,7 +94,7 @@ QbCaps AudioOutputElement::findBestOptions(const QAudioDeviceInfo &deviceInfo,
         }
 
     char layout[256];
-    int64_t channelLayout = av_get_default_channel_layout(bestAudioFormat.channelCount());
+    qint64 channelLayout = av_get_default_channel_layout(bestAudioFormat.channelCount());
 
     av_get_channel_layout_string(layout,
                                  sizeof(layout),
