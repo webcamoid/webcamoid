@@ -70,14 +70,13 @@ QString Pipeline::addElement(QbElementPtr element)
     return name;
 }
 
-void Pipeline::removeElement(QString elementName)
+void Pipeline::removeElement(const QString &elementName)
 {
     QList<QStringList> connections = this->m_connections;
 
     foreach (QStringList connection, connections)
-        if (connection[0] == elementName ||
-            connection[2] == elementName)
-        {
+        if (connection[0] == elementName
+            || connection[2] == elementName) {
             QbElement *sender = this->m_elements[connection[0]].data();
             QbElement *receiver = this->m_elements[connection[2]].data();
 
@@ -91,9 +90,8 @@ void Pipeline::removeElement(QString elementName)
     QList<QStringList> links = this->m_links;
 
     foreach (QStringList link, links)
-        if (link[0] == elementName ||
-            link[1] == elementName)
-        {
+        if (link[0] == elementName
+            || link[1] == elementName) {
             this->m_elements[link[0]]->unlink(this->m_elements[link[1]]);
             this->m_links.removeOne(link);
         }
@@ -136,8 +134,7 @@ QList<Qt::ConnectionType> Pipeline::outputConnectionTypes() const
     QMetaEnum enumerator = this->staticQtMetaObject.enumerator(index);
 
     foreach (QStringList link, this->m_links)
-        if (link[1] == "OUT.")
-        {
+        if (link[1] == "OUT.") {
             QString connectionTypeString;
 
             if (link.length() > 2)
@@ -160,23 +157,22 @@ QList<Qt::ConnectionType> Pipeline::outputConnectionTypes() const
     return outputoutputConnectionTypes;
 }
 
-QMetaMethod Pipeline::methodByName(QObject *object, QString methodName, QMetaMethod::MethodType methodType)
+QMetaMethod Pipeline::methodByName(QObject *object, const QString &methodName, QMetaMethod::MethodType methodType)
 {
     QMetaMethod rMethod;
 
-    for (int i = 0; i < object->metaObject()->methodCount(); i++)
-    {
+    for (int i = 0; i < object->metaObject()->methodCount(); i++) {
         QMetaMethod method = object->metaObject()->method(i);
 
 #if QT_VERSION >= 0x050000
-        const char *signature = method.methodSignature().constData();
+        QString name(method.name());
 #else
-        const char *signature = method.signature();
+        QString name(method.signature());
+        name = name.left(name.indexOf("(")).trimmed();
 #endif // QT_VERSION >= 0x050000
 
-        if (method.methodType() == methodType &&
-            QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(signature))
-        {
+        if (method.methodType() == methodType
+            && name == methodName) {
             rMethod = method;
 
             break;
@@ -195,20 +191,18 @@ void Pipeline::solveConnections(QString self)
             this->m_connections[i][2] = self;
 }
 
-void Pipeline::addLinks(QStringList links)
+void Pipeline::addLinks(const QStringList &links)
 {
     QStringList link;
     QString connectionType = "AutoConnection";
 
-    foreach (QString element,  links)
-    {
+    foreach (QString element,  links) {
         if (element.endsWith("?"))
             connectionType = element.remove("?");
         else
             link << element;
 
-        if (link.length() == 2)
-        {
+        if (link.length() == 2) {
             link << connectionType;
             this->m_links << link;
             link.removeFirst();
@@ -220,23 +214,19 @@ void Pipeline::addLinks(QStringList links)
 bool Pipeline::linkAll()
 {
     foreach (QStringList link, this->m_links)
-        if (link[0] != "IN." &&
-            link[1] != "OUT.")
-        {
-            if (!this->m_elements.contains(link[0]))
-            {
+        if (link[0] != "IN."
+            && link[1] != "OUT.") {
+            if (!this->m_elements.contains(link[0])) {
                 this->m_error = QString("No element named '%1'").arg(link[0]);
 
                 return false;
             }
-            else if (!this->m_elements.contains(link[1]))
-            {
+            else if (!this->m_elements.contains(link[1])) {
                 this->m_error = QString("No element named '%1'").arg(link[1]);
 
                 return false;
             }
-            else
-            {
+            else {
                 QString connectionTypeString;
 
                 if (link.length() > 2)
@@ -268,17 +258,14 @@ bool Pipeline::linkAll()
 bool Pipeline::unlinkAll()
 {
     foreach (QStringList link, this->m_links)
-        if (link[0] != "IN." &&
-            link[1] != "OUT.")
-        {
-            if (!this->m_elements.contains(link[0]))
-            {
+        if (link[0] != "IN."
+            && link[1] != "OUT.") {
+            if (!this->m_elements.contains(link[0])) {
                 this->m_error = QString("No element named '%1'").arg(link[0]);
 
                 return false;
             }
-            else if (!this->m_elements.contains(link[1]))
-            {
+            else if (!this->m_elements.contains(link[1])) {
                 this->m_error = QString("No element named '%1'").arg(link[1]);
 
                 return false;
@@ -292,20 +279,17 @@ bool Pipeline::unlinkAll()
 
 bool Pipeline::connectAll()
 {
-    foreach (QStringList connection, this->m_connections)
-    {
+    foreach (QStringList connection, this->m_connections) {
         QbElement *sender = this->m_elements[connection[0]].data();
         QbElement *receiver = this->m_elements[connection[2]].data();
 
-        if (!sender)
-        {
+        if (!sender) {
             this->m_error = QString("No element named '%1'").arg(connection[0]);
 
             return false;
         }
 
-        if (!receiver)
-        {
+        if (!receiver) {
             this->m_error = QString("No element named '%1'").arg(connection[2]);
 
             return false;
@@ -322,20 +306,17 @@ bool Pipeline::connectAll()
 
 bool Pipeline::disconnectAll()
 {
-    foreach (QStringList connection, this->m_connections)
-    {
+    foreach (QStringList connection, this->m_connections) {
         QbElement *sender = this->m_elements[connection[0]].data();
         QbElement *receiver = this->m_elements[connection[2]].data();
 
-        if (!sender)
-        {
+        if (!sender) {
             this->m_error = QString("No element named '%1'.").arg(connection[0]);
 
             return false;
         }
 
-        if (!receiver)
-        {
+        if (!receiver) {
             this->m_error = QString("No element named '%1'.").arg(connection[2]);
 
             return false;
@@ -382,7 +363,7 @@ void Pipeline::setProperties(const QVariantMap &properties)
     this->m_properties = properties;
 }
 
-void Pipeline::setError(QString error)
+void Pipeline::setError(const QString &error)
 {
     this->m_error = error;
 }

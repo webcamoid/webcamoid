@@ -38,7 +38,7 @@ QbCaps AudioStream::caps() const
 {
     const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
     char layout[256];
-    int64_t channelLayout;
+    qint64 channelLayout;
 
     if (this->codecContext()->channel_layout)
         channelLayout = this->codecContext()->channel_layout;
@@ -94,7 +94,7 @@ void AudioStream::processPacket(AVPacket *packet)
     else
         this->m_pts += this->m_duration;
 
-    int64_t pts = (iFrame.pts != AV_NOPTS_VALUE) ? iFrame.pts :
+    qint64 pts = (iFrame.pts != AV_NOPTS_VALUE) ? iFrame.pts :
                   (iFrame.pkt_pts != AV_NOPTS_VALUE) ? iFrame.pkt_pts :
                   this->m_pts;
 

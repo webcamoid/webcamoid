@@ -22,10 +22,10 @@
 #ifndef MULTISRCELEMENT_H
 #define MULTISRCELEMENT_H
 
-#include <QtGui>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #if QT_VERSION >= 0x050000
-#include <QtWidgets>
 #include <QtConcurrent>
 #endif // QT_VERSION >= 0x050000
 

@@ -38,7 +38,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     isEmpty(QMAKE_LRELEASE) {
         win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
         else {
-            greaterThan(QT_MAJOR_VERSION, 4): QDOCTOOL = lrelease-qt5
+            greaterThan(QT_MAJOR_VERSION, 4): QMAKE_LRELEASE = lrelease-qt5
             lessThan(QT_MAJOR_VERSION, 5): QMAKE_LRELEASE = lrelease-qt4
         }
     }
@@ -107,10 +107,10 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     DESTDIR = .
 
     CONFIG(debug, debug|release) {
-        COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/debug
+        COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/debug
         DEFINES += QT_DEBUG
     } else {
-        COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/release
+        COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/release
     }
 
     MOC_DIR = $${COMMONS_BUILD_PATH}/moc

@@ -505,7 +505,7 @@ void Frei0rElement::setFps(QString fps)
 {
     this->m_fps = QbFrac(fps);
 
-    if (!this->m_fps.num() < 1 || !this->m_fps.den() < 1)
+    if (this->m_fps.num() < 1 || this->m_fps.den() < 1)
     {
         this->m_fps.setNum(1);
         this->m_fps.setDen(1);
@@ -747,7 +747,7 @@ void Frei0rElement::processFrame(const QbPacket &packet)
         }
 
     QbCaps caps;
-    int64_t pts = 0;
+    qint64 pts = 0;
     int duration = 0;
     QbFrac timeBase;
     int index = 0;

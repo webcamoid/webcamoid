@@ -19,38 +19,22 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef AUDIOSTREAM_H
-#define AUDIOSTREAM_H
+#include "rtpts.h"
+#include "rtptselement.h"
 
-#include <QtCore>
-
-#include "abstractstream.h"
-
-class AudioStream: public AbstractStream
+QObject *RtPts::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_PROPERTY(bool align READ align WRITE setAlign RESET resetAlign)
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        explicit AudioStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1, bool noModify=false,
-                             QObject *parent=NULL);
+    return new RtPtsElement();
+}
 
-        Q_INVOKABLE bool align() const;
-        Q_INVOKABLE QbCaps caps() const;
+QStringList RtPts::keys() const
+{
+    return QStringList();
+}
 
-    protected:
-        void processPacket(AVPacket *packet);
-
-    private:
-        bool m_align;
-        bool m_fst;
-        qint64 m_pts;
-        qint64 m_duration;
-
-    public slots:
-        void setAlign(bool align);
-        void resetAlign();
-};
-
-#endif // AUDIOSTREAM_H
+#if QT_VERSION < 0x050000
+Q_EXPORT_PLUGIN2(RtPts, RtPts)
+#endif // QT_VERSION < 0x050000

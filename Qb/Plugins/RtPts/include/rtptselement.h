@@ -19,38 +19,40 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef AUDIOSTREAM_H
-#define AUDIOSTREAM_H
+#ifndef RTPTSELEMENT_H
+#define RTPTSELEMENT_H
 
-#include <QtCore>
+#include <qb.h>
 
-#include "abstractstream.h"
-
-class AudioStream: public AbstractStream
+class RtPtsElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(bool align READ align WRITE setAlign RESET resetAlign)
+    Q_PROPERTY(QbFrac fps READ fps WRITE setFps RESET resetFps)
 
     public:
-        explicit AudioStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1, bool noModify=false,
-                             QObject *parent=NULL);
+        explicit RtPtsElement();
+        ~RtPtsElement();
 
-        Q_INVOKABLE bool align() const;
-        Q_INVOKABLE QbCaps caps() const;
-
-    protected:
-        void processPacket(AVPacket *packet);
+        Q_INVOKABLE QbFrac fps() const;
 
     private:
-        bool m_align;
-        bool m_fst;
         qint64 m_pts;
-        qint64 m_duration;
+        qint64 m_ptsInc;
+        QbFrac m_timeBase;
+        QbFrac m_fps;
+        QbPacket m_curPacket;
+        QMutex m_mutex;
+        QTimer m_timer;
+        QThread *m_thread;
 
     public slots:
-        void setAlign(bool align);
-        void resetAlign();
+        void setFps(const QbFrac &fps);
+        void resetFps();
+        void setState(QbElement::ElementState state);
+        void iStream(const QbPacket &packet);
+
+    private slots:
+        void readPacket();
 };
 
-#endif // AUDIOSTREAM_H
+#endif // RTPTSELEMENT_H

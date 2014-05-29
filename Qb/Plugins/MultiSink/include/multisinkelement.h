@@ -66,7 +66,7 @@ class MultiSinkElement: public QbElement
         QList<AVPixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
-        QList<uint64_t> channelLayouts(AVCodec *audioCodec);
+        QList<quint64> channelLayouts(AVCodec *audioCodec);
 
         OutputParams createOutputParams(int inputIndex,
                                         const QbCaps &inputCaps,

@@ -85,11 +85,19 @@ bool OutputFormat::open(QString fileName,
                    fileName.toStdString().c_str(),
                    1);
 
-    if (!(this->m_outputContext->oformat->flags & AVFMT_NOFILE))
-        if (avio_open(&this->m_outputContext->pb,
-                      fileName.toStdString().c_str(),
-                      AVIO_FLAG_WRITE) < 0)
+    if (!(this->m_outputContext->oformat->flags & AVFMT_NOFILE)) {
+        int error = avio_open(&this->m_outputContext->pb,
+                              fileName.toStdString().c_str(),
+                              AVIO_FLAG_WRITE);
+
+        if (error < 0) {
+            char errorStr[1024];
+            av_strerror(AVERROR(error), errorStr, 1024);
+            qDebug() << "Error in MultiSink(" << this->objectName() << "): " << errorStr;
+
             return this->m_isOpen;
+        }
+    }
 
     if (avformat_write_header(this->m_outputContext.data(), NULL) < 0)
         return this->m_isOpen;
@@ -112,7 +120,12 @@ bool OutputFormat::addStream(QString input, OutputParams outputParams)
     if (this->m_outputContext->oformat->flags & AVFMT_GLOBALHEADER)
         stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
 
-    if (avcodec_open2(stream->codec, outputParams.codecContext()->codec, NULL) < 0)
+    const AVCodec *codec = outputParams.codecContext()->codec;
+
+    if (!codec)
+        return false;
+
+    if (avcodec_open2(stream->codec, codec, NULL) < 0)
         return false;
 
     this->m_streams[input] = stream;

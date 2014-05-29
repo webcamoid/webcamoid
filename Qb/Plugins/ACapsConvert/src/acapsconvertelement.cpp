@@ -64,7 +64,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     // Input Format
     AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
     int iNChannels = packet.caps().property("channels").toInt();
-    int64_t iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toStdString().c_str());
+    qint64 iChannelLayout = av_get_channel_layout(packet.caps().property("layout").toString().toStdString().c_str());
     int iNPlanes = av_sample_fmt_is_planar(iSampleFormat)? iNChannels: 1;
     int iSampleRate = packet.caps().property("rate").toInt();
     int iNSamples = packet.caps().property("samples").toInt();
@@ -84,7 +84,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                          this->m_caps.property("channels").toInt():
                          iNChannels;
 
-    int64_t oChannelLayout = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("layout"))?
+    qint64 oChannelLayout = (sameMimeType && this->m_caps.dynamicPropertyNames().contains("layout"))?
                                  av_get_channel_layout(this->m_caps.property("layout").toString().toStdString().c_str()):
                                  iChannelLayout;
 

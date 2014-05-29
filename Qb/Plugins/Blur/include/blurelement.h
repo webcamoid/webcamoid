@@ -22,11 +22,11 @@
 #ifndef BLURELEMENT_H
 #define BLURELEMENT_H
 
-#include <QtGui>
-
-#if QT_VERSION >= 0x050000
-#include <QtWidgets>
-#endif // QT_VERSION >= 0x050000
+#include <QImage>
+#include <QGraphicsScene>
+#include <QGraphicsBlurEffect>
+#include <QGraphicsPixmapItem>
+#include <QPainter>
 
 #include <qb.h>
 

@@ -75,6 +75,9 @@ QList<AVPixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
 {
     QList<AVPixelFormat> pixelFormats;
 
+    if (!videoCodec)
+        return pixelFormats;
+
     for (const AVPixelFormat *pixelFmt = videoCodec->pix_fmts;
          pixelFmt && *pixelFmt != AV_PIX_FMT_NONE;
          pixelFmt++)
@@ -107,11 +110,11 @@ QList<int> MultiSinkElement::sampleRates(AVCodec *audioCodec)
     return sampleRates;
 }
 
-QList<uint64_t> MultiSinkElement::channelLayouts(AVCodec *audioCodec)
+QList<quint64> MultiSinkElement::channelLayouts(AVCodec *audioCodec)
 {
-    QList<uint64_t> channelLayouts;
+    QList<quint64> channelLayouts;
 
-    for (const uint64_t *channelLayout = audioCodec->channel_layouts;
+    for (quint64 *channelLayout = (quint64 *) audioCodec->channel_layouts;
          channelLayout && *channelLayout != 0;
          channelLayout++)
         channelLayouts << *channelLayout;
@@ -131,12 +134,12 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
     QString codecName;
 
     if (inputCaps.mimeType() == "audio/x-raw")
-        codecName = options.contains("acodec")?
-                        options["acodec"].toString():
+        codecName = options.contains("a:v")?
+                        options["a:v"].toString():
                         acodec;
     else if (inputCaps.mimeType() == "video/x-raw")
-        codecName = options.contains("vcodec")?
-                        options["vcodec"].toString():
+        codecName = options.contains("c:v")?
+                        options["c:v"].toString():
                         vcodec;
 
     AVCodec *codec = avcodec_find_encoder_by_name(codecName.toStdString().c_str());
@@ -188,20 +191,20 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
 
         outputCaps.setProperty("rate", codecContext->sample_rate);
 
-        QList<uint64_t> channelLayouts = this->channelLayouts(codec);
+        QList<quint64> channelLayouts = this->channelLayouts(codec);
 
-        uint64_t defaultChannelLayout = channelLayouts.isEmpty()?
+        quint64 defaultChannelLayout = channelLayouts.isEmpty()?
                                             codecContext->channel_layout:
                                             channelLayouts[0];
 
-        uint64_t iChannelLayout = inputCaps.contains("layout")?
+        quint64 iChannelLayout = inputCaps.contains("layout")?
                                       av_get_channel_layout(inputCaps.property("layout")
                                                                 .toString()
                                                                 .toStdString()
                                                                 .c_str()):
                                       0;
 
-        uint64_t forcedChannelLayout = options.contains("channel_layout")?
+        quint64 forcedChannelLayout = options.contains("channel_layout")?
                                            av_get_channel_layout(options["channel_layout"].toString()
                                                                                           .toStdString()
                                                                                           .c_str()):
@@ -284,6 +287,11 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         codecContext->time_base.den = fps.num();
 
         outputCaps.setProperty("fps", fps.toString());
+
+        if (options.contains("g"))
+            codecContext->gop_size = options["g"].toInt();
+        else
+            codecContext->gop_size = 5 * fps.value();
     }
 
     QbElementPtr filter;
@@ -310,10 +318,11 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
                          SLOT(processVFrame(const QbPacket &)));
     }
 
-    QObject::connect(this,
-                     SIGNAL(stateChanged(QbElement::ElementState)),
-                     filter.data(),
-                     SLOT(setState(QbElement::ElementState)));
+    if (filter)
+        QObject::connect(this,
+                         SIGNAL(stateChanged(QbElement::ElementState)),
+                         filter.data(),
+                         SLOT(setState(QbElement::ElementState)));
 
     int outputIndex = options.contains("oi")? options["oi"].toInt(): inputIndex;
 
@@ -372,8 +381,12 @@ void MultiSinkElement::iStream(const QbPacket &packet)
 
     QString input = QString("%1").arg(packet.index());
 
-    if (this->m_outputParams.contains(input))
-        this->m_outputParams[input].filter()->iStream(packet);
+    if (this->m_outputParams.contains(input)) {
+        QbElementPtr filter = this->m_outputParams[input].filter();
+
+        if (filter)
+            filter->iStream(packet);
+    }
 }
 
 void MultiSinkElement::processVFrame(const QbPacket &packet)
@@ -399,6 +412,9 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
     QString inputIndex = QString("%1").arg(packet.index());
     int outputIndex = this->m_outputParams[inputIndex].outputIndex();
     StreamPtr videoStream = this->m_outputFormat.streams()[inputIndex];
+
+    if (!videoStream)
+        return;
 
     if (!this->m_outputParams[inputIndex].duration())
     {
@@ -484,7 +500,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         AVRational timeBase = {(int) packet.timeBase().num(),
                                (int) packet.timeBase().den()};
 
-        int64_t ptsDiff = frameSize /
+        qint64 ptsDiff = frameSize /
                           (packet.caps().property("rate").toFloat() *
                            packet.timeBase().value());
 
@@ -571,16 +587,20 @@ void MultiSinkElement::updateOutputParams()
     this->m_outputParams.clear();
 
     foreach (QString input, inputCaps.keys())
-        if (inputOptions.contains(input))
-            this->m_outputParams[input] = this->createOutputParams(input.toInt(),
-                                                                   inputCaps[input].toString(),
-                                                                   inputOptions[input].toMap());
+        if (inputOptions.contains(input)) {
+            OutputParams outputParams = this->createOutputParams(input.toInt(),
+                                                                 inputCaps[input].toString(),
+                                                                 inputOptions[input].toMap());
+
+            if (outputParams.codecContext() && outputParams.codecContext()->codec)
+                this->m_outputParams[input] = outputParams;
+        }
 }
 
 void MultiSinkElement::flushStream(int inputIndex, AVCodecContext *encoder)
 {
     QString inputIndexStr = QString("%1").arg(inputIndex);
-    int64_t pts = this->m_outputParams[inputIndexStr].pts();
+    qint64 pts = this->m_outputParams[inputIndexStr].pts();
     int duration = this->m_outputParams[inputIndexStr].duration();
 
     while (true)

@@ -36,7 +36,7 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
 QbPacket::QbPacket(const QbCaps &caps,
                    const QbBufferPtr &buffer,
                    ulong bufferSize,
-                   int64_t pts,
+                   qint64 pts,
                    int duration,
                    const QbFrac &timeBase,
                    int index,
@@ -157,7 +157,7 @@ qint64 QbPacket::id() const
     return this->m_id;
 }
 
-int64_t QbPacket::pts() const
+qint64 QbPacket::pts() const
 {
     return this->m_pts;
 }
@@ -202,7 +202,7 @@ void QbPacket::setId(qint64 id)
     this->m_id = id;
 }
 
-void QbPacket::setPts(int64_t pts)
+void QbPacket::setPts(qint64 pts)
 {
     this->m_pts = pts;
 }

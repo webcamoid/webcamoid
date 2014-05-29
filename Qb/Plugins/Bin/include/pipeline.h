@@ -49,7 +49,7 @@ class Pipeline: public QObject
         Q_INVOKABLE QVariantMap properties() const;
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString addElement(QbElementPtr element);
-        Q_INVOKABLE void removeElement(QString elementName);
+        Q_INVOKABLE void removeElement(const QString &elementName);
         Q_INVOKABLE QList<QbElementPtr> inputs() const;
         Q_INVOKABLE QList<QbElementPtr> outputs() const;
         Q_INVOKABLE ThreadsMap threads() const;
@@ -67,17 +67,17 @@ class Pipeline: public QObject
         QString m_error;
         ThreadsMap m_threads;
 
-        QMetaMethod methodByName(QObject *object, QString methodName, QMetaMethod::MethodType methodType);
+        QMetaMethod methodByName(QObject *object, const QString &methodName, QMetaMethod::MethodType methodType);
 
     public slots:
         void solveConnections(QString self);
-        void addLinks(QStringList links);
+        void addLinks(const QStringList &links);
         void cleanAll();
         void setElements(const QMap<QString, QbElementPtr> &elements);
         void setLinks(const QList<QStringList> &links);
         void setConnections(const QList<QStringList> &connections);
         void setProperties(const QVariantMap &properties);
-        void setError(QString error);
+        void setError(const QString &error);
         void setThreads(const ThreadsMap &threads);
         void resetElements();
         void resetLinks();
