@@ -137,7 +137,6 @@ void AudioStream::processPacket(AVPacket *packet)
                      oBufferSize);
 
     oPacket.setPts(pts);
-    oPacket.setDuration(this->m_duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
     oPacket.setId(this->id());

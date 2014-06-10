@@ -46,7 +46,7 @@ QT += core gui
 
 SOURCES += \
     src/rtpts.cpp \
-    src/rtptserelement.cpp
+    src/rtptselement.cpp
 
 TEMPLATE = lib
 

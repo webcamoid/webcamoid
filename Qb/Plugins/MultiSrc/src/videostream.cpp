@@ -73,8 +73,6 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
 
     qint64 pts = av_frame_get_best_effort_timestamp(&iFrame);
-    qint64 duration = this->fps().invert().value()
-                       * this->timeBase().invert().value();
 
     avpicture_layout((AVPicture *) &iFrame,
                      this->codecContext()->pix_fmt,
@@ -88,7 +86,6 @@ void VideoStream::processPacket(AVPacket *packet)
                      frameSize);
 
     oPacket.setPts(pts);
-    oPacket.setDuration(duration);
     oPacket.setTimeBase(this->timeBase());
     oPacket.setIndex(this->index());
     oPacket.setId(this->id());

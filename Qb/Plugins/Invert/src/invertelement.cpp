@@ -53,7 +53,7 @@ void InvertElement::processFrame(const QbPacket &packet)
                         width,
                         height,
                         QImage::Format_ARGB32);
-    
+
     oFrame.invertPixels();
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
@@ -69,7 +69,6 @@ void InvertElement::processFrame(const QbPacket &packet)
                      oFrame.byteCount());
 
     oPacket.setPts(packet.pts());
-    oPacket.setDuration(packet.duration());
     oPacket.setTimeBase(packet.timeBase());
     oPacket.setIndex(packet.index());
 

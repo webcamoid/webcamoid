@@ -73,8 +73,7 @@ bool OutputFormat::open(QString fileName,
     this->m_streams.clear();
 
     foreach (QString input, outputParams.keys())
-        if (!this->addStream(input, outputParams[input]))
-        {
+        if (!this->addStream(input, outputParams[input])) {
             this->m_streams.clear();
 
             return this->m_isOpen;

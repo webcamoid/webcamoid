@@ -26,6 +26,7 @@ RtPtsElement::RtPtsElement(): QbElement()
     this->m_thread = new QThread();
     this->m_thread->start();
     this->m_timer.moveToThread(this->m_thread);
+    this->m_prevPts = -1;
 
     QObject::connect(&this->m_timer,
                      SIGNAL(timeout()),
@@ -33,8 +34,6 @@ RtPtsElement::RtPtsElement(): QbElement()
                      SLOT(readPacket()),
                      Qt::DirectConnection);
 
-
-    this->m_pts = 0;
     this->resetFps();
 }
 
@@ -63,7 +62,6 @@ void RtPtsElement::setFps(const QbFrac &fps)
                        fps.invert().value():
                        INT_MAX;
 
-    this->m_ptsInc = fps.den();
     this->m_timeBase = QbFrac(1, fps.num());
     this->m_timer.setInterval(interval);
 }
@@ -77,14 +75,13 @@ void RtPtsElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
 
-    if (this->state() == ElementStatePlaying)
+    if (this->state() == ElementStatePlaying) {
+       this->m_prevPts = -1;
+       this->m_elapsedTimer.start();
        QMetaObject::invokeMethod(&this->m_timer, "start");
-    else {
-        QMetaObject::invokeMethod(&this->m_timer, "stop");
-
-        if (this->state() == ElementStateNull)
-            this->m_pts = 0;
     }
+    else
+        QMetaObject::invokeMethod(&this->m_timer, "stop");
 }
 
 void RtPtsElement::iStream(const QbPacket &packet)
@@ -97,19 +94,21 @@ void RtPtsElement::iStream(const QbPacket &packet)
 void RtPtsElement::readPacket()
 {
     this->m_mutex.lock();
-
-    if (!this->m_curPacket) {
-        this->m_mutex.unlock();
-
-        return;
-    }
-
     QbPacket packet = this->m_curPacket;
     this->m_mutex.unlock();
 
-    packet.setPts(this->m_pts);
+    if (!packet)
+        return;
+
+    qint64 pts = 1.0e-3 * this->m_elapsedTimer.elapsed() * this->m_fps.value();
+
+    if (pts == this->m_prevPts)
+        return;
+
+    this->m_prevPts = pts;
+
+    packet.setPts(pts);
     packet.setTimeBase(this->m_timeBase);
-    this->m_pts += this->m_ptsInc;
 
     emit this->oStream(packet);
 }

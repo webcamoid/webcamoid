@@ -177,7 +177,6 @@ void EdgeElement::processFrame(const QbPacket &packet)
                      oFrame.byteCount());
 
     oPacket.setPts(packet.pts());
-    oPacket.setDuration(packet.duration());
     oPacket.setTimeBase(packet.timeBase());
     oPacket.setIndex(packet.index());
 

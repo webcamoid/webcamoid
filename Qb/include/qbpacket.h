@@ -37,7 +37,6 @@ class QbPacket: public QObject
     Q_PROPERTY(ulong bufferSize READ bufferSize WRITE setBufferSize RESET resetBufferSize)
     Q_PROPERTY(qint64 id READ id WRITE setId RESET resetId)
     Q_PROPERTY(qint64 pts READ pts WRITE setPts RESET resetPts)
-    Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
     Q_PROPERTY(QbFrac timeBase READ timeBase WRITE setTimeBase RESET resetTimeBase)
     Q_PROPERTY(int index READ index WRITE setIndex RESET resetIndex)
 
@@ -48,7 +47,6 @@ class QbPacket: public QObject
                  const QbBufferPtr &buffer=QbBufferPtr(),
                  ulong bufferSize=0,
                  qint64 pts=0,
-                 int duration=0,
                  const QbFrac &timeBase=QbFrac(),
                  int index=-1,
                  qint64 id=-1);
@@ -65,7 +63,6 @@ class QbPacket: public QObject
         Q_INVOKABLE ulong bufferSize() const;
         Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE qint64 pts() const;
-        Q_INVOKABLE int duration() const;
         Q_INVOKABLE QbFrac timeBase() const;
         Q_INVOKABLE int index() const;
 
@@ -75,7 +72,6 @@ class QbPacket: public QObject
         QbBufferPtr m_buffer;
         ulong m_bufferSize;
         qint64 m_pts;
-        int m_duration;
         QbFrac m_timeBase;
         int m_index;
         qint64 m_id;
@@ -89,7 +85,6 @@ class QbPacket: public QObject
         void setBufferSize(ulong bufferSize);
         void setId(qint64 id);
         void setPts(qint64 pts);
-        void setDuration(int duration);
         void setTimeBase(const QbFrac &timeBase);
         void setIndex(int index);
         void resetCaps();
@@ -98,7 +93,6 @@ class QbPacket: public QObject
         void resetBufferSize();
         void resetId();
         void resetPts();
-        void resetDuration();
         void resetTimeBase();
         void resetIndex();
 };

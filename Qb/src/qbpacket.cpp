@@ -28,7 +28,6 @@ QbPacket::QbPacket(QObject *parent): QObject(parent)
     this->resetBufferSize();
     this->resetId();
     this->resetPts();
-    this->resetDuration();
     this->resetTimeBase();
     this->resetIndex();
 }
@@ -37,7 +36,6 @@ QbPacket::QbPacket(const QbCaps &caps,
                    const QbBufferPtr &buffer,
                    ulong bufferSize,
                    qint64 pts,
-                   int duration,
                    const QbFrac &timeBase,
                    int index,
                    qint64 id)
@@ -47,7 +45,6 @@ QbPacket::QbPacket(const QbCaps &caps,
     this->setBuffer(isValid? buffer: QbBufferPtr());
     this->setBufferSize(isValid? bufferSize: 0);
     this->setPts(isValid? pts: 0);
-    this->setDuration(isValid? duration: 0);
     this->setTimeBase(isValid? timeBase: QbFrac());
     this->setIndex(isValid? index: -1);
     this->setId(isValid? id: -1);
@@ -60,7 +57,6 @@ QbPacket::QbPacket(const QbPacket &other):
     m_buffer(other.m_buffer),
     m_bufferSize(other.m_bufferSize),
     m_pts(other.m_pts),
-    m_duration(other.m_duration),
     m_timeBase(other.m_timeBase),
     m_index(other.m_index),
     m_id(other.m_id)
@@ -79,7 +75,6 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
         this->m_buffer = other.m_buffer;
         this->m_bufferSize = other.m_bufferSize;
         this->m_pts = other.m_pts;
-        this->m_duration = other.m_duration;
         this->m_timeBase = other.m_timeBase;
         this->m_index = other.m_index;
         this->m_id = other.m_id;
@@ -116,10 +111,6 @@ QString QbPacket::toString() const
 
     debug.nospace() << "Pts        : "
                     << this->pts() * this->timeBase().value()
-                    << "\n";
-
-    debug.nospace() << "Duration   : "
-                    << this->duration() * this->timeBase().value()
                     << "\n";
 
     debug.nospace() << "Time Base  : "
@@ -162,11 +153,6 @@ qint64 QbPacket::pts() const
     return this->m_pts;
 }
 
-int QbPacket::duration() const
-{
-    return this->m_duration;
-}
-
 QbFrac QbPacket::timeBase() const
 {
     return this->m_timeBase;
@@ -207,11 +193,6 @@ void QbPacket::setPts(qint64 pts)
     this->m_pts = pts;
 }
 
-void QbPacket::setDuration(int duration)
-{
-    this->m_duration = duration;
-}
-
 void QbPacket::setTimeBase(const QbFrac &timeBase)
 {
     this->m_timeBase = timeBase;
@@ -250,11 +231,6 @@ void QbPacket::resetId()
 void QbPacket::resetPts()
 {
     this->setPts(0);
-}
-
-void QbPacket::resetDuration()
-{
-    this->setDuration(0);
 }
 
 void QbPacket::resetTimeBase()

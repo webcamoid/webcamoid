@@ -70,6 +70,7 @@ class QbFrac: public QObject
 QDebug operator <<(QDebug debug, const QbFrac &frac);
 QbFrac operator *(int number, const QbFrac &frac);
 QbFrac operator /(int number, const QbFrac &frac);
+QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen);
 
 Q_DECLARE_METATYPE(QbFrac)
 

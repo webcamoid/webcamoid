@@ -67,8 +67,7 @@ double AudioOutputElement::clock() const
     return this->hwClock() + this->m_timeDrift;
 }
 
-QbCaps AudioOutputElement::findBestOptions(const QAudioDeviceInfo &deviceInfo,
-                                           QAudioFormat *bestOption) const
+QbCaps AudioOutputElement::findBestOptions(const QAudioFormat &audioFormat) const
 {
     QMap<AVSampleFormat, QAudioFormat::SampleType> formatToType;
     formatToType[AV_SAMPLE_FMT_NONE] = QAudioFormat::Unknown;
@@ -83,41 +82,37 @@ QbCaps AudioOutputElement::findBestOptions(const QAudioDeviceInfo &deviceInfo,
     formatToType[AV_SAMPLE_FMT_FLTP] = QAudioFormat::Float;
     formatToType[AV_SAMPLE_FMT_DBLP] = QAudioFormat::Float;
 
-    QAudioFormat bestAudioFormat = deviceInfo.preferredFormat();
-    AVSampleFormat oFormat = AV_SAMPLE_FMT_NONE;
+    AVSampleFormat format = AV_SAMPLE_FMT_NONE;
 
-    foreach (AVSampleFormat format, formatToType.keys(bestAudioFormat.sampleType()))
-        if (av_get_bytes_per_sample(format) == (bestAudioFormat.sampleSize() >> 3)) {
-            oFormat = format;
+    foreach (AVSampleFormat sampleFormat, formatToType.keys(audioFormat.sampleType()))
+        if (av_get_bytes_per_sample(sampleFormat) == (audioFormat.sampleSize() >> 3)) {
+            format = sampleFormat;
 
             break;
         }
 
     char layout[256];
-    qint64 channelLayout = av_get_default_channel_layout(bestAudioFormat.channelCount());
+    qint64 channelLayout = av_get_default_channel_layout(audioFormat.channelCount());
 
     av_get_channel_layout_string(layout,
                                  sizeof(layout),
-                                 bestAudioFormat.channelCount(),
+                                 audioFormat.channelCount(),
                                  channelLayout);
 
-    QbCaps oCaps(QString("audio/x-raw,"
-                         "format=%1,"
-                         "bps=%2,"
-                         "channels=%3,"
-                         "rate=%4,"
-                         "layout=%5,"
-                         "align=%6").arg(av_get_sample_fmt_name(oFormat))
-                                    .arg(bestAudioFormat.sampleSize() >> 3)
-                                    .arg(bestAudioFormat.channelCount())
-                                    .arg(bestAudioFormat.sampleRate())
-                                    .arg(layout)
-                                    .arg(false));
+    QbCaps caps(QString("audio/x-raw,"
+                        "format=%1,"
+                        "bps=%2,"
+                        "channels=%3,"
+                        "rate=%4,"
+                        "layout=%5,"
+                        "align=%6").arg(av_get_sample_fmt_name(format))
+                                   .arg(audioFormat.sampleSize() >> 3)
+                                   .arg(audioFormat.channelCount())
+                                   .arg(audioFormat.sampleRate())
+                                   .arg(layout)
+                                   .arg(false));
 
-    if (bestOption)
-        *bestOption = bestAudioFormat;
-
-    return oCaps;
+    return caps;
 }
 
 double AudioOutputElement::hwClock() const
@@ -147,10 +142,9 @@ double AudioOutputElement::hwClock() const
 bool AudioOutputElement::init()
 {
     QAudioDeviceInfo audioDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
-    QAudioFormat outputFormat;
+    QAudioFormat outputFormat = audioDeviceInfo.preferredFormat();
 
-    QbCaps bestCaps = this->findBestOptions(audioDeviceInfo,
-                                            &outputFormat);
+    QbCaps bestCaps = this->findBestOptions(outputFormat);
 
     this->m_convert->setProperty("caps", bestCaps.toString());
 

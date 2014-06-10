@@ -220,7 +220,6 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                      oBufferSize);
 
     oPacket.setPts(packet.pts());
-    oPacket.setDuration(packet.duration());
     oPacket.setTimeBase(packet.timeBase());
     oPacket.setIndex(packet.index());
 

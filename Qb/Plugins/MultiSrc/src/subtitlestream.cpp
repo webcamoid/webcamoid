@@ -117,7 +117,6 @@ void SubtitleStream::processPacket(AVPacket *packet)
                              dataLenght);
 
             oPacket.setPts(packet->pts);
-            oPacket.setDuration(packet->duration);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
             oPacket.setId(this->id());
@@ -145,7 +144,6 @@ void SubtitleStream::processPacket(AVPacket *packet)
                              assLenght);
 
             oPacket.setPts(packet->pts);
-            oPacket.setDuration(packet->duration);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
             oPacket.setId(this->id());
