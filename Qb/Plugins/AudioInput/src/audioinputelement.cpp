@@ -23,111 +23,163 @@
 
 AudioInputElement::AudioInputElement(): QbElement()
 {
-    this->m_input = Qb::create("MultiSrc");
+    this->m_inputDevice = NULL;
+    this->m_streamId = -1;
+    this->m_pts = 0;
+    this->m_audioDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    this->resetBufferSize();
 
-    QObject::connect(this->m_input.data(),
-                     SIGNAL(oStream(const QbPacket &)),
+    QObject::connect(&this->m_audioBuffer,
+                     SIGNAL(dataReady(const QByteArray &)),
                      this,
-                     SIGNAL(oStream(const QbPacket &)));
-
-    QObject::connect(this,
-                     SIGNAL(stateChanged(QbElement::ElementState)),
-                     this->m_input.data(),
-                     SLOT(setState(QbElement::ElementState)));
-
-    this->resetAudioSystem();
+                     SLOT(processFrame(const QByteArray &)));
 }
 
-QString AudioInputElement::audioSystem()
+AudioInputElement::~AudioInputElement()
 {
-    return this->m_audioSystem;
+    this->uninit();
 }
 
-QStringList AudioInputElement::availableAudioSystem()
+int AudioInputElement::bufferSize() const
 {
-    QStringList audioSystems;
-
-    if (QFileInfo("/usr/bin/pulseaudio").exists())
-        audioSystems << "pulseaudio";
-
-    if (QFileInfo("/proc/asound/version").exists())
-        audioSystems << "alsa";
-
-    if (QFileInfo("/dev/dsp").exists())
-        audioSystems << "oss";
-
-    return audioSystems;
+    return this->m_bufferSize;
 }
 
-QVariantMap AudioInputElement::streamCaps()
+QString AudioInputElement::streamCaps() const
 {
-    return this->m_input->property("streamCaps").toMap();
+    QAudioDeviceInfo audioDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    QAudioFormat inputFormat = audioDeviceInfo.preferredFormat();
+
+    return this->findBestOptions(inputFormat).toString();
 }
 
-bool AudioInputElement::event(QEvent *event)
+QbCaps AudioInputElement::findBestOptions(const QAudioFormat &audioFormat) const
 {
-    bool r;
+    QMap<AVSampleFormat, QAudioFormat::SampleType> formatToType;
+    formatToType[AV_SAMPLE_FMT_NONE] = QAudioFormat::Unknown;
+    formatToType[AV_SAMPLE_FMT_U8] = QAudioFormat::UnSignedInt;
+    formatToType[AV_SAMPLE_FMT_S16] = QAudioFormat::SignedInt;
+    formatToType[AV_SAMPLE_FMT_S32] = QAudioFormat::SignedInt;
+    formatToType[AV_SAMPLE_FMT_FLT] = QAudioFormat::Float;
+    formatToType[AV_SAMPLE_FMT_DBL] = QAudioFormat::Float;
+    formatToType[AV_SAMPLE_FMT_U8P] = QAudioFormat::UnSignedInt;
+    formatToType[AV_SAMPLE_FMT_S16P] = QAudioFormat::SignedInt;
+    formatToType[AV_SAMPLE_FMT_S32P] = QAudioFormat::SignedInt;
+    formatToType[AV_SAMPLE_FMT_FLTP] = QAudioFormat::Float;
+    formatToType[AV_SAMPLE_FMT_DBLP] = QAudioFormat::Float;
 
-    if (event->type() == QEvent::ThreadChange)
-    {
-        QObject::disconnect(this->m_input.data(),
-                            SIGNAL(oStream(const QbPacket &)),
-                            this,
-                            SIGNAL(oStream(const QbPacket &)));
+    AVSampleFormat format = AV_SAMPLE_FMT_NONE;
 
-        QObject::disconnect(this,
-                            SIGNAL(stateChanged(QbElement::ElementState)),
-                            this->m_input.data(),
-                            SLOT(setState(QbElement::ElementState)));
+    foreach (AVSampleFormat sampleFormat, formatToType.keys(audioFormat.sampleType()))
+        if (av_get_bytes_per_sample(sampleFormat) == (audioFormat.sampleSize() >> 3)) {
+            format = sampleFormat;
 
-        r = QObject::event(event);
-        this->m_input->moveToThread(this->thread());
+            break;
+        }
 
-        QObject::connect(this->m_input.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SIGNAL(oStream(const QbPacket &)));
+    char layout[256];
+    qint64 channelLayout = av_get_default_channel_layout(audioFormat.channelCount());
 
-        QObject::connect(this,
-                         SIGNAL(stateChanged(QbElement::ElementState)),
-                         this->m_input.data(),
-                         SLOT(setState(QbElement::ElementState)));
+    av_get_channel_layout_string(layout,
+                                 sizeof(layout),
+                                 audioFormat.channelCount(),
+                                 channelLayout);
+
+    QbCaps caps(QString("audio/x-raw,"
+                        "format=%1,"
+                        "bps=%2,"
+                        "channels=%3,"
+                        "rate=%4,"
+                        "layout=%5,"
+                        "align=%6").arg(av_get_sample_fmt_name(format))
+                                   .arg(audioFormat.sampleSize() >> 3)
+                                   .arg(audioFormat.channelCount())
+                                   .arg(audioFormat.sampleRate())
+                                   .arg(layout)
+                                   .arg(false));
+
+    return caps;
+}
+
+void AudioInputElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->init();
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+        this->uninit();
+}
+
+void AudioInputElement::setBufferSize(int bufferSize)
+{
+    this->m_bufferSize = bufferSize;
+}
+
+void AudioInputElement::resetBufferSize()
+{
+    this->setBufferSize(4096);
+}
+
+bool AudioInputElement::init()
+{
+    QAudioDeviceInfo audioDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    QAudioFormat inputFormat = audioDeviceInfo.preferredFormat();
+
+    this->m_caps = this->findBestOptions(inputFormat);
+
+    this->m_audioInput = AudioInputPtr(new QAudioInput(audioDeviceInfo,
+                                                        inputFormat));
+
+    if (this->m_audioInput) {
+        int bps = this->m_caps.property("bps").toInt();
+        int channels = this->m_caps.property("channels").toInt();
+        int frameRate = this->m_caps.property("rate").toInt();
+        qint64 bufferSize = bps * channels * this->m_bufferSize;
+
+        this->m_streamId = Qb::id();
+        this->m_pts = 0;
+        this->m_timeBase = QbFrac(1, frameRate);
+
+        this->m_audioInput->setBufferSize(bufferSize);
+        this->m_audioBuffer.open(QIODevice::ReadWrite);
+        this->m_audioInput->start(&this->m_audioBuffer);
     }
-    else
-        r = QObject::event(event);
 
-    return r;
+    return this->m_inputDevice? true: false;
 }
 
-void AudioInputElement::setAudioSystem(QString audioSystem)
+void AudioInputElement::uninit()
 {
-    if (audioSystem != this->m_audioSystem)
-    {
-        ElementState preState = this->m_input->state();
-        this->m_input->setState(ElementStateNull);
-        bool isValid = true;
-
-        if (audioSystem == "pulseaudio")
-            this->m_input->setProperty("location", "pulse");
-        else if (audioSystem == "alsa")
-            this->m_input->setProperty("location", "hw:0");
-        else if (audioSystem == "oss")
-            this->m_input->setProperty("location", "/dev/dsp");
-        else
-            isValid = false;
-
-        if (isValid)
-            this->m_input->setState(preState);
-        else
-            this->setState(ElementStateNull);
+    if (this->m_audioInput) {
+        this->m_audioInput->stop();
+        this->m_audioInput.clear();
+        this->m_inputDevice = NULL;
     }
 
-    this->m_audioSystem = audioSystem;
+    this->m_audioBuffer.close();
 }
 
-void AudioInputElement::resetAudioSystem()
+void AudioInputElement::processFrame(const QByteArray &data)
 {
-    QStringList audioSystems = availableAudioSystem();
+    QbBufferPtr oBuffer(new char[data.size()]);
+    memcpy(oBuffer.data(), data.constData(), data.size());
 
-    this->setAudioSystem(audioSystems.isEmpty()? "": audioSystems[0]);
+    QbCaps caps = this->m_caps;
+    int bps = this->m_caps.property("bps").toInt();
+    int channels = this->m_caps.property("channels").toInt();
+    int samples = data.size() / bps / channels;
+    caps.setProperty("samples", samples);
+
+    QbPacket oPacket(caps,
+                     oBuffer,
+                     data.size());
+
+    oPacket.setPts(this->m_pts);
+    oPacket.setTimeBase(this->m_timeBase);
+    oPacket.setIndex(0);
+    oPacket.setId(this->m_streamId);
+    this->m_pts += samples;
+
+    emit this->oStream(oPacket);
 }

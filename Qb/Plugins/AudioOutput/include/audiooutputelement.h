@@ -30,7 +30,7 @@ extern "C"
     #include <libswresample/swresample.h>
 }
 
-#include <audiobuffer.h>
+#include "audiobuffer.h"
 
 typedef QSharedPointer<QAudioOutput> AudioOutputPtr;
 
@@ -62,8 +62,7 @@ class AudioOutputElement: public QbElement
         QWaitCondition m_bufferEmpty;
         double m_timeDrift;
 
-        QbCaps findBestOptions(const QAudioDeviceInfo &deviceInfo,
-                               QAudioFormat *bestOption=NULL) const;
+        QbCaps findBestOptions(const QAudioFormat &audioFormat) const;
 
         double hwClock() const;
 
@@ -72,7 +71,6 @@ class AudioOutputElement: public QbElement
 
     signals:
         void elapsedTime(double pts);
-        void requestFrame();
 
     public slots:
         void setBufferSize(int bufferSize);

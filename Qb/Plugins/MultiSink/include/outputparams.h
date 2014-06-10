@@ -34,7 +34,6 @@ class OutputParams: public QObject
     Q_PROPERTY(QbElementPtr filter READ filter WRITE setFilter RESET resetFilter)
     Q_PROPERTY(int outputIndex READ outputIndex WRITE setOutputIndex RESET resetOutputIndex)
     Q_PROPERTY(qint64 pts READ pts WRITE setPts RESET resetPts)
-    Q_PROPERTY(int duration READ duration WRITE setDuration RESET resetDuration)
 
     public:
         explicit OutputParams(QObject *parent=NULL);
@@ -42,8 +41,7 @@ class OutputParams: public QObject
         OutputParams(CodecContextPtr codecContext,
                      QbElementPtr filter,
                      int outputIndex,
-                     qint64 pts=0,
-                     int duration=0);
+                     qint64 pts=0);
 
         OutputParams(const OutputParams &other);
         OutputParams &operator =(const OutputParams &other);
@@ -52,27 +50,25 @@ class OutputParams: public QObject
         Q_INVOKABLE QbElementPtr filter() const;
         Q_INVOKABLE int outputIndex() const;
         Q_INVOKABLE qint64 pts() const;
-        Q_INVOKABLE int duration() const;
 
     private:
         CodecContextPtr m_codecContext;
         QbElementPtr m_filter;
         int m_outputIndex;
         qint64 m_pts;
-        int m_duration;
+        qint64 m_prevPts;
+        qint64 m_lastPts;
+        qint64 m_ptsDrift;
 
     public slots:
         void setCodecContext(CodecContextPtr codecContext);
         void setFilter(QbElementPtr filter);
         void setOutputIndex(int outputIndex);
-        void setPts(qint64 pts);
-        void setDuration(int duration);
+        bool setPts(qint64 pts);
         void resetCodecContext();
         void resetFilter();
         void resetOutputIndex();
         void resetPts();
-        void resetDuration();
-        void increasePts();
 };
 
 Q_DECLARE_METATYPE(OutputParams)

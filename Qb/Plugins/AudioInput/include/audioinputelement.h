@@ -22,34 +22,57 @@
 #ifndef AUDIOINPUTELEMENT_H
 #define AUDIOINPUTELEMENT_H
 
-#include <qb.h>
+#include <QtMultimedia>
+
+extern "C"
+{
+    #include <libavformat/avformat.h>
+    #include <libswresample/swresample.h>
+}
+
+#include "audiobuffer.h"
+
+typedef QSharedPointer<QAudioInput> AudioInputPtr;
 
 class AudioInputElement: public QbElement
 {
     Q_OBJECT
-        Q_PROPERTY(QString audioSystem READ audioSystem
-                                       WRITE setAudioSystem
-                                       RESET resetAudioSystem)
+        Q_PROPERTY(int bufferSize READ bufferSize
+                                  WRITE setBufferSize
+                                  RESET resetBufferSize)
 
-        Q_PROPERTY(QStringList availableAudioSystem READ availableAudioSystem)
-        Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
+        Q_PROPERTY(QString streamCaps READ streamCaps)
 
     public:
         explicit AudioInputElement();
-
-        Q_INVOKABLE QString audioSystem();
-        Q_INVOKABLE QStringList availableAudioSystem();
-        Q_INVOKABLE QVariantMap streamCaps();
-        bool event(QEvent *event);
+        ~AudioInputElement();
+        Q_INVOKABLE int bufferSize() const;
+        Q_INVOKABLE QString streamCaps() const;
 
     private:
-        QString m_audioSystem;
+        int m_bufferSize;
+        QbCaps m_caps;
+        QAudioDeviceInfo m_audioDeviceInfo;
+        AudioInputPtr m_audioInput;
+        QIODevice *m_inputDevice;
+        AudioBuffer m_audioBuffer;
+        qint64 m_streamId;
+        qint64 m_pts;
+        QbFrac m_timeBase;
 
-        QbElementPtr m_input;
+        QbCaps findBestOptions(const QAudioFormat &audioFormat) const;
+
+    protected:
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     public slots:
-        void setAudioSystem(QString audioSystem);
-        void resetAudioSystem();
+        void setBufferSize(int bufferSize);
+        void resetBufferSize();
+
+    private slots:
+        bool init();
+        void uninit();
+        void processFrame(const QByteArray &data);
 };
 
 #endif // AUDIOINPUTELEMENT_H

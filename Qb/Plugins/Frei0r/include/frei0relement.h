@@ -83,8 +83,7 @@ class Frei0rElement: public QbElement
         QString m_pluginName;
         QSize m_frameSize;
         QbFrac m_fps;
-        double m_t;
-        double m_duration;
+        double m_pts;
         QVariantList m_indexMap;
         QVariantMap m_params;
         QVariantMap m_info;

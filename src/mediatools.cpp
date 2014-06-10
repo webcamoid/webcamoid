@@ -83,7 +83,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
-                            "effects. ! RtPts record.stateChanged>setState !"
+                            "effects. ! RtPts record.stateChanged>setState ! DirectConnection?"
                             "MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
                             "WebcamConfig objectName='webcamConfig'");
@@ -575,13 +575,13 @@ void MediaTools::setDevice(const QString &device)
 
         // Stream 1 = Audio.
         if (this->recordAudioFrom() == RecordFromMic) {
-            QVariantMap audioCaps;
+            QString audioCaps;
 
             QMetaObject::invokeMethod(this->m_mic.data(),
                                       "streamCaps", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QVariantMap, audioCaps));
+                                      Q_RETURN_ARG(QString, audioCaps));
 
-            recordStreams["1"] = audioCaps["0"];
+            recordStreams["1"] = audioCaps;
         }
         else if (this->recordAudioFrom() == RecordFromSource &&
                  audioStream >= 0)

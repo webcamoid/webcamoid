@@ -199,3 +199,10 @@ QbFrac operator /(int number, const QbFrac &frac)
 {
     return number * frac.invert();
 }
+
+
+QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen)
+{
+    return QbFrac(fracNum.num() * fracDen.den(),
+                  fracNum.den() * fracDen.num());
+}

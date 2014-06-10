@@ -19,40 +19,41 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef RTPTSELEMENT_H
-#define RTPTSELEMENT_H
+#ifndef AUDIOBUFFER_H
+#define AUDIOBUFFER_H
 
 #include <qb.h>
 
-class RtPtsElement: public QbElement
+class AudioBuffer: public QIODevice
 {
     Q_OBJECT
-    Q_PROPERTY(QbFrac fps READ fps WRITE setFps RESET resetFps)
 
     public:
-        explicit RtPtsElement();
-        ~RtPtsElement();
+        explicit AudioBuffer(QObject *parent = NULL);
 
-        Q_INVOKABLE QbFrac fps() const;
+        bool atEnd() const;
+        qint64 bytesAvailable() const;
+        qint64 bytesToWrite() const;
+        bool canReadLine() const;
+        bool isSequential() const;
+        qint64 pos() const;
+        bool seek(qint64 pos);
+        qint64 size() const;
 
     private:
-        QbFrac m_timeBase;
-        QbFrac m_fps;
-        QbPacket m_curPacket;
+        qint64 m_maxSize;
+        QByteArray m_audioBuffer;
+
         QMutex m_mutex;
-        QTimer m_timer;
-        QThread *m_thread;
-        QElapsedTimer m_elapsedTimer;
-        qint64 m_prevPts;
+        QWaitCondition m_bufferNotFull;
 
-    public slots:
-        void setFps(const QbFrac &fps);
-        void resetFps();
-        void setState(QbElement::ElementState state);
-        void iStream(const QbPacket &packet);
+    protected:
+        qint64 readData(char *data, qint64 maxSize);
+        qint64 writeData(const char *data, qint64 maxSize);
 
-    private slots:
-        void readPacket();
+    signals:
+        void bytesConsumed();
+        void dataReady(const QByteArray &data);
 };
 
-#endif // RTPTSELEMENT_H
+#endif // AUDIOBUFFER_H

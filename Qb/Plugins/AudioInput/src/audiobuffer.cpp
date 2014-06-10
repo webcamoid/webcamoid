@@ -19,40 +19,66 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef RTPTSELEMENT_H
-#define RTPTSELEMENT_H
+#include "audiobuffer.h"
 
-#include <qb.h>
-
-class RtPtsElement: public QbElement
+AudioBuffer::AudioBuffer(QObject *parent):
+    QIODevice(parent)
 {
-    Q_OBJECT
-    Q_PROPERTY(QbFrac fps READ fps WRITE setFps RESET resetFps)
+}
 
-    public:
-        explicit RtPtsElement();
-        ~RtPtsElement();
+bool AudioBuffer::atEnd() const
+{
+    return false;
+}
 
-        Q_INVOKABLE QbFrac fps() const;
+qint64 AudioBuffer::bytesAvailable() const
+{
+    return 0;
+}
 
-    private:
-        QbFrac m_timeBase;
-        QbFrac m_fps;
-        QbPacket m_curPacket;
-        QMutex m_mutex;
-        QTimer m_timer;
-        QThread *m_thread;
-        QElapsedTimer m_elapsedTimer;
-        qint64 m_prevPts;
+qint64 AudioBuffer::bytesToWrite() const
+{
+    return 0;
+}
 
-    public slots:
-        void setFps(const QbFrac &fps);
-        void resetFps();
-        void setState(QbElement::ElementState state);
-        void iStream(const QbPacket &packet);
+bool AudioBuffer::canReadLine() const
+{
+    return false;
+}
 
-    private slots:
-        void readPacket();
-};
+bool AudioBuffer::isSequential() const
+{
+    return true;
+}
 
-#endif // RTPTSELEMENT_H
+qint64 AudioBuffer::pos() const
+{
+    return 0;
+}
+
+bool AudioBuffer::seek(qint64 pos)
+{
+    Q_UNUSED(pos)
+
+    return false;
+}
+
+qint64 AudioBuffer::size() const
+{
+    return this->bytesAvailable();
+}
+
+qint64 AudioBuffer::readData(char *data, qint64 maxSize)
+{
+    Q_UNUSED(data)
+    Q_UNUSED(maxSize)
+
+    return 0;
+}
+
+qint64 AudioBuffer::writeData(const char *data, qint64 maxSize)
+{
+    emit this->dataReady(QByteArray(data, maxSize));
+
+    return maxSize;
+}

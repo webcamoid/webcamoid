@@ -59,8 +59,11 @@ bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
     if (!dstElement)
         return false;
 
-    foreach (QMetaMethod signal, this->methodsByName(this, "oStream"))
-        foreach (QMetaMethod slot, this->methodsByName(dstElement, "iStream"))
+    QList<QMetaMethod> signalList = this->methodsByName(this, "oStream");
+    QList<QMetaMethod> slotList = this->methodsByName(dstElement, "iStream");
+
+    foreach (QMetaMethod signal, signalList)
+        foreach (QMetaMethod slot, slotList)
             if (this->methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
@@ -126,9 +129,9 @@ QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
         QMetaMethod method = object->metaObject()->method(i);
 
 #if QT_VERSION >= 0x050000
-        const char *signature = method.methodSignature().constData();
+        QString signature(method.methodSignature());
 #else
-        const char *signature = method.signature();
+        QString signature(method.signature());
 #endif // QT_VERSION >= 0x050000
 
         if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(signature))

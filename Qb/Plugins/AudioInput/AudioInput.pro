@@ -28,11 +28,18 @@ exists(commons.pri) {
     }
 }
 
+exists(../../3dparty/ffmpeg_auto.pri) {
+    include(../../3dparty/ffmpeg_auto.pri)
+}
+
 CONFIG += plugin
+
+DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
     include/audioinput.h \
-    include/audioinputelement.h
+    include/audioinputelement.h \
+    include/audiobuffer.h
 
 INCLUDEPATH += \
     include \
@@ -40,15 +47,49 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
+exists(../../3dparty/ffmpeg_auto.pri) {
+    INCLUDEPATH += $${FFMPEGHEADERSPATH}
+
+    LIBS += \
+        -L$${FFMPEGLIBSPATH} \
+        -lavdevice$${FFMPEGBUILDSUFFIX} \
+        -lavfilter$${FFMPEGBUILDSUFFIX} \
+        -lavformat$${FFMPEGBUILDSUFFIX} \
+        -lavcodec$${FFMPEGBUILDSUFFIX} \
+        -lavresample$${FFMPEGBUILDSUFFIX} \
+        -lpostproc$${FFMPEGBUILDSUFFIX} \
+        -lswresample$${FFMPEGBUILDSUFFIX} \
+        -lswscale$${FFMPEGBUILDSUFFIX} \
+        -lavutil$${FFMPEGBUILDSUFFIX}
+}
+
 OTHER_FILES += pspec.json
 
-QT += core gui
+QT += core gui multimedia
 
 SOURCES += \
     src/audioinput.cpp \
-    src/audioinputelement.cpp
+    src/audioinputelement.cpp \
+    src/audiobuffer.cpp
 
 TEMPLATE = lib
+
+unix {
+    ! exists(../../3dparty/ffmpeg_auto.pri) {
+        CONFIG += link_pkgconfig
+
+        PKGCONFIG += \
+            libavdevice \
+            libavfilter \
+            libavformat \
+            libavcodec \
+            libavresample \
+            libpostproc \
+            libswresample \
+            libswscale \
+            libavutil
+    }
+}
 
 INSTALLS += target
 

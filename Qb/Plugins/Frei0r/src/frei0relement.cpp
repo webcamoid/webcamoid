@@ -84,14 +84,12 @@ QVariantMap Frei0rElement::params()
 
     QVariantMap params;
 
-    for (int i = 0; i < this->m_info["num_params"].toInt(); i++)
-    {
+    for (int i = 0; i < this->m_info["num_params"].toInt(); i++) {
         f0r_param_info_t info;
 
         this->f0rGetParamInfo(&info, i);
 
-        if (info.type == F0R_PARAM_BOOL)
-        {
+        if (info.type == F0R_PARAM_BOOL) {
             f0r_param_bool value;
 
             this->f0rGetParamValue(this->m_f0rInstance,
@@ -100,8 +98,7 @@ QVariantMap Frei0rElement::params()
 
             params[info.name] = value;
         }
-        else if (info.type == F0R_PARAM_DOUBLE)
-        {
+        else if (info.type == F0R_PARAM_DOUBLE) {
             f0r_param_double value;
 
             this->f0rGetParamValue(this->m_f0rInstance,
@@ -110,8 +107,7 @@ QVariantMap Frei0rElement::params()
 
             params[info.name] = value;
         }
-        else if (info.type == F0R_PARAM_COLOR)
-        {
+        else if (info.type == F0R_PARAM_COLOR) {
             f0r_param_color_t value;
 
             this->f0rGetParamValue(this->m_f0rInstance,
@@ -120,8 +116,7 @@ QVariantMap Frei0rElement::params()
 
             params[info.name] = QColor(value.r, value.g, value.b);
         }
-        else if (info.type == F0R_PARAM_POSITION)
-        {
+        else if (info.type == F0R_PARAM_POSITION) {
             f0r_param_position_t value;
 
             this->f0rGetParamValue(this->m_f0rInstance,
@@ -130,8 +125,7 @@ QVariantMap Frei0rElement::params()
 
             params[info.name] = QPoint(value.x, value.y);
         }
-        else if (info.type == F0R_PARAM_STRING)
-        {
+        else if (info.type == F0R_PARAM_STRING) {
             f0r_param_string value;
 
             this->f0rGetParamValue(this->m_f0rInstance,
@@ -159,8 +153,7 @@ QVariantMap Frei0rElement::info()
 {
     QVariantMap info = this->m_info;
 
-    if (this->state() == ElementStateNull)
-    {
+    if (this->state() == ElementStateNull) {
         this->setState(ElementStatePaused);
         info = this->m_info;
         this->setState(ElementStateNull);
@@ -173,12 +166,10 @@ QStringList Frei0rElement::plugins() const
 {
     QStringList plugins;
 
-    foreach (QString path, this->m_frei0rPaths)
-    {
+    foreach (QString path, this->m_frei0rPaths) {
         QDir pluginDir(path);
 
-        foreach (QString plugin, pluginDir.entryList(QDir::Files, QDir::Name))
-        {
+        foreach (QString plugin, pluginDir.entryList(QDir::Files, QDir::Name)) {
             QString fileName = pluginDir.absoluteFilePath(plugin);
 
             if (QLibrary::isLibrary(fileName))
@@ -198,8 +189,7 @@ bool Frei0rElement::event(QEvent *event)
 {
     bool r;
 
-    if (event->type() == QEvent::ThreadChange)
-    {
+    if (event->type() == QEvent::ThreadChange) {
         QObject::disconnect(this->m_convert.data(),
                             SIGNAL(oStream(const QbPacket &)),
                             this,
@@ -236,14 +226,12 @@ bool Frei0rElement::init()
 
     QString fileName;
 
-    foreach (QString path, this->m_frei0rPaths)
-    {
+    foreach (QString path, this->m_frei0rPaths) {
         QString filePath = QString("%1%2%3.so").arg(path)
                                                .arg(QDir::separator())
                                                .arg(this->m_pluginName);
 
-        if (QFileInfo(filePath).exists())
-        {
+        if (QFileInfo(filePath).exists()) {
             fileName = filePath;
 
             break;
@@ -255,8 +243,7 @@ bool Frei0rElement::init()
 
     this->m_library.setFileName(fileName);
 
-    if (!this->m_library.load())
-    {
+    if (!this->m_library.load()) {
         qDebug() << this->m_library.errorString();
 
         return false;
@@ -264,8 +251,7 @@ bool Frei0rElement::init()
 
     this->f0rInit = (f0r_init_t) this->m_library.resolve("f0r_init");
 
-    if (!this->f0rInit || !this->f0rInit())
-    {
+    if (!this->f0rInit || !this->f0rInit()) {
         qDebug() << this->m_library.errorString();
 
         return false;
@@ -273,8 +259,7 @@ bool Frei0rElement::init()
 
     this->f0rGetPluginInfo = (f0r_get_plugin_info_t) this->m_library.resolve("f0r_get_plugin_info");
 
-    if (!this->f0rGetPluginInfo)
-    {
+    if (!this->f0rGetPluginInfo) {
         qDebug() << this->m_library.errorString();
 
         return false;
@@ -287,8 +272,7 @@ bool Frei0rElement::init()
     this->m_info["name"] = infoStruct.name;
     this->m_info["author"] = infoStruct.author;
 
-    switch (infoStruct.plugin_type)
-    {
+    switch (infoStruct.plugin_type) {
         case F0R_PLUGIN_TYPE_FILTER:
             this->m_info["plugin_type"] = "filter";
         break;
@@ -312,8 +296,7 @@ bool Frei0rElement::init()
 
     QbCaps caps;
 
-    switch (infoStruct.color_model)
-    {
+    switch (infoStruct.color_model) {
         case F0R_COLOR_MODEL_BGRA8888:
             this->m_info["color_model"] = "bgra8888";
             caps = QbCaps("video/x-raw,format=bgra");
@@ -335,8 +318,7 @@ bool Frei0rElement::init()
     }
 
     if (this->m_info["plugin_type"] == "mixer2" ||
-        this->m_info["plugin_type"] == "mixer3")
-    {
+        this->m_info["plugin_type"] == "mixer3") {
         caps.setProperty("width", this->m_frameSize.width());
         caps.setProperty("height", this->m_frameSize.height());
     }
@@ -351,15 +333,13 @@ bool Frei0rElement::init()
     this->m_info["explanation"] = infoStruct.explanation;
 
     if (infoStruct.plugin_type == F0R_PLUGIN_TYPE_FILTER ||
-        infoStruct.plugin_type == F0R_PLUGIN_TYPE_SOURCE)
-    {
+        infoStruct.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
         this->f0rUpdate = (f0r_update_t) this->m_library.resolve("f0r_update");
 
         if (!this->f0rUpdate)
             return false;
     }
-    else
-    {
+    else {
         this->f0rUpdate2 = (f0r_update2_t) this->m_library.resolve("f0r_update2");
 
         if (!this->f0rUpdate2)
@@ -381,8 +361,7 @@ bool Frei0rElement::init()
         !this->f0rGetParamValue)
         return false;
 
-    if (this->m_info["plugin_type"] == "source")
-    {
+    if (this->m_info["plugin_type"] == "source") {
         this->m_oBuffer.resize(4 * this->m_frameSize.width() *
                                    this->m_frameSize.height());
 
@@ -397,8 +376,7 @@ void Frei0rElement::uninit()
     if (!this->m_library.isLoaded())
         return;
 
-    if (this->m_f0rInstance)
-    {
+    if (this->m_f0rInstance) {
         this->f0rDestruct(this->m_f0rInstance);
         this->m_f0rInstance = NULL;
     }
@@ -430,13 +408,11 @@ bool Frei0rElement::initBuffers()
     int height;
 
     if (this->m_info["plugin_type"] == "filter" &&
-        this->m_curInputCaps.isValid())
-    {
+        this->m_curInputCaps.isValid()) {
         width = this->m_curInputCaps.property("width").toInt();
         height = this->m_curInputCaps.property("height").toInt();
     }
-    else
-    {
+    else {
         width = this->m_frameSize.width();
         height = this->m_frameSize.height();
     }
@@ -505,14 +481,12 @@ void Frei0rElement::setFps(QString fps)
 {
     this->m_fps = QbFrac(fps);
 
-    if (this->m_fps.num() < 1 || this->m_fps.den() < 1)
-    {
+    if (this->m_fps.num() < 1 || this->m_fps.den() < 1) {
         this->m_fps.setNum(1);
         this->m_fps.setDen(1);
     }
 
-    this->m_duration = 1000.0 / this->m_fps.value();
-    this->m_timer.setInterval(this->m_duration);
+    this->m_timer.setInterval(1e3 / this->m_fps.value());
 }
 
 void Frei0rElement::setIndexMap(QVariantList indexMap)
@@ -535,8 +509,7 @@ void Frei0rElement::setParams(QVariantMap params)
     if (!curInstance)
         this->initBuffers();
 
-    for (int i = 0; i < this->m_info["num_params"].toInt(); i++)
-    {
+    for (int i = 0; i < this->m_info["num_params"].toInt(); i++) {
         f0r_param_info_t info;
 
         this->f0rGetParamInfo(&info, i);
@@ -544,8 +517,7 @@ void Frei0rElement::setParams(QVariantMap params)
         if (!params.contains(info.name))
             continue;
 
-        if (info.type == F0R_PARAM_BOOL)
-        {
+        if (info.type == F0R_PARAM_BOOL) {
             f0r_param_bool value = params[info.name].toBool();
 
             this->f0rSetParamValue(this->m_f0rInstance,
@@ -553,16 +525,14 @@ void Frei0rElement::setParams(QVariantMap params)
                                    i);
 
         }
-        else if (info.type == F0R_PARAM_DOUBLE)
-        {
+        else if (info.type == F0R_PARAM_DOUBLE) {
             f0r_param_double value = params[info.name].toDouble();
 
             this->f0rSetParamValue(this->m_f0rInstance,
                                    &value,
                                    i);
         }
-        else if (info.type == F0R_PARAM_COLOR)
-        {
+        else if (info.type == F0R_PARAM_COLOR) {
             f0r_param_color_t value;
             QColor color = params[info.name].value<QColor>();
 
@@ -574,8 +544,7 @@ void Frei0rElement::setParams(QVariantMap params)
                                    &value,
                                    i);
         }
-        else if (info.type == F0R_PARAM_POSITION)
-        {
+        else if (info.type == F0R_PARAM_POSITION) {
             f0r_param_position_t value;
             QPoint point = params[info.name].toPoint();
 
@@ -586,8 +555,7 @@ void Frei0rElement::setParams(QVariantMap params)
                                    &value,
                                    i);
         }
-        else if (info.type == F0R_PARAM_STRING)
-        {
+        else if (info.type == F0R_PARAM_STRING) {
             f0r_param_string value = params[info.name].toString().toUtf8().data();
 
             this->f0rSetParamValue(this->m_f0rInstance,
@@ -622,7 +590,7 @@ void Frei0rElement::resetFrameSize()
 
 void Frei0rElement::resetFps()
 {
-    this->setFps("1/1");
+    this->setFps("30/1");
 }
 
 void Frei0rElement::resetIndexMap()
@@ -653,20 +621,17 @@ void Frei0rElement::iStream(const QbPacket &packet)
         this->m_info["plugin_type"] == "source")
         return;
 
-    if (!this->m_f0rInstance || packet.caps() != this->m_curInputCaps)
-    {
+    if (!this->m_f0rInstance || packet.caps() != this->m_curInputCaps) {
         this->m_curInputCaps = packet.caps();
 
         int width;
         int height;
 
-        if (this->m_info["plugin_type"] == "filter")
-        {
+        if (this->m_info["plugin_type"] == "filter") {
             width = this->m_curInputCaps.property("width").toInt();
             height = this->m_curInputCaps.property("height").toInt();
         }
-        else
-        {
+        else {
             width = this->m_frameSize.width();
             height = this->m_frameSize.height();
         }
@@ -675,8 +640,7 @@ void Frei0rElement::iStream(const QbPacket &packet)
         this->setParams(this->m_params);
 
         if (this->m_info["plugin_type"] == "mixer2" ||
-            this->m_info["plugin_type"] == "mixer3")
-        {
+            this->m_info["plugin_type"] == "mixer3") {
             this->m_iBuffer0.resize(4 * width * height);
             this->m_iBuffer1.resize(4 * width * height);
         }
@@ -699,12 +663,11 @@ void Frei0rElement::setState(QbElement::ElementState state)
     if (this->m_convert)
         this->m_convert->setState(this->state());
 
-    if (this->state() == ElementStateNull)
-    {
+    if (this->state() == ElementStateNull) {
         if (this->m_info["plugin_type"] != "source")
             this->uninitBuffers();
 
-        this->m_t = 0;
+        this->m_pts = 0;
     }
 
     if (this->state() == ElementStatePaused)
@@ -722,12 +685,10 @@ void Frei0rElement::processFrame(const QbPacket &packet)
 
     if (this->m_info["plugin_type"] == "mixer2" ||
         this->m_info["plugin_type"] == "mixer3")
-        foreach (QVariant map, this->m_indexMap)
-        {
+        foreach (QVariant map, this->m_indexMap) {
             QVariantList pair = map.toList();
 
-            if (pair[0].toInt() == packet.index())
-            {
+            if (pair[0].toInt() == packet.index()) {
                 if (pair[1].toInt() == 0)
                     memcpy(this->m_iBuffer0.data(),
                            packet.buffer().data(),
@@ -748,12 +709,10 @@ void Frei0rElement::processFrame(const QbPacket &packet)
 
     QbCaps caps;
     qint64 pts = 0;
-    int duration = 0;
     QbFrac timeBase;
     int index = 0;
 
-    if (this->m_info["plugin_type"] == "source")
-    {
+    if (this->m_info["plugin_type"] == "source") {
         QString format;
 
         if (this->m_info["color_model"] == "bgra8888")
@@ -767,16 +726,13 @@ void Frei0rElement::processFrame(const QbPacket &packet)
         caps.setProperty("height", this->m_frameSize.height());
         caps.setProperty("fps", this->m_fps.toString());
 
-        pts = this->m_t;
-        duration = this->m_duration;
-        timeBase = QbFrac(1, 1000);
+        pts = this->m_pts;
+        timeBase = this->m_fps.invert();
         index = 0;
     }
-    else
-    {
+    else {
         caps = packet.caps();
         pts = packet.pts();
-        duration = packet.duration();
         timeBase = packet.timeBase();
         index = packet.index();
     }
@@ -791,7 +747,7 @@ void Frei0rElement::processFrame(const QbPacket &packet)
                         (uint32_t *) this->m_oBuffer.data());
     else if (this->m_info["plugin_type"] == "source")
         this->f0rUpdate(this->m_f0rInstance,
-                        this->m_t,
+                        this->m_pts,
                         NULL,
                         (uint32_t *) this->m_oBuffer.data());
     else if (this->m_info["plugin_type"] == "mixer2")
@@ -809,7 +765,7 @@ void Frei0rElement::processFrame(const QbPacket &packet)
                          (uint32_t *) this->m_iBuffer2.data(),
                          (uint32_t *) this->m_oBuffer.data());
 
-    this->m_t += this->m_duration;
+    this->m_pts++;
 
     QbBufferPtr oBuffer(new char[this->m_oBuffer.size()]);
     memcpy(oBuffer.data(), this->m_oBuffer.constData(), this->m_oBuffer.size());
@@ -819,7 +775,6 @@ void Frei0rElement::processFrame(const QbPacket &packet)
                      this->m_oBuffer.size());
 
     oPacket.setPts(pts);
-    oPacket.setDuration(duration);
     oPacket.setTimeBase(timeBase);
     oPacket.setIndex(index);
 

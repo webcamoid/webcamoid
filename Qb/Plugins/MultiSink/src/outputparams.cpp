@@ -27,20 +27,20 @@ OutputParams::OutputParams(QObject *parent): QObject(parent)
     this->resetFilter();
     this->resetOutputIndex();
     this->resetPts();
-    this->resetDuration();
+    this->m_prevPts = -1;
+    this->m_lastPts = -1;
+    this->m_ptsDrift = 0;
 }
 
 OutputParams::OutputParams(CodecContextPtr codecContext,
                            QbElementPtr filter,
                            int outputIndex,
-                           qint64 pts,
-                           int duration):
+                           qint64 pts):
     QObject(NULL),
     m_codecContext(codecContext),
     m_filter(filter),
     m_outputIndex(outputIndex),
-    m_pts(pts),
-    m_duration(duration)
+    m_pts(pts)
 {
 }
 
@@ -49,20 +49,17 @@ OutputParams::OutputParams(const OutputParams &other):
     m_codecContext(other.m_codecContext),
     m_filter(other.m_filter),
     m_outputIndex(other.m_outputIndex),
-    m_pts(other.m_pts),
-    m_duration(other.m_duration)
+    m_pts(other.m_pts)
 {
 }
 
 OutputParams &OutputParams::operator =(const OutputParams &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_codecContext = other.m_codecContext;
         this->m_filter = other.m_filter;
         this->m_outputIndex = other.m_outputIndex;
         this->m_pts = other.m_pts;
-        this->m_duration = other.m_duration;
     }
 
     return *this;
@@ -88,11 +85,6 @@ qint64 OutputParams::pts() const
     return this->m_pts;
 }
 
-int OutputParams::duration() const
-{
-    return this->m_duration;
-}
-
 void OutputParams::setCodecContext(CodecContextPtr codecContext)
 {
     this->m_codecContext = codecContext;
@@ -108,14 +100,25 @@ void OutputParams::setOutputIndex(int outputIndex)
     this->m_outputIndex = outputIndex;
 }
 
-void OutputParams::setPts(qint64 pts)
+bool OutputParams::setPts(qint64 pts)
 {
-    this->m_pts = pts;
-}
+    if (this->m_prevPts >= 0 && pts == this->m_prevPts)
+        return false;
 
-void OutputParams::setDuration(int duration)
-{
-    this->m_duration = duration;
+    if (this->m_lastPts < 0 && pts != 0)
+        this->m_ptsDrift = -pts;
+
+    this->m_pts = pts + this->m_ptsDrift;
+
+    if (this->m_prevPts >= 0 && this->m_pts <= this->m_lastPts) {
+        this->m_pts = this->m_lastPts + 1;
+        this->m_ptsDrift = this->m_pts - pts;
+    }
+
+    this->m_prevPts = pts;
+    this->m_lastPts = this->m_pts;
+
+    return true;
 }
 
 void OutputParams::resetCodecContext()
@@ -136,14 +139,4 @@ void OutputParams::resetOutputIndex()
 void OutputParams::resetPts()
 {
     this->setPts(0);
-}
-
-void OutputParams::resetDuration()
-{
-    this->setDuration(0);
-}
-
-void OutputParams::increasePts()
-{
-    this->m_pts += this->m_duration;
 }
