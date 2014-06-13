@@ -143,13 +143,27 @@ void AbstractStream::processPacket(AVPacket *packet)
     Q_UNUSED(packet)
 }
 
-void AbstractStream::init()
+bool AbstractStream::open()
 {
     if (!this->m_codecContext)
-        return;
+        return false;
 
     if (avcodec_open2(this->m_codecContext, this->m_codec,
                       &this->m_codecOptions) < 0)
+        return false;
+
+    return true;
+}
+
+void AbstractStream::close()
+{
+    if (this->m_codecContext)
+        avcodec_close(this->m_codecContext);
+}
+
+void AbstractStream::init()
+{
+    if (!this->open())
         return;
 
     this->m_outputThread = new Thread();
@@ -180,8 +194,7 @@ void AbstractStream::uninit()
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);
 
-    if (this->m_codecContext)
-        avcodec_close(this->m_codecContext);
+    this->close();
 
     this->m_codecContext = NULL;
 }
