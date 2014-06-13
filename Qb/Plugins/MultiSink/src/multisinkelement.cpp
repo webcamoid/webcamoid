@@ -478,13 +478,17 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     int samples = packet.caps().property("samples").toInt();
     int frameSize = codecContext->frame_size;
 
-    if (!frameSize)
+    if (frameSize < 1)
         frameSize = samples;
+
+    QbFrac timeBase(audioStream->time_base.num,
+                    audioStream->time_base.den);
 
     int pts = (packet.pts()
               * packet.timeBase()
-              / QbFrac(audioStream->time_base.num,
-                       audioStream->time_base.den)).value();
+              / timeBase).value();
+
+    qDebug() << "* apts" << pts;
 
     if (!this->m_outputParams[inputIndex].setPts(pts))
         return;
@@ -493,27 +497,31 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
 
     qint64 ptsDiff = frameSize /
                      (packet.caps().property("rate").toFloat() *
-                      packet.timeBase().value());
+                      timeBase.value());
 
     static AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
     iFrame.nb_samples = samples;
+    bool align = packet.caps().property("align").toBool();
 
     if (avcodec_fill_audio_frame(&iFrame,
                                  codecContext->channels,
                                  codecContext->sample_fmt,
                                  (uint8_t *) packet.buffer().data(),
                                  packet.bufferSize(),
-                                 0) < 0)
+                                 align? 0: 1) < 0)
         return;
 
-    for (int offset = 0; offset < samples; offset += frameSize) {
+    for (int offset = 0; samples > 0; offset += frameSize) {
+        samples -= frameSize;
+        frameSize = qMin(frameSize, samples);
+
         int oBufferSize = av_samples_get_buffer_size(NULL,
                                                      codecContext->channels,
                                                      frameSize,
                                                      codecContext->sample_fmt,
-                                                     0);
+                                                     align? 0: 1);
 
         QByteArray oBuffer(oBufferSize, 0);
 
@@ -527,7 +535,7 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
                                      codecContext->sample_fmt,
                                      (const uint8_t *) oBuffer.constData(),
                                      oBufferSize,
-                                     0) < 0)
+                                     align? 0: 1) < 0)
             continue;
 
         if (av_samples_copy(oFrame.data,

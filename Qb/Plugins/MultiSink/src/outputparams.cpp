@@ -40,7 +40,10 @@ OutputParams::OutputParams(CodecContextPtr codecContext,
     m_codecContext(codecContext),
     m_filter(filter),
     m_outputIndex(outputIndex),
-    m_pts(pts)
+    m_pts(pts),
+    m_prevPts(-1),
+    m_lastPts(-1),
+    m_ptsDrift(0)
 {
 }
 
@@ -49,7 +52,10 @@ OutputParams::OutputParams(const OutputParams &other):
     m_codecContext(other.m_codecContext),
     m_filter(other.m_filter),
     m_outputIndex(other.m_outputIndex),
-    m_pts(other.m_pts)
+    m_pts(other.m_pts),
+    m_prevPts(other.m_prevPts),
+    m_lastPts(other.m_lastPts),
+    m_ptsDrift(other.m_ptsDrift)
 {
 }
 
@@ -60,6 +66,9 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
         this->m_filter = other.m_filter;
         this->m_outputIndex = other.m_outputIndex;
         this->m_pts = other.m_pts;
+        this->m_prevPts = other.m_prevPts;
+        this->m_lastPts = other.m_lastPts;
+        this->m_ptsDrift = other.m_ptsDrift;
     }
 
     return *this;
