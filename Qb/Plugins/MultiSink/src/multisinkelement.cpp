@@ -484,18 +484,16 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     QbFrac timeBase(audioStream->time_base.num,
                     audioStream->time_base.den);
 
-    int pts = (packet.pts()
+    float pts = (packet.pts()
               * packet.timeBase()
               / timeBase).value();
-
-    qDebug() << "* apts" << pts;
 
     if (!this->m_outputParams[inputIndex].setPts(pts))
         return;
 
-    qint64 ptsOffset = 0;
+    float ptsOffset = pts - (int) pts;
 
-    qint64 ptsDiff = frameSize /
+    float ptsDiff = frameSize /
                      (packet.caps().property("rate").toFloat() *
                       timeBase.value());
 
@@ -556,7 +554,6 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
 
         oFrame.pts = this->m_outputParams[inputIndex].pts() + ptsOffset;
         ptsOffset += ptsDiff;
-        qDebug() << "apts" << oFrame.pts;
 
         int gotPacket;
 

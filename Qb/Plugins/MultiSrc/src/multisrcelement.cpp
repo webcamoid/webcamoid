@@ -68,6 +68,12 @@ QVariantMap MultiSrcElement::streamCaps()
         if (!this->initContext())
             return caps;
 
+        if (avformat_find_stream_info(this->m_inputContext.data(), NULL) < 0) {
+            this->m_inputContext.clear();
+
+            return caps;
+        }
+
         clearContext = true;
     }
 

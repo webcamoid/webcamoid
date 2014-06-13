@@ -83,6 +83,8 @@ class AbstractStream: public QObject
         void notify();
 
     public slots:
+        bool open();
+        void close();
         void init();
         void uninit();
 
