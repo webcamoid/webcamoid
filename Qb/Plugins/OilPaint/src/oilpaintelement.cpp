@@ -43,62 +43,44 @@ int OilPaintElement::radius() const
 QImage OilPaintElement::oilPaint(const QImage &src, int radius) const
 {
     QImage dst(src.size(), src.format());
-    Pixel *iPixel = (Pixel *) src.bits();
-    Pixel *oPixel = (Pixel *) dst.bits();
-    Pixel *srcBits = iPixel;
-
-    int srcWidth = src.width();
-    int srcHeight = src.height();
-
     quint16 histogram[256];
-    int diffMin = radius;
-    int diffMax = radius + 1;
+    QRgb *oLine = (QRgb *) dst.bits();
+    int scanBlockLen = (radius << 1) + 1;
+    QRgb *scanBlock[scanBlockLen];
 
-    for (int y = 0; y < srcHeight; y++) {
-        int minY = y - diffMin;
-        int maxY = y + diffMax;
+    for (int y = 0; y < src.height(); y++) {
+        int pos = y - radius;
 
-        if (minY < 0)
-            minY = 0;
+        for (int j = 0; j < scanBlockLen; j++) {
+            scanBlock[j] = (QRgb *) src.constScanLine(qBound(0, pos, src.height()));
+            pos++;
+        }
 
-        if (maxY > srcHeight)
-            maxY = srcHeight;
+        for (int x = 0; x < src.width(); x++) {
+            int minI = x - radius;
+            int maxI = x + radius + 1;
 
-        Pixel *src0 = reinterpret_cast<Pixel *>(srcBits) + minY * srcWidth;
+            if (minI < 0)
+                minI = 0;
 
-        for (int x = 0; x < srcWidth; x++) {
-            int minX = x - diffMin;
-            int maxX = x + diffMax;
-
-            if (minX < 0)
-                minX = 0;
-
-            if (maxX > srcWidth)
-                maxX = srcWidth;
-
-            int diffX = srcWidth - maxX + minX;
+            if (maxI > src.width())
+                maxI = src.width();
 
             memset(histogram, 0, 512);
             quint16 max = 0;
-            Pixel *src = src0 + minX;
 
-            for (int yp = minY; yp < maxY; yp++, src += diffX)
-                for (int xp = minX; xp < maxX; xp++, src++) {
-                    quint16 value = ++histogram[(src->r + src->g + src->b) / 3];
+            for (int j = 0; j < scanBlockLen; j++)
+                for (int i = minI; i < maxI; i++) {
+                    Pixel *p = (Pixel *) &scanBlock[j][i];
+                    quint16 value = ++histogram[(p->r + p->g + p->b) / 3];
 
                     if (value > max) {
                         max = value;
-
-                        oPixel->r = src->r;
-                        oPixel->g = src->g;
-                        oPixel->b = src->b;
+                        *oLine = scanBlock[j][i];
                     }
                 }
 
-            oPixel->a = iPixel->a;
-
-            iPixel++;
-            oPixel++;
+            oLine++;
         }
     }
 

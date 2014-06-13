@@ -65,7 +65,7 @@
     <effect name="Old">Aging</effect>
     <effect name="Psychedelic">Shagadelic</effect>
     <effect name="Scroll">Scroll</effect>
-    <effect name="Oil Paint">OilPaint</effect>
+    <effect name="Oil Paint">OilPaint radius=2</effect>
     <effect name="implode">Implode amount=0.5</effect>
     <effect name="Swirl">Swirl degrees=90</effect>
     <effect name="Wave">Wave amplitude=25 phases=5</effect>
