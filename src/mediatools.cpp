@@ -152,6 +152,9 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                              SLOT(sourceStateChanged(QbElement::ElementState)));
         }
 
+        if (this->m_audioSwitch)
+            this->m_audioSwitch->setProperty("inputIndex", 1);
+
         if (this->m_webcamConfig)
             QObject::connect(this->m_webcamConfig.data(),
                              SIGNAL(webcamsChanged(const QStringList &)),

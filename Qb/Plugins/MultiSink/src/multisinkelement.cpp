@@ -58,6 +58,8 @@ QVariantMap MultiSinkElement::streamCaps()
 
 void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
+    this->m_mutex.lock();
+
     if (from == QbElement::ElementStateNull
         && to == QbElement::ElementStatePaused)
         this->m_outputFormat.open(this->location(),
@@ -68,6 +70,8 @@ void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::Elem
         this->flushStreams();
         this->m_outputFormat.close();
     }
+
+    this->m_mutex.unlock();
 }
 
 QList<AVPixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
@@ -386,6 +390,8 @@ void MultiSinkElement::iStream(const QbPacket &packet)
 
 void MultiSinkElement::processVFrame(const QbPacket &packet)
 {
+    this->m_mutex.lock();
+
     int iWidth = packet.caps().property("width").toInt();
     int iHeight = packet.caps().property("height").toInt();
     QString format = packet.caps().property("format").toString();
@@ -462,10 +468,14 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
                                        &pkt);
         }
     }
+
+    this->m_mutex.unlock();
 }
 
 void MultiSinkElement::processAFrame(const QbPacket &packet)
 {
+    this->m_mutex.lock();
+
     QString inputIndex = QString("%1").arg(packet.index());
     int outputIndex = this->m_outputParams[QString("%1").arg(packet.index())].outputIndex();
     StreamPtr audioStream = this->m_outputFormat.streams()[inputIndex];
@@ -566,6 +576,8 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
     }
+
+    this->m_mutex.unlock();
 }
 
 void MultiSinkElement::updateOutputParams()

@@ -63,6 +63,8 @@ class MultiSinkElement: public QbElement
         QMap<QString, OutputParams> m_outputParams;
         OutputFormat m_outputFormat;
 
+        QMutex m_mutex;
+
         QList<AVPixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);
         QList<int> sampleRates(AVCodec *audioCodec);
