@@ -19,22 +19,22 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "webcamconfig.h"
-#include "webcamconfigelement.h"
+#include "videocapture.h"
+#include "videocaptureelement.h"
 
-QObject *WebcamConfig::create(const QString &key, const QString &specification)
+QObject *VideoCapture::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new WebcamConfigElement();
+    return new VideoCaptureElement();
 }
 
-QStringList WebcamConfig::keys() const
+QStringList VideoCapture::keys() const
 {
     return QStringList();
 }
 
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(WebcamConfig, WebcamConfig)
+Q_EXPORT_PLUGIN2(VideoCapture, VideoCapture)
 #endif // QT_VERSION < 0x050000

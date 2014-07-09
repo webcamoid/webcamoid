@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef WEBCAMCONFIG_H
-#define WEBCAMCONFIG_H
+#ifndef VIDEOCAPTURE_H
+#define VIDEOCAPTURE_H
 
 #include <qb.h>
 
-class WebcamConfig: public QObject, public QbPlugin
+class VideoCapture: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
@@ -38,4 +38,4 @@ class WebcamConfig: public QObject, public QbPlugin
         QStringList keys() const;
 };
 
-#endif // WEBCAMCONFIG_H
+#endif // VIDEOCAPTURE_H

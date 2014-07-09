@@ -23,13 +23,13 @@
 
 OutputParams::OutputParams(QObject *parent): QObject(parent)
 {
+    this->m_prevPts = -1;
+    this->m_lastPts = -1;
+    this->m_ptsDrift = 0;
     this->resetCodecContext();
     this->resetFilter();
     this->resetOutputIndex();
     this->resetPts();
-    this->m_prevPts = -1;
-    this->m_lastPts = -1;
-    this->m_ptsDrift = 0;
 }
 
 OutputParams::OutputParams(CodecContextPtr codecContext,

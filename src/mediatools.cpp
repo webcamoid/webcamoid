@@ -86,7 +86,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "effects. ! RtPts record.stateChanged>setState ! DirectConnection?"
                             "MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
-                            "WebcamConfig objectName='webcamConfig'");
+                            "VideoCapture objectName='videoCapture'");
 
         this->m_pipeline->setProperty("description", description);
         this->m_effectsPreview = Qb::create("Bin");
@@ -123,8 +123,8 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbElementPtr, this->m_webcamConfig),
-                                  Q_ARG(QString, "webcamConfig"));
+                                  Q_RETURN_ARG(QbElementPtr, this->m_videoCapture),
+                                  Q_ARG(QString, "videoCapture"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
@@ -155,8 +155,8 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
         if (this->m_audioSwitch)
             this->m_audioSwitch->setProperty("inputIndex", 1);
 
-        if (this->m_webcamConfig)
-            QObject::connect(this->m_webcamConfig.data(),
+        if (this->m_videoCapture)
+            QObject::connect(this->m_videoCapture.data(),
                              SIGNAL(webcamsChanged(const QStringList &)),
                              this,
                              SLOT(webcamsChanged(const QStringList &)));
@@ -210,7 +210,7 @@ QSize MediaTools::videoSize(const QString &device)
     QSize size;
     QString webcam = device.isEmpty()? this->device(): device;
 
-    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "size", Qt::DirectConnection,
                               Q_RETURN_ARG(QSize, size),
                               Q_ARG(QString, webcam));
@@ -257,7 +257,7 @@ QVariantList MediaTools::videoSizes(const QString &device)
 {
     QVariantList sizes;
 
-    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "availableSizes", Qt::DirectConnection,
                               Q_RETURN_ARG(QVariantList, sizes),
                               Q_ARG(QString, device));
@@ -269,7 +269,7 @@ QList<QStringList> MediaTools::captureDevices()
 {
     QStringList webcams;
 
-    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "webcams", Qt::DirectConnection,
                               Q_RETURN_ARG(QStringList, webcams));
 
@@ -278,7 +278,7 @@ QList<QStringList> MediaTools::captureDevices()
     foreach (QString webcam, webcams) {
         QString description;
 
-        QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+        QMetaObject::invokeMethod(this->m_videoCapture.data(),
                                   "description", Qt::DirectConnection,
                                   Q_RETURN_ARG(QString, description),
                                   Q_ARG(QString, webcam));
@@ -304,7 +304,7 @@ QVariantList MediaTools::listControls(const QString &device)
 {
     QVariantList controls;
 
-    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "controls", Qt::DirectConnection,
                               Q_RETURN_ARG(QVariantList, controls),
                               Q_ARG(QString, device));
@@ -314,7 +314,7 @@ QVariantList MediaTools::listControls(const QString &device)
 
 void MediaTools::setControls(const QString &device, const QVariantMap &controls)
 {
-    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "setControls", Qt::DirectConnection,
                               Q_ARG(QString, device),
                               Q_ARG(QVariantMap, controls));
@@ -613,7 +613,7 @@ void MediaTools::setVideoSize(const QString &device, const QSize &size)
 
     QString webcam = device.isEmpty()? curDevice: device;
 
-    QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "setSize", Qt::DirectConnection,
                               Q_ARG(QString, webcam),
                               Q_ARG(QSize, size));
@@ -738,7 +738,7 @@ void MediaTools::resetVideoSize(const QString &device)
     QString webcam = device.isEmpty()? curDevice: device;
 
     if (!webcam.isEmpty())
-        QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+        QMetaObject::invokeMethod(this->m_videoCapture.data(),
                                   "resetSize", Qt::DirectConnection,
                                   Q_ARG(QString, webcam));
 
@@ -964,7 +964,7 @@ void MediaTools::reset(const QString &device)
     QString webcam = device.isEmpty()? curDevice: device;
 
     if (!webcam.isEmpty())
-        QMetaObject::invokeMethod(this->m_webcamConfig.data(),
+        QMetaObject::invokeMethod(this->m_videoCapture.data(),
                                   "reset", Qt::DirectConnection,
                                   Q_ARG(QString, webcam));
 
