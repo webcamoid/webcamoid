@@ -33,8 +33,9 @@ CONFIG += plugin
 DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
-    include/webcamconfig.h \
-    include/webcamconfigelement.h
+    include/capturebuffer.h \
+    include/videocapture.h \
+    include/videocaptureelement.h
 
 INCLUDEPATH += \
     include \
@@ -47,8 +48,8 @@ OTHER_FILES += pspec.json
 QT += core gui
 
 SOURCES += \
-    src/webcamconfig.cpp \
-    src/webcamconfigelement.cpp
+    src/videocapture.cpp \
+    src/videocaptureelement.cpp
 
 TEMPLATE = lib
 
