@@ -41,6 +41,7 @@ class VideoCaptureElement: public QbElement
     Q_PROPERTY(QString ioMethod READ ioMethod WRITE setIoMethod RESET resetIoMethod)
     Q_PROPERTY(int nBuffers READ nBuffers WRITE setNBuffers RESET resetNBuffers)
     Q_PROPERTY(bool isCompressed READ isCompressed)
+    Q_PROPERTY(QString caps READ caps)
 
     public:
         enum IoMethod
@@ -58,6 +59,7 @@ class VideoCaptureElement: public QbElement
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE bool isCompressed() const;
+        Q_INVOKABLE QString caps(v4l2_format *format = NULL, bool *changePxFmt = NULL) const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
@@ -84,12 +86,13 @@ class VideoCaptureElement: public QbElement
         QVector<CaptureBuffer> m_buffers;
         QMap<quint32, QString> m_rawToFF;
         QMap<quint32, QString> m_compressedToFF;
+        QTimer m_timer;
 
         __u32 format(const QString &webcam, const QSize &size) const;
         QVariantList queryControl(int handle, v4l2_queryctrl *queryctrl) const;
         QMap<QString, uint> findControls(int handle) const;
-        QString v4l2ToFF(quint32 fmt);
-        quint32 defaultFormat(bool compressed);
+        QString v4l2ToFF(quint32 fmt) const;
+        quint32 defaultFormat(int fd, bool compressed) const;
         bool isCompressedFormat(quint32 format);
         bool initReadWrite(quint32 bufferSize);
         bool initMemoryMap();
@@ -100,8 +103,13 @@ class VideoCaptureElement: public QbElement
         bool init();
         void processFrame(char *buffer, quint32 bufferSize, qint64 pts);
         QString fourccToStr(quint32 format) const;
+        QbFrac fps(int fd) const;
+
+    protected:
+        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     signals:
+        void error(const QString &message);
         void webcamsChanged(const QStringList &webcams) const;
         void sizeChanged(const QString &webcam, const QSize &size) const;
         void controlsChanged(const QString &webcam, const QVariantMap &controls) const;
@@ -109,9 +117,9 @@ class VideoCaptureElement: public QbElement
     public slots:
         void setDevice(const QString &device);
         void setIoMethod(const QString &ioMethod);
-        void resetIoMethod();
         void setNBuffers(int nBuffers);
         void resetDevice();
+        void resetIoMethod();
         void resetNBuffers();
         void reset(const QString &webcam) const;
         void reset() const;

@@ -114,6 +114,26 @@ bool QbElement::unlink(QbElementPtr dstElement)
     return true;
 }
 
+bool QbElement::link(QbElementPtr srcElement, QObject *dstElement, Qt::ConnectionType connectionType)
+{
+    return srcElement->link(dstElement, connectionType);
+}
+
+bool QbElement::link(QbElementPtr srcElement, QbElementPtr dstElement, Qt::ConnectionType connectionType)
+{
+    return srcElement->link(dstElement, connectionType);
+}
+
+bool QbElement::unlink(QbElementPtr srcElement, QObject *dstElement)
+{
+    return srcElement->unlink(dstElement);
+}
+
+bool QbElement::unlink(QbElementPtr srcElement, QbElementPtr dstElement)
+{
+    return srcElement->unlink(dstElement);
+}
+
 void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
     Q_UNUSED(from)

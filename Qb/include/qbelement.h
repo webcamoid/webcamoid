@@ -62,6 +62,15 @@ class QbElement: public QObject
         Q_INVOKABLE virtual bool unlink(QObject *dstElement);
         Q_INVOKABLE virtual bool unlink(QbElementPtr dstElement);
 
+        Q_INVOKABLE static bool link(QbElementPtr srcElement, QObject *dstElement,
+                                     Qt::ConnectionType connectionType=Qt::AutoConnection);
+
+        Q_INVOKABLE static bool link(QbElementPtr srcElement, QbElementPtr dstElement,
+                                     Qt::ConnectionType connectionType=Qt::AutoConnection);
+
+        Q_INVOKABLE static bool unlink(QbElementPtr srcElement, QObject *dstElement);
+        Q_INVOKABLE static bool unlink(QbElementPtr srcElement, QbElementPtr dstElement);
+
     protected:
         QbElement::ElementState m_state;
         QList<QbElement *> m_srcs;

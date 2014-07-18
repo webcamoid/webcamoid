@@ -65,6 +65,7 @@ QbCaps::~QbCaps()
 QbCaps &QbCaps::operator =(const QbCaps &other)
 {
     if (this != &other) {
+        this->clear();
         this->m_isValid = other.m_isValid;
         this->m_mimeType = other.m_mimeType;
         this->update(other);
@@ -160,6 +161,16 @@ void QbCaps::setMimeType(const QString &mimeType)
 void QbCaps::resetMimeType()
 {
     this->setMimeType("");
+}
+
+void QbCaps::clear()
+{
+    this->m_mimeType.clear();
+
+    QList<QByteArray> properties = this->dynamicPropertyNames();
+
+    foreach (QByteArray property, properties)
+        this->setProperty(property.constData(), QVariant());
 }
 
 QDebug operator <<(QDebug debug, const QbCaps &caps)
