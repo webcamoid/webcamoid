@@ -100,7 +100,7 @@ class MultiSrcElement: public QbElement
         }
 
     signals:
-        void error(QString message);
+        void error(const QString &message);
         void queueSizeUpdated(const QMap<int, qint64> &queueSize);
 
     public slots:

@@ -57,6 +57,7 @@ class QbCaps: public QObject
     public slots:
         void setMimeType(const QString &mimeType);
         void resetMimeType();
+        void clear();
 };
 
 QDebug operator <<(QDebug debug, const QbCaps &caps);

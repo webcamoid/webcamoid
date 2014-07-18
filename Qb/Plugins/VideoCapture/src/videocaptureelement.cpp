@@ -139,6 +139,11 @@ VideoCaptureElement::VideoCaptureElement(): QbElement()
                      SIGNAL(directoryChanged(const QString &)),
                      this,
                      SLOT(onDirectoryChanged(const QString &)));
+
+    QObject::connect(&this->m_timer,
+                     SIGNAL(timeout()),
+                     this,
+                     SLOT(readFrame()));
 }
 
 QStringList VideoCaptureElement::webcams() const
@@ -200,6 +205,79 @@ int VideoCaptureElement::nBuffers() const
 bool VideoCaptureElement::isCompressed() const
 {
     return false;
+}
+
+QString VideoCaptureElement::caps(v4l2_format *format, bool *changePxFmt) const
+{
+    if (this->m_caps)
+        return this->m_caps.toString();
+
+    bool closeFd = false;
+    int fd = this->m_fd;
+
+    if (fd < 0) {
+        fd = open(this->m_device.toStdString().c_str(), O_RDWR);
+
+        v4l2_capability capabilities;
+
+        if (ioctl(fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
+            qDebug() << "VideoCapture: Can't query capabilities.";
+
+            if (closeFd)
+                close(fd);
+
+            return "";
+        }
+
+        closeFd = true;
+    }
+
+    v4l2_format fmt;
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (ioctl(fd, VIDIOC_G_FMT, &fmt) < 0) {
+        qDebug() << "VideoCapture: Can't get default input format.";
+
+        if (closeFd)
+            close(fd);
+
+        return "";
+    }
+
+    if (!this->m_rawToFF.contains(fmt.fmt.pix.pixelformat)) {
+        quint32 pixelFormat = this->defaultFormat(fd, false);
+
+        if (pixelFormat) {
+            fmt.fmt.pix.pixelformat = pixelFormat;
+
+            if (changePxFmt)
+                *changePxFmt = true;
+        }
+        else {
+            qDebug() << "VideoCapture: Doesn't support format:" << this->fourccToStr(fmt.fmt.pix.pixelformat);
+
+            if (closeFd)
+                close(fd);
+
+            return "";
+        }
+    }
+
+    if (format)
+        memcpy(format, &fmt, sizeof(v4l2_format));
+
+    QbCaps caps;
+
+    caps.setMimeType("video/x-raw");
+    caps.setProperty("format", this->v4l2ToFF(fmt.fmt.pix.pixelformat));
+    caps.setProperty("width", fmt.fmt.pix.width);
+    caps.setProperty("height", fmt.fmt.pix.height);
+    caps.setProperty("fps", this->fps(fd).toString());
+
+    if (closeFd)
+        close(fd);
+
+    return caps.toString();
 }
 
 QString VideoCaptureElement::description(const QString &webcam) const
@@ -601,7 +679,7 @@ QMap<QString, uint> VideoCaptureElement::findControls(int handle) const
     return controls;
 }
 
-QString VideoCaptureElement::v4l2ToFF(quint32 fmt)
+QString VideoCaptureElement::v4l2ToFF(quint32 fmt) const
 {
     if (this->m_rawToFF.contains(fmt))
         return this->m_rawToFF[fmt];
@@ -612,7 +690,7 @@ QString VideoCaptureElement::v4l2ToFF(quint32 fmt)
     return "";
 }
 
-quint32 VideoCaptureElement::defaultFormat(bool compressed)
+quint32 VideoCaptureElement::defaultFormat(int fd, bool compressed) const
 {
     v4l2_fmtdesc fmtdesc;
 
@@ -621,7 +699,7 @@ quint32 VideoCaptureElement::defaultFormat(bool compressed)
         fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         fmtdesc.index = i;
 
-        if (ioctl(this->m_fd, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
+        if (ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
             break;
 
         bool isCompressed = (fmtdesc.flags & V4L2_FMT_FLAG_COMPRESSED)? true: false;
@@ -774,6 +852,7 @@ void VideoCaptureElement::stopCapture()
 
 void VideoCaptureElement::uninit()
 {
+    this->m_timer.stop();
     this->stopCapture();
 
     if (this->m_ioMethod == IoMethodReadWrite)
@@ -786,6 +865,7 @@ void VideoCaptureElement::uninit()
             delete this->m_buffers[i].start;
 
     close(this->m_fd);
+    this->m_caps.clear();
 }
 
 bool VideoCaptureElement::startCapture()
@@ -834,6 +914,9 @@ bool VideoCaptureElement::startCapture()
     if (error)
         this->uninit();
 
+    if (!error)
+        this->m_timer.start();
+
     this->m_id = Qb::id();
 
     return !error;
@@ -853,74 +936,20 @@ bool VideoCaptureElement::init()
     }
 
     v4l2_format fmt;
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    bool changePxFmt = false;
 
-    if (ioctl(this->m_fd, VIDIOC_G_FMT, &fmt) < 0) {
-        qDebug() << "VideoCapture: Can't get default input format.";
+    QbCaps caps = this->caps(&fmt, &changePxFmt);
+
+    if (changePxFmt && ioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
+        qDebug() << "VideoCapture: Can't set format:" << this->fourccToStr(fmt.fmt.pix.pixelformat);
         close(this->m_fd);
 
         return false;
     }
 
-    if (!this->m_rawToFF.contains(fmt.fmt.pix.pixelformat)) {
-        quint32 pixelFormat = this->defaultFormat(false);
-
-        if (pixelFormat) {
-            fmt.fmt.pix.pixelformat = pixelFormat;
-
-            if (ioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
-                qDebug() << "VideoCapture: Can't set format:" << fourccToStr(fmt.fmt.pix.pixelformat);
-                close(this->m_fd);
-
-                return false;
-            }
-        }
-        else {
-            qDebug() << "VideoCapture: Doesn't support format:" << fourccToStr(fmt.fmt.pix.pixelformat);
-            close(this->m_fd);
-
-            return false;
-        }
-    }
-
-    v4l2_std_id stdId;
-
-    if (ioctl(this->m_fd, VIDIOC_G_STD, &stdId) >= 0) {
-        v4l2_standard standard;
-        memset(&standard, 0, sizeof(standard));
-
-        standard.index = 0;
-
-        while (ioctl(this->m_fd, VIDIOC_ENUMSTD, &standard) == 0) {
-            if (standard.id & stdId) {
-                this->m_fps = QbFrac(standard.frameperiod.denominator,
-                                     standard.frameperiod.numerator);
-
-                break;
-            }
-
-            standard.index++;
-        }
-    }
-
-    v4l2_streamparm streamparm;
-    memset(&streamparm, 0, sizeof(streamparm));
-
-    streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (ioctl(this->m_fd, VIDIOC_G_PARM, &streamparm) >= 0) {
-        if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
-            this->m_fps = QbFrac(streamparm.parm.capture.timeperframe.denominator,
-                                 streamparm.parm.capture.timeperframe.numerator);
-    }
-
+    this->m_caps = caps;
+    this->m_fps = caps.property("fps").toString();
     this->m_timeBase = this->m_fps.invert();
-
-    this->m_caps.setMimeType("video/x-raw");
-    this->m_caps.setProperty("format", this->v4l2ToFF(fmt.fmt.pix.pixelformat));
-    this->m_caps.setProperty("width", fmt.fmt.pix.width);
-    this->m_caps.setProperty("height", fmt.fmt.pix.height);
-    this->m_caps.setProperty("fps", this->m_fps.toString());
 
     if (this->m_ioMethod == IoMethodReadWrite
         && capabilities.capabilities & V4L2_CAP_READWRITE
@@ -992,6 +1021,53 @@ QString VideoCaptureElement::fourccToStr(quint32 format) const
     return fourcc;
 }
 
+QbFrac VideoCaptureElement::fps(int fd) const
+{
+    QbFrac fps;
+    v4l2_std_id stdId;
+
+    if (ioctl(fd, VIDIOC_G_STD, &stdId) >= 0) {
+        v4l2_standard standard;
+        memset(&standard, 0, sizeof(standard));
+
+        standard.index = 0;
+
+        while (ioctl(fd, VIDIOC_ENUMSTD, &standard) == 0) {
+            if (standard.id & stdId) {
+                fps = QbFrac(standard.frameperiod.denominator,
+                             standard.frameperiod.numerator);
+
+                break;
+            }
+
+            standard.index++;
+        }
+    }
+
+    v4l2_streamparm streamparm;
+    memset(&streamparm, 0, sizeof(streamparm));
+
+    streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+    if (ioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0) {
+        if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
+            fps = QbFrac(streamparm.parm.capture.timeperframe.denominator,
+                         streamparm.parm.capture.timeperframe.numerator);
+    }
+
+    return fps;
+}
+
+void VideoCaptureElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->init();
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+        this->uninit();
+}
+
 void VideoCaptureElement::setDevice(const QString &device)
 {
     this->m_device = device;
@@ -1059,6 +1135,9 @@ void VideoCaptureElement::onDirectoryChanged(const QString &path)
 
 bool VideoCaptureElement::readFrame()
 {
+    if (this->m_fd < 0)
+        return false;
+
     if (this->m_ioMethod == IoMethodReadWrite) {
         if (read(this->m_fd, this->m_buffers[0].start, this->m_buffers[0].length) < 0)
             return false;
