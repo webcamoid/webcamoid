@@ -77,15 +77,15 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         explicit MediaTools(QObject *parent=NULL);
         ~MediaTools();
 
-        Q_INVOKABLE QString device();
+        Q_INVOKABLE QString device() const;
         Q_INVOKABLE QSize videoSize(const QString &device);
-        Q_INVOKABLE bool effectsPreview();
-        Q_INVOKABLE bool playAudioFromSource();
-        Q_INVOKABLE RecordFrom recordAudioFrom();
-        Q_INVOKABLE bool recording();
-        Q_INVOKABLE QList<QStringList> videoRecordFormats();
-        Q_INVOKABLE QList<QStringList> streams();
-        Q_INVOKABLE QSize windowSize();
+        Q_INVOKABLE bool effectsPreview() const;
+        Q_INVOKABLE bool playAudioFromSource() const;
+        Q_INVOKABLE RecordFrom recordAudioFrom() const;
+        Q_INVOKABLE bool recording() const;
+        Q_INVOKABLE QList<QStringList> videoRecordFormats() const;
+        Q_INVOKABLE QList<QStringList> streams() const;
+        Q_INVOKABLE QSize windowSize() const;
 
         Q_INVOKABLE QVariantList videoSizes(const QString &device);
         Q_INVOKABLE QList<QStringList> captureDevices();
@@ -96,7 +96,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
 
     private:
-        QString m_device;
         bool m_showEffectsPreview;
         bool m_playAudioFromSource;
         RecordFrom m_recordAudioFrom;
