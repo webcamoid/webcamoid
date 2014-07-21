@@ -166,6 +166,7 @@ void QbCaps::resetMimeType()
 void QbCaps::clear()
 {
     this->m_mimeType.clear();
+    this->m_isValid = false;
 
     QList<QByteArray> properties = this->dynamicPropertyNames();
 

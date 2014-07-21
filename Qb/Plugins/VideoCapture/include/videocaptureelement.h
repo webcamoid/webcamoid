@@ -24,6 +24,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/time.h>
@@ -91,6 +92,7 @@ class VideoCaptureElement: public QbElement
         __u32 format(const QString &webcam, const QSize &size) const;
         QVariantList queryControl(int handle, v4l2_queryctrl *queryctrl) const;
         QMap<QString, uint> findControls(int handle) const;
+        int xioctl(int fd, int request, void *arg) const;
         QString v4l2ToFF(quint32 fmt) const;
         quint32 defaultFormat(int fd, bool compressed) const;
         bool isCompressedFormat(quint32 format);

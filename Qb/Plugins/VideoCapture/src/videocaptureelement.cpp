@@ -168,7 +168,7 @@ QStringList VideoCaptureElement::webcams() const
         device.setFileName(devicesDir.absoluteFilePath(devicePath));
 
         if (device.open(QIODevice::ReadWrite)) {
-            ioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
+            this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
 
             if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
                 webcams << device.fileName();
@@ -220,7 +220,7 @@ QString VideoCaptureElement::caps(v4l2_format *format, bool *changePxFmt) const
 
         v4l2_capability capabilities;
 
-        if (ioctl(fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
+        if (this->xioctl(fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
             qDebug() << "VideoCapture: Can't query capabilities.";
 
             if (closeFd)
@@ -235,7 +235,7 @@ QString VideoCaptureElement::caps(v4l2_format *format, bool *changePxFmt) const
     v4l2_format fmt;
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (ioctl(fd, VIDIOC_G_FMT, &fmt) < 0) {
+    if (this->xioctl(fd, VIDIOC_G_FMT, &fmt) < 0) {
         qDebug() << "VideoCapture: Can't get default input format.";
 
         if (closeFd)
@@ -289,7 +289,7 @@ QString VideoCaptureElement::description(const QString &webcam) const
     device.setFileName(webcam);
 
     if (device.open(QIODevice::ReadWrite)) {
-        ioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
+        this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
 
         if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
             return QString((const char *) capability.card);
@@ -320,13 +320,13 @@ QVariantList VideoCaptureElement::availableSizes(const QString &webcam) const
         fmt.index = 0;
         fmt.type = type;
 
-        while (ioctl(device.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0) {
+        while (this->xioctl(device.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0) {
             v4l2_frmsizeenum frmsize;
             memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
             frmsize.pixel_format = fmt.pixelformat;
             frmsize.index = 0;
 
-            while (ioctl(device.handle(),
+            while (this->xioctl(device.handle(),
                          VIDIOC_ENUM_FRAMESIZES,
                          &frmsize) >= 0) {
                 if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE)
@@ -357,7 +357,7 @@ QSize VideoCaptureElement::size(const QString &webcam) const
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
+    if (this->xioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) >= 0)
         size = QSize(fmt.fmt.pix.width,
                      fmt.fmt.pix.height);
 
@@ -377,12 +377,12 @@ bool VideoCaptureElement::setSize(const QString &webcam, const QSize &size) cons
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (ioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0) {
+    if (this->xioctl(deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0) {
         fmt.fmt.pix.width = size.width();
         fmt.fmt.pix.height = size.height();
         fmt.fmt.pix.pixelformat = this->format(webcam, size);
 
-        ioctl(deviceFile.handle(), VIDIOC_S_FMT, &fmt);
+        this->xioctl(deviceFile.handle(), VIDIOC_S_FMT, &fmt);
     }
 
     deviceFile.close();
@@ -410,7 +410,7 @@ QVariantList VideoCaptureElement::controls(const QString &webcam) const
     memset(&queryctrl, 0, sizeof(v4l2_queryctrl));
     queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
 
-    while (ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
+    while (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
         QVariantList control = this->queryControl(device.handle(), &queryctrl);
 
         if (!control.isEmpty())
@@ -428,7 +428,7 @@ QVariantList VideoCaptureElement::controls(const QString &webcam) const
     for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
         queryctrl.id = id;
 
-        if (ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
+        if (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
             QVariantList control = this->queryControl(device.handle(), &queryctrl);
 
             if (!control.isEmpty())
@@ -437,7 +437,7 @@ QVariantList VideoCaptureElement::controls(const QString &webcam) const
     }
 
     for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
-         ioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0;
+         this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0;
          queryctrl.id++) {
         QVariantList control = this->queryControl(device.handle(), &queryctrl);
 
@@ -477,7 +477,7 @@ bool VideoCaptureElement::setControls(const QString &webcam, const QVariantMap &
         memset(&ctrl, 0, sizeof(v4l2_control));
         ctrl.id = user_ctrl.id;
         ctrl.value = user_ctrl.value;
-        ioctl(device.handle(), VIDIOC_S_CTRL, &ctrl);
+        this->xioctl(device.handle(), VIDIOC_S_CTRL, &ctrl);
     }
 
     if (!mpegCtrls.isEmpty()) {
@@ -486,7 +486,7 @@ bool VideoCaptureElement::setControls(const QString &webcam, const QVariantMap &
         ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
         ctrls.count = mpegCtrls.size();
         ctrls.controls = &mpegCtrls[0];
-        ioctl(device.handle(), VIDIOC_S_EXT_CTRLS, &ctrls);
+        this->xioctl(device.handle(), VIDIOC_S_EXT_CTRLS, &ctrls);
     }
 
     device.close();
@@ -553,13 +553,13 @@ __u32 VideoCaptureElement::format(const QString &webcam, const QSize &size) cons
         fmt.index = 0;
         fmt.type = type;
 
-        while (ioctl(device.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0) {
+        while (this->xioctl(device.handle(), VIDIOC_ENUM_FMT, &fmt) >= 0) {
             v4l2_frmsizeenum frmsize;
             memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
             frmsize.pixel_format = fmt.pixelformat;
             frmsize.index = 0;
 
-            while (ioctl(device.handle(),
+            while (this->xioctl(device.handle(),
                          VIDIOC_ENUM_FRAMESIZES,
                          &frmsize) >= 0) {
                 if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE)
@@ -600,7 +600,7 @@ QVariantList VideoCaptureElement::queryControl(int handle, v4l2_queryctrl *query
 
     if (V4L2_CTRL_ID2CLASS(queryctrl->id) != V4L2_CTRL_CLASS_USER &&
         queryctrl->id < V4L2_CID_PRIVATE_BASE) {
-        if (ioctl(handle, VIDIOC_G_EXT_CTRLS, &ctrls))
+        if (this->xioctl(handle, VIDIOC_G_EXT_CTRLS, &ctrls))
             return QVariantList();
     }
     else {
@@ -608,7 +608,7 @@ QVariantList VideoCaptureElement::queryControl(int handle, v4l2_queryctrl *query
         memset(&ctrl, 0, sizeof(v4l2_control));
         ctrl.id = queryctrl->id;
 
-        if (ioctl(handle, VIDIOC_G_CTRL, &ctrl))
+        if (this->xioctl(handle, VIDIOC_G_CTRL, &ctrl))
             return QVariantList();
 
         ext_ctrl.value = ctrl.value;
@@ -623,7 +623,7 @@ QVariantList VideoCaptureElement::queryControl(int handle, v4l2_queryctrl *query
         for (int i = 0; i < queryctrl->maximum + 1; i++) {
             qmenu.index = i;
 
-            if (ioctl(handle, VIDIOC_QUERYMENU, &qmenu))
+            if (this->xioctl(handle, VIDIOC_QUERYMENU, &qmenu))
                 continue;
 
             menu << QString((const char *) qmenu.name);
@@ -648,7 +648,7 @@ QMap<QString, uint> VideoCaptureElement::findControls(int handle) const
     qctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
     QMap<QString, uint> controls;
 
-    while (ioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
+    while (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
         if (qctrl.type != V4L2_CTRL_TYPE_CTRL_CLASS &&
             !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
             controls[QString((const char *) qctrl.name)] = qctrl.id;
@@ -662,14 +662,14 @@ QMap<QString, uint> VideoCaptureElement::findControls(int handle) const
     for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
         qctrl.id = id;
 
-        if (ioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0 &&
+        if (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0 &&
            !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
             controls[QString((const char *) qctrl.name)] = qctrl.id;
     }
 
     qctrl.id = V4L2_CID_PRIVATE_BASE;
 
-    while (ioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
+    while (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
         if (!(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
             controls[QString((const char *) qctrl.name)] = qctrl.id;
 
@@ -677,6 +677,20 @@ QMap<QString, uint> VideoCaptureElement::findControls(int handle) const
     }
 
     return controls;
+}
+
+int VideoCaptureElement::xioctl(int fd, int request, void *arg) const
+{
+    int r = -1;
+
+    while (true) {
+        r = ioctl(fd, request, arg);
+
+        if (r != -1 || errno != EINTR)
+            break;
+    }
+
+    return r;
 }
 
 QString VideoCaptureElement::v4l2ToFF(quint32 fmt) const
@@ -699,7 +713,7 @@ quint32 VideoCaptureElement::defaultFormat(int fd, bool compressed) const
         fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         fmtdesc.index = i;
 
-        if (ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
+        if (this->xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
             break;
 
         bool isCompressed = (fmtdesc.flags & V4L2_FMT_FLAG_COMPRESSED)? true: false;
@@ -723,7 +737,7 @@ bool VideoCaptureElement::isCompressedFormat(quint32 format)
         fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         fmtdesc.index = i;
 
-        if (ioctl(this->m_fd, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
+        if (this->xioctl(this->m_fd, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
             break;
 
         if (fmtdesc.pixelformat == format)
@@ -755,7 +769,7 @@ bool VideoCaptureElement::initMemoryMap()
     requestBuffers.memory = V4L2_MEMORY_MMAP;
     requestBuffers.count = this->m_nBuffers;
 
-    if (ioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
+    if (this->xioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
     if (requestBuffers.count < 1)
@@ -772,7 +786,7 @@ bool VideoCaptureElement::initMemoryMap()
         buffer.memory = V4L2_MEMORY_MMAP;
         buffer.index = i;
 
-        if (ioctl(this->m_fd, VIDIOC_QUERYBUF, &buffer) < 0) {
+        if (this->xioctl(this->m_fd, VIDIOC_QUERYBUF, &buffer) < 0) {
             error = true;
 
             break;
@@ -813,7 +827,7 @@ bool VideoCaptureElement::initUserPointer(quint32 bufferSize)
     requestBuffers.memory = V4L2_MEMORY_USERPTR;
     requestBuffers.count = this->m_nBuffers;
 
-    if (ioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
+    if (this->xioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
     this->m_buffers.resize(requestBuffers.count);
@@ -846,7 +860,7 @@ void VideoCaptureElement::stopCapture()
         || this->m_ioMethod == IoMethodUserPointer) {
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        ioctl(this->m_fd, VIDIOC_STREAMOFF, &type);
+        this->xioctl(this->m_fd, VIDIOC_STREAMOFF, &type);
     }
 }
 
@@ -866,6 +880,7 @@ void VideoCaptureElement::uninit()
 
     close(this->m_fd);
     this->m_caps.clear();
+    this->m_fd = -1;
 }
 
 bool VideoCaptureElement::startCapture()
@@ -881,13 +896,13 @@ bool VideoCaptureElement::startCapture()
             buffer.memory = V4L2_MEMORY_MMAP;
             buffer.index = i;
 
-            if (ioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+            if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
                 error = true;
         }
 
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        if (ioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
+        if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
             error = true;
     }
     else if (this->m_ioMethod == IoMethodUserPointer) {
@@ -901,13 +916,13 @@ bool VideoCaptureElement::startCapture()
             buffer.m.userptr = (unsigned long) this->m_buffers[i].start;
             buffer.length = this->m_buffers[i].length;
 
-            if (ioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+            if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
                 error = true;
         }
 
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        if (ioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
+        if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
             error = true;
     }
 
@@ -928,7 +943,7 @@ bool VideoCaptureElement::init()
 
     v4l2_capability capabilities;
 
-    if (ioctl(this->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
+    if (this->xioctl(this->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
         qDebug() << "VideoCapture: Can't query capabilities.";
         close(this->m_fd);
 
@@ -940,7 +955,7 @@ bool VideoCaptureElement::init()
 
     QbCaps caps = this->caps(&fmt, &changePxFmt);
 
-    if (changePxFmt && ioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
+    if (changePxFmt && this->xioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
         qDebug() << "VideoCapture: Can't set format:" << this->fourccToStr(fmt.fmt.pix.pixelformat);
         close(this->m_fd);
 
@@ -1026,13 +1041,13 @@ QbFrac VideoCaptureElement::fps(int fd) const
     QbFrac fps;
     v4l2_std_id stdId;
 
-    if (ioctl(fd, VIDIOC_G_STD, &stdId) >= 0) {
+    if (this->xioctl(fd, VIDIOC_G_STD, &stdId) >= 0) {
         v4l2_standard standard;
         memset(&standard, 0, sizeof(standard));
 
         standard.index = 0;
 
-        while (ioctl(fd, VIDIOC_ENUMSTD, &standard) == 0) {
+        while (this->xioctl(fd, VIDIOC_ENUMSTD, &standard) == 0) {
             if (standard.id & stdId) {
                 fps = QbFrac(standard.frameperiod.denominator,
                              standard.frameperiod.numerator);
@@ -1049,7 +1064,7 @@ QbFrac VideoCaptureElement::fps(int fd) const
 
     streamparm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (ioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0) {
+    if (this->xioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0) {
         if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME)
             fps = QbFrac(streamparm.parm.capture.timeperframe.denominator,
                          streamparm.parm.capture.timeperframe.numerator);
@@ -1162,7 +1177,7 @@ bool VideoCaptureElement::readFrame()
                             V4L2_MEMORY_MMAP:
                             V4L2_MEMORY_USERPTR;
 
-        if (ioctl(this->m_fd, VIDIOC_DQBUF, &buffer) < 0)
+        if (this->xioctl(this->m_fd, VIDIOC_DQBUF, &buffer) < 0)
             return false;
 
         if (buffer.index >= (quint32) this->m_buffers.size())
@@ -1174,7 +1189,7 @@ bool VideoCaptureElement::readFrame()
 
         this->processFrame(this->m_buffers[buffer.index].start, buffer.bytesused, pts);
 
-        if (ioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+        if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
             return false;
     }
 

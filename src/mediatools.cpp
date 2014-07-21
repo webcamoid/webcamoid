@@ -212,21 +212,26 @@ void MediaTools::iStream(const QbPacket &packet)
 
 void MediaTools::sourceStateChanged(QbElement::ElementState state)
 {
-    if (state == QbElement::ElementStatePlaying) {
-        this->m_device = this->m_source->property("location").toString();
+    if (state == QbElement::ElementStateNull) {
+        emit this->deviceChanged("");
 
-        if (this->m_device.isEmpty())
-            this->m_device = this->m_videoCapture->property("device").toString();
+        return;
     }
-    else
-        this->m_device = "";
 
-    emit this->deviceChanged(this->m_device);
+    emit this->deviceChanged(this->device());
 }
 
-QString MediaTools::device()
+QString MediaTools::device() const
 {
-    return this->m_device;
+    QString device;
+
+    if (this->m_source)
+        device = this->m_source->property("location").toString();
+
+    if (device.isEmpty() && this->m_videoCapture)
+        device = this->m_videoCapture->property("device").toString();
+
+    return device;
 }
 
 QSize MediaTools::videoSize(const QString &device)
@@ -242,37 +247,37 @@ QSize MediaTools::videoSize(const QString &device)
     return size;
 }
 
-bool MediaTools::effectsPreview()
+bool MediaTools::effectsPreview() const
 {
     return this->m_showEffectsPreview;
 }
 
-bool MediaTools::playAudioFromSource()
+bool MediaTools::playAudioFromSource() const
 {
     return this->m_playAudioFromSource;
 }
 
-MediaTools::RecordFrom MediaTools::recordAudioFrom()
+MediaTools::RecordFrom MediaTools::recordAudioFrom() const
 {
     return this->m_recordAudioFrom;
 }
 
-bool MediaTools::recording()
+bool MediaTools::recording() const
 {
     return this->m_recording;
 }
 
-QList<QStringList> MediaTools::videoRecordFormats()
+QList<QStringList> MediaTools::videoRecordFormats() const
 {
     return this->m_videoRecordFormats;
 }
 
-QList<QStringList> MediaTools::streams()
+QList<QStringList> MediaTools::streams() const
 {
     return this->m_streams;
 }
 
-QSize MediaTools::windowSize()
+QSize MediaTools::windowSize() const
 {
     return this->m_windowSize;
 }
@@ -549,15 +554,19 @@ void MediaTools::setDevice(const QString &device)
         this->resetRecording();
         this->resetEffectsPreview();
 
-        if (this->m_source)
+        if (this->m_source) {
             this->m_source->setState(QbElement::ElementStateNull);
+            this->m_source->setProperty("location", "");
+        }
 
-        if (this->m_videoCapture)
+        if (this->m_videoCapture) {
             this->m_videoCapture->setState(QbElement::ElementStateNull);
+            this->m_videoCapture->setProperty("device", "");
+        }
     }
     // Prepare the device.
     else {
-        if (!this->m_source)
+        if (!this->m_source || !this->m_videoCapture)
             return;
 
         bool isWebcam = QRegExp("/dev/video\\d*").exactMatch(device);
@@ -665,20 +674,24 @@ void MediaTools::setDevice(const QString &device)
 void MediaTools::setVideoSize(const QString &device, const QSize &size)
 {
     QString curDevice = this->device();
-    QbElement::ElementState state = this->m_source->state();
 
-    if (state == QbElement::ElementStatePlaying &&
+    if (!curDevice.isEmpty() &&
         (device.isEmpty() || device == curDevice))
         this->resetDevice();
 
     QString webcam = device.isEmpty()? curDevice: device;
+
+    QMetaObject::invokeMethod(this->m_source.data(),
+                              "setSize", Qt::DirectConnection,
+                              Q_ARG(QString, webcam),
+                              Q_ARG(QSize, size));
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "setSize", Qt::DirectConnection,
                               Q_ARG(QString, webcam),
                               Q_ARG(QSize, size));
 
-    if (state == QbElement::ElementStatePlaying &&
+    if (!curDevice.isEmpty() &&
         (device.isEmpty() || device == curDevice))
         this->setDevice(device.isEmpty()? curDevice: device);
 }
