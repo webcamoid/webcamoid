@@ -61,10 +61,13 @@ void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::Elem
     this->m_mutex.lock();
 
     if (from == QbElement::ElementStateNull
-        && to == QbElement::ElementStatePaused)
+        && to == QbElement::ElementStatePaused) {
+        this->updateOutputParams();
+
         this->m_outputFormat.open(this->location(),
-                                             this->m_outputParams,
-                                             this->m_commands.outputOptions());
+                                  this->m_outputParams,
+                                  this->m_commands.outputOptions());
+    }
     else if (from == QbElement::ElementStatePaused
              && to == QbElement::ElementStateNull) {
         this->flushStreams();
@@ -341,15 +344,11 @@ void MultiSinkElement::setOptions(QString options)
         this->m_commands.clear();
     else if (!this->m_commands.parseCmd(this->m_options))
         qDebug() << this->m_commands.error();
-
-    this->updateOutputParams();
 }
 
 void MultiSinkElement::setStreamCaps(QVariantMap streamCaps)
 {
     this->m_streamCaps = streamCaps;
-
-    this->updateOutputParams();
 }
 
 void MultiSinkElement::resetLocation()
