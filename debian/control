@@ -5,9 +5,9 @@ Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
  qt4-qmake,
  qt4-dev-tools,
+ qtmobility-dev,
  kdelibs5-dev,
  frei0r-plugins-dev,
- libqimageblitz-dev,
  linux-libc-dev,
  bison,
  flex,
@@ -45,9 +45,9 @@ Package: webcamoid
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
+ libqtmultimediakit1,
  libkdeui5,
  frei0r-plugins,
- libqimageblitz4,
  libass4,
  libbluray1,
  libgsm1,
@@ -82,7 +82,7 @@ Description: Webcamoid is a webcam plasmoid for the KDE desktop environment.
  * 100% Qt based software, for KDE/Qt purists.
  * Custom controls for each webcam.
  * Popup applet support (you can embed Webcamoid in the panel).
- * Add funny effects to the webcam (requires Frei0r plugins and QImageBlitz).
+ * Add funny effects to the webcam (requires Frei0r plugins).
  * +50 effects available.
  * Effects with live previews.
  * Translated to many languages.

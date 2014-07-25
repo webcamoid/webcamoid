@@ -15,7 +15,7 @@ build-stamp:
 
 	# Add here commands to compile the package.
 	qmake-qt4 Webcamoid.pro \
-	    USE3DPARTYLIBS=1
+	    USE3DPARTYLIBS=1 USEQTMOBILITY=1
 
 	make
 	# --- end custom part for compiling

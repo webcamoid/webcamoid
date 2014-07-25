@@ -12,7 +12,7 @@
 * 100% Qt based software, for KDE/Qt purists.
 * Custom controls for each webcam.
 * Popup applet support (you can embed Webcamoid in the panel).
-* Add funny effects to the webcam (requires Frei0r plugins and QImageBlitz).
+* Add funny effects to the webcam (requires Frei0r plugins).
 * +50 effects available.
 * Effects with live previews.
 * Translated to many languages.
@@ -24,10 +24,9 @@
 
 Webcamoid's dependencies are:
 
-* [Qt](https://qt-project.org/) (Qt >= 4.7, Qt5 not supported)
+* [Qt](https://qt-project.org/) (Qt >= 4.7 and Qt5)
 * [kdelibs](https://projects.kde.org/projects/kde/kdelibs)
 * [Frei0r plugins](http://www.piksel.org/frei0r)
-* [QImageBlitz](http://download.kde.org/stable/qimageblitz/) >= 0.0.6
 * [FFmpeg](http://ffmpeg.org/) >= 2.0
 * [linux-api-headers](http://www.gnu.org/software/libc) >= 3.6.x
 

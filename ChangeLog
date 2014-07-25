@@ -1,3 +1,13 @@
+Webcamoid 5.0.0rc1:
+
+- Release Candidate version.
+- Ported to Qt5 (without the plasmoid).
+- Removed KDElibs as dependency, but still required for Qt4 build.
+- Removed QImageBlitz as dependency.
+- Added more effects.
+- Fixed video sync.
+- Initial port to Windows (help needed).
+
 Webcamoid 5.0.0b2:
 
 - Beta version.
