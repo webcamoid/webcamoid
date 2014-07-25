@@ -104,7 +104,11 @@ VideoCaptureElement::VideoCaptureElement(): QbElement()
     //this->m_compressedToFF[V4L2_PIX_FMT_MPEG] = "";
     this->m_compressedToFF[V4L2_PIX_FMT_H264] = "h264";
     this->m_compressedToFF[V4L2_PIX_FMT_H264_NO_SC] = "h264";
+
+#ifdef V4L2_PIX_FMT_H264_MVC
     this->m_compressedToFF[V4L2_PIX_FMT_H264_MVC] = "h264";
+#endif
+
     this->m_compressedToFF[V4L2_PIX_FMT_H263] = "h263";
     this->m_compressedToFF[V4L2_PIX_FMT_MPEG1] = "mpeg1video";
     this->m_compressedToFF[V4L2_PIX_FMT_MPEG2] = "mpeg2video";
@@ -112,7 +116,10 @@ VideoCaptureElement::VideoCaptureElement(): QbElement()
     //this->m_compressedToFF[V4L2_PIX_FMT_XVID] = "";
     this->m_compressedToFF[V4L2_PIX_FMT_VC1_ANNEX_G] = "vc1";
     this->m_compressedToFF[V4L2_PIX_FMT_VC1_ANNEX_L] = "vc1";
+
+#ifdef V4L2_PIX_FMT_VP8
     this->m_compressedToFF[V4L2_PIX_FMT_VP8] = "vp8";
+#endif
 
     //  Vendor-specific formats
     this->m_compressedToFF[V4L2_PIX_FMT_CPIA1] = "cpia";

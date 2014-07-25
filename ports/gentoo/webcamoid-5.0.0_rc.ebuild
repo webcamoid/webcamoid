@@ -4,7 +4,7 @@
 DESCRIPTION="Webcamoid, the full webcam and multimedia suite."
 HOMEPAGE="http://kde-apps.org/content/show.php/Webcamoid?content=144796"
 LICENSE="GPLv3"
-VER="5.0.0b2"
+VER="5.0.0rc1"
 SRC_URI="https://github.com/hipersayanX/Webcamoid/archive/v${VER}.tar.gz"
 SLOT= "0"
 KEYWORDS="amd64 x86"
@@ -12,8 +12,7 @@ KEYWORDS="amd64 x86"
 RDEPEND="dev-qt/qtgui
          kde-base/kdelibs
          media-video/ffmpeg
-         media-plugins/frei0r-plugins
-         media-libs/qimageblitz"
+         media-plugins/frei0r-plugins"
 
 DEPEND="${RDEPEND}
         sys-devel/bison

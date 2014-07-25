@@ -22,7 +22,8 @@
 #ifndef AUDIOINPUTELEMENT_H
 #define AUDIOINPUTELEMENT_H
 
-#include <QtMultimedia>
+#include <QAudioInput>
+#include <QAudioDeviceInfo>
 
 extern "C"
 {

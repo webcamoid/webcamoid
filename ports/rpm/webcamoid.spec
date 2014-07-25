@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 5.0.0b2
+Version: 5.0.0rc1
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -34,7 +34,6 @@ BuildRequires: gcc-c++
 BuildRequires: qt-devel
 BuildRequires: kdelibs-devel
 BuildRequires: frei0r-devel
-BuildRequires: qimageblitz-devel
 BuildRequires: ffmpeg-devel
 BuildRequires: libv4l-devel
 
@@ -42,7 +41,6 @@ Requires: qt-x11
 Requires: kdelibs
 Requires: frei0r-plugins
 Requires: frei0r-plugins-opencv
-Requires: qimageblitz
 Requires: ffmpeg-libs
 Requires: libv4l
 %endif
@@ -55,14 +53,12 @@ BuildRequires: make
 BuildRequires: libqt4-devel
 BuildRequires: libkde4-devel
 BuildRequires: frei0r-plugins-devel
-BuildRequires: libqimageblitz-devel
 BuildRequires: libffmpeg-devel
 BuildRequires: libv4l-devel
 
 Requires: libqt4
 Requires: kdelibs4
 Requires: frei0r-plugins
-Requires: libqimageblitz4
 Requires: libavcodec55
 Requires: libavdevice55
 Requires: libavfilter3
@@ -101,7 +97,6 @@ BuildRequires: libv4l-devel
 BuildRequires: libvorbis-devel
 BuildRequires: libvpx-devel
 BuildRequires: libx264-devel
-BuildRequires: libqimageblitz-devel
 
 %ifarch i586
 BuildRequires: libbison-static-devel
@@ -136,7 +131,6 @@ Requires: libvorbisenc2
 Requires: libvorbisfile3
 Requires: libvpx1
 Requires: libx264_133
-Requires: libqimageblitz4
 
 %ifarch i586
 Requires: libopencore-amr0
@@ -228,5 +222,5 @@ rm -rf %{buildroot}
 %{_libdir}/libWebcamoid.so*
 
 %changelog
-* Wed Oct 16 2013 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0b2-1
+* Wed Jul 23 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0rc1-1
 - Working with OBS.
