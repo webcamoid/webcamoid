@@ -39,14 +39,24 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
                      SLOT(deviceChanged(QString)));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(previewFrameReady(const QbPacket &, QString)),
+                     SIGNAL(effectPreviewReady(const QbPacket &)),
                      this,
-                     SLOT(setEffectPreview(const QbPacket &, QString)));
+                     SLOT(setEffectPreview(const QbPacket &)));
 
-    QMap<QString, QString> effects = this->m_mediaTools->availableEffects();
+    QObject::connect(this->m_mediaTools,
+                     SIGNAL(applyPreviewReady(const QbPacket &)),
+                     this,
+                     SLOT(setApplyPreview(const QbPacket &)));
 
-    foreach (QString effect, effects.keys()) {
-        QListWidgetItem *listWidgetItem = new QListWidgetItem(effects[effect]);
+    QObject::connect(this,
+                     SIGNAL(effectVisibilityChanged(bool)),
+                     this->m_mediaTools,
+                     SLOT(connectPreview(bool)));
+
+    this->m_effects = this->m_mediaTools->availableEffects();
+
+    foreach (QString effect, this->m_effects.keys()) {
+        QListWidgetItem *listWidgetItem = new QListWidgetItem(this->m_effects[effect]);
 
         this->m_effectsNames << effect;
         this->m_effectsWidgets << listWidgetItem;
@@ -64,6 +74,9 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
         QListWidgetItem *listWidgetItem = this->ui->lswEffects->takeItem(this->ui->lswEffects->row(this->m_effectsWidgets[index]));
         this->ui->lswApply->addItem(listWidgetItem);
     }
+
+    if (this->m_effects.count() > 0)
+        this->ui->lswEffects->setCurrentRow(0);
 }
 
 Effects::~Effects()
@@ -84,13 +97,15 @@ void Effects::update()
    }
 
    this->m_mediaTools->setEffects(effects);
+   this->ui->lswEffects->setEnabled(this->ui->lswApply->count() < 5);
 }
 
 void Effects::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
 
-    this->m_mediaTools->setEffectsPreview(true);
+    this->updateEffectPreview();
+    emit this->effectVisibilityChanged(true);
 }
 
 void Effects::hideEvent(QHideEvent *event)
@@ -98,32 +113,47 @@ void Effects::hideEvent(QHideEvent *event)
     QWidget::hideEvent(event);
 
     this->m_mediaTools->resetEffectsPreview();
+    emit this->effectVisibilityChanged(false);
 }
 
-void Effects::setEffectPreview(const QbPacket &packet, QString effect)
+void Effects::setEffectPreview(const QbPacket &packet)
 {
     if (!this->m_mediaTools->device().isEmpty()) {
-        int index = this->m_effectsNames.indexOf(effect);
-
-        if (index < 0)
-            return;
-
         QImage image(reinterpret_cast<uchar *>(packet.buffer().data()),
                      packet.caps().property("width").toInt(),
                      packet.caps().property("height").toInt(),
                      QImage::Format_ARGB32);
 
-        this->m_effectsWidgets[index]->setIcon(QIcon(QPixmap::fromImage(image)));
+        this->ui->lblEffectsPreview->setPixmap(QPixmap::fromImage(image));
     }
 }
 
-void Effects::deviceChanged(QString device)
+void Effects::setApplyPreview(const QbPacket &packet)
 {
-    if (device.isEmpty())
-        foreach (QListWidgetItem *effectWidget, this->m_effectsWidgets)
-            effectWidget->setIcon(QIcon());
-    else if (this->isVisible())
-        this->m_mediaTools->setEffectsPreview(true);
+    if (!this->m_mediaTools->device().isEmpty()) {
+        QImage image(reinterpret_cast<uchar *>(packet.buffer().data()),
+                     packet.caps().property("width").toInt(),
+                     packet.caps().property("height").toInt(),
+                     QImage::Format_ARGB32);
+
+        this->ui->lblApplyPreview->setPixmap(QPixmap::fromImage(image));
+    }
+}
+
+void Effects::updateEffectPreview()
+{
+    if (this->ui->lswEffects->count() < 1)
+        this->m_mediaTools->setEffectsPreview(this->m_effects.keys()[0]);
+    else if (this->ui->lswEffects->currentRow() >= 0) {
+        QString effectName = this->ui->lswEffects->currentItem()->text();
+        this->m_mediaTools->setEffectsPreview(this->m_effects.key(effectName));
+    }
+}
+
+void Effects::deviceChanged(const QString &device)
+{
+    if (!device.isEmpty() && this->isVisible())
+        this->updateEffectPreview();
 }
 
 void Effects::on_txtSearch_textChanged(QString text)
@@ -195,4 +225,12 @@ void Effects::on_btnReset_clicked()
 
     this->ui->lswEffects->sortItems();
     this->update();
+}
+
+void Effects::on_lswEffects_itemClicked(QListWidgetItem *item)
+{
+    if (!item)
+        return;
+
+    this->updateEffectPreview();
 }

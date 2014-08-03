@@ -49,6 +49,7 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
         MediaTools *m_mediaTools;
         QStringList m_effectsNames;
         QList<QListWidgetItem *> m_effectsWidgets;
+        QMap<QString, QString> m_effects;
 
         void update();
 
@@ -56,17 +57,24 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
         void showEvent(QShowEvent *event);
         void hideEvent(QHideEvent *event);
 
+    signals:
+        void showPreview(const QString &effect);
+        void effectVisibilityChanged(bool visible);
+
     public slots:
-        void setEffectPreview(const QbPacket &packet, QString effect);
+        void setEffectPreview(const QbPacket &packet);
+        void setApplyPreview(const QbPacket &packet);
 
     private slots:
-        void deviceChanged(QString device);
+        void updateEffectPreview();
+        void deviceChanged(const QString &device);
         void on_txtSearch_textChanged(QString text);
         void on_btnAdd_clicked();
         void on_btnRemove_clicked();
         void on_btnUp_clicked();
         void on_btnDown_clicked();
         void on_btnReset_clicked();
+        void on_lswEffects_itemClicked(QListWidgetItem *item);
 };
 
 #endif // EFFECTS_H

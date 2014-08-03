@@ -95,7 +95,11 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "DirectConnection? videoMux.");
 
         this->m_pipeline->setProperty("description", description);
-        this->m_effectsPreview = Qb::create("Bin");
+        this->m_effectsPreview = Qb::create("Bin", "effectPreview");
+        this->m_effectsPreview->setProperty("blocking", true);
+
+        this->m_applyPreview = Qb::create("VCapsConvert", "applyPreview");
+        this->m_applyPreview->setProperty("caps", "video/x-raw,format=bgra,width=128,height=96");
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
@@ -145,8 +149,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
         this->m_videoConvert->link(this);
 
         if (this->m_source) {
-            this->m_source->link(this->m_effectsPreview);
-
             QObject::connect(this->m_source.data(),
                              SIGNAL(error(const QString &)),
                              this,
@@ -159,8 +161,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
         }
 
         if (this->m_videoCapture) {
-            this->m_videoCapture->link(this->m_effectsPreview);
-
             QObject::connect(this->m_videoCapture.data(),
                              SIGNAL(error(const QString &)),
                              this,
@@ -171,6 +171,9 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                              this,
                              SLOT(sourceStateChanged(QbElement::ElementState)));
         }
+
+        this->m_effectsPreview->link(this);
+        this->m_applyPreview->link(this);
 
         if (this->m_audioSwitch)
             this->m_audioSwitch->setProperty("inputIndex", 1);
@@ -203,11 +206,10 @@ void MediaTools::iStream(const QbPacket &packet)
 
     if (sender == "videoConvert")
         emit this->frameReady(packet);
-    else {
-        QString name = this->nameFromHash(sender);
-
-        emit this->previewFrameReady(packet, name);
-    }
+    else if (sender == "effectPreview")
+        emit this->effectPreviewReady(packet);
+    else if (sender == "applyPreview")
+        emit this->applyPreviewReady(packet);
 }
 
 void MediaTools::sourceStateChanged(QbElement::ElementState state)
@@ -245,11 +247,6 @@ QSize MediaTools::videoSize(const QString &device)
                               Q_ARG(QString, webcam));
 
     return size;
-}
-
-bool MediaTools::effectsPreview() const
-{
-    return this->m_showEffectsPreview;
 }
 
 bool MediaTools::playAudioFromSource() const
@@ -696,52 +693,23 @@ void MediaTools::setVideoSize(const QString &device, const QSize &size)
         this->setDevice(device.isEmpty()? curDevice: device);
 }
 
-void MediaTools::setEffectsPreview(bool effectsPreview)
+void MediaTools::setEffectsPreview(const QString &effect)
 {
-    this->m_showEffectsPreview = effectsPreview;
-
-    if (!this->m_effectsPreview || !this->m_source)
+    if (!this->m_effectsPreview)
         return;
 
     this->m_effectsPreview->setState(QbElement::ElementStateNull);
 
-    if (effectsPreview &&
-        this->m_source->state() == QbElement::ElementStatePlaying)
-    {
-        QString description = this->m_effectsPreview->property("description").toString();
+    if (!effect.isEmpty() && !this->device().isEmpty()) {
+        QString description = QString("IN. ! VCapsConvert "
+                                      "caps='video/x-raw,width=%1,height=%2' !"
+                                      "%3 !"
+                                      "VCapsConvert "
+                                      "caps='video/x-raw,format=bgra' ! OUT.").arg(128)
+                                                                              .arg(96)
+                                                                              .arg(effect);
 
-        if (description.isEmpty()) {
-            description = QString("IN. ! VCapsConvert objectName='preview' "
-                                  "caps='video/x-raw,width=%1,height=%2'").arg(128)
-                                                                          .arg(96);
-
-            QStringList effects = this->availableEffects().keys();
-
-            foreach (QString effect, effects) {
-                QString previewHash = this->hashFromName(effect);
-
-                description += QString(", preview. !"
-                                       "%1 !"
-                                       "VCapsConvert objectName='%2' "
-                                       "caps='video/x-raw,format=bgra'").arg(effect)
-                                                                        .arg(previewHash);
-            }
-
-            this->m_effectsPreview->setProperty("description", description);
-
-            foreach (QString effect, effects) {
-                QString previewHash = this->hashFromName(effect);
-                QbElementPtr preview;
-
-                QMetaObject::invokeMethod(this->m_effectsPreview.data(),
-                                          "element", Qt::DirectConnection,
-                                          Q_RETURN_ARG(QbElementPtr, preview),
-                                          Q_ARG(QString, previewHash));
-
-                preview->link(this);
-            }
-        }
-
+        this->m_effectsPreview->setProperty("description", description);
         this->m_effectsPreview->setState(QbElement::ElementStatePlaying);
     }
 }
@@ -822,7 +790,7 @@ void MediaTools::resetVideoSize(const QString &device)
 
 void MediaTools::resetEffectsPreview()
 {
-    this->setEffectsPreview(false);
+    this->setEffectsPreview("");
 }
 
 void MediaTools::resetPlayAudioFromSource()
@@ -853,6 +821,30 @@ void MediaTools::resetStreams()
 void MediaTools::resetWindowSize()
 {
     this->setWindowSize(QSize());
+}
+
+void MediaTools::connectPreview(bool link)
+{
+    if (link) {
+        if (this->m_source)
+            this->m_source->link(this->m_effectsPreview);
+
+        if (this->m_videoCapture)
+            this->m_videoCapture->link(this->m_effectsPreview);
+
+        if (this->m_effects)
+            this->m_effects->link(this->m_applyPreview);
+    }
+    else {
+        if (this->m_source)
+            this->m_source->unlink(this->m_effectsPreview);
+
+        if (this->m_videoCapture)
+            this->m_videoCapture->unlink(this->m_effectsPreview);
+
+        if (this->m_effects)
+            this->m_effects->unlink(this->m_applyPreview);
+    }
 }
 
 void MediaTools::loadConfigs()

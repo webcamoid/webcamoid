@@ -38,10 +38,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
                               RESET resetDevice
                               NOTIFY deviceChanged)
 
-    Q_PROPERTY(bool effectsPreview READ effectsPreview
-                                   WRITE setEffectsPreview
-                                   RESET resetEffectsPreview)
-
     Q_PROPERTY(bool playAudioFromSource READ playAudioFromSource
                                         WRITE setPlayAudioFromSource
                                         RESET resetPlayAudioFromSource)
@@ -79,7 +75,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE QSize videoSize(const QString &device);
-        Q_INVOKABLE bool effectsPreview() const;
         Q_INVOKABLE bool playAudioFromSource() const;
         Q_INVOKABLE RecordFrom recordAudioFrom() const;
         Q_INVOKABLE bool recording() const;
@@ -96,7 +91,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
 
     private:
-        bool m_showEffectsPreview;
         bool m_playAudioFromSource;
         RecordFrom m_recordAudioFrom;
         bool m_recording;
@@ -109,6 +103,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QbElementPtr m_source;
         QbElementPtr m_effects;
         QbElementPtr m_effectsPreview;
+        QbElementPtr m_applyPreview;
         QbElementPtr m_audioSwitch;
         QbElementPtr m_audioOutput;
         QbElementPtr m_mic;
@@ -130,7 +125,8 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void deviceChanged(const QString &device);
         void recordingChanged(bool recording);
         void frameReady(const QbPacket &frame);
-        void previewFrameReady(const QbPacket &frame, QString effectName);
+        void effectPreviewReady(const QbPacket &frame);
+        void applyPreviewReady(const QbPacket &frame);
         void error(const QString &message);
 
     public slots:
@@ -138,7 +134,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void mutexUnlock();
         void setDevice(const QString &device);
         void setVideoSize(const QString &device, const QSize &size);
-        void setEffectsPreview(bool effectsPreview);
+        void setEffectsPreview(const QString &effect);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(RecordFrom recordAudioFrom);
         void setRecording(bool recording, QString fileName="");
@@ -154,6 +150,7 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         void resetVideoRecordFormats();
         void resetWindowSize();
 
+        void connectPreview(bool link);
         void reset(const QString &device);
         void loadConfigs();
         void saveConfigs();
