@@ -64,6 +64,7 @@ class MultiSinkElement: public QbElement
         OutputFormat m_outputFormat;
 
         QMutex m_mutex;
+        qint64 m_flushPts;
 
         QList<AVPixelFormat> pixelFormats(AVCodec *videoCodec);
         QList<AVSampleFormat> sampleFormats(AVCodec *audioCodec);

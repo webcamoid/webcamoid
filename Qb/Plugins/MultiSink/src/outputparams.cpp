@@ -23,7 +23,6 @@
 
 OutputParams::OutputParams(QObject *parent): QObject(parent)
 {
-    qDebug() << "OutputParams::OutputParams";
     this->m_prevPts = -1;
     this->m_lastPts = -1;
     this->m_ptsDrift = 0;
