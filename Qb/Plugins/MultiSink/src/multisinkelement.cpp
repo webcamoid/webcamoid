@@ -31,6 +31,8 @@ MultiSinkElement::MultiSinkElement(): QbElement()
 {
     av_register_all();
 
+    this->m_flushPts = -1;
+
     this->resetLocation();
     this->resetOptions();
     this->resetStreamCaps();
@@ -594,7 +596,12 @@ void MultiSinkElement::updateOutputParams()
 void MultiSinkElement::flushStream(int inputIndex, AVCodecContext *encoder)
 {
     QString inputIndexStr = QString("%1").arg(inputIndex);
-    qint64 pts = this->m_outputParams[inputIndexStr].pts() + 1;
+    AVStream *stream = this->m_outputFormat.streams()[inputIndexStr].data();
+
+    if (this->m_flushPts < 0)
+        this->m_flushPts = stream->cur_dts;
+    else if (this->m_flushPts < stream->cur_dts)
+        this->m_flushPts = stream->cur_dts;
 
     while (true) {
         AVPacket pkt;
@@ -610,14 +617,13 @@ void MultiSinkElement::flushStream(int inputIndex, AVCodecContext *encoder)
         else if (encoder->codec_type == AVMEDIA_TYPE_VIDEO)
             ret = avcodec_encode_video2(encoder, &pkt, NULL, &gotPacket);
         else
-            return;
+            break;
 
         if (ret < 0 || !gotPacket)
-            return;
+            break;
 
-        pkt.pts = pts;
-        pkt.dts = pts;
-        pts++;
+        pkt.pts = ++this->m_flushPts;
+        pkt.dts = pkt.pts;
 
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
@@ -628,6 +634,7 @@ void MultiSinkElement::flushStreams()
 {
     StreamMapPtr streams = this->m_outputFormat.streams();
     int oFlags = this->m_outputFormat.outputContext()->oformat->flags;
+    this->m_flushPts = -1;
 
     for (int i = 0; i < streams.count(); i++) {
         QString streamIndex = QString("%1").arg(i);
