@@ -44,16 +44,18 @@ class OutputFormat: public QObject
         Q_INVOKABLE FormatContextPtr outputContext() const;
         Q_INVOKABLE StreamMapPtr streams() const;
 
-        Q_INVOKABLE bool open(QString fileName,
-                              QMap<QString, OutputParams> outputParams,
-                              QVariantMap outputOptions);
+        Q_INVOKABLE bool open(const QString &fileName,
+                              const QMap<QString, OutputParams> &outputParams,
+                              const QVariantMap &outputOptions, const QVariantMap &inputOptions);
 
     private:
         bool m_isOpen;
         FormatContextPtr m_outputContext;
         StreamMapPtr m_streams;
 
-        bool addStream(QString input, OutputParams outputParams);
+        bool addStream(const QString &input,
+                       const OutputParams &outputParams,
+                       const QVariantMap &codecOptions);
 
     public slots:
         void close();

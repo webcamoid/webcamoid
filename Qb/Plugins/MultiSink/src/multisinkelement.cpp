@@ -68,7 +68,8 @@ void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::Elem
 
         this->m_outputFormat.open(this->location(),
                                   this->m_outputParams,
-                                  this->m_commands.outputOptions());
+                                  this->m_commands.outputOptions(),
+                                  this->m_commands.inputs());
     }
     else if (from == QbElement::ElementStatePaused
              && to == QbElement::ElementStateNull) {
@@ -377,7 +378,8 @@ void MultiSinkElement::iStream(const QbPacket &packet)
     if (!this->m_outputFormat.outputContext())
         this->m_outputFormat.open(this->location(),
                                   this->m_outputParams,
-                                  this->m_commands.outputOptions());
+                                  this->m_commands.outputOptions(),
+                                  this->m_commands.inputs());
 
     QString input = QString("%1").arg(packet.index());
 

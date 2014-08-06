@@ -41,9 +41,10 @@ StreamMapPtr OutputFormat::streams() const
     return this->m_streams;
 }
 
-bool OutputFormat::open(QString fileName,
-                        QMap<QString, OutputParams> outputParams,
-                        QVariantMap outputOptions)
+bool OutputFormat::open(const QString &fileName,
+                        const QMap<QString, OutputParams> &outputParams,
+                        const QVariantMap &outputOptions,
+                        const QVariantMap &inputOptions)
 {
     if (fileName.isEmpty())
         return false;
@@ -72,12 +73,19 @@ bool OutputFormat::open(QString fileName,
     this->m_outputContext = FormatContextPtr(outputContext, CustomDeleters::deleteFormatContext);
     this->m_streams.clear();
 
-    foreach (QString input, outputParams.keys())
-        if (!this->addStream(input, outputParams[input])) {
+    foreach (QString input, outputParams.keys()) {
+        QVariantMap streamOptions = inputOptions[input].toMap();
+        QVariantMap codecOptions;
+
+        if (streamOptions.contains("opt"))
+            codecOptions = streamOptions["opt"].toMap();
+
+        if (!this->addStream(input, outputParams[input], codecOptions)) {
             this->m_streams.clear();
 
             return this->m_isOpen;
         }
+    }
 
     av_dump_format(this->m_outputContext.data(),
                    0,
@@ -104,7 +112,9 @@ bool OutputFormat::open(QString fileName,
     return this->m_isOpen = true;
 }
 
-bool OutputFormat::addStream(QString input, OutputParams outputParams)
+bool OutputFormat::addStream(const QString &input,
+                             const OutputParams &outputParams,
+                             const QVariantMap &codecOptions)
 {
     StreamPtr stream = StreamPtr(avformat_new_stream(this->m_outputContext.data(),
                                                      outputParams.codecContext()->codec),
@@ -124,8 +134,21 @@ bool OutputFormat::addStream(QString input, OutputParams outputParams)
     if (!codec)
         return false;
 
-    if (avcodec_open2(stream->codec, codec, NULL) < 0)
+    AVDictionary *options = NULL;
+
+    foreach (QString key, codecOptions.keys()) {
+        QString value = codecOptions[key].toString();
+
+        av_dict_set(&options,
+                    key.toStdString().c_str(),
+                    value.toStdString().c_str(),
+                    0);
+    }
+
+    if (avcodec_open2(stream->codec, codec, &options) < 0)
         return false;
+
+    av_dict_free(&options);
 
     this->m_streams[input] = stream;
 
