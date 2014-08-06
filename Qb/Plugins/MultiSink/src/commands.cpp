@@ -98,6 +98,11 @@ Commands::Commands(QObject *parent): OptionParser(parent)
                            "Output index.",
                            "\\d+",
                            Option::OptionFlagsHasValue));
+
+    this->addOption(Option("opt",
+                           "Codec options.",
+                           "[^=,\\s]+=[^=,\\s]+(,[^=,\\s]+=[^=,\\s]+)*",
+                           Option::OptionFlagsHasValue));
 }
 
 QVariantMap Commands::inputs() const
@@ -200,7 +205,8 @@ bool Commands::parseCmd(QString cmd)
                              << "g"
                              << "c:v"
                              << "b:v"
-                             << "oi";
+                             << "oi"
+                             << "opt";
 
                 if (!validOptions.contains(option.key()))
                 {
@@ -246,23 +252,20 @@ QVariant Commands::convertValue(QString key, QString value)
         || key == "-ac"
         || key == "-oi")
         return value.toInt();
-    else if (key == "-r")
-    {
+    else if (key == "-r") {
         QbFrac frac = value.contains("/")?
                           QbFrac(value):
                           QbFrac(value.toInt(), 1);
 
         return QVariant::fromValue(frac);
     }
-    else if (key == "-s")
-    {
+    else if (key == "-s") {
         QStringList size = value.split("x", QString::SkipEmptyParts);
 
         return QSize(size[0].toInt(), size[1].toInt());
     }
     else if (key == "-b:v"
-             || key == "-b:a")
-    {
+             || key == "-b:a") {
         quint64 multiplier;
 
         if (value.contains("k"))
@@ -279,6 +282,16 @@ QVariant Commands::convertValue(QString key, QString value)
         quint64 val = value.remove(QRegExp("\\D")).toInt();
 
         return val * multiplier;
+    }
+    else if (key == "-opt") {
+        QVariantMap options;
+
+        foreach (QString pair, value.split(",")) {
+            QStringList p = pair.split("=");
+            options[p[0]] = p[1];
+        }
+
+        return options;
     }
 
     return value;

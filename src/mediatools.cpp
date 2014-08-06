@@ -889,7 +889,7 @@ void MediaTools::loadConfigs()
 
     if (size < 1) {
         this->setVideoRecordFormat("webm",
-                                   "-i 0 -c:v libvpx -b:v 3M -i 1 -c:a libvorbis -o -f webm");
+                                   "-i 0 -opt quality=realtime -c:v libvpx -b:v 3M -i 1 -c:a libvorbis -o -f webm");
 
         this->setVideoRecordFormat("ogv, ogg",
                                    "-i 0 -c:v libtheora -b:v 3M -i 1 -c:a libvorbis -o -f ogg");
