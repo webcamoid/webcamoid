@@ -429,9 +429,7 @@ void MainWidget::on_btnAbout_clicked()
     aboutDialog.setAppName(QCoreApplication::applicationName());
     aboutDialog.setVersion(QCoreApplication::applicationVersion());
     aboutDialog.setShortDescription(this->tr("webcam capture application."));
-    aboutDialog.setDescription(this->tr("A simple webcam application "
-                                        "for picture and "
-                                        "video capture."));
+    aboutDialog.setDescription(this->tr("A simple webcam application for picture and video capture."));
     aboutDialog.setCopyrightNotice(COMMONS_COPYRIGHT_NOTICE);
     aboutDialog.setWebsiteLink(COMMONS_PROJECT_URL);
     aboutDialog.setWebsiteLicense(COMMONS_PROJECT_LICENSE_URL);

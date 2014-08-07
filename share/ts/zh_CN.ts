@@ -188,13 +188,13 @@
     </message>
     <message>
         <location filename="../../src/mainwidget.cpp" line="439"/>
-        <source>webcam capture plasmoid.</source>
-        <translation>摄像头捕捉的plasmoid。</translation>
+        <source>webcam capture application.</source>
+        <translation>摄像头捕获应用程序。</translation>
     </message>
     <message>
         <location filename="../../src/mainwidget.cpp" line="442"/>
-        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
-        <translation>一个简单的摄像头等离子体团和独立应用程序的图片和视频拍摄。</translation>
+        <source>A simple webcam application for picture and video capture.</source>
+        <translation>一个简单的摄像头应用程序的图片和视频拍摄。</translation>
     </message>
 </context>
 <context>
