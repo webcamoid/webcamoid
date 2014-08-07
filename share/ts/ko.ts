@@ -188,13 +188,13 @@
     </message>
     <message>
         <location filename="../../src/mainwidget.cpp" line="439"/>
-        <source>webcam capture plasmoid.</source>
-        <translation>웹캠 캡처는 plasmoid.</translation>
+        <source>webcam capture application.</source>
+        <translation>웹캠 캡처 응용 프로그램.</translation>
     </message>
     <message>
         <location filename="../../src/mainwidget.cpp" line="442"/>
-        <source>A simple webcam plasmoid and stand alone app for picture and video capture.</source>
-        <translation>간단한 웹캠 plasmoid은 혼자 서서 사진과 비디오 캡처를위한 응용 프로그램.</translation>
+        <source>A simple webcam application for picture and video capture.</source>
+        <translation>사진 및 비디오 캡처를위한 간단한 웹캠 응용 프로그램입니다.</translation>
     </message>
 </context>
 <context>

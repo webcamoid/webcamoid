@@ -1,3 +1,9 @@
+Webcamoid 5.0.0:
+
+- Modified the effects preview for reducing resources usage.
+- Fixed stream flush on recording stop.
+- Enhanced webm video recording.
+
 Webcamoid 5.0.0rc1:
 
 - Release Candidate version.
