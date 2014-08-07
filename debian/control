@@ -37,7 +37,7 @@ Build-Depends: debhelper (>= 8.0.0),
  libx264-dev,
  libxvidcore-dev
 Standards-Version: 3.9.4
-Homepage: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+Homepage: https://github.com/hipersayanX/Webcamoid
 #Vcs-Git: git://github.com/hipersayanX/Webcamoid.git
 #Vcs-Browser: https://github.com/hipersayanX/Webcamoid
 
@@ -71,21 +71,18 @@ Depends: ${shlibs:Depends},
  librtmp0,
  libx264-123,
  libxvidcore4
-Description: Webcamoid is a webcam plasmoid for the KDE desktop environment.
+Description: Webcamoid is a full featured webcam capture application.
  Features:
  .
  * Take pictures with the webcam.
  * Record videos.
  * Manages multiple webcams.
- * Play/Stop capture, this saves resources while the plasmoid is not in use.
- * Written in C++.
- * 100% Qt based software, for KDE/Qt purists.
+ * Written in C++/Qt.
  * Custom controls for each webcam.
- * Popup applet support (you can embed Webcamoid in the panel).
  * Add funny effects to the webcam (requires Frei0r plugins).
  * +50 effects available.
  * Effects with live previews.
  * Translated to many languages.
- * Stand alone installation mode (use it as a normal program).
+ * Provides a nice plasmoid for KDE desktop.
  * Use custom network and local files as capture devices.
  * Capture from desktop.

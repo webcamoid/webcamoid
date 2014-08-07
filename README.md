@@ -1,22 +1,18 @@
-# Webcamoid, webcam capture plasmoid #
+# Webcamoid, webcam capture application #
 
-[Webcamoid](http://kde-apps.org/content/show.php/Webcamoid?content=144796) is a webcam plasmoid for the KDE desktop environment.
+[Webcamoid](http://kde-apps.org/content/show.php/Webcamoid?content=144796) is a full featured webcam capture application.
 
 ## Features ##
 
-* Take pictures with the webcam.
-* Record videos.
+* Take pictures and record videos with the webcam.
 * Manages multiple webcams.
-* Play/Stop capture, this saves resources while the plasmoid is not in use.
-* Written in C++.
-* 100% Qt based software, for KDE/Qt purists.
+* Written in C++/Qt.
 * Custom controls for each webcam.
-* Popup applet support (you can embed Webcamoid in the panel).
 * Add funny effects to the webcam (requires Frei0r plugins).
 * +50 effects available.
 * Effects with live previews.
 * Translated to many languages.
-* Stand alone installation mode (use it as a normal program).
+* Provides a nice plasmoid for KDE desktop.
 * Use custom network and local files as capture devices.
 * Capture from desktop.
 
@@ -90,11 +86,7 @@ Some languages are officially supported and other are supported through [Google 
 
 ## Reporting Bugs ##
 
-Run this command:
-
-    plasma-windowed webcamoid
-
-use Webcamoid until an abnormal event happen, write a list with the following information:
+Use Webcamoid until an abnormal event happen, write a list with the following information:
 
 1. Your Webcamoid version.
 2. Your distribution name and version (numeric, please).
@@ -102,6 +94,10 @@ use Webcamoid until an abnormal event happen, write a list with the following in
 4. Your GCC version.
 5. The output of the previous command.
 6. Any other useful information.
+
+For debuging the plasmoid, run this command:
+
+    plasma-windowed webcamoid
 
 Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
 

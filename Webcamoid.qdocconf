@@ -3,7 +3,7 @@
 # Project info.
 
 project     = Webcamoid
-description = Webcam capture plasmoid
+description = webcam capture application
 url         = http://github.com/hipersayanX/Webcamoid
 
 # Common configs.

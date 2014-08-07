@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 5.0.0rc1
+Version: 5.0.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -18,7 +18,7 @@ Group: Video/Utilities
 License: GPLv3+
 %endif
 
-URL: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+URL: https://github.com/hipersayanX/Webcamoid
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 AutoReqProv: no
@@ -146,23 +146,19 @@ Requires: lib64xvidcore4
 %endif
 
 %description
-Webcamoid is a webcam plasmoid for the KDE desktop environment.
+Webcamoid is a full featured webcam capture application.
 
 Features:
 
-    * Take pictures with the webcam.
-    * Record videos.
+    * Take pictures and record videos with the webcam.
     * Manages multiple webcams.
-    * Play/Stop capture, this saves resources while the plasmoid is not in use.
-    * Written in C++.
-    * 100%% Qt based software, for KDE/Qt purists.
+    * Written in C++/Qt.
     * Custom controls for each webcam.
-    * Popup applet support (you can embed Webcamoid in the panel).
-    * Add funny effects to the webcam.
+    * Add funny effects to the webcam (requires Frei0r plugins).
     * +50 effects available.
     * Effects with live previews.
     * Translated to many languages.
-    * Stand alone installation mode (use it as a normal program).
+    * Provides a nice plasmoid for KDE desktop.
     * Use custom network and local files as capture devices.
     * Capture from desktop.
 
@@ -222,5 +218,5 @@ rm -rf %{buildroot}
 %{_libdir}/libWebcamoid.so*
 
 %changelog
-* Wed Jul 23 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0rc1-1
-- Working with OBS.
+* Wed Aug 6 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0-1
+- Final Release.

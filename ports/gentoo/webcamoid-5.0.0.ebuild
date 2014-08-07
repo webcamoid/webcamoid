@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v3
 
 DESCRIPTION="Webcamoid, the full webcam and multimedia suite."
-HOMEPAGE="http://kde-apps.org/content/show.php/Webcamoid?content=144796"
+HOMEPAGE="https://github.com/hipersayanX/Webcamoid"
 LICENSE="GPLv3"
-VER="5.0.0rc1"
+VER="5.0.0"
 SRC_URI="https://github.com/hipersayanX/Webcamoid/archive/v${VER}.tar.gz"
 SLOT= "0"
 KEYWORDS="amd64 x86"

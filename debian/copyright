@@ -1,11 +1,11 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: webcamoid
-Source: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+Source: https://github.com/hipersayanX/Webcamoid
 
 Files: *
 Copyright: 2013 Gonzalo Pedone <hipersayan.x@gmail.com>
 License: GPL-3+
- Webcamod, webcam capture plasmoid.
+ Webcamoid, webcam capture application.
  Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
  .
  Webcamod is free software: you can redistribute it and/or modify
