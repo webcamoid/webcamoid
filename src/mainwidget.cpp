@@ -1,4 +1,4 @@
-/* Webcamod, webcam capture plasmoid.
+/* Webcamoid, webcam capture application.
  * Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify
@@ -428,9 +428,9 @@ void MainWidget::on_btnAbout_clicked()
     aboutDialog.setIcon(QIcon::fromTheme("camera-web"));
     aboutDialog.setAppName(QCoreApplication::applicationName());
     aboutDialog.setVersion(QCoreApplication::applicationVersion());
-    aboutDialog.setShortDescription(this->tr("webcam capture plasmoid."));
-    aboutDialog.setDescription(this->tr("A simple webcam plasmoid and "
-                                        "stand alone app for picture and "
+    aboutDialog.setShortDescription(this->tr("webcam capture application."));
+    aboutDialog.setDescription(this->tr("A simple webcam application "
+                                        "for picture and "
                                         "video capture."));
     aboutDialog.setCopyrightNotice(COMMONS_COPYRIGHT_NOTICE);
     aboutDialog.setWebsiteLink(COMMONS_PROJECT_URL);

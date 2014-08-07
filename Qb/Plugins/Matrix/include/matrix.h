@@ -1,4 +1,4 @@
-/* Webcamod, webcam capture plasmoid.
+/* Webcamoid, webcam capture application.
  * Copyright (C) 2011-2013  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify

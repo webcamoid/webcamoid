@@ -3,7 +3,7 @@
 <PISI>
     <Source lang="cpp-qt">
         <Name>webcamoid</Name>
-        <Homepage>http://kde-apps.org/content/show.php/Webcamoid?content=144796</Homepage>
+        <Homepage>https://github.com/hipersayanX/Webcamoid</Homepage>
         <Packager>
             <Name>Gonzalo Exequiel Pedone</Name>
             <Email>hipersayan.x@gmail.com</Email>
@@ -14,27 +14,23 @@
         <PartOf>multimedia.video</PartOf>
         <Summary>Webcamoid, the full webcam and multimedia suite.</Summary>
         <Description>
-            Webcamoid is a webcam plasmoid for the KDE desktop environment.
+            Webcamoid is a full featured webcam capture application.
 
             Features:
 
-                * Take pictures with the webcam.
-                * Record videos.
+                * Take pictures and record videos with the webcam.
                 * Manages multiple webcams.
-                * Play/Stop capture, this saves resources while the plasmoid is not in use.
-                * Written in C++.
-                * 100% Qt based software, for KDE/Qt purists.
+                * Written in C++/Qt.
                 * Custom controls for each webcam.
-                * Popup applet support (you can embed Webcamoid in the panel).
                 * Add funny effects to the webcam (requires Frei0r plugins).
                 * +50 effects available.
                 * Effects with live previews.
                 * Translated to many languages.
-                * Stand alone installation mode (use it as a normal program).
+                * Provides a nice plasmoid for KDE desktop.
                 * Use custom network and local files as capture devices.
                 * Capture from desktop.
         </Description>
-        <Archive sha1sum="1ff6436efeb08fb4270dd03cb3e4dcbe58714ebc" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.0.0rc1.tar.gz</Archive>
+        <Archive sha1sum="1ff6436efeb08fb4270dd03cb3e4dcbe58714ebc" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.0.0.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>qt-devel</Dependency>
             <Dependency>kdelibs-devel</Dependency>
