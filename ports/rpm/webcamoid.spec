@@ -47,6 +47,7 @@ Requires: libv4l
 
 %if %{defined suse_version}
 BuildRequires: fdupes
+BuildRequires: kde4-filesystem
 BuildRequires: bison
 BuildRequires: flex
 BuildRequires: make
