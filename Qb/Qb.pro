@@ -24,25 +24,11 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
-unix: !isEmpty(USE3DPARTYLIBS): !isEqual(USE3DPARTYLIBS, 0) {
-    !exists(/usr/bin/wget): error("USE3DPARTYLIBS option requires Wget.")
-}
-
 TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS += Lib.pro
-
-win32 {
-    SUBDIRS += 3dparty
-} else: !isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0): SUBDIRS += 3dparty
-
-SUBDIRS += Plugins
-
-win32 {
-    Plugins.depends = 3dparty
-} else: !isEmpty(USE3DPARTYLIBS):!isEqual(USE3DPARTYLIBS, 0): Plugins.depends = 3dparty
+SUBDIRS += Lib.pro Plugins
 
 # Install rules
 

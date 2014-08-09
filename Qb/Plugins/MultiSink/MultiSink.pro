@@ -28,10 +28,6 @@ exists(commons.pri) {
     }
 }
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    include(../../3dparty/ffmpeg_auto.pri)
-}
-
 CONFIG += plugin
 
 DEFINES += __STDC_CONSTANT_MACROS
@@ -53,20 +49,22 @@ INCLUDEPATH += \
 
 LIBS += -L../../ -lQb
 
-exists(../../3dparty/ffmpeg_auto.pri) {
-    INCLUDEPATH += $${FFMPEGHEADERSPATH}
+!isEmpty(FFMPEGINCLUDES) {
+    INCLUDEPATH += $${FFMPEGINCLUDES}
+}
 
+!isEmpty(FFMPEGLIBS) {
     LIBS += \
-        -L$${FFMPEGLIBSPATH} \
-        -lavdevice$${FFMPEGBUILDSUFFIX} \
-        -lavfilter$${FFMPEGBUILDSUFFIX} \
-        -lavformat$${FFMPEGBUILDSUFFIX} \
-        -lavcodec$${FFMPEGBUILDSUFFIX} \
-        -lavresample$${FFMPEGBUILDSUFFIX} \
-        -lpostproc$${FFMPEGBUILDSUFFIX} \
-        -lswresample$${FFMPEGBUILDSUFFIX} \
-        -lswscale$${FFMPEGBUILDSUFFIX} \
-        -lavutil$${FFMPEGBUILDSUFFIX}
+        $${FFMPEGLIBS} \
+        -lavdevice$${FFMPEGSUFFIX} \
+        -lavfilter$${FFMPEGSUFFIX} \
+        -lavformat$${FFMPEGSUFFIX} \
+        -lavcodec$${FFMPEGSUFFIX} \
+        -lavresample$${FFMPEGSUFFIX} \
+        -lpostproc$${FFMPEGSUFFIX} \
+        -lswresample$${FFMPEGSUFFIX} \
+        -lswscale$${FFMPEGSUFFIX} \
+        -lavutil$${FFMPEGSUFFIX}
 }
 
 OTHER_FILES += pspec.json
@@ -87,7 +85,7 @@ SOURCES += \
 TEMPLATE = lib
 
 unix {
-    ! exists(../../3dparty/ffmpeg_auto.pri) {
+    isEmpty(FFMPEGLIBS) {
         CONFIG += link_pkgconfig
 
         PKGCONFIG += \
