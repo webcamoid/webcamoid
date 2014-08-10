@@ -9,6 +9,7 @@ license=('GPL')
 arch=('i686' 'x86_64')
 depends=('qt4' 'kdelibs' 'ffmpeg' 'frei0r-plugins')
 makedepends=('bison' 'flex')
+conflicts=('kdeplasma-applets-webcamoid')
 source=("https://github.com/hipersayanX/Webcamoid/archive/v${pkgver}.tar.gz")
 md5sums=('SKIP')
 
