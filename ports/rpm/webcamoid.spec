@@ -183,11 +183,87 @@ qmake Webcamoid.pro \
 %endif
 
 %if %{defined mgaversion}
+%define packageName ffmpeg
+%define buildSuffix Qb
+%define packageVersion 2.3.1
+%define packageFolder %{packageName}-%{packageVersion}
+%define fileExt tar.bz2
+%define packageFile %{packageFolder}.%{fileExt}
+%define buildDir %{_builddir}/%{name}-%{version}
+
+mkdir -p build
+cd build
+
+wget -c --retry-connrefused -O %{packageFile} http://%{packageName}.org/releases/%{packageFile}
+tar -xjvf %{packageFile}
+
+cd %{packageFolder}
+
+./configure \
+    --prefix=/usr \
+    --disable-debug \
+    --enable-gpl \
+    --enable-version3 \
+    --build-suffix=%{buildSuffix} \
+    --enable-runtime-cpudetect \
+    --disable-programs \
+    --disable-ffmpeg \
+    --disable-ffplay \
+    --disable-ffprobe \
+    --disable-ffserver \
+    --disable-doc \
+    --disable-htmlpages \
+    --disable-manpages \
+    --disable-podpages \
+    --disable-txtpages \
+    --enable-shared \
+    --disable-static \
+    --enable-avresample \
+    --enable-dxva2 \
+    --enable-fontconfig \
+    --enable-libass \
+    --enable-libbluray \
+    --enable-libfreetype \
+    --enable-libgsm \
+    --enable-libmodplug \
+    --enable-libmp3lame \
+    --enable-libopencore_amrnb \
+    --enable-libopencore_amrwb \
+    --enable-libopenjpeg \
+    --enable-libopus \
+    --enable-libpulse \
+    --enable-librtmp \
+    --enable-libschroedinger \
+    --enable-libspeex \
+    --enable-libtheora \
+    --enable-libv4l2 \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libx264 \
+    --enable-libxvid \
+    --enable-postproc \
+    --enable-vdpau \
+    --enable-x11grab
+
+make
+
+cd ../..
+
 qmake Webcamoid.pro \
     LIBDIR=%{_libdir} \
     LICENSEDIR=%{_defaultdocdir}/webcamoid \
     QMAKE_LRELEASE=%{_libdir}/qt4/bin/lrelease \
-    USE3DPARTYLIBS=1
+    FFMPEGINCLUDES="%{buildDir}/build/%{packageFolder}" \
+    FFMPEGLIBS="-L%{buildDir}/build/%{packageFolder}/libavresample" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libswscale" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libswresample" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libavutil" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libavcodec" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libpostproc" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libavfilter" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libavdevice" \
+    FFMPEGLIBS+="-L%{buildDir}/build/%{packageFolder}/libavformat" \
+    FFMPEGSUFFIX=%{buildSuffix}
 %endif
 
 make
@@ -195,6 +271,13 @@ make
 %install
 rm -rf %{buildroot}
 make INSTALL_ROOT="%{buildroot}" install
+
+%if %{defined mgaversion}
+cd build/%{packageFolder}
+make install DESTDIR="%{buildroot}"
+rm -Rvf %{buildroot}/usr/lib/pkgconfig
+rm -Rvf %{buildroot}/usr/include/lib*
+%endif
 
 %fdupes %{buildroot}
 
