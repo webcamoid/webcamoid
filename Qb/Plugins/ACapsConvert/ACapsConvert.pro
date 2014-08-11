@@ -40,7 +40,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 !isEmpty(FFMPEGINCLUDES) {
     INCLUDEPATH += $${FFMPEGINCLUDES}
@@ -67,6 +68,8 @@ QT += core gui
 SOURCES += \
     src/acapsconvert.cpp \
     src/acapsconvertelement.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 

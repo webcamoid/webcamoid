@@ -81,8 +81,8 @@ INCLUDEPATH += \
     include \
     Qb/include
 
-LIBS += \
-    -L./Qb -lQb
+!win32: LIBS += -L./Qb -lQb
+win32: LIBS += -L./Qb -lQb$${VER_MAJ}
 
 OTHER_FILES = \
     .gitignore \
@@ -108,6 +108,8 @@ SOURCES = \
     src/mainwindow.cpp \
     src/about.cpp \
     src/configdialog.cpp
+
+DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_APPNAME}
 

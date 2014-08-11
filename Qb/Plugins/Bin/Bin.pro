@@ -39,7 +39,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb -lfl -ly
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 FLEXSOURCES = parser/lexer.l
 BISONSOURCES = parser/parser.y
@@ -55,6 +56,8 @@ SOURCES += \
     src/bin.cpp \
     src/binelement.cpp \
     src/pipeline.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 

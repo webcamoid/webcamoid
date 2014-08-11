@@ -39,7 +39,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
@@ -49,6 +50,8 @@ SOURCES += \
     src/matrix.cpp \
     src/matrixelement.cpp \
     src/blip.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 

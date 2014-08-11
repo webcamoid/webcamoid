@@ -39,9 +39,12 @@ INCLUDEPATH += \
 
 !isEmpty(QT5COMPAT): DEFINES += QT5COMPAT
 
-isEmpty(QT5COMPAT): LIBS += \
-                        -L./Qb -lQb \
-                        -L. -lWebcamoid
+isEmpty(QT5COMPAT) {
+    LIBS += -L. -lWebcamoid
+
+    !win32: LIBS += -L./Qb -lQb
+    win32: LIBS += -L./Qb -lQb$${VER_MAJ}
+}
 
 LIBS += \
     -L$${KDELIBDIR} \
@@ -55,6 +58,8 @@ QT += core gui
 
 SOURCES = \
     src/plasmoid.cpp
+
+DESTDIR = $${PWD}
 
 TARGET = plasma_applet_$${COMMONS_TARGET}
 
