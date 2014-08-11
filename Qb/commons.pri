@@ -112,8 +112,6 @@ isEmpty(COMMONS_PRI_INCLUDE) {
             KDELIBDIR=\"\\\"$$KDELIBDIR\\\"\"
     }
 
-    DESTDIR = .
-
     CONFIG(debug, debug|release) {
         COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/debug
         DEFINES += QT_DEBUG

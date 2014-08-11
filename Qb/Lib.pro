@@ -64,6 +64,8 @@ SOURCES = \
     src/qbfrac.cpp \
     src/qbpacket.cpp
 
+DESTDIR = $${PWD}
+
 TARGET = $${COMMONS_APPNAME}
 
 TEMPLATE = lib

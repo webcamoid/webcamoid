@@ -47,7 +47,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 !isEmpty(FFMPEGINCLUDES) {
     INCLUDEPATH += $${FFMPEGINCLUDES}
@@ -81,6 +82,8 @@ SOURCES += \
     src/parsedoption.cpp \
     src/outputparams.cpp \
     src/outputformat.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 

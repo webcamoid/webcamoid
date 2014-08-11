@@ -23,14 +23,15 @@ function compileWebcamoid()
     cd ../..
 
     /qttools/qmake Webcamoid.pro \
-        FFMPEGINCLUDES="$mainPath/build/ffmpeg-$ffmpegVersion-win32-dev/include" \
-        FFMPEGLIBS="-L$mainPath/build/ffmpeg-$ffmpegVersion-win32-dev/lib"
+        FFMPEGINCLUDES="$PWD/build/ffmpeg-$ffmpegVersion-win32-dev/include" \
+        FFMPEGLIBS="-L$PWD/build/ffmpeg-$ffmpegVersion-win32-dev/lib"
 
-    mingw32-make CXXFLAGS="-I$mainPath/build/ffmpeg-$ffmpegVersion-win32-dev/include -L$mainPath/build/ffmpeg-$ffmpegVersion-win32-dev/lib"
+    mingw32-make
 }
 
 export PATH="$mainPath:$PATH"
 
+mkdir -p ../../build
 get7Z
 cd "$mainPath"
 getFFmpeg

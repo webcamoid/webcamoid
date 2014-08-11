@@ -30,15 +30,18 @@ INCLUDEPATH += \
     include \
     Qb/include
 
-LIBS += \
-    -L./Qb -lQb \
-    -L. -lWebcamoid
+LIBS += -L. -lWebcamoid
+
+!win32: LIBS += -L./Qb -lQb
+win32: LIBS += -L./Qb -lQb$${VER_MAJ}
 
 QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 SOURCES = \
     src/main.cpp
+
+DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_TARGET}
 

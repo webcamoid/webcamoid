@@ -45,7 +45,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 !isEmpty(FFMPEGINCLUDES) {
     INCLUDEPATH += $${FFMPEGINCLUDES}
@@ -81,6 +82,8 @@ SOURCES += \
     src/multisrcelement.cpp \
     src/subtitlestream.cpp \
     src/thread.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 

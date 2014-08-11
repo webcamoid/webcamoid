@@ -46,7 +46,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 !isEmpty(FFMPEGINCLUDES) {
     INCLUDEPATH += $${FFMPEGINCLUDES}
@@ -76,6 +77,8 @@ SOURCES += \
     src/audioinput.cpp \
     src/audioinputelement.cpp \
     src/audiobuffer.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 

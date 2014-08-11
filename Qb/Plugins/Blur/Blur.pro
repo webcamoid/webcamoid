@@ -38,7 +38,8 @@ INCLUDEPATH += \
     include \
     ../../include
 
-LIBS += -L../../ -lQb
+!win32: LIBS += -L../../ -lQb
+win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
@@ -51,6 +52,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 SOURCES += \
     src/blur.cpp \
     src/blurelement.cpp
+
+DESTDIR = $${PWD}
 
 TEMPLATE = lib
 
