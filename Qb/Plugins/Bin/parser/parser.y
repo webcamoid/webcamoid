@@ -36,7 +36,6 @@ void yyerror(Pipeline *pipelineDescription, const char *s);
 }
 
 %error-verbose
-%define parse.lac full
 %locations
 %parse-param {Pipeline *pipelineDescription}
 

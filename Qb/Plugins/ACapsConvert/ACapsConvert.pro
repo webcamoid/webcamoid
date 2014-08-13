@@ -54,11 +54,12 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
         -lavfilter$${FFMPEGSUFFIX} \
         -lavformat$${FFMPEGSUFFIX} \
         -lavcodec$${FFMPEGSUFFIX} \
-        -lavresample$${FFMPEGSUFFIX} \
         -lpostproc$${FFMPEGSUFFIX} \
         -lswresample$${FFMPEGSUFFIX} \
         -lswscale$${FFMPEGSUFFIX} \
         -lavutil$${FFMPEGSUFFIX}
+
+    !win32: LIBS += -lavresample$${FFMPEGSUFFIX}
 }
 
 OTHER_FILES += pspec.json

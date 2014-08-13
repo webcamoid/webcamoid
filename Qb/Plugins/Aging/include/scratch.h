@@ -22,7 +22,7 @@
 #ifndef SCRATCH_H
 #define SCRATCH_H
 
-#include <QtCore>
+#include <QObject>
 
 class Scratch: public QObject
 {
