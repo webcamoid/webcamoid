@@ -22,7 +22,7 @@
 #ifndef EDGEELEMENT_H
 #define EDGEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class EdgeElement: public QbElement

@@ -22,7 +22,7 @@
 #ifndef IMPLODEELEMENT_H
 #define IMPLODEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class ImplodeElement: public QbElement

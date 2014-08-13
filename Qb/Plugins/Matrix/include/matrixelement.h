@@ -22,7 +22,8 @@
 #ifndef MATRIXELEMENT_H
 #define MATRIXELEMENT_H
 
-#include <QtGui>
+#include <QImage>
+#include <QKeyEvent>
 #include <qb.h>
 
 #include "blip.h"

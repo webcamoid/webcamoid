@@ -22,7 +22,8 @@
 #ifndef OPTION_H
 #define OPTION_H
 
-#include <QtCore>
+#include <QObject>
+#include <QDebug>
 
 class Option: public QObject
 {

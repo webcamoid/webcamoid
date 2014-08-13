@@ -4,9 +4,6 @@ p7zVersion=920
 ffmpegVersion=2.2.3
 FGET='wget -c --retry-connrefused --no-check-certificate'
 
-# http://gnuwin32.sourceforge.net/packages/flex.htm
-# http://gnuwin32.sourceforge.net/packages/bison.htm
-
 function get7Z()
 {
     packageName=7za

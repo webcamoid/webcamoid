@@ -101,6 +101,7 @@ QString stringRepToString(QString strRep)
 %option nounput
 %option yylineno
 %s PARSEBITS
+%option noyywrap
 
 %%
 

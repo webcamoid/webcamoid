@@ -22,7 +22,7 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#include <QtCore>
+#include <qglobal.h>
 
 #define bound(min, value, max) ((value < min)? min: (value > max)? max: value)
 #define ABS(value) (((value) < 0)? -(value): (value))

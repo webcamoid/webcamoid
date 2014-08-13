@@ -22,7 +22,7 @@
 #ifndef BLIP_H
 #define BLIP_H
 
-#include <QtCore>
+#include <QObject>
 
 class Blip: public QObject
 {

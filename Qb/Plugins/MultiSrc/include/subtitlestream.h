@@ -22,8 +22,6 @@
 #ifndef SUBTITLESTREAM_H
 #define SUBTITLESTREAM_H
 
-#include <QtCore>
-
 #include "abstractstream.h"
 
 class SubtitleStream: public AbstractStream

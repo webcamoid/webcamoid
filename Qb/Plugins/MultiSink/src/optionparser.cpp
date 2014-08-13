@@ -19,6 +19,8 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QRegExp>
+
 #include "optionparser.h"
 
 OptionParser::OptionParser(QObject *parent): QObject(parent)

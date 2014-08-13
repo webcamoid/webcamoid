@@ -22,7 +22,7 @@
 #ifndef QIMAGECONVERTELEMENT_H
 #define QIMAGECONVERTELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 
 #include <qb.h>
 

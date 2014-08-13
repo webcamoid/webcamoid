@@ -19,7 +19,7 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <QtGui>
+#include <QColor>
 
 #include "frei0relement.h"
 

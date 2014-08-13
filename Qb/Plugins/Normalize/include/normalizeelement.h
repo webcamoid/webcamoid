@@ -22,7 +22,7 @@
 #ifndef NORMALIZEELEMENT_H
 #define NORMALIZEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class NormalizeElement: public QbElement

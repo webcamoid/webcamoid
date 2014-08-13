@@ -22,7 +22,7 @@
 #ifndef OUTPUTFORMAT_H
 #define OUTPUTFORMAT_H
 
-#include <QtCore>
+#include <QObject>
 
 #include "outputparams.h"
 
