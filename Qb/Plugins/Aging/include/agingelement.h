@@ -22,7 +22,7 @@
 #ifndef AGINGELEMENT_H
 #define AGINGELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 #include "scratch.h"

@@ -1,39 +1,75 @@
 #!/bin/sh
 
-s7zVersion=920
+p7zVersion=920
 ffmpegVersion=2.2.3
-mainPath="$PWD"
+FGET='wget -c --retry-connrefused --no-check-certificate'
+
+# http://gnuwin32.sourceforge.net/packages/flex.htm
+# http://gnuwin32.sourceforge.net/packages/bison.htm
 
 function get7Z()
 {
-    cd ../../build
-    wget -c http://downloads.sourceforge.net/sevenzip/7za$s7zVersion.zip
-    unzip -u 7za$s7zVersion.zip
+    packageName=7za
+    fileExt=zip
+    packageFile=$packageName$p7zVersion.$fileExt
+
+    if [ ! -f "$packageName.exe" ]
+    then
+        $FGET http://downloads.sourceforge.net/sevenzip/$packageFile
+        unzip -u $packageFile
+    fi
 }
 
-function getFFmpeg() 
+function getFFmpeg()
 {
-    cd ../../build
-    wget -c http://ffmpeg.zeranoe.com/builds/win32/dev/ffmpeg-$ffmpegVersion-win32-dev.7z
-    7za x -y ffmpeg-$ffmpegVersion-win32-dev.7z
+    packageName=ffmpeg
+    packageFolder=$packageName-$ffmpegVersion-win32-dev
+    fileExt=7z
+    packageFile=$packageFolder.$fileExt
+
+    curPath="$PWD"
+
+    if [ ! -d "$packageFolder" ]
+    then
+        $FGET http://$packageName.zeranoe.com/builds/win32/dev/$packageFile
+        7za x -y $packageFile
+        cd $packageFolder
+        cp -Rvf * ../win32
+    fi
 }
 
 function compileWebcamoid()
 {
-    cd ../..
+    cd ..
 
     /qttools/qmake Webcamoid.pro \
-        FFMPEGINCLUDES="$PWD/build/ffmpeg-$ffmpegVersion-win32-dev/include" \
-        FFMPEGLIBS="-L$PWD/build/ffmpeg-$ffmpegVersion-win32-dev/lib"
+        FFMPEGINCLUDES="$PWD/build/win32/include" \
+        FFMPEGLIBS="-L$PWD/build/win32/lib"
 
     mingw32-make
 }
 
-export PATH="$mainPath:$PATH"
+function build()
+{
+    mkdir -p ../../build
+    cd ../../build
+    mainPath="$PWD"
+    export PATH="$mainPath:$PATH"
+    mkdir -p win32
 
-mkdir -p ../../build
-get7Z
-cd "$mainPath"
-getFFmpeg
-cd "$mainPath"
-compileWebcamoid
+    for cmd in "$@"
+    do
+        cd "$mainPath"
+        $cmd
+
+        if [ $? != '0' ]
+        then
+            break
+        fi
+    done
+}
+
+build \
+    get7Z \
+    getFFmpeg \
+    compileWebcamoid

@@ -39,6 +39,7 @@ INCLUDEPATH += \
     include \
     ../../include
 
+LIBS += -lfl -ly
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
