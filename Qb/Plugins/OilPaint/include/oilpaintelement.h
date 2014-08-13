@@ -22,7 +22,7 @@
 #ifndef OILPAINTELEMENT_H
 #define OILPAINTELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class OilPaintElement: public QbElement

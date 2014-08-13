@@ -22,7 +22,7 @@
 #ifndef PIXELSTRUCTS_H
 #define PIXELSTRUCTS_H
 
-#include <QtCore>
+#include <qglobal.h>
 
 template<typename T>
 struct Pixel

@@ -22,7 +22,7 @@
 #ifndef CONVOLVEELEMENT_H
 #define CONVOLVEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class ConvolveElement: public QbElement

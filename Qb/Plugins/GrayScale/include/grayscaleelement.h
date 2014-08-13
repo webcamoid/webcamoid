@@ -22,7 +22,7 @@
 #ifndef GRAYSCALEELEMENT_H
 #define GRAYSCALEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class GrayScaleElement: public QbElement

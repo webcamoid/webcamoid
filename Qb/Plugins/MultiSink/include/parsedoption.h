@@ -22,7 +22,9 @@
 #ifndef PARSEDOPTION_H
 #define PARSEDOPTION_H
 
-#include <QtCore>
+#include <QObject>
+#include <QVariant>
+#include <QDebug>
 
 class ParsedOption: public QObject
 {

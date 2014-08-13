@@ -22,7 +22,7 @@
 #ifndef SWIRLELEMENT_H
 #define SWIRLELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class SwirlElement: public QbElement

@@ -22,7 +22,7 @@
 #ifndef WARHOLELEMENT_H
 #define WARHOLELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class WarholElement: public QbElement

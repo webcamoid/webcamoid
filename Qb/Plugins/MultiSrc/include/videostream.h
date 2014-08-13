@@ -22,8 +22,6 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-#include <QtGui>
-
 #include "abstractstream.h"
 
 class VideoStream: public AbstractStream

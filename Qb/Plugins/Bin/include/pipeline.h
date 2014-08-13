@@ -22,7 +22,7 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 
-#include <QtCore>
+#include <QObject>
 #include <qb.h>
 
 typedef QMap<QString, QbElementPtr> ElementMap;

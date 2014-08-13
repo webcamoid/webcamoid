@@ -22,7 +22,7 @@
 #ifndef WAVEELEMENT_H
 #define WAVEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class WaveElement: public QbElement

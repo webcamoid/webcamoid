@@ -22,7 +22,7 @@
 #ifndef SHAGADELICELEMENT_H
 #define SHAGADELICELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class ShagadelicElement: public QbElement

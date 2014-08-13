@@ -63,8 +63,6 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
         -lswresample$${FFMPEGSUFFIX} \
         -lswscale$${FFMPEGSUFFIX} \
         -lavutil$${FFMPEGSUFFIX}
-
-    !win32: LIBS += -lavresample$${FFMPEGSUFFIX}
 }
 
 OTHER_FILES += pspec.json
@@ -97,7 +95,6 @@ unix {
             libavfilter \
             libavformat \
             libavcodec \
-            libavresample \
             libpostproc \
             libswresample \
             libswscale \

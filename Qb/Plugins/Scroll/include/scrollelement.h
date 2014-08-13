@@ -22,7 +22,7 @@
 #ifndef SCROLLELEMENT_H
 #define SCROLLELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class ScrollElement: public QbElement

@@ -22,7 +22,7 @@
 #ifndef DICEELEMENT_H
 #define DICEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 #define DICEDIR_UP    (char) 0

@@ -22,7 +22,8 @@
 #ifndef FIREELEMENT_H
 #define FIREELEMENT_H
 
-#include <QtGui>
+#include <QImage>
+#include <QKeyEvent>
 #include <qb.h>
 
 class FireElement: public QbElement

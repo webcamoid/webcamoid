@@ -79,8 +79,7 @@ build-stamp:
 		USEQTMOBILITY=1 \
 		FFMPEGINCLUDES="$(CURDIR)/build/$(PACKAGEFOLDER)" \
 		FFMPEGINCLUDES+="$(CURDIR)" \
-		FFMPEGLIBS="-L$(CURDIR)/libavresample" \
-		FFMPEGLIBS+="-L$(CURDIR)/libswscale" \
+		FFMPEGLIBS="-L$(CURDIR)/libswscale" \
 		FFMPEGLIBS+="-L$(CURDIR)/libswresample" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavutil" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavcodec" \

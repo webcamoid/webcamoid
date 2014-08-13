@@ -22,7 +22,7 @@
 #ifndef INVERTELEMENT_H
 #define INVERTELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class InvertElement: public QbElement

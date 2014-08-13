@@ -22,7 +22,7 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include <QtCore>
+#include <QThread>
 
 class Thread: public QThread
 {

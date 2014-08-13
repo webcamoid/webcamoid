@@ -22,7 +22,7 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#include <QtCore>
+#include <qglobal.h>
 
 typedef struct Pixel
 {

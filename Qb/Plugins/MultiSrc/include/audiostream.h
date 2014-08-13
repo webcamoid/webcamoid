@@ -22,8 +22,6 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
-#include <QtCore>
-
 #include "abstractstream.h"
 
 class AudioStream: public AbstractStream

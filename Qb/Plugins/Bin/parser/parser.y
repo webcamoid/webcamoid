@@ -20,7 +20,7 @@
  */
 
 %code requires {
-#include <QtGui>
+#include <QColor>
 
 #include "pipeline.h"
 

@@ -22,7 +22,7 @@
 #ifndef EQUALIZEELEMENT_H
 #define EQUALIZEELEMENT_H
 
-#include <QtGui>
+#include <QImage>
 #include <qb.h>
 
 class EqualizeElement: public QbElement
