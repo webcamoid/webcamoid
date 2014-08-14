@@ -280,7 +280,7 @@ void FireElement::processFrame(const QbPacket &packet)
                         height,
                         QImage::Format_RGB32);
 
-    int videoArea = src.width() * src.height();
+    int videoArea = width * height;
 
     if (packet.caps() != this->m_caps) {
         this->m_background = QImage(src.width(), src.height(), QImage::Format_RGB32);
