@@ -131,7 +131,7 @@ void LifeElement::processFrame(const QbPacket &packet)
                         height,
                         QImage::Format_RGB32);
 
-    int videoArea = src.width() * src.height();
+    int videoArea = width * height;
 
     if (packet.caps() != this->m_caps) {
         this->m_background = QImage(src.width(), src.height(), QImage::Format_RGB32);
@@ -150,8 +150,6 @@ void LifeElement::processFrame(const QbPacket &packet)
 
     quint32 *srcBits = (quint32 *) src.bits();
     quint32 *destBits = (quint32 *) oFrame.bits();
-
-    // {
 
     this->imageDiffFilter(this->imageBgSubtractUpdateY(src));
     quint8 *p = this->m_diff2.bits();
@@ -192,8 +190,6 @@ void LifeElement::processFrame(const QbPacket &packet)
     p = this->m_field1;
     this->m_field1 = this->m_field2;
     this->m_field2 = p;
-
-    // }
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
