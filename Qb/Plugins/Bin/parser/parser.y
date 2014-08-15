@@ -423,6 +423,7 @@ signalSlotGt: TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER TOK_RIGHTANGLEBRACKET TOK_ID
 
 property: TOK_IDENTIFIER TOK_EQUAL variant {
               QVariantMap properties = pipelineDescription->properties();
+
               properties[*$1] = *$3;
               pipelineDescription->setProperties(properties);
 
@@ -671,16 +672,16 @@ time: TOK_TIME TOK_LEFTPAREN TOK_RIGHTPAREN {$$ = new QVariant(QTime());}
       }
     ;
 
-color: TOK_COLOR TOK_LEFTPAREN TOK_RIGHTPAREN {$$ = new QVariant(QColor());}
+color: TOK_COLOR TOK_LEFTPAREN TOK_RIGHTPAREN {$$ = new QVariant(qRgb(0, 0, 0));}
      | TOK_COLOR TOK_LEFTPAREN TOK_STRING TOK_RIGHTPAREN {
            $$ = new QVariant();
-           *$$ = QColor($3->toString());
+           *$$ = QColor($3->toString()).rgba();
 
            delete $3;
        }
      | TOK_COLOR TOK_LEFTPAREN number TOK_COMMA number TOK_COMMA number TOK_RIGHTPAREN {
            $$ = new QVariant();
-           *$$ = QColor($3->toFloat(), $5->toFloat(), $7->toFloat());
+           *$$ = qRgb($3->toFloat(), $5->toFloat(), $7->toFloat());
 
            delete $3;
            delete $5;
@@ -688,7 +689,7 @@ color: TOK_COLOR TOK_LEFTPAREN TOK_RIGHTPAREN {$$ = new QVariant(QColor());}
        }
      | TOK_COLOR TOK_LEFTPAREN number TOK_COMMA number TOK_COMMA number TOK_COMMA number TOK_RIGHTPAREN {
            $$ = new QVariant();
-           *$$ = QColor($3->toFloat(), $5->toFloat(), $7->toFloat(), $9->toFloat());
+           *$$ = qRgba($3->toFloat(), $5->toFloat(), $7->toFloat(), $9->toFloat());
 
            delete $3;
            delete $5;

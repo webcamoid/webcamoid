@@ -84,7 +84,7 @@ void BaltanElement::resetPlanes()
 
 void BaltanElement::resetStride()
 {
-    this->setStride(4);
+    this->setStride(8);
 }
 
 void BaltanElement::resetStrideMask()
