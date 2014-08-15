@@ -19,13 +19,13 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef STREAKELEMENT_H
-#define STREAKELEMENT_H
+#ifndef BALTANELEMENT_H
+#define BALTANELEMENT_H
 
 #include <QImage>
 #include <qb.h>
 
-class StreakElement: public QbElement
+class BaltanElement: public QbElement
 {
     Q_OBJECT
 
@@ -35,7 +35,7 @@ class StreakElement: public QbElement
     Q_PROPERTY(int strideShift READ strideShift WRITE setStrideShift RESET resetStrideShift)
 
     public:
-        explicit StreakElement();
+        explicit BaltanElement();
 
         Q_INVOKABLE int planes() const;
         Q_INVOKABLE int stride() const;
@@ -71,4 +71,4 @@ class StreakElement: public QbElement
         void processFrame(const QbPacket &packet);
 };
 
-#endif // STREAKELEMENT_H
+#endif // BALTANELEMENT_H
