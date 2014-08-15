@@ -19,7 +19,7 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <QColor>
+#include <qrgb.h>
 
 #include "frei0relement.h"
 
@@ -114,7 +114,7 @@ QVariantMap Frei0rElement::params()
                                    &value,
                                    i);
 
-            params[info.name] = QColor(value.r, value.g, value.b);
+            params[info.name] = qRgb(value.r, value.g, value.b);
         }
         else if (info.type == F0R_PARAM_POSITION) {
             f0r_param_position_t value;
@@ -534,11 +534,11 @@ void Frei0rElement::setParams(QVariantMap params)
         }
         else if (info.type == F0R_PARAM_COLOR) {
             f0r_param_color_t value;
-            QColor color = params[info.name].value<QColor>();
+            QRgb color = params[info.name].toInt();
 
-            value.r = color.red();
-            value.g = color.green();
-            value.b = color.blue();
+            value.r = qRed(color);
+            value.g = qGreen(color);
+            value.b = qBlue(color);
 
             this->f0rSetParamValue(this->m_f0rInstance,
                                    &value,
