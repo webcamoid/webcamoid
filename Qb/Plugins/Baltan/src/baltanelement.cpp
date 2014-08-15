@@ -19,9 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "streakelement.h"
+#include "baltanelement.h"
 
-StreakElement::StreakElement(): QbElement()
+BaltanElement::BaltanElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
@@ -37,79 +37,79 @@ StreakElement::StreakElement(): QbElement()
     this->resetStrideShift();
 }
 
-int StreakElement::planes() const
+int BaltanElement::planes() const
 {
     return this->m_planes;
 }
 
-int StreakElement::stride() const
+int BaltanElement::stride() const
 {
     return this->m_stride;
 }
 
-quint32 StreakElement::strideMask() const
+quint32 BaltanElement::strideMask() const
 {
     return this->m_strideMask;
 }
 
-int StreakElement::strideShift() const
+int BaltanElement::strideShift() const
 {
     return this->m_strideShift;
 }
 
-void StreakElement::setPlanes(int planes)
+void BaltanElement::setPlanes(int planes)
 {
     this->m_planes = planes;
 }
 
-void StreakElement::setStride(int stride)
+void BaltanElement::setStride(int stride)
 {
     this->m_stride = stride;
 }
 
-void StreakElement::setStrideMask(quint32 strideMask)
+void BaltanElement::setStrideMask(quint32 strideMask)
 {
     this->m_strideMask = strideMask;
 }
 
-void StreakElement::setStrideShift(int strideShift)
+void BaltanElement::setStrideShift(int strideShift)
 {
     this->m_strideShift = strideShift;
 }
 
-void StreakElement::resetPlanes()
+void BaltanElement::resetPlanes()
 {
     this->setPlanes(32);
 }
 
-void StreakElement::resetStride()
+void BaltanElement::resetStride()
 {
     this->setStride(4);
 }
 
-void StreakElement::resetStrideMask()
+void BaltanElement::resetStrideMask()
 {
-    this->setStrideMask(0xf8f8f8f8);
+    this->setStrideMask(0xfcfcfc);
 }
 
-void StreakElement::resetStrideShift()
+void BaltanElement::resetStrideShift()
 {
-    this->setStrideShift(3);
+    this->setStrideShift(2);
 }
 
-void StreakElement::iStream(const QbPacket &packet)
+void BaltanElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() == "video/x-raw")
         this->m_convert->iStream(packet);
 }
 
-void StreakElement::setState(QbElement::ElementState state)
+void BaltanElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());
 }
 
-void StreakElement::processFrame(const QbPacket &packet)
+void BaltanElement::processFrame(const QbPacket &packet)
 {
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
@@ -147,11 +147,9 @@ void StreakElement::processFrame(const QbPacket &packet)
         destBits[i] = this->m_planeTable[cf][i]
                     + this->m_planeTable[cf + this->m_stride][i]
                     + this->m_planeTable[cf + this->m_stride * 2][i]
-                    + this->m_planeTable[cf + this->m_stride * 3][i]
-                    + this->m_planeTable[cf + this->m_stride * 4][i]
-                    + this->m_planeTable[cf + this->m_stride * 5][i]
-                    + this->m_planeTable[cf + this->m_stride * 6][i]
-                    + this->m_planeTable[cf + this->m_stride * 7][i];
+                    + this->m_planeTable[cf + this->m_stride * 3][i];
+
+        this->m_planeTable[this->m_plane][i] = (destBits[i] & this->m_strideMask) >> this->m_strideShift;
     }
 
     this->m_plane++;
