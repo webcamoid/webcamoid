@@ -15,7 +15,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    qt4.configure('Webcamoid.pro')
+    qt4.configure('Webcamoid.pro', 'QMAKE_LRELEASE=/usr/bin/lrelease')
 
 def build():
     os.system('make VERBOSE=1')
