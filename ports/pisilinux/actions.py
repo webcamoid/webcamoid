@@ -6,9 +6,10 @@
 
 # Use this as variables:
 # Package Name : webcamoid
-# Version : 5.0.0b2
+# Version : 5.0.0
 # Summary : Webcamoid, the full webcam and multimedia suite.
 
+import os
 from pisi.actionsapi import qt4
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
@@ -17,7 +18,7 @@ def setup():
     qt4.configure('Webcamoid.pro')
 
 def build():
-    qt4.make()
+    os.system('make VERBOSE=1')
 
 def install():
-    qt4.install()
+    os.system('make install INSTALL_ROOT="%s"' % (get.installDIR()))
