@@ -29,9 +29,7 @@
     <effect name="Heat">Frei0r pluginName='colortap' params={'table': 'heat'}</effect>
     <effect name="Horizontal Mirror">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 0}</effect>
     <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
-    <effect name="Hulk">Frei0r pluginName='colorize' params={'saturation': 1, 'hue': 0.29}</effect>
     <effect name="Inverted BW">Frei0r pluginName='colordistance'</effect>
-    <effect name="Mauve">Frei0r pluginName='colorize' params={'saturation': 1, 'hue': 0.86}</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
     <effect name="Nervous">Frei0r pluginName='nervous'</effect>
     <effect name="Noir">Frei0r pluginName='colorize' params={'saturation': 0}</effect>
@@ -72,6 +70,8 @@
     <effect name="Life">Life</effect>
     <effect name="Streak">Streak</effect>
     <effect name="Baltan">Baltan</effect>
+    <effect name="Mauve">ColorTransform kernel=[0.5, 0.5, 0, 0, 0, 0.5, 0.5, 0, 0.5, 0, 0.5, 0]</effect>
+    <effect name="Hulk">ColorTransform kernel=[0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
