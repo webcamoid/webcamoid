@@ -19,37 +19,22 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef COLORREPLACESOLIDELEMENT_H
-#define COLORREPLACESOLIDELEMENT_H
+#include "falsecolor.h"
+#include "falsecolorelement.h"
 
-#include <QImage>
-#include <qrgb.h>
-
-#include <qb.h>
-
-class ColorReplaceSolidElement: public QbElement
+QObject *FalseColor::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_PROPERTY(QVariantList table READ table WRITE setTable RESET resetTable)
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        explicit ColorReplaceSolidElement();
+    return new FalseColorElement();
+}
 
-        Q_INVOKABLE QVariantList table() const;
+QStringList FalseColor::keys() const
+{
+    return QStringList();
+}
 
-    private:
-        QList<QRgb> m_table;
-
-        QbElementPtr m_convert;
-
-    public slots:
-        void setTable(const QVariantList &table);
-        void resetTable();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
-};
-
-#endif // COLORREPLACESOLIDELEMENT_H
+#if QT_VERSION < 0x050000
+Q_EXPORT_PLUGIN2(FalseColor, FalseColor)
+#endif // QT_VERSION < 0x050000

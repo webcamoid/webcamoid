@@ -19,23 +19,42 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef COLORREPLACESOLID_H
-#define COLORREPLACESOLID_H
+#ifndef FALSECOLORELEMENT_H
+#define FALSECOLORELEMENT_H
+
+#include <QImage>
+#include <qrgb.h>
 
 #include <qb.h>
 
-class ColorReplaceSolid: public QObject, public QbPlugin
+class FalseColorElement: public QbElement
 {
     Q_OBJECT
-    Q_INTERFACES(QbPlugin)
-
-#if QT_VERSION >= 0x050000
-    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
-#endif // QT_VERSION >= 0x050000
+    Q_PROPERTY(QVariantList table READ table WRITE setTable RESET resetTable)
+    Q_PROPERTY(bool gradient READ gradient WRITE setGradient RESET resetGradient)
 
     public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
+        explicit FalseColorElement();
+
+        Q_INVOKABLE QVariantList table() const;
+        Q_INVOKABLE bool gradient() const;
+
+    private:
+        QList<QRgb> m_table;
+        bool m_gradient;
+
+        QbElementPtr m_convert;
+
+    public slots:
+        void setTable(const QVariantList &table);
+        void setGradient(bool gradient);
+        void resetTable();
+        void resetGradient();
+        void iStream(const QbPacket &packet);
+        void setState(QbElement::ElementState state);
+
+    private slots:
+        void processFrame(const QbPacket &packet);
 };
 
-#endif // COLORREPLACESOLID_H
+#endif // FALSECOLORELEMENT_H
