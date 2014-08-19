@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
     <effect name="Cartoon">Frei0r pluginName='cartoon'</effect>
-    <effect name="Che Guevara">Frei0r pluginName='twolay0r'</effect>
     <effect name="Chromium">Frei0r pluginName='colortap' params={'table': 'esses'}</effect>
     <effect name="Cinema">Frei0r pluginName='letterb0xed'</effect>
     <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
@@ -72,6 +71,7 @@
     <effect name="Baltan">Baltan</effect>
     <effect name="Mauve">ColorTransform kernel=[0.5, 0.5, 0, 0, 0, 0.5, 0.5, 0, 0.5, 0, 0.5, 0]</effect>
     <effect name="Hulk">ColorTransform kernel=[0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]</effect>
+    <effect name="Che Guevara">ColorReplaceSolid table=[color(0, 0, 0), color(255, 0, 0), color(255, 255, 255)]</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
