@@ -31,8 +31,8 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/colorreplacesolid.h \
-    include/colorreplacesolidelement.h
+    include/falsecolor.h \
+    include/falsecolorelement.h
 
 INCLUDEPATH += \
     include \
@@ -50,8 +50,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 SOURCES += \
-    src/colorreplacesolid.cpp \
-    src/colorreplacesolidelement.cpp
+    src/falsecolor.cpp \
+    src/falsecolorelement.cpp
 
 DESTDIR = $${PWD}
 

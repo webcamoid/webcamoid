@@ -19,22 +19,23 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "colorreplacesolid.h"
-#include "colorreplacesolidelement.h"
+#ifndef FALSECOLOR_H
+#define FALSECOLOR_H
 
-QObject *ColorReplaceSolid::create(const QString &key, const QString &specification)
+#include <qb.h>
+
+class FalseColor: public QObject, public QbPlugin
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
+    Q_OBJECT
+    Q_INTERFACES(QbPlugin)
 
-    return new ColorReplaceSolidElement();
-}
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
+#endif // QT_VERSION >= 0x050000
 
-QStringList ColorReplaceSolid::keys() const
-{
-    return QStringList();
-}
+    public:
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
+};
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(ColorReplaceSolid, ColorReplaceSolid)
-#endif // QT_VERSION < 0x050000
+#endif // FALSECOLOR_H

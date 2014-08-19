@@ -19,9 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "colorreplacesolidelement.h"
+#include "falsecolorelement.h"
 
-ColorReplaceSolidElement::ColorReplaceSolidElement(): QbElement()
+FalseColorElement::FalseColorElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
@@ -33,10 +33,10 @@ ColorReplaceSolidElement::ColorReplaceSolidElement(): QbElement()
 
     qRegisterMetaType<QRgb>("QRgb");
 
-    this->resetTable();
+    this->resetGradient();
 }
 
-QVariantList ColorReplaceSolidElement::table() const
+QVariantList FalseColorElement::table() const
 {
     QVariantList table;
 
@@ -46,7 +46,12 @@ QVariantList ColorReplaceSolidElement::table() const
     return table;
 }
 
-void ColorReplaceSolidElement::setTable(const QVariantList &table)
+bool FalseColorElement::gradient() const
+{
+    return this->m_gradient;
+}
+
+void FalseColorElement::setTable(const QVariantList &table)
 {
     this->m_table.clear();
 
@@ -54,24 +59,34 @@ void ColorReplaceSolidElement::setTable(const QVariantList &table)
         this->m_table << color.value<QRgb>();
 }
 
-void ColorReplaceSolidElement::resetTable()
+void FalseColorElement::setGradient(bool gradient)
+{
+    this->m_gradient = gradient;
+}
+
+void FalseColorElement::resetTable()
 {
     this->m_table.clear();
 }
 
-void ColorReplaceSolidElement::iStream(const QbPacket &packet)
+void FalseColorElement::resetGradient()
+{
+    this->setGradient(false);
+}
+
+void FalseColorElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() == "video/x-raw")
         this->m_convert->iStream(packet);
 }
 
-void ColorReplaceSolidElement::setState(QbElement::ElementState state)
+void FalseColorElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());
 }
 
-void ColorReplaceSolidElement::processFrame(const QbPacket &packet)
+void FalseColorElement::processFrame(const QbPacket &packet)
 {
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
@@ -88,13 +103,13 @@ void ColorReplaceSolidElement::processFrame(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    QVector<quint8> grayBuffer;
+    quint8 *grayBuffer = new quint8[videoArea];
     int minGray = 255;
     int maxGray = 0;
 
     for (int i = 0; i < videoArea; i++) {
         int gray = qGray(srcBits[i]);
-        grayBuffer << gray;
+        grayBuffer[i] = gray;
 
         if (gray < minGray)
             minGray = gray;
@@ -103,20 +118,65 @@ void ColorReplaceSolidElement::processFrame(const QbPacket &packet)
             maxGray = gray;
     }
 
+    QRgb *table = new QRgb[256];
     int grayDiff = maxGray - minGray;
 
-    for (int i = 0; i < videoArea; i++) {
-        int gray = grayBuffer[i];
+    if (grayDiff > 0) {
+        int tableSize = this->m_table.size() - 1;
 
-        if (grayDiff > 0)
-            gray = this->m_table.size() * (gray - minGray) / grayDiff;
-        else
-            gray = 0;
+        if (this->m_gradient)
+            tableSize--;
 
-        gray = qMin(gray, this->m_table.size() - 1);
+        int size = this->m_table.size();
 
-        destBits[i] = this->m_table[gray];
+        if (this->m_gradient)
+            size--;
+
+        float j = (float) grayDiff / (this->m_table.size() - 1);
+
+        for (int gray = minGray; gray <= maxGray; gray++) {
+            int low = size * (gray - minGray) / grayDiff;
+            low = qMin(low, tableSize);
+
+            QRgb color;
+
+            if (this->m_gradient) {
+                int high = low + 1;
+
+                int rl = qRed(this->m_table[low]);
+                int gl = qGreen(this->m_table[low]);
+                int bl = qBlue(this->m_table[low]);
+
+                int rh = qRed(this->m_table[high]);
+                int gh = qGreen(this->m_table[high]);
+                int bh = qBlue(this->m_table[high]);
+
+                int minGraySec = low * j + minGray;
+                int maxGraySec = high * j + minGray;
+
+                float k = (float) (gray - minGraySec) / (maxGraySec - minGraySec);
+
+                int r = k * (rh - rl) + rl;
+                int g = k * (gh - gl) + gl;
+                int b = k * (bh - bl) + bl;
+
+                color = qRgb(r, g, b);
+            }
+            else
+                color = this->m_table[low];
+
+            table[gray] = color;
+        }
     }
+    else
+        for (int i = 0; i < 256; i++)
+            table[i] = this->m_table[0];
+
+    for (int i = 0; i < videoArea; i++)
+        destBits[i] = table[grayBuffer[i]];
+
+    delete table;
+    delete grayBuffer;
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
