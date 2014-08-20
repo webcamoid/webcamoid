@@ -81,13 +81,12 @@
     <effect name="X-Pro">ColorTap table=':/ColorTap/share/xpro.bmp'</effect>
     <effect name="X-Ray">ColorTap table=':/ColorTap/share/xray.bmp'</effect>
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
+    <effect name="Quark">Quark</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
-    <effect name="Quark">quarktv</effect>
     <effect name="Radioactive">radioactv</effect>
     <effect name="Ripple">rippletv</effect>
-    <effect name="Streak">streaktv</effect>
     <effect name="Vertigo">vertigotv</effect>
     <effect name="Warp">warptv</effect>
 
