@@ -19,9 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "colorreplaceelement.h"
+#include "colorfilterelement.h"
 
-ColorReplaceElement::ColorReplaceElement(): QbElement()
+ColorFilterElement::ColorFilterElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
@@ -33,69 +33,69 @@ ColorReplaceElement::ColorReplaceElement(): QbElement()
 
     qRegisterMetaType<QRgb>("QRgb");
 
-    this->resetFrom();
-    this->resetTo();
+    this->resetColor();
     this->resetRadius();
+    this->resetGradient();
 }
 
-QRgb ColorReplaceElement::from() const
+QRgb ColorFilterElement::color() const
 {
-    return this->m_from;
+    return this->m_color;
 }
 
-QRgb ColorReplaceElement::to() const
-{
-    return this->m_to;
-}
-
-float ColorReplaceElement::radius() const
+float ColorFilterElement::radius() const
 {
     return this->m_radius;
 }
 
-void ColorReplaceElement::setFrom(QRgb from)
+bool ColorFilterElement::gradient() const
 {
-    this->m_from = from;
+    return this->m_gradient;
 }
 
-void ColorReplaceElement::setTo(QRgb to)
+void ColorFilterElement::setColor(QRgb color)
 {
-    this->m_to = to;
+    this->m_color = color;
 }
 
-void ColorReplaceElement::setRadius(float radius)
+void ColorFilterElement::setRadius(float radius)
 {
     this->m_radius = radius;
 }
 
-void ColorReplaceElement::resetFrom()
+void ColorFilterElement::setGradient(bool gradient)
 {
-    this->m_from = qRgb(0, 0, 0);
+    this->m_gradient = gradient;
 }
 
-void ColorReplaceElement::resetTo()
+void ColorFilterElement::resetColor()
 {
-    this->m_to = qRgb(0, 0, 0);
+    this->m_color = qRgb(0, 0, 0);
 }
 
-void ColorReplaceElement::resetRadius()
+void ColorFilterElement::resetRadius()
 {
     this->setRadius(1.0);
 }
 
-void ColorReplaceElement::iStream(const QbPacket &packet)
+void ColorFilterElement::resetGradient()
+{
+    this->setGradient(false);
+}
+
+void ColorFilterElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() == "video/x-raw")
         this->m_convert->iStream(packet);
 }
 
-void ColorReplaceElement::setState(QbElement::ElementState state)
+void ColorFilterElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());
 }
 
-void ColorReplaceElement::processFrame(const QbPacket &packet)
+void ColorFilterElement::processFrame(const QbPacket &packet)
 {
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
@@ -117,9 +117,9 @@ void ColorReplaceElement::processFrame(const QbPacket &packet)
         int g = qGreen(srcBits[i]);
         int b = qBlue(srcBits[i]);
 
-        int rf = qRed(this->m_from);
-        int gf = qGreen(this->m_from);
-        int bf = qBlue(this->m_from);
+        int rf = qRed(this->m_color);
+        int gf = qGreen(this->m_color);
+        int bf = qBlue(this->m_color);
 
         int rd = r - rf;
         int gd = g - gf;
@@ -128,20 +128,24 @@ void ColorReplaceElement::processFrame(const QbPacket &packet)
         float k = sqrt(rd * rd + gd * gd + bd * bd);
 
         if (k <= this->m_radius) {
-            float p = k / this->m_radius;
+            if (this->m_gradient) {
+                float p = k / this->m_radius;
 
-            int rt = qRed(this->m_to);
-            int gt = qGreen(this->m_to);
-            int bt = qBlue(this->m_to);
+                int gray = qGray(srcBits[i]);
 
-            r = p * (r - rt) + rt;
-            g = p * (g - gt) + gt;
-            b = p * (b - bt) + bt;
+                r = p * (gray - r) + r;
+                g = p * (gray - g) + g;
+                b = p * (gray - b) + b;
 
-            destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
+                destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
+            }
+            else
+                destBits[i] = srcBits[i];
         }
-        else
-            destBits[i] = srcBits[i];
+        else {
+            int gray = qGray(srcBits[i]);
+            destBits[i] = qRgba(gray, gray, gray, qAlpha(srcBits[i]));
+        }
     }
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
