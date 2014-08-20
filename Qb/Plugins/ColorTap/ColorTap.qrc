@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/ColorTap">
+        <file>share/esses.bmp</file>
+        <file>share/heat.bmp</file>
+        <file>share/oldphoto.bmp</file>
+        <file>share/redgreen.bmp</file>
+        <file>share/sepia.bmp</file>
+        <file>share/xpro.bmp</file>
+        <file>share/xray.bmp</file>
+        <file>share/yellowblue.bmp</file>
+    </qresource>
+</RCC>
