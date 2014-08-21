@@ -82,13 +82,13 @@
     <effect name="X-Ray">ColorTap table=':/ColorTap/share/xray.bmp'</effect>
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
     <effect name="Quark">Quark</effect>
+    <effect name="Warp">Warp</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
     <effect name="Radioactive">radioactv</effect>
     <effect name="Ripple">rippletv</effect>
     <effect name="Vertigo">vertigotv</effect>
-    <effect name="Warp">warptv</effect>
 
     <effect name="Rotate 180">videoflip method=rotate-180</effect>
     <effect name="Rotate Left">videoflip method=counterclockwise</effect>

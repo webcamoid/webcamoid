@@ -46,6 +46,7 @@ class QbFrac: public QObject
         Q_INVOKABLE qint64 num() const;
         Q_INVOKABLE qint64 den() const;
         Q_INVOKABLE double value() const;
+        Q_INVOKABLE int fastValue() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbFrac invert() const;

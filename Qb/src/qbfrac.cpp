@@ -116,6 +116,11 @@ double QbFrac::value() const
     return this->m_num / (double) this->m_den;
 }
 
+int QbFrac::fastValue() const
+{
+    return this->m_num / this->m_den;
+}
+
 bool QbFrac::isValid() const
 {
     return this->m_isValid;
