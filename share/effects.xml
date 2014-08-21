@@ -22,11 +22,8 @@
             'Classifier': '/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml'
         }
     </effect>
-    <effect name="Flip Top Left">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 1}</effect>
     <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
-    <effect name="Horizontal Mirror">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 0}</effect>
     <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
-    <effect name="Inverted BW">Frei0r pluginName='colordistance'</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
     <effect name="Nervous">Frei0r pluginName='nervous'</effect>
     <effect name="Noir">Frei0r pluginName='colorize' params={'saturation': 0}</effect>
@@ -36,18 +33,17 @@
     <effect name="Primary Colors">Frei0r pluginName='primaries' params={'Factor': 1}</effect>
     <effect name="Saturation">Frei0r pluginName='colorize' params={'saturation': 1}</effect>
 <!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
-    <effect name="Sobel">Frei0r pluginName='sobel'</effect>
-    <effect name="Vertical Mirror">Frei0r pluginName='flippo' params={'X axis': 0, 'Y axis': 1}</effect>
     <effect name="Vignette">Frei0r pluginName='vignette' params={'soft': 0.3, 'clearCenter': 0.5}</effect>
     <effect name="Andy Warhol">Warhol</effect>
     <effect name="Blur">Blur</effect>
+    <effect name="Edges">Edge</effect>
     <effect name="Charcoal">Edge ! Invert ! GrayScale ! Normalize</effect>
     <effect name="Dices">Dice</effect>
-    <effect name="Edges">Edge</effect>
     <effect name="Equalize">Equalize</effect>
     <effect name="Fire">Fire</effect>
     <effect name="Gray Colors">GrayScale</effect>
     <effect name="Invert">Invert</effect>
+    <effect name="Inverted BW">GrayScale ! Invert</effect>
     <effect name="Matrix">Matrix</effect>
     <effect name="Normalize">Normalize</effect>
     <effect name="Old">Aging</effect>
@@ -83,6 +79,9 @@
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
     <effect name="Quark">Quark</effect>
     <effect name="Warp">Warp</effect>
+    <effect name="Flip Top Left">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 1}</effect>
+    <effect name="Horizontal Mirror">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 0}</effect>
+    <effect name="Vertical Mirror">Frei0r pluginName='flippo' params={'X axis': 0, 'Y axis': 1}</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
