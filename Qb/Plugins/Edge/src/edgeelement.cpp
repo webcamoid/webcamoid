@@ -32,6 +32,59 @@ EdgeElement::EdgeElement(): QbElement()
                      SLOT(processFrame(const QbPacket &)));
 }
 
+QImage EdgeElement::convolve(const QImage &src) const
+{
+    QImage dst(src.size(), src.format());
+    QRgb *srcBits = (QRgb *) src.bits();
+    QRgb *destBits = (QRgb *) dst.bits();
+
+    int srcWidth = src.width();
+    int srcHeight = src.height();
+
+    QVector<int> kernelX;
+
+    kernelX << -1 << 0 << 1
+            << -2 << 0 << 2
+            << -1 << 0 << 1;
+
+    QVector<int> kernelY;
+
+    kernelY <<  1 <<  2 <<  1
+            <<  0 <<  0 <<  0
+            << -1 << -2 << -1;
+
+    for (int y = 0; y < srcHeight; y++)
+        for (int x = 0; x < srcWidth; x++) {
+            int rx;
+            int gx;
+            int bx;
+
+            this->sobel(srcBits, kernelX.constData(),
+                        x, y, srcWidth, srcHeight,
+                        &rx, &gx, &bx);
+
+            int ry;
+            int gy;
+            int by;
+
+            this->sobel(srcBits, kernelY.constData(),
+                        x, y, srcWidth, srcHeight,
+                        &ry, &gy, &by);
+
+            int r = sqrt(rx * rx + ry * ry);
+            int g = sqrt(gx * gx + gy * gy);
+            int b = sqrt(bx * bx + by * by);
+
+            r = qBound(0, r, 255);
+            g = qBound(0, g, 255);
+            b = qBound(0, b, 255);
+
+            *destBits++ = qRgb(r, g, b);
+        }
+
+    return dst;
+}
+
 void EdgeElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() == "video/x-raw")
@@ -52,117 +105,9 @@ void EdgeElement::processFrame(const QbPacket &packet)
     QImage src = QImage((const uchar *) packet.buffer().data(),
                         width,
                         height,
-                        QImage::Format_RGB32);
+                        QImage::Format_ARGB32);
 
-    QImage oFrame = QImage(src.size(), src.format());
-
-    quint32 *srcBits = (quint32 *) src.bits();
-    quint32 *destBits = (quint32 *) oFrame.bits();
-
-    int mapWidth = src.width() >> 2;
-    int mapHeight = src.height() >> 2;
-    int widthMargin = src.width() - (mapWidth << 2);
-    QVector<qint32> map(mapWidth * mapHeight * 2, 0);
-
-    srcBits += src.width() * 4 + 4;
-    destBits += src.width() * 4 + 4;
-
-    for (int y = 1; y < mapHeight - 1; y++) {
-        for (int x = 1; x < mapWidth - 1; x++) {
-            qint32 p = *srcBits;
-            qint32 q = *(srcBits - 4);
-
-            // difference between the current pixel and right neighbor.
-            int r = ((int)(p & 0xff0000) - (int)(q & 0xff0000)) >> 16;
-            int g = ((int)(p & 0x00ff00) - (int)(q & 0x00ff00)) >> 8;
-            int b = ((int)(p & 0x0000ff) - (int)(q & 0x0000ff));
-
-            r *= r; // Multiply itself and divide it with 16, instead of
-            g *= g; // using abs().
-            b *= b;
-
-            r = r >> 5; // To lack the lower bit for saturated addition,
-            g = g >> 5; // devide the value with 32, instead of 16. It is
-            b = b >> 4; // same as `v2 &= 0xfefeff'
-
-            if (r > 127)
-                r = 127;
-
-            if (g > 127)
-                g = 127;
-
-            if (b > 255)
-                b = 255;
-
-            qint32 v2 = (r << 17) | (g << 9) | b;
-
-            // difference between the current pixel and upper neighbor.
-            q = *(srcBits - src.width() * 4);
-
-            r = ((int)(p & 0xff0000) - (int)(q & 0xff0000)) >> 16;
-            g = ((int)(p & 0x00ff00) - (int)(q & 0x00ff00)) >> 8;
-            b = ((int)(p & 0x0000ff) - (int)(q & 0x0000ff));
-
-            r *= r;
-            g *= g;
-            b *= b;
-
-            r = r >> 5;
-            g = g >> 5;
-            b = b >> 4;
-
-            if (r > 127)
-                r = 127;
-
-            if (g > 127)
-                g = 127;
-
-            if (b > 255)
-                b = 255;
-
-            qint32 v3 = (r << 17) | (g << 9) | b;
-
-            qint32 v0 = map[(y - 1) * mapWidth * 2 + x * 2];
-            qint32 v1 = map[y * mapWidth * 2 + (x - 1) * 2 + 1];
-
-            map[y * mapWidth * 2 + x * 2] = v2;
-            map[y * mapWidth * 2 + x * 2 + 1] = v3;
-
-            r = v0 + v1;
-            g = r & 0x01010100;
-
-            destBits[0] = r | (g - (g >> 8));
-
-            r = v0 + v3;
-            g = r & 0x01010100;
-
-            destBits[1] = r | (g - (g >> 8));
-            destBits[2] = v3;
-            destBits[3] = v3;
-
-            r = v2 + v1;
-            g = r & 0x01010100;
-
-            destBits[src.width()] = r | (g - (g >> 8));
-
-            r = v2 + v3;
-            g = r & 0x01010100;
-
-            destBits[src.width() + 1] = r | (g - (g >> 8));
-            destBits[src.width() + 2] = v3;
-            destBits[src.width() + 3] = v3;
-            destBits[src.width() * 2] = v2;
-            destBits[src.width() * 2 + 1] = v2;
-            destBits[src.width() * 3] = v2;
-            destBits[src.width() * 3 + 1] = v2;
-
-            srcBits += 4;
-            destBits += 4;
-        }
-
-        srcBits += src.width() * 3 + 8 + widthMargin;
-        destBits += src.width() * 3 + 8 + widthMargin;
-    }
+    QImage oFrame = this->convolve(src);
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());

@@ -35,6 +35,36 @@ class EdgeElement: public QbElement
     private:
         QbElementPtr m_convert;
 
+        QImage convolve(const QImage &src) const;
+
+        inline void sobel(const QRgb *src, const int *kernel,
+                          int x, int y, int width, int height,
+                          int *r, int *g, int *b) const
+        {
+            *r = 0;
+            *g = 0;
+            *b = 0;
+
+            QRect rect(0, 0, width, height);
+
+            for (int j = -1; j < 2; j++) {
+                int yp = y + j;
+
+                for (int i = -1; i < 2; i++) {
+                    int k = *kernel++;
+                    int xp = x + i;
+
+                    if (k && rect.contains(xp, yp)) {
+                        QRgb pixel = src[xp + yp * width];
+
+                        *r += k * qRed(pixel);
+                        *g += k * qGreen(pixel);
+                        *b += k * qBlue(pixel);
+                    }
+                }
+            }
+        }
+
     public slots:
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
