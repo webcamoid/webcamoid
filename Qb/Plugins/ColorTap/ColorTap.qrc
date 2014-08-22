@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/ColorTap">
+        <file>share/base.bmp</file>
         <file>share/esses.bmp</file>
         <file>share/heat.bmp</file>
         <file>share/oldphoto.bmp</file>

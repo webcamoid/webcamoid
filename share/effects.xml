@@ -6,6 +6,14 @@
     <effect name="Dither">Frei0r pluginName='dither'</effect>
     <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
     <effect name="Emboss">Frei0r pluginName='emboss'</effect>
+    <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
+    <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
+    <effect name="Nervous">Frei0r pluginName='nervous'</effect>
+    <effect name="Past">Frei0r pluginName='delaygrab'</effect>
+    <effect name="Photocopy">Frei0r pluginName='sigmoidaltransfer'</effect>
+    <effect name="Pixelate">Frei0r pluginName='pixeliz0r'</effect>
+    <effect name="Primary Colors">Frei0r pluginName='primaries' params={'Factor': 1}</effect>
+    <effect name="Vignette">Frei0r pluginName='vignette' params={'soft': 0.3, 'clearCenter': 0.5}</effect>
     <effect name="Face Detect">
         Frei0r pluginName='facedetect' params={
             'Recheck': 0.001,
@@ -21,70 +29,61 @@
             'Classifier': '/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml'
         }
     </effect>
-    <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
-    <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
-    <effect name="Nervous">Frei0r pluginName='nervous'</effect>
-    <effect name="Past">Frei0r pluginName='delaygrab'</effect>
-    <effect name="Photocopy">Frei0r pluginName='sigmoidaltransfer'</effect>
-    <effect name="Pixelate">Frei0r pluginName='pixeliz0r'</effect>
-    <effect name="Primary Colors">Frei0r pluginName='primaries' params={'Factor': 1}</effect>
-<!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
-    <effect name="Vignette">Frei0r pluginName='vignette' params={'soft': 0.3, 'clearCenter': 0.5}</effect>
-    <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
-    <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
-    <effect name="Noir">Frei0r pluginName='colorize' params={'saturation': 0}</effect>
-    <effect name="Saturation">Frei0r pluginName='colorize' params={'saturation': 1}</effect>
     <effect name="Andy Warhol">Warhol</effect>
     <effect name="Blur">Blur</effect>
-    <effect name="Edges">Edge</effect>
     <effect name="Charcoal">Edge ! Invert ! GrayScale ! Normalize</effect>
-    <effect name="Dices">Dice</effect>
-    <effect name="Equalize">Equalize</effect>
-    <effect name="Fire">Fire</effect>
-    <effect name="Gray Colors">GrayScale</effect>
-    <effect name="Invert">Invert</effect>
-    <effect name="Inverted BW">GrayScale ! Invert</effect>
-    <effect name="Matrix">Matrix</effect>
-    <effect name="Normalize">Normalize</effect>
-    <effect name="Old">Aging</effect>
-    <effect name="Psychedelic">Shagadelic</effect>
-    <effect name="Scroll">Scroll</effect>
-    <effect name="Oil Paint">OilPaint radius=2</effect>
-    <effect name="implode">Implode amount=0.5</effect>
-    <effect name="Swirl">Swirl degrees=90</effect>
-    <effect name="Wave">Wave amplitude=25 phases=5</effect>
-    <effect name="Life">Life</effect>
-    <effect name="Streak">Streak</effect>
-    <effect name="Baltan">Baltan</effect>
-    <effect name="Mauve">ColorTransform kernel=[0.5, 0.5, 0, 0, 0, 0.5, 0.5, 0, 0.5, 0, 0.5, 0]</effect>
-    <effect name="Hulk">ColorTransform kernel=[0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]</effect>
     <effect name="Che Guevara">
         FalseColor table=[color(0, 0, 0),
                           color(255, 0, 0),
                           color(255, 255, 255),
                           color(255, 255, 255)]
     </effect>
+    <effect name="Chromium">ColorTap table=':/ColorTap/share/esses.bmp'</effect>
+    <effect name="Dices">Dice</effect>
+    <effect name="Edges">Edge</effect>
+    <effect name="Equalize">Equalize</effect>
+    <effect name="Fire">Fire</effect>
+    <effect name="Flip Top Left">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Gray Colors">GrayScale</effect>
+    <effect name="Heat">ColorTap table=':/ColorTap/share/heat.bmp'</effect>
+    <effect name="Horizontal Mirror">MatrixTransform kernel=[-1, 0, 0, 0, 1, 0]</effect>
+    <effect name="Hulk">ColorTransform kernel=[0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]</effect>
+    <effect name="Implode">Implode amount=0.5</effect>
+    <effect name="Invert">Invert</effect>
+    <effect name="Inverted BW">GrayScale ! Invert</effect>
+    <effect name="Life">Life</effect>
+    <effect name="Matrix">Matrix</effect>
+    <effect name="Mauve">ColorTransform kernel=[0.5, 0.5, 0, 0, 0, 0.5, 0.5, 0, 0.5, 0, 0.5, 0]</effect>
+    <effect name="Normalize">Normalize</effect>
+    <effect name="Oil Paint">OilPaint radius=2</effect>
+    <effect name="Old Photo">ColorTap table=':/ColorTap/share/oldphoto.bmp'</effect>
+    <effect name="Old">Aging</effect>
+    <effect name="Psychedelic">Shagadelic</effect>
+    <effect name="Quark">Quark</effect>
+    <effect name="Red Green">ColorTap table=':/ColorTap/share/redgreen.bmp'</effect>
+    <effect name="Rotate 180">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Rotate Left">MatrixTransform kernel=[0, -1, 0, 1, 0, 0]</effect>
+    <effect name="Rotate Right">MatrixTransform kernel=[0, 1, 0, -1, 0, 0]</effect>
+    <effect name="Saturation">ChangeHSL hsl=[0, 1, 0]</effect>
+    <effect name="Scroll">Scroll</effect>
+    <effect name="Sepia">ColorTap table=':/ColorTap/share/sepia.bmp'</effect>
+    <effect name="Swirl">Swirl degrees=90</effect>
     <effect name="The Godfather">
         FalseColor table=[color(0, 0, 0),
                           color(127, 127, 127),
                           color(255, 255, 255)]
     </effect>
-    <effect name="Heat">ColorTap table=':/ColorTap/share/heat.bmp'</effect>
-    <effect name="Chromium">ColorTap table=':/ColorTap/share/esses.bmp'</effect>
-    <effect name="Old Photo">ColorTap table=':/ColorTap/share/oldphoto.bmp'</effect>
-    <effect name="Red Green">ColorTap table=':/ColorTap/share/redgreen.bmp'</effect>
-    <effect name="Sepia">ColorTap table=':/ColorTap/share/sepia.bmp'</effect>
+    <effect name="Vertical Mirror">MatrixTransform kernel=[1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Warp">Warp</effect>
+    <effect name="Wave">Wave amplitude=25 phases=5</effect>
     <effect name="X-Pro">ColorTap table=':/ColorTap/share/xpro.bmp'</effect>
     <effect name="X-Ray">ColorTap table=':/ColorTap/share/xray.bmp'</effect>
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
-    <effect name="Quark">Quark</effect>
-    <effect name="Warp">Warp</effect>
-    <effect name="Flip Top Left">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
-    <effect name="Horizontal Mirror">MatrixTransform kernel=[-1, 0, 0, 0, 1, 0]</effect>
-    <effect name="Vertical Mirror">MatrixTransform kernel=[1, 0, 0, 0, -1, 0]</effect>
-    <effect name="Rotate 180">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
-    <effect name="Rotate Left">MatrixTransform kernel=[0, -1, 0, 1, 0, 0]</effect>
-    <effect name="Rotate Right">MatrixTransform kernel=[0, 1, 0, -1, 0, 0]</effect>
+    <effect name="Baltan">Baltan</effect>
+    <effect name="Streak">Streak</effect>
+<!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
+    <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
+    <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
