@@ -2,7 +2,6 @@
 <effects>
     <effect name="Cartoon">Frei0r pluginName='cartoon'</effect>
     <effect name="Cinema">Frei0r pluginName='letterb0xed'</effect>
-    <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
     <effect name="Distort">Frei0r pluginName='distort0r'</effect>
     <effect name="Dither">Frei0r pluginName='dither'</effect>
     <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
@@ -23,17 +22,18 @@
         }
     </effect>
     <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
-    <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
     <effect name="Nervous">Frei0r pluginName='nervous'</effect>
-    <effect name="Noir">Frei0r pluginName='colorize' params={'saturation': 0}</effect>
     <effect name="Past">Frei0r pluginName='delaygrab'</effect>
     <effect name="Photocopy">Frei0r pluginName='sigmoidaltransfer'</effect>
     <effect name="Pixelate">Frei0r pluginName='pixeliz0r'</effect>
     <effect name="Primary Colors">Frei0r pluginName='primaries' params={'Factor': 1}</effect>
-    <effect name="Saturation">Frei0r pluginName='colorize' params={'saturation': 1}</effect>
 <!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
     <effect name="Vignette">Frei0r pluginName='vignette' params={'soft': 0.3, 'clearCenter': 0.5}</effect>
+    <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
+    <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
+    <effect name="Noir">Frei0r pluginName='colorize' params={'saturation': 0}</effect>
+    <effect name="Saturation">Frei0r pluginName='colorize' params={'saturation': 1}</effect>
     <effect name="Andy Warhol">Warhol</effect>
     <effect name="Blur">Blur</effect>
     <effect name="Edges">Edge</effect>
@@ -79,19 +79,18 @@
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
     <effect name="Quark">Quark</effect>
     <effect name="Warp">Warp</effect>
-    <effect name="Flip Top Left">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 1}</effect>
-    <effect name="Horizontal Mirror">Frei0r pluginName='flippo' params={'X axis': 1, 'Y axis': 0}</effect>
-    <effect name="Vertical Mirror">Frei0r pluginName='flippo' params={'X axis': 0, 'Y axis': 1}</effect>
+    <effect name="Flip Top Left">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Horizontal Mirror">MatrixTransform kernel=[-1, 0, 0, 0, 1, 0]</effect>
+    <effect name="Vertical Mirror">MatrixTransform kernel=[1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Rotate 180">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Rotate Left">MatrixTransform kernel=[0, -1, 0, 1, 0, 0]</effect>
+    <effect name="Rotate Right">MatrixTransform kernel=[0, 1, 0, -1, 0, 0]</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
     <effect name="Radioactive">radioactv</effect>
     <effect name="Ripple">rippletv</effect>
     <effect name="Vertigo">vertigotv</effect>
-
-    <effect name="Rotate 180">videoflip method=rotate-180</effect>
-    <effect name="Rotate Left">videoflip method=counterclockwise</effect>
-    <effect name="Rotate Right">videoflip method=clockwise</effect>
 
     <effect name="Bulge">bulge</effect>
     <effect name="Burn">burn</effect>
