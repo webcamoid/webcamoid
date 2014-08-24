@@ -39,6 +39,13 @@
                           color(255, 255, 255)]
     </effect>
     <effect name="Chromium">ColorTap table=':/ColorTap/share/esses.bmp'</effect>
+    <effect name="Cold">
+        FalseColor gradient=true
+            table=[color(0, 0, 0),
+                   color(0, 127, 255),
+                   color(0, 255, 255),
+                   color(255, 255, 255)]
+    </effect>
     <effect name="Dices">Dice</effect>
     <effect name="Edges">Edge</effect>
     <effect name="Equalize">Equalize</effect>
@@ -47,6 +54,13 @@
     <effect name="Gray Colors">GrayScale</effect>
     <effect name="Heat">ColorTap table=':/ColorTap/share/heat.bmp'</effect>
     <effect name="Horizontal Mirror">MatrixTransform kernel=[-1, 0, 0, 0, 1, 0]</effect>
+    <effect name="Hot">
+        FalseColor gradient=true
+            table=[color(0, 0, 0),
+                   color(255, 0, 0),
+                   color(255, 255, 0),
+                   color(255, 255, 255)]
+    </effect>
     <effect name="Hulk">ColorTransform kernel=[0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]</effect>
     <effect name="Implode">Implode amount=0.5</effect>
     <effect name="Invert">Invert</effect>
@@ -82,8 +96,6 @@
     <effect name="Baltan">Baltan</effect>
     <effect name="Streak">Streak</effect>
 <!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
-    <effect name="Cold">Frei0r pluginName='colgate' params={'Color Temperature': 0.9}</effect>
-    <effect name="Hot">Frei0r pluginName='colgate' params={'Color Temperature': 0.1}</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>
