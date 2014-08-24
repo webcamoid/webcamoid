@@ -79,6 +79,7 @@
     <effect name="Rotate Left">MatrixTransform kernel=[0, -1, 0, 1, 0, 0]</effect>
     <effect name="Rotate Right">MatrixTransform kernel=[0, 1, 0, -1, 0, 0]</effect>
     <effect name="Saturation">ChangeHSL hsl=[0, 1, 0]</effect>
+    <effect name="Scan Lines">ScanLines'</effect>
     <effect name="Scroll">Scroll</effect>
     <effect name="Sepia">ColorTap table=':/ColorTap/share/sepia.bmp'</effect>
     <effect name="Swirl">Swirl degrees=90</effect>
@@ -95,7 +96,6 @@
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
     <effect name="Baltan">Baltan</effect>
     <effect name="Streak">Streak</effect>
-<!--    <effect name="Scan Lines">Frei0r pluginName='scanline0r'</effect>-->
 
 <!--
     <effect name="Hypnotic">optv</effect>
