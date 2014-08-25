@@ -19,51 +19,39 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef STREAKELEMENT_H
-#define STREAKELEMENT_H
+#ifndef FRAMEOVERLAPELEMENT_H
+#define FRAMEOVERLAPELEMENT_H
 
 #include <QImage>
+#include <QColor>
+
 #include <qb.h>
 
-class StreakElement: public QbElement
+class FrameOverlapElement: public QbElement
 {
     Q_OBJECT
-
-    Q_PROPERTY(int planes READ planes WRITE setPlanes RESET resetPlanes)
+    Q_PROPERTY(int nFrames READ nFrames WRITE setNFrames RESET resetNFrames)
     Q_PROPERTY(int stride READ stride WRITE setStride RESET resetStride)
-    Q_PROPERTY(quint32 strideMask READ strideMask WRITE setStrideMask RESET resetStrideMask)
-    Q_PROPERTY(int strideShift READ strideShift WRITE setStrideShift RESET resetStrideShift)
 
     public:
-        explicit StreakElement();
+        explicit FrameOverlapElement();
 
-        Q_INVOKABLE int planes() const;
+        Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE int stride() const;
-        Q_INVOKABLE quint32 strideMask() const;
-        Q_INVOKABLE int strideShift() const;
 
     private:
-        int m_planes;
+        int m_nFrames;
         int m_stride;
-        quint32 m_strideMask;
-        int m_strideShift;
 
         QbElementPtr m_convert;
+        QVector<QImage> m_frames;
         QbCaps m_caps;
-        QImage m_buffer;
-        QVector<quint32 *> m_planeTable;
-        int m_plane;
 
     public slots:
-        void setPlanes(int planes);
+        void setNFrames(int nFrames);
         void setStride(int stride);
-        void setStrideMask(quint32 strideMask);
-        void setStrideShift(int strideShift);
-        void resetPlanes();
+        void resetNFrames();
         void resetStride();
-        void resetStrideMask();
-        void resetStrideShift();
-
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
 
@@ -71,4 +59,4 @@ class StreakElement: public QbElement
         void processFrame(const QbPacket &packet);
 };
 
-#endif // STREAKELEMENT_H
+#endif // FRAMEOVERLAPELEMENT_H

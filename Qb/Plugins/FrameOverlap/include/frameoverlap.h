@@ -19,12 +19,12 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef BALTAN_H
-#define BALTAN_H
+#ifndef FRAMEOVERLAP_H
+#define FRAMEOVERLAP_H
 
 #include <qb.h>
 
-class Baltan: public QObject, public QbPlugin
+class FrameOverlap: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
@@ -38,4 +38,4 @@ class Baltan: public QObject, public QbPlugin
         QStringList keys() const;
 };
 
-#endif // BALTAN_H
+#endif // FRAMEOVERLAP_H

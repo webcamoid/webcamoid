@@ -19,22 +19,22 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "streak.h"
-#include "streakelement.h"
+#include "frameoverlap.h"
+#include "frameoverlapelement.h"
 
-QObject *Streak::create(const QString &key, const QString &specification)
+QObject *FrameOverlap::create(const QString &key, const QString &specification)
 {
     Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new StreakElement();
+    return new FrameOverlapElement();
 }
 
-QStringList Streak::keys() const
+QStringList FrameOverlap::keys() const
 {
     return QStringList();
 }
 
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(Streak, Streak)
+Q_EXPORT_PLUGIN2(FrameOverlap, FrameOverlap)
 #endif // QT_VERSION < 0x050000
