@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
     <effect name="Cartoon">Frei0r pluginName='cartoon'</effect>
-    <effect name="Cinema">Frei0r pluginName='letterb0xed'</effect>
     <effect name="Distort">Frei0r pluginName='distort0r'</effect>
     <effect name="Dither">Frei0r pluginName='dither'</effect>
     <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
@@ -39,6 +38,7 @@
                           color(255, 255, 255)]
     </effect>
     <effect name="Chromium">ColorTap table=':/ColorTap/share/esses.bmp'</effect>
+    <effect name="Cinema">Cinema stripSize=0.5 stripColor=color(0, 0, 0, 255)</effect>
     <effect name="Cold">
         FalseColor gradient=true
             table=[color(0, 0, 0),
