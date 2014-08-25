@@ -61,13 +61,22 @@
                    color(255, 255, 0),
                    color(255, 255, 255)]
     </effect>
-    <effect name="Hulk">ColorTransform kernel=[0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]</effect>
+    <effect name="Hulk">
+        ColorTransform kernel=[0, 1, 0, 0,
+                               1, 0, 0, 0,
+                               0, 0, 1, 0]
+    </effect>
     <effect name="Implode">Implode amount=0.5</effect>
     <effect name="Invert">Invert</effect>
     <effect name="Inverted BW">GrayScale ! Invert</effect>
+    <effect name="Kung Fu Master">FrameOverlap nFrames=16 stride=8</effect>
     <effect name="Life">Life</effect>
     <effect name="Matrix">Matrix</effect>
-    <effect name="Mauve">ColorTransform kernel=[0.5, 0.5, 0, 0, 0, 0.5, 0.5, 0, 0.5, 0, 0.5, 0]</effect>
+    <effect name="Mauve">
+        ColorTransform kernel=[0.5, 0.5,   0, 0,
+                                 0, 0.5, 0.5, 0,
+                               0.5,   0, 0.5, 0]
+    </effect>
     <effect name="Normalize">Normalize</effect>
     <effect name="Oil Paint">OilPaint radius=2</effect>
     <effect name="Old Photo">ColorTap table=':/ColorTap/share/oldphoto.bmp'</effect>
@@ -94,8 +103,6 @@
     <effect name="X-Pro">ColorTap table=':/ColorTap/share/xpro.bmp'</effect>
     <effect name="X-Ray">ColorTap table=':/ColorTap/share/xray.bmp'</effect>
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
-    <effect name="Baltan">Baltan</effect>
-    <effect name="Streak">Streak</effect>
 
 <!--
     <effect name="Hypnotic">optv</effect>

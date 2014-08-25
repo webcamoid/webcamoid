@@ -31,8 +31,8 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/baltan.h \
-    include/baltanelement.h
+    include/frameoverlap.h \
+    include/frameoverlapelement.h
 
 INCLUDEPATH += \
     include \
@@ -45,9 +45,13 @@ OTHER_FILES += pspec.json
 
 QT += core gui
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 SOURCES += \
-    src/baltan.cpp \
-    src/baltanelement.cpp
+    src/frameoverlap.cpp \
+    src/frameoverlapelement.cpp
 
 DESTDIR = $${PWD}
 
