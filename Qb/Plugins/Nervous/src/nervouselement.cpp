@@ -19,9 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "frameoverlapelement.h"
+#include "nervouselement.h"
 
-FrameOverlapElement::FrameOverlapElement(): QbElement()
+NervousElement::NervousElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
@@ -34,52 +34,53 @@ FrameOverlapElement::FrameOverlapElement(): QbElement()
     qRegisterMetaType<QRgb>("QRgb");
 
     this->resetNFrames();
-    this->resetStride();
+    this->resetSimple();
+    this->m_stride = 0;
 }
 
-int FrameOverlapElement::nFrames() const
+int NervousElement::nFrames() const
 {
     return this->m_nFrames;
 }
 
-int FrameOverlapElement::stride() const
+bool NervousElement::simple() const
 {
-    return this->m_stride;
+    return this->m_simple;
 }
 
-void FrameOverlapElement::setNFrames(int nFrames)
+void NervousElement::setNFrames(int nFrames)
 {
     this->m_nFrames = nFrames;
 }
 
-void FrameOverlapElement::setStride(int stride)
+void NervousElement::setSimple(bool simple)
 {
-    this->m_stride = stride;
+    this->m_simple = simple;
 }
 
-void FrameOverlapElement::resetNFrames()
+void NervousElement::resetNFrames()
 {
-    this->setNFrames(16);
+    this->setNFrames(32);
 }
 
-void FrameOverlapElement::resetStride()
+void NervousElement::resetSimple()
 {
-    this->setStride(4);
+    this->setSimple(false);
 }
 
-void FrameOverlapElement::iStream(const QbPacket &packet)
+void NervousElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() == "video/x-raw")
         this->m_convert->iStream(packet);
 }
 
-void FrameOverlapElement::setState(QbElement::ElementState state)
+void NervousElement::setState(QbElement::ElementState state)
 {
     QbElement::setState(state);
     this->m_convert->setState(this->state());
 }
 
-void FrameOverlapElement::processFrame(const QbPacket &packet)
+void NervousElement::processFrame(const QbPacket &packet)
 {
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
@@ -89,16 +90,10 @@ void FrameOverlapElement::processFrame(const QbPacket &packet)
                         height,
                         QImage::Format_ARGB32);
 
-    int videoArea = width * height;
-
-    QImage oFrame(src.size(), src.format());
-
-    QRgb *destBits = (QRgb *) oFrame.bits();
-
     if (packet.caps() != this->m_caps) {
         this->m_frames.clear();
         this->resetNFrames();
-        this->resetStride();
+        this->m_stride = 0;
 
         this->m_caps = packet.caps();
     }
@@ -109,37 +104,29 @@ void FrameOverlapElement::processFrame(const QbPacket &packet)
     for (int i = 0; i < diff; i++)
         this->m_frames.takeFirst();
 
-    QVector<QRgb *> framesBits;
+    int timer = 0;
+    int nFrame = 0;
 
-    for (int frame = 0; frame < this->m_frames.size(); frame++)
-        framesBits << (QRgb *) this->m_frames[frame].bits();
-
-    for (int i = 0; i < videoArea; i++) {
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int a = 0;
-        int n = 0;
-
-        for (int frame = this->m_frames.size() - 1;
-             frame >= 0;
-             frame -= this->m_stride) {
-            QRgb pixel = framesBits[frame][i];
-
-            r += qRed(pixel);
-            g += qGreen(pixel);
-            b += qBlue(pixel);
-            a += qAlpha(pixel);
-            n++;
+    if (!this->m_simple) {
+        if (timer) {
+            nFrame += this->m_stride;
+            nFrame = qBound(0, nFrame, this->m_frames.size() - 1);
+            timer--;
         }
+        else {
+            nFrame = qrand() % this->m_frames.size();
+            this->m_stride = qrand() % 5 - 2;
 
-        r /= n;
-        g /= n;
-        b /= n;
-        a /= n;
+            if(this->m_stride >= 0)
+                this->m_stride++;
 
-        destBits[i] = qRgba(r, g, b, a);
+            timer = qrand() % 6 + 2;
+        }
     }
+    else if(this->m_frames.size() > 0)
+        nFrame = qrand() % this->m_frames.size();
+
+    QImage oFrame = this->m_frames[nFrame];
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
