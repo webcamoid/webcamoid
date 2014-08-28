@@ -112,7 +112,7 @@ QVector<int> DelayGrabElement::createDelaymap(DelayGrabMode mode)
                 int v;
 
                 if (y < k)
-                    v = k;
+                    v = k - y;
                 else if (y > k)
                     v = y - k;
                 else
@@ -169,19 +169,13 @@ void DelayGrabElement::processFrame(const QbPacket &packet)
 
     QImage oFrame = QImage(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
     if (packet.caps() != this->m_caps) {
-        int bpp = src.bytesPerLine() / width;
-        this->m_blockPerPitch = this->m_blockSize * src.bytesPerLine();
-        this->m_blockPerBytes = this->m_blockSize * (bpp >> 3);
-        this->m_blockPerRes = this->m_blockSize << (bpp >> 4);
-
         this->m_delayMapWidth = width / this->m_blockSize;
         this->m_delayMapHeight = height / this->m_blockSize;
-
         this->m_delayMap = this->createDelaymap(this->m_mode);
+        this->m_frames.clear();
 
         this->m_caps = packet.caps();
     }
@@ -195,23 +189,23 @@ void DelayGrabElement::processFrame(const QbPacket &packet)
     // Copy image blockwise to screenbuffer
     for (int i = 0, y = 0; y < this->m_delayMapHeight; y++) {
         for (int x = 0; x < this->m_delayMapWidth ; i++, x++) {
-            int curFrame = (this->m_frames.size() - 1 - this->m_delayMap[i]) % this->m_frames.size();
-            int xyoff = x * this->m_blockPerBytes + y * this->m_blockPerPitch;
+            int curFrame = abs(this->m_frames.size() - 1 - this->m_delayMap[i]) % this->m_frames.size();
+            int curFrameWidth = this->m_frames[curFrame].width();
+            int xyoff = this->m_blockSize * (x + y * curFrameWidth);
 
             // source
-            curpos = imagequeue;
-            curpos += geo.size * curFrame;
-            curpos += xyoff;
+            QRgb *source = (QRgb *) this->m_frames[curFrame].bits();
+            source += xyoff;
 
-            // targe
-            curimage = (uint8_t *) out;
-            curimage += xyoff;
+            // target
+            QRgb *dest = destBits;
+            dest += xyoff;
 
             // copy block
             for (int j = 0; j < this->m_blockSize; j++) {
-                memcpy(curimage, curpos, this->m_blockPerRes);
-                curpos += geo.pitch;
-                curimage += geo.pitch;
+                memcpy(dest, source, 4 * this->m_blockSize);
+                source += curFrameWidth;
+                dest += curFrameWidth;
             }
         }
     }
