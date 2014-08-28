@@ -7,7 +7,6 @@
     <effect name="Emboss">Frei0r pluginName='emboss'</effect>
     <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
-    <effect name="Photocopy">Frei0r pluginName='sigmoidaltransfer'</effect>
     <effect name="Vignette">Frei0r pluginName='vignette' params={'soft': 0.3, 'clearCenter': 0.5}</effect>
     <effect name="Face Detect">
         Frei0r pluginName='facedetect' params={
@@ -80,6 +79,7 @@
     <effect name="Old Photo">ColorTap table=':/ColorTap/share/oldphoto.bmp'</effect>
     <effect name="Old">Aging</effect>
     <effect name="Particles">DelayGrab mode='RandomSquare'</effect>
+    <effect name="Photocopy">Photocopy</effect>
     <effect name="Pixelate">Pixelate</effect>
     <effect name="Primaries Colors">PrimariesColors</effect>
     <effect name="Psychedelic">Shagadelic</effect>
