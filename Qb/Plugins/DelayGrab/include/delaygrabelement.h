@@ -62,9 +62,6 @@ class DelayGrabElement: public QbElement
         QVector<QImage> m_frames;
         int m_delayMapWidth;
         int m_delayMapHeight;
-        int m_blockPerPitch;
-        int m_blockPerBytes;
-        int m_blockPerRes;
         QVector<int> m_delayMap;
 
         QVector<int> createDelaymap(DelayGrabMode mode);
