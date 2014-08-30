@@ -126,10 +126,6 @@ void EmbossElement::processFrame(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    if (packet.caps() != this->m_caps) {
-        this->m_caps = packet.caps();
-    }
-
     double azimuthInput = this->m_azimuth * 360.0;
     double elevationInput = this->m_elevation * 90.0;
     double widthInput = this->m_width45 * 40.0;

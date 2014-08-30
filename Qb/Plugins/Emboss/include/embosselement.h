@@ -47,7 +47,6 @@ class EmbossElement: public QbElement
         float m_pixelScale;
 
         QbElementPtr m_convert;
-        QbCaps m_caps;
 
     public slots:
         void setAzimuth(float azimuth);
