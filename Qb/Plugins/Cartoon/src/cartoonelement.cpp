@@ -31,74 +31,79 @@ CartoonElement::CartoonElement(): QbElement()
                      this,
                      SLOT(processFrame(const QbPacket &)));
 
-    this->resetTriplevel();
+    this->resetThreshold();
     this->resetDiffspace();
 }
 
-float CartoonElement::triplevel() const
+int CartoonElement::threshold() const
 {
-    return this->m_triplevel;
+    return this->m_threshold;
 }
 
-float CartoonElement::diffspace() const
+int CartoonElement::diffspace() const
 {
-    return this->m_diffspace / 256.0;
+    return this->m_diffspace;
 }
 
-long CartoonElement::getMaxContrast(const QRgb *src, int x, int y)
+int CartoonElement::getMaxContrast(const QRgb *src, int x, int y)
 {
     long max = 0;
 
+    int xMin = qBound(0, x - this->m_diffspace, this->m_width);
+    int xMax = qBound(0, x + this->m_diffspace, this->m_width);
+    int yMin = qBound(0, y - this->m_diffspace, this->m_height);
+    int yMax = qBound(0, y + this->m_diffspace, this->m_height);
+
     // Assumes PrePixelModify has been run.
-    QRgb c1 = this->pixelate(src, x - this->m_diffspace, y);
-    QRgb c2 = this->pixelate(src, x + this->m_diffspace, y);
+    QRgb c1 = this->pixelate(src, xMin, y);
+    QRgb c2 = this->pixelate(src, xMax, y);
     long error = this->gmError(c1, c2);
 
     if (error > max)
         max = error;
 
-    c1 = this->pixelate(src, x, y - this->m_diffspace);
-    c2 = this->pixelate(src, x, y + this->m_diffspace);
+    c1 = this->pixelate(src, x, yMin);
+    c2 = this->pixelate(src, x, yMax);
     error = this->gmError(c1, c2);
 
     if (error > max)
         max = error;
 
-    c1 = this->pixelate(src, x - this->m_diffspace, y - this->m_diffspace);
-    c2 = this->pixelate(src, x + this->m_diffspace, y + this->m_diffspace);
+    c1 = this->pixelate(src, xMin, yMin);
+    c2 = this->pixelate(src, xMax, yMax);
     error = this->gmError(c1,  c2);
 
     if (error > max)
         max = error;
 
-    c1 = this->pixelate(src, x + this->m_diffspace, y - this->m_diffspace);
-    c2 = this->pixelate(src, x - this->m_diffspace, y + this->m_diffspace);
+    c1 = this->pixelate(src, xMax, yMin);
+    c2 = this->pixelate(src, xMin, yMax);
     error = this->gmError(c1, c2);
 
     if (error > max)
         max = error;
 
-    return max;
+    return sqrt(max);
 }
 
-void CartoonElement::setTriplevel(float triplevel)
+void CartoonElement::setThreshold(int threshold)
 {
-    this->m_triplevel = qBound(0.0, (double) triplevel, 1.0);
+    this->m_threshold = threshold;
 }
 
-void CartoonElement::setDiffspace(float diffspace)
+void CartoonElement::setDiffspace(int diffspace)
 {
-    this->m_diffspace = qBound(0.0, 256.0 * diffspace, 256.0);
+    this->m_diffspace = diffspace;
 }
 
-void CartoonElement::resetTriplevel()
+void CartoonElement::resetThreshold()
 {
-    this->setTriplevel(0.25);
+    this->setThreshold(191);
 }
 
 void CartoonElement::resetDiffspace()
 {
-    this->m_diffspace = 0.99;
+    this->setDiffspace(4);
 }
 
 void CartoonElement::iStream(const QbPacket &packet)
@@ -129,6 +134,8 @@ void CartoonElement::processFrame(const QbPacket &packet)
     QRgb *destBits = (QRgb *) oFrame.bits();
 
     if (packet.caps() != this->m_caps) {
+        this->m_width = width;
+        this->m_height = height;
         this->m_yprecal.clear();
 
         for (int x = 0; x < 2 * height; x++)
@@ -138,12 +145,12 @@ void CartoonElement::processFrame(const QbPacket &packet)
     }
 
     // Cartoonify picture, do a form of edge detect
-    for (int x = this->m_diffspace; x < width - (1 + this->m_diffspace); x++) {
-        for (int y = this->m_diffspace; y < height - (1 + this->m_diffspace); y++) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
             int t = this->getMaxContrast(srcBits, x, y);
             int offset = x + this->m_yprecal[y];
 
-            if (t > 1 / (1 - this->m_triplevel) - 1)
+            if (t > this->m_threshold)
                 // Make a border pixel
                 destBits[offset] = qRgb(0, 0, 0);
             else

@@ -30,21 +30,23 @@
 class CartoonElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float triplevel READ triplevel WRITE setTriplevel RESET resetTriplevel)
-    Q_PROPERTY(float diffspace READ diffspace WRITE setDiffspace RESET resetDiffspace)
+    Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
+    Q_PROPERTY(int diffspace READ diffspace WRITE setDiffspace RESET resetDiffspace)
 
     public:
         explicit CartoonElement();
-        Q_INVOKABLE float triplevel() const;
-        Q_INVOKABLE float diffspace() const;
+        Q_INVOKABLE int threshold() const;
+        Q_INVOKABLE int diffspace() const;
 
     private:
-        int m_triplevel;
+        int m_threshold;
         int m_diffspace;
 
         QbElementPtr m_convert;
         QbCaps m_caps;
         QVector<int> m_yprecal;
+        int m_width;
+        int m_height;
 
         inline QRgb flattenColor(QRgb color)
         {
@@ -69,12 +71,12 @@ class CartoonElement: public QbElement
             return rDiff * rDiff + gDiff * gDiff + bDiff * bDiff;
         }
 
-        long getMaxContrast(const QRgb *src, int x, int y);
+        int getMaxContrast(const QRgb *src, int x, int y);
 
     public slots:
-        void setTriplevel(float triplevel);
-        void setDiffspace(float diffspace);
-        void resetTriplevel();
+        void setThreshold(int threshold);
+        void setDiffspace(int diffspace);
+        void resetThreshold();
         void resetDiffspace();
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);

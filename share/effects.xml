@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
-    <effect name="Dither">Frei0r pluginName='dither'</effect>
     <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
     <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
@@ -40,6 +39,7 @@
     </effect>
     <effect name="Dices">Dice</effect>
     <effect name="Distort">Distort</effect>
+    <effect name="Dither">Halftone</effect>
     <effect name="Edges">Edge</effect>
     <effect name="Emboss">Emboss</effect>
     <effect name="Equalize">Equalize</effect>
