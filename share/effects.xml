@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
     <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
-    <effect name="Fogged Glass">Frei0r pluginName='squareblur' params={'Kernel size': 0.1}</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
     <effect name="Face Detect">
         Frei0r pluginName='facedetect' params={
@@ -19,7 +18,6 @@
         }
     </effect>
     <effect name="Andy Warhol">Warhol</effect>
-    <effect name="Blur">Blur</effect>
     <effect name="Cartoon">Cartoon</effect>
     <effect name="Charcoal">Edge ! Invert ! GrayScale ! Normalize</effect>
     <effect name="Che Guevara">
@@ -45,6 +43,7 @@
     <effect name="Equalize">Equalize</effect>
     <effect name="Fire">Fire</effect>
     <effect name="Flip Top Left">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
+    <effect name="Fogged Glass">Blur radius=16</effect>
     <effect name="Gray Colors">GrayScale</effect>
     <effect name="Heat">ColorTap table=':/ColorTap/share/heat.bmp'</effect>
     <effect name="Horizontal Mirror">MatrixTransform kernel=[-1, 0, 0, 0, 1, 0]</effect>

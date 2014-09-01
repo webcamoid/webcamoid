@@ -9,7 +9,7 @@
 * Written in C++/Qt.
 * Custom controls for each webcam.
 * Add funny effects to the webcam (requires Frei0r plugins).
-* +50 effects available.
+* +60 effects available.
 * Effects with live previews.
 * Translated to many languages.
 * Provides a nice plasmoid for KDE desktop.

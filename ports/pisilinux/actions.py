@@ -6,7 +6,7 @@
 
 # Use this as variables:
 # Package Name : webcamoid
-# Version : 5.0.0
+# Version : 5.1.0
 # Summary : Webcamoid, the full webcam and multimedia suite.
 
 import os

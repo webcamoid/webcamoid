@@ -1,10 +1,10 @@
-# Copyright 2011-2013 Gonzalo Exequiel Pedone
+# Copyright 2011-2014 Gonzalo Exequiel Pedone
 # Distributed under the terms of the GNU General Public License v3
 
 DESCRIPTION="Webcamoid, the full webcam and multimedia suite."
 HOMEPAGE="https://github.com/hipersayanX/Webcamoid"
 LICENSE="GPLv3"
-VER="5.0.0"
+VER="5.1.0"
 SRC_URI="https://github.com/hipersayanX/Webcamoid/archive/v${VER}.tar.gz"
 SLOT= "0"
 KEYWORDS="amd64 x86"

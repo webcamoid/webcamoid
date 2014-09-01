@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 5.0.0
+Version: 5.1.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -121,7 +121,7 @@ Features:
     * Written in C++/Qt.
     * Custom controls for each webcam.
     * Add funny effects to the webcam (requires Frei0r plugins).
-    * +50 effects available.
+    * +60 effects available.
     * Effects with live previews.
     * Translated to many languages.
     * Provides a nice plasmoid for KDE desktop.
@@ -183,5 +183,5 @@ rm -rf %{buildroot}
 %{_libdir}/libWebcamoid.so*
 
 %changelog
-* Wed Aug 6 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.0.0-1
+* Wed Aug 6 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.1.0-1
 - Final Release.

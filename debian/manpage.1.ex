@@ -1,10 +1,10 @@
 .\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2013 Gonzalo Pedone <hipersayan.x@gmail.com>,
+.\" (C) Copyright 2014 Gonzalo Pedone <hipersayan.x@gmail.com>,
 .\"
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH WEBCAMOID SECTION "November  1, 2013"
+.TH WEBCAMOID SECTION "November  1, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
