@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
-    <effect name="Drugs">Frei0r pluginName='hqdn3d' params={'Spatial': 0.5, 'Temporal': 1.0}</effect>
     <effect name="Multiply">Frei0r pluginName='cairoimagegrid'</effect>
-    <effect name="Face Detect">
-        Frei0r pluginName='facedetect' params={
-            'Recheck': 0.001,
-            'Threads': 0.02,
-            'Stroke': 0.04,
-            'Scale': 0.25,
-            'Smallest': 0.004,
-            'Color 1': color(255, 0, 0),
-            'Color 2': color(0, 255, 0),
-            'Color 3': color(0, 0, 255),
-            'Color 4': color(0, 255, 255),
-            'Color 5': color(255, 0, 255),
-            'Classifier': '/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml'
-        }
-    </effect>
     <effect name="Andy Warhol">Warhol</effect>
     <effect name="Cartoon">Cartoon</effect>
     <effect name="Charcoal">Edge ! Invert ! GrayScale ! Normalize</effect>
@@ -41,6 +25,7 @@
     <effect name="Edges">Edge</effect>
     <effect name="Emboss">Emboss</effect>
     <effect name="Equalize">Equalize</effect>
+    <effect name="Face Detect">FaceDetect markerType='image'</effect>
     <effect name="Fire">Fire</effect>
     <effect name="Flip Top Left">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
     <effect name="Fogged Glass">Blur radius=16</effect>

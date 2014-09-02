@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/FaceDetect">
+        <file>share/cow.png</file>
+    </qresource>
+</RCC>
