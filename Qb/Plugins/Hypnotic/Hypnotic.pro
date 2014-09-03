@@ -31,9 +31,8 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/frei0r.h \
-    include/frei0relement.h \
-    include/frei0rdefs.h
+    include/hypnotic.h \
+    include/hypnoticelement.h
 
 INCLUDEPATH += \
     include \
@@ -46,9 +45,13 @@ OTHER_FILES += pspec.json
 
 QT += core gui
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
+
 SOURCES += \
-    src/frei0r.cpp \
-    src/frei0relement.cpp
+    src/hypnotic.cpp \
+    src/hypnoticelement.cpp
 
 DESTDIR = $${PWD}
 

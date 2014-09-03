@@ -19,23 +19,22 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef FREI0R_H
-#define FREI0R_H
+#include "hypnotic.h"
+#include "hypnoticelement.h"
 
-#include <qb.h>
-
-class Frei0r: public QObject, public QbPlugin
+QObject *Hypnotic::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(QbPlugin)
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-#if QT_VERSION >= 0x050000
-    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
-#endif // QT_VERSION >= 0x050000
+    return new HypnoticElement();
+}
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+QStringList Hypnotic::keys() const
+{
+    return QStringList();
+}
 
-#endif // FREI0R_H
+#if QT_VERSION < 0x050000
+Q_EXPORT_PLUGIN2(Hypnotic, Hypnotic)
+#endif // QT_VERSION < 0x050000
