@@ -67,6 +67,7 @@
     <effect name="Primaries Colors">PrimariesColors</effect>
     <effect name="Psychedelic">Shagadelic</effect>
     <effect name="Quark">Quark</effect>
+    <effect name="Radioactive">Radioactive mode='softColor'</effect>
     <effect name="Red Green">ColorTap table=':/ColorTap/share/redgreen.bmp'</effect>
     <effect name="Rings">DelayGrab mode='RingsIncrease'</effect>
     <effect name="Rotate 180">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
@@ -92,7 +93,6 @@
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
 
 <!--
-    <effect name="Radioactive">radioactv</effect>
     <effect name="Ripple">rippletv</effect>
     <effect name="Vertigo">vertigotv</effect>
 
