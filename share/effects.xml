@@ -21,6 +21,7 @@
     <effect name="Dices">Dice</effect>
     <effect name="Distort">Distort</effect>
     <effect name="Dither">Halftone</effect>
+    <effect name="Drugs">Dizzy</effect>
     <effect name="Edges">Edge</effect>
     <effect name="Emboss">Emboss</effect>
     <effect name="Equalize">Equalize</effect>
@@ -94,7 +95,6 @@
 
 <!--
     <effect name="Ripple">rippletv</effect>
-    <effect name="Vertigo">vertigotv</effect>
 
     <effect name="Bulge">bulge</effect>
     <effect name="Burn">burn</effect>

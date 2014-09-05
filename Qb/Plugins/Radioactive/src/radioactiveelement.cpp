@@ -288,7 +288,6 @@ void RadioactiveElement::processFrame(const QbPacket &packet)
         QPainter painter;
         painter.begin(&this->m_blurZoomBuffer);
         painter.drawImage(0, 0, diff);
-
         painter.end();
 
         // Blur buffer.

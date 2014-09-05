@@ -31,8 +31,8 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/fire.h \
-    include/fireelement.h
+    include/dizzy.h \
+    include/dizzyelement.h
 
 INCLUDEPATH += \
     include \
@@ -44,11 +44,14 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 OTHER_FILES += pspec.json
 
 QT += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 
 SOURCES += \
-    src/fire.cpp \
-    src/fireelement.cpp
+    src/dizzy.cpp \
+    src/dizzyelement.cpp
 
 DESTDIR = $${PWD}
 

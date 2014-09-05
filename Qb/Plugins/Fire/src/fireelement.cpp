@@ -31,231 +31,340 @@ FireElement::FireElement(): QbElement()
                      this,
                      SLOT(processFrame(const QbPacket &)));
 
-    this->m_palette.resize(256);
+    this->m_fireModeToStr[FireModeSoft] = "soft";
+    this->m_fireModeToStr[FireModeHard] = "hard";
+
+    this->m_palette = this->createPalette();
 
     this->resetMode();
-    this->resetDecay();
+    this->resetCool();
+    this->resetDisolve();
+    this->resetBlur();
+    this->resetZoom();
     this->resetThreshold();
-    this->resetMaxColor();
-    this->makePalette();
+    this->resetLumaThreshold();
+    this->resetAlphaDiff();
+    this->resetAlphaVariation();
+    this->resetNColors();
 }
 
-int FireElement::mode() const
+QString FireElement::mode() const
 {
-    return this->m_mode;
+    return this->m_fireModeToStr[this->m_mode];
 }
 
-int FireElement::decay() const
+int FireElement::cool() const
 {
-    return this->m_decay;
+    return this->m_cool;
+}
+
+float FireElement::disolve() const
+{
+    return this->m_disolve;
+}
+
+float FireElement::blur() const
+{
+    return this->m_blur;
+}
+
+float FireElement::zoom() const
+{
+    return this->m_zoom;
 }
 
 int FireElement::threshold() const
 {
-    return this->m_threshold / 7;
+    return this->m_threshold;
 }
 
-int FireElement::maxColor() const
+int FireElement::lumaThreshold() const
 {
-    return this->m_maxColor;
+    return this->m_lumaThreshold;
 }
 
-bool FireElement::event(QEvent *event)
+int FireElement::alphaDiff() const
 {
-    bool r = true;
+    return this->m_alphaDiff;
+}
 
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+int FireElement::alphaVariation() const
+{
+    return this->m_alphaVariation;
+}
 
-        if (ke->key() == Qt::Key_Space) {
-            if (this->mode() == 0)
-                this->m_bgIsSet = false;
+int FireElement::nColors() const
+{
+    return this->m_nColors;
+}
+
+QImage FireElement::imageDiff(const QImage &img1,
+                            const QImage &img2,
+                            int colors,
+                            int threshold,
+                            int lumaThreshold,
+                            int alphaVariation,
+                            FireMode mode)
+{
+    int width = qMin(img1.width(), img2.width());
+    int height = qMin(img1.height(), img2.height());
+    QImage diff(width, height, QImage::Format_ARGB32);
+    QRgb *img1Bits = (QRgb *) img1.bits();
+    QRgb *img2Bits = (QRgb *) img2.bits();
+    QRgb *diffBits = (QRgb *) diff.bits();
+
+    for (int y = 0; y < height; y++) {
+        int i = y * width;
+
+        for (int x = 0; x < width; x++, i++) {
+            int r1 = qRed(img1Bits[i]);
+            int g1 = qGreen(img1Bits[i]);
+            int b1 = qBlue(img1Bits[i]);
+
+            int r2 = qRed(img2Bits[i]);
+            int g2 = qGreen(img2Bits[i]);
+            int b2 = qBlue(img2Bits[i]);
+
+            int dr = r1 - r2;
+            int dg = g1 - g2;
+            int db = b1 - b2;
+
+            int alpha = dr * dr + dg * dg + db * db;
+            alpha = sqrt(alpha / 3);
+
+            if (mode == FireModeSoft)
+                alpha = alpha < threshold? 0: alpha;
+            else
+                alpha = alpha < threshold?
+                            0: (256 - alphaVariation)
+                            + qrand() % alphaVariation;
+
+            int gray = qGray(img2Bits[i]);
+
+            alpha = gray < lumaThreshold? 0: alpha;
+            int b = (256 - colors) + qrand() % colors;
+
+            diffBits[i] = qRgba(0, 0, b, alpha);
         }
-        else if (ke->key() == Qt::Key_1)
-            this->setMode(0);
-        else if (ke->key() == Qt::Key_2)
-            this->setMode(1);
-        else if (ke->key() == Qt::Key_3)
-            this->setMode(2);
     }
-    else if (event->type() == QEvent::ThreadChange) {
-        QObject::disconnect(this->m_convert.data(),
-                            SIGNAL(oStream(const QbPacket &)),
-                            this,
-                            SIGNAL(processFrame(const QbPacket &)));
 
-        r = QObject::event(event);
-        this->m_convert->moveToThread(this->thread());
-
-        QObject::connect(this->m_convert.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SIGNAL(processFrame(const QbPacket &)));
-    }
-    else
-        r = QObject::event(event);
-
-    return r;
+    return diff;
 }
 
-int FireElement::trunc(double f)
+QImage FireElement::zoomImage(const QImage &src, float factor)
 {
-    int i = (int) f;
+    QImage scaled = src.scaled(src.width(),
+                               (1 + factor) * src.height());
 
-    if (i < 0)
-        i = 0;
+    QPoint p(0, src.height() - scaled.height());
 
-    if (i > 255)
-        i = 255;
+    QImage zoom(src.size(), src.format());
+    zoom.fill(qRgba(0, 0, 0, 0));
 
-    return i;
+    QPainter painter;
+    painter.begin(&zoom);
+    painter.drawImage(p, src);
+    painter.end();
+
+    return zoom;
 }
 
-void FireElement::hsiToRgb(double h, double s, double i, int *r, int *g, int *b)
+void FireElement::coolImage(const QImage &src, int colorDiff)
 {
-    double rv, gv, bv;
-
-    rv = 1 + s * sin(h - 2 * M_PI / 3);
-    gv = 1 + s * sin(h);
-    bv = 1 + s * sin(h + 2 * M_PI / 3);
-
-    double t = 255.999 * i / 2;
-
-    *r = this->trunc(rv * t);
-    *g = this->trunc(gv * t);
-    *b = this->trunc(bv * t);
-}
-
-void FireElement::imageBgSetY(QImage &src)
-{
-    quint32 *p = (quint32 *) src.bits();
-    short *q = (short *) this->m_background.bits();
     int videoArea = src.width() * src.height();
-
-    for (int  i = 0; i < videoArea; i++) {
-        int r = ((*p) & 0xff0000) >> (16 - 1);
-        int g = ((*p) & 0xff00) >> (8 - 2);
-        int b = (*p) & 0xff;
-
-        *q = (short) (r + g + b);
-
-        p++;
-        q++;
-    }
-}
-
-QImage FireElement::imageBgSubtractY(QImage &src)
-{
-    quint32 *p = (quint32 *) src.bits();
-    short *q = (short *) this->m_background.bits();
-    uchar *r = this->m_diff.bits();
-    int videoArea = src.width() * src.height();
+    QRgb *srcBits = (QRgb *) src.bits();
 
     for (int i = 0; i < videoArea; i++) {
-        int R = ((*p) & 0xff0000) >> (16 - 1);
-        int G = ((*p) & 0xff00) >> (8 - 2);
-        int B = (*p) & 0xff;
-        int v = (R + G + B) - (int) (*q);
-        *r = ((v + this->m_threshold) >> 24) | ((this->m_threshold - v) >> 24);
-
-        p++;
-        q++;
-        r++;
-    }
-
-    return this->m_diff;
-}
-
-void FireElement::makePalette()
-{
-    int r, g, b;
-
-    for (int i = 0; i < this->maxColor(); i++) {
-            this->hsiToRgb(4.6 - 1.5 * i / this->maxColor(),
-                     (double) i / this->maxColor(),
-                     (double) i / this->maxColor(),
-                     &r, &g, &b);
-
-            this->m_palette[i] = (r << 16) | (g << 8) | b;
-    }
-
-    for (int i = this->maxColor(); i < 256; i++) {
-        if (r < 255)
-            r++;
-
-        if (r < 255)
-            r++;
-
-        if (r < 255)
-            r++;
-
-        if (g < 255)
-            g++;
-
-        if (g < 255)
-            g++;
-
-        if (b < 255)
-            b++;
-
-        if (b < 255)
-            b++;
-
-        this->m_palette[i] = (r << 16) | (g << 8) | b;
+        int b = qBound(0, qBlue(srcBits[i]) + colorDiff, 255);
+        srcBits[i] = qRgba(0, 0, b, qAlpha(srcBits[i]));
     }
 }
 
-void FireElement::setBackground(QImage &src)
+void FireElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 {
-    this->imageBgSetY(src);
-    this->m_bgIsSet = true;
+    int videoArea = src.width() * src.height();
+    QRgb *srcBits = (QRgb *) src.bits();
+
+    for (int i = 0; i < videoArea; i++) {
+        QRgb pixel = srcBits[i];
+        int b = qBlue(pixel);
+        int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
+        srcBits[i] = qRgba(0, 0, b, a);
+    }
 }
 
-void FireElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+void FireElement::disolveImage(const QImage &src, float amount)
 {
-    if (from == QbElement::ElementStateNull
-        && to == QbElement::ElementStatePaused)
-        this->m_bgIsSet = false;
+    int videoArea = src.width() * src.height();
+    int n = amount * videoArea;
+    QRgb *srcBits = (QRgb *) src.bits();
+
+    for (int i = 0; i < n; i++) {
+        int index = qrand() % videoArea;
+        QRgb pixel = srcBits[index];
+        int b = qBlue(pixel);
+        int a = qAlpha(pixel) < 1? 0: qrand() % qAlpha(pixel);
+
+        srcBits[index] = qRgba(0, 0, b, a);
+    }
 }
 
-void FireElement::setMode(int mode)
+QImage FireElement::blurImage(const QImage &src, float factor)
 {
-    this->m_mode = mode;
+    QGraphicsScene scene;
+    QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(src));
+    QGraphicsBlurEffect *effect = new QGraphicsBlurEffect();
+    pixmapItem->setGraphicsEffect(effect);
+    effect->setBlurRadius(factor);
+
+    QImage blur(src.size(), src.format());
+    blur.fill(qRgba(0, 0, 0, 0));
+
+    QPainter painter;
+    painter.begin(&blur);
+    scene.render(&painter);
+    painter.end();
+
+    return blur;
 }
 
-void FireElement::setDecay(int decay)
+QImage FireElement::burn(const QImage &src, const QVector<QRgb> &palette)
 {
-    this->m_decay = decay;
+    int videoArea = src.width() * src.height();
+    QImage dest(src.size(), src.format());
+    QRgb *srcBits = (QRgb *) src.bits();
+    QRgb *destBits = (QRgb *) dest.bits();
+
+    for (int i = 0; i < videoArea; i++) {
+        int index = qBlue(srcBits[i]);
+        int r = qRed(palette[index]);
+        int g = qGreen(palette[index]);
+        int b = qBlue(palette[index]);
+        int a = qAlpha(srcBits[i]);
+        destBits[i] = qRgba(r, g, b, a);
+    }
+
+    return dest;
+}
+
+QVector<QRgb> FireElement::createPalette()
+{
+    QVector<QRgb> palette;
+
+    for (int i = 0; i < 128; i++)
+        palette << qRgb(255,
+                        (3 * i +  128) >> 1,
+                        i >> 1);
+
+    for (int i = 0; i < 128; i++)
+        palette << qRgb(255,
+                        255,
+                        (3 * i +  128) >> 1);
+
+    return palette;
+}
+
+void FireElement::setMode(const QString &mode)
+{
+    if (this->m_fireModeToStr.values().contains(mode))
+        this->m_mode = this->m_fireModeToStr.key(mode);
+    else
+        this->m_mode = FireModeSoft;
+}
+
+void FireElement::setCool(int cool)
+{
+    this->m_cool = cool;
+}
+
+void FireElement::setDisolve(float disolve)
+{
+    this->m_disolve = disolve;
+}
+
+void FireElement::setBlur(float blur)
+{
+    this->m_blur = blur;
+}
+
+void FireElement::setZoom(float zoom)
+{
+    this->m_zoom = zoom;
 }
 
 void FireElement::setThreshold(int threshold)
 {
-    this->m_threshold = 7 * threshold;
+    this->m_threshold = threshold;
 }
 
-void FireElement::setMaxColor(int maxColor)
+void FireElement::setLumaThreshold(int lumaThreshold)
 {
-    this->m_maxColor = maxColor;
+    this->m_lumaThreshold = lumaThreshold;
+}
+
+void FireElement::setAlphaDiff(int alphaDiff)
+{
+    this->m_alphaDiff = alphaDiff;
+}
+
+void FireElement::setAlphaVariation(int alphaVariation)
+{
+    this->m_alphaVariation = alphaVariation;
+}
+
+void FireElement::setNColors(int nColors)
+{
+    this->m_nColors = nColors;
 }
 
 void FireElement::resetMode()
 {
-    this->setMode(0);
+    this->setMode("hard");
 }
 
-void FireElement::resetDecay()
+void FireElement::resetCool()
 {
-    this->setDecay(15);
+    this->setCool(-16);
+}
+
+void FireElement::resetDisolve()
+{
+    this->setDisolve(0.01);
+}
+
+void FireElement::resetBlur()
+{
+    this->setBlur(1.5);
+}
+
+void FireElement::resetZoom()
+{
+    this->setZoom(0.02);
 }
 
 void FireElement::resetThreshold()
 {
-    this->setThreshold(50);
+    this->setThreshold(15);
 }
 
-void FireElement::resetMaxColor()
+void FireElement::resetLumaThreshold()
 {
-    this->setMaxColor(120);
+    this->setLumaThreshold(15);
+}
+
+void FireElement::resetAlphaDiff()
+{
+    this->setAlphaDiff(-12);
+}
+
+void FireElement::resetAlphaVariation()
+{
+    this->setAlphaVariation(127);
+}
+
+void FireElement::resetNColors()
+{
+    this->setNColors(8);
 }
 
 void FireElement::iStream(const QbPacket &packet)
@@ -275,76 +384,62 @@ void FireElement::processFrame(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    QImage src = QImage(reinterpret_cast<uchar *>(packet.buffer().data()),
+    QImage src = QImage((const uchar *) packet.buffer().data(),
                         width,
                         height,
-                        QImage::Format_RGB32);
+                        QImage::Format_ARGB32);
 
-    int videoArea = width * height;
+    QImage oFrame(src.size(), src.format());
 
     if (packet.caps() != this->m_caps) {
-        this->m_background = QImage(src.width(), src.height(), QImage::Format_RGB32);
-        this->m_diff = QImage(src.width(), src.height(), QImage::Format_Indexed8);
-        this->m_buffer.resize(videoArea);
+        this->m_fireBuffer = QImage();
+        this->m_prevFrame = QImage();
 
         this->m_caps = packet.caps();
     }
 
-    if (!this->m_bgIsSet)
-        this->setBackground(src);
-
-    quint32 *srcBits = (quint32 *) src.constBits();
-
-    if (this->mode() == 1)
-        for (int i = 0; i < videoArea - src.width(); i++) {
-            uchar v = (srcBits[i] >> 16) & 0xff;
-
-            if (v > 150)
-                this->m_buffer[i] = this->m_buffer[i] | v;
-        }
-    else if (this->mode() == 2)
-        for (int i = 0; i < videoArea - src.width(); i++) {
-            uchar v = srcBits[i] & 0xff;
-
-            if (v < 60)
-                this->m_buffer[i] = this->m_buffer[i] | (0xff - v);
-        }
+    if (this->m_prevFrame.isNull()) {
+        oFrame = src;
+        this->m_fireBuffer = QImage(src.size(), src.format());
+        this->m_fireBuffer.fill(qRgba(0, 0, 0, 0));
+    }
     else {
-        QImage diff = this->imageBgSubtractY(src);
+        this->m_fireBuffer = this->zoomImage(this->m_fireBuffer, this->m_zoom);
+        this->coolImage(this->m_fireBuffer, this->m_cool);
+        this->imageAlphaDiff(this->m_fireBuffer, this->m_alphaDiff);
+        this->disolveImage(this->m_fireBuffer, this->m_disolve);
 
-        for (int i = 0; i < videoArea - src.width(); i++)
-            this->m_buffer[i] = this->m_buffer[i] | diff.constBits()[i];
+        // Compute the difference between previous and current frame,
+        // and save it to the buffer.
+        QImage diff = this->imageDiff(this->m_prevFrame,
+                                      src,
+                                      this->m_nColors,
+                                      this->m_threshold,
+                                      this->m_lumaThreshold,
+                                      this->m_alphaVariation,
+                                      this->m_mode);
+
+        QPainter painter;
+        painter.begin(&this->m_fireBuffer);
+        painter.drawImage(0, 0, diff);
+        painter.end();
+
+        this->m_fireBuffer = this->blurImage(this->m_fireBuffer, this->m_blur);
+
+        // Apply buffer.
+        painter.begin(&oFrame);
+        painter.drawImage(0, 0, src);
+        painter.drawImage(0, 0, this->burn(this->m_fireBuffer, this->m_palette));
+        painter.end();
     }
 
-    for (int x = 1; x < src.width() - 1; x++) {
-        int i = src.width() + x;
-
-        for (int y = 1; y < src.height(); y++) {
-            uchar v = this->m_buffer[i];
-
-            if (v < this->decay())
-                this->m_buffer[i - src.width()] = 0;
-            else
-                this->m_buffer[i - src.width() + qrand() % 3 - 1] = v - (qrand() & this->decay());
-
-            i += src.width();
-        }
-    }
-
-    QImage oFrame(src.size(), src.format());
-    quint32 *destBits = (quint32 *) oFrame.bits();
-
-    for (int y = 0; y < src.height(); y++)
-        for (int x = 1; x < src.width() - 1; x++) {
-            uchar v = this->m_buffer[y * src.width() + x];
-            destBits[y * src.width() + x] = this->m_palette[v];
-        }
+    this->m_prevFrame = src.copy();
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
+    caps.setProperty("format", "bgra");
     caps.setProperty("width", oFrame.width());
     caps.setProperty("height", oFrame.height());
 
