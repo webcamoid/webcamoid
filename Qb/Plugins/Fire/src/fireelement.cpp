@@ -269,7 +269,7 @@ void FireElement::setMode(const QString &mode)
     if (this->m_fireModeToStr.values().contains(mode))
         this->m_mode = this->m_fireModeToStr.key(mode);
     else
-        this->m_mode = FireModeSoft;
+        this->m_mode = FireModeHard;
 }
 
 void FireElement::setCool(int cool)

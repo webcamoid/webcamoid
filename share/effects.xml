@@ -88,14 +88,13 @@
     <effect name="Vertical Stripes">DelayGrab mode='VerticalIncrease'</effect>
     <effect name="Vignette">Vignette softness=0.3 clearCenter=0.5</effect>
     <effect name="Warp">Warp</effect>
+    <effect name="Water">Ripple</effect>
     <effect name="Wave">Wave amplitude=25 phases=5</effect>
     <effect name="X-Pro">ColorTap table=':/ColorTap/share/xpro.bmp'</effect>
     <effect name="X-Ray">ColorTap table=':/ColorTap/share/xray.bmp'</effect>
     <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
 
 <!--
-    <effect name="Ripple">rippletv</effect>
-
     <effect name="Bulge">bulge</effect>
     <effect name="Burn">burn</effect>
     <effect name="Exclusion">exclusion</effect>
