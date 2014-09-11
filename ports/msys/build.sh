@@ -1,47 +1,126 @@
-#!/bin/sh
+#!/bin/bash
 
 p7zVersion=920
 ffmpegVersion=2.2.3
+opencvVersion=2.4.9
 FGET='wget -c --retry-connrefused --no-check-certificate'
 
 function get7Z()
 {
     packageName=7za
     fileExt=zip
-    packageFile=$packageName$p7zVersion.$fileExt
+    packageFile=${packageName}${p7zVersion}.${fileExt}
 
-    if [ ! -f "$packageName.exe" ]
+    if [ ! -f "${packageName}.exe" ]
     then
-        $FGET http://downloads.sourceforge.net/sevenzip/$packageFile
-        unzip -u $packageFile
+        ${FGET} http://downloads.sourceforge.net/sevenzip/${packageFile}
+        unzip -u ${packageFile}
     fi
 }
 
 function getFFmpeg()
 {
     packageName=ffmpeg
-    packageFolder=$packageName-$ffmpegVersion-win32-dev
+    packageFolder=${packageName}-${ffmpegVersion}-win32-dev
     fileExt=7z
-    packageFile=$packageFolder.$fileExt
+    packageFile=${packageFolder}.${fileExt}
 
-    curPath="$PWD"
+    curPath="${PWD}"
 
-    if [ ! -d "$packageFolder" ]
+    if [ ! -d "${packageFolder}" ]
     then
-        $FGET http://$packageName.zeranoe.com/builds/win32/dev/$packageFile
-        7za x -y $packageFile
-        cd $packageFolder
+        ${FGET} http://${packageName}.zeranoe.com/builds/win32/dev/${packageFile}
+        7za x -y ${packageFile}
+        cd ${packageFolder}
         cp -Rvf * ../win32
     fi
 }
 
-function compileWebcamoid()
+function buildOpenCV()
+{
+    packageName=opencv
+    packageFolder=${packageName}-${opencvVersion}
+    fileExt=zip
+    packageFile=${packageFolder}.${fileExt}
+
+    curPath="${PWD}"
+
+    if [ -f "${packageName}.compiled" ]
+    then
+        return
+    fi
+
+    if [ ! -d "${packageFolder}" ]
+    then
+        ${FGET} http://downloads.sourceforge.net/${packageName}library/${packageFile}
+        unzip -u ${packageFile}
+    fi
+
+    mkdir -p "${packageFolder}/build"
+    cd "${packageFolder}/build"
+
+    cmake \
+        -G "MinGW Makefiles" \
+        -D CMAKE_INSTALL_PREFIX="${curPath}/win32" \
+        -D CMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe \
+        -D CMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_SKIP_RPATH=ON \
+        -D BUILD_SHARED_LIBS=OFF \
+        -D BUILD_PERF_TESTS=OFF \
+        -D BUILD_TESTS=OFF \
+        -D BUILD_opencv_nonfree=OFF \
+        -D BUILD_ZLIB=OFF \
+        -D WITH_JPEG=OFF \
+        -D WITH_PNG=OFF \
+        -D WITH_TIFF=OFF \
+        -D WITH_JASPER=OFF \
+        -D WITH_OPENEXR=OFF \
+        -D WITH_DSHOW=OFF \
+        -D WITH_FFMPEG=OFF \
+        -D WITH_OPENCL=OFF \
+        -D WITH_VFW=OFF \
+        -D WITH_WIN32UI=OFF \
+        ..
+
+    mingw32-make
+    mingw32-make install
+    mkdir -p ${curPath}/win32/lib
+    cp -vf ${curPath}/win32/x86/mingw/staticlib/lib*.a ${curPath}/win32/lib/
+
+    if [ $? == '0' ]
+    then
+        touch ../../${packageName}.compiled
+    fi
+}
+
+function buildWebcamoid()
 {
     cd ..
 
     /qttools/qmake Webcamoid.pro \
-        FFMPEGINCLUDES="$PWD/build/win32/include" \
-        FFMPEGLIBS="-L$PWD/build/win32/lib"
+        FFMPEGINCLUDES="${PWD}/build/win32/include" \
+        FFMPEGLIBS="-L${PWD}/build/win32/lib" \
+        OPENCVINCLUDES="${PWD}/build/win32/include" \
+        OPENCVLIBS="-L${PWD}/build/win32/lib" \
+        OPENCVLIBS+=-lopencv_calib3d249 \
+        OPENCVLIBS+=-lopencv_contrib249 \
+        OPENCVLIBS+=-lopencv_core249 \
+        OPENCVLIBS+=-lopencv_features2d249 \
+        OPENCVLIBS+=-lopencv_flann249 \
+        OPENCVLIBS+=-lopencv_gpu249 \
+        OPENCVLIBS+=-lopencv_highgui249 \
+        OPENCVLIBS+=-lopencv_imgproc249 \
+        OPENCVLIBS+=-lopencv_legacy249 \
+        OPENCVLIBS+=-lopencv_ml249 \
+        OPENCVLIBS+=-lopencv_objdetect249 \
+        OPENCVLIBS+=-lopencv_photo249 \
+        OPENCVLIBS+=-lopencv_stitching249 \
+        OPENCVLIBS+=-lopencv_superres249 \
+        OPENCVLIBS+=-lopencv_ts249 \
+        OPENCVLIBS+=-lopencv_video249 \
+        OPENCVLIBS+=-lopencv_videostab249 \
+        OPENCVLIBS+=-lzlib
 
     mingw32-make
 }
@@ -50,13 +129,13 @@ function build()
 {
     mkdir -p ../../build
     cd ../../build
-    mainPath="$PWD"
-    export PATH="$mainPath:$PATH"
+    mainPath="${PWD}"
+    export PATH="${mainPath}:$PATH"
     mkdir -p win32
 
     for cmd in "$@"
     do
-        cd "$mainPath"
+        cd "${mainPath}"
         $cmd
 
         if [ $? != '0' ]
@@ -69,4 +148,5 @@ function build()
 build \
     get7Z \
     getFFmpeg \
-    compileWebcamoid
+    buildOpenCV \
+    buildWebcamoid

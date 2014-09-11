@@ -742,7 +742,7 @@ function compileFFmpeg()
     cd $packageFolder
 
     ./configure \
-        --prefix="$curPath/win32"
+        --prefix="$curPath/win32" \
         --extra-cflags="-I$curPath/win32/include" \
         --extra-ldflags="-L$curPath/win32/lib" \
         --disable-debug \

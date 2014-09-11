@@ -678,11 +678,6 @@ void MediaTools::setVideoSize(const QString &device, const QSize &size)
 
     QString webcam = device.isEmpty()? curDevice: device;
 
-    QMetaObject::invokeMethod(this->m_source.data(),
-                              "setSize", Qt::DirectConnection,
-                              Q_ARG(QString, webcam),
-                              Q_ARG(QSize, size));
-
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "setSize", Qt::DirectConnection,
                               Q_ARG(QString, webcam),

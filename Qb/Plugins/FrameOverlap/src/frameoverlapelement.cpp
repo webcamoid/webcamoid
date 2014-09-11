@@ -92,7 +92,6 @@ void FrameOverlapElement::processFrame(const QbPacket &packet)
     int videoArea = width * height;
 
     QImage oFrame(src.size(), src.format());
-
     QRgb *destBits = (QRgb *) oFrame.bits();
 
     if (packet.caps() != this->m_caps) {

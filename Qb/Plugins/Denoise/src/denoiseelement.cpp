@@ -24,61 +24,83 @@
 DenoiseElement::DenoiseElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr24");
+    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
     QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
 
-    this->resetStrength();
-    this->resetTemplateWindowSize();
-    this->resetSearchWindowSize();
+    this->m_denoiseModeToStr[DenoiseModeGauss] = "gauss";
+    this->m_denoiseModeToStr[DenoiseModeSelect] = "select";
+
+    this->resetMode();
+    this->resetScanSize();
+    this->resetMu();
+    this->resetSigma();
 }
 
-float DenoiseElement::strength() const
+QString DenoiseElement::mode() const
 {
-    return this->m_strength;
+    return this->m_denoiseModeToStr[this->m_mode];
 }
 
-int DenoiseElement::templateWindowSize() const
+QSize DenoiseElement::scanSize() const
 {
-    return this->m_templateWindowSize;
+    return this->m_scanSize;
 }
 
-int DenoiseElement::searchWindowSize() const
+float DenoiseElement::mu() const
 {
-    return this->m_searchWindowSize;
+    return this->m_mu;
 }
 
-void DenoiseElement::setStrength(float strength)
+float DenoiseElement::sigma() const
 {
-    this->m_strength = strength;
+    return this->m_sigma;
 }
 
-void DenoiseElement::setTemplateWindowSize(int templateWindowSize)
+void DenoiseElement::setMode(const QString &mode)
 {
-    this->m_templateWindowSize = templateWindowSize;
+    if (this->m_denoiseModeToStr.values().contains(mode))
+        this->m_mode = this->m_denoiseModeToStr.key(mode);
+    else
+        this->m_mode = DenoiseModeGauss;
 }
 
-void DenoiseElement::setSearchWindowSize(int searchWindowSize)
+void DenoiseElement::setScanSize(const QSize &scanSize)
 {
-    this->m_searchWindowSize = searchWindowSize;
+    this->m_scanSize = scanSize;
 }
 
-void DenoiseElement::resetStrength()
+void DenoiseElement::setMu(float mu)
 {
-    this->setStrength(3);
+    this->m_mu = mu;
 }
 
-void DenoiseElement::resetTemplateWindowSize()
+void DenoiseElement::setSigma(float sigma)
 {
-    this->setTemplateWindowSize(7);
+    this->m_sigma = sigma;
 }
 
-void DenoiseElement::resetSearchWindowSize()
+void DenoiseElement::resetMode()
 {
-    this->setSearchWindowSize(21);
+    this->setMode("gauss");
+}
+
+void DenoiseElement::resetScanSize()
+{
+    this->setScanSize(QSize(1, 1));
+}
+
+void DenoiseElement::resetMu()
+{
+    this->setMu(1.0);
+}
+
+void DenoiseElement::resetSigma()
+{
+    this->setSigma(1.0);
 }
 
 void DenoiseElement::iStream(const QbPacket &packet)
@@ -101,33 +123,67 @@ void DenoiseElement::processFrame(const QbPacket &packet)
     QImage src = QImage((const uchar *) packet.buffer().data(),
                         width,
                         height,
-                        QImage::Format_RGB888);
+                        QImage::Format_ARGB32);
 
     QImage oFrame(src.size(), src.format());
 
-    cv::Mat srcCV(src.height(),
-                  src.width(),
-                  CV_8UC3,
-                  (uchar *) src.bits(),
-                  src.bytesPerLine());
+    QRgb *srcBits = (QRgb *) src.bits();
+    QRgb *destBits = (QRgb *) oFrame.bits();
 
-    cv::Mat dstCV(oFrame.height(),
-                  oFrame.width(),
-                  CV_8UC3,
-                  (uchar *) oFrame.bits(),
-                  oFrame.bytesPerLine());
+    int scanWidth = 2 * this->m_scanSize.width() + 1;
+    int scanHeight = 2 * this->m_scanSize.height() + 1;
 
-    cv::fastNlMeansDenoising(srcCV,
-                             dstCV,
-                             this->m_strength,
-                             this->m_templateWindowSize,
-                             this->m_searchWindowSize);
+    for (int y = 0; y < height; y++) {
+        int xOffset = y * width;
+        int yMin = y - this->m_scanSize.height();
+        int yMax = y + this->m_scanSize.height();
+        int kernelHeight = scanHeight;
+
+        if (yMin < 0) {
+            kernelHeight -= abs(yMin);
+            yMin = 0;
+        }
+
+        if (yMax >= height)
+            kernelHeight -= abs(yMax - height + 1);
+
+        for (int x = 0; x < width; x++) {
+            int xMin = x - this->m_scanSize.width();
+            int xMax = x + this->m_scanSize.width();
+            int kernelWidth = scanWidth;
+
+            if (xMin < 0) {
+                kernelWidth -= abs(xMin);
+                xMin = 0;
+            }
+
+            if (xMax >= width)
+                kernelWidth -= abs(xMax - width + 1);
+
+            QRect rect(xMin, yMin, kernelWidth, kernelHeight);
+
+            QRgb pixel;
+
+            if (this->m_mode == DenoiseModeGauss)
+                pixel = this->averageColor(srcBits,
+                                           width,
+                                           rect,
+                                           this->m_mu,
+                                           this->m_sigma);
+            else
+                pixel = this->selectAverageColor(srcBits,
+                                                 width,
+                                                 rect);
+
+            destBits[x + xOffset] = pixel;
+        }
+    }
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr24");
+    caps.setProperty("format", "bgra");
     caps.setProperty("width", oFrame.width());
     caps.setProperty("height", oFrame.height());
 
