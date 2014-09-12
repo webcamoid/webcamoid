@@ -60,33 +60,19 @@ function buildOpenCV()
     cd "${packageFolder}/build"
 
     cmake \
-        -G "MinGW Makefiles" \
+        -G "MSYS Makefiles" \
         -D CMAKE_INSTALL_PREFIX="${curPath}/win32" \
         -D CMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe \
         -D CMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe \
         -D CMAKE_BUILD_TYPE=Release \
-        -D CMAKE_SKIP_RPATH=ON \
-        -D BUILD_SHARED_LIBS=OFF \
         -D BUILD_PERF_TESTS=OFF \
         -D BUILD_TESTS=OFF \
-        -D BUILD_opencv_nonfree=OFF \
-        -D BUILD_ZLIB=OFF \
-        -D WITH_JPEG=OFF \
-        -D WITH_PNG=OFF \
-        -D WITH_TIFF=OFF \
-        -D WITH_JASPER=OFF \
-        -D WITH_OPENEXR=OFF \
-        -D WITH_DSHOW=OFF \
-        -D WITH_FFMPEG=OFF \
-        -D WITH_OPENCL=OFF \
-        -D WITH_VFW=OFF \
-        -D WITH_WIN32UI=OFF \
         ..
 
     mingw32-make
     mingw32-make install
-    mkdir -p ${curPath}/win32/lib
-    cp -vf ${curPath}/win32/x86/mingw/staticlib/lib*.a ${curPath}/win32/lib/
+    cp -Rvf ${curPath}/win32/x86/mingw/bin ${curPath}/win32
+    cp -Rvf ${curPath}/win32/x86/mingw/lib ${curPath}/win32
 
     if [ $? == '0' ]
     then
@@ -119,8 +105,7 @@ function buildWebcamoid()
         OPENCVLIBS+=-lopencv_superres249 \
         OPENCVLIBS+=-lopencv_ts249 \
         OPENCVLIBS+=-lopencv_video249 \
-        OPENCVLIBS+=-lopencv_videostab249 \
-        OPENCVLIBS+=-lzlib
+        OPENCVLIBS+=-lopencv_videostab249
 
     mingw32-make
 }
