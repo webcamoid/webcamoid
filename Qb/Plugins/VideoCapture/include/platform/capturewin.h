@@ -19,24 +19,13 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEOCAPTUREELEMENT_H
-#define VIDEOCAPTUREELEMENT_H
+#ifndef CAPTURE_H
+#define CAPTURE_H
 
 #include <qb.h>
 
-#ifdef Q_OS_LINUX
-#include "platform/capturelinux.h"
-#endif
-
-#ifdef Q_OS_WIN
-#include "platform/capturewin.h"
-#endif
-
-typedef QSharedPointer<QThread> ThreadPtr;
-
-class VideoCaptureElement: public QbElement
+class Capture: public QObject
 {
-    Q_OBJECT
     Q_PROPERTY(QStringList webcams READ webcams NOTIFY webcamsChanged)
     Q_PROPERTY(QString device READ device WRITE setDevice RESET resetDevice)
     Q_PROPERTY(QString ioMethod READ ioMethod WRITE setIoMethod RESET resetIoMethod)
@@ -45,7 +34,7 @@ class VideoCaptureElement: public QbElement
     Q_PROPERTY(QString caps READ caps)
 
     public:
-        explicit VideoCaptureElement();
+        explicit Capture();
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
@@ -61,16 +50,7 @@ class VideoCaptureElement: public QbElement
         Q_INVOKABLE QVariantList controls(const QString &webcam) const;
         Q_INVOKABLE bool setControls(const QString &webcam, const QVariantMap &controls) const;
         Q_INVOKABLE bool resetControls(const QString &webcam) const;
-
-    private:
-        ThreadPtr m_thread;
-        QTimer m_timer;
-        Capture m_capture;
-
-        static void deleteThread(QThread *thread);
-
-    protected:
-        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+        Q_INVOKABLE QbPacket readFrame() const;
 
     signals:
         void error(const QString &message);
@@ -79,16 +59,15 @@ class VideoCaptureElement: public QbElement
         void controlsChanged(const QString &webcam, const QVariantMap &controls) const;
 
     public slots:
+        bool init();
+        void uninit();
         void setDevice(const QString &device);
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
         void resetDevice();
         void resetIoMethod();
         void resetNBuffers();
-        void reset() const;
-
-    private slots:
-        void readFrame();
+        void reset(const QString &webcam="") const;
 };
 
-#endif // VIDEOCAPTUREELEMENT_H
+#endif // CAPTURE_H

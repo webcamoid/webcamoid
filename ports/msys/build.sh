@@ -62,8 +62,8 @@ function buildOpenCV()
     cmake \
         -G "MSYS Makefiles" \
         -D CMAKE_INSTALL_PREFIX="${curPath}/win32" \
-        -D CMAKE_C_COMPILER=C:/MinGW/bin/gcc.exe \
-        -D CMAKE_CXX_COMPILER=C:/MinGW/bin/g++.exe \
+        -D CMAKE_C_COMPILER="C:/MinGW/bin/gcc.exe" \
+        -D CMAKE_CXX_COMPILER="C:/MinGW/bin/g++.exe" \
         -D CMAKE_BUILD_TYPE=Release \
         -D BUILD_PERF_TESTS=OFF \
         -D BUILD_TESTS=OFF \

@@ -37,6 +37,9 @@ HEADERS += \
     include/videocapture.h \
     include/videocaptureelement.h
 
+!win32: HEADERS += include/platform/capturelinux.h
+win32: HEADERS += include/platform/capturewin.h
+
 INCLUDEPATH += \
     include \
     ../../include
@@ -51,6 +54,9 @@ QT += core gui
 SOURCES += \
     src/videocapture.cpp \
     src/videocaptureelement.cpp
+
+!win32: SOURCES += src/platform/capturelinux.cpp
+win32: SOURCES += src/platform/capturewin.cpp
 
 DESTDIR = $${PWD}
 

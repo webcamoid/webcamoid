@@ -19,22 +19,22 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEOCAPTUREELEMENT_H
-#define VIDEOCAPTUREELEMENT_H
+#ifndef CAPTURE_H
+#define CAPTURE_H
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+#include <linux/videodev2.h>
 
 #include <qb.h>
 
-#ifdef Q_OS_LINUX
-#include "platform/capturelinux.h"
-#endif
+#include "capturebuffer.h"
 
-#ifdef Q_OS_WIN
-#include "platform/capturewin.h"
-#endif
-
-typedef QSharedPointer<QThread> ThreadPtr;
-
-class VideoCaptureElement: public QbElement
+class Capture: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList webcams READ webcams NOTIFY webcamsChanged)
@@ -45,14 +45,22 @@ class VideoCaptureElement: public QbElement
     Q_PROPERTY(QString caps READ caps)
 
     public:
-        explicit VideoCaptureElement();
+        enum IoMethod
+        {
+            IoMethodUnknown = -1,
+            IoMethodReadWrite,
+            IoMethodMemoryMap,
+            IoMethodUserPointer
+        };
+
+        explicit Capture();
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE bool isCompressed() const;
-        Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE QString caps(v4l2_format *format = NULL, bool *changePxFmt = NULL) const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
@@ -61,16 +69,40 @@ class VideoCaptureElement: public QbElement
         Q_INVOKABLE QVariantList controls(const QString &webcam) const;
         Q_INVOKABLE bool setControls(const QString &webcam, const QVariantMap &controls) const;
         Q_INVOKABLE bool resetControls(const QString &webcam) const;
+        Q_INVOKABLE QbPacket readFrame() const;
 
     private:
-        ThreadPtr m_thread;
-        QTimer m_timer;
-        Capture m_capture;
+        QStringList m_webcams;
+        QString m_device;
+        IoMethod m_ioMethod;
+        int m_nBuffers;
 
-        static void deleteThread(QThread *thread);
+        QMap<v4l2_ctrl_type, QString> m_ctrlTypeToString;
+        QFileSystemWatcher *m_fsWatcher;
+        int m_fd;
+        QbFrac m_fps;
+        QbFrac m_timeBase;
+        QbCaps m_caps;
+        qint64 m_id;
+        QVector<CaptureBuffer> m_buffers;
+        QMap<quint32, QString> m_rawToFF;
+        QMap<quint32, QString> m_compressedToFF;
 
-    protected:
-        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+        int xioctl(int fd, int request, void *arg) const;
+        quint32 defaultFormat(int fd, bool compressed) const;
+        QString fourccToStr(quint32 format) const;
+        QString v4l2ToFF(quint32 fmt) const;
+        QbFrac fps(int fd) const;
+        quint32 format(const QString &webcam, const QSize &size) const;
+        QVariantList queryControl(int handle, v4l2_queryctrl *queryctrl) const;
+        QMap<QString, quint32> findControls(int handle) const;
+        bool initReadWrite(quint32 bufferSize);
+        bool initMemoryMap();
+        bool initUserPointer(quint32 bufferSize);
+        bool startCapture();
+        void stopCapture();
+        QbPacket processFrame(char *buffer, quint32 bufferSize, qint64 pts) const;
+        bool isCompressedFormat(quint32 format);
 
     signals:
         void error(const QString &message);
@@ -79,16 +111,18 @@ class VideoCaptureElement: public QbElement
         void controlsChanged(const QString &webcam, const QVariantMap &controls) const;
 
     public slots:
+        bool init();
+        void uninit();
         void setDevice(const QString &device);
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
         void resetDevice();
         void resetIoMethod();
         void resetNBuffers();
-        void reset() const;
+        void reset(const QString &webcam="") const;
 
     private slots:
-        void readFrame();
+        void onDirectoryChanged(const QString &path);
 };
 
-#endif // VIDEOCAPTUREELEMENT_H
+#endif // CAPTURE_H
