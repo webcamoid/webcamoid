@@ -29,44 +29,24 @@
 class EdgeElement: public QbElement
 {
     Q_OBJECT
+    Q_PROPERTY(bool equalize READ equalize WRITE setEqualize RESET resetEqualize)
+    Q_PROPERTY(bool invert READ invert WRITE setInvert RESET resetInvert)
 
     public:
         explicit EdgeElement();
+        Q_INVOKABLE bool equalize() const;
+        Q_INVOKABLE bool invert() const;
 
     private:
+        bool m_equalize;
+        bool m_invert;
         QbElementPtr m_convert;
 
-        QImage convolve(const QImage &src) const;
-
-        inline void sobel(const QRgb *src, const int *kernel,
-                          int x, int y, int width, int height,
-                          int *r, int *g, int *b) const
-        {
-            *r = 0;
-            *g = 0;
-            *b = 0;
-
-            QRect rect(0, 0, width, height);
-
-            for (int j = -1; j < 2; j++) {
-                int yp = y + j;
-
-                for (int i = -1; i < 2; i++) {
-                    int k = *kernel++;
-                    int xp = x + i;
-
-                    if (k && rect.contains(xp, yp)) {
-                        QRgb pixel = src[xp + yp * width];
-
-                        *r += k * qRed(pixel);
-                        *g += k * qGreen(pixel);
-                        *b += k * qBlue(pixel);
-                    }
-                }
-            }
-        }
-
     public slots:
+        void setEqualize(bool equalize);
+        void setInvert(bool invert);
+        void resetEqualize();
+        void resetInvert();
         void iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
 

@@ -2,7 +2,7 @@
 <effects>
     <effect name="Andy Warhol">Warhol</effect>
     <effect name="Cartoon">Cartoon</effect>
-    <effect name="Charcoal">Edge ! Invert ! GrayScale ! Normalize</effect>
+    <effect name="Charcoal">Edge equalize=true invert=true</effect>
     <effect name="Che Guevara">
         FalseColor table=[color(0, 0, 0),
                           color(255, 0, 0),
@@ -22,7 +22,7 @@
     <effect name="Distort">Distort</effect>
     <effect name="Dither">Halftone</effect>
     <effect name="Drugs">Dizzy</effect>
-    <effect name="Edges">Edge</effect>
+    <effect name="Edges">Edge equalize=true</effect>
     <effect name="Emboss">Emboss</effect>
     <effect name="Equalize">Equalize</effect>
     <effect name="Face Detect">FaceDetect markerType='image'</effect>

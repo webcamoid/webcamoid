@@ -24,65 +24,45 @@
 EdgeElement::EdgeElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
+    this->m_convert->setProperty("caps", "video/x-raw,format=gray");
 
     QObject::connect(this->m_convert.data(),
                      SIGNAL(oStream(const QbPacket &)),
                      this,
                      SLOT(processFrame(const QbPacket &)));
+
+    this->resetEqualize();
+    this->resetInvert();
 }
 
-QImage EdgeElement::convolve(const QImage &src) const
+bool EdgeElement::equalize() const
 {
-    QImage dst(src.size(), src.format());
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) dst.bits();
+    return this->m_equalize;
+}
 
-    int srcWidth = src.width();
-    int srcHeight = src.height();
+bool EdgeElement::invert() const
+{
+    return this->m_invert;
+}
 
-    QVector<int> kernelX;
+void EdgeElement::setEqualize(bool equalize)
+{
+    this->m_equalize = equalize;
+}
 
-    kernelX << -1 << 0 << 1
-            << -2 << 0 << 2
-            << -1 << 0 << 1;
+void EdgeElement::setInvert(bool invert)
+{
+    this->m_invert = invert;
+}
 
-    QVector<int> kernelY;
+void EdgeElement::resetEqualize()
+{
+    this->setEqualize(false);
+}
 
-    kernelY <<  1 <<  2 <<  1
-            <<  0 <<  0 <<  0
-            << -1 << -2 << -1;
-
-    for (int y = 0; y < srcHeight; y++)
-        for (int x = 0; x < srcWidth; x++) {
-            int rx;
-            int gx;
-            int bx;
-
-            this->sobel(srcBits, kernelX.constData(),
-                        x, y, srcWidth, srcHeight,
-                        &rx, &gx, &bx);
-
-            int ry;
-            int gy;
-            int by;
-
-            this->sobel(srcBits, kernelY.constData(),
-                        x, y, srcWidth, srcHeight,
-                        &ry, &gy, &by);
-
-            int r = sqrt(rx * rx + ry * ry);
-            int g = sqrt(gx * gx + gy * gy);
-            int b = sqrt(bx * bx + by * by);
-
-            r = qBound(0, r, 255);
-            g = qBound(0, g, 255);
-            b = qBound(0, b, 255);
-
-            *destBits++ = qRgb(r, g, b);
-        }
-
-    return dst;
+void EdgeElement::resetInvert()
+{
+    this->setInvert(false);
 }
 
 void EdgeElement::iStream(const QbPacket &packet)
@@ -105,15 +85,80 @@ void EdgeElement::processFrame(const QbPacket &packet)
     QImage src = QImage((const uchar *) packet.buffer().data(),
                         width,
                         height,
-                        QImage::Format_ARGB32);
+                        QImage::Format_Indexed8).copy();
 
-    QImage oFrame = this->convolve(src);
+    QImage oFrame(src.size(), src.format());
+
+    quint8 *srcBits = (quint8 *) src.bits();
+    quint8 *destBits = (quint8 *) oFrame.bits();
+
+    int widthMin = width - 1;
+    int widthMax = width + 1;
+    int heightMin = height - 1;
+
+    if (this->m_equalize) {
+        int videoArea = width * height;
+        int minGray = 255;
+        int maxGray = 0;
+
+        for (int i = 0; i < videoArea; i++) {
+            if (srcBits[i] < minGray)
+                minGray = srcBits[i];
+
+            if (srcBits[i] > maxGray)
+                maxGray = srcBits[i];
+        }
+
+        int diffGray = maxGray - minGray;
+
+        for (int i = 0; i < videoArea; i++)
+            srcBits[i] = 255 * (srcBits[i] - minGray) / diffGray;
+    }
+
+    memset((quint8 *) oFrame.constScanLine(0), 0, width);
+    memset((quint8 *) oFrame.constScanLine(heightMin), 0, width);
+
+    for (int y = 0; y < height; y++) {
+        int xOffset = y * width;
+
+        destBits[xOffset] = 0;
+        destBits[xOffset + widthMin] = 0;
+    }
+
+    for (int y = 1; y < heightMin; y++) {
+        int xOffset = y * width;
+
+        for (int x = 1; x < widthMin; x++) {
+            int pixel = x + xOffset;
+
+            int grayX =   srcBits[pixel - widthMax]
+                        + srcBits[pixel - 1]
+                        + srcBits[pixel + widthMin]
+                        - srcBits[pixel - widthMin]
+                        - srcBits[pixel + 1]
+                        - srcBits[pixel + widthMax];
+
+            int grayY =   srcBits[pixel - widthMax]
+                        + srcBits[pixel - width]
+                        + srcBits[pixel - widthMin]
+                        - srcBits[pixel + widthMin]
+                        - srcBits[pixel + width]
+                        - srcBits[pixel + widthMax];
+
+            int gray = sqrt(grayX * grayX + grayY * grayY);
+
+            if (this->m_invert)
+                destBits[pixel] = 255 - qBound(0, gray, 255);
+            else
+                destBits[pixel] = qBound(0, gray, 255);
+        }
+    }
 
     QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
     memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
 
     QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
+    caps.setProperty("format", "gray");
     caps.setProperty("width", oFrame.width());
     caps.setProperty("height", oFrame.height());
 
