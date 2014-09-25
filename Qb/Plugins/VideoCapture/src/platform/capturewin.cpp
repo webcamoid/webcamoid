@@ -23,7 +23,6 @@
 
 Capture::Capture(): QObject()
 {
-
     this->m_id = -1;
     this->resetIoMethod();
 
@@ -84,6 +83,8 @@ Capture::Capture(): QObject()
                      this,
                      SLOT(frameReceived(float, const QByteArray &)),
                      Qt::DirectConnection);
+
+    this->createDeviceNotifier();
 }
 
 QStringList Capture::webcams() const
@@ -957,6 +958,70 @@ void Capture::changeResolution(IBaseFilter *cameraFilter, const QSize &size) con
             streamConfig->SetFormat(pMediaType);
         }
     }
+}
+
+bool Capture::createDeviceNotifier()
+{
+    QString className("HiddenWindow");
+    HINSTANCE instance = qWinAppInst();
+
+    WNDCLASS wc;
+    wc.style = 0;
+    wc.lpfnWndProc = this->deviceEvents;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = instance;
+    wc.hIcon = 0;
+    wc.hCursor = 0;
+    wc.hbrBackground = 0;
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = reinterpret_cast<const wchar_t *>(className.utf16());
+    RegisterClass(&wc);
+
+    HWND hwnd = CreateWindow(wc.lpszClassName,
+                             wc.lpszClassName,
+                             0,
+                             0, 0, 0, 0,
+                             0,
+                             0,
+                             instance,
+                             0);
+
+    if (!hwnd)
+        return false;
+
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR) this);
+
+    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
+    ZeroMemory(&NotificationFilter, sizeof(NotificationFilter));
+
+    NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
+    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
+    NotificationFilter.dbcc_classguid = GUID_DEVINTERFACE_USB_DEVICE;
+
+    HDEVNOTIFY result = RegisterDeviceNotification(hwnd, &NotificationFilter, DEVICE_NOTIFY_WINDOW_HANDLE);
+
+    if (FAILED(result))
+        return false;
+
+    return true;
+}
+
+LRESULT Capture::deviceEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    if (wParam == DBT_DEVICEARRIVAL
+        || wParam == DBT_DEVICEREMOVECOMPLETE) {
+        Capture *thisPtr = (Capture *) GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        QStringList webcams = thisPtr->webcams();
+
+        if (webcams != thisPtr->m_webcams) {
+            emit thisPtr->webcamsChanged(webcams);
+
+            thisPtr->m_webcams = webcams;
+        }
+    }
+
+    return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 void Capture::deleteUnknown(IUnknown *unknown)

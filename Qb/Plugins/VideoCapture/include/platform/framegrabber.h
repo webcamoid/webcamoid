@@ -24,6 +24,7 @@
 
 #include <dshow.h>
 #include <qedit.h>
+#include <dbt.h>
 #include <QObject>
 
 class FrameGrabber: public QObject, public ISampleGrabberCB

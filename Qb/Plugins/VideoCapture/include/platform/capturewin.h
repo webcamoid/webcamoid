@@ -33,6 +33,9 @@
 
 DEFINE_GUID(CLSID_SampleGrabber, 0xc1f400a0, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
 DEFINE_GUID(CLSID_NullRenderer, 0xc1f400a4, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
+static const GUID GUID_DEVINTERFACE_USB_DEVICE = {0xA5DCBF10, 0x6530, 0x11D2, {0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED}};
+
+Q_CORE_EXPORT HINSTANCE qWinAppInst();
 
 typedef QSharedPointer<IGraphBuilder> GraphBuilderPtr;
 typedef QSharedPointer<IMediaControl> MediaControlPtr;
@@ -93,6 +96,7 @@ class Capture: public QObject
         Q_INVOKABLE QbPacket readFrame();
 
     private:
+        QStringList m_webcams;
         QString m_device;
         qint64 m_id;
         QbCaps m_caps;
@@ -129,6 +133,8 @@ class Capture: public QObject
         QbCaps prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const QString &webcam) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
         void changeResolution(IBaseFilter *cameraFilter, const QSize &size) const;
+        bool createDeviceNotifier();
+        static LRESULT CALLBACK deviceEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
         static void deleteUnknown(IUnknown *unknown);
         static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
 
