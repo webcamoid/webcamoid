@@ -54,31 +54,6 @@ int AgingElement::agingMode() const
     return this->m_agingMode;
 }
 
-bool AgingElement::event(QEvent *event)
-{
-    bool r;
-
-    if (event->type() == QEvent::ThreadChange)
-    {
-        QObject::disconnect(this->m_convert.data(),
-                            SIGNAL(oStream(const QbPacket &)),
-                            this,
-                            SLOT(processFrame(const QbPacket &)));
-
-        r = QObject::event(event);
-        this->m_convert->moveToThread(this->thread());
-
-        QObject::connect(this->m_convert.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SLOT(processFrame(const QbPacket &)));
-    }
-    else
-        r = QObject::event(event);
-
-    return r;
-}
-
 QImage AgingElement::colorAging(const QImage &src)
 {
     QImage dest(src.size(), src.format());

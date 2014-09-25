@@ -22,6 +22,7 @@
 #ifndef DENOISEELEMENT_H
 #define DENOISEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

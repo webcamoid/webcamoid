@@ -22,7 +22,12 @@
 #ifndef APPENVIRONMENT_H
 #define APPENVIRONMENT_H
 
-#include <QtCore>
+#include <QObject>
+#include <QTranslator>
+#include <QCoreApplication>
+#include <QStringList>
+#include <QLocale>
+#include <QFileInfo>
 
 #include "commons.h"
 

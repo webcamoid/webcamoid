@@ -22,6 +22,7 @@
 #ifndef DISTORTELEMENT_H
 #define DISTORTELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qrgb.h>
 

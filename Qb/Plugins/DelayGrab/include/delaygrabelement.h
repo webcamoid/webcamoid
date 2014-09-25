@@ -22,6 +22,7 @@
 #ifndef DELAYGRABELEMENT_H
 #define DELAYGRABELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

@@ -29,10 +29,13 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <linux/videodev2.h>
+#include <QFileSystemWatcher>
+#include <QDir>
+#include <QSize>
 
 #include <qb.h>
 
-#include "capturebuffer.h"
+#include "platform/capturebuffer.h"
 
 class Capture: public QObject
 {
@@ -64,12 +67,15 @@ class Capture: public QObject
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
-        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size) const;
-        Q_INVOKABLE bool resetSize(const QString &webcam) const;
-        Q_INVOKABLE QVariantList controls(const QString &webcam) const;
-        Q_INVOKABLE bool setControls(const QString &webcam, const QVariantMap &controls) const;
-        Q_INVOKABLE bool resetControls(const QString &webcam) const;
-        Q_INVOKABLE QbPacket readFrame() const;
+        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size);
+        Q_INVOKABLE bool resetSize(const QString &webcam);
+        Q_INVOKABLE QVariantList imageControls(const QString &webcam) const;
+        Q_INVOKABLE bool setImageControls(const QString &webcam, const QVariantMap &imageControls) const;
+        Q_INVOKABLE bool resetImageControls(const QString &webcam) const;
+        Q_INVOKABLE QVariantList cameraControls(const QString &webcam) const;
+        Q_INVOKABLE bool setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const;
+        Q_INVOKABLE bool resetCameraControls(const QString &webcam) const;
+        Q_INVOKABLE QbPacket readFrame();
 
     private:
         QStringList m_webcams;
@@ -94,8 +100,9 @@ class Capture: public QObject
         QString v4l2ToFF(quint32 fmt) const;
         QbFrac fps(int fd) const;
         quint32 format(const QString &webcam, const QSize &size) const;
-        QVariantList queryControl(int handle, v4l2_queryctrl *queryctrl) const;
-        QMap<QString, quint32> findControls(int handle) const;
+        QVariantList controls(const QString &webcam, quint32 controlClass) const;
+        QVariantList queryControl(int handle, quint32 controlClass, v4l2_queryctrl *queryctrl) const;
+        QMap<QString, quint32> findImageControls(int handle) const;
         bool initReadWrite(quint32 bufferSize);
         bool initMemoryMap();
         bool initUserPointer(quint32 bufferSize);
@@ -108,7 +115,8 @@ class Capture: public QObject
         void error(const QString &message);
         void webcamsChanged(const QStringList &webcams) const;
         void sizeChanged(const QString &webcam, const QSize &size) const;
-        void controlsChanged(const QString &webcam, const QVariantMap &controls) const;
+        void imageControlsChanged(const QString &webcam, const QVariantMap &imageControls) const;
+        void cameraControlsChanged(const QString &webcam, const QVariantMap &cameraControls) const;
 
     public slots:
         bool init();
@@ -119,7 +127,7 @@ class Capture: public QObject
         void resetDevice();
         void resetIoMethod();
         void resetNBuffers();
-        void reset(const QString &webcam="") const;
+        void reset(const QString &webcam);
 
     private slots:
         void onDirectoryChanged(const QString &path);

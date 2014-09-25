@@ -22,6 +22,7 @@
 #ifndef IMPLODEELEMENT_H
 #define IMPLODEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

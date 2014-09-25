@@ -54,7 +54,7 @@ QRgb WaveElement::background() const
 QImage WaveElement::wave(const QImage &img, float amplitude, float phases, QRgb background) const
 {
     QImage buffer(img.width(),
-                  img.height() + 2 * abs(amplitude),
+                  img.height() + 2 * fabs(amplitude),
                   img.format());
 
     int width = buffer.width();
@@ -63,7 +63,7 @@ QImage WaveElement::wave(const QImage &img, float amplitude, float phases, QRgb 
     float *sine_map = new float[width];
 
     for(int x = 0; x < width; x++)
-        sine_map[x] = abs(amplitude) + amplitude * sin((phases * 2.0 * M_PI * x) / width);
+        sine_map[x] = fabs(amplitude) + amplitude * sin((phases * 2.0 * M_PI * x) / width);
 
     for (int y = 0; y < height; y++) {
         QRgb *dest = (QRgb *) buffer.scanLine(y);

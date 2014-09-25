@@ -125,7 +125,7 @@ void VideoSyncElement::processFrame()
                                           delay,
                                           AV_SYNC_THRESHOLD_MAX);
 
-            if (!isnan(diff)
+            if (!std::isnan(diff)
                 && fabs(diff) < AV_NOSYNC_THRESHOLD
                 && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
                 // video is backward the external clock.

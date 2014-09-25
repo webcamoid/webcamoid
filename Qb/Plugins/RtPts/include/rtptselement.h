@@ -22,6 +22,10 @@
 #ifndef RTPTSELEMENT_H
 #define RTPTSELEMENT_H
 
+#include <QMutex>
+#include <QTimer>
+#include <QThread>
+#include <QElapsedTimer>
 #include <qb.h>
 
 class RtPtsElement: public QbElement

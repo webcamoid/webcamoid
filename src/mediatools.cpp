@@ -326,22 +326,22 @@ QList<QStringList> MediaTools::captureDevices()
     return allDevices;
 }
 
-QVariantList MediaTools::listControls(const QString &device)
+QVariantList MediaTools::listImageControls(const QString &device)
 {
     QVariantList controls;
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                              "controls", Qt::DirectConnection,
+                              "imageControls", Qt::DirectConnection,
                               Q_RETURN_ARG(QVariantList, controls),
                               Q_ARG(QString, device));
 
     return controls;
 }
 
-void MediaTools::setControls(const QString &device, const QVariantMap &controls)
+void MediaTools::setImageControls(const QString &device, const QVariantMap &controls)
 {
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                              "setControls", Qt::DirectConnection,
+                              "setImageControls", Qt::DirectConnection,
                               Q_ARG(QString, device),
                               Q_ARG(QVariantMap, controls));
 }
@@ -546,23 +546,22 @@ void MediaTools::mutexUnlock()
 
 void MediaTools::setDevice(const QString &device)
 {
-    // If no device identifier is provided stop current device.
-    if (device.isEmpty()) {
-        this->resetRecording();
-        this->resetEffectsPreview();
+    // Clear previous device.
+    this->resetRecording();
+    this->resetEffectsPreview();
 
-        if (this->m_source) {
-            this->m_source->setState(QbElement::ElementStateNull);
-            this->m_source->setProperty("location", "");
-        }
-
-        if (this->m_videoCapture) {
-            this->m_videoCapture->setState(QbElement::ElementStateNull);
-            this->m_videoCapture->setProperty("device", "");
-        }
+    if (this->m_source) {
+        this->m_source->setState(QbElement::ElementStateNull);
+        this->m_source->setProperty("location", "");
     }
+
+    if (this->m_videoCapture) {
+        this->m_videoCapture->setState(QbElement::ElementStateNull);
+        this->m_videoCapture->setProperty("device", "");
+    }
+
     // Prepare the device.
-    else {
+    if (!device.isEmpty()) {
         if (!this->m_source || !this->m_videoCapture)
             return;
 

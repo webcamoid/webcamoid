@@ -43,31 +43,6 @@ int WarholElement::nFrames() const
     return this->m_nFrames;
 }
 
-bool WarholElement::event(QEvent *event)
-{
-    bool r;
-
-    if (event->type() == QEvent::ThreadChange)
-    {
-        QObject::disconnect(this->m_convert.data(),
-                            SIGNAL(oStream(const QbPacket &)),
-                            this,
-                            SIGNAL(processFrame(const QbPacket &)));
-
-        r = QObject::event(event);
-        this->m_convert->moveToThread(this->thread());
-
-        QObject::connect(this->m_convert.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SIGNAL(processFrame(const QbPacket &)));
-    }
-    else
-        r = QObject::event(event);
-
-    return r;
-}
-
 void WarholElement::setNFrames(int nFrames)
 {
     this->m_nFrames = nFrames;

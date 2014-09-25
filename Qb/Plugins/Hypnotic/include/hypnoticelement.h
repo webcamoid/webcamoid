@@ -22,6 +22,7 @@
 #ifndef HYPNOTICELEMENT_H
 #define HYPNOTICELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <QColor>
 

@@ -22,6 +22,7 @@
 #ifndef MULTISINKELEMENT_H
 #define MULTISINKELEMENT_H
 
+#include <QMutex>
 #include <qb.h>
 
 #include "commands.h"

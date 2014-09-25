@@ -39,9 +39,14 @@ VideoCaptureElement::VideoCaptureElement(): QbElement()
                      SIGNAL(sizeChanged(const QString &, const QSize &)));
 
     QObject::connect(&this->m_capture,
-                     SIGNAL(controlsChanged(const QString &, const QVariantMap &)),
+                     SIGNAL(imageControlsChanged(const QString &, const QVariantMap &)),
                      this,
-                     SIGNAL(controlsChanged(const QString &, const QVariantMap &)));
+                     SIGNAL(imageControlsChanged(const QString &, const QVariantMap &)));
+
+    QObject::connect(&this->m_capture,
+                     SIGNAL(cameraControlsChanged(const QString &, const QVariantMap &)),
+                     this,
+                     SIGNAL(cameraControlsChanged(const QString &, const QVariantMap &)));
 
     this->m_thread = ThreadPtr(new QThread, this->deleteThread);
     this->m_thread->start();
@@ -99,29 +104,44 @@ QSize VideoCaptureElement::size(const QString &webcam) const
     return this->m_capture.size(webcam);
 }
 
-bool VideoCaptureElement::setSize(const QString &webcam, const QSize &size) const
+bool VideoCaptureElement::setSize(const QString &webcam, const QSize &size)
 {
     return this->m_capture.setSize(webcam, size);
 }
 
-bool VideoCaptureElement::resetSize(const QString &webcam) const
+bool VideoCaptureElement::resetSize(const QString &webcam)
 {
     return this->m_capture.resetSize(webcam);
 }
 
-QVariantList VideoCaptureElement::controls(const QString &webcam) const
+QVariantList VideoCaptureElement::imageControls(const QString &webcam) const
 {
-    return this->m_capture.controls(webcam);
+    return this->m_capture.imageControls(webcam);
 }
 
-bool VideoCaptureElement::setControls(const QString &webcam, const QVariantMap &controls) const
+bool VideoCaptureElement::setImageControls(const QString &webcam, const QVariantMap &imageControls) const
 {
-    return this->m_capture.setControls(webcam, controls);
+    return this->m_capture.setImageControls(webcam, imageControls);
 }
 
-bool VideoCaptureElement::resetControls(const QString &webcam) const
+bool VideoCaptureElement::resetImageControls(const QString &webcam) const
 {
-    return this->m_capture.resetControls(webcam);
+    return this->m_capture.resetImageControls(webcam);
+}
+
+QVariantList VideoCaptureElement::cameraControls(const QString &webcam) const
+{
+    return this->m_capture.cameraControls(webcam);
+}
+
+bool VideoCaptureElement::setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const
+{
+    return this->m_capture.setCameraControls(webcam, cameraControls);
+}
+
+bool VideoCaptureElement::resetCameraControls(const QString &webcam) const
+{
+    return this->m_capture.resetCameraControls(webcam);
 }
 
 void VideoCaptureElement::deleteThread(QThread *thread)
@@ -175,9 +195,9 @@ void VideoCaptureElement::resetNBuffers()
     this->m_capture.resetNBuffers();
 }
 
-void VideoCaptureElement::reset() const
+void VideoCaptureElement::reset(const QString &webcam)
 {
-    this->m_capture.reset();
+    this->m_capture.reset(webcam);
 }
 
 void VideoCaptureElement::readFrame()

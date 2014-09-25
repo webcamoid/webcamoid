@@ -93,7 +93,7 @@ void CinemaElement::processFrame(const QbPacket &packet)
     int cy = height >> 1;
 
     for (int y = 0; y < height; y++) {
-        float k = 1.0 - fabs(y - cy) / cy;
+        float k = 1.0 - std::abs(y - cy) / cy;
         QRgb *iLine = (QRgb *) src.scanLine(y);
         QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 

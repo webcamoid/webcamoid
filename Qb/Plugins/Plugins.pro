@@ -22,5 +22,65 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-unix: SUBDIRS += $$system(find -mindepth 1 -maxdepth 1 -type d -not -name \'.*\' -exec basename {} \\;)
-win32: SUBDIRS += $$system(dir /a:d-h /b /o:n)
+SUBDIRS += \
+    ACapsConvert \
+    Aging \
+    AudioInput \
+    AudioOutput \
+    Bin \
+    Blur \
+    Cartoon \
+    ChangeHSL \
+    Cinema \
+    ColorFilter \
+    ColorReplace \
+    ColorTap \
+    ColorTransform \
+    Convolve \
+    DelayGrab \
+    Denoise \
+    Dice \
+    Distort \
+    Dizzy \
+    Edge \
+    Emboss \
+    Equalize \
+    FaceDetect \
+    FalseColor \
+    Fire \
+    FrameOverlap \
+    GrayScale \
+    Halftone \
+    Hypnotic \
+    Implode \
+    Invert \
+    Life \
+    Matrix \
+    MatrixTransform \
+    Multiplex \
+    MultiSink \
+    MultiSrc \
+    Nervous \
+    Normalize \
+    OilPaint \
+    Photocopy \
+    Pixelate \
+    PrimariesColors \
+    Probe \
+    QImageConvert \
+    Quark \
+    Radioactive \
+    Ripple \
+    RtPts \
+    ScanLines \
+    Scroll \
+    Shagadelic \
+    Swirl \
+    Temperature \
+    VCapsConvert \
+    VideoCapture \
+    VideoSync \
+    Vignette \
+    Warhol \
+    Warp \
+    Wave

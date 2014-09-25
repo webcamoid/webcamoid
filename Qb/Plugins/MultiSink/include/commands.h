@@ -22,6 +22,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include <QSize>
+
 #include "optionparser.h"
 
 class Commands: public OptionParser

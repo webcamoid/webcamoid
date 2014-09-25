@@ -22,6 +22,7 @@
 #ifndef TEMPERATUREELEMENT_H
 #define TEMPERATUREELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <QColor>
 

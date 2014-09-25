@@ -29,8 +29,6 @@
 #include <QSpinBox>
 #include <QCheckBox>
 
-#include "commons.h"
-#include "appenvironment.h"
 #include "mediatools.h"
 
 namespace Ui

@@ -104,7 +104,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
         cindex = 1;
 
-        foreach (QVariant control, this->m_mediaTools->listControls(captureDevice[0])) {
+        foreach (QVariant control, this->m_mediaTools->listImageControls(captureDevice[0])) {
             if (control.toList()[1].toString() == "integer" ||
                 control.toList()[1].toString() == "integer64") {
                 QLabel *lblControl = new QLabel(page);
@@ -276,7 +276,7 @@ void CameraConfig::sliderMoved(int value)
         QVariantMap controlMap;
 
         controlMap[controlName] = value;
-        this->m_mediaTools->setControls(deviceName, controlMap);
+        this->m_mediaTools->setImageControls(deviceName, controlMap);
     }
 }
 
@@ -290,7 +290,7 @@ void CameraConfig::spinboxValueChanged(int i)
         QVariantMap controlMap;
 
         controlMap[controlName] = i;
-        this->m_mediaTools->setControls(deviceName, controlMap);
+        this->m_mediaTools->setImageControls(deviceName, controlMap);
     }
 }
 
@@ -304,7 +304,7 @@ void CameraConfig::checkboxToggled(bool checked)
         QVariantMap controlMap;
 
         controlMap[controlName] = checked? 1: 0;
-        this->m_mediaTools->setControls(deviceName, controlMap);
+        this->m_mediaTools->setImageControls(deviceName, controlMap);
     }
 }
 
@@ -323,6 +323,6 @@ void CameraConfig::comboboxCurrentIndexChanged(int index)
         QVariantMap controlMap;
 
         controlMap[controlName] = index;
-        this->m_mediaTools->setControls(deviceName, controlMap);
+        this->m_mediaTools->setImageControls(deviceName, controlMap);
     }
 }

@@ -22,7 +22,8 @@
 #ifndef QBFRAC_H
 #define QBFRAC_H
 
-#include <QtCore>
+#include <QObject>
+#include <QDebug>
 
 class QbFrac: public QObject
 {

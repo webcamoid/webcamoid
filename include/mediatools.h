@@ -22,7 +22,8 @@
 #ifndef MEDIATOOLS_H
 #define MEDIATOOLS_H
 
-#include <QtGui>
+#include <QSize>
+#include <QMutex>
 #include <qb.h>
 
 #include "commons.h"
@@ -84,8 +85,8 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
 
         Q_INVOKABLE QVariantList videoSizes(const QString &device);
         Q_INVOKABLE QList<QStringList> captureDevices();
-        Q_INVOKABLE QVariantList listControls(const QString &device);
-        Q_INVOKABLE void setControls(const QString &device, const QVariantMap &controls);
+        Q_INVOKABLE QVariantList listImageControls(const QString &device);
+        Q_INVOKABLE void setImageControls(const QString &device, const QVariantMap &controls);
         Q_INVOKABLE QMap<QString, QString> availableEffects() const;
         Q_INVOKABLE QStringList currentEffects() const;
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;

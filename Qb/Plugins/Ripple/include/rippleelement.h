@@ -22,6 +22,7 @@
 #ifndef RIPPLEELEMENT_H
 #define RIPPLEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <QColor>
 

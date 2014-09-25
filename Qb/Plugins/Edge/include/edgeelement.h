@@ -22,6 +22,7 @@
 #ifndef EDGEELEMENT_H
 #define EDGEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

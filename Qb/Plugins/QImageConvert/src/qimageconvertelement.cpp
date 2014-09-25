@@ -56,31 +56,6 @@ QString QImageConvertElement::format()
     return this->m_format;
 }
 
-bool QImageConvertElement::event(QEvent *event)
-{
-    bool r;
-
-    if (event->type() == QEvent::ThreadChange)
-    {
-        QObject::disconnect(this->m_convert.data(),
-                            SIGNAL(oStream(const QbPacket &)),
-                            this,
-                            SIGNAL(processFrame(const QbPacket &)));
-
-        r = QObject::event(event);
-        this->m_convert->moveToThread(this->thread());
-
-        QObject::connect(this->m_convert.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SIGNAL(processFrame(const QbPacket &)));
-    }
-    else
-        r = QObject::event(event);
-
-    return r;
-}
-
 void QImageConvertElement::setFormat(QString format)
 {
     this->m_format = format;

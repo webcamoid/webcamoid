@@ -22,6 +22,12 @@
 #ifndef VIDEOSYNCELEMENT_H
 #define VIDEOSYNCELEMENT_H
 
+#include <cmath>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QTimer>
+#include <QElapsedTimer>
+#include <QQueue>
 #include <qb.h>
 
 #include "thread.h"

@@ -24,9 +24,9 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDateTime>
+#include <QResizeEvent>
 
-#include "commons.h"
-#include "appenvironment.h"
 #include "effects.h"
 #include "generalconfig.h"
 #include "streamsconfig.h"

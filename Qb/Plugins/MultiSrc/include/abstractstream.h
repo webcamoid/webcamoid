@@ -22,6 +22,9 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
+#include <QMutex>
+#include <QWaitCondition>
+#include <QQueue>
 #include <qb.h>
 
 extern "C"

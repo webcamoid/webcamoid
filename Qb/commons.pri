@@ -37,7 +37,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     }
 
     isEmpty(QMAKE_LRELEASE) {
-        win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\lrelease.exe
+        win32:QMAKE_LRELEASE = $$[QT_INSTALL_LIBS]/qt/bin/lrelease
         else {
             greaterThan(QT_MAJOR_VERSION, 4): QMAKE_LRELEASE = lrelease-qt5
             lessThan(QT_MAJOR_VERSION, 5): QMAKE_LRELEASE = lrelease-qt4
@@ -52,7 +52,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     isEmpty(SBINDIR): SBINDIR = $${EXECPREFIX}/sbin
     isEmpty(LIBEXECDIR): LIBEXECDIR = $${EXECPREFIX}/libexec
     isEmpty(DATAROOTDIR): DATAROOTDIR = $${PREFIX}/share
-    isEmpty(DATADIR): DATADIR = $${DATAROOTDIR}/$${COMMONS_TARGET}
+    isEmpty(DATDIR): DATDIR = $${DATAROOTDIR}/$${COMMONS_TARGET}
     isEmpty(SYSCONFDIR): SYSCONFDIR = $${PREFIX}/etc
     isEmpty(SHAREDSTATEDIR): SHAREDSTATEDIR = $${PREFIX}/com
     isEmpty(LOCALSTATEDIR): LOCALSTATEDIR = $${PREFIX}/var
@@ -75,7 +75,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         isEmpty(KDELIBDIR): KDELIBDIR = $${PREFIX}/lib
     }
 
-    DEFINES += \
+     DEFINES += \
         COMMONS_APPNAME=\"\\\"$$COMMONS_APPNAME\\\"\" \
         COMMONS_TARGET=\"\\\"$$COMMONS_TARGET\\\"\" \
         COMMONS_VERSION=\"\\\"$$VERSION\\\"\" \
@@ -88,7 +88,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         SBINDIR=\"\\\"$$SBINDIR\\\"\" \
         LIBEXECDIR=\"\\\"LIBEXECDIR\\\"\" \
         DATAROOTDIR=\"\\\"$$DATAROOTDIR\\\"\" \
-        DATADIR=\"\\\"$$DATADIR\\\"\" \
+        DATDIR=\"\\\"$$DATDIR\\\"\" \
         SYSCONFDIR=\"\\\"$$SYSCONFDIR\\\"\" \
         SHAREDSTATEDIR=\"\\\"$$SHAREDSTATEDIR\\\"\" \
         LOCALSTATEDIR=\"\\\"$$LOCALSTATEDIR\\\"\" \

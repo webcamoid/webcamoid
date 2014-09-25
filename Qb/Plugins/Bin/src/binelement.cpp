@@ -60,37 +60,6 @@ void BinElement::remove(const QString &elementName)
     this->m_pipelineDescription.removeElement(elementName);
 }
 
-bool BinElement::event(QEvent *event)
-{
-    bool r;
-
-    if (event->type() == QEvent::ThreadChange)
-    {
-        QList<QbElementPtr> elements;
-
-        foreach (QbElementPtr element, this->m_pipelineDescription.elements().values())
-            if (element->thread() == this->thread())
-                elements << element;
-
-        this->m_pipelineDescription.unlinkAll();
-        this->m_pipelineDescription.disconnectAll();
-        this->disconnectOutputs();
-
-        r = QObject::event(event);
-
-        foreach (QbElementPtr element, elements)
-            element->moveToThread(this->thread());
-
-        this->m_pipelineDescription.linkAll();
-        this->m_pipelineDescription.connectAll();
-        this->connectOutputs();
-    }
-    else
-        r = QObject::event(event);
-
-    return r;
-}
-
 void BinElement::setDescription(const QString &description)
 {
     if (this->m_description == description)

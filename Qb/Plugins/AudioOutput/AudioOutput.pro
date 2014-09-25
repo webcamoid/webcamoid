@@ -81,20 +81,18 @@ DESTDIR = $${PWD}
 
 TEMPLATE = lib
 
-unix {
-    isEmpty(FFMPEGLIBS) {
-        CONFIG += link_pkgconfig
+isEmpty(FFMPEGLIBS) {
+    CONFIG += link_pkgconfig
 
-        PKGCONFIG += \
-            libavdevice \
-            libavfilter \
-            libavformat \
-            libavcodec \
-            libpostproc \
-            libswresample \
-            libswscale \
-            libavutil
-    }
+    PKGCONFIG += \
+        libavdevice \
+        libavfilter \
+        libavformat \
+        libavcodec \
+        libpostproc \
+        libswresample \
+        libswscale \
+        libavutil
 }
 
 INSTALLS += target

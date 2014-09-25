@@ -22,6 +22,8 @@
 #ifndef QBPACKET_H
 #define QBPACKET_H
 
+#include <QSharedPointer>
+
 #include "qbcaps.h"
 #include "qbfrac.h"
 

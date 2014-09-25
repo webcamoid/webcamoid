@@ -21,6 +21,11 @@
 
 %code requires {
 #include <QColor>
+#include <QBitArray>
+#include <QRect>
+#include <QLine>
+#include <QDateTime>
+#include <QUrl>
 
 #include "pipeline.h"
 

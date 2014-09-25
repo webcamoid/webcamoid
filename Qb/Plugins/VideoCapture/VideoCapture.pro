@@ -30,15 +30,19 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
+DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 HEADERS += \
-    include/capturebuffer.h \
     include/videocapture.h \
     include/videocaptureelement.h
 
-!win32: HEADERS += include/platform/capturelinux.h
-win32: HEADERS += include/platform/capturewin.h
+!win32: HEADERS += \
+    include/platform/capturebuffer.h \
+    include/platform/capturelinux.h
+
+win32: HEADERS += \
+    include/platform/capturewin.h \
+    include/platform/framegrabber.h
 
 INCLUDEPATH += \
     include \
@@ -46,6 +50,7 @@ INCLUDEPATH += \
 
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
+win32: LIBS += -lstrmiids -lole32 -loleaut32
 
 OTHER_FILES += pspec.json
 
@@ -56,7 +61,10 @@ SOURCES += \
     src/videocaptureelement.cpp
 
 !win32: SOURCES += src/platform/capturelinux.cpp
-win32: SOURCES += src/platform/capturewin.cpp
+
+win32: SOURCES += \
+    src/platform/capturewin.cpp \
+    src/platform/framegrabber.cpp
 
 DESTDIR = $${PWD}
 

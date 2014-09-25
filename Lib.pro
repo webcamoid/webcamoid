@@ -130,7 +130,7 @@ unix {
     target.path = $${LIBDIR}
 
     translations.files = share/ts/*.qm
-    translations.path = $${DATADIR}/tr
+    translations.path = $${DATDIR}/tr
     translations.CONFIG += no_check_exist
 
     !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {

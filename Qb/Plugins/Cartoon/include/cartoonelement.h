@@ -22,6 +22,7 @@
 #ifndef CARTOONELEMENT_H
 #define CARTOONELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <QColor>
 

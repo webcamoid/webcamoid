@@ -79,10 +79,6 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
         this->ui->lswEffects->setCurrentRow(0);
 }
 
-Effects::~Effects()
-{
-}
-
 void Effects::update()
 {
    if (!this->m_mediaTools)

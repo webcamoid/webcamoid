@@ -21,7 +21,7 @@
 
 #include "platform/capturelinux.h"
 
-Capture::Capture()
+Capture::Capture(): QObject()
 {
     this->m_fd = -1;
     this->m_id = -1;
@@ -331,9 +331,13 @@ QVariantList Capture::availableSizes(const QString &webcam) const
             while (this->xioctl(device.handle(),
                          VIDIOC_ENUM_FRAMESIZES,
                          &frmsize) >= 0) {
-                if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE)
-                    sizeList << QSize(frmsize.discrete.width,
-                                      frmsize.discrete.height);
+                if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
+                    QSize size(frmsize.discrete.width,
+                               frmsize.discrete.height);
+
+                    if (!sizeList.contains(size))
+                        sizeList << size;
+                }
 
                 frmsize.index++;
             }
@@ -368,7 +372,7 @@ QSize Capture::size(const QString &webcam) const
     return size;
 }
 
-bool Capture::setSize(const QString &webcam, const QSize &size) const
+bool Capture::setSize(const QString &webcam, const QSize &size)
 {
     QFile deviceFile(webcam);
 
@@ -394,72 +398,24 @@ bool Capture::setSize(const QString &webcam, const QSize &size) const
     return true;
 }
 
-bool Capture::resetSize(const QString &webcam) const
+bool Capture::resetSize(const QString &webcam)
 {
     return this->setSize(webcam, this->availableSizes(webcam)[0].toSize());
 }
 
-QVariantList Capture::controls(const QString &webcam) const
+QVariantList Capture::imageControls(const QString &webcam) const
 {
-    QVariantList controls;
-
-    QFile device(webcam);
-
-    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
-        return controls;
-
-    v4l2_queryctrl queryctrl;
-    memset(&queryctrl, 0, sizeof(v4l2_queryctrl));
-    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
-
-    while (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
-        QVariantList control = this->queryControl(device.handle(), &queryctrl);
-
-        if (!control.isEmpty())
-            controls << QVariant(control);
-
-        queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
-    }
-
-    if (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL) {
-        device.close();
-
-        return controls;
-    }
-
-    for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
-        queryctrl.id = id;
-
-        if (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
-            QVariantList control = this->queryControl(device.handle(), &queryctrl);
-
-            if (!control.isEmpty())
-                controls << QVariant(control);
-        }
-    }
-
-    for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
-         this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0;
-         queryctrl.id++) {
-        QVariantList control = this->queryControl(device.handle(), &queryctrl);
-
-        if (!control.isEmpty())
-            controls << QVariant(control);
-    }
-
-    device.close();
-
-    return controls;
+    return this->controls(webcam, V4L2_CTRL_CLASS_USER);
 }
 
-bool Capture::setControls(const QString &webcam, const QVariantMap &controls) const
+bool Capture::setImageControls(const QString &webcam, const QVariantMap &controls) const
 {
     QFile device(webcam);
 
     if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
         return false;
 
-    QMap<QString, uint> ctrl2id = this->findControls(device.handle());
+    QMap<QString, uint> ctrl2id = this->findImageControls(device.handle());
     QVector<v4l2_ext_control> mpegCtrls;
     QVector<v4l2_ext_control> userCtrls;
 
@@ -493,25 +449,41 @@ bool Capture::setControls(const QString &webcam, const QVariantMap &controls) co
 
     device.close();
 
-    emit this->controlsChanged(webcam, controls);
+    emit this->imageControlsChanged(webcam, controls);
 
     return true;
 }
 
-bool Capture::resetControls(const QString &webcam) const
+bool Capture::resetImageControls(const QString &webcam) const
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->controls(webcam)) {
+    foreach (QVariant control, this->imageControls(webcam)) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
     }
 
-    return this->setControls(webcam, controls);
+    return this->setImageControls(webcam, controls);
 }
 
-QbPacket Capture::readFrame() const
+
+QVariantList Capture::cameraControls(const QString &webcam) const
+{
+    return this->controls(webcam, V4L2_CTRL_CLASS_CAMERA);
+}
+
+bool Capture::setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const
+{
+    return this->setImageControls(webcam, cameraControls);
+}
+
+bool Capture::resetCameraControls(const QString &webcam) const
+{
+    return this->resetImageControls(webcam);
+}
+
+QbPacket Capture::readFrame()
 {
     QbPacket packet;
 
@@ -708,12 +680,65 @@ quint32 Capture::format(const QString &webcam, const QSize &size) const
     return 0;
 }
 
-QVariantList Capture::queryControl(int handle, v4l2_queryctrl *queryctrl) const
+QVariantList Capture::controls(const QString &webcam, quint32 controlClass) const
+{
+    QVariantList controls;
+
+    QFile device(webcam);
+
+    if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
+        return controls;
+
+    v4l2_queryctrl queryctrl;
+    memset(&queryctrl, 0, sizeof(v4l2_queryctrl));
+    queryctrl.id = V4L2_CTRL_FLAG_NEXT_CTRL;
+
+    while (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
+        QVariantList control = this->queryControl(device.handle(), controlClass, &queryctrl);
+
+        if (!control.isEmpty())
+            controls << QVariant(control);
+
+        queryctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+    }
+
+    if (queryctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL) {
+        device.close();
+
+        return controls;
+    }
+
+    for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
+        queryctrl.id = id;
+
+        if (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
+            QVariantList control = this->queryControl(device.handle(), controlClass, &queryctrl);
+
+            if (!control.isEmpty())
+                controls << QVariant(control);
+        }
+    }
+
+    for (queryctrl.id = V4L2_CID_PRIVATE_BASE;
+         this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0;
+         queryctrl.id++) {
+        QVariantList control = this->queryControl(device.handle(), controlClass, &queryctrl);
+
+        if (!control.isEmpty())
+            controls << QVariant(control);
+    }
+
+    device.close();
+
+    return controls;
+}
+
+QVariantList Capture::queryControl(int handle, quint32 controlClass, v4l2_queryctrl *queryctrl) const
 {
     if (queryctrl->flags & V4L2_CTRL_FLAG_DISABLED)
         return QVariantList();
 
-    if (queryctrl->type == V4L2_CTRL_TYPE_CTRL_CLASS)
+    if (V4L2_CTRL_ID2CLASS(queryctrl->id) != controlClass)
         return QVariantList();
 
     v4l2_ext_control ext_ctrl;
@@ -767,7 +792,7 @@ QVariantList Capture::queryControl(int handle, v4l2_queryctrl *queryctrl) const
                           << menu;
 }
 
-QMap<QString, quint32> Capture::findControls(int handle) const
+QMap<QString, quint32> Capture::findImageControls(int handle) const
 {
     v4l2_queryctrl qctrl;
     memset(&qctrl, 0, sizeof(v4l2_queryctrl));
@@ -775,8 +800,7 @@ QMap<QString, quint32> Capture::findControls(int handle) const
     QMap<QString, quint32> controls;
 
     while (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
-        if (qctrl.type != V4L2_CTRL_TYPE_CTRL_CLASS &&
-            !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
+        if (!(qctrl.flags & V4L2_CTRL_FLAG_DISABLED))
             controls[QString((const char *) qctrl.name)] = qctrl.id;
 
         qctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
@@ -1113,8 +1137,6 @@ void Capture::setIoMethod(const QString &ioMethod)
         this->m_ioMethod = IoMethodMemoryMap;
     else if (ioMethod == "userPointer")
         this->m_ioMethod = IoMethodUserPointer;
-
-    this->m_ioMethod = IoMethodUnknown;
 }
 
 void Capture::setNBuffers(int nBuffers)
@@ -1137,7 +1159,7 @@ void Capture::resetNBuffers()
     this->setNBuffers(32);
 }
 
-void Capture::reset(const QString &webcam) const
+void Capture::reset(const QString &webcam)
 {
     QStringList webcams;
 
@@ -1148,7 +1170,7 @@ void Capture::reset(const QString &webcam) const
 
     foreach (QString webcam, this->webcams()) {
         this->resetSize(webcam);
-        this->resetControls(webcam);
+        this->resetImageControls(webcam);
     }
 }
 

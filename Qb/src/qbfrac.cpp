@@ -19,6 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QRegExp>
+#include <QStringList>
+
 #include "qbfrac.h"
 
 QbFrac::QbFrac(QObject *parent): QObject(parent)

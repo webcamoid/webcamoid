@@ -52,8 +52,6 @@ class BinElement: public QbElement
         Q_INVOKABLE void add(QbElementPtr element);
         Q_INVOKABLE void remove(const QString &elementName);
 
-        bool event(QEvent *event);
-
     private:
         QString m_description;
         bool m_blocking;

@@ -22,6 +22,7 @@
 #ifndef WAVEELEMENT_H
 #define WAVEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

@@ -36,7 +36,6 @@ class QImageConvertElement: public QbElement
         explicit QImageConvertElement();
 
         Q_INVOKABLE QString format();
-        bool event(QEvent *event);
 
     private:
         QString m_format;

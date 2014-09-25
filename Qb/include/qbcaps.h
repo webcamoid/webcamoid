@@ -22,7 +22,8 @@
 #ifndef QBCAPS_H
 #define QBCAPS_H
 
-#include <QtCore>
+#include <QObject>
+#include <QDebug>
 
 class QbCaps: public QObject
 {

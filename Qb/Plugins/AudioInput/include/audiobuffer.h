@@ -22,6 +22,9 @@
 #ifndef AUDIOBUFFER_H
 #define AUDIOBUFFER_H
 
+#include <QMutex>
+#include <QWaitCondition>
+
 #include <qb.h>
 
 class AudioBuffer: public QIODevice

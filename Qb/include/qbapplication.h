@@ -22,6 +22,10 @@
 #ifndef QBAPPLICATION_H
 #define QBAPPLICATION_H
 
+#include <QPluginLoader>
+#include <QDir>
+#include <QFileInfo>
+
 #include "qb.h"
 
 class QbApplication: public QObject

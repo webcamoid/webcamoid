@@ -22,13 +22,14 @@
 #ifndef VIDEOCAPTUREELEMENT_H
 #define VIDEOCAPTUREELEMENT_H
 
-#include <qb.h>
+#include <QTimer>
+#include <QThread>
 
 #ifdef Q_OS_LINUX
 #include "platform/capturelinux.h"
 #endif
 
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WIN32
 #include "platform/capturewin.h"
 #endif
 
@@ -56,11 +57,14 @@ class VideoCaptureElement: public QbElement
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
-        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size) const;
-        Q_INVOKABLE bool resetSize(const QString &webcam) const;
-        Q_INVOKABLE QVariantList controls(const QString &webcam) const;
-        Q_INVOKABLE bool setControls(const QString &webcam, const QVariantMap &controls) const;
-        Q_INVOKABLE bool resetControls(const QString &webcam) const;
+        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size);
+        Q_INVOKABLE bool resetSize(const QString &webcam);
+        Q_INVOKABLE QVariantList imageControls(const QString &webcam) const;
+        Q_INVOKABLE bool setImageControls(const QString &webcam, const QVariantMap &imageControls) const;
+        Q_INVOKABLE bool resetImageControls(const QString &webcam) const;
+        Q_INVOKABLE QVariantList cameraControls(const QString &webcam) const;
+        Q_INVOKABLE bool setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const;
+        Q_INVOKABLE bool resetCameraControls(const QString &webcam) const;
 
     private:
         ThreadPtr m_thread;
@@ -76,7 +80,8 @@ class VideoCaptureElement: public QbElement
         void error(const QString &message);
         void webcamsChanged(const QStringList &webcams) const;
         void sizeChanged(const QString &webcam, const QSize &size) const;
-        void controlsChanged(const QString &webcam, const QVariantMap &controls) const;
+        void imageControlsChanged(const QString &webcam, const QVariantMap &imageControls) const;
+        void cameraControlsChanged(const QString &webcam, const QVariantMap &cameraControls) const;
 
     public slots:
         void setDevice(const QString &device);
@@ -85,7 +90,7 @@ class VideoCaptureElement: public QbElement
         void resetDevice();
         void resetIoMethod();
         void resetNBuffers();
-        void reset() const;
+        void reset(const QString &webcam="");
 
     private slots:
         void readFrame();

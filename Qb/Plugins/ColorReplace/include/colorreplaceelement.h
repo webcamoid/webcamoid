@@ -22,6 +22,7 @@
 #ifndef COLORREPLACEELEMENT_H
 #define COLORREPLACEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qrgb.h>
 

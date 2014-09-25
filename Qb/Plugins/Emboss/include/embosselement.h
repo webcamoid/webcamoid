@@ -22,6 +22,7 @@
 #ifndef EmbossELEMENT_H
 #define EmbossELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

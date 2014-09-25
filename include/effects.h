@@ -25,8 +25,6 @@
 #include <QWidget>
 #include <QListWidgetItem>
 
-#include "commons.h"
-#include "appenvironment.h"
 #include "mediatools.h"
 
 namespace Ui
@@ -40,7 +38,6 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
 
     public:
         explicit Effects(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
-        ~Effects();
 
     private:
         QSharedPointer<Ui::Effects> ui;

@@ -22,6 +22,7 @@
 #ifndef FIREELEMENT_H
 #define FIREELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <QColor>
 #include <QPainter>

@@ -22,6 +22,7 @@
 #ifndef DIZZYELEMENT_H
 #define DIZZYELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <QColor>
 

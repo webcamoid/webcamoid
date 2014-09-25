@@ -22,6 +22,7 @@
 #ifndef PHOTOCOPYELEMENT_H
 #define PHOTOCOPYELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qrgb.h>
 

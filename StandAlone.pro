@@ -30,10 +30,8 @@ INCLUDEPATH += \
     include \
     Qb/include
 
-LIBS += -L. -lWebcamoid
-
-!win32: LIBS += -L./Qb -lQb
-win32: LIBS += -L./Qb -lQb$${VER_MAJ}
+!win32: LIBS += -L./Qb -lQb -L. -lWebcamoid
+win32: LIBS += -L./Qb -lQb$${VER_MAJ} -L. -lWebcamoid$${VER_MAJ}
 
 QT += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

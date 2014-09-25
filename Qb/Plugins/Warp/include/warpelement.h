@@ -22,6 +22,7 @@
 #ifndef WARPELEMENT_H
 #define WARPELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qrgb.h>
 

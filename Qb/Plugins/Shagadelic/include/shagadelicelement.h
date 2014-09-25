@@ -22,6 +22,7 @@
 #ifndef SHAGADELICELEMENT_H
 #define SHAGADELICELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

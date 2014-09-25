@@ -22,6 +22,7 @@
 #ifndef COLORFILTERELEMENT_H
 #define COLORFILTERELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qrgb.h>
 

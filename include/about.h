@@ -25,6 +25,7 @@
 #include <QDialog>
 #include <QDesktopServices>
 #include <QIcon>
+#include <QUrl>
 
 #include "commons.h"
 #include "appenvironment.h"

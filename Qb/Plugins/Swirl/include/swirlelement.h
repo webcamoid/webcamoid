@@ -22,6 +22,7 @@
 #ifndef SWIRLELEMENT_H
 #define SWIRLELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

@@ -22,6 +22,7 @@
 #ifndef VIGNETTEELEMENT_H
 #define VIGNETTEELEMENT_H
 
+#include <cmath>
 #include <QImage>
 #include <qb.h>
 

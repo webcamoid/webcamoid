@@ -22,6 +22,8 @@
 #ifndef QBELEMENT_H
 #define QBELEMENT_H
 
+#include <QMetaMethod>
+
 #include "qbpacket.h"
 
 class QbApplication;
