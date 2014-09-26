@@ -25,6 +25,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <qb.h>
+#include <qbutils.h>
 
 #include "commons.h"
 

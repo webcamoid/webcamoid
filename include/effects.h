@@ -24,6 +24,7 @@
 
 #include <QWidget>
 #include <QListWidgetItem>
+#include <qbutils.h>
 
 #include "mediatools.h"
 

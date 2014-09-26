@@ -115,11 +115,7 @@ void Effects::hideEvent(QHideEvent *event)
 void Effects::setEffectPreview(const QbPacket &packet)
 {
     if (!this->m_mediaTools->device().isEmpty()) {
-        QImage image(reinterpret_cast<uchar *>(packet.buffer().data()),
-                     packet.caps().property("width").toInt(),
-                     packet.caps().property("height").toInt(),
-                     QImage::Format_ARGB32);
-
+        QImage image = QbUtils::packetToImage(packet);
         this->ui->lblEffectsPreview->setPixmap(QPixmap::fromImage(image));
     }
 }
@@ -127,11 +123,7 @@ void Effects::setEffectPreview(const QbPacket &packet)
 void Effects::setApplyPreview(const QbPacket &packet)
 {
     if (!this->m_mediaTools->device().isEmpty()) {
-        QImage image(reinterpret_cast<uchar *>(packet.buffer().data()),
-                     packet.caps().property("width").toInt(),
-                     packet.caps().property("height").toInt(),
-                     QImage::Format_ARGB32);
-
+        QImage image = QbUtils::packetToImage(packet);
         this->ui->lblApplyPreview->setPixmap(QPixmap::fromImage(image));
     }
 }

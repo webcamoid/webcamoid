@@ -374,13 +374,9 @@ void MainWidget::updateContents()
 
 void MainWidget::on_btnTakePhoto_clicked()
 {
-    QImage image(reinterpret_cast<uchar *>(this->m_webcamFrame.buffer().data()),
-                 this->m_webcamFrame.caps().property("width").toInt(),
-                 this->m_webcamFrame.caps().property("height").toInt(),
-                 QImage::Format_ARGB32);
-
     this->m_mediaTools->mutexLock();
 
+    QImage image = QbUtils::packetToImage(this->m_webcamFrame);
     QString fileName = this->saveFile();
 
     if (!fileName.isEmpty())
