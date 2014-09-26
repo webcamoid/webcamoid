@@ -128,7 +128,17 @@ QbCaps QbPacket::caps() const
     return this->m_caps;
 }
 
+QbCaps &QbPacket::caps()
+{
+    return this->m_caps;
+}
+
 QVariant QbPacket::data() const
+{
+    return this->m_data;
+}
+
+QVariant &QbPacket::data()
 {
     return this->m_data;
 }
@@ -138,7 +148,17 @@ QbBufferPtr QbPacket::buffer() const
     return this->m_buffer;
 }
 
+QbBufferPtr &QbPacket::buffer()
+{
+    return this->m_buffer;
+}
+
 ulong QbPacket::bufferSize() const
+{
+    return this->m_bufferSize;
+}
+
+ulong &QbPacket::bufferSize()
 {
     return this->m_bufferSize;
 }
@@ -148,7 +168,17 @@ qint64 QbPacket::id() const
     return this->m_id;
 }
 
+qint64 &QbPacket::id()
+{
+    return this->m_id;
+}
+
 qint64 QbPacket::pts() const
+{
+    return this->m_pts;
+}
+
+qint64 &QbPacket::pts()
 {
     return this->m_pts;
 }
@@ -158,7 +188,17 @@ QbFrac QbPacket::timeBase() const
     return this->m_timeBase;
 }
 
+QbFrac &QbPacket::timeBase()
+{
+    return this->m_timeBase;
+}
+
 int QbPacket::index() const
+{
+    return this->m_index;
+}
+
+int &QbPacket::index()
 {
     return this->m_index;
 }

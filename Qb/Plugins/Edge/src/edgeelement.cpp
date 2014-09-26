@@ -85,7 +85,7 @@ void EdgeElement::processFrame(const QbPacket &packet)
     QImage src = QImage((const uchar *) packet.buffer().data(),
                         width,
                         height,
-                        QImage::Format_Indexed8).copy();
+                        QImage::Format_Indexed8);
 
     QImage oFrame(src.size(), src.format());
 

@@ -60,13 +60,21 @@ class QbPacket: public QObject
 
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps caps() const;
+        Q_INVOKABLE QbCaps &caps();
         Q_INVOKABLE QVariant data() const;
+        Q_INVOKABLE QVariant &data();
         Q_INVOKABLE QbBufferPtr buffer() const;
+        Q_INVOKABLE QbBufferPtr &buffer();
         Q_INVOKABLE ulong bufferSize() const;
+        Q_INVOKABLE ulong &bufferSize();
         Q_INVOKABLE qint64 id() const;
+        Q_INVOKABLE qint64 &id();
         Q_INVOKABLE qint64 pts() const;
+        Q_INVOKABLE qint64 &pts();
         Q_INVOKABLE QbFrac timeBase() const;
+        Q_INVOKABLE QbFrac &timeBase();
         Q_INVOKABLE int index() const;
+        Q_INVOKABLE int &index();
 
     private:
         QbCaps m_caps;
