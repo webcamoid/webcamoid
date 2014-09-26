@@ -369,11 +369,11 @@ void MultiSinkElement::resetStreamCaps()
     this->setStreamCaps(QVariantMap());
 }
 
-void MultiSinkElement::iStream(const QbPacket &packet)
+QbPacket MultiSinkElement::iStream(const QbPacket &packet)
 {
     if (!packet.caps().isValid() ||
         this->state() != ElementStatePlaying)
-        return;
+        return QbPacket();
 
     if (!this->m_outputFormat.outputContext())
         this->m_outputFormat.open(this->location(),
@@ -392,6 +392,8 @@ void MultiSinkElement::iStream(const QbPacket &packet)
             this->m_mutex.unlock();
         }
     }
+
+    return QbPacket();
 }
 
 void MultiSinkElement::processVFrame(const QbPacket &packet)

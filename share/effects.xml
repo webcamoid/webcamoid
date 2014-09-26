@@ -48,7 +48,6 @@
     </effect>
     <effect name="Implode">Implode amount=0.5</effect>
     <effect name="Invert">Invert</effect>
-    <effect name="Inverted BW">GrayScale ! Invert</effect>
     <effect name="Kung Fu Master">FrameOverlap nFrames=16 stride=8</effect>
     <effect name="Life">Life</effect>
     <effect name="Matrix">Matrix</effect>
@@ -75,7 +74,7 @@
     <effect name="Rotate Left">MatrixTransform kernel=[0, -1, 0, 1, 0, 0]</effect>
     <effect name="Rotate Right">MatrixTransform kernel=[0, 1, 0, -1, 0, 0]</effect>
     <effect name="Saturation">ChangeHSL hsl=[0, 1, 0]</effect>
-    <effect name="Scan Lines">ScanLines'</effect>
+    <effect name="Scan Lines">ScanLines</effect>
     <effect name="Scroll">Scroll</effect>
     <effect name="Sepia">ColorTap table=':/ColorTap/share/sepia.bmp'</effect>
     <effect name="Swirl">Swirl degrees=90</effect>

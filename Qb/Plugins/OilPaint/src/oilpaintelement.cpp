@@ -27,11 +27,6 @@ OilPaintElement::OilPaintElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetRadius();
 }
 
@@ -40,16 +35,32 @@ int OilPaintElement::radius() const
     return this->m_radius;
 }
 
-QImage OilPaintElement::oilPaint(const QImage &src, int radius) const
+void OilPaintElement::setRadius(int radius)
 {
-    QImage dst(src.size(), src.format());
+    this->m_radius = radius;
+}
+
+void OilPaintElement::resetRadius()
+{
+    this->setRadius(1);
+}
+
+QbPacket OilPaintElement::iStream(const QbPacket &packet)
+{
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
+
+    if (src.isNull())
+        return QbPacket();
+
+    QImage oFrame(src.size(), src.format());
     quint16 histogram[256];
-    QRgb *oLine = (QRgb *) dst.bits();
-    int scanBlockLen = (radius << 1) + 1;
+    QRgb *oLine = (QRgb *) oFrame.bits();
+    int scanBlockLen = (this->m_radius << 1) + 1;
     QRgb *scanBlock[scanBlockLen];
 
     for (int y = 0; y < src.height(); y++) {
-        int pos = y - radius;
+        int pos = y - this->m_radius;
 
         for (int j = 0; j < scanBlockLen; j++) {
             scanBlock[j] = (QRgb *) src.constScanLine(qBound(0, pos, src.height()));
@@ -57,8 +68,8 @@ QImage OilPaintElement::oilPaint(const QImage &src, int radius) const
         }
 
         for (int x = 0; x < src.width(); x++) {
-            int minI = x - radius;
-            int maxI = x + radius + 1;
+            int minI = x - this->m_radius;
+            int maxI = x + this->m_radius + 1;
 
             if (minI < 0)
                 minI = 0;
@@ -84,58 +95,6 @@ QImage OilPaintElement::oilPaint(const QImage &src, int radius) const
         }
     }
 
-    return dst;
-}
-
-void OilPaintElement::setRadius(int radius)
-{
-    this->m_radius = radius;
-}
-
-void OilPaintElement::resetRadius()
-{
-    this->setRadius(1);
-}
-
-void OilPaintElement::iStream(const QbPacket &packet)
-{
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
-
-void OilPaintElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void OilPaintElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage img = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB32);
-
-    QImage oFrame = this->oilPaint(img, this->m_radius);
-
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

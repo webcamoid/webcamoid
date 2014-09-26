@@ -22,8 +22,8 @@
 #ifndef WARHOLELEMENT_H
 #define WARHOLELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class WarholElement: public QbElement
 {
@@ -46,11 +46,7 @@ class WarholElement: public QbElement
         void setNFrames(int nFrames);
         void resetNFrames();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // WARHOLELEMENT_H

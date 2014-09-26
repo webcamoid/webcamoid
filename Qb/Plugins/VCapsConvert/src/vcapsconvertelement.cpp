@@ -57,17 +57,13 @@ void VCapsConvertElement::resetCaps()
     this->setCaps("");
 }
 
-void VCapsConvertElement::iStream(const QbPacket &packet)
+QbPacket VCapsConvertElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() != "video/x-raw")
-        return;
+        return QbPacket();
 
     if (packet.caps() == this->m_caps)
-    {
-        emit this->oStream(packet);
-
-        return;
-    }
+        qbSend(packet)
 
     ConvertIO convertIO(packet, this->m_caps);
 
@@ -89,7 +85,7 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     }
 
     if (!this->m_scaleContext)
-        return;
+        return QbPacket();
 
     int oBufferSize = avpicture_get_size(convertIO.oFormat(),
                                          convertIO.oWidth(),
@@ -129,5 +125,5 @@ void VCapsConvertElement::iStream(const QbPacket &packet)
     oPacket.setTimeBase(packet.timeBase());
     oPacket.setIndex(packet.index());
 
-    emit this->oStream(oPacket);
+    qbSend(oPacket)
 }

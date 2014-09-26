@@ -41,7 +41,7 @@ void ProbeElement::resetLog()
     this->setLog(true);
 }
 
-void ProbeElement::iStream(const QbPacket &packet)
+QbPacket ProbeElement::iStream(const QbPacket &packet)
 {
     if (this->log())
     {
@@ -52,5 +52,5 @@ void ProbeElement::iStream(const QbPacket &packet)
                                << line.toStdString().c_str();
     }
 
-    emit this->oStream(packet);
+    qbSend(packet);
 }

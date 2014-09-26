@@ -23,13 +23,13 @@
 #define FIREELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <QColor>
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsBlurEffect>
 #include <qb.h>
+#include <qbutils.h>
 
 class FireElement: public QbElement
 {
@@ -120,11 +120,7 @@ class FireElement: public QbElement
         void resetAlphaDiff();
         void resetAlphaVariation();
         void resetNColors();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // FIREELEMENT_H

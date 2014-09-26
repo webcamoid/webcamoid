@@ -26,11 +26,6 @@ DenoiseElement::DenoiseElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->m_denoiseModeToStr[DenoiseModeGauss] = "gauss";
     this->m_denoiseModeToStr[DenoiseModeSelect] = "select";
 
@@ -103,27 +98,13 @@ void DenoiseElement::resetSigma()
     this->setSigma(1.0);
 }
 
-void DenoiseElement::iStream(const QbPacket &packet)
+QbPacket DenoiseElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void DenoiseElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void DenoiseElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame(src.size(), src.format());
 
@@ -133,8 +114,8 @@ void DenoiseElement::processFrame(const QbPacket &packet)
     int scanWidth = 2 * this->m_scanSize.width() + 1;
     int scanHeight = 2 * this->m_scanSize.height() + 1;
 
-    for (int y = 0; y < height; y++) {
-        int xOffset = y * width;
+    for (int y = 0; y < src.height(); y++) {
+        int xOffset = y * src.width();
         int yMin = y - this->m_scanSize.height();
         int yMax = y + this->m_scanSize.height();
         int kernelHeight = scanHeight;
@@ -144,10 +125,10 @@ void DenoiseElement::processFrame(const QbPacket &packet)
             yMin = 0;
         }
 
-        if (yMax >= height)
-            kernelHeight -= abs(yMax - height + 1);
+        if (yMax >= src.height())
+            kernelHeight -= abs(yMax - src.height() + 1);
 
-        for (int x = 0; x < width; x++) {
+        for (int x = 0; x < src.width(); x++) {
             int xMin = x - this->m_scanSize.width();
             int xMax = x + this->m_scanSize.width();
             int kernelWidth = scanWidth;
@@ -157,8 +138,8 @@ void DenoiseElement::processFrame(const QbPacket &packet)
                 xMin = 0;
             }
 
-            if (xMax >= width)
-                kernelWidth -= abs(xMax - width + 1);
+            if (xMax >= src.width())
+                kernelWidth -= abs(xMax - src.width() + 1);
 
             QRect rect(xMin, yMin, kernelWidth, kernelHeight);
 
@@ -166,34 +147,19 @@ void DenoiseElement::processFrame(const QbPacket &packet)
 
             if (this->m_mode == DenoiseModeGauss)
                 pixel = this->averageColor(srcBits,
-                                           width,
+                                           src.width(),
                                            rect,
                                            this->m_mu,
                                            this->m_sigma);
             else
                 pixel = this->selectAverageColor(srcBits,
-                                                 width,
+                                                 src.width(),
                                                  rect);
 
             destBits[x + xOffset] = pixel;
         }
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

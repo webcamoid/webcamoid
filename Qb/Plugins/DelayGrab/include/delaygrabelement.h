@@ -23,8 +23,8 @@
 #define DELAYGRABELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class DelayGrabElement: public QbElement
 {
@@ -74,11 +74,7 @@ class DelayGrabElement: public QbElement
         void resetMode();
         void resetBlockSize();
         void resetNFrames();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // DELAYGRABELEMENT_H

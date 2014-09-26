@@ -22,13 +22,13 @@
 #ifndef BLURELEMENT_H
 #define BLURELEMENT_H
 
-#include <QImage>
 #include <QGraphicsScene>
 #include <QGraphicsBlurEffect>
 #include <QGraphicsPixmapItem>
 #include <QPainter>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class BlurElement: public QbElement
 {
@@ -46,11 +46,7 @@ class BlurElement: public QbElement
     public slots:
         void setRadius(int radius);
         void resetRadius();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // BLURELEMENT_H

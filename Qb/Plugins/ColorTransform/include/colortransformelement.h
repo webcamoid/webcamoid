@@ -22,8 +22,8 @@
 #ifndef COLORTRANSFORMELEMENT_H
 #define COLORTRANSFORMELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class ColorTransformElement: public QbElement
 {
@@ -42,11 +42,7 @@ class ColorTransformElement: public QbElement
     public slots:
         void setKernel(const QVariantList &kernel);
         void resetKernel();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // COLORTRANSFORMELEMENT_H

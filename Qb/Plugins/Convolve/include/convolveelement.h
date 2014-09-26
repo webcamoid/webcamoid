@@ -22,8 +22,8 @@
 #ifndef CONVOLVEELEMENT_H
 #define CONVOLVEELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class ConvolveElement: public QbElement
 {
@@ -48,10 +48,6 @@ class ConvolveElement: public QbElement
 
         QbElementPtr m_convert;
 
-        QImage convolve(const QImage &src,
-                           const QVector<int> &kernel, const QSize &kernelSize,
-                           const QbFrac &factor, int bias) const;
-
     public slots:
         void setKernel(const QVariantList &kernel);
         void setKernelSize(const QSize &kernelSize);
@@ -61,11 +57,7 @@ class ConvolveElement: public QbElement
         void resetKernelSize();
         void resetFactor();
         void resetBias();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // CONVOLVEELEMENT_H

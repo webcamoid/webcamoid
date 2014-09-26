@@ -26,11 +26,6 @@ QuarkElement::QuarkElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetPlanes();
     this->m_plane = 0;
 }
@@ -50,29 +45,15 @@ void QuarkElement::resetPlanes()
     this->setPlanes(16);
 }
 
-void QuarkElement::iStream(const QbPacket &packet)
+QbPacket QuarkElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void QuarkElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void QuarkElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
-
-    int videoArea = width * height;
+    int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
 
@@ -81,7 +62,7 @@ void QuarkElement::processFrame(const QbPacket &packet)
 
 
     if (packet.caps() != this->m_caps) {
-        this->m_buffer = QImage(width, src.height() * this->m_planes, QImage::Format_RGB32);
+        this->m_buffer = QImage(src.width(), src.height() * this->m_planes, QImage::Format_RGB32);
         this->m_planeTable.resize(this->m_planes);
 
         for(int i = 0; i < this->m_planes; i++)
@@ -92,7 +73,7 @@ void QuarkElement::processFrame(const QbPacket &packet)
         this->m_caps = packet.caps();
     }
 
-    memcpy(this->m_planeTable[this->m_plane], srcBits, src.bytesPerLine() * height);
+    memcpy(this->m_planeTable[this->m_plane], srcBits, src.bytesPerLine() * src.height());
 
     for (int i = 0; i < videoArea; i++) {
         int cf = (rand() >> 24) & (this->m_planes - 1);
@@ -104,21 +85,6 @@ void QuarkElement::processFrame(const QbPacket &packet)
     if (this->m_plane < 0)
         this->m_plane = this->m_planes - 1;
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

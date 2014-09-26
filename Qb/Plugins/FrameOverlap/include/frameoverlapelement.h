@@ -22,10 +22,9 @@
 #ifndef FRAMEOVERLAPELEMENT_H
 #define FRAMEOVERLAPELEMENT_H
 
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class FrameOverlapElement: public QbElement
 {
@@ -52,11 +51,7 @@ class FrameOverlapElement: public QbElement
         void setStride(int stride);
         void resetNFrames();
         void resetStride();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // FRAMEOVERLAPELEMENT_H

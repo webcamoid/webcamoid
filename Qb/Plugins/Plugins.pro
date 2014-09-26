@@ -67,7 +67,6 @@ SUBDIRS += \
     Pixelate \
     PrimariesColors \
     Probe \
-    QImageConvert \
     Quark \
     Radioactive \
     Ripple \

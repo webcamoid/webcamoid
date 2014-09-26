@@ -22,8 +22,8 @@
 #ifndef PIXELATEELEMENT_H
 #define PIXELATEELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class PixelateElement: public QbElement
 {
@@ -41,11 +41,7 @@ class PixelateElement: public QbElement
     public slots:
         void setBlockSize(const QSize &blockSize);
         void resetBlockSize();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // PIXELATEELEMENT_H

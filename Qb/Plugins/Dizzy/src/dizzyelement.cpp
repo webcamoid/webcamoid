@@ -26,11 +26,6 @@ DizzyElement::DizzyElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetPhaseIncrement();
     this->resetZoomRate();
 }
@@ -119,29 +114,15 @@ void DizzyElement::resetZoomRate()
     this->setZoomRate(1.01);
 }
 
-void DizzyElement::iStream(const QbPacket &packet)
+QbPacket DizzyElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void DizzyElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void DizzyElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
-
-    int videoArea = width * height;
+    int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
 
@@ -164,7 +145,7 @@ void DizzyElement::processFrame(const QbPacket &packet)
         int sy;
 
         this->setParams(&dx, &dy, &sx, &sy,
-                        width, height,
+                        src.width(), src.height(),
                         this->m_phase, this->m_zoomRate);
 
         this->m_phase += this->m_phaseIncrement;
@@ -174,12 +155,12 @@ void DizzyElement::processFrame(const QbPacket &packet)
 
         QRgb *prevFrameBits = (QRgb *) this->m_prevFrame.bits();
 
-        for (int y = 0, i = 0; y < height; y++) {
+        for (int y = 0, i = 0; y < src.height(); y++) {
             int ox = sx;
             int oy = sy;
 
-            for (int x = 0; x < width; x++, i++) {
-                int j = (oy >> 16) * width + (ox >> 16);
+            for (int x = 0; x < src.width(); x++, i++) {
+                int j = (oy >> 16) * src.width() + (ox >> 16);
 
                 if (j < 0)
                     j = 0;
@@ -201,21 +182,6 @@ void DizzyElement::processFrame(const QbPacket &packet)
 
     this->m_prevFrame = oFrame.copy();
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

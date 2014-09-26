@@ -23,8 +23,8 @@
 #define VIGNETTEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class VignetteElement: public QbElement
 {
@@ -57,11 +57,7 @@ class VignetteElement: public QbElement
         void resetAspect();
         void resetClearCenter();
         void resetSoftness();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // VIGNETTEELEMENT_H

@@ -53,7 +53,7 @@ class RtPtsElement: public QbElement
         void setFps(const QbFrac &fps);
         void resetFps();
         void setState(QbElement::ElementState state);
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 
     private slots:
         void readPacket();

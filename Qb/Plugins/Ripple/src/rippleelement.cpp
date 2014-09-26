@@ -26,11 +26,6 @@ RippleElement::RippleElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->m_rippleModeToStr[RippleModeMotionDetect] = "motionDetect";
     this->m_rippleModeToStr[RippleModeRain] = "rain";
 
@@ -358,28 +353,13 @@ void RippleElement::resetLumaThreshold()
     this->setLumaThreshold(15);
 }
 
-void RippleElement::iStream(const QbPacket &packet)
+QbPacket RippleElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void RippleElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void RippleElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
-
+    if (src.isNull())
+        return QbPacket();
     QImage oFrame(src.size(), src.format());
 
     if (packet.caps() != this->m_caps) {
@@ -417,7 +397,7 @@ void RippleElement::processFrame(const QbPacket &packet)
                                     this->m_lumaThreshold,
                                     this->m_amplitude);
         else
-            drops = this->rainDrop(width, height, this->m_amplitude);
+            drops = this->rainDrop(src.width(), src.height(), this->m_amplitude);
 
         this->addDrops(this->m_rippleBuffer[this->m_curRippleBuffer], drops);
         this->addDrops(this->m_rippleBuffer[1 - this->m_curRippleBuffer], drops);
@@ -433,21 +413,6 @@ void RippleElement::processFrame(const QbPacket &packet)
 
     this->m_prevFrame = src.copy();
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

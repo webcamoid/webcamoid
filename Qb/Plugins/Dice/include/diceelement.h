@@ -22,8 +22,8 @@
 #ifndef DICEELEMENT_H
 #define DICEELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 #define DICEDIR_UP    (char) 0
 #define DICEDIR_RIGHT (char) 1
@@ -53,11 +53,7 @@ class DiceElement: public QbElement
     public slots:
         void setCubeBits(int cubeBits);
         void resetCubeBits();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // DICEELEMENT_H

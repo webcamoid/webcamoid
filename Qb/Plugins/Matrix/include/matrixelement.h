@@ -22,9 +22,8 @@
 #ifndef MATRIXELEMENT_H
 #define MATRIXELEMENT_H
 
-#include <QImage>
-#include <QKeyEvent>
 #include <qb.h>
+#include <qbutils.h>
 
 #include "blip.h"
 
@@ -58,8 +57,6 @@ class MatrixElement: public QbElement
         Q_INVOKABLE int mode() const;
         Q_INVOKABLE float white() const;
         Q_INVOKABLE bool pause() const;
-
-        bool event(QEvent *event);
 
     private:
         int m_nChars;
@@ -110,11 +107,7 @@ class MatrixElement: public QbElement
         void resetWhite();
         void resetPause();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // MATRIXELEMENT_H

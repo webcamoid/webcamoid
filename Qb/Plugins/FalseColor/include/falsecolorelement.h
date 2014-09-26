@@ -22,10 +22,9 @@
 #ifndef FALSECOLORELEMENT_H
 #define FALSECOLORELEMENT_H
 
-#include <QImage>
 #include <qrgb.h>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class FalseColorElement: public QbElement
 {
@@ -50,11 +49,7 @@ class FalseColorElement: public QbElement
         void setGradient(bool gradient);
         void resetTable();
         void resetGradient();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // FALSECOLORELEMENT_H

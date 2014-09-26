@@ -23,8 +23,8 @@
 #define EmbossELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class EmbossElement: public QbElement
 {
@@ -58,11 +58,7 @@ class EmbossElement: public QbElement
         void resetElevation();
         void resetWidth45();
         void resetPixelScale();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // EmbossELEMENT_H

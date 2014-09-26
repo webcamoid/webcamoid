@@ -22,10 +22,9 @@
 #ifndef PRIMARIESCOLORSELEMENT_H
 #define PRIMARIESCOLORSELEMENT_H
 
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class PrimariesColorsElement: public QbElement
 {
@@ -43,11 +42,7 @@ class PrimariesColorsElement: public QbElement
     public slots:
         void setFactor(int factor);
         void resetFactor();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // PRIMARIESCOLORSELEMENT_H

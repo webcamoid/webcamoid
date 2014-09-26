@@ -26,11 +26,6 @@ LifeElement::LifeElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetYThreshold();
 }
 
@@ -109,29 +104,15 @@ void LifeElement::clearField()
     memset(this->m_field1, 0, videoArea);
 }
 
-void LifeElement::iStream(const QbPacket &packet)
+QbPacket LifeElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void LifeElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void LifeElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB32);
-
-    int videoArea = width * height;
+    int videoArea = src.width() * src.height();
 
     if (packet.caps() != this->m_caps) {
         this->m_background = QImage(src.width(), src.height(), QImage::Format_RGB32);
@@ -158,20 +139,20 @@ void LifeElement::processFrame(const QbPacket &packet)
         this->m_field1[x] |= p[x];
 
     p = this->m_field1 + 1;
-    quint8 *q = this->m_field2 + width + 1;
-    destBits += width + 1;
-    srcBits += width + 1;
+    quint8 *q = this->m_field2 + src.width() + 1;
+    destBits += src.width() + 1;
+    srcBits += src.width() + 1;
 
     // each value of cell is 0 or 0xff. 0xff can be treated as -1, so
     // following equations treat each value as negative number.
-    for (int y = 1; y < height - 1; y++) {
+    for (int y = 1; y < src.height() - 1; y++) {
         quint8 sum1 = 0;
-        quint8 sum2 = p[0] + p[width] + p[width * 2];
+        quint8 sum2 = p[0] + p[src.width()] + p[src.width() * 2];
 
-        for (int x = 1; x < width - 1; x++) {
-            quint8 sum3 = p[1] + p[width + 1] + p[width * 2 + 1];
+        for (int x = 1; x < src.width() - 1; x++) {
+            quint8 sum3 = p[1] + p[src.width() + 1] + p[src.width() * 2 + 1];
             quint8 sum = sum1 + sum2 + sum3;
-            quint8 v = 0 - ((sum == 0xfd) | ((p[width] != 0) & (sum == 0xfc)));
+            quint8 v = 0 - ((sum == 0xfd) | ((p[src.width()] != 0) & (sum == 0xfc)));
             *q++ = v;
             quint32 pix = (qint8) v;
             // pix = pix >> 8;
@@ -191,21 +172,6 @@ void LifeElement::processFrame(const QbPacket &packet)
     this->m_field1 = this->m_field2;
     this->m_field2 = p;
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

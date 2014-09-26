@@ -83,11 +83,11 @@ void VideoSyncElement::resetMaxQueueSize()
     this->setMaxQueueSize(3);
 }
 
-void VideoSyncElement::iStream(const QbPacket &packet)
+QbPacket VideoSyncElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() != "video/x-raw"
         || !this->m_run)
-        return;
+        return QbPacket();
 
     this->m_mutex.lock();
 
@@ -98,6 +98,8 @@ void VideoSyncElement::iStream(const QbPacket &packet)
     this->m_queueNotEmpty.wakeAll();
 
     this->m_mutex.unlock();
+
+    return packet;
 }
 
 void VideoSyncElement::processFrame()

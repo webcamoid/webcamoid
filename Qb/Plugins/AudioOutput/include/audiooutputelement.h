@@ -76,12 +76,11 @@ class AudioOutputElement: public QbElement
     public slots:
         void setBufferSize(int bufferSize);
         void resetBufferSize();
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 
     private slots:
         bool init();
         void uninit();
-        void processFrame(const QbPacket &packet);
         void releaseInput();
         void updateClock();
 };

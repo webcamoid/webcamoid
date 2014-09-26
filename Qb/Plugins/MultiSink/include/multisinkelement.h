@@ -84,7 +84,7 @@ class MultiSinkElement: public QbElement
         void resetOptions();
         void resetStreamCaps();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 
     private slots:
         void processVFrame(const QbPacket &packet);

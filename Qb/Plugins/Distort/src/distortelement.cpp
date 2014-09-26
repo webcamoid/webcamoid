@@ -26,11 +26,6 @@ DistortElement::DistortElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetAmplitude();
     this->resetFrequency();
     this->resetGridSizeLog();
@@ -94,27 +89,13 @@ void DistortElement::resetGridSizeLog()
     this->setGridSizeLog(1);
 }
 
-void DistortElement::iStream(const QbPacket &packet)
+QbPacket DistortElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void DistortElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void DistortElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame = QImage(src.size(), src.format());
 
@@ -123,10 +104,10 @@ void DistortElement::processFrame(const QbPacket &packet)
 
     int gridSize = 1 << this->m_gridSizeLog;
     float time = packet.pts() * packet.timeBase().value();
-    QVector<QPoint> grid = this->createGrid(width, height, gridSize, time);
+    QVector<QPoint> grid = this->createGrid(src.width(), src.height(), gridSize, time);
 
-    int gridX = width / gridSize;
-    int gridY = height / gridSize;
+    int gridX = src.width() / gridSize;
+    int gridY = src.height() / gridSize;
 
     for (int y = 0; y < gridY; y++)
         for (int x = 0; x < gridX; x++) {
@@ -154,7 +135,7 @@ void DistortElement::processFrame(const QbPacket &packet)
             int stepEndColY = (lowerRight.y() - upperRight.y())
                               >> this->m_gridSizeLog;
 
-            int pos = (y << this->m_gridSizeLog) * width + (x << this->m_gridSizeLog);
+            int pos = (y << this->m_gridSizeLog) * src.width() + (x << this->m_gridSizeLog);
 
             for (int blockY = 0; blockY < gridSize; blockY++) {
                 int xLineIndex = startColXX;
@@ -164,13 +145,13 @@ void DistortElement::processFrame(const QbPacket &packet)
                 int stepLineY = (endColYY - startColYY) >> this->m_gridSizeLog;
 
                 for (int i = 0, blockX = 0; blockX < gridSize; i++, blockX++) {
-                    int xx = qBound(0, xLineIndex, width - 1);
-                    int yy = qBound(0, yLineIndex, height - 1);
+                    int xx = qBound(0, xLineIndex, src.width() - 1);
+                    int yy = qBound(0, yLineIndex, src.height() - 1);
 
                     xLineIndex += stepLineX;
                     yLineIndex += stepLineY;
 
-                    destBits[pos + i] = srcBits[xx + yy * width];
+                    destBits[pos + i] = srcBits[xx + yy * src.width()];
                 }
 
                 startColXX += stepStartColX;
@@ -178,25 +159,10 @@ void DistortElement::processFrame(const QbPacket &packet)
                 startColYY += stepStartColY;
                 endColYY   += stepEndColY;
 
-                pos += width - gridSize + gridSize;
+                pos += src.width() - gridSize + gridSize;
             }
         }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

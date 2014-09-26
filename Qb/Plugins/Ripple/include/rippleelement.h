@@ -23,10 +23,9 @@
 #define RIPPLEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class RippleElement: public QbElement
 {
@@ -123,11 +122,7 @@ class RippleElement: public QbElement
         void resetDecay();
         void resetThreshold();
         void resetLumaThreshold();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // RIPPLEELEMENT_H

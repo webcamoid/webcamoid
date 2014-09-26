@@ -88,7 +88,7 @@ class VideoSyncElement: public QbElement
         void init();
         void uninit();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // VIDEOSYNCELEMENT_H

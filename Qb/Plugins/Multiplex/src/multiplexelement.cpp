@@ -73,7 +73,7 @@ void MultiplexElement::resetCaps()
     this->setCaps("");
 }
 
-void MultiplexElement::iStream(const QbPacket &packet)
+QbPacket MultiplexElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().isValid()
         && (this->inputIndex() < 0
@@ -87,6 +87,8 @@ void MultiplexElement::iStream(const QbPacket &packet)
         if (this->outputIndex() >= 0)
             oPacket.setIndex(this->outputIndex());
 
-        emit this->oStream(oPacket);
+        qbSend(oPacket)
     }
+
+    qbSend(packet)
 }

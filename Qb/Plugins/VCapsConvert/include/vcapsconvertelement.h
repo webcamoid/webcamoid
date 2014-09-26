@@ -54,7 +54,7 @@ class VCapsConvertElement: public QbElement
         void setCaps(const QString &caps);
         void resetCaps();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // VCAPSCONVERTELEMENT_H

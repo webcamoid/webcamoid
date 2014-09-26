@@ -22,8 +22,8 @@
 #ifndef LIFEELEMENT_H
 #define LIFEELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class LifeElement: public QbElement
 {
@@ -56,11 +56,7 @@ class LifeElement: public QbElement
         void resetYThreshold();
         void clearField();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // LIFEELEMENT_H

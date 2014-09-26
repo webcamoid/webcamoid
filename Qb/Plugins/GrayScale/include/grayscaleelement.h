@@ -22,7 +22,6 @@
 #ifndef GRAYSCALEELEMENT_H
 #define GRAYSCALEELEMENT_H
 
-#include <QImage>
 #include <qb.h>
 
 class GrayScaleElement: public QbElement
@@ -36,8 +35,7 @@ class GrayScaleElement: public QbElement
         QbElementPtr m_convert;
 
     public slots:
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // GRAYSCALEELEMENT_H

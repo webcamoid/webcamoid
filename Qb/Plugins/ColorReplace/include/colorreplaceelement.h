@@ -23,10 +23,10 @@
 #define COLORREPLACEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qrgb.h>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class ColorReplaceElement: public QbElement
 {
@@ -56,11 +56,7 @@ class ColorReplaceElement: public QbElement
         void resetFrom();
         void resetTo();
         void resetRadius();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // COLORREPLACEELEMENT_H

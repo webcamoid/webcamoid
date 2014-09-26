@@ -23,10 +23,9 @@
 #define WARPELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qrgb.h>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class WarpElement: public QbElement
 {
@@ -49,11 +48,7 @@ class WarpElement: public QbElement
         void setRipples(float ripples);
         void resetRipples();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // WARPELEMENT_H

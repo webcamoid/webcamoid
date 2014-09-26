@@ -22,10 +22,9 @@
 #ifndef HALFTONEELEMENT_H
 #define HALFTONEELEMENT_H
 
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class HalftoneElement: public QbElement
 {
@@ -71,11 +70,7 @@ class HalftoneElement: public QbElement
         void resetLightness();
         void resetSlope();
         void resetIntercept();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // HALFTONEELEMENT_H

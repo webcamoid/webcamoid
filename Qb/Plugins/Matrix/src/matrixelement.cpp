@@ -26,11 +26,6 @@ MatrixElement::MatrixElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->m_matrixFont.load(":/Qb/Plugins/Matrix/share/matrixFont.xpm");
 
     this->resetNChars();
@@ -78,53 +73,6 @@ float MatrixElement::white() const
 bool MatrixElement::pause() const
 {
     return this->m_pause;
-}
-
-bool MatrixElement::event(QEvent *event)
-{
-    bool r = true;
-
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-
-        if (ke->key() == Qt::Key_Space) {
-            this->m_cmap.fill(this->nChars() - 1);
-            this->m_vmap.fill(0);
-            this->m_blips.resize(0);
-            this->m_blips.resize(this->m_mapWidth);
-            this->setPause(true);
-        }
-        else if (ke->key() == Qt::Key_1)
-            this->setMode(0);
-        else if (ke->key() == Qt::Key_2)
-            this->setMode(1);
-    }
-    else if (event->type() == QEvent::KeyRelease) {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-
-        if (ke->key() == Qt::Key_Space)
-            this->setPause(false);
-
-        r = QObject::event(event);
-    }
-    else if (event->type() == QEvent::ThreadChange) {
-        QObject::disconnect(this->m_convert.data(),
-                            SIGNAL(oStream(const QbPacket &)),
-                            this,
-                            SIGNAL(processFrame(const QbPacket &)));
-
-        r = QObject::event(event);
-        this->m_convert->moveToThread(this->thread());
-
-        QObject::connect(this->m_convert.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SIGNAL(processFrame(const QbPacket &)));
-    }
-    else
-        r = QObject::event(event);
-
-    return r;
 }
 
 void MatrixElement::setPattern()
@@ -461,27 +409,13 @@ void MatrixElement::resetPause()
     this->setPause(false);
 }
 
-void MatrixElement::iStream(const QbPacket &packet)
+QbPacket MatrixElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void MatrixElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void MatrixElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src(reinterpret_cast<uchar *>(packet.buffer().data()),
-               width,
-               height,
-               QImage::Format_RGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame(src.size(), src.format());
 
@@ -546,21 +480,6 @@ void MatrixElement::processFrame(const QbPacket &packet)
             *destBits++ = a | b;
         }
 
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

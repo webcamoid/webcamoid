@@ -55,7 +55,7 @@ class ACapsConvertElement: public QbElement
         void setCaps(const QString &caps);
         void resetCaps();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // ACAPSCONVERTELEMENT_H

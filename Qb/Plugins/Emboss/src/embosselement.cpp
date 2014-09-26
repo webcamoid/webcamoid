@@ -26,11 +26,6 @@ EmbossElement::EmbossElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetAzimuth();
     this->resetElevation();
     this->resetWidth45();
@@ -97,29 +92,15 @@ void EmbossElement::resetPixelScale()
     this->setPixelScale(255.9);
 }
 
-void EmbossElement::iStream(const QbPacket &packet)
+QbPacket EmbossElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void EmbossElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void EmbossElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB32);
-
-    int videoArea = width * height;
+    int videoArea = src.width() * src.height();
 
     QImage oFrame = QImage(src.size(), src.format());
 
@@ -161,18 +142,18 @@ void EmbossElement::processFrame(const QbPacket &packet)
     int background = Lz;
     int bumpIndex = 0;
 
-    for (int i = 0, y = 0; y < height; y++, bumpIndex += width) {
+    for (int i = 0, y = 0; y < src.height(); y++, bumpIndex += src.width()) {
         int s1 = bumpIndex;
-        int s2 = s1 + width;
-        int s3 = s2 + width;
+        int s2 = s1 + src.width();
+        int s3 = s2 + src.width();
 
-        for (int x = 0; x < width; i++, x++, s1++, s2++, s3++) {
+        for (int x = 0; x < src.width(); i++, x++, s1++, s2++, s3++) {
             int shade;
 
             if (y != 0
-                && y < height - 2
+                && y < src.height() - 2
                 && x != 0
-                && x < width - 2) {
+                && x < src.width() - 2) {
                 int Nx = bumpPixels[s1 - 1]
                      + bumpPixels[s2 - 1]
                      + bumpPixels[s3 - 1]
@@ -205,21 +186,6 @@ void EmbossElement::processFrame(const QbPacket &packet)
         }
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

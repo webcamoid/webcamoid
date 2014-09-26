@@ -23,10 +23,9 @@
 #define TEMPERATUREELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class TemperatureElement: public QbElement
 {
@@ -78,11 +77,7 @@ class TemperatureElement: public QbElement
     public slots:
         void setTemperature(float temperature);
         void resetTemperature();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // TEMPERATUREELEMENT_H

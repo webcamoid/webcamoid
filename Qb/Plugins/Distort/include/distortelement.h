@@ -23,10 +23,10 @@
 #define DISTORTELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qrgb.h>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class DistortElement: public QbElement
 {
@@ -78,11 +78,7 @@ class DistortElement: public QbElement
         void resetAmplitude();
         void resetFrequency();
         void resetGridSizeLog();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // DISTORTELEMENT_H

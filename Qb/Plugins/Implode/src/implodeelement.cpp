@@ -26,65 +26,12 @@ ImplodeElement::ImplodeElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetAmount();
 }
 
 float ImplodeElement::amount() const
 {
     return this->m_amount;
-}
-
-QImage ImplodeElement::implode(const QImage &img, float amount) const
-{
-    int width = img.width();
-    int height = img.height();
-
-    QImage buffer(img.size(), img.format());
-
-    float xScale = 1.0;
-    float yScale = 1.0;
-    float xCenter = 0.5 * width;
-    float yCenter = 0.5 * height;
-    float radius = xCenter;
-
-    if (width > height)
-        yScale = (float) width / height;
-    else if (width < height) {
-        xScale = (float) height / width;
-        radius = yCenter;
-    }
-
-    for (int y = 0; y < height; y++) {
-        QRgb *src = (QRgb *) img.scanLine(y);
-        QRgb *dest = (QRgb *) buffer.scanLine(y);
-        float yDistance = yScale * (y - yCenter);
-
-        for (int x = 0; x < width; x++) {
-            float xDistance = xScale * (x - xCenter);
-            float distance = xDistance * xDistance + yDistance * yDistance;
-
-            if (distance >= (radius * radius))
-                *dest = src[x];
-            else {
-                float factor = 1.0;
-
-                if(distance > 0.0)
-                    factor = pow(sin((M_PI) * sqrt(distance) / radius / 2), -amount);
-
-                *dest = this->interpolate(img, factor * xDistance / xScale + xCenter,
-                                               factor * yDistance / yScale + yCenter);
-            }
-
-            dest++;
-        }
-    }
-
-    return buffer;
 }
 
 void ImplodeElement::setAmount(float amount)
@@ -97,45 +44,54 @@ void ImplodeElement::resetAmount()
     this->setAmount(1);
 }
 
-void ImplodeElement::iStream(const QbPacket &packet)
+QbPacket ImplodeElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void ImplodeElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void ImplodeElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
+    QImage oFrame(src.size(), src.format());
 
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    float xScale = 1.0;
+    float yScale = 1.0;
+    float xCenter = src.width() >> 1;
+    float yCenter = src.height() >> 1;
+    float radius = xCenter;
 
-    QImage oFrame = this->implode(src, this->m_amount);
+    if (src.width() > src.height())
+        yScale = (float) src.width() / src.height();
+    else if (src.width() < src.height()) {
+        xScale = (float) src.height() / src.width();
+        radius = yCenter;
+    }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
+    for (int y = 0; y < src.height(); y++) {
+        QRgb *srcBits = (QRgb *) src.scanLine(y);
+        QRgb *destBits = (QRgb *) oFrame.scanLine(y);
+        float yDistance = yScale * (y - yCenter);
 
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
+        for (int x = 0; x < src.width(); x++) {
+            float xDistance = xScale * (x - xCenter);
+            float distance = xDistance * xDistance + yDistance * yDistance;
 
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
+            if (distance >= (radius * radius))
+                *destBits = srcBits[x];
+            else {
+                float factor = 1.0;
 
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
+                if (distance > 0.0)
+                    factor = pow(sin((M_PI) * sqrt(distance) / radius / 2), -this->m_amount);
 
-    emit this->oStream(oPacket);
+                *destBits = this->interpolate(src, factor * xDistance / xScale + xCenter,
+                                               factor * yDistance / yScale + yCenter);
+            }
+
+            destBits++;
+        }
+    }
+
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

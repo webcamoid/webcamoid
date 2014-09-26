@@ -26,11 +26,6 @@ FaceDetectElement::FaceDetectElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr24");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     qRegisterMetaType<QRgb>("QRgb");
 
     this->m_markerTypeToStr[MarkerTypeRectangle] = "rectangle";
@@ -205,27 +200,13 @@ void FaceDetectElement::resetScanSize()
     this->setScanSize(QSize(160, 120));
 }
 
-void FaceDetectElement::iStream(const QbPacket &packet)
+QbPacket FaceDetectElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void FaceDetectElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void FaceDetectElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB888);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame = src;
 
@@ -250,11 +231,8 @@ void FaceDetectElement::processFrame(const QbPacket &packet)
     cv::equalizeHist(matFrame, matFrame);
     this->m_cascadeClassifier.detectMultiScale(matFrame, vecFaces);
 
-    if (vecFaces.size() < 1) {
-        emit this->oStream(packet);
-
-        return;
-    }
+    if (vecFaces.size() < 1)
+        qbSend(packet)
 
     QPainter painter;
     painter.begin(&oFrame);
@@ -312,21 +290,6 @@ void FaceDetectElement::processFrame(const QbPacket &packet)
 
     painter.end();
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr24");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

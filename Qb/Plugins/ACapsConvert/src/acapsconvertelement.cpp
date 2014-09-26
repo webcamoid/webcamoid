@@ -55,11 +55,11 @@ void ACapsConvertElement::resetCaps()
     this->setCaps("");
 }
 
-void ACapsConvertElement::iStream(const QbPacket &packet)
+QbPacket ACapsConvertElement::iStream(const QbPacket &packet)
 {
     if (!packet.caps().isValid() ||
         packet.caps().mimeType() != "audio/x-raw")
-        return;
+        return QbPacket();
 
     // Input Format
     AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
@@ -106,7 +106,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                iNSamples,
                                iSampleFormat,
                                iAlign? 0: 1) < 0)
-        return;
+        return QbPacket();
 
     QbCaps caps1(packet.caps());
     QbCaps caps2(this->m_curInputCaps);
@@ -124,7 +124,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
         this->m_resampleContext = swr_alloc();
 
         if (!this->m_resampleContext)
-            return;
+            return QbPacket();
 
         // set options
         av_opt_set_int(this->m_resampleContext, "in_channel_layout", iChannelLayout, 0);
@@ -137,7 +137,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
 
         // initialize the resampling context
         if (swr_init(this->m_resampleContext) < 0)
-            return;
+            return QbPacket();
 
         this->m_curInputCaps = packet.caps();
     }
@@ -166,7 +166,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     QbBufferPtr oBuffer(new char[oBufferSize]);
 
     if (!oBuffer)
-        return;
+        return QbPacket();
 
     if (av_samples_fill_arrays(&oData.data()[0],
                                &oLineSize,
@@ -175,7 +175,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                                oNSamples,
                                oSampleFormat,
                                oAlign? 0: 1) < 0)
-        return;
+        return QbPacket();
 
     // convert to destination format
     oNSamples = swr_convert(this->m_resampleContext,
@@ -185,7 +185,7 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
                             iNSamples);
 
     if (oNSamples < 1)
-        return;
+        return QbPacket();
 
     const char *format = av_get_sample_fmt_name(oSampleFormat);
     char layout[256];
@@ -223,5 +223,5 @@ void ACapsConvertElement::iStream(const QbPacket &packet)
     oPacket.setTimeBase(packet.timeBase());
     oPacket.setIndex(packet.index());
 
-    emit this->oStream(oPacket);
+    qbSend(oPacket)
 }

@@ -51,7 +51,7 @@ class MultiplexElement: public QbElement
         void resetOutputIndex();
         void resetCaps();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // MULTIPLEXELEMENT_H

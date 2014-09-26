@@ -23,7 +23,6 @@
 #define RADIOACTIVEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <QColor>
 #include <QPainter>
 #include <QGraphicsScene>
@@ -31,6 +30,7 @@
 #include <QGraphicsBlurEffect>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class RadioactiveElement: public QbElement
 {
@@ -101,11 +101,7 @@ class RadioactiveElement: public QbElement
         void resetLumaThreshold();
         void resetAlphaDiff();
         void resetRadColor();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // RADIOACTIVEELEMENT_H

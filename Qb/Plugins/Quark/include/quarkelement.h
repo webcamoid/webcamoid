@@ -22,8 +22,8 @@
 #ifndef QUARKELEMENT_H
 #define QUARKELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class QuarkElement: public QbElement
 {
@@ -48,11 +48,7 @@ class QuarkElement: public QbElement
         void setPlanes(int planes);
         void resetPlanes();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // QUARKELEMENT_H

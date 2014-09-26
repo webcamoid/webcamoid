@@ -27,11 +27,6 @@ ConvolveElement::ConvolveElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetKernel();
     this->resetKernelSize();
     this->resetFactor();
@@ -63,27 +58,77 @@ int ConvolveElement::bias() const
     return this->m_bias;
 }
 
-QImage ConvolveElement::convolve(const QImage &src,
-                                 const QVector<int> &kernel,
-                                 const QSize &kernelSize,
-                                 const QbFrac &factor, int bias) const
+void ConvolveElement::setKernel(const QVariantList &kernel)
 {
-    QImage dst(src.size(), src.format());
+    this->m_kernel.clear();
+
+    foreach (QVariant e, kernel)
+        this->m_kernel << e.toInt();
+}
+
+void ConvolveElement::setKernelSize(const QSize &kernelSize)
+{
+    this->m_kernelSize = kernelSize;
+}
+
+void ConvolveElement::setFactor(const QbFrac &factor)
+{
+    this->m_factor = factor;
+}
+
+void ConvolveElement::setBias(int bias)
+{
+    this->m_bias = bias;
+}
+
+void ConvolveElement::resetKernel()
+{
+    this->m_kernel.clear();
+
+    this->m_kernel << 0 << 0 << 0
+                   << 0 << 1 << 0
+                   << 0 << 0 << 0;
+}
+
+void ConvolveElement::resetKernelSize()
+{
+    this->setKernelSize(QSize(3, 3));
+}
+
+void ConvolveElement::resetFactor()
+{
+    this->setFactor(QbFrac(0, 0));
+}
+
+void ConvolveElement::resetBias()
+{
+    this->setBias(0);
+}
+
+QbPacket ConvolveElement::iStream(const QbPacket &packet)
+{
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
+
+    if (src.isNull())
+        return QbPacket();
+
+    QImage oFrame(src.size(), src.format());
     Pixel *iPixel = (Pixel *) src.bits();
-    quint8 *oPixel = (quint8 *) dst.bits();
+    quint8 *oPixel = (quint8 *) oFrame.bits();
     Pixel *srcBits = iPixel;
 
     int srcWidth = src.width();
     int srcHeight = src.height();
-    int *kernelBits = const_cast<int *>(kernel.data());
-    int factorNum = factor.num();
-    int factorDen = factor.den();
+    int *kernelBits = const_cast<int *>(this->m_kernel.data());
+    int factorNum = this->m_factor.num();
+    int factorDen = this->m_factor.den();
     int minI;
     int maxI;
     int minJ;
     int maxJ;
-    int kernelWidth = kernelSize.width();
-    int kernelHeight = kernelSize.height();
+    int kernelWidth = this->m_kernelSize.width();
+    int kernelHeight = this->m_kernelSize.height();
     int dxMin = (kernelWidth - 1) >> 1;
     int dxMax = (kernelWidth + 1) >> 1;
     int dyMin = (kernelHeight - 1) >> 1;
@@ -149,9 +194,9 @@ QImage ConvolveElement::convolve(const QImage &src,
                     }
 
             if (factorNum) {
-                r = factorNum * r / factorDen + bias;
-                g = factorNum * g / factorDen + bias;
-                b = factorNum * b / factorDen + bias;
+                r = factorNum * r / factorDen + this->m_bias;
+                g = factorNum * g / factorDen + this->m_bias;
+                b = factorNum * b / factorDen + this->m_bias;
             }
 
             *oPixel++ = bound(0, b, 255);
@@ -163,97 +208,6 @@ QImage ConvolveElement::convolve(const QImage &src,
         }
     }
 
-    return dst;
-}
-
-void ConvolveElement::setKernel(const QVariantList &kernel)
-{
-    this->m_kernel.clear();
-
-    foreach (QVariant e, kernel)
-        this->m_kernel << e.toInt();
-}
-
-void ConvolveElement::setKernelSize(const QSize &kernelSize)
-{
-    this->m_kernelSize = kernelSize;
-}
-
-void ConvolveElement::setFactor(const QbFrac &factor)
-{
-    this->m_factor = factor;
-}
-
-void ConvolveElement::setBias(int bias)
-{
-    this->m_bias = bias;
-}
-
-void ConvolveElement::resetKernel()
-{
-    this->m_kernel.clear();
-
-    this->m_kernel << 0 << 0 << 0
-                   << 0 << 1 << 0
-                   << 0 << 0 << 0;
-}
-
-void ConvolveElement::resetKernelSize()
-{
-    this->setKernelSize(QSize(3, 3));
-}
-
-void ConvolveElement::resetFactor()
-{
-    this->setFactor(QbFrac(0, 0));
-}
-
-void ConvolveElement::resetBias()
-{
-    this->setBias(0);
-}
-
-void ConvolveElement::iStream(const QbPacket &packet)
-{
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
-
-void ConvolveElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void ConvolveElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
-
-    QImage oFrame = this->convolve(src,
-                                   this->m_kernel, this->m_kernelSize,
-                                   this->m_factor, this->m_bias);
-
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

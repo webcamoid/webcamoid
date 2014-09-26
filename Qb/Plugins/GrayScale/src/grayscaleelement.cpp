@@ -25,21 +25,10 @@ GrayScaleElement::GrayScaleElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=gray");
-
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SIGNAL(oStream(const QbPacket &)));
 }
 
-void GrayScaleElement::iStream(const QbPacket &packet)
+QbPacket GrayScaleElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
-
-void GrayScaleElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
+    QbPacket oPacket = this->m_convert->iStream(packet);
+    qbSend(oPacket)
 }

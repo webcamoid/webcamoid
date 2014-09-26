@@ -41,7 +41,7 @@ class ProbeElement: public QbElement
         void setLog(bool log);
         void resetLog();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // PROBEELEMENT_H

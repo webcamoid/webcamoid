@@ -23,8 +23,8 @@
 #define SHAGADELICELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class ShagadelicElement: public QbElement
 {
@@ -60,11 +60,7 @@ class ShagadelicElement: public QbElement
     public slots:
         void setMask(int mask);
         void resetMask();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // SHAGADELICELEMENT_H

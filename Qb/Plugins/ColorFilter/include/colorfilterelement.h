@@ -23,10 +23,10 @@
 #define COLORFILTERELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qrgb.h>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class ColorFilterElement: public QbElement
 {
@@ -56,11 +56,7 @@ class ColorFilterElement: public QbElement
         void resetColor();
         void resetRadius();
         void resetGradient();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // COLORFILTERELEMENT_H

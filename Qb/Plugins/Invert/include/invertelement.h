@@ -22,8 +22,8 @@
 #ifndef INVERTELEMENT_H
 #define INVERTELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class InvertElement: public QbElement
 {
@@ -36,11 +36,7 @@ class InvertElement: public QbElement
         QbElementPtr m_convert;
 
     public slots:
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // INVERTELEMENT_H

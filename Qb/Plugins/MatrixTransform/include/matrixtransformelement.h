@@ -22,8 +22,8 @@
 #ifndef MATRIXTRANSFORMELEMENT_H
 #define MATRIXTRANSFORMELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class MatrixTransformElement: public QbElement
 {
@@ -42,11 +42,7 @@ class MatrixTransformElement: public QbElement
     public slots:
         void setKernel(const QVariantList &kernel);
         void resetKernel();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // MATRIXTRANSFORMELEMENT_H

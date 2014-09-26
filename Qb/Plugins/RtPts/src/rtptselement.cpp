@@ -84,11 +84,13 @@ void RtPtsElement::setState(QbElement::ElementState state)
         QMetaObject::invokeMethod(&this->m_timer, "stop");
 }
 
-void RtPtsElement::iStream(const QbPacket &packet)
+QbPacket RtPtsElement::iStream(const QbPacket &packet)
 {
     this->m_mutex.lock();
     this->m_curPacket = packet;
     this->m_mutex.unlock();
+
+    return packet;
 }
 
 void RtPtsElement::readPacket()

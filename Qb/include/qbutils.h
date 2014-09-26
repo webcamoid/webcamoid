@@ -19,22 +19,17 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "qimageconvert.h"
-#include "qimageconvertelement.h"
+#ifndef QBUTILS_H
+#define QBUTILS_H
 
-QObject *QImageConvert::create(const QString &key, const QString &specification)
+#include <QImage>
+
+#include "qbpacket.h"
+
+namespace QbUtils
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
-    return new QImageConvertElement();
+    QbPacket imageToPacket(const QImage &image, const QbPacket &defaultPacket);
+    QImage packetToImage(const QbPacket &packet);
 }
 
-QStringList QImageConvert::keys() const
-{
-    return QStringList();
-}
-
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(QImageConvert, QImageConvert)
-#endif // QT_VERSION < 0x050000
+#endif // QBUTILS_H

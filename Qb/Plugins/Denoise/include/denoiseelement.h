@@ -23,8 +23,8 @@
 #define DENOISEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class DenoiseElement: public QbElement
 {
@@ -221,11 +221,7 @@ class DenoiseElement: public QbElement
         void resetScanSize();
         void resetMu();
         void resetSigma();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // DENOISEELEMENT_H

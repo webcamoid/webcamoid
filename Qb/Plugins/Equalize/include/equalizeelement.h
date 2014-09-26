@@ -22,8 +22,8 @@
 #ifndef EQUALIZEELEMENT_H
 #define EQUALIZEELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class EqualizeElement: public QbElement
 {
@@ -36,11 +36,7 @@ class EqualizeElement: public QbElement
         QbElementPtr m_convert;
 
     public slots:
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // EQUALIZEELEMENT_H

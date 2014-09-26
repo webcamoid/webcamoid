@@ -30,12 +30,6 @@ AudioOutputElement::AudioOutputElement(): QbElement()
     this->m_convert = Qb::create("ACapsConvert");
     this->resetBufferSize();
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)),
-                     Qt::DirectConnection);
-
     QObject::connect(this,
                      SIGNAL(stateChanged(QbElement::ElementState)),
                      this->m_convert.data(),
@@ -202,11 +196,6 @@ void AudioOutputElement::resetBufferSize()
     this->setBufferSize(4096);
 }
 
-void AudioOutputElement::processFrame(const QbPacket &packet)
-{
-    this->m_audioBuffer.writePacket(packet);
-}
-
 void AudioOutputElement::releaseInput()
 {
     this->m_mutex.lock();
@@ -219,11 +208,11 @@ void AudioOutputElement::updateClock()
     emit this->elapsedTime(this->clock());
 }
 
-void AudioOutputElement::iStream(const QbPacket &packet)
+QbPacket AudioOutputElement::iStream(const QbPacket &packet)
 {
     if (packet.caps().mimeType() != "audio/x-raw"
         || !this->m_audioOutput)
-        return;
+        return QbPacket();
 
     if (packet.id() != this->m_streamId) {
         this->m_mutex.lock();
@@ -241,5 +230,8 @@ void AudioOutputElement::iStream(const QbPacket &packet)
 
     emit this->elapsedTime(this->clock());
 
-    this->m_convert->iStream(packet);
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    this->m_audioBuffer.writePacket(iPacket);
+
+    return QbPacket();
 }

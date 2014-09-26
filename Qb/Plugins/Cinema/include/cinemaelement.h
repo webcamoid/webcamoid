@@ -22,10 +22,10 @@
 #ifndef CINEMAELEMENT_H
 #define CINEMAELEMENT_H
 
-#include <QImage>
+#include <cmath>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class CinemaElement: public QbElement
 {
@@ -50,11 +50,7 @@ class CinemaElement: public QbElement
         void resetStripSize();
         void resetStripColor();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // CINEMAELEMENT_H

@@ -26,11 +26,6 @@ CartoonElement::CartoonElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetThreshold();
     this->resetDiffspace();
 }
@@ -106,27 +101,13 @@ void CartoonElement::resetDiffspace()
     this->setDiffspace(4);
 }
 
-void CartoonElement::iStream(const QbPacket &packet)
+QbPacket CartoonElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void CartoonElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void CartoonElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame(src.size(), src.format());
 
@@ -134,19 +115,19 @@ void CartoonElement::processFrame(const QbPacket &packet)
     QRgb *destBits = (QRgb *) oFrame.bits();
 
     if (packet.caps() != this->m_caps) {
-        this->m_width = width;
-        this->m_height = height;
+        this->m_width = src.width();
+        this->m_height = src.height();
         this->m_yprecal.clear();
 
-        for (int x = 0; x < 2 * height; x++)
-            this->m_yprecal << width * x;
+        for (int x = 0; x < 2 * src.height(); x++)
+            this->m_yprecal << src.width() * x;
 
         this->m_caps = packet.caps();
     }
 
     // Cartoonify picture, do a form of edge detect
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int y = 0; y < src.height(); y++) {
+        for (int x = 0; x < src.width(); x++) {
             int t = this->getMaxContrast(srcBits, x, y);
             int offset = x + this->m_yprecal[y];
 
@@ -159,21 +140,6 @@ void CartoonElement::processFrame(const QbPacket &packet)
         }
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

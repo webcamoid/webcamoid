@@ -22,10 +22,9 @@
 #ifndef SCANLINESELEMENT_H
 #define SCANLINESELEMENT_H
 
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class ScanLinesElement: public QbElement
 {
@@ -55,11 +54,7 @@ class ScanLinesElement: public QbElement
         void resetHideSize();
         void resetHideColor();
 
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // SCANLINESELEMENT_H

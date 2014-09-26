@@ -22,10 +22,9 @@
 #ifndef NERVOUSELEMENT_H
 #define NERVOUSELEMENT_H
 
-#include <QImage>
 #include <QColor>
-
 #include <qb.h>
+#include <qbutils.h>
 
 class NervousElement: public QbElement
 {
@@ -53,11 +52,7 @@ class NervousElement: public QbElement
         void setSimple(bool simple);
         void resetNFrames();
         void resetSimple();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // NERVOUSELEMENT_H

@@ -22,8 +22,8 @@
 #ifndef SCROLLELEMENT_H
 #define SCROLLELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class ScrollElement: public QbElement
 {
@@ -46,11 +46,7 @@ class ScrollElement: public QbElement
     public slots:
         void setScrollSteps(int scrollSteps);
         void resetScrollSteps();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // SCROLLELEMENT_H

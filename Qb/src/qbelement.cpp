@@ -172,9 +172,11 @@ bool QbElement::methodCompat(QMetaMethod method1, QMetaMethod method2)
     return false;
 }
 
-void QbElement::iStream(const QbPacket &packet)
+QbPacket QbElement::iStream(const QbPacket &packet)
 {
     Q_UNUSED(packet)
+
+    return QbPacket();
 }
 
 void QbElement::setState(QbElement::ElementState state)

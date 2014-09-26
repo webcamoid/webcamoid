@@ -26,11 +26,6 @@ MatrixTransformElement::MatrixTransformElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetKernel();
 }
 
@@ -60,27 +55,13 @@ void MatrixTransformElement::resetKernel()
                    << 0 << 1 << 0;
 }
 
-void MatrixTransformElement::iStream(const QbPacket &packet)
+QbPacket MatrixTransformElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void MatrixTransformElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void MatrixTransformElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame = QImage(src.size(), src.format());
 
@@ -90,12 +71,12 @@ void MatrixTransformElement::processFrame(const QbPacket &packet)
     float det = this->m_kernel[0] * this->m_kernel[4]
                 - this->m_kernel[1] * this->m_kernel[3];
 
-    QRect rect(0, 0, width, height);
-    int cx = width >> 1;
-    int cy = height >> 1;
+    QRect rect(0, 0, src.width(), src.height());
+    int cx = src.width() >> 1;
+    int cy = src.height() >> 1;
 
-    for (int i = 0, y = 0; y < height; y++)
-        for (int x = 0; x < width; i++, x++) {
+    for (int i = 0, y = 0; y < src.height(); y++)
+        for (int x = 0; x < src.width(); i++, x++) {
             int dx = x - cx - this->m_kernel[2];
             int dy = y - cy - this->m_kernel[5];
 
@@ -103,26 +84,11 @@ void MatrixTransformElement::processFrame(const QbPacket &packet)
             int yp = cy + (dy * this->m_kernel[0] - dx * this->m_kernel[1]) / det;
 
             if (rect.contains(xp, yp))
-                destBits[i] = srcBits[xp + yp * width];
+                destBits[i] = srcBits[xp + yp * src.width()];
             else
                 destBits[i] = qRgba(0, 0, 0, 0);
         }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

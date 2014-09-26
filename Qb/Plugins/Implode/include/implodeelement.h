@@ -23,8 +23,8 @@
 #define IMPLODEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class ImplodeElement: public QbElement
 {
@@ -38,8 +38,6 @@ class ImplodeElement: public QbElement
     private:
         float m_amount;
         QbElementPtr m_convert;
-
-        QImage implode(const QImage &img, float amount) const;
 
         inline uint interpolate(const QImage &img, float xOffset, float yOffset) const
         {
@@ -83,11 +81,7 @@ class ImplodeElement: public QbElement
     public slots:
         void setAmount(float amount);
         void resetAmount();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // IMPLODEELEMENT_H

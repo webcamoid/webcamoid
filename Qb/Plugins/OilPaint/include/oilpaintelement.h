@@ -22,8 +22,8 @@
 #ifndef OILPAINTELEMENT_H
 #define OILPAINTELEMENT_H
 
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class OilPaintElement: public QbElement
 {
@@ -36,19 +36,12 @@ class OilPaintElement: public QbElement
 
     private:
         int m_radius;
-
         QbElementPtr m_convert;
-
-        QImage oilPaint(const QImage &src, int radius) const;
 
     public slots:
         void setRadius(int radius);
         void resetRadius();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // OILPAINTELEMENT_H

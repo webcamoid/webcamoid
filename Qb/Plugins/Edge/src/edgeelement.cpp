@@ -26,11 +26,6 @@ EdgeElement::EdgeElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=gray");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetEqualize();
     this->resetInvert();
 }
@@ -65,39 +60,25 @@ void EdgeElement::resetInvert()
     this->setInvert(false);
 }
 
-void EdgeElement::iStream(const QbPacket &packet)
+QbPacket EdgeElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void EdgeElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void EdgeElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_Indexed8);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame(src.size(), src.format());
 
     quint8 *srcBits = (quint8 *) src.bits();
     quint8 *destBits = (quint8 *) oFrame.bits();
 
-    int widthMin = width - 1;
-    int widthMax = width + 1;
-    int heightMin = height - 1;
+    int widthMin = src.width() - 1;
+    int widthMax = src.width() + 1;
+    int heightMin = src.height() - 1;
 
     if (this->m_equalize) {
-        int videoArea = width * height;
+        int videoArea = src.width() * src.height();
         int minGray = 255;
         int maxGray = 0;
 
@@ -115,18 +96,18 @@ void EdgeElement::processFrame(const QbPacket &packet)
             srcBits[i] = 255 * (srcBits[i] - minGray) / diffGray;
     }
 
-    memset((quint8 *) oFrame.constScanLine(0), 0, width);
-    memset((quint8 *) oFrame.constScanLine(heightMin), 0, width);
+    memset((quint8 *) oFrame.constScanLine(0), 0, src.width());
+    memset((quint8 *) oFrame.constScanLine(heightMin), 0, src.width());
 
-    for (int y = 0; y < height; y++) {
-        int xOffset = y * width;
+    for (int y = 0; y < src.height(); y++) {
+        int xOffset = y * src.width();
 
         destBits[xOffset] = 0;
         destBits[xOffset + widthMin] = 0;
     }
 
     for (int y = 1; y < heightMin; y++) {
-        int xOffset = y * width;
+        int xOffset = y * src.width();
 
         for (int x = 1; x < widthMin; x++) {
             int pixel = x + xOffset;
@@ -139,10 +120,10 @@ void EdgeElement::processFrame(const QbPacket &packet)
                         - srcBits[pixel + widthMax];
 
             int grayY =   srcBits[pixel - widthMax]
-                        + srcBits[pixel - width]
+                        + srcBits[pixel - src.width()]
                         + srcBits[pixel - widthMin]
                         - srcBits[pixel + widthMin]
-                        - srcBits[pixel + width]
+                        - srcBits[pixel + src.width()]
                         - srcBits[pixel + widthMax];
 
             int gray = sqrt(grayX * grayX + grayY * grayY);
@@ -154,21 +135,6 @@ void EdgeElement::processFrame(const QbPacket &packet)
         }
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "gray");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

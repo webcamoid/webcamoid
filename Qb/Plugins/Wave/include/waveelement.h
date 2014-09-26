@@ -23,8 +23,8 @@
 #define WAVEELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class WaveElement: public QbElement
 {
@@ -43,10 +43,7 @@ class WaveElement: public QbElement
         float m_amplitude;
         float m_phases;
         QRgb m_background;
-
         QbElementPtr m_convert;
-
-        QImage wave(const QImage &img, float amplitude, float phases, QRgb background) const;
 
         inline uint interpolateBackground(const QImage &img, float xOffset, float yOffset, QRgb background) const
         {
@@ -108,11 +105,7 @@ class WaveElement: public QbElement
         void resetAmplitude();
         void resetPhases();
         void resetBackground();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // WAVEELEMENT_H

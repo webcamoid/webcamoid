@@ -162,13 +162,15 @@ void BinElement::resetThreads()
     this->m_pipelineDescription.resetThreads();
 }
 
-void BinElement::iStream(const QbPacket &packet)
+QbPacket BinElement::iStream(const QbPacket &packet)
 {
     if (!this->description().isEmpty())
         foreach (QbElementPtr element, this->m_inputs)
             element->iStream(packet);
     else if (!this->blocking())
-        emit this->oStream(packet);
+        qbSend(packet)
+
+    return QbPacket();
 }
 
 void BinElement::setState(QbElement::ElementState state)

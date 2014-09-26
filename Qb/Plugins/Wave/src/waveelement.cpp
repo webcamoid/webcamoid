@@ -26,11 +26,6 @@ WaveElement::WaveElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetAmplitude();
     this->resetPhases();
     this->resetBackground();
@@ -49,32 +44,6 @@ float WaveElement::phases() const
 QRgb WaveElement::background() const
 {
     return this->m_background;
-}
-
-QImage WaveElement::wave(const QImage &img, float amplitude, float phases, QRgb background) const
-{
-    QImage buffer(img.width(),
-                  img.height() + 2 * fabs(amplitude),
-                  img.format());
-
-    int width = buffer.width();
-    int height = buffer.height();
-
-    float *sine_map = new float[width];
-
-    for(int x = 0; x < width; x++)
-        sine_map[x] = fabs(amplitude) + amplitude * sin((phases * 2.0 * M_PI * x) / width);
-
-    for (int y = 0; y < height; y++) {
-        QRgb *dest = (QRgb *) buffer.scanLine(y);
-
-        for (int x = 0; x < width; x++)
-            *dest++ = this->interpolateBackground(img, x, y - sine_map[x], background);
-    }
-
-    delete sine_map;
-
-    return buffer;
 }
 
 void WaveElement::setAmplitude(float amplitude)
@@ -107,48 +76,35 @@ void WaveElement::resetBackground()
     this->setBackground(0);
 }
 
-void WaveElement::iStream(const QbPacket &packet)
+QbPacket WaveElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void WaveElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void WaveElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
+    QImage oFrame(src.width(),
+                  src.height() + 2 * fabs(this->m_amplitude),
+                  src.format());
 
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    float sineMap[oFrame.width()];
 
-    QImage oFrame = this->wave(src,
-                               this->m_amplitude,
-                               this->m_phases,
-                               this->m_background);
+    for (int x = 0; x < oFrame.width(); x++)
+        sineMap[x] = fabs(this->m_amplitude)
+                      + this->m_amplitude
+                      * sin((this->m_phases * 2.0 * M_PI * x) / oFrame.width());
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
+    for (int y = 0; y < oFrame.height(); y++) {
+        QRgb *dest = (QRgb *) oFrame.scanLine(y);
 
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
+        for (int x = 0; x < oFrame.width(); x++)
+            *dest++ = this->interpolateBackground(src,
+                                                  x,
+                                                  y - sineMap[x],
+                                                  this->m_background);
+    }
 
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

@@ -69,7 +69,7 @@ class BinElement: public QbElement
         void resetBlocking();
         void resetThreads();
 
-        void iStream(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);
 
     private slots:

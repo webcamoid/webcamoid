@@ -26,11 +26,6 @@ HypnoticElement::HypnoticElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetMode();
     this->resetSpeedInc();
     this->resetThreshold();
@@ -171,27 +166,13 @@ void HypnoticElement::resetThreshold()
     this->setThreshold(50);
 }
 
-void HypnoticElement::iStream(const QbPacket &packet)
+QbPacket HypnoticElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void HypnoticElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void HypnoticElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame(src.size(), src.format());
 
@@ -201,8 +182,8 @@ void HypnoticElement::processFrame(const QbPacket &packet)
         this->m_speed = 16;
         this->m_phase = 0;
 
-        this->m_opticalMap = this->createOpticalMap(width,
-                                                    height);
+        this->m_opticalMap = this->createOpticalMap(src.width(),
+                                                    src.height());
 
         this->m_caps = packet.caps();
     }
@@ -220,25 +201,10 @@ void HypnoticElement::processFrame(const QbPacket &packet)
     QImage diff = this->imageYOver(src, this->m_threshold);
     quint8 *diffBits = (quint8 *) diff.bits();
 
-    for (int i = 0, y = 0; y < height; y++)
-        for (int x = 0; x < width; i++, x++)
+    for (int i = 0, y = 0; y < src.height(); y++)
+        for (int x = 0; x < src.width(); i++, x++)
             destBits[i] = this->m_palette[(((char) (opticalMap[i] + this->m_phase)) ^ diffBits[i]) & 255];
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

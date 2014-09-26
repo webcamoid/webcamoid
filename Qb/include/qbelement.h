@@ -26,6 +26,13 @@
 
 #include "qbpacket.h"
 
+#define qbSend(packet) { \
+    if (packet) \
+        emit this->oStream(packet); \
+    \
+    return packet; \
+}
+
 class QbApplication;
 class QbElement;
 
@@ -92,7 +99,7 @@ class QbElement: public QObject
         void oStream(const QbPacket &packet);
 
     public slots:
-        virtual void iStream(const QbPacket &packet);
+        virtual QbPacket iStream(const QbPacket &packet);
         virtual void setState(QbElement::ElementState state);
         virtual void setSrcs(QList<QbElement *> srcs);
         virtual void setSinks(QList<QbElement *> sinks);

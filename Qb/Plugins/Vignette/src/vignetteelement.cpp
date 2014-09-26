@@ -26,11 +26,6 @@ VignetteElement::VignetteElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetAspect();
     this->resetClearCenter();
     this->resetSoftness();
@@ -131,29 +126,15 @@ void VignetteElement::resetSoftness()
     this->setSoftness(0.6);
 }
 
-void VignetteElement::iStream(const QbPacket &packet)
+QbPacket VignetteElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void VignetteElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
+    if (src.isNull())
+        return QbPacket();
 
-void VignetteElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB32);
-
-    int videoArea = width * height;
+    int videoArea = src.width() * src.height();
 
     QImage oFrame = QImage(src.size(), src.format());
 
@@ -161,7 +142,7 @@ void VignetteElement::processFrame(const QbPacket &packet)
     QRgb *destBits = (QRgb *) oFrame.bits();
 
     if (packet.caps() != this->m_caps) {
-        this->m_vignette = this->updateVignette(width, height);
+        this->m_vignette = this->updateVignette(src.width(), src.height());
 
         this->m_caps = packet.caps();
     }
@@ -179,21 +160,6 @@ void VignetteElement::processFrame(const QbPacket &packet)
         destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

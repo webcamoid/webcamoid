@@ -22,13 +22,13 @@
 #ifndef FACEDETECTELEMENT_H
 #define FACEDETECTELEMENT_H
 
-#include <QImage>
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsBlurEffect>
 #include <opencv2/opencv.hpp>
 #include <qb.h>
+#include <qbutils.h>
 
 class FaceDetectElement: public QbElement
 {
@@ -99,11 +99,7 @@ class FaceDetectElement: public QbElement
         void resetPixelGridSize();
         void resetBlurRadius();
         void resetScanSize();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // FACEDETECTELEMENT_H

@@ -26,42 +26,23 @@ NormalizeElement::NormalizeElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
 }
 
-void NormalizeElement::iStream(const QbPacket &packet)
+QbPacket NormalizeElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage oFrame = QbUtils::packetToImage(iPacket);
 
-void NormalizeElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void NormalizeElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage oFrame = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    if (oFrame.isNull())
+        return QbPacket();
 
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
 
     QRgb *dest = (QRgb *) oFrame.bits();
-    int count = oFrame.width() * oFrame.height();
+    int videoArea = oFrame.width() * oFrame.height();
 
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < videoArea; i++) {
         QRgb pixel = *dest++;
         histogram[qRed(pixel)].red++;
         histogram[qGreen(pixel)].green++;
@@ -71,7 +52,7 @@ void NormalizeElement::processFrame(const QbPacket &packet)
 
     // find the histogram boundaries by locating the .01 percent levels.
     ShortPixel high, low;
-    uint thresholdIntensity = count / 1e3;
+    uint thresholdIntensity = videoArea / 1e3;
     IntegerPixel intensity;
 
     for (low.red = 0; low.red < 256; low.red++) {
@@ -164,7 +145,7 @@ void NormalizeElement::processFrame(const QbPacket &packet)
     // write
     dest = (QRgb *) oFrame.bits();
 
-    for (int i = 0; i < count; i++){
+    for (int i = 0; i < videoArea; i++){
         QRgb pixel = *dest;
 
         uchar r = (low.red != high.red) ? normalizeMap[qRed(pixel)].red :
@@ -179,21 +160,6 @@ void NormalizeElement::processFrame(const QbPacket &packet)
         *dest++ = qRgba(r, g, b, qAlpha(pixel));
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

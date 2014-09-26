@@ -23,8 +23,8 @@
 #define SWIRLELEMENT_H
 
 #include <cmath>
-#include <QImage>
 #include <qb.h>
+#include <qbutils.h>
 
 class SwirlElement: public QbElement
 {
@@ -38,8 +38,6 @@ class SwirlElement: public QbElement
     private:
         float m_degrees;
         QbElementPtr m_convert;
-
-        QImage swirl(const QImage &img, float degrees) const;
 
         inline uint interpolate(const QImage &img, float xOffset, float yOffset) const
         {
@@ -83,11 +81,7 @@ class SwirlElement: public QbElement
     public slots:
         void setDegrees(float degrees);
         void resetDegrees();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // SWIRLELEMENT_H

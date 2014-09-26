@@ -22,10 +22,10 @@
 #ifndef CHANGEHSLELEMENT_H
 #define CHANGEHSLELEMENT_H
 
-#include <QImage>
 #include <QColor>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class ChangeHSLElement: public QbElement
 {
@@ -45,11 +45,7 @@ class ChangeHSLElement: public QbElement
     public slots:
         void setHsl(const QVariantList &hsl);
         void resetHsl();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // CHANGEHSLELEMENT_H

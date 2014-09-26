@@ -26,11 +26,6 @@ CinemaElement::CinemaElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     qRegisterMetaType<QRgb>("QRgb");
 
     this->resetStripSize();
@@ -64,43 +59,29 @@ void CinemaElement::resetStripSize()
 
 void CinemaElement::resetStripColor()
 {
-    this->setStripColor(qRgba(0, 0, 0, 255));
+    this->setStripColor(qRgb(0, 0, 0));
 }
 
-void CinemaElement::iStream(const QbPacket &packet)
+QbPacket CinemaElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void CinemaElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void CinemaElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_ARGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame(src.size(), src.format());
-    int cy = height >> 1;
+    int cy = src.height() >> 1;
 
-    for (int y = 0; y < height; y++) {
-        float k = 1.0 - std::abs(y - cy) / cy;
+    for (int y = 0; y < src.height(); y++) {
+        float k = 1.0 - fabs(y - cy) / cy;
         QRgb *iLine = (QRgb *) src.scanLine(y);
         QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 
         if (k >= this->m_stripSize)
             memcpy(oLine, iLine, src.bytesPerLine());
         else
-            for (int x = 0; x < width; x++) {
+            for (int x = 0; x < src.width(); x++) {
                 float a = qAlpha(this->m_stripColor) / 255.0;
 
                 int r = a * (qRed(this->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]);
@@ -111,21 +92,6 @@ void CinemaElement::processFrame(const QbPacket &packet)
             }
     }
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgra");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

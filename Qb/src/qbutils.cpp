@@ -19,9 +19,9 @@
  * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "qbgui.h"
+#include "qbutils.h"
 
-QbPacket QbGui::imageToPacket(const QImage &image, const QbPacket &defaultPacket)
+QbPacket QbUtils::imageToPacket(const QImage &image, const QbPacket &defaultPacket)
 {
     QMap<QImage::Format, QString> imageToFormat;
 
@@ -31,7 +31,7 @@ QbPacket QbGui::imageToPacket(const QImage &image, const QbPacket &defaultPacket
     imageToFormat[QImage::Format_ARGB32] = "bgra";
     imageToFormat[QImage::Format_RGB16] = "rgb565le";
     imageToFormat[QImage::Format_RGB555] = "rgb555le";
-    imageToFormat[QImage::Format_RGB888] = "rgb24";
+    imageToFormat[QImage::Format_RGB888] = "bgr24";
     imageToFormat[QImage::Format_RGB444] = "rgb444le";
 
     if (!imageToFormat.contains(image.format()))
@@ -54,7 +54,7 @@ QbPacket QbGui::imageToPacket(const QImage &image, const QbPacket &defaultPacket
     return packet;
 }
 
-QImage QbGui::packetToImage(const QbPacket &packet)
+QImage QbUtils::packetToImage(const QbPacket &packet)
 {
     if (packet.caps().mimeType() != "video/x-raw")
         return QImage();
@@ -67,7 +67,7 @@ QImage QbGui::packetToImage(const QbPacket &packet)
     formatToImage["bgra"] = QImage::Format_ARGB32;
     formatToImage["rgb565le"] = QImage::Format_RGB16;
     formatToImage["rgb555le"] = QImage::Format_RGB555;
-    formatToImage["rgb24"] = QImage::Format_RGB888;
+    formatToImage["bgr24"] = QImage::Format_RGB888;
     formatToImage["rgb444le"] = QImage::Format_RGB444;
 
     QString format = packet.caps().property("format").toString();
@@ -87,5 +87,5 @@ QImage QbGui::packetToImage(const QbPacket &packet)
         for (int i = 0; i < 256; i++)
             image.setColor(i, i);
 
-    return image.copy();
+    return image;
 }

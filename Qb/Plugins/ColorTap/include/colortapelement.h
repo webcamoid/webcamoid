@@ -22,10 +22,10 @@
 #ifndef COLORTAPELEMENT_H
 #define COLORTAPELEMENT_H
 
-#include <QImage>
 #include <qrgb.h>
 
 #include <qb.h>
+#include <qbutils.h>
 
 class ColorTapElement: public QbElement
 {
@@ -46,11 +46,7 @@ class ColorTapElement: public QbElement
     public slots:
         void setTable(const QString &table);
         void resetTable();
-        void iStream(const QbPacket &packet);
-        void setState(QbElement::ElementState state);
-
-    private slots:
-        void processFrame(const QbPacket &packet);
+        QbPacket iStream(const QbPacket &packet);
 };
 
 #endif // COLORTAPELEMENT_H

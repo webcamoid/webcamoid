@@ -26,11 +26,6 @@ AgingElement::AgingElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->m_dx << 1 << 1 << 0 << -1 << -1 << -1 << 0 << 1;
     this->m_dy << 0 << -1 << -1 << -1 << 0 << 1 << 1 << 1;
 
@@ -274,27 +269,13 @@ void AgingElement::resetAgingMode()
     this->setAgingMode(0);
 }
 
-void AgingElement::iStream(const QbPacket &packet)
+QbPacket AgingElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage oFrame = QbUtils::packetToImage(iPacket);
 
-void AgingElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void AgingElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage oFrame = QImage(reinterpret_cast<uchar *>(packet.buffer().data()),
-                           width,
-                           height,
-                           QImage::Format_RGB32);
+    if (oFrame.isNull())
+        return QbPacket();
 
     oFrame = this->colorAging(oFrame);
     this->scratching(oFrame);
@@ -303,19 +284,6 @@ void AgingElement::processFrame(const QbPacket &packet)
     if (this->agingMode() == 0)
         this->dusts(oFrame);
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }

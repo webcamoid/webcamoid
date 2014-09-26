@@ -26,11 +26,6 @@ ShagadelicElement::ShagadelicElement(): QbElement()
     this->m_convert = Qb::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    QObject::connect(this->m_convert.data(),
-                     SIGNAL(oStream(const QbPacket &)),
-                     this,
-                     SLOT(processFrame(const QbPacket &)));
-
     this->resetMask();
 }
 
@@ -109,27 +104,13 @@ void ShagadelicElement::resetMask()
     this->setMask(0xffffff);
 }
 
-void ShagadelicElement::iStream(const QbPacket &packet)
+QbPacket ShagadelicElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().mimeType() == "video/x-raw")
-        this->m_convert->iStream(packet);
-}
+    QbPacket iPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(iPacket);
 
-void ShagadelicElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-    this->m_convert->setState(this->state());
-}
-
-void ShagadelicElement::processFrame(const QbPacket &packet)
-{
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage src = QImage((const uchar *) packet.buffer().data(),
-                        width,
-                        height,
-                        QImage::Format_RGB32);
+    if (src.isNull())
+        return QbPacket();
 
     QImage oFrame = QImage(src.size(), src.format());
 
@@ -141,12 +122,12 @@ void ShagadelicElement::processFrame(const QbPacket &packet)
         this->m_curSize = src.size();
     }
 
-    char *pr = &this->m_ripple.data()[this->m_ry * width * 2 + this->m_rx];
+    char *pr = &this->m_ripple.data()[this->m_ry * src.width() * 2 + this->m_rx];
     char *pg = this->m_spiral.data();
-    char *pb = &this->m_ripple.data()[this->m_by * width * 2 + this->m_bx];
+    char *pb = &this->m_ripple.data()[this->m_by * src.width() * 2 + this->m_bx];
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int y = 0; y < src.height(); y++) {
+        for (int x = 0; x < src.width(); x++) {
             quint32 v = *srcBits++ | 0x1010100;
             v = (v - 0x707060) & 0x1010100;
             v -= v >> 8;
@@ -162,22 +143,26 @@ void ShagadelicElement::processFrame(const QbPacket &packet)
             pb++;
         }
 
-        pr += width;
-        pb += width;
+        pr += src.width();
+        pb += src.width();
     }
 
     this->m_phase -= 8;
 
-    if ((this->m_rx + this->m_rvx) < 0 || (this->m_rx + this->m_rvx) >= width)
+    if ((this->m_rx + this->m_rvx) < 0
+        || (this->m_rx + this->m_rvx) >= src.width())
         this->m_rvx = -this->m_rvx;
 
-    if ((this->m_ry + this->m_rvy) < 0 || (this->m_ry + this->m_rvy) >= height)
+    if ((this->m_ry + this->m_rvy) < 0
+        || (this->m_ry + this->m_rvy) >= src.height())
         this->m_rvy = -this->m_rvy;
 
-    if ((this->m_bx + this->m_bvx) < 0 || (this->m_bx + this->m_bvx) >= width)
+    if ((this->m_bx + this->m_bvx) < 0
+        || (this->m_bx + this->m_bvx) >= src.width())
         this->m_bvx = -this->m_bvx;
 
-    if ((this->m_by + this->m_bvy) < 0 || (this->m_by + this->m_bvy) >= height)
+    if ((this->m_by + this->m_bvy) < 0
+        || (this->m_by + this->m_bvy) >= src.height())
         this->m_bvy = -this->m_bvy;
 
     this->m_rx += this->m_rvx;
@@ -185,21 +170,6 @@ void ShagadelicElement::processFrame(const QbPacket &packet)
     this->m_bx += this->m_bvx;
     this->m_by += this->m_bvy;
 
-    QbBufferPtr oBuffer(new char[oFrame.byteCount()]);
-    memcpy(oBuffer.data(), oFrame.constBits(), oFrame.byteCount());
-
-    QbCaps caps(packet.caps());
-    caps.setProperty("format", "bgr0");
-    caps.setProperty("width", oFrame.width());
-    caps.setProperty("height", oFrame.height());
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oFrame.byteCount());
-
-    oPacket.setPts(packet.pts());
-    oPacket.setTimeBase(packet.timeBase());
-    oPacket.setIndex(packet.index());
-
-    emit this->oStream(oPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    qbSend(oPacket)
 }
