@@ -221,6 +221,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
         fd = open(this->m_device.toStdString().c_str(), O_RDWR);
 
         v4l2_capability capabilities;
+        memset(&capabilities, 0, sizeof(v4l2_capability));
 
         if (this->xioctl(fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
             qDebug() << "VideoCapture: Can't query capabilities.";
@@ -235,6 +236,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
     }
 
     v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
     if (this->xioctl(fd, VIDIOC_G_FMT, &fmt) < 0) {
@@ -1042,6 +1044,7 @@ bool Capture::init()
     this->m_fd = open(this->m_device.toStdString().c_str(), O_RDWR);
 
     v4l2_capability capabilities;
+    memset(&capabilities, 0, sizeof(v4l2_capability));
 
     if (this->xioctl(this->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
         qDebug() << "VideoCapture: Can't query capabilities.";
@@ -1051,6 +1054,7 @@ bool Capture::init()
     }
 
     v4l2_format fmt;
+    memset(&fmt, 0, sizeof(v4l2_format));
     bool changePxFmt = false;
 
     QbCaps caps = this->caps(&fmt, &changePxFmt);

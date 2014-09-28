@@ -24,72 +24,40 @@
 EmbossElement::EmbossElement(): QbElement()
 {
     this->m_convert = Qb::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
+    this->m_convert->setProperty("caps", "video/x-raw,format=gray");
 
-    this->resetAzimuth();
-    this->resetElevation();
-    this->resetWidth45();
-    this->resetPixelScale();
+    this->resetFactor();
+    this->resetBias();
 }
 
-float EmbossElement::azimuth() const
+float EmbossElement::factor() const
 {
-    return this->m_azimuth;
+    return this->m_factor;
 }
 
-float EmbossElement::elevation() const
+float EmbossElement::bias() const
 {
-    return this->m_elevation;
+    return this->m_bias;
 }
 
-float EmbossElement::width45() const
+void EmbossElement::setFactor(float factor)
 {
-    return this->m_width45;
+    this->m_factor = factor;
 }
 
-float EmbossElement::pixelScale() const
+void EmbossElement::setBias(float bias)
 {
-    return this->m_pixelScale;
+    this->m_bias = bias;
 }
 
-void EmbossElement::setAzimuth(float azimuth)
+void EmbossElement::resetFactor()
 {
-    this->m_azimuth = azimuth;
+    this->setFactor(1);
 }
 
-void EmbossElement::setElevation(float elevation)
+void EmbossElement::resetBias()
 {
-    this->m_elevation = elevation;
-}
-
-void EmbossElement::setWidth45(float width45)
-{
-    this->m_width45 = width45;
-}
-
-void EmbossElement::setPixelScale(float pixelScale)
-{
-    this->m_pixelScale = pixelScale;
-}
-
-void EmbossElement::resetAzimuth()
-{
-    this->setAzimuth(135.0 / 360.0);
-}
-
-void EmbossElement::resetElevation()
-{
-    this->setElevation(30.0 / 90.0);
-}
-
-void EmbossElement::resetWidth45()
-{
-    this->setWidth45(10.0 / 40.0);
-}
-
-void EmbossElement::resetPixelScale()
-{
-    this->setPixelScale(255.9);
+    this->setBias(128);
 }
 
 QbPacket EmbossElement::iStream(const QbPacket &packet)
@@ -100,89 +68,46 @@ QbPacket EmbossElement::iStream(const QbPacket &packet)
     if (src.isNull())
         return QbPacket();
 
-    int videoArea = src.width() * src.height();
+    QImage oFrame(src.size(), src.format());
 
-    QImage oFrame = QImage(src.size(), src.format());
+    quint8 *srcBits = (quint8 *) src.bits();
+    quint8 *destBits = (quint8 *) oFrame.bits();
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    int widthMin = src.width() - 1;
+    int widthMax = src.width() + 1;
+    int heightMin = src.height() - 1;
 
-    double azimuthInput = this->m_azimuth * 360.0;
-    double elevationInput = this->m_elevation * 90.0;
-    double widthInput = this->m_width45 * 40.0;
+    memcpy(oFrame.scanLine(0),
+           src.constScanLine(0),
+           src.width());
 
-    // Force correct ranges on input
-    azimuthInput = qBound(0.0, azimuthInput, 360.0);
-    elevationInput = qBound(0.0, elevationInput, 90.0);
-    widthInput = qBound(1.0, widthInput, 40.0);
+    memcpy(oFrame.scanLine(heightMin),
+           src.constScanLine(0),
+           src.width());
 
-    // Convert to filter input values
-    float azimuth = azimuthInput * M_PI / 180.0;
-    float elevation = elevationInput * M_PI / 180.0;
-    float width45 = widthInput;
+    for (int y = 0; y < src.height(); y++) {
+        int xOffset = y * src.width();
 
-    // Create brightness image
-    QVector<quint8> bumpPixels;
-    QVector<quint8> alphaVals;
-
-    for (int i = 0; i < videoArea; i++) {
-        bumpPixels << qGray(srcBits[i]);
-        alphaVals << qAlpha(srcBits[i]);
+        destBits[xOffset] = srcBits[xOffset];
+        destBits[xOffset + widthMin] = srcBits[xOffset + widthMin];
     }
 
-    // Create embossed image from brightness image
-    int Lx = cos(azimuth) * cos(elevation) * this->m_pixelScale;
-    int Ly = sin(azimuth) * cos(elevation) * this->m_pixelScale;
-    int Lz = sin(elevation) * this->m_pixelScale;
+    for (int y = 1; y < heightMin; y++) {
+        int xOffset = y * src.width();
 
-    int Nz = 6 * 255 / width45;
-    int Nz2 = Nz * Nz;
-    int NzLz = Nz * Lz;
+        for (int x = 1; x < widthMin; x++) {
+            int pixel = x + xOffset;
 
-    int background = Lz;
-    int bumpIndex = 0;
+            int gray = - srcBits[pixel - widthMax]
+                       - srcBits[pixel - src.width()]
+                       - srcBits[pixel - 1]
+                       + srcBits[pixel + 1]
+                       + srcBits[pixel + src.width()]
+                       + srcBits[pixel + widthMax];
 
-    for (int i = 0, y = 0; y < src.height(); y++, bumpIndex += src.width()) {
-        int s1 = bumpIndex;
-        int s2 = s1 + src.width();
-        int s3 = s2 + src.width();
+            gray = this->m_factor * gray + this->m_bias;
 
-        for (int x = 0; x < src.width(); i++, x++, s1++, s2++, s3++) {
-            int shade;
-
-            if (y != 0
-                && y < src.height() - 2
-                && x != 0
-                && x < src.width() - 2) {
-                int Nx = bumpPixels[s1 - 1]
-                     + bumpPixels[s2 - 1]
-                     + bumpPixels[s3 - 1]
-                     - bumpPixels[s1 + 1]
-                     - bumpPixels[s2 + 1]
-                     - bumpPixels[s3 + 1];
-
-                int Ny = bumpPixels[s3 - 1]
-                     + bumpPixels[s3]
-                     + bumpPixels[s3 + 1]
-                     - bumpPixels[s1 - 1]
-                     - bumpPixels[s1]
-                     - bumpPixels[s1 + 1];
-
-                int NdotL = Nx * Lx + Ny * Ly + NzLz;
-
-                if (Nx == 0 && Ny == 0)
-                    shade = background;
-                else if (NdotL < 0)
-                    shade = 0;
-                else
-                    shade = NdotL / sqrt(Nx * Nx + Ny * Ny + Nz2);
-            }
-            else
-                shade = background;
-
-            shade = qBound(0, shade, 255);
-
-            destBits[i] = qRgba(shade, shade, shade, alphaVals[s1]);
+            destBits[pixel] = qBound(0, gray, 255);
         }
     }
 

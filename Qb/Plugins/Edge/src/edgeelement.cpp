@@ -96,8 +96,8 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
             srcBits[i] = 255 * (srcBits[i] - minGray) / diffGray;
     }
 
-    memset((quint8 *) oFrame.constScanLine(0), 0, src.width());
-    memset((quint8 *) oFrame.constScanLine(heightMin), 0, src.width());
+    memset(oFrame.scanLine(0), 0, src.width());
+    memset(oFrame.scanLine(heightMin), 0, src.width());
 
     for (int y = 0; y < src.height(); y++) {
         int xOffset = y * src.width();

@@ -7,15 +7,15 @@ pkgdesc="Webcamoid is a full featured webcam capture application."
 url='https://github.com/hipersayanX/Webcamoid'
 license=('GPL')
 arch=('i686' 'x86_64')
-depends=('qt4' 'kdelibs' 'ffmpeg' 'frei0r-plugins')
-makedepends=('bison' 'flex')
+depends=('qt5-multimedia' 'ffmpeg' 'opencv')
+makedepends=('qt5-tools' 'bison' 'flex')
 conflicts=('kdeplasma-applets-webcamoid')
 source=("https://github.com/hipersayanX/Webcamoid/archive/v${pkgver}.tar.gz")
 md5sums=('SKIP')
 
 build() {
     cd $srcdir/Webcamoid-${pkgver}
-    qmake-qt4 Webcamoid.pro
+    qmake-qt5 Webcamoid.pro
     make
 }
 

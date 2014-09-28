@@ -29,35 +29,25 @@
 class EmbossElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float azimuth READ azimuth WRITE setAzimuth RESET resetAzimuth)
-    Q_PROPERTY(float elevation READ elevation WRITE setElevation RESET resetElevation)
-    Q_PROPERTY(float width45 READ width45 WRITE setWidth45 RESET resetWidth45)
-    Q_PROPERTY(float pixelScale READ pixelScale WRITE setPixelScale RESET resetPixelScale)
+    Q_PROPERTY(float factor READ factor WRITE setFactor RESET resetFactor)
+    Q_PROPERTY(float bias READ bias WRITE setBias RESET resetBias)
 
     public:
         explicit EmbossElement();
-        Q_INVOKABLE float azimuth() const;
-        Q_INVOKABLE float elevation() const;
-        Q_INVOKABLE float width45() const;
-        Q_INVOKABLE float pixelScale() const;
+        Q_INVOKABLE float factor() const;
+        Q_INVOKABLE float bias() const;
 
     private:
-        float m_azimuth;
-        float m_elevation;
-        float m_width45;
-        float m_pixelScale;
+        float m_factor;
+        float m_bias;
 
         QbElementPtr m_convert;
 
     public slots:
-        void setAzimuth(float azimuth);
-        void setElevation(float elevation);
-        void setWidth45(float width45);
-        void setPixelScale(float pixelScale);
-        void resetAzimuth();
-        void resetElevation();
-        void resetWidth45();
-        void resetPixelScale();
+        void setFactor(float factor);
+        void setBias(float bias);
+        void resetFactor();
+        void resetBias();
         QbPacket iStream(const QbPacket &packet);
 };
 
