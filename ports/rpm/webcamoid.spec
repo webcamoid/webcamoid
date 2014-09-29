@@ -27,37 +27,31 @@ AutoReqProv: no
 BuildRequires: fdupes
 BuildRequires: bison
 BuildRequires: flex
-BuildRequires: make
 BuildRequires: gcc-c++
-BuildRequires: qt-devel
-BuildRequires: kdelibs-devel
-BuildRequires: frei0r-devel
+BuildRequires: qt5-qtmultimedia-devel
+BuildRequires: qt5-qttools-devel
+BuildRequires: opencv-devel
 BuildRequires: ffmpeg-devel
 BuildRequires: libv4l-devel
 
-Requires: qt-x11
-Requires: kdelibs
-Requires: frei0r-plugins
-Requires: frei0r-plugins-opencv
+Requires: qt5-qtmultimedia
+Requires: opencv
 Requires: ffmpeg-libs
 Requires: libv4l
 %endif
 
 %if %{defined suse_version}
 BuildRequires: fdupes
-BuildRequires: kde4-filesystem
 BuildRequires: bison
 BuildRequires: flex
-BuildRequires: make
-BuildRequires: libqt4-devel
-BuildRequires: libkde4-devel
-BuildRequires: frei0r-plugins-devel
+BuildRequires: libQt5Multimedia-devel
+BuildRequires: libqt5-qttools
+BuildRequires: opencv-devel
 BuildRequires: libffmpeg-devel
 BuildRequires: libv4l-devel
 
-Requires: libqt4
-Requires: kdelibs4
-Requires: frei0r-plugins
+Requires: libQt5Multimedia5
+Requires: opencv
 Requires: libavcodec55
 Requires: libavdevice55
 Requires: libavfilter3
@@ -69,30 +63,38 @@ Requires: libswscale2
 Requires: libv4l1-0
 Requires: libv4l2-0
 Requires: libv4lconvert0
-
-%kde4_runtime_requires
 %endif
 
 %if %{defined mgaversion}
 BuildRequires: fdupes
 BuildRequires: bison
 BuildRequires: flex
-BuildRequires: libqt4-devel
-BuildRequires: kdelibs4-core
-BuildRequires: kdelibs4-devel
+BuildRequires: qttools5
+BuildRequires: opencv-devel
 BuildRequires: libv4l-devel
 
 %ifarch i586
+BuildRequires: libqt5widgets-devel
+BuildRequires: libqt5multimedia-devel
+BuildRequires: libqt5concurrent-devel
+BuildRequires: libqt5xml-devel
 BuildRequires: libffmpeg-devel
 %else
+BuildRequires: lib64qt5widgets-devel
+BuildRequires: lib64qt5multimedia-devel
+BuildRequires: lib64qt5concurrent-devel
+BuildRequires: lib64qt5xml-devel
 BuildRequires: lib64ffmpeg-devel
 %endif
 
-Requires: libqtgui4
-Requires: libkdeui5
+Requires: opencv-samples
 Requires: libv4l0
 
 %ifarch i586
+Requires: libqt5widgets5
+Requires: libqt5multimedia5
+Requires: libqt5concurrent5
+Requires: libqt5xml5
 Requires: libavcodec55
 Requires: libavformat55
 Requires: libavutil52
@@ -101,6 +103,10 @@ Requires: libswscaler2
 Requires: libavfilter3
 Requires: libswresample0
 %else
+Requires: lib64qt5widgets5
+Requires: lib64qt5multimedia5
+Requires: lib64qt5concurrent5
+Requires: lib64qt5xml5
 Requires: lib64avcodec55
 Requires: lib64avformat55
 Requires: lib64avutil52
@@ -120,7 +126,7 @@ Features:
     * Manages multiple webcams.
     * Written in C++/Qt.
     * Custom controls for each webcam.
-    * Add funny effects to the webcam (requires Frei0r plugins).
+    * Add funny effects to the webcam.
     * +60 effects available.
     * Effects with live previews.
     * Translated to many languages.
@@ -133,25 +139,24 @@ Features:
 
 %build
 %if %{defined fedora}
-qmake-qt4 Webcamoid.pro \
+qmake-qt5 Webcamoid.pro \
     LIBDIR=%{_libdir} \
     LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    KDEINCLUDEDIR=%{_includedir}/kde4 \
-    KDELIBDIR=%{_libdir}/kde4/devel \
+    QMAKE_LRELEASE=%{_bindir}/lrelease-qt5
 %endif
 
 %if %{defined suse_version}
-qmake Webcamoid.pro \
+qmake-qt5 Webcamoid.pro \
     LIBDIR=%{_libdir} \
     LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    QMAKE_LRELEASE=%{_bindir}/lrelease
+    QMAKE_LRELEASE=%{_bindir}/lrelease-qt5
 %endif
 
 %if %{defined mgaversion}
-qmake Webcamoid.pro \
+%{_libdir}/qt5/bin/qmake Webcamoid.pro \
     LIBDIR=%{_libdir} \
     LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    QMAKE_LRELEASE=%{_libdir}/qt4/bin/lrelease
+    QMAKE_LRELEASE=%{_libdir}/qt5/bin/lrelease
 %endif
 
 make
@@ -173,12 +178,10 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_bindir}/webcamoid
 %{_datadir}/applications/kde4/webcamoid.desktop
-%{_datadir}/kde4/services/plasma-applet-webcamoid.desktop
 %{_datadir}/webcamoid/
 %{_defaultdocdir}/webcamoid/
 %{_includedir}/Qb/
 %{_libdir}/Qb/
-%{_libdir}/kde4/plasma_applet_webcamoid.so
 %{_libdir}/lib*Qb.so*
 %{_libdir}/libWebcamoid.so*
 

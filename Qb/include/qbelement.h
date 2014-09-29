@@ -22,6 +22,8 @@
 #ifndef QBELEMENT_H
 #define QBELEMENT_H
 
+#include <QStringList>
+#include <QRegExp>
 #include <QMetaMethod>
 
 #include "qbpacket.h"
