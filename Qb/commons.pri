@@ -32,15 +32,15 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     isEmpty(BUILDDOCS): BUILDDOCS = 0
 
     isEmpty(QDOCTOOL) {
-        greaterThan(QT_MAJOR_VERSION, 4): QDOCTOOL = qdoc-qt5
-        lessThan(QT_MAJOR_VERSION, 5): QDOCTOOL = qdoc3-qt4
+        greaterThan(QT_MAJOR_VERSION, 4): QDOCTOOL = qdoc -qt=5
+        lessThan(QT_MAJOR_VERSION, 5): QDOCTOOL = qdoc3 -qt=4
     }
 
     isEmpty(QMAKE_LRELEASE) {
-        win32:QMAKE_LRELEASE = $$[QT_INSTALL_LIBS]/qt/bin/lrelease
+        win32: QMAKE_LRELEASE = $$[QT_INSTALL_LIBS]/qt/bin/lrelease
         else {
-            greaterThan(QT_MAJOR_VERSION, 4): QMAKE_LRELEASE = lrelease-qt5
-            lessThan(QT_MAJOR_VERSION, 5): QMAKE_LRELEASE = lrelease-qt4
+            greaterThan(QT_MAJOR_VERSION, 4): QMAKE_LRELEASE = lrelease -qt=5
+            lessThan(QT_MAJOR_VERSION, 5): QMAKE_LRELEASE = lrelease -qt=4
         }
     }
 
@@ -70,7 +70,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
     isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
 
-    unix {
+    unix: lessThan(QT_MAJOR_VERSION, 5)  {
         isEmpty(KDEINCLUDEDIR): KDEINCLUDEDIR = $$system(kde4-config --path include)
         isEmpty(KDELIBDIR): KDELIBDIR = $${PREFIX}/lib
     }
@@ -106,7 +106,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
         LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\"
 
-    unix {
+    unix: lessThan(QT_MAJOR_VERSION, 5)  {
         DEFINES += \
             KDEINCLUDEDIR=\"\\\"$$KDEINCLUDEDIR\\\"\" \
             KDELIBDIR=\"\\\"$$KDELIBDIR\\\"\"

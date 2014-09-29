@@ -10,7 +10,7 @@
 export DH_VERBOSE=1
 PACKAGENAME = ffmpeg
 BUILDSUFFIX = Qb
-PACKAGEVERSION = 2.3.1
+PACKAGEVERSION = 2.4.1
 PACKAGEFOLDER = $(PACKAGENAME)-$(PACKAGEVERSION)
 FILEEXT = tar.bz2
 PACKAGEFILE = $(PACKAGEFOLDER).$(FILEEXT)
@@ -58,7 +58,6 @@ build-stamp:
 		--enable-libopenjpeg \
 		--enable-libopus \
 		--enable-libpulse \
-		--enable-librtmp \
 		--enable-libschroedinger \
 		--enable-libspeex \
 		--enable-libtheora \
@@ -75,19 +74,25 @@ build-stamp:
 
 	mv -vf Makefile Makefile.ffmpeg
 
-	qmake-qt4 Webcamoid.pro \
-		USEQTMOBILITY=1 \
+	qmake -qt=5 Webcamoid.pro \
 		FFMPEGINCLUDES="$(CURDIR)/build/$(PACKAGEFOLDER)" \
 		FFMPEGINCLUDES+="$(CURDIR)" \
 		FFMPEGLIBS="-L$(CURDIR)/libswscale" \
+		FFMPEGLIBS+="-lswscale$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libswresample" \
+		FFMPEGLIBS+="-lswresample$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavutil" \
+		FFMPEGLIBS+="-lavutil$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavcodec" \
+		FFMPEGLIBS+="-lavcodec$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libpostproc" \
+		FFMPEGLIBS+="-lpostproc$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavfilter" \
+		FFMPEGLIBS+="-lavfilter$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavdevice" \
+		FFMPEGLIBS+="-lavdevice$(BUILDSUFFIX)" \
 		FFMPEGLIBS+="-L$(CURDIR)/libavformat" \
-		FFMPEGSUFFIX=$(BUILDSUFFIX)
+		FFMPEGLIBS+="-lavformat$(BUILDSUFFIX)"
 
 	$(MAKE)
 	# --- end custom part for compiling

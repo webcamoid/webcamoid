@@ -30,11 +30,6 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-!isEmpty(USEQTMOBILITY):isEqual(USEQTMOBILITY, 1): lessThan(QT_MAJOR_VERSION, 5) {
-    CONFIG += mobility
-    MOBILITY += multimedia
-}
-
 DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
@@ -49,28 +44,12 @@ INCLUDEPATH += \
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
-!isEmpty(FFMPEGINCLUDES) {
-    INCLUDEPATH += $${FFMPEGINCLUDES}
-}
-
-!isEmpty(FFMPEGLIBS) {
-    LIBS += \
-        $${FFMPEGLIBS} \
-        -lavdevice$${FFMPEGSUFFIX} \
-        -lavfilter$${FFMPEGSUFFIX} \
-        -lavformat$${FFMPEGSUFFIX} \
-        -lavcodec$${FFMPEGSUFFIX} \
-        -lpostproc$${FFMPEGSUFFIX} \
-        -lswresample$${FFMPEGSUFFIX} \
-        -lswscale$${FFMPEGSUFFIX} \
-        -lavutil$${FFMPEGSUFFIX}
-}
+!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
+!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 OTHER_FILES += pspec.json
 
-QT += core gui
-isEmpty(USEQTMOBILITY): QT += multimedia
-!isEmpty(USEQTMOBILITY): isEqual(USEQTMOBILITY, 0) | greaterThan(QT_MAJOR_VERSION, 4): QT += multimedia
+QT += core gui multimedia
 
 SOURCES += \
     src/audioinput.cpp \

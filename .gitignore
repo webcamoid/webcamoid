@@ -59,6 +59,10 @@ Makefile*
 #######################
 .*.swp
 
+# Kate temporary files #
+#######################
+.*.kate-swp
+
 # MinGW files #
 ###############
 *.Debug
