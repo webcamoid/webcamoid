@@ -22,7 +22,7 @@
                 * Manages multiple webcams.
                 * Written in C++/Qt.
                 * Custom controls for each webcam.
-                * Add funny effects to the webcam (requires Frei0r plugins).
+                * Add funny effects to the webcam.
                 * +60 effects available.
                 * Effects with live previews.
                 * Translated to many languages.
@@ -32,12 +32,11 @@
         </Description>
         <Archive sha1sum="9ba2387d993aed43338a9b45dd80957de267ce0b" type="targz">https://github.com/hipersayanX/Webcamoid/archive/v5.1.0.tar.gz</Archive>
         <BuildDependencies>
-            <Dependency>qt-devel</Dependency>
-            <Dependency>kdelibs-devel</Dependency>
+            <Dependency>qt5-devel</Dependency>
             <Dependency>ffmpeg-devel</Dependency>
             <Dependency>bison</Dependency>
             <Dependency>flex</Dependency>
-            <Dependency>frei0r-plugins-devel</Dependency>
+            <Dependency>opencv-devel</Dependency>
             <Dependency>libv4l-devel</Dependency>
         </BuildDependencies>
     </Source>
@@ -45,21 +44,18 @@
     <Package>
         <Name>webcamoid</Name>
         <RuntimeDependencies>
-            <Dependency>qt</Dependency>
-            <Dependency>kdelibs</Dependency>
+            <Dependency>qt5</Dependency>
             <Dependency>ffmpeg</Dependency>
-            <Dependency>frei0r-plugins</Dependency>
+            <Dependency>opencv</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="header">/usr/include/Qb</Path>
             <Path fileType="library">/usr/lib/</Path>
-            <Path fileType="library">/usr/lib/kde4</Path>
             <Path fileType="library">/usr/lib/Qb</Path>
             <Path fileType="doc">/usr/share/doc/Qb</Path>
             <Path fileType="doc">/usr/share/doc/webcamoid</Path>
             <Path fileType="data">/usr/share/applications/kde4</Path>
-            <Path fileType="data">/usr/share/kde4/services</Path>
             <Path fileType="data">/usr/share/licenses/webcamoid</Path>
             <Path fileType="data">/usr/share/webcamoid</Path>
          </Files>

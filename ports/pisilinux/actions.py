@@ -10,12 +10,12 @@
 # Summary : Webcamoid, the full webcam and multimedia suite.
 
 import os
-from pisi.actionsapi import qt4
+from pisi.actionsapi import qt5
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    qt4.configure('Webcamoid.pro', 'QMAKE_LRELEASE=/usr/bin/lrelease')
+    qt5.configure('Webcamoid.pro', 'QMAKE_LRELEASE=/usr/bin/lrelease-qt5')
 
 def build():
     os.system('make VERBOSE=1')
