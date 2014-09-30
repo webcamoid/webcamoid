@@ -1,3 +1,13 @@
+Webcamoid 5.1.0:
+
+- From now on, Webcamod will be developed using Qt5.
+- Removed Frei0r from dependencies.
+- Added OpenCV as dependency (Face detection).
+- Removed plasmoid build since Qt5 plugins aren't compatible with Qt4/KDE4.
+- Now, Webcamoid can be compiled using MinGW.
+- Added webcam capture support through DirectShow.
+- There are still some patches needed to make it fully work in Windows.
+
 Webcamoid 5.0.0:
 
 - Modified the effects preview for reducing resources usage.
