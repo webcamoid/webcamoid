@@ -8,38 +8,16 @@
 * Manages multiple webcams.
 * Written in C++/Qt.
 * Custom controls for each webcam.
-* Add funny effects to the webcam (requires Frei0r plugins).
+* Add funny effects to the webcam.
 * +60 effects available.
 * Effects with live previews.
 * Translated to many languages.
-* Provides a nice plasmoid for KDE desktop.
 * Use custom network and local files as capture devices.
 * Capture from desktop.
 
 ## Build and install ##
 
-Webcamoid's dependencies are:
-
-* [Qt](https://qt-project.org/) (Qt >= 4.7 and Qt5)
-* [kdelibs](https://projects.kde.org/projects/kde/kdelibs)
-* [Frei0r plugins](http://www.piksel.org/frei0r)
-* [FFmpeg](http://ffmpeg.org/) >= 2.0
-* [linux-api-headers](http://www.gnu.org/software/libc) >= 3.6.x
-
-__NOTE__: Some distributions doesn't provides FFmpeg packages, if this is your case, enable the __USE3DPARTYLIBS__ options in qmake.
-
-Build dependecies:
-
-* [Wget](http://www.gnu.org/software/wget/wget.html) (if __USE3DPARTYLIBS__ is enabled)
-* [Bison](http://www.gnu.org/software/bison/bison.html) >= 2.5
-* [Flex](http://flex.sourceforge.net)
-
-You can build Webcamoid with the following commands:
-
-    qmake-qt4 Webcamoid.pro #USE3DPARTYLIBS=1
-    make
-    su -c 'make INSTALL_ROOT=/usr install'
-    kbuildsycoca4
+Visit the [wiki](https://github.com/hipersayanX/Webcamoid/wiki) for compile and install instructions.
 
 ### Precompiled Packages ###
 
@@ -61,7 +39,7 @@ You can search some online IP cameras [here](http://www.google.com/search?q=file
 
 Edit the _Lib.pro_ file and add you language code to the _TRANSLATIONS_ macro, then, in the root directory of the project run:
 
-    lupdate-qt4 -verbose -noobsolete Webcamoid.pro
+    lupdate-qt5 -verbose -noobsolete Webcamoid.pro
 
 A _share/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist.
 
@@ -106,7 +84,3 @@ Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issu
 Can you share some BTC with me to keep alive the project? :)
 
 [Donate Now](https://blockchain.info/address/1Gj7THPrfrXFQ5BzVSVmRu2GxvwzYzbacj)
-
-## Build State ##
-
-[![Build Status](https://travis-ci.org/hipersayanX/Webcamoid.png?branch=master)](https://github.com/hipersayanX/Webcamoid)
