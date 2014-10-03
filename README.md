@@ -1,6 +1,6 @@
 # Webcamoid, webcam capture application #
 
-[Webcamoid](http://kde-apps.org/content/show.php/Webcamoid?content=144796) is a full featured webcam capture application.
+[Webcamoid](http://opendesktop.org/content/show.php/Webcamoid?content=144796) is a full featured webcam capture application.
 
 ## Features ##
 
@@ -68,7 +68,7 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 
 1. Your Webcamoid version.
 2. Your distribution name and version (numeric, please).
-3. Your KDE and Qt version.
+3. Your Qt version.
 4. Your GCC version.
 5. The output of the previous command.
 6. Any other useful information.

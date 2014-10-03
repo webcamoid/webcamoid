@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "ui_configdialog.h"
@@ -27,8 +27,6 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConfigDialog)
 {
-    this->m_appEnvironment = new AppEnvironment(this);
-
     this->ui->setupUi(this);
 
     QPushButton *btnOk = this->ui->bbxControls->button(QDialogButtonBox::Ok);
@@ -38,11 +36,6 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     QPushButton *btnCancel = this->ui->bbxControls->button(QDialogButtonBox::Cancel);
     QObject::connect(btnCancel, SIGNAL(clicked()), this, SIGNAL(cancelClicked()));
     QObject::connect(btnCancel, SIGNAL(clicked()), this, SLOT(close()));
-}
-
-ConfigDialog::~ConfigDialog()
-{
-
 }
 
 void ConfigDialog::addPage(QWidget *page, const QString &itemName, const QIcon &icon, const QString &header)

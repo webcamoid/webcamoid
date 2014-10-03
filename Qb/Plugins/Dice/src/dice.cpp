@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "dice.h"
@@ -34,7 +34,3 @@ QStringList Dice::keys() const
 {
     return QStringList();
 }
-
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(Dice, Dice)
-#endif // QT_VERSION < 0x050000

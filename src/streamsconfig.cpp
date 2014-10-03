@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "ui_streamsconfig.h"
@@ -27,8 +27,6 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
     QWidget(parent),
     ui(new Ui::StreamsConfig)
 {
-    this->m_appEnvironment = new AppEnvironment(this);
-
     this->ui->setupUi(this);
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
@@ -58,10 +56,6 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
     this->m_isInit = false;
     this->ui->tbwCustomStreams->resizeRowsToContents();
     this->ui->tbwCustomStreams->resizeColumnsToContents();
-}
-
-StreamsConfig::~StreamsConfig()
-{
 }
 
 void StreamsConfig::update()

@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include <QtXml>
@@ -25,8 +25,6 @@
 
 MediaTools::MediaTools(QObject *parent): QObject(parent)
 {
-    this->m_appEnvironment = new AppEnvironment(this);
-
     QObject::connect(QCoreApplication::instance(),
                      SIGNAL(aboutToQuit()),
                      this,
@@ -351,7 +349,7 @@ QMap<QString, QString> MediaTools::availableEffects() const
     QMap<QString, QString> effects;
 
     QDomDocument effectsXml("effects");
-    QFile xmlFile(":/webcamoid/share/effects.xml");
+    QFile xmlFile(":/Webcamoid/share/effects.xml");
     xmlFile.open(QIODevice::ReadOnly);
     effectsXml.setContent(&xmlFile);
     xmlFile.close();

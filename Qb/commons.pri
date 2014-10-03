@@ -16,7 +16,7 @@
 #
 # Email     : hipersayan DOT x AT gmail DOT com
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
-# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+# Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
 
 isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_APPNAME = "Qb"
@@ -38,10 +38,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
 
     isEmpty(QMAKE_LRELEASE) {
         win32: QMAKE_LRELEASE = $$[QT_INSTALL_LIBS]/qt/bin/lrelease
-        else {
-            greaterThan(QT_MAJOR_VERSION, 4): QMAKE_LRELEASE = lrelease -qt=5
-            lessThan(QT_MAJOR_VERSION, 5): QMAKE_LRELEASE = lrelease -qt=4
-        }
+        else: QMAKE_LRELEASE = lrelease -qt=5
     }
 
     unix: isEmpty(PREFIX): PREFIX = /usr
@@ -69,11 +66,6 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
     isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
     isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
-
-    unix: lessThan(QT_MAJOR_VERSION, 5)  {
-        isEmpty(KDEINCLUDEDIR): KDEINCLUDEDIR = $$system(kde4-config --path include)
-        isEmpty(KDELIBDIR): KDELIBDIR = $${PREFIX}/lib
-    }
 
      DEFINES += \
         COMMONS_APPNAME=\"\\\"$$COMMONS_APPNAME\\\"\" \
@@ -105,12 +97,6 @@ isEmpty(COMMONS_PRI_INCLUDE) {
         LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\" \
         LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
         LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\"
-
-    unix: lessThan(QT_MAJOR_VERSION, 5)  {
-        DEFINES += \
-            KDEINCLUDEDIR=\"\\\"$$KDEINCLUDEDIR\\\"\" \
-            KDELIBDIR=\"\\\"$$KDELIBDIR\\\"\"
-    }
 
     CONFIG(debug, debug|release) {
         COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/debug

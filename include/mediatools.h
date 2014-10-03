@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef MEDIATOOLS_H
@@ -26,10 +26,7 @@
 #include <QMutex>
 #include <qb.h>
 
-#include "commons.h"
-#include "appenvironment.h"
-
-class COMMONSSHARED_EXPORT MediaTools: public QObject
+class MediaTools: public QObject
 {
     Q_OBJECT
     Q_ENUMS(RecordFrom)
@@ -99,7 +96,6 @@ class COMMONSSHARED_EXPORT MediaTools: public QObject
         QList<QStringList> m_streams;
         QSize m_windowSize;
 
-        AppEnvironment *m_appEnvironment;
         QbElementPtr m_pipeline;
         QbElementPtr m_source;
         QbElementPtr m_effects;

@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef QBFRAC_H
@@ -28,10 +28,20 @@
 class QbFrac: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int num READ num WRITE setNum RESET resetNum)
-    Q_PROPERTY(int den READ den WRITE setDen RESET resetDen)
-    Q_PROPERTY(double value READ value)
-    Q_PROPERTY(bool isValid READ isValid)
+    Q_PROPERTY(int num
+               READ num
+               WRITE setNum
+               RESET resetNum
+               NOTIFY numChanged)
+    Q_PROPERTY(int den
+               READ den
+               WRITE setDen
+               RESET resetDen
+               NOTIFY denChanged)
+    Q_PROPERTY(double value
+               READ value)
+    Q_PROPERTY(bool isValid
+               READ isValid)
 
     public:
         explicit QbFrac(QObject *parent=NULL);
@@ -59,7 +69,9 @@ class QbFrac: public QObject
 
         qint64 gcd() const;
 
-        friend QDebug operator <<(QDebug debug, const QbFrac &frac);
+    signals:
+        void numChanged();
+        void denChanged();
 
     public slots:
         void reduce();
@@ -67,6 +79,8 @@ class QbFrac: public QObject
         void setDen(qint64 den);
         void resetNum();
         void resetDen();
+
+    friend QDebug operator <<(QDebug debug, const QbFrac &frac);
 };
 
 QDebug operator <<(QDebug debug, const QbFrac &frac);

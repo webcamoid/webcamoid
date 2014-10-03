@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef CAMERACONFIG_H
@@ -36,18 +36,16 @@ namespace Ui
     class CameraConfig;
 }
 
-class COMMONSSHARED_EXPORT CameraConfig: public QWidget
+class CameraConfig: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit CameraConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
-        ~CameraConfig();
 
     private:
         QSharedPointer<Ui::CameraConfig> ui;
 
-        AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         QVariantMap m_videoSizes;
         bool m_resetting;

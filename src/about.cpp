@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "ui_about.h"
@@ -27,18 +27,11 @@ About::About(QWidget *parent):
     QDialog(parent),
     ui(new Ui::About)
 {
-    this->m_appEnvironment = new AppEnvironment(this);
-
     this->ui->setupUi(this);
     this->ui->lblQtVersion->setText(QT_VERSION_STR);
 
     QPushButton *btnClose = this->ui->bbxClose->button(QDialogButtonBox::Close);
     connect(btnClose, SIGNAL(clicked()), this, SLOT(close()));
-}
-
-About::~About()
-{
-
 }
 
 void About::setIcon(const QIcon &icon)

@@ -16,31 +16,24 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef APPENVIRONMENT_H
-#define APPENVIRONMENT_H
+#ifndef QBQML_H
+#define QBQML_H
 
-#include <QObject>
-#include <QTranslator>
-#include <QCoreApplication>
-#include <QStringList>
-#include <QLocale>
-#include <QFileInfo>
+#include <QQuickItem>
+#include <qb.h>
 
-#include "commons.h"
-
-class COMMONSSHARED_EXPORT AppEnvironment: public QObject
+class QbQml: public QQuickItem
 {
     Q_OBJECT
+    Q_DISABLE_COPY(QbQml)
 
     public:
-        explicit AppEnvironment(QObject *parent=NULL);
-        Q_INVOKABLE QString configFileName();
-
-    private:
-        QTranslator m_translator;
+        QbQml(QQuickItem *parent = NULL);
+        ~QbQml();
 };
 
-#endif // APPENVIRONMENT_H
+#endif // QBQML_H
+

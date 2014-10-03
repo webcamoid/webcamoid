@@ -16,18 +16,16 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef COMMONS_H
-#define COMMONS_H
+#include "qbqmlplugin.h"
+#include "qbqml.h"
 
-#include <QtCore/qglobal.h>
+#include <qqml.h>
 
-#if defined(COMMONS_LIBRARY)
-#  define COMMONSSHARED_EXPORT Q_DECL_EXPORT
-#else
-#  define COMMONSSHARED_EXPORT Q_DECL_IMPORT
-#endif
-
-#endif // COMMONS_H
+void QbQmlPlugin::registerTypes(const char *uri)
+{
+    // @uri QbQml
+    qmlRegisterType<QbQml>(uri, 1, 0, "Qb");
+}

@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef QBPACKET_H
@@ -33,14 +33,46 @@ class QbPacket: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QbCaps caps READ caps WRITE setCaps RESET resetCaps)
-    Q_PROPERTY(QVariant data READ data WRITE setData RESET resetData)
-    Q_PROPERTY(QbBufferPtr buffer READ buffer WRITE setBuffer RESET resetBuffer)
-    Q_PROPERTY(ulong bufferSize READ bufferSize WRITE setBufferSize RESET resetBufferSize)
-    Q_PROPERTY(qint64 id READ id WRITE setId RESET resetId)
-    Q_PROPERTY(qint64 pts READ pts WRITE setPts RESET resetPts)
-    Q_PROPERTY(QbFrac timeBase READ timeBase WRITE setTimeBase RESET resetTimeBase)
-    Q_PROPERTY(int index READ index WRITE setIndex RESET resetIndex)
+    Q_PROPERTY(QbCaps caps
+               READ caps
+               WRITE setCaps
+               RESET resetCaps
+               NOTIFY capsChanged)
+    Q_PROPERTY(QVariant data
+               READ data
+               WRITE setData
+               RESET resetData
+               NOTIFY dataChanged)
+    Q_PROPERTY(QbBufferPtr buffer
+               READ buffer
+               WRITE setBuffer
+               RESET resetBuffer
+               NOTIFY bufferChanged)
+    Q_PROPERTY(ulong bufferSize
+               READ bufferSize
+               WRITE setBufferSize
+               RESET resetBufferSize
+               NOTIFY bufferSizeChanged)
+    Q_PROPERTY(qint64 id
+               READ id
+               WRITE setId
+               RESET resetId
+               NOTIFY idChanged)
+    Q_PROPERTY(qint64 pts
+               READ pts
+               WRITE setPts
+               RESET resetPts
+               NOTIFY ptsChanged)
+    Q_PROPERTY(QbFrac timeBase
+               READ timeBase
+               WRITE setTimeBase
+               RESET resetTimeBase
+               NOTIFY timeBaseChanged)
+    Q_PROPERTY(int index
+               READ index
+               WRITE setIndex
+               RESET resetIndex
+               NOTIFY indexChanged)
 
     public:
         explicit QbPacket(QObject *parent=NULL);
@@ -86,7 +118,15 @@ class QbPacket: public QObject
         int m_index;
         qint64 m_id;
 
-        friend QDebug operator <<(QDebug debug, const QbPacket &frac);
+    signals:
+        void capsChanged();
+        void dataChanged();
+        void bufferChanged();
+        void bufferSizeChanged();
+        void ptsChanged();
+        void timeBaseChanged();
+        void indexChanged();
+        void idChanged();
 
     public slots:
         void setCaps(const QbCaps &caps);
@@ -105,9 +145,11 @@ class QbPacket: public QObject
         void resetPts();
         void resetTimeBase();
         void resetIndex();
+
+    friend QDebug operator <<(QDebug debug, const QbPacket &packet);
 };
 
-QDebug operator <<(QDebug debug, const QbPacket &frac);
+QDebug operator <<(QDebug debug, const QbPacket &packet);
 
 Q_DECLARE_METATYPE(QbPacket)
 

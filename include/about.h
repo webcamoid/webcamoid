@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef ABOUT_H
@@ -27,30 +27,23 @@
 #include <QIcon>
 #include <QUrl>
 
-#include "commons.h"
-#include "appenvironment.h"
-
 namespace Ui
 {
     class About;
 }
 
-class COMMONSSHARED_EXPORT About: public QDialog
+class About: public QDialog
 {
     Q_OBJECT
 
     public:
         explicit About(QWidget *parent = NULL);
-        ~About();
 
     private:
+        QSharedPointer<Ui::About> ui;
         QIcon m_icon;
         QString m_websiteLink;
         QString m_websiteLicense;
-
-        QSharedPointer<Ui::About> ui;
-
-        AppEnvironment *m_appEnvironment;
 
     public slots:
         void setIcon(const QIcon &icon);

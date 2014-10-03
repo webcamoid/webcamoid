@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef EFFECTS_H
@@ -33,7 +33,7 @@ namespace Ui
     class Effects;
 }
 
-class COMMONSSHARED_EXPORT Effects: public QWidget
+class Effects: public QWidget
 {
     Q_OBJECT
 
@@ -43,7 +43,6 @@ class COMMONSSHARED_EXPORT Effects: public QWidget
     private:
         QSharedPointer<Ui::Effects> ui;
 
-        AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         QStringList m_effectsNames;
         QList<QListWidgetItem *> m_effectsWidgets;

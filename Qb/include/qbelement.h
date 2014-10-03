@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef QBELEMENT_H
@@ -45,9 +45,19 @@ class QbElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
-    Q_PROPERTY(QbElement::ElementState state READ state WRITE setState RESET resetState NOTIFY stateChanged)
-    Q_PROPERTY(QList<QbElement *> srcs READ srcs WRITE setSrcs RESET resetSrcs)
-    Q_PROPERTY(QList<QbElement *> sinks READ sinks WRITE setSinks RESET resetSinks)
+    Q_PROPERTY(QbElement::ElementState state
+               READ state
+               WRITE setState
+               RESET resetState
+               NOTIFY stateChanged)
+    Q_PROPERTY(QList<QbElement *> srcs
+               READ srcs
+               WRITE setSrcs
+               RESET resetSrcs)
+    Q_PROPERTY(QList<QbElement *> sinks
+               READ sinks
+               WRITE setSinks
+               RESET resetSinks)
 
     public:
         enum ElementState

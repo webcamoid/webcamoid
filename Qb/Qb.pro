@@ -16,7 +16,7 @@
 #
 # Email     : hipersayan DOT x AT gmail DOT com
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
-# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+# Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
 
 exists(commons.pri) {
     include(commons.pri)
@@ -28,7 +28,10 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS += Lib.pro Plugins
+SUBDIRS += \
+    Lib.pro \
+    QbQml.pro \
+    Plugins
 
 # Install rules
 

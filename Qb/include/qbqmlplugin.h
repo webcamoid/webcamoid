@@ -16,43 +16,22 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef PLASMOID_H
-#define PLASMOID_H
+#ifndef QBQMLPLUGIN_H
+#define QBQMLPLUGIN_H
 
-#include <KDE/Plasma/PopupApplet>
+#include <QQmlExtensionPlugin>
 
-#ifdef QT5COMPAT
-#include <QWidget>
-#include <QX11EmbedContainer>
-#include <QGraphicsProxyWidget>
-#include <QGraphicsGridLayout>
-#include <QProcess>
-#else
-#include "mainwidget.h"
-#endif
-
-typedef QSharedPointer<QWidget> WidgetPtr;
-
-class Plasmoid: public Plasma::PopupApplet
+class QbQmlPlugin: public QQmlExtensionPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")
 
     public:
-        Plasmoid(QObject *parent, const QVariantList &args);
-        ~Plasmoid();
-
-        void init();
-
-    private:
-        QSizeF m_defaultPlasmoidSize;
-        QSizeF m_minimumPlasmoidSize;
-        WidgetPtr m_mainWidget;
-        QGraphicsWidget *m_graphicsWidget;
-        QGraphicsGridLayout *m_glyGraphicsWidget;
-        QGraphicsProxyWidget *m_proxyWidget;
+        void registerTypes(const char *uri);
 };
 
-#endif // PLASMOID_H
+#endif // QBQMLPLUGIN_H
+

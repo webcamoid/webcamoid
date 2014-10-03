@@ -1,0 +1,35 @@
+<RCC>
+    <qresource prefix="/Webcamoid">
+        <file>share/icons/about.svg</file>
+        <file>share/icons/arrow-left.svg</file>
+        <file>share/icons/arrow-right.svg</file>
+        <file>share/icons/author.svg</file>
+        <file>share/icons/category.svg</file>
+        <file>share/icons/close.svg</file>
+        <file>share/icons/configure.svg</file>
+        <file>share/icons/effects.svg</file>
+        <file>share/icons/fullscreen.svg</file>
+        <file>share/icons/license.svg</file>
+        <file>share/icons/mail.svg</file>
+        <file>share/icons/maximize.svg</file>
+        <file>share/icons/maxizespace.svg</file>
+        <file>share/icons/micoff.svg</file>
+        <file>share/icons/micon.svg</file>
+        <file>share/icons/minimize.svg</file>
+        <file>share/icons/move.svg</file>
+        <file>share/icons/nostayontop.svg</file>
+        <file>share/icons/picture.svg</file>
+        <file>share/icons/play.svg</file>
+        <file>share/icons/scalerotate.svg</file>
+        <file>share/icons/setup.svg</file>
+        <file>share/icons/sound.svg</file>
+        <file>share/icons/spaces.svg</file>
+        <file>share/icons/stayontop.svg</file>
+        <file>share/icons/stop.svg</file>
+        <file>share/icons/stoprec.svg</file>
+        <file>share/icons/video.svg</file>
+        <file>share/icons/web.svg</file>
+        <file>share/icons/webcam.svg</file>
+        <file>share/icons/windowed.svg</file>
+    </qresource>
+</RCC>

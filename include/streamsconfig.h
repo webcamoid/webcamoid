@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef STREAMSCONFIG_H
@@ -31,18 +31,16 @@ namespace Ui
     class StreamsConfig;
 }
 
-class COMMONSSHARED_EXPORT StreamsConfig: public QWidget
+class StreamsConfig: public QWidget
 {
     Q_OBJECT
 
     public:
         explicit StreamsConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
-        ~StreamsConfig();
 
     private:
         QSharedPointer<Ui::StreamsConfig> ui;
 
-        AppEnvironment *m_appEnvironment;
         MediaTools *m_mediaTools;
         bool m_isInit;
 

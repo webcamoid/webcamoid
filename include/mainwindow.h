@@ -16,38 +16,83 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QDateTime>
+#include <QResizeEvent>
 
-#include "commons.h"
+#include "effects.h"
+#include "generalconfig.h"
+#include "streamsconfig.h"
+#include "mediatools.h"
+#include "videorecordconfig.h"
+#include "cameraconfig.h"
+#include "imagedisplay.h"
+#include "configdialog.h"
+#include "about.h"
 
 namespace Ui
 {
     class MainWindow;
 }
 
-class COMMONSSHARED_EXPORT MainWindow: public QMainWindow
+class MainWindow: public QMainWindow
 {
     Q_OBJECT
 
     public:
         explicit MainWindow(QWidget *parent=NULL);
-        ~MainWindow();
+
+    private:
+        QSharedPointer<Ui::MainWindow> ui;
+
+        Effects *m_cfgEffects;
+        GeneralConfig *m_cfgGeneralConfig;
+        QbPacket m_webcamFrame;
+        StreamsConfig *m_cfgStreams;
+        MediaTools *m_mediaTools;
+        VideoRecordConfig *m_cfgVideoFormats;
+        CameraConfig *m_cfgWebcamDialog;
+        ImageDisplay *m_imageDispay;
+
+        void showConfigDialog(ConfigDialog *configDialog=NULL);
+        QString saveFile(bool video=false);
 
     protected:
         void changeEvent(QEvent *event);
+        void resizeEvent(QResizeEvent *event);
+        void enterEvent(QEvent *event);
+        void leaveEvent(QEvent *event);
         void closeEvent(QCloseEvent *event);
 
-    private:
-        Ui::MainWindow *ui;
+    public slots:
+        void addWebcamConfigDialog(ConfigDialog *configDialog);
+        void addEffectsConfigDialog(ConfigDialog *configDialog);
+        void addVideoFormatsConfigDialog(ConfigDialog *configDialog);
+        void addStreamsConfigDialog(ConfigDialog *configDialog);
+        void addGeneralConfigsDialog(ConfigDialog *configDialog);
+        void showFrame(const QbPacket &webcamFrame);
 
-    signals:
-        void windowClosed();
+    private slots:
+        void updateWebcams();
+        void deviceChanged(const QString &device);
+        void recordingChanged(bool recording);
+        void showError(const QString &message);
+        void updateContents();
+
+        void on_btnTakePhoto_clicked();
+        void on_btnVideoRecord_clicked();
+        void on_cbxSetWebcam_currentIndexChanged(int index);
+        void on_btnStartStop_clicked();
+        void on_btnConfigure_clicked();
+        void on_btnAbout_clicked();
 };
 
 #endif // MAINWINDOW_H

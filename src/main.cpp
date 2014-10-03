@@ -16,38 +16,31 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QQmlApplicationEngine>
+#include <QTranslator>
 
-#include "mainwidget.h"
-#include "mainwindow.h"
+//#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    MainWindow mainWindow;
-    MainWidget *mainWidget = new MainWidget();
+    QCoreApplication::setApplicationName(COMMONS_APPNAME);
+    QCoreApplication::setApplicationVersion(COMMONS_VERSION);
+    QCoreApplication::setOrganizationName(COMMONS_APPNAME);
+    QCoreApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
 
-    mainWindow.setWindowIcon(mainWidget->windowIcon());
-    mainWindow.setWindowTitle(mainWidget->windowTitle());
+    QTranslator translator;
+    translator.load(QLocale::system().name(), "qrc:/Webcamoid/share/ts");
+    QCoreApplication::installTranslator(&translator);
 
-    QObject::connect(&mainWindow,
-                     SIGNAL(windowClosed()),
-                     mainWidget,
-                     SLOT(cleanAll()));
-
-    QRect geometry = mainWidget->geometry();
-    QDesktopWidget desktopWidget;
-
-    geometry.moveCenter(desktopWidget.availableGeometry().center());
-    mainWindow.setGeometry(geometry);
-
-    mainWindow.setCentralWidget(mainWidget);
-    mainWindow.show();
+    QQmlApplicationEngine engine;
+    engine.addImportPath("Qb");
+    engine.load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
     return app.exec();
 }

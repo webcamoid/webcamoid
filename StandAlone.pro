@@ -16,7 +16,7 @@
 #
 # Email     : hipersayan DOT x AT gmail DOT com
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
-# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+# Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
 
 exists(commons.pri) {
     include(commons.pri)
@@ -24,20 +24,92 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
+!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+    DOCSOURCES += $${COMMONS_APPNAME}.qdocconf
+
+    builddocs.input = DOCSOURCES
+    builddocs.output = share/docs_auto/html/$${COMMONS_TARGET}.index
+    builddocs.commands = $${QDOCTOOL} ${QMAKE_FILE_IN}
+    builddocs.variable_out = DOCSOUTPUT
+    builddocs.name = Docs ${QMAKE_FILE_IN}
+    builddocs.CONFIG += target_predeps
+
+    QMAKE_EXTRA_COMPILERS += builddocs
+    PRE_TARGETDEPS += compiler_builddocs_make_all
+}
+
 CONFIG += qt
+
+FORMS = \
+    share/ui/effects.ui \
+    share/ui/generalconfig.ui \
+    share/ui/streamsconfig.ui \
+    share/ui/videorecordconfig.ui \
+    share/ui/cameraconfig.ui \
+    share/ui/imagedisplay.ui \
+    share/ui/mainwindow.ui \
+    share/ui/about.ui \
+    share/ui/configdialog.ui
+
+HEADERS = \
+    include/effects.h \
+    include/generalconfig.h \
+    include/mediatools.h \
+    include/streamsconfig.h \
+    include/videorecordconfig.h \
+    include/cameraconfig.h \
+    include/imagedisplay.h \
+    include/mainwindow.h \
+    include/about.h \
+    include/configdialog.h
 
 INCLUDEPATH += \
     include \
     Qb/include
 
-!win32: LIBS += -L./Qb -lQb -L. -lWebcamoid
-win32: LIBS += -L./Qb -lQb$${VER_MAJ} -L. -lWebcamoid$${VER_MAJ}
+!win32: LIBS += -L./Qb -lQb
+win32: LIBS += -L./Qb -lQb$${VER_MAJ}
 
-QT += core gui
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+OTHER_FILES = \
+    .gitignore \
+    README.md \
+    share/effects.xml
+
+QT += qml quick widgets xml
+
+RESOURCES += \
+    Webcamoid.qrc \
+    icons.qrc \
+    qml.qrc \
+    translations.qrc
 
 SOURCES = \
-    src/main.cpp
+    src/main.cpp \
+    src/effects.cpp \
+    src/generalconfig.cpp \
+    src/mediatools.cpp \
+    src/streamsconfig.cpp \
+    src/videorecordconfig.cpp \
+    src/cameraconfig.cpp \
+    src/imagedisplay.cpp \
+    src/mainwindow.cpp \
+    src/about.cpp \
+    src/configdialog.cpp
+
+TRANSLATIONS = \
+    share/ts/ca.qm \
+    share/ts/de.qm \
+    share/ts/el.qm \
+    share/ts/es.qm \
+    share/ts/fr.qm \
+    share/ts/gl.qm \
+    share/ts/it.qm \
+    share/ts/ja.qm \
+    share/ts/ko.qm \
+    share/ts/pt.qm \
+    share/ts/ru.qm \
+    share/ts/zh_CN.qm \
+    share/ts/zh_TW.qm
 
 DESTDIR = $${PWD}
 
@@ -48,13 +120,26 @@ TEMPLATE = app
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
-INSTALLS += target
+# http://www.loc.gov/standards/iso639-2/php/code_list.php
 
-target.path = $${BINDIR}
+CODECFORTR = UTF-8
+CODECFORSRC = UTF-8
 
 unix {
-    INSTALLS += desktop
+    INSTALLS += \
+        target \
+        desktop
+
+    target.path = $${BINDIR}
 
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications/kde4
+
+    !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+        INSTALLS += docs
+
+        docs.files = share/docs_auto/html
+        docs.path = $${HTMLDIR}
+        docs.CONFIG += no_check_exist
+    }
 }

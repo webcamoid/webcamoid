@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "qbpacket.h"
@@ -206,41 +206,49 @@ int &QbPacket::index()
 void QbPacket::setCaps(const QbCaps &mimeType)
 {
     this->m_caps = mimeType;
+    emit this->capsChanged();
 }
 
 void QbPacket::setData(const QVariant &data)
 {
     this->m_data = data;
+    emit this->dataChanged();
 }
 
 void QbPacket::setBuffer(const QbBufferPtr &buffer)
 {
     this->m_buffer = buffer;
+    emit this->bufferChanged();
 }
 
 void QbPacket::setBufferSize(ulong bufferSize)
 {
     this->m_bufferSize = bufferSize;
+    emit this->bufferSizeChanged();
 }
 
 void QbPacket::setId(qint64 id)
 {
     this->m_id = id;
+    emit this->idChanged();
 }
 
 void QbPacket::setPts(qint64 pts)
 {
     this->m_pts = pts;
+    emit this->ptsChanged();
 }
 
 void QbPacket::setTimeBase(const QbFrac &timeBase)
 {
     this->m_timeBase = timeBase;
+    emit this->timeBaseChanged();
 }
 
 void QbPacket::setIndex(int index)
 {
     this->m_index = index;
+    emit this->indexChanged();
 }
 
 void QbPacket::resetCaps()

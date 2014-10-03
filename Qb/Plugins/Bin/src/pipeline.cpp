@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "include/pipeline.h"
@@ -163,13 +163,7 @@ QMetaMethod Pipeline::methodByName(QObject *object, const QString &methodName, Q
 
     for (int i = 0; i < object->metaObject()->methodCount(); i++) {
         QMetaMethod method = object->metaObject()->method(i);
-
-#if QT_VERSION >= 0x050000
         QString name(method.name());
-#else
-        QString name(method.signature());
-        name = name.left(name.indexOf("(")).trimmed();
-#endif // QT_VERSION >= 0x050000
 
         if (method.methodType() == methodType
             && name == methodName) {

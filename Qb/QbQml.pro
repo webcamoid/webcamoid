@@ -16,7 +16,7 @@
 #
 # Email     : hipersayan DOT x AT gmail DOT com
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
-# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+# Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
 
 exists(commons.pri) {
     include(commons.pri)
@@ -24,57 +24,37 @@ exists(commons.pri) {
     error("commons.pri file not found.")
 }
 
-CONFIG += \
-    qt \
-    plugin \
-    no_plugin_name_prefix
+CONFIG += qt plugin
 
-HEADERS = \
-    include/plasmoid.h
+HEADERS += \
+    include/qbqmlplugin.h \
+    include/qbqml.h
 
 INCLUDEPATH += \
-    include \
-    Qb/include \
-    $${KDEINCLUDEDIR}
+    include
 
-!isEmpty(QT5COMPAT): DEFINES += QT5COMPAT
+!win32: LIBS += -L. -lQb
+win32: LIBS += -L. -lQb$${VER_MAJ}
 
-isEmpty(QT5COMPAT) {
-    LIBS += -L. -lWebcamoid
+QT += qml quick
 
-    !win32: LIBS += -L./Qb -lQb
-    win32: LIBS += -L./Qb -lQb$${VER_MAJ}
-}
+# Input
+SOURCES += \
+    src/qbqmlplugin.cpp \
+    src/qbqml.cpp
 
-LIBS += \
-    -L$${KDELIBDIR} \
-    -lkdecore \
-    -lkdeui
-
-OTHER_FILES += \
-    Webcamoid.desktop
-
-QT += core gui
-
-SOURCES = \
-    src/plasmoid.cpp
-
-DESTDIR = $${PWD}
-
-TARGET = plasma_applet_$${COMMONS_TARGET}
+DESTDIR = $${PWD}/QbQml
 
 TEMPLATE = lib
 
-CODECFORTR = UTF-8
-CODECFORSRC = UTF-8
+TARGET = $$qtLibraryTarget(QbQml)
+
+OTHER_FILES = QbQml/qmldir
+
+qmldir.files = QbQml/qmldir
 
 unix {
-    INSTALLS += \
-        target \
-        desktop
-
-    desktop.files = plasma-applet-$${COMMONS_TARGET}.desktop
-    desktop.path = $${DATAROOTDIR}/kde4/services
-
-    target.path = $${LIBDIR}/kde4
+    qmldir.path = $$[QT_INSTALL_QML]/QbQml
+    target.path = $$[QT_INSTALL_QML]/QbQml
+    INSTALLS += target qmldir
 }

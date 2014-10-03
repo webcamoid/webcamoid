@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #include "qb.h"
@@ -147,12 +147,7 @@ QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
 
     for (int i = 0; i < object->metaObject()->methodCount(); i++) {
         QMetaMethod method = object->metaObject()->method(i);
-
-#if QT_VERSION >= 0x050000
         QString signature(method.methodSignature());
-#else
-        QString signature(method.signature());
-#endif // QT_VERSION >= 0x050000
 
         if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(signature))
             if (!methodSignatures.contains(signature)) {

@@ -16,7 +16,7 @@
 #
 # Email     : hipersayan DOT x AT gmail DOT com
 # Web-Site 1: http://github.com/hipersayanX/Webcamoid
-# Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+# Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
 
 exists(commons.pri) {
     include(commons.pri)
@@ -44,10 +44,6 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 OTHER_FILES += pspec.json
 
 QT += core gui
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
-}
 
 SOURCES += \
     src/ripple.cpp \

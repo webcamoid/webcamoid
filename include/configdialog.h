@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef CONFIGDIALOG_H
@@ -27,26 +27,20 @@
 #include <QPushButton>
 #include <QListWidgetItem>
 
-#include "commons.h"
-#include "appenvironment.h"
-
 namespace Ui
 {
     class ConfigDialog;
 }
 
-class COMMONSSHARED_EXPORT ConfigDialog: public QDialog
+class ConfigDialog: public QDialog
 {
     Q_OBJECT
 
     public:
         explicit ConfigDialog(QWidget *parent = 0);
-        ~ConfigDialog();
 
     private:
         QSharedPointer<Ui::ConfigDialog> ui;
-
-        AppEnvironment *m_appEnvironment;
 
     signals:
         void okClicked();

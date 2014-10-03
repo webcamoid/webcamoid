@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef IMAGEDISPLAY_H
@@ -27,14 +27,12 @@
 #include <qb.h>
 #include <qbutils.h>
 
-#include "commons.h"
-
 namespace Ui
 {
     class ImageDisplay;
 }
 
-class COMMONSSHARED_EXPORT ImageDisplay: public QWidget
+class ImageDisplay: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QbPacket image READ image WRITE setImage RESET resetImage)

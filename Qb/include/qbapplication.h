@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef QBAPPLICATION_H
@@ -32,9 +32,11 @@ class QbApplication: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QStringList pluginsPaths READ pluginsPaths
-                                        WRITE setPluginsPaths
-                                        RESET resetPluginsPaths)
+    Q_PROPERTY(QStringList pluginsPaths
+               READ pluginsPaths
+               WRITE setPluginsPaths
+               RESET resetPluginsPaths
+               NOTIFY pluginsPathsChanged)
 
     public:
         explicit QbApplication(QObject *parent=NULL);
@@ -54,6 +56,9 @@ class QbApplication: public QObject
         bool isLoaded(const QString &pluginId);
         bool load(const QString &pluginId);
         bool unload(const QString &pluginId);
+
+    signals:
+        void pluginsPathsChanged();
 
     public slots:
         void setPluginsPaths(const QStringList &pluginsPaths);

@@ -16,7 +16,7 @@
  *
  * Email     : hipersayan DOT x AT gmail DOT com
  * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://kde-apps.org/content/show.php/Webcamoid?content=144796
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
 #ifndef FACEDETECT_H
@@ -28,10 +28,7 @@ class FaceDetect: public QObject, public QbPlugin
 {
     Q_OBJECT
     Q_INTERFACES(QbPlugin)
-
-#if QT_VERSION >= 0x050000
     Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
-#endif // QT_VERSION >= 0x050000
 
     public:
         QObject *create(const QString &key, const QString &specification);
