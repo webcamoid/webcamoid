@@ -1,3 +1,6 @@
 {
-    "Keys" : [ ]
+    "type": "VideoFilter",
+    "description": "Aging",
+    "hasConfig": false,
+    "hasUserland": true
 }

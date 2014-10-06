@@ -44,17 +44,17 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
 
 #ifdef QT_DEBUG
     QDir pluginsDir("Qb/Plugins");
-    QStringList pluginsPaths = Qb::pluginsPaths();
+    QStringList pluginsPaths = QbElement::searchPaths();
 
     foreach (QString pluginPath, pluginsDir.entryList(QDir::Dirs |
                                                       QDir::NoDotAndDotDot,
                                                       QDir::Name))
         pluginsPaths << pluginsDir.absoluteFilePath(pluginPath);
 
-    Qb::setPluginsPaths(pluginsPaths);
+    QbElement::setSearchPaths(pluginsPaths);
 #endif
 
-    this->m_pipeline = Qb::create("Bin", "pipeline");
+    this->m_pipeline = QbElement::create("Bin", "pipeline");
 
     if (this->m_pipeline) {
         QString description("MultiSrc objectName='source' loop=true "
@@ -93,10 +93,10 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "DirectConnection? videoMux.");
 
         this->m_pipeline->setProperty("description", description);
-        this->m_effectsPreview = Qb::create("Bin", "effectPreview");
+        this->m_effectsPreview = QbElement::create("Bin", "effectPreview");
         this->m_effectsPreview->setProperty("blocking", true);
 
-        this->m_applyPreview = Qb::create("VCapsConvert", "applyPreview");
+        this->m_applyPreview = QbElement::create("VCapsConvert", "applyPreview");
         this->m_applyPreview->setProperty("caps", "video/x-raw,format=bgra,width=128,height=96");
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
@@ -390,23 +390,6 @@ QString MediaTools::bestRecordFormatOptions(const QString &fileName) const
                 return format[1];
 
     return "";
-}
-
-QString MediaTools::hashFromName(QString name)
-{
-    return QString("x") + name.toUtf8().toHex();
-}
-
-QString MediaTools::nameFromHash(QString hash)
-{
-    return QByteArray::fromHex(hash.mid(1).toUtf8());
-}
-
-void MediaTools::deleteThread(QThread *thread)
-{
-    thread->quit();
-    thread->wait();
-    delete thread;
 }
 
 void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)

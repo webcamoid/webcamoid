@@ -23,11 +23,6 @@
 #define QBPLUGIN_H
 
 #include <QtPlugin>
-#include <QSharedPointer>
-
-class QbPlugin;
-
-typedef QSharedPointer<QbPlugin> QbPluginPtr;
 
 class QbPlugin
 {

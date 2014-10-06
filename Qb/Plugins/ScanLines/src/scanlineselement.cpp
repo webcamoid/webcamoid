@@ -23,7 +23,7 @@
 
 ScanLinesElement::ScanLinesElement(): QbElement()
 {
-    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
     qRegisterMetaType<QRgb>("QRgb");

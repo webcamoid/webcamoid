@@ -23,8 +23,6 @@
 #define QBELEMENT_H
 
 #include <QStringList>
-#include <QRegExp>
-#include <QMetaMethod>
 
 #include "qbpacket.h"
 
@@ -35,7 +33,6 @@
     return packet; \
 }
 
-class QbApplication;
 class QbElement;
 
 typedef QSharedPointer<QbElement> QbElementPtr;
@@ -50,14 +47,6 @@ class QbElement: public QObject
                WRITE setState
                RESET resetState
                NOTIFY stateChanged)
-    Q_PROPERTY(QList<QbElement *> srcs
-               READ srcs
-               WRITE setSrcs
-               RESET resetSrcs)
-    Q_PROPERTY(QList<QbElement *> sinks
-               READ sinks
-               WRITE setSinks
-               RESET resetSinks)
 
     public:
         enum ElementState
@@ -71,8 +60,6 @@ class QbElement: public QObject
         virtual ~QbElement();
 
         Q_INVOKABLE virtual QbElement::ElementState state();
-        Q_INVOKABLE virtual QList<QbElement *> srcs();
-        Q_INVOKABLE virtual QList<QbElement *> sinks();
 
         Q_INVOKABLE virtual bool link(QObject *dstElement,
                                       Qt::ConnectionType connectionType=Qt::AutoConnection);
@@ -91,18 +78,18 @@ class QbElement: public QObject
 
         Q_INVOKABLE static bool unlink(QbElementPtr srcElement, QObject *dstElement);
         Q_INVOKABLE static bool unlink(QbElementPtr srcElement, QbElementPtr dstElement);
+        Q_INVOKABLE static QbElementPtr create(const QString &pluginId, const QString &elementName="");
+        Q_INVOKABLE static QStringList searchPaths();
+        Q_INVOKABLE static void addSearchPath(const QString &path);
+        Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
+        Q_INVOKABLE static void resetSearchPaths();
 
     protected:
         QbElement::ElementState m_state;
-        QList<QbElement *> m_srcs;
-        QList<QbElement *> m_sinks;
 
         virtual void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
-        QString m_pluginId;
-        QObject *m_application;
-
         QList<QMetaMethod> methodsByName(QObject *object, QString methodName);
         bool methodCompat(QMetaMethod method1, QMetaMethod method2);
 
@@ -113,13 +100,7 @@ class QbElement: public QObject
     public slots:
         virtual QbPacket iStream(const QbPacket &packet);
         virtual void setState(QbElement::ElementState state);
-        virtual void setSrcs(QList<QbElement *> srcs);
-        virtual void setSinks(QList<QbElement *> sinks);
         virtual void resetState();
-        virtual void resetSrcs();
-        virtual void resetSinks();
-
-    friend class QbApplication;
 };
 
 Q_DECLARE_METATYPE(QbElement::ElementState)

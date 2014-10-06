@@ -23,7 +23,7 @@
 
 ScrollElement::ScrollElement(): QbElement()
 {
-    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
     this->m_offset = 0;

@@ -20,9 +20,6 @@
  */
 
 #include "qb.h"
-#include "qbapplication.h"
-
-Q_GLOBAL_STATIC(QbApplication, application)
 
 void Qb::init()
 {
@@ -31,35 +28,7 @@ void Qb::init()
     qRegisterMetaType<QbElement::ElementState>("ElementState");
     qRegisterMetaType<QbFrac>("QbFrac");
     qRegisterMetaType<QbPacket>("QbPacket");
-
-    application()->setPluginsPaths(QStringList()
-                                << QString("%1/%2").arg(LIBDIR)
-                                                   .arg(COMMONS_TARGET));
-}
-
-QStringList Qb::pluginsPaths()
-{
-    return application()->pluginsPaths();
-}
-
-QbElementPtr Qb::create(const QString &pluginId, const QString &elementName)
-{
-    QbElementPtr element = application()->newInstance(pluginId);
-
-    if (element && !elementName.isEmpty())
-        element->setObjectName(elementName);
-
-    return element;
-}
-
-void Qb::setPluginsPaths(const QStringList &pluginsPaths)
-{
-    application()->setPluginsPaths(pluginsPaths);
-}
-
-void Qb::resetPluginsPaths()
-{
-    application()->resetPluginsPaths();
+    qRegisterMetaType<QbElementPtr>("QbElementPtr");
 }
 
 qint64 Qb::id()

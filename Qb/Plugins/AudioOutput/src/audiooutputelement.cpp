@@ -27,7 +27,7 @@ AudioOutputElement::AudioOutputElement(): QbElement()
     this->m_timeDrift = 0;
     this->m_streamId = -1;
     this->m_audioDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
-    this->m_convert = Qb::create("ACapsConvert");
+    this->m_convert = QbElement::create("ACapsConvert");
     this->resetBufferSize();
 
     QObject::connect(this,

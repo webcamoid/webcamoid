@@ -19,25 +19,27 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QRegExp>
+#include <QMetaMethod>
+#include <QPluginLoader>
+#include <QDir>
+#include <QFileInfo>
+
 #include "qb.h"
+
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
+                          pluginsSearchPaths,
+                          (QString("%1/%2").arg(LIBDIR)
+                                           .arg(COMMONS_TARGET)))
 
 QbElement::QbElement(QObject *parent): QObject(parent)
 {
-    this->m_application = NULL;
     this->m_state = ElementStateNull;
-
-    this->resetSrcs();
-    this->resetSinks();
 }
 
 QbElement::~QbElement()
 {
     this->setState(QbElement::ElementStateNull);
-
-    if (this->m_application)
-        QMetaObject::invokeMethod(this->m_application,
-                                  "deleteInstance",
-                                  Q_ARG(QString, this->m_pluginId));
 }
 
 QbElement::ElementState QbElement::state()
@@ -45,15 +47,6 @@ QbElement::ElementState QbElement::state()
     return this->m_state;
 }
 
-QList<QbElement *> QbElement::srcs()
-{
-    return this->m_srcs;
-}
-
-QList<QbElement *> QbElement::sinks()
-{
-    return this->m_sinks;
-}
 bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
 {
     if (!dstElement)
@@ -74,13 +67,7 @@ bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
 
 bool QbElement::link(QbElementPtr dstElement, Qt::ConnectionType connectionType)
 {
-    if (!this->link(static_cast<QObject *>(dstElement.data()), connectionType))
-        return false;
-
-    this->setSinks(this->sinks() << dstElement.data());
-    dstElement->setSrcs(dstElement->srcs() << this);
-
-    return true;
+    return this->link(static_cast<QObject *>(dstElement.data()), connectionType);
 }
 
 bool QbElement::unlink(QObject *dstElement)
@@ -100,18 +87,7 @@ bool QbElement::unlink(QObject *dstElement)
 
 bool QbElement::unlink(QbElementPtr dstElement)
 {
-    if (!this->unlink(static_cast<QObject *>(dstElement.data())))
-        return false;
-
-    QList<QbElement *> sinks = this->m_sinks;
-    sinks.removeOne(dstElement.data());
-    this->setSinks(sinks);
-
-    QList<QbElement *> srcs = dstElement->m_srcs;
-    srcs.removeOne(this);
-    dstElement->setSrcs(srcs);
-
-    return true;
+    return this->unlink(static_cast<QObject *>(dstElement.data()));
 }
 
 bool QbElement::link(QbElementPtr srcElement, QObject *dstElement, Qt::ConnectionType connectionType)
@@ -132,6 +108,70 @@ bool QbElement::unlink(QbElementPtr srcElement, QObject *dstElement)
 bool QbElement::unlink(QbElementPtr srcElement, QbElementPtr dstElement)
 {
     return srcElement->unlink(dstElement);
+}
+
+QbElementPtr QbElement::create(const QString &pluginId, const QString &elementName)
+{
+    QString fileName;
+
+    for (int i = pluginsSearchPaths->length() - 1; i >= 0; i--) {
+        QString path = pluginsSearchPaths->at(i);
+        QString filePath = QString("%1%2lib%3.so").arg(path)
+                                                  .arg(QDir::separator())
+                                                  .arg(pluginId);
+
+        if (QFileInfo(filePath).exists()) {
+            fileName = filePath;
+
+            break;
+        }
+    }
+
+    if (fileName.isEmpty() || !QLibrary::isLibrary(fileName))
+        return QbElementPtr();
+
+    QPluginLoader pluginLoader(fileName);
+
+    if (!pluginLoader.load()) {
+        qDebug() << pluginLoader.errorString();
+
+        return QbElementPtr();
+    }
+
+    QbPlugin *plugin = qobject_cast<QbPlugin *>(pluginLoader.instance());
+    QbElement *element = qobject_cast<QbElement *>(plugin->create("", ""));
+    delete plugin;
+
+    if (!element)
+        return QbElementPtr();
+
+    if (!elementName.isEmpty())
+        element->setObjectName(elementName);
+
+    return QbElementPtr(element);
+}
+
+QStringList QbElement::searchPaths()
+{
+    return *pluginsSearchPaths;
+}
+
+void QbElement::addSearchPath(const QString &path)
+{
+    pluginsSearchPaths->insert(0, path);
+}
+
+void QbElement::setSearchPaths(const QStringList &searchPaths)
+{
+    *pluginsSearchPaths = searchPaths;
+}
+
+void QbElement::resetSearchPaths()
+{
+    pluginsSearchPaths->clear();
+
+    *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR)
+                                           .arg(COMMONS_TARGET);
 }
 
 void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
@@ -208,27 +248,7 @@ void QbElement::setState(QbElement::ElementState state)
     }
 }
 
-void QbElement::setSrcs(QList<QbElement *> srcs)
-{
-    this->m_srcs = srcs;
-}
-
-void QbElement::setSinks(QList<QbElement *> sinks)
-{
-    this->m_sinks = sinks;
-}
-
 void QbElement::resetState()
 {
     this->setState(ElementStateNull);
-}
-
-void QbElement::resetSrcs()
-{
-    this->setSrcs(QList<QbElement *>());
-}
-
-void QbElement::resetSinks()
-{
-    this->setSinks(QList<QbElement *>());
 }

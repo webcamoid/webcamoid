@@ -45,7 +45,6 @@ DEFINES += COMMONS_LIBRARY
 HEADERS = \
     include/qb.h \
     include/qbutils.h \
-    include/qbapplication.h \
     include/qbcaps.h \
     include/qbelement.h \
     include/qbfrac.h \
@@ -60,7 +59,6 @@ QT += core gui
 SOURCES = \
     src/qb.cpp \
     src/qbutils.cpp \
-    src/qbapplication.cpp \
     src/qbcaps.cpp \
     src/qbelement.cpp \
     src/qbfrac.cpp \

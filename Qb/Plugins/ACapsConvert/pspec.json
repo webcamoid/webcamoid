@@ -1,3 +1,5 @@
 {
-    "Keys" : [ ]
+    "type": "AudioFilter",
+    "hasConfig": false,
+    "hasUserland": false
 }

@@ -302,7 +302,7 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
     QbElementPtr filter;
 
     if (inputCaps.mimeType() == "audio/x-raw") {
-        filter = Qb::create("ACapsConvert");
+        filter = QbElement::create("ACapsConvert");
         filter->setProperty("caps", outputCaps.toString());
 
         QObject::connect(filter.data(),
@@ -311,7 +311,7 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
                          SLOT(processAFrame(const QbPacket &)));
     }
     else if (inputCaps.mimeType() == "video/x-raw") {
-        filter = Qb::create("VCapsConvert");
+        filter = QbElement::create("VCapsConvert");
         filter->setProperty("caps", outputCaps.toString());
         filter->setProperty("keepAspectRatio", true);
 

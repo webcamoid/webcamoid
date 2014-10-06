@@ -23,7 +23,7 @@
 
 WarholElement::WarholElement(): QbElement()
 {
-    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
     this->m_colorTable << 0x000080 << 0x008000 << 0x800000

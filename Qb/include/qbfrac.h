@@ -42,6 +42,8 @@ class QbFrac: public QObject
                READ value)
     Q_PROPERTY(bool isValid
                READ isValid)
+    Q_PROPERTY(QString string
+               READ toString)
 
     public:
         explicit QbFrac(QObject *parent=NULL);

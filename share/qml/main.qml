@@ -22,7 +22,6 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Window 2.2
-import QbQml 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
@@ -35,6 +34,10 @@ ApplicationWindow {
 
     property bool showEffectBar: false
 
+    Component.onCompleted: {
+        console.log(Webcamoid.windowSize)
+    }
+
     Image {
         id: imgBackground
         objectName: "WindowBackground"
@@ -45,7 +48,6 @@ ApplicationWindow {
 
 //        source: "image://webcam/image"
     }
-
 /*
     onMousePressed:
     {
@@ -64,100 +66,7 @@ ApplicationWindow {
         objectName: "Effects"
         visible: wdgMainWidget.showEffectBar
     }
-*/
-    Rectangle {
-        id: iconBarRect
-        width: height * nIcons
-        height: 48
-        radius: height / 2
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        opacity: 0.5
 
-        property real nIcons: 7
-
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: Qt.rgba(0.25, 0.25, 0.25, 1)
-            }
-
-            GradientStop {
-                position: 1
-                color: Qt.rgba(0, 0, 0, 1)
-            }
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
-            anchors.top: parent.top
-            hoverEnabled: true
-            onEntered: iconBarRect.opacity = 1
-            onExited: iconBarRect.opacity = 0.5
-
-            Row {
-                id: iconBar
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                anchors.top: parent.top
-                objectName: "IconBar"
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Play")
-                    icon: "qrc:/Webcamoid/share/icons/play.svg"
-                }
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Set a Device")
-                    icon: "qrc:/Webcamoid/share/icons/webcam.svg"
-                }
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Take a Picture")
-                    icon: "qrc:/Webcamoid/share/icons/picture.svg"
-                }
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Record Video")
-                    icon: "qrc:/Webcamoid/share/icons/video.svg"
-                }
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Apply Effects")
-                    icon: "qrc:/Webcamoid/share/icons/effects.svg"
-                }
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("Preferences")
-                    icon: "qrc:/Webcamoid/share/icons/setup.svg"
-                }
-
-                IconBarItem {
-                    width: iconBarRect.height
-                    height: iconBarRect.height
-                    text: qsTr("About")
-                    icon: "qrc:/Webcamoid/share/icons/about.svg"
-                }
-            }
-        }
-    }
-/*
     Devices
     {
         id: webcams
@@ -179,5 +88,118 @@ ApplicationWindow {
         visible: false
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
-    }*/
+    }
+*/
+    SplitView {
+        anchors.fill: parent
+        orientation: Qt.Horizontal
+
+
+        MediaBar {
+            id: mdbMediaBar
+            width: 150
+        }
+
+        Item {
+            width: wdgMainWidget.width - mdbMediaBar.width - itmConfigBar.width
+
+            Rectangle {
+                id: iconBarRect
+                width: height * nIcons
+                height: 48
+                radius: height / 2
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                opacity: 0.5
+
+                property real nIcons: 7
+
+                gradient: Gradient {
+                    GradientStop {
+                        position: 0
+                        color: Qt.rgba(0.25, 0.25, 0.25, 1)
+                    }
+
+                    GradientStop {
+                        position: 1
+                        color: Qt.rgba(0, 0, 0, 1)
+                    }
+                }
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.left: parent.left
+                    anchors.bottom: parent.bottom
+                    anchors.top: parent.top
+                    hoverEnabled: true
+                    onEntered: iconBarRect.opacity = 1
+                    onExited: iconBarRect.opacity = 0.5
+
+                    Row {
+                        id: iconBar
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.left: parent.left
+                        anchors.bottom: parent.bottom
+                        anchors.top: parent.top
+                        objectName: "IconBar"
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("Play")
+                            icon: "qrc:/Webcamoid/share/icons/play.svg"
+                        }
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("Set a Device")
+                            icon: "qrc:/Webcamoid/share/icons/webcam.svg"
+                        }
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("Take a Picture")
+                            icon: "qrc:/Webcamoid/share/icons/picture.svg"
+                        }
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("Record Video")
+                            icon: "qrc:/Webcamoid/share/icons/video.svg"
+                        }
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("Apply Effects")
+                            icon: "qrc:/Webcamoid/share/icons/effects.svg"
+                        }
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("Preferences")
+                            icon: "qrc:/Webcamoid/share/icons/setup.svg"
+                        }
+
+                        IconBarItem {
+                            width: iconBarRect.height
+                            height: iconBarRect.height
+                            text: qsTr("About")
+                            icon: "qrc:/Webcamoid/share/icons/about.svg"
+                        }
+                    }
+                }
+            }
+        }
+
+        Item {
+            id: itmConfigBar
+            width: 150
+        }
+    }
 }

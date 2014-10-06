@@ -23,7 +23,7 @@
 
 AgingElement::AgingElement(): QbElement()
 {
-    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
     this->m_dx << 1 << 1 << 0 << -1 << -1 << -1 << 0 << 1;

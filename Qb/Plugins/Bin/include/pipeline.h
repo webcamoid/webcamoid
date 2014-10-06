@@ -23,6 +23,7 @@
 #define PIPELINE_H
 
 #include <QObject>
+#include <QMetaMethod>
 #include <qb.h>
 
 typedef QMap<QString, QbElementPtr> ElementMap;

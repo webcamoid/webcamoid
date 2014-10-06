@@ -112,11 +112,6 @@ class MediaTools: public QObject
         QSize m_curFrameSize;
         QMutex m_mutex;
 
-        QString hashFromName(QString name="");
-        QString nameFromHash(QString hash="");
-
-        static void deleteThread(QThread *thread);
-
     signals:
         void devicesModified();
         void deviceChanged(const QString &device);

@@ -21,9 +21,11 @@
 
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QTranslator>
 
 //#include "mainwindow.h"
+#include "mediatools.h"
 
 int main(int argc, char *argv[])
 {
@@ -37,10 +39,15 @@ int main(int argc, char *argv[])
     QTranslator translator;
     translator.load(QLocale::system().name(), "qrc:/Webcamoid/share/ts");
     QCoreApplication::installTranslator(&translator);
-
+/***/
+    MediaTools mediaTools;
     QQmlApplicationEngine engine;
-    engine.addImportPath("Qb");
+    engine.rootContext()->setContextProperty("Webcamoid", &mediaTools);
     engine.load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
-
+//*/
+/***
+    MainWindow mainWindow;
+    mainWindow.show();
+//*/
     return app.exec();
 }

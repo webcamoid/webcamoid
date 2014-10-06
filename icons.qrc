@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/Webcamoid">
         <file>share/icons/about.svg</file>
+        <file>share/icons/add.svg</file>
         <file>share/icons/arrow-left.svg</file>
         <file>share/icons/arrow-right.svg</file>
         <file>share/icons/author.svg</file>

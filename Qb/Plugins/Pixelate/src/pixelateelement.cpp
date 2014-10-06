@@ -23,7 +23,7 @@
 
 PixelateElement::PixelateElement(): QbElement()
 {
-    this->m_convert = Qb::create("VCapsConvert");
+    this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
     this->resetBlockSize();

@@ -250,7 +250,7 @@ pipe: element {
     ;
 
 element: TOK_IDENTIFIER {
-             QbElementPtr element = Qb::create(*$1);
+             QbElementPtr element = QbElement::create(*$1);
 
              if (!element)
              {
@@ -268,7 +268,7 @@ element: TOK_IDENTIFIER {
              delete $1;
          }
        | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPAREN {
-             QbElementPtr element = Qb::create(*$1);
+             QbElementPtr element = QbElement::create(*$1);
 
              if (!element)
              {
@@ -293,7 +293,7 @@ element: TOK_IDENTIFIER {
              delete $3;
          }
        | TOK_IDENTIFIER configs {
-             QbElementPtr element = Qb::create(*$1);
+             QbElementPtr element = QbElement::create(*$1);
 
              if (!element)
              {
@@ -320,7 +320,7 @@ element: TOK_IDENTIFIER {
              delete $1;
          }
        | TOK_IDENTIFIER TOK_LEFTPAREN TOK_IDENTIFIER TOK_RIGHTPAREN configs {
-             QbElementPtr element = Qb::create(*$1);
+             QbElementPtr element = QbElement::create(*$1);
 
              if (!element)
              {
