@@ -90,10 +90,14 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
                 maxGray = srcBits[i];
         }
 
-        int diffGray = maxGray - minGray;
+        if (maxGray == minGray)
+            memset(srcBits, minGray, videoArea);
+        else {
+            int diffGray = maxGray - minGray;
 
-        for (int i = 0; i < videoArea; i++)
-            srcBits[i] = 255 * (srcBits[i] - minGray) / diffGray;
+            for (int i = 0; i < videoArea; i++)
+                srcBits[i] = 255 * (srcBits[i] - minGray) / diffGray;
+        }
     }
 
     memset(oFrame.scanLine(0), 0, src.width());

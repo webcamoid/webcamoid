@@ -42,14 +42,14 @@ MainWindow::MainWindow(QWidget *parent):
     this->resize(this->m_mediaTools->windowSize());
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(devicesModified()),
+                     SIGNAL(streamsChanged()),
                      this,
                      SLOT(updateWebcams()));
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(deviceChanged(const QString &)),
+                     SIGNAL(stateChanged()),
                      this,
-                     SLOT(deviceChanged(const QString &)));
+                     SLOT(stateChanged()));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(recordingChanged(bool)),
@@ -68,8 +68,8 @@ MainWindow::MainWindow(QWidget *parent):
 
     this->ui->wdgControls->hide();
 
-    foreach (QStringList webcam, this->m_mediaTools->captureDevices())
-        this->ui->cbxSetWebcam->addItem(webcam.at(1));
+    foreach (QString stream, this->m_mediaTools->streams())
+        this->ui->cbxSetWebcam->addItem(this->m_mediaTools->streamDescription(stream));
 }
 
 void MainWindow::showConfigDialog(ConfigDialog *configDialog)
@@ -277,7 +277,7 @@ void MainWindow::addGeneralConfigsDialog(ConfigDialog *configDialog)
 
 void MainWindow::showFrame(const QbPacket &webcamFrame)
 {
-    if (!this->m_mediaTools->device().isEmpty()) {
+    if (!this->m_mediaTools->curStream().isEmpty()) {
         this->m_webcamFrame = webcamFrame;
 
         this->m_imageDispay->setImage(this->m_webcamFrame);
@@ -286,35 +286,35 @@ void MainWindow::showFrame(const QbPacket &webcamFrame)
 
 void MainWindow::updateWebcams()
 {
-    QString oldDevice = this->m_mediaTools->device();
-    bool timerIsActive = !this->m_mediaTools->device().isEmpty();
-    this->m_mediaTools->resetDevice();
+    QString oldDevice = this->m_mediaTools->curStream();
+    bool timerIsActive = !this->m_mediaTools->curStream().isEmpty();
+    this->m_mediaTools->resetCurStream();
     this->ui->cbxSetWebcam->clear();
-    QList<QStringList> webcams = this->m_mediaTools->captureDevices();
     QStringList devices;
 
-    foreach (QStringList webcam, webcams) {
-        devices << webcam.at(0);
-        this->ui->cbxSetWebcam->addItem(webcam.at(1));
+    foreach (QString stream, this->m_mediaTools->streams()) {
+        devices << stream;
+        QString description = this->m_mediaTools->streamDescription(stream);
+        this->ui->cbxSetWebcam->addItem(description);
     }
 
     if (devices.contains(oldDevice) && timerIsActive)
-        this->m_mediaTools->setDevice(oldDevice);
+        this->m_mediaTools->setCurStream(oldDevice);
 }
 
-void MainWindow::deviceChanged(const QString &device)
+void MainWindow::stateChanged()
 {
-    if (device.isEmpty()) {
+    if (this->m_mediaTools->isPlaying()) {
+        this->ui->btnTakePhoto->setEnabled(true);
+        this->ui->btnVideoRecord->setEnabled(true);
+        this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
+    }
+    else {
         this->ui->btnTakePhoto->setEnabled(false);
         this->ui->btnVideoRecord->setEnabled(false);
         this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-start"));
         this->m_webcamFrame = QbPacket();
         this->m_imageDispay->setImage(this->m_webcamFrame);
-    }
-    else {
-        this->ui->btnTakePhoto->setEnabled(true);
-        this->ui->btnVideoRecord->setEnabled(true);
-        this->ui->btnStartStop->setIcon(QIcon::fromTheme("media-playback-stop"));
     }
 }
 
@@ -376,17 +376,21 @@ void MainWindow::on_btnVideoRecord_clicked()
 
 void MainWindow::on_cbxSetWebcam_currentIndexChanged(int index)
 {
-    if (!this->m_mediaTools->device().isEmpty())
-        this->m_mediaTools->setDevice(this->m_mediaTools->captureDevices().at(index).at(0));
+    QStringList streams = this->m_mediaTools->streams();
+
+    if (streams.isEmpty())
+        return;
+
+    index = qBound(0, index, streams.size() - 1);
+    this->m_mediaTools->setCurStream(streams[index]);
 }
 
 void MainWindow::on_btnStartStop_clicked()
 {
-    if (!this->m_mediaTools->device().isEmpty())
-        this->m_mediaTools->resetDevice();
+    if (this->m_mediaTools->isPlaying())
+        this->m_mediaTools->stop();
     else
-        this->m_mediaTools->setDevice(this->m_mediaTools->
-                                      captureDevices().at(this->ui->cbxSetWebcam->currentIndex()).at(0));
+        this->m_mediaTools->start();
 }
 
 void MainWindow::on_btnConfigure_clicked()

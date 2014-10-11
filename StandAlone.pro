@@ -38,6 +38,13 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
+compiletr.input = TRANSLATIONS
+compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+compiletr.CONFIG += no_link
+QMAKE_EXTRA_COMPILERS += compiletr
+PRE_TARGETDEPS += compiler_compiletr_make_all
+
 CONFIG += qt
 
 FORMS = \
@@ -96,20 +103,7 @@ SOURCES = \
     src/about.cpp \
     src/configdialog.cpp
 
-TRANSLATIONS = \
-    share/ts/ca.qm \
-    share/ts/de.qm \
-    share/ts/el.qm \
-    share/ts/es.qm \
-    share/ts/fr.qm \
-    share/ts/gl.qm \
-    share/ts/it.qm \
-    share/ts/ja.qm \
-    share/ts/ko.qm \
-    share/ts/pt.qm \
-    share/ts/ru.qm \
-    share/ts/zh_CN.qm \
-    share/ts/zh_TW.qm
+TRANSLATIONS = $$files(share/ts/*.ts)
 
 DESTDIR = $${PWD}
 

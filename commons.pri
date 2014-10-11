@@ -21,8 +21,8 @@
 isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_APPNAME = "Webcamoid"
     COMMONS_TARGET = $$replace(COMMONS_APPNAME, W, w)
-    VER_MAJ = 5
-    VER_MIN = 1
+    VER_MAJ = 6
+    VER_MIN = 0
     VER_PAT = 0
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
     COMMONS_PROJECT_URL = "http://github.com/hipersayanX/Webcamoid"
@@ -30,20 +30,10 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2014  Gonzalo Exequiel Pedone"
 
     isEmpty(BUILDDOCS): BUILDDOCS = 0
+    isEmpty(QDOCTOOL): QDOCTOOL = $$[QT_INSTALL_BINS]/qdoc
+    isEmpty(QMAKE_LRELEASE): QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 
-    isEmpty(QDOCTOOL) {
-        greaterThan(QT_MAJOR_VERSION, 4): QDOCTOOL = qdoc -qt=5
-        lessThan(QT_MAJOR_VERSION, 5): QDOCTOOL = qdoc3 -qt=4
-    }
-
-    isEmpty(QMAKE_LRELEASE) {
-        win32: QMAKE_LRELEASE = $$[QT_INSTALL_LIBS]/qt/bin/lrelease
-        else: QMAKE_LRELEASE = lrelease -qt=5
-    }
-
-    unix: isEmpty(PREFIX): PREFIX = /usr
-    win32: isEmpty(PREFIX): PREFIX = "C:/Program Files/$${COMMONS_APPNAME}"
-
+    isEmpty(PREFIX): PREFIX = /usr
     isEmpty(EXECPREFIX): EXECPREFIX = $${PREFIX}
     isEmpty(BINDIR): BINDIR = $${EXECPREFIX}/bin
     isEmpty(SBINDIR): SBINDIR = $${EXECPREFIX}/sbin

@@ -32,8 +32,8 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
     this->m_resetting = false;
 
-    foreach (QStringList captureDevice, this->m_mediaTools->captureDevices()) {
-        if (!QRegExp("/dev/video\\d+").exactMatch(captureDevice[0]))
+    foreach (QString stream, this->m_mediaTools->streams()) {
+        if (!this->m_mediaTools->isCamera(stream))
             continue;
 
         QWidget *page = new QWidget();
@@ -45,8 +45,8 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
         lblVideoFormat->setText(this->tr("Video Format"));
         gridLayout->addWidget(lblVideoFormat, cindex, 0, 1, 1);
 
-        this->m_videoSizes[captureDevice[0]] = \
-             this->m_mediaTools->videoSizes(captureDevice[0]);
+        this->m_videoSizes[stream] = \
+             this->m_mediaTools->videoSizes(stream);
 
         QWidget *wdgVideoFormat = new QWidget(page);
 
@@ -56,18 +56,18 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
         QHBoxLayout *hlyVideoFormat = new QHBoxLayout(wdgVideoFormat);
 
         QComboBox *cbxVideoFormat = new QComboBox(wdgVideoFormat);
-        cbxVideoFormat->setProperty("deviceName", captureDevice[0]);
+        cbxVideoFormat->setProperty("deviceName", stream);
         cbxVideoFormat->setProperty("controlName", "");
         cbxVideoFormat->setProperty("controlDefaultValue", 0);
         cbxVideoFormat->setProperty("deviceOption", "videoFormat");
 
-        foreach (QVariant videoSize, this->m_videoSizes[captureDevice[0]].toList())
+        foreach (QVariant videoSize, this->m_videoSizes[stream].toList())
             cbxVideoFormat->addItem(QString("%1x%2").arg(videoSize.toSize().width())
                                                     .arg(videoSize.toSize().height()));
 
-        QSize currentVideoSize = this->m_mediaTools->videoSize(captureDevice[0]);
+        QSize currentVideoSize = this->m_mediaTools->videoSize(stream);
 
-        cbxVideoFormat->setCurrentIndex(this->m_videoSizes[captureDevice[0]]
+        cbxVideoFormat->setCurrentIndex(this->m_videoSizes[stream]
                                             .toList()
                                             .indexOf(currentVideoSize));
 
@@ -88,7 +88,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
         gridLayout->addWidget(wdgVideoFormat, cindex, 1, 1, 1);
 
         QPushButton *btnResetDevice = new QPushButton(page);
-        btnResetDevice->setProperty("deviceName", captureDevice[0]);
+        btnResetDevice->setProperty("deviceName", stream);
         btnResetDevice->setProperty("controlName", "");
         btnResetDevice->setProperty("deviceOption", "resetDevice");
         btnResetDevice->setText(this->tr("Reset"));
@@ -102,7 +102,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
 
         cindex = 1;
 
-        foreach (QVariant control, this->m_mediaTools->listImageControls(captureDevice[0])) {
+        foreach (QVariant control, this->m_mediaTools->listImageControls(stream)) {
             if (control.toList()[1].toString() == "integer" ||
                 control.toList()[1].toString() == "integer64") {
                 QLabel *lblControl = new QLabel(page);
@@ -110,7 +110,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                 gridLayout->addWidget(lblControl, cindex, 0, 1, 1);
 
                 QSlider *sldControl = new QSlider(page);
-                sldControl->setProperty("deviceName", captureDevice[0]);
+                sldControl->setProperty("deviceName", stream);
                 sldControl->setProperty("controlName", control.toList()[0].toString());
                 sldControl->setProperty("controlDefaultValue", control.toList()[5].toInt());
                 sldControl->setOrientation(Qt::Horizontal);
@@ -126,7 +126,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                 gridLayout->addWidget(sldControl, cindex, 1, 1, 1);
 
                 QSpinBox *spbControl = new QSpinBox(page);
-                spbControl->setProperty("deviceName", captureDevice[0]);
+                spbControl->setProperty("deviceName", stream);
                 spbControl->setProperty("controlName", control.toList()[0].toString());
                 spbControl->setProperty("controlDefaultValue", control.toList()[5].toInt());
                 spbControl->setRange(control.toList()[2].toInt(), control.toList()[3].toInt());
@@ -152,7 +152,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
             }
             else if (control.toList()[1].toString() == "boolean") {
                 QCheckBox *chkControl = new QCheckBox(page);
-                chkControl->setProperty("deviceName", captureDevice[0]);
+                chkControl->setProperty("deviceName", stream);
                 chkControl->setProperty("controlName", control.toList()[0]);
                 chkControl->setProperty("controlDefaultValue", control.toList()[5]);
                 chkControl->setText(control.toList()[0].toString());
@@ -178,7 +178,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                 QHBoxLayout *hlyControl = new QHBoxLayout(wdgControl);
 
                 QComboBox *cbxControl = new QComboBox(wdgControl);
-                cbxControl->setProperty("deviceName", captureDevice[0]);
+                cbxControl->setProperty("deviceName", stream);
                 cbxControl->setProperty("controlName", control.toList()[0]);
                 cbxControl->setProperty("controlDefaultValue", control.toList()[5]);
                 cbxControl->addItems(control.toList()[7].toStringList());
@@ -211,7 +211,7 @@ CameraConfig::CameraConfig(MediaTools *mediaTools, QWidget *parent):
                                                   QSizePolicy::MinimumExpanding);
 
         this->ui->gridLayout->addItem(spacerItem, cindex, 0, 1, 1);
-        this->ui->tabWebcams->addTab(page, captureDevice[1]);
+        this->ui->tabWebcams->addTab(page, this->m_mediaTools->streamDescription(stream));
     }
 
     this->ui->tabWebcams->setCurrentIndex(0);

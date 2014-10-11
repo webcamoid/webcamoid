@@ -24,8 +24,8 @@
 #include <QQmlContext>
 #include <QTranslator>
 
-//#include "mainwindow.h"
-#include "mediatools.h"
+#include "mainwindow.h"
+//#include "mediatools.h"
 
 int main(int argc, char *argv[])
 {

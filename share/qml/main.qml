@@ -20,22 +20,21 @@
  */
 
 import QtQuick 2.3
-import QtQuick.Controls 1.2
 import QtQuick.Window 2.2
+import QtQuick.Controls 1.2
 
 ApplicationWindow {
     id: wdgMainWidget
     visible: true
     x: (Screen.desktopAvailableWidth - width) / 2
     y: (Screen.desktopAvailableHeight - height) / 2
-    width: 640
+    width: 800
     height: 480
     color: Qt.rgba(0, 0, 0, 1)
 
     property bool showEffectBar: false
 
     Component.onCompleted: {
-        console.log(Webcamoid.windowSize)
     }
 
     Image {
@@ -48,56 +47,14 @@ ApplicationWindow {
 
 //        source: "image://webcam/image"
     }
-/*
-    onMousePressed:
-    {
-        webcams.visible = false
-        about.visible = false
-    }
 
-    Effects
-    {
-        id: cdbEffects
-        opacity: 0.95
-        anchors.bottom: iconbar.top
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: parent.top
-        objectName: "Effects"
-        visible: wdgMainWidget.showEffectBar
-    }
-
-    Devices
-    {
-        id: webcams
-        anchors.bottomMargin: 5
-        anchors.rightMargin: -(webcams.width + iconbar.iconSize) / 2
-        anchors.right: iconbar.left
-        objectName: "Devices"
-        opacity: 0.95
-        visible: false
-        anchors.bottom: iconbar.top
-        onEscapePressed: visible = false
-        onActiveDevicesChanged: cdbEffects.activeDevices = webcams.activeDevices
-        onDevicesChanged: cdbEffects.devices = webcams.devices
-    }
-
-    About
-    {
-        id: about
-        visible: false
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
-    }
-*/
     SplitView {
         anchors.fill: parent
         orientation: Qt.Horizontal
 
-
         MediaBar {
             id: mdbMediaBar
-            width: 150
+            width: 200
         }
 
         Item {
@@ -199,7 +156,53 @@ ApplicationWindow {
 
         Item {
             id: itmConfigBar
-            width: 150
+            width: 200
+
+            MediaConfig {
+                anchors.fill: parent
+            }
         }
     }
+/*
+    onMousePressed:
+    {
+        webcams.visible = false
+        about.visible = false
+    }
+
+    Effects
+    {
+        id: cdbEffects
+        opacity: 0.95
+        anchors.bottom: iconbar.top
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.top: parent.top
+        objectName: "Effects"
+        visible: wdgMainWidget.showEffectBar
+    }
+
+    Devices
+    {
+        id: webcams
+        anchors.bottomMargin: 5
+        anchors.rightMargin: -(webcams.width + iconbar.iconSize) / 2
+        anchors.right: iconbar.left
+        objectName: "Devices"
+        opacity: 0.95
+        visible: false
+        anchors.bottom: iconbar.top
+        onEscapePressed: visible = false
+        onActiveDevicesChanged: cdbEffects.activeDevices = webcams.activeDevices
+        onDevicesChanged: cdbEffects.devices = webcams.devices
+    }
+
+    About
+    {
+        id: about
+        visible: false
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+    }
+*/
 }

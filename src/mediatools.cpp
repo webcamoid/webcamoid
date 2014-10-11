@@ -25,12 +25,7 @@
 
 MediaTools::MediaTools(QObject *parent): QObject(parent)
 {
-    QObject::connect(QCoreApplication::instance(),
-                     SIGNAL(aboutToQuit()),
-                     this,
-                     SLOT(aboutToQuit()));
-
-    this->resetDevice();
+    this->resetCurStream();
     this->resetVideoSize("");
     this->resetEffectsPreview();
     this->resetPlayAudioFromSource();
@@ -155,7 +150,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
             QObject::connect(this->m_source.data(),
                              SIGNAL(stateChanged(QbElement::ElementState)),
                              this,
-                             SLOT(sourceStateChanged(QbElement::ElementState)));
+                             SIGNAL(stateChanged()));
         }
 
         if (this->m_videoCapture) {
@@ -167,7 +162,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
             QObject::connect(this->m_videoCapture.data(),
                              SIGNAL(stateChanged(QbElement::ElementState)),
                              this,
-                             SLOT(sourceStateChanged(QbElement::ElementState)));
+                             SIGNAL(stateChanged()));
         }
 
         this->m_effectsPreview->link(this);
@@ -188,7 +183,7 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
 
 MediaTools::~MediaTools()
 {
-    this->resetDevice();
+    this->resetCurStream();
     this->saveConfigs();
 }
 
@@ -210,34 +205,15 @@ void MediaTools::iStream(const QbPacket &packet)
         emit this->applyPreviewReady(packet);
 }
 
-void MediaTools::sourceStateChanged(QbElement::ElementState state)
+QString MediaTools::curStream() const
 {
-    if (state == QbElement::ElementStateNull) {
-        emit this->deviceChanged("");
-
-        return;
-    }
-
-    emit this->deviceChanged(this->device());
-}
-
-QString MediaTools::device() const
-{
-    QString device;
-
-    if (this->m_source)
-        device = this->m_source->property("location").toString();
-
-    if (device.isEmpty() && this->m_videoCapture)
-        device = this->m_videoCapture->property("device").toString();
-
-    return device;
+    return this->m_curStream;
 }
 
 QSize MediaTools::videoSize(const QString &device)
 {
     QSize size;
-    QString webcam = device.isEmpty()? this->device(): device;
+    QString webcam = device.isEmpty()? this->m_curStream: device;
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
                               "size", Qt::DirectConnection,
@@ -267,14 +243,62 @@ QList<QStringList> MediaTools::videoRecordFormats() const
     return this->m_videoRecordFormats;
 }
 
-QList<QStringList> MediaTools::streams() const
+QStringList MediaTools::streams() const
 {
-    return this->m_streams;
+    QStringList streams;
+
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                              "webcams",
+                              Q_RETURN_ARG(QStringList, streams));
+
+    streams << ":0.0";
+
+    return streams + this->m_streams.keys();
 }
 
 QSize MediaTools::windowSize() const
 {
     return this->m_windowSize;
+}
+
+QString MediaTools::streamDescription(const QString &stream) const
+{
+    QString description;
+
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                              "description",
+                              Q_RETURN_ARG(QString, description),
+                              Q_ARG(QString, stream));
+
+    if (!description.isEmpty())
+        return description;
+
+    if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(stream))
+        return this->tr("Desktop") + " " + stream;
+
+    if (this->m_streams.contains(stream))
+        return this->m_streams[stream];
+
+    return "";
+}
+
+bool MediaTools::canModify(const QString &stream) const
+{
+    if (this->m_streams.contains(stream))
+        return true;
+
+    return false;
+}
+
+bool MediaTools::isCamera(const QString &stream) const
+{
+    QStringList webcams;
+
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                              "webcams",
+                              Q_RETURN_ARG(QStringList, webcams));
+
+    return webcams.contains(stream);
 }
 
 QVariantList MediaTools::videoSizes(const QString &device)
@@ -287,41 +311,6 @@ QVariantList MediaTools::videoSizes(const QString &device)
                               Q_ARG(QString, device));
 
     return sizes;
-}
-
-QList<QStringList> MediaTools::captureDevices()
-{
-    QStringList webcams;
-
-    QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                              "webcams", Qt::DirectConnection,
-                              Q_RETURN_ARG(QStringList, webcams));
-
-    QList<QStringList> webcamsDevices;
-
-    foreach (QString webcam, webcams) {
-        QString description;
-
-        QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                                  "description", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, webcam));
-
-        QStringList cap;
-
-        cap << webcam << description;
-        webcamsDevices << cap;
-    }
-
-    QStringList desktopDevice;
-
-    desktopDevice << ":0.0" << this->tr("Desktop");
-
-    QList<QStringList> allDevices = webcamsDevices +
-                                    this->m_streams +
-                                    QList<QStringList>() << desktopDevice;
-
-    return allDevices;
 }
 
 QVariantList MediaTools::listImageControls(const QString &device)
@@ -390,6 +379,26 @@ QString MediaTools::bestRecordFormatOptions(const QString &fileName) const
                 return format[1];
 
     return "";
+}
+
+bool MediaTools::isPlaying()
+{
+    if (this->m_source
+        && this->m_source->state() != QbElement::ElementStateNull)
+        return true;
+
+    if (this->m_videoCapture
+        && this->m_videoCapture->state() != QbElement::ElementStateNull)
+        return true;
+
+    return false;
+}
+
+QString MediaTools::fileNameFromUri(const QString &uri) const
+{
+    QFileInfo fileInfo(uri);
+
+    return fileInfo.baseName();
 }
 
 void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
@@ -525,147 +534,180 @@ void MediaTools::mutexUnlock()
     this->m_mutex.unlock();
 }
 
-void MediaTools::setDevice(const QString &device)
+bool MediaTools::start()
+{
+    if (this->m_curStream.isEmpty()
+        || !this->m_source
+        || !this->m_videoCapture)
+        return false;
+
+    bool isCamera = this->isCamera(this->m_curStream);
+
+    // Find the defaults audio and video streams.
+    int videoStream = -1;
+    int audioStream = -1;
+
+    if (isCamera)
+        videoStream = 0;
+    else {
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, videoStream),
+                                  Q_ARG(QString, "video/x-raw"));
+
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, audioStream),
+                                  Q_ARG(QString, "audio/x-raw"));
+    }
+
+    QList<int> streams;
+
+    if (videoStream >= 0)
+        streams << videoStream;
+
+    if (audioStream >= 0)
+        streams << audioStream;
+
+    // Only decode the default streams.
+    if (isCamera)
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "setFilterStreams", Qt::DirectConnection,
+                                  Q_ARG(QList<int>, streams));
+
+    // Now setup the recording streams caps.
+    QVariantMap streamCaps;
+
+    if (isCamera) {
+        QString videoCaps;
+
+        QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                                  "caps", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QString, videoCaps));
+
+        streamCaps["0"] = videoCaps;
+    }
+    else
+        QMetaObject::invokeMethod(this->m_source.data(),
+                                  "streamCaps", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QVariantMap, streamCaps));
+
+    QVariantMap recordStreams;
+
+    // Stream 0 = Video.
+    if (videoStream >= 0)
+        recordStreams["0"] = streamCaps[QString("%1").arg(videoStream)];
+
+    // Stream 1 = Audio.
+    if (this->recordAudioFrom() == RecordFromMic) {
+        QString audioCaps;
+
+        QMetaObject::invokeMethod(this->m_mic.data(),
+                                  "streamCaps", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QString, audioCaps));
+
+        recordStreams["1"] = audioCaps;
+    }
+    else if (this->recordAudioFrom() == RecordFromSource &&
+             audioStream >= 0)
+        recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
+
+    // Set recording caps.
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "setStreamCaps", Qt::DirectConnection,
+                              Q_ARG(QVariantMap, recordStreams));
+
+    bool r = this->startStream();
+    emit this->stateChanged();
+
+    return r;
+}
+
+void MediaTools::stop()
 {
     // Clear previous device.
     this->resetRecording();
     this->resetEffectsPreview();
-
-    if (this->m_source) {
-        this->m_source->setState(QbElement::ElementStateNull);
-        this->m_source->setProperty("location", "");
-    }
-
-    if (this->m_videoCapture) {
-        this->m_videoCapture->setState(QbElement::ElementStateNull);
-        this->m_videoCapture->setProperty("device", "");
-    }
-
-    // Prepare the device.
-    if (!device.isEmpty()) {
-        if (!this->m_source || !this->m_videoCapture)
-            return;
-
-        bool isWebcam = QRegExp("/dev/video\\d*").exactMatch(device);
-
-        // Set device.
-        if (isWebcam) {
-            if (this->m_source)
-                this->m_source->setState(QbElement::ElementStateNull);
-
-            this->m_videoCapture->setProperty("device", device);
-        }
-        else {
-            if (this->m_videoCapture)
-                this->m_videoCapture->setState(QbElement::ElementStateNull);
-
-            this->m_source->setProperty("location", device);
-        }
-
-        // Find the defaults audio and video streams.
-        int videoStream = -1;
-        int audioStream = -1;
-
-        if (isWebcam)
-            videoStream = 0;
-        else {
-            QMetaObject::invokeMethod(this->m_source.data(),
-                                      "defaultStream", Qt::DirectConnection,
-                                      Q_RETURN_ARG(int, videoStream),
-                                      Q_ARG(QString, "video/x-raw"));
-
-            QMetaObject::invokeMethod(this->m_source.data(),
-                                      "defaultStream", Qt::DirectConnection,
-                                      Q_RETURN_ARG(int, audioStream),
-                                      Q_ARG(QString, "audio/x-raw"));
-        }
-
-        QList<int> streams;
-
-        if (videoStream >= 0)
-            streams << videoStream;
-
-        if (audioStream >= 0)
-            streams << audioStream;
-
-        // Only decode the default streams.
-        if (isWebcam)
-            QMetaObject::invokeMethod(this->m_source.data(),
-                                      "setFilterStreams", Qt::DirectConnection,
-                                      Q_ARG(QList<int>, streams));
-
-        // Now setup the recording streams caps.
-        QVariantMap streamCaps;
-
-        if (isWebcam) {
-            QString videoCaps;
-
-            QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                                      "caps", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QString, videoCaps));
-
-            streamCaps["0"] = videoCaps;
-        }
-        else
-            QMetaObject::invokeMethod(this->m_source.data(),
-                                      "streamCaps", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QVariantMap, streamCaps));
-
-        QVariantMap recordStreams;
-
-        // Stream 0 = Video.
-        if (videoStream >= 0)
-            recordStreams["0"] = streamCaps[QString("%1").arg(videoStream)];
-
-        // Stream 1 = Audio.
-        if (this->recordAudioFrom() == RecordFromMic) {
-            QString audioCaps;
-
-            QMetaObject::invokeMethod(this->m_mic.data(),
-                                      "streamCaps", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QString, audioCaps));
-
-            recordStreams["1"] = audioCaps;
-        }
-        else if (this->recordAudioFrom() == RecordFromSource &&
-                 audioStream >= 0)
-            recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
-
-        // Set recording caps.
-        QMetaObject::invokeMethod(this->m_record.data(),
-                                  "setStreamCaps", Qt::DirectConnection,
-                                  Q_ARG(QVariantMap, recordStreams));
-
-        // Start capturing.
-        if (isWebcam)
-            QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                                      "setState",
-                                      Q_ARG(QbElement::ElementState, QbElement::ElementStatePlaying));
-        else
-            QMetaObject::invokeMethod(this->m_source.data(),
-                                      "setState",
-                                      Q_ARG(QbElement::ElementState, QbElement::ElementStatePlaying));
-    }
+    this->stopStream();
+    emit this->stateChanged();
 }
 
-void MediaTools::setVideoSize(const QString &device, const QSize &size)
+bool MediaTools::startStream()
 {
-    QString curDevice = this->device();
+    if (this->m_curStream.isEmpty()
+        || !this->m_source
+        || !this->m_videoCapture)
+        return false;
 
-    if (!curDevice.isEmpty() &&
-        (device.isEmpty() || device == curDevice))
-        this->resetDevice();
+    if (this->isCamera(this->m_curStream))
+        this->m_videoCapture->setState(QbElement::ElementStatePlaying);
+    else
+        this->m_source->setState(QbElement::ElementStatePlaying);
 
-    QString webcam = device.isEmpty()? curDevice: device;
+    return true;
+}
+
+void MediaTools::stopStream()
+{
+    if (this->m_source)
+        this->m_source->setState(QbElement::ElementStateNull);
+
+    if (this->m_videoCapture)
+        this->m_videoCapture->setState(QbElement::ElementStateNull);
+}
+
+void MediaTools::setCurStream(const QString &stream)
+{
+    this->m_curStream = stream;
+
+    if (!this->m_source || !this->m_videoCapture) {
+        emit this->curStreamChanged();
+
+        return;
+    }
+
+    bool isPlaying = this->isPlaying();
+
+    if (isPlaying)
+        this->stopStream();
+
+    if (stream.isEmpty()) {
+        emit this->curStreamChanged();
+
+        return;
+    }
+
+    // Set device.
+    if (this->isCamera(stream))
+        this->m_videoCapture->setProperty("device", stream);
+    else
+        this->m_source->setProperty("location", stream);
+
+    if (isPlaying)
+        this->startStream();
+
+    emit this->curStreamChanged();
+}
+
+void MediaTools::setVideoSize(const QString &stream, const QSize &size)
+{
+    bool isPlaying = this->isPlaying();
+
+    if (this->m_curStream == stream
+        || stream.isEmpty())
+        this->stopStream();
+
+    QString camera = stream.isEmpty()? this->m_curStream: stream;
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                              "setSize", Qt::DirectConnection,
-                              Q_ARG(QString, webcam),
+                              "setSize",
+                              Q_ARG(QString, camera),
                               Q_ARG(QSize, size));
 
-    if (!curDevice.isEmpty() &&
-        (device.isEmpty() || device == curDevice))
-        this->setDevice(device.isEmpty()? curDevice: device);
+    if (isPlaying
+        && (stream.isEmpty()
+            || this->m_curStream == stream))
+        this->startStream();
 }
 
 void MediaTools::setEffectsPreview(const QString &effect)
@@ -675,7 +717,7 @@ void MediaTools::setEffectsPreview(const QString &effect)
 
     this->m_effectsPreview->setState(QbElement::ElementStateNull);
 
-    if (!effect.isEmpty() && !this->device().isEmpty()) {
+    if (!effect.isEmpty() && !this->m_curStream.isEmpty()) {
         QString description = QString("IN. ! VCapsConvert "
                                       "caps='video/x-raw,width=%1,height=%2' !"
                                       "%3 !"
@@ -723,44 +765,34 @@ void MediaTools::setVideoRecordFormats(QList<QStringList> videoRecordFormats)
     this->m_videoRecordFormats = videoRecordFormats;
 }
 
-void MediaTools::setStreams(QList<QStringList> streams)
-{
-    this->m_streams = streams;
-
-    emit this->devicesModified();
-}
-
-void MediaTools::setWindowSize(QSize windowSize)
+void MediaTools::setWindowSize(const QSize &windowSize)
 {
     this->m_windowSize = windowSize;
 }
 
-void MediaTools::resetDevice()
+void MediaTools::resetCurStream()
 {
-    this->setDevice("");
+    this->setCurStream("");
 }
 
-void MediaTools::resetVideoSize(const QString &device)
+void MediaTools::resetVideoSize(const QString &stream)
 {
-    QString curDevice = this->device();
-    QbElement::ElementState state = this->m_source?
-                                        this->m_source->state():
-                                        QbElement::ElementStateNull;
+    bool isPlaying = this->isPlaying();
 
-    if (state == QbElement::ElementStatePlaying &&
-        (device.isEmpty() || device == curDevice))
-        this->resetDevice();
+    if (this->m_curStream == stream
+        || stream.isEmpty())
+        this->stopStream();
 
-    QString webcam = device.isEmpty()? curDevice: device;
+    QString camera = stream.isEmpty()? this->m_curStream: stream;
 
-    if (!webcam.isEmpty())
-        QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                                  "resetSize", Qt::DirectConnection,
-                                  Q_ARG(QString, webcam));
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                              "resetSize",
+                              Q_ARG(QString, camera));
 
-    if (state == QbElement::ElementStatePlaying &&
-        (device.isEmpty() || device == curDevice))
-        this->setDevice(device.isEmpty()? curDevice: device);
+    if (isPlaying
+        && (stream.isEmpty()
+            || this->m_curStream == stream))
+        this->startStream();
 }
 
 void MediaTools::resetEffectsPreview()
@@ -786,11 +818,6 @@ void MediaTools::resetRecording()
 void MediaTools::resetVideoRecordFormats()
 {
     this->setVideoRecordFormats(QList<QStringList>());
-}
-
-void MediaTools::resetStreams()
-{
-    this->setStreams(QList<QStringList>());
 }
 
 void MediaTools::resetWindowSize()
@@ -835,7 +862,7 @@ void MediaTools::loadConfigs()
 
     this->setRecordAudioFrom(static_cast<RecordFrom>(recordFrom));
 
-    this->m_windowSize = config.value("windowSize", QSize(320, 240)).toSize();
+    this->m_windowSize = config.value("windowSize", QSize(800, 480)).toSize();
 
     config.endGroup();
 
@@ -878,9 +905,9 @@ void MediaTools::loadConfigs()
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
-        QString devName = config.value("dev").toString();
+        QString stream = config.value("dev").toString();
         QString description = config.value("description").toString();
-        this->setStream(devName, description);
+        this->setStream(stream, description);
     }
 
     config.endArray();
@@ -930,11 +957,13 @@ void MediaTools::saveConfigs()
     config.beginGroup("CustomStreams");
     config.beginWriteArray("streams");
 
-    for (int i = 0; i < this->m_streams.size(); i++) {
+    int i = 0;
+
+    foreach (QString stream, this->m_streams.keys()) {
         config.setArrayIndex(i);
-        QStringList stream = this->m_streams[i];
-        config.setValue("dev", stream[0]);
-        config.setValue("description", stream[1]);
+        config.setValue("dev", stream);
+        config.setValue("description", this->m_streams[stream]);
+        i++;
     }
 
     config.endArray();
@@ -967,12 +996,24 @@ void MediaTools::clearVideoRecordFormats()
     this->m_videoRecordFormats.clear();
 }
 
-void MediaTools::setStream(QString dev_name, QString description)
+void MediaTools::setStream(const QString &stream, const QString &description)
 {
-    this->m_streams << (QStringList() << dev_name
-                                      << description);
+    this->m_streams[stream] = description;
+    emit this->streamsChanged();
+}
 
-    emit this->devicesModified();
+void MediaTools::removeStream(const QString &stream)
+{
+    if (this->m_streams.contains(stream)) {
+        this->m_streams.remove(stream);
+        emit this->streamsChanged();
+    }
+}
+
+void MediaTools::resetStreams()
+{
+    this->m_streams.clear();
+    emit this->streamsChanged();
 }
 
 void MediaTools::setVideoRecordFormat(QString suffix, QString options)
@@ -983,39 +1024,33 @@ void MediaTools::setVideoRecordFormat(QString suffix, QString options)
 
 void MediaTools::cleanAll()
 {
-    this->resetDevice();
+    this->resetCurStream();
     this->saveConfigs();
 }
 
-void MediaTools::aboutToQuit()
+void MediaTools::reset(const QString &stream)
 {
-    this->cleanAll();
-}
+    bool isPlaying = this->isPlaying();
 
-void MediaTools::reset(const QString &device)
-{
-    QString curDevice = this->device();
-    QbElement::ElementState state = this->m_source->state();
+    if (this->m_curStream == stream
+        || stream.isEmpty())
+        this->stopStream();
 
-    if (state == QbElement::ElementStatePlaying &&
-        (device.isEmpty() || device == curDevice))
-        this->resetDevice();
+    QString camera = stream.isEmpty()? this->m_curStream: stream;
 
-    QString webcam = device.isEmpty()? curDevice: device;
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                              "reset", Qt::DirectConnection,
+                              Q_ARG(QString, camera));
 
-    if (!webcam.isEmpty())
-        QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                                  "reset", Qt::DirectConnection,
-                                  Q_ARG(QString, webcam));
-
-    if (state == QbElement::ElementStatePlaying &&
-        (device.isEmpty() || device == curDevice))
-        this->setDevice(device.isEmpty()? curDevice: device);
+    if (isPlaying
+        && (stream.isEmpty()
+            || this->m_curStream == stream))
+        this->startStream();
 }
 
 void MediaTools::webcamsChanged(const QStringList &webcams)
 {
     Q_UNUSED(webcams)
 
-    emit this->devicesModified();
+    emit this->streamsChanged();
 }

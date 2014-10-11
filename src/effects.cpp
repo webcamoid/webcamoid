@@ -32,9 +32,9 @@ Effects::Effects(MediaTools *mediaTools, QWidget *parent):
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
 
     QObject::connect(this->m_mediaTools,
-                     SIGNAL(deviceChanged(QString)),
+                     SIGNAL(stateChanged()),
                      this,
-                     SLOT(deviceChanged(QString)));
+                     SLOT(streamStateChanged()));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(effectPreviewReady(const QbPacket &)),
@@ -112,7 +112,7 @@ void Effects::hideEvent(QHideEvent *event)
 
 void Effects::setEffectPreview(const QbPacket &packet)
 {
-    if (!this->m_mediaTools->device().isEmpty()) {
+    if (!this->m_mediaTools->curStream().isEmpty()) {
         QImage image = QbUtils::packetToImage(packet);
         this->ui->lblEffectsPreview->setPixmap(QPixmap::fromImage(image));
     }
@@ -120,7 +120,7 @@ void Effects::setEffectPreview(const QbPacket &packet)
 
 void Effects::setApplyPreview(const QbPacket &packet)
 {
-    if (!this->m_mediaTools->device().isEmpty()) {
+    if (!this->m_mediaTools->curStream().isEmpty()) {
         QImage image = QbUtils::packetToImage(packet);
         this->ui->lblApplyPreview->setPixmap(QPixmap::fromImage(image));
     }
@@ -136,9 +136,9 @@ void Effects::updateEffectPreview()
     }
 }
 
-void Effects::deviceChanged(const QString &device)
+void Effects::streamStateChanged()
 {
-    if (!device.isEmpty() && this->isVisible())
+    if (this->m_mediaTools->isPlaying() && this->isVisible())
         this->updateEffectPreview();
 }
 

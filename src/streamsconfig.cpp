@@ -31,24 +31,25 @@ StreamsConfig::StreamsConfig(MediaTools *mediaTools, QWidget *parent):
 
     this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
     this->m_isInit = true;
-    QList<QStringList> streams = this->m_mediaTools->streams();
+    QStringList streams = this->m_mediaTools->streams();
 
     this->ui->tbwCustomStreams->setRowCount(streams.length());
 
     int row = 0;
 
-    foreach (QStringList stream, streams) {
-        QString name = stream.at(1);
+    foreach (QString stream, streams) {
+        if (!this->m_mediaTools->canModify(stream))
+            continue;
+
+        QString name = this->m_mediaTools->streamDescription(stream);
 
         this->ui->tbwCustomStreams->setItem(row,
                                             0,
                                             new QTableWidgetItem(name));
 
-        QString uri = stream.at(0);
-
         this->ui->tbwCustomStreams->setItem(row,
                                             1,
-                                            new QTableWidgetItem(uri));
+                                            new QTableWidgetItem(stream));
 
         row++;
     }

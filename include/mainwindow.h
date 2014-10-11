@@ -82,7 +82,7 @@ class MainWindow: public QMainWindow
 
     private slots:
         void updateWebcams();
-        void deviceChanged(const QString &device);
+        void stateChanged();
         void recordingChanged(bool recording);
         void showError(const QString &message);
         void updateContents();

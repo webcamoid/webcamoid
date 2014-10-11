@@ -31,34 +31,41 @@ class MediaTools: public QObject
     Q_OBJECT
     Q_ENUMS(RecordFrom)
 
-    Q_PROPERTY(QString device READ device
-                              WRITE setDevice
-                              RESET resetDevice
-                              NOTIFY deviceChanged)
+    Q_PROPERTY(QString curStream
+               READ curStream
+               WRITE setCurStream
+               RESET resetCurStream
+               NOTIFY curStreamChanged)
 
-    Q_PROPERTY(bool playAudioFromSource READ playAudioFromSource
-                                        WRITE setPlayAudioFromSource
-                                        RESET resetPlayAudioFromSource)
+    Q_PROPERTY(QStringList streams
+               READ streams
+               RESET resetStreams
+               NOTIFY streamsChanged)
 
-    Q_PROPERTY(RecordFrom recordAudioFrom READ recordAudioFrom
-                                          WRITE setRecordAudioFrom
-                                          RESET resetRecordAudioFrom)
+    Q_PROPERTY(bool playAudioFromSource
+               READ playAudioFromSource
+               WRITE setPlayAudioFromSource
+               RESET resetPlayAudioFromSource)
 
-    Q_PROPERTY(bool recording READ recording
-                              WRITE setRecording
-                              RESET resetRecording)
+    Q_PROPERTY(RecordFrom recordAudioFrom
+               READ recordAudioFrom
+               WRITE setRecordAudioFrom
+               RESET resetRecordAudioFrom)
 
-    Q_PROPERTY(QList<QStringList> videoRecordFormats READ videoRecordFormats
-                                                     WRITE setVideoRecordFormats
-                                                     RESET resetVideoRecordFormats)
+    Q_PROPERTY(bool recording
+               READ recording
+               WRITE setRecording
+               RESET resetRecording)
 
-    Q_PROPERTY(QList<QStringList> streams READ streams
-                                          WRITE setStreams
-                                          RESET resetStreams)
+    Q_PROPERTY(QList<QStringList> videoRecordFormats
+               READ videoRecordFormats
+               WRITE setVideoRecordFormats
+               RESET resetVideoRecordFormats)
 
-    Q_PROPERTY(QSize windowSize READ windowSize
-                                WRITE setWindowSize
-                                RESET resetWindowSize)
+    Q_PROPERTY(QSize windowSize
+               READ windowSize
+               WRITE setWindowSize
+               RESET resetWindowSize)
 
     public:
         enum RecordFrom
@@ -71,29 +78,34 @@ class MediaTools: public QObject
         explicit MediaTools(QObject *parent=NULL);
         ~MediaTools();
 
-        Q_INVOKABLE QString device() const;
-        Q_INVOKABLE QSize videoSize(const QString &device);
+        Q_INVOKABLE QString curStream() const;
+        Q_INVOKABLE QSize videoSize(const QString &stream);
         Q_INVOKABLE bool playAudioFromSource() const;
         Q_INVOKABLE RecordFrom recordAudioFrom() const;
         Q_INVOKABLE bool recording() const;
         Q_INVOKABLE QList<QStringList> videoRecordFormats() const;
-        Q_INVOKABLE QList<QStringList> streams() const;
+        Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE QSize windowSize() const;
 
-        Q_INVOKABLE QVariantList videoSizes(const QString &device);
-        Q_INVOKABLE QList<QStringList> captureDevices();
-        Q_INVOKABLE QVariantList listImageControls(const QString &device);
-        Q_INVOKABLE void setImageControls(const QString &device, const QVariantMap &controls);
+        Q_INVOKABLE QString streamDescription(const QString &stream) const;
+        Q_INVOKABLE bool canModify(const QString &stream) const;
+        Q_INVOKABLE bool isCamera(const QString &stream) const;
+        Q_INVOKABLE QVariantList videoSizes(const QString &stream);
+        Q_INVOKABLE QVariantList listImageControls(const QString &stream);
+        Q_INVOKABLE void setImageControls(const QString &stream, const QVariantMap &controls);
         Q_INVOKABLE QMap<QString, QString> availableEffects() const;
         Q_INVOKABLE QStringList currentEffects() const;
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
+        Q_INVOKABLE bool isPlaying();
+        Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
 
     private:
+        QString m_curStream;
+        QMap<QString, QString> m_streams;
         bool m_playAudioFromSource;
         RecordFrom m_recordAudioFrom;
         bool m_recording;
         QList<QStringList> m_videoRecordFormats;
-        QList<QStringList> m_streams;
         QSize m_windowSize;
 
         QbElementPtr m_pipeline;
@@ -109,12 +121,12 @@ class MediaTools: public QObject
         QbElementPtr m_videoSync;
         QbElementPtr m_videoConvert;
         QStringList m_effectsList;
-        QSize m_curFrameSize;
         QMutex m_mutex;
 
     signals:
-        void devicesModified();
-        void deviceChanged(const QString &device);
+        void curStreamChanged();
+        void streamsChanged();
+        void stateChanged();
         void recordingChanged(bool recording);
         void frameReady(const QbPacket &frame);
         void effectPreviewReady(const QbPacket &frame);
@@ -124,17 +136,20 @@ class MediaTools: public QObject
     public slots:
         void mutexLock();
         void mutexUnlock();
-        void setDevice(const QString &device);
-        void setVideoSize(const QString &device, const QSize &size);
+        bool start();
+        void stop();
+        bool startStream();
+        void stopStream();
+        void setCurStream(const QString &stream);
+        void setVideoSize(const QString &stream, const QSize &size);
         void setEffectsPreview(const QString &effect);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(RecordFrom recordAudioFrom);
         void setRecording(bool recording, QString fileName="");
         void setVideoRecordFormats(QList<QStringList> videoRecordFormats);
-        void setStreams(QList<QStringList> streams);
-        void setWindowSize(QSize windowSize);
-        void resetDevice();
-        void resetVideoSize(const QString &device);
+        void setWindowSize(const QSize &windowSize);
+        void resetCurStream();
+        void resetVideoSize(const QString &stream);
         void resetEffectsPreview();
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
@@ -143,21 +158,19 @@ class MediaTools: public QObject
         void resetWindowSize();
 
         void connectPreview(bool link);
-        void reset(const QString &device);
+        void reset(const QString &stream);
         void loadConfigs();
         void saveConfigs();
         void setEffects(const QStringList &effects=QStringList());
         void clearVideoRecordFormats();
+        void setStream(const QString &stream, const QString &description);
+        void removeStream(const QString &stream);
         void resetStreams();
-        void setStream(QString dev_name="", QString description="");
         void setVideoRecordFormat(QString suffix="", QString options="");
         void cleanAll();
 
     private slots:
         void iStream(const QbPacket &packet);
-        void sourceStateChanged(QbElement::ElementState state);
-
-        void aboutToQuit();
         void webcamsChanged(const QStringList &webcams);
 };
 

@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 5.1.0
+Version: 6.0.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -186,5 +186,5 @@ rm -rf %{buildroot}
 %{_libdir}/libWebcamoid.so*
 
 %changelog
-* Wed Aug 6 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 5.1.0-1
+* Wed Aug 6 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.0.0-1
 - Final Release.

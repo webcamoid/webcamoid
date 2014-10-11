@@ -64,7 +64,7 @@ class Effects: public QWidget
 
     private slots:
         void updateEffectPreview();
-        void deviceChanged(const QString &device);
+        void streamStateChanged();
         void on_txtSearch_textChanged(QString text);
         void on_btnAdd_clicked();
         void on_btnRemove_clicked();

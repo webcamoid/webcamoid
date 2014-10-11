@@ -25,9 +25,38 @@ import QtQuick.Controls 1.2
 Rectangle
 {
     id: recMediaBar
-    color: Qt.rgba(0, 0, 0, 0)
+    color: Qt.rgba(0, 0, 0, 1)
+    clip: true
     width: 200
     height: 400
+
+    function updateMediaList() {
+        var curStream = Webcamoid.curStream
+        var streams = Webcamoid.streams
+        lsvMediaList.model.clear()
+
+        if (streams.length > 0)
+            Webcamoid.curStream = streams.indexOf(curStream) < 0?
+                        streams[0]: curStream
+        else
+            Webcamoid.curStream = ""
+
+        for (var stream in streams) {
+            var selected = streams[stream] === Webcamoid.curStream? true: false
+
+            lsvMediaList.model.append({
+                "media": streams[stream],
+                "description": Webcamoid.streamDescription(streams[stream]),
+                "selected": selected,
+                "canModify": Webcamoid.canModify(streams[stream])})
+        }
+    }
+
+    Component.onCompleted: recMediaBar.updateMediaList()
+    Connections {
+        target: Webcamoid
+        onStreamsChanged: recMediaBar.updateMediaList()
+    }
 
     ListView {
         id: lsvMediaList
@@ -35,30 +64,8 @@ Rectangle
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
+
         model: ListModel {
-            ListElement {
-                media: "/dev/video0"
-                description: "Cam1"
-                selected: true
-            }
-
-            ListElement {
-                media: "/dev/video1"
-                description: "Cam2"
-                selected: false
-            }
-
-            ListElement {
-                media: "/dev/video2"
-                description: "Cam3"
-                selected: false
-            }
-
-            ListElement {
-                media: "/dev/video3"
-                description: "Cam4"
-                selected: false
-            }
         }
         delegate: Item {
             id: itmMedia
@@ -75,7 +82,10 @@ Rectangle
 
             Rectangle {
                 id: recMedia
-                anchors.fill: parent
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
 
                 gradient: Gradient {
                     GradientStop {
@@ -130,40 +140,30 @@ Rectangle
                     }
                     onPressed: txtMediaText.scale = 0.75
                     onReleased: txtMediaText.scale = 1
-                }
-            }
-        }
+                    onClicked: {
+                        var curIndex = -1
 
-        MouseArea {
-            anchors.fill: parent
-            propagateComposedEvents: true
+                        for (var i = 0; i < lsvMediaList.count; i++) {
+                            var iMedia = lsvMediaList.model.get(i).media
+                            lsvMediaList.currentIndex = i
 
-            onClicked: {
-                var curIndex = lsvMediaList.indexAt(mouseX, mouseY)
+                            if (iMedia === media) {
+                                itmMedia.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
+                                itmMedia.gradLow = Qt.rgba(0, 0.5, 1, 1)
+                                lsvMediaList.model.setProperty(i, "selected", true)
+                                curIndex = i
+                            }
+                            else {
+                                lsvMediaList.currentItem.gradUp = Qt.rgba(0, 0, 0, 0)
+                                lsvMediaList.currentItem.gradLow = Qt.rgba(0, 0, 0, 0)
+                                lsvMediaList.model.setProperty(i, "selected", false)
+                            }
+                        }
 
-                for (var i = 0; i < lsvMediaList.count; i++) {
-                    var selected = false
-
-                    if (curIndex < 0)
-                        break
-
-                    if (i === curIndex)
-                        selected = true
-
-                    lsvMediaList.model.setProperty(i, "selected", selected)
-                    lsvMediaList.currentIndex = i
-
-                    if (selected) {
-                        lsvMediaList.currentItem.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                        lsvMediaList.currentItem.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                    }
-                    else {
-                        lsvMediaList.currentItem.gradUp = Qt.rgba(0, 0, 0, 0)
-                        lsvMediaList.currentItem.gradLow = Qt.rgba(0, 0, 0, 0)
+                        lsvMediaList.currentIndex = curIndex
+                        Webcamoid.curStream = media
                     }
                 }
-
-                lsvMediaList.currentIndex = curIndex
             }
         }
     }
@@ -185,13 +185,8 @@ Rectangle
                 color: recAddMedia.gradUp
             }
             GradientStop {
-                position: 0.5
-                color: recAddMedia.gradLow
-            }
-
-            GradientStop {
                 position: 1
-                color: recAddMedia.gradUp
+                color: recAddMedia.gradLow
             }
         }
 
@@ -210,17 +205,24 @@ Rectangle
             cursorShape: Qt.PointingHandCursor
             anchors.fill: parent
 
-            onPressed: imgAddMedia.scale = 0.75
-            onReleased: imgAddMedia.scale = 1
+            onEntered: {
+                recAddMedia.gradUp = Qt.rgba(0, 0.75, 0, 1)
+                recAddMedia.gradLow = Qt.rgba(0.25, 1, 0.25, 1)
+            }
             onExited: {
                 imgAddMedia.scale = 1
                 recAddMedia.gradUp = Qt.rgba(0, 0.5, 0, 1)
                 recAddMedia.gradLow = Qt.rgba(0, 1, 0, 1)
             }
-            onEntered: {
-                recAddMedia.gradUp = Qt.rgba(0, 0.75, 0, 1)
-                recAddMedia.gradLow = Qt.rgba(0.25, 1, 0.25, 1)
+            onPressed: imgAddMedia.scale = 0.75
+            onReleased: imgAddMedia.scale = 1
+            onClicked: {
+                dlgAddMedia.visible = true
             }
         }
+    }
+
+    AddMedia {
+        id: dlgAddMedia
     }
 }
