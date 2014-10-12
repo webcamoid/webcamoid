@@ -1006,6 +1006,10 @@ void MediaTools::removeStream(const QString &stream)
 {
     if (this->m_streams.contains(stream)) {
         this->m_streams.remove(stream);
+
+        if (this->m_curStream == stream)
+            this->resetCurStream();
+
         emit this->streamsChanged();
     }
 }

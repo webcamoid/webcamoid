@@ -286,6 +286,9 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
 
 QString Capture::description(const QString &webcam) const
 {
+    if (webcam.isEmpty())
+        return "";
+
     QFile device;
     v4l2_capability capability;
     memset(&capability, 0, sizeof(v4l2_capability));

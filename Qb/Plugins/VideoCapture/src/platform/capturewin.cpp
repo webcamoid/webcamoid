@@ -137,6 +137,9 @@ QString Capture::caps() const
 
 QString Capture::description(const QString &webcam) const
 {
+    if (webcam.isEmpty())
+        return "";
+
     MonikerPtr moniker = this->findMoniker(webcam);
 
     if (!moniker)

@@ -104,17 +104,22 @@ Rectangle
             id: btnRemove
             iconName: "remove"
             text: qsTr("Remove")
+
+            onClicked: Webcamoid.removeStream(Webcamoid.curStream)
         }
 
         Button {
             id: btnEdit
             iconName: "edit"
             text: qsTr("Edit")
+
+            onClicked: dlgAddMedia.visible = true
         }
     }
 
     Item {
         id: itmMediaControls
+        objectName: "itmMediaControls"
         anchors.top: rowControls.bottom
         anchors.topMargin: 16
         anchors.right: parent.right
@@ -123,5 +128,10 @@ Rectangle
         anchors.leftMargin: 16
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
+    }
+
+    AddMedia {
+        id: dlgAddMedia
+        editMode: true
     }
 }

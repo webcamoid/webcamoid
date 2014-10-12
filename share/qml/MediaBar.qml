@@ -216,9 +216,7 @@ Rectangle
             }
             onPressed: imgAddMedia.scale = 0.75
             onReleased: imgAddMedia.scale = 1
-            onClicked: {
-                dlgAddMedia.visible = true
-            }
+            onClicked: dlgAddMedia.visible = true
         }
     }
 

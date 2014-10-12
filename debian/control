@@ -42,6 +42,7 @@ Package: webcamoid
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
+ libqt5widgets5,
  libqt5multimedia5,
  libopencv-calib3d2.4,
  libopencv-contrib2.4,
@@ -82,7 +83,7 @@ Depends: ${shlibs:Depends},
  libmp3lame0,
  libopencore-amrnb0,
  libopencore-amrwb0,
- libx264-123,
+ libx264-142,
  libxvidcore4
 Description: Webcamoid is a full featured webcam capture application.
  Features:

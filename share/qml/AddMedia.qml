@@ -16,6 +16,13 @@ Window {
 
     property bool editMode: false
 
+    function defaultDescription(url)
+    {
+        return Webcamoid.streams.indexOf(url) < 0?
+                    Webcamoid.fileNameFromUri(url):
+                    Webcamoid.streamDescription(url)
+    }
+
     SystemPalette {
         id: pallete
     }
@@ -42,6 +49,7 @@ Window {
         anchors.right: parent.right
         anchors.left: parent.left
         placeholderText: qsTr("Insert media description")
+        text: recAddMedia.editMode? Webcamoid.streamDescription(Webcamoid.curStream): ""
     }
 
     Label {
@@ -66,6 +74,7 @@ Window {
         anchors.top: lblMedia.bottom
         anchors.left: parent.left
         placeholderText: qsTr("Select media file")
+        text: recAddMedia.editMode? Webcamoid.curStream: ""
     }
 
     Button {
@@ -104,9 +113,17 @@ Window {
             text: qsTr("Ok")
 
             onClicked: {
-                if (txtMedia.text.length > 0
-                    && txtDescription.text.length > 0)
+                if (txtMedia.text.length > 0) {
+                    if (recAddMedia.editMode
+                        && Webcamoid.curStream !== txtMedia.text.toString())
+                        Webcamoid.removeStream(Webcamoid.curStream)
+
+                    if (txtDescription.text.length < 1)
+                        txtDescription.text = recAddMedia.defaultDescription(txtMedia.text)
+
                     Webcamoid.setStream(txtMedia.text, txtDescription.text)
+                    Webcamoid.curStream = txtMedia.text
+                }
 
                 recAddMedia.visible = false
             }
@@ -141,10 +158,7 @@ Window {
 
         onAccepted: {
             txtMedia.text = fileDialog.fileUrl
-
-            txtDescription.text = Webcamoid.streams.indexOf(fileDialog.fileUrl.toString()) < 0?
-                        Webcamoid.fileNameFromUri(fileDialog.fileUrl):
-                        Webcamoid.streamDescription(fileDialog.fileUrl)
+            txtDescription.text = recAddMedia.defaultDescription(fileDialog.fileUrl.toString())
         }
     }
 }

@@ -111,7 +111,7 @@ ApplicationWindow {
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
-                            text: qsTr("Set a Device")
+                            text: qsTr("Manage Streams")
                             icon: "qrc:/Webcamoid/share/icons/webcam.svg"
                         }
 

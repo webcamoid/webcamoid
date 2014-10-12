@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickItem>
 #include <QTranslator>
 
 #include "mainwindow.h"
@@ -44,6 +45,24 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("Webcamoid", &mediaTools);
     engine.load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
+
+    // Here I'm testing how to embed a control UI from a plugin.
+
+    // First, find where to enbed the UI.
+    QQuickItem *item = engine.rootObjects()[0]->findChild<QQuickItem *>("itmMediaControls");
+
+    // Load the UI from the plugin.
+    QQmlComponent component(&engine, QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/About.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext context(engine.rootContext());
+    context.setContextProperty("PluginContext", &mediaTools);
+
+    // Create an item with the plugin context.
+    QQuickItem *obj = qobject_cast<QQuickItem *>(component.create(&context));
+
+    // Finally, embed the plugin item UI in the desired place.
+    obj->setParentItem(item);
 //*/
 /***
     MainWindow mainWindow;
