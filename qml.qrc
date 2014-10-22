@@ -6,7 +6,6 @@
         <file>share/qml/Effects.qml</file>
         <file>share/qml/IconBarItem.qml</file>
         <file>share/qml/ListWidget.qml</file>
-        <file>share/qml/Media.qml</file>
         <file>share/qml/MediaBar.qml</file>
         <file>share/qml/MediaConfig.qml</file>
         <file>share/qml/main.qml</file>

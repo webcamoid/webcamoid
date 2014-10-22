@@ -21,14 +21,11 @@
 
 import QtQuick 2.3
 import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
-Rectangle
-{
+GridLayout {
     id: recMediaConfig
-    color: Qt.rgba(0, 0, 0, 1)
-    clip: true
-    width: 200
-    height: 400
+    columns: 1
 
     Connections {
         target: Webcamoid
@@ -37,7 +34,17 @@ Rectangle
             txtDescription.text = Webcamoid.streamDescription(Webcamoid.curStream)
             btnEdit.enabled = Webcamoid.canModify(Webcamoid.curStream)
             btnRemove.enabled = Webcamoid.canModify(Webcamoid.curStream)
+
+            Webcamoid.removeCameraControls("itmMediaControls");
+
+            if (Webcamoid.isCamera(Webcamoid.curStream))
+                Webcamoid.embedCameraControls("itmMediaControls", Webcamoid.curStream);
         }
+    }
+
+    AddMedia {
+        id: dlgAddMedia
+        editMode: true
     }
 
     Label {
@@ -45,24 +52,14 @@ Rectangle
         color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Description")
         font.bold: true
-        anchors.rightMargin: 16
-        anchors.leftMargin: 16
-        anchors.topMargin: 16
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.left: parent.left
+        Layout.fillWidth: true
     }
 
     TextField {
         id: txtDescription
-        anchors.top: lblDescription.bottom
-        anchors.topMargin: 16
-        anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.left: parent.left
-        anchors.leftMargin: 16
         placeholderText: qsTr("Insert media description")
         readOnly: true
+        Layout.fillWidth: true
     }
 
     Label {
@@ -70,42 +67,22 @@ Rectangle
         color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Media file")
         font.bold: true
-        anchors.top: txtDescription.bottom
-        anchors.topMargin: 16
-        anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.left: parent.left
-        anchors.leftMargin: 16
+        Layout.fillWidth: true
     }
 
     TextField {
         id: txtMedia
-        anchors.top: lblMedia.bottom
-        anchors.topMargin: 16
-        anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.left: parent.left
-        anchors.leftMargin: 16
         placeholderText: qsTr("Select media file")
         readOnly: true
+        Layout.fillWidth: true
     }
 
-    Row {
+    RowLayout {
         id: rowControls
-        layoutDirection: Qt.RightToLeft
-        anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.left: parent.left
-        anchors.leftMargin: 16
-        anchors.topMargin: 16
-        anchors.top: txtMedia.bottom
+        Layout.fillWidth: true
 
-        Button {
-            id: btnRemove
-            iconName: "remove"
-            text: qsTr("Remove")
-
-            onClicked: Webcamoid.removeStream(Webcamoid.curStream)
+        Label {
+            Layout.fillWidth: true
         }
 
         Button {
@@ -115,23 +92,20 @@ Rectangle
 
             onClicked: dlgAddMedia.visible = true
         }
+
+        Button {
+            id: btnRemove
+            iconName: "remove"
+            text: qsTr("Remove")
+
+            onClicked: Webcamoid.removeStream(Webcamoid.curStream)
+        }
     }
 
     Item {
         id: itmMediaControls
         objectName: "itmMediaControls"
-        anchors.top: rowControls.bottom
-        anchors.topMargin: 16
-        anchors.right: parent.right
-        anchors.rightMargin: 16
-        anchors.left: parent.left
-        anchors.leftMargin: 16
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 16
-    }
-
-    AddMedia {
-        id: dlgAddMedia
-        editMode: true
+        Layout.fillWidth: true
+        Layout.fillHeight: true
     }
 }

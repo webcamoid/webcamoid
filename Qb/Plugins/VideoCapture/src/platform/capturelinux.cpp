@@ -1175,9 +1175,10 @@ void Capture::reset(const QString &webcam)
     else
         webcams << webcam;
 
-    foreach (QString webcam, this->webcams()) {
+    foreach (QString webcam, webcams) {
         this->resetSize(webcam);
         this->resetImageControls(webcam);
+        this->resetCameraControls(webcam);
     }
 }
 

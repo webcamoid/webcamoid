@@ -42,22 +42,32 @@ QbElement::~QbElement()
     this->setState(QbElement::ElementStateNull);
 }
 
-QbElement::ElementState QbElement::state()
+QbElement::ElementState QbElement::state() const
 {
     return this->m_state;
 }
 
-bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
+QObject *QbElement::controlInterface(QQmlEngine *engine,
+                                     const QString &controlId) const
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(controlId)
+
+    return NULL;
+}
+
+bool QbElement::link(const QObject *dstElement,
+                     Qt::ConnectionType connectionType) const
 {
     if (!dstElement)
         return false;
 
-    QList<QMetaMethod> signalList = this->methodsByName(this, "oStream");
-    QList<QMetaMethod> slotList = this->methodsByName(dstElement, "iStream");
+    QList<QMetaMethod> signalList = QbElement::methodsByName(this, "oStream");
+    QList<QMetaMethod> slotList = QbElement::methodsByName(dstElement, "iStream");
 
     foreach (QMetaMethod signal, signalList)
         foreach (QMetaMethod slot, slotList)
-            if (this->methodCompat(signal, slot) &&
+            if (QbElement::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
                 QObject::connect(this, signal, dstElement, slot, connectionType);
@@ -65,19 +75,19 @@ bool QbElement::link(QObject *dstElement, Qt::ConnectionType connectionType)
     return true;
 }
 
-bool QbElement::link(QbElementPtr dstElement, Qt::ConnectionType connectionType)
+bool QbElement::link(const QbElementPtr &dstElement, Qt::ConnectionType connectionType) const
 {
     return this->link(static_cast<QObject *>(dstElement.data()), connectionType);
 }
 
-bool QbElement::unlink(QObject *dstElement)
+bool QbElement::unlink(const QObject *dstElement) const
 {
     if (!dstElement)
         return false;
 
-    foreach (QMetaMethod signal, this->methodsByName(this, "oStream"))
-        foreach (QMetaMethod slot, this->methodsByName(dstElement, "iStream"))
-            if (this->methodCompat(signal, slot) &&
+    foreach (QMetaMethod signal, QbElement::methodsByName(this, "oStream"))
+        foreach (QMetaMethod slot, QbElement::methodsByName(dstElement, "iStream"))
+            if (QbElement::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
                 QObject::disconnect(this, signal, dstElement, slot);
@@ -85,27 +95,33 @@ bool QbElement::unlink(QObject *dstElement)
     return true;
 }
 
-bool QbElement::unlink(QbElementPtr dstElement)
+bool QbElement::unlink(const QbElementPtr &dstElement) const
 {
     return this->unlink(static_cast<QObject *>(dstElement.data()));
 }
 
-bool QbElement::link(QbElementPtr srcElement, QObject *dstElement, Qt::ConnectionType connectionType)
+bool QbElement::link(const QbElementPtr &srcElement,
+                     const QObject *dstElement,
+                     Qt::ConnectionType connectionType)
 {
     return srcElement->link(dstElement, connectionType);
 }
 
-bool QbElement::link(QbElementPtr srcElement, QbElementPtr dstElement, Qt::ConnectionType connectionType)
+bool QbElement::link(const QbElementPtr &srcElement,
+                     const QbElementPtr &dstElement,
+                     Qt::ConnectionType connectionType)
 {
     return srcElement->link(dstElement, connectionType);
 }
 
-bool QbElement::unlink(QbElementPtr srcElement, QObject *dstElement)
+bool QbElement::unlink(const QbElementPtr &srcElement,
+                       const QObject *dstElement)
 {
     return srcElement->unlink(dstElement);
 }
 
-bool QbElement::unlink(QbElementPtr srcElement, QbElementPtr dstElement)
+bool QbElement::unlink(const QbElementPtr &srcElement,
+                       const QbElementPtr &dstElement)
 {
     return srcElement->unlink(dstElement);
 }
@@ -174,13 +190,7 @@ void QbElement::resetSearchPaths()
                                            .arg(COMMONS_TARGET);
 }
 
-void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
-{
-    Q_UNUSED(from)
-    Q_UNUSED(to)
-}
-
-QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
+QList<QMetaMethod> QbElement::methodsByName(const QObject *object, const QString &methodName)
 {
     QList<QMetaMethod> methods;
     QStringList methodSignatures;
@@ -199,12 +209,18 @@ QList<QMetaMethod> QbElement::methodsByName(QObject *object,QString methodName)
     return methods;
 }
 
-bool QbElement::methodCompat(QMetaMethod method1, QMetaMethod method2)
+bool QbElement::methodCompat(const QMetaMethod &method1, const QMetaMethod &method2)
 {
     if (method1.parameterTypes() == method2.parameterTypes())
         return true;
 
     return false;
+}
+
+void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    Q_UNUSED(from)
+    Q_UNUSED(to)
 }
 
 QbPacket QbElement::iStream(const QbPacket &packet)

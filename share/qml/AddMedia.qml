@@ -1,16 +1,34 @@
+/* Webcamoid, webcam capture application.
+ * Copyright (C) 2011-2014  Gonzalo Exequiel Pedone
+ *
+ * Webcamod is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Webcamod is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Email     : hipersayan DOT x AT gmail DOT com
+ * Web-Site 1: http://github.com/hipersayanX/Webcamoid
+ * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
+ */
+
 import QtQuick 2.0
 import QtQuick.Window 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
-Window {
+ApplicationWindow {
     id: recAddMedia
-    x: (Screen.desktopAvailableWidth - width) / 2
-    y: (Screen.desktopAvailableHeight - height) / 2
     title: qsTr("Add new media")
     color: pallete.window
-    width: 200
-    height: 150
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
 
@@ -27,105 +45,92 @@ Window {
         id: pallete
     }
 
-    Label {
-        id: lblDescription
-        color: Qt.rgba(1, 1, 1, 1)
-        text: qsTr("Description")
+    ColumnLayout {
         anchors.rightMargin: 8
         anchors.leftMargin: 8
-        anchors.topMargin: 8
-        font.bold: true
-        anchors.top: parent.top
-        anchors.right: parent.right
-        anchors.left: parent.left
-    }
-
-    TextField {
-        id: txtDescription
-        anchors.topMargin: 8
-        anchors.rightMargin: 8
-        anchors.leftMargin: 8
-        anchors.top: lblDescription.bottom
-        anchors.right: parent.right
-        anchors.left: parent.left
-        placeholderText: qsTr("Insert media description")
-        text: recAddMedia.editMode? Webcamoid.streamDescription(Webcamoid.curStream): ""
-    }
-
-    Label {
-        id: lblMedia
-        color: Qt.rgba(1, 1, 1, 1)
-        text: qsTr("Media file")
-        anchors.rightMargin: 8
-        anchors.leftMargin: 8
-        anchors.topMargin: 8
-        font.bold: true
-        anchors.top: txtDescription.bottom
-        anchors.right: parent.right
-        anchors.left: parent.left
-    }
-
-    TextField {
-        id: txtMedia
-        anchors.right: btnAddMedia.left
-        anchors.rightMargin: 8
-        anchors.leftMargin: 8
-        anchors.topMargin: 8
-        anchors.top: lblMedia.bottom
-        anchors.left: parent.left
-        placeholderText: qsTr("Select media file")
-        text: recAddMedia.editMode? Webcamoid.curStream: ""
-    }
-
-    Button {
-        id: btnAddMedia
-        width: 30
-        text: qsTr("...")
-        anchors.top: lblMedia.bottom
-        anchors.topMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-
-        onClicked: fileDialog.open()
-    }
-
-    Row {
-        id: rowControls
-        layoutDirection: Qt.RightToLeft
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        anchors.bottom: parent.bottom
         anchors.bottomMargin: 8
+        anchors.topMargin: 8
+        anchors.fill: parent
 
-        Button {
-            id: btnCancel
-            iconName: "cancel"
-            text: qsTr("Cancel")
-
-            onClicked: recAddMedia.visible = false
+        Label {
+            id: lblDescription
+            color: Qt.rgba(1, 1, 1, 1)
+            text: qsTr("Description")
+            font.bold: true
+            Layout.fillWidth: true
         }
 
-        Button {
-            id: btnOk
-            iconName: "ok"
-            text: qsTr("Ok")
+        TextField {
+            id: txtDescription
+            placeholderText: qsTr("Insert media description")
+            text: recAddMedia.editMode? Webcamoid.streamDescription(Webcamoid.curStream): ""
+            Layout.fillWidth: true
+        }
 
-            onClicked: {
-                if (txtMedia.text.length > 0) {
-                    if (recAddMedia.editMode
-                        && Webcamoid.curStream !== txtMedia.text.toString())
-                        Webcamoid.removeStream(Webcamoid.curStream)
+        Label {
+            id: lblMedia
+            color: Qt.rgba(1, 1, 1, 1)
+            text: qsTr("Media file")
+            font.bold: true
+            Layout.fillWidth: true
+        }
 
-                    if (txtDescription.text.length < 1)
-                        txtDescription.text = recAddMedia.defaultDescription(txtMedia.text)
+        RowLayout {
+            TextField {
+                id: txtMedia
+                placeholderText: qsTr("Select media file")
+                text: recAddMedia.editMode? Webcamoid.curStream: ""
+                Layout.fillWidth: true
+            }
 
-                    Webcamoid.setStream(txtMedia.text, txtDescription.text)
-                    Webcamoid.curStream = txtMedia.text
+            Button {
+                id: btnAddMedia
+                width: 30
+                text: qsTr("...")
+
+                onClicked: fileDialog.open()
+            }
+        }
+
+        Label {
+            Layout.fillHeight: true
+        }
+
+        RowLayout {
+            id: rowControls
+
+            Label {
+                Layout.fillWidth: true
+            }
+
+            Button {
+                id: btnOk
+                iconName: "ok"
+                text: qsTr("Ok")
+
+                onClicked: {
+                    if (txtMedia.text.length > 0) {
+                        if (recAddMedia.editMode
+                            && Webcamoid.curStream !== txtMedia.text.toString())
+                            Webcamoid.removeStream(Webcamoid.curStream)
+
+                        if (txtDescription.text.length < 1)
+                            txtDescription.text = recAddMedia.defaultDescription(txtMedia.text)
+
+                        Webcamoid.setStream(txtMedia.text, txtDescription.text)
+                        Webcamoid.curStream = txtMedia.text
+                    }
+
+                    recAddMedia.visible = false
                 }
+            }
 
-                recAddMedia.visible = false
+            Button {
+                id: btnCancel
+                iconName: "cancel"
+                text: qsTr("Cancel")
+
+                onClicked: recAddMedia.visible = false
             }
         }
     }

@@ -54,7 +54,10 @@ win32: LIBS += -lstrmiids -lole32 -loleaut32
 
 OTHER_FILES += pspec.json
 
-QT += core gui
+QT += qml
+
+RESOURCES += \
+    VideoCapture.qrc
 
 SOURCES += \
     src/videocapture.cpp \

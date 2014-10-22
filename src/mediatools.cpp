@@ -261,6 +261,36 @@ QSize MediaTools::windowSize() const
     return this->m_windowSize;
 }
 
+QString MediaTools::applicationName() const
+{
+    return QCoreApplication::applicationName();
+}
+
+QString MediaTools::applicationVersion() const
+{
+    return QCoreApplication::applicationVersion();
+}
+
+QString MediaTools::qtVersion() const
+{
+    return QT_VERSION_STR;
+}
+
+QString MediaTools::copyrightNotice() const
+{
+    return COMMONS_COPYRIGHT_NOTICE;
+}
+
+QString MediaTools::projectUrl() const
+{
+    return COMMONS_PROJECT_URL;
+}
+
+QString MediaTools::projectLicenseUrl() const
+{
+    return COMMONS_PROJECT_LICENSE_URL;
+}
+
 QString MediaTools::streamDescription(const QString &stream) const
 {
     QString description;
@@ -399,6 +429,80 @@ QString MediaTools::fileNameFromUri(const QString &uri) const
     QFileInfo fileInfo(uri);
 
     return fileInfo.baseName();
+}
+
+bool MediaTools::embedCameraControls(const QString &where,
+                                     const QString &stream,
+                                     const QString &name) const
+{
+    QObject *interface = this->m_videoCapture->controlInterface(this->m_appEngine, stream);
+
+    if (!interface)
+        return false;
+
+    if (!name.isEmpty())
+        interface->setObjectName(name);
+
+    return this->embedInterface(this->m_appEngine, interface, where);
+}
+
+void MediaTools::removeCameraControls(const QString &where) const
+{
+    this->removeInterface(this->m_appEngine, where);
+}
+
+bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
+                                QObject *interface,
+                                const QString &where) const
+{
+    if (!engine || !interface)
+        return false;
+
+    foreach (QObject *obj, engine->rootObjects()) {
+        // First, find where to enbed the UI.
+        QQuickItem *item = obj->findChild<QQuickItem *>(where);
+
+        if (!item)
+            continue;
+
+        // Create an item with the plugin context.
+        QQuickItem *interfaceItem = qobject_cast<QQuickItem *>(interface);
+
+        // Finally, embed the plugin item UI in the desired place.
+        interfaceItem->setParentItem(item);
+        interfaceItem->setParent(item);
+
+        QQmlProperty::write(interfaceItem,
+                            "anchors.fill",
+                            qVariantFromValue(item));
+
+        return true;
+    }
+
+    return false;
+}
+
+void MediaTools::removeInterface(QQmlApplicationEngine *engine, const QString &where) const
+{
+    if (!engine)
+        return;
+
+    foreach (QObject *obj, engine->rootObjects()) {
+        // First, find where to enbed the UI.
+        QQuickItem *item = obj->findChild<QQuickItem *>(where);
+
+        if (!item)
+            continue;
+
+        QList<QQuickItem *> childItems = item->childItems();
+
+        foreach (QQuickItem *child, childItems) {
+            child->setParentItem(NULL);
+            child->setParent(NULL);
+
+            delete child;
+        }
+    }
 }
 
 void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
@@ -768,6 +872,11 @@ void MediaTools::setVideoRecordFormats(QList<QStringList> videoRecordFormats)
 void MediaTools::setWindowSize(const QSize &windowSize)
 {
     this->m_windowSize = windowSize;
+}
+
+void MediaTools::setAppEngine(QQmlApplicationEngine *engine)
+{
+    this->m_appEngine = engine;
 }
 
 void MediaTools::resetCurStream()

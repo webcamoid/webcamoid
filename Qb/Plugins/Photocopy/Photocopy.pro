@@ -41,7 +41,7 @@ INCLUDEPATH += \
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
-QT += core gui
+QT += qml
 
 SOURCES += \
     src/photocopy.cpp \

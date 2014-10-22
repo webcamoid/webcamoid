@@ -75,7 +75,7 @@ DEFINES += OPENCVHAARPATH=\"\\\"$$OPENCVHAARPATH\\\"\"
 
 OTHER_FILES += pspec.json
 
-QT += core gui widgets
+QT += qml widgets
 
 RESOURCES += \
     FaceDetect.qrc

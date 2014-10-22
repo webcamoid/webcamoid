@@ -49,7 +49,7 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += core gui
+QT += qml
 
 SOURCES += \
     src/vcapsconvert.cpp \

@@ -25,6 +25,9 @@
 #include <QSize>
 #include <QMutex>
 #include <qb.h>
+#include <QQuickItem>
+#include <QQmlProperty>
+#include <QQmlApplicationEngine>
 
 class MediaTools: public QObject
 {
@@ -86,6 +89,12 @@ class MediaTools: public QObject
         Q_INVOKABLE QList<QStringList> videoRecordFormats() const;
         Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE QSize windowSize() const;
+        Q_INVOKABLE QString applicationName() const;
+        Q_INVOKABLE QString applicationVersion() const;
+        Q_INVOKABLE QString qtVersion() const;
+        Q_INVOKABLE QString copyrightNotice() const;
+        Q_INVOKABLE QString projectUrl() const;
+        Q_INVOKABLE QString projectLicenseUrl() const;
 
         Q_INVOKABLE QString streamDescription(const QString &stream) const;
         Q_INVOKABLE bool canModify(const QString &stream) const;
@@ -98,6 +107,10 @@ class MediaTools: public QObject
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
+        Q_INVOKABLE bool embedCameraControls(const QString &where,
+                                             const QString &stream,
+                                             const QString &name="") const;
+        Q_INVOKABLE void removeCameraControls(const QString &where) const;
 
     private:
         QString m_curStream;
@@ -107,6 +120,7 @@ class MediaTools: public QObject
         bool m_recording;
         QList<QStringList> m_videoRecordFormats;
         QSize m_windowSize;
+        QQmlApplicationEngine *m_appEngine;
 
         QbElementPtr m_pipeline;
         QbElementPtr m_source;
@@ -122,6 +136,14 @@ class MediaTools: public QObject
         QbElementPtr m_videoConvert;
         QStringList m_effectsList;
         QMutex m_mutex;
+
+        bool embedInterface(QQmlApplicationEngine *engine,
+                            QObject *interface,
+                            const QString &where) const;
+
+        void removeInterface(QQmlApplicationEngine *engine,
+                             const QString &where) const;
+
 
     signals:
         void curStreamChanged();
@@ -148,6 +170,7 @@ class MediaTools: public QObject
         void setRecording(bool recording, QString fileName="");
         void setVideoRecordFormats(QList<QStringList> videoRecordFormats);
         void setWindowSize(const QSize &windowSize);
+        void setAppEngine(QQmlApplicationEngine *engine);
         void resetCurStream();
         void resetVideoSize(const QString &stream);
         void resetEffectsPreview();

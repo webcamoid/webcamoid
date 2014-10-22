@@ -53,7 +53,7 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += core gui concurrent widgets
+QT += qml concurrent widgets
 
 SOURCES += \
     src/abstractstream.cpp \

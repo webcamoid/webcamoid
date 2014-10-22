@@ -24,6 +24,8 @@
 
 #include <QTimer>
 #include <QThread>
+#include <QQmlComponent>
+#include <QQmlContext>
 
 #ifdef Q_OS_LINUX
 #include "platform/capturelinux.h"
@@ -47,6 +49,9 @@ class VideoCaptureElement: public QbElement
 
     public:
         explicit VideoCaptureElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;

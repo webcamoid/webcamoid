@@ -23,6 +23,7 @@
 #define QBELEMENT_H
 
 #include <QStringList>
+#include <QQmlEngine>
 
 #include "qbpacket.h"
 
@@ -59,39 +60,41 @@ class QbElement: public QObject
         explicit QbElement(QObject *parent=NULL);
         virtual ~QbElement();
 
-        Q_INVOKABLE virtual QbElement::ElementState state();
+        Q_INVOKABLE virtual QbElement::ElementState state() const;
+        Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,
+                                                      const QString &controlId) const;
 
-        Q_INVOKABLE virtual bool link(QObject *dstElement,
-                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+        Q_INVOKABLE virtual bool link(const QObject *dstElement,
+                                      Qt::ConnectionType connectionType=Qt::AutoConnection) const;
 
-        Q_INVOKABLE virtual bool link(QbElementPtr dstElement,
-                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+        Q_INVOKABLE virtual bool link(const QbElementPtr &dstElement,
+                                      Qt::ConnectionType connectionType=Qt::AutoConnection) const;
 
-        Q_INVOKABLE virtual bool unlink(QObject *dstElement);
-        Q_INVOKABLE virtual bool unlink(QbElementPtr dstElement);
+        Q_INVOKABLE virtual bool unlink(const QObject *dstElement) const;
+        Q_INVOKABLE virtual bool unlink(const QbElementPtr &dstElement) const;
 
-        Q_INVOKABLE static bool link(QbElementPtr srcElement, QObject *dstElement,
+        Q_INVOKABLE static bool link(const QbElementPtr &srcElement, const QObject *dstElement,
                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
 
-        Q_INVOKABLE static bool link(QbElementPtr srcElement, QbElementPtr dstElement,
+        Q_INVOKABLE static bool link(const QbElementPtr &srcElement, const QbElementPtr &dstElement,
                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
 
-        Q_INVOKABLE static bool unlink(QbElementPtr srcElement, QObject *dstElement);
-        Q_INVOKABLE static bool unlink(QbElementPtr srcElement, QbElementPtr dstElement);
+        Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement, const QObject *dstElement);
+        Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement, const QbElementPtr &dstElement);
         Q_INVOKABLE static QbElementPtr create(const QString &pluginId, const QString &elementName="");
         Q_INVOKABLE static QStringList searchPaths();
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();
 
+    private:
+        static QList<QMetaMethod> methodsByName(const QObject *object, const QString &methodName);
+        static bool methodCompat(const QMetaMethod &method1, const QMetaMethod &method2);
+
     protected:
         QbElement::ElementState m_state;
 
         virtual void stateChange(QbElement::ElementState from, QbElement::ElementState to);
-
-    private:
-        QList<QMetaMethod> methodsByName(QObject *object, QString methodName);
-        bool methodCompat(QMetaMethod method1, QMetaMethod method2);
 
     signals:
         void stateChanged(QbElement::ElementState state);

@@ -22,14 +22,15 @@
 import QtQuick 2.3
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
 ApplicationWindow {
     id: wdgMainWidget
     visible: true
     x: (Screen.desktopAvailableWidth - width) / 2
     y: (Screen.desktopAvailableHeight - height) / 2
-    width: 800
-    height: 480
+    width: 1024
+    height: 600
     color: Qt.rgba(0, 0, 0, 1)
 
     property bool showEffectBar: false
@@ -37,20 +38,11 @@ ApplicationWindow {
     Component.onCompleted: {
     }
 
-    Image {
-        id: imgBackground
-        objectName: "WindowBackground"
-        cache: false
-        smooth: true
-        fillMode: Image.PreserveAspectFit
-        anchors.fill: parent
-
-//        source: "image://webcam/image"
-    }
-
     SplitView {
+        id: splitView
         anchors.fill: parent
         orientation: Qt.Horizontal
+        Layout.minimumWidth: 600
 
         MediaBar {
             id: mdbMediaBar
@@ -58,7 +50,17 @@ ApplicationWindow {
         }
 
         Item {
-            width: wdgMainWidget.width - mdbMediaBar.width - itmConfigBar.width
+            Layout.fillWidth: true
+/*
+            Image {
+                id: imgBackground
+                objectName: "WindowBackground"
+                cache: false
+                smooth: true
+                fillMode: Image.PreserveAspectFit
+                anchors.fill: splitView
+    //            source: "image://webcam/image"
+            }*/
 
             Rectangle {
                 id: iconBarRect
@@ -148,20 +150,20 @@ ApplicationWindow {
                             height: iconBarRect.height
                             text: qsTr("About")
                             icon: "qrc:/Webcamoid/share/icons/about.svg"
+
+                            onClicked: about.show()
                         }
                     }
                 }
             }
         }
 
-        Item {
-            id: itmConfigBar
-            width: 200
-
-            MediaConfig {
-                anchors.fill: parent
-            }
+        MediaConfig {
         }
+    }
+
+    About {
+        id: about
     }
 /*
     onMousePressed:
@@ -195,14 +197,6 @@ ApplicationWindow {
         onEscapePressed: visible = false
         onActiveDevicesChanged: cdbEffects.activeDevices = webcams.activeDevices
         onDevicesChanged: cdbEffects.devices = webcams.devices
-    }
-
-    About
-    {
-        id: about
-        visible: false
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
     }
 */
 }

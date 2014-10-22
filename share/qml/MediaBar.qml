@@ -53,6 +53,7 @@ Rectangle
     }
 
     Component.onCompleted: recMediaBar.updateMediaList()
+
     Connections {
         target: Webcamoid
         onStreamsChanged: recMediaBar.updateMediaList()

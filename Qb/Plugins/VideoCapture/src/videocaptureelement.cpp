@@ -59,6 +59,26 @@ VideoCaptureElement::VideoCaptureElement(): QbElement()
                      Qt::DirectConnection);
 }
 
+QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/VideoCapture/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("VideoCapture", (QObject *) this);
+    context->setContextProperty("controlId", controlId);
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QStringList VideoCaptureElement::webcams() const
 {
     return this->m_capture.webcams();

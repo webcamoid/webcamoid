@@ -1,5 +1,6 @@
 - Port GUI to Qml
 - Add support for scripted plugins.
 - Windows port.
-- Remove Frei0r dependency.
-- Add libKIPI support.
+- Remove dependencies with OpenCV.
+- Support for creating virtual cameras.
+- Add social sharing features.

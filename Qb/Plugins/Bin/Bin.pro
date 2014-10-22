@@ -50,7 +50,7 @@ OTHER_FILES += \
     $$FLEXSOURCES \
     $$BISONSOURCES
 
-QT += core gui
+QT += qml
 
 SOURCES += \
     src/bin.cpp \
