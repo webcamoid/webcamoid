@@ -59,16 +59,17 @@ FORMS = \
     share/ui/configdialog.ui
 
 HEADERS = \
+    include/about.h \
+    include/cameraconfig.h \
+    include/configdialog.h \
     include/effects.h \
     include/generalconfig.h \
+    include/imagedisplay.h \
+    include/mainwindow.h \
     include/mediatools.h \
     include/streamsconfig.h \
     include/videorecordconfig.h \
-    include/cameraconfig.h \
-    include/imagedisplay.h \
-    include/mainwindow.h \
-    include/about.h \
-    include/configdialog.h
+    include/imageprovider.h
 
 INCLUDEPATH += \
     include \
@@ -92,16 +93,17 @@ RESOURCES += \
 
 SOURCES = \
     src/main.cpp \
+    src/about.cpp \
+    src/cameraconfig.cpp \
+    src/configdialog.cpp \
     src/effects.cpp \
     src/generalconfig.cpp \
+    src/imagedisplay.cpp \
+    src/mainwindow.cpp \
     src/mediatools.cpp \
     src/streamsconfig.cpp \
     src/videorecordconfig.cpp \
-    src/cameraconfig.cpp \
-    src/imagedisplay.cpp \
-    src/mainwindow.cpp \
-    src/about.cpp \
-    src/configdialog.cpp
+    src/imageprovider.cpp
 
 TRANSLATIONS = $$files(share/ts/*.ts)
 

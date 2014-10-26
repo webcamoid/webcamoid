@@ -35,7 +35,30 @@ ApplicationWindow {
 
     property bool showEffectBar: false
 
-    Component.onCompleted: {
+    Connections {
+        target: Webcamoid
+        onFrameReady: imgBackground.updateFrame();
+        onStateChanged: {
+            if (Webcamoid.isPlaying())
+                itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/stop.svg"
+            else
+                itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/play.svg"
+        }
+    }
+
+    Image {
+        id: imgBackground
+        cache: false
+        smooth: true
+        fillMode: Image.PreserveAspectFit
+        anchors.fill: splitView
+        source: "image://stream/frame"
+
+        function updateFrame() {
+            var frame = source;
+            source = "";
+            source = frame;
+        }
     }
 
     SplitView {
@@ -44,23 +67,20 @@ ApplicationWindow {
         orientation: Qt.Horizontal
         Layout.minimumWidth: 600
 
-        MediaBar {
-            id: mdbMediaBar
+        RowLayout {
+            id: leftPanel
             width: 200
+            visible: false
+
+            MediaBar {
+                id: mdbMediaBar
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
 
         Item {
             Layout.fillWidth: true
-/*
-            Image {
-                id: imgBackground
-                objectName: "WindowBackground"
-                cache: false
-                smooth: true
-                fillMode: Image.PreserveAspectFit
-                anchors.fill: splitView
-    //            source: "image://webcam/image"
-            }*/
 
             Rectangle {
                 id: iconBarRect
@@ -104,10 +124,18 @@ ApplicationWindow {
                         objectName: "IconBar"
 
                         IconBarItem {
+                            id: itmPlayStopButton
                             width: iconBarRect.height
                             height: iconBarRect.height
                             text: qsTr("Play")
                             icon: "qrc:/Webcamoid/share/icons/play.svg"
+
+                            onClicked: {
+                                if (Webcamoid.isPlaying())
+                                    Webcamoid.stop();
+                                else
+                                    Webcamoid.start();
+                            }
                         }
 
                         IconBarItem {
@@ -115,6 +143,13 @@ ApplicationWindow {
                             height: iconBarRect.height
                             text: qsTr("Manage Streams")
                             icon: "qrc:/Webcamoid/share/icons/webcam.svg"
+
+                            onClicked: {
+                                if (splitView.state == "")
+                                    splitView.state = "showPanels"
+                                else
+                                    splitView.state = ""
+                            }
                         }
 
                         IconBarItem {
@@ -158,20 +193,35 @@ ApplicationWindow {
             }
         }
 
-        MediaConfig {
+        RowLayout {
+            id: rightPanel
+            visible: false
+
+            MediaConfig {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
+
+        states: [
+            State {
+                name: "showPanels"
+                PropertyChanges {
+                    target: leftPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: rightPanel
+                    visible: true
+                }
+            }
+        ]
     }
 
     About {
         id: about
     }
 /*
-    onMousePressed:
-    {
-        webcams.visible = false
-        about.visible = false
-    }
-
     Effects
     {
         id: cdbEffects
@@ -182,21 +232,6 @@ ApplicationWindow {
         anchors.top: parent.top
         objectName: "Effects"
         visible: wdgMainWidget.showEffectBar
-    }
-
-    Devices
-    {
-        id: webcams
-        anchors.bottomMargin: 5
-        anchors.rightMargin: -(webcams.width + iconbar.iconSize) / 2
-        anchors.right: iconbar.left
-        objectName: "Devices"
-        opacity: 0.95
-        visible: false
-        anchors.bottom: iconbar.top
-        onEscapePressed: visible = false
-        onActiveDevicesChanged: cdbEffects.activeDevices = webcams.activeDevices
-        onDevicesChanged: cdbEffects.devices = webcams.devices
     }
 */
 }

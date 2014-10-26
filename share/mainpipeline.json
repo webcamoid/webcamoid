@@ -1,0 +1,151 @@
+[
+    [
+        {
+            "pluginId": "MultiSrc",
+            "properties": {
+                "objectNane": ["", "source"],
+                "loop": ["", true],
+                "audioAlign": ["", true]
+            },
+            "connections": [
+                ["", "stateChanged", "videoMux", "setState"],
+                ["", "stateChanged", "effects", "setState"],
+                ["", "stateChanged", "muxAudioInput", "setState"]
+            ]
+        },
+        "DirectConnection",
+        {
+            "pluginId": "Multiplex",
+            "properties": {
+                "objectNane": ["", "videoMux"],
+                "caps": ["", "video/x-raw"],
+                "outputIndex": ["", 0]
+            }
+        },
+        {
+            "pluginId": "VideoSync",
+            "properties": {
+                "objectNane": ["", "videoSync"]
+            },
+            "connections": [
+                ["audioOutput", "elapsedTime", "", "setClock"],
+                ["source", "stateChanged", "", "setState"],
+                ["videoCapture", "stateChanged", "", "setState"]
+            ]
+        },
+        {
+            "pluginId": "Bin",
+            "properties": {
+                "objectNane": ["", "effects"],
+                "blocking": ["", false]
+            }
+        },
+        {
+            "pluginId": "VCapsConvert",
+            "properties": {
+                "objectNane": ["", "videoConvert"],
+                "caps": ["", "video/x-raw,format=bgra"]
+            },
+            "connections": [
+                ["source", "stateChanged", "", "setState"],
+                ["videoCapture", "stateChanged", "", "setState"]
+            ]
+        }
+    ],
+    [
+        {
+            "alias": "source"
+        },
+        "DirectConnection",
+        {
+            "pluginId": "Multiplex",
+            "properties": {
+                "objectNane": ["", "muxAudioInput"],
+                "caps": ["", "audio/x-raw"],
+                "outputIndex": 0
+            }
+        },
+        {
+            "pluginId": "Multiplex",
+            "properties": {
+                "objectNane": ["", "audioSwitch"],
+                "outputIndex": 1
+            }
+        }
+    ],
+    [
+        {
+            "alias": "muxAudioInput"
+        },
+        "DirectConnection",
+        {
+            "pluginId": "AudioOutput",
+            "properties": {
+                "objectNane": ["", "audioOutput"]
+            }
+        }
+    ],
+    [
+        {
+            "pluginId": "AudioInput",
+            "properties": {
+                "objectNane": ["", "mic"]
+            }
+        },
+        {
+            "pluginId": "Multiplex",
+            "properties": {
+                "outputIndex": ["", 1]
+            },
+            "connections": [
+                ["mic", "stateChanged", "", "setState"]
+            ]
+        },
+        {
+            "alias": "audioSwitch"
+        }
+    ],
+    [
+        {
+            "alias": "effects"
+        },
+        {
+            "pluginId": "RtPts",
+            "connections": [
+                ["record", "stateChanged", "", "setState"]
+            ]
+        },
+        "DirectConnection",
+        {
+            "pluginId": "MultiSink",
+            "properties": {
+                "objectName": ["", "record"]
+            }
+        }
+    ],
+    [
+        {
+            "alias": "audioSwitch"
+        },
+        {
+            "alias": "record"
+        }
+    ],
+    [
+        {
+            "pluginId": "VideoCapture",
+            "properties": {
+                "objectName": ["", "videoCapture"]
+            },
+            "connections": [
+                ["", "stateChanged", "videoMux", "setState"],
+                ["", "stateChanged", "effects", "setState"],
+                ["", "stateChanged", "muxAudioInput", "setState"]
+            ]
+        },
+        "DirectConnection",
+        {
+            "alias": "videoMux"
+        }
+    ]
+]

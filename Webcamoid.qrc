@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Webcamoid">
         <file>share/effects.xml</file>
+        <file>share/mainpipeline.json</file>
     </qresource>
 </RCC>

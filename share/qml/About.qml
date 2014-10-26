@@ -68,7 +68,7 @@ ApplicationWindow {
         }
 
         Label {
-            text: qsTr("webcam capture application.")
+            text: qsTr("Webcam capture application.")
         }
 
         Label {

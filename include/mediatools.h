@@ -154,6 +154,7 @@ class MediaTools: public QObject
         void effectPreviewReady(const QbPacket &frame);
         void applyPreviewReady(const QbPacket &frame);
         void error(const QString &message);
+        void interfaceLoaded();
 
     public slots:
         void mutexLock();

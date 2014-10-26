@@ -23,9 +23,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QTranslator>
+#include <QCommandLineParser>
 
 #include "mainwindow.h"
-//#include "mediatools.h"
+#include "imageprovider.h"
 
 int main(int argc, char *argv[])
 {
@@ -39,17 +40,55 @@ int main(int argc, char *argv[])
     QTranslator translator;
     translator.load(QLocale::system().name(), "qrc:/Webcamoid/share/ts");
     QCoreApplication::installTranslator(&translator);
-/***/
-    MediaTools mediaTools;
-    QQmlApplicationEngine engine;
 
-    mediaTools.setAppEngine(&engine);
-    engine.rootContext()->setContextProperty("Webcamoid", &mediaTools);
-    engine.load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
-//*/
-/***
-    MainWindow mainWindow;
-    mainWindow.show();
-//*/
-    return app.exec();
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QCoreApplication::translate("main", "Webcam capture application."));
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    QCommandLineOption enableTestVersion("next", QCoreApplication::translate("main", "Test next version."));
+    parser.addOption(enableTestVersion);
+
+    parser.process(app);
+
+    MediaTools *mediaTools = NULL;
+    QQmlApplicationEngine *engine = NULL;
+    MainWindow *mainWindow = NULL;
+
+    if (parser.isSet(enableTestVersion)) {
+        mediaTools = new MediaTools();
+        engine = new QQmlApplicationEngine();
+        mediaTools->setAppEngine(engine);
+
+        engine->rootContext()->setContextProperty("Webcamoid", mediaTools);
+
+        ImageProvider *imageProvider = new ImageProvider();
+        engine->addImageProvider("stream", imageProvider);
+
+        QObject::connect(mediaTools,
+                         &MediaTools::frameReady,
+                         imageProvider,
+                         &ImageProvider::setFrame);
+
+        engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
+
+        emit mediaTools->interfaceLoaded();
+    }
+    else {
+        mainWindow = new MainWindow();
+        mainWindow->show();
+    }
+
+    int r = app.exec();
+
+    if (mediaTools)
+        delete mediaTools;
+
+    if (engine)
+        delete engine;
+
+    if (mainWindow)
+        delete mainWindow;
+
+    return r;
 }

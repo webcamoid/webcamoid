@@ -40,6 +40,13 @@ GridLayout {
             if (Webcamoid.isCamera(Webcamoid.curStream))
                 Webcamoid.embedCameraControls("itmMediaControls", Webcamoid.curStream);
         }
+
+        onInterfaceLoaded: {
+            Webcamoid.removeCameraControls("itmMediaControls");
+
+            if (Webcamoid.isCamera(Webcamoid.curStream))
+                Webcamoid.embedCameraControls("itmMediaControls", Webcamoid.curStream);
+        }
     }
 
     AddMedia {
@@ -102,10 +109,10 @@ GridLayout {
         }
     }
 
-    Item {
+    RowLayout {
         id: itmMediaControls
         objectName: "itmMediaControls"
         Layout.fillWidth: true
         Layout.fillHeight: true
-    }
+  }
 }
