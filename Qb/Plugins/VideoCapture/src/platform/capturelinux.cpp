@@ -153,12 +153,12 @@ QStringList Capture::webcams() const
     QDir devicesDir("/dev");
 
     QStringList devices = devicesDir.entryList(QStringList() << "video*",
-                                               QDir::System |
-                                               QDir::Readable |
-                                               QDir::Writable |
-                                               QDir::NoSymLinks |
-                                               QDir::NoDotAndDotDot |
-                                               QDir::CaseSensitive,
+                                               QDir::System
+                                               | QDir::Readable
+                                               | QDir::Writable
+                                               | QDir::NoSymLinks
+                                               | QDir::NoDotAndDotDot
+                                               | QDir::CaseSensitive,
                                                QDir::Name);
 
     QStringList webcams;

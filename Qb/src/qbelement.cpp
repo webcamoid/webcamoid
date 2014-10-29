@@ -187,7 +187,75 @@ void QbElement::resetSearchPaths()
     pluginsSearchPaths->clear();
 
     *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR)
-                                           .arg(COMMONS_TARGET);
+                           .arg(COMMONS_TARGET);
+}
+
+QStringList QbElement::listPlugins(const QString &type)
+{
+    QStringList plugins;
+
+    for (int i = pluginsSearchPaths->length() - 1; i >= 0; i--) {
+        QString path = pluginsSearchPaths->at(i);
+        QDir devicesDir(path);
+
+        QStringList devices = devicesDir.entryList(QStringList() << "lib*.so",
+                                                   QDir::Files
+                                                   | QDir::NoSymLinks
+                                                   | QDir::NoDotAndDotDot
+                                                   | QDir::CaseSensitive,
+                                                   QDir::Name);
+
+        foreach (QString devicePath, devices) {
+            QString fileName = devicesDir.absoluteFilePath(devicePath);
+
+            if (!QLibrary::isLibrary(fileName))
+                continue;
+
+            QPluginLoader pluginLoader(fileName);
+            QJsonObject metaData = pluginLoader.metaData();
+
+            QString pluginId = QString(devicePath).remove(QRegExp("^lib"))
+                                                  .remove(QRegExp(".so$"));
+
+            if (!type.isEmpty()
+                && metaData["MetaData"].toObject().contains("type")
+                && metaData["MetaData"].toObject()["type"] == type
+                && !plugins.contains(pluginId))
+                plugins << pluginId;
+            else if (type.isEmpty()
+                     && !plugins.contains(pluginId))
+                plugins << pluginId;
+        }
+    }
+
+    plugins.sort();
+
+    return plugins;
+}
+
+QVariantMap QbElement::pluginInfo(const QString &pluginId)
+{
+    QString fileName;
+
+    for (int i = pluginsSearchPaths->length() - 1; i >= 0; i--) {
+        QString path = pluginsSearchPaths->at(i);
+        QString filePath = QString("%1%2lib%3.so").arg(path)
+                                                  .arg(QDir::separator())
+                                                  .arg(pluginId);
+
+        if (QFileInfo(filePath).exists()) {
+            fileName = filePath;
+
+            break;
+        }
+    }
+
+    if (fileName.isEmpty() || !QLibrary::isLibrary(fileName))
+        return QVariantMap();
+
+    QPluginLoader pluginLoader(fileName);
+
+    return pluginLoader.metaData().toVariantMap();
 }
 
 QList<QMetaMethod> QbElement::methodsByName(const QObject *object, const QString &methodName)

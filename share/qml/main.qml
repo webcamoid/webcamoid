@@ -23,6 +23,7 @@ import QtQuick 2.3
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import Webcamoid 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
@@ -37,28 +38,24 @@ ApplicationWindow {
 
     Connections {
         target: Webcamoid
-        onFrameReady: imgBackground.updateFrame();
         onStateChanged: {
-            if (Webcamoid.isPlaying())
+            if (Webcamoid.isPlaying()) {
                 itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/stop.svg"
-            else
+                videoDisplay.visible = true
+            }
+            else {
                 itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/play.svg"
+                videoDisplay.visible = false
+            }
         }
     }
 
-    Image {
-        id: imgBackground
-        cache: false
+    VideoDisplay {
+        id: videoDisplay
+        objectName: "videoDisplay"
+        visible: false
         smooth: true
-        fillMode: Image.PreserveAspectFit
         anchors.fill: splitView
-        source: "image://stream/frame"
-
-        function updateFrame() {
-            var frame = source;
-            source = "";
-            source = frame;
-        }
     }
 
     SplitView {
@@ -193,13 +190,13 @@ ApplicationWindow {
             }
         }
 
-        RowLayout {
+        Rectangle {
             id: rightPanel
             visible: false
+            color: Qt.rgba(0, 0, 0, 1)
 
             MediaConfig {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                onWidthChanged: rightPanel.width = width
             }
         }
 

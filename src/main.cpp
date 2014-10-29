@@ -26,7 +26,7 @@
 #include <QCommandLineParser>
 
 #include "mainwindow.h"
-#include "imageprovider.h"
+#include "videodisplay.h"
 
 int main(int argc, char *argv[])
 {
@@ -56,23 +56,32 @@ int main(int argc, char *argv[])
     MainWindow *mainWindow = NULL;
 
     if (parser.isSet(enableTestVersion)) {
+        // @uri Webcamoid
+        qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
+
         mediaTools = new MediaTools();
         engine = new QQmlApplicationEngine();
         mediaTools->setAppEngine(engine);
 
         engine->rootContext()->setContextProperty("Webcamoid", mediaTools);
-
-        ImageProvider *imageProvider = new ImageProvider();
-        engine->addImageProvider("stream", imageProvider);
-
-        QObject::connect(mediaTools,
-                         &MediaTools::frameReady,
-                         imageProvider,
-                         &ImageProvider::setFrame);
-
         engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
         emit mediaTools->interfaceLoaded();
+
+        foreach (QObject *obj, engine->rootObjects()) {
+            // First, find where to enbed the UI.
+            VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
+
+            if (!videoDisplay)
+                continue;
+
+            QObject::connect(mediaTools,
+                             &MediaTools::frameReady,
+                             videoDisplay,
+                             &VideoDisplay::setFrame);
+
+            break;
+        }
     }
     else {
         mainWindow = new MainWindow();

@@ -19,43 +19,33 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#include "imageprovider.h"
+#ifndef VIDEOFRAME_H
+#define VIDEOFRAME_H
 
-ImageProvider::ImageProvider():
-    QQuickImageProvider(Image)
+#include <QSGTexture>
+#include <QGLContext>
+
+#include "qbutils.h"
+
+class VideoFrame: public QSGTexture
 {
-}
+    Q_OBJECT
 
-QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
-{
-    Q_UNUSED(id)
+    public:
+        explicit VideoFrame(const QbPacket &packet=QbPacket());
+        ~VideoFrame();
 
-    QImage frame = QbUtils::packetToImage(this->m_packet);
+        void bind();
+        bool hasAlphaChannel() const;
+        bool hasMipmaps() const;
+        int textureId() const;
+        QSize textureSize() const;
 
-    if (frame.isNull()) {
-        if (requestedSize.isValid())
-            *size = requestedSize;
-        else
-            *size = QSize(1, 1);
+        static VideoFrame *fromPacket(const QbPacket &packet);
 
-        QImage image(*size, QImage::Format_ARGB32);
-        image.fill(qRgba(0, 0, 0, 0));
+    private:
+        QImage m_image;
+        int m_textureId;
+};
 
-        return image;
-    }
-
-    *size = frame.size();
-
-    if (requestedSize.isValid()) {
-        *size = requestedSize;
-
-        return frame.scaled(requestedSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-    }
-
-    return frame;
-}
-
-void ImageProvider::setFrame(const QbPacket &packet)
-{
-    this->m_packet = packet;
-}
+#endif // VIDEOFRAME_H

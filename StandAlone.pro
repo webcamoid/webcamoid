@@ -68,8 +68,9 @@ HEADERS = \
     include/mainwindow.h \
     include/mediatools.h \
     include/streamsconfig.h \
+    include/videodisplay.h \
     include/videorecordconfig.h \
-    include/imageprovider.h
+    include/videoframe.h
 
 INCLUDEPATH += \
     include \
@@ -83,7 +84,7 @@ OTHER_FILES = \
     README.md \
     share/effects.xml
 
-QT += qml quick widgets xml
+QT += qml quick opengl widgets xml
 
 RESOURCES += \
     Webcamoid.qrc \
@@ -102,8 +103,9 @@ SOURCES = \
     src/mainwindow.cpp \
     src/mediatools.cpp \
     src/streamsconfig.cpp \
+    src/videodisplay.cpp \
     src/videorecordconfig.cpp \
-    src/imageprovider.cpp
+    src/videoframe.cpp
 
 TRANSLATIONS = $$files(share/ts/*.ts)
 

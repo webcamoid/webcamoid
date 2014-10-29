@@ -1,3 +1,4 @@
 {
-    "Keys" : [ ]
+    "type": "VideoFilter",
+    "description": "Fire"
 }

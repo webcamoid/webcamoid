@@ -19,28 +19,46 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef IMAGEPROVIDER_H
-#define IMAGEPROVIDER_H
+#ifndef VIDEODISPLAY_H
+#define VIDEODISPLAY_H
 
-#include <QQuickImageProvider>
-#include <qbutils.h>
+#include <QQuickItem>
+#include <QSGSimpleTextureNode>
 
-class ImageProvider: public QObject, public QQuickImageProvider
+#include "videoframe.h"
+
+class VideoDisplay: public QQuickItem
 {
     Q_OBJECT
+    Q_DISABLE_COPY(VideoDisplay)
+
+    Q_PROPERTY(bool fillDisplay
+               READ fillDisplay
+               WRITE setFillDisplay
+               RESET resetFillDisplay
+               NOTIFY fillDisplayChanged)
 
     public:
-        explicit ImageProvider();
+        VideoDisplay(QQuickItem *parent = NULL);
+        ~VideoDisplay();
 
-        QImage requestImage(const QString &id, QSize *size,
-                            const QSize &
-                            requestedSize);
+        Q_INVOKABLE bool fillDisplay() const;
 
     private:
-        QbPacket m_packet;
+        bool m_fillDisplay;
+        VideoFrame *m_videoFrame;
+
+    protected:
+        QSGNode *updatePaintNode(QSGNode *oldNode,
+                                 UpdatePaintNodeData *updatePaintNodeData);
+
+    signals:
+        void fillDisplayChanged();
 
     public slots:
         void setFrame(const QbPacket &packet);
+        void setFillDisplay(bool fillDisplay);
+        void resetFillDisplay();
 };
 
-#endif // IMAGEPROVIDER_H
+#endif // VIDEODISPLAY_H

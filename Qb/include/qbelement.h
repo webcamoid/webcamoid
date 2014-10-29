@@ -86,6 +86,8 @@ class QbElement: public QObject
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();
+        Q_INVOKABLE static QStringList listPlugins(const QString &type="");
+        Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
 
     private:
         static QList<QMetaMethod> methodsByName(const QObject *object, const QString &methodName);
