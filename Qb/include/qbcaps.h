@@ -38,7 +38,7 @@ class QbCaps: public QObject
 
     public:
         explicit QbCaps(QObject *parent=NULL);
-        QbCaps(const QString &capsString);
+        QbCaps(const QString &caps);
         QbCaps(const QbCaps &other);
         virtual ~QbCaps();
         QbCaps &operator =(const QbCaps &other);
@@ -48,6 +48,7 @@ class QbCaps: public QObject
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString mimeType() const;
+        Q_INVOKABLE void fromString(const QString &caps);
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps &update(const QbCaps &other);
         Q_INVOKABLE bool isCompatible(const QbCaps &other) const;
@@ -66,9 +67,13 @@ class QbCaps: public QObject
         void clear();
 
     friend QDebug operator <<(QDebug debug, const QbCaps &caps);
+    friend QDataStream &operator >>(QDataStream &istream, QbCaps &caps);
+    friend QDataStream &operator <<(QDataStream &ostream, const QbCaps &caps);
 };
 
 QDebug operator <<(QDebug debug, const QbCaps &caps);
+QDataStream &operator >>(QDataStream &istream, QbCaps &caps);
+QDataStream &operator <<(QDataStream &ostream, const QbCaps &caps);
 
 Q_DECLARE_METATYPE(QbCaps)
 

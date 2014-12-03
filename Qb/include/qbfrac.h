@@ -83,9 +83,13 @@ class QbFrac: public QObject
         void resetDen();
 
     friend QDebug operator <<(QDebug debug, const QbFrac &frac);
+    friend QDataStream &operator >>(QDataStream &istream, QbFrac &frac);
+    friend QDataStream &operator <<(QDataStream &ostream, const QbFrac &frac);
 };
 
 QDebug operator <<(QDebug debug, const QbFrac &frac);
+QDataStream &operator >>(QDataStream &istream, QbFrac &frac);
+QDataStream &operator <<(QDataStream &ostream, const QbFrac &frac);
 QbFrac operator *(int number, const QbFrac &frac);
 QbFrac operator /(int number, const QbFrac &frac);
 QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen);

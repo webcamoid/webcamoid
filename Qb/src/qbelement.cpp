@@ -42,6 +42,11 @@ QbElement::~QbElement()
     this->setState(QbElement::ElementStateNull);
 }
 
+QString QbElement::pluginId() const
+{
+    return this->m_pluginId;
+}
+
 QbElement::ElementState QbElement::state() const
 {
     return this->m_state;
@@ -163,6 +168,8 @@ QbElementPtr QbElement::create(const QString &pluginId, const QString &elementNa
 
     if (!elementName.isEmpty())
         element->setObjectName(elementName);
+
+    element->m_pluginId = pluginId;
 
     return QbElementPtr(element);
 }
@@ -335,4 +342,20 @@ void QbElement::setState(QbElement::ElementState state)
 void QbElement::resetState()
 {
     this->setState(ElementStateNull);
+}
+
+QDataStream &operator >>(QDataStream &istream, QbElement::ElementState &state)
+{
+    int stateInt;
+    istream >> stateInt;
+    state = static_cast<QbElement::ElementState>(stateInt);
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, QbElement::ElementState state)
+{
+    ostream << static_cast<int>(state);
+
+    return ostream;
 }

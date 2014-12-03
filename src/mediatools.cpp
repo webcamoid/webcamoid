@@ -27,7 +27,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
 {
     this->resetCurStream();
     this->resetVideoSize("");
-    this->resetEffectsPreview();
     this->resetPlayAudioFromSource();
     this->m_recordAudioFrom = RecordFromMic;
     this->resetRecording();
@@ -55,7 +54,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
         QString description("MultiSrc objectName='source' loop=true "
                             "audioAlign=true "
                             "stateChanged>videoMux.setState "
-                            "stateChanged>effects.setState "
                             "stateChanged>muxAudioInput.setState ! DirectConnection?"
                             "Multiplex objectName='videoMux' "
                             "caps='video/x-raw' outputIndex=0 !"
@@ -63,7 +61,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "audioOutput.elapsedTime>setClock "
                             "source.stateChanged>setState "
                             "videoCapture.stateChanged>setState !"
-                            "Bin objectName='effects' blocking=false !"
                             "VCapsConvert objectName='videoConvert' "
                             "caps='video/x-raw,format=bgra' "
                             "source.stateChanged>setState "
@@ -78,31 +75,20 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                             "AudioInput objectName='mic' !"
                             "Multiplex outputIndex=1 "
                             "mic.stateChanged>setState ! audioSwitch. ,"
-                            "effects. ! RtPts record.stateChanged>setState ! DirectConnection?"
+                            "videoConvert. ! RtPts record.stateChanged>setState ! DirectConnection?"
                             "MultiSink objectName='record' ,"
                             "audioSwitch. ! record. ,"
                             "VideoCapture objectName='videoCapture' "
                             "stateChanged>videoMux.setState "
-                            "stateChanged>effects.setState "
                             "stateChanged>muxAudioInput.setState !"
                             "DirectConnection? videoMux.");
 
         this->m_pipeline->setProperty("description", description);
-        this->m_effectsPreview = QbElement::create("Bin", "effectPreview");
-        this->m_effectsPreview->setProperty("blocking", true);
-
-        this->m_applyPreview = QbElement::create("VCapsConvert", "applyPreview");
-        this->m_applyPreview->setProperty("caps", "video/x-raw,format=bgra,width=128,height=96");
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
                                   Q_RETURN_ARG(QbElementPtr, this->m_source),
                                   Q_ARG(QString, "source"));
-
-        QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbElementPtr, this->m_effects),
-                                  Q_ARG(QString, "effects"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
@@ -165,9 +151,6 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
                              SIGNAL(stateChanged()));
         }
 
-        this->m_effectsPreview->link(this);
-        this->m_applyPreview->link(this);
-
         if (this->m_audioSwitch)
             this->m_audioSwitch->setProperty("inputIndex", 1);
 
@@ -199,10 +182,6 @@ void MediaTools::iStream(const QbPacket &packet)
 
     if (sender == "videoConvert")
         emit this->frameReady(packet);
-    else if (sender == "effectPreview")
-        emit this->effectPreviewReady(packet);
-    else if (sender == "applyPreview")
-        emit this->applyPreviewReady(packet);
 }
 
 QString MediaTools::curStream() const
@@ -363,37 +342,102 @@ void MediaTools::setImageControls(const QString &device, const QVariantMap &cont
                               Q_ARG(QVariantMap, controls));
 }
 
-QMap<QString, QString> MediaTools::availableEffects() const
+QStringList MediaTools::availableEffects() const
 {
-    QMap<QString, QString> effects;
-
-    QDomDocument effectsXml("effects");
-    QFile xmlFile(":/Webcamoid/share/effects.xml");
-    xmlFile.open(QIODevice::ReadOnly);
-    effectsXml.setContent(&xmlFile);
-    xmlFile.close();
-
-    QDomNodeList effectNodes = effectsXml.documentElement().childNodes();
-
-    for (int effect = 0; effect < effectNodes.count(); effect++) {
-        QDomNode effectNode = effectNodes.item(effect);
-
-        if (!effectNode.isElement())
-            continue;
-
-        QDomNamedNodeMap attributtes = effectNode.attributes();
-        QString effectName = attributtes.namedItem("name").nodeValue();
-        QString effectDescription = effectNode.firstChild().toText().data();
-
-        effects[effectDescription] = effectName;
-    }
+    QStringList effects = QbElement::listPlugins("VideoFilter");
+    qSort(effects.begin(), effects.end(), sortByDescription);
 
     return effects;
 }
 
+QVariantMap MediaTools::effectInfo(const QString &effectId) const
+{
+    return QbElement::pluginInfo(effectId);
+}
+
 QStringList MediaTools::currentEffects() const
 {
-    return this->m_effectsList;
+    QStringList effects;
+
+    foreach (QbElementPtr element, this->m_effectsList)
+        effects << element->pluginId();
+
+    return effects;
+}
+
+QbElementPtr  MediaTools::appendEffect(const QString &effectId)
+{
+    int i = this->m_effectsList.size() - 1;
+    QbElementPtr effect = QbElement::create(effectId);
+    this->m_effectsList << effect;
+
+    if (i < 0) {
+        this->m_videoSync->unlink(this->m_videoConvert);
+        this->m_videoSync->link(effect);
+    }
+    else {
+        this->m_effectsList[i]->unlink(this->m_videoConvert);
+        this->m_effectsList[i]->link(effect);
+    }
+
+    effect->link(this->m_videoConvert);
+
+    return effect;
+}
+
+void MediaTools::removeEffect(const QString &effectId)
+{
+    for (int i = 0; i < this->m_effectsList.size(); i++)
+        if (this->m_effectsList[i]->pluginId() == effectId) {
+            if (i == 0) {
+                if (this->m_effectsList.size() == 1)
+                    this->m_videoSync->link(this->m_videoConvert);
+                else
+                    this->m_videoSync->link(this->m_effectsList[i + 1]);
+            }
+            else if (i == this->m_effectsList.size() - 1)
+                this->m_effectsList[i - 1]->link(this->m_videoConvert);
+            else
+                this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1]);
+
+            this->m_effectsList.removeAt(i);
+
+            break;
+        }
+}
+
+void MediaTools::moveEffect(const QString &effectId, int index)
+{
+    for (int i = 0; i < this->m_effectsList.size(); i++)
+        if (this->m_effectsList[i]->pluginId() == effectId) {
+            QbElementPtr effect = this->m_effectsList.takeAt(i);
+            this->m_effectsList.insert(index, effect);
+
+            break;
+        }
+}
+
+bool MediaTools::embedEffectControls(const QString &where, const QString &effectId, const QString &name) const
+{
+    for (int i = 0; i < this->m_effectsList.size(); i++)
+        if (this->m_effectsList[i]->pluginId() == effectId) {
+            QObject *interface = this->m_effectsList[i]->controlInterface(this->m_appEngine, effectId);
+
+            if (!interface)
+                return false;
+
+            if (!name.isEmpty())
+                interface->setObjectName(name);
+
+            return this->embedInterface(this->m_appEngine, interface, where);
+        }
+
+    return false;
+}
+
+void MediaTools::removeEffectControls(const QString &where) const
+{
+    this->removeInterface(this->m_appEngine, where);
 }
 
 QString MediaTools::bestRecordFormatOptions(const QString &fileName) const
@@ -451,6 +495,20 @@ void MediaTools::removeCameraControls(const QString &where) const
     this->removeInterface(this->m_appEngine, where);
 }
 
+bool MediaTools::matches(const QString &pattern, const QStringList &strings) const
+{
+    if (pattern.isEmpty())
+        return true;
+
+    foreach (QString str, strings)
+        if (str.contains(QRegExp(pattern,
+                                 Qt::CaseInsensitive,
+                                 QRegExp::Wildcard)))
+            return true;
+
+    return false;
+}
+
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
                                 QObject *interface,
                                 const QString &where) const
@@ -488,7 +546,6 @@ void MediaTools::removeInterface(QQmlApplicationEngine *engine, const QString &w
         return;
 
     foreach (QObject *obj, engine->rootObjects()) {
-        // First, find where to enbed the UI.
         QQuickItem *item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
@@ -503,6 +560,18 @@ void MediaTools::removeInterface(QQmlApplicationEngine *engine, const QString &w
             delete child;
         }
     }
+}
+
+bool MediaTools::sortByDescription(const QString &pluginId1,
+                                   const QString &pluginId2)
+{
+    QString desc1 = QbElement::pluginInfo(pluginId1)["MetaData"].toMap()
+                                                    ["description"].toString();
+
+    QString desc2 = QbElement::pluginInfo(pluginId2)["MetaData"].toMap()
+                                                    ["description"].toString();
+
+    return desc1 < desc2;
 }
 
 void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
@@ -731,7 +800,6 @@ void MediaTools::stop()
 {
     // Clear previous device.
     this->resetRecording();
-    this->resetEffectsPreview();
     this->stopStream();
     emit this->stateChanged();
 }
@@ -814,27 +882,6 @@ void MediaTools::setVideoSize(const QString &stream, const QSize &size)
         this->startStream();
 }
 
-void MediaTools::setEffectsPreview(const QString &effect)
-{
-    if (!this->m_effectsPreview)
-        return;
-
-    this->m_effectsPreview->setState(QbElement::ElementStateNull);
-
-    if (!effect.isEmpty() && !this->m_curStream.isEmpty()) {
-        QString description = QString("IN. ! VCapsConvert "
-                                      "caps='video/x-raw,width=%1,height=%2' !"
-                                      "%3 !"
-                                      "VCapsConvert "
-                                      "caps='video/x-raw,format=bgra' ! OUT.").arg(128)
-                                                                              .arg(96)
-                                                                              .arg(effect);
-
-        this->m_effectsPreview->setProperty("description", description);
-        this->m_effectsPreview->setState(QbElement::ElementStatePlaying);
-    }
-}
-
 void MediaTools::setPlayAudioFromSource(bool playAudio)
 {
     this->m_playAudioFromSource = playAudio;
@@ -904,11 +951,6 @@ void MediaTools::resetVideoSize(const QString &stream)
         this->startStream();
 }
 
-void MediaTools::resetEffectsPreview()
-{
-    this->setEffectsPreview("");
-}
-
 void MediaTools::resetPlayAudioFromSource()
 {
     this->setPlayAudioFromSource(true);
@@ -932,30 +974,6 @@ void MediaTools::resetVideoRecordFormats()
 void MediaTools::resetWindowSize()
 {
     this->setWindowSize(QSize());
-}
-
-void MediaTools::connectPreview(bool link)
-{
-    if (link) {
-        if (this->m_source)
-            this->m_source->link(this->m_effectsPreview);
-
-        if (this->m_videoCapture)
-            this->m_videoCapture->link(this->m_effectsPreview);
-
-        if (this->m_effects)
-            this->m_effects->link(this->m_applyPreview);
-    }
-    else {
-        if (this->m_source)
-            this->m_source->unlink(this->m_effectsPreview);
-
-        if (this->m_videoCapture)
-            this->m_videoCapture->unlink(this->m_effectsPreview);
-
-        if (this->m_effects)
-            this->m_effects->unlink(this->m_applyPreview);
-    }
 }
 
 void MediaTools::loadConfigs()
@@ -984,9 +1002,19 @@ void MediaTools::loadConfigs()
         effects << config.value("effect").toString();
     }
 
-    this->setEffects(effects);
     config.endArray();
     config.endGroup();
+
+    foreach (QString effectId, effects) {
+        QbElementPtr effect = this->appendEffect(effectId);
+
+        config.beginGroup(effectId);
+
+        foreach (QString key, config.allKeys())
+            effect->setProperty(key.toStdString().c_str(), config.value(key));
+
+        config.endGroup();
+    }
 
     config.beginGroup("VideoRecordFormats");
     size = config.beginReadArray("formats");
@@ -1043,12 +1071,29 @@ void MediaTools::saveConfigs()
 
     for (int i = 0; i < this->m_effectsList.size(); i++) {
         config.setArrayIndex(i);
-        QString effect = this->m_effectsList[i];
+        QString effect = this->m_effectsList[i]->pluginId();
         config.setValue("effect", effect);
     }
 
     config.endArray();
     config.endGroup();
+
+    foreach (QbElementPtr effect, this->m_effectsList) {
+        config.beginGroup(effect->pluginId());
+
+        for (int property = 0;
+             property < effect->metaObject()->propertyCount();
+             property++) {
+            QMetaProperty metaProperty = effect->metaObject()->property(property);
+
+            if (metaProperty.isWritable()) {
+                const char *propertyName = metaProperty.name();
+                config.setValue(propertyName, effect->property(propertyName));
+            }
+        }
+
+        config.endGroup();
+    }
 
     config.beginGroup("VideoRecordFormats");
     config.beginWriteArray("formats");
@@ -1077,27 +1122,6 @@ void MediaTools::saveConfigs()
 
     config.endArray();
     config.endGroup();
-}
-
-void MediaTools::setEffects(const QStringList &effects)
-{
-    if (this->m_effectsList == effects)
-        return;
-
-    this->m_effectsList = effects;
-
-    if (this->m_effectsList.isEmpty())
-        this->m_effects->setProperty("description", "");
-    else {
-        QString description = "IN.";
-
-        foreach (QString effect, this->m_effectsList)
-            description += QString(" ! %1").arg(effect);
-
-        description += " ! OUT.";
-
-        this->m_effects->setProperty("description", description);
-    }
 }
 
 void MediaTools::clearVideoRecordFormats()

@@ -28,7 +28,6 @@
 #include <QDateTime>
 #include <QResizeEvent>
 
-#include "effects.h"
 #include "generalconfig.h"
 #include "streamsconfig.h"
 #include "mediatools.h"
@@ -53,7 +52,6 @@ class MainWindow: public QMainWindow
     private:
         QSharedPointer<Ui::MainWindow> ui;
 
-        Effects *m_cfgEffects;
         GeneralConfig *m_cfgGeneralConfig;
         QbPacket m_webcamFrame;
         StreamsConfig *m_cfgStreams;
@@ -74,7 +72,6 @@ class MainWindow: public QMainWindow
 
     public slots:
         void addWebcamConfigDialog(ConfigDialog *configDialog);
-        void addEffectsConfigDialog(ConfigDialog *configDialog);
         void addVideoFormatsConfigDialog(ConfigDialog *configDialog);
         void addStreamsConfigDialog(ConfigDialog *configDialog);
         void addGeneralConfigsDialog(ConfigDialog *configDialog);

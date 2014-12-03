@@ -3,9 +3,9 @@
         {
             "pluginId": "MultiSrc",
             "properties": {
-                "objectNane": ["", "source"],
-                "loop": ["", true],
-                "audioAlign": ["", true]
+                "objectNane": "source",
+                "loop": true,
+                "audioAlign": true
             },
             "connections": [
                 ["", "stateChanged", "videoMux", "setState"],
@@ -17,15 +17,15 @@
         {
             "pluginId": "Multiplex",
             "properties": {
-                "objectNane": ["", "videoMux"],
-                "caps": ["", "video/x-raw"],
-                "outputIndex": ["", 0]
+                "objectNane": "videoMux",
+                "caps": "video/x-raw",
+                "outputIndex": 0
             }
         },
         {
             "pluginId": "VideoSync",
             "properties": {
-                "objectNane": ["", "videoSync"]
+                "objectNane": "videoSync"
             },
             "connections": [
                 ["audioOutput", "elapsedTime", "", "setClock"],
@@ -34,17 +34,10 @@
             ]
         },
         {
-            "pluginId": "Bin",
-            "properties": {
-                "objectNane": ["", "effects"],
-                "blocking": ["", false]
-            }
-        },
-        {
             "pluginId": "VCapsConvert",
             "properties": {
-                "objectNane": ["", "videoConvert"],
-                "caps": ["", "video/x-raw,format=bgra"]
+                "objectNane": "videoConvert",
+                "caps": "video/x-raw,format=bgra"
             },
             "connections": [
                 ["source", "stateChanged", "", "setState"],
@@ -60,15 +53,15 @@
         {
             "pluginId": "Multiplex",
             "properties": {
-                "objectNane": ["", "muxAudioInput"],
-                "caps": ["", "audio/x-raw"],
+                "objectNane": "muxAudioInput",
+                "caps": "audio/x-raw",
                 "outputIndex": 0
             }
         },
         {
             "pluginId": "Multiplex",
             "properties": {
-                "objectNane": ["", "audioSwitch"],
+                "objectNane": "audioSwitch",
                 "outputIndex": 1
             }
         }
@@ -81,7 +74,7 @@
         {
             "pluginId": "AudioOutput",
             "properties": {
-                "objectNane": ["", "audioOutput"]
+                "objectNane": "audioOutput"
             }
         }
     ],
@@ -89,13 +82,13 @@
         {
             "pluginId": "AudioInput",
             "properties": {
-                "objectNane": ["", "mic"]
+                "objectNane": "mic"
             }
         },
         {
             "pluginId": "Multiplex",
             "properties": {
-                "outputIndex": ["", 1]
+                "outputIndex": 1
             },
             "connections": [
                 ["mic", "stateChanged", "", "setState"]
@@ -119,7 +112,7 @@
         {
             "pluginId": "MultiSink",
             "properties": {
-                "objectName": ["", "record"]
+                "objectName": "record"
             }
         }
     ],
@@ -135,7 +128,7 @@
         {
             "pluginId": "VideoCapture",
             "properties": {
-                "objectName": ["", "videoCapture"]
+                "objectName": "videoCapture"
             },
             "connections": [
                 ["", "stateChanged", "videoMux", "setState"],

@@ -31,27 +31,9 @@ QbCaps::QbCaps(QObject *parent): QObject(parent)
     this->m_isValid = false;
 }
 
-QbCaps::QbCaps(const QString &capsString)
+QbCaps::QbCaps(const QString &caps)
 {
-    this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
-                              "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
-                              "\\s*[^,=]+)*\\s*").exactMatch(capsString);
-
-    QStringList capsChunks;
-
-    if (this->m_isValid)
-        capsChunks = capsString.split(QRegExp("\\s*,\\s*"),
-                                      QString::SkipEmptyParts);
-
-    for (int i = 1; i < capsChunks.length(); i++) {
-        QStringList pair = capsChunks[i].split(QRegExp("\\s*=\\s*"),
-                                               QString::SkipEmptyParts);
-
-        this->setProperty(pair[0].trimmed().toStdString().c_str(),
-                          pair[1].trimmed());
-    }
-
-    this->setMimeType(this->m_isValid? capsChunks[0].trimmed(): "");
+    this->fromString(caps);
 }
 
 QbCaps::QbCaps(const QbCaps &other):
@@ -104,6 +86,34 @@ bool QbCaps::isValid() const
 QString QbCaps::mimeType() const
 {
     return this->m_mimeType;
+}
+
+void QbCaps::fromString(const QString &caps)
+{
+    this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
+                              "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
+                              "\\s*[^,=]+)*\\s*").exactMatch(caps);
+
+    QList<QByteArray> properties = this->dynamicPropertyNames();
+
+    foreach (QByteArray property, properties)
+        this->setProperty(property, QVariant());
+
+    QStringList capsChunks;
+
+    if (this->m_isValid)
+        capsChunks = caps.split(QRegExp("\\s*,\\s*"),
+                                      QString::SkipEmptyParts);
+
+    for (int i = 1; i < capsChunks.length(); i++) {
+        QStringList pair = capsChunks[i].split(QRegExp("\\s*=\\s*"),
+                                               QString::SkipEmptyParts);
+
+        this->setProperty(pair[0].trimmed().toStdString().c_str(),
+                          pair[1].trimmed());
+    }
+
+    this->setMimeType(this->m_isValid? capsChunks[0].trimmed(): "");
 }
 
 QString QbCaps::toString() const
@@ -185,4 +195,20 @@ QDebug operator <<(QDebug debug, const QbCaps &caps)
     debug.nospace() << caps.toString();
 
     return debug.space();
+}
+
+QDataStream &operator >>(QDataStream &istream, QbCaps &caps)
+{
+    QString capsStr;
+    istream >> capsStr;
+    caps.fromString(capsStr);
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, const QbCaps &caps)
+{
+    ostream << caps.toString();
+
+    return ostream;
 }

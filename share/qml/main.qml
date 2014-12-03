@@ -64,6 +64,13 @@ ApplicationWindow {
         orientation: Qt.Horizontal
         Layout.minimumWidth: 600
 
+        property bool showBars: false
+
+        onShowBarsChanged: {
+            leftPanel.visible = showBars
+            rightPanel.visible = showBars
+        }
+
         RowLayout {
             id: leftPanel
             width: 200
@@ -71,6 +78,14 @@ ApplicationWindow {
 
             MediaBar {
                 id: mdbMediaBar
+                visible: false
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            EffectBar {
+                id: effectBar
+                visible: false
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
@@ -142,10 +157,13 @@ ApplicationWindow {
                             icon: "qrc:/Webcamoid/share/icons/webcam.svg"
 
                             onClicked: {
-                                if (splitView.state == "")
-                                    splitView.state = "showPanels"
+                                if (splitView.state == "showMediaPanels"
+                                    && splitView.showBars)
+                                    splitView.showBars = false
                                 else
-                                    splitView.state = ""
+                                    splitView.showBars = true
+
+                                splitView.state = "showMediaPanels"
                             }
                         }
 
@@ -168,6 +186,16 @@ ApplicationWindow {
                             height: iconBarRect.height
                             text: qsTr("Apply Effects")
                             icon: "qrc:/Webcamoid/share/icons/effects.svg"
+
+                            onClicked: {
+                                if (splitView.state == "showEffectPanels"
+                                    && splitView.showBars)
+                                    splitView.showBars = false
+                                else
+                                    splitView.showBars = true
+
+                                splitView.state = "showEffectPanels"
+                            }
                         }
 
                         IconBarItem {
@@ -192,23 +220,44 @@ ApplicationWindow {
 
         Rectangle {
             id: rightPanel
+            width: 200
             visible: false
             color: Qt.rgba(0, 0, 0, 1)
 
             MediaConfig {
+                id: mediaConfig
+                visible: false
                 onWidthChanged: rightPanel.width = width
+            }
+
+            Rectangle {
+                id: effectConfig
+                color: Qt.rgba(0, 0, 1, 1)
+                anchors.fill: parent
+                visible: false
             }
         }
 
         states: [
             State {
-                name: "showPanels"
+                name: "showMediaPanels"
                 PropertyChanges {
-                    target: leftPanel
+                    target: mdbMediaBar
                     visible: true
                 }
                 PropertyChanges {
-                    target: rightPanel
+                    target: mediaConfig
+                    visible: true
+                }
+            },
+            State {
+                name: "showEffectPanels"
+                PropertyChanges {
+                    target: effectBar
+                    visible: true
+                }
+                PropertyChanges {
+                    target: effectConfig
                     visible: true
                 }
             }
@@ -218,17 +267,4 @@ ApplicationWindow {
     About {
         id: about
     }
-/*
-    Effects
-    {
-        id: cdbEffects
-        opacity: 0.95
-        anchors.bottom: iconbar.top
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.top: parent.top
-        objectName: "Effects"
-        visible: wdgMainWidget.showEffectBar
-    }
-*/
 }

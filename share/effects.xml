@@ -1,99 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <effects>
-    <effect name="Andy Warhol">Warhol</effect>
-    <effect name="Cartoon">Cartoon</effect>
-    <effect name="Charcoal">Edge equalize=true invert=true</effect>
-    <effect name="Che Guevara">
-        FalseColor table=[color(0, 0, 0),
-                          color(255, 0, 0),
-                          color(255, 255, 255),
-                          color(255, 255, 255)]
-    </effect>
-    <effect name="Chromium">ColorTap table=':/ColorTap/share/esses.bmp'</effect>
-    <effect name="Cinema">Cinema stripSize=0.5 stripColor=color(0, 0, 0, 255)</effect>
-    <effect name="Cold">
-        FalseColor gradient=true
-            table=[color(0, 0, 0),
-                   color(0, 127, 255),
-                   color(0, 255, 255),
-                   color(255, 255, 255)]
-    </effect>
-    <effect name="Dices">Dice</effect>
-    <effect name="Distort">Distort</effect>
-    <effect name="Dither">Halftone</effect>
-    <effect name="Drugs">Dizzy</effect>
-    <effect name="Edges">Edge equalize=true</effect>
-    <effect name="Emboss">Emboss</effect>
-    <effect name="Equalize">Equalize</effect>
-    <effect name="Face Detect">FaceDetect markerType='image'</effect>
-    <effect name="Fire">Fire</effect>
-    <effect name="Flip Top Left">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
-    <effect name="Fogged Glass">Blur radius=16</effect>
-    <effect name="Gray Colors">GrayScale</effect>
-    <effect name="Heat">ColorTap table=':/ColorTap/share/heat.bmp'</effect>
-    <effect name="Hypnotic">Hypnotic</effect>
-    <effect name="Horizontal Mirror">MatrixTransform kernel=[-1, 0, 0, 0, 1, 0]</effect>
-    <effect name="Horizontal Stripes">DelayGrab mode='HorizontalIncrease'</effect>
-    <effect name="Hot">
-        FalseColor gradient=true
-            table=[color(0, 0, 0),
-                   color(255, 0, 0),
-                   color(255, 255, 0),
-                   color(255, 255, 255)]
-    </effect>
-    <effect name="Hulk">
-        ColorTransform kernel=[0, 1, 0, 0,
-                               1, 0, 0, 0,
-                               0, 0, 1, 0]
-    </effect>
-    <effect name="Implode">Implode amount=0.5</effect>
-    <effect name="Invert">Invert</effect>
-    <effect name="Kung Fu Master">FrameOverlap nFrames=16 stride=8</effect>
-    <effect name="Life">Life</effect>
-    <effect name="Matrix">Matrix</effect>
-    <effect name="Mauve">
-        ColorTransform kernel=[0.5, 0.5,   0, 0,
-                                 0, 0.5, 0.5, 0,
-                               0.5,   0, 0.5, 0]
-    </effect>
-    <effect name="Nervous">Nervous</effect>
-    <effect name="Normalize">Normalize</effect>
-    <effect name="Oil Paint">OilPaint radius=2</effect>
-    <effect name="Old Photo">ColorTap table=':/ColorTap/share/oldphoto.bmp'</effect>
-    <effect name="Old">Aging</effect>
-    <effect name="Particles">DelayGrab mode='RandomSquare'</effect>
-    <effect name="Photocopy">Photocopy</effect>
-    <effect name="Pixelate">Pixelate</effect>
-    <effect name="Primaries Colors">PrimariesColors</effect>
-    <effect name="Psychedelic">Shagadelic</effect>
-    <effect name="Quark">Quark</effect>
-    <effect name="Radioactive">Radioactive mode='softColor'</effect>
-    <effect name="Red Green">ColorTap table=':/ColorTap/share/redgreen.bmp'</effect>
-    <effect name="Rings">DelayGrab mode='RingsIncrease'</effect>
-    <effect name="Rotate 180">MatrixTransform kernel=[-1, 0, 0, 0, -1, 0]</effect>
-    <effect name="Rotate Left">MatrixTransform kernel=[0, -1, 0, 1, 0, 0]</effect>
-    <effect name="Rotate Right">MatrixTransform kernel=[0, 1, 0, -1, 0, 0]</effect>
-    <effect name="Saturation">ChangeHSL hsl=[0, 1, 0]</effect>
-    <effect name="Scan Lines">ScanLines</effect>
-    <effect name="Scroll">Scroll</effect>
-    <effect name="Sepia">ColorTap table=':/ColorTap/share/sepia.bmp'</effect>
-    <effect name="Swirl">Swirl degrees=90</effect>
-    <effect name="The Godfather">
-        FalseColor table=[color(0, 0, 0),
-                          color(127, 127, 127),
-                          color(255, 255, 255)]
-    </effect>
-    <effect name="Vertical Mirror">MatrixTransform kernel=[1, 0, 0, 0, -1, 0]</effect>
-    <effect name="Vertical Stripes">DelayGrab mode='VerticalIncrease'</effect>
-    <effect name="Vignette">Vignette softness=0.3 clearCenter=0.5</effect>
-    <effect name="Warp">Warp</effect>
-    <effect name="Water">Ripple</effect>
-    <effect name="Wave">Wave amplitude=25 phases=5</effect>
-    <effect name="X-Pro">ColorTap table=':/ColorTap/share/xpro.bmp'</effect>
-    <effect name="X-Ray">ColorTap table=':/ColorTap/share/xray.bmp'</effect>
-    <effect name="Yellow Blue">ColorTap table=':/ColorTap/share/yellowblue.bmp'</effect>
-
-<!--
     <effect name="Bulge">bulge</effect>
     <effect name="Burn">burn</effect>
     <effect name="Exclusion">exclusion</effect>
@@ -108,5 +14,4 @@
     <effect name="Tunnel">tunnel</effect>
     <effect name="Twirl">twirl</effect>
     <effect name="Water Ripple">waterripple</effect>
--->
 </effects>

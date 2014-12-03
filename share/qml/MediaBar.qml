@@ -22,8 +22,7 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 
-Rectangle
-{
+Rectangle {
     id: recMediaBar
     color: Qt.rgba(0, 0, 0, 1)
     clip: true
@@ -45,10 +44,9 @@ Rectangle
             var selected = streams[stream] === Webcamoid.curStream? true: false
 
             lsvMediaList.model.append({
-                "media": streams[stream],
+                "name": streams[stream],
                 "description": Webcamoid.streamDescription(streams[stream]),
-                "selected": selected,
-                "canModify": Webcamoid.canModify(streams[stream])})
+                "selected": selected})
         }
     }
 
@@ -59,114 +57,14 @@ Rectangle
         onStreamsChanged: recMediaBar.updateMediaList()
     }
 
-    ListView {
+    OptionList {
         id: lsvMediaList
         anchors.bottom: recAddMedia.top
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
 
-        model: ListModel {
-        }
-        delegate: Item {
-            id: itmMedia
-            height: 32
-            anchors.right: parent.right
-            anchors.left: parent.left
-
-            property color gradUp: selected?
-                                       Qt.rgba(1, 0.75, 0.25, 1):
-                                       Qt.rgba(0, 0, 0, 0)
-            property color gradLow: selected?
-                                        Qt.rgba(1, 0.5, 0, 1):
-                                        Qt.rgba(0, 0, 0, 0)
-
-            Rectangle {
-                id: recMedia
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-
-                gradient: Gradient {
-                    GradientStop {
-                        position: 0
-                        color: itmMedia.gradUp
-                    }
-
-                    GradientStop {
-                        position: 1
-                        color: itmMedia.gradLow
-                    }
-                }
-
-                Text {
-                    id: txtMediaText
-                    color: Qt.rgba(1, 1, 1, 1)
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: description
-                }
-
-                MouseArea {
-                    id: msaMedia
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    anchors.fill: parent
-
-                    onEntered: {
-                        txtMediaText.font.bold = true
-
-                        if (selected) {
-                            itmMedia.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                            itmMedia.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                        }
-                        else {
-                            itmMedia.gradUp = Qt.rgba(0.67, 0.5, 1, 0.5)
-                            itmMedia.gradLow = Qt.rgba(0.5, 0.25, 1, 1)
-                        }
-                    }
-                    onExited: {
-                        txtMediaText.font.bold = false
-                        txtMediaText.scale = 1
-
-                        if (selected) {
-                            itmMedia.gradUp = Qt.rgba(1, 0.75, 0.25, 1)
-                            itmMedia.gradLow = Qt.rgba(1, 0.5, 0, 1)
-                        }
-                        else {
-                            itmMedia.gradUp = Qt.rgba(0, 0, 0, 0)
-                            itmMedia.gradLow = Qt.rgba(0, 0, 0, 0)
-                        }
-                    }
-                    onPressed: txtMediaText.scale = 0.75
-                    onReleased: txtMediaText.scale = 1
-                    onClicked: {
-                        var curIndex = -1
-
-                        for (var i = 0; i < lsvMediaList.count; i++) {
-                            var iMedia = lsvMediaList.model.get(i).media
-                            lsvMediaList.currentIndex = i
-
-                            if (iMedia === media) {
-                                itmMedia.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                                itmMedia.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                                lsvMediaList.model.setProperty(i, "selected", true)
-                                curIndex = i
-                            }
-                            else {
-                                lsvMediaList.currentItem.gradUp = Qt.rgba(0, 0, 0, 0)
-                                lsvMediaList.currentItem.gradLow = Qt.rgba(0, 0, 0, 0)
-                                lsvMediaList.model.setProperty(i, "selected", false)
-                            }
-                        }
-
-                        lsvMediaList.currentIndex = curIndex
-                        Webcamoid.curStream = media
-                    }
-                }
-            }
-        }
+        onCurOptionNameChanged: Webcamoid.curStream = curOptionName
     }
 
     Rectangle {

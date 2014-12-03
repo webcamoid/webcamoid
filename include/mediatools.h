@@ -102,8 +102,16 @@ class MediaTools: public QObject
         Q_INVOKABLE QVariantList videoSizes(const QString &stream);
         Q_INVOKABLE QVariantList listImageControls(const QString &stream);
         Q_INVOKABLE void setImageControls(const QString &stream, const QVariantMap &controls);
-        Q_INVOKABLE QMap<QString, QString> availableEffects() const;
+        Q_INVOKABLE QStringList availableEffects() const;
+        Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
         Q_INVOKABLE QStringList currentEffects() const;
+        Q_INVOKABLE QbElementPtr appendEffect(const QString &effectId);
+        Q_INVOKABLE void removeEffect(const QString &effectId);
+        Q_INVOKABLE void moveEffect(const QString &effectId, int index);
+        Q_INVOKABLE bool embedEffectControls(const QString &where,
+                                             const QString &effectId,
+                                             const QString &name="") const;
+        Q_INVOKABLE void removeEffectControls(const QString &where) const;
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
@@ -111,6 +119,7 @@ class MediaTools: public QObject
                                              const QString &stream,
                                              const QString &name="") const;
         Q_INVOKABLE void removeCameraControls(const QString &where) const;
+        Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
 
     private:
         QString m_curStream;
@@ -124,9 +133,6 @@ class MediaTools: public QObject
 
         QbElementPtr m_pipeline;
         QbElementPtr m_source;
-        QbElementPtr m_effects;
-        QbElementPtr m_effectsPreview;
-        QbElementPtr m_applyPreview;
         QbElementPtr m_audioSwitch;
         QbElementPtr m_audioOutput;
         QbElementPtr m_mic;
@@ -134,7 +140,7 @@ class MediaTools: public QObject
         QbElementPtr m_videoCapture;
         QbElementPtr m_videoSync;
         QbElementPtr m_videoConvert;
-        QStringList m_effectsList;
+        QList<QbElementPtr> m_effectsList;
         QMutex m_mutex;
 
         bool embedInterface(QQmlApplicationEngine *engine,
@@ -144,6 +150,9 @@ class MediaTools: public QObject
         void removeInterface(QQmlApplicationEngine *engine,
                              const QString &where) const;
 
+        static bool sortByDescription(const QString &pluginId1,
+                                      const QString &pluginId2);
+
 
     signals:
         void curStreamChanged();
@@ -151,8 +160,6 @@ class MediaTools: public QObject
         void stateChanged();
         void recordingChanged(bool recording);
         void frameReady(const QbPacket &frame);
-        void effectPreviewReady(const QbPacket &frame);
-        void applyPreviewReady(const QbPacket &frame);
         void error(const QString &message);
         void interfaceLoaded();
 
@@ -165,7 +172,6 @@ class MediaTools: public QObject
         void stopStream();
         void setCurStream(const QString &stream);
         void setVideoSize(const QString &stream, const QSize &size);
-        void setEffectsPreview(const QString &effect);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(RecordFrom recordAudioFrom);
         void setRecording(bool recording, QString fileName="");
@@ -174,18 +180,15 @@ class MediaTools: public QObject
         void setAppEngine(QQmlApplicationEngine *engine);
         void resetCurStream();
         void resetVideoSize(const QString &stream);
-        void resetEffectsPreview();
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
         void resetRecording();
         void resetVideoRecordFormats();
         void resetWindowSize();
 
-        void connectPreview(bool link);
         void reset(const QString &stream);
         void loadConfigs();
         void saveConfigs();
-        void setEffects(const QStringList &effects=QStringList());
         void clearVideoRecordFormats();
         void setStream(const QString &stream, const QString &description);
         void removeStream(const QString &stream);

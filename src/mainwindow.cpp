@@ -82,7 +82,6 @@ void MainWindow::showConfigDialog(ConfigDialog *configDialog)
     }
 
     this->addWebcamConfigDialog(configDialog);
-    this->addEffectsConfigDialog(configDialog);
     this->addVideoFormatsConfigDialog(configDialog);
     this->addStreamsConfigDialog(configDialog);
     this->addGeneralConfigsDialog(configDialog);
@@ -224,19 +223,6 @@ void MainWindow::addWebcamConfigDialog(ConfigDialog *configDialog)
                           this->tr("Webcam Settings"),
                           QIcon::fromTheme("camera-web"),
                           this->tr("Configure the parameters of the webcam."));
-}
-
-void MainWindow::addEffectsConfigDialog(ConfigDialog *configDialog)
-{
-    if (!configDialog)
-        return;
-
-    this->m_cfgEffects = new Effects(this->m_mediaTools);
-
-    configDialog->addPage(this->m_cfgEffects,
-                          this->tr("Configure Webcam Effects"),
-                          QIcon::fromTheme("tools-wizard"),
-                          this->tr("Add funny effects to the webcam"));
 }
 
 void MainWindow::addVideoFormatsConfigDialog(ConfigDialog *configDialog)

@@ -199,6 +199,24 @@ QDebug operator <<(QDebug debug, const QbFrac &frac)
     return debug.space();
 }
 
+QDataStream &operator >>(QDataStream &istream, QbFrac &frac)
+{
+    istream >> frac.m_num;
+    istream >> frac.m_den;
+    istream >> frac.m_isValid;
+
+    return istream;
+}
+
+QDataStream &operator <<(QDataStream &ostream, const QbFrac &frac)
+{
+    ostream << frac.m_num;
+    ostream << frac.m_den;
+    ostream << frac.m_isValid;
+
+    return ostream;
+}
+
 QbFrac operator *(int number, const QbFrac &frac)
 {
     return QbFrac(number * frac.num(),

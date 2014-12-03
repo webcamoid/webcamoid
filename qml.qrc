@@ -3,11 +3,11 @@
         <file>share/qml/About.qml</file>
         <file>share/qml/AddMedia.qml</file>
         <file>share/qml/DialogBox.qml</file>
-        <file>share/qml/Effects.qml</file>
+        <file>share/qml/EffectBar.qml</file>
         <file>share/qml/IconBarItem.qml</file>
-        <file>share/qml/ListWidget.qml</file>
+        <file>share/qml/main.qml</file>
         <file>share/qml/MediaBar.qml</file>
         <file>share/qml/MediaConfig.qml</file>
-        <file>share/qml/main.qml</file>
+        <file>share/qml/OptionList.qml</file>
     </qresource>
 </RCC>

@@ -48,7 +48,6 @@ PRE_TARGETDEPS += compiler_compiletr_make_all
 CONFIG += qt
 
 FORMS = \
-    share/ui/effects.ui \
     share/ui/generalconfig.ui \
     share/ui/streamsconfig.ui \
     share/ui/videorecordconfig.ui \
@@ -62,7 +61,6 @@ HEADERS = \
     include/about.h \
     include/cameraconfig.h \
     include/configdialog.h \
-    include/effects.h \
     include/generalconfig.h \
     include/imagedisplay.h \
     include/mainwindow.h \
@@ -97,7 +95,6 @@ SOURCES = \
     src/about.cpp \
     src/cameraconfig.cpp \
     src/configdialog.cpp \
-    src/effects.cpp \
     src/generalconfig.cpp \
     src/imagedisplay.cpp \
     src/mainwindow.cpp \

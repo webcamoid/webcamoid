@@ -43,6 +43,8 @@ class QbElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
+    Q_PROPERTY(QString pluginId
+               READ pluginId)
     Q_PROPERTY(QbElement::ElementState state
                READ state
                WRITE setState
@@ -60,6 +62,7 @@ class QbElement: public QObject
         explicit QbElement(QObject *parent=NULL);
         virtual ~QbElement();
 
+        Q_INVOKABLE QString pluginId() const;
         Q_INVOKABLE virtual QbElement::ElementState state() const;
         Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,
                                                       const QString &controlId) const;
@@ -90,6 +93,8 @@ class QbElement: public QObject
         Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
 
     private:
+        QString m_pluginId;
+
         static QList<QMetaMethod> methodsByName(const QObject *object, const QString &methodName);
         static bool methodCompat(const QMetaMethod &method1, const QMetaMethod &method2);
 
@@ -108,6 +113,8 @@ class QbElement: public QObject
         virtual void resetState();
 };
 
+QDataStream &operator >>(QDataStream &istream, QbElement::ElementState &state);
+QDataStream &operator <<(QDataStream &ostream, QbElement::ElementState state);
 Q_DECLARE_METATYPE(QbElement::ElementState)
 
 #endif // QBELEMENT_H
