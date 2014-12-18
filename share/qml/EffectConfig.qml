@@ -24,34 +24,33 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 GridLayout {
-    id: recMediaConfig
+    id: recEffectConfig
     columns: 1
 
-    Connections {
-        target: Webcamoid
-        onCurStreamChanged: {
-            txtMedia.text = Webcamoid.curStream
-            txtDescription.text = Webcamoid.streamDescription(Webcamoid.curStream)
-            btnEdit.enabled = Webcamoid.canModify(Webcamoid.curStream)
-            btnRemove.enabled = Webcamoid.canModify(Webcamoid.curStream)
+    property string curEffect: ""
+    property bool inUse: false
 
-            Webcamoid.removeCameraControls("itmMediaControls");
+    signal effectAdded(string effectId)
 
-            if (Webcamoid.isCamera(Webcamoid.curStream))
-                Webcamoid.embedCameraControls("itmMediaControls", Webcamoid.curStream);
-        }
-
-        onInterfaceLoaded: {
-            Webcamoid.removeCameraControls("itmMediaControls");
-
-            if (Webcamoid.isCamera(Webcamoid.curStream))
-                Webcamoid.embedCameraControls("itmMediaControls", Webcamoid.curStream);
-        }
+    onCurEffectChanged: {
+        Webcamoid.removeEffectControls("itmEffectControls")
+        Webcamoid.embedEffectControls("itmEffectControls", curEffect)
     }
 
-    AddMedia {
-        id: dlgAddMedia
-        editMode: true
+    Label {
+        id: lblEffect
+        color: Qt.rgba(1, 1, 1, 1)
+        text: qsTr("Plugin id")
+        font.bold: true
+        Layout.fillWidth: true
+    }
+
+    TextField {
+        id: txtEffect
+        text: recEffectConfig.curEffect
+        placeholderText: qsTr("Plugin id")
+        readOnly: true
+        Layout.fillWidth: true
     }
 
     Label {
@@ -64,22 +63,8 @@ GridLayout {
 
     TextField {
         id: txtDescription
-        placeholderText: qsTr("Insert media description")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-
-    Label {
-        id: lblMedia
-        color: Qt.rgba(1, 1, 1, 1)
-        text: qsTr("Media file")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-
-    TextField {
-        id: txtMedia
-        placeholderText: qsTr("Select media file")
+        text: Webcamoid.effectDescription(recEffectConfig.curEffect)
+        placeholderText: qsTr("Plugin description")
         readOnly: true
         Layout.fillWidth: true
     }
@@ -93,25 +78,29 @@ GridLayout {
         }
 
         Button {
-            id: btnEdit
-            iconName: "edit"
-            text: qsTr("Edit")
+            id: btnAddRemove
+            iconName: inUse? "remove": "add"
+            text: inUse? qsTr("Remove"): qsTr("Add")
+            enabled: recEffectConfig.curEffect == ""? false: true
 
-            onClicked: dlgAddMedia.visible = true
-        }
+            onClicked: {
+                if (inUse) {
+                    Webcamoid.removeEffect(recEffectConfig.curEffect)
 
-        Button {
-            id: btnRemove
-            iconName: "remove"
-            text: qsTr("Remove")
-
-            onClicked: Webcamoid.removeStream(Webcamoid.curStream)
+                    if (Webcamoid.currentEffects.length < 1)
+                        recEffectConfig.curEffect = ""
+                }
+                else {
+                    Webcamoid.setAsPreview(recEffectConfig.curEffect, false)
+                    recEffectConfig.effectAdded(recEffectConfig.curEffect)
+                }
+            }
         }
     }
 
     RowLayout {
-        id: itmMediaControls
-        objectName: "itmMediaControls"
+        id: itmEffectControls
+        objectName: "itmEffectControls"
         Layout.fillWidth: true
         Layout.fillHeight: true
     }

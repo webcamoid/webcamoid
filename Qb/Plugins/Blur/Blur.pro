@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml widgets
 
+RESOURCES += \
+    Blur.qrc
+
 SOURCES += \
     src/blur.cpp \
     src/blurelement.cpp

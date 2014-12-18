@@ -88,6 +88,7 @@ ApplicationWindow {
                 visible: false
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                onCurEffectChanged: effectConfig.curEffect = curEffect
             }
         }
 
@@ -230,11 +231,13 @@ ApplicationWindow {
                 onWidthChanged: rightPanel.width = width
             }
 
-            Rectangle {
+            EffectConfig {
                 id: effectConfig
-                color: Qt.rgba(0, 0, 1, 1)
-                anchors.fill: parent
+                curEffect: effectBar.curEffect
+                inUse: !effectBar.editMode
                 visible: false
+                onWidthChanged: rightPanel.width = width
+                onEffectAdded: effectBar.editMode = false
             }
         }
 

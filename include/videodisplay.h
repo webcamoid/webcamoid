@@ -46,7 +46,7 @@ class VideoDisplay: public QQuickItem
 
     private:
         bool m_fillDisplay;
-        VideoFrame *m_videoFrame;
+        VideoFrame m_videoFrame;
 
     protected:
         QSGNode *updatePaintNode(QSGNode *oldNode,

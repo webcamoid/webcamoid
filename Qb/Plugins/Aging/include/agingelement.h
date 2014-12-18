@@ -22,6 +22,9 @@
 #ifndef AGINGELEMENT_H
 #define AGINGELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
+
 #include <qb.h>
 #include <qbutils.h>
 
@@ -30,12 +33,27 @@
 class AgingElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int nScratches READ nScratches WRITE setNScratches RESET resetNScratches)
-    Q_PROPERTY(int scratchLines READ scratchLines WRITE setScratchLines RESET resetScratchLines)
-    Q_PROPERTY(int agingMode READ agingMode WRITE setAgingMode RESET resetAgingMode)
+    Q_PROPERTY(int nScratches
+               READ nScratches
+               WRITE setNScratches
+               RESET resetNScratches
+               NOTIFY nScratchesChanged)
+    Q_PROPERTY(int scratchLines
+               READ scratchLines
+               WRITE setScratchLines
+               RESET resetScratchLines
+               NOTIFY scratchLinesChanged)
+    Q_PROPERTY(int agingMode
+               READ agingMode
+               WRITE setAgingMode
+               RESET resetAgingMode
+               NOTIFY agingModeChanged)
 
     public:
         explicit AgingElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE int nScratches() const;
         Q_INVOKABLE int scratchLines() const;
@@ -54,6 +72,11 @@ class AgingElement: public QbElement
         void scratching(QImage &dest);
         void pits(QImage &dest);
         void dusts(QImage &dest);
+
+    signals:
+        void nScratchesChanged();
+        void scratchLinesChanged();
+        void agingModeChanged();
 
     public slots:
         void setNScratches(int nScratches);

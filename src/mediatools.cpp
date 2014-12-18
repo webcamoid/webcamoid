@@ -345,6 +345,17 @@ void MediaTools::setImageControls(const QString &device, const QVariantMap &cont
 QStringList MediaTools::availableEffects() const
 {
     QStringList effects = QbElement::listPlugins("VideoFilter");
+
+    foreach (QbElementPtr effect, this->m_effectsList) {
+        int i = effects.indexOf(effect->pluginId());
+
+        if (i < 0
+            || effect->property("preview").toBool())
+            continue;
+
+        effects.removeAt(i);
+    }
+
     qSort(effects.begin(), effects.end(), sortByDescription);
 
     return effects;
@@ -355,20 +366,37 @@ QVariantMap MediaTools::effectInfo(const QString &effectId) const
     return QbElement::pluginInfo(effectId);
 }
 
+QString MediaTools::effectDescription(const QString &effectId) const
+{
+    if (effectId.isEmpty())
+        return "";
+
+    return QbElement::pluginInfo(effectId)["MetaData"].toMap()
+                                          ["description"].toString();
+}
+
 QStringList MediaTools::currentEffects() const
 {
     QStringList effects;
 
-    foreach (QbElementPtr element, this->m_effectsList)
-        effects << element->pluginId();
+    foreach (QbElementPtr effect, this->m_effectsList)
+        if (!effect->property("preview").toBool())
+            effects << effect->pluginId();
 
     return effects;
 }
 
-QbElementPtr  MediaTools::appendEffect(const QString &effectId)
+QbElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
 {
     int i = this->m_effectsList.size() - 1;
     QbElementPtr effect = QbElement::create(effectId);
+
+    if (!effect)
+        return QbElementPtr();
+
+    if (preview)
+        effect->setProperty("preview", preview);
+
     this->m_effectsList << effect;
 
     if (i < 0) {
@@ -381,6 +409,9 @@ QbElementPtr  MediaTools::appendEffect(const QString &effectId)
     }
 
     effect->link(this->m_videoConvert);
+
+    if (!preview)
+        emit this->currentEffectsChanged();
 
     return effect;
 }
@@ -400,7 +431,11 @@ void MediaTools::removeEffect(const QString &effectId)
             else
                 this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1]);
 
+            bool isPreview = this->m_effectsList[i]->property("preview").toBool();
             this->m_effectsList.removeAt(i);
+
+            if (!isPreview)
+                emit this->currentEffectsChanged();
 
             break;
         }
@@ -415,6 +450,8 @@ void MediaTools::moveEffect(const QString &effectId, int index)
 
             break;
         }
+
+    emit this->currentEffectsChanged();
 }
 
 bool MediaTools::embedEffectControls(const QString &where, const QString &effectId, const QString &name) const
@@ -438,6 +475,37 @@ bool MediaTools::embedEffectControls(const QString &where, const QString &effect
 void MediaTools::removeEffectControls(const QString &where) const
 {
     this->removeInterface(this->m_appEngine, where);
+}
+
+void MediaTools::showPreview(const QString &effectId)
+{
+    this->removePreview();
+    this->appendEffect(effectId, true);
+}
+
+void MediaTools::setAsPreview(const QString &effectId, bool preview)
+{
+    for (int i = 0; i < this->m_effectsList.size(); i++)
+        if (this->m_effectsList[i]->pluginId() == effectId) {
+            this->m_effectsList[i]->setProperty("preview", preview);
+
+            if (!preview)
+                emit this->currentEffectsChanged();
+
+            break;
+        }
+}
+
+void MediaTools::removePreview(const QString &effectId)
+{
+    QList<QbElementPtr> effectsList = this->m_effectsList;
+
+    foreach (QbElementPtr effect, effectsList)
+        if (effect->property("preview").toBool()
+            && (effectId.isEmpty()
+                || effect->pluginId() == effectId)) {
+            this->removeEffect(effect->pluginId());
+        }
 }
 
 QString MediaTools::bestRecordFormatOptions(const QString &fileName) const
@@ -1008,6 +1076,9 @@ void MediaTools::loadConfigs()
     foreach (QString effectId, effects) {
         QbElementPtr effect = this->appendEffect(effectId);
 
+        if (!effect)
+            continue;
+
         config.beginGroup(effectId);
 
         foreach (QString key, config.allKeys())
@@ -1069,11 +1140,14 @@ void MediaTools::saveConfigs()
     config.beginGroup("Effects");
     config.beginWriteArray("effects");
 
-    for (int i = 0; i < this->m_effectsList.size(); i++) {
-        config.setArrayIndex(i);
-        QString effect = this->m_effectsList[i]->pluginId();
-        config.setValue("effect", effect);
-    }
+    int ei = 0;
+
+    foreach (QbElementPtr effect, this->m_effectsList)
+        if (!effect->property("preview").toBool()) {
+            config.setArrayIndex(ei);
+            config.setValue("effect", effect->pluginId());
+            ei++;
+        }
 
     config.endArray();
     config.endGroup();

@@ -29,13 +29,50 @@ Rectangle {
     width: 200
     height: 400
 
-    function updateEffectList() {
-        var curEffect = Webcamoid.curStream
-        var effects = Webcamoid.availableEffects()
-        lsvEffectList.model.clear()
+    property string curEffect: ""
+    property string testEffect: ""
+    property bool editMode: false
+
+    function updateAppliedEffectList() {
+        var effects = Webcamoid.currentEffects
+        var curEffect = lsvAppliedEffectList.curOptionName
+        lsvAppliedEffectList.model.clear()
+
+        if (effects.length > 0
+            && effects.indexOf(curEffect) < 0)
+            curEffect = effects[0]
 
         for (var effect in effects) {
-            var selected = false //streams[stream] === Webcamoid.curStream? true: false
+            var selected = false
+
+            if (effects[effect] === curEffect) {
+                selected = true
+                lsvAppliedEffectList.curOptionName = effects[effect]
+            }
+
+            lsvAppliedEffectList.model.append({
+                "name": effects[effect],
+                "description": Webcamoid.effectInfo(effects[effect])["MetaData"]["description"],
+                "selected": selected})
+        }
+    }
+
+    function updateEffectList() {
+        var effects = Webcamoid.availableEffects()
+        var curEffect = lsvEffectList.curOptionName
+        lsvEffectList.model.clear()
+
+        if (effects.length > 0
+            && effects.indexOf(curEffect) < 0)
+            curEffect = effects[0]
+
+        for (var effect in effects) {
+            var selected = false
+
+            if (effects[effect] === curEffect) {
+                selected = true
+                lsvEffectList.curOptionName = effects[effect]
+            }
 
             lsvEffectList.model.append({
                 "name": effects[effect],
@@ -44,11 +81,26 @@ Rectangle {
         }
     }
 
-    Component.onCompleted: recEffectBar.updateEffectList()
+    onEditModeChanged: {
+        state = editMode? "showEffects": ""
+    }
+
+    onVisibleChanged: {
+        if (!visible)
+            recEffectBar.state = ""
+    }
+
+    Component.onCompleted: {
+        recEffectBar.updateAppliedEffectList()
+        recEffectBar.updateEffectList()
+    }
 
     Connections {
         target: Webcamoid
-        onStreamsChanged: recEffectBar.updateEffectList()
+        onCurrentEffectsChanged: {
+            recEffectBar.updateAppliedEffectList()
+            recEffectBar.updateEffectList()
+        }
     }
 
     TextField {
@@ -59,7 +111,7 @@ Rectangle {
         anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.left: parent.left
-        placeholderText: "Search effect..."
+        placeholderText: qsTr("Search effect...")
     }
 
     OptionList {
@@ -72,6 +124,11 @@ Rectangle {
         filter: txtSearchEffect.text
 
         onCurOptionNameChanged: {
+            recEffectBar.curEffect = curOptionName
+        }
+        onVisibleChanged: {
+            if (visible)
+                recEffectBar.curEffect = curOptionName
         }
     }
 
@@ -84,11 +141,29 @@ Rectangle {
         anchors.left: parent.left
         anchors.top: txtSearchEffect.bottom
 
+        onVisibleChanged: {
+            if (visible) {
+                recEffectBar.curEffect = lsvEffectList.curOptionName
+                Webcamoid.showPreview(lsvEffectList.curOptionName)
+                Webcamoid.removeEffectControls("itmEffectControls")
+                Webcamoid.embedEffectControls("itmEffectControls", lsvEffectList.curOptionName)
+            }
+            else
+                Webcamoid.removePreview()
+        }
+
         OptionList {
             id: lsvEffectList
             filter: txtSearchEffect.text
 
             onCurOptionNameChanged: {
+                recEffectBar.curEffect = curOptionName
+
+                if (scrollEffects.visible) {
+                    Webcamoid.showPreview(curOptionName)
+                    Webcamoid.removeEffectControls("itmEffectControls")
+                    Webcamoid.embedEffectControls("itmEffectControls", curOptionName)
+                }
             }
         }
     }
@@ -142,14 +217,8 @@ Rectangle {
             onPressed: imgAddEffect.scale = 0.75
             onReleased: imgAddEffect.scale = 1
             onClicked: {
-                if (recEffectBar.state == "") {
-                    imgAddEffect.source = "qrc:/Webcamoid/share/icons/down.svg"
-                    recEffectBar.state = "showEffects"
-                }
-                else {
-                    imgAddEffect.source = "qrc:/Webcamoid/share/icons/add.svg"
-                    recEffectBar.state = ""
-                }
+                recEffectBar.state = (recEffectBar.state == "")?
+                            "showEffects": ""
             }
         }
     }
@@ -164,6 +233,14 @@ Rectangle {
             PropertyChanges {
                 target: scrollEffects
                 visible: true
+            }
+            PropertyChanges {
+                target: imgAddEffect
+                source: "qrc:/Webcamoid/share/icons/down.svg"
+            }
+            PropertyChanges {
+                editMode: true
+                target: recEffectBar
             }
         }
     ]

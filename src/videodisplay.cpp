@@ -25,14 +25,11 @@ VideoDisplay::VideoDisplay(QQuickItem *parent):
     QQuickItem(parent)
 {
     this->m_fillDisplay = false;
-    this->m_videoFrame = new VideoFrame();
     this->setFlag(ItemHasContents, true);
 }
 
 VideoDisplay::~VideoDisplay()
 {
-    if (this->m_videoFrame)
-        delete this->m_videoFrame;
 }
 
 bool VideoDisplay::fillDisplay() const
@@ -44,7 +41,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaint
 {
     Q_UNUSED(updatePaintNodeData)
 
-    if (!this->m_videoFrame) {
+    if (this->m_videoFrame.textureSize().isEmpty()) {
         if (oldNode)
             delete oldNode;
 
@@ -61,7 +58,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaint
     if (this->m_fillDisplay)
         node->setRect(this->boundingRect());
     else {
-        QSizeF size(this->m_videoFrame->textureSize());
+        QSizeF size(this->m_videoFrame.textureSize());
         size.scale(this->boundingRect().size(), Qt::KeepAspectRatio);
         QRectF rect(QPointF(), size);
         rect.moveCenter(this->boundingRect().center());
@@ -69,17 +66,14 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaint
         node->setRect(rect);
     }
 
-    node->setTexture(this->m_videoFrame);
+    node->setTexture(&this->m_videoFrame);
 
     return node;
 }
 
 void VideoDisplay::setFrame(const QbPacket &packet)
 {
-    if (this->m_videoFrame)
-        delete this->m_videoFrame;
-
-    this->m_videoFrame = VideoFrame::fromPacket(packet);
+    this->m_videoFrame = packet;
     this->update();
 }
 

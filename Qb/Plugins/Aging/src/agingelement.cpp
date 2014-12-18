@@ -34,6 +34,28 @@ AgingElement::AgingElement(): QbElement()
     this->resetAgingMode();
 }
 
+QObject *AgingElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Aging/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Aging", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int AgingElement::nScratches() const
 {
     return this->m_scratches.size();
@@ -67,8 +89,7 @@ QImage AgingElement::colorAging(const QImage &src)
 
     int dstArea = dest.byteCount() >> 2;
 
-    for (int i = 0; i < dstArea; i++)
-    {
+    for (int i = 0; i < dstArea; i++) {
         quint32 a = *srcBits++;
         quint32 b = (a & 0xfcfcfc) >> 2;
 
@@ -80,41 +101,39 @@ QImage AgingElement::colorAging(const QImage &src)
 
 void AgingElement::scratching(QImage &dest)
 {
-    for (int i = 0; i < this->scratchLines(); i++)
-        if (this->m_scratches[i].life())
-        {
-            this->m_scratches[i].setX(this->m_scratches[i].x() +
-                                      this->m_scratches[i].dx());
+    QVector<Scratch> scratches = this->m_scratches;
+    int scratchLines = qMin(this->m_scratchLines, scratches.size());
 
-            if (this->m_scratches[i].x() < 0 ||
-                this->m_scratches[i].x() > dest.width() * 256)
-            {
-                this->m_scratches[i].setLife(0);
+    for (int i = 0; i < scratchLines; i++)
+        if (scratches[i].life()) {
+            scratches[i].setX(scratches[i].x() + scratches[i].dx());
+
+            if (scratches[i].x() < 0 ||
+                scratches[i].x() > dest.width() * 256) {
+                scratches[i].setLife(0);
 
                 break;
             }
 
-            quint32 *p = (quint32 *) dest.bits() + (this->m_scratches[i].x() >> 8);
+            quint32 *p = (quint32 *) dest.bits() + (scratches[i].x() >> 8);
             int y1;
 
-            if (this->m_scratches[i].init())
-            {
-                y1 = this->m_scratches[i].init();
-                this->m_scratches[i].setInit(0);
+            if (scratches[i].init()) {
+                y1 = scratches[i].init();
+                scratches[i].setInit(0);
             }
             else
                 y1 = 0;
 
-            this->m_scratches[i].setLife(this->m_scratches[i].life() - 1);
+            scratches[i].setLife(scratches[i].life() - 1);
             int y2;
 
-            if (this->m_scratches[i].life())
+            if (scratches[i].life())
                 y2 = dest.height();
             else
                 y2 = qrand() % dest.height();
 
-            for (int y = y1; y < y2; y++)
-            {
+            for (int y = y1; y < y2; y++) {
                 quint32 a = *p & 0xfefeff;
                 a += 0x202020;
                 quint32 b = a & 0x1010100;
@@ -122,13 +141,14 @@ void AgingElement::scratching(QImage &dest)
                 p += dest.width();
             }
         }
-        else if ((qrand() & 0xf0000000) == 0)
-        {
-            this->m_scratches[i].setLife(2 + (qrand() >> 27));
-            this->m_scratches[i].setX(qrand() % (dest.width() * 256));
-            this->m_scratches[i].setDx(qrand() >> 23);
-            this->m_scratches[i].setInit((qrand() % (dest.height() - 1)) + 1);
+        else if ((qrand() & 0xf0000000) == 0) {
+            scratches[i].setLife(2 + (qrand() >> 27));
+            scratches[i].setX(qrand() % (dest.width() * 256));
+            scratches[i].setDx(qrand() >> 23);
+            scratches[i].setInit((qrand() % (dest.height() - 1)) + 1);
         }
+
+    this->m_scratches = scratches;
 }
 
 void AgingElement::pits(QImage &dest)
@@ -136,8 +156,7 @@ void AgingElement::pits(QImage &dest)
     int pnum;
     int areaScale;
 
-    if (this->agingMode() == 0)
-    {
+    if (this->m_agingMode == 0) {
         areaScale = dest.width() * dest.height() / 64 / 480;
 
         if (areaScale < 1)
@@ -149,13 +168,11 @@ void AgingElement::pits(QImage &dest)
     int pnumscale = areaScale * 2;
     static int pitsInterval = 0;
 
-    if (pitsInterval)
-    {
+    if (pitsInterval) {
         pnum = pnumscale + (qrand() % pnumscale);
         pitsInterval--;
     }
-    else
-    {
+    else {
         pnum = qrand() % pnumscale;
 
         if ((qrand() & 0xf8000000) == 0)
@@ -164,14 +181,12 @@ void AgingElement::pits(QImage &dest)
 
     quint32 *destBits = (quint32 *) dest.bits();
 
-    for (int i = 0; i < pnum; i++)
-    {
+    for (int i = 0; i < pnum; i++) {
         int x = qrand() % (dest.width() - 1);
         int y = qrand() % (dest.height() - 1);
         int size = qrand() >> 28;
 
-        for (int j = 0; j < size; j++)
-        {
+        for (int j = 0; j < size; j++) {
             x = x + qrand() % 3 - 1;
             y = y + qrand() % 3 - 1;
 
@@ -190,8 +205,7 @@ void AgingElement::dusts(QImage &dest)
 {
     static int dustInterval = 0;
 
-    if (dustInterval == 0)
-    {
+    if (dustInterval == 0) {
         if ((qrand() & 0xf0000000) == 0)
             dustInterval = qrand() >> 29;
 
@@ -200,8 +214,7 @@ void AgingElement::dusts(QImage &dest)
 
     int areaScale;
 
-    if (this->agingMode() == 0)
-    {
+    if (this->m_agingMode == 0) {
         areaScale = dest.width() * dest.height() / 64 / 480;
 
         if (areaScale < 1)
@@ -213,15 +226,13 @@ void AgingElement::dusts(QImage &dest)
     int dnum = areaScale * 4 + (qrand() >> 27);
     quint32 *destBits = (quint32 *) dest.bits();
 
-    for (int i = 0; i < dnum; i++)
-    {
+    for (int i = 0; i < dnum; i++) {
         int x = qrand() % dest.width();
         int y = qrand() % dest.height();
         int d = qrand() >> 29;
         int len = qrand() % areaScale + 5;
 
-        for (int j = 0; j < len; j++)
-        {
+        for (int j = 0; j < len; j++) {
             destBits[y * dest.width() + x] = 0x101010;
             y += this->m_dy[d];
             x += this->m_dx[d];
@@ -241,17 +252,29 @@ void AgingElement::dusts(QImage &dest)
 
 void AgingElement::setNScratches(int nScratches)
 {
+    if (this->m_scratches.size() == nScratches)
+        return;
+
     this->m_scratches.resize(nScratches);
+    emit this->nScratchesChanged();
 }
 
 void AgingElement::setScratchLines(int scratchLines)
 {
+    if (this->m_scratchLines == scratchLines)
+        return;
+
     this->m_scratchLines = scratchLines;
+    emit this->scratchLinesChanged();
 }
 
 void AgingElement::setAgingMode(int agingMode)
 {
+    if (this->m_agingMode == agingMode)
+        return;
+
     this->m_agingMode = agingMode;
+    emit this->agingModeChanged();
 }
 
 void AgingElement::resetNScratches()
@@ -281,7 +304,7 @@ QbPacket AgingElement::iStream(const QbPacket &packet)
     this->scratching(oFrame);
     this->pits(oFrame);
 
-    if (this->agingMode() == 0)
+    if (this->m_agingMode == 0)
         this->dusts(oFrame);
 
     QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);

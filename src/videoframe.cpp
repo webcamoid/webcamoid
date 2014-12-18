@@ -29,7 +29,7 @@ VideoFrame::VideoFrame(const QbPacket &packet)
 
 VideoFrame::~VideoFrame()
 {
-    if (this->m_image.isNull())
+    if (this->m_textureId < 1)
         return;
 
     QGLContext *context = const_cast<QGLContext *>(QGLContext::currentContext());
@@ -38,6 +38,16 @@ VideoFrame::~VideoFrame()
         return;
 
     context->deleteTexture(this->m_textureId);
+}
+
+VideoFrame &VideoFrame::operator =(const QbPacket &packet)
+{
+    QImage image = QbUtils::packetToImage(packet);
+
+    if (!image.isNull())
+        this->m_image = image.mirrored();
+
+    return *this;
 }
 
 void VideoFrame::bind()
@@ -49,6 +59,9 @@ void VideoFrame::bind()
 
     if (!context)
         return;
+
+    if (this->m_textureId >= 0)
+        context->deleteTexture(this->m_textureId);
 
     this->m_textureId = context->bindTexture(this->m_image);
 }
@@ -71,17 +84,4 @@ int VideoFrame::textureId() const
 QSize VideoFrame::textureSize() const
 {
     return this->m_image.size();
-}
-
-VideoFrame *VideoFrame::fromPacket(const QbPacket &packet)
-{
-    QImage image = QbUtils::packetToImage(packet);
-
-    if (image.isNull())
-        return NULL;
-
-    VideoFrame *videoFrame = new VideoFrame();
-    videoFrame->m_image = image.mirrored();
-
-    return videoFrame;
 }

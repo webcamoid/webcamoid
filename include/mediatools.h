@@ -70,6 +70,10 @@ class MediaTools: public QObject
                WRITE setWindowSize
                RESET resetWindowSize)
 
+    Q_PROPERTY(QStringList currentEffects
+               READ currentEffects
+               NOTIFY currentEffectsChanged)
+
     public:
         enum RecordFrom
         {
@@ -104,14 +108,18 @@ class MediaTools: public QObject
         Q_INVOKABLE void setImageControls(const QString &stream, const QVariantMap &controls);
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
+        Q_INVOKABLE QString effectDescription(const QString &effectId) const;
         Q_INVOKABLE QStringList currentEffects() const;
-        Q_INVOKABLE QbElementPtr appendEffect(const QString &effectId);
+        Q_INVOKABLE QbElementPtr appendEffect(const QString &effectId, bool preview=false);
         Q_INVOKABLE void removeEffect(const QString &effectId);
         Q_INVOKABLE void moveEffect(const QString &effectId, int index);
         Q_INVOKABLE bool embedEffectControls(const QString &where,
                                              const QString &effectId,
                                              const QString &name="") const;
         Q_INVOKABLE void removeEffectControls(const QString &where) const;
+        Q_INVOKABLE void showPreview(const QString &effectId);
+        Q_INVOKABLE void setAsPreview(const QString &effectId, bool preview=false);
+        Q_INVOKABLE void removePreview(const QString &effectId="");
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
@@ -159,6 +167,7 @@ class MediaTools: public QObject
         void streamsChanged();
         void stateChanged();
         void recordingChanged(bool recording);
+        void currentEffectsChanged();
         void frameReady(const QbPacket &frame);
         void error(const QString &message);
         void interfaceLoaded();

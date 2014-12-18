@@ -19,33 +19,32 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEOFRAME_H
-#define VIDEOFRAME_H
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
-#include <QSGTexture>
-#include <QGLContext>
+GridLayout {
+    columns: 3
 
-#include "qbutils.h"
+    // Configure blur radius.
+    Label {
+        id: lblRadius
+        text: qsTr("Radius")
+    }
+    Slider {
+        id: sldRadius
+        value: Blur.radius
+        stepSize: 1
+        maximumValue: 128
 
-class VideoFrame: public QSGTexture
-{
-    Q_OBJECT
+        onValueChanged: Blur.radius = value
+    }
+    SpinBox {
+        id: spbRadius
+        value: sldRadius.value
+        maximumValue: sldRadius.maximumValue
+        stepSize: sldRadius.stepSize
 
-    public:
-        explicit VideoFrame(const QbPacket &packet=QbPacket());
-        ~VideoFrame();
-
-        VideoFrame &operator =(const QbPacket &packet);
-
-        void bind();
-        bool hasAlphaChannel() const;
-        bool hasMipmaps() const;
-        int textureId() const;
-        QSize textureSize() const;
-
-    private:
-        QImage m_image;
-        int m_textureId;
-};
-
-#endif // VIDEOFRAME_H
+        onValueChanged: sldRadius.value = value
+    }
+}

@@ -29,6 +29,28 @@ BlurElement::BlurElement(): QbElement()
     this->resetRadius();
 }
 
+QObject *BlurElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Blur/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Blur", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int BlurElement::radius() const
 {
     return this->m_radius;
@@ -36,12 +58,15 @@ int BlurElement::radius() const
 
 void BlurElement::setRadius(int radius)
 {
-    this->m_radius = radius;
+    if (radius != this->m_radius) {
+        this->m_radius = radius;
+        emit this->radiusChanged();
+    }
 }
 
 void BlurElement::resetRadius()
 {
-    this->setRadius(1);
+    this->setRadius(5);
 }
 
 QbPacket BlurElement::iStream(const QbPacket &packet)
