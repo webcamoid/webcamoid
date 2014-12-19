@@ -24,6 +24,8 @@
 
 #include <cmath>
 #include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 
 #include <qb.h>
 #include <qbutils.h>
@@ -31,17 +33,29 @@
 class CartoonElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
-    Q_PROPERTY(int diffspace READ diffspace WRITE setDiffspace RESET resetDiffspace)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChange)
+    Q_PROPERTY(int diffSpace
+               READ diffSpace
+               WRITE setDiffSpace
+               RESET resetDiffSpace
+               NOTIFY diffSpaceChange)
 
     public:
         explicit CartoonElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE int threshold() const;
-        Q_INVOKABLE int diffspace() const;
+        Q_INVOKABLE int diffSpace() const;
 
     private:
         int m_threshold;
-        int m_diffspace;
+        int m_diffSpace;
 
         QbElementPtr m_convert;
         QbCaps m_caps;
@@ -74,11 +88,15 @@ class CartoonElement: public QbElement
 
         int getMaxContrast(const QRgb *src, int x, int y);
 
+    signals:
+        void thresholdChange();
+        void diffSpaceChange();
+
     public slots:
         void setThreshold(int threshold);
-        void setDiffspace(int diffspace);
+        void setDiffSpace(int diffSpace);
         void resetThreshold();
-        void resetDiffspace();
+        void resetDiffSpace();
         QbPacket iStream(const QbPacket &packet);
 };
 

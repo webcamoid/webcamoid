@@ -85,12 +85,18 @@ class QbElement: public QObject
         Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement, const QObject *dstElement);
         Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement, const QbElementPtr &dstElement);
         Q_INVOKABLE static QbElementPtr create(const QString &pluginId, const QString &elementName="");
+        Q_INVOKABLE static bool recursiveSearch();
+        Q_INVOKABLE static void setRecursiveSearch(bool enable);
         Q_INVOKABLE static QStringList searchPaths();
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();
         Q_INVOKABLE static QStringList listPlugins(const QString &type="");
+        Q_INVOKABLE static QStringList listPluginPaths(const QString &searchPath);
+        Q_INVOKABLE static QStringList listPluginPaths();
+        Q_INVOKABLE static QString pluginPath(const QString &pluginId);
         Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
+        Q_INVOKABLE static void clearCache();
 
     private:
         QString m_pluginId;

@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Cartoon.qrc
+
 SOURCES += \
     src/cartoon.cpp \
     src/cartoonelement.cpp

@@ -27,7 +27,29 @@ CartoonElement::CartoonElement(): QbElement()
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
     this->resetThreshold();
-    this->resetDiffspace();
+    this->resetDiffSpace();
+}
+
+QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Cartoon/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Cartoon", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 int CartoonElement::threshold() const
@@ -35,19 +57,19 @@ int CartoonElement::threshold() const
     return this->m_threshold;
 }
 
-int CartoonElement::diffspace() const
+int CartoonElement::diffSpace() const
 {
-    return this->m_diffspace;
+    return this->m_diffSpace;
 }
 
 int CartoonElement::getMaxContrast(const QRgb *src, int x, int y)
 {
     long max = 0;
 
-    int xMin = qBound(0, x - this->m_diffspace, this->m_width);
-    int xMax = qBound(0, x + this->m_diffspace, this->m_width);
-    int yMin = qBound(0, y - this->m_diffspace, this->m_height);
-    int yMax = qBound(0, y + this->m_diffspace, this->m_height);
+    int xMin = qBound(0, x - this->m_diffSpace, this->m_width);
+    int xMax = qBound(0, x + this->m_diffSpace, this->m_width);
+    int yMin = qBound(0, y - this->m_diffSpace, this->m_height);
+    int yMax = qBound(0, y + this->m_diffSpace, this->m_height);
 
     // Assumes PrePixelModify has been run.
     QRgb c1 = this->pixelate(src, xMin, y);
@@ -83,12 +105,18 @@ int CartoonElement::getMaxContrast(const QRgb *src, int x, int y)
 
 void CartoonElement::setThreshold(int threshold)
 {
-    this->m_threshold = threshold;
+    if (threshold != this->m_threshold) {
+        this->m_threshold = threshold;
+        emit this->thresholdChange();
+    }
 }
 
-void CartoonElement::setDiffspace(int diffspace)
+void CartoonElement::setDiffSpace(int diffspace)
 {
-    this->m_diffspace = diffspace;
+    if (diffspace != this->m_diffSpace) {
+        this->m_diffSpace = diffspace;
+        emit this->diffSpaceChange();
+    }
 }
 
 void CartoonElement::resetThreshold()
@@ -96,9 +124,9 @@ void CartoonElement::resetThreshold()
     this->setThreshold(191);
 }
 
-void CartoonElement::resetDiffspace()
+void CartoonElement::resetDiffSpace()
 {
-    this->setDiffspace(4);
+    this->setDiffSpace(4);
 }
 
 QbPacket CartoonElement::iStream(const QbPacket &packet)

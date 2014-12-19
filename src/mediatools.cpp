@@ -36,17 +36,24 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
 
     Qb::init();
 
-#ifdef QT_DEBUG
-    QDir pluginsDir("Qb/Plugins");
-    QStringList pluginsPaths = QbElement::searchPaths();
+    QSettings config;
 
-    foreach (QString pluginPath, pluginsDir.entryList(QDir::Dirs |
-                                                      QDir::NoDotAndDotDot,
-                                                      QDir::Name))
-        pluginsPaths << pluginsDir.absoluteFilePath(pluginPath);
+    config.beginGroup("PluginConfigs");
+    QbElement::setRecursiveSearch(config.value("recursive", false).toBool());
 
-    QbElement::setSearchPaths(pluginsPaths);
-#endif
+    int size = config.beginReadArray("paths");
+    QStringList searchPaths;
+
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        searchPaths << config.value("path").toString();
+    }
+
+    config.endArray();
+    config.endGroup();
+
+    if (!searchPaths.isEmpty())
+        QbElement::setSearchPaths(searchPaths);
 
     this->m_pipeline = QbElement::create("Bin", "pipeline");
 
@@ -1191,6 +1198,22 @@ void MediaTools::saveConfigs()
         config.setArrayIndex(i);
         config.setValue("dev", stream);
         config.setValue("description", this->m_streams[stream]);
+        i++;
+    }
+
+    config.endArray();
+    config.endGroup();
+
+    config.beginGroup("PluginConfigs");
+    config.setValue("recursive", QbElement::recursiveSearch());
+
+    config.beginWriteArray("paths");
+
+    i = 0;
+
+    foreach (QString path, QbElement::searchPaths()) {
+        config.setArrayIndex(i);
+        config.setValue("path", path);
         i++;
     }
 
