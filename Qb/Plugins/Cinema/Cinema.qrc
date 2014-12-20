@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Cinema">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>

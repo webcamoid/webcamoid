@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    ChangeHSL.qrc
+
 SOURCES += \
     src/changehsl.cpp \
     src/changehslelement.cpp

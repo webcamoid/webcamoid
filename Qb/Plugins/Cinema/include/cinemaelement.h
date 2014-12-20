@@ -24,17 +24,31 @@
 
 #include <cmath>
 #include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class CinemaElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float stripSize READ stripSize WRITE setStripSize RESET resetStripSize)
-    Q_PROPERTY(QRgb stripColor READ stripColor WRITE setStripColor RESET resetStripColor)
+    Q_PROPERTY(float stripSize
+               READ stripSize
+               WRITE setStripSize
+               RESET resetStripSize
+               NOTIFY stripSizeChanged)
+    Q_PROPERTY(QRgb stripColor
+               READ stripColor
+               WRITE setStripColor
+               RESET resetStripColor
+               NOTIFY stripColorChanged)
 
     public:
         explicit CinemaElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE float stripSize() const;
         Q_INVOKABLE QRgb stripColor() const;
 
@@ -43,6 +57,10 @@ class CinemaElement: public QbElement
         QRgb m_stripColor;
 
         QbElementPtr m_convert;
+
+    signals:
+        void stripSizeChanged();
+        void stripColorChanged();
 
     public slots:
         void setStripSize(float stripSize);

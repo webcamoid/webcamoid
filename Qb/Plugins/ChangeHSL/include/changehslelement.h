@@ -23,24 +23,34 @@
 #define CHANGEHSLELEMENT_H
 
 #include <QColor>
-
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ChangeHSLElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList hsl READ hsl WRITE setHsl RESET resetHsl)
+    Q_PROPERTY(QVariantList hsl
+               READ hsl
+               WRITE setHsl
+               RESET resetHsl
+               NOTIFY hslChanged)
 
     public:
         explicit ChangeHSLElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE QVariantList hsl() const;
 
     private:
         QVector<float> m_hsl;
-
         QbElementPtr m_convert;
+
+    signals:
+        void hslChanged();
 
     public slots:
         void setHsl(const QVariantList &hsl);

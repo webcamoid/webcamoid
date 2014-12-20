@@ -31,6 +31,28 @@ ChangeHSLElement::ChangeHSLElement(): QbElement()
     this->resetHsl();
 }
 
+QObject *ChangeHSLElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ChangeHSL/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("ChangeHSL", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QVariantList ChangeHSLElement::hsl() const
 {
     QVariantList hsl;
@@ -43,10 +65,15 @@ QVariantList ChangeHSLElement::hsl() const
 
 void ChangeHSLElement::setHsl(const QVariantList &hsl)
 {
-    this->m_hsl.clear();
+    QVector<float> hslTmp;
 
     foreach (QVariant e, hsl)
-        this->m_hsl << e.toFloat() + 1;
+        hslTmp << e.toFloat() + 1;
+
+    if (hslTmp != this->m_hsl) {
+        this->m_hsl = hslTmp;
+        emit this->hslChanged();
+    }
 }
 
 void ChangeHSLElement::resetHsl()

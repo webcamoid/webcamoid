@@ -32,6 +32,28 @@ CinemaElement::CinemaElement(): QbElement()
     this->resetStripColor();
 }
 
+QObject *CinemaElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Cinema/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Cinema", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 float CinemaElement::stripSize() const
 {
     return this->m_stripSize;
@@ -44,12 +66,18 @@ QRgb CinemaElement::stripColor() const
 
 void CinemaElement::setStripSize(float stripSize)
 {
-    this->m_stripSize = stripSize;
+    if (stripSize != this->m_stripSize) {
+        this->m_stripSize = stripSize;
+        emit this->stripSizeChanged();
+    }
 }
 
 void CinemaElement::setStripColor(QRgb hideColor)
 {
-    this->m_stripColor = hideColor;
+    if (hideColor != this->m_stripColor) {
+        this->m_stripColor = hideColor;
+        emit this->stripColorChanged();
+    }
 }
 
 void CinemaElement::resetStripSize()
