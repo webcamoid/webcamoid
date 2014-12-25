@@ -33,6 +33,28 @@ ConvolveElement::ConvolveElement(): QbElement()
     this->resetBias();
 }
 
+QObject *ConvolveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Convolve/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Convolve", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QVariantList ConvolveElement::kernel() const
 {
     QVariantList kernel;
@@ -60,34 +82,50 @@ int ConvolveElement::bias() const
 
 void ConvolveElement::setKernel(const QVariantList &kernel)
 {
-    this->m_kernel.clear();
+    QVector<int> k;
 
     foreach (QVariant e, kernel)
-        this->m_kernel << e.toInt();
+        k << e.toInt();
+
+    if (k != this->m_kernel) {
+        this->m_kernel = k;
+        emit this->kernelChanged();
+    }
 }
 
 void ConvolveElement::setKernelSize(const QSize &kernelSize)
 {
-    this->m_kernelSize = kernelSize;
+    if (kernelSize != this->m_kernelSize) {
+        this->m_kernelSize = kernelSize;
+        emit this->kernelSizeChanged();
+    }
 }
 
 void ConvolveElement::setFactor(const QbFrac &factor)
 {
-    this->m_factor = factor;
+    if (factor != this->m_factor) {
+        this->m_factor = factor;
+        emit this->factorChanged();
+    }
 }
 
 void ConvolveElement::setBias(int bias)
 {
-    this->m_bias = bias;
+    if (bias != this->m_bias) {
+        this->m_bias = bias;
+        emit this->biasChanged();
+    }
 }
 
 void ConvolveElement::resetKernel()
 {
-    this->m_kernel.clear();
+    QVariantList kernel;
 
-    this->m_kernel << 0 << 0 << 0
-                   << 0 << 1 << 0
-                   << 0 << 0 << 0;
+    kernel << 0 << 0 << 0
+           << 0 << 1 << 0
+           << 0 << 0 << 0;
+
+    this->setKernel(kernel);
 }
 
 void ConvolveElement::resetKernelSize()

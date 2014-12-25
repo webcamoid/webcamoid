@@ -22,19 +22,41 @@
 #ifndef CONVOLVEELEMENT_H
 #define CONVOLVEELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ConvolveElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList kernel READ kernel WRITE setKernel RESET resetKernel)
-    Q_PROPERTY(QSize kernelSize READ kernelSize WRITE setKernelSize RESET resetKernelSize)
-    Q_PROPERTY(QbFrac factor READ factor WRITE setFactor RESET resetFactor)
-    Q_PROPERTY(int bias READ bias WRITE setBias RESET resetBias)
+    Q_PROPERTY(QVariantList kernel
+               READ kernel
+               WRITE setKernel
+               RESET resetKernel
+               NOTIFY kernelChanged)
+    Q_PROPERTY(QSize kernelSize
+               READ kernelSize
+               WRITE setKernelSize
+               RESET resetKernelSize
+               NOTIFY kernelSizeChanged)
+    Q_PROPERTY(QbFrac factor
+               READ factor
+               WRITE setFactor
+               RESET resetFactor
+               NOTIFY factorChanged)
+    Q_PROPERTY(int bias
+               READ bias
+               WRITE setBias
+               RESET resetBias
+               NOTIFY biasChanged)
 
     public:
         explicit ConvolveElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QVariantList kernel() const;
         Q_INVOKABLE QSize kernelSize() const;
         Q_INVOKABLE QbFrac factor() const;
@@ -47,6 +69,12 @@ class ConvolveElement: public QbElement
         int m_bias;
 
         QbElementPtr m_convert;
+
+    signals:
+        void kernelChanged();
+        void kernelSizeChanged();
+        void factorChanged();
+        void biasChanged();
 
     public slots:
         void setKernel(const QVariantList &kernel);

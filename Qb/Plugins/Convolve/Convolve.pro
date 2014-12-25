@@ -46,6 +46,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Convolve.qrc
+
 SOURCES += \
     src/convolve.cpp \
     src/convolveelement.cpp

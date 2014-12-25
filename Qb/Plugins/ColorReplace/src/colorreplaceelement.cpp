@@ -31,6 +31,29 @@ ColorReplaceElement::ColorReplaceElement(): QbElement()
     this->resetFrom();
     this->resetTo();
     this->resetRadius();
+    this->resetDisable();
+}
+
+QObject *ColorReplaceElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ColorReplace/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("ColorReplace", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 QRgb ColorReplaceElement::from() const
@@ -48,29 +71,51 @@ float ColorReplaceElement::radius() const
     return this->m_radius;
 }
 
+bool ColorReplaceElement::disable() const
+{
+    return this->m_disable;
+}
+
 void ColorReplaceElement::setFrom(QRgb from)
 {
-    this->m_from = from;
+    if (from != this->m_from) {
+        this->m_from = from;
+        emit this->fromChanged();
+    }
 }
 
 void ColorReplaceElement::setTo(QRgb to)
 {
-    this->m_to = to;
+    if (to != this->m_to) {
+        this->m_to = to;
+        emit this->toChanged();
+    }
 }
 
 void ColorReplaceElement::setRadius(float radius)
 {
-    this->m_radius = radius;
+    if (radius != this->m_radius) {
+        this->m_radius = radius;
+        emit this->radiusChanged();
+    }
+}
+
+void ColorReplaceElement::setDisable(bool disable)
+{
+    if (disable != this->m_disable) {
+        this->m_disable = disable;
+        emit this->disableChanged();
+    }
 }
 
 void ColorReplaceElement::resetFrom()
 {
-    this->m_from = qRgb(0, 0, 0);
+    this->setFrom(qRgb(0, 0, 0));
 }
 
 void ColorReplaceElement::resetTo()
 {
-    this->m_to = qRgb(0, 0, 0);
+    this->setTo(qRgb(0, 0, 0));
 }
 
 void ColorReplaceElement::resetRadius()
@@ -78,8 +123,16 @@ void ColorReplaceElement::resetRadius()
     this->setRadius(1.0);
 }
 
+void ColorReplaceElement::resetDisable()
+{
+    this->setDisable(false);
+}
+
 QbPacket ColorReplaceElement::iStream(const QbPacket &packet)
 {
+    if (this->m_disable)
+        qbSend(packet)
+
     QbPacket iPacket = this->m_convert->iStream(packet);
     QImage src = QbUtils::packetToImage(iPacket);
 

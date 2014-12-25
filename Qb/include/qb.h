@@ -22,13 +22,31 @@
 #ifndef QB_H
 #define QB_H
 
+#include <QObject>
+#include <QQmlApplicationEngine>
+
 #include "qbplugin.h"
 #include "qbelement.h"
 
-namespace Qb
+class Qb: public QObject
 {
-    void init();
-    qint64 id();
-}
+    Q_OBJECT
+
+    public:
+        explicit Qb(QObject *parent=NULL);
+        Qb(const Qb &other);
+
+        static void init();
+        static qint64 id();
+        static bool qmlRegister(QQmlApplicationEngine *engine);
+
+        Q_INVOKABLE QObject *newFrac() const;
+        Q_INVOKABLE QObject *newFrac(qint64 num, qint64 den) const;
+        Q_INVOKABLE QObject *newFrac(const QString &fracString) const;
+
+        Q_INVOKABLE QObject *copy(const QbFrac &frac) const;
+};
+
+Q_DECLARE_METATYPE(Qb)
 
 #endif // QB_H

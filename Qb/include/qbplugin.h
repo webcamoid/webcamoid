@@ -29,7 +29,7 @@ class QbPlugin
     public:
         virtual ~QbPlugin() {}
 
-        virtual QObject *create(const QString& name, const QString &spec) = 0;
+        virtual QObject *create(const QString &name, const QString &spec) = 0;
         virtual QStringList keys() const = 0;
 };
 

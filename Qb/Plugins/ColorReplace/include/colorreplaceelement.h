@@ -24,38 +24,69 @@
 
 #include <cmath>
 #include <qrgb.h>
-
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ColorReplaceElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QRgb from READ from WRITE setFrom RESET resetFrom)
-    Q_PROPERTY(QRgb to READ to WRITE setTo RESET resetTo)
-    Q_PROPERTY(float radius READ radius WRITE setRadius RESET resetRadius)
+    Q_PROPERTY(QRgb from
+               READ from
+               WRITE setFrom
+               RESET resetFrom
+               NOTIFY fromChanged)
+    Q_PROPERTY(QRgb to
+               READ to
+               WRITE setTo
+               RESET resetTo
+               NOTIFY toChanged)
+    Q_PROPERTY(float radius
+               READ radius
+               WRITE setRadius
+               RESET resetRadius
+               NOTIFY radiusChanged)
+    Q_PROPERTY(bool disable
+               READ disable
+               WRITE setDisable
+               RESET resetDisable
+               NOTIFY disableChanged)
 
     public:
         explicit ColorReplaceElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QRgb from() const;
         Q_INVOKABLE QRgb to() const;
         Q_INVOKABLE float radius() const;
+        Q_INVOKABLE bool disable() const;
 
     private:
         QRgb m_from;
         QRgb m_to;
         float m_radius;
+        bool m_disable;
 
         QbElementPtr m_convert;
+
+    signals:
+        void fromChanged();
+        void toChanged();
+        void radiusChanged();
+        void disableChanged();
 
     public slots:
         void setFrom(QRgb from);
         void setTo(QRgb to);
         void setRadius(float radius);
+        void setDisable(bool disable);
         void resetFrom();
         void resetTo();
         void resetRadius();
+        void resetDisable();
         QbPacket iStream(const QbPacket &packet);
 };
 

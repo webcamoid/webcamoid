@@ -23,17 +23,25 @@
 #define COLORTAPELEMENT_H
 
 #include <qrgb.h>
-
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ColorTapElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString table READ table WRITE setTable RESET resetTable)
+    Q_PROPERTY(QString table
+               READ table
+               WRITE setTable
+               RESET resetTable
+               NOTIFY tableChanged)
 
     public:
         explicit ColorTapElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE QString table() const;
 
@@ -42,6 +50,9 @@ class ColorTapElement: public QbElement
         QString m_tableName;
 
         QbElementPtr m_convert;
+
+    signals:
+        void tableChanged();
 
     public slots:
         void setTable(const QString &table);

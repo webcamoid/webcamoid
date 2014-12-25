@@ -19,6 +19,8 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QStandardPaths>
+
 #include "colortapelement.h"
 
 ColorTapElement::ColorTapElement(): QbElement()
@@ -29,6 +31,31 @@ ColorTapElement::ColorTapElement(): QbElement()
     this->resetTable();
 }
 
+QObject *ColorTapElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ColorTap/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("ColorTap", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    context->setContextProperty("picturesPath", picturesPath[0]);
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString ColorTapElement::table() const
 {
     return this->m_tableName;
@@ -36,17 +63,27 @@ QString ColorTapElement::table() const
 
 void ColorTapElement::setTable(const QString &table)
 {
-    this->m_tableName = table;
-    this->m_table = QImage(table);
+    if (table != this->m_tableName) {
+        this->m_tableName = table;
+        this->m_table = table.isEmpty()? QImage(): QImage(table);
+
+        if (!this->m_table.isNull())
+            this->m_table = this->m_table.scaled(16, 16);
+
+        emit this->tableChanged();
+    }
 }
 
 void ColorTapElement::resetTable()
 {
-    this->setTable(":/ColorTap/share/xpro.bmp");
+    this->setTable(":/ColorTap/share/tables/base.bmp");
 }
 
 QbPacket ColorTapElement::iStream(const QbPacket &packet)
 {
+    if (this->m_table.isNull())
+        qbSend(packet)
+
     QbPacket iPacket = this->m_convert->iStream(packet);
     QImage src = QbUtils::packetToImage(iPacket);
 

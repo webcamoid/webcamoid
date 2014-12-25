@@ -30,7 +30,30 @@ ColorFilterElement::ColorFilterElement(): QbElement()
 
     this->resetColor();
     this->resetRadius();
-    this->resetGradient();
+    this->resetSoft();
+    this->resetDisable();
+}
+
+QObject *ColorFilterElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ColorFilter/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("ColorFilter", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 QRgb ColorFilterElement::color() const
@@ -43,29 +66,51 @@ float ColorFilterElement::radius() const
     return this->m_radius;
 }
 
-bool ColorFilterElement::gradient() const
+bool ColorFilterElement::soft() const
 {
-    return this->m_gradient;
+    return this->m_soft;
+}
+
+bool ColorFilterElement::disable() const
+{
+    return this->m_disable;
 }
 
 void ColorFilterElement::setColor(QRgb color)
 {
-    this->m_color = color;
+    if (color != this->m_color) {
+        this->m_color = color;
+        emit this->colorChanged();
+    }
 }
 
 void ColorFilterElement::setRadius(float radius)
 {
-    this->m_radius = radius;
+    if (radius != this->m_radius) {
+        this->m_radius = radius;
+        emit this->radiusChanged();
+    }
 }
 
-void ColorFilterElement::setGradient(bool gradient)
+void ColorFilterElement::setSoft(bool soft)
 {
-    this->m_gradient = gradient;
+    if (soft != this->m_soft) {
+        this->m_soft = soft;
+        emit this->softChanged();
+    }
+}
+
+void ColorFilterElement::setDisable(bool disable)
+{
+    if (disable != this->m_disable) {
+        this->m_disable = disable;
+        emit this->disableChanged();
+    }
 }
 
 void ColorFilterElement::resetColor()
 {
-    this->m_color = qRgb(0, 0, 0);
+    this->setColor(qRgb(0, 0, 0));
 }
 
 void ColorFilterElement::resetRadius()
@@ -73,13 +118,21 @@ void ColorFilterElement::resetRadius()
     this->setRadius(1.0);
 }
 
-void ColorFilterElement::resetGradient()
+void ColorFilterElement::resetSoft()
 {
-    this->setGradient(false);
+    this->setSoft(false);
+}
+
+void ColorFilterElement::resetDisable()
+{
+    this->setDisable(false);
 }
 
 QbPacket ColorFilterElement::iStream(const QbPacket &packet)
 {
+    if (this->m_disable)
+        qbSend(packet)
+
     QbPacket iPacket = this->m_convert->iStream(packet);
     QImage src = QbUtils::packetToImage(iPacket);
 
@@ -109,7 +162,7 @@ QbPacket ColorFilterElement::iStream(const QbPacket &packet)
         float k = sqrt(rd * rd + gd * gd + bd * bd);
 
         if (k <= this->m_radius) {
-            if (this->m_gradient) {
+            if (this->m_soft) {
                 float p = k / this->m_radius;
 
                 int gray = qGray(srcBits[i]);

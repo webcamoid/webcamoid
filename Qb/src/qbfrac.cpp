@@ -158,8 +158,11 @@ qint64 QbFrac::gcd() const
 
 void QbFrac::setNum(qint64 num)
 {
-    this->m_num = num;
-    emit this->numChanged();
+    if (num != this->m_num) {
+        this->m_num = num;
+        emit this->numChanged();
+        emit this->stringChanged();
+    }
 }
 
 void QbFrac::reduce()
@@ -169,17 +172,24 @@ void QbFrac::reduce()
     if (!gcd)
         return;
 
-    this->m_num /= gcd;
-    this->m_den /= gcd;
+    int num = this->m_num / gcd;
+    int den = this->m_den / gcd;
+
+    this->setNum(num);
+    this->setDen(den);
 }
 
 void QbFrac::setDen(qint64 den)
 {
-    this->m_den = den;
-    emit this->denChanged();
+    if (den != this->m_den) {
+        this->m_den = den;
 
-    if (!this->m_den)
-        this->m_isValid = false;
+        if (!this->m_den)
+            this->m_isValid = false;
+
+        emit this->denChanged();
+        emit this->stringChanged();
+    }
 }
 
 void QbFrac::resetNum()

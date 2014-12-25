@@ -43,7 +43,8 @@ class QbFrac: public QObject
     Q_PROPERTY(bool isValid
                READ isValid)
     Q_PROPERTY(QString string
-               READ toString)
+               READ toString
+               NOTIFY stringChanged)
 
     public:
         explicit QbFrac(QObject *parent=NULL);
@@ -74,6 +75,7 @@ class QbFrac: public QObject
     signals:
         void numChanged();
         void denChanged();
+        void stringChanged();
 
     public slots:
         void reduce();

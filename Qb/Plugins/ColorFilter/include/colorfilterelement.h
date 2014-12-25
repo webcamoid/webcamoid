@@ -24,38 +24,69 @@
 
 #include <cmath>
 #include <qrgb.h>
-
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ColorFilterElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QRgb colorf READ color WRITE setColor RESET resetColor)
-    Q_PROPERTY(float radius READ radius WRITE setRadius RESET resetRadius)
-    Q_PROPERTY(bool gradient READ gradient WRITE setGradient RESET resetGradient)
+    Q_PROPERTY(QRgb colorf
+               READ color
+               WRITE setColor
+               RESET resetColor
+               NOTIFY colorChanged)
+    Q_PROPERTY(float radius
+               READ radius
+               WRITE setRadius
+               RESET resetRadius
+               NOTIFY radiusChanged)
+    Q_PROPERTY(bool soft
+               READ soft
+               WRITE setSoft
+               RESET resetSoft
+               NOTIFY softChanged)
+    Q_PROPERTY(bool disable
+               READ disable
+               WRITE setDisable
+               RESET resetDisable
+               NOTIFY disableChanged)
 
     public:
         explicit ColorFilterElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QRgb color() const;
         Q_INVOKABLE float radius() const;
-        Q_INVOKABLE bool gradient() const;
+        Q_INVOKABLE bool soft() const;
+        Q_INVOKABLE bool disable() const;
 
     private:
         QRgb m_color;
         float m_radius;
-        bool m_gradient;
+        bool m_soft;
+        bool m_disable;
 
         QbElementPtr m_convert;
+
+    signals:
+        void colorChanged();
+        void radiusChanged();
+        void softChanged();
+        void disableChanged();
 
     public slots:
         void setColor(QRgb color);
         void setRadius(float radius);
-        void setGradient(bool gradient);
+        void setSoft(bool soft);
+        void setDisable(bool disable);
         void resetColor();
         void resetRadius();
-        void resetGradient();
+        void resetSoft();
+        void resetDisable();
         QbPacket iStream(const QbPacket &packet);
 };
 

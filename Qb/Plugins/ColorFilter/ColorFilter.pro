@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    ColorFilter.qrc
+
 SOURCES += \
     src/colorfilter.cpp \
     src/colorfilterelement.cpp

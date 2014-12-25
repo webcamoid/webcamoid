@@ -29,6 +29,28 @@ ColorTransformElement::ColorTransformElement(): QbElement()
     this->resetKernel();
 }
 
+QObject *ColorTransformElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ColorTransform/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("ColorTransform", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QVariantList ColorTransformElement::kernel() const
 {
     QVariantList kernel;
@@ -41,23 +63,31 @@ QVariantList ColorTransformElement::kernel() const
 
 void ColorTransformElement::setKernel(const QVariantList &kernel)
 {
-    this->m_kernel.clear();
+    QVector<float> k;
 
     foreach (QVariant e, kernel)
-        this->m_kernel << e.toFloat();
+        k << e.toFloat();
+
+    if (k != this->m_kernel)
+        this->m_kernel = k;
 }
 
 void ColorTransformElement::resetKernel()
 {
-    this->m_kernel.clear();
+    QVariantList kernel;
 
-    this->m_kernel << 1 << 0 << 0 << 0
-                   << 0 << 1 << 0 << 0
-                   << 0 << 0 << 1 << 0;
+    kernel << 1 << 0 << 0 << 0
+           << 0 << 1 << 0 << 0
+           << 0 << 0 << 1 << 0;
+
+    this->setKernel(kernel);
 }
 
 QbPacket ColorTransformElement::iStream(const QbPacket &packet)
 {
+    if (this->m_kernel.size() < 12)
+        qbSend(packet)
+
     QbPacket iPacket = this->m_convert->iStream(packet);
     QImage src = QbUtils::packetToImage(iPacket);
 
@@ -71,14 +101,16 @@ QbPacket ColorTransformElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
+    QVector<float> kernel = this->m_kernel;
+
     for (int i = 0; i < videoArea; i++) {
         int r = qRed(srcBits[i]);
         int g = qGreen(srcBits[i]);
         int b = qBlue(srcBits[i]);
 
-        int rt = r * this->m_kernel[0] + g * this->m_kernel[1] + b * this->m_kernel[2] + this->m_kernel[3];
-        int gt = r * this->m_kernel[4] + g * this->m_kernel[5] + b * this->m_kernel[6] + this->m_kernel[7];
-        int bt = r * this->m_kernel[8] + g * this->m_kernel[9] + b * this->m_kernel[10] + this->m_kernel[11];
+        int rt = r * kernel[0] + g * kernel[1] + b * kernel[2]  + kernel[3];
+        int gt = r * kernel[4] + g * kernel[5] + b * kernel[6]  + kernel[7];
+        int bt = r * kernel[8] + g * kernel[9] + b * kernel[10] + kernel[11];
 
         rt = qBound(0, rt, 255);
         gt = qBound(0, gt, 255);

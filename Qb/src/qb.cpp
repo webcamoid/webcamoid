@@ -19,10 +19,25 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QQmlContext>
+
 #include "qb.h"
+
+Q_GLOBAL_STATIC(Qb, globalQbObject)
+Q_GLOBAL_STATIC_WITH_ARGS(qint64, gid, (0))
+
+Qb::Qb(QObject *parent): QObject(parent)
+{
+}
+
+Qb::Qb(const Qb &other):
+    QObject(other.parent())
+{
+}
 
 void Qb::init()
 {
+    qRegisterMetaType<Qb>("Qb");
     qRegisterMetaType<QbCaps>("QbCaps");
     qRegisterMetaTypeStreamOperators<QbCaps>("QbCaps");
     qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");
@@ -36,7 +51,36 @@ void Qb::init()
 
 qint64 Qb::id()
 {
-    static qint64 id = 0;
+    return (*gid)++;
+}
 
-    return id++;
+
+bool Qb::qmlRegister(QQmlApplicationEngine *engine)
+{
+    if (!engine)
+        return false;
+
+    engine->rootContext()->setContextProperty("Qb", globalQbObject);
+
+    return true;
+}
+
+QObject *Qb::newFrac() const
+{
+    return new QbFrac();
+}
+
+QObject *Qb::newFrac(qint64 num, qint64 den) const
+{
+    return new QbFrac(num, den);
+}
+
+QObject *Qb::newFrac(const QString &fracString) const
+{
+    return new QbFrac(fracString);
+}
+
+QObject *Qb::copy(const QbFrac &frac) const
+{
+    return new QbFrac(frac);
 }

@@ -999,6 +999,7 @@ void MediaTools::setWindowSize(const QSize &windowSize)
 void MediaTools::setAppEngine(QQmlApplicationEngine *engine)
 {
     this->m_appEngine = engine;
+    Qb::qmlRegister(engine);
 }
 
 void MediaTools::resetCurStream()
