@@ -19,20 +19,53 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QB_H
-#define QB_H
+#include "qbqml.h"
 
-#include "qbplugin.h"
-#include "qbelement.h"
-
-namespace Qb
+QbQml::QbQml(QQuickItem *parent):
+    QQuickItem(parent)
 {
-    void init(QQmlEngine *engine=NULL);
-    qint64 id();
-    void setQmlEngine(QQmlEngine *engine);
-    QString qmlPluginPath();
-    void setQmlPluginPath(const QString &qmlPluginPath);
-    void resetQmlPluginPath();
+    // By default, QQuickItem does not draw anything. If you subclass
+    // QQuickItem to create a visual item, you will need to uncomment the
+    // following line and re-implement updatePaintNode()
+
+    // setFlag(ItemHasContents, true);
 }
 
-#endif // QB_H
+QbQml::~QbQml()
+{
+}
+
+void QbQml::init() const
+{
+    Qb::init();
+}
+
+qint64 QbQml::id() const
+{
+    return Qb::id();
+}
+
+QObject *QbQml::newFrac() const
+{
+    return new QbFrac();
+}
+
+QObject *QbQml::newFrac(qint64 num, qint64 den) const
+{
+    return new QbFrac(num, den);
+}
+
+QObject *QbQml::newFrac(const QString &fracString) const
+{
+    return new QbFrac(fracString);
+}
+
+QObject *QbQml::newFrac(const QbFrac &frac) const
+{
+    return new QbFrac(frac);
+}
+
+QVariant QbQml::toVar(QbFrac *frac) const
+{
+    return QVariant::fromValue(*frac);
+}

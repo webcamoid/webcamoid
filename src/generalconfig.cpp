@@ -29,7 +29,7 @@ GeneralConfig::GeneralConfig(MediaTools *mediaTools, QWidget *parent):
 {
     this->ui->setupUi(this);
 
-    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(NULL, this);
 
     switch (this->m_mediaTools->recordAudioFrom()) {
     case MediaTools::RecordFromNone:

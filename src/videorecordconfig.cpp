@@ -29,7 +29,7 @@ VideoRecordConfig::VideoRecordConfig(MediaTools *mediaTools, QWidget *parent):
 {
     this->ui->setupUi(this);
 
-    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(this);
+    this->m_mediaTools = mediaTools? mediaTools: new MediaTools(NULL, this);
     this->m_isInit = true;
     QList<QStringList> videoRecordFormats = this->m_mediaTools->videoRecordFormats();
 

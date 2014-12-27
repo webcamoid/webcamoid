@@ -23,8 +23,10 @@
 
 #include "mediatools.h"
 
-MediaTools::MediaTools(QObject *parent): QObject(parent)
+MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
+    QObject(parent)
 {
+    this->m_appEngine = engine;
     this->resetCurStream();
     this->resetVideoSize("");
     this->resetPlayAudioFromSource();
@@ -34,11 +36,12 @@ MediaTools::MediaTools(QObject *parent): QObject(parent)
     this->resetStreams();
     this->resetWindowSize();
 
-    Qb::init();
+    Qb::init(engine);
 
     QSettings config;
 
     config.beginGroup("PluginConfigs");
+    Qb::setQmlPluginPath(config.value("qmlPluginPath", Qb::qmlPluginPath()).toString());
     QbElement::setRecursiveSearch(config.value("recursive", false).toBool());
 
     int size = config.beginReadArray("paths");
@@ -996,12 +999,6 @@ void MediaTools::setWindowSize(const QSize &windowSize)
     this->m_windowSize = windowSize;
 }
 
-void MediaTools::setAppEngine(QQmlApplicationEngine *engine)
-{
-    this->m_appEngine = engine;
-    Qb::qmlRegister(engine);
-}
-
 void MediaTools::resetCurStream()
 {
     this->setCurStream("");
@@ -1206,6 +1203,7 @@ void MediaTools::saveConfigs()
     config.endGroup();
 
     config.beginGroup("PluginConfigs");
+    config.setValue("qmlPluginPath", Qb::qmlPluginPath());
     config.setValue("recursive", QbElement::recursiveSearch());
 
     config.beginWriteArray("paths");

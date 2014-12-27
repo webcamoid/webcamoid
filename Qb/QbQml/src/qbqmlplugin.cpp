@@ -19,20 +19,21 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QB_H
-#define QB_H
+#include "qbqmlplugin.h"
+#include "qbqml.h"
 
-#include "qbplugin.h"
-#include "qbelement.h"
+#include <qqml.h>
 
-namespace Qb
+void QbQmlPlugin::registerTypes(const char *uri)
 {
-    void init(QQmlEngine *engine=NULL);
-    qint64 id();
-    void setQmlEngine(QQmlEngine *engine);
-    QString qmlPluginPath();
-    void setQmlPluginPath(const QString &qmlPluginPath);
-    void resetQmlPluginPath();
+    // @uri QbQml
+    qmlRegisterSingletonType<QbQml>(uri, 1, 0, "Qb", &QbQmlPlugin::qbProvider);
 }
 
-#endif // QB_H
+QObject *QbQmlPlugin::qbProvider(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+{
+    Q_UNUSED(qmlEngine)
+    Q_UNUSED(jsEngine)
+
+    return new QbQml();
+}

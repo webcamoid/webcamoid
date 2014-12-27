@@ -19,20 +19,23 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QB_H
-#define QB_H
+#ifndef QBQMLPLUGIN_H
+#define QBQMLPLUGIN_H
 
-#include "qbplugin.h"
-#include "qbelement.h"
+#include <QQmlExtensionPlugin>
+#include <QJSEngine>
 
-namespace Qb
+class QbQmlPlugin: public QQmlExtensionPlugin
 {
-    void init(QQmlEngine *engine=NULL);
-    qint64 id();
-    void setQmlEngine(QQmlEngine *engine);
-    QString qmlPluginPath();
-    void setQmlPluginPath(const QString &qmlPluginPath);
-    void resetQmlPluginPath();
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QQmlExtensionInterface")
 
-#endif // QB_H
+    public:
+        void registerTypes(const char *uri);
+
+    private:
+        static QObject *qbProvider(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
+};
+
+#endif // QBQMLPLUGIN_H
+

@@ -22,22 +22,17 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QbQml 1.0
 
 ColumnLayout {
     id: configs
-    property double stepSize: 0.01
-    property double maxMultiplier: 10
-    property double maxDisplacement: 255
-    property double decimals: 2
+    property int cellSize: 50
 
     function updateKernel(index, value)
     {
         var kernel = Convolve.kernel
         kernel[index] = value
         Convolve.kernel = kernel
-    }
-
-    Component.onCompleted: {
     }
 
     Label {
@@ -47,99 +42,99 @@ ColumnLayout {
         columns: 3
 
         // Row 0
-        SpinBox {
+        TextField {
             id: k00
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[0]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[0]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(0, value)
+            onTextChanged: updateKernel(0, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: k01
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[1]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[1]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(1, value)
+            onTextChanged: updateKernel(1, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: k02
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[2]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[2]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(2, value)
+            onTextChanged: updateKernel(2, parseFloat(text))
         }
 
         // Row 1
-        SpinBox {
+        TextField {
             id: k10
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[3]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[3]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(3, value)
+            onTextChanged: updateKernel(3, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: k11
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[4]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[4]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(4, value)
+            onTextChanged: updateKernel(4, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: k12
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[5]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[5]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(5, value)
+            onTextChanged: updateKernel(5, parseFloat(text))
         }
 
         // Row 2
-        SpinBox {
+        TextField {
             id: k20
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[6]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[6]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(6, value)
+            onTextChanged: updateKernel(6, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: k21
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[7]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[7]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(7, value)
+            onTextChanged: updateKernel(7, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: k22
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: Convolve.kernel[8]
+            Layout.preferredWidth: cellSize
+            text: Convolve.kernel[8]
+            validator: RegExpValidator {
+                regExp: /-?\d+/
+            }
 
-            onValueChanged: updateKernel(8, value)
+            onTextChanged: updateKernel(8, parseFloat(text))
         }
     }
 
@@ -150,10 +145,12 @@ ColumnLayout {
             text: qsTr("Factor")
         }
         TextField {
-            text: Qb.copy(Convolve.factor).string
+            text: Qb.newFrac(Convolve.factor).string
             validator: RegExpValidator {
                 regExp: /-?\d+\/\d+/
             }
+
+            onTextChanged: Convolve.factor = Qb.toVar(Qb.newFrac(text))
         }
 
         Label {
@@ -161,8 +158,8 @@ ColumnLayout {
         }
         SpinBox {
             stepSize: 1
-            maximumValue: configs.maxDisplacement
-            minimumValue: -configs.maxDisplacement
+            maximumValue: 255
+            minimumValue: -255
             value: Convolve.bias
 
             onValueChanged: Convolve.bias = value

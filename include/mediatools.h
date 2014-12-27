@@ -82,7 +82,7 @@ class MediaTools: public QObject
             RecordFromMic
         };
 
-        explicit MediaTools(QObject *parent=NULL);
+        explicit MediaTools(QQmlApplicationEngine *engine=NULL, QObject *parent=NULL);
         ~MediaTools();
 
         Q_INVOKABLE QString curStream() const;
@@ -186,7 +186,6 @@ class MediaTools: public QObject
         void setRecording(bool recording, QString fileName="");
         void setVideoRecordFormats(QList<QStringList> videoRecordFormats);
         void setWindowSize(const QSize &windowSize);
-        void setAppEngine(QQmlApplicationEngine *engine);
         void resetCurStream();
         void resetVideoSize(const QString &stream);
         void resetPlayAudioFromSource();

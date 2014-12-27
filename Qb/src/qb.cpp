@@ -19,25 +19,14 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <QQmlContext>
-
 #include "qb.h"
 
-Q_GLOBAL_STATIC(Qb, globalQbObject)
-Q_GLOBAL_STATIC_WITH_ARGS(qint64, gid, (0))
+QQmlEngine *globalEngine = NULL;
+Q_GLOBAL_STATIC(QString, globalQmlPluginPath)
+Q_GLOBAL_STATIC(QStringList, globalQmlPluginDefaultPaths)
 
-Qb::Qb(QObject *parent): QObject(parent)
+void Qb::init(QQmlEngine *engine)
 {
-}
-
-Qb::Qb(const Qb &other):
-    QObject(other.parent())
-{
-}
-
-void Qb::init()
-{
-    qRegisterMetaType<Qb>("Qb");
     qRegisterMetaType<QbCaps>("QbCaps");
     qRegisterMetaTypeStreamOperators<QbCaps>("QbCaps");
     qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");
@@ -47,40 +36,66 @@ void Qb::init()
     qRegisterMetaTypeStreamOperators<QbFrac>("QbFrac");
     qRegisterMetaType<QbPacket>("QbPacket");
     qRegisterMetaType<QbElementPtr>("QbElementPtr");
+
+    Qb::setQmlEngine(engine);
 }
 
 qint64 Qb::id()
 {
-    return (*gid)++;
+    static qint64 id = 0;
+
+    return id++;
 }
 
-
-bool Qb::qmlRegister(QQmlApplicationEngine *engine)
+void Qb::setQmlEngine(QQmlEngine *engine)
 {
+    if (engine == globalEngine)
+        return;
+
+    if (globalEngine) {
+        globalEngine->setImportPathList(*globalQmlPluginDefaultPaths);
+        globalEngine = NULL;
+    }
+
     if (!engine)
-        return false;
+        return;
 
-    engine->rootContext()->setContextProperty("Qb", globalQbObject);
+    globalEngine = engine;
+    *globalQmlPluginDefaultPaths = globalEngine->importPathList();
 
-    return true;
+    if (!globalQmlPluginPath->isEmpty()
+        && !globalQmlPluginDefaultPaths->contains(*globalQmlPluginPath))
+        globalEngine->addImportPath(*globalQmlPluginPath);
 }
 
-QObject *Qb::newFrac() const
+QString Qb::qmlPluginPath()
 {
-    return new QbFrac();
+    if (globalQmlPluginPath->isEmpty())
+        return QT_INSTALL_QML;
+
+    return *globalQmlPluginPath;
 }
 
-QObject *Qb::newFrac(qint64 num, qint64 den) const
+void Qb::setQmlPluginPath(const QString &qmlPluginPath)
 {
-    return new QbFrac(num, den);
+    if (*globalQmlPluginPath == qmlPluginPath)
+        return;
+
+    *globalQmlPluginPath = qmlPluginPath;
+
+    if (globalEngine) {
+        if (globalQmlPluginDefaultPaths->isEmpty())
+            *globalQmlPluginDefaultPaths = globalEngine->importPathList();
+        else
+            globalEngine->setImportPathList(*globalQmlPluginDefaultPaths);
+
+        if (!globalQmlPluginPath->isEmpty()
+            && !globalQmlPluginDefaultPaths->contains(*globalQmlPluginPath))
+            globalEngine->addImportPath(*globalQmlPluginPath);
+    }
 }
 
-QObject *Qb::newFrac(const QString &fracString) const
+void Qb::resetQmlPluginPath()
 {
-    return new QbFrac(fracString);
-}
-
-QObject *Qb::copy(const QbFrac &frac) const
-{
-    return new QbFrac(frac);
+    Qb::setQmlPluginPath(QT_INSTALL_QML);
 }

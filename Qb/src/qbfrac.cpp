@@ -24,20 +24,24 @@
 
 #include "qbfrac.h"
 
-QbFrac::QbFrac(QObject *parent): QObject(parent)
+#define SIGN(n) ((n < 0)? -1: 1)
+
+QbFrac::QbFrac(QObject *parent):
+    QObject(parent)
 {
-    this->resetNum();
-    this->resetDen();
+    this->m_num = 0;
+    this->m_den = 0;
     this->m_isValid = false;
 }
 
 QbFrac::QbFrac(qint64 num, qint64 den):
-    QObject(NULL),
-    m_num(num),
-    m_den(den)
+    QObject(NULL)
 {
-    this->m_isValid = den? true: false;
-    this->reduce();
+    this->m_num = 0;
+    this->m_den = 0;
+    this->m_isValid = false;
+
+    this->setNumDen(num, den);
 }
 
 QbFrac::QbFrac(const QString &fracString):
@@ -45,21 +49,9 @@ QbFrac::QbFrac(const QString &fracString):
 {
     this->m_num = 0;
     this->m_den = 0;
+    this->m_isValid = false;
 
-    this->m_isValid = QRegExp("\\s*\\d+\\s*/"
-                              "\\s*\\d+\\s*").exactMatch(fracString);
-
-    if (!this->m_isValid)
-        return;
-
-    QStringList fracChunks = fracString.split(QRegExp("\\s*/\\s*"),
-                                              QString::SkipEmptyParts);
-
-    this->m_num = fracChunks[0].trimmed().toInt();
-    this->m_den = fracChunks[1].trimmed().toInt();
-
-    if (!this->m_den)
-        this->m_isValid = false;
+    this->setNumDen(fracString);
 }
 
 QbFrac::QbFrac(const QbFrac &other):
@@ -141,14 +133,13 @@ QbFrac QbFrac::invert() const
                   this->num());
 }
 
-qint64 QbFrac::gcd() const
+qint64 QbFrac::gcd(qint64 num, qint64 den) const
 {
-    qint64 tmp;
-    qint64 num = abs(this->m_num);
-    qint64 den = abs(this->m_den);
+    num = abs(num);
+    den = abs(den);
 
     while (num > 0) {
-        tmp = num;
+        qint64 tmp = num;
         num = den % num;
         den = tmp;
     }
@@ -156,40 +147,116 @@ qint64 QbFrac::gcd() const
     return den;
 }
 
-void QbFrac::setNum(qint64 num)
+QVector<qint64> QbFrac::reduce(qint64 num, qint64 den)
 {
-    if (num != this->m_num) {
-        this->m_num = num;
+    QVector<qint64> frac;
+    qint64 gcd = this->gcd(num, den);
+
+    if (!gcd) {
+        frac << num
+             << den;
+
+        return frac;
+    }
+
+    frac << num / gcd
+         << den / gcd;
+
+    return frac;
+}
+
+void QbFrac::setNumDen(qint64 num, qint64 den)
+{
+    bool changed = false;
+
+    if (!den) {
+        if (this->m_num != 0) {
+            this->m_num = 0;
+            changed = true;
+
+            emit this->numChanged();
+        }
+
+        if (this->m_den != 0) {
+            this->m_den = 0;
+            changed = true;
+
+            emit this->denChanged();
+        }
+
+        if (this->m_isValid != false) {
+            this->m_isValid = false;
+            changed = true;
+
+            emit this->isValidChanged();
+        }
+
+        if (changed) {
+            emit this->valueChanged();
+            emit this->stringChanged();
+        }
+
+        return;
+    }
+
+    QVector<qint64> frac = this->reduce(SIGN(den) * num, abs(den));
+
+    if (this->m_num != frac[0]) {
+        this->m_num = frac[0];
+        changed = true;
+
         emit this->numChanged();
+    }
+
+    if (this->m_den != frac[1]) {
+        this->m_den = frac[1];
+        changed = true;
+
+        emit this->denChanged();
+    }
+
+    if (this->m_isValid != true) {
+        this->m_isValid = true;
+        changed = true;
+
+        emit this->isValidChanged();
+    }
+
+    if (changed) {
+        emit this->valueChanged();
         emit this->stringChanged();
     }
 }
 
-void QbFrac::reduce()
+void QbFrac::setNumDen(const QString &fracString)
 {
-    qint64 gcd = this->gcd();
 
-    if (!gcd)
+    bool match = QRegExp("(\\s*-)?\\s*\\d+\\s*/"
+                              "\\s*\\d+\\s*").exactMatch(fracString);
+
+    if (!match) {
+        this->setNumDen(0, 0);
+
         return;
+    }
 
-    int num = this->m_num / gcd;
-    int den = this->m_den / gcd;
+    QStringList fracChunks = fracString.split(QRegExp("\\s*/\\s*"),
+                                              QString::SkipEmptyParts);
 
-    this->setNum(num);
-    this->setDen(den);
+    qint64 num = fracChunks[0].trimmed().toInt();
+    qint64 den = fracChunks[1].trimmed().toInt();
+
+    this->setNumDen(num, den);
+}
+
+void QbFrac::setNum(qint64 num)
+{
+    this->setNumDen(num, this->m_den);
 }
 
 void QbFrac::setDen(qint64 den)
 {
-    if (den != this->m_den) {
-        this->m_den = den;
-
-        if (!this->m_den)
-            this->m_isValid = false;
-
-        emit this->denChanged();
-        emit this->stringChanged();
-    }
+    this->setNumDen(this->m_num, den);
 }
 
 void QbFrac::resetNum()

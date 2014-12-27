@@ -19,20 +19,31 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef QB_H
-#define QB_H
+#ifndef QBQML_H
+#define QBQML_H
 
-#include "qbplugin.h"
-#include "qbelement.h"
+#include <QQuickItem>
+#include <qb.h>
 
-namespace Qb
+class QbQml: public QQuickItem
 {
-    void init(QQmlEngine *engine=NULL);
-    qint64 id();
-    void setQmlEngine(QQmlEngine *engine);
-    QString qmlPluginPath();
-    void setQmlPluginPath(const QString &qmlPluginPath);
-    void resetQmlPluginPath();
-}
+    Q_OBJECT
+    Q_DISABLE_COPY(QbQml)
 
-#endif // QB_H
+    public:
+        QbQml(QQuickItem *parent=NULL);
+        ~QbQml();
+
+        Q_INVOKABLE void init() const;
+        Q_INVOKABLE qint64 id() const;
+
+        Q_INVOKABLE QObject *newFrac() const;
+        Q_INVOKABLE QObject *newFrac(qint64 num, qint64 den) const;
+        Q_INVOKABLE QObject *newFrac(const QString &fracString) const;
+        Q_INVOKABLE QObject *newFrac(const QbFrac &frac) const;
+
+        Q_INVOKABLE QVariant toVar(QbFrac *frac) const;
+};
+
+#endif // QBQML_H
+

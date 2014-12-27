@@ -38,10 +38,12 @@ class QbFrac: public QObject
                WRITE setDen
                RESET resetDen
                NOTIFY denChanged)
-    Q_PROPERTY(double value
-               READ value)
     Q_PROPERTY(bool isValid
-               READ isValid)
+               READ isValid
+               NOTIFY isValidChanged)
+    Q_PROPERTY(double value
+               READ value
+               NOTIFY valueChanged)
     Q_PROPERTY(QString string
                READ toString
                NOTIFY stringChanged)
@@ -70,15 +72,19 @@ class QbFrac: public QObject
         int m_den;
         bool m_isValid;
 
-        qint64 gcd() const;
+        qint64 gcd(qint64 num, qint64 den) const;
+        QVector<qint64> reduce(qint64 num, qint64 den);
 
     signals:
         void numChanged();
         void denChanged();
+        void isValidChanged();
+        void valueChanged();
         void stringChanged();
 
     public slots:
-        void reduce();
+        void setNumDen(qint64 num, qint64 den);
+        void setNumDen(const QString &fracString);
         void setNum(qint64 num);
         void setDen(qint64 den);
         void resetNum();

@@ -59,9 +59,8 @@ int main(int argc, char *argv[])
         // @uri Webcamoid
         qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
 
-        mediaTools = new MediaTools();
         engine = new QQmlApplicationEngine();
-        mediaTools->setAppEngine(engine);
+        mediaTools = new MediaTools(engine);
 
         engine->rootContext()->setContextProperty("Webcamoid", mediaTools);
         engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));

@@ -40,7 +40,9 @@ exists(commons.pri) {
 
 CONFIG += qt
 
-DEFINES += COMMONS_LIBRARY
+DEFINES += \
+    COMMONS_LIBRARY \
+    QT_INSTALL_QML=\"\\\"$$[QT_INSTALL_QML]\\\"\"
 
 HEADERS = \
     include/qb.h \

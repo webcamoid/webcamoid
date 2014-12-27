@@ -25,10 +25,7 @@ import QtQuick.Layouts 1.1
 
 ColumnLayout {
     id: configs
-    property double stepSize: 0.01
-    property double maxMultiplier: 10
-    property double maxDisplacement: 255
-    property double decimals: 2
+    property int cellSize: 50
 
     function updateKernel(index, value)
     {
@@ -44,129 +41,129 @@ ColumnLayout {
         columns: 4
 
         // Red channel
-        SpinBox {
+        TextField {
             id: rr
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[0]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[0]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(0, value)
+            onTextChanged: updateKernel(0, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: rg
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[1]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[1]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(1, value)
+            onTextChanged: updateKernel(1, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: rb
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[2]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[2]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(2, value)
+            onTextChanged: updateKernel(2, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: r0
-            stepSize: 1
-            maximumValue: configs.maxDisplacement
-            minimumValue: -configs.maxDisplacement
-            decimals: 0
-            value: ColorTransform.kernel[3]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[3]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(3, value)
+            onTextChanged: updateKernel(3, parseFloat(text))
         }
 
         // Green channel
-        SpinBox {
+        TextField {
             id: gr
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[4]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[4]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(4, value)
+            onTextChanged: updateKernel(4, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: gg
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[5]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[5]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(5, value)
+            onTextChanged: updateKernel(5, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: gb
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[6]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[6]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(6, value)
+            onTextChanged: updateKernel(6, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: g0
-            stepSize: 1
-            maximumValue: configs.maxDisplacement
-            minimumValue: -configs.maxDisplacement
-            decimals: 0
-            value: ColorTransform.kernel[7]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[7]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(7, value)
+            onTextChanged: updateKernel(7, parseFloat(text))
         }
 
         // Blue channel
-        SpinBox {
+        TextField {
             id: br
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[8]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[8]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(8, value)
+            onTextChanged: updateKernel(8, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: bg
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[9]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[9]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(9, value)
+            onTextChanged: updateKernel(9, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: bb
-            stepSize: configs.stepSize
-            maximumValue: configs.maxMultiplier
-            minimumValue: -configs.maxMultiplier
-            decimals: configs.decimals
-            value: ColorTransform.kernel[10]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[10]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(10, value)
+            onTextChanged: updateKernel(10, parseFloat(text))
         }
-        SpinBox {
+        TextField {
             id: b0
-            stepSize: 1
-            maximumValue: configs.maxDisplacement
-            minimumValue: -configs.maxDisplacement
-            decimals: 0
-            value: ColorTransform.kernel[11]
+            Layout.preferredWidth: cellSize
+            text: ColorTransform.kernel[11]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-            onValueChanged: updateKernel(11, value)
+            onTextChanged: updateKernel(11, parseFloat(text))
         }
     }
 }

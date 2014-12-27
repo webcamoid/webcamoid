@@ -30,6 +30,7 @@ CONFIG += ordered
 
 SUBDIRS += \
     Lib.pro \
+    QbQml \
     Plugins
 
 # Install rules
