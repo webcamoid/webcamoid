@@ -26,8 +26,29 @@ DiceElement::DiceElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    this->m_curCubeBits = -1;
     this->resetCubeBits();
+}
+
+QObject *DiceElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Dice/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Dice", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 int DiceElement::cubeBits() const
@@ -54,14 +75,14 @@ QByteArray DiceElement::makeDiceMap(const QSize &size, int cubeBits) const
     return diceMap;
 }
 
-void DiceElement::init(const QSize &size)
-{
-    this->m_diceMap = this->makeDiceMap(size, this->m_cubeBits);
-}
-
 void DiceElement::setCubeBits(int cubeBits)
 {
-    this->m_cubeBits = qBound(0, cubeBits, 5);
+    cubeBits = qBound(0, cubeBits, 5);
+
+    if (cubeBits != this->m_cubeBits) {
+        this->m_cubeBits = cubeBits;
+        emit this->cubeBitsChanged();
+    }
 }
 
 void DiceElement::resetCubeBits()
@@ -82,21 +103,24 @@ QbPacket DiceElement::iStream(const QbPacket &packet)
     quint32 *srcBits = (quint32 *) src.bits();
     quint32 *destBits = (quint32 *) oFrame.bits();
 
-    if (this->m_cubeBits != this->m_curCubeBits
-        || src.size() != this->m_curSize) {
-        this->init(src.size());
-        this->m_curCubeBits = this->m_cubeBits;
-        this->m_curSize = src.size();
+    static int cubeBits = this->m_cubeBits;
+    static QSize curSize;
+
+    if (this->m_cubeBits != cubeBits
+        || src.size() != curSize) {
+        cubeBits = this->m_cubeBits;
+        curSize = src.size();
+        this->m_diceMap = this->makeDiceMap(src.size(), this->m_cubeBits);
     }
 
-    int mapWidth = src.width() >> this->m_cubeBits;
-    int mapHeight = src.height() >> this->m_cubeBits;
-    int cubeSize = 1 << this->m_cubeBits;
+    int mapWidth = src.width() >> cubeBits;
+    int mapHeight = src.height() >> cubeBits;
+    int cubeSize = 1 << cubeBits;
     int mapI = 0;
 
     for (int mapY = 0; mapY < mapHeight; mapY++)
         for (int mapX = 0; mapX < mapWidth; mapX++) {
-            int base = (mapY << this->m_cubeBits) * src.width() + (mapX << this->m_cubeBits);
+            int base = (mapY << cubeBits) * src.width() + (mapX << cubeBits);
 
             if (this->m_diceMap.data()[mapI] == DICEDIR_UP) {
                 for (int dy = 0; dy < cubeSize; dy++) {

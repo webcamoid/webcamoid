@@ -22,6 +22,8 @@
 #ifndef DICEELEMENT_H
 #define DICEELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -33,22 +35,29 @@
 class DiceElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int cubeBits READ cubeBits WRITE setCubeBits RESET resetCubeBits)
+    Q_PROPERTY(int cubeBits
+               READ cubeBits
+               WRITE setCubeBits
+               RESET resetCubeBits
+               NOTIFY cubeBitsChanged)
 
     public:
         explicit DiceElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE int cubeBits() const;
 
     private:
         int m_cubeBits;
         QByteArray m_diceMap;
-
-        int m_curCubeBits;
-        QSize m_curSize;
         QbElementPtr m_convert;
 
         QByteArray makeDiceMap(const QSize &size, int cubeBits) const;
-        void init(const QSize &size);
+
+    signals:
+        void cubeBitsChanged();
 
     public slots:
         void setCubeBits(int cubeBits);
