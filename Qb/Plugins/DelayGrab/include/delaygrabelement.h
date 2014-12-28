@@ -23,6 +23,8 @@
 #define DELAYGRABELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -30,9 +32,21 @@ class DelayGrabElement: public QbElement
 {
     Q_OBJECT
     Q_ENUMS(DelayGrabMode)
-    Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(int blockSize READ blockSize WRITE setBlockSize RESET resetBlockSize)
-    Q_PROPERTY(int nFrames READ nFrames WRITE setNFrames RESET resetNFrames)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int blockSize
+               READ blockSize
+               WRITE setBlockSize
+               RESET resetBlockSize
+               NOTIFY blockSizeChanged)
+    Q_PROPERTY(int nFrames
+               READ nFrames
+               WRITE setNFrames
+               RESET resetNFrames
+               NOTIFY nFramesChanged)
 
     public:
         enum DelayGrabMode
@@ -48,6 +62,10 @@ class DelayGrabElement: public QbElement
         };
 
         explicit DelayGrabElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int blockSize() const;
         Q_INVOKABLE int nFrames() const;
@@ -66,6 +84,11 @@ class DelayGrabElement: public QbElement
         QVector<int> m_delayMap;
 
         QVector<int> createDelaymap(DelayGrabMode mode);
+
+    signals:
+        void modeChanged();
+        void blockSizeChanged();
+        void nFramesChanged();
 
     public slots:
         void setMode(const QString &mode);

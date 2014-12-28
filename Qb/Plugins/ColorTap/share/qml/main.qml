@@ -83,9 +83,7 @@ ColumnLayout {
                 }
             }
 
-            onCurrentIndexChanged: {
-                ColorTap.table = cbxTable.model.get(currentIndex).table
-            }
+            onCurrentIndexChanged: ColorTap.table = cbxTable.model.get(currentIndex).table
         }
     }
 
