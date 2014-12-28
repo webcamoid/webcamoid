@@ -34,7 +34,8 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->resetRecording();
     this->resetVideoRecordFormats();
     this->resetStreams();
-    this->resetWindowSize();
+    this->resetWindowWidth();
+    this->resetWindowHeight();
 
     Qb::init(engine);
 
@@ -245,9 +246,14 @@ QStringList MediaTools::streams() const
     return streams + this->m_streams.keys();
 }
 
-QSize MediaTools::windowSize() const
+int MediaTools::windowWidth() const
 {
-    return this->m_windowSize;
+    return this->m_windowWidth;
+}
+
+int MediaTools::windowHeight() const
+{
+    return this->m_windowHeight;
 }
 
 QString MediaTools::applicationName() const
@@ -994,9 +1000,20 @@ void MediaTools::setVideoRecordFormats(QList<QStringList> videoRecordFormats)
     this->m_videoRecordFormats = videoRecordFormats;
 }
 
-void MediaTools::setWindowSize(const QSize &windowSize)
+void MediaTools::setWindowWidth(int windowWidth)
 {
-    this->m_windowSize = windowSize;
+    if (windowWidth != this->m_windowWidth) {
+        this->m_windowWidth = windowWidth;
+        emit this->windowWidthChanged();
+    }
+}
+
+void MediaTools::setWindowHeight(int windowHeight)
+{
+    if (windowHeight != this->m_windowHeight) {
+        this->m_windowHeight = windowHeight;
+        emit this->windowHeightChanged();
+    }
 }
 
 void MediaTools::resetCurStream()
@@ -1044,9 +1061,14 @@ void MediaTools::resetVideoRecordFormats()
     this->setVideoRecordFormats(QList<QStringList>());
 }
 
-void MediaTools::resetWindowSize()
+void MediaTools::resetWindowWidth()
 {
-    this->setWindowSize(QSize());
+    this->setWindowWidth(0);
+}
+
+void MediaTools::resetWindowHeight()
+{
+    this->setWindowHeight(0);
 }
 
 void MediaTools::loadConfigs()
@@ -1062,7 +1084,9 @@ void MediaTools::loadConfigs()
 
     this->setRecordAudioFrom(static_cast<RecordFrom>(recordFrom));
 
-    this->m_windowSize = config.value("windowSize", QSize(800, 480)).toSize();
+    QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
+    this->m_windowWidth = windowSize.width();
+    this->m_windowHeight = windowSize.height();
 
     config.endGroup();
 
@@ -1138,7 +1162,8 @@ void MediaTools::saveConfigs()
     config.setValue("recordAudioFrom",
                     static_cast<int>(this->recordAudioFrom()));
 
-    config.setValue("windowSize", this->m_windowSize);
+    config.setValue("windowSize", QSize(this->m_windowWidth,
+                                        this->m_windowHeight));
 
     config.endGroup();
 

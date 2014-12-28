@@ -65,10 +65,17 @@ class MediaTools: public QObject
                WRITE setVideoRecordFormats
                RESET resetVideoRecordFormats)
 
-    Q_PROPERTY(QSize windowSize
-               READ windowSize
-               WRITE setWindowSize
-               RESET resetWindowSize)
+    Q_PROPERTY(int windowWidth
+               READ windowWidth
+               WRITE setWindowWidth
+               RESET resetWindowWidth
+               NOTIFY windowWidthChanged)
+
+    Q_PROPERTY(int windowHeight
+               READ windowHeight
+               WRITE setWindowHeight
+               RESET resetWindowHeight
+               NOTIFY windowHeightChanged)
 
     Q_PROPERTY(QStringList currentEffects
                READ currentEffects
@@ -92,7 +99,8 @@ class MediaTools: public QObject
         Q_INVOKABLE bool recording() const;
         Q_INVOKABLE QList<QStringList> videoRecordFormats() const;
         Q_INVOKABLE QStringList streams() const;
-        Q_INVOKABLE QSize windowSize() const;
+        Q_INVOKABLE int windowWidth() const;
+        Q_INVOKABLE int windowHeight() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
         Q_INVOKABLE QString qtVersion() const;
@@ -136,7 +144,8 @@ class MediaTools: public QObject
         RecordFrom m_recordAudioFrom;
         bool m_recording;
         QList<QStringList> m_videoRecordFormats;
-        QSize m_windowSize;
+        int m_windowWidth;
+        int m_windowHeight;
         QQmlApplicationEngine *m_appEngine;
 
         QbElementPtr m_pipeline;
@@ -167,6 +176,8 @@ class MediaTools: public QObject
         void streamsChanged();
         void stateChanged();
         void recordingChanged(bool recording);
+        void windowWidthChanged();
+        void windowHeightChanged();
         void currentEffectsChanged();
         void frameReady(const QbPacket &frame);
         void error(const QString &message);
@@ -185,14 +196,16 @@ class MediaTools: public QObject
         void setRecordAudioFrom(RecordFrom recordAudioFrom);
         void setRecording(bool recording, QString fileName="");
         void setVideoRecordFormats(QList<QStringList> videoRecordFormats);
-        void setWindowSize(const QSize &windowSize);
+        void setWindowWidth(int windowWidth);
+        void setWindowHeight(int windowHeight);
         void resetCurStream();
         void resetVideoSize(const QString &stream);
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
         void resetRecording();
         void resetVideoRecordFormats();
-        void resetWindowSize();
+        void resetWindowWidth();
+        void resetWindowHeight();
 
         void reset(const QString &stream);
         void loadConfigs();

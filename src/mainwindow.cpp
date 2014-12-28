@@ -39,7 +39,8 @@ MainWindow::MainWindow(QWidget *parent):
 
     this->m_mediaTools = new MediaTools(NULL, this);
 
-    this->resize(this->m_mediaTools->windowSize());
+    this->resize(QSize(this->m_mediaTools->windowWidth(),
+                       this->m_mediaTools->windowHeight()));
 
     QObject::connect(this->m_mediaTools,
                      SIGNAL(streamsChanged()),
@@ -186,7 +187,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
 
-    this->m_mediaTools->setWindowSize(event->size());
+    this->m_mediaTools->setWindowWidth(event->size().width());
+    this->m_mediaTools->setWindowHeight(event->size().height());
     this->updateContents();
 }
 

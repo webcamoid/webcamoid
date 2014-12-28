@@ -30,11 +30,14 @@ ApplicationWindow {
     visible: true
     x: (Screen.desktopAvailableWidth - width) / 2
     y: (Screen.desktopAvailableHeight - height) / 2
-    width: 1024
-    height: 600
+    width: Webcamoid.windowWidth
+    height: Webcamoid.windowHeight
     color: Qt.rgba(0, 0, 0, 1)
 
     property bool showEffectBar: false
+
+    onWidthChanged: Webcamoid.windowWidth = width
+    onHeightChanged: Webcamoid.windowHeight = height
 
     Connections {
         target: Webcamoid

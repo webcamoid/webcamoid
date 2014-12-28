@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Denoise.qrc
+
 SOURCES += \
     src/denoise.cpp \
     src/denoiseelement.cpp

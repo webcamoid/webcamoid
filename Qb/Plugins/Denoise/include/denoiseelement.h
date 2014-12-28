@@ -23,6 +23,8 @@
 #define DENOISEELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -30,10 +32,26 @@ class DenoiseElement: public QbElement
 {
     Q_OBJECT
     Q_ENUMS(DenoiseMode)
-    Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(QSize scanSize READ scanSize WRITE setScanSize RESET resetScanSize)
-    Q_PROPERTY(float mu READ mu WRITE setMu RESET resetMu)
-    Q_PROPERTY(float sigma READ sigma WRITE setSigma RESET resetSigma)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(QSize scanSize
+               READ scanSize
+               WRITE setScanSize
+               RESET resetScanSize
+               NOTIFY scanSizeChanged)
+    Q_PROPERTY(float mu
+               READ mu
+               WRITE setMu
+               RESET resetMu
+               NOTIFY muChanged)
+    Q_PROPERTY(float sigma
+               READ sigma
+               WRITE setSigma
+               RESET resetSigma
+               NOTIFY sigmaChanged)
 
     public:
         enum DenoiseMode
@@ -43,6 +61,10 @@ class DenoiseElement: public QbElement
         };
 
         explicit DenoiseElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE QSize scanSize() const;
         Q_INVOKABLE float mu() const;
@@ -161,9 +183,9 @@ class DenoiseElement: public QbElement
             // Apply factors.
             int ks = kernelSize - 1;
 
-            mr *= mu;
-            mg *= mu;
-            mb *= mu;
+            mr = qBound(0, (int) (mr * mu), 255);
+            mg = qBound(0, (int) (mg * mu), 255);
+            mb = qBound(0, (int) (mb * mu), 255);
 
             sr = sigma * sqrt(sr / ks);
             sg = sigma * sqrt(sg / ks);
@@ -211,6 +233,12 @@ class DenoiseElement: public QbElement
 
             return qRgba(r, g, b, a);
         }
+
+    signals:
+        void modeChanged();
+        void scanSizeChanged();
+        void muChanged();
+        void sigmaChanged();
 
     public slots:
         void setMode(const QString &mode);

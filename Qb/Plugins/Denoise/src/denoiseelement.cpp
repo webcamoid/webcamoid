@@ -35,6 +35,28 @@ DenoiseElement::DenoiseElement(): QbElement()
     this->resetSigma();
 }
 
+QObject *DenoiseElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Denoise/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Denoise", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString DenoiseElement::mode() const
 {
     return this->m_denoiseModeToStr[this->m_mode];
@@ -57,25 +79,38 @@ float DenoiseElement::sigma() const
 
 void DenoiseElement::setMode(const QString &mode)
 {
-    if (this->m_denoiseModeToStr.values().contains(mode))
-        this->m_mode = this->m_denoiseModeToStr.key(mode);
-    else
-        this->m_mode = DenoiseModeGauss;
+    DenoiseMode modeEnum = this->m_denoiseModeToStr.values().contains(mode)?
+                               this->m_denoiseModeToStr.key(mode):
+                               DenoiseModeGauss;
+
+    if (modeEnum != this->m_mode) {
+        this->m_mode = modeEnum;
+        emit this->modeChanged();
+    }
 }
 
 void DenoiseElement::setScanSize(const QSize &scanSize)
 {
-    this->m_scanSize = scanSize;
+    if (scanSize != this->m_scanSize) {
+        this->m_scanSize = scanSize;
+        emit this->scanSizeChanged();
+    }
 }
 
 void DenoiseElement::setMu(float mu)
 {
-    this->m_mu = mu;
+    if (mu != this->m_mu) {
+        this->m_mu = mu;
+        emit this->muChanged();
+    }
 }
 
 void DenoiseElement::setSigma(float sigma)
 {
-    this->m_sigma = sigma;
+    if (sigma != this->m_sigma) {
+        this->m_sigma = sigma;
+        emit this->sigmaChanged();
+    }
 }
 
 void DenoiseElement::resetMode()
@@ -95,7 +130,7 @@ void DenoiseElement::resetMu()
 
 void DenoiseElement::resetSigma()
 {
-    this->setSigma(1.0);
+    this->setSigma(0.0);
 }
 
 QbPacket DenoiseElement::iStream(const QbPacket &packet)
@@ -111,14 +146,16 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    int scanWidth = 2 * this->m_scanSize.width() + 1;
-    int scanHeight = 2 * this->m_scanSize.height() + 1;
+    int scanWidth = this->m_scanSize.width();
+    int scanHeight = this->m_scanSize.height();
+    int scanW = 2 * scanWidth + 1;
+    int scanH = 2 * scanHeight + 1;
 
     for (int y = 0; y < src.height(); y++) {
         int xOffset = y * src.width();
-        int yMin = y - this->m_scanSize.height();
-        int yMax = y + this->m_scanSize.height();
-        int kernelHeight = scanHeight;
+        int yMin = y - scanHeight;
+        int yMax = y + scanHeight;
+        int kernelHeight = scanH;
 
         if (yMin < 0) {
             kernelHeight -= abs(yMin);
@@ -129,9 +166,9 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
             kernelHeight -= abs(yMax - src.height() + 1);
 
         for (int x = 0; x < src.width(); x++) {
-            int xMin = x - this->m_scanSize.width();
-            int xMax = x + this->m_scanSize.width();
-            int kernelWidth = scanWidth;
+            int xMin = x - scanWidth;
+            int xMax = x + scanWidth;
+            int kernelWidth = scanW;
 
             if (xMin < 0) {
                 kernelWidth -= abs(xMin);
