@@ -30,6 +30,28 @@ DizzyElement::DizzyElement(): QbElement()
     this->resetZoomRate();
 }
 
+QObject *DizzyElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Dizzy/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Dizzy", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 float DizzyElement::phaseIncrement() const
 {
     return this->m_phaseIncrement;
@@ -96,12 +118,18 @@ void DizzyElement::setParams(int *dx, int *dy,
 
 void DizzyElement::setPhaseIncrement(float phaseIncrement)
 {
-    this->m_phaseIncrement = phaseIncrement;
+    if (phaseIncrement != this->m_phaseIncrement) {
+        this->m_phaseIncrement = phaseIncrement;
+        emit this->phaseIncrementChanged();
+    }
 }
 
 void DizzyElement::setZoomRate(float zoomRate)
 {
-    this->m_zoomRate = zoomRate;
+    if (zoomRate != this->m_zoomRate) {
+        this->m_zoomRate = zoomRate;
+        emit this->zoomRateChanged();
+    }
 }
 
 void DizzyElement::resetPhaseIncrement()

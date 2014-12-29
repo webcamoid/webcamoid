@@ -31,11 +31,11 @@
 class ChangeHSLElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList hsl
-               READ hsl
-               WRITE setHsl
-               RESET resetHsl
-               NOTIFY hslChanged)
+    Q_PROPERTY(QVariantList kernel
+               READ kernel
+               WRITE setKernel
+               RESET resetKernel
+               NOTIFY kernelChanged)
 
     public:
         explicit ChangeHSLElement();
@@ -43,18 +43,18 @@ class ChangeHSLElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE QVariantList hsl() const;
+        Q_INVOKABLE QVariantList kernel() const;
 
     private:
-        QVector<float> m_hsl;
+        QVector<float> m_kernel;
         QbElementPtr m_convert;
 
     signals:
-        void hslChanged();
+        void kernelChanged();
 
     public slots:
-        void setHsl(const QVariantList &hsl);
-        void resetHsl();
+        void setKernel(const QVariantList &kernel);
+        void resetKernel();
         QbPacket iStream(const QbPacket &packet);
 };
 

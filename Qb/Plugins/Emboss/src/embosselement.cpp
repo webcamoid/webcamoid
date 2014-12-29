@@ -30,6 +30,28 @@ EmbossElement::EmbossElement(): QbElement()
     this->resetBias();
 }
 
+QObject *EmbossElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Emboss/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Emboss", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 float EmbossElement::factor() const
 {
     return this->m_factor;
@@ -42,12 +64,18 @@ float EmbossElement::bias() const
 
 void EmbossElement::setFactor(float factor)
 {
-    this->m_factor = factor;
+    if (factor != this->m_factor) {
+        this->m_factor = factor;
+        emit this->factorChanged();
+    }
 }
 
 void EmbossElement::setBias(float bias)
 {
-    this->m_bias = bias;
+    if (bias != this->m_bias) {
+        this->m_bias = bias;
+        emit this->biasChanged();
+    }
 }
 
 void EmbossElement::resetFactor()

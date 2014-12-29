@@ -23,93 +23,152 @@ import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
-GridLayout {
-    columns: 3
+ColumnLayout {
+    id: configs
+    property int cellSize: 50
 
-    // Configure hue.
+    function updateKernel(index, value)
+    {
+        var kernel = ChangeHSL.kernel
+        kernel[index] = value
+        ChangeHSL.kernel = kernel
+    }
+
+    function strToFloat(str)
+    {
+        return str.length < 1? 0: parseFloat(str)
+    }
+
     Label {
-        id: lblHue
-        text: qsTr("Hue")
+        text: qsTr("Transform matrix")
     }
-    Slider {
-        id: sldHue
-        value: ChangeHSL.hsl[0]
-        stepSize: 0.01
-        minimumValue: -maximumValue
-        maximumValue: 4
+    GridLayout {
+        columns: 4
 
-        onValueChanged: {
-            var hsl = ChangeHSL.hsl
-            hsl[0] = value
-            ChangeHSL.hsl = hsl
+        // Red channel
+        TextField {
+            id: hh
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[0]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(0, strToFloat(text))
         }
-    }
-    SpinBox {
-        id: spbHue
-        decimals: 2
-        value: sldHue.value
-        minimumValue: sldHue.minimumValue
-        maximumValue: sldHue.maximumValue
-        stepSize: sldHue.stepSize
+        TextField {
+            id: hs
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[1]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-        onValueChanged: sldHue.value = value
-    }
-
-    // Configure saturation.
-    Label {
-        id: lblSaturation
-        text: qsTr("Saturation")
-    }
-    Slider {
-        id: sldSaturation
-        value: ChangeHSL.hsl[1]
-        stepSize: 0.01
-        minimumValue: -maximumValue
-        maximumValue: 4
-
-        onValueChanged: {
-            var hsl = ChangeHSL.hsl
-            hsl[1] = value
-            ChangeHSL.hsl = hsl
+            onTextChanged: updateKernel(1, strToFloat(text))
         }
-    }
-    SpinBox {
-        id: spbSaturation
-        decimals: 2
-        value: sldSaturation.value
-        minimumValue: sldSaturation.minimumValue
-        maximumValue: sldSaturation.maximumValue
-        stepSize: sldSaturation.stepSize
+        TextField {
+            id: hl
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[2]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-        onValueChanged: sldSaturation.value = value
-    }
-
-    // Configure luminance.
-    Label {
-        id: lblLuminance
-        text: qsTr("Luminance")
-    }
-    Slider {
-        id: sldLuminance
-        value: ChangeHSL.hsl[2]
-        stepSize: 0.01
-        minimumValue: -maximumValue
-        maximumValue: 4
-
-        onValueChanged: {
-            var hsl = ChangeHSL.hsl
-            hsl[2] = value
-            ChangeHSL.hsl = hsl
+            onTextChanged: updateKernel(2, strToFloat(text))
         }
-    }
-    SpinBox {
-        id: spbLuminance
-        decimals: 2
-        value: sldLuminance.value
-        minimumValue: sldLuminance.minimumValue
-        maximumValue: sldLuminance.maximumValue
-        stepSize: sldLuminance.stepSize
+        TextField {
+            id: h0
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[3]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
 
-        onValueChanged: sldLuminance.value = value
+            onTextChanged: updateKernel(3, strToFloat(text))
+        }
+
+        // Green channel
+        TextField {
+            id: sh
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[4]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(4, strToFloat(text))
+        }
+        TextField {
+            id: ss
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[5]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(5, strToFloat(text))
+        }
+        TextField {
+            id: sl
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[6]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(6, strToFloat(text))
+        }
+        TextField {
+            id: s0
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[7]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(7, strToFloat(text))
+        }
+
+        // Blue channel
+        TextField {
+            id: lh
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[8]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(8, strToFloat(text))
+        }
+        TextField {
+            id: ls
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[9]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(9, strToFloat(text))
+        }
+        TextField {
+            id: ll
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[10]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(10, strToFloat(text))
+        }
+        TextField {
+            id: l0
+            Layout.preferredWidth: cellSize
+            text: ChangeHSL.kernel[11]
+            validator: RegExpValidator {
+                regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            }
+
+            onTextChanged: updateKernel(11, strToFloat(text))
+        }
     }
 }

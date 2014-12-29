@@ -24,21 +24,31 @@
 
 #include <cmath>
 #include <QColor>
-
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class DizzyElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float phaseIncrement READ phaseIncrement
-                                    WRITE setPhaseIncrement
-                                    RESET resetPhaseIncrement)
-
-    Q_PROPERTY(float zoomRate READ zoomRate WRITE setZoomRate RESET resetZoomRate)
+    Q_PROPERTY(float phaseIncrement
+               READ phaseIncrement
+               WRITE setPhaseIncrement
+               RESET resetPhaseIncrement
+               NOTIFY phaseIncrementChanged)
+    Q_PROPERTY(float zoomRate
+               READ zoomRate
+               WRITE setZoomRate
+               RESET resetZoomRate
+               NOTIFY zoomRateChanged)
 
     public:
         explicit DizzyElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE float phaseIncrement() const;
         Q_INVOKABLE float zoomRate() const;
 
@@ -55,6 +65,10 @@ class DizzyElement: public QbElement
                        int *sx, int *sy,
                        int width, int height,
                        float phase, float zoomRate);
+
+    signals:
+        void phaseIncrementChanged();
+        void zoomRateChanged();
 
     public slots:
         void setPhaseIncrement(float phaseIncrement);

@@ -30,6 +30,28 @@ EdgeElement::EdgeElement(): QbElement()
     this->resetInvert();
 }
 
+QObject *EdgeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Edge/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Edge", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 bool EdgeElement::equalize() const
 {
     return this->m_equalize;
@@ -42,12 +64,18 @@ bool EdgeElement::invert() const
 
 void EdgeElement::setEqualize(bool equalize)
 {
-    this->m_equalize = equalize;
+    if (equalize != this->m_equalize) {
+        this->m_equalize = equalize;
+        emit this->equalizeChanged();
+    }
 }
 
 void EdgeElement::setInvert(bool invert)
 {
-    this->m_invert = invert;
+    if (invert != this->m_invert) {
+        this->m_invert = invert;
+        emit this->invertChanged();
+    }
 }
 
 void EdgeElement::resetEqualize()

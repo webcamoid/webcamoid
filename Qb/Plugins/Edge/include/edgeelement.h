@@ -23,17 +23,31 @@
 #define EDGEELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class EdgeElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(bool equalize READ equalize WRITE setEqualize RESET resetEqualize)
-    Q_PROPERTY(bool invert READ invert WRITE setInvert RESET resetInvert)
+    Q_PROPERTY(bool equalize
+               READ equalize
+               WRITE setEqualize
+               RESET resetEqualize
+               NOTIFY equalizeChanged)
+    Q_PROPERTY(bool invert
+               READ invert
+               WRITE setInvert
+               RESET resetInvert
+               NOTIFY invertChanged)
 
     public:
         explicit EdgeElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE bool equalize() const;
         Q_INVOKABLE bool invert() const;
 
@@ -41,6 +55,10 @@ class EdgeElement: public QbElement
         bool m_equalize;
         bool m_invert;
         QbElementPtr m_convert;
+
+    signals:
+        void equalizeChanged();
+        void invertChanged();
 
     public slots:
         void setEqualize(bool equalize);

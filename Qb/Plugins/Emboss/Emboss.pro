@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Emboss.qrc
+
 SOURCES += \
     src/emboss.cpp \
     src/embosselement.cpp

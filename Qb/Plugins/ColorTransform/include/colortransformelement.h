@@ -46,7 +46,6 @@ class ColorTransformElement: public QbElement
 
     private:
         QVector<float> m_kernel;
-
         QbElementPtr m_convert;
 
     signals:

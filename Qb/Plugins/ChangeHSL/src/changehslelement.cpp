@@ -26,9 +26,7 @@ ChangeHSLElement::ChangeHSLElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    qRegisterMetaType<QRgb>("QRgb");
-
-    this->resetHsl();
+    this->resetKernel();
 }
 
 QObject *ChangeHSLElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -53,37 +51,43 @@ QObject *ChangeHSLElement::controlInterface(QQmlEngine *engine, const QString &c
     return item;
 }
 
-QVariantList ChangeHSLElement::hsl() const
+QVariantList ChangeHSLElement::kernel() const
 {
-    QVariantList hsl;
+    QVariantList kernel;
 
-    foreach (float e, this->m_hsl)
-        hsl << e - 1;
+    foreach (float e, this->m_kernel)
+        kernel << e;
 
-    return hsl;
+    return kernel;
 }
 
-void ChangeHSLElement::setHsl(const QVariantList &hsl)
+void ChangeHSLElement::setKernel(const QVariantList &kernel)
 {
-    QVector<float> hslTmp;
+    QVector<float> k;
 
-    foreach (QVariant e, hsl)
-        hslTmp << e.toFloat() + 1;
+    foreach (QVariant e, kernel)
+        k << e.toFloat();
 
-    if (hslTmp != this->m_hsl) {
-        this->m_hsl = hslTmp;
-        emit this->hslChanged();
-    }
+    if (k != this->m_kernel)
+        this->m_kernel = k;
 }
 
-void ChangeHSLElement::resetHsl()
+void ChangeHSLElement::resetKernel()
 {
-    this->m_hsl.clear();
-    this->m_hsl << 1 << 1 << 1;
+    QVariantList kernel;
+
+    kernel << 1 << 0 << 0 << 0
+           << 0 << 1 << 0 << 0
+           << 0 << 0 << 1 << 0;
+
+    this->setKernel(kernel);
 }
 
 QbPacket ChangeHSLElement::iStream(const QbPacket &packet)
 {
+    if (this->m_kernel.size() < 12)
+        qbSend(packet)
+
     QbPacket iPacket = this->m_convert->iStream(packet);
     QImage src = QbUtils::packetToImage(iPacket);
 
@@ -97,6 +101,8 @@ QbPacket ChangeHSLElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
+    QVector<float> kernel = this->m_kernel;
+
     for (int i = 0; i < videoArea; i++) {
         int h;
         int s;
@@ -105,16 +111,16 @@ QbPacket ChangeHSLElement::iStream(const QbPacket &packet)
 
         QColor(srcBits[i]).getHsl(&h, &s, &l, &a);
 
-        h *= this->m_hsl[0];
-        s *= this->m_hsl[1];
-        l *= this->m_hsl[2];
+        int ht = h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3];
+        int st = h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7];
+        int lt = h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11];
 
-        h = qBound(0, h, 255);
-        s = qBound(0, s, 255);
-        l = qBound(0, l, 255);
+        ht = qBound(0, ht, 255);
+        st = qBound(0, st, 255);
+        lt = qBound(0, lt, 255);
 
         QColor color;
-        color.setHsl(h, s, l, a);
+        color.setHsl(ht, st, lt, a);
 
         destBits[i] = color.rgba();
     }

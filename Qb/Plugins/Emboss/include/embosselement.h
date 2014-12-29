@@ -23,25 +23,42 @@
 #define EmbossELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class EmbossElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float factor READ factor WRITE setFactor RESET resetFactor)
-    Q_PROPERTY(float bias READ bias WRITE setBias RESET resetBias)
+    Q_PROPERTY(float factor
+               READ factor
+               WRITE setFactor
+               RESET resetFactor
+               NOTIFY factorChanged)
+    Q_PROPERTY(float bias
+               READ bias
+               WRITE setBias
+               RESET resetBias
+               NOTIFY biasChanged)
 
     public:
         explicit EmbossElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE float factor() const;
         Q_INVOKABLE float bias() const;
 
     private:
         float m_factor;
         float m_bias;
-
         QbElementPtr m_convert;
+
+    signals:
+        void factorChanged();
+        void biasChanged();
 
     public slots:
         void setFactor(float factor);

@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Edge.qrc
+
 SOURCES += \
     src/edge.cpp \
     src/edgeelement.cpp
