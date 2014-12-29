@@ -31,6 +31,28 @@ DistortElement::DistortElement(): QbElement()
     this->resetGridSizeLog();
 }
 
+QObject *DistortElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Distort/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Distort", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 float DistortElement::amplitude() const
 {
     return this->m_amplitude;
@@ -46,7 +68,8 @@ int DistortElement::gridSizeLog() const
     return this->m_gridSizeLog;
 }
 
-QVector<QPoint> DistortElement::createGrid(int width, int height, int gridSize, float time)
+QVector<QPoint> DistortElement::createGrid(int width, int height,
+                                           int gridSize, float time)
 {
     QVector<QPoint> grid;
 
@@ -61,17 +84,28 @@ QVector<QPoint> DistortElement::createGrid(int width, int height, int gridSize, 
 
 void DistortElement::setAmplitude(float amplitude)
 {
-    this->m_amplitude = amplitude;
+    if (amplitude != this->m_amplitude) {
+        this->m_amplitude = amplitude;
+        emit this->amplitudeChanged();
+    }
 }
 
 void DistortElement::setFrequency(float frequency)
 {
-    this->m_frequency = frequency;
+    if (frequency != this->m_frequency) {
+        this->m_frequency = frequency;
+        emit this->frequencyChanged();
+    }
 }
 
 void DistortElement::setGridSizeLog(int gridSizeLog)
 {
-    this->m_gridSizeLog = gridSizeLog;
+    gridSizeLog = gridSizeLog < 1? 1: gridSizeLog;
+
+    if (gridSizeLog != this->m_gridSizeLog) {
+        this->m_gridSizeLog = gridSizeLog;
+        emit this->gridSizeLogChanged();
+    }
 }
 
 void DistortElement::resetAmplitude()
@@ -102,7 +136,8 @@ QbPacket DistortElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    int gridSize = 1 << this->m_gridSizeLog;
+    int gridSizeLog = this->m_gridSizeLog;
+    int gridSize = 1 << gridSizeLog;
     float time = packet.pts() * packet.timeBase().value();
     QVector<QPoint> grid = this->createGrid(src.width(), src.height(), gridSize, time);
 
@@ -124,25 +159,25 @@ QbPacket DistortElement::iStream(const QbPacket &packet)
             int endColYY = upperRight.y();
 
             int stepStartColX = (lowerLeft.x() - upperLeft.x())
-                                >> this->m_gridSizeLog;
+                                >> gridSizeLog;
 
             int stepStartColY = (lowerLeft.y() - upperLeft.y())
-                                >> this->m_gridSizeLog;
+                                >> gridSizeLog;
 
             int stepEndColX = (lowerRight.x() - upperRight.x())
-                              >> this->m_gridSizeLog;
+                              >> gridSizeLog;
 
             int stepEndColY = (lowerRight.y() - upperRight.y())
-                              >> this->m_gridSizeLog;
+                              >> gridSizeLog;
 
-            int pos = (y << this->m_gridSizeLog) * src.width() + (x << this->m_gridSizeLog);
+            int pos = (y << gridSizeLog) * src.width() + (x << gridSizeLog);
 
             for (int blockY = 0; blockY < gridSize; blockY++) {
                 int xLineIndex = startColXX;
                 int yLineIndex = startColYY;
 
-                int stepLineX = (endColXX - startColXX) >> this->m_gridSizeLog;
-                int stepLineY = (endColYY - startColYY) >> this->m_gridSizeLog;
+                int stepLineX = (endColXX - startColXX) >> gridSizeLog;
+                int stepLineY = (endColYY - startColYY) >> gridSizeLog;
 
                 for (int i = 0, blockX = 0; blockX < gridSize; i++, blockX++) {
                     int xx = qBound(0, xLineIndex, src.width() - 1);

@@ -24,19 +24,36 @@
 
 #include <cmath>
 #include <qrgb.h>
-
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class DistortElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float amplitude READ amplitude WRITE setAmplitude RESET resetAmplitude)
-    Q_PROPERTY(float frequency READ frequency WRITE setFrequency RESET resetFrequency)
-    Q_PROPERTY(int gridSizeLog READ gridSizeLog WRITE setGridSizeLog RESET resetGridSizeLog)
+    Q_PROPERTY(float amplitude
+               READ amplitude
+               WRITE setAmplitude
+               RESET resetAmplitude
+               NOTIFY amplitudeChanged)
+    Q_PROPERTY(float frequency
+               READ frequency
+               WRITE setFrequency
+               RESET resetFrequency
+               NOTIFY frequencyChanged)
+    Q_PROPERTY(int gridSizeLog
+               READ gridSizeLog
+               WRITE setGridSizeLog
+               RESET resetGridSizeLog
+               NOTIFY gridSizeLogChanged)
 
     public:
         explicit DistortElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE float amplitude() const;
         Q_INVOKABLE float frequency() const;
         Q_INVOKABLE int gridSizeLog() const;
@@ -69,7 +86,13 @@ class DistortElement: public QbElement
                           qBound(0, y, size.height() - 1));
         }
 
-        QVector<QPoint> createGrid(int width, int height, int gridSize, float time);
+        QVector<QPoint> createGrid(int width, int height,
+                                   int gridSize, float time);
+
+    signals:
+        void amplitudeChanged();
+        void frequencyChanged();
+        void gridSizeLogChanged();
 
     public slots:
         void setAmplitude(float amplitude);

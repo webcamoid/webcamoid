@@ -34,6 +34,11 @@ ColumnLayout {
         ColorTransform.kernel = kernel
     }
 
+    function strToFloat(str)
+    {
+        return str.length < 1? 0: parseFloat(str)
+    }
+
     Label {
         text: qsTr("Transform matrix")
     }
@@ -49,7 +54,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(0, parseFloat(text))
+            onTextChanged: updateKernel(0, strToFloat(text))
         }
         TextField {
             id: rg
@@ -59,7 +64,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(1, parseFloat(text))
+            onTextChanged: updateKernel(1, strToFloat(text))
         }
         TextField {
             id: rb
@@ -69,7 +74,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(2, parseFloat(text))
+            onTextChanged: updateKernel(2, strToFloat(text))
         }
         TextField {
             id: r0
@@ -79,7 +84,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(3, parseFloat(text))
+            onTextChanged: updateKernel(3, strToFloat(text))
         }
 
         // Green channel
@@ -91,7 +96,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(4, parseFloat(text))
+            onTextChanged: updateKernel(4, strToFloat(text))
         }
         TextField {
             id: gg
@@ -101,7 +106,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(5, parseFloat(text))
+            onTextChanged: updateKernel(5, strToFloat(text))
         }
         TextField {
             id: gb
@@ -111,7 +116,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(6, parseFloat(text))
+            onTextChanged: updateKernel(6, strToFloat(text))
         }
         TextField {
             id: g0
@@ -121,7 +126,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(7, parseFloat(text))
+            onTextChanged: updateKernel(7, strToFloat(text))
         }
 
         // Blue channel
@@ -133,7 +138,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(8, parseFloat(text))
+            onTextChanged: updateKernel(8, strToFloat(text))
         }
         TextField {
             id: bg
@@ -143,7 +148,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(9, parseFloat(text))
+            onTextChanged: updateKernel(9, strToFloat(text))
         }
         TextField {
             id: bb
@@ -153,7 +158,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(10, parseFloat(text))
+            onTextChanged: updateKernel(10, strToFloat(text))
         }
         TextField {
             id: b0
@@ -163,7 +168,7 @@ ColumnLayout {
                 regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
             }
 
-            onTextChanged: updateKernel(11, parseFloat(text))
+            onTextChanged: updateKernel(11, strToFloat(text))
         }
     }
 }

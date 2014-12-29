@@ -40,8 +40,16 @@ GridLayout {
         return index
     }
 
+    function strToFloat(str)
+    {
+        return str.length < 1? 0: parseFloat(str)
+    }
+
     function strToSize(str)
     {
+        if (str.length < 1)
+            return Qt.size()
+
         var size = str.split("x")
 
         return Qt.size(size[0], size[1])
@@ -89,7 +97,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Denoise.mu = parseFloat(text)
+        onTextChanged: Denoise.mu = strToFloat(text)
     }
 
     Label {
@@ -101,6 +109,6 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Denoise.sigma = parseFloat(text)
+        onTextChanged: Denoise.sigma = strToFloat(text)
     }
 }

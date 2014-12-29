@@ -26,7 +26,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 3
 
-    // Configure Dice cubeBits.
     Label {
         id: lblCubeBits
         text: qsTr("Size")

@@ -24,77 +24,49 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
 GridLayout {
-    id: configs
     columns: 2
-
-    function modeIndex(mode)
-    {
-        var index = -1
-
-        for (var i = 0; i < cbxMode.model.count; i++)
-            if (cbxMode.model.get(i).mode === mode) {
-                index = i
-                break
-            }
-
-        return index
-    }
 
     function strToFloat(str)
     {
         return str.length < 1? 0: parseFloat(str)
     }
 
+    // Configure amplitude.
     Label {
-        text: qsTr("Grab mode")
-    }
-    ComboBox {
-        id: cbxMode
-        currentIndex: modeIndex(DelayGrab.mode)
-
-        model: ListModel {
-            ListElement {
-                text: qsTr("Random square")
-                mode: "RandomSquare"
-            }
-            ListElement {
-                text: qsTr("Vertical increase")
-                mode: "VerticalIncrease"
-            }
-            ListElement {
-                text: qsTr("Horizontal increase")
-                mode: "HorizontalIncrease"
-            }
-            ListElement {
-                text: qsTr("Rings increase")
-                mode: "RingsIncrease"
-            }
-        }
-
-        onCurrentIndexChanged: DelayGrab.mode = cbxMode.model.get(currentIndex).mode
-    }
-
-    Label {
-        text: qsTr("Block size")
+        text: qsTr("Amplitude")
     }
     TextField {
-        text: DelayGrab.blockSize
+        text: Distort.amplitude
+        validator: RegExpValidator {
+            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        }
+
+        onTextChanged: Distort.amplitude = strToFloat(text)
+    }
+
+    // Configure frequency.
+    Label {
+        text: qsTr("Frequency")
+    }
+    TextField {
+        text: Distort.frequency
+        validator: RegExpValidator {
+            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+        }
+
+        onTextChanged: Distort.frequency = strToFloat(text)
+    }
+
+    // Configure grid size.
+    Label {
+        text: qsTr("Grid size")
+    }
+    TextField {
+        text: Distort.gridSizeLog
         validator: RegExpValidator {
             regExp: /\d+/
         }
 
-        onTextChanged: DelayGrab.blockSize = strToFloat(text)
-    }
-
-    Label {
-        text: qsTr("N° of frames")
-    }
-    TextField {
-        text: DelayGrab.nFrames
-        validator: RegExpValidator {
-            regExp: /\d+/
-        }
-
-        onTextChanged: DelayGrab.nFrames = strToFloat(text)
+        onTextChanged: Distort.gridSizeLog = strToFloat(text)
     }
 }
