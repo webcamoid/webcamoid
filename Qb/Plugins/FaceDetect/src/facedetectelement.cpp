@@ -19,14 +19,14 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QStandardPaths>
+
 #include "facedetectelement.h"
 
 FaceDetectElement::FaceDetectElement(): QbElement()
 {
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr24");
-
-    qRegisterMetaType<QRgb>("QRgb");
 
     this->m_markerTypeToStr[MarkerTypeRectangle] = "rectangle";
     this->m_markerTypeToStr[MarkerTypeEllipse] = "ellipse";
@@ -51,6 +51,31 @@ FaceDetectElement::FaceDetectElement(): QbElement()
     this->resetScanSize();
 }
 
+QObject *FaceDetectElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/FaceDetect/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("FaceDetect", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    context->setContextProperty("picturesPath", picturesPath[0]);
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString FaceDetectElement::haarFile() const
 {
     return this->m_haarFile;
@@ -63,7 +88,10 @@ QString FaceDetectElement::markerType() const
 
 QRgb FaceDetectElement::markerColor() const
 {
-    return this->m_markerPen.color().rgb();
+    return qRgba(this->m_markerPen.color().blue(),
+                 this->m_markerPen.color().green(),
+                 this->m_markerPen.color().red(),
+                 this->m_markerPen.color().alpha());
 }
 
 int FaceDetectElement::markerWidth() const
@@ -98,59 +126,100 @@ QSize FaceDetectElement::scanSize() const
 
 void FaceDetectElement::setHaarFile(const QString &haarFile)
 {
-    this->m_haarFile = haarFile;
-    this->m_cascadeClassifier.load(haarFile.toStdString());
+    if (haarFile != this->m_haarFile) {
+        if (this->m_cascadeClassifier.load(haarFile.toStdString())) {
+            this->m_haarFile = haarFile;
+            emit this->haarFileChanged();
+        }
+        else {
+            haarFile == "";
+
+            if (haarFile != this->m_haarFile) {
+                this->m_haarFile = haarFile;
+                emit this->haarFileChanged();
+            }
+        }
+    }
 }
 
 void FaceDetectElement::setMarkerType(const QString &markerType)
 {
-    if (this->m_markerTypeToStr.values().contains(markerType))
-        this->m_markerType = this->m_markerTypeToStr.key(markerType);
-    else
-        this->m_markerType = MarkerTypeRectangle;
+    MarkerType markerTypeEnum = this->m_markerTypeToStr.values().contains(markerType)?
+                                    this->m_markerTypeToStr.key(markerType):
+                                    MarkerTypeRectangle;
+
+    if (markerTypeEnum != this->m_markerType) {
+        this->m_markerType = markerTypeEnum;
+        emit this->markerTypeChanged();
+    }
 }
 
 void FaceDetectElement::setMarkerColor(QRgb markerColor)
 {
-    this->m_markerPen.setColor(QColor(qBlue(markerColor),
-                                      qGreen(markerColor),
-                                      qRed(markerColor)));
+    QColor color(qBlue(markerColor),
+                 qGreen(markerColor),
+                 qRed(markerColor));
+
+    if (color != this->m_markerPen.color()) {
+        this->m_markerPen.setColor(color);
+        emit this->markerColorChanged();
+    }
 }
 
 void FaceDetectElement::setMarkerWidth(int markerWidth)
 {
-    this->m_markerPen.setWidth(markerWidth);
+    if (markerWidth != this->m_markerPen.width()) {
+        this->m_markerPen.setWidth(markerWidth);
+        emit this->markerWidthChanged();
+    }
 }
 
 void FaceDetectElement::setMarkerStyle(const QString &markerStyle)
 {
-    if (this->m_markerStyleToStr.values().contains(markerStyle))
-        this->m_markerPen.setStyle(this->m_markerStyleToStr.key(markerStyle));
-    else
-        this->m_markerPen.setStyle(Qt::SolidLine);
+    Qt::PenStyle penStyle = this->m_markerStyleToStr.values().contains(markerStyle)?
+                                this->m_markerStyleToStr.key(markerStyle):
+                                Qt::SolidLine;
+
+    if (penStyle != this->m_markerPen.style()) {
+        this->m_markerPen.setStyle(penStyle);
+        emit this->markerStyleChanged();
+    }
 }
 
 void FaceDetectElement::setMarkerImage(const QString &markerImage)
 {
-    this->m_markerImage = markerImage;
+    if (markerImage != this->m_markerImage) {
+        this->m_markerImage = markerImage;
 
-    if (!markerImage.isEmpty())
-        this->m_markerImg = QImage(markerImage).rgbSwapped();
+        if (!markerImage.isEmpty())
+            this->m_markerImg = QImage(markerImage).rgbSwapped();
+
+        emit this->markerImageChanged();
+    }
 }
 
 void FaceDetectElement::setPixelGridSize(const QSize &pixelGridSize)
 {
-    this->m_pixelGridSize = pixelGridSize;
+    if (pixelGridSize != this->m_pixelGridSize) {
+        this->m_pixelGridSize = pixelGridSize;
+        emit this->pixelGridSizeChanged();
+    }
 }
 
 void FaceDetectElement::setBlurRadius(int blurRadius)
 {
-    this->m_blurRadius = blurRadius;
+    if (blurRadius != this->m_blurRadius) {
+        this->m_blurRadius = blurRadius;
+        emit this->blurRadiusChanged();
+    }
 }
 
 void FaceDetectElement::setScanSize(const QSize &scanSize)
 {
-    this->m_scanSize = scanSize;
+    if (scanSize != this->m_scanSize) {
+        this->m_scanSize = scanSize;
+        emit this->scanSizeChanged();
+    }
 }
 
 void FaceDetectElement::resetHaarFile()
@@ -182,7 +251,7 @@ void FaceDetectElement::resetMarkerStyle()
 
 void FaceDetectElement::resetMarkerImage()
 {
-    this->setMarkerImage(":/FaceDetect/share/cow.png");
+    this->setMarkerImage(":/FaceDetect/share/masks/cow.png");
 }
 
 void FaceDetectElement::resetPixelGridSize()
@@ -202,6 +271,12 @@ void FaceDetectElement::resetScanSize()
 
 QbPacket FaceDetectElement::iStream(const QbPacket &packet)
 {
+    QSize scanSize(this->m_scanSize);
+
+    if (this->m_haarFile.isEmpty()
+        || scanSize.isEmpty())
+        qbSend(packet)
+
     QbPacket iPacket = this->m_convert->iStream(packet);
     QImage src = QbUtils::packetToImage(iPacket);
 
@@ -209,15 +284,14 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
         return QbPacket();
 
     QImage oFrame = src;
-
     float scale = 1;
 
-    QImage scanFrame(src.scaled(this->m_scanSize, Qt::KeepAspectRatio));
+    QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
-    if (scanFrame.width() == this->m_scanSize.width())
-        scale = (float) src.width() / this->m_scanSize.width();
+    if (scanFrame.width() == scanSize.width())
+        scale = (float) src.width() / scanSize.width();
     else
-        scale = (float) src.height() / this->m_scanSize.height();
+        scale = (float) src.height() / scanSize.height();
 
     cv::Mat matFrame(scanFrame.height(),
                      scanFrame.width(),

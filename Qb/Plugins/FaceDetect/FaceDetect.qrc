@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/FaceDetect">
-        <file>share/cow.png</file>
+        <file>share/qml/main.qml</file>
+        <file>share/masks/cow.png</file>
     </qresource>
 </RCC>

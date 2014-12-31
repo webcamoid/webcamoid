@@ -19,6 +19,8 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QColor>
+
 #include "qb.h"
 
 QQmlEngine *globalEngine = NULL;
@@ -27,6 +29,9 @@ Q_GLOBAL_STATIC(QStringList, globalQmlPluginDefaultPaths)
 
 void Qb::init(QQmlEngine *engine)
 {
+    qRegisterMetaType<QRgb>("QRgb");
+    qRegisterMetaType<QColor>("QColor");
+
     qRegisterMetaType<QbCaps>("QbCaps");
     qRegisterMetaTypeStreamOperators<QbCaps>("QbCaps");
     qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");

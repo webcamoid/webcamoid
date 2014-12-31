@@ -23,32 +23,49 @@
 #define FALSECOLORELEMENT_H
 
 #include <qrgb.h>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class FalseColorElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList table READ table WRITE setTable RESET resetTable)
-    Q_PROPERTY(bool gradient READ gradient WRITE setGradient RESET resetGradient)
+    Q_PROPERTY(QVariantList table
+               READ table
+               WRITE setTable
+               RESET resetTable
+               NOTIFY tableChanged)
+    Q_PROPERTY(bool soft
+               READ soft
+               WRITE setSoft
+               RESET resetSoft
+               NOTIFY softChanged)
 
     public:
         explicit FalseColorElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QVariantList table() const;
-        Q_INVOKABLE bool gradient() const;
+        Q_INVOKABLE bool soft() const;
 
     private:
         QList<QRgb> m_table;
-        bool m_gradient;
+        bool m_soft;
 
         QbElementPtr m_convert;
 
+    signals:
+        void tableChanged();
+        void softChanged();
+
     public slots:
         void setTable(const QVariantList &table);
-        void setGradient(bool gradient);
+        void setSoft(bool soft);
         void resetTable();
-        void resetGradient();
+        void resetSoft();
         QbPacket iStream(const QbPacket &packet);
 };
 

@@ -22,6 +22,8 @@
 #ifndef FACEDETECTELEMENT_H
 #define FACEDETECTELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
@@ -34,15 +36,51 @@ class FaceDetectElement: public QbElement
 {
     Q_OBJECT
         Q_ENUMS(MarkerType)
-        Q_PROPERTY(QString haarFile READ haarFile WRITE setHaarFile RESET resetHaarFile)
-        Q_PROPERTY(QString markerType READ markerType WRITE setMarkerType RESET resetMarkerType)
-        Q_PROPERTY(QRgb markerColor READ markerColor WRITE setMarkerColor RESET resetMarkerColor)
-        Q_PROPERTY(int markerWidth READ markerWidth WRITE setMarkerWidth RESET resetMarkerWidth)
-        Q_PROPERTY(QString markerStyle READ markerStyle WRITE setMarkerStyle RESET resetMarkerStyle)
-        Q_PROPERTY(QString markerImage READ markerImage WRITE setMarkerImage RESET resetMarkerImage)
-        Q_PROPERTY(QSize pixelGridSize READ pixelGridSize WRITE setPixelGridSize RESET resetPixelGridSize)
-        Q_PROPERTY(int blurRadius READ blurRadius WRITE setBlurRadius RESET resetBlurRadius)
-        Q_PROPERTY(QSize scanSize READ scanSize WRITE setScanSize RESET resetScanSize)
+        Q_PROPERTY(QString haarFile
+                   READ haarFile
+                   WRITE setHaarFile
+                   RESET resetHaarFile
+                   NOTIFY haarFileChanged)
+        Q_PROPERTY(QString markerType
+                   READ markerType
+                   WRITE setMarkerType
+                   RESET resetMarkerType
+                   NOTIFY markerTypeChanged)
+        Q_PROPERTY(QRgb markerColor
+                   READ markerColor
+                   WRITE setMarkerColor
+                   RESET resetMarkerColor
+                   NOTIFY markerColorChanged)
+        Q_PROPERTY(int markerWidth
+                   READ markerWidth
+                   WRITE setMarkerWidth
+                   RESET resetMarkerWidth
+                   NOTIFY markerWidthChanged)
+        Q_PROPERTY(QString markerStyle
+                   READ markerStyle
+                   WRITE setMarkerStyle
+                   RESET resetMarkerStyle
+                   NOTIFY markerStyleChanged)
+        Q_PROPERTY(QString markerImage
+                   READ markerImage
+                   WRITE setMarkerImage
+                   RESET resetMarkerImage
+                   NOTIFY markerImageChanged)
+        Q_PROPERTY(QSize pixelGridSize
+                   READ pixelGridSize
+                   WRITE setPixelGridSize
+                   RESET resetPixelGridSize
+                   NOTIFY pixelGridSizeChanged)
+        Q_PROPERTY(int blurRadius
+                   READ blurRadius
+                   WRITE setBlurRadius
+                   RESET resetBlurRadius
+                   NOTIFY blurRadiusChanged)
+        Q_PROPERTY(QSize scanSize
+                   READ scanSize
+                   WRITE setScanSize
+                   RESET resetScanSize
+                   NOTIFY scanSizeChanged)
 
     public:
         enum MarkerType
@@ -55,6 +93,10 @@ class FaceDetectElement: public QbElement
         };
 
         explicit FaceDetectElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString haarFile() const;
         Q_INVOKABLE QString markerType() const;
         Q_INVOKABLE QRgb markerColor() const;
@@ -79,6 +121,17 @@ class FaceDetectElement: public QbElement
         QMap<MarkerType, QString> m_markerTypeToStr;
         QMap<Qt::PenStyle, QString> m_markerStyleToStr;
         cv::CascadeClassifier m_cascadeClassifier;
+
+    signals:
+        void haarFileChanged();
+        void markerTypeChanged();
+        void markerColorChanged();
+        void markerWidthChanged();
+        void markerStyleChanged();
+        void markerImageChanged();
+        void pixelGridSizeChanged();
+        void blurRadiusChanged();
+        void scanSizeChanged();
 
     public slots:
         void setHaarFile(const QString &haarFile);

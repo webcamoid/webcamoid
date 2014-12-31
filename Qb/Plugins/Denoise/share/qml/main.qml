@@ -52,6 +52,9 @@ GridLayout {
 
         var size = str.split("x")
 
+        if (size.length < 2)
+            return Qt.size()
+
         return Qt.size(size[0], size[1])
     }
 

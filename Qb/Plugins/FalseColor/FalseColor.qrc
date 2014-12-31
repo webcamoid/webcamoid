@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/FalseColor">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>
