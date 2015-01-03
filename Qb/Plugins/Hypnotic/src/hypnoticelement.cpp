@@ -33,6 +33,28 @@ HypnoticElement::HypnoticElement(): QbElement()
     this->m_palette = this->createPalette();
 }
 
+QObject *HypnoticElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Hypnotic/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Hypnotic", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString HypnoticElement::mode() const
 {
     return this->m_mode;
@@ -138,17 +160,26 @@ QImage HypnoticElement::imageYOver(const QImage &src, int threshold)
 
 void HypnoticElement::setMode(const QString &mode)
 {
-    this->m_mode = mode;
+    if (mode != this->m_mode) {
+        this->m_mode = mode;
+        emit this->modeChanged();
+    }
 }
 
 void HypnoticElement::setSpeedInc(int speedInc)
 {
-    this->m_speedInc = speedInc;
+    if (speedInc != this->m_speedInc) {
+        this->m_speedInc = speedInc;
+        emit this->speedIncChanged();
+    }
 }
 
 void HypnoticElement::setThreshold(int threshold)
 {
-    this->m_threshold = threshold;
+    if (threshold != this->m_threshold) {
+        this->m_threshold = threshold;
+        emit this->thresholdChanged();
+    }
 }
 
 void HypnoticElement::resetMode()

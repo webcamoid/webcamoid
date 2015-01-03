@@ -23,16 +23,26 @@
 #define IMPLODEELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ImplodeElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float amount READ amount WRITE setAmount RESET resetAmount)
+    Q_PROPERTY(float amount
+               READ amount
+               WRITE setAmount
+               RESET resetAmount
+               NOTIFY amountChanged)
 
     public:
         explicit ImplodeElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE float amount() const;
 
     private:
@@ -77,6 +87,9 @@ class ImplodeElement: public QbElement
 
             return x;
         }
+
+    signals:
+        void amountChanged();
 
     public slots:
         void setAmount(float amount);

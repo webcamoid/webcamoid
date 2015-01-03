@@ -24,6 +24,8 @@
 
 #include <cmath>
 #include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -32,12 +34,28 @@ typedef QMap<QString, QImage> OpticalMap;
 class HypnoticElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(int speedInc READ speedInc WRITE setSpeedInc RESET resetSpeedInc)
-    Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int speedInc
+               READ speedInc
+               WRITE setSpeedInc
+               RESET resetSpeedInc
+               NOTIFY speedIncChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
 
     public:
         explicit HypnoticElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int speedInc() const;
         Q_INVOKABLE int threshold() const;
@@ -57,6 +75,11 @@ class HypnoticElement: public QbElement
         QVector<QRgb> createPalette();
         OpticalMap createOpticalMap(int width, int height);
         QImage imageYOver(const QImage &src, int threshold);
+
+    signals:
+        void modeChanged();
+        void speedIncChanged();
+        void thresholdChanged();
 
     public slots:
         void setMode(const QString &mode);

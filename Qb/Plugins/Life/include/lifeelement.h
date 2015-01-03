@@ -22,21 +22,30 @@
 #ifndef LIFEELEMENT_H
 #define LIFEELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class LifeElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int yThreshold READ yThreshold WRITE setYThreshold RESET resetYThreshold)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
 
     public:
         explicit LifeElement();
 
-        Q_INVOKABLE int yThreshold() const;
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
+        Q_INVOKABLE int threshold() const;
 
     private:
-        int m_yThreshold;
+        int m_threshold;
 
         QbElementPtr m_convert;
         QbCaps m_caps;
@@ -51,9 +60,12 @@ class LifeElement: public QbElement
         QImage imageBgSubtractUpdateY(const QImage &src);
         QImage imageDiffFilter(const QImage &diff);
 
+    signals:
+        void thresholdChanged();
+
     public slots:
-        void setYThreshold(int threshold);
-        void resetYThreshold();
+        void setThreshold(int threshold);
+        void resetThreshold();
         void clearField();
 
         QbPacket iStream(const QbPacket &packet);

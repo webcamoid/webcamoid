@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Hypnotic.qrc
+
 SOURCES += \
     src/hypnotic.cpp \
     src/hypnoticelement.cpp

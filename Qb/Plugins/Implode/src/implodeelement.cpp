@@ -29,6 +29,28 @@ ImplodeElement::ImplodeElement(): QbElement()
     this->resetAmount();
 }
 
+QObject *ImplodeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Implode/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Implode", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 float ImplodeElement::amount() const
 {
     return this->m_amount;
@@ -36,12 +58,15 @@ float ImplodeElement::amount() const
 
 void ImplodeElement::setAmount(float amount)
 {
-    this->m_amount = amount;
+    if (amount != this->m_amount) {
+        this->m_amount = amount;
+        emit this->amountChanged();
+    }
 }
 
 void ImplodeElement::resetAmount()
 {
-    this->setAmount(1);
+    this->setAmount(0.5);
 }
 
 QbPacket ImplodeElement::iStream(const QbPacket &packet)

@@ -26,12 +26,34 @@ LifeElement::LifeElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    this->resetYThreshold();
+    this->resetThreshold();
 }
 
-int LifeElement::yThreshold() const
+QObject *LifeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
 {
-    return this->m_yThreshold / 7;
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Life/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Life", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
+int LifeElement::threshold() const
+{
+    return this->m_threshold / 7;
 }
 
 QImage LifeElement::imageBgSubtractUpdateY(const QImage &src)
@@ -48,8 +70,8 @@ QImage LifeElement::imageBgSubtractUpdateY(const QImage &src)
         int v = (r + g + b) - (int) (*q);
 
         *q = (short) (r + g + b);
-        *d = ((this->m_yThreshold + v) >> 24)
-             | ((this->m_yThreshold - v) >> 24);
+        *d = ((this->m_threshold + v) >> 24)
+             | ((this->m_threshold - v) >> 24);
 
         p++;
         q++;
@@ -86,14 +108,19 @@ QImage LifeElement::imageDiffFilter(const QImage &diff)
     return this->m_diff2;
 }
 
-void LifeElement::setYThreshold(int threshold)
+void LifeElement::setThreshold(int threshold)
 {
-    this->m_yThreshold = 7 * threshold;
+    threshold *= 7;
+
+    if (threshold != this->m_threshold) {
+        this->m_threshold = threshold;
+        emit this->thresholdChanged();
+    }
 }
 
-void LifeElement::resetYThreshold()
+void LifeElement::resetThreshold()
 {
-    this->setYThreshold(40);
+    this->setThreshold(40);
 }
 
 void LifeElement::clearField()

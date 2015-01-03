@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Life.qrc
+
 SOURCES += \
     src/life.cpp \
     src/lifeelement.cpp
