@@ -23,17 +23,30 @@
 #define FRAMEOVERLAPELEMENT_H
 
 #include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class FrameOverlapElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int nFrames READ nFrames WRITE setNFrames RESET resetNFrames)
-    Q_PROPERTY(int stride READ stride WRITE setStride RESET resetStride)
+    Q_PROPERTY(int nFrames
+               READ nFrames
+               WRITE setNFrames
+               RESET resetNFrames
+               NOTIFY nFramesChanged)
+    Q_PROPERTY(int stride
+               READ stride
+               WRITE setStride
+               RESET resetStride
+               NOTIFY strideChanged)
 
     public:
         explicit FrameOverlapElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE int stride() const;
@@ -45,6 +58,10 @@ class FrameOverlapElement: public QbElement
         QbElementPtr m_convert;
         QVector<QImage> m_frames;
         QbCaps m_caps;
+
+    signals:
+        void nFramesChanged();
+        void strideChanged();
 
     public slots:
         void setNFrames(int nFrames);

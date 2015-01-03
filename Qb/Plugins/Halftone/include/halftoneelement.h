@@ -23,24 +23,46 @@
 #define HALFTONEELEMENT_H
 
 #include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class HalftoneElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString pattern READ pattern WRITE setPattern RESET resetPattern)
-
-    Q_PROPERTY(QSize patternSize READ patternSize
-                                 WRITE setPatternSize
-                                 RESET resetPatternSize)
-
-    Q_PROPERTY(float lightness READ lightness WRITE setLightness RESET resetLightness)
-    Q_PROPERTY(float slope READ slope WRITE setSlope RESET resetSlope)
-    Q_PROPERTY(float intercept READ intercept WRITE setIntercept RESET resetIntercept)
+    Q_PROPERTY(QString pattern
+               READ pattern
+               WRITE setPattern
+               RESET resetPattern
+               NOTIFY patternChanged)
+    Q_PROPERTY(QSize patternSize
+               READ patternSize
+               WRITE setPatternSize
+               RESET resetPatternSize
+               NOTIFY patternSizeChanged)
+    Q_PROPERTY(float lightness
+               READ lightness
+               WRITE setLightness
+               RESET resetLightness
+               NOTIFY lightnessChanged)
+    Q_PROPERTY(float slope
+               READ slope
+               WRITE setSlope
+               RESET resetSlope
+               NOTIFY slopeChanged)
+    Q_PROPERTY(float intercept
+               READ intercept
+               WRITE setIntercept
+               RESET resetIntercept
+               NOTIFY interceptChanged)
 
     public:
         explicit HalftoneElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString pattern() const;
         Q_INVOKABLE QSize patternSize() const;
         Q_INVOKABLE float lightness() const;
@@ -55,9 +77,16 @@ class HalftoneElement: public QbElement
         float m_intercept;
 
         QbElementPtr m_convert;
-        QbCaps m_caps;
         QImage m_patternImage;
-        quint8 *m_patternBits;
+
+        QImage loadPattern(const QString &patternFile, const QSize &size) const;
+
+    signals:
+        void patternChanged();
+        void patternSizeChanged();
+        void lightnessChanged();
+        void slopeChanged();
+        void interceptChanged();
 
     public slots:
         void setPattern(const QString &pattern);

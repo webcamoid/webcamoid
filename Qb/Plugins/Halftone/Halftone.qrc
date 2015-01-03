@@ -1,14 +1,15 @@
 <RCC>
     <qresource prefix="/Halftone">
-        <file>share/dither90Halftone6x6Matrix.bmp</file>
-        <file>share/ditherCluster3Matrix.bmp</file>
-        <file>share/ditherCluster4Matrix.bmp</file>
-        <file>share/ditherCluster8Matrix.bmp</file>
-        <file>share/ditherLines4x4Matrix.bmp</file>
-        <file>share/ditherMagic2x2Matrix.bmp</file>
-        <file>share/ditherMagic4x4Matrix.bmp</file>
-        <file>share/ditherOrdered4x4Matrix.bmp</file>
-        <file>share/ditherOrdered6x6Matrix.bmp</file>
-        <file>share/ditherOrdered8x8Matrix.bmp</file>
+        <file>share/qml/main.qml</file>
+        <file>share/patterns/dither90Halftone6x6Matrix.bmp</file>
+        <file>share/patterns/ditherCluster3Matrix.bmp</file>
+        <file>share/patterns/ditherCluster4Matrix.bmp</file>
+        <file>share/patterns/ditherCluster8Matrix.bmp</file>
+        <file>share/patterns/ditherLines4x4Matrix.bmp</file>
+        <file>share/patterns/ditherMagic2x2Matrix.bmp</file>
+        <file>share/patterns/ditherMagic4x4Matrix.bmp</file>
+        <file>share/patterns/ditherOrdered4x4Matrix.bmp</file>
+        <file>share/patterns/ditherOrdered6x6Matrix.bmp</file>
+        <file>share/patterns/ditherOrdered8x8Matrix.bmp</file>
     </qresource>
 </RCC>

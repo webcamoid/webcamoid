@@ -32,6 +32,28 @@ FrameOverlapElement::FrameOverlapElement(): QbElement()
     this->resetStride();
 }
 
+QObject *FrameOverlapElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/FrameOverlap/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("FrameOverlap", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int FrameOverlapElement::nFrames() const
 {
     return this->m_nFrames;
@@ -44,12 +66,21 @@ int FrameOverlapElement::stride() const
 
 void FrameOverlapElement::setNFrames(int nFrames)
 {
-    this->m_nFrames = nFrames;
+    if (nFrames != this->m_nFrames) {
+        this->m_nFrames = nFrames;
+        emit this->nFramesChanged();
+    }
 }
 
 void FrameOverlapElement::setStride(int stride)
 {
-    this->m_stride = stride;
+    if (stride < 1)
+        stride = 1;
+
+    if (stride != this->m_stride) {
+        this->m_stride = stride;
+        emit this->strideChanged();
+    }
 }
 
 void FrameOverlapElement::resetNFrames()

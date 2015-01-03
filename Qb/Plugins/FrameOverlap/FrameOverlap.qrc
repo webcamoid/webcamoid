@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/FrameOverlap">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>

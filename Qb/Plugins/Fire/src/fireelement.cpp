@@ -43,6 +43,28 @@ FireElement::FireElement(): QbElement()
     this->resetNColors();
 }
 
+QObject *FireElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Fire/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Fire", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString FireElement::mode() const
 {
     return this->m_fireModeToStr[this->m_mode];
@@ -261,55 +283,89 @@ QVector<QRgb> FireElement::createPalette()
 
 void FireElement::setMode(const QString &mode)
 {
-    if (this->m_fireModeToStr.values().contains(mode))
-        this->m_mode = this->m_fireModeToStr.key(mode);
-    else
-        this->m_mode = FireModeHard;
+    FireMode modeEnum = this->m_fireModeToStr.values().contains(mode)?
+                            this->m_fireModeToStr.key(mode):
+                            FireModeHard;
+
+    if (modeEnum != this->m_mode) {
+        this->m_mode = modeEnum;
+        emit this->modeChanged();
+    }
 }
 
 void FireElement::setCool(int cool)
 {
-    this->m_cool = cool;
+    if (cool != this->m_cool) {
+        this->m_cool = cool;
+        emit this->coolChanged();
+    }
 }
 
 void FireElement::setDisolve(float disolve)
 {
-    this->m_disolve = disolve;
+    if (disolve != this->m_disolve) {
+        this->m_disolve = disolve;
+        emit this->disolveChanged();
+    }
 }
 
 void FireElement::setBlur(float blur)
 {
-    this->m_blur = blur;
+    if (blur != this->m_blur) {
+        this->m_blur = blur;
+        emit this->blurChanged();
+    }
 }
 
 void FireElement::setZoom(float zoom)
 {
-    this->m_zoom = zoom;
+    if (zoom != this->m_zoom) {
+        this->m_zoom = zoom;
+        emit this->zoomChanged();
+    }
 }
 
 void FireElement::setThreshold(int threshold)
 {
-    this->m_threshold = threshold;
+    if (threshold != this->m_threshold) {
+        this->m_threshold = threshold;
+        emit this->thresholdChanged();
+    }
 }
 
 void FireElement::setLumaThreshold(int lumaThreshold)
 {
-    this->m_lumaThreshold = lumaThreshold;
+    if (lumaThreshold != this->m_lumaThreshold) {
+        this->m_lumaThreshold = lumaThreshold;
+        emit this->lumaThresholdChanged();
+    }
 }
 
 void FireElement::setAlphaDiff(int alphaDiff)
 {
-    this->m_alphaDiff = alphaDiff;
+    if (alphaDiff != this->m_alphaDiff) {
+        this->m_alphaDiff = alphaDiff;
+        emit this->alphaDiffChanged();
+    }
 }
 
 void FireElement::setAlphaVariation(int alphaVariation)
 {
-    this->m_alphaVariation = alphaVariation;
+    if (alphaVariation != this->m_alphaVariation) {
+        this->m_alphaVariation = alphaVariation;
+        emit this->alphaVariationChanged();
+    }
 }
 
 void FireElement::setNColors(int nColors)
 {
-    this->m_nColors = nColors;
+    if (nColors < 1)
+        nColors = 1;
+
+    if (nColors != this->m_nColors) {
+        this->m_nColors = nColors;
+        emit this->nColorsChanged();
+    }
 }
 
 void FireElement::resetMode()

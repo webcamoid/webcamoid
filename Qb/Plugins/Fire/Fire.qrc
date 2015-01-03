@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/Fire">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>

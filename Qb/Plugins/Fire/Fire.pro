@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml widgets
 
+RESOURCES += \
+    Fire.qrc
+
 SOURCES += \
     src/fire.cpp \
     src/fireelement.cpp

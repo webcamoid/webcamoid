@@ -28,6 +28,8 @@
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsBlurEffect>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -35,16 +37,56 @@ class FireElement: public QbElement
 {
     Q_OBJECT
     Q_ENUMS(FireMode)
-    Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(int cool READ cool WRITE setCool RESET resetCool)
-    Q_PROPERTY(float disolve READ disolve WRITE setDisolve RESET resetDisolve)
-    Q_PROPERTY(float blur READ blur WRITE setBlur RESET resetBlur)
-    Q_PROPERTY(float zoom READ zoom WRITE setZoom RESET resetZoom)
-    Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
-    Q_PROPERTY(int lumaThreshold READ lumaThreshold WRITE setLumaThreshold RESET resetLumaThreshold)
-    Q_PROPERTY(int alphaDiff READ alphaDiff WRITE setAlphaDiff RESET resetAlphaDiff)
-    Q_PROPERTY(int alphaVariation READ alphaVariation WRITE setAlphaVariation RESET resetAlphaVariation)
-    Q_PROPERTY(int nColors READ nColors WRITE setNColors RESET resetNColors)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int cool
+               READ cool
+               WRITE setCool
+               RESET resetCool
+               NOTIFY coolChanged)
+    Q_PROPERTY(float disolve
+               READ disolve
+               WRITE setDisolve
+               RESET resetDisolve
+               NOTIFY disolveChanged)
+    Q_PROPERTY(float blur
+               READ blur
+               WRITE setBlur
+               RESET resetBlur
+               NOTIFY blurChanged)
+    Q_PROPERTY(float zoom
+               READ zoom
+               WRITE setZoom
+               RESET resetZoom
+               NOTIFY zoomChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
+    Q_PROPERTY(int alphaDiff
+               READ alphaDiff
+               WRITE setAlphaDiff
+               RESET resetAlphaDiff
+               NOTIFY alphaDiffChanged)
+    Q_PROPERTY(int alphaVariation
+               READ alphaVariation
+               WRITE setAlphaVariation
+               RESET resetAlphaVariation
+               NOTIFY alphaVariationChanged)
+    Q_PROPERTY(int nColors
+               READ nColors
+               WRITE setNColors
+               RESET resetNColors
+               NOTIFY nColorsChanged)
 
     public:
         enum FireMode
@@ -54,6 +96,10 @@ class FireElement: public QbElement
         };
 
         explicit FireElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int cool() const;
         Q_INVOKABLE float disolve() const;
@@ -98,6 +144,18 @@ class FireElement: public QbElement
         QImage blurImage(const QImage &src, float factor);
         QImage burn(const QImage &src, const QVector<QRgb> &palette);
         QVector<QRgb> createPalette();
+
+    signals:
+        void modeChanged();
+        void coolChanged();
+        void disolveChanged();
+        void blurChanged();
+        void zoomChanged();
+        void thresholdChanged();
+        void lumaThresholdChanged();
+        void alphaDiffChanged();
+        void alphaVariationChanged();
+        void nColorsChanged();
 
     public slots:
         void setMode(const QString &mode);
