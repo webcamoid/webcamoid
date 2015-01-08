@@ -42,12 +42,12 @@ class DenoiseElement: public QbElement
                WRITE setScanSize
                RESET resetScanSize
                NOTIFY scanSizeChanged)
-    Q_PROPERTY(float mu
+    Q_PROPERTY(qreal mu
                READ mu
                WRITE setMu
                RESET resetMu
                NOTIFY muChanged)
-    Q_PROPERTY(float sigma
+    Q_PROPERTY(qreal sigma
                READ sigma
                WRITE setSigma
                RESET resetSigma
@@ -67,8 +67,8 @@ class DenoiseElement: public QbElement
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE QSize scanSize() const;
-        Q_INVOKABLE float mu() const;
-        Q_INVOKABLE float sigma() const;
+        Q_INVOKABLE qreal mu() const;
+        Q_INVOKABLE qreal sigma() const;
 
     private:
         DenoiseMode m_mode;
@@ -116,8 +116,8 @@ class DenoiseElement: public QbElement
         inline QRgb averageColor(QRgb *src,
                                  int width,
                                  const QRect &kernel,
-                                 float mu,
-                                 float sigma)
+                                 qreal mu,
+                                 qreal sigma)
         {
             int kernelSize = kernel.width() * kernel.height();
             int planeR[kernelSize];
@@ -125,9 +125,9 @@ class DenoiseElement: public QbElement
             int planeB[kernelSize];
 
             // Calculate average.
-            float mr = 0;
-            float mg = 0;
-            float mb = 0;
+            qreal mr = 0;
+            qreal mg = 0;
+            qreal mb = 0;
 
             for (int y = kernel.top(), i = 0; y < kernel.bottom() + 1; y++) {
                 int xOffset = y * width;
@@ -158,9 +158,9 @@ class DenoiseElement: public QbElement
             int planeBd2[kernelSize];
 
             // Calculate standard deviation.
-            float sr = 0;
-            float sg = 0;
-            float sb = 0;
+            qreal sr = 0;
+            qreal sg = 0;
+            qreal sb = 0;
 
             for (int i = 0; i < kernelSize; i++) {
                 int dr = planeR[i] - mr;
@@ -192,33 +192,33 @@ class DenoiseElement: public QbElement
             sb = sigma * sqrt(sb / ks);
 
             // Calculate weighted average.
-            float vr = 0;
-            float vg = 0;
-            float vb = 0;
+            qreal vr = 0;
+            qreal vg = 0;
+            qreal vb = 0;
 
-            float twr = 0;
-            float twg = 0;
-            float twb = 0;
+            qreal twr = 0;
+            qreal twg = 0;
+            qreal twb = 0;
 
-            float hr = 2 * sr * sr;
-            float hg = 2 * sg * sg;
-            float hb = 2 * sb * sb;
+            qreal hr = 2 * sr * sr;
+            qreal hg = 2 * sg * sg;
+            qreal hb = 2 * sb * sb;
 
             for (int i = 0; i < kernelSize; i++) {
                 if (hr) {
-                    float wr = exp(-planeRd2[i] / hr);
+                    qreal wr = exp(-planeRd2[i] / hr);
                     vr += wr * planeR[i];
                     twr += wr;
                 }
 
                 if (hg) {
-                    float wg = exp(-planeGd2[i] / hg);
+                    qreal wg = exp(-planeGd2[i] / hg);
                     vg += wg * planeG[i];
                     twg += wg;
                 }
 
                 if (hb) {
-                    float wb = exp(-planeBd2[i] / hb);
+                    qreal wb = exp(-planeBd2[i] / hb);
                     vb += wb * planeB[i];
                     twb += wb;
                 }
@@ -243,8 +243,8 @@ class DenoiseElement: public QbElement
     public slots:
         void setMode(const QString &mode);
         void setScanSize(const QSize &scanSize);
-        void setMu(float mu);
-        void setSigma(float sigma);
+        void setMu(qreal mu);
+        void setSigma(qreal sigma);
         void resetMode();
         void resetScanSize();
         void resetMu();

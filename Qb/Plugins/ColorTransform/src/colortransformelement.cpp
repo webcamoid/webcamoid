@@ -55,7 +55,7 @@ QVariantList ColorTransformElement::kernel() const
 {
     QVariantList kernel;
 
-    foreach (float e, this->m_kernel)
+    foreach (qreal e, this->m_kernel)
         kernel << e;
 
     return kernel;
@@ -63,10 +63,10 @@ QVariantList ColorTransformElement::kernel() const
 
 void ColorTransformElement::setKernel(const QVariantList &kernel)
 {
-    QVector<float> k;
+    QVector<qreal> k;
 
     foreach (QVariant e, kernel)
-        k << e.toFloat();
+        k << e.toReal();
 
     if (k != this->m_kernel)
         this->m_kernel = k;
@@ -101,7 +101,7 @@ QbPacket ColorTransformElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    QVector<float> kernel = this->m_kernel;
+    QVector<qreal> kernel = this->m_kernel;
 
     for (int i = 0; i < videoArea; i++) {
         int r = qRed(srcBits[i]);

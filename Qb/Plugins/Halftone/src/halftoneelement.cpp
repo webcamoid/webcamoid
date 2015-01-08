@@ -70,17 +70,17 @@ QSize HalftoneElement::patternSize() const
     return this->m_patternSize;
 }
 
-float HalftoneElement::lightness() const
+qreal HalftoneElement::lightness() const
 {
     return this->m_lightness;
 }
 
-float HalftoneElement::slope() const
+qreal HalftoneElement::slope() const
 {
     return this->m_slope;
 }
 
-float HalftoneElement::intercept() const
+qreal HalftoneElement::intercept() const
 {
     return this->m_intercept;
 }
@@ -121,7 +121,7 @@ void HalftoneElement::setPatternSize(const QSize &patternSize)
     }
 }
 
-void HalftoneElement::setLightness(float lightness)
+void HalftoneElement::setLightness(qreal lightness)
 {
     if (lightness != this->m_lightness) {
         this->m_lightness = lightness;
@@ -129,7 +129,7 @@ void HalftoneElement::setLightness(float lightness)
     }
 }
 
-void HalftoneElement::setSlope(float slope)
+void HalftoneElement::setSlope(qreal slope)
 {
     if (slope != this->m_slope) {
         this->m_slope = slope;
@@ -137,7 +137,7 @@ void HalftoneElement::setSlope(float slope)
     }
 }
 
-void HalftoneElement::setIntercept(float intercept)
+void HalftoneElement::setIntercept(qreal intercept)
 {
     if (intercept != this->m_intercept) {
         this->m_intercept = intercept;

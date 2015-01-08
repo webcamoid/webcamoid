@@ -22,6 +22,8 @@
 #ifndef MATRIXELEMENT_H
 #define MATRIXELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -31,13 +33,36 @@ class MatrixElement: public QbElement
 {
     Q_OBJECT
     Q_ENUMS(BlipMode)
-    Q_PROPERTY(int nChars READ nChars WRITE setNChars RESET resetNChars)
-    Q_PROPERTY(int fontWidth READ fontWidth WRITE setFontWidth RESET resetFontWidth)
-    Q_PROPERTY(int fontHeight READ fontHeight WRITE setFontHeight RESET resetFontHeight)
-    Q_PROPERTY(int fontDepth READ fontDepth WRITE setFontDepth RESET resetFontDepth)
-    Q_PROPERTY(int mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(float white READ white WRITE setWhite RESET resetWhite)
-    Q_PROPERTY(bool pause READ pause WRITE setPause RESET resetPause)
+    Q_PROPERTY(int nChars
+               READ nChars
+               WRITE setNChars
+               RESET resetNChars
+               NOTIFY nCharsChanged)
+    Q_PROPERTY(QSize fontSize
+               READ fontSize
+               WRITE setFontSize
+               RESET resetFontSize
+               NOTIFY fontSizeChanged)
+    Q_PROPERTY(int fontDepth
+               READ fontDepth
+               WRITE setFontDepth
+               RESET resetFontDepth
+               NOTIFY fontDepthChanged)
+    Q_PROPERTY(int mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(qreal white
+               READ white
+               WRITE setWhite
+               RESET resetWhite
+               NOTIFY whiteChanged)
+    Q_PROPERTY(bool pause
+               READ pause
+               WRITE setPause
+               RESET resetPause
+               NOTIFY pauseChanged)
 
     public:
         enum BlipMode
@@ -50,27 +75,27 @@ class MatrixElement: public QbElement
 
         explicit MatrixElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE int nChars() const;
-        Q_INVOKABLE int fontWidth() const;
-        Q_INVOKABLE int fontHeight() const;
+        Q_INVOKABLE QSize fontSize() const;
         Q_INVOKABLE int fontDepth() const;
         Q_INVOKABLE int mode() const;
-        Q_INVOKABLE float white() const;
+        Q_INVOKABLE qreal white() const;
         Q_INVOKABLE bool pause() const;
 
     private:
         int m_nChars;
-        int m_fontWidth;
-        int m_fontHeight;
+        QSize m_fontSize;
         int m_fontDepth;
         int m_mode;
-        float m_white;
+        qreal m_white;
         bool m_pause;
 
         QbElementPtr m_convert;
         QbCaps m_caps;
-        int m_mapWidth;
-        int m_mapHeight;
+        QSize m_mapSize;
         QImage m_matrixFont;
         QImage m_cmap;
         QImage m_vmap;
@@ -80,7 +105,7 @@ class MatrixElement: public QbElement
         QVector<quint32> m_palette;
 
         quint32 green(uint v);
-        void setPattern();
+        QByteArray createPattern(int nChars, const QSize &fontSize);
         void setPalette();
         void darkenColumn(int x);
         void blipNone(int x);
@@ -91,17 +116,23 @@ class MatrixElement: public QbElement
         void createImg(QImage &src);
         void drawChar(quint32 *dest, uchar c, uchar v, QSize size);
 
+    signals:
+        void nCharsChanged();
+        void fontSizeChanged();
+        void fontDepthChanged();
+        void modeChanged();
+        void whiteChanged();
+        void pauseChanged();
+
     public slots:
         void setNChars(int nChars);
-        void setFontWidth(int fontWidth);
-        void setFontHeight(int fontHeight);
+        void setFontSize(const QSize &fontSize);
         void setFontDepth(int fontDepth);
         void setMode(int mode);
-        void setWhite(float white);
+        void setWhite(qreal white);
         void setPause(bool pause);
         void resetNChars();
-        void resetFontWidth();
-        void resetFontHeight();
+        void resetFontSize();
         void resetFontDepth();
         void resetMode();
         void resetWhite();

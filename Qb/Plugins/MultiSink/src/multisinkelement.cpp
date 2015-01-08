@@ -496,17 +496,17 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     QbFrac timeBase(audioStream->time_base.num,
                     audioStream->time_base.den);
 
-    float pts = (packet.pts()
+    qreal pts = (packet.pts()
               * packet.timeBase()
               / timeBase).value();
 
     if (!this->m_outputParams[inputIndex].setPts(pts))
         return;
 
-    float ptsOffset = pts - (int) pts;
+    qreal ptsOffset = pts - (int) pts;
 
-    float ptsDiff = frameSize /
-                     (packet.caps().property("rate").toFloat() *
+    qreal ptsDiff = frameSize /
+                     (packet.caps().property("rate").toReal() *
                       timeBase.value());
 
     static AVFrame iFrame;

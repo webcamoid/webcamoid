@@ -41,17 +41,17 @@ class HalftoneElement: public QbElement
                WRITE setPatternSize
                RESET resetPatternSize
                NOTIFY patternSizeChanged)
-    Q_PROPERTY(float lightness
+    Q_PROPERTY(qreal lightness
                READ lightness
                WRITE setLightness
                RESET resetLightness
                NOTIFY lightnessChanged)
-    Q_PROPERTY(float slope
+    Q_PROPERTY(qreal slope
                READ slope
                WRITE setSlope
                RESET resetSlope
                NOTIFY slopeChanged)
-    Q_PROPERTY(float intercept
+    Q_PROPERTY(qreal intercept
                READ intercept
                WRITE setIntercept
                RESET resetIntercept
@@ -65,16 +65,16 @@ class HalftoneElement: public QbElement
 
         Q_INVOKABLE QString pattern() const;
         Q_INVOKABLE QSize patternSize() const;
-        Q_INVOKABLE float lightness() const;
-        Q_INVOKABLE float slope() const;
-        Q_INVOKABLE float intercept() const;
+        Q_INVOKABLE qreal lightness() const;
+        Q_INVOKABLE qreal slope() const;
+        Q_INVOKABLE qreal intercept() const;
 
     private:
         QString m_pattern;
         QSize m_patternSize;
-        float m_lightness;
-        float m_slope;
-        float m_intercept;
+        qreal m_lightness;
+        qreal m_slope;
+        qreal m_intercept;
 
         QbElementPtr m_convert;
         QImage m_patternImage;
@@ -91,9 +91,9 @@ class HalftoneElement: public QbElement
     public slots:
         void setPattern(const QString &pattern);
         void setPatternSize(const QSize &patternSize);
-        void setLightness(float lightness);
-        void setSlope(float slope);
-        void setIntercept(float intercept);
+        void setLightness(qreal lightness);
+        void setSlope(qreal slope);
+        void setIntercept(qreal intercept);
         void resetPattern();
         void resetPatternSize();
         void resetLightness();

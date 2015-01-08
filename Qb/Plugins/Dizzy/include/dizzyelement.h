@@ -32,12 +32,12 @@
 class DizzyElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float phaseIncrement
+    Q_PROPERTY(qreal phaseIncrement
                READ phaseIncrement
                WRITE setPhaseIncrement
                RESET resetPhaseIncrement
                NOTIFY phaseIncrementChanged)
-    Q_PROPERTY(float zoomRate
+    Q_PROPERTY(qreal zoomRate
                READ zoomRate
                WRITE setZoomRate
                RESET resetZoomRate
@@ -49,30 +49,30 @@ class DizzyElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE float phaseIncrement() const;
-        Q_INVOKABLE float zoomRate() const;
+        Q_INVOKABLE qreal phaseIncrement() const;
+        Q_INVOKABLE qreal zoomRate() const;
 
     private:
-        float m_phaseIncrement;
-        float m_zoomRate;
+        qreal m_phaseIncrement;
+        qreal m_zoomRate;
 
         QbElementPtr m_convert;
         QImage m_prevFrame;
         QbCaps m_caps;
-        float m_phase;
+        qreal m_phase;
 
         void setParams(int *dx, int *dy,
                        int *sx, int *sy,
                        int width, int height,
-                       float phase, float zoomRate);
+                       qreal phase, qreal zoomRate);
 
     signals:
         void phaseIncrementChanged();
         void zoomRateChanged();
 
     public slots:
-        void setPhaseIncrement(float phaseIncrement);
-        void setZoomRate(float zoomRate);
+        void setPhaseIncrement(qreal phaseIncrement);
+        void setZoomRate(qreal zoomRate);
         void resetPhaseIncrement();
         void resetZoomRate();
         QbPacket iStream(const QbPacket &packet);

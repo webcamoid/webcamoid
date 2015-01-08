@@ -19,30 +19,20 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef MATRIXTRANSFORMELEMENT_H
-#define MATRIXTRANSFORMELEMENT_H
+#ifndef CHARIFY_H
+#define CHARIFY_H
 
 #include <qb.h>
-#include <qbutils.h>
 
-class MatrixTransformElement: public QbElement
+class Charify: public QObject, public QbPlugin
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList kernel READ kernel WRITE setKernel RESET resetKernel)
+    Q_INTERFACES(QbPlugin)
+    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
 
     public:
-        explicit MatrixTransformElement();
-        Q_INVOKABLE QVariantList kernel() const;
-
-    private:
-        QVector<qreal> m_kernel;
-
-        QbElementPtr m_convert;
-
-    public slots:
-        void setKernel(const QVariantList &kernel);
-        void resetKernel();
-        QbPacket iStream(const QbPacket &packet);
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
-#endif // MATRIXTRANSFORMELEMENT_H
+#endif // CHARIFY_H

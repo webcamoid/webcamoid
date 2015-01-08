@@ -47,17 +47,17 @@ class FireElement: public QbElement
                WRITE setCool
                RESET resetCool
                NOTIFY coolChanged)
-    Q_PROPERTY(float disolve
+    Q_PROPERTY(qreal disolve
                READ disolve
                WRITE setDisolve
                RESET resetDisolve
                NOTIFY disolveChanged)
-    Q_PROPERTY(float blur
+    Q_PROPERTY(qreal blur
                READ blur
                WRITE setBlur
                RESET resetBlur
                NOTIFY blurChanged)
-    Q_PROPERTY(float zoom
+    Q_PROPERTY(qreal zoom
                READ zoom
                WRITE setZoom
                RESET resetZoom
@@ -102,9 +102,9 @@ class FireElement: public QbElement
 
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int cool() const;
-        Q_INVOKABLE float disolve() const;
-        Q_INVOKABLE float blur() const;
-        Q_INVOKABLE float zoom() const;
+        Q_INVOKABLE qreal disolve() const;
+        Q_INVOKABLE qreal blur() const;
+        Q_INVOKABLE qreal zoom() const;
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int lumaThreshold() const;
         Q_INVOKABLE int alphaDiff() const;
@@ -114,9 +114,9 @@ class FireElement: public QbElement
     private:
         FireMode m_mode;
         int m_cool;
-        float m_disolve;
-        float m_blur;
-        float m_zoom;
+        qreal m_disolve;
+        qreal m_blur;
+        qreal m_zoom;
         int m_threshold;
         int m_lumaThreshold;
         int m_alphaDiff;
@@ -137,11 +137,11 @@ class FireElement: public QbElement
                          int lumaThreshold, int alphaVariation,
                          FireMode mode);
 
-        QImage zoomImage(const QImage &src, float factor);
+        QImage zoomImage(const QImage &src, qreal factor);
         void coolImage(const QImage &src, int colorDiff);
         void imageAlphaDiff(const QImage &src, int alphaDiff);
-        void disolveImage(const QImage &src, float amount);
-        QImage blurImage(const QImage &src, float factor);
+        void disolveImage(const QImage &src, qreal amount);
+        QImage blurImage(const QImage &src, qreal factor);
         QImage burn(const QImage &src, const QVector<QRgb> &palette);
         QVector<QRgb> createPalette();
 
@@ -160,9 +160,9 @@ class FireElement: public QbElement
     public slots:
         void setMode(const QString &mode);
         void setCool(int cool);
-        void setDisolve(float disolve);
-        void setBlur(float blur);
-        void setZoom(float zoom);
+        void setDisolve(qreal disolve);
+        void setBlur(qreal blur);
+        void setZoom(qreal zoom);
         void setThreshold(int threshold);
         void setLumaThreshold(int lumaThreshold);
         void setAlphaDiff(int alphaDiff);

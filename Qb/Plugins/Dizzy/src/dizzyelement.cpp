@@ -52,12 +52,12 @@ QObject *DizzyElement::controlInterface(QQmlEngine *engine, const QString &contr
     return item;
 }
 
-float DizzyElement::phaseIncrement() const
+qreal DizzyElement::phaseIncrement() const
 {
     return this->m_phaseIncrement;
 }
 
-float DizzyElement::zoomRate() const
+qreal DizzyElement::zoomRate() const
 {
     return this->m_zoomRate;
 }
@@ -65,17 +65,17 @@ float DizzyElement::zoomRate() const
 void DizzyElement::setParams(int *dx, int *dy,
                              int *sx, int *sy,
                              int width, int height,
-                             float phase, float zoomRate)
+                             qreal phase, qreal zoomRate)
 {
-    float dizz = 10 * sin(phase)
+    qreal dizz = 10 * sin(phase)
                  + 5 * sin(1.9 * phase + 5);
 
     int x = width >> 1;
     int y = height >> 1;
-    float t = zoomRate * (x * x + y * y);
+    qreal t = zoomRate * (x * x + y * y);
 
-    float vx;
-    float vy;
+    qreal vx;
+    qreal vy;
 
     if (width > height) {
         if (dizz >= 0) {
@@ -116,7 +116,7 @@ void DizzyElement::setParams(int *dx, int *dy,
     *sy = 65536 * (-vx * y - vy * x + y + 2 * sin(6 * phase));
 }
 
-void DizzyElement::setPhaseIncrement(float phaseIncrement)
+void DizzyElement::setPhaseIncrement(qreal phaseIncrement)
 {
     if (phaseIncrement != this->m_phaseIncrement) {
         this->m_phaseIncrement = phaseIncrement;
@@ -124,7 +124,7 @@ void DizzyElement::setPhaseIncrement(float phaseIncrement)
     }
 }
 
-void DizzyElement::setZoomRate(float zoomRate)
+void DizzyElement::setZoomRate(qreal zoomRate)
 {
     if (zoomRate != this->m_zoomRate) {
         this->m_zoomRate = zoomRate;

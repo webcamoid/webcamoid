@@ -29,23 +29,23 @@
 class WaveElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float amplitude READ amplitude WRITE setAmplitude RESET resetAmplitude)
-    Q_PROPERTY(float phases READ phases WRITE setPhases RESET resetPhases)
+    Q_PROPERTY(qreal amplitude READ amplitude WRITE setAmplitude RESET resetAmplitude)
+    Q_PROPERTY(qreal phases READ phases WRITE setPhases RESET resetPhases)
     Q_PROPERTY(QRgb background READ background WRITE setBackground RESET resetBackground)
 
     public:
         explicit WaveElement();
-        Q_INVOKABLE float amplitude() const;
-        Q_INVOKABLE float phases() const;
+        Q_INVOKABLE qreal amplitude() const;
+        Q_INVOKABLE qreal phases() const;
         Q_INVOKABLE QRgb background() const;
 
     private:
-        float m_amplitude;
-        float m_phases;
+        qreal m_amplitude;
+        qreal m_phases;
         QRgb m_background;
         QbElementPtr m_convert;
 
-        inline uint interpolateBackground(const QImage &img, float xOffset, float yOffset, QRgb background) const
+        inline uint interpolateBackground(const QImage &img, qreal xOffset, qreal yOffset, QRgb background) const
         {
             int width = img.width();
             int height = img.height();
@@ -99,8 +99,8 @@ class WaveElement: public QbElement
         }
 
     public slots:
-        void setAmplitude(float amplitude);
-        void setPhases(float phases);
+        void setAmplitude(qreal amplitude);
+        void setPhases(qreal phases);
         void setBackground(QRgb background);
         void resetAmplitude();
         void resetPhases();

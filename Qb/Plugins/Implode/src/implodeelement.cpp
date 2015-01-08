@@ -51,12 +51,12 @@ QObject *ImplodeElement::controlInterface(QQmlEngine *engine, const QString &con
     return item;
 }
 
-float ImplodeElement::amount() const
+qreal ImplodeElement::amount() const
 {
     return this->m_amount;
 }
 
-void ImplodeElement::setAmount(float amount)
+void ImplodeElement::setAmount(qreal amount)
 {
     if (amount != this->m_amount) {
         this->m_amount = amount;
@@ -79,32 +79,32 @@ QbPacket ImplodeElement::iStream(const QbPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    float xScale = 1.0;
-    float yScale = 1.0;
-    float xCenter = src.width() >> 1;
-    float yCenter = src.height() >> 1;
-    float radius = xCenter;
+    qreal xScale = 1.0;
+    qreal yScale = 1.0;
+    qreal xCenter = src.width() >> 1;
+    qreal yCenter = src.height() >> 1;
+    qreal radius = xCenter;
 
     if (src.width() > src.height())
-        yScale = (float) src.width() / src.height();
+        yScale = (qreal) src.width() / src.height();
     else if (src.width() < src.height()) {
-        xScale = (float) src.height() / src.width();
+        xScale = (qreal) src.height() / src.width();
         radius = yCenter;
     }
 
     for (int y = 0; y < src.height(); y++) {
         QRgb *srcBits = (QRgb *) src.scanLine(y);
         QRgb *destBits = (QRgb *) oFrame.scanLine(y);
-        float yDistance = yScale * (y - yCenter);
+        qreal yDistance = yScale * (y - yCenter);
 
         for (int x = 0; x < src.width(); x++) {
-            float xDistance = xScale * (x - xCenter);
-            float distance = xDistance * xDistance + yDistance * yDistance;
+            qreal xDistance = xScale * (x - xCenter);
+            qreal distance = xDistance * xDistance + yDistance * yDistance;
 
             if (distance >= (radius * radius))
                 *destBits = srcBits[x];
             else {
-                float factor = 1.0;
+                qreal factor = 1.0;
 
                 if (distance > 0.0)
                     factor = pow(sin((M_PI) * sqrt(distance) / radius / 2), -this->m_amount);

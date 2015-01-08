@@ -23,21 +23,47 @@
 
 MatrixElement::MatrixElement(): QbElement()
 {
+    // http://www.arungudelli.com/html5/matrix-effect-using-html5-and-javascript/
+    // http://caca.zoy.org/wiki/libcaca
+    // http://mattmik.com/articles/ascii/ascii.html
+    // http://www.codeproject.com/Articles/20435/Using-C-To-Generate-ASCII-Art-From-An-Image
+    // http://www.c-sharpcorner.com/UploadFile/dheenu27/ImageToASCIIconverter03022007164455PM/ImageToASCIIconverter.aspx
+    // http://www.madinaberkaliyeva.com/uploads/2/6/0/0/26006847/ascii_art_generator_final_report.pdf
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
-    this->m_matrixFont.load(":/Matrix/share/matrixFont.xpm");
+    this->m_matrixFont.load(":/Matrix/share/fonts/matrixFont.xpm");
 
     this->resetNChars();
-    this->resetFontWidth();
-    this->resetFontHeight();
+    this->resetFontSize();
     this->resetFontDepth();
     this->resetMode();
     this->resetWhite();
     this->resetPause();
 
-    this->m_font.resize(this->nChars() * this->fontWidth() * this->fontHeight());
-    this->m_palette.resize(256 * this->fontDepth());
+    this->m_palette.resize(256 * this->m_fontDepth);
+}
+
+QObject *MatrixElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Matrix/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Matrix", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 int MatrixElement::nChars() const
@@ -45,14 +71,9 @@ int MatrixElement::nChars() const
     return this->m_nChars;
 }
 
-int MatrixElement::fontWidth() const
+QSize MatrixElement::fontSize() const
 {
-    return this->m_fontWidth;
-}
-
-int MatrixElement::fontHeight() const
-{
-    return this->m_fontHeight;
+    return this->m_fontSize;
 }
 
 int MatrixElement::fontDepth() const
@@ -65,7 +86,7 @@ int MatrixElement::mode() const
     return this->m_mode;
 }
 
-float MatrixElement::white() const
+qreal MatrixElement::white() const
 {
     return this->m_white;
 }
@@ -75,10 +96,11 @@ bool MatrixElement::pause() const
     return this->m_pause;
 }
 
-void MatrixElement::setPattern()
+QByteArray MatrixElement::createPattern(int nChars, const QSize &fontSize)
 {
     // FIXME: This code is highly depends on the structure of bundled
     //        matrixFont.xpm.
+    QByteArray font(nChars * fontSize.width() * fontSize.height(), 0);
     char *matrixFontBits = (char *) this->m_matrixFont.bits();
 
     for (int l = 0; l < 32; l++) {
@@ -111,18 +133,23 @@ void MatrixElement::setPattern()
                 break;
             }
 
-            this->m_font[(cy * 10 + cx) * this->fontWidth() * this->fontHeight() + y * this->fontWidth() + x] = v;
+            int i = (cy * 10 + cx) * fontSize.width() * fontSize.height()
+                    + y * fontSize.width() + x;
+
+            font[i] = v;
             p++;
         }
     }
+
+    return font;
 }
 
 quint32 MatrixElement::green(uint v)
 {
     if (v < 256)
-        return ((int)(v * this->white()) << 16) | (v << 8) | (int) (v * this->white());
+        return ((int)(v * this->m_white) << 16) | (v << 8) | (int) (v * this->m_white);
 
-    uint w = v - (int) (256 * this->white());
+    uint w = v - (int) (256 * this->m_white);
 
     if (w > 255)
         w = 255;
@@ -133,10 +160,10 @@ quint32 MatrixElement::green(uint v)
 void MatrixElement::setPalette()
 {
     for (int i = 0; i < 256; i++) {
-        this->m_palette[i * this->fontDepth()] = 0;
-        this->m_palette[i * this->fontDepth() + 1] = this->green(0x44 * i / 170);
-        this->m_palette[i * this->fontDepth() + 2] = this->green(0x99 * i / 170);
-        this->m_palette[i * this->fontDepth() + 3] = this->green(0xff * i / 170);
+        this->m_palette[i * this->m_fontDepth] = 0;
+        this->m_palette[i * this->m_fontDepth + 1] = this->green(0x44 * i / 170);
+        this->m_palette[i * this->m_fontDepth + 2] = this->green(0x99 * i / 170);
+        this->m_palette[i * this->m_fontDepth + 3] = this->green(0xff * i / 170);
     }
 }
 
@@ -144,7 +171,7 @@ void MatrixElement::darkenColumn(int x)
 {
     uchar *p = this->m_vmap.bits() + x;
 
-    for (int y = 0; y < this->m_mapHeight; y++) {
+    for (int y = 0; y < this->m_mapSize.height(); y++) {
         int v = *p;
 
         if (v < 255) {
@@ -152,7 +179,7 @@ void MatrixElement::darkenColumn(int x)
             *p = v;
         }
 
-        p += this->m_mapWidth;
+        p += this->m_mapSize.width();
     }
 }
 
@@ -179,8 +206,8 @@ void MatrixElement::blipNone(int x)
 void MatrixElement::blipFall(int x)
 {
     int y = this->m_blips[x].y();
-    uchar *p = this->m_vmap.bits() + x + y * this->m_mapWidth;
-    uchar *c = this->m_cmap.bits() + x + y * this->m_mapWidth;
+    uchar *p = this->m_vmap.bits() + x + y * this->m_mapSize.width();
+    uchar *c = this->m_cmap.bits() + x + y * this->m_mapSize.width();
 
     for (int i = this->m_blips[x].speed(); i > 0; i--) {
         if (this->m_blips[x].timer() > 0)
@@ -188,19 +215,19 @@ void MatrixElement::blipFall(int x)
         else
             *p = 254 - i * 10;
 
-        *c = qrand() % this->nChars();
-        p += this->m_mapWidth;
-        c += this->m_mapWidth;
+        *c = qrand() % this->m_nChars;
+        p += this->m_mapSize.width();
+        c += this->m_mapSize.width();
         y++;
 
-        if (y >= this->m_mapHeight)
+        if (y >= this->m_mapSize.height())
             break;
     }
 
     if (this->m_blips[x].timer() > 0)
         this->m_blips[x].setTimer(this->m_blips[x].timer() - 1);
 
-    if (y >= this->m_mapHeight)
+    if (y >= this->m_mapSize.height())
         this->m_blips[x].setMode(BlipModeNone);
 
     this->m_blips[x].setY(y);
@@ -220,8 +247,8 @@ void MatrixElement::blipFall(int x)
 void MatrixElement::blipStop(int x)
 {
     int y = this->m_blips[x].y();
-    this->m_vmap.bits()[x + y * this->m_mapWidth] = 254;
-    this->m_cmap.bits()[x + y * this->m_mapWidth] = qrand() % this->nChars();
+    this->m_vmap.bits()[x + y * this->m_mapSize.width()] = 254;
+    this->m_cmap.bits()[x + y * this->m_mapSize.width()] = qrand() % this->m_nChars;
 
     this->m_blips[x].setTimer(this->m_blips[x].timer() - 1);
 
@@ -236,23 +263,23 @@ void MatrixElement::blipSlide(int x)
     if (this->m_blips[x].timer() < 0)
         this->m_blips[x].setMode(BlipModeNone);
 
-    uchar *p = this->m_cmap.bits() + x + this->m_mapWidth * (this->m_mapHeight - 1);
-    int dy = this->m_mapWidth * this->m_blips[x].speed();
+    uchar *p = this->m_cmap.bits() + x + this->m_mapSize.width() * (this->m_mapSize.height() - 1);
+    int dy = this->m_mapSize.width() * this->m_blips[x].speed();
 
-    for (int y = this->m_mapHeight - this->m_blips[x].speed(); y > 0; y--) {
+    for (int y = this->m_mapSize.height() - this->m_blips[x].speed(); y > 0; y--) {
         *p = *(p - dy);
-        p -= this->m_mapWidth;
+        p -= this->m_mapSize.width();
     }
 
     for (int y = this->m_blips[x].speed(); y > 0; y--) {
-        *p = qrand() % this->nChars();
-        p -= this->m_mapWidth;
+        *p = qrand() % this->m_nChars;
+        p -= this->m_mapSize.width();
     }
 }
 
 void MatrixElement::updateCharMap()
 {
-    for (int x = 0; x < this->m_mapWidth; x++) {
+    for (int x = 0; x < this->m_mapSize.width(); x++) {
         this->darkenColumn(x);
 
         switch(this->m_blips[x].mode()) {
@@ -282,14 +309,14 @@ void MatrixElement::createImg(QImage &src)
     quint32 *srcBits = (quint32 *) src.bits();
     uchar *q = this->m_img.bits();
 
-    for (int y = 0; y < this->m_mapHeight; y++) {
+    for (int y = 0; y < this->m_mapSize.height(); y++) {
         quint32 *p = srcBits;
 
-        for (int x = 0; x < this->m_mapWidth; x++) {
+        for (int x = 0; x < this->m_mapSize.width(); x++) {
             // center, right, below
             quint32 pc = *p;
-            quint32 pr = *(p + this->fontWidth() - 1);
-            quint32 pb = *(p + src.width() * (this->fontHeight() - 1));
+            quint32 pr = *(p + this->m_fontSize.width() - 1);
+            quint32 pb = *(p + src.width() * (this->m_fontSize.height() - 1));
 
             int r = (int) (pc & 0xff0000) >> 15;
             int g = (int) (pc & 0x00ff00) >> 7;
@@ -312,11 +339,11 @@ void MatrixElement::createImg(QImage &src)
 
             *q = (uchar) val;
 
-            p += this->fontWidth();
+            p += this->m_fontSize.width();
             q++;
         }
 
-        srcBits += src.width() * this->fontHeight();
+        srcBits += src.width() * this->m_fontSize.height();
     }
 }
 
@@ -326,52 +353,67 @@ void MatrixElement::drawChar(quint32 *dest, uchar c, uchar v, QSize size)
     if (v == 255)
         v = 160;
 
-    int *p = (int *) &this->m_palette[(int) v * this->fontDepth()];
-    uchar *f = (uchar *) &this->m_font.data()[(int) c * this->fontWidth() * this->fontHeight()];
+    int *p = (int *) &this->m_palette[(int) v * this->m_fontDepth];
+    uchar *f = (uchar *) &this->m_font.data()[(int) c
+                                              * this->m_fontSize.width()
+                                              * this->m_fontSize.height()];
 
-    for (int y = 0; y < this->fontHeight(); y++) {
-        for (int x = 0; x < this->fontWidth(); x++) {
+    for (int y = 0; y < this->m_fontSize.height(); y++) {
+        for (int x = 0; x < this->m_fontSize.width(); x++) {
             *dest++ = p[*f];
             f++;
         }
 
-        dest += size.width() - this->fontWidth();
+        dest += size.width() - this->m_fontSize.width();
     }
 }
 
 void MatrixElement::setNChars(int nChars)
 {
-    this->m_nChars = nChars;
+    if (nChars != this->m_nChars) {
+        this->m_nChars = nChars;
+        emit this->nCharsChanged();
+    }
 }
 
-void MatrixElement::setFontWidth(int fontWidth)
+void MatrixElement::setFontSize(const QSize &fontSize)
 {
-    this->m_fontWidth = fontWidth;
-}
-
-void MatrixElement::setFontHeight(int fontHeight)
-{
-    this->m_fontHeight = fontHeight;
+    if (fontSize != this->m_fontSize) {
+        this->m_fontSize = fontSize;
+        emit this->fontSizeChanged();
+    }
 }
 
 void MatrixElement::setFontDepth(int fontDepth)
 {
-    this->m_fontDepth = fontDepth;
+    if (fontDepth != this->m_fontDepth) {
+        this->m_fontDepth = fontDepth;
+        emit this->fontDepthChanged();
+    }
 }
 
 void MatrixElement::setMode(int mode)
 {
-    this->m_mode = mode;
+    if (mode != this->m_mode) {
+        this->m_mode = mode;
+        emit this->modeChanged();
+    }
 }
 
-void MatrixElement::setWhite(float white)
+void MatrixElement::setWhite(qreal white)
 {
-    this->m_white = white;
+    if (white != this->m_white) {
+        this->m_white = white;
+        emit this->whiteChanged();
+    }
 }
 
 void MatrixElement::setPause(bool pause)
 {
-    this->m_pause = pause;
+    if (pause != this->m_pause) {
+        this->m_pause = pause;
+        emit this->pauseChanged();
+    }
 }
 
 void MatrixElement::resetNChars()
@@ -379,14 +421,9 @@ void MatrixElement::resetNChars()
     this->setNChars(80);
 }
 
-void MatrixElement::resetFontWidth()
+void MatrixElement::resetFontSize()
 {
-    this->setFontWidth(4);
-}
-
-void MatrixElement::resetFontHeight()
-{
-    this->setFontHeight(4);
+    this->setFontSize(QSize(4, 4));
 }
 
 void MatrixElement::resetFontDepth()
@@ -420,24 +457,24 @@ QbPacket MatrixElement::iStream(const QbPacket &packet)
     QImage oFrame(src.size(), src.format());
 
     if (packet.caps() != this->m_caps) {
-        this->m_mapWidth = src.width() / this->fontWidth();
-        this->m_mapHeight = src.height() / this->fontHeight();
+        this->m_mapSize = QSize(src.width() / this->m_fontSize.width(),
+                                src.height() / this->m_fontSize.height());
 
-        this->m_cmap = QImage(this->m_mapWidth, this->m_mapHeight, QImage::Format_Indexed8);
-        this->m_vmap = QImage(this->m_mapWidth, this->m_mapHeight, QImage::Format_Indexed8);
-        this->m_img = QImage(this->m_mapWidth, this->m_mapHeight, QImage::Format_Indexed8);
-        this->m_blips.resize(this->m_mapWidth);
+        this->m_cmap = QImage(this->m_mapSize.width(), this->m_mapSize.height(), QImage::Format_Indexed8);
+        this->m_vmap = QImage(this->m_mapSize.width(), this->m_mapSize.height(), QImage::Format_Indexed8);
+        this->m_img = QImage(this->m_mapSize.width(), this->m_mapSize.height(), QImage::Format_Indexed8);
+        this->m_blips.resize(this->m_mapSize.width());
 
-        this->m_cmap.fill(this->nChars() - 1);
+        this->m_cmap.fill(this->m_nChars - 1);
         this->m_vmap.fill(0);
 
-        this->setPattern();
+        this->m_font = this->createPattern(this->m_nChars, this->m_fontSize);
         this->setPalette();
 
         this->m_caps = packet.caps();
     }
 
-    if (!this->pause()) {
+    if (!this->m_pause) {
         this->updateCharMap();
         this->createImg(src);
     }
@@ -450,10 +487,10 @@ QbPacket MatrixElement::iStream(const QbPacket &packet)
     quint32 *destBits = (quint32 *) oFrame.bits();
     quint32 *p = destBits;
 
-    for (int y = 0; y < this->m_mapHeight; y++) {
+    for (int y = 0; y < this->m_mapSize.height(); y++) {
         quint32 *q = p;
 
-        for (int x = 0; x < this->m_mapWidth; x++) {
+        for (int x = 0; x < this->m_mapSize.width(); x++) {
             uint val = *i | *v;
 //			if(val > 255) val = 255;
             this->drawChar(q, *c, val, src.size());
@@ -462,15 +499,15 @@ QbPacket MatrixElement::iStream(const QbPacket &packet)
             v++;
             c++;
 
-            q += this->fontWidth();
+            q += this->m_fontSize.width();
         }
 
-        p += src.width() * this->fontHeight();
+        p += src.width() * this->m_fontSize.height();
     }
 
     int videoArea = src.width() * src.height();
 
-    if (this->mode() == 1)
+    if (this->m_mode == 1)
         for (int x = 0; x < videoArea; x++) {
             quint32 a = *destBits;
             quint32 b = *srcBits++;

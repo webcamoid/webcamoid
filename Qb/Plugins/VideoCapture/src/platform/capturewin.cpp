@@ -79,9 +79,9 @@ Capture::Capture(): QObject()
     this->m_guidToStr[MEDIASUBTYPE_YVYU] = "yvyu422";
 
     QObject::connect(&this->m_frameGrabber,
-                     SIGNAL(frameReady(float, const QByteArray &)),
+                     SIGNAL(frameReady(qreal, const QByteArray &)),
                      this,
-                     SLOT(frameReceived(float, const QByteArray &)),
+                     SLOT(frameReceived(qreal, const QByteArray &)),
                      Qt::DirectConnection);
 
     this->createDeviceNotifier();
@@ -1158,7 +1158,7 @@ void Capture::reset(const QString &webcam)
     }
 }
 
-void Capture::frameReceived(float time, const QByteArray &buffer)
+void Capture::frameReceived(qreal time, const QByteArray &buffer)
 {
     this->m_mutex.lock();
     this->m_curTime = time;

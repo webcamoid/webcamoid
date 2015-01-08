@@ -150,7 +150,7 @@ QbPacket FalseColorElement::iStream(const QbPacket &packet)
             int l = 255 * low / (tableRgb.size() - 1);
             int h = 255 * high / (tableRgb.size() - 1);
 
-            float k = (float) (i - l) / (h - l);
+            qreal k = (qreal) (i - l) / (h - l);
 
             int r = k * (rh - rl) + rl;
             int g = k * (gh - gl) + gl;

@@ -31,6 +31,7 @@ SUBDIRS += \
     Blur \
     Cartoon \
     ChangeHSL \
+    Charify \
     Cinema \
     ColorFilter \
     ColorReplace \

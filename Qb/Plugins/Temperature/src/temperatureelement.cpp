@@ -31,12 +31,12 @@ TemperatureElement::TemperatureElement(): QbElement()
     this->resetTemperature();
 }
 
-float TemperatureElement::temperature() const
+qreal TemperatureElement::temperature() const
 {
     return this->m_temperature;
 }
 
-void TemperatureElement::setTemperature(float temperature)
+void TemperatureElement::setTemperature(qreal temperature)
 {
     this->m_temperature = temperature;
 

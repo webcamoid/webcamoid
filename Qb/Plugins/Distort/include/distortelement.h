@@ -32,12 +32,12 @@
 class DistortElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float amplitude
+    Q_PROPERTY(qreal amplitude
                READ amplitude
                WRITE setAmplitude
                RESET resetAmplitude
                NOTIFY amplitudeChanged)
-    Q_PROPERTY(float frequency
+    Q_PROPERTY(qreal frequency
                READ frequency
                WRITE setFrequency
                RESET resetFrequency
@@ -54,13 +54,13 @@ class DistortElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE float amplitude() const;
-        Q_INVOKABLE float frequency() const;
+        Q_INVOKABLE qreal amplitude() const;
+        Q_INVOKABLE qreal frequency() const;
         Q_INVOKABLE int gridSizeLog() const;
 
     private:
-        float m_amplitude;
-        float m_frequency;
+        qreal m_amplitude;
+        qreal m_frequency;
         int m_gridSizeLog;
 
         QbElementPtr m_convert;
@@ -68,13 +68,13 @@ class DistortElement: public QbElement
         // this will compute a displacement value such that
         // 0<=x_retval<xsize and 0<=y_retval<ysize.
         inline QPoint plasmaFunction(const QPoint &point, const QSize &size,
-                                     float amp, float freq, float t)
+                                     qreal amp, qreal freq, qreal t)
         {
-            float time = fmod(t, 2 * M_PI);
-            float h = size.height() - 1;
-            float w = size.width() - 1;
-            float dx = (-4.0 / (w * w) * point.x() + 4.0 / w) * point.x();
-            float dy = (-4.0 / (h * h) * point.y() + 4.0 / h) * point.y();
+            qreal time = fmod(t, 2 * M_PI);
+            qreal h = size.height() - 1;
+            qreal w = size.width() - 1;
+            qreal dx = (-4.0 / (w * w) * point.x() + 4.0 / w) * point.x();
+            qreal dy = (-4.0 / (h * h) * point.y() + 4.0 / h) * point.y();
 
             int x = point.x() + amp * (size.width() / 4.0) * dx
                     * sin(freq * point.y() / size.height() + time);
@@ -87,7 +87,7 @@ class DistortElement: public QbElement
         }
 
         QVector<QPoint> createGrid(int width, int height,
-                                   int gridSize, float time);
+                                   int gridSize, qreal time);
 
     signals:
         void amplitudeChanged();
@@ -95,8 +95,8 @@ class DistortElement: public QbElement
         void gridSizeLogChanged();
 
     public slots:
-        void setAmplitude(float amplitude);
-        void setFrequency(float frequency);
+        void setAmplitude(qreal amplitude);
+        void setFrequency(qreal frequency);
         void setGridSizeLog(int gridSizeLog);
         void resetAmplitude();
         void resetFrequency();

@@ -284,14 +284,14 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
         return QbPacket();
 
     QImage oFrame = src;
-    float scale = 1;
+    qreal scale = 1;
 
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     if (scanFrame.width() == scanSize.width())
-        scale = (float) src.width() / scanSize.width();
+        scale = (qreal) src.width() / scanSize.width();
     else
-        scale = (float) src.height() / scanSize.height();
+        scale = (qreal) src.height() / scanSize.height();
 
     cv::Mat matFrame(scanFrame.height(),
                      scanFrame.width(),
@@ -328,8 +328,8 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
         else if (this->m_markerType == MarkerTypeImage)
             painter.drawImage(rect, this->m_markerImg);
         else if (this->m_markerType == MarkerTypePixelate) {
-            float sw = 1.0 / this->m_pixelGridSize.width();
-            float sh = 1.0 / this->m_pixelGridSize.height();
+            qreal sw = 1.0 / this->m_pixelGridSize.width();
+            qreal sh = 1.0 / this->m_pixelGridSize.height();
             QImage imagePixelate = src.copy(rect);
 
             imagePixelate = imagePixelate.scaled(sw * imagePixelate.width(),

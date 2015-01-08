@@ -53,12 +53,12 @@ QObject *DistortElement::controlInterface(QQmlEngine *engine, const QString &con
     return item;
 }
 
-float DistortElement::amplitude() const
+qreal DistortElement::amplitude() const
 {
     return this->m_amplitude;
 }
 
-float DistortElement::frequency() const
+qreal DistortElement::frequency() const
 {
     return this->m_frequency;
 }
@@ -69,7 +69,7 @@ int DistortElement::gridSizeLog() const
 }
 
 QVector<QPoint> DistortElement::createGrid(int width, int height,
-                                           int gridSize, float time)
+                                           int gridSize, qreal time)
 {
     QVector<QPoint> grid;
 
@@ -82,7 +82,7 @@ QVector<QPoint> DistortElement::createGrid(int width, int height,
     return grid;
 }
 
-void DistortElement::setAmplitude(float amplitude)
+void DistortElement::setAmplitude(qreal amplitude)
 {
     if (amplitude != this->m_amplitude) {
         this->m_amplitude = amplitude;
@@ -90,7 +90,7 @@ void DistortElement::setAmplitude(float amplitude)
     }
 }
 
-void DistortElement::setFrequency(float frequency)
+void DistortElement::setFrequency(qreal frequency)
 {
     if (frequency != this->m_frequency) {
         this->m_frequency = frequency;
@@ -138,7 +138,7 @@ QbPacket DistortElement::iStream(const QbPacket &packet)
 
     int gridSizeLog = this->m_gridSizeLog;
     int gridSize = 1 << gridSizeLog;
-    float time = packet.pts() * packet.timeBase().value();
+    qreal time = packet.pts() * packet.timeBase().value();
     QVector<QPoint> grid = this->createGrid(src.width(), src.height(), gridSize, time);
 
     int gridX = src.width() / gridSize;

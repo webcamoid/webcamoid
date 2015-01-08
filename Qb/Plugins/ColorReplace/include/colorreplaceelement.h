@@ -42,7 +42,7 @@ class ColorReplaceElement: public QbElement
                WRITE setTo
                RESET resetTo
                NOTIFY toChanged)
-    Q_PROPERTY(float radius
+    Q_PROPERTY(qreal radius
                READ radius
                WRITE setRadius
                RESET resetRadius
@@ -61,13 +61,13 @@ class ColorReplaceElement: public QbElement
 
         Q_INVOKABLE QRgb from() const;
         Q_INVOKABLE QRgb to() const;
-        Q_INVOKABLE float radius() const;
+        Q_INVOKABLE qreal radius() const;
         Q_INVOKABLE bool disable() const;
 
     private:
         QRgb m_from;
         QRgb m_to;
-        float m_radius;
+        qreal m_radius;
         bool m_disable;
 
         QbElementPtr m_convert;
@@ -81,7 +81,7 @@ class ColorReplaceElement: public QbElement
     public slots:
         void setFrom(QRgb from);
         void setTo(QRgb to);
-        void setRadius(float radius);
+        void setRadius(qreal radius);
         void setDisable(bool disable);
         void resetFrom();
         void resetTo();

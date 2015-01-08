@@ -29,31 +29,31 @@
 class VignetteElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float aspect READ aspect WRITE setAspect RESET resetAspect)
-    Q_PROPERTY(float clearCenter READ clearCenter WRITE setClearCenter RESET resetClearCenter)
-    Q_PROPERTY(float softness READ softness WRITE setSoftness RESET resetSoftness)
+    Q_PROPERTY(qreal aspect READ aspect WRITE setAspect RESET resetAspect)
+    Q_PROPERTY(qreal clearCenter READ clearCenter WRITE setClearCenter RESET resetClearCenter)
+    Q_PROPERTY(qreal softness READ softness WRITE setSoftness RESET resetSoftness)
 
     public:
         explicit VignetteElement();
-        Q_INVOKABLE float aspect() const;
-        Q_INVOKABLE float clearCenter() const;
-        Q_INVOKABLE float softness() const;
+        Q_INVOKABLE qreal aspect() const;
+        Q_INVOKABLE qreal clearCenter() const;
+        Q_INVOKABLE qreal softness() const;
 
     private:
-        float m_aspect;
-        float m_clearCenter;
-        float m_softness;
+        qreal m_aspect;
+        qreal m_clearCenter;
+        qreal m_softness;
 
         QbElementPtr m_convert;
         QbCaps m_caps;
-        QVector<float> m_vignette;
+        QVector<qreal> m_vignette;
 
-        QVector<float> updateVignette(int width, int height);
+        QVector<qreal> updateVignette(int width, int height);
 
     public slots:
-        void setAspect(float aspect);
-        void setClearCenter(float clearCenter);
-        void setSoftness(float softness);
+        void setAspect(qreal aspect);
+        void setClearCenter(qreal clearCenter);
+        void setSoftness(qreal softness);
         void resetAspect();
         void resetClearCenter();
         void resetSoftness();

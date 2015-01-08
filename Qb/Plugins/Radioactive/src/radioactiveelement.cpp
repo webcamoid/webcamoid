@@ -47,12 +47,12 @@ QString RadioactiveElement::mode() const
     return this->m_radiationModeToStr[this->m_mode];
 }
 
-float RadioactiveElement::blur() const
+qreal RadioactiveElement::blur() const
 {
     return this->m_blur;
 }
 
-float RadioactiveElement::zoom() const
+qreal RadioactiveElement::zoom() const
 {
     return this->m_zoom;
 }
@@ -169,12 +169,12 @@ void RadioactiveElement::setMode(const QString &mode)
         this->m_mode = RadiationModeSoftNormal;
 }
 
-void RadioactiveElement::setBlur(float blur)
+void RadioactiveElement::setBlur(qreal blur)
 {
     this->m_blur = blur;
 }
 
-void RadioactiveElement::setZoom(float snapTime)
+void RadioactiveElement::setZoom(qreal snapTime)
 {
     this->m_zoom = snapTime;
 }

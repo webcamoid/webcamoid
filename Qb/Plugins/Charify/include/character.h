@@ -19,30 +19,23 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef MATRIXTRANSFORMELEMENT_H
-#define MATRIXTRANSFORMELEMENT_H
+#ifndef CHARACTER_H
+#define CHARACTER_H
 
-#include <qb.h>
-#include <qbutils.h>
+#include <QImage>
 
-class MatrixTransformElement: public QbElement
+class Character
 {
-    Q_OBJECT
-    Q_PROPERTY(QVariantList kernel READ kernel WRITE setKernel RESET resetKernel)
-
     public:
-        explicit MatrixTransformElement();
-        Q_INVOKABLE QVariantList kernel() const;
+        Character(QChar chr, QImage image, int weight):
+            chr(chr), image(image), weight(weight)
+        {
+        }
 
-    private:
-        QVector<qreal> m_kernel;
-
-        QbElementPtr m_convert;
-
-    public slots:
-        void setKernel(const QVariantList &kernel);
-        void resetKernel();
-        QbPacket iStream(const QbPacket &packet);
+        QChar chr;
+        QImage image;
+        int weight;
 };
 
-#endif // MATRIXTRANSFORMELEMENT_H
+#endif // CHARACTER_H
+

@@ -37,7 +37,7 @@ class ColorFilterElement: public QbElement
                WRITE setColor
                RESET resetColor
                NOTIFY colorChanged)
-    Q_PROPERTY(float radius
+    Q_PROPERTY(qreal radius
                READ radius
                WRITE setRadius
                RESET resetRadius
@@ -60,13 +60,13 @@ class ColorFilterElement: public QbElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE QRgb color() const;
-        Q_INVOKABLE float radius() const;
+        Q_INVOKABLE qreal radius() const;
         Q_INVOKABLE bool soft() const;
         Q_INVOKABLE bool disable() const;
 
     private:
         QRgb m_color;
-        float m_radius;
+        qreal m_radius;
         bool m_soft;
         bool m_disable;
 
@@ -80,7 +80,7 @@ class ColorFilterElement: public QbElement
 
     public slots:
         void setColor(QRgb color);
-        void setRadius(float radius);
+        void setRadius(qreal radius);
         void setSoft(bool soft);
         void setDisable(bool disable);
         void resetColor();

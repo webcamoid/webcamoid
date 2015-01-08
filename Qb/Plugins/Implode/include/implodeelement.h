@@ -31,7 +31,7 @@
 class ImplodeElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float amount
+    Q_PROPERTY(qreal amount
                READ amount
                WRITE setAmount
                RESET resetAmount
@@ -43,13 +43,13 @@ class ImplodeElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE float amount() const;
+        Q_INVOKABLE qreal amount() const;
 
     private:
-        float m_amount;
+        qreal m_amount;
         QbElementPtr m_convert;
 
-        inline uint interpolate(const QImage &img, float xOffset, float yOffset) const
+        inline uint interpolate(const QImage &img, qreal xOffset, qreal yOffset) const
         {
             int width = img.width();
             int height = img.height();
@@ -92,7 +92,7 @@ class ImplodeElement: public QbElement
         void amountChanged();
 
     public slots:
-        void setAmount(float amount);
+        void setAmount(qreal amount);
         void resetAmount();
         QbPacket iStream(const QbPacket &packet);
 };

@@ -46,7 +46,7 @@ class ChangeHSLElement: public QbElement
         Q_INVOKABLE QVariantList kernel() const;
 
     private:
-        QVector<float> m_kernel;
+        QVector<qreal> m_kernel;
         QbElementPtr m_convert;
 
     signals:

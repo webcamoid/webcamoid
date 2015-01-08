@@ -31,12 +31,12 @@ WaveElement::WaveElement(): QbElement()
     this->resetBackground();
 }
 
-float WaveElement::amplitude() const
+qreal WaveElement::amplitude() const
 {
     return this->m_amplitude;
 }
 
-float WaveElement::phases() const
+qreal WaveElement::phases() const
 {
     return this->m_phases;
 }
@@ -46,12 +46,12 @@ QRgb WaveElement::background() const
     return this->m_background;
 }
 
-void WaveElement::setAmplitude(float amplitude)
+void WaveElement::setAmplitude(qreal amplitude)
 {
     this->m_amplitude = amplitude;
 }
 
-void WaveElement::setPhases(float phases)
+void WaveElement::setPhases(qreal phases)
 {
     this->m_phases = phases;
 }
@@ -88,7 +88,7 @@ QbPacket WaveElement::iStream(const QbPacket &packet)
                   src.height() + 2 * fabs(this->m_amplitude),
                   src.format());
 
-    float sineMap[oFrame.width()];
+    qreal sineMap[oFrame.width()];
 
     for (int x = 0; x < oFrame.width(); x++)
         sineMap[x] = fabs(this->m_amplitude)

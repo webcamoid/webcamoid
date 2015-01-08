@@ -33,7 +33,7 @@ QVariantList MatrixTransformElement::kernel() const
 {
     QVariantList kernel;
 
-    foreach (float e, this->m_kernel)
+    foreach (qreal e, this->m_kernel)
         kernel << e;
 
     return kernel;
@@ -44,7 +44,7 @@ void MatrixTransformElement::setKernel(const QVariantList &kernel)
     this->m_kernel.clear();
 
     foreach (QVariant e, kernel)
-        this->m_kernel << e.toFloat();
+        this->m_kernel << e.toReal();
 }
 
 void MatrixTransformElement::resetKernel()
@@ -68,7 +68,7 @@ QbPacket MatrixTransformElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    float det = this->m_kernel[0] * this->m_kernel[4]
+    qreal det = this->m_kernel[0] * this->m_kernel[4]
                 - this->m_kernel[1] * this->m_kernel[3];
 
     QRect rect(0, 0, src.width(), src.height());

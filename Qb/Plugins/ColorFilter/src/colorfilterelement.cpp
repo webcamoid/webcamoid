@@ -61,7 +61,7 @@ QRgb ColorFilterElement::color() const
     return this->m_color;
 }
 
-float ColorFilterElement::radius() const
+qreal ColorFilterElement::radius() const
 {
     return this->m_radius;
 }
@@ -84,7 +84,7 @@ void ColorFilterElement::setColor(QRgb color)
     }
 }
 
-void ColorFilterElement::setRadius(float radius)
+void ColorFilterElement::setRadius(qreal radius)
 {
     if (radius != this->m_radius) {
         this->m_radius = radius;
@@ -159,11 +159,11 @@ QbPacket ColorFilterElement::iStream(const QbPacket &packet)
         int gd = g - gf;
         int bd = b - bf;
 
-        float k = sqrt(rd * rd + gd * gd + bd * bd);
+        qreal k = sqrt(rd * rd + gd * gd + bd * bd);
 
         if (k <= this->m_radius) {
             if (this->m_soft) {
-                float p = k / this->m_radius;
+                qreal p = k / this->m_radius;
 
                 int gray = qGray(srcBits[i]);
 

@@ -29,12 +29,12 @@ WarpElement::WarpElement(): QbElement()
     this->resetRipples();
 }
 
-float WarpElement::ripples() const
+qreal WarpElement::ripples() const
 {
     return this->m_ripples;
 }
 
-void WarpElement::setRipples(float ripples)
+void WarpElement::setRipples(qreal ripples)
 {
     this->m_ripples = ripples;
 }
@@ -61,7 +61,7 @@ QbPacket WarpElement::iStream(const QbPacket &packet)
         int cx = src.width() >> 1;
         int cy = src.height() >> 1;
 
-        float k = 2.0 * M_PI / sqrt(cx * cx + cy * cy);
+        qreal k = 2.0 * M_PI / sqrt(cx * cx + cy * cy);
 
         this->m_phiTable.clear();
 
@@ -74,20 +74,20 @@ QbPacket WarpElement::iStream(const QbPacket &packet)
 
     static int tval = 0;
 
-    float dx = 30 * sin((tval + 100) * M_PI / 128)
+    qreal dx = 30 * sin((tval + 100) * M_PI / 128)
                + 40 * sin((tval - 10) * M_PI / 512);
 
-    float dy = -35 * sin(tval * M_PI / 256)
+    qreal dy = -35 * sin(tval * M_PI / 256)
                + 40 * sin((tval + 30) * M_PI / 512);
 
-    float ripples = this->m_ripples * sin((tval - 70) * M_PI / 64);
+    qreal ripples = this->m_ripples * sin((tval - 70) * M_PI / 64);
 
     tval = (tval + 1) & 511;
-    float *phiTable = this->m_phiTable.data();
+    qreal *phiTable = this->m_phiTable.data();
 
     for (int i = 0, y = 0; y < src.height(); y++)
         for (int x = 0; x < src.width(); i++, x++) {
-            float phi = ripples * phiTable[i];
+            qreal phi = ripples * phiTable[i];
 
             int xOrig = dx * cos(phi) + x;
             int yOrig = dy * sin(phi) + y;

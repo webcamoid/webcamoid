@@ -29,17 +29,17 @@
 class SwirlElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float degrees READ degrees WRITE setDegrees RESET resetDegrees)
+    Q_PROPERTY(qreal degrees READ degrees WRITE setDegrees RESET resetDegrees)
 
     public:
         explicit SwirlElement();
-        Q_INVOKABLE float degrees() const;
+        Q_INVOKABLE qreal degrees() const;
 
     private:
-        float m_degrees;
+        qreal m_degrees;
         QbElementPtr m_convert;
 
-        inline uint interpolate(const QImage &img, float xOffset, float yOffset) const
+        inline uint interpolate(const QImage &img, qreal xOffset, qreal yOffset) const
         {
             int width = img.width();
             int height = img.height();
@@ -79,7 +79,7 @@ class SwirlElement: public QbElement
         }
 
     public slots:
-        void setDegrees(float degrees);
+        void setDegrees(qreal degrees);
         void resetDegrees();
         QbPacket iStream(const QbPacket &packet);
 };

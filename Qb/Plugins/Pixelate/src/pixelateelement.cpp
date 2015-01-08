@@ -52,8 +52,8 @@ QbPacket PixelateElement::iStream(const QbPacket &packet)
     if (oFrame.isNull())
         return QbPacket();
 
-    float sw = 1.0 / this->m_blockSize.width();
-    float sh = 1.0 / this->m_blockSize.height();
+    qreal sw = 1.0 / this->m_blockSize.width();
+    qreal sh = 1.0 / this->m_blockSize.height();
 
     oFrame = oFrame.scaled(sw * oFrame.width(),
                            sh * oFrame.height(),

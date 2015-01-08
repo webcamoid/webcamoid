@@ -66,7 +66,7 @@ QRgb ColorReplaceElement::to() const
     return this->m_to;
 }
 
-float ColorReplaceElement::radius() const
+qreal ColorReplaceElement::radius() const
 {
     return this->m_radius;
 }
@@ -92,7 +92,7 @@ void ColorReplaceElement::setTo(QRgb to)
     }
 }
 
-void ColorReplaceElement::setRadius(float radius)
+void ColorReplaceElement::setRadius(qreal radius)
 {
     if (radius != this->m_radius) {
         this->m_radius = radius;
@@ -159,10 +159,10 @@ QbPacket ColorReplaceElement::iStream(const QbPacket &packet)
         int gd = g - gf;
         int bd = b - bf;
 
-        float k = sqrt(rd * rd + gd * gd + bd * bd);
+        qreal k = sqrt(rd * rd + gd * gd + bd * bd);
 
         if (k <= this->m_radius) {
-            float p = k / this->m_radius;
+            qreal p = k / this->m_radius;
 
             int rt = qRed(this->m_to);
             int gt = qGreen(this->m_to);

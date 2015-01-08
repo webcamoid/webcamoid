@@ -75,17 +75,17 @@ int FireElement::cool() const
     return this->m_cool;
 }
 
-float FireElement::disolve() const
+qreal FireElement::disolve() const
 {
     return this->m_disolve;
 }
 
-float FireElement::blur() const
+qreal FireElement::blur() const
 {
     return this->m_blur;
 }
 
-float FireElement::zoom() const
+qreal FireElement::zoom() const
 {
     return this->m_zoom;
 }
@@ -168,7 +168,7 @@ QImage FireElement::imageDiff(const QImage &img1,
     return diff;
 }
 
-QImage FireElement::zoomImage(const QImage &src, float factor)
+QImage FireElement::zoomImage(const QImage &src, qreal factor)
 {
     QImage scaled = src.scaled(src.width(),
                                (1 + factor) * src.height());
@@ -210,7 +210,7 @@ void FireElement::imageAlphaDiff(const QImage &src, int alphaDiff)
     }
 }
 
-void FireElement::disolveImage(const QImage &src, float amount)
+void FireElement::disolveImage(const QImage &src, qreal amount)
 {
     int videoArea = src.width() * src.height();
     int n = amount * videoArea;
@@ -226,7 +226,7 @@ void FireElement::disolveImage(const QImage &src, float amount)
     }
 }
 
-QImage FireElement::blurImage(const QImage &src, float factor)
+QImage FireElement::blurImage(const QImage &src, qreal factor)
 {
     QGraphicsScene scene;
     QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(src));
@@ -301,7 +301,7 @@ void FireElement::setCool(int cool)
     }
 }
 
-void FireElement::setDisolve(float disolve)
+void FireElement::setDisolve(qreal disolve)
 {
     if (disolve != this->m_disolve) {
         this->m_disolve = disolve;
@@ -309,7 +309,7 @@ void FireElement::setDisolve(float disolve)
     }
 }
 
-void FireElement::setBlur(float blur)
+void FireElement::setBlur(qreal blur)
 {
     if (blur != this->m_blur) {
         this->m_blur = blur;
@@ -317,7 +317,7 @@ void FireElement::setBlur(float blur)
     }
 }
 
-void FireElement::setZoom(float zoom)
+void FireElement::setZoom(qreal zoom)
 {
     if (zoom != this->m_zoom) {
         this->m_zoom = zoom;

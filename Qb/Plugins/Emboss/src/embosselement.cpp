@@ -52,17 +52,17 @@ QObject *EmbossElement::controlInterface(QQmlEngine *engine, const QString &cont
     return item;
 }
 
-float EmbossElement::factor() const
+qreal EmbossElement::factor() const
 {
     return this->m_factor;
 }
 
-float EmbossElement::bias() const
+qreal EmbossElement::bias() const
 {
     return this->m_bias;
 }
 
-void EmbossElement::setFactor(float factor)
+void EmbossElement::setFactor(qreal factor)
 {
     if (factor != this->m_factor) {
         this->m_factor = factor;
@@ -70,7 +70,7 @@ void EmbossElement::setFactor(float factor)
     }
 }
 
-void EmbossElement::setBias(float bias)
+void EmbossElement::setBias(qreal bias)
 {
     if (bias != this->m_bias) {
         this->m_bias = bias;

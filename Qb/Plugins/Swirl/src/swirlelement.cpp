@@ -29,12 +29,12 @@ SwirlElement::SwirlElement(): QbElement()
     this->resetDegrees();
 }
 
-float SwirlElement::degrees() const
+qreal SwirlElement::degrees() const
 {
     return this->m_degrees;
 }
 
-void SwirlElement::setDegrees(float degrees)
+void SwirlElement::setDegrees(qreal degrees)
 {
     this->m_degrees = degrees;
 }
@@ -54,34 +54,34 @@ QbPacket SwirlElement::iStream(const QbPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    float xScale = 1.0;
-    float yScale = 1.0;
-    float xCenter = src.width() >> 1;
-    float yCenter = src.height() >> 1;
-    float radius = qMax(xCenter, yCenter);
+    qreal xScale = 1.0;
+    qreal yScale = 1.0;
+    qreal xCenter = src.width() >> 1;
+    qreal yCenter = src.height() >> 1;
+    qreal radius = qMax(xCenter, yCenter);
 
     if (src.width() > src.height())
-        yScale = (float) src.width() / src.height();
+        yScale = (qreal) src.width() / src.height();
     else if (src.width() < src.height())
-        xScale = (float) src.height() / src.width();
+        xScale = (qreal) src.height() / src.width();
 
-    float degrees = M_PI * this->m_degrees / 180.0;
+    qreal degrees = M_PI * this->m_degrees / 180.0;
 
     for (int y = 0; y < src.height(); y++) {
         QRgb *srcBits = (QRgb *) src.scanLine(y);
         QRgb *destBits = (QRgb *) oFrame.scanLine(y);
-        float yDistance = yScale * (y - yCenter);
+        qreal yDistance = yScale * (y - yCenter);
 
         for (int x = 0; x < src.width(); x++) {
-            float xDistance = xScale * (x - xCenter);
-            float distance = xDistance * xDistance + yDistance * yDistance;
+            qreal xDistance = xScale * (x - xCenter);
+            qreal distance = xDistance * xDistance + yDistance * yDistance;
 
             if (distance >= (radius * radius))
                 *destBits = srcBits[x];
             else {
-                float factor = 1.0 - sqrt(distance) / radius;
-                float sine = sin(degrees * factor * factor);
-                float cosine = cos(degrees * factor * factor);
+                qreal factor = 1.0 - sqrt(distance) / radius;
+                qreal sine = sin(degrees * factor * factor);
+                qreal cosine = cos(degrees * factor * factor);
 
                 *destBits = this->interpolate(src,
                                           (cosine * xDistance - sine * yDistance) / xScale + xCenter,

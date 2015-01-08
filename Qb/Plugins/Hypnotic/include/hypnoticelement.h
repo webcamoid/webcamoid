@@ -66,7 +66,6 @@ class HypnoticElement: public QbElement
         int m_threshold;
 
         QbElementPtr m_convert;
-        QbCaps m_caps;
         QVector<QRgb> m_palette;
         OpticalMap m_opticalMap;
         quint8 m_speed;

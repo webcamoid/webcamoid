@@ -31,12 +31,12 @@
 class EmbossElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float factor
+    Q_PROPERTY(qreal factor
                READ factor
                WRITE setFactor
                RESET resetFactor
                NOTIFY factorChanged)
-    Q_PROPERTY(float bias
+    Q_PROPERTY(qreal bias
                READ bias
                WRITE setBias
                RESET resetBias
@@ -48,12 +48,12 @@ class EmbossElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE float factor() const;
-        Q_INVOKABLE float bias() const;
+        Q_INVOKABLE qreal factor() const;
+        Q_INVOKABLE qreal bias() const;
 
     private:
-        float m_factor;
-        float m_bias;
+        qreal m_factor;
+        qreal m_bias;
         QbElementPtr m_convert;
 
     signals:
@@ -61,8 +61,8 @@ class EmbossElement: public QbElement
         void biasChanged();
 
     public slots:
-        void setFactor(float factor);
-        void setBias(float bias);
+        void setFactor(qreal factor);
+        void setBias(qreal bias);
         void resetFactor();
         void resetBias();
         QbPacket iStream(const QbPacket &packet);

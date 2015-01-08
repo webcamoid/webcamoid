@@ -67,12 +67,12 @@ QSize DenoiseElement::scanSize() const
     return this->m_scanSize;
 }
 
-float DenoiseElement::mu() const
+qreal DenoiseElement::mu() const
 {
     return this->m_mu;
 }
 
-float DenoiseElement::sigma() const
+qreal DenoiseElement::sigma() const
 {
     return this->m_sigma;
 }
@@ -97,7 +97,7 @@ void DenoiseElement::setScanSize(const QSize &scanSize)
     }
 }
 
-void DenoiseElement::setMu(float mu)
+void DenoiseElement::setMu(qreal mu)
 {
     if (mu != this->m_mu) {
         this->m_mu = mu;
@@ -105,7 +105,7 @@ void DenoiseElement::setMu(float mu)
     }
 }
 
-void DenoiseElement::setSigma(float sigma)
+void DenoiseElement::setSigma(qreal sigma)
 {
     if (sigma != this->m_sigma) {
         this->m_sigma = sigma;

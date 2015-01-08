@@ -81,7 +81,7 @@ QVector<int> DelayGrabElement::createDelaymap(DelayGrabMode mode)
         for (int x = this->m_delayMapWidth; x > 0; i++, x--) {
             // Random delay with square distribution
             if (mode == DelayGrabModeRandomSquare) {
-                float d = (float) qrand() / RAND_MAX;
+                qreal d = (qreal) qrand() / RAND_MAX;
                 delayMap[i] = 16.0 * d * d;
             }
             // Vertical stripes of increasing delay outward from center

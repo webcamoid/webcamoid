@@ -37,8 +37,8 @@ class RadioactiveElement: public QbElement
     Q_OBJECT
     Q_ENUMS(RadiationMode)
     Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(float blur READ blur WRITE setBlur RESET resetBlur)
-    Q_PROPERTY(float zoom READ zoom WRITE setZoom RESET resetZoom)
+    Q_PROPERTY(qreal blur READ blur WRITE setBlur RESET resetBlur)
+    Q_PROPERTY(qreal zoom READ zoom WRITE setZoom RESET resetZoom)
     Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
     Q_PROPERTY(int lumaThreshold READ lumaThreshold WRITE setLumaThreshold RESET resetLumaThreshold)
     Q_PROPERTY(int alphaDiff READ alphaDiff WRITE setAlphaDiff RESET resetAlphaDiff)
@@ -55,8 +55,8 @@ class RadioactiveElement: public QbElement
 
         explicit RadioactiveElement();
         Q_INVOKABLE QString mode() const;
-        Q_INVOKABLE float blur() const;
-        Q_INVOKABLE float zoom() const;
+        Q_INVOKABLE qreal blur() const;
+        Q_INVOKABLE qreal zoom() const;
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int lumaThreshold() const;
         Q_INVOKABLE int alphaDiff() const;
@@ -64,8 +64,8 @@ class RadioactiveElement: public QbElement
 
     private:
         RadiationMode m_mode;
-        float m_blur;
-        float m_zoom;
+        qreal m_blur;
+        qreal m_zoom;
         int m_threshold;
         int m_lumaThreshold;
         int m_alphaDiff;
@@ -88,8 +88,8 @@ class RadioactiveElement: public QbElement
 
     public slots:
         void setMode(const QString &mode);
-        void setBlur(float blur);
-        void setZoom(float zoom);
+        void setBlur(qreal blur);
+        void setZoom(qreal zoom);
         void setThreshold(int threshold);
         void setLumaThreshold(int lumaThreshold);
         void setAlphaDiff(int alphaDiff);

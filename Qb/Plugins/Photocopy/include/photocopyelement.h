@@ -30,22 +30,22 @@
 class PhotocopyElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float brightness READ brightness WRITE setBrightness RESET resetBrightness)
-    Q_PROPERTY(float sharpness READ sharpness WRITE setSharpness RESET resetSharpness)
+    Q_PROPERTY(qreal brightness READ brightness WRITE setBrightness RESET resetBrightness)
+    Q_PROPERTY(qreal sharpness READ sharpness WRITE setSharpness RESET resetSharpness)
     Q_PROPERTY(int sigmoidalBase READ sigmoidalBase WRITE setSigmoidalBase RESET resetSigmoidalBase)
     Q_PROPERTY(int sigmoidalRange READ sigmoidalRange WRITE setSigmoidalRange RESET resetSigmoidalRange)
 
     public:
         explicit PhotocopyElement();
 
-        Q_INVOKABLE float brightness() const;
-        Q_INVOKABLE float sharpness() const;
+        Q_INVOKABLE qreal brightness() const;
+        Q_INVOKABLE qreal sharpness() const;
         Q_INVOKABLE int sigmoidalBase() const;
         Q_INVOKABLE int sigmoidalRange() const;
 
     private:
-        float m_brightness;
-        float m_sharpness;
+        qreal m_brightness;
+        qreal m_sharpness;
         int m_sigmoidalBase;
         int m_sigmoidalRange;
 
@@ -69,8 +69,8 @@ class PhotocopyElement: public QbElement
         }
 
     public slots:
-        void setBrightness(float brightness);
-        void setSharpness(float sharpness);
+        void setBrightness(qreal brightness);
+        void setSharpness(qreal sharpness);
         void setSigmoidalBase(int sigmoidalBase);
         void setSigmoidalRange(int sigmoidalRange);
         void resetBrightness();

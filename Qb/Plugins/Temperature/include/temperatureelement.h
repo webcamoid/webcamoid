@@ -30,22 +30,22 @@
 class TemperatureElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float temperature READ temperature WRITE setTemperature RESET resetTemperature)
+    Q_PROPERTY(qreal temperature READ temperature WRITE setTemperature RESET resetTemperature)
 
     public:
         explicit TemperatureElement();
 
-        Q_INVOKABLE float temperature() const;
+        Q_INVOKABLE qreal temperature() const;
 
     private:
-        float m_temperature;
+        qreal m_temperature;
 
         QbElementPtr m_convert;
-        float m_kr;
-        float m_kg;
-        float m_kb;
+        qreal m_kr;
+        qreal m_kg;
+        qreal m_kb;
 
-        inline void colorFromTemperature(float temperature, float *r, float *g, float *b)
+        inline void colorFromTemperature(qreal temperature, qreal *r, qreal *g, qreal *b)
         {
             // This algorithm was taken from here:
             // http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
@@ -75,7 +75,7 @@ class TemperatureElement: public QbElement
         }
 
     public slots:
-        void setTemperature(float temperature);
+        void setTemperature(qreal temperature);
         void resetTemperature();
         QbPacket iStream(const QbPacket &packet);
 };

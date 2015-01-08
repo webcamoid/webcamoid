@@ -31,29 +31,29 @@ VignetteElement::VignetteElement(): QbElement()
     this->resetSoftness();
 }
 
-float VignetteElement::aspect() const
+qreal VignetteElement::aspect() const
 {
     return this->m_aspect;
 }
 
-float VignetteElement::clearCenter() const
+qreal VignetteElement::clearCenter() const
 {
     return this->m_clearCenter;
 }
 
-float VignetteElement::softness() const
+qreal VignetteElement::softness() const
 {
     return this->m_softness;
 }
 
-QVector<float> VignetteElement::updateVignette(int width, int height)
+QVector<qreal> VignetteElement::updateVignette(int width, int height)
 {
-    float soft = 5 * pow(1.0 - this->m_softness, 2) + 0.01;
-    float scaleX = 1;
-    float scaleY = 1;
+    qreal soft = 5 * pow(1.0 - this->m_softness, 2) + 0.01;
+    qreal scaleX = 1;
+    qreal scaleY = 1;
 
     // Distance from 0.5 (\in [0,0.5]) scaled to [0,1]
-    float scale = fabs(this->m_aspect - 0.5) * 2;
+    qreal scale = fabs(this->m_aspect - 0.5) * 2;
 
     // Map scale to [0,5] in a way that values near 0 can be adjusted more precisely
     scale = 1 + 4 * pow(scale, 3);
@@ -66,16 +66,16 @@ QVector<float> VignetteElement::updateVignette(int width, int height)
 
     int cx = width >> 1;
     int cy = height >> 1;
-    float rmax = sqrt(cx * cx + cy * cy);
+    qreal rmax = sqrt(cx * cx + cy * cy);
 
-    QVector<float> vignette(width * height);
+    QVector<qreal> vignette(width * height);
 
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
             // Euclidian distance to the center, normalized to [0,1]
-            float tx = scaleX * (x - cx);
-            float ty = scaleY * (y - cy);
-            float r = sqrt(tx * tx + ty * ty) / rmax;
+            qreal tx = scaleX * (x - cx);
+            qreal ty = scaleY * (y - cy);
+            qreal r = sqrt(tx * tx + ty * ty) / rmax;
 
             // Subtract the clear center
             r -= this->m_clearCenter;
@@ -96,17 +96,17 @@ QVector<float> VignetteElement::updateVignette(int width, int height)
     return vignette;
 }
 
-void VignetteElement::setAspect(float aspect)
+void VignetteElement::setAspect(qreal aspect)
 {
     this->m_aspect = aspect;
 }
 
-void VignetteElement::setClearCenter(float clearCenter)
+void VignetteElement::setClearCenter(qreal clearCenter)
 {
     this->m_clearCenter = clearCenter;
 }
 
-void VignetteElement::setSoftness(float softness)
+void VignetteElement::setSoftness(qreal softness)
 {
     this->m_softness = softness;
 }

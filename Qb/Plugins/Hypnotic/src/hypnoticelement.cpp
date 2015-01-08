@@ -108,19 +108,19 @@ OpticalMap HypnoticElement::createOpticalMap(int width, int height)
     opticalMapPtr["horizontalStripe"] = (quint8 *) opticalMap["horizontalStripe"].bits();
 
     for (int y = 0; y < height; y++) {
-        float yy = (float) (y - height / 2) / width;
+        qreal yy = (qreal) (y - height / 2) / width;
 
         for (int x = 0; x < width; x++) {
-            float xx = (float) x / width - 0.5;
+            qreal xx = (qreal) x / width - 0.5;
 
-            float r = sqrt(xx * xx + yy * yy);
-            float at = atan2(xx, yy);
+            qreal r = sqrt(xx * xx + yy * yy);
+            qreal at = atan2(xx, yy);
 
             opticalMapPtr["spiral1"][i] = ((unsigned int)
                 ((at / M_PI * 256) + (r * 4000))) & 255;
 
             int j = r * 300 / 32;
-            float rr = r * 300 - j * 32;
+            qreal rr = r * 300 - j * 32;
 
             j *= 64;
             j += (rr > 28)? (rr - 28) * 16: 0;
@@ -206,17 +206,18 @@ QbPacket HypnoticElement::iStream(const QbPacket &packet)
         return QbPacket();
 
     QImage oFrame(src.size(), src.format());
-
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    if (packet.caps() != this->m_caps) {
+    static QbCaps caps;
+
+    if (packet.caps() != caps) {
         this->m_speed = 16;
         this->m_phase = 0;
 
         this->m_opticalMap = this->createOpticalMap(src.width(),
                                                     src.height());
 
-        this->m_caps = packet.caps();
+        caps = packet.caps();
     }
 
     quint8 *opticalMap;

@@ -41,7 +41,7 @@ class FrameGrabber: public QObject, public ISampleGrabberCB
         STDMETHODIMP BufferCB(double time, BYTE *buffer, long bufferSize);
 
     signals:
-        void frameReady(float time, const QByteArray &packet);
+        void frameReady(qreal time, const QByteArray &packet);
 };
 
 #endif // FRAMEGRABBER_H

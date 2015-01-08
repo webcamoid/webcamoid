@@ -54,7 +54,7 @@ QObject *CinemaElement::controlInterface(QQmlEngine *engine, const QString &cont
     return item;
 }
 
-float CinemaElement::stripSize() const
+qreal CinemaElement::stripSize() const
 {
     return this->m_stripSize;
 }
@@ -64,7 +64,7 @@ QRgb CinemaElement::stripColor() const
     return this->m_stripColor;
 }
 
-void CinemaElement::setStripSize(float stripSize)
+void CinemaElement::setStripSize(qreal stripSize)
 {
     if (stripSize != this->m_stripSize) {
         this->m_stripSize = stripSize;
@@ -102,7 +102,7 @@ QbPacket CinemaElement::iStream(const QbPacket &packet)
     int cy = src.height() >> 1;
 
     for (int y = 0; y < src.height(); y++) {
-        float k = 1.0 - fabs(y - cy) / cy;
+        qreal k = 1.0 - fabs(y - cy) / cy;
         QRgb *iLine = (QRgb *) src.scanLine(y);
         QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 
@@ -110,7 +110,7 @@ QbPacket CinemaElement::iStream(const QbPacket &packet)
             memcpy(oLine, iLine, src.bytesPerLine());
         else
             for (int x = 0; x < src.width(); x++) {
-                float a = qAlpha(this->m_stripColor) / 255.0;
+                qreal a = qAlpha(this->m_stripColor) / 255.0;
 
                 int r = a * (qRed(this->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]);
                 int g = a * (qGreen(this->m_stripColor) - qGreen(iLine[x])) + qGreen(iLine[x]);

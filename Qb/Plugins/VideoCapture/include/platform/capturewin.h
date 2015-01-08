@@ -112,7 +112,7 @@ class Capture: public QObject
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
         MediaControlPtr m_control;
-        float m_curTime;
+        qreal m_curTime;
         QByteArray m_curBuffer;
         QMutex m_mutex;
         QWaitCondition m_waitCondition;
@@ -191,7 +191,7 @@ class Capture: public QObject
         void reset(const QString &webcam);
 
     private slots:
-        void frameReceived(float time, const QByteArray &buffer);
+        void frameReceived(qreal time, const QByteArray &buffer);
 };
 
 #endif // CAPTURE_H

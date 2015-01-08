@@ -19,30 +19,18 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef MATRIXTRANSFORMELEMENT_H
-#define MATRIXTRANSFORMELEMENT_H
+#include "charify.h"
+#include "charifyelement.h"
 
-#include <qb.h>
-#include <qbutils.h>
-
-class MatrixTransformElement: public QbElement
+QObject *Charify::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_PROPERTY(QVariantList kernel READ kernel WRITE setKernel RESET resetKernel)
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        explicit MatrixTransformElement();
-        Q_INVOKABLE QVariantList kernel() const;
+    return new CharifyElement();
+}
 
-    private:
-        QVector<qreal> m_kernel;
-
-        QbElementPtr m_convert;
-
-    public slots:
-        void setKernel(const QVariantList &kernel);
-        void resetKernel();
-        QbPacket iStream(const QbPacket &packet);
-};
-
-#endif // MATRIXTRANSFORMELEMENT_H
+QStringList Charify::keys() const
+{
+    return QStringList();
+}

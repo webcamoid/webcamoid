@@ -31,9 +31,9 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/matrix.h \
-    include/matrixelement.h \
-    include/blip.h
+    include/charify.h \
+    include/charifyelement.h \
+    include/character.h
 
 INCLUDEPATH += \
     include \
@@ -44,15 +44,14 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml
+QT += qml widgets
 
 RESOURCES += \
-    Matrix.qrc
+    Charify.qrc
 
 SOURCES += \
-    src/matrix.cpp \
-    src/matrixelement.cpp \
-    src/blip.cpp
+    src/charify.cpp \
+    src/charifyelement.cpp
 
 DESTDIR = $${PWD}
 

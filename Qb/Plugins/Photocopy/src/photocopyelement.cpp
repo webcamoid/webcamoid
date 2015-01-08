@@ -30,12 +30,12 @@ PhotocopyElement::PhotocopyElement(): QbElement()
     this->resetSharpness();
 }
 
-float PhotocopyElement::brightness() const
+qreal PhotocopyElement::brightness() const
 {
     return this->m_brightness;
 }
 
-float PhotocopyElement::sharpness() const
+qreal PhotocopyElement::sharpness() const
 {
     return this->m_sharpness;
 }
@@ -50,12 +50,12 @@ int PhotocopyElement::sigmoidalBase() const
     return this->m_sigmoidalBase;
 }
 
-void PhotocopyElement::setBrightness(float brightness)
+void PhotocopyElement::setBrightness(qreal brightness)
 {
     this->m_brightness = brightness;
 }
 
-void PhotocopyElement::setSharpness(float sharpness)
+void PhotocopyElement::setSharpness(qreal sharpness)
 {
     this->m_sharpness = sharpness;
 }
@@ -114,7 +114,7 @@ QbPacket PhotocopyElement::iStream(const QbPacket &packet)
         int luma = this->rgbToLuma(r, g, b);
 
         //compute sigmoidal transfer
-        float val = luma / 255.0;
+        qreal val = luma / 255.0;
         val = 255.0 / (1 + exp((this->m_sigmoidalBase + this->m_sharpness * this->m_sigmoidalRange) * (0.5 - val)));
         val = val * this->m_brightness;
         luma = qBound(0, (int) val, 255);

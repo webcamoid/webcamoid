@@ -30,22 +30,22 @@
 class WarpElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(float ripples READ ripples WRITE setRipples RESET resetRipples)
+    Q_PROPERTY(qreal ripples READ ripples WRITE setRipples RESET resetRipples)
 
     public:
         explicit WarpElement();
 
-        float ripples() const;
+        qreal ripples() const;
 
     private:
-        float m_ripples;
+        qreal m_ripples;
 
         QbElementPtr m_convert;
         QbCaps m_caps;
-        QVector<float> m_phiTable;
+        QVector<qreal> m_phiTable;
 
     public slots:
-        void setRipples(float ripples);
+        void setRipples(qreal ripples);
         void resetRipples();
 
         QbPacket iStream(const QbPacket &packet);
