@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/Matrix">
         <file>share/qml/main.qml</file>
-        <file>share/fonts/matrixFont.xpm</file>
-        <file>share/fonts/matrixfont.png</file>
     </qresource>
 </RCC>

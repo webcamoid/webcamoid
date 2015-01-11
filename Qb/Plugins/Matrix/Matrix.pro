@@ -33,7 +33,8 @@ CONFIG += plugin
 HEADERS += \
     include/matrix.h \
     include/matrixelement.h \
-    include/blip.h
+    include/character.h \
+    include/raindrop.h
 
 INCLUDEPATH += \
     include \
@@ -44,7 +45,7 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml
+QT += qml widgets
 
 RESOURCES += \
     Matrix.qrc
@@ -52,7 +53,7 @@ RESOURCES += \
 SOURCES += \
     src/matrix.cpp \
     src/matrixelement.cpp \
-    src/blip.cpp
+    src/raindrop.cpp
 
 DESTDIR = $${PWD}
 

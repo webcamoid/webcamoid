@@ -21,6 +21,8 @@
 
 import QtQuick 2.3
 import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
+import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
 GridLayout {
@@ -31,81 +33,218 @@ GridLayout {
         return str.length < 1? 0: parseFloat(str)
     }
 
-    function strToSize(str)
+    function fromRgba(rgba)
     {
-        if (str.length < 1)
-            return Qt.size()
+        var a = ((rgba >> 24) & 0xff) / 255.0
+        var r = ((rgba >> 16) & 0xff) / 255.0
+        var g = ((rgba >> 8) & 0xff) / 255.0
+        var b = (rgba & 0xff) / 255.0
 
-        var size = str.split("x")
+        return Qt.rgba(r, g, b, a)
+    }
 
-        if (size.length < 2)
-            return Qt.size()
+    function toRgba(color)
+    {
+        var a = Math.round(255 * color.a) << 24
+        var r = Math.round(255 * color.r) << 16
+        var g = Math.round(255 * color.g) << 8
+        var b = Math.round(255 * color.b)
 
-        return Qt.size(size[0], size[1])
+        return a | r | g | b
+    }
+
+    function invert(color) {
+        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
     }
 
     Label {
-        text: qsTr("Mode")
-    }
-    ComboBox {
-        currentIndex: Matrix.mode
-        model: [0, 1]
-
-        onCurrentIndexChanged: Matrix.mode = currentIndex
-    }
-
-    Label {
-        text: qsTr("N° of characters")
+        text: qsTr("N° of drops")
     }
     TextField {
-        text: Matrix.nChars
+        text: Matrix.nDrops
         validator: RegExpValidator {
             regExp: /\d+/
         }
 
-        onTextChanged: Matrix.nChars = strToFloat(text)
+        onTextChanged: Matrix.nDrops = strToFloat(text)
     }
 
     Label {
-        text: qsTr("Font size")
+        text: qsTr("Symbols")
     }
     TextField {
-        text: Matrix.fontSize.width + "x" + Matrix.fontSize.height
-        validator: RegExpValidator {
-            regExp: /\d+x\d+/
+        text: Matrix.charTable
+        onTextChanged: Matrix.charTable = text
+    }
+
+    Label {
+        text: qsTr("Font")
+    }
+    RowLayout {
+        TextField {
+            id: txtTable
+            text: Matrix.font.family + " " + Matrix.font.pointSize
+            readOnly: true
+            font: Matrix.font
+            Layout.fillWidth: true
+        }
+        Button {
+            text: qsTr("...")
+
+            onClicked: fontDialog.open()
+        }
+    }
+
+    Label {
+        text: qsTr("Cursor color")
+    }
+    Button {
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+
+        style: ButtonStyle {
+            background: Rectangle {
+                color: fromRgba(Matrix.cursorColor)
+                border.color: invert(color)
+                border.width: 1
+            }
         }
 
-        onTextChanged: Matrix.fontSize = strToSize(text)
+        function setColor(color)
+        {
+             Matrix.cursorColor = toRgba(color)
+        }
+
+        onClicked: {
+            colorDialog.caller = this
+            colorDialog.currentColor = fromRgba(Matrix.cursorColor)
+            colorDialog.open()
+        }
     }
 
     Label {
-        text: qsTr("Font depth")
+        text: qsTr("Foreground color")
+    }
+    Button {
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+
+        style: ButtonStyle {
+            background: Rectangle {
+                color: fromRgba(Matrix.foregroundColor)
+                border.color: invert(color)
+                border.width: 1
+            }
+        }
+
+        function setColor(color)
+        {
+             Matrix.foregroundColor = toRgba(color)
+        }
+
+        onClicked: {
+            colorDialog.caller = this
+            colorDialog.currentColor = fromRgba(Matrix.foregroundColor)
+            colorDialog.open()
+        }
+    }
+
+    Label {
+        text: qsTr("Background color")
+    }
+    Button {
+        Layout.preferredWidth: 32
+        Layout.preferredHeight: 32
+
+        style: ButtonStyle {
+            background: Rectangle {
+                color: fromRgba(Matrix.backgroundColor)
+                border.color: invert(color)
+                border.width: 1
+            }
+        }
+
+        function setColor(color)
+        {
+             Matrix.backgroundColor = toRgba(color)
+        }
+
+        onClicked: {
+            colorDialog.caller = this
+            colorDialog.currentColor = fromRgba(Matrix.backgroundColor)
+            colorDialog.open()
+        }
+    }
+
+    Label {
+        text: qsTr("Min. drop length")
     }
     TextField {
-        text: Matrix.fontDepth
+        text: Matrix.minDropLength
         validator: RegExpValidator {
             regExp: /\d+/
         }
 
-        onTextChanged: Matrix.fontDepth = strToFloat(text)
+        onTextChanged: Matrix.minDropLength = strToFloat(text)
     }
 
     Label {
-        text: qsTr("White level")
+        text: qsTr("Max. drop length")
     }
     TextField {
-        text: Matrix.white
+        text: Matrix.maxDropLength
         validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            regExp: /\d+/
         }
 
-        onTextChanged: Matrix.white = strToFloat(text)
+        onTextChanged: Matrix.maxDropLength = strToFloat(text)
+    }
+
+    Label {
+        text: qsTr("Min. speed")
+    }
+    TextField {
+        text: Matrix.minSpeed
+        validator: RegExpValidator {
+            regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
+        }
+
+        onTextChanged: Matrix.minSpeed = strToFloat(text)
+    }
+
+    Label {
+        text: qsTr("Max. speed")
+    }
+    TextField {
+        text: Matrix.maxSpeed
+        validator: RegExpValidator {
+            regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
+        }
+
+        onTextChanged: Matrix.maxSpeed = strToFloat(text)
     }
 
     CheckBox {
-        text: qsTr("pause")
-        checked: Matrix.pause
+        text: qsTr("Show cursor")
+        checked: Matrix.showCursor
 
-        onCheckedChanged: Matrix.pause = checked
+        onCheckedChanged: Matrix.showCursor = checked
+    }
+
+    FontDialog {
+        id: fontDialog
+        title: qsTr("Please choose a font")
+        font: Matrix.font
+
+        onAccepted: Matrix.font = font
+    }
+
+    ColorDialog {
+        id: colorDialog
+        title: qsTr("Choose a color")
+
+        property Item caller: null
+
+        onAccepted: caller.setColor(color)
     }
 }

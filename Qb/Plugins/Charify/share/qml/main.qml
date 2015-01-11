@@ -65,7 +65,6 @@ GridLayout {
         return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
     }
 
-    // Fire mode.
     Label {
         text: qsTr("Mode")
     }
@@ -113,7 +112,6 @@ GridLayout {
         }
     }
 
-    // Configure strip color.
     Label {
         text: qsTr("Foreground color")
     }
@@ -132,7 +130,6 @@ GridLayout {
         onClicked: foregroundColorDialog.open()
     }
 
-    // Configure strip color.
     Label {
         text: qsTr("Background color")
     }
@@ -151,7 +148,6 @@ GridLayout {
         onClicked: backgroundColorDialog.open()
     }
 
-    // Equalize
     CheckBox {
         text: qsTr("Reversed")
         checked: Charify.reversed

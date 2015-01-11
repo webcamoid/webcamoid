@@ -22,13 +22,9 @@
 #ifndef CHARIFYELEMENT_H
 #define CHARIFYELEMENT_H
 
-#include <QGraphicsScene>
-#include <QGraphicsBlurEffect>
-#include <QGraphicsPixmapItem>
 #include <QPainter>
 #include <QQmlComponent>
 #include <QQmlContext>
-
 #include <qb.h>
 #include <qbutils.h>
 
