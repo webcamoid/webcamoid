@@ -22,26 +22,39 @@
 #ifndef PRIMARIESCOLORSELEMENT_H
 #define PRIMARIESCOLORSELEMENT_H
 
-#include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class PrimariesColorsElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int factor READ factor WRITE setFactor RESET resetFactor)
+    Q_PROPERTY(int factor
+               READ factor
+               WRITE setFactor
+               RESET resetFactor
+               NOTIFY factorChanged)
 
     public:
         explicit PrimariesColorsElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE int factor() const;
 
     private:
         int m_factor;
         QbElementPtr m_convert;
 
+    signals:
+        void factorChanged();
+
     public slots:
         void setFactor(int factor);
         void resetFactor();
+
         QbPacket iStream(const QbPacket &packet);
 };
 

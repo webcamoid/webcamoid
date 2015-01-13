@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Photocopy.qrc
+
 SOURCES += \
     src/photocopy.cpp \
     src/photocopyelement.cpp

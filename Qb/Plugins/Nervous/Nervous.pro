@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Nervous.qrc
+
 SOURCES += \
     src/nervous.cpp \
     src/nervouselement.cpp

@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    MatrixTransform.qrc
+
 SOURCES += \
     src/matrixtransform.cpp \
     src/matrixtransformelement.cpp

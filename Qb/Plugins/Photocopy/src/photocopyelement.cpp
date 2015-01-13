@@ -27,7 +27,29 @@ PhotocopyElement::PhotocopyElement(): QbElement()
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
     this->resetBrightness();
-    this->resetSharpness();
+    this->resetContrast();
+}
+
+QObject *PhotocopyElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Photocopy/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Photocopy", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 qreal PhotocopyElement::brightness() const
@@ -35,39 +57,25 @@ qreal PhotocopyElement::brightness() const
     return this->m_brightness;
 }
 
-qreal PhotocopyElement::sharpness() const
+qreal PhotocopyElement::contrast() const
 {
-    return this->m_sharpness;
-}
-
-int PhotocopyElement::sigmoidalRange() const
-{
-    return this->m_sigmoidalRange;
-}
-
-int PhotocopyElement::sigmoidalBase() const
-{
-    return this->m_sigmoidalBase;
+    return this->m_contrast;
 }
 
 void PhotocopyElement::setBrightness(qreal brightness)
 {
-    this->m_brightness = brightness;
+    if (brightness != this->m_brightness) {
+        this->m_brightness = brightness;
+        emit this->brightnessChanged();
+    }
 }
 
-void PhotocopyElement::setSharpness(qreal sharpness)
+void PhotocopyElement::setContrast(qreal contrast)
 {
-    this->m_sharpness = sharpness;
-}
-
-void PhotocopyElement::setSigmoidalBase(int sigmoidalBase)
-{
-    this->m_sigmoidalBase = sigmoidalBase;
-}
-
-void PhotocopyElement::setSigmoidalRange(int sigmoidalRange)
-{
-    this->m_sigmoidalRange = sigmoidalRange;
+    if (contrast != this->m_contrast) {
+        this->m_contrast = contrast;
+        emit this->contrastChanged();
+    }
 }
 
 void PhotocopyElement::resetBrightness()
@@ -75,19 +83,9 @@ void PhotocopyElement::resetBrightness()
     this->setBrightness(0.75);
 }
 
-void PhotocopyElement::resetSharpness()
+void PhotocopyElement::resetContrast()
 {
-    this->setSharpness(0.85);
-}
-
-void PhotocopyElement::resetSigmoidalBase()
-{
-    this->setSigmoidalBase(2);
-}
-
-void PhotocopyElement::resetSigmoidalRange()
-{
-    this->setSigmoidalRange(20);
+    this->setContrast(20);
 }
 
 QbPacket PhotocopyElement::iStream(const QbPacket &packet)
@@ -115,7 +113,7 @@ QbPacket PhotocopyElement::iStream(const QbPacket &packet)
 
         //compute sigmoidal transfer
         qreal val = luma / 255.0;
-        val = 255.0 / (1 + exp((this->m_sigmoidalBase + this->m_sharpness * this->m_sigmoidalRange) * (0.5 - val)));
+        val = 255.0 / (1 + exp(this->m_contrast * (0.5 - val)));
         val = val * this->m_brightness;
         luma = qBound(0, (int) val, 255);
 

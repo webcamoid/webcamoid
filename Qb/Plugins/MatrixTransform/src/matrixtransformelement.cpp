@@ -29,6 +29,29 @@ MatrixTransformElement::MatrixTransformElement(): QbElement()
     this->resetKernel();
 }
 
+QObject *MatrixTransformElement::controlInterface(QQmlEngine *engine,
+                                                  const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/MatrixTransform/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("MatrixTransform", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QVariantList MatrixTransformElement::kernel() const
 {
     QVariantList kernel;
@@ -41,18 +64,25 @@ QVariantList MatrixTransformElement::kernel() const
 
 void MatrixTransformElement::setKernel(const QVariantList &kernel)
 {
-    this->m_kernel.clear();
+    QVector<qreal> k;
 
     foreach (QVariant e, kernel)
-        this->m_kernel << e.toReal();
+        k << e.toReal();
+
+    if (k != this->m_kernel) {
+        this->m_kernel = k;
+        emit this->kernelChanged();
+    }
 }
 
 void MatrixTransformElement::resetKernel()
 {
-    this->m_kernel.clear();
+    QVariantList kernel;
 
-    this->m_kernel << 1 << 0 << 0
-                   << 0 << 1 << 0;
+    kernel << 1 << 0 << 0
+           << 0 << 1 << 0;
+
+    this->setKernel(kernel);
 }
 
 QbPacket MatrixTransformElement::iStream(const QbPacket &packet)

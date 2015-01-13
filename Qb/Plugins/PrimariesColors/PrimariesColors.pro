@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    PrimariesColors.qrc
+
 SOURCES += \
     src/primariescolors.cpp \
     src/primariescolorselement.cpp

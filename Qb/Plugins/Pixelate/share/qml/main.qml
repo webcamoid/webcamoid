@@ -19,42 +19,36 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef PIXELATEELEMENT_H
-#define PIXELATEELEMENT_H
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
+import QbQml 1.0
 
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <qb.h>
-#include <qbutils.h>
+GridLayout {
+    columns: 2
 
-class PixelateElement: public QbElement
-{
-    Q_OBJECT
-    Q_PROPERTY(QSize blockSize
-               READ blockSize
-               WRITE setBlockSize
-               RESET resetBlockSize
-               NOTIFY blockSizeChanged)
+    function strToSize(str)
+    {
+        if (str.length < 1)
+            return Qt.size()
 
-    public:
-        explicit PixelateElement();
+        var size = str.split("x")
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
+        if (size.length < 2)
+            return Qt.size()
 
-        Q_INVOKABLE QSize blockSize() const;
+        return Qt.size(size[0], size[1])
+    }
 
-    private:
-        QSize m_blockSize;
-        QbElementPtr m_convert;
+    Label {
+        text: qsTr("Block size")
+    }
+    TextField {
+        text: Pixelate.blockSize.width + "x" + Pixelate.blockSize.height
+        validator: RegExpValidator {
+            regExp: /\d+x\d+/
+        }
 
-    signals:
-        void blockSizeChanged();
-
-    public slots:
-        void setBlockSize(const QSize &blockSize);
-        void resetBlockSize();
-        QbPacket iStream(const QbPacket &packet);
-};
-
-#endif // PIXELATEELEMENT_H
+        onTextChanged: Pixelate.blockSize = strToSize(text)
+    }
+}

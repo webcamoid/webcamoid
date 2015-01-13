@@ -23,31 +23,37 @@
 #define PHOTOCOPYELEMENT_H
 
 #include <cmath>
-#include <qrgb.h>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class PhotocopyElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal brightness READ brightness WRITE setBrightness RESET resetBrightness)
-    Q_PROPERTY(qreal sharpness READ sharpness WRITE setSharpness RESET resetSharpness)
-    Q_PROPERTY(int sigmoidalBase READ sigmoidalBase WRITE setSigmoidalBase RESET resetSigmoidalBase)
-    Q_PROPERTY(int sigmoidalRange READ sigmoidalRange WRITE setSigmoidalRange RESET resetSigmoidalRange)
+    Q_PROPERTY(qreal brightness
+               READ brightness
+               WRITE setBrightness
+               RESET resetBrightness
+               NOTIFY brightnessChanged)
+    Q_PROPERTY(qreal contrast
+               READ contrast
+               WRITE setContrast
+               RESET resetContrast
+               NOTIFY contrastChanged)
 
     public:
         explicit PhotocopyElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE qreal brightness() const;
-        Q_INVOKABLE qreal sharpness() const;
-        Q_INVOKABLE int sigmoidalBase() const;
-        Q_INVOKABLE int sigmoidalRange() const;
+        Q_INVOKABLE qreal contrast() const;
 
     private:
         qreal m_brightness;
-        qreal m_sharpness;
-        int m_sigmoidalBase;
-        int m_sigmoidalRange;
+        qreal m_contrast;
 
         QbElementPtr m_convert;
 
@@ -68,15 +74,16 @@ class PhotocopyElement: public QbElement
             return qRound((max + min) / 2.0);
         }
 
+    signals:
+        void brightnessChanged();
+        void contrastChanged();
+
     public slots:
         void setBrightness(qreal brightness);
-        void setSharpness(qreal sharpness);
-        void setSigmoidalBase(int sigmoidalBase);
-        void setSigmoidalRange(int sigmoidalRange);
+        void setContrast(qreal contrast);
         void resetBrightness();
-        void resetSharpness();
-        void resetSigmoidalBase();
-        void resetSigmoidalRange();
+        void resetContrast();
+
         QbPacket iStream(const QbPacket &packet);
 };
 

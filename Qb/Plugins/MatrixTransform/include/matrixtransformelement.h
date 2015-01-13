@@ -22,22 +22,34 @@
 #ifndef MATRIXTRANSFORMELEMENT_H
 #define MATRIXTRANSFORMELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class MatrixTransformElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList kernel READ kernel WRITE setKernel RESET resetKernel)
+    Q_PROPERTY(QVariantList kernel
+               READ kernel
+               WRITE setKernel
+               RESET resetKernel
+               NOTIFY kernelChanged)
 
     public:
         explicit MatrixTransformElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QVariantList kernel() const;
 
     private:
         QVector<qreal> m_kernel;
-
         QbElementPtr m_convert;
+
+    signals:
+        void kernelChanged();
 
     public slots:
         void setKernel(const QVariantList &kernel);

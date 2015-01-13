@@ -22,21 +22,34 @@
 #ifndef OILPAINTELEMENT_H
 #define OILPAINTELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class OilPaintElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int radius READ radius WRITE setRadius RESET resetRadius)
+    Q_PROPERTY(int radius
+               READ radius
+               WRITE setRadius
+               RESET resetRadius
+               NOTIFY radiusChanged)
 
     public:
         explicit OilPaintElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE int radius() const;
 
     private:
         int m_radius;
         QbElementPtr m_convert;
+
+    signals:
+        void radiusChanged();
 
     public slots:
         void setRadius(int radius);

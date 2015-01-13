@@ -29,6 +29,28 @@ PixelateElement::PixelateElement(): QbElement()
     this->resetBlockSize();
 }
 
+QObject *PixelateElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Pixelate/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Pixelate", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QSize PixelateElement::blockSize() const
 {
     return this->m_blockSize;
@@ -36,7 +58,10 @@ QSize PixelateElement::blockSize() const
 
 void PixelateElement::setBlockSize(const QSize &blockSize)
 {
-    this->m_blockSize = blockSize;
+    if (blockSize != this->m_blockSize) {
+        this->m_blockSize = blockSize;
+        emit this->blockSizeChanged();
+    }
 }
 
 void PixelateElement::resetBlockSize()
@@ -52,8 +77,13 @@ QbPacket PixelateElement::iStream(const QbPacket &packet)
     if (oFrame.isNull())
         return QbPacket();
 
-    qreal sw = 1.0 / this->m_blockSize.width();
-    qreal sh = 1.0 / this->m_blockSize.height();
+    QSize blockSize = this->m_blockSize;
+
+    if (blockSize.isEmpty())
+        qbSend(packet)
+
+    qreal sw = 1.0 / blockSize.width();
+    qreal sh = 1.0 / blockSize.height();
 
     oFrame = oFrame.scaled(sw * oFrame.width(),
                            sh * oFrame.height(),

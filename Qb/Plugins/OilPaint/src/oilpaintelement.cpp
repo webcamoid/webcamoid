@@ -30,6 +30,28 @@ OilPaintElement::OilPaintElement(): QbElement()
     this->resetRadius();
 }
 
+QObject *OilPaintElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/OilPaint/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("OilPaint", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int OilPaintElement::radius() const
 {
     return this->m_radius;
@@ -37,12 +59,18 @@ int OilPaintElement::radius() const
 
 void OilPaintElement::setRadius(int radius)
 {
-    this->m_radius = radius;
+    if (radius < 0)
+        radius = 0;
+
+    if (radius != this->m_radius) {
+        this->m_radius = radius;
+        this->radiusChanged();
+    }
 }
 
 void OilPaintElement::resetRadius()
 {
-    this->setRadius(1);
+    this->setRadius(2);
 }
 
 QbPacket OilPaintElement::iStream(const QbPacket &packet)
@@ -53,14 +81,15 @@ QbPacket OilPaintElement::iStream(const QbPacket &packet)
     if (src.isNull())
         return QbPacket();
 
+    int radius = this->m_radius;
     QImage oFrame(src.size(), src.format());
     quint16 histogram[256];
     QRgb *oLine = (QRgb *) oFrame.bits();
-    int scanBlockLen = (this->m_radius << 1) + 1;
+    int scanBlockLen = (radius << 1) + 1;
     QRgb *scanBlock[scanBlockLen];
 
     for (int y = 0; y < src.height(); y++) {
-        int pos = y - this->m_radius;
+        int pos = y - radius;
 
         for (int j = 0; j < scanBlockLen; j++) {
             scanBlock[j] = (QRgb *) src.constScanLine(qBound(0, pos, src.height()));
@@ -68,8 +97,8 @@ QbPacket OilPaintElement::iStream(const QbPacket &packet)
         }
 
         for (int x = 0; x < src.width(); x++) {
-            int minI = x - this->m_radius;
-            int maxI = x + this->m_radius + 1;
+            int minI = x - radius;
+            int maxI = x + radius + 1;
 
             if (minI < 0)
                 minI = 0;

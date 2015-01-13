@@ -26,11 +26,31 @@ NervousElement::NervousElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    qRegisterMetaType<QRgb>("QRgb");
-
     this->resetNFrames();
     this->resetSimple();
     this->m_stride = 0;
+}
+
+QObject *NervousElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Nervous/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Nervous", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 int NervousElement::nFrames() const
@@ -45,12 +65,18 @@ bool NervousElement::simple() const
 
 void NervousElement::setNFrames(int nFrames)
 {
-    this->m_nFrames = nFrames;
+    if (nFrames != this->m_nFrames) {
+        this->m_nFrames = nFrames;
+        this->nFramesChanged();
+    }
 }
 
 void NervousElement::setSimple(bool simple)
 {
-    this->m_simple = simple;
+    if (simple != this->m_simple) {
+        this->m_simple = simple;
+        this->simpleChanged();
+    }
 }
 
 void NervousElement::resetNFrames()
@@ -82,8 +108,11 @@ QbPacket NervousElement::iStream(const QbPacket &packet)
     this->m_frames << src.copy();
     int diff = this->m_frames.size() - this->m_nFrames;
 
-    for (int i = 0; i < diff; i++)
+    for (int i = 0; i < diff && !this->m_frames.isEmpty(); i++)
         this->m_frames.takeFirst();
+
+    if (this->m_frames.isEmpty())
+        qbSend(packet)
 
     int timer = 0;
     int nFrame = 0;

@@ -19,42 +19,27 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef PIXELATEELEMENT_H
-#define PIXELATEELEMENT_H
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <qb.h>
-#include <qbutils.h>
+GridLayout {
+    columns: 2
 
-class PixelateElement: public QbElement
-{
-    Q_OBJECT
-    Q_PROPERTY(QSize blockSize
-               READ blockSize
-               WRITE setBlockSize
-               RESET resetBlockSize
-               NOTIFY blockSizeChanged)
+    function strToFloat(str)
+    {
+        return str.length < 1? 0: parseFloat(str)
+    }
 
-    public:
-        explicit PixelateElement();
+    Label {
+        text: qsTr("Factor")
+    }
+    TextField {
+        text: PrimariesColors.factor
+        validator: RegExpValidator {
+            regExp: /\d+/
+        }
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
-        Q_INVOKABLE QSize blockSize() const;
-
-    private:
-        QSize m_blockSize;
-        QbElementPtr m_convert;
-
-    signals:
-        void blockSizeChanged();
-
-    public slots:
-        void setBlockSize(const QSize &blockSize);
-        void resetBlockSize();
-        QbPacket iStream(const QbPacket &packet);
-};
-
-#endif // PIXELATEELEMENT_H
+        onTextChanged: PrimariesColors.factor = strToFloat(text)
+    }
+}

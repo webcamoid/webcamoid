@@ -22,18 +22,30 @@
 #ifndef NERVOUSELEMENT_H
 #define NERVOUSELEMENT_H
 
-#include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class NervousElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int nFrames READ nFrames WRITE setNFrames RESET resetNFrames)
-    Q_PROPERTY(bool simple READ simple WRITE setSimple RESET resetSimple)
+    Q_PROPERTY(int nFrames
+               READ nFrames
+               WRITE setNFrames
+               RESET resetNFrames
+               NOTIFY nFramesChanged)
+    Q_PROPERTY(bool simple
+               READ simple
+               WRITE setSimple
+               RESET resetSimple
+               NOTIFY simpleChanged)
 
     public:
         explicit NervousElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE bool simple() const;
@@ -46,6 +58,10 @@ class NervousElement: public QbElement
         QVector<QImage> m_frames;
         QbCaps m_caps;
         int m_stride;
+
+    signals:
+        void nFramesChanged();
+        void simpleChanged();
 
     public slots:
         void setNFrames(int nFrames);

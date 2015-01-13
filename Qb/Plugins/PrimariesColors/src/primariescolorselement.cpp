@@ -29,6 +29,28 @@ PrimariesColorsElement::PrimariesColorsElement(): QbElement()
     this->resetFactor();
 }
 
+QObject *PrimariesColorsElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/PrimariesColors/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("PrimariesColors", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int PrimariesColorsElement::factor() const
 {
     return this->m_factor;
@@ -36,12 +58,15 @@ int PrimariesColorsElement::factor() const
 
 void PrimariesColorsElement::setFactor(int factor)
 {
-    this->m_factor = factor;
+    if (factor != this->m_factor) {
+        this->m_factor = factor;
+        emit this->factorChanged();
+    }
 }
 
 void PrimariesColorsElement::resetFactor()
 {
-    this->setFactor(1);
+    this->setFactor(2);
 }
 
 QbPacket PrimariesColorsElement::iStream(const QbPacket &packet)
