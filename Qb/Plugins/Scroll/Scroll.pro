@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Scroll.qrc
+
 SOURCES += \
     src/scroll.cpp \
     src/scrollelement.cpp

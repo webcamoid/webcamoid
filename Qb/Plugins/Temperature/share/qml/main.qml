@@ -19,45 +19,30 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef WARHOLELEMENT_H
-#define WARHOLELEMENT_H
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <qb.h>
-#include <qbutils.h>
+GridLayout {
+    columns: 3
 
-class WarholElement: public QbElement
-{
-    Q_OBJECT
-    Q_PROPERTY(int nFrames
-               READ nFrames
-               WRITE setNFrames
-               RESET resetNFrames
-               NOTIFY nFramesChanged)
+    Label {
+        text: qsTr("Temperature")
+    }
+    Slider {
+        id: sldTemperature
+        value: Temperature.temperature
+        stepSize: 1
+        minimumValue: 1000
+        maximumValue: 40000
 
-    public:
-        explicit WarholElement();
+        onValueChanged: Temperature.temperature = value
+    }
+    SpinBox {
+        value: sldTemperature.value
+        maximumValue: sldTemperature.maximumValue
+        stepSize: sldTemperature.stepSize
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
-        Q_INVOKABLE int nFrames() const;
-
-    private:
-        int m_nFrames;
-
-        QbElementPtr m_convert;
-        QList<quint32> m_colorTable;
-
-    signals:
-        void nFramesChanged();
-
-    public slots:
-        void setNFrames(int nFrames);
-        void resetNFrames();
-
-        QbPacket iStream(const QbPacket &packet);
-};
-
-#endif // WARHOLELEMENT_H
+        onValueChanged: sldTemperature.value = value
+    }
+}

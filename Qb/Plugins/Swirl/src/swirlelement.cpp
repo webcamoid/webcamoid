@@ -29,6 +29,28 @@ SwirlElement::SwirlElement(): QbElement()
     this->resetDegrees();
 }
 
+QObject *SwirlElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Swirl/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Swirl", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 qreal SwirlElement::degrees() const
 {
     return this->m_degrees;
@@ -36,7 +58,10 @@ qreal SwirlElement::degrees() const
 
 void SwirlElement::setDegrees(qreal degrees)
 {
-    this->m_degrees = degrees;
+    if (degrees != this->m_degrees) {
+        this->m_degrees = degrees;
+        emit this->degreesChanged();
+    }
 }
 
 void SwirlElement::resetDegrees()

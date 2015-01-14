@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Shagadelic.qrc
+
 SOURCES += \
     src/shagadelic.cpp \
     src/shagadelicelement.cpp

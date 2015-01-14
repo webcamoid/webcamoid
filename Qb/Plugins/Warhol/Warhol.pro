@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Warhol.qrc
+
 SOURCES += \
     src/warhol.cpp \
     src/warholelement.cpp

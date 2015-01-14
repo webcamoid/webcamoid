@@ -23,17 +23,25 @@
 #define TEMPERATUREELEMENT_H
 
 #include <cmath>
-#include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class TemperatureElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal temperature READ temperature WRITE setTemperature RESET resetTemperature)
+    Q_PROPERTY(qreal temperature
+               READ temperature
+               WRITE setTemperature
+               RESET resetTemperature
+               NOTIFY temperatureChanged)
 
     public:
         explicit TemperatureElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE qreal temperature() const;
 
@@ -73,6 +81,9 @@ class TemperatureElement: public QbElement
             else
                 *b = 0.54320679 * log(temperature - 10) - 1.1962541;
         }
+
+    signals:
+        void temperatureChanged();
 
     public slots:
         void setTemperature(qreal temperature);

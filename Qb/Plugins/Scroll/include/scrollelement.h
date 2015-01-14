@@ -22,30 +22,43 @@
 #ifndef SCROLLELEMENT_H
 #define SCROLLELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ScrollElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int scrollSteps READ scrollSteps WRITE setScrollSteps RESET resetScrollSteps)
+    Q_PROPERTY(qreal speed
+               READ speed
+               WRITE setSpeed
+               RESET resetSpeed
+               NOTIFY speedChanged)
 
     public:
         explicit ScrollElement();
-        Q_INVOKABLE int scrollSteps() const;
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
+        Q_INVOKABLE qreal speed() const;
 
     private:
-        int m_scrollSteps;
-        int m_offset;
+        qreal m_speed;
+        qreal m_offset;
 
         QSize m_curSize;
         QbElementPtr m_convert;
 
         void addNoise(QImage &dest);
 
+    signals:
+        void speedChanged();
+
     public slots:
-        void setScrollSteps(int scrollSteps);
-        void resetScrollSteps();
+        void setSpeed(qreal speed);
+        void resetSpeed();
         QbPacket iStream(const QbPacket &packet);
 };
 

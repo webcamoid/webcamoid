@@ -29,7 +29,29 @@ ShagadelicElement::ShagadelicElement(): QbElement()
     this->resetMask();
 }
 
-int ShagadelicElement::mask() const
+QObject *ShagadelicElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Shagadelic/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Shagadelic", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
+quint32 ShagadelicElement::mask() const
 {
     return this->m_mask;
 }
@@ -94,9 +116,12 @@ void ShagadelicElement::init(const QSize &size)
     this->m_phase = 0;
 }
 
-void ShagadelicElement::setMask(int mask)
+void ShagadelicElement::setMask(quint32 mask)
 {
-    this->m_mask = mask;
+    if (mask != this->m_mask) {
+        this->m_mask = mask;
+        emit this->maskChanged();
+    }
 }
 
 void ShagadelicElement::resetMask()

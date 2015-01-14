@@ -27,21 +27,41 @@ ScrollElement::ScrollElement(): QbElement()
     this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
 
     this->m_offset = 0;
-    this->resetScrollSteps();
+    this->resetSpeed();
 }
 
-int ScrollElement::scrollSteps() const
+QObject *ScrollElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
 {
-    return this->m_scrollSteps;
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Scroll/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Scroll", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
+qreal ScrollElement::speed() const
+{
+    return this->m_speed;
 }
 
 void ScrollElement::addNoise(QImage &dest)
 {
     quint32 *destBits = (quint32 *) dest.bits();
-    int y;
-    int dy;
 
-    for (y = this->m_offset, dy = 0; dy < 3 && y < dest.height(); y++, dy++) {
+    for (int y = this->m_offset, dy = 0; dy < 3 && y < dest.height(); y++, dy++) {
         int i = y * dest.width();
 
         for (int x = 0; x < dest.width(); x++, i++) {
@@ -53,14 +73,17 @@ void ScrollElement::addNoise(QImage &dest)
     }
 }
 
-void ScrollElement::setScrollSteps(int scrollSteps)
+void ScrollElement::setSpeed(qreal speed)
 {
-    this->m_scrollSteps = scrollSteps;
+    if (speed != this->m_speed) {
+        this->m_speed = speed;
+        emit this->speedChanged();
+    }
 }
 
-void ScrollElement::resetScrollSteps()
+void ScrollElement::resetSpeed()
 {
-    this->setScrollSteps(30);
+    this->setSpeed(30);
 }
 
 QbPacket ScrollElement::iStream(const QbPacket &packet)
@@ -81,19 +104,21 @@ QbPacket ScrollElement::iStream(const QbPacket &packet)
         this->m_curSize = src.size();
     }
 
-    memcpy(destBits,
-           srcBits + (src.height() - this->m_offset) * src.width(),
-           sizeof(qint32) * this->m_offset * src.width());
+    int offset = this->m_offset;
 
-    memcpy(destBits + this->m_offset * src.width(),
+    memcpy(destBits,
+           srcBits + (src.height() - offset) * src.width(),
+           sizeof(qint32) * offset * src.width());
+
+    memcpy(destBits + offset * src.width(),
            srcBits,
-           sizeof(qint32) * (src.height() - this->m_offset) * src.width());
+           sizeof(qint32) * (src.height() - offset) * src.width());
 
     this->addNoise(oFrame);
 
-    this->m_offset += this->m_scrollSteps;
+    this->m_offset += this->m_speed;
 
-    if (this->m_offset >= src.height())
+    if ((int) this->m_offset >= src.height())
         this->m_offset = 0;
 
     QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);

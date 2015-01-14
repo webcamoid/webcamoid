@@ -19,45 +19,27 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef WARHOLELEMENT_H
-#define WARHOLELEMENT_H
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <qb.h>
-#include <qbutils.h>
+GridLayout {
+    columns: 2
 
-class WarholElement: public QbElement
-{
-    Q_OBJECT
-    Q_PROPERTY(int nFrames
-               READ nFrames
-               WRITE setNFrames
-               RESET resetNFrames
-               NOTIFY nFramesChanged)
+    function hexToInt(str)
+    {
+        return str.length < 1? 0: parseInt(str, 16)
+    }
 
-    public:
-        explicit WarholElement();
+    Label {
+        text: qsTr("Raster speed")
+    }
+    TextField {
+        text: "0x" + Shagadelic.mask.toString(16)
+        validator: RegExpValidator {
+            regExp: /(0x)?[0-9a-fA-F]{1,8}/
+        }
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
-        Q_INVOKABLE int nFrames() const;
-
-    private:
-        int m_nFrames;
-
-        QbElementPtr m_convert;
-        QList<quint32> m_colorTable;
-
-    signals:
-        void nFramesChanged();
-
-    public slots:
-        void setNFrames(int nFrames);
-        void resetNFrames();
-
-        QbPacket iStream(const QbPacket &packet);
-};
-
-#endif // WARHOLELEMENT_H
+        onTextChanged: Shagadelic.mask = hexToInt(text)
+    }
+}

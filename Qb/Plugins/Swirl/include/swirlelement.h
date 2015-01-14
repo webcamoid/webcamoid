@@ -23,16 +23,26 @@
 #define SWIRLELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class SwirlElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal degrees READ degrees WRITE setDegrees RESET resetDegrees)
+    Q_PROPERTY(qreal degrees
+               READ degrees
+               WRITE setDegrees
+               RESET resetDegrees
+               NOTIFY degreesChanged)
 
     public:
         explicit SwirlElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE qreal degrees() const;
 
     private:
@@ -77,6 +87,9 @@ class SwirlElement: public QbElement
 
             return x;
         }
+
+    signals:
+        void degreesChanged();
 
     public slots:
         void setDegrees(qreal degrees);

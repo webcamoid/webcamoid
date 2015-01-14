@@ -31,6 +31,28 @@ VignetteElement::VignetteElement(): QbElement()
     this->resetSoftness();
 }
 
+QObject *VignetteElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Vignette/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Vignette", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 qreal VignetteElement::aspect() const
 {
     return this->m_aspect;
@@ -98,17 +120,26 @@ QVector<qreal> VignetteElement::updateVignette(int width, int height)
 
 void VignetteElement::setAspect(qreal aspect)
 {
-    this->m_aspect = aspect;
+    if (aspect != this->m_aspect) {
+        this->m_aspect = aspect;
+        emit this->aspectChanged();
+    }
 }
 
 void VignetteElement::setClearCenter(qreal clearCenter)
 {
-    this->m_clearCenter = clearCenter;
+    if (clearCenter != this->m_clearCenter) {
+        this->m_clearCenter = clearCenter;
+        emit this->clearCenterChanged();
+    }
 }
 
 void VignetteElement::setSoftness(qreal softness)
 {
-    this->m_softness = softness;
+    if (softness != this->m_softness) {
+        this->m_softness = softness;
+        emit this->softnessChanged();
+    }
 }
 
 void VignetteElement::resetAspect()
@@ -141,10 +172,20 @@ QbPacket VignetteElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    if (packet.caps() != this->m_caps) {
+    static qreal aspect = qQNaN();
+    static qreal clearCenter = qQNaN();
+    static qreal softness = qQNaN();
+
+    if (packet.caps() != this->m_caps
+        || this->m_aspect != aspect
+        || this->m_clearCenter != clearCenter
+        || this->m_softness != softness) {
         this->m_vignette = this->updateVignette(src.width(), src.height());
 
         this->m_caps = packet.caps();
+        aspect = this->m_aspect;
+        clearCenter = this->m_clearCenter;
+        softness = this->m_softness;
     }
 
     // Darken the pixels by multiplying with the vignette's factor

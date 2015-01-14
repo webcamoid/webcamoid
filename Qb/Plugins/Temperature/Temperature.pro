@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Temperature.qrc
+
 SOURCES += \
     src/temperature.cpp \
     src/temperatureelement.cpp

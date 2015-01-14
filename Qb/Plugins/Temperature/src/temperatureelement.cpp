@@ -26,9 +26,29 @@ TemperatureElement::TemperatureElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    qRegisterMetaType<QRgb>("QRgb");
-
     this->resetTemperature();
+}
+
+QObject *TemperatureElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Temperature/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Temperature", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 qreal TemperatureElement::temperature() const
@@ -38,10 +58,12 @@ qreal TemperatureElement::temperature() const
 
 void TemperatureElement::setTemperature(qreal temperature)
 {
-    this->m_temperature = temperature;
-
-    this->colorFromTemperature(temperature,
-                               &this->m_kr, &this->m_kg, &this->m_kb);
+    if (temperature != this->m_temperature) {
+        this->m_temperature = temperature;
+        this->colorFromTemperature(temperature,
+                                   &this->m_kr, &this->m_kg, &this->m_kb);
+        emit this->temperatureChanged();
+    }
 }
 
 void TemperatureElement::resetTemperature()

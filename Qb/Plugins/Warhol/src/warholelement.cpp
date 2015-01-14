@@ -33,6 +33,28 @@ WarholElement::WarholElement(): QbElement()
     this->resetNFrames();
 }
 
+QObject *WarholElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Warhol/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Warhol", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int WarholElement::nFrames() const
 {
     return this->m_nFrames;
@@ -40,7 +62,10 @@ int WarholElement::nFrames() const
 
 void WarholElement::setNFrames(int nFrames)
 {
-    this->m_nFrames = nFrames;
+    if (nFrames != this->m_nFrames) {
+        this->m_nFrames = nFrames;
+        emit this->nFramesChanged();
+    }
 }
 
 void WarholElement::resetNFrames()
@@ -61,13 +86,17 @@ QbPacket WarholElement::iStream(const QbPacket &packet)
     quint32 *srcBits = (quint32 *) src.bits();
     quint32 *destBits = (quint32 *) oFrame.bits();
 
+    int nFrames = this->m_nFrames;
+
     for (int y = 0; y < src.height(); y++)
         for (int x = 0; x < src.width(); x++)
         {
-            int p = (x * this->nFrames()) % src.width();
-            int q = (y * this->nFrames()) % src.height();
-            int i = ((y * this->nFrames()) / src.height()) * this->nFrames() +
-                    ((x * this->nFrames()) / src.width());
+            int p = (x * nFrames) % src.width();
+            int q = (y * nFrames) % src.height();
+            int i = ((y * nFrames) / src.height()) * nFrames +
+                    ((x * nFrames) / src.width());
+
+            i = qBound(0, i, this->m_colorTable.size() - 1);
 
             *destBits++ = srcBits[q * src.width() + p] ^ this->m_colorTable[i];
         }

@@ -23,20 +23,30 @@
 #define SHAGADELICELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ShagadelicElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int mask READ mask WRITE setMask RESET resetMask)
+    Q_PROPERTY(quint32 mask
+               READ mask
+               WRITE setMask
+               RESET resetMask
+               NOTIFY maskChanged)
 
     public:
         explicit ShagadelicElement();
-        Q_INVOKABLE int mask() const;
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
+        Q_INVOKABLE quint32 mask() const;
 
     private:
-        int m_mask;
+        quint32 m_mask;
         int m_rx;
         int m_ry;
         int m_bx;
@@ -57,8 +67,11 @@ class ShagadelicElement: public QbElement
         QByteArray makeSpiral(const QSize &size) const;
         void init(const QSize &size);
 
+    signals:
+        void maskChanged();
+
     public slots:
-        void setMask(int mask);
+        void setMask(quint32 mask);
         void resetMask();
         QbPacket iStream(const QbPacket &packet);
 };
