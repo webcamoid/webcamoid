@@ -31,6 +31,28 @@ WaveElement::WaveElement(): QbElement()
     this->resetBackground();
 }
 
+QObject *WaveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Wave/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Wave", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 qreal WaveElement::amplitude() const
 {
     return this->m_amplitude;
@@ -48,27 +70,36 @@ QRgb WaveElement::background() const
 
 void WaveElement::setAmplitude(qreal amplitude)
 {
-    this->m_amplitude = amplitude;
+    if (amplitude != this->m_amplitude) {
+        this->m_amplitude = amplitude;
+        emit this->amplitudeChanged();
+    }
 }
 
 void WaveElement::setPhases(qreal phases)
 {
-    this->m_phases = phases;
+    if (phases != this->m_phases) {
+        this->m_phases = phases;
+        emit this->phasesChanged();
+    }
 }
 
 void WaveElement::setBackground(QRgb background)
 {
-    this->m_background = background;
+    if (background != this->m_background) {
+        this->m_background = background;
+        emit this->backgroundChanged();
+    }
 }
 
 void WaveElement::resetAmplitude()
 {
-    this->setAmplitude(1);
+    this->setAmplitude(16);
 }
 
 void WaveElement::resetPhases()
 {
-    this->setPhases(0);
+    this->setPhases(8);
 }
 
 void WaveElement::resetBackground()

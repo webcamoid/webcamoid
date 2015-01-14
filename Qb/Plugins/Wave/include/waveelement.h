@@ -23,18 +23,36 @@
 #define WAVEELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class WaveElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal amplitude READ amplitude WRITE setAmplitude RESET resetAmplitude)
-    Q_PROPERTY(qreal phases READ phases WRITE setPhases RESET resetPhases)
-    Q_PROPERTY(QRgb background READ background WRITE setBackground RESET resetBackground)
+    Q_PROPERTY(qreal amplitude
+               READ amplitude
+               WRITE setAmplitude
+               RESET resetAmplitude
+               NOTIFY amplitudeChanged)
+    Q_PROPERTY(qreal phases
+               READ phases
+               WRITE setPhases
+               RESET resetPhases
+               NOTIFY phasesChanged)
+    Q_PROPERTY(QRgb background
+               READ background
+               WRITE setBackground
+               RESET resetBackground
+               NOTIFY backgroundChanged)
 
     public:
         explicit WaveElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE qreal amplitude() const;
         Q_INVOKABLE qreal phases() const;
         Q_INVOKABLE QRgb background() const;
@@ -97,6 +115,11 @@ class WaveElement: public QbElement
 
             return x;
         }
+
+    signals:
+        void amplitudeChanged();
+        void phasesChanged();
+        void backgroundChanged();
 
     public slots:
         void setAmplitude(qreal amplitude);

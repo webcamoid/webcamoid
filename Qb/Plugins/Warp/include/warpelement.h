@@ -23,17 +23,25 @@
 #define WARPELEMENT_H
 
 #include <cmath>
-#include <qrgb.h>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class WarpElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal ripples READ ripples WRITE setRipples RESET resetRipples)
+    Q_PROPERTY(qreal ripples
+               READ ripples
+               WRITE setRipples
+               RESET resetRipples
+               NOTIFY ripplesChanged)
 
     public:
         explicit WarpElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         qreal ripples() const;
 
@@ -43,6 +51,9 @@ class WarpElement: public QbElement
         QbElementPtr m_convert;
         QbCaps m_caps;
         QVector<qreal> m_phiTable;
+
+    signals:
+        void ripplesChanged();
 
     public slots:
         void setRipples(qreal ripples);

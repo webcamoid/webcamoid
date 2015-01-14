@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Wave.qrc
+
 SOURCES += \
     src/wave.cpp \
     src/waveelement.cpp

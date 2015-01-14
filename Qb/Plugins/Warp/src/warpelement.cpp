@@ -29,6 +29,28 @@ WarpElement::WarpElement(): QbElement()
     this->resetRipples();
 }
 
+QObject *WarpElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Warp/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Warp", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 qreal WarpElement::ripples() const
 {
     return this->m_ripples;
@@ -36,7 +58,10 @@ qreal WarpElement::ripples() const
 
 void WarpElement::setRipples(qreal ripples)
 {
-    this->m_ripples = ripples;
+    if (ripples != this->m_ripples) {
+        this->m_ripples = ripples;
+        emit this->ripplesChanged();
+    }
 }
 
 void WarpElement::resetRipples()

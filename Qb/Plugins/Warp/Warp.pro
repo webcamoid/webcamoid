@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Warp.qrc
+
 SOURCES += \
     src/warp.cpp \
     src/warpelement.cpp
