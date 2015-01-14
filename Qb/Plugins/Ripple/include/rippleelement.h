@@ -23,6 +23,8 @@
 #define RIPPLEELEMENT_H
 
 #include <cmath>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <QColor>
 #include <qb.h>
 #include <qbutils.h>
@@ -31,11 +33,31 @@ class RippleElement: public QbElement
 {
     Q_OBJECT
     Q_ENUMS(RippleMode)
-    Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(int amplitude READ amplitude WRITE setAmplitude RESET resetAmplitude)
-    Q_PROPERTY(int decay READ decay WRITE setDecay RESET resetDecay)
-    Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
-    Q_PROPERTY(int lumaThreshold READ lumaThreshold WRITE setLumaThreshold RESET resetLumaThreshold)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(int amplitude
+               READ amplitude
+               WRITE setAmplitude
+               RESET resetAmplitude
+               NOTIFY amplitudeChanged)
+    Q_PROPERTY(int decay
+               READ decay
+               WRITE setDecay
+               RESET resetDecay
+               NOTIFY decayChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
 
     public:
         enum RippleMode
@@ -45,6 +67,10 @@ class RippleElement: public QbElement
         };
 
         explicit RippleElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int amplitude() const;
         Q_INVOKABLE int decay() const;
@@ -98,18 +124,25 @@ class RippleElement: public QbElement
 
             int offset = x + y * width;
 
-            dropsBits[offset - widthP1] = power / 4;
-            dropsBits[offset - width] = power / 2;
-            dropsBits[offset - widthM1] = power / 4;
-            dropsBits[offset - 1] = power / 2;
+            dropsBits[offset - widthP1] = power >> 2;
+            dropsBits[offset - width] = power >> 1;
+            dropsBits[offset - widthM1] = power >> 2;
+            dropsBits[offset - 1] = power >> 1;
             dropsBits[offset] = power;
-            dropsBits[offset + 1] = power / 2;
-            dropsBits[offset + widthM1] = power / 4;
-            dropsBits[offset + width] = power / 2;
-            dropsBits[offset + widthP1] = power / 4;
+            dropsBits[offset + 1] = power >> 1;
+            dropsBits[offset + widthM1] = power >> 2;
+            dropsBits[offset + width] = power >> 1;
+            dropsBits[offset + widthP1] = power >> 2;
 
             return drops;
         }
+
+    signals:
+        void modeChanged();
+        void amplitudeChanged();
+        void decayChanged();
+        void thresholdChanged();
+        void lumaThresholdChanged();
 
     public slots:
         void setMode(const QString &mode);
@@ -122,6 +155,7 @@ class RippleElement: public QbElement
         void resetDecay();
         void resetThreshold();
         void resetLumaThreshold();
+
         QbPacket iStream(const QbPacket &packet);
 };
 

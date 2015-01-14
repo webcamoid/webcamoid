@@ -22,16 +22,25 @@
 #ifndef QUARKELEMENT_H
 #define QUARKELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class QuarkElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int planes READ planes WRITE setPlanes RESET resetPlanes)
+    Q_PROPERTY(int planes
+               READ planes
+               WRITE setPlanes
+               RESET resetPlanes
+               NOTIFY planesChanged)
 
     public:
         explicit QuarkElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
 
         Q_INVOKABLE int planes() const;
 
@@ -43,6 +52,9 @@ class QuarkElement: public QbElement
         QImage m_buffer;
         int m_plane;
         QVector<QRgb *> m_planeTable;
+
+    signals:
+        void planesChanged();
 
     public slots:
         void setPlanes(int planes);

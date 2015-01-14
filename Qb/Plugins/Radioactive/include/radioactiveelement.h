@@ -23,12 +23,12 @@
 #define RADIOACTIVEELEMENT_H
 
 #include <cmath>
-#include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsBlurEffect>
-
 #include <qb.h>
 #include <qbutils.h>
 
@@ -36,13 +36,41 @@ class RadioactiveElement: public QbElement
 {
     Q_OBJECT
     Q_ENUMS(RadiationMode)
-    Q_PROPERTY(QString mode READ mode WRITE setMode RESET resetMode)
-    Q_PROPERTY(qreal blur READ blur WRITE setBlur RESET resetBlur)
-    Q_PROPERTY(qreal zoom READ zoom WRITE setZoom RESET resetZoom)
-    Q_PROPERTY(int threshold READ threshold WRITE setThreshold RESET resetThreshold)
-    Q_PROPERTY(int lumaThreshold READ lumaThreshold WRITE setLumaThreshold RESET resetLumaThreshold)
-    Q_PROPERTY(int alphaDiff READ alphaDiff WRITE setAlphaDiff RESET resetAlphaDiff)
-    Q_PROPERTY(QRgb radColor READ radColor WRITE setRadColor RESET resetRadColor)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
+    Q_PROPERTY(qreal blur
+               READ blur
+               WRITE setBlur
+               RESET resetBlur
+               NOTIFY blurChanged)
+    Q_PROPERTY(qreal zoom
+               READ zoom
+               WRITE setZoom
+               RESET resetZoom
+               NOTIFY zoomChanged)
+    Q_PROPERTY(int threshold
+               READ threshold
+               WRITE setThreshold
+               RESET resetThreshold
+               NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
+    Q_PROPERTY(int alphaDiff
+               READ alphaDiff
+               WRITE setAlphaDiff
+               RESET resetAlphaDiff
+               NOTIFY alphaDiffChanged)
+    Q_PROPERTY(QRgb radColor
+               READ radColor
+               WRITE setRadColor
+               RESET resetRadColor
+               NOTIFY radColorChanged)
 
     public:
         enum RadiationMode
@@ -54,6 +82,10 @@ class RadioactiveElement: public QbElement
         };
 
         explicit RadioactiveElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE qreal blur() const;
         Q_INVOKABLE qreal zoom() const;
@@ -86,6 +118,15 @@ class RadioactiveElement: public QbElement
 
         QImage imageAlphaDiff(const QImage &src, int alphaDiff);
 
+    signals:
+        void modeChanged();
+        void blurChanged();
+        void zoomChanged();
+        void thresholdChanged();
+        void lumaThresholdChanged();
+        void alphaDiffChanged();
+        void radColorChanged();
+
     public slots:
         void setMode(const QString &mode);
         void setBlur(qreal blur);
@@ -101,6 +142,7 @@ class RadioactiveElement: public QbElement
         void resetLumaThreshold();
         void resetAlphaDiff();
         void resetRadColor();
+
         QbPacket iStream(const QbPacket &packet);
 };
 

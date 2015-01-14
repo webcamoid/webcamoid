@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    Quark.qrc
+
 SOURCES += \
     src/quark.cpp \
     src/quarkelement.cpp

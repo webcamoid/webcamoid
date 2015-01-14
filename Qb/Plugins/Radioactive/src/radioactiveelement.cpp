@@ -42,6 +42,28 @@ RadioactiveElement::RadioactiveElement(): QbElement()
     this->resetRadColor();
 }
 
+QObject *RadioactiveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Radioactive/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Radioactive", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString RadioactiveElement::mode() const
 {
     return this->m_radiationModeToStr[this->m_mode];
@@ -163,40 +185,62 @@ QImage RadioactiveElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 
 void RadioactiveElement::setMode(const QString &mode)
 {
-    if (this->m_radiationModeToStr.values().contains(mode))
-        this->m_mode = this->m_radiationModeToStr.key(mode);
-    else
-        this->m_mode = RadiationModeSoftNormal;
+    RadiationMode modeEnum = this->m_radiationModeToStr.values().contains(mode)?
+                                 this->m_radiationModeToStr.key(mode):
+                                 RadiationModeSoftNormal;
+
+    if (modeEnum != this->m_mode) {
+        this->m_mode = modeEnum;
+        emit this->modeChanged();
+    }
 }
 
 void RadioactiveElement::setBlur(qreal blur)
 {
-    this->m_blur = blur;
+    if (blur != this->m_blur) {
+        this->m_blur = blur;
+        emit this->blurChanged();
+    }
 }
 
-void RadioactiveElement::setZoom(qreal snapTime)
+void RadioactiveElement::setZoom(qreal zoom)
 {
-    this->m_zoom = snapTime;
+    if (zoom != this->m_zoom) {
+        this->m_zoom = zoom;
+        emit this->zoomChanged();
+    }
 }
 
 void RadioactiveElement::setThreshold(int threshold)
 {
-    this->m_threshold = threshold;
+    if (threshold != this->m_threshold) {
+        this->m_threshold = threshold;
+        emit this->thresholdChanged();
+    }
 }
 
 void RadioactiveElement::setLumaThreshold(int lumaThreshold)
 {
-    this->m_lumaThreshold = lumaThreshold;
+    if (lumaThreshold != this->m_lumaThreshold) {
+        this->m_lumaThreshold = lumaThreshold;
+        emit this->lumaThresholdChanged();
+    }
 }
 
 void RadioactiveElement::setAlphaDiff(int alphaDiff)
 {
-    this->m_alphaDiff = alphaDiff;
+    if (alphaDiff != this->m_alphaDiff) {
+        this->m_alphaDiff = alphaDiff;
+        emit this->alphaDiffChanged();
+    }
 }
 
 void RadioactiveElement::setRadColor(QRgb radColor)
 {
-    this->m_radColor = radColor;
+    if (radColor != this->m_radColor) {
+        this->m_radColor = radColor;
+        emit this->radColorChanged();
+    }
 }
 
 void RadioactiveElement::resetMode()

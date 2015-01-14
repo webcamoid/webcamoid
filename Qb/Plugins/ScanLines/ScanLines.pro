@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    ScanLines.qrc
+
 SOURCES += \
     src/scanlines.cpp \
     src/scanlineselement.cpp

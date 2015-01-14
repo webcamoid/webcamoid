@@ -30,6 +30,28 @@ QuarkElement::QuarkElement(): QbElement()
     this->m_plane = 0;
 }
 
+QObject *QuarkElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Quark/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Quark", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 int QuarkElement::planes() const
 {
     return this->m_planes;
@@ -37,7 +59,10 @@ int QuarkElement::planes() const
 
 void QuarkElement::setPlanes(int planes)
 {
-    this->m_planes = planes;
+    if (planes != this->m_planes) {
+        this->m_planes = planes;
+        emit this->planesChanged();
+    }
 }
 
 void QuarkElement::resetPlanes()
@@ -60,30 +85,35 @@ QbPacket QuarkElement::iStream(const QbPacket &packet)
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
+    static int planes = -1;
 
-    if (packet.caps() != this->m_caps) {
-        this->m_buffer = QImage(src.width(), src.height() * this->m_planes, QImage::Format_RGB32);
-        this->m_planeTable.resize(this->m_planes);
+    if (packet.caps() != this->m_caps
+        || this->m_planes != planes) {
+        planes = this->m_planes;
+        this->m_buffer = QImage(src.width(), src.height() * planes, QImage::Format_RGB32);
+        this->m_planeTable.resize(planes);
 
-        for(int i = 0; i < this->m_planes; i++)
+        for(int i = 0; i < planes; i++)
             this->m_planeTable[i] = (QRgb *) this->m_buffer.bits() + videoArea * i;
 
-        this->m_plane = this->m_planes - 1;
-
+        this->m_plane = planes - 1;
         this->m_caps = packet.caps();
     }
+
+    if (planes < 1)
+        qbSend(packet)
 
     memcpy(this->m_planeTable[this->m_plane], srcBits, src.bytesPerLine() * src.height());
 
     for (int i = 0; i < videoArea; i++) {
-        int cf = (rand() >> 24) & (this->m_planes - 1);
+        int cf = (qrand() >> 24) & (planes - 1);
         destBits[i] = this->m_planeTable[cf][i];
     }
 
     this->m_plane--;
 
     if (this->m_plane < 0)
-        this->m_plane = this->m_planes - 1;
+        this->m_plane = planes - 1;
 
     QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
     qbSend(oPacket)

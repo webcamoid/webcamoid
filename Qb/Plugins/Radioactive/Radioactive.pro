@@ -45,6 +45,9 @@ OTHER_FILES += pspec.json
 
 QT += qml widgets
 
+RESOURCES += \
+    Radioactive.qrc
+
 SOURCES += \
     src/radioactive.cpp \
     src/radioactiveelement.cpp

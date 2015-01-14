@@ -36,6 +36,28 @@ RippleElement::RippleElement(): QbElement()
     this->resetLumaThreshold();
 }
 
+QObject *RippleElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Ripple/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("Ripple", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QString RippleElement::mode() const
 {
     return this->m_rippleModeToStr[this->m_mode];
@@ -302,30 +324,46 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
 
 void RippleElement::setMode(const QString &mode)
 {
-    if (this->m_rippleModeToStr.values().contains(mode))
-        this->m_mode = this->m_rippleModeToStr.key(mode);
-    else
-        this->m_mode = RippleModeMotionDetect;
+    RippleMode modeEnum = this->m_rippleModeToStr.values().contains(mode)?
+                              this->m_rippleModeToStr.key(mode):
+                              RippleModeMotionDetect;
+
+    if (modeEnum != this->m_mode) {
+        this->m_mode = modeEnum;
+        emit this->modeChanged();
+    }
 }
 
 void RippleElement::setAmplitude(int amplitude)
 {
-    this->m_amplitude = amplitude;
+    if (amplitude != this->m_amplitude) {
+        this->m_amplitude = amplitude;
+        emit this->amplitudeChanged();
+    }
 }
 
 void RippleElement::setDecay(int decay)
 {
-    this->m_decay = decay;
+    if (decay != this->m_decay) {
+        this->m_decay = decay;
+        emit this->decayChanged();
+    }
 }
 
 void RippleElement::setThreshold(int threshold)
 {
-    this->m_threshold = threshold;
+    if (threshold != this->m_threshold) {
+        this->m_threshold = threshold;
+        emit this->thresholdChanged();
+    }
 }
 
 void RippleElement::setLumaThreshold(int lumaThreshold)
 {
-    this->m_lumaThreshold = lumaThreshold;
+    if (lumaThreshold != this->m_lumaThreshold) {
+        this->m_lumaThreshold = lumaThreshold;
+        emit this->lumaThresholdChanged();
+    }
 }
 
 void RippleElement::resetMode()

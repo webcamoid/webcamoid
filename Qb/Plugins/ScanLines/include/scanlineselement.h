@@ -22,19 +22,36 @@
 #ifndef SCANLINESELEMENT_H
 #define SCANLINESELEMENT_H
 
-#include <QColor>
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
 class ScanLinesElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int showSize READ showSize WRITE setShowSize RESET resetShowSize)
-    Q_PROPERTY(int hideSize READ hideSize WRITE setHideSize RESET resetHideSize)
-    Q_PROPERTY(QRgb hideColor READ hideColor WRITE setHideColor RESET resetHideColor)
+    Q_PROPERTY(int showSize
+               READ showSize
+               WRITE setShowSize
+               RESET resetShowSize
+               NOTIFY showSizeChanged)
+    Q_PROPERTY(int hideSize
+               READ hideSize
+               WRITE setHideSize
+               RESET resetHideSize
+               NOTIFY hideSizeChanged)
+    Q_PROPERTY(QRgb hideColor
+               READ hideColor
+               WRITE setHideColor
+               RESET resetHideColor
+               NOTIFY hideColorChanged)
 
     public:
         explicit ScanLinesElement();
+
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE int showSize() const;
         Q_INVOKABLE int hideSize() const;
         Q_INVOKABLE QRgb hideColor() const;
@@ -45,6 +62,11 @@ class ScanLinesElement: public QbElement
         QRgb m_hideColor;
 
         QbElementPtr m_convert;
+
+    signals:
+        void showSizeChanged();
+        void hideSizeChanged();
+        void hideColorChanged();
 
     public slots:
         void setShowSize(int showSize);

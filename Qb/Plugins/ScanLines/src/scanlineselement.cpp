@@ -26,11 +26,31 @@ ScanLinesElement::ScanLinesElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    qRegisterMetaType<QRgb>("QRgb");
-
     this->resetShowSize();
     this->resetHideSize();
     this->resetHideColor();
+}
+
+QObject *ScanLinesElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ScanLines/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("ScanLines", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
 }
 
 int ScanLinesElement::showSize() const
@@ -50,17 +70,26 @@ QRgb ScanLinesElement::hideColor() const
 
 void ScanLinesElement::setShowSize(int showSize)
 {
-    this->m_showSize = showSize;
+    if (showSize != this->m_showSize) {
+        this->m_showSize = showSize;
+        emit this->showSizeChanged();
+    }
 }
 
 void ScanLinesElement::setHideSize(int hideSize)
 {
-    this->m_hideSize = hideSize;
+    if (hideSize != this->m_hideSize) {
+        this->m_hideSize = hideSize;
+        emit this->hideSizeChanged();
+    }
 }
 
 void ScanLinesElement::setHideColor(QRgb hideColor)
 {
-    this->m_hideColor = hideColor;
+    if (hideColor != this->m_hideColor) {
+        this->m_hideColor = hideColor;
+        emit this->hideColorChanged();
+    }
 }
 
 void ScanLinesElement::resetShowSize()
@@ -88,16 +117,24 @@ QbPacket ScanLinesElement::iStream(const QbPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
+    int showSize = this->m_showSize;
+    int hideSize = this->m_hideSize;
+
+    if (showSize < 1 && hideSize < 1)
+        qbSend(packet)
+
     for (int y = 0; y < src.height(); y++) {
-        for (int i = 0; i < this->m_showSize && y < src.height(); i++, y++)
+        for (int i = 0; i < showSize && y < src.height(); i++, y++)
             memcpy(oFrame.scanLine(y), src.scanLine(y), src.bytesPerLine());
 
-        for (int j = 0; j < this->m_hideSize && y < src.height(); j++, y++) {
+        for (int j = 0; j < hideSize && y < src.height(); j++, y++) {
             QRgb *line = (QRgb *) oFrame.scanLine(y);
 
             for (int x = 0; x < src.width(); x++)
                 line[x] = this->m_hideColor;
         }
+
+        y--;
     }
 
     QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
