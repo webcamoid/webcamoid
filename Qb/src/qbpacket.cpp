@@ -21,15 +21,27 @@
 
 #include "qbpacket.h"
 
-QbPacket::QbPacket(QObject *parent): QObject(parent)
+class QbPacketPrivate
 {
-    this->resetCaps();
-    this->resetBuffer();
-    this->resetBufferSize();
-    this->resetId();
-    this->resetPts();
-    this->resetTimeBase();
-    this->resetIndex();
+    public:
+        QbCaps m_caps;
+        QVariant m_data;
+        QbBufferPtr m_buffer;
+        ulong m_bufferSize;
+        qint64 m_pts;
+        QbFrac m_timeBase;
+        int m_index;
+        qint64 m_id;
+};
+
+QbPacket::QbPacket(QObject *parent):
+    QObject(parent)
+{
+    this->d = new QbPacketPrivate();
+    this->d->m_bufferSize = 0;
+    this->d->m_pts = 0;
+    this->d->m_index = -1;
+    this->d->m_id = -1;
 }
 
 QbPacket::QbPacket(const QbCaps &caps,
@@ -40,44 +52,47 @@ QbPacket::QbPacket(const QbCaps &caps,
                    int index,
                    qint64 id)
 {
-    this->setCaps(caps);
-    bool isValid = this->caps().isValid();
-    this->setBuffer(isValid? buffer: QbBufferPtr());
-    this->setBufferSize(isValid? bufferSize: 0);
-    this->setPts(isValid? pts: 0);
-    this->setTimeBase(isValid? timeBase: QbFrac());
-    this->setIndex(isValid? index: -1);
-    this->setId(isValid? id: -1);
+    this->d = new QbPacketPrivate();
+    this->d->m_caps = caps;
+    bool isValid = this->d->m_caps.isValid();
+    this->d->m_buffer = isValid? buffer: QbBufferPtr();
+    this->d->m_bufferSize = isValid? bufferSize: 0;
+    this->d->m_pts = isValid? pts: 0;
+    this->d->m_timeBase = isValid? timeBase: QbFrac();
+    this->d->m_index = isValid? index: -1;
+    this->d->m_id = isValid? id: -1;
 }
 
 QbPacket::QbPacket(const QbPacket &other):
-    QObject(other.parent()),
-    m_caps(other.m_caps),
-    m_data(other.m_data),
-    m_buffer(other.m_buffer),
-    m_bufferSize(other.m_bufferSize),
-    m_pts(other.m_pts),
-    m_timeBase(other.m_timeBase),
-    m_index(other.m_index),
-    m_id(other.m_id)
+    QObject(other.parent())
 {
+    this->d = new QbPacketPrivate();
+    this->d->m_caps = other.d->m_caps;
+    this->d->m_data = other.d->m_data;
+    this->d->m_buffer = other.d->m_buffer;
+    this->d->m_bufferSize = other.d->m_bufferSize;
+    this->d->m_pts = other.d->m_pts;
+    this->d->m_timeBase = other.d->m_timeBase;
+    this->d->m_index = other.d->m_index;
+    this->d->m_id = other.d->m_id;
 }
 
 QbPacket::~QbPacket()
 {
+    delete this->d;
 }
 
 QbPacket &QbPacket::operator =(const QbPacket &other)
 {
     if (this != &other) {
-        this->m_caps = other.m_caps;
-        this->m_data = other.m_data;
-        this->m_buffer = other.m_buffer;
-        this->m_bufferSize = other.m_bufferSize;
-        this->m_pts = other.m_pts;
-        this->m_timeBase = other.m_timeBase;
-        this->m_index = other.m_index;
-        this->m_id = other.m_id;
+        this->d->m_caps = other.d->m_caps;
+        this->d->m_data = other.d->m_data;
+        this->d->m_buffer = other.d->m_buffer;
+        this->d->m_bufferSize = other.d->m_bufferSize;
+        this->d->m_pts = other.d->m_pts;
+        this->d->m_timeBase = other.d->m_timeBase;
+        this->d->m_index = other.d->m_index;
+        this->d->m_id = other.d->m_id;
     }
 
     return *this;
@@ -85,7 +100,7 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
 
 QbPacket::operator bool() const
 {
-    return this->m_caps.isValid();
+    return this->d->m_caps.isValid();
 }
 
 QString QbPacket::toString() const
@@ -94,160 +109,184 @@ QString QbPacket::toString() const
     QDebug debug(&packetInfo);
 
     debug.nospace() << "Caps       : "
-                    << this->caps().toString().toStdString().c_str()
+                    << this->d->m_caps.toString().toStdString().c_str()
                     << "\n";
 
     debug.nospace() << "Data       : "
-                    << this->data()
+                    << this->d->m_data
                     << "\n";
 
     debug.nospace() << "Buffer Size: "
-                    << this->bufferSize()
+                    << this->d->m_bufferSize
                     << "\n";
 
     debug.nospace() << "Id         : "
-                    << this->id()
+                    << this->d->m_id
                     << "\n";
 
     debug.nospace() << "Pts        : "
-                    << this->pts() * this->timeBase().value()
+                    << this->d->m_pts * this->d->m_timeBase.value()
                     << "\n";
 
     debug.nospace() << "Time Base  : "
-                    << this->timeBase().toString().toStdString().c_str()
+                    << this->d->m_timeBase.toString().toStdString().c_str()
                     << "\n";
 
     debug.nospace() << "Index      : "
-                    << this->index();
+                    << this->d->m_index;
 
     return packetInfo;
 }
 
 QbCaps QbPacket::caps() const
 {
-    return this->m_caps;
+    return this->d->m_caps;
 }
 
 QbCaps &QbPacket::caps()
 {
-    return this->m_caps;
+    return this->d->m_caps;
 }
 
 QVariant QbPacket::data() const
 {
-    return this->m_data;
+    return this->d->m_data;
 }
 
 QVariant &QbPacket::data()
 {
-    return this->m_data;
+    return this->d->m_data;
 }
 
 QbBufferPtr QbPacket::buffer() const
 {
-    return this->m_buffer;
+    return this->d->m_buffer;
 }
 
 QbBufferPtr &QbPacket::buffer()
 {
-    return this->m_buffer;
+    return this->d->m_buffer;
 }
 
 ulong QbPacket::bufferSize() const
 {
-    return this->m_bufferSize;
+    return this->d->m_bufferSize;
 }
 
 ulong &QbPacket::bufferSize()
 {
-    return this->m_bufferSize;
+    return this->d->m_bufferSize;
 }
 
 qint64 QbPacket::id() const
 {
-    return this->m_id;
+    return this->d->m_id;
 }
 
 qint64 &QbPacket::id()
 {
-    return this->m_id;
+    return this->d->m_id;
 }
 
 qint64 QbPacket::pts() const
 {
-    return this->m_pts;
+    return this->d->m_pts;
 }
 
 qint64 &QbPacket::pts()
 {
-    return this->m_pts;
+    return this->d->m_pts;
 }
 
 QbFrac QbPacket::timeBase() const
 {
-    return this->m_timeBase;
+    return this->d->m_timeBase;
 }
 
 QbFrac &QbPacket::timeBase()
 {
-    return this->m_timeBase;
+    return this->d->m_timeBase;
 }
 
 int QbPacket::index() const
 {
-    return this->m_index;
+    return this->d->m_index;
 }
 
 int &QbPacket::index()
 {
-    return this->m_index;
+    return this->d->m_index;
 }
 
-void QbPacket::setCaps(const QbCaps &mimeType)
+void QbPacket::setCaps(const QbCaps &caps)
 {
-    this->m_caps = mimeType;
+    if (this->d->m_caps == caps)
+        return;
+
+    this->d->m_caps = caps;
     emit this->capsChanged();
 }
 
 void QbPacket::setData(const QVariant &data)
 {
-    this->m_data = data;
+    if (this->d->m_data == data)
+        return;
+
+    this->d->m_data = data;
     emit this->dataChanged();
 }
 
 void QbPacket::setBuffer(const QbBufferPtr &buffer)
 {
-    this->m_buffer = buffer;
+    if (this->d->m_buffer == buffer)
+        return;
+
+    this->d->m_buffer = buffer;
     emit this->bufferChanged();
 }
 
 void QbPacket::setBufferSize(ulong bufferSize)
 {
-    this->m_bufferSize = bufferSize;
+    if (this->d->m_bufferSize == bufferSize)
+        return;
+
+    this->d->m_bufferSize = bufferSize;
     emit this->bufferSizeChanged();
 }
 
 void QbPacket::setId(qint64 id)
 {
-    this->m_id = id;
+    if (this->d->m_id == id)
+        return;
+
+    this->d->m_id = id;
     emit this->idChanged();
 }
 
 void QbPacket::setPts(qint64 pts)
 {
-    this->m_pts = pts;
+    if (this->d->m_pts == pts)
+        return;
+
+    this->d->m_pts = pts;
     emit this->ptsChanged();
 }
 
 void QbPacket::setTimeBase(const QbFrac &timeBase)
 {
-    this->m_timeBase = timeBase;
+    if (this->d->m_timeBase == timeBase)
+        return;
+
+    this->d->m_timeBase = timeBase;
     emit this->timeBaseChanged();
 }
 
 void QbPacket::setIndex(int index)
 {
-    this->m_index = index;
+    if (this->d->m_index == index)
+        return;
+
+    this->d->m_index = index;
     emit this->indexChanged();
 }
 

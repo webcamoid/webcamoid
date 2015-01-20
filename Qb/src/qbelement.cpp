@@ -37,24 +37,64 @@ Q_GLOBAL_STATIC_WITH_ARGS(bool, recursiveSearchPaths, (false))
 
 Q_GLOBAL_STATIC(QStringList, pluginsCache)
 
-QbElement::QbElement(QObject *parent): QObject(parent)
+class QbElementPrivate
 {
-    this->m_state = ElementStateNull;
+    public:
+        QString m_pluginId;
+        QbElement::ElementState m_state;
+
+        static inline QList<QMetaMethod> methodsByName(const QObject *object,
+                                                       const QString &methodName)
+        {
+            QList<QMetaMethod> methods;
+            QStringList methodSignatures;
+
+            for (int i = 0; i < object->metaObject()->methodCount(); i++) {
+                QMetaMethod method = object->metaObject()->method(i);
+                QString signature(method.methodSignature());
+
+                if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName))
+                    .exactMatch(signature))
+                    if (!methodSignatures.contains(signature)) {
+                        methods << method;
+                        methodSignatures << signature;
+                    }
+            }
+
+            return methods;
+        }
+
+        static inline bool methodCompat(const QMetaMethod &method1,
+                                        const QMetaMethod &method2)
+        {
+            if (method1.parameterTypes() == method2.parameterTypes())
+                return true;
+
+            return false;
+        }
+};
+
+QbElement::QbElement(QObject *parent):
+    QObject(parent)
+{
+    this->d = new QbElementPrivate();
+    this->d->m_state = ElementStateNull;
 }
 
 QbElement::~QbElement()
 {
     this->setState(QbElement::ElementStateNull);
+    delete this->d;
 }
 
 QString QbElement::pluginId() const
 {
-    return this->m_pluginId;
+    return this->d->m_pluginId;
 }
 
 QbElement::ElementState QbElement::state() const
 {
-    return this->m_state;
+    return this->d->m_state;
 }
 
 QObject *QbElement::controlInterface(QQmlEngine *engine,
@@ -72,12 +112,12 @@ bool QbElement::link(const QObject *dstElement,
     if (!dstElement)
         return false;
 
-    QList<QMetaMethod> signalList = QbElement::methodsByName(this, "oStream");
-    QList<QMetaMethod> slotList = QbElement::methodsByName(dstElement, "iStream");
+    QList<QMetaMethod> signalList = QbElementPrivate::methodsByName(this, "oStream");
+    QList<QMetaMethod> slotList = QbElementPrivate::methodsByName(dstElement, "iStream");
 
     foreach (QMetaMethod signal, signalList)
         foreach (QMetaMethod slot, slotList)
-            if (QbElement::methodCompat(signal, slot) &&
+            if (QbElementPrivate::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
                 QObject::connect(this, signal, dstElement, slot, connectionType);
@@ -95,9 +135,9 @@ bool QbElement::unlink(const QObject *dstElement) const
     if (!dstElement)
         return false;
 
-    foreach (QMetaMethod signal, QbElement::methodsByName(this, "oStream"))
-        foreach (QMetaMethod slot, QbElement::methodsByName(dstElement, "iStream"))
-            if (QbElement::methodCompat(signal, slot) &&
+    foreach (QMetaMethod signal, QbElementPrivate::methodsByName(this, "oStream"))
+        foreach (QMetaMethod slot, QbElementPrivate::methodsByName(dstElement, "iStream"))
+            if (QbElementPrivate::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
                 QObject::disconnect(this, signal, dstElement, slot);
@@ -136,7 +176,8 @@ bool QbElement::unlink(const QbElementPtr &srcElement,
     return srcElement->unlink(dstElement);
 }
 
-QbElementPtr QbElement::create(const QString &pluginId, const QString &elementName)
+QbElementPtr QbElement::create(const QString &pluginId,
+                               const QString &elementName)
 {
     QString filePath = QbElement::pluginPath(pluginId);
 
@@ -161,7 +202,7 @@ QbElementPtr QbElement::create(const QString &pluginId, const QString &elementNa
     if (!elementName.isEmpty())
         element->setObjectName(elementName);
 
-    element->m_pluginId = pluginId;
+    element->d->m_pluginId = pluginId;
 
     return QbElementPtr(element);
 }
@@ -230,7 +271,8 @@ QStringList QbElement::listPluginPaths(const QString &searchPath)
 {
     QString searchDir(searchPath);
 
-    searchDir = searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"), QDir::separator());
+    searchDir = searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
+                                  QDir::separator());
 
     while (searchDir.endsWith(QDir::separator()))
         searchDir.resize(searchDir.size() - 1);
@@ -245,7 +287,9 @@ QStringList QbElement::listPluginPaths(const QString &searchPath)
         if (QFileInfo(path).isFile()) {
             QString fileName = QFileInfo(path).fileName();
 
-            if (QRegExp(pattern, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(fileName)) {
+            if (QRegExp(pattern,
+                        Qt::CaseSensitive,
+                        QRegExp::Wildcard).exactMatch(fileName)) {
                 QPluginLoader pluginLoader(path);
 
                 if (pluginLoader.load()) {
@@ -253,8 +297,7 @@ QStringList QbElement::listPluginPaths(const QString &searchPath)
                     files << path;
                 }
             }
-        }
-        else {
+        } else {
             QDir dir(path);
             QStringList fileList = dir.entryList(QDir::Files,
                                                  QDir::Name);
@@ -282,7 +325,9 @@ QStringList QbElement::listPluginPaths(const QString &searchPath)
                                                 QDir::Name);
 
             foreach (QString dir, dirList)
-                searchPaths << QString("%1%2%3").arg(path).arg(QDir::separator()).arg(dir);
+                searchPaths << QString("%1%2%3").arg(path)
+                                                .arg(QDir::separator())
+                                                .arg(dir);
         }
     }
 
@@ -319,7 +364,7 @@ QString QbElement::pluginPath(const QString &pluginId)
             return path;
     }
 
-    return "";
+    return QString();
 }
 
 QVariantMap QbElement::pluginInfo(const QString &pluginId)
@@ -339,33 +384,6 @@ void QbElement::clearCache()
     pluginsCache->clear();
 }
 
-QList<QMetaMethod> QbElement::methodsByName(const QObject *object, const QString &methodName)
-{
-    QList<QMetaMethod> methods;
-    QStringList methodSignatures;
-
-    for (int i = 0; i < object->metaObject()->methodCount(); i++) {
-        QMetaMethod method = object->metaObject()->method(i);
-        QString signature(method.methodSignature());
-
-        if (QRegExp(QString("\\s*%1\\s*\\(.*").arg(methodName)).exactMatch(signature))
-            if (!methodSignatures.contains(signature)) {
-                methods << method;
-                methodSignatures << signature;
-            }
-    }
-
-    return methods;
-}
-
-bool QbElement::methodCompat(const QMetaMethod &method1, const QMetaMethod &method2)
-{
-    if (method1.parameterTypes() == method2.parameterTypes())
-        return true;
-
-    return false;
-}
-
 void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
     Q_UNUSED(from)
@@ -381,33 +399,31 @@ QbPacket QbElement::iStream(const QbPacket &packet)
 
 void QbElement::setState(QbElement::ElementState state)
 {
-    QbElement::ElementState preState = this->m_state;
+    QbElement::ElementState preState = this->d->m_state;
 
     if (state == ElementStateNull
         && preState != state) {
         if (preState == ElementStatePlaying) {
             this->setState(ElementStatePaused);
-            preState = this->m_state;
+            preState = this->d->m_state;
         }
 
-        this->m_state = state;
+        this->d->m_state = state;
         emit this->stateChanged(state);
         emit this->stateChange(preState, state);
-    }
-    else if (state == ElementStatePaused
-             && preState != state) {
-        this->m_state = state;
+    } else if (state == ElementStatePaused
+               && preState != state) {
+        this->d->m_state = state;
         emit this->stateChanged(state);
         emit this->stateChange(preState, state);
-    }
-    else if (state == ElementStatePlaying
-             && preState != state) {
+    } else if (state == ElementStatePlaying
+               && preState != state) {
         if (preState == ElementStateNull) {
             this->setState(ElementStatePaused);
-            preState = this->m_state;
+            preState = this->d->m_state;
         }
 
-        this->m_state = state;
+        this->d->m_state = state;
         emit this->stateChanged(state);
         emit this->stateChange(preState, state);
     }

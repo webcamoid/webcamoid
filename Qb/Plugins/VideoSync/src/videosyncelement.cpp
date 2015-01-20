@@ -138,16 +138,14 @@ void VideoSyncElement::processFrame()
                     this->m_mutex.unlock();
 
                     continue;
-                }
-                // video is ahead the external clock.
-                else if (diff > syncThreshold) {
+                } else if (diff > syncThreshold) {
+                    // video is ahead the external clock.
                     Sleep::usleep(1e6 * (diff - syncThreshold));
                     this->m_mutex.unlock();
 
                     continue;
                 }
-            }
-            else
+            } else
                 this->m_timeDrift = this->m_elapsedTimer.elapsed() * 1.0e-3
                                     - pts;
 

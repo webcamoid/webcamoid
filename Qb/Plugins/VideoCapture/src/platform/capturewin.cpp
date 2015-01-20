@@ -132,13 +132,13 @@ QString Capture::caps() const
     if (caps)
         return caps.toString();
 
-    return "";
+    return QString();
 }
 
 QString Capture::description(const QString &webcam) const
 {
     if (webcam.isEmpty())
-        return "";
+        return QString();
 
     MonikerPtr moniker = this->findMoniker(webcam);
 

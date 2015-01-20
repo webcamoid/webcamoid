@@ -281,7 +281,6 @@ QbPacket CharifyElement::iStream(const QbPacket &packet)
     if (src.isNull())
         return QbPacket();
 
-    static QbCaps caps;
     static ColorMode mode;
     static QString charTable;
     static QFont font;
@@ -289,7 +288,7 @@ QbPacket CharifyElement::iStream(const QbPacket &packet)
     static QRgb backgroundColor = -1;
     static bool reversed = false;
 
-    if (packet.caps() != caps
+    if (packet.caps() != this->m_caps
         || this->m_mode != mode
         || this->m_charTable != charTable
         || this->m_font!= font
@@ -303,7 +302,7 @@ QbPacket CharifyElement::iStream(const QbPacket &packet)
                               this->m_backgroundColor,
                               this->m_reversed);
 
-        caps = packet.caps();
+        this->m_caps = packet.caps();
         mode = this->m_mode;
         charTable = this->m_charTable;
         font = this->m_font;

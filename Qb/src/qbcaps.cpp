@@ -25,35 +25,48 @@
 
 #include "qbcaps.h"
 
+class QbCapsPrivate
+{
+    public:
+        bool m_isValid;
+        QString m_mimeType;
+};
+
 QbCaps::QbCaps(QObject *parent): QObject(parent)
 {
-    this->resetMimeType();
-    this->m_isValid = false;
+    this->d = new QbCapsPrivate();
+    this->d->m_isValid = false;
+    this->d->m_mimeType = "";
 }
 
 QbCaps::QbCaps(const QString &caps)
 {
+    this->d = new QbCapsPrivate();
+    this->d->m_isValid = false;
+    this->d->m_mimeType = "";
     this->fromString(caps);
 }
 
 QbCaps::QbCaps(const QbCaps &other):
-    QObject(other.parent()),
-    m_isValid(other.m_isValid),
-    m_mimeType(other.m_mimeType)
+    QObject(other.parent())
 {
+    this->d = new QbCapsPrivate();
+    this->d->m_isValid = other.d->m_isValid;
+    this->d->m_mimeType = other.d->m_mimeType;
     this->update(other);
 }
 
 QbCaps::~QbCaps()
 {
+    delete this->d;
 }
 
 QbCaps &QbCaps::operator =(const QbCaps &other)
 {
     if (this != &other) {
         this->clear();
-        this->m_isValid = other.m_isValid;
-        this->m_mimeType = other.m_mimeType;
+        this->d->m_isValid = other.d->m_isValid;
+        this->d->m_mimeType = other.d->m_mimeType;
         this->update(other);
     }
 
@@ -75,24 +88,24 @@ bool QbCaps::operator !=(const QbCaps &other) const
 
 QbCaps::operator bool() const
 {
-    return this->m_isValid;
+    return this->d->m_isValid;
 }
 
 bool QbCaps::isValid() const
 {
-    return this->m_isValid;
+    return this->d->m_isValid;
 }
 
 QString QbCaps::mimeType() const
 {
-    return this->m_mimeType;
+    return this->d->m_mimeType;
 }
 
 void QbCaps::fromString(const QString &caps)
 {
-    this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
-                              "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
-                              "\\s*[^,=]+)*\\s*").exactMatch(caps);
+    this->d->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
+                                 "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
+                                 "\\s*[^,=]+)*\\s*").exactMatch(caps);
 
     QList<QByteArray> properties = this->dynamicPropertyNames();
 
@@ -101,7 +114,7 @@ void QbCaps::fromString(const QString &caps)
 
     QStringList capsChunks;
 
-    if (this->m_isValid)
+    if (this->d->m_isValid)
         capsChunks = caps.split(QRegExp("\\s*,\\s*"),
                                       QString::SkipEmptyParts);
 
@@ -113,15 +126,15 @@ void QbCaps::fromString(const QString &caps)
                           pair[1].trimmed());
     }
 
-    this->setMimeType(this->m_isValid? capsChunks[0].trimmed(): "");
+    this->setMimeType(this->d->m_isValid? capsChunks[0].trimmed(): QString(""));
 }
 
 QString QbCaps::toString() const
 {
-    if (!this->isValid())
-        return "";
+    if (!this->d->m_isValid)
+        return QString();
 
-    QString caps = this->mimeType();
+    QString caps = this->d->m_mimeType;
     QStringList properties;
 
     foreach (QByteArray property, this->dynamicPropertyNames())
@@ -138,7 +151,7 @@ QString QbCaps::toString() const
 
 QbCaps &QbCaps::update(const QbCaps &other)
 {
-    if (this->mimeType() != other.mimeType())
+    if (this->d->m_mimeType != other.d->m_mimeType)
         return *this;
 
     foreach (QByteArray property, other.dynamicPropertyNames())
@@ -150,7 +163,7 @@ QbCaps &QbCaps::update(const QbCaps &other)
 
 bool QbCaps::isCompatible(const QbCaps &other) const
 {
-    if (this->mimeType() != other.mimeType())
+    if (this->d->m_mimeType != other.d->m_mimeType)
         return false;
 
     foreach (QByteArray property, other.dynamicPropertyNames())
@@ -168,8 +181,8 @@ bool QbCaps::contains(const QString &property) const
 
 void QbCaps::setMimeType(const QString &mimeType)
 {
-    this->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*\\s*").exactMatch(mimeType);
-    this->m_mimeType = this->m_isValid? mimeType.trimmed(): "";
+    this->d->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*\\s*").exactMatch(mimeType);
+    this->d->m_mimeType = this->d->m_isValid? mimeType.trimmed(): QString("");
 
     emit this->mimeTypeChanged();
 }
@@ -181,8 +194,8 @@ void QbCaps::resetMimeType()
 
 void QbCaps::clear()
 {
-    this->m_mimeType.clear();
-    this->m_isValid = false;
+    this->d->m_mimeType.clear();
+    this->d->m_isValid = false;
 
     QList<QByteArray> properties = this->dynamicPropertyNames();
 

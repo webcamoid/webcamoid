@@ -172,11 +172,9 @@ QbPacket ColorFilterElement::iStream(const QbPacket &packet)
                 b = p * (gray - b) + b;
 
                 destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
-            }
-            else
+            } else
                 destBits[i] = srcBits[i];
-        }
-        else {
+        } else {
             int gray = qGray(srcBits[i]);
             destBits[i] = qRgba(gray, gray, gray, qAlpha(srcBits[i]));
         }

@@ -19,39 +19,38 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#ifndef VIDEORECORDCONFIG_H
-#define VIDEORECORDCONFIG_H
+#ifndef RECORDINGFORMAT_H
+#define RECORDINGFORMAT_H
 
-#include <QWidget>
+#include <QObject>
+#include <QStringList>
 
-#include "mediatools.h"
-
-namespace Ui
-{
-    class VideoRecordConfig;
-}
-
-class VideoRecordConfig: public QWidget
+class RecordingFormat: public QObject
 {
     Q_OBJECT
 
     public:
-        explicit VideoRecordConfig(MediaTools *mediaTools=NULL, QWidget *parent=NULL);
+        explicit RecordingFormat(const QString &description,
+                                 const QStringList &suffix,
+                                 const QString &params,
+                                 QObject *parent=NULL);
+        RecordingFormat(const RecordingFormat &other);
+        RecordingFormat &operator =(const RecordingFormat &other);
+        bool operator ==(const RecordingFormat &other) const;
+
+        Q_INVOKABLE QString description() const;
+        Q_INVOKABLE QStringList suffix() const;
+        Q_INVOKABLE QString params() const;
 
     private:
-        QSharedPointer<Ui::VideoRecordConfig> ui;
-
-        MediaTools *m_mediaTools;
-        bool m_isInit;
-
-        void update();
+        QString m_description;
+        QStringList m_suffix;
+        QString m_params;
 
     public slots:
-        void on_btnAdd_clicked();
-        void on_btnRemove_clicked();
-        void on_btnUp_clicked();
-        void on_btnDown_clicked();
-        void on_tbwVideoFormats_cellChanged(int row, int column);
+        void setDescription(const QString &description);
+        void setSuffix(const QStringList &suffix);
+        void setParams(const QString &params);
 };
 
-#endif // VIDEORECORDCONFIG_H
+#endif // RECORDINGFORMAT_H

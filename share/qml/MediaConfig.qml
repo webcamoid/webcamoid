@@ -49,11 +49,6 @@ GridLayout {
         }
     }
 
-    AddMedia {
-        id: dlgAddMedia
-        editMode: true
-    }
-
     Label {
         id: lblDescription
         color: Qt.rgba(1, 1, 1, 1)
@@ -114,5 +109,10 @@ GridLayout {
         objectName: "itmMediaControls"
         Layout.fillWidth: true
         Layout.fillHeight: true
+    }
+
+    AddMedia {
+        id: dlgAddMedia
+        editMode: true
     }
 }

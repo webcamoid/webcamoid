@@ -25,11 +25,14 @@
 #include <QObject>
 #include <QDebug>
 
+class QbCapsPrivate;
+
 class QbCaps: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool isValid READ isValid)
+    Q_PROPERTY(bool isValid
+               READ isValid)
     Q_PROPERTY(QString mimeType
                READ mimeType
                WRITE setMimeType
@@ -55,8 +58,7 @@ class QbCaps: public QObject
         Q_INVOKABLE bool contains(const QString &property) const;
 
     private:
-        bool m_isValid;
-        QString m_mimeType;
+        QbCapsPrivate *d;
 
     signals:
         void mimeTypeChanged();

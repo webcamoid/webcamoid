@@ -67,8 +67,8 @@ HEADERS = \
     include/mediatools.h \
     include/streamsconfig.h \
     include/videodisplay.h \
-    include/videorecordconfig.h \
-    include/videoframe.h
+    include/videoframe.h \
+    include/recordingformat.h
 
 INCLUDEPATH += \
     include \
@@ -101,8 +101,8 @@ SOURCES = \
     src/mediatools.cpp \
     src/streamsconfig.cpp \
     src/videodisplay.cpp \
-    src/videorecordconfig.cpp \
-    src/videoframe.cpp
+    src/videoframe.cpp \
+    src/recordingformat.cpp
 
 TRANSLATIONS = $$files(share/ts/*.ts)
 

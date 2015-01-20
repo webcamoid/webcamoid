@@ -263,30 +263,25 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
             this->m_dropPower = qrand() % (strength << 1) - strength;
             this->m_dropsPerFrameMax = 2 << (qrand() >> 30); // 2,4,8 or 16
             this->m_rainStat = 1;
-        }
-        else if (this->m_rainStat == 1) {
+        } else if (this->m_rainStat == 1) {
             this->m_dropProb = 0x00ffffff;
             this->m_dropsPerFrame = 1;
             this->m_dropProbIncrement = 1;
             this->m_period = 16 * (this->m_dropsPerFrameMax - 1);
             this->m_rainStat = 2;
-        }
-        else if (this->m_rainStat == 2) {
+        } else if (this->m_rainStat == 2) {
             m_period = (qrand() >> 22) + 1000;
             m_dropProbIncrement = 0;
             m_rainStat = 3;
-        }
-        else if (this->m_rainStat == 3) {
+        } else if (this->m_rainStat == 3) {
             this->m_period = 16 * (this->m_dropsPerFrameMax - 1);
             this->m_dropProbIncrement = -1;
             this->m_rainStat = 4;
-        }
-        else if (this->m_rainStat == 4) {
+        } else if (this->m_rainStat == 4) {
             this->m_period = (qrand() >> 24) + 60;
             this->m_dropProbIncrement = -this->m_dropProb / this->m_period;
             this->m_rainStat = 5;
-        }
-        else {
+        } else {
             this->m_period = (qrand() >> 23) + 500;
             this->m_dropProb = 0;
             this->m_rainStat = 0;
@@ -302,10 +297,9 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
             rain = this->drop(width, height, this->m_dropPower);
 
         this->m_dropProb += this->m_dropProbIncrement;
-    }
-    else if (this->m_rainStat == 2
-             || this->m_rainStat == 3
-             || this->m_rainStat == 4) {
+    } else if (this->m_rainStat == 2
+               || this->m_rainStat == 3
+               || this->m_rainStat == 4) {
         for  (int i = this->m_dropsPerFrame / 16; i > 0; i--)
             rain = this->drop(width, height, this->m_dropPower);
 
@@ -422,8 +416,7 @@ QbPacket RippleElement::iStream(const QbPacket &packet)
         this->m_rippleBuffer << QImage(src.size(), src.format());
         this->m_rippleBuffer[1].fill(qRgba(0, 0, 0, 0));
         this->m_curRippleBuffer = 0;
-    }
-    else {
+    } else {
         QImage drops;
 
         if (this->m_mode == RippleModeMotionDetect)

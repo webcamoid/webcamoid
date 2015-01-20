@@ -138,9 +138,9 @@ ApplicationWindow {
     FileDialog {
         id: fileDialog
         title: qsTr("Choose the file to add as media")
-        selectExisting : true
-        selectFolder : false
-        selectMultiple : false
+        selectExisting: true
+        selectFolder: false
+        selectMultiple: false
         selectedNameFilter: nameFilters[nameFilters.length - 2]
         nameFilters: ["3GP Video (*.3gp)",
                       "AVI Video (*.avi)",

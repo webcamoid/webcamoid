@@ -85,13 +85,18 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
-
             EffectBar {
                 id: effectBar
                 visible: false
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 onCurEffectChanged: effectConfig.curEffect = curEffect
+            }
+            RecordBar {
+                id: recordBar
+                visible: false
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
         }
 
@@ -114,7 +119,6 @@ ApplicationWindow {
                         position: 0
                         color: Qt.rgba(0.25, 0.25, 0.25, 1)
                     }
-
                     GradientStop {
                         position: 1
                         color: Qt.rgba(0, 0, 0, 1)
@@ -153,7 +157,6 @@ ApplicationWindow {
                                     Webcamoid.start();
                             }
                         }
-
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
@@ -170,21 +173,28 @@ ApplicationWindow {
                                 splitView.state = "showMediaPanels"
                             }
                         }
-
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
                             text: qsTr("Take a Picture")
                             icon: "qrc:/Webcamoid/share/icons/picture.svg"
                         }
-
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
                             text: qsTr("Record Video")
                             icon: "qrc:/Webcamoid/share/icons/video.svg"
-                        }
 
+                            onClicked: {
+                                if (splitView.state == "showRecordPanels"
+                                    && splitView.showBars)
+                                    splitView.showBars = false
+                                else
+                                    splitView.showBars = true
+
+                                splitView.state = "showRecordPanels"
+                            }
+                        }
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
@@ -201,14 +211,12 @@ ApplicationWindow {
                                 splitView.state = "showEffectPanels"
                             }
                         }
-
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
                             text: qsTr("Preferences")
                             icon: "qrc:/Webcamoid/share/icons/setup.svg"
                         }
-
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
@@ -222,25 +230,33 @@ ApplicationWindow {
             }
         }
 
-        Rectangle {
+        RowLayout {
             id: rightPanel
-            width: 200
             visible: false
-            color: Qt.rgba(0, 0, 0, 1)
+            width: 400
 
-            MediaConfig {
-                id: mediaConfig
-                visible: false
-                onWidthChanged: rightPanel.width = width
-            }
+            Rectangle {
+                color: Qt.rgba(0, 0, 0, 1)
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-            EffectConfig {
-                id: effectConfig
-                curEffect: effectBar.curEffect
-                inUse: !effectBar.editMode
-                visible: false
-                onWidthChanged: rightPanel.width = width
-                onEffectAdded: effectBar.editMode = false
+                MediaConfig {
+                    id: mediaConfig
+                    visible: false
+                    anchors.fill: parent
+                }
+                EffectConfig {
+                    id: effectConfig
+                    curEffect: effectBar.curEffect
+                    inUse: !effectBar.editMode
+                    visible: false
+                    anchors.fill: parent
+                }
+                RecordConfig {
+                    id: recordConfig
+                    anchors.fill: parent
+                    visible: false
+                }
             }
         }
 
@@ -264,6 +280,17 @@ ApplicationWindow {
                 }
                 PropertyChanges {
                     target: effectConfig
+                    visible: true
+                }
+            },
+            State {
+                name: "showRecordPanels"
+                PropertyChanges {
+                    target: recordBar
+                    visible: true
+                }
+                PropertyChanges {
+                    target: recordConfig
                     visible: true
                 }
             }

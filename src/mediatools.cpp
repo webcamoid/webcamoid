@@ -31,8 +31,9 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->resetVideoSize("");
     this->resetPlayAudioFromSource();
     this->m_recordAudioFrom = RecordFromMic;
+    this->resetCurRecordingFormat();
     this->resetRecording();
-    this->resetVideoRecordFormats();
+    this->resetRecordingFormats();
     this->resetStreams();
     this->resetWindowWidth();
     this->resetWindowHeight();
@@ -223,14 +224,66 @@ MediaTools::RecordFrom MediaTools::recordAudioFrom() const
     return this->m_recordAudioFrom;
 }
 
+QString MediaTools::curRecordingFormat() const
+{
+    return this->m_curRecordingFormat;
+}
+
 bool MediaTools::recording() const
 {
     return this->m_recording;
 }
 
-QList<QStringList> MediaTools::videoRecordFormats() const
+QStringList MediaTools::recordingFormats() const
 {
-    return this->m_videoRecordFormats;
+    QStringList formats;
+
+    foreach (RecordingFormat recordingFormat, this->m_recordingFormats)
+        formats << recordingFormat.description();
+
+    return formats;
+}
+
+QString MediaTools::recordingFormatParams(const QString &formatId) const
+{
+    foreach (RecordingFormat recordingFormat, this->m_recordingFormats)
+        if (recordingFormat.description() == formatId)
+            return recordingFormat.params();
+
+    return QString();
+}
+
+QStringList MediaTools::recordingFormatSuffix(const QString &formatId) const
+{
+    foreach (RecordingFormat recordingFormat, this->m_recordingFormats)
+        if (recordingFormat.description() == formatId)
+            return recordingFormat.suffix();
+
+    return QStringList();
+}
+
+void MediaTools::removeRecordingFormat(const QString &formatId)
+{
+    for (int i = 0; i < this->m_recordingFormats.size(); i++)
+        if (this->m_recordingFormats[i].description() == formatId) {
+            this->m_recordingFormats.removeAt(i);
+            emit this->recordingFormatsChanged();
+
+            break;
+        }
+}
+
+void MediaTools::moveRecordingFormat(const QString &formatId, int index)
+{
+    for (int i = 0; i < this->m_recordingFormats.size(); i++)
+        if (this->m_recordingFormats[i].description() == formatId) {
+            RecordingFormat format = this->m_recordingFormats.takeAt(i);
+            this->m_recordingFormats.insert(index, format);
+
+            break;
+        }
+
+    emit this->recordingFormatsChanged();
 }
 
 QStringList MediaTools::streams() const
@@ -304,7 +357,7 @@ QString MediaTools::streamDescription(const QString &stream) const
     if (this->m_streams.contains(stream))
         return this->m_streams[stream];
 
-    return "";
+    return QString();
 }
 
 bool MediaTools::canModify(const QString &stream) const
@@ -385,7 +438,7 @@ QVariantMap MediaTools::effectInfo(const QString &effectId) const
 QString MediaTools::effectDescription(const QString &effectId) const
 {
     if (effectId.isEmpty())
-        return "";
+        return QString();
 
     return QbElement::pluginInfo(effectId)["MetaData"].toMap()
                                           ["description"].toString();
@@ -418,8 +471,7 @@ QbElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
     if (i < 0) {
         this->m_videoSync->unlink(this->m_videoConvert);
         this->m_videoSync->link(effect);
-    }
-    else {
+    } else {
         this->m_effectsList[i]->unlink(this->m_videoConvert);
         this->m_effectsList[i]->link(effect);
     }
@@ -441,8 +493,7 @@ void MediaTools::removeEffect(const QString &effectId)
                     this->m_videoSync->link(this->m_videoConvert);
                 else
                     this->m_videoSync->link(this->m_effectsList[i + 1]);
-            }
-            else if (i == this->m_effectsList.size() - 1)
+            } else if (i == this->m_effectsList.size() - 1)
                 this->m_effectsList[i - 1]->link(this->m_videoConvert);
             else
                 this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1]);
@@ -526,17 +577,17 @@ void MediaTools::removePreview(const QString &effectId)
 
 QString MediaTools::bestRecordFormatOptions(const QString &fileName) const
 {
-    QString ext = QFileInfo(fileName).completeSuffix();
+    QString ext = QFileInfo(fileName).completeSuffix().toLower().trimmed();
 
     if (ext.isEmpty())
-        return "";
+        return QString();
 
-    foreach (QStringList format, this->m_videoRecordFormats)
-        foreach (QString s, format[0].split(",", QString::SkipEmptyParts))
+    foreach (RecordingFormat format, this->m_recordingFormats)
+        foreach (QString s, format.suffix())
             if (s.toLower().trimmed() == ext)
-                return format[1];
+                return format.params();
 
-    return "";
+    return QString();
 }
 
 bool MediaTools::isPlaying()
@@ -591,6 +642,21 @@ bool MediaTools::matches(const QString &pattern, const QStringList &strings) con
             return true;
 
     return false;
+}
+
+QString MediaTools::currentTime() const
+{
+    return QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
+}
+
+QStringList MediaTools::standardLocations(const QString &type) const
+{
+    if (type == "movies")
+        return QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
+    else if (type == "pictures")
+        return QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+
+    return QStringList();
 }
 
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
@@ -687,8 +753,7 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
                                 SIGNAL(stateChanged(QbElement::ElementState)),
                                 this->m_mic.data(),
                                 SLOT(setState(QbElement::ElementState)));
-    }
-    else {
+    } else {
         if (recordAudio == RecordFromSource) {
             if (this->m_recordAudioFrom == RecordFromMic) {
                 this->m_mic->setState(QbElement::ElementStateNull);
@@ -700,8 +765,7 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
             }
 
             this->m_audioSwitch->setProperty("inputIndex", 0);
-        }
-        else if (recordAudio == RecordFromMic) {
+        } else if (recordAudio == RecordFromMic) {
             if (this->m_record->state() == QbElement::ElementStatePlaying ||
                 this->m_record->state() == QbElement::ElementStatePaused)
                 this->m_mic->setState(this->m_record->state());
@@ -729,7 +793,16 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
     this->m_recordAudioFrom = recordAudio;
 }
 
-void MediaTools::setRecording(bool recording, QString fileName)
+void MediaTools::setCurRecordingFormat(const QString &curRecordingFormat)
+{
+    if (this->m_curRecordingFormat == curRecordingFormat)
+        return;
+
+    this->m_curRecordingFormat = curRecordingFormat;
+    emit this->curRecordingFormatChanged();
+}
+
+void MediaTools::setRecording(bool recording, const QString &fileName)
 {
     if (!this->m_pipeline || !this->m_record) {
         this->m_recording = false;
@@ -771,8 +844,7 @@ void MediaTools::setRecording(bool recording, QString fileName)
 
             if (this->recordAudioFrom() == RecordFromMic)
                 this->m_mic->setState(QbElement::ElementStatePlaying);
-        }
-        else {
+        } else {
             this->m_audioSwitch->setState(QbElement::ElementStateNull);
             this->m_mic->setState(QbElement::ElementStateNull);
         }
@@ -843,8 +915,7 @@ bool MediaTools::start()
                                   Q_RETURN_ARG(QString, videoCaps));
 
         streamCaps["0"] = videoCaps;
-    }
-    else
+    } else
         QMetaObject::invokeMethod(this->m_source.data(),
                                   "streamCaps", Qt::DirectConnection,
                                   Q_RETURN_ARG(QVariantMap, streamCaps));
@@ -864,9 +935,8 @@ bool MediaTools::start()
                                   Q_RETURN_ARG(QString, audioCaps));
 
         recordStreams["1"] = audioCaps;
-    }
-    else if (this->recordAudioFrom() == RecordFromSource &&
-             audioStream >= 0)
+    } else if (this->recordAudioFrom() == RecordFromSource &&
+               audioStream >= 0)
         recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
 
     // Set recording caps.
@@ -984,8 +1054,7 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
                          SIGNAL(stateChanged(QbElement::ElementState)),
                          this->m_audioOutput.data(),
                          SLOT(setState(QbElement::ElementState)));
-    }
-    else {
+    } else {
         this->m_audioOutput->setState(QbElement::ElementStateNull);
 
         QObject::disconnect(this->m_source.data(),
@@ -995,9 +1064,29 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
     }
 }
 
-void MediaTools::setVideoRecordFormats(QList<QStringList> videoRecordFormats)
+void MediaTools::setRecordingFormats(const QList<RecordingFormat> &recordingFormats)
 {
-    this->m_videoRecordFormats = videoRecordFormats;
+    if (recordingFormats != this->m_recordingFormats) {
+        this->m_recordingFormats = recordingFormats;
+        emit this->recordingFormatsChanged();
+    }
+}
+
+void MediaTools::setRecordingFormat(const QString &description,
+                                    const QStringList &suffix,
+                                    const QString &params)
+{
+    for (int i = 0; i < this->m_recordingFormats.size(); i++)
+        if (this->m_recordingFormats[i].description() == description) {
+            this->m_recordingFormats[i].setSuffix(suffix);
+            this->m_recordingFormats[i].setParams(params);
+            emit this->recordingFormatsChanged();
+
+            return;
+        }
+
+    this->m_recordingFormats << RecordingFormat(description, suffix, params);
+    emit this->recordingFormatsChanged();
 }
 
 void MediaTools::setWindowWidth(int windowWidth)
@@ -1051,14 +1140,19 @@ void MediaTools::resetRecordAudioFrom()
     this->setRecordAudioFrom(RecordFromMic);
 }
 
+void MediaTools::resetCurRecordingFormat()
+{
+    this->setCurRecordingFormat("");
+}
+
 void MediaTools::resetRecording()
 {
     this->setRecording(false);
 }
 
-void MediaTools::resetVideoRecordFormats()
+void MediaTools::resetRecordingFormats()
 {
-    this->setVideoRecordFormats(QList<QStringList>());
+    this->setRecordingFormats(QList<RecordingFormat>());
 }
 
 void MediaTools::resetWindowWidth()
@@ -1108,7 +1202,7 @@ void MediaTools::loadConfigs()
         if (!effect)
             continue;
 
-        config.beginGroup(effectId);
+        config.beginGroup("Effects_" + effectId);
 
         foreach (QString key, config.allKeys())
             effect->setProperty(key.toStdString().c_str(), config.value(key));
@@ -1116,26 +1210,38 @@ void MediaTools::loadConfigs()
         config.endGroup();
     }
 
-    config.beginGroup("VideoRecordFormats");
+    config.beginGroup("RecordingFormats");
     size = config.beginReadArray("formats");
+    QStringList recordingFormats;
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
-        QString format = config.value("format").toString();
-        QString params = config.value("params").toString();
-        this->setVideoRecordFormat(format, params);
-    }
-
-    if (size < 1) {
-        this->setVideoRecordFormat("webm",
-                                   "-i 0 -opt quality=realtime -c:v libvpx -b:v 3M -i 1 -c:a libvorbis -o -f webm");
-
-        this->setVideoRecordFormat("ogv, ogg",
-                                   "-i 0 -c:v libtheora -b:v 3M -i 1 -c:a libvorbis -o -f ogg");
+        recordingFormats << config.value("format").toString();
     }
 
     config.endArray();
     config.endGroup();
+
+    if (size < 1) {
+        this->setRecordingFormat("Webm",
+                                 QStringList() << "webm",
+                                 "-i 0 -opt quality=realtime -c:v libvpx -b:v 3M -i 1 -c:a libvorbis -o -f webm");
+
+        this->setRecordingFormat("Ogg",
+                                 QStringList() << "ogv" << "ogg",
+                                 "-i 0 -c:v libtheora -b:v 3M -i 1 -c:a libvorbis -o -f ogg");
+        this->setCurRecordingFormat("Webm");
+    } else
+        foreach (QString formatId, recordingFormats) {
+            if (this->m_curRecordingFormat.isEmpty())
+                this->setCurRecordingFormat(formatId);
+
+            config.beginGroup("RecordingFormats_" + formatId);
+            QString params = config.value("params").toString();
+            QStringList suffix = config.value("suffix").toStringList();
+            this->setRecordingFormat(formatId, suffix, params);
+            config.endGroup();
+        }
 
     config.beginGroup("CustomStreams");
     size = config.beginReadArray("streams");
@@ -1183,7 +1289,7 @@ void MediaTools::saveConfigs()
     config.endGroup();
 
     foreach (QbElementPtr effect, this->m_effectsList) {
-        config.beginGroup(effect->pluginId());
+        config.beginGroup("Effects_" + effect->pluginId());
 
         for (int property = 0;
              property < effect->metaObject()->propertyCount();
@@ -1199,18 +1305,26 @@ void MediaTools::saveConfigs()
         config.endGroup();
     }
 
-    config.beginGroup("VideoRecordFormats");
+    config.beginGroup("RecordingFormats");
     config.beginWriteArray("formats");
 
-    for (int i = 0; i < this->m_videoRecordFormats.size(); i++) {
-        config.setArrayIndex(i);
-        QStringList format = this->m_videoRecordFormats[i];
-        config.setValue("format", format[0]);
-        config.setValue("params", format[1]);
+    ei = 0;
+
+    foreach (RecordingFormat recordingFormat, this->m_recordingFormats) {
+        config.setArrayIndex(ei);
+        config.setValue("format", recordingFormat.description());
+        ei++;
     }
 
     config.endArray();
     config.endGroup();
+
+    foreach (RecordingFormat recordingFormat, this->m_recordingFormats) {
+        config.beginGroup("RecordingFormats_" + recordingFormat.description());
+        config.setValue("params", recordingFormat.params());
+        config.setValue("suffix", recordingFormat.suffix());
+        config.endGroup();
+    }
 
     config.beginGroup("CustomStreams");
     config.beginWriteArray("streams");
@@ -1245,11 +1359,6 @@ void MediaTools::saveConfigs()
     config.endGroup();
 }
 
-void MediaTools::clearVideoRecordFormats()
-{
-    this->m_videoRecordFormats.clear();
-}
-
 void MediaTools::setStream(const QString &stream, const QString &description)
 {
     this->m_streams[stream] = description;
@@ -1272,12 +1381,6 @@ void MediaTools::resetStreams()
 {
     this->m_streams.clear();
     emit this->streamsChanged();
-}
-
-void MediaTools::setVideoRecordFormat(QString suffix, QString options)
-{
-    this->m_videoRecordFormats << (QStringList() << suffix
-                                   << options);
 }
 
 void MediaTools::cleanAll()

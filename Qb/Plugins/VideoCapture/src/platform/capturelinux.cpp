@@ -229,7 +229,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
             if (closeFd)
                 close(fd);
 
-            return "";
+            return QString();
         }
 
         closeFd = true;
@@ -245,7 +245,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
         if (closeFd)
             close(fd);
 
-        return "";
+        return QString();
     }
 
     if (!this->m_rawToFF.contains(fmt.fmt.pix.pixelformat)) {
@@ -263,7 +263,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
             if (closeFd)
                 close(fd);
 
-            return "";
+            return QString();
         }
     }
 
@@ -287,7 +287,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
 QString Capture::description(const QString &webcam) const
 {
     if (webcam.isEmpty())
-        return "";
+        return QString();
 
     QFile device;
     v4l2_capability capability;
@@ -304,7 +304,7 @@ QString Capture::description(const QString &webcam) const
         device.close();
     }
 
-    return "";
+    return QString();
 }
 
 QVariantList Capture::availableSizes(const QString &webcam) const
@@ -596,7 +596,7 @@ QString Capture::v4l2ToFF(quint32 fmt) const
     if (this->m_compressedToFF.contains(fmt))
         return this->m_compressedToFF[fmt];
 
-    return "";
+    return QString();
 }
 
 QbFrac Capture::fps(int fd) const

@@ -25,6 +25,8 @@
 #include <QObject>
 #include <QDebug>
 
+class QbFracPrivate;
+
 class QbFrac: public QObject
 {
     Q_OBJECT
@@ -68,12 +70,7 @@ class QbFrac: public QObject
         Q_INVOKABLE QbFrac invert() const;
 
     private:
-        int m_num;
-        int m_den;
-        bool m_isValid;
-
-        qint64 gcd(qint64 num, qint64 den) const;
-        QVector<qint64> reduce(qint64 num, qint64 den);
+        QbFracPrivate *d;
 
     signals:
         void numChanged();
@@ -93,6 +90,8 @@ class QbFrac: public QObject
     friend QDebug operator <<(QDebug debug, const QbFrac &frac);
     friend QDataStream &operator >>(QDataStream &istream, QbFrac &frac);
     friend QDataStream &operator <<(QDataStream &ostream, const QbFrac &frac);
+    friend QbFrac operator *(int number, const QbFrac &frac);
+    friend QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen);
 };
 
 QDebug operator <<(QDebug debug, const QbFrac &frac);

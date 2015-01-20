@@ -35,6 +35,7 @@
 }
 
 class QbElement;
+class QbElementPrivate;
 
 typedef QSharedPointer<QbElement> QbElementPtr;
 
@@ -76,15 +77,18 @@ class QbElement: public QObject
         Q_INVOKABLE virtual bool unlink(const QObject *dstElement) const;
         Q_INVOKABLE virtual bool unlink(const QbElementPtr &dstElement) const;
 
-        Q_INVOKABLE static bool link(const QbElementPtr &srcElement, const QObject *dstElement,
+        Q_INVOKABLE static bool link(const QbElementPtr &srcElement,
+                                     const QObject *dstElement,
                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
-
-        Q_INVOKABLE static bool link(const QbElementPtr &srcElement, const QbElementPtr &dstElement,
+        Q_INVOKABLE static bool link(const QbElementPtr &srcElement,
+                                     const QbElementPtr &dstElement,
                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
-
-        Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement, const QObject *dstElement);
-        Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement, const QbElementPtr &dstElement);
-        Q_INVOKABLE static QbElementPtr create(const QString &pluginId, const QString &elementName="");
+        Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement,
+                                       const QObject *dstElement);
+        Q_INVOKABLE static bool unlink(const QbElementPtr &srcElement,
+                                       const QbElementPtr &dstElement);
+        Q_INVOKABLE static QbElementPtr create(const QString &pluginId,
+                                               const QString &elementName="");
         Q_INVOKABLE static bool recursiveSearch();
         Q_INVOKABLE static void setRecursiveSearch(bool enable);
         Q_INVOKABLE static QStringList searchPaths();
@@ -99,14 +103,9 @@ class QbElement: public QObject
         Q_INVOKABLE static void clearCache();
 
     private:
-        QString m_pluginId;
-
-        static QList<QMetaMethod> methodsByName(const QObject *object, const QString &methodName);
-        static bool methodCompat(const QMetaMethod &method1, const QMetaMethod &method2);
+        QbElementPrivate *d;
 
     protected:
-        QbElement::ElementState m_state;
-
         virtual void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     signals:

@@ -10,5 +10,8 @@
         <file>share/qml/MediaBar.qml</file>
         <file>share/qml/MediaConfig.qml</file>
         <file>share/qml/OptionList.qml</file>
+        <file>share/qml/RecordBar.qml</file>
+        <file>share/qml/RecordConfig.qml</file>
+        <file>share/qml/AddRecordingFormat.qml</file>
     </qresource>
 </RCC>

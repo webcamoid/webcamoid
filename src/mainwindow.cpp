@@ -83,7 +83,6 @@ void MainWindow::showConfigDialog(ConfigDialog *configDialog)
     }
 
     this->addWebcamConfigDialog(configDialog);
-    this->addVideoFormatsConfigDialog(configDialog);
     this->addStreamsConfigDialog(configDialog);
     this->addGeneralConfigsDialog(configDialog);
 
@@ -114,21 +113,21 @@ QString MainWindow::saveFile(bool video)
         if (!videosPaths.isEmpty())
             videosPath = videosPaths[0];
 
-        QList<QStringList> videoRecordFormats = this->m_mediaTools->videoRecordFormats();
+        QStringList videoRecordFormats = this->m_mediaTools->recordingFormats();
 
         QStringList filtersList;
-        bool fst = true;
 
-        foreach (QStringList format, videoRecordFormats)
-            foreach (QString s, format.at(0).split(",", QString::SkipEmptyParts)) {
-                s = s.trimmed();
-                filtersList << QString("%1 file (*.%2)").arg(s.toUpper()).arg(s.toLower());
+        foreach (QString formatId, videoRecordFormats) {
+            QStringList suffix = this->m_mediaTools->recordingFormatSuffix(formatId);
 
-                if (fst) {
-                    defaultSuffix = s.toLower();
-                    fst = false;
-                }
-            }
+            if (suffix.isEmpty())
+                continue;
+
+            filtersList << QString("%1 file (*.%2)").arg(formatId).arg(suffix.join(" *."));
+
+            if (defaultSuffix.isEmpty())
+                defaultSuffix = suffix[0];
+        }
 
         filters = filtersList.join(";;");
 
@@ -157,7 +156,7 @@ QString MainWindow::saveFile(bool video)
     }
 
     if (defaultSuffix.isEmpty())
-        return "";
+        return QString();
 
     QFileDialog saveFileDialog(NULL,
                                this->tr("Save File As..."),
@@ -225,20 +224,6 @@ void MainWindow::addWebcamConfigDialog(ConfigDialog *configDialog)
                           this->tr("Webcam Settings"),
                           QIcon::fromTheme("camera-web"),
                           this->tr("Configure the parameters of the webcam."));
-}
-
-void MainWindow::addVideoFormatsConfigDialog(ConfigDialog *configDialog)
-{
-    if (!configDialog)
-        return;
-
-    this->m_cfgVideoFormats = new VideoRecordConfig(this->m_mediaTools);
-
-    configDialog->
-           addPage(this->m_cfgVideoFormats,
-                   this->tr("Configure Video Recording Formats"),
-                   QIcon::fromTheme("video-x-generic"),
-                   this->tr("Add or remove video formats for recording."));
 }
 
 void MainWindow::addStreamsConfigDialog(ConfigDialog *configDialog)

@@ -29,6 +29,7 @@ ListView {
 
     property string curOptionName: ""
     property string filter: ""
+    property string showField: "description"
 
     model: ListModel {
     }
@@ -70,7 +71,7 @@ ListView {
                 color: Qt.rgba(1, 1, 1, 1)
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: description
+                text: lsvOptionList.showField == "description"? description: name
             }
 
             MouseArea {

@@ -70,9 +70,8 @@ void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::Elem
                                   this->m_outputParams,
                                   this->m_commands.outputOptions(),
                                   this->m_commands.inputs());
-    }
-    else if (from == QbElement::ElementStatePaused
-             && to == QbElement::ElementStateNull) {
+    } else if (from == QbElement::ElementStatePaused
+               && to == QbElement::ElementStateNull) {
         this->flushStreams();
         this->m_outputFormat.close();
     }
@@ -271,8 +270,7 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
 
             codecContext->width = size.width();
             codecContext->height = size.height();
-        }
-        else {
+        } else {
             codecContext->width = inputCaps.property("width").toInt();
             codecContext->height = inputCaps.property("height").toInt();
         }
@@ -442,8 +440,7 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
 
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
-    }
-    else {
+    } else {
         // encode the image
         pkt.data = NULL; // packet data will be allocated by the encoder
         pkt.size = 0;

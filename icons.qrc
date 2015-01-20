@@ -26,9 +26,10 @@
         <file>share/icons/setup.svg</file>
         <file>share/icons/sound.svg</file>
         <file>share/icons/spaces.svg</file>
+        <file>share/icons/startrecord.svg</file>
         <file>share/icons/stayontop.svg</file>
         <file>share/icons/stop.svg</file>
-        <file>share/icons/stoprec.svg</file>
+        <file>share/icons/stoprecord.svg</file>
         <file>share/icons/video.svg</file>
         <file>share/icons/web.svg</file>
         <file>share/icons/webcam.svg</file>

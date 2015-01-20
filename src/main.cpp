@@ -81,8 +81,7 @@ int main(int argc, char *argv[])
 
             break;
         }
-    }
-    else {
+    } else {
         mainWindow = new MainWindow();
         mainWindow->show();
     }

@@ -23,9 +23,8 @@ import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
-GridLayout {
+ColumnLayout {
     id: recEffectConfig
-    columns: 1
 
     property string curEffect: ""
     property bool inUse: false
@@ -44,7 +43,6 @@ GridLayout {
         font.bold: true
         Layout.fillWidth: true
     }
-
     TextField {
         id: txtEffect
         text: recEffectConfig.curEffect
@@ -52,7 +50,6 @@ GridLayout {
         readOnly: true
         Layout.fillWidth: true
     }
-
     Label {
         id: lblDescription
         color: Qt.rgba(1, 1, 1, 1)
@@ -60,7 +57,6 @@ GridLayout {
         font.bold: true
         Layout.fillWidth: true
     }
-
     TextField {
         id: txtDescription
         text: Webcamoid.effectDescription(recEffectConfig.curEffect)
@@ -68,7 +64,6 @@ GridLayout {
         readOnly: true
         Layout.fillWidth: true
     }
-
     RowLayout {
         id: rowControls
         Layout.fillWidth: true
@@ -97,11 +92,12 @@ GridLayout {
             }
         }
     }
-
     RowLayout {
         id: itmEffectControls
         objectName: "itmEffectControls"
         Layout.fillWidth: true
+    }
+    Label {
         Layout.fillHeight: true
     }
 }

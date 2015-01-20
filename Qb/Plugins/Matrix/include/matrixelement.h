@@ -120,6 +120,7 @@ class MatrixElement: public QbElement
         qreal m_maxSpeed;
         bool m_showCursor;
 
+        QbCaps m_caps;
         QbElementPtr m_convert;
         QList<Character> m_characters;
         QSize m_fontSize;

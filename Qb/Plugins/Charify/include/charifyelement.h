@@ -92,6 +92,7 @@ class CharifyElement: public QbElement
         QRgb m_backgroundColor;
         bool m_reversed;
 
+        QbCaps m_caps;
         QbElementPtr m_convert;
         QMap<ColorMode, QString> m_colorModeToStr;
         QList<Character> m_characters;

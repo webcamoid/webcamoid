@@ -77,29 +77,22 @@ void BinElement::setDescription(const QString &description)
 
         QString error = this->m_pipelineDescription.error();
 
-        if (error.isEmpty())
-        {
+        if (error.isEmpty()) {
             this->m_description = description;
 
             this->m_elements = this->m_pipelineDescription.elements();
             this->m_inputs = this->m_pipelineDescription.inputs();
             this->m_outputs = this->m_pipelineDescription.outputs();
             this->connectOutputs();
-        }
-        else
-        {
+        } else {
             this->m_pipelineDescription.cleanAll();
 
             qDebug() << error;
         }
-    }
-    else if (description.isEmpty())
-    {
+    } else if (description.isEmpty()) {
         this->m_pipelineDescription.cleanAll();
         this->m_description = description;
-    }
-    else
-    {
+    } else {
         foreach (QbElementPtr element, this->m_outputs)
             QObject::disconnect(element.data(),
                                 SIGNAL(oStream(const QbPacket &)),
@@ -114,17 +107,14 @@ void BinElement::setDescription(const QString &description)
 
         QString error = this->m_pipelineDescription.error();
 
-        if (error.isEmpty())
-        {
+        if (error.isEmpty()) {
             this->m_description = description;
 
             this->m_elements = this->m_pipelineDescription.elements();
             this->m_inputs = this->m_pipelineDescription.inputs();
             this->m_outputs = this->m_pipelineDescription.outputs();
             this->connectOutputs();
-        }
-        else
-        {
+        } else {
             this->m_pipelineDescription.cleanAll();
             this->m_description = "";
 

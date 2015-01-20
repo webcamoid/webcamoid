@@ -214,13 +214,11 @@ bool Pipeline::linkAll()
                 this->m_error = QString("No element named '%1'").arg(link[0]);
 
                 return false;
-            }
-            else if (!this->m_elements.contains(link[1])) {
+            } else if (!this->m_elements.contains(link[1])) {
                 this->m_error = QString("No element named '%1'").arg(link[1]);
 
                 return false;
-            }
-            else {
+            } else {
                 QString connectionTypeString;
 
                 if (link.length() > 2)
@@ -258,13 +256,11 @@ bool Pipeline::unlinkAll()
                 this->m_error = QString("No element named '%1'").arg(link[0]);
 
                 return false;
-            }
-            else if (!this->m_elements.contains(link[1])) {
+            } else if (!this->m_elements.contains(link[1])) {
                 this->m_error = QString("No element named '%1'").arg(link[1]);
 
                 return false;
-            }
-            else
+            } else
                 this->m_elements[link[0]]->unlink(this->m_elements[link[1]]);
         }
 

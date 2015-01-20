@@ -29,6 +29,8 @@
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
 
+#include "recordingformat.h"
+
 class MediaTools: public QObject
 {
     Q_OBJECT
@@ -39,44 +41,40 @@ class MediaTools: public QObject
                WRITE setCurStream
                RESET resetCurStream
                NOTIFY curStreamChanged)
-
     Q_PROPERTY(QStringList streams
                READ streams
                RESET resetStreams
                NOTIFY streamsChanged)
-
     Q_PROPERTY(bool playAudioFromSource
                READ playAudioFromSource
                WRITE setPlayAudioFromSource
                RESET resetPlayAudioFromSource)
-
     Q_PROPERTY(RecordFrom recordAudioFrom
                READ recordAudioFrom
                WRITE setRecordAudioFrom
                RESET resetRecordAudioFrom)
-
+    Q_PROPERTY(QString curRecordingFormat
+               READ curRecordingFormat
+               WRITE setCurRecordingFormat
+               RESET resetCurRecordingFormat
+               NOTIFY curRecordingFormatChanged)
     Q_PROPERTY(bool recording
                READ recording
                WRITE setRecording
                RESET resetRecording)
-
-    Q_PROPERTY(QList<QStringList> videoRecordFormats
-               READ videoRecordFormats
-               WRITE setVideoRecordFormats
-               RESET resetVideoRecordFormats)
-
+    Q_PROPERTY(QStringList recordingFormats
+               READ recordingFormats
+               NOTIFY recordingFormatsChanged)
     Q_PROPERTY(int windowWidth
                READ windowWidth
                WRITE setWindowWidth
                RESET resetWindowWidth
                NOTIFY windowWidthChanged)
-
     Q_PROPERTY(int windowHeight
                READ windowHeight
                WRITE setWindowHeight
                RESET resetWindowHeight
                NOTIFY windowHeightChanged)
-
     Q_PROPERTY(QStringList currentEffects
                READ currentEffects
                NOTIFY currentEffectsChanged)
@@ -96,8 +94,13 @@ class MediaTools: public QObject
         Q_INVOKABLE QSize videoSize(const QString &stream);
         Q_INVOKABLE bool playAudioFromSource() const;
         Q_INVOKABLE RecordFrom recordAudioFrom() const;
+        Q_INVOKABLE QString curRecordingFormat() const;
         Q_INVOKABLE bool recording() const;
-        Q_INVOKABLE QList<QStringList> videoRecordFormats() const;
+        Q_INVOKABLE QStringList recordingFormats() const;
+        Q_INVOKABLE QString recordingFormatParams(const QString &formatId) const;
+        Q_INVOKABLE QStringList recordingFormatSuffix(const QString &formatId) const;
+        Q_INVOKABLE void removeRecordingFormat(const QString &formatId);
+        Q_INVOKABLE void moveRecordingFormat(const QString &formatId, int index);
         Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
@@ -107,7 +110,6 @@ class MediaTools: public QObject
         Q_INVOKABLE QString copyrightNotice() const;
         Q_INVOKABLE QString projectUrl() const;
         Q_INVOKABLE QString projectLicenseUrl() const;
-
         Q_INVOKABLE QString streamDescription(const QString &stream) const;
         Q_INVOKABLE bool canModify(const QString &stream) const;
         Q_INVOKABLE bool isCamera(const QString &stream) const;
@@ -136,14 +138,17 @@ class MediaTools: public QObject
                                              const QString &name="") const;
         Q_INVOKABLE void removeCameraControls(const QString &where) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
+        Q_INVOKABLE QString currentTime() const;
+        Q_INVOKABLE QStringList standardLocations(const QString &type) const;
 
     private:
         QString m_curStream;
         QMap<QString, QString> m_streams;
         bool m_playAudioFromSource;
         RecordFrom m_recordAudioFrom;
+        QString m_curRecordingFormat;
         bool m_recording;
-        QList<QStringList> m_videoRecordFormats;
+        QList<RecordingFormat> m_recordingFormats;
         int m_windowWidth;
         int m_windowHeight;
         QQmlApplicationEngine *m_appEngine;
@@ -163,19 +168,18 @@ class MediaTools: public QObject
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *interface,
                             const QString &where) const;
-
         void removeInterface(QQmlApplicationEngine *engine,
                              const QString &where) const;
-
         static bool sortByDescription(const QString &pluginId1,
                                       const QString &pluginId2);
-
 
     signals:
         void curStreamChanged();
         void streamsChanged();
         void stateChanged();
+        void curRecordingFormatChanged();
         void recordingChanged(bool recording);
+        void recordingFormatsChanged();
         void windowWidthChanged();
         void windowHeightChanged();
         void currentEffectsChanged();
@@ -194,27 +198,29 @@ class MediaTools: public QObject
         void setVideoSize(const QString &stream, const QSize &size);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(RecordFrom recordAudioFrom);
-        void setRecording(bool recording, QString fileName="");
-        void setVideoRecordFormats(QList<QStringList> videoRecordFormats);
+        void setCurRecordingFormat(const QString &curRecordingFormat);
+        void setRecording(bool recording, const QString &fileName="");
+        void setRecordingFormats(const QList<RecordingFormat> &recordingFormats);
+        void setRecordingFormat(const QString &description,
+                                const QStringList &suffix,
+                                const QString &params);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void resetCurStream();
         void resetVideoSize(const QString &stream);
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
+        void resetCurRecordingFormat();
         void resetRecording();
-        void resetVideoRecordFormats();
+        void resetRecordingFormats();
         void resetWindowWidth();
         void resetWindowHeight();
-
         void reset(const QString &stream);
         void loadConfigs();
         void saveConfigs();
-        void clearVideoRecordFormats();
         void setStream(const QString &stream, const QString &description);
         void removeStream(const QString &stream);
         void resetStreams();
-        void setVideoRecordFormat(QString suffix="", QString options="");
         void cleanAll();
 
     private slots:

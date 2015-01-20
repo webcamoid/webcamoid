@@ -31,7 +31,6 @@
 #include "generalconfig.h"
 #include "streamsconfig.h"
 #include "mediatools.h"
-#include "videorecordconfig.h"
 #include "cameraconfig.h"
 #include "imagedisplay.h"
 #include "configdialog.h"
@@ -56,7 +55,6 @@ class MainWindow: public QMainWindow
         QbPacket m_webcamFrame;
         StreamsConfig *m_cfgStreams;
         MediaTools *m_mediaTools;
-        VideoRecordConfig *m_cfgVideoFormats;
         CameraConfig *m_cfgWebcamDialog;
         ImageDisplay *m_imageDispay;
 
@@ -72,7 +70,6 @@ class MainWindow: public QMainWindow
 
     public slots:
         void addWebcamConfigDialog(ConfigDialog *configDialog);
-        void addVideoFormatsConfigDialog(ConfigDialog *configDialog);
         void addStreamsConfigDialog(ConfigDialog *configDialog);
         void addGeneralConfigsDialog(ConfigDialog *configDialog);
         void showFrame(const QbPacket &webcamFrame);

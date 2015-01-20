@@ -452,7 +452,6 @@ QbPacket MatrixElement::iStream(const QbPacket &packet)
     if (src.isNull())
         return QbPacket();
 
-    static QbCaps caps;
     static QString charTable;
     static QFont font;
     static QRgb cursorColor = -1;
@@ -462,7 +461,7 @@ QbPacket MatrixElement::iStream(const QbPacket &packet)
     if (this->m_font!= font)
         this->m_rain.clear();
 
-    if (packet.caps() != caps
+    if (packet.caps() != this->m_caps
         || this->m_charTable != charTable
         || this->m_font!= font
         || this->m_cursorColor != cursorColor
@@ -474,7 +473,7 @@ QbPacket MatrixElement::iStream(const QbPacket &packet)
                               this->m_foregroundColor,
                               this->m_backgroundColor);
 
-        caps = packet.caps();
+        this->m_caps = packet.caps();
         charTable = this->m_charTable;
         font = this->m_font;
         cursorColor = this->m_cursorColor;

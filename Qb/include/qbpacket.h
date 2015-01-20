@@ -27,6 +27,8 @@
 #include "qbcaps.h"
 #include "qbfrac.h"
 
+class QbPacketPrivate;
+
 typedef QSharedPointer<char> QbBufferPtr;
 
 class QbPacket: public QObject
@@ -109,14 +111,7 @@ class QbPacket: public QObject
         Q_INVOKABLE int &index();
 
     private:
-        QbCaps m_caps;
-        QVariant m_data;
-        QbBufferPtr m_buffer;
-        ulong m_bufferSize;
-        qint64 m_pts;
-        QbFrac m_timeBase;
-        int m_index;
-        qint64 m_id;
+        QbPacketPrivate *d;
 
     signals:
         void capsChanged();
