@@ -24,10 +24,11 @@
 
 #include <QSize>
 #include <QMutex>
-#include <qb.h>
 #include <QQuickItem>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
+#include <qb.h>
+#include <qbutils.h>
 
 #include "recordingformat.h"
 
@@ -35,7 +36,6 @@ class MediaTools: public QObject
 {
     Q_OBJECT
     Q_ENUMS(RecordFrom)
-
     Q_PROPERTY(QString curStream
                READ curStream
                WRITE setCurStream
@@ -48,11 +48,13 @@ class MediaTools: public QObject
     Q_PROPERTY(bool playAudioFromSource
                READ playAudioFromSource
                WRITE setPlayAudioFromSource
-               RESET resetPlayAudioFromSource)
-    Q_PROPERTY(RecordFrom recordAudioFrom
+               RESET resetPlayAudioFromSource
+               NOTIFY playAudioFromSourceChanged)
+    Q_PROPERTY(QString recordAudioFrom
                READ recordAudioFrom
                WRITE setRecordAudioFrom
-               RESET resetRecordAudioFrom)
+               RESET resetRecordAudioFrom
+               NOTIFY recordAudioFromChanged)
     Q_PROPERTY(QString curRecordingFormat
                READ curRecordingFormat
                WRITE setCurRecordingFormat
@@ -93,7 +95,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QString curStream() const;
         Q_INVOKABLE QSize videoSize(const QString &stream);
         Q_INVOKABLE bool playAudioFromSource() const;
-        Q_INVOKABLE RecordFrom recordAudioFrom() const;
+        Q_INVOKABLE QString recordAudioFrom() const;
         Q_INVOKABLE QString curRecordingFormat() const;
         Q_INVOKABLE bool recording() const;
         Q_INVOKABLE QStringList recordingFormats() const;
@@ -151,6 +153,7 @@ class MediaTools: public QObject
         QList<RecordingFormat> m_recordingFormats;
         int m_windowWidth;
         int m_windowHeight;
+        QMap<RecordFrom, QString> m_recordFromMap;
         QQmlApplicationEngine *m_appEngine;
 
         QbElementPtr m_pipeline;
@@ -164,6 +167,8 @@ class MediaTools: public QObject
         QbElementPtr m_videoConvert;
         QList<QbElementPtr> m_effectsList;
         QMutex m_mutex;
+        QbPacket m_curPacket;
+        QImage m_photo;
 
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *interface,
@@ -176,7 +181,9 @@ class MediaTools: public QObject
     signals:
         void curStreamChanged();
         void streamsChanged();
+        void playAudioFromSourceChanged();
         void stateChanged();
+        void recordAudioFromChanged();
         void curRecordingFormatChanged();
         void recordingChanged(bool recording);
         void recordingFormatsChanged();
@@ -190,6 +197,8 @@ class MediaTools: public QObject
     public slots:
         void mutexLock();
         void mutexUnlock();
+        void takePhoto();
+        void savePhoto(const QString &fileName);
         bool start();
         void stop();
         bool startStream();
@@ -197,7 +206,7 @@ class MediaTools: public QObject
         void setCurStream(const QString &stream);
         void setVideoSize(const QString &stream, const QSize &size);
         void setPlayAudioFromSource(bool playAudioFromSource);
-        void setRecordAudioFrom(RecordFrom recordAudioFrom);
+        void setRecordAudioFrom(const QString &recordAudioFrom);
         void setCurRecordingFormat(const QString &curRecordingFormat);
         void setRecording(bool recording, const QString &fileName="");
         void setRecordingFormats(const QList<RecordingFormat> &recordingFormats);

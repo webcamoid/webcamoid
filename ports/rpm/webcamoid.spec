@@ -141,22 +141,19 @@ Features:
 %if %{defined fedora}
 qmake-qt5 Webcamoid.pro \
     LIBDIR=%{_libdir} \
-    LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    QMAKE_LRELEASE=%{_bindir}/lrelease-qt5
+    LICENSEDIR=%{_defaultdocdir}/webcamoid
 %endif
 
 %if %{defined suse_version}
 qmake-qt5 Webcamoid.pro \
     LIBDIR=%{_libdir} \
-    LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    QMAKE_LRELEASE=%{_bindir}/lrelease-qt5
+    LICENSEDIR=%{_defaultdocdir}/webcamoid
 %endif
 
 %if %{defined mgaversion}
 %{_libdir}/qt5/bin/qmake Webcamoid.pro \
     LIBDIR=%{_libdir} \
-    LICENSEDIR=%{_defaultdocdir}/webcamoid \
-    QMAKE_LRELEASE=%{_libdir}/qt5/bin/lrelease
+    LICENSEDIR=%{_defaultdocdir}/webcamoid
 %endif
 
 make

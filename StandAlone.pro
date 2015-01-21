@@ -47,25 +47,8 @@ PRE_TARGETDEPS += compiler_compiletr_make_all
 
 CONFIG += qt
 
-FORMS = \
-    share/ui/generalconfig.ui \
-    share/ui/streamsconfig.ui \
-    share/ui/videorecordconfig.ui \
-    share/ui/cameraconfig.ui \
-    share/ui/imagedisplay.ui \
-    share/ui/mainwindow.ui \
-    share/ui/about.ui \
-    share/ui/configdialog.ui
-
 HEADERS = \
-    include/about.h \
-    include/cameraconfig.h \
-    include/configdialog.h \
-    include/generalconfig.h \
-    include/imagedisplay.h \
-    include/mainwindow.h \
     include/mediatools.h \
-    include/streamsconfig.h \
     include/videodisplay.h \
     include/videoframe.h \
     include/recordingformat.h
@@ -92,14 +75,7 @@ RESOURCES += \
 
 SOURCES = \
     src/main.cpp \
-    src/about.cpp \
-    src/cameraconfig.cpp \
-    src/configdialog.cpp \
-    src/generalconfig.cpp \
-    src/imagedisplay.cpp \
-    src/mainwindow.cpp \
     src/mediatools.cpp \
-    src/streamsconfig.cpp \
     src/videodisplay.cpp \
     src/videoframe.cpp \
     src/recordingformat.cpp

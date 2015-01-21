@@ -23,9 +23,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QTranslator>
-#include <QCommandLineParser>
 
-#include "mainwindow.h"
+#include "mediatools.h"
 #include "videodisplay.h"
 
 int main(int argc, char *argv[])
@@ -41,61 +40,31 @@ int main(int argc, char *argv[])
     translator.load(QLocale::system().name(), "qrc:/Webcamoid/share/ts");
     QCoreApplication::installTranslator(&translator);
 
-    QCommandLineParser parser;
-    parser.setApplicationDescription(QCoreApplication::translate("main", "Webcam capture application."));
-    parser.addHelpOption();
-    parser.addVersionOption();
+    QQmlApplicationEngine engine;
+    MediaTools mediaTools(&engine);
 
-    QCommandLineOption enableTestVersion("next", QCoreApplication::translate("main", "Test next version."));
-    parser.addOption(enableTestVersion);
+    // @uri Webcamoid
+    qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
 
-    parser.process(app);
+    engine.rootContext()->setContextProperty("Webcamoid", &mediaTools);
+    engine.load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
-    MediaTools *mediaTools = NULL;
-    QQmlApplicationEngine *engine = NULL;
-    MainWindow *mainWindow = NULL;
+    emit mediaTools.interfaceLoaded();
 
-    if (parser.isSet(enableTestVersion)) {
-        // @uri Webcamoid
-        qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
+    foreach (QObject *obj, engine.rootObjects()) {
+        // First, find where to enbed the UI.
+        VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 
-        engine = new QQmlApplicationEngine();
-        mediaTools = new MediaTools(engine);
+        if (!videoDisplay)
+            continue;
 
-        engine->rootContext()->setContextProperty("Webcamoid", mediaTools);
-        engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
+        QObject::connect(&mediaTools,
+                         &MediaTools::frameReady,
+                         videoDisplay,
+                         &VideoDisplay::setFrame);
 
-        emit mediaTools->interfaceLoaded();
-
-        foreach (QObject *obj, engine->rootObjects()) {
-            // First, find where to enbed the UI.
-            VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
-
-            if (!videoDisplay)
-                continue;
-
-            QObject::connect(mediaTools,
-                             &MediaTools::frameReady,
-                             videoDisplay,
-                             &VideoDisplay::setFrame);
-
-            break;
-        }
-    } else {
-        mainWindow = new MainWindow();
-        mainWindow->show();
+        break;
     }
 
-    int r = app.exec();
-
-    if (mediaTools)
-        delete mediaTools;
-
-    if (engine)
-        delete engine;
-
-    if (mainWindow)
-        delete mainWindow;
-
-    return r;
+    return app.exec();
 }

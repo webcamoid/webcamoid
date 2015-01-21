@@ -20,6 +20,7 @@
  */
 
 import QtQuick 2.3
+import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
@@ -66,13 +67,6 @@ ApplicationWindow {
         anchors.fill: parent
         orientation: Qt.Horizontal
         Layout.minimumWidth: 600
-
-        property bool showBars: false
-
-        onShowBarsChanged: {
-            leftPanel.visible = showBars
-            rightPanel.visible = showBars
-        }
 
         RowLayout {
             id: leftPanel
@@ -164,20 +158,22 @@ ApplicationWindow {
                             icon: "qrc:/Webcamoid/share/icons/webcam.svg"
 
                             onClicked: {
-                                if (splitView.state == "showMediaPanels"
-                                    && splitView.showBars)
-                                    splitView.showBars = false
+                                if (splitView.state == "showMediaPanels")
+                                    splitView.state = ""
                                 else
-                                    splitView.showBars = true
-
-                                splitView.state = "showMediaPanels"
+                                    splitView.state = "showMediaPanels"
                             }
                         }
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
-                            text: qsTr("Take a Picture")
+                            text: qsTr("Take a Photo")
                             icon: "qrc:/Webcamoid/share/icons/picture.svg"
+
+                            onClicked: {
+                                Webcamoid.takePhoto()
+                                fileDialog.visible = true
+                            }
                         }
                         IconBarItem {
                             width: iconBarRect.height
@@ -186,13 +182,10 @@ ApplicationWindow {
                             icon: "qrc:/Webcamoid/share/icons/video.svg"
 
                             onClicked: {
-                                if (splitView.state == "showRecordPanels"
-                                    && splitView.showBars)
-                                    splitView.showBars = false
+                                if (splitView.state == "showRecordPanels")
+                                    splitView.state = ""
                                 else
-                                    splitView.showBars = true
-
-                                splitView.state = "showRecordPanels"
+                                    splitView.state = "showRecordPanels"
                             }
                         }
                         IconBarItem {
@@ -202,13 +195,10 @@ ApplicationWindow {
                             icon: "qrc:/Webcamoid/share/icons/effects.svg"
 
                             onClicked: {
-                                if (splitView.state == "showEffectPanels"
-                                    && splitView.showBars)
-                                    splitView.showBars = false
+                                if (splitView.state == "showEffectPanels")
+                                    splitView.state = ""
                                 else
-                                    splitView.showBars = true
-
-                                splitView.state = "showEffectPanels"
+                                    splitView.state = "showEffectPanels"
                             }
                         }
                         IconBarItem {
@@ -216,6 +206,13 @@ ApplicationWindow {
                             height: iconBarRect.height
                             text: qsTr("Preferences")
                             icon: "qrc:/Webcamoid/share/icons/setup.svg"
+
+                            onClicked: {
+                                if (splitView.state == "showConfigPanels")
+                                    splitView.state = ""
+                                else
+                                    splitView.state = "showConfigPanels"
+                            }
                         }
                         IconBarItem {
                             width: iconBarRect.height
@@ -257,12 +254,25 @@ ApplicationWindow {
                     anchors.fill: parent
                     visible: false
                 }
+                GeneralConfig {
+                    id: generalConfig
+                    anchors.fill: parent
+                    visible: false
+                }
             }
         }
 
         states: [
             State {
                 name: "showMediaPanels"
+                PropertyChanges {
+                    target: leftPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: rightPanel
+                    visible: true
+                }
                 PropertyChanges {
                     target: mdbMediaBar
                     visible: true
@@ -275,6 +285,14 @@ ApplicationWindow {
             State {
                 name: "showEffectPanels"
                 PropertyChanges {
+                    target: leftPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: rightPanel
+                    visible: true
+                }
+                PropertyChanges {
                     target: effectBar
                     visible: true
                 }
@@ -286,11 +304,30 @@ ApplicationWindow {
             State {
                 name: "showRecordPanels"
                 PropertyChanges {
+                    target: leftPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: rightPanel
+                    visible: true
+                }
+                PropertyChanges {
                     target: recordBar
                     visible: true
                 }
                 PropertyChanges {
                     target: recordConfig
+                    visible: true
+                }
+            },
+            State {
+                name: "showConfigPanels"
+                PropertyChanges {
+                    target: rightPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: generalConfig
                     visible: true
                 }
             }
@@ -299,5 +336,20 @@ ApplicationWindow {
 
     About {
         id: about
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: qsTr("Save photo as...")
+        folder: Webcamoid.standardLocations("pictures")[0]
+        selectExisting: false
+        selectMultiple: false
+        selectedNameFilter: nameFilters[0]
+        nameFilters: ["PNG file (*.png)",
+                      "JPEG file (*.jpg)",
+                      "BMP file (*.bmp)",
+                      "GIF file (*.gif)"]
+
+        onAccepted: Webcamoid.savePhoto(fileUrl);
     }
 }

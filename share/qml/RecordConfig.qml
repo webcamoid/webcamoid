@@ -51,6 +51,17 @@ ColumnLayout {
         return filters
     }
 
+    function makeDefaultFilter()
+    {
+        var suffix = Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)
+        var filter = Webcamoid.curRecordingFormat
+                     + " (*."
+                     + suffix.join(" *.")
+                     + ")"
+
+        return filter
+    }
+
     function makeFileName()
     {
         var defaultSuffix = Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)[0]
@@ -225,7 +236,7 @@ ColumnLayout {
         folder: Webcamoid.standardLocations("movies")[0]
         selectExisting: false
         selectMultiple: false
-        selectedNameFilter: Webcamoid.curRecordingFormat
+        selectedNameFilter: makeDefaultFilter()
         nameFilters: recRecordConfig.makeFilters()
 
         onAccepted: Webcamoid.setRecording(true, fileUrl);

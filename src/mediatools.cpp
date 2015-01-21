@@ -27,6 +27,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->m_appEngine = engine;
+
+    this->m_recordFromMap[RecordFromNone] = "none";
+    this->m_recordFromMap[RecordFromSource] = "source";
+    this->m_recordFromMap[RecordFromMic] = "mic";
+
     this->resetCurStream();
     this->resetVideoSize("");
     this->resetPlayAudioFromSource();
@@ -192,8 +197,10 @@ void MediaTools::iStream(const QbPacket &packet)
 
     QString sender = this->sender()->objectName();
 
-    if (sender == "videoConvert")
+    if (sender == "videoConvert") {
+        this->m_curPacket = packet;
         emit this->frameReady(packet);
+    }
 }
 
 QString MediaTools::curStream() const
@@ -219,9 +226,9 @@ bool MediaTools::playAudioFromSource() const
     return this->m_playAudioFromSource;
 }
 
-MediaTools::RecordFrom MediaTools::recordAudioFrom() const
+QString MediaTools::recordAudioFrom() const
 {
-    return this->m_recordAudioFrom;
+    return this->m_recordFromMap[this->m_recordAudioFrom];
 }
 
 QString MediaTools::curRecordingFormat() const
@@ -724,8 +731,12 @@ bool MediaTools::sortByDescription(const QString &pluginId1,
     return desc1 < desc2;
 }
 
-void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
+void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
 {
+    RecordFrom recordAudio = this->m_recordFromMap.values().contains(recordAudioFrom)?
+                                 this->m_recordFromMap.key(recordAudioFrom):
+                                 RecordFromMic;
+
     if (this->m_recordAudioFrom == recordAudio)
         return;
 
@@ -733,6 +744,7 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
         !this->m_audioSwitch ||
         !this->m_record) {
         this->m_recordAudioFrom = recordAudio;
+        emit this->recordAudioFromChanged();
 
         return;
     }
@@ -791,6 +803,7 @@ void MediaTools::setRecordAudioFrom(RecordFrom recordAudio)
     }
 
     this->m_recordAudioFrom = recordAudio;
+    emit this->recordAudioFromChanged();
 }
 
 void MediaTools::setCurRecordingFormat(const QString &curRecordingFormat)
@@ -839,10 +852,10 @@ void MediaTools::setRecording(bool recording, const QString &fileName)
         else
             this->m_recording = false;
 
-        if (this->recordAudioFrom() != RecordFromNone) {
+        if (this->m_recordAudioFrom != RecordFromNone) {
             this->m_audioSwitch->setState(QbElement::ElementStatePlaying);
 
-            if (this->recordAudioFrom() == RecordFromMic)
+            if (this->m_recordAudioFrom == RecordFromMic)
                 this->m_mic->setState(QbElement::ElementStatePlaying);
         } else {
             this->m_audioSwitch->setState(QbElement::ElementStateNull);
@@ -861,6 +874,18 @@ void MediaTools::mutexLock()
 void MediaTools::mutexUnlock()
 {
     this->m_mutex.unlock();
+}
+
+void MediaTools::takePhoto()
+{
+    this->m_photo = QbUtils::packetToImage(this->m_curPacket).copy();
+}
+
+void MediaTools::savePhoto(const QString &fileName)
+{
+    QString path = fileName;
+    path.replace("file://", "");
+    this->m_photo.save(path);
 }
 
 bool MediaTools::start()
@@ -927,7 +952,7 @@ bool MediaTools::start()
         recordStreams["0"] = streamCaps[QString("%1").arg(videoStream)];
 
     // Stream 1 = Audio.
-    if (this->recordAudioFrom() == RecordFromMic) {
+    if (this->m_recordAudioFrom == RecordFromMic) {
         QString audioCaps;
 
         QMetaObject::invokeMethod(this->m_mic.data(),
@@ -935,8 +960,8 @@ bool MediaTools::start()
                                   Q_RETURN_ARG(QString, audioCaps));
 
         recordStreams["1"] = audioCaps;
-    } else if (this->recordAudioFrom() == RecordFromSource &&
-               audioStream >= 0)
+    } else if (this->m_recordAudioFrom == RecordFromSource
+               && audioStream >= 0)
         recordStreams["1"] = streamCaps[QString("%1").arg(audioStream)];
 
     // Set recording caps.
@@ -1038,7 +1063,11 @@ void MediaTools::setVideoSize(const QString &stream, const QSize &size)
 
 void MediaTools::setPlayAudioFromSource(bool playAudio)
 {
+    if (this->m_playAudioFromSource == playAudio)
+        return;
+
     this->m_playAudioFromSource = playAudio;
+    emit this->playAudioFromSourceChanged();
 
     if (!this->m_source || !this->m_audioOutput)
         return;
@@ -1137,7 +1166,7 @@ void MediaTools::resetPlayAudioFromSource()
 
 void MediaTools::resetRecordAudioFrom()
 {
-    this->setRecordAudioFrom(RecordFromMic);
+    this->setRecordAudioFrom("mic");
 }
 
 void MediaTools::resetCurRecordingFormat()
@@ -1172,11 +1201,7 @@ void MediaTools::loadConfigs()
     config.beginGroup("GeneralConfigs");
 
     this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
-
-    int recordFrom = config.value("recordAudioFrom",
-                                  static_cast<int>(RecordFromMic)).toInt();
-
-    this->setRecordAudioFrom(static_cast<RecordFrom>(recordFrom));
+    this->setRecordAudioFrom(config.value("recordAudioFrom", "mic").toString());
 
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->m_windowWidth = windowSize.width();
@@ -1264,10 +1289,7 @@ void MediaTools::saveConfigs()
     config.beginGroup("GeneralConfigs");
 
     config.setValue("playAudio", this->playAudioFromSource());
-
-    config.setValue("recordAudioFrom",
-                    static_cast<int>(this->recordAudioFrom()));
-
+    config.setValue("recordAudioFrom", this->recordAudioFrom());
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
 
