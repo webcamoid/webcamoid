@@ -73,14 +73,4 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 5. The output of the previous command.
 6. Any other useful information.
 
-For debuging the plasmoid, run this command:
-
-    plasma-windowed webcamoid
-
 Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
-
-## Donate ##
-
-Can you share some BTC with me to keep alive the project? :)
-
-[Donate Now](https://blockchain.info/address/1Gj7THPrfrXFQ5BzVSVmRu2GxvwzYzbacj)
