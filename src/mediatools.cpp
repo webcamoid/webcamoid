@@ -19,7 +19,10 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
-#include <QtXml>
+#include <QSettings>
+#include <QFileInfo>
+#include <QDateTime>
+#include <QStandardPaths>
 
 #include "mediatools.h"
 
@@ -68,37 +71,10 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_pipeline = QbElement::create("Bin", "pipeline");
 
     if (this->m_pipeline) {
-        QString description("MultiSrc objectName='source' loop=true "
-                            "audioAlign=true "
-                            "stateChanged>videoMux.setState "
-                            "stateChanged>muxAudioInput.setState ! DirectConnection?"
-                            "Multiplex objectName='videoMux' "
-                            "caps='video/x-raw' outputIndex=0 !"
-                            "VideoSync objectName='videoSync' "
-                            "audioOutput.elapsedTime>setClock "
-                            "source.stateChanged>setState "
-                            "videoCapture.stateChanged>setState !"
-                            "VCapsConvert objectName='videoConvert' "
-                            "caps='video/x-raw,format=bgra' "
-                            "source.stateChanged>setState "
-                            "videoCapture.stateChanged>setState ,"
-                            "source. ! DirectConnection?"
-                            "Multiplex objectName='muxAudioInput' "
-                            "caps='audio/x-raw' outputIndex=0 !"
-                            "Multiplex objectName='audioSwitch' "
-                            "outputIndex=1 ,"
-                            "muxAudioInput. ! DirectConnection?"
-                            "AudioOutput objectName='audioOutput' ,"
-                            "AudioInput objectName='mic' !"
-                            "Multiplex outputIndex=1 "
-                            "mic.stateChanged>setState ! audioSwitch. ,"
-                            "videoConvert. ! RtPts record.stateChanged>setState ! DirectConnection?"
-                            "MultiSink objectName='record' ,"
-                            "audioSwitch. ! record. ,"
-                            "VideoCapture objectName='videoCapture' "
-                            "stateChanged>videoMux.setState "
-                            "stateChanged>muxAudioInput.setState !"
-                            "DirectConnection? videoMux.");
+        QFile jsonFile(":/Webcamoid/share/mainpipeline.json");
+        jsonFile.open(QFile::ReadOnly);
+        QString description(jsonFile.readAll());
+        jsonFile.close();
 
         this->m_pipeline->setProperty("description", description);
 
@@ -142,7 +118,8 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                                   Q_RETURN_ARG(QbElementPtr, this->m_videoConvert),
                                   Q_ARG(QString, "videoConvert"));
 
-        this->m_videoConvert->link(this);
+        if (this->m_videoConvert)
+            this->m_videoConvert->link(this);
 
         if (this->m_source) {
             QObject::connect(this->m_source.data(),
@@ -476,8 +453,10 @@ QbElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
     this->m_effectsList << effect;
 
     if (i < 0) {
-        this->m_videoSync->unlink(this->m_videoConvert);
-        this->m_videoSync->link(effect);
+        if (this->m_videoSync) {
+            this->m_videoSync->unlink(this->m_videoConvert);
+            this->m_videoSync->link(effect);
+        }
     } else {
         this->m_effectsList[i]->unlink(this->m_videoConvert);
         this->m_effectsList[i]->link(effect);
@@ -496,8 +475,10 @@ void MediaTools::removeEffect(const QString &effectId)
     for (int i = 0; i < this->m_effectsList.size(); i++)
         if (this->m_effectsList[i]->pluginId() == effectId) {
             if (i == 0) {
-                if (this->m_effectsList.size() == 1)
-                    this->m_videoSync->link(this->m_videoConvert);
+                if (this->m_effectsList.size() == 1) {
+                    if (this->m_videoSync)
+                        this->m_videoSync->link(this->m_videoConvert);
+                }
                 else
                     this->m_videoSync->link(this->m_effectsList[i + 1]);
             } else if (i == this->m_effectsList.size() - 1)

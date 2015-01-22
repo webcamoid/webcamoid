@@ -71,10 +71,7 @@ void BinElement::setDescription(const QString &description)
 
     if (this->m_description.isEmpty())
     {
-        YY_BUFFER_STATE bufferState = yy_scan_string(description.toStdString().c_str());
-        yyparse(&this->m_pipelineDescription);
-        yy_delete_buffer(bufferState);
-
+        this->m_pipelineDescription.parse(description);
         QString error = this->m_pipelineDescription.error();
 
         if (error.isEmpty()) {
@@ -101,10 +98,7 @@ void BinElement::setDescription(const QString &description)
 
         this->m_pipelineDescription.cleanAll();
 
-        YY_BUFFER_STATE bufferState = yy_scan_string(description.toStdString().c_str());
-        yyparse(&this->m_pipelineDescription);
-        yy_delete_buffer(bufferState);
-
+        this->m_pipelineDescription.parse(description);
         QString error = this->m_pipelineDescription.error();
 
         if (error.isEmpty()) {

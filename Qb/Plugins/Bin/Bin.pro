@@ -42,13 +42,8 @@ INCLUDEPATH += \
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
-FLEXSOURCES = parser/lexer.l
-BISONSOURCES = parser/parser.y
-
 OTHER_FILES += \
-    pspec.json \
-    $$FLEXSOURCES \
-    $$BISONSOURCES
+    pspec.json
 
 QT += qml
 
@@ -64,43 +59,3 @@ TEMPLATE = lib
 INSTALLS += target
 
 target.path = $${LIBDIR}/$${COMMONS_TARGET}
-
-flexsource.input = FLEXSOURCES
-flexsource.output = src/${QMAKE_FILE_BASE}_auto.cpp
-flexsource.commands = flex --header-file=include/${QMAKE_FILE_BASE}_auto.h -o src/${QMAKE_FILE_BASE}_auto.cpp ${QMAKE_FILE_IN}
-flexsource.variable_out = SOURCES
-flexsource.name = Flex Sources ${QMAKE_FILE_IN}
-flexsource.CONFIG += target_predeps
-
-QMAKE_EXTRA_COMPILERS += flexsource
-PRE_TARGETDEPS += compiler_flexsource_make_all
-
-flexheader.input = FLEXSOURCES
-flexheader.output = include/${QMAKE_FILE_BASE}_auto.h
-flexheader.commands = @true
-flexheader.variable_out = HEADERS
-flexheader.name = Flex Headers ${QMAKE_FILE_IN}
-flexheader.CONFIG += target_predeps no_link
-
-QMAKE_EXTRA_COMPILERS += flexheader
-PRE_TARGETDEPS += compiler_flexheader_make_all
-
-bisonsource.input = BISONSOURCES
-bisonsource.output = src/${QMAKE_FILE_BASE}_auto.cpp
-bisonsource.commands = bison -d --defines=include/${QMAKE_FILE_BASE}_auto.h -o src/${QMAKE_FILE_BASE}_auto.cpp ${QMAKE_FILE_IN}
-bisonsource.variable_out = SOURCES
-bisonsource.name = Bison Sources ${QMAKE_FILE_IN}
-bisonsource.CONFIG += target_predeps
-
-QMAKE_EXTRA_COMPILERS += bisonsource
-PRE_TARGETDEPS += compiler_bisonsource_make_all
-
-bisonheader.input = BISONSOURCES
-bisonheader.output = include/${QMAKE_FILE_BASE}_auto.h
-bisonheader.commands = @true
-bisonheader.variable_out = HEADERS
-bisonheader.name = Bison Headers ${QMAKE_FILE_IN}
-bisonheader.CONFIG += target_predeps no_link
-
-QMAKE_EXTRA_COMPILERS += bisonheader
-PRE_TARGETDEPS += compiler_bisonheader_make_all

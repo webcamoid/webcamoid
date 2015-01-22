@@ -25,8 +25,6 @@ AutoReqProv: no
 
 %if %{defined fedora}
 BuildRequires: fdupes
-BuildRequires: bison
-BuildRequires: flex
 BuildRequires: gcc-c++
 BuildRequires: qt5-qtmultimedia-devel
 BuildRequires: qt5-qttools-devel
@@ -42,8 +40,6 @@ Requires: libv4l
 
 %if %{defined suse_version}
 BuildRequires: fdupes
-BuildRequires: bison
-BuildRequires: flex
 BuildRequires: libQt5Multimedia-devel
 BuildRequires: libqt5-qttools
 BuildRequires: opencv-devel
@@ -67,8 +63,6 @@ Requires: libv4lconvert0
 
 %if %{defined mgaversion}
 BuildRequires: fdupes
-BuildRequires: bison
-BuildRequires: flex
 BuildRequires: qttools5
 BuildRequires: opencv-devel
 BuildRequires: libv4l-devel

@@ -33,23 +33,42 @@ class Pipeline: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(ElementMap elements READ elements WRITE setElements RESET resetElements)
-    Q_PROPERTY(QList<QStringList> links READ links WRITE setLinks RESET resetLinks)
-    Q_PROPERTY(QList<QStringList> connections READ connections WRITE setConnections RESET resetConnections)
-    Q_PROPERTY(QVariantMap properties READ properties WRITE setProperties RESET resetProperties)
-    Q_PROPERTY(QString error READ error WRITE setError RESET resetError)
-    Q_PROPERTY(QList<QbElementPtr> inputs READ inputs)
-    Q_PROPERTY(QList<QbElementPtr> outputs READ outputs)
-    Q_PROPERTY(ThreadsMap threads READ threads WRITE setThreads RESET resetThreads)
+    Q_PROPERTY(ElementMap elements
+               READ elements
+               WRITE setElements
+               RESET resetElements)
+    Q_PROPERTY(QList<QStringList> links
+               READ links
+               WRITE setLinks
+               RESET resetLinks)
+    Q_PROPERTY(QList<QStringList> connections
+               READ connections)
+    Q_PROPERTY(QVariantMap properties
+               READ properties
+               WRITE setProperties
+               RESET resetProperties)
+    Q_PROPERTY(QString error
+               READ error
+               WRITE setError
+               RESET resetError)
+    Q_PROPERTY(QList<QbElementPtr> inputs
+               READ inputs)
+    Q_PROPERTY(QList<QbElementPtr> outputs
+               READ outputs)
+    Q_PROPERTY(ThreadsMap threads
+               READ threads
+               WRITE setThreads
+               RESET resetThreads)
 
     public:
         explicit Pipeline(QObject *parent=NULL);
+        Q_INVOKABLE bool parse(const QString &description);
         Q_INVOKABLE QMap<QString, QbElementPtr> elements() const;
         Q_INVOKABLE QList<QStringList> links() const;
         Q_INVOKABLE QList<QStringList> connections() const;
         Q_INVOKABLE QVariantMap properties() const;
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QString addElement(QbElementPtr element);
+        Q_INVOKABLE QString addElement(const QbElementPtr &element);
         Q_INVOKABLE void removeElement(const QString &elementName);
         Q_INVOKABLE QList<QbElementPtr> inputs() const;
         Q_INVOKABLE QList<QbElementPtr> outputs() const;
@@ -69,20 +88,18 @@ class Pipeline: public QObject
         ThreadsMap m_threads;
 
         QMetaMethod methodByName(QObject *object, const QString &methodName, QMetaMethod::MethodType methodType);
+        QVariant solveProperty(const QVariant &property) const;
 
     public slots:
-        void solveConnections(QString self);
         void addLinks(const QStringList &links);
         void cleanAll();
         void setElements(const QMap<QString, QbElementPtr> &elements);
         void setLinks(const QList<QStringList> &links);
-        void setConnections(const QList<QStringList> &connections);
         void setProperties(const QVariantMap &properties);
         void setError(const QString &error);
         void setThreads(const ThreadsMap &threads);
         void resetElements();
         void resetLinks();
-        void resetConnections();
         void resetProperties();
         void resetError();
         void resetThreads();

@@ -3,13 +3,12 @@
         {
             "pluginId": "MultiSrc",
             "properties": {
-                "objectNane": "source",
+                "objectName": "source",
                 "loop": true,
                 "audioAlign": true
             },
             "connections": [
                 ["", "stateChanged", "videoMux", "setState"],
-                ["", "stateChanged", "effects", "setState"],
                 ["", "stateChanged", "muxAudioInput", "setState"]
             ]
         },
@@ -17,7 +16,7 @@
         {
             "pluginId": "Multiplex",
             "properties": {
-                "objectNane": "videoMux",
+                "objectName": "videoMux",
                 "caps": "video/x-raw",
                 "outputIndex": 0
             }
@@ -25,7 +24,7 @@
         {
             "pluginId": "VideoSync",
             "properties": {
-                "objectNane": "videoSync"
+                "objectName": "videoSync"
             },
             "connections": [
                 ["audioOutput", "elapsedTime", "", "setClock"],
@@ -36,7 +35,7 @@
         {
             "pluginId": "VCapsConvert",
             "properties": {
-                "objectNane": "videoConvert",
+                "objectName": "videoConvert",
                 "caps": "video/x-raw,format=bgra"
             },
             "connections": [
@@ -53,7 +52,7 @@
         {
             "pluginId": "Multiplex",
             "properties": {
-                "objectNane": "muxAudioInput",
+                "objectName": "muxAudioInput",
                 "caps": "audio/x-raw",
                 "outputIndex": 0
             }
@@ -61,7 +60,7 @@
         {
             "pluginId": "Multiplex",
             "properties": {
-                "objectNane": "audioSwitch",
+                "objectName": "audioSwitch",
                 "outputIndex": 1
             }
         }
@@ -74,7 +73,7 @@
         {
             "pluginId": "AudioOutput",
             "properties": {
-                "objectNane": "audioOutput"
+                "objectName": "audioOutput"
             }
         }
     ],
@@ -82,7 +81,7 @@
         {
             "pluginId": "AudioInput",
             "properties": {
-                "objectNane": "mic"
+                "objectName": "mic"
             }
         },
         {
@@ -100,7 +99,7 @@
     ],
     [
         {
-            "alias": "effects"
+            "alias": "videoConvert"
         },
         {
             "pluginId": "RtPts",
@@ -132,7 +131,6 @@
             },
             "connections": [
                 ["", "stateChanged", "videoMux", "setState"],
-                ["", "stateChanged", "effects", "setState"],
                 ["", "stateChanged", "muxAudioInput", "setState"]
             ]
         },

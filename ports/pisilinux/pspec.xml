@@ -34,8 +34,6 @@
         <BuildDependencies>
             <Dependency>qt5-devel</Dependency>
             <Dependency>ffmpeg-devel</Dependency>
-            <Dependency>bison</Dependency>
-            <Dependency>flex</Dependency>
             <Dependency>opencv-devel</Dependency>
             <Dependency>libv4l-devel</Dependency>
         </BuildDependencies>
