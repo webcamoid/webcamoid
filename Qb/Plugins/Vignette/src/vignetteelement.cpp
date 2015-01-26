@@ -75,7 +75,7 @@ QVector<qreal> VignetteElement::updateVignette(int width, int height)
     qreal scaleY = 1;
 
     // Distance from 0.5 (\in [0,0.5]) scaled to [0,1]
-    qreal scale = fabs(this->m_aspect - 0.5) * 2;
+    qreal scale = qAbs(this->m_aspect - 0.5) * 2;
 
     // Map scale to [0,5] in a way that values near 0 can be adjusted more precisely
     scale = 1 + 4 * pow(scale, 3);

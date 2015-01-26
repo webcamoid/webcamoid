@@ -116,13 +116,13 @@ QbPacket WaveElement::iStream(const QbPacket &packet)
         return QbPacket();
 
     QImage oFrame(src.width(),
-                  src.height() + 2 * fabs(this->m_amplitude),
+                  src.height() + 2 * qAbs(this->m_amplitude),
                   src.format());
 
     qreal sineMap[oFrame.width()];
 
     for (int x = 0; x < oFrame.width(); x++)
-        sineMap[x] = fabs(this->m_amplitude)
+        sineMap[x] = qAbs(this->m_amplitude)
                       + this->m_amplitude
                       * sin((this->m_phases * 2.0 * M_PI * x) / oFrame.width());
 

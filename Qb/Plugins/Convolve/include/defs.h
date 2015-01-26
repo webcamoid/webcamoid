@@ -24,9 +24,6 @@
 
 #include <qglobal.h>
 
-#define bound(min, value, max) ((value < min)? min: (value > max)? max: value)
-#define ABS(value) (((value) < 0)? -(value): (value))
-
 typedef struct Pixel
 {
     quint8 b;

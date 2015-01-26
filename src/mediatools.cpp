@@ -37,14 +37,14 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
     this->resetCurStream();
     this->resetVideoSize("");
-    this->resetPlayAudioFromSource();
+    this->m_playAudioFromSource = true;
     this->m_recordAudioFrom = RecordFromMic;
     this->resetCurRecordingFormat();
     this->resetRecording();
     this->resetRecordingFormats();
     this->resetStreams();
-    this->resetWindowWidth();
-    this->resetWindowHeight();
+    this->m_windowWidth = 0;
+    this->m_windowHeight = 0;
 
     Qb::init(engine);
 

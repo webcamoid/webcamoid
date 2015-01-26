@@ -31,222 +31,81 @@
 class DenoiseElement: public QbElement
 {
     Q_OBJECT
-    Q_ENUMS(DenoiseMode)
-    Q_PROPERTY(QString mode
-               READ mode
-               WRITE setMode
-               RESET resetMode
-               NOTIFY modeChanged)
-    Q_PROPERTY(QSize scanSize
-               READ scanSize
-               WRITE setScanSize
-               RESET resetScanSize
-               NOTIFY scanSizeChanged)
-    Q_PROPERTY(qreal mu
+    Q_PROPERTY(int radius
+               READ radius
+               WRITE setRadius
+               RESET resetRadius
+               NOTIFY radiusChanged)
+    Q_PROPERTY(int factor
+               READ factor
+               WRITE setFactor
+               RESET resetFactor
+               NOTIFY factorChanged)
+    Q_PROPERTY(int mu
                READ mu
                WRITE setMu
                RESET resetMu
                NOTIFY muChanged)
-    Q_PROPERTY(qreal sigma
+    Q_PROPERTY(int sigma
                READ sigma
                WRITE setSigma
                RESET resetSigma
                NOTIFY sigmaChanged)
 
     public:
-        enum DenoiseMode
-        {
-            DenoiseModeGauss,
-            DenoiseModeSelect
-        };
-
         explicit DenoiseElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE QString mode() const;
-        Q_INVOKABLE QSize scanSize() const;
-        Q_INVOKABLE qreal mu() const;
-        Q_INVOKABLE qreal sigma() const;
+        Q_INVOKABLE int radius() const;
+        Q_INVOKABLE int factor() const;
+        Q_INVOKABLE int mu() const;
+        Q_INVOKABLE int sigma() const;
 
     private:
-        DenoiseMode m_mode;
-        QSize m_scanSize;
+        int m_radius;
+        int m_factor;
         int m_mu;
         int m_sigma;
+        int m_weight[256][128][256];
 
         QbElementPtr m_convert;
-        QMap<DenoiseMode, QString> m_denoiseModeToStr;
 
-        inline QRgb selectAverageColor(QRgb *src,
-                                       int width,
-                                       const QRect &kernel)
+        inline void makeTable(int factor)
         {
-            int kernelSize = kernel.width() * kernel.height();
-            QVector<int> planeR(kernelSize);
-            QVector<int> planeG(kernelSize);
-            QVector<int> planeB(kernelSize);
+            for (int s = 0; s < 128; s++) {
+                int h = -2 * s * s;
 
-            // Calculate average.
-            for (int y = kernel.top(), i = 0; y < kernel.bottom() + 1; y++) {
-                int xOffset = y * width;
+                for (int m = 0; m < 256; m++)
+                    for (int c = 0; c < 256; c++) {
+                        if (s == 0) {
+                            this->m_weight[m][s][c] = 0;
 
-                for (int x = kernel.left(); x < kernel.right() + 1; x++, i++) {
-                    QRgb pixel = src[x + xOffset];
+                            continue;
+                        }
 
-                    planeR[i] = qRed(pixel);
-                    planeG[i] = qGreen(pixel);
-                    planeB[i] = qBlue(pixel);
-                }
+                        int d = c - m;
+                        d *= d;
+
+                        this->m_weight[m][s][c] = factor * exp(qreal(d) / h);
+                    }
             }
-
-            qSort(planeR);
-            qSort(planeG);
-            qSort(planeB);
-
-            int mid = kernelSize >> 1;
-
-            QPoint center = kernel.center();
-            int a = qAlpha(src[center.x() + center.y() * width]);
-
-            return qRgba(planeR[mid], planeG[mid], planeB[mid], a);
-        }
-
-        inline QRgb averageColor(QRgb *src,
-                                 int width,
-                                 const QRect &kernel,
-                                 qreal mu,
-                                 qreal sigma)
-        {
-            int kernelSize = kernel.width() * kernel.height();
-            int planeR[kernelSize];
-            int planeG[kernelSize];
-            int planeB[kernelSize];
-
-            // Calculate average.
-            qreal mr = 0;
-            qreal mg = 0;
-            qreal mb = 0;
-
-            for (int y = kernel.top(), i = 0; y < kernel.bottom() + 1; y++) {
-                int xOffset = y * width;
-
-                for (int x = kernel.left(); x < kernel.right() + 1; x++, i++) {
-                    QRgb pixel = src[x + xOffset];
-
-                    int r = qRed(pixel);
-                    int g = qGreen(pixel);
-                    int b = qBlue(pixel);
-
-                    mr += r;
-                    mg += g;
-                    mb += b;
-
-                    planeR[i] = r;
-                    planeG[i] = g;
-                    planeB[i] = b;
-                }
-            }
-
-            mr /= kernelSize;
-            mg /= kernelSize;
-            mb /= kernelSize;
-
-            int planeRd2[kernelSize];
-            int planeGd2[kernelSize];
-            int planeBd2[kernelSize];
-
-            // Calculate standard deviation.
-            qreal sr = 0;
-            qreal sg = 0;
-            qreal sb = 0;
-
-            for (int i = 0; i < kernelSize; i++) {
-                int dr = planeR[i] - mr;
-                int dg = planeG[i] - mg;
-                int db = planeB[i] - mb;
-
-                dr *= dr;
-                dg *= dg;
-                db *= db;
-
-                sr += dr;
-                sg += dg;
-                sb += db;
-
-                planeRd2[i] = dr;
-                planeGd2[i] = dg;
-                planeBd2[i] = db;
-            }
-
-            // Apply factors.
-            int ks = kernelSize - 1;
-
-            mr = qBound(0, (int) (mr * mu), 255);
-            mg = qBound(0, (int) (mg * mu), 255);
-            mb = qBound(0, (int) (mb * mu), 255);
-
-            sr = sigma * sqrt(sr / ks);
-            sg = sigma * sqrt(sg / ks);
-            sb = sigma * sqrt(sb / ks);
-
-            // Calculate weighted average.
-            qreal vr = 0;
-            qreal vg = 0;
-            qreal vb = 0;
-
-            qreal twr = 0;
-            qreal twg = 0;
-            qreal twb = 0;
-
-            qreal hr = 2 * sr * sr;
-            qreal hg = 2 * sg * sg;
-            qreal hb = 2 * sb * sb;
-
-            for (int i = 0; i < kernelSize; i++) {
-                if (hr) {
-                    qreal wr = exp(-planeRd2[i] / hr);
-                    vr += wr * planeR[i];
-                    twr += wr;
-                }
-
-                if (hg) {
-                    qreal wg = exp(-planeGd2[i] / hg);
-                    vg += wg * planeG[i];
-                    twg += wg;
-                }
-
-                if (hb) {
-                    qreal wb = exp(-planeBd2[i] / hb);
-                    vb += wb * planeB[i];
-                    twb += wb;
-                }
-            }
-
-            int r = twr? vr / twr: mr;
-            int g = twg? vg / twg: mg;
-            int b = twb? vb / twb: mb;
-
-            QPoint center = kernel.center();
-            int a = qAlpha(src[center.x() + center.y() * width]);
-
-            return qRgba(r, g, b, a);
         }
 
     signals:
-        void modeChanged();
-        void scanSizeChanged();
+        void radiusChanged();
+        void factorChanged();
         void muChanged();
         void sigmaChanged();
 
     public slots:
-        void setMode(const QString &mode);
-        void setScanSize(const QSize &scanSize);
-        void setMu(qreal mu);
-        void setSigma(qreal sigma);
-        void resetMode();
-        void resetScanSize();
+        void setRadius(int radius);
+        void setFactor(int factor);
+        void setMu(int mu);
+        void setSigma(int sigma);
+        void resetRadius();
+        void resetFactor();
         void resetMu();
         void resetSigma();
         QbPacket iStream(const QbPacket &packet);

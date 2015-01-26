@@ -220,7 +220,7 @@ QbPacket DelayGrabElement::iStream(const QbPacket &packet)
     // Copy image blockwise to screenbuffer
     for (int i = 0, y = 0; y < delayMapHeight; y++) {
         for (int x = 0; x < delayMapWidth ; i++, x++) {
-            int curFrame = abs(this->m_frames.size() - 1 - this->m_delayMap[i]) % this->m_frames.size();
+            int curFrame = qAbs(this->m_frames.size() - 1 - this->m_delayMap[i]) % this->m_frames.size();
             int curFrameWidth = this->m_frames[curFrame].width();
             int xyoff = blockSize * (x + y * curFrameWidth);
 

@@ -27,68 +27,33 @@ GridLayout {
     id: configs
     columns: 2
 
-    function modeIndex(mode)
-    {
-        var index = -1
-
-        for (var i = 0; i < cbxMode.model.count; i++)
-            if (cbxMode.model.get(i).mode === mode) {
-                index = i
-                break
-            }
-
-        return index
-    }
-
     function strToFloat(str)
     {
         return str.length < 1? 0: parseFloat(str)
     }
 
-    function strToSize(str)
-    {
-        if (str.length < 1)
-            return Qt.size()
-
-        var size = str.split("x")
-
-        if (size.length < 2)
-            return Qt.size()
-
-        return Qt.size(size[0], size[1])
-    }
-
     Label {
-        text: qsTr("Denoise method")
-    }
-    ComboBox {
-        id: cbxMode
-        currentIndex: modeIndex(Denoise.mode)
-
-        model: ListModel {
-            ListElement {
-                text: qsTr("Gauss")
-                mode: "gauss"
-            }
-            ListElement {
-                text: qsTr("Select")
-                mode: "select"
-            }
-        }
-
-        onCurrentIndexChanged: Denoise.mode = cbxMode.model.get(currentIndex).mode
-    }
-
-    Label {
-        text: qsTr("Scan block")
+        text: qsTr("Radius")
     }
     TextField {
-        text: Denoise.scanSize.width + "x" + Denoise.scanSize.height
+        text: Denoise.radius
         validator: RegExpValidator {
-            regExp: /\d+x\d+/
+            regExp: /\d+/
         }
 
-        onTextChanged: Denoise.scanSize = strToSize(text)
+        onTextChanged: Denoise.radius = strToFloat(text)
+    }
+
+    Label {
+        text: qsTr("Factor")
+    }
+    TextField {
+        text: Denoise.factor
+        validator: RegExpValidator {
+            regExp: /-?\d+/
+        }
+
+        onTextChanged: Denoise.factor = strToFloat(text)
     }
 
     Label {
@@ -97,7 +62,7 @@ GridLayout {
     TextField {
         text: Denoise.mu
         validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            regExp: /-?\d+/
         }
 
         onTextChanged: Denoise.mu = strToFloat(text)
@@ -109,7 +74,7 @@ GridLayout {
     TextField {
         text: Denoise.sigma
         validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            regExp: /-?\d+/
         }
 
         onTextChanged: Denoise.sigma = strToFloat(text)

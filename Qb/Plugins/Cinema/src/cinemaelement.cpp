@@ -102,7 +102,7 @@ QbPacket CinemaElement::iStream(const QbPacket &packet)
     int cy = src.height() >> 1;
 
     for (int y = 0; y < src.height(); y++) {
-        qreal k = 1.0 - fabs(y - cy) / cy;
+        qreal k = 1.0 - qAbs(y - cy) / cy;
         QRgb *iLine = (QRgb *) src.scanLine(y);
         QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 

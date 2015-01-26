@@ -179,7 +179,7 @@ QbPacket ConvolveElement::iStream(const QbPacket &packet)
         int maxY = y + dyMax;
 
         if (minY < 0) {
-            minJ = ABS(minY);
+            minJ = qAbs(minY);
             minY = 0;
         }
         else
@@ -200,7 +200,7 @@ QbPacket ConvolveElement::iStream(const QbPacket &packet)
             int maxX = x + dxMax;
 
             if (minX < 0) {
-                minI = ABS(minX);
+                minI = qAbs(minX);
                 minX = 0;
             }
             else
@@ -237,9 +237,9 @@ QbPacket ConvolveElement::iStream(const QbPacket &packet)
                 b = factorNum * b / factorDen + this->m_bias;
             }
 
-            *oPixel++ = bound(0, b, 255);
-            *oPixel++ = bound(0, g, 255);
-            *oPixel++ = bound(0, r, 255);
+            *oPixel++ = qBound(0, b, 255);
+            *oPixel++ = qBound(0, g, 255);
+            *oPixel++ = qBound(0, r, 255);
             *oPixel++ = iPixel->a;
 
             iPixel++;

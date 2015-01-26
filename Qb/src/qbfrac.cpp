@@ -35,8 +35,8 @@ class QbFracPrivate
 
         static inline qint64 gcd(qint64 num, qint64 den)
         {
-            num = abs(num);
-            den = abs(den);
+            num = qAbs(num);
+            den = qAbs(den);
 
             while (num > 0) {
                 qint64 tmp = num;
@@ -206,7 +206,7 @@ void QbFrac::setNumDen(qint64 num, qint64 den)
     }
 
     num = SIGN(den) * num;
-    den = abs(den);
+    den = qAbs(den);
     QbFracPrivate::reduce(&num, &den);
 
     if (this->d->m_num != num) {
