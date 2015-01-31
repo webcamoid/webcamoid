@@ -94,9 +94,7 @@ class Capture: public QObject
         QMap<quint32, QString> m_rawToFF;
         QMap<quint32, QString> m_compressedToFF;
 
-        int xioctl(int fd, int request, void *arg) const;
         quint32 defaultFormat(int fd, bool compressed) const;
-        QString fourccToStr(quint32 format) const;
         QString v4l2ToFF(quint32 fmt) const;
         QbFrac fps(int fd) const;
         quint32 format(const QString &webcam, const QSize &size) const;
@@ -108,8 +106,54 @@ class Capture: public QObject
         bool initUserPointer(quint32 bufferSize);
         bool startCapture();
         void stopCapture();
-        QbPacket processFrame(char *buffer, quint32 bufferSize, qint64 pts) const;
         bool isCompressedFormat(quint32 format);
+
+        inline QString fourccToStr(quint32 format) const
+        {
+            QString fourcc;
+
+            for (int i = 0; i < 4; i++) {
+                fourcc.append(QChar(format & 0xff));
+                format >>= 8;
+            }
+
+            return fourcc;
+        }
+
+        inline int xioctl(int fd, int request, void *arg) const
+        {
+            int r = -1;
+
+            while (true) {
+                r = ioctl(fd, request, arg);
+
+                if (r != -1 || errno != EINTR)
+                    break;
+            }
+
+            return r;
+        }
+
+        inline QbPacket processFrame(char *buffer, quint32 bufferSize, qint64 pts) const
+        {
+            QbBufferPtr oBuffer(new char[bufferSize]);
+
+            if (!oBuffer)
+                return QbPacket();
+
+            memcpy(oBuffer.data(), buffer, bufferSize);
+
+            QbPacket oPacket(this->m_caps,
+                             oBuffer,
+                             bufferSize);
+
+            oPacket.setPts(pts);
+            oPacket.setTimeBase(this->m_timeBase);
+            oPacket.setIndex(0);
+            oPacket.setId(this->m_id);
+
+            return oPacket;
+        }
 
     signals:
         void error(const QString &message);

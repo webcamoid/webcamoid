@@ -67,8 +67,7 @@ QbPacket VCapsConvertElement::iStream(const QbPacket &packet)
 
     ConvertIO convertIO(packet, this->m_caps);
 
-    if (convertIO.check() != this->m_check)
-    {
+    if (convertIO.check() != this->m_check) {
         this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                     convertIO.iWidth(),
                                                     convertIO.iHeight(),
@@ -94,14 +93,16 @@ QbPacket VCapsConvertElement::iStream(const QbPacket &packet)
     QbBufferPtr oBuffer(new char[oBufferSize]);
 
     AVPicture iPicture;
+    memset(&iPicture, 0, sizeof(AVPicture));
 
     avpicture_fill(&iPicture,
-                   (uint8_t *) packet.buffer().data(),
+                   (const uint8_t *) packet.buffer().data(),
                    convertIO.iFormat(),
                    convertIO.iWidth(),
                    convertIO.iHeight());
 
     AVPicture oPicture;
+    memset(&oPicture, 0, sizeof(AVPicture));
 
     avpicture_fill(&oPicture,
                    (uint8_t *) oBuffer.data(),

@@ -79,10 +79,12 @@ INSTALLS += \
     target \
     headers
 
-target.path = $${LIBDIR}
+unix: target.path = $${LIBDIR}
+!unix: target.path = $${PREFIX}
 
 headers.files = include/*
-headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
+unix: headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
+!unix: headers.path = $${PREFIX}/Qb/include
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
     INSTALLS += docs

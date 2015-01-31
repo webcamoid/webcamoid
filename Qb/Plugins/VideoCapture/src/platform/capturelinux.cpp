@@ -26,8 +26,8 @@ Capture::Capture(): QObject()
     this->m_fd = -1;
     this->m_id = -1;
 
-    this->resetIoMethod();
-    this->resetNBuffers();
+    this->m_ioMethod = IoMethodUnknown;
+    this->m_nBuffers = 32;
 
     // RGB formats
     //this->m_rawToFF[V4L2_PIX_FMT_RGB332] = "";
@@ -472,7 +472,6 @@ bool Capture::resetImageControls(const QString &webcam) const
     return this->setImageControls(webcam, controls);
 }
 
-
 QVariantList Capture::cameraControls(const QString &webcam) const
 {
     return this->controls(webcam, V4L2_CTRL_CLASS_CAMERA);
@@ -490,14 +489,17 @@ bool Capture::resetCameraControls(const QString &webcam) const
 
 QbPacket Capture::readFrame()
 {
-    QbPacket packet;
+    if (this->m_buffers.isEmpty())
+        return QbPacket();
 
-    if (this->m_fd < 0)
-        return packet;
+    int fd = this->m_fd;
+
+    if (fd < 0)
+        return QbPacket();
 
     if (this->m_ioMethod == IoMethodReadWrite) {
-        if (read(this->m_fd, this->m_buffers[0].start, this->m_buffers[0].length) < 0)
-            return packet;
+        if (read(fd, this->m_buffers[0].start, this->m_buffers[0].length) < 0)
+            return QbPacket();
 
         timeval timestamp;
         gettimeofday(&timestamp, NULL);
@@ -506,7 +508,9 @@ QbPacket Capture::readFrame()
                       + 1e-6 * timestamp.tv_usec)
                        * this->m_fps.value();
 
-        packet = this->processFrame(this->m_buffers[0].start, this->m_buffers[0].length, pts);
+        return this->processFrame(this->m_buffers[0].start,
+                                  this->m_buffers[0].length,
+                                  pts);
     }
     else if (this->m_ioMethod == IoMethodMemoryMap
              || this->m_ioMethod == IoMethodUserPointer) {
@@ -519,37 +523,27 @@ QbPacket Capture::readFrame()
                             V4L2_MEMORY_MMAP:
                             V4L2_MEMORY_USERPTR;
 
-        if (this->xioctl(this->m_fd, VIDIOC_DQBUF, &buffer) < 0)
-            return packet;
+        if (this->xioctl(fd, VIDIOC_DQBUF, &buffer) < 0)
+            return QbPacket();
 
         if (buffer.index >= (quint32) this->m_buffers.size())
-            return packet;
+            return QbPacket();
 
         qint64 pts = (buffer.timestamp.tv_sec
                        + 1e-6 * buffer.timestamp.tv_usec)
                         * this->m_fps.value();
 
-        packet = this->processFrame(this->m_buffers[buffer.index].start, buffer.bytesused, pts);
+        QbPacket packet = this->processFrame(this->m_buffers[buffer.index].start,
+                                             buffer.bytesused,
+                                             pts);
 
-        if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
-            return packet;
+        if (this->xioctl(fd, VIDIOC_QBUF, &buffer) < 0)
+            return QbPacket();
+
+        return packet;
     }
 
-    return packet;
-}
-
-int Capture::xioctl(int fd, int request, void *arg) const
-{
-    int r = -1;
-
-    while (true) {
-        r = ioctl(fd, request, arg);
-
-        if (r != -1 || errno != EINTR)
-            break;
-    }
-
-    return r;
+    return QbPacket();
 }
 
 quint32 Capture::defaultFormat(int fd, bool compressed) const
@@ -574,18 +568,6 @@ quint32 Capture::defaultFormat(int fd, bool compressed) const
     }
 
     return 0;
-}
-
-QString Capture::fourccToStr(quint32 format) const
-{
-    QString fourcc;
-
-    for (int i = 0; i < 4; i++) {
-        fourcc.append(QChar(format & 0xff));
-        format >>= 8;
-    }
-
-    return fourcc;
 }
 
 QString Capture::v4l2ToFF(quint32 fmt) const
@@ -841,8 +823,11 @@ bool Capture::initReadWrite(quint32 bufferSize)
     this->m_buffers[0].length = bufferSize;
     this->m_buffers[0].start = new char[bufferSize];
 
-    if (!this->m_buffers[0].start)
+    if (!this->m_buffers[0].start) {
+        this->m_buffers.clear();
+
         return false;
+    }
 
     return true;
 }
@@ -899,6 +884,8 @@ bool Capture::initMemoryMap()
         for (qint32 i = 0; i < this->m_buffers.size(); i++)
             munmap(this->m_buffers[i].start, this->m_buffers[i].length);
 
+        this->m_buffers.clear();
+
         return false;
     }
 
@@ -934,6 +921,8 @@ bool Capture::initUserPointer(quint32 bufferSize)
     if (error) {
         for (qint32 i = 0; i < this->m_buffers.size(); i++)
             delete this->m_buffers[i].start;
+
+        this->m_buffers.clear();
 
         return false;
     }
@@ -1000,27 +989,6 @@ void Capture::stopCapture()
 
         this->xioctl(this->m_fd, VIDIOC_STREAMOFF, &type);
     }
-}
-
-QbPacket Capture::processFrame(char *buffer, quint32 bufferSize, qint64 pts) const
-{
-    QbBufferPtr oBuffer(new char[bufferSize]);
-
-    if (!oBuffer)
-        return QbPacket();
-
-    memcpy(oBuffer.data(), buffer, bufferSize);
-
-    QbPacket oPacket(this->m_caps,
-                     oBuffer,
-                     bufferSize);
-
-    oPacket.setPts(pts);
-    oPacket.setTimeBase(this->m_timeBase);
-    oPacket.setIndex(0);
-    oPacket.setId(this->m_id);
-
-    return oPacket;
 }
 
 bool Capture::isCompressedFormat(quint32 format)
@@ -1114,18 +1082,23 @@ void Capture::uninit()
 {
     this->stopCapture();
 
-    if (this->m_ioMethod == IoMethodReadWrite)
-        delete this->m_buffers[0].start;
-    else if (this->m_ioMethod == IoMethodMemoryMap)
-        for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            munmap(this->m_buffers[i].start, this->m_buffers[i].length);
-    else if (this->m_ioMethod == IoMethodUserPointer)
-        for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            delete this->m_buffers[i].start;
+    if (!this->m_buffers.isEmpty()) {
+        if (this->m_ioMethod == IoMethodReadWrite)
+            delete this->m_buffers[0].start;
+        else if (this->m_ioMethod == IoMethodMemoryMap)
+            for (qint32 i = 0; i < this->m_buffers.size(); i++)
+                munmap(this->m_buffers[i].start, this->m_buffers[i].length);
+        else if (this->m_ioMethod == IoMethodUserPointer)
+            for (qint32 i = 0; i < this->m_buffers.size(); i++)
+                delete this->m_buffers[i].start;
+    }
 
     close(this->m_fd);
     this->m_caps.clear();
+    this->m_fps = QbFrac();
+    this->m_timeBase = QbFrac();
     this->m_fd = -1;
+    this->m_buffers.clear();
 }
 
 void Capture::setDevice(const QString &device)
@@ -1144,6 +1117,8 @@ void Capture::setIoMethod(const QString &ioMethod)
         this->m_ioMethod = IoMethodMemoryMap;
     else if (ioMethod == "userPointer")
         this->m_ioMethod = IoMethodUserPointer;
+
+    this->m_ioMethod = IoMethodUnknown;
 }
 
 void Capture::setNBuffers(int nBuffers)

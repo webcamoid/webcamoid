@@ -96,21 +96,117 @@ CODECFORSRC = UTF-8
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
+INSTALLS += target
+unix: INSTALLS += desktop
+!unix: INSTALLS += \
+    dllDeps \
+    pluginsPlatform
+
+unix:target.path = $${BINDIR}
+!unix:target.path = $${PREFIX}
+
 unix {
-    INSTALLS += \
-        target \
-        desktop
-
-    target.path = $${BINDIR}
-
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications/kde4
+}
+!unix {
+    dllDeps.files = \
+        \ # Qt
+        $$[QT_INSTALL_BINS]/Qt5Core.dll \
+        $$[QT_INSTALL_BINS]/Qt5Gui.dll \
+        $$[QT_INSTALL_BINS]/Qt5Multimedia.dll \
+        $$[QT_INSTALL_BINS]/Qt5Network.dll \
+        $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
+        $$[QT_INSTALL_BINS]/Qt5Qml.dll \
+        $$[QT_INSTALL_BINS]/Qt5Quick.dll \
+        $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
+        \ # FFmpeg
+        $$[QT_INSTALL_BINS]/avcodec-*.dll \
+        $$[QT_INSTALL_BINS]/avdevice-*.dll \
+        $$[QT_INSTALL_BINS]/avfilter-*.dll \
+        $$[QT_INSTALL_BINS]/avformat-*.dll \
+        $$[QT_INSTALL_BINS]/avresample-*.dll \
+        $$[QT_INSTALL_BINS]/avutil-*.dll \
+        $$[QT_INSTALL_BINS]/postproc-*.dll \
+        $$[QT_INSTALL_BINS]/swresample-*.dll \
+        $$[QT_INSTALL_BINS]/swscale-*.dll \
+        \ # SDL
+        $$[QT_INSTALL_BINS]/SDL.dll \
+        \ # Codecs
+        $$[QT_INSTALL_BINS]/libass-*.dll \
+        $$[QT_INSTALL_BINS]/libbluray-*.dll \
+        $$[QT_INSTALL_BINS]/libbz2-*.dll \
+        $$[QT_INSTALL_BINS]/libgnutls-*.dll \
+        $$[QT_INSTALL_BINS]/libgsm.dll.1.* \
+        $$[QT_INSTALL_BINS]/libiconv-*.dll \
+        $$[QT_INSTALL_BINS]/libjpeg-*.dll \
+        $$[QT_INSTALL_BINS]/libmodplug-*.dll \
+        $$[QT_INSTALL_BINS]/libmp3lame-*.dll \
+        $$[QT_INSTALL_BINS]/libogg-*.dll \
+        $$[QT_INSTALL_BINS]/libopencore-amrnb-*.dll \
+        $$[QT_INSTALL_BINS]/libopencore-amrwb-*.dll \
+        $$[QT_INSTALL_BINS]/libopenjpeg-*.dll \
+        $$[QT_INSTALL_BINS]/libopus-*.dll \
+        $$[QT_INSTALL_BINS]/librtmp-*.dll \
+        $$[QT_INSTALL_BINS]/libschroedinger-*.dll \
+        $$[QT_INSTALL_BINS]/libspeex-*.dll \
+        $$[QT_INSTALL_BINS]/libtheoradec-*.dll \
+        $$[QT_INSTALL_BINS]/libtheoraenc-*.dll \
+        $$[QT_INSTALL_BINS]/libtiff-*.dll \
+        $$[QT_INSTALL_BINS]/libvorbis-*.dll \
+        $$[QT_INSTALL_BINS]/libvorbisenc-*.dll \
+        $$[QT_INSTALL_BINS]/libvpx.dll.1.3.0 \
+        $$[QT_INSTALL_BINS]/libx264-*.dll \
+        $$[QT_INSTALL_BINS]/libx265.dll \
+        $$[QT_INSTALL_BINS]/xvidcore.dll \
+        \ # OpenCV
+        $$[QT_INSTALL_BINS]/libopencv_core*.dll \
+        $$[QT_INSTALL_BINS]/libopencv_highgui*.dll \
+        $$[QT_INSTALL_BINS]/libopencv_imgproc*.dll \
+        $$[QT_INSTALL_BINS]/libopencv_objdetect*.dll \
+        \ # System
+        $$[QT_INSTALL_BINS]/libeay32.dll \
+        $$[QT_INSTALL_BINS]/libEGL.dll \
+        $$[QT_INSTALL_BINS]/libenca-*.dll \
+        $$[QT_INSTALL_BINS]/libexpat-*.dll \
+        $$[QT_INSTALL_BINS]/libffi-*.dll \
+        $$[QT_INSTALL_BINS]/libfontconfig-*.dll \
+        $$[QT_INSTALL_BINS]/libfreetype-*.dll \
+        $$[QT_INSTALL_BINS]/libfribidi-*.dll \
+        $$[QT_INSTALL_BINS]/libgcc_s_*.dll \
+        $$[QT_INSTALL_BINS]/libGLESv*.dll \
+        $$[QT_INSTALL_BINS]/libglib-*.dll \
+        $$[QT_INSTALL_BINS]/libgmp-*.dll \
+        $$[QT_INSTALL_BINS]/libHalf-*.dll \
+        $$[QT_INSTALL_BINS]/libharfbuzz-0.dll \
+        $$[QT_INSTALL_BINS]/libhogweed-*.dll \
+        $$[QT_INSTALL_BINS]/libIex-*.dll \
+        $$[QT_INSTALL_BINS]/libIlmImf-Imf_*.dll \
+        $$[QT_INSTALL_BINS]/libIlmThread-*.dll \
+        $$[QT_INSTALL_BINS]/libintl-*.dll \
+        $$[QT_INSTALL_BINS]/libjasper-*.dll \
+        $$[QT_INSTALL_BINS]/libnettle-*.dll \
+        $$[QT_INSTALL_BINS]/liborc-0.*.dll \
+        $$[QT_INSTALL_BINS]/libp11-kit-*.dll \
+        $$[QT_INSTALL_BINS]/libpcre16-0.dll \
+        $$[QT_INSTALL_BINS]/libpng*.dll \
+        $$[QT_INSTALL_BINS]/libstdc++-*.dll \
+        $$[QT_INSTALL_BINS]/libtasn1-*.dll \
+        $$[QT_INSTALL_BINS]/libwinpthread-*.dll \
+        $$[QT_INSTALL_BINS]/libxml2-*.dll \
+        $$[QT_INSTALL_BINS]/ssleay32.dll \
+        $$[QT_INSTALL_BINS]/zlib*.dll
 
-    !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
-        INSTALLS += docs
+    dllDeps.path = $${PREFIX}
 
-        docs.files = share/docs_auto/html
-        docs.path = $${HTMLDIR}
-        docs.CONFIG += no_check_exist
-    }
+    pluginsPlatform.files = $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
+    pluginsPlatform.path = $${PREFIX}/platforms
+}
+
+!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+    INSTALLS += docs
+
+    docs.files = share/docs_auto/html
+    docs.path = $${HTMLDIR}
+    docs.CONFIG += no_check_exist
 }

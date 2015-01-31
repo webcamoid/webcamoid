@@ -60,6 +60,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     DEFINES += \
         COMMONS_APPNAME=\"\\\"$$COMMONS_APPNAME\\\"\" \
         COMMONS_TARGET=\"\\\"$$COMMONS_TARGET\\\"\" \
+        COMMONS_VER_MAJ=\"\\\"$$VER_MAJ\\\"\" \
         COMMONS_VERSION=\"\\\"$$VERSION\\\"\" \
         COMMONS_PROJECT_URL=\"\\\"$$COMMONS_PROJECT_URL\\\"\" \
         COMMONS_PROJECT_LICENSE_URL=\"\\\"$$COMMONS_PROJECT_LICENSE_URL\\\"\" \

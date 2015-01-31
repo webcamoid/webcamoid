@@ -20,6 +20,7 @@
  */
 
 #include <QStandardPaths>
+#include <QDir>
 
 #include "facedetectelement.h"
 
@@ -127,15 +128,16 @@ QSize FaceDetectElement::scanSize() const
 void FaceDetectElement::setHaarFile(const QString &haarFile)
 {
     if (haarFile != this->m_haarFile) {
-        if (this->m_cascadeClassifier.load(haarFile.toStdString())) {
+        QString destPath = QDir::tempPath() + QDir::separator() + QFileInfo(haarFile).fileName();
+        QFile::copy(haarFile, destPath);
+
+        if (this->m_cascadeClassifier.load(destPath.toStdString())) {
             this->m_haarFile = haarFile;
             emit this->haarFileChanged();
         }
         else {
-            haarFile == "";
-
-            if (haarFile != this->m_haarFile) {
-                this->m_haarFile = haarFile;
+            if (this->m_haarFile != "") {
+                this->m_haarFile = "";
                 emit this->haarFileChanged();
             }
         }
@@ -224,9 +226,7 @@ void FaceDetectElement::setScanSize(const QSize &scanSize)
 
 void FaceDetectElement::resetHaarFile()
 {
-    this->setHaarFile(QString("%1/%2")
-                      .arg(OPENCVHAARPATH)
-                      .arg("haarcascade_frontalface_alt.xml"));
+    this->setHaarFile(":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml");
 }
 
 void FaceDetectElement::resetMarkerType()

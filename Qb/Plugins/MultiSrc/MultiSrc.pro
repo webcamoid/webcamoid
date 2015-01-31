@@ -84,4 +84,5 @@ isEmpty(FFMPEGLIBS) {
 
 INSTALLS += target
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+unix: target.path = $${LIBDIR}/$${COMMONS_TARGET}
+!unix: target.path = $${PREFIX}/Qb/Plugins

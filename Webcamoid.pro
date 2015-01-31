@@ -38,4 +38,5 @@ INSTALLS += \
     license
 
 license.files = COPYING
-license.path = $${LICENSEDIR}
+unix: license.path = $${LICENSEDIR}
+!unix: license.path = $${PREFIX}

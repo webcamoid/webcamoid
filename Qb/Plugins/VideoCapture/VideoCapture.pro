@@ -34,7 +34,8 @@ DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 HEADERS += \
     include/videocapture.h \
-    include/videocaptureelement.h
+    include/videocaptureelement.h \
+    include/outputthread.h
 
 !win32: HEADERS += \
     include/platform/capturebuffer.h \
@@ -61,7 +62,8 @@ RESOURCES += \
 
 SOURCES += \
     src/videocapture.cpp \
-    src/videocaptureelement.cpp
+    src/videocaptureelement.cpp \
+    src/outputthread.cpp
 
 !win32: SOURCES += src/platform/capturelinux.cpp
 
@@ -81,4 +83,5 @@ unix {
 
 INSTALLS += target
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+unix: target.path = $${LIBDIR}/$${COMMONS_TARGET}
+!unix: target.path = $${PREFIX}/Qb/Plugins

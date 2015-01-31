@@ -31,12 +31,15 @@ CharifyElement::CharifyElement(): QbElement()
     this->m_colorModeToStr[ColorModeNatural] = "natural";
     this->m_colorModeToStr[ColorModeFixed] = "fixed";
 
-    this->resetMode();
-    this->resetCharTable();
-    this->resetFont();
-    this->resetForegroundColor();
-    this->resetBackgroundColor();
-    this->resetReversed();
+    this->m_mode = ColorModeNatural;
+
+    for (int i = 32; i < 127; i++)
+        this->m_charTable.append(QChar(i));
+
+    this->m_font = QApplication::font();
+    this->m_foregroundColor = qRgb(255, 255, 255);
+    this->m_backgroundColor = qRgb(0, 0, 0);
+    this->m_reversed = false;
 }
 
 QObject *CharifyElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -230,10 +233,10 @@ void CharifyElement::setBackgroundColor(QRgb backgroundColor)
     }
 }
 
-void CharifyElement::setReversed(bool radius)
+void CharifyElement::setReversed(bool reversed)
 {
-    if (radius != this->m_reversed) {
-        this->m_reversed = radius;
+    if (reversed != this->m_reversed) {
+        this->m_reversed = reversed;
         emit this->reversedChanged();
     }
 }

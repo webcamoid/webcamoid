@@ -19,7 +19,9 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <QDir>
 #include <QColor>
+#include <QCoreApplication>
 
 #include "qb.h"
 
@@ -75,8 +77,13 @@ void Qb::setQmlEngine(QQmlEngine *engine)
 
 QString Qb::qmlPluginPath()
 {
+#ifdef Q_OS_WIN32
     if (globalQmlPluginPath->isEmpty())
-        return QT_INSTALL_QML;
+        return QString("%1%2qml").arg(QCoreApplication::applicationDirPath()).arg(QDir::separator());
+#else
+    if (globalQmlPluginPath->isEmpty())
+        return QString(QT_INSTALL_QML);
+#endif
 
     return *globalQmlPluginPath;
 }
@@ -102,5 +109,9 @@ void Qb::setQmlPluginPath(const QString &qmlPluginPath)
 
 void Qb::resetQmlPluginPath()
 {
+#ifdef Q_OS_WIN32
+    Qb::setQmlPluginPath(QString("%1%2qml").arg(QCoreApplication::applicationDirPath()).arg(QDir::separator()));
+#else
     Qb::setQmlPluginPath(QT_INSTALL_QML);
+#endif
 }

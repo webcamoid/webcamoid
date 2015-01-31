@@ -28,6 +28,19 @@ import QtQuick.Dialogs 1.2
 GridLayout {
     columns: 2
 
+    function haarFileIndex(haarFile)
+    {
+        var index = -1
+
+        for (var i = 0; i < cbxHaarFile.model.count; i++)
+            if (cbxHaarFile.model.get(i).haarFile === haarFile) {
+                index = i
+                break
+            }
+
+        return index
+    }
+
     function markerTypeIndex(markerType)
     {
         var index = -1
@@ -108,17 +121,102 @@ GridLayout {
     Label {
         text: qsTr("Haar file")
     }
-    RowLayout {
-        TextField {
-            text: FaceDetect.haarFile
-            placeholderText: qsTr("XML haar file.")
-            Layout.fillWidth: true
-        }
-        Button {
-            text: qsTr("...")
+    ComboBox {
+        id: cbxHaarFile
+        currentIndex: haarFileIndex(FaceDetect.haarFile)
 
-            onClicked: fileDialog.open()
+        model: ListModel {
+            ListElement {
+                text: qsTr("Eye")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_eye.xml"
+            }
+            ListElement {
+                text: qsTr("Eye glasses")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_eye_tree_eyeglasses.xml"
+            }
+            ListElement {
+                text: qsTr("Frontal face alternative 1")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml"
+            }
+            ListElement {
+                text: qsTr("Frontal face alternative 2")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt2.xml"
+            }
+            ListElement {
+                text: qsTr("Frontal face alternative 3")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt_tree.xml"
+            }
+            ListElement {
+                text: qsTr("Frontal face default")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_frontalface_default.xml"
+            }
+            ListElement {
+                text: qsTr("Full body")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_fullbody.xml"
+            }
+            ListElement {
+                text: qsTr("Left Eye 1")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_lefteye_2splits.xml"
+            }
+            ListElement {
+                text: qsTr("Lower body")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_lowerbody.xml"
+            }
+            ListElement {
+                text: qsTr("Eye pair big")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_eyepair_big.xml"
+            }
+            ListElement {
+                text: qsTr("Eye pair small")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_eyepair_small.xml"
+            }
+            ListElement {
+                text: qsTr("Left ear")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_leftear.xml"
+            }
+            ListElement {
+                text: qsTr("Left eye 2")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_lefteye.xml"
+            }
+            ListElement {
+                text: qsTr("Mouth")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_mouth.xml"
+            }
+            ListElement {
+                text: qsTr("Nose")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_nose.xml"
+            }
+            ListElement {
+                text: qsTr("Right ear")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_rightear.xml"
+            }
+            ListElement {
+                text: qsTr("Right Eye 1")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_righteye.xml"
+            }
+            ListElement {
+                text: qsTr("Upper body 1")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_mcs_upperbody.xml"
+            }
+            ListElement {
+                text: qsTr("Profile face")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_profileface.xml"
+            }
+            ListElement {
+                text: qsTr("Right eye 2")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_righteye_2splits.xml"
+            }
+            ListElement {
+                text: qsTr("Smile")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_smile.xml"
+            }
+            ListElement {
+                text: qsTr("Upper body")
+                haarFile: ":/FaceDetect/share/haarcascades/haarcascade_upperbody.xml"
+            }
         }
+
+        onCurrentIndexChanged: FaceDetect.haarFile = cbxHaarFile.model.get(currentIndex).haarFile
     }
 
     // Scan block.
@@ -293,15 +391,6 @@ GridLayout {
         showAlphaChannel: true
 
         onAccepted: FaceDetect.markerColor = toRgba(color)
-    }
-
-    FileDialog {
-        id: fileDialog
-        title: qsTr("Please choose a haar file")
-        nameFilters: ["XML haar file (*.xml)"]
-        folder: "file://" + picturesPath
-
-        onAccepted: FaceDetect.haarFile = String(fileUrl).replace("file://", "")
     }
 
     FileDialog {

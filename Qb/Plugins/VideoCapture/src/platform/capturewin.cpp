@@ -1004,7 +1004,7 @@ bool Capture::createDeviceNotifier()
 
     HDEVNOTIFY result = RegisterDeviceNotification(hwnd, &NotificationFilter, DEVICE_NOTIFY_WINDOW_HANDLE);
 
-    if (FAILED(result))
+    if (!result)
         return false;
 
     return true;

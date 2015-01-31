@@ -49,8 +49,7 @@ ConvertIO::ConvertIO(const QbPacket &iPacket, const QbCaps &oCaps)
                                      oCaps.property("height").toInt():
                                      this->m_iHeight;
 
-    if (props.contains("format"))
-    {
+    if (props.contains("format")) {
         QString oFormatString = oCaps.property("format").toString();
 
         this->m_oFormat = av_get_pix_fmt(oFormatString.toStdString().c_str());
@@ -73,8 +72,7 @@ ConvertIO::ConvertIO(const ConvertIO &other):
 
 ConvertIO &ConvertIO::operator =(const ConvertIO &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_iWidth = other.m_iWidth;
         this->m_iHeight = other.m_iHeight;
         this->m_iFormat = other.m_iFormat;

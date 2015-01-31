@@ -24,6 +24,7 @@
 
 #include <QTimer>
 #include <QThread>
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 
@@ -34,6 +35,8 @@
 #ifdef Q_OS_WIN32
 #include "platform/capturewin.h"
 #endif
+
+#include "outputthread.h"
 
 typedef QSharedPointer<QThread> ThreadPtr;
 
@@ -72,8 +75,10 @@ class VideoCaptureElement: public QbElement
         Q_INVOKABLE bool resetCameraControls(const QString &webcam) const;
 
     private:
+        bool m_threadedRead;
         ThreadPtr m_thread;
         QTimer m_timer;
+        QMutex m_mutex;
         Capture m_capture;
 
         static void deleteThread(QThread *thread);

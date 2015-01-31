@@ -25,13 +25,20 @@
 #include <QDirIterator>
 #include <QDir>
 #include <QFileInfo>
+#include <QCoreApplication>
 
 #include "qb.h"
 
+#ifdef Q_OS_WIN32
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
+                          pluginsSearchPaths,
+                          (QString("%1/Plugins/Qb").arg(QCoreApplication::applicationDirPath())))
+#else
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
                           pluginsSearchPaths,
                           (QString("%1/%2").arg(LIBDIR)
                                            .arg(COMMONS_TARGET)))
+#endif
 
 Q_GLOBAL_STATIC_WITH_ARGS(bool, recursiveSearchPaths, (false))
 
@@ -236,8 +243,12 @@ void QbElement::resetSearchPaths()
 {
     pluginsSearchPaths->clear();
 
+#ifdef Q_OS_WIN32
+    *pluginsSearchPaths << QString("%1/Plugins/Qb").arg(QCoreApplication::applicationDirPath());
+#else
     *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR)
                            .arg(COMMONS_TARGET);
+#endif
 }
 
 QStringList QbElement::listPlugins(const QString &type)
@@ -249,8 +260,13 @@ QStringList QbElement::listPlugins(const QString &type)
         QPluginLoader pluginLoader(path);
         QJsonObject metaData = pluginLoader.metaData();
 
+#ifdef Q_OS_WIN32
+        QString pluginId = QFileInfo(path).baseName()
+                                          .remove(QRegExp(QString(COMMONS_VER_MAJ) + "$"));
+#else
         QString pluginId = QFileInfo(path).baseName()
                                           .remove(QRegExp("^lib"));
+#endif
 
         if (!type.isEmpty()
             && metaData["MetaData"].toObject().contains("type")
@@ -279,7 +295,12 @@ QStringList QbElement::listPluginPaths(const QString &searchPath)
 
     QStringList searchPaths(searchDir);
     QStringList files;
+
+#ifdef Q_OS_WIN32
+    QString pattern(QString("*%1.dll").arg(COMMONS_VER_MAJ));
+#else
     QString pattern("lib*.so");
+#endif
 
     while (!searchPaths.isEmpty()) {
         QString path = searchPaths.takeFirst();
@@ -360,8 +381,13 @@ QString QbElement::pluginPath(const QString &pluginId)
     foreach (QString path, pluginPaths) {
         QString baseName = QFileInfo(path).baseName();
 
+#ifdef Q_OS_WIN32
+    if (baseName == QString("%1%2").arg(pluginId).arg(COMMONS_VER_MAJ))
+        return path;
+#else
         if (baseName == QString("lib%1").arg(pluginId))
             return path;
+#endif
     }
 
     return QString();

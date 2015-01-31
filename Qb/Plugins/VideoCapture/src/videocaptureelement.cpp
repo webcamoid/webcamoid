@@ -48,9 +48,24 @@ VideoCaptureElement::VideoCaptureElement(): QbElement()
                      this,
                      SIGNAL(cameraControlsChanged(const QString &, const QVariantMap &)));
 
-    this->m_thread = ThreadPtr(new QThread, this->deleteThread);
+
+    this->m_threadedRead = true;
+
+    if (this->m_threadedRead) {
+        this->m_thread = ThreadPtr(new QThread, this->deleteThread);
+        this->m_timer.moveToThread(this->m_thread.data());
+    }
+    else {
+        this->m_thread = ThreadPtr(new OutputThread, this->deleteThread);
+
+        QObject::connect(this->m_thread.data(),
+                         SIGNAL(oStream(const QbPacket &)),
+                         this,
+                         SIGNAL(oStream(const QbPacket &)),
+                         Qt::DirectConnection);
+    }
+
     this->m_thread->start();
-    this->m_timer.moveToThread(this->m_thread.data());
 
     QObject::connect(&this->m_timer,
                      SIGNAL(timeout()),
@@ -126,7 +141,15 @@ QSize VideoCaptureElement::size(const QString &webcam) const
 
 bool VideoCaptureElement::setSize(const QString &webcam, const QSize &size)
 {
-    return this->m_capture.setSize(webcam, size);
+    bool running = this->m_timer.isActive();
+    this->setState(QbElement::ElementStateNull);
+
+    bool isSet = this->m_capture.setSize(webcam, size);
+
+    if (running)
+        this->setState(QbElement::ElementStatePlaying);
+
+    return isSet;
 }
 
 bool VideoCaptureElement::resetSize(const QString &webcam)
@@ -166,6 +189,7 @@ bool VideoCaptureElement::resetCameraControls(const QString &webcam) const
 
 void VideoCaptureElement::deleteThread(QThread *thread)
 {
+    thread->requestInterruption();
     thread->quit();
     thread->wait();
     delete thread;
@@ -175,13 +199,19 @@ void VideoCaptureElement::stateChange(QbElement::ElementState from, QbElement::E
 {
     if (from == QbElement::ElementStateNull
         && to == QbElement::ElementStatePaused) {
-        if (this->m_capture.init())
+        this->m_mutex.lock();
+        bool ok = this->m_capture.init();
+        this->m_mutex.unlock();
+
+        if (ok)
             QMetaObject::invokeMethod(&this->m_timer, "start");
     }
     else if (from == QbElement::ElementStatePaused
              && to == QbElement::ElementStateNull) {
         QMetaObject::invokeMethod(&this->m_timer, "stop");
+        this->m_mutex.lock();
         this->m_capture.uninit();
+        this->m_mutex.unlock();
     }
 }
 
@@ -222,8 +252,17 @@ void VideoCaptureElement::reset(const QString &webcam)
 
 void VideoCaptureElement::readFrame()
 {
+    this->m_mutex.lock();
     QbPacket packet = this->m_capture.readFrame();
+    this->m_mutex.unlock();
 
-    if (packet)
+    if (!packet)
+        return;
+
+    if (this->m_threadedRead)
         emit this->oStream(packet);
+    else
+        QMetaObject::invokeMethod(this->m_thread.data(),
+                                  "setPacket",
+                                  Q_ARG(QbPacket, packet));
 }

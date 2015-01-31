@@ -29,13 +29,13 @@ exists(commons.pri) {
 }
 
 TEMPLATE = lib
-TARGET = QbQml
 
 QT += qml quick
 CONFIG += qt plugin
 
-TARGET = $$qtLibraryTarget($$TARGET)
-uri = QbQml
+DESTDIR = $${PWD}
+
+TARGET = $$qtLibraryTarget(QbQml)
 
 # Input
 SOURCES += \
@@ -55,18 +55,14 @@ win32: LIBS += -L../ -lQb$${VER_MAJ}
 
 DISTFILES = qmldir
 
-!equals(_PRO_FILE_PWD_, $$OUT_PWD) {
-    copy_qmldir.target = $$OUT_PWD/qmldir
-    copy_qmldir.depends = $$_PRO_FILE_PWD_/qmldir
-    copy_qmldir.commands = $(COPY_FILE) \"$$replace(copy_qmldir.depends, /, $$QMAKE_DIR_SEP)\" \"$$replace(copy_qmldir.target, /, $$QMAKE_DIR_SEP)\"
-    QMAKE_EXTRA_TARGETS += copy_qmldir
-    PRE_TARGETDEPS += $$copy_qmldir.target
-}
+INSTALLS += \
+    target \
+    qmldir
+
+unix: installPath = $$[QT_INSTALL_QML]/QbQml
+!unix: installPath = $${PREFIX}/qml/QbQml
+
+target.path = $$installPath
 
 qmldir.files = qmldir
-unix {
-    installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
-    qmldir.path = $$installPath
-    target.path = $$installPath
-    INSTALLS += target qmldir
-}
+qmldir.path = $$installPath
