@@ -52,6 +52,10 @@ SOURCES += \
     src/pixelate.cpp \
     src/pixelateelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

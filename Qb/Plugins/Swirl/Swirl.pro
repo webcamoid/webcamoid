@@ -52,6 +52,10 @@ SOURCES += \
     src/swirl.cpp \
     src/swirlelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

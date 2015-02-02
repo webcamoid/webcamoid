@@ -52,6 +52,10 @@ SOURCES += \
     src/hypnotic.cpp \
     src/hypnoticelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

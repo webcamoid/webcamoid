@@ -52,6 +52,10 @@ SOURCES += \
     src/fire.cpp \
     src/fireelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

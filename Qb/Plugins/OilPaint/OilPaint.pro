@@ -53,6 +53,10 @@ SOURCES += \
     src/oilpaint.cpp \
     src/oilpaintelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

@@ -52,6 +52,10 @@ SOURCES += \
     src/colortap.cpp \
     src/colortapelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

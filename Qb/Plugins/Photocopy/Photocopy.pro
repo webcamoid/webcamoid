@@ -52,6 +52,10 @@ SOURCES += \
     src/photocopy.cpp \
     src/photocopyelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

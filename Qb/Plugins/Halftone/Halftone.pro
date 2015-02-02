@@ -52,6 +52,10 @@ SOURCES += \
     src/halftone.cpp \
     src/halftoneelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

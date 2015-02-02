@@ -30,7 +30,11 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
+/*
+    QPalette palette = app.palette();
+    palette.setColor(QPalette::WindowText, QColor(255, 255, 255));
+    app.setPalette(palette);
+*/
     QCoreApplication::setApplicationName(COMMONS_APPNAME);
     QCoreApplication::setApplicationVersion(COMMONS_VERSION);
     QCoreApplication::setOrganizationName(COMMONS_APPNAME);

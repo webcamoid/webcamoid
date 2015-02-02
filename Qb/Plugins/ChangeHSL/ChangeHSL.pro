@@ -52,6 +52,10 @@ SOURCES += \
     src/changehsl.cpp \
     src/changehslelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

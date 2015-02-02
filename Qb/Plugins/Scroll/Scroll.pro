@@ -52,6 +52,10 @@ SOURCES += \
     src/scroll.cpp \
     src/scrollelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

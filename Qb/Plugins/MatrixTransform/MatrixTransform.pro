@@ -52,6 +52,10 @@ SOURCES += \
     src/matrixtransform.cpp \
     src/matrixtransformelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

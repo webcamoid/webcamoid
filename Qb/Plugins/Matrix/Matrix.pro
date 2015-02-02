@@ -55,6 +55,10 @@ SOURCES += \
     src/matrixelement.cpp \
     src/raindrop.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

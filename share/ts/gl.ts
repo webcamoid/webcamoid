@@ -1,302 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="gl">
-<defaultcodec>UTF-8</defaultcodec>
+<TS version="2.1" language="gl">
 <context>
-    <name>Effects</name>
+    <name>About</name>
     <message>
-        <location filename="../ui/effects.ui" line="14"/>
-        <source>Configure Effects</source>
-        <translation>Configurar Efectos</translation>
+        <location filename="../qml/About.qml" line="29"/>
+        <source>Add new media</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="31"/>
-        <source>Effects</source>
-        <translation>Efectos</translation>
+        <location filename="../qml/About.qml" line="71"/>
+        <source>Webcam capture application.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="47"/>
-        <source>Apply</source>
-        <translation>Aplicar</translation>
+        <location filename="../qml/About.qml" line="75"/>
+        <source>A simple webcam application for picture and video capture.</source>
+        <translation type="unfinished">Unha aplicación de webcam simple para fotografía e captura de vídeo.</translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="110"/>
-        <source>Effect to Up</source>
-        <translation>Efecto para Arriba</translation>
+        <location filename="../qml/About.qml" line="87"/>
+        <source>Website</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="134"/>
-        <source>Add Effects</source>
-        <translation>Engadir Efectos</translation>
+        <location filename="../qml/About.qml" line="94"/>
+        <source>License</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="158"/>
-        <source>Effect to Down</source>
-        <translation>Efecto para Abaixo</translation>
+        <location filename="../qml/About.qml" line="105"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AddMedia</name>
+    <message>
+        <location filename="../qml/AddMedia.qml" line="30"/>
+        <source>Add new media</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="182"/>
-        <source>Remove Effects</source>
-        <translation>Eliminar Efectos</translation>
+        <location filename="../qml/AddMedia.qml" line="57"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="206"/>
-        <source>Reset Effects</source>
-        <translation>Restablecer Efectos</translation>
+        <location filename="../qml/AddMedia.qml" line="64"/>
+        <source>Insert media description</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/effects.ui" line="220"/>
-        <source>Search...</source>
-        <translation>Buscar...</translation>
+        <location filename="../qml/AddMedia.qml" line="71"/>
+        <source>Media file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddMedia.qml" line="79"/>
+        <source>Select media file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddMedia.qml" line="87"/>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddMedia.qml" line="107"/>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddMedia.qml" line="129"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddMedia.qml" line="138"/>
+        <source>Choose the file to add as media</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AddRecordingFormat</name>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="30"/>
+        <source>Add new recording format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="61"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="67"/>
+        <source>Insert recording format description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="73"/>
+        <source>Suffix</source>
+        <translation type="unfinished">Sufixo</translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="79"/>
+        <source>Insert wanted output file suffix</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="86"/>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="92"/>
+        <source>Insert encoding parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="110"/>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AddRecordingFormat.qml" line="128"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EffectBar</name>
+    <message>
+        <location filename="../qml/EffectBar.qml" line="114"/>
+        <source>Search effect...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EffectConfig</name>
+    <message>
+        <location filename="../qml/EffectConfig.qml" line="42"/>
+        <location filename="../qml/EffectConfig.qml" line="49"/>
+        <source>Plugin id</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EffectConfig.qml" line="56"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EffectConfig.qml" line="63"/>
+        <source>Plugin description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EffectConfig.qml" line="78"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EffectConfig.qml" line="78"/>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../ui/generalconfig.ui" line="14"/>
-        <source>Basic Settings</source>
-        <translation>Definicións Básicas</translation>
-    </message>
-    <message>
-        <location filename="../ui/generalconfig.ui" line="25"/>
+        <location filename="../qml/GeneralConfig.qml" line="40"/>
         <source>Record audio from</source>
         <translation>Grave audio dende</translation>
     </message>
     <message>
-        <location filename="../ui/generalconfig.ui" line="31"/>
+        <location filename="../qml/GeneralConfig.qml" line="48"/>
         <source>Source</source>
         <translation>Fonte</translation>
     </message>
     <message>
-        <location filename="../ui/generalconfig.ui" line="41"/>
+        <location filename="../qml/GeneralConfig.qml" line="68"/>
         <source>None</source>
         <translation>Ningún</translation>
     </message>
     <message>
-        <location filename="../ui/generalconfig.ui" line="48"/>
+        <location filename="../qml/GeneralConfig.qml" line="79"/>
+        <source>Play audio from source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="58"/>
         <source>Mic</source>
         <translation>Micrófono</translation>
     </message>
+</context>
+<context>
+    <name>MediaConfig</name>
     <message>
-        <location filename="../ui/generalconfig.ui" line="58"/>
-        <source>Play audio from source.</source>
-        <translation>Reproducir audio da fonte.</translation>
+        <location filename="../qml/MediaConfig.qml" line="55"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MediaConfig.qml" line="62"/>
+        <source>Insert media description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MediaConfig.qml" line="70"/>
+        <source>Media file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MediaConfig.qml" line="77"/>
+        <source>Select media file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MediaConfig.qml" line="93"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MediaConfig.qml" line="101"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>MainWidget</name>
+    <name>RecordConfig</name>
     <message>
-        <location filename="../ui/mainwidget.ui" line="14"/>
-        <source>Main Window</source>
-        <translation>Xanela Principal</translation>
+        <location filename="../qml/RecordConfig.qml" line="79"/>
+        <source>Stop recording video</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwidget.ui" line="53"/>
-        <source>About</source>
-        <translation>Sobre</translation>
+        <location filename="../qml/RecordConfig.qml" line="83"/>
+        <location filename="../qml/RecordConfig.qml" line="162"/>
+        <source>Start recording video</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwidget.ui" line="87"/>
-        <source>Take a Picture</source>
-        <translation>Tire unha foto</translation>
+        <location filename="../qml/RecordConfig.qml" line="91"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwidget.ui" line="105"/>
-        <source>Select Capture Device</source>
-        <translation>Seleccione dispositivo de captura</translation>
+        <location filename="../qml/RecordConfig.qml" line="98"/>
+        <source>Insert format description</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/mainwidget.ui" line="131"/>
-        <source>Start Capturing</source>
-        <translation>iniciar a captura</translation>
-    </message>
-    <message>
-        <location filename="../ui/mainwidget.ui" line="152"/>
-        <source>Record Video</source>
-        <translation>Gravar vídeo</translation>
-    </message>
-    <message>
-        <location filename="../ui/mainwidget.ui" line="170"/>
-        <source>Configure Webcamoid</source>
-        <translation>Configurar Webcamoid</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="101"/>
-        <source>Webcam Settings</source>
-        <translation>Configuración da webcam</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="103"/>
-        <source>Configure the parameters of the webcam.</source>
-        <translation>Configura os parámetros da cámara web.</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="115"/>
-        <source>Configure Webcam Effects</source>
-        <translation>Configurar Efectos da Webcam</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="117"/>
-        <source>Add funny effects to the webcam</source>
-        <translation>Engadir efectos divertido para a webcam</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="130"/>
-        <source>Configure Video Recording Formats</source>
-        <translation>Configurar Formatos de Gravación de Vídeo</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="132"/>
-        <source>Add or remove video formats for recording.</source>
-        <translation>Engadir ou eliminar formatos de vídeo para gravar.</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="142"/>
-        <source>Configure Custom Streams</source>
-        <translation>onfigurar fluxos personalizados</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="144"/>
-        <source>Add or remove local or network live streams.</source>
-        <translation>Engadir ou eliminar lugares ou rede transmisións en directo.</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="154"/>
-        <source>General Options</source>
-        <translation>Opcións Xerais</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="156"/>
-        <source>Setup the basic capture options.</source>
-        <translation>Configure as opcións de captura básicos.</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="168"/>
-        <location filename="../../src/mainwidget.cpp" line="172"/>
-        <source>%1 Settings</source>
-        <translation>%1 Configuración</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="250"/>
-        <source>Save File As...</source>
-        <translation>Gardar ficheiro como...</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="358"/>
-        <source>An error has occurred</source>
-        <translation>Houbo un erro</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="439"/>
-        <source>webcam capture application.</source>
-        <translation>aplicación de captura de webcam.</translation>
-    </message>
-    <message>
-        <location filename="../../src/mainwidget.cpp" line="442"/>
-        <source>A simple webcam application for picture and video capture.</source>
-        <translation>Unha aplicación de webcam simple para fotografía e captura de vídeo.</translation>
-    </message>
-</context>
-<context>
-    <name>MediaTools</name>
-    <message>
-        <location filename="../../src/mediatools.cpp" line="352"/>
-        <source>Desktop</source>
-        <translation>área de traballo</translation>
-    </message>
-</context>
-<context>
-    <name>StreamsConfig</name>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="14"/>
-        <source>Local and Network Streams Setup</source>
-        <translation>Local e configuración de rede fluxos</translation>
-    </message>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="99"/>
-        <source>Device Name</source>
-        <translation>Nome do dispositivo</translation>
-    </message>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="104"/>
-        <source>URI</source>
-        <translation>Universal Resource Identifier</translation>
-    </message>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="62"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new stream device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engadir un dispositivo de corrente de novo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="74"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove a stream device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eliminar un dispositivo de fluxo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="25"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dispositivo para arriba.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../ui/streamsconfig.ui" line="50"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Device to down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dispositivo para abaixo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>VideoRecordConfig</name>
-    <message>
-        <location filename="../ui/videorecordconfig.ui" line="14"/>
-        <source>Video Formats Configuration</source>
-        <translation>Configuración dos Formatos de Vídeo</translation>
-    </message>
-    <message>
-        <location filename="../ui/videorecordconfig.ui" line="25"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To up.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Arriba.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <location filename="../ui/videorecordconfig.ui" line="53"/>
+        <location filename="../qml/RecordConfig.qml" line="105"/>
         <source>Suffix</source>
-        <translation>Sufixo</translation>
+        <translation type="unfinished">Sufixo</translation>
     </message>
     <message>
-        <location filename="../ui/videorecordconfig.ui" line="58"/>
-        <source>Options</source>
-        <translation>Opcións</translation>
+        <location filename="../qml/RecordConfig.qml" line="112"/>
+        <source>Supported file suffix</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/videorecordconfig.ui" line="66"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add new video format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Engadir novo formato de vídeo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="../qml/RecordConfig.qml" line="119"/>
+        <source>Parameters</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/videorecordconfig.ui" line="78"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove video format.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Eliminar formato de vídeo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="../qml/RecordConfig.qml" line="126"/>
+        <source>Encoding parameters</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/videorecordconfig.ui" line="103"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To Down.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Abaixo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="../qml/RecordConfig.qml" line="142"/>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/RecordConfig.qml" line="150"/>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/RecordConfig.qml" line="236"/>
+        <source>Save video as...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>WebcamConfig</name>
+    <name>main</name>
     <message>
-        <location filename="../../src/webcamconfig.cpp" line="50"/>
-        <source>Video Format</source>
-        <translation>Formato de vídeo</translation>
+        <location filename="../qml/main.qml" line="151"/>
+        <source>Play</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/webcamconfig.cpp" line="100"/>
-        <source>Reset</source>
-        <translation>Restablecer</translation>
+        <location filename="../qml/main.qml" line="164"/>
+        <source>Configure streams</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/webcamconfig.ui" line="14"/>
-        <source>Set Webcam Preferences</source>
-        <translation>Establecer Preferencias Webcam</translation>
+        <location filename="../qml/main.qml" line="177"/>
+        <source>Take a photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="188"/>
+        <source>Record video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="201"/>
+        <source>Configure Effects</source>
+        <translation type="unfinished">Configurar Efectos</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="214"/>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="227"/>
+        <source>About</source>
+        <translation type="unfinished">Sobre</translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="350"/>
+        <source>Save photo as...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

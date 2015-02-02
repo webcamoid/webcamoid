@@ -52,6 +52,10 @@ SOURCES += \
     src/shagadelic.cpp \
     src/shagadelicelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

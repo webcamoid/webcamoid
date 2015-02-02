@@ -52,6 +52,10 @@ SOURCES += \
     src/falsecolor.cpp \
     src/falsecolorelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

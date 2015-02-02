@@ -54,6 +54,10 @@ SOURCES += \
     src/agingelement.cpp \
     src/scratch.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

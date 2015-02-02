@@ -52,6 +52,10 @@ SOURCES += \
     src/life.cpp \
     src/lifeelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

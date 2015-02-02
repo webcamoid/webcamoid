@@ -52,6 +52,10 @@ SOURCES += \
     src/dice.cpp \
     src/diceelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

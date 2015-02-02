@@ -52,6 +52,10 @@ SOURCES += \
     src/temperature.cpp \
     src/temperatureelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

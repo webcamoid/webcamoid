@@ -28,14 +28,14 @@ import QtQuick.Layouts 1.1
 ApplicationWindow {
     id: recAddRecordingFormat
     title: qsTr("Add new recording format")
-    color: pallete.window
+    color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
 
     property bool editMode: false
 
     SystemPalette {
-        id: pallete
+        id: palette
     }
 
     onVisibleChanged: {
@@ -58,7 +58,6 @@ ApplicationWindow {
         anchors.fill: parent
 
         Label {
-            color: Qt.rgba(1, 1, 1, 1)
             text: qsTr("Description")
             font.bold: true
             Layout.fillWidth: true
@@ -71,7 +70,6 @@ ApplicationWindow {
         }
 
         Label {
-            color: Qt.rgba(1, 1, 1, 1)
             text: qsTr("Suffix")
             font.bold: true
             Layout.fillWidth: true
@@ -85,8 +83,7 @@ ApplicationWindow {
         }
 
         Label {
-            color: Qt.rgba(1, 1, 1, 1)
-            text: qsTr("Params")
+            text: qsTr("Parameters")
             font.bold: true
             Layout.fillWidth: true
         }

@@ -80,6 +80,10 @@ SOURCES = \
     src/videoframe.cpp \
     src/recordingformat.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 TRANSLATIONS = $$files(share/ts/*.ts)
 
 DESTDIR = $${PWD}

@@ -24,7 +24,7 @@ import QtQuick.Controls 1.2
 
 Rectangle {
     id: recEffectBar
-    color: Qt.rgba(0, 0, 0, 1)
+    color: Qt.rgba(0, 0, 0, 0)
     clip: true
     width: 200
     height: 400

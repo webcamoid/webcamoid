@@ -52,6 +52,10 @@ SOURCES += \
     src/colorfilter.cpp \
     src/colorfilterelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

@@ -52,6 +52,10 @@ SOURCES += \
     src/colortransform.cpp \
     src/colortransformelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

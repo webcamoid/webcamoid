@@ -52,6 +52,10 @@ SOURCES += \
     src/implode.cpp \
     src/implodeelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

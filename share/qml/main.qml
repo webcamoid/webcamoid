@@ -33,12 +33,16 @@ ApplicationWindow {
     y: (Screen.desktopAvailableHeight - height) / 2
     width: Webcamoid.windowWidth
     height: Webcamoid.windowHeight
-    color: Qt.rgba(0, 0, 0, 1)
+    color: palette.window
 
     property bool showEffectBar: false
 
     onWidthChanged: Webcamoid.windowWidth = width
     onHeightChanged: Webcamoid.windowHeight = height
+
+    SystemPalette {
+        id: palette
+    }
 
     Connections {
         target: Webcamoid
@@ -73,24 +77,27 @@ ApplicationWindow {
             width: 200
             visible: false
 
-            MediaBar {
-                id: mdbMediaBar
-                visible: false
+            Rectangle {
+                color: palette.window
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-            }
-            EffectBar {
-                id: effectBar
-                visible: false
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                onCurEffectChanged: effectConfig.curEffect = curEffect
-            }
-            RecordBar {
-                id: recordBar
-                visible: false
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+
+                MediaBar {
+                    id: mdbMediaBar
+                    visible: false
+                    anchors.fill: parent
+                }
+                EffectBar {
+                    id: effectBar
+                    visible: false
+                    anchors.fill: parent
+                    onCurEffectChanged: effectConfig.curEffect = curEffect
+                }
+                RecordBar {
+                    id: recordBar
+                    visible: false
+                    anchors.fill: parent
+                }
             }
         }
 
@@ -154,7 +161,7 @@ ApplicationWindow {
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
-                            text: qsTr("Manage Streams")
+                            text: qsTr("Configure streams")
                             icon: "qrc:/Webcamoid/share/icons/webcam.svg"
 
                             onClicked: {
@@ -167,7 +174,7 @@ ApplicationWindow {
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
-                            text: qsTr("Take a Photo")
+                            text: qsTr("Take a photo")
                             icon: "qrc:/Webcamoid/share/icons/picture.svg"
 
                             onClicked: {
@@ -178,7 +185,7 @@ ApplicationWindow {
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
-                            text: qsTr("Record Video")
+                            text: qsTr("Record video")
                             icon: "qrc:/Webcamoid/share/icons/video.svg"
 
                             onClicked: {
@@ -191,7 +198,7 @@ ApplicationWindow {
                         IconBarItem {
                             width: iconBarRect.height
                             height: iconBarRect.height
-                            text: qsTr("Apply Effects")
+                            text: qsTr("Configure Effects")
                             icon: "qrc:/Webcamoid/share/icons/effects.svg"
 
                             onClicked: {
@@ -233,7 +240,7 @@ ApplicationWindow {
             width: 400
 
             Rectangle {
-                color: Qt.rgba(0, 0, 0, 1)
+                color: palette.window
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 

@@ -52,6 +52,10 @@ SOURCES += \
     src/frameoverlap.cpp \
     src/frameoverlapelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

@@ -28,7 +28,7 @@ import QtQuick.Layouts 1.1
 ApplicationWindow {
     id: recAddMedia
     title: qsTr("Add new media")
-    color: pallete.window
+    color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
 
@@ -42,7 +42,7 @@ ApplicationWindow {
     }
 
     SystemPalette {
-        id: pallete
+        id: palette
     }
 
     ColumnLayout {
@@ -54,7 +54,6 @@ ApplicationWindow {
 
         Label {
             id: lblDescription
-            color: Qt.rgba(1, 1, 1, 1)
             text: qsTr("Description")
             font.bold: true
             Layout.fillWidth: true
@@ -69,7 +68,6 @@ ApplicationWindow {
 
         Label {
             id: lblMedia
-            color: Qt.rgba(1, 1, 1, 1)
             text: qsTr("Media file")
             font.bold: true
             Layout.fillWidth: true
@@ -86,7 +84,7 @@ ApplicationWindow {
             Button {
                 id: btnAddMedia
                 width: 30
-                text: qsTr("...")
+                text: qsTr("Search")
 
                 onClicked: fileDialog.open()
             }

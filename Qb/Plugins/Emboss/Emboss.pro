@@ -52,6 +52,10 @@ SOURCES += \
     src/emboss.cpp \
     src/embosselement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

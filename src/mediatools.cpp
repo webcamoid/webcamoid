@@ -336,7 +336,7 @@ QString MediaTools::streamDescription(const QString &stream) const
         return description;
 
     if (QRegExp(":\\d+\\.\\d+(?:\\+\\d+,\\d+)?").exactMatch(stream))
-        return this->tr("Desktop") + " " + stream;
+        return tr("Desktop") + " " + stream;
 
     if (this->m_streams.contains(stream))
         return this->m_streams[stream];

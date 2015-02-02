@@ -53,6 +53,10 @@ SOURCES += \
     src/charify.cpp \
     src/charifyelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

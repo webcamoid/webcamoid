@@ -52,6 +52,10 @@ SOURCES += \
     src/quark.cpp \
     src/quarkelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

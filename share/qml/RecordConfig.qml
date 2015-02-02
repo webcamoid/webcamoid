@@ -116,7 +116,7 @@ ColumnLayout {
 
     Label {
         color: Qt.rgba(1, 1, 1, 1)
-        text: qsTr("Params")
+        text: qsTr("Parameters")
         font.bold: true
         Layout.fillWidth: true
     }
@@ -201,6 +201,7 @@ ColumnLayout {
         MouseArea {
             id: msaRecord
             hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
             anchors.fill: parent
 
             onEntered: {

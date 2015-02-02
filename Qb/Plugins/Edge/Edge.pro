@@ -52,6 +52,10 @@ SOURCES += \
     src/edge.cpp \
     src/edgeelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

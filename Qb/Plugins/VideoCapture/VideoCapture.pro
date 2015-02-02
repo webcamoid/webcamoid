@@ -71,6 +71,10 @@ win32: SOURCES += \
     src/platform/capturewin.cpp \
     src/platform/framegrabber.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

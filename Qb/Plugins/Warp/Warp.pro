@@ -52,6 +52,10 @@ SOURCES += \
     src/warp.cpp \
     src/warpelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

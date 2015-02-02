@@ -52,6 +52,10 @@ SOURCES += \
     src/cinema.cpp \
     src/cinemaelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

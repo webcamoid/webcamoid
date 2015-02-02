@@ -52,6 +52,10 @@ SOURCES += \
     src/radioactive.cpp \
     src/radioactiveelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib

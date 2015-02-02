@@ -27,12 +27,12 @@ import QtQuick.Layouts 1.1
 ApplicationWindow {
     id: recAbout
     title: qsTr("Add new media")
-    color: pallete.window
+    color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
 
     SystemPalette {
-        id: pallete
+        id: palette
     }
 
     ColumnLayout {

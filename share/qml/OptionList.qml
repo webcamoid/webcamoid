@@ -20,6 +20,7 @@
  */
 
 import QtQuick 2.3
+import QtQuick.Controls 1.2
 
 ListView {
     id: lsvOptionList
@@ -66,9 +67,8 @@ ListView {
                 }
             }
 
-            Text {
+            Label {
                 id: txtOptionText
-                color: Qt.rgba(1, 1, 1, 1)
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: lsvOptionList.showField == "description"? description: name

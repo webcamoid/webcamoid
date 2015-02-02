@@ -52,6 +52,10 @@ SOURCES += \
     src/ripple.cpp \
     src/rippleelement.cpp
 
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
+
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
