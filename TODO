@@ -1,4 +1,3 @@
-- Port GUI to Qml
 - Add support for scripted plugins.
 - Windows port.
 - Remove dependencies with OpenCV.

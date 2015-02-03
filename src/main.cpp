@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
 
     QTranslator translator;
-    translator.load(QLocale::system().name(), "qrc:/Webcamoid/share/ts");
+    translator.load(QLocale::system().name(), ":/Webcamoid/share/ts");
     QCoreApplication::installTranslator(&translator);
 
     QQmlApplicationEngine engine;

@@ -57,12 +57,12 @@ ApplicationWindow {
                 }
 
                 Label {
-                    text: "Version " + Webcamoid.applicationVersion()
+                    text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
                     font.bold: true
                 }
 
                 Label {
-                    text: "Using Qt version " + Webcamoid.qtVersion()
+                    text: qsTr("Using Qt %1").arg(Webcamoid.qtVersion())
                 }
             }
         }

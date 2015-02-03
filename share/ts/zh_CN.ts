@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="zh_CN">
+<TS version="2.0" language="zh_CN">
 <context>
     <name>About</name>
     <message>
         <location filename="../qml/About.qml" line="29"/>
         <source>Add new media</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="60"/>
+        <source>Version %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="65"/>
+        <source>Using Qt %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16,7 +26,7 @@
     <message>
         <location filename="../qml/About.qml" line="75"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation type="unfinished">一个简单的摄像头应用程序的图片和视频拍摄。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="87"/>
@@ -102,7 +112,7 @@
     <message>
         <location filename="../qml/AddRecordingFormat.qml" line="73"/>
         <source>Suffix</source>
-        <translation type="unfinished">后缀</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/AddRecordingFormat.qml" line="79"/>
@@ -172,17 +182,17 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="40"/>
         <source>Record audio from</source>
-        <translation>录制音频</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="48"/>
         <source>Source</source>
-        <translation>源</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="68"/>
         <source>None</source>
-        <translation>无</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="79"/>
@@ -192,7 +202,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="58"/>
         <source>Mic</source>
-        <translation>麦克风</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -254,7 +264,7 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="105"/>
         <source>Suffix</source>
-        <translation type="unfinished">后缀</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="112"/>
@@ -312,7 +322,7 @@
     <message>
         <location filename="../qml/main.qml" line="201"/>
         <source>Configure Effects</source>
-        <translation type="unfinished">配置的影响</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="214"/>
@@ -322,7 +332,7 @@
     <message>
         <location filename="../qml/main.qml" line="227"/>
         <source>About</source>
-        <translation type="unfinished">关于</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="350"/>
