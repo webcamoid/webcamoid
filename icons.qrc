@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/Webcamoid">
+        <file>share/icons/webcamoid.png</file>
+        <file>share/icons/webcamoid.ico</file>
         <file>share/icons/about.svg</file>
         <file>share/icons/add.svg</file>
         <file>share/icons/arrow-left.svg</file>
@@ -33,6 +35,7 @@
         <file>share/icons/video.svg</file>
         <file>share/icons/web.svg</file>
         <file>share/icons/webcam.svg</file>
+        <file>share/icons/webcamoid.svg</file>
         <file>share/icons/windowed.svg</file>
     </qresource>
 </RCC>

@@ -75,16 +75,16 @@ TEMPLATE = lib
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
-INSTALLS += \
-    target \
-    headers
-
+INSTALLS += target
 unix: target.path = $${LIBDIR}
 !unix: target.path = $${PREFIX}
 
-headers.files = include/*
-unix: headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
-!unix: headers.path = $${PREFIX}/Qb/include
+!isEmpty(INSTALLDEVHEADERS):!isEqual(INSTALLDEVHEADERS, 0) {
+    INSTALLS += headers
+    headers.files = include/*
+    unix: headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
+    !unix: headers.path = $${PREFIX}/Qb/include
+}
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
     INSTALLS += docs

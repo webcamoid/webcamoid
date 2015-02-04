@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QWindow>
 #include <QTranslator>
 
 #include "mediatools.h"
@@ -56,6 +57,11 @@ int main(int argc, char *argv[])
     emit mediaTools.interfaceLoaded();
 
     foreach (QObject *obj, engine.rootObjects()) {
+        QWindow *applicationWindow = qobject_cast<QWindow *>(obj);
+
+        // Set window icon.
+        applicationWindow->setIcon(QIcon(":/Webcamoid/share/icons/webcamoid.png"));
+
         // First, find where to enbed the UI.
         VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 

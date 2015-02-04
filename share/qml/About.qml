@@ -30,75 +30,87 @@ ApplicationWindow {
     color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
+    width: 600
+    height: 300
 
     SystemPalette {
         id: palette
     }
 
     ColumnLayout {
-        id: recLicense
         anchors.fill: parent
 
-        RowLayout {
-            Image {
-                fillMode: Image.PreserveAspectFit
-                Layout.minimumWidth: 48
-                Layout.minimumHeight: 48
-                Layout.maximumWidth: 48
-                Layout.maximumHeight: 48
-                source: "qrc:/Webcamoid/share/icons/webcam.svg"
-            }
-
-            ColumnLayout {
-                Label {
-                    text: Webcamoid.applicationName()
-                    font.bold: true
-                    font.pointSize: 12
-                }
-
-                Label {
-                    text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
-                    font.bold: true
-                }
-
-                Label {
-                    text: qsTr("Using Qt %1").arg(Webcamoid.qtVersion())
-                }
-            }
-        }
-
-        Label {
-            text: qsTr("Webcam capture application.")
-        }
-
-        Label {
-            text: qsTr("A simple webcam application for picture and video capture.")
-        }
-
-        Label {
-            text: Webcamoid.copyrightNotice()
-        }
-
-        RowLayout {
-            Layout.alignment: Qt.AlignHCenter
-
-            Button {
-                iconName: "go-next"
-                text: qsTr("Website")
-
-                onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
-            }
-
-            Button {
-                iconName: "go-next"
-                text: qsTr("License")
-
-                onClicked: Qt.openUrlExternally(Webcamoid.projectLicenseUrl())
-            }
-        }
-
-        Label {
+        TabView {
+            Layout.fillWidth: true
             Layout.fillHeight: true
+
+            Tab {
+                title: qsTr("Information")
+                clip: true
+
+                ScrollView {
+                    ColumnLayout {
+                        RowLayout {
+                            Image {
+                                fillMode: Image.PreserveAspectFit
+                                Layout.minimumWidth: 128
+                                Layout.minimumHeight: 128
+                                Layout.maximumWidth: 128
+                                Layout.maximumHeight: 128
+                                source: "qrc:/Webcamoid/share/icons/webcamoid.png"
+                            }
+
+                            ColumnLayout {
+                                Label {
+                                    text: Webcamoid.applicationName()
+                                    font.bold: true
+                                    font.pointSize: 12
+                                }
+
+                                Label {
+                                    text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
+                                    font.bold: true
+                                }
+
+                                Label {
+                                    text: qsTr("Using Qt %1").arg(Webcamoid.qtVersion())
+                                }
+
+                                Button {
+                                    iconName: "go-next"
+                                    text: qsTr("Website")
+
+                                    onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
+                                }
+                            }
+                        }
+
+                        Label {
+                            text: qsTr("Webcam capture application.")
+                        }
+                        Label {
+                            text: qsTr("A simple webcam application for picture and video capture.")
+                        }
+                        Label {
+                            text: Webcamoid.copyrightNotice()
+                        }
+
+                        Label {
+                            Layout.fillHeight: true
+                        }
+                    }
+                }
+            }
+
+            Tab {
+                title: qsTr("License")
+
+                TextArea {
+                    text: Webcamoid.readFile(":/Webcamoid/COPYING")
+                    font.family: "Courier"
+                    readOnly: true
+                }
+            }
         }
 
         Button {

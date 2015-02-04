@@ -73,5 +73,6 @@ MouseArea {
         id: icon
         anchors.fill: parent
         source: mouseArea.icon
+        opacity: mouseArea.enabled? 1: 0.25
     }
 }

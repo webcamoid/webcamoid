@@ -28,6 +28,12 @@ import Webcamoid 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
+    title: Webcamoid.applicationName()
+           +
+           " "
+           + Webcamoid.applicationVersion()
+           + " - "
+           + Webcamoid.streamDescription(Webcamoid.curStream)
     visible: true
     x: (Screen.desktopAvailableWidth - width) / 2
     y: (Screen.desktopAvailableHeight - height) / 2
@@ -47,7 +53,7 @@ ApplicationWindow {
     Connections {
         target: Webcamoid
         onStateChanged: {
-            if (Webcamoid.isPlaying()) {
+            if (Webcamoid.isPlaying) {
                 itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/stop.svg"
                 videoDisplay.visible = true
             }
@@ -103,135 +109,6 @@ ApplicationWindow {
 
         Item {
             Layout.fillWidth: true
-
-            Rectangle {
-                id: iconBarRect
-                width: height * nIcons
-                height: 48
-                radius: height / 2
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                opacity: 0.5
-
-                property real nIcons: 7
-
-                gradient: Gradient {
-                    GradientStop {
-                        position: 0
-                        color: Qt.rgba(0.25, 0.25, 0.25, 1)
-                    }
-                    GradientStop {
-                        position: 1
-                        color: Qt.rgba(0, 0, 0, 1)
-                    }
-                }
-
-                MouseArea {
-                    id: mouseArea
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.left: parent.left
-                    anchors.bottom: parent.bottom
-                    anchors.top: parent.top
-                    hoverEnabled: true
-                    onEntered: iconBarRect.opacity = 1
-                    onExited: iconBarRect.opacity = 0.5
-
-                    Row {
-                        id: iconBar
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.left: parent.left
-                        anchors.bottom: parent.bottom
-                        anchors.top: parent.top
-                        objectName: "IconBar"
-
-                        IconBarItem {
-                            id: itmPlayStopButton
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("Play")
-                            icon: "qrc:/Webcamoid/share/icons/play.svg"
-
-                            onClicked: {
-                                if (Webcamoid.isPlaying())
-                                    Webcamoid.stop();
-                                else
-                                    Webcamoid.start();
-                            }
-                        }
-                        IconBarItem {
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("Configure streams")
-                            icon: "qrc:/Webcamoid/share/icons/webcam.svg"
-
-                            onClicked: {
-                                if (splitView.state == "showMediaPanels")
-                                    splitView.state = ""
-                                else
-                                    splitView.state = "showMediaPanels"
-                            }
-                        }
-                        IconBarItem {
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("Take a photo")
-                            icon: "qrc:/Webcamoid/share/icons/picture.svg"
-
-                            onClicked: {
-                                Webcamoid.takePhoto()
-                                fileDialog.visible = true
-                            }
-                        }
-                        IconBarItem {
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("Record video")
-                            icon: "qrc:/Webcamoid/share/icons/video.svg"
-
-                            onClicked: {
-                                if (splitView.state == "showRecordPanels")
-                                    splitView.state = ""
-                                else
-                                    splitView.state = "showRecordPanels"
-                            }
-                        }
-                        IconBarItem {
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("Configure Effects")
-                            icon: "qrc:/Webcamoid/share/icons/effects.svg"
-
-                            onClicked: {
-                                if (splitView.state == "showEffectPanels")
-                                    splitView.state = ""
-                                else
-                                    splitView.state = "showEffectPanels"
-                            }
-                        }
-                        IconBarItem {
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("Preferences")
-                            icon: "qrc:/Webcamoid/share/icons/setup.svg"
-
-                            onClicked: {
-                                if (splitView.state == "showConfigPanels")
-                                    splitView.state = ""
-                                else
-                                    splitView.state = "showConfigPanels"
-                            }
-                        }
-                        IconBarItem {
-                            width: iconBarRect.height
-                            height: iconBarRect.height
-                            text: qsTr("About")
-                            icon: "qrc:/Webcamoid/share/icons/about.svg"
-
-                            onClicked: about.show()
-                        }
-                    }
-                }
-            }
         }
 
         RowLayout {
@@ -341,22 +218,155 @@ ApplicationWindow {
         ]
     }
 
-    About {
-        id: about
+    Rectangle {
+        id: iconBarRect
+        width: height * nIcons
+        height: 48
+        radius: height / 2
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        opacity: 0.5
+
+        property real nIcons: 7
+
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: Qt.rgba(0.25, 0.25, 0.25, 1)
+            }
+            GradientStop {
+                position: 1
+                color: Qt.rgba(0, 0, 0, 1)
+            }
+        }
+
+        MouseArea {
+            id: mouseArea
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            anchors.top: parent.top
+            hoverEnabled: true
+            onEntered: iconBarRect.opacity = 1
+            onExited: iconBarRect.opacity = 0.5
+
+            Row {
+                id: iconBar
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.left: parent.left
+                anchors.bottom: parent.bottom
+                anchors.top: parent.top
+                objectName: "IconBar"
+
+                IconBarItem {
+                    id: itmPlayStopButton
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Play")
+                    icon: "qrc:/Webcamoid/share/icons/play.svg"
+
+                    onClicked: {
+                        if (Webcamoid.isPlaying)
+                            Webcamoid.stop();
+                        else
+                            Webcamoid.start();
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Configure streams")
+                    icon: "qrc:/Webcamoid/share/icons/webcam.svg"
+
+                    onClicked: {
+                        if (splitView.state == "showMediaPanels")
+                            splitView.state = ""
+                        else
+                            splitView.state = "showMediaPanels"
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Take a photo")
+                    icon: "qrc:/Webcamoid/share/icons/picture.svg"
+                    enabled: Webcamoid.isPlaying
+
+                    onClicked: {
+                        Webcamoid.takePhoto()
+                        var suffix = "png";
+                        var fileName = qsTr("Picture %1.%2")
+                                            .arg(Webcamoid.currentTime())
+                                            .arg(suffix)
+
+                        var filters = ["PNG file (*.png)",
+                                       "JPEG file (*.jpg)",
+                                       "BMP file (*.bmp)",
+                                       "GIF file (*.gif)"]
+
+                        var fileUrl = Webcamoid.saveFileDialog(qsTr("Save photo as..."),
+                                                 fileName,
+                                                 Webcamoid.standardLocations("pictures")[0],
+                                                 "." + suffix,
+                                                 filters.join(";;"))
+
+                        if (fileUrl !== "")
+                            Webcamoid.savePhoto(fileUrl)
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Record video")
+                    icon: "qrc:/Webcamoid/share/icons/video.svg"
+                    enabled: Webcamoid.isPlaying
+
+                    onClicked: {
+                        if (splitView.state == "showRecordPanels")
+                            splitView.state = ""
+                        else
+                            splitView.state = "showRecordPanels"
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Configure Effects")
+                    icon: "qrc:/Webcamoid/share/icons/effects.svg"
+
+                    onClicked: {
+                        if (splitView.state == "showEffectPanels")
+                            splitView.state = ""
+                        else
+                            splitView.state = "showEffectPanels"
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Preferences")
+                    icon: "qrc:/Webcamoid/share/icons/setup.svg"
+
+                    onClicked: {
+                        if (splitView.state == "showConfigPanels")
+                            splitView.state = ""
+                        else
+                            splitView.state = "showConfigPanels"
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("About")
+                    icon: "qrc:/Webcamoid/share/icons/about.svg"
+
+                    onClicked: about.show()
+                }
+            }
+        }
     }
 
-    FileDialog {
-        id: fileDialog
-        title: qsTr("Save photo as...")
-        folder: Webcamoid.standardLocations("pictures")[0]
-        selectExisting: false
-        selectMultiple: false
-        selectedNameFilter: nameFilters[0]
-        nameFilters: ["PNG file (*.png)",
-                      "JPEG file (*.jpg)",
-                      "BMP file (*.bmp)",
-                      "GIF file (*.gif)"]
-
-        onAccepted: Webcamoid.savePhoto(fileUrl);
+    About {
+        id: about
     }
 }

@@ -45,6 +45,16 @@ ApplicationWindow {
         id: palette
     }
 
+    onVisibleChanged: {
+        if (!visible)
+            return
+
+        txtDescription.text = recAddMedia.editMode?
+                    Webcamoid.streamDescription(Webcamoid.curStream): ""
+        txtMedia.text = recAddMedia.editMode?
+                    Webcamoid.curStream: ""
+    }
+
     ColumnLayout {
         anchors.rightMargin: 8
         anchors.leftMargin: 8

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="pt">
+<TS version="2.1" language="pt">
 <context>
     <name>About</name>
     <message>
@@ -9,37 +9,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="60"/>
-        <source>Version %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/About.qml" line="65"/>
-        <source>Using Qt %1</source>
+        <location filename="../qml/About.qml" line="48"/>
+        <source>Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="71"/>
+        <source>Version %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="76"/>
+        <source>Using Qt %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="89"/>
         <source>Webcam capture application.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="75"/>
+        <location filename="../qml/About.qml" line="92"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="87"/>
+        <location filename="../qml/About.qml" line="81"/>
         <source>Website</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="94"/>
+        <location filename="../qml/About.qml" line="106"/>
         <source>License</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="105"/>
+        <location filename="../qml/About.qml" line="117"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -52,42 +57,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="57"/>
+        <location filename="../qml/AddMedia.qml" line="67"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="64"/>
+        <location filename="../qml/AddMedia.qml" line="74"/>
         <source>Insert media description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="71"/>
+        <location filename="../qml/AddMedia.qml" line="81"/>
         <source>Media file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="79"/>
+        <location filename="../qml/AddMedia.qml" line="89"/>
         <source>Select media file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="87"/>
+        <location filename="../qml/AddMedia.qml" line="97"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="107"/>
+        <location filename="../qml/AddMedia.qml" line="117"/>
         <source>Ok</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="129"/>
+        <location filename="../qml/AddMedia.qml" line="139"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="138"/>
+        <location filename="../qml/AddMedia.qml" line="148"/>
         <source>Choose the file to add as media</source>
         <translation type="unfinished"></translation>
     </message>
@@ -143,7 +148,7 @@
 <context>
     <name>EffectBar</name>
     <message>
-        <location filename="../qml/EffectBar.qml" line="114"/>
+        <location filename="../qml/EffectBar.qml" line="115"/>
         <source>Search effect...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -241,58 +246,63 @@
 <context>
     <name>RecordConfig</name>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="79"/>
+        <location filename="../qml/RecordConfig.qml" line="72"/>
+        <source>Video %1.%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/RecordConfig.qml" line="82"/>
         <source>Stop recording video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="83"/>
-        <location filename="../qml/RecordConfig.qml" line="162"/>
+        <location filename="../qml/RecordConfig.qml" line="86"/>
+        <location filename="../qml/RecordConfig.qml" line="165"/>
         <source>Start recording video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="91"/>
+        <location filename="../qml/RecordConfig.qml" line="94"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="98"/>
+        <location filename="../qml/RecordConfig.qml" line="101"/>
         <source>Insert format description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="105"/>
+        <location filename="../qml/RecordConfig.qml" line="108"/>
         <source>Suffix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="112"/>
+        <location filename="../qml/RecordConfig.qml" line="115"/>
         <source>Supported file suffix</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="119"/>
+        <location filename="../qml/RecordConfig.qml" line="122"/>
         <source>Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="126"/>
+        <location filename="../qml/RecordConfig.qml" line="129"/>
         <source>Encoding parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="142"/>
+        <location filename="../qml/RecordConfig.qml" line="145"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="150"/>
+        <location filename="../qml/RecordConfig.qml" line="153"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="236"/>
+        <location filename="../qml/RecordConfig.qml" line="229"/>
         <source>Save video as...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -300,42 +310,47 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="151"/>
+        <location filename="../qml/main.qml" line="265"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="164"/>
+        <location filename="../qml/main.qml" line="278"/>
         <source>Configure streams</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="177"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Take a photo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="188"/>
+        <location filename="../qml/main.qml" line="298"/>
+        <source>Picture %1.%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="320"/>
         <source>Record video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="201"/>
+        <location filename="../qml/main.qml" line="334"/>
         <source>Configure Effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="214"/>
+        <location filename="../qml/main.qml" line="347"/>
         <source>Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="227"/>
+        <location filename="../qml/main.qml" line="360"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="307"/>
         <source>Save photo as...</source>
         <translation type="unfinished"></translation>
     </message>

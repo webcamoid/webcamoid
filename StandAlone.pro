@@ -90,6 +90,8 @@ DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_TARGET}
 
+!unix: RC_ICONS = share/icons/webcamoid.ico
+
 TEMPLATE = app
 
 CODECFORTR = UTF-8

@@ -43,25 +43,6 @@ Edit the _Lib.pro_ file and add you language code to the _TRANSLATIONS_ macro, t
 
 A _share/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist.
 
-### Supported languages ###
-
-Some languages are officially supported and other are supported through [Google Translator](http://translate.google.com/).
-
-* Catalan
-* Chinese Simplified
-* Chinese Traditional
-* English (official)
-* French
-* Galician
-* German
-* Greek
-* Italian (official)
-* Japanese (official)
-* Korean
-* Portuguese
-* Russian
-* Spanish (official)
-
 ## Reporting Bugs ##
 
 Use Webcamoid until an abnormal event happen, write a list with the following information:

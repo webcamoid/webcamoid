@@ -64,18 +64,34 @@ ColumnLayout {
         for (var color in table)
             colorTable.push(fromRgba(table[color]))
 
-//        return JSON.stringify(colorTable, null, 4)
-        return JSON.stringify(colorTable)
+        return JSON.stringify(colorTable, null, 4)
+    }
+
+    SystemPalette {
+        id: palette
     }
 
     // Color table.
     Label {
         text: qsTr("Color table")
     }
-    TextField {
-        text: tableToStr(FalseColor.table)
+    Rectangle {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        color: palette.base
 
-        onTextChanged: FalseColor.table = tableFromStr(text)
+        ScrollView {
+            anchors.fill: parent
+
+            TextEdit {
+                text: tableToStr(FalseColor.table)
+                cursorVisible: true
+                wrapMode: TextEdit.Wrap
+                color: palette.text
+
+                onTextChanged: FalseColor.table = tableFromStr(text)
+            }
+        }
     }
 
     // Soft gradient.

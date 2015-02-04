@@ -100,6 +100,7 @@ Rectangle {
         onCurrentEffectsChanged: {
             recEffectBar.updateAppliedEffectList()
             recEffectBar.updateEffectList()
+            recEffectBar.editMode = false
         }
     }
 
@@ -127,8 +128,10 @@ Rectangle {
             recEffectBar.curEffect = curOptionName
         }
         onVisibleChanged: {
-            if (visible)
+            if (visible) {
                 recEffectBar.curEffect = curOptionName
+                txtSearchEffect.text = ""
+            }
         }
     }
 

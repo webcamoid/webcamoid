@@ -80,6 +80,9 @@ class MediaTools: public QObject
     Q_PROPERTY(QStringList currentEffects
                READ currentEffects
                NOTIFY currentEffectsChanged)
+    Q_PROPERTY(bool isPlaying
+               READ isPlaying
+               NOTIFY isPlayingChanged)
 
     public:
         enum RecordFrom
@@ -142,6 +145,12 @@ class MediaTools: public QObject
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;
+        Q_INVOKABLE QString saveFileDialog(const QString &caption="",
+                                           const QString &fileName="",
+                                           const QString &directory="",
+                                           const QString &suffix="",
+                                           const QString &filters="") const;
+        Q_INVOKABLE QString readFile(const QString &fileName) const;
 
     private:
         QString m_curStream;
@@ -190,6 +199,7 @@ class MediaTools: public QObject
         void windowWidthChanged();
         void windowHeightChanged();
         void currentEffectsChanged();
+        void isPlayingChanged();
         void frameReady(const QbPacket &frame);
         void error(const QString &message);
         void interfaceLoaded();

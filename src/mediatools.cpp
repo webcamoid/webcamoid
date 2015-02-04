@@ -23,6 +23,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QStandardPaths>
+#include <QFileDialog>
 
 #include "mediatools.h"
 
@@ -144,6 +145,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              this,
                              SIGNAL(stateChanged()));
         }
+
+        QObject::connect(this,
+                         SIGNAL(stateChanged()),
+                         this,
+                         SIGNAL(isPlayingChanged()));
 
         if (this->m_audioSwitch)
             this->m_audioSwitch->setProperty("inputIndex", 1);
@@ -647,6 +653,41 @@ QStringList MediaTools::standardLocations(const QString &type) const
     return QStringList();
 }
 
+QString MediaTools::saveFileDialog(const QString &caption,
+                                   const QString &fileName,
+                                   const QString &directory,
+                                   const QString &suffix,
+                                   const QString &filters) const
+{
+    QFileDialog saveFileDialog(NULL,
+                               caption,
+                               fileName,
+                               filters);
+
+    saveFileDialog.setModal(true);
+    saveFileDialog.setDefaultSuffix(suffix);
+    saveFileDialog.setDirectory(directory);
+    saveFileDialog.setFileMode(QFileDialog::AnyFile);
+    saveFileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    if (saveFileDialog.exec() != QDialog::Accepted)
+        return QString();
+
+    QStringList selectedFiles = saveFileDialog.selectedFiles();
+
+    return selectedFiles.isEmpty()? QString(): selectedFiles.at(0);
+}
+
+QString MediaTools::readFile(const QString &fileName) const
+{
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString data = file.readAll();
+    file.close();
+
+    return data;
+}
+
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
                                 QObject *interface,
                                 const QString &where) const
@@ -655,7 +696,7 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
         return false;
 
     foreach (QObject *obj, engine->rootObjects()) {
-        // First, find where to enbed the UI.
+        // First, find where to embed the UI.
         QQuickItem *item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
@@ -866,6 +907,10 @@ void MediaTools::savePhoto(const QString &fileName)
 {
     QString path = fileName;
     path.replace("file://", "");
+
+    if (path.isEmpty())
+        return;
+
     this->m_photo.save(path);
 }
 

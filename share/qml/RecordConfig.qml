@@ -62,11 +62,14 @@ ColumnLayout {
         return filter
     }
 
+    function defaultSuffix()
+    {
+        return Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)[0]
+    }
+
     function makeFileName()
     {
-        var defaultSuffix = Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)[0]
-
-        return fileDialog.folder + "/Video " + Webcamoid.currentTime() + "." + defaultSuffix
+        return qsTr("Video %1.%2").arg(Webcamoid.currentTime()).arg(defaultSuffix())
     }
 
     Connections {
@@ -220,8 +223,18 @@ ColumnLayout {
             onClicked: {
                 if (Webcamoid.recording)
                     Webcamoid.resetRecording();
-                else
-                    fileDialog.visible = true
+                else {
+                    var filters = recRecordConfig.makeFilters()
+
+                    var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as..."),
+                                             recRecordConfig.makeFileName(),
+                                             Webcamoid.standardLocations("movies")[0],
+                                             "." + defaultSuffix(),
+                                             filters.join(";;"))
+
+                    if (fileUrl !== "")
+                        Webcamoid.setRecording(true, fileUrl)
+                }
             }
         }
     }
@@ -229,17 +242,5 @@ ColumnLayout {
     AddRecordingFormat {
         id: dlgAddRecordingFormat
         editMode: true
-    }
-
-    FileDialog {
-        id: fileDialog
-        title: qsTr("Save video as...")
-        folder: Webcamoid.standardLocations("movies")[0]
-        selectExisting: false
-        selectMultiple: false
-        selectedNameFilter: makeDefaultFilter()
-        nameFilters: recRecordConfig.makeFilters()
-
-        onAccepted: Webcamoid.setRecording(true, fileUrl);
     }
 }

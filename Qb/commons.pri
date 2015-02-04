@@ -30,8 +30,14 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2014  Gonzalo Exequiel Pedone"
 
     isEmpty(BUILDDOCS): BUILDDOCS = 0
-    isEmpty(QDOCTOOL): QDOCTOOL = $$[QT_INSTALL_BINS]/qdoc
-    isEmpty(QMAKE_LRELEASE): QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+    isEmpty(QDOCTOOL): {
+        unix: QDOCTOOL = $$[QT_INSTALL_BINS]/qdoc
+        !unix: QDOCTOOL = $$[QT_INSTALL_LIBEXECS]/qdoc
+    }
+    isEmpty(QMAKE_LRELEASE) {
+        unix: QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
+        !unix: QMAKE_LRELEASE = $$[QT_INSTALL_LIBEXECS]/lrelease
+    }
 
     isEmpty(PREFIX): PREFIX = /usr
     isEmpty(EXECPREFIX): EXECPREFIX = $${PREFIX}
