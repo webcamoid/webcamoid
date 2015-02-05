@@ -65,7 +65,7 @@ OTHER_FILES = \
     README.md \
     share/effects.xml
 
-QT += qml quick opengl widgets xml
+QT += qml quick opengl widgets xml svg
 
 RESOURCES += \
     Webcamoid.qrc \
@@ -125,6 +125,7 @@ unix {
         $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
         $$[QT_INSTALL_BINS]/Qt5Qml.dll \
         $$[QT_INSTALL_BINS]/Qt5Quick.dll \
+        $$[QT_INSTALL_BINS]/Qt5Svg.dll \
         $$[QT_INSTALL_BINS]/Qt5Widgets.dll \
         \ # FFmpeg
         $$[QT_INSTALL_BINS]/avcodec-*.dll \

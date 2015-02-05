@@ -9,17 +9,18 @@ license=('GPL')
 arch=('i686' 'x86_64')
 depends=('qt5-multimedia' 'ffmpeg' 'opencv')
 makedepends=('qt5-tools')
-conflicts=('kdeplasma-applets-webcamoid')
+provides=('webcamoid')
+conflicts=('kdeplasma-applets-webcamoid' 'webcamoid-git')
 source=("https://github.com/hipersayanX/Webcamoid/archive/v${pkgver}.tar.gz")
 md5sums=('SKIP')
 
 build() {
-    cd $srcdir/Webcamoid-${pkgver}
+    cd "$srcdir/Webcamoid-${pkgver}"
     qmake-qt5 Webcamoid.pro
     make
 }
 
 package() {
-    cd $srcdir/Webcamoid-${pkgver}
+    cd "$srcdir/Webcamoid-${pkgver}"
     make INSTALL_ROOT="${pkgdir}" install
 }

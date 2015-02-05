@@ -31,13 +31,17 @@ Rectangle {
     property color backgroundUp: Qt.rgba(0.25, 0.25, 0.25, 1)
     property color backgroundDown: Qt.rgba(0, 0, 0, 1)
     property color dialogBorder: Qt.rgba(0.12, 0.12, 0.12, 1)
-    property color textColor: Qt.rgba(1, 1, 1, 1)
+    property color textColor:  Qt.rgba(1, 1, 1, 1)
     property real markSize: 8
     property string text: ""
 
     onTextChanged: {
         txtTitle.text = recDialogBox.text
         recDialogBox.width = txtTitle.width + recDialogBox.height - txtTitle.height
+    }
+
+    SystemPalette {
+        id: palette
     }
 
     Rectangle

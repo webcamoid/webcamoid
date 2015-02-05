@@ -51,7 +51,6 @@ GridLayout {
 
     Label {
         id: lblDescription
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Description")
         font.bold: true
         Layout.fillWidth: true
@@ -66,7 +65,6 @@ GridLayout {
 
     Label {
         id: lblMedia
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Media file")
         font.bold: true
         Layout.fillWidth: true

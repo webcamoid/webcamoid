@@ -90,7 +90,6 @@ ColumnLayout {
     }
 
     Label {
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Description")
         font.bold: true
         Layout.fillWidth: true
@@ -104,7 +103,6 @@ ColumnLayout {
     }
 
     Label {
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Suffix")
         font.bold: true
         Layout.fillWidth: true
@@ -118,7 +116,6 @@ ColumnLayout {
     }
 
     Label {
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Parameters")
         font.bold: true
         Layout.fillWidth: true

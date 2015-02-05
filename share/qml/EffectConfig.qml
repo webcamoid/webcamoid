@@ -38,7 +38,6 @@ ColumnLayout {
 
     Label {
         id: lblEffect
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Plugin id")
         font.bold: true
         Layout.fillWidth: true
@@ -52,7 +51,6 @@ ColumnLayout {
     }
     Label {
         id: lblDescription
-        color: Qt.rgba(1, 1, 1, 1)
         text: qsTr("Description")
         font.bold: true
         Layout.fillWidth: true
