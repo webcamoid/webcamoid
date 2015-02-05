@@ -56,18 +56,15 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     QbElement::setRecursiveSearch(config.value("recursive", false).toBool());
 
     int size = config.beginReadArray("paths");
-    QStringList searchPaths;
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
-        searchPaths << config.value("path").toString();
+        QString path = config.value("path").toString();
+        QbElement::addSearchPath(path);
     }
 
     config.endArray();
     config.endGroup();
-
-    if (!searchPaths.isEmpty())
-        QbElement::setSearchPaths(searchPaths);
 
     this->m_pipeline = QbElement::create("Bin", "pipeline");
 
@@ -1397,7 +1394,7 @@ void MediaTools::saveConfigs()
 
     i = 0;
 
-    foreach (QString path, QbElement::searchPaths()) {
+    foreach (QString path, QbElement::searchPaths(QbElement::SearchPathsExtras)) {
         config.setArrayIndex(i);
         config.setValue("path", path);
         i++;

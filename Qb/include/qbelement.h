@@ -44,6 +44,7 @@ class QbElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
+    Q_ENUMS(SearchPaths)
     Q_PROPERTY(QString pluginId
                READ pluginId)
     Q_PROPERTY(QbElement::ElementState state
@@ -58,6 +59,13 @@ class QbElement: public QObject
             ElementStateNull,
             ElementStatePaused,
             ElementStatePlaying
+        };
+
+        enum SearchPaths
+        {
+            SearchPathsAll,
+            SearchPathsDefaults,
+            SearchPathsExtras
         };
 
         explicit QbElement(QObject *parent=NULL);
@@ -91,7 +99,7 @@ class QbElement: public QObject
                                                const QString &elementName="");
         Q_INVOKABLE static bool recursiveSearch();
         Q_INVOKABLE static void setRecursiveSearch(bool enable);
-        Q_INVOKABLE static QStringList searchPaths();
+        Q_INVOKABLE static QStringList searchPaths(SearchPaths pathType=SearchPathsAll);
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();

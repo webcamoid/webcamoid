@@ -224,19 +224,43 @@ void QbElement::setRecursiveSearch(bool enable)
     *recursiveSearchPaths = enable;
 }
 
-QStringList QbElement::searchPaths()
+QStringList QbElement::searchPaths(SearchPaths pathType)
 {
-    return *pluginsSearchPaths;
+    if (pathType == SearchPathsAll)
+        return *pluginsSearchPaths;
+
+    QStringList defaults;
+
+#ifdef Q_OS_WIN32
+    defaults << QString("%1/Qb/Plugins").arg(QCoreApplication::applicationDirPath());
+#else
+    paths << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET);
+#endif
+
+    if (pathType == SearchPathsDefaults)
+        return defaults;
+
+    QStringList extras = *pluginsSearchPaths;
+
+    foreach (QString path, defaults)
+        extras.removeAll(path);
+
+    return extras;
 }
 
 void QbElement::addSearchPath(const QString &path)
 {
-    pluginsSearchPaths->insert(0, path);
+    if (!path.isEmpty() && QDir(path).exists())
+        *pluginsSearchPaths << path;
 }
 
 void QbElement::setSearchPaths(const QStringList &searchPaths)
 {
-    *pluginsSearchPaths = searchPaths;
+    pluginsSearchPaths->clear();
+
+    foreach (QString path, searchPaths)
+        if (QDir(path).exists())
+            *pluginsSearchPaths << path;
 }
 
 void QbElement::resetSearchPaths()
@@ -246,8 +270,7 @@ void QbElement::resetSearchPaths()
 #ifdef Q_OS_WIN32
     *pluginsSearchPaths << QString("%1/Qb/Plugins").arg(QCoreApplication::applicationDirPath());
 #else
-    *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR)
-                           .arg(COMMONS_TARGET);
+    *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET);
 #endif
 }
 
