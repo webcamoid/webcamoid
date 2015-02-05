@@ -32,7 +32,7 @@
 #ifdef Q_OS_WIN32
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
                           pluginsSearchPaths,
-                          (QString("%1/Plugins/Qb").arg(QCoreApplication::applicationDirPath())))
+                          (QString("%1/Qb/Plugins").arg(QCoreApplication::applicationDirPath())))
 #else
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
                           pluginsSearchPaths,
@@ -244,7 +244,7 @@ void QbElement::resetSearchPaths()
     pluginsSearchPaths->clear();
 
 #ifdef Q_OS_WIN32
-    *pluginsSearchPaths << QString("%1/Plugins/Qb").arg(QCoreApplication::applicationDirPath());
+    *pluginsSearchPaths << QString("%1/Qb/Plugins").arg(QCoreApplication::applicationDirPath());
 #else
     *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR)
                            .arg(COMMONS_TARGET);
