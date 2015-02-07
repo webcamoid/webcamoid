@@ -234,7 +234,7 @@ QStringList QbElement::searchPaths(SearchPaths pathType)
 #ifdef Q_OS_WIN32
     defaults << QString("%1/Qb/Plugins").arg(QCoreApplication::applicationDirPath());
 #else
-    paths << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET);
+    defaults << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET);
 #endif
 
     if (pathType == SearchPathsDefaults)

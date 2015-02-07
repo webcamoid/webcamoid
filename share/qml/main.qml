@@ -54,11 +54,11 @@ ApplicationWindow {
         target: Webcamoid
         onStateChanged: {
             if (Webcamoid.isPlaying) {
-                itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/stop.svg"
+                itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/default/scalable/stop.svg"
                 videoDisplay.visible = true
             }
             else {
-                itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/play.svg"
+                itmPlayStopButton.icon = "qrc:/Webcamoid/share/icons/default/scalable/play.svg"
                 videoDisplay.visible = false
             }
         }
@@ -263,7 +263,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Play")
-                    icon: "qrc:/Webcamoid/share/icons/play.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/play.svg"
 
                     onClicked: {
                         if (Webcamoid.isPlaying)
@@ -276,7 +276,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure streams")
-                    icon: "qrc:/Webcamoid/share/icons/webcam.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/camera-web.svg"
 
                     onClicked: {
                         if (splitView.state == "showMediaPanels")
@@ -289,7 +289,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Take a photo")
-                    icon: "qrc:/Webcamoid/share/icons/picture.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/picture.svg"
                     enabled: Webcamoid.isPlaying
 
                     onClicked: {
@@ -318,7 +318,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Record video")
-                    icon: "qrc:/Webcamoid/share/icons/video.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/video.svg"
                     enabled: Webcamoid.isPlaying
 
                     onClicked: {
@@ -332,7 +332,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure Effects")
-                    icon: "qrc:/Webcamoid/share/icons/effects.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/effects.svg"
 
                     onClicked: {
                         if (splitView.state == "showEffectPanels")
@@ -345,7 +345,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Preferences")
-                    icon: "qrc:/Webcamoid/share/icons/setup.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/setup.svg"
 
                     onClicked: {
                         if (splitView.state == "showConfigPanels")
@@ -358,7 +358,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("About")
-                    icon: "qrc:/Webcamoid/share/icons/about.svg"
+                    icon: "qrc:/Webcamoid/share/icons/default/scalable/help-about.svg"
 
                     onClicked: about.show()
                 }

@@ -90,7 +90,7 @@ DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_TARGET}
 
-!unix: RC_ICONS = share/icons/webcamoid.ico
+!unix: RC_ICONS = share/icons/default/128x128/webcamoid.ico
 
 TEMPLATE = app
 

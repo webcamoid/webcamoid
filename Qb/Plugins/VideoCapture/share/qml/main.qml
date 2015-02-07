@@ -258,6 +258,7 @@ GridLayout {
 
     Button {
         id: btnReset
+        iconName: "reset"
         text: qsTr("Reset")
         Layout.alignment: Qt.AlignRight
 

@@ -87,16 +87,18 @@ GridLayout {
 
         Button {
             id: btnEdit
-            iconName: "edit"
             text: qsTr("Edit")
+            iconName: "edit"
+            iconSource: "qrc:/Webcamoid/share/icons/default/scalable/edit.svg"
 
             onClicked: dlgAddMedia.visible = true
         }
 
         Button {
             id: btnRemove
-            iconName: "remove"
             text: qsTr("Remove")
+            iconName: "remove"
+            iconSource: "qrc:/Webcamoid/share/icons/default/scalable/remove.svg"
 
             onClicked: Webcamoid.removeStream(Webcamoid.curStream)
         }

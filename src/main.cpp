@@ -41,9 +41,18 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(COMMONS_APPNAME);
     QCoreApplication::setOrganizationDomain(QString("%1.com").arg(COMMONS_APPNAME));
 
+    // Install translations.
     QTranslator translator;
     translator.load(QLocale::system().name(), ":/Webcamoid/share/ts");
     QCoreApplication::installTranslator(&translator);
+
+    // Install fallback icon theme.
+    if (!QIcon::themeName().isEmpty()) {
+        QIcon::setThemeName("default");
+        QStringList iconSearchPath = QIcon::themeSearchPaths();
+        iconSearchPath.insert(0, ":/Webcamoid/share/icons");
+        QIcon::setThemeSearchPaths(iconSearchPath);
+    }
 
     QQmlApplicationEngine engine;
     MediaTools mediaTools(&engine);
@@ -60,7 +69,8 @@ int main(int argc, char *argv[])
         QWindow *applicationWindow = qobject_cast<QWindow *>(obj);
 
         // Set window icon.
-        applicationWindow->setIcon(QIcon(":/Webcamoid/share/icons/webcamoid.png"));
+        applicationWindow->setIcon(QIcon::fromTheme("webcamoid",
+                                                    QIcon(":/Webcamoid/share/icons/default/scalable/webcamoid.svg")));
 
         // First, find where to enbed the UI.
         VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");

@@ -57,7 +57,7 @@ ApplicationWindow {
                                 Layout.minimumHeight: 128
                                 Layout.maximumWidth: 128
                                 Layout.maximumHeight: 128
-                                source: "qrc:/Webcamoid/share/icons/webcamoid.png"
+                                source: "qrc:/Webcamoid/share/icons/default/128x128/webcamoid.png"
                             }
 
                             ColumnLayout {
@@ -77,7 +77,8 @@ ApplicationWindow {
                                 }
 
                                 Button {
-                                    iconName: "go-next"
+                                    iconName: "applications-internet"
+                                    iconSource: "qrc:/Webcamoid/share/icons/default/scalable/applications-internet.svg"
                                     text: qsTr("Website")
 
                                     onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
@@ -115,6 +116,8 @@ ApplicationWindow {
 
         Button {
             text: qsTr("Close")
+            iconName: "window-close"
+            iconSource: "qrc:/Webcamoid/share/icons/default/scalable/window-close.svg"
             Layout.alignment: Qt.AlignRight
             onClicked: recAbout.close()
         }
