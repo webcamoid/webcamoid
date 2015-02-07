@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="128"
+   height="128"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="edit-find.svg"
+   inkscape:export-filename="/home/hipersayan_x/Documentos/CarpetaPersonal/Proyectos/Webcamoid/share/icons/default/256x256/edit-find.png"
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#000000"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="4.546875"
+     inkscape:cx="64"
+     inkscape:cy="64"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1332"
+     inkscape:window-height="748"
+     inkscape:window-x="32"
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-924.36218)">
+    <rect
+       style="fill:#ff007f;fill-opacity:1;stroke:none;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4135"
+       width="128"
+       height="128"
+       x="0"
+       y="924.36218"
+       rx="4"
+       ry="4"
+       inkscape:export-filename="/home/hipersayan_x/Documentos/CarpetaPersonal/Proyectos/Webcamoid/share/icons/default/8x8/rect4135.png"
+       inkscape:export-xdpi="5.625"
+       inkscape:export-ydpi="5.625" />
+    <g
+       id="g4140"
+       transform="matrix(0.85308584,-0.85309001,0.85308584,0.85309001,-829.50001,204.05309)">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3335"
+         d="m 64.447905,940.36529 a 31.999793,31.999741 0 0 0 -18.144414,5.33589 31.999793,31.999741 0 0 0 -9.393169,43.69501 31.999793,31.999741 0 0 0 43.450241,10.4673 31.999793,31.999741 0 0 0 11.536381,-43.17802 l -1.680976,-2.67185 A 31.999793,31.999741 0 0 0 64.447905,940.36529 Z m -0.149738,10.66658 a 21.333195,21.333161 0 0 1 17.179576,9.09758 l 1.119784,1.78124 a 21.333195,21.333161 0 0 1 -7.691356,28.7862 21.333195,21.333161 0 0 1 -28.965959,-6.9791 21.333195,21.333161 0 0 1 6.261678,-29.12866 21.333195,21.333161 0 0 1 12.096277,-3.55726 z"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         rx="4"
+         ry="3.3333335"
+         y="996.36218"
+         x="58.599998"
+         height="40"
+         width="10.8"
+         id="rect4136"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>

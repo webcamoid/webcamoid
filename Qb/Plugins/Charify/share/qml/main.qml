@@ -106,7 +106,8 @@ GridLayout {
             Layout.fillWidth: true
         }
         Button {
-            text: qsTr("...")
+            text: qsTr("Search")
+            iconName: "edit-find"
 
             onClicked: fontDialog.open()
         }

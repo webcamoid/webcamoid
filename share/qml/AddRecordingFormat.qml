@@ -108,7 +108,7 @@ ApplicationWindow {
                 id: btnOk
                 text: qsTr("Ok")
                 iconName: "ok"
-                iconSource: "qrc:/Webcamoid/share/icons/default/scalable/ok.svg"
+                iconSource: "qrc:/icons/hicolor/scalable/ok.svg"
 
                 onClicked: {
                     if (txtDescription.text.length > 0
@@ -127,7 +127,7 @@ ApplicationWindow {
                 id: btnCancel
                 text: qsTr("Cancel")
                 iconName: "cancel"
-                iconSource: "qrc:/Webcamoid/share/icons/default/scalable/cancel.svg"
+                iconSource: "qrc:/icons/hicolor/scalable/cancel.svg"
 
                 onClicked: recAddRecordingFormat.visible = false
             }

@@ -74,8 +74,8 @@ ColumnLayout {
             id: btnAddRemove
             text: inUse? qsTr("Remove"): qsTr("Add")
             iconName: inUse? "remove": "add"
-            iconSource: inUse? "qrc:/Webcamoid/share/icons/default/scalable/remove.svg":
-                               "qrc:/Webcamoid/share/icons/default/scalable/add.svg"
+            iconSource: inUse? "qrc:/icons/hicolor/scalable/remove.svg":
+                               "qrc:/icons/hicolor/scalable/add.svg"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {

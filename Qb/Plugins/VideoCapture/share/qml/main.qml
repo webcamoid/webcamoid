@@ -258,8 +258,8 @@ GridLayout {
 
     Button {
         id: btnReset
-        iconName: "reset"
         text: qsTr("Reset")
+        iconName: "reset"
         Layout.alignment: Qt.AlignRight
 
         onClicked: VideoCapture.reset(controlId)

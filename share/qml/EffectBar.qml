@@ -199,7 +199,7 @@ Rectangle {
             height: 32
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "qrc:/Webcamoid/share/icons/default/scalable/add.svg"
+            source: "qrc:/icons/hicolor/scalable/effect-add.svg"
         }
 
         MouseArea {
@@ -239,7 +239,7 @@ Rectangle {
             }
             PropertyChanges {
                 target: imgAddEffect
-                source: "qrc:/Webcamoid/share/icons/default/scalable/down.svg"
+                source: "qrc:/icons/hicolor/scalable/down.svg"
             }
             PropertyChanges {
                 editMode: true

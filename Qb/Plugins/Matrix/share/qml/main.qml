@@ -89,7 +89,8 @@ GridLayout {
             Layout.fillWidth: true
         }
         Button {
-            text: qsTr("...")
+            text: qsTr("Select")
+            iconName: "preferences-desktop-font"
 
             onClicked: fontDialog.open()
         }

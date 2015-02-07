@@ -80,11 +80,11 @@ ColumnLayout {
         onRecordingChanged: {
             if (recording) {
                 lblRecordLabel.text = qsTr("Stop recording video")
-                imgRecordIcon.source = "qrc:/Webcamoid/share/icons/default/scalable/record-stop.svg"
+                imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-stop.svg"
             }
             else {
                 lblRecordLabel.text = qsTr("Start recording video")
-                imgRecordIcon.source = "qrc:/Webcamoid/share/icons/default/scalable/record-start.svg"
+                imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-start.svg"
             }
         }
     }
@@ -140,7 +140,7 @@ ColumnLayout {
             id: btnEdit
             text: qsTr("Edit")
             iconName: "edit"
-            iconSource: "qrc:/Webcamoid/share/icons/default/scalable/edit.svg"
+            iconSource: "qrc:/icons/hicolor/scalable/edit.svg"
 
             onClicked: dlgAddRecordingFormat.visible = true
         }
@@ -149,7 +149,7 @@ ColumnLayout {
             id: btnRemove
             text: qsTr("Remove")
             iconName: "remove"
-            iconSource: "qrc:/Webcamoid/share/icons/default/scalable/remove.svg"
+            iconSource: "qrc:/icons/hicolor/scalable/remove.svg"
 
             onClicked: Webcamoid.removeRecordingFormat(Webcamoid.curRecordingFormat)
         }
@@ -197,7 +197,7 @@ ColumnLayout {
             height: 32
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "qrc:/Webcamoid/share/icons/default/scalable/record-start.svg"
+            source: "qrc:/icons/hicolor/scalable/record-start.svg"
         }
 
         MouseArea {

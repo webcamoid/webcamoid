@@ -47,12 +47,8 @@ int main(int argc, char *argv[])
     QCoreApplication::installTranslator(&translator);
 
     // Install fallback icon theme.
-    if (!QIcon::themeName().isEmpty()) {
-        QIcon::setThemeName("default");
-        QStringList iconSearchPath = QIcon::themeSearchPaths();
-        iconSearchPath.insert(0, ":/Webcamoid/share/icons");
-        QIcon::setThemeSearchPaths(iconSearchPath);
-    }
+    if (QIcon::themeName().isEmpty())
+        QIcon::setThemeName("hicolor");
 
     QQmlApplicationEngine engine;
     MediaTools mediaTools(&engine);
@@ -70,7 +66,7 @@ int main(int argc, char *argv[])
 
         // Set window icon.
         applicationWindow->setIcon(QIcon::fromTheme("webcamoid",
-                                                    QIcon(":/Webcamoid/share/icons/default/scalable/webcamoid.svg")));
+                                                    QIcon(":/icons/hicolor/scalable/webcamoid.svg")));
 
         // First, find where to enbed the UI.
         VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");

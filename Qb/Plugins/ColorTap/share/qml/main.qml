@@ -119,7 +119,8 @@ ColumnLayout {
             }
         }
         Button {
-            text: qsTr("...")
+            text: qsTr("Search")
+            iconName: "edit-find"
 
             onClicked: fileDialog.open()
         }

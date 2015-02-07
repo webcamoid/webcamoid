@@ -69,9 +69,9 @@ QT += qml quick opengl widgets xml svg
 
 RESOURCES += \
     Webcamoid.qrc \
-    icons.qrc \
     qml.qrc \
-    translations.qrc
+    translations.qrc \
+    share/icons/icons.qrc
 
 SOURCES = \
     src/main.cpp \
@@ -90,7 +90,7 @@ DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_TARGET}
 
-!unix: RC_ICONS = share/icons/default/128x128/webcamoid.ico
+!unix: RC_ICONS = share/icons/hicolor/256x256/webcamoid.ico
 
 TEMPLATE = app
 
