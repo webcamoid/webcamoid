@@ -24,6 +24,7 @@
 #include <QQmlContext>
 #include <QWindow>
 #include <QTranslator>
+#include <QSettings>
 
 #include "mediatools.h"
 #include "videodisplay.h"
@@ -49,6 +50,13 @@ int main(int argc, char *argv[])
     // Install fallback icon theme.
     if (QIcon::themeName().isEmpty())
         QIcon::setThemeName("hicolor");
+
+#ifdef Q_OS_WIN32
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings::setPath(QSettings::IniFormat,
+                       QSettings::UserScope,
+                       QCoreApplication::applicationDirPath());
+#endif
 
     QQmlApplicationEngine engine;
     MediaTools mediaTools(&engine);
