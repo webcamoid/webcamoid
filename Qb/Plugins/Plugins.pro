@@ -40,6 +40,7 @@ SUBDIRS += \
     Convolve \
     DelayGrab \
     Denoise \
+    DesktopCapture \
     Dice \
     Distort \
     Dizzy \

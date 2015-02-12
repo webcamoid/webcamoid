@@ -21,7 +21,8 @@
 
 #include "videocaptureelement.h"
 
-VideoCaptureElement::VideoCaptureElement(): QbElement()
+VideoCaptureElement::VideoCaptureElement():
+    QbMultimediaSourceElement()
 {
     QObject::connect(&this->m_capture,
                      SIGNAL(error(const QString &)),

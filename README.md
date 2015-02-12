@@ -37,11 +37,9 @@ You can search some online IP cameras [here](http://www.google.com/search?q=file
 
 ## Translating ##
 
-Edit the _Lib.pro_ file and add you language code to the _TRANSLATIONS_ macro, then, in the root directory of the project run:
+Register in [Weblate](https://hosted.weblate.org/) and start translating Webcamoid as many other projects.
 
-    lupdate-qt5 -verbose -noobsolete Webcamoid.pro
-
-A _share/ts/your_lang_code.ts_ will be created. Translate that file to your language using Qt Linguist.
+[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 
 ## Reporting Bugs ##
 

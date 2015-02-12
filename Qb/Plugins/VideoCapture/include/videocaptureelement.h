@@ -28,6 +28,8 @@
 #include <QQmlComponent>
 #include <QQmlContext>
 
+#include <qbmultimediasourceelement.h>
+
 #ifdef Q_OS_LINUX
 #include "platform/capturelinux.h"
 #endif
@@ -40,15 +42,28 @@
 
 typedef QSharedPointer<QThread> ThreadPtr;
 
-class VideoCaptureElement: public QbElement
+class VideoCaptureElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList webcams READ webcams NOTIFY webcamsChanged)
-    Q_PROPERTY(QString device READ device WRITE setDevice RESET resetDevice)
-    Q_PROPERTY(QString ioMethod READ ioMethod WRITE setIoMethod RESET resetIoMethod)
-    Q_PROPERTY(int nBuffers READ nBuffers WRITE setNBuffers RESET resetNBuffers)
-    Q_PROPERTY(bool isCompressed READ isCompressed)
-    Q_PROPERTY(QString caps READ caps)
+    Q_PROPERTY(QStringList webcams
+               READ webcams
+               NOTIFY webcamsChanged)
+    Q_PROPERTY(QString device
+               READ device
+               WRITE setDevice
+               RESET resetDevice)
+    Q_PROPERTY(QString ioMethod
+               READ ioMethod
+               WRITE setIoMethod
+               RESET resetIoMethod)
+    Q_PROPERTY(int nBuffers
+               READ nBuffers
+               WRITE setNBuffers
+               RESET resetNBuffers)
+    Q_PROPERTY(bool isCompressed
+               READ isCompressed)
+    Q_PROPERTY(QString caps
+               READ caps)
 
     public:
         explicit VideoCaptureElement();

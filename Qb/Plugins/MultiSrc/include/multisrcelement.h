@@ -26,31 +26,38 @@
 #include <QDesktopWidget>
 #include <QtConcurrent>
 
-#include <qb.h>
+#include <qbmultimediasourceelement.h>
 
 #include "abstractstream.h"
 
 typedef QSharedPointer<AVFormatContext> FormatContextPtr;
 typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 
-class MultiSrcElement: public QbElement
+class MultiSrcElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString location READ location WRITE setLocation RESET resetLocation)
-    Q_PROPERTY(bool loop READ loop WRITE setLoop RESET resetLoop)
-    Q_PROPERTY(QVariantMap streamCaps READ streamCaps)
-
-    Q_PROPERTY(QList<int> filterStreams READ filterStreams
-                                        WRITE setFilterStreams
-                                        RESET resetFilterStreams)
-
-    Q_PROPERTY(bool audioAlign READ audioAlign
-                               WRITE setAudioAlign
-                               RESET resetAudioAlign)
-
-    Q_PROPERTY(qint64 maxPacketQueueSize READ maxPacketQueueSize
-                                         WRITE setMaxPacketQueueSize
-                                         RESET resetMaxPacketQueueSize)
+    Q_PROPERTY(QString location
+               READ location
+               WRITE setLocation
+               RESET resetLocation)
+    Q_PROPERTY(bool loop
+               READ loop
+               WRITE setLoop
+               RESET resetLoop)
+    Q_PROPERTY(QVariantMap streamCaps
+               READ streamCaps)
+    Q_PROPERTY(QList<int> filterStreams
+               READ filterStreams
+               WRITE setFilterStreams
+               RESET resetFilterStreams)
+    Q_PROPERTY(bool audioAlign
+               READ audioAlign
+               WRITE setAudioAlign
+               RESET resetAudioAlign)
+    Q_PROPERTY(qint64 maxPacketQueueSize
+               READ maxPacketQueueSize
+               WRITE setMaxPacketQueueSize
+               RESET resetMaxPacketQueueSize)
 
     public:
         explicit MultiSrcElement();

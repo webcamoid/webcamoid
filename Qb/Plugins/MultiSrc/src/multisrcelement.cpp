@@ -24,7 +24,8 @@
 #include "subtitlestream.h"
 #include "multisrcelement.h"
 
-MultiSrcElement::MultiSrcElement(): QbElement()
+MultiSrcElement::MultiSrcElement():
+    QbMultimediaSourceElement()
 {
     av_register_all();
     avdevice_register_all();
