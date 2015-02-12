@@ -45,13 +45,6 @@ typedef QSharedPointer<QThread> ThreadPtr;
 class VideoCaptureElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList webcams
-               READ webcams
-               NOTIFY webcamsChanged)
-    Q_PROPERTY(QString device
-               READ device
-               WRITE setDevice
-               RESET resetDevice)
     Q_PROPERTY(QString ioMethod
                READ ioMethod
                WRITE setIoMethod
@@ -60,10 +53,6 @@ class VideoCaptureElement: public QbMultimediaSourceElement
                READ nBuffers
                WRITE setNBuffers
                RESET resetNBuffers)
-    Q_PROPERTY(bool isCompressed
-               READ isCompressed)
-    Q_PROPERTY(QString caps
-               READ caps)
 
     public:
         explicit VideoCaptureElement();
@@ -71,13 +60,17 @@ class VideoCaptureElement: public QbMultimediaSourceElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE QStringList webcams() const;
-        Q_INVOKABLE QString device() const;
+        Q_INVOKABLE QStringList medias() const;
+        Q_INVOKABLE QString media() const;
+        Q_INVOKABLE QList<int> streams() const;
+
+        Q_INVOKABLE int defaultStream(const QString &mimeType) const;
+        Q_INVOKABLE QString description(const QString &media) const;
+        Q_INVOKABLE QbCaps caps(int stream) const;
+        Q_INVOKABLE bool isCompressed(int stream) const;
+
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
-        Q_INVOKABLE bool isCompressed() const;
-        Q_INVOKABLE QString caps() const;
-        Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
         Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size);
@@ -103,16 +96,15 @@ class VideoCaptureElement: public QbMultimediaSourceElement
 
     signals:
         void error(const QString &message);
-        void webcamsChanged(const QStringList &webcams) const;
         void sizeChanged(const QString &webcam, const QSize &size) const;
         void imageControlsChanged(const QString &webcam, const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QString &webcam, const QVariantMap &cameraControls) const;
 
     public slots:
-        void setDevice(const QString &device);
+        void setMedia(const QString &media);
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
-        void resetDevice();
+        void resetMedia();
         void resetIoMethod();
         void resetNBuffers();
         void reset(const QString &webcam="");

@@ -209,10 +209,10 @@ bool Capture::isCompressed() const
     return false;
 }
 
-QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
+QbCaps Capture::caps(v4l2_format *format, bool *changePxFmt) const
 {
     if (this->m_caps)
-        return this->m_caps.toString();
+        return this->m_caps;
 
     bool closeFd = false;
     int fd = this->m_fd;
@@ -229,7 +229,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
             if (closeFd)
                 close(fd);
 
-            return QString();
+            return QbCaps();
         }
 
         closeFd = true;
@@ -245,7 +245,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
         if (closeFd)
             close(fd);
 
-        return QString();
+        return QbCaps();
     }
 
     if (!this->m_rawToFF.contains(fmt.fmt.pix.pixelformat)) {
@@ -263,7 +263,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
             if (closeFd)
                 close(fd);
 
-            return QString();
+            return QbCaps();
         }
     }
 
@@ -281,7 +281,7 @@ QString Capture::caps(v4l2_format *format, bool *changePxFmt) const
     if (closeFd)
         close(fd);
 
-    return caps.toString();
+    return caps;
 }
 
 QString Capture::description(const QString &webcam) const

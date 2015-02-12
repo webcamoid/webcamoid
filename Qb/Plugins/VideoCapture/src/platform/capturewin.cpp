@@ -119,10 +119,10 @@ bool Capture::isCompressed() const
     return false;
 }
 
-QString Capture::caps() const
+QbCaps Capture::caps() const
 {
     if (this->m_caps)
-        return this->m_caps.toString();
+        return this->m_caps;
 
     GraphBuilderPtr graph;
     SampleGrabberPtr grabber;
@@ -130,9 +130,9 @@ QString Capture::caps() const
     QbCaps caps = this->prepare(&graph, &grabber, this->m_device);
 
     if (caps)
-        return caps.toString();
+        return caps;
 
-    return QString();
+    return QbCaps();
 }
 
 QString Capture::description(const QString &webcam) const

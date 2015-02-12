@@ -30,9 +30,9 @@ VideoCaptureElement::VideoCaptureElement():
                      SIGNAL(error(const QString &)));
 
     QObject::connect(&this->m_capture,
-                     SIGNAL(webcamsChanged(const QStringList &)),
+                     &Capture::webcamsChanged,
                      this,
-                     SIGNAL(webcamsChanged(const QStringList &)));
+                     &VideoCaptureElement::mediasChanged);
 
     QObject::connect(&this->m_capture,
                      SIGNAL(sizeChanged(const QString &, const QSize &)),
@@ -95,14 +95,51 @@ QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString
     return item;
 }
 
-QStringList VideoCaptureElement::webcams() const
+QStringList VideoCaptureElement::medias() const
 {
     return this->m_capture.webcams();
 }
 
-QString VideoCaptureElement::device() const
+QString VideoCaptureElement::media() const
 {
     return this->m_capture.device();
+}
+
+QList<int> VideoCaptureElement::streams() const
+{
+    QList<int> streams;
+    streams << 0;
+
+    return streams;
+}
+
+int VideoCaptureElement::defaultStream(const QString &mimeType) const
+{
+    if (mimeType == "video/x-raw")
+        return 0;
+
+    return -1;
+}
+
+QString VideoCaptureElement::description(const QString &media) const
+{
+    return this->m_capture.description(media);
+}
+
+QbCaps VideoCaptureElement::caps(int stream) const
+{
+    if (stream != stream)
+        return QbCaps();
+
+    return this->m_capture.caps();
+}
+
+bool VideoCaptureElement::isCompressed(int stream) const
+{
+    if (stream != 0)
+        return false;
+
+    return this->m_capture.isCompressed();
 }
 
 QString VideoCaptureElement::ioMethod() const
@@ -113,21 +150,6 @@ QString VideoCaptureElement::ioMethod() const
 int VideoCaptureElement::nBuffers() const
 {
     return this->m_capture.nBuffers();
-}
-
-bool VideoCaptureElement::isCompressed() const
-{
-    return this->m_capture.isCompressed();
-}
-
-QString VideoCaptureElement::caps() const
-{
-    return this->m_capture.caps();
-}
-
-QString VideoCaptureElement::description(const QString &webcam) const
-{
-    return this->m_capture.description(webcam);
 }
 
 QVariantList VideoCaptureElement::availableSizes(const QString &webcam) const
@@ -216,9 +238,9 @@ void VideoCaptureElement::stateChange(QbElement::ElementState from, QbElement::E
     }
 }
 
-void VideoCaptureElement::setDevice(const QString &device)
+void VideoCaptureElement::setMedia(const QString &media)
 {
-    this->m_capture.setDevice(device);
+    this->m_capture.setDevice(media);
 }
 
 void VideoCaptureElement::setIoMethod(const QString &ioMethod)
@@ -231,7 +253,7 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
     this->m_capture.setNBuffers(nBuffers);
 }
 
-void VideoCaptureElement::resetDevice()
+void VideoCaptureElement::resetMedia()
 {
     this->m_capture.resetDevice();
 }

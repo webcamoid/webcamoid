@@ -40,12 +40,25 @@
 class Capture: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList webcams READ webcams NOTIFY webcamsChanged)
-    Q_PROPERTY(QString device READ device WRITE setDevice RESET resetDevice)
-    Q_PROPERTY(QString ioMethod READ ioMethod WRITE setIoMethod RESET resetIoMethod)
-    Q_PROPERTY(int nBuffers READ nBuffers WRITE setNBuffers RESET resetNBuffers)
-    Q_PROPERTY(bool isCompressed READ isCompressed)
-    Q_PROPERTY(QString caps READ caps)
+    Q_PROPERTY(QStringList webcams
+               READ webcams
+               NOTIFY webcamsChanged)
+    Q_PROPERTY(QString device
+               READ device
+               WRITE setDevice
+               RESET resetDevice)
+    Q_PROPERTY(QString ioMethod
+               READ ioMethod
+               WRITE setIoMethod
+               RESET resetIoMethod)
+    Q_PROPERTY(int nBuffers
+               READ nBuffers
+               WRITE setNBuffers
+               RESET resetNBuffers)
+    Q_PROPERTY(bool isCompressed
+               READ isCompressed)
+    Q_PROPERTY(QbCaps caps
+               READ caps)
 
     public:
         enum IoMethod
@@ -63,7 +76,7 @@ class Capture: public QObject
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE bool isCompressed() const;
-        Q_INVOKABLE QString caps(v4l2_format *format = NULL, bool *changePxFmt = NULL) const;
+        Q_INVOKABLE QbCaps caps(v4l2_format *format = NULL, bool *changePxFmt = NULL) const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;

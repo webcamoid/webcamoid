@@ -153,7 +153,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
         if (this->m_videoCapture)
             QObject::connect(this->m_videoCapture.data(),
-                             SIGNAL(webcamsChanged(const QStringList &)),
+                             SIGNAL(mediasChanged(const QStringList &)),
                              this,
                              SLOT(webcamsChanged(const QStringList &)));
     }
@@ -278,7 +278,7 @@ QStringList MediaTools::streams() const
     QStringList streams;
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                              "webcams",
+                              "medias",
                               Q_RETURN_ARG(QStringList, streams));
 
     streams << ":0.0";
@@ -360,7 +360,7 @@ bool MediaTools::isCamera(const QString &stream) const
     QStringList webcams;
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
-                              "webcams",
+                              "medias",
                               Q_RETURN_ARG(QStringList, webcams));
 
     return webcams.contains(stream);
@@ -956,13 +956,14 @@ bool MediaTools::start()
     QVariantMap streamCaps;
 
     if (isCamera) {
-        QString videoCaps;
+        QbCaps videoCaps;
 
         QMetaObject::invokeMethod(this->m_videoCapture.data(),
                                   "caps", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QString, videoCaps));
+                                  Q_RETURN_ARG(QbCaps, videoCaps),
+                                  Q_ARG(int, 0));
 
-        streamCaps["0"] = videoCaps;
+        streamCaps["0"] = videoCaps.toString();
     } else
         QMetaObject::invokeMethod(this->m_source.data(),
                                   "streamCaps", Qt::DirectConnection,
@@ -1053,7 +1054,7 @@ void MediaTools::setCurStream(const QString &stream)
 
     // Set device.
     if (this->isCamera(stream))
-        this->m_videoCapture->setProperty("device", stream);
+        this->m_videoCapture->setProperty("media", stream);
     else
         this->m_source->setProperty("location", stream);
 
