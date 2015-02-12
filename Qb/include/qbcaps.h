@@ -30,7 +30,6 @@ class QbCapsPrivate;
 class QbCaps: public QObject
 {
     Q_OBJECT
-
     Q_PROPERTY(bool isValid
                READ isValid)
     Q_PROPERTY(QString mimeType
@@ -41,6 +40,7 @@ class QbCaps: public QObject
 
     public:
         explicit QbCaps(QObject *parent=NULL);
+        QbCaps(const QVariantMap &caps);
         QbCaps(const QString &caps);
         QbCaps(const QbCaps &other);
         virtual ~QbCaps();
@@ -51,7 +51,9 @@ class QbCaps: public QObject
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString mimeType() const;
-        Q_INVOKABLE void fromString(const QString &caps);
+        Q_INVOKABLE QbCaps &fromMap(const QVariantMap &caps);
+        Q_INVOKABLE QbCaps &fromString(const QString &caps);
+        Q_INVOKABLE QVariantMap toMap() const;
         Q_INVOKABLE QString toString() const;
         Q_INVOKABLE QbCaps &update(const QbCaps &other);
         Q_INVOKABLE bool isCompatible(const QbCaps &other) const;

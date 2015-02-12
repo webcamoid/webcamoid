@@ -55,9 +55,9 @@ QObject *QbQml::newFrac(qint64 num, qint64 den) const
     return new QbFrac(num, den);
 }
 
-QObject *QbQml::newFrac(const QString &fracString) const
+QObject *QbQml::newFrac(const QString &frac) const
 {
-    return new QbFrac(fracString);
+    return new QbFrac(frac);
 }
 
 QObject *QbQml::newFrac(const QbFrac &frac) const
@@ -65,7 +65,32 @@ QObject *QbQml::newFrac(const QbFrac &frac) const
     return new QbFrac(frac);
 }
 
+QObject *QbQml::newCaps() const
+{
+    return new QbCaps();
+}
+
+QObject *QbQml::newCaps(const QVariantMap &caps) const
+{
+    return new QbCaps(caps);
+}
+
+QObject *QbQml::newCaps(const QString &caps) const
+{
+    return new QbCaps(caps);
+}
+
+QObject *QbQml::newCaps(const QbCaps &caps) const
+{
+    return new QbCaps(caps);
+}
+
 QVariant QbQml::toVar(QbFrac *frac) const
 {
     return QVariant::fromValue(*frac);
+}
+
+QVariant QbQml::toVar(QbCaps *caps) const
+{
+    return QVariant::fromValue(*caps);
 }

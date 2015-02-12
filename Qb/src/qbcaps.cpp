@@ -39,6 +39,14 @@ QbCaps::QbCaps(QObject *parent): QObject(parent)
     this->d->m_mimeType = "";
 }
 
+QbCaps::QbCaps(const QVariantMap &caps)
+{
+    this->d = new QbCapsPrivate();
+    this->d->m_isValid = false;
+    this->d->m_mimeType = "";
+    this->fromMap(caps);
+}
+
 QbCaps::QbCaps(const QString &caps)
 {
     this->d = new QbCapsPrivate();
@@ -101,7 +109,32 @@ QString QbCaps::mimeType() const
     return this->d->m_mimeType;
 }
 
-void QbCaps::fromString(const QString &caps)
+QbCaps &QbCaps::fromMap(const QVariantMap &caps)
+{
+    QList<QByteArray> properties = this->dynamicPropertyNames();
+
+    foreach (QByteArray property, properties)
+        this->setProperty(property, QVariant());
+
+    if (!caps.contains("mimeType")) {
+        this->d->m_isValid = false;
+        this->d->m_mimeType = "";
+
+        return *this;
+    }
+
+    foreach (QString key, caps.keys())
+        if (key == "mimeType") {
+            this->d->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*\\s*")
+                                 .exactMatch(caps[key].toString());
+            this->d->m_mimeType = caps[key].toString().trimmed();
+        } else
+            this->setProperty(key.trimmed().toStdString().c_str(), caps[key]);
+
+    return *this;
+}
+
+QbCaps &QbCaps::fromString(const QString &caps)
 {
     this->d->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*"
                                  "(?:\\s*,\\s*[a-zA-Z_]\\w*\\s*="
@@ -127,6 +160,24 @@ void QbCaps::fromString(const QString &caps)
     }
 
     this->setMimeType(this->d->m_isValid? capsChunks[0].trimmed(): QString(""));
+
+    return *this;
+}
+
+QVariantMap QbCaps::toMap() const
+{
+    if (!this->d->m_isValid)
+        return QVariantMap();
+
+    QVariantMap caps;
+    caps["mimeType"] = this->d->m_mimeType;
+
+    foreach (QByteArray property, this->dynamicPropertyNames()) {
+        QString key = QString::fromUtf8(property.constData());
+        caps[key] = this->property(property.toStdString().c_str());
+    }
+
+    return caps;
 }
 
 QString QbCaps::toString() const

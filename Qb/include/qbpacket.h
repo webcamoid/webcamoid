@@ -34,7 +34,6 @@ typedef QSharedPointer<char> QbBufferPtr;
 class QbPacket: public QObject
 {
     Q_OBJECT
-
     Q_PROPERTY(QbCaps caps
                READ caps
                WRITE setCaps

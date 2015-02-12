@@ -39,11 +39,16 @@ class QbQml: public QQuickItem
 
         Q_INVOKABLE QObject *newFrac() const;
         Q_INVOKABLE QObject *newFrac(qint64 num, qint64 den) const;
-        Q_INVOKABLE QObject *newFrac(const QString &fracString) const;
+        Q_INVOKABLE QObject *newFrac(const QString &frac) const;
         Q_INVOKABLE QObject *newFrac(const QbFrac &frac) const;
 
+        Q_INVOKABLE QObject *newCaps() const;
+        Q_INVOKABLE QObject *newCaps(const QVariantMap &caps) const;
+        Q_INVOKABLE QObject *newCaps(const QString &caps) const;
+        Q_INVOKABLE QObject *newCaps(const QbCaps &caps) const;
+
         Q_INVOKABLE QVariant toVar(QbFrac *frac) const;
+        Q_INVOKABLE QVariant toVar(QbCaps *caps) const;
 };
 
 #endif // QBQML_H
-
