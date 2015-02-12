@@ -26,7 +26,7 @@
     <message>
         <location filename="../qml/About.qml" line="89"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Webcam Aufnahmewerkzeug</translation>
+        <translation>Webcam Aufnahmewerkzeug.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="92"/>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="30"/>
         <source>Add new media</source>
-        <translation type="unfinished">Medienquelle hinzufügen</translation>
+        <translation>Medien hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
