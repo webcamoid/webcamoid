@@ -36,20 +36,6 @@ typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 class MultiSrcElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
-    Q_PROPERTY(QString location
-               READ location
-               WRITE setLocation
-               RESET resetLocation)
-    Q_PROPERTY(bool loop
-               READ loop
-               WRITE setLoop
-               RESET resetLoop)
-    Q_PROPERTY(QVariantMap streamCaps
-               READ streamCaps)
-    Q_PROPERTY(QList<int> filterStreams
-               READ filterStreams
-               WRITE setFilterStreams
-               RESET resetFilterStreams)
     Q_PROPERTY(bool audioAlign
                READ audioAlign
                WRITE setAudioAlign
@@ -63,35 +49,32 @@ class MultiSrcElement: public QbMultimediaSourceElement
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
-        Q_INVOKABLE QString location() const;
-        Q_INVOKABLE bool loop() const;
-        Q_INVOKABLE QVariantMap streamCaps();
-        Q_INVOKABLE QList<int> filterStreams() const;
+        Q_INVOKABLE QStringList medias() const;
+        Q_INVOKABLE QString media() const;
+        Q_INVOKABLE QList<int> streams() const;
+
+        Q_INVOKABLE int defaultStream(const QString &mimeType);
+        Q_INVOKABLE QString description(const QString &media) const;
+        Q_INVOKABLE QbCaps caps(int stream);
         Q_INVOKABLE bool audioAlign() const;
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
-        Q_INVOKABLE int defaultStream(const QString &mimeType);
 
     protected:
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
-        QString m_location;
-        bool m_loop;
-        QList<int> m_filterStreams;
+        QString m_media;
+        QList<int> m_streams;
         bool m_audioAlign;
-
         Thread *m_decodingThread;
         bool m_run;
 
         FormatContextPtr m_inputContext;
-
         qint64 m_maxPacketQueueSize;
         QMutex m_dataMutex;
         QWaitCondition m_packetQueueNotFull;
         QWaitCondition m_packetQueueEmpty;
-
-        QMap<int, AbstractStreamPtr> m_streams;
-
+        QMap<int, AbstractStreamPtr> m_streamsMap;
         QMap<AVMediaType, QString> m_avMediaTypeToMimeType;
 
         qint64 packetQueueSize();
@@ -108,14 +91,12 @@ class MultiSrcElement: public QbMultimediaSourceElement
         void queueSizeUpdated(const QMap<int, qint64> &queueSize);
 
     public slots:
-        void setLocation(const QString &location);
-        void setLoop(bool loop);
-        void setFilterStreams(const QList<int> &filterStreams);
+        void setMedia(const QString &media);
+        void setStreams(const QList<int> &streams);
         void setAudioAlign(bool audioAlign);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
-        void resetLocation();
-        void resetLoop();
-        void resetFilterStreams();
+        void resetMedia();
+        void resetStreams();
         void resetAudioAlign();
         void resetMaxPacketQueueSize();
 

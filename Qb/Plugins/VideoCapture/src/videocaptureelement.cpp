@@ -240,7 +240,11 @@ void VideoCaptureElement::stateChange(QbElement::ElementState from, QbElement::E
 
 void VideoCaptureElement::setMedia(const QString &media)
 {
+    if (this->m_capture.device() == media)
+        return;
+
     this->m_capture.setDevice(media);
+    emit this->mediaChanged(media);
 }
 
 void VideoCaptureElement::setIoMethod(const QString &ioMethod)
@@ -255,7 +259,11 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
 
 void VideoCaptureElement::resetMedia()
 {
+    QString media = this->m_capture.device();
     this->m_capture.resetDevice();
+
+    if (media != this->m_capture.device())
+        emit this->mediaChanged(this->m_capture.device());
 }
 
 void VideoCaptureElement::resetIoMethod()

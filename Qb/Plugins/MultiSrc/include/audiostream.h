@@ -27,7 +27,10 @@
 class AudioStream: public AbstractStream
 {
     Q_OBJECT
-    Q_PROPERTY(bool align READ align WRITE setAlign RESET resetAlign)
+    Q_PROPERTY(bool align
+               READ align
+               WRITE setAlign
+               RESET resetAlign)
 
     public:
         explicit AudioStream(const AVFormatContext *formatContext=NULL,

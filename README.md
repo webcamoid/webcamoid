@@ -15,25 +15,13 @@
 * Use custom network and local files as capture devices.
 * Capture from desktop.
 
-## Build and install ##
+## Build and Install ##
 
-Visit the [wiki](https://github.com/hipersayanX/Webcamoid/wiki) for compile and install instructions.
+Visit the [wiki](https://github.com/hipersayanX/Webcamoid/wiki) for a complete compile and install instructions.
 
 ### Precompiled Packages ###
 
 You can download precompiled packages for Arch, Debian, OpenSUSE and Ubuntu from my [OwnDrive](https://my.owndrive.com/public.php?service=files&t=11c46708181f96b4ec052ae74b7b8bef)
-
-### Custom Streams ###
-
-Webcamoid is not just a webcam capture software. You can, for example, use it to capture from a video, image file, IP cameras, or the desktop. 
-If you want to add a new stream, go to the "Configure Custom Streams" option, and click in the "Add" button. Give it a human readable "Device Name" and write the path to the stream in the "URI" field. Here are some examples:
-
-* file:///home/YourHome/Videos/SomeFunnyVideo.ogv
-* http://1.2.3.4:1234/mjpg/video.mjpg
-* http://www.somesite.com/mjpg/video.mjpg
-* rtsp://user:password@livecamera.somesite.com/mpeg4
-
-You can search some online IP cameras [here](http://www.google.com/search?q=filetype:mjpg) and [here](http://www.google.com/search?q=rtsp+ip+cameras+demo)
 
 ## Translating ##
 
@@ -49,7 +37,6 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 2. Your distribution name and version (numeric, please).
 3. Your Qt version.
 4. Your GCC version.
-5. The output of the previous command.
-6. Any other useful information.
+5. Any other useful information.
 
 Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
