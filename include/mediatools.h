@@ -96,7 +96,6 @@ class MediaTools: public QObject
         ~MediaTools();
 
         Q_INVOKABLE QString curStream() const;
-        Q_INVOKABLE QSize videoSize(const QString &stream);
         Q_INVOKABLE bool playAudioFromSource() const;
         Q_INVOKABLE QString recordAudioFrom() const;
         Q_INVOKABLE QString curRecordingFormat() const;
@@ -118,9 +117,8 @@ class MediaTools: public QObject
         Q_INVOKABLE QString streamDescription(const QString &stream) const;
         Q_INVOKABLE bool canModify(const QString &stream) const;
         Q_INVOKABLE bool isCamera(const QString &stream) const;
-        Q_INVOKABLE QVariantList videoSizes(const QString &stream);
-        Q_INVOKABLE QVariantList listImageControls(const QString &stream);
-        Q_INVOKABLE void setImageControls(const QString &stream, const QVariantMap &controls);
+        Q_INVOKABLE bool isDesktop(const QString &stream) const;
+        Q_INVOKABLE bool isVideo(const QString &stream) const;
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
@@ -172,6 +170,7 @@ class MediaTools: public QObject
         QbElementPtr m_mic;
         QbElementPtr m_record;
         QbElementPtr m_videoCapture;
+        QbElementPtr m_desktopCapture;
         QbElementPtr m_videoSync;
         QbElementPtr m_videoConvert;
         QList<QbElementPtr> m_effectsList;
@@ -214,7 +213,6 @@ class MediaTools: public QObject
         bool startStream();
         void stopStream();
         void setCurStream(const QString &stream);
-        void setVideoSize(const QString &stream, const QSize &size);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(const QString &recordAudioFrom);
         void setCurRecordingFormat(const QString &curRecordingFormat);
@@ -226,7 +224,6 @@ class MediaTools: public QObject
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void resetCurStream();
-        void resetVideoSize(const QString &stream);
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
         void resetCurRecordingFormat();
@@ -234,7 +231,6 @@ class MediaTools: public QObject
         void resetRecordingFormats();
         void resetWindowWidth();
         void resetWindowHeight();
-        void reset(const QString &stream);
         void loadConfigs();
         void saveConfigs();
         void setStream(const QString &stream, const QString &description);

@@ -67,6 +67,7 @@ class DesktopCaptureElement: public QbMultimediaSourceElement
     private slots:
         void readFrame();
         void screenCountChanged(int count);
+        void srceenResized(int screen);
 };
 
 #endif // DESKTOPCAPTUREELEMENT_H

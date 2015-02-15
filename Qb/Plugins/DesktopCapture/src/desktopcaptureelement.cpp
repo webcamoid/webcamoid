@@ -36,9 +36,9 @@ DesktopCaptureElement::DesktopCaptureElement():
                      SLOT(screenCountChanged(int)));
 
     QObject::connect(this->m_desktopWidget,
-                     SIGNAL(sizeChanged(const QString &, const QSize &)),
+                     &QDesktopWidget::resized,
                      this,
-                     SIGNAL(sizeChanged(const QString &, const QSize &)));
+                     &DesktopCaptureElement::srceenResized);
 
     this->m_thread = ThreadPtr(new QThread, this->deleteThread);
     this->m_timer.moveToThread(this->m_thread.data());
@@ -194,4 +194,12 @@ void DesktopCaptureElement::screenCountChanged(int count)
     Q_UNUSED(count)
 
     emit this->mediasChanged(this->medias());
+}
+
+void DesktopCaptureElement::srceenResized(int screen)
+{
+    QString media = QString("screen://%1").arg(screen);
+    QWidget *widget = this->m_desktopWidget->screen(screen);
+
+    emit this->sizeChanged(media, widget->size());
 }
