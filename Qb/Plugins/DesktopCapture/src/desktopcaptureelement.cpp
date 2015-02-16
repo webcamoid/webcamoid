@@ -19,7 +19,9 @@
  * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
  */
 
+#include <sys/time.h>
 #include <QApplication>
+#include <QScreen>
 #include <qbutils.h>
 
 #include "desktopcaptureelement.h"
@@ -27,15 +29,19 @@
 DesktopCaptureElement::DesktopCaptureElement():
     QbMultimediaSourceElement()
 {
-    this->m_desktopWidget = QApplication::desktop();
     this->m_curScreenNumber = -1;
 
-    QObject::connect(this->m_desktopWidget,
-                     SIGNAL(screenCountChanged(int)),
+    QObject::connect(qApp,
+                     &QGuiApplication::screenAdded,
                      this,
-                     SLOT(screenCountChanged(int)));
+                     &DesktopCaptureElement::screenCountChanged);
 
-    QObject::connect(this->m_desktopWidget,
+    QObject::connect(qApp,
+                     &QGuiApplication::screenRemoved,
+                     this,
+                     &DesktopCaptureElement::screenCountChanged);
+
+    QObject::connect(QApplication::desktop(),
                      &QDesktopWidget::resized,
                      this,
                      &DesktopCaptureElement::srceenResized);
@@ -56,7 +62,7 @@ QStringList DesktopCaptureElement::medias() const
 {
     QStringList screens;
 
-    for (int i = 0; i < this->m_desktopWidget->screenCount(); i++)
+    for (int i = 0; i < QGuiApplication::screens().size(); i++)
         screens << QString("screen://%1").arg(i);
 
     return screens;
@@ -67,7 +73,7 @@ QString DesktopCaptureElement::media() const
     if (!this->m_curScreen.isEmpty())
         return this->m_curScreen;
 
-    int screen = this->m_desktopWidget->screenNumber(this->m_desktopWidget->screen());
+    int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
 
     return QString("screen://%1").arg(screen);
 }
@@ -90,7 +96,7 @@ int DesktopCaptureElement::defaultStream(const QString &mimeType) const
 
 QString DesktopCaptureElement::description(const QString &media) const
 {
-    for (int i = 0; i < this->m_desktopWidget->screenCount(); i++)
+    for (int i = 0; i < QGuiApplication::screens().size(); i++)
         if (QString("screen://%1").arg(i) == media)
             return QString("Screen %1").arg(i);
 
@@ -103,17 +109,21 @@ QbCaps DesktopCaptureElement::caps(int stream) const
         || stream != 0)
         return QbCaps();
 
-    QWidget *screen = this->m_desktopWidget->screen(this->m_curScreenNumber);
+    QScreen *screen = QGuiApplication::screens()[this->m_curScreenNumber];
 
     if (!screen)
         return QString();
+
+    QbFrac fps(30000, 1001);
 
     QbCaps caps(QString("video/x-raw,"
                         "format=bgr0,"
                         "width=%1,"
                         "height=%2,"
-                        "fps=30000/1001").arg(screen->width())
-                                         .arg(screen->height()));
+                        "fps=%3/%4").arg(screen->size().width())
+                                    .arg(screen->size().height())
+                                    .arg(fps.num())
+                                    .arg(fps.den()));
 
     return caps;
 }
@@ -130,6 +140,7 @@ void DesktopCaptureElement::stateChange(QbElement::ElementState from, QbElement:
 {
     if (from == QbElement::ElementStateNull
         && to == QbElement::ElementStatePaused) {
+        this->m_id = Qb::id();
         QMetaObject::invokeMethod(&this->m_timer, "start");
     }
     else if (from == QbElement::ElementStatePaused
@@ -140,7 +151,7 @@ void DesktopCaptureElement::stateChange(QbElement::ElementState from, QbElement:
 
 void DesktopCaptureElement::setMedia(const QString &media)
 {
-    for (int i = 0; i < this->m_desktopWidget->screenCount(); i++) {
+    for (int i = 0; i < QGuiApplication::screens().size(); i++) {
         QString screen = QString("screen://%1").arg(i);
 
         if (screen == media) {
@@ -159,7 +170,7 @@ void DesktopCaptureElement::setMedia(const QString &media)
 
 void DesktopCaptureElement::resetMedia()
 {
-    int screen = this->m_desktopWidget->screenNumber(this->m_desktopWidget->screen());
+    int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
 
     if (this->m_curScreenNumber == screen)
         return;
@@ -172,26 +183,42 @@ void DesktopCaptureElement::resetMedia()
 
 void DesktopCaptureElement::readFrame()
 {
-    QWidget *screen = this->m_desktopWidget->screen(this->m_curScreenNumber);
+    QScreen *screen = QGuiApplication::screens()[this->m_curScreenNumber];
+    QbFrac fps(30000, 1001);
 
     QbCaps caps(QString("video/x-raw,"
                         "format=bgr0,"
                         "width=%1,"
                         "height=%2,"
-                        "fps=30000/1001").arg(screen->width())
-                                         .arg(screen->height()));
+                        "fps=%3/%4").arg(screen->size().width())
+                                    .arg(screen->size().height())
+                                    .arg(fps.num())
+                                    .arg(fps.den()));
 
-    QbPacket packet = QbUtils::imageToPacket(screen->grab().toImage(), caps);
+    QPixmap frame = screen->grabWindow(QApplication::desktop()->winId());
+    QbPacket packet = QbUtils::imageToPacket(frame.toImage(), caps);
 
     if (!packet)
         return;
 
+    timeval timestamp;
+    gettimeofday(&timestamp, NULL);
+
+    qint64 pts = (timestamp.tv_sec
+                  + 1e-6 * timestamp.tv_usec)
+                  * fps.value();
+
+    packet.setPts(pts);
+    packet.setTimeBase(fps.invert());
+    packet.setIndex(0);
+    packet.setId(this->m_id);
+
     emit this->oStream(packet);
 }
 
-void DesktopCaptureElement::screenCountChanged(int count)
+void DesktopCaptureElement::screenCountChanged(QScreen *screen)
 {
-    Q_UNUSED(count)
+    Q_UNUSED(screen)
 
     emit this->mediasChanged(this->medias());
 }
@@ -199,7 +226,7 @@ void DesktopCaptureElement::screenCountChanged(int count)
 void DesktopCaptureElement::srceenResized(int screen)
 {
     QString media = QString("screen://%1").arg(screen);
-    QWidget *widget = this->m_desktopWidget->screen(screen);
+    QWidget *widget = QApplication::desktop()->screen(screen);
 
     emit this->sizeChanged(media, widget->size());
 }

@@ -26,6 +26,7 @@
 #include <QThread>
 #include <QDesktopWidget>
 
+#include <qb.h>
 #include <qbmultimediasourceelement.h>
 
 typedef QSharedPointer<QThread> ThreadPtr;
@@ -50,7 +51,7 @@ class DesktopCaptureElement: public QbMultimediaSourceElement
         int m_curScreenNumber;
         ThreadPtr m_thread;
         QTimer m_timer;
-        QDesktopWidget *m_desktopWidget;
+        qint64 m_id;
 
         static void deleteThread(QThread *thread);
 
@@ -66,7 +67,7 @@ class DesktopCaptureElement: public QbMultimediaSourceElement
 
     private slots:
         void readFrame();
-        void screenCountChanged(int count);
+        void screenCountChanged(QScreen *screen);
         void srceenResized(int screen);
 };
 
