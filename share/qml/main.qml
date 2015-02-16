@@ -24,6 +24,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0
 import Webcamoid 1.0
 
 ApplicationWindow {
@@ -45,6 +46,11 @@ ApplicationWindow {
 
     onWidthChanged: Webcamoid.windowWidth = width
     onHeightChanged: Webcamoid.windowHeight = height
+
+    function rgbChangeAlpha(color, alpha)
+    {
+        return Qt.rgba(color.r, color.g, color.b, alpha)
+    }
 
     SystemPalette {
         id: palette
@@ -69,7 +75,7 @@ ApplicationWindow {
         objectName: "videoDisplay"
         visible: false
         smooth: true
-        anchors.fill: splitView
+        anchors.fill: parent
     }
 
     SplitView {
@@ -84,7 +90,7 @@ ApplicationWindow {
             visible: false
 
             Rectangle {
-                color: palette.window
+                color: rgbChangeAlpha(palette.window, 0.9)
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
@@ -117,7 +123,7 @@ ApplicationWindow {
             width: 400
 
             Rectangle {
-                color: palette.window
+                color: rgbChangeAlpha(palette.window, 0.9)
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 

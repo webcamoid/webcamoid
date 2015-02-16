@@ -686,6 +686,11 @@ QString MediaTools::readFile(const QString &fileName) const
     return data;
 }
 
+QString MediaTools::urlToLocalFile(const QUrl &url) const
+{
+    return url.toLocalFile();
+}
+
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
                                 QObject *interface,
                                 const QString &where) const

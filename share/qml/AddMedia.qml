@@ -174,7 +174,7 @@ ApplicationWindow {
                       "All Files (*)"]
 
         onAccepted: {
-            txtMedia.text = fileDialog.fileUrl
+            txtMedia.text = Webcamoid.urlToLocalFile(fileDialog.fileUrl)
             txtDescription.text = recAddMedia.defaultDescription(fileDialog.fileUrl.toString())
         }
     }

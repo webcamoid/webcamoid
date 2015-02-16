@@ -149,6 +149,7 @@ class MediaTools: public QObject
                                            const QString &suffix="",
                                            const QString &filters="") const;
         Q_INVOKABLE QString readFile(const QString &fileName) const;
+        Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
 
     private:
         QString m_curStream;

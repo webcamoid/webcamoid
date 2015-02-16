@@ -197,6 +197,7 @@ unix {
         $$[QT_INSTALL_BINS]/libnettle-*.dll \
         $$[QT_INSTALL_BINS]/liborc-0.*.dll \
         $$[QT_INSTALL_BINS]/libp11-kit-*.dll \
+        $$[QT_INSTALL_BINS]/libpcre-1.dll \
         $$[QT_INSTALL_BINS]/libpcre16-0.dll \
         $$[QT_INSTALL_BINS]/libpng*.dll \
         $$[QT_INSTALL_BINS]/libstdc++-*.dll \
