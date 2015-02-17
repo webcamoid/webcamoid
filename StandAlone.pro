@@ -65,7 +65,7 @@ OTHER_FILES = \
     README.md \
     share/effects.xml
 
-QT += qml quick opengl widgets xml svg
+QT += qml quick opengl widgets xml svg multimedia
 
 RESOURCES += \
     Webcamoid.qrc \

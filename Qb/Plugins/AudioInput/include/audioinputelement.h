@@ -25,12 +25,7 @@
 #include <QAudioInput>
 #include <QAudioDeviceInfo>
 
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libswresample/swresample.h>
-}
-
+#include <qbutils.h>
 #include "audiobuffer.h"
 
 typedef QSharedPointer<QAudioInput> AudioInputPtr;

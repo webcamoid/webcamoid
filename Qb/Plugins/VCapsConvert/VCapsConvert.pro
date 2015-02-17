@@ -64,14 +64,10 @@ isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        libavdevice \
-        libavfilter \
         libavformat \
         libavcodec \
-        libpostproc \
-        libswresample \
-        libswscale \
-        libavutil
+        libavutil \
+        libswscale
 }
 
 INSTALLS += target

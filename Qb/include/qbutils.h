@@ -23,6 +23,7 @@
 #define QBUTILS_H
 
 #include <QImage>
+#include <QAudioFormat>
 
 #include "qbpacket.h"
 
@@ -30,6 +31,10 @@ namespace QbUtils
 {
     QbPacket imageToPacket(const QImage &image, const QbPacket &defaultPacket);
     QImage packetToImage(const QbPacket &packet);
+    QString defaultSampleFormat(QAudioFormat::SampleType sampleType,
+                                int sampleSize,
+                                bool planar);
+    QString defaultChannelLayout(int nChannels);
 }
 
 #endif // QBUTILS_H

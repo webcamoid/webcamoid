@@ -405,8 +405,8 @@ QString QbElement::pluginPath(const QString &pluginId)
         QString baseName = QFileInfo(path).baseName();
 
 #ifdef Q_OS_WIN32
-    if (baseName == QString("%1%2").arg(pluginId).arg(COMMONS_VER_MAJ))
-        return path;
+        if (baseName == QString("%1%2").arg(pluginId).arg(COMMONS_VER_MAJ))
+            return path;
 #else
         if (baseName == QString("lib%1").arg(pluginId))
             return path;

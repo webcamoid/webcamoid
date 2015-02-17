@@ -30,8 +30,6 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
-
 HEADERS += \
     include/audiooutput.h \
     include/audiooutputelement.h \
@@ -43,9 +41,6 @@ INCLUDEPATH += \
 
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
-
-!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
-!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 OTHER_FILES += pspec.json
 
@@ -59,20 +54,6 @@ SOURCES += \
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libavdevice \
-        libavfilter \
-        libavformat \
-        libavcodec \
-        libpostproc \
-        libswresample \
-        libswscale \
-        libavutil
-}
 
 INSTALLS += target
 

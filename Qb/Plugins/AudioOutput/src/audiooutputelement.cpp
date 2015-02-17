@@ -63,35 +63,10 @@ double AudioOutputElement::clock() const
 
 QbCaps AudioOutputElement::findBestOptions(const QAudioFormat &audioFormat) const
 {
-    QMap<AVSampleFormat, QAudioFormat::SampleType> formatToType;
-    formatToType[AV_SAMPLE_FMT_NONE] = QAudioFormat::Unknown;
-    formatToType[AV_SAMPLE_FMT_U8] = QAudioFormat::UnSignedInt;
-    formatToType[AV_SAMPLE_FMT_S16] = QAudioFormat::SignedInt;
-    formatToType[AV_SAMPLE_FMT_S32] = QAudioFormat::SignedInt;
-    formatToType[AV_SAMPLE_FMT_FLT] = QAudioFormat::Float;
-    formatToType[AV_SAMPLE_FMT_DBL] = QAudioFormat::Float;
-    formatToType[AV_SAMPLE_FMT_U8P] = QAudioFormat::UnSignedInt;
-    formatToType[AV_SAMPLE_FMT_S16P] = QAudioFormat::SignedInt;
-    formatToType[AV_SAMPLE_FMT_S32P] = QAudioFormat::SignedInt;
-    formatToType[AV_SAMPLE_FMT_FLTP] = QAudioFormat::Float;
-    formatToType[AV_SAMPLE_FMT_DBLP] = QAudioFormat::Float;
-
-    AVSampleFormat format = AV_SAMPLE_FMT_NONE;
-
-    foreach (AVSampleFormat sampleFormat, formatToType.keys(audioFormat.sampleType()))
-        if (av_get_bytes_per_sample(sampleFormat) == (audioFormat.sampleSize() >> 3)) {
-            format = sampleFormat;
-
-            break;
-        }
-
-    char layout[256];
-    qint64 channelLayout = av_get_default_channel_layout(audioFormat.channelCount());
-
-    av_get_channel_layout_string(layout,
-                                 sizeof(layout),
-                                 audioFormat.channelCount(),
-                                 channelLayout);
+    QString format = QbUtils::defaultSampleFormat(audioFormat.sampleType(),
+                                                  audioFormat.sampleSize(),
+                                                  false);
+    QString layout = QbUtils::defaultChannelLayout(audioFormat.channelCount());
 
     QbCaps caps(QString("audio/x-raw,"
                         "format=%1,"
@@ -99,7 +74,7 @@ QbCaps AudioOutputElement::findBestOptions(const QAudioFormat &audioFormat) cons
                         "channels=%3,"
                         "rate=%4,"
                         "layout=%5,"
-                        "align=%6").arg(av_get_sample_fmt_name(format))
+                        "align=%6").arg(format)
                                    .arg(audioFormat.sampleSize() >> 3)
                                    .arg(audioFormat.channelCount())
                                    .arg(audioFormat.sampleRate())

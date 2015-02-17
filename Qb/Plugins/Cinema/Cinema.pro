@@ -43,7 +43,7 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml
+QT += qml multimedia
 
 RESOURCES += \
     Cinema.qrc

@@ -133,6 +133,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(stateChanged(QbElement::ElementState)),
                              this,
                              SIGNAL(stateChanged()));
+
+            QObject::connect(this->m_source.data(),
+                             &QbElement::stateChanged,
+                             this->m_audioOutput.data(),
+                             &QbElement::setState);
         }
 
         if (this->m_videoCapture) {
@@ -1106,16 +1111,16 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
             this->m_audioOutput->setState(sourceState);
 
         QObject::connect(this->m_source.data(),
-                         SIGNAL(stateChanged(QbElement::ElementState)),
+                         &QbElement::stateChanged,
                          this->m_audioOutput.data(),
-                         SLOT(setState(QbElement::ElementState)));
+                         &QbElement::setState);
     } else {
         this->m_audioOutput->setState(QbElement::ElementStateNull);
 
         QObject::disconnect(this->m_source.data(),
-                            SIGNAL(stateChanged(QbElement::ElementState)),
+                            &QbElement::stateChanged,
                             this->m_audioOutput.data(),
-                            SLOT(setState(QbElement::ElementState)));
+                            &QbElement::setState);
     }
 }
 

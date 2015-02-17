@@ -57,7 +57,7 @@ HEADERS = \
 INCLUDEPATH += \
     include
 
-QT += qml
+QT += qml multimedia
 
 SOURCES = \
     src/qb.cpp \

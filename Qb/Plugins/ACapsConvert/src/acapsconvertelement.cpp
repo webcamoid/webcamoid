@@ -116,8 +116,7 @@ QbPacket ACapsConvertElement::iStream(const QbPacket &packet)
     caps1.setProperty("align", QVariant());
     caps2.setProperty("align", QVariant());
 
-    if (caps1 != caps2)
-    {
+    if (caps1 != caps2) {
         this->deleteSwrContext();
 
             // create resampler context
