@@ -77,6 +77,11 @@ class MediaTools: public QObject
                WRITE setWindowHeight
                RESET resetWindowHeight
                NOTIFY windowHeightChanged)
+    Q_PROPERTY(bool advancedMode
+               READ advancedMode
+               WRITE setAdvancedMode
+               RESET resetAdvancedMode
+               NOTIFY advancedModeChanged)
     Q_PROPERTY(QStringList currentEffects
                READ currentEffects
                NOTIFY currentEffectsChanged)
@@ -108,6 +113,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
+        Q_INVOKABLE bool advancedMode() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
         Q_INVOKABLE QString qtVersion() const;
@@ -161,6 +167,7 @@ class MediaTools: public QObject
         QList<RecordingFormat> m_recordingFormats;
         int m_windowWidth;
         int m_windowHeight;
+        bool m_advancedMode;
         QMap<RecordFrom, QString> m_recordFromMap;
         QQmlApplicationEngine *m_appEngine;
 
@@ -198,6 +205,7 @@ class MediaTools: public QObject
         void recordingFormatsChanged();
         void windowWidthChanged();
         void windowHeightChanged();
+        void advancedModeChanged(bool advancedMode);
         void currentEffectsChanged();
         void isPlayingChanged();
         void frameReady(const QbPacket &frame);
@@ -224,6 +232,7 @@ class MediaTools: public QObject
                                 const QString &params);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
+        void setAdvancedMode(bool advancedMode);
         void resetCurStream();
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
@@ -232,6 +241,8 @@ class MediaTools: public QObject
         void resetRecordingFormats();
         void resetWindowWidth();
         void resetWindowHeight();
+        void resetAdvancedMode();
+        void resetEffects();
         void loadConfigs();
         void saveConfigs();
         void setStream(const QString &stream, const QString &description);

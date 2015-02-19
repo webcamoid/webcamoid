@@ -45,6 +45,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->resetStreams();
     this->m_windowWidth = 0;
     this->m_windowHeight = 0;
+    this->m_advancedMode = false;
 
     Qb::init(engine);
 
@@ -311,6 +312,11 @@ int MediaTools::windowHeight() const
     return this->m_windowHeight;
 }
 
+bool MediaTools::advancedMode() const
+{
+    return this->m_advancedMode;
+}
+
 QString MediaTools::applicationName() const
 {
     return QCoreApplication::applicationName();
@@ -406,15 +412,16 @@ QStringList MediaTools::availableEffects() const
 {
     QStringList effects = QbElement::listPlugins("VideoFilter");
 
-    foreach (QbElementPtr effect, this->m_effectsList) {
-        int i = effects.indexOf(effect->pluginId());
+    if (this->m_advancedMode)
+        foreach (QbElementPtr effect, this->m_effectsList) {
+            int i = effects.indexOf(effect->pluginId());
 
-        if (i < 0
-            || effect->property("preview").toBool())
-            continue;
+            if (i < 0
+                || effect->property("preview").toBool())
+                continue;
 
-        effects.removeAt(i);
-    }
+            effects.removeAt(i);
+        }
 
     qSort(effects.begin(), effects.end(), sortByDescription);
 
@@ -1165,6 +1172,15 @@ void MediaTools::setWindowHeight(int windowHeight)
     }
 }
 
+void MediaTools::setAdvancedMode(bool advancedMode)
+{
+    if (this->m_advancedMode == advancedMode)
+        return;
+
+    this->m_advancedMode = advancedMode;
+    emit this->advancedModeChanged(advancedMode);
+}
+
 void MediaTools::resetCurStream()
 {
     this->setCurStream("");
@@ -1205,6 +1221,30 @@ void MediaTools::resetWindowHeight()
     this->setWindowHeight(0);
 }
 
+void MediaTools::resetAdvancedMode()
+{
+    this->setAdvancedMode(false);
+}
+
+void MediaTools::resetEffects()
+{
+    if (this->m_effectsList.isEmpty())
+        return;
+
+    if (this->m_videoSync)
+        this->m_videoSync->unlink(this->m_effectsList.first());
+
+    if (this->m_videoConvert)
+        this->m_effectsList.last()->unlink(this->m_videoConvert);
+
+    if (this->m_videoSync
+        && this->m_videoConvert)
+        this->m_videoSync->link(this->m_videoConvert);
+
+    this->m_effectsList.clear();
+    emit this->currentEffectsChanged();
+}
+
 void MediaTools::loadConfigs()
 {
     QSettings config;
@@ -1213,6 +1253,7 @@ void MediaTools::loadConfigs()
 
     this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
     this->setRecordAudioFrom(config.value("recordAudioFrom", "mic").toString());
+    this->setAdvancedMode(config.value("advancedMode", false).toBool());
 
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->m_windowWidth = windowSize.width();
@@ -1227,6 +1268,9 @@ void MediaTools::loadConfigs()
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
         effects << config.value("effect").toString();
+
+        if (!this->m_advancedMode)
+            break;
     }
 
     config.endArray();
@@ -1301,6 +1345,7 @@ void MediaTools::saveConfigs()
 
     config.setValue("playAudio", this->playAudioFromSource());
     config.setValue("recordAudioFrom", this->recordAudioFrom());
+    config.setValue("advancedMode", this->advancedMode());
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
 

@@ -32,9 +32,11 @@ Rectangle {
     property string curEffect: ""
     property string testEffect: ""
     property bool editMode: false
+    property bool advancedMode: Webcamoid.advancedMode
 
     function updateAppliedEffectList() {
         var effects = Webcamoid.currentEffects
+
         var curEffect = lsvAppliedEffectList.curOptionName
         lsvAppliedEffectList.model.clear()
 
@@ -59,12 +61,20 @@ Rectangle {
 
     function updateEffectList() {
         var effects = Webcamoid.availableEffects()
+
         var curEffect = lsvEffectList.curOptionName
         lsvEffectList.model.clear()
 
-        if (effects.length > 0
-            && effects.indexOf(curEffect) < 0)
-            curEffect = effects[0]
+        if (advancedMode) {
+            if (effects.length > 0
+                && effects.indexOf(curEffect) < 0)
+                curEffect = effects[0]
+        } else {
+            var curEffects = Webcamoid.currentEffects
+
+            if (curEffects.length > 0)
+                curEffect = curEffects[0]
+        }
 
         for (var effect in effects) {
             var selected = false
@@ -115,14 +125,96 @@ Rectangle {
         placeholderText: qsTr("Search effect...")
     }
 
-    OptionList {
-        id: lsvAppliedEffectList
+    Rectangle {
+        id: effectResetButton
+        height: advancedMode? 0: 32
         anchors.topMargin: 8
-        anchors.bottom: recAddEffect.top
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: txtSearchEffect.bottom
+        visible: advancedMode? false: true
+
+        property bool selected: Webcamoid.currentEffects.length < 1
+
+        property color gradUp: selected?
+                                   Qt.rgba(0.75, 0, 0, 1):
+                                   Qt.rgba(0.25, 0, 0, 1)
+        property color gradLow: selected?
+                                    Qt.rgba(1, 0, 0, 1):
+                                    Qt.rgba(0.5, 0, 0, 1)
+
+        onSelectedChanged: {
+            gradUp = selected?
+                        Qt.rgba(0.75, 0, 0, 1):
+                        Qt.rgba(0.25, 0, 0, 1)
+            gradLow = selected?
+                        Qt.rgba(1, 0, 0, 1):
+                        Qt.rgba(0.5, 0, 0, 1)
+        }
+
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: effectResetButton.gradUp
+            }
+
+            GradientStop {
+                position: 1
+                color: effectResetButton.gradLow
+            }
+        }
+
+        Label {
+            id: txtEffectResetButton
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: qsTr("None")
+        }
+
+        MouseArea {
+            id: msaEffectResetButton
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            anchors.fill: parent
+
+            onEntered: {
+                txtEffectResetButton.font.bold = true
+                effectResetButton.gradUp = effectResetButton.selected?
+                                            Qt.rgba(1, 0.25, 0.25, 1):
+                                            Qt.rgba(0.5, 0.25, 0.25, 1)
+                effectResetButton.gradLow = effectResetButton.selected?
+                                            Qt.rgba(1, 0.25, 0.25, 1):
+                                            Qt.rgba(0.75, 0.25, 0.25, 1)
+            }
+            onExited: {
+                txtEffectResetButton.font.bold = false
+                txtEffectResetButton.scale = 1
+                effectResetButton.gradUp = effectResetButton.selected?
+                                            Qt.rgba(0.75, 0, 0, 1):
+                                            Qt.rgba(0.25, 0, 0, 1)
+                effectResetButton.gradLow = effectResetButton.selected?
+                                            Qt.rgba(1, 0, 0, 1):
+                                            Qt.rgba(0.5, 0, 0, 1)
+            }
+            onPressed: txtEffectResetButton.scale = 0.75
+            onReleased: txtEffectResetButton.scale = 1
+            onClicked: {
+                lsvEffectList.curOptionName = ""
+                recEffectBar.curEffect = ""
+                Webcamoid.removeEffectControls("itmEffectControls")
+                Webcamoid.resetEffects()
+            }
+        }
+    }
+
+    OptionList {
+        id: lsvAppliedEffectList
+        anchors.bottom: recAddEffect.top
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.top: effectResetButton.bottom
         filter: txtSearchEffect.text
+        visible: advancedMode? true: false
 
         onCurOptionNameChanged: {
             recEffectBar.curEffect = curOptionName
@@ -137,18 +229,24 @@ Rectangle {
 
     ScrollView {
         id: scrollEffects
-        visible: false
-        anchors.topMargin: 8
+        visible: advancedMode? false: true
         anchors.bottom: recAddEffect.top
         anchors.right: parent.right
         anchors.left: parent.left
-        anchors.top: txtSearchEffect.bottom
+        anchors.top: effectResetButton.bottom
 
         onVisibleChanged: {
             if (visible) {
                 recEffectBar.curEffect = lsvEffectList.curOptionName
-                Webcamoid.showPreview(lsvEffectList.curOptionName)
                 Webcamoid.removeEffectControls("itmEffectControls")
+
+                if (advancedMode)
+                    Webcamoid.showPreview(lsvEffectList.curOptionName)
+                else {
+                    Webcamoid.resetEffects()
+                    Webcamoid.appendEffect(lsvEffectList.curOptionName, false)
+                }
+
                 Webcamoid.embedEffectControls("itmEffectControls", lsvEffectList.curOptionName)
             }
             else
@@ -163,8 +261,15 @@ Rectangle {
                 recEffectBar.curEffect = curOptionName
 
                 if (scrollEffects.visible) {
-                    Webcamoid.showPreview(curOptionName)
                     Webcamoid.removeEffectControls("itmEffectControls")
+
+                    if (advancedMode)
+                        Webcamoid.showPreview(curOptionName)
+                    else {
+                        Webcamoid.resetEffects()
+                        Webcamoid.appendEffect(curOptionName, false)
+                    }
+
                     Webcamoid.embedEffectControls("itmEffectControls", curOptionName)
                 }
             }
@@ -173,11 +278,11 @@ Rectangle {
 
     Rectangle {
         id: recAddEffect
-        y: 192
-        height: 48
+        height: advancedMode? 48: 0
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
+        visible: advancedMode? true: false
 
         property color gradUp: Qt.rgba(0, 0.5, 0, 1)
         property color gradLow: Qt.rgba(0, 1, 0, 1)
@@ -242,8 +347,8 @@ Rectangle {
                 source: "qrc:/icons/hicolor/scalable/down.svg"
             }
             PropertyChanges {
-                editMode: true
                 target: recEffectBar
+                editMode: true
             }
         }
     ]

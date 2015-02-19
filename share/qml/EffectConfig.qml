@@ -28,6 +28,7 @@ ColumnLayout {
 
     property string curEffect: ""
     property bool inUse: false
+    property bool advancedMode: Webcamoid.advancedMode
 
     signal effectAdded(string effectId)
 
@@ -65,6 +66,7 @@ ColumnLayout {
     RowLayout {
         id: rowControls
         Layout.fillWidth: true
+        visible: advancedMode? true: false
 
         Label {
             Layout.fillWidth: true
