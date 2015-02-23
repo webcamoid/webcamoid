@@ -1251,13 +1251,18 @@ void MediaTools::loadConfigs()
 
     config.beginGroup("GeneralConfigs");
 
-    this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
-    this->setRecordAudioFrom(config.value("recordAudioFrom", "mic").toString());
     this->setAdvancedMode(config.value("advancedMode", false).toBool());
 
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->m_windowWidth = windowSize.width();
     this->m_windowHeight = windowSize.height();
+
+    config.endGroup();
+
+    config.beginGroup("AudioConfigs");
+
+    this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
+    this->setRecordAudioFrom(config.value("recordAudioFrom", "mic").toString());
 
     config.endGroup();
 
@@ -1343,11 +1348,16 @@ void MediaTools::saveConfigs()
 
     config.beginGroup("GeneralConfigs");
 
-    config.setValue("playAudio", this->playAudioFromSource());
-    config.setValue("recordAudioFrom", this->recordAudioFrom());
     config.setValue("advancedMode", this->advancedMode());
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
+
+    config.endGroup();
+
+    config.beginGroup("AudioConfigs");
+
+    config.setValue("playAudio", this->playAudioFromSource());
+    config.setValue("recordAudioFrom", this->recordAudioFrom());
 
     config.endGroup();
 

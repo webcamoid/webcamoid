@@ -68,6 +68,7 @@ ApplicationWindow {
                 videoDisplay.visible = false
             }
         }
+        onRecordingChanged: recordingNotice.visible = recording
     }
 
     VideoDisplay {
@@ -76,6 +77,62 @@ ApplicationWindow {
         visible: false
         smooth: true
         anchors.fill: parent
+    }
+
+    Rectangle {
+        id: recordingNotice
+        color: "black"
+        width: 128
+        height: 48
+        radius: 4
+        anchors.top: parent.top
+        anchors.topMargin: 16
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: false
+
+        Image {
+            id: recordingIcon
+            source: "qrc:/icons/hicolor/scalable/recording.svg"
+            width: height
+            anchors.left: parent.left
+            anchors.leftMargin: 8
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+        }
+
+        Label {
+            text: qsTr("Recording")
+            color: "white"
+            font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.left: recordingIcon.right
+            anchors.leftMargin: 8
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.top: parent.top
+            anchors.topMargin: 8
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+        }
+
+        SequentialAnimation on opacity {
+            loops: Animation.Infinite
+            running: recordingNotice.visible
+
+            PropertyAnimation {
+                easing.type: Easing.OutSine
+                to: 0
+                duration: 1000
+            }
+            PropertyAnimation {
+                easing.type: Easing.InSine
+                to: 1
+                duration: 1000
+            }
+        }
     }
 
     SplitView {

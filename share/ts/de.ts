@@ -383,47 +383,52 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="271"/>
+        <location filename="../qml/main.qml" line="106"/>
+        <source>Recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Play</source>
         <translation>Wiedergabe</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="284"/>
+        <location filename="../qml/main.qml" line="341"/>
         <source>Configure streams</source>
         <translation>Streams konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="297"/>
+        <location filename="../qml/main.qml" line="354"/>
         <source>Take a photo</source>
         <translation>Foto aufnehmen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="304"/>
+        <location filename="../qml/main.qml" line="361"/>
         <source>Picture %1.%2</source>
         <translation>Bild %1.%2</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="326"/>
+        <location filename="../qml/main.qml" line="383"/>
         <source>Record video</source>
         <translation>Video aufnehmen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="340"/>
+        <location filename="../qml/main.qml" line="397"/>
         <source>Configure Effects</source>
         <translation>Effekte konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="410"/>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="366"/>
+        <location filename="../qml/main.qml" line="423"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="313"/>
+        <location filename="../qml/main.qml" line="370"/>
         <source>Save photo as...</source>
         <translation>Foto speichern unter...</translation>
     </message>

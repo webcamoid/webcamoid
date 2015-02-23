@@ -63,7 +63,8 @@ class MediaTools: public QObject
     Q_PROPERTY(bool recording
                READ recording
                WRITE setRecording
-               RESET resetRecording)
+               RESET resetRecording
+               NOTIFY recordingChanged)
     Q_PROPERTY(QStringList recordingFormats
                READ recordingFormats
                NOTIFY recordingFormatsChanged)
