@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="de">
 <context>
@@ -24,27 +24,27 @@
         <translation>Verwendet Qt %1</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="89"/>
+        <location filename="../qml/About.qml" line="90"/>
         <source>Webcam capture application.</source>
         <translation>Webcam Aufnahmewerkzeug.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="92"/>
+        <location filename="../qml/About.qml" line="93"/>
         <source>A simple webcam application for picture and video capture.</source>
         <translation>Ein einfaches Program um mit einer Webcam Bilder und Videos aufzunehmen.</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="81"/>
+        <location filename="../qml/About.qml" line="82"/>
         <source>Website</source>
         <translation>Webseite</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="106"/>
+        <location filename="../qml/About.qml" line="107"/>
         <source>License</source>
         <translation>Lizenz</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="117"/>
+        <location filename="../qml/About.qml" line="118"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -77,22 +77,22 @@
         <translation>Auswählen der Medienquelldatei</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="97"/>
+        <location filename="../qml/AddMedia.qml" line="96"/>
         <source>Search</source>
         <translation>Suchen</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="117"/>
+        <location filename="../qml/AddMedia.qml" line="118"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="139"/>
+        <location filename="../qml/AddMedia.qml" line="141"/>
         <source>Cancel</source>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <location filename="../qml/AddMedia.qml" line="148"/>
+        <location filename="../qml/AddMedia.qml" line="152"/>
         <source>Choose the file to add as media</source>
         <translation>Auswählen der hinzuzufügenden Medienquelldatei</translation>
     </message>
@@ -135,7 +135,7 @@
         <translation>Eingabe der Encodierungs Parameter</translation>
     </message>
     <message>
-        <location filename="../qml/AddRecordingFormat.qml" line="110"/>
+        <location filename="../qml/AddRecordingFormat.qml" line="109"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
@@ -148,9 +148,14 @@
 <context>
     <name>EffectBar</name>
     <message>
-        <location filename="../qml/EffectBar.qml" line="115"/>
+        <location filename="../qml/EffectBar.qml" line="125"/>
         <source>Search effect...</source>
         <translation>Effektsuche...</translation>
+    </message>
+    <message>
+        <location filename="../qml/EffectBar.qml" line="171"/>
+        <source>None</source>
+        <translation type="unfinished">Keine</translation>
     </message>
 </context>
 <context>
@@ -162,22 +167,22 @@
         <translation>Plug-In ID</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="56"/>
+        <location filename="../qml/EffectConfig.qml" line="55"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="63"/>
+        <location filename="../qml/EffectConfig.qml" line="62"/>
         <source>Plugin description</source>
         <translation>Plug-In Beschreibung</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="78"/>
+        <location filename="../qml/EffectConfig.qml" line="77"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../qml/EffectConfig.qml" line="78"/>
+        <location filename="../qml/EffectConfig.qml" line="77"/>
         <source>Add</source>
         <translation>Hinzufügen</translation>
     </message>
@@ -213,32 +218,32 @@
 <context>
     <name>MediaConfig</name>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="55"/>
+        <location filename="../qml/MediaConfig.qml" line="54"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="62"/>
+        <location filename="../qml/MediaConfig.qml" line="61"/>
         <source>Insert media description</source>
         <translation>Medienquellenbeschreibung hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="70"/>
+        <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media file</source>
         <translation>Medienquelldatei</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="77"/>
+        <location filename="../qml/MediaConfig.qml" line="75"/>
         <source>Select media file</source>
         <translation>Medienquelldatei auswählen</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="93"/>
+        <location filename="../qml/MediaConfig.qml" line="90"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../qml/MediaConfig.qml" line="101"/>
+        <location filename="../qml/MediaConfig.qml" line="99"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
@@ -257,100 +262,168 @@
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="86"/>
-        <location filename="../qml/RecordConfig.qml" line="165"/>
+        <location filename="../qml/RecordConfig.qml" line="164"/>
         <source>Start recording video</source>
         <translation>Videoaufnahme Start</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="94"/>
+        <location filename="../qml/RecordConfig.qml" line="93"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="101"/>
+        <location filename="../qml/RecordConfig.qml" line="100"/>
         <source>Insert format description</source>
         <translation>Formatbeschreibung hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="108"/>
+        <location filename="../qml/RecordConfig.qml" line="106"/>
         <source>Suffix</source>
         <translation>Dateiendung</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="115"/>
+        <location filename="../qml/RecordConfig.qml" line="113"/>
         <source>Supported file suffix</source>
         <translation>Unterstützte Dateiendungen</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="122"/>
+        <location filename="../qml/RecordConfig.qml" line="119"/>
         <source>Parameters</source>
         <translation>Parameter</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="129"/>
+        <location filename="../qml/RecordConfig.qml" line="126"/>
         <source>Encoding parameters</source>
         <translation>Encodierungsparameter</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="145"/>
+        <location filename="../qml/RecordConfig.qml" line="141"/>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="153"/>
+        <location filename="../qml/RecordConfig.qml" line="150"/>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
     <message>
-        <location filename="../qml/RecordConfig.qml" line="229"/>
+        <location filename="../qml/RecordConfig.qml" line="228"/>
         <source>Save video as...</source>
         <translation>Video speichern unter...</translation>
     </message>
 </context>
 <context>
+    <name>TextConstants</name>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="28"/>
+        <source>Warning, Caps Lock is ON!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="29"/>
+        <source>Layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="30"/>
+        <source>Login</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="31"/>
+        <source>Login failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="32"/>
+        <source>Login succeeded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="33"/>
+        <source>Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="34"/>
+        <source>Enter your username and password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="35"/>
+        <source>Select your user and enter password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="36"/>
+        <source>Reboot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="37"/>
+        <source>Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="38"/>
+        <source>Shutdown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="39"/>
+        <source>User name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="40"/>
+        <source>Welcome to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="265"/>
+        <location filename="../qml/main.qml" line="271"/>
         <source>Play</source>
         <translation>Wiedergabe</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="278"/>
+        <location filename="../qml/main.qml" line="284"/>
         <source>Configure streams</source>
         <translation>Streams konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="297"/>
         <source>Take a photo</source>
         <translation>Foto aufnehmen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="304"/>
         <source>Picture %1.%2</source>
         <translation>Bild %1.%2</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="320"/>
+        <location filename="../qml/main.qml" line="326"/>
         <source>Record video</source>
         <translation>Video aufnehmen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="334"/>
+        <location filename="../qml/main.qml" line="340"/>
         <source>Configure Effects</source>
         <translation>Effekte konfigurieren</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="347"/>
+        <location filename="../qml/main.qml" line="353"/>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="360"/>
+        <location filename="../qml/main.qml" line="366"/>
         <source>About</source>
         <translation>Über</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="307"/>
+        <location filename="../qml/main.qml" line="313"/>
         <source>Save photo as...</source>
         <translation>Foto speichern unter...</translation>
     </message>

@@ -7,30 +7,15 @@ Build-Depends: debhelper (>= 8.0.0),
  qtmultimedia5-dev,
  libopencv-dev,
  linux-libc-dev,
- wget,
- pkg-config,
- yasm,
- libass-dev,
- libbluray-dev,
- libgsm1-dev,
- libmodplug-dev,
- libopenjpeg-dev,
- libopus-dev,
- libpulse-dev,
- libschroedinger-dev,
- libspeex-dev,
- libtheora-dev,
- libv4l-dev,
- libvorbis-dev,
- libvpx-dev,
- libx11-dev,
- libxext-dev,
- libxfixes-dev,
- libmp3lame-dev,
- libopencore-amrnb-dev,
- libopencore-amrwb-dev,
- libx264-dev,
- libxvidcore-dev
+ libavcodec-ffmpeg-dev,
+ libavdevice-ffmpeg-dev,
+ libavfilter-ffmpeg-dev,
+ libavformat-ffmpeg-dev,
+ libavresample-ffmpeg-dev,
+ libavutil-ffmpeg-dev,
+ libpostproc-ffmpeg-dev,
+ libswresample-ffmpeg-dev,
+ libswscale-ffmpeg-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/hipersayanX/Webcamoid
 #Vcs-Git: git://github.com/hipersayanX/Webcamoid.git
@@ -61,33 +46,19 @@ Depends: ${shlibs:Depends},
  libopencv-video2.4,
  libopencv-videostab2.4,
  opencv-data,
- libass4,
- libbluray1,
- libgsm1,
- libmodplug1,
- libopenjpeg2,
- libopus0,
- libpulse0,
- libschroedinger-1.0-0,
- libspeex1,
- libtheora0,
- libv4l-0,
- libvorbisenc2,
- libvorbisfile3,
- libvpx1,
- libx11-6,
- libxext6,
- libxfixes3,
- libmp3lame0,
- libopencore-amrnb0,
- libopencore-amrwb0,
- libx264-142,
- libxvidcore4
+ libavcodec-ffmpeg56,
+ libavdevice-ffmpeg56,
+ libavfilter-ffmpeg5,
+ libavformat-ffmpeg56,
+ libavresample-ffmpeg2,
+ libavutil-ffmpeg54,
+ libpostproc-ffmpeg53,
+ libswresample-ffmpeg1,
+ libswscale-ffmpeg3
 Description: Webcamoid is a full featured webcam capture application.
  Features:
  .
- * Take pictures with the webcam.
- * Record videos.
+ * Take pictures and record videos with the webcam.
  * Manages multiple webcams.
  * Written in C++/Qt.
  * Custom controls for each webcam.
@@ -95,6 +66,5 @@ Description: Webcamoid is a full featured webcam capture application.
  * +60 effects available.
  * Effects with live previews.
  * Translated to many languages.
- * Provides a nice plasmoid for KDE desktop.
  * Use custom network and local files as capture devices.
  * Capture from desktop.

@@ -8,12 +8,6 @@
 
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
-PACKAGENAME = ffmpeg
-BUILDSUFFIX = Qb
-PACKAGEVERSION = 2.4.1
-PACKAGEFOLDER = $(PACKAGENAME)-$(PACKAGEVERSION)
-FILEEXT = tar.bz2
-PACKAGEFILE = $(PACKAGEFOLDER).$(FILEEXT)
 
 build: build-stamp
 build-stamp:
@@ -22,77 +16,7 @@ build-stamp:
 	# Add here commands to compile the package.
 	mkdir -p build
 
-	wget -c --retry-connrefused -O $(CURDIR)/build/$(PACKAGEFILE) http://$(PACKAGENAME).org/releases/$(PACKAGEFILE)
-	tar -xjvf $(CURDIR)/build/$(PACKAGEFILE) -C $(CURDIR)/build
-
-	$(CURDIR)/build/$(PACKAGEFOLDER)/configure \
-		--prefix=/usr \
-		--disable-debug \
-		--enable-gpl \
-		--enable-version3 \
-		--build-suffix=$(BUILDSUFFIX) \
-		--enable-runtime-cpudetect \
-		--disable-programs \
-		--disable-ffmpeg \
-		--disable-ffplay \
-		--disable-ffprobe \
-		--disable-ffserver \
-		--disable-doc \
-		--disable-htmlpages \
-		--disable-manpages \
-		--disable-podpages \
-		--disable-txtpages \
-		--enable-shared \
-		--disable-static \
-		--enable-avresample \
-		--enable-dxva2 \
-		--enable-fontconfig \
-		--enable-libass \
-		--enable-libbluray \
-		--enable-libfreetype \
-		--enable-libgsm \
-		--enable-libmodplug \
-		--enable-libmp3lame \
-		--enable-libopencore_amrnb \
-		--enable-libopencore_amrwb \
-		--enable-libopenjpeg \
-		--enable-libopus \
-		--enable-libpulse \
-		--enable-libschroedinger \
-		--enable-libspeex \
-		--enable-libtheora \
-		--enable-libv4l2 \
-		--enable-libvorbis \
-		--enable-libvpx \
-		--enable-libx264 \
-		--enable-libxvid \
-		--enable-postproc \
-		--enable-vdpau \
-		--enable-x11grab
-
-	$(MAKE)
-
-	mv -vf Makefile Makefile.ffmpeg
-
-	qmake -qt=5 Webcamoid.pro \
-		FFMPEGINCLUDES="$(CURDIR)/build/$(PACKAGEFOLDER)" \
-		FFMPEGINCLUDES+="$(CURDIR)" \
-		FFMPEGLIBS="-L$(CURDIR)/libswscale" \
-		FFMPEGLIBS+="-lswscale$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libswresample" \
-		FFMPEGLIBS+="-lswresample$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libavutil" \
-		FFMPEGLIBS+="-lavutil$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libavcodec" \
-		FFMPEGLIBS+="-lavcodec$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libpostproc" \
-		FFMPEGLIBS+="-lpostproc$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libavfilter" \
-		FFMPEGLIBS+="-lavfilter$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libavdevice" \
-		FFMPEGLIBS+="-lavdevice$(BUILDSUFFIX)" \
-		FFMPEGLIBS+="-L$(CURDIR)/libavformat" \
-		FFMPEGLIBS+="-lavformat$(BUILDSUFFIX)"
+	qmake -qt=5 Webcamoid.pro
 
 	$(MAKE)
 	# --- end custom part for compiling
@@ -119,10 +43,6 @@ install: build
 	# Add here commands to install the package
 	# The DESTDIR Has To Be Exactly  /usr/src/packages/BUILD/debian/<nameOfPackage>
 	$(MAKE) INSTALL_ROOT="$(CURDIR)/debian/webcamoid" install
-	mv -vf Makefile.ffmpeg Makefile
-	$(MAKE) install DESTDIR="$(CURDIR)/debian/webcamoid"
-	rm -Rvf $(CURDIR)/debian/webcamoid/usr/lib/pkgconfig
-	rm -Rvf $(CURDIR)/debian/webcamoid/usr/include/lib*
 	# --- end custom part for installing
 
 # Build architecture-independent files here.

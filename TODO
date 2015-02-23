@@ -1,5 +1,10 @@
+Ordered by priority:
+
 - Add support for scripted plugins.
-- Windows port.
-- Remove dependencies with OpenCV.
 - Support for creating virtual cameras.
+- Remove dependencies with OpenCV.
+- Remove dependencies with FFmpeg.
+- Windows port.
+- Customizable UI.
 - Add social sharing features.
+- Android port.

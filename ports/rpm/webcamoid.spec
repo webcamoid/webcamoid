@@ -124,7 +124,6 @@ Features:
     * +60 effects available.
     * Effects with live previews.
     * Translated to many languages.
-    * Provides a nice plasmoid for KDE desktop.
     * Use custom network and local files as capture devices.
     * Capture from desktop.
 
@@ -177,5 +176,5 @@ rm -rf %{buildroot}
 %{_libdir}/libWebcamoid.so*
 
 %changelog
-* Wed Aug 6 2014 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.0.0-1
+* Wed Feb 23 2015 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.0.0-1
 - Final Release.
