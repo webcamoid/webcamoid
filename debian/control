@@ -17,9 +17,9 @@ Build-Depends: debhelper (>= 8.0.0),
  libswresample-ffmpeg-dev,
  libswscale-ffmpeg-dev
 Standards-Version: 3.9.4
-Homepage: https://github.com/hipersayanX/Webcamoid
-#Vcs-Git: git://github.com/hipersayanX/Webcamoid.git
-#Vcs-Browser: https://github.com/hipersayanX/Webcamoid
+Homepage: https://github.com/hipersayanX/webcamoid
+#Vcs-Git: git://github.com/hipersayanX/webcamoid.git
+#Vcs-Browser: https://github.com/hipersayanX/webcamoid
 
 Package: webcamoid
 Architecture: any
