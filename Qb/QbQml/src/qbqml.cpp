@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2014  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,12 +85,12 @@ QObject *QbQml::newCaps(const QbCaps &caps) const
     return new QbCaps(caps);
 }
 
-QVariant QbQml::toVar(QbFrac *frac) const
+QVariant QbQml::varFrac(QbFrac *frac) const
 {
     return QVariant::fromValue(*frac);
 }
 
-QVariant QbQml::toVar(QbCaps *caps) const
+QVariant QbQml::varCaps(QbCaps *caps) const
 {
     return QVariant::fromValue(*caps);
 }

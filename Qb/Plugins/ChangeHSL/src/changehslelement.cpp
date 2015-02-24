@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2014  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
  *
  * Webcamod is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,7 +115,7 @@ QbPacket ChangeHSLElement::iStream(const QbPacket &packet)
         int st = h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7];
         int lt = h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11];
 
-        ht = qBound(0, ht, 255);
+        ht = qMax(0, ht);
         st = qBound(0, st, 255);
         lt = qBound(0, lt, 255);
 
