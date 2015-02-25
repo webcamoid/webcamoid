@@ -33,5 +33,5 @@ Exec=webcamoid
 Icon=camera-web
 Terminal=false
 Type=Application
-Categories=AudioVideo;Player;KDE;
+Categories=AudioVideo;Player;Qt;
 StartupNotify=true

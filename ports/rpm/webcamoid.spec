@@ -167,7 +167,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %{_bindir}/webcamoid
-%{_datadir}/applications/kde4/webcamoid.desktop
+%{_datadir}/applications/webcamoid.desktop
 %{_datadir}/webcamoid/
 %{_defaultdocdir}/webcamoid/
 %{_includedir}/Qb/

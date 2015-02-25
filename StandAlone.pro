@@ -114,7 +114,7 @@ unix:target.path = $${BINDIR}
 
 unix {
     desktop.files = $${COMMONS_TARGET}.desktop
-    desktop.path = $${DATAROOTDIR}/applications/kde4
+    desktop.path = $${DATAROOTDIR}/applications
 }
 !unix {
     dllDeps.files = \

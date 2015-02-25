@@ -52,7 +52,7 @@
             <Path fileType="library">/usr/lib/Qb</Path>
             <Path fileType="doc">/usr/share/doc/Qb</Path>
             <Path fileType="doc">/usr/share/doc/webcamoid</Path>
-            <Path fileType="data">/usr/share/applications/kde4</Path>
+            <Path fileType="data">/usr/share/applications</Path>
             <Path fileType="data">/usr/share/licenses/webcamoid</Path>
             <Path fileType="data">/usr/share/webcamoid</Path>
          </Files>
