@@ -14,9 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email     : hipersayan DOT x AT gmail DOT com
-# Web-Site 1: http://github.com/hipersayanX/Webcamoid
-# Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
+# Email   : hipersayan DOT x AT gmail DOT com
+# Web-Site: http://github.com/hipersayanX/webcamoid
 
 isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_APPNAME = "Qb"
@@ -25,8 +24,8 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     VER_MIN = 0
     VER_PAT = 0
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
-    COMMONS_PROJECT_URL = "http://github.com/hipersayanX/Webcamoid"
-    COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/hipersayanX/Webcamoid/master/COPYING"
+    COMMONS_PROJECT_URL = "http://github.com/hipersayanX/webcamoid"
+    COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/hipersayanX/webcamoid/master/COPYING"
     COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2015  Gonzalo Exequiel Pedone"
 
     isEmpty(BUILDDOCS): BUILDDOCS = 0

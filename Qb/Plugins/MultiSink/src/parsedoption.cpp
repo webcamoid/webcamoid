@@ -14,9 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
  *
- * Email     : hipersayan DOT x AT gmail DOT com
- * Web-Site 1: http://github.com/hipersayanX/Webcamoid
- * Web-Site 2: http://opendesktop.org/content/show.php/Webcamoid?content=144796
+ * Email   : hipersayan DOT x AT gmail DOT com
+ * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
 #include "parsedoption.h"

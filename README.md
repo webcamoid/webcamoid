@@ -17,11 +17,7 @@
 
 ## Build and Install ##
 
-Visit the [wiki](https://github.com/hipersayanX/Webcamoid/wiki) for a complete compile and install instructions.
-
-### Precompiled Packages ###
-
-You can download precompiled packages for Arch, Debian, OpenSUSE and Ubuntu from my [OwnDrive](https://my.owndrive.com/public.php?service=files&t=11c46708181f96b4ec052ae74b7b8bef)
+Visit the [wiki](https://github.com/hipersayanX/webcamoid/wiki) for a complete compile and install instructions.
 
 ## Translating ##
 
@@ -39,4 +35,4 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 4. Your GCC version.
 5. Any other useful information.
 
-Send this list to the [issues page](http://github.com/hipersayanX/Webcamoid/issues).
+Send this list to the [issues page](http://github.com/hipersayanX/webcamoid/issues).
