@@ -145,7 +145,7 @@ unix {
         $$[QT_INSTALL_BINS]/libbluray-*.dll \
         $$[QT_INSTALL_BINS]/libbz2-*.dll \
         $$[QT_INSTALL_BINS]/libgnutls-*.dll \
-        $$[QT_INSTALL_BINS]/libgsm.dll.1.* \
+        $$[QT_INSTALL_BINS]/libgsm.1.*.dll \
         $$[QT_INSTALL_BINS]/libiconv-*.dll \
         $$[QT_INSTALL_BINS]/libjpeg-*.dll \
         $$[QT_INSTALL_BINS]/libmodplug-*.dll \
@@ -163,7 +163,7 @@ unix {
         $$[QT_INSTALL_BINS]/libtiff-*.dll \
         $$[QT_INSTALL_BINS]/libvorbis-*.dll \
         $$[QT_INSTALL_BINS]/libvorbisenc-*.dll \
-        $$[QT_INSTALL_BINS]/libvpx.dll.1.3.0 \
+        $$[QT_INSTALL_BINS]/libvpx.1.3.0.dll \
         $$[QT_INSTALL_BINS]/libx264-*.dll \
         $$[QT_INSTALL_BINS]/libx265.dll \
         $$[QT_INSTALL_BINS]/xvidcore.dll \
