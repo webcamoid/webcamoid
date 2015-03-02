@@ -158,13 +158,13 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
     // Calculate integral image and cuadratic integral image.
     int videoArea = width * height;
 
-    quint8 planeR[videoArea];
-    quint8 planeG[videoArea];
-    quint8 planeB[videoArea];
+    quint8 *planeR = new quint8[videoArea];
+    quint8 *planeG = new quint8[videoArea];
+    quint8 *planeB = new quint8[videoArea];
 
-    quint32 integralR[videoArea];
-    quint32 integralG[videoArea];
-    quint32 integralB[videoArea];
+    quint32 *integralR = new quint32[videoArea];
+    quint32 *integralG = new quint32[videoArea];
+    quint32 *integralB = new quint32[videoArea];
 
     quint64 *integral2R = new quint64[videoArea];
     quint64 *integral2G = new quint64[videoArea];
@@ -384,6 +384,14 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
             destBits[pixel] = qRgba(r, g, b, a);
         }
     }
+
+    delete [] planeR;
+    delete [] planeG;
+    delete [] planeB;
+
+    delete [] integralR;
+    delete [] integralG;
+    delete [] integralB;
 
     delete [] integral2R;
     delete [] integral2G;
