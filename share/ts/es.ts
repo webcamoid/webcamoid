@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE TS>
 <TS version="2.0" language="es">
 <context>
@@ -317,67 +317,67 @@
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="28"/>
         <source>Warning, Caps Lock is ON!</source>
-        <translation type="unfinished"></translation>
+        <translation>Advertencia, Bloq Mayús está activada!</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="29"/>
         <source>Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Diseño</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="30"/>
         <source>Login</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicio de sesión</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="31"/>
         <source>Login failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicio de sesión fallido</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="32"/>
         <source>Login succeeded</source>
-        <translation type="unfinished"></translation>
+        <translation>Inicio de sesión exitoso</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="33"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Contraseña</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="34"/>
         <source>Enter your username and password</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingrese su nombre de usuario y contraseña</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="35"/>
         <source>Select your user and enter password</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecciona tu usuario y contraseña</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="36"/>
         <source>Reboot</source>
-        <translation type="unfinished"></translation>
+        <translation>Reiniciar</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="37"/>
         <source>Session</source>
-        <translation type="unfinished"></translation>
+        <translation>sesión</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="38"/>
         <source>Shutdown</source>
-        <translation type="unfinished"></translation>
+        <translation>Apagar</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="39"/>
         <source>User name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de usuario</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="40"/>
         <source>Welcome to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bienvenido a %1</translation>
     </message>
 </context>
 <context>
