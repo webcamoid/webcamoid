@@ -43,6 +43,7 @@ class EdgeElement: public QbElement
 
     public:
         explicit EdgeElement();
+        ~EdgeElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
@@ -54,6 +55,8 @@ class EdgeElement: public QbElement
         bool m_equalize;
         bool m_invert;
         QbElementPtr m_convert;
+        int m_tableLen;
+        int *m_sqrt;
 
     signals:
         void equalizeChanged();

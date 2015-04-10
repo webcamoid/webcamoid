@@ -25,8 +25,21 @@ EdgeElement::EdgeElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=gray");
 
+    this->m_tableLen = 2 * int(pow(4 * 255, 2)) + 1;
+    this->m_sqrt = new int[this->m_tableLen];
+
+    for (int i = 0; i < this->m_tableLen; i++) {
+        int value = sqrt(i);
+        this->m_sqrt[i] = qBound(0, value, 255);
+    }
+
     this->resetEqualize();
     this->resetInvert();
+}
+
+EdgeElement::~EdgeElement()
+{
+    delete [] this->m_sqrt;
 }
 
 QObject *EdgeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -98,11 +111,6 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
     QImage oFrame(src.size(), src.format());
 
     quint8 *srcBits = (quint8 *) src.bits();
-    quint8 *destBits = (quint8 *) oFrame.bits();
-
-    int widthMin = src.width() - 1;
-    int widthMax = src.width() + 1;
-    int heightMin = src.height() - 1;
 
     if (this->m_equalize) {
         int videoArea = src.width() * src.height();
@@ -127,42 +135,43 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
         }
     }
 
-    memset(oFrame.scanLine(0), 0, src.width());
-    memset(oFrame.scanLine(heightMin), 0, src.width());
-
     for (int y = 0; y < src.height(); y++) {
-        int xOffset = y * src.width();
+        quint8 *iLine = (quint8 *) src.scanLine(y);
 
-        destBits[xOffset] = 0;
-        destBits[xOffset + widthMin] = 0;
-    }
+        quint8 *iLine_m1 = (y < 1)?
+                               iLine:
+                               (quint8 *) src.scanLine(y - 1);
 
-    for (int y = 1; y < heightMin; y++) {
-        int xOffset = y * src.width();
+        quint8 *iLine_p1 = (y >= src.height())?
+                               iLine:
+                               (quint8 *) src.scanLine(y + 1);
 
-        for (int x = 1; x < widthMin; x++) {
-            int pixel = x + xOffset;
+        quint8 *oLine = (quint8 *) oFrame.scanLine(y);
 
-            int grayX =   srcBits[pixel - widthMax]
-                        + srcBits[pixel - 1]
-                        + srcBits[pixel + widthMin]
-                        - srcBits[pixel - widthMin]
-                        - srcBits[pixel + 1]
-                        - srcBits[pixel + widthMax];
+        for (int x = 0; x < src.width(); x++) {
+            int x_m = (x < 1)? x: x - 1;
+            int x_p = (x >= src.width())? x: x + 1;
 
-            int grayY =   srcBits[pixel - widthMax]
-                        + srcBits[pixel - src.width()]
-                        + srcBits[pixel - widthMin]
-                        - srcBits[pixel + widthMin]
-                        - srcBits[pixel + src.width()]
-                        - srcBits[pixel + widthMax];
+            int grayX = iLine_p1[x_m]
+                      + 2 * iLine_p1[x]
+                      + iLine_p1[x_p]
+                      - iLine_m1[x_m]
+                      - 2 * iLine_m1[x]
+                      - iLine_m1[x_p];
 
-            int gray = sqrt(grayX * grayX + grayY * grayY);
+            int grayY = iLine_m1[x_p]
+                      + 2 * iLine[x_p]
+                      + iLine_p1[x_p]
+                      - iLine_m1[x_m]
+                      - 2 * iLine[x_m]
+                      - iLine_p1[x_m];
+
+            int gray = this->m_sqrt[grayX * grayX + grayY * grayY];
 
             if (this->m_invert)
-                destBits[pixel] = 255 - qBound(0, gray, 255);
+                oLine[x] = 255 - gray;
             else
-                destBits[pixel] = qBound(0, gray, 255);
+                oLine[x] = gray;
         }
     }
 
