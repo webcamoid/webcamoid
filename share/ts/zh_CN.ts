@@ -16,7 +16,7 @@
     <message>
         <location filename="../qml/About.qml" line="71"/>
         <source>Version %1</source>
-        <translation>版本%1</translation>
+        <translation>版本 %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="76"/>
@@ -26,12 +26,12 @@
     <message>
         <location filename="../qml/About.qml" line="90"/>
         <source>Webcam capture application.</source>
-        <translation>摄像头捕捉软件</translation>
+        <translation>摄像头捕捉软件。</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="93"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>一个简单的抓图和录制视频的摄像头软件</translation>
+        <translation>一个简单的抓图和录制视频的摄像头软件。</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="82"/>
@@ -150,7 +150,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="125"/>
         <source>Search effect...</source>
-        <translation>搜索效果</translation>
+        <translation>搜索效果...</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="171"/>
