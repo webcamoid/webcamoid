@@ -430,7 +430,7 @@
     <message>
         <location filename="../qml/main.qml" line="370"/>
         <source>Save photo as...</source>
-        <translation type="unfinished"/>
+        <translation>保存照片为...</translation>
     </message>
 </context>
 </TS>
