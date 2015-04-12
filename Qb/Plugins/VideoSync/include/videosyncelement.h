@@ -47,22 +47,31 @@ class VideoSyncElement: public QbElement
 {
     Q_OBJECT
 
-    Q_PROPERTY(int maxQueueSize READ maxQueueSize
-                                WRITE setMaxQueueSize
-                                RESET resetMaxQueueSize)
+    Q_PROPERTY(int maxQueueSize
+               READ maxQueueSize
+               WRITE setMaxQueueSize
+               RESET resetMaxQueueSize
+               NOTIFY maxQueueSizeChanged)
+
+    Q_PROPERTY(bool showLog
+               READ showLog
+               WRITE setShowLog
+               RESET resetShowLog
+               NOTIFY showLogChanged)
 
     public:
         explicit VideoSyncElement();
         ~VideoSyncElement();
 
         Q_INVOKABLE int maxQueueSize() const;
+        Q_INVOKABLE bool showLog() const;
 
     protected:
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
     private:
         int m_maxQueueSize;
-        bool m_log;
+        bool m_showLog;
 
         Thread *m_outputThread;
         bool m_run;
@@ -82,12 +91,18 @@ class VideoSyncElement: public QbElement
     public slots:
         void setClock(double clock);
         void setMaxQueueSize(int maxQueueSize);
+        void setShowLog(bool showLog);
         void resetMaxQueueSize();
+        void resetShowLog();
         void processFrame();
         void init();
         void uninit();
 
         QbPacket iStream(const QbPacket &packet);
+
+    signals:
+        void maxQueueSizeChanged(int maxQueueSize);
+        void showLogChanged(bool showLog);
 };
 
 #endif // VIDEOSYNCELEMENT_H
