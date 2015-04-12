@@ -23,12 +23,12 @@
 
 VideoSyncElement::VideoSyncElement(): QbElement()
 {
-    this->m_log = true;
     this->m_run = false;
     this->m_outputThread = NULL;
     this->m_lastPts = 0;
 
-    this->resetMaxQueueSize();
+    this->m_maxQueueSize = 3;
+    this->m_showLog = false;
 }
 
 VideoSyncElement::~VideoSyncElement()
@@ -39,6 +39,11 @@ VideoSyncElement::~VideoSyncElement()
 int VideoSyncElement::maxQueueSize() const
 {
     return this->m_maxQueueSize;
+}
+
+bool VideoSyncElement::showLog() const
+{
+    return this->m_showLog;
 }
 
 void VideoSyncElement::stateChange(QbElement::ElementState from,
@@ -54,7 +59,7 @@ void VideoSyncElement::stateChange(QbElement::ElementState from,
 
 void VideoSyncElement::printLog(const QbPacket &packet, double diff)
 {
-    if (this->m_log) {
+    if (this->m_showLog) {
         QString logFmt("%1 %2 A-V: %3 q=%4");
 
         QString log = logFmt.arg(packet.caps().mimeType()[0])
@@ -74,12 +79,30 @@ void VideoSyncElement::setClock(double clock)
 
 void VideoSyncElement::setMaxQueueSize(int maxQueueSize)
 {
+    if (this->m_maxQueueSize == maxQueueSize)
+        return;
+
     this->m_maxQueueSize = maxQueueSize;
+    emit this->maxQueueSizeChanged(maxQueueSize);
+}
+
+void VideoSyncElement::setShowLog(bool showLog)
+{
+    if (this->m_showLog == showLog)
+        return;
+
+    this->m_showLog = showLog;
+    emit this->showLogChanged(showLog);
 }
 
 void VideoSyncElement::resetMaxQueueSize()
 {
     this->setMaxQueueSize(3);
+}
+
+void VideoSyncElement::resetShowLog()
+{
+    this->setShowLog(false);
 }
 
 QbPacket VideoSyncElement::iStream(const QbPacket &packet)
