@@ -212,7 +212,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="58"/>
         <source>Mic</source>
-        <translation type="unfinished"/>
+        <translation>Micro</translation>
     </message>
 </context>
 <context>
@@ -220,32 +220,32 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="54"/>
         <source>Description</source>
-        <translation type="unfinished"/>
+        <translation>Descripció</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="61"/>
         <source>Insert media description</source>
-        <translation type="unfinished"/>
+        <translation>Inseriu descripció del mitjà</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media file</source>
-        <translation type="unfinished"/>
+        <translation>Arxiu de mitjans</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
         <source>Select media file</source>
-        <translation type="unfinished"/>
+        <translation>Seleccioneu arxiu de mitjans</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="90"/>
         <source>Edit</source>
-        <translation type="unfinished"/>
+        <translation>Edita</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="99"/>
         <source>Remove</source>
-        <translation type="unfinished"/>
+        <translation>Esborra</translation>
     </message>
 </context>
 <context>
@@ -253,63 +253,63 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="72"/>
         <source>Video %1.%2</source>
-        <translation type="unfinished"/>
+        <translation>Vídeo %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="82"/>
         <source>Stop recording video</source>
-        <translation type="unfinished"/>
+        <translation>Atura la gravació de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="86"/>
         <location filename="../qml/RecordConfig.qml" line="164"/>
         <source>Start recording video</source>
-        <translation type="unfinished"/>
+        <translation>Inícia la gravació de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="93"/>
         <source>Description</source>
-        <translation type="unfinished"/>
+        <translation>Descripció</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="100"/>
         <source>Insert format description</source>
-        <translation type="unfinished"/>
+        <translation>Inseriu la descripció del format</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="106"/>
         <source>Suffix</source>
-        <translation type="unfinished"/>
+        <translation>Sufix</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="113"/>
         <source>Supported file suffix</source>
-        <translation type="unfinished"/>
+        <translation>Sufixos de fitxer admesos</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="119"/>
         <source>Parameters</source>
-        <translation type="unfinished"/>
+        <translation>Paràmetres</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="126"/>
         <source>Encoding parameters</source>
-        <translation type="unfinished"/>
+        <translation>Paràmetres de codificació</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="141"/>
         <source>Edit</source>
-        <translation type="unfinished"/>
+        <translation>Edita</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="150"/>
         <source>Remove</source>
-        <translation type="unfinished"/>
+        <translation>Esborra</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="228"/>
         <source>Save video as...</source>
-        <translation type="unfinished"/>
+        <translation>Desa el vídeo com...</translation>
     </message>
 </context>
 <context>
@@ -317,67 +317,67 @@
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="28"/>
         <source>Warning, Caps Lock is ON!</source>
-        <translation type="unfinished"/>
+        <translation>Avís, bloqueig de majúscules actiu!</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="29"/>
         <source>Layout</source>
-        <translation type="unfinished"/>
+        <translation>Disseny</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="30"/>
         <source>Login</source>
-        <translation type="unfinished"/>
+        <translation>Inici de sessió</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="31"/>
         <source>Login failed</source>
-        <translation type="unfinished"/>
+        <translation>Inici de sessió erroni</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="32"/>
         <source>Login succeeded</source>
-        <translation type="unfinished"/>
+        <translation>Connexió amb éxit</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="33"/>
         <source>Password</source>
-        <translation type="unfinished"/>
+        <translation>Contrasenya</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="34"/>
         <source>Enter your username and password</source>
-        <translation type="unfinished"/>
+        <translation>Indiqueu el vostre nom d'usuari i la seva paraula de pas</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="35"/>
         <source>Select your user and enter password</source>
-        <translation type="unfinished"/>
+        <translation>Trieu el vostre usuari i introduiu una paraula de pas</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="36"/>
         <source>Reboot</source>
-        <translation type="unfinished"/>
+        <translation>Reiniciar</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="37"/>
         <source>Session</source>
-        <translation type="unfinished"/>
+        <translation>Sessió</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="38"/>
         <source>Shutdown</source>
-        <translation type="unfinished"/>
+        <translation>Tancament</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="39"/>
         <source>User name</source>
-        <translation type="unfinished"/>
+        <translation>Nom d'usuari</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="40"/>
         <source>Welcome to %1</source>
-        <translation type="unfinished"/>
+        <translation>Benvingut a %1</translation>
     </message>
 </context>
 <context>
@@ -385,52 +385,52 @@
     <message>
         <location filename="../qml/main.qml" line="106"/>
         <source>Recording</source>
-        <translation type="unfinished"/>
+        <translation>Enregistrament</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="328"/>
         <source>Play</source>
-        <translation type="unfinished"/>
+        <translation>Reprodueix</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="341"/>
         <source>Configure streams</source>
-        <translation type="unfinished"/>
+        <translation>Configuració de fluxes</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="354"/>
         <source>Take a photo</source>
-        <translation type="unfinished"/>
+        <translation>Fes una fotografia</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="361"/>
         <source>Picture %1.%2</source>
-        <translation type="unfinished"/>
+        <translation>Imatge %1. %2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="383"/>
         <source>Record video</source>
-        <translation type="unfinished"/>
+        <translation>Enregistra un vídeo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="397"/>
         <source>Configure Effects</source>
-        <translation type="unfinished"/>
+        <translation>Configureu Efectes</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="410"/>
         <source>Preferences</source>
-        <translation type="unfinished"/>
+        <translation>Preferències</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="423"/>
         <source>About</source>
-        <translation type="unfinished"/>
+        <translation>Quant a</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="370"/>
         <source>Save photo as...</source>
-        <translation type="unfinished"/>
+        <translation>Desa la foto com...</translation>
     </message>
 </context>
 </TS>
