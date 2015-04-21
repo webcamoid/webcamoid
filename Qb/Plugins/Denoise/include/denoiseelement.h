@@ -53,6 +53,7 @@ class DenoiseElement: public QbElement
 
     public:
         explicit DenoiseElement();
+        ~DenoiseElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
@@ -67,7 +68,7 @@ class DenoiseElement: public QbElement
         int m_factor;
         int m_mu;
         int m_sigma;
-        int m_weight[256][128][256];
+        int *m_weight;
 
         QbElementPtr m_convert;
 
@@ -79,7 +80,7 @@ class DenoiseElement: public QbElement
                 for (int m = 0; m < 256; m++)
                     for (int c = 0; c < 256; c++) {
                         if (s == 0) {
-                            this->m_weight[m][s][c] = 0;
+                            this->m_weight[(m << 16) | (s << 8) | c] = 0;
 
                             continue;
                         }
@@ -87,7 +88,7 @@ class DenoiseElement: public QbElement
                         int d = c - m;
                         d *= d;
 
-                        this->m_weight[m][s][c] = factor * exp(qreal(d) / h);
+                        this->m_weight[(m << 16) | (s << 8) | c] = factor * exp(qreal(d) / h);
                     }
             }
         }

@@ -30,7 +30,13 @@ DenoiseElement::DenoiseElement(): QbElement()
     this->m_mu = 0;
     this->m_sigma = 0;
 
+    this->m_weight = new int[1 << 24];
     this->makeTable(this->m_factor);
+}
+
+DenoiseElement::~DenoiseElement()
+{
+    delete [] this->m_weight;
 }
 
 QObject *DenoiseElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -350,17 +356,17 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
             for (int j = yMin, k = 0; j <= yMax; j++, pos += diffPos)
                 for (int i = xMin; i <= xMax; i++, pos++, k++) {
                     int rr = planeR[pos];
-                    int wr = this->m_weight[mr][sr][rr];
+                    int wr = this->m_weight[(mr << 16) | (sr << 8) | rr];
                     r += wr * rr;
                     twr += wr;
 
                     int gg = planeG[pos];
-                    int wg = this->m_weight[mg][sg][gg];
+                    int wg = this->m_weight[(mg << 16) | (sg << 8) | gg];
                     g += wg * gg;
                     twg += wg;
 
                     int bb = planeB[pos];
-                    int wb = this->m_weight[mb][sb][bb];
+                    int wb = this->m_weight[(mb << 16) | (sb << 8) | bb];
                     b += wb * bb;
                     twb += wb;
                 }
