@@ -225,7 +225,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="61"/>
         <source>Insert media description</source>
-        <translation>插件媒体描述</translation>
+        <translation>插入媒体描述</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
