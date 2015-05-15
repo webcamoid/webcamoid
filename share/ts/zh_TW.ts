@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="29"/>
         <source>Add new media</source>
-        <translation>增加新媒體</translation>
+        <translation>新增新媒體</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="48"/>
@@ -31,7 +31,7 @@
     <message>
         <location filename="../qml/About.qml" line="93"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>一個簡單的網路攝影機應用程式，抓取圖片和視頻。</translation>
+        <translation>一個簡單的網路攝影機應用程式，抓取圖片與視訊。</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="82"/>
@@ -54,7 +54,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="30"/>
         <source>Add new media</source>
-        <translation>增加新媒體</translation>
+        <translation>新增新媒體</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="67"/>
@@ -102,7 +102,7 @@
     <message>
         <location filename="../qml/AddRecordingFormat.qml" line="30"/>
         <source>Add new recording format</source>
-        <translation>增加新的錄製格式</translation>
+        <translation>新增新的錄製格式</translation>
     </message>
     <message>
         <location filename="../qml/AddRecordingFormat.qml" line="61"/>
@@ -137,12 +137,12 @@
     <message>
         <location filename="../qml/AddRecordingFormat.qml" line="109"/>
         <source>Ok</source>
-        <translation type="unfinished"/>
+        <translation>確定</translation>
     </message>
     <message>
         <location filename="../qml/AddRecordingFormat.qml" line="128"/>
         <source>Cancel</source>
-        <translation type="unfinished"/>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
@@ -150,12 +150,12 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="125"/>
         <source>Search effect...</source>
-        <translation type="unfinished"/>
+        <translation>搜尋效果…</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="171"/>
         <source>None</source>
-        <translation type="unfinished"/>
+        <translation>無</translation>
     </message>
 </context>
 <context>
@@ -164,27 +164,27 @@
         <location filename="../qml/EffectConfig.qml" line="42"/>
         <location filename="../qml/EffectConfig.qml" line="49"/>
         <source>Plugin id</source>
-        <translation type="unfinished"/>
+        <translation>外掛程式 ID</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="55"/>
         <source>Description</source>
-        <translation type="unfinished"/>
+        <translation>說明</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="62"/>
         <source>Plugin description</source>
-        <translation type="unfinished"/>
+        <translation>外掛程式說明</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="77"/>
         <source>Remove</source>
-        <translation type="unfinished"/>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="77"/>
         <source>Add</source>
-        <translation type="unfinished"/>
+        <translation>新增</translation>
     </message>
 </context>
 <context>
@@ -220,7 +220,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="54"/>
         <source>Description</source>
-        <translation type="unfinished"/>
+        <translation>說明</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="61"/>
