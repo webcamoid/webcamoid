@@ -33,6 +33,7 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 2. Your distribution name and version (numeric, please).
 3. Your Qt version.
 4. Your GCC version.
-5. Any other useful information.
+5. Your DE/WM version.
+6. Any other useful information.
 
-Send this list to the [issues page](http://github.com/hipersayanX/webcamoid/issues).
+Send this list to the [issues page](http://github.com/hipersayanX/webcamoid/issues). Please report **ANY** problem you have with Webcamod in the official website, help to centralize information in one unique place.

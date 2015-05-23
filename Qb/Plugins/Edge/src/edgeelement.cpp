@@ -142,7 +142,7 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
                                iLine:
                                (quint8 *) src.scanLine(y - 1);
 
-        quint8 *iLine_p1 = (y >= src.height())?
+        quint8 *iLine_p1 = (y >= src.height() - 1)?
                                iLine:
                                (quint8 *) src.scanLine(y + 1);
 
@@ -150,7 +150,7 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
 
         for (int x = 0; x < src.width(); x++) {
             int x_m = (x < 1)? x: x - 1;
-            int x_p = (x >= src.width())? x: x + 1;
+            int x_p = (x >= src.width() - 1)? x: x + 1;
 
             int grayX = iLine_p1[x_m]
                       + 2 * iLine_p1[x]
