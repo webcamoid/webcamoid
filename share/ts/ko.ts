@@ -317,7 +317,7 @@
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="28"/>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>경고, Caps Lock이 켜져있습니다.</translation>
+        <translation>경고, Caps Lock이 켜져있음!</translation>
     </message>
     <message>
         <location filename="../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="29"/>
