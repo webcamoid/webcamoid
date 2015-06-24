@@ -36,4 +36,4 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 5. Your DE/WM version.
 6. Any other useful information.
 
-Send this list to the [issues page](http://github.com/hipersayanX/webcamoid/issues). Please report **ANY** problem you have with Webcamod in the official website, help to centralize information in one unique place.
+Send this list to the [issues page](http://github.com/hipersayanX/webcamoid/issues). Please report **ANY** problem you have with Webcamoid in the official website, help to centralize information in one unique place.

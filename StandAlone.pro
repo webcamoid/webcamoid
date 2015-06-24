@@ -1,18 +1,18 @@
 # Webcamoid, webcam capture application.
 # Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
 #
-# Webcamod is free software: you can redistribute it and/or modify
+# Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Webcamod is distributed in the hope that it will be useful,
+# Webcamoid is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 #
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
@@ -167,11 +167,6 @@ unix {
         $$[QT_INSTALL_BINS]/libx264-*.dll \
         $$[QT_INSTALL_BINS]/libx265.dll \
         $$[QT_INSTALL_BINS]/xvidcore.dll \
-        \ # OpenCV
-        $$[QT_INSTALL_BINS]/libopencv_core*.dll \
-        $$[QT_INSTALL_BINS]/libopencv_highgui*.dll \
-        $$[QT_INSTALL_BINS]/libopencv_imgproc*.dll \
-        $$[QT_INSTALL_BINS]/libopencv_objdetect*.dll \
         \ # System
         $$[QT_INSTALL_BINS]/libeay32.dll \
         $$[QT_INSTALL_BINS]/libEGL.dll \

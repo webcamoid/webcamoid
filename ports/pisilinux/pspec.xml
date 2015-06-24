@@ -29,11 +29,10 @@
                 * Use custom network and local files as capture devices.
                 * Capture from desktop.
         </Description>
-        <Archive sha1sum="9ba2387d993aed43338a9b45dd80957de267ce0b" type="targz">https://github.com/hipersayanX/webcamoid/archive/6.0.0.tar.gz</Archive>
+        <Archive sha1sum="9ba2387d993aed43338a9b45dd80957de267ce0b" type="targz">https://github.com/hipersayanX/webcamoid/archive/6.1.0.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>qt5-devel</Dependency>
             <Dependency>ffmpeg-devel</Dependency>
-            <Dependency>opencv-devel</Dependency>
             <Dependency>libv4l-devel</Dependency>
         </BuildDependencies>
     </Source>
@@ -43,7 +42,6 @@
         <RuntimeDependencies>
             <Dependency>qt5</Dependency>
             <Dependency>ffmpeg</Dependency>
-            <Dependency>opencv</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
@@ -61,7 +59,7 @@
     <History>
         <Update release="1">
             <Date>2014-16-08</Date>
-            <Version>6.0.0</Version>
+            <Version>6.1.0</Version>
             <Comment>Initial release for Pisi Linux</Comment>
             <Name>Gonzalo Exequiel Pedone</Name>
             <Email>hipersayan.x@gmail.com</Email>

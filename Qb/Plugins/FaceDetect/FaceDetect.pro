@@ -1,18 +1,18 @@
 # Webcamoid, webcam capture application.
 # Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
 #
-# Webcamod is free software: you can redistribute it and/or modify
+# Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Webcamod is distributed in the hope that it will be useful,
+# Webcamoid is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 #
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
@@ -31,7 +31,12 @@ CONFIG += plugin
 
 HEADERS += \
     include/facedetect.h \
-    include/facedetectelement.h
+    include/facedetectelement.h \
+    include/haar/haarcascade.h \
+    include/haar/haardetector.h \
+    include/haar/haarfeature.h \
+    include/haar/haarstage.h \
+    include/haar/haartree.h
 
 INCLUDEPATH += \
     include \
@@ -40,19 +45,21 @@ INCLUDEPATH += \
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
-!isEmpty(OPENCVINCLUDES): INCLUDEPATH += $${OPENCVINCLUDES}
-!isEmpty(OPENCVLIBS): LIBS += $${OPENCVLIBS}
-
 OTHER_FILES += pspec.json
 
-QT += qml widgets multimedia
+QT += qml widgets multimedia concurrent
 
 RESOURCES += \
     FaceDetect.qrc
 
 SOURCES += \
     src/facedetect.cpp \
-    src/facedetectelement.cpp
+    src/facedetectelement.cpp \
+    src/haar/haarcascade.cpp \
+    src/haar/haardetector.cpp \
+    src/haar/haarfeature.cpp \
+    src/haar/haarstage.cpp \
+    src/haar/haartree.cpp
 
 lupdate_only {
     SOURCES = share/qml/*.qml
@@ -61,13 +68,6 @@ lupdate_only {
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-isEmpty(OPENCVLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        opencv
-}
 
 INSTALLS += target
 

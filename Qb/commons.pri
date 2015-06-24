@@ -1,18 +1,18 @@
 # Webcamoid, webcam capture application.
 # Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
 #
-# Webcamod is free software: you can redistribute it and/or modify
+# Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Webcamod is distributed in the hope that it will be useful,
+# Webcamoid is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 #
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
@@ -21,7 +21,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_APPNAME = "Qb"
     COMMONS_TARGET = $${COMMONS_APPNAME}
     VER_MAJ = 6
-    VER_MIN = 0
+    VER_MIN = 1
     VER_PAT = 0
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
     COMMONS_PROJECT_URL = "http://github.com/hipersayanX/webcamoid"

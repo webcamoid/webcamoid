@@ -1,4 +1,10 @@
-Webcamoif 6.0.0:
+Webcamoif 6.1.0:
+
+- Removed OpenCv as dependency (yes, again).
+- Fixed Denoise plugin SEGFAULT.
+- Translations updated.
+
+Webcamoid 6.0.0:
 
 - New Qml UI, more user friendly.
 - Now, the effects can be customized.
@@ -6,7 +12,7 @@ Webcamoif 6.0.0:
 
 Webcamoid 5.1.0:
 
-- From now on, Webcamod will be developed using Qt5.
+- From now on, Webcamoid will be developed using Qt5.
 - Removed Frei0r from dependencies.
 - Added OpenCV as dependency (Face detection).
 - Removed plasmoid build since Qt5 plugins aren't compatible with Qt4/KDE4.

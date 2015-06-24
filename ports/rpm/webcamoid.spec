@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 6.0.0
+Version: 6.1.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -28,12 +28,10 @@ BuildRequires: fdupes
 BuildRequires: gcc-c++
 BuildRequires: qt5-qtmultimedia-devel
 BuildRequires: qt5-qttools-devel
-BuildRequires: opencv-devel
 BuildRequires: ffmpeg-devel
 BuildRequires: libv4l-devel
 
 Requires: qt5-qtmultimedia
-Requires: opencv
 Requires: ffmpeg-libs
 Requires: libv4l
 %endif
@@ -42,12 +40,10 @@ Requires: libv4l
 BuildRequires: fdupes
 BuildRequires: libQt5Multimedia-devel
 BuildRequires: libqt5-qttools
-BuildRequires: opencv-devel
 BuildRequires: libffmpeg-devel
 BuildRequires: libv4l-devel
 
 Requires: libQt5Multimedia5
-Requires: opencv
 Requires: libavcodec55
 Requires: libavdevice55
 Requires: libavfilter3
@@ -64,7 +60,6 @@ Requires: libv4lconvert0
 %if %{defined mgaversion}
 BuildRequires: fdupes
 BuildRequires: qttools5
-BuildRequires: opencv-devel
 BuildRequires: libv4l-devel
 
 %ifarch i586
@@ -81,7 +76,6 @@ BuildRequires: lib64qt5xml-devel
 BuildRequires: lib64ffmpeg-devel
 %endif
 
-Requires: opencv-samples
 Requires: libv4l0
 
 %ifarch i586
@@ -176,5 +170,5 @@ rm -rf %{buildroot}
 %{_libdir}/libWebcamoid.so*
 
 %changelog
-* Wed Feb 23 2015 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.0.0-1
+* Wed Feb 23 2015 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.1.0-1
 - Final Release.

@@ -1,18 +1,18 @@
 /* Webcamoid, webcam capture application.
  * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
  *
- * Webcamod is free software: you can redistribute it and/or modify
+ * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Webcamod is distributed in the hope that it will be useful,
+ * Webcamoid is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Webcamod. If not, see <http://www.gnu.org/licenses/>.
+ * along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
  *
  * Email   : hipersayan DOT x AT gmail DOT com
  * Web-Site: http://github.com/hipersayanX/webcamoid
@@ -127,10 +127,7 @@ QSize FaceDetectElement::scanSize() const
 void FaceDetectElement::setHaarFile(const QString &haarFile)
 {
     if (haarFile != this->m_haarFile) {
-        QString destPath = QDir::tempPath() + QDir::separator() + QFileInfo(haarFile).fileName();
-        QFile::copy(haarFile, destPath);
-
-        if (this->m_cascadeClassifier.load(destPath.toStdString())) {
+        if (this->m_cascadeClassifier.loadCascade(haarFile)) {
             this->m_haarFile = haarFile;
             emit this->haarFileChanged();
         }
@@ -292,29 +289,20 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
     else
         scale = (qreal) src.height() / scanSize.height();
 
-    cv::Mat matFrame(scanFrame.height(),
-                     scanFrame.width(),
-                     CV_8UC3,
-                     (uchar *) scanFrame.bits(),
-                     scanFrame.bytesPerLine());
+    this->m_cascadeClassifier.setEqualize(true);
+    QVector<QRect> vecFaces = this->m_cascadeClassifier.detect(scanFrame);
 
-    std::vector<cv::Rect> vecFaces;
-
-    cv::cvtColor(matFrame, matFrame, CV_BGR2GRAY);
-    cv::equalizeHist(matFrame, matFrame);
-    this->m_cascadeClassifier.detectMultiScale(matFrame, vecFaces);
-
-    if (vecFaces.size() < 1)
+    if (vecFaces.isEmpty())
         qbSend(packet)
 
     QPainter painter;
     painter.begin(&oFrame);
 
-    for (std::vector<cv::Rect>::const_iterator face = vecFaces.begin();
-         face != vecFaces.end();
-         face++) {
-        QRect rect(face->x * scale, face->y * scale,
-                   face->width * scale, face->height * scale);
+    foreach (QRect face, vecFaces) {
+        QRect rect(scale * face.x(),
+                   scale * face.y(),
+                   scale * face.width(),
+                   scale * face.height());
 
         if (this->m_markerType == MarkerTypeRectangle) {
             painter.setPen(this->m_markerPen);
