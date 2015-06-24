@@ -1,7 +1,7 @@
 #!/bin/bash
 
 p7zVersion=920
-ffmpegVersion=2.2.3
+ffmpegVersion=2.7
 FGET='wget -c --retry-connrefused --no-check-certificate'
 
 function get7Z()
@@ -12,7 +12,7 @@ function get7Z()
 
     if [ ! -f "${packageName}.exe" ]
     then
-        ${FGET} http://downloads.sourceforge.net/sevenzip/${packageFile}
+        ${FGET} http://www.7-zip.org/a/${packageFile}
         unzip -u ${packageFile}
     fi
 }
@@ -41,7 +41,15 @@ function buildWebcamoid()
 
     /qttools/qmake Webcamoid.pro \
         FFMPEGINCLUDES="${PWD}/build/win32/include" \
-        FFMPEGLIBS="-L${PWD}/build/win32/lib"
+        FFMPEGLIBS="-L${PWD}/build/win32/lib" \
+        FFMPEGLIBS+=-lavdevice \
+        FFMPEGLIBS+=-lavfilter \
+        FFMPEGLIBS+=-lavformat \
+        FFMPEGLIBS+=-lavcodec \
+        FFMPEGLIBS+=-lpostproc \
+        FFMPEGLIBS+=-lswresample \
+        FFMPEGLIBS+=-lswscale \
+        FFMPEGLIBS+=-lavutil
 
     mingw32-make
 }

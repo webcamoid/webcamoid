@@ -127,7 +127,7 @@ QString VideoCaptureElement::description(const QString &media) const
 
 QbCaps VideoCaptureElement::caps(int stream) const
 {
-    if (stream != stream)
+    if (stream != 0)
         return QbCaps();
 
     return this->m_capture.caps();

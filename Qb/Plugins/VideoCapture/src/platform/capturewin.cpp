@@ -68,7 +68,11 @@ Capture::Capture(): QObject()
 //    this->m_guidToStr[MEDIASUBTYPE_IMC4] = "";
     this->m_guidToStr[MEDIASUBTYPE_YV12] = "yuv420p";
     this->m_guidToStr[MEDIASUBTYPE_NV12] = "nv12";
+
+#ifdef MEDIASUBTYPE_I420
     this->m_guidToStr[MEDIASUBTYPE_I420] = "yuv420p";
+#endif
+
 //    this->m_guidToStr[MEDIASUBTYPE_IF09] = "";
     this->m_guidToStr[MEDIASUBTYPE_IYUV] = "yuv420p";
 //    this->m_guidToStr[MEDIASUBTYPE_Y211] = "";

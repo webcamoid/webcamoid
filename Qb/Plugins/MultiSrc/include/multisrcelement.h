@@ -52,6 +52,9 @@ class MultiSrcElement: public QbMultimediaSourceElement
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
 
+        using QbMultimediaSourceElement::defaultStream;
+        using QbMultimediaSourceElement::caps;
+
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE QbCaps caps(int stream);
