@@ -1,6 +1,6 @@
 Webcamoid 6.1.0:
 
-- Removed OpenCv as dependency (yes, again).
+- Removed OpenCV as dependency (yes, again).
 - Fixed Denoise plugin SEGFAULT.
 - Translations updated.
 

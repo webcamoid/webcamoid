@@ -20,6 +20,7 @@
 
 #include <QRegExp>
 #include <QStringList>
+#include <QDataStream>
 
 #include "qbfrac.h"
 

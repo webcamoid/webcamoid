@@ -25,6 +25,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QDataStream>
 
 #include "qb.h"
 
