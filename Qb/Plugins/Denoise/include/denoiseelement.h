@@ -27,6 +27,8 @@
 #include <qb.h>
 #include <qbutils.h>
 
+#include "params.h"
+
 class DenoiseElement: public QbElement
 {
     Q_OBJECT
@@ -92,6 +94,14 @@ class DenoiseElement: public QbElement
                     }
             }
         }
+
+        void integralImage(const QImage &image,
+                           int oWidth, int oHeight,
+                           PixelU8 *planes,
+                           PixelU32 *integral,
+                           PixelU64 *integral2);
+        static void denoise(const DenoiseStaticParams &staticParams,
+                            const DenoiseParams *params);
 
     signals:
         void radiusChanged();

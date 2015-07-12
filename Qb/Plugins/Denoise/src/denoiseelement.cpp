@@ -18,6 +18,8 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QtConcurrent>
+
 #include "denoiseelement.h"
 
 DenoiseElement::DenoiseElement(): QbElement()
@@ -79,6 +81,98 @@ int DenoiseElement::mu() const
 int DenoiseElement::sigma() const
 {
     return this->m_sigma;
+}
+
+void DenoiseElement::integralImage(const QImage &image,
+                                   int oWidth, int oHeight,
+                                   PixelU8 *planes,
+                                   PixelU32 *integral,
+                                   PixelU64 *integral2)
+{
+    for (int y = 1; y < oHeight; y++) {
+        const QRgb *line = (const QRgb *) image.constScanLine(y - 1);
+        PixelU8 *planesLine = planes
+                              + (y - 1) * image.width();
+
+        // Reset current line summation.
+        PixelU32 sum;
+        PixelU64 sum2;
+
+        for (int x = 1; x < oWidth; x++) {
+            QRgb pixel = line[x - 1];
+
+            // Accumulate pixels in current line.
+            sum += pixel;
+            sum2 += pow2(pixel);
+
+            // Offset to the current line.
+            int offset = x + y * oWidth;
+
+            // Offset to the previous line.
+            // equivalent to x + (y - 1) * oWidth;
+            int offsetPrevious = offset - oWidth;
+
+            planesLine[x - 1] = pixel;
+
+            // Accumulate current line and previous line.
+            integral[offset] = sum + integral[offsetPrevious];
+            integral2[offset] = sum2 + integral2[offsetPrevious];
+        }
+    }
+}
+
+void DenoiseElement::denoise(const DenoiseStaticParams &staticParams,
+                             const DenoiseParams *params)
+{
+    PixelU32 sum = integralSum(staticParams.integral, staticParams.oWidth,
+                               params->xp, params->yp, params->kw, params->kh);
+    PixelU64 sum2 = integralSum(staticParams.integral2, staticParams.oWidth,
+                                params->xp, params->yp, params->kw, params->kh);
+    quint32 ks = params->kw * params->kh;
+
+    PixelU32 mean = sum / ks;
+    PixelU32 dev = sqrt(ks * sum2 - pow2(sum)) / ks;
+
+    mean = bound(0u, mean + staticParams.mu, 255u);
+    dev = bound(0u, mean + staticParams.sigma, 127u);
+
+    PixelU32 mdMask = (mean << 16) | (dev << 8);
+
+    PixelI32 pixel;
+    PixelI32 sumW;
+
+    for (int j = 0; j < params->kh; j++) {
+        const PixelU8 *line = staticParams.planes
+                              + (params->yp + j) * staticParams.width;
+
+        for (int i = 0; i < params->kw; i++) {
+            PixelU8 pix = line[params->xp + i];
+            PixelU32 mask = mdMask | pix;
+            PixelI32 weight(staticParams.weights[mask.r],
+                            staticParams.weights[mask.g],
+                            staticParams.weights[mask.b]);
+            pixel += weight * pix;
+            sumW += weight;
+        }
+    }
+
+    if (sumW.r < 1)
+        pixel.r = params->iPixel.r;
+    else
+        pixel.r /= sumW.r;
+
+    if (sumW.g < 1)
+        pixel.g = params->iPixel.g;
+    else
+        pixel.g /= sumW.g;
+
+    if (sumW.b < 1)
+        pixel.b = params->iPixel.b;
+    else
+        pixel.b /= sumW.b;
+
+    *params->oPixel = qRgba(pixel.r, pixel.g, pixel.b, params->alpha);
+    delete params;
 }
 
 void DenoiseElement::setRadius(int radius)
@@ -155,253 +249,60 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    const QRgb *srcBits = (const QRgb *) src.constBits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    int oWidth = src.width() + 1;
+    int oHeight = src.height() + 1;
+    PixelU8 *planes = new PixelU8[oWidth * oHeight];
+    PixelU32 *integral = new PixelU32[oWidth * oHeight];
+    PixelU64 *integral2 = new PixelU64[oWidth * oHeight];
+    this->integralImage(src,
+                        oWidth, oHeight,
+                        planes, integral, integral2);
 
-    int width = src.width();
-    int height = src.height();
+    DenoiseStaticParams staticParams;
+    staticParams.planes = planes;
+    staticParams.integral = integral;
+    staticParams.integral2 = integral2;
+    staticParams.width = src.width();
+    staticParams.oWidth = oWidth;
+    staticParams.weights = this->m_weight;
+    staticParams.mu = this->m_mu;
+    staticParams.sigma = this->m_sigma;
 
-    // Calculate integral image and cuadratic integral image.
-    int videoArea = width * height;
+    QThreadPool threadPool;
+    QElapsedTimer timer;
+    timer.start();
 
-    quint8 *planeR = new quint8[videoArea];
-    quint8 *planeG = new quint8[videoArea];
-    quint8 *planeB = new quint8[videoArea];
+    for (int y = 0, pos = 0; y < src.height(); y++) {
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        int yp = qMax(y - radius, 0);
+        int kh = qMin(y + radius, src.height() - 1) - yp + 1;
 
-    quint32 *integralR = new quint32[videoArea];
-    quint32 *integralG = new quint32[videoArea];
-    quint32 *integralB = new quint32[videoArea];
+        for (int x = 0; x < src.width(); x++, pos++) {
+            int xp = qMax(x - radius, 0);
+            int kw = qMin(x + radius, src.width() - 1) - xp + 1;
 
-    quint64 *integral2R = new quint64[videoArea];
-    quint64 *integral2G = new quint64[videoArea];
-    quint64 *integral2B = new quint64[videoArea];
+            DenoiseParams *params = new DenoiseParams();
+            params->xp = xp;
+            params->yp = yp;
+            params->kw = kw;
+            params->kh = kh;
+            params->iPixel = planes[pos];
+            params->oPixel = oLine + x;
+            params->alpha = qAlpha(iLine[x]);
 
-    quint32 sumR = 0;
-    quint32 sumG = 0;
-    quint32 sumB = 0;
-
-    quint64 sum2R = 0;
-    quint64 sum2G = 0;
-    quint64 sum2B = 0;
-
-    for (int i = 0; i < width; i++) {
-        planeR[i] = qRed(srcBits[i]);
-        planeG[i] = qGreen(srcBits[i]);
-        planeB[i] = qBlue(srcBits[i]);
-
-        sumR += planeR[i];
-        sumG += planeG[i];
-        sumB += planeB[i];
-
-        sum2R += planeR[i] * planeR[i];
-        sum2G += planeG[i] * planeG[i];
-        sum2B += planeB[i] * planeB[i];
-
-        integralR[i] = sumR;
-        integralG[i] = sumG;
-        integralB[i] = sumB;
-
-        integral2R[i] = sum2R;
-        integral2G[i] = sum2G;
-        integral2B[i] = sum2B;
-    }
-
-    quint32 posPrev = 0;
-    quint32 pos = width;
-
-    for (int j = 1; j < height; j++) {
-        sumR = 0;
-        sumG = 0;
-        sumB = 0;
-
-        sum2R = 0;
-        sum2G = 0;
-        sum2B = 0;
-
-        for (int i = 0; i < width; i++, posPrev++, pos++) {
-            planeR[pos] = qRed(srcBits[pos]);
-            planeG[pos] = qGreen(srcBits[pos]);
-            planeB[pos] = qBlue(srcBits[pos]);
-
-            sumR += planeR[pos];
-            sumG += planeG[pos];
-            sumB += planeB[pos];
-
-            sum2R += planeR[pos] * planeR[pos];
-            sum2G += planeG[pos] * planeG[pos];
-            sum2B += planeB[pos] * planeB[pos];
-
-            integralR[pos] = sumR + integralR[posPrev];
-            integralG[pos] = sumG + integralG[posPrev];
-            integralB[pos] = sumB + integralB[posPrev];
-
-            integral2R[pos] = sum2R + integral2R[posPrev];
-            integral2G[pos] = sum2G + integral2G[posPrev];
-            integral2B[pos] = sum2B + integral2B[posPrev];
+            if (radius >= 20)
+                QtConcurrent::run(&threadPool, DenoiseElement::denoise, staticParams, params);
+            else
+                this->denoise(staticParams, params);
         }
     }
 
-    // Image convolution.
-    int mu = this->m_mu;
-    int sigma = this->m_sigma;
+    threadPool.waitForDone();
 
-    for (int y = 0, pixel = 0; y < height; y++) {
-        int yMin = y - radius;
-        int yMax = y + radius;
-
-        if (yMin < 0)
-            yMin = 0;
-
-        if (yMax >= height)
-            yMax = height - 1;
-
-        for (int x = 0; x < width; x++, pixel++) {
-            int xMin = x - radius;
-            int xMax = x + radius;
-
-            if (xMin < 0)
-                xMin = 0;
-
-            if (xMax >= width)
-                xMax = width - 1;
-
-            int kernelSize = (xMax - xMin + 1) * (yMax - yMin + 1);
-
-            // Calculate integral and cuadratic integral.
-            int br = xMax + yMax * width;
-            quint32 sr1 = integralR[br];
-            quint32 sg1 = integralG[br];
-            quint32 sb1 = integralB[br];
-
-            quint32 sr2 = integral2R[br];
-            quint32 sg2 = integral2G[br];
-            quint32 sb2 = integral2B[br];
-
-            int xm = xMin - 1;
-            int ym = yMin - 1;
-
-            if (xm >= 0 && ym >= 0) {
-                int tl = xm + ym * width;
-
-                sr1 += integralR[tl];
-                sg1 += integralG[tl];
-                sb1 += integralB[tl];
-
-                sr2 += integral2R[tl];
-                sg2 += integral2G[tl];
-                sb2 += integral2B[tl];
-            }
-
-            if (xm >= 0) {
-                int bl = xm + yMax * width;
-
-                sr1 -= integralR[bl];
-                sg1 -= integralG[bl];
-                sb1 -= integralB[bl];
-
-                sr2 -= integral2R[bl];
-                sg2 -= integral2G[bl];
-                sb2 -= integral2B[bl];
-            }
-
-            if (ym >= 0) {
-                int tr = xMax + ym * width;
-
-                sr1 -= integralR[tr];
-                sg1 -= integralG[tr];
-                sb1 -= integralB[tr];
-
-                sr2 -= integral2R[tr];
-                sg2 -= integral2G[tr];
-                sb2 -= integral2B[tr];
-            }
-
-            // Calculate median.
-            int mr = sr1 / kernelSize;
-            int mg = sg1 / kernelSize;
-            int mb = sb1 / kernelSize;
-
-            // Calculate standard deviation.
-            quint32 srq = sr2 - (sr1 * sr1) / kernelSize;
-            quint32 sgq = sg2 - (sg1 * sg1) / kernelSize;
-            quint32 sbq = sb2 - (sb1 * sb1) / kernelSize;
-
-            // Apply factors.
-            int ks = kernelSize - 1;
-
-            mr = qBound(0, mr + mu, 255);
-            mg = qBound(0, mg + mu, 255);
-            mb = qBound(0, mb + mu, 255);
-
-            int sr = sqrt(srq / ks);
-            int sg = sqrt(sgq / ks);
-            int sb = sqrt(sbq / ks);
-
-            sr = qBound(0, sr + sigma, 127);
-            sg = qBound(0, sg + sigma, 127);
-            sb = qBound(0, sb + sigma, 127);
-
-            // Calculate weighted average.
-            int r = 0;
-            int g = 0;
-            int b = 0;
-
-            int twr = 0;
-            int twg = 0;
-            int twb = 0;
-
-            int pos = xMin + yMin * width;
-            int diffPos = width - xMax + xMin - 1;
-
-            for (int j = yMin, k = 0; j <= yMax; j++, pos += diffPos)
-                for (int i = xMin; i <= xMax; i++, pos++, k++) {
-                    int rr = planeR[pos];
-                    int wr = this->m_weight[(mr << 16) | (sr << 8) | rr];
-                    r += wr * rr;
-                    twr += wr;
-
-                    int gg = planeG[pos];
-                    int wg = this->m_weight[(mg << 16) | (sg << 8) | gg];
-                    g += wg * gg;
-                    twg += wg;
-
-                    int bb = planeB[pos];
-                    int wb = this->m_weight[(mb << 16) | (sb << 8) | bb];
-                    b += wb * bb;
-                    twb += wb;
-                }
-
-            if (twr < 1)
-                r = planeR[pixel];
-            else
-                r /= twr;
-
-            if (twg < 1)
-                g = planeG[pixel];
-            else
-                g /= twg;
-
-            if (twb < 1)
-                b = planeB[pixel];
-            else
-                b /= twb;
-
-            int a = qAlpha(srcBits[pixel]);
-            destBits[pixel] = qRgba(r, g, b, a);
-        }
-    }
-
-    delete [] planeR;
-    delete [] planeG;
-    delete [] planeB;
-
-    delete [] integralR;
-    delete [] integralG;
-    delete [] integralB;
-
-    delete [] integral2R;
-    delete [] integral2G;
-    delete [] integral2B;
+    delete [] planes;
+    delete [] integral;
+    delete [] integral2;
 
     QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
     qbSend(oPacket)

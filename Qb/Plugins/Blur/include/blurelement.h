@@ -52,7 +52,7 @@ class BlurElement: public QbElement
 
         void integralImage(const QImage &image,
                            int oWidth, int oHeight,
-                           PixelUint32 *integral);
+                           PixelU32 *integral);
 
     signals:
         void radiusChanged();

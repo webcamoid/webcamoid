@@ -21,7 +21,7 @@
 #ifndef INTEGRAL_H
 #define INTEGRAL_H
 
-#include <qglobal.h>
+#include <qrgb.h>
 
 template<typename T> class Pixel
 {
@@ -30,12 +30,69 @@ template<typename T> class Pixel
             r(0), g(0), b(0)
         {
         }
+        Pixel(T r, T g, T b):
+            r(r), g(g), b(b)
+        {
+        }
+
+        Pixel operator +(const Pixel &other) const
+        {
+            return Pixel(this->r + other.r,
+                         this->g + other.g,
+                         this->b + other.b);
+        }
+
+        Pixel operator -(const Pixel &other) const
+        {
+            return Pixel(this->r - other.r,
+                         this->g - other.g,
+                         this->b - other.b);
+        }
+
+        template <typename R> Pixel<R> operator /(R c) const
+        {
+            return Pixel<R>(this->r / c,
+                            this->g / c,
+                            this->b / c);
+        }
+
+        Pixel &operator +=(const Pixel &other)
+        {
+            this->r += other.r;
+            this->g += other.g;
+            this->b += other.b;
+
+            return *this;
+        }
+
+        Pixel &operator +=(QRgb pixel)
+        {
+            this->r += qRed(pixel);
+            this->g += qGreen(pixel);
+            this->b += qBlue(pixel);
+
+            return *this;
+        }
 
         T r;
         T g;
         T b;
 };
 
-typedef Pixel<quint32> PixelUint32;
+template<typename T> inline Pixel<T> integralSum(const Pixel<T> *integral,
+                                          int lineWidth,
+                                          int x, int y, int kw, int kh)
+{
+
+    const Pixel<T> *p0 = integral + x + y * lineWidth;
+    const Pixel<T> *p1 = p0 + kw;
+    const Pixel<T> *p2 = p0 + kh * lineWidth;
+    const Pixel<T> *p3 = p2 + kw;
+
+    return *p0 + *p3 - *p1 - *p2;
+}
+
+typedef Pixel<quint32> PixelU32;
+typedef Pixel<qreal> PixelReal;
 
 #endif // INTEGRAL_H
