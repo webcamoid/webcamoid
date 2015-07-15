@@ -82,14 +82,23 @@ GridLayout {
     Label {
         text: qsTr("Sigma")
     }
-    TextField {
-        text: Denoise.sigma
-        validator: RegExpValidator {
-            regExp: /-?\d+/
-        }
+    Slider {
+        id: sldSigma
+        value: Denoise.sigma
+        stepSize: 0.1
+        minimumValue: 0.1
+        maximumValue: 10
 
-        onTextChanged: Denoise.sigma = strToFloat(text)
+        onValueChanged: Denoise.sigma = value
     }
-    Label {
+    SpinBox {
+        id: spbSigma
+        value: sldSigma.value
+        decimals: 1
+        stepSize: sldSigma.stepSize
+        minimumValue: sldSigma.minimumValue
+        maximumValue: sldSigma.maximumValue
+
+        onValueChanged: sldSigma.value = value
     }
 }

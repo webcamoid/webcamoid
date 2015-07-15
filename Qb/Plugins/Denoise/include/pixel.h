@@ -35,6 +35,17 @@ template<typename T> class Pixel
         {
         }
 
+        template<typename R> Pixel &operator =(const Pixel<R> &other)
+        {
+            if ((void *) this != (void *) &other) {
+                this->r = other.r;
+                this->g = other.g;
+                this->b = other.b;
+            }
+
+            return *this;
+        }
+
         Pixel &operator =(QRgb pixel)
         {
             this->r = qRed(pixel);
@@ -123,6 +134,13 @@ typedef Pixel<quint32> PixelU32;
 typedef Pixel<qint64> PixelI64;
 typedef Pixel<quint64> PixelU64;
 typedef Pixel<qreal> PixelReal;
+
+template <typename R, typename S> inline Pixel<R> mult(R c, const Pixel<S> &pixel)
+{
+    return Pixel<R>(c * pixel.r,
+                    c * pixel.g,
+                    c * pixel.b);
+}
 
 inline PixelU64 pow2(QRgb pixel)
 {
