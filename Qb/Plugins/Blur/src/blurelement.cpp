@@ -55,6 +55,35 @@ int BlurElement::radius() const
     return this->m_radius;
 }
 
+void BlurElement::integralImage(const QImage &image,
+                                int oWidth, int oHeight,
+                                PixelU32 *integral)
+{
+    for (int y = 1; y < oHeight; y++) {
+        const QRgb *line = (const QRgb *) image.constScanLine(y - 1);
+
+        // Reset current line summation.
+        PixelU32 sum;
+
+        for (int x = 1; x < oWidth; x++) {
+            QRgb pixel = line[x - 1];
+
+            // Accumulate pixels in current line.
+            sum += pixel;
+
+            // Offset to the current line.
+            int offset = x + y * oWidth;
+
+            // Offset to the previous line.
+            // equivalent to x + (y - 1) * oWidth;
+            int offsetPrevious = offset - oWidth;
+
+            // Accumulate current line and previous line.
+            integral[offset] = sum + integral[offsetPrevious];
+        }
+    }
+}
+
 void BlurElement::setRadius(int radius)
 {
     if (radius != this->m_radius) {
@@ -77,16 +106,32 @@ QbPacket BlurElement::iStream(const QbPacket &packet)
         return QbPacket();
 
     QImage oFrame(src.size(), src.format());
-    QGraphicsScene scene;
-    QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(src));
-    QGraphicsBlurEffect *effect = new QGraphicsBlurEffect();
-    pixmapItem->setGraphicsEffect(effect);
-    effect->setBlurRadius(this->m_radius);
 
-    QPainter painter;
-    painter.begin(&oFrame);
-    scene.render(&painter);
-    painter.end();
+    int oWidth = src.width() + 1;
+    int oHeight = src.height() + 1;
+    PixelU32 *integral = new PixelU32[oWidth * oHeight];
+    this->integralImage(src, oWidth, oHeight, integral);
+
+    int radius = this->m_radius;
+
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        int yp = qMax(y - radius, 0);
+        int kh = qMin(y + radius, src.height() - 1) - yp + 1;
+
+        for (int x = 0; x < src.width(); x++) {
+            int xp = qMax(x - radius, 0);
+            int kw = qMin(x + radius, src.width() - 1) - xp + 1;
+
+            PixelU32 sum = integralSum(integral, oWidth, xp, yp, kw, kh);
+            PixelU32 mean = sum / quint32(kw * kh);
+
+            oLine[x] = qRgba(mean.r, mean.g, mean.b, qAlpha(iLine[x]));
+        }
+    }
+
+    delete [] integral;
 
     QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
     qbSend(oPacket)

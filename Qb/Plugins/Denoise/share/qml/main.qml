@@ -24,7 +24,7 @@ import QtQuick.Layouts 1.1
 
 GridLayout {
     id: configs
-    columns: 2
+    columns: 3
 
     function strToFloat(str)
     {
@@ -34,13 +34,21 @@ GridLayout {
     Label {
         text: qsTr("Radius")
     }
-    TextField {
-        text: Denoise.radius
-        validator: RegExpValidator {
-            regExp: /\d+/
-        }
+    Slider {
+        id: sldRadius
+        value: Denoise.radius
+        stepSize: 1
+        maximumValue: 10
 
-        onTextChanged: Denoise.radius = strToFloat(text)
+        onValueChanged: Denoise.radius = value
+    }
+    SpinBox {
+        id: spbRadius
+        value: sldRadius.value
+        maximumValue: sldRadius.maximumValue
+        stepSize: sldRadius.stepSize
+
+        onValueChanged: sldRadius.value = value
     }
 
     Label {
@@ -54,6 +62,8 @@ GridLayout {
 
         onTextChanged: Denoise.factor = strToFloat(text)
     }
+    Label {
+    }
 
     Label {
         text: qsTr("Mu")
@@ -66,6 +76,8 @@ GridLayout {
 
         onTextChanged: Denoise.mu = strToFloat(text)
     }
+    Label {
+    }
 
     Label {
         text: qsTr("Sigma")
@@ -77,5 +89,7 @@ GridLayout {
         }
 
         onTextChanged: Denoise.sigma = strToFloat(text)
+    }
+    Label {
     }
 }

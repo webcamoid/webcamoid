@@ -31,7 +31,8 @@ CONFIG += plugin
 
 HEADERS += \
     include/blur.h \
-    include/blurelement.h
+    include/blurelement.h \
+    include/pixel.h
 
 INCLUDEPATH += \
     include \
@@ -42,7 +43,7 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml widgets multimedia
+QT += qml multimedia
 
 RESOURCES += \
     Blur.qrc

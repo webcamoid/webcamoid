@@ -21,15 +21,13 @@
 #ifndef BLURELEMENT_H
 #define BLURELEMENT_H
 
-#include <QGraphicsScene>
-#include <QGraphicsBlurEffect>
-#include <QGraphicsPixmapItem>
-#include <QPainter>
 #include <QQmlComponent>
 #include <QQmlContext>
 
 #include <qb.h>
 #include <qbutils.h>
+
+#include "pixel.h"
 
 class BlurElement: public QbElement
 {
@@ -51,6 +49,10 @@ class BlurElement: public QbElement
     private:
         int m_radius;
         QbElementPtr m_convert;
+
+        void integralImage(const QImage &image,
+                           int oWidth, int oHeight,
+                           PixelU32 *integral);
 
     signals:
         void radiusChanged();

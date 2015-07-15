@@ -31,7 +31,9 @@ CONFIG += plugin
 
 HEADERS += \
     include/denoise.h \
-    include/denoiseelement.h
+    include/denoiseelement.h \
+    include/pixel.h \
+    include/params.h
 
 INCLUDEPATH += \
     include \
@@ -42,7 +44,7 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia
+QT += qml multimedia concurrent
 
 RESOURCES += \
     Denoise.qrc
