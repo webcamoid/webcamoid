@@ -425,7 +425,7 @@
     <message>
         <location filename="../qml/main.qml" line="423"/>
         <source>About</source>
-        <translation>About</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="370"/>
