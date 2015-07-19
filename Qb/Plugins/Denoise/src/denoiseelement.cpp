@@ -30,7 +30,7 @@ DenoiseElement::DenoiseElement(): QbElement()
     this->m_radius = 1;
     this->m_factor = 1024;
     this->m_mu = 0;
-    this->m_sigma = 0;
+    this->m_sigma = 1.0;
 
     this->m_weight = new int[1 << 24];
     this->makeTable(this->m_factor);
@@ -78,7 +78,7 @@ int DenoiseElement::mu() const
     return this->m_mu;
 }
 
-int DenoiseElement::sigma() const
+qreal DenoiseElement::sigma() const
 {
     return this->m_sigma;
 }
@@ -134,7 +134,7 @@ void DenoiseElement::denoise(const DenoiseStaticParams &staticParams,
     PixelU32 dev = sqrt(ks * sum2 - pow2(sum)) / ks;
 
     mean = bound(0u, mean + staticParams.mu, 255u);
-    dev = bound(0u, mean + staticParams.sigma, 127u);
+    dev = bound(0., mult(staticParams.sigma, dev), 127.);
 
     PixelU32 mdMask = (mean << 16) | (dev << 8);
 
@@ -199,7 +199,7 @@ void DenoiseElement::setMu(int mu)
     }
 }
 
-void DenoiseElement::setSigma(int sigma)
+void DenoiseElement::setSigma(qreal sigma)
 {
     if (sigma != this->m_sigma) {
         this->m_sigma = sigma;
@@ -224,7 +224,7 @@ void DenoiseElement::resetMu()
 
 void DenoiseElement::resetSigma()
 {
-    this->setSigma(0);
+    this->setSigma(1.0);
 }
 
 QbPacket DenoiseElement::iStream(const QbPacket &packet)
@@ -266,7 +266,7 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
     staticParams.oWidth = oWidth;
     staticParams.weights = this->m_weight;
     staticParams.mu = this->m_mu;
-    staticParams.sigma = this->m_sigma;
+    staticParams.sigma = this->m_sigma < 0.1? 0.1: this->m_sigma;
 
     QThreadPool threadPool;
     QElapsedTimer timer;

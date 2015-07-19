@@ -46,7 +46,7 @@ struct DenoiseStaticParams
     const int *weights;
 
     int mu;
-    int sigma;
+    qreal sigma;
 };
 
 #endif // PARAMS_H

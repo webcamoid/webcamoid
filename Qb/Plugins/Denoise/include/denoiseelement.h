@@ -47,7 +47,7 @@ class DenoiseElement: public QbElement
                WRITE setMu
                RESET resetMu
                NOTIFY muChanged)
-    Q_PROPERTY(int sigma
+    Q_PROPERTY(qreal sigma
                READ sigma
                WRITE setSigma
                RESET resetSigma
@@ -63,13 +63,13 @@ class DenoiseElement: public QbElement
         Q_INVOKABLE int radius() const;
         Q_INVOKABLE int factor() const;
         Q_INVOKABLE int mu() const;
-        Q_INVOKABLE int sigma() const;
+        Q_INVOKABLE qreal sigma() const;
 
     private:
         int m_radius;
         int m_factor;
         int m_mu;
-        int m_sigma;
+        qreal m_sigma;
         int *m_weight;
 
         QbElementPtr m_convert;
@@ -113,7 +113,7 @@ class DenoiseElement: public QbElement
         void setRadius(int radius);
         void setFactor(int factor);
         void setMu(int mu);
-        void setSigma(int sigma);
+        void setSigma(qreal sigma);
         void resetRadius();
         void resetFactor();
         void resetMu();
