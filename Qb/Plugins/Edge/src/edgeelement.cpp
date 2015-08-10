@@ -25,21 +25,12 @@ EdgeElement::EdgeElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=gray");
 
-    this->m_tableLen = 2 * int(pow(4 * 255, 2)) + 1;
-    this->m_sqrt = new int[this->m_tableLen];
-
-    for (int i = 0; i < this->m_tableLen; i++) {
-        int value = sqrt(i);
-        this->m_sqrt[i] = qBound(0, value, 255);
-    }
-
     this->resetEqualize();
     this->resetInvert();
 }
 
 EdgeElement::~EdgeElement()
 {
-    delete [] this->m_sqrt;
 }
 
 QObject *EdgeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -149,24 +140,25 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
         quint8 *oLine = (quint8 *) oFrame.scanLine(y);
 
         for (int x = 0; x < src.width(); x++) {
-            int x_m = (x < 1)? x: x - 1;
-            int x_p = (x >= src.width() - 1)? x: x + 1;
+            int x_m1 = (x < 1)? x: x - 1;
+            int x_p1 = (x >= src.width() - 1)? x: x + 1;
 
-            int grayX = iLine_p1[x_m]
-                      + 2 * iLine_p1[x]
-                      + iLine_p1[x_p]
-                      - iLine_m1[x_m]
-                      - 2 * iLine_m1[x]
-                      - iLine_m1[x_p];
+            int grayX = iLine_m1[x_p1]
+                      + 2 * iLine[x_p1]
+                      + iLine_p1[x_p1]
+                      - iLine_m1[x_m1]
+                      - 2 * iLine[x_m1]
+                      - iLine_p1[x_m1];
 
-            int grayY = iLine_m1[x_p]
-                      + 2 * iLine[x_p]
-                      + iLine_p1[x_p]
-                      - iLine_m1[x_m]
-                      - 2 * iLine[x_m]
-                      - iLine_p1[x_m];
+            int grayY = iLine_m1[x_m1]
+                      + 2 * iLine_m1[x]
+                      + iLine_m1[x_p1]
+                      - iLine_p1[x_m1]
+                      - 2 * iLine_p1[x]
+                      - iLine_p1[x_p1];
 
-            int gray = this->m_sqrt[grayX * grayX + grayY * grayY];
+            int gray = qAbs(grayX) + qAbs(grayY);
+            gray = qBound(0, gray, 255);
 
             if (this->m_invert)
                 oLine[x] = 255 - gray;

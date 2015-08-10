@@ -529,22 +529,64 @@ void HaarDetectorPrivate::edges(int width, int height,
             int x_m1 = x < 1? x: x - 1;
             int x_p1 = x >= width - 1? x: x + 1;
 
-            int gradX = grayLine_p1[x_m1]
-                      + 2 * grayLine_p1[x]
-                      + grayLine_p1[x_p1]
-                      - grayLine_m1[x_m1]
-                      - 2 * grayLine_m1[x]
-                      - grayLine_m1[x_p1];
-
-            int gradY = grayLine_m1[x_p1]
+            int gradX = grayLine_m1[x_p1]
                       + 2 * grayLine[x_p1]
                       + grayLine_p1[x_p1]
                       - grayLine_m1[x_m1]
                       - 2 * grayLine[x_m1]
                       - grayLine_p1[x_m1];
 
+            int gradY = grayLine_m1[x_m1]
+                      + 2 * grayLine_m1[x]
+                      + grayLine_m1[x_p1]
+                      - grayLine_p1[x_m1]
+                      - 2 * grayLine_p1[x]
+                      - grayLine_p1[x_p1];
+
             sobelLine[x] = quint16(qAbs(gradX) + qAbs(gradY));
-            sobelAngleLine[x] = int(round(4 * atan2(gradY, gradX) / M_PI)) % 4;
+
+            /* Gradient directions are classified in 4 possible cases
+             *
+             * dir 0
+             *
+             * x x x
+             * - - -
+             * x x x
+             *
+             * dir 1
+             *
+             * x x /
+             * x / x
+             * / x x
+             *
+             * dir 2
+             *
+             * \ x x
+             * x \ x
+             * x x \
+             *
+             * dir 3
+             *
+             * x | x
+             * x | x
+             * x | x
+             */
+            if (gradX == 0 && gradY == 0)
+                sobelAngleLine[x] = 0;
+            else if (gradX == 0)
+                sobelAngleLine[x] = 3;
+            else {
+                qreal a = 180. * atan(qreal(gradY) / gradX) / M_PI;
+
+                if (a >= -22.5 && a < 22.5)
+                    sobelAngleLine[x] = 0;
+                else if (a >= 22.5 && a < 67.5)
+                    sobelAngleLine[x] = 1;
+                else if (a >= -67.5 && a < -22.5)
+                    sobelAngleLine[x] = 2;
+                else
+                    sobelAngleLine[x] = 3;
+            }
         }
     }
 }
@@ -647,26 +689,42 @@ void HaarDetectorPrivate::nonMaximumSuppression(int width, int height,
             quint16 pixel = 0;
 
             if (direction == 0) {
-                if (edgesLine[x] < edgesLine[x_p1]
-                    || edgesLine[x] < edgesLine[x_m1])
+                /* x x x
+                 * - - -
+                 * x x x
+                 */
+                if (edgesLine[x] < edgesLine[x_m1]
+                    || edgesLine[x] < edgesLine[x_p1])
                     pixel = 0;
                 else
                     pixel = edgesLine[x];
             } else if (direction == 1) {
-                if (edgesLine[x] < edgesLine_p1[x_p1]
-                    || edgesLine[x] < edgesLine_m1[x_m1])
+                /* x x /
+                 * x / x
+                 * / x x
+                 */
+                if (edgesLine[x] < edgesLine_m1[x_p1]
+                    || edgesLine[x] < edgesLine_p1[x_m1])
                     pixel = 0;
                 else
                     pixel = edgesLine[x];
             } else if (direction == 2) {
-                if (edgesLine[x] < edgesLine_p1[x]
-                    || edgesLine[x] < edgesLine_m1[x])
+                /* \ x x
+                 * x \ x
+                 * x x \
+                 */
+                if (edgesLine[x] < edgesLine_m1[x_m1]
+                    || edgesLine[x] < edgesLine_p1[x_p1])
                     pixel = 0;
                 else
                     pixel = edgesLine[x];
             } else {
-                if (edgesLine[x] < edgesLine_p1[x_m1]
-                    || edgesLine[x] < edgesLine_m1[x_p1])
+                /* x | x
+                 * x | x
+                 * x | x
+                 */
+                if (edgesLine[x] < edgesLine_m1[x]
+                    || edgesLine[x] < edgesLine_p1[x])
                     pixel = 0;
                 else
                     pixel = edgesLine[x];

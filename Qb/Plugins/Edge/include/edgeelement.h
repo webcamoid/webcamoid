@@ -55,8 +55,6 @@ class EdgeElement: public QbElement
         bool m_equalize;
         bool m_invert;
         QbElementPtr m_convert;
-        int m_tableLen;
-        int *m_sqrt;
 
     signals:
         void equalizeChanged();
