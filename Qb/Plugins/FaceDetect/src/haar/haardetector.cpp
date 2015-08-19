@@ -1,21 +1,21 @@
-/* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
+/* QtHaar, Viola-Jones implementation in Qt.
+ * Copyright (C) 2015  Gonzalo Exequiel Pedone
  *
- * Webcamoid is free software: you can redistribute it and/or modify
+ * QtHaar is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Webcamoid is distributed in the hope that it will be useful,
+ * QtHaar is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+ * along with QtHaar. If not, see <http://www.gnu.org/licenses/>.
  *
  * Email   : hipersayan DOT x AT gmail DOT com
- * Web-Site: http://github.com/hipersayanX/webcamoid
+ * Web-Site: http://github.com/hipersayanX/QtHaar
  *
  * This file incorporates work covered by the following copyright and
  * permission notice:
@@ -98,8 +98,8 @@ class HaarDetectorPrivate
                              QVector<quint32> &integral,
                              QVector<quint64> &integral2,
                              QVector<quint32> &tiltedIntegral) const;
-        void canny(int width, int height, const QVector<quint8> &gray,
-                   QVector<quint8> &canny) const;
+        QVector<quint8> canny(int width, int height,
+                              const QVector<quint8> &gray) const;
         void imagePadding(int width, int height,
                           const QVector<quint8> &image,
                           int paddingTL, int paddingBR,
@@ -107,23 +107,28 @@ class HaarDetectorPrivate
         void denoise(int width, int height, const QVector<quint8> &gray,
                      int radius, int mu, int sigma,
                      QVector<quint8> &denoised) const;
-        void edges(int width, int height, const QVector<quint8> &gray,
-                   QVector<quint16> &sobel, QVector<quint8> &sobelAngle) const;
-        void calculateHistogram(int width, int height,
-                                const QVector<quint16> &image,
-                                int levels, int *histogram) const;
-        int otsuThreshold(int width, int height, const QVector<quint16> &image,
-                          int levels, int *min=NULL, int *max=NULL) const;
-        void nonMaximumSuppression(int width, int height,
-                                   const QVector<quint16> &edges,
-                                   const QVector<quint8> &edgesAngle,
-                                   int thLow, int thHigh,
-                                   QVector<quint8> &thinned) const;
+        void sobel(int width, int height, const QVector<quint8> &gray,
+                   QVector<quint16> &gradient, QVector<quint8> &direction) const;
+        QVector<int> calculateHistogram(int width, int height,
+                                        const QVector<quint16> &image,
+                                        int levels) const;
+        QVector<qreal> otsuTable(int width, int height,
+                                 const QVector<int> &histogram,
+                                 int levels) const;
+        QVector<int> otsuThreshold(int width, int height,
+                                   const QVector<quint16> &image,
+                                   int levels, int nClasses) const;
+        QVector<quint16> thinning(int width, int height,
+                                  const QVector<quint16> &gradient,
+                                  const QVector<quint8> &direction) const;
+        QVector<quint8> threshold(int width, int height,
+                               const QVector<quint16> &image,
+                               const QVector<int> &thresholds,
+                               const QVector<int> &map) const;
         void trace(int width, int height, QVector<quint8> &canny,
                    int x, int y) const;
-        void hysteresisThresholding(int width, int height,
-                                    const QVector<quint8> &thresholded,
-                                    QVector<quint8> &canny) const;
+        QVector<quint8> hysteresisThresholding(int width, int height,
+                                               const QVector<quint8> &thresholded) const;
         bool areSimilar(const QRect &r1, const QRect &r2, qreal eps) const;
         void markRectangle(const QVector<QRect> &rectangles,
                            QVector<int> &labels,
@@ -391,34 +396,36 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
     }
 }
 
-void HaarDetectorPrivate::canny(int width, int height,
-                                const QVector<quint8> &gray,
-                                QVector<quint8> &canny) const
+QVector<quint8> HaarDetectorPrivate::canny(int width, int height,
+                                           const QVector<quint8> &gray) const
 {
-    canny.resize(gray.size());
+    QVector<quint16> gradient;
+    QVector<quint8> direction;
+    this->sobel(width, height, gray, gradient, direction);
 
-    QVector<quint16> sobel;
-    QVector<quint8> sobelAngles;
-    this->edges(width, height, gray, sobel, sobelAngles);
+    QVector<quint16> thinned = this->thinning(width, height,
+                                              gradient, direction);
 
-    int thLow;
-    int thHigh;
+    QVector<int> otsu(2);
 
-    if (!qIsNaN(this->m_lowCannyThreshold)
-        || !qIsNaN(this->m_highCannyThreshold))
-        this->otsuThreshold(width, height, sobel, 8 * 255, &thLow, &thHigh);
+    if (qIsNaN(this->m_lowCannyThreshold)
+        || qIsNaN(this->m_highCannyThreshold))
+        otsu = this->otsuThreshold(width, height, thinned, 6 * 255 + 1, 3);
 
     if (!qIsNaN(this->m_lowCannyThreshold))
-        thLow = this->m_lowCannyThreshold;
+        otsu[0] = this->m_lowCannyThreshold;
 
     if (!qIsNaN(this->m_highCannyThreshold))
-        thHigh = this->m_highCannyThreshold;
+        otsu[1] = this->m_highCannyThreshold;
 
-    QVector<quint8> thinned;
-    this->nonMaximumSuppression(width, height, sobel, sobelAngles,
-                                thLow, thHigh, thinned);
+    QVector<int> colors(3);
+    colors[0] = 0;
+    colors[1] = 127;
+    colors[2] = 255;
+    QVector<quint8> thresholded = this->threshold(width, height,
+                                                  thinned, otsu, colors);
 
-    this->hysteresisThresholding(width, height, thinned, canny);
+    return this->hysteresisThresholding(width, height, thresholded);
 }
 
 void HaarDetectorPrivate::imagePadding(int width, int height,
@@ -507,13 +514,13 @@ void HaarDetectorPrivate::denoise(int width, int height,
     }
 }
 
-void HaarDetectorPrivate::edges(int width, int height,
+void HaarDetectorPrivate::sobel(int width, int height,
                                 const QVector<quint8> &gray,
-                                QVector<quint16> &sobel,
-                                QVector<quint8> &sobelAngle) const
+                                QVector<quint16> &gradient,
+                                QVector<quint8> &direction) const
 {
-    sobel.resize(gray.size());
-    sobelAngle.resize(gray.size());
+    gradient.resize(gray.size());
+    direction.resize(gray.size());
 
     for (int y = 0; y < height; y++) {
         size_t yOffset = y * width;
@@ -522,8 +529,8 @@ void HaarDetectorPrivate::edges(int width, int height,
         const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - width;
         const quint8 *grayLine_p1 = y >= height - 1? grayLine: grayLine + width;
 
-        quint16 *sobelLine = sobel.data() + yOffset;
-        quint8 *sobelAngleLine = sobelAngle.data() + yOffset;
+        quint16 *gradientLine = gradient.data() + yOffset;
+        quint8 *directionLine = direction.data() + yOffset;
 
         for (int x = 0; x < width; x++) {
             int x_m1 = x < 1? x: x - 1;
@@ -543,7 +550,7 @@ void HaarDetectorPrivate::edges(int width, int height,
                       - 2 * grayLine_p1[x]
                       - grayLine_p1[x_p1];
 
-            sobelLine[x] = quint16(qAbs(gradX) + qAbs(gradY));
+            gradientLine[x] = quint16(qAbs(gradX) + qAbs(gradY));
 
             /* Gradient directions are classified in 4 possible cases
              *
@@ -572,169 +579,226 @@ void HaarDetectorPrivate::edges(int width, int height,
              * x | x
              */
             if (gradX == 0 && gradY == 0)
-                sobelAngleLine[x] = 0;
+                directionLine[x] = 0;
             else if (gradX == 0)
-                sobelAngleLine[x] = 3;
+                directionLine[x] = 3;
             else {
                 qreal a = 180. * atan(qreal(gradY) / gradX) / M_PI;
 
                 if (a >= -22.5 && a < 22.5)
-                    sobelAngleLine[x] = 0;
+                    directionLine[x] = 0;
                 else if (a >= 22.5 && a < 67.5)
-                    sobelAngleLine[x] = 1;
+                    directionLine[x] = 1;
                 else if (a >= -67.5 && a < -22.5)
-                    sobelAngleLine[x] = 2;
+                    directionLine[x] = 2;
                 else
-                    sobelAngleLine[x] = 3;
+                    directionLine[x] = 3;
             }
         }
     }
 }
 
-void HaarDetectorPrivate::calculateHistogram(int width, int height,
-                                             const QVector<quint16> &image,
-                                             int levels,
-                                             int *histogram) const
+QVector<int> HaarDetectorPrivate::calculateHistogram(int width, int height,
+                                                     const QVector<quint16> &image,
+                                                     int levels) const
 {
+    QVector<int> histogram(levels, 0);
     int pixels = width * height;
-    memset(histogram, 0, levels * sizeof(int));
 
     for (int i = 0; i < pixels; i++)
         histogram[image[i]]++;
+
+    return histogram;
 }
 
-int HaarDetectorPrivate::otsuThreshold(int width, int height,
-                                       const QVector<quint16> &image,
-                                       int levels, int *min, int *max) const
+QVector<qreal> HaarDetectorPrivate::otsuTable(int width, int height,
+                                              const QVector<int> &histogram,
+                                              int levels) const
 {
-    int histogram[levels];
-    this->calculateHistogram(width, height, image, levels, histogram);
+    qreal **P = new qreal *[levels];
+    qreal **S = new qreal *[levels];
+    QVector<qreal> H(levels * levels, 0);
 
-    if (min)
-        *min = 0;
-
-    if (max)
-        *max = levels - 1;
-
-    int pixels = width * height;
-    int sum = 0;
-
-    for (int i = 0; i < levels; i++)
-        sum += i * histogram[i];
-
-    int sumB = 0;
-    int wB = 0;
-    int wF = 0;
-    qreal maxBetween = 0.0;
-    int threshold = 0;
-
+    // initialize
     for (int i = 0; i < levels; i++) {
-        wB += histogram[i];
+        P[i] = new qreal[levels];
+        S[i] = new qreal[levels];
 
-        if (wB == 0)
-            continue;
+        memset(P[i], 0, levels * sizeof(qreal));
+        memset(S[i], 0, levels * sizeof(qreal));
+    }
 
-        wF = pixels - wB;
+    // diagonal
+    for (int i = 1; i < levels; i++) {
+        P[i][i] = histogram[i];
+        S[i][i] = i * histogram[i];
+    }
 
-        if (wF == 0)
-            break;
+    // calculate first row (row 0 is all zero)
+    for (int i = 1; i < levels - 1; i++) {
+        P[1][i + 1] = P[1][i] + histogram[i + 1];
+        S[1][i + 1] = S[1][i] + (i + 1) * histogram[i + 1];
+    }
 
-        sumB += i * histogram[i];
-        qreal mB = qreal(sumB) / wB;
-        qreal mF = qreal(sum - sumB) / wF;
-        qreal between = wB * wF * (mB - mF) * (mB - mF);
+    // using row 1 to calculate others
+    for (int i = 2; i < levels; i++)
+        for (int j = i + 1; j < levels; j++) {
+            P[i][j] = P[1][j] - P[1][i - 1];
+            S[i][j] = S[1][j] - S[1][i - 1];
+        }
 
-        if (between > maxBetween) {
-            maxBetween = between;
-            threshold = i;
+    int imageSize = width * height;
 
-            if (min)
-                *min = round(mB);
+    // now calculate H[i][j]
+    for (int i = 1; i < levels; i++)
+        for (int j = i + 1; j < levels; j++)
+            if (P[i][j] != 0)
+                H[j + i * levels] =
+                        (S[i][j] * S[i][j])
+                        / (P[i][j] * imageSize);
 
-            if (max)
-                *max = round(mF);
+    // finalize
+    for (int i = 0; i < levels; i++) {
+        delete [] P[i];
+        delete [] S[i];
+    }
+
+    delete [] P;
+    delete [] S;
+
+    return H;
+}
+
+QVector<int> HaarDetectorPrivate::otsuThreshold(int width, int height,
+                                                const QVector<quint16> &image,
+                                                int levels, int nClasses) const
+{
+    QVector<int> otsu(nClasses - 1, 0);
+    QVector<int> histogram = this->calculateHistogram(width, height, image, levels);
+    QVector<qreal> H = this->otsuTable(width, height, histogram, levels);
+    const qreal *Hptr = H.constData();
+    qreal maxSum = 0;
+    int limits[otsu.size()];
+    int index[otsu.size()];
+
+    for (int i = 0; i < nClasses - 1; i++) {
+        limits[i] = levels - nClasses + i;
+        index[i] = i + 1;
+    }
+
+    while (index[0] < limits[0]) {
+        qreal sum = 0;
+
+        for (int i = 0; i < nClasses; i++) {
+            int j = i < otsu.size()? index[i]: 255;
+            int k = i > 0? index[i - 1]: 0;
+            sum += Hptr[j + (k + 1) * levels];
+        }
+
+        if (maxSum < sum) {
+            for (int i = 0; i < otsu.size(); i++)
+                otsu[i] = index[i];
+
+            maxSum = sum;
+        }
+
+        for (int i = otsu.size() - 1; i >= 0; i--) {
+            index[i]++;
+
+            if (index[i] < limits[i]) {
+                for (int j = i + 1; j < otsu.size(); j++)
+                    index[j] = index[j - 1] + 1;
+
+                break;
+            }
         }
     }
 
-    return threshold;
+    return otsu;
 }
 
-void HaarDetectorPrivate::nonMaximumSuppression(int width, int height,
-                                                const QVector<quint16> &edges,
-                                                const QVector<quint8> &edgesAngle,
-                                                int thLow, int thHigh,
-                                                QVector<quint8> &thinned) const
+QVector<quint16> HaarDetectorPrivate::thinning(int width, int height,
+                                               const QVector<quint16> &gradient,
+                                               const QVector<quint8> &direction) const
 {
-    thinned.resize(edges.size());
+    QVector<quint16> thinned(gradient.size(), 0);
 
     for (int y = 0; y < height; y++) {
         int yOffset = y * width;
-        const quint16 *edgesLine = edges.constData() + yOffset;
+        const quint16 *edgesLine = gradient.constData() + yOffset;
         const quint16 *edgesLine_m1 = y < 1? edgesLine: edgesLine - width;
         const quint16 *edgesLine_p1 = y >= height - 1? edgesLine: edgesLine + width;
-        const quint8 *edgesAngleLine = edgesAngle.constData() + yOffset;
-        quint8 *thinnedLine = thinned.data() + yOffset;
+        const quint8 *edgesAngleLine = direction.constData() + yOffset;
+        quint16 *thinnedLine = thinned.data() + yOffset;
 
         for (int x = 0; x < width; x++) {
-            if (edgesLine[x] <= thLow) {
-                thinnedLine[x] = 0;
-
-                continue;
-            }
-
             int x_m1 = x < 1? 0: x - 1;
             int x_p1 = x >= width - 1? x: x + 1;
 
             quint8 direction = edgesAngleLine[x];
-            quint16 pixel = 0;
 
             if (direction == 0) {
                 /* x x x
                  * - - -
                  * x x x
                  */
-                if (edgesLine[x] < edgesLine[x_m1]
-                    || edgesLine[x] < edgesLine[x_p1])
-                    pixel = 0;
-                else
-                    pixel = edgesLine[x];
+                if (edgesLine[x] >= edgesLine[x_m1]
+                    && edgesLine[x] >= edgesLine[x_p1])
+                    thinnedLine[x] = edgesLine[x];
             } else if (direction == 1) {
                 /* x x /
                  * x / x
                  * / x x
                  */
-                if (edgesLine[x] < edgesLine_m1[x_p1]
-                    || edgesLine[x] < edgesLine_p1[x_m1])
-                    pixel = 0;
-                else
-                    pixel = edgesLine[x];
+                if (edgesLine[x] >= edgesLine_m1[x_p1]
+                    && edgesLine[x] >= edgesLine_p1[x_m1])
+                    thinnedLine[x] = edgesLine[x];
             } else if (direction == 2) {
                 /* \ x x
                  * x \ x
                  * x x \
                  */
-                if (edgesLine[x] < edgesLine_m1[x_m1]
-                    || edgesLine[x] < edgesLine_p1[x_p1])
-                    pixel = 0;
-                else
-                    pixel = edgesLine[x];
+                if (edgesLine[x] >= edgesLine_m1[x_m1]
+                    && edgesLine[x] >= edgesLine_p1[x_p1])
+                    thinnedLine[x] = edgesLine[x];
             } else {
                 /* x | x
                  * x | x
                  * x | x
                  */
-                if (edgesLine[x] < edgesLine_m1[x]
-                    || edgesLine[x] < edgesLine_p1[x])
-                    pixel = 0;
-                else
-                    pixel = edgesLine[x];
+                if (edgesLine[x] >= edgesLine_m1[x]
+                    && edgesLine[x] >= edgesLine_p1[x])
+                    thinnedLine[x] = edgesLine[x];
             }
-
-            thinnedLine[x] = pixel > thHigh? 255:
-                             pixel > thLow? 127:
-                                            0;
         }
     }
+
+    return thinned;
+}
+
+QVector<quint8> HaarDetectorPrivate::threshold(int width, int height,
+                                               const QVector<quint16> &image,
+                                               const QVector<int> &thresholds,
+                                               const QVector<int> &map) const
+{
+    int size = width * height;
+    const quint16 *in = image.constData();
+    QVector<quint8> out(size);
+
+    for (int i = 0; i < size; i++) {
+        int value = -1;
+
+        for (int j = 0; j < thresholds.size(); j++)
+            if (in[i] <= thresholds[j]) {
+                value = map[j];
+
+                break;
+            }
+
+        out[i] = value < 0? map[thresholds.size()]: value;
+    }
+
+    return out;
 }
 
 void HaarDetectorPrivate::trace(int width, int height, QVector<quint8> &canny,
@@ -745,6 +809,8 @@ void HaarDetectorPrivate::trace(int width, int height, QVector<quint8> &canny,
 
     if (cannyLine[x] != 255)
         return;
+
+    bool isPoint = true;
 
     for (int j = -1; j < 2; j++) {
         int nextY = y + j;
@@ -757,22 +823,30 @@ void HaarDetectorPrivate::trace(int width, int height, QVector<quint8> &canny,
         for (int i = -1; i < 2; i++) {
             int nextX = x + i;
 
-            if (i == j || nextX < 0 || nextX >= width)
+            if (i == 0 && j == 0)
+                continue;
+
+            if (nextX < 0 || nextX >= width)
                 continue;
 
             if (cannyLineNext[nextX] == 127) {
                 cannyLineNext[nextX] = 255;
                 this->trace(width, height, canny, nextX, nextY);
             }
+
+            if (cannyLineNext[nextX] > 0)
+                isPoint = false;
         }
     }
+
+    if (isPoint)
+        cannyLine[x] = 0;
 }
 
-void HaarDetectorPrivate::hysteresisThresholding(int width, int height,
-                                                 const QVector<quint8> &thresholded,
-                                                 QVector<quint8> &canny) const
+QVector<quint8> HaarDetectorPrivate::hysteresisThresholding(int width, int height,
+                                                            const QVector<quint8> &thresholded) const
 {
-    canny = thresholded;
+    QVector<quint8> canny = thresholded;
 
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
@@ -781,6 +855,8 @@ void HaarDetectorPrivate::hysteresisThresholding(int width, int height,
     for (int i = 0; i < canny.size(); i++)
         if (canny[i] == 127)
             canny[i] = 0;
+
+    return canny;
 }
 
 bool HaarDetectorPrivate::areSimilar(const QRect &r1, const QRect &r2,
@@ -1038,9 +1114,7 @@ QVector<QRect> HaarDetector::detect(const QImage &image, qreal scaleFactor,
     bool cannyPruning = this->d->m_cannyPruning;
 
     if (cannyPruning) {
-        QVector<quint8> canny;
-        this->d->canny(image.width(), image.height(), gray, canny);
-
+        QVector<quint8> canny = this->d->canny(image.width(), image.height(), gray);
         this->d->computeIntegral(image.width(), image.height(),
                                  canny, 1, integralCanny);
     }

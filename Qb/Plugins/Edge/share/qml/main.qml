@@ -22,20 +22,97 @@ import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
-ColumnLayout {
-    // Equalize
+GridLayout {
+    columns: 3
+
+    // Canny
+    Label {
+        text: qsTr("Canny mode")
+    }
     CheckBox {
+        id: chkCanny
+        checked: Edge.canny
+
+        onCheckedChanged: Edge.canny = checked
+    }
+    Label {
+    }
+
+    // thLow
+    Label {
+        text: qsTr("Lower Canny threshold")
+        enabled: chkCanny.checked
+    }
+    Slider {
+        id: sldThLow
+        enabled: chkCanny.checked
+        value: Edge.thLow
+        stepSize: 1
+        maximumValue: 1530
+
+        onValueChanged: {
+            value = Math.min(value, sldThHi.value)
+            Edge.thLow = value
+        }
+    }
+    SpinBox {
+        id: spbThLow
+        enabled: chkCanny.checked
+        value: sldThLow.value
+        maximumValue: sldThLow.maximumValue
+        stepSize: sldThLow.stepSize
+
+        onValueChanged: sldThLow.value = value
+    }
+
+    // thHi
+    Label {
+        text: qsTr("Higger Canny threshold")
+        enabled: chkCanny.checked
+    }
+    Slider {
+        id: sldThHi
+        enabled: chkCanny.checked
+        value: Edge.thHi
+        stepSize: 1
+        maximumValue: 1530
+
+        onValueChanged: {
+            value = Math.max(value, sldThLow.value)
+            Edge.thHi = value
+        }
+    }
+    SpinBox {
+        id: spbThHi
+        enabled: chkCanny.checked
+        value: sldThHi.value
+        maximumValue: sldThHi.maximumValue
+        stepSize: sldThHi.stepSize
+
+        onValueChanged: sldThHi.value = value
+    }
+
+    // Equalize
+    Label {
         text: qsTr("Equalize")
+    }
+    CheckBox {
         checked: Edge.equalize
 
         onCheckedChanged: Edge.equalize = checked
     }
+    Label {
+    }
 
     // Invert
-    CheckBox {
+    Label {
         text: qsTr("Invert")
+    }
+    CheckBox {
         checked: Edge.invert
 
         onCheckedChanged: Edge.invert = checked
+    }
+    Label {
     }
 }

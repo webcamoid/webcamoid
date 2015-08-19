@@ -30,6 +30,21 @@
 class EdgeElement: public QbElement
 {
     Q_OBJECT
+    Q_PROPERTY(bool canny
+               READ canny
+               WRITE setCanny
+               RESET resetCanny
+               NOTIFY cannyChanged)
+    Q_PROPERTY(int thLow
+               READ thLow
+               WRITE setThLow
+               RESET resetThLow
+               NOTIFY thLowChanged)
+    Q_PROPERTY(int thHi
+               READ thHi
+               WRITE setThHi
+               RESET resetThHi
+               NOTIFY thHiChanged)
     Q_PROPERTY(bool equalize
                READ equalize
                WRITE setEqualize
@@ -48,21 +63,51 @@ class EdgeElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
+        Q_INVOKABLE bool canny() const;
+        Q_INVOKABLE int thLow() const;
+        Q_INVOKABLE int thHi() const;
         Q_INVOKABLE bool equalize() const;
         Q_INVOKABLE bool invert() const;
 
     private:
+        bool m_canny;
+        int m_thLow;
+        int m_thHi;
         bool m_equalize;
         bool m_invert;
         QbElementPtr m_convert;
 
+        QVector<quint8> equalize(const QImage &image);
+        void sobel(int width, int height, const QVector<quint8> &gray,
+                   QVector<quint16> &gradient, QVector<quint8> &direction) const;
+        QVector<quint16> thinning(int width, int height,
+                                  const QVector<quint16> &gradient,
+                                  const QVector<quint8> &direction) const;
+        QVector<quint8> threshold(int width, int height,
+                                  const QVector<quint16> &image,
+                                  const QVector<int> &thresholds,
+                                  const QVector<int> &map) const;
+        void trace(int width, int height, QVector<quint8> &canny,
+                   int x, int y) const;
+        QVector<quint8> hysteresisThresholding(int width, int height,
+                                               const QVector<quint8> &thresholded) const;
+
     signals:
-        void equalizeChanged();
-        void invertChanged();
+        void cannyChanged(bool canny);
+        void thLowChanged(int thLow);
+        void thHiChanged(int thHi);
+        void equalizeChanged(bool equalize);
+        void invertChanged(bool invert);
 
     public slots:
+        void setCanny(bool canny);
+        void setThLow(int thLow);
+        void setThHi(int thHi);
         void setEqualize(bool equalize);
         void setInvert(bool invert);
+        void resetCanny();
+        void resetThLow();
+        void resetThHi();
         void resetEqualize();
         void resetInvert();
         QbPacket iStream(const QbPacket &packet);
