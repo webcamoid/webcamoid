@@ -25,8 +25,8 @@ CartoonElement::CartoonElement(): QbElement()
     this->m_convert = QbElement::create("VCapsConvert");
     this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 
-    this->resetThreshold();
-    this->resetDiffSpace();
+    this->m_threshold = 95;
+    this->m_levels = 8;
 }
 
 QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -56,76 +56,35 @@ int CartoonElement::threshold() const
     return this->m_threshold;
 }
 
-int CartoonElement::diffSpace() const
+int CartoonElement::levels() const
 {
-    return this->m_diffSpace;
-}
-
-int CartoonElement::getMaxContrast(const QRgb *src, int x, int y)
-{
-    long max = 0;
-
-    int xMin = qBound(0, x - this->m_diffSpace, this->m_width);
-    int xMax = qBound(0, x + this->m_diffSpace, this->m_width);
-    int yMin = qBound(0, y - this->m_diffSpace, this->m_height);
-    int yMax = qBound(0, y + this->m_diffSpace, this->m_height);
-
-    // Assumes PrePixelModify has been run.
-    QRgb c1 = this->pixelate(src, xMin, y);
-    QRgb c2 = this->pixelate(src, xMax, y);
-    long error = this->gmError(c1, c2);
-
-    if (error > max)
-        max = error;
-
-    c1 = this->pixelate(src, x, yMin);
-    c2 = this->pixelate(src, x, yMax);
-    error = this->gmError(c1, c2);
-
-    if (error > max)
-        max = error;
-
-    c1 = this->pixelate(src, xMin, yMin);
-    c2 = this->pixelate(src, xMax, yMax);
-    error = this->gmError(c1,  c2);
-
-    if (error > max)
-        max = error;
-
-    c1 = this->pixelate(src, xMax, yMin);
-    c2 = this->pixelate(src, xMin, yMax);
-    error = this->gmError(c1, c2);
-
-    if (error > max)
-        max = error;
-
-    return sqrt(max);
+    return this->m_levels;
 }
 
 void CartoonElement::setThreshold(int threshold)
 {
     if (threshold != this->m_threshold) {
         this->m_threshold = threshold;
-        emit this->thresholdChange();
+        emit this->thresholdChange(threshold);
     }
 }
 
-void CartoonElement::setDiffSpace(int diffspace)
+void CartoonElement::setLevels(int levels)
 {
-    if (diffspace != this->m_diffSpace) {
-        this->m_diffSpace = diffspace;
-        emit this->diffSpaceChange();
+    if (levels != this->m_levels) {
+        this->m_levels = levels;
+        emit this->levelsChange(levels);
     }
 }
 
 void CartoonElement::resetThreshold()
 {
-    this->setThreshold(191);
+    this->setThreshold(95);
 }
 
-void CartoonElement::resetDiffSpace()
+void CartoonElement::resetLevels()
 {
-    this->setDiffSpace(4);
+    this->setLevels(8);
 }
 
 QbPacket CartoonElement::iStream(const QbPacket &packet)
@@ -138,32 +97,56 @@ QbPacket CartoonElement::iStream(const QbPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    int videoArea = src.width() * src.height();
+    const QRgb *srcPtr = (const QRgb *) src.constBits();
+    QVector<quint8> gray(videoArea);
+    quint8 *grayPtr = gray.data();
 
-    if (packet.caps() != this->m_caps) {
-        this->m_width = src.width();
-        this->m_height = src.height();
-        this->m_yprecal.clear();
+    for (int i = 0; i < videoArea; i++)
+        grayPtr[i] = qGray(srcPtr[i]);
 
-        for (int x = 0; x < 2 * src.height(); x++)
-            this->m_yprecal << src.width() * x;
+    qreal k = log(1531) / 255.;
+    int threshold = exp(k * (255 - this->m_threshold)) - 1;
 
-        this->m_caps = packet.caps();
-    }
-
-    // Cartoonify picture, do a form of edge detect
     for (int y = 0; y < src.height(); y++) {
-        for (int x = 0; x < src.width(); x++) {
-            int t = this->getMaxContrast(srcBits, x, y);
-            int offset = x + this->m_yprecal[y];
+        const QRgb *srcLine = (const QRgb *) src.constScanLine(y);;
+        QRgb *dstLine = (QRgb *) oFrame.constScanLine(y);;
 
-            if (t > this->m_threshold)
-                // Make a border pixel
-                destBits[offset] = qRgb(0, 0, 0);
-            else
-                // Copy original color
-                destBits[offset] = this->flattenColor(srcBits[offset]);
+        size_t yOffset = y * src.width();
+        const quint8 *grayLine = gray.constData() + yOffset;
+
+        const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - src.width();
+        const quint8 *grayLine_p1 = y >= src.height() - 1? grayLine: grayLine + src.width();
+
+        for (int x = 0; x < src.width(); x++) {
+            int x_m1 = x < 1? x: x - 1;
+            int x_p1 = x >= src.width() - 1? x: x + 1;
+
+            int gradX = grayLine_m1[x_p1]
+                      + 2 * grayLine[x_p1]
+                      + grayLine_p1[x_p1]
+                      - grayLine_m1[x_m1]
+                      - 2 * grayLine[x_m1]
+                      - grayLine_p1[x_m1];
+
+            int gradY = grayLine_m1[x_m1]
+                      + 2 * grayLine_m1[x]
+                      + grayLine_m1[x_p1]
+                      - grayLine_p1[x_m1]
+                      - 2 * grayLine_p1[x]
+                      - grayLine_p1[x_p1];
+
+            int grad = qAbs(gradX) + qAbs(gradY);
+
+            if (grad >= threshold)
+                dstLine[x] = qRgb(0, 0, 0);
+            else {
+                int r = this->threshold(qRed(srcLine[x]), this->m_levels);
+                int g = this->threshold(qGreen(srcLine[x]), this->m_levels);
+                int b = this->threshold(qBlue(srcLine[x]), this->m_levels);
+
+                dstLine[x] = qRgb(r, g, b);
+            }
         }
     }
 

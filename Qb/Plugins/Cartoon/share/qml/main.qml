@@ -34,7 +34,7 @@ GridLayout {
         id: sldThreshold
         value: Cartoon.threshold
         stepSize: 1
-        maximumValue: 256
+        maximumValue: 255
 
         onValueChanged: Cartoon.threshold = value
     }
@@ -47,25 +47,24 @@ GridLayout {
         onValueChanged: sldThreshold.value = value
     }
 
-    // Configure distance.
+    // Configure levels.
     Label {
-        id: lblDistance
-        text: qsTr("Distance")
+        text: qsTr("Levels")
     }
     Slider {
-        id: sldDistance
-        value: Cartoon.diffSpace
+        id: sldLevels
+        value: Cartoon.levels
         stepSize: 1
-        maximumValue: 1024
+        maximumValue: 32
 
-        onValueChanged: Cartoon.diffSpace = value
+        onValueChanged: Cartoon.levels = value
     }
     SpinBox {
-        id: spbDistance
-        value: sldDistance.value
-        maximumValue: sldDistance.maximumValue
-        stepSize: sldDistance.stepSize
+        id: spbLevels
+        value: sldLevels.value
+        maximumValue: sldLevels.maximumValue
+        stepSize: sldLevels.stepSize
 
-        onValueChanged: sldDistance.value = value
+        onValueChanged: sldLevels.value = value
     }
 }

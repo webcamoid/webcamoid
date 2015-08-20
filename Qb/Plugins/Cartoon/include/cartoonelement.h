@@ -37,11 +37,11 @@ class CartoonElement: public QbElement
                WRITE setThreshold
                RESET resetThreshold
                NOTIFY thresholdChange)
-    Q_PROPERTY(int diffSpace
-               READ diffSpace
-               WRITE setDiffSpace
-               RESET resetDiffSpace
-               NOTIFY diffSpaceChange)
+    Q_PROPERTY(int levels
+               READ levels
+               WRITE setLevels
+               RESET resetLevels
+               NOTIFY levelsChange)
 
     public:
         explicit CartoonElement();
@@ -50,52 +50,34 @@ class CartoonElement: public QbElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE int threshold() const;
-        Q_INVOKABLE int diffSpace() const;
+        Q_INVOKABLE int levels() const;
 
     private:
         int m_threshold;
-        int m_diffSpace;
+        int m_levels;
 
         QbElementPtr m_convert;
-        QbCaps m_caps;
-        QVector<int> m_yprecal;
-        int m_width;
-        int m_height;
 
-        inline QRgb flattenColor(QRgb color)
+        inline int threshold(int color, int levels)
         {
-            int r = (qRed(color) >> 5) << 5;
-            int g = (qGreen(color) >> 5) << 5;
-            int b = (qBlue(color) >> 5) << 5;
+            if (levels < 1)
+                levels = 1;
 
-            return qRgba(r, g, b, qAlpha(color));
+            double k = 256. / levels;
+            int r = k * int(color / k + 0.5);
+
+            return qBound(0, r, 255);
         }
-
-        inline QRgb pixelate(const QRgb *src, int x, int y)
-        {
-            return src[x + this->m_yprecal[y]];
-        }
-
-        inline QRgb gmError(QRgb color1, QRgb color2)
-        {
-            int rDiff = qRed(color1) - qRed(color2);
-            int gDiff = qGreen(color1) - qGreen(color2);
-            int bDiff = qBlue(color1) - qBlue(color2);
-
-            return rDiff * rDiff + gDiff * gDiff + bDiff * bDiff;
-        }
-
-        int getMaxContrast(const QRgb *src, int x, int y);
 
     signals:
-        void thresholdChange();
-        void diffSpaceChange();
+        void thresholdChange(int threshold);
+        void levelsChange(int levels);
 
     public slots:
         void setThreshold(int threshold);
-        void setDiffSpace(int diffSpace);
+        void setLevels(int levels);
         void resetThreshold();
-        void resetDiffSpace();
+        void resetLevels();
         QbPacket iStream(const QbPacket &packet);
 };
 
