@@ -29,6 +29,7 @@ class QbCapsPrivate;
 class QbCaps: public QObject
 {
     Q_OBJECT
+    Q_ENUMS(CapsType)
     Q_PROPERTY(bool isValid
                READ isValid)
     Q_PROPERTY(QString mimeType
@@ -38,6 +39,14 @@ class QbCaps: public QObject
                NOTIFY mimeTypeChanged)
 
     public:
+        enum CapsType
+        {
+            CapsUnknown = -1,
+            CapsAudio,
+            CapsVideo,
+            CapsSubtitle
+        };
+
         explicit QbCaps(QObject *parent=NULL);
         QbCaps(const QVariantMap &caps);
         QbCaps(const QString &caps);
@@ -48,12 +57,12 @@ class QbCaps: public QObject
         bool operator !=(const QbCaps &other) const;
         operator bool() const;
 
-        Q_INVOKABLE bool isValid() const;
-        Q_INVOKABLE QString mimeType() const;
+        Q_INVOKABLE virtual bool isValid() const;
+        Q_INVOKABLE virtual QString mimeType() const;
         Q_INVOKABLE QbCaps &fromMap(const QVariantMap &caps);
         Q_INVOKABLE QbCaps &fromString(const QString &caps);
         Q_INVOKABLE QVariantMap toMap() const;
-        Q_INVOKABLE QString toString() const;
+        Q_INVOKABLE virtual QString toString() const;
         Q_INVOKABLE QbCaps &update(const QbCaps &other);
         Q_INVOKABLE bool isCompatible(const QbCaps &other) const;
         Q_INVOKABLE bool contains(const QString &property) const;
@@ -62,11 +71,11 @@ class QbCaps: public QObject
         QbCapsPrivate *d;
 
     signals:
-        void mimeTypeChanged();
+        void mimeTypeChanged(const QString &mimeType);
 
     public slots:
-        void setMimeType(const QString &mimeType);
-        void resetMimeType();
+        virtual void setMimeType(const QString &mimeType);
+        virtual void resetMimeType();
         void clear();
 
     friend QDebug operator <<(QDebug debug, const QbCaps &caps);

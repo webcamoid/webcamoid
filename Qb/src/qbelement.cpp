@@ -441,6 +441,23 @@ void QbElement::stateChange(QbElement::ElementState from, QbElement::ElementStat
 
 QbPacket QbElement::iStream(const QbPacket &packet)
 {
+    if (packet.caps().mimeType() == "audio/x-raw")
+        return this->iStream(QbAudioPacket(packet));
+    else if (packet.caps().mimeType() == "video/x-raw")
+        return this->iStream(QbVideoPacket(packet));
+
+    return QbPacket();
+}
+
+QbPacket QbElement::iStream(const QbAudioPacket &packet)
+{
+    Q_UNUSED(packet)
+
+    return QbPacket();
+}
+
+QbPacket QbElement::iStream(const QbVideoPacket &packet)
+{
     Q_UNUSED(packet)
 
     return QbPacket();

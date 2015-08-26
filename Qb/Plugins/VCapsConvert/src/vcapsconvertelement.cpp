@@ -61,6 +61,12 @@ QbPacket VCapsConvertElement::iStream(const QbPacket &packet)
     if (packet.caps().mimeType() != "video/x-raw")
         return QbPacket();
 
+//    qDebug() << QbVideoPacket(packet);
+/*
+    if (packet.caps().property("format")) {
+        // "video/x-raw,format=yuyv422,fps=30/1,height=480,width=640" -> "video/x-raw,format=bgra"
+    }
+*/
     if (packet.caps() == this->m_caps)
         qbSend(packet)
 

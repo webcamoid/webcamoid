@@ -63,7 +63,7 @@ QbPacket::QbPacket(const QbCaps &caps,
 }
 
 QbPacket::QbPacket(const QbPacket &other):
-    QObject(other.parent())
+    QObject()
 {
     this->d = new QbPacketPrivate();
     this->d->m_caps = other.d->m_caps;

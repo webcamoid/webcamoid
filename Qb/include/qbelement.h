@@ -24,7 +24,8 @@
 #include <QStringList>
 #include <QQmlEngine>
 
-#include "qbpacket.h"
+#include "qbaudiopacket.h"
+#include "qbvideopacket.h"
 
 #define qbSend(packet) { \
     if (packet) \
@@ -121,6 +122,8 @@ class QbElement: public QObject
 
     public slots:
         virtual QbPacket iStream(const QbPacket &packet);
+        virtual QbPacket iStream(const QbAudioPacket &packet);
+        virtual QbPacket iStream(const QbVideoPacket &packet);
         virtual void setState(QbElement::ElementState state);
         virtual void resetState();
 };

@@ -23,6 +23,7 @@
 #include <QCoreApplication>
 
 #include "qb.h"
+#include "qbvideocaps.h"
 
 QQmlEngine *globalEngine = NULL;
 Q_GLOBAL_STATIC(QString, globalQmlPluginPath)
@@ -35,6 +36,8 @@ void Qb::init(QQmlEngine *engine)
 
     qRegisterMetaType<QbCaps>("QbCaps");
     qRegisterMetaTypeStreamOperators<QbCaps>("QbCaps");
+    qRegisterMetaType<QbVideoCaps>("QbVideoCaps");
+    qRegisterMetaTypeStreamOperators<QbVideoCaps>("QbVideoCaps");
     qRegisterMetaType<QbElement::ElementState>("QbElement::ElementState");
     qRegisterMetaType<QbElement::ElementState>("ElementState");
     qRegisterMetaTypeStreamOperators<QbElement::ElementState>("QbElement::ElementState");

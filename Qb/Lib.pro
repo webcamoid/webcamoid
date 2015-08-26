@@ -51,7 +51,11 @@ HEADERS = \
     include/qbfrac.h \
     include/qbpacket.h \
     include/qbplugin.h \
-    include/qbmultimediasourceelement.h
+    include/qbmultimediasourceelement.h \
+    include/qbvideocaps.h \
+    include/qbaudiocaps.h \
+    include/qbvideopacket.h \
+    include/qbaudiopacket.h
 
 INCLUDEPATH += \
     include
@@ -65,7 +69,11 @@ SOURCES = \
     src/qbelement.cpp \
     src/qbfrac.cpp \
     src/qbpacket.cpp \
-    src/qbmultimediasourceelement.cpp
+    src/qbmultimediasourceelement.cpp \
+    src/qbvideocaps.cpp \
+    src/qbaudiocaps.cpp \
+    src/qbvideopacket.cpp \
+    src/qbaudiopacket.cpp
 
 DESTDIR = $${PWD}
 

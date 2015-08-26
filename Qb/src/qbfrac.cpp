@@ -90,7 +90,7 @@ QbFrac::QbFrac(const QString &fracString):
 }
 
 QbFrac::QbFrac(const QbFrac &other):
-    QObject(other.parent())
+    QObject()
 {
     this->d = new QbFracPrivate();
     this->d->m_num = other.d->m_num;

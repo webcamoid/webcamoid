@@ -76,7 +76,6 @@ class QbPacket: public QObject
 
     public:
         explicit QbPacket(QObject *parent=NULL);
-
         QbPacket(const QbCaps &caps,
                  const QbBufferPtr &buffer=QbBufferPtr(),
                  ulong bufferSize=0,
@@ -84,7 +83,6 @@ class QbPacket: public QObject
                  const QbFrac &timeBase=QbFrac(),
                  int index=-1,
                  qint64 id=-1);
-
         QbPacket(const QbPacket &other);
         virtual ~QbPacket();
         QbPacket &operator =(const QbPacket &other);

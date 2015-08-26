@@ -55,7 +55,7 @@ QbCaps::QbCaps(const QString &caps)
 }
 
 QbCaps::QbCaps(const QbCaps &other):
-    QObject(other.parent())
+    QObject()
 {
     this->d = new QbCapsPrivate();
     this->d->m_isValid = other.d->m_isValid;
@@ -232,9 +232,13 @@ bool QbCaps::contains(const QString &property) const
 void QbCaps::setMimeType(const QString &mimeType)
 {
     this->d->m_isValid = QRegExp("\\s*[a-z]+/\\w+(?:(?:-|\\+|\\.)\\w+)*\\s*").exactMatch(mimeType);
-    this->d->m_mimeType = this->d->m_isValid? mimeType.trimmed(): QString("");
+    QString _mimeType = this->d->m_isValid? mimeType.trimmed(): QString("");
 
-    emit this->mimeTypeChanged();
+    if (this->d->m_mimeType == _mimeType)
+        return;
+
+    this->d->m_mimeType = _mimeType;
+    emit this->mimeTypeChanged(this->d->m_mimeType);
 }
 
 void QbCaps::resetMimeType()
