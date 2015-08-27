@@ -21,7 +21,7 @@ isEmpty(COMMONS_PRI_INCLUDE) {
     COMMONS_APPNAME = "Qb"
     COMMONS_TARGET = $${COMMONS_APPNAME}
     VER_MAJ = 6
-    VER_MIN = 1
+    VER_MIN = 2
     VER_PAT = 0
     VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
     COMMONS_PROJECT_URL = "http://github.com/hipersayanX/webcamoid"

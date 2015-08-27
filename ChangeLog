@@ -1,3 +1,11 @@
+Webcamoid 6.2.0:
+
+- Reworked Cartoonify plugin.
+- Some improvements in FaceDetect plugin.
+- Added Canny mode for Edge detection plugin.
+- Improved Blur and Denoise plugins.
+- Fixed QDataStream missing header.
+
 Webcamoid 6.1.0:
 
 - Removed OpenCV as dependency (yes, again).
