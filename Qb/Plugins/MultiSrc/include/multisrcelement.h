@@ -23,7 +23,6 @@
 
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QtConcurrent>
 
 #include <qbmultimediasourceelement.h>
 
@@ -35,10 +34,6 @@ typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 class MultiSrcElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
-    Q_PROPERTY(bool audioAlign
-               READ audioAlign
-               WRITE setAudioAlign
-               RESET resetAudioAlign)
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
@@ -58,7 +53,6 @@ class MultiSrcElement: public QbMultimediaSourceElement
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE QbCaps caps(int stream);
-        Q_INVOKABLE bool audioAlign() const;
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
 
     protected:
@@ -67,21 +61,21 @@ class MultiSrcElement: public QbMultimediaSourceElement
     private:
         QString m_media;
         QList<int> m_streams;
-        bool m_audioAlign;
-        Thread *m_decodingThread;
         bool m_run;
 
         FormatContextPtr m_inputContext;
         qint64 m_maxPacketQueueSize;
+        QThreadPool m_threadPool;
         QMutex m_dataMutex;
         QWaitCondition m_packetQueueNotFull;
         QWaitCondition m_packetQueueEmpty;
         QMap<int, AbstractStreamPtr> m_streamsMap;
-        QMap<AVMediaType, QString> m_avMediaTypeToMimeType;
 
         qint64 packetQueueSize();
         static void deleteFormatContext(AVFormatContext *context);
         AbstractStreamPtr createStream(int index, bool noModify=false);
+        static void readPackets(MultiSrcElement *element);
+        static void unlockQueue(MultiSrcElement *element);
 
         inline int roundDown(int value, int multiply)
         {
@@ -90,25 +84,20 @@ class MultiSrcElement: public QbMultimediaSourceElement
 
     signals:
         void error(const QString &message);
-        void queueSizeUpdated(const QMap<int, qint64> &queueSize);
 
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
-        void setAudioAlign(bool audioAlign);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void resetMedia();
         void resetStreams();
-        void resetAudioAlign();
         void resetMaxPacketQueueSize();
 
         void setState(QbElement::ElementState state);
 
     private slots:
         void doLoop();
-        void pullData();
         void packetConsumed();
-        void unlockQueue();
         bool init();
         bool initContext();
         void uninit();

@@ -21,36 +21,39 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
+extern "C"
+{
+    #include <libswresample/swresample.h>
+}
+
 #include "abstractstream.h"
+#include "framebuffer.h"
 
 class AudioStream: public AbstractStream
 {
     Q_OBJECT
-    Q_PROPERTY(bool align
-               READ align
-               WRITE setAlign
-               RESET resetAlign)
 
     public:
         explicit AudioStream(const AVFormatContext *formatContext=NULL,
                              uint index=-1, qint64 id=-1, bool noModify=false,
                              QObject *parent=NULL);
+        ~AudioStream();
 
-        Q_INVOKABLE bool align() const;
         Q_INVOKABLE QbCaps caps() const;
 
     protected:
         void processPacket(AVPacket *packet);
 
     private:
-        bool m_align;
         bool m_fst;
         qint64 m_pts;
         qint64 m_duration;
+        SwrContext *m_resampleContext;
+        FrameBuffer m_frameBuffer;
+        bool m_run;
+        QThreadPool m_threadPool;
 
-    public slots:
-        void setAlign(bool align);
-        void resetAlign();
+        QbPacket convert(AVFrame *iFrame);
 };
 
 #endif // AUDIOSTREAM_H

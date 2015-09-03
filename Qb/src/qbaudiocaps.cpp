@@ -247,6 +247,11 @@ bool QbAudioCaps::isValid() const
     return this->d->m_isValid;
 }
 
+bool &QbAudioCaps::isValid()
+{
+    return this->d->m_isValid;
+}
+
 QbAudioCaps::SampleFormat QbAudioCaps::format() const
 {
     return this->d->m_format;

@@ -168,6 +168,11 @@ bool QbVideoCaps::isValid() const
     return this->d->m_isValid;
 }
 
+bool &QbVideoCaps::isValid()
+{
+    return this->d->m_isValid;
+}
+
 QbVideoCaps::VideoFormat QbVideoCaps::format() const
 {
     return this->d->m_format;

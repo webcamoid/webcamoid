@@ -18,53 +18,103 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QAudioOutput>
+
 #include "audiostream.h"
+
+typedef QMap<AVSampleFormat, QbAudioCaps::SampleFormat> SampleFormatMap;
+
+inline SampleFormatMap initSampleFormatMap()
+{
+    SampleFormatMap sampleFormat;
+    sampleFormat[AV_SAMPLE_FMT_U8] = QbAudioCaps::Format_u8;
+    sampleFormat[AV_SAMPLE_FMT_S16] = QbAudioCaps::Format_s16;
+    sampleFormat[AV_SAMPLE_FMT_S32] = QbAudioCaps::Format_s32;
+    sampleFormat[AV_SAMPLE_FMT_FLT] = QbAudioCaps::Format_flt;
+
+    return sampleFormat;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
+
+typedef QMap<int64_t, QbAudioCaps::ChannelLayout> ChannelLayoutsMap;
+
+inline ChannelLayoutsMap initChannelFormatsMap()
+{
+    ChannelLayoutsMap channelLayouts;
+    channelLayouts[AV_CH_LAYOUT_MONO] = QbAudioCaps::Layout_mono;
+    channelLayouts[AV_CH_LAYOUT_STEREO] = QbAudioCaps::Layout_stereo;
+
+    return channelLayouts;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormatsMap()))
+
+typedef QMap<AVSampleFormat, int> BpsMap;
+
+inline BpsMap initBpsMap()
+{
+    BpsMap bps;
+    bps[AV_SAMPLE_FMT_U8] = 1;
+    bps[AV_SAMPLE_FMT_S16] = 2;
+    bps[AV_SAMPLE_FMT_S32] = 4;
+    bps[AV_SAMPLE_FMT_FLT] = 4;
+
+    return bps;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(BpsMap, bytesPerSample, (initBpsMap()))
+
+typedef QMap<int64_t, int> NChannelsMap;
+
+inline NChannelsMap initNChannelsMap()
+{
+    NChannelsMap nChannels;
+    nChannels[AV_CH_LAYOUT_MONO] = 1;
+    nChannels[AV_CH_LAYOUT_STEREO] = 2;
+
+    return nChannels;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(NChannelsMap, NChannels, (initNChannelsMap()))
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,
                          uint index, qint64 id, bool noModify, QObject *parent):
     AbstractStream(formatContext, index, id, noModify, parent)
 {
     this->m_fst = true;
-    this->resetAlign();
+    this->m_resampleContext = NULL;
+    this->m_frameBuffer.setMaxSize(9);
 }
 
-bool AudioStream::align() const
+AudioStream::~AudioStream()
 {
-    return this->m_align;
+    if (this->m_resampleContext)
+        swr_free(&this->m_resampleContext);
 }
 
 QbCaps AudioStream::caps() const
 {
-    const char *format = av_get_sample_fmt_name(this->codecContext()->sample_fmt);
-    char layout[256];
-    qint64 channelLayout;
+    QbAudioCaps::SampleFormat format =
+            sampleFormats->contains(this->codecContext()->sample_fmt)?
+                sampleFormats->value(this->codecContext()->sample_fmt):
+                QbAudioCaps::Format_flt;
 
-    if (this->codecContext()->channel_layout)
-        channelLayout = this->codecContext()->channel_layout;
-    else
-        channelLayout = av_get_default_channel_layout(this->codecContext()->channels);
+    QbAudioCaps::ChannelLayout layout =
+            channelLayouts->contains(this->codecContext()->channel_layout)?
+                channelLayouts->value(this->codecContext()->channel_layout):
+                QbAudioCaps::Layout_stereo;
 
-    av_get_channel_layout_string(layout,
-                                 sizeof(layout),
-                                 this->codecContext()->channels,
-                                 channelLayout);
+    QbAudioCaps caps;
+    caps.isValid() = true;
+    caps.format() = format;
+    caps.bps() = bytesPerSample->value(sampleFormats->key(format));
+    caps.channels() = NChannels->value(layout);
+    caps.rate() = this->codecContext()->sample_rate;
+    caps.layout() = layout;
+    caps.align() = false;
 
-    int bytesPerSample = av_get_bytes_per_sample(this->codecContext()->sample_fmt);
-
-    QbCaps caps(QString("audio/x-raw,"
-                        "format=%1,"
-                        "bps=%2,"
-                        "channels=%3,"
-                        "rate=%4,"
-                        "layout=%5,"
-                        "align=%6").arg(format)
-                                   .arg(bytesPerSample)
-                                   .arg(this->codecContext()->channels)
-                                   .arg(this->codecContext()->sample_rate)
-                                   .arg(layout)
-                                   .arg(this->align()));
-
-    return caps;
+    return caps.toCaps();
 }
 
 void AudioStream::processPacket(AVPacket *packet)
@@ -97,58 +147,94 @@ void AudioStream::processPacket(AVPacket *packet)
                   (iFrame.pkt_pts != AV_NOPTS_VALUE) ? iFrame.pkt_pts :
                   this->m_pts;
 
-    int oLineSize;
+    iFrame.pts = pts;
+    iFrame.pkt_pts = pts;
 
-    int oBufferSize = av_samples_get_buffer_size(&oLineSize,
-                      iFrame.channels,
-                      iFrame.nb_samples,
-                      (AVSampleFormat) iFrame.format,
-                      this->align() ? 0 : 1);
-
-    QbBufferPtr oBuffer(new char[oBufferSize]);
-
-    int planes = av_sample_fmt_is_planar((AVSampleFormat) iFrame.format) ?
-                 iFrame.channels : 1;
-    QVector<uint8_t *> oData(planes);
-
-    if (av_samples_fill_arrays(&oData.data()[0],
-                               &oLineSize,
-                               (const uint8_t *) oBuffer.data(),
-                               iFrame.channels,
-                               iFrame.nb_samples,
-                               (AVSampleFormat) iFrame.format,
-                               this->align() ? 0 : 1) < 0)
-        return;
-
-    av_samples_copy(&oData.data()[0],
-                    iFrame.data,
-                    0,
-                    0,
-                    iFrame.nb_samples,
-                    iFrame.channels,
-                    (AVSampleFormat) iFrame.format);
-
-    QbCaps caps = this->caps();
-    caps.setProperty("samples", iFrame.nb_samples);
-
-    QbPacket oPacket(caps,
-                     oBuffer,
-                     oBufferSize);
-
-    oPacket.setPts(pts);
-    oPacket.setTimeBase(this->timeBase());
-    oPacket.setIndex(this->index());
-    oPacket.setId(this->id());
+    QbPacket oPacket = this->convert(&iFrame);
 
     emit this->oStream(oPacket);
 }
 
-void AudioStream::setAlign(bool align)
+QbPacket AudioStream::convert(AVFrame *iFrame)
 {
-    this->m_align = align;
-}
+    int64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
+                          iFrame->channel_layout:
+                          AV_CH_LAYOUT_STEREO;
 
-void AudioStream::resetAlign()
-{
-    this->setAlign(false);
+    AVSampleFormat oFormat = sampleFormats->contains(AVSampleFormat(iFrame->format))?
+                                 AVSampleFormat(iFrame->format):
+                                 AV_SAMPLE_FMT_FLT;
+
+    this->m_resampleContext =
+            swr_alloc_set_opts(this->m_resampleContext,
+                               oLayout,
+                               oFormat,
+                               iFrame->sample_rate,
+                               iFrame->channel_layout,
+                               AVSampleFormat(iFrame->format),
+                               iFrame->sample_rate,
+                               0,
+                               NULL);
+
+    if (!this->m_resampleContext)
+        return QbPacket();
+
+    AVFrame *oFrame = av_frame_alloc();
+    oFrame->channel_layout = oLayout;
+    oFrame->format = oFormat;
+    oFrame->sample_rate = iFrame->sample_rate;
+
+    if (swr_convert_frame(this->m_resampleContext,
+                          oFrame,
+                          iFrame) < 0)
+        return QbPacket();
+
+    QbAudioPacket packet;
+    packet.caps().isValid() = true;
+    packet.caps().format() = sampleFormats->value(oFormat);
+    packet.caps().bps() = bytesPerSample->value(oFormat);
+    packet.caps().channels() = NChannels->value(oLayout);
+    packet.caps().rate() = iFrame->sample_rate;
+    packet.caps().layout() = channelLayouts->value(oLayout);
+    packet.caps().samples() = oFrame->nb_samples;
+    packet.caps().align() = false;
+
+    int oLineSize;
+    int frameSize = av_samples_get_buffer_size(&oLineSize,
+                                               packet.caps().channels(),
+                                               packet.caps().samples(),
+                                               oFormat,
+                                               1);
+
+    QbBufferPtr oBuffer(new char[frameSize]);
+    uint8_t *oData;
+
+    if (av_samples_fill_arrays(&oData,
+                               &oLineSize,
+                               (const uint8_t *) oBuffer.data(),
+                               packet.caps().channels(),
+                               packet.caps().samples(),
+                               oFormat,
+                               1) < 0)
+        return QbPacket();
+
+    if (av_samples_copy(&oData,
+                        oFrame->data,
+                        0,
+                        0,
+                        packet.caps().channels(),
+                        packet.caps().samples(),
+                        oFormat) < 0)
+        return QbPacket();
+
+    packet.buffer() = oBuffer;
+    packet.bufferSize() = frameSize;
+    packet.pts() = av_frame_get_best_effort_timestamp(iFrame);
+    packet.timeBase() = this->timeBase();
+    packet.index() = this->index();
+    packet.id() = this->id();
+
+    av_frame_free(&oFrame);
+
+    return packet.toPacket();
 }

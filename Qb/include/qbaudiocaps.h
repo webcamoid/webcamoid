@@ -128,6 +128,7 @@ class QbAudioCaps: public QObject
         operator bool() const;
 
         Q_INVOKABLE bool isValid() const;
+        Q_INVOKABLE bool &isValid();
         Q_INVOKABLE SampleFormat format() const;
         Q_INVOKABLE SampleFormat &format();
         Q_INVOKABLE int bps() const;

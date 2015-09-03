@@ -21,7 +21,13 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
+extern "C"
+{
+    #include <libswscale/swscale.h>
+}
+
 #include "abstractstream.h"
+#include "framebuffer.h"
 
 class VideoStream: public AbstractStream
 {
@@ -31,6 +37,7 @@ class VideoStream: public AbstractStream
         explicit VideoStream(const AVFormatContext *formatContext=NULL,
                              uint index=-1, qint64 id=-1, bool noModify=false,
                              QObject *parent=NULL);
+        ~VideoStream();
 
         Q_INVOKABLE QbCaps caps() const;
 
@@ -38,7 +45,13 @@ class VideoStream: public AbstractStream
         void processPacket(AVPacket *packet);
 
     private:
+        SwsContext *m_scaleContext;
+        FrameBuffer m_frameBuffer;
+        bool m_run;
+        QThreadPool m_threadPool;
+
         QbFrac fps() const;
+        QbPacket convert(AVFrame *iFrame);
 };
 
 #endif // VIDEOSTREAM_H

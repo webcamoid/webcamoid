@@ -21,9 +21,10 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
+#include <QtConcurrent>
+#include <QQueue>
 #include <QMutex>
 #include <QWaitCondition>
-#include <QQueue>
 #include <qb.h>
 
 extern "C"
@@ -31,8 +32,6 @@ extern "C"
     #include <libavdevice/avdevice.h>
     #include <libavutil/imgutils.h>
 }
-
-#include "thread.h"
 
 class AbstractStream: public QObject
 {
@@ -74,11 +73,13 @@ class AbstractStream: public QObject
         AVCodec *m_codec;
         AVDictionary *m_codecOptions;
         bool m_run;
-        Thread *m_outputThread;
+        QThreadPool m_threadPool;
         QMutex m_mutex;
         QWaitCondition m_queueNotEmpty;
         QQueue<AVPacket *> m_packets;
         qint64 m_queueSize;
+
+        static void decodeFrame(AbstractStream *stream);
 
     signals:
         void oStream(const QbPacket &packet);
@@ -87,11 +88,8 @@ class AbstractStream: public QObject
     public slots:
         bool open();
         void close();
-        void init();
-        void uninit();
-
-    private slots:
-        void pullFrame();
+        virtual void init();
+        virtual void uninit();
 };
 
 #endif // ABSTRACTSTREAM_H

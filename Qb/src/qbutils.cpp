@@ -20,20 +20,28 @@
 
 #include "qbutils.h"
 
-QbPacket QbUtils::imageToPacket(const QImage &image, const QbPacket &defaultPacket)
+typedef QMap<QImage::Format, QString> ImageStrMap;
+
+inline ImageStrMap initImageStrMap()
 {
     QMap<QImage::Format, QString> imageToFormat;
-
     imageToFormat[QImage::Format_Mono] = "monob";
-    imageToFormat[QImage::Format_Indexed8] = "gray";
     imageToFormat[QImage::Format_RGB32] = "bgr0";
     imageToFormat[QImage::Format_ARGB32] = "bgra";
     imageToFormat[QImage::Format_RGB16] = "rgb565le";
     imageToFormat[QImage::Format_RGB555] = "rgb555le";
     imageToFormat[QImage::Format_RGB888] = "bgr24";
     imageToFormat[QImage::Format_RGB444] = "rgb444le";
+    imageToFormat[QImage::Format_Grayscale8] = "gray";
 
-    if (!imageToFormat.contains(image.format()))
+    return imageToFormat;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ImageStrMap, imageToFormat, (initImageStrMap()))
+
+QbPacket QbUtils::imageToPacket(const QImage &image, const QbPacket &defaultPacket)
+{
+    if (!imageToFormat->contains(image.format()))
         return QbPacket();
 
     QbBufferPtr oBuffer(new char[image.byteCount()]);
@@ -41,7 +49,7 @@ QbPacket QbUtils::imageToPacket(const QImage &image, const QbPacket &defaultPack
 
     QbCaps caps(defaultPacket.caps());
     caps.setMimeType("video/x-raw");
-    caps.setProperty("format", imageToFormat[image.format()]);
+    caps.setProperty("format", imageToFormat->value(image.format()));
     caps.setProperty("width", image.width());
     caps.setProperty("height", image.height());
 
@@ -58,20 +66,9 @@ QImage QbUtils::packetToImage(const QbPacket &packet)
     if (packet.caps().mimeType() != "video/x-raw")
         return QImage();
 
-    QMap<QString, QImage::Format> formatToImage;
-
-    formatToImage["monob"] = QImage::Format_Mono;
-    formatToImage["gray"] = QImage::Format_Indexed8;
-    formatToImage["bgr0"] = QImage::Format_RGB32;
-    formatToImage["bgra"] = QImage::Format_ARGB32;
-    formatToImage["rgb565le"] = QImage::Format_RGB16;
-    formatToImage["rgb555le"] = QImage::Format_RGB555;
-    formatToImage["bgr24"] = QImage::Format_RGB888;
-    formatToImage["rgb444le"] = QImage::Format_RGB444;
-
     QString format = packet.caps().property("format").toString();
 
-    if (!formatToImage.contains(format))
+    if (!imageToFormat->values().contains(format))
         return QImage();
 
     int width = packet.caps().property("width").toInt();
@@ -80,7 +77,7 @@ QImage QbUtils::packetToImage(const QbPacket &packet)
     QImage image((const uchar *) packet.buffer().data(),
                  width,
                  height,
-                 formatToImage[format]);
+                 imageToFormat->key(format));
 
     if (format == "gray")
         for (int i = 0; i < 256; i++)

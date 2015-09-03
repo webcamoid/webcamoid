@@ -43,7 +43,6 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     this->m_codecOptions = NULL;
     this->m_queueSize = 0;
-    this->m_outputThread = NULL;
 
     if (!this->m_codec)
         return;
@@ -142,6 +141,27 @@ void AbstractStream::processPacket(AVPacket *packet)
     Q_UNUSED(packet)
 }
 
+void AbstractStream::decodeFrame(AbstractStream *stream)
+{
+    while (stream->m_run) {
+        stream->m_mutex.lock();
+
+        if (stream->m_packets.isEmpty())
+            stream->m_queueNotEmpty.wait(&stream->m_mutex);
+
+        if (!stream->m_packets.isEmpty()) {
+            AVPacket *packet = stream->m_packets.dequeue();
+            stream->processPacket(packet);
+            stream->m_queueSize -= packet->size;
+            av_free_packet(packet);
+            delete packet;
+            emit stream->notify();
+        }
+
+        stream->m_mutex.unlock();
+    }
+}
+
 bool AbstractStream::open()
 {
     if (!this->m_codecContext)
@@ -165,16 +185,8 @@ void AbstractStream::init()
     if (!this->open())
         return;
 
-    this->m_outputThread = new Thread();
-
-    QObject::connect(this->m_outputThread,
-                     SIGNAL(runTh()),
-                     this,
-                     SLOT(pullFrame()),
-                     Qt::DirectConnection);
-
     this->m_run = true;
-    this->m_outputThread->start();
+    QtConcurrent::run(&this->m_threadPool, this->decodeFrame, this);
 }
 
 void AbstractStream::uninit()
@@ -184,11 +196,7 @@ void AbstractStream::uninit()
     this->m_queueNotEmpty.wakeAll();
     this->m_mutex.unlock();
 
-    if (this->m_outputThread) {
-        this->m_outputThread->wait();
-        delete this->m_outputThread;
-        this->m_outputThread = NULL;
-    }
+    this->m_threadPool.waitForDone();
 
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);
@@ -196,25 +204,4 @@ void AbstractStream::uninit()
     this->close();
 
     this->m_codecContext = NULL;
-}
-
-void AbstractStream::pullFrame()
-{
-    while (this->m_run) {
-        this->m_mutex.lock();
-
-        if (this->m_packets.isEmpty())
-            this->m_queueNotEmpty.wait(&this->m_mutex);
-
-        if (!this->m_packets.isEmpty()) {
-            AVPacket *packet = this->m_packets.dequeue();
-            this->processPacket(packet);
-            this->m_queueSize -= packet->size;
-            av_free_packet(packet);
-            delete packet;
-            emit this->notify();
-        }
-
-        this->m_mutex.unlock();
-    }
 }

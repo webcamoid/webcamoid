@@ -33,12 +33,12 @@ DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
     include/abstractstream.h \
-    include/videostream.h \
     include/audiostream.h \
     include/multisrc.h \
     include/multisrcelement.h \
     include/subtitlestream.h \
-    include/thread.h
+    include/videostream.h \
+    include/framebuffer.h
 
 INCLUDEPATH += \
     include \
@@ -52,16 +52,16 @@ win32: LIBS += -L../../ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml concurrent widgets
+QT += qml concurrent widgets multimedia
 
 SOURCES += \
     src/abstractstream.cpp \
-    src/videostream.cpp \
     src/audiostream.cpp \
     src/multisrc.cpp \
     src/multisrcelement.cpp \
     src/subtitlestream.cpp \
-    src/thread.cpp
+    src/videostream.cpp \
+    src/framebuffer.cpp
 
 DESTDIR = $${PWD}
 

@@ -239,6 +239,7 @@ class QbVideoCaps: public QObject
         operator bool() const;
 
         Q_INVOKABLE bool isValid() const;
+        Q_INVOKABLE bool &isValid();
         Q_INVOKABLE VideoFormat format() const;
         Q_INVOKABLE VideoFormat &format();
         Q_INVOKABLE int width() const;
