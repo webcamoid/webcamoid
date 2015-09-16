@@ -71,16 +71,16 @@ class QbAudioCaps: public QObject
     public:
         enum SampleFormat
         {
-            Format_none = -1,
-            Format_u8,
-            Format_s16,
-            Format_s32,
-            Format_flt,
-            Format_dbl,
-            Format_u8p,
-            Format_s16p,
-            Format_s32p,
-            Format_fltp
+            SampleFormat_none = -1,
+            SampleFormat_u8,
+            SampleFormat_s16,
+            SampleFormat_s32,
+            SampleFormat_flt,
+            SampleFormat_dbl,
+            SampleFormat_u8p,
+            SampleFormat_s16p,
+            SampleFormat_s32p,
+            SampleFormat_fltp
         };
 
         enum ChannelLayout

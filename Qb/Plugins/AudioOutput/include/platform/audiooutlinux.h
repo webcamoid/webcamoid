@@ -18,20 +18,37 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef VIDEOSYNC_H
-#define VIDEOSYNC_H
+#ifndef AUDIOOUT_H
+#define AUDIOOUT_H
 
-#include <qb.h>
+#include <qbaudiocaps.h>
+#include <pulse/simple.h>
+#include <pulse/error.h>
 
-class VideoSync: public QObject, public QbPlugin
+class AudioOut: public QObject
 {
     Q_OBJECT
-    Q_INTERFACES(QbPlugin)
-    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
+    Q_PROPERTY(QString error
+               READ error
+               NOTIFY errorChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
+        explicit AudioOut(QObject *parent=NULL);
+        ~AudioOut();
+
+        Q_INVOKABLE QString error() const;
+        Q_INVOKABLE bool init(QbAudioCaps::SampleFormat sampleFormat,
+                              int channels,
+                              int sampleRate);
+        Q_INVOKABLE bool write(const QByteArray &frame);
+        Q_INVOKABLE bool uninit();
+
+    private:
+        QString m_error;
+        pa_simple *m_paSimple;
+
+    signals:
+        void errorChanged(const QString & error);
 };
 
-#endif // VIDEOSYNC_H
+#endif // AUDIOOUT_H

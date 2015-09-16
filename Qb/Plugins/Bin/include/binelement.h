@@ -35,16 +35,11 @@ class BinElement: public QbElement
                              WRITE setBlocking
                              RESET resetBlocking)
 
-    Q_PROPERTY(ThreadsMap threads READ threads
-                                  WRITE setThreads
-                                  RESET resetThreads)
-
     public:
         explicit BinElement();
 
         Q_INVOKABLE QString description() const;
         Q_INVOKABLE bool blocking() const;
-        Q_INVOKABLE ThreadsMap threads() const;
         Q_INVOKABLE QbElementPtr element(const QString &elementName);
         Q_INVOKABLE void add(QbElementPtr element);
         Q_INVOKABLE void remove(const QString &elementName);
@@ -52,7 +47,6 @@ class BinElement: public QbElement
     private:
         QString m_description;
         bool m_blocking;
-        ThreadsMap m_threads;
         QMap<QString, QbElementPtr> m_elements;
         QList<QbElementPtr> m_inputs;
         QList<QbElementPtr> m_outputs;
@@ -61,10 +55,8 @@ class BinElement: public QbElement
     public slots:
         void setDescription(const QString &description);
         void setBlocking(bool blocking);
-        void setThreads(const ThreadsMap &threads);
         void resetDescription();
         void resetBlocking();
-        void resetThreads();
 
         QbPacket iStream(const QbPacket &packet);
         void setState(QbElement::ElementState state);

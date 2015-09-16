@@ -31,28 +31,42 @@ CONFIG += plugin
 
 HEADERS += \
     include/audiooutput.h \
-    include/audiooutputelement.h \
-    include/audiobuffer.h
+    include/audiooutputelement.h
+!win32: HEADERS += include/platform/audiooutlinux.h
+win32: HEADERS += \
+    include/platform/audiooutwin.h \
+    include/platform/voicecallback.h
 
 INCLUDEPATH += \
     include \
     ../../include
+win32: INCLUDEPATH += /usr/include/wine/windows
 
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
+win32: LIBS += -lole32 -lxaudio2_8
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia
+QT += qml
 
 SOURCES += \
     src/audiooutput.cpp \
-    src/audiooutputelement.cpp \
-    src/audiobuffer.cpp
+    src/audiooutputelement.cpp
+!win32: SOURCES += src/platform/audiooutlinux.cpp
+win32: SOURCES += \
+    src/platform/audiooutwin.cpp \
+    src/platform/voicecallback.cpp
 
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
+
+unix {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += libpulse-simple
+}
 
 INSTALLS += target
 

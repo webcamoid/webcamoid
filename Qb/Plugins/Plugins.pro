@@ -79,7 +79,6 @@ SUBDIRS += \
     Temperature \
     VCapsConvert \
     VideoCapture \
-    VideoSync \
     Vignette \
     Warhol \
     Warp \

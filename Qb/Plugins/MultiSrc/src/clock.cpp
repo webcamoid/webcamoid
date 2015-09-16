@@ -18,18 +18,36 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include "videosync.h"
-#include "videosyncelement.h"
+#include <QDateTime>
 
-QObject *VideoSync::create(const QString &key, const QString &specification)
+#include "clock.h"
+
+Clock::Clock(QObject *parent): QObject(parent)
 {
-    Q_UNUSED(key)
-    Q_UNUSED(specification)
-
-    return new VideoSyncElement();
+    this->m_timeDrift = 0.0;
 }
 
-QStringList VideoSync::keys() const
+qreal Clock::clock()
 {
-    return QStringList();
+    this->m_mutex.lockForRead();
+    qreal clock = QDateTime::currentMSecsSinceEpoch() * 1.0e-3
+                  - this->m_timeDrift;
+    this->m_mutex.unlock();
+
+    return clock;
+}
+
+void Clock::setClock(qreal clock)
+{
+    this->m_mutex.lockForWrite();
+    this->m_timeDrift = QDateTime::currentMSecsSinceEpoch() * 1.0e-3
+                        - clock;
+    this->m_mutex.unlock();
+}
+
+void Clock::resetClock()
+{
+    this->m_mutex.lockForWrite();
+    this->m_timeDrift = 0.0;
+    this->m_mutex.unlock();
 }

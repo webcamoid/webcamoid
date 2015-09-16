@@ -29,7 +29,9 @@ class SubtitleStream: public AbstractStream
 
     public:
         explicit SubtitleStream(const AVFormatContext *formatContext=NULL,
-                                uint index=-1, qint64 id=-1, bool noModify=false,
+                                uint index=-1, qint64 id=-1,
+                                Clock *globalClock=NULL,
+                                bool noModify=false,
                                 QObject *parent=NULL);
 
         Q_INVOKABLE QbCaps caps() const;

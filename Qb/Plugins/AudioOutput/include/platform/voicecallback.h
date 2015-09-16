@@ -18,35 +18,36 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef OUTPUTTHREAD_H
-#define OUTPUTTHREAD_H
+#ifndef VOICECALLBACK_H
+#define VOICECALLBACK_H
 
-#include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
-#include <qbpacket.h>
+#include <xaudio2.h>
 
-class OutputThread: public QThread
+struct Lock
 {
-    Q_OBJECT
-
-    public:
-        explicit OutputThread(QObject *parent=NULL);
-        ~OutputThread();
-
-    private:
-        QbPacket m_packet;
-        QMutex m_mutex;
-        QWaitCondition m_packetReady;
-
-    protected:
-        void run() Q_DECL_OVERRIDE;
-
-    signals:
-        void oStream(const QbPacket &packet);
-
-    public slots:
-        void setPacket(const QbPacket &packet);
+    QMutex m_mutex;
+    QWaitCondition m_waitForBufferEnd;
 };
 
-#endif // OUTPUTTHREAD_H
+class VoiceCallback: public IXAudio2VoiceCallback
+{
+    public:
+        VoiceCallback();
+        ~VoiceCallback();
+
+        //Unused methods are stubs
+        void STDMETHODCALLTYPE OnVoiceProcessingPassEnd();
+        void STDMETHODCALLTYPE OnVoiceProcessingPassStart(UINT32 SamplesRequired);
+        void STDMETHODCALLTYPE OnStreamEnd();
+        void STDMETHODCALLTYPE OnBufferEnd(void *pBufferContext);
+        void STDMETHODCALLTYPE OnBufferStart(void *pBufferContext);
+        void STDMETHODCALLTYPE OnLoopEnd(void *pBufferContext);
+        void STDMETHODCALLTYPE OnVoiceError(void *pBufferContext, HRESULT Error);
+
+    private:
+        HANDLE m_hBufferEndEvent;
+};
+
+#endif // VOICECALLBACK_H

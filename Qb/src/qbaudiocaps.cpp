@@ -78,7 +78,7 @@ QbAudioCaps::QbAudioCaps(QObject *parent):
 {
     this->d = new QbAudioCapsPrivate();
     this->d->m_isValid = false;
-    this->d->m_format = Format_none;
+    this->d->m_format = SampleFormat_none;
     this->d->m_bps = 0;
     this->d->m_channels = 0;
     this->d->m_rate = 0;
@@ -91,7 +91,7 @@ QbAudioCaps::QbAudioCaps(const QVariantMap &caps)
 {
     this->d = new QbAudioCapsPrivate();
     this->d->m_format = caps["format"].value<SampleFormat>();
-    this->d->m_isValid = this->d->m_format == Format_none? false: false;
+    this->d->m_isValid = this->d->m_format == SampleFormat_none? false: false;
     this->d->m_bps = caps["bps"].toInt();
     this->d->m_channels = caps["channels"].toInt();
     this->d->m_rate = caps["rate"].toInt();
@@ -104,7 +104,7 @@ QbAudioCaps::QbAudioCaps(const QString &caps)
 {
     this->d = new QbAudioCapsPrivate();
     this->d->m_isValid = false;
-    this->d->m_format = Format_none;
+    this->d->m_format = SampleFormat_none;
     this->d->m_bps = 0;
     this->d->m_channels = 0;
     this->d->m_rate = 0;
@@ -121,7 +121,7 @@ QbAudioCaps::QbAudioCaps(const QbCaps &caps)
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
 
-        QString format = "Format_" + caps.property("format").toString();
+        QString format = "SampleFormat_" + caps.property("format").toString();
         int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
         QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
         int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
@@ -138,7 +138,7 @@ QbAudioCaps::QbAudioCaps(const QbCaps &caps)
         this->d->m_align = caps.property("align").toBool();
     } else {
         this->d->m_isValid = false;
-        this->d->m_format = Format_none;
+        this->d->m_format = SampleFormat_none;
         this->d->m_bps = 0;
         this->d->m_channels = 0;
         this->d->m_rate = 0;
@@ -188,7 +188,7 @@ QbAudioCaps &QbAudioCaps::operator =(const QbCaps &caps)
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
 
-        QString format = "Format_" + caps.property("format").toString();
+        QString format = "SampleFormat_" + caps.property("format").toString();
         int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
         QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
         int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
@@ -205,7 +205,7 @@ QbAudioCaps &QbAudioCaps::operator =(const QbCaps &caps)
         this->d->m_align = caps.property("align").toBool();
     } else {
         this->d->m_isValid = false;
-        this->d->m_format = Format_none;
+        this->d->m_format = SampleFormat_none;
         this->d->m_bps = 0;
         this->d->m_channels = 0;
         this->d->m_rate = 0;
@@ -325,7 +325,7 @@ bool &QbAudioCaps::align()
 QbAudioCaps &QbAudioCaps::fromMap(const QVariantMap &caps)
 {
     this->d->m_format = caps["format"].value<SampleFormat>();
-    this->d->m_isValid = this->d->m_format == QbAudioCaps::Format_none? false: false;
+    this->d->m_isValid = this->d->m_format == QbAudioCaps::SampleFormat_none? false: false;
     this->d->m_bps = caps["bps"].toInt();
     this->d->m_channels = caps["channels"].toInt();
     this->d->m_rate = caps["rate"].toInt();
@@ -368,7 +368,7 @@ QString QbAudioCaps::toString() const
     int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
     QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
     QString sampleFormat(formatEnum.valueToKey(this->d->m_format));
-    sampleFormat.remove("Format_");
+    sampleFormat.remove("SampleFormat_");
 
     QString layout = layoutToStr->value(this->d->m_layout, "none");
 
@@ -394,7 +394,7 @@ QbAudioCaps &QbAudioCaps::update(const QbCaps &caps)
         return *this;
 
     if (caps.contains("format")) {
-        QString format = "Format_" + caps.property("format").toString();
+        QString format = "SampleFormat_" + caps.property("format").toString();
         int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
         QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
         int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
@@ -494,7 +494,7 @@ void QbAudioCaps::setAlign(bool align)
 
 void QbAudioCaps::resetFormat()
 {
-    this->setFormat(Format_none);
+    this->setFormat(SampleFormat_none);
 }
 
 void QbAudioCaps::resetBps()

@@ -21,62 +21,43 @@
 #ifndef AUDIOOUTPUTELEMENT_H
 #define AUDIOOUTPUTELEMENT_H
 
-#include <QAudioOutput>
-#include <QAudioDeviceInfo>
+#include <QMutex>
+#include <qbelement.h>
 
-#include <qbutils.h>
-#include "audiobuffer.h"
+#ifdef Q_OS_LINUX
+#include "platform/audiooutlinux.h"
+#endif
 
-typedef QSharedPointer<QAudioOutput> AudioOutputPtr;
+#ifdef Q_OS_WIN32
+#include "platform/audiooutwin.h"
+#endif
 
 class AudioOutputElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int bufferSize READ bufferSize
-                              WRITE setBufferSize
-                              RESET resetBufferSize)
-
-    Q_PROPERTY(double clock READ clock NOTIFY elapsedTime)
 
     public:
         explicit AudioOutputElement();
         ~AudioOutputElement();
         Q_INVOKABLE int bufferSize() const;
-        Q_INVOKABLE double clock() const;
 
     private:
+        AudioOut m_audioOut;
         int m_bufferSize;
         QbElementPtr m_convert;
-        QAudioDeviceInfo m_audioDeviceInfo;
-        AudioOutputPtr m_audioOutput;
-        QIODevice *m_outputDevice;
-        AudioBuffer m_audioBuffer;
-        qint64 m_streamId;
-
         QMutex m_mutex;
-        QWaitCondition m_bufferEmpty;
-        double m_timeDrift;
-
-        QbCaps findBestOptions(const QAudioFormat &audioFormat) const;
-
-        double hwClock() const;
 
     protected:
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
-    signals:
-        void elapsedTime(double pts);
-
     public slots:
         void setBufferSize(int bufferSize);
         void resetBufferSize();
-        QbPacket iStream(const QbPacket &packet);
+        QbPacket iStream(const QbAudioPacket &packet);
 
     private slots:
         bool init();
         void uninit();
-        void releaseInput();
-        void updateClock();
 };
 
 #endif // AUDIOOUTPUTELEMENT_H

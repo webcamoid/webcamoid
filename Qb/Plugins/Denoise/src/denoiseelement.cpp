@@ -269,8 +269,6 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
     staticParams.sigma = this->m_sigma < 0.1? 0.1: this->m_sigma;
 
     QThreadPool threadPool;
-    QElapsedTimer timer;
-    timer.start();
 
     for (int y = 0, pos = 0; y < src.height(); y++) {
         const QRgb *iLine = (const QRgb *) src.constScanLine(y);

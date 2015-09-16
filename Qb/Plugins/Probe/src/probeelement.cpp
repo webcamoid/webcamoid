@@ -42,7 +42,7 @@ void ProbeElement::resetLog()
 
 QbPacket ProbeElement::iStream(const QbPacket &packet)
 {
-    if (this->log())
+    if (this->m_log)
     {
         qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
 

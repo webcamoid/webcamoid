@@ -18,14 +18,34 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include "thread.h"
+#ifndef CLOCK_H
+#define CLOCK_H
 
-Thread::Thread(QObject *parent):
-    QThread(parent)
-{
-}
+#include <QObject>
+#include <QReadWriteLock>
 
-void Thread::run()
+#define THREAD_WAIT_LIMIT 500
+
+class Clock: public QObject
 {
-    emit this->runTh();
-}
+    Q_OBJECT
+    Q_PROPERTY(qreal clock
+               READ clock
+               WRITE setClock
+               RESET resetClock)
+
+    public:
+        Clock(QObject *parent=NULL);
+
+        Q_INVOKABLE qreal clock();
+
+    private:
+        QReadWriteLock m_mutex;
+        qreal m_timeDrift;
+
+    public slots:
+        void setClock(qreal clock);
+        void resetClock();
+};
+
+#endif // CLOCK_H

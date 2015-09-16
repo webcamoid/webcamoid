@@ -21,8 +21,10 @@
 #include "subtitlestream.h"
 
 SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
-                               uint index, qint64 id, bool noModify, QObject *parent):
-    AbstractStream(formatContext, index, id, noModify, parent)
+                               uint index, qint64 id, Clock *globalClock,
+                               bool noModify,
+                               QObject *parent):
+    AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
 }
 

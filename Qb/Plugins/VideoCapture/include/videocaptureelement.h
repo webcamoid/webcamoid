@@ -22,8 +22,8 @@
 #define VIDEOCAPTUREELEMENT_H
 
 #include <QTimer>
-#include <QThread>
-#include <QMutex>
+#include <QThreadPool>
+#include <QtConcurrent>
 #include <QQmlComponent>
 #include <QQmlContext>
 
@@ -36,10 +36,6 @@
 #ifdef Q_OS_WIN32
 #include "platform/capturewin.h"
 #endif
-
-#include "outputthread.h"
-
-typedef QSharedPointer<QThread> ThreadPtr;
 
 class VideoCaptureElement: public QbMultimediaSourceElement
 {
@@ -55,6 +51,7 @@ class VideoCaptureElement: public QbMultimediaSourceElement
 
     public:
         explicit VideoCaptureElement();
+        ~VideoCaptureElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
@@ -82,13 +79,14 @@ class VideoCaptureElement: public QbMultimediaSourceElement
         Q_INVOKABLE bool resetCameraControls(const QString &webcam) const;
 
     private:
-        bool m_threadedRead;
-        ThreadPtr m_thread;
-        QTimer m_timer;
-        QMutex m_mutex;
         Capture m_capture;
+        bool m_threadedRead;
+        QTimer m_timer;
+        QThreadPool m_threadPool;
+        QFuture<void> m_threadStatus;
+        QbPacket m_curPacket;
 
-        static void deleteThread(QThread *thread);
+        static void sendPacket(VideoCaptureElement *element, const QbPacket &packet);
 
     protected:
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
@@ -109,6 +107,8 @@ class VideoCaptureElement: public QbMultimediaSourceElement
         void reset(const QString &webcam="");
 
     private slots:
+        bool init();
+        void uninit();
         void readFrame();
 };
 

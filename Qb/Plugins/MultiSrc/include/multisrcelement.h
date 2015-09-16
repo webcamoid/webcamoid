@@ -37,7 +37,13 @@ class MultiSrcElement: public QbMultimediaSourceElement
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
-               RESET resetMaxPacketQueueSize)
+               RESET resetMaxPacketQueueSize
+               NOTIFY maxPacketQueueSizeChanged)
+    Q_PROPERTY(bool showLog
+               READ showLog
+               WRITE setShowLog
+               RESET resetShowLog
+               NOTIFY showLogChanged)
 
     public:
         explicit MultiSrcElement();
@@ -54,6 +60,7 @@ class MultiSrcElement: public QbMultimediaSourceElement
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE QbCaps caps(int stream);
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
+        Q_INVOKABLE bool showLog() const;
 
     protected:
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
@@ -65,11 +72,13 @@ class MultiSrcElement: public QbMultimediaSourceElement
 
         FormatContextPtr m_inputContext;
         qint64 m_maxPacketQueueSize;
+        bool m_showLog;
         QThreadPool m_threadPool;
         QMutex m_dataMutex;
         QWaitCondition m_packetQueueNotFull;
         QWaitCondition m_packetQueueEmpty;
         QMap<int, AbstractStreamPtr> m_streamsMap;
+        Clock m_globalClock;
 
         qint64 packetQueueSize();
         static void deleteFormatContext(AVFormatContext *context);
@@ -84,16 +93,18 @@ class MultiSrcElement: public QbMultimediaSourceElement
 
     signals:
         void error(const QString &message);
+        void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
+        void showLogChanged(bool showLog);
 
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
+        void setShowLog(bool showLog);
         void resetMedia();
         void resetStreams();
         void resetMaxPacketQueueSize();
-
-        void setState(QbElement::ElementState state);
+        void resetShowLog();
 
     private slots:
         void doLoop();
@@ -101,6 +112,7 @@ class MultiSrcElement: public QbMultimediaSourceElement
         bool init();
         bool initContext();
         void uninit();
+        void log();
 };
 
 #endif // MULTISRCELEMENT_H

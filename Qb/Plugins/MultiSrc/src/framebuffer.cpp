@@ -50,21 +50,31 @@ AVFramePtr FrameBuffer::dequeue()
     this->m_mutex.lock();
 
     if (this->m_buffer.isEmpty())
-        if (!this->m_bufferNotEmpty.wait(&this->m_mutex, 1000)) {
+        if (!this->m_bufferNotEmpty.wait(&this->m_mutex, THREAD_WAIT_LIMIT)) {
             this->m_mutex.unlock();
 
             return AVFramePtr();
+        }
+
+    AVFramePtr frame;
+
+    if (!this->m_buffer.isEmpty()) {
+        frame = this->m_buffer.dequeue();
+        emit this->sizeChanged(this->m_buffer.size());
+
+        if (this->m_buffer.size() < this->m_maxSize)
+            this->m_bufferNotFull.wakeAll();
     }
-
-    AVFramePtr frame = this->m_buffer.dequeue();
-    emit this->sizeChanged(this->m_buffer.size());
-
-    if (this->m_buffer.size() < this->m_maxSize)
-        this->m_bufferNotFull.wakeAll();
 
     this->m_mutex.unlock();
 
     return frame;
+}
+
+void FrameBuffer::deleteFrame(AVFrame *frame)
+{
+    av_frame_unref(frame);
+    av_frame_free(&frame);
 }
 
 void FrameBuffer::setMaxSize(int maxSize)
@@ -88,7 +98,7 @@ void FrameBuffer::enqueue(AVFrame *frame)
     if (this->m_buffer.size() >= this->m_maxSize)
         this->m_bufferNotFull.wait(&this->m_mutex);
 
-    this->m_buffer.enqueue(AVFramePtr(frame));
+    this->m_buffer.enqueue(AVFramePtr(frame, this->deleteFrame));
     this->m_bufferNotEmpty.wakeAll();
     emit this->sizeChanged(this->m_buffer.size());
 
@@ -98,7 +108,8 @@ void FrameBuffer::enqueue(AVFrame *frame)
 void FrameBuffer::clear()
 {
     this->m_mutex.lock();
-    this->m_buffer.clear();
+    this->m_bufferNotEmpty.wakeAll();
     this->m_bufferNotFull.wakeAll();
+    this->m_buffer.clear();
     this->m_mutex.unlock();
 }

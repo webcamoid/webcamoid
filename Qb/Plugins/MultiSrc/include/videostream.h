@@ -35,7 +35,9 @@ class VideoStream: public AbstractStream
 
     public:
         explicit VideoStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1, bool noModify=false,
+                             uint index=-1, qint64 id=-1,
+                             Clock *globalClock=NULL,
+                             bool noModify=false,
                              QObject *parent=NULL);
         ~VideoStream();
 
@@ -50,8 +52,17 @@ class VideoStream: public AbstractStream
         bool m_run;
         QThreadPool m_threadPool;
 
+        // Sync properties.
+        qreal m_lastPts;
+        AVFramePtr m_frame;
+
         QbFrac fps() const;
         QbPacket convert(AVFrame *iFrame);
+        static void sendPacket(VideoStream *stream);
+
+    public slots:
+        void init();
+        void uninit();
 };
 
 #endif // VIDEOSTREAM_H

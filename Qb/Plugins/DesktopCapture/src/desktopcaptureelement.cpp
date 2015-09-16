@@ -18,9 +18,9 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include <sys/time.h>
 #include <QApplication>
 #include <QScreen>
+#include <QTime>
 #include <qbutils.h>
 
 #include "desktopcaptureelement.h"
@@ -29,6 +29,7 @@ DesktopCaptureElement::DesktopCaptureElement():
     QbMultimediaSourceElement()
 {
     this->m_curScreenNumber = -1;
+    this->m_threadedRead = true;
 
     QObject::connect(qApp,
                      &QGuiApplication::screenAdded,
@@ -45,16 +46,15 @@ DesktopCaptureElement::DesktopCaptureElement():
                      this,
                      &DesktopCaptureElement::srceenResized);
 
-    this->m_thread = ThreadPtr(new QThread, this->deleteThread);
-    this->m_timer.moveToThread(this->m_thread.data());
-
-    this->m_thread->start();
-
     QObject::connect(&this->m_timer,
-                     SIGNAL(timeout()),
+                     &QTimer::timeout,
                      this,
-                     SLOT(readFrame()),
-                     Qt::DirectConnection);
+                     &DesktopCaptureElement::readFrame);
+}
+
+DesktopCaptureElement::~DesktopCaptureElement()
+{
+    this->uninit();
 }
 
 QStringList DesktopCaptureElement::medias() const
@@ -113,39 +113,30 @@ QbCaps DesktopCaptureElement::caps(int stream) const
     if (!screen)
         return QString();
 
-    QbFrac fps(30000, 1001);
+    QbVideoCaps caps;
+    caps.isValid() = true;
+    caps.format() = QbVideoCaps::Format_bgr0;
+    caps.width() = screen->size().width();
+    caps.height() = screen->size().height();
+    caps.fps() = QbFrac(30000, 1001);
 
-    QbCaps caps(QString("video/x-raw,"
-                        "format=bgr0,"
-                        "width=%1,"
-                        "height=%2,"
-                        "fps=%3/%4").arg(screen->size().width())
-                                    .arg(screen->size().height())
-                                    .arg(fps.num())
-                                    .arg(fps.den()));
-
-    return caps;
+    return caps.toCaps();
 }
 
-void DesktopCaptureElement::deleteThread(QThread *thread)
+void DesktopCaptureElement::sendPacket(DesktopCaptureElement *element,
+                                       const QbPacket &packet)
 {
-    thread->requestInterruption();
-    thread->quit();
-    thread->wait();
-    delete thread;
+    emit element->oStream(packet);
 }
 
 void DesktopCaptureElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
     if (from == QbElement::ElementStateNull
-        && to == QbElement::ElementStatePaused) {
-        this->m_id = Qb::id();
-        QMetaObject::invokeMethod(&this->m_timer, "start");
-    }
+        && to == QbElement::ElementStatePaused)
+        this->init();
     else if (from == QbElement::ElementStatePaused
-             && to == QbElement::ElementStateNull) {
-        QMetaObject::invokeMethod(&this->m_timer, "stop");
-    }
+             && to == QbElement::ElementStateNull)
+        this->uninit();
 }
 
 void DesktopCaptureElement::setMedia(const QString &media)
@@ -180,39 +171,59 @@ void DesktopCaptureElement::resetMedia()
     emit this->mediaChanged(this->m_curScreen);
 }
 
+bool DesktopCaptureElement::init()
+{
+    this->m_id = Qb::id();
+    this->m_timer.start();
+
+    return true;
+}
+
+void DesktopCaptureElement::uninit()
+{
+    this->m_timer.stop();
+    this->m_threadStatus.waitForFinished();
+}
+
 void DesktopCaptureElement::readFrame()
 {
     QScreen *screen = QGuiApplication::screens()[this->m_curScreenNumber];
     QbFrac fps(30000, 1001);
 
-    QbCaps caps(QString("video/x-raw,"
-                        "format=bgr0,"
-                        "width=%1,"
-                        "height=%2,"
-                        "fps=%3/%4").arg(screen->size().width())
-                                    .arg(screen->size().height())
-                                    .arg(fps.num())
-                                    .arg(fps.den()));
+    QbVideoCaps caps;
+    caps.isValid() = true;
+    caps.format() = QbVideoCaps::Format_bgr0;
+    caps.width() = screen->size().width();
+    caps.height() = screen->size().height();
+    caps.fps() = fps;
 
     QPixmap frame = screen->grabWindow(QApplication::desktop()->winId());
-    QbPacket packet = QbUtils::imageToPacket(frame.toImage(), caps);
+    QbPacket packet = QbUtils::imageToPacket(frame.toImage(), caps.toCaps());
 
     if (!packet)
         return;
 
-    timeval timestamp;
-    gettimeofday(&timestamp, NULL);
-
-    qint64 pts = (timestamp.tv_sec
-                  + 1e-6 * timestamp.tv_usec)
-                  * fps.value();
+    qint64 pts = QTime::currentTime().msecsSinceStartOfDay() * fps.value();
 
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());
     packet.setIndex(0);
     packet.setId(this->m_id);
 
-    emit this->oStream(packet);
+    if (!this->m_threadedRead) {
+        emit this->oStream(packet);
+
+        return;
+    }
+
+    if (!this->m_threadStatus.isRunning()) {
+        this->m_curPacket = packet;
+
+        this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,
+                                                 this->sendPacket,
+                                                 this,
+                                                 this->m_curPacket);
+    }
 }
 
 void DesktopCaptureElement::screenCountChanged(QScreen *screen)

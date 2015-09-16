@@ -32,6 +32,8 @@ extern "C"
     #include <libavcodec/avcodec.h>
 }
 
+#include "clock.h"
+
 typedef QSharedPointer<AVFrame> AVFramePtr;
 
 class FrameBuffer: public QObject
@@ -61,6 +63,8 @@ class FrameBuffer: public QObject
         QWaitCondition m_bufferNotFull;
         QWaitCondition m_bufferNotEmpty;
 
+        static void deleteFrame(AVFrame *frame);
+
     signals:
         void maxSizeChanged(int maxSize);
         void sizeChanged(int size);
@@ -70,6 +74,7 @@ class FrameBuffer: public QObject
         void resetMaxSize();
         void enqueue(AVFrame *frame);
         void clear();
+        void unlock();
 };
 
 #endif // FRAMEBUFFER_H

@@ -22,13 +22,12 @@
 #define DESKTOPCAPTUREELEMENT_H
 
 #include <QTimer>
-#include <QThread>
+#include <QThreadPool>
+#include <QtConcurrent>
 #include <QDesktopWidget>
 
 #include <qb.h>
 #include <qbmultimediasourceelement.h>
-
-typedef QSharedPointer<QThread> ThreadPtr;
 
 class DesktopCaptureElement: public QbMultimediaSourceElement
 {
@@ -36,6 +35,7 @@ class DesktopCaptureElement: public QbMultimediaSourceElement
 
     public:
         explicit DesktopCaptureElement();
+        ~DesktopCaptureElement();
 
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
@@ -48,14 +48,19 @@ class DesktopCaptureElement: public QbMultimediaSourceElement
     private:
         QString m_curScreen;
         int m_curScreenNumber;
-        ThreadPtr m_thread;
-        QTimer m_timer;
         qint64 m_id;
+        bool m_threadedRead;
+        QTimer m_timer;
+        QThreadPool m_threadPool;
+        QFuture<void> m_threadStatus;
+        QbPacket m_curPacket;
 
-        static void deleteThread(QThread *thread);
+        static void sendPacket(DesktopCaptureElement *element,
+                               const QbPacket &packet);
 
     protected:
-        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+        void stateChange(QbElement::ElementState from,
+                         QbElement::ElementState to);
 
     signals:
         void sizeChanged(const QString &media, const QSize &size) const;
@@ -65,6 +70,8 @@ class DesktopCaptureElement: public QbMultimediaSourceElement
         void resetMedia();
 
     private slots:
+        bool init();
+        void uninit();
         void readFrame();
         void screenCountChanged(QScreen *screen);
         void srceenResized(int screen);

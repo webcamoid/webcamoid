@@ -49,6 +49,7 @@ MultiSrcElement::MultiSrcElement():
     avformat_network_init();
 
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
+    this->m_showLog = false;
 }
 
 MultiSrcElement::~MultiSrcElement()
@@ -148,6 +149,11 @@ qint64 MultiSrcElement::maxPacketQueueSize() const
     return this->m_maxPacketQueueSize;
 }
 
+bool MultiSrcElement::showLog() const
+{
+    return this->m_showLog;
+}
+
 void MultiSrcElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
     if (from == QbElement::ElementStateNull
@@ -181,16 +187,24 @@ AbstractStreamPtr MultiSrcElement::createStream(int index, bool noModify)
 
     if (type == AVMEDIA_TYPE_VIDEO)
         stream = AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
-                                                   index, id, noModify));
+                                                   index, id,
+                                                   &this->m_globalClock,
+                                                   noModify));
     else if (type == AVMEDIA_TYPE_AUDIO)
         stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
-                                                   index, id, noModify));
+                                                   index, id,
+                                                   &this->m_globalClock,
+                                                   noModify));
     else if (type == AVMEDIA_TYPE_SUBTITLE)
         stream = AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
-                                                      index, id, noModify));
+                                                      index, id,
+                                                      &this->m_globalClock,
+                                                      noModify));
     else
         stream = AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
-                                                      index, id, noModify));
+                                                      index, id,
+                                                      &this->m_globalClock,
+                                                      noModify));
 
     return stream;
 }
@@ -281,7 +295,20 @@ void MultiSrcElement::setStreams(const QList<int> &filterStreams)
 
 void MultiSrcElement::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
+    if (this->m_maxPacketQueueSize == maxPacketQueueSize)
+        return;
+
     this->m_maxPacketQueueSize = maxPacketQueueSize;
+    emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
+}
+
+void MultiSrcElement::setShowLog(bool showLog)
+{
+    if (this->m_showLog == showLog)
+        return;
+
+    this->m_showLog = showLog;
+    emit this->showLogChanged(showLog);
 }
 
 void MultiSrcElement::resetMedia()
@@ -303,16 +330,9 @@ void MultiSrcElement::resetMaxPacketQueueSize()
     this->setMaxPacketQueueSize(15 * 1024 * 1024);
 }
 
-void MultiSrcElement::setState(QbElement::ElementState state)
+void MultiSrcElement::resetShowLog()
 {
-    QbElement::setState(state);
-
-    if (this->state() == ElementStatePlaying) {
-//        QMetaObject::invokeMethod(&this->m_decodingTimer, "start");
-    }
-    else {
-//        QMetaObject::invokeMethod(&this->m_decodingTimer, "stop");
-    }
+    this->setShowLog(false);
 }
 
 void MultiSrcElement::doLoop()
@@ -358,17 +378,27 @@ bool MultiSrcElement::init()
         if (stream) {
             this->m_streamsMap[i] = stream;
 
-            QObject::connect(stream.data(), SIGNAL(oStream(const QbPacket &)), this,
-                             SIGNAL(oStream(const QbPacket &)),
+            QObject::connect(stream.data(),
+                             &AbstractStream::oStream,
+                             this,
+                             &MultiSrcElement::oStream,
                              Qt::DirectConnection);
 
-            QObject::connect(stream.data(), SIGNAL(notify()), this,
-                             SLOT(packetConsumed()));
+            QObject::connect(stream.data(),
+                             &AbstractStream::notify,
+                             this,
+                             &MultiSrcElement::packetConsumed);
+
+            QObject::connect(stream.data(),
+                             &AbstractStream::frameSent,
+                             this,
+                             &MultiSrcElement::log);
 
             stream->init();
         }
     }
 
+    this->m_globalClock.setClock(0.);
     this->m_run = true;
     QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
 
@@ -461,4 +491,51 @@ void MultiSrcElement::uninit()
 
     this->m_streamsMap.clear();
     this->m_inputContext.clear();
+}
+
+void MultiSrcElement::log()
+{
+    if (!this->m_showLog)
+        return;
+
+    AbstractStreamPtr audioStream;
+    AbstractStreamPtr videoStream;
+
+    foreach (int streamId, this->m_streamsMap.keys()) {
+        AVMediaType mediaType = this->m_streamsMap[streamId]->mediaType();
+
+        if (mediaType == AVMEDIA_TYPE_AUDIO && !audioStream)
+            audioStream = this->m_streamsMap[streamId];
+
+        if (mediaType == AVMEDIA_TYPE_VIDEO && !videoStream)
+            videoStream = this->m_streamsMap[streamId];
+
+        if (audioStream && videoStream)
+            break;
+    }
+
+    QString diffType;
+    qreal diff;
+
+    if (audioStream && videoStream) {
+        diffType = "A-V";
+        diff = audioStream->clockDiff() - videoStream->clockDiff();
+    } else if (audioStream) {
+        diffType = "M-A";
+        diff = -audioStream->clockDiff();
+    } else if (videoStream) {
+        diffType = "M-V";
+        diff = -videoStream->clockDiff();
+    } else
+        return;
+
+    QString logFmt("%1 %2: %3 aq=%4KB vq=%5KB");
+
+    QString log = logFmt.arg(this->m_globalClock.clock(), 7, 'f', 2)
+                        .arg(diffType)
+                        .arg(diff, 7, 'f', 3)
+                        .arg(audioStream->queueSize() / 1024, 5)
+                        .arg(videoStream->queueSize() / 1024, 5);
+
+    qDebug() << log.toStdString().c_str();
 }

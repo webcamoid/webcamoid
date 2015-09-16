@@ -22,15 +22,18 @@
 
 #include "audiostream.h"
 
+// No AV correction is done if too big error.
+#define AV_NOSYNC_THRESHOLD 10.0
+
 typedef QMap<AVSampleFormat, QbAudioCaps::SampleFormat> SampleFormatMap;
 
 inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat;
-    sampleFormat[AV_SAMPLE_FMT_U8] = QbAudioCaps::Format_u8;
-    sampleFormat[AV_SAMPLE_FMT_S16] = QbAudioCaps::Format_s16;
-    sampleFormat[AV_SAMPLE_FMT_S32] = QbAudioCaps::Format_s32;
-    sampleFormat[AV_SAMPLE_FMT_FLT] = QbAudioCaps::Format_flt;
+    sampleFormat[AV_SAMPLE_FMT_U8] = QbAudioCaps::SampleFormat_u8;
+    sampleFormat[AV_SAMPLE_FMT_S16] = QbAudioCaps::SampleFormat_s16;
+    sampleFormat[AV_SAMPLE_FMT_S32] = QbAudioCaps::SampleFormat_s32;
+    sampleFormat[AV_SAMPLE_FMT_FLT] = QbAudioCaps::SampleFormat_flt;
 
     return sampleFormat;
 }
@@ -79,11 +82,13 @@ inline NChannelsMap initNChannelsMap()
 Q_GLOBAL_STATIC_WITH_ARGS(NChannelsMap, NChannels, (initNChannelsMap()))
 
 AudioStream::AudioStream(const AVFormatContext *formatContext,
-                         uint index, qint64 id, bool noModify, QObject *parent):
-    AbstractStream(formatContext, index, id, noModify, parent)
+                         uint index, qint64 id, Clock *globalClock,
+                         bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
-    this->m_fst = true;
+    this->m_pts = 0;
     this->m_resampleContext = NULL;
+    this->m_run = false;
     this->m_frameBuffer.setMaxSize(9);
 }
 
@@ -98,7 +103,7 @@ QbCaps AudioStream::caps() const
     QbAudioCaps::SampleFormat format =
             sampleFormats->contains(this->codecContext()->sample_fmt)?
                 sampleFormats->value(this->codecContext()->sample_fmt):
-                QbAudioCaps::Format_flt;
+                QbAudioCaps::SampleFormat_flt;
 
     QbAudioCaps::ChannelLayout layout =
             channelLayouts->contains(this->codecContext()->channel_layout)?
@@ -109,7 +114,7 @@ QbCaps AudioStream::caps() const
     caps.isValid() = true;
     caps.format() = format;
     caps.bps() = bytesPerSample->value(sampleFormats->key(format));
-    caps.channels() = NChannels->value(layout);
+    caps.channels() = NChannels->value(channelLayouts->key(layout));
     caps.rate() = this->codecContext()->sample_rate;
     caps.layout() = layout;
     caps.align() = false;
@@ -122,37 +127,26 @@ void AudioStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
-    AVFrame iFrame;
-    memset(&iFrame, 0, sizeof(AVFrame));
-
+    AVFrame *iFrame = av_frame_alloc();
     int gotFrame;
 
     avcodec_decode_audio4(this->codecContext(),
-                          &iFrame,
+                          iFrame,
                           &gotFrame,
                           packet);
 
     if (!gotFrame)
         return;
 
-    if (this->m_fst) {
-        this->m_pts = 0;
-        this->m_duration = av_frame_get_pkt_duration(&iFrame);
-        this->m_fst = false;
-    }
-    else
-        this->m_pts += this->m_duration;
-
-    qint64 pts = (iFrame.pts != AV_NOPTS_VALUE) ? iFrame.pts :
-                  (iFrame.pkt_pts != AV_NOPTS_VALUE) ? iFrame.pkt_pts :
-                  this->m_pts;
-
-    iFrame.pts = pts;
-    iFrame.pkt_pts = pts;
-
-    QbPacket oPacket = this->convert(&iFrame);
+#if 1
+    this->m_frameBuffer.enqueue(iFrame);
+#else
+    QbPacket oPacket = this->convert(iFrame);
+    av_frame_unref(iFrame);
+    av_frame_free(&iFrame);
 
     emit this->oStream(oPacket);
+#endif
 }
 
 QbPacket AudioStream::convert(AVFrame *iFrame)
@@ -179,6 +173,16 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     if (!this->m_resampleContext)
         return QbPacket();
 
+    qint64 pts = (iFrame->pts != AV_NOPTS_VALUE) ? iFrame->pts :
+                  (iFrame->pkt_pts != AV_NOPTS_VALUE) ? iFrame->pkt_pts :
+                  this->m_pts;
+    iFrame->pts = iFrame->pkt_pts = pts;
+
+    int64_t clock = this->globalClock()->clock()
+                    / this->timeBase().value();
+
+    int64_t oPts = swr_next_pts(this->m_resampleContext, clock);
+
     AVFrame *oFrame = av_frame_alloc();
     oFrame->channel_layout = oLayout;
     oFrame->format = oFormat;
@@ -189,20 +193,13 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
                           iFrame) < 0)
         return QbPacket();
 
-    QbAudioPacket packet;
-    packet.caps().isValid() = true;
-    packet.caps().format() = sampleFormats->value(oFormat);
-    packet.caps().bps() = bytesPerSample->value(oFormat);
-    packet.caps().channels() = NChannels->value(oLayout);
-    packet.caps().rate() = iFrame->sample_rate;
-    packet.caps().layout() = channelLayouts->value(oLayout);
-    packet.caps().samples() = oFrame->nb_samples;
-    packet.caps().align() = false;
+    int oSamples = oFrame->nb_samples;
+    int oChannels = NChannels->value(oLayout);
 
     int oLineSize;
     int frameSize = av_samples_get_buffer_size(&oLineSize,
-                                               packet.caps().channels(),
-                                               packet.caps().samples(),
+                                               oChannels,
+                                               oSamples,
                                                oFormat,
                                                1);
 
@@ -212,8 +209,8 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     if (av_samples_fill_arrays(&oData,
                                &oLineSize,
                                (const uint8_t *) oBuffer.data(),
-                               packet.caps().channels(),
-                               packet.caps().samples(),
+                               oChannels,
+                               oSamples,
                                oFormat,
                                1) < 0)
         return QbPacket();
@@ -222,19 +219,75 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
                         oFrame->data,
                         0,
                         0,
-                        packet.caps().channels(),
-                        packet.caps().samples(),
+                        oChannels,
+                        oSamples,
                         oFormat) < 0)
         return QbPacket();
 
+    QbAudioPacket packet;
+    packet.caps().isValid() = true;
+    packet.caps().format() = sampleFormats->value(oFormat);
+    packet.caps().bps() = bytesPerSample->value(oFormat);
+    packet.caps().channels() = oChannels;
+    packet.caps().rate() = iFrame->sample_rate;
+    packet.caps().layout() = channelLayouts->value(oLayout);
+    packet.caps().samples() = oSamples;
+    packet.caps().align() = false;
+
     packet.buffer() = oBuffer;
     packet.bufferSize() = frameSize;
-    packet.pts() = av_frame_get_best_effort_timestamp(iFrame);
+    packet.pts() = oPts;
     packet.timeBase() = this->timeBase();
     packet.index() = this->index();
     packet.id() = this->id();
 
+    int64_t duration = av_frame_get_pkt_duration(iFrame);
+
+    if (duration == AV_NOPTS_VALUE)
+        duration = oSamples
+                   / (iFrame->sample_rate
+                      * this->timeBase().value());
+
+    this->m_pts += duration;
     av_frame_free(&oFrame);
 
+    qreal diff = oPts * this->timeBase().value() - this->globalClock()->clock();
+    this->m_clockDiff = diff;
+
+    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
+        this->globalClock()->setClock(oPts * this->timeBase().value());
+
     return packet.toPacket();
+}
+
+void AudioStream::sendPacket(AudioStream *stream)
+{
+    while (stream->m_run) {
+        AVFramePtr frame = stream->m_frameBuffer.dequeue();
+
+        if (!frame)
+            continue;
+
+        QbPacket oPacket = stream->convert(frame.data());
+
+        emit stream->oStream(oPacket);
+        emit stream->frameSent();
+    }
+}
+
+void AudioStream::init()
+{
+    AbstractStream::init();
+    this->m_run = true;
+    this->m_pts = 0;
+
+    QtConcurrent::run(&this->m_threadPool, this->sendPacket, this);
+}
+
+void AudioStream::uninit()
+{
+    this->m_run = false;
+    this->m_frameBuffer.clear();
+    this->m_threadPool.waitForDone();
+    AbstractStream::uninit();
 }

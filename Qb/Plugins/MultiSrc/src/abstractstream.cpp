@@ -21,10 +21,12 @@
 #include "abstractstream.h"
 
 AbstractStream::AbstractStream(const AVFormatContext *formatContext,
-                               uint index, qint64 id, bool noModify,
+                               uint index, qint64 id, Clock *globalClock,
+                               bool noModify,
                                QObject *parent): QObject(parent)
 {
     this->m_isValid = false;
+    this->m_clockDiff = 0;
     this->m_index = index;
     this->m_id = id;
 
@@ -43,6 +45,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     this->m_codecOptions = NULL;
     this->m_queueSize = 0;
+    this->m_globalClock = globalClock;
 
     if (!this->m_codec)
         return;
@@ -59,6 +62,8 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
         if (this->m_codec->capabilities & CODEC_CAP_DR1)
             this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+
+        av_dict_set_int(&this->m_codecOptions, "refcounted_frames", 1, 0);
     }
 
     this->m_isValid = true;
@@ -116,6 +121,9 @@ QbCaps AbstractStream::caps() const
 
 void AbstractStream::enqueue(AVPacket *packet)
 {
+    if (!this->m_run)
+        return;
+
     this->m_mutex.lock();
     this->m_packets.enqueue(packet);
     this->m_queueSize += packet->size;
@@ -126,6 +134,16 @@ void AbstractStream::enqueue(AVPacket *packet)
 qint64 AbstractStream::queueSize()
 {
     return this->m_queueSize;
+}
+
+Clock *AbstractStream::globalClock()
+{
+    return this->m_globalClock;
+}
+
+qreal AbstractStream::clockDiff() const
+{
+    return this->m_clockDiff;
 }
 
 AVMediaType AbstractStream::type(const AVFormatContext *formatContext,
@@ -147,7 +165,7 @@ void AbstractStream::decodeFrame(AbstractStream *stream)
         stream->m_mutex.lock();
 
         if (stream->m_packets.isEmpty())
-            stream->m_queueNotEmpty.wait(&stream->m_mutex);
+            stream->m_queueNotEmpty.wait(&stream->m_mutex, THREAD_WAIT_LIMIT);
 
         if (!stream->m_packets.isEmpty()) {
             AVPacket *packet = stream->m_packets.dequeue();
@@ -185,6 +203,7 @@ void AbstractStream::init()
     if (!this->open())
         return;
 
+    this->m_clockDiff = 0;
     this->m_run = true;
     QtConcurrent::run(&this->m_threadPool, this->decodeFrame, this);
 }
@@ -195,7 +214,6 @@ void AbstractStream::uninit()
     this->m_mutex.lock();
     this->m_queueNotEmpty.wakeAll();
     this->m_mutex.unlock();
-
     this->m_threadPool.waitForDone();
 
     if (this->m_codecOptions)

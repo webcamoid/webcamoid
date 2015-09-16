@@ -108,12 +108,12 @@ bool AudioInputElement::init()
     if (this->m_audioInput) {
         int bps = this->m_caps.property("bps").toInt();
         int channels = this->m_caps.property("channels").toInt();
-        int frameRate = this->m_caps.property("rate").toInt();
+        int sampleRate = this->m_caps.property("rate").toInt();
         qint64 bufferSize = bps * channels * this->m_bufferSize;
 
         this->m_streamId = Qb::id();
         this->m_pts = 0;
-        this->m_timeBase = QbFrac(1, frameRate);
+        this->m_timeBase = QbFrac(1, sampleRate);
 
         this->m_audioInput->setBufferSize(bufferSize);
         this->m_audioBuffer.open(QIODevice::ReadWrite);

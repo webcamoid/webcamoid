@@ -35,7 +35,9 @@ class AudioStream: public AbstractStream
 
     public:
         explicit AudioStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1, bool noModify=false,
+                             uint index=-1, qint64 id=-1,
+                             Clock *globalClock=NULL,
+                             bool noModify=false,
                              QObject *parent=NULL);
         ~AudioStream();
 
@@ -45,15 +47,18 @@ class AudioStream: public AbstractStream
         void processPacket(AVPacket *packet);
 
     private:
-        bool m_fst;
         qint64 m_pts;
-        qint64 m_duration;
         SwrContext *m_resampleContext;
         FrameBuffer m_frameBuffer;
         bool m_run;
         QThreadPool m_threadPool;
 
         QbPacket convert(AVFrame *iFrame);
+        static void sendPacket(AudioStream *stream);
+
+    public slots:
+        void init();
+        void uninit();
 };
 
 #endif // AUDIOSTREAM_H

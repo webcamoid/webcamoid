@@ -179,7 +179,7 @@ class MediaTools: public QObject
         QbElementPtr m_record;
         QbElementPtr m_videoCapture;
         QbElementPtr m_desktopCapture;
-        QbElementPtr m_videoSync;
+        QbElementPtr m_videoMux;
         QbElementPtr m_videoConvert;
         QList<QbElementPtr> m_effectsList;
         QMutex m_mutex;

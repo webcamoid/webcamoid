@@ -22,30 +22,20 @@
 
 RtPtsElement::RtPtsElement(): QbElement()
 {
-    this->m_thread = new QThread();
-    this->m_thread->start();
-    this->m_timer.moveToThread(this->m_thread);
     this->m_prevPts = -1;
+    this->m_fps = QbFrac(30000, 1001);
+    this->m_timeBase = this->m_fps.invert();
+    this->m_timer.setInterval(this->m_fps.invert().value());
 
     QObject::connect(&this->m_timer,
-                     SIGNAL(timeout()),
+                     &QTimer::timeout,
                      this,
-                     SLOT(readPacket()),
-                     Qt::DirectConnection);
-
-    this->resetFps();
+                     &RtPtsElement::readPacket);
 }
 
 RtPtsElement::~RtPtsElement()
 {
-    QMetaObject::invokeMethod(&this->m_timer, "stop");
-
-    if (this->m_thread) {
-        this->m_thread->quit();
-        this->m_thread->wait();
-        delete this->m_thread;
-        this->m_thread = NULL;
-    }
+    this->uninit();
 }
 
 QbFrac RtPtsElement::fps() const
@@ -53,63 +43,83 @@ QbFrac RtPtsElement::fps() const
     return this->m_fps;
 }
 
+void RtPtsElement::sendPacket(RtPtsElement *element, const QbPacket &packet)
+{
+    emit element->oStream(packet);
+}
+
+void RtPtsElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+{
+    if (from == QbElement::ElementStateNull
+        && to == QbElement::ElementStatePaused)
+        this->init();
+    else if (from == QbElement::ElementStatePaused
+             && to == QbElement::ElementStateNull)
+        this->uninit();
+}
+
 void RtPtsElement::setFps(const QbFrac &fps)
 {
-    this->m_fps = fps;
+    if (this->m_fps == fps)
+        return;
 
-    int interval = fps.num()?
-                       fps.invert().value():
-                       INT_MAX;
-
-    this->m_timeBase = QbFrac(1, fps.num());
-    this->m_timer.setInterval(interval);
+    this->m_fps = fps.num() && fps.den()? fps: QbFrac(30000, 1001);
+    this->m_timeBase = this->m_fps.invert();
+    this->m_timer.setInterval(this->m_fps.invert().value());
+    emit this->fpsChanged(fps);
 }
 
 void RtPtsElement::resetFps()
 {
-    this->setFps(QbFrac(30, 1));
-}
-
-void RtPtsElement::setState(QbElement::ElementState state)
-{
-    QbElement::setState(state);
-
-    if (this->state() == ElementStatePlaying) {
-       this->m_prevPts = -1;
-       this->m_elapsedTimer.start();
-       QMetaObject::invokeMethod(&this->m_timer, "start");
-    }
-    else
-        QMetaObject::invokeMethod(&this->m_timer, "stop");
+    this->setFps(QbFrac(30000, 1001));
 }
 
 QbPacket RtPtsElement::iStream(const QbPacket &packet)
 {
     this->m_mutex.lock();
-    this->m_curPacket = packet;
+    this->m_inPacket = packet;
     this->m_mutex.unlock();
 
     return packet;
 }
 
+bool RtPtsElement::init()
+{
+    this->m_prevPts = -1;
+    this->m_elapsedTimer.start();
+    this->m_timer.start();
+
+    return true;
+}
+
+void RtPtsElement::uninit()
+{
+    this->m_timer.stop();
+    this->m_threadStatus.waitForFinished();
+}
+
 void RtPtsElement::readPacket()
 {
-    this->m_mutex.lock();
-    QbPacket packet = this->m_curPacket;
-    this->m_mutex.unlock();
+    if (!this->m_threadStatus.isRunning()) {
+        this->m_mutex.lock();
+        this->m_curPacket = this->m_inPacket;
+        this->m_mutex.unlock();
 
-    if (!packet)
-        return;
+        if (!this->m_curPacket)
+            return;
 
-    qint64 pts = 1.0e-3 * this->m_elapsedTimer.elapsed() * this->m_fps.value();
+        qint64 pts = 1.0e-3 * this->m_elapsedTimer.elapsed() * this->m_fps.value();
 
-    if (pts == this->m_prevPts)
-        return;
+        if (pts == this->m_prevPts)
+            return;
 
-    this->m_prevPts = pts;
+        this->m_prevPts = pts;
+        this->m_curPacket.setPts(pts);
+        this->m_curPacket.setTimeBase(this->m_timeBase);
 
-    packet.setPts(pts);
-    packet.setTimeBase(this->m_timeBase);
-
-    emit this->oStream(packet);
+        this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,
+                                                 this->sendPacket,
+                                                 this,
+                                                 this->m_curPacket);
+    }
 }

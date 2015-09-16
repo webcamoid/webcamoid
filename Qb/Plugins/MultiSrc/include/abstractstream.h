@@ -33,13 +33,17 @@ extern "C"
     #include <libavutil/imgutils.h>
 }
 
+#include "clock.h"
+
 class AbstractStream: public QObject
 {
     Q_OBJECT
 
     public:
         explicit AbstractStream(const AVFormatContext *formatContext=NULL,
-                                uint index=-1, qint64 id=-1, bool noModify=false,
+                                uint index=-1, qint64 id=-1,
+                                Clock *globalClock=NULL,
+                                bool noModify=false,
                                 QObject *parent=NULL);
 
         Q_INVOKABLE bool isValid() const;
@@ -54,12 +58,15 @@ class AbstractStream: public QObject
         Q_INVOKABLE virtual QbCaps caps() const;
         Q_INVOKABLE void enqueue(AVPacket *packet);
         Q_INVOKABLE qint64 queueSize();
+        Q_INVOKABLE Clock *globalClock();
+        Q_INVOKABLE qreal clockDiff() const;
 
         static AVMediaType type(const AVFormatContext *formatContext,
                                 uint index);
 
     protected:
         bool m_isValid;
+        qreal m_clockDiff;
 
         virtual void processPacket(AVPacket *packet);
 
@@ -78,12 +85,14 @@ class AbstractStream: public QObject
         QWaitCondition m_queueNotEmpty;
         QQueue<AVPacket *> m_packets;
         qint64 m_queueSize;
+        Clock *m_globalClock;
 
         static void decodeFrame(AbstractStream *stream);
 
     signals:
         void oStream(const QbPacket &packet);
         void notify();
+        void frameSent();
 
     public slots:
         bool open();

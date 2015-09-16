@@ -23,6 +23,8 @@
 VideoCaptureElement::VideoCaptureElement():
     QbMultimediaSourceElement()
 {
+    this->m_threadedRead = true;
+
     QObject::connect(&this->m_capture,
                      SIGNAL(error(const QString &)),
                      this,
@@ -48,30 +50,15 @@ VideoCaptureElement::VideoCaptureElement():
                      this,
                      SIGNAL(cameraControlsChanged(const QString &, const QVariantMap &)));
 
-
-    this->m_threadedRead = true;
-
-    if (this->m_threadedRead) {
-        this->m_thread = ThreadPtr(new QThread, this->deleteThread);
-        this->m_timer.moveToThread(this->m_thread.data());
-    }
-    else {
-        this->m_thread = ThreadPtr(new OutputThread, this->deleteThread);
-
-        QObject::connect(this->m_thread.data(),
-                         SIGNAL(oStream(const QbPacket &)),
-                         this,
-                         SIGNAL(oStream(const QbPacket &)),
-                         Qt::DirectConnection);
-    }
-
-    this->m_thread->start();
-
     QObject::connect(&this->m_timer,
-                     SIGNAL(timeout()),
+                     &QTimer::timeout,
                      this,
-                     SLOT(readFrame()),
-                     Qt::DirectConnection);
+                     &VideoCaptureElement::readFrame);
+}
+
+VideoCaptureElement::~VideoCaptureElement()
+{
+    this->uninit();
 }
 
 QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -199,7 +186,8 @@ QVariantList VideoCaptureElement::cameraControls(const QString &webcam) const
     return this->m_capture.cameraControls(webcam);
 }
 
-bool VideoCaptureElement::setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const
+bool VideoCaptureElement::setCameraControls(const QString &webcam,
+                                            const QVariantMap &cameraControls) const
 {
     return this->m_capture.setCameraControls(webcam, cameraControls);
 }
@@ -209,32 +197,20 @@ bool VideoCaptureElement::resetCameraControls(const QString &webcam) const
     return this->m_capture.resetCameraControls(webcam);
 }
 
-void VideoCaptureElement::deleteThread(QThread *thread)
+void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
+                                     const QbPacket &packet)
 {
-    thread->requestInterruption();
-    thread->quit();
-    thread->wait();
-    delete thread;
+    emit element->oStream(packet);
 }
 
 void VideoCaptureElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
 {
     if (from == QbElement::ElementStateNull
-        && to == QbElement::ElementStatePaused) {
-        this->m_mutex.lock();
-        bool ok = this->m_capture.init();
-        this->m_mutex.unlock();
-
-        if (ok)
-            QMetaObject::invokeMethod(&this->m_timer, "start");
-    }
+        && to == QbElement::ElementStatePaused)
+        this->init();
     else if (from == QbElement::ElementStatePaused
-             && to == QbElement::ElementStateNull) {
-        QMetaObject::invokeMethod(&this->m_timer, "stop");
-        this->m_mutex.lock();
-        this->m_capture.uninit();
-        this->m_mutex.unlock();
-    }
+             && to == QbElement::ElementStateNull)
+        this->uninit();
 }
 
 void VideoCaptureElement::setMedia(const QString &media)
@@ -280,19 +256,40 @@ void VideoCaptureElement::reset(const QString &webcam)
     this->m_capture.reset(webcam);
 }
 
+bool VideoCaptureElement::init()
+{
+    if (this->m_capture.init()) {
+        this->m_timer.start();
+
+        return true;
+    }
+
+    return false;
+}
+
+void VideoCaptureElement::uninit()
+{
+    this->m_timer.stop();
+    this->m_capture.uninit();
+    this->m_threadStatus.waitForFinished();
+}
+
 void VideoCaptureElement::readFrame()
 {
-    this->m_mutex.lock();
     QbPacket packet = this->m_capture.readFrame();
-    this->m_mutex.unlock();
 
-    if (!packet)
-        return;
-
-    if (this->m_threadedRead)
+    if (!this->m_threadedRead) {
         emit this->oStream(packet);
-    else
-        QMetaObject::invokeMethod(this->m_thread.data(),
-                                  "setPacket",
-                                  Q_ARG(QbPacket, packet));
+
+        return;
+    }
+
+    if (packet && !this->m_threadStatus.isRunning()) {
+        this->m_curPacket = packet;
+
+        this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,
+                                                 this->sendPacket,
+                                                 this,
+                                                 this->m_curPacket);
+    }
 }

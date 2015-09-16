@@ -23,14 +23,19 @@
 
 #include <QMutex>
 #include <QTimer>
-#include <QThread>
+#include <QThreadPool>
+#include <QtConcurrent>
 #include <QElapsedTimer>
 #include <qb.h>
 
 class RtPtsElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(QbFrac fps READ fps WRITE setFps RESET resetFps)
+    Q_PROPERTY(QbFrac fps
+               READ fps
+               WRITE setFps
+               RESET resetFps
+               NOTIFY fpsChanged)
 
     public:
         explicit RtPtsElement();
@@ -41,20 +46,32 @@ class RtPtsElement: public QbElement
     private:
         QbFrac m_timeBase;
         QbFrac m_fps;
-        QbPacket m_curPacket;
-        QMutex m_mutex;
         QTimer m_timer;
-        QThread *m_thread;
         QElapsedTimer m_elapsedTimer;
         qint64 m_prevPts;
+        QMutex m_mutex;
+        QThreadPool m_threadPool;
+        QFuture<void> m_threadStatus;
+        QbPacket m_inPacket;
+        QbPacket m_curPacket;
+
+        static void sendPacket(RtPtsElement *element, const QbPacket &packet);
+
+    protected:
+        void stateChange(QbElement::ElementState from,
+                         QbElement::ElementState to);
+
+    signals:
+        void fpsChanged(const QbFrac &fps);
 
     public slots:
         void setFps(const QbFrac &fps);
         void resetFps();
-        void setState(QbElement::ElementState state);
         QbPacket iStream(const QbPacket &packet);
 
     private slots:
+        bool init();
+        void uninit();
         void readPacket();
 };
 

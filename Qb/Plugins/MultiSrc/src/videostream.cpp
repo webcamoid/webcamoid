@@ -20,6 +20,18 @@
 
 #include "videostream.h"
 
+// no AV sync correction is done if below the minimum AV sync threshold
+#define AV_SYNC_THRESHOLD_MIN 0.01
+
+// AV sync correction is done if above the maximum AV sync threshold
+#define AV_SYNC_THRESHOLD_MAX 0.1
+
+// If a frame duration is longer than this, it will not be duplicated to compensate AV sync
+#define AV_SYNC_FRAMEDUP_THRESHOLD 0.1
+
+// no AV correction is done if too big error
+#define AV_NOSYNC_THRESHOLD 10.0
+
 typedef QMap<AVPixelFormat, QbVideoCaps::VideoFormat> AVPixelFormatMap;
 
 inline AVPixelFormatMap initAVPixelFormatMap()
@@ -40,10 +52,13 @@ inline AVPixelFormatMap initAVPixelFormatMap()
 Q_GLOBAL_STATIC_WITH_ARGS(AVPixelFormatMap, outputFormats, (initAVPixelFormatMap()))
 
 VideoStream::VideoStream(const AVFormatContext *formatContext,
-                         uint index, qint64 id, bool noModify, QObject *parent):
-    AbstractStream(formatContext, index, id, noModify, parent)
+                         uint index, qint64 id, Clock *globalClock,
+                         bool noModify, QObject *parent):
+    AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
     this->m_scaleContext = NULL;
+    this->m_run = false;
+    this->m_lastPts = 0;
     this->m_frameBuffer.setMaxSize(3);
 }
 
@@ -74,22 +89,26 @@ void VideoStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
-    AVFrame iFrame;
-    memset(&iFrame, 0, sizeof(AVFrame));
-
+    AVFrame *iFrame = av_frame_alloc();
     int gotFrame;
 
     avcodec_decode_video2(this->codecContext(),
-                          &iFrame,
+                          iFrame,
                           &gotFrame,
                           packet);
 
     if (!gotFrame)
         return;
 
-    QbPacket oPacket = this->convert(&iFrame);
+#if 1
+    this->m_frameBuffer.enqueue(iFrame);
+#else
+    QbPacket oPacket = this->convert(iFrame);
+    av_frame_unref(iFrame);
+    av_frame_free(&iFrame);
 
     emit this->oStream(oPacket);
+#endif
 }
 
 QbFrac VideoStream::fps() const
@@ -182,4 +201,71 @@ QbPacket VideoStream::convert(AVFrame *iFrame)
     }
 
     return packet.toPacket();
+}
+
+void VideoStream::sendPacket(VideoStream *stream)
+{
+    while (stream->m_run) {
+        // dequeue the picture
+        if (!stream->m_frame)
+            stream->m_frame = stream->m_frameBuffer.dequeue();
+
+        if (!stream->m_frame)
+            continue;
+
+        qreal pts = av_frame_get_best_effort_timestamp(stream->m_frame.data())
+                    * stream->timeBase().value();
+        qreal diff = pts - stream->globalClock()->clock();
+        qreal delay = pts - stream->m_lastPts;
+
+        // skip or repeat frame. We take into account the
+        // delay to compute the threshold. I still don't know
+        // if it is the best guess
+        double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
+                                      delay,
+                                      AV_SYNC_THRESHOLD_MAX);
+
+        if (!std::isnan(diff)
+            && qAbs(diff) < AV_NOSYNC_THRESHOLD
+            && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
+            // video is backward the external clock.
+            if (diff <= -syncThreshold) {
+                stream->m_frame = AVFramePtr();
+                stream->m_lastPts = pts;
+
+                continue;
+            } else if (diff > syncThreshold) {
+                // video is ahead the external clock.
+                QThread::usleep(1e6 * (diff - syncThreshold));
+
+                continue;
+            }
+        } else
+            stream->globalClock()->setClock(pts);
+
+        stream->m_clockDiff = diff;
+        QbPacket oPacket = stream->convert(stream->m_frame.data());
+        emit stream->oStream(oPacket);
+        emit stream->frameSent();
+
+        stream->m_frame = AVFramePtr();
+        stream->m_lastPts = pts;
+
+    }
+}
+
+void VideoStream::init()
+{
+    AbstractStream::init();
+    this->m_lastPts = 0;
+    this->m_run = true;
+    QtConcurrent::run(&this->m_threadPool, this->sendPacket, this);
+}
+
+void VideoStream::uninit()
+{
+    AbstractStream::uninit();
+    this->m_run = false;
+    this->m_frameBuffer.clear();
+    this->m_threadPool.waitForDone();
 }

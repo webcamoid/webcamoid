@@ -23,10 +23,7 @@
 BinElement::BinElement(): QbElement()
 {
     this->m_pipelineDescription.setParent(this);
-
-    this->resetDescription();
-    this->resetBlocking();
-    this->resetThreads();
+    this->m_blocking = false;
 }
 
 QString BinElement::description() const
@@ -37,11 +34,6 @@ QString BinElement::description() const
 bool BinElement::blocking() const
 {
     return this->m_blocking;
-}
-
-ThreadsMap BinElement::threads() const
-{
-    return this->m_threads;
 }
 
 QbElementPtr BinElement::element(const QString &elementName)
@@ -123,12 +115,6 @@ void BinElement::setBlocking(bool blocking)
     this->m_blocking = blocking;
 }
 
-void BinElement::setThreads(const ThreadsMap &threads)
-{
-    this->m_threads = threads;
-    this->m_pipelineDescription.setThreads(threads);
-}
-
 void BinElement::resetDescription()
 {
     this->setDescription("");
@@ -137,12 +123,6 @@ void BinElement::resetDescription()
 void BinElement::resetBlocking()
 {
     this->setBlocking(false);
-}
-
-void BinElement::resetThreads()
-{
-    this->m_threads.clear();
-    this->m_pipelineDescription.resetThreads();
 }
 
 QbPacket BinElement::iStream(const QbPacket &packet)

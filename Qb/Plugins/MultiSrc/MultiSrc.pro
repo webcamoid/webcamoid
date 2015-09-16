@@ -38,7 +38,8 @@ HEADERS += \
     include/multisrcelement.h \
     include/subtitlestream.h \
     include/videostream.h \
-    include/framebuffer.h
+    include/framebuffer.h \
+    include/clock.h
 
 INCLUDEPATH += \
     include \
@@ -61,7 +62,8 @@ SOURCES += \
     src/multisrcelement.cpp \
     src/subtitlestream.cpp \
     src/videostream.cpp \
-    src/framebuffer.cpp
+    src/framebuffer.cpp \
+    src/clock.cpp
 
 DESTDIR = $${PWD}
 

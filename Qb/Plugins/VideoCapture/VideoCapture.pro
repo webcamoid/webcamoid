@@ -33,8 +33,7 @@ DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 HEADERS += \
     include/videocapture.h \
-    include/videocaptureelement.h \
-    include/outputthread.h
+    include/videocaptureelement.h
 
 !win32: HEADERS += \
     include/platform/capturebuffer.h \
@@ -54,15 +53,14 @@ win32: LIBS += -lstrmiids -lole32 -loleaut32
 
 OTHER_FILES += pspec.json
 
-QT += qml
+QT += qml concurrent
 
 RESOURCES += \
     VideoCapture.qrc
 
 SOURCES += \
     src/videocapture.cpp \
-    src/videocaptureelement.cpp \
-    src/outputthread.cpp
+    src/videocaptureelement.cpp
 
 !win32: SOURCES += src/platform/capturelinux.cpp
 

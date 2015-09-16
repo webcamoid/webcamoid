@@ -112,8 +112,8 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbElementPtr, this->m_videoSync),
-                                  Q_ARG(QString, "videoSync"));
+                                  Q_RETURN_ARG(QbElementPtr, this->m_videoMux),
+                                  Q_ARG(QString, "videoMux"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
@@ -466,16 +466,16 @@ QbElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
     this->m_effectsList << effect;
 
     if (i < 0) {
-        if (this->m_videoSync) {
-            this->m_videoSync->unlink(this->m_videoConvert);
-            this->m_videoSync->link(effect);
+        if (this->m_videoMux) {
+            this->m_videoMux->unlink(this->m_videoConvert);
+            this->m_videoMux->link(effect, Qt::DirectConnection);
         }
     } else {
         this->m_effectsList[i]->unlink(this->m_videoConvert);
-        this->m_effectsList[i]->link(effect);
+        this->m_effectsList[i]->link(effect, Qt::DirectConnection);
     }
 
-    effect->link(this->m_videoConvert);
+    effect->link(this->m_videoConvert, Qt::DirectConnection);
 
     if (!preview)
         emit this->currentEffectsChanged();
@@ -489,15 +489,15 @@ void MediaTools::removeEffect(const QString &effectId)
         if (this->m_effectsList[i]->pluginId() == effectId) {
             if (i == 0) {
                 if (this->m_effectsList.size() == 1) {
-                    if (this->m_videoSync)
-                        this->m_videoSync->link(this->m_videoConvert);
+                    if (this->m_videoMux)
+                        this->m_videoMux->link(this->m_videoConvert, Qt::DirectConnection);
                 }
                 else
-                    this->m_videoSync->link(this->m_effectsList[i + 1]);
+                    this->m_videoMux->link(this->m_effectsList[i + 1], Qt::DirectConnection);
             } else if (i == this->m_effectsList.size() - 1)
-                this->m_effectsList[i - 1]->link(this->m_videoConvert);
+                this->m_effectsList[i - 1]->link(this->m_videoConvert, Qt::DirectConnection);
             else
-                this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1]);
+                this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1], Qt::DirectConnection);
 
             bool isPreview = this->m_effectsList[i]->property("preview").toBool();
             this->m_effectsList.removeAt(i);
@@ -1230,15 +1230,15 @@ void MediaTools::resetEffects()
     if (this->m_effectsList.isEmpty())
         return;
 
-    if (this->m_videoSync)
-        this->m_videoSync->unlink(this->m_effectsList.first());
+    if (this->m_videoMux)
+        this->m_videoMux->unlink(this->m_effectsList.first());
 
     if (this->m_videoConvert)
         this->m_effectsList.last()->unlink(this->m_videoConvert);
 
-    if (this->m_videoSync
+    if (this->m_videoMux
         && this->m_videoConvert)
-        this->m_videoSync->link(this->m_videoConvert);
+        this->m_videoMux->link(this->m_videoConvert, Qt::DirectConnection);
 
     this->m_effectsList.clear();
     emit this->currentEffectsChanged();

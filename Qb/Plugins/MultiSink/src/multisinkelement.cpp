@@ -460,9 +460,6 @@ void MultiSinkElement::processVFrame(const QbPacket &packet)
 
         // If size is zero, it means the image was buffered.
         if (gotPacket) {
-            if (videoStream->codec->coded_frame->key_frame)
-                pkt.flags |= AV_PKT_FLAG_KEY;
-
             pkt.stream_index = outputIndex;
 
             // Write the compressed frame to the media file.
