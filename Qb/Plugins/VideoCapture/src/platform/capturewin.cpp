@@ -82,9 +82,9 @@ Capture::Capture(): QObject()
     this->m_guidToStr[MEDIASUBTYPE_YVYU] = "yvyu422";
 
     QObject::connect(&this->m_frameGrabber,
-                     SIGNAL(frameReady(qreal, const QByteArray &)),
+                     &FrameGrabber::frameReady,
                      this,
-                     SLOT(frameReceived(qreal, const QByteArray &)),
+                     &Capture::frameReceived,
                      Qt::DirectConnection);
 
     this->createDeviceNotifier();

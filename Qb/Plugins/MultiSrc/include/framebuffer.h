@@ -74,7 +74,6 @@ class FrameBuffer: public QObject
         void resetMaxSize();
         void enqueue(AVFrame *frame);
         void clear();
-        void unlock();
 };
 
 #endif // FRAMEBUFFER_H

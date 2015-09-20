@@ -26,9 +26,9 @@ VideoCaptureElement::VideoCaptureElement():
     this->m_threadedRead = true;
 
     QObject::connect(&this->m_capture,
-                     SIGNAL(error(const QString &)),
+                     &Capture::error,
                      this,
-                     SIGNAL(error(const QString &)));
+                     &VideoCaptureElement::error);
 
     QObject::connect(&this->m_capture,
                      &Capture::webcamsChanged,
@@ -36,19 +36,19 @@ VideoCaptureElement::VideoCaptureElement():
                      &VideoCaptureElement::mediasChanged);
 
     QObject::connect(&this->m_capture,
-                     SIGNAL(sizeChanged(const QString &, const QSize &)),
+                     &Capture::sizeChanged,
                      this,
-                     SIGNAL(sizeChanged(const QString &, const QSize &)));
+                     &VideoCaptureElement::sizeChanged);
 
     QObject::connect(&this->m_capture,
-                     SIGNAL(imageControlsChanged(const QString &, const QVariantMap &)),
+                     &Capture::imageControlsChanged,
                      this,
-                     SIGNAL(imageControlsChanged(const QString &, const QVariantMap &)));
+                     &VideoCaptureElement::imageControlsChanged);
 
     QObject::connect(&this->m_capture,
-                     SIGNAL(cameraControlsChanged(const QString &, const QVariantMap &)),
+                     &Capture::cameraControlsChanged,
                      this,
-                     SIGNAL(cameraControlsChanged(const QString &, const QVariantMap &)));
+                     &VideoCaptureElement::cameraControlsChanged);
 
     QObject::connect(&this->m_timer,
                      &QTimer::timeout,
@@ -278,13 +278,16 @@ void VideoCaptureElement::readFrame()
 {
     QbPacket packet = this->m_capture.readFrame();
 
+    if (!packet)
+        return;
+
     if (!this->m_threadedRead) {
         emit this->oStream(packet);
 
         return;
     }
 
-    if (packet && !this->m_threadStatus.isRunning()) {
+    if (!this->m_threadStatus.isRunning()) {
         this->m_curPacket = packet;
 
         this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,

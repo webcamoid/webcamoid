@@ -25,35 +25,45 @@
 #include <qbelement.h>
 
 #ifdef Q_OS_LINUX
-#include "platform/audiooutlinux.h"
+#include "platform/audiodevicelinux.h"
 #endif
 
 #ifdef Q_OS_WIN32
-#include "platform/audiooutwin.h"
+#include "platform/audiodevicewin.h"
 #endif
 
 class AudioOutputElement: public QbElement
 {
     Q_OBJECT
+    Q_PROPERTY(QbCaps caps
+               READ caps
+               WRITE setCaps
+               RESET resetCaps
+               NOTIFY capsChanged)
 
     public:
         explicit AudioOutputElement();
         ~AudioOutputElement();
-        Q_INVOKABLE int bufferSize() const;
+
+        Q_INVOKABLE QbCaps caps() const;
 
     private:
-        AudioOut m_audioOut;
-        int m_bufferSize;
+        QbCaps m_caps;
+        AudioDevice m_audioDevice;
         QbElementPtr m_convert;
         QMutex m_mutex;
 
     protected:
-        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+        void stateChange(QbElement::ElementState from,
+                         QbElement::ElementState to);
 
     public slots:
-        void setBufferSize(int bufferSize);
-        void resetBufferSize();
+        void setCaps(const QbCaps &caps);
+        void resetCaps();
         QbPacket iStream(const QbAudioPacket &packet);
+
+    signals:
+        void capsChanged(const QbCaps &caps);
 
     private slots:
         bool init();

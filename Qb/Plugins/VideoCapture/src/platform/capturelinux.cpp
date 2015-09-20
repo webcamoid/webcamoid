@@ -142,9 +142,9 @@ Capture::Capture(): QObject()
     this->m_fsWatcher->setParent(this);
 
     QObject::connect(this->m_fsWatcher,
-                     SIGNAL(directoryChanged(const QString &)),
+                     &QFileSystemWatcher::directoryChanged,
                      this,
-                     SLOT(onDirectoryChanged(const QString &)));
+                     &Capture::onDirectoryChanged);
 }
 
 QStringList Capture::webcams() const

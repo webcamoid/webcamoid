@@ -32,19 +32,16 @@ CONFIG += plugin
 HEADERS += \
     include/audiooutput.h \
     include/audiooutputelement.h
-!win32: HEADERS += include/platform/audiooutlinux.h
-win32: HEADERS += \
-    include/platform/audiooutwin.h \
-    include/platform/voicecallback.h
+!win32: HEADERS += include/platform/audiodevicelinux.h
+win32: HEADERS += include/platform/audiodevicewin.h
 
 INCLUDEPATH += \
     include \
     ../../include
-win32: INCLUDEPATH += /usr/include/wine/windows
 
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
-win32: LIBS += -lole32 -lxaudio2_8
+win32: LIBS += -lole32 -lwinmm
 
 OTHER_FILES += pspec.json
 
@@ -53,10 +50,8 @@ QT += qml
 SOURCES += \
     src/audiooutput.cpp \
     src/audiooutputelement.cpp
-!win32: SOURCES += src/platform/audiooutlinux.cpp
-win32: SOURCES += \
-    src/platform/audiooutwin.cpp \
-    src/platform/voicecallback.cpp
+!win32: SOURCES += src/platform/audiodevicelinux.cpp
+win32: SOURCES += src/platform/audiodevicewin.cpp
 
 DESTDIR = $${PWD}
 

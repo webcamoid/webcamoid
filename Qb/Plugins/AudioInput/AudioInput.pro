@@ -31,8 +31,9 @@ CONFIG += plugin
 
 HEADERS += \
     include/audioinput.h \
-    include/audioinputelement.h \
-    include/audiobuffer.h
+    include/audioinputelement.h
+!win32: HEADERS += include/platform/audiodevicelinux.h
+win32: HEADERS += include/platform/audiodevicewin.h
 
 INCLUDEPATH += \
     include \
@@ -40,19 +41,27 @@ INCLUDEPATH += \
 
 !win32: LIBS += -L../../ -lQb
 win32: LIBS += -L../../ -lQb$${VER_MAJ}
+win32: LIBS += -lole32 -lwinmm
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia
+QT += qml concurrent
 
 SOURCES += \
     src/audioinput.cpp \
-    src/audioinputelement.cpp \
-    src/audiobuffer.cpp
+    src/audioinputelement.cpp
+!win32: SOURCES += src/platform/audiodevicelinux.cpp
+win32: SOURCES += src/platform/audiodevicewin.cpp
 
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
+
+unix {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += libpulse-simple
+}
 
 INSTALLS += target
 

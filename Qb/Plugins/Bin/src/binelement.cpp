@@ -83,9 +83,9 @@ void BinElement::setDescription(const QString &description)
     } else {
         foreach (QbElementPtr element, this->m_outputs)
             QObject::disconnect(element.data(),
-                                SIGNAL(oStream(const QbPacket &)),
+                                &QbElement::oStream,
                                 this,
-                                SIGNAL(oStream(const QbPacket &)));
+                                &BinElement::oStream);
 
         this->m_pipelineDescription.cleanAll();
 
@@ -155,9 +155,9 @@ void BinElement::connectOutputs()
     foreach (QbElementPtr element, this->m_outputs)
     {
         QObject::connect(element.data(),
-                         SIGNAL(oStream(const QbPacket &)),
+                         &QbElement::oStream,
                          this,
-                         SIGNAL(oStream(const QbPacket &)),
+                         &BinElement::oStream,
                          connectionTypes[i]);
 
         i++;
@@ -168,7 +168,7 @@ void BinElement::disconnectOutputs()
 {
     foreach (QbElementPtr element, this->m_outputs)
         QObject::disconnect(element.data(),
-                            SIGNAL(oStream(const QbPacket &)),
+                            &QbElement::oStream,
                             this,
-                            SIGNAL(oStream(const QbPacket &)));
+                            &BinElement::oStream);
 }

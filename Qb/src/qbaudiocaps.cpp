@@ -22,6 +22,26 @@
 
 #include "qbaudiocaps.h"
 
+typedef QMap<QbAudioCaps::SampleFormat, int> BytesPerSampleMap;
+
+inline BytesPerSampleMap initBytesPerSampleMap()
+{
+    BytesPerSampleMap bytesPerSample;
+    bytesPerSample[QbAudioCaps::SampleFormat_u8] = 1;
+    bytesPerSample[QbAudioCaps::SampleFormat_s16] = 2;
+    bytesPerSample[QbAudioCaps::SampleFormat_s32] = 4;
+    bytesPerSample[QbAudioCaps::SampleFormat_flt] = 4;
+    bytesPerSample[QbAudioCaps::SampleFormat_dbl] = 8;
+    bytesPerSample[QbAudioCaps::SampleFormat_u8p] = 1;
+    bytesPerSample[QbAudioCaps::SampleFormat_s16p] = 2;
+    bytesPerSample[QbAudioCaps::SampleFormat_s32p] = 4;
+    bytesPerSample[QbAudioCaps::SampleFormat_fltp] = 4;
+
+    return bytesPerSample;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(BytesPerSampleMap, toBytesPerSample, (initBytesPerSampleMap()))
+
 class QbAudioCapsPrivate
 {
     public:
@@ -427,6 +447,11 @@ QbAudioCaps &QbAudioCaps::update(const QbCaps &caps)
 QbCaps QbAudioCaps::toCaps() const
 {
     return QbCaps(this->toString());
+}
+
+int QbAudioCaps::bytesPerSample(QbAudioCaps::SampleFormat sampleFormat)
+{
+    return toBytesPerSample->value(sampleFormat, 0);
 }
 
 void QbAudioCaps::setFormat(QbAudioCaps::SampleFormat format)

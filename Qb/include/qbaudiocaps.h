@@ -151,6 +151,8 @@ class QbAudioCaps: public QObject
         Q_INVOKABLE QbAudioCaps &update(const QbCaps &caps);
         Q_INVOKABLE QbCaps toCaps() const;
 
+        Q_INVOKABLE static int bytesPerSample(SampleFormat sampleFormat);
+
     private:
         QbAudioCapsPrivate *d;
 

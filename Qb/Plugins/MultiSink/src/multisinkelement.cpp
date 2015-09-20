@@ -303,9 +303,9 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         filter->setProperty("caps", outputCaps.toString());
 
         QObject::connect(filter.data(),
-                         SIGNAL(oStream(const QbPacket &)),
+                         &QbElement::oStream,
                          this,
-                         SLOT(processAFrame(const QbPacket &)));
+                         &MultiSinkElement::processAFrame);
     }
     else if (inputCaps.mimeType() == "video/x-raw") {
         filter = QbElement::create("VCapsConvert");
@@ -313,17 +313,17 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         filter->setProperty("keepAspectRatio", true);
 
         QObject::connect(filter.data(),
-                         SIGNAL(oStream(const QbPacket &)),
+                         &QbElement::oStream,
                          this,
-                         SLOT(processVFrame(const QbPacket &)),
+                         &MultiSinkElement::processVFrame,
                          Qt::DirectConnection);
     }
 
     if (filter)
         QObject::connect(this,
-                         SIGNAL(stateChanged(QbElement::ElementState)),
+                         &MultiSinkElement::stateChanged,
                          filter.data(),
-                         SLOT(setState(QbElement::ElementState)),
+                         &QbElement::setState,
                          Qt::DirectConnection);
 
     int outputIndex = options.contains("oi")? options["oi"].toInt(): inputIndex;

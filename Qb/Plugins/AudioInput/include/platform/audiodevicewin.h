@@ -18,43 +18,61 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef AUDIOOUT_H
-#define AUDIOOUT_H
+#ifndef AUDIODEVICE_H
+#define AUDIODEVICE_H
 
 #include <qbaudiocaps.h>
 #include <objbase.h>
-#include <xaudio2.h>
+#include <initguid.h>
+#include <audioclient.h>
+#include <mmdeviceapi.h>
 
-#include "voicecallback.h"
-
-class AudioOut: public QObject
+class AudioDevice: public QObject
 {
     Q_OBJECT
+    Q_ENUMS(DeviceMode)
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
 
     public:
-        explicit AudioOut(QObject *parent=NULL);
-        ~AudioOut();
+        enum DeviceMode
+        {
+            DeviceModeCapture,
+            DeviceModePlayback
+        };
+
+        explicit AudioDevice(QObject *parent=NULL);
+        ~AudioDevice();
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE bool init(QbAudioCaps::SampleFormat sampleFormat,
+        Q_INVOKABLE bool preferredFormat(DeviceMode mode,
+                                         QbAudioCaps::SampleFormat *sampleFormat,
+                                         int *channels,
+                                         int *sampleRate);
+        Q_INVOKABLE bool init(DeviceMode mode,
+                              QbAudioCaps::SampleFormat sampleFormat,
                               int channels,
-                              int sampleRate);
+                              int sampleRate,
+                              bool justActivate=false);
+        Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const QByteArray &frame);
         Q_INVOKABLE bool uninit();
 
     private:
-        Lock m_lock;
         QString m_error;
-        IXAudio2 *m_pXAudio2;
-        IXAudio2MasteringVoice *m_pMasterVoice;
-        IXAudio2SourceVoice *m_pSourceVoice;
-        VoiceCallback m_voiceCallbacks;
+        QByteArray m_audioBuffer;
+        IMMDeviceEnumerator *m_pEnumerator;
+        IMMDevice *m_pDevice;
+        IAudioClient *m_pAudioClient;
+        IAudioCaptureClient *m_pCaptureClient;
+        IAudioRenderClient *m_pRenderClient;
+        HANDLE m_hEvent;
+        int m_curBps;
+        int m_curChannels;
 
     signals:
         void errorChanged(const QString &error);
 };
 
-#endif // AUDIOOUT_H
+#endif // AUDIODEVICE_H

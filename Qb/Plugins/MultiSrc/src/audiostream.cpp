@@ -53,34 +53,6 @@ inline ChannelLayoutsMap initChannelFormatsMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormatsMap()))
 
-typedef QMap<AVSampleFormat, int> BpsMap;
-
-inline BpsMap initBpsMap()
-{
-    BpsMap bps;
-    bps[AV_SAMPLE_FMT_U8] = 1;
-    bps[AV_SAMPLE_FMT_S16] = 2;
-    bps[AV_SAMPLE_FMT_S32] = 4;
-    bps[AV_SAMPLE_FMT_FLT] = 4;
-
-    return bps;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(BpsMap, bytesPerSample, (initBpsMap()))
-
-typedef QMap<int64_t, int> NChannelsMap;
-
-inline NChannelsMap initNChannelsMap()
-{
-    NChannelsMap nChannels;
-    nChannels[AV_CH_LAYOUT_MONO] = 1;
-    nChannels[AV_CH_LAYOUT_STEREO] = 2;
-
-    return nChannels;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(NChannelsMap, NChannels, (initNChannelsMap()))
-
 AudioStream::AudioStream(const AVFormatContext *formatContext,
                          uint index, qint64 id, Clock *globalClock,
                          bool noModify, QObject *parent):
@@ -100,10 +72,9 @@ AudioStream::~AudioStream()
 
 QbCaps AudioStream::caps() const
 {
-    QbAudioCaps::SampleFormat format =
-            sampleFormats->contains(this->codecContext()->sample_fmt)?
-                sampleFormats->value(this->codecContext()->sample_fmt):
-                QbAudioCaps::SampleFormat_flt;
+    AVSampleFormat iFormat = AVSampleFormat(this->codecContext()->sample_fmt);
+    AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
+    oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
 
     QbAudioCaps::ChannelLayout layout =
             channelLayouts->contains(this->codecContext()->channel_layout)?
@@ -112,9 +83,9 @@ QbCaps AudioStream::caps() const
 
     QbAudioCaps caps;
     caps.isValid() = true;
-    caps.format() = format;
-    caps.bps() = bytesPerSample->value(sampleFormats->key(format));
-    caps.channels() = NChannels->value(channelLayouts->key(layout));
+    caps.format() = sampleFormats->value(oFormat);;
+    caps.bps() = av_get_bytes_per_sample(oFormat);
+    caps.channels() = av_get_channel_layout_nb_channels(layout);
     caps.rate() = this->codecContext()->sample_rate;
     caps.layout() = layout;
     caps.align() = false;
@@ -155,9 +126,9 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
                           iFrame->channel_layout:
                           AV_CH_LAYOUT_STEREO;
 
-    AVSampleFormat oFormat = sampleFormats->contains(AVSampleFormat(iFrame->format))?
-                                 AVSampleFormat(iFrame->format):
-                                 AV_SAMPLE_FMT_FLT;
+    AVSampleFormat iFormat = AVSampleFormat(iFrame->format);
+    AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
+    oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
 
     this->m_resampleContext =
             swr_alloc_set_opts(this->m_resampleContext,
@@ -165,7 +136,7 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
                                oFormat,
                                iFrame->sample_rate,
                                iFrame->channel_layout,
-                               AVSampleFormat(iFrame->format),
+                               iFormat,
                                iFrame->sample_rate,
                                0,
                                NULL);
@@ -194,7 +165,7 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
         return QbPacket();
 
     int oSamples = oFrame->nb_samples;
-    int oChannels = NChannels->value(oLayout);
+    int oChannels = av_get_channel_layout_nb_channels(oLayout);
 
     int oLineSize;
     int frameSize = av_samples_get_buffer_size(&oLineSize,
@@ -227,7 +198,7 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     QbAudioPacket packet;
     packet.caps().isValid() = true;
     packet.caps().format() = sampleFormats->value(oFormat);
-    packet.caps().bps() = bytesPerSample->value(oFormat);
+    packet.caps().bps() = av_get_bytes_per_sample(oFormat);
     packet.caps().channels() = oChannels;
     packet.caps().rate() = iFrame->sample_rate;
     packet.caps().layout() = channelLayouts->value(oLayout);

@@ -21,53 +21,75 @@
 #ifndef AUDIOINPUTELEMENT_H
 #define AUDIOINPUTELEMENT_H
 
-#include <QAudioInput>
-#include <QAudioDeviceInfo>
+#include <QTimer>
+#include <QThreadPool>
+#include <QtConcurrent>
 
-#include <qbutils.h>
-#include "audiobuffer.h"
+#include <qbelement.h>
 
-typedef QSharedPointer<QAudioInput> AudioInputPtr;
+#ifdef Q_OS_LINUX
+#include "platform/audiodevicelinux.h"
+#endif
+
+#ifdef Q_OS_WIN32
+#include "platform/audiodevicewin.h"
+#endif
 
 class AudioInputElement: public QbElement
 {
     Q_OBJECT
-        Q_PROPERTY(int bufferSize READ bufferSize
-                                  WRITE setBufferSize
-                                  RESET resetBufferSize)
-
-        Q_PROPERTY(QString streamCaps READ streamCaps)
+    // Buffer size in samples.
+    Q_PROPERTY(int bufferSize
+               READ bufferSize
+               WRITE setBufferSize
+               RESET resetBufferSize
+               NOTIFY bufferSizeChanged)
+    Q_PROPERTY(QbCaps caps
+               READ caps
+               WRITE setCaps
+               RESET resetCaps
+               NOTIFY capsChanged)
 
     public:
         explicit AudioInputElement();
         ~AudioInputElement();
+
         Q_INVOKABLE int bufferSize() const;
-        Q_INVOKABLE QString streamCaps() const;
+        Q_INVOKABLE QbCaps caps() const;
 
     private:
         int m_bufferSize;
         QbCaps m_caps;
-        QAudioDeviceInfo m_audioDeviceInfo;
-        AudioInputPtr m_audioInput;
-        QIODevice *m_inputDevice;
-        AudioBuffer m_audioBuffer;
+        AudioDevice m_audioDevice;
         qint64 m_streamId;
-        qint64 m_pts;
         QbFrac m_timeBase;
+        bool m_threadedRead;
+        QTimer m_timer;
+        QThreadPool m_threadPool;
+        QFuture<void> m_threadStatus;
+        QMutex m_mutex;
+        QbPacket m_curPacket;
 
-        QbCaps findBestOptions(const QAudioFormat &audioFormat) const;
+        static void sendPacket(AudioInputElement *element,
+                               const QbPacket &packet);
 
     protected:
         void stateChange(QbElement::ElementState from, QbElement::ElementState to);
 
+    signals:
+        void bufferSizeChanged(int bufferSize);
+        void capsChanged(const QbCaps &caps);
+
     public slots:
         void setBufferSize(int bufferSize);
+        void setCaps(const QbCaps &caps);
         void resetBufferSize();
+        void resetCaps();
 
     private slots:
         bool init();
         void uninit();
-        void processFrame(const QByteArray &data);
+        void readFrame();
 };
 
 #endif // AUDIOINPUTELEMENT_H
