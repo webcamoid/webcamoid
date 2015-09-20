@@ -23,8 +23,6 @@
 
 #include "platform/audiodevicelinux.h"
 
-#include "platform/audiodevicelinux.h"
-
 typedef QMap<QbAudioCaps::SampleFormat, pa_sample_format_t> SampleFormatMap;
 
 inline SampleFormatMap initSampleFormatMap()
