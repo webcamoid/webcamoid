@@ -37,3 +37,7 @@ Use Webcamoid until an abnormal event happen, write a list with the following in
 6. Any other useful information.
 
 Send this list to the [issues page](http://github.com/hipersayanX/webcamoid/issues). Please report **ANY** problem you have with Webcamoid in the official website, help to centralize information in one unique place.
+
+## Subscribe ##
+
+Stay tuned to new releases with the project [feeds](https://github.com/hipersayanX/webcamoid/releases.atom).
