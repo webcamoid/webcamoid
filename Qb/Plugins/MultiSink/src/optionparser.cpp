@@ -22,7 +22,8 @@
 
 #include "optionparser.h"
 
-OptionParser::OptionParser(QObject *parent): QObject(parent)
+OptionParser::OptionParser(QObject *parent):
+    QObject(parent)
 {
 }
 
@@ -31,38 +32,33 @@ QString OptionParser::error() const
     return this->m_error;
 }
 
-QList<ParsedOption> OptionParser::parse(QString cmd, bool *ok)
+QList<ParsedOption> OptionParser::parse(const QString &cmd, bool *ok)
 {
     QList<ParsedOption> options;
 
     if (ok)
         *ok = false;
 
-    for (int i = 0; i < cmd.length(); )
-    {
+    for (int i = 0; i < cmd.length(); ) {
         int j = cmd.indexOf(QRegExp("\\s+"), i);
 
         if (i == j)
             j = cmd.indexOf(QRegExp("[^\\s]+"), i);
-        else
-        {
+        else {
             QString param = cmd.mid(i, j - i);
 
-            if (param.startsWith("--"))
-            {
+            if (param.startsWith("--")) {
                 QString paramName = param.mid(2);
 
                 bool optionOk;
 
                 Option option = this->findOption(paramName, true, &optionOk);
 
-                if (optionOk)
-                {
+                if (optionOk) {
                     ParsedOption::OptionType type;
                     QVariant value;
 
-                    if (option.flags() & Option::OptionFlagsHasValue)
-                    {
+                    if (option.flags() & Option::OptionFlagsHasValue) {
                         i = cmd.indexOf(QRegExp("[^\\s]+"), j);
                         j = cmd.indexOf(QRegExp("\\s+"), i);
 
@@ -70,22 +66,18 @@ QList<ParsedOption> OptionParser::parse(QString cmd, bool *ok)
 
                         if (QRegExp(option.valregex()).exactMatch(valueString))
                             value = this->convertValue(param, valueString);
-                        else
-                        {
+                        else {
                             this->m_error = QString("Invalid value: %1 for %2").arg(valueString).arg(param);
 
                             return options;
                         }
 
                         type = ParsedOption::OptionTypePair;
-                    }
-                    else
+                    } else
                         type = ParsedOption::OptionTypeSingle;
 
                     options << ParsedOption(paramName, value, type);
-                }
-                else
-                {
+                } else {
                     if (ok)
                         *ok = false;
 
@@ -93,22 +85,16 @@ QList<ParsedOption> OptionParser::parse(QString cmd, bool *ok)
 
                     return options;
                 }
-            }
-            else if (param.startsWith("-"))
-            {
+            } else if (param.startsWith("-")) {
                 QString paramName = param.mid(1);
-
                 bool optionOk;
-
                 Option option = this->findOption(paramName, false, &optionOk);
 
-                if (optionOk)
-                {
+                if (optionOk) {
                     ParsedOption::OptionType type;
                     QVariant value;
 
-                    if (option.flags() & Option::OptionFlagsHasValue)
-                    {
+                    if (option.flags() & Option::OptionFlagsHasValue) {
                         i = cmd.indexOf(QRegExp("[^\\s]+"), j);
                         j = cmd.indexOf(QRegExp("\\s+"), i);
 
@@ -116,22 +102,18 @@ QList<ParsedOption> OptionParser::parse(QString cmd, bool *ok)
 
                         if (QRegExp(option.valregex()).exactMatch(valueString))
                             value = this->convertValue(param, valueString);
-                        else
-                        {
+                        else {
                             this->m_error = QString("Invalid value: %1 for %2").arg(valueString).arg(param);
 
                             return options;
                         }
 
                         type = ParsedOption::OptionTypePair;
-                    }
-                    else
+                    } else
                         type = ParsedOption::OptionTypeSingle;
 
                     options << ParsedOption(paramName, value, type);
-                }
-                else
-                {
+                } else {
                     if (ok)
                         *ok = false;
 
@@ -139,8 +121,7 @@ QList<ParsedOption> OptionParser::parse(QString cmd, bool *ok)
 
                     return options;
                 }
-            }
-            else
+            } else
                 options << ParsedOption("", param, ParsedOption::OptionTypeData);
         }
 
@@ -156,7 +137,7 @@ QList<ParsedOption> OptionParser::parse(QString cmd, bool *ok)
     return options;
 }
 
-Option OptionParser::findOption(QString option, bool isLong, bool *ok)
+Option OptionParser::findOption(const QString &option, bool isLong, bool *ok)
 {
     if (ok)
         *ok = true;
@@ -172,14 +153,14 @@ Option OptionParser::findOption(QString option, bool isLong, bool *ok)
     return Option();
 }
 
-QVariant OptionParser::convertValue(QString key, QString value)
+QVariant OptionParser::convertValue(const QString &key, const QString &value)
 {
     Q_UNUSED(key)
 
     return value;
 }
 
-void OptionParser::addOption(Option option)
+void OptionParser::addOption(const Option &option)
 {
     this->m_options << option;
 }

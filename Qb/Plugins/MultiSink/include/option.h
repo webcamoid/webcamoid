@@ -28,10 +28,26 @@ class Option: public QObject
 {
     Q_OBJECT
     Q_ENUMS(OptionFlags)
-    Q_PROPERTY(QString name READ name WRITE setName RESET resetName)
-    Q_PROPERTY(QString comment READ comment WRITE setComment RESET resetComment)
-    Q_PROPERTY(QString valregex READ valregex WRITE setValregex RESET resetValregex)
-    Q_PROPERTY(OptionFlags flags READ flags WRITE setFlags RESET resetFlags)
+    Q_PROPERTY(QString name
+               READ name
+               WRITE setName
+               RESET resetName
+               NOTIFY nameChanged)
+    Q_PROPERTY(QString comment
+               READ comment
+               WRITE setComment
+               RESET resetComment
+               NOTIFY commentChanged)
+    Q_PROPERTY(QString valregex
+               READ valregex
+               WRITE setValregex
+               RESET resetValregex
+               NOTIFY valregexChanged)
+    Q_PROPERTY(OptionFlags flags
+               READ flags
+               WRITE setFlags
+               RESET resetFlags
+               NOTIFY flagsChanged)
 
     public:
         enum OptionFlags
@@ -43,10 +59,10 @@ class Option: public QObject
 
         explicit Option(QObject *parent=NULL);
 
-        Option(QString name,
-               QString comment="",
-               QString valregex=".*",
-               OptionFlags flags=OptionFlagsNoFlags);
+        Option(const QString &name,
+               const QString &comment="",
+               const QString &valregex=".*",
+               const OptionFlags &flags=OptionFlagsNoFlags);
 
         Option(const Option &other);
         Option &operator =(const Option &other);
@@ -64,11 +80,17 @@ class Option: public QObject
 
         friend QDebug operator <<(QDebug debug, const Option &option);
 
+    signals:
+        void nameChanged(const QString &name);
+        void commentChanged(const QString &comment);
+        void valregexChanged(const QString &valregex);
+        void flagsChanged(const OptionFlags &flags);
+
     public slots:
-        void setName(QString name);
-        void setComment(QString comment);
-        void setValregex(QString valregex);
-        void setFlags(OptionFlags flags);
+        void setName(const QString &name);
+        void setComment(const QString &comment);
+        void setValregex(const QString &valregex);
+        void setFlags(const OptionFlags &flags);
         void resetName();
         void resetComment();
         void resetValregex();

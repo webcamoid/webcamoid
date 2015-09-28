@@ -22,6 +22,14 @@
 #define OUTPUTPARAMS_H
 
 #include <qb.h>
+
+extern "C"
+{
+    #include <libavutil/pixdesc.h>
+    #include <libswresample/swresample.h>
+    #include <libswscale/swscale.h>
+}
+
 #include "customdeleters.h"
 
 typedef QSharedPointer<AVCodecContext> CodecContextPtr;
@@ -29,45 +37,60 @@ typedef QSharedPointer<AVCodecContext> CodecContextPtr;
 class OutputParams: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(CodecContextPtr codecContext READ codecContext WRITE setCodecContext RESET resetCodecContext)
-    Q_PROPERTY(QbElementPtr filter READ filter WRITE setFilter RESET resetFilter)
-    Q_PROPERTY(int outputIndex READ outputIndex WRITE setOutputIndex RESET resetOutputIndex)
-    Q_PROPERTY(qint64 pts READ pts WRITE setPts RESET resetPts)
+    Q_PROPERTY(CodecContextPtr codecContext
+               READ codecContext
+               WRITE setCodecContext
+               RESET resetCodecContext
+               NOTIFY codecContextChanged)
+    Q_PROPERTY(int outputIndex
+               READ outputIndex
+               WRITE setOutputIndex
+               RESET resetOutputIndex
+               NOTIFY outputIndexChanged)
 
     public:
         explicit OutputParams(QObject *parent=NULL);
-
-        OutputParams(CodecContextPtr codecContext,
-                     QbElementPtr filter,
-                     int outputIndex,
-                     qint64 pts=0);
-
+        OutputParams(const CodecContextPtr &codecContext,
+                     int outputIndex);
         OutputParams(const OutputParams &other);
+        ~OutputParams();
+
         OutputParams &operator =(const OutputParams &other);
 
         Q_INVOKABLE CodecContextPtr codecContext() const;
-        Q_INVOKABLE QbElementPtr filter() const;
+        Q_INVOKABLE CodecContextPtr &codecContext();
         Q_INVOKABLE int outputIndex() const;
-        Q_INVOKABLE qint64 pts() const;
+        Q_INVOKABLE int &outputIndex();
+        Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
 
     private:
         CodecContextPtr m_codecContext;
-        QbElementPtr m_filter;
         int m_outputIndex;
+
+        qint64 m_id;
         qint64 m_pts;
-        qint64 m_prevPts;
-        qint64 m_lastPts;
+        qint64 m_ptsDiff;
         qint64 m_ptsDrift;
 
+        SwrContext *m_resampleContext;
+        SwsContext *m_scaleContext;
+
+    signals:
+        void codecContextChanged(const CodecContextPtr &codecContext);
+        void outputIndexChanged(int outputIndex);
+        void ptsChanged(qint64 pts);
+
     public slots:
-        void setCodecContext(CodecContextPtr codecContext);
-        void setFilter(QbElementPtr filter);
+        void setCodecContext(const CodecContextPtr &codecContext);
         void setOutputIndex(int outputIndex);
-        bool setPts(qint64 pts);
         void resetCodecContext();
-        void resetFilter();
         void resetOutputIndex();
-        void resetPts();
+
+        bool convert(const QbPacket &packet, AVFrame *frame);
+
+    private slots:
+        bool convertAudio(const QbPacket &packet, AVFrame *frame);
+        bool convertVideo(const QbPacket &packet, AVFrame *frame);
 };
 
 Q_DECLARE_METATYPE(OutputParams)

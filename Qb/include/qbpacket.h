@@ -110,14 +110,14 @@ class QbPacket: public QObject
         QbPacketPrivate *d;
 
     signals:
-        void capsChanged();
-        void dataChanged();
-        void bufferChanged();
-        void bufferSizeChanged();
-        void ptsChanged();
-        void timeBaseChanged();
-        void indexChanged();
-        void idChanged();
+        void capsChanged(const QbCaps &caps);
+        void dataChanged(const QVariant &data);
+        void bufferChanged(const QbBufferPtr &buffer);
+        void bufferSizeChanged(ulong bufferSize);
+        void idChanged(qint64 id);
+        void ptsChanged(qint64 pts);
+        void timeBaseChanged(const QbFrac &timeBase);
+        void indexChanged(int index);
 
     public slots:
         void setCaps(const QbCaps &caps);

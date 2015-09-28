@@ -60,8 +60,6 @@ QbPacket ACapsConvertElement::iStream(const QbPacket &packet)
         packet.caps().mimeType() != "audio/x-raw")
         return QbPacket();
 
-//    qDebug() << QbAudioPacket(packet);
-
     // Input Format
     AVSampleFormat iSampleFormat = av_get_sample_fmt(packet.caps().property("format").toString().toStdString().c_str());
     int iNChannels = packet.caps().property("channels").toInt();

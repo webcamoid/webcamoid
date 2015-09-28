@@ -28,8 +28,10 @@
 class Commands: public OptionParser
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantMap inputs READ inputs)
-    Q_PROPERTY(QVariantMap outputOptions READ outputOptions)
+    Q_PROPERTY(QVariantMap inputs
+               READ inputs)
+    Q_PROPERTY(QVariantMap outputOptions
+               READ outputOptions)
 
     public:
         explicit Commands(QObject *parent=NULL);
@@ -37,13 +39,13 @@ class Commands: public OptionParser
         Q_INVOKABLE QVariantMap inputs() const;
         Q_INVOKABLE QVariantMap outputOptions() const;
 
-        Q_INVOKABLE bool parseCmd(QString cmd);
+        Q_INVOKABLE bool parseCmd(const QString &cmd);
 
     private:
         QVariantMap m_inputs;
         QVariantMap m_outputOptions;
 
-        virtual QVariant convertValue(QString key, QString value);
+        virtual QVariant convertValue(const QString &key, const QString &value);
 
     public slots:
         void clear();

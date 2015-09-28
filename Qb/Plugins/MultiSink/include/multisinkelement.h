@@ -30,18 +30,21 @@
 class MultiSinkElement: public QbElement
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString location READ location
-                                WRITE setLocation
-                                RESET resetLocation)
-
-    Q_PROPERTY(QString options READ options
-                               WRITE setOptions
-                               RESET resetOptions)
-
-    Q_PROPERTY(QVariantMap streamCaps READ streamCaps
-                                      WRITE setStreamCaps
-                                      RESET resetStreamCaps)
+    Q_PROPERTY(QString location
+               READ location
+               WRITE setLocation
+               RESET resetLocation
+               NOTIFY locationChanged)
+    Q_PROPERTY(QString options
+               READ options
+               WRITE setOptions
+               RESET resetOptions
+               NOTIFY optionsChanged)
+    Q_PROPERTY(QVariantMap streamCaps
+               READ streamCaps
+               WRITE setStreamCaps
+               RESET resetStreamCaps
+               NOTIFY streamCapsChanged)
 
     public:
         explicit MultiSinkElement();
@@ -75,10 +78,15 @@ class MultiSinkElement: public QbElement
                                         const QbCaps &inputCaps,
                                         const QVariantMap &options);
 
+    signals:
+        void locationChanged(const QString &location);
+        void optionsChanged(const QString &options);
+        void streamCapsChanged(const QVariantMap &streamCaps);
+
     public slots:
-        void setLocation(QString location);
-        void setOptions(QString options);
-        void setStreamCaps(QVariantMap streamCaps);
+        void setLocation(const QString &location);
+        void setOptions(const QString &options);
+        void setStreamCaps(const QVariantMap &streamCaps);
         void resetLocation();
         void resetOptions();
         void resetStreamCaps();

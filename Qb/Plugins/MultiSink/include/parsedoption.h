@@ -29,9 +29,21 @@ class ParsedOption: public QObject
 {
     Q_OBJECT
     Q_ENUMS(OptionType)
-    Q_PROPERTY(QString key READ key WRITE setKey RESET resetKey)
-    Q_PROPERTY(QVariant value READ value WRITE setValue RESET resetValue)
-    Q_PROPERTY(OptionType type READ type WRITE setType RESET resetType)
+    Q_PROPERTY(QString key
+               READ key
+               WRITE setKey
+               RESET resetKey
+               NOTIFY keyChanged)
+    Q_PROPERTY(QVariant value
+               READ value
+               WRITE setValue
+               RESET resetValue
+               NOTIFY valueChanged)
+    Q_PROPERTY(OptionType type
+               READ type
+               WRITE setType
+               RESET resetType
+               NOTIFY typeChanged)
 
     public:
         enum OptionType
@@ -43,7 +55,9 @@ class ParsedOption: public QObject
         };
 
         explicit ParsedOption(QObject *parent=NULL);
-        ParsedOption(QString key, QVariant value=QVariant(), OptionType type=OptionTypeNone);
+        ParsedOption(const QString &key,
+                     const QVariant &value=QVariant(),
+                     OptionType type=OptionTypeNone);
         ParsedOption(const ParsedOption &other);
 
         ParsedOption &operator =(const ParsedOption &other);
@@ -59,9 +73,14 @@ class ParsedOption: public QObject
 
         friend QDebug operator <<(QDebug debug, const ParsedOption &option);
 
+    signals:
+        void keyChanged(const QString &key);
+        void valueChanged(const QVariant &value);
+        void typeChanged(OptionType type);
+
     public slots:
-        void setKey(QString key);
-        void setValue(QVariant value);
+        void setKey(const QString &key);
+        void setValue(const QVariant &value);
         void setType(OptionType type);
         void resetKey();
         void resetValue();

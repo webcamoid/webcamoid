@@ -76,16 +76,16 @@ QbCaps AudioStream::caps() const
     AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
     oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
 
-    QbAudioCaps::ChannelLayout layout =
-            channelLayouts->contains(this->codecContext()->channel_layout)?
-                channelLayouts->value(this->codecContext()->channel_layout):
-                QbAudioCaps::Layout_stereo;
+    QbAudioCaps::ChannelLayout layout = channelLayouts->value(this->codecContext()->channel_layout,
+                                                              QbAudioCaps::Layout_stereo);
+
+    uint64_t channelLayout = channelLayouts->key(layout, AV_CH_LAYOUT_STEREO);
 
     QbAudioCaps caps;
     caps.isValid() = true;
     caps.format() = sampleFormats->value(oFormat);;
     caps.bps() = av_get_bytes_per_sample(oFormat);
-    caps.channels() = av_get_channel_layout_nb_channels(layout);
+    caps.channels() = av_get_channel_layout_nb_channels(channelLayout);
     caps.rate() = this->codecContext()->sample_rate;
     caps.layout() = layout;
     caps.align() = false;

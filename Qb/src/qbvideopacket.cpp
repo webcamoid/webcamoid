@@ -149,8 +149,10 @@ QString QbVideoPacket::toString() const
                     << "\n";
 
     debug.nospace() << "Pts        : "
+                    << this->pts()
+                    << " ("
                     << this->pts() * this->timeBase().value()
-                    << "\n";
+                    << ")\n";
 
     debug.nospace() << "Time Base  : "
                     << this->timeBase().toString().toStdString().c_str()

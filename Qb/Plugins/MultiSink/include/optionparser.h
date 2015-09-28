@@ -27,13 +27,15 @@
 class OptionParser: public QObject
 {
     Q_OBJECT
-        Q_PROPERTY(QString error READ error)
+    Q_PROPERTY(QString error
+               READ error)
 
     public:
         explicit OptionParser(QObject *parent=NULL);
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QList<ParsedOption> parse(QString cmd, bool *ok=NULL);
+        Q_INVOKABLE QList<ParsedOption> parse(const QString &cmd,
+                                              bool *ok=NULL);
 
     protected:
         QString m_error;
@@ -41,12 +43,13 @@ class OptionParser: public QObject
     private:
         QList<Option> m_options;
 
-        Option findOption(QString option, bool isLong=false, bool *ok=NULL);
-
-        virtual QVariant convertValue(QString key, QString value);
+        Option findOption(const QString &option,
+                          bool isLong=false,
+                          bool *ok=NULL);
+        virtual QVariant convertValue(const QString &key, const QString &value);
 
     public slots:
-        Q_INVOKABLE void addOption(Option option);
+        Q_INVOKABLE void addOption(const Option &option);
 };
 
 #endif // OPTIONPARSER_H

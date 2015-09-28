@@ -22,9 +22,8 @@
 
 MultiplexElement::MultiplexElement(): QbElement()
 {
-    this->resetInputIndex();
-    this->resetOutputIndex();
-    this->resetCaps();
+    this->m_inputIndex = -1;
+    this->m_outputIndex = -1;
 }
 
 int MultiplexElement::inputIndex() const
@@ -74,20 +73,18 @@ void MultiplexElement::resetCaps()
 
 QbPacket MultiplexElement::iStream(const QbPacket &packet)
 {
-    if (packet.caps().isValid()
-        && (this->inputIndex() < 0
-            || (this->inputIndex() >= 0
-                && packet.index() == this->inputIndex()))
-        && (this->caps().isEmpty()
-            || packet.caps().isCompatible(this->caps())))
-    {
-        QbPacket oPacket(packet);
+    if (this->m_inputIndex >= 0
+        && packet.index() != this->m_inputIndex)
+        return QbPacket();
 
-        if (this->outputIndex() >= 0)
-            oPacket.setIndex(this->outputIndex());
+    if (!this->m_caps.isEmpty()
+        && !packet.caps().isCompatible(this->m_caps))
+        return QbPacket();
 
-        qbSend(oPacket)
-    }
+    QbPacket oPacket(packet);
 
-    qbSend(packet)
+    if (this->m_outputIndex >= 0)
+        oPacket.setIndex(this->m_outputIndex);
+
+    qbSend(oPacket)
 }

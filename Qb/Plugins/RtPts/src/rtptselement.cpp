@@ -25,7 +25,7 @@ RtPtsElement::RtPtsElement(): QbElement()
     this->m_prevPts = -1;
     this->m_fps = QbFrac(30000, 1001);
     this->m_timeBase = this->m_fps.invert();
-    this->m_timer.setInterval(this->m_fps.invert().value());
+    this->m_timer.setInterval(1e3 * this->m_fps.invert().value());
 
     QObject::connect(&this->m_timer,
                      &QTimer::timeout,
@@ -65,7 +65,7 @@ void RtPtsElement::setFps(const QbFrac &fps)
 
     this->m_fps = fps.num() && fps.den()? fps: QbFrac(30000, 1001);
     this->m_timeBase = this->m_fps.invert();
-    this->m_timer.setInterval(this->m_fps.invert().value());
+    this->m_timer.setInterval(1e3 * this->m_fps.invert().value());
     emit this->fpsChanged(fps);
 }
 

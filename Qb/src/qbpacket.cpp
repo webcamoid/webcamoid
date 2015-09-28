@@ -124,8 +124,10 @@ QString QbPacket::toString() const
                     << "\n";
 
     debug.nospace() << "Pts        : "
+                    << this->d->m_pts
+                    << " ("
                     << this->d->m_pts * this->d->m_timeBase.value()
-                    << "\n";
+                    << ")\n";
 
     debug.nospace() << "Time Base  : "
                     << this->d->m_timeBase.toString().toStdString().c_str()
@@ -223,7 +225,7 @@ void QbPacket::setCaps(const QbCaps &caps)
         return;
 
     this->d->m_caps = caps;
-    emit this->capsChanged();
+    emit this->capsChanged(caps);
 }
 
 void QbPacket::setData(const QVariant &data)
@@ -232,7 +234,7 @@ void QbPacket::setData(const QVariant &data)
         return;
 
     this->d->m_data = data;
-    emit this->dataChanged();
+    emit this->dataChanged(data);
 }
 
 void QbPacket::setBuffer(const QbBufferPtr &buffer)
@@ -241,7 +243,7 @@ void QbPacket::setBuffer(const QbBufferPtr &buffer)
         return;
 
     this->d->m_buffer = buffer;
-    emit this->bufferChanged();
+    emit this->bufferChanged(buffer);
 }
 
 void QbPacket::setBufferSize(ulong bufferSize)
@@ -250,7 +252,7 @@ void QbPacket::setBufferSize(ulong bufferSize)
         return;
 
     this->d->m_bufferSize = bufferSize;
-    emit this->bufferSizeChanged();
+    emit this->bufferSizeChanged(bufferSize);
 }
 
 void QbPacket::setId(qint64 id)
@@ -259,7 +261,7 @@ void QbPacket::setId(qint64 id)
         return;
 
     this->d->m_id = id;
-    emit this->idChanged();
+    emit this->idChanged(id);
 }
 
 void QbPacket::setPts(qint64 pts)
@@ -268,7 +270,7 @@ void QbPacket::setPts(qint64 pts)
         return;
 
     this->d->m_pts = pts;
-    emit this->ptsChanged();
+    emit this->ptsChanged(pts);
 }
 
 void QbPacket::setTimeBase(const QbFrac &timeBase)
@@ -277,7 +279,7 @@ void QbPacket::setTimeBase(const QbFrac &timeBase)
         return;
 
     this->d->m_timeBase = timeBase;
-    emit this->timeBaseChanged();
+    emit this->timeBaseChanged(timeBase);
 }
 
 void QbPacket::setIndex(int index)
@@ -286,7 +288,7 @@ void QbPacket::setIndex(int index)
         return;
 
     this->d->m_index = index;
-    emit this->indexChanged();
+    emit this->indexChanged(index);
 }
 
 void QbPacket::resetCaps()

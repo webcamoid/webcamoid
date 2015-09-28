@@ -114,7 +114,7 @@ QVariantMap Commands::outputOptions() const
     return this->m_outputOptions;
 }
 
-bool Commands::parseCmd(QString cmd)
+bool Commands::parseCmd(const QString &cmd)
 {
     bool ok;
 
@@ -131,67 +131,47 @@ bool Commands::parseCmd(QString cmd)
     bool hasOutputOptions = false;
 
     foreach (ParsedOption option, options)
-        if (option.key() == "i")
-        {
+        if (option.key() == "i") {
             QString input = option.value().toString();
 
-            if (curStream.isEmpty())
-            {
+            if (curStream.isEmpty()) {
                 curStream = "i";
                 curInput = input;
-            }
-            else if (curStream == "i")
-            {
+            } else if (curStream == "i") {
                 this->m_inputs[curInput] = curOptions;
                 curInput = input;
                 curOptions.clear();
-            }
-            else if (curStream == "o")
-            {
+            } else if (curStream == "o") {
                 curStream = "i";
                 curInput = input;
                 curOptions.clear();
             }
-        }
-        else if (option.key() == "o")
-        {
-            if (hasOutputOptions)
-            {
+        } else if (option.key() == "o") {
+            if (hasOutputOptions) {
                 this->m_error = QString("Only one output is allowed.");
 
                 return false;
-            }
-            else if (curStream.isEmpty())
-            {
+            } else if (curStream.isEmpty()) {
                 curStream = "o";
                 hasOutputOptions = true;
-            }
-            else if (curStream == "i")
-            {
+            } else if (curStream == "i") {
                 this->m_inputs[curInput] = curOptions;
                 curOptions.clear();
 
                 curStream = "o";
                 hasOutputOptions = true;
             }
-        }
-        else
-        {
+        } else {
             if (option.type() == ParsedOption::OptionTypeNone ||
-                option.type() == ParsedOption::OptionTypeData)
-            {
+                option.type() == ParsedOption::OptionTypeData) {
                 this->m_error = QString("Invalid parameter: %1.").arg(option.value().toString());
 
                 return false;
-            }
-            else if (curStream.isEmpty())
-            {
+            } else if (curStream.isEmpty()) {
                 this->m_error = QString("Option without a stream specifier: -%1.").arg(option.key());
 
                 return false;
-            }
-            else if (curStream == "i")
-            {
+            } else if (curStream == "i") {
                 QStringList validOptions;
 
                 validOptions << "ar"
@@ -207,23 +187,19 @@ bool Commands::parseCmd(QString cmd)
                              << "oi"
                              << "opt";
 
-                if (!validOptions.contains(option.key()))
-                {
+                if (!validOptions.contains(option.key())) {
                     this->m_error = QString("Invalid input option in %1: %2.").arg(curInput).arg(option.key());
 
                     return false;
                 }
 
                 curOptions[option.key()] = option.value();
-            }
-            else if (curStream == "o")
-            {
+            } else if (curStream == "o") {
                 QStringList validOptions;
 
                 validOptions << "f";
 
-                if (!validOptions.contains(option.key()))
-                {
+                if (!validOptions.contains(option.key())) {
                     this->m_error = QString("Invalid output option: %1.").arg(option.key());
 
                     return false;
@@ -233,8 +209,7 @@ bool Commands::parseCmd(QString cmd)
             }
         }
 
-    if (!this->m_outputOptions.contains("f"))
-    {
+    if (!this->m_outputOptions.contains("f")) {
         this->m_error = QString("Output stream without format specifier (-f).");
 
         return false;
@@ -243,28 +218,26 @@ bool Commands::parseCmd(QString cmd)
     return true;
 }
 
-QVariant Commands::convertValue(QString key, QString value)
+QVariant Commands::convertValue(const QString &key, const QString &value)
 {
     if (key == "-i"
         || key == "-g"
         || key == "-ar"
         || key == "-ac"
-        || key == "-oi")
+        || key == "-oi") {
         return value.toInt();
-    else if (key == "-r") {
+    } else if (key == "-r") {
         QbFrac frac = value.contains("/")?
                           QbFrac(value):
                           QbFrac(value.toInt(), 1);
 
         return QVariant::fromValue(frac);
-    }
-    else if (key == "-s") {
+    } else if (key == "-s") {
         QStringList size = value.split("x", QString::SkipEmptyParts);
 
         return QSize(size[0].toInt(), size[1].toInt());
-    }
-    else if (key == "-b:v"
-             || key == "-b:a") {
+    } else if (key == "-b:v"
+               || key == "-b:a") {
         quint64 multiplier;
 
         if (value.contains("k"))
@@ -278,11 +251,11 @@ QVariant Commands::convertValue(QString key, QString value)
         else
             multiplier = 1;
 
-        quint64 val = value.remove(QRegExp("\\D")).toInt();
+        QString valStr(value);
+        quint64 val = valStr.remove(QRegExp("\\D")).toInt();
 
         return val * multiplier;
-    }
-    else if (key == "-opt") {
+    } else if (key == "-opt") {
         QVariantMap options;
 
         foreach (QString pair, value.split(",")) {

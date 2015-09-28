@@ -32,9 +32,12 @@ typedef QMap<QString, StreamPtr> StreamMapPtr;
 class OutputFormat: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(bool isOpen READ isOpen)
-    Q_PROPERTY(FormatContextPtr outputContext READ outputContext)
-    Q_PROPERTY(StreamMapPtr streams READ streams)
+    Q_PROPERTY(bool isOpen
+               READ isOpen)
+    Q_PROPERTY(FormatContextPtr outputContext
+               READ outputContext)
+    Q_PROPERTY(StreamMapPtr streams
+               READ streams)
 
     public:
         explicit OutputFormat(QObject *parent=NULL);
@@ -45,7 +48,8 @@ class OutputFormat: public QObject
 
         Q_INVOKABLE bool open(const QString &fileName,
                               const QMap<QString, OutputParams> &outputParams,
-                              const QVariantMap &outputOptions, const QVariantMap &inputOptions);
+                              const QVariantMap &outputOptions,
+                              const QVariantMap &inputOptions);
 
     private:
         bool m_isOpen;
