@@ -58,7 +58,7 @@
  *     the use of this software, even if advised of the possibility of such damage.
  */
 
-#include "haar/haarfeature.h"
+#include "haarfeature.h"
 
 HaarFeatureHID::HaarFeatureHID(const HaarFeature &feature,
                                int oWidth,

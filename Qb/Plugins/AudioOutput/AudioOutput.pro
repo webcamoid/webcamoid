@@ -30,17 +30,16 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/audiooutput.h \
-    include/audiooutputelement.h
-!win32: HEADERS += include/platform/audiodevicelinux.h
-win32: HEADERS += include/platform/audiodevicewin.h
+    src/audiooutput.h \
+    src/audiooutputelement.h
+!win32: HEADERS += src/pulseaudio/audiodevice.h
+win32: HEADERS += src/wasapi/audiodevice.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 win32: LIBS += -lole32 -lwinmm
 
 OTHER_FILES += pspec.json
@@ -50,8 +49,8 @@ QT += qml
 SOURCES += \
     src/audiooutput.cpp \
     src/audiooutputelement.cpp
-!win32: SOURCES += src/platform/audiodevicelinux.cpp
-win32: SOURCES += src/platform/audiodevicewin.cpp
+!win32: SOURCES += src/pulseaudio/audiodevice.cpp
+win32: SOURCES += src/wasapi/audiodevice.cpp
 
 DESTDIR = $${PWD}
 

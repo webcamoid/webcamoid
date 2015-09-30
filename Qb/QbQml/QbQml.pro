@@ -42,15 +42,14 @@ SOURCES += \
     src/qbqmlplugin.cpp
 
 HEADERS += \
-    include/qbqml.h \
-    include/qbqmlplugin.h
+    src/qbqml.h \
+    src/qbqmlplugin.h
 
 INCLUDEPATH += \
-    include \
-    ../include
+    ../Lib/src
 
-!win32: LIBS += -L../ -lQb
-win32: LIBS += -L../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../Lib/ -lQb
+win32: LIBS += -L../Lib/ -lQb$${VER_MAJ}
 
 DISTFILES = qmldir
 

@@ -32,15 +32,14 @@ CONFIG += plugin
 DEFINES += __STDC_CONSTANT_MACROS
 
 HEADERS += \
-    include/acapsconvert.h \
-    include/acapsconvertelement.h
+    src/acapsconvert.h \
+    src/acapsconvertelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}

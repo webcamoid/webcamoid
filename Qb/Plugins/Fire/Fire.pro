@@ -30,15 +30,14 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/fire.h \
-    include/fireelement.h
+    src/fire.h \
+    src/fireelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 

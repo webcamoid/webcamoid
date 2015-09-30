@@ -26,14 +26,14 @@ outputformats += HTML \
 # containing the header files associated
 # with the .cpp source files used in the documentation.
 
-headerdirs              = include
+headerdirs              = Lib/src
 headers.fileextensions += *.h
 
 # The sourcedirs variable specifies the
 # directories containing the .cpp or .qdoc
 # files used in the documentation.
 
-sourcedirs              = src
+sourcedirs              = Lib/src
 sources.fileextensions += *.cpp *.qdoc
 
 # The imagedirs variable specifies the

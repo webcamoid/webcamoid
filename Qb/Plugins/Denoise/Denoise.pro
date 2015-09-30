@@ -30,17 +30,16 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/denoise.h \
-    include/denoiseelement.h \
-    include/pixel.h \
-    include/params.h
+    src/denoise.h \
+    src/denoiseelement.h \
+    src/pixel.h \
+    src/params.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 

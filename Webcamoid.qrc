@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/Webcamoid">
-        <file>share/mainpipeline.json</file>
-        <file>COPYING</file>
-    </qresource>
-</RCC>

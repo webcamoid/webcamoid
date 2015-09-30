@@ -58,7 +58,7 @@
  *     the use of this software, even if advised of the possibility of such damage.
  */
 
-#include "haar/haarstage.h"
+#include "haarstage.h"
 
 HaarStageHID::HaarStageHID(const HaarStage &stage,
                            int oWidth,

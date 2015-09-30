@@ -29,9 +29,18 @@ CONFIG += ordered
 
 SUBDIRS += \
     Qb \
-    StandAlone.pro
+    StandAlone
+
+OTHER_FILES = \
+    .gitignore \
+    README.md
 
 # Install rules
+unix {
+     INSTALLS += desktop
+    desktop.files = $${COMMONS_TARGET}.desktop
+    desktop.path = $${DATAROOTDIR}/applications
+}
 
 INSTALLS += \
     license

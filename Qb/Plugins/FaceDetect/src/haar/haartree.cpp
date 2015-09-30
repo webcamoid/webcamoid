@@ -58,7 +58,7 @@
  *     the use of this software, even if advised of the possibility of such damage.
  */
 
-#include "haar/haartree.h"
+#include "haartree.h"
 
 HaarTreeHID::HaarTreeHID(const HaarTree &tree,
                          int oWidth,

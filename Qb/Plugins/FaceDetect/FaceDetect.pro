@@ -30,20 +30,19 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/facedetect.h \
-    include/facedetectelement.h \
-    include/haar/haarcascade.h \
-    include/haar/haardetector.h \
-    include/haar/haarfeature.h \
-    include/haar/haarstage.h \
-    include/haar/haartree.h
+    src/facedetect.h \
+    src/facedetectelement.h \
+    src/haar/haarcascade.h \
+    src/haar/haardetector.h \
+    src/haar/haarfeature.h \
+    src/haar/haarstage.h \
+    src/haar/haartree.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 

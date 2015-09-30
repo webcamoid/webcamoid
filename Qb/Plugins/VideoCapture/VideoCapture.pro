@@ -32,23 +32,22 @@ CONFIG += plugin
 DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 HEADERS += \
-    include/videocapture.h \
-    include/videocaptureelement.h
+    src/videocapture.h \
+    src/videocaptureelement.h
 
 !win32: HEADERS += \
-    include/platform/capturebuffer.h \
-    include/platform/capturelinux.h
+    src/v4l2/capture.h \
+    src/v4l2/capturebuffer.h
 
 win32: HEADERS += \
-    include/platform/capturewin.h \
-    include/platform/framegrabber.h
+    src/dshow/capture.h \
+    src/dshow/framegrabber.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 win32: LIBS += -lstrmiids -lole32 -loleaut32
 
 OTHER_FILES += pspec.json
@@ -62,11 +61,12 @@ SOURCES += \
     src/videocapture.cpp \
     src/videocaptureelement.cpp
 
-!win32: SOURCES += src/platform/capturelinux.cpp
+!win32: SOURCES += \
+    src/v4l2/capture.cpp
 
 win32: SOURCES += \
-    src/platform/capturewin.cpp \
-    src/platform/framegrabber.cpp
+    src/dshow/capture.cpp \
+    src/dshow/framegrabber.cpp
 
 lupdate_only {
     SOURCES = share/qml/*.qml

@@ -30,15 +30,14 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/colortransform.h \
-    include/colortransformelement.h
+    src/colortransform.h \
+    src/colortransformelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
