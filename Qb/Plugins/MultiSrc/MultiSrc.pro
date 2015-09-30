@@ -27,9 +27,9 @@ exists(commons.pri) {
     }
 }
 
-CONFIG += plugin
+include(src/ffmpeg/ffmpeg.pri)
 
-DEFINES += __STDC_CONSTANT_MACROS
+CONFIG += plugin
 
 HEADERS += \
     src/abstractstream.h \
@@ -46,9 +46,6 @@ INCLUDEPATH += \
 
 !win32: LIBS += -L../../Lib/ -lQb
 win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
-
-!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
-!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 OTHER_FILES += pspec.json
 
@@ -67,20 +64,6 @@ SOURCES += \
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libavdevice \
-        libavfilter \
-        libavformat \
-        libavcodec \
-        libpostproc \
-        libswresample \
-        libswscale \
-        libavutil
-}
 
 INSTALLS += target
 

@@ -14,46 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan DOT x AT gmail DOT com
+# Email  : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
-
-include(src/ffmpeg/ffmpeg.pri)
-
-CONFIG += plugin
-
 HEADERS += \
-    src/acapsconvert.h \
-    src/acapsconvertelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-!win32: LIBS += -L../../Lib/ -lQb
-win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
-
-OTHER_FILES += pspec.json
-
-QT += qml
+    src/v4l2/capture.h \
+    src/v4l2/capturebuffer.h
 
 SOURCES += \
-    src/acapsconvert.cpp \
-    src/acapsconvertelement.cpp
+    src/v4l2/capture.cpp
 
-DESTDIR = $${PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-unix: target.path = $${LIBDIR}/$${COMMONS_TARGET}
-!unix: target.path = $${PREFIX}/Qb/Plugins
+CONFIG += link_pkgconfig
+PKGCONFIG += libv4l2

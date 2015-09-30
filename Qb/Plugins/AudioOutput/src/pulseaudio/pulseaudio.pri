@@ -17,43 +17,8 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+HEADERS += src/pulseaudio/audiodevice.h
+SOURCES += src/pulseaudio/audiodevice.cpp
 
-include(src/ffmpeg/ffmpeg.pri)
-
-CONFIG += plugin
-
-HEADERS += \
-    src/acapsconvert.h \
-    src/acapsconvertelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-!win32: LIBS += -L../../Lib/ -lQb
-win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
-
-OTHER_FILES += pspec.json
-
-QT += qml
-
-SOURCES += \
-    src/acapsconvert.cpp \
-    src/acapsconvertelement.cpp
-
-DESTDIR = $${PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-unix: target.path = $${LIBDIR}/$${COMMONS_TARGET}
-!unix: target.path = $${PREFIX}/Qb/Plugins
+CONFIG += link_pkgconfig
+PKGCONFIG += libpulse-simple
