@@ -21,40 +21,37 @@
 #ifndef ACAPSCONVERTELEMENT_H
 #define ACAPSCONVERTELEMENT_H
 
-extern "C"
-{
-    #include <libavdevice/avdevice.h>
-    #include <libswresample/swresample.h>
-    #include <libavutil/opt.h>
-}
-
 #include <qb.h>
+
+#include "ffmpeg/convertaudio.h"
 
 class ACapsConvertElement: public QbElement
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString caps READ caps WRITE setCaps RESET resetCaps)
+    Q_PROPERTY(QString caps
+               READ caps
+               WRITE setCaps
+               RESET resetCaps
+               NOTIFY capsChanged)
 
     public:
         explicit ACapsConvertElement();
-        ~ACapsConvertElement();
 
         Q_INVOKABLE QString caps() const;
 
     private:
         QbCaps m_caps;
+        ConvertAudio m_convertAudio;
 
-        QbCaps m_curInputCaps;
-        SwrContext *m_resampleContext;
-
-        void deleteSwrContext();
+    signals:
+        void capsChanged(const QString &caps);
 
     public slots:
         void setCaps(const QString &caps);
         void resetCaps();
 
-        QbPacket iStream(const QbPacket &packet);
+        QbPacket iStream(const QbAudioPacket &packet);
 };
 
 #endif // ACAPSCONVERTELEMENT_H

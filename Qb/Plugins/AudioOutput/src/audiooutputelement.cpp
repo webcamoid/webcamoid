@@ -105,6 +105,7 @@ QbPacket AudioOutputElement::iStream(const QbAudioPacket &packet)
 {
     this->m_mutex.lock();
     QbPacket iPacket = this->m_convert->iStream(packet.toPacket());
+
     QByteArray frame(iPacket.buffer().data(), iPacket.bufferSize());
     this->m_audioDevice.write(frame);
     this->m_mutex.unlock();

@@ -17,8 +17,8 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
-HEADERS += src/pulseaudio/audiodevice.h
-SOURCES += src/pulseaudio/audiodevice.cpp
+HEADERS += $$PWD/audiodevice.h
+SOURCES += $$PWD/audiodevice.cpp
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libpulse-simple

@@ -18,34 +18,30 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include "acapsconvertelement.h"
+#ifndef CONVERTAUDIO_H
+#define CONVERTAUDIO_H
 
-ACapsConvertElement::ACapsConvertElement(): QbElement()
+#include <qbaudiopacket.h>
+
+extern "C"
 {
+    #include <libavutil/channel_layout.h>
+    #include <libswresample/swresample.h>
 }
 
-QString ACapsConvertElement::caps() const
+class ConvertAudio: public QObject
 {
-    return this->m_caps.toString();
-}
+    Q_OBJECT
 
-void ACapsConvertElement::setCaps(const QString &caps)
-{
-    if (this->m_caps == caps)
-        return;
+    public:
+        explicit ConvertAudio(QObject *parent=NULL);
+        ~ConvertAudio();
 
-    this->m_caps = caps;
-    emit this->capsChanged(caps);
-}
+        Q_INVOKABLE QbPacket convert(const QbAudioPacket &packet,
+                                     const QbCaps &oCaps);
 
-void ACapsConvertElement::resetCaps()
-{
-    this->setCaps("");
-}
+    private:
+        SwrContext *m_resampleContext;
+};
 
-QbPacket ACapsConvertElement::iStream(const QbAudioPacket &packet)
-{
-    QbPacket oPacket = this->m_convertAudio.convert(packet, this->m_caps);
-
-    qbSend(oPacket)
-}
+#endif // CONVERTAUDIO_H

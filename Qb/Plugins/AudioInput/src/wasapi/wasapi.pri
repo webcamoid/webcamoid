@@ -17,6 +17,6 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
-HEADERS += src/wasapi/audiodevice.h
-SOURCES += src/wasapi/audiodevice.cpp
+HEADERS += $$PWD/audiodevice.h
+SOURCES += $$PWD/audiodevice.cpp
 LIBS += -lole32 -lwinmm

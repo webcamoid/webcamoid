@@ -19,6 +19,9 @@
 
 DEFINES += __STDC_CONSTANT_MACROS
 
+HEADERS += $$PWD/convertaudio.h
+SOURCES += $$PWD/convertaudio.cpp
+
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
@@ -26,12 +29,5 @@ isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        libavdevice \
-        libavfilter \
-        libavformat \
-        libavcodec \
-        libpostproc \
-        libswresample \
-        libswscale \
-        libavutil
+        libswresample
 }

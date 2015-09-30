@@ -20,11 +20,11 @@
 DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 HEADERS += \
-    src/dshow/capture.h \
-    src/dshow/framegrabber.h
+    $$PWD/capture.h \
+    $$PWD/framegrabber.h
 
 SOURCES += \
-    src/dshow/capture.cpp \
-    src/dshow/framegrabber.cpp
+    $$PWD/capture.cpp \
+    $$PWD/framegrabber.cpp
 
 LIBS += -lstrmiids -lole32 -loleaut32

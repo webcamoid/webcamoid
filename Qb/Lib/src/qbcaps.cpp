@@ -80,6 +80,11 @@ QbCaps &QbCaps::operator =(const QbCaps &other)
     return *this;
 }
 
+QbCaps &QbCaps::operator =(const QString &other)
+{
+    return this->operator =(QbCaps(other));
+}
+
 bool QbCaps::operator ==(const QbCaps &other) const
 {
     if (this->toString() == other.toString())
@@ -88,9 +93,22 @@ bool QbCaps::operator ==(const QbCaps &other) const
     return false;
 }
 
+bool QbCaps::operator ==(const QString &caps) const
+{
+    if (this->toString() == caps)
+        return true;
+
+    return false;
+}
+
 bool QbCaps::operator !=(const QbCaps &other) const
 {
     return !(*this == other);
+}
+
+bool QbCaps::operator !=(const QString &caps) const
+{
+    return !(*this == caps);
 }
 
 QbCaps::operator bool() const

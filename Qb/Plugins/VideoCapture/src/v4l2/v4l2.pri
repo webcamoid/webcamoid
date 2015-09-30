@@ -18,11 +18,11 @@
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
 HEADERS += \
-    src/v4l2/capture.h \
-    src/v4l2/capturebuffer.h
+    $$PWD/capture.h \
+    $$PWD/capturebuffer.h
 
 SOURCES += \
-    src/v4l2/capture.cpp
+    $$PWD/capture.cpp
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libv4l2

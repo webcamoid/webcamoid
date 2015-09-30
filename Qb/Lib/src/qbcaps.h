@@ -53,8 +53,11 @@ class QbCaps: public QObject
         QbCaps(const QbCaps &other);
         virtual ~QbCaps();
         QbCaps &operator =(const QbCaps &other);
+        QbCaps &operator =(const QString &other);
         bool operator ==(const QbCaps &other) const;
+        bool operator ==(const QString &caps) const;
         bool operator !=(const QbCaps &other) const;
+        bool operator !=(const QString &caps) const;
         operator bool() const;
 
         Q_INVOKABLE virtual bool isValid() const;
