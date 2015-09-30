@@ -22,6 +22,7 @@
 #define MULTISINKELEMENT_H
 
 #include <QMutex>
+#include <QReadWriteLock>
 #include <qb.h>
 
 #include "commands.h"
@@ -55,7 +56,8 @@ class MultiSinkElement: public QbElement
         Q_INVOKABLE QVariantMap streamCaps();
 
     protected:
-        void stateChange(QbElement::ElementState from, QbElement::ElementState to);
+        void stateChange(QbElement::ElementState from,
+                         QbElement::ElementState to);
 
     private:
         QString m_location;
@@ -67,6 +69,7 @@ class MultiSinkElement: public QbElement
         OutputFormat m_outputFormat;
 
         QMutex m_mutex;
+        QReadWriteLock m_rwLock;
         qint64 m_flushPts;
 
         QList<AVPixelFormat> pixelFormats(AVCodec *videoCodec);
@@ -94,6 +97,8 @@ class MultiSinkElement: public QbElement
         QbPacket iStream(const QbPacket &packet);
 
     private slots:
+        bool init();
+        void uninit();
         void processVFrame(const QbPacket &packet);
         void processAFrame(const QbPacket &packet);
         void updateOutputParams();

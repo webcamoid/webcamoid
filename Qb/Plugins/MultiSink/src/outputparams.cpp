@@ -122,8 +122,12 @@ qint64 OutputParams::nextPts(qint64 pts, qint64 id)
         return pts + this->m_ptsDrift;
     }
 
-    if (pts <= this->m_pts)
-        return -1;
+    if (pts <= this->m_pts) {
+        this->m_ptsDrift += 2 * (this->m_pts - pts) + 1;
+        this->m_pts = pts;
+
+        return pts + this->m_ptsDrift;
+    }
 
     this->m_ptsDiff = pts - this->m_pts;
     this->m_pts = pts;
