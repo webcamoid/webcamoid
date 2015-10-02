@@ -18,7 +18,7 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-import QtQuick 2.3
+import QtQuick 2.5
 
 MouseArea {
     id: mouseArea

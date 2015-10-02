@@ -41,7 +41,7 @@ win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml widgets multimedia
+QT += qml widgets
 
 RESOURCES += \
     Radioactive.qrc

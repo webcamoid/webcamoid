@@ -41,7 +41,7 @@ win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += widgets qml multimedia concurrent
+QT += widgets qml concurrent
 
 SOURCES += \
     src/desktopcapture.cpp \

@@ -47,7 +47,7 @@ HEADERS = \
     src/qbvideopacket.h \
     src/qbaudiopacket.h
 
-QT += qml multimedia
+QT += qml
 
 SOURCES = \
     src/qb.cpp \

@@ -43,7 +43,7 @@ win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia concurrent
+QT += qml concurrent
 
 RESOURCES += \
     Denoise.qrc

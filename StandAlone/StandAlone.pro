@@ -65,7 +65,7 @@ win32: LIBS += -L../Qb/Lib -lQb$${VER_MAJ}
 OTHER_FILES = \
     share/effects.xml
 
-QT += qml quick opengl widgets xml svg multimedia
+QT += qml quick opengl widgets xml svg
 
 RESOURCES += \
     Webcamoid.qrc \

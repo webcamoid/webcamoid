@@ -18,8 +18,6 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include <QAudioOutput>
-
 #include "audiostream.h"
 
 // No AV correction is done if too big error.
