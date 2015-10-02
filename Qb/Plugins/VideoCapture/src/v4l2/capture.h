@@ -45,15 +45,18 @@ class Capture: public QObject
     Q_PROPERTY(QString device
                READ device
                WRITE setDevice
-               RESET resetDevice)
+               RESET resetDevice
+               NOTIFY deviceChanged)
     Q_PROPERTY(QString ioMethod
                READ ioMethod
                WRITE setIoMethod
-               RESET resetIoMethod)
+               RESET resetIoMethod
+               NOTIFY ioMethodChanged)
     Q_PROPERTY(int nBuffers
                READ nBuffers
                WRITE setNBuffers
-               RESET resetNBuffers)
+               RESET resetNBuffers
+               NOTIFY nBuffersChanged)
     Q_PROPERTY(bool isCompressed
                READ isCompressed)
     Q_PROPERTY(QbCaps caps
@@ -95,7 +98,6 @@ class Capture: public QObject
         IoMethod m_ioMethod;
         int m_nBuffers;
 
-        QMap<v4l2_ctrl_type, QString> m_ctrlTypeToString;
         QFileSystemWatcher *m_fsWatcher;
         int m_fd;
         QbFrac m_fps;
@@ -103,8 +105,6 @@ class Capture: public QObject
         QbCaps m_caps;
         qint64 m_id;
         QVector<CaptureBuffer> m_buffers;
-        QMap<quint32, QString> m_rawToFF;
-        QMap<quint32, QString> m_compressedToFF;
 
         quint32 defaultFormat(int fd, bool compressed) const;
         QString v4l2ToFF(quint32 fmt) const;
@@ -168,8 +168,11 @@ class Capture: public QObject
         }
 
     signals:
-        void error(const QString &message);
         void webcamsChanged(const QStringList &webcams) const;
+        void deviceChanged(const QString &device);
+        void ioMethodChanged(const QString &ioMethod);
+        void nBuffersChanged(int nBuffers);
+        void error(const QString &message);
         void sizeChanged(const QString &webcam, const QSize &size) const;
         void imageControlsChanged(const QString &webcam, const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QString &webcam, const QVariantMap &cameraControls) const;

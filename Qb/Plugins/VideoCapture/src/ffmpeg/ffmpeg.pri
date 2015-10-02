@@ -19,9 +19,6 @@
 
 DEFINES += __STDC_CONSTANT_MACROS
 
-HEADERS += $$PWD/convertaudio.h
-SOURCES += $$PWD/convertaudio.cpp
-
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
@@ -29,6 +26,13 @@ isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        libswresample \
+        libavcodec \
+        libswscale \
         libavutil
 }
+
+HEADERS += \
+    $$PWD/convertvideo.h
+
+SOURCES += \
+    $$PWD/convertvideo.cpp

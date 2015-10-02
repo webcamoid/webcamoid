@@ -57,17 +57,20 @@ __inline bool operator <(REFGUID guid1, REFGUID guid2)
 class Capture: public QObject
 {
     Q_OBJECT
+    Q_ENUMS(IoMethod)
     Q_PROPERTY(QStringList webcams
                READ webcams
                NOTIFY webcamsChanged)
     Q_PROPERTY(QString device
                READ device
                WRITE setDevice
-               RESET resetDevice)
+               RESET resetDevice
+               NOTIFY deviceChanged)
     Q_PROPERTY(QString ioMethod
                READ ioMethod
                WRITE setIoMethod
-               RESET resetIoMethod)
+               RESET resetIoMethod
+               NOTIFY ioMethodChanged)
     Q_PROPERTY(int nBuffers
                READ nBuffers
                WRITE setNBuffers
@@ -115,11 +118,6 @@ class Capture: public QObject
         QbFrac m_timeBase;
         IoMethod m_ioMethod;
         QMap<QString, QSize> m_resolution;
-        QMap<VideoProcAmpProperty, QString> m_propertyToStr;
-        QMap<CameraControlProperty, QString> m_cameraControlToStr;
-        QMap<GUID, QString> m_guidToStr;
-        QList<VideoProcAmpProperty> m_propertyLst;
-        QList<CameraControlProperty> m_cameraControlLst;
         GraphBuilderPtr m_graph;
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
@@ -185,8 +183,10 @@ class Capture: public QObject
         }
 
     signals:
-        void error(const QString &message);
         void webcamsChanged(const QStringList &webcams) const;
+        void deviceChanged(const QString &device);
+        void ioMethodChanged(const QString &ioMethod);
+        void error(const QString &message);
         void sizeChanged(const QString &webcam, const QSize &size) const;
         void imageControlsChanged(const QString &webcam, const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QString &webcam, const QVariantMap &cameraControls) const;

@@ -20,122 +20,163 @@
 
 #include "capture.h"
 
+typedef QMap<quint32, QString> V4l2PixFmtMap;
+
+inline V4l2PixFmtMap initV4l2PixFmtMap()
+{
+    V4l2PixFmtMap rawToFF;
+
+    // RGB formats
+    //rawToFF[V4L2_PIX_FMT_RGB332] = "";
+    rawToFF[V4L2_PIX_FMT_RGB444] = "rgb444le";
+    rawToFF[V4L2_PIX_FMT_RGB555] = "rgb555le";
+    rawToFF[V4L2_PIX_FMT_RGB565] = "rgb565le";
+    rawToFF[V4L2_PIX_FMT_RGB555X] = "rgb555be";
+    rawToFF[V4L2_PIX_FMT_RGB565X] = "rgb565be";
+    //rawToFF[V4L2_PIX_FMT_BGR666] = "";
+    rawToFF[V4L2_PIX_FMT_BGR24] = "bgr24";
+    rawToFF[V4L2_PIX_FMT_RGB24] = "rgb24";
+    rawToFF[V4L2_PIX_FMT_BGR32] = "bgr0";
+    rawToFF[V4L2_PIX_FMT_RGB32] = "0rgb";
+
+    // Grey formats
+    rawToFF[V4L2_PIX_FMT_GREY] = "gray8a";
+    //rawToFF[V4L2_PIX_FMT_Y4] = "";
+    //rawToFF[V4L2_PIX_FMT_Y6] = "";
+    //rawToFF[V4L2_PIX_FMT_Y10] = "";
+    //rawToFF[V4L2_PIX_FMT_Y12] = "";
+    rawToFF[V4L2_PIX_FMT_Y16] = "gray16le";
+
+    // Grey bit-packed formats
+    //rawToFF[V4L2_PIX_FMT_Y10BPACK] = "";
+
+    // Palette formats
+    //rawToFF[V4L2_PIX_FMT_PAL8] = "";
+
+    // Chrominance formats
+    //rawToFF[V4L2_PIX_FMT_UV8] = "";
+
+    // Luminance+Chrominance formats
+    rawToFF[V4L2_PIX_FMT_YVU410] = "yuv410p";
+    rawToFF[V4L2_PIX_FMT_YVU420] = "yuv420p";
+    rawToFF[V4L2_PIX_FMT_YUYV] = "yuyv422";
+    rawToFF[V4L2_PIX_FMT_YYUV] = "yuv422p";
+    //rawToFF[V4L2_PIX_FMT_YVYU] = "";
+    rawToFF[V4L2_PIX_FMT_UYVY] = "uyvy422";
+    rawToFF[V4L2_PIX_FMT_VYUY] = "yuv422p";
+    rawToFF[V4L2_PIX_FMT_YUV422P] = "yuv422p";
+    rawToFF[V4L2_PIX_FMT_YUV411P] = "yuv411p";
+    rawToFF[V4L2_PIX_FMT_Y41P] = "yuv411p";
+    //rawToFF[V4L2_PIX_FMT_YUV444] = "";
+    //rawToFF[V4L2_PIX_FMT_YUV555] = "";
+    //rawToFF[V4L2_PIX_FMT_YUV565] = "";
+    //rawToFF[V4L2_PIX_FMT_YUV32] = "";
+    rawToFF[V4L2_PIX_FMT_YUV410] = "yuv410p";
+    rawToFF[V4L2_PIX_FMT_YUV420] = "yuv420p";
+    //rawToFF[V4L2_PIX_FMT_HI240] = "";
+    //rawToFF[V4L2_PIX_FMT_HM12] = "";
+    //rawToFF[V4L2_PIX_FMT_M420] = "";
+
+    // two planes -- one Y, one Cr + Cb interleaved
+    rawToFF[V4L2_PIX_FMT_NV12] = "nv12";
+    rawToFF[V4L2_PIX_FMT_NV21] = "nv21";
+    rawToFF[V4L2_PIX_FMT_NV16] = "nv16";
+    //rawToFF[V4L2_PIX_FMT_NV61] = "";
+    //rawToFF[V4L2_PIX_FMT_NV24] = "";
+    //rawToFF[V4L2_PIX_FMT_NV42] = "";
+
+    // Bayer formats
+    rawToFF[V4L2_PIX_FMT_SBGGR8] = "bayer_bggr8";
+    rawToFF[V4L2_PIX_FMT_SGBRG8] = "bayer_gbrg8";
+    rawToFF[V4L2_PIX_FMT_SGRBG8] = "bayer_grbg8";
+    rawToFF[V4L2_PIX_FMT_SRGGB8] = "bayer_rggb8";
+
+    // 10bit raw bayer, expanded to 16 bits
+    rawToFF[V4L2_PIX_FMT_SBGGR16] = "bayer_bggr16le";
+
+    return rawToFF;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(V4l2PixFmtMap, rawToFF, (initV4l2PixFmtMap()))
+
+inline V4l2PixFmtMap initCompressedFmtMap()
+{
+    V4l2PixFmtMap compressedToFF;
+
+    // compressed formats
+    compressedToFF[V4L2_PIX_FMT_MJPEG] = "mjpeg";
+    compressedToFF[V4L2_PIX_FMT_JPEG] = "mjpeg";
+    //compressedToFF[V4L2_PIX_FMT_DV] = "";
+    //compressedToFF[V4L2_PIX_FMT_MPEG] = "";
+    compressedToFF[V4L2_PIX_FMT_H264] = "h264";
+    compressedToFF[V4L2_PIX_FMT_H264_NO_SC] = "h264";
+
+#ifdef V4L2_PIX_FMT_H264_MVC
+    compressedToFF[V4L2_PIX_FMT_H264_MVC] = "h264";
+#endif
+
+    compressedToFF[V4L2_PIX_FMT_H263] = "h263";
+    compressedToFF[V4L2_PIX_FMT_MPEG1] = "mpeg1video";
+    compressedToFF[V4L2_PIX_FMT_MPEG2] = "mpeg2video";
+    compressedToFF[V4L2_PIX_FMT_MPEG4] = "mpeg4";
+    //compressedToFF[V4L2_PIX_FMT_XVID] = "";
+    compressedToFF[V4L2_PIX_FMT_VC1_ANNEX_G] = "vc1";
+    compressedToFF[V4L2_PIX_FMT_VC1_ANNEX_L] = "vc1";
+
+#ifdef V4L2_PIX_FMT_VP8
+    compressedToFF[V4L2_PIX_FMT_VP8] = "vp8";
+#endif
+
+    //  Vendor-specific formats
+    compressedToFF[V4L2_PIX_FMT_CPIA1] = "cpia";
+
+    return compressedToFF;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(V4l2PixFmtMap, compressedToFF, (initCompressedFmtMap()))
+
+typedef QMap<v4l2_ctrl_type, QString> V4l2CtrlTypeMap;
+
+inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
+{
+    V4l2CtrlTypeMap ctrlTypeToStr;
+
+    // V4L2 controls
+    ctrlTypeToStr[V4L2_CTRL_TYPE_INTEGER] = "integer";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_BOOLEAN] = "boolean";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_MENU] = "menu";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_BUTTON] = "button";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_INTEGER64] = "integer64";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_CTRL_CLASS] = "ctrlClass";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_STRING] = "string";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_BITMASK] = "bitmask";
+    ctrlTypeToStr[V4L2_CTRL_TYPE_INTEGER_MENU] = "integerMenu";
+
+    return ctrlTypeToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(V4l2CtrlTypeMap, ctrlTypeToStr, (initV4l2CtrlTypeMap()))
+
+typedef QMap<Capture::IoMethod, QString> IoMethodMap;
+
+inline IoMethodMap initIoMethodMap()
+{
+    IoMethodMap ioMethodToStr;
+    ioMethodToStr[Capture::IoMethodReadWrite] = "readWrite";
+    ioMethodToStr[Capture::IoMethodMemoryMap] = "memoryMap";
+    ioMethodToStr[Capture::IoMethodUserPointer] = "userPointer";
+
+    return ioMethodToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
+
 Capture::Capture(): QObject()
 {
     this->m_fd = -1;
     this->m_id = -1;
-
     this->m_ioMethod = IoMethodUnknown;
     this->m_nBuffers = 32;
-
-    // RGB formats
-    //this->m_rawToFF[V4L2_PIX_FMT_RGB332] = "";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB444] = "rgb444le";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB555] = "rgb555le";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB565] = "rgb565le";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB555X] = "rgb555be";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB565X] = "rgb565be";
-    //this->m_rawToFF[V4L2_PIX_FMT_BGR666] = "";
-    this->m_rawToFF[V4L2_PIX_FMT_BGR24] = "bgr24";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB24] = "rgb24";
-    this->m_rawToFF[V4L2_PIX_FMT_BGR32] = "bgr0";
-    this->m_rawToFF[V4L2_PIX_FMT_RGB32] = "0rgb";
-
-    // Grey formats
-    this->m_rawToFF[V4L2_PIX_FMT_GREY] = "gray8a";
-    //this->m_rawToFF[V4L2_PIX_FMT_Y4] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_Y6] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_Y10] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_Y12] = "";
-    this->m_rawToFF[V4L2_PIX_FMT_Y16] = "gray16le";
-
-    // Grey bit-packed formats
-    //this->m_rawToFF[V4L2_PIX_FMT_Y10BPACK] = "";
-
-    // Palette formats
-    //this->m_rawToFF[V4L2_PIX_FMT_PAL8] = "";
-
-    // Chrominance formats
-    //this->m_rawToFF[V4L2_PIX_FMT_UV8] = "";
-
-    // Luminance+Chrominance formats
-    this->m_rawToFF[V4L2_PIX_FMT_YVU410] = "yuv410p";
-    this->m_rawToFF[V4L2_PIX_FMT_YVU420] = "yuv420p";
-    this->m_rawToFF[V4L2_PIX_FMT_YUYV] = "yuyv422";
-    this->m_rawToFF[V4L2_PIX_FMT_YYUV] = "yuv422p";
-    //this->m_rawToFF[V4L2_PIX_FMT_YVYU] = "";
-    this->m_rawToFF[V4L2_PIX_FMT_UYVY] = "uyvy422";
-    this->m_rawToFF[V4L2_PIX_FMT_VYUY] = "yuv422p";
-    this->m_rawToFF[V4L2_PIX_FMT_YUV422P] = "yuv422p";
-    this->m_rawToFF[V4L2_PIX_FMT_YUV411P] = "yuv411p";
-    this->m_rawToFF[V4L2_PIX_FMT_Y41P] = "yuv411p";
-    //this->m_rawToFF[V4L2_PIX_FMT_YUV444] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_YUV555] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_YUV565] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_YUV32] = "";
-    this->m_rawToFF[V4L2_PIX_FMT_YUV410] = "yuv410p";
-    this->m_rawToFF[V4L2_PIX_FMT_YUV420] = "yuv420p";
-    //this->m_rawToFF[V4L2_PIX_FMT_HI240] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_HM12] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_M420] = "";
-
-    // two planes -- one Y, one Cr + Cb interleaved
-    this->m_rawToFF[V4L2_PIX_FMT_NV12] = "nv12";
-    this->m_rawToFF[V4L2_PIX_FMT_NV21] = "nv21";
-    this->m_rawToFF[V4L2_PIX_FMT_NV16] = "nv16";
-    //this->m_rawToFF[V4L2_PIX_FMT_NV61] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_NV24] = "";
-    //this->m_rawToFF[V4L2_PIX_FMT_NV42] = "";
-
-    // Bayer formats
-    this->m_rawToFF[V4L2_PIX_FMT_SBGGR8] = "bayer_bggr8";
-    this->m_rawToFF[V4L2_PIX_FMT_SGBRG8] = "bayer_gbrg8";
-    this->m_rawToFF[V4L2_PIX_FMT_SGRBG8] = "bayer_grbg8";
-    this->m_rawToFF[V4L2_PIX_FMT_SRGGB8] = "bayer_rggb8";
-
-    // 10bit raw bayer, expanded to 16 bits
-    this->m_rawToFF[V4L2_PIX_FMT_SBGGR16] = "bayer_bggr16le";
-
-    // compressed formats
-    this->m_compressedToFF[V4L2_PIX_FMT_MJPEG] = "mjpeg";
-    this->m_compressedToFF[V4L2_PIX_FMT_JPEG] = "mjpeg";
-    //this->m_compressedToFF[V4L2_PIX_FMT_DV] = "";
-    //this->m_compressedToFF[V4L2_PIX_FMT_MPEG] = "";
-    this->m_compressedToFF[V4L2_PIX_FMT_H264] = "h264";
-    this->m_compressedToFF[V4L2_PIX_FMT_H264_NO_SC] = "h264";
-
-#ifdef V4L2_PIX_FMT_H264_MVC
-    this->m_compressedToFF[V4L2_PIX_FMT_H264_MVC] = "h264";
-#endif
-
-    this->m_compressedToFF[V4L2_PIX_FMT_H263] = "h263";
-    this->m_compressedToFF[V4L2_PIX_FMT_MPEG1] = "mpeg1video";
-    this->m_compressedToFF[V4L2_PIX_FMT_MPEG2] = "mpeg2video";
-    this->m_compressedToFF[V4L2_PIX_FMT_MPEG4] = "mpeg4";
-    //this->m_compressedToFF[V4L2_PIX_FMT_XVID] = "";
-    this->m_compressedToFF[V4L2_PIX_FMT_VC1_ANNEX_G] = "vc1";
-    this->m_compressedToFF[V4L2_PIX_FMT_VC1_ANNEX_L] = "vc1";
-
-#ifdef V4L2_PIX_FMT_VP8
-    this->m_compressedToFF[V4L2_PIX_FMT_VP8] = "vp8";
-#endif
-
-    //  Vendor-specific formats
-    this->m_compressedToFF[V4L2_PIX_FMT_CPIA1] = "cpia";
-
-    // V4L2 controls
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_INTEGER] = "integer";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_BOOLEAN] = "boolean";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_MENU] = "menu";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_BUTTON] = "button";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_INTEGER64] = "integer64";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_CTRL_CLASS] = "ctrlClass";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_STRING] = "string";
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_BITMASK] = "bitmask";
-
-#ifdef V4L2_CTRL_TYPE_INTEGER_MENU
-    this->m_ctrlTypeToString[V4L2_CTRL_TYPE_INTEGER_MENU] = "integerMenu";
-#endif
 
     this->m_webcams = this->webcams();
     this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
@@ -188,14 +229,7 @@ QString Capture::device() const
 
 QString Capture::ioMethod() const
 {
-    if (this->m_ioMethod == IoMethodReadWrite)
-        return "readWrite";
-    else if (this->m_ioMethod == IoMethodMemoryMap)
-        return "memoryMap";
-    else if (this->m_ioMethod == IoMethodUserPointer)
-        return "userPointer";
-
-    return "any";
+    return ioMethodToStr->value(this->m_ioMethod, "any");
 }
 
 int Capture::nBuffers() const
@@ -247,7 +281,7 @@ QbCaps Capture::caps(v4l2_format *format, bool *changePxFmt) const
         return QbCaps();
     }
 
-    if (!this->m_rawToFF.contains(fmt.fmt.pix.pixelformat)) {
+    if (!rawToFF->contains(fmt.fmt.pix.pixelformat)) {
         quint32 pixelFormat = this->defaultFormat(fd, false);
 
         if (pixelFormat) {
@@ -561,8 +595,8 @@ quint32 Capture::defaultFormat(int fd, bool compressed) const
 
         if ((isCompressed && compressed)
             || (!isCompressed && !compressed))
-            if ((!compressed && this->m_rawToFF.contains(fmtdesc.pixelformat))
-                || (compressed && this->m_compressedToFF.contains(fmtdesc.pixelformat)))
+            if ((!compressed && rawToFF->contains(fmtdesc.pixelformat))
+                || (compressed && compressedToFF->contains(fmtdesc.pixelformat)))
                 return fmtdesc.pixelformat;
     }
 
@@ -571,13 +605,10 @@ quint32 Capture::defaultFormat(int fd, bool compressed) const
 
 QString Capture::v4l2ToFF(quint32 fmt) const
 {
-    if (this->m_rawToFF.contains(fmt))
-        return this->m_rawToFF[fmt];
+    if (rawToFF->contains(fmt))
+        return rawToFF->value(fmt);
 
-    if (this->m_compressedToFF.contains(fmt))
-        return this->m_compressedToFF[fmt];
-
-    return QString();
+    return compressedToFF->value(fmt, QString());
 }
 
 QbFrac Capture::fps(int fd) const
@@ -769,7 +800,7 @@ QVariantList Capture::queryControl(int handle, quint32 controlClass, v4l2_queryc
     v4l2_ctrl_type type = static_cast<v4l2_ctrl_type>(queryctrl->type);
 
     return QVariantList() << QString((const char *) queryctrl->name)
-                          << this->m_ctrlTypeToString[type]
+                          << ctrlTypeToStr->value(type)
                           << queryctrl->minimum
                           << queryctrl->maximum
                           << queryctrl->step
@@ -1102,7 +1133,11 @@ void Capture::uninit()
 
 void Capture::setDevice(const QString &device)
 {
+    if (this->m_device == device)
+        return;
+
     this->m_device = device;
+    emit this->deviceChanged(device);
 }
 
 void Capture::setIoMethod(const QString &ioMethod)
@@ -1110,19 +1145,22 @@ void Capture::setIoMethod(const QString &ioMethod)
     if (this->m_fd >= 0)
         return;
 
-    if (ioMethod == "readWrite")
-        this->m_ioMethod = IoMethodReadWrite;
-    else if (ioMethod == "memoryMap")
-        this->m_ioMethod = IoMethodMemoryMap;
-    else if (ioMethod == "userPointer")
-        this->m_ioMethod = IoMethodUserPointer;
+    IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodUnknown);
 
-    this->m_ioMethod = IoMethodUnknown;
+    if (this->m_ioMethod == ioMethodEnum)
+        return;
+
+    this->m_ioMethod = ioMethodEnum;
+    emit this->ioMethodChanged(ioMethod);
 }
 
 void Capture::setNBuffers(int nBuffers)
 {
+    if (this->m_nBuffers == nBuffers)
+        return;
+
     this->m_nBuffers = nBuffers;
+    emit this->nBuffersChanged(nBuffers);
 }
 
 void Capture::resetDevice()

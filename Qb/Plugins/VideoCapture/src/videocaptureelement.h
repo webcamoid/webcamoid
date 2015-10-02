@@ -37,6 +37,8 @@
 #include "dshow/capture.h"
 #endif
 
+#include "ffmpeg/convertvideo.h"
+
 class VideoCaptureElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
@@ -85,6 +87,7 @@ class VideoCaptureElement: public QbMultimediaSourceElement
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
         QbPacket m_curPacket;
+        ConvertVideo m_convertVideo;
 
         static void sendPacket(VideoCaptureElement *element, const QbPacket &packet);
 

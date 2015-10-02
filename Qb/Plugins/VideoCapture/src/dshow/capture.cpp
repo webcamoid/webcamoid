@@ -20,66 +20,107 @@
 
 #include "capture.h"
 
+typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
+
+inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
+{
+    VideoProcAmpPropertyMap vpapToStr;
+    vpapToStr[VideoProcAmp_Brightness] = "Brightness";
+    vpapToStr[VideoProcAmp_Contrast] = "Contrast";
+    vpapToStr[VideoProcAmp_Hue] = "Hue";
+    vpapToStr[VideoProcAmp_Saturation] = "Saturation";
+    vpapToStr[VideoProcAmp_Sharpness] = "Sharpness";
+    vpapToStr[VideoProcAmp_Gamma] = "Gamma";
+    vpapToStr[VideoProcAmp_ColorEnable] = "Color Enable";
+    vpapToStr[VideoProcAmp_WhiteBalance] = "White Balance";
+    vpapToStr[VideoProcAmp_BacklightCompensation] = "Backlight Compensation";
+    vpapToStr[VideoProcAmp_Gain] = "Gain";
+
+    return vpapToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(VideoProcAmpPropertyMap, vpapToStr, (initVideoProcAmpPropertyMap()))
+
+typedef QMap<CameraControlProperty, QString> CameraControlMap;
+
+inline CameraControlMap initCameraControlMap()
+{
+    CameraControlMap ccToStr;
+    ccToStr[CameraControl_Pan] = "Pan";
+    ccToStr[CameraControl_Tilt] = "Tilt";
+    ccToStr[CameraControl_Roll] = "Roll";
+    ccToStr[CameraControl_Zoom] = "Zoom";
+    ccToStr[CameraControl_Exposure] = "Exposure";
+    ccToStr[CameraControl_Iris] = "Iris";
+    ccToStr[CameraControl_Focus] = "Focus";
+
+    return ccToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(CameraControlMap, ccToStr, (initCameraControlMap()))
+
+typedef QMap<GUID, QString> GuidToStrMap;
+
+inline GuidToStrMap initGuidToStrMap()
+{
+    GuidToStrMap guidToStr;
+    guidToStr[MEDIASUBTYPE_RGB1] = "monob";
+    guidToStr[MEDIASUBTYPE_RGB4] = "bgr4_byte";
+    guidToStr[MEDIASUBTYPE_RGB8] = "pal8";
+    guidToStr[MEDIASUBTYPE_RGB555] = "bgr555le";
+    guidToStr[MEDIASUBTYPE_RGB565] = "bgr565le";
+    guidToStr[MEDIASUBTYPE_RGB24] = "bgr24";
+    guidToStr[MEDIASUBTYPE_RGB32] = "bgr0";
+//    guidToStr[MEDIASUBTYPE_ARGB1555] = "";
+    guidToStr[MEDIASUBTYPE_ARGB32] = "bgra";
+//    guidToStr[MEDIASUBTYPE_ARGB4444] = "";
+//    guidToStr[MEDIASUBTYPE_A2R10G10B10] = "";
+//    guidToStr[MEDIASUBTYPE_A2B10G10R10] = "";
+    guidToStr[MEDIASUBTYPE_AYUV] = "yuva420p";
+    guidToStr[MEDIASUBTYPE_YUY2] = "yuyv422";
+    guidToStr[MEDIASUBTYPE_UYVY] = "uyvy422";
+//    guidToStr[MEDIASUBTYPE_IMC1] = "";
+//    guidToStr[MEDIASUBTYPE_IMC2] = "";
+//    guidToStr[MEDIASUBTYPE_IMC3] = "";
+//    guidToStr[MEDIASUBTYPE_IMC4] = "";
+    guidToStr[MEDIASUBTYPE_YV12] = "yuv420p";
+    guidToStr[MEDIASUBTYPE_NV12] = "nv12";
+
+#ifdef MEDIASUBTYPE_I420
+    guidToStr[MEDIASUBTYPE_I420] = "yuv420p";
+#endif
+
+//    guidToStr[MEDIASUBTYPE_IF09] = "";
+    guidToStr[MEDIASUBTYPE_IYUV] = "yuv420p";
+//    guidToStr[MEDIASUBTYPE_Y211] = "";
+    guidToStr[MEDIASUBTYPE_Y411] = "uyyvyy411";
+    guidToStr[MEDIASUBTYPE_Y41P] = "uyyvyy411";
+    guidToStr[MEDIASUBTYPE_YVU9] = "yuv410p";
+    guidToStr[MEDIASUBTYPE_YVYU] = "yvyu422";
+
+    return guidToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(GuidToStrMap, guidToStr, (initGuidToStrMap()))
+
+typedef QMap<Capture::IoMethod, QString> IoMethodMap;
+
+inline IoMethodMap initIoMethodMap()
+{
+    IoMethodMap ioMethodToStr;
+    ioMethodToStr[Capture::IoMethodDirectRead] = "directRead";
+    ioMethodToStr[Capture::IoMethodGrabSample] = "grabSample";
+    ioMethodToStr[Capture::IoMethodGrabBuffer] = "grabBuffer";
+
+    return ioMethodToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
+
 Capture::Capture(): QObject()
 {
     this->m_id = -1;
-    this->resetIoMethod();
-
-    this->m_propertyToStr[VideoProcAmp_Brightness] = "Brightness";
-    this->m_propertyToStr[VideoProcAmp_Contrast] = "Contrast";
-    this->m_propertyToStr[VideoProcAmp_Hue] = "Hue";
-    this->m_propertyToStr[VideoProcAmp_Saturation] = "Saturation";
-    this->m_propertyToStr[VideoProcAmp_Sharpness] = "Sharpness";
-    this->m_propertyToStr[VideoProcAmp_Gamma] = "Gamma";
-    this->m_propertyToStr[VideoProcAmp_ColorEnable] = "Color Enable";
-    this->m_propertyToStr[VideoProcAmp_WhiteBalance] = "White Balance";
-    this->m_propertyToStr[VideoProcAmp_BacklightCompensation] = "Backlight Compensation";
-    this->m_propertyToStr[VideoProcAmp_Gain] = "Gain";
-
-    this->m_cameraControlToStr[CameraControl_Pan] = "Pan";
-    this->m_cameraControlToStr[CameraControl_Tilt] = "Tilt";
-    this->m_cameraControlToStr[CameraControl_Roll] = "Roll";
-    this->m_cameraControlToStr[CameraControl_Zoom] = "Zoom";
-    this->m_cameraControlToStr[CameraControl_Exposure] = "Exposure";
-    this->m_cameraControlToStr[CameraControl_Iris] = "Iris";
-    this->m_cameraControlToStr[CameraControl_Focus] = "Focus";
-
-    this->m_propertyLst = this->m_propertyToStr.keys();
-    this->m_cameraControlLst = this->m_cameraControlToStr.keys();
-
-    this->m_guidToStr[MEDIASUBTYPE_RGB1] = "monob";
-    this->m_guidToStr[MEDIASUBTYPE_RGB4] = "bgr4_byte";
-    this->m_guidToStr[MEDIASUBTYPE_RGB8] = "pal8";
-    this->m_guidToStr[MEDIASUBTYPE_RGB555] = "bgr555le";
-    this->m_guidToStr[MEDIASUBTYPE_RGB565] = "bgr565le";
-    this->m_guidToStr[MEDIASUBTYPE_RGB24] = "bgr24";
-    this->m_guidToStr[MEDIASUBTYPE_RGB32] = "bgr0";
-//    this->m_guidToStr[MEDIASUBTYPE_ARGB1555] = "";
-    this->m_guidToStr[MEDIASUBTYPE_ARGB32] = "bgra";
-//    this->m_guidToStr[MEDIASUBTYPE_ARGB4444] = "";
-//    this->m_guidToStr[MEDIASUBTYPE_A2R10G10B10] = "";
-//    this->m_guidToStr[MEDIASUBTYPE_A2B10G10R10] = "";
-    this->m_guidToStr[MEDIASUBTYPE_AYUV] = "yuva420p";
-    this->m_guidToStr[MEDIASUBTYPE_YUY2] = "yuyv422";
-    this->m_guidToStr[MEDIASUBTYPE_UYVY] = "uyvy422";
-//    this->m_guidToStr[MEDIASUBTYPE_IMC1] = "";
-//    this->m_guidToStr[MEDIASUBTYPE_IMC2] = "";
-//    this->m_guidToStr[MEDIASUBTYPE_IMC3] = "";
-//    this->m_guidToStr[MEDIASUBTYPE_IMC4] = "";
-    this->m_guidToStr[MEDIASUBTYPE_YV12] = "yuv420p";
-    this->m_guidToStr[MEDIASUBTYPE_NV12] = "nv12";
-
-#ifdef MEDIASUBTYPE_I420
-    this->m_guidToStr[MEDIASUBTYPE_I420] = "yuv420p";
-#endif
-
-//    this->m_guidToStr[MEDIASUBTYPE_IF09] = "";
-    this->m_guidToStr[MEDIASUBTYPE_IYUV] = "yuv420p";
-//    this->m_guidToStr[MEDIASUBTYPE_Y211] = "";
-    this->m_guidToStr[MEDIASUBTYPE_Y411] = "uyyvyy411";
-    this->m_guidToStr[MEDIASUBTYPE_Y41P] = "uyyvyy411";
-    this->m_guidToStr[MEDIASUBTYPE_YVU9] = "yuv410p";
-    this->m_guidToStr[MEDIASUBTYPE_YVYU] = "yvyu422";
+    this->m_ioMethod = IoMethodGrabSample;
 
     QObject::connect(&this->m_frameGrabber,
                      &FrameGrabber::frameReady,
@@ -102,14 +143,7 @@ QString Capture::device() const
 
 QString Capture::ioMethod() const
 {
-    if (this->m_ioMethod == IoMethodDirectRead)
-        return "directRead";
-    else if (this->m_ioMethod == IoMethodGrabSample)
-        return "grabSample";
-    else if (this->m_ioMethod == IoMethodGrabBuffer)
-        return "grabBuffer";
-
-    return "any";
+    return ioMethodToStr->value(this->m_ioMethod, "any");
 }
 
 int Capture::nBuffers() const
@@ -149,7 +183,10 @@ QString Capture::description(const QString &webcam) const
         return QString();
 
     IPropertyBag *pPropBag = NULL;
-    HRESULT hr = moniker->BindToStorage(0, 0, IID_PPV_ARGS(&pPropBag));
+    HRESULT hr = moniker->BindToStorage(0,
+                                        0,
+                                        IID_IPropertyBag,
+                                        (void **) &pPropBag);
 
     if (FAILED(hr))
         return QString();
@@ -244,7 +281,7 @@ QVariantList Capture::imageControls(const QString &webcam) const
     IAMVideoProcAmp *pProcAmp = NULL;
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp)))
-        foreach (VideoProcAmpProperty property, this->m_propertyLst)
+        foreach (VideoProcAmpProperty property, vpapToStr->keys())
             if (SUCCEEDED(pProcAmp->GetRange(property,
                                              (LONG *) &min,
                                              (LONG *) &max,
@@ -264,7 +301,7 @@ QVariantList Capture::imageControls(const QString &webcam) const
                     else
                         type = "integer";
 
-                    control << this->m_propertyToStr[property]
+                    control << vpapToStr->value(property)
                             << type
                             << min
                             << max
@@ -289,8 +326,8 @@ bool Capture::setImageControls(const QString &webcam, const QVariantMap &imageCo
     IAMVideoProcAmp *pProcAmp = NULL;
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp)))
-        foreach (VideoProcAmpProperty property, this->m_propertyLst) {
-            QString propertyStr = this->m_propertyToStr[property];
+        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
+            QString propertyStr = vpapToStr->value(property);
 
             if (imageControls.contains(propertyStr))
                 pProcAmp->Set(property,
@@ -334,7 +371,7 @@ QVariantList Capture::cameraControls(const QString &webcam) const
     IAMCameraControl *pCameraControl = NULL;
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl)))
-        foreach (CameraControlProperty cameraControl, this->m_cameraControlLst)
+        foreach (CameraControlProperty cameraControl, ccToStr->keys())
             if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
                                                    (LONG *) &min,
                                                    (LONG *) &max,
@@ -346,7 +383,7 @@ QVariantList Capture::cameraControls(const QString &webcam) const
                                                   (LONG *) &flags))) {
                     QVariantList control;
 
-                    control << this->m_cameraControlToStr[cameraControl]
+                    control << ccToStr->value(cameraControl)
                             << QString("integer")
                             << min
                             << max
@@ -373,8 +410,8 @@ bool Capture::setCameraControls(const QString &webcam, const QVariantMap &camera
     IAMCameraControl *pCameraControl = NULL;
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl)))
-        foreach (CameraControlProperty cameraControl, this->m_cameraControlLst) {
-            QString cameraControlStr = this->m_cameraControlToStr[cameraControl];
+        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
+            QString cameraControlStr = ccToStr->value(cameraControl);
 
             if (cameraControls.contains(cameraControlStr))
                 pCameraControl->Set(cameraControl,
@@ -480,7 +517,8 @@ HRESULT Capture::enumerateCameras(IEnumMoniker **ppEnum) const
     HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
                                   NULL,
                                   CLSCTX_INPROC_SERVER,
-                                  IID_PPV_ARGS(&pDevEnum));
+                                  IID_ICreateDevEnum,
+                                  (void **) &pDevEnum);
 
     if (SUCCEEDED(hr)) {
         // Create an enumerator for the category.
@@ -506,7 +544,10 @@ MonikersMap Capture::listMonikers() const
 
         for (int i = 0; pEnum->Next(1, &pMoniker, NULL) == S_OK; i++) {
             IPropertyBag *pPropBag;
-            HRESULT hr = pMoniker->BindToStorage(0, 0, IID_PPV_ARGS(&pPropBag));
+            HRESULT hr = pMoniker->BindToStorage(0,
+                                                 0,
+                                                 IID_IPropertyBag,
+                                                 (void **) &pPropBag);
 
             if (FAILED(hr)) {
                 pMoniker->Release();
@@ -605,7 +646,7 @@ MediaTypesList Capture::listMediaTypes(const QString &webcam) const
                     && mediaType->formattype == FORMAT_VideoInfo
                     && mediaType->cbFormat >= sizeof(VIDEOINFOHEADER)
                     && mediaType->pbFormat != NULL
-                    && this->m_guidToStr.contains(mediaType->subtype))
+                    && guidToStr->contains(mediaType->subtype))
                     mediaTypes << MediaTypePtr(mediaType, this->deleteMediaType);
 
             pEnum->Release();
@@ -760,7 +801,8 @@ QbCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
     HRESULT hr = CoCreateInstance(CLSID_FilterGraph,
                                   NULL,
                                   CLSCTX_INPROC_SERVER,
-                                  IID_PPV_ARGS(&graphPtr));
+                                  IID_IGraphBuilder,
+                                  (void **) &graphPtr);
 
     if (FAILED(hr))
         return QbCaps();
@@ -773,7 +815,8 @@ QbCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
     hr = CoCreateInstance(CLSID_SampleGrabber,
                           NULL,
                           CLSCTX_INPROC_SERVER,
-                          IID_PPV_ARGS(&grabberFilter));
+                          IID_IBaseFilter,
+                          (void **) &grabberFilter);
 
     if (FAILED(hr))
         return QbCaps();
@@ -785,7 +828,8 @@ QbCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
 
     ISampleGrabber *grabberPtr = NULL;
 
-    hr = grabberFilter->QueryInterface(IID_PPV_ARGS(&grabberPtr));
+    hr = grabberFilter->QueryInterface(IID_ISampleGrabber,
+                                       (void **) &grabberPtr);
 
     if (FAILED(hr))
         return QbCaps();
@@ -801,7 +845,7 @@ QbCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
     ZeroMemory(&mediaType, sizeof(mediaType));
 
     mediaType.majortype = MEDIATYPE_Video;
-    mediaType.subtype = mediaTypes[0]->subtype;
+    mediaType.subtype = mediaTypes[0]->subtype; //MEDIASUBTYPE_RGB32;
 
     hr = (*grabber)->SetMediaType(&mediaType);
 
@@ -842,7 +886,8 @@ QbCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
     hr = CoCreateInstance(CLSID_NullRenderer,
                           NULL,
                           CLSCTX_INPROC_SERVER,
-                          IID_PPV_ARGS(&nullFilter));
+                          IID_IBaseFilter,
+                          (void **) &nullFilter);
 
     if (FAILED(hr))
         return QbCaps();
@@ -876,7 +921,7 @@ QbCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
 
     QbCaps caps;
     caps.setMimeType("video/x-raw");
-    caps.setProperty("format", this->m_guidToStr[connectedMediaType.subtype]);
+    caps.setProperty("format", guidToStr->value(connectedMediaType.subtype));
     caps.setProperty("width", (int) videoInfoHeader->bmiHeader.biWidth);
     caps.setProperty("height", (int) videoInfoHeader->bmiHeader.biHeight);
     caps.setProperty("fps", QString("%1/1").arg(fps));
@@ -1082,7 +1127,8 @@ bool Capture::init()
 
     IMediaControl *control = NULL;
 
-    hr = this->m_graph->QueryInterface(IID_PPV_ARGS(&control));
+    hr = this->m_graph->QueryInterface(IID_IMediaControl,
+                                       (void **) &control);
 
     if (FAILED(hr))
         return false;
@@ -1113,17 +1159,22 @@ void Capture::uninit()
 
 void Capture::setDevice(const QString &device)
 {
+    if (this->m_device == device)
+        return;
+
     this->m_device = device;
+    emit this->deviceChanged(device);
 }
 
 void Capture::setIoMethod(const QString &ioMethod)
 {
-    if (ioMethod == "directRead")
-        this->m_ioMethod = IoMethodDirectRead;
-    else if (ioMethod == "grabBuffer")
-        this->m_ioMethod = IoMethodGrabBuffer;
-    else
-        this->m_ioMethod = IoMethodGrabSample;
+    IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodGrabSample);
+
+    if (this->m_ioMethod == ioMethodEnum)
+        return;
+
+    this->m_ioMethod = ioMethodEnum;
+    emit this->ioMethodChanged(ioMethod);
 }
 
 void Capture::setNBuffers(int nBuffers)
