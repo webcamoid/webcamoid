@@ -4,7 +4,6 @@ Priority: extra
 Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
  qttools5-dev-tools,
- qtmultimedia5-dev,
  linux-libc-dev,
  libavcodec-ffmpeg-dev,
  libavdevice-ffmpeg-dev,
@@ -25,7 +24,6 @@ Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
  libqt5widgets5,
- libqt5multimedia5,
  libavcodec-ffmpeg56,
  libavdevice-ffmpeg56,
  libavfilter-ffmpeg5,

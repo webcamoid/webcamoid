@@ -20,14 +20,15 @@
 
 #include "parsedoption.h"
 
-ParsedOption::ParsedOption(QObject *parent): QObject(parent)
+ParsedOption::ParsedOption(QObject *parent):
+    QObject(parent)
 {
-    this->resetKey();
-    this->resetValue();
-    this->resetType();
+    this->m_type = OptionTypeNone;
 }
 
-ParsedOption::ParsedOption(QString key, QVariant value, OptionType type):
+ParsedOption::ParsedOption(const QString &key,
+                           const QVariant &value,
+                           OptionType type):
     QObject(NULL),
     m_key(key),
     m_value(value),
@@ -45,8 +46,7 @@ ParsedOption::ParsedOption(const ParsedOption &other):
 
 ParsedOption &ParsedOption::operator =(const ParsedOption &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_key = other.m_key;
         this->m_value = other.m_value;
         this->m_type = other.m_type;
@@ -70,19 +70,31 @@ ParsedOption::OptionType ParsedOption::type() const
     return this->m_type;
 }
 
-void ParsedOption::setKey(QString key)
+void ParsedOption::setKey(const QString &key)
 {
+    if (this->m_key == key)
+        return;
+
     this->m_key = key;
+    emit this->keyChanged(key);
 }
 
-void ParsedOption::setValue(QVariant value)
+void ParsedOption::setValue(const QVariant &value)
 {
+    if (this->m_value == value)
+        return;
+
     this->m_value = value;
+    emit this->valueChanged(value);
 }
 
 void ParsedOption::setType(ParsedOption::OptionType type)
 {
+    if (this->m_type == type)
+        return;
+
     this->m_type = type;
+    emit this->typeChanged(type);
 }
 
 void ParsedOption::resetKey()

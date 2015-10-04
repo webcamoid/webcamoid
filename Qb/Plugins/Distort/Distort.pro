@@ -30,19 +30,18 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/distort.h \
-    include/distortelement.h
+    src/distort.h \
+    src/distortelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia
+QT += qml
 
 RESOURCES += \
     Distort.qrc

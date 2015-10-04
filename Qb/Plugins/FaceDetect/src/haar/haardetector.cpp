@@ -61,8 +61,8 @@
 #include <cmath>
 #include <QtConcurrent>
 
-#include "haar/haarcascade.h"
-#include "haar/haardetector.h"
+#include "haarcascade.h"
+#include "haardetector.h"
 
 class HaarDetectorPrivate
 {

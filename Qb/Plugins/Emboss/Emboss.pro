@@ -30,19 +30,18 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/emboss.h \
-    include/embosselement.h
+    src/emboss.h \
+    src/embosselement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia
+QT += qml
 
 RESOURCES += \
     Emboss.qrc

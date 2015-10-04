@@ -31,15 +31,11 @@ MultiSinkElement::MultiSinkElement(): QbElement()
     av_register_all();
 
     this->m_flushPts = -1;
-
-    this->resetLocation();
-    this->resetOptions();
-    this->resetStreamCaps();
 }
 
 MultiSinkElement::~MultiSinkElement()
 {
-    this->setState(ElementStateNull);
+    this->uninit();
 }
 
 QString MultiSinkElement::location()
@@ -57,25 +53,16 @@ QVariantMap MultiSinkElement::streamCaps()
     return this->m_streamCaps;
 }
 
-void MultiSinkElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
+void MultiSinkElement::stateChange(QbElement::ElementState from,
+                                   QbElement::ElementState to)
 {
-    this->m_mutex.lock();
-
     if (from == QbElement::ElementStateNull
         && to == QbElement::ElementStatePaused) {
-        this->updateOutputParams();
-
-        this->m_outputFormat.open(this->location(),
-                                  this->m_outputParams,
-                                  this->m_commands.outputOptions(),
-                                  this->m_commands.inputs());
+        this->init();
     } else if (from == QbElement::ElementStatePaused
                && to == QbElement::ElementStateNull) {
-        this->flushStreams();
-        this->m_outputFormat.close();
+        this->uninit();
     }
-
-    this->m_mutex.unlock();
 }
 
 QList<AVPixelFormat> MultiSinkElement::pixelFormats(AVCodec *videoCodec)
@@ -129,7 +116,8 @@ QList<quint64> MultiSinkElement::channelLayouts(AVCodec *audioCodec)
     return channelLayouts;
 }
 
-OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &inputCaps,
+OutputParams MultiSinkElement::createOutputParams(int inputIndex,
+                                                  const QbCaps &inputCaps,
                                                   const QVariantMap &options)
 {
     QString fmt = this->m_commands.outputOptions()["f"].toString();
@@ -155,7 +143,6 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
                                  CustomDeleters::deleteCodecContext);
 
     codecContext->codec = codec;
-    QbCaps outputCaps(inputCaps);
 
     if (inputCaps.mimeType() == "audio/x-raw") {
         QList<AVSampleFormat> sampleFormats = this->sampleFormats(codec);
@@ -172,8 +159,6 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         codecContext->sample_fmt = sampleFormats.contains(iSampleFormat)?
                                         iSampleFormat:
                                         defaultSampleFormat;
-
-        outputCaps.setProperty("format", av_get_sample_fmt_name(codecContext->sample_fmt));
 
         if (options.contains("b:a"))
             codecContext->bit_rate = options["b:a"].toInt();
@@ -194,8 +179,6 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
             codecContext->sample_rate = iSampleRate;
         else
             codecContext->sample_rate = defaultSampleRate;
-
-        outputCaps.setProperty("rate", codecContext->sample_rate);
 
         QList<quint64> channelLayouts = this->channelLayouts(codec);
 
@@ -231,16 +214,8 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         else
             codecContext->channels = av_get_channel_layout_nb_channels(codecContext->channel_layout);
 
-        outputCaps.setProperty("channels", codecContext->channels);
-
-        char layout[256];
-
-        av_get_channel_layout_string(layout,
-                                     sizeof(layout),
-                                     codecContext->channels,
-                                     codecContext->channel_layout);
-
-        outputCaps.setProperty("layout", QString(layout));
+        codecContext->time_base.num = 1;
+        codecContext->time_base.den = codecContext->sample_rate;
     }
     else if (inputCaps.mimeType() == "video/x-raw") {
         QList<AVPixelFormat> pixelFormats = this->pixelFormats(codec);
@@ -258,8 +233,6 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
                                         iPixelFormat:
                                         defaultPixelFormat;
 
-        outputCaps.setProperty("format", av_get_pix_fmt_name(codecContext->pix_fmt));
-
         if (options.contains("b:v"))
             codecContext->bit_rate = options["b:v"].toInt();
 
@@ -274,9 +247,6 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
             codecContext->height = inputCaps.property("height").toInt();
         }
 
-        outputCaps.setProperty("width", codecContext->width);
-        outputCaps.setProperty("height", codecContext->height);
-
         // timebase: This is the fundamental unit of time (in seconds) in terms
         // of which frame timestamps are represented. For fixed-fps content,
         // timebase should be 1/framerate and timestamp increments should be
@@ -288,57 +258,33 @@ OutputParams MultiSinkElement::createOutputParams(int inputIndex, const QbCaps &
         codecContext->time_base.num = fps.den();
         codecContext->time_base.den = fps.num();
 
-        outputCaps.setProperty("fps", fps.toString());
-
         if (options.contains("g"))
             codecContext->gop_size = options["g"].toInt();
         else
             codecContext->gop_size = 5 * fps.value();
     }
 
-    QbElementPtr filter;
-
-    if (inputCaps.mimeType() == "audio/x-raw") {
-        filter = QbElement::create("ACapsConvert");
-        filter->setProperty("caps", outputCaps.toString());
-
-        QObject::connect(filter.data(),
-                         &QbElement::oStream,
-                         this,
-                         &MultiSinkElement::processAFrame);
-    }
-    else if (inputCaps.mimeType() == "video/x-raw") {
-        filter = QbElement::create("VCapsConvert");
-        filter->setProperty("caps", outputCaps.toString());
-        filter->setProperty("keepAspectRatio", true);
-
-        QObject::connect(filter.data(),
-                         &QbElement::oStream,
-                         this,
-                         &MultiSinkElement::processVFrame,
-                         Qt::DirectConnection);
-    }
-
-    if (filter)
-        QObject::connect(this,
-                         &MultiSinkElement::stateChanged,
-                         filter.data(),
-                         &QbElement::setState,
-                         Qt::DirectConnection);
-
     int outputIndex = options.contains("oi")? options["oi"].toInt(): inputIndex;
 
-    return OutputParams(codecContext, filter, outputIndex);
+    return OutputParams(codecContext, outputIndex);
 }
 
-void MultiSinkElement::setLocation(QString fileName)
+void MultiSinkElement::setLocation(const QString &location)
 {
-    this->m_location = fileName;
+    if (this->m_location == location)
+        return;
+
+    this->m_location = location;
+    emit this->locationChanged(location);
 }
 
-void MultiSinkElement::setOptions(QString options)
+void MultiSinkElement::setOptions(const QString &options)
 {
+    if (this->m_options == options)
+        return;
+
     this->m_options = options;
+    emit this->optionsChanged(options);
 
     if (this->m_options.isEmpty())
         this->m_commands.clear();
@@ -346,9 +292,13 @@ void MultiSinkElement::setOptions(QString options)
         qDebug() << this->m_commands.error();
 }
 
-void MultiSinkElement::setStreamCaps(QVariantMap streamCaps)
+void MultiSinkElement::setStreamCaps(const QVariantMap &streamCaps)
 {
+    if (this->m_streamCaps == streamCaps)
+        return;
+
     this->m_streamCaps = streamCaps;
+    emit this->streamCapsChanged(streamCaps);
 }
 
 void MultiSinkElement::resetLocation()
@@ -368,105 +318,132 @@ void MultiSinkElement::resetStreamCaps()
 
 QbPacket MultiSinkElement::iStream(const QbPacket &packet)
 {
-    if (!packet.caps().isValid() ||
-        this->state() != ElementStatePlaying)
-        return QbPacket();
+    this->m_rwLock.lockForRead();
 
-    if (!this->m_outputFormat.outputContext())
-        this->m_outputFormat.open(this->location(),
-                                  this->m_outputParams,
-                                  this->m_commands.outputOptions(),
-                                  this->m_commands.inputs());
+    if (!packet || !this->m_outputFormat.isOpen()) {
+        this->m_rwLock.unlock();
+
+        return QbPacket();
+    }
 
     QString input = QString("%1").arg(packet.index());
 
     if (this->m_outputParams.contains(input)) {
-        QbElementPtr filter = this->m_outputParams[input].filter();
-
-        if (filter) {
-            this->m_mutex.lock();
-            filter->iStream(packet);
-            this->m_mutex.unlock();
-        }
+        if (packet.caps().mimeType() == "audio/x-raw")
+            this->processAFrame(packet);
+        else if (packet.caps().mimeType() == "video/x-raw")
+            this->processVFrame(packet);
     }
+
+    this->m_rwLock.unlock();
 
     return QbPacket();
 }
 
+bool MultiSinkElement::init()
+{
+    this->m_rwLock.lockForWrite();
+
+    this->updateOutputParams();
+    bool result = this->m_outputFormat.open(this->m_location,
+                                            this->m_outputParams,
+                                            this->m_commands.outputOptions(),
+                                            this->m_commands.inputs());
+    this->m_rwLock.unlock();
+
+    return result;
+}
+
+void MultiSinkElement::uninit()
+{
+    this->m_rwLock.lockForWrite();
+
+    if (this->m_outputFormat.isOpen()) {
+        this->flushStreams();
+        this->m_outputFormat.close();
+    }
+
+    this->m_rwLock.unlock();
+}
+
 void MultiSinkElement::processVFrame(const QbPacket &packet)
 {
-    int iWidth = packet.caps().property("width").toInt();
-    int iHeight = packet.caps().property("height").toInt();
-    QString format = packet.caps().property("format").toString();
-
-    AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
-
-    AVPacket pkt;
-    av_init_packet(&pkt);
-
-    AVFrame oFrame;
-    memset(&oFrame, 0, sizeof(AVFrame));
-
-    avpicture_fill((AVPicture *) &oFrame,
-                   (uint8_t *) packet.buffer().data(),
-                   iFormat,
-                   iWidth,
-                   iHeight);
-
     QString inputIndex = QString("%1").arg(packet.index());
-    int outputIndex = this->m_outputParams[inputIndex].outputIndex();
     StreamPtr videoStream = this->m_outputFormat.streams()[inputIndex];
 
     if (!videoStream)
         return;
 
-    int pts = (packet.pts()
-              * packet.timeBase()
-              / QbFrac(videoStream->time_base.num,
-                       videoStream->time_base.den)).value();
+    AVFrame oFrame;
+    memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (!this->m_outputParams[inputIndex].setPts(pts))
+    if (!this->m_outputParams[inputIndex].convert(packet, &oFrame)) {
+        avpicture_free((AVPicture *) &oFrame);
+
         return;
+    }
+
+    QbFrac outTimeBase(videoStream->time_base.num,
+                       videoStream->time_base.den);
+
+    qint64 pts = qRound(packet.pts()
+                        * packet.timeBase().value()
+                        / outTimeBase.value());
+
+    oFrame.pts = oFrame.pkt_pts =
+            this->m_outputParams[inputIndex].nextPts(pts, packet.id());
+
+    if (oFrame.pts < 0) {
+        avpicture_free((AVPicture *) &oFrame);
+
+        return;
+    }
+
+    int outputIndex = this->m_outputParams[inputIndex].outputIndex();
+
+    AVPacket pkt;
+    av_init_packet(&pkt);
 
     if (this->m_outputFormat.outputContext()->oformat->flags & AVFMT_RAWPICTURE) {
         // Raw video case - directly store the picture in the packet
         pkt.flags |= AV_PKT_FLAG_KEY;
-        pkt.stream_index = outputIndex;
         pkt.data = oFrame.data[0];
         pkt.size = sizeof(AVPicture);
+        pkt.pts = oFrame.pts;
 
-        pkt.pts = this->m_outputParams[inputIndex].pts();
-
+        this->m_mutex.lock();
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
+        this->m_mutex.unlock();
     } else {
         // encode the image
         pkt.data = NULL; // packet data will be allocated by the encoder
         pkt.size = 0;
-
-        oFrame.format = iFormat,
-        oFrame.width = iWidth,
-        oFrame.height = iHeight;
-
-        oFrame.pts = this->m_outputParams[inputIndex].pts();
 
         int gotPacket;
 
         if (avcodec_encode_video2(videoStream->codec,
                                   &pkt,
                                   &oFrame,
-                                  &gotPacket) < 0)
+                                  &gotPacket) < 0) {
+            avpicture_free((AVPicture *) &oFrame);
+
             return;
+        }
 
         // If size is zero, it means the image was buffered.
         if (gotPacket) {
             pkt.stream_index = outputIndex;
 
             // Write the compressed frame to the media file.
+            this->m_mutex.lock();
             av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                        &pkt);
+            this->m_mutex.unlock();
         }
     }
+
+    avpicture_free((AVPicture *) &oFrame);
 }
 
 void MultiSinkElement::processAFrame(const QbPacket &packet)
@@ -478,105 +455,124 @@ void MultiSinkElement::processAFrame(const QbPacket &packet)
     if (!audioStream)
         return;
 
-    AVCodecContext *codecContext = audioStream->codec;
-
-    int samples = packet.caps().property("samples").toInt();
-    int frameSize = codecContext->frame_size;
-
-    if (frameSize < 1)
-        frameSize = samples;
-
-    QbFrac timeBase(audioStream->time_base.num,
-                    audioStream->time_base.den);
-
-    qreal pts = (packet.pts()
-              * packet.timeBase()
-              / timeBase).value();
-
-    if (!this->m_outputParams[inputIndex].setPts(pts))
-        return;
-
-    qreal ptsOffset = pts - (int) pts;
-
-    qreal ptsDiff = frameSize /
-                     (packet.caps().property("rate").toReal() *
-                      timeBase.value());
-
-    static AVFrame iFrame;
+    AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
-    iFrame.nb_samples = samples;
-    bool align = packet.caps().property("align").toBool();
+    if (!this->m_outputParams[inputIndex].convert(packet, &iFrame)) {
+        av_freep(&iFrame.data);
 
-    if (avcodec_fill_audio_frame(&iFrame,
-                                 codecContext->channels,
-                                 codecContext->sample_fmt,
-                                 (uint8_t *) packet.buffer().data(),
-                                 packet.bufferSize(),
-                                 align? 0: 1) < 0)
         return;
+    }
 
-    for (int offset = 0; samples > 0; offset += frameSize) {
-        samples -= frameSize;
-        frameSize = qMin(frameSize, samples);
+    AVCodecContext *codecContext = audioStream->codec;
 
-        int oBufferSize = av_samples_get_buffer_size(NULL,
-                                                     codecContext->channels,
-                                                     frameSize,
-                                                     codecContext->sample_fmt,
-                                                     align? 0: 1);
+    int samples = iFrame.nb_samples;
+    int maxOutSamples = codecContext->frame_size;
 
-        QByteArray oBuffer(oBufferSize, 0);
+    if (maxOutSamples < 1)
+        maxOutSamples = samples;
+    else
+        maxOutSamples = qMin(maxOutSamples, samples);
+
+    QbFrac outTimeBase(audioStream->time_base.num,
+                       audioStream->time_base.den);
+
+    qint64 pts = qRound(packet.pts()
+                        * packet.timeBase().value()
+                        / outTimeBase.value());
+
+    for (int offset = 0; samples > 0;) {
+        int outSamples = qMin(samples, maxOutSamples);
 
         static AVFrame oFrame;
         memset(&oFrame, 0, sizeof(AVFrame));
 
-        oFrame.nb_samples = frameSize;
+        oFrame.channels = iFrame.channels;
+        oFrame.channel_layout = iFrame.channel_layout;
+        oFrame.format = iFrame.format;
+        oFrame.sample_rate = iFrame.sample_rate;
+        oFrame.nb_samples = outSamples;
 
-        if (avcodec_fill_audio_frame(&oFrame,
-                                     codecContext->channels,
-                                     codecContext->sample_fmt,
-                                     (const uint8_t *) oBuffer.constData(),
-                                     oBufferSize,
-                                     align? 0: 1) < 0)
+        oFrame.pts = oFrame.pkt_pts =
+                this->m_outputParams[inputIndex].nextPts(pts, packet.id());
+
+        if (oFrame.pts < 0) {
+            samples -= outSamples;
+            offset += outSamples;
+
+            pts += qRound(qreal(outSamples)
+                          / iFrame.sample_rate
+                          / outTimeBase.value());
+
             continue;
+        }
+
+        av_frame_get_buffer(&oFrame, 0);
 
         if (av_samples_copy(oFrame.data,
                             iFrame.data,
                             0,
                             offset,
-                            frameSize,
+                            outSamples,
                             codecContext->channels,
-                            codecContext->sample_fmt) < 0)
-            continue;
+                            codecContext->sample_fmt) < 0) {
+            av_freep(&oFrame.data[0]);
 
+            break;
+        }
+
+        // Initialize audio packet.
         AVPacket pkt;
+        memset(&pkt, 0, sizeof(AVPacket));
         av_init_packet(&pkt);
 
-        // data and size must be 0;
-        pkt.data = NULL;
-        pkt.size = 0;
-
-        oFrame.pts = this->m_outputParams[inputIndex].pts() + ptsOffset;
-        ptsOffset += ptsDiff;
-
+        // Compress audio packet.
         int gotPacket;
+        int result = avcodec_encode_audio2(codecContext,
+                                           &pkt,
+                                           &oFrame,
+                                           &gotPacket);
 
-        if (avcodec_encode_audio2(codecContext, &pkt, &oFrame, &gotPacket) < 0 ||
-            !gotPacket)
+        if (result  < 0) {
+            char error[1024];
+            av_strerror(result, error, 1024);
+            qDebug() << "Error: " << error;
+            av_freep(&oFrame.data[0]);
+
+            break;
+        }
+
+        samples -= outSamples;
+        offset += outSamples;
+
+        pts += qRound(qreal(outSamples)
+                      / iFrame.sample_rate
+                      / outTimeBase.value());
+
+        if (!gotPacket) {
+            av_freep(&oFrame.data[0]);
+
             continue;
+        }
 
         pkt.stream_index = outputIndex;
 
+        // Write audio packet.
+        this->m_mutex.lock();
         av_interleaved_write_frame(this->m_outputFormat.outputContext().data(),
                                    &pkt);
+        this->m_mutex.unlock();
+
+        av_freep(&oFrame.data[0]);
     }
+
+    av_freep(&iFrame.data);
 }
 
 void MultiSinkElement::updateOutputParams()
 {
     QVariantMap inputOptions = this->m_commands.inputs();
-    QVariantMap inputCaps = this->streamCaps();
+    QVariantMap inputCaps = this->m_streamCaps;
     this->m_outputParams.clear();
 
     foreach (QString input, inputCaps.keys())
@@ -606,15 +602,13 @@ void MultiSinkElement::flushStream(int inputIndex, AVCodecContext *encoder)
         pkt.data = NULL;
         pkt.size = 0;
 
-        int gotPacket;
-        int ret;
+        int gotPacket = false;
+        int ret = -1;
 
         if (encoder->codec_type == AVMEDIA_TYPE_AUDIO)
             ret = avcodec_encode_audio2(encoder, &pkt, NULL, &gotPacket);
         else if (encoder->codec_type == AVMEDIA_TYPE_VIDEO)
             ret = avcodec_encode_video2(encoder, &pkt, NULL, &gotPacket);
-        else
-            break;
 
         if (ret < 0 || !gotPacket)
             break;

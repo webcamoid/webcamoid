@@ -30,21 +30,20 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/matrix.h \
-    include/matrixelement.h \
-    include/character.h \
-    include/raindrop.h
+    src/matrix.h \
+    src/matrixelement.h \
+    src/character.h \
+    src/raindrop.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml widgets multimedia
+QT += qml widgets
 
 RESOURCES += \
     Matrix.qrc

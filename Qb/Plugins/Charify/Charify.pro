@@ -30,20 +30,19 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/charify.h \
-    include/charifyelement.h \
-    include/character.h
+    src/charify.h \
+    src/charifyelement.h \
+    src/character.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml widgets multimedia
+QT += qml widgets
 
 RESOURCES += \
     Charify.qrc

@@ -27,29 +27,22 @@ exists(commons.pri) {
     }
 }
 
+!win32: include(src/v4l2/v4l2.pri)
+win32: include(src/dshow/dshow.pri)
+
+include(src/ffmpeg/ffmpeg.pri)
+
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
-
 HEADERS += \
-    include/videocapture.h \
-    include/videocaptureelement.h
-
-!win32: HEADERS += \
-    include/platform/capturebuffer.h \
-    include/platform/capturelinux.h
-
-win32: HEADERS += \
-    include/platform/capturewin.h \
-    include/platform/framegrabber.h
+    src/videocapture.h \
+    src/videocaptureelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
-win32: LIBS += -lstrmiids -lole32 -loleaut32
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
@@ -62,12 +55,6 @@ SOURCES += \
     src/videocapture.cpp \
     src/videocaptureelement.cpp
 
-!win32: SOURCES += src/platform/capturelinux.cpp
-
-win32: SOURCES += \
-    src/platform/capturewin.cpp \
-    src/platform/framegrabber.cpp
-
 lupdate_only {
     SOURCES = share/qml/*.qml
 }
@@ -75,12 +62,6 @@ lupdate_only {
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += libv4l2
-}
 
 INSTALLS += target
 

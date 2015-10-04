@@ -200,7 +200,9 @@ bool VideoCaptureElement::resetCameraControls(const QString &webcam) const
 void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
                                      const QbPacket &packet)
 {
-    emit element->oStream(packet);
+    QbPacket oPacket = element->m_convertVideo.convert(packet);
+
+    emit element->oStream(oPacket);
 }
 
 void VideoCaptureElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)

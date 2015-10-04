@@ -27,24 +27,20 @@ exists(commons.pri) {
     }
 }
 
+include(src/ffmpeg/ffmpeg.pri)
+
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
-
 HEADERS += \
-    include/vcapsconvert.h \
-    include/vcapsconvertelement.h \
-    include/convertio.h
+    src/vcapsconvert.h \
+    src/vcapsconvertelement.h \
+    src/convertio.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
-
-!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
-!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
@@ -58,16 +54,6 @@ SOURCES += \
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libavformat \
-        libavcodec \
-        libavutil \
-        libswscale
-}
 
 INSTALLS += target
 

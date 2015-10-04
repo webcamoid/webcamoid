@@ -26,12 +26,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-build
 %if %{defined fedora}
 BuildRequires: fdupes
 BuildRequires: gcc-c++
-BuildRequires: qt5-qtmultimedia-devel
 BuildRequires: qt5-qttools-devel
 BuildRequires: ffmpeg-devel
 BuildRequires: libv4l-devel
 
-# Requires: qt5-qtmultimedia
 # Requires: ffmpeg-libs
 # Requires: libv4l
 %endif
@@ -39,7 +37,6 @@ BuildRequires: libv4l-devel
 %if %{defined suse_version}
 BuildRequires: fdupes
 BuildRequires: update-desktop-files
-BuildRequires: libQt5Multimedia-devel
 BuildRequires: libQt5Concurrent-devel
 BuildRequires: libQt5Svg-devel
 BuildRequires: libQt5OpenGL-devel
@@ -48,7 +45,6 @@ BuildRequires: libqt5-qttools
 BuildRequires: ffmpeg-devel
 BuildRequires: libv4l-devel
 
-# Requires: libQt5Multimedia5
 # Requires: libavcodec55
 # Requires: libavdevice55
 # Requires: libavfilter3
@@ -69,13 +65,11 @@ BuildRequires: libv4l-devel
 
 %ifarch i586
 BuildRequires: libqt5widgets-devel
-BuildRequires: libqt5multimedia-devel
 BuildRequires: libqt5concurrent-devel
 BuildRequires: libqt5xml-devel
 BuildRequires: libffmpeg-devel
 %else
 BuildRequires: lib64qt5widgets-devel
-BuildRequires: lib64qt5multimedia-devel
 BuildRequires: lib64qt5concurrent-devel
 BuildRequires: lib64qt5xml-devel
 BuildRequires: lib64ffmpeg-devel
@@ -85,7 +79,6 @@ BuildRequires: lib64ffmpeg-devel
 #
 # %ifarch i586
 # Requires: libqt5widgets5
-# Requires: libqt5multimedia5
 # Requires: libqt5concurrent5
 # Requires: libqt5xml5
 # Requires: libavcodec55
@@ -97,7 +90,6 @@ BuildRequires: lib64ffmpeg-devel
 # Requires: libswresample0
 # %else
 # Requires: lib64qt5widgets5
-# Requires: lib64qt5multimedia5
 # Requires: lib64qt5concurrent5
 # Requires: lib64qt5xml5
 # Requires: lib64avcodec55

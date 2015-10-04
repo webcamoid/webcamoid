@@ -27,21 +27,20 @@ exists(commons.pri) {
     }
 }
 
+!win32: include(src/pulseaudio/pulseaudio.pri)
+win32: include(src/wasapi/wasapi.pri)
+
 CONFIG += plugin
 
 HEADERS += \
-    include/audiooutput.h \
-    include/audiooutputelement.h
-!win32: HEADERS += include/platform/audiodevicelinux.h
-win32: HEADERS += include/platform/audiodevicewin.h
+    src/audiooutput.h \
+    src/audiooutputelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
-win32: LIBS += -lole32 -lwinmm
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
@@ -50,18 +49,10 @@ QT += qml
 SOURCES += \
     src/audiooutput.cpp \
     src/audiooutputelement.cpp
-!win32: SOURCES += src/platform/audiodevicelinux.cpp
-win32: SOURCES += src/platform/audiodevicewin.cpp
 
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-unix {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += libpulse-simple
-}
 
 INSTALLS += target
 

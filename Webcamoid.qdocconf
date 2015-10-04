@@ -26,20 +26,20 @@ outputformats += HTML \
 # containing the header files associated
 # with the .cpp source files used in the documentation.
 
-headerdirs              = include
+headerdirs              = StandAlone/src
 headers.fileextensions += *.h
 
 # The sourcedirs variable specifies the
 # directories containing the .cpp or .qdoc
 # files used in the documentation.
 
-sourcedirs              = src
+sourcedirs              = StandAlone/src
 sources.fileextensions += *.cpp *.qdoc
 
 # The imagedirs variable specifies the
 # directories containing the images used in the documentation.
 
-imagedirs                   = share/images
+imagedirs                   = StandAlone/share/images
 images.fileextensions.HTML += *.png
 
 # DITA XML output configs.

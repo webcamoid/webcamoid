@@ -20,18 +20,15 @@
 
 #include "option.h"
 
-Option::Option(QObject *parent): QObject(parent)
+Option::Option(QObject *parent):
+    QObject(parent)
 {
-    this->resetName();
-    this->resetComment();
-    this->resetValregex();
-    this->resetFlags();
 }
 
-Option::Option(QString name,
-               QString comment,
-               QString valregex,
-               OptionFlags flags):
+Option::Option(const QString &name,
+               const QString &comment,
+               const QString &valregex,
+               const OptionFlags &flags):
     QObject(NULL),
     m_name(name),
     m_comment(comment),
@@ -51,8 +48,7 @@ Option::Option(const Option &other):
 
 Option &Option::operator =(const Option &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_name = other.m_name;
         this->m_comment = other.m_comment;
         this->m_valregex = other.m_valregex;
@@ -82,24 +78,40 @@ Option::OptionFlags Option::flags() const
     return this->m_flags;
 }
 
-void Option::setName(QString name)
+void Option::setName(const QString &name)
 {
+    if (this->m_name == name)
+        return;
+
     this->m_name = name;
+    emit this->nameChanged(name);
 }
 
-void Option::setComment(QString comment)
+void Option::setComment(const QString &comment)
 {
+    if (this->m_comment == comment)
+        return;
+
     this->m_comment = comment;
+    emit this->commentChanged(comment);
 }
 
-void Option::setValregex(QString valregex)
+void Option::setValregex(const QString &valregex)
 {
+    if (this->m_valregex == valregex)
+        return;
+
     this->m_valregex = valregex;
+    emit this->valregexChanged(valregex);
 }
 
-void Option::setFlags(OptionFlags flags)
+void Option::setFlags(const OptionFlags &flags)
 {
+    if (this->m_flags == flags)
+        return;
+
     this->m_flags = flags;
+    emit this->flagsChanged(flags);
 }
 
 void Option::resetName()

@@ -64,7 +64,7 @@
 #include <QXmlStreamReader>
 #include <QStringList>
 
-#include "haar/haarcascade.h"
+#include "haarcascade.h"
 
 HaarCascadeHID::HaarCascadeHID(const HaarCascade &cascade,
                                int startX,

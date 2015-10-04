@@ -27,23 +27,19 @@ exists(commons.pri) {
     }
 }
 
+include(src/ffmpeg/ffmpeg.pri)
+
 CONFIG += plugin
 
-DEFINES += __STDC_CONSTANT_MACROS
-
 HEADERS += \
-    include/acapsconvert.h \
-    include/acapsconvertelement.h
+    src/acapsconvert.h \
+    src/acapsconvertelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
-
-!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
-!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
@@ -56,20 +52,6 @@ SOURCES += \
 DESTDIR = $${PWD}
 
 TEMPLATE = lib
-
-isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libavdevice \
-        libavfilter \
-        libavformat \
-        libavcodec \
-        libpostproc \
-        libswresample \
-        libswscale \
-        libavutil
-}
 
 INSTALLS += target
 

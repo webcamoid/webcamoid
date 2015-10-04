@@ -30,19 +30,18 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS += \
-    include/wave.h \
-    include/waveelement.h
+    src/wave.h \
+    src/waveelement.h
 
 INCLUDEPATH += \
-    include \
-    ../../include
+    ../../Lib/src
 
-!win32: LIBS += -L../../ -lQb
-win32: LIBS += -L../../ -lQb$${VER_MAJ}
+!win32: LIBS += -L../../Lib/ -lQb
+win32: LIBS += -L../../Lib/ -lQb$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml multimedia
+QT += qml
 
 RESOURCES += \
     Wave.qrc
