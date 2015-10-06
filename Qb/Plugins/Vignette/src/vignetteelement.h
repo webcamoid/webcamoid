@@ -73,24 +73,6 @@ class VignetteElement: public QbElement
         QImage m_vignette;
         QMutex m_mutex;
 
-        inline qreal radius(qreal a, qreal b,
-                            qreal x, qreal y)
-        {
-            if (x == 0.0)
-                return b;
-
-            if (a == 0.0 || b == 0.0)
-                return 0;
-
-            qreal qa = a * a;
-            qreal qb = b * b;
-            qreal tg = y / x;
-            qreal qtg = tg * tg;
-            qreal qr = (1.0 + qtg) / (1.0 / qa + qtg / qb);
-
-            return sqrt(qr);
-        }
-
         inline qreal radius(qreal x, qreal y)
         {
             return sqrt(x * x + y * y);
