@@ -23,17 +23,16 @@
 
 NormalizeElement::NormalizeElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 }
 
 QbPacket NormalizeElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage oFrame = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
-    if (oFrame.isNull())
+    if (src.isNull())
         return QbPacket();
+
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
@@ -159,6 +158,6 @@ QbPacket NormalizeElement::iStream(const QbPacket &packet)
         *dest++ = qRgba(r, g, b, qAlpha(pixel));
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

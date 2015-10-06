@@ -31,9 +31,6 @@ class NormalizeElement: public QbElement
     public:
         explicit NormalizeElement();
 
-    private:
-        QbElementPtr m_convert;
-
     public slots:
         QbPacket iStream(const QbPacket &packet);
 };

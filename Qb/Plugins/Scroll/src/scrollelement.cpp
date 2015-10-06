@@ -18,15 +18,18 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QPainter>
+#include <QTime>
+
 #include "scrollelement.h"
 
 ScrollElement::ScrollElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
+    this->m_speed = 0.05;
+    this->m_noise = 0.1;
+    this->m_offset = 0.0;
 
-    this->m_offset = 0;
-    this->resetSpeed();
+    qsrand(QTime::currentTime().msec());
 }
 
 QObject *ScrollElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -56,70 +59,95 @@ qreal ScrollElement::speed() const
     return this->m_speed;
 }
 
-void ScrollElement::addNoise(QImage &dest)
+qreal ScrollElement::noise() const
 {
-    quint32 *destBits = (quint32 *) dest.bits();
+    return this->m_noise;
+}
 
-    for (int y = this->m_offset, dy = 0; dy < 3 && y < dest.height(); y++, dy++) {
-        int i = y * dest.width();
+QImage ScrollElement::generateNoise(const QSize &size, qreal persent)
+{
+    QImage noise = QImage(size, QImage::Format_ARGB32);
+    noise.fill(0);
 
-        for (int x = 0; x < dest.width(); x++, i++) {
-            if (dy == 2 && qrand() >> 31)
-                continue;
+    QRgb *noiseBits = (QRgb *) noise.bits();
+    int noiseArea = size.width() * size.height();
+    int peper = persent * noiseArea;
 
-            destBits[i] = (qrand() >> 31) ? 0xffffff : 0;
-        }
+    for (int i = 0; i < peper; i++) {
+        int gray = qrand() % 256;
+        int alpha = qrand() % 256;
+        noiseBits[qrand() % noiseArea] = qRgba(gray, gray, gray, alpha);
     }
+
+    return noise;
 }
 
 void ScrollElement::setSpeed(qreal speed)
 {
-    if (speed != this->m_speed) {
-        this->m_speed = speed;
-        emit this->speedChanged();
-    }
+    if (speed == this->m_speed)
+        return;
+
+    this->m_speed = speed;
+    emit this->speedChanged(speed);
+}
+
+void ScrollElement::setNoise(qreal noise)
+{
+    if (this->m_noise == noise)
+        return;
+
+    this->m_noise = noise;
+    emit this->noiseChanged(noise);
 }
 
 void ScrollElement::resetSpeed()
 {
-    this->setSpeed(30);
+    this->setSpeed(0.05);
+}
+
+void ScrollElement::resetNoise()
+{
+    this->setNoise(0.1);
 }
 
 QbPacket ScrollElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
 
-    quint32 *srcBits = (quint32 *) src.bits();
-    quint32 *destBits = (quint32 *) oFrame.bits();
-
     if (src.size() != this->m_curSize) {
-        this->m_offset = 0;
+        this->m_offset = 0.0;
         this->m_curSize = src.size();
     }
 
     int offset = this->m_offset;
 
-    memcpy(destBits,
-           srcBits + (src.height() - offset) * src.width(),
-           sizeof(qint32) * offset * src.width());
+    memcpy(oFrame.scanLine(0),
+           src.constScanLine(src.height() - offset - 1),
+           src.bytesPerLine() * offset);
 
-    memcpy(destBits + offset * src.width(),
-           srcBits,
-           sizeof(qint32) * (src.height() - offset) * src.width());
+    memcpy(oFrame.scanLine(offset),
+           src.constScanLine(0),
+           src.bytesPerLine() * (src.height() - offset));
 
-    this->addNoise(oFrame);
+    QPainter painter;
+    painter.begin(&oFrame);
+    QImage noise = this->generateNoise(oFrame.size(), this->m_noise);
+    painter.drawImage(0, 0, noise);
+    painter.end();
 
-    this->m_offset += this->m_speed;
+    this->m_offset += this->m_speed * oFrame.height();
 
-    if ((int) this->m_offset >= src.height())
-        this->m_offset = 0;
+    if (this->m_offset >= qreal(src.height()))
+        this->m_offset = 0.0;
+    else if (this->m_offset < 0.0)
+        this->m_offset = src.height();
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

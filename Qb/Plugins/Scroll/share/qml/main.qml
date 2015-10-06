@@ -23,22 +23,51 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 GridLayout {
-    columns: 2
+    columns: 3
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
+    Label {
+        id: lblSpeed
+        text: qsTr("Vertical Sync")
+    }
+    Slider {
+        id: sldSpeed
+        value: Scroll.speed
+        stepSize: 0.01
+        minimumValue: -1
+        maximumValue: 1
+
+        onValueChanged: Scroll.speed = value
+    }
+    SpinBox {
+        id: spbSpeed
+        decimals: 2
+        value: sldSpeed.value
+        minimumValue: sldSpeed.minimumValue
+        maximumValue: sldSpeed.maximumValue
+        stepSize: sldSpeed.stepSize
+
+        onValueChanged: sldSpeed.value = value
     }
 
     Label {
-        text: qsTr("Raster speed")
+        id: lblNoise
+        text: qsTr("Noise")
     }
-    TextField {
-        text: Scroll.speed
-        validator: RegExpValidator {
-            regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
-        }
+    Slider {
+        id: sldNoise
+        value: Scroll.noise
+        stepSize: 0.01
+        maximumValue: 1
 
-        onTextChanged: Scroll.speed = strToFloat(text)
+        onValueChanged: Scroll.noise = value
+    }
+    SpinBox {
+        id: spbNoise
+        decimals: 2
+        value: sldNoise.value
+        maximumValue: sldNoise.maximumValue
+        stepSize: sldNoise.stepSize
+
+        onValueChanged: sldNoise.value = value
     }
 }

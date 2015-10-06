@@ -34,6 +34,11 @@ class ScrollElement: public QbElement
                WRITE setSpeed
                RESET resetSpeed
                NOTIFY speedChanged)
+    Q_PROPERTY(qreal noise
+               READ noise
+               WRITE setNoise
+               RESET resetNoise
+               NOTIFY noiseChanged)
 
     public:
         explicit ScrollElement();
@@ -42,22 +47,26 @@ class ScrollElement: public QbElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE qreal speed() const;
+        Q_INVOKABLE qreal noise() const;
 
     private:
         qreal m_speed;
+        qreal m_noise;
+
         qreal m_offset;
-
         QSize m_curSize;
-        QbElementPtr m_convert;
 
-        void addNoise(QImage &dest);
+        QImage generateNoise(const QSize &size, qreal persent);
 
     signals:
-        void speedChanged();
+        void speedChanged(qreal speed);
+        void noiseChanged(qreal noise);
 
     public slots:
         void setSpeed(qreal speed);
+        void setNoise(qreal noise);
         void resetSpeed();
+        void resetNoise();
         QbPacket iStream(const QbPacket &packet);
 };
 
