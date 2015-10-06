@@ -26,8 +26,18 @@
 class Character
 {
     public:
-        Character(QChar chr, QImage image, int weight):
+        Character():
+            weight(0)
+        {
+        }
+
+        Character(const QChar &chr, const QImage &image, int weight):
             chr(chr), image(image), weight(weight)
+        {
+        }
+
+        Character(const Character &other):
+            chr(other.chr), image(other.image), weight(other.weight)
         {
         }
 

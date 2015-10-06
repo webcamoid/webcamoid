@@ -22,14 +22,21 @@
 
 #include "charifyelement.h"
 
+typedef QMap<CharifyElement::ColorMode, QString> ColorModeToStr;
+
+inline ColorModeToStr initColorModeToStr()
+{
+    ColorModeToStr channelLayouts;
+    channelLayouts[CharifyElement::ColorModeNatural] = "natural";
+    channelLayouts[CharifyElement::ColorModeFixed] = "fixed";
+
+    return channelLayouts;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ColorModeToStr, colorModeToStr, (initColorModeToStr()))
+
 CharifyElement::CharifyElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->m_colorModeToStr[ColorModeNatural] = "natural";
-    this->m_colorModeToStr[ColorModeFixed] = "fixed";
-
     this->m_mode = ColorModeNatural;
 
     for (int i = 32; i < 127; i++)
@@ -39,6 +46,33 @@ CharifyElement::CharifyElement(): QbElement()
     this->m_foregroundColor = qRgb(255, 255, 255);
     this->m_backgroundColor = qRgb(0, 0, 0);
     this->m_reversed = false;
+
+    this->updateCharTable();
+
+    QObject::connect(this,
+                     &CharifyElement::modeChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
+                     &CharifyElement::charTableChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
+                     &CharifyElement::fontChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
+                     &CharifyElement::foregroundColorChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
+                     &CharifyElement::backgroundColorChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
+                     &CharifyElement::reversedChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
 }
 
 QObject *CharifyElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -65,7 +99,7 @@ QObject *CharifyElement::controlInterface(QQmlEngine *engine, const QString &con
 
 QString CharifyElement::mode() const
 {
-    return this->m_colorModeToStr[this->m_mode];
+    return colorModeToStr->value(this->m_mode);
 }
 
 QString CharifyElement::charTable() const
@@ -152,92 +186,60 @@ bool CharifyElement::chrLessThan(const Character &chr1, const Character &chr2)
     return chr1.weight < chr2.weight;
 }
 
-void CharifyElement::createCharTable(ColorMode mode, const QString &charTable,
-                                     const QFont &font,
-                                     QRgb foreground, QRgb background,
-                                     bool reversed)
-{
-    QList<Character> characters;
-    this->m_fontSize = this->fontSize(charTable, font);
-
-    QVector<QRgb> colorTable(256);
-
-    for (int i = 0; i < 256; i++)
-        colorTable[i] = qRgb(i, i, i);
-
-    foreach (QChar chr, charTable) {
-        QImage image = drawChar(chr, font, this->m_fontSize, foreground, background);
-        int weight = this->imageWeight(image, reversed);
-
-        if (mode == ColorModeFixed)
-            characters.append(Character(chr, image, weight));
-        else
-            characters.append(Character(chr, QImage(), weight));
-    }
-
-    qSort(characters.begin(), characters.end(), this->chrLessThan);
-
-    this->m_characters.clear();
-
-    if (characters.isEmpty())
-        return;
-
-    for (int i = 0; i < 256; i++) {
-        int c = i * (characters.size() - 1) / 255;
-        this->m_characters.append(characters[c]);
-    }
-}
-
 void CharifyElement::setMode(const QString &mode)
 {
-    ColorMode modeEnum = this->m_colorModeToStr.values().contains(mode)?
-                             this->m_colorModeToStr.key(mode):
-                             ColorModeNatural;
+    ColorMode modeEnum = colorModeToStr->key(mode, ColorModeNatural);
 
-    if (modeEnum != this->m_mode) {
-        this->m_mode = modeEnum;
-        emit this->modeChanged();
-    }
+    if (this->m_mode == modeEnum)
+        return;
+
+    this->m_mode = modeEnum;
+    emit this->modeChanged(mode);
 }
 
 void CharifyElement::setCharTable(const QString &charTable)
 {
-    if (charTable != this->m_charTable) {
-        this->m_charTable = charTable;
-        emit this->charTableChanged();
-    }
+    if (this->m_charTable == charTable)
+        return;
+
+    this->m_charTable = charTable;
+    emit this->charTableChanged(charTable);
 }
 
 void CharifyElement::setFont(const QFont &font)
 {
-    if (font != this->m_font) {
-        this->m_font = font;
-        emit this->fontChanged();
-    }
+    if (this->m_font == font)
+        return;
+
+    this->m_font = font;
+    emit this->fontChanged(font);
 }
 
 void CharifyElement::setForegroundColor(QRgb foregroundColor)
 {
-    if (foregroundColor != this->m_foregroundColor) {
-        this->m_foregroundColor = foregroundColor;
-        emit this->foregroundColorChanged();
-    }
+    if (this->m_foregroundColor == foregroundColor)
+        return;
+
+    this->m_foregroundColor = foregroundColor;
+    emit this->foregroundColorChanged(foregroundColor);
 }
 
 void CharifyElement::setBackgroundColor(QRgb backgroundColor)
 {
-    if (backgroundColor != this->m_backgroundColor) {
-        this->m_backgroundColor = backgroundColor;
-        emit this->backgroundColorChanged();
-    }
+    if (this->m_backgroundColor == backgroundColor)
+        return;
+
+    this->m_backgroundColor = backgroundColor;
+    emit this->backgroundColorChanged(backgroundColor);
 }
 
 void CharifyElement::setReversed(bool reversed)
 {
-    if (reversed != this->m_reversed) {
-        this->m_reversed = reversed;
-        emit this->reversedChanged();
-    }
+    if (this->m_reversed == reversed)
+        return;
+
+    this->m_reversed = reversed;
+    emit this->reversedChanged(reversed);
 }
 
 void CharifyElement::resetMode()
@@ -277,57 +279,33 @@ void CharifyElement::resetReversed()
 
 QbPacket CharifyElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    static ColorMode mode;
-    static QString charTable;
-    static QFont font;
-    static QRgb foregroundColor = -1;
-    static QRgb backgroundColor = -1;
-    static bool reversed = false;
+    src = src.convertToFormat(QImage::Format_ARGB32);
 
-    if (packet.caps() != this->m_caps
-        || this->m_mode != mode
-        || this->m_charTable != charTable
-        || this->m_font!= font
-        || this->m_foregroundColor!= foregroundColor
-        || this->m_backgroundColor!= backgroundColor
-        || this->m_reversed != reversed) {
-        this->createCharTable(this->m_mode,
-                              this->m_charTable,
-                              this->m_font,
-                              this->m_foregroundColor,
-                              this->m_backgroundColor,
-                              this->m_reversed);
+    this->m_mutex.lock();
+    QSize fontSize = this->m_fontSize;
+    QVector<Character> characters = this->m_characters;
+    this->m_mutex.unlock();
 
-        this->m_caps = packet.caps();
-        mode = this->m_mode;
-        charTable = this->m_charTable;
-        font = this->m_font;
-        foregroundColor = this->m_foregroundColor;
-        backgroundColor = this->m_backgroundColor;
-        reversed = this->m_reversed;
-    }
+    int textWidth = src.width() / fontSize.width();
+    int textHeight = src.height() / fontSize.height();
 
-    int textWidth = src.width() / this->m_fontSize.width();
-    int textHeight = src.height() / this->m_fontSize.height();
+    int outWidth = textWidth * fontSize.width();
+    int outHeight = textHeight * fontSize.height();
 
-    int outWidth = textWidth * this->m_fontSize.width();
-    int outHeight = textHeight * this->m_fontSize.height();
+    QImage oFrame(outWidth, outHeight, src.format());
 
-    QImage oFrame(outWidth, outHeight, QImage::Format_RGB32);
-
-    if (this->m_characters.isEmpty()) {
+    if (characters.isEmpty()) {
         oFrame.fill(qRgb(0, 0, 0));
-        QbPacket oPacket = QbUtils::imageToPacket(oFrame.scaled(src.size()), iPacket);
+        QbPacket oPacket = QbUtils::imageToPacket(oFrame.scaled(src.size()), packet);
         qbSend(oPacket)
     }
 
-    QImage textImage = src.scaled(textWidth, textHeight).convertToFormat(QImage::Format_RGB32);
+    QImage textImage = src.scaled(textWidth, textHeight);
     const QRgb *textImageBits = (const QRgb *) textImage.constBits();
     int textArea = textImage.width() * textImage.height();
     QPainter painter;
@@ -335,21 +313,64 @@ QbPacket CharifyElement::iStream(const QbPacket &packet)
     painter.begin(&oFrame);
 
     for (int i = 0; i < textArea; i++) {
-        int x = this->m_fontSize.width() * (i % textWidth);
-        int y = this->m_fontSize.height() * (i / textWidth);
+        int x = fontSize.width() * (i % textWidth);
+        int y = fontSize.height() * (i / textWidth);
 
         if (this->m_mode == ColorModeFixed)
-            painter.drawImage(x, y, this->m_characters[qGray(textImageBits[i])].image);
+            painter.drawImage(x, y, characters[qGray(textImageBits[i])].image);
         else {
-            QChar chr = this->m_characters[qGray(textImageBits[i])].chr;
+            QChar chr = characters[qGray(textImageBits[i])].chr;
             QRgb foreground = textImageBits[i];
-            QImage image = drawChar(chr, this->m_font, this->m_fontSize, foreground, this->m_backgroundColor);
+            QImage image = drawChar(chr, this->m_font, fontSize, foreground, this->m_backgroundColor);
             painter.drawImage(x, y, image);
         }
     }
 
     painter.end();
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
+}
+
+void CharifyElement::updateCharTable()
+{
+    QList<Character> characters;
+    QSize fontSize = this->fontSize(this->m_charTable, this->m_font);
+
+    QVector<QRgb> colorTable(256);
+
+    for (int i = 0; i < 256; i++)
+        colorTable[i] = qRgb(i, i, i);
+
+    foreach (QChar chr, this->m_charTable) {
+        QImage image = drawChar(chr,
+                                this->m_font,
+                                fontSize,
+                                this->m_foregroundColor,
+                                this->m_backgroundColor);
+        int weight = this->imageWeight(image, this->m_reversed);
+
+        if (this->m_mode == ColorModeFixed)
+            characters.append(Character(chr, image, weight));
+        else
+            characters.append(Character(chr, QImage(), weight));
+    }
+
+    QMutexLocker(&this->m_mutex);
+
+    this->m_fontSize = fontSize;
+
+    if (characters.isEmpty()) {
+        this->m_characters.clear();
+
+        return;
+    }
+
+    this->m_characters.resize(256);
+    qSort(characters.begin(), characters.end(), this->chrLessThan);
+
+    for (int i = 0; i < 256; i++) {
+        int c = i * (characters.size() - 1) / 255;
+        this->m_characters[i] = characters[c];
+    }
 }

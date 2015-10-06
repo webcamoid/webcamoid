@@ -22,6 +22,7 @@
 #define CHARIFYELEMENT_H
 
 #include <QPainter>
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -91,11 +92,9 @@ class CharifyElement: public QbElement
         QRgb m_backgroundColor;
         bool m_reversed;
 
-        QbCaps m_caps;
-        QbElementPtr m_convert;
-        QMap<ColorMode, QString> m_colorModeToStr;
-        QList<Character> m_characters;
+        QVector<Character> m_characters;
         QSize m_fontSize;
+        QMutex m_mutex;
 
         QSize fontSize(const QString &chrTable, const QFont &font) const;
         QImage drawChar(const QChar &chr, const QFont &font,
@@ -103,16 +102,14 @@ class CharifyElement: public QbElement
                         QRgb foreground, QRgb background) const;
         int imageWeight(const QImage &image, bool reversed) const;
         static bool chrLessThan(const Character &chr1, const Character &chr2);
-        void createCharTable(ColorMode mode, const QString &charTable,
-                             const QFont &font, QRgb foreground, QRgb background, bool reversed);
 
     signals:
-        void modeChanged();
-        void charTableChanged();
-        void fontChanged();
-        void foregroundColorChanged();
-        void backgroundColorChanged();
-        void reversedChanged();
+        void modeChanged(const QString &mode);
+        void charTableChanged(const QString &charTable);
+        void fontChanged(const QFont &font);
+        void foregroundColorChanged(QRgb foregroundColor);
+        void backgroundColorChanged(QRgb backgroundColor);
+        void reversedChanged(bool reversed);
 
     public slots:
         void setMode(const QString &mode);
@@ -129,6 +126,9 @@ class CharifyElement: public QbElement
         void resetReversed();
 
         QbPacket iStream(const QbPacket &packet);
+
+    private slots:
+        void updateCharTable();
 };
 
 #endif // CHARIFYELEMENT_H
