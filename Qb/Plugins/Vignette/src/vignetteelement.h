@@ -22,6 +22,7 @@
 #define VIGNETTEELEMENT_H
 
 #include <cmath>
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -30,16 +31,21 @@
 class VignetteElement: public QbElement
 {
     Q_OBJECT
+    Q_PROPERTY(QRgb color
+               READ color
+               WRITE setColor
+               RESET resetColor
+               NOTIFY colorChanged)
     Q_PROPERTY(qreal aspect
                READ aspect
                WRITE setAspect
                RESET resetAspect
                NOTIFY aspectChanged)
-    Q_PROPERTY(qreal clearCenter
-               READ clearCenter
-               WRITE setClearCenter
-               RESET resetClearCenter
-               NOTIFY clearCenterChanged)
+    Q_PROPERTY(qreal scale
+               READ scale
+               WRITE setScale
+               RESET resetScale
+               NOTIFY scaleChanged)
     Q_PROPERTY(qreal softness
                READ softness
                WRITE setSoftness
@@ -52,34 +58,64 @@ class VignetteElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
+        Q_INVOKABLE QRgb color() const;
         Q_INVOKABLE qreal aspect() const;
-        Q_INVOKABLE qreal clearCenter() const;
+        Q_INVOKABLE qreal scale() const;
         Q_INVOKABLE qreal softness() const;
 
     private:
+        QRgb m_color;
         qreal m_aspect;
-        qreal m_clearCenter;
+        qreal m_scale;
         qreal m_softness;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
-        QVector<qreal> m_vignette;
+        QSize m_curSize;
+        QImage m_vignette;
+        QMutex m_mutex;
 
-        QVector<qreal> updateVignette(int width, int height);
+        inline qreal radius(qreal a, qreal b,
+                            qreal x, qreal y)
+        {
+            if (x == 0.0)
+                return b;
+
+            if (a == 0.0 || b == 0.0)
+                return 0;
+
+            qreal qa = a * a;
+            qreal qb = b * b;
+            qreal tg = y / x;
+            qreal qtg = tg * tg;
+            qreal qr = (1.0 + qtg) / (1.0 / qa + qtg / qb);
+
+            return sqrt(qr);
+        }
+
+        inline qreal radius(qreal x, qreal y)
+        {
+            return sqrt(x * x + y * y);
+        }
 
     signals:
-        void aspectChanged();
-        void clearCenterChanged();
-        void softnessChanged();
+        void colorChanged(QRgb color);
+        void aspectChanged(qreal aspect);
+        void scaleChanged(qreal scale);
+        void softnessChanged(qreal softness);
+        void curSizeChanged(const QSize &curSize);
 
     public slots:
+        void setColor(QRgb color);
         void setAspect(qreal aspect);
-        void setClearCenter(qreal clearCenter);
+        void setScale(qreal scale);
         void setSoftness(qreal softness);
+        void resetColor();
         void resetAspect();
-        void resetClearCenter();
+        void resetScale();
         void resetSoftness();
         QbPacket iStream(const QbPacket &packet);
+
+    private slots:
+        void updateVignette();
 };
 
 #endif // VIGNETTEELEMENT_H

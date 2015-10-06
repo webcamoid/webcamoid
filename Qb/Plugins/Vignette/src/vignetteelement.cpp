@@ -18,16 +18,37 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QPainter>
+
 #include "vignetteelement.h"
 
 VignetteElement::VignetteElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
+    this->m_color = qRgb(0, 0, 0);
+    this->m_aspect = 3.0 / 7.0;
+    this->m_scale = 0.5;
+    this->m_softness = 0.5;
 
-    this->resetAspect();
-    this->resetClearCenter();
-    this->resetSoftness();
+    QObject::connect(this,
+                     &VignetteElement::colorChanged,
+                     this,
+                     &VignetteElement::updateVignette);
+    QObject::connect(this,
+                     &VignetteElement::aspectChanged,
+                     this,
+                     &VignetteElement::updateVignette);
+    QObject::connect(this,
+                     &VignetteElement::scaleChanged,
+                     this,
+                     &VignetteElement::updateVignette);
+    QObject::connect(this,
+                     &VignetteElement::softnessChanged,
+                     this,
+                     &VignetteElement::updateVignette);
+    QObject::connect(this,
+                     &VignetteElement::curSizeChanged,
+                     this,
+                     &VignetteElement::updateVignette);
 }
 
 QObject *VignetteElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -52,14 +73,19 @@ QObject *VignetteElement::controlInterface(QQmlEngine *engine, const QString &co
     return item;
 }
 
+QRgb VignetteElement::color() const
+{
+    return this->m_color;
+}
+
 qreal VignetteElement::aspect() const
 {
     return this->m_aspect;
 }
 
-qreal VignetteElement::clearCenter() const
+qreal VignetteElement::scale() const
 {
-    return this->m_clearCenter;
+    return this->m_scale;
 }
 
 qreal VignetteElement::softness() const
@@ -67,139 +93,164 @@ qreal VignetteElement::softness() const
     return this->m_softness;
 }
 
-QVector<qreal> VignetteElement::updateVignette(int width, int height)
+void VignetteElement::setColor(QRgb color)
 {
-    qreal soft = 5 * pow(1.0 - this->m_softness, 2) + 0.01;
-    qreal scaleX = 1;
-    qreal scaleY = 1;
+    if (this->m_color == color)
+        return;
 
-    // Distance from 0.5 (\in [0,0.5]) scaled to [0,1]
-    qreal scale = qAbs(this->m_aspect - 0.5) * 2;
-
-    // Map scale to [0,5] in a way that values near 0 can be adjusted more precisely
-    scale = 1 + 4 * pow(scale, 3);
-
-    // Scale either x or y, depending on the aspect value being above or below 0.5
-    if (this->m_aspect > 0.5)
-        scaleX = scale;
-    else
-        scaleY = scale;
-
-    int cx = width >> 1;
-    int cy = height >> 1;
-    qreal rmax = sqrt(cx * cx + cy * cy);
-
-    QVector<qreal> vignette(width * height);
-
-    for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++) {
-            // Euclidian distance to the center, normalized to [0,1]
-            qreal tx = scaleX * (x - cx);
-            qreal ty = scaleY * (y - cy);
-            qreal r = sqrt(tx * tx + ty * ty) / rmax;
-
-            // Subtract the clear center
-            r -= this->m_clearCenter;
-
-            if (r <= 0)
-                // Clear center: Do not modify the brightness here
-                vignette[y * width + x] = 1;
-            else {
-                r *= soft;
-
-                if (r > M_PI_2)
-                    vignette[y * width + x] = 0;
-                else
-                    vignette[y * width + x] = pow(cos(r), 4);
-            }
-        }
-
-    return vignette;
+    this->m_color = color;
+    emit this->colorChanged(color);
 }
 
 void VignetteElement::setAspect(qreal aspect)
 {
-    if (aspect != this->m_aspect) {
-        this->m_aspect = aspect;
-        emit this->aspectChanged();
-    }
+    if (this->m_aspect == aspect)
+        return;
+
+    this->m_aspect = aspect;
+    emit this->aspectChanged(aspect);
 }
 
-void VignetteElement::setClearCenter(qreal clearCenter)
+void VignetteElement::setScale(qreal scale)
 {
-    if (clearCenter != this->m_clearCenter) {
-        this->m_clearCenter = clearCenter;
-        emit this->clearCenterChanged();
-    }
+    if (this->m_scale == scale)
+        return;
+
+    this->m_scale = scale;
+    emit this->scaleChanged(scale);
 }
 
 void VignetteElement::setSoftness(qreal softness)
 {
-    if (softness != this->m_softness) {
-        this->m_softness = softness;
-        emit this->softnessChanged();
-    }
+    if (this->m_softness == softness)
+        return;
+
+    this->m_softness = softness;
+    emit this->softnessChanged(softness);
+}
+
+void VignetteElement::resetColor()
+{
+    this->setColor(qRgb(0, 0, 0));
 }
 
 void VignetteElement::resetAspect()
 {
-    this->setAspect(0.5);
+    this->setAspect(3.0 / 7.0);
 }
 
-void VignetteElement::resetClearCenter()
+void VignetteElement::resetScale()
 {
-    this->setClearCenter(0);
+    this->setScale(0.5);
 }
 
 void VignetteElement::resetSoftness()
 {
-    this->setSoftness(0.6);
+    this->setSoftness(0.5);
 }
 
 QbPacket VignetteElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    int videoArea = src.width() * src.height();
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
-    QImage oFrame = QImage(src.size(), src.format());
-
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
-
-    static qreal aspect = qQNaN();
-    static qreal clearCenter = qQNaN();
-    static qreal softness = qQNaN();
-
-    if (packet.caps() != this->m_caps
-        || this->m_aspect != aspect
-        || this->m_clearCenter != clearCenter
-        || this->m_softness != softness) {
-        this->m_vignette = this->updateVignette(src.width(), src.height());
-
-        this->m_caps = packet.caps();
-        aspect = this->m_aspect;
-        clearCenter = this->m_clearCenter;
-        softness = this->m_softness;
+    if (src.size() != this->m_curSize) {
+        this->m_curSize = src.size();
+        emit this->curSizeChanged(this->m_curSize);
     }
 
-    // Darken the pixels by multiplying with the vignette's factor
-    for (int i = 0; i < videoArea; i++) {
-        int r = this->m_vignette[i] * qRed(srcBits[i]);
-        int g = this->m_vignette[i] * qGreen(srcBits[i]);
-        int b = this->m_vignette[i] * qBlue(srcBits[i]);
+    this->m_mutex.lock();
+    QImage vignette = this->m_vignette;
+    this->m_mutex.unlock();
 
-        r = qBound(0, r, 255);
-        g = qBound(0, g, 255);
-        b = qBound(0, b, 255);
+    QPainter painter;
+    painter.begin(&oFrame);
+    painter.drawImage(0, 0, vignette);
+    painter.end();
 
-        destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
-    }
-
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
+}
+
+void VignetteElement::updateVignette()
+{
+    this->m_mutex.lock();
+
+    QSize curSize = this->m_curSize;
+    QImage vignette(curSize, QImage::Format_ARGB32);
+
+    // Center of the ellipse.
+    int xc = vignette.width() / 2;
+    int yc = vignette.height() / 2;
+
+    qreal aspect = qBound(0.0, this->m_aspect, 1.0);
+    qreal rho = qBound(0.01, this->m_aspect, 0.99);
+
+    // Calculate the maximum scale to clear the vignette.
+    qreal scale = this->m_scale * sqrt(1.0 / pow(rho, 2)
+                                       + 1.0 / pow(1.0 - rho, 2));
+
+    // Calculate radius.
+    qreal a = scale * aspect * xc;
+    qreal b = scale * (1.0 - aspect) * yc;
+
+    // Prevent divide by zero.
+    if (a < 0.01)
+        a = 0.01;
+
+    if (b < 0.01)
+        b = 0.01;
+
+    qreal qa = a * a;
+    qreal qb = b * b;
+    qreal qab = qa * qb;
+
+    int softness = 255.0 * (2.0 * this->m_softness - 1.0);
+
+    int red = qRed(this->m_color);
+    int green = qGreen(this->m_color);
+    int blue = qBlue(this->m_color);
+    int alpha = qAlpha(this->m_color);
+
+    // Get the radius to a corner.
+    qreal dwa = xc / a;
+    qreal dhb = yc / b;
+    qreal maxRadius = this->radius(dwa, dhb);
+
+    this->m_mutex.unlock();
+
+    for (int y = 0; y < vignette.height(); y++) {
+        QRgb *line = (QRgb *) vignette.scanLine(y);
+        int dy = y - yc;
+        qreal qdy = dy * dy;
+        qreal dyb = dy / b;
+
+        for (int x = 0; x < vignette.width(); x++) {
+            int dx = x - xc;
+            qreal qdx = dx * dx;
+            qreal dxa = qreal(dx) / a;
+
+            if (qb * qdx + qa * qdy < qab
+                && a != 0 && b != 0)
+                // If the point is inside the ellipse,
+                // show the original pixel.
+                line[x] = qRgba(0, 0, 0, 0);
+            else {
+                // The opacity of the pixel depends on the relation between
+                // it's radius and the corner radius.
+                qreal k = this->radius(dxa, dyb) / maxRadius;
+                int opacity = k * alpha - softness;
+                opacity = qBound(0, opacity, 255);
+                line[x] = qRgba(red, green, blue, opacity);
+            }
+        }
+    }
+
+    this->m_mutex.lock();
+    this->m_vignette = vignette;
+    this->m_mutex.unlock();
 }
