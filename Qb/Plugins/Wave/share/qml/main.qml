@@ -25,12 +25,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
 GridLayout {
-    columns: 2
-
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
+    columns: 3
 
     function fromRgba(rgba)
     {
@@ -57,27 +52,63 @@ GridLayout {
     }
 
     Label {
+        id: lblAmplitude
         text: qsTr("Amplitude")
     }
-    TextField {
-        text: Wave.amplitude
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldAmplitude
+        value: Wave.amplitude
+        stepSize: 0.01
+        maximumValue: 1
 
-        onTextChanged: Wave.amplitude = strToFloat(text)
+        onValueChanged: Wave.amplitude = value
+    }
+    SpinBox {
+        id: spbAmplitude
+        decimals: 2
+        value: sldAmplitude.value
+        maximumValue: sldAmplitude.maximumValue
+        stepSize: sldAmplitude.stepSize
+
+        onValueChanged: sldAmplitude.value = value
     }
 
     Label {
+        id: lblFrequency
         text: qsTr("Frequency")
     }
-    TextField {
-        text: Wave.phases
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    SpinBox {
+        id: spbFrequency
+        decimals: 2
+        value: Wave.frequency
+        maximumValue: 100
+        stepSize: 0.01
 
-        onTextChanged: Wave.phases = strToFloat(text)
+        onValueChanged: Wave.frequency = value
+    }
+    Label {
+    }
+
+    Label {
+        id: lblPhase
+        text: qsTr("Phase")
+    }
+    Slider {
+        id: sldPhase
+        value: Wave.phase
+        stepSize: 0.01
+        maximumValue: 1
+
+        onValueChanged: Wave.phase = value
+    }
+    SpinBox {
+        id: spbPhase
+        decimals: 2
+        value: sldPhase.value
+        maximumValue: sldPhase.maximumValue
+        stepSize: sldPhase.stepSize
+
+        onValueChanged: sldPhase.value = value
     }
 
     Label {
@@ -105,6 +136,8 @@ GridLayout {
             colorDialog.currentColor = fromRgba(Wave.background)
             colorDialog.open()
         }
+    }
+    Label {
     }
 
     ColorDialog {

@@ -22,6 +22,7 @@
 #define WAVEELEMENT_H
 
 #include <cmath>
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -35,11 +36,16 @@ class WaveElement: public QbElement
                WRITE setAmplitude
                RESET resetAmplitude
                NOTIFY amplitudeChanged)
-    Q_PROPERTY(qreal phases
-               READ phases
-               WRITE setPhases
-               RESET resetPhases
-               NOTIFY phasesChanged)
+    Q_PROPERTY(qreal frequency
+               READ frequency
+               WRITE setFrequency
+               RESET resetFrequency
+               NOTIFY frequencyChanged)
+    Q_PROPERTY(qreal phase
+               READ phase
+               WRITE setPhase
+               RESET resetPhase
+               NOTIFY phaseChanged)
     Q_PROPERTY(QRgb background
                READ background
                WRITE setBackground
@@ -53,81 +59,40 @@ class WaveElement: public QbElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE qreal amplitude() const;
-        Q_INVOKABLE qreal phases() const;
+        Q_INVOKABLE qreal frequency() const;
+        Q_INVOKABLE qreal phase() const;
         Q_INVOKABLE QRgb background() const;
 
     private:
         qreal m_amplitude;
-        qreal m_phases;
+        qreal m_frequency;
+        qreal m_phase;
         QRgb m_background;
-        QbElementPtr m_convert;
 
-        inline uint interpolateBackground(const QImage &img, qreal xOffset, qreal yOffset, QRgb background) const
-        {
-            int width = img.width();
-            int height = img.height();
-            int x = xOffset;
-            int y = yOffset;
-
-            uint p = background;
-            uint q = background;
-            uint r = background;
-            uint s = background;
-
-            QRgb *ptr = (QRgb *) img.bits();
-
-            if (y >= 0 && y < height && x >= 0 && x < width) {
-                p = *(((QRgb *) ptr) + (y * width) + x);
-
-                if (y + 1 < height)
-                    r = *(((QRgb *) ptr) + ((y + 1) * width) + x);
-
-                if (x + 1 < width) {
-                    q = *(((QRgb *) ptr) + (y * width) + x + 1);
-
-                    if (y + 1 < height)
-                        q = *(((QRgb *) ptr) + ((y + 1) * width) + x + 1);
-                }
-            }
-
-            xOffset -= floor(xOffset);
-            yOffset -= floor(yOffset);
-            uint alpha = (uint) (255 * xOffset);
-            uint beta = (uint) (255 * yOffset);
-
-            p = this->interpolate255(p, 255 - alpha, q, alpha);
-            r = this->interpolate255(r, 255 - alpha, s, alpha);
-
-            return this->interpolate255(p, 255 - beta, r, beta);
-        }
-
-        inline QRgb interpolate255(QRgb x, uint a, QRgb y, uint b) const
-        {
-            uint t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
-            t = (t + ((t >> 8) & 0xff00ff) + 0x800080) >> 8;
-            t &= 0xff00ff;
-
-            x = ((x >> 8) & 0xff00ff) * a + ((y >> 8) & 0xff00ff) * b;
-            x = (x + ((x >> 8) & 0xff00ff) + 0x800080);
-            x &= 0xff00ff00;
-            x |= t;
-
-            return x;
-        }
+        QSize m_frameSize;
+        QVector<int> m_sineMap;
+        QMutex m_mutex;
 
     signals:
-        void amplitudeChanged();
-        void phasesChanged();
-        void backgroundChanged();
+        void amplitudeChanged(qreal amplitude);
+        void frequencyChanged(qreal frequency);
+        void phaseChanged(qreal phase);
+        void backgroundChanged(QRgb background);
+        void frameSizeChanged(const QSize &frameSize);
 
     public slots:
         void setAmplitude(qreal amplitude);
-        void setPhases(qreal phases);
+        void setFrequency(qreal frequency);
+        void setPhase(qreal phase);
         void setBackground(QRgb background);
         void resetAmplitude();
-        void resetPhases();
+        void resetFrequency();
+        void resetPhase();
         void resetBackground();
         QbPacket iStream(const QbPacket &packet);
+
+    private slots:
+        void updateSineMap();
 };
 
 #endif // WAVEELEMENT_H

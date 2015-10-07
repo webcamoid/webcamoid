@@ -83,16 +83,14 @@ class RippleElement: public QbElement
         int m_threshold;
         int m_lumaThreshold;
 
-        QbElementPtr m_convert;
         QbCaps m_caps;
         QImage m_prevFrame;
         QVector<QImage> m_rippleBuffer;
         int m_curRippleBuffer;
-        QMap<RippleMode, QString> m_rippleModeToStr;
 
         int m_period;
         int m_rainStat;
-        unsigned int m_dropProb;
+        uint m_dropProb;
         int m_dropProbIncrement;
         int m_dropsPerFrameMax;
         int m_dropsPerFrame;
@@ -137,11 +135,11 @@ class RippleElement: public QbElement
         }
 
     signals:
-        void modeChanged();
-        void amplitudeChanged();
-        void decayChanged();
-        void thresholdChanged();
-        void lumaThresholdChanged();
+        void modeChanged(const QString &mode);
+        void amplitudeChanged(int amplitude);
+        void decayChanged(int decay);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
 
     public slots:
         void setMode(const QString &mode);

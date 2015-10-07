@@ -26,11 +26,11 @@ typedef QMap<CharifyElement::ColorMode, QString> ColorModeToStr;
 
 inline ColorModeToStr initColorModeToStr()
 {
-    ColorModeToStr channelLayouts;
-    channelLayouts[CharifyElement::ColorModeNatural] = "natural";
-    channelLayouts[CharifyElement::ColorModeFixed] = "fixed";
+    ColorModeToStr colorModeToStr;
+    colorModeToStr[CharifyElement::ColorModeNatural] = "natural";
+    colorModeToStr[CharifyElement::ColorModeFixed] = "fixed";
 
-    return channelLayouts;
+    return colorModeToStr;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(ColorModeToStr, colorModeToStr, (initColorModeToStr()))

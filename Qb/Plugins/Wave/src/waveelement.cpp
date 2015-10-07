@@ -22,12 +22,31 @@
 
 WaveElement::WaveElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
+    this->m_amplitude = 0.12;
+    this->m_frequency = 8;
+    this->m_phase = 0.0;
+    this->m_background = qRgb(0, 0, 0);
 
-    this->resetAmplitude();
-    this->resetPhases();
-    this->resetBackground();
+    QObject::connect(this,
+                     &WaveElement::amplitudeChanged,
+                     this,
+                     &WaveElement::updateSineMap);
+    QObject::connect(this,
+                     &WaveElement::frequencyChanged,
+                     this,
+                     &WaveElement::updateSineMap);
+    QObject::connect(this,
+                     &WaveElement::phaseChanged,
+                     this,
+                     &WaveElement::updateSineMap);
+    QObject::connect(this,
+                     &WaveElement::backgroundChanged,
+                     this,
+                     &WaveElement::updateSineMap);
+    QObject::connect(this,
+                     &WaveElement::frameSizeChanged,
+                     this,
+                     &WaveElement::updateSineMap);
 }
 
 QObject *WaveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -57,9 +76,14 @@ qreal WaveElement::amplitude() const
     return this->m_amplitude;
 }
 
-qreal WaveElement::phases() const
+qreal WaveElement::frequency() const
 {
-    return this->m_phases;
+    return this->m_frequency;
+}
+
+qreal WaveElement::phase() const
+{
+    return this->m_phase;
 }
 
 QRgb WaveElement::background() const
@@ -69,72 +93,136 @@ QRgb WaveElement::background() const
 
 void WaveElement::setAmplitude(qreal amplitude)
 {
-    if (amplitude != this->m_amplitude) {
-        this->m_amplitude = amplitude;
-        emit this->amplitudeChanged();
-    }
+    if (amplitude == this->m_amplitude)
+        return;
+
+    this->m_amplitude = amplitude;
+    emit this->amplitudeChanged(amplitude);
 }
 
-void WaveElement::setPhases(qreal phases)
+void WaveElement::setFrequency(qreal frequency)
 {
-    if (phases != this->m_phases) {
-        this->m_phases = phases;
-        emit this->phasesChanged();
-    }
+    if (frequency == this->m_frequency)
+        return;
+
+    this->m_frequency = frequency;
+    emit this->frequencyChanged(frequency);
+}
+
+void WaveElement::setPhase(qreal phase)
+{
+    if (this->m_phase == phase)
+        return;
+
+    this->m_phase = phase;
+    emit this->phaseChanged(phase);
 }
 
 void WaveElement::setBackground(QRgb background)
 {
-    if (background != this->m_background) {
-        this->m_background = background;
-        emit this->backgroundChanged();
-    }
+    if (background == this->m_background)
+        return;
+
+    this->m_background = background;
+    emit this->backgroundChanged(background);
 }
 
 void WaveElement::resetAmplitude()
 {
-    this->setAmplitude(16);
+    this->setAmplitude(0.12);
 }
 
-void WaveElement::resetPhases()
+void WaveElement::resetFrequency()
 {
-    this->setPhases(8);
+    this->setFrequency(8);
+}
+
+void WaveElement::resetPhase()
+{
+    this->setPhase(0.0);
 }
 
 void WaveElement::resetBackground()
 {
-    this->setBackground(0);
+    this->setBackground(qRgb(0, 0, 0));
 }
 
 QbPacket WaveElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    QImage oFrame(src.width(),
-                  src.height() + 2 * qAbs(this->m_amplitude),
-                  src.format());
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    qreal amplitude = this->m_amplitude;
 
-    qreal sineMap[oFrame.width()];
+    QImage oFrame(src.width(), src.height(), src.format());
+    oFrame.fill(this->m_background);
 
-    for (int x = 0; x < oFrame.width(); x++)
-        sineMap[x] = qAbs(this->m_amplitude)
-                      + this->m_amplitude
-                      * sin((this->m_phases * 2.0 * M_PI * x) / oFrame.width());
-
-    for (int y = 0; y < oFrame.height(); y++) {
-        QRgb *dest = (QRgb *) oFrame.scanLine(y);
-
-        for (int x = 0; x < oFrame.width(); x++)
-            *dest++ = this->interpolateBackground(src,
-                                                  x,
-                                                  y - sineMap[x],
-                                                  this->m_background);
+    if (amplitude <= 0.0)
+        qbSend(packet)
+    else if (amplitude >= 1.0) {
+        QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
+        qbSend(oPacket)
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    if (src.size() != this->m_frameSize) {
+        this->m_frameSize = src.size();
+        emit this->frameSizeChanged(src.size());
+    }
+
+    this->m_mutex.lock();
+    QVector<int> sineMap(this->m_sineMap);
+    this->m_mutex.unlock();
+
+    if (sineMap.isEmpty())
+        qbSend(packet)
+
+    for (int y = 0; y < oFrame.height(); y++) {
+        // Get input line.
+        int yi = y / (1.0 - amplitude);
+
+        if (yi < 0
+            || yi >= src.height())
+            continue;
+
+        QRgb *iLine = (QRgb *) src.scanLine(yi);
+
+        for (int x = 0; x < oFrame.width(); x++) {
+            // Get output line.
+            int yo = y  + sineMap[x];
+
+            if (yo < 0
+                || yo >= src.height())
+                continue;
+
+            QRgb *oLine = (QRgb *) oFrame.scanLine(yo);
+            oLine[x] = iLine[x];
+        }
+    }
+
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
+}
+
+void WaveElement::updateSineMap()
+{
+    if (this->m_frameSize.isEmpty())
+        return;
+
+    int width = this->m_frameSize.width();
+    int height = this->m_frameSize.height();
+    QVector<int> sineMap(width);
+    qreal phase = 2.0 * M_PI * this->m_phase;
+
+    for (int x = 0; x < width; x++)
+        sineMap[x] = 0.5 * this->m_amplitude * height
+                     * (sin(this->m_frequency * 2.0 * M_PI * x / width
+                            + phase)
+                        + 1.0);
+
+    this->m_mutex.lock();
+    this->m_sineMap = sineMap;
+    this->m_mutex.unlock();
 }

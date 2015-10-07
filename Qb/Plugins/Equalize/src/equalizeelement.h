@@ -31,9 +31,6 @@ class EqualizeElement: public QbElement
     public:
         explicit EqualizeElement();
 
-    private:
-        QbElementPtr m_convert;
-
     public slots:
         QbPacket iStream(const QbPacket &packet);
 };

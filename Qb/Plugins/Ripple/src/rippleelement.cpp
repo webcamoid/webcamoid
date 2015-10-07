@@ -20,19 +20,26 @@
 
 #include "rippleelement.h"
 
+typedef QMap<RippleElement::RippleMode, QString> RippleModeToStr;
+
+inline RippleModeToStr initRippleModeToStr()
+{
+    RippleModeToStr rippleModeToStr;
+    rippleModeToStr[RippleElement::RippleModeMotionDetect] = "motionDetect";
+    rippleModeToStr[RippleElement::RippleModeRain] = "rain";
+
+    return rippleModeToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(RippleModeToStr, rippleModeToStr, (initRippleModeToStr()))
+
 RippleElement::RippleElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->m_rippleModeToStr[RippleModeMotionDetect] = "motionDetect";
-    this->m_rippleModeToStr[RippleModeRain] = "rain";
-
-    this->resetMode();
-    this->resetAmplitude();
-    this->resetDecay();
-    this->resetThreshold();
-    this->resetLumaThreshold();
+    this->m_mode = RippleModeMotionDetect;
+    this->m_amplitude = 256;
+    this->m_decay = 8;
+    this->m_threshold = 15;
+    this->m_lumaThreshold = 15;
 }
 
 QObject *RippleElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -59,7 +66,7 @@ QObject *RippleElement::controlInterface(QQmlEngine *engine, const QString &cont
 
 QString RippleElement::mode() const
 {
-    return this->m_rippleModeToStr[this->m_mode];
+    return rippleModeToStr->value(this->m_mode);
 }
 
 int RippleElement::amplitude() const
@@ -317,46 +324,49 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
 
 void RippleElement::setMode(const QString &mode)
 {
-    RippleMode modeEnum = this->m_rippleModeToStr.values().contains(mode)?
-                              this->m_rippleModeToStr.key(mode):
-                              RippleModeMotionDetect;
+    RippleMode modeEnum = rippleModeToStr->key(mode, RippleModeMotionDetect);
 
-    if (modeEnum != this->m_mode) {
-        this->m_mode = modeEnum;
-        emit this->modeChanged();
-    }
+    if (this->m_mode == modeEnum)
+        return;
+
+    this->m_mode = modeEnum;
+    emit this->modeChanged(mode);
 }
 
 void RippleElement::setAmplitude(int amplitude)
 {
-    if (amplitude != this->m_amplitude) {
-        this->m_amplitude = amplitude;
-        emit this->amplitudeChanged();
-    }
+    if (this->m_amplitude == amplitude)
+        return;
+
+    this->m_amplitude = amplitude;
+    emit this->amplitudeChanged(amplitude);
 }
 
 void RippleElement::setDecay(int decay)
 {
-    if (decay != this->m_decay) {
-        this->m_decay = decay;
-        emit this->decayChanged();
-    }
+    if (this->m_decay == decay)
+        return;
+
+    this->m_decay = decay;
+    emit this->decayChanged(decay);
 }
 
 void RippleElement::setThreshold(int threshold)
 {
-    if (threshold != this->m_threshold) {
-        this->m_threshold = threshold;
-        emit this->thresholdChanged();
-    }
+    if (this->m_threshold == threshold)
+        return;
+
+    this->m_threshold = threshold;
+    emit this->thresholdChanged(threshold);
 }
 
 void RippleElement::setLumaThreshold(int lumaThreshold)
 {
-    if (lumaThreshold != this->m_lumaThreshold) {
-        this->m_lumaThreshold = lumaThreshold;
-        emit this->lumaThresholdChanged();
-    }
+    if (this->m_lumaThreshold == lumaThreshold)
+        return;
+
+    this->m_lumaThreshold = lumaThreshold;
+    emit this->lumaThresholdChanged(lumaThreshold);
 }
 
 void RippleElement::resetMode()
@@ -386,11 +396,12 @@ void RippleElement::resetLumaThreshold()
 
 QbPacket RippleElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     if (packet.caps() != this->m_caps) {
@@ -443,6 +454,6 @@ QbPacket RippleElement::iStream(const QbPacket &packet)
 
     this->m_prevFrame = src.copy();
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

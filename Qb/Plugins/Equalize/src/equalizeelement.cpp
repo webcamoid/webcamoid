@@ -23,17 +23,16 @@
 
 EqualizeElement::EqualizeElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
 }
 
 QbPacket EqualizeElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage oFrame = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
-    if (oFrame.isNull())
+    if (src.isNull())
         return QbPacket();
+
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
@@ -86,18 +85,21 @@ QbPacket EqualizeElement::iStream(const QbPacket &packet)
     for (int i = 0; i < count; i++){
         QRgb pixel = *dest;
 
-        uchar r = (low.red != high.red) ? equalizeMap[qRed(pixel)].red :
-                qRed(pixel);
+        uchar r = (low.red != high.red)?
+                      equalizeMap[qRed(pixel)].red:
+                      qRed(pixel);
 
-        uchar g = (low.green != high.green) ? equalizeMap[qGreen(pixel)].green :
-                    qGreen(pixel);
+        uchar g = (low.green != high.green)?
+                      equalizeMap[qGreen(pixel)].green:
+                      qGreen(pixel);
 
-        uchar b = (low.blue != high.blue) ?  equalizeMap[qBlue(pixel)].blue :
-                    qBlue(pixel);
+        uchar b = (low.blue != high.blue)?
+                      equalizeMap[qBlue(pixel)].blue:
+                      qBlue(pixel);
 
         *dest++ = qRgba(r, g, b, qAlpha(pixel));
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }
