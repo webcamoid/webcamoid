@@ -18,19 +18,16 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "colorfilterelement.h"
 
 ColorFilterElement::ColorFilterElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    qRegisterMetaType<QRgb>("QRgb");
-
-    this->resetColor();
-    this->resetRadius();
-    this->resetSoft();
-    this->resetDisable();
+    this->m_color = qRgb(0, 0, 0);
+    this->m_radius = 1.0;
+    this->m_soft = false;
+    this->m_disable = false;
 }
 
 QObject *ColorFilterElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -77,34 +74,38 @@ bool ColorFilterElement::disable() const
 
 void ColorFilterElement::setColor(QRgb color)
 {
-    if (color != this->m_color) {
-        this->m_color = color;
-        emit this->colorChanged();
-    }
+    if (this->m_color == color)
+        return;
+
+    this->m_color = color;
+    emit this->colorChanged(color);
 }
 
 void ColorFilterElement::setRadius(qreal radius)
 {
-    if (radius != this->m_radius) {
-        this->m_radius = radius;
-        emit this->radiusChanged();
-    }
+    if (this->m_radius == radius)
+        return;
+
+    this->m_radius = radius;
+    emit this->radiusChanged(radius);
 }
 
 void ColorFilterElement::setSoft(bool soft)
 {
-    if (soft != this->m_soft) {
-        this->m_soft = soft;
-        emit this->softChanged();
-    }
+    if (this->m_soft == soft)
+        return;
+
+    this->m_soft = soft;
+    emit this->softChanged(soft);
 }
 
 void ColorFilterElement::setDisable(bool disable)
 {
-    if (disable != this->m_disable) {
-        this->m_disable = disable;
-        emit this->disableChanged();
-    }
+    if (this->m_disable == disable)
+        return;
+
+    this->m_disable = disable;
+    emit this->disableChanged(disable);
 }
 
 void ColorFilterElement::resetColor()
@@ -132,14 +133,14 @@ QbPacket ColorFilterElement::iStream(const QbPacket &packet)
     if (this->m_disable)
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    int videoArea = src.width() * src.height();
+    src = src.convertToFormat(QImage::Format_ARGB32);
 
+    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
     QRgb *srcBits = (QRgb *) src.bits();
@@ -179,6 +180,6 @@ QbPacket ColorFilterElement::iStream(const QbPacket &packet)
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

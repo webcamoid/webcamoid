@@ -21,8 +21,6 @@
 #ifndef COLORFILTERELEMENT_H
 #define COLORFILTERELEMENT_H
 
-#include <cmath>
-#include <qrgb.h>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -69,13 +67,11 @@ class ColorFilterElement: public QbElement
         bool m_soft;
         bool m_disable;
 
-        QbElementPtr m_convert;
-
     signals:
-        void colorChanged();
-        void radiusChanged();
-        void softChanged();
-        void disableChanged();
+        void colorChanged(QRgb color);
+        void radiusChanged(qreal radius);
+        void softChanged(bool soft);
+        void disableChanged(bool disable);
 
     public slots:
         void setColor(QRgb color);
