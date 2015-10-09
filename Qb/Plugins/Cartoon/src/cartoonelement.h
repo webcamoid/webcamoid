@@ -56,8 +56,6 @@ class CartoonElement: public QbElement
         int m_threshold;
         int m_levels;
 
-        QbElementPtr m_convert;
-
         inline int threshold(int color, int levels)
         {
             if (levels < 1)

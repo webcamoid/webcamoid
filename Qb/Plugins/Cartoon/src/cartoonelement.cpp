@@ -22,9 +22,6 @@
 
 CartoonElement::CartoonElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
     this->m_threshold = 95;
     this->m_levels = 8;
 }
@@ -63,18 +60,20 @@ int CartoonElement::levels() const
 
 void CartoonElement::setThreshold(int threshold)
 {
-    if (threshold != this->m_threshold) {
-        this->m_threshold = threshold;
-        emit this->thresholdChange(threshold);
-    }
+    if (this->m_threshold == threshold)
+        return;
+
+    this->m_threshold = threshold;
+    emit this->thresholdChange(threshold);
 }
 
 void CartoonElement::setLevels(int levels)
 {
-    if (levels != this->m_levels) {
-        this->m_levels = levels;
-        emit this->levelsChange(levels);
-    }
+    if (this->m_levels == levels)
+        return;
+
+    this->m_levels = levels;
+    emit this->levelsChange(levels);
 }
 
 void CartoonElement::resetThreshold()
@@ -89,12 +88,12 @@ void CartoonElement::resetLevels()
 
 QbPacket CartoonElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int videoArea = src.width() * src.height();
@@ -150,6 +149,6 @@ QbPacket CartoonElement::iStream(const QbPacket &packet)
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }
