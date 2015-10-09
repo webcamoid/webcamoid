@@ -18,14 +18,16 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+#include <QPainter>
+
 #include "lifeelement.h"
 
 LifeElement::LifeElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
-
-    this->resetThreshold();
+    this->m_lifeColor = qRgb(255, 255, 255);
+    this->m_threshold = 15;
+    this->m_lumaThreshold = 15;
 }
 
 QObject *LifeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -50,154 +52,183 @@ QObject *LifeElement::controlInterface(QQmlEngine *engine, const QString &contro
     return item;
 }
 
+QRgb LifeElement::lifeColor() const
+{
+    return this->m_lifeColor;
+}
+
 int LifeElement::threshold() const
 {
-    return this->m_threshold / 7;
+    return this->m_threshold;
 }
 
-QImage LifeElement::imageBgSubtractUpdateY(const QImage &src)
+int LifeElement::lumaThreshold() const
 {
-    quint32 *p = (quint32 *) src.bits();
-    short *q = (short *) this->m_background.bits();
-    qint8 *d = (qint8 *) this->m_diff.bits();
-    int videoArea = src.width() * src.height();
-
-    for (int i = 0; i < videoArea; i++) {
-        int r = ((*p) & 0xff0000) >> (16 - 1);
-        int g = ((*p) & 0xff00) >> (8 - 2);
-        int b = (*p) & 0xff;
-        int v = (r + g + b) - (int) (*q);
-
-        *q = (short) (r + g + b);
-        *d = ((this->m_threshold + v) >> 24)
-             | ((this->m_threshold - v) >> 24);
-
-        p++;
-        q++;
-        d++;
-    }
-
-    return this->m_diff;
+    return this->m_lumaThreshold;
 }
 
-QImage LifeElement::imageDiffFilter(const QImage &diff)
+QImage LifeElement::imageDiff(const QImage &img1,
+                              const QImage &img2,
+                              int threshold,
+                              int lumaThreshold)
 {
-    quint8 *src = (quint8 *) diff.bits();
-    quint8 *dest = (quint8 *) this->m_diff2.bits() + diff.width() + 1;
+    int width = qMin(img1.width(), img2.width());
+    int height = qMin(img1.height(), img2.height());
+    QImage diff(width, height, QImage::Format_Indexed8);
 
-    for (int y = 1; y < diff.height() - 1; y++) {
-        uint sum1 = src[0] + src[diff.width()] + src[diff.width() * 2];
-        uint sum2 = src[1] + src[diff.width() + 1] + src[diff.width() * 2 + 1];
-        src += 2;
+    for (int y = 0; y < height; y++) {
+        QRgb *line1 = (QRgb *) img1.constScanLine(y);
+        QRgb *line2 = (QRgb *) img2.constScanLine(y);
+        quint8 *lineDiff = (quint8 *) diff.scanLine(y);
 
-        for (int x = 1; x < diff.width() - 1; x++) {
-            uint sum3 = src[0] + src[diff.width()] + src[diff.width() * 2];
-            uint count = sum1 + sum2 + sum3;
+        for (int x = 0; x < width; x++) {
+            int r1 = qRed(line1[x]);
+            int g1 = qGreen(line1[x]);
+            int b1 = qBlue(line1[x]);
 
-            sum1 = sum2;
-            sum2 = sum3;
+            int r2 = qRed(line2[x]);
+            int g2 = qGreen(line2[x]);
+            int b2 = qBlue(line2[x]);
 
-            *dest++ = (0xff * 3 - count) >> 24;
-            src++;
+            int dr = r1 - r2;
+            int dg = g1 - g2;
+            int db = b1 - b2;
+
+            int colorDiff = dr * dr + dg * dg + db * db;
+
+            lineDiff[x] = sqrt(colorDiff / 3) >= threshold
+                          && qGray(line2[x]) >= lumaThreshold? 1: 0;
         }
-
-        dest += 2;
     }
 
-    return this->m_diff2;
+    return diff;
+}
+
+void LifeElement::updateLife()
+{
+    QImage lifeBuffer(this->m_lifeBuffer.size(), this->m_lifeBuffer.format());
+    lifeBuffer.fill(0);
+
+    for (int y = 1; y < lifeBuffer.height() - 1; y++) {
+        const quint8 *iLine =
+                (const quint8 *) this->m_lifeBuffer.constScanLine(y);
+        quint8 *oLine = (quint8 *) lifeBuffer.scanLine(y);
+
+        for (int x = 1; x < lifeBuffer.width() - 1; x++) {
+            int count = 0;
+
+            for (int j = -1; j < 2; j++) {
+                const quint8 *line =
+                        (const quint8 *) this->m_lifeBuffer.constScanLine(y + j);
+
+                for (int i = -1; i < 2; i++)
+                    count += line[x + i];
+            }
+
+            count -= iLine[x];
+
+            if ((iLine[x] && count == 2) || count == 3)
+                oLine[x] = 1;
+        }
+    }
+
+    memcpy(this->m_lifeBuffer.bits(),
+           lifeBuffer.constBits(),
+           lifeBuffer.byteCount());
+}
+
+void LifeElement::setLifeColor(QRgb lifeColor)
+{
+    if (this->m_lifeColor == lifeColor)
+        return;
+
+    this->m_lifeColor = lifeColor;
+    emit this->lifeColorChanged(lifeColor);
 }
 
 void LifeElement::setThreshold(int threshold)
 {
-    threshold *= 7;
+    if (this->m_threshold == threshold)
+        return;
 
-    if (threshold != this->m_threshold) {
-        this->m_threshold = threshold;
-        emit this->thresholdChanged();
-    }
+    this->m_threshold = threshold;
+    emit this->thresholdChanged(threshold);
+}
+
+void LifeElement::setLumaThreshold(int lumaThreshold)
+{
+    if (this->m_lumaThreshold == lumaThreshold)
+        return;
+
+    this->m_lumaThreshold = lumaThreshold;
+    emit this->lumaThresholdChanged(lumaThreshold);
+}
+
+void LifeElement::resetLifeColor()
+{
+    this->setLifeColor(qRgb(255, 255, 255));
 }
 
 void LifeElement::resetThreshold()
 {
-    this->setThreshold(40);
+    this->setThreshold(15);
 }
 
-void LifeElement::clearField()
+void LifeElement::resetLumaThreshold()
 {
-    int videoArea = this->m_background.width()
-                    * this->m_background.height();
-
-    memset(this->m_field1, 0, videoArea);
+    this->setLumaThreshold(15);
 }
 
 QbPacket LifeElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    int videoArea = src.width() * src.height();
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame = src;
 
-    if (packet.caps() != this->m_caps) {
-        this->m_background = QImage(src.width(), src.height(), QImage::Format_RGB32);
-        this->m_diff = QImage(src.width(), src.height(), QImage::Format_Indexed8);
-        this->m_diff2 = QImage(src.width(), src.height(), QImage::Format_Indexed8);
+    if (src.size() != this->m_frameSize) {
+        this->m_lifeBuffer = QImage();
+        this->m_prevFrame = QImage();
 
-        this->m_field = QImage(src.width(), 2 * src.height(), QImage::Format_Indexed8);
-        this->m_field1 = (quint8 *) this->m_field.bits();
-        this->m_field2 = (quint8 *) this->m_field.bits() + videoArea;
-        this->clearField();
-
-        this->m_caps = packet.caps();
+        this->m_frameSize = src.size();
     }
 
-    QImage oFrame = QImage(src.size(), src.format());
+    if (this->m_prevFrame.isNull()) {
+        this->m_lifeBuffer = QImage(src.size(), QImage::Format_Indexed8);
+        this->m_lifeBuffer.setColor(0, 0);
+        this->m_lifeBuffer.setColor(1, this->m_lifeColor);
+        this->m_lifeBuffer.fill(0);
+    }
+    else {
+        // Compute the difference between previous and current frame,
+        // and save it to the buffer.
+        QImage diff = this->imageDiff(this->m_prevFrame,
+                                      src,
+                                      this->m_threshold,
+                                      this->m_lumaThreshold);
 
-    quint32 *srcBits = (quint32 *) src.bits();
-    quint32 *destBits = (quint32 *) oFrame.bits();
+        this->m_lifeBuffer.setColor(1, this->m_lifeColor);
+        int videoArea = this->m_lifeBuffer.width()
+                        * this->m_lifeBuffer.height();
+        quint8 *lifeBufferBits = (quint8 *) this->m_lifeBuffer.bits();
+        const quint8 *diffBits = (const quint8 *) diff.constBits();
 
-    this->imageDiffFilter(this->imageBgSubtractUpdateY(src));
-    quint8 *p = this->m_diff2.bits();
+        for (int i = 0; i < videoArea; i++)
+            lifeBufferBits[i] |= diffBits[i];
 
-    for (int x = 0; x < videoArea; x++)
-        this->m_field1[x] |= p[x];
+        this->updateLife();
 
-    p = this->m_field1 + 1;
-    quint8 *q = this->m_field2 + src.width() + 1;
-    destBits += src.width() + 1;
-    srcBits += src.width() + 1;
-
-    // each value of cell is 0 or 0xff. 0xff can be treated as -1, so
-    // following equations treat each value as negative number.
-    for (int y = 1; y < src.height() - 1; y++) {
-        quint8 sum1 = 0;
-        quint8 sum2 = p[0] + p[src.width()] + p[src.width() * 2];
-
-        for (int x = 1; x < src.width() - 1; x++) {
-            quint8 sum3 = p[1] + p[src.width() + 1] + p[src.width() * 2 + 1];
-            quint8 sum = sum1 + sum2 + sum3;
-            quint8 v = 0 - ((sum == 0xfd) | ((p[src.width()] != 0) & (sum == 0xfc)));
-            *q++ = v;
-            quint32 pix = (qint8) v;
-            // pix = pix >> 8;
-            *destBits++ = pix | *srcBits++;
-            sum1 = sum2;
-            sum2 = sum3;
-            p++;
-        }
-
-        p += 2;
-        q += 2;
-        srcBits += 2;
-        destBits += 2;
+        QPainter painter;
+        painter.begin(&oFrame);
+        painter.drawImage(0, 0, this->m_lifeBuffer);
+        painter.end();
     }
 
-    p = this->m_field1;
-    this->m_field1 = this->m_field2;
-    this->m_field2 = p;
+    this->m_prevFrame = src.copy();
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

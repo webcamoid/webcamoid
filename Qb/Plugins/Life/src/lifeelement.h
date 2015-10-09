@@ -29,11 +29,21 @@
 class LifeElement: public QbElement
 {
     Q_OBJECT
+    Q_PROPERTY(QRgb lifeColor
+               READ lifeColor
+               WRITE setLifeColor
+               RESET resetLifeColor
+               NOTIFY lifeColorChanged)
     Q_PROPERTY(int threshold
                READ threshold
                WRITE setThreshold
                RESET resetThreshold
                NOTIFY thresholdChanged)
+    Q_PROPERTY(int lumaThreshold
+               READ lumaThreshold
+               WRITE setLumaThreshold
+               RESET resetLumaThreshold
+               NOTIFY lumaThresholdChanged)
 
     public:
         explicit LifeElement();
@@ -41,31 +51,37 @@ class LifeElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
+        Q_INVOKABLE QRgb lifeColor() const;
         Q_INVOKABLE int threshold() const;
+        Q_INVOKABLE int lumaThreshold() const;
 
     private:
+        QRgb m_lifeColor;
         int m_threshold;
+        int m_lumaThreshold;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
-        QImage m_background;
-        QImage m_diff;
-        QImage m_diff2;
-        QImage m_field;
-        quint8 *m_field1;
-        quint8 *m_field2;
+        QSize m_frameSize;
+        QImage m_prevFrame;
+        QImage m_lifeBuffer;
 
-        void createImg(QImage &src);
-        QImage imageBgSubtractUpdateY(const QImage &src);
-        QImage imageDiffFilter(const QImage &diff);
+        QImage imageDiff(const QImage &img1,
+                         const QImage &img2,
+                         int threshold,
+                         int lumaThreshold);
+        void updateLife();
 
     signals:
-        void thresholdChanged();
+        void lifeColorChanged(QRgb lifeColor);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
 
     public slots:
+        void setLifeColor(QRgb lifeColor);
         void setThreshold(int threshold);
+        void setLumaThreshold(int lumaThreshold);
+        void resetLifeColor();
         void resetThreshold();
-        void clearField();
+        void resetLumaThreshold();
 
         QbPacket iStream(const QbPacket &packet);
 };

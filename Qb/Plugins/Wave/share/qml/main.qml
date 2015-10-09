@@ -77,16 +77,22 @@ GridLayout {
         id: lblFrequency
         text: qsTr("Frequency")
     }
-    SpinBox {
-        id: spbFrequency
-        decimals: 2
+    Slider {
+        id: sldFrequency
         value: Wave.frequency
-        maximumValue: 100
         stepSize: 0.01
+        maximumValue: 100
 
         onValueChanged: Wave.frequency = value
     }
-    Label {
+    SpinBox {
+        id: spbFrequency
+        decimals: 2
+        value: sldFrequency.value
+        maximumValue: sldFrequency.maximumValue
+        stepSize: sldFrequency.stepSize
+
+        onValueChanged: sldFrequency.value = value
     }
 
     Label {
