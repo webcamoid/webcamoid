@@ -22,10 +22,7 @@
 
 PixelateElement::PixelateElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetBlockSize();
+    this->m_blockSize = QSize(8, 8);
 }
 
 QObject *PixelateElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -57,10 +54,11 @@ QSize PixelateElement::blockSize() const
 
 void PixelateElement::setBlockSize(const QSize &blockSize)
 {
-    if (blockSize != this->m_blockSize) {
-        this->m_blockSize = blockSize;
-        emit this->blockSizeChanged();
-    }
+    if (blockSize == this->m_blockSize)
+        return;
+
+    this->m_blockSize = blockSize;
+    emit this->blockSizeChanged(blockSize);
 }
 
 void PixelateElement::resetBlockSize()
@@ -70,16 +68,17 @@ void PixelateElement::resetBlockSize()
 
 QbPacket PixelateElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage oFrame = QbUtils::packetToImage(iPacket);
-
-    if (oFrame.isNull())
-        return QbPacket();
-
     QSize blockSize = this->m_blockSize;
 
     if (blockSize.isEmpty())
         qbSend(packet)
+
+    QImage src = QbUtils::packetToImage(packet);
+
+    if (src.isNull())
+        return QbPacket();
+
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
 
     qreal sw = 1.0 / blockSize.width();
     qreal sh = 1.0 / blockSize.height();
@@ -93,6 +92,6 @@ QbPacket PixelateElement::iStream(const QbPacket &packet)
                            Qt::IgnoreAspectRatio,
                            Qt::FastTransformation);
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

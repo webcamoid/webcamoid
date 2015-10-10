@@ -23,36 +23,73 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 GridLayout {
-    columns: 2
+    columns: 3
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
-    // Configure phase increment.
     Label {
-        text: qsTr("Phase increment")
+        id: lblSpeed
+        text: qsTr("Speed")
     }
-    TextField {
-        text: Dizzy.phaseIncrement
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldSpeed
+        value: Dizzy.speed
+        stepSize: 0.01
+        minimumValue: 0.01
+        maximumValue: 60
 
-        onTextChanged: Dizzy.phaseIncrement = strToFloat(text)
+        onValueChanged: Dizzy.speed = value
+    }
+    SpinBox {
+        id: spbSpeed
+        decimals: 2
+        value: sldSpeed.value
+        minimumValue: sldSpeed.minimumValue
+        maximumValue: sldSpeed.maximumValue
+        stepSize: sldSpeed.stepSize
+
+        onValueChanged: sldSpeed.value = value
     }
 
-    // Configure zoom rate.
     Label {
+        id: lblZoomRate
         text: qsTr("Zoom rate")
     }
-    TextField {
-        text: Dizzy.zoomRate
-        validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
-        }
+    Slider {
+        id: sldZoomRate
+        value: Dizzy.zoomRate
+        stepSize: 0.001
+        maximumValue: 0.25
 
-        onTextChanged: Dizzy.zoomRate = strToFloat(text)
+        onValueChanged: Dizzy.zoomRate = value
+    }
+    SpinBox {
+        id: spbZoomRate
+        decimals: 3
+        value: sldZoomRate.value
+        maximumValue: sldZoomRate.maximumValue
+        stepSize: sldZoomRate.stepSize
+
+        onValueChanged: sldZoomRate.value = value
+    }
+
+    Label {
+        id: lblStrength
+        text: qsTr("Strength")
+    }
+    Slider {
+        id: sldStrength
+        value: Dizzy.strength
+        stepSize: 0.01
+        maximumValue: 1
+
+        onValueChanged: Dizzy.strength = value
+    }
+    SpinBox {
+        id: spbStrength
+        decimals: 2
+        value: sldStrength.value
+        maximumValue: sldStrength.maximumValue
+        stepSize: sldStrength.stepSize
+
+        onValueChanged: sldStrength.value = value
     }
 }

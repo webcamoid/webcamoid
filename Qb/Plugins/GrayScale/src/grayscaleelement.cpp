@@ -22,12 +22,16 @@
 
 GrayScaleElement::GrayScaleElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=gray");
 }
 
 QbPacket GrayScaleElement::iStream(const QbPacket &packet)
 {
-    QbPacket oPacket = this->m_convert->iStream(packet);
+    QImage src = QbUtils::packetToImage(packet);
+
+    if (src.isNull())
+        return QbPacket();
+
+    QImage oFrame = src.convertToFormat(QImage::Format_Grayscale8);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

@@ -21,8 +21,6 @@
 #ifndef COLORREPLACEELEMENT_H
 #define COLORREPLACEELEMENT_H
 
-#include <cmath>
-#include <qrgb.h>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -69,13 +67,11 @@ class ColorReplaceElement: public QbElement
         qreal m_radius;
         bool m_disable;
 
-        QbElementPtr m_convert;
-
     signals:
-        void fromChanged();
-        void toChanged();
-        void radiusChanged();
-        void disableChanged();
+        void fromChanged(QRgb from);
+        void toChanged(QRgb to);
+        void radiusChanged(qreal radius);
+        void disableChanged(bool disable);
 
     public slots:
         void setFrom(QRgb from);

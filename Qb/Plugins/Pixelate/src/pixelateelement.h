@@ -45,10 +45,9 @@ class PixelateElement: public QbElement
 
     private:
         QSize m_blockSize;
-        QbElementPtr m_convert;
 
     signals:
-        void blockSizeChanged();
+        void blockSizeChanged(const QSize &blockSize);
 
     public slots:
         void setBlockSize(const QSize &blockSize);

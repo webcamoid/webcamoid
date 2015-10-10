@@ -45,10 +45,9 @@ class ColorTransformElement: public QbElement
 
     private:
         QVector<qreal> m_kernel;
-        QbElementPtr m_convert;
 
     signals:
-        void kernelChanged();
+        void kernelChanged(const QVariantList &kernel);
 
     public slots:
         void setKernel(const QVariantList &kernel);

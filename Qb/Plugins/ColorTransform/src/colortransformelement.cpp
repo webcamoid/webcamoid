@@ -22,10 +22,9 @@
 
 ColorTransformElement::ColorTransformElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetKernel();
+    this->m_kernel << 1 << 0 << 0 << 0
+                   << 0 << 1 << 0 << 0
+                   << 0 << 0 << 1 << 0;
 }
 
 QObject *ColorTransformElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -67,8 +66,11 @@ void ColorTransformElement::setKernel(const QVariantList &kernel)
     foreach (QVariant e, kernel)
         k << e.toReal();
 
-    if (k != this->m_kernel)
-        this->m_kernel = k;
+    if (this->m_kernel == k)
+        return;
+
+    this->m_kernel = k;
+    emit this->kernelChanged(kernel);
 }
 
 void ColorTransformElement::resetKernel()
@@ -87,12 +89,12 @@ QbPacket ColorTransformElement::iStream(const QbPacket &packet)
     if (this->m_kernel.size() < 12)
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
@@ -118,6 +120,6 @@ QbPacket ColorTransformElement::iStream(const QbPacket &packet)
         destBits[i] = qRgba(rt, gt, bt, qAlpha(srcBits[i]));
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

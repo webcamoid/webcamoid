@@ -21,8 +21,6 @@
 #ifndef DIZZYELEMENT_H
 #define DIZZYELEMENT_H
 
-#include <cmath>
-#include <QColor>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -31,16 +29,21 @@
 class DizzyElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(qreal phaseIncrement
-               READ phaseIncrement
-               WRITE setPhaseIncrement
-               RESET resetPhaseIncrement
-               NOTIFY phaseIncrementChanged)
+    Q_PROPERTY(qreal speed
+               READ speed
+               WRITE setSpeed
+               RESET resetSpeed
+               NOTIFY speedChanged)
     Q_PROPERTY(qreal zoomRate
                READ zoomRate
                WRITE setZoomRate
                RESET resetZoomRate
                NOTIFY zoomRateChanged)
+    Q_PROPERTY(qreal strength
+               READ strength
+               WRITE setStrength
+               RESET resetStrength
+               NOTIFY strengthChanged)
 
     public:
         explicit DizzyElement();
@@ -48,17 +51,16 @@ class DizzyElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE qreal phaseIncrement() const;
+        Q_INVOKABLE qreal speed() const;
         Q_INVOKABLE qreal zoomRate() const;
+        Q_INVOKABLE qreal strength() const;
 
     private:
-        qreal m_phaseIncrement;
+        qreal m_speed;
         qreal m_zoomRate;
+        qreal m_strength;
 
-        QbElementPtr m_convert;
         QImage m_prevFrame;
-        QbCaps m_caps;
-        qreal m_phase;
 
         void setParams(int *dx, int *dy,
                        int *sx, int *sy,
@@ -66,14 +68,17 @@ class DizzyElement: public QbElement
                        qreal phase, qreal zoomRate);
 
     signals:
-        void phaseIncrementChanged();
-        void zoomRateChanged();
+        void speedChanged(qreal speed);
+        void zoomRateChanged(qreal zoomRate);
+        void strengthChanged(qreal strength);
 
     public slots:
-        void setPhaseIncrement(qreal phaseIncrement);
+        void setSpeed(qreal speed);
         void setZoomRate(qreal zoomRate);
-        void resetPhaseIncrement();
+        void setStrength(qreal strength);
+        void resetSpeed();
         void resetZoomRate();
+        void resetStrength();
         QbPacket iStream(const QbPacket &packet);
 };
 

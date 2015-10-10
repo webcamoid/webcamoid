@@ -18,19 +18,16 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "colorreplaceelement.h"
 
 ColorReplaceElement::ColorReplaceElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    qRegisterMetaType<QRgb>("QRgb");
-
-    this->resetFrom();
-    this->resetTo();
-    this->resetRadius();
-    this->resetDisable();
+    this->m_from = qRgb(0, 0, 0);
+    this->m_to = qRgb(0, 0, 0);
+    this->m_radius = 1.0;
+    this->m_disable = false;
 }
 
 QObject *ColorReplaceElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -77,34 +74,38 @@ bool ColorReplaceElement::disable() const
 
 void ColorReplaceElement::setFrom(QRgb from)
 {
-    if (from != this->m_from) {
-        this->m_from = from;
-        emit this->fromChanged();
-    }
+    if (this->m_from == from)
+        return;
+
+    this->m_from = from;
+    emit this->fromChanged(from);
 }
 
 void ColorReplaceElement::setTo(QRgb to)
 {
-    if (to != this->m_to) {
-        this->m_to = to;
-        emit this->toChanged();
-    }
+    if (this->m_to == to)
+        return;
+
+    this->m_to = to;
+    emit this->toChanged(to);
 }
 
 void ColorReplaceElement::setRadius(qreal radius)
 {
-    if (radius != this->m_radius) {
-        this->m_radius = radius;
-        emit this->radiusChanged();
-    }
+    if (this->m_radius == radius)
+        return;
+
+    this->m_radius = radius;
+    emit this->radiusChanged(radius);
 }
 
 void ColorReplaceElement::setDisable(bool disable)
 {
-    if (disable != this->m_disable) {
-        this->m_disable = disable;
-        emit this->disableChanged();
-    }
+    if (this->m_disable == disable)
+        return;
+
+    this->m_disable = disable;
+    emit this->disableChanged(disable);
 }
 
 void ColorReplaceElement::resetFrom()
@@ -132,12 +133,12 @@ QbPacket ColorReplaceElement::iStream(const QbPacket &packet)
     if (this->m_disable)
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
@@ -177,6 +178,6 @@ QbPacket ColorReplaceElement::iStream(const QbPacket &packet)
             destBits[i] = srcBits[i];
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

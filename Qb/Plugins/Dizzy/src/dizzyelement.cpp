@@ -18,15 +18,16 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+#include <QPainter>
+
 #include "dizzyelement.h"
 
 DizzyElement::DizzyElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetPhaseIncrement();
-    this->resetZoomRate();
+    this->m_speed = 5.0;
+    this->m_zoomRate = 0.02;
+    this->m_strength = 0.75;
 }
 
 QObject *DizzyElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -51,9 +52,9 @@ QObject *DizzyElement::controlInterface(QQmlEngine *engine, const QString &contr
     return item;
 }
 
-qreal DizzyElement::phaseIncrement() const
+qreal DizzyElement::speed() const
 {
-    return this->m_phaseIncrement;
+    return this->m_speed;
 }
 
 qreal DizzyElement::zoomRate() const
@@ -61,154 +62,92 @@ qreal DizzyElement::zoomRate() const
     return this->m_zoomRate;
 }
 
-void DizzyElement::setParams(int *dx, int *dy,
-                             int *sx, int *sy,
-                             int width, int height,
-                             qreal phase, qreal zoomRate)
+qreal DizzyElement::strength() const
 {
-    qreal dizz = 10 * sin(phase)
-                 + 5 * sin(1.9 * phase + 5);
-
-    int x = width >> 1;
-    int y = height >> 1;
-    qreal t = zoomRate * (x * x + y * y);
-
-    qreal vx;
-    qreal vy;
-
-    if (width > height) {
-        if (dizz >= 0) {
-            if(dizz > x)
-                dizz = x;
-
-            vx = (x * (x - dizz) + y * y) / t;
-        }
-        else {
-            if(dizz < -x)
-                dizz = -x;
-
-            vx = (x * (x + dizz) + y * y) / t;
-        }
-
-        vy = dizz * y / t;
-    }
-    else {
-        if (dizz >= 0) {
-            if (dizz > y)
-                dizz = y;
-
-            vx = (x * x + y * (y - dizz)) / t;
-        }
-        else {
-            if (dizz < -y)
-                dizz = -y;
-
-            vx = (x * x + y * (y + dizz)) / t;
-        }
-
-        vy = dizz * x / t;
-    }
-
-    *dx = 65536 * vx;
-    *dy = 65536 * vy;
-    *sx = 65536 * (-vx * x + vy * y + x + 2 * cos(5 * phase));
-    *sy = 65536 * (-vx * y - vy * x + y + 2 * sin(6 * phase));
+    return this->m_strength;
 }
 
-void DizzyElement::setPhaseIncrement(qreal phaseIncrement)
+void DizzyElement::setSpeed(qreal speed)
 {
-    if (phaseIncrement != this->m_phaseIncrement) {
-        this->m_phaseIncrement = phaseIncrement;
-        emit this->phaseIncrementChanged();
-    }
+    if (this->m_speed == speed)
+        return;
+
+    this->m_speed = speed;
+    emit this->speedChanged(speed);
 }
 
 void DizzyElement::setZoomRate(qreal zoomRate)
 {
-    if (zoomRate != this->m_zoomRate) {
-        this->m_zoomRate = zoomRate;
-        emit this->zoomRateChanged();
-    }
+    if (this->m_zoomRate == zoomRate)
+        return;
+
+    this->m_zoomRate = zoomRate;
+    emit this->zoomRateChanged(zoomRate);
 }
 
-void DizzyElement::resetPhaseIncrement()
+void DizzyElement::setStrength(qreal strength)
 {
-    this->setPhaseIncrement(0.02);
+    if (this->m_strength == strength)
+        return;
+
+    this->m_strength = strength;
+    emit this->strengthChanged(strength);
+}
+
+void DizzyElement::resetSpeed()
+{
+    this->setSpeed(5.0);
 }
 
 void DizzyElement::resetZoomRate()
 {
-    this->setZoomRate(1.01);
+    this->setZoomRate(0.02);
+}
+
+void DizzyElement::resetStrength()
+{
+    this->setStrength(0.15);
 }
 
 QbPacket DizzyElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    int videoArea = src.width() * src.height();
-
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
+    oFrame.fill(0);
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
-
-    if (packet.caps() != this->m_caps) {
-        this->m_prevFrame = QImage();
-        this->m_phase = 0;
-
-        this->m_caps = packet.caps();
+    if (this->m_prevFrame.isNull()) {
+        this->m_prevFrame = QImage(src.size(), src.format());
+        this->m_prevFrame.fill(0);
     }
 
-    if (this->m_prevFrame.isNull())
-        oFrame = src;
-    else {
-        int dx;
-        int dy;
-        int sx;
-        int sy;
+    qreal pts = 2 * M_PI * packet.pts() * packet.timeBase().value()
+                / this->m_speed;
 
-        this->setParams(&dx, &dy, &sx, &sy,
-                        src.width(), src.height(),
-                        this->m_phase, this->m_zoomRate);
+    qreal angle = (2 * M_PI / 180) * sin(pts) + (M_PI / 180) * sin(pts + 2.5);
+    qreal scale = 1.0 + this->m_zoomRate;
 
-        this->m_phase += this->m_phaseIncrement;
+    QTransform transform;
+    transform.scale(scale, scale);
+    transform.rotateRadians(angle);
+    this->m_prevFrame = this->m_prevFrame.transformed(transform);
 
-        if (this->m_phase > 5700000)
-            this->m_phase = 0;
+    QRect rect(this->m_prevFrame.rect());
+    rect.moveCenter(oFrame.rect().center());
 
-        QRgb *prevFrameBits = (QRgb *) this->m_prevFrame.bits();
+    QPainter painter;
+    painter.begin(&oFrame);
+    painter.drawImage(rect, this->m_prevFrame);
+    painter.setOpacity(1.0 - this->m_strength);
+    painter.drawImage(0, 0, src);
+    painter.end();
 
-        for (int y = 0, i = 0; y < src.height(); y++) {
-            int ox = sx;
-            int oy = sy;
+    this->m_prevFrame = oFrame;
 
-            for (int x = 0; x < src.width(); x++, i++) {
-                int j = (oy >> 16) * src.width() + (ox >> 16);
-
-                if (j < 0)
-                    j = 0;
-
-                if (j >= videoArea)
-                    j = videoArea;
-
-                QRgb v = prevFrameBits[j] & 0xfcfcff;
-                v = 3 * v + (srcBits[i] & 0xfcfcff);
-                destBits[i] = (v >> 2) | 0xff000000;
-                ox += dx;
-                oy += dy;
-            }
-
-            sx -= dy;
-            sy += dx;
-        }
-    }
-
-    this->m_prevFrame = oFrame.copy();
-
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

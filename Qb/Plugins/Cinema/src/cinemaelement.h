@@ -21,8 +21,6 @@
 #ifndef CINEMAELEMENT_H
 #define CINEMAELEMENT_H
 
-#include <cmath>
-#include <QColor>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -55,11 +53,9 @@ class CinemaElement: public QbElement
         qreal m_stripSize;
         QRgb m_stripColor;
 
-        QbElementPtr m_convert;
-
     signals:
-        void stripSizeChanged();
-        void stripColorChanged();
+        void stripSizeChanged(qreal stripSize);
+        void stripColorChanged(QRgb stripColor);
 
     public slots:
         void setStripSize(qreal stripSize);

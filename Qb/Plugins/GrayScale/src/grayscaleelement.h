@@ -22,6 +22,7 @@
 #define GRAYSCALEELEMENT_H
 
 #include <qb.h>
+#include <qbutils.h>
 
 class GrayScaleElement: public QbElement
 {
@@ -29,9 +30,6 @@ class GrayScaleElement: public QbElement
 
     public:
         explicit GrayScaleElement();
-
-    private:
-        QbElementPtr m_convert;
 
     public slots:
         QbPacket iStream(const QbPacket &packet);

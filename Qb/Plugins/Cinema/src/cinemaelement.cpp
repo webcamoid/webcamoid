@@ -18,17 +18,14 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "cinemaelement.h"
 
 CinemaElement::CinemaElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    qRegisterMetaType<QRgb>("QRgb");
-
-    this->resetStripSize();
-    this->resetStripColor();
+    this->m_stripSize = 0.5;
+    this->m_stripColor = qRgb(0, 0, 0);
 }
 
 QObject *CinemaElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -65,18 +62,20 @@ QRgb CinemaElement::stripColor() const
 
 void CinemaElement::setStripSize(qreal stripSize)
 {
-    if (stripSize != this->m_stripSize) {
-        this->m_stripSize = stripSize;
-        emit this->stripSizeChanged();
-    }
+    if (this->m_stripSize == stripSize)
+        return;
+
+    this->m_stripSize = stripSize;
+    emit this->stripSizeChanged(stripSize);
 }
 
 void CinemaElement::setStripColor(QRgb hideColor)
 {
-    if (hideColor != this->m_stripColor) {
-        this->m_stripColor = hideColor;
-        emit this->stripColorChanged();
-    }
+    if (this->m_stripColor == hideColor)
+        return;
+
+    this->m_stripColor = hideColor;
+    emit this->stripColorChanged(hideColor);
 }
 
 void CinemaElement::resetStripSize()
@@ -91,12 +90,12 @@ void CinemaElement::resetStripColor()
 
 QbPacket CinemaElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
     int cy = src.height() >> 1;
 
@@ -119,6 +118,6 @@ QbPacket CinemaElement::iStream(const QbPacket &packet)
             }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

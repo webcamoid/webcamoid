@@ -31,9 +31,6 @@ class InvertElement: public QbElement
     public:
         explicit InvertElement();
 
-    private:
-        QbElementPtr m_convert;
-
     public slots:
         QbPacket iStream(const QbPacket &packet);
 };
