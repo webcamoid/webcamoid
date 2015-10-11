@@ -21,7 +21,6 @@
 #ifndef FALSECOLORELEMENT_H
 #define FALSECOLORELEMENT_H
 
-#include <qrgb.h>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -54,11 +53,9 @@ class FalseColorElement: public QbElement
         QList<QRgb> m_table;
         bool m_soft;
 
-        QbElementPtr m_convert;
-
     signals:
-        void tableChanged();
-        void softChanged();
+        void tableChanged(const QVariantList &table);
+        void softChanged(bool soft);
 
     public slots:
         void setTable(const QVariantList &table);

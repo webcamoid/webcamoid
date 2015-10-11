@@ -18,15 +18,14 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "embosselement.h"
 
 EmbossElement::EmbossElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=gray");
-
-    this->resetFactor();
-    this->resetBias();
+    this->m_factor = 1;
+    this->m_bias = 128;
 }
 
 QObject *EmbossElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -63,18 +62,20 @@ qreal EmbossElement::bias() const
 
 void EmbossElement::setFactor(qreal factor)
 {
-    if (factor != this->m_factor) {
-        this->m_factor = factor;
-        emit this->factorChanged();
-    }
+    if (this->m_factor == factor)
+        return;
+
+    this->m_factor = factor;
+    emit this->factorChanged(factor);
 }
 
 void EmbossElement::setBias(qreal bias)
 {
-    if (bias != this->m_bias) {
-        this->m_bias = bias;
-        emit this->biasChanged();
-    }
+    if (bias != this->m_bias)
+        return;
+
+    this->m_bias = bias;
+    emit this->biasChanged(bias);
 }
 
 void EmbossElement::resetFactor()
@@ -89,12 +90,12 @@ void EmbossElement::resetBias()
 
 QbPacket EmbossElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), src.format());
 
     quint8 *srcBits = (quint8 *) src.bits();
@@ -138,6 +139,6 @@ QbPacket EmbossElement::iStream(const QbPacket &packet)
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

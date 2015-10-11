@@ -21,9 +21,9 @@
 #ifndef AGINGELEMENT_H
 #define AGINGELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
-
 #include <qb.h>
 #include <qbutils.h>
 
@@ -37,16 +37,11 @@ class AgingElement: public QbElement
                WRITE setNScratches
                RESET resetNScratches
                NOTIFY nScratchesChanged)
-    Q_PROPERTY(int scratchLines
-               READ scratchLines
-               WRITE setScratchLines
-               RESET resetScratchLines
-               NOTIFY scratchLinesChanged)
-    Q_PROPERTY(int agingMode
-               READ agingMode
-               WRITE setAgingMode
-               RESET resetAgingMode
-               NOTIFY agingModeChanged)
+    Q_PROPERTY(bool addDust
+               READ addDust
+               WRITE setAddDust
+               RESET resetAddDust
+               NOTIFY addDustChanged)
 
     public:
         explicit AgingElement();
@@ -55,17 +50,13 @@ class AgingElement: public QbElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE int nScratches() const;
-        Q_INVOKABLE int scratchLines() const;
-        Q_INVOKABLE int agingMode() const;
+        Q_INVOKABLE int addDust() const;
 
     private:
-        int m_scratchLines;
-        int m_agingMode;
-
-        QbElementPtr m_convert;
         QVector<Scratch> m_scratches;
-        QList<int> m_dx;
-        QList<int> m_dy;
+        bool m_addDust;
+
+        QMutex m_mutex;
 
         QImage colorAging(const QImage &src);
         void scratching(QImage &dest);
@@ -73,17 +64,14 @@ class AgingElement: public QbElement
         void dusts(QImage &dest);
 
     signals:
-        void nScratchesChanged();
-        void scratchLinesChanged();
-        void agingModeChanged();
+        void nScratchesChanged(int nScratches);
+        void addDustChanged(int addDust);
 
     public slots:
         void setNScratches(int nScratches);
-        void setScratchLines(int scratchLines);
-        void setAgingMode(int agingMode);
+        void setAddDust(int addDust);
         void resetNScratches();
-        void resetScratchLines();
-        void resetAgingMode();
+        void resetAddDust();
 
         QbPacket iStream(const QbPacket &packet);
 };

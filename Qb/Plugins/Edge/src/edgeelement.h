@@ -21,7 +21,6 @@
 #ifndef EDGEELEMENT_H
 #define EDGEELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -75,7 +74,6 @@ class EdgeElement: public QbElement
         int m_thHi;
         bool m_equalize;
         bool m_invert;
-        QbElementPtr m_convert;
 
         QVector<quint8> equalize(const QImage &image);
         void sobel(int width, int height, const QVector<quint8> &gray,

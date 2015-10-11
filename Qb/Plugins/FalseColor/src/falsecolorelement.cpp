@@ -22,11 +22,12 @@
 
 FalseColorElement::FalseColorElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
+    this->m_table << qRgb(0, 0, 0)
+                  << qRgb(255, 0, 0)
+                  << qRgb(255, 255, 255)
+                  << qRgb(255, 255, 255);
 
-    this->resetSoft();
-    this->resetTable();
+    this->m_soft = false;
 }
 
 QObject *FalseColorElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -73,18 +74,20 @@ void FalseColorElement::setTable(const QVariantList &table)
     foreach (QVariant color, table)
         tableRgb << color.value<QRgb>();
 
-    if (tableRgb != this->m_table) {
-        this->m_table = tableRgb;
-        emit this->tableChanged();
-    }
+    if (this->m_table == tableRgb)
+        return;
+
+    this->m_table = tableRgb;
+    emit this->tableChanged(table);
 }
 
 void FalseColorElement::setSoft(bool soft)
 {
-    if (soft != this->m_soft) {
-        this->m_soft = soft;
-        emit this->softChanged();
-    }
+    if (this->m_soft == soft)
+        return;
+
+    this->m_soft = soft;
+    emit this->softChanged(soft);
 }
 
 void FalseColorElement::resetTable()
@@ -109,14 +112,13 @@ QbPacket FalseColorElement::iStream(const QbPacket &packet)
     if (this->m_table.isEmpty())
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
 
     QRgb *srcBits = (QRgb *) src.bits();
@@ -173,6 +175,6 @@ QbPacket FalseColorElement::iStream(const QbPacket &packet)
     for (int i = 0; i < videoArea; i++)
         destBits[i] = table[grayBuffer[i]];
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

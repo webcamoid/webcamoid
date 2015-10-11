@@ -20,96 +20,179 @@
 
 #include "scratch.h"
 
-Scratch::Scratch(QObject *parent): QObject(parent)
+Scratch::Scratch(QObject *parent):
+    QObject(parent),
+    m_life(0.0),
+    m_dlife(0.0),
+    m_x(0.0),
+    m_dx(0.0),
+    m_y(0),
+    m_life0(0.0)
 {
-    this->resetLife();
-    this->resetX();
-    this->resetDx();
-    this->resetInit();
+}
+
+Scratch::Scratch(qreal minLife, qreal maxLife,
+                 qreal minDLife, qreal maxDLife,
+                 qreal minX, qreal maxX,
+                 qreal minDX, qreal maxDX,
+                 int minY, int maxY)
+{
+    this->m_life = this->m_life0 = qrand() * (maxLife - minLife) / RAND_MAX + minLife;
+    this->m_dlife = qrand() * (maxDLife - minDLife) / RAND_MAX + minDLife;
+
+    if (!this->m_dlife)
+        this->m_dlife = maxDLife - minDLife;
+
+    this->m_x = qrand() * (maxX - minX) / RAND_MAX + minX;
+    this->m_dx = qrand() * (maxDX - minDX) / RAND_MAX + minDX;
+
+    if (!this->m_dx)
+        this->m_dx = maxDX - minDX;
+
+//    this->m_dx *= (qrand() & 0x1? 1.0: -1.0);
+
+    this->m_y = qreal(qrand()) * (maxY - minY) / RAND_MAX + minY;
 }
 
 Scratch::Scratch(const Scratch &other):
     QObject(other.parent()),
     m_life(other.m_life),
+    m_dlife(other.m_dlife),
     m_x(other.m_x),
     m_dx(other.m_dx),
-    m_init(other.m_init)
-{
-}
-
-Scratch::~Scratch()
+    m_y(other.m_y),
+    m_life0(other.m_life0)
 {
 }
 
 Scratch &Scratch::operator =(const Scratch &other)
 {
-    if (this != &other)
-    {
+    if (this != &other) {
         this->m_life = other.m_life;
+        this->m_dlife = other.m_dlife;
         this->m_x = other.m_x;
         this->m_dx = other.m_dx;
-        this->m_init = other.m_init;
+        this->m_y = other.m_y;
+        this->m_life0 = other.m_life0;
     }
 
     return *this;
 }
 
-int Scratch::life() const
+Scratch Scratch::operator ++(int)
+{
+    this->m_life -= this->m_dlife;
+    this->m_x += this->m_dx;
+
+    return *this;
+}
+
+qreal Scratch::life() const
 {
     return this->m_life;
 }
 
-int Scratch::x() const
+qreal &Scratch::life()
+{
+    return this->m_life;
+}
+
+qreal Scratch::dlife() const
+{
+    return this->m_dlife;
+}
+
+qreal &Scratch::dlife()
+{
+    return this->m_dlife;
+}
+
+qreal Scratch::x() const
 {
     return this->m_x;
 }
 
-int Scratch::dx() const
+qreal &Scratch::x()
+{
+    return this->m_x;
+}
+
+qreal Scratch::dx() const
 {
     return this->m_dx;
 }
 
-int Scratch::init() const
+qreal &Scratch::dx()
 {
-    return this->m_init;
+    return this->m_dx;
 }
 
-void Scratch::setLife(int life)
+int Scratch::y() const
+{
+    return this->m_y;
+}
+
+int &Scratch::y()
+{
+    return this->m_y;
+}
+
+bool Scratch::isAboutToDie() const
+{
+    qreal threshold = 0.75;
+
+    if (this->m_life <= this->m_dlife * (1.0 + threshold))
+        return true;
+
+    return false;
+}
+
+void Scratch::setLife(qreal life)
 {
     this->m_life = life;
 }
 
-void Scratch::setX(int x)
+void Scratch::setDLife(qreal dlife)
+{
+    this->m_dlife = dlife;
+}
+
+void Scratch::setX(qreal x)
 {
     this->m_x = x;
 }
 
-void Scratch::setDx(int dx)
+void Scratch::setDx(qreal dx)
 {
     this->m_dx = dx;
 }
 
-void Scratch::setInit(int init)
+void Scratch::setY(int y)
 {
-    this->m_init = init;
+    this->m_y = y;
 }
 
 void Scratch::resetLife()
 {
-    this->setLife(0);
+    this->setLife(0.0);
+}
+
+void Scratch::resetDLife()
+{
+    this->setDLife(0.0);
 }
 
 void Scratch::resetX()
 {
-    this->setX(0);
+    this->setX(0.0);
 }
 
 void Scratch::resetDx()
 {
-    this->setDx(0);
+    this->setDx(0.0);
 }
 
-void Scratch::resetInit()
+void Scratch::resetY()
 {
-    this->setInit(0);
+    this->setY(0);
 }

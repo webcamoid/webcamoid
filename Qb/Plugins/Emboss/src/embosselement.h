@@ -21,7 +21,6 @@
 #ifndef EmbossELEMENT_H
 #define EmbossELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -53,11 +52,10 @@ class EmbossElement: public QbElement
     private:
         qreal m_factor;
         qreal m_bias;
-        QbElementPtr m_convert;
 
     signals:
-        void factorChanged();
-        void biasChanged();
+        void factorChanged(qreal factor);
+        void biasChanged(qreal bias);
 
     public slots:
         void setFactor(qreal factor);

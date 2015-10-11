@@ -26,37 +26,71 @@
 class Scratch: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int life READ life WRITE setLife RESET resetLife)
-    Q_PROPERTY(int x READ x WRITE setX RESET resetX)
-    Q_PROPERTY(int dx READ dx WRITE setDx RESET resetDx)
-    Q_PROPERTY(int init READ init WRITE setInit RESET resetInit)
+    Q_PROPERTY(qreal life
+               READ life
+               WRITE setLife
+               RESET resetLife)
+    Q_PROPERTY(qreal dlife
+               READ dlife
+               WRITE setDLife
+               RESET resetDLife)
+    Q_PROPERTY(qreal x
+               READ x
+               WRITE setX
+               RESET resetX)
+    Q_PROPERTY(qreal dx
+               READ dx
+               WRITE setDx
+               RESET resetDx)
+    Q_PROPERTY(int y
+               READ y
+               WRITE setY
+               RESET resetY)
 
     public:
         explicit Scratch(QObject *parent=NULL);
+        Scratch(qreal minLife, qreal maxLife,
+                qreal minDLife, qreal maxDLife,
+                qreal minX, qreal maxX,
+                qreal minDX, qreal maxDX,
+                int minY, int maxY);
         Scratch(const Scratch &other);
-        virtual ~Scratch();
         Scratch &operator =(const Scratch &other);
+        Scratch operator ++(int);
 
-        Q_INVOKABLE int life() const;
-        Q_INVOKABLE int x() const;
-        Q_INVOKABLE int dx() const;
-        Q_INVOKABLE int init() const;
+        Q_INVOKABLE qreal life() const;
+        Q_INVOKABLE qreal &life();
+        Q_INVOKABLE qreal dlife() const;
+        Q_INVOKABLE qreal &dlife();
+        Q_INVOKABLE qreal x() const;
+        Q_INVOKABLE qreal &x();
+        Q_INVOKABLE qreal dx() const;
+        Q_INVOKABLE qreal &dx();
+        Q_INVOKABLE int y() const;
+        Q_INVOKABLE int &y();
+
+        Q_INVOKABLE bool isAboutToDie() const;
 
     private:
-        int m_life;
-        int m_x;
-        int m_dx;
-        int m_init;
+        qreal m_life;
+        qreal m_dlife;
+        qreal m_x;
+        qreal m_dx;
+        int m_y;
+
+        qreal m_life0;
 
     public slots:
-        void setLife(int life);
-        void setX(int x);
-        void setDx(int dx);
-        void setInit(int init);
+        void setLife(qreal life);
+        void setDLife(qreal dlife);
+        void setX(qreal x);
+        void setDx(qreal dx);
+        void setY(int y);
         void resetLife();
+        void resetDLife();
         void resetX();
         void resetDx();
-        void resetInit();
+        void resetY();
 };
 
 #endif // SCRATCH_H

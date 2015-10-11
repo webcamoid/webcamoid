@@ -34,7 +34,7 @@ GridLayout {
         id: sldNScratches
         value: Aging.nScratches
         stepSize: 1
-        maximumValue: 1024
+        maximumValue: 255
 
         onValueChanged: Aging.nScratches = value
     }
@@ -47,38 +47,14 @@ GridLayout {
         onValueChanged: sldNScratches.value = value
     }
 
-    // Configure the number of scratch lines.
-    Label {
-        id: lblScratchLines
-        text: qsTr("Number of scratching lines")
-    }
-    Slider {
-        id: sldScratchLines
-        value: Aging.scratchLines
-        stepSize: 1
-        maximumValue: 256
-
-        onValueChanged: Aging.scratchLines = value
-    }
-    SpinBox {
-        id: spbScratchLines
-        value: sldScratchLines.value
-        maximumValue: sldScratchLines.maximumValue
-        stepSize: sldScratchLines.stepSize
-
-        onValueChanged: sldScratchLines.value = value
-    }
-
     // Aging mode.
     Label {
-        id: lblAgingMode
-        text: qsTr("Aging mode")
+        text: qsTr("Add dust")
     }
-    ComboBox {
-        id: sldAgingMode
-        currentIndex: Aging.agingMode
-        model: [0, 1]
+    CheckBox {
+        id: chkAddDust
+        checked: Aging.addDust
 
-        onCurrentIndexChanged: Aging.agingMode = currentIndex
+        onCheckedChanged: Aging.addDust = checked
     }
 }

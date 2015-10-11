@@ -18,13 +18,12 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "edgeelement.h"
 
 EdgeElement::EdgeElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=gray");
-
     this->m_canny = false;
     this->m_thLow = 510;
     this->m_thHi = 1020;
@@ -409,12 +408,12 @@ void EdgeElement::resetInvert()
 
 QbPacket EdgeElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), src.format());
 
     QVector<quint8> in;
@@ -470,6 +469,6 @@ QbPacket EdgeElement::iStream(const QbPacket &packet)
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

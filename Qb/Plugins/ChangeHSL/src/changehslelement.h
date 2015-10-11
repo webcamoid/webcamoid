@@ -21,7 +21,6 @@
 #ifndef CHANGEHSLELEMENT_H
 #define CHANGEHSLELEMENT_H
 
-#include <QColor>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -46,10 +45,9 @@ class ChangeHSLElement: public QbElement
 
     private:
         QVector<qreal> m_kernel;
-        QbElementPtr m_convert;
 
     signals:
-        void kernelChanged();
+        void kernelChanged(const QVariantList &kernel);
 
     public slots:
         void setKernel(const QVariantList &kernel);
