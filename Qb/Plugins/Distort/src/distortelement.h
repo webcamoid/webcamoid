@@ -22,7 +22,6 @@
 #define DISTORTELEMENT_H
 
 #include <cmath>
-#include <qrgb.h>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -62,8 +61,6 @@ class DistortElement: public QbElement
         qreal m_frequency;
         int m_gridSizeLog;
 
-        QbElementPtr m_convert;
-
         // this will compute a displacement value such that
         // 0<=x_retval<xsize and 0<=y_retval<ysize.
         inline QPoint plasmaFunction(const QPoint &point, const QSize &size,
@@ -89,9 +86,9 @@ class DistortElement: public QbElement
                                    int gridSize, qreal time);
 
     signals:
-        void amplitudeChanged();
-        void frequencyChanged();
-        void gridSizeLogChanged();
+        void amplitudeChanged(qreal amplitude);
+        void frequencyChanged(qreal frequency);
+        void gridSizeLogChanged(int gridSizeLog);
 
     public slots:
         void setAmplitude(qreal amplitude);

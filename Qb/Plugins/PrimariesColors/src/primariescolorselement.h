@@ -45,10 +45,9 @@ class PrimariesColorsElement: public QbElement
 
     private:
         int m_factor;
-        QbElementPtr m_convert;
 
     signals:
-        void factorChanged();
+        void factorChanged(int factor);
 
     public slots:
         void setFactor(int factor);

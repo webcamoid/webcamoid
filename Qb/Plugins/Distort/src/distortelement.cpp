@@ -22,12 +22,9 @@
 
 DistortElement::DistortElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetAmplitude();
-    this->resetFrequency();
-    this->resetGridSizeLog();
+    this->m_amplitude = 1.0;
+    this->m_frequency = 1.0;
+    this->m_gridSizeLog = 1;
 }
 
 QObject *DistortElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -83,28 +80,29 @@ QVector<QPoint> DistortElement::createGrid(int width, int height,
 
 void DistortElement::setAmplitude(qreal amplitude)
 {
-    if (amplitude != this->m_amplitude) {
-        this->m_amplitude = amplitude;
-        emit this->amplitudeChanged();
-    }
+    if (this->m_amplitude == amplitude)
+        return;
+
+    this->m_amplitude = amplitude;
+    emit this->amplitudeChanged(amplitude);
 }
 
 void DistortElement::setFrequency(qreal frequency)
 {
-    if (frequency != this->m_frequency) {
-        this->m_frequency = frequency;
-        emit this->frequencyChanged();
-    }
+    if (this->m_frequency == frequency)
+        return;
+
+    this->m_frequency = frequency;
+    emit this->frequencyChanged(frequency);
 }
 
 void DistortElement::setGridSizeLog(int gridSizeLog)
 {
-    gridSizeLog = gridSizeLog < 1? 1: gridSizeLog;
+    if (this->m_gridSizeLog == gridSizeLog)
+        return;
 
-    if (gridSizeLog != this->m_gridSizeLog) {
-        this->m_gridSizeLog = gridSizeLog;
-        emit this->gridSizeLogChanged();
-    }
+    this->m_gridSizeLog = gridSizeLog;
+    emit this->gridSizeLogChanged(gridSizeLog);
 }
 
 void DistortElement::resetAmplitude()
@@ -124,18 +122,18 @@ void DistortElement::resetGridSizeLog()
 
 QbPacket DistortElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
 
     QRgb *srcBits = (QRgb *) src.bits();
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    int gridSizeLog = this->m_gridSizeLog;
+    int gridSizeLog = this->m_gridSizeLog > 0? this->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;
     qreal time = packet.pts() * packet.timeBase().value();
     QVector<QPoint> grid = this->createGrid(src.width(), src.height(), gridSize, time);
@@ -197,6 +195,6 @@ QbPacket DistortElement::iStream(const QbPacket &packet)
             }
         }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

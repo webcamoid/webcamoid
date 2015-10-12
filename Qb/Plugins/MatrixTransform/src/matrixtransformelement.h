@@ -21,6 +21,7 @@
 #ifndef MATRIXTRANSFORMELEMENT_H
 #define MATRIXTRANSFORMELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -45,10 +46,11 @@ class MatrixTransformElement: public QbElement
 
     private:
         QVector<qreal> m_kernel;
-        QbElementPtr m_convert;
+
+        QMutex m_mutex;
 
     signals:
-        void kernelChanged();
+        void kernelChanged(const QVariantList &kernel);
 
     public slots:
         void setKernel(const QVariantList &kernel);

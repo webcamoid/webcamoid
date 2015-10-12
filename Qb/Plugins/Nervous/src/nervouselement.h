@@ -53,14 +53,13 @@ class NervousElement: public QbElement
         int m_nFrames;
         bool m_simple;
 
-        QbElementPtr m_convert;
         QVector<QImage> m_frames;
-        QbCaps m_caps;
+        QSize m_frameSize;
         int m_stride;
 
     signals:
-        void nFramesChanged();
-        void simpleChanged();
+        void nFramesChanged(int nFrames);
+        void simpleChanged(bool simple);
 
     public slots:
         void setNFrames(int nFrames);

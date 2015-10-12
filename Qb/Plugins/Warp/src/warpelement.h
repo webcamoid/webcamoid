@@ -21,7 +21,6 @@
 #ifndef WARPELEMENT_H
 #define WARPELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -47,12 +46,12 @@ class WarpElement: public QbElement
     private:
         qreal m_ripples;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
+        QSize m_frameSize;
         QVector<qreal> m_phiTable;
 
     signals:
-        void ripplesChanged();
+        void ripplesChanged(qreal ripples);
+        void frameSizeChanged(const QSize &frameSize);
 
     public slots:
         void setRipples(qreal ripples);

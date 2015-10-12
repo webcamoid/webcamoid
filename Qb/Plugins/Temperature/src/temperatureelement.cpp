@@ -22,13 +22,13 @@
 
 TemperatureElement::TemperatureElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetTemperature();
+    this->m_temperature = 6500;
+    this->colorFromTemperature(this->m_temperature,
+                               &this->m_kr, &this->m_kg, &this->m_kb);
 }
 
-QObject *TemperatureElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *TemperatureElement::controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -36,7 +36,8 @@ QObject *TemperatureElement::controlInterface(QQmlEngine *engine, const QString 
         return NULL;
 
     // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Temperature/share/qml/main.qml")));
+    QQmlComponent component(engine,
+                            QUrl(QStringLiteral("qrc:/Temperature/share/qml/main.qml")));
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
@@ -57,12 +58,13 @@ qreal TemperatureElement::temperature() const
 
 void TemperatureElement::setTemperature(qreal temperature)
 {
-    if (temperature != this->m_temperature) {
-        this->m_temperature = temperature;
-        this->colorFromTemperature(temperature,
-                                   &this->m_kr, &this->m_kg, &this->m_kb);
-        emit this->temperatureChanged();
-    }
+    if (this->m_temperature == temperature)
+        return;
+
+    this->m_temperature = temperature;
+    this->colorFromTemperature(temperature,
+                               &this->m_kr, &this->m_kg, &this->m_kb);
+    emit this->temperatureChanged(temperature);
 }
 
 void TemperatureElement::resetTemperature()
@@ -72,14 +74,13 @@ void TemperatureElement::resetTemperature()
 
 QbPacket TemperatureElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
 
     QRgb *srcBits = (QRgb *) src.bits();
@@ -97,6 +98,6 @@ QbPacket TemperatureElement::iStream(const QbPacket &packet)
         destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

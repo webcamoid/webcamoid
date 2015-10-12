@@ -117,21 +117,18 @@ class FaceDetectElement: public QbElement
         int m_blurRadius;
         QSize m_scanSize;
 
-        QbElementPtr m_convert;
-        QMap<MarkerType, QString> m_markerTypeToStr;
-        QMap<Qt::PenStyle, QString> m_markerStyleToStr;
         HaarDetector m_cascadeClassifier;
 
     signals:
-        void haarFileChanged();
-        void markerTypeChanged();
-        void markerColorChanged();
-        void markerWidthChanged();
-        void markerStyleChanged();
-        void markerImageChanged();
-        void pixelGridSizeChanged();
-        void blurRadiusChanged();
-        void scanSizeChanged();
+        void haarFileChanged(const QString &haarFile);
+        void markerTypeChanged(const QString &markerType);
+        void markerColorChanged(QRgb markerColor);
+        void markerWidthChanged(int markerWidth);
+        void markerStyleChanged(const QString &markerStyle);
+        void markerImageChanged(const QString &markerImage);
+        void pixelGridSizeChanged(const QSize &pixelGridSize);
+        void blurRadiusChanged(int blurRadius);
+        void scanSizeChanged(const QSize &scanSize);
 
     public slots:
         void setHaarFile(const QString &haarFile);

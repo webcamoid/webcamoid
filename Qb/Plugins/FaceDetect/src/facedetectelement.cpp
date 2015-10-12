@@ -23,32 +23,51 @@
 
 #include "facedetectelement.h"
 
+typedef QMap<FaceDetectElement::MarkerType, QString> MarkerTypeMap;
+
+inline MarkerTypeMap initMarkerTypeMap()
+{
+    MarkerTypeMap markerTypeToStr;
+    markerTypeToStr[FaceDetectElement::MarkerTypeRectangle] = "rectangle";
+    markerTypeToStr[FaceDetectElement::MarkerTypeEllipse] = "ellipse";
+    markerTypeToStr[FaceDetectElement::MarkerTypeImage] = "image";
+    markerTypeToStr[FaceDetectElement::MarkerTypePixelate] = "pixelate";
+    markerTypeToStr[FaceDetectElement::MarkerTypeBlur] = "blur";
+
+    return markerTypeToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(MarkerTypeMap, markerTypeToStr, (initMarkerTypeMap()))
+
+typedef QMap<Qt::PenStyle, QString> PenStyleMap;
+
+inline PenStyleMap initPenStyleMap()
+{
+    PenStyleMap markerStyleToStr;
+    markerStyleToStr[Qt::SolidLine] = "solid";
+    markerStyleToStr[Qt::DashLine] = "dash";
+    markerStyleToStr[Qt::DotLine] = "dot";
+    markerStyleToStr[Qt::DashDotLine] = "dashDot";
+    markerStyleToStr[Qt::DashDotDotLine] = "dashDotDot";
+
+    return markerStyleToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(PenStyleMap, markerStyleToStr, (initPenStyleMap()))
+
 FaceDetectElement::FaceDetectElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr24");
-
-    this->m_markerTypeToStr[MarkerTypeRectangle] = "rectangle";
-    this->m_markerTypeToStr[MarkerTypeEllipse] = "ellipse";
-    this->m_markerTypeToStr[MarkerTypeImage] = "image";
-    this->m_markerTypeToStr[MarkerTypePixelate] = "pixelate";
-    this->m_markerTypeToStr[MarkerTypeBlur] = "blur";
-
-    this->m_markerStyleToStr[Qt::SolidLine] = "solid";
-    this->m_markerStyleToStr[Qt::DashLine] = "dash";
-    this->m_markerStyleToStr[Qt::DotLine] = "dot";
-    this->m_markerStyleToStr[Qt::DashDotLine] = "dashDot";
-    this->m_markerStyleToStr[Qt::DashDotDotLine] = "dashDotDot";
-
-    this->resetHaarFile();
-    this->resetMarkerType();
-    this->resetMarkerColor();
-    this->resetMarkerWidth();
-    this->resetMarkerStyle();
-    this->resetMarkerImage();
-    this->resetPixelGridSize();
-    this->resetBlurRadius();
-    this->resetScanSize();
+    this->m_haarFile = ":/FaceDetect/share/haarcascades/haarcascade_frontalface_alt.xml";
+    this->m_cascadeClassifier.loadCascade(this->m_haarFile);
+    this->m_markerType = MarkerTypeRectangle;
+    this->m_markerPen.setColor(QColor(255, 0, 0));
+    this->m_markerPen.setWidth(3);
+    this->m_markerPen.setStyle(Qt::SolidLine);
+    this->m_markerImage = ":/FaceDetect/share/masks/cow.png";
+    this->m_markerImg = QImage(this->m_markerImage);
+    this->m_pixelGridSize = QSize(32, 32);
+    this->m_blurRadius = 32;
+    this->m_scanSize = QSize(160, 120);
 }
 
 QObject *FaceDetectElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -83,7 +102,7 @@ QString FaceDetectElement::haarFile() const
 
 QString FaceDetectElement::markerType() const
 {
-    return this->m_markerTypeToStr[this->m_markerType];
+    return markerTypeToStr->value(this->m_markerType);
 }
 
 QRgb FaceDetectElement::markerColor() const
@@ -101,7 +120,7 @@ int FaceDetectElement::markerWidth() const
 
 QString FaceDetectElement::markerStyle() const
 {
-    return this->m_markerStyleToStr[this->m_markerPen.style()];
+    return markerStyleToStr->value(this->m_markerPen.style());
 }
 
 QString FaceDetectElement::markerImage() const
@@ -126,30 +145,27 @@ QSize FaceDetectElement::scanSize() const
 
 void FaceDetectElement::setHaarFile(const QString &haarFile)
 {
-    if (haarFile != this->m_haarFile) {
-        if (this->m_cascadeClassifier.loadCascade(haarFile)) {
-            this->m_haarFile = haarFile;
-            emit this->haarFileChanged();
-        }
-        else {
-            if (this->m_haarFile != "") {
-                this->m_haarFile = "";
-                emit this->haarFileChanged();
-            }
-        }
+    if (this->m_haarFile == haarFile)
+        return;
+
+    if (this->m_cascadeClassifier.loadCascade(haarFile)) {
+        this->m_haarFile = haarFile;
+        emit this->haarFileChanged(haarFile);
+    } else if (this->m_haarFile != "") {
+        this->m_haarFile = "";
+        emit this->haarFileChanged(this->m_haarFile);
     }
 }
 
 void FaceDetectElement::setMarkerType(const QString &markerType)
 {
-    MarkerType markerTypeEnum = this->m_markerTypeToStr.values().contains(markerType)?
-                                    this->m_markerTypeToStr.key(markerType):
-                                    MarkerTypeRectangle;
+    MarkerType markerTypeEnum = markerTypeToStr->key(markerType, MarkerTypeRectangle);
 
-    if (markerTypeEnum != this->m_markerType) {
-        this->m_markerType = markerTypeEnum;
-        emit this->markerTypeChanged();
-    }
+    if (this->m_markerType == markerTypeEnum)
+        return;
+
+    this->m_markerType = markerTypeEnum;
+    emit this->markerTypeChanged(markerType);
 }
 
 void FaceDetectElement::setMarkerColor(QRgb markerColor)
@@ -158,66 +174,71 @@ void FaceDetectElement::setMarkerColor(QRgb markerColor)
                  qGreen(markerColor),
                  qRed(markerColor));
 
-    if (color != this->m_markerPen.color()) {
-        this->m_markerPen.setColor(color);
-        emit this->markerColorChanged();
-    }
+    if (this->m_markerPen.color() == color)
+        return;
+
+    this->m_markerPen.setColor(color);
+    emit this->markerColorChanged(markerColor);
 }
 
 void FaceDetectElement::setMarkerWidth(int markerWidth)
 {
-    if (markerWidth != this->m_markerPen.width()) {
-        this->m_markerPen.setWidth(markerWidth);
-        emit this->markerWidthChanged();
-    }
+    if (this->m_markerPen.width() == markerWidth)
+        return;
+
+    this->m_markerPen.setWidth(markerWidth);
+    emit this->markerWidthChanged(markerWidth);
 }
 
 void FaceDetectElement::setMarkerStyle(const QString &markerStyle)
 {
-    Qt::PenStyle penStyle = this->m_markerStyleToStr.values().contains(markerStyle)?
-                                this->m_markerStyleToStr.key(markerStyle):
-                                Qt::SolidLine;
+    Qt::PenStyle penStyle = markerStyleToStr->key(markerStyle, Qt::SolidLine);
 
-    if (penStyle != this->m_markerPen.style()) {
-        this->m_markerPen.setStyle(penStyle);
-        emit this->markerStyleChanged();
-    }
+    if (this->m_markerPen.style() == penStyle)
+        return;
+
+    this->m_markerPen.setStyle(penStyle);
+    emit this->markerStyleChanged(markerStyle);
 }
 
 void FaceDetectElement::setMarkerImage(const QString &markerImage)
 {
-    if (markerImage != this->m_markerImage) {
-        this->m_markerImage = markerImage;
+    if (this->m_markerImage == markerImage)
+        return;
 
-        if (!markerImage.isEmpty())
-            this->m_markerImg = QImage(markerImage).rgbSwapped();
+    this->m_markerImage = markerImage;
 
-        emit this->markerImageChanged();
-    }
+    if (!markerImage.isEmpty())
+        this->m_markerImg = QImage(markerImage);
+
+    emit this->markerImageChanged(markerImage);
 }
 
 void FaceDetectElement::setPixelGridSize(const QSize &pixelGridSize)
 {
-    if (pixelGridSize != this->m_pixelGridSize) {
-        this->m_pixelGridSize = pixelGridSize;
-        emit this->pixelGridSizeChanged();
-    }
+    if (this->m_pixelGridSize == pixelGridSize)
+        return;
+
+    this->m_pixelGridSize = pixelGridSize;
+    emit this->pixelGridSizeChanged(pixelGridSize);
 }
 
 void FaceDetectElement::setBlurRadius(int blurRadius)
 {
-    if (blurRadius != this->m_blurRadius) {
-        this->m_blurRadius = blurRadius;
-        emit this->blurRadiusChanged();
-    }
+    if (this->m_blurRadius == blurRadius)
+        return;
+
+    this->m_blurRadius = blurRadius;
+    emit this->blurRadiusChanged(blurRadius);
 }
 
 void FaceDetectElement::setScanSize(const QSize &scanSize)
 {
-    if (scanSize != this->m_scanSize) {
-        this->m_scanSize = scanSize;
-        emit this->scanSizeChanged();
-    }
+    if (this->m_scanSize == scanSize)
+        return;
+
+    this->m_scanSize = scanSize;
+    emit this->scanSizeChanged(scanSize);
 }
 
 void FaceDetectElement::resetHaarFile()
@@ -273,13 +294,12 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
         || scanSize.isEmpty())
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    QImage oFrame = src;
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
     qreal scale = 1;
 
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
@@ -307,12 +327,10 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
         if (this->m_markerType == MarkerTypeRectangle) {
             painter.setPen(this->m_markerPen);
             painter.drawRect(rect);
-        }
-        else if (this->m_markerType == MarkerTypeEllipse) {
+        } else if (this->m_markerType == MarkerTypeEllipse) {
             painter.setPen(this->m_markerPen);
             painter.drawEllipse(rect);
-        }
-        else if (this->m_markerType == MarkerTypeImage)
+        } else if (this->m_markerType == MarkerTypeImage)
             painter.drawImage(rect, this->m_markerImg);
         else if (this->m_markerType == MarkerTypePixelate) {
             qreal sw = 1.0 / this->m_pixelGridSize.width();
@@ -329,8 +347,7 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
                                                  Qt::FastTransformation);
 
             painter.drawImage(rect, imagePixelate);
-        }
-        else if (this->m_markerType == MarkerTypeBlur) {
+        } else if (this->m_markerType == MarkerTypeBlur) {
             QImage img = src.copy(rect);
             QGraphicsScene scene;
             QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(img));
@@ -351,6 +368,6 @@ QbPacket FaceDetectElement::iStream(const QbPacket &packet)
 
     painter.end();
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

@@ -22,11 +22,8 @@
 
 NervousElement::NervousElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetNFrames();
-    this->resetSimple();
+    this->m_nFrames = 32;
+    this->m_simple = false;
     this->m_stride = 0;
 }
 
@@ -64,18 +61,20 @@ bool NervousElement::simple() const
 
 void NervousElement::setNFrames(int nFrames)
 {
-    if (nFrames != this->m_nFrames) {
-        this->m_nFrames = nFrames;
-        this->nFramesChanged();
-    }
+    if (this->m_nFrames == nFrames)
+        return;
+
+    this->m_nFrames = nFrames;
+    this->nFramesChanged(nFrames);
 }
 
 void NervousElement::setSimple(bool simple)
 {
-    if (simple != this->m_simple) {
-        this->m_simple = simple;
-        this->simpleChanged();
-    }
+    if (this->m_simple == simple)
+        return;
+
+    this->m_simple = simple;
+    this->simpleChanged(simple);
 }
 
 void NervousElement::resetNFrames()
@@ -90,18 +89,15 @@ void NervousElement::resetSimple()
 
 QbPacket NervousElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    if (packet.caps() != this->m_caps) {
+    if (src.size() != this->m_frameSize) {
         this->m_frames.clear();
-        this->resetNFrames();
         this->m_stride = 0;
-
-        this->m_caps = packet.caps();
+        this->m_frameSize = src.size();
     }
 
     this->m_frames << src.copy();
@@ -121,22 +117,20 @@ QbPacket NervousElement::iStream(const QbPacket &packet)
             nFrame += this->m_stride;
             nFrame = qBound(0, nFrame, this->m_frames.size() - 1);
             timer--;
-        }
-        else {
+        } else {
             nFrame = qrand() % this->m_frames.size();
             this->m_stride = qrand() % 5 - 2;
 
-            if(this->m_stride >= 0)
+            if (this->m_stride >= 0)
                 this->m_stride++;
 
             timer = qrand() % 6 + 2;
         }
-    }
-    else if(this->m_frames.size() > 0)
+    } else if(this->m_frames.size() > 0)
         nFrame = qrand() % this->m_frames.size();
 
     QImage oFrame = this->m_frames[nFrame];
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

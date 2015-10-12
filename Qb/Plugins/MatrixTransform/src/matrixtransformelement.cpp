@@ -22,10 +22,8 @@
 
 MatrixTransformElement::MatrixTransformElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
-
-    this->resetKernel();
+    this->m_kernel << 1 << 0 << 0
+                   << 0 << 1 << 0;
 }
 
 QObject *MatrixTransformElement::controlInterface(QQmlEngine *engine,
@@ -68,10 +66,12 @@ void MatrixTransformElement::setKernel(const QVariantList &kernel)
     foreach (QVariant e, kernel)
         k << e.toReal();
 
-    if (k != this->m_kernel) {
-        this->m_kernel = k;
-        emit this->kernelChanged();
-    }
+    if (this->m_kernel == k)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_kernel = k;
+    emit this->kernelChanged(kernel);
 }
 
 void MatrixTransformElement::resetKernel()
@@ -86,38 +86,42 @@ void MatrixTransformElement::resetKernel()
 
 QbPacket MatrixTransformElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    this->m_mutex.lock();
+    QVector<qreal> kernel = this->m_kernel;
+    this->m_mutex.unlock();
 
-    qreal det = this->m_kernel[0] * this->m_kernel[4]
-                - this->m_kernel[1] * this->m_kernel[3];
+    qreal det = kernel[0] * kernel[4] - kernel[1] * kernel[3];
 
     QRect rect(0, 0, src.width(), src.height());
     int cx = src.width() >> 1;
     int cy = src.height() >> 1;
 
-    for (int i = 0, y = 0; y < src.height(); y++)
-        for (int x = 0; x < src.width(); i++, x++) {
-            int dx = x - cx - this->m_kernel[2];
-            int dy = y - cy - this->m_kernel[5];
+    for (int y = 0; y < src.height(); y++) {
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 
-            int xp = cx + (dx * this->m_kernel[4] - dy * this->m_kernel[3]) / det;
-            int yp = cy + (dy * this->m_kernel[0] - dx * this->m_kernel[1]) / det;
+        for (int x = 0; x < src.width(); x++) {
+            int dx = x - cx - kernel[2];
+            int dy = y - cy - kernel[5];
 
-            if (rect.contains(xp, yp))
-                destBits[i] = srcBits[xp + yp * src.width()];
-            else
-                destBits[i] = qRgba(0, 0, 0, 0);
+            int xp = cx + (dx * kernel[4] - dy * kernel[3]) / det;
+            int yp = cy + (dy * kernel[0] - dx * kernel[1]) / det;
+
+            if (rect.contains(xp, yp)) {
+                const QRgb *iLine = (const QRgb *) src.constScanLine(yp);
+                oLine[x] = iLine[xp];
+            } else
+                oLine[x] = qRgba(0, 0, 0, 0);
         }
+    }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

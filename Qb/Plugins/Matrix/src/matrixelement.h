@@ -21,6 +21,7 @@
 #ifndef MATRIXELEMENT_H
 #define MATRIXELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -119,11 +120,11 @@ class MatrixElement: public QbElement
         qreal m_maxSpeed;
         bool m_showCursor;
 
-        QbCaps m_caps;
         QbElementPtr m_convert;
         QList<Character> m_characters;
         QSize m_fontSize;
         QList<RainDrop> m_rain;
+        QMutex m_mutex;
 
         QSize fontSize(const QString &chrTable, const QFont &font) const;
         QImage drawChar(const QChar &chr, const QFont &font,
@@ -131,24 +132,20 @@ class MatrixElement: public QbElement
                         QRgb foreground, QRgb background) const;
         int imageWeight(const QImage &image) const;
         static bool chrLessThan(const Character &chr1, const Character &chr2);
-        void createCharTable(const QString &charTable, const QFont &font,
-                             QRgb cursor,
-                             QRgb foreground,
-                             QRgb background);
         QImage renderRain(const QSize &frameSize, const QImage &textImage);
 
     signals:
-        void nDropsChanged();
-        void charTableChanged();
-        void fontChanged();
-        void cursorColorChanged();
-        void foregroundColorChanged();
-        void backgroundColorChanged();
-        void minDropLengthChanged();
-        void maxDropLengthChanged();
-        void minSpeedChanged();
-        void maxSpeedChanged();
-        void showCursorChanged();
+        void nDropsChanged(int nDrops);
+        void charTableChanged(const QString &charTable);
+        void fontChanged(const QFont &font);
+        void cursorColorChanged(QRgb cursorColor);
+        void foregroundColorChanged(QRgb foregroundColor);
+        void backgroundColorChanged(QRgb backgroundColor);
+        void minDropLengthChanged(int minDropLength);
+        void maxDropLengthChanged(int maxDropLength);
+        void minSpeedChanged(qreal minSpeed);
+        void maxSpeedChanged(qreal maxSpeed);
+        void showCursorChanged(bool showCursor);
 
     public slots:
         void setNDrops(int nDrops);
@@ -175,6 +172,9 @@ class MatrixElement: public QbElement
         void resetShowCursor();
 
         QbPacket iStream(const QbPacket &packet);
+
+    private slots:
+        void updateCharTable();
 };
 
 #endif // MATRIXELEMENT_H

@@ -160,13 +160,11 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
                 if (showCursor) {
                     foreground = this->m_endColor;
                     background = this->m_cursorColor;
-                }
-                else {
+                } else {
                     foreground = this->m_cursorColor;
                     background = this->m_endColor;
                 }
-            }
-            else {
+            } else {
                 chr = this->m_line[c];
                 foreground = this->gradient(i,
                                             tailColor,

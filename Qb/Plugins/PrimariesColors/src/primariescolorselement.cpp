@@ -22,10 +22,7 @@
 
 PrimariesColorsElement::PrimariesColorsElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetFactor();
+    this->m_factor = 2;
 }
 
 QObject *PrimariesColorsElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -57,10 +54,11 @@ int PrimariesColorsElement::factor() const
 
 void PrimariesColorsElement::setFactor(int factor)
 {
-    if (factor != this->m_factor) {
-        this->m_factor = factor;
-        emit this->factorChanged();
-    }
+    if (this->m_factor == factor)
+        return;
+
+    this->m_factor = factor;
+    emit this->factorChanged(factor);
 }
 
 void PrimariesColorsElement::resetFactor()
@@ -70,14 +68,13 @@ void PrimariesColorsElement::resetFactor()
 
 QbPacket PrimariesColorsElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
 
     QRgb *srcBits = (QRgb *) src.bits();
@@ -113,6 +110,6 @@ QbPacket PrimariesColorsElement::iStream(const QbPacket &packet)
         destBits[i] = qRgba(r, g, b, qAlpha(pixel));
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

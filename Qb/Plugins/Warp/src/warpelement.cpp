@@ -18,17 +18,17 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "warpelement.h"
 
 WarpElement::WarpElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetRipples();
+    this->m_ripples = 4;
 }
 
-QObject *WarpElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *WarpElement::controlInterface(QQmlEngine *engine,
+                                       const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -57,10 +57,11 @@ qreal WarpElement::ripples() const
 
 void WarpElement::setRipples(qreal ripples)
 {
-    if (ripples != this->m_ripples) {
-        this->m_ripples = ripples;
-        emit this->ripplesChanged();
-    }
+    if (this->m_ripples == ripples)
+        return;
+
+    this->m_ripples = ripples;
+    emit this->ripplesChanged(ripples);
 }
 
 void WarpElement::resetRipples()
@@ -70,18 +71,15 @@ void WarpElement::resetRipples()
 
 QbPacket WarpElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
-
-    if (packet.caps() != this->m_caps) {
+    if (src.size() != this->m_frameSize) {
         int cx = src.width() >> 1;
         int cy = src.height() >> 1;
 
@@ -93,7 +91,8 @@ QbPacket WarpElement::iStream(const QbPacket &packet)
             for (int x = -cx; x < cx; x++)
                 this->m_phiTable << k * sqrt(x * x + y * y);
 
-        this->m_caps = packet.caps();
+        this->m_frameSize = src.size();
+        emit this->frameSizeChanged(this->m_frameSize);
     }
 
     static int tval = 0;
@@ -109,8 +108,10 @@ QbPacket WarpElement::iStream(const QbPacket &packet)
     tval = (tval + 1) & 511;
     qreal *phiTable = this->m_phiTable.data();
 
-    for (int i = 0, y = 0; y < src.height(); y++)
-        for (int x = 0; x < src.width(); i++, x++) {
+    for (int y = 0, i = 0; y < src.height(); y++) {
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+
+        for (int x = 0; x < src.width(); x++, i++) {
             qreal phi = ripples * phiTable[i];
 
             int xOrig = dx * cos(phi) + x;
@@ -119,9 +120,11 @@ QbPacket WarpElement::iStream(const QbPacket &packet)
             xOrig = qBound(0, xOrig, src.width());
             yOrig = qBound(0, yOrig, src.height());
 
-            destBits[i] = srcBits[xOrig + src.width() * yOrig];
+            const QRgb *iLine = (const QRgb *) src.constScanLine(yOrig);
+            oLine[x] = iLine[xOrig];
         }
+    }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

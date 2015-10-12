@@ -47,7 +47,6 @@ class TemperatureElement: public QbElement
     private:
         qreal m_temperature;
 
-        QbElementPtr m_convert;
         qreal m_kr;
         qreal m_kg;
         qreal m_kb;
@@ -82,7 +81,7 @@ class TemperatureElement: public QbElement
         }
 
     signals:
-        void temperatureChanged();
+        void temperatureChanged(qreal temperature);
 
     public slots:
         void setTemperature(qreal temperature);
