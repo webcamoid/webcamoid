@@ -24,9 +24,6 @@
 
 MatrixElement::MatrixElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
-
     this->m_nDrops = 25;
 
     for (int i = 32; i < 127; i++)
