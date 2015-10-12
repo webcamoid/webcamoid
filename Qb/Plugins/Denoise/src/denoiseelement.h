@@ -72,8 +72,6 @@ class DenoiseElement: public QbElement
         qreal m_sigma;
         int *m_weight;
 
-        QbElementPtr m_convert;
-
         inline void makeTable(int factor)
         {
             for (int s = 0; s < 128; s++) {
@@ -104,10 +102,10 @@ class DenoiseElement: public QbElement
                             const DenoiseParams *params);
 
     signals:
-        void radiusChanged();
-        void factorChanged();
-        void muChanged();
-        void sigmaChanged();
+        void radiusChanged(int radius);
+        void factorChanged(int factor);
+        void muChanged(int mu);
+        void sigmaChanged(qreal sigma);
 
     public slots:
         void setRadius(int radius);

@@ -31,8 +31,7 @@ CONFIG += plugin
 
 HEADERS += \
     src/convolve.h \
-    src/convolveelement.h \
-    src/defs.h
+    src/convolveelement.h
 
 INCLUDEPATH += \
     ../../Lib/src

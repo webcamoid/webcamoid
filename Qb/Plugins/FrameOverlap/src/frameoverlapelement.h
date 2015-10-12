@@ -21,7 +21,6 @@
 #ifndef FRAMEOVERLAPELEMENT_H
 #define FRAMEOVERLAPELEMENT_H
 
-#include <QColor>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -54,13 +53,12 @@ class FrameOverlapElement: public QbElement
         int m_nFrames;
         int m_stride;
 
-        QbElementPtr m_convert;
         QVector<QImage> m_frames;
-        QbCaps m_caps;
+        QSize m_frameSize;
 
     signals:
-        void nFramesChanged();
-        void strideChanged();
+        void nFramesChanged(int nFrames);
+        void strideChanged(int stride);
 
     public slots:
         void setNFrames(int nFrames);

@@ -22,13 +22,8 @@
 
 FrameOverlapElement::FrameOverlapElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    qRegisterMetaType<QRgb>("QRgb");
-
-    this->resetNFrames();
-    this->resetStride();
+    this->m_nFrames = 16;
+    this->m_stride = 4;
 }
 
 QObject *FrameOverlapElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -65,21 +60,20 @@ int FrameOverlapElement::stride() const
 
 void FrameOverlapElement::setNFrames(int nFrames)
 {
-    if (nFrames != this->m_nFrames) {
-        this->m_nFrames = nFrames;
-        emit this->nFramesChanged();
-    }
+    if (this->m_nFrames == nFrames)
+        return;
+
+    this->m_nFrames = nFrames;
+    emit this->nFramesChanged(nFrames);
 }
 
 void FrameOverlapElement::setStride(int stride)
 {
-    if (stride < 1)
-        stride = 1;
+    if (this->m_stride == stride)
+        return;
 
-    if (stride != this->m_stride) {
-        this->m_stride = stride;
-        emit this->strideChanged();
-    }
+    this->m_stride = stride;
+    emit this->strideChanged(stride);
 }
 
 void FrameOverlapElement::resetNFrames()
@@ -94,23 +88,20 @@ void FrameOverlapElement::resetStride()
 
 QbPacket FrameOverlapElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
     QRgb *destBits = (QRgb *) oFrame.bits();
 
-    if (packet.caps() != this->m_caps) {
+    if (src.size() != this->m_frameSize) {
         this->m_frames.clear();
-        this->resetNFrames();
-        this->resetStride();
-
-        this->m_caps = packet.caps();
+        this->m_frameSize = src.size();
     }
 
     this->m_frames << src.copy();
@@ -120,6 +111,7 @@ QbPacket FrameOverlapElement::iStream(const QbPacket &packet)
         this->m_frames.takeFirst();
 
     QVector<QRgb *> framesBits;
+    int stride = this->m_stride > 0? this->m_stride: 1;
 
     for (int frame = 0; frame < this->m_frames.size(); frame++)
         framesBits << (QRgb *) this->m_frames[frame].bits();
@@ -133,7 +125,7 @@ QbPacket FrameOverlapElement::iStream(const QbPacket &packet)
 
         for (int frame = this->m_frames.size() - 1;
              frame >= 0;
-             frame -= this->m_stride) {
+             frame -= stride) {
             QRgb pixel = framesBits[frame][i];
 
             r += qRed(pixel);
@@ -151,6 +143,6 @@ QbPacket FrameOverlapElement::iStream(const QbPacket &packet)
         destBits[i] = qRgba(r, g, b, a);
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

@@ -23,7 +23,6 @@
 
 #include <QQmlComponent>
 #include <QQmlContext>
-
 #include <qb.h>
 #include <qbutils.h>
 
@@ -48,14 +47,13 @@ class BlurElement: public QbElement
 
     private:
         int m_radius;
-        QbElementPtr m_convert;
 
         void integralImage(const QImage &image,
                            int oWidth, int oHeight,
                            PixelU32 *integral);
 
     signals:
-        void radiusChanged();
+        void radiusChanged(int radius);
 
     public slots:
         void setRadius(int radius);

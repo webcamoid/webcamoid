@@ -24,10 +24,8 @@
 
 ColorTapElement::ColorTapElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetTable();
+    this->m_tableName = ":/ColorTap/share/tables/base.bmp";
+    this->m_table = QImage(this->m_tableName).scaled(16, 16);
 }
 
 QObject *ColorTapElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -62,15 +60,27 @@ QString ColorTapElement::table() const
 
 void ColorTapElement::setTable(const QString &table)
 {
-    if (table != this->m_tableName) {
-        this->m_tableName = table;
-        this->m_table = table.isEmpty()? QImage(): QImage(table);
+    if (this->m_tableName == table)
+        return;
 
-        if (!this->m_table.isNull())
-            this->m_table = this->m_table.scaled(16, 16);
+    QString tableName;
+    QImage tableImg;
 
-        emit this->tableChanged();
+    if (!table.isEmpty()) {
+        tableImg = QImage(table);
+
+        if (tableImg.isNull()) {
+            if (this->m_tableName.isNull())
+                return;
+        } else {
+            tableName = table;
+            tableImg = tableImg.scaled(16, 16);
+        }
     }
+
+    this->m_tableName = tableName;
+    this->m_table = tableImg;
+    emit this->tableChanged(this->m_tableName);
 }
 
 void ColorTapElement::resetTable()
@@ -83,12 +93,12 @@ QbPacket ColorTapElement::iStream(const QbPacket &packet)
     if (this->m_table.isNull())
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
@@ -109,6 +119,6 @@ QbPacket ColorTapElement::iStream(const QbPacket &packet)
         destBits[i] = qRgb(ro, go, bo);
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

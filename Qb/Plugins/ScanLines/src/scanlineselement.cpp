@@ -22,12 +22,9 @@
 
 ScanLinesElement::ScanLinesElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetShowSize();
-    this->resetHideSize();
-    this->resetHideColor();
+    this->m_showSize = 1;
+    this->m_hideSize = 4;
+    this->m_hideColor = qRgb(0, 0, 0);
 }
 
 QObject *ScanLinesElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -69,26 +66,29 @@ QRgb ScanLinesElement::hideColor() const
 
 void ScanLinesElement::setShowSize(int showSize)
 {
-    if (showSize != this->m_showSize) {
-        this->m_showSize = showSize;
-        emit this->showSizeChanged();
-    }
+    if (this->m_showSize == showSize)
+        return;
+
+    this->m_showSize = showSize;
+    emit this->showSizeChanged(showSize);
 }
 
 void ScanLinesElement::setHideSize(int hideSize)
 {
-    if (hideSize != this->m_hideSize) {
-        this->m_hideSize = hideSize;
-        emit this->hideSizeChanged();
-    }
+    if (this->m_hideSize == hideSize)
+        return;
+
+    this->m_hideSize = hideSize;
+    emit this->hideSizeChanged(hideSize);
 }
 
 void ScanLinesElement::setHideColor(QRgb hideColor)
 {
-    if (hideColor != this->m_hideColor) {
-        this->m_hideColor = hideColor;
-        emit this->hideColorChanged();
-    }
+    if (this->m_hideColor == hideColor)
+        return;
+
+    this->m_hideColor = hideColor;
+    emit this->hideColorChanged(hideColor);
 }
 
 void ScanLinesElement::resetShowSize()
@@ -108,12 +108,12 @@ void ScanLinesElement::resetHideColor()
 
 QbPacket ScanLinesElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int showSize = this->m_showSize;
@@ -136,6 +136,6 @@ QbPacket ScanLinesElement::iStream(const QbPacket &packet)
         y--;
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

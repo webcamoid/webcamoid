@@ -22,10 +22,7 @@
 
 BlurElement::BlurElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetRadius();
+    this->m_radius = 5;
 }
 
 QObject *BlurElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -86,10 +83,11 @@ void BlurElement::integralImage(const QImage &image,
 
 void BlurElement::setRadius(int radius)
 {
-    if (radius != this->m_radius) {
-        this->m_radius = radius;
-        emit this->radiusChanged();
-    }
+    if (this->m_radius == radius)
+        return;
+
+    this->m_radius = radius;
+    emit this->radiusChanged(radius);
 }
 
 void BlurElement::resetRadius()
@@ -99,12 +97,12 @@ void BlurElement::resetRadius()
 
 QbPacket BlurElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     int oWidth = src.width() + 1;
@@ -133,6 +131,6 @@ QbPacket BlurElement::iStream(const QbPacket &packet)
 
     delete [] integral;
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

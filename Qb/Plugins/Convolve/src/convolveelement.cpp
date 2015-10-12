@@ -19,20 +19,19 @@
  */
 
 #include "convolveelement.h"
-#include "defs.h"
 
 ConvolveElement::ConvolveElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetKernel();
-    this->resetKernelSize();
-    this->resetFactor();
-    this->resetBias();
+    this->m_kernel << 0 << 0 << 0
+                   << 0 << 1 << 0
+                   << 0 << 0 << 0;
+    this->m_kernelSize = QSize(3, 3);
+    this->m_factor = QbFrac(1, 1);
+    this->m_bias = 0;
 }
 
-QObject *ConvolveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *ConvolveElement::controlInterface(QQmlEngine *engine,
+                                           const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -86,34 +85,42 @@ void ConvolveElement::setKernel(const QVariantList &kernel)
     foreach (QVariant e, kernel)
         k << e.toInt();
 
-    if (k != this->m_kernel) {
-        this->m_kernel = k;
-        emit this->kernelChanged();
-    }
+    if (this->m_kernel == k)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_kernel = k;
+    emit this->kernelChanged(kernel);
 }
 
 void ConvolveElement::setKernelSize(const QSize &kernelSize)
 {
-    if (kernelSize != this->m_kernelSize) {
-        this->m_kernelSize = kernelSize;
-        emit this->kernelSizeChanged();
-    }
+    if (this->m_kernelSize == kernelSize)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_kernelSize = kernelSize;
+    emit this->kernelSizeChanged(kernelSize);
 }
 
 void ConvolveElement::setFactor(const QbFrac &factor)
 {
-    if (factor != this->m_factor) {
-        this->m_factor = factor;
-        emit this->factorChanged();
-    }
+    if (this->m_factor == factor)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_factor = factor;
+    emit this->factorChanged(factor);
 }
 
 void ConvolveElement::setBias(int bias)
 {
-    if (bias != this->m_bias) {
-        this->m_bias = bias;
-        emit this->biasChanged();
-    }
+    if (this->m_bias == bias)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_bias = bias;
+    emit this->biasChanged(bias);
 }
 
 void ConvolveElement::resetKernel()
@@ -134,7 +141,7 @@ void ConvolveElement::resetKernelSize()
 
 void ConvolveElement::resetFactor()
 {
-    this->setFactor(QbFrac(0, 0));
+    this->setFactor(QbFrac(1, 1));
 }
 
 void ConvolveElement::resetBias()
@@ -144,107 +151,70 @@ void ConvolveElement::resetBias()
 
 QbPacket ConvolveElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    Pixel *iPixel = (Pixel *) src.bits();
-    quint8 *oPixel = (quint8 *) oFrame.bits();
-    Pixel *srcBits = iPixel;
 
-    int srcWidth = src.width();
-    int srcHeight = src.height();
-    int *kernelBits = const_cast<int *>(this->m_kernel.data());
+    this->m_mutex.lock();
+    QVector<int> kernel = this->m_kernel;
+    const int *kernelBits = kernel.constData();
     int factorNum = this->m_factor.num();
     int factorDen = this->m_factor.den();
-    int minI;
-    int maxI;
-    int minJ;
-    int maxJ;
     int kernelWidth = this->m_kernelSize.width();
     int kernelHeight = this->m_kernelSize.height();
-    int dxMin = (kernelWidth - 1) >> 1;
-    int dxMax = (kernelWidth + 1) >> 1;
-    int dyMin = (kernelHeight - 1) >> 1;
-    int dyMax = (kernelHeight + 1) >> 1;
-    int sw = kernelWidth + srcWidth;
-    int sh = kernelHeight + srcHeight;
+    this->m_mutex.unlock();
 
-    for (int y = 0; y < srcHeight; y++) {
-        int minY = y - dyMin;
-        int maxY = y + dyMax;
+    int minI = -(kernelWidth - 1) / 2;
+    int maxI = (kernelWidth + 1) / 2;
+    int minJ = -(kernelHeight - 1) / 2;
+    int maxJ = (kernelHeight + 1) / 2;
 
-        if (minY < 0) {
-            minJ = qAbs(minY);
-            minY = 0;
-        }
-        else
-            minJ = 0;
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 
-        if (maxY > srcHeight) {
-            maxJ = sh - maxY;
-            maxY = srcHeight;
-        }
-        else
-            maxJ = kernelHeight;
-
-        int *k0 = kernelBits + minJ * kernelWidth;
-        Pixel *src0 = srcBits + minY * srcWidth;
-
-        for (int x = 0; x < srcWidth; x++) {
-            int minX = x - dxMin;
-            int maxX = x + dxMax;
-
-            if (minX < 0) {
-                minI = qAbs(minX);
-                minX = 0;
-            }
-            else
-                minI = 0;
-
-            if (maxX > srcWidth) {
-                maxI = sw - maxX;
-                maxX = srcWidth;
-            }
-            else
-                maxI = kernelWidth;
-
-            int diffX = srcWidth - maxX + minX;
-            int diffI = kernelWidth - maxI - minI;
-
+        for (int x = 0; x < src.width(); x++) {
             int r = 0;
             int g = 0;
             int b = 0;
 
-            int *k = k0 + minI;
-            Pixel *src = src0 + minX;
+            for (int j = minJ, k = 0; j < maxJ; j++) {
+                int yp = qBound(0, y + j, src.height() - 1);
+                const QRgb *iLine = (const QRgb *) src.constScanLine(yp);
 
-            for (int j = minJ; j < maxJ; j++, k += diffI, src += diffX)
-                for (int i = minI; i < maxI; i++, k++, src++)
-                    if (*k) {
-                        r += *k * src->r;
-                        g += *k * src->g;
-                        b += *k * src->b;
+                for (int i = minI; i < maxI; i++, k++) {
+                    int xp = qBound(0, x + i, src.width() - 1);
+
+                    if (kernelBits[k]) {
+                        r += kernelBits[k] * qRed(iLine[xp]);
+                        g += kernelBits[k] * qGreen(iLine[xp]);
+                        b += kernelBits[k] * qBlue(iLine[xp]);
                     }
+                }
+            }
 
             if (factorNum) {
                 r = factorNum * r / factorDen + this->m_bias;
                 g = factorNum * g / factorDen + this->m_bias;
                 b = factorNum * b / factorDen + this->m_bias;
+
+                r = qBound(0, r, 255);
+                g = qBound(0, g, 255);
+                b = qBound(0, b, 255);
+            } else {
+                r = 255;
+                g = 255;
+                b = 255;
             }
 
-            *oPixel++ = qBound(0, b, 255);
-            *oPixel++ = qBound(0, g, 255);
-            *oPixel++ = qBound(0, r, 255);
-            *oPixel++ = iPixel->a;
-
-            iPixel++;
+            oLine[x] = qRgba(r, g, b, qAlpha(iLine[x]));
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

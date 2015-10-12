@@ -245,7 +245,7 @@ QbPacket AgingElement::iStream(const QbPacket &packet)
     if (src.isNull())
         return QbPacket();
 
-    QImage oFrame = src.convertToFormat(QImage::Format_RGB32);
+    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
     oFrame = this->colorAging(oFrame);
     this->scratching(oFrame);
     this->pits(oFrame);

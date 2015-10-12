@@ -60,12 +60,10 @@ class ScanLinesElement: public QbElement
         int m_hideSize;
         QRgb m_hideColor;
 
-        QbElementPtr m_convert;
-
     signals:
-        void showSizeChanged();
-        void hideSizeChanged();
-        void hideColorChanged();
+        void showSizeChanged(int showSize);
+        void hideSizeChanged(int hideSize);
+        void hideColorChanged(QRgb hideColor);
 
     public slots:
         void setShowSize(int showSize);

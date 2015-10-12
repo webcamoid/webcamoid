@@ -21,7 +21,6 @@
 #ifndef COLORTAPELEMENT_H
 #define COLORTAPELEMENT_H
 
-#include <qrgb.h>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -48,10 +47,8 @@ class ColorTapElement: public QbElement
         QImage m_table;
         QString m_tableName;
 
-        QbElementPtr m_convert;
-
     signals:
-        void tableChanged();
+        void tableChanged(const QString &table);
 
     public slots:
         void setTable(const QString &table);

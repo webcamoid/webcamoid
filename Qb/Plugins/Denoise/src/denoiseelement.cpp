@@ -24,9 +24,6 @@
 
 DenoiseElement::DenoiseElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
     this->m_radius = 1;
     this->m_factor = 1024;
     this->m_mu = 0;
@@ -177,34 +174,38 @@ void DenoiseElement::denoise(const DenoiseStaticParams &staticParams,
 
 void DenoiseElement::setRadius(int radius)
 {
-    if (radius != this->m_radius) {
-        this->m_radius = radius;
-        emit this->radiusChanged();
-    }
+    if (this->m_radius == radius)
+        return;
+
+    this->m_radius = radius;
+    emit this->radiusChanged(radius);
 }
 
 void DenoiseElement::setFactor(int factor)
 {
-    if (factor != this->m_factor) {
-        this->m_factor = factor;
-        emit this->factorChanged();
-    }
+    if (this->m_factor == factor)
+        return;
+
+    this->m_factor = factor;
+    emit this->factorChanged(factor);
 }
 
 void DenoiseElement::setMu(int mu)
 {
-    if (mu != this->m_mu) {
-        this->m_mu = mu;
-        emit this->muChanged();
-    }
+    if (this->m_mu == mu)
+        return;
+
+    this->m_mu = mu;
+    emit this->muChanged(mu);
 }
 
 void DenoiseElement::setSigma(qreal sigma)
 {
-    if (sigma != this->m_sigma) {
-        this->m_sigma = sigma;
-        emit this->sigmaChanged();
-    }
+    if (this->m_sigma == sigma)
+        return;
+
+    this->m_sigma = sigma;
+    emit this->sigmaChanged(sigma);
 }
 
 void DenoiseElement::resetRadius()
@@ -234,11 +235,12 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
     if (radius < 1)
         qbSend(packet)
 
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
+
+    src = src.convertToFormat(QImage::Format_ARGB32);
 
     static int factor = 1024;
 
@@ -302,6 +304,6 @@ QbPacket DenoiseElement::iStream(const QbPacket &packet)
     delete [] integral;
     delete [] integral2;
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

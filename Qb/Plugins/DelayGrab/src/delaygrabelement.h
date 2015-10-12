@@ -21,7 +21,7 @@
 #ifndef DELAYGRABELEMENT_H
 #define DELAYGRABELEMENT_H
 
-#include <cmath>
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -74,20 +74,16 @@ class DelayGrabElement: public QbElement
         int m_blockSize;
         int m_nFrames;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
-        QMap<DelayGrabMode, QString> m_modeToStr;
+        QMutex m_mutex;
+        QSize m_frameSize;
         QVector<QImage> m_frames;
-        int m_delayMapWidth;
-        int m_delayMapHeight;
         QVector<int> m_delayMap;
 
-        QVector<int> createDelaymap(DelayGrabMode mode);
-
     signals:
-        void modeChanged();
-        void blockSizeChanged();
-        void nFramesChanged();
+        void modeChanged(const QString &mode);
+        void blockSizeChanged(int blockSize);
+        void nFramesChanged(int nFrames);
+        void frameSizeChanged(const QSize &frameSize);
 
     public slots:
         void setMode(const QString &mode);
@@ -97,6 +93,9 @@ class DelayGrabElement: public QbElement
         void resetBlockSize();
         void resetNFrames();
         QbPacket iStream(const QbPacket &packet);
+
+    private slots:
+        void updateDelaymap();
 };
 
 #endif // DELAYGRABELEMENT_H

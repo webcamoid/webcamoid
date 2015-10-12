@@ -21,6 +21,7 @@
 #ifndef CONVOLVEELEMENT_H
 #define CONVOLVEELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -67,13 +68,13 @@ class ConvolveElement: public QbElement
         QbFrac m_factor;
         int m_bias;
 
-        QbElementPtr m_convert;
+        QMutex m_mutex;
 
     signals:
-        void kernelChanged();
-        void kernelSizeChanged();
-        void factorChanged();
-        void biasChanged();
+        void kernelChanged(const QVariantList &kernel);
+        void kernelSizeChanged(const QSize &kernelSize);
+        void factorChanged(const QbFrac &factor);
+        void biasChanged(int bias);
 
     public slots:
         void setKernel(const QVariantList &kernel);
