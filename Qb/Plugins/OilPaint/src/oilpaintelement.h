@@ -45,10 +45,9 @@ class OilPaintElement: public QbElement
 
     private:
         int m_radius;
-        QbElementPtr m_convert;
 
     signals:
-        void radiusChanged();
+        void radiusChanged(int radius);
 
     public slots:
         void setRadius(int radius);

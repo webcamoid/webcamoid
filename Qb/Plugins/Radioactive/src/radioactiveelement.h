@@ -21,13 +21,8 @@
 #ifndef RADIOACTIVEELEMENT_H
 #define RADIOACTIVEELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
-#include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsBlurEffect>
 #include <qb.h>
 #include <qbutils.h>
 
@@ -102,11 +97,9 @@ class RadioactiveElement: public QbElement
         int m_alphaDiff;
         QRgb m_radColor;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
+        QSize m_frameSize;
         QImage m_prevFrame;
         QImage m_blurZoomBuffer;
-        QMap<RadiationMode, QString> m_radiationModeToStr;
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -118,13 +111,13 @@ class RadioactiveElement: public QbElement
         QImage imageAlphaDiff(const QImage &src, int alphaDiff);
 
     signals:
-        void modeChanged();
-        void blurChanged();
-        void zoomChanged();
-        void thresholdChanged();
-        void lumaThresholdChanged();
-        void alphaDiffChanged();
-        void radColorChanged();
+        void modeChanged(const QString &mode);
+        void blurChanged(qreal blur);
+        void zoomChanged(qreal zoom);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
+        void alphaDiffChanged(int alphaDiff);
+        void radColorChanged(QRgb radColor);
 
     public slots:
         void setMode(const QString &mode);

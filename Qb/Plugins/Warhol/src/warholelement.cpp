@@ -22,14 +22,11 @@
 
 WarholElement::WarholElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
+    this->m_nFrames = 3;
 
     this->m_colorTable << 0x000080 << 0x008000 << 0x800000
                        << 0x00e000 << 0x808000 << 0x800080
                        << 0x808080 << 0x008080 << 0xe0e000;
-
-    this->resetNFrames();
 }
 
 QObject *WarholElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -61,10 +58,11 @@ int WarholElement::nFrames() const
 
 void WarholElement::setNFrames(int nFrames)
 {
-    if (nFrames != this->m_nFrames) {
-        this->m_nFrames = nFrames;
-        emit this->nFramesChanged();
-    }
+    if (this->m_nFrames == nFrames)
+        return;
+
+    this->m_nFrames = nFrames;
+    emit this->nFramesChanged(nFrames);
 }
 
 void WarholElement::resetNFrames()
@@ -74,32 +72,30 @@ void WarholElement::resetNFrames()
 
 QbPacket WarholElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
-
-    quint32 *srcBits = (quint32 *) src.bits();
-    quint32 *destBits = (quint32 *) oFrame.bits();
-
     int nFrames = this->m_nFrames;
 
-    for (int y = 0; y < src.height(); y++)
-        for (int x = 0; x < src.width(); x++)
-        {
+    for (int y = 0; y < src.height(); y++) {
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+
+        for (int x = 0; x < src.width(); x++) {
             int p = (x * nFrames) % src.width();
             int q = (y * nFrames) % src.height();
             int i = ((y * nFrames) / src.height()) * nFrames +
                     ((x * nFrames) / src.width());
 
             i = qBound(0, i, this->m_colorTable.size() - 1);
-
-            *destBits++ = srcBits[q * src.width() + p] ^ this->m_colorTable[i];
+            const QRgb *iLine = (const QRgb *) src.constScanLine(q);
+            oLine[x] = (iLine[p] ^ this->m_colorTable[i]) | 0xff000000;
         }
+    }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

@@ -21,7 +21,6 @@
 #ifndef PHOTOCOPYELEMENT_H
 #define PHOTOCOPYELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -54,8 +53,6 @@ class PhotocopyElement: public QbElement
         qreal m_brightness;
         qreal m_contrast;
 
-        QbElementPtr m_convert;
-
         inline int rgbToLuma(int red, int green, int blue)
         {
             int min;
@@ -64,8 +61,7 @@ class PhotocopyElement: public QbElement
             if (red > green) {
                 max = qMax(red, blue);
                 min = qMin(green, blue);
-            }
-            else {
+            } else {
                 max = qMax(green, blue);
                 min = qMin(red, blue);
             }
@@ -74,8 +70,8 @@ class PhotocopyElement: public QbElement
         }
 
     signals:
-        void brightnessChanged();
-        void contrastChanged();
+        void brightnessChanged(qreal brightness);
+        void contrastChanged(qreal contrast);
 
     public slots:
         void setBrightness(qreal brightness);

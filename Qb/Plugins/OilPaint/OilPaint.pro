@@ -31,8 +31,7 @@ CONFIG += plugin
 
 HEADERS += \
     src/oilpaint.h \
-    src/oilpaintelement.h \
-    src/defs.h
+    src/oilpaintelement.h
 
 INCLUDEPATH += \
     ../../Lib/src

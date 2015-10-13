@@ -19,14 +19,10 @@
  */
 
 #include "oilpaintelement.h"
-#include "defs.h"
 
 OilPaintElement::OilPaintElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
-
-    this->resetRadius();
+    this->m_radius = 2;
 }
 
 QObject *OilPaintElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -58,13 +54,11 @@ int OilPaintElement::radius() const
 
 void OilPaintElement::setRadius(int radius)
 {
-    if (radius < 0)
-        radius = 0;
+    if (this->m_radius == radius)
+        return;
 
-    if (radius != this->m_radius) {
-        this->m_radius = radius;
-        this->radiusChanged();
-    }
+    this->m_radius = radius;
+    this->radiusChanged(radius);
 }
 
 void OilPaintElement::resetRadius()
@@ -74,25 +68,25 @@ void OilPaintElement::resetRadius()
 
 QbPacket OilPaintElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    int radius = this->m_radius;
+    src = src.convertToFormat(QImage::Format_ARGB32);
+
+    int radius = this->m_radius > 0? this->m_radius: 1;
     QImage oFrame(src.size(), src.format());
-    quint16 histogram[256];
-    QRgb *oLine = (QRgb *) oFrame.bits();
+    int histogram[256];
     int scanBlockLen = (radius << 1) + 1;
-    QRgb *scanBlock[scanBlockLen];
+    const QRgb *scanBlock[scanBlockLen];
 
     for (int y = 0; y < src.height(); y++) {
-        int pos = y - radius;
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 
-        for (int j = 0; j < scanBlockLen; j++) {
-            scanBlock[j] = (QRgb *) src.constScanLine(qBound(0, pos, src.height()));
-            pos++;
+        for (int j = 0, pos = y - radius; j < scanBlockLen; j++, pos++) {
+            int yp = qBound(0, pos, src.height());
+            scanBlock[j] = (const QRgb *) src.constScanLine(yp);
         }
 
         for (int x = 0; x < src.width(); x++) {
@@ -105,24 +99,25 @@ QbPacket OilPaintElement::iStream(const QbPacket &packet)
             if (maxI > src.width())
                 maxI = src.width();
 
-            memset(histogram, 0, 512);
-            quint16 max = 0;
+            memset(histogram, 0, 256 * sizeof(int));
+            int max = 0;
+            QRgb oPixel;
 
             for (int j = 0; j < scanBlockLen; j++)
                 for (int i = minI; i < maxI; i++) {
-                    Pixel *p = (Pixel *) &scanBlock[j][i];
-                    quint16 value = ++histogram[(p->r + p->g + p->b) / 3];
+                    QRgb pixel = scanBlock[j][i];
+                    int value = ++histogram[qGray(pixel)];
 
                     if (value > max) {
                         max = value;
-                        *oLine = scanBlock[j][i];
+                        oPixel = pixel;
                     }
                 }
 
-            oLine++;
+            oLine[x] = oPixel;
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

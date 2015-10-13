@@ -18,18 +18,18 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "photocopyelement.h"
 
 PhotocopyElement::PhotocopyElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetBrightness();
-    this->resetContrast();
+    this->m_brightness = 0.75;
+    this->m_contrast = 20;
 }
 
-QObject *PhotocopyElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *PhotocopyElement::controlInterface(QQmlEngine *engine,
+                                            const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -37,7 +37,8 @@ QObject *PhotocopyElement::controlInterface(QQmlEngine *engine, const QString &c
         return NULL;
 
     // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Photocopy/share/qml/main.qml")));
+    QQmlComponent component(engine,
+                            QUrl(QStringLiteral("qrc:/Photocopy/share/qml/main.qml")));
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
@@ -63,18 +64,20 @@ qreal PhotocopyElement::contrast() const
 
 void PhotocopyElement::setBrightness(qreal brightness)
 {
-    if (brightness != this->m_brightness) {
-        this->m_brightness = brightness;
-        emit this->brightnessChanged();
-    }
+    if (this->m_brightness == brightness)
+        return;
+
+    this->m_brightness = brightness;
+    emit this->brightnessChanged(brightness);
 }
 
 void PhotocopyElement::setContrast(qreal contrast)
 {
-    if (contrast != this->m_contrast) {
-        this->m_contrast = contrast;
-        emit this->contrastChanged();
-    }
+    if (this->m_contrast == contrast)
+        return;
+
+    this->m_contrast = contrast;
+    emit this->contrastChanged(contrast);
 }
 
 void PhotocopyElement::resetBrightness()
@@ -89,14 +92,13 @@ void PhotocopyElement::resetContrast()
 
 QbPacket PhotocopyElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
 
     QRgb *srcBits = (QRgb *) src.bits();
@@ -114,11 +116,11 @@ QbPacket PhotocopyElement::iStream(const QbPacket &packet)
         qreal val = luma / 255.0;
         val = 255.0 / (1 + exp(this->m_contrast * (0.5 - val)));
         val = val * this->m_brightness;
-        luma = qBound(0, (int) val, 255);
+        luma = qBound(0.0, val, 255.0);
 
         destBits[i] = qRgba(luma, luma, luma, qAlpha(srcBits[i]));
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

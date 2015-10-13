@@ -18,27 +18,38 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+#include <QPainter>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsBlurEffect>
+
 #include "radioactiveelement.h"
+
+typedef QMap<RadioactiveElement::RadiationMode, QString> RadiationModeMap;
+
+inline RadiationModeMap initRadiationModeMap()
+{
+    RadiationModeMap radiationModeToStr;
+    radiationModeToStr[RadioactiveElement::RadiationModeSoftNormal] = "softNormal";
+    radiationModeToStr[RadioactiveElement::RadiationModeHardNormal] = "hardNormal";
+    radiationModeToStr[RadioactiveElement::RadiationModeSoftColor] = "softColor";
+    radiationModeToStr[RadioactiveElement::RadiationModeHardColor] = "hardColor";
+
+    return radiationModeToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(RadiationModeMap, radiationModeToStr, (initRadiationModeMap()))
 
 RadioactiveElement::RadioactiveElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    qRegisterMetaType<QRgb>("QRgb");
-
-    this->m_radiationModeToStr[RadiationModeSoftNormal] = "softNormal";
-    this->m_radiationModeToStr[RadiationModeHardNormal] = "hardNormal";
-    this->m_radiationModeToStr[RadiationModeSoftColor] = "softColor";
-    this->m_radiationModeToStr[RadiationModeHardColor] = "hardColor";
-
-    this->resetMode();
-    this->resetBlur();
-    this->resetZoom();
-    this->resetThreshold();
-    this->resetLumaThreshold();
-    this->resetAlphaDiff();
-    this->resetRadColor();
+    this->m_mode = RadiationModeSoftNormal;
+    this->m_blur = 1.5;
+    this->m_zoom = 1.1;
+    this->m_threshold = 31;
+    this->m_lumaThreshold = 95;
+    this->m_alphaDiff = -8;
+    this->m_radColor = qRgb(0, 255, 0);
 }
 
 QObject *RadioactiveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -65,7 +76,7 @@ QObject *RadioactiveElement::controlInterface(QQmlEngine *engine, const QString 
 
 QString RadioactiveElement::mode() const
 {
-    return this->m_radiationModeToStr[this->m_mode];
+    return radiationModeToStr->value(this->m_mode);
 }
 
 qreal RadioactiveElement::blur() const
@@ -108,21 +119,20 @@ QImage RadioactiveElement::imageDiff(const QImage &img1,
     int width = qMin(img1.width(), img2.width());
     int height = qMin(img1.height(), img2.height());
     QImage diff(width, height, img1.format());
-    QRgb *img1Bits = (QRgb *) img1.bits();
-    QRgb *img2Bits = (QRgb *) img2.bits();
-    QRgb *diffBits = (QRgb *) diff.bits();
 
     for (int y = 0; y < height; y++) {
-        int i = y * width;
+        const QRgb *iLine1 = (const QRgb *) img1.constScanLine(y);
+        const QRgb *iLine2 = (const QRgb *) img2.constScanLine(y);
+        QRgb *oLine = (QRgb *) diff.scanLine(y);
 
-        for (int x = 0; x < width; x++, i++) {
-            int r1 = qRed(img1Bits[i]);
-            int g1 = qGreen(img1Bits[i]);
-            int b1 = qBlue(img1Bits[i]);
+        for (int x = 0; x < width; x++) {
+            int r1 = qRed(iLine1[x]);
+            int g1 = qGreen(iLine1[x]);
+            int b1 = qBlue(iLine1[x]);
 
-            int r2 = qRed(img2Bits[i]);
-            int g2 = qGreen(img2Bits[i]);
-            int b2 = qBlue(img2Bits[i]);
+            int r2 = qRed(iLine2[x]);
+            int g2 = qGreen(iLine2[x]);
+            int b2 = qBlue(iLine2[x]);
 
             int dr = r1 - r2;
             int dg = g1 - g2;
@@ -137,7 +147,7 @@ QImage RadioactiveElement::imageDiff(const QImage &img1,
             else
                 alpha = alpha < threshold? 0: 255;
 
-            int gray = qGray(img2Bits[i]);
+            int gray = qGray(iLine2[x]);
 
             alpha = gray < lumaThreshold? 0: alpha;
 
@@ -157,7 +167,7 @@ QImage RadioactiveElement::imageDiff(const QImage &img1,
                 b = qBlue(radColor);
             }
 
-            diffBits[i] = qRgba(r, g, b, alpha);
+            oLine[x] = qRgba(r, g, b, alpha);
         }
     }
 
@@ -184,62 +194,68 @@ QImage RadioactiveElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 
 void RadioactiveElement::setMode(const QString &mode)
 {
-    RadiationMode modeEnum = this->m_radiationModeToStr.values().contains(mode)?
-                                 this->m_radiationModeToStr.key(mode):
-                                 RadiationModeSoftNormal;
+    RadiationMode modeEnum = radiationModeToStr->key(mode,
+                                                     RadiationModeSoftNormal);
 
-    if (modeEnum != this->m_mode) {
-        this->m_mode = modeEnum;
-        emit this->modeChanged();
-    }
+    if (this->m_mode == modeEnum)
+        return;
+
+    this->m_mode = modeEnum;
+    emit this->modeChanged(mode);
 }
 
 void RadioactiveElement::setBlur(qreal blur)
 {
-    if (blur != this->m_blur) {
-        this->m_blur = blur;
-        emit this->blurChanged();
-    }
+    if (this->m_blur == blur)
+        return;
+
+    this->m_blur = blur;
+    emit this->blurChanged(blur);
 }
 
 void RadioactiveElement::setZoom(qreal zoom)
 {
-    if (zoom != this->m_zoom) {
-        this->m_zoom = zoom;
-        emit this->zoomChanged();
-    }
+    if (this->m_zoom == zoom)
+        return;
+
+    this->m_zoom = zoom;
+    emit this->zoomChanged(zoom);
 }
 
 void RadioactiveElement::setThreshold(int threshold)
 {
-    if (threshold != this->m_threshold) {
-        this->m_threshold = threshold;
-        emit this->thresholdChanged();
-    }
+    if (this->m_threshold == threshold)
+        return;
+
+    this->m_threshold = threshold;
+    emit this->thresholdChanged(threshold);
 }
 
 void RadioactiveElement::setLumaThreshold(int lumaThreshold)
 {
-    if (lumaThreshold != this->m_lumaThreshold) {
-        this->m_lumaThreshold = lumaThreshold;
-        emit this->lumaThresholdChanged();
-    }
+    if (this->m_lumaThreshold == lumaThreshold)
+        return;
+
+    this->m_lumaThreshold = lumaThreshold;
+    emit this->lumaThresholdChanged(lumaThreshold);
 }
 
 void RadioactiveElement::setAlphaDiff(int alphaDiff)
 {
-    if (alphaDiff != this->m_alphaDiff) {
-        this->m_alphaDiff = alphaDiff;
-        emit this->alphaDiffChanged();
-    }
+    if (this->m_alphaDiff == alphaDiff)
+        return;
+
+    this->m_alphaDiff = alphaDiff;
+    emit this->alphaDiffChanged(alphaDiff);
 }
 
 void RadioactiveElement::setRadColor(QRgb radColor)
 {
-    if (radColor != this->m_radColor) {
-        this->m_radColor = radColor;
-        emit this->radColorChanged();
-    }
+    if (this->m_radColor == radColor)
+        return;
+
+    this->m_radColor = radColor;
+    emit this->radColorChanged(radColor);
 }
 
 void RadioactiveElement::resetMode()
@@ -279,27 +295,25 @@ void RadioactiveElement::resetRadColor()
 
 QbPacket RadioactiveElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    if (packet.caps() != this->m_caps) {
+    if (src.size() != this->m_frameSize) {
         this->m_blurZoomBuffer = QImage();
         this->m_prevFrame = QImage();
-
-        this->m_caps = packet.caps();
+        this->m_frameSize = src.size();
     }
 
     if (this->m_prevFrame.isNull()) {
         oFrame = src;
         this->m_blurZoomBuffer = QImage(src.size(), src.format());
         this->m_blurZoomBuffer.fill(qRgba(0, 0, 0, 0));
-    }
-    else {
+    } else {
         // Compute the difference between previous and current frame,
         // and save it to the buffer.
         QImage diff = this->imageDiff(this->m_prevFrame,
@@ -354,6 +368,6 @@ QbPacket RadioactiveElement::iStream(const QbPacket &packet)
 
     this->m_prevFrame = src.copy();
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

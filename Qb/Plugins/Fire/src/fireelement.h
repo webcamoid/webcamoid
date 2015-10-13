@@ -21,12 +21,6 @@
 #ifndef FIREELEMENT_H
 #define FIREELEMENT_H
 
-#include <cmath>
-#include <QColor>
-#include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsBlurEffect>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -122,12 +116,10 @@ class FireElement: public QbElement
         int m_alphaVariation;
         int m_nColors;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
+        QSize m_framSize;
         QImage m_prevFrame;
         QImage m_fireBuffer;
         QVector<QRgb> m_palette;
-        QMap<FireMode, QString> m_fireModeToStr;
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -145,16 +137,16 @@ class FireElement: public QbElement
         QVector<QRgb> createPalette();
 
     signals:
-        void modeChanged();
-        void coolChanged();
-        void disolveChanged();
-        void blurChanged();
-        void zoomChanged();
-        void thresholdChanged();
-        void lumaThresholdChanged();
-        void alphaDiffChanged();
-        void alphaVariationChanged();
-        void nColorsChanged();
+        void modeChanged(const QString &mode);
+        void coolChanged(int cool);
+        void disolveChanged(qreal disolve);
+        void blurChanged(qreal blur);
+        void zoomChanged(qreal zoom);
+        void thresholdChanged(int threshold);
+        void lumaThresholdChanged(int lumaThreshold);
+        void alphaDiffChanged(int alphaDiff);
+        void alphaVariationChanged(int alphaVariation);
+        void nColorsChanged(int nColors);
 
     public slots:
         void setMode(const QString &mode);

@@ -31,14 +31,14 @@ GridLayout {
     }
 
     Label {
-        text: qsTr("N° of planes")
+        text: qsTr("N° of frames")
     }
     TextField {
-        text: Quark.planes
+        text: Quark.nFrames
         validator: RegExpValidator {
             regExp: /\d+/
         }
 
-        onTextChanged: Quark.planes = strToFloat(text)
+        onTextChanged: Quark.nFrames = strToFloat(text)
     }
 }

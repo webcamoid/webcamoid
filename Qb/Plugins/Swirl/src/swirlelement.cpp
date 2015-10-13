@@ -18,17 +18,17 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "swirlelement.h"
 
 SwirlElement::SwirlElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetDegrees();
+    this->m_degrees = 0;
 }
 
-QObject *SwirlElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *SwirlElement::controlInterface(QQmlEngine *engine,
+                                        const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -36,7 +36,8 @@ QObject *SwirlElement::controlInterface(QQmlEngine *engine, const QString &contr
         return NULL;
 
     // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Swirl/share/qml/main.qml")));
+    QQmlComponent component(engine,
+                            QUrl(QStringLiteral("qrc:/Swirl/share/qml/main.qml")));
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
@@ -57,10 +58,11 @@ qreal SwirlElement::degrees() const
 
 void SwirlElement::setDegrees(qreal degrees)
 {
-    if (degrees != this->m_degrees) {
-        this->m_degrees = degrees;
-        emit this->degreesChanged();
-    }
+    if (this->m_degrees == degrees)
+        return;
+
+    this->m_degrees = degrees;
+    emit this->degreesChanged(degrees);
 }
 
 void SwirlElement::resetDegrees()
@@ -70,12 +72,12 @@ void SwirlElement::resetDegrees()
 
 QbPacket SwirlElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
     qreal xScale = 1.0;
@@ -92,30 +94,33 @@ QbPacket SwirlElement::iStream(const QbPacket &packet)
     qreal degrees = M_PI * this->m_degrees / 180.0;
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *srcBits = (QRgb *) src.scanLine(y);
-        QRgb *destBits = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
         qreal yDistance = yScale * (y - yCenter);
 
         for (int x = 0; x < src.width(); x++) {
             qreal xDistance = xScale * (x - xCenter);
             qreal distance = xDistance * xDistance + yDistance * yDistance;
 
-            if (distance >= (radius * radius))
-                *destBits = srcBits[x];
+            if (distance >= radius * radius)
+                oLine[x] = iLine[x];
             else {
                 qreal factor = 1.0 - sqrt(distance) / radius;
                 qreal sine = sin(degrees * factor * factor);
                 qreal cosine = cos(degrees * factor * factor);
 
-                *destBits = this->interpolate(src,
-                                          (cosine * xDistance - sine * yDistance) / xScale + xCenter,
-                                          (sine * xDistance + cosine * yDistance) / yScale + yCenter);
-            }
+                int xp = (cosine * xDistance - sine * yDistance) / xScale + xCenter;
+                int yp = (sine * xDistance + cosine * yDistance) / yScale + yCenter;
 
-            destBits++;
+                if (!oFrame.rect().contains(xp, yp))
+                    continue;
+
+                const QRgb *line = (const QRgb *) src.constScanLine(yp);
+                oLine[x] = line[xp];
+            }
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

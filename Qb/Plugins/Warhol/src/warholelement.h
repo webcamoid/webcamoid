@@ -46,11 +46,10 @@ class WarholElement: public QbElement
     private:
         int m_nFrames;
 
-        QbElementPtr m_convert;
-        QList<quint32> m_colorTable;
+        QVector<quint32> m_colorTable;
 
     signals:
-        void nFramesChanged();
+        void nFramesChanged(int nFrames);
 
     public slots:
         void setNFrames(int nFrames);

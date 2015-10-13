@@ -29,11 +29,11 @@
 class QuarkElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int planes
-               READ planes
-               WRITE setPlanes
-               RESET resetPlanes
-               NOTIFY planesChanged)
+    Q_PROPERTY(int nFrames
+               READ nFrames
+               WRITE setNFrames
+               RESET resetNFrames
+               NOTIFY nFramesChanged)
 
     public:
         explicit QuarkElement();
@@ -41,23 +41,20 @@ class QuarkElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE int planes() const;
+        Q_INVOKABLE int nFrames() const;
 
     private:
-        int m_planes;
+        int m_nFrames;
 
-        QbElementPtr m_convert;
-        QbCaps m_caps;
-        QImage m_buffer;
-        int m_plane;
-        QVector<QRgb *> m_planeTable;
+        QVector<QImage> m_frames;
+        QSize m_frameSize;
 
     signals:
-        void planesChanged();
+        void nFramesChanged(int nFrames);
 
     public slots:
-        void setPlanes(int planes);
-        void resetPlanes();
+        void setNFrames(int nFrames);
+        void resetNFrames();
 
         QbPacket iStream(const QbPacket &packet);
 };
