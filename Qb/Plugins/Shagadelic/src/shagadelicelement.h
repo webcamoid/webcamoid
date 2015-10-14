@@ -21,7 +21,6 @@
 #ifndef SHAGADELICELEMENT_H
 #define SHAGADELICELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -46,6 +45,7 @@ class ShagadelicElement: public QbElement
 
     private:
         quint32 m_mask;
+
         int m_rx;
         int m_ry;
         int m_bx;
@@ -56,18 +56,16 @@ class ShagadelicElement: public QbElement
         int m_bvy;
         uchar m_phase;
 
-        QByteArray m_ripple;
-        QByteArray m_spiral;
-
+        QImage m_ripple;
+        QImage m_spiral;
         QSize m_curSize;
-        QbElementPtr m_convert;
 
-        QByteArray makeRipple(const QSize &size) const;
-        QByteArray makeSpiral(const QSize &size) const;
+        QImage makeRipple(const QSize &size) const;
+        QImage makeSpiral(const QSize &size) const;
         void init(const QSize &size);
 
     signals:
-        void maskChanged();
+        void maskChanged(quint32 mask);
 
     public slots:
         void setMask(quint32 mask);

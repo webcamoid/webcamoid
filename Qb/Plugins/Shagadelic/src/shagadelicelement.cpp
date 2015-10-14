@@ -18,14 +18,13 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "shagadelicelement.h"
 
 ShagadelicElement::ShagadelicElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
-
-    this->resetMask();
+    this->m_mask = 0xffffff;
 }
 
 QObject *ShagadelicElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -55,42 +54,38 @@ quint32 ShagadelicElement::mask() const
     return this->m_mask;
 }
 
-QByteArray ShagadelicElement::makeRipple(const QSize &size) const
+QImage ShagadelicElement::makeRipple(const QSize &size) const
 {
-    QByteArray ripple;
+    QImage ripple(2 * size, QImage::Format_Grayscale8);
 
-    ripple.resize(4 * size.width() * size.height());
-    int i = 0;
+    for (int y = 0; y < ripple.height(); y++) {
+        qreal yy = qreal(y) / size.width() - 1.0;
+        quint8 *oLine = (quint8 *) ripple.scanLine(y);
 
-    for (int y = 0; y < size.height() * 2; y++) {
-        double yy = (double) y / size.width() - 1.0;
-        yy *= yy;
-
-        for (int x = 0; x < size.width() * 2; x++) {
-            double xx = (double) x / size.width() - 1.0;
-            ripple.data()[i++] = ((unsigned int) (sqrt(xx * xx + yy) * 3000)) & 255;
+        for (int x = 0; x < ripple.width(); x++) {
+            qreal xx = qreal(x) / size.width() - 1.0;
+            oLine[x] = ((unsigned int) (sqrt(xx * xx + yy * yy) * 3000)) & 255;
         }
     }
 
     return ripple;
 }
 
-QByteArray ShagadelicElement::makeSpiral(const QSize &size) const
+QImage ShagadelicElement::makeSpiral(const QSize &size) const
 {
-    QByteArray spiral;
+    QImage spiral(size, QImage::Format_Grayscale8);
+    int yc = spiral.height() / 2;
 
-    spiral.resize(size.width() * size.height());
-    int i = 0;
+    for (int y = 0; y < spiral.height(); y++) {
+        qreal yy = qreal(y - yc) / spiral.width();
+        quint8 *oLine = (quint8 *) spiral.scanLine(y);
 
-    for (int y = 0; y < size.height(); y++) {
-        double yy = (double) (y - size.height() / 2) / size.width();
+        for (int x = 0; x < spiral.width(); x++) {
+            qreal xx = qreal(x) / spiral.width() - 0.5;
 
-        for (int x = 0; x < size.width(); x++) {
-            double xx = (double) x / size.width() - 0.5;
-
-            spiral.data()[i++] = ((unsigned int) ((atan2(xx, yy) / M_PI * 256 * 9)
-                                                  + (sqrt(xx * xx + yy * yy) * 1800)))
-                                 & 255;
+            oLine[x] = ((unsigned int) (256 * 9 * atan2(xx, yy) / M_PI
+                                        + 1800 * sqrt(xx * xx + yy * yy)))
+                       & 255;
         }
     }
 
@@ -117,10 +112,11 @@ void ShagadelicElement::init(const QSize &size)
 
 void ShagadelicElement::setMask(quint32 mask)
 {
-    if (mask != this->m_mask) {
-        this->m_mask = mask;
-        emit this->maskChanged();
-    }
+    if (this->m_mask == mask)
+        return;
+
+    this->m_mask = mask;
+    emit this->maskChanged(mask);
 }
 
 void ShagadelicElement::resetMask()
@@ -130,45 +126,39 @@ void ShagadelicElement::resetMask()
 
 QbPacket ShagadelicElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
-
-    quint32 *srcBits = (quint32 *) src.bits();
-    quint32 *destBits = (quint32 *) oFrame.bits();
 
     if (src.size() != this->m_curSize) {
         this->init(src.size());
         this->m_curSize = src.size();
     }
 
-    char *pr = &this->m_ripple.data()[this->m_ry * src.width() * 2 + this->m_rx];
-    char *pg = this->m_spiral.data();
-    char *pb = &this->m_ripple.data()[this->m_by * src.width() * 2 + this->m_bx];
-
     for (int y = 0; y < src.height(); y++) {
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const quint8 *rLine = (const quint8 *) this->m_ripple.constScanLine(y + this->m_ry);
+        const quint8 *gLine = (const quint8 *) this->m_spiral.constScanLine(y);
+        const quint8 *bLine = (const quint8 *) this->m_ripple.constScanLine(y + this->m_by);
+
         for (int x = 0; x < src.width(); x++) {
-            quint32 v = *srcBits++ | 0x1010100;
-            v = (v - 0x707060) & 0x1010100;
-            v -= v >> 8;
+            // Color saturation
+            int r = qRed(iLine[x]) > 127? 255: 0;
+            int g = qGreen(iLine[x]) > 127? 255: 0;
+            int b = qBlue(iLine[x]) > 127? 255: 0;
+            int a = qAlpha(iLine[x]);
 
-            uchar r = (char) (*pr + this->m_phase * 2) >> 7;
-            uchar g = (char) (*pg + this->m_phase * 3) >> 7;
-            uchar b = (char) (*pb - this->m_phase) >> 7;
+            int pr = char(rLine[x + this->m_rx] + this->m_phase * 2) >> 7;
+            int pg = char(gLine[x] + this->m_phase * 3) >> 7;
+            int pb = char(bLine[x + this->m_by] - this->m_phase) >> 7;
 
-            *destBits++ = v & ((r << 16) | (g << 8) | b) & this->m_mask;
-
-            pr++;
-            pg++;
-            pb++;
+            oLine[x] = qRgba(r, g, b, a) & qRgb(pr, pg, pb) & (this->m_mask | 0xff000000);
         }
-
-        pr += src.width();
-        pb += src.width();
     }
 
     this->m_phase -= 8;
@@ -194,6 +184,6 @@ QbPacket ShagadelicElement::iStream(const QbPacket &packet)
     this->m_bx += this->m_bvx;
     this->m_by += this->m_bvy;
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

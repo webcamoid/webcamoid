@@ -18,20 +18,28 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QColor>
 #include <QStandardPaths>
 
 #include "halftoneelement.h"
 
 HalftoneElement::HalftoneElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
+    this->m_pattern = ":/Halftone/share/patterns/ditherCluster8Matrix.bmp";
+    this->m_lightness = 0.5;
+    this->m_slope = 1.0;
+    this->m_intercept = 0.0;
 
-    this->resetPattern();
-    this->resetPatternSize();
-    this->resetLightness();
-    this->resetSlope();
-    this->resetIntercept();
+    this->updatePattern();
+
+    QObject::connect(this,
+                     &HalftoneElement::patternChanged,
+                     this,
+                     &HalftoneElement::updatePattern);
+    QObject::connect(this,
+                     &HalftoneElement::patternSizeChanged,
+                     this,
+                     &HalftoneElement::updatePattern);
 }
 
 QObject *HalftoneElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -84,10 +92,11 @@ qreal HalftoneElement::intercept() const
     return this->m_intercept;
 }
 
-QImage HalftoneElement::loadPattern(const QString &patternFile, const QSize &size) const
+void HalftoneElement::updatePattern()
 {
-    QImage image(patternFile);
-    QSize patternSize = size.isEmpty()? image.size(): size;
+    QImage image(this->m_pattern);
+    QSize patternSize = this->m_patternSize.isEmpty()?
+                            image.size(): this->m_patternSize;
     QImage pattern(patternSize, QImage::Format_Indexed8);
 
     for (int i = 0; i < 256; i++)
@@ -101,47 +110,54 @@ QImage HalftoneElement::loadPattern(const QString &patternFile, const QSize &siz
     for (int i = 0; i < videoArea; i++)
         patternBits[i] = qGray(bits[i]);
 
-    return pattern;
+    this->m_mutex.lock();
+    this->m_patternImage = pattern;
+    this->m_mutex.unlock();
 }
 
 void HalftoneElement::setPattern(const QString &pattern)
 {
-    if (pattern != this->m_pattern) {
-        this->m_pattern = pattern;
-        emit this->patternChanged();
-    }
+    if (this->m_pattern == pattern)
+        return;
+
+    this->m_pattern = pattern;
+    emit this->patternChanged(pattern);
 }
 
 void HalftoneElement::setPatternSize(const QSize &patternSize)
 {
-    if (patternSize != this->m_patternSize) {
-        this->m_patternSize = patternSize;
-        emit this->patternSizeChanged();
-    }
+    if (this->m_patternSize == patternSize)
+        return;
+
+    this->m_patternSize = patternSize;
+    emit this->patternSizeChanged(patternSize);
 }
 
 void HalftoneElement::setLightness(qreal lightness)
 {
-    if (lightness != this->m_lightness) {
-        this->m_lightness = lightness;
-        emit this->lightnessChanged();
-    }
+    if (this->m_lightness == lightness)
+        return;
+
+    this->m_lightness = lightness;
+    emit this->lightnessChanged(lightness);
 }
 
 void HalftoneElement::setSlope(qreal slope)
 {
-    if (slope != this->m_slope) {
-        this->m_slope = slope;
-        emit this->slopeChanged();
-    }
+    if (this->m_slope == slope)
+        return;
+
+    this->m_slope = slope;
+    emit this->slopeChanged(slope);
 }
 
 void HalftoneElement::setIntercept(qreal intercept)
 {
-    if (intercept != this->m_intercept) {
-        this->m_intercept = intercept;
-        emit this->interceptChanged();
-    }
+    if (this->m_intercept == intercept)
+        return;
+
+    this->m_intercept = intercept;
+    emit this->interceptChanged(intercept);
 }
 
 void HalftoneElement::resetPattern()
@@ -171,55 +187,48 @@ void HalftoneElement::resetIntercept()
 
 QbPacket HalftoneElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
-
-    static QbCaps caps;
-    static QString pattern;
-    static QSize patternSize;
-
-    if (packet.caps() != caps
-        || this->m_pattern != pattern
-        || this->m_patternSize != patternSize) {
-        this->m_patternImage = this->loadPattern(this->m_pattern, this->m_patternSize);
-        caps = packet.caps();
-    }
-
-    quint8 *patternBits = (quint8 *) this->m_patternImage.bits();
+    this->m_mutex.lock();
+    QImage patternImage = this->m_patternImage.copy();
+    this->m_mutex.unlock();
 
     // filter image
-    for (int i = 0, y = 0; y < src.height(); y++)
-        for (int x = 0; x < src.width(); i++, x++) {
-            int col = x % this->m_patternImage.width();
-            int row = y % this->m_patternImage.height();
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
 
-            int gray = qGray(srcBits[i]);
-            int threshold = patternBits[row * this->m_patternImage.width() + col];
+        for (int x = 0; x < src.width(); x++) {
+            int col = x % patternImage.width();
+            int row = y % patternImage.height();
+
+            int gray = qGray(iLine[x]);
+            const quint8 *pattern = (const quint8 *) patternImage.constScanLine(row);
+            int threshold = pattern[col];
             threshold = this->m_slope * threshold + this->m_intercept;
             threshold = qBound(0, threshold, 255);
 
             if (gray > threshold)
-                destBits[i] = srcBits[i];
+                oLine[x] = iLine[x];
             else {
-                QColor color(srcBits[i]);
+                QColor color(iLine[x]);
 
                 color.setHsl(color.hue(),
                              color.saturation(),
                              this->m_lightness * color.lightness(),
                              color.alpha());
 
-                destBits[i] = color.rgba();
+                oLine[x] = color.rgba();
             }
         }
+    }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

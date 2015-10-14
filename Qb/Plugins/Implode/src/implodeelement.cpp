@@ -18,14 +18,13 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <cmath>
+
 #include "implodeelement.h"
 
 ImplodeElement::ImplodeElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetAmount();
+    this->m_amount = 1.0;
 }
 
 QObject *ImplodeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -57,65 +56,58 @@ qreal ImplodeElement::amount() const
 
 void ImplodeElement::setAmount(qreal amount)
 {
-    if (amount != this->m_amount) {
-        this->m_amount = amount;
-        emit this->amountChanged();
-    }
+    if (this->m_amount == amount)
+        return;
+
+    this->m_amount = amount;
+    emit this->amountChanged(amount);
 }
 
 void ImplodeElement::resetAmount()
 {
-    this->setAmount(0.5);
+    this->setAmount(1.0);
 }
 
 QbPacket ImplodeElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
 
-    qreal xScale = 1.0;
-    qreal yScale = 1.0;
-    qreal xCenter = src.width() >> 1;
-    qreal yCenter = src.height() >> 1;
-    qreal radius = xCenter;
-
-    if (src.width() > src.height())
-        yScale = (qreal) src.width() / src.height();
-    else if (src.width() < src.height()) {
-        xScale = (qreal) src.height() / src.width();
-        radius = yCenter;
-    }
+    int xc = src.width() >> 1;
+    int yc = src.height() >> 1;
+    int radius = qMin(xc, yc);
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *srcBits = (QRgb *) src.scanLine(y);
-        QRgb *destBits = (QRgb *) oFrame.scanLine(y);
-        qreal yDistance = yScale * (y - yCenter);
+        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        int yDiff = y - yc;
 
         for (int x = 0; x < src.width(); x++) {
-            qreal xDistance = xScale * (x - xCenter);
-            qreal distance = xDistance * xDistance + yDistance * yDistance;
+            int xDiff = x - xc;
+            qreal distance = sqrt(xDiff * xDiff + yDiff * yDiff);
 
-            if (distance >= (radius * radius))
-                *destBits = srcBits[x];
+            if (distance >= radius)
+                oLine[x] = iLine[x];
             else {
-                qreal factor = 1.0;
+                qreal factor = pow(distance / radius, this->m_amount);
 
-                if (distance > 0.0)
-                    factor = pow(sin((M_PI) * sqrt(distance) / radius / 2), -this->m_amount);
+                int xp = factor * xDiff + xc;
+                int yp = factor * yDiff + yc;
 
-                *destBits = this->interpolate(src, factor * xDistance / xScale + xCenter,
-                                               factor * yDistance / yScale + yCenter);
+                xp = qBound(0, xp, oFrame.width() - 1);
+                yp = qBound(0, yp, oFrame.height() - 1);
+
+                const QRgb *line = (const QRgb *) src.constScanLine(yp);
+                oLine[x] = line[xp];
             }
-
-            destBits++;
         }
     }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

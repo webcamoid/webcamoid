@@ -21,7 +21,6 @@
 #ifndef IMPLODEELEMENT_H
 #define IMPLODEELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -46,49 +45,9 @@ class ImplodeElement: public QbElement
 
     private:
         qreal m_amount;
-        QbElementPtr m_convert;
-
-        inline uint interpolate(const QImage &img, qreal xOffset, qreal yOffset) const
-        {
-            int width = img.width();
-            int height = img.height();
-            int x = qBound(0, (int) xOffset, width - 2);
-            int y = qBound(0, (int) yOffset, height - 2);
-
-            QRgb *ptr = (QRgb *) img.bits();
-
-            uint p = *(ptr + (y * width) + x);
-            uint q = *(ptr + (y * width) + x + 1);
-            uint r = *(ptr + ((y + 1) * width) + x);
-            uint s = *(ptr + ((y + 1) * width) + x + 1);
-
-            xOffset -= floor(xOffset);
-            yOffset -= floor(yOffset);
-            uint alpha = (uint) (255 * xOffset);
-            uint beta = (uint) (255 * yOffset);
-
-            p = this->interpolate255(p, 255 - alpha, q, alpha);
-            r = this->interpolate255(r, 255 - alpha, s, alpha);
-
-            return this->interpolate255(p, 255 - beta, r, beta);
-        }
-
-        inline QRgb interpolate255(QRgb x, uint a, QRgb y, uint b) const
-        {
-            uint t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
-            t = (t + ((t >> 8) & 0xff00ff) + 0x800080) >> 8;
-            t &= 0xff00ff;
-
-            x = ((x >> 8) & 0xff00ff) * a + ((y >> 8) & 0xff00ff) * b;
-            x = (x + ((x >> 8) & 0xff00ff) + 0x800080);
-            x &= 0xff00ff00;
-            x |= t;
-
-            return x;
-        }
 
     signals:
-        void amountChanged();
+        void amountChanged(qreal amount);
 
     public slots:
         void setAmount(qreal amount);

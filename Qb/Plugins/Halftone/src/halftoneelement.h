@@ -21,7 +21,7 @@
 #ifndef HALFTONEELEMENT_H
 #define HALFTONEELEMENT_H
 
-#include <QColor>
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
@@ -75,17 +75,18 @@ class HalftoneElement: public QbElement
         qreal m_slope;
         qreal m_intercept;
 
-        QbElementPtr m_convert;
+        QMutex m_mutex;
+        QSize m_frameSize;
         QImage m_patternImage;
 
-        QImage loadPattern(const QString &patternFile, const QSize &size) const;
+        void updatePattern();
 
     signals:
-        void patternChanged();
-        void patternSizeChanged();
-        void lightnessChanged();
-        void slopeChanged();
-        void interceptChanged();
+        void patternChanged(const QString &pattern);
+        void patternSizeChanged(const QSize &patternSize);
+        void lightnessChanged(qreal lightness);
+        void slopeChanged(qreal slope);
+        void interceptChanged(qreal intercept);
 
     public slots:
         void setPattern(const QString &pattern);
