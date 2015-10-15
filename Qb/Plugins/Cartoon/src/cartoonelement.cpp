@@ -18,6 +18,8 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QtMath>
+
 #include "cartoonelement.h"
 
 CartoonElement::CartoonElement(): QbElement()

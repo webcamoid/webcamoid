@@ -21,7 +21,7 @@
 #ifndef DENOISEELEMENT_H
 #define DENOISEELEMENT_H
 
-#include <cmath>
+#include <QtMath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>

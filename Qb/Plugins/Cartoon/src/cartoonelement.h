@@ -21,11 +21,8 @@
 #ifndef CARTOONELEMENT_H
 #define CARTOONELEMENT_H
 
-#include <cmath>
-#include <QColor>
 #include <QQmlComponent>
 #include <QQmlContext>
-
 #include <qb.h>
 #include <qbutils.h>
 

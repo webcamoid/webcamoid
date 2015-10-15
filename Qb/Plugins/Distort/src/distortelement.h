@@ -21,7 +21,7 @@
 #ifndef DISTORTELEMENT_H
 #define DISTORTELEMENT_H
 
-#include <cmath>
+#include <QtMath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>

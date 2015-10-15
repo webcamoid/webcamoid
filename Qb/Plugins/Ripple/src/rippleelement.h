@@ -21,10 +21,8 @@
 #ifndef RIPPLEELEMENT_H
 #define RIPPLEELEMENT_H
 
-#include <cmath>
 #include <QQmlComponent>
 #include <QQmlContext>
-#include <QColor>
 #include <qb.h>
 #include <qbutils.h>
 

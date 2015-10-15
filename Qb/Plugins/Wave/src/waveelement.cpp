@@ -18,6 +18,8 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QtMath>
+
 #include "waveelement.h"
 
 WaveElement::WaveElement(): QbElement()

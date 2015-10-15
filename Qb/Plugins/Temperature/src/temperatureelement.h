@@ -21,7 +21,7 @@
 #ifndef TEMPERATUREELEMENT_H
 #define TEMPERATUREELEMENT_H
 
-#include <cmath>
+#include <QtMath>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>

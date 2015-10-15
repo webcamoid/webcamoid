@@ -58,7 +58,7 @@
  *     the use of this software, even if advised of the possibility of such damage.
  */
 
-#include <cmath>
+#include <QtMath>
 #include <QtConcurrent>
 
 #include "haarcascade.h"

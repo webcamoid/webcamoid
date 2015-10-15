@@ -26,23 +26,25 @@ GridLayout {
     columns: 3
 
     Label {
-        id: lblCubeBits
+        id: lblDiceSize
         text: qsTr("Size")
     }
     Slider {
-        id: sldCubeBits
-        value: Dice.cubeBits
+        id: sldDiceSize
+        value: Dice.diceSize
         stepSize: 1
-        maximumValue: 5
+        minimumValue: 1
+        maximumValue: 256
 
-        onValueChanged: Dice.cubeBits = value
+        onValueChanged: Dice.diceSize = value
     }
     SpinBox {
-        id: spbcubeBits
-        value: sldCubeBits.value
-        maximumValue: sldCubeBits.maximumValue
-        stepSize: sldCubeBits.stepSize
+        id: spbDiceSize
+        value: sldDiceSize.value
+        minimumValue: sldDiceSize.minimumValue
+        maximumValue: sldDiceSize.maximumValue
+        stepSize: sldDiceSize.stepSize
 
-        onValueChanged: sldCubeBits.value = value
+        onValueChanged: sldDiceSize.value = value
     }
 }

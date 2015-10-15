@@ -21,7 +21,7 @@
 #ifndef VIGNETTEELEMENT_H
 #define VIGNETTEELEMENT_H
 
-#include <cmath>
+#include <QtMath>
 #include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>

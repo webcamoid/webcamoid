@@ -21,24 +21,20 @@
 #ifndef DICEELEMENT_H
 #define DICEELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
-#define DICEDIR_UP    (char) 0
-#define DICEDIR_RIGHT (char) 1
-#define DICEDIR_DOWN  (char) 2
-#define DICEDIR_LEFT  (char) 3
-
 class DiceElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(int cubeBits
-               READ cubeBits
-               WRITE setCubeBits
-               RESET resetCubeBits
-               NOTIFY cubeBitsChanged)
+    Q_PROPERTY(int diceSize
+               READ diceSize
+               WRITE setDiceSize
+               RESET resetDiceSize
+               NOTIFY diceSizeChanged)
 
     public:
         explicit DiceElement();
@@ -46,22 +42,26 @@ class DiceElement: public QbElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE int cubeBits() const;
+        Q_INVOKABLE int diceSize() const;
 
     private:
-        int m_cubeBits;
-        QByteArray m_diceMap;
-        QbElementPtr m_convert;
+        int m_diceSize;
 
-        QByteArray makeDiceMap(const QSize &size, int cubeBits) const;
+        QMutex m_mutex;
+        QImage m_diceMap;
+        QSize m_frameSize;
 
     signals:
-        void cubeBitsChanged();
+        void diceSizeChanged(int diceSize);
+        void frameSizeChanged(const QSize &frameSize);
 
     public slots:
-        void setCubeBits(int cubeBits);
-        void resetCubeBits();
+        void setDiceSize(int diceSize);
+        void resetDiceSize();
         QbPacket iStream(const QbPacket &packet);
+
+    private slots:
+        void updateDiceMap();
 };
 
 #endif // DICEELEMENT_H

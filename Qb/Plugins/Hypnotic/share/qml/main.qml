@@ -23,7 +23,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 GridLayout {
-    columns: 2
+    columns: 3
 
     function modeIndex(mode)
     {
@@ -72,6 +72,8 @@ GridLayout {
 
         onCurrentIndexChanged: Hypnotic.mode = cbxMode.model.get(currentIndex).mode
     }
+    Label {
+    }
 
     Label {
         text: qsTr("Speed increment")
@@ -84,6 +86,8 @@ GridLayout {
 
         onTextChanged: Hypnotic.speedInc = strToFloat(text)
     }
+    Label {
+    }
 
     Label {
         text: qsTr("Threshold")
@@ -95,5 +99,27 @@ GridLayout {
         }
 
         onTextChanged: Hypnotic.threshold = strToFloat(text)
+    }
+    Label {
+    }
+
+    Label {
+        text: qsTr("Threshold")
+    }
+    Slider {
+        id: sldThreshold
+        value: Hypnotic.threshold
+        stepSize: 1
+        maximumValue: 255
+
+        onValueChanged: Hypnotic.threshold = value
+    }
+    SpinBox {
+        id: spbThreshold
+        value: sldThreshold.value
+        maximumValue: sldThreshold.maximumValue
+        stepSize: sldThreshold.stepSize
+
+        onValueChanged: sldThreshold.value = value
     }
 }

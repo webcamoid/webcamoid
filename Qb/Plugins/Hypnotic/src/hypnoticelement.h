@@ -21,18 +21,15 @@
 #ifndef HYPNOTICELEMENT_H
 #define HYPNOTICELEMENT_H
 
-#include <cmath>
-#include <QColor>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <qb.h>
 #include <qbutils.h>
 
-typedef QMap<QString, QImage> OpticalMap;
-
 class HypnoticElement: public QbElement
 {
     Q_OBJECT
+    Q_ENUMS(OpticMode)
     Q_PROPERTY(QString mode
                READ mode
                WRITE setMode
@@ -50,6 +47,15 @@ class HypnoticElement: public QbElement
                NOTIFY thresholdChanged)
 
     public:
+        enum OpticMode
+        {
+            OpticModeSpiral1,
+            OpticModeSpiral2,
+            OpticModeParabola,
+            OpticModeHorizontalStripe
+        };
+        typedef QMap<OpticMode, QImage> OpticalMap;
+
         explicit HypnoticElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
@@ -60,24 +66,24 @@ class HypnoticElement: public QbElement
         Q_INVOKABLE int threshold() const;
 
     private:
-        QString m_mode;
+        OpticMode m_mode;
         int m_speedInc;
         int m_threshold;
 
-        QbElementPtr m_convert;
+        QSize m_frameSize;
         QVector<QRgb> m_palette;
         OpticalMap m_opticalMap;
         quint8 m_speed;
         quint8 m_phase;
 
         QVector<QRgb> createPalette();
-        OpticalMap createOpticalMap(int width, int height);
-        QImage imageYOver(const QImage &src, int threshold);
+        OpticalMap createOpticalMap(const QSize &size);
+        QImage imageThreshold(const QImage &src, int threshold);
 
     signals:
-        void modeChanged();
-        void speedIncChanged();
-        void thresholdChanged();
+        void modeChanged(const QString &mode);
+        void speedIncChanged(int speedInc);
+        void thresholdChanged(int threshold);
 
     public slots:
         void setMode(const QString &mode);

@@ -21,7 +21,6 @@
 #ifndef WAVEELEMENT_H
 #define WAVEELEMENT_H
 
-#include <cmath>
 #include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>

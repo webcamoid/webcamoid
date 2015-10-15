@@ -18,6 +18,9 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QtMath>
+#include <QColor>
+
 #include "rippleelement.h"
 
 typedef QMap<RippleElement::RippleMode, QString> RippleModeToStr;

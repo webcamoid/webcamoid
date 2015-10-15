@@ -18,16 +18,30 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QtMath>
+
 #include "hypnoticelement.h"
+
+typedef QMap<HypnoticElement::OpticMode, QString> OpticModeMap;
+
+inline OpticModeMap initOpticModeMap()
+{
+    OpticModeMap opticModeToStr;
+    opticModeToStr[HypnoticElement::OpticModeSpiral1] = "spiral1";
+    opticModeToStr[HypnoticElement::OpticModeSpiral2] = "spiral2";
+    opticModeToStr[HypnoticElement::OpticModeParabola] = "parabola";
+    opticModeToStr[HypnoticElement::OpticModeHorizontalStripe] = "horizontalStripe";
+
+    return opticModeToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(OpticModeMap, opticModeToStr, (initOpticModeMap()))
 
 HypnoticElement::HypnoticElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgra");
-
-    this->resetMode();
-    this->resetSpeedInc();
-    this->resetThreshold();
+    this->m_mode = OpticModeSpiral1;
+    this->m_speedInc = 0;
+    this->m_threshold = 127;
 
     this->m_palette = this->createPalette();
 }
@@ -56,7 +70,7 @@ QObject *HypnoticElement::controlInterface(QQmlEngine *engine, const QString &co
 
 QString HypnoticElement::mode() const
 {
-    return this->m_mode;
+    return opticModeToStr->value(this->m_mode);
 }
 
 int HypnoticElement::speedInc() const
@@ -88,35 +102,31 @@ QVector<QRgb> HypnoticElement::createPalette()
     return palette;
 }
 
-OpticalMap HypnoticElement::createOpticalMap(int width, int height)
+HypnoticElement::OpticalMap HypnoticElement::createOpticalMap(const QSize &size)
 {
     OpticalMap opticalMap;
-    int sci = 640 / width;
-    int i = 0;
+    int sci = 640 / size.width();
 
-    opticalMap["spiral1"] = QImage(width, height, QImage::Format_Indexed8);
-    opticalMap["spiral2"] = QImage(width, height, QImage::Format_Indexed8);
-    opticalMap["parabola"] = QImage(width, height, QImage::Format_Indexed8);
-    opticalMap["horizontalStripe"] = QImage(width, height, QImage::Format_Indexed8);
+    opticalMap[OpticModeSpiral1] = QImage(size, QImage::Format_Indexed8);
+    opticalMap[OpticModeSpiral2] = QImage(size, QImage::Format_Indexed8);
+    opticalMap[OpticModeParabola] = QImage(size, QImage::Format_Indexed8);
+    opticalMap[OpticModeHorizontalStripe] = QImage(size, QImage::Format_Indexed8);
 
-    QMap<QString, quint8 *> opticalMapPtr;
+    for (int y = 0; y < size.height(); y++) {
+        qreal yy = qreal(y - size.height() / 2) / size.width();
 
-    opticalMapPtr["spiral1"] = (quint8 *) opticalMap["spiral1"].bits();
-    opticalMapPtr["spiral2"] = (quint8 *) opticalMap["spiral2"].bits();
-    opticalMapPtr["parabola"] = (quint8 *) opticalMap["parabola"].bits();
-    opticalMapPtr["horizontalStripe"] = (quint8 *) opticalMap["horizontalStripe"].bits();
+        quint8 *spiral1Line = (quint8 *) opticalMap[OpticModeSpiral1].constScanLine(y);
+        quint8 *spiral2Line = (quint8 *) opticalMap[OpticModeSpiral2].constScanLine(y);
+        quint8 *parabolaLine = (quint8 *) opticalMap[OpticModeParabola].constScanLine(y);
+        quint8 *horizontalStripeLine = (quint8 *) opticalMap[OpticModeHorizontalStripe].constScanLine(y);
 
-    for (int y = 0; y < height; y++) {
-        qreal yy = (qreal) (y - height / 2) / width;
-
-        for (int x = 0; x < width; x++) {
-            qreal xx = (qreal) x / width - 0.5;
+        for (int x = 0; x < size.width(); x++) {
+            qreal xx = qreal(x) / size.width() - 0.5;
 
             qreal r = sqrt(xx * xx + yy * yy);
             qreal at = atan2(xx, yy);
 
-            opticalMapPtr["spiral1"][i] = ((unsigned int)
-                ((at / M_PI * 256) + (r * 4000))) & 255;
+            spiral1Line[x] = (uint((at / M_PI * 256) + (r * 4000))) & 255;
 
             int j = r * 300 / 32;
             qreal rr = r * 300 - j * 32;
@@ -124,61 +134,55 @@ OpticalMap HypnoticElement::createOpticalMap(int width, int height)
             j *= 64;
             j += (rr > 28)? (rr - 28) * 16: 0;
 
-            opticalMapPtr["spiral2"][i] = ((unsigned int)
-                ((at / M_PI * 4096) + (r * 1600) - j)) & 255;
-
-            opticalMapPtr["parabola"][i] = ((unsigned int) (yy / (xx * xx * 0.3 + 0.1) * 400)) & 255;
-            opticalMapPtr["horizontalStripe"][i] = x * 8 * sci;
-            i++;
+            spiral2Line[x] = (uint((at / M_PI * 4096) + (r * 1600) - j)) & 255;
+            parabolaLine[x] = (uint(yy / (xx * xx * 0.3 + 0.1) * 400)) & 255;
+            horizontalStripeLine[x] = x * 8 * sci;
         }
     }
 
     return opticalMap;
 }
 
-QImage HypnoticElement::imageYOver(const QImage &src, int threshold)
+QImage HypnoticElement::imageThreshold(const QImage &src, int threshold)
 {
-    int yThreshold = 7 * threshold;
     QRgb *srcBits = (QRgb *) src.bits();
-    QImage diff(src.size(), QImage::Format_Indexed8);
+    QImage diff(src.size(), QImage::Format_Grayscale8);
     quint8 *diffBits = diff.bits();
     int videoArea = src.width() * src.height();
 
-    for (int i = 0; i < videoArea; i++) {
-        QRgb pixel = srcBits[i];
-        int r = (pixel & 0xff0000) >> (16 - 1);
-        int g = (pixel & 0xff00) >> (8 - 2);
-        int b = pixel & 0xff;
-        int v = yThreshold - (r + g + b);
-
-        diffBits[i] = v >> 24;
-    }
+    for (int i = 0; i < videoArea; i++)
+        diffBits[i] = qGray(srcBits[i]) >= threshold? 255: 0;
 
     return diff;
 }
 
 void HypnoticElement::setMode(const QString &mode)
 {
-    if (mode != this->m_mode) {
-        this->m_mode = mode;
-        emit this->modeChanged();
-    }
+    OpticMode opticMode = opticModeToStr->key(mode, OpticModeSpiral1);
+
+    if (this->m_mode == opticMode)
+        return;
+
+    this->m_mode = opticMode;
+    emit this->modeChanged(mode);
 }
 
 void HypnoticElement::setSpeedInc(int speedInc)
 {
-    if (speedInc != this->m_speedInc) {
-        this->m_speedInc = speedInc;
-        emit this->speedIncChanged();
-    }
+    if (this->m_speedInc == speedInc)
+        return;
+
+    this->m_speedInc = speedInc;
+    emit this->speedIncChanged(speedInc);
 }
 
 void HypnoticElement::setThreshold(int threshold)
 {
-    if (threshold != this->m_threshold) {
-        this->m_threshold = threshold;
-        emit this->thresholdChanged();
-    }
+    if (this->m_threshold == threshold)
+        return;
+
+    this->m_threshold = threshold;
+    emit this->thresholdChanged(threshold);
 }
 
 void HypnoticElement::resetMode()
@@ -193,49 +197,43 @@ void HypnoticElement::resetSpeedInc()
 
 void HypnoticElement::resetThreshold()
 {
-    this->setThreshold(50);
+    this->setThreshold(127);
 }
 
 QbPacket HypnoticElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
+    src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-    QRgb *destBits = (QRgb *) oFrame.bits();
 
-    static QbCaps caps;
-
-    if (packet.caps() != caps) {
+    if (src.size() != this->m_frameSize) {
         this->m_speed = 16;
         this->m_phase = 0;
-
-        this->m_opticalMap = this->createOpticalMap(src.width(),
-                                                    src.height());
-
-        caps = packet.caps();
+        this->m_opticalMap = this->createOpticalMap(src.size());
+        this->m_frameSize = src.size();
     }
 
-    quint8 *opticalMap;
-
-    if (this->m_opticalMap.contains(this->m_mode))
-        opticalMap = (quint8 *) this->m_opticalMap[this->m_mode].bits();
-    else
-        opticalMap = (quint8 *) this->m_opticalMap["spiral1"].bits();
+    QImage opticalMap = this->m_opticalMap.value(this->m_mode,
+                                                 this->m_opticalMap[OpticModeSpiral1]);
 
     this->m_speed += this->m_speedInc;
     this->m_phase -= this->m_speed;
 
-    QImage diff = this->imageYOver(src, this->m_threshold);
-    quint8 *diffBits = (quint8 *) diff.bits();
+    QImage diff = this->imageThreshold(src, this->m_threshold);
 
-    for (int i = 0, y = 0; y < src.height(); y++)
+    for (int i = 0, y = 0; y < src.height(); y++) {
+        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const quint8 *optLine = (const quint8 *) opticalMap.constScanLine(y);
+        const quint8 *diffLine = (const quint8 *) diff.constScanLine(y);
+
         for (int x = 0; x < src.width(); i++, x++)
-            destBits[i] = this->m_palette[(((char) (opticalMap[i] + this->m_phase)) ^ diffBits[i]) & 255];
+            oLine[x] = this->m_palette[(((char) (optLine[x] + this->m_phase)) ^ diffLine[x]) & 255];
+    }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
 }

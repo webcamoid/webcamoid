@@ -18,14 +18,14 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <QtMath>
+#include <QPainter>
+
 #include "diceelement.h"
 
 DiceElement::DiceElement(): QbElement()
 {
-    this->m_convert = QbElement::create("VCapsConvert");
-    this->m_convert->setProperty("caps", "video/x-raw,format=bgr0");
-
-    this->resetCubeBits();
+    this->m_diceSize = 24;
 }
 
 QObject *DiceElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -50,122 +50,95 @@ QObject *DiceElement::controlInterface(QQmlEngine *engine, const QString &contro
     return item;
 }
 
-int DiceElement::cubeBits() const
+int DiceElement::diceSize() const
 {
-    return this->m_cubeBits;
+    return this->m_diceSize;
 }
 
-QByteArray DiceElement::makeDiceMap(const QSize &size, int cubeBits) const
+void DiceElement::setDiceSize(int diceSize)
 {
-    QByteArray diceMap;
+    if (this->m_diceSize == diceSize)
+        return;
 
-    int mapWidth = size.width() >> cubeBits;
-    int mapHeight = size.height() >> cubeBits;
-
-    diceMap.resize(mapWidth * mapHeight);
-    int i = 0;
-
-    for (int y = 0; y < mapHeight; y++)
-        for (int x = 0; x < mapWidth; x++) {
-            diceMap.data()[i] = (qrand() >> 24) & 0x03;
-            i++;
-        }
-
-    return diceMap;
+    this->m_diceSize = diceSize;
+    emit this->diceSizeChanged(diceSize);
 }
 
-void DiceElement::setCubeBits(int cubeBits)
+void DiceElement::resetDiceSize()
 {
-    cubeBits = qBound(0, cubeBits, 5);
-
-    if (cubeBits != this->m_cubeBits) {
-        this->m_cubeBits = cubeBits;
-        emit this->cubeBitsChanged();
-    }
-}
-
-void DiceElement::resetCubeBits()
-{
-    this->setCubeBits(4);
+    this->setDiceSize(24);
 }
 
 QbPacket DiceElement::iStream(const QbPacket &packet)
 {
-    QbPacket iPacket = this->m_convert->iStream(packet);
-    QImage src = QbUtils::packetToImage(iPacket);
+    QImage src = QbUtils::packetToImage(packet);
 
     if (src.isNull())
         return QbPacket();
 
-    QImage oFrame = QImage(src.size(), src.format());
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame = src.copy();
 
-    quint32 *srcBits = (quint32 *) src.bits();
-    quint32 *destBits = (quint32 *) oFrame.bits();
+    static int diceSize = this->m_diceSize;
 
-    static int cubeBits = this->m_cubeBits;
-    static QSize curSize;
-
-    if (this->m_cubeBits != cubeBits
-        || src.size() != curSize) {
-        cubeBits = this->m_cubeBits;
-        curSize = src.size();
-        this->m_diceMap = this->makeDiceMap(src.size(), this->m_cubeBits);
+    if (src.size() != this->m_frameSize
+        || this->m_diceSize != diceSize) {
+        diceSize = this->m_diceSize;
+        this->m_frameSize = src.size();
+        this->updateDiceMap();
+        emit this->frameSizeChanged(this->m_frameSize);
     }
 
-    int mapWidth = src.width() >> cubeBits;
-    int mapHeight = src.height() >> cubeBits;
-    int cubeSize = 1 << cubeBits;
-    int mapI = 0;
+    QTransform rotateLeft;
+    QTransform rotateRight;
+    QTransform rotate180;
 
-    for (int mapY = 0; mapY < mapHeight; mapY++)
-        for (int mapX = 0; mapX < mapWidth; mapX++) {
-            int base = (mapY << cubeBits) * src.width() + (mapX << cubeBits);
+    rotateLeft.rotate(90);
+    rotateRight.rotate(-90);
+    rotate180.rotate(180);
 
-            if (this->m_diceMap.data()[mapI] == DICEDIR_UP) {
-                for (int dy = 0; dy < cubeSize; dy++) {
-                    int i = base + dy * src.width();
+    QPainter painter;
+    painter.begin(&oFrame);
 
-                    for (int dx = 0; dx < cubeSize; dx++) {
-                        destBits[i] = srcBits[i];
-                        i++;
-                    }
-                }
-            } else if (this->m_diceMap[mapI] == DICEDIR_LEFT) {
-                for (int dy = 0; dy < cubeSize; dy++) {
-                    int i = base + dy * src.width();
+    for (int y = 0; y < this->m_diceMap.height(); y++) {
+        const quint8 *diceLine = (const quint8 *) this->m_diceMap.constScanLine(y);
 
-                    for (int dx = 0; dx < cubeSize; dx++) {
-                        int di = base + (dx * src.width()) + (cubeSize - dy - 1);
-                        destBits[di] = srcBits[i];
-                        i++;
-                    }
-                }
-            } else if (this->m_diceMap[mapI] == DICEDIR_DOWN) {
-                for (int dy = 0; dy < cubeSize; dy++) {
-                    int di = base + dy * src.width();
-                    int i = base + (cubeSize - dy - 1) * src.width() + cubeSize;
+        for (int x = 0; x < this->m_diceMap.width(); x++) {
+            int xp = this->m_diceSize * x;
+            int yp = this->m_diceSize * y;
+            QImage dice = src.copy(xp, yp, this->m_diceSize, this->m_diceSize);
+            quint8 direction = diceLine[x];
 
-                    for (int dx = 0; dx < cubeSize; dx++) {
-                        i--;
-                        destBits[di] = srcBits[i];
-                        di++;
-                    }
-                }
-            } else if (this->m_diceMap[mapI] == DICEDIR_RIGHT) {
-                for (int dy = 0; dy < cubeSize; dy++) {
-                    int i = base + (dy * src.width());
+            if (direction == 0)
+                dice = dice.transformed(rotateLeft);
+            else if (direction == 1)
+                dice = dice.transformed(rotateRight);
+            else if (direction == 2)
+                dice = dice.transformed(rotate180);
 
-                    for (int dx = 0; dx < cubeSize; dx++) {
-                        int di = base + dy + (cubeSize - dx - 1) * src.width();
-                        destBits[di] = srcBits[i];
-                        i++;
-                    }
-                }
-            }
-
-            mapI++;
+            painter.drawImage(xp, yp, dice);
         }
+    }
 
-    QbPacket oPacket = QbUtils::imageToPacket(oFrame, iPacket);
+    painter.end();
+
+    QbPacket oPacket = QbUtils::imageToPacket(oFrame, packet);
     qbSend(oPacket)
+}
+
+void DiceElement::updateDiceMap()
+{
+    int width = qCeil(this->m_frameSize.width() / qreal(this->m_diceSize));
+    int height = qCeil(this->m_frameSize.height() / qreal(this->m_diceSize));
+
+    QImage diceMap(width, height, QImage::Format_Grayscale8);
+
+    for (int y = 0; y < diceMap.height(); y++) {
+        quint8 *oLine = (quint8 *) diceMap.scanLine(y);
+
+        for (int x = 0; x < diceMap.width(); x++)
+            oLine[x] = qrand() % 4;
+    }
+
+    this->m_diceMap = diceMap;
 }

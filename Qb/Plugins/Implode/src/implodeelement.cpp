@@ -18,7 +18,7 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include <cmath>
+#include <QtMath>
 
 #include "implodeelement.h"
 
