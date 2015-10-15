@@ -26,22 +26,28 @@
 
 #include "mediatools.h"
 
+typedef QMap<MediaTools::RecordFrom, QString> RecordFromMap;
+
+inline RecordFromMap initRecordFromMap()
+{
+    RecordFromMap recordFromMap;
+    recordFromMap[MediaTools::RecordFromNone] = "none";
+    recordFromMap[MediaTools::RecordFromSource] = "source";
+    recordFromMap[MediaTools::RecordFromMic] = "mic";
+
+    return recordFromMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(RecordFromMap, recordFromMap, (initRecordFromMap()))
+
 MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->m_appEngine = engine;
 
-    this->m_recordFromMap[RecordFromNone] = "none";
-    this->m_recordFromMap[RecordFromSource] = "source";
-    this->m_recordFromMap[RecordFromMic] = "mic";
-
-    this->resetCurStream();
     this->m_playAudioFromSource = true;
     this->m_recordAudioFrom = RecordFromMic;
-    this->resetCurRecordingFormat();
-    this->resetRecording();
-    this->resetRecordingFormats();
-    this->resetStreams();
+    this->m_recording = false;
     this->m_windowWidth = 0;
     this->m_windowHeight = 0;
     this->m_advancedMode = false;
@@ -117,11 +123,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbElementPtr, this->m_videoConvert),
-                                  Q_ARG(QString, "videoConvert"));
+                                  Q_RETURN_ARG(QbElementPtr, this->m_videoOutput),
+                                  Q_ARG(QString, "videoOutput"));
 
-        if (this->m_videoConvert)
-            this->m_videoConvert->link(this);
+        if (this->m_videoOutput)
+            this->m_videoOutput->link(this);
 
         if (this->m_source) {
             QObject::connect(this->m_source.data(),
@@ -199,7 +205,7 @@ void MediaTools::iStream(const QbPacket &packet)
 
     QString sender = this->sender()->objectName();
 
-    if (sender == "videoConvert") {
+    if (sender == "videoOutput") {
         this->m_curPacket = packet;
         emit this->frameReady(packet);
     }
@@ -217,7 +223,7 @@ bool MediaTools::playAudioFromSource() const
 
 QString MediaTools::recordAudioFrom() const
 {
-    return this->m_recordFromMap[this->m_recordAudioFrom];
+    return recordFromMap->value(this->m_recordAudioFrom);
 }
 
 QString MediaTools::curRecordingFormat() const
@@ -263,7 +269,7 @@ void MediaTools::removeRecordingFormat(const QString &formatId)
     for (int i = 0; i < this->m_recordingFormats.size(); i++)
         if (this->m_recordingFormats[i].description() == formatId) {
             this->m_recordingFormats.removeAt(i);
-            emit this->recordingFormatsChanged();
+            emit this->recordingFormatsChanged(this->recordingFormats());
 
             break;
         }
@@ -279,7 +285,7 @@ void MediaTools::moveRecordingFormat(const QString &formatId, int index)
             break;
         }
 
-    emit this->recordingFormatsChanged();
+    emit this->recordingFormatsChanged(this->recordingFormats());
 }
 
 QStringList MediaTools::streams() const
@@ -467,15 +473,15 @@ QbElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
 
     if (i < 0) {
         if (this->m_videoMux) {
-            this->m_videoMux->unlink(this->m_videoConvert);
+            this->m_videoMux->unlink(this->m_videoOutput);
             this->m_videoMux->link(effect, Qt::DirectConnection);
         }
     } else {
-        this->m_effectsList[i]->unlink(this->m_videoConvert);
+        this->m_effectsList[i]->unlink(this->m_videoOutput);
         this->m_effectsList[i]->link(effect, Qt::DirectConnection);
     }
 
-    effect->link(this->m_videoConvert, Qt::DirectConnection);
+    effect->link(this->m_videoOutput, Qt::DirectConnection);
 
     if (!preview)
         emit this->currentEffectsChanged();
@@ -490,12 +496,12 @@ void MediaTools::removeEffect(const QString &effectId)
             if (i == 0) {
                 if (this->m_effectsList.size() == 1) {
                     if (this->m_videoMux)
-                        this->m_videoMux->link(this->m_videoConvert, Qt::DirectConnection);
+                        this->m_videoMux->link(this->m_videoOutput, Qt::DirectConnection);
                 }
                 else
                     this->m_videoMux->link(this->m_effectsList[i + 1], Qt::DirectConnection);
             } else if (i == this->m_effectsList.size() - 1)
-                this->m_effectsList[i - 1]->link(this->m_videoConvert, Qt::DirectConnection);
+                this->m_effectsList[i - 1]->link(this->m_videoOutput, Qt::DirectConnection);
             else
                 this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1], Qt::DirectConnection);
 
@@ -769,9 +775,7 @@ bool MediaTools::sortByDescription(const QString &pluginId1,
 
 void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
 {
-    RecordFrom recordAudio = this->m_recordFromMap.values().contains(recordAudioFrom)?
-                                 this->m_recordFromMap.key(recordAudioFrom):
-                                 RecordFromMic;
+    RecordFrom recordAudio = recordFromMap->key(recordAudioFrom, RecordFromMic);
 
     if (this->m_recordAudioFrom == recordAudio)
         return;
@@ -780,7 +784,7 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
         !this->m_audioSwitch ||
         !this->m_record) {
         this->m_recordAudioFrom = recordAudio;
-        emit this->recordAudioFromChanged();
+        emit this->recordAudioFromChanged(recordAudioFrom);
 
         return;
     }
@@ -839,7 +843,7 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
     }
 
     this->m_recordAudioFrom = recordAudio;
-    emit this->recordAudioFromChanged();
+    emit this->recordAudioFromChanged(recordAudioFrom);
 }
 
 void MediaTools::setCurRecordingFormat(const QString &curRecordingFormat)
@@ -1063,12 +1067,15 @@ void MediaTools::stopStream()
 
 void MediaTools::setCurStream(const QString &stream)
 {
+    if (this->m_curStream == stream)
+        return;
+
     this->m_curStream = stream;
 
     if (!this->m_source
         || !this->m_videoCapture
         || !this->m_desktopCapture) {
-        emit this->curStreamChanged();
+        emit this->curStreamChanged(stream);
 
         return;
     }
@@ -1079,7 +1086,7 @@ void MediaTools::setCurStream(const QString &stream)
         this->stopStream();
 
     if (stream.isEmpty()) {
-        emit this->curStreamChanged();
+        emit this->curStreamChanged(stream);
 
         return;
     }
@@ -1095,7 +1102,7 @@ void MediaTools::setCurStream(const QString &stream)
     if (isPlaying)
         this->startStream();
 
-    emit this->curStreamChanged();
+    emit this->curStreamChanged(stream);
 }
 
 void MediaTools::setPlayAudioFromSource(bool playAudio)
@@ -1104,7 +1111,7 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
         return;
 
     this->m_playAudioFromSource = playAudio;
-    emit this->playAudioFromSourceChanged();
+    emit this->playAudioFromSourceChanged(playAudio);
 
     if (!this->m_source || !this->m_audioOutput)
         return;
@@ -1132,10 +1139,11 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
 
 void MediaTools::setRecordingFormats(const QList<RecordingFormat> &recordingFormats)
 {
-    if (recordingFormats != this->m_recordingFormats) {
-        this->m_recordingFormats = recordingFormats;
-        emit this->recordingFormatsChanged();
-    }
+    if (this->m_recordingFormats == recordingFormats)
+        return;
+
+    this->m_recordingFormats = recordingFormats;
+    emit this->recordingFormatsChanged(this->recordingFormats());
 }
 
 void MediaTools::setRecordingFormat(const QString &description,
@@ -1146,29 +1154,31 @@ void MediaTools::setRecordingFormat(const QString &description,
         if (this->m_recordingFormats[i].description() == description) {
             this->m_recordingFormats[i].setSuffix(suffix);
             this->m_recordingFormats[i].setParams(params);
-            emit this->recordingFormatsChanged();
+            emit this->recordingFormatsChanged(this->recordingFormats());
 
             return;
         }
 
     this->m_recordingFormats << RecordingFormat(description, suffix, params);
-    emit this->recordingFormatsChanged();
+    emit this->recordingFormatsChanged(this->recordingFormats());
 }
 
 void MediaTools::setWindowWidth(int windowWidth)
 {
-    if (windowWidth != this->m_windowWidth) {
-        this->m_windowWidth = windowWidth;
-        emit this->windowWidthChanged();
-    }
+    if (this->m_windowWidth == windowWidth)
+        return;
+
+    this->m_windowWidth = windowWidth;
+    emit this->windowWidthChanged(windowWidth);
 }
 
 void MediaTools::setWindowHeight(int windowHeight)
 {
-    if (windowHeight != this->m_windowHeight) {
-        this->m_windowHeight = windowHeight;
-        emit this->windowHeightChanged();
-    }
+    if (this->m_windowHeight == windowHeight)
+        return;
+
+    this->m_windowHeight = windowHeight;
+    emit this->windowHeightChanged(windowHeight);
 }
 
 void MediaTools::setAdvancedMode(bool advancedMode)
@@ -1233,12 +1243,12 @@ void MediaTools::resetEffects()
     if (this->m_videoMux)
         this->m_videoMux->unlink(this->m_effectsList.first());
 
-    if (this->m_videoConvert)
-        this->m_effectsList.last()->unlink(this->m_videoConvert);
+    if (this->m_videoOutput)
+        this->m_effectsList.last()->unlink(this->m_videoOutput);
 
     if (this->m_videoMux
-        && this->m_videoConvert)
-        this->m_videoMux->link(this->m_videoConvert, Qt::DirectConnection);
+        && this->m_videoOutput)
+        this->m_videoMux->link(this->m_videoOutput, Qt::DirectConnection);
 
     this->m_effectsList.clear();
     emit this->currentEffectsChanged();

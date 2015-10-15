@@ -77,7 +77,6 @@ SUBDIRS += \
     Shagadelic \
     Swirl \
     Temperature \
-    VCapsConvert \
     VideoCapture \
     Vignette \
     Warhol \

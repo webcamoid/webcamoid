@@ -22,7 +22,7 @@
 
 ProbeElement::ProbeElement(): QbElement()
 {
-    this->resetLog();
+    this->m_log = false;
 }
 
 bool ProbeElement::log() const
@@ -30,20 +30,23 @@ bool ProbeElement::log() const
     return this->m_log;
 }
 
-void ProbeElement::setLog(bool on)
+void ProbeElement::setLog(bool log)
 {
-    this->m_log = on;
+    if (this->m_log == log)
+        return;
+
+    this->m_log = log;
+    emit this->logChanged(log);
 }
 
 void ProbeElement::resetLog()
 {
-    this->setLog(true);
+    this->setLog(false);
 }
 
 QbPacket ProbeElement::iStream(const QbPacket &packet)
 {
-    if (this->m_log)
-    {
+    if (this->m_log) {
         qDebug().nospace() << "\"" << this->objectName().toStdString().c_str() << "\"";
 
         foreach (QString line, packet.toString().split('\n'))

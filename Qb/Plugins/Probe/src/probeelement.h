@@ -26,7 +26,11 @@
 class ProbeElement: public QbElement
 {
     Q_OBJECT
-    Q_PROPERTY(bool log READ log WRITE setLog RESET resetLog)
+    Q_PROPERTY(bool log
+               READ log
+               WRITE setLog
+               RESET resetLog
+               NOTIFY logChanged)
 
     public:
         explicit ProbeElement();
@@ -35,6 +39,9 @@ class ProbeElement: public QbElement
 
     private:
         bool m_log;
+
+    signals:
+        void logChanged(bool log);
 
     public slots:
         void setLog(bool log);

@@ -22,16 +22,10 @@
             }
         },
         {
-            "pluginId": "VCapsConvert",
+            "pluginId": "Probe",
             "properties": {
-                "objectName": "videoConvert",
-                "caps": "video/x-raw,format=bgra"
-            },
-            "connections": [
-                ["source", "stateChanged", "", "setState"],
-                ["videoCapture", "stateChanged", "", "setState"],
-                ["desktopCapture", "stateChanged", "", "setState"]
-            ]
+                "objectName": "videoOutput"
+            }
         }
     ],
     [
@@ -89,7 +83,7 @@
     ],
     [
         {
-            "alias": "videoConvert"
+            "alias": "videoOutput"
         },
         {
             "pluginId": "RtPts",

@@ -22,7 +22,9 @@
 
 VideoFrame::VideoFrame(const QbPacket &packet)
 {
-    this->m_image = QbUtils::packetToImage(packet).mirrored();
+    this->m_image = QbUtils::packetToImage(packet)
+                        .convertToFormat(QImage::Format_ARGB32)
+                        .mirrored();
     this->m_textureId = 0;
 }
 
@@ -44,7 +46,7 @@ VideoFrame &VideoFrame::operator =(const QbPacket &packet)
     QImage image = QbUtils::packetToImage(packet);
 
     if (!image.isNull())
-        this->m_image = image.mirrored();
+        this->m_image = image.convertToFormat(QImage::Format_ARGB32).mirrored();
 
     return *this;
 }

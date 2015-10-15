@@ -168,7 +168,6 @@ class MediaTools: public QObject
         int m_windowWidth;
         int m_windowHeight;
         bool m_advancedMode;
-        QMap<RecordFrom, QString> m_recordFromMap;
         QQmlApplicationEngine *m_appEngine;
 
         QbElementPtr m_pipeline;
@@ -180,7 +179,7 @@ class MediaTools: public QObject
         QbElementPtr m_videoCapture;
         QbElementPtr m_desktopCapture;
         QbElementPtr m_videoMux;
-        QbElementPtr m_videoConvert;
+        QbElementPtr m_videoOutput;
         QList<QbElementPtr> m_effectsList;
         QMutex m_mutex;
         QbPacket m_curPacket;
@@ -195,16 +194,16 @@ class MediaTools: public QObject
                                       const QString &pluginId2);
 
     signals:
-        void curStreamChanged();
+        void curStreamChanged(const QString &curStream);
         void streamsChanged();
-        void playAudioFromSourceChanged();
-        void stateChanged();
-        void recordAudioFromChanged();
+        void playAudioFromSourceChanged(bool playAudioFromSource);
+        void recordAudioFromChanged(const QString &recordAudioFrom);
         void curRecordingFormatChanged();
         void recordingChanged(bool recording);
-        void recordingFormatsChanged();
-        void windowWidthChanged();
-        void windowHeightChanged();
+        void recordingFormatsChanged(const QStringList &recordingFormats);
+        void windowWidthChanged(int windowWidth);
+        void windowHeightChanged(int windowHeight);
+        void stateChanged();
         void advancedModeChanged(bool advancedMode);
         void currentEffectsChanged();
         void isPlayingChanged();
