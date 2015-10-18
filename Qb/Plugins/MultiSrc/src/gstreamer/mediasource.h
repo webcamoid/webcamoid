@@ -18,41 +18,24 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef MULTISRCELEMENT_H
-#define MULTISRCELEMENT_H
+#ifndef MEDIASOURCE_H
+#define MEDIASOURCE_H
 
-#include <qbmultimediasourceelement.h>
+#include <QObject>
+#include <qbpacket.h>
 
-#ifndef USE_GSTREAMER
-#include "ffmpeg/mediasource.h"
-#else
-#include "gstreamer/mediasource.h"
-#endif
-
-class MultiSrcElement: public QbMultimediaSourceElement
+class MediaSource: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 maxPacketQueueSize
-               READ maxPacketQueueSize
-               WRITE setMaxPacketQueueSize
-               RESET resetMaxPacketQueueSize
-               NOTIFY maxPacketQueueSizeChanged)
-    Q_PROPERTY(bool showLog
-               READ showLog
-               WRITE setShowLog
-               RESET resetShowLog
-               NOTIFY showLogChanged)
 
     public:
-        explicit MultiSrcElement();
-        ~MultiSrcElement();
+        explicit MediaSource(QObject *parent=NULL);
+        ~MediaSource();
 
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-
-        using QbMultimediaSourceElement::defaultStream;
-        using QbMultimediaSourceElement::caps;
+        Q_INVOKABLE bool loop() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
@@ -60,27 +43,33 @@ class MultiSrcElement: public QbMultimediaSourceElement
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
-    protected:
-        void stateChange(QbElement::ElementState from,
-                         QbElement::ElementState to);
-
     private:
-        MediaSource m_mediaSource;
 
     signals:
+        void oStream(const QbPacket &packet);
         void error(const QString &message);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
+        void loopChanged(bool loop);
+        void mediasChanged(const QStringList &medias);
+        void mediaChanged(const QString &media);
+        void streamsChanged(const QList<int> &streams);
 
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void setShowLog(bool showLog);
+        void setLoop(bool loop);
         void resetMedia();
         void resetStreams();
         void resetMaxPacketQueueSize();
         void resetShowLog();
+        void resetLoop();
+        bool init();
+        void uninit();
+
+    private slots:
 };
 
-#endif // MULTISRCELEMENT_H
+#endif // MEDIASOURCE_H

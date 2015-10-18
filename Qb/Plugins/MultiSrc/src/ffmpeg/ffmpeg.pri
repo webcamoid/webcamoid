@@ -17,6 +17,8 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
+QT += concurrent widgets
+
 DEFINES += __STDC_CONSTANT_MACROS
 
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
@@ -35,3 +37,21 @@ isEmpty(FFMPEGLIBS) {
         libswscale \
         libavutil
 }
+
+HEADERS += \
+    $$PWD/mediasource.h \
+    $$PWD/abstractstream.h \
+    $$PWD/audiostream.h \
+    $$PWD/subtitlestream.h \
+    $$PWD/videostream.h \
+    $$PWD/framebuffer.h \
+    $$PWD/clock.h
+
+SOURCES += \
+    $$PWD/mediasource.cpp \
+    $$PWD/abstractstream.cpp \
+    $$PWD/audiostream.cpp \
+    $$PWD/subtitlestream.cpp \
+    $$PWD/videostream.cpp \
+    $$PWD/framebuffer.cpp \
+    $$PWD/clock.cpp

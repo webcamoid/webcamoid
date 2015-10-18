@@ -18,41 +18,28 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef MULTISRCELEMENT_H
-#define MULTISRCELEMENT_H
+#ifndef MEDIASOURCE_H
+#define MEDIASOURCE_H
 
-#include <qbmultimediasourceelement.h>
+#include <QObject>
 
-#ifndef USE_GSTREAMER
-#include "ffmpeg/mediasource.h"
-#else
-#include "gstreamer/mediasource.h"
-#endif
+#include "abstractstream.h"
 
-class MultiSrcElement: public QbMultimediaSourceElement
+typedef QSharedPointer<AVFormatContext> FormatContextPtr;
+typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
+
+class MediaSource: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 maxPacketQueueSize
-               READ maxPacketQueueSize
-               WRITE setMaxPacketQueueSize
-               RESET resetMaxPacketQueueSize
-               NOTIFY maxPacketQueueSizeChanged)
-    Q_PROPERTY(bool showLog
-               READ showLog
-               WRITE setShowLog
-               RESET resetShowLog
-               NOTIFY showLogChanged)
 
     public:
-        explicit MultiSrcElement();
-        ~MultiSrcElement();
+        explicit MediaSource(QObject *parent=NULL);
+        ~MediaSource();
 
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-
-        using QbMultimediaSourceElement::defaultStream;
-        using QbMultimediaSourceElement::caps;
+        Q_INVOKABLE bool loop() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
@@ -60,27 +47,62 @@ class MultiSrcElement: public QbMultimediaSourceElement
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
-    protected:
-        void stateChange(QbElement::ElementState from,
-                         QbElement::ElementState to);
-
     private:
-        MediaSource m_mediaSource;
+        QString m_media;
+        QList<int> m_streams;
+        bool m_loop;
+        bool m_run;
+
+        FormatContextPtr m_inputContext;
+        qint64 m_maxPacketQueueSize;
+        bool m_showLog;
+        QThreadPool m_threadPool;
+        QMutex m_dataMutex;
+        QWaitCondition m_packetQueueNotFull;
+        QWaitCondition m_packetQueueEmpty;
+        QMap<int, AbstractStreamPtr> m_streamsMap;
+        Clock m_globalClock;
+
+        qint64 packetQueueSize();
+        static void deleteFormatContext(AVFormatContext *context);
+        AbstractStreamPtr createStream(int index, bool noModify=false);
+        static void readPackets(MediaSource *element);
+        static void unlockQueue(MediaSource *element);
+
+        inline int roundDown(int value, int multiply)
+        {
+            return value - value % multiply;
+        }
 
     signals:
+        void oStream(const QbPacket &packet);
         void error(const QString &message);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
+        void loopChanged(bool loop);
+        void mediasChanged(const QStringList &medias);
+        void mediaChanged(const QString &media);
+        void streamsChanged(const QList<int> &streams);
 
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void setShowLog(bool showLog);
+        void setLoop(bool loop);
         void resetMedia();
         void resetStreams();
         void resetMaxPacketQueueSize();
         void resetShowLog();
+        void resetLoop();
+        bool init();
+        void uninit();
+
+    private slots:
+        void doLoop();
+        void packetConsumed();
+        bool initContext();
+        void log();
 };
 
-#endif // MULTISRCELEMENT_H
+#endif // MEDIASOURCE_H
