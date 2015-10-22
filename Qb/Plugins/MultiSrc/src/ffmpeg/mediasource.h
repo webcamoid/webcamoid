@@ -39,6 +39,8 @@ class MediaSource: public QObject
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE QString streamLanguage(int stream);
         Q_INVOKABLE bool loop() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType);

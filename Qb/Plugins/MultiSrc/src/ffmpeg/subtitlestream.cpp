@@ -30,7 +30,7 @@ SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
 
 QbCaps SubtitleStream::caps() const
 {
-    return QbCaps("application/x-subtitle");
+    return QbCaps("text/x-raw");
 }
 
 void SubtitleStream::processPacket(AVPacket *packet)

@@ -61,6 +61,7 @@ class QbCaps: public QObject
         operator bool() const;
 
         Q_INVOKABLE virtual bool isValid() const;
+        Q_INVOKABLE virtual bool &isValid();
         Q_INVOKABLE virtual QString mimeType() const;
         Q_INVOKABLE QbCaps &fromMap(const QVariantMap &caps);
         Q_INVOKABLE QbCaps &fromString(const QString &caps);

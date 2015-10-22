@@ -49,9 +49,16 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    MultiSrc.qrc
+
 SOURCES += \
     src/multisrc.cpp \
     src/multisrcelement.cpp
+
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
 
 DESTDIR = $${PWD}
 

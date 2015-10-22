@@ -142,10 +142,10 @@ class MediaTools: public QObject
         Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
-        Q_INVOKABLE bool embedCameraControls(const QString &where,
-                                             const QString &stream,
+        Q_INVOKABLE bool embedMediaControls(const QString &where,
+                                             const QString &stream="",
                                              const QString &name="") const;
-        Q_INVOKABLE void removeCameraControls(const QString &where) const;
+        Q_INVOKABLE void removeMediaControls(const QString &where) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;

@@ -619,11 +619,20 @@ QString MediaTools::fileNameFromUri(const QString &uri) const
     return QFileInfo(uri).baseName();
 }
 
-bool MediaTools::embedCameraControls(const QString &where,
+bool MediaTools::embedMediaControls(const QString &where,
                                      const QString &stream,
                                      const QString &name) const
 {
-    QObject *interface = this->m_videoCapture->controlInterface(this->m_appEngine, stream);
+    QObject *interface = NULL;
+
+    if (this->isCamera(stream))
+        interface = this->m_videoCapture->controlInterface(this->m_appEngine, stream);
+    else if (this->isDesktop(stream))
+        interface = this->m_desktopCapture->controlInterface(this->m_appEngine, "");
+    else if (this->isVideo(stream))
+        interface = this->m_source->controlInterface(this->m_appEngine, "");
+    else
+        return false;
 
     if (!interface)
         return false;
@@ -634,7 +643,7 @@ bool MediaTools::embedCameraControls(const QString &where,
     return this->embedInterface(this->m_appEngine, interface, where);
 }
 
-void MediaTools::removeCameraControls(const QString &where) const
+void MediaTools::removeMediaControls(const QString &where) const
 {
     this->removeInterface(this->m_appEngine, where);
 }
@@ -950,52 +959,74 @@ bool MediaTools::start()
     else
         source = this->m_source;
 
-    // Find the defaults audio and video streams.
-    int videoStream = -1;
-
+    QList<int> streams;
     QMetaObject::invokeMethod(source.data(),
-                              "defaultStream", Qt::DirectConnection,
-                              Q_RETURN_ARG(int, videoStream),
-                              Q_ARG(QString, "video/x-raw"));
-    int audioStream = -1;
-
-    QMetaObject::invokeMethod(source.data(),
-                              "defaultStream", Qt::DirectConnection,
-                              Q_RETURN_ARG(int, audioStream),
-                              Q_ARG(QString, "audio/x-raw"));
+                              "streams", Qt::DirectConnection,
+                              Q_RETURN_ARG(QList<int>, streams));
 
     QVariantMap streamCaps;
-    QList<int> streams;
 
-    if (videoStream >= 0) {
-        QbCaps videoCaps;
+    if (streams.isEmpty()) {
+        int audioStream = -1;
+        int videoStream = -1;
+
+        // Find the defaults audio and video streams.
+        QMetaObject::invokeMethod(source.data(),
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, videoStream),
+                                  Q_ARG(QString, "video/x-raw"));
 
         QMetaObject::invokeMethod(source.data(),
-                                  "caps", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbCaps, videoCaps),
-                                  Q_ARG(int, videoStream));
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, audioStream),
+                                  Q_ARG(QString, "audio/x-raw"));
 
-        streamCaps["0"] = videoCaps.toString();
-        streams << videoStream;
-    }
+        // Read streams caps.
+        if (videoStream >= 0) {
+            QbCaps videoCaps;
 
-    if (audioStream >= 0) {
-        QbCaps audioCaps;
+            QMetaObject::invokeMethod(source.data(),
+                                      "caps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(QbCaps, videoCaps),
+                                      Q_ARG(int, videoStream));
 
-        QMetaObject::invokeMethod(source.data(),
-                                  "caps", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QbCaps, audioCaps),
-                                  Q_ARG(int, audioStream));
+            streamCaps["0"] = videoCaps.toString();
+            streams << videoStream;
+        }
 
-        streamCaps["1"] = audioCaps.toString();
-        streams << audioStream;
-    }
+        if (audioStream >= 0) {
+            QbCaps audioCaps;
 
-    // Only decode the default streams.
-    if (this->isVideo(this->m_curStream))
+            QMetaObject::invokeMethod(source.data(),
+                                      "caps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(QbCaps, audioCaps),
+                                      Q_ARG(int, audioStream));
+
+            streamCaps["1"] = audioCaps.toString();
+            streams << audioStream;
+        }
+
+        // Only decode the default streams.
         QMetaObject::invokeMethod(source.data(),
                                   "setStreams", Qt::DirectConnection,
                                   Q_ARG(QList<int>, streams));
+    } else {
+        foreach (int stream, streams) {
+            QbCaps caps;
+
+            QMetaObject::invokeMethod(source.data(),
+                                      "caps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(QbCaps, caps),
+                                      Q_ARG(int, stream));
+
+            if (caps.mimeType() == "audio/x-raw")
+                streamCaps["1"] = caps.toString();
+            else if (caps.mimeType() == "video/x-raw")
+                streamCaps["0"] = caps.toString();
+            else if (caps.mimeType() == "text/x-raw")
+                streamCaps["2"] = caps.toString();
+        }
+    }
 
     QVariantMap recordStreams;
 

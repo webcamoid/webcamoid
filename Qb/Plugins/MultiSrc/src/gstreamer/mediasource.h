@@ -21,8 +21,11 @@
 #ifndef MEDIASOURCE_H
 #define MEDIASOURCE_H
 
-#include <QObject>
+#include <QtConcurrent>
+#include <gst/gst.h>
 #include <qbpacket.h>
+
+#include "stream.h"
 
 class MediaSource: public QObject
 {
@@ -35,6 +38,8 @@ class MediaSource: public QObject
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
+        Q_INVOKABLE QString streamLanguage(int stream);
         Q_INVOKABLE bool loop() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType);
@@ -44,6 +49,39 @@ class MediaSource: public QObject
         Q_INVOKABLE bool showLog() const;
 
     private:
+        QString m_media;
+        QList<int> m_streams;
+        bool m_loop;
+        bool m_run;
+
+        qint64 m_maxPacketQueueSize;
+        bool m_showLog;
+        QThreadPool m_threadPool;
+        GstElement *m_pipeline;
+        GMainLoop *m_mainLoop;
+        guint m_busWatchId;
+        qint64 m_audioIndex;
+        qint64 m_videoIndex;
+        qint64 m_subtitlesIndex;
+        qint64 m_audioId;
+        qint64 m_videoId;
+        qint64 m_subtitlesId;
+        QList<Stream> m_streamInfo;
+
+        void waitState(GstState state);
+
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
+        static GstFlowReturn audioBufferCallback(GstElement *audioOutput,
+                                                 gpointer userData);
+        static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
+                                                 gpointer userData);
+        static GstFlowReturn subtitlesBufferCallback(GstElement *subtitlesOutput,
+                                                     gpointer userData);
+        static void aboutToFinish(GstElement *object, gpointer userData);
+        QStringList languageCodes(const QString &type);
+        QStringList languageCodes();
 
     signals:
         void oStream(const QbPacket &packet);
@@ -66,10 +104,11 @@ class MediaSource: public QObject
         void resetMaxPacketQueueSize();
         void resetShowLog();
         void resetLoop();
-        bool init();
+        bool init(bool paused=false);
         void uninit();
 
     private slots:
+        void updateStreams();
 };
 
 #endif // MEDIASOURCE_H

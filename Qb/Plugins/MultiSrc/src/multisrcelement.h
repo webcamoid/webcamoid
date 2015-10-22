@@ -21,6 +21,8 @@
 #ifndef MULTISRCELEMENT_H
 #define MULTISRCELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <qbmultimediasourceelement.h>
 
 #ifndef USE_GSTREAMER
@@ -32,6 +34,24 @@
 class MultiSrcElement: public QbMultimediaSourceElement
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList medias
+               READ medias
+               NOTIFY mediasChanged)
+    Q_PROPERTY(QString media
+               READ media
+               WRITE setMedia
+               RESET resetMedia
+               NOTIFY mediaChanged)
+    Q_PROPERTY(QList<int> streams
+               READ streams
+               WRITE setStreams
+               RESET resetStreams
+               NOTIFY streamsChanged)
+    Q_PROPERTY(bool loop
+               READ loop
+               WRITE setLoop
+               RESET resetLoop
+               NOTIFY loopChanged)
     Q_PROPERTY(qint64 maxPacketQueueSize
                READ maxPacketQueueSize
                WRITE setMaxPacketQueueSize
@@ -47,9 +67,14 @@ class MultiSrcElement: public QbMultimediaSourceElement
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> listTracks(const QString &type="");
+        Q_INVOKABLE QString streamLanguage(int stream);
 
         using QbMultimediaSourceElement::defaultStream;
         using QbMultimediaSourceElement::caps;
@@ -68,6 +93,10 @@ class MultiSrcElement: public QbMultimediaSourceElement
         MediaSource m_mediaSource;
 
     signals:
+        void mediasChanged(const QStringList &medias);
+        void mediaChanged(const QString &media);
+        void streamsChanged(const QList<int> &streams);
+        void loopChanged(bool loop);
         void error(const QString &message);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);

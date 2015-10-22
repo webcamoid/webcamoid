@@ -35,7 +35,7 @@ inline AvMediaTypeStrMap initAvMediaTypeStrMap()
     mediaTypeToStr[AVMEDIA_TYPE_VIDEO] = "video/x-raw";
     mediaTypeToStr[AVMEDIA_TYPE_AUDIO] = "audio/x-raw";
     mediaTypeToStr[AVMEDIA_TYPE_DATA] = "data/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_SUBTITLE] = "subtitle/x-raw";
+    mediaTypeToStr[AVMEDIA_TYPE_SUBTITLE] = "text/x-raw";
     mediaTypeToStr[AVMEDIA_TYPE_ATTACHMENT] = "attachment/x-raw";
     mediaTypeToStr[AVMEDIA_TYPE_NB] = "nb/x-raw";
 
@@ -78,6 +78,64 @@ QString MediaSource::media() const
 QList<int> MediaSource::streams() const
 {
     return this->m_streams;
+}
+
+QList<int> MediaSource::listTracks(const QString &mimeType)
+{
+    QList<int> tracks;
+    bool clearContext = false;
+
+    if (!this->m_inputContext) {
+        if (!this->initContext())
+            return tracks;
+
+        clearContext = true;
+    }
+
+    for (uint stream = 0; stream < this->m_inputContext->nb_streams; stream++) {
+        AVMediaType type = this->m_inputContext->streams[stream]->codec->codec_type;
+
+        if (mimeType.isEmpty()
+            || mediaTypeToStr->value(type) == mimeType)
+            tracks << stream;
+    }
+
+    if (clearContext)
+        this->m_inputContext.clear();
+
+    return tracks;
+}
+
+QString MediaSource::streamLanguage(int stream)
+{
+    bool clearContext = false;
+
+    if (!this->m_inputContext) {
+        if (!this->initContext())
+            return QString();
+
+        clearContext = true;
+    }
+
+    AVDictionary *metadata = this->m_inputContext->streams[stream]->metadata;
+    AVDictionaryEntry *dicEntry = NULL;
+    QString language;
+
+    while ((dicEntry = av_dict_get(metadata, "", dicEntry, AV_DICT_IGNORE_SUFFIX))) {
+        QString key(dicEntry->key);
+        QString value(dicEntry->value);
+
+        if (key == "language") {
+            language = value;
+
+            break;
+        }
+    }
+
+    if (clearContext)
+        this->m_inputContext.clear();
+
+    return language;
 }
 
 bool MediaSource::loop() const

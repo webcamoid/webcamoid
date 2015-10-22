@@ -68,6 +68,29 @@ MultiSrcElement::~MultiSrcElement()
 {
 }
 
+QObject *MultiSrcElement::controlInterface(QQmlEngine *engine,
+                                           const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    if (!engine)
+        return NULL;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/MultiSrc/share/qml/main.qml")));
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    context->setContextProperty("MultiSrc", (QObject *) this);
+    context->setContextProperty("controlId", this->objectName());
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+    context->setParent(item);
+
+    return item;
+}
+
 QStringList MultiSrcElement::medias() const
 {
     return this->m_mediaSource.medias();
@@ -81,6 +104,16 @@ QString MultiSrcElement::media() const
 QList<int> MultiSrcElement::streams() const
 {
     return this->m_mediaSource.streams();
+}
+
+QList<int> MultiSrcElement::listTracks(const QString &type)
+{
+    return this->m_mediaSource.listTracks(type);
+}
+
+QString MultiSrcElement::streamLanguage(int stream)
+{
+    return this->m_mediaSource.streamLanguage(stream);
 }
 
 int MultiSrcElement::defaultStream(const QString &mimeType)

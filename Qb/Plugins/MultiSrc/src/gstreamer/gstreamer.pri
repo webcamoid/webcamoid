@@ -27,10 +27,13 @@ CONFIG += link_pkgconfig
 
 PKGCONFIG += \
     gstreamer-1.0 \
-    gstreamer-app-1.0
+    gstreamer-app-1.0 \
+    gstreamer-audio-1.0 \
+    gstreamer-video-1.0
 
 HEADERS += \
-    $$PWD/mediasource.h
+    $$PWD/mediasource.h \
+    $$PWD/stream.h
 
 SOURCES += \
     $$PWD/mediasource.cpp

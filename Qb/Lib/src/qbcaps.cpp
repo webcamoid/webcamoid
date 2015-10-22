@@ -121,6 +121,11 @@ bool QbCaps::isValid() const
     return this->d->m_isValid;
 }
 
+bool &QbCaps::isValid()
+{
+    return this->d->m_isValid;
+}
+
 QString QbCaps::mimeType() const
 {
     return this->d->m_mimeType;

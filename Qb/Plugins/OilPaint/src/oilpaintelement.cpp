@@ -101,7 +101,7 @@ QbPacket OilPaintElement::iStream(const QbPacket &packet)
 
             memset(histogram, 0, 256 * sizeof(int));
             int max = 0;
-            QRgb oPixel;
+            QRgb oPixel = 0;
 
             for (int j = 0; j < scanBlockLen; j++)
                 for (int i = minI; i < maxI; i++) {
