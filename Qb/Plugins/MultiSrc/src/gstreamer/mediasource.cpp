@@ -18,8 +18,6 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#include <qb.h>
-#include <qbvideopacket.h>
 #include <gst/app/gstappsink.h>
 #include <gst/audio/audio.h>
 #include <gst/video/video.h>

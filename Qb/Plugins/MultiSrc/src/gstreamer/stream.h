@@ -21,7 +21,7 @@
 #ifndef STREAM
 #define STREAM
 
-#include <qbcaps.h>
+#include <qb.h>
 
 class Stream
 {

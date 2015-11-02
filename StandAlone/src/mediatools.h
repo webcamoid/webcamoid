@@ -29,8 +29,6 @@
 #include <qb.h>
 #include <qbutils.h>
 
-#include "recordingformat.h"
-
 class MediaTools: public QObject
 {
     Q_OBJECT
@@ -65,8 +63,7 @@ class MediaTools: public QObject
                RESET resetRecording
                NOTIFY recordingChanged)
     Q_PROPERTY(QStringList recordingFormats
-               READ recordingFormats
-               NOTIFY recordingFormatsChanged)
+               READ recordingFormats)
     Q_PROPERTY(int windowWidth
                READ windowWidth
                WRITE setWindowWidth
@@ -106,10 +103,8 @@ class MediaTools: public QObject
         Q_INVOKABLE QString curRecordingFormat() const;
         Q_INVOKABLE bool recording() const;
         Q_INVOKABLE QStringList recordingFormats() const;
-        Q_INVOKABLE QString recordingFormatParams(const QString &formatId) const;
+        Q_INVOKABLE QString recordingFormatDescription(const QString &formatId) const;
         Q_INVOKABLE QStringList recordingFormatSuffix(const QString &formatId) const;
-        Q_INVOKABLE void removeRecordingFormat(const QString &formatId);
-        Q_INVOKABLE void moveRecordingFormat(const QString &formatId, int index);
         Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
@@ -132,20 +127,11 @@ class MediaTools: public QObject
         Q_INVOKABLE QbElementPtr appendEffect(const QString &effectId, bool preview=false);
         Q_INVOKABLE void removeEffect(const QString &effectId);
         Q_INVOKABLE void moveEffect(const QString &effectId, int index);
-        Q_INVOKABLE bool embedEffectControls(const QString &where,
-                                             const QString &effectId,
-                                             const QString &name="") const;
-        Q_INVOKABLE void removeEffectControls(const QString &where) const;
         Q_INVOKABLE void showPreview(const QString &effectId);
         Q_INVOKABLE void setAsPreview(const QString &effectId, bool preview=false);
         Q_INVOKABLE void removePreview(const QString &effectId="");
-        Q_INVOKABLE QString bestRecordFormatOptions(const QString &fileName="") const;
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
-        Q_INVOKABLE bool embedMediaControls(const QString &where,
-                                             const QString &stream="",
-                                             const QString &name="") const;
-        Q_INVOKABLE void removeMediaControls(const QString &where) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
         Q_INVOKABLE QStringList standardLocations(const QString &type) const;
@@ -156,15 +142,24 @@ class MediaTools: public QObject
                                            const QString &filters="") const;
         Q_INVOKABLE QString readFile(const QString &fileName) const;
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
+        Q_INVOKABLE bool embedEffectControls(const QString &where,
+                                             const QString &effectId,
+                                             const QString &name="") const;
+        Q_INVOKABLE bool embedMediaControls(const QString &where,
+                                            const QString &stream="",
+                                            const QString &name="") const;
+        Q_INVOKABLE bool embedRecordControls(const QString &where,
+                                             const QString &format="",
+                                             const QString &name="") const;
+        Q_INVOKABLE void removeInterface(const QString &where,
+                                         QQmlApplicationEngine *engine=NULL) const;
 
     private:
         QString m_curStream;
         QMap<QString, QString> m_streams;
         bool m_playAudioFromSource;
         RecordFrom m_recordAudioFrom;
-        QString m_curRecordingFormat;
         bool m_recording;
-        QList<RecordingFormat> m_recordingFormats;
         int m_windowWidth;
         int m_windowHeight;
         bool m_advancedMode;
@@ -188,8 +183,6 @@ class MediaTools: public QObject
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *interface,
                             const QString &where) const;
-        void removeInterface(QQmlApplicationEngine *engine,
-                             const QString &where) const;
         static bool sortByDescription(const QString &pluginId1,
                                       const QString &pluginId2);
 
@@ -198,9 +191,8 @@ class MediaTools: public QObject
         void streamsChanged();
         void playAudioFromSourceChanged(bool playAudioFromSource);
         void recordAudioFromChanged(const QString &recordAudioFrom);
-        void curRecordingFormatChanged();
+        void curRecordingFormatChanged(const QString &curRecordingFormat);
         void recordingChanged(bool recording);
-        void recordingFormatsChanged(const QStringList &recordingFormats);
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
         void stateChanged();
@@ -225,10 +217,6 @@ class MediaTools: public QObject
         void setRecordAudioFrom(const QString &recordAudioFrom);
         void setCurRecordingFormat(const QString &curRecordingFormat);
         void setRecording(bool recording, const QString &fileName="");
-        void setRecordingFormats(const QList<RecordingFormat> &recordingFormats);
-        void setRecordingFormat(const QString &description,
-                                const QStringList &suffix,
-                                const QString &params);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void setAdvancedMode(bool advancedMode);
@@ -237,7 +225,6 @@ class MediaTools: public QObject
         void resetRecordAudioFrom();
         void resetCurRecordingFormat();
         void resetRecording();
-        void resetRecordingFormats();
         void resetWindowWidth();
         void resetWindowHeight();
         void resetAdvancedMode();
@@ -252,6 +239,7 @@ class MediaTools: public QObject
     private slots:
         void iStream(const QbPacket &packet);
         void webcamsChanged(const QStringList &webcams);
+        void updateRecordingParams();
 };
 
 #endif // MEDIATOOLS_H

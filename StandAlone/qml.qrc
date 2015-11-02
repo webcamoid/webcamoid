@@ -12,7 +12,6 @@
         <file>share/qml/OptionList.qml</file>
         <file>share/qml/RecordBar.qml</file>
         <file>share/qml/RecordConfig.qml</file>
-        <file>share/qml/AddRecordingFormat.qml</file>
         <file>share/qml/GeneralConfig.qml</file>
     </qresource>
 </RCC>

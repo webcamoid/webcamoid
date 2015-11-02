@@ -25,47 +25,36 @@
 
 extern "C"
 {
-    #include <libavutil/pixdesc.h>
+    #include <libavcodec/avcodec.h>
+    #include <libavformat/avformat.h>
     #include <libswresample/swresample.h>
     #include <libswscale/swscale.h>
+    #include <libavutil/pixdesc.h>
+    #include <libavutil/channel_layout.h>
 }
-
-#include "customdeleters.h"
-
-typedef QSharedPointer<AVCodecContext> CodecContextPtr;
 
 class OutputParams: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(CodecContextPtr codecContext
-               READ codecContext
-               WRITE setCodecContext
-               RESET resetCodecContext
-               NOTIFY codecContextChanged)
-    Q_PROPERTY(int outputIndex
-               READ outputIndex
-               WRITE setOutputIndex
-               RESET resetOutputIndex
-               NOTIFY outputIndexChanged)
+    Q_PROPERTY(int inputIndex
+               READ inputIndex
+               WRITE setInputIndex
+               RESET resetInputIndex
+               NOTIFY inputIndexChanged)
 
     public:
-        explicit OutputParams(QObject *parent=NULL);
-        OutputParams(const CodecContextPtr &codecContext,
-                     int outputIndex);
+        explicit OutputParams(int inputIndex=0, QObject *parent=NULL);
         OutputParams(const OutputParams &other);
         ~OutputParams();
 
         OutputParams &operator =(const OutputParams &other);
 
-        Q_INVOKABLE CodecContextPtr codecContext() const;
-        Q_INVOKABLE CodecContextPtr &codecContext();
-        Q_INVOKABLE int outputIndex() const;
-        Q_INVOKABLE int &outputIndex();
+        Q_INVOKABLE int inputIndex() const;
+        Q_INVOKABLE int &inputIndex();
         Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
 
     private:
-        CodecContextPtr m_codecContext;
-        int m_outputIndex;
+        int m_inputIndex;
 
         qint64 m_id;
         qint64 m_pts;
@@ -76,15 +65,13 @@ class OutputParams: public QObject
         SwsContext *m_scaleContext;
 
     signals:
-        void codecContextChanged(const CodecContextPtr &codecContext);
-        void outputIndexChanged(int outputIndex);
+        void inputIndexChanged(int inputIndex);
         void ptsChanged(qint64 pts);
 
     public slots:
-        void setCodecContext(const CodecContextPtr &codecContext);
-        void setOutputIndex(int outputIndex);
+        void setInputIndex(int inputIndex);
         void resetCodecContext();
-        void resetOutputIndex();
+        void resetInputIndex();
 
         bool convert(const QbPacket &packet, AVFrame *frame);
 

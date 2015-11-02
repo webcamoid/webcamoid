@@ -40,30 +40,32 @@ Rectangle {
             Webcamoid.curStream = ""
 
         for (var stream in streams) {
-            var selected = streams[stream] === Webcamoid.curStream? true: false
-
             lsvMediaList.model.append({
-                "name": streams[stream],
-                "description": Webcamoid.streamDescription(streams[stream]),
-                "selected": selected})
+                stream: streams[stream],
+                description: Webcamoid.streamDescription(streams[stream])})
         }
+
+        lsvMediaList.currentIndex = streams.indexOf(curStream)
     }
 
     Component.onCompleted: recMediaBar.updateMediaList()
 
     Connections {
         target: Webcamoid
-        onStreamsChanged: recMediaBar.updateMediaList()
+        onStreamsChanged: {
+            recMediaBar.updateMediaList()
+        }
     }
 
     OptionList {
         id: lsvMediaList
+        textRole: "description"
         anchors.bottom: recAddMedia.top
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
 
-        onCurOptionNameChanged: Webcamoid.curStream = curOptionName
+        onCurrentIndexChanged: Webcamoid.curStream = model.get(currentIndex).stream
     }
 
     Rectangle {

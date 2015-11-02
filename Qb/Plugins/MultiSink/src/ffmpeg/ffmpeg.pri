@@ -17,6 +17,8 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
+QT += concurrent
+
 DEFINES += __STDC_CONSTANT_MACROS
 
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
@@ -25,13 +27,28 @@ DEFINES += __STDC_CONSTANT_MACROS
 isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
+#    PKGCONFIG += \
+#        libavdevice \
+#        libavfilter \
+#        libavformat \
+#        libavcodec \
+#        libpostproc \
+#        libswresample \
+#        libswscale \
+#        libavutil
+
     PKGCONFIG += \
-        libavdevice \
-        libavfilter \
         libavformat \
         libavcodec \
-        libpostproc \
         libswresample \
         libswscale \
         libavutil
 }
+
+HEADERS += \
+    $$PWD/mediasink.h \
+    $$PWD/outputparams.h
+
+SOURCES += \
+    $$PWD/mediasink.cpp \
+    $$PWD/outputparams.cpp

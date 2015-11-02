@@ -26,7 +26,7 @@ class QbVideoCapsPrivate
 {
     public:
         bool m_isValid;
-        QbVideoCaps::VideoFormat m_format;
+        QbVideoCaps::PixelFormat m_format;
         int m_width;
         int m_height;
         QbFrac m_fps;
@@ -45,7 +45,7 @@ QbVideoCaps::QbVideoCaps(QObject *parent):
 QbVideoCaps::QbVideoCaps(const QVariantMap &caps)
 {
     this->d = new QbVideoCapsPrivate();
-    this->d->m_format = caps["format"].value<VideoFormat>();
+    this->d->m_format = caps["format"].value<PixelFormat>();
     this->d->m_isValid = this->d->m_format == QbVideoCaps::Format_none? false: false;
     this->d->m_width = caps["width"].toInt();
     this->d->m_height = caps["height"].toInt();
@@ -68,11 +68,7 @@ QbVideoCaps::QbVideoCaps(const QbCaps &caps)
 
     if (caps.mimeType() == "video/x-raw") {
         this->d->m_isValid = caps.isValid();
-        QString format = "Format_" + caps.property("format").toString();
-        int enumIndex = this->metaObject()->indexOfEnumerator("VideoFormat");
-        QMetaEnum enumType = this->metaObject()->enumerator(enumIndex);
-        int enumValue = enumType.keyToValue(format.toStdString().c_str());
-        this->d->m_format = static_cast<VideoFormat>(enumValue);
+        this->d->m_format = this->pixelFormatFromString(caps.property("format").toString());
         this->d->m_width = caps.property("width").toInt();
         this->d->m_height = caps.property("height").toInt();
         this->d->m_fps = caps.property("fps").toString();
@@ -117,11 +113,7 @@ QbVideoCaps &QbVideoCaps::operator =(const QbCaps &caps)
 {
     if (caps.mimeType() == "video/x-raw") {
         this->d->m_isValid = caps.isValid();
-        QString format = "Format_" + caps.property("format").toString();
-        int enumIndex = this->metaObject()->indexOfEnumerator("VideoFormat");
-        QMetaEnum enumType = this->metaObject()->enumerator(enumIndex);
-        int enumValue = enumType.keyToValue(format.toStdString().c_str());
-        this->d->m_format = static_cast<VideoFormat>(enumValue);
+        this->d->m_format = this->pixelFormatFromString(caps.property("format").toString());
         this->d->m_width = caps.property("width").toInt();
         this->d->m_height = caps.property("height").toInt();
         this->d->m_fps = caps.property("fps").toString();
@@ -173,12 +165,12 @@ bool &QbVideoCaps::isValid()
     return this->d->m_isValid;
 }
 
-QbVideoCaps::VideoFormat QbVideoCaps::format() const
+QbVideoCaps::PixelFormat QbVideoCaps::format() const
 {
     return this->d->m_format;
 }
 
-QbVideoCaps::VideoFormat &QbVideoCaps::format()
+QbVideoCaps::PixelFormat &QbVideoCaps::format()
 {
     return this->d->m_format;
 }
@@ -215,7 +207,7 @@ QbFrac &QbVideoCaps::fps()
 
 QbVideoCaps &QbVideoCaps::fromMap(const QVariantMap &caps)
 {
-    this->d->m_format = caps["format"].value<VideoFormat>();
+    this->d->m_format = caps["format"].value<PixelFormat>();
     this->d->m_isValid = this->d->m_format == QbVideoCaps::Format_none? false: false;
     this->d->m_width = caps["width"].toInt();
     this->d->m_height = caps["height"].toInt();
@@ -245,10 +237,7 @@ QString QbVideoCaps::toString() const
     if (!this->d->m_isValid)
         return QString();
 
-    int formatIndex = this->metaObject()->indexOfEnumerator("VideoFormat");
-    QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
-    QString format(formatEnum.valueToKey(this->d->m_format));
-    format.remove("Format_");
+    QString format = this->pixelFormatToString(this->d->m_format);
 
     return QString("video/x-raw,"
                    "format=%1,"
@@ -265,13 +254,8 @@ QbVideoCaps &QbVideoCaps::update(const QbCaps &caps)
     if (caps.mimeType() != "video/x-raw")
         return *this;
 
-    if (caps.contains("format")) {
-        QString format = "Format_" + caps.property("format").toString();
-        int enumIndex = this->metaObject()->indexOfEnumerator("VideoFormat");
-        QMetaEnum enumType = this->metaObject()->enumerator(enumIndex);
-        int enumValue = enumType.keyToValue(format.toStdString().c_str());
-        this->d->m_format = static_cast<VideoFormat>(enumValue);
-    }
+    if (caps.contains("format"))
+        this->d->m_format = this->pixelFormatFromString(caps.property("format").toString());
 
     if (caps.contains("width"))
         this->d->m_width = caps.property("width").toInt();
@@ -290,7 +274,29 @@ QbCaps QbVideoCaps::toCaps() const
     return QbCaps(this->toString());
 }
 
-void QbVideoCaps::setFormat(QbVideoCaps::VideoFormat format)
+QString QbVideoCaps::pixelFormatToString(QbVideoCaps::PixelFormat pixelFormat)
+{
+    QbVideoCaps caps;
+    int formatIndex = caps.metaObject()->indexOfEnumerator("PixelFormat");
+    QMetaEnum formatEnum = caps.metaObject()->enumerator(formatIndex);
+    QString format(formatEnum.valueToKey(pixelFormat));
+    format.remove("Format_");
+
+    return format;
+}
+
+QbVideoCaps::PixelFormat QbVideoCaps::pixelFormatFromString(const QString &pixelFormat)
+{
+    QbVideoCaps caps;
+    QString format = "Format_" + pixelFormat;
+    int enumIndex = caps.metaObject()->indexOfEnumerator("PixelFormat");
+    QMetaEnum enumType = caps.metaObject()->enumerator(enumIndex);
+    int enumValue = enumType.keyToValue(format.toStdString().c_str());
+
+    return static_cast<PixelFormat>(enumValue);
+}
+
+void QbVideoCaps::setFormat(QbVideoCaps::PixelFormat format)
 {
     if (this->d->m_format == format)
         return;

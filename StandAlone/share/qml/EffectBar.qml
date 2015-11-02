@@ -29,65 +29,49 @@ Rectangle {
     height: 400
 
     property string curEffect: ""
-    property string testEffect: ""
     property bool editMode: false
     property bool advancedMode: Webcamoid.advancedMode
 
     function updateAppliedEffectList() {
         var effects = Webcamoid.currentEffects
 
-        var curEffect = lsvAppliedEffectList.curOptionName
+        var option = lsvAppliedEffectList.model.get(lsvAppliedEffectList.currentIndex)
+        var curEffect = option? option.effect: ""
+        var currentIndex = -1
         lsvAppliedEffectList.model.clear()
 
-        if (effects.length > 0
-            && effects.indexOf(curEffect) < 0)
-            curEffect = effects[0]
-
         for (var effect in effects) {
-            var selected = false
-
-            if (effects[effect] === curEffect) {
-                selected = true
-                lsvAppliedEffectList.curOptionName = effects[effect]
-            }
+            if (effects[effect] === curEffect)
+                currentIndex = effect
 
             lsvAppliedEffectList.model.append({
-                "name": effects[effect],
-                "description": Webcamoid.effectInfo(effects[effect])["MetaData"]["description"],
-                "selected": selected})
+                effect: effects[effect],
+                description: Webcamoid.effectInfo(effects[effect])["MetaData"]["description"]})
         }
+
+        lsvAppliedEffectList.currentIndex = currentIndex < 0? 0: currentIndex
     }
 
     function updateEffectList() {
         var effects = Webcamoid.availableEffects()
 
-        var curEffect = lsvEffectList.curOptionName
+        var curEffects = Webcamoid.currentEffects
+        var option = lsvEffectList.model.get(lsvEffectList.currentIndex)
+        var curEffect = option? option.effect: curEffects.length > 0? curEffects[0]: ""
+        var currentIndex = -1
         lsvEffectList.model.clear()
 
-        if (advancedMode) {
-            if (effects.length > 0
-                && effects.indexOf(curEffect) < 0)
-                curEffect = effects[0]
-        } else {
-            var curEffects = Webcamoid.currentEffects
-
-            if (curEffects.length > 0)
-                curEffect = curEffects[0]
-        }
-
         for (var effect in effects) {
-            var selected = false
-
-            if (effects[effect] === curEffect) {
-                selected = true
-                lsvEffectList.curOptionName = effects[effect]
-            }
+            if (effects[effect] === curEffect)
+                currentIndex = effect
 
             lsvEffectList.model.append({
-                "name": effects[effect],
-                "description": Webcamoid.effectInfo(effects[effect])["MetaData"]["description"],
-                "selected": selected})
+                effect: effects[effect],
+                description: Webcamoid.effectInfo(effects[effect])["MetaData"]["description"]})
         }
+
+        lsvEffectList.currentIndex = currentIndex >= 0 || !advancedMode?
+                                     currentIndex: 0
     }
 
     onEditModeChanged: {
@@ -107,8 +91,11 @@ Rectangle {
     Connections {
         target: Webcamoid
         onCurrentEffectsChanged: {
-            recEffectBar.updateAppliedEffectList()
-            recEffectBar.updateEffectList()
+            if (advancedMode) {
+                recEffectBar.updateAppliedEffectList()
+                recEffectBar.updateEffectList()
+            }
+
             recEffectBar.editMode = false
         }
     }
@@ -198,10 +185,9 @@ Rectangle {
             onPressed: txtEffectResetButton.scale = 0.75
             onReleased: txtEffectResetButton.scale = 1
             onClicked: {
-                lsvEffectList.curOptionName = ""
-                recEffectBar.curEffect = ""
-                Webcamoid.removeEffectControls("itmEffectControls")
+                lsvEffectList.currentIndex = -1
                 Webcamoid.resetEffects()
+                recEffectBar.curEffect = ""
             }
         }
     }
@@ -212,16 +198,19 @@ Rectangle {
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: effectResetButton.bottom
+        textRole: "description"
         filter: txtSearchEffect.text
         visible: advancedMode? true: false
 
-        onCurOptionNameChanged: {
-            recEffectBar.curEffect = curOptionName
+        onCurrentIndexChanged: {
+            var option = model.get(currentIndex)
+            recEffectBar.curEffect = option? option.effect: ""
             txtSearchEffect.text = ""
         }
         onVisibleChanged: {
             if (visible) {
-                recEffectBar.curEffect = curOptionName
+                var option = model.get(currentIndex)
+                recEffectBar.curEffect = option? option.effect: ""
                 txtSearchEffect.text = ""
             }
         }
@@ -236,18 +225,14 @@ Rectangle {
         anchors.top: effectResetButton.bottom
 
         onVisibleChanged: {
+            if (!advancedMode)
+                return
+
             if (visible) {
-                recEffectBar.curEffect = lsvEffectList.curOptionName
-                Webcamoid.removeEffectControls("itmEffectControls")
-
-                if (advancedMode)
-                    Webcamoid.showPreview(lsvEffectList.curOptionName)
-                else {
-                    Webcamoid.resetEffects()
-                    Webcamoid.appendEffect(lsvEffectList.curOptionName, false)
-                }
-
-                Webcamoid.embedEffectControls("itmEffectControls", lsvEffectList.curOptionName)
+                var option = lsvEffectList.model.get(lsvEffectList.currentIndex)
+                var effect = option? option.effect: ""
+                Webcamoid.showPreview(effect)
+                recEffectBar.curEffect = effect
             }
             else
                 Webcamoid.removePreview()
@@ -256,23 +241,26 @@ Rectangle {
         OptionList {
             id: lsvEffectList
             filter: txtSearchEffect.text
+            textRole: "description"
 
-            onCurOptionNameChanged: {
-                recEffectBar.curEffect = curOptionName
+            onCurrentIndexChanged: {
+                var option = model.get(currentIndex)
+
+                if (!option)
+                    return
+
+                var effect = option.effect
 
                 if (scrollEffects.visible) {
-                    Webcamoid.removeEffectControls("itmEffectControls")
-
                     if (advancedMode)
-                        Webcamoid.showPreview(curOptionName)
+                        Webcamoid.showPreview(effect)
                     else {
                         Webcamoid.resetEffects()
-                        Webcamoid.appendEffect(curOptionName, false)
+                        Webcamoid.appendEffect(effect, false)
                     }
-
-                    Webcamoid.embedEffectControls("itmEffectControls", curOptionName)
                 }
 
+                recEffectBar.curEffect = effect
                 txtSearchEffect.text = ""
             }
         }

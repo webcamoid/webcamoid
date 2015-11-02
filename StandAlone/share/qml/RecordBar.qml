@@ -40,86 +40,47 @@ Rectangle {
             Webcamoid.curRecordingFormat = ""
 
         for (var format in formats) {
-            var selected = formats[format] === Webcamoid.curRecordingFormat? true: false
-
             lsvRecordingFormatList.model.append({
-                "name": formats[format],
-                "description": Webcamoid.recordingFormatSuffix(formats[format]).join(),
-                "selected": selected})
+                format: formats[format],
+                description: Webcamoid.recordingFormatDescription(formats[format])})
         }
+
+        lsvRecordingFormatList.currentIndex = formats.indexOf(Webcamoid.curRecordingFormat)
     }
 
     Component.onCompleted: recRecordBar.updateRecordingFormatList()
 
     Connections {
         target: Webcamoid
-        onRecordingFormatsChanged: recRecordBar.updateRecordingFormatList()
+        onCurRecordingFormatChanged: lsvRecordingFormatList.currentIndex = Webcamoid.recordingFormats.indexOf(curRecordingFormat)
     }
 
-    OptionList {
-        id: lsvRecordingFormatList
-        anchors.bottom: recAddRecordingFormat.top
+    TextField {
+        id: txtSearchFormat
+        anchors.top: parent.top
+        anchors.topMargin: 8
+        anchors.rightMargin: 8
+        anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.left: parent.left
-        anchors.top: parent.top
-        showField: "name"
-
-        onCurOptionNameChanged: Webcamoid.curRecordingFormat = curOptionName
+        placeholderText: qsTr("Search format...")
     }
 
-    Rectangle {
-        id: recAddRecordingFormat
-        y: 192
-        height: 48
+    ScrollView {
+        anchors.top: txtSearchFormat.bottom
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
 
-        property color gradUp: Qt.rgba(0, 0.5, 0, 1)
-        property color gradLow: Qt.rgba(0, 1, 0, 1)
+        OptionList {
+            id: lsvRecordingFormatList
+            filter: txtSearchFormat.text
+            textRole: "description"
 
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: recAddRecordingFormat.gradUp
-            }
-            GradientStop {
-                position: 1
-                color: recAddRecordingFormat.gradLow
+            onCurrentIndexChanged: {
+                var option = model.get(currentIndex)
+                Webcamoid.curRecordingFormat = option? option.format: ""
             }
         }
-
-        Image {
-            id: imgAddRecordingFormat
-            width: 32
-            height: 32
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            source: "qrc:/icons/hicolor/scalable/effect-add.svg"
-        }
-
-        MouseArea {
-            id: msaAddEffect
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            anchors.fill: parent
-
-            onEntered: {
-                recAddRecordingFormat.gradUp = Qt.rgba(0, 0.75, 0, 1)
-                recAddRecordingFormat.gradLow = Qt.rgba(0.25, 1, 0.25, 1)
-            }
-            onExited: {
-                imgAddRecordingFormat.scale = 1
-                recAddRecordingFormat.gradUp = Qt.rgba(0, 0.5, 0, 1)
-                recAddRecordingFormat.gradLow = Qt.rgba(0, 1, 0, 1)
-            }
-            onPressed: imgAddRecordingFormat.scale = 0.75
-            onReleased: imgAddRecordingFormat.scale = 1
-            onClicked: dlgAddRecordingFormat.visible = true
-        }
-    }
-
-    AddRecordingFormat {
-        id: dlgAddRecordingFormat
     }
 }

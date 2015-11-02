@@ -18,20 +18,15 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef MULTISINKELEMENT_H
-#define MULTISINKELEMENT_H
+#ifndef MEDIASINK_H
+#define MEDIASINK_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
+#include <QMutex>
 #include <qb.h>
 
-#ifndef USE_GSTREAMER
-#include "ffmpeg/mediasink.h"
-#else
-#include "gstreamer/mediasink.h"
-#endif
+#include "outputparams.h"
 
-class MultiSinkElement: public QbElement
+class MediaSink: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString location
@@ -46,11 +41,8 @@ class MultiSinkElement: public QbElement
                NOTIFY outputFormatChanged)
 
     public:
-        explicit MultiSinkElement();
-        ~MultiSinkElement();
-
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
+        explicit MediaSink(QObject *parent=NULL);
+        ~MediaSink();
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
@@ -69,13 +61,16 @@ class MultiSinkElement: public QbElement
                                           const QbCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());
 
-    protected:
-        void stateChange(QbElement::ElementState from,
-                         QbElement::ElementState to);
-
     private:
-        MediaSink m_mediaSink;
+        QString m_location;
+        QString m_outputFormat;
+
+        QList<QVariantMap> m_streamConfigs;
+        QList<OutputParams> m_streamParams;
+        AVFormatContext *m_formatContext;
         QMutex m_mutex;
+
+        void flushStreams();
 
     signals:
         void locationChanged(const QString &location);
@@ -86,9 +81,12 @@ class MultiSinkElement: public QbElement
         void setOutputFormat(const QString &outputFormat);
         void resetLocation();
         void resetOutputFormat();
+        void writeAudioPacket(const QbAudioPacket &packet);
+        void writeVideoPacket(const QbVideoPacket &packet);
+        void writeSubtitlePacket(const QbPacket &packet);
         void clearStreams();
-
-        QbPacket iStream(const QbPacket &packet);
+        bool init();
+        void uninit();
 };
 
-#endif // MULTISINKELEMENT_H
+#endif // MEDIASINK_H

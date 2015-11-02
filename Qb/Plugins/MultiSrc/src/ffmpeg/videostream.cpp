@@ -32,7 +32,7 @@
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
-typedef QMap<AVPixelFormat, QbVideoCaps::VideoFormat> AVPixelFormatMap;
+typedef QMap<AVPixelFormat, QbVideoCaps::PixelFormat> AVPixelFormatMap;
 
 inline AVPixelFormatMap initAVPixelFormatMap()
 {
@@ -70,9 +70,9 @@ VideoStream::~VideoStream()
 
 QbCaps VideoStream::caps() const
 {
-    QbVideoCaps::VideoFormat format = outputFormats->contains(this->codecContext()->pix_fmt)?
-                               outputFormats->value(this->codecContext()->pix_fmt):
-                               QbVideoCaps::Format_bgra;
+    QbVideoCaps::PixelFormat format =
+            outputFormats->value(this->codecContext()->pix_fmt,
+                                 QbVideoCaps::Format_bgra);
 
     QbVideoCaps caps;
     caps.isValid() = true;

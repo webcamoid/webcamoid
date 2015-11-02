@@ -39,10 +39,7 @@ QbPacket ConvertVideo::convert(const QbPacket &packet)
     QbVideoPacket videoPacket(packet);
 
     // Convert input format.
-    int formatIndex = QbVideoCaps::staticMetaObject.indexOfEnumerator("VideoFormat");
-    QMetaEnum formatEnum =  QbVideoCaps::staticMetaObject.enumerator(formatIndex);
-    QString format(formatEnum.valueToKey(videoPacket.caps().format()));
-    format.remove("Format_");
+    QString format = QbVideoCaps::pixelFormatToString(videoPacket.caps().format());
     AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
 
     // Initialize rescaling context.

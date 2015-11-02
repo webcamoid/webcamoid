@@ -30,8 +30,7 @@ PKGCONFIG += \
     gstreamer-video-1.0
 
 HEADERS += \
-    $$PWD/mediasource.h \
-    $$PWD/stream.h
+    $$PWD/mediasink.h
 
 SOURCES += \
-    $$PWD/mediasource.cpp
+    $$PWD/mediasink.cpp

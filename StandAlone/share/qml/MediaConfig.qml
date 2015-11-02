@@ -34,12 +34,12 @@ GridLayout {
             btnEdit.enabled = Webcamoid.canModify(Webcamoid.curStream)
             btnRemove.enabled = Webcamoid.canModify(Webcamoid.curStream)
 
-            Webcamoid.removeMediaControls("itmMediaControls");
+            Webcamoid.removeInterface("itmMediaControls");
             Webcamoid.embedMediaControls("itmMediaControls", Webcamoid.curStream);
         }
 
         onInterfaceLoaded: {
-            Webcamoid.removeMediaControls("itmMediaControls");
+            Webcamoid.removeInterface("itmMediaControls");
             Webcamoid.embedMediaControls("itmMediaControls", Webcamoid.curStream);
         }
     }

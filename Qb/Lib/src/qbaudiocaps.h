@@ -152,6 +152,10 @@ class QbAudioCaps: public QObject
         Q_INVOKABLE QbCaps toCaps() const;
 
         Q_INVOKABLE static int bytesPerSample(SampleFormat sampleFormat);
+        Q_INVOKABLE static QString sampleFormatToString(SampleFormat sampleFormat);
+        Q_INVOKABLE static SampleFormat sampleFormatFromString(const QString &sampleFormat);
+        Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);
+        Q_INVOKABLE static ChannelLayout channelLayoutFromString(const QString &channelLayout);
 
     private:
         QbAudioCapsPrivate *d;

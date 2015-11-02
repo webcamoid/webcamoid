@@ -27,111 +27,99 @@ ListView {
     height: 400
     clip: true
 
-    property string curOptionName: ""
     property string filter: ""
-    property string showField: "description"
+    property string textRole: "cost"
+
+    function optionValues(index)
+    {
+        if (index < 0 || index >= lsvOptionList.count)
+            return []
+
+        var values = []
+        var option = lstOptions.get(index)
+
+        for (var key in option)
+            if (option[key] && typeof option[key] != "function")
+                values.push(String(option[key]))
+
+        return values
+    }
 
     model: ListModel {
+        id: lstOptions
     }
-    delegate: Item {
-        id: itmOption
-        height: Webcamoid.matches(filter, [name, description])? 32: 0
+    delegate: Rectangle {
+        id: rectOption
+        height: visible? 32: 0
         anchors.right: parent.right
         anchors.left: parent.left
-        visible: Webcamoid.matches(filter, [name, description])
+        visible: Webcamoid.matches(filter, optionValues(index))
 
-        property color gradUp: selected?
-                                   Qt.rgba(1, 0.75, 0.25, 1):
-                                   Qt.rgba(0, 0, 0, 0)
-        property color gradLow: selected?
-                                    Qt.rgba(1, 0.5, 0, 1):
-                                    Qt.rgba(0, 0, 0, 0)
+        property color gradUp: Qt.rgba(0, 0, 0, 0)
+        property color gradLow: Qt.rgba(0, 0, 0, 0)
 
-        Rectangle {
-            id: recOption
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: rectOption.gradUp
+            }
+            GradientStop {
+                position: 1
+                color: rectOption.gradLow
+            }
+        }
 
-            gradient: Gradient {
-                GradientStop {
-                    position: 0
-                    color: itmOption.gradUp
-                }
+        Label {
+            id: txtOptionText
+            text: index >= 0 && index < lsvOptionList.count?
+                      lsvOptionList.model.get(index)[lsvOptionList.textRole]: ""
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
 
-                GradientStop {
-                    position: 1
-                    color: itmOption.gradLow
+        MouseArea {
+            id: msaOption
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            anchors.fill: parent
+
+            onEntered: {
+                txtOptionText.font.bold = true
+
+                if (index == lsvOptionList.currentIndex) {
+                    rectOption.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
+                    rectOption.gradLow = Qt.rgba(0, 0.5, 1, 1)
+                } else {
+                    rectOption.gradUp = Qt.rgba(0.67, 0.5, 1, 0.5)
+                    rectOption.gradLow = Qt.rgba(0.5, 0.25, 1, 1)
                 }
             }
-
-            Label {
-                id: txtOptionText
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: lsvOptionList.showField == "description"? description: name
+            onExited: {
+                txtOptionText.font.bold = false
+                txtOptionText.scale = 1
+                rectOption.gradUp = Qt.rgba(0, 0, 0, 0)
+                rectOption.gradLow = Qt.rgba(0, 0, 0, 0)
+            }
+            onPressed: txtOptionText.scale = 0.75
+            onReleased: txtOptionText.scale = 1
+            onClicked: {
+                rectOption.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
+                rectOption.gradLow = Qt.rgba(0, 0.5, 1, 1)
+                lsvOptionList.currentIndex = index
+                lsvOptionList.positionViewAtIndex(index, ListView.Contain)
+            }
+        }
+    }
+    highlight: Rectangle {
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: Qt.rgba(1, 0.75, 0.25, 1)
             }
 
-            MouseArea {
-                id: msaOption
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                anchors.fill: parent
-
-                onEntered: {
-                    txtOptionText.font.bold = true
-
-                    if (selected) {
-                        itmOption.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                        itmOption.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                    }
-                    else {
-                        itmOption.gradUp = Qt.rgba(0.67, 0.5, 1, 0.5)
-                        itmOption.gradLow = Qt.rgba(0.5, 0.25, 1, 1)
-                    }
-                }
-                onExited: {
-                    txtOptionText.font.bold = false
-                    txtOptionText.scale = 1
-
-                    if (selected) {
-                        itmOption.gradUp = Qt.rgba(1, 0.75, 0.25, 1)
-                        itmOption.gradLow = Qt.rgba(1, 0.5, 0, 1)
-                    }
-                    else {
-                        itmOption.gradUp = Qt.rgba(0, 0, 0, 0)
-                        itmOption.gradLow = Qt.rgba(0, 0, 0, 0)
-                    }
-                }
-                onPressed: txtOptionText.scale = 0.75
-                onReleased: txtOptionText.scale = 1
-                onClicked: {
-                    var curIndex = -1
-                    var iName = name
-                    var options = lsvOptionList
-
-                    for (var i = 0; i < options.count; i++) {
-                        var iOption = options.model.get(i).name
-                        options.currentIndex = i
-
-                        if (iOption === iName) {
-                            itmOption.gradUp = Qt.rgba(0.25, 0.75, 1, 1)
-                            itmOption.gradLow = Qt.rgba(0, 0.5, 1, 1)
-                            options.model.setProperty(i, "selected", true)
-                            curIndex = i
-                        }
-                        else {
-                            options.currentItem.gradUp = Qt.rgba(0, 0, 0, 0)
-                            options.currentItem.gradLow = Qt.rgba(0, 0, 0, 0)
-                            options.model.setProperty(i, "selected", false)
-                        }
-                    }
-
-                    options.currentIndex = curIndex
-                    options.curOptionName = iName
-                    options.positionViewAtIndex(curIndex, ListView.Contain)
-                }
+            GradientStop {
+                position: 1
+                color: Qt.rgba(1, 0.5, 0, 1)
             }
         }
     }

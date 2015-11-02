@@ -30,6 +30,12 @@ class QbPacketPrivate;
 
 typedef QSharedPointer<char> QbBufferPtr;
 
+template<typename T>
+inline T QbNoPts()
+{
+    return T(0x1) << (sizeof(T) - 1);
+}
+
 class QbPacket: public QObject
 {
     Q_OBJECT

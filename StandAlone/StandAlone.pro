@@ -53,8 +53,7 @@ CONFIG += qt
 HEADERS = \
     src/mediatools.h \
     src/videodisplay.h \
-    src/videoframe.h \
-    src/recordingformat.h
+    src/videoframe.h
 
 INCLUDEPATH += \
     ../Qb/Lib/src
@@ -77,11 +76,10 @@ SOURCES = \
     src/main.cpp \
     src/mediatools.cpp \
     src/videodisplay.cpp \
-    src/videoframe.cpp \
-    src/recordingformat.cpp
+    src/videoframe.cpp
 
 lupdate_only {
-    SOURCES = share/qml/*.qml
+    SOURCES = $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

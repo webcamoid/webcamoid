@@ -20,25 +20,9 @@
 
 #include "outputparams.h"
 
-OutputParams::OutputParams(QObject *parent):
-    QObject(parent)
-{
-    this->m_outputIndex = 0;
-
-    this->m_id = -1;
-    this->m_pts = -1;
-    this->m_ptsDiff = 0;
-    this->m_ptsDrift = 0;
-
-    this->m_resampleContext = NULL;
-    this->m_scaleContext = NULL;
-}
-
-OutputParams::OutputParams(const CodecContextPtr &codecContext,
-                           int outputIndex):
-    QObject(NULL),
-    m_codecContext(codecContext),
-    m_outputIndex(outputIndex),
+OutputParams::OutputParams(int inputIndex, QObject *parent):
+    QObject(parent),
+    m_inputIndex(inputIndex),
     m_id(-1),
     m_pts(-1),
     m_ptsDiff(0),
@@ -50,8 +34,7 @@ OutputParams::OutputParams(const CodecContextPtr &codecContext,
 
 OutputParams::OutputParams(const OutputParams &other):
     QObject(other.parent()),
-    m_codecContext(other.m_codecContext),
-    m_outputIndex(other.m_outputIndex),
+    m_inputIndex(other.m_inputIndex),
     m_id(other.m_id),
     m_pts(other.m_pts),
     m_ptsDiff(other.m_ptsDiff),
@@ -73,8 +56,7 @@ OutputParams::~OutputParams()
 OutputParams &OutputParams::operator =(const OutputParams &other)
 {
     if (this != &other) {
-        this->m_codecContext = other.m_codecContext;
-        this->m_outputIndex = other.m_outputIndex;
+        this->m_inputIndex = other.m_inputIndex;
         this->m_id = other.m_id;
         this->m_pts = other.m_pts;
         this->m_ptsDiff = other.m_ptsDiff;
@@ -84,24 +66,14 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
     return *this;
 }
 
-CodecContextPtr OutputParams::codecContext() const
+int OutputParams::inputIndex() const
 {
-    return this->m_codecContext;
+    return this->m_inputIndex;
 }
 
-CodecContextPtr &OutputParams::codecContext()
+int &OutputParams::inputIndex()
 {
-    return this->m_codecContext;
-}
-
-int OutputParams::outputIndex() const
-{
-    return this->m_outputIndex;
-}
-
-int &OutputParams::outputIndex()
-{
-    return this->m_outputIndex;
+    return this->m_inputIndex;
 }
 
 qint64 OutputParams::nextPts(qint64 pts, qint64 id)
@@ -135,32 +107,18 @@ qint64 OutputParams::nextPts(qint64 pts, qint64 id)
     return pts + this->m_ptsDrift;
 }
 
-void OutputParams::setCodecContext(const CodecContextPtr &codecContext)
+void OutputParams::setInputIndex(int inputIndex)
 {
-    if (this->m_codecContext == codecContext)
+    if (this->m_inputIndex == inputIndex)
         return;
 
-    this->m_codecContext = codecContext;
-    emit this->codecContextChanged(codecContext);
+    this->m_inputIndex = inputIndex;
+    emit this->inputIndexChanged(inputIndex);
 }
 
-void OutputParams::setOutputIndex(int outputIndex)
+void OutputParams::resetInputIndex()
 {
-    if (this->m_outputIndex == outputIndex)
-        return;
-
-    this->m_outputIndex = outputIndex;
-    emit this->outputIndexChanged(outputIndex);
-}
-
-void OutputParams::resetCodecContext()
-{
-    this->setCodecContext(CodecContextPtr());
-}
-
-void OutputParams::resetOutputIndex()
-{
-    this->setOutputIndex(0);
+    this->setInputIndex(0);
 }
 
 bool OutputParams::convert(const QbPacket &packet, AVFrame *frame)
@@ -181,14 +139,10 @@ bool OutputParams::convertAudio(const QbPacket &packet, AVFrame *frame)
     AVSampleFormat iFormat = av_get_sample_fmt(format.toStdString().c_str());
     int iSampleRate = packet.caps().property("rate").toInt();
 
-    int64_t oLayout = this->m_codecContext->channel_layout;
-    AVSampleFormat oFormat = this->m_codecContext->sample_fmt;
-    int oSampleRate = this->m_codecContext->sample_rate;
-
     this->m_resampleContext = swr_alloc_set_opts(this->m_resampleContext,
-                                                 oLayout,
-                                                 oFormat,
-                                                 oSampleRate,
+                                                 frame->channel_layout,
+                                                 AVSampleFormat(frame->format),
+                                                 frame->sample_rate,
                                                  iLayout,
                                                  iFormat,
                                                  iSampleRate,
@@ -222,20 +176,13 @@ bool OutputParams::convertAudio(const QbPacket &packet, AVFrame *frame)
     iFrame.format = iFormat;
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = packet.caps().property("samples").toInt();
-    iFrame.pts = iFrame.pkt_pts = packet.pts();
 
-    int oNSamples = swr_get_delay(this->m_resampleContext, oSampleRate)
-                    + iFrame.nb_samples * (int64_t) oSampleRate / iSampleRate
+    int oNSamples = swr_get_delay(this->m_resampleContext, frame->sample_rate)
+                    + iFrame.nb_samples
+                    * (int64_t) frame->sample_rate / iSampleRate
                     + 3;
 
-    frame->channels = this->m_codecContext->channels;
-    frame->channel_layout = oLayout;
-    frame->format = oFormat;
-    frame->sample_rate = oSampleRate;
     frame->nb_samples = oNSamples;
-    frame->pts = frame->pkt_pts = swr_next_pts(this->m_resampleContext,
-                                               iFrame.pts);
-
     av_frame_get_buffer(frame, 0);
 
     // convert to destination format
@@ -258,17 +205,13 @@ bool OutputParams::convertVideo(const QbPacket &packet, AVFrame *frame)
     int iWidth = packet.caps().property("width").toInt();
     int iHeight = packet.caps().property("height").toInt();
 
-    AVPixelFormat oFormat = this->m_codecContext->pix_fmt;
-    int oWidth = this->m_codecContext->width;
-    int oHeight = this->m_codecContext->height;
-
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                 iWidth,
                                                 iHeight,
                                                 iFormat,
-                                                oWidth,
-                                                oHeight,
-                                                oFormat,
+                                                frame->width,
+                                                frame->height,
+                                                AVPixelFormat(frame->format),
                                                 SWS_FAST_BILINEAR,
                                                 NULL,
                                                 NULL,
@@ -286,16 +229,11 @@ bool OutputParams::convertVideo(const QbPacket &packet, AVFrame *frame)
                    iWidth,
                    iHeight);
 
-    if (avpicture_alloc((AVPicture *) frame, oFormat, oWidth, oHeight) < 0)
+    if (avpicture_alloc((AVPicture *) frame,
+                        AVPixelFormat(frame->format),
+                        frame->width,
+                        frame->height) < 0)
         return false;
-
-    frame->format = oFormat;
-    frame->width = oWidth;
-    frame->height = oHeight;
-    frame->pts = frame->pkt_pts = qRound(packet.pts()
-                                         * packet.timeBase().value()
-                                         * this->m_codecContext->time_base.den
-                                         / this->m_codecContext->time_base.num);
 
     sws_scale(this->m_scaleContext,
               (uint8_t **) iPicture.data,

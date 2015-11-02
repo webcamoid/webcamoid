@@ -28,18 +28,17 @@ ColumnLayout {
 
     function updateFields()
     {
-        txtDescription.text = Webcamoid.curRecordingFormat
-        txtSuffix.text = Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat).join()
-        txtParams.text = Webcamoid.recordingFormatParams(Webcamoid.curRecordingFormat)
+        txtDescription.text = Webcamoid.recordingFormatDescription(Webcamoid.curRecordingFormat)
     }
 
     function makeFilters()
     {
         var filters = []
+        var recordingFormats = Webcamoid.recordingFormats;
 
-        for (var format in Webcamoid.recordingFormats) {
-            var suffix = Webcamoid.recordingFormatSuffix(Webcamoid.recordingFormats[format])
-            var filter = Webcamoid.recordingFormats[format]
+        for (var format in recordingFormats) {
+            var suffix = Webcamoid.recordingFormatSuffix(recordingFormats[format])
+            var filter = Webcamoid.recordingFormatDescription(recordingFormats[format])
                          + " (*."
                          + suffix.join(" *.")
                          + ")"
@@ -53,7 +52,7 @@ ColumnLayout {
     function makeDefaultFilter()
     {
         var suffix = Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)
-        var filter = Webcamoid.curRecordingFormat
+        var filter = Webcamoid.recordingFormatDescription(Webcamoid.curRecordingFormat)
                      + " (*."
                      + suffix.join(" *.")
                      + ")"
@@ -74,7 +73,6 @@ ColumnLayout {
     Connections {
         target: Webcamoid
         onCurRecordingFormatChanged: updateFields()
-        onRecordingFormatsChanged: updateFields()
 
         onRecordingChanged: {
             if (recording) {
@@ -86,6 +84,11 @@ ColumnLayout {
                 imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-start.svg"
             }
         }
+
+        onInterfaceLoaded: {
+            Webcamoid.removeInterface("itmRecordControls");
+            Webcamoid.embedRecordControls("itmRecordControls", "");
+        }
     }
 
     Label {
@@ -95,66 +98,16 @@ ColumnLayout {
     }
     TextField {
         id: txtDescription
-        text: Webcamoid.curRecordingFormat
+        text: Webcamoid.recordingFormatDescription(Webcamoid.curRecordingFormat)
         placeholderText: qsTr("Insert format description")
         readOnly: true
         Layout.fillWidth: true
     }
 
-    Label {
-        text: qsTr("Suffix")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    TextField {
-        id: txtSuffix
-        text: Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat).join()
-        placeholderText: qsTr("Supported file suffix")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-
-    Label {
-        text: qsTr("Parameters")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    TextField {
-        id: txtParams
-        text: Webcamoid.recordingFormatParams(Webcamoid.curRecordingFormat)
-        placeholderText: qsTr("Encoding parameters")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-
     RowLayout {
-        id: rowControls
+        id: itmRecordControls
+        objectName: "itmRecordControls"
         Layout.fillWidth: true
-
-        Label {
-            Layout.fillWidth: true
-        }
-
-        Button {
-            id: btnEdit
-            text: qsTr("Edit")
-            iconName: "edit"
-            iconSource: "qrc:/icons/hicolor/scalable/edit.svg"
-
-            onClicked: dlgAddRecordingFormat.visible = true
-        }
-
-        Button {
-            id: btnRemove
-            text: qsTr("Remove")
-            iconName: "remove"
-            iconSource: "qrc:/icons/hicolor/scalable/remove.svg"
-
-            onClicked: Webcamoid.removeRecordingFormat(Webcamoid.curRecordingFormat)
-        }
-    }
-
-    Rectangle {
         Layout.fillHeight: true
     }
 
@@ -235,10 +188,5 @@ ColumnLayout {
                 }
             }
         }
-    }
-
-    AddRecordingFormat {
-        id: dlgAddRecordingFormat
-        editMode: true
     }
 }

@@ -27,20 +27,19 @@ exists(commons.pri) {
     }
 }
 
-include(src/ffmpeg/ffmpeg.pri)
+#USE_GSTREAMER = 1
+
+isEmpty(USE_GSTREAMER) {
+    include(src/ffmpeg/ffmpeg.pri)
+} else {
+    include(src/gstreamer/gstreamer.pri)
+}
 
 CONFIG += plugin
 
 HEADERS += \
-    src/commands.h \
-    src/customdeleters.h \
     src/multisink.h \
-    src/multisinkelement.h \
-    src/option.h \
-    src/optionparser.h \
-    src/parsedoption.h \
-    src/outputparams.h \
-    src/outputformat.h
+    src/multisinkelement.h
 
 INCLUDEPATH += \
     ../../Lib/src
@@ -52,16 +51,16 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
+RESOURCES += \
+    MultiSink.qrc
+
 SOURCES += \
-    src/commands.cpp \
-    src/customdeleters.cpp \
     src/multisink.cpp \
-    src/multisinkelement.cpp \
-    src/option.cpp \
-    src/optionparser.cpp \
-    src/parsedoption.cpp \
-    src/outputparams.cpp \
-    src/outputformat.cpp
+    src/multisinkelement.cpp
+
+lupdate_only {
+    SOURCES = share/qml/*.qml
+}
 
 DESTDIR = $${PWD}
 

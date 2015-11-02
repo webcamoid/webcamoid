@@ -31,8 +31,21 @@ ColumnLayout {
 
     signal effectAdded(string effectId)
 
+    Connections {
+        target: Webcamoid
+
+        onInterfaceLoaded: {
+            var currentEffects = Webcamoid.currentEffects
+
+            if (currentEffects.length > 0) {
+                Webcamoid.removeInterface("itmEffectControls")
+                Webcamoid.embedEffectControls("itmEffectControls", currentEffects[0])
+            }
+        }
+    }
+
     onCurEffectChanged: {
-        Webcamoid.removeEffectControls("itmEffectControls")
+        Webcamoid.removeInterface("itmEffectControls")
         Webcamoid.embedEffectControls("itmEffectControls", curEffect)
     }
 

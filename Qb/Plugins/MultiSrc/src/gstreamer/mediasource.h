@@ -23,7 +23,6 @@
 
 #include <QtConcurrent>
 #include <gst/gst.h>
-#include <qbpacket.h>
 
 #include "stream.h"
 

@@ -141,12 +141,7 @@ QbAudioCaps::QbAudioCaps(const QbCaps &caps)
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
 
-        QString format = "SampleFormat_" + caps.property("format").toString();
-        int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
-        QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
-        int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
-        this->d->m_format = static_cast<SampleFormat>(formatInt);
-
+        this->d->m_format = this->sampleFormatFromString(caps.property("format").toString());
         this->d->m_bps = caps.property("bps").toInt();
         this->d->m_channels = caps.property("channels").toInt();
         this->d->m_rate = caps.property("rate").toInt();
@@ -208,12 +203,7 @@ QbAudioCaps &QbAudioCaps::operator =(const QbCaps &caps)
     if (caps.mimeType() == "audio/x-raw") {
         this->d->m_isValid = caps.isValid();
 
-        QString format = "SampleFormat_" + caps.property("format").toString();
-        int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
-        QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
-        int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
-        this->d->m_format = static_cast<SampleFormat>(formatInt);
-
+        this->d->m_format = this->sampleFormatFromString(caps.property("format").toString());
         this->d->m_bps = caps.property("bps").toInt();
         this->d->m_channels = caps.property("channels").toInt();
         this->d->m_rate = caps.property("rate").toInt();
@@ -385,11 +375,7 @@ QString QbAudioCaps::toString() const
     if (!this->d->m_isValid)
         return QString();
 
-    int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
-    QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
-    QString sampleFormat(formatEnum.valueToKey(this->d->m_format));
-    sampleFormat.remove("SampleFormat_");
-
+    QString sampleFormat = this->sampleFormatToString(this->d->m_format);
     QString layout = layoutToStr->value(this->d->m_layout, "none");
 
     return QString("audio/x-raw,"
@@ -413,13 +399,8 @@ QbAudioCaps &QbAudioCaps::update(const QbCaps &caps)
     if (caps.mimeType() != "audio/x-raw")
         return *this;
 
-    if (caps.contains("format")) {
-        QString format = "SampleFormat_" + caps.property("format").toString();
-        int formatIndex = this->metaObject()->indexOfEnumerator("SampleFormat");
-        QMetaEnum formatEnum = this->metaObject()->enumerator(formatIndex);
-        int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
-        this->d->m_format = static_cast<SampleFormat>(formatInt);
-    }
+    if (caps.contains("format"))
+        this->d->m_format = this->sampleFormatFromString(caps.property("format").toString());
 
     if (caps.contains("bps"))
         this->d->m_bps = caps.property("bps").toInt();
@@ -452,6 +433,38 @@ QbCaps QbAudioCaps::toCaps() const
 int QbAudioCaps::bytesPerSample(QbAudioCaps::SampleFormat sampleFormat)
 {
     return toBytesPerSample->value(sampleFormat, 0);
+}
+
+QString QbAudioCaps::sampleFormatToString(QbAudioCaps::SampleFormat sampleFormat)
+{
+    QbAudioCaps caps;
+    int formatIndex = caps.metaObject()->indexOfEnumerator("SampleFormat");
+    QMetaEnum formatEnum = caps.metaObject()->enumerator(formatIndex);
+    QString format(formatEnum.valueToKey(sampleFormat));
+    format.remove("SampleFormat_");
+
+    return format;
+}
+
+QbAudioCaps::SampleFormat QbAudioCaps::sampleFormatFromString(const QString &sampleFormat)
+{
+    QbAudioCaps caps;
+    QString format = "SampleFormat_" + sampleFormat;
+    int formatIndex = caps.metaObject()->indexOfEnumerator("SampleFormat");
+    QMetaEnum formatEnum = caps.metaObject()->enumerator(formatIndex);
+    int formatInt = formatEnum.keyToValue(format.toStdString().c_str());
+
+    return static_cast<SampleFormat>(formatInt);
+}
+
+QString QbAudioCaps::channelLayoutToString(QbAudioCaps::ChannelLayout channelLayout)
+{
+    return layoutToStr->value(channelLayout, "none");
+}
+
+QbAudioCaps::ChannelLayout QbAudioCaps::channelLayoutFromString(const QString &channelLayout)
+{
+    return layoutToStr->key(channelLayout, Layout_none);
 }
 
 void QbAudioCaps::setFormat(QbAudioCaps::SampleFormat format)

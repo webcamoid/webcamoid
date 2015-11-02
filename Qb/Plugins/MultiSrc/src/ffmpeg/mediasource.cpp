@@ -50,9 +50,10 @@ MediaSource::MediaSource(QObject *parent): QObject(parent)
     avdevice_register_all();
     avformat_network_init();
 
+    this->m_loop = false;
+    this->m_run = false;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
     this->m_showLog = false;
-    this->m_loop = false;
 }
 
 MediaSource::~MediaSource()

@@ -29,10 +29,10 @@ class QbVideoCapsPrivate;
 class QbVideoCaps: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(VideoFormat)
+    Q_ENUMS(PixelFormat)
     Q_PROPERTY(bool isValid
                READ isValid)
-    Q_PROPERTY(VideoFormat format
+    Q_PROPERTY(PixelFormat format
                READ format
                WRITE setFormat
                RESET resetFormat
@@ -54,7 +54,7 @@ class QbVideoCaps: public QObject
                NOTIFY fpsChanged)
 
     public:
-        enum VideoFormat
+        enum PixelFormat
         {
             Format_none = -1,
             Format_yuv420p,
@@ -240,8 +240,8 @@ class QbVideoCaps: public QObject
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE bool &isValid();
-        Q_INVOKABLE VideoFormat format() const;
-        Q_INVOKABLE VideoFormat &format();
+        Q_INVOKABLE PixelFormat format() const;
+        Q_INVOKABLE PixelFormat &format();
         Q_INVOKABLE int width() const;
         Q_INVOKABLE int &width();
         Q_INVOKABLE int height() const;
@@ -256,17 +256,20 @@ class QbVideoCaps: public QObject
         Q_INVOKABLE QbVideoCaps &update(const QbCaps &caps);
         Q_INVOKABLE QbCaps toCaps() const;
 
+        Q_INVOKABLE static QString pixelFormatToString(PixelFormat pixelFormat);
+        Q_INVOKABLE static PixelFormat pixelFormatFromString(const QString &pixelFormat);
+
     private:
         QbVideoCapsPrivate *d;
 
     signals:
-        void formatChanged(VideoFormat format);
+        void formatChanged(PixelFormat format);
         void widthChanged(int width);
         void heightChanged(int height);
         void fpsChanged(const QbFrac &fps);
 
     public slots:
-        void setFormat(VideoFormat format);
+        void setFormat(PixelFormat format);
         void setWidth(int width);
         void setHeight(int height);
         void setFps(const QbFrac &fps);
@@ -285,6 +288,6 @@ QDataStream &operator >>(QDataStream &istream, QbVideoCaps &caps);
 QDataStream &operator <<(QDataStream &ostream, const QbVideoCaps &caps);
 
 Q_DECLARE_METATYPE(QbVideoCaps)
-Q_DECLARE_METATYPE(QbVideoCaps::VideoFormat)
+Q_DECLARE_METATYPE(QbVideoCaps::PixelFormat)
 
 #endif // QBVIDEOCAPS_H
