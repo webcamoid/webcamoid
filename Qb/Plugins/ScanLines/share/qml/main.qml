@@ -27,11 +27,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     function fromRgba(rgba)
     {
         var a = ((rgba >> 24) & 0xff) / 255.0
@@ -65,7 +60,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: ScanLines.showSize = strToFloat(text)
+        onTextChanged: ScanLines.showSize = text
     }
 
     Label {
@@ -77,7 +72,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: ScanLines.hideSize = strToFloat(text)
+        onTextChanged: ScanLines.hideSize = text
     }
 
     Label {

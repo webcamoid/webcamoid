@@ -25,11 +25,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("Factor")
     }
@@ -39,6 +34,6 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: PrimariesColors.factor = strToFloat(text)
+        onTextChanged: PrimariesColors.factor = text
     }
 }

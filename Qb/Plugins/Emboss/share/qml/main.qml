@@ -25,11 +25,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     // Configure amplitude.
     Label {
         text: qsTr("Factor")
@@ -40,7 +35,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Emboss.factor = strToFloat(text)
+        onTextChanged: Emboss.factor = text
     }
 
     // Configure frequency.
@@ -53,6 +48,6 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Emboss.bias = strToFloat(text)
+        onTextChanged: Emboss.bias = text
     }
 }

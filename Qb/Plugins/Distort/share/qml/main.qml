@@ -25,11 +25,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     // Configure amplitude.
     Label {
         text: qsTr("Amplitude")
@@ -40,7 +35,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Distort.amplitude = strToFloat(text)
+        onTextChanged: Distort.amplitude = text
     }
 
     // Configure frequency.
@@ -53,7 +48,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Distort.frequency = strToFloat(text)
+        onTextChanged: Distort.frequency = text
     }
 
     // Configure grid size.
@@ -66,6 +61,6 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Distort.gridSizeLog = strToFloat(text)
+        onTextChanged: Distort.gridSizeLog = text
     }
 }

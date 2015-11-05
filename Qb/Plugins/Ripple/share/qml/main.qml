@@ -38,11 +38,6 @@ GridLayout {
         return index
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("Mode")
     }
@@ -73,7 +68,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Ripple.amplitude = strToFloat(text)
+        onTextChanged: Ripple.amplitude = text
     }
 
     Label {
@@ -85,7 +80,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Ripple.decay = strToFloat(text)
+        onTextChanged: Ripple.decay = text
     }
 
     Label {
@@ -97,7 +92,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Ripple.threshold = strToFloat(text)
+        onTextChanged: Ripple.threshold = text
     }
 
     Label {
@@ -109,6 +104,6 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Ripple.lumaThreshold = strToFloat(text)
+        onTextChanged: Ripple.lumaThreshold = text
     }
 }

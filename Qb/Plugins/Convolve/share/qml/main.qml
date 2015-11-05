@@ -34,11 +34,6 @@ ColumnLayout {
         Convolve.kernel = kernel
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("Convolve matrix")
     }
@@ -54,7 +49,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(0, strToFloat(text))
+            onTextChanged: updateKernel(0, text)
         }
         TextField {
             id: k01
@@ -64,7 +59,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(1, strToFloat(text))
+            onTextChanged: updateKernel(1, text)
         }
         TextField {
             id: k02
@@ -74,7 +69,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(2, strToFloat(text))
+            onTextChanged: updateKernel(2, text)
         }
 
         // Row 1
@@ -86,7 +81,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(3, strToFloat(text))
+            onTextChanged: updateKernel(3, text)
         }
         TextField {
             id: k11
@@ -96,7 +91,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(4, strToFloat(text))
+            onTextChanged: updateKernel(4, text)
         }
         TextField {
             id: k12
@@ -106,7 +101,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(5, strToFloat(text))
+            onTextChanged: updateKernel(5, text)
         }
 
         // Row 2
@@ -118,7 +113,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(6, strToFloat(text))
+            onTextChanged: updateKernel(6, text)
         }
         TextField {
             id: k21
@@ -128,7 +123,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(7, strToFloat(text))
+            onTextChanged: updateKernel(7, text)
         }
         TextField {
             id: k22
@@ -138,7 +133,7 @@ ColumnLayout {
                 regExp: /-?\d+/
             }
 
-            onTextChanged: updateKernel(8, strToFloat(text))
+            onTextChanged: updateKernel(8, text)
         }
     }
 

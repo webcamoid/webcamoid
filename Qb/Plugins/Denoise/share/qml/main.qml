@@ -26,11 +26,6 @@ GridLayout {
     id: configs
     columns: 3
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("Radius")
     }
@@ -60,7 +55,7 @@ GridLayout {
             regExp: /-?\d+/
         }
 
-        onTextChanged: Denoise.factor = strToFloat(text)
+        onTextChanged: Denoise.factor = text
     }
     Label {
     }
@@ -74,7 +69,7 @@ GridLayout {
             regExp: /-?\d+/
         }
 
-        onTextChanged: Denoise.mu = strToFloat(text)
+        onTextChanged: Denoise.mu = text
     }
     Label {
     }

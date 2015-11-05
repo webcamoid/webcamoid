@@ -34,11 +34,6 @@ GridLayout {
         return "file:" + uri
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     function strToSize(str)
     {
         if (str.length < 1)
@@ -169,7 +164,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Halftone.lightness = strToFloat(text)
+        onTextChanged: Halftone.lightness = text
     }
 
     Label {
@@ -181,7 +176,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Halftone.slope = strToFloat(text)
+        onTextChanged: Halftone.slope = text
     }
 
     Label {
@@ -193,7 +188,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Halftone.intercept = strToFloat(text)
+        onTextChanged: Halftone.intercept = text
     }
 
     FileDialog {

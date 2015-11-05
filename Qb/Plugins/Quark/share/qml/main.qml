@@ -25,11 +25,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("N° of frames")
     }
@@ -39,6 +34,6 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Quark.nFrames = strToFloat(text)
+        onTextChanged: Quark.nFrames = text
     }
 }

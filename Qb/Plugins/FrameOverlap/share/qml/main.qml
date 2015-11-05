@@ -25,11 +25,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     // Number of frames to store.
     Label {
         text: qsTr("N° of frames")
@@ -40,7 +35,7 @@ GridLayout {
             regExp: /d+/
         }
 
-        onTextChanged: FrameOverlap.nFrames = strToFloat(text)
+        onTextChanged: FrameOverlap.nFrames = text
     }
 
     // Stride.
@@ -53,6 +48,6 @@ GridLayout {
             regExp: /d+/
         }
 
-        onTextChanged: FrameOverlap.stride = strToFloat(text)
+        onTextChanged: FrameOverlap.stride = text
     }
 }

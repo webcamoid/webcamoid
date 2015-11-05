@@ -30,7 +30,7 @@ GridLayout {
 
     function createControl(itemType, where)
     {
-        return Qt.createQmlObject("import QtQuick.Controls 1.2; "
+        return Qt.createQmlObject("import QtQuick.Controls 1.4; "
                                   + itemType
                                   + " {property string controlName: \"\";"
                                   + " property string controlType: \""

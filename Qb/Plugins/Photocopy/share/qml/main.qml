@@ -25,11 +25,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("Brightness")
     }
@@ -39,7 +34,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Photocopy.brightness = strToFloat(text)
+        onTextChanged: Photocopy.brightness = text
     }
 
     Label {
@@ -51,6 +46,6 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Photocopy.contrast = strToFloat(text)
+        onTextChanged: Photocopy.contrast = text
     }
 }

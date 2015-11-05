@@ -39,11 +39,6 @@ GridLayout {
         return index
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     Label {
         text: qsTr("Grab mode")
     }
@@ -82,7 +77,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: DelayGrab.blockSize = strToFloat(text)
+        onTextChanged: DelayGrab.blockSize = text
     }
 
     Label {
@@ -94,6 +89,6 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: DelayGrab.nFrames = strToFloat(text)
+        onTextChanged: DelayGrab.nFrames = text
     }
 }

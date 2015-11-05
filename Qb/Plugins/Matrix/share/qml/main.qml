@@ -27,11 +27,6 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     function fromRgba(rgba)
     {
         var a = ((rgba >> 24) & 0xff) / 255.0
@@ -65,7 +60,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Matrix.nDrops = strToFloat(text)
+        onTextChanged: Matrix.nDrops = text
     }
 
     Label {
@@ -185,7 +180,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Matrix.minDropLength = strToFloat(text)
+        onTextChanged: Matrix.minDropLength = text
     }
 
     Label {
@@ -197,7 +192,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Matrix.maxDropLength = strToFloat(text)
+        onTextChanged: Matrix.maxDropLength = text
     }
 
     Label {
@@ -209,7 +204,7 @@ GridLayout {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
 
-        onTextChanged: Matrix.minSpeed = strToFloat(text)
+        onTextChanged: Matrix.minSpeed = text
     }
 
     Label {
@@ -221,7 +216,7 @@ GridLayout {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
 
-        onTextChanged: Matrix.maxSpeed = strToFloat(text)
+        onTextChanged: Matrix.maxSpeed = text
     }
 
     CheckBox {

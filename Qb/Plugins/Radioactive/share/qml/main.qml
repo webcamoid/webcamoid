@@ -40,11 +40,6 @@ GridLayout {
         return index
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     function fromRgba(rgba)
     {
         var a = ((rgba >> 24) & 0xff) / 255.0
@@ -107,7 +102,7 @@ GridLayout {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
 
-        onTextChanged: Radioactive.blur = strToFloat(text)
+        onTextChanged: Radioactive.blur = text
     }
 
     Label {
@@ -119,7 +114,7 @@ GridLayout {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
 
-        onTextChanged: Radioactive.zoom = strToFloat(text)
+        onTextChanged: Radioactive.zoom = text
     }
 
     Label {
@@ -131,7 +126,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Radioactive.threshold = strToFloat(text)
+        onTextChanged: Radioactive.threshold = text
     }
 
     Label {
@@ -143,7 +138,7 @@ GridLayout {
             regExp: /\d+/
         }
 
-        onTextChanged: Radioactive.lumaThreshold = strToFloat(text)
+        onTextChanged: Radioactive.lumaThreshold = text
     }
 
     Label {
@@ -155,7 +150,7 @@ GridLayout {
             regExp: /-?\d+/
         }
 
-        onTextChanged: Radioactive.alphaDiff = strToFloat(text)
+        onTextChanged: Radioactive.alphaDiff = text
     }
 
     Label {

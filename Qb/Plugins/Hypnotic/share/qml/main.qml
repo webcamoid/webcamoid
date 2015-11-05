@@ -38,11 +38,6 @@ GridLayout {
         return index
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     // Marker type.
     Label {
         text: qsTr("Mode")
@@ -84,7 +79,7 @@ GridLayout {
             regExp: /-?\d+/
         }
 
-        onTextChanged: Hypnotic.speedInc = strToFloat(text)
+        onTextChanged: Hypnotic.speedInc = text
     }
     Label {
     }
@@ -98,7 +93,7 @@ GridLayout {
             regExp: /-?\d+/
         }
 
-        onTextChanged: Hypnotic.threshold = strToFloat(text)
+        onTextChanged: Hypnotic.threshold = text
     }
     Label {
     }

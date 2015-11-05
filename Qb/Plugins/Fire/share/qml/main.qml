@@ -38,11 +38,6 @@ GridLayout {
         return index
     }
 
-    function strToFloat(str)
-    {
-        return str.length < 1? 0: parseFloat(str)
-    }
-
     // Fire mode.
     Label {
         text: qsTr("Mode")
@@ -88,7 +83,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Fire.disolve = strToFloat(text)
+        onTextChanged: Fire.disolve = text
     }
 
     // Blur.
@@ -101,7 +96,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Fire.blur = strToFloat(text)
+        onTextChanged: Fire.blur = text
     }
 
     // Zoom.
@@ -114,7 +109,7 @@ GridLayout {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
 
-        onTextChanged: Fire.zoom = strToFloat(text)
+        onTextChanged: Fire.zoom = text
     }
 
     // Threshold.
