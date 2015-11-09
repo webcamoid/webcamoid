@@ -45,16 +45,15 @@ Rectangle {
                 description: Webcamoid.streamDescription(streams[stream])})
         }
 
-        lsvMediaList.currentIndex = streams.indexOf(curStream)
+        lsvMediaList.currentIndex = streams.indexOf(Webcamoid.curStream)
     }
 
     Component.onCompleted: recMediaBar.updateMediaList()
 
     Connections {
         target: Webcamoid
-        onStreamsChanged: {
-            recMediaBar.updateMediaList()
-        }
+
+        onStreamsChanged: recMediaBar.updateMediaList()
     }
 
     OptionList {
@@ -65,7 +64,10 @@ Rectangle {
         anchors.left: parent.left
         anchors.top: parent.top
 
-        onCurrentIndexChanged: Webcamoid.curStream = model.get(currentIndex).stream
+        onCurrentIndexChanged: {
+            var option = model.get(currentIndex)
+            Webcamoid.curStream = option? option.stream: -1
+        }
     }
 
     Rectangle {

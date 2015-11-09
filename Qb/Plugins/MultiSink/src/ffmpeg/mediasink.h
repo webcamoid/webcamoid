@@ -39,6 +39,9 @@ class MediaSink: public QObject
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
+    Q_PROPERTY(QVariantList streams
+               READ streams
+               NOTIFY streamsChanged)
 
     public:
         explicit MediaSink(QObject *parent=NULL);
@@ -46,6 +49,7 @@ class MediaSink: public QObject
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
+        Q_INVOKABLE QVariantList streams() const;
 
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
@@ -75,6 +79,7 @@ class MediaSink: public QObject
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
+        void streamsChanged(const QVariantList &streams);
 
     public slots:
         void setLocation(const QString &location);
@@ -87,6 +92,9 @@ class MediaSink: public QObject
         void clearStreams();
         bool init();
         void uninit();
+
+    private slots:
+        void updateStreams();
 };
 
 #endif // MEDIASINK_H

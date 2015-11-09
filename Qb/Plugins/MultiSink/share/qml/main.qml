@@ -21,6 +21,7 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
+import QbQml 1.0
 
 ColumnLayout {
     Component.onCompleted: {
@@ -57,6 +58,49 @@ ColumnLayout {
                     break
                 }
         }
+        onStreamsChanged: {
+            // Clear old options
+            for (var i = 0; i < clyStreamOptions.children.length; i++)
+              clyStreamOptions.children[i].destroy()
+
+            for (var stream = 0; stream < MultiSink.streams.length; stream++) {
+                var component = Qt.createComponent("StreamOptions.qml")
+                var streamOptions = component.createObject(clyStreamOptions)
+                var streamConfig = MultiSink.streams[stream]
+                streamOptions.Layout.fillWidth = true
+
+                var streamCaps = Qb.newCaps(streamConfig.caps)
+
+                if (streamCaps.mimeType === "audio/x-raw")
+                    streamOptions.state = "audio"
+                else if (streamCaps.mimeType === "video/x-raw")
+                    streamOptions.state = "video"
+
+                streamOptions.streamIndex = streamConfig.index
+
+                if (streamConfig.label)
+                    streamOptions.streamLabel = streamConfig.label
+
+                streamOptions.codecsTextRole = "description"
+
+                var supportedCodecs =
+                        MultiSink.supportedCodecs(MultiSink.outputFormat,
+                                                  streamCaps.mimeType)
+
+                for (var codec in supportedCodecs)
+                    streamOptions.codecList.append({codec: supportedCodecs[codec],
+                                                    description: supportedCodecs[codec]})
+
+                streamOptions.codec = streamConfig.codec
+
+                if (streamConfig.bitRate)
+                    streamOptions.bitrate = streamConfig.bitRate
+
+                if (streamConfig.gop)
+                    streamOptions.videoGOP = streamConfig.gop
+//                streamOptions.codecOptions = streamConfig.codecOptions
+            }
+        }
     }
 
     Label {
@@ -91,78 +135,8 @@ ColumnLayout {
         Layout.fillHeight: true
 
         ColumnLayout {
-            GroupBox {
-                title: qsTr("Stream #0 (Video)")
-                width: vwScroll.width
-
-                GridLayout {
-                    columns: 2
-                    width: parent.width - rowSpacing
-
-                    Label {
-                        text: "Codec"
-                    }
-                    ComboBox {
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: "Bitrate"
-                    }
-                    TextField {
-                        placeholderText: qsTr("Text Field")
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: "GOP"
-                    }
-                    TextField {
-                        placeholderText: qsTr("Text Field")
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: "Options"
-                    }
-                    TextField {
-                        placeholderText: qsTr("Text Field")
-                        Layout.fillWidth: true
-                    }
-                }
-            }
-            GroupBox {
-                title: qsTr("Stream #1 (Audio)")
-                width: vwScroll.width
-
-                GridLayout {
-                    columns: 2
-                    width: parent.width - rowSpacing
-
-                    Label {
-                        text: "Codec"
-                    }
-                    ComboBox {
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: "Bitrate"
-                    }
-                    TextField {
-                        placeholderText: qsTr("Text Field")
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: "Options"
-                    }
-                    TextField {
-                        placeholderText: qsTr("Text Field")
-                        Layout.fillWidth: true
-                    }
-                }
-            }
+            id: clyStreamOptions
+            width: vwScroll.width
         }
     }
 }

@@ -44,6 +44,9 @@ class MultiSinkElement: public QbElement
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
+    Q_PROPERTY(QVariantList streams
+               READ streams
+               NOTIFY streamsChanged)
 
     public:
         explicit MultiSinkElement();
@@ -54,6 +57,7 @@ class MultiSinkElement: public QbElement
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
+        Q_INVOKABLE QVariantList streams() const;
 
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
@@ -80,6 +84,7 @@ class MultiSinkElement: public QbElement
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
+        void streamsChanged(const QVariantList &streams);
 
     public slots:
         void setLocation(const QString &location);

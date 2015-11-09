@@ -37,14 +37,13 @@ GroupBox {
     property int videoGOP: 0
     property string codecOptions: ""
 
-    Component.onCompleted: {
-        state = "video"
-        codecsTextRole = "description"
-        codecList.append({codec: "vpx",
-                          description: "VPX Codec"})
-        codecList.append({codec: "theora",
-                          description: "Theora Codec"})
-        codec = ""
+    onCodecChanged: {
+        for (var i = 0; i < cbxCodec.count; i++)
+            if (cbxCodec.model.get(i).codec === codec) {
+                cbxCodec.currentIndex = i
+
+                return
+            }
     }
 
     GridLayout {
@@ -55,9 +54,17 @@ GroupBox {
             text: qsTr("Codec")
         }
         ComboBox {
+            id: cbxCodec
             textRole: gbxStreamOptions.codecsTextRole
             model: gbxStreamOptions.codecList
             Layout.fillWidth: true
+
+            onCurrentIndexChanged: {
+                var option = model.get(currentIndex)
+
+                if (option)
+                    gbxStreamOptions.codec = option.codec
+            }
         }
 
         Label {
@@ -120,8 +127,7 @@ GroupBox {
             }
             PropertyChanges {
                 target: txtBitRate
-                placeholderText: qsTr("Size of the audio (bits) "
-                                      + "/ duration (seconds)")
+                placeholderText: qsTr("Size of the audio (bits) / duration (seconds)")
                 visible: true
             }
         },
@@ -142,8 +148,7 @@ GroupBox {
             }
             PropertyChanges {
                 target: txtBitRate
-                placeholderText: qsTr("Size of the video (bits) "
-                                      + "/ duration (seconds)")
+                placeholderText: qsTr("Size of the video (bits) / duration (seconds)")
                 visible: true
             }
         }

@@ -3,8 +3,10 @@ Section: video
 Priority: extra
 Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
- qttools5-dev-tools,
+ pkg-config,
  qtdeclarative5-dev,
+ qttools5-dev-tools,
+ qtmultimedia5-dev,
  linux-libc-dev,
  libavcodec-dev,
  libavdevice-dev,
@@ -12,9 +14,11 @@ Build-Depends: debhelper (>= 8.0.0),
  libavformat-dev,
  libavresample-dev,
  libavutil-dev,
+ libv4l-dev,
  libpostproc-dev,
  libswresample-dev,
- libswscale-dev
+ libswscale-dev,
+ libqt5svg5-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/hipersayanX/webcamoid
 #Vcs-Git: git://github.com/hipersayanX/webcamoid.git

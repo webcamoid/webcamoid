@@ -30,6 +30,10 @@ MultiSinkElement::MultiSinkElement(): QbElement()
                      &MediaSink::outputFormatChanged,
                      this,
                      &MultiSinkElement::outputFormatChanged);
+    QObject::connect(&this->m_mediaSink,
+                     &MediaSink::streamsChanged,
+                     this,
+                     &MultiSinkElement::streamsChanged);
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -70,6 +74,11 @@ QString MultiSinkElement::location() const
 QString MultiSinkElement::outputFormat() const
 {
     return this->m_mediaSink.outputFormat();
+}
+
+QVariantList MultiSinkElement::streams() const
+{
+    return this->m_mediaSink.streams();
 }
 
 QStringList MultiSinkElement::supportedFormats()

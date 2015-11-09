@@ -48,6 +48,11 @@ MediaSink::MediaSink(QObject *parent): QObject(parent)
     av_register_all();
 
     this->m_formatContext = NULL;
+
+    QObject::connect(this,
+                     &MediaSink::outputFormatChanged,
+                     this,
+                     &MediaSink::updateStreams);
 }
 
 MediaSink::~MediaSink()
@@ -63,6 +68,16 @@ QString MediaSink::location() const
 QString MediaSink::outputFormat() const
 {
     return this->m_outputFormat;
+}
+
+QVariantList MediaSink::streams() const
+{
+    QVariantList streams;
+
+    foreach (QVariantMap configs, this->m_streamConfigs)
+        streams << configs;
+
+    return streams;
 }
 
 QStringList MediaSink::supportedFormats()
@@ -438,6 +453,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
     }
 
     this->m_streamConfigs << outputParams;
+    this->streamsChanged(this->streams());
 
     return outputParams;
 }
@@ -773,6 +789,7 @@ void MediaSink::writeSubtitlePacket(const QbPacket &packet)
 void MediaSink::clearStreams()
 {
     this->m_streamConfigs.clear();
+    this->streamsChanged(this->streams());
 }
 
 bool MediaSink::init()
@@ -909,4 +926,16 @@ void MediaSink::uninit()
 
     avformat_free_context(this->m_formatContext);
     this->m_formatContext = NULL;
+}
+
+void MediaSink::updateStreams()
+{
+    QList<QVariantMap> streamConfigs = this->m_streamConfigs;
+    this->clearStreams();
+
+    foreach (QVariantMap configs, streamConfigs) {
+        QbCaps caps = configs["caps"].value<QbCaps>();
+        int index = configs["index"].toInt();
+        this->addStream(index, caps, configs);
+    }
 }

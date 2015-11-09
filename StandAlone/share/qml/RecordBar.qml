@@ -79,7 +79,9 @@ Rectangle {
 
             onCurrentIndexChanged: {
                 var option = model.get(currentIndex)
-                Webcamoid.curRecordingFormat = option? option.format: ""
+
+                if (option)
+                    Webcamoid.curRecordingFormat = option.format
             }
         }
     }
