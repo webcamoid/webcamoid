@@ -225,7 +225,7 @@ void VideoStream::sendPacket(VideoStream *stream)
                                       delay,
                                       AV_SYNC_THRESHOLD_MAX);
 
-        if (!std::isnan(diff)
+        if (!qIsNaN(diff)
             && qAbs(diff) < AV_NOSYNC_THRESHOLD
             && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
             // video is backward the external clock.
@@ -250,7 +250,6 @@ void VideoStream::sendPacket(VideoStream *stream)
 
         stream->m_frame = AVFramePtr();
         stream->m_lastPts = pts;
-
     }
 }
 

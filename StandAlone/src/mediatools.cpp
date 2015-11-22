@@ -126,6 +126,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                                   Q_RETURN_ARG(QbElementPtr, this->m_videoOutput),
                                   Q_ARG(QString, "videoOutput"));
 
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(QbElementPtr, this->m_videoGen),
+                                  Q_ARG(QString, "videoGen"));
+
         if (this->m_videoOutput)
             this->m_videoOutput->link(this);
 
@@ -197,7 +202,8 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
 MediaTools::~MediaTools()
 {
-    this->resetCurStream();
+    this->stopRecording();
+    this->stop();
     this->saveConfigs();
 }
 
@@ -874,45 +880,13 @@ void MediaTools::setCurRecordingFormat(const QString &curRecordingFormat)
     this->m_record->setProperty("outputFormat", curRecordingFormat);
 }
 
-void MediaTools::setRecording(bool recording, const QString &fileName)
+void MediaTools::setRecording(bool recording)
 {
-    if (!this->m_pipeline || !this->m_record) {
-        this->m_recording = false;
-        emit this->recordingChanged(this->m_recording);
-
+    if (this->m_recording == recording)
         return;
-    }
 
-    if (this->m_record->state() != QbElement::ElementStateNull) {
-        this->m_record->setState(QbElement::ElementStateNull);
-        this->m_audioSwitch->setState(QbElement::ElementStateNull);
-        this->m_mic->setState(QbElement::ElementStateNull);
-
-        this->m_recording = false;
-        emit this->recordingChanged(this->m_recording);
-    }
-
-    if (recording) {
-        this->m_record->setProperty("location", fileName);
-        this->m_record->setState(QbElement::ElementStatePlaying);
-
-        if (this->m_record->state() == QbElement::ElementStatePlaying)
-            this->m_recording = true;
-        else
-            this->m_recording = false;
-
-        if (this->m_recordAudioFrom != RecordFromNone) {
-            this->m_audioSwitch->setState(QbElement::ElementStatePlaying);
-
-            if (this->m_recordAudioFrom == RecordFromMic)
-                this->m_mic->setState(QbElement::ElementStatePlaying);
-        } else {
-            this->m_audioSwitch->setState(QbElement::ElementStateNull);
-            this->m_mic->setState(QbElement::ElementStateNull);
-        }
-
-        emit this->recordingChanged(this->m_recording);
-    }
+    this->m_recording = recording;
+    emit this->recordingChanged(recording);
 }
 
 void MediaTools::mutexLock()
@@ -956,8 +930,10 @@ bool MediaTools::start()
         source = this->m_videoCapture;
     else if (this->isDesktop(this->m_curStream))
         source = this->m_desktopCapture;
-    else
+    else {
         source = this->m_source;
+        source->setProperty("loop", true);
+    }
 
     QList<int> streams;
     QMetaObject::invokeMethod(source.data(),
@@ -1007,40 +983,13 @@ bool MediaTools::start()
     }
 
     this->updateRecordingParams();
+    source->setState(QbElement::ElementStatePlaying);
+    emit this->stateChanged(source->state());
 
-    bool r = this->startStream();
-    emit this->stateChanged();
-
-    return r;
+    return source->state() == QbElement::ElementStatePlaying;
 }
 
 void MediaTools::stop()
-{
-    // Clear previous device.
-    this->resetRecording();
-    this->stopStream();
-    emit this->stateChanged();
-}
-
-bool MediaTools::startStream()
-{
-    if (this->m_curStream.isEmpty()
-        || !this->m_source
-        || !this->m_videoCapture
-        || !this->m_desktopCapture)
-        return false;
-
-    if (this->isCamera(this->m_curStream))
-        this->m_videoCapture->setState(QbElement::ElementStatePlaying);
-    else if (this->isDesktop(this->m_curStream))
-        this->m_desktopCapture->setState(QbElement::ElementStatePlaying);
-    else
-        this->m_source->setState(QbElement::ElementStatePlaying);
-
-    return true;
-}
-
-void MediaTools::stopStream()
 {
     if (this->m_source)
         this->m_source->setState(QbElement::ElementStateNull);
@@ -1050,6 +999,51 @@ void MediaTools::stopStream()
 
     if (this->m_desktopCapture)
         this->m_desktopCapture->setState(QbElement::ElementStateNull);
+
+    emit this->stateChanged(QbElement::ElementStateNull);
+}
+
+bool MediaTools::startRecording(const QString &fileName)
+{
+    QVariantList streams = this->m_record->property("streams").toList();
+    QbVideoCaps videoCaps = streams[0].toMap()["caps"].value<QbCaps>();
+
+    this->m_videoGen->setProperty("fps", QVariant::fromValue(videoCaps.fps()));
+    this->m_record->setProperty("location", fileName);
+    this->m_record->setState(QbElement::ElementStatePlaying);
+
+    if (this->m_record->state() == QbElement::ElementStatePlaying) {
+        if (this->m_recordAudioFrom != RecordFromNone) {
+            this->m_audioSwitch->setState(QbElement::ElementStatePlaying);
+
+            if (this->m_recordAudioFrom == RecordFromMic)
+                this->m_mic->setState(QbElement::ElementStatePlaying);
+        } else {
+            this->m_audioSwitch->setState(QbElement::ElementStateNull);
+            this->m_mic->setState(QbElement::ElementStateNull);
+        }
+
+        this->setRecording(true);
+
+        return true;
+    }
+
+    this->m_record->setState(QbElement::ElementStateNull);
+    this->m_audioSwitch->setState(QbElement::ElementStateNull);
+    this->m_mic->setState(QbElement::ElementStateNull);
+
+    this->setRecording(false);
+
+    return false;
+}
+
+void MediaTools::stopRecording()
+{
+    this->m_record->setState(QbElement::ElementStateNull);
+    this->m_audioSwitch->setState(QbElement::ElementStateNull);
+    this->m_mic->setState(QbElement::ElementStateNull);
+
+    this->setRecording(false);
 }
 
 void MediaTools::setCurStream(const QString &stream)
@@ -1059,25 +1053,6 @@ void MediaTools::setCurStream(const QString &stream)
 
     this->m_curStream = stream;
 
-    if (!this->m_source
-        || !this->m_videoCapture
-        || !this->m_desktopCapture) {
-        emit this->curStreamChanged(stream);
-
-        return;
-    }
-
-    bool isPlaying = this->isPlaying();
-
-    if (isPlaying)
-        this->stopStream();
-
-    if (stream.isEmpty()) {
-        emit this->curStreamChanged(stream);
-
-        return;
-    }
-
     // Set device.
     if (this->isCamera(stream))
         this->m_videoCapture->setProperty("media", stream);
@@ -1085,9 +1060,6 @@ void MediaTools::setCurStream(const QString &stream)
         this->m_desktopCapture->setProperty("media", stream);
     else
         this->m_source->setProperty("media", stream);
-
-    if (isPlaying)
-        this->startStream();
 
     emit this->curStreamChanged(stream);
 }

@@ -28,6 +28,7 @@ GroupBox {
                qsTr("Stream #%1 (%2)").arg(streamIndex).arg(streamLabel):
                qsTr("Stream #%1").arg(streamIndex)
 
+    property int outputIndex: 0
     property int streamIndex: 0
     property string streamLabel: ""
     property string codecsTextRole: ""
@@ -35,7 +36,18 @@ GroupBox {
     property string codec: ""
     property int bitrate: 0
     property int videoGOP: 0
-    property string codecOptions: ""
+    property variant codecOptions: ({})
+
+    signal streamOptionsChanged(int index, variant options)
+
+    function notifyOptions()
+    {
+        streamOptionsChanged(outputIndex,
+                             {codec: codec,
+                              bitRate: bitrate,
+                              gop: videoGOP,
+                              codecOptions: codecOptions})
+    }
 
     onCodecChanged: {
         for (var i = 0; i < cbxCodec.count; i++)
@@ -62,8 +74,10 @@ GroupBox {
             onCurrentIndexChanged: {
                 var option = model.get(currentIndex)
 
-                if (option)
+                if (option) {
                     gbxStreamOptions.codec = option.codec
+                    notifyOptions()
+                }
             }
         }
 
@@ -81,7 +95,10 @@ GroupBox {
             visible: false
             Layout.fillWidth: true
 
-            onTextChanged: gbxStreamOptions.bitrate = text
+            onTextChanged: {
+                gbxStreamOptions.bitrate = text
+                notifyOptions()
+            }
         }
 
         Label {
@@ -99,18 +116,24 @@ GroupBox {
             visible: false
             Layout.fillWidth: true
 
-            onTextChanged: gbxStreamOptions.videoGOP = text
+            onTextChanged: {
+                gbxStreamOptions.videoGOP = text
+                notifyOptions()
+            }
         }
 
         Label {
             text: qsTr("Options")
         }
         TextField {
-            text: gbxStreamOptions.codecOptions
-            placeholderText: qsTr("-opt1 val1 -opt2 val2 -opt3 val3...")
+            text: JSON.stringify(gbxStreamOptions.codecOptions)
+            placeholderText: qsTr("{\"opt1\": \"val1\", \"opt2\": \"val2\", \"opt3\": \"val3\"...}")
             Layout.fillWidth: true
 
-            onTextChanged: gbxStreamOptions.codecOptions = text
+            onTextChanged: {
+                gbxStreamOptions.codecOptions = JSON.parse(text)
+                notifyOptions()
+            }
         }
 
         Label {

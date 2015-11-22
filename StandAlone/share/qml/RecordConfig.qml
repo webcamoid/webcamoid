@@ -173,7 +173,7 @@ ColumnLayout {
             onReleased: imgRecordIcon.scale = 1
             onClicked: {
                 if (Webcamoid.recording)
-                    Webcamoid.resetRecording();
+                    Webcamoid.stopRecording();
                 else {
                     var filters = recRecordConfig.makeFilters()
 
@@ -184,7 +184,7 @@ ColumnLayout {
                                              filters.join(";;"))
 
                     if (fileUrl !== "")
-                        Webcamoid.setRecording(true, fileUrl)
+                        Webcamoid.startRecording(fileUrl)
                 }
             }
         }

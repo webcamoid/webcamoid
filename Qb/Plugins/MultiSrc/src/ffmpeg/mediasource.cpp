@@ -496,11 +496,8 @@ bool MediaSource::initContext()
 {
     QString uri = this->m_media;
 
-    if (uri.isEmpty()) {
-        qDebug() << "URI empty";
-
+    if (uri.isEmpty())
         return false;
-    }
 
     AVInputFormat *inputFormat = NULL;
     AVDictionary *inputOptions = NULL;

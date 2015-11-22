@@ -43,9 +43,10 @@ QbFrac RtPtsElement::fps() const
     return this->m_fps;
 }
 
-void RtPtsElement::sendPacket(RtPtsElement *element, const QbPacket &packet)
+void RtPtsElement::sendPacket(RtPtsElement *element,
+                              const QbVideoPacket &packet)
 {
-    emit element->oStream(packet);
+    emit element->oStream(packet.toPacket());
 }
 
 void RtPtsElement::stateChange(QbElement::ElementState from, QbElement::ElementState to)
@@ -74,13 +75,13 @@ void RtPtsElement::resetFps()
     this->setFps(QbFrac(30000, 1001));
 }
 
-QbPacket RtPtsElement::iStream(const QbPacket &packet)
+QbPacket RtPtsElement::iStream(const QbVideoPacket &packet)
 {
     this->m_mutex.lock();
     this->m_inPacket = packet;
     this->m_mutex.unlock();
 
-    return packet;
+    return packet.toPacket();
 }
 
 bool RtPtsElement::init()
@@ -114,8 +115,9 @@ void RtPtsElement::readPacket()
             return;
 
         this->m_prevPts = pts;
-        this->m_curPacket.setPts(pts);
-        this->m_curPacket.setTimeBase(this->m_timeBase);
+        this->m_curPacket.caps().fps() = this->m_fps;
+        this->m_curPacket.pts() = pts;
+        this->m_curPacket.timeBase() = this->m_timeBase;
 
         this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,
                                                  this->sendPacket,

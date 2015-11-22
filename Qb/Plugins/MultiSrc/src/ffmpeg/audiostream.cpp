@@ -23,6 +23,12 @@
 // No AV correction is done if too big error.
 #define AV_NOSYNC_THRESHOLD 10.0
 
+// Maximum audio speed change to get correct sync
+#define SAMPLE_CORRECTION_PERCENT_MAX 10
+
+// We use about AUDIO_DIFF_AVG_NB A-V differences to make the average
+#define AUDIO_DIFF_AVG_NB 20
+
 typedef QMap<AVSampleFormat, QbAudioCaps::SampleFormat> SampleFormatMap;
 
 inline SampleFormatMap initSampleFormatMap()
@@ -60,6 +66,9 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
     this->m_resampleContext = NULL;
     this->m_run = false;
     this->m_frameBuffer.setMaxSize(9);
+    this->audioDiffCum = 0.0;
+    this->audioDiffAvgCoef = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
+    this->audioDiffAvgCount = 0;
 }
 
 AudioStream::~AudioStream()
@@ -142,15 +151,51 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     if (!this->m_resampleContext)
         return QbPacket();
 
-    qint64 pts = (iFrame->pts != AV_NOPTS_VALUE) ? iFrame->pts :
-                  (iFrame->pkt_pts != AV_NOPTS_VALUE) ? iFrame->pkt_pts :
-                  this->m_pts;
-    iFrame->pts = iFrame->pkt_pts = pts;
+    // Synchronize audio
+    qreal pts = iFrame->pts * this->timeBase().value();
+    qreal diff = pts - this->globalClock()->clock();
 
-    int64_t clock = this->globalClock()->clock()
-                    / this->timeBase().value();
+    if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
+        this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
 
-    int64_t oPts = swr_next_pts(this->m_resampleContext, clock);
+        if (this->audioDiffAvgCount < AUDIO_DIFF_AVG_NB) {
+            // not enough measures to have a correct estimate
+            this->audioDiffAvgCount++;
+        } else {
+            // estimate the A-V difference
+            qreal avgDiff = this->audioDiffCum * (1.0 - this->audioDiffAvgCoef);
+
+            // since we do not have a precise anough audio fifo fullness,
+            // we correct audio sync only if larger than this threshold
+            qreal diffThreshold = 2.0 * iFrame->nb_samples / iFrame->sample_rate;
+
+            if (qAbs(avgDiff) >= diffThreshold) {
+                int wantedSamples = iFrame->nb_samples + int(diff * iFrame->sample_rate);
+                int minSamples = iFrame->nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
+                int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
+                wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
+                // NOTE: This code needs a review.
+                /*
+                if (wantedSamples != iFrame->nb_samples)
+                    if (swr_set_compensation(this->m_resampleContext,
+                                             wantedSamples - iFrame->nb_samples,
+                                             wantedSamples) < 0) {
+                        return QbPacket();
+                    }
+                */
+            }
+        }
+    } else {
+        // Too big difference: may be initial PTS errors, so
+        // reset A-V filter
+        this->audioDiffAvgCount = 0;
+        this->audioDiffCum = 0.0;
+    }
+
+    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
+        this->globalClock()->setClock(pts);
+
+    this->m_clockDiff = diff;
 
     AVFrame *oFrame = av_frame_alloc();
     oFrame->channel_layout = oLayout;
@@ -188,8 +233,8 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
                         oFrame->data,
                         0,
                         0,
-                        oChannels,
                         oSamples,
+                        oChannels,
                         oFormat) < 0)
         return QbPacket();
 
@@ -205,26 +250,12 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
 
     packet.buffer() = oBuffer;
     packet.bufferSize() = frameSize;
-    packet.pts() = oPts;
+    packet.pts() = iFrame->pts;
     packet.timeBase() = this->timeBase();
     packet.index() = this->index();
     packet.id() = this->id();
 
-    int64_t duration = av_frame_get_pkt_duration(iFrame);
-
-    if (duration == AV_NOPTS_VALUE)
-        duration = oSamples
-                   / (iFrame->sample_rate
-                      * this->timeBase().value());
-
-    this->m_pts += duration;
     av_frame_free(&oFrame);
-
-    qreal diff = oPts * this->timeBase().value() - this->globalClock()->clock();
-    this->m_clockDiff = diff;
-
-    if (qAbs(diff) >= AV_NOSYNC_THRESHOLD)
-        this->globalClock()->setClock(oPts * this->timeBase().value());
 
     return packet.toPacket();
 }
@@ -232,15 +263,23 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
 void AudioStream::sendPacket(AudioStream *stream)
 {
     while (stream->m_run) {
-        AVFramePtr frame = stream->m_frameBuffer.dequeue();
+        if (!stream->m_frame)
+            stream->m_frame = stream->m_frameBuffer.dequeue();
 
-        if (!frame)
+        if (!stream->m_frame)
             continue;
 
-        QbPacket oPacket = stream->convert(frame.data());
+        qint64 pts = (stream->m_frame->pts != AV_NOPTS_VALUE) ? stream->m_frame->pts :
+                      (stream->m_frame->pkt_pts != AV_NOPTS_VALUE) ? stream->m_frame->pkt_pts :
+                      stream->m_pts;
+        stream->m_frame->pts = stream->m_frame->pkt_pts = pts;
 
+        QbPacket oPacket = stream->convert(stream->m_frame.data());
         emit stream->oStream(oPacket);
         emit stream->frameSent();
+
+        stream->m_pts = stream->m_frame->pts + stream->m_frame->nb_samples;
+        stream->m_frame = AVFramePtr();
     }
 }
 

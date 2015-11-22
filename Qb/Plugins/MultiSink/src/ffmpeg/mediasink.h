@@ -64,6 +64,8 @@ class MediaSink: public QObject
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const QbCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());
+        Q_INVOKABLE QVariantMap updateStream(int index,
+                                             const QVariantMap &codecParams=QVariantMap());
 
     private:
         QString m_location;
@@ -80,6 +82,7 @@ class MediaSink: public QObject
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
         void streamsChanged(const QVariantList &streams);
+        void streamUpdated(int index);
 
     public slots:
         void setLocation(const QString &location);

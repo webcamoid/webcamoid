@@ -22,6 +22,8 @@
 
 MultiSinkElement::MultiSinkElement(): QbElement()
 {
+    this->m_showFormatOptions = false;
+
     QObject::connect(&this->m_mediaSink,
                      &MediaSink::locationChanged,
                      this,
@@ -34,6 +36,10 @@ MultiSinkElement::MultiSinkElement(): QbElement()
                      &MediaSink::streamsChanged,
                      this,
                      &MultiSinkElement::streamsChanged);
+    QObject::connect(&this->m_mediaSink,
+                     &MediaSink::streamUpdated,
+                     this,
+                     &MultiSinkElement::streamUpdated);
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -79,6 +85,11 @@ QString MultiSinkElement::outputFormat() const
 QVariantList MultiSinkElement::streams() const
 {
     return this->m_mediaSink.streams();
+}
+
+bool MultiSinkElement::showFormatOptions() const
+{
+    return this->m_showFormatOptions;
 }
 
 QStringList MultiSinkElement::supportedFormats()
@@ -130,6 +141,12 @@ QVariantMap MultiSinkElement::addStream(int streamIndex,
     return this->m_mediaSink.addStream(streamIndex, streamCaps, codecParams);
 }
 
+QVariantMap MultiSinkElement::updateStream(int index,
+                                           const QVariantMap &codecParams)
+{
+    return this->m_mediaSink.updateStream(index, codecParams);
+}
+
 void MultiSinkElement::stateChange(QbElement::ElementState from,
                                    QbElement::ElementState to)
 {
@@ -156,6 +173,15 @@ void MultiSinkElement::setOutputFormat(const QString &outputFormat)
     return this->m_mediaSink.setOutputFormat(outputFormat);
 }
 
+void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
+{
+    if (this->m_showFormatOptions == showFormatOptions)
+        return;
+
+    this->m_showFormatOptions = showFormatOptions;
+    emit this->showFormatOptionsChanged(showFormatOptions);
+}
+
 void MultiSinkElement::resetLocation()
 {
     return this->m_mediaSink.resetLocation();
@@ -164,6 +190,11 @@ void MultiSinkElement::resetLocation()
 void MultiSinkElement::resetOutputFormat()
 {
     return this->m_mediaSink.resetOutputFormat();
+}
+
+void MultiSinkElement::resetShowFormatOptions()
+{
+    this->setShowFormatOptions(false);
 }
 
 void MultiSinkElement::clearStreams()

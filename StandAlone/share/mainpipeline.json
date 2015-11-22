@@ -87,6 +87,9 @@
         },
         {
             "pluginId": "RtPts",
+            "properties": {
+                "objectName": "videoGen"
+            },
             "connections": [
                 ["record", "stateChanged", "", "setState"]
             ]

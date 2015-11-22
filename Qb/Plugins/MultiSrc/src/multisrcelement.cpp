@@ -23,12 +23,6 @@
 MultiSrcElement::MultiSrcElement():
     QbMultimediaSourceElement()
 {
-    this->m_mediaSource.setLoop(this->loop());
-
-    QObject::connect(this,
-                     &MultiSrcElement::loopChanged,
-                     &this->m_mediaSource,
-                     &MediaSource::setLoop);
     QObject::connect(&this->m_mediaSource,
                      &MediaSource::oStream,
                      this,
@@ -106,6 +100,11 @@ QList<int> MultiSrcElement::streams() const
     return this->m_mediaSource.streams();
 }
 
+bool MultiSrcElement::loop() const
+{
+    return this->m_mediaSource.loop();
+}
+
 QList<int> MultiSrcElement::listTracks(const QString &type)
 {
     return this->m_mediaSource.listTracks(type);
@@ -162,6 +161,11 @@ void MultiSrcElement::setStreams(const QList<int> &streams)
     this->m_mediaSource.setStreams(streams);
 }
 
+void MultiSrcElement::setLoop(bool loop)
+{
+    this->m_mediaSource.setLoop(loop);
+}
+
 void MultiSrcElement::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
     this->m_mediaSource.setMaxPacketQueueSize(maxPacketQueueSize);
@@ -180,6 +184,11 @@ void MultiSrcElement::resetMedia()
 void MultiSrcElement::resetStreams()
 {
     this->m_mediaSource.resetStreams();
+}
+
+void MultiSrcElement::resetLoop()
+{
+    this->m_mediaSource.resetLoop();
 }
 
 void MultiSrcElement::resetMaxPacketQueueSize()

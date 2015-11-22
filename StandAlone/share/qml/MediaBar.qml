@@ -66,7 +66,12 @@ Rectangle {
 
         onCurrentIndexChanged: {
             var option = model.get(currentIndex)
-            Webcamoid.curStream = option? option.stream: -1
+            var playing = Webcamoid.isPlaying
+            Webcamoid.stop()
+            Webcamoid.curStream = option? option.stream: ""
+
+            if (playing)
+                Webcamoid.start()
         }
     }
 

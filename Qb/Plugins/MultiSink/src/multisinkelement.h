@@ -47,6 +47,11 @@ class MultiSinkElement: public QbElement
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
+    Q_PROPERTY(bool showFormatOptions
+               READ showFormatOptions
+               WRITE setShowFormatOptions
+               RESET resetShowFormatOptions
+               NOTIFY showFormatOptionsChanged)
 
     public:
         explicit MultiSinkElement();
@@ -58,6 +63,7 @@ class MultiSinkElement: public QbElement
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams() const;
+        Q_INVOKABLE bool showFormatOptions() const;
 
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
@@ -72,12 +78,15 @@ class MultiSinkElement: public QbElement
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const QbCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());
+        Q_INVOKABLE QVariantMap updateStream(int index,
+                                             const QVariantMap &codecParams=QVariantMap());
 
     protected:
         void stateChange(QbElement::ElementState from,
                          QbElement::ElementState to);
 
     private:
+        bool m_showFormatOptions;
         MediaSink m_mediaSink;
         QMutex m_mutex;
 
@@ -85,12 +94,16 @@ class MultiSinkElement: public QbElement
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
         void streamsChanged(const QVariantList &streams);
+        void showFormatOptionsChanged(bool showFormatOptions);
+        void streamUpdated(int index);
 
     public slots:
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
+        void setShowFormatOptions(bool showFormatOptions);
         void resetLocation();
         void resetOutputFormat();
+        void resetShowFormatOptions();
         void clearStreams();
 
         QbPacket iStream(const QbPacket &packet);

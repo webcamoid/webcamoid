@@ -53,6 +53,11 @@ class AudioStream: public AbstractStream
         bool m_run;
         QThreadPool m_threadPool;
 
+        AVFramePtr m_frame;
+        qreal audioDiffCum; // used for AV difference average computation
+        qreal audioDiffAvgCoef;
+        int audioDiffAvgCount;
+
         QbPacket convert(AVFrame *iFrame);
         static void sendPacket(AudioStream *stream);
 

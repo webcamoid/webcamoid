@@ -175,6 +175,7 @@ class MediaTools: public QObject
         QbElementPtr m_desktopCapture;
         QbElementPtr m_videoMux;
         QbElementPtr m_videoOutput;
+        QbElementPtr m_videoGen;
         QList<QbElementPtr> m_effectsList;
         QMutex m_mutex;
         QbPacket m_curPacket;
@@ -195,7 +196,7 @@ class MediaTools: public QObject
         void recordingChanged(bool recording);
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
-        void stateChanged();
+        void stateChanged(QbElement::ElementState state);
         void advancedModeChanged(bool advancedMode);
         void currentEffectsChanged();
         void isPlayingChanged();
@@ -210,13 +211,13 @@ class MediaTools: public QObject
         void savePhoto(const QString &fileName);
         bool start();
         void stop();
-        bool startStream();
-        void stopStream();
+        bool startRecording(const QString &fileName);
+        void stopRecording();
         void setCurStream(const QString &stream);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(const QString &recordAudioFrom);
         void setCurRecordingFormat(const QString &curRecordingFormat);
-        void setRecording(bool recording, const QString &fileName="");
+        void setRecording(bool recording);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void setAdvancedMode(bool advancedMode);

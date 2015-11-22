@@ -52,10 +52,11 @@ class RtPtsElement: public QbElement
         QMutex m_mutex;
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
-        QbPacket m_inPacket;
-        QbPacket m_curPacket;
+        QbVideoPacket m_inPacket;
+        QbVideoPacket m_curPacket;
 
-        static void sendPacket(RtPtsElement *element, const QbPacket &packet);
+        static void sendPacket(RtPtsElement *element,
+                               const QbVideoPacket &packet);
 
     protected:
         void stateChange(QbElement::ElementState from,
@@ -67,7 +68,8 @@ class RtPtsElement: public QbElement
     public slots:
         void setFps(const QbFrac &fps);
         void resetFps();
-        QbPacket iStream(const QbPacket &packet);
+
+        QbPacket iStream(const QbVideoPacket &packet);
 
     private slots:
         bool init();

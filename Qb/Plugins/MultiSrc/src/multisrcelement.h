@@ -73,6 +73,7 @@ class MultiSrcElement: public QbMultimediaSourceElement
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QList<int> listTracks(const QString &type="");
         Q_INVOKABLE QString streamLanguage(int stream);
 
@@ -104,10 +105,12 @@ class MultiSrcElement: public QbMultimediaSourceElement
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
+        void setLoop(bool loop);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void setShowLog(bool showLog);
         void resetMedia();
         void resetStreams();
+        void resetLoop();
         void resetMaxPacketQueueSize();
         void resetShowLog();
 };

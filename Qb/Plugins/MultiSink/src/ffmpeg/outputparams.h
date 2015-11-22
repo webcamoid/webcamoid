@@ -53,8 +53,16 @@ class OutputParams: public QObject
         Q_INVOKABLE int &inputIndex();
         Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
 
+        Q_INVOKABLE void addAudioSamples(const AVFrame *frame, qint64 id);
+        Q_INVOKABLE QByteArray readAudioSamples(int samples);
+        Q_INVOKABLE qint64 audioPts() const;
+
     private:
         int m_inputIndex;
+
+        QByteArray m_audioBuffer;
+        AVSampleFormat m_audioFormat;
+        int m_audioChannels;
 
         qint64 m_id;
         qint64 m_pts;
@@ -66,18 +74,14 @@ class OutputParams: public QObject
 
     signals:
         void inputIndexChanged(int inputIndex);
-        void ptsChanged(qint64 pts);
 
     public slots:
         void setInputIndex(int inputIndex);
-        void resetCodecContext();
         void resetInputIndex();
 
         bool convert(const QbPacket &packet, AVFrame *frame);
-
-    private slots:
-        bool convertAudio(const QbPacket &packet, AVFrame *frame);
-        bool convertVideo(const QbPacket &packet, AVFrame *frame);
+        bool convert(const QbAudioPacket &packet, AVFrame *frame);
+        bool convert(const QbVideoPacket &packet, AVFrame *frame);
 };
 
 Q_DECLARE_METATYPE(OutputParams)

@@ -76,6 +76,7 @@ ColumnLayout {
                 else if (streamCaps.mimeType === "video/x-raw")
                     streamOptions.state = "video"
 
+                streamOptions.outputIndex = stream
                 streamOptions.streamIndex = streamConfig.index
 
                 if (streamConfig.label)
@@ -89,7 +90,9 @@ ColumnLayout {
 
                 for (var codec in supportedCodecs)
                     streamOptions.codecList.append({codec: supportedCodecs[codec],
-                                                    description: supportedCodecs[codec]})
+                                                    description: supportedCodecs[codec]
+                                                                 + " - "
+                                                                 + MultiSink.codecDescription(supportedCodecs[codec])})
 
                 streamOptions.codec = streamConfig.codec
 
@@ -98,7 +101,9 @@ ColumnLayout {
 
                 if (streamConfig.gop)
                     streamOptions.videoGOP = streamConfig.gop
-//                streamOptions.codecOptions = streamConfig.codecOptions
+
+                streamOptions.codecOptions = streamConfig.codecOptions
+                streamOptions.streamOptionsChanged.connect(MultiSink.updateStream)
             }
         }
     }
@@ -109,6 +114,7 @@ ColumnLayout {
     }
     ComboBox {
         id: cbxOutputFormats
+        visible: MultiSink.showFormatOptions
         Layout.fillWidth: true
         textRole: "description"
         model: ListModel {
@@ -116,6 +122,12 @@ ColumnLayout {
         }
 
         onCurrentIndexChanged: MultiSink.outputFormat = lstOutputFormats.get(currentIndex).format
+    }
+    TextField {
+        visible: !MultiSink.showFormatOptions
+        text: lstOutputFormats.get(cbxOutputFormats.currentIndex).description
+        readOnly: true
+        Layout.fillWidth: true
     }
 
     Label {

@@ -23,8 +23,10 @@
 OutputParams::OutputParams(int inputIndex, QObject *parent):
     QObject(parent),
     m_inputIndex(inputIndex),
+    m_audioFormat(AV_SAMPLE_FMT_NONE),
+    m_audioChannels(0),
     m_id(-1),
-    m_pts(-1),
+    m_pts(0),
     m_ptsDiff(0),
     m_ptsDrift(0),
     m_resampleContext(NULL),
@@ -35,6 +37,9 @@ OutputParams::OutputParams(int inputIndex, QObject *parent):
 OutputParams::OutputParams(const OutputParams &other):
     QObject(other.parent()),
     m_inputIndex(other.m_inputIndex),
+    m_audioBuffer(other.m_audioBuffer),
+    m_audioFormat(other.m_audioFormat),
+    m_audioChannels(other.m_audioChannels),
     m_id(other.m_id),
     m_pts(other.m_pts),
     m_ptsDiff(other.m_ptsDiff),
@@ -57,6 +62,9 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
 {
     if (this != &other) {
         this->m_inputIndex = other.m_inputIndex;
+        this->m_audioBuffer = other.m_audioBuffer;
+        this->m_audioFormat = other.m_audioFormat;
+        this->m_audioChannels = other.m_audioChannels;
         this->m_id = other.m_id;
         this->m_pts = other.m_pts;
         this->m_ptsDiff = other.m_ptsDiff;
@@ -86,17 +94,10 @@ qint64 OutputParams::nextPts(qint64 pts, qint64 id)
         return 0;
     }
 
-    if (id != this->m_id) {
+    if (pts <= this->m_pts || id != this->m_id) {
         this->m_ptsDrift += this->m_pts - pts + this->m_ptsDiff;
         this->m_pts = pts;
         this->m_id = id;
-
-        return pts + this->m_ptsDrift;
-    }
-
-    if (pts <= this->m_pts) {
-        this->m_ptsDrift += 2 * (this->m_pts - pts) + 1;
-        this->m_pts = pts;
 
         return pts + this->m_ptsDrift;
     }
@@ -105,6 +106,174 @@ qint64 OutputParams::nextPts(qint64 pts, qint64 id)
     this->m_pts = pts;
 
     return pts + this->m_ptsDrift;
+}
+
+void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
+{
+    this->m_audioFormat = AVSampleFormat(frame->format);
+    this->m_audioChannels = frame->channels;
+    int audioBps = av_get_bytes_per_sample(AVSampleFormat(frame->format))
+                   * frame->channels;
+
+    int audioBufferSamples = this->m_audioBuffer.size() / audioBps;
+
+    // Calculate silence offset and the number of samples to copy.
+    int silence = 0;
+    int frameSamples = frame->nb_samples;
+
+    if (this->m_id != id) {
+        this->m_ptsDrift = this->m_pts - frame->pts + audioBufferSamples;
+        this->m_id = id;
+    } else {
+        qint64 framePts = frame->pts + this->m_ptsDrift;
+        qint64 pts = this->m_pts + audioBufferSamples;
+        qint64 ptsDiff = qAbs(framePts - pts);
+
+        if (framePts > pts)
+            silence = ptsDiff;
+        else if (framePts < pts) {
+            frameSamples -= ptsDiff;
+
+            if (frameSamples < 0)
+                frameSamples = 0;
+        }
+    }
+
+    // Calculate total samples.
+    int totalSamples = audioBufferSamples + silence + frameSamples;
+
+    // Fill joined buffer.
+    int joinedBufferSize = av_samples_get_buffer_size(NULL,
+                                                      frame->channels,
+                                                      totalSamples,
+                                                      AVSampleFormat(frame->format),
+                                                      1);
+
+    QByteArray joinedBuffer(joinedBufferSize, Qt::Uninitialized);
+
+    AVFrame joinedFrame;
+    memset(&joinedFrame, 0, sizeof(AVFrame));
+    joinedFrame.nb_samples = totalSamples;
+
+    if (avcodec_fill_audio_frame(&joinedFrame,
+                                 frame->channels,
+                                 AVSampleFormat(frame->format),
+                                 (const uint8_t *) joinedBuffer.data(),
+                                 joinedBuffer.size(),
+                                 1) < 0) {
+        return;
+    }
+
+    if (!this->m_audioBuffer.isEmpty()) {
+        // Fill current audio buffer.
+        AVFrame bufferFrame;
+        memset(&bufferFrame, 0, sizeof(AVFrame));
+        bufferFrame.nb_samples = audioBufferSamples;
+
+        if (avcodec_fill_audio_frame(&bufferFrame,
+                                     frame->channels,
+                                     AVSampleFormat(frame->format),
+                                     (const uint8_t *) this->m_audioBuffer.data(),
+                                     this->m_audioBuffer.size(),
+                                     1) < 0) {
+            return;
+        }
+
+        // Copy current audio buffer to joined buffer.
+        av_samples_copy(joinedFrame.data,
+                        bufferFrame.data,
+                        0,
+                        0,
+                        audioBufferSamples,
+                        frame->channels,
+                        AVSampleFormat(frame->format));
+    }
+
+    // Add silence if necessary.
+    av_samples_set_silence(joinedFrame.data,
+                           audioBufferSamples,
+                           silence,
+                           frame->channels,
+                           AVSampleFormat(frame->format));
+
+    // Append Samples
+    av_samples_copy(joinedFrame.data,
+                    frame->data,
+                    audioBufferSamples + silence,
+                    0,
+                    frameSamples,
+                    frame->channels,
+                    AVSampleFormat(frame->format));
+
+    // Replace audio buffer with joined buffer.
+    this->m_audioBuffer = joinedBuffer;
+}
+
+QByteArray OutputParams::readAudioSamples(int samples)
+{
+    int frameSize = samples
+                    * av_get_bytes_per_sample(this->m_audioFormat)
+                    * this->m_audioChannels;
+
+    if (this->m_audioBuffer.size() < frameSize)
+        return QByteArray();
+
+    // Fill output buffer.
+    int outputBufferSize = av_samples_get_buffer_size(NULL,
+                                                      this->m_audioChannels,
+                                                      samples,
+                                                      this->m_audioFormat,
+                                                      1);
+
+    QByteArray outputBuffer(outputBufferSize, Qt::Uninitialized);
+
+    AVFrame outputFrame;
+    memset(&outputFrame, 0, sizeof(AVFrame));
+    outputFrame.nb_samples = samples;
+
+    if (avcodec_fill_audio_frame(&outputFrame,
+                                 this->m_audioChannels,
+                                 this->m_audioFormat,
+                                 (const uint8_t *) outputBuffer.data(),
+                                 outputBuffer.size(),
+                                 1) < 0) {
+        return QByteArray();
+    }
+
+    // Fill Audio buffer.
+    AVFrame bufferFrame;
+    memset(&bufferFrame, 0, sizeof(AVFrame));
+    bufferFrame.nb_samples = this->m_audioBuffer.size()
+                             / av_get_bytes_per_sample(this->m_audioFormat)
+                             / this->m_audioChannels;
+
+    if (avcodec_fill_audio_frame(&bufferFrame,
+                                 this->m_audioChannels,
+                                 this->m_audioFormat,
+                                 (const uint8_t *) this->m_audioBuffer.data(),
+                                 this->m_audioBuffer.size(),
+                                 1) < 0) {
+        return QByteArray();
+    }
+
+    // Copy current audio buffer to output buffer.
+    av_samples_copy(outputFrame.data,
+                    bufferFrame.data,
+                    0,
+                    0,
+                    samples,
+                    this->m_audioChannels,
+                    this->m_audioFormat);
+
+    this->m_audioBuffer.remove(0, frameSize);
+    this->m_pts += samples;
+
+    return outputBuffer;
+}
+
+qint64 OutputParams::audioPts() const
+{
+    return this->m_pts;
 }
 
 void OutputParams::setInputIndex(int inputIndex)
@@ -123,21 +292,19 @@ void OutputParams::resetInputIndex()
 
 bool OutputParams::convert(const QbPacket &packet, AVFrame *frame)
 {
-    if (packet.caps().mimeType() == "audio/x-raw")
-        return this->convertAudio(packet, frame);
-    else if (packet.caps().mimeType() == "video/x-raw")
-        return this->convertVideo(packet, frame);
+    Q_UNUSED(packet)
+    Q_UNUSED(frame)
 
     return false;
 }
 
-bool OutputParams::convertAudio(const QbPacket &packet, AVFrame *frame)
+bool OutputParams::convert(const QbAudioPacket &packet, AVFrame *frame)
 {
-    QString layout = packet.caps().property("layout").toString();
+    QString layout = QbAudioCaps::channelLayoutToString(packet.caps().layout());
     int64_t iLayout = av_get_channel_layout(layout.toStdString().c_str());;
-    QString format = packet.caps().property("format").toString();
+    QString format = QbAudioCaps::sampleFormatToString(packet.caps().format());
     AVSampleFormat iFormat = av_get_sample_fmt(format.toStdString().c_str());
-    int iSampleRate = packet.caps().property("rate").toInt();
+    int iSampleRate = packet.caps().rate();
 
     this->m_resampleContext = swr_alloc_set_opts(this->m_resampleContext,
                                                  frame->channel_layout,
@@ -159,8 +326,8 @@ bool OutputParams::convertAudio(const QbPacket &packet, AVFrame *frame)
     static AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
-    int iChannels = packet.caps().property("channels").toInt();
-    int iSamples = packet.caps().property("samples").toInt();
+    int iChannels = packet.caps().channels();
+    int iSamples = packet.caps().samples();
 
     if (av_samples_fill_arrays(iFrame.data,
                                iFrame.linesize,
@@ -175,7 +342,7 @@ bool OutputParams::convertAudio(const QbPacket &packet, AVFrame *frame)
     iFrame.channel_layout = iLayout;
     iFrame.format = iFormat;
     iFrame.sample_rate = iSampleRate;
-    iFrame.nb_samples = packet.caps().property("samples").toInt();
+    iFrame.nb_samples = packet.caps().samples();
 
     int oNSamples = swr_get_delay(this->m_resampleContext, frame->sample_rate)
                     + iFrame.nb_samples
@@ -198,12 +365,12 @@ bool OutputParams::convertAudio(const QbPacket &packet, AVFrame *frame)
     return true;
 }
 
-bool OutputParams::convertVideo(const QbPacket &packet, AVFrame *frame)
+bool OutputParams::convert(const QbVideoPacket &packet, AVFrame *frame)
 {
-    QString format = packet.caps().property("format").toString();
+    QString format = QbVideoCaps::pixelFormatToString(packet.caps().format());
     AVPixelFormat iFormat = av_get_pix_fmt(format.toStdString().c_str());
-    int iWidth = packet.caps().property("width").toInt();
-    int iHeight = packet.caps().property("height").toInt();
+    int iWidth = packet.caps().width();
+    int iHeight = packet.caps().height();
 
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                 iWidth,

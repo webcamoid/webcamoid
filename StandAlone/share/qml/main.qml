@@ -327,9 +327,10 @@ ApplicationWindow {
                     icon: "qrc:/icons/hicolor/scalable/play.svg"
 
                     onClicked: {
-                        if (Webcamoid.isPlaying)
+                        if (Webcamoid.isPlaying) {
+                            Webcamoid.stopRecording();
                             Webcamoid.stop();
-                        else
+                        } else
                             Webcamoid.start();
                     }
                 }
