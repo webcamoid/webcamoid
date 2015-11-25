@@ -47,6 +47,13 @@ QObject *LifeElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create an item with the plugin context.
     QObject *item = component.create(context);
+
+    if (!item) {
+        delete context;
+
+        return NULL;
+    }
+
     context->setParent(item);
 
     return item;

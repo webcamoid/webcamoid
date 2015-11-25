@@ -44,6 +44,13 @@ QObject *ScanLinesElement::controlInterface(QQmlEngine *engine, const QString &c
 
     // Create an item with the plugin context.
     QObject *item = component.create(context);
+
+    if (!item) {
+        delete context;
+
+        return NULL;
+    }
+
     context->setParent(item);
 
     return item;

@@ -5,6 +5,7 @@ Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
  pkg-config,
  qtdeclarative5-dev,
+ libqt5opengl5-dev,
  qttools5-dev-tools,
  qtmultimedia5-dev,
  linux-libc-dev,

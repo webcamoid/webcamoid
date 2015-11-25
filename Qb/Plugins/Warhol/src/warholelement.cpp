@@ -46,6 +46,13 @@ QObject *WarholElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create an item with the plugin context.
     QObject *item = component.create(context);
+
+    if (!item) {
+        delete context;
+
+        return NULL;
+    }
+
     context->setParent(item);
 
     return item;

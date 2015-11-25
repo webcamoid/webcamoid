@@ -729,6 +729,8 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
         oFrame.nb_samples = outSamples;
         oFrame.pts = oFrame.pkt_pts = pts;
 
+        qDebug() << buffer.size() << outSamples;
+
         if (avcodec_fill_audio_frame(&oFrame,
                                      codecContext->channels,
                                      codecContext->sample_fmt,
@@ -952,7 +954,12 @@ bool MediaSink::init()
         }
 
         // Open stream.
-        if (avcodec_open2(stream->codec, codec, &options) < 0) {
+        int error = avcodec_open2(stream->codec, codec, &options);
+
+        if (error < 0) {
+            char errorStr[1024];
+            av_strerror(AVERROR(error), errorStr, 1024);
+            qDebug() << "Can't open codec " << codec->name << ": " << errorStr;
             av_dict_free(&options);
             this->uninit();
 
@@ -978,7 +985,7 @@ bool MediaSink::init()
         if (error < 0) {
             char errorStr[1024];
             av_strerror(AVERROR(error), errorStr, 1024);
-            qDebug() << "Error in MultiSink(" << this->objectName() << "): " << errorStr;
+            qDebug() << "Can't open output file: " << errorStr;
             this->uninit();
 
             return false;
@@ -986,7 +993,12 @@ bool MediaSink::init()
     }
 
     // Write file header.
-    if (avformat_write_header(this->m_formatContext, NULL) < 0) {
+    int error = avformat_write_header(this->m_formatContext, NULL);
+
+    if (error < 0) {
+        char errorStr[1024];
+        av_strerror(AVERROR(error), errorStr, 1024);
+        qDebug() << "Can't write header: " << errorStr;
         this->uninit();
 
         return false;
