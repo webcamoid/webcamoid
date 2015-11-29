@@ -46,6 +46,13 @@ ColumnLayout {
         cbxOutputFormats.currentIndex = outputFormatIndex
     }
 
+    Component {
+        id: classStreamOptions
+
+        StreamOptions {
+        }
+    }
+
     Connections {
         target: MultiSink
 
@@ -63,10 +70,11 @@ ColumnLayout {
             for (var i = 0; i < clyStreamOptions.children.length; i++)
               clyStreamOptions.children[i].destroy()
 
-            for (var stream = 0; stream < MultiSink.streams.length; stream++) {
-                var component = Qt.createComponent("StreamOptions.qml")
-                var streamOptions = component.createObject(clyStreamOptions)
-                var streamConfig = MultiSink.streams[stream]
+            var streams = MultiSink.streams;
+
+            for (var stream in streams) {
+                var streamConfig = streams[stream]
+                var streamOptions = classStreamOptions.createObject(clyStreamOptions)
                 streamOptions.Layout.fillWidth = true
 
                 var streamCaps = Qb.newCaps(streamConfig.caps)
@@ -87,7 +95,7 @@ ColumnLayout {
                 var supportedCodecs =
                         MultiSink.supportedCodecs(MultiSink.outputFormat,
                                                   streamCaps.mimeType)
-
+//
                 for (var codec in supportedCodecs)
                     streamOptions.codecList.append({codec: supportedCodecs[codec],
                                                     description: supportedCodecs[codec]

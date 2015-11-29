@@ -759,9 +759,11 @@ QVariantList Capture::queryControl(int handle, quint32 controlClass, v4l2_queryc
         return QVariantList();
 
     v4l2_ext_control ext_ctrl;
+    memset(&ext_ctrl, 0, sizeof(v4l2_ext_control));
     ext_ctrl.id = queryctrl->id;
 
     v4l2_ext_controls ctrls;
+    memset(&ctrls, 0, sizeof(v4l2_ext_controls));
     ctrls.ctrl_class = V4L2_CTRL_ID2CLASS(queryctrl->id);
     ctrls.count = 1;
     ctrls.controls = &ext_ctrl;

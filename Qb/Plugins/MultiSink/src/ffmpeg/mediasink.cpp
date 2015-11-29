@@ -43,6 +43,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeStrMap, mediaTypeToStr, (initAvMediaTypeStr
 MediaSink::MediaSink(QObject *parent): QObject(parent)
 {
     av_register_all();
+    avcodec_register_all();
 
     this->m_formatContext = NULL;
 
@@ -71,8 +72,8 @@ QVariantList MediaSink::streams() const
 {
     QVariantList streams;
 
-    foreach (QVariantMap configs, this->m_streamConfigs)
-        streams << configs;
+    foreach (QVariantMap stream, this->m_streamConfigs)
+        streams << stream;
 
     return streams;
 }
@@ -449,6 +450,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
         outputParams["caps"] = QVariant::fromValue(streamCaps);
     }
 
+    // NOTE: Check this // fail
     this->m_streamConfigs << outputParams;
     this->streamsChanged(this->streams());
 
@@ -729,8 +731,6 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
         oFrame.nb_samples = outSamples;
         oFrame.pts = oFrame.pkt_pts = pts;
 
-        qDebug() << buffer.size() << outSamples;
-
         if (avcodec_fill_audio_frame(&oFrame,
                                      codecContext->channels,
                                      codecContext->sample_fmt,
@@ -752,11 +752,10 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
                                            &oFrame,
                                            &gotPacket);
 
-        if (result  < 0) {
+        if (result < 0) {
             char error[1024];
             av_strerror(result, error, 1024);
             qDebug() << "Error: " << error;
-            av_freep(&oFrame.data[0]);
 
             break;
         }
