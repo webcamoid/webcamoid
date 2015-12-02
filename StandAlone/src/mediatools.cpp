@@ -697,6 +697,9 @@ bool MediaTools::embedMediaControls(const QString &where,
                                      const QString &stream,
                                      const QString &name) const
 {
+    if (!this->m_appEngine)
+        return false;
+
     QObject *interface = NULL;
 
     if (this->isCamera(stream))

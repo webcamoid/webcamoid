@@ -450,7 +450,6 @@ QVariantMap MediaSink::addStream(int streamIndex,
         outputParams["caps"] = QVariant::fromValue(streamCaps);
     }
 
-    // NOTE: Check this // fail
     this->m_streamConfigs << outputParams;
     this->streamsChanged(this->streams());
 

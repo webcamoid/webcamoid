@@ -217,6 +217,9 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
                                                oFormat,
                                                1);
 
+    if (frameSize < 1)
+        return QbPacket();
+
     QbBufferPtr oBuffer(new char[frameSize]);
     uint8_t *oData;
 
