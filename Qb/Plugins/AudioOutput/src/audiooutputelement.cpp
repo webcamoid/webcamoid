@@ -22,7 +22,6 @@
 
 AudioOutputElement::AudioOutputElement(): QbElement()
 {
-    this->m_convert = QbElement::create("ACapsConvert");
     this->m_caps = QString("audio/x-raw,"
                            "format=s16,"
                            "bps=2,"
@@ -30,11 +29,6 @@ AudioOutputElement::AudioOutputElement(): QbElement()
                            "rate=44100,"
                            "layout=stereo,"
                            "align=0");
-
-    QObject::connect(this,
-                     &AudioOutputElement::stateChanged,
-                     this->m_convert.data(),
-                     &QbElement::setState);
 }
 
 AudioOutputElement::~AudioOutputElement()
@@ -51,6 +45,13 @@ bool AudioOutputElement::init()
 {
     this->m_mutex.lock();
     QbAudioCaps caps(this->m_caps);
+    this->m_convert = QbElement::create("ACapsConvert");
+
+    QObject::connect(this,
+                     &AudioOutputElement::stateChanged,
+                     this->m_convert.data(),
+                     &QbElement::setState);
+
     this->m_convert->setProperty("caps", this->m_caps.toString());
     bool result = this->m_audioDevice.init(AudioDevice::DeviceModePlayback,
                                            caps.format(),
@@ -104,10 +105,12 @@ void AudioOutputElement::resetCaps()
 QbPacket AudioOutputElement::iStream(const QbAudioPacket &packet)
 {
     this->m_mutex.lock();
-    QbPacket iPacket = this->m_convert->iStream(packet.toPacket());
 
-    QByteArray frame(iPacket.buffer().data(), iPacket.bufferSize());
-    this->m_audioDevice.write(frame);
+    if (this->m_convert) {
+        QbPacket iPacket = this->m_convert->iStream(packet.toPacket());
+        this->m_audioDevice.write(iPacket.buffer());
+    }
+
     this->m_mutex.unlock();
 
     return QbPacket();

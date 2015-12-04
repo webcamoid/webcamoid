@@ -179,7 +179,7 @@ QbPacket VideoStream::convert(AVFrame *iFrame)
                                        iFrame->width,
                                        iFrame->height);
 
-    QbBufferPtr oBuffer(new char[frameSize]);
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
 
     avpicture_layout(oPicture,
                      oFormat,
@@ -189,7 +189,6 @@ QbPacket VideoStream::convert(AVFrame *iFrame)
                      frameSize);
 
     packet.buffer() = oBuffer;
-    packet.bufferSize() = frameSize;
     packet.pts() = av_frame_get_best_effort_timestamp(iFrame);
     packet.timeBase() = this->timeBase();
     packet.index() = this->index();

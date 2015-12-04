@@ -25,8 +25,7 @@ class QbPacketPrivate
     public:
         QbCaps m_caps;
         QVariant m_data;
-        QbBufferPtr m_buffer;
-        ulong m_bufferSize;
+        QByteArray m_buffer;
         qint64 m_pts;
         QbFrac m_timeBase;
         int m_index;
@@ -37,15 +36,13 @@ QbPacket::QbPacket(QObject *parent):
     QObject(parent)
 {
     this->d = new QbPacketPrivate();
-    this->d->m_bufferSize = 0;
     this->d->m_pts = 0;
     this->d->m_index = -1;
     this->d->m_id = -1;
 }
 
 QbPacket::QbPacket(const QbCaps &caps,
-                   const QbBufferPtr &buffer,
-                   ulong bufferSize,
+                   const QByteArray &buffer,
                    qint64 pts,
                    const QbFrac &timeBase,
                    int index,
@@ -54,8 +51,7 @@ QbPacket::QbPacket(const QbCaps &caps,
     this->d = new QbPacketPrivate();
     this->d->m_caps = caps;
     bool isValid = this->d->m_caps.isValid();
-    this->d->m_buffer = isValid? buffer: QbBufferPtr();
-    this->d->m_bufferSize = isValid? bufferSize: 0;
+    this->d->m_buffer = isValid? buffer: QByteArray();
     this->d->m_pts = isValid? pts: 0;
     this->d->m_timeBase = isValid? timeBase: QbFrac();
     this->d->m_index = isValid? index: -1;
@@ -69,7 +65,6 @@ QbPacket::QbPacket(const QbPacket &other):
     this->d->m_caps = other.d->m_caps;
     this->d->m_data = other.d->m_data;
     this->d->m_buffer = other.d->m_buffer;
-    this->d->m_bufferSize = other.d->m_bufferSize;
     this->d->m_pts = other.d->m_pts;
     this->d->m_timeBase = other.d->m_timeBase;
     this->d->m_index = other.d->m_index;
@@ -87,7 +82,6 @@ QbPacket &QbPacket::operator =(const QbPacket &other)
         this->d->m_caps = other.d->m_caps;
         this->d->m_data = other.d->m_data;
         this->d->m_buffer = other.d->m_buffer;
-        this->d->m_bufferSize = other.d->m_bufferSize;
         this->d->m_pts = other.d->m_pts;
         this->d->m_timeBase = other.d->m_timeBase;
         this->d->m_index = other.d->m_index;
@@ -116,7 +110,7 @@ QString QbPacket::toString() const
                     << "\n";
 
     debug.nospace() << "Buffer Size: "
-                    << this->d->m_bufferSize
+                    << this->d->m_buffer.size()
                     << "\n";
 
     debug.nospace() << "Id         : "
@@ -159,24 +153,14 @@ QVariant &QbPacket::data()
     return this->d->m_data;
 }
 
-QbBufferPtr QbPacket::buffer() const
+QByteArray QbPacket::buffer() const
 {
     return this->d->m_buffer;
 }
 
-QbBufferPtr &QbPacket::buffer()
+QByteArray &QbPacket::buffer()
 {
     return this->d->m_buffer;
-}
-
-ulong QbPacket::bufferSize() const
-{
-    return this->d->m_bufferSize;
-}
-
-ulong &QbPacket::bufferSize()
-{
-    return this->d->m_bufferSize;
 }
 
 qint64 QbPacket::id() const
@@ -237,22 +221,13 @@ void QbPacket::setData(const QVariant &data)
     emit this->dataChanged(data);
 }
 
-void QbPacket::setBuffer(const QbBufferPtr &buffer)
+void QbPacket::setBuffer(const QByteArray &buffer)
 {
     if (this->d->m_buffer == buffer)
         return;
 
     this->d->m_buffer = buffer;
     emit this->bufferChanged(buffer);
-}
-
-void QbPacket::setBufferSize(ulong bufferSize)
-{
-    if (this->d->m_bufferSize == bufferSize)
-        return;
-
-    this->d->m_bufferSize = bufferSize;
-    emit this->bufferSizeChanged(bufferSize);
 }
 
 void QbPacket::setId(qint64 id)
@@ -303,12 +278,7 @@ void QbPacket::resetData()
 
 void QbPacket::resetBuffer()
 {
-    this->setBuffer(QbBufferPtr());
-}
-
-void QbPacket::resetBufferSize()
-{
-    this->setBufferSize(0);
+    this->setBuffer(QByteArray());
 }
 
 void QbPacket::resetId()

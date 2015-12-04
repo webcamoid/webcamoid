@@ -38,8 +38,7 @@ class QbAudioPacket: public QbPacket
     public:
         explicit QbAudioPacket(QObject *parent=NULL);
         QbAudioPacket(const QbAudioCaps &caps,
-                      const QbBufferPtr &buffer=QbBufferPtr(),
-                      ulong bufferSize=0,
+                      const QByteArray &buffer=QByteArray(),
                       qint64 pts=0,
                       const QbFrac &timeBase=QbFrac(),
                       int index=-1,

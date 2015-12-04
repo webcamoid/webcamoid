@@ -158,7 +158,7 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
     if (avcodec_fill_audio_frame(&joinedFrame,
                                  frame->channels,
                                  AVSampleFormat(frame->format),
-                                 (const uint8_t *) joinedBuffer.data(),
+                                 (const uint8_t *) joinedBuffer.constData(),
                                  joinedBuffer.size(),
                                  1) < 0) {
         return;
@@ -173,7 +173,7 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
         if (avcodec_fill_audio_frame(&bufferFrame,
                                      frame->channels,
                                      AVSampleFormat(frame->format),
-                                     (const uint8_t *) this->m_audioBuffer.data(),
+                                     (const uint8_t *) this->m_audioBuffer.constData(),
                                      this->m_audioBuffer.size(),
                                      1) < 0) {
             return;
@@ -234,7 +234,7 @@ QByteArray OutputParams::readAudioSamples(int samples)
     if (avcodec_fill_audio_frame(&outputFrame,
                                  this->m_audioChannels,
                                  this->m_audioFormat,
-                                 (const uint8_t *) outputBuffer.data(),
+                                 (const uint8_t *) outputBuffer.constData(),
                                  outputBuffer.size(),
                                  1) < 0) {
         return QByteArray();
@@ -250,7 +250,7 @@ QByteArray OutputParams::readAudioSamples(int samples)
     if (avcodec_fill_audio_frame(&bufferFrame,
                                  this->m_audioChannels,
                                  this->m_audioFormat,
-                                 (const uint8_t *) this->m_audioBuffer.data(),
+                                 (const uint8_t *) this->m_audioBuffer.constData(),
                                  this->m_audioBuffer.size(),
                                  1) < 0) {
         return QByteArray();
@@ -331,7 +331,7 @@ bool OutputParams::convert(const QbAudioPacket &packet, AVFrame *frame)
 
     if (av_samples_fill_arrays(iFrame.data,
                                iFrame.linesize,
-                               (const uint8_t *) packet.buffer().data(),
+                               (const uint8_t *) packet.buffer().constData(),
                                iChannels,
                                iSamples,
                                iFormat,
@@ -391,7 +391,7 @@ bool OutputParams::convert(const QbVideoPacket &packet, AVFrame *frame)
     memset(&iPicture, 0, sizeof(AVPicture));
 
     avpicture_fill(&iPicture,
-                   (const uint8_t *) packet.buffer().data(),
+                   (const uint8_t *) packet.buffer().constData(),
                    iFormat,
                    iWidth,
                    iHeight);

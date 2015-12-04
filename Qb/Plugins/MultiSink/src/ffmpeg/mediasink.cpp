@@ -733,7 +733,7 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
         if (avcodec_fill_audio_frame(&oFrame,
                                      codecContext->channels,
                                      codecContext->sample_fmt,
-                                     (const uint8_t *) buffer.data(),
+                                     (const uint8_t *) buffer.constData(),
                                      buffer.size(),
                                      1) < 0) {
             continue;

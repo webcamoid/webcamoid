@@ -148,16 +148,10 @@ class Capture: public QObject
 
         inline QbPacket processFrame(char *buffer, quint32 bufferSize, qint64 pts) const
         {
-            QbBufferPtr oBuffer(new char[bufferSize]);
-
-            if (!oBuffer)
-                return QbPacket();
-
+            QByteArray oBuffer(bufferSize, Qt::Uninitialized);
             memcpy(oBuffer.data(), buffer, bufferSize);
 
-            QbPacket oPacket(this->m_caps,
-                             oBuffer,
-                             bufferSize);
+            QbPacket oPacket(this->m_caps, oBuffer);
 
             oPacket.setPts(pts);
             oPacket.setTimeBase(this->m_timeBase);

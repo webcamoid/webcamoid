@@ -165,15 +165,13 @@ void AudioInputElement::readFrame()
     if (buffer.isEmpty())
         return;
 
-    QbBufferPtr oBuffer(new char[buffer.size()]);
+    QByteArray oBuffer(buffer.size(), Qt::Uninitialized);
     memcpy(oBuffer.data(), buffer.constData(), buffer.size());
 
     QbCaps caps = this->m_caps;
     caps.setProperty("samples", this->m_bufferSize);
 
-    QbPacket packet(caps,
-                    oBuffer,
-                    buffer.size());
+    QbPacket packet(caps, oBuffer);
 
     qint64 pts = QTime::currentTime().msecsSinceStartOfDay()
                  / this->m_timeBase.value();

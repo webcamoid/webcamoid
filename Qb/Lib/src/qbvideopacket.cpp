@@ -33,8 +33,7 @@ QbVideoPacket::QbVideoPacket(QObject *parent):
 }
 
 QbVideoPacket::QbVideoPacket(const QbVideoCaps &caps,
-                             const QbBufferPtr &buffer,
-                             ulong bufferSize,
+                             const QByteArray &buffer,
                              qint64 pts,
                              const QbFrac &timeBase,
                              int index,
@@ -43,7 +42,6 @@ QbVideoPacket::QbVideoPacket(const QbVideoCaps &caps,
     this->d = new QbVideoPacketPrivate();
     this->d->m_caps = caps;
     this->buffer() = buffer;
-    this->bufferSize() = bufferSize;
     this->pts() = pts;
     this->timeBase() = timeBase;
     this->index() = index;
@@ -56,7 +54,6 @@ QbVideoPacket::QbVideoPacket(const QbPacket &other)
     this->d->m_caps = other.caps();
     this->data() = other.data();
     this->buffer() = other.buffer();
-    this->bufferSize() = other.bufferSize();
     this->pts() = other.pts();
     this->timeBase() = other.timeBase();
     this->index() = other.index();
@@ -70,7 +67,6 @@ QbVideoPacket::QbVideoPacket(const QbVideoPacket &other):
     this->d->m_caps = other.d->m_caps;
     this->data() = other.data();
     this->buffer() = other.buffer();
-    this->bufferSize() = other.bufferSize();
     this->pts() = other.pts();
     this->timeBase() = other.timeBase();
     this->index() = other.index();
@@ -87,7 +83,6 @@ QbVideoPacket &QbVideoPacket::operator =(const QbPacket &other)
     this->d->m_caps = other.caps();
     this->data() = other.data();
     this->buffer() = other.buffer();
-    this->bufferSize() = other.bufferSize();
     this->pts() = other.pts();
     this->timeBase() = other.timeBase();
     this->index() = other.index();
@@ -102,7 +97,6 @@ QbVideoPacket &QbVideoPacket::operator =(const QbVideoPacket &other)
         this->d->m_caps = other.d->m_caps;
         this->data() = other.data();
         this->buffer() = other.buffer();
-        this->bufferSize() = other.bufferSize();
         this->pts() = other.pts();
         this->timeBase() = other.timeBase();
         this->index() = other.index();
@@ -141,7 +135,7 @@ QString QbVideoPacket::toString() const
                     << "\n";
 
     debug.nospace() << "Buffer Size: "
-                    << this->bufferSize()
+                    << this->buffer().size()
                     << "\n";
 
     debug.nospace() << "Id         : "
@@ -169,7 +163,6 @@ QbPacket QbVideoPacket::toPacket() const
     QbPacket packet;
     packet.caps() =  this->d->m_caps.toCaps();
     packet.buffer() = this->buffer();
-    packet.bufferSize() = this->bufferSize();
     packet.pts() = this->pts();
     packet.timeBase() = this->timeBase();
     packet.index() = this->index();

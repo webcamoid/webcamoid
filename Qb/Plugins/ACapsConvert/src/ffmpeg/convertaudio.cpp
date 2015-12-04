@@ -93,81 +93,76 @@ QbPacket ConvertAudio::convert(const QbAudioPacket &packet,
     if (!this->m_resampleContext)
         return QbPacket();
 
-    if (!swr_is_initialized(this->m_resampleContext))
-        if (swr_init(this->m_resampleContext) < 0)
-            return QbPacket();
-
     // Create input audio frame.
     static AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
-
-    if (av_samples_fill_arrays(iFrame.data,
-                               iFrame.linesize,
-                               (const uint8_t *) packet.buffer().data(),
-                               iNChannels,
-                               iNSamples,
-                               iSampleFormat,
-                               1) < 0)
-        return QbPacket();
-
+    iFrame.format = iSampleFormat;
     iFrame.channels = iNChannels;
     iFrame.channel_layout = iSampleLayout;
-    iFrame.format = iSampleFormat;
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = iNSamples;
     iFrame.pts = iFrame.pkt_pts = packet.pts();
 
-    // Create output audio packet.
-    int oNSamples = swr_get_delay(this->m_resampleContext, oSampleRate)
-                    + iFrame.nb_samples
-                    * (int64_t) oSampleRate
-                    / iSampleRate
-                    + 3;
-
-    int oLineSize;
-    int oBufferSize = av_samples_get_buffer_size(&oLineSize,
-                                                 oNChannels,
-                                                 oNSamples,
-                                                 oSampleFormat,
-                                                 1);
-
-    QByteArray oBuffer(oBufferSize, Qt::Uninitialized);
-
-    int oNPlanes = av_sample_fmt_is_planar(oSampleFormat)? oNChannels: 1;
-    QVector<uint8_t *> oData(oNPlanes);
-
-    if (av_samples_fill_arrays(&oData.data()[0],
-                               &oLineSize,
-                               (const uint8_t *) oBuffer.data(),
-                               oNChannels,
-                               oNSamples,
-                               oSampleFormat,
-                               1) < 0)
+    if (avcodec_fill_audio_frame(&iFrame,
+                                 iFrame.channels,
+                                 iSampleFormat,
+                                 (const uint8_t *) packet.buffer().constData(),
+                                 packet.buffer().size(),
+                                 1) < 0) {
         return QbPacket();
+    }
 
-    int64_t oPts = swr_next_pts(this->m_resampleContext, iFrame.pts);
+    // Fill output audio frame.
+    AVFrame oFrame;
+    memset(&oFrame, 0, sizeof(AVFrame));
+    oFrame.format = oSampleFormat;
+    oFrame.channels = oNChannels;
+    oFrame.channel_layout = oSampleLayout;
+    oFrame.sample_rate = oSampleRate;
+    oFrame.nb_samples = swr_get_delay(this->m_resampleContext, oSampleRate)
+                        + iFrame.nb_samples
+                        * (int64_t) oSampleRate
+                        / iSampleRate
+                        + 3;
+    oFrame.pts = oFrame.pkt_pts = iFrame.pts * oSampleRate / iSampleRate;
+
+    // Calculate the size of the audio buffer.
+    int frameSize = av_samples_get_buffer_size(oFrame.linesize,
+                                               oFrame.channels,
+                                               oFrame.nb_samples,
+                                               oSampleFormat,
+                                               1);
+
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+
+    if (avcodec_fill_audio_frame(&oFrame,
+                                 oFrame.channels,
+                                 oSampleFormat,
+                                 (const uint8_t *) oBuffer.constData(),
+                                 oBuffer.size(),
+                                 1) < 0) {
+        return QbPacket();
+    }
 
     // convert to destination format
-    int outputSamples = swr_convert(this->m_resampleContext,
-                                    oData.data(),
-                                    oNSamples,
-                                    (const uint8_t **) iFrame.data,
-                                    iFrame.nb_samples);
-
-    if (outputSamples < 1)
+    if (swr_convert_frame(this->m_resampleContext,
+                          &oFrame,
+                          &iFrame) < 0)
         return QbPacket();
 
-    oBufferSize = oBufferSize * outputSamples / oNSamples;
+    frameSize = av_samples_get_buffer_size(oFrame.linesize,
+                                           oFrame.channels,
+                                           oFrame.nb_samples,
+                                           oSampleFormat,
+                                           1);
 
-    QbBufferPtr buffer(new char[oBufferSize]);
-    memcpy(buffer.data(), oBuffer.data(), oBufferSize);
+    oBuffer.resize(frameSize);
 
     QbAudioPacket oAudioPacket;
     oAudioPacket.caps() = oAudioCaps;
-    oAudioPacket.caps().samples() = outputSamples;
-    oAudioPacket.buffer() = buffer;
-    oAudioPacket.bufferSize() = oBufferSize;
-    oAudioPacket.pts() = oPts;
+    oAudioPacket.caps().samples() = oFrame.nb_samples;
+    oAudioPacket.buffer() = oBuffer;
+    oAudioPacket.pts() = oFrame.pts;
     oAudioPacket.timeBase() = QbFrac(1, oAudioCaps.rate());
     oAudioPacket.index() = packet.index();
     oAudioPacket.id() = packet.id();

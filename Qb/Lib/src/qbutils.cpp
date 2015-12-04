@@ -44,7 +44,7 @@ QbPacket QbUtils::imageToPacket(const QImage &image, const QbPacket &defaultPack
     if (!imageToFormat->contains(image.format()))
         return QbPacket();
 
-    QbBufferPtr oBuffer(new char[image.byteCount()]);
+    QByteArray oBuffer(image.byteCount(), Qt::Uninitialized);
     memcpy(oBuffer.data(), image.constBits(), image.byteCount());
 
     QbCaps caps(defaultPacket.caps());
@@ -56,7 +56,6 @@ QbPacket QbUtils::imageToPacket(const QImage &image, const QbPacket &defaultPack
     QbPacket packet = defaultPacket;
     packet.setCaps(caps);
     packet.setBuffer(oBuffer);
-    packet.setBufferSize(image.byteCount());
 
     return packet;
 }
@@ -74,10 +73,10 @@ QImage QbUtils::packetToImage(const QbPacket &packet)
     int width = packet.caps().property("width").toInt();
     int height = packet.caps().property("height").toInt();
 
-    QImage image((const uchar *) packet.buffer().data(),
-                 width,
+    QImage image(width,
                  height,
                  imageToFormat->key(format));
+    memcpy(image.bits(), packet.buffer().constData(), packet.buffer().size());
 
     if (format == "gray")
         for (int i = 0; i < 256; i++)

@@ -38,8 +38,7 @@ class QbVideoPacket: public QbPacket
     public:
         explicit QbVideoPacket(QObject *parent=NULL);
         QbVideoPacket(const QbVideoCaps &caps,
-                      const QbBufferPtr &buffer=QbBufferPtr(),
-                      ulong bufferSize=0,
+                      const QByteArray &buffer=QByteArray(),
                       qint64 pts=0,
                       const QbFrac &timeBase=QbFrac(),
                       int index=-1,

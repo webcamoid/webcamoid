@@ -62,7 +62,7 @@ QbPacket ConvertVideo::convert(const QbPacket &packet)
     AVPicture iPicture;
 
     if (avpicture_fill(&iPicture,
-                       (const uint8_t *) videoPacket.buffer().data(),
+                       (const uint8_t *) videoPacket.buffer().constData(),
                        iFormat,
                        videoPacket.caps().width(),
                        videoPacket.caps().height()) < 0)
@@ -73,11 +73,11 @@ QbPacket ConvertVideo::convert(const QbPacket &packet)
                                        videoPacket.caps().width(),
                                        videoPacket.caps().height());
 
-    QbBufferPtr oBuffer(new char[frameSize]);
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
     AVPicture oPicture;
 
     if (avpicture_fill(&oPicture,
-                       (const uint8_t *) oBuffer.data(),
+                       (const uint8_t *) oBuffer.constData(),
                        AV_PIX_FMT_BGRA,
                        videoPacket.caps().width(),
                        videoPacket.caps().height()) < 0)
@@ -96,7 +96,6 @@ QbPacket ConvertVideo::convert(const QbPacket &packet)
     QbVideoPacket oPacket(packet);
     oPacket.caps().format() = QbVideoCaps::Format_bgra;
     oPacket.buffer() = oBuffer;
-    oPacket.bufferSize() = frameSize;
 
     return oPacket.toPacket();
 }

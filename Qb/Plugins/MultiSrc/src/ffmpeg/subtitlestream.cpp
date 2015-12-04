@@ -49,8 +49,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
     if (gotSubtitle) {
         for (uint i = 0; i < subtitle.num_rects; i++) {
             QbCaps caps(this->caps());
-            QbBufferPtr oBuffer;
-            int dataLenght = 0;
+            QByteArray oBuffer;
 
             if (subtitle.rects[i]->type == SUBTITLE_BITMAP) {
                 AVPixelFormat pixFmt;
@@ -74,10 +73,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
                                 subtitle.rects[i]->w *
                                 subtitle.rects[i]->h;
 
-                QbBufferPtr oBuffer(new char[frameSize]);
-
-                if (!oBuffer)
-                    break;
+                oBuffer.resize(frameSize);
 
                 avpicture_layout((AVPicture *) &subtitle.rects[i]->pict,
                                  pixFmt,
@@ -85,38 +81,23 @@ void SubtitleStream::processPacket(AVPacket *packet)
                                  subtitle.rects[i]->h,
                                  (uint8_t *) oBuffer.data(),
                                  frameSize);
-
-                dataLenght = frameSize;
             }
             else if (subtitle.rects[i]->type == SUBTITLE_TEXT) {
                 caps.setProperty("type", "text");
                 int textLenght = sizeof(subtitle.rects[i]->text);
 
-                oBuffer = QbBufferPtr(new char[textLenght]);
-
-                if (!oBuffer)
-                    break;
-
+                oBuffer.resize(textLenght);
                 memcpy(oBuffer.data(), subtitle.rects[i]->text, textLenght);
-                dataLenght = textLenght;
             }
             else if (subtitle.rects[i]->type == SUBTITLE_ASS) {
                 caps.setProperty("type", "ass");
                 int assLenght = sizeof(subtitle.rects[i]->ass);
 
-                oBuffer = QbBufferPtr(new char[assLenght]);
-
-                if (!oBuffer)
-                    break;
-
+                oBuffer.resize(assLenght);
                 memcpy(oBuffer.data(), subtitle.rects[i]->ass, assLenght);
-                dataLenght = assLenght;
             }
 
-            QbPacket oPacket(caps,
-                             oBuffer,
-                             dataLenght);
-
+            QbPacket oPacket(caps, oBuffer);
             oPacket.setPts(packet->pts);
             oPacket.setTimeBase(this->timeBase());
             oPacket.setIndex(this->index());
@@ -130,26 +111,18 @@ void SubtitleStream::processPacket(AVPacket *packet)
     else {
         // Some subtitles seams to have a problem when decoding.
         QbCaps caps(this->caps());
-        QbBufferPtr oBuffer;
-
         caps.setProperty("type", "ass");
-        int assLenght = packet->size;
 
-        oBuffer = QbBufferPtr(new char[assLenght]);
+        QByteArray oBuffer(packet->size, Qt::Uninitialized);
+        memcpy(oBuffer.data(), packet->data, packet->size);
 
-        if (oBuffer) {
-            memcpy(oBuffer.data(), packet->data, assLenght);
+        QbPacket oPacket(caps, oBuffer);
 
-            QbPacket oPacket(caps,
-                             oBuffer,
-                             assLenght);
+        oPacket.setPts(packet->pts);
+        oPacket.setTimeBase(this->timeBase());
+        oPacket.setIndex(this->index());
+        oPacket.setId(this->id());
 
-            oPacket.setPts(packet->pts);
-            oPacket.setTimeBase(this->timeBase());
-            oPacket.setIndex(this->index());
-            oPacket.setId(this->id());
-
-            emit this->oStream(oPacket);
-        }
+        emit this->oStream(oPacket);
     }
 }

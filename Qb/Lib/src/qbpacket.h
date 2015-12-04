@@ -28,8 +28,6 @@
 
 class QbPacketPrivate;
 
-typedef QSharedPointer<char> QbBufferPtr;
-
 template<typename T>
 inline T QbNoPts()
 {
@@ -49,16 +47,11 @@ class QbPacket: public QObject
                WRITE setData
                RESET resetData
                NOTIFY dataChanged)
-    Q_PROPERTY(QbBufferPtr buffer
+    Q_PROPERTY(QByteArray buffer
                READ buffer
                WRITE setBuffer
                RESET resetBuffer
                NOTIFY bufferChanged)
-    Q_PROPERTY(ulong bufferSize
-               READ bufferSize
-               WRITE setBufferSize
-               RESET resetBufferSize
-               NOTIFY bufferSizeChanged)
     Q_PROPERTY(qint64 id
                READ id
                WRITE setId
@@ -83,8 +76,7 @@ class QbPacket: public QObject
     public:
         explicit QbPacket(QObject *parent=NULL);
         QbPacket(const QbCaps &caps,
-                 const QbBufferPtr &buffer=QbBufferPtr(),
-                 ulong bufferSize=0,
+                 const QByteArray &buffer=QByteArray(),
                  qint64 pts=0,
                  const QbFrac &timeBase=QbFrac(),
                  int index=-1,
@@ -99,10 +91,8 @@ class QbPacket: public QObject
         Q_INVOKABLE QbCaps &caps();
         Q_INVOKABLE QVariant data() const;
         Q_INVOKABLE QVariant &data();
-        Q_INVOKABLE QbBufferPtr buffer() const;
-        Q_INVOKABLE QbBufferPtr &buffer();
-        Q_INVOKABLE ulong bufferSize() const;
-        Q_INVOKABLE ulong &bufferSize();
+        Q_INVOKABLE QByteArray buffer() const;
+        Q_INVOKABLE QByteArray &buffer();
         Q_INVOKABLE qint64 id() const;
         Q_INVOKABLE qint64 &id();
         Q_INVOKABLE qint64 pts() const;
@@ -118,8 +108,7 @@ class QbPacket: public QObject
     signals:
         void capsChanged(const QbCaps &caps);
         void dataChanged(const QVariant &data);
-        void bufferChanged(const QbBufferPtr &buffer);
-        void bufferSizeChanged(ulong bufferSize);
+        void bufferChanged(const QByteArray &buffer);
         void idChanged(qint64 id);
         void ptsChanged(qint64 pts);
         void timeBaseChanged(const QbFrac &timeBase);
@@ -128,8 +117,7 @@ class QbPacket: public QObject
     public slots:
         void setCaps(const QbCaps &caps);
         void setData(const QVariant &data);
-        void setBuffer(const QbBufferPtr &buffer);
-        void setBufferSize(ulong bufferSize);
+        void setBuffer(const QByteArray &buffer);
         void setId(qint64 id);
         void setPts(qint64 pts);
         void setTimeBase(const QbFrac &timeBase);
@@ -137,7 +125,6 @@ class QbPacket: public QObject
         void resetCaps();
         void resetData();
         void resetBuffer();
-        void resetBufferSize();
         void resetId();
         void resetPts();
         void resetTimeBase();

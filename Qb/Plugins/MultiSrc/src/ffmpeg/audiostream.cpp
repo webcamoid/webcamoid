@@ -132,6 +132,7 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     int64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
                           iFrame->channel_layout:
                           AV_CH_LAYOUT_STEREO;
+    int oChannels = av_get_channel_layout_nb_channels(oLayout);
 
     AVSampleFormat iFormat = AVSampleFormat(iFrame->format);
     AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
@@ -197,48 +198,36 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
 
     this->m_clockDiff = diff;
 
-    AVFrame *oFrame = av_frame_alloc();
-    oFrame->channel_layout = oLayout;
-    oFrame->format = oFormat;
-    oFrame->sample_rate = iFrame->sample_rate;
+    AVFrame oFrame;
+    memset(&oFrame, 0, sizeof(AVFrame));
+    oFrame.format = oFormat;
+    oFrame.channels = oChannels;
+    oFrame.channel_layout = oLayout;
+    oFrame.sample_rate = iFrame->sample_rate;
+    oFrame.nb_samples = iFrame->nb_samples;
+    oFrame.pts = oFrame.pkt_pts = iFrame->pts;
 
-    if (swr_convert_frame(this->m_resampleContext,
-                          oFrame,
-                          iFrame) < 0)
-        return QbPacket();
-
-    int oSamples = oFrame->nb_samples;
-    int oChannels = av_get_channel_layout_nb_channels(oLayout);
-
-    int oLineSize;
-    int frameSize = av_samples_get_buffer_size(&oLineSize,
-                                               oChannels,
-                                               oSamples,
+    // Calculate the size of the audio buffer.
+    int frameSize = av_samples_get_buffer_size(oFrame.linesize,
+                                               oFrame.channels,
+                                               oFrame.nb_samples,
                                                oFormat,
                                                1);
 
-    if (frameSize < 1)
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+
+    if (avcodec_fill_audio_frame(&oFrame,
+                                 oFrame.channels,
+                                 oFormat,
+                                 (const uint8_t *) oBuffer.constData(),
+                                 oBuffer.size(),
+                                 1) < 0) {
         return QbPacket();
+    }
 
-    QbBufferPtr oBuffer(new char[frameSize]);
-    uint8_t *oData;
-
-    if (av_samples_fill_arrays(&oData,
-                               &oLineSize,
-                               (const uint8_t *) oBuffer.data(),
-                               oChannels,
-                               oSamples,
-                               oFormat,
-                               1) < 0)
-        return QbPacket();
-
-    if (av_samples_copy(&oData,
-                        oFrame->data,
-                        0,
-                        0,
-                        oSamples,
-                        oChannels,
-                        oFormat) < 0)
+    if (swr_convert_frame(this->m_resampleContext,
+                          &oFrame,
+                          iFrame) < 0)
         return QbPacket();
 
     QbAudioPacket packet;
@@ -248,17 +237,14 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     packet.caps().channels() = oChannels;
     packet.caps().rate() = iFrame->sample_rate;
     packet.caps().layout() = channelLayouts->value(oLayout);
-    packet.caps().samples() = oSamples;
+    packet.caps().samples() = oFrame.nb_samples;
     packet.caps().align() = false;
 
     packet.buffer() = oBuffer;
-    packet.bufferSize() = frameSize;
     packet.pts() = iFrame->pts;
     packet.timeBase() = this->timeBase();
     packet.index() = this->index();
     packet.id() = this->id();
-
-    av_frame_free(&oFrame);
 
     return packet.toPacket();
 }
