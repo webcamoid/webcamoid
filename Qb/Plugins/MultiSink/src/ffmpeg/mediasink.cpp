@@ -22,6 +22,9 @@
 
 #include "mediasink.h"
 
+#define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
+//#define CODEC_COMPLIANCE FF_COMPLIANCE_EXPERIMENTAL
+
 typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 
 inline AvMediaTypeStrMap initAvMediaTypeStrMap()
@@ -44,6 +47,7 @@ MediaSink::MediaSink(QObject *parent): QObject(parent)
 {
     av_register_all();
     avcodec_register_all();
+    avformat_network_init();
 
     this->m_formatContext = NULL;
 
@@ -56,6 +60,7 @@ MediaSink::MediaSink(QObject *parent): QObject(parent)
 MediaSink::~MediaSink()
 {
     this->uninit();
+    avformat_network_deinit();
 }
 
 QString MediaSink::location() const
@@ -136,11 +141,15 @@ QStringList MediaSink::supportedCodecs(const QString &format,
     AVCodec *codec = NULL;
 
     while ((codec = av_codec_next(codec))) {
+        if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL
+            && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
+            continue;
+
         if ((type.isEmpty() || mediaTypeToStr->value(codec->type) == type)
             && av_codec_is_encoder(codec)
             && avformat_query_codec(outputFormat,
                                     codec->id,
-                                    FF_COMPLIANCE_NORMAL) > 0)
+                                    CODEC_COMPLIANCE) > 0)
             codecs << QString(codec->name);
     }
 
@@ -168,8 +177,9 @@ QString MediaSink::defaultCodec(const QString &format, const QString &type)
         return QString();
 
     AVCodec *codec = avcodec_find_encoder(codecId);
+    QString codecName(codec->name);
 
-    return QString(codec->name);
+    return codecName;
 }
 
 QString MediaSink::codecDescription(const QString &codec)
@@ -220,6 +230,18 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             for (int i = 0; int sampleRate = avCodec->supported_samplerates[i]; i++)
                 supportedSampleRates << sampleRate;
 
+        if (supportedSampleRates.isEmpty())
+            switch (avCodec->id) {
+            case AV_CODEC_ID_G723_1:
+            case AV_CODEC_ID_ADPCM_G726:
+            case AV_CODEC_ID_GSM_MS:
+            case AV_CODEC_ID_AMR_NB:
+                supportedSampleRates << 8000;
+                break;
+            default:
+                break;
+            }
+
         QStringList supportedSampleFormats;
 
         if (avCodec->sample_fmts)
@@ -241,6 +263,33 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
                 av_get_channel_layout_string(layout, 1024, channels, channelLayout);
                 supportedChannelLayouts << QString(layout);
             }
+
+        if (supportedChannelLayouts.isEmpty())
+            switch (avCodec->id) {
+            case AV_CODEC_ID_G723_1:
+            case AV_CODEC_ID_ADPCM_G722:
+            case AV_CODEC_ID_GSM_MS:
+            case AV_CODEC_ID_AMR_NB: {
+                uint64_t channelLayout = AV_CH_LAYOUT_MONO;
+                int channels = av_get_channel_layout_nb_channels(channelLayout);
+                av_get_channel_layout_string(layout, 1024, channels, channelLayout);
+                supportedChannelLayouts << QString(layout);
+            }
+                break;
+            default:
+                break;
+            }
+
+        switch (avCodec->id) {
+        case AV_CODEC_ID_G723_1:
+            codecContext->bit_rate = 6300;
+            break;
+        case AV_CODEC_ID_GSM_MS:
+            codecContext->bit_rate = 13000;
+            break;
+        default:
+            break;
+        };
 
         codecParams["supportedSampleRates"] = supportedSampleRates;
         codecParams["supportedSampleFormats"] = supportedSampleFormats;
@@ -264,7 +313,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
         codecParams["defaultChannelLayout"] = channelLayout;
 
         int channelsCount = av_get_channel_layout_nb_channels(av_get_channel_layout(channelLayout.toStdString().c_str()));
-;
+
         codecParams["defaultChannels"] = codecContext->channels?
                                              codecContext->channels:
                                              channelsCount;
@@ -491,48 +540,66 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
 
         // Update sample format.
         QVariantMap codecDefaults = this->defaultCodecParams(codec);
-        QbAudioCaps audioCaps(this->m_streamConfigs[index]["caps"].value<QbCaps>());
-        QString sampleFormat = QbAudioCaps::sampleFormatToString(audioCaps.format());
-        QStringList supportedSampleFormats = codecDefaults["supportedSampleFormats"].toStringList();
 
-        if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
-            QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
-            audioCaps.format() = QbAudioCaps::sampleFormatFromString(defaultSampleFormat);
-            audioCaps.bps() = av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
-        }
+        if (streamCaps.mimeType() == "audio/x-raw") {
+            QbAudioCaps audioCaps(streamCaps);
+            QString sampleFormat = QbAudioCaps::sampleFormatToString(audioCaps.format());
+            QStringList supportedSampleFormats = codecDefaults["supportedSampleFormats"].toStringList();
 
-        QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
-
-        if (!supportedSampleRates.isEmpty()) {
-            int sampleRate = 0;
-            int maxDiff = std::numeric_limits<int>::max();
-
-            foreach (QVariant rate, supportedSampleRates) {
-                int diff = qAbs(audioCaps.rate() - rate.toInt());
-
-                if (diff < maxDiff) {
-                    sampleRate = rate.toInt();
-
-                    if (!diff)
-                        break;
-
-                    maxDiff = diff;
-                }
+            if (!supportedSampleFormats.isEmpty()
+                && !supportedSampleFormats.contains(sampleFormat)) {
+                QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
+                audioCaps.format() = QbAudioCaps::sampleFormatFromString(defaultSampleFormat);
+                audioCaps.bps() = av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
             }
 
-            audioCaps.rate() = sampleRate;
+            QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
+
+            if (!supportedSampleRates.isEmpty()) {
+                int sampleRate = 0;
+                int maxDiff = std::numeric_limits<int>::max();
+
+                foreach (QVariant rate, supportedSampleRates) {
+                    int diff = qAbs(audioCaps.rate() - rate.toInt());
+
+                    if (diff < maxDiff) {
+                        sampleRate = rate.toInt();
+
+                        if (!diff)
+                            break;
+
+                        maxDiff = diff;
+                    }
+                }
+
+                audioCaps.rate() = sampleRate;
+            }
+
+            QString channelLayout = QbAudioCaps::channelLayoutToString(audioCaps.layout());
+            QStringList supportedChannelLayouts = codecDefaults["supportedChannelLayouts"].toStringList();
+
+            if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
+                QString defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
+                audioCaps.layout() = QbAudioCaps::channelLayoutFromString(defaultChannelLayout);
+                audioCaps.channels() = av_get_channel_layout_nb_channels(av_get_channel_layout(defaultChannelLayout.toStdString().c_str()));
+            }
+
+            streamCaps = audioCaps.toCaps();
+        } else if (streamCaps.mimeType() == "video/x-raw") {
+            QbVideoCaps videoCaps(streamCaps);
+            QString pixelFormat = QbVideoCaps::pixelFormatToString(videoCaps.format());
+            QStringList supportedPixelFormats = codecDefaults["supportedPixelFormats"].toStringList();
+
+            if (!supportedPixelFormats.isEmpty()
+                && !supportedPixelFormats.contains(pixelFormat)) {
+                QString defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
+                videoCaps.format() = QbVideoCaps::pixelFormatFromString(defaultPixelFormat);
+            }
+
+            streamCaps = videoCaps.toCaps();
         }
 
-        QString channelLayout = QbAudioCaps::channelLayoutToString(audioCaps.layout());
-        QStringList supportedChannelLayouts = codecDefaults["supportedChannelLayouts"].toStringList();
-
-        if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
-            QString defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
-            audioCaps.layout() = QbAudioCaps::channelLayoutFromString(defaultChannelLayout);
-            audioCaps.channels() = av_get_channel_layout_nb_channels(av_get_channel_layout(defaultChannelLayout.toStdString().c_str()));
-        }
-
-        this->m_streamConfigs[index]["caps"] = QVariant::fromValue(audioCaps.toCaps());
+        this->m_streamConfigs[index]["caps"] = QVariant::fromValue(streamCaps);
     } else
         codec = this->m_streamConfigs[index]["codec"].toString();
 
@@ -579,8 +646,10 @@ void MediaSink::flushStreams()
                 continue;
 
             qint64 pts = this->m_streamParams[i].audioPts();
-            int ptsDiff = stream->codec->frame_size < 1?
-                              1: stream->codec->frame_size;
+            int ptsDiff = stream->codec->codec->capabilities
+                          & AV_CODEC_CAP_VARIABLE_FRAME_SIZE?
+                              1:
+                              stream->codec->frame_size;
 
             forever {
                 AVPacket pkt;
@@ -694,7 +763,7 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
     iFrame.sample_rate = codecContext->sample_rate;
 
     if (!this->m_streamParams[streamIndex].convert(packet, &iFrame)) {
-        av_freep(&iFrame.data);
+        av_frame_unref(&iFrame);
 
         return;
     }
@@ -708,17 +777,20 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
 
     this->m_streamParams[streamIndex].addAudioSamples(&iFrame, packet.id());
 
-    int outSamples = codecContext->frame_size < 1?
+    int outSamples = codecContext->codec->capabilities
+                     & AV_CODEC_CAP_VARIABLE_FRAME_SIZE?
                         iFrame.nb_samples:
                         codecContext->frame_size;
 
-    av_freep(&iFrame.data);
+    av_frame_unref(&iFrame);
 
     forever {
         pts = this->m_streamParams[streamIndex].audioPts();
-        QByteArray buffer = this->m_streamParams[streamIndex].readAudioSamples(outSamples);
 
-        if (buffer.isEmpty())
+        uint8_t *buffer = NULL;
+        int bufferSize = this->m_streamParams[streamIndex].readAudioSamples(outSamples, &buffer);
+
+        if (bufferSize < 1)
             break;
 
         AVFrame oFrame;
@@ -733,9 +805,11 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
         if (avcodec_fill_audio_frame(&oFrame,
                                      codecContext->channels,
                                      codecContext->sample_fmt,
-                                     (const uint8_t *) buffer.constData(),
-                                     buffer.size(),
+                                     buffer,
+                                     bufferSize,
                                      1) < 0) {
+            delete [] buffer;
+
             continue;
         }
 
@@ -755,12 +829,16 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
             char error[1024];
             av_strerror(result, error, 1024);
             qDebug() << "Error: " << error;
+            delete [] buffer;
 
             break;
         }
 
-        if (!gotPacket)
+        if (!gotPacket) {
+            delete [] buffer;
+
             continue;
+        }
 
         pkt.stream_index = streamIndex;
         av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
@@ -769,6 +847,8 @@ void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
         this->m_mutex.lock();
         av_interleaved_write_frame(this->m_formatContext, &pkt);
         this->m_mutex.unlock();
+
+        delete [] buffer;
     }
 }
 
@@ -799,7 +879,7 @@ void MediaSink::writeVideoPacket(const QbVideoPacket &packet)
     oFrame.height = codecContext->height;
 
     if (!this->m_streamParams[streamIndex].convert(packet, &oFrame)) {
-        av_freep(&oFrame.data);
+        av_frame_unref(&oFrame);
 
         return;
     }
@@ -902,13 +982,28 @@ bool MediaSink::init()
         if (this->m_formatContext->oformat->flags & AVFMT_GLOBALHEADER)
             stream->codec->flags |= CODEC_FLAG_GLOBAL_HEADER;
 
+        // Use experimental codecs by default
+        stream->codec->strict_std_compliance = CODEC_COMPLIANCE;
+
         // Confihure streams parameters.
         QbCaps streamCaps = streamConfigs["caps"].value<QbCaps>();
 
         if (streamCaps.mimeType() == "audio/x-raw") {
             stream->codec->bit_rate = streamConfigs["bitRate"].toInt();
 
-            QbAudioCaps caps(streamConfigs["caps"].value<QbCaps>());
+            switch (codec->id) {
+            case AV_CODEC_ID_G723_1:
+                stream->codec->bit_rate = 6300;
+                break;
+            case AV_CODEC_ID_GSM_MS:
+                stream->codec->bit_rate = 13000;
+                break;
+            default:
+                break;
+            }
+
+            QbAudioCaps caps(streamCaps);
+
             QString sampleFormat = QbAudioCaps::sampleFormatToString(caps.format());
             stream->codec->sample_fmt = av_get_sample_fmt(sampleFormat.toStdString().c_str());
             stream->codec->sample_rate = caps.rate();
@@ -923,11 +1018,20 @@ bool MediaSink::init()
         } else if (streamCaps.mimeType() == "video/x-raw") {
             stream->codec->bit_rate = streamConfigs["bitRate"].toInt();
 
-            QbVideoCaps caps(streamConfigs["caps"].value<QbCaps>());
+            QbVideoCaps caps(streamCaps);
+
             QString pixelFormat = QbVideoCaps::pixelFormatToString(caps.format());
             stream->codec->pix_fmt = av_get_pix_fmt(pixelFormat.toStdString().c_str());
             stream->codec->width = caps.width();
             stream->codec->height = caps.height();
+
+            switch (codec->id) {
+            case AV_CODEC_ID_AMV:
+                stream->codec->height = 16 * qRound(stream->codec->height / 16.);
+                break;
+            default:
+                break;
+            }
 
             QbFrac timeBase(streamConfigs["timeBase"].value<QbFrac>());
             stream->time_base.num = timeBase.num();
@@ -959,7 +1063,8 @@ bool MediaSink::init()
             av_strerror(AVERROR(error), errorStr, 1024);
             qDebug() << "Can't open codec " << codec->name << ": " << errorStr;
             av_dict_free(&options);
-            this->uninit();
+            avformat_free_context(this->m_formatContext);
+            this->m_formatContext = NULL;
 
             return false;
         }
@@ -978,7 +1083,7 @@ bool MediaSink::init()
     if (!(this->m_formatContext->oformat->flags & AVFMT_NOFILE)) {
         int error = avio_open(&this->m_formatContext->pb,
                               this->m_location.toStdString().c_str(),
-                              AVIO_FLAG_WRITE);
+                              AVIO_FLAG_READ_WRITE);
 
         if (error < 0) {
             char errorStr[1024];
@@ -1023,6 +1128,9 @@ void MediaSink::uninit()
     if (!(this->m_formatContext->oformat->flags & AVFMT_NOFILE))
         // Close the output file.
         avio_close(this->m_formatContext->pb);
+
+    for (uint i = 0; i < this->m_formatContext->nb_streams; i++)
+        avcodec_close(this->m_formatContext->streams[i]->codec);
 
     avformat_free_context(this->m_formatContext);
     this->m_formatContext = NULL;

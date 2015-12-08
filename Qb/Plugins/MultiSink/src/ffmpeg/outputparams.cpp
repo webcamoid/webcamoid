@@ -209,23 +209,25 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
     this->m_audioBuffer = joinedBuffer;
 }
 
-QByteArray OutputParams::readAudioSamples(int samples)
+int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
 {
-    int frameSize = samples
-                    * av_get_bytes_per_sample(this->m_audioFormat)
-                    * this->m_audioChannels;
+    if (!buffer)
+        return 0;
 
-    if (this->m_audioBuffer.size() < frameSize)
-        return QByteArray();
+    int frameSize = av_samples_get_buffer_size(NULL,
+                                               this->m_audioChannels,
+                                               samples,
+                                               this->m_audioFormat,
+                                               1);
+
+    if (this->m_audioBuffer.size() < frameSize) {
+        *buffer = NULL;
+
+        return 0;
+    }
 
     // Fill output buffer.
-    int outputBufferSize = av_samples_get_buffer_size(NULL,
-                                                      this->m_audioChannels,
-                                                      samples,
-                                                      this->m_audioFormat,
-                                                      1);
-
-    QByteArray outputBuffer(outputBufferSize, Qt::Uninitialized);
+    *buffer = new uint8_t[frameSize];
 
     AVFrame outputFrame;
     memset(&outputFrame, 0, sizeof(AVFrame));
@@ -234,13 +236,16 @@ QByteArray OutputParams::readAudioSamples(int samples)
     if (avcodec_fill_audio_frame(&outputFrame,
                                  this->m_audioChannels,
                                  this->m_audioFormat,
-                                 (const uint8_t *) outputBuffer.constData(),
-                                 outputBuffer.size(),
+                                 *buffer,
+                                 frameSize,
                                  1) < 0) {
-        return QByteArray();
+        delete [] *buffer;
+        *buffer = NULL;
+
+        return 0;
     }
 
-    // Fill Audio buffer.
+    // Fill audio buffer.
     AVFrame bufferFrame;
     memset(&bufferFrame, 0, sizeof(AVFrame));
     bufferFrame.nb_samples = this->m_audioBuffer.size()
@@ -253,22 +258,55 @@ QByteArray OutputParams::readAudioSamples(int samples)
                                  (const uint8_t *) this->m_audioBuffer.constData(),
                                  this->m_audioBuffer.size(),
                                  1) < 0) {
-        return QByteArray();
+        delete [] *buffer;
+        *buffer = NULL;
+
+        return 0;
     }
 
     // Copy current audio buffer to output buffer.
     av_samples_copy(outputFrame.data,
-                    bufferFrame.data,
+                    (uint8_t * const *) bufferFrame.data,
                     0,
                     0,
                     samples,
                     this->m_audioChannels,
                     this->m_audioFormat);
 
-    this->m_audioBuffer.remove(0, frameSize);
+    // Create a new audio buffer with the remaining samples.
+    QByteArray audioBuffer(this->m_audioBuffer.size() - frameSize,
+                           Qt::Uninitialized);
+
+    // Fill new audio buffer.
+    AVFrame audioFrame;
+    memset(&audioFrame, 0, sizeof(AVFrame));
+    audioFrame.nb_samples = bufferFrame.nb_samples - samples;
+
+    if (avcodec_fill_audio_frame(&audioFrame,
+                                 this->m_audioChannels,
+                                 this->m_audioFormat,
+                                 (const uint8_t *) audioBuffer.constData(),
+                                 audioBuffer.size(),
+                                 1) < 0) {
+        delete [] *buffer;
+        *buffer = NULL;
+
+        return 0;
+    }
+
+    // Copy remaining samples to the new buffer-
+    av_samples_copy(audioFrame.data,
+                    (uint8_t * const *) bufferFrame.data,
+                    0,
+                    samples,
+                    audioFrame.nb_samples,
+                    this->m_audioChannels,
+                    this->m_audioFormat);
+
+    this->m_audioBuffer = audioBuffer;
     this->m_pts += samples;
 
-    return outputBuffer;
+    return frameSize;
 }
 
 qint64 OutputParams::audioPts() const

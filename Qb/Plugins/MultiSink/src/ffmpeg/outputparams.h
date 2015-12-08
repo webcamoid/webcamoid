@@ -25,7 +25,6 @@
 
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
     #include <libavformat/avformat.h>
     #include <libswresample/swresample.h>
     #include <libswscale/swscale.h>
@@ -54,7 +53,7 @@ class OutputParams: public QObject
         Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
 
         Q_INVOKABLE void addAudioSamples(const AVFrame *frame, qint64 id);
-        Q_INVOKABLE QByteArray readAudioSamples(int samples);
+        Q_INVOKABLE int readAudioSamples(int samples, uint8_t **buffer);
         Q_INVOKABLE qint64 audioPts() const;
 
     private:

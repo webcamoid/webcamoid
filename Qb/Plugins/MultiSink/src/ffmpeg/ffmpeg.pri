@@ -27,16 +27,6 @@ DEFINES += __STDC_CONSTANT_MACROS
 isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
-#    PKGCONFIG += \
-#        libavdevice \
-#        libavfilter \
-#        libavformat \
-#        libavcodec \
-#        libpostproc \
-#        libswresample \
-#        libswscale \
-#        libavutil
-
     PKGCONFIG += \
         libavformat \
         libavcodec \
