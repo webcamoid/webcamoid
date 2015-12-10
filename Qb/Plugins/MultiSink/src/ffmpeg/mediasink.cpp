@@ -19,6 +19,8 @@
  */
 
 #include <limits>
+#include <QSize>
+#include <QtMath>
 
 #include "mediasink.h"
 
@@ -42,6 +44,107 @@ inline AvMediaTypeStrMap initAvMediaTypeStrMap()
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeStrMap, mediaTypeToStr, (initAvMediaTypeStrMap()))
+
+typedef QVector<QbVideoCaps> VectorVideoCaps;
+
+inline VectorVideoCaps initDVSupportedCaps()
+{
+    QStringList supportedCaps;
+    supportedCaps << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1"
+                  << "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1"
+                  << "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1"
+                  << "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1"
+                  << "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1"
+                  << "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001"
+                  << "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001";
+
+    VectorVideoCaps dvSupportedCaps(supportedCaps.size());
+
+    for (int i = 0; i < dvSupportedCaps.size(); i++)
+        dvSupportedCaps[i] = supportedCaps[i];
+
+    return dvSupportedCaps;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps()))
+
+inline VectorVideoCaps initDNxHDSupportedCaps()
+{
+    QStringList supportedCaps;
+    supportedCaps << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=440000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=365000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=290000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=240000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=220000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=185000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=175000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=145000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=120000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=115000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=90000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=36000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=36000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=45000000"
+                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=75000000"
+                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=110000000"
+                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=100000000"
+                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=90000000"
+                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=84000000"
+                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=80000000"
+                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=63000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=220000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=180000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=145000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=120000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=110000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=90000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=90000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=75000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=60000000"
+                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=60000000"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=115000000"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=75000000"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=60000000"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=42000000";
+
+    VectorVideoCaps dnXhdSupportedCaps(supportedCaps.size());
+
+    for (int i = 0; i < dnXhdSupportedCaps.size(); i++)
+        dnXhdSupportedCaps[i] = supportedCaps[i];
+
+    return dnXhdSupportedCaps;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dnXhdSupportedCaps, (initDNxHDSupportedCaps()))
+
+typedef QVector<QSize> VectorSize;
+
+inline VectorSize initH261SupportedSize()
+{
+    QList<QSize> supportedSize;
+    supportedSize << QSize(352, 288)
+                  << QSize(176, 144);
+
+    return supportedSize.toVector();
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h261SupportedSize, (initH261SupportedSize()))
+
+inline VectorSize initH263SupportedSize()
+{
+    QList<QSize> supportedSize;
+    supportedSize << QSize(1408, 1152)
+                  << QSize(704, 576)
+                  << QSize(352, 288)
+                  << QSize(176, 144)
+                  << QSize(128, 96);
+
+    return supportedSize.toVector();
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h263SupportedSize, (initH263SupportedSize()))
 
 MediaSink::MediaSink(QObject *parent): QObject(parent)
 {
@@ -179,6 +282,14 @@ QString MediaSink::defaultCodec(const QString &format, const QString &type)
     AVCodec *codec = avcodec_find_encoder(codecId);
     QString codecName(codec->name);
 
+    QStringList supportedCodecs = this->supportedCodecs(format, type);
+
+    if (supportedCodecs.isEmpty())
+        return QString();
+
+    if (!supportedCodecs.contains(codecName))
+        codecName = supportedCodecs.first();
+
     return codecName;
 }
 
@@ -237,6 +348,9 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             case AV_CODEC_ID_GSM_MS:
             case AV_CODEC_ID_AMR_NB:
                 supportedSampleRates << 8000;
+                break;
+            case AV_CODEC_ID_ROQ_DPCM:
+                supportedSampleRates << 22050;
                 break;
             default:
                 break;
@@ -401,9 +515,9 @@ QVariantMap MediaSink::addStream(int streamIndex,
     outputParams["codecOptions"] = codecParams.value("codecOptions", QVariantMap());
 
     if (streamCaps.mimeType() == "audio/x-raw") {
-        int bitRate = codecParams.value("bitRate",
+        int bitRate = codecParams.value("bitrate",
                                         codecDefaults["defaultBitRate"]).toInt();
-        outputParams["bitRate"] = bitRate > 0?
+        outputParams["bitrate"] = bitRate > 0?
                                       bitRate:
                                       codecDefaults["defaultBitRate"].toInt();
 
@@ -451,9 +565,9 @@ QVariantMap MediaSink::addStream(int streamIndex,
         outputParams["caps"] = QVariant::fromValue(audioCaps.toCaps());
         outputParams["timeBase"] = QVariant::fromValue(QbFrac(1, audioCaps.rate()));
     } else if (streamCaps.mimeType() == "video/x-raw") {
-        int bitRate = codecParams.value("bitRate",
+        int bitRate = codecParams.value("bitrate",
                                         codecDefaults["defaultBitRate"]).toInt();
-        outputParams["bitRate"] = bitRate > 0?
+        outputParams["bitrate"] = bitRate > 0?
                                       bitRate:
                                       codecDefaults["defaultBitRate"].toInt();
         int gop = codecParams.value("gop",
@@ -491,6 +605,38 @@ QVariantMap MediaSink::addStream(int streamIndex,
             }
 
             videoCaps.fps() = frameRate;
+        }
+
+        AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
+
+        switch (avCodec->id) {
+        case AV_CODEC_ID_H261:
+            videoCaps = this->nearestH261Caps(videoCaps);
+            break;
+        case AV_CODEC_ID_H263:
+            videoCaps = this->nearestH263Caps(videoCaps);
+            break;
+        case AV_CODEC_ID_DVVIDEO:
+            videoCaps = this->nearestDVCaps(videoCaps);
+            break;
+        case AV_CODEC_ID_DNXHD:
+            videoCaps.setProperty("bitrate", outputParams["bitrate"]);
+            videoCaps = this->nearestDNxHDCaps(videoCaps);
+            outputParams["bitrate"] = videoCaps.property("bitrate");
+            videoCaps.setProperty("bitrate", QVariant());
+            break;
+        case AV_CODEC_ID_ROQ:
+            videoCaps.width() = qPow(2, qRound(qLn(videoCaps.width()) / qLn(2)));
+            videoCaps.height() = qPow(2, qRound(qLn(videoCaps.height()) / qLn(2)));
+            videoCaps.fps() = QbFrac(qRound(videoCaps.fps().value()), 1);
+            break;
+        case AV_CODEC_ID_RV10:
+            videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
+        case AV_CODEC_ID_AMV:
+            videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
+            break;
+        default:
+            break;
         }
 
         outputParams["caps"] = QVariant::fromValue(videoCaps.toCaps());
@@ -596,6 +742,60 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 videoCaps.format() = QbVideoCaps::pixelFormatFromString(defaultPixelFormat);
             }
 
+            QVariantList supportedFrameRates = codecDefaults["supportedFrameRates"].toList();
+
+            if (!supportedFrameRates.isEmpty()) {
+                QbFrac frameRate;
+                qreal maxDiff = std::numeric_limits<qreal>::max();
+
+                foreach (QVariant rate, supportedFrameRates) {
+                    qreal diff = qAbs(videoCaps.fps().value() - rate.value<QbFrac>().value());
+
+                    if (diff < maxDiff) {
+                        frameRate = rate.value<QbFrac>();
+
+                        if (!diff)
+                            break;
+
+                        maxDiff = diff;
+                    }
+                }
+
+                videoCaps.fps() = frameRate;
+            }
+
+            AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
+
+            switch (avCodec->id) {
+            case AV_CODEC_ID_H261:
+                videoCaps = this->nearestH261Caps(videoCaps);
+                break;
+            case AV_CODEC_ID_H263:
+                videoCaps = this->nearestH263Caps(videoCaps);
+                break;
+            case AV_CODEC_ID_DVVIDEO:
+                videoCaps = this->nearestDVCaps(videoCaps);
+                break;
+            case AV_CODEC_ID_DNXHD:
+                videoCaps.setProperty("bitrate", this->m_streamConfigs[index]["bitrate"]);
+                videoCaps = this->nearestDNxHDCaps(videoCaps);
+                this->m_streamConfigs[index]["bitrate"] = videoCaps.property("bitrate");
+                videoCaps.setProperty("bitrate", QVariant());
+                break;
+            case AV_CODEC_ID_ROQ:
+                videoCaps.width() = qPow(2, qRound(qLn(videoCaps.width()) / qLn(2)));
+                videoCaps.height() = qPow(2, qRound(qLn(videoCaps.height()) / qLn(2)));
+                videoCaps.fps() = QbFrac(qRound(videoCaps.fps().value()), 1);
+                break;
+            case AV_CODEC_ID_RV10:
+                videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
+            case AV_CODEC_ID_AMV:
+                videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
+                break;
+            default:
+                break;
+            }
+
             streamCaps = videoCaps.toCaps();
         }
 
@@ -607,9 +807,9 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
 
     if ((streamCaps.mimeType() == "audio/x-raw"
          || streamCaps.mimeType() == "video/x-raw")
-        && codecParams.contains("bitRate")) {
-        int bitRate = codecParams["bitRate"].toInt();
-        this->m_streamConfigs[index]["bitRate"] = bitRate > 0?
+        && codecParams.contains("bitrate")) {
+        int bitRate = codecParams["bitrate"].toInt();
+        this->m_streamConfigs[index]["bitrate"] = bitRate > 0?
                                                       bitRate:
                                                       codecDefaults["defaultBitRate"].toInt();
         streamChanged |= true;
@@ -705,6 +905,103 @@ void MediaSink::flushStreams()
             }
         }
     }
+}
+
+QbVideoCaps MediaSink::nearestDVCaps(const QbVideoCaps &caps) const
+{
+    QbVideoCaps nearestCaps;
+    qreal q = -1.;
+
+    foreach (QbVideoCaps sCaps, *dvSupportedCaps) {
+        qreal dw = sCaps.width() - caps.width();
+        qreal dh = sCaps.height() - caps.height();
+        qreal df = sCaps.fps().value() - caps.fps().value();
+        qreal k = dw * dw + dh * dh + df * df;
+
+        if (q < 0. || k < q) {
+            nearestCaps = sCaps;
+            q = k;
+        } else if (k == q && sCaps.format() == caps.format())
+            nearestCaps = sCaps;
+    }
+
+    return nearestCaps;
+}
+
+QbVideoCaps MediaSink::nearestDNxHDCaps(const QbVideoCaps &caps) const
+{
+    QbVideoCaps nearestCaps;
+    qreal q = -1.;
+
+    foreach (QbVideoCaps sCaps, *dnXhdSupportedCaps) {
+        qreal dw = sCaps.width() - caps.width();
+        qreal dh = sCaps.height() - caps.height();
+        QbFrac fps = sCaps.fps().isValid()? sCaps.fps(): caps.fps();
+        qreal df = fps.value() - caps.fps().value();
+        qreal db = sCaps.property("bitrate").toReal() - caps.property("bitrate").toReal();
+        qreal k = dw * dw + dh * dh + df * df + db * db;
+
+        if (q < 0. || k < q) {
+            nearestCaps = sCaps;
+            nearestCaps.fps() = fps;
+            q = k;
+        } else if (k == q && sCaps.format() == caps.format())
+            nearestCaps = sCaps;
+    }
+
+    return nearestCaps;
+}
+
+QbVideoCaps MediaSink::nearestH261Caps(const QbVideoCaps &caps) const
+{
+    QSize nearestSize;
+    qreal q = -1.;
+
+    foreach (QSize size, *h261SupportedSize) {
+        qreal dw = size.width() - caps.width();
+        qreal dh = size.height() - caps.height();
+        qreal k = dw * dw + dh * dh;
+
+        if (q < 0. || k < q) {
+            nearestSize = size;
+            q = k;
+
+            if (k == 0.)
+                break;
+        }
+    }
+
+    QbVideoCaps nearestCaps(caps);
+    nearestCaps.width() = nearestSize.width();
+    nearestCaps.height() = nearestSize.height();
+
+    return nearestCaps;
+}
+
+QbVideoCaps MediaSink::nearestH263Caps(const QbVideoCaps &caps) const
+{
+    QSize nearestSize;
+    qreal q = -1.;
+
+    foreach (QSize size, *h263SupportedSize) {
+        qreal dw = size.width() - caps.width();
+        qreal dh = size.height() - caps.height();
+        qreal k = dw * dw + dh * dh;
+
+        if (q < 0. || k < q) {
+            nearestSize = size;
+            q = k;
+
+            if (k == 0.)
+                break;
+        }
+    }
+
+    QbVideoCaps nearestCaps(caps);
+    nearestCaps.width() = nearestSize.width();
+    nearestCaps.height() = nearestSize.height();
+
+    return nearestCaps;
 }
 
 void MediaSink::setLocation(const QString &location)
@@ -989,7 +1286,7 @@ bool MediaSink::init()
         QbCaps streamCaps = streamConfigs["caps"].value<QbCaps>();
 
         if (streamCaps.mimeType() == "audio/x-raw") {
-            stream->codec->bit_rate = streamConfigs["bitRate"].toInt();
+            stream->codec->bit_rate = streamConfigs["bitrate"].toInt();
 
             switch (codec->id) {
             case AV_CODEC_ID_G723_1:
@@ -1016,22 +1313,44 @@ bool MediaSink::init()
             stream->time_base.num = timeBase.num();
             stream->time_base.den = timeBase.den();
         } else if (streamCaps.mimeType() == "video/x-raw") {
-            stream->codec->bit_rate = streamConfigs["bitRate"].toInt();
-
-            QbVideoCaps caps(streamCaps);
-
-            QString pixelFormat = QbVideoCaps::pixelFormatToString(caps.format());
-            stream->codec->pix_fmt = av_get_pix_fmt(pixelFormat.toStdString().c_str());
-            stream->codec->width = caps.width();
-            stream->codec->height = caps.height();
+            QbVideoCaps videoCaps(streamCaps);
 
             switch (codec->id) {
+            case AV_CODEC_ID_H261:
+                videoCaps = this->nearestH261Caps(videoCaps);
+                break;
+            case AV_CODEC_ID_H263:
+                videoCaps = this->nearestH263Caps(videoCaps);
+                break;
+            case AV_CODEC_ID_DVVIDEO:
+                videoCaps = this->nearestDVCaps(videoCaps);
+                break;
+            case AV_CODEC_ID_DNXHD:
+                videoCaps.setProperty("bitrate", streamConfigs["bitrate"]);
+                videoCaps = this->nearestDNxHDCaps(videoCaps);
+                streamConfigs["bitrate"] = videoCaps.property("bitrate");
+                videoCaps.setProperty("bitrate", QVariant());
+                break;
+            case AV_CODEC_ID_ROQ:
+                videoCaps.width() = qPow(2, qRound(qLn(videoCaps.width()) / qLn(2)));
+                videoCaps.height() = qPow(2, qRound(qLn(videoCaps.height()) / qLn(2)));
+                videoCaps.fps() = QbFrac(qRound(videoCaps.fps().value()), 1);
+                break;
+            case AV_CODEC_ID_RV10:
+                videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
             case AV_CODEC_ID_AMV:
-                stream->codec->height = 16 * qRound(stream->codec->height / 16.);
+                videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
                 break;
             default:
                 break;
             }
+
+            stream->codec->bit_rate = streamConfigs["bitrate"].toInt();
+
+            QString pixelFormat = QbVideoCaps::pixelFormatToString(videoCaps.format());
+            stream->codec->pix_fmt = av_get_pix_fmt(pixelFormat.toStdString().c_str());
+            stream->codec->width = videoCaps.width();
+            stream->codec->height = videoCaps.height();
 
             QbFrac timeBase(streamConfigs["timeBase"].value<QbFrac>());
             stream->time_base.num = timeBase.num();
@@ -1089,7 +1408,12 @@ bool MediaSink::init()
             char errorStr[1024];
             av_strerror(AVERROR(error), errorStr, 1024);
             qDebug() << "Can't open output file: " << errorStr;
-            this->uninit();
+
+            for (uint i = 0; i < this->m_formatContext->nb_streams; i++)
+                avcodec_close(this->m_formatContext->streams[i]->codec);
+
+            avformat_free_context(this->m_formatContext);
+            this->m_formatContext = NULL;
 
             return false;
         }
@@ -1102,7 +1426,16 @@ bool MediaSink::init()
         char errorStr[1024];
         av_strerror(AVERROR(error), errorStr, 1024);
         qDebug() << "Can't write header: " << errorStr;
-        this->uninit();
+
+        if (!(this->m_formatContext->oformat->flags & AVFMT_NOFILE))
+            // Close the output file.
+            avio_close(this->m_formatContext->pb);
+
+        for (uint i = 0; i < this->m_formatContext->nb_streams; i++)
+            avcodec_close(this->m_formatContext->streams[i]->codec);
+
+        avformat_free_context(this->m_formatContext);
+        this->m_formatContext = NULL;
 
         return false;
     }

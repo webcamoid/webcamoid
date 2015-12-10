@@ -77,6 +77,10 @@ class MediaSink: public QObject
         QMutex m_mutex;
 
         void flushStreams();
+        QbVideoCaps nearestDVCaps(const QbVideoCaps &caps) const;
+        QbVideoCaps nearestDNxHDCaps(const QbVideoCaps &caps) const;
+        QbVideoCaps nearestH261Caps(const QbVideoCaps &caps) const;
+        QbVideoCaps nearestH263Caps(const QbVideoCaps &caps) const;
 
     signals:
         void locationChanged(const QString &location);

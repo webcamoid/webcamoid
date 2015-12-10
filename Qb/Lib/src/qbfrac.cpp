@@ -318,3 +318,17 @@ QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen)
     return QbFrac(fracNum.d->m_num * fracDen.d->m_den,
                   fracNum.d->m_den * fracDen.d->m_num);
 }
+
+QbFrac operator +(const QbFrac &frac1, const QbFrac &frac2)
+{
+    return QbFrac(frac1.d->m_num * frac2.d->m_den
+                  + frac2.d->m_num * frac1.d->m_den,
+                  frac1.d->m_den * frac2.d->m_den);
+}
+
+QbFrac operator -(const QbFrac &frac1, const QbFrac &frac2)
+{
+    return QbFrac(frac1.d->m_num * frac2.d->m_den
+                  - frac2.d->m_num * frac1.d->m_den,
+                  frac1.d->m_den * frac2.d->m_den);
+}

@@ -44,7 +44,7 @@ GroupBox {
     {
         streamOptionsChanged(outputIndex,
                              {codec: codec,
-                              bitRate: bitrate,
+                              bitrate: bitrate,
                               gop: videoGOP,
                               codecOptions: codecOptions})
     }

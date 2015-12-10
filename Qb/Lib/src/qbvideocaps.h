@@ -277,6 +277,7 @@ class QbVideoCaps: public QObject
         void resetWidth();
         void resetHeight();
         void resetFps();
+        void clear();
 
     friend QDebug operator <<(QDebug debug, const QbVideoCaps &caps);
     friend QDataStream &operator >>(QDataStream &istream, QbVideoCaps &caps);

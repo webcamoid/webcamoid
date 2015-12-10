@@ -104,8 +104,8 @@ ColumnLayout {
 
                 streamOptions.codec = streamConfig.codec
 
-                if (streamConfig.bitRate)
-                    streamOptions.bitrate = streamConfig.bitRate
+                if (streamConfig.bitrate)
+                    streamOptions.bitrate = streamConfig.bitrate
 
                 if (streamConfig.gop)
                     streamOptions.videoGOP = streamConfig.gop

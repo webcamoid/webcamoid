@@ -45,11 +45,12 @@ QbVideoCaps::QbVideoCaps(QObject *parent):
 QbVideoCaps::QbVideoCaps(const QVariantMap &caps)
 {
     this->d = new QbVideoCapsPrivate();
-    this->d->m_format = caps["format"].value<PixelFormat>();
-    this->d->m_isValid = this->d->m_format == QbVideoCaps::Format_none? false: false;
-    this->d->m_width = caps["width"].toInt();
-    this->d->m_height = caps["height"].toInt();
-    this->d->m_fps = caps["fps"].value<QbFrac>();
+    this->d->m_isValid = true;
+    this->d->m_format = QbVideoCaps::Format_none;
+    this->d->m_width = 0;
+    this->d->m_height = 0;
+
+    this->fromMap(caps);
 }
 
 QbVideoCaps::QbVideoCaps(const QString &caps)
@@ -59,7 +60,8 @@ QbVideoCaps::QbVideoCaps(const QString &caps)
     this->d->m_format = QbVideoCaps::Format_none;
     this->d->m_width = 0;
     this->d->m_height = 0;
-    *this = caps;
+
+    this->fromString(caps);
 }
 
 QbVideoCaps::QbVideoCaps(const QbCaps &caps)
@@ -68,10 +70,7 @@ QbVideoCaps::QbVideoCaps(const QbCaps &caps)
 
     if (caps.mimeType() == "video/x-raw") {
         this->d->m_isValid = caps.isValid();
-        this->d->m_format = this->pixelFormatFromString(caps.property("format").toString());
-        this->d->m_width = caps.property("width").toInt();
-        this->d->m_height = caps.property("height").toInt();
-        this->d->m_fps = caps.property("fps").toString();
+        this->update(caps);
     } else {
         this->d->m_isValid = false;
         this->d->m_format = QbVideoCaps::Format_none;
@@ -89,6 +88,11 @@ QbVideoCaps::QbVideoCaps(const QbVideoCaps &other):
     this->d->m_width = other.d->m_width;
     this->d->m_height = other.d->m_height;
     this->d->m_fps = other.d->m_fps;
+
+    QList<QByteArray> properties = other.dynamicPropertyNames();
+
+    foreach (QByteArray property, properties)
+        this->setProperty(property, other.property(property));
 }
 
 QbVideoCaps::~QbVideoCaps()
@@ -104,6 +108,13 @@ QbVideoCaps &QbVideoCaps::operator =(const QbVideoCaps &other)
         this->d->m_width = other.d->m_width;
         this->d->m_height = other.d->m_height;
         this->d->m_fps = other.d->m_fps;
+
+        this->clear();
+
+        QList<QByteArray> properties = other.dynamicPropertyNames();
+
+        foreach (QByteArray property, properties)
+            this->setProperty(property, other.property(property));
     }
 
     return *this;
@@ -113,10 +124,7 @@ QbVideoCaps &QbVideoCaps::operator =(const QbCaps &caps)
 {
     if (caps.mimeType() == "video/x-raw") {
         this->d->m_isValid = caps.isValid();
-        this->d->m_format = this->pixelFormatFromString(caps.property("format").toString());
-        this->d->m_width = caps.property("width").toInt();
-        this->d->m_height = caps.property("height").toInt();
-        this->d->m_fps = caps.property("fps").toString();
+        this->update(caps);
     } else {
         this->d->m_isValid = false;
         this->d->m_format = QbVideoCaps::Format_none;
@@ -135,11 +143,7 @@ QbVideoCaps &QbVideoCaps::operator =(const QString &caps)
 
 bool QbVideoCaps::operator ==(const QbVideoCaps &other) const
 {
-    if (this->d->m_isValid == other.d->m_isValid
-        && this->d->m_format == other.d->m_format
-        && this->d->m_width == other.d->m_width
-        && this->d->m_height == other.d->m_height
-        && this->d->m_fps == other.d->m_fps)
+    if (this->toString() == other.toString())
         return true;
 
     return false;
@@ -207,11 +211,25 @@ QbFrac &QbVideoCaps::fps()
 
 QbVideoCaps &QbVideoCaps::fromMap(const QVariantMap &caps)
 {
-    this->d->m_format = caps["format"].value<PixelFormat>();
-    this->d->m_isValid = this->d->m_format == QbVideoCaps::Format_none? false: false;
-    this->d->m_width = caps["width"].toInt();
-    this->d->m_height = caps["height"].toInt();
-    this->d->m_fps = caps["fps"].value<QbFrac>();
+    QList<QByteArray> properties = this->dynamicPropertyNames();
+
+    foreach (QByteArray property, properties)
+        this->setProperty(property, QVariant());
+
+    if (!caps.contains("mimeType")) {
+        this->d->m_isValid = false;
+
+        return *this;
+    }
+
+    foreach (QString key, caps.keys())
+        if (key == "mimeType") {
+            this->d->m_isValid = caps[key].toString() == "video/x-raw";
+
+            if (!this->d->m_isValid)
+                return *this;
+        } else
+            this->setProperty(key.trimmed().toStdString().c_str(), caps[key]);
 
     return *this;
 }
@@ -224,10 +242,15 @@ QbVideoCaps &QbVideoCaps::fromString(const QString &caps)
 QVariantMap QbVideoCaps::toMap() const
 {
     QVariantMap map;
-    map["format"] = this->d->m_format;
+    map["format"] = this->pixelFormatToString(this->d->m_format);
     map["width"] = this->d->m_width;
     map["height"] = this->d->m_height;
     map["fps"] = QVariant::fromValue(this->d->m_fps);
+
+    foreach (QByteArray property, this->dynamicPropertyNames()) {
+        QString key = QString::fromUtf8(property.constData());
+        map[key] = this->property(property);
+    }
 
     return map;
 }
@@ -239,14 +262,27 @@ QString QbVideoCaps::toString() const
 
     QString format = this->pixelFormatToString(this->d->m_format);
 
-    return QString("video/x-raw,"
-                   "format=%1,"
-                   "width=%2,"
-                   "height=%3,"
-                   "fps=%4").arg(format)
-                            .arg(this->d->m_width)
-                            .arg(this->d->m_height)
-                            .arg(this->d->m_fps.toString());
+    QString caps = QString("video/x-raw,"
+                           "format=%1,"
+                           "width=%2,"
+                           "height=%3,"
+                           "fps=%4").arg(format)
+                                    .arg(this->d->m_width)
+                                    .arg(this->d->m_height)
+                                    .arg(this->d->m_fps.toString());
+
+    QStringList properties;
+
+    foreach (QByteArray property, this->dynamicPropertyNames())
+        properties << QString::fromUtf8(property.constData());
+
+    properties.sort();
+
+    foreach (QString property, properties)
+        caps.append(QString(",%1=%2").arg(property)
+                                     .arg(this->property(property.toStdString().c_str()).toString()));
+
+    return caps;
 }
 
 QbVideoCaps &QbVideoCaps::update(const QbCaps &caps)
@@ -254,17 +290,21 @@ QbVideoCaps &QbVideoCaps::update(const QbCaps &caps)
     if (caps.mimeType() != "video/x-raw")
         return *this;
 
-    if (caps.contains("format"))
-        this->d->m_format = this->pixelFormatFromString(caps.property("format").toString());
+    this->clear();
 
-    if (caps.contains("width"))
-        this->d->m_width = caps.property("width").toInt();
+    QList<QByteArray> properties = caps.dynamicPropertyNames();
 
-    if (caps.contains("height"))
-        this->d->m_height = caps.property("height").toInt();
-
-    if (caps.contains("fps"))
-        this->d->m_fps = caps.property("fps").toString();
+    foreach (QByteArray property, properties)
+        if (property == "format")
+            this->d->m_format = this->pixelFormatFromString(caps.property(property).toString());
+        else if (property == "width")
+            this->d->m_width = caps.property(property).toInt();
+        else if (property == "height")
+            this->d->m_height = caps.property(property).toInt();
+        else if (property == "fps")
+            this->d->m_fps = caps.property("fps").toString();
+        else
+            this->setProperty(property, caps.property(property));
 
     return *this;
 }
@@ -350,6 +390,14 @@ void QbVideoCaps::resetHeight()
 void QbVideoCaps::resetFps()
 {
     this->setFps(QbFrac());
+}
+
+void QbVideoCaps::clear()
+{
+    QList<QByteArray> properties = this->dynamicPropertyNames();
+
+    foreach (QByteArray property, properties)
+        this->setProperty(property.constData(), QVariant());
 }
 
 QDebug operator <<(QDebug debug, const QbVideoCaps &caps)

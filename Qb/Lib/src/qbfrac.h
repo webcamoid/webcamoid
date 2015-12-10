@@ -91,6 +91,8 @@ class QbFrac: public QObject
     friend QDataStream &operator <<(QDataStream &ostream, const QbFrac &frac);
     friend QbFrac operator *(int number, const QbFrac &frac);
     friend QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen);
+    friend QbFrac operator +(const QbFrac &frac1, const QbFrac &frac2);
+    friend QbFrac operator -(const QbFrac &frac1, const QbFrac &frac2);
 };
 
 QDebug operator <<(QDebug debug, const QbFrac &frac);
@@ -99,6 +101,8 @@ QDataStream &operator <<(QDataStream &ostream, const QbFrac &frac);
 QbFrac operator *(int number, const QbFrac &frac);
 QbFrac operator /(int number, const QbFrac &frac);
 QbFrac operator /(const QbFrac &fracNum, const QbFrac &fracDen);
+QbFrac operator +(const QbFrac &frac1, const QbFrac &frac2);
+QbFrac operator -(const QbFrac &frac1, const QbFrac &frac2);
 
 Q_DECLARE_METATYPE(QbFrac)
 
