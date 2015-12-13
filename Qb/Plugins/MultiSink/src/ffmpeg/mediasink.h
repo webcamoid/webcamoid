@@ -81,6 +81,8 @@ class MediaSink: public QObject
         QbVideoCaps nearestDNxHDCaps(const QbVideoCaps &caps) const;
         QbVideoCaps nearestH261Caps(const QbVideoCaps &caps) const;
         QbVideoCaps nearestH263Caps(const QbVideoCaps &caps) const;
+        QbVideoCaps nearestGXFCaps(const QbVideoCaps &caps) const;
+        QbAudioCaps nearestSWFCaps(const QbAudioCaps &caps) const;
 
     signals:
         void locationChanged(const QString &location);
