@@ -50,10 +50,12 @@ typedef QVector<QbVideoCaps> VectorVideoCaps;
 inline VectorVideoCaps initDVSupportedCaps()
 {
     QStringList supportedCaps;
-    supportedCaps << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1"
+
+    // Digital Video doesn't support height > 576 yet.
+    supportedCaps /*<< "video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1"
                   << "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001"
                   << "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1"*/
                   << "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1"
                   << "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1"
                   << "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1"
@@ -273,6 +275,12 @@ QStringList MediaSink::supportedCodecs(const QString &format,
             && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
             continue;
 
+        // Real Video codecs are not supported by Matroska.
+        if (!strcmp(outputFormat->name, "matroska"))
+            if (codec->id == AV_CODEC_ID_RV10
+                || codec->id == AV_CODEC_ID_RV20)
+                continue;
+
         if ((type.isEmpty() || mediaTypeToStr->value(codec->type) == type)
             && av_codec_is_encoder(codec)
             && avformat_query_codec(outputFormat,
@@ -402,6 +410,18 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             case AV_CODEC_ID_ROQ_DPCM:
                 supportedSampleRates << 22050;
                 break;
+            case AV_CODEC_ID_ADPCM_SWF:
+                supportedSampleRates << 44100
+                                     << 22050
+                                     << 11025;
+                break;
+            case AV_CODEC_ID_NELLYMOSER:
+                supportedSampleRates << 8000
+                                     << 11025
+                                     << 16000
+                                     << 22050
+                                     << 44100;
+                break;
             default:
                 break;
             }
@@ -430,10 +450,12 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
 
         if (supportedChannelLayouts.isEmpty())
             switch (avCodec->id) {
-            case AV_CODEC_ID_G723_1:
+            case AV_CODEC_ID_AMR_NB:
             case AV_CODEC_ID_ADPCM_G722:
+            case AV_CODEC_ID_ADPCM_G726:
+            case AV_CODEC_ID_G723_1:
             case AV_CODEC_ID_GSM_MS:
-            case AV_CODEC_ID_AMR_NB: {
+            case AV_CODEC_ID_NELLYMOSER: {
                 uint64_t channelLayout = AV_CH_LAYOUT_MONO;
                 int channels = av_get_channel_layout_nb_channels(channelLayout);
                 av_get_channel_layout_string(layout, 1024, channels, channelLayout);
@@ -493,6 +515,14 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
 
                 supportedFrameRates << QVariant::fromValue(QbFrac(frameRate.num, frameRate.den));
             }
+
+        switch (avCodec->id) {
+        case AV_CODEC_ID_ROQ:
+            supportedFrameRates << QVariant::fromValue(QbFrac(30, 1));
+            break;
+        default:
+            break;
+        }
 
         codecParams["supportedFrameRates"] = supportedFrameRates;
 
