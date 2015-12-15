@@ -203,6 +203,11 @@ QString MediaSink::outputFormat() const
     return this->m_outputFormat;
 }
 
+QVariantMap MediaSink::formatOptions() const
+{
+    return this->m_formatOptions;
+}
+
 QVariantList MediaSink::streams() const
 {
     QVariantList streams;
@@ -576,6 +581,9 @@ QVariantMap MediaSink::addStream(int streamIndex,
 
     QVariantMap outputParams;
 
+    if (codecParams.contains("label"))
+        outputParams["label"] = codecParams["label"];
+
     outputParams["index"] = streamIndex;
     QString codec;
 
@@ -766,6 +774,9 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
 
     if (outputFormat.isEmpty())
         return QVariantMap();
+
+    if (codecParams.contains("label"))
+        this->m_streamConfigs[index]["label"] = codecParams["label"];
 
     QbCaps streamCaps = this->m_streamConfigs[index]["caps"].value<QbCaps>();
     QString codec;
@@ -1187,6 +1198,15 @@ void MediaSink::setOutputFormat(const QString &outputFormat)
     emit this->outputFormatChanged(outputFormat);
 }
 
+void MediaSink::setFormatOptions(const QVariantMap &formatOptions)
+{
+    if (this->m_formatOptions == formatOptions)
+        return;
+
+    this->m_formatOptions = formatOptions;
+    emit this->formatOptionsChanged(formatOptions);
+}
+
 void MediaSink::resetLocation()
 {
     this->setLocation("");
@@ -1195,6 +1215,11 @@ void MediaSink::resetLocation()
 void MediaSink::resetOutputFormat()
 {
     this->setOutputFormat("");
+}
+
+void MediaSink::resetFormatOptions()
+{
+    this->setFormatOptions(QVariantMap());
 }
 
 void MediaSink::writeAudioPacket(const QbAudioPacket &packet)
@@ -1587,19 +1612,18 @@ bool MediaSink::init()
 
         // Open stream.
         int error = avcodec_open2(stream->codec, codec, &options);
+        av_dict_free(&options);
 
         if (error < 0) {
             char errorStr[1024];
             av_strerror(AVERROR(error), errorStr, 1024);
             qDebug() << "Can't open codec " << codec->name << ": " << errorStr;
-            av_dict_free(&options);
             avformat_free_context(this->m_formatContext);
             this->m_formatContext = NULL;
 
             return false;
         }
 
-        av_dict_free(&options);
         this->m_streamParams << OutputParams(configs["index"].toInt());
     }
 
@@ -1630,8 +1654,22 @@ bool MediaSink::init()
         }
     }
 
+
+    // Set codec options.
+    AVDictionary *formatOptions = NULL;
+
+    foreach (QString key, this->m_formatOptions.keys()) {
+        QString value = this->m_formatOptions[key].toString();
+
+        av_dict_set(&formatOptions,
+                    key.toStdString().c_str(),
+                    value.toStdString().c_str(),
+                    0);
+    }
+
     // Write file header.
-    int error = avformat_write_header(this->m_formatContext, NULL);
+    int error = avformat_write_header(this->m_formatContext, &formatOptions);
+    av_dict_free(&formatOptions);
 
     if (error < 0) {
         char errorStr[1024];

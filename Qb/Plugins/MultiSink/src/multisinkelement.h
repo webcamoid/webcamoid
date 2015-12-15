@@ -44,6 +44,11 @@ class MultiSinkElement: public QbElement
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
+    Q_PROPERTY(QVariantMap formatOptions
+               READ formatOptions
+               WRITE setFormatOptions
+               RESET resetFormatOptions
+               NOTIFY formatOptionsChanged)
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
@@ -62,6 +67,7 @@ class MultiSinkElement: public QbElement
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
+        Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE bool showFormatOptions() const;
 
@@ -93,6 +99,7 @@ class MultiSinkElement: public QbElement
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
+        void formatOptionsChanged(const QVariantMap &formatOptions);
         void streamsChanged(const QVariantList &streams);
         void showFormatOptionsChanged(bool showFormatOptions);
         void streamUpdated(int index);
@@ -100,9 +107,11 @@ class MultiSinkElement: public QbElement
     public slots:
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
+        void setFormatOptions(const QVariantMap &formatOptions);
         void setShowFormatOptions(bool showFormatOptions);
         void resetLocation();
         void resetOutputFormat();
+        void resetFormatOptions();
         void resetShowFormatOptions();
         void clearStreams();
 

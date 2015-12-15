@@ -33,6 +33,10 @@ MultiSinkElement::MultiSinkElement(): QbElement()
                      this,
                      &MultiSinkElement::outputFormatChanged);
     QObject::connect(&this->m_mediaSink,
+                     &MediaSink::formatOptionsChanged,
+                     this,
+                     &MultiSinkElement::formatOptionsChanged);
+    QObject::connect(&this->m_mediaSink,
                      &MediaSink::streamsChanged,
                      this,
                      &MultiSinkElement::streamsChanged);
@@ -87,6 +91,11 @@ QString MultiSinkElement::location() const
 QString MultiSinkElement::outputFormat() const
 {
     return this->m_mediaSink.outputFormat();
+}
+
+QVariantMap MultiSinkElement::formatOptions() const
+{
+    return this->m_mediaSink.formatOptions();
 }
 
 QVariantList MultiSinkElement::streams() const
@@ -172,12 +181,17 @@ void MultiSinkElement::stateChange(QbElement::ElementState from,
 
 void MultiSinkElement::setLocation(const QString &location)
 {
-    return this->m_mediaSink.setLocation(location);
+    this->m_mediaSink.setLocation(location);
 }
 
 void MultiSinkElement::setOutputFormat(const QString &outputFormat)
 {
-    return this->m_mediaSink.setOutputFormat(outputFormat);
+    this->m_mediaSink.setOutputFormat(outputFormat);
+}
+
+void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
+{
+    this->m_mediaSink.setFormatOptions(formatOptions);
 }
 
 void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
@@ -191,12 +205,17 @@ void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
 
 void MultiSinkElement::resetLocation()
 {
-    return this->m_mediaSink.resetLocation();
+    this->m_mediaSink.resetLocation();
 }
 
 void MultiSinkElement::resetOutputFormat()
 {
-    return this->m_mediaSink.resetOutputFormat();
+    this->m_mediaSink.resetOutputFormat();
+}
+
+void MultiSinkElement::resetFormatOptions()
+{
+    this->m_mediaSink.resetFormatOptions();
 }
 
 void MultiSinkElement::resetShowFormatOptions()
@@ -206,7 +225,7 @@ void MultiSinkElement::resetShowFormatOptions()
 
 void MultiSinkElement::clearStreams()
 {
-    return this->m_mediaSink.clearStreams();
+    this->m_mediaSink.clearStreams();
 }
 
 QbPacket MultiSinkElement::iStream(const QbPacket &packet)

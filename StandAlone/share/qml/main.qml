@@ -81,12 +81,20 @@ ApplicationWindow {
         id: recordingNotice
         color: "black"
         width: 128
-        height: 48
+        height: 60
         radius: 4
         anchors.top: parent.top
         anchors.topMargin: 16
         anchors.horizontalCenter: parent.horizontalCenter
         visible: false
+
+        onVisibleChanged: {
+            if (visible) {
+                recordingTimer.startTime = new Date().getTime()
+                recordingTimer.start()
+            } else
+                recordingTimer.stop()
+        }
 
         Image {
             id: recordingIcon
@@ -96,10 +104,8 @@ ApplicationWindow {
             anchors.leftMargin: 8
             anchors.top: parent.top
             anchors.topMargin: 8
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
+            anchors.bottom: recordingTime.top
         }
-
         Label {
             text: qsTr("Recording")
             color: "white"
@@ -112,8 +118,45 @@ ApplicationWindow {
             anchors.rightMargin: 8
             anchors.top: parent.top
             anchors.topMargin: 8
+            anchors.bottom: recordingTime.top
+        }
+        Label {
+            id: recordingTime
+            color: "white"
+            font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            anchors.left: parent.left
+            anchors.leftMargin: 8
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
+        }
+
+        Timer {
+            id: recordingTimer
+            interval: 500
+            repeat: true
+
+            property double startTime: new Date().getTime()
+
+            function pad(x)
+            {
+                return x < 10? "0" + x: x
+            }
+
+            onTriggered: {
+                var diffTime = (new Date().getTime() - startTime) / 1000
+                diffTime = parseInt(diffTime, 10)
+
+                var ss = diffTime % 60;
+                diffTime = (diffTime - ss) / 60;
+                var mm = diffTime % 60;
+                var hh = (diffTime - mm) / 60;
+
+                recordingTime.text = pad(hh) + ":" + pad(mm) + ":" + pad(ss)
+            }
         }
 
         SequentialAnimation on opacity {

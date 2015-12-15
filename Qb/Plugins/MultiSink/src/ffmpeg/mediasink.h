@@ -39,6 +39,11 @@ class MediaSink: public QObject
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
+    Q_PROPERTY(QVariantMap formatOptions
+               READ formatOptions
+               WRITE setFormatOptions
+               RESET resetFormatOptions
+               NOTIFY formatOptionsChanged)
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
@@ -49,6 +54,7 @@ class MediaSink: public QObject
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
+        Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams() const;
 
         Q_INVOKABLE QStringList supportedFormats();
@@ -70,6 +76,7 @@ class MediaSink: public QObject
     private:
         QString m_location;
         QString m_outputFormat;
+        QVariantMap m_formatOptions;
 
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
@@ -87,14 +94,17 @@ class MediaSink: public QObject
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
+        void formatOptionsChanged(const QVariantMap &formatOptions);
         void streamsChanged(const QVariantList &streams);
         void streamUpdated(int index);
 
     public slots:
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
+        void setFormatOptions(const QVariantMap &formatOptions);
         void resetLocation();
         void resetOutputFormat();
+        void resetFormatOptions();
         void writeAudioPacket(const QbAudioPacket &packet);
         void writeVideoPacket(const QbVideoPacket &packet);
         void writeSubtitlePacket(const QbPacket &packet);

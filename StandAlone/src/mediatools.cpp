@@ -1471,9 +1471,22 @@ void MediaTools::updateRecordingParams()
                               .arg(stream));
 
             QVariantMap streamConfigs;
+            QStringList configKeys = config.allKeys();
+            configKeys.removeOne("caps");
+            configKeys.removeOne("index");
+            configKeys.removeOne("timeBase");
 
-            foreach (QString key, config.allKeys())
+            foreach (QString key, configKeys)
                 streamConfigs[key] = config.value(key);
+
+            QString mimeType = streamCaps[stream].mimeType();
+
+            if (mimeType == "audio/x-raw")
+                streamConfigs["label"] = tr("Audio");
+            else if (mimeType == "video/x-raw")
+                streamConfigs["label"] = tr("Video");
+            else if (mimeType == "text/x-raw")
+                streamConfigs["label"] = tr("Subtitle");
 
             QMetaObject::invokeMethod(this->m_record.data(),
                                       "addStream",
@@ -1482,7 +1495,12 @@ void MediaTools::updateRecordingParams()
                                       Q_ARG(QbCaps, streamCaps[stream]),
                                       Q_ARG(QVariantMap, streamConfigs));
 
-            foreach (QString key, streamConfigs.keys())
+            configKeys = streamConfigs.keys();
+            configKeys.removeOne("caps");
+            configKeys.removeOne("index");
+            configKeys.removeOne("timeBase");
+
+            foreach (QString key, configKeys)
                 config.setValue(key, streamConfigs[key]);
 
             config.endGroup();

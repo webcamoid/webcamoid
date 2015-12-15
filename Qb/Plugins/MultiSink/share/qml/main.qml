@@ -95,7 +95,7 @@ ColumnLayout {
                 var supportedCodecs =
                         MultiSink.supportedCodecs(MultiSink.outputFormat,
                                                   streamCaps.mimeType)
-//
+
                 for (var codec in supportedCodecs)
                     streamOptions.codecList.append({codec: supportedCodecs[codec],
                                                     description: supportedCodecs[codec]
@@ -117,7 +117,7 @@ ColumnLayout {
     }
 
     Label {
-        text: "Output format"
+        text: qsTr("Output format")
         Layout.fillWidth: true
     }
     ComboBox {
@@ -139,7 +139,7 @@ ColumnLayout {
     }
 
     Label {
-        text: "File extentions"
+        text: qsTr("File extentions")
         Layout.fillWidth: true
     }
     TextField {
@@ -147,6 +147,19 @@ ColumnLayout {
         readOnly: true
         placeholderText: qsTr("This output format has not specific extentions")
         Layout.fillWidth: true
+    }
+
+    Label {
+        text: qsTr("Format options")
+        Layout.fillWidth: true
+    }
+    TextField {
+        id: txtFormatOptions
+        placeholderText: qsTr("Encoding options for this format.")
+        Layout.fillWidth: true
+        text: JSON.stringify(MultiSink.formatOptions)
+
+        onTextChanged: MultiSink.formatOptions = JSON.parse(text)
     }
 
     ScrollView {

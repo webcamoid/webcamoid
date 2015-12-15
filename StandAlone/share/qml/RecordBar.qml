@@ -82,6 +82,8 @@ Rectangle {
 
                 if (option)
                     Webcamoid.curRecordingFormat = option.format
+
+                txtSearchFormat.text = ""
             }
         }
     }
