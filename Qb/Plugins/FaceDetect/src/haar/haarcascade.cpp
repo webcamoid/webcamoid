@@ -319,12 +319,10 @@ bool HaarCascade::load(const QString &fileName)
                      && haarReader.name() == "_") {
                 this->m_stages << HaarStage();
                 this->m_stages.last().setParentStage(stage - 1);
-            }
-            else if (path == QString("opencv_storage/%1/stages/_/trees").arg(this->m_name)
+            } else if (path == QString("opencv_storage/%1/stages/_/trees").arg(this->m_name)
                 && haarReader.name() == "_") {
                 this->m_stages.last().trees() << HaarTree();
-            }
-            else if (path == QString("opencv_storage/%1/stages/_/trees/_").arg(this->m_name)
+            } else if (path == QString("opencv_storage/%1/stages/_/trees/_").arg(this->m_name)
                 && haarReader.name() == "_") {
                 this->m_stages.last().trees().last().features() << HaarFeature();
             }
@@ -338,8 +336,7 @@ bool HaarCascade::load(const QString &fileName)
 
                 this->m_isTree |= this->m_stages.last().nextStage() != -1;
                 stage++;
-            }
-            else if (path == QString("opencv_storage/%1/stages/_/trees/_/_/feature/rects").arg(this->m_name)) {
+            } else if (path == QString("opencv_storage/%1/stages/_/trees/_/_/feature/rects").arg(this->m_name)) {
                 this->m_stages.last().trees().last().features().last().setRects(featureRectList.toVector());
                 this->m_stages.last().trees().last().features().last().setWeight(featureWeightList.toVector());
 
@@ -355,8 +352,7 @@ bool HaarCascade::load(const QString &fileName)
 
                 if (!this->m_windowSize.isValid())
                     this->m_windowSize = size;
-            }
-            else if (path == QString("opencv_storage/%1/stages/_/stage_threshold").arg(this->m_name))
+            } else if (path == QString("opencv_storage/%1/stages/_/stage_threshold").arg(this->m_name))
                 this->m_stages.last().threshold() = haarReader.text().toDouble();
             else if (path == QString("opencv_storage/%1/stages/_/parent").arg(this->m_name))
                 this->m_stages.last().parentStage() = haarReader.text().toInt();

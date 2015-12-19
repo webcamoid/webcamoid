@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/MultiSink/gstreamer">
+        <file>share/profiles.xml</file>
+    </qresource>
+</RCC>

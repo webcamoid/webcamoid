@@ -21,9 +21,9 @@
 #ifndef MEDIASINK_H
 #define MEDIASINK_H
 
-#include <QtConcurrent>
-#include <qb.h>
-#include <gst/gst.h>
+#include <QMutex>
+
+#include "outputparams.h"
 
 class MediaSink: public QObject
 {
@@ -38,6 +38,14 @@ class MediaSink: public QObject
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
+    Q_PROPERTY(QVariantMap formatOptions
+               READ formatOptions
+               WRITE setFormatOptions
+               RESET resetFormatOptions
+               NOTIFY formatOptionsChanged)
+    Q_PROPERTY(QVariantList streams
+               READ streams
+               NOTIFY streamsChanged)
 
     public:
         explicit MediaSink(QObject *parent=NULL);
@@ -45,6 +53,8 @@ class MediaSink: public QObject
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
+        Q_INVOKABLE QVariantMap formatOptions() const;
+        Q_INVOKABLE QVariantList streams() const;
 
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
@@ -59,21 +69,34 @@ class MediaSink: public QObject
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const QbCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());
+        Q_INVOKABLE QVariantMap updateStream(int index,
+                                             const QVariantMap &codecParams=QVariantMap());
 
     private:
         QString m_location;
         QString m_outputFormat;
+        QVariantMap m_formatOptions;
+
+        QList<QVariantMap> m_streamConfigs;
+        QList<OutputParams> m_streamParams;
+        QMutex m_mutex;
+
+        QString guessFormat(const QString &fileName);
 
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
-        void oStream(const QbPacket &packet);
+        void formatOptionsChanged(const QVariantMap &formatOptions);
+        void streamsChanged(const QVariantList &streams);
+        void streamUpdated(int index);
 
     public slots:
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
+        void setFormatOptions(const QVariantMap &formatOptions);
         void resetLocation();
         void resetOutputFormat();
+        void resetFormatOptions();
         void writeAudioPacket(const QbAudioPacket &packet);
         void writeVideoPacket(const QbVideoPacket &packet);
         void writeSubtitlePacket(const QbPacket &packet);
@@ -82,6 +105,7 @@ class MediaSink: public QObject
         void uninit();
 
     private slots:
+        void updateStreams();
 };
 
 #endif // MEDIASINK_H

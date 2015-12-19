@@ -22,7 +22,6 @@
 #define MEDIASINK_H
 
 #include <QMutex>
-#include <qb.h>
 
 #include "outputparams.h"
 
