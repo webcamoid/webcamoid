@@ -223,7 +223,7 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
     QbAudioPacket packet;
     packet.caps().isValid() = true;
     packet.caps().format() = QbAudioCaps::SampleFormat_flt;
-    packet.caps().bps() = audioInfo->bpf / audioInfo->channels;
+    packet.caps().bps() = 8 * audioInfo->bpf / audioInfo->channels;
     packet.caps().channels() = audioInfo->channels;
     packet.caps().rate() = audioInfo->rate;
     packet.caps().layout() = QbAudioCaps::Layout_stereo;
@@ -235,13 +235,12 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QbBufferPtr oBuffer(new char[map.size]);
+    QByteArray oBuffer(map.size, Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.caps().samples() = map.size / audioInfo->bpf;
 
     packet.buffer() = oBuffer;
-    packet.bufferSize() = map.size;
     packet.pts() = GST_BUFFER_PTS(buf);
     packet.timeBase() = QbFrac(1, 1e9);
     packet.index() = self->m_audioIndex;
@@ -286,11 +285,10 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QbBufferPtr oBuffer(new char[map.size]);
+    QByteArray oBuffer(map.size, Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.buffer() = oBuffer;
-    packet.bufferSize() = map.size;
     packet.pts() = GST_BUFFER_PTS(buf);
     packet.timeBase() = QbFrac(1, 1e9);
     packet.index() = self->m_videoIndex;
@@ -331,11 +329,10 @@ GstFlowReturn MediaSource::subtitlesBufferCallback(GstElement *subtitlesOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QbBufferPtr oBuffer(new char[map.size]);
+    QByteArray oBuffer(map.size, Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.buffer() = oBuffer;
-    packet.bufferSize() = map.size;
     packet.pts() = GST_BUFFER_PTS(buf);
     packet.timeBase() = QbFrac(1, 1e9);
     packet.index() = self->m_subtitlesIndex;
@@ -627,7 +624,7 @@ bool MediaSource::init(bool paused)
                 QbAudioCaps audioCaps;
                 audioCaps.isValid() = true;
                 audioCaps.format() = QbAudioCaps::SampleFormat_flt;
-                audioCaps.bps() = audioInfo->bpf / audioInfo->channels;
+                audioCaps.bps() = 8 * audioInfo->bpf / audioInfo->channels;
                 audioCaps.channels() = audioInfo->channels;
                 audioCaps.rate() = audioInfo->rate;
                 audioCaps.layout() = QbAudioCaps::Layout_stereo;

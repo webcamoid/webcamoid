@@ -19,9 +19,6 @@
 
 QT += concurrent
 
-RESOURCES += \
-    $$PWD/gstreamer.qrc
-
 DEFINES += USE_GSTREAMER
 
 CONFIG += link_pkgconfig
@@ -30,16 +27,13 @@ PKGCONFIG += \
     gstreamer-1.0 \
     gstreamer-app-1.0 \
     gstreamer-audio-1.0 \
-    gstreamer-video-1.0
+    gstreamer-video-1.0 \
+    gstreamer-pbutils-1.0
 
 HEADERS += \
     $$PWD/mediasink.h \
-    $$PWD/outputparams.h \
-    $$PWD/formatinfo.h \
-    $$PWD/codecinfo.h
+    $$PWD/outputparams.h
 
 SOURCES += \
     $$PWD/mediasink.cpp \
-    $$PWD/outputparams.cpp \
-    $$PWD/formatinfo.cpp \
-    $$PWD/codecinfo.cpp
+    $$PWD/outputparams.cpp

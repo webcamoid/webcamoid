@@ -80,7 +80,8 @@ class QbAudioCaps: public QObject
             SampleFormat_u8p,
             SampleFormat_s16p,
             SampleFormat_s32p,
-            SampleFormat_fltp
+            SampleFormat_fltp,
+            SampleFormat_dblp
         };
 
         enum ChannelLayout
@@ -111,6 +112,7 @@ class QbAudioCaps: public QObject
             Layout_7p1_wide,
             Layout_7p1_wide_side,
             Layout_octagonal,
+            Layout_hexadecagonal,
             Layout_downmix
         };
 
@@ -151,11 +153,16 @@ class QbAudioCaps: public QObject
         Q_INVOKABLE QbAudioCaps &update(const QbCaps &caps);
         Q_INVOKABLE QbCaps toCaps() const;
 
-        Q_INVOKABLE static int bytesPerSample(SampleFormat sampleFormat);
+        Q_INVOKABLE static int bitsPerSample(SampleFormat sampleFormat);
+        Q_INVOKABLE static int bitsPerSample(const QString &sampleFormat);
         Q_INVOKABLE static QString sampleFormatToString(SampleFormat sampleFormat);
         Q_INVOKABLE static SampleFormat sampleFormatFromString(const QString &sampleFormat);
         Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);
         Q_INVOKABLE static ChannelLayout channelLayoutFromString(const QString &channelLayout);
+        Q_INVOKABLE static int channelCount(ChannelLayout channelLayout);
+        Q_INVOKABLE static int channelCount(const QString &channelLayout);
+        Q_INVOKABLE static ChannelLayout defaultChannelLayout(int channelCount);
+        Q_INVOKABLE static QString defaultChannelLayoutString(int channelCount);
 
     private:
         QbAudioCapsPrivate *d;

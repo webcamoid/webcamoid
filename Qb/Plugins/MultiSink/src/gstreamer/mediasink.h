@@ -81,7 +81,15 @@ class MediaSink: public QObject
         QList<OutputParams> m_streamParams;
         QMutex m_mutex;
 
+        GstElement *m_pipeline;
+        GMainLoop *m_mainLoop;
+        guint m_busWatchId;
+
         QString guessFormat(const QString &fileName);
+        void waitState(GstState state);
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
 
     signals:
         void locationChanged(const QString &location);

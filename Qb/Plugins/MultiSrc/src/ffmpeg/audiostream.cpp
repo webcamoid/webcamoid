@@ -91,7 +91,7 @@ QbCaps AudioStream::caps() const
     QbAudioCaps caps;
     caps.isValid() = true;
     caps.format() = sampleFormats->value(oFormat);;
-    caps.bps() = av_get_bytes_per_sample(oFormat);
+    caps.bps() = 8 * av_get_bytes_per_sample(oFormat);
     caps.channels() = av_get_channel_layout_nb_channels(channelLayout);
     caps.rate() = this->codecContext()->sample_rate;
     caps.layout() = layout;
@@ -233,7 +233,7 @@ QbPacket AudioStream::convert(AVFrame *iFrame)
     QbAudioPacket packet;
     packet.caps().isValid() = true;
     packet.caps().format() = sampleFormats->value(oFormat);
-    packet.caps().bps() = av_get_bytes_per_sample(oFormat);
+    packet.caps().bps() = 8 * av_get_bytes_per_sample(oFormat);
     packet.caps().channels() = oChannels;
     packet.caps().rate() = iFrame->sample_rate;
     packet.caps().layout() = channelLayouts->value(oLayout);

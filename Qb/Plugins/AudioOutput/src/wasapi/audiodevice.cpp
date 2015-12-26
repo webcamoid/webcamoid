@@ -71,21 +71,6 @@ inline ErrorCodesMap initErrorCodesMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ErrorCodesMap, errorCodes, (initErrorCodesMap()))
 
-typedef QMap<QbAudioCaps::SampleFormat, int> BytesPerSampleMap;
-
-inline BytesPerSampleMap initBytesPerSampleMap()
-{
-    BytesPerSampleMap bytesPerSample;
-    bytesPerSample[QbAudioCaps::SampleFormat_u8] = 1;
-    bytesPerSample[QbAudioCaps::SampleFormat_s16] = 2;
-    bytesPerSample[QbAudioCaps::SampleFormat_s32] = 4;
-    bytesPerSample[QbAudioCaps::SampleFormat_flt] = 4;
-
-    return bytesPerSample;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(BytesPerSampleMap, bytesPerSample, (initBytesPerSampleMap()))
-
 typedef QMap<QString, QbAudioCaps::SampleFormat> SampleFormatsMap;
 
 inline SampleFormatsMap initSampleFormatsMap()
@@ -237,7 +222,7 @@ bool AudioDevice::init(DeviceMode mode,
     REFERENCE_TIME hnsRequestedDuration;
     this->m_pAudioClient->GetDevicePeriod(NULL, &hnsRequestedDuration);
 
-    int bps = bytesPerSample->value(sampleFormat);
+    int bps = QbAudioCaps::bitsPerSample(sampleFormat);
 
     // Set audio device format.
     WAVEFORMATEX wfx;
@@ -245,12 +230,12 @@ bool AudioDevice::init(DeviceMode mode,
                          WAVE_FORMAT_IEEE_FLOAT: WAVE_FORMAT_PCM;
     wfx.nChannels = channels;
     wfx.nSamplesPerSec = sampleRate;
-    wfx.wBitsPerSample = 8 * bps;
-    wfx.nBlockAlign = channels * bps;
+    wfx.wBitsPerSample = bps;
+    wfx.nBlockAlign = channels * bps / 8;
     wfx.nAvgBytesPerSec = sampleRate * wfx.nBlockAlign;
     wfx.cbSize = 0;
 
-    this->m_curBps = bps;
+    this->m_curBps = bps / 8;
     this->m_curChannels = channels;
 
     if (FAILED(hr = this->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,

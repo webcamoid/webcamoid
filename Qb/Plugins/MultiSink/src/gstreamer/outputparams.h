@@ -24,6 +24,7 @@
 #include <qb.h>
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
+#include <gst/pbutils/encoding-profile.h>
 #include <gst/audio/audio.h>
 #include <gst/video/video.h>
 

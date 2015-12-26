@@ -616,7 +616,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
         if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
             QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
             audioCaps.format() = QbAudioCaps::sampleFormatFromString(defaultSampleFormat);
-            audioCaps.bps() = av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
+            audioCaps.bps() = 8 * av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
         }
 
         QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
@@ -804,7 +804,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 && !supportedSampleFormats.contains(sampleFormat)) {
                 QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
                 audioCaps.format() = QbAudioCaps::sampleFormatFromString(defaultSampleFormat);
-                audioCaps.bps() = av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
+                audioCaps.bps() = 8 * av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
             }
 
             QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
@@ -1159,7 +1159,7 @@ QbVideoCaps MediaSink::nearestGXFCaps(const QbVideoCaps &caps) const
 
 QbAudioCaps MediaSink::nearestSWFCaps(const QbAudioCaps &caps) const
 {
-    int nearestSampleRate;
+    int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
 
     foreach (int sampleRate, *swfSupportedSampleRates) {

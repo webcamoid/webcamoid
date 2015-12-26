@@ -38,21 +38,6 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
-typedef QMap<QbAudioCaps::SampleFormat, int> BytesPerSampleMap;
-
-inline BytesPerSampleMap initBytesPerSampleMap()
-{
-    BytesPerSampleMap bytesPerSample;
-    bytesPerSample[QbAudioCaps::SampleFormat_u8] = 1;
-    bytesPerSample[QbAudioCaps::SampleFormat_s16] = 2;
-    bytesPerSample[QbAudioCaps::SampleFormat_s32] = 4;
-    bytesPerSample[QbAudioCaps::SampleFormat_flt] = 4;
-
-    return bytesPerSample;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(BytesPerSampleMap, bytesPerSample, (initBytesPerSampleMap()))
-
 AudioDevice::AudioDevice(QObject *parent):
     QObject(parent)
 {
@@ -226,7 +211,7 @@ bool AudioDevice::init(DeviceMode mode,
     ss.format = sampleFormats->value(sampleFormat);
     ss.channels = channels;
     ss.rate = sampleRate;
-    this->m_curBps = bytesPerSample->value(sampleFormat);
+    this->m_curBps = QbAudioCaps::bitsPerSample(sampleFormat) / 8;
     this->m_curChannels = channels;
 
     this->m_paSimple = pa_simple_new(NULL,

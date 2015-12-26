@@ -449,15 +449,14 @@ QbPacket Capture::readFrame()
 
         if (!this->m_curBuffer.isEmpty()) {
             int bufferSize = this->m_curBuffer.size();
-            QSharedPointer<char> oBuffer(new char[bufferSize]);
-            memcpy(oBuffer.data(), this->m_curBuffer.data(), bufferSize);
+            QByteArray oBuffer(bufferSize, Qt::Uninitialized);
+            memcpy(oBuffer.data(), this->m_curBuffer.constData(), bufferSize);
 
             qint64 pts = this->m_curTime
                           * this->m_timeBase.invert().value();
 
             QbPacket oPacket(this->m_caps,
-                             oBuffer,
-                             bufferSize);
+                             oBuffer);
 
             oPacket.setPts(pts);
             oPacket.setTimeBase(this->m_timeBase);
@@ -478,11 +477,7 @@ QbPacket Capture::readFrame()
         if (FAILED(hr))
             return QbPacket();
 
-        QSharedPointer<char> oBuffer(new char[bufferSize]);
-
-        if (!oBuffer)
-            return QbPacket();
-
+        QByteArray oBuffer(bufferSize, Qt::Uninitialized);
         hr = this->m_grabber->GetCurrentBuffer(&bufferSize, (long *) oBuffer.data());
 
         if (FAILED(hr))
@@ -496,8 +491,7 @@ QbPacket Capture::readFrame()
                       * this->m_timeBase.invert().value();
 
         QbPacket oPacket(this->m_caps,
-                         oBuffer,
-                         bufferSize);
+                         oBuffer);
 
         oPacket.setPts(pts);
         oPacket.setTimeBase(this->m_timeBase);

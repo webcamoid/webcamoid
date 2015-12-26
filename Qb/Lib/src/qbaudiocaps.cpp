@@ -27,33 +27,21 @@ typedef QMap<QbAudioCaps::SampleFormat, int> BytesPerSampleMap;
 inline BytesPerSampleMap initBytesPerSampleMap()
 {
     BytesPerSampleMap bytesPerSample;
-    bytesPerSample[QbAudioCaps::SampleFormat_u8] = 1;
-    bytesPerSample[QbAudioCaps::SampleFormat_s16] = 2;
-    bytesPerSample[QbAudioCaps::SampleFormat_s32] = 4;
-    bytesPerSample[QbAudioCaps::SampleFormat_flt] = 4;
-    bytesPerSample[QbAudioCaps::SampleFormat_dbl] = 8;
-    bytesPerSample[QbAudioCaps::SampleFormat_u8p] = 1;
-    bytesPerSample[QbAudioCaps::SampleFormat_s16p] = 2;
-    bytesPerSample[QbAudioCaps::SampleFormat_s32p] = 4;
-    bytesPerSample[QbAudioCaps::SampleFormat_fltp] = 4;
+    bytesPerSample[QbAudioCaps::SampleFormat_u8] = 8;
+    bytesPerSample[QbAudioCaps::SampleFormat_s16] = 16;
+    bytesPerSample[QbAudioCaps::SampleFormat_s32] = 32;
+    bytesPerSample[QbAudioCaps::SampleFormat_flt] = 32;
+    bytesPerSample[QbAudioCaps::SampleFormat_dbl] = 64;
+    bytesPerSample[QbAudioCaps::SampleFormat_u8p] = 8;
+    bytesPerSample[QbAudioCaps::SampleFormat_s16p] = 16;
+    bytesPerSample[QbAudioCaps::SampleFormat_s32p] = 32;
+    bytesPerSample[QbAudioCaps::SampleFormat_fltp] = 32;
+    bytesPerSample[QbAudioCaps::SampleFormat_dblp] = 64;
 
     return bytesPerSample;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(BytesPerSampleMap, toBytesPerSample, (initBytesPerSampleMap()))
-
-class QbAudioCapsPrivate
-{
-    public:
-        bool m_isValid;
-        QbAudioCaps::SampleFormat m_format;
-        int m_bps;
-        int m_channels;
-        int m_rate;
-        QbAudioCaps::ChannelLayout m_layout;
-        int m_samples;
-        bool m_align;
-};
 
 typedef QMap<QbAudioCaps::ChannelLayout, QString> ChannelLayoutStrMap;
 
@@ -86,12 +74,65 @@ inline ChannelLayoutStrMap initChannelLayoutStrMap()
     layoutToStr[QbAudioCaps::Layout_7p1_wide] = "7.1(wide)";
     layoutToStr[QbAudioCaps::Layout_7p1_wide_side] = "7.1(wide-side)";
     layoutToStr[QbAudioCaps::Layout_octagonal] = "octagonal";
+    layoutToStr[QbAudioCaps::Layout_hexadecagonal] = "hexadecagonal";
     layoutToStr[QbAudioCaps::Layout_downmix] = "downmix";
 
     return layoutToStr;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutStrMap, layoutToStr, (initChannelLayoutStrMap()))
+
+typedef QMap<QbAudioCaps::ChannelLayout, int> ChannelCountMap;
+
+inline ChannelCountMap initChannelCountMap()
+{
+    ChannelCountMap channelCountMap;
+    channelCountMap[QbAudioCaps::Layout_none] = 0;
+    channelCountMap[QbAudioCaps::Layout_mono] = 1;
+    channelCountMap[QbAudioCaps::Layout_stereo] = 2;
+    channelCountMap[QbAudioCaps::Layout_2p1] = 3;
+    channelCountMap[QbAudioCaps::Layout_3p0] = 3;
+    channelCountMap[QbAudioCaps::Layout_3p0_back] = 3;
+    channelCountMap[QbAudioCaps::Layout_3p1] = 4;
+    channelCountMap[QbAudioCaps::Layout_4p0] = 4;
+    channelCountMap[QbAudioCaps::Layout_quad] = 4;
+    channelCountMap[QbAudioCaps::Layout_quad_side] = 4;
+    channelCountMap[QbAudioCaps::Layout_4p1] = 5;
+    channelCountMap[QbAudioCaps::Layout_5p0] = 5;
+    channelCountMap[QbAudioCaps::Layout_5p0_side] = 5;
+    channelCountMap[QbAudioCaps::Layout_5p1] = 6;
+    channelCountMap[QbAudioCaps::Layout_5p1_side] = 6;
+    channelCountMap[QbAudioCaps::Layout_6p0] = 6;
+    channelCountMap[QbAudioCaps::Layout_6p0_front] = 6;
+    channelCountMap[QbAudioCaps::Layout_hexagonal] = 6;
+    channelCountMap[QbAudioCaps::Layout_6p1] = 7;
+    channelCountMap[QbAudioCaps::Layout_6p1_front] = 7;
+    channelCountMap[QbAudioCaps::Layout_7p0] = 7;
+    channelCountMap[QbAudioCaps::Layout_7p0_front] = 7;
+    channelCountMap[QbAudioCaps::Layout_7p1] = 8;
+    channelCountMap[QbAudioCaps::Layout_7p1_wide] = 8;
+    channelCountMap[QbAudioCaps::Layout_7p1_wide_side] = 8;
+    channelCountMap[QbAudioCaps::Layout_octagonal] = 8;
+    channelCountMap[QbAudioCaps::Layout_hexadecagonal] = 16;
+    channelCountMap[QbAudioCaps::Layout_downmix] = 2;
+
+    return channelCountMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ChannelCountMap, channelCountMap, (initChannelCountMap()))
+
+class QbAudioCapsPrivate
+{
+    public:
+        bool m_isValid;
+        QbAudioCaps::SampleFormat m_format;
+        int m_bps;
+        int m_channels;
+        int m_rate;
+        QbAudioCaps::ChannelLayout m_layout;
+        int m_samples;
+        bool m_align;
+};
 
 QbAudioCaps::QbAudioCaps(QObject *parent):
     QObject(parent)
@@ -430,9 +471,14 @@ QbCaps QbAudioCaps::toCaps() const
     return QbCaps(this->toString());
 }
 
-int QbAudioCaps::bytesPerSample(QbAudioCaps::SampleFormat sampleFormat)
+int QbAudioCaps::bitsPerSample(QbAudioCaps::SampleFormat sampleFormat)
 {
     return toBytesPerSample->value(sampleFormat, 0);
+}
+
+int QbAudioCaps::bitsPerSample(const QString &sampleFormat)
+{
+    return QbAudioCaps::bitsPerSample(QbAudioCaps::sampleFormatFromString(sampleFormat));
 }
 
 QString QbAudioCaps::sampleFormatToString(QbAudioCaps::SampleFormat sampleFormat)
@@ -465,6 +511,30 @@ QString QbAudioCaps::channelLayoutToString(QbAudioCaps::ChannelLayout channelLay
 QbAudioCaps::ChannelLayout QbAudioCaps::channelLayoutFromString(const QString &channelLayout)
 {
     return layoutToStr->key(channelLayout, Layout_none);
+}
+
+int QbAudioCaps::channelCount(QbAudioCaps::ChannelLayout channelLayout)
+{
+    return channelCountMap->value(channelLayout, 0);
+}
+
+int QbAudioCaps::channelCount(const QString &channelLayout)
+{
+    ChannelLayout layout = layoutToStr->key(channelLayout, Layout_none);
+
+    return channelCountMap->value(layout, 0);
+}
+
+QbAudioCaps::ChannelLayout QbAudioCaps::defaultChannelLayout(int channelCount)
+{
+    return channelCountMap->key(channelCount, Layout_none);
+}
+
+QString QbAudioCaps::defaultChannelLayoutString(int channelCount)
+{
+    ChannelLayout layout = channelCountMap->key(channelCount, Layout_none);
+
+    return layoutToStr->value(layout, "none");
 }
 
 void QbAudioCaps::setFormat(QbAudioCaps::SampleFormat format)

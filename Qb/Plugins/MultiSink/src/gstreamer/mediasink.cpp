@@ -19,196 +19,135 @@
  */
 
 #include <limits>
-#include <QFile>
 #include <QFileInfo>
-#include <QXmlStreamReader>
 
 #include "mediasink.h"
-#include "formatinfo.h"
-#include "codecinfo.h"
 
-typedef QVector<FormatInfo> FormatInfoVector;
-Q_GLOBAL_STATIC(FormatInfoVector, recordingFormats)
-typedef QVector<CodecInfo> CodecInfoVector;
-Q_GLOBAL_STATIC(CodecInfoVector, audioCodecs)
-Q_GLOBAL_STATIC(CodecInfoVector, videoCodecs)
+typedef QMap<QString, QString> StringStringMap;
 
-inline bool loadProfiles(const QString &profile)
+inline StringStringMap initGstToFF()
 {
-    QFile xmlFile(profile);
-    QStringList pathList;
-    QString path;
+    StringStringMap gstToFF;
 
-    if (!xmlFile.open(QIODevice::ReadOnly))
-        return false;
+    // Audio
+    gstToFF["S8"] = "s8";
+    gstToFF["U8"] = "u8";
+    gstToFF["S16LE"] = "s16le";
+    gstToFF["S16BE"] = "s16be";
+    gstToFF["U16LE"] = "u16le";
+    gstToFF["U16BE"] = "u16be";
+    gstToFF["S24_32LE"] = "s2432le";
+    gstToFF["S24_32BE"] = "s2432be";
+    gstToFF["U24_32LE"] = "u2432le";
+    gstToFF["U24_32BE"] = "u2432be";
+    gstToFF["S32LE"] = "s32le";
+    gstToFF["S32BE"] = "s32be";
+    gstToFF["U32LE"] = "u32le";
+    gstToFF["U32BE"] = "u32be";
+    gstToFF["S24LE"] = "s24le";
+    gstToFF["S24BE"] = "s24be";
+    gstToFF["U24LE"] = "u24le";
+    gstToFF["U24BE"] = "u24be";
+    gstToFF["S20LE"] = "s20le";
+    gstToFF["S20BE"] = "s20be";
+    gstToFF["U20LE"] = "u20le";
+    gstToFF["U20BE"] = "u20be";
+    gstToFF["S18LE"] = "s18le";
+    gstToFF["S18BE"] = "s18be";
+    gstToFF["U18LE"] = "u18le";
+    gstToFF["U18BE"] = "u18le";
+    gstToFF["F32LE"] = "fltle";
+    gstToFF["F32BE"] = "fltbe";
+    gstToFF["F64LE"] = "dblle";
+    gstToFF["F64BE"] = "dblbe";
+    gstToFF["S16"] = "s16";
+    gstToFF["U16"] = "u16";
+    gstToFF["S24_32"] = "s2432";
+    gstToFF["U24_32"] = "u2432";
+    gstToFF["S32"] = "s32";
+    gstToFF["U32"] = "u32";
+    gstToFF["S24"] = "s24";
+    gstToFF["U24"] = "u24";
+    gstToFF["S20"] = "s20";
+    gstToFF["U20"] = "u20";
+    gstToFF["S18"] = "s18";
+    gstToFF["U18"] = "u18";
+    gstToFF["F32"] = "flt";
+    gstToFF["F64"] = "dbl";
 
-    QXmlStreamReader xmlReader(&xmlFile);
+    // Video
+    gstToFF["I420"] = "yuv420p";
+//    gstToFF["YV12"] = "";
+    gstToFF["YUY2"] = "yuyv422";
+    gstToFF["UYVY"] = "uyvy422";
+//    gstToFF["AYUV"] = "";
+    gstToFF["RGBx"] = "rgb0";
+    gstToFF["BGRx"] = "bgr0";
+    gstToFF["xRGB"] = "0rgb";
+    gstToFF["xBGR"] = "0bgr";
+    gstToFF["RGBA"] = "rgba";
+    gstToFF["BGRA"] = "bgra";
+    gstToFF["ARGB"] = "argb";
+    gstToFF["ABGR"] = "abgr";
+    gstToFF["RGB"] = "rgb24";
+    gstToFF["BGR"] = "bgr24";
+    gstToFF["Y41B"] = "yuv411p";
+    gstToFF["Y42B"] = "yuv422p";
+//    gstToFF["YVYU"] = "";
+    gstToFF["Y444"] = "yuv444p";
+//    gstToFF["v210"] = "";
+//    gstToFF["v216"] = "";
+    gstToFF["NV12"] = "nv12";
+    gstToFF["NV21"] = "nv21";
+    gstToFF["GRAY8"] = "gray8";
+    gstToFF["GRAY16_BE"] = "gray16be";
+    gstToFF["GRAY16_LE"] = "gray16le";
+//    gstToFF["v308"] = "";
+    gstToFF["RGB16"] = "rgb565";
+    gstToFF["BGR16"] = "bgr565le";
+    gstToFF["RGB15"] = "rgb555";
+    gstToFF["BGR15"] = "rgb555le";
+//    gstToFF["UYVP"] = "";
+    gstToFF["A420"] = "yuva420p";
+    gstToFF["RGB8P"] = "pal8";
+    gstToFF["YUV9"] = "yuv410p";
+//    gstToFF["YVU9"] = "";
+//    gstToFF["IYU1"] = "";
+//    gstToFF["ARGB64"] = "";
+    gstToFF["AYUV64"] = "ayuv64le";
+//    gstToFF["r210"] = "";
+    gstToFF["I420_10BE"] = "yuv420p10be";
+    gstToFF["I420_10LE"] = "yuv420p10le";
+    gstToFF["I422_10BE"] = "yuv422p10be";
+    gstToFF["I422_10LE"] = "yuv422p10le";
+    gstToFF["Y444_10BE"] = "yuv444p10be";
+    gstToFF["Y444_10LE"] = "yuv444p10le";
+    gstToFF["GBR"] = "gbrp";
+    gstToFF["GBR_10BE"] = "gbrp10be";
+    gstToFF["GBR_10LE"] = "gbrp10le";
+    gstToFF["NV16"] = "nv16";
+//    gstToFF["NV24"] = "";
+//    gstToFF["NV12_64Z32"] = "";
+    gstToFF["A420_10BE"] = "yuva420p10be";
+    gstToFF["A420_10LE"] = "yuva420p10le";
+    gstToFF["A422_10BE"] = "yuva422p10be";
+    gstToFF["A422_10LE"] = "yuva422p10le";
+    gstToFF["A444_10BE"] = "yuva444p10be";
+    gstToFF["A444_10LE"] = "yuva444p10le";
+//    gstToFF["NV61"] = "";
 
-    FormatInfo recordingFormat;
-    CodecInfo audioCodec;
-    CodecInfo videoCodec;
-
-    while (!xmlReader.atEnd()) {
-        QXmlStreamReader::TokenType token = xmlReader.readNext();
-
-        if (token == QXmlStreamReader::Invalid) {
-            qDebug() << xmlReader.errorString();
-
-            return false;
-        } else if (token == QXmlStreamReader::StartElement) {
-            pathList << xmlReader.name().toString();
-
-            if (path == "profile/formats"
-                && xmlReader.name() == "format")
-                recordingFormat = FormatInfo();
-            else if (path == "profile/codecs/audio"
-                && xmlReader.name() == "codec")
-                audioCodec = CodecInfo();
-            else if (path == "profile/codecs/video"
-                && xmlReader.name() == "codec")
-                videoCodec = CodecInfo();
-        } else if (token == QXmlStreamReader::EndElement) {
-            if (path == "profile/formats/format")
-                *recordingFormats << recordingFormat;
-            else if (path == "profile/codecs/audio/codec")
-                     *audioCodecs << audioCodec;
-            else if (path == "profile/codecs/video/codec")
-                     *videoCodecs << videoCodec;
-
-            pathList.removeLast();
-        } else if (token == QXmlStreamReader::Characters) {
-            if (path == "profile/formats/format/name")
-                recordingFormat.name() = xmlReader.text().toString();
-            else if (path == "profile/formats/format/long_name")
-                recordingFormat.longName() = xmlReader.text().toString();
-            else if (path == "profile/formats/format/extensions") {
-                QStringList extensions;
-
-                foreach (QString ext, xmlReader.text().toString().split(","))
-                    extensions << ext.trimmed();
-
-                recordingFormat.extensions() = extensions;
-            } else if (path == "profile/formats/format/audio_codec") {
-                QStringList audioCodec;
-
-                foreach (QString codec, xmlReader.text().toString().split(","))
-                    if (codec.contains("@")) {
-                        QString defaultCodec = codec.replace("@", "").trimmed();
-                        audioCodec << defaultCodec;
-                        recordingFormat.defaultAudioCodec() = defaultCodec;
-                    }
-                    else
-                        audioCodec << codec.trimmed();
-
-                recordingFormat.audioCodec() = audioCodec;
-
-                if (recordingFormat.defaultAudioCodec().isEmpty())
-                    recordingFormat.defaultAudioCodec() = recordingFormat.audioCodec().first();
-            } else if (path == "profile/formats/format/video_codec") {
-                QStringList videoCodec;
-
-                foreach (QString codec, xmlReader.text().toString().split(","))
-                    if (codec.contains("@")) {
-                        QString defaultCodec = codec.replace("@", "").trimmed();
-                        videoCodec << defaultCodec;
-                        recordingFormat.defaultVideoCodec() = defaultCodec;
-                    }
-                    else
-                        videoCodec << codec.trimmed();
-
-                recordingFormat.videoCodec() = videoCodec;
-
-                if (recordingFormat.defaultVideoCodec().isEmpty())
-                    recordingFormat.defaultVideoCodec() = recordingFormat.videoCodec().first();
-            } else if (path == "profile/codecs/audio/codec/name") {
-                audioCodec.name() = xmlReader.text().toString();
-            } else if (path == "profile/codecs/audio/codec/long_name") {
-                audioCodec.longName() = xmlReader.text().toString();
-            } else if (path == "profile/codecs/audio/codec/supported_samplerates") {
-                IntList sampleRates;
-
-                foreach (QString rate, xmlReader.text().toString().split(","))
-                    sampleRates << rate.trimmed().toInt();
-
-                audioCodec.supportedSamplerates() = sampleRates;
-            } else if (path == "profile/codecs/audio/codec/sample_fmts") {
-                QStringList sampleFormats;
-
-                foreach (QString format, xmlReader.text().toString().split(","))
-                    sampleFormats << format.trimmed();
-
-                audioCodec.sampleFormats() = sampleFormats;
-            } else if (path == "profile/codecs/audio/codec/channel_layouts") {
-                QStringList channelLayouts;
-
-                foreach (QString layout, xmlReader.text().toString().split(","))
-                    channelLayouts << layout.trimmed();
-
-                audioCodec.channelLayouts() = channelLayouts;
-            } else if (path == "profile/codecs/video/codec/name") {
-                videoCodec.name() = xmlReader.text().toString();
-            } else if (path == "profile/codecs/video/codec/long_name") {
-                videoCodec.longName() = xmlReader.text().toString();
-            } else if (path == "profile/codecs/video/codec/supported_framerates") {
-                FracList frameRates;
-
-                foreach (QString rate, xmlReader.text().toString().split(","))
-                    frameRates << QbFrac(rate.trimmed());
-
-                videoCodec.supportedFramerates() = frameRates;
-            } else if (path == "profile/codecs/video/codec/pix_fmts") {
-                QStringList pixelFormats;
-
-                foreach (QString format, xmlReader.text().toString().split(","))
-                    pixelFormats << format.trimmed();
-
-                videoCodec.pixelFormats() = pixelFormats;
-            }
-        }
-
-        path = pathList.join("/");
-    }
-
-    return true;
+    return gstToFF;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(bool, profilesLoaded, (loadProfiles(":/MultiSink/gstreamer/share/profiles.xml")))
-
-typedef QMap<QString, int> StringIntMap;
-
-inline StringIntMap initChannelCountMap()
-{
-    StringIntMap channelCountMap;
-    channelCountMap["mono"] = 1;
-    channelCountMap["stereo"] = 2;
-
-    return channelCountMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(StringIntMap, channelCountMap, (initChannelCountMap()))
-
-inline StringIntMap initByteCountMap()
-{
-    StringIntMap byteCountMap;
-    byteCountMap["u8"] = 8;
-    byteCountMap["s16"] = 16;
-    byteCountMap["s32"] = 32;
-    byteCountMap["flt"] = 32;
-    byteCountMap["dbl"] = 64;
-    byteCountMap["u8p"] = 8;
-    byteCountMap["s16p"] = 16;
-    byteCountMap["s32p"] = 32;
-    byteCountMap["fltp"] = 32;
-    byteCountMap["dblp"] = 64;
-
-    return byteCountMap;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(StringIntMap, byteCountMap, (initByteCountMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
 MediaSink::MediaSink(QObject *parent): QObject(parent)
 {
     gst_init(NULL, NULL);
+
+    this->m_pipeline = NULL;
+    this->m_mainLoop = NULL;
+    this->m_busWatchId = 0;
 
     QObject::connect(this,
                      &MediaSink::outputFormatChanged,
@@ -248,63 +187,105 @@ QVariantList MediaSink::streams() const
 
 QStringList MediaSink::supportedFormats()
 {
-    if (!*profilesLoaded)
-        return QStringList();
-
     QStringList supportedFormats;
+    GList *plugins = gst_registry_get_plugin_list(gst_registry_get());
 
-    foreach (FormatInfo format, *recordingFormats) {
-        GstElementFactory *factory = gst_element_factory_find(format.name().toStdString().c_str());
+    for (GList *pluginItem = plugins; pluginItem; pluginItem = g_list_next(pluginItem)) {
+        GstPlugin *plugin = (GstPlugin *) pluginItem->data;
 
-        if (factory) {
-            supportedFormats << format.name();
-            gst_object_unref(factory);
+        if (GST_OBJECT_FLAG_IS_SET(plugin, GST_PLUGIN_FLAG_BLACKLISTED))
+          continue;
+
+        const gchar *pluginName = gst_plugin_get_name(plugin);
+
+        GList *features = gst_registry_get_feature_list_by_plugin(gst_registry_get(),
+                                                                  pluginName);
+
+        for (GList *featureItem = features; featureItem; featureItem = g_list_next(featureItem)) {
+            if (G_UNLIKELY (featureItem->data == NULL))
+              continue;
+
+            GstPluginFeature *feature = GST_PLUGIN_FEATURE(featureItem->data);
+
+            if (GST_IS_ELEMENT_FACTORY(feature)) {
+                GstElementFactory *factory = GST_ELEMENT_FACTORY(feature);
+
+                factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
+
+                if (!factory)
+                    continue;
+
+                const gchar *klass = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_KLASS);
+
+                if (!strcmp(klass, "Codec/Muxer"))
+                    supportedFormats << GST_OBJECT_NAME(factory);
+
+                gst_object_unref(factory);
+            }
         }
+
+        gst_plugin_list_free(features);
     }
+
+    gst_plugin_list_free(plugins);
 
     return supportedFormats;
 }
 
 QStringList MediaSink::fileExtensions(const QString &format)
 {
-    if (!*profilesLoaded)
+    GstElementFactory *factory = gst_element_factory_find(format.toStdString().c_str());
+
+    if (!factory)
         return QStringList();
 
+    factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
+
+    if (!factory)
+        return QStringList();
+
+    const GList *pads = gst_element_factory_get_static_pad_templates(factory);
     QStringList extensions;
 
-    foreach (FormatInfo fmt, *recordingFormats)
-        if (fmt.name() == format) {
-            GstElementFactory *factory = gst_element_factory_find(fmt.name().toStdString().c_str());
+    for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
+        GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
 
-            if (factory) {
-                extensions = fmt.extensions();
-                gst_object_unref(factory);
-            }
+        if (padtemplate->direction == GST_PAD_SRC
+            && padtemplate->presence == GST_PAD_ALWAYS) {
+            GstCaps *caps = gst_caps_from_string(padtemplate->static_caps.string);
+            GstEncodingContainerProfile *prof = gst_encoding_container_profile_new(NULL, NULL, caps, NULL);
+            gst_caps_unref(caps);
 
-            break;
+            const gchar *extension = gst_encoding_profile_get_file_extension((GstEncodingProfile *) prof);
+
+            if (extension && !extensions.contains(extension))
+                extensions << extension;
+
+            gst_encoding_profile_unref(prof);
         }
+    }
+
+    gst_object_unref(factory);
 
     return extensions;
 }
 
 QString MediaSink::formatDescription(const QString &format)
 {
-    if (!*profilesLoaded)
+    GstElementFactory *factory = gst_element_factory_find(format.toStdString().c_str());
+
+    if (!factory)
         return QString();
 
-    QString description;
+    factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
 
-    foreach (FormatInfo fmt, *recordingFormats)
-        if (fmt.name() == format) {
-            GstElementFactory *factory = gst_element_factory_find(fmt.name().toStdString().c_str());
+    if (!factory)
+        return QString();
 
-            if (factory) {
-                description = fmt.longName();
-                gst_object_unref(factory);
-            }
+    const gchar *longName = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_LONGNAME);
+    QString description(longName);
 
-            break;
-        }
+    gst_object_unref(factory);
 
     return description;
 }
@@ -312,162 +293,511 @@ QString MediaSink::formatDescription(const QString &format)
 QStringList MediaSink::supportedCodecs(const QString &format,
                                        const QString &type)
 {
+    GstElementFactory *factory = gst_element_factory_find(format.toStdString().c_str());
+
+    if (!factory)
+        return QStringList();
+
+    factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
+
+    if (!factory)
+        return QStringList();
+
+    static GstStaticCaps staticRawCaps = GST_STATIC_CAPS("video/x-raw;"
+                                                         "audio/x-raw;"
+                                                         "text/x-raw;"
+                                                         "subpicture/x-dvd;"
+                                                         "subpicture/x-pgs");
+
+    GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
+
+    GList *encodersList = gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_ENCODER,
+                                                                GST_RANK_MARGINAL);
+
+    const GList *pads = gst_element_factory_get_static_pad_templates(factory);
     QStringList supportedCodecs;
 
-    foreach (FormatInfo fmt, *recordingFormats)
-        if (fmt.name() == format) {
-            GstElementFactory *factory = gst_element_factory_find(fmt.name().toStdString().c_str());
+    for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
+        GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
 
-            if (factory) {
-                if (type.isEmpty())
-                    supportedCodecs << fmt.audioCodec() << fmt.videoCodec();
-                else if (type == "audio/x-raw")
-                    supportedCodecs = fmt.audioCodec();
-                else if (type == "video/x-raw")
-                    supportedCodecs = fmt.videoCodec();
+        if (padtemplate->direction == GST_PAD_SINK) {
+            GstCaps *caps = gst_caps_from_string(padtemplate->static_caps.string);
 
-                gst_object_unref(factory);
+            for (guint i = 0; i < gst_caps_get_size(caps); i++) {
+                GstStructure *capsStructure = gst_caps_get_structure(caps, i);
+                const gchar *structureName = gst_structure_get_name(capsStructure);
+                QString structureType(structureName);
+                gchar *structureStr = gst_structure_to_string(capsStructure);
+                GstCaps *compCaps = gst_caps_from_string(structureStr);
+
+                if (gst_caps_can_intersect(compCaps, rawCaps)) {
+                    if (!type.isEmpty() && structureType != type)
+                        continue;
+
+                    QString codecType = structureType.mid(0, type.indexOf('/'));
+
+                    if (gst_structure_has_field(capsStructure, "format")) {
+                        GType fieldType = gst_structure_get_field_type(capsStructure, "format");
+
+                        if (fieldType == G_TYPE_STRING) {
+                            const gchar *format = gst_structure_get_string(capsStructure, "format");
+                            QString codecId = QString("identity/%1/%2").arg(codecType).arg(format);
+
+                            if (!supportedCodecs.contains(codecId))
+                                supportedCodecs << codecId;
+                        }
+                        else if (fieldType == GST_TYPE_LIST) {
+                            const GValue *formats = gst_structure_get_value(capsStructure, "format");
+
+                            for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
+                                const GValue *format = gst_value_list_get_value(formats, i);
+                                QString codecId = QString("identity/%1/%2").arg(codecType).arg(g_value_get_string(format));
+
+                                if (!supportedCodecs.contains(codecId))
+                                    supportedCodecs << codecId;
+                            }
+                        }
+                    }
+                } else {
+                    GList *encoders = gst_element_factory_list_filter(encodersList,
+                                                                      caps,
+                                                                      GST_PAD_SRC,
+                                                                      FALSE);
+
+                    for (GList *encoderItem = encoders; encoderItem; encoderItem = g_list_next(encoderItem)) {
+                        GstElementFactory *encoder = (GstElementFactory *) encoderItem->data;
+
+                        const gchar *klass = gst_element_factory_get_metadata(encoder, GST_ELEMENT_METADATA_KLASS);
+                        QString codecType = !strcmp(klass, "Codec/Encoder/Audio")?
+                                                "audio/x-raw":
+                                            (strcmp(klass, "Codec/Encoder/Video")
+                                             || strcmp(klass, "Codec/Encoder/Image"))?
+                                                 "video/x-raw": "";
+
+                        if (!type.isEmpty() && type != codecType)
+                            continue;
+
+                        if (!supportedCodecs.contains(GST_OBJECT_NAME(encoder)))
+                            supportedCodecs << GST_OBJECT_NAME(encoder);
+                    }
+
+                    gst_plugin_feature_list_free(encoders);
+                }
+
+                gst_caps_unref(compCaps);
+                g_free(structureStr);
             }
 
-            break;
+            gst_caps_unref(caps);
         }
+    }
+
+    gst_caps_unref(rawCaps);
+    gst_object_unref(factory);
 
     return supportedCodecs;
 }
 
 QString MediaSink::defaultCodec(const QString &format, const QString &type)
 {
-    QString defaultCodec;
+    QStringList codecs = this->supportedCodecs(format, type);
 
-    foreach (FormatInfo fmt, *recordingFormats)
-        if (fmt.name() == format) {
-            GstElementFactory *factory = gst_element_factory_find(fmt.name().toStdString().c_str());
+    if (codecs.isEmpty())
+        return QString();
 
-            if (factory) {
-                if (type == "audio/x-raw")
-                    defaultCodec = fmt.defaultAudioCodec();
-                else if (type == "video/x-raw")
-                    defaultCodec = fmt.defaultVideoCodec();
-
-                gst_object_unref(factory);
-            }
-
-            break;
-        }
-
-    return defaultCodec;
+    return codecs.at(0);
 }
 
 QString MediaSink::codecDescription(const QString &codec)
 {
-    foreach (CodecInfo cdc, *audioCodecs)
-        if (cdc.name() == codec) {
-            GstElementFactory *factory = gst_element_factory_find(cdc.name().toStdString().c_str());
+    if (codec.startsWith("identity/")) {
+        QStringList parts = codec.split("/");
 
-            if (factory) {
-                gst_object_unref(factory);
+        return QString("%1 (%2)").arg(parts[0]).arg(parts[2]);
+    }
 
-                return cdc.longName();
-            }
-        }
+    GstElementFactory *factory = gst_element_factory_find(codec.toStdString().c_str());
 
-    foreach (CodecInfo cdc, *videoCodecs)
-        if (cdc.name() == codec) {
-            GstElementFactory *factory = gst_element_factory_find(cdc.name().toStdString().c_str());
+    if (!factory)
+        return QString();
 
-            if (factory) {
-                gst_object_unref(factory);
+    factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
 
-                return cdc.longName();
-            }
-        }
+    if (!factory)
+        return QString();
 
-    return QString();
+    const gchar *longName = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_LONGNAME);
+    QString description(longName);
+
+    gst_object_unref(factory);
+
+    return description;
 }
 
 QString MediaSink::codecType(const QString &codec)
 {
-    foreach (CodecInfo cdc, *audioCodecs)
-        if (cdc.name() == codec) {
-            GstElementFactory *factory = gst_element_factory_find(cdc.name().toStdString().c_str());
+    if (codec.startsWith("identity/audio"))
+        return QString("audio/x-raw");
+    else if (codec.startsWith("identity/video"))
+        return QString("video/x-raw");
+    else if (codec.startsWith("identity/text"))
+        return QString("text/x-raw");
 
-            if (factory) {
-                gst_object_unref(factory);
+    GstElementFactory *factory = gst_element_factory_find(codec.toStdString().c_str());
 
-                return QString("audio/x-raw");
-            }
-        }
+    if (!factory)
+        return QString();
 
-    foreach (CodecInfo cdc, *videoCodecs)
-        if (cdc.name() == codec) {
-            GstElementFactory *factory = gst_element_factory_find(cdc.name().toStdString().c_str());
+    factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
 
-            if (factory) {
-                gst_object_unref(factory);
+    if (!factory)
+        return QString();
 
-                return QString("video/x-raw");
-            }
-        }
+    const gchar *klass = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_KLASS);
+    QString codecType = !strcmp(klass, "Codec/Encoder/Audio")?
+                            "audio/x-raw":
+                        (strcmp(klass, "Codec/Encoder/Video")
+                         || strcmp(klass, "Codec/Encoder/Image"))?
+                             "video/x-raw": "";
 
-    return QString();
+    gst_object_unref(factory);
+
+    return codecType;
 }
 
 QVariantMap MediaSink::defaultCodecParams(const QString &codec)
 {
     QVariantMap codecParams;
+    QString codecType = this->codecType(codec);
 
-    foreach (CodecInfo cdc, *audioCodecs)
-        if (cdc.name() == codec) {
-            GstElementFactory *factory = gst_element_factory_find(cdc.name().toStdString().c_str());
+    qDebug() << codec;
 
-            if (factory) {
-                gst_object_unref(factory);
+    static GstStaticCaps staticRawCaps = GST_STATIC_CAPS("video/x-raw;"
+                                                         "audio/x-raw;"
+                                                         "text/x-raw;"
+                                                         "subpicture/x-dvd;"
+                                                         "subpicture/x-pgs");
 
-                codecParams["defaultBitRate"] = 128000;
+    GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
 
-                QVariantList supportedSamplerates;
+    if (codecType == "audio/x-raw") {
+        if (codec.startsWith("identity/audio")) {
+            QString sampleFormat = gstToFF->value(codec.split("/").at(2), "s16");
+            codecParams["defaultBitRate"] = 128000;
+            codecParams["supportedSampleFormats"] = QStringList() << sampleFormat;
+            codecParams["supportedChannelLayouts"] = QStringList() << "mono" << "stereo";
+            codecParams["supportedSampleRates"] = QVariantList();
+            codecParams["defaultSampleFormat"] = sampleFormat;
+            codecParams["defaultChannelLayout"] = "stereo";
+            codecParams["defaultChannels"] = 2;
+            codecParams["defaultSampleRate"] = 44100;
+        } else {
+            GstElementFactory *factory = gst_element_factory_find(codec.toStdString().c_str());
 
-                foreach (int rate, cdc.supportedSamplerates())
-                    supportedSamplerates << QVariant::fromValue(rate);
+            if (!factory) {
+                gst_caps_unref(rawCaps);
 
-                codecParams["supportedSampleFormats"] = cdc.sampleFormats();
-                codecParams["supportedChannelLayouts"] = cdc.channelLayouts();
-                codecParams["supportedSampleRates"] = supportedSamplerates;
-                codecParams["defaultSampleFormat"] = cdc.sampleFormats().at(0);
-
-                QString channelLayout = cdc.channelLayouts().isEmpty()?
-                                            QString("stereo"): cdc.channelLayouts().at(0);
-                codecParams["defaultChannelLayout"] = channelLayout;
-                codecParams["defaultChannels"] = channelCountMap->value(channelLayout, 0);
-                codecParams["defaultSampleRate"] = cdc.supportedSamplerates().isEmpty()?
-                                                     44100: cdc.supportedSamplerates().at(0);
-
-                return codecParams;
+                return QVariantMap();
             }
-        }
 
-    foreach (CodecInfo cdc, *videoCodecs)
-        if (cdc.name() == codec) {
-            GstElementFactory *factory = gst_element_factory_find(cdc.name().toStdString().c_str());
+            factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
 
-            if (factory) {
+            if (!factory) {
                 gst_object_unref(factory);
+                gst_caps_unref(rawCaps);
 
-                codecParams["defaultBitRate"] = 200000;
-                codecParams["defaultGOP"] = 12;
-
-                QVariantList supportedFramerates;
-
-                foreach (QbFrac rate, cdc.supportedFramerates())
-                    supportedFramerates << QVariant::fromValue(rate);
-
-                codecParams["supportedFrameRates"] = supportedFramerates;
-                codecParams["supportedPixelFormats"] = cdc.pixelFormats();
-                codecParams["defaultPixelFormat"] = cdc.pixelFormats().at(0);
-
-                return codecParams;
+                return QVariantMap();
             }
+
+            QStringList supportedSampleFormats;
+            QVariantList supportedSamplerates;
+            QStringList supportedChannelLayouts;
+
+            const GList *pads = gst_element_factory_get_static_pad_templates(factory);
+
+            for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
+                GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
+
+                if (padtemplate->direction == GST_PAD_SINK
+                    && padtemplate->presence == GST_PAD_ALWAYS) {
+                    GstCaps *caps = gst_caps_from_string(padtemplate->static_caps.string);
+
+                    for (guint i = 0; i < gst_caps_get_size(caps); i++) {
+                        GstStructure *capsStructure = gst_caps_get_structure(caps, i);
+                        gchar *structureStr = gst_structure_to_string(capsStructure);
+                        GstCaps *compCaps = gst_caps_from_string(structureStr);
+
+                        if (gst_caps_can_intersect(compCaps, rawCaps)) {
+                            // Get supported formats
+                            if (gst_structure_has_field(capsStructure, "format")) {
+                                GType fieldType = gst_structure_get_field_type(capsStructure, "format");
+
+                                if (fieldType == G_TYPE_STRING) {
+                                    const gchar *format = gst_structure_get_string(capsStructure, "format");
+                                    QString formatFF = gstToFF->value(format, "");
+
+                                    if (!formatFF.isEmpty() && !supportedSampleFormats.contains(formatFF))
+                                        supportedSampleFormats << formatFF;
+                                } else if (fieldType == GST_TYPE_LIST) {
+                                    const GValue *formats = gst_structure_get_value(capsStructure, "format");
+
+                                    for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
+                                        const GValue *format = gst_value_list_get_value(formats, i);
+                                        const gchar *formatId = g_value_get_string(format);
+                                        QString formatFF = gstToFF->value(formatId, "");
+
+                                        if (!formatFF.isEmpty() && !supportedSampleFormats.contains(formatFF))
+                                            supportedSampleFormats << formatFF;
+                                    }
+                                }
+                            }
+
+                            // Get supported sample rates
+                            if (gst_structure_has_field(capsStructure, "rate")) {
+                                GType fieldType = gst_structure_get_field_type(capsStructure, "rate");
+
+                                if (fieldType == G_TYPE_INT) {
+                                    gint rate;
+                                    gst_structure_get_int(capsStructure, "rate", &rate);
+
+                                    if (!supportedSamplerates.contains(rate))
+                                        supportedSamplerates << rate;
+                                } else if (fieldType == GST_TYPE_INT_RANGE) {
+                                } else if (fieldType == GST_TYPE_LIST) {
+                                    const GValue *rates = gst_structure_get_value(capsStructure, "rate");
+
+                                    for (guint i = 0; i < gst_value_list_get_size(rates); i++) {
+                                        const GValue *rate = gst_value_list_get_value(rates, i);
+                                        gint rateId = g_value_get_int(rate);
+
+                                        if (!supportedSamplerates.contains(rateId))
+                                            supportedSamplerates << rateId;
+                                    }
+                                }
+                            }
+
+                            // Get supported channel layouts
+                            if (gst_structure_has_field(capsStructure, "channels")) {
+                                GType fieldType = gst_structure_get_field_type(capsStructure, "channels");
+
+                                if (fieldType == G_TYPE_INT) {
+                                    gint channels;
+                                    gst_structure_get_int(capsStructure, "channels", &channels);
+                                    QString layout = QbAudioCaps::defaultChannelLayoutString(channels);
+
+                                    if (!supportedChannelLayouts.contains(layout))
+                                        supportedChannelLayouts << layout;
+                                } else if (fieldType == GST_TYPE_INT_RANGE) {
+                                    const GValue *channels = gst_structure_get_value(capsStructure, "channels");
+
+                                    int min = gst_value_get_int_range_min(channels);
+                                    int max = gst_value_get_int_range_max(channels) + 1;
+                                    int step = gst_value_get_int_range_step(channels);
+
+                                    for (int i = min; i < max; i += step) {
+                                        QString layout = QbAudioCaps::defaultChannelLayoutString(i);
+
+                                        if (!supportedChannelLayouts.contains(layout))
+                                            supportedChannelLayouts << layout;
+                                    }
+                                } else if (fieldType == GST_TYPE_LIST) {
+                                    const GValue *channels = gst_structure_get_value(capsStructure, "channels");
+
+                                    for (guint i = 0; i < gst_value_list_get_size(channels); i++) {
+                                        const GValue *nchannels = gst_value_list_get_value(channels, i);
+                                        gint nchannelsId = g_value_get_int(nchannels);
+                                        QString layout = QbAudioCaps::defaultChannelLayoutString(nchannelsId);
+
+                                        if (!supportedChannelLayouts.contains(layout))
+                                            supportedChannelLayouts << layout;
+                                    }
+                                }
+                            }
+                        }
+
+                        gst_caps_unref(compCaps);
+                        g_free(structureStr);
+                    }
+
+                    gst_caps_unref(caps);
+                }
+            }
+
+            GstElement *element = gst_element_factory_create(factory, NULL);
+
+            if (!element) {
+                gst_object_unref(factory);
+                gst_caps_unref(rawCaps);
+
+                return QVariantMap();
+            }
+
+            int bitrate = 0;
+
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "bitrate"))
+                g_object_get(G_OBJECT(element), "bitrate", &bitrate, NULL);
+
+            if (bitrate < 1)
+                bitrate = 128000;
+
+            codecParams["defaultBitRate"] = bitrate;
+            codecParams["supportedSampleFormats"] = supportedSampleFormats;
+            codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
+            codecParams["supportedSampleRates"] = supportedSamplerates;
+
+            codecParams["defaultSampleFormat"] = supportedSampleFormats.isEmpty()?
+                                                     QString("s16"): supportedSampleFormats.at(0);
+
+            QString channelLayout = supportedChannelLayouts.isEmpty()?
+                                        QString("stereo"): supportedChannelLayouts.at(0);
+            codecParams["defaultChannelLayout"] = channelLayout;
+            codecParams["defaultChannels"] = QbAudioCaps::channelCount(channelLayout);
+            codecParams["defaultSampleRate"] = supportedSamplerates.isEmpty()?
+                                                 44100: supportedSamplerates.at(0);
+
+            gst_object_unref (element);
+            gst_object_unref(factory);
         }
+    } else if (codecType == "video/x-raw") {
+        if (codec.startsWith("identity/video")) {
+            QString pixelFormat = gstToFF->value(codec.split("/").at(2), "yuv420p");
+            codecParams["defaultBitRate"] = 200000;
+            codecParams["defaultGOP"] = 12;
+            codecParams["supportedFrameRates"] = QVariantList();
+            codecParams["supportedPixelFormats"] = QStringList() << pixelFormat;
+            codecParams["defaultPixelFormat"] = pixelFormat;
+        } else {
+            GstElementFactory *factory = gst_element_factory_find(codec.toStdString().c_str());
+
+            if (!factory) {
+                gst_caps_unref(rawCaps);
+
+                return QVariantMap();
+            }
+
+            factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
+
+            if (!factory) {
+                gst_object_unref(factory);
+                gst_caps_unref(rawCaps);
+
+                return QVariantMap();
+            }
+
+            QStringList supportedPixelFormats;
+            QVariantList supportedFramerates;
+
+            const GList *pads = gst_element_factory_get_static_pad_templates(factory);
+
+            for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
+                GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
+
+                if (padtemplate->direction == GST_PAD_SINK
+                    && padtemplate->presence == GST_PAD_ALWAYS) {
+                    GstCaps *caps = gst_caps_from_string(padtemplate->static_caps.string);
+
+                    for (guint i = 0; i < gst_caps_get_size(caps); i++) {
+                        GstStructure *capsStructure = gst_caps_get_structure(caps, i);
+                        gchar *structureStr = gst_structure_to_string(capsStructure);
+                        GstCaps *compCaps = gst_caps_from_string(structureStr);
+
+                        if (gst_caps_can_intersect(compCaps, rawCaps)) {
+                            // Get supported formats
+                            if (gst_structure_has_field(capsStructure, "format")) {
+                                GType fieldType = gst_structure_get_field_type(capsStructure, "format");
+
+                                if (fieldType == G_TYPE_STRING) {
+                                    const gchar *format = gst_structure_get_string(capsStructure, "format");
+                                    QString formatFF = gstToFF->value(format, "");
+
+                                    if (!formatFF.isEmpty() && !supportedPixelFormats.contains(formatFF))
+                                        supportedPixelFormats << formatFF;
+                                } else if (fieldType == GST_TYPE_LIST) {
+                                    const GValue *formats = gst_structure_get_value(capsStructure, "format");
+
+                                    for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
+                                        const GValue *format = gst_value_list_get_value(formats, i);
+                                        const gchar *formatId = g_value_get_string(format);
+                                        QString formatFF = gstToFF->value(formatId, "");
+
+                                        if (!formatFF.isEmpty() && !supportedPixelFormats.contains(formatFF))
+                                            supportedPixelFormats << formatFF;
+                                    }
+                                }
+                            }
+
+                            // Get supported frame rates
+                            if (gst_structure_has_field(capsStructure, "framerate")) {
+                                GType fieldType = gst_structure_get_field_type(capsStructure, "framerate");
+
+                                if (fieldType == GST_TYPE_FRACTION_RANGE) {
+                                } else if (fieldType == GST_TYPE_LIST) {
+                                    const GValue *framerates = gst_structure_get_value(capsStructure, "framerate");
+
+                                    for (guint i = 0; i < gst_value_list_get_size(framerates); i++) {
+                                        const GValue *frate = gst_value_list_get_value(framerates, i);
+                                        gint num = gst_value_get_fraction_numerator(frate);
+                                        gint den = gst_value_get_fraction_denominator(frate);
+                                        QbFrac framerate(num, den);
+                                        QVariant fps = QVariant::fromValue(framerate);
+
+                                         if (!supportedFramerates.contains(fps))
+                                             supportedFramerates << fps;
+                                    }
+                                } else if (fieldType == GST_TYPE_FRACTION) {
+                                    gint num = 0;
+                                    gint den = 0;
+                                    gst_structure_get_fraction(capsStructure,
+                                                               "framerate",
+                                                               &num,
+                                                               &den);
+                                   QbFrac framerate(num, den);
+                                   QVariant fps = QVariant::fromValue(framerate);
+
+                                    if (!supportedFramerates.contains(fps))
+                                        supportedFramerates << fps;
+                                }
+                            }
+                        }
+
+                        gst_caps_unref(compCaps);
+                        g_free(structureStr);
+                    }
+
+                    gst_caps_unref(caps);
+                }
+            }
+
+            GstElement *element = gst_element_factory_create(factory, NULL);
+
+            if (!element) {
+                gst_object_unref(factory);
+                gst_caps_unref(rawCaps);
+
+                return QVariantMap();
+            }
+
+            int bitrate = 0;
+
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "bitrate"))
+                g_object_get(G_OBJECT(element), "bitrate", &bitrate, NULL);
+
+            if (bitrate < 1)
+                bitrate = 200000;
+
+            codecParams["defaultBitRate"] = bitrate;
+            codecParams["defaultGOP"] = 12;
+            codecParams["supportedFrameRates"] = supportedFramerates;
+            codecParams["supportedPixelFormats"] = supportedPixelFormats;
+            codecParams["defaultPixelFormat"] = supportedPixelFormats.isEmpty()?
+                                                  "yuv420p": supportedPixelFormats.at(0);
+
+            gst_object_unref(factory);
+        }
+    } else if (codecType == "text/x-raw") {
+    }
+
+    gst_caps_unref(rawCaps);
 
     return codecParams;
 }
@@ -523,7 +853,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
         if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
             QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
             audioCaps.format() = QbAudioCaps::sampleFormatFromString(defaultSampleFormat);
-            audioCaps.bps() = byteCountMap->value(defaultSampleFormat, 0);
+            audioCaps.bps() = QbAudioCaps::bitsPerSample(defaultSampleFormat);
         }
 
         QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
@@ -554,7 +884,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
         if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
             QString defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
             audioCaps.layout() = QbAudioCaps::channelLayoutFromString(defaultChannelLayout);
-            audioCaps.channels() = channelCountMap->value(defaultChannelLayout, 0);
+            audioCaps.channels() = QbAudioCaps::channelCount(defaultChannelLayout);
         };
 
         outputParams["caps"] = QVariant::fromValue(audioCaps.toCaps());
@@ -655,7 +985,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 && !supportedSampleFormats.contains(sampleFormat)) {
                 QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
                 audioCaps.format() = QbAudioCaps::sampleFormatFromString(defaultSampleFormat);
-                audioCaps.bps() = byteCountMap->value(defaultSampleFormat, 0);
+                audioCaps.bps() = QbAudioCaps::bitsPerSample(defaultSampleFormat);
             }
 
             QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
@@ -686,7 +1016,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
             if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
                 QString defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
                 audioCaps.layout() = QbAudioCaps::channelLayoutFromString(defaultChannelLayout);
-                audioCaps.channels() = channelCountMap->value(defaultChannelLayout, 0);
+                audioCaps.channels() = QbAudioCaps::channelCount(defaultChannelLayout);
             }
 
             streamCaps = audioCaps.toCaps();
@@ -766,23 +1096,58 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
 
 QString MediaSink::guessFormat(const QString &fileName)
 {
-    if (!*profilesLoaded)
-        return QString();
-
     QString ext = QFileInfo(fileName).suffix();
 
-    foreach (FormatInfo format, *recordingFormats) {
-        GstElementFactory *factory = gst_element_factory_find(format.name().toStdString().c_str());
-
-        if (factory) {
-            gst_object_unref(factory);
-
-            if (format.extensions().contains(ext))
-                return format.name();
-        }
-    }
+    foreach (QString format, this->supportedFormats())
+        if (this->fileExtensions(format).contains(ext))
+            return format;
 
     return QString();
+}
+
+void MediaSink::waitState(GstState state)
+{
+    forever {
+        GstState curState;
+
+        if (gst_element_get_state(this->m_pipeline,
+                                  &curState,
+                                  NULL,
+                                  GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_SUCCESS
+            && curState == state)
+            break;
+    }
+}
+
+gboolean MediaSink::busCallback(GstBus *bus,
+                                GstMessage *message,
+                                gpointer userData)
+{
+    Q_UNUSED(bus)
+    MediaSink *self = static_cast<MediaSink *>(userData);
+
+    switch (GST_MESSAGE_TYPE(message)) {
+        case GST_MESSAGE_ERROR: {
+            GError *err;
+            gchar *debug;
+            gst_message_parse_error(message, &err, &debug);
+            qDebug() << "Error: " << err->message;
+            g_error_free(err);
+            g_free(debug);
+            g_main_loop_quit(self->m_mainLoop);
+
+            break;
+        }
+
+        case GST_MESSAGE_EOS:
+            g_main_loop_quit(self->m_mainLoop);
+        break;
+
+        default:
+        break;
+    }
+
+    return TRUE;
 }
 
 void MediaSink::setLocation(const QString &location)
@@ -855,7 +1220,20 @@ bool MediaSink::init()
 
 void MediaSink::uninit()
 {
+    if (this->m_pipeline) {
+        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
+        this->waitState(GST_STATE_NULL);
+        gst_object_unref(GST_OBJECT(this->m_pipeline));
+        g_source_remove(this->m_busWatchId);
+        this->m_pipeline = NULL;
+        this->m_busWatchId = 0;
+    }
 
+    if (this->m_mainLoop) {
+        g_main_loop_quit(this->m_mainLoop);
+        g_main_loop_unref(this->m_mainLoop);
+        this->m_mainLoop = NULL;
+    }
 }
 
 void MediaSink::updateStreams()

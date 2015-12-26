@@ -37,7 +37,7 @@ AudioInputElement::AudioInputElement(): QbElement()
     QbAudioCaps caps;
     caps.isValid() = true;
     caps.format() = sampleFormat;
-    caps.bps() = QbAudioCaps::bytesPerSample(sampleFormat);
+    caps.bps() = QbAudioCaps::bitsPerSample(sampleFormat);
     caps.channels() = channels;
     caps.rate() = sampleRate;
     caps.layout() = channels > 1? QbAudioCaps::Layout_mono: QbAudioCaps::Layout_stereo;
@@ -122,7 +122,7 @@ void AudioInputElement::resetCaps()
     QbAudioCaps caps;
     caps.isValid() = true;
     caps.format() = sampleFormat;
-    caps.bps() = QbAudioCaps::bytesPerSample(sampleFormat);
+    caps.bps() = QbAudioCaps::bitsPerSample(sampleFormat);
     caps.channels() = channels;
     caps.rate() = sampleRate;
     caps.layout() = channels > 1? QbAudioCaps::Layout_mono: QbAudioCaps::Layout_stereo;

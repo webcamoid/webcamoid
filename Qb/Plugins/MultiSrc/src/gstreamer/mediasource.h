@@ -68,7 +68,6 @@ class MediaSource: public QObject
         QList<Stream> m_streamInfo;
 
         void waitState(GstState state);
-
         static gboolean busCallback(GstBus *bus,
                                     GstMessage *message,
                                     gpointer userData);
