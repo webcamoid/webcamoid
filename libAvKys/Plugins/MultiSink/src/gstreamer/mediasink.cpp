@@ -1312,14 +1312,15 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
     iFormat = gstToFF->key(iFormat, "S16");
     GstCaps *inputCaps = gst_caps_new_simple("audio/x-raw",
                                              "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
+                                             "layout", G_TYPE_STRING, "interleaved",
                                              "rate", G_TYPE_INT, packet.caps().rate(),
                                              "channels", G_TYPE_INT, packet.caps().channels(),
                                              NULL);
     inputCaps = gst_caps_fixate(inputCaps);
-
+/*
     if (!gst_caps_is_equal(sourceCaps, inputCaps))
         gst_app_src_set_caps(GST_APP_SRC(source), inputCaps);
-
+*/
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
@@ -1412,48 +1413,27 @@ bool MediaSink::init()
                                this->guessFormat(this->m_location):
                                this->m_outputFormat;
 
-    GstElementFactory *factory = gst_element_factory_find(outputFormat.toStdString().c_str());
+    this->m_pipeline = gst_pipeline_new(NULL);
 
-    if (!factory)
+    GstElement *muxer = gst_element_factory_make(outputFormat.toStdString().c_str(), NULL);
+
+    if (!muxer)
         return false;
 
-    factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
+    GstElement *filesink = gst_element_factory_make("filesink", NULL);
+    g_object_set(G_OBJECT(filesink), "location", this->m_location.toStdString().c_str(), NULL);
 
-    if (!factory)
-        return false;
-
-    QString formatCaps = this->readCaps(outputFormat).at(0);
-    QString longName = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_LONGNAME);
-    QString description = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_DESCRIPTION);
-
-    gst_object_unref(factory);
-
-    GstCaps *caps = gst_caps_from_string(formatCaps.toStdString().c_str());
-    GstEncodingContainerProfile *encodingProfile =
-            gst_encoding_container_profile_new(longName.toStdString().c_str(),
-                                               description.toStdString().c_str(),
-                                               caps,
-                                               NULL);
-    gst_caps_unref(caps);
+    gst_bin_add_many(GST_BIN(this->m_pipeline), muxer, filesink, NULL);
+    gst_element_link_many(muxer, filesink, NULL);
 
     QVector<QVariantMap> streamConfigs = this->m_streamConfigs.toVector();
-    QList<GstElement *> appSources;
 
     for (int i = 0; i < streamConfigs.count(); i++) {
         QVariantMap configs = streamConfigs[i];
         AkCaps streamCaps = configs["caps"].value<AkCaps>();
         QString codec = configs["codec"].toString();
-        QString codecCaps = this->readCaps(codec).at(0);
-        GstCaps *gstCaps = gst_caps_from_string(codecCaps.toStdString().c_str());
-        GstStructure *capsStructure = gst_caps_get_structure(gstCaps, 0);
 
         if (streamCaps.mimeType() == "audio/x-raw") {
-            GstCaps *caps = gst_caps_from_string(gst_structure_get_name(capsStructure));
-            GstEncodingAudioProfile *audioProfile = gst_encoding_audio_profile_new(caps, NULL, NULL, 0);
-            gst_encoding_container_profile_add_profile(encodingProfile,
-                                                       (GstEncodingProfile *) audioProfile);
-            gst_caps_unref(caps);
-
             QString sourceName = QString("audio_%1").arg(i);
             GstElement *source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
 
@@ -1463,6 +1443,7 @@ bool MediaSink::init()
 
             GstCaps *gstAudioCaps = gst_caps_new_simple("audio/x-raw",
                                                         "format", G_TYPE_STRING, gstFormat.toStdString().c_str(),
+                                                        "layout", G_TYPE_STRING, "interleaved",
                                                         "rate", G_TYPE_INT, audioCaps.rate(),
                                                         "channels", G_TYPE_INT, audioCaps.channels(),
                                                         NULL);
@@ -1478,14 +1459,12 @@ bool MediaSink::init()
             g_object_set(G_OBJECT(source), "block", TRUE, NULL);
             g_object_set(G_OBJECT(source), "is-live", FALSE, NULL);
 
-            appSources << source;
+            GstElement *audioConvert = gst_element_factory_make("audioconvert", NULL);
+            GstElement *audioCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
+            GstElement *queue = gst_element_factory_make("queue", NULL);
+            gst_bin_add_many(GST_BIN(this->m_pipeline), source, audioConvert, audioCodec, queue, NULL);
+            gst_element_link_many(source, audioConvert, audioCodec, queue, muxer, NULL);
         } else if (streamCaps.mimeType() == "video/x-raw") {
-            GstCaps *caps = gst_caps_from_string(gst_structure_get_name(capsStructure));
-            GstEncodingVideoProfile *videoProfile = gst_encoding_video_profile_new(caps, NULL, NULL, 0);
-            gst_encoding_container_profile_add_profile(encodingProfile,
-                                                       (GstEncodingProfile *) videoProfile);
-            gst_caps_unref(caps);
-
             QString sourceName = QString("video_%1").arg(i);
             GstElement *source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
 
@@ -1511,30 +1490,14 @@ bool MediaSink::init()
             g_object_set(G_OBJECT(source), "block", TRUE, NULL);
             g_object_set(G_OBJECT(source), "is-live", FALSE, NULL);
 
-            appSources << source;
+            GstElement *videoConvert = gst_element_factory_make("videoconvert", NULL);
+            GstElement *videoCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
+            GstElement *queue = gst_element_factory_make("queue", NULL);
+            gst_bin_add_many(GST_BIN(this->m_pipeline), source, videoConvert, videoCodec, queue, NULL);
+            gst_element_link_many(source, videoConvert, videoCodec, queue, muxer, NULL);
         }
 
-        gst_caps_unref(gstCaps);
-
         this->m_streamParams << OutputParams(configs["index"].toInt());
-    }
-
-    this->m_pipeline = gst_pipeline_new(NULL);
-
-    GstElement *encodebin = gst_element_factory_make("encodebin", "encodebin");
-    g_object_set(G_OBJECT(encodebin), "profile", encodingProfile, NULL);
-    gst_encoding_profile_unref(encodingProfile);
-
-    GstElement *filesink = gst_element_factory_make("filesink", "filesink");
-    g_object_set(G_OBJECT(filesink), "location", this->m_location.toStdString().c_str(), NULL);
-
-    gst_bin_add_many(GST_BIN(this->m_pipeline), encodebin, filesink, NULL);
-    gst_element_link_many(encodebin, filesink, NULL);
-
-    foreach (GstElement *source, appSources) {
-        GstElement *queue = gst_element_factory_make("queue", NULL);
-        gst_bin_add_many(GST_BIN(this->m_pipeline), source, queue, NULL);
-        gst_element_link_many(source, queue, encodebin, NULL);
     }
 
     // Configure the message bus.
@@ -1553,6 +1516,8 @@ bool MediaSink::init()
 
 void MediaSink::uninit()
 {
+    this->m_streamParams.clear();
+
     if (this->m_pipeline) {
         GstIterator *sources = gst_bin_iterate_sources(GST_BIN(this->m_pipeline));
         GValue sourceItm = G_VALUE_INIT;

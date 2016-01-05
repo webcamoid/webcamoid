@@ -1454,7 +1454,7 @@ void MediaTools::updateRecordingParams()
         QString audioCaps;
 
         QMetaObject::invokeMethod(this->m_mic.data(),
-                                  "streamCaps",
+                                  "caps",
                                   Q_RETURN_ARG(QString, audioCaps));
 
         streamCaps[1] = audioCaps;

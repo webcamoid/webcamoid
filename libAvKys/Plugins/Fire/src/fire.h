@@ -27,7 +27,7 @@ class Fire: public QObject, public AkPlugin
 {
     Q_OBJECT
     Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.qb.plugin" FILE "pspec.json")
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
         QObject *create(const QString &key, const QString &specification);

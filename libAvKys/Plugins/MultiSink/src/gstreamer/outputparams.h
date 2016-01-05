@@ -25,8 +25,6 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <gst/pbutils/encoding-profile.h>
-#include <gst/audio/audio.h>
-#include <gst/video/video.h>
 
 class OutputParams: public QObject
 {
@@ -46,37 +44,16 @@ class OutputParams: public QObject
 
         Q_INVOKABLE int inputIndex() const;
         Q_INVOKABLE int &inputIndex();
-        Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
-/*
-        Q_INVOKABLE void addAudioSamples(const AVFrame *frame, qint64 id);
-        Q_INVOKABLE int readAudioSamples(int samples, uint8_t **buffer);*/
-        Q_INVOKABLE qint64 audioPts() const;
 
     private:
         int m_inputIndex;
 
-        QByteArray m_audioBuffer;
-//        AVSampleFormat m_audioFormat;
-        int m_audioChannels;
-
-        qint64 m_id;
-        qint64 m_pts;
-        qint64 m_ptsDiff;
-        qint64 m_ptsDrift;
-/*
-        SwrContext *m_resampleContext;
-        SwsContext *m_scaleContext;
-*/
     signals:
         void inputIndexChanged(int inputIndex);
 
     public slots:
         void setInputIndex(int inputIndex);
         void resetInputIndex();
-/*
-        bool convert(const AkPacket &packet, AVFrame *frame);
-        bool convert(const AkAudioPacket &packet, AVFrame *frame);
-        bool convert(const AkVideoPacket &packet, AVFrame *frame);*/
 };
 
 Q_DECLARE_METATYPE(OutputParams)
