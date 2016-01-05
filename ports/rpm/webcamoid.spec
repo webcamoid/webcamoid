@@ -165,10 +165,10 @@ rm -rf %{buildroot}
 %{_datadir}/applications/webcamoid.desktop
 #%{_datadir}/webcamoid/
 %{_defaultdocdir}/webcamoid/
-%{_libdir}/Qb/
-%{_libdir}/qt5/qml/QbQml/
-%{_libdir}/lib*Qb.so*
+%{_libdir}/AvKys/
+%{_libdir}/qt5/qml/AkQml/
+%{_libdir}/lib*AvKys.so*
 
 %changelog
-* Wed Feb 23 2015 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.2.0-1
+* Mon Jan 05 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.2.0-1
 - Final Release.

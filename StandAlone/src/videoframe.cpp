@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@
 
 #include "videoframe.h"
 
-VideoFrame::VideoFrame(const QbPacket &packet)
+VideoFrame::VideoFrame(const AkPacket &packet)
 {
-    this->m_image = QbUtils::packetToImage(packet)
+    this->m_image = AkUtils::packetToImage(packet)
                         .convertToFormat(QImage::Format_ARGB32)
                         .mirrored();
     this->m_textureId = 0;
@@ -41,9 +41,9 @@ VideoFrame::~VideoFrame()
     context->deleteTexture(this->m_textureId);
 }
 
-VideoFrame &VideoFrame::operator =(const QbPacket &packet)
+VideoFrame &VideoFrame::operator =(const AkPacket &packet)
 {
-    QImage image = QbUtils::packetToImage(packet);
+    QImage image = AkUtils::packetToImage(packet);
 
     if (!image.isNull())
         this->m_image = image.convertToFormat(QImage::Format_ARGB32).mirrored();

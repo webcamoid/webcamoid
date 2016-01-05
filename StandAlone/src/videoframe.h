@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,17 +24,17 @@
 #include <QSGTexture>
 #include <QGLContext>
 
-#include "qbutils.h"
+#include "akutils.h"
 
 class VideoFrame: public QSGTexture
 {
     Q_OBJECT
 
     public:
-        explicit VideoFrame(const QbPacket &packet=QbPacket());
+        explicit VideoFrame(const AkPacket &packet=AkPacket());
         ~VideoFrame();
 
-        VideoFrame &operator =(const QbPacket &packet);
+        VideoFrame &operator =(const AkPacket &packet);
 
         void bind();
         bool hasAlphaChannel() const;

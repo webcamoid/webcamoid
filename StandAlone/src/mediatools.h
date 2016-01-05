@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
 #include <QQuickItem>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
-#include <qb.h>
-#include <qbutils.h>
+#include <ak.h>
+#include <akutils.h>
 
 class MediaTools: public QObject
 {
@@ -124,7 +124,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
         Q_INVOKABLE QStringList currentEffects() const;
-        Q_INVOKABLE QbElementPtr appendEffect(const QString &effectId, bool preview=false);
+        Q_INVOKABLE AkElementPtr appendEffect(const QString &effectId, bool preview=false);
         Q_INVOKABLE void removeEffect(const QString &effectId);
         Q_INVOKABLE void moveEffect(const QString &effectId, int index);
         Q_INVOKABLE void showPreview(const QString &effectId);
@@ -165,20 +165,20 @@ class MediaTools: public QObject
         bool m_advancedMode;
         QQmlApplicationEngine *m_appEngine;
 
-        QbElementPtr m_pipeline;
-        QbElementPtr m_source;
-        QbElementPtr m_audioSwitch;
-        QbElementPtr m_audioOutput;
-        QbElementPtr m_mic;
-        QbElementPtr m_record;
-        QbElementPtr m_videoCapture;
-        QbElementPtr m_desktopCapture;
-        QbElementPtr m_videoMux;
-        QbElementPtr m_videoOutput;
-        QbElementPtr m_videoGen;
-        QList<QbElementPtr> m_effectsList;
+        AkElementPtr m_pipeline;
+        AkElementPtr m_source;
+        AkElementPtr m_audioSwitch;
+        AkElementPtr m_audioOutput;
+        AkElementPtr m_mic;
+        AkElementPtr m_record;
+        AkElementPtr m_videoCapture;
+        AkElementPtr m_desktopCapture;
+        AkElementPtr m_videoMux;
+        AkElementPtr m_videoOutput;
+        AkElementPtr m_videoGen;
+        QList<AkElementPtr> m_effectsList;
         QMutex m_mutex;
-        QbPacket m_curPacket;
+        AkPacket m_curPacket;
         QImage m_photo;
 
         bool embedInterface(QQmlApplicationEngine *engine,
@@ -196,11 +196,11 @@ class MediaTools: public QObject
         void recordingChanged(bool recording);
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
-        void stateChanged(QbElement::ElementState state);
+        void stateChanged(AkElement::ElementState state);
         void advancedModeChanged(bool advancedMode);
         void currentEffectsChanged();
         void isPlayingChanged();
-        void frameReady(const QbPacket &frame);
+        void frameReady(const AkPacket &frame);
         void error(const QString &message);
         void interfaceLoaded();
 
@@ -238,7 +238,7 @@ class MediaTools: public QObject
         void cleanAll();
 
     private slots:
-        void iStream(const QbPacket &packet);
+        void iStream(const AkPacket &packet);
         void webcamsChanged(const QStringList &webcams);
         void updateRecordingParams();
 };

@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ class VideoDisplay: public QQuickItem
         void fillDisplayChanged();
 
     public slots:
-        void setFrame(const QbPacket &packet);
+        void setFrame(const AkPacket &packet);
         void setFillDisplay(bool fillDisplay);
         void resetFillDisplay();
 };

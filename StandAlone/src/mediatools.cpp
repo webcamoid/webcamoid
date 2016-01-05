@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2015  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,26 +52,26 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_windowHeight = 0;
     this->m_advancedMode = false;
 
-    Qb::init(engine);
+    Ak::init(engine);
 
     QSettings config;
 
     config.beginGroup("PluginConfigs");
-    Qb::setQmlPluginPath(config.value("qmlPluginPath", Qb::qmlPluginPath()).toString());
-    QbElement::setRecursiveSearch(config.value("recursive", false).toBool());
+    Ak::setQmlPluginPath(config.value("qmlPluginPath", Ak::qmlPluginPath()).toString());
+    AkElement::setRecursiveSearch(config.value("recursive", false).toBool());
 
     int size = config.beginReadArray("paths");
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
         QString path = config.value("path").toString();
-        QbElement::addSearchPath(path);
+        AkElement::addSearchPath(path);
     }
 
     config.endArray();
     config.endGroup();
 
-    this->m_pipeline = QbElement::create("Bin", "pipeline");
+    this->m_pipeline = AkElement::create("Bin", "pipeline");
 
     if (this->m_pipeline) {
         QFile jsonFile(":/Webcamoid/share/mainpipeline.json");
@@ -83,52 +83,52 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_source),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_source),
                                   Q_ARG(QString, "source"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_audioSwitch),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_audioSwitch),
                                   Q_ARG(QString, "audioSwitch"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_audioOutput),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_audioOutput),
                                   Q_ARG(QString, "audioOutput"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_mic),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_mic),
                                   Q_ARG(QString, "mic"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_record),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_record),
                                   Q_ARG(QString, "record"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_videoCapture),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_videoCapture),
                                   Q_ARG(QString, "videoCapture"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_desktopCapture),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_desktopCapture),
                                   Q_ARG(QString, "desktopCapture"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_videoMux),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_videoMux),
                                   Q_ARG(QString, "videoMux"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_videoOutput),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_videoOutput),
                                   Q_ARG(QString, "videoOutput"));
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(QbElementPtr, this->m_videoGen),
+                                  Q_RETURN_ARG(AkElementPtr, this->m_videoGen),
                                   Q_ARG(QString, "videoGen"));
 
         if (this->m_videoOutput)
@@ -141,14 +141,14 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(error(const QString &)));
 
             QObject::connect(this->m_source.data(),
-                             &QbElement::stateChanged,
+                             &AkElement::stateChanged,
                              this,
                              &MediaTools::stateChanged);
 
             QObject::connect(this->m_source.data(),
-                             &QbElement::stateChanged,
+                             &AkElement::stateChanged,
                              this->m_audioOutput.data(),
-                             &QbElement::setState);
+                             &AkElement::setState);
         }
 
         if (this->m_videoCapture) {
@@ -158,14 +158,14 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(error(const QString &)));
 
             QObject::connect(this->m_videoCapture.data(),
-                             &QbElement::stateChanged,
+                             &AkElement::stateChanged,
                              this,
                              &MediaTools::stateChanged);
         }
 
         if (this->m_desktopCapture) {
             QObject::connect(this->m_desktopCapture.data(),
-                             &QbElement::stateChanged,
+                             &AkElement::stateChanged,
                              this,
                              &MediaTools::stateChanged);
         }
@@ -207,7 +207,7 @@ MediaTools::~MediaTools()
     this->saveConfigs();
 }
 
-void MediaTools::iStream(const QbPacket &packet)
+void MediaTools::iStream(const AkPacket &packet)
 {
     if (packet.caps().mimeType() != "video/x-raw")
         return;
@@ -436,10 +436,10 @@ bool MediaTools::isVideo(const QString &stream) const
 
 QStringList MediaTools::availableEffects() const
 {
-    QStringList effects = QbElement::listPlugins("VideoFilter");
+    QStringList effects = AkElement::listPlugins("VideoFilter");
 
     if (this->m_advancedMode)
-        foreach (QbElementPtr effect, this->m_effectsList) {
+        foreach (AkElementPtr effect, this->m_effectsList) {
             int i = effects.indexOf(effect->pluginId());
 
             if (i < 0
@@ -456,7 +456,7 @@ QStringList MediaTools::availableEffects() const
 
 QVariantMap MediaTools::effectInfo(const QString &effectId) const
 {
-    return QbElement::pluginInfo(effectId);
+    return AkElement::pluginInfo(effectId);
 }
 
 QString MediaTools::effectDescription(const QString &effectId) const
@@ -464,7 +464,7 @@ QString MediaTools::effectDescription(const QString &effectId) const
     if (effectId.isEmpty())
         return QString();
 
-    return QbElement::pluginInfo(effectId)["MetaData"].toMap()
+    return AkElement::pluginInfo(effectId)["MetaData"].toMap()
                                           ["description"].toString();
 }
 
@@ -472,20 +472,20 @@ QStringList MediaTools::currentEffects() const
 {
     QStringList effects;
 
-    foreach (QbElementPtr effect, this->m_effectsList)
+    foreach (AkElementPtr effect, this->m_effectsList)
         if (!effect->property("preview").toBool())
             effects << effect->pluginId();
 
     return effects;
 }
 
-QbElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
+AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
 {
     int i = this->m_effectsList.size() - 1;
-    QbElementPtr effect = QbElement::create(effectId);
+    AkElementPtr effect = AkElement::create(effectId);
 
     if (!effect)
-        return QbElementPtr();
+        return AkElementPtr();
 
     if (preview)
         effect->setProperty("preview", preview);
@@ -540,7 +540,7 @@ void MediaTools::moveEffect(const QString &effectId, int index)
 {
     for (int i = 0; i < this->m_effectsList.size(); i++)
         if (this->m_effectsList[i]->pluginId() == effectId) {
-            QbElementPtr effect = this->m_effectsList.takeAt(i);
+            AkElementPtr effect = this->m_effectsList.takeAt(i);
             this->m_effectsList.insert(index, effect);
 
             break;
@@ -570,9 +570,9 @@ void MediaTools::setAsPreview(const QString &effectId, bool preview)
 
 void MediaTools::removePreview(const QString &effectId)
 {
-    QList<QbElementPtr> effectsList = this->m_effectsList;
+    QList<AkElementPtr> effectsList = this->m_effectsList;
 
-    foreach (QbElementPtr effect, effectsList)
+    foreach (AkElementPtr effect, effectsList)
         if (effect->property("preview").toBool()
             && (effectId.isEmpty()
                 || effect->pluginId() == effectId)) {
@@ -583,15 +583,15 @@ void MediaTools::removePreview(const QString &effectId)
 bool MediaTools::isPlaying()
 {
     if (this->m_source
-        && this->m_source->state() != QbElement::ElementStateNull)
+        && this->m_source->state() != AkElement::ElementStateNull)
         return true;
 
     if (this->m_videoCapture
-        && this->m_videoCapture->state() != QbElement::ElementStateNull)
+        && this->m_videoCapture->state() != AkElement::ElementStateNull)
         return true;
 
     if (this->m_desktopCapture
-        && this->m_desktopCapture->state() != QbElement::ElementStateNull)
+        && this->m_desktopCapture->state() != AkElement::ElementStateNull)
         return true;
 
     return false;
@@ -796,10 +796,10 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
 bool MediaTools::sortByDescription(const QString &pluginId1,
                                    const QString &pluginId2)
 {
-    QString desc1 = QbElement::pluginInfo(pluginId1)["MetaData"].toMap()
+    QString desc1 = AkElement::pluginInfo(pluginId1)["MetaData"].toMap()
                                                     ["description"].toString();
 
-    QString desc2 = QbElement::pluginInfo(pluginId2)["MetaData"].toMap()
+    QString desc2 = AkElement::pluginInfo(pluginId2)["MetaData"].toMap()
                                                     ["description"].toString();
 
     return desc1 < desc2;
@@ -823,54 +823,54 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
 
     if (recordAudio == RecordFromNone) {
         if (this->m_recordAudioFrom == RecordFromMic)
-            this->m_mic->setState(QbElement::ElementStateNull);
+            this->m_mic->setState(AkElement::ElementStateNull);
 
-        this->m_audioSwitch->setState(QbElement::ElementStateNull);
+        this->m_audioSwitch->setState(AkElement::ElementStateNull);
 
         QObject::disconnect(this->m_record.data(),
-                            &QbElement::stateChanged,
+                            &AkElement::stateChanged,
                             this->m_audioSwitch.data(),
-                            &QbElement::setState);
+                            &AkElement::setState);
 
         if (this->m_recordAudioFrom == RecordFromMic)
             QObject::disconnect(this->m_record.data(),
-                                &QbElement::stateChanged,
+                                &AkElement::stateChanged,
                                 this->m_mic.data(),
-                                &QbElement::setState);
+                                &AkElement::setState);
     } else {
         if (recordAudio == RecordFromSource) {
             if (this->m_recordAudioFrom == RecordFromMic) {
-                this->m_mic->setState(QbElement::ElementStateNull);
+                this->m_mic->setState(AkElement::ElementStateNull);
 
                 QObject::disconnect(this->m_record.data(),
-                                    &QbElement::stateChanged,
+                                    &AkElement::stateChanged,
                                     this->m_mic.data(),
-                                    &QbElement::setState);
+                                    &AkElement::setState);
             }
 
             this->m_audioSwitch->setProperty("inputIndex", 0);
         } else if (recordAudio == RecordFromMic) {
-            if (this->m_record->state() == QbElement::ElementStatePlaying ||
-                this->m_record->state() == QbElement::ElementStatePaused)
+            if (this->m_record->state() == AkElement::ElementStatePlaying ||
+                this->m_record->state() == AkElement::ElementStatePaused)
                 this->m_mic->setState(this->m_record->state());
 
             QObject::connect(this->m_record.data(),
-                             &QbElement::stateChanged,
+                             &AkElement::stateChanged,
                              this->m_mic.data(),
-                             &QbElement::setState);
+                             &AkElement::setState);
 
             this->m_audioSwitch->setProperty("inputIndex", 1);
         }
 
         if (this->m_recordAudioFrom == RecordFromNone) {
-            if (this->m_record->state() == QbElement::ElementStatePlaying ||
-                this->m_record->state() == QbElement::ElementStatePaused)
+            if (this->m_record->state() == AkElement::ElementStatePlaying ||
+                this->m_record->state() == AkElement::ElementStatePaused)
                 this->m_audioSwitch->setState(this->m_record->state());
 
             QObject::connect(this->m_record.data(),
-                             &QbElement::stateChanged,
+                             &AkElement::stateChanged,
                              this->m_audioSwitch.data(),
-                             &QbElement::setState);
+                             &AkElement::setState);
         }
     }
 
@@ -904,7 +904,7 @@ void MediaTools::mutexUnlock()
 
 void MediaTools::takePhoto()
 {
-    this->m_photo = QbUtils::packetToImage(this->m_curPacket).copy();
+    this->m_photo = AkUtils::packetToImage(this->m_curPacket).copy();
 }
 
 void MediaTools::savePhoto(const QString &fileName)
@@ -927,7 +927,7 @@ bool MediaTools::start()
         return false;
 
     // Setup the recording streams caps.
-    QbElementPtr source;
+    AkElementPtr source;
 
     if (this->isCamera(this->m_curStream))
         source = this->m_videoCapture;
@@ -960,21 +960,21 @@ bool MediaTools::start()
 
         // Read streams caps.
         if (videoStream >= 0) {
-            QbCaps videoCaps;
+            AkCaps videoCaps;
 
             QMetaObject::invokeMethod(source.data(),
                                       "caps", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QbCaps, videoCaps),
+                                      Q_RETURN_ARG(AkCaps, videoCaps),
                                       Q_ARG(int, videoStream));
             streams << videoStream;
         }
 
         if (audioStream >= 0) {
-            QbCaps audioCaps;
+            AkCaps audioCaps;
 
             QMetaObject::invokeMethod(source.data(),
                                       "caps", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QbCaps, audioCaps),
+                                      Q_RETURN_ARG(AkCaps, audioCaps),
                                       Q_ARG(int, audioStream));
             streams << audioStream;
         }
@@ -986,44 +986,44 @@ bool MediaTools::start()
     }
 
     this->updateRecordingParams();
-    source->setState(QbElement::ElementStatePlaying);
+    source->setState(AkElement::ElementStatePlaying);
     emit this->stateChanged(source->state());
 
-    return source->state() == QbElement::ElementStatePlaying;
+    return source->state() == AkElement::ElementStatePlaying;
 }
 
 void MediaTools::stop()
 {
     if (this->m_source)
-        this->m_source->setState(QbElement::ElementStateNull);
+        this->m_source->setState(AkElement::ElementStateNull);
 
     if (this->m_videoCapture)
-        this->m_videoCapture->setState(QbElement::ElementStateNull);
+        this->m_videoCapture->setState(AkElement::ElementStateNull);
 
     if (this->m_desktopCapture)
-        this->m_desktopCapture->setState(QbElement::ElementStateNull);
+        this->m_desktopCapture->setState(AkElement::ElementStateNull);
 
-    emit this->stateChanged(QbElement::ElementStateNull);
+    emit this->stateChanged(AkElement::ElementStateNull);
 }
 
 bool MediaTools::startRecording(const QString &fileName)
 {
     QVariantList streams = this->m_record->property("streams").toList();
-    QbVideoCaps videoCaps = streams[0].toMap()["caps"].value<QbCaps>();
+    AkVideoCaps videoCaps = streams[0].toMap()["caps"].value<AkCaps>();
 
     this->m_videoGen->setProperty("fps", QVariant::fromValue(videoCaps.fps()));
     this->m_record->setProperty("location", fileName);
-    this->m_record->setState(QbElement::ElementStatePlaying);
+    this->m_record->setState(AkElement::ElementStatePlaying);
 
-    if (this->m_record->state() == QbElement::ElementStatePlaying) {
+    if (this->m_record->state() == AkElement::ElementStatePlaying) {
         if (this->m_recordAudioFrom != RecordFromNone) {
-            this->m_audioSwitch->setState(QbElement::ElementStatePlaying);
+            this->m_audioSwitch->setState(AkElement::ElementStatePlaying);
 
             if (this->m_recordAudioFrom == RecordFromMic)
-                this->m_mic->setState(QbElement::ElementStatePlaying);
+                this->m_mic->setState(AkElement::ElementStatePlaying);
         } else {
-            this->m_audioSwitch->setState(QbElement::ElementStateNull);
-            this->m_mic->setState(QbElement::ElementStateNull);
+            this->m_audioSwitch->setState(AkElement::ElementStateNull);
+            this->m_mic->setState(AkElement::ElementStateNull);
         }
 
         this->setRecording(true);
@@ -1031,9 +1031,9 @@ bool MediaTools::startRecording(const QString &fileName)
         return true;
     }
 
-    this->m_record->setState(QbElement::ElementStateNull);
-    this->m_audioSwitch->setState(QbElement::ElementStateNull);
-    this->m_mic->setState(QbElement::ElementStateNull);
+    this->m_record->setState(AkElement::ElementStateNull);
+    this->m_audioSwitch->setState(AkElement::ElementStateNull);
+    this->m_mic->setState(AkElement::ElementStateNull);
 
     this->setRecording(false);
 
@@ -1042,9 +1042,9 @@ bool MediaTools::startRecording(const QString &fileName)
 
 void MediaTools::stopRecording()
 {
-    this->m_record->setState(QbElement::ElementStateNull);
-    this->m_audioSwitch->setState(QbElement::ElementStateNull);
-    this->m_mic->setState(QbElement::ElementStateNull);
+    this->m_record->setState(AkElement::ElementStateNull);
+    this->m_audioSwitch->setState(AkElement::ElementStateNull);
+    this->m_mic->setState(AkElement::ElementStateNull);
 
     this->setRecording(false);
 }
@@ -1078,24 +1078,24 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
     if (!this->m_source || !this->m_audioOutput)
         return;
 
-    QbElement::ElementState sourceState = this->m_source->state();
+    AkElement::ElementState sourceState = this->m_source->state();
 
     if (playAudio) {
-        if (sourceState == QbElement::ElementStatePlaying ||
-            sourceState == QbElement::ElementStatePaused)
+        if (sourceState == AkElement::ElementStatePlaying ||
+            sourceState == AkElement::ElementStatePaused)
             this->m_audioOutput->setState(sourceState);
 
         QObject::connect(this->m_source.data(),
-                         &QbElement::stateChanged,
+                         &AkElement::stateChanged,
                          this->m_audioOutput.data(),
-                         &QbElement::setState);
+                         &AkElement::setState);
     } else {
-        this->m_audioOutput->setState(QbElement::ElementStateNull);
+        this->m_audioOutput->setState(AkElement::ElementStateNull);
 
         QObject::disconnect(this->m_source.data(),
-                            &QbElement::stateChanged,
+                            &AkElement::stateChanged,
                             this->m_audioOutput.data(),
-                            &QbElement::setState);
+                            &AkElement::setState);
     }
 }
 
@@ -1222,7 +1222,7 @@ void MediaTools::loadConfigs()
     config.endGroup();
 
     foreach (QString effectId, effects) {
-        QbElementPtr effect = this->appendEffect(effectId);
+        AkElementPtr effect = this->appendEffect(effectId);
 
         if (!effect)
             continue;
@@ -1273,7 +1273,7 @@ void MediaTools::saveConfigs()
 
     int ei = 0;
 
-    foreach (QbElementPtr effect, this->m_effectsList)
+    foreach (AkElementPtr effect, this->m_effectsList)
         if (!effect->property("preview").toBool()) {
             config.setArrayIndex(ei);
             config.setValue("effect", effect->pluginId());
@@ -1283,7 +1283,7 @@ void MediaTools::saveConfigs()
     config.endArray();
     config.endGroup();
 
-    foreach (QbElementPtr effect, this->m_effectsList) {
+    foreach (AkElementPtr effect, this->m_effectsList) {
         config.beginGroup("Effects_" + effect->pluginId());
 
         for (int property = 0;
@@ -1316,14 +1316,14 @@ void MediaTools::saveConfigs()
     config.endGroup();
 
     config.beginGroup("PluginConfigs");
-    config.setValue("qmlPluginPath", Qb::qmlPluginPath());
-    config.setValue("recursive", QbElement::recursiveSearch());
+    config.setValue("qmlPluginPath", Ak::qmlPluginPath());
+    config.setValue("recursive", AkElement::recursiveSearch());
 
     config.beginWriteArray("paths");
 
     i = 0;
 
-    foreach (QString path, QbElement::searchPaths(QbElement::SearchPathsExtras)) {
+    foreach (QString path, AkElement::searchPaths(AkElement::SearchPathsExtras)) {
         config.setArrayIndex(i);
         config.setValue("path", path);
         i++;
@@ -1379,7 +1379,7 @@ void MediaTools::updateRecordingParams()
         return;
 
     // Setup the recording streams caps.
-    QbElementPtr source;
+    AkElementPtr source;
 
     if (this->isCamera(this->m_curStream))
         source = this->m_videoCapture;
@@ -1393,7 +1393,7 @@ void MediaTools::updateRecordingParams()
                               "streams",
                               Q_RETURN_ARG(QList<int>, streams));
 
-    QVector<QbCaps> streamCaps(2);
+    QVector<AkCaps> streamCaps(2);
 
     if (streams.isEmpty()) {
         int audioStream = -1;
@@ -1412,33 +1412,33 @@ void MediaTools::updateRecordingParams()
 
         // Read streams caps.
         if (videoStream >= 0) {
-            QbCaps videoCaps;
+            AkCaps videoCaps;
 
             QMetaObject::invokeMethod(source.data(),
                                       "caps",
-                                      Q_RETURN_ARG(QbCaps, videoCaps),
+                                      Q_RETURN_ARG(AkCaps, videoCaps),
                                       Q_ARG(int, videoStream));
 
             streamCaps[0] = videoCaps;
         }
 
         if (audioStream >= 0) {
-            QbCaps audioCaps;
+            AkCaps audioCaps;
 
             QMetaObject::invokeMethod(source.data(),
                                       "caps",
-                                      Q_RETURN_ARG(QbCaps, audioCaps),
+                                      Q_RETURN_ARG(AkCaps, audioCaps),
                                       Q_ARG(int, audioStream));
 
             streamCaps[1] = audioCaps;
         }
     } else {
         foreach (int stream, streams) {
-            QbCaps caps;
+            AkCaps caps;
 
             QMetaObject::invokeMethod(source.data(),
                                       "caps",
-                                      Q_RETURN_ARG(QbCaps, caps),
+                                      Q_RETURN_ARG(AkCaps, caps),
                                       Q_ARG(int, stream));
 
             if (caps.mimeType() == "audio/x-raw")
@@ -1459,7 +1459,7 @@ void MediaTools::updateRecordingParams()
 
         streamCaps[1] = audioCaps;
     } else if (this->m_recordAudioFrom == RecordFromNone)
-        streamCaps[1] = QbCaps();
+        streamCaps[1] = AkCaps();
 
     QSettings config;
     QMetaObject::invokeMethod(this->m_record.data(), "clearStreams");
@@ -1492,7 +1492,7 @@ void MediaTools::updateRecordingParams()
                                       "addStream",
                                       Q_RETURN_ARG(QVariantMap, streamConfigs),
                                       Q_ARG(int, stream),
-                                      Q_ARG(QbCaps, streamCaps[stream]),
+                                      Q_ARG(AkCaps, streamCaps[stream]),
                                       Q_ARG(QVariantMap, streamConfigs));
 
             configKeys = streamConfigs.keys();
