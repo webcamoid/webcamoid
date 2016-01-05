@@ -27,7 +27,7 @@ exists(commons.pri) {
     }
 }
 
-USE_GSTREAMER = 1
+#USE_GSTREAMER = 1
 
 isEmpty(USE_GSTREAMER) {
     include(src/ffmpeg/ffmpeg.pri)
