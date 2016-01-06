@@ -34,6 +34,11 @@ class OutputParams: public QObject
                WRITE setInputIndex
                RESET resetInputIndex
                NOTIFY inputIndexChanged)
+    Q_PROPERTY(quint64 nFrame
+               READ nFrame
+               WRITE setNFrame
+               RESET resetNFrame
+               NOTIFY nFrameChanged)
 
     public:
         explicit OutputParams(int inputIndex=0, QObject *parent=NULL);
@@ -44,16 +49,28 @@ class OutputParams: public QObject
 
         Q_INVOKABLE int inputIndex() const;
         Q_INVOKABLE int &inputIndex();
+        Q_INVOKABLE quint64 nFrame() const;
+        Q_INVOKABLE quint64 &nFrame();
+        Q_INVOKABLE qint64 nextPts(qint64 pts, qint64 id);
 
     private:
         int m_inputIndex;
+        quint64 m_nFrame;
+
+        qint64 m_id;
+        qint64 m_pts;
+        qint64 m_ptsDiff;
+        qint64 m_ptsDrift;
 
     signals:
         void inputIndexChanged(int inputIndex);
+        void nFrameChanged(quint64 nFrame);
 
     public slots:
         void setInputIndex(int inputIndex);
+        void setNFrame(quint64 nFrame);
         void resetInputIndex();
+        void resetNFrame();
 };
 
 Q_DECLARE_METATYPE(OutputParams)

@@ -22,7 +22,6 @@
 #define MEDIASINK_H
 
 #include <QtConcurrent>
-#include <QMutex>
 
 #include "outputparams.h"
 
@@ -81,7 +80,6 @@ class MediaSink: public QObject
 
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
-        QMutex m_mutex;
 
         QThreadPool m_threadPool;
         GstElement *m_pipeline;

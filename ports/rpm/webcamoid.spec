@@ -170,5 +170,5 @@ rm -rf %{buildroot}
 %{_libdir}/lib*AvKys.so*
 
 %changelog
-* Mon Jan 05 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.2.0-1
+* Wed Jan 06 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.2.0-1
 - Final Release.
