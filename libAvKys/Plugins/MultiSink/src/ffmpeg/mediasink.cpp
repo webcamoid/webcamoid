@@ -1655,7 +1655,7 @@ bool MediaSink::init()
     }
 
 
-    // Set codec options.
+    // Set format options.
     AVDictionary *formatOptions = NULL;
 
     foreach (QString key, this->m_formatOptions.keys()) {

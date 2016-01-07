@@ -92,6 +92,8 @@ class MediaSink: public QObject
         static gboolean busCallback(GstBus *bus,
                                     GstMessage *message,
                                     gpointer userData);
+        void setElementOptions(GstElement *element, const QVariantMap &options);
+        AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
 
     signals:
         void locationChanged(const QString &location);

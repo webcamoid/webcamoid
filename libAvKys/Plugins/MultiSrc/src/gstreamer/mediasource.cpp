@@ -26,6 +26,7 @@
 
 MediaSource::MediaSource(QObject *parent): QObject(parent)
 {
+//    setenv("GST_DEBUG", "2", 1);
     gst_init(NULL, NULL);
 
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
@@ -267,6 +268,13 @@ gboolean MediaSource::busCallback(GstBus *bus, GstMessage *message,
         gst_tag_list_unref(tagList);
         break;
     }
+    case GST_MESSAGE_ELEMENT: {
+        const GstStructure *messageStructure = gst_message_get_structure(message);
+        gchar *structure = gst_structure_to_string(messageStructure);
+//        qDebug() << structure;
+        g_free(structure);
+        break;
+    }
     default:
         qDebug() << "Unhandled message:" << GST_MESSAGE_TYPE_NAME(message);
     break;
@@ -426,15 +434,10 @@ void MediaSource::aboutToFinish(GstElement *object, gpointer userData)
     if (!self->m_loop)
         return;
 
-    QString uri = self->m_media;
-
-    // Check if it's a file, and it hasn't the URI specifier, append it.
-    if (QFile::exists(uri) && !uri.startsWith("file://"))
-        uri = uri.prepend("file://");
-
     // Set the media file to play.
-    g_object_set(G_OBJECT(object),
-                 "uri", uri.toStdString().c_str(), NULL);
+    gchar *uri = gst_filename_to_uri(self->m_media.toStdString().c_str(), NULL);
+    g_object_set(G_OBJECT(object), "uri", uri, NULL);
+    g_free(uri);
 }
 
 QStringList MediaSource::languageCodes(const QString &type)
@@ -574,17 +577,13 @@ bool MediaSource::init(bool paused)
     // Create pipeline.
     this->m_pipeline = gst_element_factory_make("playbin", "mediaBin");
 
-    QString uri = this->m_media;
-
-    // Check if it's a file, and it hasn't the URI specifier, append it.
-    if (QFile::exists(uri) && !uri.startsWith("file://"))
-        uri = uri.prepend("file://");
-
     // Else, try to open it anyway.
 
     // Set the media file to play.
-    g_object_set(G_OBJECT(this->m_pipeline),
-                 "uri", uri.toStdString().c_str(), NULL);
+    gchar *uri = gst_filename_to_uri(this->m_media.toStdString().c_str(), NULL);
+    g_object_set(G_OBJECT(this->m_pipeline), "uri", uri, NULL);
+    g_free(uri);
+
     g_object_set(G_OBJECT(this->m_pipeline),
                  "buffer-size", this->m_maxPacketQueueSize, NULL);
 
