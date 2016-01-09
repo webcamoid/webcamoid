@@ -93,6 +93,7 @@ class MediaSink: public QObject
                                     GstMessage *message,
                                     gpointer userData);
         void setElementOptions(GstElement *element, const QVariantMap &options);
+        AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
 
     signals:
