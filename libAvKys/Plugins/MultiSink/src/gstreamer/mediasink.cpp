@@ -141,6 +141,33 @@ inline StringStringMap initGstToFF()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
+typedef QVector<AkVideoCaps> VectorVideoCaps;
+
+inline VectorVideoCaps initDVSupportedCaps()
+{
+    QStringList supportedCaps;
+
+    // Digital Video doesn't support height > 576 yet.
+    supportedCaps /*<< "video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1"
+                  << "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001"
+                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1"*/
+                  << "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1"
+                  << "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1"
+                  << "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1"
+                  << "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001"
+                  << "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001";
+
+    VectorVideoCaps dvSupportedCaps(supportedCaps.size());
+
+    for (int i = 0; i < dvSupportedCaps.size(); i++)
+        dvSupportedCaps[i] = supportedCaps[i];
+
+    return dvSupportedCaps;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps()))
+
 typedef QVector<QSize> VectorSize;
 
 inline VectorSize initH263SupportedSize()
@@ -252,6 +279,21 @@ QStringList MediaSink::supportedFormats()
 
 QStringList MediaSink::fileExtensions(const QString &format)
 {
+    if (format == "3gppmux"
+        || format == "avmux_3gp")
+        return QStringList() << "3gp";
+    else if (format == "avmux_3g2")
+        return QStringList() << "3g2";
+    else if (format == "ismlmux")
+        return QStringList() << "isml" << "ismv" << "isma";
+    else if (format == "mp4mux"
+             || format == "avmux_mp4")
+        return QStringList() << "mp4";
+    else if (format == "avmux_psp")
+        return QStringList() << "psp" << "mp4";
+    else if (format == "avmux_ipod")
+        return QStringList() << "m4v" << "m4a";
+
     QStringList supportedCaps = this->readCaps(format);
     QStringList extensions;
 
@@ -942,6 +984,8 @@ QVariantMap MediaSink::addStream(int streamIndex,
 
         if (codec == "avenc_h263")
             videoCaps = this->nearestH263Caps(videoCaps);
+        else if (codec == "avenc_dvvideo")
+            videoCaps = this->nearestDVCaps(videoCaps);
 
         outputParams["caps"] = QVariant::fromValue(videoCaps.toCaps());
         outputParams["timeBase"] = QVariant::fromValue(videoCaps.fps().invert());
@@ -1067,6 +1111,8 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
 
             if (codec == "avenc_h263")
                 videoCaps = this->nearestH263Caps(videoCaps);
+            else if (codec == "avenc_dvvideo")
+                videoCaps = this->nearestDVCaps(videoCaps);
 
             streamCaps = videoCaps.toCaps();
             this->m_streamConfigs[index]["timeBase"] = QVariant::fromValue(videoCaps.fps().invert());
@@ -1304,6 +1350,27 @@ void MediaSink::setElementOptions(GstElement *element, const QVariantMap &option
                               key.toStdString().c_str(),
                               &gValue);
     }
+}
+
+AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
+{
+    AkVideoCaps nearestCaps;
+    qreal q = std::numeric_limits<qreal>::max();
+
+    foreach (AkVideoCaps sCaps, *dvSupportedCaps) {
+        qreal dw = sCaps.width() - caps.width();
+        qreal dh = sCaps.height() - caps.height();
+        qreal df = sCaps.fps().value() - caps.fps().value();
+        qreal k = dw * dw + dh * dh + df * df;
+
+        if (k < q) {
+            nearestCaps = sCaps;
+            q = k;
+        } else if (k == q && sCaps.format() == caps.format())
+            nearestCaps = sCaps;
+    }
+
+    return nearestCaps;
 }
 
 AkVideoCaps MediaSink::nearestH263Caps(const AkVideoCaps &caps) const
@@ -1556,6 +1623,9 @@ bool MediaSink::init()
         AkCaps streamCaps = configs["caps"].value<AkCaps>();
         QString codec = configs["codec"].toString();
 
+        if (codec.startsWith("identity/"))
+            codec = "identity";
+
         if (streamCaps.mimeType() == "audio/x-raw") {
             QString sourceName = QString("audio_%1").arg(i);
             GstElement *source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
@@ -1577,6 +1647,8 @@ bool MediaSink::init()
             gst_app_src_set_caps(GST_APP_SRC(source), gstAudioCaps);
 
             GstElement *audioConvert = gst_element_factory_make("audioconvert", NULL);
+            GstElement *audioResample = gst_element_factory_make("audioresample", NULL);
+            GstElement *audioRate = gst_element_factory_make("audiorate", NULL);
             GstElement *audioCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
 
             // Set codec options.
@@ -1598,9 +1670,17 @@ bool MediaSink::init()
 
             GstElement *queue = gst_element_factory_make("queue", NULL);
 
-            gst_bin_add_many(GST_BIN(this->m_pipeline), source, audioConvert, audioCodec, queue, NULL);
-            gst_element_link(source, audioConvert);
-            gst_element_link_filtered(audioConvert, audioCodec, gstAudioCaps);
+            gst_bin_add_many(GST_BIN(this->m_pipeline),
+                             source,
+                             audioConvert,
+                             audioResample,
+                             audioRate,
+                             audioCodec,
+                             queue,
+                             NULL);
+
+            gst_element_link_many(source, audioConvert, audioResample, audioRate, NULL);
+            gst_element_link_filtered(audioRate, audioCodec, gstAudioCaps);
             gst_caps_unref(gstAudioCaps);
             gst_element_link_many(audioCodec, queue, muxer, NULL);
         } else if (streamCaps.mimeType() == "video/x-raw") {
@@ -1613,6 +1693,8 @@ bool MediaSink::init()
 
             if (codec == "avenc_h263")
                 videoCaps = this->nearestH263Caps(videoCaps);
+            else if (codec == "avenc_dvvideo")
+                videoCaps = this->nearestDVCaps(videoCaps);
 
             QString format = AkVideoCaps::pixelFormatToString(videoCaps.format());
             QString gstFormat = gstToFF->key(format, "I420");
@@ -1631,6 +1713,7 @@ bool MediaSink::init()
 
             GstElement *videoConvert = gst_element_factory_make("videoconvert", NULL);
             GstElement *videoScale = gst_element_factory_make("videoscale", NULL);
+            GstElement *videoRate = gst_element_factory_make("videorate", NULL);
             GstElement *videoCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
 
             // Set codec options.
@@ -1655,9 +1738,17 @@ bool MediaSink::init()
 
             GstElement *queue = gst_element_factory_make("queue", NULL);
 
-            gst_bin_add_many(GST_BIN(this->m_pipeline), source, videoConvert, videoScale, videoCodec, queue, NULL);
-            gst_element_link_many(source, videoConvert, videoScale, NULL);
-            gst_element_link_filtered(videoScale, videoCodec, gstVideoCaps);
+            gst_bin_add_many(GST_BIN(this->m_pipeline),
+                             source,
+                             videoConvert,
+                             videoScale,
+                             videoRate,
+                             videoCodec,
+                             queue,
+                             NULL);
+
+            gst_element_link_many(source, videoConvert, videoScale, videoRate, NULL);
+            gst_element_link_filtered(videoRate, videoCodec, gstVideoCaps);
             gst_caps_unref(gstVideoCaps);
             gst_element_link_many(videoCodec, queue, muxer, NULL);
         }
