@@ -95,6 +95,8 @@ class MediaSink: public QObject
         void setElementOptions(GstElement *element, const QVariantMap &options);
         AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
+        AkAudioCaps nearestFLVAudioCaps(const AkAudioCaps &caps,
+                                        const QString &codec) const;
 
     signals:
         void locationChanged(const QString &location);

@@ -263,7 +263,7 @@ gboolean MediaSource::busCallback(GstBus *bus, GstMessage *message,
         GstTagList *tagList = NULL;
         gst_message_parse_tag(message, &tagList);
         gchar *tags = gst_tag_list_to_string(tagList);
-        qDebug() << "Tags:" << tags;
+//        qDebug() << "Tags:" << tags;
         g_free(tags);
         gst_tag_list_unref(tagList);
         break;

@@ -222,7 +222,10 @@ class AkVideoCaps: public QObject
             Format_yuv440p10le,
             Format_yuv440p10be,
             Format_yuv440p12le,
-            Format_yuv440p12be
+            Format_yuv440p12be,
+            Format_v210,
+            Format_v216,
+            Format_v308
         };
 
         explicit AkVideoCaps(QObject *parent=NULL);

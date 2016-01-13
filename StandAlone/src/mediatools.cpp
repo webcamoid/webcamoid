@@ -240,7 +240,9 @@ QString MediaTools::recordAudioFrom() const
 
 QString MediaTools::curRecordingFormat() const
 {
-    return this->m_record->property("outputFormat").toString();
+    return this->m_record?
+                this->m_record->property("outputFormat").toString():
+                QString();
 }
 
 bool MediaTools::recording() const
@@ -880,7 +882,8 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
 
 void MediaTools::setCurRecordingFormat(const QString &curRecordingFormat)
 {
-    this->m_record->setProperty("outputFormat", curRecordingFormat);
+    if (this->m_record)
+        this->m_record->setProperty("outputFormat", curRecordingFormat);
 }
 
 void MediaTools::setRecording(bool recording)
@@ -1061,7 +1064,7 @@ void MediaTools::setCurStream(const QString &stream)
         this->m_videoCapture->setProperty("media", stream);
     if (this->isDesktop(stream))
         this->m_desktopCapture->setProperty("media", stream);
-    else
+    else if (this->m_source)
         this->m_source->setProperty("media", stream);
 
     emit this->curStreamChanged(stream);

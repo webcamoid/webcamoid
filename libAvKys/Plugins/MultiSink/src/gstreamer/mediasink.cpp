@@ -95,14 +95,14 @@ inline StringStringMap initGstToFF()
     gstToFF["Y42B"] = "yuv422p";
 //    gstToFF["YVYU"] = "";
     gstToFF["Y444"] = "yuv444p";
-//    gstToFF["v210"] = "";
-//    gstToFF["v216"] = "";
+    gstToFF["v210"] = "v210";
+    gstToFF["v216"] = "v216";
     gstToFF["NV12"] = "nv12";
     gstToFF["NV21"] = "nv21";
     gstToFF["GRAY8"] = "gray8";
     gstToFF["GRAY16_BE"] = "gray16be";
     gstToFF["GRAY16_LE"] = "gray16le";
-//    gstToFF["v308"] = "";
+    gstToFF["V308"] = "v308";
     gstToFF["RGB16"] = "rgb565";
     gstToFF["BGR16"] = "bgr565le";
     gstToFF["RGB15"] = "rgb555";
@@ -183,6 +183,34 @@ inline VectorSize initH263SupportedSize()
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h263SupportedSize, (initH263SupportedSize()))
+
+typedef QVector<int> VectorInt;
+typedef QMap<QString, VectorInt> StringVectorIntMap;
+
+inline StringVectorIntMap initFLVSupportedSampleRates()
+{
+    StringVectorIntMap flvSupportedSampleRates;
+    flvSupportedSampleRates["avenc_adpcm_swf"] =
+            VectorInt() << 5512 << 11025 << 22050 << 44100;
+    flvSupportedSampleRates["lamemp3enc"] =
+            VectorInt() << 5512 << 8000 << 11025 << 22050 << 44100;
+    flvSupportedSampleRates["faac"] =
+            VectorInt();
+    flvSupportedSampleRates["avenc_nellymoser"] =
+            VectorInt() << 5512 << 8000 << 11025 << 16000 << 22050 << 44100;
+    flvSupportedSampleRates["identity"] =
+            VectorInt() << 5512 << 11025 << 22050 << 44100;
+    flvSupportedSampleRates["alawenc"] =
+            VectorInt() << 5512 << 11025 << 22050 << 44100;
+    flvSupportedSampleRates["mulawenc"] =
+            VectorInt() << 5512 << 11025 << 22050 << 44100;
+    flvSupportedSampleRates["speexenc"] =
+            VectorInt() << 16000;
+
+    return flvSupportedSampleRates;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(StringVectorIntMap, flvSupportedSampleRates, (initFLVSupportedSampleRates()))
 
 MediaSink::MediaSink(QObject *parent): QObject(parent)
 {
@@ -388,8 +416,7 @@ QStringList MediaSink::supportedCodecs(const QString &format,
 
                             if (!supportedCodecs.contains(codecId))
                                 supportedCodecs << codecId;
-                        }
-                        else if (fieldType == GST_TYPE_LIST) {
+                        } else if (fieldType == GST_TYPE_LIST) {
                             const GValue *formats = gst_structure_get_value(capsStructure, "format");
 
                             for (guint i = 0; i < gst_value_list_get_size(formats); i++) {
@@ -437,6 +464,16 @@ QStringList MediaSink::supportedCodecs(const QString &format,
 
     gst_caps_unref(rawCaps);
     gst_object_unref(factory);
+
+    // Disable conflictive codecs
+    if (format == "mp4mux") {
+        supportedCodecs.removeAll("schroenc");
+    } else if (format == "flvmux") {
+        supportedCodecs.removeAll("lamemp3enc");
+    }
+
+    supportedCodecs.removeAll("avenc_alac");
+    supportedCodecs.removeAll("mpeg2enc");
 
     return supportedCodecs;
 }
@@ -937,6 +974,15 @@ QVariantMap MediaSink::addStream(int streamIndex,
             audioCaps.channels() = AkAudioCaps::channelCount(defaultChannelLayout);
         };
 
+        if (outputFormat == "flvmux") {
+            audioCaps = this->nearestFLVAudioCaps(audioCaps, codec);
+
+            if (codec == "speexenc"
+                || codec == "avenc_nellymoser")
+                audioCaps.channels() = 1;
+        } else if (outputFormat == "avmux_dv")
+            audioCaps.rate() = 48000;
+
         outputParams["caps"] = QVariant::fromValue(audioCaps.toCaps());
         outputParams["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
     } else if (streamCaps.mimeType() == "video/x-raw") {
@@ -1073,6 +1119,15 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 audioCaps.layout() = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
                 audioCaps.channels() = AkAudioCaps::channelCount(defaultChannelLayout);
             }
+
+            if (outputFormat == "flvmux") {
+                audioCaps = this->nearestFLVAudioCaps(audioCaps, codec);
+
+                if (codec == "speexenc"
+                    || codec == "avenc_nellymoser")
+                    audioCaps.channels() = 1;
+            } else if (outputFormat == "avmux_dv")
+                audioCaps.rate() = 48000;
 
             streamCaps = audioCaps.toCaps();
             this->m_streamConfigs[index]["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
@@ -1227,13 +1282,12 @@ gboolean MediaSink::busCallback(GstBus *bus,
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {
-        gchar *name = gst_object_get_path_string(message->src);
         GError *err = NULL;
         gchar *debug = NULL;
         gst_message_parse_error(message, &err, &debug);
 
         qDebug() << "ERROR: from element"
-                 << name
+                 << GST_MESSAGE_SRC_NAME(message)
                  << ":"
                  << err->message;
 
@@ -1241,9 +1295,29 @@ gboolean MediaSink::busCallback(GstBus *bus,
             qDebug() << "Additional debug info:\n"
                      << debug;
 
+        GstElement *element = GST_ELEMENT(GST_MESSAGE_SRC(message));
+
+        for (const GList *padItem = GST_ELEMENT_PADS(element); padItem; padItem = g_list_next(padItem)) {
+            GstPad *pad = GST_PAD_CAST(padItem->data);
+            GstCaps *curCaps = gst_pad_get_current_caps(pad);
+            gchar *curCapsStr = gst_caps_to_string(curCaps);
+
+            qDebug() << "    Current caps:" << curCapsStr;
+
+            g_free(curCapsStr);
+            gst_caps_unref(curCaps);
+
+            GstCaps *allCaps = gst_pad_get_allowed_caps(pad);
+            gchar *allCapsStr = gst_caps_to_string(allCaps);
+
+            qDebug() << "    Allowed caps:" << allCapsStr;
+
+            g_free(allCapsStr);
+            gst_caps_unref(allCaps);
+        }
+
         g_error_free(err);
         g_free(debug);
-        g_free(name);
         g_main_loop_quit(self->m_mainLoop);
 
         break;
@@ -1309,7 +1383,7 @@ gboolean MediaSink::busCallback(GstBus *bus,
         GstTagList *tagList = NULL;
         gst_message_parse_tag(message, &tagList);
         gchar *tags = gst_tag_list_to_string(tagList);
-        qDebug() << "Tags:" << tags;
+//        qDebug() << "Tags:" << tags;
         g_free(tags);
         gst_tag_list_unref(tagList);
         break;
@@ -1395,6 +1469,30 @@ AkVideoCaps MediaSink::nearestH263Caps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps(caps);
     nearestCaps.width() = nearestSize.width();
     nearestCaps.height() = nearestSize.height();
+
+    return nearestCaps;
+}
+
+AkAudioCaps MediaSink::nearestFLVAudioCaps(const AkAudioCaps &caps,
+                                           const QString &codec) const
+{
+    int nearestSampleRate = caps.rate();
+    int q = std::numeric_limits<int>::max();
+
+    foreach (int sampleRate, flvSupportedSampleRates->value(codec)) {
+        int k = qAbs(sampleRate - caps.rate());
+
+        if (k < q) {
+            nearestSampleRate = sampleRate;
+            q = k;
+
+            if (k == 0)
+                break;
+        }
+    }
+
+    AkAudioCaps nearestCaps(caps);
+    nearestCaps.rate() = nearestSampleRate;
 
     return nearestCaps;
 }
@@ -1633,6 +1731,16 @@ bool MediaSink::init()
             g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, NULL);
 
             AkAudioCaps audioCaps(streamCaps);
+
+            if (outputFormat == "flvmux") {
+                audioCaps = this->nearestFLVAudioCaps(audioCaps, codec);
+
+                if (codec == "speexenc"
+                    || codec == "avenc_nellymoser")
+                    audioCaps.channels() = 1;
+            } else if (outputFormat == "avmux_dv")
+                audioCaps.rate() = 48000;
+
             QString format = AkAudioCaps::sampleFormatToString(audioCaps.format());
             QString gstFormat = gstToFF->key(format, "S16");
 
@@ -1651,6 +1759,9 @@ bool MediaSink::init()
             GstElement *audioRate = gst_element_factory_make("audiorate", NULL);
             GstElement *audioCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
 
+            if (codec.startsWith("avenc_"))
+                g_object_set(G_OBJECT(audioCodec), "compliance", -2, NULL);
+
             // Set codec options.
 #if 0 // NOTE: Disabled because GStreamer crash when setting an invalid bitrate.
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(audioCodec),
@@ -1664,7 +1775,6 @@ bool MediaSink::init()
                     g_object_set(G_OBJECT(audioCodec), "bitrate", G_TYPE_INT, bitrate, NULL);
             }
 #endif
-
             QVariantMap codecOptions = configs.value("codecOptions").toMap();
             this->setElementOptions(audioCodec, codecOptions);
 
@@ -1672,15 +1782,15 @@ bool MediaSink::init()
 
             gst_bin_add_many(GST_BIN(this->m_pipeline),
                              source,
-                             audioConvert,
                              audioResample,
                              audioRate,
+                             audioConvert,
                              audioCodec,
                              queue,
                              NULL);
 
-            gst_element_link_many(source, audioConvert, audioResample, audioRate, NULL);
-            gst_element_link_filtered(audioRate, audioCodec, gstAudioCaps);
+            gst_element_link_many(source, audioResample, audioRate, audioConvert, NULL);
+            gst_element_link_filtered(audioConvert, audioCodec, gstAudioCaps);
             gst_caps_unref(gstAudioCaps);
             gst_element_link_many(audioCodec, queue, muxer, NULL);
         } else if (streamCaps.mimeType() == "video/x-raw") {
@@ -1711,10 +1821,13 @@ bool MediaSink::init()
             gstVideoCaps = gst_caps_fixate(gstVideoCaps);
             gst_app_src_set_caps(GST_APP_SRC(source), gstVideoCaps);
 
-            GstElement *videoConvert = gst_element_factory_make("videoconvert", NULL);
             GstElement *videoScale = gst_element_factory_make("videoscale", NULL);
             GstElement *videoRate = gst_element_factory_make("videorate", NULL);
+            GstElement *videoConvert = gst_element_factory_make("videoconvert", NULL);
             GstElement *videoCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
+
+            if (codec.startsWith("avenc_"))
+                g_object_set(G_OBJECT(videoCodec), "compliance", -2, NULL);
 
             // Set codec options.
 #if 0
@@ -1732,7 +1845,6 @@ bool MediaSink::init()
                     g_object_set(G_OBJECT(videoCodec), "bitrate", G_TYPE_INT, bitrate, NULL);
             }
 #endif
-
             QVariantMap codecOptions = configs.value("codecOptions").toMap();
             this->setElementOptions(videoCodec, codecOptions);
 
@@ -1740,15 +1852,15 @@ bool MediaSink::init()
 
             gst_bin_add_many(GST_BIN(this->m_pipeline),
                              source,
-                             videoConvert,
                              videoScale,
                              videoRate,
+                             videoConvert,
                              videoCodec,
                              queue,
                              NULL);
 
-            gst_element_link_many(source, videoConvert, videoScale, videoRate, NULL);
-            gst_element_link_filtered(videoRate, videoCodec, gstVideoCaps);
+            gst_element_link_many(source, videoScale, videoRate, videoConvert, NULL);
+            gst_element_link_filtered(videoConvert, videoCodec, gstVideoCaps);
             gst_caps_unref(gstVideoCaps);
             gst_element_link_many(videoCodec, queue, muxer, NULL);
         }
