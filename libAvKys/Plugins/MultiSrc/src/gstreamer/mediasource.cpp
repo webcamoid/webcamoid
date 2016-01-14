@@ -310,8 +310,6 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
     packet.caps().layout() = AkAudioCaps::Layout_stereo;
     packet.caps().align() = false;
 
-    gst_audio_info_free(audioInfo);
-
     GstBuffer *buf = gst_sample_get_buffer(sample);
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
@@ -320,6 +318,7 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.caps().samples() = map.size / audioInfo->bpf;
+    gst_audio_info_free(audioInfo);
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);

@@ -96,6 +96,8 @@ class AkAudioCaps: public QObject
             SampleFormat_fltle,
             SampleFormat_fltbe,
             SampleFormat_dbl,
+            SampleFormat_dblle,
+            SampleFormat_dblbe,
             SampleFormat_u8p,
             SampleFormat_s16p,
             SampleFormat_s32p,

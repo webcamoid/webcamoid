@@ -302,6 +302,19 @@ QStringList MediaSink::supportedFormats()
 
     gst_plugin_list_free(plugins);
 
+    // Disable conflictive formats
+    supportedFormats.removeAll("avmux_3gp");
+    supportedFormats.removeAll("avmux_aiff");
+    supportedFormats.removeAll("avmux_asf");
+    supportedFormats.removeAll("avmux_avi");
+    supportedFormats.removeAll("avmux_flv");
+    supportedFormats.removeAll("avmux_gxf");
+    supportedFormats.removeAll("avmux_mov");
+    supportedFormats.removeAll("avmux_mpegts");
+    supportedFormats.removeAll("avmux_mp4");
+    supportedFormats.removeAll("avmux_mxf");
+    supportedFormats.removeAll("avmux_mxf_d10");
+
     return supportedFormats;
 }
 
@@ -402,8 +415,12 @@ QStringList MediaSink::supportedCodecs(const QString &format,
                 GstCaps *compCaps = gst_caps_from_string(structureStr);
 
                 if (gst_caps_can_intersect(compCaps, rawCaps)) {
-                    if (!type.isEmpty() && structureType != type)
+                    if (!type.isEmpty() && structureType != type) {
+                        gst_caps_unref(compCaps);
+                        g_free(structureStr);
+
                         continue;
+                    }
 
                     QString codecType = structureType.mid(0, type.indexOf('/'));
 
@@ -462,6 +479,7 @@ QStringList MediaSink::supportedCodecs(const QString &format,
         }
     }
 
+    gst_plugin_feature_list_free(encodersList);
     gst_caps_unref(rawCaps);
     gst_object_unref(factory);
 
@@ -470,6 +488,11 @@ QStringList MediaSink::supportedCodecs(const QString &format,
         supportedCodecs.removeAll("schroenc");
     } else if (format == "flvmux") {
         supportedCodecs.removeAll("lamemp3enc");
+    } else if (format == "avmux_3gp"
+               || format == "avmux_3g2") {
+        supportedCodecs.removeAll("avenc_h263p");
+    } else if (format == "matroskamux") {
+        supportedCodecs.removeAll("avenc_tta");
     }
 
     supportedCodecs.removeAll("avenc_alac");
@@ -736,7 +759,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             codecParams["defaultSampleRate"] = supportedSamplerates.isEmpty()?
                                                  44100: supportedSamplerates.at(0);
 
-            gst_object_unref (element);
+            gst_object_unref(element);
             gst_object_unref(factory);
         }
     } else if (codecType == "video/x-raw") {
@@ -879,6 +902,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             codecParams["defaultPixelFormat"] = supportedPixelFormats.isEmpty()?
                                                   "yuv420p": supportedPixelFormats.at(0);
 
+            gst_object_unref(element);
             gst_object_unref(factory);
         }
     } else if (codecType == "text/x-raw") {
@@ -980,8 +1004,15 @@ QVariantMap MediaSink::addStream(int streamIndex,
             if (codec == "speexenc"
                 || codec == "avenc_nellymoser")
                 audioCaps.channels() = 1;
-        } else if (outputFormat == "avmux_dv")
+        } else if (outputFormat == "avmux_dv") {
             audioCaps.rate() = 48000;
+        } else if (outputFormat == "avmux_gxf"
+                 || outputFormat == "avmux_mxf"
+                 || outputFormat == "avmux_mxf_d10") {
+                    audioCaps.rate() = qBound(4000, audioCaps.rate(), 96000);
+        } else if (codec == "avenc_tta") {
+            audioCaps.rate() = qBound(8000, audioCaps.rate(), 96000);
+        }
 
         outputParams["caps"] = QVariant::fromValue(audioCaps.toCaps());
         outputParams["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
@@ -1126,8 +1157,15 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 if (codec == "speexenc"
                     || codec == "avenc_nellymoser")
                     audioCaps.channels() = 1;
-            } else if (outputFormat == "avmux_dv")
+            } else if (outputFormat == "avmux_dv") {
                 audioCaps.rate() = 48000;
+            } else if (outputFormat == "avmux_gxf"
+                     || outputFormat == "avmux_mxf"
+                     || outputFormat == "avmux_mxf_d10") {
+                        audioCaps.rate() = qBound(4000, audioCaps.rate(), 96000);
+            } else if (codec == "avenc_tta") {
+                audioCaps.rate() = qBound(8000, audioCaps.rate(), 96000);
+            }
 
             streamCaps = audioCaps.toCaps();
             this->m_streamConfigs[index]["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
@@ -1250,6 +1288,8 @@ QStringList MediaSink::readCaps(const QString &element)
 
                 g_free(structureCaps);
             }
+
+            gst_caps_unref(caps);
         }
     }
 
@@ -1738,8 +1778,15 @@ bool MediaSink::init()
                 if (codec == "speexenc"
                     || codec == "avenc_nellymoser")
                     audioCaps.channels() = 1;
-            } else if (outputFormat == "avmux_dv")
+            } else if (outputFormat == "avmux_dv") {
                 audioCaps.rate() = 48000;
+            } else if (outputFormat == "avmux_gxf"
+                     || outputFormat == "avmux_mxf"
+                     || outputFormat == "avmux_mxf_d10") {
+                        audioCaps.rate() = qBound(4000, audioCaps.rate(), 96000);
+            } else if (codec == "avenc_tta") {
+                audioCaps.rate() = qBound(8000, audioCaps.rate(), 96000);
+            }
 
             QString format = AkAudioCaps::sampleFormatToString(audioCaps.format());
             QString gstFormat = gstToFF->key(format, "S16");

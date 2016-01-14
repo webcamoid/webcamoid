@@ -51,6 +51,8 @@ inline BytesPerSampleMap initBytesPerSampleMap()
     bytesPerSample[AkAudioCaps::SampleFormat_fltle] = 32;
     bytesPerSample[AkAudioCaps::SampleFormat_fltbe] = 32;
     bytesPerSample[AkAudioCaps::SampleFormat_dbl] = 64;
+    bytesPerSample[AkAudioCaps::SampleFormat_dblle] = 64;
+    bytesPerSample[AkAudioCaps::SampleFormat_dblbe] = 64;
     bytesPerSample[AkAudioCaps::SampleFormat_u8p] = 8;
     bytesPerSample[AkAudioCaps::SampleFormat_s16p] = 16;
     bytesPerSample[AkAudioCaps::SampleFormat_s32p] = 32;
