@@ -25,10 +25,10 @@
 #include <QQmlContext>
 #include <ak.h>
 
-#ifndef USE_GSTREAMER
-#include "ffmpeg/mediasink.h"
-#else
+#ifdef USE_GSTREAMER
 #include "gstreamer/mediasink.h"
+#else
+#include "ffmpeg/mediasink.h"
 #endif
 
 class MultiSinkElement: public AkElement

@@ -163,11 +163,15 @@ void MediaSource::waitState(GstState state)
 {
     forever {
         GstState curState;
+        GstStateChangeReturn ret = gst_element_get_state(this->m_pipeline,
+                                                         &curState,
+                                                         NULL,
+                                                         GST_CLOCK_TIME_NONE);
 
-        if (gst_element_get_state(this->m_pipeline,
-                                  &curState,
-                                  NULL,
-                                  GST_CLOCK_TIME_NONE) == GST_STATE_CHANGE_SUCCESS
+        if (ret == GST_STATE_CHANGE_FAILURE)
+            break;
+
+        if (ret == GST_STATE_CHANGE_SUCCESS
             && curState == state)
             break;
     }
@@ -434,9 +438,17 @@ void MediaSource::aboutToFinish(GstElement *object, gpointer userData)
         return;
 
     // Set the media file to play.
-    gchar *uri = gst_filename_to_uri(self->m_media.toStdString().c_str(), NULL);
-    g_object_set(G_OBJECT(object), "uri", uri, NULL);
-    g_free(uri);
+    if (gst_uri_is_valid(self->m_media.toStdString().c_str())) {
+        g_object_set(G_OBJECT(object),
+                     "uri",
+                     self->m_media.toStdString().c_str(),
+                     NULL);
+    } else {
+        gchar *uri = gst_filename_to_uri(self->m_media.toStdString().c_str(), NULL);
+        g_object_set(G_OBJECT(object), "uri", uri, NULL);
+        g_free(uri);
+    }
+
 }
 
 QStringList MediaSource::languageCodes(const QString &type)
@@ -579,9 +591,16 @@ bool MediaSource::init(bool paused)
     // Else, try to open it anyway.
 
     // Set the media file to play.
-    gchar *uri = gst_filename_to_uri(this->m_media.toStdString().c_str(), NULL);
-    g_object_set(G_OBJECT(this->m_pipeline), "uri", uri, NULL);
-    g_free(uri);
+    if (gst_uri_is_valid(this->m_media.toStdString().c_str())) {
+        g_object_set(G_OBJECT(this->m_pipeline),
+                     "uri",
+                     this->m_media.toStdString().c_str(),
+                     NULL);
+    } else {
+        gchar *uri = gst_filename_to_uri(this->m_media.toStdString().c_str(), NULL);
+        g_object_set(G_OBJECT(this->m_pipeline), "uri", uri, NULL);
+        g_free(uri);
+    }
 
     g_object_set(G_OBJECT(this->m_pipeline),
                  "buffer-size", this->m_maxPacketQueueSize, NULL);

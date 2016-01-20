@@ -30,7 +30,13 @@ exists(commons.pri) {
 !win32: include(src/v4l2/v4l2.pri)
 win32: include(src/dshow/dshow.pri)
 
-include(src/ffmpeg/ffmpeg.pri)
+#USE_GSTREAMER = 1
+
+isEmpty(USE_GSTREAMER) {
+    include(src/ffmpeg/ffmpeg.pri)
+} else {
+    include(src/gstreamer/gstreamer.pri)
+}
 
 CONFIG += plugin
 

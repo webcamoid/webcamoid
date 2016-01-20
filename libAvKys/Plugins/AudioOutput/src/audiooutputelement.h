@@ -26,9 +26,7 @@
 
 #ifdef Q_OS_LINUX
 #include "pulseaudio/audiodevice.h"
-#endif
-
-#ifdef Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
 #include "wasapi/audiodevice.h"
 #endif
 

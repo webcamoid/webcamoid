@@ -17,49 +17,16 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/webcamoid
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+DEFINES += USE_GSTREAMER
 
-#USE_GSTREAMER = 1
+CONFIG += link_pkgconfig
 
-isEmpty(USE_GSTREAMER) {
-    include(src/ffmpeg/ffmpeg.pri)
-} else {
-    include(src/gstreamer/gstreamer.pri)
-}
-
-CONFIG += plugin
+PKGCONFIG += \
+    gstreamer-1.0 \
+    gstreamer-video-1.0
 
 HEADERS += \
-    src/acapsconvert.h \
-    src/acapsconvertelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-!win32: LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
-win32: LIBS += -L../../Lib/ -l$${COMMONS_TARGET}$${VER_MAJ}
-
-OTHER_FILES += pspec.json
-
-QT += qml
+    $$PWD/convertvideo.h
 
 SOURCES += \
-    src/acapsconvert.cpp \
-    src/acapsconvertelement.cpp
-
-DESTDIR = $${PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-unix: target.path = $${LIBDIR}/$${COMMONS_TARGET}
-!unix: target.path = $${PREFIX}/$${COMMONS_TARGET}/Plugins
+    $$PWD/convertvideo.cpp

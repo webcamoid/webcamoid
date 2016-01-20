@@ -373,6 +373,9 @@ ApplicationWindow {
                         if (Webcamoid.isPlaying) {
                             Webcamoid.stopRecording();
                             Webcamoid.stop();
+
+                            if (splitView.state == "showRecordPanels")
+                                splitView.state = ""
                         } else
                             Webcamoid.start();
                     }

@@ -25,10 +25,10 @@
 #include <QQmlContext>
 #include <akmultimediasourceelement.h>
 
-#ifndef USE_GSTREAMER
-#include "ffmpeg/mediasource.h"
-#else
+#ifdef USE_GSTREAMER
 #include "gstreamer/mediasource.h"
+#else
+#include "ffmpeg/mediasource.h"
 #endif
 
 class MultiSrcElement: public AkMultimediaSourceElement

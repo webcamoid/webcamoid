@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 6.2.0
+Version: 7.0.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -170,5 +170,5 @@ rm -rf %{buildroot}
 %{_libdir}/lib*AvKys.so*
 
 %changelog
-* Wed Jan 06 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 6.2.0-1
+* Wed Jan 20 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 7.0.0-1
 - Final Release.

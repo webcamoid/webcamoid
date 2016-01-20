@@ -31,13 +31,15 @@
 
 #ifdef Q_OS_LINUX
 #include "v4l2/capture.h"
-#endif
-
-#ifdef Q_OS_WIN32
+#elif defined(Q_OS_WIN32)
 #include "dshow/capture.h"
 #endif
 
+#ifdef USE_GSTREAMER
+#include "gstreamer/convertvideo.h"
+#else
 #include "ffmpeg/convertvideo.h"
+#endif
 
 class VideoCaptureElement: public AkMultimediaSourceElement
 {

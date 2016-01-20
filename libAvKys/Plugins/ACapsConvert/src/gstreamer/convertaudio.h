@@ -18,44 +18,38 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef ACAPSCONVERTELEMENT_H
-#define ACAPSCONVERTELEMENT_H
+#ifndef CONVERTAUDIO_H
+#define CONVERTAUDIO_H
 
-#include <ak.h>
+#include <QtConcurrent>
+#include <akaudiopacket.h>
+#include <gst/audio/audio.h>
+#include <gst/app/gstappsrc.h>
+#include <gst/app/gstappsink.h>
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertaudio.h"
-#else
-#include "ffmpeg/convertaudio.h"
-#endif
-
-class ACapsConvertElement: public AkElement
+class ConvertAudio: public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString caps
-               READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
-
     public:
-        explicit ACapsConvertElement();
+        explicit ConvertAudio(QObject *parent=NULL);
+        ~ConvertAudio();
 
-        Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet,
+                                     const AkCaps &oCaps);
 
     private:
-        AkCaps m_caps;
-        ConvertAudio m_convertAudio;
+        QThreadPool m_threadPool;
+        GstElement *m_pipeline;
+        GstElement *m_source;
+        GstElement *m_sink;
+        GMainLoop *m_mainLoop;
+        guint m_busWatchId;
 
-    signals:
-        void capsChanged(const QString &caps);
-
-    public slots:
-        void setCaps(const QString &caps);
-        void resetCaps();
-
-        AkPacket iStream(const AkAudioPacket &packet);
+        void waitState(GstState state);
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
 };
 
-#endif // ACAPSCONVERTELEMENT_H
+#endif // CONVERTAUDIO_H

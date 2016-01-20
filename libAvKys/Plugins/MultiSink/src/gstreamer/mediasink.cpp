@@ -1307,6 +1307,9 @@ void MediaSink::waitState(GstState state)
                                                          NULL,
                                                          GST_CLOCK_TIME_NONE);
 
+        if (ret == GST_STATE_CHANGE_FAILURE)
+            break;
+
         if (ret == GST_STATE_CHANGE_SUCCESS
             && curState == state)
             break;
