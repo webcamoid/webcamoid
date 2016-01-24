@@ -464,36 +464,70 @@ AkPacket AkElement::iStream(const AkVideoPacket &packet)
     return AkPacket();
 }
 
-void AkElement::setState(AkElement::ElementState state)
+bool AkElement::setState(AkElement::ElementState state)
 {
-    AkElement::ElementState preState = this->d->m_state;
+    if (this->d->m_state == state)
+        return false;
 
-    if (state == ElementStateNull
-        && preState != state) {
-        if (preState == ElementStatePlaying) {
-            this->setState(ElementStatePaused);
-            preState = this->d->m_state;
+    ElementState preState = this->d->m_state;
+    this->d->m_state = state;
+
+    switch (preState) {
+    case ElementStateNull: {
+        switch (state) {
+        case ElementStatePaused:
+            emit this->stateChanged(state);
+            emit this->stateChange(preState, state);
+
+            break;
+        case ElementStatePlaying:
+            emit this->stateChanged(ElementStatePaused);
+            emit this->stateChange(preState, ElementStatePaused);
+
+            emit this->stateChanged(state);
+            emit this->stateChange(ElementStatePaused, state);
+
+            break;
+        default:
+            break;
         }
-
-        this->d->m_state = state;
-        emit this->stateChanged(state);
-        emit this->stateChange(preState, state);
-    } else if (state == ElementStatePaused
-               && preState != state) {
-        this->d->m_state = state;
-        emit this->stateChanged(state);
-        emit this->stateChange(preState, state);
-    } else if (state == ElementStatePlaying
-               && preState != state) {
-        if (preState == ElementStateNull) {
-            this->setState(ElementStatePaused);
-            preState = this->d->m_state;
-        }
-
-        this->d->m_state = state;
-        emit this->stateChanged(state);
-        emit this->stateChange(preState, state);
     }
+    case ElementStatePaused: {
+        switch (state) {
+        case ElementStateNull:
+        case ElementStatePlaying:
+            emit this->stateChanged(state);
+            emit this->stateChange(preState, state);
+
+            break;
+        default:
+            break;
+        }
+    }
+    case ElementStatePlaying: {
+        switch (state) {
+        case ElementStateNull:
+            emit this->stateChanged(ElementStatePaused);
+            emit this->stateChange(preState, ElementStatePaused);
+
+            emit this->stateChanged(state);
+            emit this->stateChange(ElementStatePaused, state);
+
+            break;
+        case ElementStatePaused:
+            emit this->stateChanged(state);
+            emit this->stateChange(preState, state);
+
+            break;
+        default:
+            break;
+        }
+    }
+    default:
+        break;
+    }
+
+    return true;
 }
 
 void AkElement::resetState()

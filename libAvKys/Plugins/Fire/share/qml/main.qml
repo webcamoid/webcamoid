@@ -93,7 +93,7 @@ GridLayout {
     TextField {
         text: Fire.blur
         validator: RegExpValidator {
-            regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
+            regExp: /\d+/
         }
 
         onTextChanged: Fire.blur = text

@@ -35,7 +35,7 @@ class RadioactiveElement: public AkElement
                WRITE setMode
                RESET resetMode
                NOTIFY modeChanged)
-    Q_PROPERTY(qreal blur
+    Q_PROPERTY(int blur
                READ blur
                WRITE setBlur
                RESET resetBlur
@@ -81,7 +81,7 @@ class RadioactiveElement: public AkElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE QString mode() const;
-        Q_INVOKABLE qreal blur() const;
+        Q_INVOKABLE int blur() const;
         Q_INVOKABLE qreal zoom() const;
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int lumaThreshold() const;
@@ -90,7 +90,6 @@ class RadioactiveElement: public AkElement
 
     private:
         RadiationMode m_mode;
-        qreal m_blur;
         qreal m_zoom;
         int m_threshold;
         int m_lumaThreshold;
@@ -100,6 +99,7 @@ class RadioactiveElement: public AkElement
         QSize m_frameSize;
         QImage m_prevFrame;
         QImage m_blurZoomBuffer;
+        AkElementPtr m_blurFilter;
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -112,7 +112,7 @@ class RadioactiveElement: public AkElement
 
     signals:
         void modeChanged(const QString &mode);
-        void blurChanged(qreal blur);
+        void blurChanged(int blur);
         void zoomChanged(qreal zoom);
         void thresholdChanged(int threshold);
         void lumaThresholdChanged(int lumaThreshold);
@@ -121,7 +121,7 @@ class RadioactiveElement: public AkElement
 
     public slots:
         void setMode(const QString &mode);
-        void setBlur(qreal blur);
+        void setBlur(int blur);
         void setZoom(qreal zoom);
         void setThreshold(int threshold);
         void setLumaThreshold(int lumaThreshold);

@@ -20,9 +20,6 @@
 
 #include <QtMath>
 #include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsBlurEffect>
 
 #include "fireelement.h"
 
@@ -44,7 +41,6 @@ FireElement::FireElement(): AkElement()
     this->m_mode = FireModeHard;
     this->m_cool = -16;
     this->m_disolve = 0.01;
-    this->m_blur = 1.5;
     this->m_zoom = 0.02;
     this->m_threshold = 15;
     this->m_lumaThreshold = 15;
@@ -53,6 +49,13 @@ FireElement::FireElement(): AkElement()
     this->m_nColors = 8;
 
     this->m_palette = this->createPalette();
+    this->m_blurFilter = AkElement::create("Blur");
+    this->m_blurFilter->setProperty("radius", 2);
+
+    QObject::connect(this->m_blurFilter.data(),
+                     SIGNAL(radiusChanged(int)),
+                     this,
+                     SIGNAL(blurChanged(int)));
 }
 
 QObject *FireElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -99,9 +102,9 @@ qreal FireElement::disolve() const
     return this->m_disolve;
 }
 
-qreal FireElement::blur() const
+int FireElement::blur() const
 {
-    return this->m_blur;
+    return this->m_blurFilter->property("radius").toInt();
 }
 
 qreal FireElement::zoom() const
@@ -244,25 +247,6 @@ void FireElement::disolveImage(const QImage &src, qreal amount)
     }
 }
 
-QImage FireElement::blurImage(const QImage &src, qreal factor)
-{
-    QGraphicsScene scene;
-    QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(src));
-    QGraphicsBlurEffect *effect = new QGraphicsBlurEffect();
-    pixmapItem->setGraphicsEffect(effect);
-    effect->setBlurRadius(factor);
-
-    QImage blur(src.size(), src.format());
-    blur.fill(qRgba(0, 0, 0, 0));
-
-    QPainter painter;
-    painter.begin(&blur);
-    scene.render(&painter);
-    painter.end();
-
-    return blur;
-}
-
 QImage FireElement::burn(const QImage &src, const QVector<QRgb> &palette)
 {
     int videoArea = src.width() * src.height();
@@ -328,13 +312,9 @@ void FireElement::setDisolve(qreal disolve)
     emit this->disolveChanged(disolve);
 }
 
-void FireElement::setBlur(qreal blur)
+void FireElement::setBlur(int blur)
 {
-    if (this->m_blur == blur)
-        return;
-
-    this->m_blur = blur;
-    emit this->blurChanged(blur);
+    this->m_blurFilter->setProperty("radius", blur);
 }
 
 void FireElement::setZoom(qreal zoom)
@@ -408,7 +388,7 @@ void FireElement::resetDisolve()
 
 void FireElement::resetBlur()
 {
-    this->setBlur(1.5);
+    this->setBlur(2);
 }
 
 void FireElement::resetZoom()
@@ -484,7 +464,9 @@ AkPacket FireElement::iStream(const AkPacket &packet)
         painter.drawImage(0, 0, diff);
         painter.end();
 
-        this->m_fireBuffer = this->blurImage(this->m_fireBuffer, this->m_blur);
+        AkPacket firePacket = AkUtils::imageToPacket(this->m_fireBuffer, packet);
+        AkPacket blurPacket = this->m_blurFilter->iStream(firePacket);
+        this->m_fireBuffer = AkUtils::packetToImage(blurPacket);
 
         // Apply buffer.
         painter.begin(&oFrame);

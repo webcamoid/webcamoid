@@ -66,8 +66,15 @@ FaceDetectElement::FaceDetectElement(): AkElement()
     this->m_markerImage = ":/FaceDetect/share/masks/cow.png";
     this->m_markerImg = QImage(this->m_markerImage);
     this->m_pixelGridSize = QSize(32, 32);
-    this->m_blurRadius = 32;
     this->m_scanSize = QSize(160, 120);
+
+    this->m_blurFilter = AkElement::create("Blur");
+    this->m_blurFilter->setProperty("radius", 32);
+
+    QObject::connect(this->m_blurFilter.data(),
+                     SIGNAL(radiusChanged(int)),
+                     this,
+                     SIGNAL(blurRadiusChanged(int)));
 }
 
 QObject *FaceDetectElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -142,7 +149,7 @@ QSize FaceDetectElement::pixelGridSize() const
 
 int FaceDetectElement::blurRadius() const
 {
-    return this->m_blurRadius;
+    return this->m_blurFilter->property("radius").toInt();
 }
 
 QSize FaceDetectElement::scanSize() const
@@ -232,11 +239,7 @@ void FaceDetectElement::setPixelGridSize(const QSize &pixelGridSize)
 
 void FaceDetectElement::setBlurRadius(int blurRadius)
 {
-    if (this->m_blurRadius == blurRadius)
-        return;
-
-    this->m_blurRadius = blurRadius;
-    emit this->blurRadiusChanged(blurRadius);
+    this->m_blurFilter->setProperty("radius", blurRadius);
 }
 
 void FaceDetectElement::setScanSize(const QSize &scanSize)
@@ -355,19 +358,9 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
 
             painter.drawImage(rect, imagePixelate);
         } else if (this->m_markerType == MarkerTypeBlur) {
-            QImage img = src.copy(rect);
-            QGraphicsScene scene;
-            QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(img));
-            QGraphicsBlurEffect *effect = new QGraphicsBlurEffect();
-            pixmapItem->setGraphicsEffect(effect);
-            effect->setBlurRadius(this->m_blurRadius);
-
-            QImage blurImage(img.size(), img.format());
-
-            QPainter blurPainter;
-            blurPainter.begin(&blurImage);
-            scene.render(&blurPainter);
-            blurPainter.end();
+            AkPacket rectPacket = AkUtils::imageToPacket(src.copy(rect), packet);
+            AkPacket blurPacket = this->m_blurFilter->iStream(rectPacket);
+            QImage blurImage = AkUtils::packetToImage(blurPacket);
 
             painter.drawImage(rect, blurImage);
         }

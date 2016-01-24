@@ -99,7 +99,7 @@ GridLayout {
     TextField {
         text: Radioactive.blur
         validator: RegExpValidator {
-            regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
+            regExp: /\d+/
         }
 
         onTextChanged: Radioactive.blur = text

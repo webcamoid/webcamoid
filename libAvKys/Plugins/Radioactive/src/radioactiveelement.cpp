@@ -20,9 +20,6 @@
 
 #include <QtMath>
 #include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsBlurEffect>
 
 #include "radioactiveelement.h"
 
@@ -44,12 +41,19 @@ Q_GLOBAL_STATIC_WITH_ARGS(RadiationModeMap, radiationModeToStr, (initRadiationMo
 RadioactiveElement::RadioactiveElement(): AkElement()
 {
     this->m_mode = RadiationModeSoftNormal;
-    this->m_blur = 1.5;
     this->m_zoom = 1.1;
     this->m_threshold = 31;
     this->m_lumaThreshold = 95;
     this->m_alphaDiff = -8;
     this->m_radColor = qRgb(0, 255, 0);
+
+    this->m_blurFilter = AkElement::create("Blur");
+    this->m_blurFilter->setProperty("radius", 2);
+
+    QObject::connect(this->m_blurFilter.data(),
+                     SIGNAL(radiusChanged(int)),
+                     this,
+                     SIGNAL(blurChanged(int)));
 }
 
 QObject *RadioactiveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -86,9 +90,9 @@ QString RadioactiveElement::mode() const
     return radiationModeToStr->value(this->m_mode);
 }
 
-qreal RadioactiveElement::blur() const
+int RadioactiveElement::blur() const
 {
-    return this->m_blur;
+    return this->m_blurFilter->property("radius").toInt();
 }
 
 qreal RadioactiveElement::zoom() const
@@ -211,13 +215,9 @@ void RadioactiveElement::setMode(const QString &mode)
     emit this->modeChanged(mode);
 }
 
-void RadioactiveElement::setBlur(qreal blur)
+void RadioactiveElement::setBlur(int blur)
 {
-    if (this->m_blur == blur)
-        return;
-
-    this->m_blur = blur;
-    emit this->blurChanged(blur);
+    this->m_blurFilter->setProperty("radius", blur);
 }
 
 void RadioactiveElement::setZoom(qreal zoom)
@@ -272,7 +272,7 @@ void RadioactiveElement::resetMode()
 
 void RadioactiveElement::resetBlur()
 {
-    this->setBlur(1.5);
+    this->setBlur(2);
 }
 
 void RadioactiveElement::resetZoom()
@@ -336,18 +336,9 @@ AkPacket RadioactiveElement::iStream(const AkPacket &packet)
         painter.end();
 
         // Blur buffer.
-        QGraphicsScene scene;
-        QGraphicsPixmapItem *pixmapItem = scene.addPixmap(QPixmap::fromImage(this->m_blurZoomBuffer));
-        QGraphicsBlurEffect *effect = new QGraphicsBlurEffect();
-        pixmapItem->setGraphicsEffect(effect);
-        effect->setBlurRadius(this->m_blur);
-
-        QImage blur(src.size(), src.format());
-        blur.fill(qRgba(0, 0, 0, 0));
-
-        painter.begin(&blur);
-        scene.render(&painter);
-        painter.end();
+        AkPacket blurZoomPacket = AkUtils::imageToPacket(this->m_blurZoomBuffer, packet);
+        AkPacket blurPacket = this->m_blurFilter->iStream(blurZoomPacket);
+        QImage blur = AkUtils::packetToImage(blurPacket);
 
         // Zoom buffer.
         QImage blurScaled = blur.scaled(this->m_zoom * blur.size());

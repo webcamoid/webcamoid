@@ -24,9 +24,6 @@
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsBlurEffect>
 #include <ak.h>
 #include <akutils.h>
 
@@ -114,8 +111,8 @@ class FaceDetectElement: public AkElement
         QString m_markerImage;
         QImage m_markerImg;
         QSize m_pixelGridSize;
-        int m_blurRadius;
         QSize m_scanSize;
+        AkElementPtr m_blurFilter;
 
         HaarDetector m_cascadeClassifier;
 

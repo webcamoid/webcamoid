@@ -59,7 +59,7 @@ class BinElement: public AkElement
         void resetBlocking();
 
         AkPacket iStream(const AkPacket &packet);
-        void setState(AkElement::ElementState state);
+        bool setState(AkElement::ElementState state);
 
     private slots:
         void connectOutputs();

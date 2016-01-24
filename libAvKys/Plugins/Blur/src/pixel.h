@@ -27,11 +27,11 @@ template<typename T> class Pixel
 {
     public:
         explicit Pixel():
-            r(0), g(0), b(0)
+            r(0), g(0), b(0), a(0)
         {
         }
-        Pixel(T r, T g, T b):
-            r(r), g(g), b(b)
+        Pixel(T r, T g, T b, T a):
+            r(r), g(g), b(b), a(a)
         {
         }
 
@@ -39,21 +39,24 @@ template<typename T> class Pixel
         {
             return Pixel(this->r + other.r,
                          this->g + other.g,
-                         this->b + other.b);
+                         this->b + other.b,
+                         this->a + other.a);
         }
 
         Pixel operator -(const Pixel &other) const
         {
             return Pixel(this->r - other.r,
                          this->g - other.g,
-                         this->b - other.b);
+                         this->b - other.b,
+                         this->a - other.a);
         }
 
         template <typename R> Pixel<R> operator /(R c) const
         {
             return Pixel<R>(this->r / c,
                             this->g / c,
-                            this->b / c);
+                            this->b / c,
+                            this->a / c);
         }
 
         Pixel &operator +=(const Pixel &other)
@@ -61,6 +64,7 @@ template<typename T> class Pixel
             this->r += other.r;
             this->g += other.g;
             this->b += other.b;
+            this->a += other.a;
 
             return *this;
         }
@@ -70,6 +74,7 @@ template<typename T> class Pixel
             this->r += qRed(pixel);
             this->g += qGreen(pixel);
             this->b += qBlue(pixel);
+            this->a += qAlpha(pixel);
 
             return *this;
         }
@@ -77,6 +82,7 @@ template<typename T> class Pixel
         T r;
         T g;
         T b;
+        T a;
 };
 
 template<typename T> inline Pixel<T> integralSum(const Pixel<T> *integral,

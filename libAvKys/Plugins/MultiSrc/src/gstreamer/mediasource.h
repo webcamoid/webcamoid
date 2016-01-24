@@ -53,6 +53,7 @@ class MediaSource: public QObject
         bool m_loop;
         bool m_run;
 
+        AkElement::ElementState m_curState;
         qint64 m_maxPacketQueueSize;
         bool m_showLog;
         QThreadPool m_threadPool;
@@ -102,8 +103,9 @@ class MediaSource: public QObject
         void resetMaxPacketQueueSize();
         void resetShowLog();
         void resetLoop();
-        bool init(bool paused=false);
+        bool init();
         void uninit();
+        bool setState(AkElement::ElementState state);
 
     private slots:
         void updateStreams();

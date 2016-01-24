@@ -54,11 +54,12 @@ MediaSource::MediaSource(QObject *parent): QObject(parent)
     this->m_run = false;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
     this->m_showLog = false;
+    this->m_curState = AkElement::ElementStateNull;
 }
 
 MediaSource::~MediaSource()
 {
-    this->uninit();
+    this->setState(AkElement::ElementStateNull);
 }
 
 QStringList MediaSource::medias() const
@@ -330,11 +331,11 @@ void MediaSource::setMedia(const QString &media)
         return;
 
     bool isRunning = this->m_run;
-    this->uninit();
+    this->setState(AkElement::ElementStateNull);
     this->m_media = media;
 
     if (isRunning && !this->m_media.isEmpty())
-        this->init();
+        this->setState(AkElement::ElementStatePlaying);
 
     emit this->mediaChanged(media);
     emit this->mediasChanged(this->medias());
@@ -407,75 +408,137 @@ void MediaSource::resetLoop()
 
 bool MediaSource::init()
 {
-    if (!this->initContext())
-        return false;
-
-    if (avformat_find_stream_info(this->m_inputContext.data(), NULL) < 0) {
-        this->m_inputContext.clear();
-
-        return false;
-    }
-
-    QString uri = this->m_media;
-    av_dump_format(this->m_inputContext.data(), 0, uri.toStdString().c_str(),
-                   false);
-
-    QList<int> filterStreams;
-
-    if (this->m_streams.isEmpty())
-        filterStreams << this->defaultStream("audio/x-raw")
-                      << this->defaultStream("video/x-raw");
-    else
-        filterStreams = this->m_streams;
-
-    foreach (int i, filterStreams) {
-        AbstractStreamPtr stream = this->createStream(i);
-
-        if (stream) {
-            this->m_streamsMap[i] = stream;
-
-            QObject::connect(stream.data(),
-                             &AbstractStream::oStream,
-                             this,
-                             &MediaSource::oStream,
-                             Qt::DirectConnection);
-
-            QObject::connect(stream.data(),
-                             &AbstractStream::notify,
-                             this,
-                             &MediaSource::packetConsumed);
-
-            QObject::connect(stream.data(),
-                             &AbstractStream::frameSent,
-                             this,
-                             &MediaSource::log);
-
-            stream->init();
-        }
-    }
-
-    this->m_globalClock.setClock(0.);
-    this->m_run = true;
-    QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
-
-    return true;
+    return this->setState(AkElement::ElementStatePlaying);
 }
 
 void MediaSource::uninit()
 {
-    this->m_run = false;
-    this->m_dataMutex.lock();
-    this->m_packetQueueNotFull.wakeAll();
-    this->m_packetQueueEmpty.wakeAll();
-    this->m_dataMutex.unlock();
+    this->setState(AkElement::ElementStateNull);
+}
 
-    this->m_threadPool.waitForDone();
+bool MediaSource::setState(AkElement::ElementState state)
+{
+    switch (this->m_curState) {
+    case AkElement::ElementStateNull: {
+        if (state == AkElement::ElementStatePaused
+            || state == AkElement::ElementStatePlaying) {
+            if (!this->initContext())
+                return false;
 
-    foreach (AbstractStreamPtr stream, this->m_streamsMap)
-        stream->uninit();
+            if (avformat_find_stream_info(this->m_inputContext.data(), NULL) < 0) {
+                this->m_inputContext.clear();
 
-    this->m_streamsMap.clear();
-    this->m_inputContext.clear();
+                return false;
+            }
+
+            QString uri = this->m_media;
+            av_dump_format(this->m_inputContext.data(), 0, uri.toStdString().c_str(),
+                           false);
+
+            QList<int> filterStreams;
+
+            if (this->m_streams.isEmpty())
+                filterStreams << this->defaultStream("audio/x-raw")
+                              << this->defaultStream("video/x-raw");
+            else
+                filterStreams = this->m_streams;
+
+            foreach (int i, filterStreams) {
+                AbstractStreamPtr stream = this->createStream(i);
+
+                if (stream) {
+                    this->m_streamsMap[i] = stream;
+
+                    QObject::connect(stream.data(),
+                                     &AbstractStream::oStream,
+                                     this,
+                                     &MediaSource::oStream,
+                                     Qt::DirectConnection);
+
+                    QObject::connect(stream.data(),
+                                     &AbstractStream::notify,
+                                     this,
+                                     &MediaSource::packetConsumed);
+
+                    QObject::connect(stream.data(),
+                                     &AbstractStream::frameSent,
+                                     this,
+                                     &MediaSource::log);
+
+                    stream->init();
+                }
+            }
+
+            if (state == AkElement::ElementStatePlaying) {
+                this->m_globalClock.setClock(0.);
+                this->m_run = true;
+                QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
+            }
+
+            this->m_curState = state;
+
+            return true;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePaused: {
+        switch (state) {
+        case AkElement::ElementStateNull: {
+            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+                stream->uninit();
+
+            this->m_streamsMap.clear();
+            this->m_inputContext.clear();
+            this->m_curState = state;
+
+            return true;
+        }
+        case AkElement::ElementStatePlaying: {
+            this->m_globalClock.setClock(0.);
+            this->m_run = true;
+            QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
+            this->m_curState = state;
+
+            return true;
+        }
+        default:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePlaying: {
+        if (state == AkElement::ElementStateNull
+            || state == AkElement::ElementStatePaused) {
+            this->m_run = false;
+            this->m_dataMutex.lock();
+            this->m_packetQueueNotFull.wakeAll();
+            this->m_packetQueueEmpty.wakeAll();
+            this->m_dataMutex.unlock();
+
+            this->m_threadPool.waitForDone();
+
+            if (state == AkElement::ElementStateNull) {
+                foreach (AbstractStreamPtr stream, this->m_streamsMap)
+                    stream->uninit();
+
+                this->m_streamsMap.clear();
+                this->m_inputContext.clear();
+            }
+
+            this->m_curState = state;
+
+            return true;
+        }
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    return false;
 }
 
 void MediaSource::doLoop()
@@ -483,8 +546,8 @@ void MediaSource::doLoop()
     if (!this->m_run)
         return;
 
-    this->uninit();
-    this->init();
+    this->setState(AkElement::ElementStateNull);
+    this->setState(AkElement::ElementStatePlaying);
 }
 
 void MediaSource::packetConsumed()

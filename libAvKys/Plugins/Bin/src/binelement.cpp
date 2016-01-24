@@ -136,15 +136,22 @@ AkPacket BinElement::iStream(const AkPacket &packet)
     return AkPacket();
 }
 
-void BinElement::setState(AkElement::ElementState state)
+bool BinElement::setState(AkElement::ElementState state)
 {
     AkElement::setState(state);
+    bool ok = true;
 
-    foreach (AkElementPtr element, this->m_elements)
+    foreach (AkElementPtr element, this->m_elements) {
+        bool ret = false;
         QMetaObject::invokeMethod(element.data(),
                                   "setState",
+                                  Q_RETURN_ARG(bool, ret),
                                   Q_ARG(AkElement::ElementState,
                                         this->state()));
+        ok &= ret;
+    }
+
+    return ok;
 }
 
 void BinElement::connectOutputs()

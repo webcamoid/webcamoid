@@ -120,7 +120,6 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
     int radius = this->m_radius;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
         QRgb *oLine = (QRgb *) oFrame.scanLine(y);
         int yp = qMax(y - radius, 0);
         int kh = qMin(y + radius, src.height() - 1) - yp + 1;
@@ -132,7 +131,7 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
             PixelU32 sum = integralSum(integral, oWidth, xp, yp, kw, kh);
             PixelU32 mean = sum / quint32(kw * kh);
 
-            oLine[x] = qRgba(mean.r, mean.g, mean.b, qAlpha(iLine[x]));
+            oLine[x] = qRgba(mean.r, mean.g, mean.b, mean.a);
         }
     }
 

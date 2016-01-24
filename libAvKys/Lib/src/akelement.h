@@ -124,7 +124,7 @@ class AkElement: public QObject
         virtual AkPacket iStream(const AkPacket &packet);
         virtual AkPacket iStream(const AkAudioPacket &packet);
         virtual AkPacket iStream(const AkVideoPacket &packet);
-        virtual void setState(AkElement::ElementState state);
+        virtual bool setState(AkElement::ElementState state);
         virtual void resetState();
 };
 

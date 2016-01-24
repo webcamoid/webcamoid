@@ -45,7 +45,7 @@ class FireElement: public AkElement
                WRITE setDisolve
                RESET resetDisolve
                NOTIFY disolveChanged)
-    Q_PROPERTY(qreal blur
+    Q_PROPERTY(int blur
                READ blur
                WRITE setBlur
                RESET resetBlur
@@ -96,7 +96,7 @@ class FireElement: public AkElement
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int cool() const;
         Q_INVOKABLE qreal disolve() const;
-        Q_INVOKABLE qreal blur() const;
+        Q_INVOKABLE int blur() const;
         Q_INVOKABLE qreal zoom() const;
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int lumaThreshold() const;
@@ -108,7 +108,6 @@ class FireElement: public AkElement
         FireMode m_mode;
         int m_cool;
         qreal m_disolve;
-        qreal m_blur;
         qreal m_zoom;
         int m_threshold;
         int m_lumaThreshold;
@@ -120,6 +119,7 @@ class FireElement: public AkElement
         QImage m_prevFrame;
         QImage m_fireBuffer;
         QVector<QRgb> m_palette;
+        AkElementPtr m_blurFilter;
 
         QImage imageDiff(const QImage &img1,
                          const QImage &img2,
@@ -132,7 +132,6 @@ class FireElement: public AkElement
         void coolImage(const QImage &src, int colorDiff);
         void imageAlphaDiff(const QImage &src, int alphaDiff);
         void disolveImage(const QImage &src, qreal amount);
-        QImage blurImage(const QImage &src, qreal factor);
         QImage burn(const QImage &src, const QVector<QRgb> &palette);
         QVector<QRgb> createPalette();
 
@@ -140,7 +139,7 @@ class FireElement: public AkElement
         void modeChanged(const QString &mode);
         void coolChanged(int cool);
         void disolveChanged(qreal disolve);
-        void blurChanged(qreal blur);
+        void blurChanged(int blur);
         void zoomChanged(qreal zoom);
         void thresholdChanged(int threshold);
         void lumaThresholdChanged(int lumaThreshold);
@@ -152,7 +151,7 @@ class FireElement: public AkElement
         void setMode(const QString &mode);
         void setCool(int cool);
         void setDisolve(qreal disolve);
-        void setBlur(qreal blur);
+        void setBlur(int blur);
         void setZoom(qreal zoom);
         void setThreshold(int threshold);
         void setLumaThreshold(int lumaThreshold);
