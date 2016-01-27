@@ -35,9 +35,18 @@ extern "C"
 
 #include "clock.h"
 
+typedef QSharedPointer<AVPacket> PacketPtr;
+typedef QSharedPointer<AVFrame> FramePtr;
+typedef QSharedPointer<AVSubtitle> SubtitlePtr;
+
 class AbstractStream: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool paused
+               READ paused
+               WRITE setPaused
+               RESET resetPaused
+               NOTIFY pausedChanged)
 
     public:
         explicit AbstractStream(const AVFormatContext *formatContext=NULL,
@@ -46,6 +55,7 @@ class AbstractStream: public QObject
                                 bool noModify=false,
                                 QObject *parent=NULL);
 
+        Q_INVOKABLE bool paused() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE uint index() const;
         Q_INVOKABLE qint64 id() const;
@@ -56,7 +66,9 @@ class AbstractStream: public QObject
         Q_INVOKABLE AVCodec *codec() const;
         Q_INVOKABLE AVDictionary *codecOptions() const;
         Q_INVOKABLE virtual AkCaps caps() const;
-        Q_INVOKABLE void enqueue(AVPacket *packet);
+        Q_INVOKABLE void packetEnqueue(AVPacket *packet);
+        Q_INVOKABLE void dataEnqueue(AVFrame *frame);
+        Q_INVOKABLE void dataEnqueue(AVSubtitle *subtitle);
         Q_INVOKABLE qint64 queueSize();
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
@@ -65,10 +77,14 @@ class AbstractStream: public QObject
                                 uint index);
 
     protected:
+        bool m_paused;
         bool m_isValid;
         qreal m_clockDiff;
+        int m_maxData;
 
         virtual void processPacket(AVPacket *packet);
+        virtual void processData(AVFrame *frame);
+        virtual void processData(AVSubtitle *subtitle);
 
     private:
         uint m_index;
@@ -79,25 +95,38 @@ class AbstractStream: public QObject
         AVCodecContext *m_codecContext;
         AVCodec *m_codec;
         AVDictionary *m_codecOptions;
-        bool m_run;
         QThreadPool m_threadPool;
-        QMutex m_mutex;
-        QWaitCondition m_queueNotEmpty;
-        QQueue<AVPacket *> m_packets;
-        qint64 m_queueSize;
+        QMutex m_packetMutex;
+        QMutex m_dataMutex;
+        QWaitCondition m_packetQueueNotEmpty;
+        QWaitCondition m_dataQueueNotEmpty;
+        QWaitCondition m_dataQueueNotFull;
+        QQueue<PacketPtr> m_packets;
+        QQueue<FramePtr> m_frames;
+        QQueue<SubtitlePtr> m_subtitles;
+        qint64 m_packetQueueSize;
         Clock *m_globalClock;
+        bool m_runPacketLoop;
+        bool m_runDataLoop;
+        QFuture<void> m_packetLoopResult;
+        QFuture<void> m_dataLoopResult;
 
-        static void decodeFrame(AbstractStream *stream);
+        static void packetLoop(AbstractStream *stream);
+        static void dataLoop(AbstractStream *stream);
+        static void deletePacket(AVPacket *packet);
+        static void deleteFrame(AVFrame *frame);
+        static void deleteSubtitle(AVSubtitle *subtitle);
 
     signals:
+        void pausedChanged(bool paused);
         void oStream(const AkPacket &packet);
         void notify();
         void frameSent();
 
     public slots:
-        bool open();
-        void close();
-        virtual void init();
+        void setPaused(bool paused);
+        void resetPaused();
+        virtual bool init();
         virtual void uninit();
 };
 

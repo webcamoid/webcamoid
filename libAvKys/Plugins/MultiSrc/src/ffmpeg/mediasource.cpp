@@ -285,7 +285,7 @@ void MediaSource::readPackets(MediaSource *element)
             if (element->m_streamsMap.contains(packet->stream_index)
                 && (element->m_streams.isEmpty()
                     || element->m_streams.contains(packet->stream_index))) {
-                element->m_streamsMap[packet->stream_index]->enqueue(packet);
+                element->m_streamsMap[packet->stream_index]->packetEnqueue(packet);
                 notuse = false;
             }
         }
@@ -406,16 +406,6 @@ void MediaSource::resetLoop()
     this->setLoop(false);
 }
 
-bool MediaSource::init()
-{
-    return this->setState(AkElement::ElementStatePlaying);
-}
-
-void MediaSource::uninit()
-{
-    this->setState(AkElement::ElementStateNull);
-}
-
 bool MediaSource::setState(AkElement::ElementState state)
 {
     switch (this->m_curState) {
@@ -512,12 +502,12 @@ bool MediaSource::setState(AkElement::ElementState state)
         if (state == AkElement::ElementStateNull
             || state == AkElement::ElementStatePaused) {
             this->m_run = false;
+            this->m_threadPool.waitForDone();
+
             this->m_dataMutex.lock();
             this->m_packetQueueNotFull.wakeAll();
             this->m_packetQueueEmpty.wakeAll();
             this->m_dataMutex.unlock();
-
-            this->m_threadPool.waitForDone();
 
             if (state == AkElement::ElementStateNull) {
                 foreach (AbstractStreamPtr stream, this->m_streamsMap)

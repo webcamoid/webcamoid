@@ -23,11 +23,11 @@
 
 extern "C"
 {
+    #include <libavcodec/avcodec.h>
     #include <libswresample/swresample.h>
 }
 
 #include "abstractstream.h"
-#include "framebuffer.h"
 
 class AudioStream: public AbstractStream
 {
@@ -45,25 +45,17 @@ class AudioStream: public AbstractStream
 
     protected:
         void processPacket(AVPacket *packet);
+        void processData(AVFrame *frame);
 
     private:
         qint64 m_pts;
         SwrContext *m_resampleContext;
-        FrameBuffer m_frameBuffer;
-        bool m_run;
-        QThreadPool m_threadPool;
 
-        AVFramePtr m_frame;
         qreal audioDiffCum; // used for AV difference average computation
         qreal audioDiffAvgCoef;
         int audioDiffAvgCount;
 
         AkPacket convert(AVFrame *iFrame);
-        static void sendPacket(AudioStream *stream);
-
-    public slots:
-        void init();
-        void uninit();
 };
 
 #endif // AUDIOSTREAM_H

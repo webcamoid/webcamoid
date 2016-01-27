@@ -38,6 +38,7 @@ class SubtitleStream: public AbstractStream
 
     protected:
         void processPacket(AVPacket *packet);
+        void processData(AVSubtitle *subtitle);
 };
 
 #endif // SUBTITLESTREAM_H

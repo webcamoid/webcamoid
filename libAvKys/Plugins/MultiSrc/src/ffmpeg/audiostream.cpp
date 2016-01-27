@@ -62,10 +62,9 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
                          bool noModify, QObject *parent):
     AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
+    this->m_maxData = 9;
     this->m_pts = 0;
     this->m_resampleContext = NULL;
-    this->m_run = false;
-    this->m_frameBuffer.setMaxSize(9);
     this->audioDiffCum = 0.0;
     this->audioDiffAvgCoef = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
     this->audioDiffAvgCount = 0;
@@ -116,15 +115,21 @@ void AudioStream::processPacket(AVPacket *packet)
     if (!gotFrame)
         return;
 
-#if 1
-    this->m_frameBuffer.enqueue(iFrame);
-#else
-    AkPacket oPacket = this->convert(iFrame);
-    av_frame_unref(iFrame);
-    av_frame_free(&iFrame);
+    this->dataEnqueue(iFrame);
+}
 
+void AudioStream::processData(AVFrame *frame)
+{
+    qint64 pts = (frame->pts != AV_NOPTS_VALUE) ? frame->pts :
+                  (frame->pkt_pts != AV_NOPTS_VALUE) ? frame->pkt_pts :
+                  this->m_pts;
+    frame->pts = frame->pkt_pts = pts;
+
+    AkPacket oPacket = this->convert(frame);
     emit this->oStream(oPacket);
-#endif
+    emit this->frameSent();
+
+    this->m_pts = frame->pts + frame->nb_samples;
 }
 
 AkPacket AudioStream::convert(AVFrame *iFrame)
@@ -247,44 +252,4 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
     packet.id() = this->id();
 
     return packet.toPacket();
-}
-
-void AudioStream::sendPacket(AudioStream *stream)
-{
-    while (stream->m_run) {
-        if (!stream->m_frame)
-            stream->m_frame = stream->m_frameBuffer.dequeue();
-
-        if (!stream->m_frame)
-            continue;
-
-        qint64 pts = (stream->m_frame->pts != AV_NOPTS_VALUE) ? stream->m_frame->pts :
-                      (stream->m_frame->pkt_pts != AV_NOPTS_VALUE) ? stream->m_frame->pkt_pts :
-                      stream->m_pts;
-        stream->m_frame->pts = stream->m_frame->pkt_pts = pts;
-
-        AkPacket oPacket = stream->convert(stream->m_frame.data());
-        emit stream->oStream(oPacket);
-        emit stream->frameSent();
-
-        stream->m_pts = stream->m_frame->pts + stream->m_frame->nb_samples;
-        stream->m_frame = AVFramePtr();
-    }
-}
-
-void AudioStream::init()
-{
-    AbstractStream::init();
-    this->m_run = true;
-    this->m_pts = 0;
-
-    QtConcurrent::run(&this->m_threadPool, this->sendPacket, this);
-}
-
-void AudioStream::uninit()
-{
-    this->m_run = false;
-    this->m_frameBuffer.clear();
-    this->m_threadPool.waitForDone();
-    AbstractStream::uninit();
 }

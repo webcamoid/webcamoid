@@ -103,8 +103,6 @@ class MediaSource: public QObject
         void resetMaxPacketQueueSize();
         void resetShowLog();
         void resetLoop();
-        bool init();
-        void uninit();
         bool setState(AkElement::ElementState state);
 
     private slots:

@@ -25,8 +25,12 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                                bool noModify,
                                QObject *parent): QObject(parent)
 {
+    this->m_runPacketLoop = false;
+    this->m_runDataLoop = false;
+    this->m_paused = false;
     this->m_isValid = false;
     this->m_clockDiff = 0;
+    this->m_maxData = 0;
     this->m_index = index;
     this->m_id = id;
 
@@ -44,7 +48,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                         NULL;
 
     this->m_codecOptions = NULL;
-    this->m_queueSize = 0;
+    this->m_packetQueueSize = 0;
     this->m_globalClock = globalClock;
 
     if (!this->m_codec)
@@ -67,6 +71,11 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     }
 
     this->m_isValid = true;
+}
+
+bool AbstractStream::paused() const
+{
+    return this->m_paused;
 }
 
 bool AbstractStream::isValid() const
@@ -119,21 +128,42 @@ AkCaps AbstractStream::caps() const
     return AkCaps();
 }
 
-void AbstractStream::enqueue(AVPacket *packet)
+void AbstractStream::packetEnqueue(AVPacket *packet)
 {
-    if (!this->m_run)
-        return;
+    this->m_packetMutex.lock();
+    this->m_packets.enqueue(PacketPtr(packet, this->deletePacket));
+    this->m_packetQueueSize += packet->size;
+    this->m_packetQueueNotEmpty.wakeAll();
+    this->m_packetMutex.unlock();
+}
 
-    this->m_mutex.lock();
-    this->m_packets.enqueue(packet);
-    this->m_queueSize += packet->size;
-    this->m_queueNotEmpty.wakeAll();
-    this->m_mutex.unlock();
+void AbstractStream::dataEnqueue(AVFrame *frame)
+{
+    this->m_dataMutex.lock();
+
+    if (this->m_frames.size() >= this->m_maxData)
+        this->m_dataQueueNotFull.wait(&this->m_dataMutex);
+
+    this->m_frames.enqueue(FramePtr(frame, this->deleteFrame));
+    this->m_dataQueueNotEmpty.wakeAll();
+    this->m_dataMutex.unlock();
+}
+
+void AbstractStream::dataEnqueue(AVSubtitle *subtitle)
+{
+    this->m_dataMutex.lock();
+
+    if (this->m_subtitles.size() >= this->m_maxData)
+        this->m_dataQueueNotFull.wait(&this->m_dataMutex);
+
+    this->m_subtitles.enqueue(SubtitlePtr(subtitle, this->deleteSubtitle));
+    this->m_dataQueueNotEmpty.wakeAll();
+    this->m_dataMutex.unlock();
 }
 
 qint64 AbstractStream::queueSize()
 {
-    return this->m_queueSize;
+    return this->m_packetQueueSize;
 }
 
 Clock *AbstractStream::globalClock()
@@ -159,67 +189,154 @@ void AbstractStream::processPacket(AVPacket *packet)
     Q_UNUSED(packet)
 }
 
-void AbstractStream::decodeFrame(AbstractStream *stream)
+void AbstractStream::processData(AVFrame *frame)
 {
-    while (stream->m_run) {
-        stream->m_mutex.lock();
+    Q_UNUSED(frame)
+}
+
+void AbstractStream::processData(AVSubtitle *subtitle)
+{
+    Q_UNUSED(subtitle)
+}
+
+void AbstractStream::packetLoop(AbstractStream *stream)
+{
+    while (stream->m_runPacketLoop) {
+        stream->m_packetMutex.lock();
 
         if (stream->m_packets.isEmpty())
-            stream->m_queueNotEmpty.wait(&stream->m_mutex, THREAD_WAIT_LIMIT);
+            stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex, THREAD_WAIT_LIMIT);
 
         if (!stream->m_packets.isEmpty()) {
-            AVPacket *packet = stream->m_packets.dequeue();
-            stream->processPacket(packet);
-            stream->m_queueSize -= packet->size;
-            av_free_packet(packet);
-            delete packet;
+            PacketPtr packet = stream->m_packets.dequeue();
+            stream->processPacket(packet.data());
+            stream->m_packetQueueSize -= packet->size;
             emit stream->notify();
         }
 
-        stream->m_mutex.unlock();
+        stream->m_packetMutex.unlock();
     }
 }
 
-bool AbstractStream::open()
+void AbstractStream::dataLoop(AbstractStream *stream)
 {
-    if (!this->m_codecContext)
-        return false;
+    switch (stream->mediaType()) {
+    case AVMEDIA_TYPE_VIDEO:
+    case AVMEDIA_TYPE_AUDIO:
+        while (stream->m_runDataLoop) {
+            while (stream->m_paused) {
+                QThread::msleep(THREAD_WAIT_LIMIT);
 
+                continue;
+            }
+
+            stream->m_dataMutex.lock();
+
+            if (stream->m_frames.isEmpty())
+                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex, THREAD_WAIT_LIMIT);
+
+            if (!stream->m_frames.isEmpty()) {
+                FramePtr frame = stream->m_frames.dequeue();
+                stream->processData(frame.data());
+
+                if (stream->m_frames.size() < stream->m_maxData)
+                    stream->m_dataQueueNotFull.wakeAll();
+            }
+
+            stream->m_dataMutex.unlock();
+        }
+
+        break;
+    case AVMEDIA_TYPE_SUBTITLE:
+        while (stream->m_runDataLoop) {
+            while (stream->m_paused) {
+                QThread::msleep(THREAD_WAIT_LIMIT);
+
+                continue;
+            }
+
+            stream->m_dataMutex.lock();
+
+            if (stream->m_subtitles.isEmpty())
+                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex, THREAD_WAIT_LIMIT);
+
+            if (!stream->m_subtitles.isEmpty()) {
+                SubtitlePtr subtitle = stream->m_subtitles.dequeue();
+                stream->processData(subtitle.data());
+
+                if (stream->m_subtitles.size() < stream->m_maxData)
+                    stream->m_dataQueueNotFull.wakeAll();
+            }
+
+            stream->m_dataMutex.unlock();
+        }
+
+        break;
+    default:
+        break;
+    }
+}
+
+void AbstractStream::deletePacket(AVPacket *packet)
+{
+    av_free_packet(packet);
+    delete packet;
+}
+
+void AbstractStream::deleteFrame(AVFrame *frame)
+{
+    av_frame_unref(frame);
+    av_frame_free(&frame);
+}
+
+void AbstractStream::deleteSubtitle(AVSubtitle *subtitle)
+{
+    avsubtitle_free(subtitle);
+    delete subtitle;
+}
+
+void AbstractStream::setPaused(bool paused)
+{
+    if (this->m_paused == paused)
+        return;
+
+    this->m_paused = paused;
+    emit this->pausedChanged(paused);
+}
+
+void AbstractStream::resetPaused()
+{
+    this->setPaused(false);
+}
+
+bool AbstractStream::init()
+{
     if (avcodec_open2(this->m_codecContext, this->m_codec,
                       &this->m_codecOptions) < 0)
         return false;
 
-    return true;
-}
-
-void AbstractStream::close()
-{
-    if (this->m_codecContext)
-        avcodec_close(this->m_codecContext);
-}
-
-void AbstractStream::init()
-{
-    if (!this->open())
-        return;
-
     this->m_clockDiff = 0;
-    this->m_run = true;
-    QtConcurrent::run(&this->m_threadPool, this->decodeFrame, this);
+    this->m_runPacketLoop = true;
+    this->m_runDataLoop = true;
+    this->m_packetLoopResult = QtConcurrent::run(&this->m_threadPool, this->packetLoop, this);
+    this->m_dataLoopResult = QtConcurrent::run(&this->m_threadPool, this->dataLoop, this);
+
+    return true;
 }
 
 void AbstractStream::uninit()
 {
-    this->m_run = false;
-    this->m_mutex.lock();
-    this->m_queueNotEmpty.wakeAll();
-    this->m_mutex.unlock();
-    this->m_threadPool.waitForDone();
+    this->m_runPacketLoop = false;
+    this->m_packetLoopResult.waitForFinished();
+
+    this->m_runDataLoop = false;
+    this->m_dataLoopResult.waitForFinished();
 
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);
 
-    this->close();
-
-    this->m_codecContext = NULL;
+    if (this->m_codecContext) {
+        avcodec_close(this->m_codecContext);
+        this->m_codecContext = NULL;
+    }
 }

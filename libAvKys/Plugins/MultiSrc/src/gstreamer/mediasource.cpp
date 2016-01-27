@@ -584,16 +584,6 @@ void MediaSource::resetLoop()
     this->setLoop(false);
 }
 
-bool MediaSource::init()
-{
-    return this->setState(AkElement::ElementStatePlaying);
-}
-
-void MediaSource::uninit()
-{
-    this->setState(AkElement::ElementStateNull);
-}
-
 bool MediaSource::setState(AkElement::ElementState state)
 {
     switch (this->m_curState) {

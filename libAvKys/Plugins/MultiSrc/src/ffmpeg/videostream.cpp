@@ -56,10 +56,9 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
                          bool noModify, QObject *parent):
     AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
+    this->m_maxData = 3;
     this->m_scaleContext = NULL;
-    this->m_run = false;
     this->m_lastPts = 0;
-    this->m_frameBuffer.setMaxSize(3);
 }
 
 VideoStream::~VideoStream()
@@ -100,15 +99,50 @@ void VideoStream::processPacket(AVPacket *packet)
     if (!gotFrame)
         return;
 
-#if 1
-    this->m_frameBuffer.enqueue(iFrame);
-#else
-    AkPacket oPacket = this->convert(iFrame);
-    av_frame_unref(iFrame);
-    av_frame_free(&iFrame);
+    this->dataEnqueue(iFrame);
+}
 
-    emit this->oStream(oPacket);
-#endif
+void VideoStream::processData(AVFrame *frame)
+{
+    forever {
+        qreal pts = av_frame_get_best_effort_timestamp(frame)
+                    * this->timeBase().value();
+        qreal diff = pts - this->globalClock()->clock();
+        qreal delay = pts - this->m_lastPts;
+
+        // skip or repeat frame. We take into account the
+        // delay to compute the threshold. I still don't know
+        // if it is the best guess
+        double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
+                                      delay,
+                                      AV_SYNC_THRESHOLD_MAX);
+
+        if (!qIsNaN(diff)
+            && qAbs(diff) < AV_NOSYNC_THRESHOLD
+            && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
+            // video is backward the external clock.
+            if (diff <= -syncThreshold) {
+                this->m_lastPts = pts;
+
+                break;
+            } else if (diff > syncThreshold) {
+                // video is ahead the external clock.
+                QThread::usleep(1e6 * (diff - syncThreshold));
+
+                continue;
+            }
+        } else
+            this->globalClock()->setClock(pts);
+
+        this->m_clockDiff = diff;
+        AkPacket oPacket = this->convert(frame);
+        emit this->oStream(oPacket);
+        emit this->frameSent();
+
+        this->m_lastPts = pts;
+
+        break;
+    }
 }
 
 AkFrac VideoStream::fps() const
@@ -200,70 +234,4 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     }
 
     return packet.toPacket();
-}
-
-void VideoStream::sendPacket(VideoStream *stream)
-{
-    while (stream->m_run) {
-        // dequeue the picture
-        if (!stream->m_frame)
-            stream->m_frame = stream->m_frameBuffer.dequeue();
-
-        if (!stream->m_frame)
-            continue;
-
-        qreal pts = av_frame_get_best_effort_timestamp(stream->m_frame.data())
-                    * stream->timeBase().value();
-        qreal diff = pts - stream->globalClock()->clock();
-        qreal delay = pts - stream->m_lastPts;
-
-        // skip or repeat frame. We take into account the
-        // delay to compute the threshold. I still don't know
-        // if it is the best guess
-        double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
-                                      delay,
-                                      AV_SYNC_THRESHOLD_MAX);
-
-        if (!qIsNaN(diff)
-            && qAbs(diff) < AV_NOSYNC_THRESHOLD
-            && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
-            // video is backward the external clock.
-            if (diff <= -syncThreshold) {
-                stream->m_frame = AVFramePtr();
-                stream->m_lastPts = pts;
-
-                continue;
-            } else if (diff > syncThreshold) {
-                // video is ahead the external clock.
-                QThread::usleep(1e6 * (diff - syncThreshold));
-
-                continue;
-            }
-        } else
-            stream->globalClock()->setClock(pts);
-
-        stream->m_clockDiff = diff;
-        AkPacket oPacket = stream->convert(stream->m_frame.data());
-        emit stream->oStream(oPacket);
-        emit stream->frameSent();
-
-        stream->m_frame = AVFramePtr();
-        stream->m_lastPts = pts;
-    }
-}
-
-void VideoStream::init()
-{
-    AbstractStream::init();
-    this->m_lastPts = 0;
-    this->m_run = true;
-    QtConcurrent::run(&this->m_threadPool, this->sendPacket, this);
-}
-
-void VideoStream::uninit()
-{
-    AbstractStream::uninit();
-    this->m_run = false;
-    this->m_frameBuffer.clear();
-    this->m_threadPool.waitForDone();
 }

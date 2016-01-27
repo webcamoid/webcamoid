@@ -44,7 +44,6 @@ HEADERS += \
     $$PWD/audiostream.h \
     $$PWD/subtitlestream.h \
     $$PWD/videostream.h \
-    $$PWD/framebuffer.h \
     $$PWD/clock.h
 
 SOURCES += \
@@ -53,5 +52,4 @@ SOURCES += \
     $$PWD/audiostream.cpp \
     $$PWD/subtitlestream.cpp \
     $$PWD/videostream.cpp \
-    $$PWD/framebuffer.cpp \
     $$PWD/clock.cpp

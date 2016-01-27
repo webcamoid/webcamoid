@@ -26,6 +26,7 @@ SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
                                QObject *parent):
     AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
+    this->m_maxData = 16;
 }
 
 AkCaps SubtitleStream::caps() const
@@ -38,87 +39,89 @@ void SubtitleStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
-    AVSubtitle subtitle;
+    AVSubtitle *subtitle = new AVSubtitle();
     int gotSubtitle;
 
     avcodec_decode_subtitle2(this->codecContext(),
-                             &subtitle,
+                             subtitle,
                              &gotSubtitle,
                              packet);
 
     if (gotSubtitle) {
-        for (uint i = 0; i < subtitle.num_rects; i++) {
-            AkCaps caps(this->caps());
-            QByteArray oBuffer;
+        this->dataEnqueue(subtitle);
 
-            if (subtitle.rects[i]->type == SUBTITLE_BITMAP) {
-                AVPixelFormat pixFmt;
-                const char *format;
+        return;
+    }
 
-                if (subtitle.rects[i]->nb_colors == 4) {
-                    pixFmt = AV_PIX_FMT_ARGB;
-                    format = av_get_pix_fmt_name(pixFmt);
-                }
-                else
-                    break;
+    // Some subtitles seams to have a problem when decoding.
+    AkCaps caps(this->caps());
+    caps.setProperty("type", "ass");
 
-                caps.setProperty("type", "bitmap");
-                caps.setProperty("x", subtitle.rects[i]->x);
-                caps.setProperty("y", subtitle.rects[i]->y);
-                caps.setProperty("width", subtitle.rects[i]->w);
-                caps.setProperty("height", subtitle.rects[i]->h);
-                caps.setProperty("format", format);
+    QByteArray oBuffer(packet->size, Qt::Uninitialized);
+    memcpy(oBuffer.data(), packet->data, packet->size);
 
-                int frameSize = subtitle.rects[i]->nb_colors *
-                                subtitle.rects[i]->w *
-                                subtitle.rects[i]->h;
+    AkPacket oPacket(caps, oBuffer);
 
-                oBuffer.resize(frameSize);
+    oPacket.setPts(packet->pts);
+    oPacket.setTimeBase(this->timeBase());
+    oPacket.setIndex(this->index());
+    oPacket.setId(this->id());
 
-                avpicture_layout((AVPicture *) &subtitle.rects[i]->pict,
-                                 pixFmt,
-                                 subtitle.rects[i]->w,
-                                 subtitle.rects[i]->h,
-                                 (uint8_t *) oBuffer.data(),
-                                 frameSize);
-            }
-            else if (subtitle.rects[i]->type == SUBTITLE_TEXT) {
-                caps.setProperty("type", "text");
-                int textLenght = sizeof(subtitle.rects[i]->text);
+    emit this->oStream(oPacket);
+    delete subtitle;
+}
 
-                oBuffer.resize(textLenght);
-                memcpy(oBuffer.data(), subtitle.rects[i]->text, textLenght);
-            }
-            else if (subtitle.rects[i]->type == SUBTITLE_ASS) {
-                caps.setProperty("type", "ass");
-                int assLenght = sizeof(subtitle.rects[i]->ass);
+void SubtitleStream::processData(AVSubtitle *subtitle)
+{
+    for (uint i = 0; i < subtitle->num_rects; i++) {
+        AkCaps caps(this->caps());
+        QByteArray oBuffer;
 
-                oBuffer.resize(assLenght);
-                memcpy(oBuffer.data(), subtitle.rects[i]->ass, assLenght);
-            }
+        if (subtitle->rects[i]->type == SUBTITLE_BITMAP) {
+            AVPixelFormat pixFmt;
+            const char *format;
 
-            AkPacket oPacket(caps, oBuffer);
-            oPacket.setPts(packet->pts);
-            oPacket.setTimeBase(this->timeBase());
-            oPacket.setIndex(this->index());
-            oPacket.setId(this->id());
+            if (subtitle->rects[i]->nb_colors == 4) {
+                pixFmt = AV_PIX_FMT_ARGB;
+                format = av_get_pix_fmt_name(pixFmt);
+            } else
+                break;
 
-            emit this->oStream(oPacket);
+            caps.setProperty("type", "bitmap");
+            caps.setProperty("x", subtitle->rects[i]->x);
+            caps.setProperty("y", subtitle->rects[i]->y);
+            caps.setProperty("width", subtitle->rects[i]->w);
+            caps.setProperty("height", subtitle->rects[i]->h);
+            caps.setProperty("format", format);
+
+            int frameSize = subtitle->rects[i]->nb_colors *
+                            subtitle->rects[i]->w *
+                            subtitle->rects[i]->h;
+
+            oBuffer.resize(frameSize);
+
+            avpicture_layout((AVPicture *) &subtitle->rects[i]->pict,
+                             pixFmt,
+                             subtitle->rects[i]->w,
+                             subtitle->rects[i]->h,
+                             (uint8_t *) oBuffer.data(),
+                             frameSize);
+        } else if (subtitle->rects[i]->type == SUBTITLE_TEXT) {
+            caps.setProperty("type", "text");
+            int textLenght = sizeof(subtitle->rects[i]->text);
+
+            oBuffer.resize(textLenght);
+            memcpy(oBuffer.data(), subtitle->rects[i]->text, textLenght);
+        } else if (subtitle->rects[i]->type == SUBTITLE_ASS) {
+            caps.setProperty("type", "ass");
+            int assLenght = sizeof(subtitle->rects[i]->ass);
+
+            oBuffer.resize(assLenght);
+            memcpy(oBuffer.data(), subtitle->rects[i]->ass, assLenght);
         }
 
-        avsubtitle_free(&subtitle);
-    }
-    else {
-        // Some subtitles seams to have a problem when decoding.
-        AkCaps caps(this->caps());
-        caps.setProperty("type", "ass");
-
-        QByteArray oBuffer(packet->size, Qt::Uninitialized);
-        memcpy(oBuffer.data(), packet->data, packet->size);
-
         AkPacket oPacket(caps, oBuffer);
-
-        oPacket.setPts(packet->pts);
+        oPacket.setPts(subtitle->pts);
         oPacket.setTimeBase(this->timeBase());
         oPacket.setIndex(this->index());
         oPacket.setId(this->id());

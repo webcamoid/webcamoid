@@ -147,17 +147,6 @@ bool MultiSrcElement::showLog() const
     return this->m_mediaSource.showLog();
 }
 
-void MultiSrcElement::stateChange(AkElement::ElementState from,
-                                  AkElement::ElementState to)
-{
-    if (from == AkElement::ElementStateNull
-        && to == AkElement::ElementStatePaused)
-        this->m_mediaSource.init();
-    else if (from == AkElement::ElementStatePaused
-             && to == AkElement::ElementStateNull)
-        this->m_mediaSource.uninit();
-}
-
 void MultiSrcElement::setMedia(const QString &media)
 {
     this->m_mediaSource.setMedia(media);
@@ -206,4 +195,12 @@ void MultiSrcElement::resetMaxPacketQueueSize()
 void MultiSrcElement::resetShowLog()
 {
     this->m_mediaSource.resetShowLog();
+}
+
+bool MultiSrcElement::setState(AkElement::ElementState state)
+{
+    if (!this->m_mediaSource.setState(state))
+        return false;
+
+    return AkElement::setState(state);
 }

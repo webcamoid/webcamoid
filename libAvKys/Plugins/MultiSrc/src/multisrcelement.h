@@ -86,10 +86,6 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
 
-    protected:
-        void stateChange(AkElement::ElementState from,
-                         AkElement::ElementState to);
-
     private:
         MediaSource m_mediaSource;
 
@@ -113,6 +109,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void resetLoop();
         void resetMaxPacketQueueSize();
         void resetShowLog();
+        bool setState(AkElement::ElementState state);
 };
 
 #endif // MULTISRCELEMENT_H

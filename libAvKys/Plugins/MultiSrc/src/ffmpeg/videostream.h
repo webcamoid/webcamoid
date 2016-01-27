@@ -23,11 +23,11 @@
 
 extern "C"
 {
+    #include <libavcodec/avcodec.h>
     #include <libswscale/swscale.h>
 }
 
 #include "abstractstream.h"
-#include "framebuffer.h"
 
 class VideoStream: public AbstractStream
 {
@@ -45,24 +45,16 @@ class VideoStream: public AbstractStream
 
     protected:
         void processPacket(AVPacket *packet);
+        void processData(AVFrame *frame);
 
     private:
         SwsContext *m_scaleContext;
-        FrameBuffer m_frameBuffer;
-        bool m_run;
-        QThreadPool m_threadPool;
 
         // Sync properties.
         qreal m_lastPts;
-        AVFramePtr m_frame;
 
         AkFrac fps() const;
         AkPacket convert(AVFrame *iFrame);
-        static void sendPacket(VideoStream *stream);
-
-    public slots:
-        void init();
-        void uninit();
 };
 
 #endif // VIDEOSTREAM_H
