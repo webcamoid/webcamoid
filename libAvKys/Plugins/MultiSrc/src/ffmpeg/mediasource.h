@@ -65,6 +65,7 @@ class MediaSource: public QObject
         QWaitCondition m_packetQueueEmpty;
         QMap<int, AbstractStreamPtr> m_streamsMap;
         Clock m_globalClock;
+        qreal m_curClockTime;
 
         qint64 packetQueueSize();
         static void deleteFormatContext(AVFormatContext *context);

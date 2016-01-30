@@ -54,7 +54,7 @@ DesktopCaptureElement::DesktopCaptureElement():
 
 DesktopCaptureElement::~DesktopCaptureElement()
 {
-    this->uninit();
+    this->setState(AkElement::ElementStateNull);
 }
 
 QStringList DesktopCaptureElement::medias() const
@@ -129,16 +129,6 @@ void DesktopCaptureElement::sendPacket(DesktopCaptureElement *element,
     emit element->oStream(packet);
 }
 
-void DesktopCaptureElement::stateChange(AkElement::ElementState from, AkElement::ElementState to)
-{
-    if (from == AkElement::ElementStateNull
-        && to == AkElement::ElementStatePaused)
-        this->init();
-    else if (from == AkElement::ElementStatePaused
-             && to == AkElement::ElementStateNull)
-        this->uninit();
-}
-
 void DesktopCaptureElement::setMedia(const QString &media)
 {
     for (int i = 0; i < QGuiApplication::screens().size(); i++) {
@@ -171,18 +161,61 @@ void DesktopCaptureElement::resetMedia()
     emit this->mediaChanged(this->m_curScreen);
 }
 
-bool DesktopCaptureElement::init()
+bool DesktopCaptureElement::setState(AkElement::ElementState state)
 {
-    this->m_id = Ak::id();
-    this->m_timer.start();
+    AkElement::ElementState curState = this->state();
 
-    return true;
-}
+    switch (curState) {
+    case AkElement::ElementStateNull: {
+        switch (state) {
+        case AkElement::ElementStatePaused:
+            this->m_id = Ak::id();
 
-void DesktopCaptureElement::uninit()
-{
-    this->m_timer.stop();
-    this->m_threadStatus.waitForFinished();
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            this->m_id = Ak::id();
+            this->m_timer.start();
+
+            return AkElement::setState(state);
+        default:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePaused: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            this->m_timer.start();
+
+            return AkElement::setState(state);
+        default:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePlaying: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+        case AkElement::ElementStatePaused:
+            this->m_timer.stop();
+            this->m_threadStatus.waitForFinished();
+
+            return AkElement::setState(state);
+        default:
+            break;
+        }
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    return false;
 }
 
 void DesktopCaptureElement::readFrame()

@@ -93,9 +93,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
 
         static void sendPacket(VideoCaptureElement *element, const AkPacket &packet);
 
-    protected:
-        void stateChange(AkElement::ElementState from, AkElement::ElementState to);
-
     signals:
         void error(const QString &message);
         void sizeChanged(const QString &webcam, const QSize &size) const;
@@ -110,10 +107,9 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void resetIoMethod();
         void resetNBuffers();
         void reset(const QString &webcam="");
+        bool setState(AkElement::ElementState state);
 
     private slots:
-        bool init();
-        void uninit();
         void readFrame();
 };
 

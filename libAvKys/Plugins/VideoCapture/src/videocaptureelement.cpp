@@ -58,7 +58,7 @@ VideoCaptureElement::VideoCaptureElement():
 
 VideoCaptureElement::~VideoCaptureElement()
 {
-    this->uninit();
+    this->setState(AkElement::ElementStateNull);
 }
 
 QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -212,16 +212,6 @@ void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
     emit element->oStream(oPacket);
 }
 
-void VideoCaptureElement::stateChange(AkElement::ElementState from, AkElement::ElementState to)
-{
-    if (from == AkElement::ElementStateNull
-        && to == AkElement::ElementStatePaused)
-        this->init();
-    else if (from == AkElement::ElementStatePaused
-             && to == AkElement::ElementStateNull)
-        this->uninit();
-}
-
 void VideoCaptureElement::setMedia(const QString &media)
 {
     if (this->m_capture.device() == media)
@@ -265,22 +255,71 @@ void VideoCaptureElement::reset(const QString &webcam)
     this->m_capture.reset(webcam);
 }
 
-bool VideoCaptureElement::init()
+bool VideoCaptureElement::setState(AkElement::ElementState state)
 {
-    if (this->m_capture.init()) {
-        this->m_timer.start();
+    AkElement::ElementState curState = this->state();
 
-        return true;
+    switch (curState) {
+    case AkElement::ElementStateNull: {
+        switch (state) {
+        case AkElement::ElementStatePaused:
+            if (!this->m_capture.init())
+                return false;
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            if (!this->m_capture.init())
+                return false;
+
+            this->m_timer.start();
+
+            return AkElement::setState(state);
+        default:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePaused: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            this->m_capture.uninit();
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            this->m_timer.start();
+
+            return AkElement::setState(state);
+        default:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePlaying: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            this->m_timer.stop();
+            this->m_threadStatus.waitForFinished();
+            this->m_capture.uninit();
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePaused:
+            this->m_timer.stop();
+            this->m_threadStatus.waitForFinished();
+
+            return AkElement::setState(state);
+        default:
+            break;
+        }
+
+        break;
+    }
+    default:
+        break;
     }
 
     return false;
-}
-
-void VideoCaptureElement::uninit()
-{
-    this->m_timer.stop();
-    this->m_capture.uninit();
-    this->m_threadStatus.waitForFinished();
 }
 
 void VideoCaptureElement::readFrame()

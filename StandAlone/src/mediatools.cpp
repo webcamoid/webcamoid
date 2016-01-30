@@ -493,6 +493,19 @@ AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
         effect->setProperty("preview", preview);
 
     this->m_effectsList << effect;
+    AkElementPtr source;
+
+    if (this->isCamera(this->m_curStream))
+        source = this->m_videoCapture;
+    else if (this->isDesktop(this->m_curStream))
+        source = this->m_desktopCapture;
+    else
+        source = this->m_source;
+
+    bool playing = this->isPlaying();
+
+    if (playing)
+        source->setState(AkElement::ElementStatePaused);
 
     if (i < 0) {
         if (this->m_videoMux) {
@@ -506,6 +519,9 @@ AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
 
     effect->link(this->m_videoOutput, Qt::DirectConnection);
 
+    if (playing)
+        source->setState(AkElement::ElementStatePlaying);
+
     if (!preview)
         emit this->currentEffectsChanged();
 
@@ -514,6 +530,20 @@ AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
 
 void MediaTools::removeEffect(const QString &effectId)
 {
+    AkElementPtr source;
+
+    if (this->isCamera(this->m_curStream))
+        source = this->m_videoCapture;
+    else if (this->isDesktop(this->m_curStream))
+        source = this->m_desktopCapture;
+    else
+        source = this->m_source;
+
+    bool playing = this->isPlaying();
+
+    if (playing)
+        source->setState(AkElement::ElementStatePaused);
+
     for (int i = 0; i < this->m_effectsList.size(); i++)
         if (this->m_effectsList[i]->pluginId() == effectId) {
             if (i == 0) {
@@ -536,6 +566,9 @@ void MediaTools::removeEffect(const QString &effectId)
 
             break;
         }
+
+    if (playing)
+        source->setState(AkElement::ElementStatePlaying);
 }
 
 void MediaTools::moveEffect(const QString &effectId, int index)
@@ -1174,6 +1207,20 @@ void MediaTools::resetEffects()
     if (this->m_effectsList.isEmpty())
         return;
 
+    AkElementPtr source;
+
+    if (this->isCamera(this->m_curStream))
+        source = this->m_videoCapture;
+    else if (this->isDesktop(this->m_curStream))
+        source = this->m_desktopCapture;
+    else
+        source = this->m_source;
+
+    bool playing = this->isPlaying();
+
+    if (playing)
+        source->setState(AkElement::ElementStatePaused);
+
     if (this->m_videoMux)
         this->m_videoMux->unlink(this->m_effectsList.first());
 
@@ -1183,6 +1230,9 @@ void MediaTools::resetEffects()
     if (this->m_videoMux
         && this->m_videoOutput)
         this->m_videoMux->link(this->m_videoOutput, Qt::DirectConnection);
+
+    if (playing)
+        source->setState(AkElement::ElementStatePlaying);
 
     this->m_effectsList.clear();
     emit this->currentEffectsChanged();

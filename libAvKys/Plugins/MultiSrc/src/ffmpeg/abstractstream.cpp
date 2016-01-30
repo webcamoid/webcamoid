@@ -205,7 +205,8 @@ void AbstractStream::packetLoop(AbstractStream *stream)
         stream->m_packetMutex.lock();
 
         if (stream->m_packets.isEmpty())
-            stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex, THREAD_WAIT_LIMIT);
+            stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex,
+                                               THREAD_WAIT_LIMIT);
 
         if (!stream->m_packets.isEmpty()) {
             PacketPtr packet = stream->m_packets.dequeue();
@@ -224,16 +225,11 @@ void AbstractStream::dataLoop(AbstractStream *stream)
     case AVMEDIA_TYPE_VIDEO:
     case AVMEDIA_TYPE_AUDIO:
         while (stream->m_runDataLoop) {
-            while (stream->m_paused) {
-                QThread::msleep(THREAD_WAIT_LIMIT);
-
-                continue;
-            }
-
             stream->m_dataMutex.lock();
 
             if (stream->m_frames.isEmpty())
-                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex, THREAD_WAIT_LIMIT);
+                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
+                                                 THREAD_WAIT_LIMIT);
 
             if (!stream->m_frames.isEmpty()) {
                 FramePtr frame = stream->m_frames.dequeue();
@@ -249,16 +245,11 @@ void AbstractStream::dataLoop(AbstractStream *stream)
         break;
     case AVMEDIA_TYPE_SUBTITLE:
         while (stream->m_runDataLoop) {
-            while (stream->m_paused) {
-                QThread::msleep(THREAD_WAIT_LIMIT);
-
-                continue;
-            }
-
             stream->m_dataMutex.lock();
 
             if (stream->m_subtitles.isEmpty())
-                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex, THREAD_WAIT_LIMIT);
+                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
+                                                 THREAD_WAIT_LIMIT);
 
             if (!stream->m_subtitles.isEmpty()) {
                 SubtitlePtr subtitle = stream->m_subtitles.dequeue();
@@ -300,6 +291,13 @@ void AbstractStream::setPaused(bool paused)
     if (this->m_paused == paused)
         return;
 
+    this->m_runDataLoop = !paused;
+
+    if (paused)
+        this->m_dataLoopResult.waitForFinished();
+    else
+        this->m_dataLoopResult = QtConcurrent::run(&this->m_threadPool, this->dataLoop, this);
+
     this->m_paused = paused;
     emit this->pausedChanged(paused);
 }
@@ -311,7 +309,8 @@ void AbstractStream::resetPaused()
 
 bool AbstractStream::init()
 {
-    if (avcodec_open2(this->m_codecContext, this->m_codec,
+    if (avcodec_open2(this->m_codecContext,
+                      this->m_codec,
                       &this->m_codecOptions) < 0)
         return false;
 

@@ -101,7 +101,24 @@ qreal HalftoneElement::intercept() const
 
 void HalftoneElement::updatePattern()
 {
+    if (this->m_pattern.isEmpty()) {
+        this->m_mutex.lock();
+        this->m_patternImage = QImage();
+        this->m_mutex.unlock();
+
+        return;
+    }
+
     QImage image(this->m_pattern);
+
+    if (image.isNull()) {
+        this->m_mutex.lock();
+        this->m_patternImage = QImage();
+        this->m_mutex.unlock();
+
+        return;
+    }
+
     QSize patternSize = this->m_patternSize.isEmpty()?
                             image.size(): this->m_patternSize;
     QImage pattern(patternSize, QImage::Format_Indexed8);
@@ -203,6 +220,12 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
     QImage oFrame(src.size(), src.format());
 
     this->m_mutex.lock();
+
+    if (this->m_patternImage.isNull()) {
+        this->m_mutex.unlock();
+        akSend(packet)
+    }
+
     QImage patternImage = this->m_patternImage.copy();
     this->m_mutex.unlock();
 

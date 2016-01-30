@@ -58,20 +58,15 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         static void sendPacket(DesktopCaptureElement *element,
                                const AkPacket &packet);
 
-    protected:
-        void stateChange(AkElement::ElementState from,
-                         AkElement::ElementState to);
-
     signals:
         void sizeChanged(const QString &media, const QSize &size) const;
 
     public slots:
         void setMedia(const QString &media);
         void resetMedia();
+        bool setState(AkElement::ElementState state);
 
     private slots:
-        bool init();
-        void uninit();
         void readFrame();
         void screenCountChanged(QScreen *screen);
         void srceenResized(int screen);

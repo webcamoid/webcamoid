@@ -55,6 +55,7 @@ MediaSource::MediaSource(QObject *parent): QObject(parent)
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
     this->m_showLog = false;
     this->m_curState = AkElement::ElementStateNull;
+    this->m_curClockTime = 0.;
 }
 
 MediaSource::~MediaSource()
@@ -456,15 +457,18 @@ bool MediaSource::setState(AkElement::ElementState state)
                                      &MediaSource::log);
 
                     stream->init();
+
+                    if (state == AkElement::ElementStatePaused)
+                        stream->setPaused(true);
                 }
             }
 
-            if (state == AkElement::ElementStatePlaying) {
-                this->m_globalClock.setClock(0.);
-                this->m_run = true;
-                QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
-            }
+            if (state == AkElement::ElementStatePaused)
+                this->m_curClockTime = 0.;
 
+            this->m_globalClock.setClock(0.);
+            this->m_run = true;
+            QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
             this->m_curState = state;
 
             return true;
@@ -475,6 +479,19 @@ bool MediaSource::setState(AkElement::ElementState state)
     case AkElement::ElementStatePaused: {
         switch (state) {
         case AkElement::ElementStateNull: {
+            this->m_globalClock.setClock(this->m_curClockTime);
+
+            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+                stream->setPaused(false);
+
+            this->m_run = false;
+            this->m_threadPool.waitForDone();
+
+            this->m_dataMutex.lock();
+            this->m_packetQueueNotFull.wakeAll();
+            this->m_packetQueueEmpty.wakeAll();
+            this->m_dataMutex.unlock();
+
             foreach (AbstractStreamPtr stream, this->m_streamsMap)
                 stream->uninit();
 
@@ -485,9 +502,11 @@ bool MediaSource::setState(AkElement::ElementState state)
             return true;
         }
         case AkElement::ElementStatePlaying: {
-            this->m_globalClock.setClock(0.);
-            this->m_run = true;
-            QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
+            this->m_globalClock.setClock(this->m_curClockTime);
+
+            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+                stream->setPaused(false);
+
             this->m_curState = state;
 
             return true;
@@ -499,8 +518,8 @@ bool MediaSource::setState(AkElement::ElementState state)
         break;
     }
     case AkElement::ElementStatePlaying: {
-        if (state == AkElement::ElementStateNull
-            || state == AkElement::ElementStatePaused) {
+        switch (state) {
+        case AkElement::ElementStateNull: {
             this->m_run = false;
             this->m_threadPool.waitForDone();
 
@@ -509,17 +528,27 @@ bool MediaSource::setState(AkElement::ElementState state)
             this->m_packetQueueEmpty.wakeAll();
             this->m_dataMutex.unlock();
 
-            if (state == AkElement::ElementStateNull) {
-                foreach (AbstractStreamPtr stream, this->m_streamsMap)
-                    stream->uninit();
+            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+                stream->uninit();
 
-                this->m_streamsMap.clear();
-                this->m_inputContext.clear();
-            }
-
+            this->m_streamsMap.clear();
+            this->m_inputContext.clear();
             this->m_curState = state;
 
             return true;
+        }
+        case AkElement::ElementStatePaused: {
+            this->m_curClockTime = this->m_globalClock.clock();
+
+            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+                stream->setPaused(true);
+
+            this->m_curState = state;
+
+            break;
+        }
+        default:
+            break;
         }
 
         break;
