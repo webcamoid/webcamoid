@@ -11,7 +11,9 @@ depends=('qt5-quickcontrols' 'qt5-svg' 'libpulse' 'ffmpeg')
 # Enable this lines if you want to use GStreamer instead of FFmpeg.
 # WARNING: GStreamer support is experimental.
 #depends=('qt5-quickcontrols' 'qt5-svg' 'libpulse' 'gst-plugins-base-libs')
-#optdepends=('gst-plugins-base'
+optdepends=('v4l2loopback-dkms: Virtual camera support')
+#optdepends=('v4l2loopback-dkms: Virtual camera support'
+#            'gst-plugins-base'
 #            'gst-plugins-good'
 #            'gst-plugins-bad'
 #            'gst-plugins-ugly')

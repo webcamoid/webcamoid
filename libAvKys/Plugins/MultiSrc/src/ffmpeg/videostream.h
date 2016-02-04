@@ -27,6 +27,10 @@ extern "C"
     #include <libswscale/swscale.h>
 }
 
+#ifdef PixelFormat
+#undef PixelFormat
+#endif
+
 #include "abstractstream.h"
 
 class VideoStream: public AbstractStream

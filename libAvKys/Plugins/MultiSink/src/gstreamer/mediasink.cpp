@@ -1035,6 +1035,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
         if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
             QString defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
             videoCaps.format() = AkVideoCaps::pixelFormatFromString(defaultPixelFormat);
+            videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
         }
 
         QVariantList supportedFrameRates = codecDefaults["supportedFrameRates"].toList();
@@ -1178,6 +1179,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 && !supportedPixelFormats.contains(pixelFormat)) {
                 QString defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
                 videoCaps.format() = AkVideoCaps::pixelFormatFromString(defaultPixelFormat);
+                videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
             }
 
             QVariantList supportedFrameRates = codecDefaults["supportedFrameRates"].toList();

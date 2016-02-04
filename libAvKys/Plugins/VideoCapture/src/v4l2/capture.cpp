@@ -40,7 +40,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     rawToFF[V4L2_PIX_FMT_RGB32] = "0rgb";
 
     // Grey formats
-    rawToFF[V4L2_PIX_FMT_GREY] = "gray8a";
+    rawToFF[V4L2_PIX_FMT_GREY] = "gray";
     //rawToFF[V4L2_PIX_FMT_Y4] = "";
     //rawToFF[V4L2_PIX_FMT_Y6] = "";
     //rawToFF[V4L2_PIX_FMT_Y10] = "";
@@ -188,6 +188,11 @@ Capture::Capture(): QObject()
                      &Capture::onDirectoryChanged);
 }
 
+Capture::~Capture()
+{
+    delete this->m_fsWatcher;
+}
+
 QStringList Capture::webcams() const
 {
     QDir devicesDir("/dev");
@@ -303,18 +308,18 @@ AkCaps Capture::caps(v4l2_format *format, bool *changePxFmt) const
     if (format)
         memcpy(format, &fmt, sizeof(v4l2_format));
 
-    AkCaps caps;
-
-    caps.setMimeType("video/x-raw");
-    caps.setProperty("format", this->v4l2ToFF(fmt.fmt.pix.pixelformat));
-    caps.setProperty("width", fmt.fmt.pix.width);
-    caps.setProperty("height", fmt.fmt.pix.height);
-    caps.setProperty("fps", this->fps(fd).toString());
+    AkVideoCaps caps;
+    caps.isValid() = true;
+    caps.format() = AkVideoCaps::pixelFormatFromString(this->v4l2ToFF(fmt.fmt.pix.pixelformat));
+    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
+    caps.width() = fmt.fmt.pix.width;
+    caps.height() = fmt.fmt.pix.height;
+    caps.fps() = this->fps(fd);
 
     if (closeFd)
         close(fd);
 
-    return caps;
+    return caps.toCaps();
 }
 
 QString Capture::description(const QString &webcam) const

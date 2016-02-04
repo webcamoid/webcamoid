@@ -79,6 +79,7 @@ SUBDIRS += \
     Temperature \
     VideoCapture \
     Vignette \
+    VirtualCamera \
     Warhol \
     Warp \
     Wave

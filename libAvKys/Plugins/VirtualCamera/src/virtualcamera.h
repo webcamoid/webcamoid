@@ -18,43 +18,20 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef ACAPSCONVERTELEMENT_H
-#define ACAPSCONVERTELEMENT_H
+#ifndef VIRTUALCAMERA_H
+#define VIRTUALCAMERA_H
 
 #include <ak.h>
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertaudio.h"
-#else
-#include "ffmpeg/convertaudio.h"
-#endif
-
-class ACapsConvertElement: public AkElement
+class VirtualCamera: public QObject, public AkPlugin
 {
     Q_OBJECT
-    Q_PROPERTY(QString caps
-               READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
+    Q_INTERFACES(AkPlugin)
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
-        explicit ACapsConvertElement();
-
-        Q_INVOKABLE QString caps() const;
-
-    private:
-        AkCaps m_caps;
-        ConvertAudio m_convertAudio;
-
-    signals:
-        void capsChanged(const QString &caps);
-
-    public slots:
-        void setCaps(const QString &caps);
-        void resetCaps();
-
-        AkPacket iStream(const AkAudioPacket &packet);
+        QObject *create(const QString &key, const QString &specification);
+        QStringList keys() const;
 };
 
-#endif // ACAPSCONVERTELEMENT_H
+#endif // VIRTUALCAMERA_H

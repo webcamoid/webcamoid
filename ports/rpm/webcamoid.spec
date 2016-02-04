@@ -170,7 +170,8 @@ rm -rf %{buildroot}
 #%{_datadir}/webcamoid/
 %{_defaultdocdir}/webcamoid/
 %{_libdir}/AvKys/
-%{_libdir}/qt5/qml/AkQml/
+%{_libdir}/qt5/qml/AkQml/libAkQml.so
+%{_libdir}/qt5/qml/AkQml/qmldir
 %{_libdir}/lib*AvKys.so*
 
 %changelog

@@ -18,26 +18,27 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include "akvideocaps.h"
 #include "akutils.h"
 
-typedef QMap<QImage::Format, QString> ImageStrMap;
+typedef QMap<QImage::Format, AkVideoCaps::PixelFormat> ImageToPixelFormatMap;
 
-inline ImageStrMap initImageStrMap()
+inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
-    QMap<QImage::Format, QString> imageToFormat;
-    imageToFormat[QImage::Format_Mono] = "monob";
-    imageToFormat[QImage::Format_RGB32] = "bgr0";
-    imageToFormat[QImage::Format_ARGB32] = "bgra";
-    imageToFormat[QImage::Format_RGB16] = "rgb565le";
-    imageToFormat[QImage::Format_RGB555] = "rgb555le";
-    imageToFormat[QImage::Format_RGB888] = "bgr24";
-    imageToFormat[QImage::Format_RGB444] = "rgb444le";
-    imageToFormat[QImage::Format_Grayscale8] = "gray";
+    ImageToPixelFormatMap imageToFormat;
+    imageToFormat[QImage::Format_Mono] = AkVideoCaps::Format_monob;
+    imageToFormat[QImage::Format_RGB32] = AkVideoCaps::Format_bgr0;
+    imageToFormat[QImage::Format_ARGB32] = AkVideoCaps::Format_bgra;
+    imageToFormat[QImage::Format_RGB16] = AkVideoCaps::Format_rgb565le;
+    imageToFormat[QImage::Format_RGB555] = AkVideoCaps::Format_rgb555le;
+    imageToFormat[QImage::Format_RGB888] = AkVideoCaps::Format_bgr24;
+    imageToFormat[QImage::Format_RGB444] = AkVideoCaps::Format_rgb444le;
+    imageToFormat[QImage::Format_Grayscale8] = AkVideoCaps::Format_gray;
 
     return imageToFormat;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ImageStrMap, imageToFormat, (initImageStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToFormat, (initImageToPixelFormatMap()))
 
 AkPacket AkUtils::imageToPacket(const QImage &image, const AkPacket &defaultPacket)
 {
@@ -47,14 +48,14 @@ AkPacket AkUtils::imageToPacket(const QImage &image, const AkPacket &defaultPack
     QByteArray oBuffer(image.byteCount(), Qt::Uninitialized);
     memcpy(oBuffer.data(), image.constBits(), image.byteCount());
 
-    AkCaps caps(defaultPacket.caps());
-    caps.setMimeType("video/x-raw");
-    caps.setProperty("format", imageToFormat->value(image.format()));
-    caps.setProperty("width", image.width());
-    caps.setProperty("height", image.height());
+    AkVideoCaps caps(defaultPacket.caps());
+    caps.format() = imageToFormat->value(image.format());
+    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
+    caps.width() = image.width();
+    caps.height() = image.height();
 
     AkPacket packet = defaultPacket;
-    packet.setCaps(caps);
+    packet.setCaps(caps.toCaps());
     packet.setBuffer(oBuffer);
 
     return packet;
@@ -62,23 +63,20 @@ AkPacket AkUtils::imageToPacket(const QImage &image, const AkPacket &defaultPack
 
 QImage AkUtils::packetToImage(const AkPacket &packet)
 {
-    if (packet.caps().mimeType() != "video/x-raw")
+    AkVideoCaps caps(packet.caps());
+
+    if (!caps)
         return QImage();
 
-    QString format = packet.caps().property("format").toString();
-
-    if (!imageToFormat->values().contains(format))
+    if (!imageToFormat->values().contains(caps.format()))
         return QImage();
 
-    int width = packet.caps().property("width").toInt();
-    int height = packet.caps().property("height").toInt();
-
-    QImage image(width,
-                 height,
-                 imageToFormat->key(format));
+    QImage image(caps.width(),
+                 caps.height(),
+                 imageToFormat->key(caps.format()));
     memcpy(image.bits(), packet.buffer().constData(), packet.buffer().size());
 
-    if (format == "gray")
+    if (caps.format() == AkVideoCaps::Format_gray)
         for (int i = 0; i < 256; i++)
             image.setColor(i, i);
 

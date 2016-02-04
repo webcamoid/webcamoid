@@ -37,6 +37,11 @@ class AkVideoCaps: public QObject
                WRITE setFormat
                RESET resetFormat
                NOTIFY formatChanged)
+    Q_PROPERTY(int bpp
+               READ bpp
+               WRITE setBpp
+               RESET resetBpp
+               NOTIFY bppChanged)
     Q_PROPERTY(int width
                READ width
                WRITE setWidth
@@ -52,6 +57,8 @@ class AkVideoCaps: public QObject
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
+    Q_PROPERTY(int pictureSize
+               READ pictureSize)
 
     public:
         enum PixelFormat
@@ -223,6 +230,8 @@ class AkVideoCaps: public QObject
             Format_yuv440p10be,
             Format_yuv440p12le,
             Format_yuv440p12be,
+            Format_ayuv64le,
+            Format_ayuv64be,
             Format_v210,
             Format_v216,
             Format_v308
@@ -245,12 +254,15 @@ class AkVideoCaps: public QObject
         Q_INVOKABLE bool &isValid();
         Q_INVOKABLE PixelFormat format() const;
         Q_INVOKABLE PixelFormat &format();
+        Q_INVOKABLE int bpp() const;
+        Q_INVOKABLE int &bpp();
         Q_INVOKABLE int width() const;
         Q_INVOKABLE int &width();
         Q_INVOKABLE int height() const;
         Q_INVOKABLE int &height();
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE AkFrac &fps();
+        Q_INVOKABLE int pictureSize() const;
 
         Q_INVOKABLE AkVideoCaps &fromMap(const QVariantMap &caps);
         Q_INVOKABLE AkVideoCaps &fromString(const QString &caps);
@@ -259,6 +271,8 @@ class AkVideoCaps: public QObject
         Q_INVOKABLE AkVideoCaps &update(const AkCaps &caps);
         Q_INVOKABLE AkCaps toCaps() const;
 
+        Q_INVOKABLE static int bitsPerPixel(PixelFormat pixelFormat);
+        Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);
         Q_INVOKABLE static QString pixelFormatToString(PixelFormat pixelFormat);
         Q_INVOKABLE static PixelFormat pixelFormatFromString(const QString &pixelFormat);
 
@@ -267,16 +281,19 @@ class AkVideoCaps: public QObject
 
     signals:
         void formatChanged(PixelFormat format);
+        void bppChanged(int bpp);
         void widthChanged(int width);
         void heightChanged(int height);
         void fpsChanged(const AkFrac &fps);
 
     public slots:
         void setFormat(PixelFormat format);
+        void setBpp(int bpp);
         void setWidth(int width);
         void setHeight(int height);
         void setFps(const AkFrac &fps);
         void resetFormat();
+        void resetBpp();
         void resetWidth();
         void resetHeight();
         void resetFps();

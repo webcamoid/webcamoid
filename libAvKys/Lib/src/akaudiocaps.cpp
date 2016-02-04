@@ -22,47 +22,47 @@
 
 #include "akaudiocaps.h"
 
-typedef QMap<AkAudioCaps::SampleFormat, int> BytesPerSampleMap;
+typedef QMap<AkAudioCaps::SampleFormat, int> BitsPerSampleMap;
 
-inline BytesPerSampleMap initBytesPerSampleMap()
+inline BitsPerSampleMap initBitsPerSampleMap()
 {
-    BytesPerSampleMap bytesPerSample;
-    bytesPerSample[AkAudioCaps::SampleFormat_s8] = 8;
-    bytesPerSample[AkAudioCaps::SampleFormat_u8] = 8;
-    bytesPerSample[AkAudioCaps::SampleFormat_s16] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_s16le] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_s16be] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_u16] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_u16le] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_u16be] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_s24] = 24;
-    bytesPerSample[AkAudioCaps::SampleFormat_s24le] = 24;
-    bytesPerSample[AkAudioCaps::SampleFormat_s24be] = 24;
-    bytesPerSample[AkAudioCaps::SampleFormat_u24] = 24;
-    bytesPerSample[AkAudioCaps::SampleFormat_u24le] = 24;
-    bytesPerSample[AkAudioCaps::SampleFormat_u24be] = 24;
-    bytesPerSample[AkAudioCaps::SampleFormat_s32] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_s32le] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_s32be] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_u32] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_u32le] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_u32be] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_flt] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_fltle] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_fltbe] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_dbl] = 64;
-    bytesPerSample[AkAudioCaps::SampleFormat_dblle] = 64;
-    bytesPerSample[AkAudioCaps::SampleFormat_dblbe] = 64;
-    bytesPerSample[AkAudioCaps::SampleFormat_u8p] = 8;
-    bytesPerSample[AkAudioCaps::SampleFormat_s16p] = 16;
-    bytesPerSample[AkAudioCaps::SampleFormat_s32p] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_fltp] = 32;
-    bytesPerSample[AkAudioCaps::SampleFormat_dblp] = 64;
+    BitsPerSampleMap bitsPerSample;
+    bitsPerSample[AkAudioCaps::SampleFormat_s8] = 8;
+    bitsPerSample[AkAudioCaps::SampleFormat_u8] = 8;
+    bitsPerSample[AkAudioCaps::SampleFormat_s16] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_s16le] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_s16be] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_u16] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_u16le] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_u16be] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_s24] = 24;
+    bitsPerSample[AkAudioCaps::SampleFormat_s24le] = 24;
+    bitsPerSample[AkAudioCaps::SampleFormat_s24be] = 24;
+    bitsPerSample[AkAudioCaps::SampleFormat_u24] = 24;
+    bitsPerSample[AkAudioCaps::SampleFormat_u24le] = 24;
+    bitsPerSample[AkAudioCaps::SampleFormat_u24be] = 24;
+    bitsPerSample[AkAudioCaps::SampleFormat_s32] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_s32le] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_s32be] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_u32] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_u32le] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_u32be] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_flt] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_fltle] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_fltbe] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_dbl] = 64;
+    bitsPerSample[AkAudioCaps::SampleFormat_dblle] = 64;
+    bitsPerSample[AkAudioCaps::SampleFormat_dblbe] = 64;
+    bitsPerSample[AkAudioCaps::SampleFormat_u8p] = 8;
+    bitsPerSample[AkAudioCaps::SampleFormat_s16p] = 16;
+    bitsPerSample[AkAudioCaps::SampleFormat_s32p] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_fltp] = 32;
+    bitsPerSample[AkAudioCaps::SampleFormat_dblp] = 64;
 
-    return bytesPerSample;
+    return bitsPerSample;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(BytesPerSampleMap, toBytesPerSample, (initBytesPerSampleMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(BitsPerSampleMap, toBitsPerSample, (initBitsPerSampleMap()))
 
 typedef QMap<AkAudioCaps::ChannelLayout, QString> ChannelLayoutStrMap;
 
@@ -494,7 +494,7 @@ AkCaps AkAudioCaps::toCaps() const
 
 int AkAudioCaps::bitsPerSample(AkAudioCaps::SampleFormat sampleFormat)
 {
-    return toBytesPerSample->value(sampleFormat, 0);
+    return toBitsPerSample->value(sampleFormat, 0);
 }
 
 int AkAudioCaps::bitsPerSample(const QString &sampleFormat)

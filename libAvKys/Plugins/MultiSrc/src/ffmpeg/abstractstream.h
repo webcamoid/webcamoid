@@ -33,6 +33,10 @@ extern "C"
     #include <libavutil/imgutils.h>
 }
 
+#ifdef PixelFormat
+#undef PixelFormat
+#endif
+
 #include "clock.h"
 
 typedef QSharedPointer<AVPacket> PacketPtr;

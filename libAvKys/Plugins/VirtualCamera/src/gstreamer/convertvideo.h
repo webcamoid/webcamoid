@@ -18,43 +18,24 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef ACAPSCONVERTELEMENT_H
-#define ACAPSCONVERTELEMENT_H
+#ifndef CONVERTVIDEO_H
+#define CONVERTVIDEO_H
 
-#include <ak.h>
+#include <akvideopacket.h>
+#include <gst/video/video.h>
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertaudio.h"
-#else
-#include "ffmpeg/convertaudio.h"
-#endif
-
-class ACapsConvertElement: public AkElement
+class ConvertVideo: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString caps
-               READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
 
     public:
-        explicit ACapsConvertElement();
+        explicit ConvertVideo(QObject *parent=NULL);
+        ~ConvertVideo();
 
-        Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE AkPacket convert(const AkPacket &packet,
+                                     const AkCaps &oCaps);
 
     private:
-        AkCaps m_caps;
-        ConvertAudio m_convertAudio;
-
-    signals:
-        void capsChanged(const QString &caps);
-
-    public slots:
-        void setCaps(const QString &caps);
-        void resetCaps();
-
-        AkPacket iStream(const AkAudioPacket &packet);
 };
 
-#endif // ACAPSCONVERTELEMENT_H
+#endif // CONVERTVIDEO_H

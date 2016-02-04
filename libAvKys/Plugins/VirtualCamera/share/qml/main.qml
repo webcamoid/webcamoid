@@ -18,43 +18,11 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
-#ifndef ACAPSCONVERTELEMENT_H
-#define ACAPSCONVERTELEMENT_H
+import QtQuick 2.5
+import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.1
 
-#include <ak.h>
-
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertaudio.h"
-#else
-#include "ffmpeg/convertaudio.h"
-#endif
-
-class ACapsConvertElement: public AkElement
-{
-    Q_OBJECT
-    Q_PROPERTY(QString caps
-               READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
-
-    public:
-        explicit ACapsConvertElement();
-
-        Q_INVOKABLE QString caps() const;
-
-    private:
-        AkCaps m_caps;
-        ConvertAudio m_convertAudio;
-
-    signals:
-        void capsChanged(const QString &caps);
-
-    public slots:
-        void setCaps(const QString &caps);
-        void resetCaps();
-
-        AkPacket iStream(const AkAudioPacket &packet);
-};
-
-#endif // ACAPSCONVERTELEMENT_H
+GridLayout {
+    id: recCameraControls
+    columns: 3
+}

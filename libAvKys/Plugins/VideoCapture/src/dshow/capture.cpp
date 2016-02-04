@@ -59,44 +59,44 @@ inline CameraControlMap initCameraControlMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(CameraControlMap, ccToStr, (initCameraControlMap()))
 
-typedef QMap<GUID, QString> GuidToStrMap;
+typedef QMap<GUID, AkVideoCaps::PixelFormat> GuidToStrMap;
 
 inline GuidToStrMap initGuidToStrMap()
 {
     GuidToStrMap guidToStr;
-    guidToStr[MEDIASUBTYPE_RGB1] = "monob";
-    guidToStr[MEDIASUBTYPE_RGB4] = "bgr4_byte";
-    guidToStr[MEDIASUBTYPE_RGB8] = "pal8";
-    guidToStr[MEDIASUBTYPE_RGB555] = "bgr555le";
-    guidToStr[MEDIASUBTYPE_RGB565] = "bgr565le";
-    guidToStr[MEDIASUBTYPE_RGB24] = "bgr24";
-    guidToStr[MEDIASUBTYPE_RGB32] = "bgr0";
-//    guidToStr[MEDIASUBTYPE_ARGB1555] = "";
-    guidToStr[MEDIASUBTYPE_ARGB32] = "bgra";
-//    guidToStr[MEDIASUBTYPE_ARGB4444] = "";
-//    guidToStr[MEDIASUBTYPE_A2R10G10B10] = "";
-//    guidToStr[MEDIASUBTYPE_A2B10G10R10] = "";
-    guidToStr[MEDIASUBTYPE_AYUV] = "yuva420p";
-    guidToStr[MEDIASUBTYPE_YUY2] = "yuyv422";
-    guidToStr[MEDIASUBTYPE_UYVY] = "uyvy422";
-//    guidToStr[MEDIASUBTYPE_IMC1] = "";
-//    guidToStr[MEDIASUBTYPE_IMC2] = "";
-//    guidToStr[MEDIASUBTYPE_IMC3] = "";
-//    guidToStr[MEDIASUBTYPE_IMC4] = "";
-    guidToStr[MEDIASUBTYPE_YV12] = "yuv420p";
-    guidToStr[MEDIASUBTYPE_NV12] = "nv12";
+    guidToStr[MEDIASUBTYPE_RGB1] = AkVideoCaps::Format_monob;
+    guidToStr[MEDIASUBTYPE_RGB4] = AkVideoCaps::Format_bgr4_byte;
+    guidToStr[MEDIASUBTYPE_RGB8] = AkVideoCaps::Format_pal8;
+    guidToStr[MEDIASUBTYPE_RGB555] = AkVideoCaps::Format_bgr555le;
+    guidToStr[MEDIASUBTYPE_RGB565] = AkVideoCaps::Format_bgr565le;
+    guidToStr[MEDIASUBTYPE_RGB24] = AkVideoCaps::Format_bgr24;
+    guidToStr[MEDIASUBTYPE_RGB32] = AkVideoCaps::Format_bgr0;
+//    guidToStr[MEDIASUBTYPE_ARGB1555] = AkVideoCaps::Format_none;
+    guidToStr[MEDIASUBTYPE_ARGB32] = AkVideoCaps::Format_bgra;
+//    guidToStr[MEDIASUBTYPE_ARGB4444] = AkVideoCaps::Format_none;
+//    guidToStr[MEDIASUBTYPE_A2R10G10B10] = AkVideoCaps::Format_none;
+//    guidToStr[MEDIASUBTYPE_A2B10G10R10] = AkVideoCaps::Format_none;
+    guidToStr[MEDIASUBTYPE_AYUV] = AkVideoCaps::Format_yuva420p;
+    guidToStr[MEDIASUBTYPE_YUY2] = AkVideoCaps::Format_yuyv422;
+    guidToStr[MEDIASUBTYPE_UYVY] = AkVideoCaps::Format_uyvy422;
+//    guidToStr[MEDIASUBTYPE_IMC1] = AkVideoCaps::Format_none;
+//    guidToStr[MEDIASUBTYPE_IMC2] = AkVideoCaps::Format_none;
+//    guidToStr[MEDIASUBTYPE_IMC3] = AkVideoCaps::Format_none;
+//    guidToStr[MEDIASUBTYPE_IMC4] = AkVideoCaps::Format_none;
+    guidToStr[MEDIASUBTYPE_YV12] = AkVideoCaps::Format_yuv420p;
+    guidToStr[MEDIASUBTYPE_NV12] = AkVideoCaps::Format_nv12;
 
 #ifdef MEDIASUBTYPE_I420
-    guidToStr[MEDIASUBTYPE_I420] = "yuv420p";
+    guidToStr[MEDIASUBTYPE_I420] = AkVideoCaps::Format_yuv420p;
 #endif
 
-//    guidToStr[MEDIASUBTYPE_IF09] = "";
-    guidToStr[MEDIASUBTYPE_IYUV] = "yuv420p";
-//    guidToStr[MEDIASUBTYPE_Y211] = "";
-    guidToStr[MEDIASUBTYPE_Y411] = "uyyvyy411";
-    guidToStr[MEDIASUBTYPE_Y41P] = "uyyvyy411";
-    guidToStr[MEDIASUBTYPE_YVU9] = "yuv410p";
-    guidToStr[MEDIASUBTYPE_YVYU] = "yvyu422";
+//    guidToStr[MEDIASUBTYPE_IF09] = AkVideoCaps::Format_none;
+    guidToStr[MEDIASUBTYPE_IYUV] = AkVideoCaps::Format_yuv420p;
+//    guidToStr[MEDIASUBTYPE_Y211] = AkVideoCaps::Format_none;
+    guidToStr[MEDIASUBTYPE_Y411] = AkVideoCaps::Format_uyyvyy411;
+    guidToStr[MEDIASUBTYPE_Y41P] = AkVideoCaps::Format_uyyvyy411;
+    guidToStr[MEDIASUBTYPE_YVU9] = AkVideoCaps::Format_yuv410p;
+    guidToStr[MEDIASUBTYPE_YVYU] = AkVideoCaps::Format_yvyu422;
 
     return guidToStr;
 }
@@ -913,14 +913,15 @@ AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
 
     int fps = 1.0e7 / videoInfoHeader->AvgTimePerFrame;
 
-    AkCaps caps;
-    caps.setMimeType("video/x-raw");
-    caps.setProperty("format", guidToStr->value(connectedMediaType.subtype));
-    caps.setProperty("width", (int) videoInfoHeader->bmiHeader.biWidth);
-    caps.setProperty("height", (int) videoInfoHeader->bmiHeader.biHeight);
-    caps.setProperty("fps", QString("%1/1").arg(fps));
+    AkVideoCaps caps;
+    caps.isValid() = true;
+    caps.format() = guidToStr->value(connectedMediaType.subtype);
+    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
+    caps.width() = (int) videoInfoHeader->bmiHeader.biWidth;
+    caps.height() = (int) videoInfoHeader->bmiHeader.biHeight;
+    caps.fps() = AkFrac(fps, 1);
 
-    return caps;
+    return caps.toCaps();
 }
 
 PinList Capture::enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const

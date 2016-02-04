@@ -72,6 +72,7 @@ class Capture: public QObject
         };
 
         explicit Capture();
+        ~Capture();
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
@@ -136,7 +137,7 @@ class Capture: public QObject
         {
             int r = -1;
 
-            while (true) {
+            forever {
                 r = ioctl(fd, request, arg);
 
                 if (r != -1 || errno != EINTR)

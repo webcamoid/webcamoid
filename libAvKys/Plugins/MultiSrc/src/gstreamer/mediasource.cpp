@@ -360,6 +360,7 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
     AkVideoPacket packet;
     packet.caps().isValid() = true;
     packet.caps().format() = AkVideoCaps::Format_bgra;
+    packet.caps().bpp() = AkVideoCaps::bitsPerPixel(packet.caps().format());
     packet.caps().width() = videoInfo->width;
     packet.caps().height() = videoInfo->height;
     packet.caps().fps() = AkFrac(videoInfo->fps_n, videoInfo->fps_d);
@@ -758,6 +759,7 @@ bool MediaSource::setState(AkElement::ElementState state)
                         AkVideoCaps videoCaps;
                         videoCaps.isValid() = true;
                         videoCaps.format() = AkVideoCaps::Format_bgra;
+                        videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
                         videoCaps.width() = videoInfo->width;
                         videoCaps.height() = videoInfo->height;
                         videoCaps.fps() = AkFrac(videoInfo->fps_n, videoInfo->fps_d);

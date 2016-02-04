@@ -76,6 +76,7 @@ AkCaps VideoStream::caps() const
     AkVideoCaps caps;
     caps.isValid() = true;
     caps.format() = format;
+    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = this->codecContext()->width;
     caps.height() = this->codecContext()->height;
     caps.fps() = this->fps();
@@ -205,6 +206,7 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     AkVideoPacket packet;
     packet.caps().isValid() = true;
     packet.caps().format() = outputFormats->value(oFormat);
+    packet.caps().bpp() = AkVideoCaps::bitsPerPixel(packet.caps().format());
     packet.caps().width() = iFrame->width;
     packet.caps().height() = iFrame->height;
     packet.caps().fps() = this->fps();
