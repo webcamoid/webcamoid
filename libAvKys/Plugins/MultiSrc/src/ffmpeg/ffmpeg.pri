@@ -29,10 +29,8 @@ isEmpty(FFMPEGLIBS) {
 
     PKGCONFIG += \
         libavdevice \
-        libavfilter \
         libavformat \
         libavcodec \
-        libpostproc \
         libswresample \
         libswscale \
         libavutil

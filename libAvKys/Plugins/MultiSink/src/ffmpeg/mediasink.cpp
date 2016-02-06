@@ -489,7 +489,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
                                                 QString(av_get_sample_fmt_name(codecContext->sample_fmt)):
                                                 supportedSampleFormats.value(0, "s16");
         codecParams["defaultBitRate"] = codecContext->bit_rate?
-                                            codecContext->bit_rate: 128000;
+                                            (qint64) codecContext->bit_rate: 128000;
         codecParams["defaultSampleRate"] = codecContext->sample_rate?
                                                codecContext->sample_rate:
                                                supportedSampleRates.value(0, 44100);
@@ -547,7 +547,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
         codecParams["defaultGOP"] = codecContext->gop_size > 0?
                                         codecContext->gop_size: 12;
         codecParams["defaultBitRate"] = codecContext->bit_rate?
-                                            codecContext->bit_rate: 200000;
+                                            (qint64) codecContext->bit_rate: 200000;
         codecParams["defaultPixelFormat"] = codecContext->pix_fmt != AV_PIX_FMT_NONE?
                                             QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
                                             supportedPixelFormats.value(0, "yuv420p");
@@ -1002,7 +1002,7 @@ void MediaSink::flushStreams()
                 av_packet_rescale_ts(&pkt, stream->codec->time_base, stream->time_base);
                 pkt.stream_index = i;
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
-                av_free_packet(&pkt);
+                av_packet_unref(&pkt);
             }
         } else if (mediaType == AVMEDIA_TYPE_VIDEO) {
             if (this->m_formatContext->oformat->flags & AVFMT_RAWPICTURE
@@ -1030,7 +1030,7 @@ void MediaSink::flushStreams()
                 av_packet_rescale_ts(&pkt, stream->codec->time_base, stream->time_base);
                 pkt.stream_index = i;
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
-                av_free_packet(&pkt);
+                av_packet_unref(&pkt);
             }
         }
     }
@@ -1384,7 +1384,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
             this->m_streamParams[streamIndex].nextPts(pts, packet.id());
 
     if (oFrame.pts < 0) {
-        avpicture_free((AVPicture *) &oFrame);
+        av_frame_unref(&oFrame);
 
         return;
     }
@@ -1416,7 +1416,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
                                   &pkt,
                                   &oFrame,
                                   &gotPacket) < 0) {
-            avpicture_free((AVPicture *) &oFrame);
+            av_frame_unref(&oFrame);
 
             return;
         }
@@ -1434,7 +1434,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
         }
     }
 
-    avpicture_free((AVPicture *) &oFrame);
+    av_frame_unref(&oFrame);
 }
 
 void MediaSink::writeSubtitlePacket(const AkPacket &packet)

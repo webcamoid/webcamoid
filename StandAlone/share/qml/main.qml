@@ -208,6 +208,29 @@ ApplicationWindow {
                     visible: false
                     anchors.fill: parent
                 }
+                ConfigBar {
+                    id: configBar
+                    visible: false
+                    anchors.fill: parent
+
+                    onOptionChanged: {
+                        if (generalConfig.children[0])
+                            generalConfig.children[0].destroy()
+
+                        var options = {
+                            "audio": "AudioConfig.qml",
+                            "output": "OutputConfig.qml",
+                            "general": "GeneralConfig.qml"
+                        }
+
+                        if (options[option]) {
+                            var component = Qt.createComponent(options[option]);
+
+                            if (component.status === Component.Ready)
+                                component.createObject(generalConfig);
+                        }
+                    }
+                }
             }
         }
 
@@ -242,7 +265,7 @@ ApplicationWindow {
                     anchors.fill: parent
                     visible: false
                 }
-                GeneralConfig {
+                ColumnLayout {
                     id: generalConfig
                     anchors.fill: parent
                     visible: false
@@ -311,7 +334,15 @@ ApplicationWindow {
             State {
                 name: "showConfigPanels"
                 PropertyChanges {
+                    target: leftPanel
+                    visible: true
+                }
+                PropertyChanges {
                     target: rightPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: configBar
                     visible: true
                 }
                 PropertyChanges {

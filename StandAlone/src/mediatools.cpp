@@ -131,6 +131,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                                   Q_RETURN_ARG(AkElementPtr, this->m_videoGen),
                                   Q_ARG(QString, "videoGen"));
 
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_virtualCamera),
+                                  Q_ARG(QString, "virtualCamera"));
+
         if (this->m_videoOutput)
             this->m_videoOutput->link(this);
 

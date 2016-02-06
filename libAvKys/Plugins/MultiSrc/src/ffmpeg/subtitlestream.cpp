@@ -100,12 +100,14 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
 
             oBuffer.resize(frameSize);
 
-            avpicture_layout((AVPicture *) &subtitle->rects[i]->pict,
-                             pixFmt,
-                             subtitle->rects[i]->w,
-                             subtitle->rects[i]->h,
-                             (uint8_t *) oBuffer.data(),
-                             frameSize);
+            av_image_copy_to_buffer((uint8_t *) oBuffer.data(),
+                                    frameSize,
+                                    subtitle->rects[i]->pict.data,
+                                    subtitle->rects[i]->pict.linesize,
+                                    pixFmt,
+                                    subtitle->rects[i]->w,
+                                    subtitle->rects[i]->h,
+                                    1);
         } else if (subtitle->rects[i]->type == SUBTITLE_TEXT) {
             caps.setProperty("type", "text");
             int textLenght = sizeof(subtitle->rects[i]->text);

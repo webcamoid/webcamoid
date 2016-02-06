@@ -24,6 +24,7 @@ VirtualCameraElement::VirtualCameraElement():
     AkElement()
 {
     this->m_streamIndex = -1;
+    this->m_isRunning = false;
 
     QObject::connect(&this->m_cameraOut,
                      &CameraOut::error,
@@ -134,9 +135,10 @@ void VirtualCameraElement::stateChange(AkElement::ElementState from,
 
     if (from == AkElement::ElementStateNull
         && to == AkElement::ElementStatePaused) {
-        this->m_cameraOut.init(this->m_streamIndex, this->m_streamCaps);
+        this->m_isRunning = this->m_cameraOut.init(this->m_streamIndex, this->m_streamCaps);
     } else if (from == AkElement::ElementStatePaused
                && to == AkElement::ElementStateNull) {
+        this->m_isRunning = false;
         this->m_cameraOut.uninit();
     }
 
@@ -170,10 +172,14 @@ void VirtualCameraElement::clearStreams()
 AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 {
     this->m_mutex.lock();
-    AkPacket oPacket = this->m_convertVideo.convert(packet,
-                                                    this->m_cameraOut.caps());
-    this->m_cameraOut.writeFrame(oPacket);
+
+    if (this->m_isRunning) {
+        AkPacket oPacket = this->m_convertVideo.convert(packet,
+                                                        this->m_cameraOut.caps());
+        this->m_cameraOut.writeFrame(oPacket);
+    }
+
     this->m_mutex.unlock();
 
-    akSend(oPacket)
+    akSend(packet)
 }

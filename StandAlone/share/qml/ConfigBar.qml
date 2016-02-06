@@ -20,7 +20,40 @@
 
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
 
-ColumnLayout {
+Rectangle {
+    id: recConfigBar
+    color: Qt.rgba(0, 0, 0, 0)
+    clip: true
+    width: 200
+    height: 400
+
+    property string option: ""
+
+    OptionList {
+        id: optConfigs
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.top: parent.top
+        textRole: "description"
+        model: ListModel {
+            id: lstConfigs
+
+            ListElement {
+                option: "audio"
+                description: qsTr("Audio")
+            }
+            ListElement {
+                option: "output"
+                description: qsTr("Output")
+            }
+            ListElement {
+                option: "general"
+                description: qsTr("General Options")
+            }
+        }
+
+        onCurrentIndexChanged: recConfigBar.option = lstConfigs.get(optConfigs.currentIndex).option
+    }
 }

@@ -425,24 +425,28 @@ bool OutputParams::convert(const AkVideoPacket &packet, AVFrame *frame)
     if (!this->m_scaleContext)
         return false;
 
-    AVPicture iPicture;
-    memset(&iPicture, 0, sizeof(AVPicture));
+    AVFrame iFrame;
+    memset(&iFrame, 0, sizeof(AVFrame));
 
-    avpicture_fill(&iPicture,
-                   (const uint8_t *) packet.buffer().constData(),
-                   iFormat,
-                   iWidth,
-                   iHeight);
+    av_image_fill_arrays((uint8_t **) iFrame.data,
+                         iFrame.linesize,
+                         (const uint8_t *) packet.buffer().constData(),
+                         iFormat,
+                         iWidth,
+                         iHeight,
+                         1);
 
-    if (avpicture_alloc((AVPicture *) frame,
-                        AVPixelFormat(frame->format),
-                        frame->width,
-                        frame->height) < 0)
+    if (av_image_alloc((uint8_t **) frame->data,
+                       frame->linesize,
+                       frame->width,
+                       frame->height,
+                       AVPixelFormat(frame->format),
+                       1) < 0)
         return false;
 
     sws_scale(this->m_scaleContext,
-              (uint8_t **) iPicture.data,
-              iPicture.linesize,
+              (uint8_t **) iFrame.data,
+              iFrame.linesize,
               0,
               iHeight,
               frame->data,

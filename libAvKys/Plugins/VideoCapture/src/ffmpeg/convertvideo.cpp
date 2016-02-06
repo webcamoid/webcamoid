@@ -59,38 +59,45 @@ AkPacket ConvertVideo::convert(const AkPacket &packet)
         return AkPacket();
 
     // Create iPicture.
-    AVPicture iPicture;
+    AVFrame iFrame;
+    memset(&iFrame, 0, sizeof(AVFrame));
 
-    if (avpicture_fill(&iPicture,
-                       (const uint8_t *) videoPacket.buffer().constData(),
-                       iFormat,
-                       videoPacket.caps().width(),
-                       videoPacket.caps().height()) < 0)
+    if (av_image_fill_arrays((uint8_t **) iFrame.data,
+                         iFrame.linesize,
+                         (const uint8_t *) videoPacket.buffer().constData(),
+                         iFormat,
+                         videoPacket.caps().width(),
+                         videoPacket.caps().height(),
+                         1) < 0)
         return AkPacket();
 
     // Create oPicture
-    int frameSize = avpicture_get_size(AV_PIX_FMT_BGRA,
-                                       videoPacket.caps().width(),
-                                       videoPacket.caps().height());
+    int frameSize = av_image_get_buffer_size(AV_PIX_FMT_BGRA,
+                                             videoPacket.caps().width(),
+                                             videoPacket.caps().height(),
+                                             1);
 
     QByteArray oBuffer(frameSize, Qt::Uninitialized);
-    AVPicture oPicture;
+    AVFrame oFrame;
+    memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (avpicture_fill(&oPicture,
-                       (const uint8_t *) oBuffer.constData(),
-                       AV_PIX_FMT_BGRA,
-                       videoPacket.caps().width(),
-                       videoPacket.caps().height()) < 0)
+    if (av_image_fill_arrays((uint8_t **) oFrame.data,
+                         oFrame.linesize,
+                         (const uint8_t *) oBuffer.constData(),
+                         AV_PIX_FMT_BGRA,
+                         videoPacket.caps().width(),
+                         videoPacket.caps().height(),
+                         1) < 0)
         return AkPacket();
 
     // Convert picture format
     sws_scale(this->m_scaleContext,
-              iPicture.data,
-              iPicture.linesize,
+              iFrame.data,
+              iFrame.linesize,
               0,
               videoPacket.caps().height(),
-              oPicture.data,
-              oPicture.linesize);
+              oFrame.data,
+              oFrame.linesize);
 
     // Create packet
     AkVideoPacket oPacket(packet);

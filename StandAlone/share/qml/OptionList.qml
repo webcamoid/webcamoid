@@ -28,7 +28,7 @@ ListView {
     clip: true
 
     property string filter: ""
-    property string textRole: "cost"
+    property string textRole: ""
 
     function optionValues(index)
     {

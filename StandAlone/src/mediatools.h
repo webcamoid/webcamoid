@@ -176,6 +176,7 @@ class MediaTools: public QObject
         AkElementPtr m_videoMux;
         AkElementPtr m_videoOutput;
         AkElementPtr m_videoGen;
+        AkElementPtr m_virtualCamera;
         QList<AkElementPtr> m_effectsList;
         QMutex m_mutex;
         AkPacket m_curPacket;

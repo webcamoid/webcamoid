@@ -84,6 +84,7 @@ class VirtualCameraElement: public AkElement
         int m_streamIndex;
         AkCaps m_streamCaps;
         QMutex m_mutex;
+        bool m_isRunning;
 
     signals:
         void mediasChanged(const QStringList &medias) const;

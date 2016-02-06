@@ -163,22 +163,24 @@ AkFrac VideoStream::fps() const
 
 AkPacket VideoStream::convert(AVFrame *iFrame)
 {
-    AVPicture *oPicture;
+    AVFrame *oFrame = NULL;
     AVPixelFormat oFormat;
     bool delFrame = false;
 
     if (outputFormats->contains(AVPixelFormat(iFrame->format))) {
-        oPicture = (AVPicture *) iFrame;
+        oFrame = iFrame;
         oFormat = AVPixelFormat(iFrame->format);
-    }
-    else {
-        oPicture = new AVPicture;
+    } else {
+        oFrame = new AVFrame;
+        memset(oFrame, 0, sizeof(AVFrame));
         oFormat = AV_PIX_FMT_BGRA;
 
-        avpicture_alloc(oPicture,
-                        oFormat,
-                        iFrame->width,
-                        iFrame->height);
+        av_image_alloc((uint8_t **) oFrame->data,
+                       oFrame->linesize,
+                       iFrame->width,
+                       iFrame->height,
+                       oFormat,
+                       1);
 
         this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                     iFrame->width,
@@ -197,8 +199,8 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
                   iFrame->linesize,
                   0,
                   iFrame->height,
-                  oPicture->data,
-                  oPicture->linesize);
+                  oFrame->data,
+                  oFrame->linesize);
 
         delFrame = true;
     }
@@ -211,18 +213,21 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     packet.caps().height() = iFrame->height;
     packet.caps().fps() = this->fps();
 
-    int frameSize = avpicture_get_size(oFormat,
-                                       iFrame->width,
-                                       iFrame->height);
+    int frameSize = av_image_get_buffer_size(oFormat,
+                                             iFrame->width,
+                                             iFrame->height,
+                                             1);
 
     QByteArray oBuffer(frameSize, Qt::Uninitialized);
 
-    avpicture_layout(oPicture,
-                     oFormat,
-                     iFrame->width,
-                     iFrame->height,
-                     (uint8_t *) oBuffer.data(),
-                     frameSize);
+    av_image_copy_to_buffer((uint8_t *) oBuffer.data(),
+                            frameSize,
+                            oFrame->data,
+                            oFrame->linesize,
+                            oFormat,
+                            iFrame->width,
+                            iFrame->height,
+                            1);
 
     packet.buffer() = oBuffer;
     packet.pts() = av_frame_get_best_effort_timestamp(iFrame);
@@ -231,8 +236,8 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     packet.id() = this->id();
 
     if (delFrame) {
-        avpicture_free(oPicture);
-        delete oPicture;
+        av_frame_unref(oFrame);
+        delete oFrame;
     }
 
     return packet.toPacket();

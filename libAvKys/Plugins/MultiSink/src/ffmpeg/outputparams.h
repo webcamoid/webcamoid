@@ -28,6 +28,7 @@ extern "C"
     #include <libavformat/avformat.h>
     #include <libswresample/swresample.h>
     #include <libswscale/swscale.h>
+    #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
     #include <libavutil/channel_layout.h>
 }

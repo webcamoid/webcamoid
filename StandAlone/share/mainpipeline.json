@@ -141,5 +141,17 @@
         {
             "alias": "videoMux"
         }
+    ],
+    [
+        {
+            "alias": "videoOutput"
+        },
+        "DirectConnection",
+        {
+            "pluginId": "VirtualCamera",
+            "properties": {
+                "objectName": "virtualCamera"
+            }
+        }
     ]
 ]

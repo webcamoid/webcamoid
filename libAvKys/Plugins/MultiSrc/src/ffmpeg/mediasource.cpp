@@ -292,7 +292,7 @@ void MediaSource::readPackets(MediaSource *element)
         }
 
         if (notuse) {
-            av_free_packet(packet);
+            av_packet_unref(packet);
             delete packet;
         }
 

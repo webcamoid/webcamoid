@@ -270,7 +270,7 @@ void AbstractStream::dataLoop(AbstractStream *stream)
 
 void AbstractStream::deletePacket(AVPacket *packet)
 {
-    av_free_packet(packet);
+    av_packet_unref(packet);
     delete packet;
 }
 
