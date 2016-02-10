@@ -1,3 +1,12 @@
+Webcamoid 7.0.0:
+
+- Reworked recording options. More user friendly.
+- Removed unnecesary dependencies.
+- Many effects reworked and bugfixed.
+- Added GStreamer support, EXPERIMENTAL!
+- Fixed SEGFAULT when switching the effects.
+- Added virtual camera support (GNU/Linux only).
+
 Webcamoid 6.2.0:
 
 - Reworked Cartoonify plugin.
@@ -62,7 +71,8 @@ Webcamoid 5.0.0a1:
 
 - Alpha version.
 - Added live preview for effects.
-- Added custom streams, including videos (local and remote) and IP cameras (mms, rtsp, etc.).
+- Added custom streams, including videos (local and remote) and IP cameras
+  (mms, rtsp, etc.).
 - Added desktop recording.
 - Ported to C++.
 - Switched from GStramer to FFmpeg.
@@ -108,7 +118,8 @@ Webcamoid 2.2.0:
 - Russian
 - Spanish
 
-Translations provided by Google translator, not me, except for Spanish (native) and Japanese.
+Translations provided by Google translator, not me, except for Spanish (native)
+and Japanese.
 
 Webcamoid 2.1.3:
 
@@ -116,7 +127,8 @@ Webcamoid 2.1.3:
 
 Webcamoid 2.1.2:
 
-- Removed stdin, stderr and stdout pipes. Added -loglevel quiet. Apparently, suppress the output using pipes is a very bad idea.
+- Removed stdin, stderr and stdout pipes. Added -loglevel quiet. Apparently,
+  suppress the output using pipes is a very bad idea.
 
 Webcamoid 2.1.1:
 
@@ -130,8 +142,9 @@ Webcamoid 2.1.0:
 
 Webcamoid 2.0.0:
 
-- Removed OpenCV from dependencies, now it is based on FFmpeg + v4l2 Python wrappers.
+- Removed OpenCV from dependencies, now it is based on FFmpeg + v4l2 Python
+  wrappers.
 
 Webcamoid 1.x.x:
 
-- Old version based on OpenCV.
+- Old version based on Python OpenCV.
