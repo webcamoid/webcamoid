@@ -1,9 +1,8 @@
 Ordered by priority:
 
-- Support for creating virtual cameras.
-- Remove dependencies with FFmpeg (make it optional).
 - Windows port.
 - Android port.
 - Add support for scripted plugins.
 - New and customizable UI.
 - Add social sharing features.
+- Add network broadcast support.

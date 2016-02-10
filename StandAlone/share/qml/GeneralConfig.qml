@@ -23,4 +23,14 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 ColumnLayout {
+    CheckBox {
+        text: qsTr("Enable advanced effects mode")
+        checked: Webcamoid.advancedMode
+
+        onCheckedChanged: Webcamoid.advancedMode = checked
+    }
+
+    Label {
+        Layout.fillHeight: true
+    }
 }

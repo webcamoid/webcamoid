@@ -402,13 +402,18 @@ ApplicationWindow {
 
                     onClicked: {
                         if (Webcamoid.isPlaying) {
+                            Webcamoid.stopVirtualCamera();
                             Webcamoid.stopRecording();
                             Webcamoid.stop();
 
                             if (splitView.state == "showRecordPanels")
                                 splitView.state = ""
-                        } else
+                        } else {
                             Webcamoid.start();
+
+                            if (Webcamoid.enableVirtualCamera)
+                                Webcamoid.startVirtualCamera("");
+                        }
                     }
                 }
                 IconBarItem {

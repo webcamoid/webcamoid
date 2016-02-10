@@ -24,5 +24,40 @@ import QtQuick.Layouts 1.1
 
 GridLayout {
     id: recCameraControls
-    columns: 3
+    columns: 2
+
+    function updateDevices()
+    {
+        var model = []
+        var devices = VirtualCamera.medias
+
+        for (var device in devices) {
+            var deviceStr = VirtualCamera.description(devices[device])
+                            + " ("
+                            + devices[device]
+                            + ")"
+
+            model.push(deviceStr)
+        }
+
+        cbxDevices.model = model
+        cbxDevices.currentIndex = devices.indexOf(VirtualCamera.media)
+    }
+
+    Connections {
+        target: VirtualCamera
+
+        onMediasChanged: updateDevices()
+    }
+    Component.onCompleted: updateDevices()
+
+    Label {
+        text: qsTr("Devices")
+    }
+    ComboBox {
+        id: cbxDevices
+        Layout.fillWidth: true
+
+        onCurrentIndexChanged: VirtualCamera.media = VirtualCamera.medias[currentIndex]
+    }
 }

@@ -135,6 +135,20 @@ void VirtualCameraElement::stateChange(AkElement::ElementState from,
 
     if (from == AkElement::ElementStateNull
         && to == AkElement::ElementStatePaused) {
+        QString device = this->m_cameraOut.device();
+
+        if (device.isEmpty()) {
+            QStringList webcams = this->m_cameraOut.webcams();
+
+            if (webcams.isEmpty()) {
+                this->m_mutex.unlock();
+
+                return;
+            }
+
+            this->m_cameraOut.setDevice(webcams.at(0));
+        }
+
         this->m_isRunning = this->m_cameraOut.init(this->m_streamIndex, this->m_streamCaps);
     } else if (from == AkElement::ElementStatePaused
                && to == AkElement::ElementStateNull) {
@@ -176,6 +190,7 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
     if (this->m_isRunning) {
         AkPacket oPacket = this->m_convertVideo.convert(packet,
                                                         this->m_cameraOut.caps());
+
         this->m_cameraOut.writeFrame(oPacket);
     }
 

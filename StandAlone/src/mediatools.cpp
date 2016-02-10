@@ -51,6 +51,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_windowWidth = 0;
     this->m_windowHeight = 0;
     this->m_advancedMode = false;
+    this->m_enableVirtualCamera = false;
 
     Ak::init(engine);
 
@@ -350,6 +351,11 @@ bool MediaTools::advancedMode() const
     return this->m_advancedMode;
 }
 
+bool MediaTools::enableVirtualCamera() const
+{
+    return this->m_enableVirtualCamera;
+}
+
 QString MediaTools::applicationName() const
 {
     return QCoreApplication::applicationName();
@@ -498,15 +504,7 @@ AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
         effect->setProperty("preview", preview);
 
     this->m_effectsList << effect;
-    AkElementPtr source;
-
-    if (this->isCamera(this->m_curStream))
-        source = this->m_videoCapture;
-    else if (this->isDesktop(this->m_curStream))
-        source = this->m_desktopCapture;
-    else
-        source = this->m_source;
-
+    AkElementPtr source = this->sourceElement();
     bool playing = this->isPlaying();
 
     if (playing)
@@ -535,15 +533,7 @@ AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
 
 void MediaTools::removeEffect(const QString &effectId)
 {
-    AkElementPtr source;
-
-    if (this->isCamera(this->m_curStream))
-        source = this->m_videoCapture;
-    else if (this->isDesktop(this->m_curStream))
-        source = this->m_desktopCapture;
-    else
-        source = this->m_source;
-
+    AkElementPtr source = this->sourceElement();
     bool playing = this->isPlaying();
 
     if (playing)
@@ -777,6 +767,19 @@ bool MediaTools::embedRecordControls(const QString &where,
     return this->embedInterface(this->m_appEngine, interface, where);
 }
 
+bool MediaTools::embedVirtualCameraControls(const QString &where, const QString &name) const
+{
+    QObject *interface = this->m_virtualCamera->controlInterface(this->m_appEngine, "");
+
+    if (!interface)
+        return false;
+
+    if (!name.isEmpty())
+        interface->setObjectName(name);
+
+    return this->embedInterface(this->m_appEngine, interface, where);
+}
+
 void MediaTools::removeInterface(const QString &where,
                                  QQmlApplicationEngine *engine) const
 {
@@ -800,6 +803,18 @@ void MediaTools::removeInterface(const QString &where,
             delete child;
         }
     }
+}
+
+AkElementPtr MediaTools::sourceElement() const
+{
+    if (this->isCamera(this->m_curStream))
+        return this->m_videoCapture;
+    else if (this->isDesktop(this->m_curStream))
+        return this->m_desktopCapture;
+    else
+        return this->m_source;
+
+    return AkElementPtr();
 }
 
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
@@ -984,10 +999,12 @@ bool MediaTools::start()
                               "streams", Qt::DirectConnection,
                               Q_RETURN_ARG(QList<int>, streams));
 
-    if (streams.isEmpty()) {
-        int audioStream = -1;
-        int videoStream = -1;
+    int audioStream = -1;
+    int videoStream = -1;
+    AkCaps audioCaps;
+    AkCaps videoCaps;
 
+    if (streams.isEmpty()) {
         // Find the defaults audio and video streams.
         QMetaObject::invokeMethod(source.data(),
                                   "defaultStream", Qt::DirectConnection,
@@ -1001,8 +1018,6 @@ bool MediaTools::start()
 
         // Read streams caps.
         if (videoStream >= 0) {
-            AkCaps videoCaps;
-
             QMetaObject::invokeMethod(source.data(),
                                       "caps", Qt::DirectConnection,
                                       Q_RETURN_ARG(AkCaps, videoCaps),
@@ -1011,8 +1026,6 @@ bool MediaTools::start()
         }
 
         if (audioStream >= 0) {
-            AkCaps audioCaps;
-
             QMetaObject::invokeMethod(source.data(),
                                       "caps", Qt::DirectConnection,
                                       Q_RETURN_ARG(AkCaps, audioCaps),
@@ -1024,6 +1037,22 @@ bool MediaTools::start()
         QMetaObject::invokeMethod(source.data(),
                                   "setStreams", Qt::DirectConnection,
                                   Q_ARG(QList<int>, streams));
+    } else {
+        foreach (int stream, streams) {
+            AkCaps caps;
+            QMetaObject::invokeMethod(source.data(),
+                                      "caps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(AkCaps, caps),
+                                      Q_ARG(int, stream));
+
+            if (videoStream < 0 && caps.mimeType() == "video/x-raw") {
+                videoStream = stream;
+                videoCaps = caps;
+            } else if (audioStream < 0 && caps.mimeType() == "audio/x-raw") {
+                audioStream = stream;
+                audioCaps = caps;
+            }
+        }
     }
 
     this->updateRecordingParams();
@@ -1090,21 +1119,79 @@ void MediaTools::stopRecording()
     this->setRecording(false);
 }
 
+bool MediaTools::startVirtualCamera(const QString &fileName)
+{
+    AkElementPtr source = this->sourceElement();
+    QList<int> streams;
+    QMetaObject::invokeMethod(source.data(),
+                              "streams", Qt::DirectConnection,
+                              Q_RETURN_ARG(QList<int>, streams));
+
+    int videoStream = -1;
+    AkCaps videoCaps;
+
+    if (streams.isEmpty()) {
+        // Find the defaults audio and video streams.
+        QMetaObject::invokeMethod(source.data(),
+                                  "defaultStream", Qt::DirectConnection,
+                                  Q_RETURN_ARG(int, videoStream),
+                                  Q_ARG(QString, "video/x-raw"));
+
+        // Read streams caps.
+        if (videoStream >= 0) {
+            QMetaObject::invokeMethod(source.data(),
+                                      "caps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(AkCaps, videoCaps),
+                                      Q_ARG(int, videoStream));
+        }
+    } else {
+        foreach (int stream, streams) {
+            AkCaps caps;
+            QMetaObject::invokeMethod(source.data(),
+                                      "caps", Qt::DirectConnection,
+                                      Q_RETURN_ARG(AkCaps, caps),
+                                      Q_ARG(int, stream));
+
+            if (videoStream < 0 && caps.mimeType() == "video/x-raw") {
+                videoStream = stream;
+                videoCaps = caps;
+
+                break;
+            }
+        }
+    }
+
+    this->m_virtualCamera->setProperty("media", fileName);
+    QMetaObject::invokeMethod(this->m_virtualCamera.data(),
+                              "clearStreams");
+
+    AkVideoCaps oVideoCaps(videoCaps);
+    oVideoCaps.format() = AkVideoCaps::Format_yuv420p;
+
+    QMetaObject::invokeMethod(this->m_virtualCamera.data(),
+                              "addStream",
+                              Q_ARG(int, 0),
+                              Q_ARG(AkCaps, oVideoCaps.toCaps()));
+
+    this->m_virtualCamera->setState(AkElement::ElementStatePlaying);
+
+    return true;
+}
+
+void MediaTools::stopVirtualCamera()
+{
+    if (this->m_virtualCamera)
+        this->m_virtualCamera->setState(AkElement::ElementStateNull);
+}
+
 void MediaTools::setCurStream(const QString &stream)
 {
     if (this->m_curStream == stream)
         return;
 
     this->m_curStream = stream;
-
-    // Set device.
-    if (this->isCamera(stream))
-        this->m_videoCapture->setProperty("media", stream);
-    if (this->isDesktop(stream))
-        this->m_desktopCapture->setProperty("media", stream);
-    else if (this->m_source)
-        this->m_source->setProperty("media", stream);
-
+    AkElementPtr source = this->sourceElement();
+    source->setProperty("media", stream);
     emit this->curStreamChanged(stream);
 }
 
@@ -1167,6 +1254,15 @@ void MediaTools::setAdvancedMode(bool advancedMode)
     emit this->advancedModeChanged(advancedMode);
 }
 
+void MediaTools::setEnableVirtualCamera(bool enableVirtualCamera)
+{
+    if (this->m_enableVirtualCamera == enableVirtualCamera)
+        return;
+
+    this->m_enableVirtualCamera = enableVirtualCamera;
+    emit this->enableVirtualCameraChanged(enableVirtualCamera);
+}
+
 void MediaTools::resetCurStream()
 {
     this->setCurStream("");
@@ -1207,20 +1303,17 @@ void MediaTools::resetAdvancedMode()
     this->setAdvancedMode(false);
 }
 
+void MediaTools::resetEnableVirtualCamera()
+{
+    this->setEnableVirtualCamera(false);
+}
+
 void MediaTools::resetEffects()
 {
     if (this->m_effectsList.isEmpty())
         return;
 
-    AkElementPtr source;
-
-    if (this->isCamera(this->m_curStream))
-        source = this->m_videoCapture;
-    else if (this->isDesktop(this->m_curStream))
-        source = this->m_desktopCapture;
-    else
-        source = this->m_source;
-
+    AkElementPtr source = this->sourceElement();
     bool playing = this->isPlaying();
 
     if (playing)
@@ -1247,6 +1340,15 @@ void MediaTools::loadConfigs()
 {
     QSettings config;
 
+    config.beginGroup("AudioConfigs");
+    this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
+    this->setRecordAudioFrom(config.value("recordAudioFrom", "mic").toString());
+    config.endGroup();
+
+    config.beginGroup("OutputConfigs");
+    this->setEnableVirtualCamera(config.value("enableVirtualCamera", false).toBool());
+    config.endGroup();
+
     config.beginGroup("GeneralConfigs");
 
     this->setAdvancedMode(config.value("advancedMode", false).toBool());
@@ -1254,13 +1356,6 @@ void MediaTools::loadConfigs()
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->m_windowWidth = windowSize.width();
     this->m_windowHeight = windowSize.height();
-
-    config.endGroup();
-
-    config.beginGroup("AudioConfigs");
-
-    this->setPlayAudioFromSource(config.value("playAudio", true).toBool());
-    this->setRecordAudioFrom(config.value("recordAudioFrom", "mic").toString());
 
     config.endGroup();
 
@@ -1311,18 +1406,20 @@ void MediaTools::saveConfigs()
 {
     QSettings config;
 
+    config.beginGroup("AudioConfigs");
+    config.setValue("playAudio", this->playAudioFromSource());
+    config.setValue("recordAudioFrom", this->recordAudioFrom());
+    config.endGroup();
+
+    config.beginGroup("OutputConfigs");
+    config.setValue("enableVirtualCamera", this->enableVirtualCamera());
+    config.endGroup();
+
     config.beginGroup("GeneralConfigs");
 
     config.setValue("advancedMode", this->advancedMode());
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
-
-    config.endGroup();
-
-    config.beginGroup("AudioConfigs");
-
-    config.setValue("playAudio", this->playAudioFromSource());
-    config.setValue("recordAudioFrom", this->recordAudioFrom());
 
     config.endGroup();
 
@@ -1437,14 +1534,7 @@ void MediaTools::updateRecordingParams()
         return;
 
     // Setup the recording streams caps.
-    AkElementPtr source;
-
-    if (this->isCamera(this->m_curStream))
-        source = this->m_videoCapture;
-    else if (this->isDesktop(this->m_curStream))
-        source = this->m_desktopCapture;
-    else
-        source = this->m_source;
+    AkElementPtr source = this->sourceElement();
 
     QList<int> streams;
     QMetaObject::invokeMethod(source.data(),

@@ -23,4 +23,42 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 
 ColumnLayout {
+    Component.onCompleted: {
+        Webcamoid.removeInterface("itmVirtualCameraControls")
+        Webcamoid.embedVirtualCameraControls("itmVirtualCameraControls")
+    }
+    Connections {
+        target: Webcamoid
+
+        onInterfaceLoaded: {
+            Webcamoid.removeInterface("itmVirtualCameraControls")
+            Webcamoid.embedVirtualCameraControls("itmVirtualCameraControls")
+        }
+    }
+
+    GroupBox {
+        title: qsTr("Virtual camera")
+        checkable: true
+        checked: Webcamoid.enableVirtualCamera
+        Layout.fillWidth: true
+
+        onCheckedChanged: {
+            Webcamoid.enableVirtualCamera = checked
+
+            if (checked) {
+                if (Webcamoid.isPlaying)
+                    Webcamoid.startVirtualCamera("");
+            } else
+                Webcamoid.stopVirtualCamera();
+        }
+
+        GridLayout {
+            id: itmVirtualCameraControls
+            objectName: "itmVirtualCameraControls"
+            Layout.fillWidth: true
+        }
+    }
+    Label {
+        Layout.fillHeight: true
+    }
 }

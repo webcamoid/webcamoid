@@ -79,6 +79,11 @@ class MediaTools: public QObject
                WRITE setAdvancedMode
                RESET resetAdvancedMode
                NOTIFY advancedModeChanged)
+    Q_PROPERTY(bool enableVirtualCamera
+               READ enableVirtualCamera
+               WRITE setEnableVirtualCamera
+               RESET resetEnableVirtualCamera
+               NOTIFY enableVirtualCameraChanged)
     Q_PROPERTY(QStringList currentEffects
                READ currentEffects
                NOTIFY currentEffectsChanged)
@@ -109,6 +114,7 @@ class MediaTools: public QObject
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
         Q_INVOKABLE bool advancedMode() const;
+        Q_INVOKABLE bool enableVirtualCamera() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
         Q_INVOKABLE QString qtVersion() const;
@@ -151,6 +157,8 @@ class MediaTools: public QObject
         Q_INVOKABLE bool embedRecordControls(const QString &where,
                                              const QString &format="",
                                              const QString &name="") const;
+        Q_INVOKABLE bool embedVirtualCameraControls(const QString &where,
+                                                    const QString &name="") const;
         Q_INVOKABLE void removeInterface(const QString &where,
                                          QQmlApplicationEngine *engine=NULL) const;
 
@@ -163,6 +171,7 @@ class MediaTools: public QObject
         int m_windowWidth;
         int m_windowHeight;
         bool m_advancedMode;
+        bool m_enableVirtualCamera;
         QQmlApplicationEngine *m_appEngine;
 
         AkElementPtr m_pipeline;
@@ -182,6 +191,7 @@ class MediaTools: public QObject
         AkPacket m_curPacket;
         QImage m_photo;
 
+        AkElementPtr sourceElement() const;
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *interface,
                             const QString &where) const;
@@ -199,6 +209,7 @@ class MediaTools: public QObject
         void windowHeightChanged(int windowHeight);
         void stateChanged(AkElement::ElementState state);
         void advancedModeChanged(bool advancedMode);
+        void enableVirtualCameraChanged(bool enableVirtualCamera);
         void currentEffectsChanged();
         void isPlayingChanged();
         void frameReady(const AkPacket &frame);
@@ -214,6 +225,8 @@ class MediaTools: public QObject
         void stop();
         bool startRecording(const QString &fileName);
         void stopRecording();
+        bool startVirtualCamera(const QString &fileName);
+        void stopVirtualCamera();
         void setCurStream(const QString &stream);
         void setPlayAudioFromSource(bool playAudioFromSource);
         void setRecordAudioFrom(const QString &recordAudioFrom);
@@ -222,6 +235,7 @@ class MediaTools: public QObject
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void setAdvancedMode(bool advancedMode);
+        void setEnableVirtualCamera(bool enableVirtualCamera);
         void resetCurStream();
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
@@ -230,6 +244,7 @@ class MediaTools: public QObject
         void resetWindowWidth();
         void resetWindowHeight();
         void resetAdvancedMode();
+        void resetEnableVirtualCamera();
         void resetEffects();
         void loadConfigs();
         void saveConfigs();
