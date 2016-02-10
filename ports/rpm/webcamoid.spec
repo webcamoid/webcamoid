@@ -123,6 +123,8 @@ Features:
     * Translated to many languages.
     * Use custom network and local files as capture devices.
     * Capture from desktop.
+    * Many recording formats.
+    * Virtual webcam support for feeding other programs.
 
 %prep
 %setup -q -n %{name}-%{version}

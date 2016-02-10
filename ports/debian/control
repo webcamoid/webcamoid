@@ -52,3 +52,5 @@ Description: Webcamoid is a full featured webcam capture application.
  * Translated to many languages.
  * Use custom network and local files as capture devices.
  * Capture from desktop.
+ * Many recording formats.
+ * Virtual webcam support for feeding other programs.

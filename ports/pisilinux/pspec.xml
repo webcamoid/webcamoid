@@ -28,6 +28,8 @@
                 * Translated to many languages.
                 * Use custom network and local files as capture devices.
                 * Capture from desktop.
+                * Many recording formats.
+                * Virtual webcam support for feeding other programs.
         </Description>
         <Archive sha1sum="9ba2387d993aed43338a9b45dd80957de267ce0b" type="targz">https://github.com/hipersayanX/webcamoid/archive/7.0.0.tar.gz</Archive>
         <BuildDependencies>
