@@ -309,6 +309,10 @@ void AbstractStream::resetPaused()
 
 bool AbstractStream::init()
 {
+    if (!this->m_codecContext
+        || !this->m_codec)
+        return false;
+
     if (avcodec_open2(this->m_codecContext,
                       this->m_codec,
                       &this->m_codecOptions) < 0)

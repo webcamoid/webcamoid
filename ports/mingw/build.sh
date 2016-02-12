@@ -1,7 +1,7 @@
 #!/bin/bash
 
 p7zVersion=920
-ffmpegVersion=2.7
+ffmpegVersion=2.8.6
 FGET='wget -c --retry-connrefused --no-check-certificate'
 
 function get7Z()
@@ -40,18 +40,18 @@ function buildWebcamoid()
     cd ..
 
     /qttools/qmake Webcamoid.pro \
+        PREFIX="${PWD}/build/webcamoid-7.0.0-win32" \
         FFMPEGINCLUDES="${PWD}/build/win32/include" \
-        FFMPEGLIBS="-L${PWD}/build/win32/lib" \
-        FFMPEGLIBS+=-lavdevice \
-        FFMPEGLIBS+=-lavfilter \
-        FFMPEGLIBS+=-lavformat \
+        FFMPEGLIBS=-L"${PWD}/build/win32/lib" \
         FFMPEGLIBS+=-lavcodec \
-        FFMPEGLIBS+=-lpostproc \
+        FFMPEGLIBS+=-lavdevice \
+        FFMPEGLIBS+=-lavformat \
+        FFMPEGLIBS+=-lavutil \
         FFMPEGLIBS+=-lswresample \
-        FFMPEGLIBS+=-lswscale \
-        FFMPEGLIBS+=-lavutil
+        FFMPEGLIBS+=-lswscale
 
     mingw32-make
+    mingw32-make install
 }
 
 function build()

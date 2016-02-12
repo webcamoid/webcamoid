@@ -147,14 +147,14 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(error(const QString &)));
 
             QObject::connect(this->m_source.data(),
-                             &AkElement::stateChanged,
+                             SIGNAL(stateChanged(AkElement::ElementState)),
                              this,
-                             &MediaTools::stateChanged);
+                             SIGNAL(stateChanged(AkElement::ElementState)));
 
             QObject::connect(this->m_source.data(),
-                             &AkElement::stateChanged,
+                             SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_audioOutput.data(),
-                             &AkElement::setState);
+                             SLOT(setState(AkElement::ElementState)));
         }
 
         if (this->m_videoCapture) {
@@ -164,16 +164,16 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(error(const QString &)));
 
             QObject::connect(this->m_videoCapture.data(),
-                             &AkElement::stateChanged,
+                             SIGNAL(stateChanged(AkElement::ElementState)),
                              this,
-                             &MediaTools::stateChanged);
+                             SIGNAL(stateChanged(AkElement::ElementState)));
         }
 
         if (this->m_desktopCapture) {
             QObject::connect(this->m_desktopCapture.data(),
-                             &AkElement::stateChanged,
+                             SIGNAL(stateChanged(AkElement::ElementState)),
                              this,
-                             &MediaTools::stateChanged);
+                             SIGNAL(stateChanged(AkElement::ElementState)));
         }
 
         QObject::connect(this,
@@ -727,7 +727,10 @@ bool MediaTools::embedMediaControls(const QString &where,
                                      const QString &stream,
                                      const QString &name) const
 {
-    if (!this->m_appEngine)
+    if (!this->m_appEngine
+        || !this->m_videoCapture
+        || !this->m_desktopCapture
+        || !this->m_source)
         return false;
 
     QObject *interface = NULL;
@@ -755,6 +758,9 @@ bool MediaTools::embedRecordControls(const QString &where,
                                      const QString &format,
                                      const QString &name) const
 {
+    if (!this->m_record)
+        return false;
+
     QObject *interface = this->m_record->controlInterface(this->m_appEngine,
                                                           format);
 
@@ -769,6 +775,9 @@ bool MediaTools::embedRecordControls(const QString &where,
 
 bool MediaTools::embedVirtualCameraControls(const QString &where, const QString &name) const
 {
+    if (!this->m_virtualCamera)
+        return false;
+
     QObject *interface = this->m_virtualCamera->controlInterface(this->m_appEngine, "");
 
     if (!interface)
@@ -883,24 +892,24 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
         this->m_audioSwitch->setState(AkElement::ElementStateNull);
 
         QObject::disconnect(this->m_record.data(),
-                            &AkElement::stateChanged,
+                            SIGNAL(stateChanged(AkElement::ElementState)),
                             this->m_audioSwitch.data(),
-                            &AkElement::setState);
+                            SLOT(setState(AkElement::ElementState)));
 
         if (this->m_recordAudioFrom == RecordFromMic)
             QObject::disconnect(this->m_record.data(),
-                                &AkElement::stateChanged,
+                                SIGNAL(stateChanged(AkElement::ElementState)),
                                 this->m_mic.data(),
-                                &AkElement::setState);
+                                SLOT(setState(AkElement::ElementState)));
     } else {
         if (recordAudio == RecordFromSource) {
             if (this->m_recordAudioFrom == RecordFromMic) {
                 this->m_mic->setState(AkElement::ElementStateNull);
 
                 QObject::disconnect(this->m_record.data(),
-                                    &AkElement::stateChanged,
+                                    SIGNAL(stateChanged(AkElement::ElementState)),
                                     this->m_mic.data(),
-                                    &AkElement::setState);
+                                    SLOT(setState(AkElement::ElementState)));
             }
 
             this->m_audioSwitch->setProperty("inputIndex", 0);
@@ -910,9 +919,9 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
                 this->m_mic->setState(this->m_record->state());
 
             QObject::connect(this->m_record.data(),
-                             &AkElement::stateChanged,
+                             SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_mic.data(),
-                             &AkElement::setState);
+                             SLOT(setState(AkElement::ElementState)));
 
             this->m_audioSwitch->setProperty("inputIndex", 1);
         }
@@ -923,9 +932,9 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
                 this->m_audioSwitch->setState(this->m_record->state());
 
             QObject::connect(this->m_record.data(),
-                             &AkElement::stateChanged,
+                             SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_audioSwitch.data(),
-                             &AkElement::setState);
+                             SLOT(setState(AkElement::ElementState)));
         }
     }
 
@@ -1112,9 +1121,14 @@ bool MediaTools::startRecording(const QString &fileName)
 
 void MediaTools::stopRecording()
 {
-    this->m_record->setState(AkElement::ElementStateNull);
-    this->m_audioSwitch->setState(AkElement::ElementStateNull);
-    this->m_mic->setState(AkElement::ElementStateNull);
+    if (this->m_record)
+        this->m_record->setState(AkElement::ElementStateNull);
+
+    if (this->m_audioSwitch)
+        this->m_audioSwitch->setState(AkElement::ElementStateNull);
+
+    if (this->m_mic)
+        this->m_mic->setState(AkElement::ElementStateNull);
 
     this->setRecording(false);
 }
@@ -1190,9 +1204,11 @@ void MediaTools::setCurStream(const QString &stream)
         return;
 
     this->m_curStream = stream;
-    AkElementPtr source = this->sourceElement();
-    source->setProperty("media", stream);
     emit this->curStreamChanged(stream);
+    AkElementPtr source = this->sourceElement();
+
+    if (source)
+        source->setProperty("media", stream);
 }
 
 void MediaTools::setPlayAudioFromSource(bool playAudio)
@@ -1214,16 +1230,16 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
             this->m_audioOutput->setState(sourceState);
 
         QObject::connect(this->m_source.data(),
-                         &AkElement::stateChanged,
+                         SIGNAL(stateChanged(AkElement::ElementState)),
                          this->m_audioOutput.data(),
-                         &AkElement::setState);
+                         SLOT(setState(AkElement::ElementState)));
     } else {
         this->m_audioOutput->setState(AkElement::ElementStateNull);
 
         QObject::disconnect(this->m_source.data(),
-                            &AkElement::stateChanged,
+                            SIGNAL(stateChanged(AkElement::ElementState)),
                             this->m_audioOutput.data(),
-                            &AkElement::setState);
+                            SLOT(setState(AkElement::ElementState)));
     }
 }
 

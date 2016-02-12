@@ -195,7 +195,7 @@ AkElementPtr AkElement::create(const QString &pluginId,
     QPluginLoader pluginLoader(filePath);
 
     if (!pluginLoader.load()) {
-        qDebug() << pluginLoader.errorString();
+        qDebug() << "Error loading plugin " << pluginId << ":" << pluginLoader.errorString();
 
         return AkElementPtr();
     }

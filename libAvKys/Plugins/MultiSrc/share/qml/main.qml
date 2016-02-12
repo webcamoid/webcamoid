@@ -27,6 +27,11 @@ GridLayout {
     property bool updating: false
 
     Component.onCompleted: updateOptions()
+    Connections {
+        target: MultiSrc
+
+        onMediaChanged: updateOptions()
+    }
 
     function updateOptions()
     {
@@ -78,29 +83,10 @@ GridLayout {
             lstSubtitlesTracks.append({stream: streams[stream], language: description})
         }
 
-        if (MultiSrc.streams.length < 1) {
-            if (lstAudioTracks.count > 1)
-                cbxAudioTracks.currentIndex = 1
-
-            if (lstVideoTracks.count > 1)
-                cbxVideoTracks.currentIndex = 1
-        } else {
-            for (stream in MultiSrc.streams) {
-                var i
-
-                for (i = 0; i < lstAudioTracks.count; i++)
-                    if (lstAudioTracks.get(i).stream === MultiSrc.streams[stream])
-                        cbxAudioTracks.currentIndex = i
-
-                for (i = 0; i < lstVideoTracks.count; i++)
-                    if (lstVideoTracks.get(i).stream === MultiSrc.streams[stream])
-                        cbxVideoTracks.currentIndex = i
-
-                for (i = 0; i < lstSubtitlesTracks.count; i++)
-                    if (lstSubtitlesTracks.get(i).stream === MultiSrc.streams[stream])
-                        cbxSubtitlesTracks.currentIndex = i
-            }
-        }
+        cbxAudioTracks.currentIndex = 1
+        cbxVideoTracks.currentIndex = 1
+        MultiSrc.streams = [MultiSrc.defaultStream("audio/x-raw"),
+                            MultiSrc.defaultStream("video/x-raw")]
 
         updating = false
     }
@@ -130,18 +116,6 @@ GridLayout {
     }
 
     Label {
-        text: qsTr("Audio track")
-    }
-    ComboBox {
-        id: cbxAudioTracks
-        textRole: "language"
-        model: ListModel {
-            id: lstAudioTracks
-        }
-        onCurrentIndexChanged: updateStreams()
-    }
-
-    Label {
         text: qsTr("Video track")
     }
     ComboBox {
@@ -149,6 +123,18 @@ GridLayout {
         textRole: "language"
         model: ListModel {
             id: lstVideoTracks
+        }
+        onCurrentIndexChanged: updateStreams()
+    }
+
+    Label {
+        text: qsTr("Audio track")
+    }
+    ComboBox {
+        id: cbxAudioTracks
+        textRole: "language"
+        model: ListModel {
+            id: lstAudioTracks
         }
         onCurrentIndexChanged: updateStreams()
     }
