@@ -48,9 +48,9 @@ bool AudioOutputElement::init()
     this->m_convert = AkElement::create("ACapsConvert");
 
     QObject::connect(this,
-                     &AudioOutputElement::stateChanged,
+                     SIGNAL(stateChanged(AkElement::ElementState)),
                      this->m_convert.data(),
-                     &AkElement::setState);
+                     SLOT(setState(AkElement::ElementState)));
 
     this->m_convert->setProperty("caps", this->m_caps.toString());
     bool result = this->m_audioDevice.init(AudioDevice::DeviceModePlayback,

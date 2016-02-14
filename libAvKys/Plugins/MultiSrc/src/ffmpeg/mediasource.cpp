@@ -315,7 +315,7 @@ void MediaSource::readPackets(MediaSource *element)
 
 void MediaSource::unlockQueue(MediaSource *element)
 {
-    element->m_dataMutex.tryLock();
+    element->m_dataMutex.lock();
 
     if (element->packetQueueSize() < element->m_maxPacketQueueSize)
         element->m_packetQueueNotFull.wakeAll();
@@ -441,20 +441,20 @@ bool MediaSource::setState(AkElement::ElementState state)
                     this->m_streamsMap[i] = stream;
 
                     QObject::connect(stream.data(),
-                                     &AbstractStream::oStream,
+                                     SIGNAL(oStream(AkPacket)),
                                      this,
-                                     &MediaSource::oStream,
+                                     SIGNAL(oStream(AkPacket)),
                                      Qt::DirectConnection);
 
                     QObject::connect(stream.data(),
-                                     &AbstractStream::notify,
+                                     SIGNAL(notify()),
                                      this,
-                                     &MediaSource::packetConsumed);
+                                     SLOT(packetConsumed()));
 
                     QObject::connect(stream.data(),
-                                     &AbstractStream::frameSent,
+                                     SIGNAL(frameSent()),
                                      this,
-                                     &MediaSource::log);
+                                     SLOT(log()));
 
                     stream->init();
 

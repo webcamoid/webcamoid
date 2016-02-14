@@ -18,6 +18,8 @@
  * Web-Site: http://github.com/hipersayanX/webcamoid
  */
 
+#include <akutils.h>
+
 #include "videocaptureelement.h"
 
 VideoCaptureElement::VideoCaptureElement():
@@ -209,7 +211,13 @@ void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
 {
     AkPacket oPacket = element->m_convertVideo.convert(packet);
 
+#if defined(Q_OS_WIN32)
+    QImage oImage = AkUtils::packetToImage(oPacket).mirrored();
+
+    emit element->oStream(AkUtils::imageToPacket(oImage, oPacket));
+#else
     emit element->oStream(oPacket);
+#endif
 }
 
 void VideoCaptureElement::setMedia(const QString &media)

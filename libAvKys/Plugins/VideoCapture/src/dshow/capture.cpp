@@ -455,21 +455,16 @@ AkPacket Capture::readFrame()
             qint64 pts = this->m_curTime
                           * this->m_timeBase.invert().value();
 
-            AkPacket oPacket(this->m_caps,
-                             oBuffer);
-
-            oPacket.setPts(pts);
-            oPacket.setTimeBase(this->m_timeBase);
-            oPacket.setIndex(0);
-            oPacket.setId(this->m_id);
-
-            packet = oPacket;
+            packet = AkPacket(this->m_caps, oBuffer);
+            packet.setPts(pts);
+            packet.setTimeBase(this->m_timeBase);
+            packet.setIndex(0);
+            packet.setId(this->m_id);
             this->m_curBuffer.clear();
         }
 
         this->m_mutex.unlock();
-    }
-    else {
+    } else {
         long bufferSize;
 
         HRESULT hr = this->m_grabber->GetCurrentBuffer(&bufferSize, NULL);
@@ -490,15 +485,11 @@ AkPacket Capture::readFrame()
                       + 1e-6 * timestamp.tv_usec)
                       * this->m_timeBase.invert().value();
 
-        AkPacket oPacket(this->m_caps,
-                         oBuffer);
-
-        oPacket.setPts(pts);
-        oPacket.setTimeBase(this->m_timeBase);
-        oPacket.setIndex(0);
-        oPacket.setId(this->m_id);
-
-        return oPacket;
+        packet = AkPacket(this->m_caps, oBuffer);
+        packet.setPts(pts);
+        packet.setTimeBase(this->m_timeBase);
+        packet.setIndex(0);
+        packet.setId(this->m_id);
     }
 
     return packet;
