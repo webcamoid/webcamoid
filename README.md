@@ -4,13 +4,13 @@
 
 ## Features ##
 
+* Cross-platform (GNU/Linux, Windows)
 * Take pictures and record videos with the webcam.
 * Manages multiple webcams.
 * Written in C++/Qt.
 * Custom controls for each webcam.
 * Add funny effects to the webcam.
 * +60 effects available.
-* Effects with live previews.
 * Translated to many languages.
 * Use custom network and local files as capture devices.
 * Capture from desktop.
