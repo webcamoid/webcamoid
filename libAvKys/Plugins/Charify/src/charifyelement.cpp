@@ -85,6 +85,15 @@ QObject *CharifyElement::controlInterface(QQmlEngine *engine, const QString &con
     // Load the UI from the plugin.
     QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Charify/share/qml/main.qml")));
 
+    if (component.isError()) {
+        qDebug() << "Error in plugin "
+                 << this->metaObject()->className()
+                 << ":"
+                 << component.errorString();
+
+        return NULL;
+    }
+
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
     context->setContextProperty("Charify", (QObject *) this);
