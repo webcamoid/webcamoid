@@ -29,17 +29,28 @@
 
 #include "ak.h"
 
+inline QStringList initPluginsSearchPaths()
+{
+    QStringList defaultPath;
+
 #ifdef Q_OS_WIN32
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
-                          pluginsSearchPaths,
-                          (QString("%1/%2/Plugins").arg(QCoreApplication::applicationDirPath())
-                                                   .arg(COMMONS_TARGET)))
+    defaultPath << QCoreApplication::applicationDirPath()
+                << COMMONS_TARGET
+                << "Plugins";
 #else
+    defaultPath << LIBDIR
+                << COMMONS_TARGET;
+#endif
+
+    QStringList pluginsSearchPaths;
+    pluginsSearchPaths << defaultPath.join(QDir::separator());
+
+    return pluginsSearchPaths;
+}
+
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
                           pluginsSearchPaths,
-                          (QString("%1/%2").arg(LIBDIR)
-                                           .arg(COMMONS_TARGET)))
-#endif
+                          (initPluginsSearchPaths()))
 
 Q_GLOBAL_STATIC_WITH_ARGS(bool, recursiveSearchPaths, (false))
 
@@ -231,12 +242,18 @@ QStringList AkElement::searchPaths(SearchPaths pathType)
         return *pluginsSearchPaths;
 
     QStringList defaults;
+    QStringList defaultPath;
 
 #ifdef Q_OS_WIN32
-    defaults << QString("%1/%2/Plugins").arg(QCoreApplication::applicationDirPath()).arg(COMMONS_TARGET);
+    defaultPath << QCoreApplication::applicationDirPath()
+                << COMMONS_TARGET
+                << "Plugins";
 #else
-    defaults << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET);
+    defaultPath << LIBDIR
+                << COMMONS_TARGET;
 #endif
+
+    defaults << defaultPath.join(QDir::separator());
 
     if (pathType == SearchPathsDefaults)
         return defaults;
@@ -268,11 +285,18 @@ void AkElement::resetSearchPaths()
 {
     pluginsSearchPaths->clear();
 
+    QStringList defaultPath;
+
 #ifdef Q_OS_WIN32
-    *pluginsSearchPaths << QString("%1/%2/Plugins").arg(QCoreApplication::applicationDirPath()).arg(COMMONS_TARGET);
+    defaultPath << QCoreApplication::applicationDirPath()
+                << COMMONS_TARGET
+                << "Plugins";
 #else
-    *pluginsSearchPaths << QString("%1/%2").arg(LIBDIR).arg(COMMONS_TARGET);
+    defaultPath << LIBDIR
+                << COMMONS_TARGET;
 #endif
+
+    *pluginsSearchPaths << defaultPath.join(QDir::separator());
 }
 
 QStringList AkElement::listPlugins(const QString &type)

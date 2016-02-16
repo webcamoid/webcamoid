@@ -58,7 +58,22 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     QSettings config;
 
     config.beginGroup("PluginConfigs");
-    Ak::setQmlPluginPath(config.value("qmlPluginPath", Ak::qmlPluginPath()).toString());
+
+#ifdef Q_OS_WIN32
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+#endif
+
+    QString qmlPluginPath = config.value("qmlPluginPath", Ak::qmlPluginPath())
+                                  .toString();
+
+#ifdef Q_OS_WIN32
+    if (QDir::isRelativePath(qmlPluginPath)) {
+        qmlPluginPath = applicationDir.absoluteFilePath(qmlPluginPath);
+        qmlPluginPath = QDir::cleanPath(qmlPluginPath);
+    }
+#endif
+
+    Ak::setQmlPluginPath(qmlPluginPath);
     AkElement::setRecursiveSearch(config.value("recursive", false).toBool());
 
     int size = config.beginReadArray("paths");
@@ -66,6 +81,14 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
         QString path = config.value("path").toString();
+
+#ifdef Q_OS_WIN32
+        if (QDir::isRelativePath(path)) {
+            path = applicationDir.absoluteFilePath(path);
+            path = QDir::cleanPath(path);
+        }
+#endif
+
         AkElement::addSearchPath(path);
     }
 
@@ -1487,7 +1510,15 @@ void MediaTools::saveConfigs()
     config.endGroup();
 
     config.beginGroup("PluginConfigs");
-    config.setValue("qmlPluginPath", Ak::qmlPluginPath());
+
+#ifdef Q_OS_WIN32
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+    QString qmlPluginPath = applicationDir.relativeFilePath(Ak::qmlPluginPath());
+#else
+    QString qmlPluginPath = Ak::qmlPluginPath();
+#endif
+
+    config.setValue("qmlPluginPath", qmlPluginPath);
     config.setValue("recursive", AkElement::recursiveSearch());
 
     config.beginWriteArray("paths");
@@ -1496,7 +1527,13 @@ void MediaTools::saveConfigs()
 
     foreach (QString path, AkElement::searchPaths(AkElement::SearchPathsExtras)) {
         config.setArrayIndex(i);
+
+#ifdef Q_OS_WIN32
+        config.setValue("path", applicationDir.relativeFilePath(path));
+#else
         config.setValue("path", path);
+#endif
+
         i++;
     }
 
