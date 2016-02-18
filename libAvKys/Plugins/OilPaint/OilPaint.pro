@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    OilPaint.qrc
+    OilPaint.qrc \
+    translations.qrc
 
 SOURCES += \
     src/oilpaint.cpp \

@@ -52,7 +52,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    MultiSrc.qrc
+    MultiSrc.qrc \
+    translations.qrc
 
 SOURCES += \
     src/multisrc.cpp \

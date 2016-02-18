@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Ripple.qrc
+    Ripple.qrc \
+    translations.qrc
 
 SOURCES += \
     src/ripple.cpp \

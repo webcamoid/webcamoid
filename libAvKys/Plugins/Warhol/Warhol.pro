@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Warhol.qrc
+    Warhol.qrc \
+    translations.qrc
 
 SOURCES += \
     src/warhol.cpp \

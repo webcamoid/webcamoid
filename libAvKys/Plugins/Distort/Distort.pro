@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Distort.qrc
+    Distort.qrc \
+    translations.qrc
 
 SOURCES += \
     src/distort.cpp \

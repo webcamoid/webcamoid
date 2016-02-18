@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Swirl.qrc
+    Swirl.qrc \
+    translations.qrc
 
 SOURCES += \
     src/swirl.cpp \

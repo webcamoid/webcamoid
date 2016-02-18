@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/ColorTap">
+        <file>share/ts/ca.qm</file>
+        <file>share/ts/de.qm</file>
+        <file>share/ts/el.qm</file>
+        <file>share/ts/es.qm</file>
+        <file>share/ts/et.qm</file>
+        <file>share/ts/fr.qm</file>
+        <file>share/ts/gl.qm</file>
+        <file>share/ts/it.qm</file>
+        <file>share/ts/ja.qm</file>
+        <file>share/ts/ko.qm</file>
+        <file>share/ts/pt.qm</file>
+        <file>share/ts/ru.qm</file>
+        <file>share/ts/zh_CN.qm</file>
+        <file>share/ts/zh_TW.qm</file>
+    </qresource>
+</RCC>

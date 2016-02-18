@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml widgets
 
 RESOURCES += \
-    Fire.qrc
+    Fire.qrc \
+    translations.qrc
 
 SOURCES += \
     src/fire.cpp \

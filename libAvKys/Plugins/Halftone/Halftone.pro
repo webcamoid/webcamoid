@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Halftone.qrc
+    Halftone.qrc \
+    translations.qrc
 
 SOURCES += \
     src/halftone.cpp \

@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Pixelate.qrc
+    Pixelate.qrc \
+    translations.qrc
 
 SOURCES += \
     src/pixelate.cpp \

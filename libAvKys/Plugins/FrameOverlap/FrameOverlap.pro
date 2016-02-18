@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    FrameOverlap.qrc
+    FrameOverlap.qrc \
+    translations.qrc
 
 SOURCES += \
     src/frameoverlap.cpp \

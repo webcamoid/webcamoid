@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Cinema.qrc
+    Cinema.qrc \
+    translations.qrc
 
 SOURCES += \
     src/cinema.cpp \

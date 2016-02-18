@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    ColorReplace.qrc
+    ColorReplace.qrc \
+    translations.qrc
 
 SOURCES += \
     src/colorreplace.cpp \

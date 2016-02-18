@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Wave.qrc
+    Wave.qrc \
+    translations.qrc
 
 SOURCES += \
     src/wave.cpp \

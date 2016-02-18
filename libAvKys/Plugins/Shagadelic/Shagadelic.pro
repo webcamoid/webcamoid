@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Shagadelic.qrc
+    Shagadelic.qrc \
+    translations.qrc
 
 SOURCES += \
     src/shagadelic.cpp \

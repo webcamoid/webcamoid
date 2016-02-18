@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Warp.qrc
+    Warp.qrc \
+    translations.qrc
 
 SOURCES += \
     src/warp.cpp \

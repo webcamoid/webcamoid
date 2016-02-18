@@ -55,7 +55,8 @@ OTHER_FILES += pspec.json
 QT += qml concurrent
 
 RESOURCES += \
-    VirtualCamera.qrc
+    VirtualCamera.qrc \
+    translations.qrc
 
 SOURCES += \
     src/virtualcamera.cpp \

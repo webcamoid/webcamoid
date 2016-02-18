@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Implode.qrc
+    Implode.qrc \
+    translations.qrc
 
 SOURCES += \
     src/implode.cpp \

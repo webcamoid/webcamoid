@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    FalseColor.qrc
+    FalseColor.qrc \
+    translations.qrc
 
 SOURCES += \
     src/falsecolor.cpp \

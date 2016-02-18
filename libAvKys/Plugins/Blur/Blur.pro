@@ -45,7 +45,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Blur.qrc
+    Blur.qrc \
+    translations.qrc
 
 SOURCES += \
     src/blur.cpp \

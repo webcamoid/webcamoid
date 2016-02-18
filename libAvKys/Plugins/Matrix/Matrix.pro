@@ -46,7 +46,8 @@ OTHER_FILES += pspec.json
 QT += qml widgets
 
 RESOURCES += \
-    Matrix.qrc
+    Matrix.qrc \
+    translations.qrc
 
 SOURCES += \
     src/matrix.cpp \

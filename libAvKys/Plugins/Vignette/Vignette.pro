@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Vignette.qrc
+    Vignette.qrc \
+    translations.qrc
 
 SOURCES += \
     src/vignette.cpp \

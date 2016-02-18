@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Dizzy.qrc
+    Dizzy.qrc \
+    translations.qrc
 
 SOURCES += \
     src/dizzy.cpp \

@@ -46,7 +46,8 @@ OTHER_FILES += pspec.json
 QT += qml concurrent
 
 RESOURCES += \
-    Denoise.qrc
+    Denoise.qrc \
+    translations.qrc
 
 SOURCES += \
     src/denoise.cpp \

@@ -45,7 +45,8 @@ OTHER_FILES += pspec.json
 QT += qml widgets
 
 RESOURCES += \
-    Charify.qrc
+    Charify.qrc \
+    translations.qrc
 
 SOURCES += \
     src/charify.cpp \

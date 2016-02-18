@@ -49,7 +49,8 @@ OTHER_FILES += pspec.json
 QT += qml widgets concurrent
 
 RESOURCES += \
-    FaceDetect.qrc
+    FaceDetect.qrc \
+    translations.qrc
 
 SOURCES += \
     src/facedetect.cpp \

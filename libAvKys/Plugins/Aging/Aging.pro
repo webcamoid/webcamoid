@@ -45,7 +45,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Aging.qrc
+    Aging.qrc \
+    translations.qrc
 
 SOURCES += \
     src/aging.cpp \

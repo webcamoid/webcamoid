@@ -55,7 +55,8 @@ OTHER_FILES += pspec.json
 QT += qml concurrent
 
 RESOURCES += \
-    VideoCapture.qrc
+    VideoCapture.qrc \
+    translations.qrc
 
 SOURCES += \
     src/videocapture.cpp \

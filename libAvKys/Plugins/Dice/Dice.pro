@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Dice.qrc
+    Dice.qrc \
+    translations.qrc
 
 SOURCES += \
     src/dice.cpp \

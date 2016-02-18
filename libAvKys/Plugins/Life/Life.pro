@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Life.qrc
+    Life.qrc \
+    translations.qrc
 
 SOURCES += \
     src/life.cpp \

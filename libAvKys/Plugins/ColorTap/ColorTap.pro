@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    ColorTap.qrc
+    ColorTap.qrc \
+    translations.qrc
 
 SOURCES += \
     src/colortap.cpp \

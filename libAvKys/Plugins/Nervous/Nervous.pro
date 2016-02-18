@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Nervous.qrc
+    Nervous.qrc \
+    translations.qrc
 
 SOURCES += \
     src/nervous.cpp \

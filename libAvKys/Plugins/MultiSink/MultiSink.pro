@@ -52,7 +52,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    MultiSink.qrc
+    MultiSink.qrc \
+    translations.qrc
 
 SOURCES += \
     src/multisink.cpp \

@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    DelayGrab.qrc
+    DelayGrab.qrc \
+    translations.qrc
 
 SOURCES += \
     src/delaygrab.cpp \

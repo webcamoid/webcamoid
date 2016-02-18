@@ -44,7 +44,8 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Convolve.qrc
+    Convolve.qrc \
+    translations.qrc
 
 SOURCES += \
     src/convolve.cpp \
