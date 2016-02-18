@@ -53,8 +53,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_advancedMode = false;
     this->m_enableVirtualCamera = false;
 
-    Ak::init(engine);
-
+    Ak::setQmlEngine(engine);
     QSettings config;
 
     config.beginGroup("PluginConfigs");

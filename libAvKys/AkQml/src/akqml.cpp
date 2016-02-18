@@ -34,11 +34,6 @@ AkQml::~AkQml()
 {
 }
 
-void AkQml::init() const
-{
-    Ak::init();
-}
-
 qint64 AkQml::id() const
 {
     return Ak::id();

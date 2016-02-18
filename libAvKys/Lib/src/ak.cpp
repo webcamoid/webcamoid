@@ -22,32 +22,54 @@
 #include <QColor>
 #include <QCoreApplication>
 
+#ifdef Q_OS_WIN32
+#include <objbase.h>
+#endif
+
 #include "ak.h"
 #include "akvideocaps.h"
 
-QQmlEngine *globalEngine = NULL;
-Q_GLOBAL_STATIC(QString, globalQmlPluginPath)
-Q_GLOBAL_STATIC(QStringList, globalQmlPluginDefaultPaths)
-
-void Ak::init(QQmlEngine *engine)
+class AkPrivate
 {
-    qRegisterMetaType<QRgb>("QRgb");
-    qRegisterMetaType<QColor>("QColor");
+    public:
+        QQmlEngine *m_globalEngine;
+        QString m_globalQmlPluginPath;
+        QStringList m_globalQmlPluginDefaultPaths;
 
-    qRegisterMetaType<AkCaps>("AkCaps");
-    qRegisterMetaTypeStreamOperators<AkCaps>("AkCaps");
-    qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
-    qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
-    qRegisterMetaType<AkElement::ElementState>("AkElement::ElementState");
-    qRegisterMetaType<AkElement::ElementState>("ElementState");
-    qRegisterMetaTypeStreamOperators<AkElement::ElementState>("AkElement::ElementState");
-    qRegisterMetaType<AkFrac>("AkFrac");
-    qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
-    qRegisterMetaType<AkPacket>("AkPacket");
-    qRegisterMetaType<AkElementPtr>("AkElementPtr");
+        AkPrivate()
+        {
+            this->m_globalEngine = NULL;
 
-    Ak::setQmlEngine(engine);
-}
+            qRegisterMetaType<QRgb>("QRgb");
+            qRegisterMetaType<QColor>("QColor");
+            qRegisterMetaType<AkCaps>("AkCaps");
+            qRegisterMetaTypeStreamOperators<AkCaps>("AkCaps");
+            qRegisterMetaType<AkVideoCaps>("AkVideoCaps");
+            qRegisterMetaTypeStreamOperators<AkVideoCaps>("AkVideoCaps");
+            qRegisterMetaType<AkElement::ElementState>("AkElement::ElementState");
+            qRegisterMetaType<AkElement::ElementState>("ElementState");
+            qRegisterMetaTypeStreamOperators<AkElement::ElementState>("AkElement::ElementState");
+            qRegisterMetaType<AkFrac>("AkFrac");
+            qRegisterMetaTypeStreamOperators<AkFrac>("AkFrac");
+            qRegisterMetaType<AkPacket>("AkPacket");
+            qRegisterMetaType<AkElementPtr>("AkElementPtr");
+
+#ifdef Q_OS_WIN32
+            // Initialize the COM library in multithread mode.
+            CoInitializeEx(NULL, COINIT_MULTITHREADED);
+#endif
+        }
+
+        ~AkPrivate()
+        {
+#ifdef Q_OS_WIN32
+            // Close COM library.
+            CoUninitialize();
+#endif
+        }
+};
+
+Q_GLOBAL_STATIC(AkPrivate, akGlobalStuff)
 
 qint64 Ak::id()
 {
@@ -58,54 +80,54 @@ qint64 Ak::id()
 
 void Ak::setQmlEngine(QQmlEngine *engine)
 {
-    if (engine == globalEngine)
+    if (engine == akGlobalStuff->m_globalEngine)
         return;
 
-    if (globalEngine) {
-        globalEngine->setImportPathList(*globalQmlPluginDefaultPaths);
-        globalEngine = NULL;
+    if (akGlobalStuff->m_globalEngine) {
+        akGlobalStuff->m_globalEngine->setImportPathList(akGlobalStuff->m_globalQmlPluginDefaultPaths);
+        akGlobalStuff->m_globalEngine = NULL;
     }
 
     if (!engine)
         return;
 
-    globalEngine = engine;
-    *globalQmlPluginDefaultPaths = globalEngine->importPathList();
+    akGlobalStuff->m_globalEngine = engine;
+    akGlobalStuff->m_globalQmlPluginDefaultPaths = akGlobalStuff->m_globalEngine->importPathList();
 
-    if (!globalQmlPluginPath->isEmpty()
-        && !globalQmlPluginDefaultPaths->contains(*globalQmlPluginPath))
-        globalEngine->addImportPath(*globalQmlPluginPath);
+    if (!akGlobalStuff->m_globalQmlPluginPath.isEmpty()
+        && !akGlobalStuff->m_globalQmlPluginDefaultPaths.contains(akGlobalStuff->m_globalQmlPluginPath))
+        akGlobalStuff->m_globalEngine->addImportPath(akGlobalStuff->m_globalQmlPluginPath);
 }
 
 QString Ak::qmlPluginPath()
 {
 #ifdef Q_OS_WIN32
-    if (globalQmlPluginPath->isEmpty())
+    if (akGlobalStuff->m_globalQmlPluginPath.isEmpty())
         return QString("%1%2qml").arg(QCoreApplication::applicationDirPath()).arg(QDir::separator());
 #else
-    if (globalQmlPluginPath->isEmpty())
+    if (akGlobalStuff->m_globalQmlPluginPath.isEmpty())
         return QString(QT_INSTALL_QML);
 #endif
 
-    return *globalQmlPluginPath;
+    return akGlobalStuff->m_globalQmlPluginPath;
 }
 
 void Ak::setQmlPluginPath(const QString &qmlPluginPath)
 {
-    if (*globalQmlPluginPath == qmlPluginPath)
+    if (akGlobalStuff->m_globalQmlPluginPath == qmlPluginPath)
         return;
 
-    *globalQmlPluginPath = qmlPluginPath;
+    akGlobalStuff->m_globalQmlPluginPath = qmlPluginPath;
 
-    if (globalEngine) {
-        if (globalQmlPluginDefaultPaths->isEmpty())
-            *globalQmlPluginDefaultPaths = globalEngine->importPathList();
+    if (akGlobalStuff->m_globalEngine) {
+        if (akGlobalStuff->m_globalQmlPluginDefaultPaths.isEmpty())
+            akGlobalStuff->m_globalQmlPluginDefaultPaths = akGlobalStuff->m_globalEngine->importPathList();
         else
-            globalEngine->setImportPathList(*globalQmlPluginDefaultPaths);
+            akGlobalStuff->m_globalEngine->setImportPathList(akGlobalStuff->m_globalQmlPluginDefaultPaths);
 
-        if (!globalQmlPluginPath->isEmpty()
-            && !globalQmlPluginDefaultPaths->contains(*globalQmlPluginPath))
-            globalEngine->addImportPath(*globalQmlPluginPath);
+        if (!akGlobalStuff->m_globalQmlPluginPath.isEmpty()
+            && !akGlobalStuff->m_globalQmlPluginDefaultPaths.contains(akGlobalStuff->m_globalQmlPluginPath))
+            akGlobalStuff->m_globalEngine->addImportPath(akGlobalStuff->m_globalQmlPluginPath);
     }
 }
 

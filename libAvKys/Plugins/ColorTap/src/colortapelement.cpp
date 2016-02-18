@@ -95,7 +95,9 @@ void ColorTapElement::setTable(const QString &table)
     }
 
     this->m_tableName = tableName;
+    this->m_mutex.lock();
     this->m_table = tableImg;
+    this->m_mutex.unlock();
     emit this->tableChanged(this->m_tableName);
 }
 
@@ -106,13 +108,20 @@ void ColorTapElement::resetTable()
 
 AkPacket ColorTapElement::iStream(const AkPacket &packet)
 {
-    if (this->m_table.isNull())
+    this->m_mutex.lock();
+
+    if (this->m_table.isNull()) {
+        this->m_mutex.unlock();
         akSend(packet)
+    }
 
     QImage src = AkUtils::packetToImage(packet);
 
-    if (src.isNull())
+    if (src.isNull()) {
+        this->m_mutex.unlock();
+
         return AkPacket();
+    }
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     int videoArea = src.width() * src.height();
@@ -134,6 +143,8 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
 
         destBits[i] = qRgb(ro, go, bo);
     }
+
+    this->m_mutex.unlock();
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)

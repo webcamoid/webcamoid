@@ -26,7 +26,6 @@
 
 namespace Ak
 {
-    void init(QQmlEngine *engine=NULL);
     qint64 id();
     void setQmlEngine(QQmlEngine *engine);
     QString qmlPluginPath();

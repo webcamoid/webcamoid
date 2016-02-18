@@ -23,6 +23,7 @@
 
 #include <QQmlComponent>
 #include <QQmlContext>
+#include <QMutex>
 #include <ak.h>
 #include <akutils.h>
 
@@ -46,6 +47,7 @@ class ColorTapElement: public AkElement
     private:
         QImage m_table;
         QString m_tableName;
+        QMutex m_mutex;
 
     signals:
         void tableChanged(const QString &table);

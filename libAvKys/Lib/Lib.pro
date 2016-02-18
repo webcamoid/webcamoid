@@ -62,6 +62,8 @@ SOURCES = \
     src/akvideopacket.cpp \
     src/akaudiopacket.cpp
 
+win32: LIBS += -lole32
+
 DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_TARGET}

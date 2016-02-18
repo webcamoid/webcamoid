@@ -33,7 +33,6 @@ class AkQml: public QQuickItem
         AkQml(QQuickItem *parent=NULL);
         ~AkQml();
 
-        Q_INVOKABLE void init() const;
         Q_INVOKABLE qint64 id() const;
 
         Q_INVOKABLE QObject *newFrac() const;

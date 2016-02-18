@@ -85,14 +85,14 @@ QImage ScrollElement::generateNoise(const QSize &size, qreal persent)
     QImage noise = QImage(size, QImage::Format_ARGB32);
     noise.fill(0);
 
-    QRgb *noiseBits = (QRgb *) noise.bits();
-    int noiseArea = size.width() * size.height();
-    int peper = persent * noiseArea;
+    int peper = persent * size.width() * size.height();
 
     for (int i = 0; i < peper; i++) {
         int gray = qrand() % 256;
         int alpha = qrand() % 256;
-        noiseBits[qrand() % noiseArea] = qRgba(gray, gray, gray, alpha);
+        int x = qrand() % noise.width();
+        int y = qrand() % noise.height();
+        noise.setPixel(x, y, qRgba(gray, gray, gray, alpha));
     }
 
     return noise;

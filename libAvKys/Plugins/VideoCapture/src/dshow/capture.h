@@ -133,6 +133,7 @@ class Capture: public QObject
         IBaseFilter *findFilterP(const QString &webcam) const;
         BaseFilterPtr findFilter(const QString &webcam) const;
         MediaTypesList listMediaTypes(const QString &webcam) const;
+        MediaTypesList listMediaTypes(IBaseFilter *filter) const;
         HRESULT isPinConnected(IPin *pPin, BOOL *pResult) const;
         HRESULT isPinDirection(IPin *pPin, PIN_DIRECTION dir, BOOL *pResult) const;
         HRESULT matchPin(IPin *pPin, PIN_DIRECTION direction, BOOL bShouldBeConnected, BOOL *pResult) const;

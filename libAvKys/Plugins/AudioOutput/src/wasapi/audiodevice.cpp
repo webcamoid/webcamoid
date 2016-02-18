@@ -89,9 +89,6 @@ Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatsMap, sampleFormats, (initSampleFormatsMap
 AudioDevice::AudioDevice(QObject *parent):
     QObject(parent)
 {
-    // Initialize the COM library in multithread mode.
-    CoInitializeEx(NULL, COINIT_MULTITHREADED);
-
     this->m_pEnumerator = NULL;
     this->m_pDevice = NULL;
     this->m_pAudioClient = NULL;
@@ -103,9 +100,6 @@ AudioDevice::AudioDevice(QObject *parent):
 AudioDevice::~AudioDevice()
 {
     this->uninit();
-
-    // Close COM library.
-    CoUninitialize();
 }
 
 QString AudioDevice::error() const

@@ -285,8 +285,8 @@ QVariantList Capture::imageControls(const QString &webcam) const
     QVariantList controls;
     IAMVideoProcAmp *pProcAmp = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp)))
-        foreach (VideoProcAmpProperty property, vpapToStr->keys())
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp))) {
+        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
             if (SUCCEEDED(pProcAmp->GetRange(property,
                                              (LONG *) &min,
                                              (LONG *) &max,
@@ -317,6 +317,10 @@ QVariantList Capture::imageControls(const QString &webcam) const
 
                     controls << QVariant(control);
                 }
+        }
+
+        pProcAmp->Release();
+    }
 
     return controls;
 }
@@ -330,7 +334,7 @@ bool Capture::setImageControls(const QString &webcam, const QVariantMap &imageCo
 
     IAMVideoProcAmp *pProcAmp = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp)))
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp))) {
         foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
             QString propertyStr = vpapToStr->value(property);
 
@@ -339,6 +343,9 @@ bool Capture::setImageControls(const QString &webcam, const QVariantMap &imageCo
                               imageControls[propertyStr].toInt(),
                               VideoProcAmp_Flags_Manual);
         }
+
+        pProcAmp->Release();
+    }
 
     emit this->imageControlsChanged(webcam, imageControls);
 
@@ -375,8 +382,8 @@ QVariantList Capture::cameraControls(const QString &webcam) const
     QVariantList controls;
     IAMCameraControl *pCameraControl = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl)))
-        foreach (CameraControlProperty cameraControl, ccToStr->keys())
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl))) {
+        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
             if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
                                                    (LONG *) &min,
                                                    (LONG *) &max,
@@ -399,6 +406,10 @@ QVariantList Capture::cameraControls(const QString &webcam) const
 
                     controls << QVariant(control);
                 }
+        }
+
+        pCameraControl->Release();
+    }
 
     return controls;
 }
@@ -414,7 +425,7 @@ bool Capture::setCameraControls(const QString &webcam, const QVariantMap &camera
 
     IAMCameraControl *pCameraControl = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl)))
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl))) {
         foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
             QString cameraControlStr = ccToStr->value(cameraControl);
 
@@ -423,6 +434,9 @@ bool Capture::setCameraControls(const QString &webcam, const QVariantMap &camera
                                     cameraControls[cameraControlStr].toInt(),
                                     CameraControl_Flags_Manual);
         }
+
+        pCameraControl->Release();
+    }
 
     emit this->cameraControlsChanged(webcam, cameraControls);
 
@@ -611,6 +625,11 @@ MediaTypesList Capture::listMediaTypes(const QString &webcam) const
 {
     BaseFilterPtr filter = this->findFilter(webcam);
 
+    return this->listMediaTypes(filter.data());
+}
+
+MediaTypesList Capture::listMediaTypes(IBaseFilter *filter) const
+{
     if (!filter)
         return MediaTypesList();
 
@@ -825,7 +844,6 @@ AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
         return AkCaps();
 
     *grabber = SampleGrabberPtr(grabberPtr, this->deleteUnknown);
-
     MediaTypesList mediaTypes = this->listMediaTypes(webcam);
 
     if (mediaTypes.isEmpty())
@@ -843,7 +861,6 @@ AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
         return AkCaps();
 
     IBaseFilter *webcamFilter = this->findFilterP(webcam);
-
     hr = (*graph)->AddFilter(webcamFilter, L"Source");
 
     if (FAILED(hr))
@@ -956,7 +973,7 @@ void Capture::changeResolution(IBaseFilter *cameraFilter, const QSize &size) con
         HRESULT hr = pin->QueryInterface(IID_IAMStreamConfig, (void **) &pStreamConfig);
 
         if (FAILED(hr)) {
-            this->safeRelease(&pStreamConfig);
+            pStreamConfig->Release();
 
             continue;
         }
