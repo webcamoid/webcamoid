@@ -51,8 +51,10 @@ SOURCES += \
     src/colortapelement.cpp
 
 lupdate_only {
-    SOURCES = share/qml/*.qml
+    SOURCES = $$files(share/qml/*.qml)
 }
+
+TRANSLATIONS = $$files(share/ts/*.ts)
 
 DESTDIR = $${PWD}
 

@@ -117,7 +117,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="67"/>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ninguno</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="78"/>

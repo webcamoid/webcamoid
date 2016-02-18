@@ -260,7 +260,12 @@ bool Capture::setSize(const QString &webcam, const QSize &size)
 
 bool Capture::resetSize(const QString &webcam)
 {
-    return this->setSize(webcam, this->availableSizes(webcam)[0].toSize());
+    QVariantList availableSizes = this->availableSizes(webcam);
+
+    if (availableSizes.isEmpty())
+        return true;
+
+    return this->setSize(webcam, availableSizes.first().toSize());
 }
 
 QVariantList Capture::imageControls(const QString &webcam) const

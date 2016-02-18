@@ -41,13 +41,6 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
-compiletr.input = TRANSLATIONS
-compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
-compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
-compiletr.CONFIG += no_link
-QMAKE_EXTRA_COMPILERS += compiletr
-PRE_TARGETDEPS += compiler_compiletr_make_all
-
 CONFIG += qt
 
 HEADERS = \
@@ -91,9 +84,6 @@ TARGET = $${COMMONS_TARGET}
 !unix: RC_ICONS = share/icons/hicolor/256x256/webcamoid.ico
 
 TEMPLATE = app
-
-CODECFORTR = UTF-8
-CODECFORSRC = UTF-8
 
 # http://www.loc.gov/standards/iso639-2/php/code_list.php
 
