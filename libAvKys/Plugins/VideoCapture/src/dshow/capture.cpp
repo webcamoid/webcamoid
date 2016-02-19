@@ -306,6 +306,9 @@ QVariantList Capture::imageControls(const QString &webcam) const
                     else
                         type = "integer";
 
+                    if (value == defaultValue)
+                        defaultValue = (min + max) / 2;
+
                     control << vpapToStr->value(property)
                             << type
                             << min
@@ -358,7 +361,6 @@ bool Capture::resetImageControls(const QString &webcam) const
 
     foreach (QVariant control, this->imageControls(webcam)) {
         QVariantList params = control.toList();
-
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -655,13 +657,20 @@ MediaTypesList Capture::listMediaTypes(IBaseFilter *filter) const
                     && mediaType->formattype == FORMAT_VideoInfo
                     && mediaType->cbFormat >= sizeof(VIDEOINFOHEADER)
                     && mediaType->pbFormat != NULL
-                    && guidToStr->contains(mediaType->subtype))
+                    && guidToStr->contains(mediaType->subtype)) {
                     mediaTypes << MediaTypePtr(mediaType, this->deleteMediaType);
+                } else {
+                    this->deleteMediaType(mediaType);
+                }
 
             pEnum->Release();
         }
 
+        if (pInfo.pFilter)
+            pInfo.pFilter->Release();
+
         pin->Release();
+        pin = NULL;
     }
 
     pEnumPins->Release();
