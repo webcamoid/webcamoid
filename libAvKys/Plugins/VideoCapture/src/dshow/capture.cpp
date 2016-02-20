@@ -121,6 +121,7 @@ Capture::Capture(): QObject()
 {
     this->m_id = -1;
     this->m_ioMethod = IoMethodGrabSample;
+    this->m_graph = NULL;
 
     QObject::connect(&this->m_frameGrabber,
                      &FrameGrabber::frameReady,
@@ -158,18 +159,7 @@ bool Capture::isCompressed() const
 
 AkCaps Capture::caps() const
 {
-    if (this->m_caps)
-        return this->m_caps;
-
-    GraphBuilderPtr graph;
-    SampleGrabberPtr grabber;
-
-    AkCaps caps = this->prepare(&graph, &grabber, this->m_device);
-
-    if (caps)
-        return caps;
-
-    return AkCaps();
+    return this->caps(this->listMediaTypes(this->m_device));
 }
 
 QString Capture::description(const QString &webcam) const
@@ -516,6 +506,26 @@ AkPacket Capture::readFrame()
     return packet;
 }
 
+AkCaps Capture::caps(const MediaTypesList &mediaTypes) const
+{
+    if (mediaTypes.isEmpty())
+        return AkCaps();
+
+    VIDEOINFOHEADER *videoInfoHeader = (VIDEOINFOHEADER *) mediaTypes.first()->pbFormat;
+
+    int fps = 1.0e8 / videoInfoHeader->AvgTimePerFrame;
+
+    AkVideoCaps caps;
+    caps.isValid() = true;
+    caps.format() = guidToStr->value(mediaTypes.first()->subtype);
+    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
+    caps.width() = (int) videoInfoHeader->bmiHeader.biWidth;
+    caps.height() = (int) videoInfoHeader->bmiHeader.biHeight;
+    caps.fps() = AkFrac(fps, 1);
+
+    return caps.toCaps();
+}
+
 HRESULT Capture::enumerateCameras(IEnumMoniker **ppEnum) const
 {
     // Create the System Device Enumerator.
@@ -632,48 +642,29 @@ MediaTypesList Capture::listMediaTypes(const QString &webcam) const
 
 MediaTypesList Capture::listMediaTypes(IBaseFilter *filter) const
 {
-    if (!filter)
-        return MediaTypesList();
-
+    PinList pins = this->enumPins(filter, PINDIR_OUTPUT);
     MediaTypesList mediaTypes;
-    IEnumPins *pEnumPins = NULL;
-    IPin *pin = NULL;
 
-    filter->EnumPins(&pEnumPins);
+    foreach (PinPtr pin, pins) {
+        IEnumMediaTypes *pEnum = NULL;
+        pin->EnumMediaTypes(&pEnum);
 
-    while (pEnumPins->Next(1, &pin, NULL) == S_OK) {
-        PIN_INFO pInfo;
-        pin->QueryPinInfo(&pInfo);
+        AM_MEDIA_TYPE *mediaType = NULL;
 
-        if (pInfo.dir == PINDIR_OUTPUT) {
-            IEnumMediaTypes *pEnum = NULL;
-            pin->EnumMediaTypes(&pEnum);
+        while (pEnum->Next(1, &mediaType, NULL) == S_OK)
+            if (mediaType->bFixedSizeSamples == TRUE
+                && mediaType->lSampleSize != 0
+                && mediaType->formattype == FORMAT_VideoInfo
+                && mediaType->cbFormat >= sizeof(VIDEOINFOHEADER)
+                && mediaType->pbFormat != NULL
+                && guidToStr->contains(mediaType->subtype)) {
+                mediaTypes << MediaTypePtr(mediaType, this->deleteMediaType);
+            } else {
+                this->deleteMediaType(mediaType);
+            }
 
-            AM_MEDIA_TYPE *mediaType = NULL;
-
-            while (pEnum->Next(1, &mediaType, NULL) == S_OK)
-                if (mediaType->bFixedSizeSamples == TRUE
-                    && mediaType->lSampleSize != 0
-                    && mediaType->formattype == FORMAT_VideoInfo
-                    && mediaType->cbFormat >= sizeof(VIDEOINFOHEADER)
-                    && mediaType->pbFormat != NULL
-                    && guidToStr->contains(mediaType->subtype)) {
-                    mediaTypes << MediaTypePtr(mediaType, this->deleteMediaType);
-                } else {
-                    this->deleteMediaType(mediaType);
-                }
-
-            pEnum->Release();
-        }
-
-        if (pInfo.pFilter)
-            pInfo.pFilter->Release();
-
-        pin->Release();
-        pin = NULL;
+        pEnum->Release();
     }
-
-    pEnumPins->Release();
 
     return mediaTypes;
 }
@@ -758,104 +749,11 @@ bool Capture::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilt
     return true;
 }
 
-AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const QString &webcam) const
-{
-    // Create the pipeline.
-    IGraphBuilder *graphPtr = NULL;
-
-    HRESULT hr = CoCreateInstance(CLSID_FilterGraph,
-                                  NULL,
-                                  CLSCTX_INPROC_SERVER,
-                                  IID_IGraphBuilder,
-                                  (void **) &graphPtr);
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    *graph = GraphBuilderPtr(graphPtr, this->deleteUnknown);
-
-    // Create the Sample Grabber filter.
-    IBaseFilter *grabberFilter = NULL;
-
-    hr = CoCreateInstance(CLSID_SampleGrabber,
-                          NULL,
-                          CLSCTX_INPROC_SERVER,
-                          IID_IBaseFilter,
-                          (void **) &grabberFilter);
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    hr = graphPtr->AddFilter(grabberFilter, L"Grabber");
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    ISampleGrabber *grabberPtr = NULL;
-
-    hr = grabberFilter->QueryInterface(IID_ISampleGrabber,
-                                       (void **) &grabberPtr);
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    *grabber = SampleGrabberPtr(grabberPtr, this->deleteUnknown);
-    MediaTypesList mediaTypes = this->listMediaTypes(webcam);
-
-    if (mediaTypes.isEmpty())
-        return AkCaps();
-
-    AM_MEDIA_TYPE mediaType;
-    ZeroMemory(&mediaType, sizeof(mediaType));
-
-    mediaType.majortype = MEDIATYPE_Video;
-    mediaType.subtype = mediaTypes[0]->subtype; //MEDIASUBTYPE_RGB32;
-
-    hr = (*grabber)->SetMediaType(&mediaType);
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    // Create the webcam filter.
-    IBaseFilter *webcamFilter = this->findFilterP(webcam);
-    hr = graphPtr->AddFilter(webcamFilter, L"Source");
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    this->changeResolution(webcamFilter, this->size(webcam));
-
-    if (!this->connectFilters(graphPtr, webcamFilter, grabberFilter))
-        return AkCaps();
-
-    AM_MEDIA_TYPE connectedMediaType;
-    ZeroMemory(&connectedMediaType, sizeof(connectedMediaType));
-
-    hr = (*grabber)->GetConnectedMediaType(&connectedMediaType);
-
-    if (FAILED(hr)
-        || connectedMediaType.majortype != MEDIATYPE_Video
-        || connectedMediaType.cbFormat < sizeof(VIDEOINFOHEADER)
-        || connectedMediaType.pbFormat == NULL)
-        return AkCaps();
-
-    VIDEOINFOHEADER *videoInfoHeader = (VIDEOINFOHEADER *) connectedMediaType.pbFormat;
-
-    int fps = 1.0e7 / videoInfoHeader->AvgTimePerFrame;
-
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = guidToStr->value(connectedMediaType.subtype);
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = (int) videoInfoHeader->bmiHeader.biWidth;
-    caps.height() = (int) videoInfoHeader->bmiHeader.biHeight;
-    caps.fps() = AkFrac(fps, 1);
-
-    return caps.toCaps();
-}
-
 PinList Capture::enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const
 {
+    if (!filter)
+        return PinList();
+
     PinList pinList;
     IEnumPins *enumPins = NULL;
 
@@ -1033,52 +931,140 @@ void Capture::deletePin(IPin *pin)
 
 bool Capture::init()
 {
-    AkCaps caps = this->prepare(&this->m_graph, &this->m_grabber, this->m_device);
-
-    if (!caps)
+    // Create the pipeline.
+    if (FAILED(CoCreateInstance(CLSID_FilterGraph,
+                                NULL,
+                                CLSCTX_INPROC_SERVER,
+                                IID_IGraphBuilder,
+                                (void **) &this->m_graph)))
         return false;
 
-    HRESULT hr = this->m_grabber->SetOneShot(FALSE);
+    // Create the webcam filter.
+    IBaseFilter *webcamFilter = this->findFilterP(this->m_device);
 
-    if (FAILED(hr))
+    if (!webcamFilter) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
         return false;
+    }
 
-    hr = this->m_grabber->SetBufferSamples(TRUE);
+    this->changeResolution(webcamFilter, this->size(this->m_device));
 
-    if (FAILED(hr))
+    if (FAILED(this->m_graph->AddFilter(webcamFilter, L"Source"))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
         return false;
+    }
+
+    // Create the Sample Grabber filter.
+    IBaseFilter *grabberFilter = NULL;
+
+    if (FAILED(CoCreateInstance(CLSID_SampleGrabber,
+                                NULL,
+                                CLSCTX_INPROC_SERVER,
+                                IID_IBaseFilter,
+                                (void **) &grabberFilter))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    if (FAILED(this->m_graph->AddFilter(grabberFilter, L"Grabber"))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    ISampleGrabber *grabberPtr = NULL;
+
+    if (FAILED(grabberFilter->QueryInterface(IID_ISampleGrabber,
+                                             (void **) &grabberPtr))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    MediaTypesList mediaTypes = this->listMediaTypes(webcamFilter);
+
+    if (mediaTypes.isEmpty()) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    if (FAILED(grabberPtr->SetMediaType(mediaTypes.first().data()))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    if (FAILED(grabberPtr->SetOneShot(FALSE))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    HRESULT hr = grabberPtr->SetBufferSamples(TRUE);
+
+    if (FAILED(hr)) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
 
     if (this->m_ioMethod != IoMethodDirectRead) {
         int type = this->m_ioMethod == IoMethodGrabSample? 0: 1;
-        hr = this->m_grabber->SetCallback(&this->m_frameGrabber, type);
+        hr = grabberPtr->SetCallback(&this->m_frameGrabber, type);
     }
 
-    if (FAILED(hr))
+    this->m_grabber = SampleGrabberPtr(grabberPtr, this->deleteUnknown);
+
+    if (!this->connectFilters(this->m_graph, webcamFilter, grabberFilter)) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
         return false;
+    }
 
     IMediaControl *control = NULL;
 
-    hr = this->m_graph->QueryInterface(IID_IMediaControl,
-                                       (void **) &control);
+    if (FAILED(this->m_graph->QueryInterface(IID_IMediaControl,
+                                             (void **) &control))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
 
-    if (FAILED(hr))
         return false;
+    }
 
-    hr = control->Run();
+    if (FAILED(control->Run())) {
+        control->Release();
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
     control->Release();
 
-    if (FAILED(hr))
-        return false;
-
     this->m_id = Ak::id();
-    this->m_caps = caps;
-    this->m_timeBase = AkFrac(caps.property("fps").toString()).invert();
+    this->m_caps = this->caps(mediaTypes);
+    this->m_timeBase = AkFrac(this->m_caps.property("fps").toString()).invert();
 
     return true;
 }
 
 void Capture::uninit()
 {
+
     IMediaControl *control = NULL;
 
     if (SUCCEEDED(this->m_graph->QueryInterface(IID_IMediaControl,
@@ -1088,7 +1074,8 @@ void Capture::uninit()
     }
 
     this->m_grabber.clear();
-    this->m_graph.clear();
+    this->m_graph->Release();
+    this->m_graph = NULL;
 }
 
 void Capture::setDevice(const QString &device)

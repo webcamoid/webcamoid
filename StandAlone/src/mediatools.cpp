@@ -94,6 +94,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     AkElement::setRecursiveSearch(recursive);
 
     // Set the paths for plugins search.
+    QStringList defaultPluginPaths = AkElement::searchPaths();
     int size = config.beginReadArray("paths");
 
     for (int i = 0; i < size; i++) {
@@ -107,7 +108,10 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
         }
 #endif
 
-        AkElement::addSearchPath(path);
+        path = QDir::toNativeSeparators(path);
+
+        if (!defaultPluginPaths.contains(path))
+            AkElement::addSearchPath(path);
     }
 
     if (environment.contains("AKCONFIG_PLUGINPATHS")) {
@@ -122,6 +126,8 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                 path = QDir::cleanPath(path);
             }
 #endif
+
+            path = QDir::toNativeSeparators(path);
 
             if (!defaultPluginPaths.contains(path))
                 AkElement::addSearchPath(path);

@@ -31,7 +31,6 @@
 #include "framegrabber.h"
 
 DEFINE_GUID(CLSID_SampleGrabber, 0xc1f400a0, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
-DEFINE_GUID(CLSID_NullRenderer, 0xc1f400a4, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
 static const GUID GUID_DEVINTERFACE_USB_DEVICE = {0xA5DCBF10, 0x6530, 0x11D2, {0x90, 0x1F, 0x00, 0xC0, 0x4F, 0xB9, 0x51, 0xED}};
 
 Q_CORE_EXPORT HINSTANCE qWinAppInst();
@@ -117,7 +116,7 @@ class Capture: public QObject
         AkFrac m_timeBase;
         IoMethod m_ioMethod;
         QMap<QString, QSize> m_resolution;
-        GraphBuilderPtr m_graph;
+        IGraphBuilder *m_graph;
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
         qreal m_curTime;
@@ -125,6 +124,7 @@ class Capture: public QObject
         QMutex m_mutex;
         QWaitCondition m_waitCondition;
 
+        AkCaps caps(const MediaTypesList &mediaTypes) const;
         HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
         MonikersMap listMonikers() const;
         MonikerPtr findMoniker(const QString &webcam) const;
@@ -135,7 +135,6 @@ class Capture: public QObject
         bool isPinConnected(IPin *pPin, bool *ok=NULL) const;
         PinPtr findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const;
         bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
-        AkCaps prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const QString &webcam) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
         void changeResolution(IBaseFilter *cameraFilter, const QSize &size) const;
         bool createDeviceNotifier();
@@ -143,32 +142,6 @@ class Capture: public QObject
         static void deleteUnknown(IUnknown *unknown);
         static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
         static void deletePin(IPin *pin);
-
-        inline QString fourCC(const MediaTypePtr &mediaType)
-        {
-            QString fourCC;
-            quint32 data = mediaType->subtype.Data1;
-
-            for (int i = 0; i < 4; i++) {
-                fourCC += QChar(data & 0xff);
-                data >>= 8;
-            }
-
-            return fourCC;
-        }
-
-        inline QString fourCC(REFGUID guid)
-        {
-            QString fourCC;
-            quint32 data = guid.Data1;
-
-            for (int i = 0; i < 4; i++) {
-                fourCC += QChar(data & 0xff);
-                data >>= 8;
-            }
-
-            return fourCC;
-        }
 
     signals:
         void webcamsChanged(const QStringList &webcams) const;
