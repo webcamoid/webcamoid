@@ -37,7 +37,6 @@ static const GUID GUID_DEVINTERFACE_USB_DEVICE = {0xA5DCBF10, 0x6530, 0x11D2, {0
 Q_CORE_EXPORT HINSTANCE qWinAppInst();
 
 typedef QSharedPointer<IGraphBuilder> GraphBuilderPtr;
-typedef QSharedPointer<IMediaControl> MediaControlPtr;
 typedef QSharedPointer<IBaseFilter> BaseFilterPtr;
 typedef QSharedPointer<ISampleGrabber> SampleGrabberPtr;
 typedef QSharedPointer<IAMStreamConfig> StreamConfigPtr;
@@ -121,7 +120,6 @@ class Capture: public QObject
         GraphBuilderPtr m_graph;
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
-        MediaControlPtr m_control;
         qreal m_curTime;
         QByteArray m_curBuffer;
         QMutex m_mutex;
@@ -134,13 +132,9 @@ class Capture: public QObject
         BaseFilterPtr findFilter(const QString &webcam) const;
         MediaTypesList listMediaTypes(const QString &webcam) const;
         MediaTypesList listMediaTypes(IBaseFilter *filter) const;
-        HRESULT isPinConnected(IPin *pPin, BOOL *pResult) const;
-        HRESULT isPinDirection(IPin *pPin, PIN_DIRECTION dir, BOOL *pResult) const;
-        HRESULT matchPin(IPin *pPin, PIN_DIRECTION direction, BOOL bShouldBeConnected, BOOL *pResult) const;
-        HRESULT findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin) const;
-        HRESULT connectFilters(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest) const;
-        HRESULT connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IPin *pIn) const;
-        HRESULT connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
+        bool isPinConnected(IPin *pPin, bool *ok=NULL) const;
+        PinPtr findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const;
+        bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
         AkCaps prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const QString &webcam) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
         void changeResolution(IBaseFilter *cameraFilter, const QSize &size) const;
@@ -148,6 +142,7 @@ class Capture: public QObject
         static LRESULT CALLBACK deviceEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
         static void deleteUnknown(IUnknown *unknown);
         static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
+        static void deletePin(IPin *pin);
 
         inline QString fourCC(const MediaTypePtr &mediaType)
         {
@@ -173,14 +168,6 @@ class Capture: public QObject
             }
 
             return fourCC;
-        }
-
-        template <class T> void safeRelease(T **ppT) const
-        {
-            if (*ppT) {
-                (*ppT)->Release();
-                *ppT = NULL;
-            }
         }
 
     signals:

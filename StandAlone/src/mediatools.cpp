@@ -22,6 +22,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QStandardPaths>
+#include <QProcessEnvironment>
 #include <QFileDialog>
 
 #include "mediatools.h"
@@ -58,12 +59,18 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
     config.beginGroup("PluginConfigs");
 
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+
 #ifdef Q_OS_WIN32
     QDir applicationDir(QCoreApplication::applicationDirPath());
 #endif
 
     QString qmlPluginPath = config.value("qmlPluginPath", Ak::qmlPluginPath())
                                   .toString();
+
+    if (environment.contains("AKCONFIG_QMLPLUGINPATH"))
+        qmlPluginPath = environment.value("AKCONFIG_QMLPLUGINPATH",
+                                          qmlPluginPath);
 
 #ifdef Q_OS_WIN32
     if (QDir::isRelativePath(qmlPluginPath)) {
@@ -73,8 +80,20 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 #endif
 
     Ak::setQmlPluginPath(qmlPluginPath);
-    AkElement::setRecursiveSearch(config.value("recursive", false).toBool());
 
+    // Set recursive plugin path search.
+    bool recursive = config.value("recursive", false).toBool();
+
+    if (environment.contains("AKCONFIG_RECURSIVE")) {
+        QString isRecursive = environment.value("AKCONFIG_RECURSIVE",
+                                                recursive? "true": "false")
+                                         .toLower();
+        recursive = isRecursive == "true"? true: false;
+    }
+
+    AkElement::setRecursiveSearch(recursive);
+
+    // Set the paths for plugins search.
     int size = config.beginReadArray("paths");
 
     for (int i = 0; i < size; i++) {
@@ -89,6 +108,24 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 #endif
 
         AkElement::addSearchPath(path);
+    }
+
+    if (environment.contains("AKCONFIG_PLUGINPATHS")) {
+        QStringList defaultPluginPaths = AkElement::searchPaths();
+        QStringList pluginPaths = environment.value("AKCONFIG_PLUGINPATHS")
+                                             .split(';');
+
+        foreach (QString path, pluginPaths) {
+#ifdef Q_OS_WIN32
+            if (QDir::isRelativePath(path)) {
+                path = applicationDir.absoluteFilePath(path);
+                path = QDir::cleanPath(path);
+            }
+#endif
+
+            if (!defaultPluginPaths.contains(path))
+                AkElement::addSearchPath(path);
+        }
     }
 
     config.endArray();

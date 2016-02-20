@@ -678,142 +678,89 @@ MediaTypesList Capture::listMediaTypes(IBaseFilter *filter) const
     return mediaTypes;
 }
 
-HRESULT Capture::isPinConnected(IPin *pPin, WINBOOL *pResult) const
+bool Capture::isPinConnected(IPin *pPin, bool *ok) const
 {
     IPin *pTmp = NULL;
     HRESULT hr = pPin->ConnectedTo(&pTmp);
 
-    if (SUCCEEDED(hr))
-        *pResult = TRUE;
-    else if (hr == VFW_E_NOT_CONNECTED) {
-        // The pin is not connected. This is not an error for our purposes.
-        *pResult = FALSE;
-        hr = S_OK;
-    }
+    if (ok)
+        *ok = true;
 
-    this->safeRelease(&pTmp);
-
-    return hr;
-}
-
-HRESULT Capture::isPinDirection(IPin *pPin, PIN_DIRECTION dir, WINBOOL *pResult) const
-{
-    PIN_DIRECTION pinDir;
-    HRESULT hr = pPin->QueryDirection(&pinDir);
-
-    if (SUCCEEDED(hr))
-        *pResult = (pinDir == dir);
-
-    return hr;
-}
-
-HRESULT Capture::matchPin(IPin *pPin, PIN_DIRECTION direction, WINBOOL bShouldBeConnected, WINBOOL *pResult) const
-{
-    BOOL bMatch = FALSE;
-    BOOL bIsConnected = FALSE;
-
-    HRESULT hr = this->isPinConnected(pPin, &bIsConnected);
-
-    if (SUCCEEDED(hr)
-        && bIsConnected == bShouldBeConnected)
-        hr = this->isPinDirection(pPin, direction, &bMatch);
-
-    if (SUCCEEDED(hr) && pResult)
-        *pResult = bMatch;
-
-    return hr;
-}
-
-HRESULT Capture::findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPin **ppPin) const
-{
-    IEnumPins *pEnum = NULL;
-    IPin *pPin = NULL;
-    BOOL bFound = FALSE;
-
-    HRESULT hr = pFilter->EnumPins(&pEnum);
+    if (hr == VFW_E_NOT_CONNECTED)
+        return false;
 
     if (FAILED(hr)) {
-        this->safeRelease(&pPin);
-        this->safeRelease(&pEnum);
+        if (ok)
+            *ok = false;
 
-        return hr;
+        return false;
     }
 
-    while (S_OK == pEnum->Next(1, &pPin, NULL)) {
-        hr = this->matchPin(pPin, PinDir, FALSE, &bFound);
+    if (!pTmp)
+        return false;
 
-        if (FAILED(hr)) {
-            this->safeRelease(&pPin);
-            this->safeRelease(&pEnum);
+    pTmp->Release();
 
-            return hr;
-        }
-
-        if (bFound) {
-            *ppPin = pPin;
-            (*ppPin)->AddRef();
-
-            break;
-        }
-
-        this->safeRelease(&pPin);
-    }
-
-    if (!bFound)
-        hr = VFW_E_NOT_FOUND;
-
-    return hr;
+    return true;
 }
 
-HRESULT Capture::connectFilters(IGraphBuilder *pGraph, IPin *pOut, IBaseFilter *pDest) const
+PinPtr Capture::findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const
 {
-    IPin *pIn = NULL;
+    IEnumPins *pEnum = NULL;
 
-    // Find an input pin on the downstream filter.
-    HRESULT hr = this->findUnconnectedPin(pDest, PINDIR_INPUT, &pIn);
+    if (FAILED(pFilter->EnumPins(&pEnum)))
+        return PinPtr();
 
-    if (SUCCEEDED(hr)) {
-        // Try to connect them.
-        hr = pGraph->Connect(pOut, pIn);
-        pIn->Release();
+    PinPtr matchedPin;
+    IPin *pPin = NULL;
+
+    while (pEnum->Next(1, &pPin, NULL) == S_OK) {
+        PIN_DIRECTION pinDir;
+
+        if (FAILED(pPin->QueryDirection(&pinDir))
+            || pinDir != PinDir)
+            continue;
+
+        bool ok;
+        bool connected = this->isPinConnected(pPin, &ok);
+
+        if (!ok || connected)
+            continue;
+
+        matchedPin = PinPtr(pPin, this->deletePin);
+        pPin->AddRef();
+
+        break;
     }
 
-    return hr;
+    pEnum->Release();
+
+    return matchedPin;
 }
 
-HRESULT Capture::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IPin *pIn) const
+bool Capture::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const
 {
-    IPin *pOut = NULL;
+    // Find source pin.
+    PinPtr srcPin = this->findUnconnectedPin(pSrc, PINDIR_OUTPUT);
 
-    // Find an output pin on the upstream filter.
-    HRESULT hr = this->findUnconnectedPin(pSrc, PINDIR_OUTPUT, &pOut);
+    if (!srcPin)
+        return false;
 
-    if (SUCCEEDED(hr)) {
-        // Try to connect them.
-        hr = pGraph->Connect(pOut, pIn);
-        pOut->Release();
-    }
+    // Find dest pin.
+    PinPtr dstPin = this->findUnconnectedPin(pDest, PINDIR_INPUT);
 
-    return hr;
-}
+    if (!dstPin)
+        return false;
 
-HRESULT Capture::connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const
-{
-    IPin *pOut = NULL;
+    if (FAILED(pGraph->Connect(srcPin.data(), dstPin.data())))
+        return false;
 
-    // Find an output pin on the first filter.
-    HRESULT hr = this->findUnconnectedPin(pSrc, PINDIR_OUTPUT, &pOut);
-
-    if (SUCCEEDED(hr)) {
-        hr = this->connectFilters(pGraph, pOut, pDest);
-        pOut->Release();
-    }
-
-    return hr;
+    return true;
 }
 
 AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const QString &webcam) const
 {
+    // Create the pipeline.
     IGraphBuilder *graphPtr = NULL;
 
     HRESULT hr = CoCreateInstance(CLSID_FilterGraph,
@@ -839,7 +786,7 @@ AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
     if (FAILED(hr))
         return AkCaps();
 
-    hr = (*graph)->AddFilter(grabberFilter, L"Grabber");
+    hr = graphPtr->AddFilter(grabberFilter, L"Grabber");
 
     if (FAILED(hr))
         return AkCaps();
@@ -869,55 +816,16 @@ AkCaps Capture::prepare(GraphBuilderPtr *graph, SampleGrabberPtr *grabber, const
     if (FAILED(hr))
         return AkCaps();
 
+    // Create the webcam filter.
     IBaseFilter *webcamFilter = this->findFilterP(webcam);
-    hr = (*graph)->AddFilter(webcamFilter, L"Source");
+    hr = graphPtr->AddFilter(webcamFilter, L"Source");
 
     if (FAILED(hr))
         return AkCaps();
 
     this->changeResolution(webcamFilter, this->size(webcam));
 
-    IEnumPins *pEnum = NULL;
-
-    hr = webcamFilter->EnumPins(&pEnum);
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    IPin *pPin = NULL;
-
-    while (pEnum->Next(1, &pPin, NULL) == S_OK) {
-        hr = this->connectFilters((*graph).data(), pPin, grabberFilter);
-        this->safeRelease(&pPin);
-
-        if (SUCCEEDED(hr))
-            break;
-    }
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    IBaseFilter *nullFilter = NULL;
-
-    hr = CoCreateInstance(CLSID_NullRenderer,
-                          NULL,
-                          CLSCTX_INPROC_SERVER,
-                          IID_IBaseFilter,
-                          (void **) &nullFilter);
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    hr = (*graph)->AddFilter(nullFilter, L"NullFilter");
-
-    if (FAILED(hr))
-        return AkCaps();
-
-    hr = this->connectFilters((*graph).data(),
-                              grabberFilter,
-                              nullFilter);
-
-    if (FAILED(hr))
+    if (!this->connectFilters(graphPtr, webcamFilter, grabberFilter))
         return AkCaps();
 
     AM_MEDIA_TYPE connectedMediaType;
@@ -964,11 +872,12 @@ PinList Capture::enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const
                 continue;
             }
 
-            this->safeRelease(&pin);
+            pin->Release();
+            pin = NULL;
         }
     }
 
-    this->safeRelease(&enumPins);
+    enumPins->Release();
 
     return pinList;
 }
@@ -1117,6 +1026,11 @@ void Capture::deleteMediaType(AM_MEDIA_TYPE *mediaType)
     CoTaskMemFree(mediaType);
 }
 
+void Capture::deletePin(IPin *pin)
+{
+    pin->Release();
+}
+
 bool Capture::init()
 {
     AkCaps caps = this->prepare(&this->m_graph, &this->m_grabber, this->m_device);
@@ -1150,9 +1064,8 @@ bool Capture::init()
     if (FAILED(hr))
         return false;
 
-    this->m_control = MediaControlPtr(control, this->deleteUnknown);
-
-    hr = this->m_control->Run();
+    hr = control->Run();
+    control->Release();
 
     if (FAILED(hr))
         return false;
@@ -1166,11 +1079,15 @@ bool Capture::init()
 
 void Capture::uninit()
 {
-    if (this->m_control)
-        this->m_control->Stop();
+    IMediaControl *control = NULL;
+
+    if (SUCCEEDED(this->m_graph->QueryInterface(IID_IMediaControl,
+                                                (void **) &control))) {
+        control->StopWhenReady();
+        control->Release();
+    }
 
     this->m_grabber.clear();
-    this->m_control.clear();
     this->m_graph.clear();
 }
 
