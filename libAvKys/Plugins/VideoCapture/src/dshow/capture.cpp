@@ -1035,6 +1035,35 @@ bool Capture::init()
         return false;
     }
 
+    // Create null filter.
+    IBaseFilter *nullFilter = NULL;
+
+    if (FAILED(CoCreateInstance(CLSID_NullRenderer,
+                                NULL,
+                                CLSCTX_INPROC_SERVER,
+                                IID_IBaseFilter,
+                                (void **) &nullFilter))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    if (FAILED(this->m_graph->AddFilter(nullFilter, L"NullFilter"))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    if (!this->connectFilters(this->m_graph, grabberFilter, nullFilter)) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    // Run the pipeline
     IMediaControl *control = NULL;
 
     if (FAILED(this->m_graph->QueryInterface(IID_IMediaControl,
@@ -1064,12 +1093,11 @@ bool Capture::init()
 
 void Capture::uninit()
 {
-
     IMediaControl *control = NULL;
 
     if (SUCCEEDED(this->m_graph->QueryInterface(IID_IMediaControl,
                                                 (void **) &control))) {
-        control->StopWhenReady();
+        control->Stop();
         control->Release();
     }
 
