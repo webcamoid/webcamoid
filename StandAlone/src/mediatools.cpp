@@ -1398,6 +1398,18 @@ void MediaTools::loadConfigs()
 
     config.endArray();
     config.endGroup();
+
+    config.beginGroup("RecordConfigs");
+
+#ifdef USE_GSTREAMER
+    QString defaultRecordingFormat("webmmux");
+#else
+    QString defaultRecordingFormat("webm");
+#endif
+
+    this->setCurRecordingFormat(config.value("recordingFormat", defaultRecordingFormat).toString());
+
+    config.endGroup();
 }
 
 void MediaTools::saveConfigs()
@@ -1497,6 +1509,10 @@ void MediaTools::saveConfigs()
     }
 
     config.endArray();
+    config.endGroup();
+
+    config.beginGroup("RecordConfigs");
+    config.setValue("recordingFormat", this->curRecordingFormat());
     config.endGroup();
 }
 

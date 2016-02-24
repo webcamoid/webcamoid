@@ -78,8 +78,7 @@ ColumnLayout {
             if (recording) {
                 lblRecordLabel.text = qsTr("Stop recording video")
                 imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-stop.svg"
-            }
-            else {
+            } else {
                 lblRecordLabel.text = qsTr("Start recording video")
                 imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-start.svg"
             }
@@ -180,8 +179,8 @@ ColumnLayout {
                     var fileUrl = Webcamoid.saveFileDialog(qsTr("Save video as..."),
                                              recRecordConfig.makeFileName(),
                                              Webcamoid.standardLocations("movies")[0],
-                                             "." + defaultSuffix(),
-                                             filters.join(";;"))
+                                             "." + recRecordConfig.defaultSuffix(),
+                                             recRecordConfig.makeDefaultFilter())
 
                     if (fileUrl !== "")
                         Webcamoid.startRecording(fileUrl)

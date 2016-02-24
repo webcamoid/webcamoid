@@ -28,7 +28,44 @@ Rectangle {
     width: 200
     height: 400
 
-    function updateRecordingFormatList() {
+    function sort(model, lo, hi)
+    {
+        if (lo >= hi)
+            return
+
+        var pivot = (lo + hi) >> 1
+        var pivotDesc = model.get(pivot).description.toLowerCase()
+        var max = hi
+
+        for (var i = lo; i < pivot; i++)
+            if (model.get(i).description.toLowerCase() > pivotDesc) {
+                model.move(i, hi - 1, 1)
+                pivot--
+                max--
+                i--
+            }
+
+        for (var j = pivot + 1; j < max; j++)
+            if (model.get(j).description.toLowerCase() < pivotDesc) {
+                model.move(j, lo, 1)
+                pivot++
+            }
+
+        sort(model, lo, pivot)
+        sort(model, pivot + 1, hi)
+    }
+
+    function indexOfFormat(format)
+    {
+        for (var i = 0; i < lsvRecordingFormatList.model.count; i++)
+            if (lsvRecordingFormatList.model.get(i).format == format)
+                return i
+
+        return -1
+    }
+
+    function updateRecordingFormatList()
+    {
         var curRecordingFormat = Webcamoid.curRecordingFormat
         var formats = Webcamoid.recordingFormats
         lsvRecordingFormatList.model.clear()
@@ -45,14 +82,16 @@ Rectangle {
                 description: Webcamoid.recordingFormatDescription(formats[format])})
         }
 
-        lsvRecordingFormatList.currentIndex = formats.indexOf(Webcamoid.curRecordingFormat)
+        sort(lsvRecordingFormatList.model, 0, lsvRecordingFormatList.model.count)
+
+        lsvRecordingFormatList.currentIndex = indexOfFormat(Webcamoid.curRecordingFormat)
     }
 
     Component.onCompleted: recRecordBar.updateRecordingFormatList()
 
     Connections {
         target: Webcamoid
-        onCurRecordingFormatChanged: lsvRecordingFormatList.currentIndex = Webcamoid.recordingFormats.indexOf(curRecordingFormat)
+        onCurRecordingFormatChanged: lsvRecordingFormatList.currentIndex = recRecordBar.indexOfFormat(curRecordingFormat)
     }
 
     TextField {

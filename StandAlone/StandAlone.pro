@@ -27,6 +27,8 @@ exists(commons.pri) {
     }
 }
 
+!isEmpty(USE_GSTREAMER): DEFINES += USE_GSTREAMER
+
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
     DOCSOURCES += ../$${COMMONS_APPNAME}.qdocconf
 
