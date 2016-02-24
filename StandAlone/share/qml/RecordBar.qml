@@ -33,19 +33,10 @@ Rectangle {
         if (lo >= hi)
             return
 
-        var pivot = (lo + hi) >> 1
+        var pivot = lo
         var pivotDesc = model.get(pivot).description.toLowerCase()
-        var max = hi
 
-        for (var i = lo; i < pivot; i++)
-            if (model.get(i).description.toLowerCase() > pivotDesc) {
-                model.move(i, hi - 1, 1)
-                pivot--
-                max--
-                i--
-            }
-
-        for (var j = pivot + 1; j < max; j++)
+        for (var j = pivot + 1; j < hi; j++)
             if (model.get(j).description.toLowerCase() < pivotDesc) {
                 model.move(j, lo, 1)
                 pivot++
