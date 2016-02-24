@@ -1,11 +1,13 @@
 Webcamoid 7.0.0:
 
+- Windows port finally working! EXPERIMENTAL!
 - Reworked recording options. More user friendly.
 - Removed unnecesary dependencies.
 - Many effects reworked and bugfixed.
 - Added GStreamer support, EXPERIMENTAL!
 - Fixed SEGFAULT when switching the effects.
 - Added virtual camera support (GNU/Linux only).
+- Added command line options for controlling plugins search.
 
 Webcamoid 6.2.0:
 
