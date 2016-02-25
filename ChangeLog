@@ -2,7 +2,7 @@ Webcamoid 7.0.0:
 
 - Windows port finally working! EXPERIMENTAL!
 - Reworked recording options. More user friendly.
-- Removed unnecesary dependencies.
+- Removed unnecessary dependencies.
 - Many effects reworked and bugfixed.
 - Added GStreamer support, EXPERIMENTAL!
 - Fixed SEGFAULT when switching the effects.
