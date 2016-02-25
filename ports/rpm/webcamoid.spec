@@ -46,6 +46,7 @@ Requires: v4l2loopback-utils
 BuildRequires: fdupes
 BuildRequires: update-desktop-files
 BuildRequires: libqt5-linguist
+BuildRequires: libqt5-qtbase-devel
 BuildRequires: libqt5-qtdeclarative-devel
 BuildRequires: libqt5-qtsvg-devel
 BuildRequires: ffmpeg-devel
@@ -140,6 +141,7 @@ rm -rf %{buildroot}
 #%{_datadir}/webcamoid/
 %{_defaultdocdir}/webcamoid/
 %{_libdir}/AvKys/
+%{_libdir}/qt5/qml/AkQml
 %{_libdir}/qt5/qml/AkQml/libAkQml.so
 %{_libdir}/qt5/qml/AkQml/qmldir
 %{_libdir}/lib*AvKys.so*
