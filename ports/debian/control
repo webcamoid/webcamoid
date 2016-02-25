@@ -8,12 +8,12 @@ Build-Depends: debhelper (>= 8.0.0),
  qttools5-dev-tools,
  qtdeclarative5-dev
  libqt5svg5-dev,
- libavcodec-ffmpeg-dev,
- libavdevice-ffmpeg-dev,
- libavformat-ffmpeg-dev,
- libavutil-ffmpeg-dev,
- libswresample-ffmpeg-dev,
- libswscale-ffmpeg3-dev,
+ libavcodec-dev,
+ libavdevice-dev,
+ libavformat-dev,
+ libavutil-dev,
+ libswresample-dev,
+ libswscale-dev,
  libpulse-dev,
  libv4l-dev
 Standards-Version: 3.9.4
@@ -28,12 +28,12 @@ Depends: ${shlibs:Depends},
  qml-module-qtquick-controls,
  libqt5svg5,
  libpulse0,
- libavcodec-ffmpeg56,
- libavdevice-ffmpeg56,
- libavformat-ffmpeg56,
- libavutil-ffmpeg54,
- libswresample-ffmpeg1,
- libswscale-ffmpeg3
+ libavcodec56,
+ libavdevice56,
+ libavformat56,
+ libavutil54,
+ libswresample1,
+ libswscale3
 Suggests:
  v4l2loopback-utils
 Description: Webcamoid is a full featured webcam capture application.
