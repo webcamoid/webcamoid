@@ -28,7 +28,7 @@ install:
   - sudo apt-get install libv4l-dev
 
 script:
-  - qmake -qt=5 Webcamoid.pro USE_GSTREAMER=1
+  - qmake -qt=5 Webcamoid.pro
   - make
 
 branches:
