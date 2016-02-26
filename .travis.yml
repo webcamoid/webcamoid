@@ -9,6 +9,7 @@ compiler:
 
 before_install:
   - sudo add-apt-repository --yes ppa:beineri/opt-qt551-trusty
+  - sudo add-apt-repository --yes ppa:mc3man/trusty-media
   - sudo apt-get update -qq
 
 install:
@@ -17,7 +18,12 @@ install:
   - sudo apt-get install qttools5-dev-tools
   - sudo apt-get install qtdeclarative5-dev
   - sudo apt-get install libqt5svg5-dev
-  - sudo apt-get install libgstreamer-plugins-base1.0-dev
+  - sudo apt-get install libavcodec-dev
+  - sudo apt-get install libavdevice-dev
+  - sudo apt-get install libavformat-dev
+  - sudo apt-get install libavutil-dev
+  - sudo apt-get install libswresample-dev
+  - sudo apt-get install libswscale-dev
   - sudo apt-get install libpulse-dev
   - sudo apt-get install libv4l-dev
 
