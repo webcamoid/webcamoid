@@ -1,0 +1,35 @@
+language: cpp
+compiler: gcc
+
+before_install:
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install pkg-config,
+  - sudo apt-get install linux-libc-dev,
+  - sudo apt-get install qttools5-dev-tools,
+  - sudo apt-get install qtdeclarative5-dev
+  - sudo apt-get install libqt5svg5-dev,
+  - sudo apt-get install libavcodec-dev,
+  - sudo apt-get install libavdevice-dev,
+  - sudo apt-get install libavformat-dev,
+  - sudo apt-get install libavutil-dev,
+  - sudo apt-get install libswresample-dev,
+  - sudo apt-get install libswscale-dev,
+  - sudo apt-get install libpulse-dev,
+  - sudo apt-get install libv4l-dev
+
+script:
+  - qmake -qt=5 Webcamoid.pro
+  - make
+
+branches:
+  only:
+    - master
+
+notifications:
+  recipients:
+    - hipersayan.x@gmail.com
+  email:
+    on_success: change
+    on_failure: always
