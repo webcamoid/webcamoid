@@ -15,15 +15,15 @@ before_install:
 install:
   - sudo apt-get -y install pkg-config
   - sudo apt-get -y install linux-libc-dev
-  - sudo apt-get -y install qttools5-dev-tools
-  - sudo apt-get -y install qtdeclarative5-dev
-  - sudo apt-get -y install libqt5svg5-dev
+  - sudo apt-get -y install qt55tools
+  - sudo apt-get -y install qt55declarative
+  - sudo apt-get -y install qt55svg
   - sudo apt-get -y install libgstreamer-plugins-base1.0-dev
   - sudo apt-get -y install libpulse-dev
   - sudo apt-get -y install libv4l-dev
 
 script:
-  - qmake -qt=5 Webcamoid.pro
+  - /opt/qt55/bin/qmake Webcamoid.pro
   - make
 
 branches:
