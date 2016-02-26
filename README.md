@@ -19,7 +19,7 @@
 
 ## Build and Install ##
 
-Visit the [wiki](https://github.com/hipersayanX/webcamoid/wiki) for a complete compile and install instructions.
+Visit the [wiki](https://github.com/hipersayanX/webcamoid/wiki) for a comprehensive compile and install instructions.
 
 ## Translating ##
 

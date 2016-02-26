@@ -1,8 +1,9 @@
 Ordered by priority:
 
-- Windows port.
 - Android port.
 - Add support for scripted plugins.
 - New and customizable UI.
 - Add social sharing features.
 - Add network broadcast support.
+- Temporized photo shot.
+- Add support for compressed webcam streams.
