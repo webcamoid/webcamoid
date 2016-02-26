@@ -21,11 +21,9 @@
 
 Visit the [wiki](https://github.com/hipersayanX/webcamoid/wiki) for a comprehensive compile and install instructions.
 
-## Translating ##
+## Status ##
 
-Register in [Weblate](https://hosted.weblate.org/) and start translating Webcamoid as many other projects.
-
-[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
+[![Build Status](https://travis-ci.org/hipersayanX/webcamoid.svg?branch=master)](https://travis-ci.org/hipersayanX/webcamoid)[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
 
 ## Reporting Bugs ##
 
