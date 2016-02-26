@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 8.0.0),
  pkg-config,
  linux-libc-dev,
  qttools5-dev-tools,
- qtdeclarative5-dev
+ qtdeclarative5-dev,
  libqt5svg5-dev,
  libavcodec-dev,
  libavdevice-dev,
