@@ -8,7 +8,7 @@ compiler:
   - clang
 
 before_install:
-  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt551-trusty
   - sudo apt-get update -qq
 
 install:
