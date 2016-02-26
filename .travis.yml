@@ -18,12 +18,7 @@ install:
   - sudo apt-get -y install qttools5-dev-tools
   - sudo apt-get -y install qtdeclarative5-dev
   - sudo apt-get -y install libqt5svg5-dev
-  - sudo apt-get -y install libavcodec-dev
-  - sudo apt-get -y install libavdevice-dev
-  - sudo apt-get -y install libavformat-dev
-  - sudo apt-get -y install libavutil-dev
-  - sudo apt-get -y install libswresample-dev
-  - sudo apt-get -y install libswscale-dev
+  - sudo apt-get -y install libgstreamer-plugins-base1.0-dev
   - sudo apt-get -y install libpulse-dev
   - sudo apt-get -y install libv4l-dev
 

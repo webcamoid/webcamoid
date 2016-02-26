@@ -3,7 +3,7 @@
 
 EAPI="5"
 
-inherit eutils
+inherit eutils qmake-utils
 
 DESCRIPTION="Webcamoid, the full webcam and multimedia suite."
 HOMEPAGE="https://github.com/hipersayanX/webcamoid"
