@@ -23,6 +23,7 @@ install:
   - sudo apt-get -y install libv4l-dev
 
 script:
+  - source /opt/qt55/bin/qt55-env.sh
   - /opt/qt55/bin/qmake Webcamoid.pro
   - make
 
