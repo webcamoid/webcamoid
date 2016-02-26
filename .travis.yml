@@ -13,19 +13,19 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt-get install pkg-config
-  - sudo apt-get install linux-libc-dev
-  - sudo apt-get install qttools5-dev-tools
-  - sudo apt-get install qtdeclarative5-dev
-  - sudo apt-get install libqt5svg5-dev
-  - sudo apt-get install libavcodec-dev
-  - sudo apt-get install libavdevice-dev
-  - sudo apt-get install libavformat-dev
-  - sudo apt-get install libavutil-dev
-  - sudo apt-get install libswresample-dev
-  - sudo apt-get install libswscale-dev
-  - sudo apt-get install libpulse-dev
-  - sudo apt-get install libv4l-dev
+  - sudo apt-get -y install pkg-config
+  - sudo apt-get -y install linux-libc-dev
+  - sudo apt-get -y install qttools5-dev-tools
+  - sudo apt-get -y install qtdeclarative5-dev
+  - sudo apt-get -y install libqt5svg5-dev
+  - sudo apt-get -y install libavcodec-dev
+  - sudo apt-get -y install libavdevice-dev
+  - sudo apt-get -y install libavformat-dev
+  - sudo apt-get -y install libavutil-dev
+  - sudo apt-get -y install libswresample-dev
+  - sudo apt-get -y install libswscale-dev
+  - sudo apt-get -y install libpulse-dev
+  - sudo apt-get -y install libv4l-dev
 
 script:
   - qmake -qt=5 Webcamoid.pro
