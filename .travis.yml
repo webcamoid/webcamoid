@@ -10,6 +10,7 @@ compiler:
 before_install:
   - sudo add-apt-repository --yes ppa:beineri/opt-qt551-trusty
   - sudo add-apt-repository --yes ppa:mc3man/trusty-media
+  - sudo add-apt-repository --yes ppa:dan-witt/gstreamer
   - sudo apt-get update -qq
 
 install:
