@@ -216,6 +216,12 @@ bool AudioDevice::init(DeviceMode mode,
     REFERENCE_TIME hnsRequestedDuration;
     this->m_pAudioClient->GetDevicePeriod(NULL, &hnsRequestedDuration);
 
+    // Accumulate a minimum of 1 sec. of audio in the buffer.
+    REFERENCE_TIME minDuration = 10e6;
+
+    if (hnsRequestedDuration < minDuration)
+        hnsRequestedDuration = minDuration;
+
     int bps = AkAudioCaps::bitsPerSample(sampleFormat);
 
     // Set audio device format.

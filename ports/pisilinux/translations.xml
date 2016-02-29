@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<PISI>
-    <Source>
-        <Name>webcamoid</Name>
-        <Summary xml:lang="es">Webcamoid es una suite completa para la webcam</Summary>
-        <Description xml:lang="es">Webcamoid permite tomar fotos y grabar video desde la webcam.</Description>
-    </Source>
-</PISI>

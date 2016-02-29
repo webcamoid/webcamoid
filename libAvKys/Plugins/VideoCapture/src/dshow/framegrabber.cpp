@@ -31,12 +31,12 @@ FrameGrabber::~FrameGrabber()
 
 ULONG FrameGrabber::AddRef()
 {
-    return 1;
+    return S_OK;
 }
 
 ULONG FrameGrabber::Release()
 {
-    return 2;
+    return S_OK;
 }
 
 HRESULT FrameGrabber::QueryInterface(const IID &riid, void **ppvObject)

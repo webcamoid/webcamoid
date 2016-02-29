@@ -54,46 +54,6 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_enableVirtualCamera = false;
 
     Ak::setQmlEngine(engine);
-    QSettings config;
-
-    config.beginGroup("PluginConfigs");
-
-#ifdef Q_OS_WIN32
-    QDir applicationDir(QCoreApplication::applicationDirPath());
-#endif
-
-    QString qmlPluginPath = config.value("qmlPluginPath", Ak::qmlPluginPath())
-                                  .toString();
-
-#ifdef Q_OS_WIN32
-    if (QDir::isRelativePath(qmlPluginPath)) {
-        qmlPluginPath = applicationDir.absoluteFilePath(qmlPluginPath);
-        qmlPluginPath = QDir::cleanPath(qmlPluginPath);
-    }
-#endif
-
-    Ak::setQmlPluginPath(qmlPluginPath);
-    AkElement::setRecursiveSearch(config.value("recursive", false).toBool());
-
-    int size = config.beginReadArray("paths");
-
-    for (int i = 0; i < size; i++) {
-        config.setArrayIndex(i);
-        QString path = config.value("path").toString();
-
-#ifdef Q_OS_WIN32
-        if (QDir::isRelativePath(path)) {
-            path = applicationDir.absoluteFilePath(path);
-            path = QDir::cleanPath(path);
-        }
-#endif
-
-        AkElement::addSearchPath(path);
-    }
-
-    config.endArray();
-    config.endGroup();
-
     this->m_pipeline = AkElement::create("Bin", "pipeline");
 
     if (this->m_pipeline) {
@@ -1438,6 +1398,18 @@ void MediaTools::loadConfigs()
 
     config.endArray();
     config.endGroup();
+
+    config.beginGroup("RecordConfigs");
+
+#ifdef USE_GSTREAMER
+    QString defaultRecordingFormat("webmmux");
+#else
+    QString defaultRecordingFormat("webm");
+#endif
+
+    this->setCurRecordingFormat(config.value("recordingFormat", defaultRecordingFormat).toString());
+
+    config.endGroup();
 }
 
 void MediaTools::saveConfigs()
@@ -1537,6 +1509,10 @@ void MediaTools::saveConfigs()
     }
 
     config.endArray();
+    config.endGroup();
+
+    config.beginGroup("RecordConfigs");
+    config.setValue("recordingFormat", this->curRecordingFormat());
     config.endGroup();
 }
 

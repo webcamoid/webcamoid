@@ -4,22 +4,18 @@ Priority: extra
 Maintainer: Gonzalo Pedone <hipersayan.x@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
  pkg-config,
- qtdeclarative5-dev,
- libqt5opengl5-dev,
- qttools5-dev-tools,
- qtmultimedia5-dev,
  linux-libc-dev,
+ qttools5-dev-tools,
+ qtdeclarative5-dev,
+ libqt5svg5-dev,
  libavcodec-dev,
  libavdevice-dev,
- libavfilter-dev,
  libavformat-dev,
- libavresample-dev,
  libavutil-dev,
- libv4l-dev,
- libpostproc-dev,
  libswresample-dev,
  libswscale-dev,
- libqt5svg5-dev
+ libpulse-dev,
+ libv4l-dev
 Standards-Version: 3.9.4
 Homepage: https://github.com/hipersayanX/webcamoid
 #Vcs-Git: git://github.com/hipersayanX/webcamoid.git
@@ -29,16 +25,18 @@ Package: webcamoid
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
- libqt5widgets5,
+ qml-module-qtquick-controls,
+ libqt5svg5,
+ libpulse0,
+ libv4l-0,
  libavcodec56,
  libavdevice56,
- libavfilter5,
  libavformat56,
- libavresample2,
  libavutil54,
- libpostproc53,
  libswresample1,
  libswscale3
+Suggests:
+ v4l2loopback-utils
 Description: Webcamoid is a full featured webcam capture application.
  Features:
  .

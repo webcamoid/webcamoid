@@ -1,0 +1,40 @@
+sudo: required
+dist: trusty
+
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+before_install:
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt551-trusty
+  - sudo add-apt-repository --yes ppa:mc3man/trusty-media
+  - sudo add-apt-repository --yes ppa:dan-witt/gstreamer
+  - sudo apt-get update -qq
+
+install:
+  - sudo apt-get -y install pkg-config
+  - sudo apt-get -y install linux-libc-dev
+  - sudo apt-get -y install qt55tools
+  - sudo apt-get -y install qt55declarative
+  - sudo apt-get -y install qt55svg
+  - sudo apt-get -y install libgstreamer-plugins-base1.0-dev
+  - sudo apt-get -y install libpulse-dev
+  - sudo apt-get -y install libv4l-dev
+
+script:
+  - source /opt/qt55/bin/qt55-env.sh
+  - /opt/qt55/bin/qmake Webcamoid.pro USE_GSTREAMER=1
+  - make
+
+branches:
+  only:
+    - master
+
+notifications:
+  recipients:
+    - hipersayan.x@gmail.com
+  email:
+    on_success: change
+    on_failure: change
