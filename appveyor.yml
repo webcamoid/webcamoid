@@ -1,0 +1,41 @@
+version: 7.0.0.{build}-{branch}
+os: MinGW
+
+platform: Any CPU
+
+platform:
+  - x86
+  - x64
+
+build:
+  verbosity: minimal
+
+configuration:
+  - Debug
+  - Release
+
+install:
+  # Installing various utilities
+  - choco install -y curl 7zip InnoSetup
+  - set PATH="C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%PATH%
+  # Configuring Qt
+  - set QTDIR=C:\Qt\5.5\mingw492_32
+  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+  # Installing ffmpeg dev
+  - curl -kLO http://ffmpeg.zeranoe.com/builds/win32/dev/ffmpeg-3.0-win32-dev.7z
+  - 7z x ffmpeg-3.0-win32-dev.7z
+  - set FFMPEG_DEV_PATH=%CD%\ffmpeg-3.0-win32-dev
+  # Installing ffmpeg shared
+  - curl -kLO http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0-win32-shared.7z
+  - 7z x ffmpeg-3.0-win32-shared.7z
+  - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-3.0-win32-shared
+
+build_script:
+  - qmake Webcamoid.pro
+  - mingw32-make
+
+notifications:
+  - provider: Email
+    to:
+      - hipersayan.x@gmail.com
+    on_build_status_changed: true
