@@ -1,8 +1,6 @@
 version: 7.0.0.{build}-{branch}
 os: MinGW
 
-platform: Any CPU
-
 platform:
   - x86
   - x64
