@@ -12,16 +12,23 @@ configuration:
   - Debug
   - Release
 
+environment:
+  QTDIR: C:\Qt\5.5\mingw492_32
+  MINGW: C:\Qt\Tools\mingw492_32
+  FFMPEG_VERSION: 3.0
+
 install:
   - if "%PLATFORM%" == "x86" (set BUILD_ARCHITECTURE=win32) else (set BUILD_ARCHITECTURE=win64)
   # Installing various utilities
   - choco install -y curl 7zip InnoSetup
   - set PATH="C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%PATH%
+  # Configure MinGW
+  -
   # Configuring Qt
-  - set QTDIR=C:\Qt\5.5\mingw492_32
-  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+  - echo list directories of MinGW
+  - dir %MINGW%
+  - set PATH=%PATH%;%QTDIR%\bin;%MINGW%\bin;
   # Installing ffmpeg dev
-  - set FFMPEG_VERSION=3.0
   - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/dev/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.7z
   - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.7z
   - set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev
