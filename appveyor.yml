@@ -13,6 +13,7 @@ configuration:
   - Release
 
 install:
+  - if "%PLATFORM%" == "x86" (set BUILD_ARCHITECTURE=win32) else (set BUILD_ARCHITECTURE=win64)
   # Installing various utilities
   - choco install -y curl 7zip InnoSetup
   - set PATH="C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%PATH%
@@ -20,16 +21,17 @@ install:
   - set QTDIR=C:\Qt\5.5\mingw492_32
   - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
   # Installing ffmpeg dev
-  - curl -kLO http://ffmpeg.zeranoe.com/builds/win32/dev/ffmpeg-3.0-win32-dev.7z
-  - 7z x ffmpeg-3.0-win32-dev.7z
-  - set FFMPEG_DEV_PATH=%CD%\ffmpeg-3.0-win32-dev
+  - set FFMPEG_VERSION=3.0
+  - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/dev/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.7z
+  - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.7z
+  - set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev
   # Installing ffmpeg shared
-  - curl -kLO http://ffmpeg.zeranoe.com/builds/win32/shared/ffmpeg-3.0-win32-shared.7z
-  - 7z x ffmpeg-3.0-win32-shared.7z
-  - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-3.0-win32-shared
+  - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/shared/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.7z
+  - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.7z
+  - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared
 
 build_script:
-  - qmake Webcamoid.pro
+  - qmake Webcamoid.pro PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_SHARED_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_SHARED_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale
   - mingw32-make
 
 notifications:
