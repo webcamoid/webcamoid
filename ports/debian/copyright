@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: webcamoid
-Source: https://github.com/hipersayanX/webcamoid
+Source: https://webcamoid.github.io/
 
 Files: *
 Copyright: 2014 Gonzalo Pedone <hipersayan.x@gmail.com>

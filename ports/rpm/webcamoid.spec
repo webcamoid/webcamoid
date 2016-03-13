@@ -22,7 +22,7 @@ Group: Video/Utilities
 License: GPLv3+
 %endif
 
-Url: https://github.com/hipersayanX/webcamoid
+Url: https://webcamoid.github.io/
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 # AutoReqProv: no

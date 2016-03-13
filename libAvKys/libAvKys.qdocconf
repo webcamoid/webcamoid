@@ -4,7 +4,7 @@
 
 project     = libAvKys
 description = Pipelined based multimedia library.
-url         = http://github.com/hipersayanX/webcamoid
+url         = http://webcamoid.github.io/
 
 # Common configs.
 

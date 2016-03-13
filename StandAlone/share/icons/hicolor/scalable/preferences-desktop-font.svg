@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
    width="128"
    height="128"
-   viewBox="0 0 128 128"
-   sodipodi:docname="preferences-desktop-font.svg"
-   inkscape:export-filename="/home/hipersayan_x/Documentos/CarpetaPersonal/Proyectos/Webcamoid/share/icons/default/256x256/preferences-desktop-font.png"
-   inkscape:export-xdpi="180"
-   inkscape:export-ydpi="180">
+   viewBox="0 0 128 128">
   <metadata
      id="metadata8">
     <rdf:RDF>
@@ -33,26 +24,6 @@
   </metadata>
   <defs
      id="defs6" />
-  <sodipodi:namedview
-     pagecolor="#000000"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="1"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1332"
-     inkscape:window-height="748"
-     id="namedview4"
-     showgrid="false"
-     inkscape:zoom="4.546875"
-     inkscape:cx="64"
-     inkscape:cy="64"
-     inkscape:window-x="32"
-     inkscape:window-y="-3"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
   <rect
      style="fill:#1f001f;fill-opacity:1;stroke:none;stroke-width:12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      id="rect3356"
@@ -63,31 +34,19 @@
      rx="4"
      ry="4" />
   <g
-     id="g4199"
-     transform="matrix(1.1901182,0,0,1.1901182,16,17.24344)">
-    <text
-       sodipodi:linespacing="125%"
-       id="text4177"
-       y="52.382999"
-       x="-1.4453125"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:80px;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif';fill:#ffffff;fill-opacity:1"
-         y="52.382999"
-         x="-1.4453125"
-         id="tspan4179"
-         sodipodi:role="line">T</tspan></text>
-    <text
-       sodipodi:linespacing="125%"
-       id="text4177-2"
-       y="78.574463"
-       x="33.125195"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:'Liberation Sans';-inkscape-font-specification:'Liberation Sans';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:80px;font-family:'Liberation Serif';-inkscape-font-specification:'Liberation Serif';fill:#ffffff;fill-opacity:1"
-         y="78.574463"
-         x="33.125195"
-         id="tspan4179-9"
-         sodipodi:role="line">T</tspan></text>
+     style="fill:#ffffff;fill-opacity:1"
+     id="text4177">
+    <path
+       style="fill:#ffffff;fill-opacity:1"
+       id="path3344"
+       d="m 28.92394,79.585403 0,-2.463916 9.902155,-1.255203 0,-54.624567 -2.370938,0 q -11.761715,0 -16.085192,0.92978 l -1.255203,9.7162 -3.114762,0 0,-14.644033 54.857012,0 0,14.644033 -3.161252,0 -1.255203,-9.7162 q -1.39467,-0.325423 -6.090058,-0.557868 -4.695388,-0.278934 -10.274067,-0.278934 l -2.277961,0 0,54.531589 9.902156,1.255203 0,2.463916 -28.776687,0 z" />
+  </g>
+  <g
+     style="fill:#ffffff;fill-opacity:1"
+     id="text4177-2">
+    <path
+       style="fill:#ffffff;fill-opacity:1"
+       id="path3347"
+       d="m 70.06693,110.75634 0,-2.46392 9.902156,-1.2552 0,-54.624566 -2.370939,0 q -11.761715,0 -16.085192,0.92978 l -1.255202,9.716199 -3.114763,0 0,-14.644032 54.85701,0 0,14.644032 -3.16125,0 -1.2552,-9.716199 q -1.39467,-0.325423 -6.09006,-0.557868 -4.695389,-0.278934 -10.274068,-0.278934 l -2.277961,0 0,54.531588 9.902156,1.2552 0,2.46392 -28.776687,0 z" />
   </g>
 </svg>

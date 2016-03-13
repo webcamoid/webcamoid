@@ -4,7 +4,7 @@
 
 project     = Webcamoid
 description = webcam capture application
-url         = http://github.com/hipersayanX/webcamoid
+url         = http://webcamoid.github.io/
 
 # Common configs.
 

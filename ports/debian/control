@@ -17,9 +17,9 @@ Build-Depends: debhelper (>= 8.0.0),
  libpulse-dev,
  libv4l-dev
 Standards-Version: 3.9.4
-Homepage: https://github.com/hipersayanX/webcamoid
-#Vcs-Git: git://github.com/hipersayanX/webcamoid.git
-#Vcs-Browser: https://github.com/hipersayanX/webcamoid
+Homepage: https://webcamoid.github.io/
+#Vcs-Git: git://github.com/webcamoid/webcamoid.git
+#Vcs-Browser: https://github.com/webcamoid/webcamoid
 
 Package: webcamoid
 Architecture: any

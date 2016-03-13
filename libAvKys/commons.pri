@@ -14,8 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
 #
-# Email   : hipersayan DOT x AT gmail DOT com
-# Web-Site: http://github.com/hipersayanX/webcamoid
+# Web-Site: http://webcamoid.github.io/
 
 COMMONS_APPNAME = "libAvKys"
 COMMONS_TARGET = AvKys
@@ -23,8 +22,8 @@ VER_MAJ = 7
 VER_MIN = 0
 VER_PAT = 0
 VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
-COMMONS_PROJECT_URL = "http://github.com/hipersayanX/webcamoid"
-COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/hipersayanX/webcamoid/master/COPYING"
+COMMONS_PROJECT_URL = "http://webcamoid.github.io/"
+COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
 COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2016  Gonzalo Exequiel Pedone"
 
 isEmpty(BUILDDOCS): BUILDDOCS = 0
