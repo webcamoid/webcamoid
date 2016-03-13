@@ -1,6 +1,6 @@
 # Webcamoid, webcam capture application #
 
-[Webcamoid](http://opendesktop.org/content/show.php/Webcamoid?content=144796) is a full featured webcam capture application.
+[Webcamoid](https://webcamoid.github.io/) is a full featured webcam capture application.
 
 ## Features ##
 
