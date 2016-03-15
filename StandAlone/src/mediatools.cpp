@@ -920,6 +920,7 @@ void MediaTools::setRecordAudioFrom(const QString &recordAudioFrom)
     }
 
     this->m_recordAudioFrom = recordAudio;
+    this->updateRecordingParams();
     emit this->recordAudioFromChanged(recordAudioFrom);
 }
 
@@ -1626,11 +1627,11 @@ void MediaTools::updateRecordingParams()
     }
 
     if (this->m_recordAudioFrom == RecordFromMic) {
-        QString audioCaps;
+        AkCaps audioCaps;
 
         QMetaObject::invokeMethod(this->m_mic.data(),
                                   "caps",
-                                  Q_RETURN_ARG(QString, audioCaps));
+                                  Q_RETURN_ARG(AkCaps, audioCaps));
 
         streamCaps[1] = audioCaps;
     } else if (this->m_recordAudioFrom == RecordFromNone)

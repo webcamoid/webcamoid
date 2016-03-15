@@ -17,24 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIOINPUTELEMENT_H
-#define AUDIOINPUTELEMENT_H
+#ifndef AUDIODEVICEELEMENT_H
+#define AUDIODEVICEELEMENT_H
 
 #include <QTimer>
 #include <QThreadPool>
 #include <QtConcurrent>
-
-#include <akelement.h>
+#include <ak.h>
 
 #ifdef Q_OS_LINUX
-#include "pulseaudio/audiodevice.h"
+#include "pulseaudio/audiodev.h"
 #elif defined(Q_OS_WIN32)
-#include "wasapi/audiodevice.h"
+#include "wasapi/audiodev.h"
 #endif
 
-class AudioInputElement: public AkElement
+class AudioDeviceElement: public AkElement
 {
     Q_OBJECT
+    Q_ENUMS(DeviceMode)
     // Buffer size in samples.
     Q_PROPERTY(int bufferSize
                READ bufferSize
@@ -46,18 +46,32 @@ class AudioInputElement: public AkElement
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
+    Q_PROPERTY(QString mode
+               READ mode
+               WRITE setMode
+               RESET resetMode
+               NOTIFY modeChanged)
 
     public:
-        explicit AudioInputElement();
-        ~AudioInputElement();
+        enum DeviceMode
+        {
+            DeviceModeInput,
+            DeviceModeOutput
+        };
+
+        explicit AudioDeviceElement();
+        ~AudioDeviceElement();
 
         Q_INVOKABLE int bufferSize() const;
         Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE QString mode() const;
 
     private:
         int m_bufferSize;
         AkCaps m_caps;
-        AudioDevice m_audioDevice;
+        DeviceMode m_mode;
+        AudioDev m_audioDevice;
+        AkElementPtr m_convert;
         qint64 m_streamId;
         AkFrac m_timeBase;
         bool m_threadedRead;
@@ -67,7 +81,8 @@ class AudioInputElement: public AkElement
         QMutex m_mutex;
         AkPacket m_curPacket;
 
-        static void sendPacket(AudioInputElement *element,
+        AkAudioCaps defaultCaps(DeviceMode mode);
+        static void sendPacket(AudioDeviceElement *element,
                                const AkPacket &packet);
 
     protected:
@@ -76,12 +91,16 @@ class AudioInputElement: public AkElement
     signals:
         void bufferSizeChanged(int bufferSize);
         void capsChanged(const AkCaps &caps);
+        void modeChanged(const QString &mode);
 
     public slots:
         void setBufferSize(int bufferSize);
         void setCaps(const AkCaps &caps);
+        void setMode(const QString &mode);
         void resetBufferSize();
         void resetCaps();
+        void resetMode();
+        AkPacket iStream(const AkAudioPacket &packet);
 
     private slots:
         bool init();
@@ -89,4 +108,4 @@ class AudioInputElement: public AkElement
         void readFrame();
 };
 
-#endif // AUDIOINPUTELEMENT_H
+#endif // AUDIODEVICEELEMENT_H

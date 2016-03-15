@@ -55,17 +55,19 @@
         },
         "DirectConnection",
         {
-            "pluginId": "AudioOutput",
+            "pluginId": "AudioDevice",
             "properties": {
-                "objectName": "audioOutput"
+                "objectName": "audioOutput",
+                "mode": "output"
             }
         }
     ],
     [
         {
-            "pluginId": "AudioInput",
+            "pluginId": "AudioDevice",
             "properties": {
-                "objectName": "mic"
+                "objectName": "mic",
+                "mode": "input"
             }
         },
         {

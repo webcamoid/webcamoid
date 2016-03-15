@@ -17,17 +17,16 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVICE_H
-#define AUDIODEVICE_H
+#ifndef AUDIODEV_H
+#define AUDIODEV_H
 
 #include <akaudiocaps.h>
-#include <pulse/simple.h>
-#include <pulse/context.h>
-#include <pulse/introspect.h>
-#include <pulse/thread-mainloop.h>
-#include <pulse/error.h>
+#include <objbase.h>
+#include <initguid.h>
+#include <audioclient.h>
+#include <mmdeviceapi.h>
 
-class AudioDevice: public QObject
+class AudioDev: public QObject
 {
     Q_OBJECT
     Q_ENUMS(DeviceMode)
@@ -42,8 +41,8 @@ class AudioDevice: public QObject
             DeviceModePlayback
         };
 
-        explicit AudioDevice(QObject *parent=NULL);
-        ~AudioDevice();
+        explicit AudioDev(QObject *parent=NULL);
+        ~AudioDev();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE bool preferredFormat(DeviceMode mode,
@@ -53,39 +52,26 @@ class AudioDevice: public QObject
         Q_INVOKABLE bool init(DeviceMode mode,
                               AkAudioCaps::SampleFormat sampleFormat,
                               int channels,
-                              int sampleRate);
+                              int sampleRate,
+                              bool justActivate=false);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const QByteArray &frame);
         Q_INVOKABLE bool uninit();
 
     private:
         QString m_error;
-        pa_simple *m_paSimple;
-        pa_threaded_mainloop *m_mainLoop;
-        QString m_defaultSink;
-        QString m_defaultSource;
-        pa_sample_format_t m_defaultFormat;
-        int m_defaultChannels;
-        int m_defaultRate;
+        QByteArray m_audioBuffer;
+        IMMDeviceEnumerator *m_pEnumerator;
+        IMMDevice *m_pDevice;
+        IAudioClient *m_pAudioClient;
+        IAudioCaptureClient *m_pCaptureClient;
+        IAudioRenderClient *m_pRenderClient;
+        HANDLE m_hEvent;
         int m_curBps;
         int m_curChannels;
 
-        static void contextStateCallbackInit(pa_context *context,
-                                             void *userdata);
-        static void serverInfoCallback(pa_context *context,
-                                       const pa_server_info *info,
-                                       void *userdata);
-        static void sourceInfoCallback(pa_context *context,
-                                       const pa_source_info *info,
-                                       int isLast,
-                                       void *userdata);
-        static void sinkInfoCallback(pa_context *context,
-                                     const pa_sink_info *info,
-                                     int isLast,
-                                     void *userdata);
-
     signals:
-        void errorChanged(const QString & error);
+        void errorChanged(const QString &error);
 };
 
-#endif // AUDIODEVICE_H
+#endif // AUDIODEV_H

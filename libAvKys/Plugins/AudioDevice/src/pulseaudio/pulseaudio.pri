@@ -16,8 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-HEADERS += $$PWD/audiodevice.h
-SOURCES += $$PWD/audiodevice.cpp
+HEADERS += $$PWD/audiodev.h
+SOURCES += $$PWD/audiodev.cpp
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libpulse-simple

@@ -32,8 +32,8 @@ win32: include(src/wasapi/wasapi.pri)
 CONFIG += plugin
 
 HEADERS += \
-    src/audiooutput.h \
-    src/audiooutputelement.h
+    src/audiodevice.h \
+    src/audiodeviceelement.h
 
 INCLUDEPATH += \
     ../../Lib/src
@@ -43,11 +43,11 @@ win32: LIBS += -L../../Lib/ -l$${COMMONS_TARGET}$${VER_MAJ}
 
 OTHER_FILES += pspec.json
 
-QT += qml
+QT += qml concurrent
 
 SOURCES += \
-    src/audiooutput.cpp \
-    src/audiooutputelement.cpp
+    src/audiodevice.cpp \
+    src/audiodeviceelement.cpp
 
 DESTDIR = $${PWD}
 

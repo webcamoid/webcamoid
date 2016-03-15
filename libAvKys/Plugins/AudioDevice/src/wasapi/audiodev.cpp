@@ -19,7 +19,7 @@
 
 #include <QMap>
 
-#include "audiodevice.h"
+#include "audiodev.h"
 
 #define MAX_ERRORS_READ_WRITE 5
 #define EVENT_TIMEOUT 1000
@@ -85,7 +85,7 @@ inline SampleFormatsMap initSampleFormatsMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatsMap, sampleFormats, (initSampleFormatsMap()))
 
-AudioDevice::AudioDevice(QObject *parent):
+AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
     this->m_pEnumerator = NULL;
@@ -96,18 +96,18 @@ AudioDevice::AudioDevice(QObject *parent):
     this->m_hEvent = NULL;
 }
 
-AudioDevice::~AudioDevice()
+AudioDev::~AudioDev()
 {
     this->uninit();
 }
 
-QString AudioDevice::error() const
+QString AudioDev::error() const
 {
     return this->m_error;
 }
 
 // Get native format for the default audio device.
-bool AudioDevice::preferredFormat(DeviceMode mode,
+bool AudioDev::preferredFormat(DeviceMode mode,
                                   AkAudioCaps::SampleFormat *sampleFormat,
                                   int *channels,
                                   int *sampleRate)
@@ -154,7 +154,7 @@ bool AudioDevice::preferredFormat(DeviceMode mode,
     return true;
 }
 
-bool AudioDevice::init(DeviceMode mode,
+bool AudioDev::init(DeviceMode mode,
                        AkAudioCaps::SampleFormat sampleFormat,
                        int channels,
                        int sampleRate,
@@ -299,7 +299,7 @@ bool AudioDevice::init(DeviceMode mode,
     return true;
 }
 
-QByteArray AudioDevice::read(int samples)
+QByteArray AudioDev::read(int samples)
 {
     int bufferSize = samples
                      * this->m_curBps
@@ -383,7 +383,7 @@ QByteArray AudioDevice::read(int samples)
     return buffer;
 }
 
-bool AudioDevice::write(const QByteArray &frame)
+bool AudioDev::write(const QByteArray &frame)
 {
     this->m_audioBuffer = frame;
     int nErrors = 0;
@@ -463,7 +463,7 @@ bool AudioDevice::write(const QByteArray &frame)
     return true;
 }
 
-bool AudioDevice::uninit()
+bool AudioDev::uninit()
 {
     bool ok = true;
     HRESULT hr;

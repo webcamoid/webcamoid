@@ -23,8 +23,7 @@ CONFIG += ordered
 SUBDIRS += \
     ACapsConvert \
     Aging \
-    AudioInput \
-    AudioOutput \
+    AudioDevice \
     Bin \
     Blur \
     Cartoon \

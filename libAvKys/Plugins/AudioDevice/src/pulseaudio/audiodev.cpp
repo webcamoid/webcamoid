@@ -20,7 +20,7 @@
 #include <QCoreApplication>
 #include <QMap>
 
-#include "audiodevice.h"
+#include "audiodev.h"
 
 typedef QMap<AkAudioCaps::SampleFormat, pa_sample_format_t> SampleFormatMap;
 
@@ -37,7 +37,7 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
-AudioDevice::AudioDevice(QObject *parent):
+AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
     this->m_paSimple = NULL;
@@ -48,21 +48,21 @@ AudioDevice::AudioDevice(QObject *parent):
     this->m_curChannels = 0;
 }
 
-AudioDevice::~AudioDevice()
+AudioDev::~AudioDev()
 {
     this->uninit();
 }
 
-QString AudioDevice::error() const
+QString AudioDev::error() const
 {
     return this->m_error;
 }
 
 // Get native format for the default audio device.
-bool AudioDevice::preferredFormat(DeviceMode mode,
-                                  AkAudioCaps::SampleFormat *sampleFormat,
-                                  int *channels,
-                                  int *sampleRate)
+bool AudioDev::preferredFormat(DeviceMode mode,
+                               AkAudioCaps::SampleFormat *sampleFormat,
+                               int *channels,
+                               int *sampleRate)
 {
     // Create a threaded main loop for PulseAudio
     this->m_mainLoop = pa_threaded_mainloop_new();
@@ -199,10 +199,10 @@ bool AudioDevice::preferredFormat(DeviceMode mode,
     return true;
 }
 
-bool AudioDevice::init(DeviceMode mode,
-                       AkAudioCaps::SampleFormat sampleFormat,
-                       int channels,
-                       int sampleRate)
+bool AudioDev::init(DeviceMode mode,
+                    AkAudioCaps::SampleFormat sampleFormat,
+                    int channels,
+                    int sampleRate)
 {
     int error;
 
@@ -233,7 +233,7 @@ bool AudioDevice::init(DeviceMode mode,
     return true;
 }
 
-QByteArray AudioDevice::read(int samples)
+QByteArray AudioDev::read(int samples)
 {
     if (!this->m_paSimple)
         return QByteArray();
@@ -258,7 +258,7 @@ QByteArray AudioDevice::read(int samples)
     return buffer;
 }
 
-bool AudioDevice::write(const QByteArray &frame)
+bool AudioDev::write(const QByteArray &frame)
 {
     if (!this->m_paSimple)
         return false;
@@ -278,7 +278,7 @@ bool AudioDevice::write(const QByteArray &frame)
     return true;
 }
 
-bool AudioDevice::uninit()
+bool AudioDev::uninit()
 {
     bool ok = true;
 
@@ -305,24 +305,24 @@ bool AudioDevice::uninit()
     return ok;
 }
 
-void AudioDevice::contextStateCallbackInit(pa_context *context, void *userdata)
+void AudioDev::contextStateCallbackInit(pa_context *context, void *userdata)
 {
     Q_UNUSED(context)
 
-    AudioDevice *audioDevice = reinterpret_cast<AudioDevice *>(userdata);
+    AudioDev *audioDevice = reinterpret_cast<AudioDev *>(userdata);
 
     // Return as soon as possible.
     pa_threaded_mainloop_signal(audioDevice->m_mainLoop, 0);
 }
 
-void AudioDevice::serverInfoCallback(pa_context *context,
+void AudioDev::serverInfoCallback(pa_context *context,
                                      const pa_server_info *info,
                                      void *userdata)
 {
     Q_UNUSED(context)
 
     // Get default input and output devices.
-    AudioDevice *audioDevice = static_cast<AudioDevice *>(userdata);
+    AudioDev *audioDevice = static_cast<AudioDev *>(userdata);
     audioDevice->m_defaultSink = info->default_sink_name;
     audioDevice->m_defaultSource = info->default_source_name;
 
@@ -330,12 +330,12 @@ void AudioDevice::serverInfoCallback(pa_context *context,
     pa_threaded_mainloop_signal(audioDevice->m_mainLoop, 0);
 }
 
-void AudioDevice::sourceInfoCallback(pa_context *context,
-                                     const pa_source_info *info,
-                                     int isLast,
-                                     void *userdata)
+void AudioDev::sourceInfoCallback(pa_context *context,
+                                  const pa_source_info *info,
+                                  int isLast,
+                                  void *userdata)
 {
-    AudioDevice *audioDevice = reinterpret_cast<AudioDevice *>(userdata);
+    AudioDev *audioDevice = reinterpret_cast<AudioDev *>(userdata);
 
     if (isLast < 0) {
         audioDevice->m_error = QString(pa_strerror(pa_context_errno(context)));
@@ -360,12 +360,12 @@ void AudioDevice::sourceInfoCallback(pa_context *context,
     }
 }
 
-void AudioDevice::sinkInfoCallback(pa_context *context,
-                                   const pa_sink_info *info,
-                                   int isLast,
-                                   void *userdata)
+void AudioDev::sinkInfoCallback(pa_context *context,
+                                const pa_sink_info *info,
+                                int isLast,
+                                void *userdata)
 {
-    AudioDevice *audioDevice = reinterpret_cast<AudioDevice *>(userdata);
+    AudioDev *audioDevice = reinterpret_cast<AudioDev *>(userdata);
 
     if (isLast < 0) {
         audioDevice->m_error = QString(pa_strerror(pa_context_errno(context)));

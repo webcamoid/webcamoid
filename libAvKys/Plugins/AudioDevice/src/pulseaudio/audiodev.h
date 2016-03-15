@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVICE_H
-#define AUDIODEVICE_H
+#ifndef AUDIODEV_H
+#define AUDIODEV_H
 
 #include <akaudiocaps.h>
 #include <pulse/simple.h>
@@ -27,7 +27,7 @@
 #include <pulse/thread-mainloop.h>
 #include <pulse/error.h>
 
-class AudioDevice: public QObject
+class AudioDev: public QObject
 {
     Q_OBJECT
     Q_ENUMS(DeviceMode)
@@ -42,8 +42,8 @@ class AudioDevice: public QObject
             DeviceModePlayback
         };
 
-        explicit AudioDevice(QObject *parent=NULL);
-        ~AudioDevice();
+        explicit AudioDev(QObject *parent=NULL);
+        ~AudioDev();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE bool preferredFormat(DeviceMode mode,
@@ -88,4 +88,4 @@ class AudioDevice: public QObject
         void errorChanged(const QString & error);
 };
 
-#endif // AUDIODEVICE_H
+#endif // AUDIODEV_H

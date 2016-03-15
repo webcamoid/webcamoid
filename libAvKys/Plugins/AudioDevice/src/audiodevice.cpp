@@ -17,20 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIOINPUT_H
-#define AUDIOINPUT_H
+#include "audiodevice.h"
+#include "audiodeviceelement.h"
 
-#include <ak.h>
-
-class AudioInput: public QObject, public AkPlugin
+QObject *AudioDevice::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+    return new AudioDeviceElement();
+}
 
-#endif // AUDIOINPUT_H
+QStringList AudioDevice::keys() const
+{
+    return QStringList();
+}

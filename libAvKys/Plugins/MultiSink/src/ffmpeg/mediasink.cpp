@@ -1258,11 +1258,10 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
 
     AkFrac outTimeBase(codecContext->time_base.num,
                        codecContext->time_base.den);
-    qint64 pts = qRound(packet.pts()
+    qint64 pts = qRound64(packet.pts()
                         * packet.timeBase().value()
                         / outTimeBase.value());
     iFrame.pts = iFrame.pkt_pts = pts;
-
     this->m_streamParams[streamIndex].addAudioSamples(&iFrame, packet.id());
 
     int outSamples = codecContext->codec->capabilities
@@ -1274,7 +1273,6 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
 
     forever {
         pts = this->m_streamParams[streamIndex].audioPts();
-
         uint8_t *buffer = NULL;
         int bufferSize = this->m_streamParams[streamIndex].readAudioSamples(outSamples, &buffer);
 
@@ -1375,7 +1373,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     AkFrac outTimeBase(codecContext->time_base.num,
                        codecContext->time_base.den);
 
-    qint64 pts = qRound(packet.pts()
+    qint64 pts = qRound64(packet.pts()
                         * packet.timeBase().value()
                         / outTimeBase.value());
 
