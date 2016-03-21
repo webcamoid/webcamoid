@@ -130,7 +130,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="48"></location>
         <source>CircularGauge</source>
-        <translation>圆形标准尺寸</translation>
+        <translation>圆形底片尺寸</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="52"></location>
@@ -356,7 +356,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="48"></location>
         <source>Gauge</source>
-        <translation>标准宽度</translation>
+        <translation>底片尺寸</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="53"></location>
@@ -473,7 +473,7 @@
     <message>
         <location filename="../qml/RecordBar.qml" line="66"></location>
         <source>Search format...</source>
-        <translation>搜索格式</translation>
+        <translation>搜索格式...</translation>
     </message>
 </context>
 <context>
