@@ -1186,11 +1186,12 @@ void MediaTools::setCurStream(const QString &stream)
         return;
 
     this->m_curStream = stream;
-    emit this->curStreamChanged(stream);
     AkElementPtr source = this->sourceElement();
 
     if (source)
         source->setProperty("media", stream);
+
+    emit this->curStreamChanged(stream);
 }
 
 void MediaTools::setPlayAudioFromSource(bool playAudio)

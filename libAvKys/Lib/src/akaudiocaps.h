@@ -148,6 +148,7 @@ class AkAudioCaps: public QObject
         bool operator ==(const AkAudioCaps &other) const;
         bool operator !=(const AkAudioCaps &other) const;
         operator bool() const;
+        operator AkCaps() const;
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE bool &isValid();

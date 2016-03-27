@@ -39,9 +39,16 @@ class ConvertVideo: public QObject
         ~ConvertVideo();
 
         Q_INVOKABLE AkPacket convert(const AkPacket &packet);
+        Q_INVOKABLE bool init(const AkCaps &caps);
+        Q_INVOKABLE void uninit();
 
     private:
         SwsContext *m_scaleContext;
+        AVCodecContext *m_codecContext;
+        AkCaps m_caps;
+
+    signals:
+        void packetReady(const AkPacket &packet);
 };
 
 #endif // CONVERTVIDEO_H

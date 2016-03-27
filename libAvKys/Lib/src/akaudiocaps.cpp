@@ -313,6 +313,11 @@ bool AkAudioCaps::operator !=(const AkAudioCaps &other) const
     return !(*this == other);
 }
 
+AkAudioCaps::operator AkCaps() const
+{
+    return this->toCaps();
+}
+
 bool AkAudioCaps::isValid() const
 {
     return this->d->m_isValid;

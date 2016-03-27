@@ -30,27 +30,26 @@ VideoCaptureElement::VideoCaptureElement():
                      &Capture::error,
                      this,
                      &VideoCaptureElement::error);
-
     QObject::connect(&this->m_capture,
                      &Capture::webcamsChanged,
                      this,
                      &VideoCaptureElement::mediasChanged);
-
     QObject::connect(&this->m_capture,
-                     &Capture::sizeChanged,
+                     &Capture::deviceChanged,
                      this,
-                     &VideoCaptureElement::sizeChanged);
-
+                     &VideoCaptureElement::mediaChanged);
     QObject::connect(&this->m_capture,
                      &Capture::imageControlsChanged,
                      this,
                      &VideoCaptureElement::imageControlsChanged);
-
     QObject::connect(&this->m_capture,
                      &Capture::cameraControlsChanged,
                      this,
                      &VideoCaptureElement::cameraControlsChanged);
-
+    QObject::connect(&this->m_capture,
+                     &Capture::streamsChanged,
+                     this,
+                     &VideoCaptureElement::streamsChanged);
     QObject::connect(&this->m_timer,
                      &QTimer::timeout,
                      this,
@@ -110,10 +109,12 @@ QString VideoCaptureElement::media() const
 
 QList<int> VideoCaptureElement::streams() const
 {
-    QList<int> streams;
-    streams << 0;
+    return this->m_capture.streams();
+}
 
-    return streams;
+QList<int> VideoCaptureElement::listTracks(const QString &mimeType)
+{
+    return this->m_capture.listTracks(mimeType);
 }
 
 int VideoCaptureElement::defaultStream(const QString &mimeType) const
@@ -131,18 +132,32 @@ QString VideoCaptureElement::description(const QString &media) const
 
 AkCaps VideoCaptureElement::caps(int stream) const
 {
-    if (stream != 0)
+    QVariantList streams = this->m_capture.caps(this->m_capture.device());
+    AkCaps caps = streams.value(stream).value<AkCaps>();
+
+    if (!caps)
         return AkCaps();
 
-    return this->m_capture.caps();
+    AkVideoCaps videoCaps;
+    videoCaps.isValid() = true;
+    videoCaps.format() = AkVideoCaps::Format_bgra;
+    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(AkVideoCaps::Format_bgra);
+    videoCaps.width() = caps.property("width").toInt();
+    videoCaps.height() = caps.property("height").toInt();
+    videoCaps.fps() = caps.property("fps").toString();
+
+    return videoCaps;
 }
 
-bool VideoCaptureElement::isCompressed(int stream) const
+QStringList VideoCaptureElement::listCapsDescription() const
 {
-    if (stream != 0)
-        return false;
+    QStringList capsDescriptions;
+    QVariantList streams = this->m_capture.caps(this->m_capture.device());
 
-    return this->m_capture.isCompressed();
+    foreach (QVariant caps, streams)
+        capsDescriptions << this->m_capture.capsDescription(caps.value<AkCaps>());
+
+    return capsDescriptions;
 }
 
 QString VideoCaptureElement::ioMethod() const
@@ -155,69 +170,43 @@ int VideoCaptureElement::nBuffers() const
     return this->m_capture.nBuffers();
 }
 
-QVariantList VideoCaptureElement::availableSizes(const QString &webcam) const
+QVariantList VideoCaptureElement::imageControls() const
 {
-    return this->m_capture.availableSizes(webcam);
+    return this->m_capture.imageControls();
 }
 
-QSize VideoCaptureElement::size(const QString &webcam) const
+bool VideoCaptureElement::setImageControls(const QVariantMap &imageControls) const
 {
-    return this->m_capture.size(webcam);
+    return this->m_capture.setImageControls(imageControls);
 }
 
-bool VideoCaptureElement::setSize(const QString &webcam, const QSize &size)
+bool VideoCaptureElement::resetImageControls() const
 {
-    bool running = this->m_timer.isActive();
-    this->setState(AkElement::ElementStateNull);
-
-    bool isSet = this->m_capture.setSize(webcam, size);
-
-    if (running)
-        this->setState(AkElement::ElementStatePlaying);
-
-    return isSet;
+    return this->m_capture.resetImageControls();
 }
 
-bool VideoCaptureElement::resetSize(const QString &webcam)
+QVariantList VideoCaptureElement::cameraControls() const
 {
-    return this->m_capture.resetSize(webcam);
+    return this->m_capture.cameraControls();
 }
 
-QVariantList VideoCaptureElement::imageControls(const QString &webcam) const
+bool VideoCaptureElement::setCameraControls(const QVariantMap &cameraControls) const
 {
-    return this->m_capture.imageControls(webcam);
+    return this->m_capture.setCameraControls(cameraControls);
 }
 
-bool VideoCaptureElement::setImageControls(const QString &webcam, const QVariantMap &imageControls) const
+bool VideoCaptureElement::resetCameraControls() const
 {
-    return this->m_capture.setImageControls(webcam, imageControls);
-}
-
-bool VideoCaptureElement::resetImageControls(const QString &webcam) const
-{
-    return this->m_capture.resetImageControls(webcam);
-}
-
-QVariantList VideoCaptureElement::cameraControls(const QString &webcam) const
-{
-    return this->m_capture.cameraControls(webcam);
-}
-
-bool VideoCaptureElement::setCameraControls(const QString &webcam,
-                                            const QVariantMap &cameraControls) const
-{
-    return this->m_capture.setCameraControls(webcam, cameraControls);
-}
-
-bool VideoCaptureElement::resetCameraControls(const QString &webcam) const
-{
-    return this->m_capture.resetCameraControls(webcam);
+    return this->m_capture.resetCameraControls();
 }
 
 void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
                                      const AkPacket &packet)
 {
     AkPacket oPacket = element->m_convertVideo.convert(packet);
+
+    if (!oPacket)
+        return;
 
 #if defined(Q_OS_WIN32)
     QImage oImage = AkUtils::packetToImage(oPacket).mirrored();
@@ -230,11 +219,18 @@ void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
 
 void VideoCaptureElement::setMedia(const QString &media)
 {
-    if (this->m_capture.device() == media)
-        return;
-
     this->m_capture.setDevice(media);
-    emit this->mediaChanged(media);
+}
+
+void VideoCaptureElement::setStreams(const QList<int> &streams)
+{
+    bool running = this->m_timer.isActive();
+    this->setState(AkElement::ElementStateNull);
+
+    this->m_capture.setStreams(streams);
+
+    if (running)
+        this->setState(AkElement::ElementStatePlaying);
 }
 
 void VideoCaptureElement::setIoMethod(const QString &ioMethod)
@@ -249,11 +245,12 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
 
 void VideoCaptureElement::resetMedia()
 {
-    QString media = this->m_capture.device();
     this->m_capture.resetDevice();
+}
 
-    if (media != this->m_capture.device())
-        emit this->mediaChanged(this->m_capture.device());
+void VideoCaptureElement::resetStreams()
+{
+    this->m_capture.resetStreams();
 }
 
 void VideoCaptureElement::resetIoMethod()
@@ -266,9 +263,9 @@ void VideoCaptureElement::resetNBuffers()
     this->m_capture.resetNBuffers();
 }
 
-void VideoCaptureElement::reset(const QString &webcam)
+void VideoCaptureElement::reset()
 {
-    this->m_capture.reset(webcam);
+    this->m_capture.reset();
 }
 
 bool VideoCaptureElement::setState(AkElement::ElementState state)
@@ -278,18 +275,42 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     switch (curState) {
     case AkElement::ElementStateNull: {
         switch (state) {
-        case AkElement::ElementStatePaused:
+        case AkElement::ElementStatePaused: {
+            QList<int> streams = this->m_capture.streams();
+
+            if (streams.isEmpty())
+                return false;
+
+            QVariantList supportedCaps = this->m_capture.caps(this->m_capture.device());
+            AkCaps caps = supportedCaps.value(streams[0]).value<AkCaps>();
+
+            if (!this->m_convertVideo.init(caps))
+                return false;
+
             if (!this->m_capture.init())
                 return false;
 
             return AkElement::setState(state);
-        case AkElement::ElementStatePlaying:
+        }
+        case AkElement::ElementStatePlaying: {
+            QList<int> streams = this->m_capture.streams();
+
+            if (streams.isEmpty())
+                return false;
+
+            QVariantList supportedCaps = this->m_capture.caps(this->m_capture.device());
+            AkCaps caps = supportedCaps.value(streams[0]).value<AkCaps>();
+
+            if (!this->m_convertVideo.init(caps))
+                return false;
+
             if (!this->m_capture.init())
                 return false;
 
             this->m_timer.start();
 
             return AkElement::setState(state);
+        }
         default:
             break;
         }
@@ -300,6 +321,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull:
             this->m_capture.uninit();
+            this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
@@ -318,6 +340,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             this->m_timer.stop();
             this->m_threadStatus.waitForFinished();
             this->m_capture.uninit();
+            this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
