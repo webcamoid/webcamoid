@@ -24,8 +24,6 @@
 VideoCaptureElement::VideoCaptureElement():
     AkMultimediaSourceElement()
 {
-    this->m_threadedRead = true;
-
     QObject::connect(&this->m_capture,
                      &Capture::error,
                      this,
@@ -50,6 +48,11 @@ VideoCaptureElement::VideoCaptureElement():
                      &Capture::streamsChanged,
                      this,
                      &VideoCaptureElement::streamsChanged);
+    QObject::connect(&this->m_convertVideo,
+                     &ConvertVideo::frameReady,
+                     this,
+                     &VideoCaptureElement::frameReady,
+                     Qt::DirectConnection);
     QObject::connect(&this->m_timer,
                      &QTimer::timeout,
                      this,
@@ -200,23 +203,6 @@ bool VideoCaptureElement::resetCameraControls() const
     return this->m_capture.resetCameraControls();
 }
 
-void VideoCaptureElement::sendPacket(VideoCaptureElement *element,
-                                     const AkPacket &packet)
-{
-    AkPacket oPacket = element->m_convertVideo.convert(packet);
-
-    if (!oPacket)
-        return;
-
-#if defined(Q_OS_WIN32)
-    QImage oImage = AkUtils::packetToImage(oPacket).mirrored();
-
-    emit element->oStream(AkUtils::imageToPacket(oImage, oPacket));
-#else
-    emit element->oStream(oPacket);
-#endif
-}
-
 void VideoCaptureElement::setMedia(const QString &media)
 {
     this->m_capture.setDevice(media);
@@ -338,14 +324,12 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull:
             this->m_timer.stop();
-            this->m_threadStatus.waitForFinished();
             this->m_capture.uninit();
             this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
             this->m_timer.stop();
-            this->m_threadStatus.waitForFinished();
 
             return AkElement::setState(state);
         default:
@@ -361,6 +345,17 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     return false;
 }
 
+void VideoCaptureElement::frameReady(const AkPacket &packet)
+{
+#if defined(Q_OS_WIN32)
+    QImage oImage = AkUtils::packetToImage(packet).mirrored();
+
+    emit element->oStream(AkUtils::imageToPacket(oImage, packet));
+#else
+    emit this->oStream(packet);
+#endif
+}
+
 void VideoCaptureElement::readFrame()
 {
     AkPacket packet = this->m_capture.readFrame();
@@ -368,18 +363,5 @@ void VideoCaptureElement::readFrame()
     if (!packet)
         return;
 
-    if (!this->m_threadedRead) {
-        emit this->oStream(packet);
-
-        return;
-    }
-
-    if (!this->m_threadStatus.isRunning()) {
-        this->m_curPacket = packet;
-
-        this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,
-                                                 this->sendPacket,
-                                                 this,
-                                                 this->m_curPacket);
-    }
+    this->m_convertVideo.packetEnqueue(packet);
 }
