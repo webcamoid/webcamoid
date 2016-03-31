@@ -21,6 +21,7 @@
 #define CONVERTVIDEO_H
 
 #include <QtConcurrent>
+#include <ak.h>
 #include <akvideopacket.h>
 #include <gst/video/video.h>
 #include <gst/app/gstappsrc.h>
@@ -34,7 +35,7 @@ class ConvertVideo: public QObject
         explicit ConvertVideo(QObject *parent=NULL);
         ~ConvertVideo();
 
-        Q_INVOKABLE AkPacket convert(const AkPacket &packet);
+        Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
         Q_INVOKABLE bool init(const AkCaps &caps);
         Q_INVOKABLE void uninit();
 
@@ -45,15 +46,17 @@ class ConvertVideo: public QObject
         GstElement *m_sink;
         GMainLoop *m_mainLoop;
         guint m_busWatchId;
-        AkCaps m_caps;
+        qint64 m_id;
 
         void waitState(GstState state);
         static gboolean busCallback(GstBus *bus,
                                     GstMessage *message,
                                     gpointer userData);
+        static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
+                                                 gpointer userData);
 
     signals:
-        void packetReady(const AkPacket &packet);
+        void frameReady(const AkPacket &packet);
 };
 
 #endif // CONVERTVIDEO_H

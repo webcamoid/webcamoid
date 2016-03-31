@@ -326,7 +326,7 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);
-    packet.timeBase() = AkFrac(1, 1e9);
+    packet.timeBase() = AkFrac(1, GST_SECOND);
     packet.index() = self->m_audioIndex;
     packet.id() = self->m_audioId;
 
@@ -375,7 +375,7 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);
-    packet.timeBase() = AkFrac(1, 1e9);
+    packet.timeBase() = AkFrac(1, GST_SECOND);
     packet.index() = self->m_videoIndex;
     packet.id() = self->m_videoId;
 
@@ -419,7 +419,7 @@ GstFlowReturn MediaSource::subtitlesBufferCallback(GstElement *subtitlesOutput,
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);
-    packet.timeBase() = AkFrac(1, 1e9);
+    packet.timeBase() = AkFrac(1, GST_SECOND);
     packet.index() = self->m_subtitlesIndex;
     packet.id() = self->m_subtitlesId;
 
