@@ -279,6 +279,40 @@ gboolean MediaSource::busCallback(GstBus *bus, GstMessage *message,
         g_free(structure);
         break;
     }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
+        break;
+    }
     default:
         qDebug() << "Unhandled message:" << GST_MESSAGE_TYPE_NAME(message);
     break;

@@ -94,6 +94,14 @@ ConvertVideo::ConvertVideo(QObject *parent):
 {
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(NULL, NULL);
+
+    this->m_pipeline = NULL;
+    this->m_source = NULL;
+    this->m_sink = NULL;
+    this->m_mainLoop = NULL;
+    this->m_busWatchId = 0;
+    this->m_id = -1;
+    this->m_ptsDiff = AkNoPts<qint64>();
 }
 
 ConvertVideo::~ConvertVideo()
@@ -112,7 +120,12 @@ void ConvertVideo::packetEnqueue(const AkPacket &packet)
     memcpy(info.data, packet.buffer().constData(), info.size);
     gst_buffer_unmap(buffer, &info);
 
-    GST_BUFFER_PTS(buffer) = packet.pts() * packet.timeBase().value() * GST_SECOND;
+    if (this->m_ptsDiff == AkNoPts<qint64>())
+        this->m_ptsDiff = packet.pts();
+
+    qint64 pts = packet.pts() - this->m_ptsDiff;
+
+    GST_BUFFER_PTS(buffer) = pts * packet.timeBase().value() * GST_SECOND;
     GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
@@ -139,9 +152,9 @@ bool ConvertVideo::init(const AkCaps &caps)
         gstCaps.setProperty("height", height);
         gstCaps.setProperty("framerate", fps.toString());
         inCaps = gst_caps_from_string(gstCaps.toString().toStdString().c_str());
-    } else if (!gstCaps.mimeType().isEmpty())
+    } else if (!gstCaps.mimeType().isEmpty()) {
         inCaps = gst_caps_from_string(gstCaps.toString().toStdString().c_str());
-    else
+    } else
         return false;
 
     inCaps = gst_caps_fixate(inCaps);
@@ -149,13 +162,19 @@ bool ConvertVideo::init(const AkCaps &caps)
     this->m_source = gst_element_factory_make("appsrc", NULL);
     gst_app_src_set_stream_type(GST_APP_SRC(this->m_source), GST_APP_STREAM_TYPE_STREAM);
     gst_app_src_set_caps(GST_APP_SRC(this->m_source), inCaps);
-    g_object_set(G_OBJECT(this->m_source), "format", GST_FORMAT_TIME, NULL);
-    gst_caps_unref(inCaps);
+    g_object_set(G_OBJECT(this->m_source),
+                 "format", GST_FORMAT_TIME,
+                 "do-timestamp", TRUE,
+                 "is-live", TRUE,
+                 NULL);
 
-    GstElement *decodebin = gst_element_factory_make("decodebin", NULL);
+    GstElement *decoder = this->decoderFromCaps(inCaps);
+    gst_caps_unref(inCaps);
     GstElement *videoConvert = gst_element_factory_make("videoconvert", NULL);
     this->m_sink = gst_element_factory_make("appsink", NULL);
-    g_object_set(G_OBJECT(this->m_sink), "emit-signals", TRUE, NULL);
+    g_object_set(G_OBJECT(this->m_sink),
+                 "emit-signals", TRUE,
+                 NULL);
 
     GstCaps *outCaps = gst_caps_new_simple("video/x-raw",
                                            "format", G_TYPE_STRING, "BGRA",
@@ -173,13 +192,13 @@ bool ConvertVideo::init(const AkCaps &caps)
 
     gst_bin_add_many(GST_BIN(this->m_pipeline),
                      this->m_source,
-                     decodebin,
+                     decoder,
                      videoConvert,
                      this->m_sink,
                      NULL);
 
     gst_element_link_many(this->m_source,
-                          decodebin,
+                          decoder,
                           videoConvert,
                           this->m_sink,
                           NULL);
@@ -190,6 +209,7 @@ bool ConvertVideo::init(const AkCaps &caps)
     gst_object_unref(bus);
 
     this->m_id = Ak::id();
+    this->m_ptsDiff = AkNoPts<qint64>();
 
     // Run the main GStreamer loop.
     this->m_mainLoop = g_main_loop_new(NULL, FALSE);
@@ -215,6 +235,44 @@ void ConvertVideo::uninit()
         g_main_loop_unref(this->m_mainLoop);
         this->m_mainLoop = NULL;
     }
+}
+
+GstElement *ConvertVideo::decoderFromCaps(const GstCaps *caps) const
+{
+    GstElement *decoder = NULL;
+    static GstStaticCaps staticRawCaps = GST_STATIC_CAPS("video/x-raw;"
+                                                         "audio/x-raw;"
+                                                         "text/x-raw;"
+                                                         "subpicture/x-dvd;"
+                                                         "subpicture/x-pgs");
+
+    GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
+
+    GList *decodersList = gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_DECODER,
+                                                                GST_RANK_PRIMARY);
+
+    if (gst_caps_can_intersect(caps, rawCaps))
+        decoder = gst_element_factory_make("identity", NULL);
+    else {
+        GList *decoders = gst_element_factory_list_filter(decodersList,
+                                                          caps,
+                                                          GST_PAD_SINK,
+                                                          FALSE);
+
+        for (GList *decoderItem = decoders; decoderItem; decoderItem = g_list_next(decoderItem)) {
+            GstElementFactory *decoderFactory = (GstElementFactory *) decoderItem->data;
+            decoder = gst_element_factory_make(GST_OBJECT_NAME(decoderFactory), NULL);
+
+            break;
+        }
+
+        gst_plugin_feature_list_free(decoders);
+    }
+
+    gst_plugin_feature_list_free(decodersList);
+    gst_caps_unref(rawCaps);
+
+    return decoder;
 }
 
 void ConvertVideo::waitState(GstState state)
@@ -355,6 +413,40 @@ gboolean ConvertVideo::busCallback(GstBus *bus,
         gchar *structure = gst_structure_to_string(messageStructure);
 //        qDebug() << structure;
         g_free(structure);
+        break;
+    }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
         break;
     }
     default:

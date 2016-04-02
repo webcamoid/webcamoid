@@ -47,7 +47,9 @@ class ConvertVideo: public QObject
         GMainLoop *m_mainLoop;
         guint m_busWatchId;
         qint64 m_id;
+        qint64 m_ptsDiff;
 
+        GstElement *decoderFromCaps(const GstCaps *caps) const;
         void waitState(GstState state);
         static gboolean busCallback(GstBus *bus,
                                     GstMessage *message,
