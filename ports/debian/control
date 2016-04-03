@@ -25,7 +25,10 @@ Package: webcamoid
 Architecture: any
 Depends: ${shlibs:Depends},
  ${misc:Depends},
+ qml-module-qtquick-dialogs,
  qml-module-qtquick-controls,
+ qml-module-qtquick-layouts,
+ qml-module-qtquick-window2,
  libqt5svg5,
  libqt5opengl5-dev,
  libpulse0,

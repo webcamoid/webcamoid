@@ -73,8 +73,6 @@ class Capture: public QObject
                READ nBuffers
                WRITE setNBuffers
                RESET resetNBuffers)
-    Q_PROPERTY(bool isCompressed
-               READ isCompressed)
     Q_PROPERTY(AkCaps caps
                READ caps)
 
@@ -91,26 +89,34 @@ class Capture: public QObject
 
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
+        Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QList<int> listTracks(const QString &mimeType);
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
-        Q_INVOKABLE bool isCompressed() const;
-        Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
+
+        Q_INVOKABLE QVariantList caps(const QString &webcam) const;
+        Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
+// <--
+        Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
         Q_INVOKABLE QSize size(const QString &webcam) const;
         Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size);
         Q_INVOKABLE bool resetSize(const QString &webcam);
-        Q_INVOKABLE QVariantList imageControls(const QString &webcam) const;
-        Q_INVOKABLE bool setImageControls(const QString &webcam, const QVariantMap &imageControls) const;
-        Q_INVOKABLE bool resetImageControls(const QString &webcam) const;
-        Q_INVOKABLE QVariantList cameraControls(const QString &webcam) const;
-        Q_INVOKABLE bool setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const;
-        Q_INVOKABLE bool resetCameraControls(const QString &webcam) const;
+// -->
+        Q_INVOKABLE QVariantList imageControls() const;
+        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) const;
+        Q_INVOKABLE bool resetImageControls() const;
+        Q_INVOKABLE QVariantList cameraControls() const;
+        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) const;
+        Q_INVOKABLE bool resetCameraControls() const;
+
         Q_INVOKABLE AkPacket readFrame();
 
     private:
         QStringList m_webcams;
         QString m_device;
+        QList<int> m_streams;
         qint64 m_id;
         AkCaps m_caps;
         AkFrac m_timeBase;
@@ -146,22 +152,27 @@ class Capture: public QObject
     signals:
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
+        void streamsChanged(const QList<int> &streams);
         void ioMethodChanged(const QString &ioMethod);
         void error(const QString &message);
+// <--
         void sizeChanged(const QString &webcam, const QSize &size) const;
-        void imageControlsChanged(const QString &webcam, const QVariantMap &imageControls) const;
-        void cameraControlsChanged(const QString &webcam, const QVariantMap &cameraControls) const;
+// -->
+        void imageControlsChanged(const QVariantMap &imageControls) const;
+        void cameraControlsChanged(const QVariantMap &cameraControls) const;
 
     public slots:
         bool init();
         void uninit();
         void setDevice(const QString &device);
+        void setStreams(const QList<int> &streams);
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
         void resetDevice();
+        void resetStreams();
         void resetIoMethod();
         void resetNBuffers();
-        void reset(const QString &webcam);
+        void reset();
 
     private slots:
         void frameReceived(qreal time, const QByteArray &buffer);

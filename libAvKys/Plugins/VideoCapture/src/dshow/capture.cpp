@@ -141,6 +141,16 @@ QString Capture::device() const
     return this->m_device;
 }
 
+QList<int> Capture::streams() const
+{
+
+}
+
+QList<int> Capture::listTracks(const QString &mimeType)
+{
+
+}
+
 QString Capture::ioMethod() const
 {
     return ioMethodToStr->value(this->m_ioMethod, "any");
@@ -149,16 +159,6 @@ QString Capture::ioMethod() const
 int Capture::nBuffers() const
 {
     return 0;
-}
-
-bool Capture::isCompressed() const
-{
-    return false;
-}
-
-AkCaps Capture::caps() const
-{
-    return this->caps(this->listMediaTypes(this->m_device));
 }
 
 QString Capture::description(const QString &webcam) const
@@ -197,6 +197,21 @@ QString Capture::description(const QString &webcam) const
     pPropBag->Release();
 
     return description;
+}
+
+QVariantList Capture::caps(const QString &webcam) const
+{
+
+}
+
+QString Capture::capsDescription(const AkCaps &caps) const
+{
+
+}
+
+AkCaps Capture::caps() const
+{
+    return this->caps(this->listMediaTypes(this->m_device));
 }
 
 QVariantList Capture::availableSizes(const QString &webcam) const
@@ -257,9 +272,9 @@ bool Capture::resetSize(const QString &webcam)
     return this->setSize(webcam, availableSizes.first().toSize());
 }
 
-QVariantList Capture::imageControls(const QString &webcam) const
+QVariantList Capture::imageControls() const
 {
-    BaseFilterPtr filter = this->findFilter(webcam);
+    BaseFilterPtr filter = this->findFilter(this->m_device);
 
     if (!filter)
         return QVariantList();
@@ -317,9 +332,9 @@ QVariantList Capture::imageControls(const QString &webcam) const
     return controls;
 }
 
-bool Capture::setImageControls(const QString &webcam, const QVariantMap &imageControls) const
+bool Capture::setImageControls(const QVariantMap &imageControls) const
 {
-    BaseFilterPtr filter = this->findFilter(webcam);
+    BaseFilterPtr filter = this->findFilter(this->m_device);
 
     if (!filter)
         return false;
@@ -339,26 +354,26 @@ bool Capture::setImageControls(const QString &webcam, const QVariantMap &imageCo
         pProcAmp->Release();
     }
 
-    emit this->imageControlsChanged(webcam, imageControls);
+    emit this->imageControlsChanged(imageControls);
 
     return true;
 }
 
-bool Capture::resetImageControls(const QString &webcam) const
+bool Capture::resetImageControls() const
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->imageControls(webcam)) {
+    foreach (QVariant control, this->imageControls()) {
         QVariantList params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
 
-    return this->setImageControls(webcam, controls);
+    return this->setImageControls(controls);
 }
 
-QVariantList Capture::cameraControls(const QString &webcam) const
+QVariantList Capture::cameraControls() const
 {
-    BaseFilterPtr filter = this->findFilter(webcam);
+    BaseFilterPtr filter = this->findFilter(this->m_device);
 
     if (!filter)
         return QVariantList();
@@ -405,11 +420,11 @@ QVariantList Capture::cameraControls(const QString &webcam) const
     return controls;
 }
 
-bool Capture::setCameraControls(const QString &webcam, const QVariantMap &cameraControls) const
+bool Capture::setCameraControls(const QVariantMap &cameraControls) const
 {
     return false;
 
-    BaseFilterPtr filter = this->findFilter(webcam);
+    BaseFilterPtr filter = this->findFilter(this->m_device);
 
     if (!filter)
         return false;
@@ -429,22 +444,22 @@ bool Capture::setCameraControls(const QString &webcam, const QVariantMap &camera
         pCameraControl->Release();
     }
 
-    emit this->cameraControlsChanged(webcam, cameraControls);
+    emit this->cameraControlsChanged(cameraControls);
 
     return true;
 }
 
-bool Capture::resetCameraControls(const QString &webcam) const
+bool Capture::resetCameraControls() const
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->cameraControls(webcam)) {
+    foreach (QVariant control, this->cameraControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
     }
 
-    return this->setCameraControls(webcam, controls);
+    return this->setCameraControls(controls);
 }
 
 AkPacket Capture::readFrame()
@@ -1114,6 +1129,31 @@ void Capture::setDevice(const QString &device)
     emit this->deviceChanged(device);
 }
 
+void Capture::setStreams(const QList<int> &streams)
+{
+    if (streams.isEmpty())
+        return;
+
+    int stream = streams[0];
+
+    if (stream < 0)
+        return;
+
+    QVariantList supportedCaps = this->caps(this->m_device);
+
+    if (stream >= supportedCaps.length())
+        return;
+
+    QList<int> inputStreams;
+    inputStreams << stream;
+
+    if (this->streams() == inputStreams)
+        return;
+
+    this->m_streams = inputStreams;
+    emit this->streamsChanged(inputStreams);
+}
+
 void Capture::setIoMethod(const QString &ioMethod)
 {
     IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodGrabSample);
@@ -1135,6 +1175,17 @@ void Capture::resetDevice()
     this->setDevice("");
 }
 
+void Capture::resetStreams()
+{
+    QVariantList supportedCaps = this->caps(this->m_device);
+    QList<int> streams;
+
+    if (!supportedCaps.isEmpty())
+        streams << 0;
+
+    this->setStreams(streams);
+}
+
 void Capture::resetIoMethod()
 {
     this->setIoMethod("any");
@@ -1144,20 +1195,11 @@ void Capture::resetNBuffers()
 {
 }
 
-void Capture::reset(const QString &webcam)
+void Capture::reset()
 {
-    QStringList webcams;
-
-    if (webcam.isEmpty())
-        webcams = this->webcams();
-    else
-        webcams << webcam;
-
-    foreach (QString webcam, webcams) {
-        this->resetSize(webcam);
-        this->resetImageControls(webcam);
-        this->resetCameraControls(webcam);
-    }
+    this->resetStreams();
+    this->resetImageControls();
+    this->resetCameraControls();
 }
 
 void Capture::frameReceived(qreal time, const QByteArray &buffer)

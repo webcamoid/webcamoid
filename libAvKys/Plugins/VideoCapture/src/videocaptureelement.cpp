@@ -350,7 +350,7 @@ void VideoCaptureElement::frameReady(const AkPacket &packet)
 #if defined(Q_OS_WIN32)
     QImage oImage = AkUtils::packetToImage(packet).mirrored();
 
-    emit element->oStream(AkUtils::imageToPacket(oImage, packet));
+    emit this->oStream(AkUtils::imageToPacket(oImage, packet));
 #else
     emit this->oStream(packet);
 #endif
