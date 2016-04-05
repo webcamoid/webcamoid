@@ -58,44 +58,74 @@ inline CameraControlMap initCameraControlMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(CameraControlMap, ccToStr, (initCameraControlMap()))
 
-typedef QMap<GUID, AkVideoCaps::PixelFormat> GuidToStrMap;
+typedef QMap<GUID, QString> GuidToStrMap;
 
 inline GuidToStrMap initGuidToStrMap()
 {
     GuidToStrMap guidToStr;
-    guidToStr[MEDIASUBTYPE_RGB1] = AkVideoCaps::Format_monob;
-    guidToStr[MEDIASUBTYPE_RGB4] = AkVideoCaps::Format_bgr4_byte;
-    guidToStr[MEDIASUBTYPE_RGB8] = AkVideoCaps::Format_pal8;
-    guidToStr[MEDIASUBTYPE_RGB555] = AkVideoCaps::Format_bgr555le;
-    guidToStr[MEDIASUBTYPE_RGB565] = AkVideoCaps::Format_bgr565le;
-    guidToStr[MEDIASUBTYPE_RGB24] = AkVideoCaps::Format_bgr24;
-    guidToStr[MEDIASUBTYPE_RGB32] = AkVideoCaps::Format_bgr0;
-//    guidToStr[MEDIASUBTYPE_ARGB1555] = AkVideoCaps::Format_none;
-    guidToStr[MEDIASUBTYPE_ARGB32] = AkVideoCaps::Format_bgra;
-//    guidToStr[MEDIASUBTYPE_ARGB4444] = AkVideoCaps::Format_none;
-//    guidToStr[MEDIASUBTYPE_A2R10G10B10] = AkVideoCaps::Format_none;
-//    guidToStr[MEDIASUBTYPE_A2B10G10R10] = AkVideoCaps::Format_none;
-    guidToStr[MEDIASUBTYPE_AYUV] = AkVideoCaps::Format_yuva420p;
-    guidToStr[MEDIASUBTYPE_YUY2] = AkVideoCaps::Format_yuyv422;
-    guidToStr[MEDIASUBTYPE_UYVY] = AkVideoCaps::Format_uyvy422;
-//    guidToStr[MEDIASUBTYPE_IMC1] = AkVideoCaps::Format_none;
-//    guidToStr[MEDIASUBTYPE_IMC2] = AkVideoCaps::Format_none;
-//    guidToStr[MEDIASUBTYPE_IMC3] = AkVideoCaps::Format_none;
-//    guidToStr[MEDIASUBTYPE_IMC4] = AkVideoCaps::Format_none;
-    guidToStr[MEDIASUBTYPE_YV12] = AkVideoCaps::Format_yuv420p;
-    guidToStr[MEDIASUBTYPE_NV12] = AkVideoCaps::Format_nv12;
-
-#ifdef MEDIASUBTYPE_I420
-    guidToStr[MEDIASUBTYPE_I420] = AkVideoCaps::Format_yuv420p;
-#endif
-
-//    guidToStr[MEDIASUBTYPE_IF09] = AkVideoCaps::Format_none;
-    guidToStr[MEDIASUBTYPE_IYUV] = AkVideoCaps::Format_yuv420p;
-//    guidToStr[MEDIASUBTYPE_Y211] = AkVideoCaps::Format_none;
-    guidToStr[MEDIASUBTYPE_Y411] = AkVideoCaps::Format_uyyvyy411;
-    guidToStr[MEDIASUBTYPE_Y41P] = AkVideoCaps::Format_uyyvyy411;
-    guidToStr[MEDIASUBTYPE_YVU9] = AkVideoCaps::Format_yuv410p;
-    guidToStr[MEDIASUBTYPE_YVYU] = AkVideoCaps::Format_yvyu422;
+    guidToStr[MEDIASUBTYPE_CLPL] = "CLPL";
+    guidToStr[MEDIASUBTYPE_YUYV] = "YUYV";
+    guidToStr[MEDIASUBTYPE_IYUV] = "IYUV";
+    guidToStr[MEDIASUBTYPE_YVU9] = "YVU9";
+    guidToStr[MEDIASUBTYPE_Y411] = "Y411";
+    guidToStr[MEDIASUBTYPE_Y41P] = "Y41P";
+    guidToStr[MEDIASUBTYPE_YUY2] = "YUY2";
+    guidToStr[MEDIASUBTYPE_YVYU] = "YVYU";
+    guidToStr[MEDIASUBTYPE_UYVY] = "UYVY";
+    guidToStr[MEDIASUBTYPE_Y211] = "Y211";
+    guidToStr[MEDIASUBTYPE_CLJR] = "CLJR";
+    guidToStr[MEDIASUBTYPE_IF09] = "IF09";
+    guidToStr[MEDIASUBTYPE_CPLA] = "CPLA";
+    guidToStr[MEDIASUBTYPE_MJPG] = "MJPG";
+    guidToStr[MEDIASUBTYPE_TVMJ] = "TVMJ";
+    guidToStr[MEDIASUBTYPE_WAKE] = "WAKE";
+    guidToStr[MEDIASUBTYPE_CFCC] = "CFCC";
+    guidToStr[MEDIASUBTYPE_IJPG] = "IJPG";
+    guidToStr[MEDIASUBTYPE_Plum] = "Plum";
+    guidToStr[MEDIASUBTYPE_DVCS] = "DVCS";
+    guidToStr[MEDIASUBTYPE_DVSD] = "DVSD";
+    guidToStr[MEDIASUBTYPE_MDVF] = "MDVF";
+    guidToStr[MEDIASUBTYPE_RGB1] = "RGB1";
+    guidToStr[MEDIASUBTYPE_RGB4] = "RGB4";
+    guidToStr[MEDIASUBTYPE_RGB8] = "RGB8";
+    guidToStr[MEDIASUBTYPE_RGB565] = "RGBP";
+    guidToStr[MEDIASUBTYPE_RGB555] = "RGBO";
+    guidToStr[MEDIASUBTYPE_RGB24] = "RGB3";
+    guidToStr[MEDIASUBTYPE_RGB32] = "RGB4";
+    guidToStr[MEDIASUBTYPE_ARGB1555] = "AR15";
+    guidToStr[MEDIASUBTYPE_ARGB4444] = "AR12";
+    guidToStr[MEDIASUBTYPE_ARGB32] = "BA24";
+    guidToStr[MEDIASUBTYPE_AYUV] = "AYUV";
+    guidToStr[MEDIASUBTYPE_AI44] = "AI44";
+    guidToStr[MEDIASUBTYPE_IA44] = "IA44";
+    guidToStr[MEDIASUBTYPE_RGB32_D3D_DX7_RT] = "7R32";
+    guidToStr[MEDIASUBTYPE_RGB16_D3D_DX7_RT] = "7R16";
+    guidToStr[MEDIASUBTYPE_ARGB32_D3D_DX7_RT] = "7A88";
+    guidToStr[MEDIASUBTYPE_ARGB4444_D3D_DX7_RT] = "7A44";
+    guidToStr[MEDIASUBTYPE_ARGB1555_D3D_DX7_RT] = "7A15";
+    guidToStr[MEDIASUBTYPE_RGB32_D3D_DX9_RT] = "9R32";
+    guidToStr[MEDIASUBTYPE_RGB16_D3D_DX9_RT] = "9R16";
+    guidToStr[MEDIASUBTYPE_ARGB32_D3D_DX9_RT] = "9A88";
+    guidToStr[MEDIASUBTYPE_ARGB4444_D3D_DX9_RT] = "9A44";
+    guidToStr[MEDIASUBTYPE_ARGB1555_D3D_DX9_RT] = "9A15";
+    guidToStr[MEDIASUBTYPE_YV12] = "YV12";
+    guidToStr[MEDIASUBTYPE_NV12] = "NV12";
+    guidToStr[MEDIASUBTYPE_IMC1] = "IMC1";
+    guidToStr[MEDIASUBTYPE_IMC2] = "IMC2";
+    guidToStr[MEDIASUBTYPE_IMC3] = "IMC3";
+    guidToStr[MEDIASUBTYPE_IMC4] = "IMC4";
+    guidToStr[MEDIASUBTYPE_S340] = "S340";
+    guidToStr[MEDIASUBTYPE_S342] = "S342";
+    guidToStr[MEDIASUBTYPE_QTRpza] = "rpza";
+    guidToStr[MEDIASUBTYPE_QTSmc] = "smc ";
+    guidToStr[MEDIASUBTYPE_QTRle] = "rle ";
+    guidToStr[MEDIASUBTYPE_QTJpeg] = "jpeg";
+    guidToStr[MEDIASUBTYPE_dvsd] = "dvsd";
+    guidToStr[MEDIASUBTYPE_dvhd] = "dvhd";
+    guidToStr[MEDIASUBTYPE_dvsl] = "dvsl";
+    guidToStr[MEDIASUBTYPE_dv25] = "dv25";
+    guidToStr[MEDIASUBTYPE_dv50] = "dv50";
+    guidToStr[MEDIASUBTYPE_dvh1] = "dvh1";
 
     return guidToStr;
 }
@@ -143,12 +173,30 @@ QString Capture::device() const
 
 QList<int> Capture::streams() const
 {
+    if (!this->m_streams.isEmpty())
+        return this->m_streams;
 
+    QVariantList caps = this->caps(this->m_device);
+
+    if (caps.isEmpty())
+        return QList<int>();
+
+    return QList<int>() << 0;
 }
 
 QList<int> Capture::listTracks(const QString &mimeType)
 {
+    if (mimeType != "video/x-raw"
+        || !mimeType.isEmpty())
+        return QList<int>();
 
+    QVariantList caps = this->caps(this->m_device);
+    QList<int> streams;
+
+    for (int i = 0; i < caps.count(); i++)
+        streams << i;
+
+    return streams;
 }
 
 QString Capture::ioMethod() const
@@ -201,75 +249,31 @@ QString Capture::description(const QString &webcam) const
 
 QVariantList Capture::caps(const QString &webcam) const
 {
+    QVariantList caps;
+    MediaTypesList mediaTypes = this->listMediaTypes(webcam);
 
+    foreach (MediaTypePtr mediaType, mediaTypes) {
+        AkCaps videoCaps = this->capsFromMediaType(mediaType);
+
+        if (!videoCaps)
+            continue;
+
+        caps << QVariant::fromValue(videoCaps);
+    }
+
+    return caps;
 }
 
 QString Capture::capsDescription(const AkCaps &caps) const
 {
+    if (caps.mimeType() != "video/unknown")
+        return QString();
 
-}
-
-AkCaps Capture::caps() const
-{
-    return this->caps(this->listMediaTypes(this->m_device));
-}
-
-QVariantList Capture::availableSizes(const QString &webcam) const
-{
-    MediaTypesList mediaTypes = this->listMediaTypes(webcam);
-
-    if (mediaTypes.isEmpty())
-        return QVariantList();
-
-    QVariantList resolutions;
-
-    foreach (MediaTypePtr mediaType, mediaTypes) {
-        VIDEOINFOHEADER *pInfoHeader = (VIDEOINFOHEADER *) mediaType->pbFormat;
-
-        QSize size(pInfoHeader->bmiHeader.biWidth,
-                   pInfoHeader->bmiHeader.biHeight);
-
-        if (!resolutions.contains(size))
-            resolutions << size;
-    }
-
-    return resolutions;
-}
-
-QSize Capture::size(const QString &webcam) const
-{
-    if (this->m_resolution.contains(webcam))
-        return this->m_resolution[webcam];
-
-    QVariantList resolutions = this->availableSizes(webcam);
-
-    if (resolutions.isEmpty())
-        return QSize();
-
-    return resolutions[0].toSize();
-}
-
-bool Capture::setSize(const QString &webcam, const QSize &size)
-{
-    QVariantList resolutions = this->availableSizes(webcam);
-
-    if (!resolutions.contains(size))
-        return false;
-
-    this->m_resolution[webcam] = size;
-    emit this->sizeChanged(webcam, size);
-
-    return true;
-}
-
-bool Capture::resetSize(const QString &webcam)
-{
-    QVariantList availableSizes = this->availableSizes(webcam);
-
-    if (availableSizes.isEmpty())
-        return true;
-
-    return this->setSize(webcam, availableSizes.first().toSize());
+    return QString("%1, %2x%3 %4 fps")
+                .arg(caps.property("fourcc").toString())
+                .arg(caps.property("width").toInt())
+                .arg(caps.property("height").toInt())
+                .arg(caps.property("fps").toString());
 }
 
 QVariantList Capture::imageControls() const
@@ -466,6 +470,13 @@ AkPacket Capture::readFrame()
 {
     AkPacket packet;
 
+    timeval timestamp;
+    gettimeofday(&timestamp, NULL);
+
+    qint64 pts = (timestamp.tv_sec
+                  + 1e-6 * timestamp.tv_usec)
+                  * this->m_timeBase.invert().value();
+
     if (this->m_ioMethod != IoMethodDirectRead) {
         this->m_mutex.lock();
 
@@ -476,9 +487,6 @@ AkPacket Capture::readFrame()
             int bufferSize = this->m_curBuffer.size();
             QByteArray oBuffer(bufferSize, Qt::Uninitialized);
             memcpy(oBuffer.data(), this->m_curBuffer.constData(), bufferSize);
-
-            qint64 pts = this->m_curTime
-                          * this->m_timeBase.invert().value();
 
             packet = AkPacket(this->m_caps, oBuffer);
             packet.setPts(pts);
@@ -503,13 +511,6 @@ AkPacket Capture::readFrame()
         if (FAILED(hr))
             return AkPacket();
 
-        timeval timestamp;
-        gettimeofday(&timestamp, NULL);
-
-        qint64 pts = (timestamp.tv_sec
-                      + 1e-6 * timestamp.tv_usec)
-                      * this->m_timeBase.invert().value();
-
         packet = AkPacket(this->m_caps, oBuffer);
         packet.setPts(pts);
         packet.setTimeBase(this->m_timeBase);
@@ -520,24 +521,26 @@ AkPacket Capture::readFrame()
     return packet;
 }
 
-AkCaps Capture::caps(const MediaTypesList &mediaTypes) const
+AkCaps Capture::capsFromMediaType(const MediaTypePtr &mediaType) const
 {
-    if (mediaTypes.isEmpty())
+    if (!mediaType)
         return AkCaps();
 
-    VIDEOINFOHEADER *videoInfoHeader = (VIDEOINFOHEADER *) mediaTypes.first()->pbFormat;
+    VIDEOINFOHEADER *videoInfoHeader = (VIDEOINFOHEADER *) mediaType->pbFormat;
+    QString fourcc = guidToStr->value(mediaType->subtype);
 
-    int fps = 1.0e8 / videoInfoHeader->AvgTimePerFrame;
+    if (fourcc.isEmpty())
+        return AkCaps();
 
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = guidToStr->value(mediaTypes.first()->subtype);
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = (int) videoInfoHeader->bmiHeader.biWidth;
-    caps.height() = (int) videoInfoHeader->bmiHeader.biHeight;
-    caps.fps() = AkFrac(fps, 1);
+    AkCaps videoCaps;
+    videoCaps.setMimeType("video/unknown");
+    videoCaps.setProperty("fourcc", fourcc);
+    videoCaps.setProperty("width", (int) videoInfoHeader->bmiHeader.biWidth);
+    videoCaps.setProperty("height", (int) videoInfoHeader->bmiHeader.biHeight);
+    AkFrac fps(1.0e8, videoInfoHeader->AvgTimePerFrame);
+    videoCaps.setProperty("fps", fps.toString());
 
-    return caps.toCaps();
+    return videoCaps;
 }
 
 HRESULT Capture::enumerateCameras(IEnumMoniker **ppEnum) const
@@ -662,13 +665,10 @@ MediaTypesList Capture::listMediaTypes(IBaseFilter *filter) const
     foreach (PinPtr pin, pins) {
         IEnumMediaTypes *pEnum = NULL;
         pin->EnumMediaTypes(&pEnum);
-
         AM_MEDIA_TYPE *mediaType = NULL;
 
         while (pEnum->Next(1, &mediaType, NULL) == S_OK)
-            if (mediaType->bFixedSizeSamples == TRUE
-                && mediaType->lSampleSize != 0
-                && mediaType->formattype == FORMAT_VideoInfo
+            if (mediaType->formattype == FORMAT_VideoInfo
                 && mediaType->cbFormat >= sizeof(VIDEOINFOHEADER)
                 && mediaType->pbFormat != NULL
                 && guidToStr->contains(mediaType->subtype)) {
@@ -794,61 +794,6 @@ PinList Capture::enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const
     return pinList;
 }
 
-void Capture::changeResolution(IBaseFilter *cameraFilter, const QSize &size) const
-{
-    PinList pins = this->enumPins(cameraFilter, PINDIR_OUTPUT);
-
-    foreach (PinPtr pin, pins) {
-        IAMStreamConfig *pStreamConfig = NULL;
-        HRESULT hr = pin->QueryInterface(IID_IAMStreamConfig, (void **) &pStreamConfig);
-
-        if (FAILED(hr)) {
-            pStreamConfig->Release();
-
-            continue;
-        }
-
-        StreamConfigPtr streamConfig(pStreamConfig, this->deleteUnknown);
-
-        int count = 0;
-        int configSize = 0;
-
-        hr = streamConfig->GetNumberOfCapabilities(&count, &configSize);
-
-        if (FAILED(hr)
-            || configSize != sizeof(VIDEO_STREAM_CONFIG_CAPS))
-            continue;
-
-        for (int format = 0; format < count; format++) {
-            VIDEO_STREAM_CONFIG_CAPS streamConfigCaps;
-            AM_MEDIA_TYPE *pMediaType;
-
-            hr = streamConfig->GetStreamCaps(format, &pMediaType, (BYTE *) &streamConfigCaps);
-
-            if (FAILED(hr)) {
-                this->deleteMediaType(pMediaType);
-
-                continue;
-            }
-
-            MediaTypePtr mediaType(pMediaType, this->deleteMediaType);
-
-            if (mediaType->majortype != MEDIATYPE_Video
-                || mediaType->formattype != FORMAT_VideoInfo
-                || mediaType->cbFormat < sizeof (VIDEOINFOHEADER)
-                || mediaType->pbFormat == NULL)
-                continue;
-
-            VIDEOINFOHEADER *infoHeader = (VIDEOINFOHEADER *) mediaType->pbFormat;
-
-            infoHeader->bmiHeader.biWidth = size.width();
-            infoHeader->bmiHeader.biHeight = size.height();
-
-            streamConfig->SetFormat(pMediaType);
-        }
-    }
-}
-
 bool Capture::createDeviceNotifier()
 {
     QString className("HiddenWindow");
@@ -963,8 +908,6 @@ bool Capture::init()
         return false;
     }
 
-    this->changeResolution(webcamFilter, this->size(this->m_device));
-
     if (FAILED(this->m_graph->AddFilter(webcamFilter, L"Source"))) {
         this->m_graph->Release();
         this->m_graph = NULL;
@@ -997,22 +940,6 @@ bool Capture::init()
 
     if (FAILED(grabberFilter->QueryInterface(IID_ISampleGrabber,
                                              (void **) &grabberPtr))) {
-        this->m_graph->Release();
-        this->m_graph = NULL;
-
-        return false;
-    }
-
-    MediaTypesList mediaTypes = this->listMediaTypes(webcamFilter);
-
-    if (mediaTypes.isEmpty()) {
-        this->m_graph->Release();
-        this->m_graph = NULL;
-
-        return false;
-    }
-
-    if (FAILED(grabberPtr->SetMediaType(mediaTypes.first().data()))) {
         this->m_graph->Release();
         this->m_graph = NULL;
 
@@ -1077,6 +1004,47 @@ bool Capture::init()
         return false;
     }
 
+    // Set capture format
+    QList<int> streams = this->streams();
+
+    if (streams.isEmpty()) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    MediaTypesList mediaTypes = this->listMediaTypes(webcamFilter);
+
+    if (mediaTypes.isEmpty()) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    MediaTypePtr mediaType = mediaTypes[streams[0]];
+
+    if (FAILED(grabberPtr->SetMediaType(mediaType.data()))) {
+        this->m_graph->Release();
+        this->m_graph = NULL;
+
+        return false;
+    }
+
+    PinList pins = this->enumPins(webcamFilter, PINDIR_OUTPUT);
+
+    foreach (PinPtr pin, pins) {
+        IAMStreamConfig *pStreamConfig = NULL;
+        HRESULT hr = pin->QueryInterface(IID_IAMStreamConfig, (void **) &pStreamConfig);
+
+        if (SUCCEEDED(hr))
+            pStreamConfig->SetFormat(mediaType.data());
+
+        if (pStreamConfig)
+            pStreamConfig->Release();
+    }
+
     // Run the pipeline
     IMediaControl *control = NULL;
 
@@ -1088,6 +1056,10 @@ bool Capture::init()
         return false;
     }
 
+    this->m_id = Ak::id();
+    this->m_caps = this->capsFromMediaType(mediaType);
+    this->m_timeBase = AkFrac(this->m_caps.property("fps").toString()).invert();
+
     if (FAILED(control->Run())) {
         control->Release();
         this->m_graph->Release();
@@ -1097,10 +1069,6 @@ bool Capture::init()
     }
 
     control->Release();
-
-    this->m_id = Ak::id();
-    this->m_caps = this->caps(mediaTypes);
-    this->m_timeBase = AkFrac(this->m_caps.property("fps").toString()).invert();
 
     return true;
 }
@@ -1204,8 +1172,9 @@ void Capture::reset()
 
 void Capture::frameReceived(qreal time, const QByteArray &buffer)
 {
+    Q_UNUSED(time)
+
     this->m_mutex.lock();
-    this->m_curTime = time;
     this->m_curBuffer = buffer;
     this->m_waitCondition.wakeAll();
     this->m_mutex.unlock();

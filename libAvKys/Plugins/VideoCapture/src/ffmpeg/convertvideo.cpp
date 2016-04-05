@@ -256,7 +256,8 @@ void ConvertVideo::packetLoop(ConvertVideo *stream)
 
         if (!stream->m_packets.isEmpty()) {
             AkPacket packet = stream->m_packets.dequeue();
-            AVFrame *iFrame = av_frame_alloc();
+            AVFrame iFrame;
+            memset(&iFrame, 0, sizeof(AVFrame));
 
             AVPacket videoPacket;
             av_init_packet(&videoPacket);
@@ -265,10 +266,10 @@ void ConvertVideo::packetLoop(ConvertVideo *stream)
             videoPacket.pts = packet.pts();
             int gotFrame;
 
-            avcodec_decode_video2(stream->m_codecContext, iFrame, &gotFrame, &videoPacket);
+            avcodec_decode_video2(stream->m_codecContext, &iFrame, &gotFrame, &videoPacket);
 
             if (gotFrame)
-                stream->dataEnqueue(iFrame);
+                stream->dataEnqueue(av_frame_clone(&iFrame));
 
             stream->m_packetQueueSize -= packet.buffer().size();
 
@@ -351,6 +352,8 @@ void ConvertVideo::processData(const FramePtr &frame)
 
 void ConvertVideo::convert(const FramePtr &frame)
 {
+    AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
+
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                   frame->width,
@@ -358,7 +361,7 @@ void ConvertVideo::convert(const FramePtr &frame)
                                                   AVPixelFormat(frame->format),
                                                   frame->width,
                                                   frame->height,
-                                                  AV_PIX_FMT_BGRA,
+                                                  outPixFormat,
                                                   SWS_FAST_BILINEAR,
                                                   NULL,
                                                   NULL,
@@ -368,7 +371,7 @@ void ConvertVideo::convert(const FramePtr &frame)
         return;
 
     // Create oPicture
-    int frameSize = av_image_get_buffer_size(AV_PIX_FMT_BGRA,
+    int frameSize = av_image_get_buffer_size(outPixFormat,
                                              frame->width,
                                              frame->height,
                                              1);
@@ -380,7 +383,7 @@ void ConvertVideo::convert(const FramePtr &frame)
     if (av_image_fill_arrays((uint8_t **) oFrame.data,
                              oFrame.linesize,
                              (const uint8_t *) oBuffer.constData(),
-                             AV_PIX_FMT_BGRA,
+                             outPixFormat,
                              frame->width,
                              frame->height,
                              1) < 0) {
@@ -398,7 +401,7 @@ void ConvertVideo::convert(const FramePtr &frame)
 
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_bgra;
+    caps.format() = AkVideoCaps::Format_bgr24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = frame->width;
     caps.height() = frame->height;

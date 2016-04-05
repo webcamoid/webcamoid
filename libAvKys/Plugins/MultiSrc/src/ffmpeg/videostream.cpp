@@ -88,18 +88,19 @@ void VideoStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
-    AVFrame *iFrame = av_frame_alloc();
+    AVFrame iFrame;
+    memset(&iFrame, 0, sizeof(AVFrame));
     int gotFrame;
 
     avcodec_decode_video2(this->codecContext(),
-                          iFrame,
+                          &iFrame,
                           &gotFrame,
                           packet);
 
     if (!gotFrame)
         return;
 
-    this->dataEnqueue(iFrame);
+    this->dataEnqueue(av_frame_clone(&iFrame));
 }
 
 void VideoStream::processData(AVFrame *frame)

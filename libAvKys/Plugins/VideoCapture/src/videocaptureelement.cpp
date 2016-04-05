@@ -348,7 +348,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
 #if defined(Q_OS_WIN32)
-    QImage oImage = AkUtils::packetToImage(packet).mirrored();
+    QImage oImage = AkUtils::packetToImage(packet).mirrored().rgbSwapped();
 
     emit this->oStream(AkUtils::imageToPacket(oImage, packet));
 #else

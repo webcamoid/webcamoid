@@ -76,18 +76,15 @@ class Capture: public QObject
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
-
         Q_INVOKABLE QVariantList capsFps(int fd, const v4l2_fmtdesc &format, __u32 width, __u32 height) const;
         Q_INVOKABLE QVariantList caps(const QString &webcam) const;
         Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
-
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) const;
         Q_INVOKABLE bool resetImageControls() const;
         Q_INVOKABLE QVariantList cameraControls() const;
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) const;
         Q_INVOKABLE bool resetCameraControls() const;
-
         Q_INVOKABLE AkPacket readFrame();
 
     private:
@@ -96,7 +93,6 @@ class Capture: public QObject
         QList<int> m_streams;
         IoMethod m_ioMethod;
         int m_nBuffers;
-
         QFileSystemWatcher *m_fsWatcher;
         int m_fd;
         AkFrac m_fps;

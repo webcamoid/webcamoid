@@ -73,8 +73,6 @@ class Capture: public QObject
                READ nBuffers
                WRITE setNBuffers
                RESET resetNBuffers)
-    Q_PROPERTY(AkCaps caps
-               READ caps)
 
     public:
         enum IoMethod
@@ -94,23 +92,14 @@ class Capture: public QObject
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
-
         Q_INVOKABLE QVariantList caps(const QString &webcam) const;
         Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
-// <--
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE QVariantList availableSizes(const QString &webcam) const;
-        Q_INVOKABLE QSize size(const QString &webcam) const;
-        Q_INVOKABLE bool setSize(const QString &webcam, const QSize &size);
-        Q_INVOKABLE bool resetSize(const QString &webcam);
-// -->
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) const;
         Q_INVOKABLE bool resetImageControls() const;
         Q_INVOKABLE QVariantList cameraControls() const;
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) const;
         Q_INVOKABLE bool resetCameraControls() const;
-
         Q_INVOKABLE AkPacket readFrame();
 
     private:
@@ -125,12 +114,11 @@ class Capture: public QObject
         IGraphBuilder *m_graph;
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
-        qreal m_curTime;
         QByteArray m_curBuffer;
         QMutex m_mutex;
         QWaitCondition m_waitCondition;
 
-        AkCaps caps(const MediaTypesList &mediaTypes) const;
+        AkCaps capsFromMediaType(const MediaTypePtr &mediaType) const;
         HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
         MonikersMap listMonikers() const;
         MonikerPtr findMoniker(const QString &webcam) const;
@@ -142,7 +130,6 @@ class Capture: public QObject
         PinPtr findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const;
         bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
-        void changeResolution(IBaseFilter *cameraFilter, const QSize &size) const;
         bool createDeviceNotifier();
         static LRESULT CALLBACK deviceEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
         static void deleteUnknown(IUnknown *unknown);
@@ -154,10 +141,8 @@ class Capture: public QObject
         void deviceChanged(const QString &device);
         void streamsChanged(const QList<int> &streams);
         void ioMethodChanged(const QString &ioMethod);
+        void nBuffersChanged(int nBuffers);
         void error(const QString &message);
-// <--
-        void sizeChanged(const QString &webcam, const QSize &size) const;
-// -->
         void imageControlsChanged(const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QVariantMap &cameraControls) const;
 
