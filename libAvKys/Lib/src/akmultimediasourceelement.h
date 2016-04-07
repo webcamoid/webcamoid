@@ -61,7 +61,6 @@ class AkMultimediaSourceElement: public AkElement
         Q_INVOKABLE virtual int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE virtual QString description(const QString &media) const;
         Q_INVOKABLE virtual AkCaps caps(int stream) const;
-        Q_INVOKABLE virtual bool isCompressed(int stream) const;
 
     private:
         AkMultimediaSourceElementPrivate *d;

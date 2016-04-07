@@ -81,13 +81,6 @@ AkCaps AkMultimediaSourceElement::caps(int stream) const
     return AkCaps();
 }
 
-bool AkMultimediaSourceElement::isCompressed(int stream) const
-{
-    Q_UNUSED(stream)
-
-    return false;
-}
-
 void AkMultimediaSourceElement::setMedia(const QString &media)
 {
     if (this->d->m_media == media)

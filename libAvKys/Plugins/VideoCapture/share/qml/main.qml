@@ -25,241 +25,118 @@ GridLayout {
     id: recCameraControls
     columns: 3
 
-    property var controls: []
-
-    function createControl(itemType, where)
+    function controlsUpdated(controls)
     {
-        return Qt.createQmlObject("import QtQuick.Controls 1.4; "
-                                  + itemType
-                                  + " {property string controlName: \"\";"
-                                  + " property string controlType: \""
-                                  + itemType
-                                  + "\"}",
-                                  where,
-                                  "VideoCapture")
+        var controlsCont = [clyImageControls, clyCameraControls]
+
+        for (var where in controlsCont)
+            for (var child in controlsCont[where].children) {
+                var controlName = controlsCont[where].children[child].controlParams[0]
+
+                if (controlName in controls)
+                    controlsCont[where].children[child].value = controls[controlName]
+            }
     }
 
-    function connectControls()
+    function createControls(controls, where)
     {
-        for (var i = 0; i < recCameraControls.controls.length; i++) {
-            var control = recCameraControls.controls[i]
+        var minimumLeftWidth = lblFormat.width
+        var minimumRightWidth = btnReset.width
 
-            if (control.controlType === "Slider")
-                control.onValueChanged.connect(sliderChanged)
-            else if (control.controlType === "SpinBox")
-                control.onValueChanged.connect(spinBoxChanged)
-            else if (control.controlType === "CheckBox")
-                control.onCheckedChanged.connect(updateControls)
-            else if (control.controlType === "ComboBox")
-                control.onCurrentIndexChanged.connect(updateControls)
-        }
+        for (var control in controls) {
+            var component = Qt.createComponent("CameraControl.qml");
 
-        VideoCapture.imageControlsChanged.connect(controlsUpdated)
-        VideoCapture.cameraControlsChanged.connect(controlsUpdated)
-        VideoCapture.sizeChanged.connect(resolutionChanged)
-    }
-
-    function disconnectControls()
-    {
-        for (var i = 0; i < recCameraControls.controls.length; i++) {
-            var control = recCameraControls.controls[i]
-
-            if (control.controlType === "Slider")
-                control.onValueChanged.disconnect(sliderChanged)
-            else if (control.controlType === "SpinBox")
-                control.onValueChanged.disconnect(spinBoxChanged)
-            else if (control.controlType === "CheckBox")
-                control.onCheckedChanged.disconnect(updateControls)
-            else if (control.controlType === "ComboBox")
-                control.onCurrentIndexChanged.disconnect(updateControls)
-        }
-
-        VideoCapture.imageControlsChanged.disconnect(controlsUpdated)
-        VideoCapture.cameraControlsChanged.disconnect(controlsUpdated)
-        VideoCapture.sizeChanged.disconnect(resolutionChanged)
-    }
-
-    function spinBoxChanged()
-    {
-        disconnectControls()
-
-        for (var i = 0; i < recCameraControls.controls.length; i++)
-            if (recCameraControls.controls[i].controlType === "SpinBox")
-                recCameraControls.controls[i - 1].value =
-                        recCameraControls.controls[i].value
-
-        connectControls()
-
-        updateControls()
-    }
-
-    function sliderChanged()
-    {
-        disconnectControls()
-
-        for (var i = 0; i < recCameraControls.controls.length; i++)
-            if (recCameraControls.controls[i].controlType === "Slider")
-                recCameraControls.controls[i + 1].value =
-                        recCameraControls.controls[i].value
-
-        connectControls()
-
-        updateControls()
-    }
-
-    function updateControls()
-    {
-        var controls = {}
-
-        for (var i = 0; i < recCameraControls.controls.length; i++) {
-            var control = recCameraControls.controls[i]
-
-            if (control.controlType === "Slider")
-                controls[control.controlName] = control.value
-            else if (control.controlType === "CheckBox")
-                controls[control.controlName] = control.checked
-            else if (control.controlType === "ComboBox")
-                controls[control.controlName] = control.currentIndex
-        }
-
-        disconnectControls()
-
-        VideoCapture.setImageControls(controlId, controls)
-        VideoCapture.setCameraControls(controlId, controls)
-
-        connectControls()
-    }
-
-    function controlsUpdated(camera, controls)
-    {
-        if (camera !== controlId)
-            return
-
-        disconnectControls()
-
-        for (var i = 0; i < recCameraControls.controls.length; i++) {
-            var control = recCameraControls.controls[i]
-
-            if (!controls.hasOwnProperty(control.controlName))
+            if (component.status !== Component.Ready)
                 continue
 
-            if (control.controlType === "Slider")
-                control.value = controls[control.controlName]
-            else if (control.controlType === "CheckBox")
-                control.checked = controls[control.controlName]
-            else if (control.controlType === "ComboBox")
-                control.currentIndex = controls[control.controlName]
+            var obj = component.createObject(where);
+            obj.controlParams = controls[control]
+            obj.onControlChanged.connect(function (controlName, value)
+            {
+                var ctrl = {}
+                ctrl[controlName] = value
+                VideoCapture.setImageControls(ctrl)
+                VideoCapture.setCameraControls(ctrl)
+            })
+
+            if (obj.leftWidth > minimumLeftWidth)
+                minimumLeftWidth = obj.leftWidth
+
+            if (obj.rightWidth > minimumRightWidth)
+                minimumRightWidth = obj.rightWidth
         }
 
-        connectControls()
+        return [minimumLeftWidth, minimumRightWidth]
     }
 
-    function resolutionChanged(camera, size)
+    function createInterface()
     {
-        if (camera !== controlId)
-            return
+        var minimumImageWidth = createControls(VideoCapture.imageControls(), clyImageControls)
+        var minimumCameraWidth = createControls(VideoCapture.cameraControls(), clyCameraControls)
 
-        var resolutions = VideoCapture.availableSizes(controlId)
-        cbxResolution.currentIndex = resolutions.indexOf(size)
+        var minimumLeftWidth = Math.max(minimumImageWidth[0], minimumCameraWidth[0])
+        var minimumRightWidth = Math.max(minimumImageWidth[1], minimumCameraWidth[1])
+
+        var controls = [clyImageControls, clyCameraControls]
+
+        for (var where in controls)
+            for (var child in controls[where].children) {
+                controls[where].children[child].minimumLeftWidth = minimumLeftWidth
+                controls[where].children[child].minimumRightWidth = minimumRightWidth
+            }
+
+        lblFormat.minimumWidth = minimumLeftWidth
+        btnReset.minimumWidth = minimumRightWidth
     }
 
-    function createControls(controls)
-    {
-        for (var control in controls) {
-            var controlParams = controls[control]
+    Component.onCompleted: createInterface()
 
-            if (controlParams[1] === "integer" ||
-                controlParams[1] === "integer64") {
-                var labelInt = createControl("Label", recCameraControls)
-                labelInt.text = controlParams[0]
+    Connections {
+        id: conVideoCapture
+        target: VideoCapture
 
-                var slider = createControl("Slider", recCameraControls)
-                slider.controlName = controlParams[0]
-                slider.minimumValue = controlParams[2]
-                slider.maximumValue = controlParams[3]
-                slider.stepSize = controlParams[4]
-                slider.value = controlParams[6]
-                slider.Layout.fillWidth = true
-                recCameraControls.controls.push(slider)
-
-                var spinBox = createControl("SpinBox", recCameraControls)
-                spinBox.controlName = controlParams[0]
-                spinBox.minimumValue = controlParams[2]
-                spinBox.maximumValue = controlParams[3]
-                spinBox.stepSize = controlParams[4]
-                spinBox.value = controlParams[6]
-                spinBox.Layout.fillWidth = true
-                spinBox.Layout.maximumWidth = btnReset.width
-                spinBox.Layout.alignment = Qt.AlignHCenter
-                recCameraControls.controls.push(spinBox)
-            }
-            else if (controlParams[1] === "boolean") {
-                var checkBox = createControl("CheckBox", recCameraControls)
-                checkBox.controlName = controlParams[0]
-                checkBox.text = controlParams[0]
-                checkBox.checked = controlParams[6] !== 0
-                checkBox.Layout.columnSpan = 3
-                recCameraControls.controls.push(checkBox)
-            }
-            else if (controlParams[1] === "menu") {
-                var labelMenu = createControl("Label", recCameraControls)
-                labelMenu.text = controlParams[0]
-
-                var comboBox = createControl("ComboBox", recCameraControls)
-                comboBox.controlName = controlParams[0]
-                comboBox.model = controlParams[7]
-                comboBox.currentIndex = controlParams[6]
-                recCameraControls.controls.push(comboBox)
-
-                var labelBlank = createControl("Label", recCameraControls)
-            }
-        }
-    }
-
-    Component.onCompleted: {
-        var model = []
-        var resolutions = VideoCapture.availableSizes(controlId)
-
-        for (var resolution in resolutions) {
-            var resolutionStr = resolutions[resolution].width
-                                + "x"
-                                + resolutions[resolution].height
-
-            model.push(resolutionStr)
-        }
-
-        cbxResolution.model = model
-        cbxResolution.currentIndex = resolutions.indexOf(VideoCapture.size(controlId))
-
-        createControls(VideoCapture.imageControls(controlId))
-        createControls(VideoCapture.cameraControls(controlId))
-
-        var label = createControl("Label", recCameraControls)
-        label.Layout.fillHeight = true
-
-        connectControls()
+        onImageControlsChanged: controlsUpdated(imageControls)
+        onCameraControlsChanged: controlsUpdated(cameraControls)
+        onStreamsChanged: cbxFormat.currentIndex = streams.length > 0? streams[0]: -1
     }
 
     Label {
-        id: lblResolution
-        text: qsTr("Video resolution")
-    }
+        id: lblFormat
+        text: qsTr("Video format")
+        Layout.minimumWidth: minimumWidth
 
+        property int minimumWidth: 0
+    }
     ComboBox {
-        id: cbxResolution
+        id: cbxFormat
+        model: VideoCapture.listCapsDescription()
+        currentIndex: VideoCapture.defaultStream("video/x-raw")
+        Layout.fillWidth: true
 
-        onCurrentIndexChanged: {
-            var resolutions = VideoCapture.availableSizes(controlId)
-            VideoCapture.setSize(controlId, resolutions[currentIndex])
-        }
+        onCurrentIndexChanged: VideoCapture.streams = [currentIndex]
     }
-
     Button {
         id: btnReset
         text: qsTr("Reset")
         iconName: "reset"
-        Layout.alignment: Qt.AlignRight
+        Layout.minimumWidth: minimumWidth
 
-        onClicked: VideoCapture.reset(controlId)
+        property int minimumWidth: 0
+
+        onClicked: VideoCapture.reset()
+    }
+
+    ColumnLayout {
+        id: clyImageControls
+        Layout.fillWidth: true
+        Layout.columnSpan: 3
+    }
+    ColumnLayout {
+        id: clyCameraControls
+        Layout.fillWidth: true
+        Layout.columnSpan: 3
+    }
+    Label {
+        Layout.fillHeight: true
     }
 }

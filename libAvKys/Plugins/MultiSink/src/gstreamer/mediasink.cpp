@@ -22,6 +22,8 @@
 
 #include "mediasink.h"
 
+#define MINIMUM_PLUGIN_RANK GST_RANK_PRIMARY
+
 typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initGstToFF()
@@ -260,46 +262,20 @@ QVariantList MediaSink::streams() const
 QStringList MediaSink::supportedFormats()
 {
     QStringList supportedFormats;
-    GList *plugins = gst_registry_get_plugin_list(gst_registry_get());
+    GList *factoryList = gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_MUXER,
+                                                               MINIMUM_PLUGIN_RANK);
 
-    for (GList *pluginItem = plugins; pluginItem; pluginItem = g_list_next(pluginItem)) {
-        GstPlugin *plugin = (GstPlugin *) pluginItem->data;
-
-        if (GST_OBJECT_FLAG_IS_SET(plugin, GST_PLUGIN_FLAG_BLACKLISTED))
+    for (GList *featureItem = factoryList; featureItem; featureItem = g_list_next(featureItem)) {
+        if (G_UNLIKELY (featureItem->data == NULL))
           continue;
 
-        const gchar *pluginName = gst_plugin_get_name(plugin);
+        GstElementFactory *factory = GST_ELEMENT_FACTORY(featureItem->data);
 
-        GList *features = gst_registry_get_feature_list_by_plugin(gst_registry_get(),
-                                                                  pluginName);
-
-        for (GList *featureItem = features; featureItem; featureItem = g_list_next(featureItem)) {
-            if (G_UNLIKELY (featureItem->data == NULL))
-              continue;
-
-            GstPluginFeature *feature = GST_PLUGIN_FEATURE(featureItem->data);
-
-            if (GST_IS_ELEMENT_FACTORY(feature)) {
-                GstElementFactory *factory = GST_ELEMENT_FACTORY(feature);
-
-                factory = GST_ELEMENT_FACTORY(gst_plugin_feature_load(GST_PLUGIN_FEATURE(factory)));
-
-                if (!factory)
-                    continue;
-
-                const gchar *klass = gst_element_factory_get_metadata(factory, GST_ELEMENT_METADATA_KLASS);
-
-                if (!strcmp(klass, "Codec/Muxer"))
-                    supportedFormats << GST_OBJECT_NAME(factory);
-
-                gst_object_unref(factory);
-            }
-        }
-
-        gst_plugin_list_free(features);
+        if (!supportedFormats.contains(GST_OBJECT_NAME(factory)))
+            supportedFormats << GST_OBJECT_NAME(factory);
     }
 
-    gst_plugin_list_free(plugins);
+    gst_plugin_list_free(factoryList);
 
     // Disable conflictive formats
     supportedFormats.removeAll("avmux_3gp");
@@ -395,7 +371,7 @@ QStringList MediaSink::supportedCodecs(const QString &format,
     GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
 
     GList *encodersList = gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_ENCODER,
-                                                                GST_RANK_MARGINAL);
+                                                                MINIMUM_PLUGIN_RANK);
 
     const GList *pads = gst_element_factory_get_static_pad_templates(factory);
     QStringList supportedCodecs;
@@ -1437,6 +1413,40 @@ gboolean MediaSink::busCallback(GstBus *bus,
         gchar *structure = gst_structure_to_string(messageStructure);
 //        qDebug() << structure;
         g_free(structure);
+        break;
+    }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
         break;
     }
     default:

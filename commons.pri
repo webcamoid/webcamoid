@@ -36,7 +36,19 @@ isEmpty(QMAKE_LRELEASE) {
     !unix: QMAKE_LRELEASE = $$[QT_INSTALL_LIBEXECS]/lrelease
 }
 
-isEmpty(PREFIX): PREFIX = /usr
+win32 {
+    !isEmpty(ProgramW6432) {
+        DEFAULT_PREFIX = $(ProgramW6432)
+    } else: !isEmpty(ProgramFiles) {
+        DEFAULT_PREFIX = $(ProgramFiles)
+    } else {
+        DEFAULT_PREFIX = C:\
+    }
+} else {
+    DEFAULT_PREFIX = /usr
+}
+
+isEmpty(PREFIX): PREFIX = DEFAULT_PREFIX
 isEmpty(EXECPREFIX): EXECPREFIX = $${PREFIX}
 isEmpty(BINDIR): BINDIR = $${EXECPREFIX}/bin
 isEmpty(SBINDIR): SBINDIR = $${EXECPREFIX}/sbin

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/VideoCapture">
         <file>share/qml/main.qml</file>
+        <file>share/qml/CameraControl.qml</file>
     </qresource>
 </RCC>

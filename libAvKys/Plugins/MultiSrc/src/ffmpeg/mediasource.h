@@ -30,6 +30,16 @@ typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 class MediaSource: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(qint64 maxPacketQueueSize
+               READ maxPacketQueueSize
+               WRITE setMaxPacketQueueSize
+               RESET resetMaxPacketQueueSize
+               NOTIFY maxPacketQueueSizeChanged)
+    Q_PROPERTY(bool showLog
+               READ showLog
+               WRITE setShowLog
+               RESET resetShowLog
+               NOTIFY showLogChanged)
 
     public:
         explicit MediaSource(QObject *parent=NULL);

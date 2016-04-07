@@ -322,6 +322,11 @@ bool AkVideoCaps::operator !=(const AkVideoCaps &other) const
     return !(*this == other);
 }
 
+AkVideoCaps::operator AkCaps() const
+{
+    return this->toCaps();
+}
+
 AkVideoCaps::operator bool() const
 {
     return this->d->m_isValid;

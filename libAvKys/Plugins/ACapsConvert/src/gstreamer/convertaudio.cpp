@@ -158,11 +158,13 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     inCaps = gst_caps_fixate(inCaps);
     GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->m_source));
 
-    if (!gst_caps_is_equal(sourceCaps, inCaps))
+    if (!sourceCaps || !gst_caps_is_equal(sourceCaps, inCaps))
         gst_app_src_set_caps(GST_APP_SRC(this->m_source), inCaps);
 
     gst_caps_unref(inCaps);
-    gst_caps_unref(sourceCaps);
+
+    if (sourceCaps)
+        gst_caps_unref(sourceCaps);
 
     AkAudioCaps oAudioCaps(oCaps);
 
@@ -182,11 +184,13 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     outCaps = gst_caps_fixate(outCaps);
     GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->m_sink));
 
-    if (!gst_caps_is_equal(sinkCaps, outCaps))
+    if (!sinkCaps || !gst_caps_is_equal(sinkCaps, outCaps))
         gst_app_sink_set_caps(GST_APP_SINK(this->m_sink), outCaps);
 
     gst_caps_unref(outCaps);
-    gst_caps_unref(sinkCaps);
+
+    if (sourceCaps)
+        gst_caps_unref(sinkCaps);
 
     // Start pipeline if it's not it.
     GstState state;
@@ -233,6 +237,7 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     qint64 pts = GST_BUFFER_PTS(buffer) / packet.timeBase().value() / GST_SECOND;
     gst_sample_unref(sample);
 
+    // Create a package and return it.
     int nSamples = 8 * info.size
                    / AkAudioCaps::bitsPerSample(oAudioCaps.format())
                    / oAudioCaps.channels();
@@ -387,6 +392,40 @@ gboolean ConvertAudio::busCallback(GstBus *bus,
         gchar *structure = gst_structure_to_string(messageStructure);
 //        qDebug() << structure;
         g_free(structure);
+        break;
+    }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
         break;
     }
     default:

@@ -23,153 +23,482 @@
 
 typedef QMap<QString, QString> StringStringMap;
 
-inline StringStringMap initGstToFF()
+inline StringStringMap initFourCCToGst()
 {
-    StringStringMap gstToFF;
-    gstToFF["I420"] = "yuv420p";
-//    gstToFF["YV12"] = "";
-    gstToFF["YUY2"] = "yuyv422";
-    gstToFF["UYVY"] = "uyvy422";
-//    gstToFF["AYUV"] = "";
-    gstToFF["RGBx"] = "rgb0";
-    gstToFF["BGRx"] = "bgr0";
-    gstToFF["xRGB"] = "0rgb";
-    gstToFF["xBGR"] = "0bgr";
-    gstToFF["RGBA"] = "rgba";
-    gstToFF["BGRA"] = "bgra";
-    gstToFF["ARGB"] = "argb";
-    gstToFF["ABGR"] = "abgr";
-    gstToFF["RGB"] = "rgb24";
-    gstToFF["BGR"] = "bgr24";
-    gstToFF["Y41B"] = "yuv411p";
-    gstToFF["Y42B"] = "yuv422p";
-//    gstToFF["YVYU"] = "";
-    gstToFF["Y444"] = "yuv444p";
-    gstToFF["v210"] = "v210";
-    gstToFF["v216"] = "v216";
-    gstToFF["NV12"] = "nv12";
-    gstToFF["NV21"] = "nv21";
-    gstToFF["GRAY8"] = "gray8";
-    gstToFF["GRAY16_BE"] = "gray16be";
-    gstToFF["GRAY16_LE"] = "gray16le";
-    gstToFF["V308"] = "v308";
-    gstToFF["RGB16"] = "rgb565";
-    gstToFF["BGR16"] = "bgr565le";
-    gstToFF["RGB15"] = "rgb555";
-    gstToFF["BGR15"] = "rgb555le";
-//    gstToFF["UYVP"] = "";
-    gstToFF["A420"] = "yuva420p";
-    gstToFF["RGB8P"] = "pal8";
-    gstToFF["YUV9"] = "yuv410p";
-//    gstToFF["YVU9"] = "";
-//    gstToFF["IYU1"] = "";
-//    gstToFF["ARGB64"] = "";
-    gstToFF["AYUV64"] = "ayuv64le";
-//    gstToFF["r210"] = "";
-    gstToFF["I420_10BE"] = "yuv420p10be";
-    gstToFF["I420_10LE"] = "yuv420p10le";
-    gstToFF["I422_10BE"] = "yuv422p10be";
-    gstToFF["I422_10LE"] = "yuv422p10le";
-    gstToFF["Y444_10BE"] = "yuv444p10be";
-    gstToFF["Y444_10LE"] = "yuv444p10le";
-    gstToFF["GBR"] = "gbrp";
-    gstToFF["GBR_10BE"] = "gbrp10be";
-    gstToFF["GBR_10LE"] = "gbrp10le";
-    gstToFF["NV16"] = "nv16";
-//    gstToFF["NV24"] = "";
-//    gstToFF["NV12_64Z32"] = "";
-    gstToFF["A420_10BE"] = "yuva420p10be";
-    gstToFF["A420_10LE"] = "yuva420p10le";
-    gstToFF["A422_10BE"] = "yuva422p10be";
-    gstToFF["A422_10LE"] = "yuva422p10le";
-    gstToFF["A444_10BE"] = "yuva444p10be";
-    gstToFF["A444_10LE"] = "yuva444p10le";
-//    gstToFF["NV61"] = "";
+    StringStringMap fourCCToGst;
 
-    return gstToFF;
+    // RGB formats
+    fourCCToGst["RGBO"] = "video/x-raw,format=RGB15";
+    fourCCToGst["RGBP"] = "video/x-raw,format=RGB16";
+    fourCCToGst["BGR3"] = "video/x-raw,format=BGR";
+    fourCCToGst["RGB3"] = "video/x-raw,format=RGB";
+    fourCCToGst["BGR4"] = "video/x-raw,format=BGRx";
+    fourCCToGst["RGB4"] = "video/x-raw,format=xRGB";
+
+    // Grey formats
+    fourCCToGst["GREY"] = "video/x-raw,format=GRAY8";
+    fourCCToGst["Y04 "] = "video/x-raw,format=Y41P";
+
+    // Luminance+Chrominance formats
+    fourCCToGst["YVU9"] = "video/x-raw,format=YVU9";
+    fourCCToGst["YV12"] = "video/x-raw,format=YV12";
+    fourCCToGst["YUYV"] = "video/x-raw,format=YUY2";
+    fourCCToGst["YVYU"] = "video/x-raw,format=YVYU";
+    fourCCToGst["UYVY"] = "video/x-raw,format=UYVY";
+    fourCCToGst["422P"] = "video/x-raw,format=Y42B";
+    fourCCToGst["411P"] = "video/x-raw,format=Y41B";
+    fourCCToGst["Y41P"] = "video/x-raw,format=Y41P";
+    fourCCToGst["YUV9"] = "video/x-raw,format=YUV9";
+    fourCCToGst["YU12"] = "video/x-raw,format=I420";
+
+    // two planes -- one Y, one Cr + Cb interleaved
+    fourCCToGst["NV12"] = "video/x-raw,format=NV12";
+    fourCCToGst["NV21"] = "video/x-raw,format=NV21";
+
+    // two non contiguous planes - one Y, one Cr + Cb interleaved
+    fourCCToGst["NM12"] = "video/x-raw,format=NV12";
+    fourCCToGst["NM21"] = "video/x-raw,format=NV21";
+    fourCCToGst["TM12"] = "video/x-raw,format=NV12_64Z32";
+
+    // Bayer formats - see http://www.siliconimaging.com/RGB%20Bayer.htm
+    fourCCToGst["BA81"] = "video/x-bayer,format=bggr";
+    fourCCToGst["GBRG"] = "video/x-bayer,format=gbrg";
+    fourCCToGst["GRBG"] = "video/x-bayer,format=grbg";
+    fourCCToGst["RGGB"] = "video/x-bayer,format=rggb";
+
+    // compressed formats
+    fourCCToGst["MJPG"] = "image/jpeg";
+    fourCCToGst["JPEG"] = "image/jpeg";
+    fourCCToGst["dvsd"] = "video/x-dv,systemstream=true";
+    fourCCToGst["MPEG"] = "video/mpegts,systemstream=true";
+    fourCCToGst["H264"] = "video/x-h264,stream-format=byte-stream,alignment=au";
+    fourCCToGst["H263"] = "video/x-h263,variant=itu";
+    fourCCToGst["MPG1"] = "video/mpeg,mpegversion=2";
+    fourCCToGst["MPG2"] = "video/mpeg,mpegversion=2";
+    fourCCToGst["MPG4"] = "video/mpeg,mpegversion=4,systemstream=false";
+    fourCCToGst["VP80"] = "video/x-vp8";
+
+    // Vendor-specific formats
+    fourCCToGst["S910"] = "video/x-sonix";
+    fourCCToGst["PWC1"] = "video/x-pwc1";
+    fourCCToGst["PWC2"] = "video/x-pwc2";
+    fourCCToGst["PJPG"] = "image/jpeg";
+
+    return fourCCToGst;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
+Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, fourCCToGst, (initFourCCToGst()))
 
 ConvertVideo::ConvertVideo(QObject *parent):
     QObject(parent)
 {
+//    setenv("GST_DEBUG", "2", 1);
+    gst_init(NULL, NULL);
+
+    this->m_pipeline = NULL;
+    this->m_source = NULL;
+    this->m_sink = NULL;
+    this->m_mainLoop = NULL;
+    this->m_busWatchId = 0;
+    this->m_id = -1;
+    this->m_ptsDiff = AkNoPts<qint64>();
 }
 
 ConvertVideo::~ConvertVideo()
 {
+    this->uninit();
 }
 
-AkPacket ConvertVideo::convert(const AkPacket &packet)
+void ConvertVideo::packetEnqueue(const AkPacket &packet)
 {
-    AkVideoPacket videoPacket(packet);
-
-    GstBuffer *iBuffer = gst_buffer_new_allocate(NULL,
-                                                 videoPacket.buffer().size(),
-                                                 NULL);
+    // Write audio frame to the pipeline.
+    GstBuffer *buffer = gst_buffer_new_allocate(NULL,
+                                                packet.buffer().size(),
+                                                NULL);
     GstMapInfo info;
-    gst_buffer_map(iBuffer, &info, GST_MAP_WRITE);
-    memcpy(info.data,
-           videoPacket.buffer().constData(),
-           videoPacket.buffer().size());
-    gst_buffer_unmap(iBuffer, &info);
+    gst_buffer_map(buffer, &info, GST_MAP_WRITE);
+    memcpy(info.data, packet.buffer().constData(), info.size);
+    gst_buffer_unmap(buffer, &info);
 
-    QString iFormat = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
-    iFormat = gstToFF->key(iFormat, "I420");
-    GstCaps *iCaps = gst_caps_new_simple("video/x-raw",
-                                         "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
-                                         "width", G_TYPE_INT, videoPacket.caps().width(),
-                                         "height", G_TYPE_INT, videoPacket.caps().height(),
-                                         "framerate", GST_TYPE_FRACTION,
-                                                      (int) videoPacket.caps().fps().num(),
-                                                      (int) videoPacket.caps().fps().den(),
-                                         NULL);
+    if (this->m_ptsDiff == AkNoPts<qint64>())
+        this->m_ptsDiff = packet.pts();
 
-    GstSample *iSample = gst_sample_new(iBuffer,
-                                        iCaps,
-                                        NULL,
-                                        NULL);
+    qint64 pts = packet.pts() - this->m_ptsDiff;
 
-    gst_caps_unref(iCaps);
+    GST_BUFFER_PTS(buffer) = pts * packet.timeBase().value() * GST_SECOND;
+    GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
+    GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
+    GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
 
-    GstCaps *oCaps = gst_caps_new_simple("video/x-raw",
-                                         "format", G_TYPE_STRING, "BGRA",
-                                         NULL);
+    gst_app_src_push_buffer(GST_APP_SRC(this->m_source), buffer);
+}
 
-    GError *error = NULL;
-    GstSample *oSample = gst_video_convert_sample(iSample,
-                                                  oCaps,
-                                                  GST_CLOCK_TIME_NONE,
-                                                  &error);
+bool ConvertVideo::init(const AkCaps &caps)
+{
+    QString fourcc = caps.property("fourcc").toString();
+    int width = caps.property("width").toInt();
+    int height = caps.property("height").toInt();
+    AkFrac fps = caps.property("fps").toString();
 
-    gst_caps_unref(oCaps);
+    AkCaps gstCaps = fourCCToGst->value(fourcc);
+    GstCaps *inCaps = NULL;
 
-    if (error) {
-        qDebug() << "Error:" << error->message;
-        g_error_free(error);
+    if (gstCaps.mimeType() == "video/x-raw"
+        || gstCaps.mimeType() == "video/x-bayer"
+        || gstCaps.mimeType() == "video/x-pwc1"
+        || gstCaps.mimeType() == "video/x-pwc2"
+        || gstCaps.mimeType() == "video/x-sonix") {
+        gstCaps.setProperty("width", width);
+        gstCaps.setProperty("height", height);
+        gstCaps.setProperty("framerate", fps.toString());
+        inCaps = gst_caps_from_string(gstCaps.toString().toStdString().c_str());
+    } else if (!gstCaps.mimeType().isEmpty()) {
+        inCaps = gst_caps_from_string(gstCaps.toString().toStdString().c_str());
+    } else
+        return false;
 
-        if (oSample != NULL)
-            gst_sample_unref(oSample);
+    inCaps = gst_caps_fixate(inCaps);
 
-        return AkPacket();
+    this->m_source = gst_element_factory_make("appsrc", NULL);
+    gst_app_src_set_stream_type(GST_APP_SRC(this->m_source), GST_APP_STREAM_TYPE_STREAM);
+    gst_app_src_set_caps(GST_APP_SRC(this->m_source), inCaps);
+    g_object_set(G_OBJECT(this->m_source),
+                 "format", GST_FORMAT_TIME,
+                 "do-timestamp", TRUE,
+                 "is-live", TRUE,
+                 NULL);
+
+    GstElement *decoder = this->decoderFromCaps(inCaps);
+    gst_caps_unref(inCaps);
+    GstElement *videoConvert = gst_element_factory_make("videoconvert", NULL);
+    this->m_sink = gst_element_factory_make("appsink", NULL);
+    g_object_set(G_OBJECT(this->m_sink),
+                 "emit-signals", TRUE,
+                 NULL);
+
+    GstCaps *outCaps = gst_caps_new_simple("video/x-raw",
+                                           "format", G_TYPE_STRING, "BGRA",
+                                           NULL);
+    outCaps = gst_caps_fixate(outCaps);
+    gst_app_sink_set_caps(GST_APP_SINK(this->m_sink), outCaps);
+    gst_caps_unref(outCaps);
+
+    g_signal_connect(this->m_sink,
+                     "new-sample",
+                     G_CALLBACK(this->videoBufferCallback),
+                     this);
+
+    this->m_pipeline = gst_pipeline_new(NULL);
+
+    gst_bin_add_many(GST_BIN(this->m_pipeline),
+                     this->m_source,
+                     decoder,
+                     videoConvert,
+                     this->m_sink,
+                     NULL);
+
+    gst_element_link_many(this->m_source,
+                          decoder,
+                          videoConvert,
+                          this->m_sink,
+                          NULL);
+
+    // Configure the message bus.
+    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_pipeline));
+    this->m_busWatchId = gst_bus_add_watch(bus, this->busCallback, this);
+    gst_object_unref(bus);
+
+    this->m_id = Ak::id();
+    this->m_ptsDiff = AkNoPts<qint64>();
+
+    // Run the main GStreamer loop.
+    this->m_mainLoop = g_main_loop_new(NULL, FALSE);
+    QtConcurrent::run(&this->m_threadPool, g_main_loop_run, this->m_mainLoop);
+    gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
+
+    return true;
+}
+
+void ConvertVideo::uninit()
+{
+    if (this->m_pipeline) {
+        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
+        this->waitState(GST_STATE_NULL);
+        gst_object_unref(GST_OBJECT(this->m_pipeline));
+        g_source_remove(this->m_busWatchId);
+        this->m_pipeline = NULL;
+        this->m_busWatchId = 0;
     }
 
-    GstBuffer *bufffer = gst_sample_get_buffer(oSample);
-    gst_buffer_map(bufffer, &info, GST_MAP_READ);
+    if (this->m_mainLoop) {
+        g_main_loop_quit(this->m_mainLoop);
+        g_main_loop_unref(this->m_mainLoop);
+        this->m_mainLoop = NULL;
+    }
+}
+
+GstElement *ConvertVideo::decoderFromCaps(const GstCaps *caps) const
+{
+    GstElement *decoder = NULL;
+    static GstStaticCaps staticRawCaps = GST_STATIC_CAPS("video/x-raw;"
+                                                         "audio/x-raw;"
+                                                         "text/x-raw;"
+                                                         "subpicture/x-dvd;"
+                                                         "subpicture/x-pgs");
+
+    GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
+
+    GList *decodersList = gst_element_factory_list_get_elements(GST_ELEMENT_FACTORY_TYPE_DECODER,
+                                                                GST_RANK_PRIMARY);
+
+    if (gst_caps_can_intersect(caps, rawCaps))
+        decoder = gst_element_factory_make("identity", NULL);
+    else {
+        GList *decoders = gst_element_factory_list_filter(decodersList,
+                                                          caps,
+                                                          GST_PAD_SINK,
+                                                          FALSE);
+
+        for (GList *decoderItem = decoders; decoderItem; decoderItem = g_list_next(decoderItem)) {
+            GstElementFactory *decoderFactory = (GstElementFactory *) decoderItem->data;
+            decoder = gst_element_factory_make(GST_OBJECT_NAME(decoderFactory), NULL);
+
+            break;
+        }
+
+        gst_plugin_feature_list_free(decoders);
+    }
+
+    gst_plugin_feature_list_free(decodersList);
+    gst_caps_unref(rawCaps);
+
+    return decoder;
+}
+
+void ConvertVideo::waitState(GstState state)
+{
+    forever {
+        GstState curState;
+        GstStateChangeReturn ret = gst_element_get_state(this->m_pipeline,
+                                                         &curState,
+                                                         NULL,
+                                                         GST_CLOCK_TIME_NONE);
+
+        if (ret == GST_STATE_CHANGE_FAILURE)
+            break;
+
+        if (ret == GST_STATE_CHANGE_SUCCESS
+            && curState == state)
+            break;
+    }
+}
+
+gboolean ConvertVideo::busCallback(GstBus *bus,
+                                   GstMessage *message,
+                                   gpointer userData)
+{
+    Q_UNUSED(bus)
+    ConvertVideo *self = static_cast<ConvertVideo *>(userData);
+
+    switch (GST_MESSAGE_TYPE(message)) {
+    case GST_MESSAGE_ERROR: {
+        GError *err = NULL;
+        gchar *debug = NULL;
+        gst_message_parse_error(message, &err, &debug);
+
+        qDebug() << "ERROR: from element"
+                 << GST_MESSAGE_SRC_NAME(message)
+                 << ":"
+                 << err->message;
+
+        if (debug)
+            qDebug() << "Additional debug info:\n"
+                     << debug;
+
+        GstElement *element = GST_ELEMENT(GST_MESSAGE_SRC(message));
+
+        for (const GList *padItem = GST_ELEMENT_PADS(element); padItem; padItem = g_list_next(padItem)) {
+            GstPad *pad = GST_PAD_CAST(padItem->data);
+            GstCaps *curCaps = gst_pad_get_current_caps(pad);
+            gchar *curCapsStr = gst_caps_to_string(curCaps);
+
+            qDebug() << "    Current caps:" << curCapsStr;
+
+            g_free(curCapsStr);
+            gst_caps_unref(curCaps);
+
+            GstCaps *allCaps = gst_pad_get_allowed_caps(pad);
+            gchar *allCapsStr = gst_caps_to_string(allCaps);
+
+            qDebug() << "    Allowed caps:" << allCapsStr;
+
+            g_free(allCapsStr);
+            gst_caps_unref(allCaps);
+        }
+
+        g_error_free(err);
+        g_free(debug);
+        g_main_loop_quit(self->m_mainLoop);
+
+        break;
+    }
+    case GST_MESSAGE_EOS:
+        g_main_loop_quit(self->m_mainLoop);
+    break;
+    case GST_MESSAGE_STATE_CHANGED: {
+        GstState oldstate;
+        GstState newstate;
+        GstState pending;
+        gst_message_parse_state_changed(message, &oldstate, &newstate, &pending);
+        qDebug() << "State changed from"
+                 << gst_element_state_get_name(oldstate)
+                 << "to"
+                 << gst_element_state_get_name(newstate);
+
+        break;
+    }
+    case GST_MESSAGE_STREAM_STATUS: {
+        GstStreamStatusType type;
+        GstElement *owner = NULL;
+        gst_message_parse_stream_status(message, &type, &owner);
+        qDebug() << "Stream Status:"
+                 << GST_ELEMENT_NAME(owner)
+                 << "is"
+                 << type;
+
+        break;
+    }
+    case GST_MESSAGE_LATENCY: {
+        qDebug() << "Recalculating latency";
+        gst_bin_recalculate_latency(GST_BIN(self->m_pipeline));
+        break;
+    }
+    case GST_MESSAGE_STREAM_START: {
+        qDebug() << "Stream started";
+        break;
+    }
+    case GST_MESSAGE_ASYNC_DONE: {
+        GstClockTime runningTime;
+        gst_message_parse_async_done(message, &runningTime);
+        qDebug() << "ASYNC done";
+        break;
+    }
+    case GST_MESSAGE_NEW_CLOCK: {
+        GstClock *clock = NULL;
+        gst_message_parse_new_clock(message, &clock);
+        qDebug() << "New clock:" << (clock? GST_OBJECT_NAME(clock): "NULL");
+        break;
+    }
+    case GST_MESSAGE_DURATION_CHANGED: {
+        GstFormat format;
+        gint64 duration;
+        gst_message_parse_duration(message, &format, &duration);
+        qDebug() << "Duration changed:"
+                 << gst_format_get_name(format)
+                 << ","
+                 << qreal(duration);
+        break;
+    }
+    case GST_MESSAGE_TAG: {
+        GstTagList *tagList = NULL;
+        gst_message_parse_tag(message, &tagList);
+        gchar *tags = gst_tag_list_to_string(tagList);
+//        qDebug() << "Tags:" << tags;
+        g_free(tags);
+        gst_tag_list_unref(tagList);
+        break;
+    }
+    case GST_MESSAGE_ELEMENT: {
+        const GstStructure *messageStructure = gst_message_get_structure(message);
+        gchar *structure = gst_structure_to_string(messageStructure);
+//        qDebug() << structure;
+        g_free(structure);
+        break;
+    }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
+        break;
+    }
+    default:
+        qDebug() << "Unhandled message:" << GST_MESSAGE_TYPE_NAME(message);
+    break;
+    }
+
+    return TRUE;
+}
+
+GstFlowReturn ConvertVideo::videoBufferCallback(GstElement *videoOutput, gpointer userData)
+{
+    ConvertVideo *self = static_cast<ConvertVideo *>(userData);
+
+    // Read audio frame from the pipeline.
+    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(videoOutput));
+
+    if (!sample)
+        return GST_FLOW_OK;
+
+    GstCaps *caps = gst_sample_get_caps(sample);
+    GstVideoInfo *videoInfo = gst_video_info_new();
+    gst_video_info_from_caps(videoInfo, caps);
+
+    // Create a package and return it.
+    AkVideoPacket oVideoPacket;
+    oVideoPacket.caps().isValid() = true;
+    oVideoPacket.caps().format() = AkVideoCaps::Format_bgra;
+    oVideoPacket.caps().bpp() = AkVideoCaps::bitsPerPixel(oVideoPacket.caps().format());
+    oVideoPacket.caps().width() = videoInfo->width;
+    oVideoPacket.caps().height() = videoInfo->height;
+    oVideoPacket.caps().fps() = AkFrac(videoInfo->fps_n, videoInfo->fps_d);
+
+    gst_video_info_free(videoInfo);
+
+    GstBuffer *buffer = gst_sample_get_buffer(sample);
+    GstMapInfo info;
+    gst_buffer_map(buffer, &info, GST_MAP_READ);
+
     QByteArray oBuffer(info.size, Qt::Uninitialized);
     memcpy(oBuffer.data(), info.data, info.size);
-    gst_buffer_unmap(bufffer, &info);
 
-    if (iSample != NULL)
-        gst_sample_unref(iSample);
+    oVideoPacket.buffer() = oBuffer;
+    oVideoPacket.pts() = GST_BUFFER_PTS(buffer);
+    oVideoPacket.timeBase() = AkFrac(1, GST_SECOND);
+    oVideoPacket.index() = 0;
+    oVideoPacket.id() = self->m_id;
 
-    if (oSample != NULL)
-        gst_sample_unref(oSample);
+    gst_buffer_unmap(buffer, &info);
+    gst_sample_unref(sample);
 
-    // Create packet
-    AkVideoPacket oPacket(packet);
-    oPacket.caps().format() = AkVideoCaps::Format_bgra;
-    oPacket.buffer() = oBuffer;
+    emit self->frameReady(oVideoPacket.toPacket());
 
-    return oPacket.toPacket();
+    return GST_FLOW_OK;
 }
