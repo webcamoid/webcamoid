@@ -103,19 +103,18 @@ void AudioStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
-    AVFrame iFrame;
-    memset(&iFrame, 0, sizeof(AVFrame));
+    AVFrame *iFrame = av_frame_alloc();
     int gotFrame;
 
     avcodec_decode_audio4(this->codecContext(),
-                          &iFrame,
+                          iFrame,
                           &gotFrame,
                           packet);
 
     if (!gotFrame)
         return;
 
-    this->dataEnqueue(av_frame_clone(&iFrame));
+    this->dataEnqueue(iFrame);
 }
 
 void AudioStream::processData(AVFrame *frame)

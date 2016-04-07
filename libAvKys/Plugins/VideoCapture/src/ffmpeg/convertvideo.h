@@ -66,6 +66,7 @@ class ConvertVideo: public QObject
 
     private:
         SwsContext *m_scaleContext;
+        AVDictionary *m_codecOptions;
         AVCodecContext *m_codecContext;
         qint64 m_maxPacketQueueSize;
         bool m_showLog;

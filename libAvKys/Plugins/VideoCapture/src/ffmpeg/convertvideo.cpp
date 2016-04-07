@@ -128,6 +128,7 @@ ConvertVideo::ConvertVideo(QObject *parent):
     QObject(parent)
 {
     this->m_scaleContext = NULL;
+    this->m_codecOptions = NULL;
     this->m_codecContext = NULL;
     this->m_packetQueueSize = 0;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
@@ -198,14 +199,23 @@ bool ConvertVideo::init(const AkCaps &caps)
     if (codec->capabilities & AV_CODEC_CAP_TRUNCATED)
         this->m_codecContext->flags |= AV_CODEC_FLAG_TRUNCATED;
 
+    if (codec->capabilities & CODEC_CAP_DR1)
+        this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+
     this->m_codecContext->pix_fmt = rawToFF->value(fourcc, AV_PIX_FMT_NONE);
     this->m_codecContext->width = caps.property("width").toInt();
     this->m_codecContext->height = caps.property("height").toInt();
     AkFrac fps = caps.property("fps").toString();
     this->m_codecContext->framerate.num = fps.num();
     this->m_codecContext->framerate.den = fps.den();
+    this->m_codecContext->workaround_bugs = 1;
+    this->m_codecContext->idct_algo = FF_IDCT_AUTO;
+    this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
-    if (avcodec_open2(this->m_codecContext, codec, NULL) < 0) {
+    this->m_codecOptions = NULL;
+    av_dict_set_int(&this->m_codecOptions, "refcounted_frames", 1, 0);
+
+    if (avcodec_open2(this->m_codecContext, codec, &this->m_codecOptions) < 0) {
         avcodec_close(this->m_codecContext);
         this->m_codecContext = NULL;
 
@@ -239,6 +249,9 @@ void ConvertVideo::uninit()
         this->m_scaleContext = NULL;
     }
 
+    if (this->m_codecOptions)
+        av_dict_free(&this->m_codecOptions);
+
     if (this->m_codecContext) {
         avcodec_close(this->m_codecContext);
         this->m_codecContext = NULL;
@@ -256,8 +269,7 @@ void ConvertVideo::packetLoop(ConvertVideo *stream)
 
         if (!stream->m_packets.isEmpty()) {
             AkPacket packet = stream->m_packets.dequeue();
-            AVFrame iFrame;
-            memset(&iFrame, 0, sizeof(AVFrame));
+            AVFrame *iFrame = av_frame_alloc();
 
             AVPacket videoPacket;
             av_init_packet(&videoPacket);
@@ -266,10 +278,10 @@ void ConvertVideo::packetLoop(ConvertVideo *stream)
             videoPacket.pts = packet.pts();
             int gotFrame;
 
-            avcodec_decode_video2(stream->m_codecContext, &iFrame, &gotFrame, &videoPacket);
+            avcodec_decode_video2(stream->m_codecContext, iFrame, &gotFrame, &videoPacket);
 
             if (gotFrame)
-                stream->dataEnqueue(av_frame_clone(&iFrame));
+                stream->dataEnqueue(iFrame);
 
             stream->m_packetQueueSize -= packet.buffer().size();
 
