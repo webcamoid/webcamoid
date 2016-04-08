@@ -38,11 +38,11 @@ isEmpty(QMAKE_LRELEASE) {
 
 win32 {
     !isEmpty(ProgramW6432) {
-        DEFAULT_PREFIX = $(ProgramW6432)
+        DEFAULT_PREFIX = $(ProgramW6432)\$${COMMONS_APPNAME}
     } else: !isEmpty(ProgramFiles) {
-        DEFAULT_PREFIX = $(ProgramFiles)
+        DEFAULT_PREFIX = $(ProgramFiles)\$${COMMONS_APPNAME}
     } else {
-        DEFAULT_PREFIX = C:\
+        DEFAULT_PREFIX = C:\$${COMMONS_APPNAME}
     }
 } else {
     DEFAULT_PREFIX = /usr

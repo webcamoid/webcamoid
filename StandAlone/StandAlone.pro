@@ -29,7 +29,7 @@ exists(commons.pri) {
 !isEmpty(USE_GSTREAMER): DEFINES += USE_GSTREAMER
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
-    DOCSOURCES += ../$${COMMONS_APPNAME}.qdocconf
+    DOCSOURCES = ../$${COMMONS_APPNAME}.qdocconf
 
     builddocs.input = DOCSOURCES
     builddocs.output = share/docs_auto/html/$${COMMONS_TARGET}.index
@@ -40,6 +40,18 @@ exists(commons.pri) {
 
     QMAKE_EXTRA_COMPILERS += builddocs
     PRE_TARGETDEPS += compiler_builddocs_make_all
+}
+
+unix {
+    MANPAGESOURCES = share/man/man1/$${COMMONS_TARGET}.1
+
+    buildmanpage.input = MANPAGESOURCES
+    buildmanpage.output = ${QMAKE_FILE_IN}.gz
+    buildmanpage.commands = gzip -k9 ${QMAKE_FILE_IN}
+    buildmanpage.CONFIG += no_link
+
+    QMAKE_EXTRA_COMPILERS += buildmanpage
+    PRE_TARGETDEPS += compiler_buildmanpage_make_all
 }
 
 CONFIG += qt
@@ -57,6 +69,7 @@ win32: LIBS += -L../libAvKys/Lib -lAvKys$${VER_MAJ}
 
 OTHER_FILES = \
     share/effects.xml
+unix: OTHER_FILES += $${MANPAGESOURCES}
 
 QT += qml quick opengl widgets svg
 
@@ -209,4 +222,49 @@ unix:target.path = $${BINDIR}
     docs.files = share/docs_auto/html
     docs.path = $${HTMLDIR}
     docs.CONFIG += no_check_exist
+}
+
+unix {
+    INSTALLS += \
+        manpage \
+        appIcon8x8 \
+        appIcon16x16 \
+        appIcon22x22 \
+        appIcon32x32 \
+        appIcon48x48 \
+        appIcon64x64 \
+        appIcon128x128 \
+        appIcon256x256 \
+        appIconScalable
+
+    manpage.files = share/man/man1/*.1.gz
+    manpage.path = $${MANDIR}/man1
+    manpage.CONFIG += no_check_exist
+
+    appIcon8x8.files = share/icons/hicolor/8x8/webcamoid.png
+    appIcon8x8.path = $${DATAROOTDIR}/icons/hicolor/8x8/apps
+
+    appIcon16x16.files = share/icons/hicolor/16x16/webcamoid.png
+    appIcon16x16.path = $${DATAROOTDIR}/icons/hicolor/16x16/apps
+
+    appIcon22x22.files = share/icons/hicolor/22x22/webcamoid.png
+    appIcon22x22.path = $${DATAROOTDIR}/icons/hicolor/22x22/apps
+
+    appIcon32x32.files = share/icons/hicolor/32x32/webcamoid.png
+    appIcon32x32.path = $${DATAROOTDIR}/icons/hicolor/32x32/apps
+
+    appIcon48x48.files = share/icons/hicolor/48x48/webcamoid.png
+    appIcon48x48.path = $${DATAROOTDIR}/icons/hicolor/48x48/apps
+
+    appIcon64x64.files = share/icons/hicolor/64x64/webcamoid.png
+    appIcon64x64.path = $${DATAROOTDIR}/icons/hicolor/64x64/apps
+
+    appIcon128x128.files = share/icons/hicolor/128x128/webcamoid.png
+    appIcon128x128.path = $${DATAROOTDIR}/icons/hicolor/128x128/apps
+
+    appIcon256x256.files = share/icons/hicolor/256x256/webcamoid.png
+    appIcon256x256.path = $${DATAROOTDIR}/icons/hicolor/256x256/apps
+
+    appIconScalable.files = share/icons/hicolor/scalable/webcamoid.svg
+    appIconScalable.path = $${DATAROOTDIR}/icons/hicolor/scalable/apps
 }
