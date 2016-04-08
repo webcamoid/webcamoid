@@ -413,7 +413,7 @@ void ConvertVideo::convert(const FramePtr &frame)
 
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_bgr24;
+    caps.format() = AkVideoCaps::Format_rgb24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = frame->width;
     caps.height() = frame->height;

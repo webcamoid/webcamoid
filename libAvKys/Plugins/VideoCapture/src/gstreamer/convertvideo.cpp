@@ -177,7 +177,7 @@ bool ConvertVideo::init(const AkCaps &caps)
                  NULL);
 
     GstCaps *outCaps = gst_caps_new_simple("video/x-raw",
-                                           "format", G_TYPE_STRING, "BGRA",
+                                           "format", G_TYPE_STRING, "RGB",
                                            NULL);
     outCaps = gst_caps_fixate(outCaps);
     gst_app_sink_set_caps(GST_APP_SINK(this->m_sink), outCaps);
@@ -474,7 +474,7 @@ GstFlowReturn ConvertVideo::videoBufferCallback(GstElement *videoOutput, gpointe
     // Create a package and return it.
     AkVideoPacket oVideoPacket;
     oVideoPacket.caps().isValid() = true;
-    oVideoPacket.caps().format() = AkVideoCaps::Format_bgra;
+    oVideoPacket.caps().format() = AkVideoCaps::Format_rgb24;
     oVideoPacket.caps().bpp() = AkVideoCaps::bitsPerPixel(oVideoPacket.caps().format());
     oVideoPacket.caps().width() = videoInfo->width;
     oVideoPacket.caps().height() = videoInfo->height;

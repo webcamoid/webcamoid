@@ -392,7 +392,7 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
 
     AkVideoPacket packet;
     packet.caps().isValid() = true;
-    packet.caps().format() = AkVideoCaps::Format_bgra;
+    packet.caps().format() = AkVideoCaps::Format_rgb24;
     packet.caps().bpp() = AkVideoCaps::bitsPerPixel(packet.caps().format());
     packet.caps().width() = videoInfo->width;
     packet.caps().height() = videoInfo->height;
@@ -673,7 +673,7 @@ bool MediaSource::setState(AkElement::ElementState state)
             // Convert video to a standard format.
             GstCaps *videoCaps =
                     gst_caps_new_simple("video/x-raw",
-                                         "format", G_TYPE_STRING, "BGRA",
+                                         "format", G_TYPE_STRING, "RGB",
                                          NULL);
 
             gst_app_sink_set_caps(GST_APP_SINK(videoOutput), videoCaps);
@@ -791,7 +791,7 @@ bool MediaSource::setState(AkElement::ElementState state)
 
                         AkVideoCaps videoCaps;
                         videoCaps.isValid() = true;
-                        videoCaps.format() = AkVideoCaps::Format_bgra;
+                        videoCaps.format() = AkVideoCaps::Format_rgb24;
                         videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
                         videoCaps.width() = videoInfo->width;
                         videoCaps.height() = videoInfo->height;

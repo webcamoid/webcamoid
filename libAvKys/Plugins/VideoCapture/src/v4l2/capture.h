@@ -94,7 +94,7 @@ class Capture: public QObject
         IoMethod m_ioMethod;
         int m_nBuffers;
         QFileSystemWatcher *m_fsWatcher;
-        int m_fd;
+        QFile m_deviceFile;
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkCaps m_caps;
@@ -183,6 +183,7 @@ class Capture: public QObject
 
     private slots:
         void onDirectoryChanged(const QString &path);
+        void onFileChanged(const QString &fileName);
 };
 
 #endif // CAPTURE_H

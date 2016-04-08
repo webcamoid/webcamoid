@@ -57,19 +57,22 @@ Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
 Capture::Capture(): QObject()
 {
-    this->m_fd = -1;
     this->m_id = -1;
     this->m_ioMethod = IoMethodUnknown;
     this->m_nBuffers = 32;
     this->m_webcams = this->webcams();
     this->m_device = this->m_webcams.value(0, "");
-    this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
-    this->m_fsWatcher->setParent(this);
+    this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
+    this->m_fsWatcher->addPaths(this->m_webcams);
 
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
                      this,
                      &Capture::onDirectoryChanged);
+    QObject::connect(this->m_fsWatcher,
+                     &QFileSystemWatcher::fileChanged,
+                     this,
+                     &Capture::onFileChanged);
 }
 
 Capture::~Capture()
@@ -99,10 +102,15 @@ QStringList Capture::webcams() const
         device.setFileName(devicesDir.absoluteFilePath(devicePath));
 
         if (device.open(QIODevice::ReadWrite)) {
-            this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
+            if (this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability) >= 0
+                && capability.capabilities & V4L2_CAP_VIDEO_CAPTURE) {
+                v4l2_format fmt;
+                memset(&fmt, 0, sizeof(v4l2_format));
+                fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-            if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
-                webcams << device.fileName();
+                if (this->xioctl(device.handle(), VIDIOC_G_FMT, &fmt) >= 0)
+                    webcams << device.fileName();
+            }
 
             device.close();
         }
@@ -226,6 +234,10 @@ QVariantList Capture::capsFps(int fd, const struct v4l2_fmtdesc &format, __u32 w
     for (frmival.index = 0;
          this->xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &frmival) >= 0;
          frmival.index++) {
+        if (!frmival.discrete.numerator
+            || !frmival.discrete.denominator)
+            continue;
+
         AkCaps videoCaps;
         videoCaps.setMimeType("video/unknown");
         videoCaps.setProperty("fourcc", this->fourccToStr(format.pixelformat));
@@ -276,10 +288,10 @@ QVariantList Capture::caps(const QString &webcam) const
                  frmsize.index++) {
                 if (frmsize.type == V4L2_FRMSIZE_TYPE_DISCRETE) {
                     caps << this->capsFps(device.handle(),
-                                              fmt,
-                                              frmsize.discrete.width,
-                                              frmsize.discrete.height);
-                } else {
+                                          fmt,
+                                          frmsize.discrete.width,
+                                          frmsize.discrete.height);
+                } else {/*
                     for (uint height = frmsize.stepwise.min_height;
                          height < frmsize.stepwise.max_height;
                          height += frmsize.stepwise.step_height)
@@ -287,10 +299,10 @@ QVariantList Capture::caps(const QString &webcam) const
                              width < frmsize.stepwise.max_width;
                              width += frmsize.stepwise.step_width) {
                             caps << this->capsFps(device.handle(),
-                                                      fmt,
-                                                      width,
-                                                      height);
-                        }
+                                                  fmt,
+                                                  width,
+                                                  height);
+                        }*/
                 }
             }
         }
@@ -308,8 +320,8 @@ QString Capture::capsDescription(const AkCaps &caps) const
 
     return QString("%1, %2x%3 %4 fps")
                 .arg(caps.property("fourcc").toString())
-                .arg(caps.property("width").toInt())
-                .arg(caps.property("height").toInt())
+                .arg(caps.property("width").toString())
+                .arg(caps.property("height").toString())
                 .arg(caps.property("fps").toString());
 }
 
@@ -476,13 +488,11 @@ AkPacket Capture::readFrame()
     if (this->m_buffers.isEmpty())
         return AkPacket();
 
-    int fd = this->m_fd;
-
-    if (fd < 0)
+    if (!this->m_deviceFile.isOpen())
         return AkPacket();
 
     if (this->m_ioMethod == IoMethodReadWrite) {
-        if (read(fd, this->m_buffers[0].start, this->m_buffers[0].length) < 0)
+        if (read(this->m_deviceFile.handle(), this->m_buffers[0].start, this->m_buffers[0].length) < 0)
             return AkPacket();
 
         timeval timestamp;
@@ -504,7 +514,7 @@ AkPacket Capture::readFrame()
                             V4L2_MEMORY_MMAP:
                             V4L2_MEMORY_USERPTR;
 
-        if (this->xioctl(fd, VIDIOC_DQBUF, &buffer) < 0)
+        if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_DQBUF, &buffer) < 0)
             return AkPacket();
 
         if (buffer.index >= (quint32) this->m_buffers.size())
@@ -518,7 +528,7 @@ AkPacket Capture::readFrame()
                                              buffer.bytesused,
                                              pts);
 
-        if (this->xioctl(fd, VIDIOC_QBUF, &buffer) < 0)
+        if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QBUF, &buffer) < 0)
             return AkPacket();
 
         return packet;
@@ -769,7 +779,7 @@ bool Capture::initMemoryMap()
     requestBuffers.memory = V4L2_MEMORY_MMAP;
     requestBuffers.count = this->m_nBuffers;
 
-    if (this->xioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
     if (requestBuffers.count < 1)
@@ -786,7 +796,7 @@ bool Capture::initMemoryMap()
         buffer.memory = V4L2_MEMORY_MMAP;
         buffer.index = i;
 
-        if (this->xioctl(this->m_fd, VIDIOC_QUERYBUF, &buffer) < 0) {
+        if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QUERYBUF, &buffer) < 0) {
             error = true;
 
             break;
@@ -798,7 +808,7 @@ bool Capture::initMemoryMap()
                                                  buffer.length,
                                                  PROT_READ | PROT_WRITE,
                                                  MAP_SHARED,
-                                                 this->m_fd,
+                                                 this->m_deviceFile.handle(),
                                                  buffer.m.offset);
 
         if (this->m_buffers[i].start == MAP_FAILED) {
@@ -829,7 +839,7 @@ bool Capture::initUserPointer(quint32 bufferSize)
     requestBuffers.memory = V4L2_MEMORY_USERPTR;
     requestBuffers.count = this->m_nBuffers;
 
-    if (this->xioctl(this->m_fd, VIDIOC_REQBUFS, &requestBuffers) < 0)
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
     this->m_buffers.resize(requestBuffers.count);
@@ -871,13 +881,13 @@ bool Capture::startCapture()
             buffer.memory = V4L2_MEMORY_MMAP;
             buffer.index = i;
 
-            if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+            if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QBUF, &buffer) < 0)
                 error = true;
         }
 
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
+        if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_STREAMON, &type) < 0)
             error = true;
     } else if (this->m_ioMethod == IoMethodUserPointer) {
         for (qint32 i = 0; i < this->m_buffers.size(); i++) {
@@ -890,13 +900,13 @@ bool Capture::startCapture()
             buffer.m.userptr = (unsigned long) this->m_buffers[i].start;
             buffer.length = this->m_buffers[i].length;
 
-            if (this->xioctl(this->m_fd, VIDIOC_QBUF, &buffer) < 0)
+            if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QBUF, &buffer) < 0)
                 error = true;
         }
 
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        if (this->xioctl(this->m_fd, VIDIOC_STREAMON, &type) < 0)
+        if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_STREAMON, &type) < 0)
             error = true;
     }
 
@@ -914,20 +924,23 @@ void Capture::stopCapture()
         || this->m_ioMethod == IoMethodUserPointer) {
         v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        this->xioctl(this->m_fd, VIDIOC_STREAMOFF, &type);
+        this->xioctl(this->m_deviceFile.handle(), VIDIOC_STREAMOFF, &type);
     }
 }
 
 bool Capture::init()
 {
-    this->m_fd = open(this->m_device.toStdString().c_str(), O_RDWR);
+    this->m_deviceFile.setFileName(this->m_device);
+
+    if (!this->m_deviceFile.open(QIODevice::ReadWrite))
+        return false;
 
     v4l2_capability capabilities;
     memset(&capabilities, 0, sizeof(v4l2_capability));
 
-    if (this->xioctl(this->m_fd, VIDIOC_QUERYCAP, &capabilities) < 0) {
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QUERYCAP, &capabilities) < 0) {
         qDebug() << "VideoCapture: Can't query capabilities.";
-        close(this->m_fd);
+        this->m_deviceFile.close();
 
         return false;
     }
@@ -936,36 +949,35 @@ bool Capture::init()
 
     if (streams.isEmpty()) {
         qDebug() << "VideoCapture: No streams available.";
-        close(this->m_fd);
+        this->m_deviceFile.close();
 
         return false;
     }
 
     QVariantList supportedCaps = this->caps(this->m_device);
-
     AkCaps caps = supportedCaps[streams[0]].value<AkCaps>();
     v4l2_format fmt;
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (this->xioctl(this->m_fd, VIDIOC_G_FMT, &fmt) == 0) {
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0) {
         fmt.fmt.pix.pixelformat = this->strToFourCC(caps.property("fourcc").toString());
         fmt.fmt.pix.width = caps.property("width").toInt();
         fmt.fmt.pix.height = caps.property("height").toInt();
 
-        if (this->xioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
+        if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_S_FMT, &fmt) < 0) {
             qDebug() << "VideoCapture: Can't set format:" << this->fourccToStr(fmt.fmt.pix.pixelformat);
-            close(this->m_fd);
+            this->m_deviceFile.close();
 
             return false;
         }
     }
 
-    this->setFps(this->m_fd, caps.property("fps").toString());
+    this->setFps(this->m_deviceFile.handle(), caps.property("fps").toString());
 
-    if (this->xioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_S_FMT, &fmt) < 0) {
         qDebug() << "VideoCapture: Can't set format:" << this->fourccToStr(fmt.fmt.pix.pixelformat);
-        close(this->m_fd);
+        this->m_deviceFile.close();
 
         return false;
     }
@@ -1022,11 +1034,10 @@ void Capture::uninit()
                 delete this->m_buffers[i].start;
     }
 
-    close(this->m_fd);
+    this->m_deviceFile.close();
     this->m_caps.clear();
     this->m_fps = AkFrac();
     this->m_timeBase = AkFrac();
-    this->m_fd = -1;
     this->m_buffers.clear();
 }
 
@@ -1066,7 +1077,7 @@ void Capture::setStreams(const QList<int> &streams)
 
 void Capture::setIoMethod(const QString &ioMethod)
 {
-    if (this->m_fd >= 0)
+    if (this->m_deviceFile.isOpen())
         return;
 
     IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodUnknown);
@@ -1129,6 +1140,13 @@ void Capture::onDirectoryChanged(const QString &path)
     if (webcams != this->m_webcams) {
         emit this->webcamsChanged(webcams);
 
+        this->m_fsWatcher->removePaths(this->m_webcams);
         this->m_webcams = webcams;
+        this->m_fsWatcher->addPaths(webcams);
     }
+}
+
+void Capture::onFileChanged(const QString &fileName)
+{
+    Q_UNUSED(fileName)
 }

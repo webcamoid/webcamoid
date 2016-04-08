@@ -51,7 +51,7 @@ AkCaps VideoStream::caps() const
 {
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_bgra;
+    caps.format() = AkVideoCaps::Format_rgb24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = this->codecContext()->width;
     caps.height() = this->codecContext()->height;
@@ -139,7 +139,7 @@ AkFrac VideoStream::fps() const
 
 AkPacket VideoStream::convert(AVFrame *iFrame)
 {
-    AVPixelFormat outPixFormat = AV_PIX_FMT_BGRA;
+    AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
@@ -188,7 +188,7 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
 
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_bgra;
+    caps.format() = AkVideoCaps::Format_rgb24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = iFrame->width;
     caps.height() = iFrame->height;

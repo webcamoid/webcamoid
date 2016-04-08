@@ -86,8 +86,13 @@ class VideoCaptureElement: public AkMultimediaSourceElement
 
     private:
         Capture m_capture;
-        QTimer m_timer;
         ConvertVideo m_convertVideo;
+        QThreadPool m_threadPool;
+        QFuture<void> m_cameraLoopResult;
+        bool m_runCameraLoop;
+        bool m_pause;
+
+        static void cameraLoop(VideoCaptureElement *captureElement);
 
     signals:
         void error(const QString &message);
@@ -108,9 +113,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void reset();
         bool setState(AkElement::ElementState state);
         void frameReady(const AkPacket &packet);
-
-    private slots:
-        void readFrame();
 };
 
 #endif // VIDEOCAPTUREELEMENT_H

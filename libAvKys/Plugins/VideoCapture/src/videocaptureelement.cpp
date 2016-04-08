@@ -21,9 +21,14 @@
 
 #include "videocaptureelement.h"
 
+#define PAUSE_TIMEOUT 500
+
 VideoCaptureElement::VideoCaptureElement():
     AkMultimediaSourceElement()
 {
+    this->m_runCameraLoop = false;
+    this->m_pause = false;
+
     QObject::connect(&this->m_capture,
                      &Capture::error,
                      this,
@@ -53,10 +58,6 @@ VideoCaptureElement::VideoCaptureElement():
                      this,
                      &VideoCaptureElement::frameReady,
                      Qt::DirectConnection);
-    QObject::connect(&this->m_timer,
-                     &QTimer::timeout,
-                     this,
-                     &VideoCaptureElement::readFrame);
 }
 
 VideoCaptureElement::~VideoCaptureElement()
@@ -143,8 +144,8 @@ AkCaps VideoCaptureElement::caps(int stream) const
 
     AkVideoCaps videoCaps;
     videoCaps.isValid() = true;
-    videoCaps.format() = AkVideoCaps::Format_bgra;
-    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(AkVideoCaps::Format_bgra);
+    videoCaps.format() = AkVideoCaps::Format_rgb24;
+    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
     videoCaps.width() = caps.property("width").toInt();
     videoCaps.height() = caps.property("height").toInt();
     videoCaps.fps() = caps.property("fps").toString();
@@ -203,6 +204,39 @@ bool VideoCaptureElement::resetCameraControls() const
     return this->m_capture.resetCameraControls();
 }
 
+void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
+{
+#ifdef Q_OS_WIN32
+    // Initialize the COM library in multithread mode.
+    CoInitializeEx(NULL, COINIT_MULTITHREADED);
+#endif
+
+    if (!captureElement->m_capture.init())
+        return;
+
+    while (captureElement->m_runCameraLoop) {
+        if (captureElement->m_pause) {
+            QThread::msleep(PAUSE_TIMEOUT);
+
+            continue;
+        }
+
+        AkPacket packet = captureElement->m_capture.readFrame();
+
+        if (!packet)
+            continue;
+
+        captureElement->m_convertVideo.packetEnqueue(packet);
+    }
+
+    captureElement->m_capture.uninit();
+
+#ifdef Q_OS_WIN32
+    // Close COM library.
+    CoUninitialize();
+#endif
+}
+
 void VideoCaptureElement::setMedia(const QString &media)
 {
     this->m_capture.setDevice(media);
@@ -210,7 +244,7 @@ void VideoCaptureElement::setMedia(const QString &media)
 
 void VideoCaptureElement::setStreams(const QList<int> &streams)
 {
-    bool running = this->m_timer.isActive();
+    bool running = this->m_runCameraLoop;
     this->setState(AkElement::ElementStateNull);
 
     this->m_capture.setStreams(streams);
@@ -273,8 +307,9 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             if (!this->m_convertVideo.init(caps))
                 return false;
 
-            if (!this->m_capture.init())
-                return false;
+            this->m_pause = true;
+            this->m_runCameraLoop = true;
+            this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool, this->cameraLoop, this);
 
             return AkElement::setState(state);
         }
@@ -290,10 +325,9 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             if (!this->m_convertVideo.init(caps))
                 return false;
 
-            if (!this->m_capture.init())
-                return false;
-
-            this->m_timer.start();
+            this->m_pause = false;
+            this->m_runCameraLoop = true;
+            this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool, this->cameraLoop, this);
 
             return AkElement::setState(state);
         }
@@ -306,12 +340,14 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePaused: {
         switch (state) {
         case AkElement::ElementStateNull:
-            this->m_capture.uninit();
+            this->m_pause = false;
+            this->m_runCameraLoop = false;
+            this->m_cameraLoopResult.waitForFinished();
             this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
-            this->m_timer.start();
+            this->m_pause = false;
 
             return AkElement::setState(state);
         default:
@@ -323,13 +359,13 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePlaying: {
         switch (state) {
         case AkElement::ElementStateNull:
-            this->m_timer.stop();
-            this->m_capture.uninit();
+            this->m_runCameraLoop = false;
+            this->m_cameraLoopResult.waitForFinished();
             this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
-            this->m_timer.stop();
+            this->m_pause = true;
 
             return AkElement::setState(state);
         default:
@@ -354,14 +390,4 @@ void VideoCaptureElement::frameReady(const AkPacket &packet)
 #else
     emit this->oStream(packet);
 #endif
-}
-
-void VideoCaptureElement::readFrame()
-{
-    AkPacket packet = this->m_capture.readFrame();
-
-    if (!packet)
-        return;
-
-    this->m_convertVideo.packetEnqueue(packet);
 }
