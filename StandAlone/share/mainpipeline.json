@@ -70,6 +70,7 @@
                 "mode": "input"
             }
         },
+        "DirectConnection",
         {
             "pluginId": "Multiplex",
             "properties": {
@@ -79,6 +80,7 @@
                 ["mic", "stateChanged", "", "setState"]
             ]
         },
+        "DirectConnection",
         {
             "alias": "audioSwitch"
         }
@@ -108,6 +110,7 @@
         {
             "alias": "audioSwitch"
         },
+        "DirectConnection",
         {
             "alias": "record"
         }

@@ -211,25 +211,24 @@ void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
 #endif
 
-    if (!captureElement->m_capture.init())
-        return;
+    if (captureElement->m_capture.init()) {
+        while (captureElement->m_runCameraLoop) {
+            if (captureElement->m_pause) {
+                QThread::msleep(PAUSE_TIMEOUT);
 
-    while (captureElement->m_runCameraLoop) {
-        if (captureElement->m_pause) {
-            QThread::msleep(PAUSE_TIMEOUT);
+                continue;
+            }
 
-            continue;
+            AkPacket packet = captureElement->m_capture.readFrame();
+
+            if (!packet)
+                continue;
+
+            captureElement->m_convertVideo.packetEnqueue(packet);
         }
 
-        AkPacket packet = captureElement->m_capture.readFrame();
-
-        if (!packet)
-            continue;
-
-        captureElement->m_convertVideo.packetEnqueue(packet);
+        captureElement->m_capture.uninit();
     }
-
-    captureElement->m_capture.uninit();
 
 #ifdef Q_OS_WIN32
     // Close COM library.

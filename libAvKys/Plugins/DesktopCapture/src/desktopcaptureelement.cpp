@@ -114,7 +114,7 @@ AkCaps DesktopCaptureElement::caps(int stream) const
 
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_0rgb;
+    caps.format() = AkVideoCaps::Format_rgb24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = screen->size().width();
     caps.height() = screen->size().height();
@@ -225,14 +225,15 @@ void DesktopCaptureElement::readFrame()
 
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_0rgb;
+    caps.format() = AkVideoCaps::Format_rgb24;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = screen->size().width();
     caps.height() = screen->size().height();
     caps.fps() = fps;
 
     QPixmap frame = screen->grabWindow(QApplication::desktop()->winId());
-    AkPacket packet = AkUtils::imageToPacket(frame.toImage(), caps.toCaps());
+    QImage frameImg= frame.toImage().convertToFormat(QImage::Format_RGB888);
+    AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
 
     if (!packet)
         return;

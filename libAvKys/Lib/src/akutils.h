@@ -28,6 +28,7 @@ namespace AkUtils
 {
     AkPacket imageToPacket(const QImage &image, const AkPacket &defaultPacket);
     QImage packetToImage(const AkPacket &packet);
+    AkPacket roundSizeTo(const AkPacket &packet, int n);
 }
 
 #endif // AKUTILS_H

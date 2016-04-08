@@ -81,3 +81,16 @@ QImage AkUtils::packetToImage(const AkPacket &packet)
 
     return image;
 }
+
+AkPacket AkUtils::roundSizeTo(const AkPacket &packet, int n)
+{
+    QImage frame = AkUtils::packetToImage(packet);
+
+    if (frame.isNull())
+        return packet;
+
+    int width = n * qRound(frame.width() / qreal(n));
+    int height = n * qRound(frame.height() / qreal(n));
+
+    return AkUtils::imageToPacket(frame.scaled(width, height), packet);
+}

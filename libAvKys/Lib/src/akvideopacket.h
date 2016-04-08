@@ -48,6 +48,7 @@ class AkVideoPacket: public AkPacket
         AkVideoPacket &operator =(const AkPacket &other);
         AkVideoPacket &operator =(const AkVideoPacket &other);
         operator bool() const;
+        operator AkPacket() const;
 
         Q_INVOKABLE AkVideoCaps caps() const;
         Q_INVOKABLE AkVideoCaps &caps();
