@@ -17,18 +17,34 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKUTILS_H
-#define AKUTILS_H
+#ifndef CLOCK_H
+#define CLOCK_H
 
-#include <QImage>
+#include <QObject>
+#include <QReadWriteLock>
 
-#include "akpacket.h"
+#define THREAD_WAIT_LIMIT 500
 
-namespace AkUtils
+class Clock: public QObject
 {
-    AkPacket imageToPacket(const QImage &image, const AkPacket &defaultPacket);
-    QImage packetToImage(const AkPacket &packet);
-    AkPacket roundSizeTo(const AkPacket &packet, int n);
-}
+    Q_OBJECT
+    Q_PROPERTY(qreal clock
+               READ clock
+               WRITE setClock
+               RESET resetClock)
 
-#endif // AKUTILS_H
+    public:
+        Clock(QObject *parent=NULL);
+
+        Q_INVOKABLE qreal clock();
+
+    private:
+        QReadWriteLock m_mutex;
+        qreal m_timeDrift;
+
+    public slots:
+        void setClock(qreal clock);
+        void resetClock();
+};
+
+#endif // CLOCK_H

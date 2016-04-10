@@ -279,6 +279,40 @@ gboolean MediaSource::busCallback(GstBus *bus, GstMessage *message,
         g_free(structure);
         break;
     }
+    case GST_MESSAGE_QOS: {
+        qDebug() << QString("Received QOS from element %1:")
+                        .arg(GST_MESSAGE_SRC_NAME(message)).toStdString().c_str();
+
+        GstFormat format;
+        guint64 processed;
+        guint64 dropped;
+        gst_message_parse_qos_stats(message, &format, &processed, &dropped);
+        const gchar *formatStr = gst_format_get_name(format);
+        qDebug() << "    Processed" << processed << formatStr;
+        qDebug() << "    Dropped" << dropped << formatStr;
+
+        gint64 jitter;
+        gdouble proportion;
+        gint quality;
+        gst_message_parse_qos_values(message, &jitter, &proportion, &quality);
+        qDebug() << "    Jitter =" << jitter;
+        qDebug() << "    Proportion =" << proportion;
+        qDebug() << "    Quality =" << quality;
+
+        gboolean live;
+        guint64 runningTime;
+        guint64 streamTime;
+        guint64 timestamp;
+        guint64 duration;
+        gst_message_parse_qos(message, &live, &runningTime, &streamTime, &timestamp, &duration);
+        qDebug() << "    Is live stream =" << (live? true: false);
+        qDebug() << "    Runninng time =" << runningTime;
+        qDebug() << "    Stream time =" << streamTime;
+        qDebug() << "    Timestamp =" << timestamp;
+        qDebug() << "    Duration =" << duration;
+
+        break;
+    }
     default:
         qDebug() << "Unhandled message:" << GST_MESSAGE_TYPE_NAME(message);
     break;
@@ -326,7 +360,7 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);
-    packet.timeBase() = AkFrac(1, 1e9);
+    packet.timeBase() = AkFrac(1, GST_SECOND);
     packet.index() = self->m_audioIndex;
     packet.id() = self->m_audioId;
 
@@ -358,7 +392,7 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
 
     AkVideoPacket packet;
     packet.caps().isValid() = true;
-    packet.caps().format() = AkVideoCaps::Format_bgra;
+    packet.caps().format() = AkVideoCaps::Format_rgb24;
     packet.caps().bpp() = AkVideoCaps::bitsPerPixel(packet.caps().format());
     packet.caps().width() = videoInfo->width;
     packet.caps().height() = videoInfo->height;
@@ -375,7 +409,7 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);
-    packet.timeBase() = AkFrac(1, 1e9);
+    packet.timeBase() = AkFrac(1, GST_SECOND);
     packet.index() = self->m_videoIndex;
     packet.id() = self->m_videoId;
 
@@ -419,7 +453,7 @@ GstFlowReturn MediaSource::subtitlesBufferCallback(GstElement *subtitlesOutput,
 
     packet.buffer() = oBuffer;
     packet.pts() = GST_BUFFER_PTS(buf);
-    packet.timeBase() = AkFrac(1, 1e9);
+    packet.timeBase() = AkFrac(1, GST_SECOND);
     packet.index() = self->m_subtitlesIndex;
     packet.id() = self->m_subtitlesId;
 
@@ -639,7 +673,7 @@ bool MediaSource::setState(AkElement::ElementState state)
             // Convert video to a standard format.
             GstCaps *videoCaps =
                     gst_caps_new_simple("video/x-raw",
-                                         "format", G_TYPE_STRING, "BGRA",
+                                         "format", G_TYPE_STRING, "RGB",
                                          NULL);
 
             gst_app_sink_set_caps(GST_APP_SINK(videoOutput), videoCaps);
@@ -757,7 +791,7 @@ bool MediaSource::setState(AkElement::ElementState state)
 
                         AkVideoCaps videoCaps;
                         videoCaps.isValid() = true;
-                        videoCaps.format() = AkVideoCaps::Format_bgra;
+                        videoCaps.format() = AkVideoCaps::Format_rgb24;
                         videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
                         videoCaps.width() = videoInfo->width;
                         videoCaps.height() = videoInfo->height;

@@ -75,7 +75,6 @@ class MediaSink: public QObject
         QString m_location;
         QString m_outputFormat;
         QVariantMap m_formatOptions;
-
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
         AVFormatContext *m_formatContext;

@@ -9,17 +9,35 @@
 .SH NAME
 Webcamoid \- full featured webcam capture application
 .SH SYNOPSIS
-.B webcamoid
+.B webcamoid [\fIoptions\fP]
 .SH DESCRIPTION
 .B Webcamoid
 is a real time video processing suite targeting but not limited to
 webcams, video and desktop. You can add a bunch of effects to your video and
 take pictures, and record it to a video file.
 .SH OPTIONS
-Webcamoid does not take any options.
+.TP
+.BR \-h ", " \-\-help
+Displays this help.
+.TP
+.BR \-v ", " \-\-version
+Displays version information.
+.TP
+.BR \-c\ <\fIPATH\fP> ", " \-\-config\ <\fIPATH\fP>
+Load settings from \fIPATH\fP. If \fIPATH\fP is empty, load configs from application directory.
+.TP
+.BR \-q\ <\fIPATH\fP> ", " \-\-qmlpath\ <\fIPATH\fP>
+Path to search the Qml interface.
+.TP
+.BR \-r ", " \-\-recursive
+Search in the specified plugins paths recursively.
+.TP
+.BR \-p\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP> ", " \-\-paths\ <\fIPATH1\fP;\fIPATH2\fP;\fIPATH3\fP;\fI...\fP>
+Semi-colon separated list of paths to search for plugins.
 .SH SEE ALSO
 .BR ffmpeg (1),
-.BR gst\-launch\-1.0 (1)
+.BR gst\-launch\-1.0 (1),
+.BR v4l2loopback\-ctl (1)
 .SH BUGS
 Please, report all bugs at
 .I http://github.com/webcamoid/webcamoid/issues

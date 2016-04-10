@@ -248,6 +248,7 @@ class AkVideoCaps: public QObject
         bool operator ==(const AkVideoCaps &other) const;
         bool operator !=(const AkVideoCaps &other) const;
         operator bool() const;
+        operator AkCaps() const;
 
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE bool &isValid();

@@ -20,6 +20,10 @@
 #ifndef CONVERTVIDEO_H
 #define CONVERTVIDEO_H
 
+#include <QtConcurrent>
+#include <QQueue>
+#include <QMutex>
+#include <ak.h>
 #include <akvideopacket.h>
 
 extern "C"
@@ -30,18 +34,80 @@ extern "C"
     #include <libavutil/pixdesc.h>
 }
 
+#include "clock.h"
+
+typedef QSharedPointer<AVFrame> FramePtr;
+
 class ConvertVideo: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(qint64 maxPacketQueueSize
+               READ maxPacketQueueSize
+               WRITE setMaxPacketQueueSize
+               RESET resetMaxPacketQueueSize
+               NOTIFY maxPacketQueueSizeChanged)
+    Q_PROPERTY(bool showLog
+               READ showLog
+               WRITE setShowLog
+               RESET resetShowLog
+               NOTIFY showLogChanged)
 
     public:
         explicit ConvertVideo(QObject *parent=NULL);
         ~ConvertVideo();
 
-        Q_INVOKABLE AkPacket convert(const AkPacket &packet);
+        Q_INVOKABLE qint64 maxPacketQueueSize() const;
+        Q_INVOKABLE bool showLog() const;
+
+        Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
+        Q_INVOKABLE void dataEnqueue(AVFrame *frame);
+        Q_INVOKABLE bool init(const AkCaps &caps);
+        Q_INVOKABLE void uninit();
 
     private:
         SwsContext *m_scaleContext;
+        AVDictionary *m_codecOptions;
+        AVCodecContext *m_codecContext;
+        qint64 m_maxPacketQueueSize;
+        bool m_showLog;
+        int m_maxData;
+        QThreadPool m_threadPool;
+        QMutex m_packetMutex;
+        QMutex m_dataMutex;
+        QWaitCondition m_packetQueueNotEmpty;
+        QWaitCondition m_packetQueueNotFull;
+        QWaitCondition m_dataQueueNotEmpty;
+        QWaitCondition m_dataQueueNotFull;
+        QQueue<AkPacket> m_packets;
+        QQueue<FramePtr> m_frames;
+        qint64 m_packetQueueSize;
+        bool m_runPacketLoop;
+        bool m_runDataLoop;
+        QFuture<void> m_packetLoopResult;
+        QFuture<void> m_dataLoopResult;
+        qint64 m_id;
+        Clock m_globalClock;
+
+        // Sync properties.
+        qreal m_lastPts;
+
+        static void packetLoop(ConvertVideo *stream);
+        static void dataLoop(ConvertVideo *stream);
+        static void deleteFrame(AVFrame *frame);
+        void processData(const FramePtr &frame);
+        void convert(const FramePtr &frame);
+        void log(qreal diff);
+
+    signals:
+        void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
+        void showLogChanged(bool showLog);
+        void frameReady(const AkPacket &packet);
+
+    public slots:
+        void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
+        void setShowLog(bool showLog);
+        void resetMaxPacketQueueSize();
+        void resetShowLog();
 };
 
 #endif // CONVERTVIDEO_H

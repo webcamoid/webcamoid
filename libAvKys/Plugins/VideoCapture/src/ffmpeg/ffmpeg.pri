@@ -31,7 +31,9 @@ isEmpty(FFMPEGLIBS) {
 }
 
 HEADERS += \
-    $$PWD/convertvideo.h
+    $$PWD/convertvideo.h \
+    $$PWD/clock.h
 
 SOURCES += \
-    $$PWD/convertvideo.cpp
+    $$PWD/convertvideo.cpp \
+    $$PWD/clock.cpp

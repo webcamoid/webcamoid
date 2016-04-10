@@ -17,18 +17,36 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKUTILS_H
-#define AKUTILS_H
+#include <QDateTime>
 
-#include <QImage>
+#include "clock.h"
 
-#include "akpacket.h"
-
-namespace AkUtils
+Clock::Clock(QObject *parent): QObject(parent)
 {
-    AkPacket imageToPacket(const QImage &image, const AkPacket &defaultPacket);
-    QImage packetToImage(const AkPacket &packet);
-    AkPacket roundSizeTo(const AkPacket &packet, int n);
+    this->m_timeDrift = 0.0;
 }
 
-#endif // AKUTILS_H
+qreal Clock::clock()
+{
+    this->m_mutex.lockForRead();
+    qreal clock = QDateTime::currentMSecsSinceEpoch() * 1.0e-3
+                  - this->m_timeDrift;
+    this->m_mutex.unlock();
+
+    return clock;
+}
+
+void Clock::setClock(qreal clock)
+{
+    this->m_mutex.lockForWrite();
+    this->m_timeDrift = QDateTime::currentMSecsSinceEpoch() * 1.0e-3
+                        - clock;
+    this->m_mutex.unlock();
+}
+
+void Clock::resetClock()
+{
+    this->m_mutex.lockForWrite();
+    this->m_timeDrift = 0.0;
+    this->m_mutex.unlock();
+}

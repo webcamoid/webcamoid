@@ -75,7 +75,7 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
         return AkPacket();
 
     // Create oPicture
-    int frameSize = av_image_get_buffer_size(AV_PIX_FMT_BGRA,
+    int frameSize = av_image_get_buffer_size(oFormat,
                                              oVideoCaps.width(),
                                              oVideoCaps.height(),
                                              1);

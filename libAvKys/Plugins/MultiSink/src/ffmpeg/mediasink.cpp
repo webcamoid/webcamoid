@@ -20,6 +20,7 @@
 #include <limits>
 #include <QSize>
 #include <QtMath>
+#include <akutils.h>
 
 #include "mediasink.h"
 
@@ -1364,7 +1365,9 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     oFrame.width = codecContext->width;
     oFrame.height = codecContext->height;
 
-    if (!this->m_streamParams[streamIndex].convert(packet, &oFrame)) {
+    AkVideoPacket videoPacket = AkUtils::roundSizeTo(packet.toPacket(), 4);
+
+    if (!this->m_streamParams[streamIndex].convert(videoPacket, &oFrame)) {
         av_frame_unref(&oFrame);
 
         return;

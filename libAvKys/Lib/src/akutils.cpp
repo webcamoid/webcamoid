@@ -26,11 +26,11 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
 {
     ImageToPixelFormatMap imageToFormat;
     imageToFormat[QImage::Format_Mono] = AkVideoCaps::Format_monob;
-    imageToFormat[QImage::Format_RGB32] = AkVideoCaps::Format_bgr0;
-    imageToFormat[QImage::Format_ARGB32] = AkVideoCaps::Format_bgra;
+    imageToFormat[QImage::Format_RGB32] = AkVideoCaps::Format_0rgb;
+    imageToFormat[QImage::Format_ARGB32] = AkVideoCaps::Format_argb;
     imageToFormat[QImage::Format_RGB16] = AkVideoCaps::Format_rgb565le;
     imageToFormat[QImage::Format_RGB555] = AkVideoCaps::Format_rgb555le;
-    imageToFormat[QImage::Format_RGB888] = AkVideoCaps::Format_bgr24;
+    imageToFormat[QImage::Format_RGB888] = AkVideoCaps::Format_rgb24;
     imageToFormat[QImage::Format_RGB444] = AkVideoCaps::Format_rgb444le;
     imageToFormat[QImage::Format_Grayscale8] = AkVideoCaps::Format_gray;
 
@@ -80,4 +80,17 @@ QImage AkUtils::packetToImage(const AkPacket &packet)
             image.setColor(i, i);
 
     return image;
+}
+
+AkPacket AkUtils::roundSizeTo(const AkPacket &packet, int n)
+{
+    QImage frame = AkUtils::packetToImage(packet);
+
+    if (frame.isNull())
+        return packet;
+
+    int width = n * qRound(frame.width() / qreal(n));
+    int height = n * qRound(frame.height() / qreal(n));
+
+    return AkUtils::imageToPacket(frame.scaled(width, height), packet);
 }

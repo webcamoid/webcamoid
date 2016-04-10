@@ -1,16 +1,12 @@
 [Icon Theme]
 Name=Hicolor
 Comment=Fallback icon theme
-
 DisplayDepth=32
-
 Example=webcamoid
-
 LinkOverlay=link
 LockOverlay=lockoverlay
 ShareOverlay=share
 ZipOverlay=zip
-
 DesktopDefault=48
 DesktopSizes=16,22,32,48,64,128,256
 ToolbarDefault=22
@@ -23,7 +19,6 @@ PanelDefault=32
 PanelSizes=16,22,32,48,64,128,256
 DialogDefault=32
 DialogSizes=16,22,32,48,64,128,256
-
 Directories=scalable,8x8,16x16,22x22,32x32,48x48,64x64,128x128,256x256
 
 [scalable]

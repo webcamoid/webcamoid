@@ -29,6 +29,18 @@
 #include "mediatools.h"
 #include "videodisplay.h"
 
+Q_GLOBAL_STATIC(QDir, applicationDir)
+
+static inline QString convertToAbsolute(const QString &path)
+{
+    if (!QDir::isRelativePath(path))
+        return path;
+
+    QString absPath = applicationDir->absoluteFilePath(path);
+
+    return QDir::cleanPath(absPath);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -51,25 +63,23 @@ int main(int argc, char *argv[])
     if (QIcon::themeName().isEmpty())
         QIcon::setThemeName("hicolor");
 
-#ifdef Q_OS_WIN32
-    QSettings::setDefaultFormat(QSettings::IniFormat);
-    QSettings::setPath(QSettings::IniFormat,
-                       QSettings::UserScope,
-                       QCoreApplication::applicationDirPath());
-#endif
+    applicationDir->setPath(QCoreApplication::applicationDirPath());
 
     QCommandLineParser cliOptions;
     cliOptions.addHelpOption();
     cliOptions.addVersionOption();
     cliOptions.setApplicationDescription(QObject::tr("Webcam capture application."));
 
+    QCommandLineOption configPathOpt(QStringList() << "c" << "config",
+                                     QObject::tr("Load settings from PATH. "
+                                                 "If PATH is empty, load configs "
+                                                 "from application directory."),
+                                     "PATH", "");
+    cliOptions.addOption(configPathOpt);
+
     QSettings config;
 
     config.beginGroup("PluginConfigs");
-
-#ifdef Q_OS_WIN32
-    QDir applicationDir(QCoreApplication::applicationDirPath());
-#endif
 
     QString qmlPluginPath = config.value("qmlPluginPath", Ak::qmlPluginPath())
                                   .toString();
@@ -95,10 +105,7 @@ int main(int argc, char *argv[])
         QString path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
-        if (QDir::isRelativePath(path)) {
-            path = applicationDir.absoluteFilePath(path);
-            path = QDir::cleanPath(path);
-        }
+        path = convertToAbsolute(path);
 #endif
 
         path = QDir::toNativeSeparators(path);
@@ -117,15 +124,27 @@ int main(int argc, char *argv[])
 
     cliOptions.process(app);
 
+    // Set path for loading user settings.
+    if (cliOptions.isSet(configPathOpt)) {
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QString configPath = cliOptions.value(configPathOpt);
+
+        if (configPath.isEmpty())
+            configPath = QCoreApplication::applicationDirPath();
+
+        configPath = convertToAbsolute(configPath);
+
+        QSettings::setPath(QSettings::IniFormat,
+                           QSettings::UserScope,
+                           configPath);
+    }
+
     // Set Qml plugins search path.
     if (cliOptions.isSet(qmlPathOpt))
         qmlPluginPath = cliOptions.value(qmlPathOpt);
 
 #ifdef Q_OS_WIN32
-    if (QDir::isRelativePath(qmlPluginPath)) {
-        qmlPluginPath = applicationDir.absoluteFilePath(qmlPluginPath);
-        qmlPluginPath = QDir::cleanPath(qmlPluginPath);
-    }
+    qmlPluginPath = convertToAbsolute(qmlPluginPath);
 #endif
 
     Ak::setQmlPluginPath(qmlPluginPath);
@@ -144,10 +163,7 @@ int main(int argc, char *argv[])
 
         foreach (QString path, pluginPaths) {
 #ifdef Q_OS_WIN32
-            if (QDir::isRelativePath(path)) {
-                path = applicationDir.absoluteFilePath(path);
-                path = QDir::cleanPath(path);
-            }
+            path = convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);

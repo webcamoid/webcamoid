@@ -22,7 +22,9 @@ CONFIG += link_pkgconfig
 
 PKGCONFIG += \
     gstreamer-1.0 \
-    gstreamer-video-1.0
+    gstreamer-app-1.0 \
+    gstreamer-video-1.0 \
+    gstreamer-pbutils-1.0
 
 HEADERS += \
     $$PWD/convertvideo.h
