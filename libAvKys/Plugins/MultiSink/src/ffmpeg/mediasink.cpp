@@ -26,6 +26,7 @@
 
 #define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
 //#define CODEC_COMPLIANCE FF_COMPLIANCE_EXPERIMENTAL
+#define THREAD_WAIT_LIMIT 500
 
 typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 
@@ -180,6 +181,11 @@ MediaSink::MediaSink(QObject *parent): QObject(parent)
     avformat_network_init();
 
     this->m_formatContext = NULL;
+    this->m_packetQueueSize = 0;
+    this->m_maxPacketQueueSize = 15 * 1024 * 1024;
+    this->m_runAudioLoop = false;
+    this->m_runVideoLoop = false;
+    this->m_runSubtitleLoop = false;
 
     QObject::connect(this,
                      &MediaSink::outputFormatChanged,
@@ -216,6 +222,11 @@ QVariantList MediaSink::streams() const
         streams << stream;
 
     return streams;
+}
+
+qint64 MediaSink::maxPacketQueueSize() const
+{
+    return this->m_maxPacketQueueSize;
 }
 
 QStringList MediaSink::supportedFormats()
@@ -1182,6 +1193,74 @@ AkAudioCaps MediaSink::nearestSWFCaps(const AkAudioCaps &caps) const
     return nearestCaps;
 }
 
+void MediaSink::writeAudioLoop(MediaSink *self)
+{
+    while (self->m_runAudioLoop) {
+        self->m_audioMutex.lock();
+
+        if (self->m_audioPackets.isEmpty())
+            self->m_audioQueueNotEmpty.wait(&self->m_audioMutex,
+                                            THREAD_WAIT_LIMIT);
+
+        if (!self->m_audioPackets.isEmpty()) {
+            AkAudioPacket packet = self->m_audioPackets.dequeue();
+            self->writeAudioPacket(packet);
+            self->decreasePacketQueue(packet.buffer().size());
+        }
+
+        self->m_audioMutex.unlock();
+    }
+}
+
+void MediaSink::writeVideoLoop(MediaSink *self)
+{
+    while (self->m_runVideoLoop) {
+        self->m_videoMutex.lock();
+
+        if (self->m_videoPackets.isEmpty())
+            self->m_videoQueueNotEmpty.wait(&self->m_videoMutex,
+                                            THREAD_WAIT_LIMIT);
+
+        if (!self->m_videoPackets.isEmpty()) {
+            AkVideoPacket packet = self->m_videoPackets.dequeue();
+            self->writeVideoPacket(packet);
+            self->decreasePacketQueue(packet.buffer().size());
+        }
+
+        self->m_videoMutex.unlock();
+    }
+}
+
+void MediaSink::writeSubtitleLoop(MediaSink *self)
+{
+    while (self->m_runSubtitleLoop) {
+        self->m_subtitleMutex.lock();
+
+        if (self->m_subtitlePackets.isEmpty())
+            self->m_subtitleQueueNotEmpty.wait(&self->m_subtitleMutex,
+                                               THREAD_WAIT_LIMIT);
+
+        if (!self->m_subtitlePackets.isEmpty()) {
+            AkPacket packet = self->m_subtitlePackets.dequeue();
+            self->writeSubtitlePacket(packet);
+            self->decreasePacketQueue(packet.buffer().size());
+        }
+
+        self->m_subtitleMutex.unlock();
+    }
+}
+
+void MediaSink::decreasePacketQueue(int packetSize)
+{
+    this->m_packetMutex.lock();
+    this->m_packetQueueSize -= packetSize;
+
+    if (this->m_packetQueueSize <= this->m_maxPacketQueueSize)
+        this->m_packetQueueNotFull.wakeAll();
+
+    this->m_packetMutex.unlock();
+}
+
 void MediaSink::setLocation(const QString &location)
 {
     if (this->m_location == location)
@@ -1209,6 +1288,15 @@ void MediaSink::setFormatOptions(const QVariantMap &formatOptions)
     emit this->formatOptionsChanged(formatOptions);
 }
 
+void MediaSink::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
+{
+    if (this->m_maxPacketQueueSize == maxPacketQueueSize)
+        return;
+
+    this->m_maxPacketQueueSize = maxPacketQueueSize;
+    emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
+}
+
 void MediaSink::resetLocation()
 {
     this->setLocation("");
@@ -1222,6 +1310,21 @@ void MediaSink::resetOutputFormat()
 void MediaSink::resetFormatOptions()
 {
     this->setFormatOptions(QVariantMap());
+}
+
+void MediaSink::resetMaxPacketQueueSize()
+{
+    this->setMaxPacketQueueSize(15 * 1024 * 1024);
+}
+
+void MediaSink::enqueuePacket(const AkPacket &packet)
+{
+    if (packet.caps().mimeType() == "audio/x-raw")
+        this->m_audioPackets.enqueue(AkAudioPacket(packet));
+    else if (packet.caps().mimeType() == "video/x-raw")
+        this->m_videoPackets.enqueue(AkVideoPacket(packet));
+    else if (packet.caps().mimeType() == "text/x-raw")
+        this->m_subtitlePackets.enqueue(packet);
 }
 
 void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
@@ -1331,9 +1434,9 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
         av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
 
         // Write audio packet.
-        this->m_mutex.lock();
+        this->m_writeMutex.lock();
         av_interleaved_write_frame(this->m_formatContext, &pkt);
-        this->m_mutex.unlock();
+        this->m_writeMutex.unlock();
 
         delete [] buffer;
     }
@@ -1402,9 +1505,9 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
 
         av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
 
-        this->m_mutex.lock();
+        this->m_writeMutex.lock();
         av_interleaved_write_frame(this->m_formatContext, &pkt);
-        this->m_mutex.unlock();
+        this->m_writeMutex.unlock();
     } else {
         // encode the image
         pkt.data = NULL; // packet data will be allocated by the encoder
@@ -1428,9 +1531,9 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
             av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
 
             // Write the compressed frame to the media file.
-            this->m_mutex.lock();
+            this->m_writeMutex.lock();
             av_interleaved_write_frame(this->m_formatContext, &pkt);
-            this->m_mutex.unlock();
+            this->m_writeMutex.unlock();
         }
     }
 

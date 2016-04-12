@@ -63,12 +63,12 @@
     </message>
     <message>
         <location filename="../qml/main.qml" line="142"/>
-        <source>File extentions</source>
+        <source>File extensions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="148"/>
-        <source>This output format has not specific extentions</source>
+        <source>This output format has not specific extensions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

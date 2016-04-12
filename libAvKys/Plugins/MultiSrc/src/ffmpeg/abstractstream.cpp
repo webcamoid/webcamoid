@@ -129,9 +129,17 @@ AkCaps AbstractStream::caps() const
 
 void AbstractStream::packetEnqueue(AVPacket *packet)
 {
+    if (!this->m_runPacketLoop)
+        return;
+
     this->m_packetMutex.lock();
-    this->m_packets.enqueue(PacketPtr(packet, this->deletePacket));
-    this->m_packetQueueSize += packet->size;
+
+    if (packet) {
+        this->m_packets.enqueue(PacketPtr(packet, this->deletePacket));
+        this->m_packetQueueSize += packet->size;
+    } else
+        this->m_packets.enqueue(PacketPtr());
+
     this->m_packetQueueNotEmpty.wakeAll();
     this->m_packetMutex.unlock();
 }
@@ -143,7 +151,11 @@ void AbstractStream::dataEnqueue(AVFrame *frame)
     if (this->m_frames.size() >= this->m_maxData)
         this->m_dataQueueNotFull.wait(&this->m_dataMutex);
 
-    this->m_frames.enqueue(FramePtr(frame, this->deleteFrame));
+    if (frame)
+        this->m_frames.enqueue(FramePtr(frame, this->deleteFrame));
+    else
+        this->m_frames.enqueue(FramePtr());
+
     this->m_dataQueueNotEmpty.wakeAll();
     this->m_dataMutex.unlock();
 }
@@ -155,7 +167,11 @@ void AbstractStream::dataEnqueue(AVSubtitle *subtitle)
     if (this->m_subtitles.size() >= this->m_maxData)
         this->m_dataQueueNotFull.wait(&this->m_dataMutex);
 
-    this->m_subtitles.enqueue(SubtitlePtr(subtitle, this->deleteSubtitle));
+    if (subtitle)
+        this->m_subtitles.enqueue(SubtitlePtr(subtitle, this->deleteSubtitle));
+    else
+        this->m_subtitles.enqueue(SubtitlePtr());
+
     this->m_dataQueueNotEmpty.wakeAll();
     this->m_dataMutex.unlock();
 }
@@ -202,19 +218,30 @@ void AbstractStream::packetLoop(AbstractStream *stream)
 {
     while (stream->m_runPacketLoop) {
         stream->m_packetMutex.lock();
+        bool gotPacket = true;
 
         if (stream->m_packets.isEmpty())
-            stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex,
-                                               THREAD_WAIT_LIMIT);
+            gotPacket = stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex,
+                                                          THREAD_WAIT_LIMIT);
 
-        if (!stream->m_packets.isEmpty()) {
-            PacketPtr packet = stream->m_packets.dequeue();
-            stream->processPacket(packet.data());
-            stream->m_packetQueueSize -= packet->size;
-            emit stream->notify();
+        PacketPtr packet;
+
+        if (gotPacket) {
+            packet = stream->m_packets.dequeue();
+
+            if (packet)
+                stream->m_packetQueueSize -= packet->size;
         }
 
         stream->m_packetMutex.unlock();
+
+        if (gotPacket) {
+            stream->processPacket(packet.data());
+            emit stream->notify();
+        }
+
+        if (!packet)
+            stream->m_runPacketLoop = false;
     }
 }
 
@@ -225,40 +252,62 @@ void AbstractStream::dataLoop(AbstractStream *stream)
     case AVMEDIA_TYPE_AUDIO:
         while (stream->m_runDataLoop) {
             stream->m_dataMutex.lock();
+            bool gotFrame = true;
 
             if (stream->m_frames.isEmpty())
-                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
-                                                 THREAD_WAIT_LIMIT);
+                gotFrame = stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
+                                                            THREAD_WAIT_LIMIT);
 
-            if (!stream->m_frames.isEmpty()) {
-                FramePtr frame = stream->m_frames.dequeue();
-                stream->processData(frame.data());
+            FramePtr frame;
+
+            if (gotFrame) {
+                frame = stream->m_frames.dequeue();
 
                 if (stream->m_frames.size() < stream->m_maxData)
                     stream->m_dataQueueNotFull.wakeAll();
             }
 
             stream->m_dataMutex.unlock();
+
+            if (gotFrame) {
+                if (frame)
+                    stream->processData(frame.data());
+                else {
+                    emit stream->eof();
+                    stream->m_runDataLoop = false;
+                }
+            }
         }
 
         break;
     case AVMEDIA_TYPE_SUBTITLE:
         while (stream->m_runDataLoop) {
             stream->m_dataMutex.lock();
+            bool gotSubtitle = true;
 
             if (stream->m_subtitles.isEmpty())
-                stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
-                                                 THREAD_WAIT_LIMIT);
+                gotSubtitle = stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
+                                                               THREAD_WAIT_LIMIT);
 
-            if (!stream->m_subtitles.isEmpty()) {
-                SubtitlePtr subtitle = stream->m_subtitles.dequeue();
-                stream->processData(subtitle.data());
+            SubtitlePtr subtitle;
+
+            if (gotSubtitle) {
+                subtitle = stream->m_subtitles.dequeue();
 
                 if (stream->m_subtitles.size() < stream->m_maxData)
                     stream->m_dataQueueNotFull.wakeAll();
             }
 
             stream->m_dataMutex.unlock();
+
+            if (gotSubtitle) {
+                if (subtitle)
+                    stream->processData(subtitle.data());
+                else {
+                    emit stream->eof();
+                    stream->m_runDataLoop = false;
+                }
+            }
         }
 
         break;
@@ -341,4 +390,8 @@ void AbstractStream::uninit()
         avcodec_close(this->m_codecContext);
         this->m_codecContext = NULL;
     }
+
+    this->m_packets.clear();
+    this->m_frames.clear();
+    this->m_subtitles.clear();
 }

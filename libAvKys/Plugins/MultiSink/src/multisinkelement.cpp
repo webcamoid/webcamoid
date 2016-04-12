@@ -238,7 +238,7 @@ void MultiSinkElement::clearStreams()
 
 AkPacket MultiSinkElement::iStream(const AkPacket &packet)
 {
-    this->m_mutex.lock();
+//    this->m_mutex.lock();
 
     if (packet.caps().mimeType() == "audio/x-raw")
         this->m_mediaSink.writeAudioPacket(packet);
@@ -247,7 +247,7 @@ AkPacket MultiSinkElement::iStream(const AkPacket &packet)
     else if (packet.caps().mimeType() == "text/x-raw")
         this->m_mediaSink.writeSubtitlePacket(packet);
 
-    this->m_mutex.unlock();
+//    this->m_mutex.unlock();
 
     return AkPacket();
 }

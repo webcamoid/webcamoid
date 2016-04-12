@@ -125,6 +125,7 @@ class AbstractStream: public QObject
         void oStream(const AkPacket &packet);
         void notify();
         void frameSent();
+        void eof();
 
     public slots:
         void setPaused(bool paused);

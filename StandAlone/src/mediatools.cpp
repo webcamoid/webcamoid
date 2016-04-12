@@ -261,15 +261,15 @@ QStringList MediaTools::recordingFormats() const
                                   Q_ARG(QString, format),
                                   Q_ARG(QString, "video/x-raw"));
 
-        QStringList extentions;
+        QStringList extensions;
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "fileExtensions",
-                                  Q_RETURN_ARG(QStringList, extentions),
+                                  Q_RETURN_ARG(QStringList, extensions),
                                   Q_ARG(QString, format));
 
         if (!audioCodecs.isEmpty()
             && !videoCodecs.isEmpty()
-            && !extentions.isEmpty())
+            && !extensions.isEmpty())
             formats << format;
     }
 

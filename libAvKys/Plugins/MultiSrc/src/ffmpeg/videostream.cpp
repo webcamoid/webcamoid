@@ -65,6 +65,12 @@ void VideoStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
+    if (!packet) {
+        this->dataEnqueue((AVFrame *) NULL);
+
+        return;
+    }
+
     AVFrame *iFrame = av_frame_alloc();
     int gotFrame;
 

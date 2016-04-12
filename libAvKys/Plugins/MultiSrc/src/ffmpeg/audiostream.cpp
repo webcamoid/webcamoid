@@ -103,6 +103,12 @@ void AudioStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
+    if (!packet) {
+        this->dataEnqueue((AVFrame *) NULL);
+
+        return;
+    }
+
     AVFrame *iFrame = av_frame_alloc();
     int gotFrame;
 
@@ -180,14 +186,17 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
                 int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
                 // NOTE: This code needs a review.
-                /*
-                if (wantedSamples != iFrame->nb_samples)
+                /***
+                if (wantedSamples != iFrame->nb_samples) {
+                    qreal k = 44100.0 / iFrame->sample_rate;
+
                     if (swr_set_compensation(this->m_resampleContext,
-                                             wantedSamples - iFrame->nb_samples,
-                                             wantedSamples) < 0) {
+                                             k * (wantedSamples - iFrame->nb_samples),
+                                             k * wantedSamples) < 0) {
                         return AkPacket();
                     }
-                */
+                }
+                //*/
             }
         }
     } else {

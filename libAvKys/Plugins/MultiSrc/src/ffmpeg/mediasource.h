@@ -75,6 +75,7 @@ class MediaSource: public QObject
         QMap<int, AbstractStreamPtr> m_streamsMap;
         Clock m_globalClock;
         qreal m_curClockTime;
+        QFuture<void> m_readPacketsLoopResult;
 
         qint64 packetQueueSize();
         static void deleteFormatContext(AVFormatContext *context);

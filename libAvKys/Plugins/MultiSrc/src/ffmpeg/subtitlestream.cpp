@@ -38,6 +38,12 @@ void SubtitleStream::processPacket(AVPacket *packet)
     if (!this->isValid())
         return;
 
+    if (!packet) {
+        this->dataEnqueue((AVSubtitle *) NULL);
+
+        return;
+    }
+
     AVSubtitle *subtitle = new AVSubtitle();
     int gotSubtitle;
 

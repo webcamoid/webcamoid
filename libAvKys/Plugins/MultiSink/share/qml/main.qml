@@ -35,7 +35,7 @@ ColumnLayout {
 
             if (formatId === MultiSink.outputFormat) {
                 outputFormatIndex = format
-                txtFileExtentions.text = MultiSink.fileExtensions(formatId).join(", ")
+                txtFileExtensions.text = MultiSink.fileExtensions(formatId).join(", ")
             }
 
             lstOutputFormats.append({format: formatId,
@@ -59,7 +59,7 @@ ColumnLayout {
             for (var i = 0; i < lstOutputFormats.count; i++)
                 if (lstOutputFormats.get(i).format === outputFormat) {
                     cbxOutputFormats.currentIndex = i
-                    txtFileExtentions.text = MultiSink.fileExtensions(lstOutputFormats.get(i).format).join(", ")
+                    txtFileExtensions.text = MultiSink.fileExtensions(lstOutputFormats.get(i).format).join(", ")
 
                     break
                 }
@@ -138,13 +138,13 @@ ColumnLayout {
     }
 
     Label {
-        text: qsTr("File extentions")
+        text: qsTr("File extensions")
         Layout.fillWidth: true
     }
     TextField {
-        id: txtFileExtentions
+        id: txtFileExtensions
         readOnly: true
-        placeholderText: qsTr("This output format has not specific extentions")
+        placeholderText: qsTr("This output format has not specific extensions")
         Layout.fillWidth: true
     }
 
