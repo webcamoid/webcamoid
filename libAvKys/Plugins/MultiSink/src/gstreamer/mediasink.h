@@ -75,7 +75,7 @@ class MediaSink: public QObject
         QString m_location;
         QString m_outputFormat;
         QVariantMap m_formatOptions;
-        bool m_run;
+        bool m_isRecording;
 
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
@@ -111,14 +111,15 @@ class MediaSink: public QObject
         void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
-        void writeAudioPacket(const AkAudioPacket &packet);
-        void writeVideoPacket(const AkVideoPacket &packet);
-        void writeSubtitlePacket(const AkPacket &packet);
+        void enqueuePacket(const AkPacket &packet);
         void clearStreams();
         bool init();
         void uninit();
 
     private slots:
+        void writeAudioPacket(const AkAudioPacket &packet);
+        void writeVideoPacket(const AkVideoPacket &packet);
+        void writeSubtitlePacket(const AkPacket &packet);
         void updateStreams();
 };
 

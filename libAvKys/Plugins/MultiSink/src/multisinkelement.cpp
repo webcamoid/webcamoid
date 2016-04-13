@@ -47,9 +47,7 @@ MultiSinkElement::MultiSinkElement(): AkElement()
 
 MultiSinkElement::~MultiSinkElement()
 {
-    this->m_mutex.lock();
     this->m_mediaSink.uninit();
-    this->m_mutex.unlock();
 }
 
 QObject *MultiSinkElement::controlInterface(QQmlEngine *engine,
@@ -174,8 +172,6 @@ QVariantMap MultiSinkElement::updateStream(int index,
 void MultiSinkElement::stateChange(AkElement::ElementState from,
                                    AkElement::ElementState to)
 {
-    this->m_mutex.lock();
-
     if (from == AkElement::ElementStateNull
         && to == AkElement::ElementStatePaused) {
         this->m_mediaSink.init();
@@ -183,8 +179,6 @@ void MultiSinkElement::stateChange(AkElement::ElementState from,
                && to == AkElement::ElementStateNull) {
         this->m_mediaSink.uninit();
     }
-
-    this->m_mutex.unlock();
 }
 
 void MultiSinkElement::setLocation(const QString &location)
@@ -238,16 +232,7 @@ void MultiSinkElement::clearStreams()
 
 AkPacket MultiSinkElement::iStream(const AkPacket &packet)
 {
-//    this->m_mutex.lock();
-
-    if (packet.caps().mimeType() == "audio/x-raw")
-        this->m_mediaSink.writeAudioPacket(packet);
-    else if (packet.caps().mimeType() == "video/x-raw")
-        this->m_mediaSink.writeVideoPacket(packet);
-    else if (packet.caps().mimeType() == "text/x-raw")
-        this->m_mediaSink.writeSubtitlePacket(packet);
-
-//    this->m_mutex.unlock();
+    this->m_mediaSink.enqueuePacket(packet);
 
     return AkPacket();
 }

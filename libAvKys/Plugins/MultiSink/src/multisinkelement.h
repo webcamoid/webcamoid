@@ -93,7 +93,6 @@ class MultiSinkElement: public AkElement
     private:
         bool m_showFormatOptions;
         MediaSink m_mediaSink;
-        QMutex m_mutex;
 
     signals:
         void locationChanged(const QString &location);

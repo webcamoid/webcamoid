@@ -52,7 +52,7 @@ MediaSource::MediaSource(QObject *parent): QObject(parent)
     this->m_loop = false;
     this->m_run = false;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
-    this->m_showLog = true;
+    this->m_showLog = false;
     this->m_curState = AkElement::ElementStateNull;
     this->m_curClockTime = 0.;
 }

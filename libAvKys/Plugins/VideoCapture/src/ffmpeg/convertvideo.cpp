@@ -222,6 +222,8 @@ bool ConvertVideo::init(const AkCaps &caps)
         return false;
     }
 
+    this->m_packets.clear();
+    this->m_frames.clear();
     this->m_lastPts = 0;
     this->m_id = Ak::id();
     this->m_packetQueueSize = 0;
@@ -238,10 +240,11 @@ void ConvertVideo::uninit()
 {
     this->m_runPacketLoop = false;
     this->m_packetLoopResult.waitForFinished();
-    this->m_packets.clear();
 
     this->m_runDataLoop = false;
     this->m_dataLoopResult.waitForFinished();
+
+    this->m_packets.clear();
     this->m_frames.clear();
 
     if (this->m_scaleContext) {

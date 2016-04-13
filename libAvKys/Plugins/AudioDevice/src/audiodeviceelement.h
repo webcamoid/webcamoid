@@ -72,21 +72,14 @@ class AudioDeviceElement: public AkElement
         DeviceMode m_mode;
         AudioDev m_audioDevice;
         AkElementPtr m_convert;
-        qint64 m_streamId;
-        AkFrac m_timeBase;
-        bool m_threadedRead;
-        QTimer m_timer;
         QThreadPool m_threadPool;
-        QFuture<void> m_threadStatus;
+        QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
-        AkPacket m_curPacket;
+        bool m_readFramesLoop;
+        bool m_pause;
 
         AkAudioCaps defaultCaps(DeviceMode mode);
-        static void sendPacket(AudioDeviceElement *element,
-                               const AkPacket &packet);
-
-    protected:
-        void stateChange(AkElement::ElementState from, AkElement::ElementState to);
+        static void readFramesLoop(AudioDeviceElement *self);
 
     signals:
         void bufferSizeChanged(int bufferSize);
@@ -101,11 +94,7 @@ class AudioDeviceElement: public AkElement
         void resetCaps();
         void resetMode();
         AkPacket iStream(const AkAudioPacket &packet);
-
-    private slots:
-        bool init();
-        void uninit();
-        void readFrame();
+        bool setState(AkElement::ElementState state);
 };
 
 #endif // AUDIODEVICEELEMENT_H

@@ -218,7 +218,7 @@ MediaSink::MediaSink(QObject *parent): QObject(parent)
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(NULL, NULL);
 
-    this->m_run = false;
+    this->m_isRecording = false;
     this->m_pipeline = NULL;
     this->m_mainLoop = NULL;
     this->m_busWatchId = 0;
@@ -315,6 +315,7 @@ QStringList MediaSink::fileExtensions(const QString &format)
 
     foreach (QString formatCaps, supportedCaps) {
         GstCaps *caps = gst_caps_from_string(formatCaps.toStdString().c_str());
+        caps = gst_caps_fixate(caps);
         GstEncodingContainerProfile *prof = gst_encoding_container_profile_new(NULL, NULL, caps, NULL);
         gst_caps_unref(caps);
 
@@ -1593,151 +1594,18 @@ void MediaSink::resetFormatOptions()
     this->setFormatOptions(QVariantMap());
 }
 
-void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
+void MediaSink::enqueuePacket(const AkPacket &packet)
 {
-    if (!this->m_pipeline)
+    if (!this->m_isRecording)
         return;
 
-    int streamIndex = -1;
-
-    for (int i = 0; i < this->m_streamParams.size(); i++)
-        if (this->m_streamParams[i].inputIndex() == packet.index()) {
-            streamIndex = i;
-
-            break;
-        }
-
-    if (streamIndex < 0)
-        return;
-
-    QString souceName = QString("audio_%1").arg(streamIndex);
-    GstElement *source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
-                                             souceName.toStdString().c_str());
-    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
-
-    QString iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
-    iFormat = gstToFF->key(iFormat, "S16");
-
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    QString fEnd = "LE";
-#elif Q_BYTE_ORDER == Q_BIG_ENDIAN
-    QString fEnd = "BE";
-#endif
-
-    if (!iFormat.endsWith(fEnd))
-        iFormat += fEnd;
-
-    GstCaps *inputCaps = gst_caps_new_simple("audio/x-raw",
-                                             "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
-                                             "layout", G_TYPE_STRING, "interleaved",
-                                             "rate", G_TYPE_INT, packet.caps().rate(),
-                                             "channels", G_TYPE_INT, packet.caps().channels(),
-                                             NULL);
-    inputCaps = gst_caps_fixate(inputCaps);
-
-    if (!gst_caps_is_equal(sourceCaps, inputCaps))
-        gst_app_src_set_caps(GST_APP_SRC(source), inputCaps);
-
-    gst_caps_unref(inputCaps);
-    gst_caps_unref(sourceCaps);
-
-    int size = packet.buffer().size();
-
-    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
-    GstMapInfo info;
-    gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, packet.buffer().constData(), size);
-    gst_buffer_unmap(buffer, &info);
-
-    qint64 pts = packet.pts() * packet.timeBase().value() * GST_SECOND;
-
-#if 0
-    GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
-    GST_BUFFER_DURATION(buffer) = packet.caps().samples() * packet.timeBase().value() * GST_SECOND;
-    GST_BUFFER_OFFSET(buffer) = this->m_streamParams[streamIndex].nFrame();
-#else
-    GST_BUFFER_PTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
-    GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
-    GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
-    GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
-#endif
-
-    this->m_streamParams[streamIndex].nFrame() += packet.caps().samples();
-
-    if (gst_app_src_push_buffer(GST_APP_SRC(source), buffer) != GST_FLOW_OK)
-        qWarning() << "Error pushing buffer to GStreamer pipeline";
-}
-
-void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
-{
-    if (!this->m_pipeline)
-        return;
-
-    int streamIndex = -1;
-
-    for (int i = 0; i < this->m_streamParams.size(); i++)
-        if (this->m_streamParams[i].inputIndex() == packet.index()) {
-            streamIndex = i;
-
-            break;
-        }
-
-    if (streamIndex < 0)
-        return;
-
-    QString souceName = QString("video_%1").arg(streamIndex);
-    GstElement *source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
-                                             souceName.toStdString().c_str());
-    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
-
-    QString iFormat = AkVideoCaps::pixelFormatToString(packet.caps().format());
-    iFormat = gstToFF->key(iFormat, "BGR");
-    GstCaps *inputCaps = gst_caps_new_simple("video/x-raw",
-                                             "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
-                                             "width", G_TYPE_INT, packet.caps().width(),
-                                             "height", G_TYPE_INT, packet.caps().height(),
-                                             "framerate", GST_TYPE_FRACTION,
-                                                          (int) packet.caps().fps().num(),
-                                                          (int) packet.caps().fps().den(),
-                                             NULL);
-    inputCaps = gst_caps_fixate(inputCaps);
-
-    if (!gst_caps_is_equal(sourceCaps, inputCaps))
-        gst_app_src_set_caps(GST_APP_SRC(source), inputCaps);
-
-    gst_caps_unref(inputCaps);
-    gst_caps_unref(sourceCaps);
-
-    int size = packet.buffer().size();
-
-    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
-    GstMapInfo info;
-    gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, packet.buffer().constData(), size);
-    gst_buffer_unmap(buffer, &info);
-
-    qint64 pts = packet.pts() * packet.timeBase().value() * GST_SECOND;
-
-#if 0
-    GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
-    GST_BUFFER_DURATION(buffer) = GST_SECOND / packet.caps().fps().value();
-    GST_BUFFER_OFFSET(buffer) = this->m_streamParams[streamIndex].nFrame();
-#else
-    GST_BUFFER_PTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
-    GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
-    GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
-    GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
-#endif
-
-    this->m_streamParams[streamIndex].nFrame()++;
-
-    if (gst_app_src_push_buffer(GST_APP_SRC(source), buffer) != GST_FLOW_OK)
-        qWarning() << "Error pushing buffer to GStreamer pipeline";
-}
-
-void MediaSink::writeSubtitlePacket(const AkPacket &packet)
-{
-    Q_UNUSED(packet)
+    if (packet.caps().mimeType() == "audio/x-raw") {
+        this->writeAudioPacket(AkAudioPacket(packet));
+    } else if (packet.caps().mimeType() == "video/x-raw") {
+        this->writeVideoPacket(AkVideoPacket(packet));
+    } else if (packet.caps().mimeType() == "text/x-raw") {
+        this->writeSubtitlePacket(packet);
+    }
 }
 
 void MediaSink::clearStreams()
@@ -1938,13 +1806,14 @@ bool MediaSink::init()
     this->m_mainLoop = g_main_loop_new(NULL, FALSE);
     QtConcurrent::run(&this->m_threadPool, g_main_loop_run, this->m_mainLoop);
     gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
-    this->m_run = true;
+    this->m_isRecording = true;
 
     return true;
 }
 
 void MediaSink::uninit()
 {
+    this->m_isRecording = false;
     this->m_streamParams.clear();
 
     if (this->m_pipeline) {
@@ -1998,6 +1867,153 @@ void MediaSink::uninit()
         g_main_loop_unref(this->m_mainLoop);
         this->m_mainLoop = NULL;
     }
+}
+
+void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
+{
+    if (!this->m_pipeline)
+        return;
+
+    int streamIndex = -1;
+
+    for (int i = 0; i < this->m_streamParams.size(); i++)
+        if (this->m_streamParams[i].inputIndex() == packet.index()) {
+            streamIndex = i;
+
+            break;
+        }
+
+    if (streamIndex < 0)
+        return;
+
+    QString souceName = QString("audio_%1").arg(streamIndex);
+    GstElement *source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
+                                             souceName.toStdString().c_str());
+    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
+
+    QString iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
+    iFormat = gstToFF->key(iFormat, "S16");
+
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+    QString fEnd = "LE";
+#elif Q_BYTE_ORDER == Q_BIG_ENDIAN
+    QString fEnd = "BE";
+#endif
+
+    if (!iFormat.endsWith(fEnd))
+        iFormat += fEnd;
+
+    GstCaps *inputCaps = gst_caps_new_simple("audio/x-raw",
+                                             "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
+                                             "layout", G_TYPE_STRING, "interleaved",
+                                             "rate", G_TYPE_INT, packet.caps().rate(),
+                                             "channels", G_TYPE_INT, packet.caps().channels(),
+                                             NULL);
+    inputCaps = gst_caps_fixate(inputCaps);
+
+    if (!gst_caps_is_equal(sourceCaps, inputCaps))
+        gst_app_src_set_caps(GST_APP_SRC(source), inputCaps);
+
+    gst_caps_unref(inputCaps);
+    gst_caps_unref(sourceCaps);
+
+    int size = packet.buffer().size();
+
+    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
+    GstMapInfo info;
+    gst_buffer_map(buffer, &info, GST_MAP_WRITE);
+    memcpy(info.data, packet.buffer().constData(), size);
+    gst_buffer_unmap(buffer, &info);
+
+    qint64 pts = packet.pts() * packet.timeBase().value() * GST_SECOND;
+
+#if 0
+    GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
+    GST_BUFFER_DURATION(buffer) = packet.caps().samples() * packet.timeBase().value() * GST_SECOND;
+    GST_BUFFER_OFFSET(buffer) = this->m_streamParams[streamIndex].nFrame();
+#else
+    GST_BUFFER_PTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
+    GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
+    GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
+    GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
+#endif
+
+    this->m_streamParams[streamIndex].nFrame() += packet.caps().samples();
+
+    if (gst_app_src_push_buffer(GST_APP_SRC(source), buffer) != GST_FLOW_OK)
+        qWarning() << "Error pushing buffer to GStreamer pipeline";
+}
+
+void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
+{
+    if (!this->m_pipeline)
+        return;
+
+    int streamIndex = -1;
+
+    for (int i = 0; i < this->m_streamParams.size(); i++)
+        if (this->m_streamParams[i].inputIndex() == packet.index()) {
+            streamIndex = i;
+
+            break;
+        }
+
+    if (streamIndex < 0)
+        return;
+
+    QString souceName = QString("video_%1").arg(streamIndex);
+    GstElement *source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
+                                             souceName.toStdString().c_str());
+    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
+
+    QString iFormat = AkVideoCaps::pixelFormatToString(packet.caps().format());
+    iFormat = gstToFF->key(iFormat, "BGR");
+    GstCaps *inputCaps = gst_caps_new_simple("video/x-raw",
+                                             "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
+                                             "width", G_TYPE_INT, packet.caps().width(),
+                                             "height", G_TYPE_INT, packet.caps().height(),
+                                             "framerate", GST_TYPE_FRACTION,
+                                                          (int) packet.caps().fps().num(),
+                                                          (int) packet.caps().fps().den(),
+                                             NULL);
+    inputCaps = gst_caps_fixate(inputCaps);
+
+    if (!gst_caps_is_equal(sourceCaps, inputCaps))
+        gst_app_src_set_caps(GST_APP_SRC(source), inputCaps);
+
+    gst_caps_unref(inputCaps);
+    gst_caps_unref(sourceCaps);
+
+    int size = packet.buffer().size();
+
+    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
+    GstMapInfo info;
+    gst_buffer_map(buffer, &info, GST_MAP_WRITE);
+    memcpy(info.data, packet.buffer().constData(), size);
+    gst_buffer_unmap(buffer, &info);
+
+    qint64 pts = packet.pts() * packet.timeBase().value() * GST_SECOND;
+
+#if 0
+    GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
+    GST_BUFFER_DURATION(buffer) = GST_SECOND / packet.caps().fps().value();
+    GST_BUFFER_OFFSET(buffer) = this->m_streamParams[streamIndex].nFrame();
+#else
+    GST_BUFFER_PTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
+    GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
+    GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
+    GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
+#endif
+
+    this->m_streamParams[streamIndex].nFrame()++;
+
+    if (gst_app_src_push_buffer(GST_APP_SRC(source), buffer) != GST_FLOW_OK)
+        qWarning() << "Error pushing buffer to GStreamer pipeline";
+}
+
+void MediaSink::writeSubtitlePacket(const AkPacket &packet)
+{
+    Q_UNUSED(packet)
 }
 
 void MediaSink::updateStreams()

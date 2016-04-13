@@ -87,11 +87,13 @@ class MediaSink: public QObject
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
         AVFormatContext *m_formatContext;
+        QThreadPool m_threadPool;
         qint64 m_packetQueueSize;
         qint64 m_maxPacketQueueSize;
         bool m_runAudioLoop;
         bool m_runVideoLoop;
         bool m_runSubtitleLoop;
+        bool m_isRecording;
         QMutex m_packetMutex;
         QMutex m_audioMutex;
         QMutex m_videoMutex;
@@ -104,6 +106,9 @@ class MediaSink: public QObject
         QQueue<AkAudioPacket> m_audioPackets;
         QQueue<AkVideoPacket> m_videoPackets;
         QQueue<AkPacket> m_subtitlePackets;
+        QFuture<void> m_audioLoopResult;
+        QFuture<void> m_videoLoopResult;
+        QFuture<void> m_subtitleLoopResult;
 
         void flushStreams();
         AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
@@ -136,14 +141,14 @@ class MediaSink: public QObject
         void resetFormatOptions();
         void resetMaxPacketQueueSize();
         void enqueuePacket(const AkPacket &packet);
-        void writeAudioPacket(const AkAudioPacket &packet);
-        void writeVideoPacket(const AkVideoPacket &packet);
-        void writeSubtitlePacket(const AkPacket &packet);
         void clearStreams();
         bool init();
         void uninit();
 
     private slots:
+        void writeAudioPacket(const AkAudioPacket &packet);
+        void writeVideoPacket(const AkVideoPacket &packet);
+        void writeSubtitlePacket(const AkPacket &packet);
         void updateStreams();
 };
 
