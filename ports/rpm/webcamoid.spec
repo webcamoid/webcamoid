@@ -3,7 +3,7 @@
 %endif
 
 Name: webcamoid
-Version: 7.0.0
+Version: 7.1.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -147,5 +147,5 @@ rm -rf %{buildroot}
 %{_libdir}/lib*AvKys.so*
 
 %changelog
-* Tue Feb 23 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 7.0.0-1
+* Sat Apr 16 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 7.1.0-1
 - Final Release.
