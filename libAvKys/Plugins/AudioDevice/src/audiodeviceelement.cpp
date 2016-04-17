@@ -276,9 +276,13 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                 this->m_pause = false;
                 this->m_readFramesLoop = false;
                 this->m_readFramesLoopResult.waitForFinished();
+
+                break;
             }
             case DeviceModeOutput: {
                 this->m_audioDevice.uninit();
+
+                break;
             }
             default:
                 return false;
@@ -289,6 +293,8 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             switch (this->m_mode) {
             case DeviceModeInput: {
                 this->m_pause = false;
+
+                break;
             }
             case DeviceModeOutput: {
                 this->m_mutex.lock();
@@ -336,9 +342,13 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                 this->m_pause = false;
                 this->m_readFramesLoop = false;
                 this->m_readFramesLoopResult.waitForFinished();
+
+                break;
             }
             case DeviceModeOutput: {
                 this->m_audioDevice.uninit();
+
+                break;
             }
             default:
                 return false;
@@ -349,9 +359,13 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             switch (this->m_mode) {
             case DeviceModeInput: {
                 this->m_pause = true;
+
+                break;
             }
             case DeviceModeOutput: {
                 this->m_audioDevice.uninit();
+
+                break;
             }
             default:
                 return false;
