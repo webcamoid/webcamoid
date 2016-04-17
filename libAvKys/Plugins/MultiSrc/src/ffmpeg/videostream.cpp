@@ -20,7 +20,7 @@
 #include "videostream.h"
 
 // no AV sync correction is done if below the minimum AV sync threshold
-#define AV_SYNC_THRESHOLD_MIN 0.01
+#define AV_SYNC_THRESHOLD_MIN 0.04
 
 // AV sync correction is done if above the maximum AV sync threshold
 #define AV_SYNC_THRESHOLD_MAX 0.1
@@ -93,9 +93,9 @@ void VideoStream::processData(AVFrame *frame)
         qreal diff = pts - this->globalClock()->clock();
         qreal delay = pts - this->m_lastPts;
 
-        // skip or repeat frame. We take into account the
+        // Skip or repeat frame. We take into account the
         // delay to compute the threshold. I still don't know
-        // if it is the best guess
+        // if it is the best guess.
         double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
                                       delay,
                                       AV_SYNC_THRESHOLD_MAX);
@@ -103,13 +103,14 @@ void VideoStream::processData(AVFrame *frame)
         if (!qIsNaN(diff)
             && qAbs(diff) < AV_NOSYNC_THRESHOLD
             && delay < AV_SYNC_FRAMEDUP_THRESHOLD) {
-            // video is backward the external clock.
+            // Video is backward the external clock.
             if (diff <= -syncThreshold) {
+                // Drop frame.
                 this->m_lastPts = pts;
 
                 break;
             } else if (diff > syncThreshold) {
-                // video is ahead the external clock.
+                // Video is ahead the external clock.
                 QThread::usleep(1e6 * (diff - syncThreshold));
 
                 continue;

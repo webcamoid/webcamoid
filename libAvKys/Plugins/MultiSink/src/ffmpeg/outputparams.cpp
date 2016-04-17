@@ -128,9 +128,9 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
         qint64 pts = this->m_pts + audioBufferSamples;
         qint64 ptsDiff = qAbs(framePts - pts);
 
-        if (framePts > pts)
+        if (framePts > pts) {
             silence = ptsDiff;
-        else if (framePts < pts) {
+        } else if (framePts < pts) {
             frameSamples -= ptsDiff;
 
             if (frameSamples < 0)

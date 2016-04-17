@@ -139,32 +139,11 @@ void AudioStream::processData(AVFrame *frame)
 
 AkPacket AudioStream::convert(AVFrame *iFrame)
 {
-    int64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
-                          iFrame->channel_layout:
-                          AV_CH_LAYOUT_STEREO;
-    int oChannels = av_get_channel_layout_nb_channels(oLayout);
-
-    AVSampleFormat iFormat = AVSampleFormat(iFrame->format);
-    AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
-    oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
-
-    this->m_resampleContext =
-            swr_alloc_set_opts(this->m_resampleContext,
-                               oLayout,
-                               oFormat,
-                               iFrame->sample_rate,
-                               iFrame->channel_layout,
-                               iFormat,
-                               iFrame->sample_rate,
-                               0,
-                               NULL);
-
-    if (!this->m_resampleContext)
-        return AkPacket();
-
     // Synchronize audio
     qreal pts = iFrame->pts * this->timeBase().value();
     qreal diff = pts - this->globalClock()->clock();
+    int wantedSamples = iFrame->nb_samples;
+    int oSampleRate = iFrame->sample_rate;
 
     if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
         this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
@@ -181,22 +160,18 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
             qreal diffThreshold = 2.0 * iFrame->nb_samples / iFrame->sample_rate;
 
             if (qAbs(avgDiff) >= diffThreshold) {
-                int wantedSamples = iFrame->nb_samples + int(diff * iFrame->sample_rate);
+                wantedSamples = iFrame->nb_samples + int(diff * iFrame->sample_rate);
                 int minSamples = iFrame->nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
-                // NOTE: This code needs a review.
-                /***
-                if (wantedSamples != iFrame->nb_samples) {
-                    qreal k = 44100.0 / iFrame->sample_rate;
 
+                if (wantedSamples != iFrame->nb_samples) {
                     if (swr_set_compensation(this->m_resampleContext,
-                                             k * (wantedSamples - iFrame->nb_samples),
-                                             k * wantedSamples) < 0) {
+                                             wantedSamples - iFrame->nb_samples,
+                                             wantedSamples) < 0) {
                         return AkPacket();
                     }
                 }
-                //*/
             }
         }
     } else {
@@ -211,13 +186,36 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
 
     this->m_clockDiff = diff;
 
+    int64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
+                          iFrame->channel_layout:
+                          AV_CH_LAYOUT_STEREO;
+    int oChannels = av_get_channel_layout_nb_channels(oLayout);
+
+    AVSampleFormat iFormat = AVSampleFormat(iFrame->format);
+    AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
+    oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
+
+    this->m_resampleContext =
+            swr_alloc_set_opts(this->m_resampleContext,
+                               oLayout,
+                               oFormat,
+                               oSampleRate,
+                               iFrame->channel_layout,
+                               iFormat,
+                               iFrame->sample_rate,
+                               0,
+                               NULL);
+
+    if (!this->m_resampleContext)
+        return AkPacket();
+
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
     oFrame.format = oFormat;
     oFrame.channels = oChannels;
     oFrame.channel_layout = oLayout;
-    oFrame.sample_rate = iFrame->sample_rate;
-    oFrame.nb_samples = iFrame->nb_samples;
+    oFrame.sample_rate = oSampleRate;
+    oFrame.nb_samples = wantedSamples;
     oFrame.pts = oFrame.pkt_pts = iFrame->pts;
 
     // Calculate the size of the audio buffer.
@@ -238,10 +236,17 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
         return AkPacket();
     }
 
-    if (swr_convert_frame(this->m_resampleContext,
-                          &oFrame,
-                          iFrame) < 0)
+    int error = swr_convert_frame(this->m_resampleContext,
+                                  &oFrame,
+                                  iFrame);
+
+    if (error < 0) {
+        char errorStr[1024];
+        av_strerror(AVERROR(error), errorStr, 1024);
+        qDebug() << "Error converting audio:" << errorStr;
+
         return AkPacket();
+    }
 
     AkAudioPacket packet;
     packet.caps().isValid() = true;

@@ -1872,7 +1872,6 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
         // If size is zero, it means the image was buffered.
         if (gotPacket) {
             pkt.stream_index = streamIndex;
-
             av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
 
             // Write the compressed frame to the media file.
