@@ -21,6 +21,45 @@
 
 #include "matrixelement.h"
 
+typedef QMap<QFont::HintingPreference, QString> HintingPreferenceToStr;
+
+inline HintingPreferenceToStr initHintingPreferenceToStr()
+{
+    HintingPreferenceToStr hintingPreferenceToStr;
+    hintingPreferenceToStr[QFont::PreferDefaultHinting] = "PreferDefaultHinting";
+    hintingPreferenceToStr[QFont::PreferNoHinting] = "PreferNoHinting";
+    hintingPreferenceToStr[QFont::PreferVerticalHinting] = "PreferVerticalHinting";
+    hintingPreferenceToStr[QFont::PreferFullHinting] = "PreferFullHinting";
+
+    return hintingPreferenceToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(HintingPreferenceToStr, hintingPreferenceToStr, (initHintingPreferenceToStr()))
+
+typedef QMap<QFont::StyleStrategy, QString> StyleStrategyToStr;
+
+inline StyleStrategyToStr initStyleStrategyToStr()
+{
+    StyleStrategyToStr styleStrategyToStr;
+    styleStrategyToStr[QFont::PreferDefault] = "PreferDefault";
+    styleStrategyToStr[QFont::PreferBitmap] = "PreferBitmap";
+    styleStrategyToStr[QFont::PreferDevice] = "PreferDevice";
+    styleStrategyToStr[QFont::PreferOutline] = "PreferOutline";
+    styleStrategyToStr[QFont::ForceOutline] = "ForceOutline";
+    styleStrategyToStr[QFont::PreferMatch] = "PreferMatch";
+    styleStrategyToStr[QFont::PreferQuality] = "PreferQuality";
+    styleStrategyToStr[QFont::PreferAntialias] = "PreferAntialias";
+    styleStrategyToStr[QFont::NoAntialias] = "NoAntialias";
+    styleStrategyToStr[QFont::OpenGLCompatible] = "OpenGLCompatible";
+    styleStrategyToStr[QFont::ForceIntegerMetrics] = "ForceIntegerMetrics";
+    styleStrategyToStr[QFont::NoSubpixelAntialias] = "NoSubpixelAntialias";
+    styleStrategyToStr[QFont::NoFontMerging] = "NoFontMerging";
+
+    return styleStrategyToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(StyleStrategyToStr, styleStrategyToStr, (initStyleStrategyToStr()))
+
 MatrixElement::MatrixElement(): AkElement()
 {
     this->m_nDrops = 25;
@@ -29,6 +68,8 @@ MatrixElement::MatrixElement(): AkElement()
         this->m_charTable.append(QChar(i));
 
     this->m_font = QApplication::font();
+    this->m_font.setHintingPreference(QFont::PreferFullHinting);
+    this->m_font.setStyleStrategy(QFont::NoAntialias);
     this->m_cursorColor = qRgb(255, 255, 255);
     this->m_foregroundColor = qRgb(0, 255, 0);
     this->m_backgroundColor = qRgb(0, 0, 0);
@@ -46,6 +87,14 @@ MatrixElement::MatrixElement(): AkElement()
                      &MatrixElement::updateCharTable);
     QObject::connect(this,
                      &MatrixElement::fontChanged,
+                     this,
+                     &MatrixElement::updateCharTable);
+    QObject::connect(this,
+                     &MatrixElement::hintingPreferenceChanged,
+                     this,
+                     &MatrixElement::updateCharTable);
+    QObject::connect(this,
+                     &MatrixElement::styleStrategyChanged,
                      this,
                      &MatrixElement::updateCharTable);
     QObject::connect(this,
@@ -113,6 +162,16 @@ QString MatrixElement::charTable() const
 QFont MatrixElement::font() const
 {
     return this->m_font;
+}
+
+QString MatrixElement::hintingPreference() const
+{
+    return hintingPreferenceToStr->value(this->m_font.hintingPreference(), "PreferFullHinting");
+}
+
+QString MatrixElement::styleStrategy() const
+{
+    return styleStrategyToStr->value(this->m_font.styleStrategy(), "NoAntialias");
 }
 
 QRgb MatrixElement::cursorColor() const
@@ -291,9 +350,49 @@ void MatrixElement::setFont(const QFont &font)
         return;
 
     QMutexLocker(&this->m_mutex);
+
+    QFont::HintingPreference hp =
+            hintingPreferenceToStr->key(this->hintingPreference(),
+                                        QFont::PreferFullHinting);
+    QFont::StyleStrategy ss =
+            styleStrategyToStr->key(this->styleStrategy(),
+                                    QFont::NoAntialias);
+
     this->m_font = font;
+    this->m_font.setHintingPreference(hp);
+    this->m_font.setStyleStrategy(ss);
     this->m_rain.clear();
     emit this->fontChanged(font);
+}
+
+void MatrixElement::setHintingPreference(const QString &hintingPreference)
+{
+    QFont::HintingPreference hp =
+            hintingPreferenceToStr->key(hintingPreference,
+                                        QFont::PreferFullHinting);
+
+    if (this->m_font.hintingPreference() == hp)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_font.setHintingPreference(hp);
+    this->m_rain.clear();
+    emit hintingPreferenceChanged(hintingPreference);
+}
+
+void MatrixElement::setStyleStrategy(const QString &styleStrategy)
+{
+    QFont::StyleStrategy ss =
+            styleStrategyToStr->key(styleStrategy,
+                                    QFont::NoAntialias);
+
+    if (this->m_font.styleStrategy() == ss)
+        return;
+
+    QMutexLocker(&this->m_mutex);
+    this->m_font.setStyleStrategy(ss);
+    this->m_rain.clear();
+    emit styleStrategyChanged(styleStrategy);
 }
 
 void MatrixElement::setCursorColor(QRgb cursorColor)
@@ -394,6 +493,16 @@ void MatrixElement::resetCharTable()
 void MatrixElement::resetFont()
 {
     this->setFont(QApplication::font());
+}
+
+void MatrixElement::resetHintingPreference()
+{
+    this->setHintingPreference("PreferFullHinting");
+}
+
+void MatrixElement::resetStyleStrategy()
+{
+    this->setStyleStrategy("NoAntialias");
 }
 
 void MatrixElement::resetCursorColor()

@@ -48,6 +48,16 @@ class CharifyElement: public AkElement
                WRITE setFont
                RESET resetFont
                NOTIFY fontChanged)
+    Q_PROPERTY(QString hintingPreference
+               READ hintingPreference
+               WRITE setHintingPreference
+               RESET resetHintingPreference
+               NOTIFY hintingPreferenceChanged)
+    Q_PROPERTY(QString styleStrategy
+               READ styleStrategy
+               WRITE setStyleStrategy
+               RESET resetStyleStrategy
+               NOTIFY styleStrategyChanged)
     Q_PROPERTY(QRgb foregroundColor
                READ foregroundColor
                WRITE setForegroundColor
@@ -79,6 +89,8 @@ class CharifyElement: public AkElement
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE QString charTable() const;
         Q_INVOKABLE QFont font() const;
+        Q_INVOKABLE QString hintingPreference() const;
+        Q_INVOKABLE QString styleStrategy() const;
         Q_INVOKABLE QRgb foregroundColor() const;
         Q_INVOKABLE QRgb backgroundColor() const;
         Q_INVOKABLE bool reversed() const;
@@ -106,6 +118,8 @@ class CharifyElement: public AkElement
         void modeChanged(const QString &mode);
         void charTableChanged(const QString &charTable);
         void fontChanged(const QFont &font);
+        void hintingPreferenceChanged(const QString &hintingPreference);
+        void styleStrategyChanged(const QString &styleStrategy);
         void foregroundColorChanged(QRgb foregroundColor);
         void backgroundColorChanged(QRgb backgroundColor);
         void reversedChanged(bool reversed);
@@ -114,12 +128,16 @@ class CharifyElement: public AkElement
         void setMode(const QString &mode);
         void setCharTable(const QString &charTable);
         void setFont(const QFont &font);
+        void setHintingPreference(const QString &hintingPreference);
+        void setStyleStrategy(const QString &styleStrategy);
         void setForegroundColor(QRgb foregroundColor);
         void setBackgroundColor(QRgb backgroundColor);
         void setReversed(bool reversed);
         void resetMode();
         void resetCharTable();
         void resetFont();
+        void resetHintingPreference();
+        void resetStyleStrategy();
         void resetForegroundColor();
         void resetBackgroundColor();
         void resetReversed();

@@ -26,12 +26,12 @@ import QtQuick.Layouts 1.1
 GridLayout {
     columns: 2
 
-    function modeIndex(mode)
+    function optionIndex(cbx, option)
     {
         var index = -1
 
-        for (var i = 0; i < cbxMode.model.count; i++)
-            if (cbxMode.model.get(i).mode === mode) {
+        for (var i = 0; i < cbx.model.count; i++)
+            if (cbx.model.get(i).option === option) {
                 index = i
                 break
             }
@@ -68,20 +68,20 @@ GridLayout {
     }
     ComboBox {
         id: cbxMode
-        currentIndex: modeIndex(Charify.mode)
+        currentIndex: optionIndex(cbxMode, Charify.mode)
 
         model: ListModel {
             ListElement {
                 text: qsTr("Natural")
-                mode: "natural"
+                option: "natural"
             }
             ListElement {
                 text: qsTr("Fixed")
-                mode: "fixed"
+                option: "fixed"
             }
         }
 
-        onCurrentIndexChanged: Charify.mode = cbxMode.model.get(currentIndex).mode
+        onCurrentIndexChanged: Charify.mode = cbxMode.model.get(currentIndex).option
     }
 
     Label {
@@ -109,6 +109,100 @@ GridLayout {
 
             onClicked: fontDialog.open()
         }
+    }
+
+    Label {
+        text: qsTr("Hinting")
+    }
+    ComboBox {
+        id: cbxHinting
+        currentIndex: optionIndex(cbxHinting, Charify.hintingPreference)
+
+        model: ListModel {
+            ListElement {
+                text: qsTr("Default")
+                option: "PreferDefaultHinting"
+            }
+            ListElement {
+                text: qsTr("No hinting")
+                option: "PreferNoHinting"
+            }
+            ListElement {
+                text: qsTr("Vertical hinting")
+                option: "PreferVerticalHinting"
+            }
+            ListElement {
+                text: qsTr("Full hinting")
+                option: "PreferFullHinting"
+            }
+        }
+
+        onCurrentIndexChanged: Charify.hintingPreference = cbxHinting.model.get(currentIndex).option
+    }
+
+    Label {
+        text: qsTr("Style")
+    }
+    ComboBox {
+        id: cbxStyle
+        currentIndex: optionIndex(cbxStyle, Charify.styleStrategy)
+
+        model: ListModel {
+            ListElement {
+                text: qsTr("Default")
+                option: "PreferDefault"
+            }
+            ListElement {
+                text: qsTr("Bitmap")
+                option: "PreferBitmap"
+            }
+            ListElement {
+                text: qsTr("Device")
+                option: "PreferDevice"
+            }
+            ListElement {
+                text: qsTr("Outline")
+                option: "PreferOutline"
+            }
+            ListElement {
+                text: qsTr("Force outline")
+                option: "ForceOutline"
+            }
+            ListElement {
+                text: qsTr("Match")
+                option: "PreferMatch"
+            }
+            ListElement {
+                text: qsTr("Quality")
+                option: "PreferQuality"
+            }
+            ListElement {
+                text: qsTr("Antialias")
+                option: "PreferAntialias"
+            }
+            ListElement {
+                text: qsTr("No antialias")
+                option: "NoAntialias"
+            }
+            ListElement {
+                text: qsTr("Compatible with OpenGL")
+                option: "OpenGLCompatible"
+            }
+            ListElement {
+                text: qsTr("Force integer metrics")
+                option: "ForceIntegerMetrics"
+            }
+            ListElement {
+                text: qsTr("No subpixel antialias")
+                option: "NoSubpixelAntialias"
+            }
+            ListElement {
+                text: qsTr("No font merging")
+                option: "NoFontMerging"
+            }
+        }
+
+        onCurrentIndexChanged: Charify.styleStrategy = cbxStyle.model.get(currentIndex).option
     }
 
     Label {

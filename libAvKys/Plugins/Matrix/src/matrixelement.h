@@ -47,6 +47,16 @@ class MatrixElement: public AkElement
                WRITE setFont
                RESET resetFont
                NOTIFY fontChanged)
+    Q_PROPERTY(QString hintingPreference
+               READ hintingPreference
+               WRITE setHintingPreference
+               RESET resetHintingPreference
+               NOTIFY hintingPreferenceChanged)
+    Q_PROPERTY(QString styleStrategy
+               READ styleStrategy
+               WRITE setStyleStrategy
+               RESET resetStyleStrategy
+               NOTIFY styleStrategyChanged)
     Q_PROPERTY(QRgb cursorColor
                READ cursorColor
                WRITE setCursorColor
@@ -97,6 +107,8 @@ class MatrixElement: public AkElement
         Q_INVOKABLE int nDrops() const;
         Q_INVOKABLE QString charTable() const;
         Q_INVOKABLE QFont font() const;
+        Q_INVOKABLE QString hintingPreference() const;
+        Q_INVOKABLE QString styleStrategy() const;
         Q_INVOKABLE QRgb cursorColor() const;
         Q_INVOKABLE QRgb foregroundColor() const;
         Q_INVOKABLE QRgb backgroundColor() const;
@@ -136,6 +148,8 @@ class MatrixElement: public AkElement
         void nDropsChanged(int nDrops);
         void charTableChanged(const QString &charTable);
         void fontChanged(const QFont &font);
+        void hintingPreferenceChanged(const QString &hintingPreference);
+        void styleStrategyChanged(const QString &styleStrategy);
         void cursorColorChanged(QRgb cursorColor);
         void foregroundColorChanged(QRgb foregroundColor);
         void backgroundColorChanged(QRgb backgroundColor);
@@ -149,6 +163,8 @@ class MatrixElement: public AkElement
         void setNDrops(int nDrops);
         void setCharTable(const QString &charTable);
         void setFont(const QFont &font);
+        void setHintingPreference(const QString &hintingPreference);
+        void setStyleStrategy(const QString &styleStrategy);
         void setCursorColor(QRgb cursorColor);
         void setForegroundColor(QRgb foregroundColor);
         void setBackgroundColor(QRgb backgroundColor);
@@ -160,6 +176,8 @@ class MatrixElement: public AkElement
         void resetNDrops();
         void resetCharTable();
         void resetFont();
+        void resetHintingPreference();
+        void resetStyleStrategy();
         void resetCursorColor();
         void resetForegroundColor();
         void resetBackgroundColor();
