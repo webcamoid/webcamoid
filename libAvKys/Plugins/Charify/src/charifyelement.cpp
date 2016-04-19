@@ -102,6 +102,14 @@ CharifyElement::CharifyElement(): AkElement()
                      this,
                      &CharifyElement::updateCharTable);
     QObject::connect(this,
+                     &CharifyElement::hintingPreferenceChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
+                     &CharifyElement::styleStrategyChanged,
+                     this,
+                     &CharifyElement::updateCharTable);
+    QObject::connect(this,
                      &CharifyElement::foregroundColorChanged,
                      this,
                      &CharifyElement::updateCharTable);
