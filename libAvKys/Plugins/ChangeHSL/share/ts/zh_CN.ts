@@ -4,7 +4,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="37"/>
+        <location filename="../qml/main.qml" line="36"/>
         <source>Transform matrix</source>
         <translation type="unfinished"></translation>
     </message>

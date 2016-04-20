@@ -4,22 +4,22 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="55"/>
+        <location filename="../qml/main.qml" line="54"/>
         <source>Show lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="67"/>
+        <location filename="../qml/main.qml" line="66"/>
         <source>Hide lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="79"/>
+        <location filename="../qml/main.qml" line="78"/>
         <source>Hide color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="107"/>
+        <location filename="../qml/main.qml" line="106"/>
         <source>Choose the hide color</source>
         <translation type="unfinished"></translation>
     </message>

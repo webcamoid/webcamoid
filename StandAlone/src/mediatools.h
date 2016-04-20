@@ -117,6 +117,7 @@ class MediaTools: public QObject
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
         Q_INVOKABLE QString qtVersion() const;
+        Q_INVOKABLE QString codecFramework() const;
         Q_INVOKABLE QString copyrightNotice() const;
         Q_INVOKABLE QString projectUrl() const;
         Q_INVOKABLE QString projectLicenseUrl() const;

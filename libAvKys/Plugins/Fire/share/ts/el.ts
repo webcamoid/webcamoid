@@ -4,62 +4,62 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="43"/>
+        <location filename="../qml/main.qml" line="42"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="51"/>
+        <location filename="../qml/main.qml" line="50"/>
         <source>Soft</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="55"/>
+        <location filename="../qml/main.qml" line="54"/>
         <source>Hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="65"/>
+        <location filename="../qml/main.qml" line="64"/>
         <source>Cooling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="78"/>
+        <location filename="../qml/main.qml" line="77"/>
         <source>Disolve</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="91"/>
+        <location filename="../qml/main.qml" line="90"/>
         <source>Blur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="104"/>
+        <location filename="../qml/main.qml" line="103"/>
         <source>Zoom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="117"/>
+        <location filename="../qml/main.qml" line="116"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="129"/>
+        <location filename="../qml/main.qml" line="128"/>
         <source>Luma threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="141"/>
+        <location filename="../qml/main.qml" line="140"/>
         <source>Alpha diff</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="154"/>
+        <location filename="../qml/main.qml" line="153"/>
         <source>Alpha variation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="166"/>
+        <location filename="../qml/main.qml" line="165"/>
         <source>N° of colors</source>
         <translation type="unfinished"></translation>
     </message>

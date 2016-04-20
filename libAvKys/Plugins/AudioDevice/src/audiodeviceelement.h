@@ -56,7 +56,8 @@ class AudioDeviceElement: public AkElement
         enum DeviceMode
         {
             DeviceModeInput,
-            DeviceModeOutput
+            DeviceModeOutput,
+            DeviceModeDummyOutput
         };
 
         explicit AudioDeviceElement();

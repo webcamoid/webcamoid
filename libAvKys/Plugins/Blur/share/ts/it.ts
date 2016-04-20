@@ -4,7 +4,7 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="31"/>
+        <location filename="../qml/main.qml" line="30"/>
         <source>Radius</source>
         <translation type="unfinished"></translation>
     </message>

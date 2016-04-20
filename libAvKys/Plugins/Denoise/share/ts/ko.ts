@@ -4,22 +4,22 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="30"/>
+        <location filename="../qml/main.qml" line="29"/>
         <source>Radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="50"/>
+        <location filename="../qml/main.qml" line="49"/>
         <source>Factor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="64"/>
+        <location filename="../qml/main.qml" line="63"/>
         <source>Mu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="78"/>
+        <location filename="../qml/main.qml" line="77"/>
         <source>Sigma</source>
         <translation type="unfinished"></translation>
     </message>

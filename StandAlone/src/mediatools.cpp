@@ -25,6 +25,12 @@
 
 #include "mediatools.h"
 
+#ifdef USE_GSTREAMER
+#include "gstreamer/cfwinfo.h"
+#else
+#include "ffmpeg/cfwinfo.h"
+#endif
+
 typedef QMap<MediaTools::RecordFrom, QString> RecordFromMap;
 
 inline RecordFromMap initRecordFromMap()
@@ -43,7 +49,6 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->m_appEngine = engine;
-
     this->m_playAudioFromSource = true;
     this->m_recordAudioFrom = RecordFromMic;
     this->m_recording = false;
@@ -350,6 +355,11 @@ QString MediaTools::applicationVersion() const
 QString MediaTools::qtVersion() const
 {
     return QT_VERSION_STR;
+}
+
+QString MediaTools::codecFramework() const
+{
+    return CodecFramework::info();
 }
 
 QString MediaTools::copyrightNotice() const

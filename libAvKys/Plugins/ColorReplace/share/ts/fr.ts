@@ -4,27 +4,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="56"/>
+        <location filename="../qml/main.qml" line="55"/>
         <source>Old color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="77"/>
+        <location filename="../qml/main.qml" line="76"/>
         <source>New color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="99"/>
+        <location filename="../qml/main.qml" line="98"/>
         <source>Radius</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="120"/>
+        <location filename="../qml/main.qml" line="119"/>
         <source>Select the color to replace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="130"/>
+        <location filename="../qml/main.qml" line="129"/>
         <source>Select the new color</source>
         <translation type="unfinished"></translation>
     </message>

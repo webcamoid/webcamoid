@@ -4,38 +4,38 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="43"/>
+        <location filename="../qml/main.qml" line="42"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="51"/>
+        <location filename="../qml/main.qml" line="50"/>
         <source>Spiral 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="55"/>
+        <location filename="../qml/main.qml" line="54"/>
         <source>Spiral 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="59"/>
+        <location filename="../qml/main.qml" line="58"/>
         <source>Parabola</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="63"/>
+        <location filename="../qml/main.qml" line="62"/>
         <source>Horizontal stripe</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="74"/>
+        <location filename="../qml/main.qml" line="73"/>
         <source>Speed increment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="88"/>
-        <location filename="../qml/main.qml" line="102"/>
+        <location filename="../qml/main.qml" line="87"/>
+        <location filename="../qml/main.qml" line="101"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>

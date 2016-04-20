@@ -4,17 +4,17 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="30"/>
+        <location filename="../qml/main.qml" line="29"/>
         <source>Amplitude</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="43"/>
+        <location filename="../qml/main.qml" line="42"/>
         <source>Frequency</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="56"/>
+        <location filename="../qml/main.qml" line="55"/>
         <source>Grid size</source>
         <translation type="unfinished"></translation>
     </message>

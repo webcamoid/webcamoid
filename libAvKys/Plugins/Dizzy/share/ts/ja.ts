@@ -4,17 +4,17 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="30"/>
+        <location filename="../qml/main.qml" line="29"/>
         <source>Speed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="54"/>
+        <location filename="../qml/main.qml" line="53"/>
         <source>Zoom rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="76"/>
+        <location filename="../qml/main.qml" line="75"/>
         <source>Strength</source>
         <translation type="unfinished"></translation>
     </message>

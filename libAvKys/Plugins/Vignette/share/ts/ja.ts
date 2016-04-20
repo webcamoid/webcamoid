@@ -4,27 +4,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="55"/>
+        <location filename="../qml/main.qml" line="54"/>
         <source>Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="76"/>
+        <location filename="../qml/main.qml" line="75"/>
         <source>Aspect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="98"/>
+        <location filename="../qml/main.qml" line="97"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="120"/>
+        <location filename="../qml/main.qml" line="119"/>
         <source>Softness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="142"/>
+        <location filename="../qml/main.qml" line="141"/>
         <source>Choose the vignette color</source>
         <translation type="unfinished"></translation>
     </message>

@@ -4,12 +4,12 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="75"/>
+        <location filename="../qml/main.qml" line="74"/>
         <source>Color table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="98"/>
+        <location filename="../qml/main.qml" line="97"/>
         <source>Soft</source>
         <translation type="unfinished"></translation>
     </message>

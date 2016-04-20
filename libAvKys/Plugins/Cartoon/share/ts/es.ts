@@ -4,12 +4,12 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="31"/>
+        <location filename="../qml/main.qml" line="30"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="52"/>
+        <location filename="../qml/main.qml" line="51"/>
         <source>Levels</source>
         <translation type="unfinished"></translation>
     </message>

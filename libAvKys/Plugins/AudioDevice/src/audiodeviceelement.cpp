@@ -28,6 +28,7 @@ inline DeviceModeMap initDeviceModeMap()
     DeviceModeMap deviceModeToStr;
     deviceModeToStr[AudioDeviceElement::DeviceModeInput] = "input";
     deviceModeToStr[AudioDeviceElement::DeviceModeOutput] = "output";
+    deviceModeToStr[AudioDeviceElement::DeviceModeDummyOutput] = "dummyoutput";
 
     return deviceModeToStr;
 }
@@ -66,6 +67,9 @@ QString AudioDeviceElement::mode() const
 
 AkAudioCaps AudioDeviceElement::defaultCaps(AudioDeviceElement::DeviceMode mode)
 {
+    if (mode == AudioDeviceElement::DeviceModeDummyOutput)
+        return AkAudioCaps("audio/x-raw,format=s16,bps=2,channels=2,rate=44100,layout=stereo,align=false");
+
     AkAudioCaps::SampleFormat sampleFormat;
     int channels;
     int sampleRate;
@@ -191,7 +195,9 @@ AkPacket AudioDeviceElement::iStream(const AkAudioPacket &packet)
 {
     this->m_mutex.lock();
 
-    if (this->m_convert) {
+    if (this->m_mode == AudioDeviceElement::DeviceModeDummyOutput)
+        QThread::usleep(1e6 * packet.caps().samples() / packet.caps().rate());
+    else if (this->m_convert) {
         AkPacket iPacket = this->m_convert->iStream(packet.toPacket());
         this->m_audioDevice.write(iPacket.buffer());
     }
@@ -256,6 +262,9 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                     break;
                 }
             }
+            case DeviceModeDummyOutput: {
+                break;
+            }
             default:
                 return false;
             }
@@ -282,6 +291,9 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeOutput: {
                 this->m_audioDevice.uninit();
 
+                break;
+            }
+            case DeviceModeDummyOutput: {
                 break;
             }
             default:
@@ -323,6 +335,9 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                     break;
                 }
             }
+            case DeviceModeDummyOutput: {
+                break;
+            }
             default:
                 return false;
             }
@@ -350,6 +365,9 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
 
                 break;
             }
+            case DeviceModeDummyOutput: {
+                break;
+            }
             default:
                 return false;
             }
@@ -365,6 +383,9 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeOutput: {
                 this->m_audioDevice.uninit();
 
+                break;
+            }
+            case DeviceModeDummyOutput: {
                 break;
             }
             default:

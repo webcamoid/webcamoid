@@ -4,37 +4,37 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="42"/>
+        <location filename="../qml/main.qml" line="41"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="50"/>
+        <location filename="../qml/main.qml" line="49"/>
         <source>Motion detect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="54"/>
+        <location filename="../qml/main.qml" line="53"/>
         <source>Rain</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="63"/>
+        <location filename="../qml/main.qml" line="62"/>
         <source>Amplitude</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="75"/>
+        <location filename="../qml/main.qml" line="74"/>
         <source>Decay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="87"/>
+        <location filename="../qml/main.qml" line="86"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="99"/>
+        <location filename="../qml/main.qml" line="98"/>
         <source>Luma threshold</source>
         <translation type="unfinished"></translation>
     </message>

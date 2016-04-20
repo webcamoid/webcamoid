@@ -26,8 +26,6 @@ exists(commons.pri) {
     }
 }
 
-!isEmpty(USE_GSTREAMER): DEFINES += USE_GSTREAMER
-
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
     DOCSOURCES = ../$${COMMONS_APPNAME}.qdocconf
 
@@ -267,4 +265,12 @@ unix {
 
     appIconScalable.files = share/icons/hicolor/scalable/webcamoid.svg
     appIconScalable.path = $${DATAROOTDIR}/icons/hicolor/scalable/apps
+}
+
+#USE_GSTREAMER = 1
+
+isEmpty(USE_GSTREAMER) {
+    include(src/ffmpeg/ffmpeg.pri)
+} else {
+    include(src/gstreamer/gstreamer.pri)
 }

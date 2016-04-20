@@ -4,12 +4,12 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="246"/>
-        <source>Video resolution</source>
+        <location filename="../qml/main.qml" line="105"/>
+        <source>Video format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="260"/>
+        <location filename="../qml/main.qml" line="120"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>

@@ -64,16 +64,15 @@ ApplicationWindow {
                                     font.bold: true
                                     font.pointSize: 12
                                 }
-
                                 Label {
                                     text: qsTr("Version %1").arg(Webcamoid.applicationVersion())
                                     font.bold: true
                                 }
-
                                 Label {
-                                    text: qsTr("Using Qt %1").arg(Webcamoid.qtVersion())
+                                    text: qsTr("Using Qt %1 with %2")
+                                            .arg(Webcamoid.qtVersion())
+                                            .arg(Webcamoid.codecFramework())
                                 }
-
                                 Button {
                                     iconName: "applications-internet"
                                     iconSource: "qrc:/icons/hicolor/scalable/applications-internet.svg"

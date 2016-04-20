@@ -4,17 +4,17 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="57"/>
+        <location filename="../qml/main.qml" line="56"/>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="79"/>
+        <location filename="../qml/main.qml" line="78"/>
         <source>Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="98"/>
+        <location filename="../qml/main.qml" line="97"/>
         <source>Choose the strips color</source>
         <translation type="unfinished"></translation>
     </message>

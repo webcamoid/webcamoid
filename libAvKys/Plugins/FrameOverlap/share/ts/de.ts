@@ -4,12 +4,12 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="30"/>
+        <location filename="../qml/main.qml" line="29"/>
         <source>N° of frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="43"/>
+        <location filename="../qml/main.qml" line="42"/>
         <source>Stride</source>
         <translation type="unfinished"></translation>
     </message>
