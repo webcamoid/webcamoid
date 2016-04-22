@@ -18,6 +18,7 @@
  */
 
 #include <QtMath>
+#include <limits>
 
 #include "cartoonelement.h"
 
