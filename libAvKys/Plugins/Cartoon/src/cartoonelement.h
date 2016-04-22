@@ -38,6 +38,11 @@ class CartoonElement: public AkElement
                WRITE setLevels
                RESET resetLevels
                NOTIFY levelsChange)
+    Q_PROPERTY(QSize scanSize
+               READ scanSize
+               WRITE setScanSize
+               RESET resetScanSize
+               NOTIFY scanSizeChanged)
 
     public:
         explicit CartoonElement();
@@ -47,31 +52,28 @@ class CartoonElement: public AkElement
 
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int levels() const;
+        Q_INVOKABLE QSize scanSize() const;
 
     private:
         int m_threshold;
         int m_levels;
+        QSize m_scanSize;
 
-        inline int threshold(int color, int levels)
-        {
-            if (levels < 1)
-                levels = 1;
-
-            double k = 256. / levels;
-            int r = k * int(color / k + 0.5);
-
-            return qBound(0, r, 255);
-        }
+        QVector<QRgb> palette(const QImage &img, int colors) const;
+        QRgb nearestColor(const QVector<QRgb> &palette, QRgb color) const;
 
     signals:
         void thresholdChange(int threshold);
         void levelsChange(int levels);
+        void scanSizeChanged(QSize scanSize);
 
     public slots:
         void setThreshold(int threshold);
         void setLevels(int levels);
+        void setScanSize(QSize scanSize);
         void resetThreshold();
         void resetLevels();
+        void resetScanSize();
         AkPacket iStream(const AkPacket &packet);
 };
 

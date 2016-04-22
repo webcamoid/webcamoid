@@ -25,6 +25,7 @@ CartoonElement::CartoonElement(): AkElement()
 {
     this->m_threshold = 95;
     this->m_levels = 8;
+    this->m_scanSize = QSize(160, 120);
 }
 
 QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -75,6 +76,88 @@ int CartoonElement::levels() const
     return this->m_levels;
 }
 
+QSize CartoonElement::scanSize() const
+{
+    return this->m_scanSize;
+}
+
+QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
+{
+    if (colors < 1)
+        return QVector<QRgb>();
+
+    QVector<QRgb> palette(colors);
+    int imgArea = img.width() * img.height();
+    const QRgb *bits = (const QRgb *) img.constBits();
+
+    for (int i = 0; i < colors; i++)
+        palette[i] = bits[i];
+
+    for (int j = colors; j < imgArea; j++) {
+        int k = std::numeric_limits<int>::max();
+        int index = 0;
+        QRgb color = bits[j];
+        int r = qRed(color);
+        int g = qGreen(color);
+        int b = qBlue(color);
+        int a = qAlpha(color);
+
+        for (int i = 0; i < palette.count(); i++) {
+            int rdiff = r - qRed(palette[i]);
+            int gdiff = g - qGreen(palette[i]);
+            int bdiff = b - qBlue(palette[i]);
+            int adiff = a - qAlpha(palette[i]);
+            int q = rdiff * rdiff
+                    + gdiff * gdiff
+                    + bdiff * bdiff
+                    + adiff * adiff;
+
+            if (q < k) {
+                k = q;
+                index = i;
+            }
+        }
+
+        palette[index] = qRgba((r + qRed(palette[index])) / 2,
+                               (g + qGreen(palette[index])) / 2,
+                               (b + qBlue(palette[index])) / 2,
+                               (a + qAlpha(palette[index])) / 2);
+    }
+
+    return palette;
+}
+
+QRgb CartoonElement::nearestColor(const QVector<QRgb> &palette, QRgb color) const
+{
+    if (palette.isEmpty())
+        return color;
+
+    int k = std::numeric_limits<int>::max();
+    int index = 0;
+    int r = qRed(color);
+    int g = qGreen(color);
+    int b = qBlue(color);
+    int a = qAlpha(color);
+
+    for (int i = 0; i < palette.count(); i++) {
+        int rdiff = r - qRed(palette[i]);
+        int gdiff = g - qGreen(palette[i]);
+        int bdiff = b - qBlue(palette[i]);
+        int adiff = a - qAlpha(palette[i]);
+        int q = rdiff * rdiff
+                + gdiff * gdiff
+                + bdiff * bdiff
+                + adiff * adiff;
+
+        if (q < k) {
+            k = q;
+            index = i;
+        }
+    }
+
+    return palette[index];
+}
+
 void CartoonElement::setThreshold(int threshold)
 {
     if (this->m_threshold == threshold)
@@ -93,6 +176,15 @@ void CartoonElement::setLevels(int levels)
     emit this->levelsChange(levels);
 }
 
+void CartoonElement::setScanSize(QSize scanSize)
+{
+    if (this->m_scanSize == scanSize)
+        return;
+
+    this->m_scanSize = scanSize;
+    emit this->scanSizeChanged(scanSize);
+}
+
 void CartoonElement::resetThreshold()
 {
     this->setThreshold(95);
@@ -103,8 +195,18 @@ void CartoonElement::resetLevels()
     this->setLevels(8);
 }
 
+void CartoonElement::resetScanSize()
+{
+    this->setScanSize(QSize(160, 120));
+}
+
 AkPacket CartoonElement::iStream(const AkPacket &packet)
 {
+    QSize scanSize(this->m_scanSize);
+
+    if (scanSize.isEmpty())
+        akSend(packet)
+
     QImage src = AkUtils::packetToImage(packet);
 
     if (src.isNull())
@@ -120,6 +222,10 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
 
     for (int i = 0; i < videoArea; i++)
         grayPtr[i] = qGray(srcPtr[i]);
+
+    QVector<QRgb> palette =
+            this->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
+                          this->m_levels);
 
     qreal k = log(1531) / 255.;
     int threshold = exp(k * (255 - this->m_threshold)) - 1;
@@ -156,13 +262,8 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
 
             if (grad >= threshold)
                 dstLine[x] = qRgb(0, 0, 0);
-            else {
-                int r = this->threshold(qRed(srcLine[x]), this->m_levels);
-                int g = this->threshold(qGreen(srcLine[x]), this->m_levels);
-                int b = this->threshold(qBlue(srcLine[x]), this->m_levels);
-
-                dstLine[x] = qRgb(r, g, b);
-            }
+            else
+                dstLine[x] = this->nearestColor(palette, srcLine[x]);
         }
     }
 
