@@ -25,6 +25,8 @@
 #include <ak.h>
 #include <akutils.h>
 
+#include "pixel.h"
+
 class CartoonElement: public AkElement
 {
     Q_OBJECT
@@ -33,11 +35,6 @@ class CartoonElement: public AkElement
                WRITE setThreshold
                RESET resetThreshold
                NOTIFY thresholdChange)
-    Q_PROPERTY(int levels
-               READ levels
-               WRITE setLevels
-               RESET resetLevels
-               NOTIFY levelsChange)
     Q_PROPERTY(QSize scanSize
                READ scanSize
                WRITE setScanSize
@@ -51,28 +48,26 @@ class CartoonElement: public AkElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE int threshold() const;
-        Q_INVOKABLE int levels() const;
         Q_INVOKABLE QSize scanSize() const;
 
     private:
         int m_threshold;
-        int m_levels;
         QSize m_scanSize;
+        QVector<PixelInt> m_palette;
+        qint64 m_id;
+        qint64 m_lastTime;
 
-        QVector<QRgb> palette(const QImage &img, int colors) const;
+        QVector<QRgb> palette(const QImage &img);
         QRgb nearestColor(const QVector<QRgb> &palette, QRgb color) const;
 
     signals:
         void thresholdChange(int threshold);
-        void levelsChange(int levels);
         void scanSizeChanged(QSize scanSize);
 
     public slots:
         void setThreshold(int threshold);
-        void setLevels(int levels);
         void setScanSize(QSize scanSize);
         void resetThreshold();
-        void resetLevels();
         void resetScanSize();
         AkPacket iStream(const AkPacket &packet);
 };

@@ -59,27 +59,6 @@ GridLayout {
         onValueChanged: sldThreshold.value = value
     }
 
-    // Configure levels.
-    Label {
-        text: qsTr("Levels")
-    }
-    Slider {
-        id: sldLevels
-        value: Cartoon.levels
-        stepSize: 1
-        maximumValue: 32
-
-        onValueChanged: Cartoon.levels = value
-    }
-    SpinBox {
-        id: spbLevels
-        value: sldLevels.value
-        maximumValue: sldLevels.maximumValue
-        stepSize: sldLevels.stepSize
-
-        onValueChanged: sldLevels.value = value
-    }
-
     // Scan block.
     Label {
         text: qsTr("Scan block")

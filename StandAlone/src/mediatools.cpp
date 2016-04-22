@@ -1217,23 +1217,19 @@ void MediaTools::setPlayAudioFromSource(bool playAudio)
 
     AkElement::ElementState sourceState = this->m_source->state();
 
-    if (playAudio) {
-        if (sourceState == AkElement::ElementStatePlaying ||
-            sourceState == AkElement::ElementStatePaused)
-            this->m_audioOutput->setState(sourceState);
+    if (sourceState == AkElement::ElementStatePlaying)
+        this->m_source->setState(AkElement::ElementStatePaused);
 
-        QObject::connect(this->m_source.data(),
-                         SIGNAL(stateChanged(AkElement::ElementState)),
-                         this->m_audioOutput.data(),
-                         SLOT(setState(AkElement::ElementState)));
-    } else {
-        this->m_audioOutput->setState(AkElement::ElementStateNull);
+    AkElement::ElementState audioOutState = this->m_audioOutput->state();
+    this->m_audioOutput->setState(AkElement::ElementStateNull);
 
-        QObject::disconnect(this->m_source.data(),
-                            SIGNAL(stateChanged(AkElement::ElementState)),
-                            this->m_audioOutput.data(),
-                            SLOT(setState(AkElement::ElementState)));
-    }
+    this->m_audioOutput->setProperty("mode",
+                                     playAudio?
+                                         "output":
+                                         "dummyoutput");
+
+    this->m_audioOutput->setState(audioOutState);
+    this->m_source->setState(sourceState);
 }
 
 void MediaTools::setWindowWidth(int windowWidth)

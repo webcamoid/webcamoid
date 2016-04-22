@@ -17,17 +17,38 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDateTime>
 #include <QtMath>
 #include <limits>
 
 #include "cartoonelement.h"
-#include "pixel.h"
+
+typedef QVector<PixelInt> ColorPalette;
+
+inline ColorPalette initDefaultPalette()
+{
+    ColorPalette defaultPalette;
+    defaultPalette << qRgb(255,   0,   0);
+    defaultPalette << qRgb(  0, 255,   0);
+    defaultPalette << qRgb(  0,   0, 255);
+    defaultPalette << qRgb(255, 255,   0);
+    defaultPalette << qRgb(255,   0, 255);
+    defaultPalette << qRgb(  0, 255, 255);
+    defaultPalette << qRgb(  0,   0,   0);
+    defaultPalette << qRgb(255, 255, 255);
+    defaultPalette << qRgb(127, 127, 127);
+
+    return defaultPalette;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ColorPalette, defaultPalette, (initDefaultPalette()))
 
 CartoonElement::CartoonElement(): AkElement()
 {
     this->m_threshold = 95;
-    this->m_levels = 8;
     this->m_scanSize = QSize(160, 120);
+    this->m_id = -1;
+    this->m_lastTime = 0;
 }
 
 QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -73,29 +94,17 @@ int CartoonElement::threshold() const
     return this->m_threshold;
 }
 
-int CartoonElement::levels() const
-{
-    return this->m_levels;
-}
-
 QSize CartoonElement::scanSize() const
 {
     return this->m_scanSize;
 }
 
-QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
+QVector<QRgb> CartoonElement::palette(const QImage &img)
 {
-    if (colors < 1)
-        return QVector<QRgb>();
-
-    QVector<PixelInt> palette(colors);
     int imgArea = img.width() * img.height();
     const QRgb *bits = (const QRgb *) img.constBits();
 
-    for (int i = 0; i < colors; i++)
-        palette[i] = bits[i];
-
-    for (int j = colors; j < imgArea; j++) {
+    for (int j = 0; j < imgArea; j++) {
         int k = std::numeric_limits<int>::max();
         int index = 0;
         QRgb color = bits[j];
@@ -104,12 +113,13 @@ QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
         int b = qBlue(color);
         int a = qAlpha(color);
 
-        for (int i = 0; i < palette.count(); i++) {
-            int n = palette[i].n;
-            int rdiff = r - palette[i].r / n;
-            int gdiff = g - palette[i].g / n;
-            int bdiff = b - palette[i].b / n;
-            int adiff = a - palette[i].a / n;
+        // Find the most similar color in the palette.
+        for (int i = 0; i < this->m_palette.size(); i++) {
+            int n = this->m_palette[i].n;
+            int rdiff = r - this->m_palette[i].r / n;
+            int gdiff = g - this->m_palette[i].g / n;
+            int bdiff = b - this->m_palette[i].b / n;
+            int adiff = a - this->m_palette[i].a / n;
             int q = rdiff * rdiff
                     + gdiff * gdiff
                     + bdiff * bdiff
@@ -121,13 +131,25 @@ QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
             }
         }
 
-        palette[index] += color;
+        // Calculate the media of all similar colors.
+        this->m_palette[index] += color;
     }
 
-    QVector<QRgb> pal(colors);
+    QVector<QRgb> pal;
 
-    for (int i = 0; i < colors; i++)
-        pal[i] = palette[i];
+    for (int i = 0; i < this->m_palette.size(); i++)
+        // Only append colors that exists in the image.
+        if (this->m_palette[i].n > 1)
+            pal << this->m_palette[i];
+
+    qint64 time = QDateTime::currentMSecsSinceEpoch();
+
+    // This code stabilize the color change between frames.
+    if ((time - this->m_lastTime) >= 5 * 1000) {
+        // Reset to default palette every 5 secs.
+        this->m_palette = *defaultPalette;
+        this->m_lastTime = time;
+    }
 
     return pal;
 }
@@ -172,15 +194,6 @@ void CartoonElement::setThreshold(int threshold)
     emit this->thresholdChange(threshold);
 }
 
-void CartoonElement::setLevels(int levels)
-{
-    if (this->m_levels == levels)
-        return;
-
-    this->m_levels = levels;
-    emit this->levelsChange(levels);
-}
-
 void CartoonElement::setScanSize(QSize scanSize)
 {
     if (this->m_scanSize == scanSize)
@@ -193,11 +206,6 @@ void CartoonElement::setScanSize(QSize scanSize)
 void CartoonElement::resetThreshold()
 {
     this->setThreshold(95);
-}
-
-void CartoonElement::resetLevels()
-{
-    this->setLevels(8);
 }
 
 void CartoonElement::resetScanSize()
@@ -228,9 +236,14 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
     for (int i = 0; i < videoArea; i++)
         grayPtr[i] = qGray(srcPtr[i]);
 
+    if (this->m_id != packet.id()) {
+        this->m_palette = *defaultPalette;
+        this->m_id = packet.id();
+        this->m_lastTime = QDateTime::currentMSecsSinceEpoch();
+    }
+
     QVector<QRgb> palette =
-            this->palette(src.scaled(scanSize, Qt::KeepAspectRatio),
-                          this->m_levels);
+            this->palette(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     qreal k = log(1531) / 255.;
     int threshold = exp(k * (255 - this->m_threshold)) - 1;
