@@ -117,9 +117,13 @@ RCC_DIR = $${COMMONS_BUILD_PATH}/rcc
 UI_DIR = $${COMMONS_BUILD_PATH}/ui
 
 # Compile translations files.
-compiletr.input = TRANSLATIONS
-compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
-compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
-compiletr.CONFIG += no_link
-QMAKE_EXTRA_COMPILERS += compiletr
-PRE_TARGETDEPS += compiler_compiletr_make_all
+exists($$QMAKE_LRELEASE) {
+    compiletr.input = TRANSLATIONS
+    compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+    compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
+    compiletr.CONFIG += no_link
+    QMAKE_EXTRA_COMPILERS += compiletr
+    PRE_TARGETDEPS += compiler_compiletr_make_all
+} else {
+    message("Please, install 'lrelease' for building translation files.")
+}
