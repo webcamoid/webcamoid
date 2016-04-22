@@ -26,37 +26,47 @@ template<typename T> class Pixel
 {
     public:
         explicit Pixel():
-            r(0), g(0), b(0), a(0)
+            r(0), g(0), b(0), a(0), n(1)
         {
         }
 
-        Pixel(T r, T g, T b, T a):
-            r(r), g(g), b(b), a(a)
+        Pixel(T r, T g=0, T b=0, T a=0, T n=1):
+            r(r), g(g), b(b), a(a), n(n)
         {
         }
 
-        Pixel operator +(const Pixel &other) const
+        Pixel(const Pixel &other):
+            r(other.r), g(other.g), b(other.b), a(other.a), n(other.n)
         {
-            return Pixel(this->r + other.r,
-                         this->g + other.g,
-                         this->b + other.b,
-                         this->a + other.a);
         }
 
-        Pixel operator -(const Pixel &other) const
+        Pixel(QRgb pixel):
+            r(qRed(pixel)), g(qGreen(pixel)), b(qBlue(pixel)), a(qAlpha(pixel)), n(1)
         {
-            return Pixel(this->r - other.r,
-                         this->g - other.g,
-                         this->b - other.b,
-                         this->a - other.a);
         }
 
-        template <typename R> Pixel<R> operator /(R c) const
+        Pixel &operator =(const Pixel &other)
         {
-            return Pixel<R>(this->r / c,
-                            this->g / c,
-                            this->b / c,
-                            this->a / c);
+            if (this != &other) {
+                this->r = other.r;
+                this->g = other.g;
+                this->b = other.b;
+                this->a = other.a;
+                this->n = other.n;
+            }
+
+            return *this;
+        }
+
+        Pixel &operator =(QRgb pixel)
+        {
+            this->r = qRed(pixel);
+            this->g = qGreen(pixel);
+            this->b = qBlue(pixel);
+            this->a = qAlpha(pixel);
+            this->n = 1;
+
+            return *this;
         }
 
         Pixel &operator +=(const Pixel &other)
@@ -65,6 +75,7 @@ template<typename T> class Pixel
             this->g += other.g;
             this->b += other.b;
             this->a += other.a;
+            this->n += other.n;
 
             return *this;
         }
@@ -75,30 +86,26 @@ template<typename T> class Pixel
             this->g += qGreen(pixel);
             this->b += qBlue(pixel);
             this->a += qAlpha(pixel);
+            this->n++;
 
             return *this;
+        }
+
+        operator QRgb() const
+        {
+            return qRgba(this->r / this->n,
+                         this->g / this->n,
+                         this->b / this->n,
+                         this->a / this->n);
         }
 
         T r;
         T g;
         T b;
         T a;
+        T n;
 };
 
-template<typename T> inline Pixel<T> integralSum(const Pixel<T> *integral,
-                                          int lineWidth,
-                                          int x, int y, int kw, int kh)
-{
-
-    const Pixel<T> *p0 = integral + x + y * lineWidth;
-    const Pixel<T> *p1 = p0 + kw;
-    const Pixel<T> *p2 = p0 + kh * lineWidth;
-    const Pixel<T> *p3 = p2 + kw;
-
-    return *p0 + *p3 - *p1 - *p2;
-}
-
-typedef Pixel<quint32> PixelU32;
-typedef Pixel<qreal> PixelReal;
+typedef Pixel<int> PixelInt;
 
 #endif // INTEGRAL_H

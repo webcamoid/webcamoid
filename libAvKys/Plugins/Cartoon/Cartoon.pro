@@ -30,7 +30,8 @@ CONFIG += plugin
 
 HEADERS += \
     src/cartoon.h \
-    src/cartoonelement.h
+    src/cartoonelement.h \
+    src/pixel.h
 
 INCLUDEPATH += \
     ../../Lib/src

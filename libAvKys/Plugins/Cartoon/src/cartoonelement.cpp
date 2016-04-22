@@ -21,6 +21,7 @@
 #include <limits>
 
 #include "cartoonelement.h"
+#include "pixel.h"
 
 CartoonElement::CartoonElement(): AkElement()
 {
@@ -87,7 +88,7 @@ QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
     if (colors < 1)
         return QVector<QRgb>();
 
-    QVector<QRgb> palette(colors);
+    QVector<PixelInt> palette(colors);
     int imgArea = img.width() * img.height();
     const QRgb *bits = (const QRgb *) img.constBits();
 
@@ -104,10 +105,11 @@ QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
         int a = qAlpha(color);
 
         for (int i = 0; i < palette.count(); i++) {
-            int rdiff = r - qRed(palette[i]);
-            int gdiff = g - qGreen(palette[i]);
-            int bdiff = b - qBlue(palette[i]);
-            int adiff = a - qAlpha(palette[i]);
+            int n = palette[i].n;
+            int rdiff = r - palette[i].r / n;
+            int gdiff = g - palette[i].g / n;
+            int bdiff = b - palette[i].b / n;
+            int adiff = a - palette[i].a / n;
             int q = rdiff * rdiff
                     + gdiff * gdiff
                     + bdiff * bdiff
@@ -119,13 +121,15 @@ QVector<QRgb> CartoonElement::palette(const QImage &img, int colors) const
             }
         }
 
-        palette[index] = qRgba((r + qRed(palette[index])) / 2,
-                               (g + qGreen(palette[index])) / 2,
-                               (b + qBlue(palette[index])) / 2,
-                               (a + qAlpha(palette[index])) / 2);
+        palette[index] += color;
     }
 
-    return palette;
+    QVector<QRgb> pal(colors);
+
+    for (int i = 0; i < colors; i++)
+        pal[i] = palette[i];
+
+    return pal;
 }
 
 QRgb CartoonElement::nearestColor(const QVector<QRgb> &palette, QRgb color) const
