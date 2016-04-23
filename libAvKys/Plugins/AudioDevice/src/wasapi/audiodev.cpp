@@ -147,18 +147,40 @@ bool AudioDev::preferredFormat(DeviceMode mode,
     *channels = pwfx->nChannels;
     *sampleRate = pwfx->nSamplesPerSec;
 
-    // Stop audio device if required.
     if (!isActivated)
+
+    if (!isActivated) {
+        // Stop audio device if required.
         this->uninit();
+
+        // Workaround for buggy drivers. Test if format is really supported.
+        if (!this->init(mode, *sampleFormat, *channels, *sampleRate)) {
+            // Test sample formats from highest sample resolusion to lowest.
+            QVector<AkAudioCaps::SampleFormat> preferredFormats;
+            preferredFormats << AkAudioCaps::SampleFormat_flt;
+            preferredFormats << AkAudioCaps::SampleFormat_s32;
+            preferredFormats << AkAudioCaps::SampleFormat_s16;
+            preferredFormats << AkAudioCaps::SampleFormat_u8;
+
+            foreach (AkAudioCaps::SampleFormat format, preferredFormats)
+                if (this->init(mode, format, *channels, *sampleRate)) {
+                    *sampleFormat = format;
+
+                    break;
+                }
+        }
+
+        this->uninit();
+    }
 
     return true;
 }
 
 bool AudioDev::init(DeviceMode mode,
-                       AkAudioCaps::SampleFormat sampleFormat,
-                       int channels,
-                       int sampleRate,
-                       bool justActivate)
+                    AkAudioCaps::SampleFormat sampleFormat,
+                    int channels,
+                    int sampleRate,
+                    bool justActivate)
 {
     HRESULT hr;
 

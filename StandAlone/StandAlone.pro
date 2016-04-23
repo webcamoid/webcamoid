@@ -103,15 +103,17 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 INSTALLS += target
-!unix: INSTALLS += \
-    dllDeps \
-    pluginsImageFormats \
-    pluginsPlatform \
-    pluginsQml
 
 target.path = $${BINDIR}
 
 !unix {
+    INSTALLS += \
+        dllDeps \
+        pluginsImageFormats \
+        pluginsPlatform \
+        pluginsQml \
+        appIcon
+
     DLLFILES = \
         \ # Qt
         $$[QT_INSTALL_BINS]/Qt5Core.dll \
@@ -211,14 +213,9 @@ target.path = $${BINDIR}
 
     pluginsQml.files = $$[QT_INSTALL_QML]/*
     pluginsQml.path = $${LIBDIR}/qt/qml
-}
 
-!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
-    INSTALLS += docs
-
-    docs.files = share/docs_auto/html
-    docs.path = $${HTMLDIR}
-    docs.CONFIG += no_check_exist
+    appIcon.files = share/icons/hicolor/256x256/webcamoid.png
+    appIcon.path = $${PREFIX}
 }
 
 unix {
@@ -264,6 +261,14 @@ unix {
 
     appIconScalable.files = share/icons/hicolor/scalable/webcamoid.svg
     appIconScalable.path = $${DATAROOTDIR}/icons/hicolor/scalable/apps
+}
+
+!isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
+    INSTALLS += docs
+
+    docs.files = share/docs_auto/html
+    docs.path = $${HTMLDIR}
+    docs.CONFIG += no_check_exist
 }
 
 #USE_GSTREAMER = 1
