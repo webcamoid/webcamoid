@@ -93,10 +93,12 @@ template<typename T> class Pixel
 
         operator QRgb() const
         {
-            return qRgba(this->r / this->n,
-                         this->g / this->n,
-                         this->b / this->n,
-                         this->a / this->n);
+            int n = this->n? this->n: 1;
+
+            return qRgba(this->r / n,
+                         this->g / n,
+                         this->b / n,
+                         this->a / n);
         }
 
         T r;

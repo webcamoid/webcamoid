@@ -42,8 +42,11 @@ unix {
 }
 
 INSTALLS += \
-    license
+    license \
+    launcher
 
 license.files = COPYING
-unix: license.path = $${LICENSEDIR}
-!unix: license.path = $${PREFIX}
+license.path = $${LICENSEDIR}
+
+launcher.files = webcamoid.bat
+launcher.path = $${PREFIX}

@@ -109,8 +109,7 @@ INSTALLS += target
     pluginsPlatform \
     pluginsQml
 
-unix:target.path = $${BINDIR}
-!unix:target.path = $${PREFIX}
+target.path = $${BINDIR}
 
 !unix {
     DLLFILES = \
@@ -202,16 +201,16 @@ unix:target.path = $${BINDIR}
     }
 
     dllDeps.files = $${DLLFILES}
-    dllDeps.path = $${PREFIX}
+    dllDeps.path = $${LIBDIR}
 
     pluginsPlatform.files = $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
-    pluginsPlatform.path = $${PREFIX}/platforms
+    pluginsPlatform.path = $${LIBDIR}/qt/plugins/platforms
 
     pluginsImageFormats.files = $$[QT_INSTALL_PLUGINS]/imageformats/*
-    pluginsImageFormats.path = $${PREFIX}/imageformats
+    pluginsImageFormats.path = $${LIBDIR}/qt/plugins/imageformats
 
     pluginsQml.files = $$[QT_INSTALL_QML]/*
-    pluginsQml.path = $${PREFIX}/qml
+    pluginsQml.path = $${LIBDIR}/qt/qml
 }
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {

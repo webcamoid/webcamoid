@@ -73,5 +73,4 @@ TEMPLATE = lib
 
 INSTALLS += target
 
-unix: target.path = $${LIBDIR}/$${COMMONS_TARGET}
-!unix: target.path = $${PREFIX}/$${COMMONS_TARGET}/Plugins
+target.path = $${LIBDIR}/$${COMMONS_TARGET}

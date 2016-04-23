@@ -73,12 +73,10 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 INSTALLS += target
-unix: target.path = $${LIBDIR}
-!unix: target.path = $${PREFIX}
+target.path = $${LIBDIR}
 
 !isEmpty(INSTALLDEVHEADERS):!isEqual(INSTALLDEVHEADERS, 0) {
     INSTALLS += headers
     headers.files = src/*.h
-    unix: headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
-    !unix: headers.path = $${PREFIX}/${COMMONS_TARGET}/include
+    headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
 }

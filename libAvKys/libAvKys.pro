@@ -51,8 +51,7 @@ INSTALLS += \
     license
 
 license.files = ../COPYING
-unix: license.path = $${LICENSEDIR}
-!unix: license.path = $${PREFIX}/$${COMMONS_TARGET}
+license.path = $${LICENSEDIR}
 
 !isEmpty(BUILDDOCS):!isEqual(BUILDDOCS, 0) {
     INSTALLS += docs

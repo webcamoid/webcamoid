@@ -34,7 +34,7 @@ Q_GLOBAL_STATIC(QDir, applicationDir)
 static inline QString convertToAbsolute(const QString &path)
 {
     if (!QDir::isRelativePath(path))
-        return path;
+        return QDir::cleanPath(path);
 
     QString absPath = applicationDir->absoluteFilePath(path);
 

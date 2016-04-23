@@ -116,6 +116,10 @@ QVector<QRgb> CartoonElement::palette(const QImage &img)
         // Find the most similar color in the palette.
         for (int i = 0; i < this->m_palette.size(); i++) {
             int n = this->m_palette[i].n;
+
+            if (!n)
+                n = 1;
+
             int rdiff = r - this->m_palette[i].r / n;
             int gdiff = g - this->m_palette[i].g / n;
             int bdiff = b - this->m_palette[i].b / n;
