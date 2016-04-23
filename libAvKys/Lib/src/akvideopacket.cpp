@@ -115,11 +115,6 @@ AkVideoCaps AkVideoPacket::caps() const
     return this->d->m_caps;
 }
 
-AkVideoPacket::operator AkPacket() const
-{
-    return this->toPacket();
-}
-
 AkVideoCaps &AkVideoPacket::caps()
 {
     return this->d->m_caps;

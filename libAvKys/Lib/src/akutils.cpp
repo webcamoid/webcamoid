@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "akvideocaps.h"
 #include "akutils.h"
 
 typedef QMap<QImage::Format, AkVideoCaps::PixelFormat> ImageToPixelFormatMap;
@@ -84,13 +83,46 @@ QImage AkUtils::packetToImage(const AkPacket &packet)
 
 AkPacket AkUtils::roundSizeTo(const AkPacket &packet, int n)
 {
+    int frameWidth = packet.property("width").toInt();
+    int frameHeight = packet.property("height").toInt();
+
+    int width = n * qRound(frameWidth / qreal(n));
+    int height = n * qRound(frameHeight / qreal(n));
+
+    if (frameWidth == width
+        && frameHeight == height)
+        return packet;
+
     QImage frame = AkUtils::packetToImage(packet);
 
     if (frame.isNull())
         return packet;
 
-    int width = n * qRound(frame.width() / qreal(n));
-    int height = n * qRound(frame.height() / qreal(n));
-
     return AkUtils::imageToPacket(frame.scaled(width, height), packet);
+}
+
+AkVideoPacket AkUtils::convertVideo(const AkVideoPacket &packet,
+                                    AkVideoCaps::PixelFormat format,
+                                    const QSize &size)
+{
+    if (!imageToFormat->values().contains(format))
+        return AkVideoPacket();
+
+    if (packet.caps().format() == format
+        && (size.isEmpty() || packet.caps().size() == size))
+        return packet;
+
+    QImage frame = AkUtils::packetToImage(packet.toPacket());
+
+    if (frame.isNull())
+        return packet;
+
+    QImage convertedFrame;
+
+    if (size.isEmpty())
+        convertedFrame = frame.convertToFormat(imageToFormat->key(format));
+    else
+        convertedFrame = frame.convertToFormat(imageToFormat->key(format)).scaled(size);
+
+    return AkUtils::imageToPacket(convertedFrame, packet.toPacket());
 }

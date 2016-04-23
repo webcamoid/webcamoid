@@ -19,6 +19,7 @@
 
 #include <limits>
 #include <QFileInfo>
+#include <akutils.h>
 
 #include "mediasink.h"
 
@@ -1961,20 +1962,23 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     if (streamIndex < 0)
         return;
 
+    AkVideoPacket videoPacket = AkUtils::roundSizeTo(packet.toPacket(), 4);
+    videoPacket = AkUtils::convertVideo(videoPacket, AkVideoCaps::Format_rgb24);
+
     QString souceName = QString("video_%1").arg(streamIndex);
     GstElement *source = gst_bin_get_by_name(GST_BIN(this->m_pipeline),
                                              souceName.toStdString().c_str());
     GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(source));
 
-    QString iFormat = AkVideoCaps::pixelFormatToString(packet.caps().format());
+    QString iFormat = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
     iFormat = gstToFF->key(iFormat, "BGR");
     GstCaps *inputCaps = gst_caps_new_simple("video/x-raw",
                                              "format", G_TYPE_STRING, iFormat.toStdString().c_str(),
-                                             "width", G_TYPE_INT, packet.caps().width(),
-                                             "height", G_TYPE_INT, packet.caps().height(),
+                                             "width", G_TYPE_INT, videoPacket.caps().width(),
+                                             "height", G_TYPE_INT, videoPacket.caps().height(),
                                              "framerate", GST_TYPE_FRACTION,
-                                                          (int) packet.caps().fps().num(),
-                                                          (int) packet.caps().fps().den(),
+                                                          (int) videoPacket.caps().fps().num(),
+                                                          (int) videoPacket.caps().fps().den(),
                                              NULL);
     inputCaps = gst_caps_fixate(inputCaps);
 
@@ -1984,22 +1988,22 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
-    int size = packet.buffer().size();
+    int size = videoPacket.buffer().size();
 
     GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
-    memcpy(info.data, packet.buffer().constData(), size);
+    memcpy(info.data, videoPacket.buffer().constData(), size);
     gst_buffer_unmap(buffer, &info);
 
-    qint64 pts = packet.pts() * packet.timeBase().value() * GST_SECOND;
+    qint64 pts = videoPacket.pts() * videoPacket.timeBase().value() * GST_SECOND;
 
 #if 0
     GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
     GST_BUFFER_DURATION(buffer) = GST_SECOND / packet.caps().fps().value();
     GST_BUFFER_OFFSET(buffer) = this->m_streamParams[streamIndex].nFrame();
 #else
-    GST_BUFFER_PTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
+    GST_BUFFER_PTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, videoPacket.id());
     GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;

@@ -118,7 +118,6 @@ QString Ak::qmlPluginPath()
         QString qmlPluginPath = QString("%1/../lib/qt/qml")
                                 .arg(QCoreApplication::applicationDirPath());
         qmlPluginPath = akGlobalStuff->convertToAbsolute(qmlPluginPath);
-        qDebug() << qmlPluginPath;
 
         return qmlPluginPath;
     }

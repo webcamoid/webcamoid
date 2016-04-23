@@ -1814,6 +1814,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     oFrame.height = codecContext->height;
 
     AkVideoPacket videoPacket = AkUtils::roundSizeTo(packet.toPacket(), 4);
+    videoPacket = AkUtils::convertVideo(videoPacket, AkVideoCaps::Format_rgb24);
 
     if (!this->m_streamParams[streamIndex].convert(videoPacket, &oFrame)) {
         av_frame_unref(&oFrame);

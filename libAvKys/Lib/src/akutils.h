@@ -22,13 +22,16 @@
 
 #include <QImage>
 
-#include "akpacket.h"
+#include "akvideopacket.h"
 
 namespace AkUtils
 {
     AkPacket imageToPacket(const QImage &image, const AkPacket &defaultPacket);
     QImage packetToImage(const AkPacket &packet);
     AkPacket roundSizeTo(const AkPacket &packet, int n);
+    AkVideoPacket convertVideo(const AkVideoPacket &packet,
+                          AkVideoCaps::PixelFormat format,
+                          const QSize &size=QSize());
 }
 
 #endif // AKUTILS_H

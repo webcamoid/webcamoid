@@ -362,6 +362,11 @@ int &AkVideoCaps::bpp()
     return this->d->m_bpp;
 }
 
+QSize AkVideoCaps::size() const
+{
+    return QSize(this->d->m_width, this->d->m_height);
+}
+
 int AkVideoCaps::width() const
 {
     return this->d->m_width;
@@ -557,6 +562,18 @@ void AkVideoCaps::setBpp(int bpp)
     emit this->bppChanged(bpp);
 }
 
+void AkVideoCaps::setSize(const QSize &size)
+{
+    QSize curSize(this->d->m_width, this->d->m_height);
+
+    if (curSize == size)
+        return;
+
+    this->setWidth(size.width());
+    this->setHeight(size.height());
+    emit sizeChanged(size);
+}
+
 void AkVideoCaps::setWidth(int width)
 {
     if (this->d->m_width == width)
@@ -592,6 +609,11 @@ void AkVideoCaps::resetFormat()
 void AkVideoCaps::resetBpp()
 {
     this->setBpp(0);
+}
+
+void AkVideoCaps::resetSize()
+{
+    this->setSize(QSize());
 }
 
 void AkVideoCaps::resetWidth()

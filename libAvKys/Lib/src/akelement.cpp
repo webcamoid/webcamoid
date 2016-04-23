@@ -41,18 +41,18 @@ class AkElementPrivate
         AkElementPrivate()
         {
             this->m_recursiveSearchPaths = false;
-            QStringList defaultPath;
 
 #ifdef Q_OS_WIN32
-            defaultPath << QCoreApplication::applicationDirPath()
-                        << COMMONS_TARGET
-                        << "Plugins";
+            QString defaultPath = QString("%1/../lib/%2")
+                                  .arg(QCoreApplication::applicationDirPath())
+                                  .arg(COMMONS_TARGET);
 #else
-            defaultPath << LIBDIR
-                        << COMMONS_TARGET;
+            QString defaultPath = QString("%1/%2")
+                                  .arg(LIBDIR)
+                                  .arg(COMMONS_TARGET);
 #endif
 
-            this->m_pluginsSearchPaths << defaultPath.join(QDir::separator());
+            this->m_pluginsSearchPaths << this->convertToAbsolute(defaultPath);
             this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
         }
 
@@ -247,19 +247,18 @@ QStringList AkElement::searchPaths(SearchPaths pathType)
     if (pathType == SearchPathsAll)
         return akElementGlobalStuff->m_pluginsSearchPaths;
 
-    QStringList defaults;
-    QStringList defaultPath;
-
 #ifdef Q_OS_WIN32
-    defaultPath << QCoreApplication::applicationDirPath()
-                << COMMONS_TARGET
-                << "Plugins";
+    QString defaultPath = QString("%1/../lib/%2")
+                          .arg(QCoreApplication::applicationDirPath())
+                          .arg(COMMONS_TARGET);
 #else
-    defaultPath << LIBDIR
-                << COMMONS_TARGET;
+    QString defaultPath = QString("%1/%2")
+                          .arg(LIBDIR)
+                          .arg(COMMONS_TARGET);
 #endif
 
-    defaults << defaultPath.join(QDir::separator());
+    QStringList defaults;
+    defaults << akElementGlobalStuff->convertToAbsolute(defaultPath);
 
     if (pathType == SearchPathsDefaults)
         return defaults;
@@ -291,18 +290,18 @@ void AkElement::resetSearchPaths()
 {
     akElementGlobalStuff->m_pluginsSearchPaths.clear();
 
-    QStringList defaultPath;
-
 #ifdef Q_OS_WIN32
-    defaultPath << QCoreApplication::applicationDirPath()
-                << COMMONS_TARGET
-                << "Plugins";
+    QString defaultPath = QString("%1/../lib/%2")
+                          .arg(QCoreApplication::applicationDirPath())
+                          .arg(COMMONS_TARGET);
 #else
-    defaultPath << LIBDIR
-                << COMMONS_TARGET;
+    QString defaultPath = QString("%1/%2")
+                          .arg(LIBDIR)
+                          .arg(COMMONS_TARGET);
 #endif
 
-    akElementGlobalStuff->m_pluginsSearchPaths << defaultPath.join(QDir::separator());
+    akElementGlobalStuff->m_pluginsSearchPaths
+            << akElementGlobalStuff->convertToAbsolute(defaultPath);
 }
 
 QStringList AkElement::listPlugins(const QString &type)
