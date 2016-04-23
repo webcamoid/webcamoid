@@ -11,6 +11,10 @@ configuration:
   - Debug
   - Release
 
+branches:
+  only:
+  - master
+
 environment:
   QTDIR: C:\Qt\5.5\mingw492_32
   MINGW: C:\Qt\Tools\mingw492_32
