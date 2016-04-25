@@ -35,18 +35,20 @@ OTHER_FILES = \
     README.md
 
 # Install rules
+
+INSTALLS += \
+    license
+
+license.files = COPYING
+license.path = $${LICENSEDIR}
+
 unix {
     INSTALLS += desktop
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications
 }
-
-INSTALLS += \
-    license \
-    launcher
-
-license.files = COPYING
-license.path = $${LICENSEDIR}
-
-launcher.files = webcamoid.bat
-launcher.path = $${PREFIX}
+!unix {
+    INSTALLS += launcher
+    launcher.files = webcamoid.bat
+    launcher.path = $${PREFIX}
+}
