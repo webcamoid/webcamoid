@@ -48,8 +48,8 @@ HEADERS += \
 INCLUDEPATH += \
     ../Lib/src
 
-!win32: LIBS += -L../Lib/ -lAvKys
-win32: LIBS += -L../Lib/ -lAvKys$${VER_MAJ}
+!win32: LIBS += -L../Lib/ -l$${COMMONS_TARGET}
+win32: LIBS += -L../Lib/ -l$${COMMONS_TARGET}$${VER_MAJ}
 
 DISTFILES = qmldir
 

@@ -62,8 +62,8 @@ HEADERS = \
 INCLUDEPATH += \
     ../libAvKys/Lib/src
 
-!win32: LIBS += -L../libAvKys/Lib -lAvKys
-win32: LIBS += -L../libAvKys/Lib -lAvKys$${VER_MAJ}
+!win32: LIBS += -L../libAvKys/Lib -lavkys
+win32: LIBS += -L../libAvKys/Lib -lavkys$${VER_MAJ}
 
 OTHER_FILES = \
     share/effects.xml

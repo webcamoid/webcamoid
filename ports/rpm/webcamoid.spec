@@ -95,6 +95,39 @@ Features:
     * Many recording formats.
     * Virtual webcam support for feeding other programs.
 
+%package -n libavkys7
+Version: 7.1.0
+Summary: Modular audio and video processing library
+
+%description -n libavkys7
+LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
+
+%package -n libavkys-devel
+Version: 7.1.0
+Summary: Modular audio and video processing library (development files)
+
+%if %{defined fedora}
+Group: Development/Libraries
+%endif
+
+%if %{defined suse_version}
+Group: Development/Libraries/Other
+%endif
+
+%if %{defined mgaversion}
+Group: Development/KDE and Qt
+%endif
+
+%description -n libavkys-devel
+LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
+
+%package -n avkys-plugins
+Version: 7.1.0
+Summary: Modular audio and video processing library (plugins)
+
+%description -n avkys-plugins
+LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
+
 %prep
 %setup -q -n %{name}-%{version}
 # delete not needed files
@@ -102,21 +135,26 @@ find . -name ".gitignore" -exec rm {} \;
 
 %build
 %if %{defined fedora}
-qmake-qt5 Webcamoid.pro \
-    LIBDIR=%{_libdir} \
-    LICENSEDIR=%{_defaultdocdir}/webcamoid
+  qmake-qt5 Webcamoid.pro \
+      LIBDIR=%{_libdir} \
+      LICENSEDIR=%{_defaultdocdir}/webcamoid \
+      INSTALLDEVHEADERS=1
 %endif
-
 %if %{defined suse_version}
-qmake-qt5 Webcamoid.pro \
-    LIBDIR=%{_libdir} \
-    LICENSEDIR=%{_defaultdocdir}/webcamoid
+  qmake-qt5 Webcamoid.pro \
+      LIBDIR=%{_libdir} \
+      LICENSEDIR=%{_defaultdocdir}/webcamoid \
+      INSTALLDEVHEADERS=1
 %endif
-
 %if %{defined mgaversion}
-%{_libdir}/qt5/bin/qmake Webcamoid.pro \
-    LIBDIR=%{_libdir} \
-    LICENSEDIR=%{_defaultdocdir}/webcamoid
+  %{_libdir}/qt5/bin/qmake Webcamoid.pro \
+      LIBDIR=%{_libdir} \
+      LICENSEDIR=%{_defaultdocdir}/webcamoid \
+      INSTALLDEVHEADERS=1
+%endif
+%if !%{defined fedora} && !%{defined suse_version} && !%{defined mgaversion}
+  qmake -qt=5 Webcamoid.pro \
+      INSTALLDEVHEADERS=1
 %endif
 
 make %{?_smp_mflags}
@@ -131,21 +169,39 @@ make INSTALL_ROOT="%{buildroot}" install
 rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
+
+%post -n libavkys7 -p /sbin/ldconfig
+%postun -n libavkys7 -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
 %{_bindir}/webcamoid
 %{_datadir}/applications/webcamoid.desktop
-#%{_datadir}/webcamoid/
-%{_defaultdocdir}/webcamoid/
-%{_libdir}/AvKys/
+%{_datadir}/icons/hicolor/*/apps/webcamoid.png
+%{_defaultdocdir}/webcamoid
+%{_defaultdocdir}/webcamoid/COPYING
+%{_mandir}/man1/webcamoid.1.gz
+
+%files -n libavkys7
+%defattr(-,root,root,-)
+%{_libdir}/libavkys.so.*
 %{_libdir}/qt5/qml/AkQml
 %{_libdir}/qt5/qml/AkQml/libAkQml.so
 %{_libdir}/qt5/qml/AkQml/qmldir
-%{_libdir}/lib*AvKys.so*
+%{_defaultdocdir}/avkys/COPYING
+
+%files -n libavkys-devel
+%defattr(-,root,root,-)
+%{_includedir}/avkys
+%{_includedir}/avkys/*.h
+%{_libdir}/libavkys.so
+
+%files -n avkys-plugins
+%defattr(-,root,root,-)
+%{_libdir}/avkys
+%{_libdir}/avkys/lib*.so
 
 %changelog
-* Sat Apr 16 2016 Gonzalo Exequiel Pedone <hipersayan DOT x AT gmail DOT com> 7.1.0-1
-- Final Release.
+* Mon Apr 25 2016 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 7.1.0-1
+- New release

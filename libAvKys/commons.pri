@@ -17,7 +17,8 @@
 # Web-Site: http://webcamoid.github.io/
 
 COMMONS_APPNAME = "libAvKys"
-COMMONS_TARGET = AvKys
+COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
+COMMONS_TARGET = $$replace(COMMONS_TARGET, lib, "")
 VER_MAJ = 7
 VER_MIN = 1
 VER_PAT = 0

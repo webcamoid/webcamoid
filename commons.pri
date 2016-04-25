@@ -17,7 +17,7 @@
 # Web-Site: http://webcamoid.github.io/
 
 COMMONS_APPNAME = "Webcamoid"
-COMMONS_TARGET = $$replace(COMMONS_APPNAME, W, w)
+COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
 VER_MAJ = 7
 VER_MIN = 1
 VER_PAT = 0
