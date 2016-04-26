@@ -214,7 +214,7 @@ target.path = $${BINDIR}
     pluginsQml.files = $$[QT_INSTALL_QML]/*
     pluginsQml.path = $${LIBDIR}/qt/qml
 
-    appIcon.files = share/icons/hicolor/256x256/webcamoid.png
+    appIcon.files = share/icons/hicolor/256x256/webcamoid.ico
     appIcon.path = $${PREFIX}
 }
 

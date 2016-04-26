@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>Webcamoid</DisplayName>
+    <Description>The ultimate webcam suite</Description>
+    <Version>7.1.0</Version>
+    <ReleaseDate>2016-04-25</ReleaseDate>
+    <Name>com.vendor.root</Name>
+    <Virtual>false</Virtual>
+    <Licenses>
+        <License name="GNU General Public License v3.0" file="COPYING" />
+    </Licenses>
+    <Script>installscript.qs</Script>
+    <UpdateText>This changed compared to the last release</UpdateText>
+    <Default>true</Default>
+    <ForcedInstallation>true</ForcedInstallation>
+    <Essential>false</Essential>
+</Package>

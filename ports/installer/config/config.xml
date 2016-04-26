@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Webcamoid</Name>
+    <Version>7.1.0</Version>
+    <Title>Webcamoid, the ultimate webcam suite</Title>
+    <Publisher>Webcamoid</Publisher>
+    <StartMenuDir>Webcamoid</StartMenuDir>
+    <TargetDir>@ApplicationsDir@/Webcamoid</TargetDir>
+</Installer>
