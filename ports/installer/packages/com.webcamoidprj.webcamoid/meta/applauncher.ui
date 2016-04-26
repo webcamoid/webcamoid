@@ -4,7 +4,7 @@
  <widget class="QWidget" name="AppLauncherForm">
   <layout class="QVBoxLayout">
    <item>
-    <widget class="QCheckBox" name="launchApp">
+    <widget class="QCheckBox" name="chkLaunchApp">
      <property name="text">
       <string>Launch Webcamoid now!</string>
      </property>

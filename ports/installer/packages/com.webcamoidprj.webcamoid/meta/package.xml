@@ -4,12 +4,14 @@
     <Description>The ultimate webcam suite</Description>
     <Version>7.1.0</Version>
     <ReleaseDate>2016-04-25</ReleaseDate>
-    <Name>com.vendor.root</Name>
-    <Virtual>false</Virtual>
+    <Name>com.webcamoidprj.webcamoid</Name>
     <Licenses>
-        <License name="GNU General Public License v3.0" file="COPYING" />
+        <License name="GNU General Public License v3.0" file="COPYING.txt" />
     </Licenses>
     <Script>installscript.qs</Script>
+    <UserInterfaces>
+        <UserInterface>applauncher.ui</UserInterface>
+    </UserInterfaces>
     <UpdateText>This changed compared to the last release</UpdateText>
     <Default>true</Default>
     <ForcedInstallation>true</ForcedInstallation>

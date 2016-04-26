@@ -13,23 +13,19 @@ Component.prototype.createOperations = function()
         component.addOperation("CreateShortcut",
                                "@TargetDir@\\bin\\webcamoid.exe",
                                "@TargetDir@\\webcamoid.lnk",
-                               ' -q "@TargetDir@\\lib\\qt\\qml"',
-                               ' -p "@TargetDir@\\lib\\avkys"',
-                               ' -c "@TargetDir@\\share\\config"',
-                               "workingDirectory=@TargetDir@\\bin",
-                               "iconPath=@TargetDir@\\bin\\webcamoid.exe",
-                               "iconId=0");
+                               '-q "@TargetDir@\\lib\\qt\\qml" -p "@TargetDir@\\lib\\avkys" -c "@TargetDir@\\share\\config"');
 
         // Create a shortcut in the menu.
         component.addOperation("CreateShortcut",
                                "@TargetDir@\\bin\\webcamoid.exe",
                                "@StartMenuDir@\\webcamoid.lnk",
-                               ' -q "@TargetDir@\\lib\\qt\\qml"',
-                               ' -p "@TargetDir@\\lib\\avkys"',
-                               ' -c "@TargetDir@\\share\\config"',
-                               "workingDirectory=@TargetDir@\\bin",
-                               "iconPath=@TargetDir@\\bin\\webcamoid.exe",
-                               "iconId=0");
+                               '-q "@TargetDir@\\lib\\qt\\qml" -p "@TargetDir@\\lib\\avkys" -c "@TargetDir@\\share\\config"');
+
+        // Create a shortcut in the desktop.
+        component.addOperation("CreateShortcut",
+                               "@TargetDir@\\bin\\webcamoid.exe",
+                               "@DesktopDir@\\webcamoid.lnk",
+                               '-q "@TargetDir@\\lib\\qt\\qml" -p "@TargetDir@\\lib\\avkys" -c "@TargetDir@\\share\\config"');
 
         var libdir = installer.value("TargetDir") + "\\lib";
         var path = installer.environmentVariable("PATH");
@@ -70,9 +66,9 @@ Component.prototype.installationFinished = function()
 {
     try {
         if (installer.isInstaller() && installer.status == QInstaller.Success) {
-            var isReadMeCheckBoxChecked = component.userInterface("AppLauncherForm").launchApp.checked;
+            var launchApp = component.userInterface("AppLauncherForm").chkLaunchApp.checked;
 
-            if (isReadMeCheckBoxChecked)
+            if (launchApp)
                 QDesktopServices.openUrl("file:///" + installer.value("TargetDir") + "/webcamoid.lnk");
         }
     } catch(e) {
