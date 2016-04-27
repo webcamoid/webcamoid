@@ -27,6 +27,7 @@ exists(commons.pri) {
 }
 
 CONFIG += qt
+!isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
 DEFINES += \
     COMMONS_LIBRARY \

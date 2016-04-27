@@ -53,6 +53,7 @@ unix {
 }
 
 CONFIG += qt
+!isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
 HEADERS = \
     src/mediatools.h \
@@ -62,8 +63,8 @@ HEADERS = \
 INCLUDEPATH += \
     ../libAvKys/Lib/src
 
-!win32: LIBS += -L../libAvKys/Lib -lavkys
-win32: LIBS += -L../libAvKys/Lib -lavkys$${VER_MAJ}
+LIBS += -L../libAvKys/Lib -lavkys
+win32: LIBS += -lole32
 
 OTHER_FILES = \
     share/effects.xml

@@ -73,7 +73,7 @@ isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
 isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
 isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
 
- DEFINES += \
+DEFINES += \
     COMMONS_APPNAME=\"\\\"$$COMMONS_APPNAME\\\"\" \
     COMMONS_TARGET=\"\\\"$$COMMONS_TARGET\\\"\" \
     COMMONS_VER_MAJ=\"\\\"$$VER_MAJ\\\"\" \
@@ -126,3 +126,5 @@ CONFIG(debug, debug|release) {
     QMAKE_EXTRA_COMPILERS += compiletr
     PRE_TARGETDEPS += compiler_compiletr_make_all
 }
+
+win32: CONFIG += skip_target_version_ext

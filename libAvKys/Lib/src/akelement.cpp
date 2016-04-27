@@ -314,8 +314,7 @@ QStringList AkElement::listPlugins(const QString &type)
         QJsonObject metaData = pluginLoader.metaData();
 
 #ifdef Q_OS_WIN32
-        QString pluginId = QFileInfo(path).baseName()
-                                          .remove(QRegExp(QString(COMMONS_VER_MAJ) + "$"));
+        QString pluginId = QFileInfo(path).baseName();
 #else
         QString pluginId = QFileInfo(path).baseName()
                                           .remove(QRegExp("^lib"));
@@ -350,7 +349,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
     QStringList files;
 
 #ifdef Q_OS_WIN32
-    QString pattern(QString("*%1.dll").arg(COMMONS_VER_MAJ));
+    QString pattern("*.dll");
 #else
     QString pattern("lib*.so");
 #endif
@@ -435,7 +434,7 @@ QString AkElement::pluginPath(const QString &pluginId)
         QString baseName = QFileInfo(path).baseName();
 
 #ifdef Q_OS_WIN32
-        if (baseName == QString("%1%2").arg(pluginId).arg(COMMONS_VER_MAJ))
+        if (baseName == pluginId)
             return path;
 #else
         if (baseName == QString("lib%1").arg(pluginId))

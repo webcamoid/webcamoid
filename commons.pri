@@ -125,3 +125,5 @@ CONFIG(debug, debug|release) {
     QMAKE_EXTRA_COMPILERS += compiletr
     PRE_TARGETDEPS += compiler_compiletr_make_all
 }
+
+win32: CONFIG += skip_target_version_ext
