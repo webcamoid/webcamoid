@@ -9,10 +9,9 @@
         <License name="GNU General Public License v3.0" file="COPYING.txt" />
     </Licenses>
     <Script>installscript.qs</Script>
-    <UserInterfaces>
-        <UserInterface>applauncher.ui</UserInterface>
-    </UserInterfaces>
-    <UpdateText>This changed compared to the last release</UpdateText>
+    <UpdateText>
+        This changed compared to the last release
+    </UpdateText>
     <Default>true</Default>
     <ForcedInstallation>true</ForcedInstallation>
     <Essential>false</Essential>

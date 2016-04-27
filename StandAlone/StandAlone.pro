@@ -203,13 +203,13 @@ target.path = $${BINDIR}
     }
 
     dllDeps.files = $${DLLFILES}
-    dllDeps.path = $${LIBDIR}
+    dllDeps.path = $${BINDIR}
 
     pluginsPlatform.files = $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
-    pluginsPlatform.path = $${LIBDIR}/qt/plugins/platforms
+    pluginsPlatform.path = $${BINDIR}/platforms
 
     pluginsImageFormats.files = $$[QT_INSTALL_PLUGINS]/imageformats/*
-    pluginsImageFormats.path = $${LIBDIR}/qt/plugins/imageformats
+    pluginsImageFormats.path = $${BINDIR}/imageformats
 
     pluginsQml.files = $$[QT_INSTALL_QML]/*
     pluginsQml.path = $${LIBDIR}/qt/qml

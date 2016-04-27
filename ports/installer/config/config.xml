@@ -4,6 +4,15 @@
     <Version>7.1.0</Version>
     <Title>Webcamoid, the ultimate webcam suite</Title>
     <Publisher>Webcamoid</Publisher>
+    <ProductUrl>https://webcamoid.github.io/</ProductUrl>
+    <InstallerWindowIcon>webcamoid</InstallerWindowIcon>
+    <InstallerApplicationIcon>webcamoid</InstallerApplicationIcon>
+    <Logo>webcamoid.png</Logo>
+    <TitleColor>#3F1F7F</TitleColor>
+    <RunProgram>@TargetDir@/bin/webcamoid.exe</RunProgram>
+    <RunProgramDescription>Launch Webcamoid now!</RunProgramDescription>
     <StartMenuDir>Webcamoid</StartMenuDir>
+    <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>
+    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>
     <TargetDir>@ApplicationsDir@/Webcamoid</TargetDir>
 </Installer>

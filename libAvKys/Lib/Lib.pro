@@ -73,7 +73,8 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 
 INSTALLS += target
-target.path = $${LIBDIR}
+unix:target.path = $${LIBDIR}
+!unix:target.path = $${BINDIR}
 
 !isEmpty(INSTALLDEVHEADERS):!isEqual(INSTALLDEVHEADERS, 0) {
     INSTALLS += headers
