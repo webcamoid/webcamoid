@@ -1,3 +1,10 @@
+Webcamoid 7.1.0:
+
+- Reworked audio system.
+- Added support for compressed formats in webcams.
+- No more lags in the UI when capturing from webcam.
+- Added Windows installer.
+
 Webcamoid 7.0.0:
 
 - Windows port finally working! EXPERIMENTAL!
