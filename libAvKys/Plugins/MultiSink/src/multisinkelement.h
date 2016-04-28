@@ -69,7 +69,6 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE bool showFormatOptions() const;
-
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);

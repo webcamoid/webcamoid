@@ -1521,6 +1521,26 @@ void MediaTools::saveConfigs()
     config.beginGroup("RecordConfigs");
     config.setValue("recordingFormat", this->curRecordingFormat());
     config.endGroup();
+
+    config.beginGroup("PluginsCache");
+    config.beginWriteArray("paths");
+
+    i = 0;
+
+    foreach (QString path, AkElement::pluginsCache()) {
+        config.setArrayIndex(i);
+
+#ifdef Q_OS_WIN32
+        config.setValue("path", applicationDir.relativeFilePath(path));
+#else
+        config.setValue("path", path);
+#endif
+
+        i++;
+    }
+
+    config.endArray();
+    config.endGroup();
 }
 
 void MediaTools::setStream(const QString &stream, const QString &description)

@@ -173,6 +173,26 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Load cache
+    config.beginGroup("PluginsCache");
+    size = config.beginReadArray("paths");
+    QStringList pluginsCache;
+
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        QString path = config.value("path").toString();
+
+#ifdef Q_OS_WIN32
+        path = convertToAbsolute(path);
+#endif
+
+        pluginsCache << path;
+    }
+
+    AkElement::setPluginsCache(pluginsCache);
+    config.endArray();
+    config.endGroup();
+
     // Initialize environment.
     QQmlApplicationEngine engine;
     MediaTools mediaTools(&engine);

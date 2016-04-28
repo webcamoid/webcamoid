@@ -19,6 +19,69 @@
 
 #include "multisinkelement.h"
 
+class MultiSinkElementPrivate
+{
+    public:
+        QStringList m_supportedFormats;
+        QMap<QString, QStringList> m_fileExtensions;
+        QMap<QString, QString> m_formatDescription;
+        QStringList m_supportedCodecs;
+        QMap<QString, QString> m_codecDescription;
+        QMap<QString, QString> m_codecType;
+        QMap<QString, QVariantMap> m_defaultCodecParams;
+
+        MultiSinkElementPrivate()
+        {
+            MediaSink mediaSink;
+
+            foreach (QString format, mediaSink.supportedFormats()) {
+                this->m_supportedFormats << format;
+                this->m_fileExtensions[format] = mediaSink.fileExtensions(format);
+                this->m_formatDescription[format] = mediaSink.formatDescription(format);
+
+                foreach (QString codec, mediaSink.supportedCodecs(format))
+                    if (!this->m_supportedCodecs.contains(codec)) {
+                        this->m_supportedCodecs << codec;
+                        this->m_codecDescription[codec] = mediaSink.codecDescription(codec);
+                        this->m_codecType[codec] = mediaSink.codecType(codec);
+                        this->m_defaultCodecParams[codec] = mediaSink.defaultCodecParams(codec);
+                    }
+            }
+        }
+
+        QStringList supportedFormats() const
+        {
+            return this->m_supportedFormats;
+        }
+
+        QStringList fileExtensions(const QString &format) const
+        {
+            return this->m_fileExtensions.value(format, QStringList());
+        }
+
+        QString formatDescription(const QString &format) const
+        {
+            return this->m_formatDescription.value(format, QString());
+        }
+
+        QString codecDescription(const QString &codec) const
+        {
+            return this->m_codecDescription.value(codec, QString());
+        }
+
+        QString codecType(const QString &codec) const
+        {
+            return this->m_codecType.value(codec, QString());
+        }
+
+        QVariantMap defaultCodecParams(const QString &codec) const
+        {
+            return this->m_defaultCodecParams.value(codec, QVariantMap());
+        }
+};
+
+Q_GLOBAL_STATIC(MultiSinkElementPrivate, multiSinkGlobalStuff)
+
 MultiSinkElement::MultiSinkElement(): AkElement()
 {
     this->m_showFormatOptions = false;
@@ -116,17 +179,17 @@ bool MultiSinkElement::showFormatOptions() const
 
 QStringList MultiSinkElement::supportedFormats()
 {
-    return this->m_mediaSink.supportedFormats();
+    return multiSinkGlobalStuff->supportedFormats();
 }
 
 QStringList MultiSinkElement::fileExtensions(const QString &format)
 {
-    return this->m_mediaSink.fileExtensions(format);
+    return multiSinkGlobalStuff->fileExtensions(format);
 }
 
 QString MultiSinkElement::formatDescription(const QString &format)
 {
-    return this->m_mediaSink.formatDescription(format);
+    return multiSinkGlobalStuff->formatDescription(format);
 }
 
 QStringList MultiSinkElement::supportedCodecs(const QString &format,
@@ -143,17 +206,17 @@ QString MultiSinkElement::defaultCodec(const QString &format,
 
 QString MultiSinkElement::codecDescription(const QString &codec)
 {
-    return this->m_mediaSink.codecDescription(codec);
+    return multiSinkGlobalStuff->codecDescription(codec);
 }
 
 QString MultiSinkElement::codecType(const QString &codec)
 {
-    return this->m_mediaSink.codecType(codec);
+    return multiSinkGlobalStuff->codecType(codec);
 }
 
 QVariantMap MultiSinkElement::defaultCodecParams(const QString &codec)
 {
-    return this->m_mediaSink.defaultCodecParams(codec);
+    return multiSinkGlobalStuff->defaultCodecParams(codec);
 }
 
 QVariantMap MultiSinkElement::addStream(int streamIndex,

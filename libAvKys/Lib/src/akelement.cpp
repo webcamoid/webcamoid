@@ -426,6 +426,16 @@ QStringList AkElement::listPluginPaths()
     return searchPaths;
 }
 
+QStringList AkElement::pluginsCache()
+{
+    return akElementGlobalStuff->m_pluginsCache;
+}
+
+void AkElement::setPluginsCache(const QStringList &paths)
+{
+    akElementGlobalStuff->m_pluginsCache = paths;
+}
+
 QString AkElement::pluginPath(const QString &pluginId)
 {
     QStringList pluginPaths = AkElement::listPluginPaths();
