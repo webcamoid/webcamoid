@@ -102,6 +102,13 @@ Summary: Modular audio and video processing library
 %description -n libavkys7
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
+%package -n akqml
+Version: 7.1.0
+Summary: Modular audio and video processing library (qml files)
+
+%description -n akqml
+LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
+
 %package -n libavkys-devel
 Version: 7.1.0
 Summary: Modular audio and video processing library (development files)
@@ -178,24 +185,55 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_bindir}/webcamoid
 %{_datadir}/applications/webcamoid.desktop
-%{_datadir}/icons/hicolor/*/apps/webcamoid.png
-%{_defaultdocdir}/webcamoid
+%{_datadir}/icons/hicolor/8x8/
+%{_datadir}/icons/hicolor/8x8/apps/
+%{_datadir}/icons/hicolor/8x8/apps/webcamoid.png
+%{_datadir}/icons/hicolor/16x16/
+%{_datadir}/icons/hicolor/16x16/apps/
+%{_datadir}/icons/hicolor/16x16/apps/webcamoid.png
+%{_datadir}/icons/hicolor/22x22/
+%{_datadir}/icons/hicolor/22x22/apps/
+%{_datadir}/icons/hicolor/22x22/apps/webcamoid.png
+%{_datadir}/icons/hicolor/32x32/
+%{_datadir}/icons/hicolor/32x32/apps/
+%{_datadir}/icons/hicolor/32x32/apps/webcamoid.png
+%{_datadir}/icons/hicolor/48x48/
+%{_datadir}/icons/hicolor/48x48/apps/
+%{_datadir}/icons/hicolor/48x48/apps/webcamoid.png
+%{_datadir}/icons/hicolor/64x64/
+%{_datadir}/icons/hicolor/64x64/apps/
+%{_datadir}/icons/hicolor/64x64/apps/webcamoid.png
+%{_datadir}/icons/hicolor/128x128/
+%{_datadir}/icons/hicolor/128x128/apps/
+%{_datadir}/icons/hicolor/128x128/apps/webcamoid.png
+%{_datadir}/icons/hicolor/256x256/
+%{_datadir}/icons/hicolor/256x256/apps/
+%{_datadir}/icons/hicolor/256x256/apps/webcamoid.png
+%{_datadir}/icons/hicolor/scalable/
+%{_datadir}/icons/hicolor/scalable/apps/
+%{_datadir}/icons/hicolor/scalable/apps/webcamoid.svg
+%{_defaultdocdir}/webcamoid/
 %{_defaultdocdir}/webcamoid/COPYING
 %{_mandir}/man1/webcamoid.1.gz
 
 %files -n libavkys7
 %defattr(-,root,root,-)
-%{_libdir}/libavkys.so.*
-%{_libdir}/qt5/qml/AkQml
+%{_libdir}/libavkys.so.7.1.0
+%{_defaultdocdir}/avkys/COPYING
+
+%files -n akqml
+%defattr(-,root,root,-)
+%{_libdir}/qt5/qml/AkQml/
 %{_libdir}/qt5/qml/AkQml/libAkQml.so
 %{_libdir}/qt5/qml/AkQml/qmldir
-%{_defaultdocdir}/avkys/COPYING
 
 %files -n libavkys-devel
 %defattr(-,root,root,-)
 %{_includedir}/avkys
 %{_includedir}/avkys/*.h
 %{_libdir}/libavkys.so
+%{_libdir}/libavkys.so.7
+%{_libdir}/libavkys.so.7.1
 
 %files -n avkys-plugins
 %defattr(-,root,root,-)
