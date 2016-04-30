@@ -27,8 +27,7 @@ import Webcamoid 1.0
 ApplicationWindow {
     id: wdgMainWidget
     title: Webcamoid.applicationName()
-           +
-           " "
+           + " "
            + Webcamoid.applicationVersion()
            + " - "
            + Webcamoid.streamDescription(Webcamoid.curStream)
