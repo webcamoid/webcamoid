@@ -383,6 +383,78 @@ ApplicationWindow {
             onEntered: iconBarRect.opacity = 1
             onExited: iconBarRect.opacity = 0.5
 
+            Rectangle {
+                id: btnGoBack
+                height: parent.height
+                width: height
+                color: "#00000000"
+                visible: false
+
+                property int margins: 8
+
+                Component.onCompleted: {
+                    btnGoBack.width = imgGoBack.width + txtGoBack.width + 3 * btnGoBack.margins
+                }
+
+                Rectangle {
+                    id: highlighter
+                    radius: iconBarRect.radius
+                    anchors.fill: parent
+                    visible: false
+                    gradient: Gradient {
+                        GradientStop {
+                            position: 0
+                            color: Qt.rgba(0.67, 0.5, 1, 0.5)
+                        }
+
+                        GradientStop {
+                            position: 1
+                            color: Qt.rgba(0.5, 0.25, 1, 1)
+                        }
+                    }
+                }
+                Image {
+                    id: imgGoBack
+                    height: parent.height - 2 * btnGoBack.margins
+                    anchors.left: parent.left
+                    anchors.leftMargin: btnGoBack.margins
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: height
+                    source: "qrc:/icons/hicolor/scalable/go-back.svg"
+                }
+                Text {
+                    id: txtGoBack
+                    text: qsTr("Go back")
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: imgGoBack.right
+                    anchors.leftMargin: btnGoBack.margins
+                    color: "white"
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+
+                    onClicked: iconBarRect.state = ""
+                    onPressed: {
+                        imgGoBack.scale = 0.75
+                        txtGoBack.scale = 0.75
+                    }
+                    onReleased: {
+                        imgGoBack.scale = 1
+                        txtGoBack.scale = 1
+                    }
+                    onEntered: {
+                        highlighter.visible = true
+                    }
+                    onExited: {
+                        imgGoBack.scale = 1
+                        txtGoBack.scale = 1
+                        highlighter.visible = false
+                    }
+                }
+            }
+
             Row {
                 id: iconBar
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -506,6 +578,25 @@ ApplicationWindow {
                 }
             }
         }
+
+        states: [
+            State {
+                name: "showOptions"
+                PropertyChanges {
+                    target: iconBarRect
+                    width: btnGoBack.width
+                    radius: 4
+                }
+                PropertyChanges {
+                    target: iconBar
+                    visible: false
+                }
+                PropertyChanges {
+                    target: btnGoBack
+                    visible: true
+                }
+            }
+        ]
     }
 
     About {

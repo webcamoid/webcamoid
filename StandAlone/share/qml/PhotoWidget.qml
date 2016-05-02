@@ -55,14 +55,12 @@ Rectangle {
                 }
             }
         }
-
         ProgressBar {
             id: pgbPhotoShot
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.rowSpan: 2
         }
-
         Button {
             id: btnPhotoShot
             text: qsTr("Shot!")
@@ -70,7 +68,6 @@ Rectangle {
             Layout.fillHeight: true
             Layout.rowSpan: 2
         }
-
         CheckBox {
             id: chkFlash
             text: qsTr("Use flash")
