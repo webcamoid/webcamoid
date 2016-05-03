@@ -23,17 +23,35 @@ import QtQuick.Window 2.2
 Window {
     id: wndFlash
     color: "white"
-    visibility: Window.FullScreen
-    visible: true
+    flags: Qt.Dialog
+    modality: Qt.ApplicationModal
+    visibility: visible? Window.FullScreen: Window.Hidden
 
-    onVisibleChanged: if (visible) timer.start()
+    property int timeout: 1500
+
+    signal triggered()
+
+    onVisibleChanged: {
+        if (visible) {
+            timerShot.start()
+            timerClose.start()
+        }
+    }
 
     Timer {
-        id: timer
-        interval: 2000
+        id: timerShot
+        interval: 0.75 * wndFlash.timeout
         repeat: false
         triggeredOnStart: false
 
-        onTriggered: wndFlash.close()
+        onTriggered: wndFlash.triggered()
+    }
+    Timer {
+        id: timerClose
+        interval: wndFlash.timeout
+        repeat: false
+        triggeredOnStart: false
+
+        onTriggered: wndFlash.hide()
     }
 }

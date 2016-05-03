@@ -25,8 +25,10 @@ Rectangle {
     id: recPhotoWidget
     width: 480
     height: 80
+    color: "#e6000000"
     radius: 4
-    color: "black"
+
+    signal takePhoto(bool useFlash)
 
     Component.onCompleted: {
         for (var i = 5; i < 35; i += 5)
@@ -58,20 +60,62 @@ Rectangle {
         ProgressBar {
             id: pgbPhotoShot
             Layout.fillWidth: true
-            Layout.fillHeight: true
             Layout.rowSpan: 2
+
+            property double start: 0
+
+            onValueChanged: {
+                if (value >= 1) {
+                    updateProgress.stop()
+                    value = 0
+                    cbxTimeShot.enabled = true
+                    chkFlash.enabled = true
+                    recPhotoWidget.takePhoto(chkFlash.checked)
+                }
+            }
         }
         Button {
             id: btnPhotoShot
-            text: qsTr("Shot!")
+            text: updateProgress.running? qsTr("Cancel"): qsTr("Shot!")
             isDefault: true
             Layout.fillHeight: true
             Layout.rowSpan: 2
+
+            onClicked: {
+                if (cbxTimeShot.currentIndex == 0) {
+                    recPhotoWidget.takePhoto(chkFlash.checked)
+
+                    return
+                }
+
+                if (updateProgress.running) {
+                    updateProgress.stop()
+                    pgbPhotoShot.value = 0
+                    cbxTimeShot.enabled = true
+                    chkFlash.enabled = true
+                } else {
+                    cbxTimeShot.enabled = false
+                    chkFlash.enabled = false
+                    pgbPhotoShot.start = new Date().getTime()
+                    updateProgress.start()
+                }
+            }
         }
         CheckBox {
             id: chkFlash
             text: qsTr("Use flash")
             checked: true
+        }
+    }
+
+    Timer {
+        id: updateProgress
+        interval: 100
+        repeat: true
+
+        onTriggered: {
+            var timeout = 1000 * lstTimeOptions.get(cbxTimeShot.currentIndex).time
+            pgbPhotoShot.value = (new Date().getTime() - pgbPhotoShot.start) / timeout
         }
     }
 }

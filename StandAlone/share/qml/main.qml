@@ -174,6 +174,44 @@ ApplicationWindow {
         }
     }
 
+    PhotoWidget {
+        id: photoWidget
+        anchors.bottom: iconBarRect.top
+        anchors.bottomMargin: 16
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: false
+
+        function savePhoto()
+        {
+            Webcamoid.takePhoto()
+            var suffix = "png";
+            var fileName = qsTr("Picture %1.%2")
+                                .arg(Webcamoid.currentTime())
+                                .arg(suffix)
+
+            var filters = ["PNG file (*.png)",
+                           "JPEG file (*.jpg)",
+                           "BMP file (*.bmp)",
+                           "GIF file (*.gif)"]
+
+            var fileUrl = Webcamoid.saveFileDialog(qsTr("Save photo as..."),
+                                     fileName,
+                                     Webcamoid.standardLocations("pictures")[0],
+                                     "." + suffix,
+                                     filters.join(";;"))
+
+            if (fileUrl !== "")
+                Webcamoid.savePhoto(fileUrl)
+        }
+
+        onTakePhoto: {
+            if (useFlash)
+                flash.show()
+            else
+                savePhoto()
+        }
+    }
+
     SplitView {
         id: splitView
         anchors.fill: parent
@@ -288,6 +326,13 @@ ApplicationWindow {
                 }
                 PropertyChanges {
                     target: mediaConfig
+                    visible: true
+                }
+            },
+            State {
+                name: "showPhotoWidget"
+                PropertyChanges {
+                    target: photoWidget
                     visible: true
                 }
             },
@@ -435,7 +480,10 @@ ApplicationWindow {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
 
-                    onClicked: iconBarRect.state = ""
+                    onClicked: {
+                        iconBarRect.state = ""
+                        splitView.state = ""
+                    }
                     onPressed: {
                         imgGoBack.scale = 0.75
                         txtGoBack.scale = 0.75
@@ -507,25 +555,10 @@ ApplicationWindow {
                     enabled: Webcamoid.isPlaying
 
                     onClicked: {
-                        Webcamoid.takePhoto()
-                        var suffix = "png";
-                        var fileName = qsTr("Picture %1.%2")
-                                            .arg(Webcamoid.currentTime())
-                                            .arg(suffix)
-
-                        var filters = ["PNG file (*.png)",
-                                       "JPEG file (*.jpg)",
-                                       "BMP file (*.bmp)",
-                                       "GIF file (*.gif)"]
-
-                        var fileUrl = Webcamoid.saveFileDialog(qsTr("Save photo as..."),
-                                                 fileName,
-                                                 Webcamoid.standardLocations("pictures")[0],
-                                                 "." + suffix,
-                                                 filters.join(";;"))
-
-                        if (fileUrl !== "")
-                            Webcamoid.savePhoto(fileUrl)
+                        if (splitView.state == "showPhotoWidget")
+                            splitView.state = ""
+                        else
+                            splitView.state = "showPhotoWidget"
                     }
                 }
                 IconBarItem {
@@ -599,6 +632,11 @@ ApplicationWindow {
         ]
     }
 
+    Flash {
+        id: flash
+
+        onTriggered: photoWidget.savePhoto()
+    }
     About {
         id: about
     }
