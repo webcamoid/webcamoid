@@ -22,6 +22,7 @@
 CameraOut::CameraOut(): QObject()
 {
     this->m_streamIndex = -1;
+    this->m_passwordTimeout = 5000;
 }
 
 QStringList CameraOut::webcams() const
@@ -55,6 +56,57 @@ void CameraOut::writeFrame(const AkPacket &frame)
     Q_UNUSED(frame)
 }
 
+bool CameraOut::isAvailable() const
+{
+    return false;
+}
+
+bool CameraOut::needRoot() const
+{
+    return false;
+}
+
+int CameraOut::passwordTimeout() const
+{
+    return this->m_passwordTimeout;
+}
+
+bool CameraOut::createWebcam(const QString &description,
+                              const QString &password) const
+{
+    Q_UNUSED(description)
+    Q_UNUSED(password)
+
+    return false;
+}
+
+bool CameraOut::changeDescription(const QString &webcam,
+                                   const QString &description,
+                                   const QString &password) const
+{
+    Q_UNUSED(webcam)
+    Q_UNUSED(description)
+    Q_UNUSED(password)
+
+    return false;
+}
+
+bool CameraOut::removeWebcam(const QString &webcam,
+                              const QString &password) const
+{
+    Q_UNUSED(webcam)
+    Q_UNUSED(password)
+
+    return false;
+}
+
+bool CameraOut::removeAllWebcams(const QString &password) const
+{
+    Q_UNUSED(password)
+
+    return false;
+}
+
 bool CameraOut::init(int streamIndex, const AkCaps &caps)
 {
     this->m_streamIndex = streamIndex;
@@ -76,7 +128,21 @@ void CameraOut::setDevice(const QString &device)
     emit this->deviceChanged(device);
 }
 
+void CameraOut::setPasswordTimeout(int passwordTimeout)
+{
+    if (this->m_passwordTimeout == passwordTimeout)
+        return;
+
+    this->m_passwordTimeout = passwordTimeout;
+    emit this->passwordTimeoutChanged(passwordTimeout);
+}
+
 void CameraOut::resetDevice()
 {
     this->setDevice("");
+}
+
+void CameraOut::resetPasswordTimeout()
+{
+    this->setPasswordTimeout(5000);
 }

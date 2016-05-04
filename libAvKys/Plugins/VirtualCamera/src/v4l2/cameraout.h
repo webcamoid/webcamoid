@@ -47,6 +47,15 @@ class CameraOut: public QObject
                READ streamIndex)
     Q_PROPERTY(AkCaps caps
                READ caps)
+    Q_PROPERTY(bool isAvailable
+               READ isAvailable)
+    Q_PROPERTY(bool needRoot
+               READ needRoot)
+    Q_PROPERTY(int passwordTimeout
+               READ passwordTimeout
+               WRITE setPasswordTimeout
+               RESET resetPasswordTimeout
+               NOTIFY passwordTimeoutChanged)
 
     public:
         explicit CameraOut();
@@ -58,12 +67,24 @@ class CameraOut: public QObject
         Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE void writeFrame(const AkPacket &frame);
+        Q_INVOKABLE bool isAvailable() const;
+        Q_INVOKABLE bool needRoot() const;
+        Q_INVOKABLE int passwordTimeout() const;
+        Q_INVOKABLE bool createWebcam(const QString &description="",
+                                      const QString &password="") const;
+        Q_INVOKABLE bool changeDescription(const QString &webcam,
+                                           const QString &description="",
+                                           const QString &password="") const;
+        Q_INVOKABLE bool removeWebcam(const QString &webcam,
+                                      const QString &password="") const;
+        Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
 
     private:
         QStringList m_webcams;
         QString m_device;
         int m_streamIndex;
         AkCaps m_caps;
+        int m_passwordTimeout;
         QFileSystemWatcher *m_fsWatcher;
         int m_fd;
 
@@ -81,16 +102,21 @@ class CameraOut: public QObject
             return r;
         }
 
+        bool sudo(const QString &command, const QString &password) const;
+
     signals:
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
+        void passwordTimeoutChanged(int passwordTimeout);
         void error(const QString &message);
 
     public slots:
         bool init(int streamIndex, const AkCaps &caps);
         void uninit();
         void setDevice(const QString &device);
+        void setPasswordTimeout(int passwordTimeout);
         void resetDevice();
+        void resetPasswordTimeout();
 
     private slots:
         void onDirectoryChanged(const QString &path);

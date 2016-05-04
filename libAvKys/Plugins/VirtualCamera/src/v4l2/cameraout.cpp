@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QProcess>
+
 #include "cameraout.h"
 
 typedef QMap<AkVideoCaps::PixelFormat, quint32> V4l2PixFmtMap;
@@ -76,6 +78,7 @@ CameraOut::CameraOut(): QObject()
 {
     this->m_streamIndex = -1;
     this->m_fd = -1;
+    this->m_passwordTimeout = 5000;
     this->m_webcams = this->webcams();
     this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
     this->m_fsWatcher->setParent(this);
@@ -171,6 +174,270 @@ void CameraOut::writeFrame(const AkPacket &frame)
         qDebug() << "Error writing frame";
 }
 
+bool CameraOut::isAvailable() const
+{
+    QString modules = QString("/lib/modules/%1/modules.dep")
+                      .arg(QSysInfo::kernelVersion());
+
+    QFile file(modules);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::ReadOnly))
+        return false;
+
+    forever {
+        QByteArray line = file.readLine();
+
+        if (line.isEmpty())
+            break;
+
+        QString module = QFileInfo(line.left(line.indexOf(':'))).baseName();
+
+        if (module == "v4l2loopback") {
+            file.close();
+
+            return true;
+        }
+    }
+
+    file.close();
+
+    return false;
+}
+
+bool CameraOut::needRoot() const
+{
+    return true;
+}
+
+int CameraOut::passwordTimeout() const
+{
+    return this->m_passwordTimeout;
+}
+
+bool CameraOut::createWebcam(const QString &description,
+                             const QString &password) const
+{
+    if (password.isEmpty())
+        return false;
+
+    QStringList webcams = this->webcams();
+    QStringList webcamDescriptions;
+    QStringList webcamIds;
+
+    foreach (QString webcam, webcams) {
+        webcamDescriptions << QString("'%1'").arg(this->description(webcam));
+        int id = webcam.indexOf(QRegExp("[0-9]+"));
+        webcamIds << webcam.mid(id);
+    }
+
+    int id = 0;
+
+    for (; QFileInfo::exists(QString("/dev/video%1").arg(id)); id++) {
+    }
+
+    QString deviceDescription;
+
+    if (description.isEmpty())
+        deviceDescription = QString(tr("Virtual Camera %1")).arg(id);
+    else
+        deviceDescription = description;
+
+    webcamDescriptions << QString("'%1'").arg(deviceDescription);
+    webcamIds << QString("%1").arg(id);
+
+    QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
+                       .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
+
+    if (!this->sudo("rmmod v4l2loopback", password))
+        return false;
+
+    if (!this->sudo(modprobe, password))
+        return false;
+
+    QStringList curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
+
+    return true;
+}
+
+bool CameraOut::changeDescription(const QString &webcam,
+                                  const QString &description,
+                                  const QString &password) const
+{
+    if (password.isEmpty())
+        return false;
+
+    if (!QRegExp("/dev/video[0-9]+").exactMatch(webcam))
+        return false;
+
+    QStringList webcams = this->webcams();
+
+    if (webcams.isEmpty()
+        || !webcams.contains(webcam))
+        return false;
+
+    QStringList webcamDescriptions;
+    QStringList webcamIds;
+
+    foreach (QString webcam, webcams) {
+        webcamDescriptions << QString("'%1'").arg(this->description(webcam));
+        int id = webcam.indexOf(QRegExp("[0-9]+"));
+        webcamIds << webcam.mid(id);
+    }
+
+    int id = webcam.indexOf(QRegExp("[0-9]+"));
+    bool ok = false;
+    id = webcam.mid(id).toInt(&ok);
+
+    if (!ok)
+        return false;
+
+    QString deviceDescription;
+
+    if (description.isEmpty())
+        deviceDescription = QString(tr("Virtual Camera %1")).arg(id);
+    else
+        deviceDescription = description;
+
+    int index = webcamIds.indexOf(QString("%1").arg(id));
+
+    if (index < 0)
+        return false;
+
+    webcamDescriptions[index] = QString("'%1'").arg(deviceDescription);
+
+    QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
+                       .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
+
+    if (!this->sudo("rmmod v4l2loopback", password))
+        return false;
+
+    if (!this->sudo(modprobe, password))
+        return false;
+
+    QStringList curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
+
+    return true;
+}
+
+bool CameraOut::removeWebcam(const QString &webcam,
+                             const QString &password) const
+{
+    if (password.isEmpty())
+        return false;
+
+    if (!QRegExp("/dev/video[0-9]+").exactMatch(webcam))
+        return false;
+
+    QStringList webcams = this->webcams();
+
+    if (webcams.isEmpty()
+        || !webcams.contains(webcam))
+        return false;
+
+    QStringList webcamDescriptions;
+    QStringList webcamIds;
+
+    foreach (QString webcam, webcams) {
+        webcamDescriptions << QString("'%1'").arg(this->description(webcam));
+        int id = webcam.indexOf(QRegExp("[0-9]+"));
+        webcamIds << webcam.mid(id);
+    }
+
+    int id = webcam.indexOf(QRegExp("[0-9]+"));
+    bool ok = false;
+    id = webcam.mid(id).toInt(&ok);
+
+    if (!ok)
+        return false;
+
+    int index = webcamIds.indexOf(QString("%1").arg(id));
+
+    if (index < 0)
+        return false;
+
+    webcamDescriptions.removeAt(index);
+    webcamIds.removeAt(index);
+
+    if (!this->sudo("rmmod v4l2loopback", password))
+        return false;
+
+    if (!webcamIds.isEmpty()) {
+        QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
+                           .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
+
+        if (!this->sudo(modprobe, password))
+            return false;
+    }
+
+    QStringList curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
+
+    return true;
+}
+
+bool CameraOut::removeAllWebcams(const QString &password) const
+{
+    if (password.isEmpty())
+        return false;
+
+    QStringList webcams = this->webcams();
+
+    if (webcams.isEmpty())
+        return false;
+
+    if (!this->sudo("rmmod v4l2loopback", password))
+        return false;
+
+    QStringList curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
+
+    return true;
+}
+
+bool CameraOut::sudo(const QString &command, const QString &password) const
+{
+    if (password.isEmpty())
+        return false;
+
+    QProcess echo;
+    QProcess su;
+
+    echo.setStandardOutputProcess(&su);
+
+    QStringList arguments;
+    arguments << "-c" << command;
+
+    echo.start("echo", QStringList() << password);
+    su.start("su", arguments);
+    su.setProcessChannelMode(QProcess::ForwardedChannels);
+
+    echo.waitForStarted();
+
+    if (!su.waitForFinished(this->m_passwordTimeout)) {
+        su.kill();
+        echo.waitForFinished();
+
+        return false;
+    }
+
+    echo.waitForFinished();
+
+    if (su.exitCode())
+        return false;
+
+    return true;
+}
+
 bool CameraOut::init(int streamIndex, const AkCaps &caps)
 {
     this->m_fd = open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK);
@@ -228,9 +495,23 @@ void CameraOut::setDevice(const QString &device)
     emit this->deviceChanged(device);
 }
 
+void CameraOut::setPasswordTimeout(int passwordTimeout)
+{
+    if (this->m_passwordTimeout == passwordTimeout)
+        return;
+
+    this->m_passwordTimeout = passwordTimeout;
+    emit this->passwordTimeoutChanged(passwordTimeout);
+}
+
 void CameraOut::resetDevice()
 {
     this->setDevice("");
+}
+
+void CameraOut::resetPasswordTimeout()
+{
+    this->setPasswordTimeout(5000);
 }
 
 void CameraOut::onDirectoryChanged(const QString &path)
