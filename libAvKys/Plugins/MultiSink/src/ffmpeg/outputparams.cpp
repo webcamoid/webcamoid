@@ -440,7 +440,7 @@ bool OutputParams::convert(const AkVideoPacket &packet, AVFrame *frame)
                        frame->width,
                        frame->height,
                        AVPixelFormat(frame->format),
-                       1) < 0)
+                       4) < 0)
         return false;
 
     sws_scale(this->m_scaleContext,

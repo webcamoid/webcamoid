@@ -278,6 +278,10 @@ QStringList MediaTools::recordingFormats() const
             formats << format;
     }
 
+#ifndef USE_GSTREAMER
+    formats << "gif";
+#endif
+
     return formats;
 }
 
