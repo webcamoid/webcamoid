@@ -59,8 +59,8 @@ class CameraOut: public QObject
         Q_INVOKABLE bool isAvailable() const;
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
-        Q_INVOKABLE bool createWebcam(const QString &description="",
-                                      const QString &password="") const;
+        Q_INVOKABLE QString createWebcam(const QString &description="",
+                                         const QString &password="") const;
         Q_INVOKABLE bool changeDescription(const QString &webcam,
                                            const QString &description="",
                                            const QString &password="") const;

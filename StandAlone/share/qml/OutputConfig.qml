@@ -54,7 +54,9 @@ ColumnLayout {
         GridLayout {
             id: itmVirtualCameraControls
             objectName: "itmVirtualCameraControls"
-            Layout.fillWidth: true
+            anchors.fill: parent
+
+            onChildrenChanged: children[0].anchors.fill = itmVirtualCameraControls
         }
     }
     Label {

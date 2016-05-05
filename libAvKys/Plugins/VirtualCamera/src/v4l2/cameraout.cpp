@@ -78,7 +78,7 @@ CameraOut::CameraOut(): QObject()
 {
     this->m_streamIndex = -1;
     this->m_fd = -1;
-    this->m_passwordTimeout = 5000;
+    this->m_passwordTimeout = 2500;
     this->m_webcams = this->webcams();
     this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
     this->m_fsWatcher->setParent(this);
@@ -214,11 +214,11 @@ int CameraOut::passwordTimeout() const
     return this->m_passwordTimeout;
 }
 
-bool CameraOut::createWebcam(const QString &description,
-                             const QString &password) const
+QString CameraOut::createWebcam(const QString &description,
+                                const QString &password) const
 {
     if (password.isEmpty())
-        return false;
+        return QString();
 
     QStringList webcams = this->webcams();
     QStringList webcamDescriptions;
@@ -248,18 +248,17 @@ bool CameraOut::createWebcam(const QString &description,
     QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
                        .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
 
-    if (!this->sudo("rmmod v4l2loopback", password))
-        return false;
+    this->sudo("rmmod v4l2loopback", password);
 
     if (!this->sudo(modprobe, password))
-        return false;
+        return QString();
 
     QStringList curWebcams = this->webcams();
 
     if (curWebcams != webcams)
         emit this->webcamsChanged(curWebcams);
 
-    return true;
+    return QString("/dev/video%1").arg(id);
 }
 
 bool CameraOut::changeDescription(const QString &webcam,
@@ -311,8 +310,7 @@ bool CameraOut::changeDescription(const QString &webcam,
     QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
                        .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
 
-    if (!this->sudo("rmmod v4l2loopback", password))
-        return false;
+    this->sudo("rmmod v4l2loopback", password);
 
     if (!this->sudo(modprobe, password))
         return false;
@@ -364,8 +362,7 @@ bool CameraOut::removeWebcam(const QString &webcam,
     webcamDescriptions.removeAt(index);
     webcamIds.removeAt(index);
 
-    if (!this->sudo("rmmod v4l2loopback", password))
-        return false;
+    this->sudo("rmmod v4l2loopback", password);
 
     if (!webcamIds.isEmpty()) {
         QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
@@ -393,8 +390,7 @@ bool CameraOut::removeAllWebcams(const QString &password) const
     if (webcams.isEmpty())
         return false;
 
-    if (!this->sudo("rmmod v4l2loopback", password))
-        return false;
+    this->sudo("rmmod v4l2loopback", password);
 
     QStringList curWebcams = this->webcams();
 
@@ -511,7 +507,7 @@ void CameraOut::resetDevice()
 
 void CameraOut::resetPasswordTimeout()
 {
-    this->setPasswordTimeout(5000);
+    this->setPasswordTimeout(2500);
 }
 
 void CameraOut::onDirectoryChanged(const QString &path)

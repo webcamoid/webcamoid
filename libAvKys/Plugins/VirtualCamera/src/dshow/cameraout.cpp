@@ -71,13 +71,13 @@ int CameraOut::passwordTimeout() const
     return this->m_passwordTimeout;
 }
 
-bool CameraOut::createWebcam(const QString &description,
+QString CameraOut::createWebcam(const QString &description,
                               const QString &password) const
 {
     Q_UNUSED(description)
     Q_UNUSED(password)
 
-    return false;
+    return QString();
 }
 
 bool CameraOut::changeDescription(const QString &webcam,

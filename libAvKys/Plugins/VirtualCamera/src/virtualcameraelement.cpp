@@ -29,11 +29,14 @@ VirtualCameraElement::VirtualCameraElement():
                      &CameraOut::error,
                      this,
                      &VirtualCameraElement::error);
-
     QObject::connect(&this->m_cameraOut,
                      &CameraOut::webcamsChanged,
                      this,
                      &VirtualCameraElement::mediasChanged);
+    QObject::connect(&this->m_cameraOut,
+                     &CameraOut::passwordTimeoutChanged,
+                     this,
+                     &VirtualCameraElement::passwordTimeoutChanged);
 }
 
 VirtualCameraElement::~VirtualCameraElement()
@@ -95,6 +98,21 @@ QList<int> VirtualCameraElement::streams() const
     return streams;
 }
 
+bool VirtualCameraElement::isAvailable() const
+{
+    return this->m_cameraOut.isAvailable();
+}
+
+bool VirtualCameraElement::needRoot() const
+{
+    return this->m_cameraOut.needRoot();
+}
+
+int VirtualCameraElement::passwordTimeout() const
+{
+    return this->m_cameraOut.passwordTimeout();
+}
+
 int VirtualCameraElement::defaultStream(const QString &mimeType) const
 {
     if (mimeType == "video/x-raw")
@@ -134,6 +152,30 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
     this->m_streamIndex = streamIndex;
 
     return QVariantMap();
+}
+
+QString VirtualCameraElement::createWebcam(const QString &description,
+                                           const QString &password) const
+{
+    return this->m_cameraOut.createWebcam(description, password);
+}
+
+bool VirtualCameraElement::changeDescription(const QString &webcam,
+                                             const QString &description,
+                                             const QString &password) const
+{
+    return this->m_cameraOut.changeDescription(webcam, description, password);
+}
+
+bool VirtualCameraElement::removeWebcam(const QString &webcam,
+                                        const QString &password) const
+{
+    return this->m_cameraOut.removeWebcam(webcam, password);
+}
+
+bool VirtualCameraElement::removeAllWebcams(const QString &password) const
+{
+    return this->m_cameraOut.removeAllWebcams(password);
 }
 
 void VirtualCameraElement::stateChange(AkElement::ElementState from,
@@ -176,6 +218,11 @@ void VirtualCameraElement::setMedia(const QString &media)
     emit this->mediaChanged(media);
 }
 
+void VirtualCameraElement::setPasswordTimeout(int passwordTimeout)
+{
+    this->m_cameraOut.setPasswordTimeout(passwordTimeout);
+}
+
 void VirtualCameraElement::resetMedia()
 {
     QString media = this->m_cameraOut.device();
@@ -183,6 +230,11 @@ void VirtualCameraElement::resetMedia()
 
     if (media != this->m_cameraOut.device())
         emit this->mediaChanged(this->m_cameraOut.device());
+}
+
+void VirtualCameraElement::resetPasswordTimeout()
+{
+    this->m_cameraOut.resetPasswordTimeout();
 }
 
 void VirtualCameraElement::clearStreams()

@@ -52,6 +52,15 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(QList<int> streams
                READ streams
                NOTIFY streamsChanged)
+    Q_PROPERTY(bool isAvailable
+               READ isAvailable)
+    Q_PROPERTY(bool needRoot
+               READ needRoot)
+    Q_PROPERTY(int passwordTimeout
+               READ passwordTimeout
+               WRITE setPasswordTimeout
+               RESET resetPasswordTimeout
+               NOTIFY passwordTimeoutChanged)
 
     public:
         explicit VirtualCameraElement();
@@ -63,6 +72,9 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE bool isAvailable() const;
+        Q_INVOKABLE bool needRoot() const;
+        Q_INVOKABLE int passwordTimeout() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE QString description(const QString &media) const;
@@ -72,6 +84,14 @@ class VirtualCameraElement: public AkElement
                                           const QVariantMap &streamParams=QVariantMap());
         Q_INVOKABLE QVariantMap updateStream(int streamIndex,
                                              const QVariantMap &streamParams=QVariantMap());
+        Q_INVOKABLE QString createWebcam(const QString &description="",
+                                         const QString &password="") const;
+        Q_INVOKABLE bool changeDescription(const QString &webcam,
+                                           const QString &description="",
+                                           const QString &password="") const;
+        Q_INVOKABLE bool removeWebcam(const QString &webcam,
+                                      const QString &password="") const;
+        Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
 
     protected:
         void stateChange(AkElement::ElementState from,
@@ -89,11 +109,14 @@ class VirtualCameraElement: public AkElement
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
+        void passwordTimeoutChanged(int passwordTimeout);
         void error(const QString &message);
 
     public slots:
         void setMedia(const QString &media);
+        void setPasswordTimeout(int passwordTimeout);
         void resetMedia();
+        void resetPasswordTimeout();
         void clearStreams();
 
         AkPacket iStream(const AkPacket &packet);
