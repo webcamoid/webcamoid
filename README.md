@@ -23,7 +23,7 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 
 ## Status ##
 
-[![Build Status](https://travis-ci.org/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.org/webcamoid/webcamoid)[![Build status](https://ci.appveyor.com/api/projects/status/hrgbf3qe52ysr8gl?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)[![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)[![CLA assistant](https://cla-assistant.io/readme/badge/webcamoid/webcamoid)](https://cla-assistant.io/webcamoid/webcamoid)
+[![Build Status](https://travis-ci.org/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.org/webcamoid/webcamoid)[![Build status](https://ci.appveyor.com/api/projects/status/hrgbf3qe52ysr8gl?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)[![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)
 
 ## Reporting Bugs ##
 
