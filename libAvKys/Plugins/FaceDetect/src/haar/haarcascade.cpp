@@ -144,18 +144,18 @@ void HaarCascadeHID::run(HaarCascadeHID *cascade)
 
         for (int i = cascade->m_startX; i < cascade->m_endX; i += iStep) {
             int x = qRound(i * cascade->m_step);
-            size_t offset = x + y * cascade->m_oWidth;
+            size_t offset = size_t(x + y * cascade->m_oWidth);
 
             if (cascade->m_cannyPruning) {
-                qint32 sum = cascade->m_ip[0][offset]
-                           - cascade->m_ip[1][offset]
-                           - cascade->m_ip[2][offset]
-                           + cascade->m_ip[3][offset];
+                quint32 sum = cascade->m_ip[0][offset]
+                            - cascade->m_ip[1][offset]
+                            - cascade->m_ip[2][offset]
+                            + cascade->m_ip[3][offset];
 
-                qint32 sumCanny = cascade->m_icp[0][offset]
-                                - cascade->m_icp[1][offset]
-                                - cascade->m_icp[2][offset]
-                                + cascade->m_icp[3][offset];
+                quint32 sumCanny = cascade->m_icp[0][offset]
+                                 - cascade->m_icp[1][offset]
+                                 - cascade->m_icp[2][offset]
+                                 + cascade->m_icp[3][offset];
 
                 if (sum < 20 || sumCanny < 100) {
                     iStep = 2;

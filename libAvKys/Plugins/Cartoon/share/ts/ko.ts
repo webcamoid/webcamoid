@@ -4,13 +4,13 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="30"/>
+        <location filename="../qml/main.qml" line="43"/>
         <source>Threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="51"/>
-        <source>Levels</source>
+        <location filename="../qml/main.qml" line="64"/>
+        <source>Scan block</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

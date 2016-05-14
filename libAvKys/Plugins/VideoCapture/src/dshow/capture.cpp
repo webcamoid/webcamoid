@@ -223,7 +223,7 @@ QString Capture::description(const QString &webcam) const
     HRESULT hr = moniker->BindToStorage(0,
                                         0,
                                         IID_IPropertyBag,
-                                        (void **) &pPropBag);
+                                        reinterpret_cast<void **>(&pPropBag));
 
     if (FAILED(hr))
         return QString();
@@ -293,17 +293,18 @@ QVariantList Capture::imageControls() const
     QVariantList controls;
     IAMVideoProcAmp *pProcAmp = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp))) {
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
+                                         reinterpret_cast<void **>(&pProcAmp)))) {
         foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
             if (SUCCEEDED(pProcAmp->GetRange(property,
-                                             (LONG *) &min,
-                                             (LONG *) &max,
-                                             (LONG *) &step,
-                                             (LONG *) &defaultValue,
-                                             (LONG *) &flags)))
+                                             reinterpret_cast<LONG *>(&min),
+                                             reinterpret_cast<LONG *>(&max),
+                                             reinterpret_cast<LONG *>(&step),
+                                             reinterpret_cast<LONG *>(&defaultValue),
+                                             reinterpret_cast<LONG *>(&flags))))
                 if (SUCCEEDED(pProcAmp->Get(property,
-                                            (LONG *) &value,
-                                            (LONG *) &flags))) {
+                                            reinterpret_cast<LONG *>(&value),
+                                            reinterpret_cast<LONG *>(&flags)))) {
                     QVariantList control;
 
                     QString type;
@@ -345,7 +346,8 @@ bool Capture::setImageControls(const QVariantMap &imageControls) const
 
     IAMVideoProcAmp *pProcAmp = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp, (void **) &pProcAmp))) {
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
+                                         reinterpret_cast<void **>(&pProcAmp)))) {
         foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
             QString propertyStr = vpapToStr->value(property);
 
@@ -392,17 +394,18 @@ QVariantList Capture::cameraControls() const
     QVariantList controls;
     IAMCameraControl *pCameraControl = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl))) {
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
+                                         reinterpret_cast<void **>(&pCameraControl)))) {
         foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
             if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
-                                                   (LONG *) &min,
-                                                   (LONG *) &max,
-                                                   (LONG *) &step,
-                                                   (LONG *) &defaultValue,
-                                                   (LONG *) &flags)))
+                                                   reinterpret_cast<LONG *>(&min),
+                                                   reinterpret_cast<LONG *>(&max),
+                                                   reinterpret_cast<LONG *>(&step),
+                                                   reinterpret_cast<LONG *>(&defaultValue),
+                                                   reinterpret_cast<LONG *>(&flags))))
                 if (SUCCEEDED(pCameraControl->Get(cameraControl,
-                                                  (LONG *) &value,
-                                                  (LONG *) &flags))) {
+                                                  reinterpret_cast<LONG *>(&value),
+                                                  reinterpret_cast<LONG *>(&flags)))) {
                     QVariantList control;
 
                     control << ccToStr->value(cameraControl)
@@ -426,8 +429,6 @@ QVariantList Capture::cameraControls() const
 
 bool Capture::setCameraControls(const QVariantMap &cameraControls) const
 {
-    return false;
-
     BaseFilterPtr filter = this->findFilter(this->m_device);
 
     if (!filter)
@@ -435,7 +436,8 @@ bool Capture::setCameraControls(const QVariantMap &cameraControls) const
 
     IAMCameraControl *pCameraControl = NULL;
 
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl, (void **) &pCameraControl))) {
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
+                                         reinterpret_cast<void **>(&pCameraControl)))) {
         foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
             QString cameraControlStr = ccToStr->value(cameraControl);
 
@@ -473,9 +475,9 @@ AkPacket Capture::readFrame()
     timeval timestamp;
     gettimeofday(&timestamp, NULL);
 
-    qint64 pts = (timestamp.tv_sec
-                  + 1e-6 * timestamp.tv_usec)
-                  * this->m_timeBase.invert().value();
+    qint64 pts = qint64((timestamp.tv_sec
+                         + 1e-6 * timestamp.tv_usec)
+                        * this->m_timeBase.invert().value());
 
     if (this->m_ioMethod != IoMethodDirectRead) {
         this->m_mutex.lock();
@@ -486,7 +488,7 @@ AkPacket Capture::readFrame()
         if (!this->m_curBuffer.isEmpty()) {
             int bufferSize = this->m_curBuffer.size();
             QByteArray oBuffer(bufferSize, Qt::Uninitialized);
-            memcpy(oBuffer.data(), this->m_curBuffer.constData(), bufferSize);
+            memcpy(oBuffer.data(), this->m_curBuffer.constData(), size_t(bufferSize));
 
             packet = AkPacket(this->m_caps, oBuffer);
             packet.setPts(pts);
@@ -506,7 +508,8 @@ AkPacket Capture::readFrame()
             return AkPacket();
 
         QByteArray oBuffer(bufferSize, Qt::Uninitialized);
-        hr = this->m_grabber->GetCurrentBuffer(&bufferSize, (long *) oBuffer.data());
+        hr = this->m_grabber->GetCurrentBuffer(&bufferSize,
+                                               reinterpret_cast<long *>(oBuffer.data()));
 
         if (FAILED(hr))
             return AkPacket();
@@ -526,7 +529,8 @@ AkCaps Capture::capsFromMediaType(const MediaTypePtr &mediaType) const
     if (!mediaType)
         return AkCaps();
 
-    VIDEOINFOHEADER *videoInfoHeader = (VIDEOINFOHEADER *) mediaType->pbFormat;
+    VIDEOINFOHEADER *videoInfoHeader =
+            reinterpret_cast<VIDEOINFOHEADER *>(mediaType->pbFormat);
     QString fourcc = guidToStr->value(mediaType->subtype);
 
     if (fourcc.isEmpty())
@@ -535,8 +539,8 @@ AkCaps Capture::capsFromMediaType(const MediaTypePtr &mediaType) const
     AkCaps videoCaps;
     videoCaps.setMimeType("video/unknown");
     videoCaps.setProperty("fourcc", fourcc);
-    videoCaps.setProperty("width", (int) videoInfoHeader->bmiHeader.biWidth);
-    videoCaps.setProperty("height", (int) videoInfoHeader->bmiHeader.biHeight);
+    videoCaps.setProperty("width", int(videoInfoHeader->bmiHeader.biWidth));
+    videoCaps.setProperty("height", int(videoInfoHeader->bmiHeader.biHeight));
     AkFrac fps(1.0e8, videoInfoHeader->AvgTimePerFrame);
     videoCaps.setProperty("fps", fps.toString());
 
@@ -551,7 +555,7 @@ HRESULT Capture::enumerateCameras(IEnumMoniker **ppEnum) const
                                   NULL,
                                   CLSCTX_INPROC_SERVER,
                                   IID_ICreateDevEnum,
-                                  (void **) &pDevEnum);
+                                  reinterpret_cast<void **>(&pDevEnum));
 
     if (SUCCEEDED(hr)) {
         // Create an enumerator for the category.
@@ -580,7 +584,7 @@ MonikersMap Capture::listMonikers() const
             HRESULT hr = pMoniker->BindToStorage(0,
                                                  0,
                                                  IID_IPropertyBag,
-                                                 (void **) &pPropBag);
+                                                 reinterpret_cast<void **>(&pPropBag));
 
             if (FAILED(hr)) {
                 pMoniker->Release();
@@ -632,7 +636,7 @@ IBaseFilter *Capture::findFilterP(const QString &webcam) const
     HRESULT hr = moniker->BindToObject(NULL,
                                        NULL,
                                        IID_IBaseFilter,
-                                       (void**) &filter);
+                                       reinterpret_cast<void **>(&filter));
 
     if (FAILED(hr))
         return NULL;
@@ -824,7 +828,7 @@ bool Capture::createDeviceNotifier()
     if (!hwnd)
         return false;
 
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR) this);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, LONG_PTR(this));
 
     DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
     ZeroMemory(&NotificationFilter, sizeof(NotificationFilter));
@@ -845,7 +849,7 @@ LRESULT Capture::deviceEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 {
     if (wParam == DBT_DEVICEARRIVAL
         || wParam == DBT_DEVICEREMOVECOMPLETE) {
-        Capture *thisPtr = (Capture *) GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        Capture *thisPtr = reinterpret_cast<Capture *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         QStringList webcams = thisPtr->webcams();
 
         if (webcams != thisPtr->m_webcams) {
@@ -869,7 +873,7 @@ void Capture::deleteMediaType(AM_MEDIA_TYPE *mediaType)
         return;
 
     if (mediaType->cbFormat != 0) {
-        CoTaskMemFree((PVOID) mediaType->pbFormat);
+        CoTaskMemFree(PVOID(mediaType->pbFormat));
         mediaType->cbFormat = 0;
         mediaType->pbFormat = NULL;
     }
@@ -895,7 +899,7 @@ bool Capture::init()
                                 NULL,
                                 CLSCTX_INPROC_SERVER,
                                 IID_IGraphBuilder,
-                                (void **) &this->m_graph)))
+                                reinterpret_cast<void **>(&this->m_graph))))
         return false;
 
     // Create the webcam filter.
@@ -922,7 +926,7 @@ bool Capture::init()
                                 NULL,
                                 CLSCTX_INPROC_SERVER,
                                 IID_IBaseFilter,
-                                (void **) &grabberFilter))) {
+                                reinterpret_cast<void **>(&grabberFilter)))) {
         this->m_graph->Release();
         this->m_graph = NULL;
 
@@ -939,7 +943,7 @@ bool Capture::init()
     ISampleGrabber *grabberPtr = NULL;
 
     if (FAILED(grabberFilter->QueryInterface(IID_ISampleGrabber,
-                                             (void **) &grabberPtr))) {
+                                             reinterpret_cast<void **>(&grabberPtr)))) {
         this->m_graph->Release();
         this->m_graph = NULL;
 
@@ -983,7 +987,7 @@ bool Capture::init()
                                 NULL,
                                 CLSCTX_INPROC_SERVER,
                                 IID_IBaseFilter,
-                                (void **) &nullFilter))) {
+                                reinterpret_cast<void **>(&nullFilter)))) {
         this->m_graph->Release();
         this->m_graph = NULL;
 
@@ -1036,7 +1040,8 @@ bool Capture::init()
 
     foreach (PinPtr pin, pins) {
         IAMStreamConfig *pStreamConfig = NULL;
-        HRESULT hr = pin->QueryInterface(IID_IAMStreamConfig, (void **) &pStreamConfig);
+        HRESULT hr = pin->QueryInterface(IID_IAMStreamConfig,
+                                         reinterpret_cast<void **>(&pStreamConfig));
 
         if (SUCCEEDED(hr))
             pStreamConfig->SetFormat(mediaType.data());
@@ -1049,7 +1054,7 @@ bool Capture::init()
     IMediaControl *control = NULL;
 
     if (FAILED(this->m_graph->QueryInterface(IID_IMediaControl,
-                                             (void **) &control))) {
+                                             reinterpret_cast<void **>(&control)))) {
         this->m_graph->Release();
         this->m_graph = NULL;
 
@@ -1078,7 +1083,7 @@ void Capture::uninit()
     IMediaControl *control = NULL;
 
     if (SUCCEEDED(this->m_graph->QueryInterface(IID_IMediaControl,
-                                                (void **) &control))) {
+                                                reinterpret_cast<void **>(&control)))) {
         control->Stop();
         control->Release();
     }

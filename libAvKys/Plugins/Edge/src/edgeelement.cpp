@@ -55,7 +55,7 @@ QObject *EdgeElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Edge", (QObject *) this);
+    context->setContextProperty("Edge", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -115,12 +115,12 @@ QVector<quint8> EdgeElement::equalize(const QImage &image)
     }
 
     if (maxGray == minGray)
-        memset(outPtr, minGray, videoArea);
+        memset(outPtr, minGray, size_t(videoArea));
     else {
         int diffGray = maxGray - minGray;
 
         for (int i = 0; i < videoArea; i++)
-            outPtr[i] = 255 * (imgPtr[i] - minGray) / diffGray;
+            outPtr[i] = quint8(255 * (imgPtr[i] - minGray) / diffGray);
     }
 
     return out;
@@ -134,7 +134,7 @@ void EdgeElement::sobel(int width, int height, const QVector<quint8> &gray,
     direction.resize(gray.size());
 
     for (int y = 0; y < height; y++) {
-        size_t yOffset = y * width;
+        int yOffset = y * width;
         const quint8 *grayLine = gray.constData() + yOffset;
 
         const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - width;
@@ -287,7 +287,7 @@ QVector<quint8> EdgeElement::threshold(int width, int height,
                 break;
             }
 
-        out[i] = value < 0? map[thresholds.size()]: value;
+        out[i] = quint8(value < 0? map[thresholds.size()]: value);
     }
 
     return out;
@@ -438,14 +438,14 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
         in = this->equalize(src);
     else {
         in.resize(videoArea);
-        memcpy(in.data(), src.constBits(), videoArea);
+        memcpy(in.data(), src.constBits(), size_t(videoArea));
     }
 
     QVector<quint16> gradient;
     QVector<quint8> direction;
     this->sobel(src.width(), src.height(), in, gradient, direction);
 
-    quint8 *dstBits = (quint8 *) oFrame.bits();
+    quint8 *dstBits = reinterpret_cast<quint8 *>(oFrame.bits());
 
     if (this->m_canny) {
         QVector<quint16> thinned = this->thinning(src.width(), src.height(),
@@ -475,12 +475,12 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
         const quint16 *srcBits = gradient.constData();
 
         for (int i = 0; i < videoArea; i++) {
-            int gray = qBound(0, (int) srcBits[i], 255);
+            int gray = qBound(0, int(srcBits[i]), 255);
 
             if (this->m_invert)
-                dstBits[i] = 255 - gray;
+                dstBits[i] = quint8(255 - gray);
             else
-                dstBits[i] = gray;
+                dstBits[i] = quint8(gray);
         }
     }
 

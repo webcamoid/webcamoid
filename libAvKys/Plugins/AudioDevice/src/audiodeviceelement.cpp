@@ -121,13 +121,13 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
                 return;
 
             QByteArray oBuffer(buffer.size(), Qt::Uninitialized);
-            memcpy(oBuffer.data(), buffer.constData(), buffer.size());
+            memcpy(oBuffer.data(), buffer.constData(), size_t(buffer.size()));
 
             caps.samples() = bufferSize;
             AkAudioPacket packet(caps, oBuffer);
 
-            qint64 pts = QTime::currentTime().msecsSinceStartOfDay()
-                         / timeBase.value();
+            qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
+                                / timeBase.value());
 
             packet.setPts(pts);
             packet.setTimeBase(timeBase);
@@ -196,7 +196,7 @@ AkPacket AudioDeviceElement::iStream(const AkAudioPacket &packet)
     this->m_mutex.lock();
 
     if (this->m_mode == AudioDeviceElement::DeviceModeDummyOutput)
-        QThread::usleep(1e6 * packet.caps().samples() / packet.caps().rate());
+        QThread::usleep(ulong(1e6 * packet.caps().samples() / packet.caps().rate()));
     else if (this->m_convert) {
         AkPacket iPacket = this->m_convert->iStream(packet.toPacket());
         this->m_audioDevice.write(iPacket.buffer());
@@ -265,13 +265,11 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeDummyOutput: {
                 break;
             }
-            default:
-                return false;
             }
 
             return AkElement::setState(state);
         }
-        default:
+        case AkElement::ElementStateNull:
             break;
         }
 
@@ -296,8 +294,6 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeDummyOutput: {
                 break;
             }
-            default:
-                return false;
             }
 
             return AkElement::setState(state);
@@ -338,12 +334,10 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeDummyOutput: {
                 break;
             }
-            default:
-                return false;
             }
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStatePaused:
             break;
         }
 
@@ -368,8 +362,6 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeDummyOutput: {
                 break;
             }
-            default:
-                return false;
             }
 
             return AkElement::setState(state);
@@ -388,19 +380,15 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeDummyOutput: {
                 break;
             }
-            default:
-                return false;
             }
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStatePlaying:
             break;
         }
 
         break;
     }
-    default:
-        break;
     }
 
     return false;

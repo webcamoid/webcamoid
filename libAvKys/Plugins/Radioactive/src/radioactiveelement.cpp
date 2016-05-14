@@ -45,7 +45,6 @@ RadioactiveElement::RadioactiveElement(): AkElement()
     this->m_lumaThreshold = 95;
     this->m_alphaDiff = -8;
     this->m_radColor = qRgb(0, 255, 0);
-
     this->m_blurFilter = AkElement::create("Blur");
     this->m_blurFilter->setProperty("radius", 2);
 
@@ -76,7 +75,7 @@ QObject *RadioactiveElement::controlInterface(QQmlEngine *engine, const QString 
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Radioactive", (QObject *) this);
+    context->setContextProperty("Radioactive", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -140,9 +139,9 @@ QImage RadioactiveElement::imageDiff(const QImage &img1,
     QImage diff(width, height, img1.format());
 
     for (int y = 0; y < height; y++) {
-        const QRgb *iLine1 = (const QRgb *) img1.constScanLine(y);
-        const QRgb *iLine2 = (const QRgb *) img2.constScanLine(y);
-        QRgb *oLine = (QRgb *) diff.scanLine(y);
+        const QRgb *iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        const QRgb *iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(iLine1[x]);
@@ -158,7 +157,7 @@ QImage RadioactiveElement::imageDiff(const QImage &img1,
             int db = b1 - b2;
 
             int alpha = dr * dr + dg * dg + db * db;
-            alpha = sqrt(alpha / 3);
+            alpha = int(sqrt(alpha / 3));
 
             if (mode == RadiationModeSoftNormal
                 || mode == RadiationModeSoftColor)
@@ -197,14 +196,15 @@ QImage RadioactiveElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 {
     int videoArea = src.width() * src.height();
     QImage dest(src.size(), src.format());
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) dest.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
 
     for (int i = 0; i < videoArea; i++) {
-        int r = qRed(srcBits[i]);
-        int g = qGreen(srcBits[i]);
-        int b = qBlue(srcBits[i]);
-        int a = qBound(0, qAlpha(srcBits[i]) + alphaDiff, 255);
+        QRgb pixel = srcBits[i];
+        int r = qRed(pixel);
+        int g = qGreen(pixel);
+        int b = qBlue(pixel);
+        int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
         destBits[i] = qRgba(r, g, b, a);
     }
 
@@ -230,7 +230,7 @@ void RadioactiveElement::setBlur(int blur)
 
 void RadioactiveElement::setZoom(qreal zoom)
 {
-    if (this->m_zoom == zoom)
+    if (qFuzzyCompare(this->m_zoom, zoom))
         return;
 
     this->m_zoom = zoom;

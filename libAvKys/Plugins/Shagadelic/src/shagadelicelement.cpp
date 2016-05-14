@@ -47,7 +47,7 @@ QObject *ShagadelicElement::controlInterface(QQmlEngine *engine, const QString &
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Shagadelic", (QObject *) this);
+    context->setContextProperty("Shagadelic", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -75,11 +75,11 @@ QImage ShagadelicElement::makeRipple(const QSize &size) const
 
     for (int y = 0; y < ripple.height(); y++) {
         qreal yy = qreal(y) / size.width() - 1.0;
-        quint8 *oLine = (quint8 *) ripple.scanLine(y);
+        quint8 *oLine = reinterpret_cast<quint8 *>(ripple.scanLine(y));
 
         for (int x = 0; x < ripple.width(); x++) {
             qreal xx = qreal(x) / size.width() - 1.0;
-            oLine[x] = ((unsigned int) (sqrt(xx * xx + yy * yy) * 3000)) & 255;
+            oLine[x] = uint(3000 * sqrt(xx * xx + yy * yy)) & 255;
         }
     }
 
@@ -93,13 +93,13 @@ QImage ShagadelicElement::makeSpiral(const QSize &size) const
 
     for (int y = 0; y < spiral.height(); y++) {
         qreal yy = qreal(y - yc) / spiral.width();
-        quint8 *oLine = (quint8 *) spiral.scanLine(y);
+        quint8 *oLine = reinterpret_cast<quint8 *>(spiral.scanLine(y));
 
         for (int x = 0; x < spiral.width(); x++) {
             qreal xx = qreal(x) / spiral.width() - 0.5;
 
-            oLine[x] = ((unsigned int) (256 * 9 * atan2(xx, yy) / M_PI
-                                        + 1800 * sqrt(xx * xx + yy * yy)))
+            oLine[x] = uint(256 * 9 * atan2(xx, yy) / M_PI
+                            + 1800 * sqrt(xx * xx + yy * yy))
                        & 255;
         }
     }
@@ -155,11 +155,11 @@ AkPacket ShagadelicElement::iStream(const AkPacket &packet)
     }
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
-        const quint8 *rLine = (const quint8 *) this->m_ripple.constScanLine(y + this->m_ry);
-        const quint8 *gLine = (const quint8 *) this->m_spiral.constScanLine(y);
-        const quint8 *bLine = (const quint8 *) this->m_ripple.constScanLine(y + this->m_by);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        const quint8 *rLine = this->m_ripple.constScanLine(y + this->m_ry);
+        const quint8 *gLine = this->m_spiral.constScanLine(y);
+        const quint8 *bLine = this->m_ripple.constScanLine(y + this->m_by);
 
         for (int x = 0; x < src.width(); x++) {
             // Color saturation

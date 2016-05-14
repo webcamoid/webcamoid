@@ -66,7 +66,7 @@ QObject *HypnoticElement::controlInterface(QQmlEngine *engine, const QString &co
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Hypnotic", (QObject *) this);
+    context->setContextProperty("Hypnotic", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -108,7 +108,7 @@ QVector<QRgb> HypnoticElement::createPalette()
     }
 
     for (int i = 0; i < 16; i++) {
-        QRgb color = 16 * (i + 1) - 1;
+        QRgb color = QRgb(16 * (i + 1) - 1);
         palette[i + 112] = qRgb(qRed(color), qGreen(color), qBlue(color));
         color = 255 - color;
         palette[i + 240] = qRgb(qRed(color), qGreen(color), qBlue(color));
@@ -130,10 +130,10 @@ HypnoticElement::OpticalMap HypnoticElement::createOpticalMap(const QSize &size)
     for (int y = 0; y < size.height(); y++) {
         qreal yy = qreal(y - size.height() / 2) / size.width();
 
-        quint8 *spiral1Line = (quint8 *) opticalMap[OpticModeSpiral1].constScanLine(y);
-        quint8 *spiral2Line = (quint8 *) opticalMap[OpticModeSpiral2].constScanLine(y);
-        quint8 *parabolaLine = (quint8 *) opticalMap[OpticModeParabola].constScanLine(y);
-        quint8 *horizontalStripeLine = (quint8 *) opticalMap[OpticModeHorizontalStripe].constScanLine(y);
+        quint8 *spiral1Line = opticalMap[OpticModeSpiral1].scanLine(y);
+        quint8 *spiral2Line = opticalMap[OpticModeSpiral2].scanLine(y);
+        quint8 *parabolaLine = opticalMap[OpticModeParabola].scanLine(y);
+        quint8 *horizontalStripeLine = opticalMap[OpticModeHorizontalStripe].scanLine(y);
 
         for (int x = 0; x < size.width(); x++) {
             qreal xx = qreal(x) / size.width() - 0.5;
@@ -143,7 +143,7 @@ HypnoticElement::OpticalMap HypnoticElement::createOpticalMap(const QSize &size)
 
             spiral1Line[x] = (uint((at / M_PI * 256) + (r * 4000))) & 255;
 
-            int j = r * 300 / 32;
+            int j = int(r * 300 / 32);
             qreal rr = r * 300 - j * 32;
 
             j *= 64;
@@ -151,7 +151,7 @@ HypnoticElement::OpticalMap HypnoticElement::createOpticalMap(const QSize &size)
 
             spiral2Line[x] = (uint((at / M_PI * 4096) + (r * 1600) - j)) & 255;
             parabolaLine[x] = (uint(yy / (xx * xx * 0.3 + 0.1) * 400)) & 255;
-            horizontalStripeLine[x] = x * 8 * sci;
+            horizontalStripeLine[x] = quint8(x * 8 * sci);
         }
     }
 
@@ -160,7 +160,7 @@ HypnoticElement::OpticalMap HypnoticElement::createOpticalMap(const QSize &size)
 
 QImage HypnoticElement::imageThreshold(const QImage &src, int threshold)
 {
-    QRgb *srcBits = (QRgb *) src.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.bits());
     QImage diff(src.size(), QImage::Format_Grayscale8);
     quint8 *diffBits = diff.bits();
     int videoArea = src.width() * src.height();
@@ -241,12 +241,12 @@ AkPacket HypnoticElement::iStream(const AkPacket &packet)
     QImage diff = this->imageThreshold(src, this->m_threshold);
 
     for (int i = 0, y = 0; y < src.height(); y++) {
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
-        const quint8 *optLine = (const quint8 *) opticalMap.constScanLine(y);
-        const quint8 *diffLine = (const quint8 *) diff.constScanLine(y);
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        const quint8 *optLine = opticalMap.constScanLine(y);
+        const quint8 *diffLine = diff.constScanLine(y);
 
         for (int x = 0; x < src.width(); i++, x++)
-            oLine[x] = this->m_palette[(((char) (optLine[x] + this->m_phase)) ^ diffLine[x]) & 255];
+            oLine[x] = this->m_palette[((char(optLine[x] + this->m_phase)) ^ diffLine[x]) & 255];
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

@@ -48,7 +48,7 @@ QObject *ColorTapElement::controlInterface(QQmlEngine *engine, const QString &co
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ColorTap", (QObject *) this);
+    context->setContextProperty("ColorTap", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
@@ -127,9 +127,9 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
-    QRgb *tableBits = (QRgb *) this->m_table.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    const QRgb *tableBits = reinterpret_cast<const QRgb *>(this->m_table.constBits());
 
     for (int i = 0; i < videoArea; i++) {
         int r = qRed(srcBits[i]);

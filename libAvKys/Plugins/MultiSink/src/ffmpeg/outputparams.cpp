@@ -129,7 +129,7 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
         qint64 ptsDiff = qAbs(framePts - pts);
 
         if (framePts > pts) {
-            silence = ptsDiff;
+            silence = int(ptsDiff);
         } else if (framePts < pts) {
             frameSamples -= ptsDiff;
 
@@ -157,7 +157,7 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
     if (avcodec_fill_audio_frame(&joinedFrame,
                                  frame->channels,
                                  AVSampleFormat(frame->format),
-                                 (const uint8_t *) joinedBuffer.constData(),
+                                 reinterpret_cast<const uint8_t *>(joinedBuffer.constData()),
                                  joinedBuffer.size(),
                                  1) < 0) {
         return;
@@ -172,7 +172,7 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
         if (avcodec_fill_audio_frame(&bufferFrame,
                                      frame->channels,
                                      AVSampleFormat(frame->format),
-                                     (const uint8_t *) this->m_audioBuffer.constData(),
+                                     reinterpret_cast<const uint8_t *>(this->m_audioBuffer.constData()),
                                      this->m_audioBuffer.size(),
                                      1) < 0) {
             return;
@@ -254,7 +254,7 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
     if (avcodec_fill_audio_frame(&bufferFrame,
                                  this->m_audioChannels,
                                  this->m_audioFormat,
-                                 (const uint8_t *) this->m_audioBuffer.constData(),
+                                 reinterpret_cast<const uint8_t *>(this->m_audioBuffer.constData()),
                                  this->m_audioBuffer.size(),
                                  1) < 0) {
         delete [] *buffer;
@@ -265,7 +265,7 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
 
     // Copy current audio buffer to output buffer.
     av_samples_copy(outputFrame.data,
-                    (uint8_t * const *) bufferFrame.data,
+                    reinterpret_cast<uint8_t * const *>(bufferFrame.data),
                     0,
                     0,
                     samples,
@@ -284,7 +284,7 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
     if (avcodec_fill_audio_frame(&audioFrame,
                                  this->m_audioChannels,
                                  this->m_audioFormat,
-                                 (const uint8_t *) audioBuffer.constData(),
+                                 reinterpret_cast<const uint8_t *>(audioBuffer.constData()),
                                  audioBuffer.size(),
                                  1) < 0) {
         delete [] *buffer;
@@ -295,7 +295,7 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
 
     // Copy remaining samples to the new buffer-
     av_samples_copy(audioFrame.data,
-                    (uint8_t * const *) bufferFrame.data,
+                    reinterpret_cast<uint8_t * const *>(bufferFrame.data),
                     0,
                     samples,
                     audioFrame.nb_samples,
@@ -338,16 +338,16 @@ bool OutputParams::convert(const AkPacket &packet, AVFrame *frame)
 bool OutputParams::convert(const AkAudioPacket &packet, AVFrame *frame)
 {
     QString layout = AkAudioCaps::channelLayoutToString(packet.caps().layout());
-    int64_t iLayout = av_get_channel_layout(layout.toStdString().c_str());;
+    uint64_t iLayout = av_get_channel_layout(layout.toStdString().c_str());
     QString format = AkAudioCaps::sampleFormatToString(packet.caps().format());
     AVSampleFormat iFormat = av_get_sample_fmt(format.toStdString().c_str());
     int iSampleRate = packet.caps().rate();
 
     this->m_resampleContext = swr_alloc_set_opts(this->m_resampleContext,
-                                                 frame->channel_layout,
+                                                 int64_t(frame->channel_layout),
                                                  AVSampleFormat(frame->format),
                                                  frame->sample_rate,
-                                                 iLayout,
+                                                 int64_t(iLayout),
                                                  iFormat,
                                                  iSampleRate,
                                                  0,
@@ -368,7 +368,7 @@ bool OutputParams::convert(const AkAudioPacket &packet, AVFrame *frame)
 
     if (av_samples_fill_arrays(iFrame.data,
                                iFrame.linesize,
-                               (const uint8_t *) packet.buffer().constData(),
+                               reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
                                iChannels,
                                iSamples,
                                iFormat,
@@ -381,9 +381,9 @@ bool OutputParams::convert(const AkAudioPacket &packet, AVFrame *frame)
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = packet.caps().samples();
 
-    int oNSamples = swr_get_delay(this->m_resampleContext, frame->sample_rate)
+    int oNSamples = int(swr_get_delay(this->m_resampleContext, frame->sample_rate))
                     + iFrame.nb_samples
-                    * (int64_t) frame->sample_rate / iSampleRate
+                    * frame->sample_rate / iSampleRate
                     + 3;
 
     frame->nb_samples = oNSamples;
@@ -393,7 +393,7 @@ bool OutputParams::convert(const AkAudioPacket &packet, AVFrame *frame)
     frame->nb_samples = swr_convert(this->m_resampleContext,
                                     frame->data,
                                     frame->nb_samples,
-                                    (const uint8_t **) iFrame.data,
+                                    const_cast<const uint8_t **>(iFrame.data),
                                     iFrame.nb_samples);
 
     if (frame->nb_samples < 1)
@@ -427,15 +427,15 @@ bool OutputParams::convert(const AkVideoPacket &packet, AVFrame *frame)
     AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
-    av_image_fill_arrays((uint8_t **) iFrame.data,
+    av_image_fill_arrays(const_cast<uint8_t **>(iFrame.data),
                          iFrame.linesize,
-                         (const uint8_t *) packet.buffer().constData(),
+                         reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
                          iFormat,
                          iWidth,
                          iHeight,
                          1);
 
-    if (av_image_alloc((uint8_t **) frame->data,
+    if (av_image_alloc(const_cast<uint8_t **>(frame->data),
                        frame->linesize,
                        frame->width,
                        frame->height,
@@ -444,7 +444,7 @@ bool OutputParams::convert(const AkVideoPacket &packet, AVFrame *frame)
         return false;
 
     sws_scale(this->m_scaleContext,
-              (uint8_t **) iFrame.data,
+              const_cast<uint8_t **>(iFrame.data),
               iFrame.linesize,
               0,
               iHeight,

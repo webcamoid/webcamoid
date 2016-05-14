@@ -84,29 +84,29 @@ HaarFeatureHID::HaarFeatureHID(const HaarFeature &feature,
         int rectHeight = qRound(scale * feature.m_rects[i].height());
 
         if (this->m_tilted) {
-            this->m_p0[i] = (quint32 *) tiltedIntegral
+            this->m_p0[i] = const_cast<quint32 *>(tiltedIntegral)
                             +  rectX
                             +  rectY * oWidth;
-            this->m_p1[i] = (quint32 *) tiltedIntegral
+            this->m_p1[i] = const_cast<quint32 *>(tiltedIntegral)
                             +  rectX - rectHeight
                             + (rectY + rectHeight) * oWidth;
-            this->m_p2[i] = (quint32 *) tiltedIntegral
+            this->m_p2[i] = const_cast<quint32 *>(tiltedIntegral)
                             +  rectX + rectWidth
                             + (rectY + rectWidth) * oWidth;
-            this->m_p3[i] = (quint32 *) tiltedIntegral
+            this->m_p3[i] = const_cast<quint32 *>(tiltedIntegral)
                             +  rectX + rectWidth - rectHeight
                             + (rectY + rectWidth + rectHeight) * oWidth;
         } else {
-            this->m_p0[i] = (quint32 *) integral
+            this->m_p0[i] = const_cast<quint32 *>(integral)
                             + rectX
                             + rectY * oWidth;
-            this->m_p1[i] = (quint32 *) integral
+            this->m_p1[i] = const_cast<quint32 *>(integral)
                             + rectX + rectWidth
                             + rectY * oWidth;
-            this->m_p2[i] = (quint32 *) integral
+            this->m_p2[i] = const_cast<quint32 *>(integral)
                             +  rectX
                             + (rectY + rectHeight) * oWidth;
-            this->m_p3[i] = (quint32 *) integral
+            this->m_p3[i] = const_cast<quint32 *>(integral)
                             +  rectX + rectWidth
                             + (rectY + rectHeight) * oWidth;
         }
@@ -262,14 +262,14 @@ bool HaarFeature::operator ==(const HaarFeature &other) const
 {
     if (this->m_count == other.m_count
         && this->m_tilted == other.m_tilted
-        && this->m_threshold == other.m_threshold
+        && qFuzzyCompare(this->m_threshold, other.m_threshold)
         && this->m_leftNode == other.m_leftNode
-        && this->m_leftVal == other.m_leftVal
+        && qFuzzyCompare(this->m_leftVal, other.m_leftVal)
         && this->m_rightNode == other.m_rightNode
-        && this->m_rightVal == other.m_rightVal) {
+        && qFuzzyCompare(this->m_rightVal, other.m_rightVal)) {
         for (int i = 0; i < this->m_count; i++)
             if (this->m_rects[i] != other.m_rects[i]
-                || this->m_weight[i] != other.m_weight[i]) {
+                || !qFuzzyCompare(this->m_weight[i], other.m_weight[i])) {
                 return false;
             }
 
@@ -314,7 +314,7 @@ void HaarFeature::setWeight(const RealVector &weight)
         bool eq = true;
 
         for (int i = 0; i < weight.size(); i++)
-            if (this->m_weight[i] != weight[i]) {
+            if (!qFuzzyCompare(this->m_weight[i], weight[i])) {
                 eq = false;
 
                 break;
@@ -343,7 +343,7 @@ void HaarFeature::setTilted(bool tilted)
 
 void HaarFeature::setThreshold(qreal threshold)
 {
-    if (this->m_threshold == threshold)
+    if (qFuzzyCompare(this->m_threshold, threshold))
         return;
 
     this->m_threshold = threshold;
@@ -361,7 +361,7 @@ void HaarFeature::setLeftNode(int leftNode)
 
 void HaarFeature::setLeftVal(qreal leftVal)
 {
-    if (this->m_leftVal == leftVal)
+    if (qFuzzyCompare(this->m_leftVal, leftVal))
         return;
 
     this->m_leftVal = leftVal;
@@ -379,7 +379,7 @@ void HaarFeature::setRightNode(int rightNode)
 
 void HaarFeature::setRightVal(qreal rightVal)
 {
-    if (this->m_rightVal == rightVal)
+    if (qFuzzyCompare(this->m_rightVal, rightVal))
         return;
 
     this->m_rightVal = rightVal;

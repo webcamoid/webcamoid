@@ -252,6 +252,14 @@ QStringList MediaTools::recordingFormats() const
                               Q_RETURN_ARG(QStringList, supportedFormats));
 
     foreach (QString format, supportedFormats) {
+#ifndef USE_GSTREAMER
+        if (format == "gif") {
+            formats << format;
+
+            continue;
+        }
+#endif
+
         QStringList audioCodecs;
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "supportedCodecs",
@@ -277,10 +285,6 @@ QStringList MediaTools::recordingFormats() const
             && !extensions.isEmpty())
             formats << format;
     }
-
-#ifndef USE_GSTREAMER
-    formats << "gif";
-#endif
 
     return formats;
 }
@@ -817,8 +821,6 @@ AkElementPtr MediaTools::sourceElement() const
         return this->m_desktopCapture;
     else
         return this->m_source;
-
-    return AkElementPtr();
 }
 
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,

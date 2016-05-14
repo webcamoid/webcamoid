@@ -50,7 +50,7 @@ QObject *LifeElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Life", (QObject *) this);
+    context->setContextProperty("Life", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -92,9 +92,9 @@ QImage LifeElement::imageDiff(const QImage &img1,
     QImage diff(width, height, QImage::Format_Indexed8);
 
     for (int y = 0; y < height; y++) {
-        QRgb *line1 = (QRgb *) img1.constScanLine(y);
-        QRgb *line2 = (QRgb *) img2.constScanLine(y);
-        quint8 *lineDiff = (quint8 *) diff.scanLine(y);
+        const QRgb *line1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        const QRgb *line2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        quint8 *lineDiff = diff.scanLine(y);
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(line1[x]);
@@ -125,16 +125,14 @@ void LifeElement::updateLife()
     lifeBuffer.fill(0);
 
     for (int y = 1; y < lifeBuffer.height() - 1; y++) {
-        const quint8 *iLine =
-                (const quint8 *) this->m_lifeBuffer.constScanLine(y);
-        quint8 *oLine = (quint8 *) lifeBuffer.scanLine(y);
+        const quint8 *iLine = this->m_lifeBuffer.constScanLine(y);
+        quint8 *oLine = lifeBuffer.scanLine(y);
 
         for (int x = 1; x < lifeBuffer.width() - 1; x++) {
             int count = 0;
 
             for (int j = -1; j < 2; j++) {
-                const quint8 *line =
-                        (const quint8 *) this->m_lifeBuffer.constScanLine(y + j);
+                const quint8 *line = this->m_lifeBuffer.constScanLine(y + j);
 
                 for (int i = -1; i < 2; i++)
                     count += line[x + i];
@@ -149,7 +147,7 @@ void LifeElement::updateLife()
 
     memcpy(this->m_lifeBuffer.bits(),
            lifeBuffer.constBits(),
-           lifeBuffer.byteCount());
+           size_t(lifeBuffer.byteCount()));
 }
 
 void LifeElement::setLifeColor(QRgb lifeColor)
@@ -228,8 +226,8 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
         this->m_lifeBuffer.setColor(1, this->m_lifeColor);
         int videoArea = this->m_lifeBuffer.width()
                         * this->m_lifeBuffer.height();
-        quint8 *lifeBufferBits = (quint8 *) this->m_lifeBuffer.bits();
-        const quint8 *diffBits = (const quint8 *) diff.constBits();
+        quint8 *lifeBufferBits = this->m_lifeBuffer.bits();
+        const quint8 *diffBits = diff.constBits();
 
         for (int i = 0; i < videoArea; i++)
             lifeBufferBits[i] |= diffBits[i];

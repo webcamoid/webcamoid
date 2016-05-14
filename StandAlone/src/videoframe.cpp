@@ -60,7 +60,7 @@ void VideoFrame::bind()
     if (!context)
         return;
 
-    if (this->m_textureId >= 0)
+    if (this->m_textureId > 0)
         context->deleteTexture(this->m_textureId);
 
     this->m_textureId = context->bindTexture(this->m_image);
@@ -78,7 +78,7 @@ bool VideoFrame::hasMipmaps() const
 
 int VideoFrame::textureId() const
 {
-    return this->m_textureId;
+    return int(this->m_textureId);
 }
 
 QSize VideoFrame::textureSize() const

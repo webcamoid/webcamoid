@@ -45,7 +45,7 @@ QObject *PrimariesColorsElement::controlInterface(QQmlEngine *engine, const QStr
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("PrimariesColors", (QObject *) this);
+    context->setContextProperty("PrimariesColors", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -92,8 +92,8 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
     int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     int f = this->m_factor + 1;
     int factor127 = (f * f - 3) * 127;
@@ -111,7 +111,7 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
         int gi = qGreen(pixel);
         int bi = qBlue(pixel);
 
-        quint8 mean;
+        int mean;
 
         if (f > 32)
             mean = 127;

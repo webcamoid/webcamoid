@@ -172,8 +172,7 @@ bool Pipeline::parse(const QString &description)
                             }
 
                             pipeStr << ref + ".";
-                        }
-                        else if (ref == "OUT") {
+                        } else if (ref == "OUT") {
                             if (element != pipeArray.size() - 1) {
                                 this->m_error = "Error: 'OUT' alias must be "
                                                 "at the end of a pipe.";
@@ -182,11 +181,9 @@ bool Pipeline::parse(const QString &description)
                             }
 
                             pipeStr << ref + ".";
-                        }
-                        else
+                        } else
                             pipeStr << ref;
-                    }
-                    else {
+                    } else {
                         QString error;
                         QDebug debug(&error);
 
@@ -198,8 +195,7 @@ bool Pipeline::parse(const QString &description)
 
                         return false;
                     }
-                }
-                else if (pipeArray[element].isString()) {
+                } else if (pipeArray[element].isString()) {
                     QString connectionType = pipeArray[element].toString();
 
                     if (element == pipeArray.size() - 1) {
@@ -210,8 +206,7 @@ bool Pipeline::parse(const QString &description)
                     }
 
                     pipeStr << connectionType + "?";
-                }
-                else {
+                } else {
                     this->m_error = QString("Error: Must be an object or a"
                                             " connection type: %1")
                                     .arg(pipeArray[element].toString());
@@ -220,8 +215,7 @@ bool Pipeline::parse(const QString &description)
                 }
 
             this->addLinks(pipeStr);
-        }
-        else {
+        } else {
             this->m_error = "Error: An pipe must be constructed as an array of objects.";
 
             return false;
@@ -272,7 +266,7 @@ QString Pipeline::addElement(const AkElementPtr &element)
     QString name;
 
     if (element->objectName().isEmpty())
-        name = QString("&%1").arg((quint64) element.data());
+        name = QString("&%1").arg(quint64(element.data()));
     else
         name = element->objectName();
 
@@ -401,43 +395,37 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
             list << this->solveProperty(propList[i]);
 
         return QVariant(list);
-    }
-    else if (type == "frac") {
+    } else if (type == "frac") {
         if (propList.size() < 3)
             return QVariant::fromValue(AkFrac());
 
-        return QVariant::fromValue(AkFrac(propList[1].toDouble(),
-                                          propList[2].toDouble()));
-    }
-    else if (type == "size") {
+        return QVariant::fromValue(AkFrac(qint64(propList[1].toDouble()),
+                                          qint64(propList[2].toDouble())));
+    } else if (type == "size") {
         if (propList.size() < 3)
             return QVariant::fromValue(QSize());
 
-        return QVariant::fromValue(QSize(propList[1].toDouble(),
-                                         propList[2].toDouble()));
-    }
-    else if (type == "sizeF") {
+        return QVariant::fromValue(QSize(int(propList[1].toDouble()),
+                                         int(propList[2].toDouble())));
+    } else if (type == "sizeF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QSizeF());
 
         return QVariant::fromValue(QSizeF(propList[1].toDouble(),
                                           propList[2].toDouble()));
-    }
-    else if (type == "point") {
+    } else if (type == "point") {
         if (propList.size() < 3)
             return QVariant::fromValue(QPoint());
 
-        return QVariant::fromValue(QPoint(propList[1].toDouble(),
-                                          propList[2].toDouble()));
-    }
-    else if (type == "pointF") {
+        return QVariant::fromValue(QPoint(int(propList[1].toDouble()),
+                                          int(propList[2].toDouble())));
+    } else if (type == "pointF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QPointF());
 
         return QVariant::fromValue(QPointF(propList[1].toDouble(),
                                            propList[2].toDouble()));
-    }
-    else if (type == "rect") {
+    } else if (type == "rect") {
         if (propList.size() < 3)
             return QVariant::fromValue(QRect());
         else if (propList.size() == 3) {
@@ -454,16 +442,14 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
                 return QVariant::fromValue(QRect(arg1.toPoint(), arg2.toSize()));
 
             return QVariant::fromValue(QRect());
-        }
-        else if (propList.size() > 4)
-            return QVariant::fromValue(QRect(propList[1].toDouble(),
-                                             propList[2].toDouble(),
-                                             propList[3].toDouble(),
-                                             propList[4].toDouble()));
+        } else if (propList.size() > 4)
+            return QVariant::fromValue(QRect(int(propList[1].toDouble()),
+                                             int(propList[2].toDouble()),
+                                             int(propList[3].toDouble()),
+                                             int(propList[4].toDouble())));
 
         return QVariant::fromValue(QRect());
-    }
-    else if (type == "rectF") {
+    } else if (type == "rectF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QRectF());
         else if (propList.size() == 3) {
@@ -480,16 +466,14 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
                 return QVariant::fromValue(QRectF(arg1.toPointF(), arg2.toSizeF()));
 
             return QVariant::fromValue(QRectF());
-        }
-        else if (propList.size() > 4)
+        } else if (propList.size() > 4)
             return QVariant::fromValue(QRectF(propList[1].toDouble(),
                                               propList[2].toDouble(),
                                               propList[3].toDouble(),
                                               propList[4].toDouble()));
 
         return QVariant::fromValue(QRectF());
-    }
-    else if (type == "line") {
+    } else if (type == "line") {
         if (propList.size() < 3)
             return QVariant::fromValue(QLine());
         else if (propList.size() == 3) {
@@ -504,16 +488,14 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
                 return QVariant::fromValue(QLine(arg1.toPoint(), arg2.toPoint()));
 
             return QVariant::fromValue(QLine());
-        }
-        else if (propList.size() > 4)
-            return QVariant::fromValue(QLine(propList[1].toDouble(),
-                                             propList[2].toDouble(),
-                                             propList[3].toDouble(),
-                                             propList[4].toDouble()));
+        } else if (propList.size() > 4)
+            return QVariant::fromValue(QLine(int(propList[1].toDouble()),
+                                             int(propList[2].toDouble()),
+                                             int(propList[3].toDouble()),
+                                             int(propList[4].toDouble())));
 
         return QVariant::fromValue(QLine());
-    }
-    else if (type == "lineF") {
+    } else if (type == "lineF") {
         if (propList.size() < 3)
             return QVariant::fromValue(QLineF());
         else if (propList.size() == 3) {
@@ -528,42 +510,38 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
                 return QVariant::fromValue(QLineF(arg1.toPointF(), arg2.toPointF()));
 
             return QVariant::fromValue(QLineF());
-        }
-        else if (propList.size() > 4)
+        } else if (propList.size() > 4)
             return QVariant::fromValue(QLineF(propList[1].toDouble(),
                                               propList[2].toDouble(),
                                               propList[3].toDouble(),
                                               propList[4].toDouble()));
 
         return QVariant::fromValue(QLineF());
-    }
-    else if (type == "date") {
+    } else if (type == "date") {
         if (propList.size() < 4)
             return QVariant::fromValue(QDate());
 
-        return QVariant::fromValue(QDate(propList[1].toDouble(),
-                                         propList[2].toDouble(),
-                                         propList[3].toDouble()));
-    }
-    else if (type == "time") {
+        return QVariant::fromValue(QDate(int(propList[1].toDouble()),
+                                         int(propList[2].toDouble()),
+                                         int(propList[3].toDouble())));
+    } else if (type == "time") {
         if (propList.size() < 3)
             return QVariant::fromValue(QTime());
         else if (propList.size() == 3)
-            return QVariant::fromValue(QTime(propList[1].toDouble(),
-                                             propList[2].toDouble()));
+            return QVariant::fromValue(QTime(int(propList[1].toDouble()),
+                                             int(propList[2].toDouble())));
         else if (propList.size() == 4)
-            return QVariant::fromValue(QTime(propList[1].toDouble(),
-                                             propList[2].toDouble(),
-                                             propList[3].toDouble()));
+            return QVariant::fromValue(QTime(int(propList[1].toDouble()),
+                                             int(propList[2].toDouble()),
+                                             int(propList[3].toDouble())));
         else if (propList.size() > 4)
-            return QVariant::fromValue(QTime(propList[1].toDouble(),
-                                             propList[2].toDouble(),
-                                             propList[3].toDouble(),
-                                             propList[4].toDouble()));
+            return QVariant::fromValue(QTime(int(propList[1].toDouble()),
+                                             int(propList[2].toDouble()),
+                                             int(propList[3].toDouble()),
+                                             int(propList[4].toDouble())));
 
         return QVariant::fromValue(QTime());
-    }
-    else if (type == "dateTime") {
+    } else if (type == "dateTime") {
         if (propList.size() < 2)
             return QVariant::fromValue(QDateTime());
 
@@ -576,42 +554,39 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
 
         return QVariant::fromValue(QDateTime(arg1.toDate(),
                                              arg2.toTime()));
-    }
-    else if (type == "rgb") {
+    } else if (type == "rgb") {
         if (propList.size() < 2)
             return QVariant::fromValue(qRgba(0, 0, 0, 0));
         else if (propList.size() == 2)
             return QVariant::fromValue(QColor(propList[1].toString()).rgba());
         else if (propList.size() == 4)
-            return QVariant::fromValue(qRgb(propList[1].toDouble(),
-                                            propList[2].toDouble(),
-                                            propList[3].toDouble()));
+            return QVariant::fromValue(qRgb(int(propList[1].toDouble()),
+                                            int(propList[2].toDouble()),
+                                            int(propList[3].toDouble())));
         else if (propList.size() > 4)
-            return QVariant::fromValue(qRgba(propList[1].toDouble(),
-                                             propList[2].toDouble(),
-                                             propList[3].toDouble(),
-                                             propList[4].toDouble()));
+            return QVariant::fromValue(qRgba(int(propList[1].toDouble()),
+                                             int(propList[2].toDouble()),
+                                             int(propList[3].toDouble()),
+                                             int(propList[4].toDouble())));
 
         return QVariant::fromValue(qRgba(0, 0, 0, 0));
-    }
-    else if (type == "color") {
+    } else if (type == "color") {
         if (propList.size() < 2)
             return QVariant::fromValue(QColor());
         else if (propList.size() == 2)
             return QVariant::fromValue(QColor(propList[1].toString()));
         else if (propList.size() == 4)
-            return QVariant::fromValue(QColor(propList[1].toDouble(),
-                                              propList[2].toDouble(),
-                                              propList[3].toDouble()));
+            return QVariant::fromValue(QColor(int(propList[1].toDouble()),
+                                              int(propList[2].toDouble()),
+                                              int(propList[3].toDouble())));
         else if (propList.size() > 4)
-            return QVariant::fromValue(QColor(propList[1].toDouble(),
-                                              propList[2].toDouble(),
-                                              propList[3].toDouble(),
-                                              propList[4].toDouble()));
+            return QVariant::fromValue(QColor(int(propList[1].toDouble()),
+                                              int(propList[2].toDouble()),
+                                              int(propList[3].toDouble()),
+                                              int(propList[4].toDouble())));
 
         return QVariant::fromValue(QColor());
-    }
-    else if (type == "bits") {
+    } else if (type == "bits") {
         if (propList.size() < 2)
             return QVariant::fromValue(QBitArray());
 
@@ -620,8 +595,7 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
 
         bitsString.replace(QRegExp("\\s+"), "");
 
-        if (bitsString.length() > 0)
-        {
+        if (bitsString.length() > 0) {
             bits.resize(bitsString.length());
 
             for (int i = 0; i < bitsString.length(); i++)
@@ -629,8 +603,7 @@ QVariant Pipeline::solveProperty(const QVariant &property) const
         }
 
         return QVariant::fromValue(bits);
-    }
-    else if (type == "bytes")
+    } else if (type == "bytes")
         return QVariant::fromValue(propList[1].toByteArray());
     else if (type == "url")
         return QVariant::fromValue(propList[1].toUrl());
@@ -684,8 +657,7 @@ bool Pipeline::linkAll()
 
                 int value = enumerator.keyToValue(connectionTypeString.toStdString().c_str());
 
-                if (value < 0)
-                {
+                if (value < 0) {
                     this->m_error = QString("Invalid connection type: '%1'").arg(connectionTypeString);
 
                     return false;

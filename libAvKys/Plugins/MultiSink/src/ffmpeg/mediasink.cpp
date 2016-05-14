@@ -501,7 +501,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
                                                 QString(av_get_sample_fmt_name(codecContext->sample_fmt)):
                                                 supportedSampleFormats.value(0, "s16");
         codecParams["defaultBitRate"] = codecContext->bit_rate?
-                                            (qint64) codecContext->bit_rate: 128000;
+                                            qint64(codecContext->bit_rate): 128000;
         codecParams["defaultSampleRate"] = codecContext->sample_rate?
                                                codecContext->sample_rate:
                                                supportedSampleRates.value(0, 44100);
@@ -559,7 +559,7 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
         codecParams["defaultGOP"] = codecContext->gop_size > 0?
                                         codecContext->gop_size: 12;
         codecParams["defaultBitRate"] = codecContext->bit_rate?
-                                            (qint64) codecContext->bit_rate: 200000;
+                                            qint64(codecContext->bit_rate): 200000;
         codecParams["defaultPixelFormat"] = codecContext->pix_fmt != AV_PIX_FMT_NONE?
                                             QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
                                             supportedPixelFormats.value(0, "yuv420p");
@@ -708,7 +708,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
                 if (diff < maxDiff) {
                     frameRate = rate.value<AkFrac>();
 
-                    if (!diff)
+                    if (qIsNull(diff))
                         break;
 
                     maxDiff = diff;
@@ -737,8 +737,8 @@ QVariantMap MediaSink::addStream(int streamIndex,
             videoCaps.setProperty("bitrate", QVariant());
             break;
         case AV_CODEC_ID_ROQ:
-            videoCaps.width() = qPow(2, qRound(qLn(videoCaps.width()) / qLn(2)));
-            videoCaps.height() = qPow(2, qRound(qLn(videoCaps.height()) / qLn(2)));
+            videoCaps.width() = int(qPow(2, qRound(qLn(videoCaps.width()) / qLn(2))));
+            videoCaps.height() = int(qPow(2, qRound(qLn(videoCaps.height()) / qLn(2))));
             videoCaps.fps() = AkFrac(qRound(videoCaps.fps().value()), 1);
             break;
         case AV_CODEC_ID_RV10:
@@ -887,7 +887,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                     if (diff < maxDiff) {
                         frameRate = rate.value<AkFrac>();
 
-                        if (!diff)
+                        if (qIsNull(diff))
                             break;
 
                         maxDiff = diff;
@@ -916,8 +916,8 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 videoCaps.setProperty("bitrate", QVariant());
                 break;
             case AV_CODEC_ID_ROQ:
-                videoCaps.width() = qPow(2, qRound(qLn(videoCaps.width()) / qLn(2)));
-                videoCaps.height() = qPow(2, qRound(qLn(videoCaps.height()) / qLn(2)));
+                videoCaps.width() = int(qPow(2, qRound(qLn(videoCaps.width()) / qLn(2))));
+                videoCaps.height() = int(qPow(2, qRound(qLn(videoCaps.height()) / qLn(2))));
                 videoCaps.fps() = AkFrac(qRound(videoCaps.fps().value()), 1);
                 break;
             case AV_CODEC_ID_RV10:
@@ -986,7 +986,7 @@ void MediaSink::flushStreams()
             if (stream->codec->frame_size <= 1)
                 continue;
 
-            qint64 pts = this->m_streamParams[i].audioPts();
+            qint64 pts = this->m_streamParams[int(i)].audioPts();
             int ptsDiff = stream->codec->codec->capabilities
                           & AV_CODEC_CAP_VARIABLE_FRAME_SIZE?
                               1:
@@ -1012,7 +1012,7 @@ void MediaSink::flushStreams()
                 pkt.pts = pkt.dts = pts;
                 pts += ptsDiff;
                 av_packet_rescale_ts(&pkt, stream->codec->time_base, stream->time_base);
-                pkt.stream_index = i;
+                pkt.stream_index = int(i);
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
                 av_packet_unref(&pkt);
             }
@@ -1038,9 +1038,9 @@ void MediaSink::flushStreams()
                 if (!gotPacket)
                     break;
 
-                pkt.pts = pkt.dts = this->m_streamParams[i].nextPts(0, 0);
+                pkt.pts = pkt.dts = this->m_streamParams[int(i)].nextPts(0, 0);
                 av_packet_rescale_ts(&pkt, stream->codec->time_base, stream->time_base);
-                pkt.stream_index = i;
+                pkt.stream_index = int(i);
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
                 av_packet_unref(&pkt);
             }
@@ -1062,7 +1062,7 @@ AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
         if (k < q) {
             nearestCaps = sCaps;
             q = k;
-        } else if (k == q && sCaps.format() == caps.format())
+        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format())
             nearestCaps = sCaps;
     }
 
@@ -1086,7 +1086,7 @@ AkVideoCaps MediaSink::nearestDNxHDCaps(const AkVideoCaps &caps) const
             nearestCaps = sCaps;
             nearestCaps.fps() = fps;
             q = k;
-        } else if (k == q && sCaps.format() == caps.format())
+        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format())
             nearestCaps = sCaps;
     }
 
@@ -1468,8 +1468,8 @@ bool MediaSink::init()
 
             AkFrac timeBase(configs["timeBase"].value<AkFrac>());
 
-            stream->time_base.num = timeBase.num();
-            stream->time_base.den = timeBase.den();
+            stream->time_base.num = int(timeBase.num());
+            stream->time_base.den = int(timeBase.den());
         } else if (streamCaps.mimeType() == "video/x-raw") {
             AkVideoCaps videoCaps(streamCaps);
 
@@ -1490,8 +1490,8 @@ bool MediaSink::init()
                 videoCaps.setProperty("bitrate", QVariant());
                 break;
             case AV_CODEC_ID_ROQ:
-                videoCaps.width() = qPow(2, qRound(qLn(videoCaps.width()) / qLn(2)));
-                videoCaps.height() = qPow(2, qRound(qLn(videoCaps.height()) / qLn(2)));
+                videoCaps.width() = int(qPow(2, qRound(qLn(videoCaps.width()) / qLn(2))));
+                videoCaps.height() = int(qPow(2, qRound(qLn(videoCaps.height()) / qLn(2))));
                 videoCaps.fps() = AkFrac(qRound(videoCaps.fps().value()), 1);
                 break;
             case AV_CODEC_ID_RV10:
@@ -1518,8 +1518,8 @@ bool MediaSink::init()
             stream->codec->height = videoCaps.height();
 
             AkFrac timeBase(configs["timeBase"].value<AkFrac>());
-            stream->time_base.num = timeBase.num();
-            stream->time_base.den = timeBase.den();
+            stream->time_base.num = int(timeBase.num());
+            stream->time_base.den = int(timeBase.den());
             stream->codec->time_base = stream->time_base;
 
             stream->codec->gop_size = configs["gop"].toInt();

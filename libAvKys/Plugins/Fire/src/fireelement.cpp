@@ -78,7 +78,7 @@ QObject *FireElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Fire", (QObject *) this);
+    context->setContextProperty("Fire", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -158,9 +158,9 @@ QImage FireElement::imageDiff(const QImage &img1,
     QImage diff(width, height, QImage::Format_ARGB32);
 
     for (int y = 0; y < height; y++) {
-        const QRgb *iLine1 = (const QRgb *) img1.constScanLine(y);
-        const QRgb *iLine2 = (const QRgb *) img2.constScanLine(y);
-        QRgb *oLine = (QRgb *) diff.scanLine(y);
+        const QRgb *iLine1 = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        const QRgb *iLine2 = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(diff.scanLine(y));
 
         for (int x = 0; x < width; x++) {
             int r1 = qRed(iLine1[x]);
@@ -176,7 +176,7 @@ QImage FireElement::imageDiff(const QImage &img1,
             int db = b1 - b2;
 
             int alpha = dr * dr + dg * dg + db * db;
-            alpha = sqrt(alpha / 3);
+            alpha = int(sqrt(alpha / 3));
 
             if (mode == FireModeSoft)
                 alpha = alpha < threshold? 0: alpha;
@@ -200,7 +200,7 @@ QImage FireElement::imageDiff(const QImage &img1,
 QImage FireElement::zoomImage(const QImage &src, qreal factor)
 {
     QImage scaled = src.scaled(src.width(),
-                               (1 + factor) * src.height());
+                               int((1 + factor) * src.height()));
 
     QPoint p(0, src.height() - scaled.height());
 
@@ -218,7 +218,7 @@ QImage FireElement::zoomImage(const QImage &src, qreal factor)
 void FireElement::coolImage(const QImage &src, int colorDiff)
 {
     int videoArea = src.width() * src.height();
-    QRgb *srcBits = (QRgb *) src.bits();
+    QRgb *srcBits = const_cast<QRgb *>(reinterpret_cast<const QRgb *>(src.bits()));
 
     for (int i = 0; i < videoArea; i++) {
         int b = qBound(0, qBlue(srcBits[i]) + colorDiff, 255);
@@ -229,7 +229,7 @@ void FireElement::coolImage(const QImage &src, int colorDiff)
 void FireElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 {
     int videoArea = src.width() * src.height();
-    QRgb *srcBits = (QRgb *) src.bits();
+    QRgb *srcBits = const_cast<QRgb *>(reinterpret_cast<const QRgb *>(src.bits()));
 
     for (int i = 0; i < videoArea; i++) {
         QRgb pixel = srcBits[i];
@@ -242,8 +242,8 @@ void FireElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 void FireElement::disolveImage(const QImage &src, qreal amount)
 {
     int videoArea = src.width() * src.height();
-    int n = amount * videoArea;
-    QRgb *srcBits = (QRgb *) src.bits();
+    int n = int(amount * videoArea);
+    QRgb *srcBits = const_cast<QRgb *>(reinterpret_cast<const QRgb *>(src.bits()));
 
     for (int i = 0; i < n; i++) {
         int index = qrand() % videoArea;
@@ -259,8 +259,8 @@ QImage FireElement::burn(const QImage &src, const QVector<QRgb> &palette)
 {
     int videoArea = src.width() * src.height();
     QImage dest(src.size(), src.format());
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) dest.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
 
     for (int i = 0; i < videoArea; i++) {
         int index = qBlue(srcBits[i]);
@@ -313,7 +313,7 @@ void FireElement::setCool(int cool)
 
 void FireElement::setDisolve(qreal disolve)
 {
-    if (this->m_disolve == disolve)
+    if (qFuzzyCompare(this->m_disolve, disolve))
         return;
 
     this->m_disolve = disolve;
@@ -327,7 +327,7 @@ void FireElement::setBlur(int blur)
 
 void FireElement::setZoom(qreal zoom)
 {
-    if (this->m_zoom == zoom)
+    if (qFuzzyCompare(this->m_zoom, zoom))
         return;
 
     this->m_zoom = zoom;

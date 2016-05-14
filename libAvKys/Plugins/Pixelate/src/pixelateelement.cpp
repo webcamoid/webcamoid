@@ -45,7 +45,7 @@ QObject *PixelateElement::controlInterface(QQmlEngine *engine, const QString &co
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Pixelate", (QObject *) this);
+    context->setContextProperty("Pixelate", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -98,8 +98,8 @@ AkPacket PixelateElement::iStream(const AkPacket &packet)
     qreal sw = 1.0 / blockSize.width();
     qreal sh = 1.0 / blockSize.height();
 
-    oFrame = oFrame.scaled(sw * oFrame.width(),
-                           sh * oFrame.height(),
+    oFrame = oFrame.scaled(int(sw * oFrame.width()),
+                           int(sh * oFrame.height()),
                            Qt::IgnoreAspectRatio,
                            Qt::FastTransformation)
                    .scaled(oFrame.width(),

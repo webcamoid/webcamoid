@@ -50,7 +50,7 @@ QObject *ColorReplaceElement::controlInterface(QQmlEngine *engine, const QString
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ColorReplace", (QObject *) this);
+    context->setContextProperty("ColorReplace", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -107,7 +107,7 @@ void ColorReplaceElement::setTo(QRgb to)
 
 void ColorReplaceElement::setRadius(qreal radius)
 {
-    if (this->m_radius == radius)
+    if (qFuzzyCompare(this->m_radius, radius))
         return;
 
     this->m_radius = radius;
@@ -158,8 +158,8 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     for (int i = 0; i < videoArea; i++) {
         int r = qRed(srcBits[i]);
@@ -183,9 +183,9 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
             int gt = qGreen(this->m_to);
             int bt = qBlue(this->m_to);
 
-            r = p * (r - rt) + rt;
-            g = p * (g - gt) + gt;
-            b = p * (b - bt) + bt;
+            r = int(p * (r - rt) + rt);
+            g = int(p * (g - gt) + gt);
+            b = int(p * (b - bt) + bt);
 
             destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
         }

@@ -49,7 +49,7 @@ QObject *ChangeHSLElement::controlInterface(QQmlEngine *engine, const QString &c
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ChangeHSL", (QObject *) this);
+    context->setContextProperty("ChangeHSL", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -115,8 +115,8 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
     int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     QVector<qreal> kernel = this->m_kernel;
 
@@ -128,9 +128,9 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
 
         QColor(srcBits[i]).getHsl(&h, &s, &l, &a);
 
-        int ht = h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3];
-        int st = h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7];
-        int lt = h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11];
+        int ht = int(h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3]);
+        int st = int(h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7]);
+        int lt = int(h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11]);
 
         ht = qMax(0, ht);
         st = qBound(0, st, 255);

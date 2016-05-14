@@ -43,7 +43,7 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
-typedef QMap<int64_t, AkAudioCaps::ChannelLayout> ChannelLayoutsMap;
+typedef QMap<uint64_t, AkAudioCaps::ChannelLayout> ChannelLayoutsMap;
 
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
@@ -104,7 +104,7 @@ void AudioStream::processPacket(AVPacket *packet)
         return;
 
     if (!packet) {
-        this->dataEnqueue((AVFrame *) NULL);
+        this->dataEnqueue(reinterpret_cast<AVFrame *>(NULL));
 
         return;
     }
@@ -186,7 +186,7 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
 
     this->m_clockDiff = diff;
 
-    int64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
+    uint64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
                           iFrame->channel_layout:
                           AV_CH_LAYOUT_STEREO;
     int oChannels = av_get_channel_layout_nb_channels(oLayout);
@@ -197,10 +197,10 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
 
     this->m_resampleContext =
             swr_alloc_set_opts(this->m_resampleContext,
-                               oLayout,
+                               int64_t(oLayout),
                                oFormat,
                                oSampleRate,
-                               iFrame->channel_layout,
+                               int64_t(iFrame->channel_layout),
                                iFormat,
                                iFrame->sample_rate,
                                0,
@@ -230,7 +230,7 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
     if (avcodec_fill_audio_frame(&oFrame,
                                  oFrame.channels,
                                  oFormat,
-                                 (const uint8_t *) oBuffer.constData(),
+                                 reinterpret_cast<const uint8_t *>(oBuffer.constData()),
                                  oBuffer.size(),
                                  1) < 0) {
         return AkPacket();
@@ -261,7 +261,7 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
     packet.buffer() = oBuffer;
     packet.pts() = iFrame->pts;
     packet.timeBase() = this->timeBase();
-    packet.index() = this->index();
+    packet.index() = int(this->index());
     packet.id() = this->id();
 
     return packet.toPacket();

@@ -48,7 +48,7 @@ QObject *CinemaElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Cinema", (QObject *) this);
+    context->setContextProperty("Cinema", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -77,7 +77,7 @@ QRgb CinemaElement::stripColor() const
 
 void CinemaElement::setStripSize(qreal stripSize)
 {
-    if (this->m_stripSize == stripSize)
+    if (qFuzzyCompare(this->m_stripSize, stripSize))
         return;
 
     this->m_stripSize = stripSize;
@@ -116,18 +116,18 @@ AkPacket CinemaElement::iStream(const AkPacket &packet)
 
     for (int y = 0; y < src.height(); y++) {
         qreal k = 1.0 - qAbs(y - cy) / qreal(cy);
-        QRgb *iLine = (QRgb *) src.scanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-        if (k >= this->m_stripSize)
-            memcpy(oLine, iLine, src.bytesPerLine());
+        if (k > this->m_stripSize)
+            memcpy(oLine, iLine, size_t(src.bytesPerLine()));
         else
             for (int x = 0; x < src.width(); x++) {
                 qreal a = qAlpha(this->m_stripColor) / 255.0;
 
-                int r = a * (qRed(this->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]);
-                int g = a * (qGreen(this->m_stripColor) - qGreen(iLine[x])) + qGreen(iLine[x]);
-                int b = a * (qBlue(this->m_stripColor) - qBlue(iLine[x])) + qBlue(iLine[x]);
+                int r = int(a * (qRed(this->m_stripColor) - qRed(iLine[x])) + qRed(iLine[x]));
+                int g = int(a * (qGreen(this->m_stripColor) - qGreen(iLine[x])) + qGreen(iLine[x]));
+                int b = int(a * (qBlue(this->m_stripColor) - qBlue(iLine[x])) + qBlue(iLine[x]));
 
                 oLine[x] = qRgba(r, g, b, qAlpha(iLine[x]));
             }

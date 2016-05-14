@@ -81,7 +81,7 @@ QObject *DelayGrabElement::controlInterface(QQmlEngine *engine, const QString &c
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("DelayGrab", (QObject *) this);
+    context->setContextProperty("DelayGrab", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -169,7 +169,7 @@ AkPacket DelayGrabElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     if (src.size() != this->m_frameSize) {
         this->updateDelaymap();
@@ -206,7 +206,7 @@ AkPacket DelayGrabElement::iStream(const AkPacket &packet)
             int xyoff = blockSize * (x + y * curFrameWidth);
 
             // source
-            QRgb *source = (QRgb *) this->m_frames[curFrame].bits();
+            const QRgb *source = reinterpret_cast<const QRgb *>(this->m_frames[curFrame].constBits());
             source += xyoff;
 
             // target
@@ -215,7 +215,7 @@ AkPacket DelayGrabElement::iStream(const AkPacket &packet)
 
             // copy block
             for (int j = 0; j < blockSize; j++) {
-                memcpy(dest, source, 4 * blockSize);
+                memcpy(dest, source, size_t(4 * blockSize));
                 source += curFrameWidth;
                 dest += curFrameWidth;
             }
@@ -247,7 +247,7 @@ void DelayGrabElement::updateDelaymap()
 
     for (int y = minY, i = 0; y < maxY; y++) {
         for (int x = minX; x < maxX; x++, i++) {
-            int value;
+            qreal value;
 
             if (this->m_mode == DelayGrabModeRandomSquare) {
                 // Random delay with square distribution
@@ -263,7 +263,7 @@ void DelayGrabElement::updateDelaymap()
             }
 
             // Clip values
-            this->m_delayMap[i] = value % nFrames;
+            this->m_delayMap[i] = int(value) % nFrames;
         }
     }
 }

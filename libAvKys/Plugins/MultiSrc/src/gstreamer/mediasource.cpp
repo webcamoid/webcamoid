@@ -352,16 +352,16 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QByteArray oBuffer(map.size, Qt::Uninitialized);
+    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
-    packet.caps().samples() = map.size / audioInfo->bpf;
+    packet.caps().samples() = gint(map.size) / audioInfo->bpf;
     gst_audio_info_free(audioInfo);
 
     packet.buffer() = oBuffer;
-    packet.pts() = GST_BUFFER_PTS(buf);
+    packet.pts() = qint64(GST_BUFFER_PTS(buf));
     packet.timeBase() = AkFrac(1, GST_SECOND);
-    packet.index() = self->m_audioIndex;
+    packet.index() = int(self->m_audioIndex);
     packet.id() = self->m_audioId;
 
     gst_buffer_unmap(buf, &map);
@@ -404,13 +404,13 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QByteArray oBuffer(map.size, Qt::Uninitialized);
+    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.buffer() = oBuffer;
-    packet.pts() = GST_BUFFER_PTS(buf);
+    packet.pts() = qint64(GST_BUFFER_PTS(buf));
     packet.timeBase() = AkFrac(1, GST_SECOND);
-    packet.index() = self->m_videoIndex;
+    packet.index() = int(self->m_videoIndex);
     packet.id() = self->m_videoId;
 
     gst_buffer_unmap(buf, &map);
@@ -448,13 +448,13 @@ GstFlowReturn MediaSource::subtitlesBufferCallback(GstElement *subtitlesOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QByteArray oBuffer(map.size, Qt::Uninitialized);
+    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.buffer() = oBuffer;
-    packet.pts() = GST_BUFFER_PTS(buf);
+    packet.pts() = qint64(GST_BUFFER_PTS(buf));
     packet.timeBase() = AkFrac(1, GST_SECOND);
-    packet.index() = self->m_subtitlesIndex;
+    packet.index() = int(self->m_subtitlesIndex);
     packet.id() = self->m_subtitlesId;
 
     gst_buffer_unmap(buf, &map);
@@ -884,7 +884,7 @@ bool MediaSource::setState(AkElement::ElementState state)
 
             return true;
         }
-        default:
+        case AkElement::ElementStatePaused:
             break;
         }
 
@@ -921,14 +921,12 @@ bool MediaSource::setState(AkElement::ElementState state)
 
             return true;
         }
-        default:
+        case AkElement::ElementStatePlaying:
             break;
         }
 
         break;
     }
-    default:
-        break;
     }
 
     return false;

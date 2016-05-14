@@ -49,7 +49,7 @@ QObject *SwirlElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Swirl", (QObject *) this);
+    context->setContextProperty("Swirl", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -73,7 +73,7 @@ qreal SwirlElement::degrees() const
 
 void SwirlElement::setDegrees(qreal degrees)
 {
-    if (this->m_degrees == degrees)
+    if (qFuzzyCompare(this->m_degrees, degrees))
         return;
 
     this->m_degrees = degrees;
@@ -102,15 +102,15 @@ AkPacket SwirlElement::iStream(const AkPacket &packet)
     qreal radius = qMax(xCenter, yCenter);
 
     if (src.width() > src.height())
-        yScale = (qreal) src.width() / src.height();
+        yScale = qreal(src.width() / src.height());
     else if (src.width() < src.height())
-        xScale = (qreal) src.height() / src.width();
+        xScale = qreal(src.height() / src.width());
 
     qreal degrees = M_PI * this->m_degrees / 180.0;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         qreal yDistance = yScale * (y - yCenter);
 
         for (int x = 0; x < src.width(); x++) {
@@ -124,13 +124,13 @@ AkPacket SwirlElement::iStream(const AkPacket &packet)
                 qreal sine = sin(degrees * factor * factor);
                 qreal cosine = cos(degrees * factor * factor);
 
-                int xp = (cosine * xDistance - sine * yDistance) / xScale + xCenter;
-                int yp = (sine * xDistance + cosine * yDistance) / yScale + yCenter;
+                int xp = int((cosine * xDistance - sine * yDistance) / xScale + xCenter);
+                int yp = int((sine * xDistance + cosine * yDistance) / yScale + yCenter);
 
                 if (!oFrame.rect().contains(xp, yp))
                     continue;
 
-                const QRgb *line = (const QRgb *) src.constScanLine(yp);
+                const QRgb *line = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
                 oLine[x] = line[xp];
             }
         }

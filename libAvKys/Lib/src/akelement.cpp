@@ -526,9 +526,11 @@ bool AkElement::setState(AkElement::ElementState state)
             emit this->stateChange(ElementStatePaused, state);
 
             break;
-        default:
+        case ElementStateNull:
             break;
         }
+
+        break;
     }
     case ElementStatePaused: {
         switch (state) {
@@ -538,9 +540,11 @@ bool AkElement::setState(AkElement::ElementState state)
             emit this->stateChange(preState, state);
 
             break;
-        default:
+        case ElementStatePaused:
             break;
         }
+
+        break;
     }
     case ElementStatePlaying: {
         switch (state) {
@@ -557,12 +561,12 @@ bool AkElement::setState(AkElement::ElementState state)
             emit this->stateChange(preState, state);
 
             break;
-        default:
+        case ElementStatePlaying:
             break;
         }
-    }
-    default:
+
         break;
+    }
     }
 
     return true;

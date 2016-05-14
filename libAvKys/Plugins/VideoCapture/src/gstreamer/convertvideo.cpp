@@ -113,7 +113,7 @@ void ConvertVideo::packetEnqueue(const AkPacket &packet)
 {
     // Write audio frame to the pipeline.
     GstBuffer *buffer = gst_buffer_new_allocate(NULL,
-                                                packet.buffer().size(),
+                                                gsize(packet.buffer().size()),
                                                 NULL);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
@@ -125,7 +125,7 @@ void ConvertVideo::packetEnqueue(const AkPacket &packet)
 
     qint64 pts = packet.pts() - this->m_ptsDiff;
 
-    GST_BUFFER_PTS(buffer) = pts * packet.timeBase().value() * GST_SECOND;
+    GST_BUFFER_PTS(buffer) = GstClockTime(pts * packet.timeBase().value() * GST_SECOND);
     GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
@@ -486,11 +486,11 @@ GstFlowReturn ConvertVideo::videoBufferCallback(GstElement *videoOutput, gpointe
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_READ);
 
-    QByteArray oBuffer(info.size, Qt::Uninitialized);
+    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), info.data, info.size);
 
     oVideoPacket.buffer() = oBuffer;
-    oVideoPacket.pts() = GST_BUFFER_PTS(buffer);
+    oVideoPacket.pts() = qint64(GST_BUFFER_PTS(buffer));
     oVideoPacket.timeBase() = AkFrac(1, GST_SECOND);
     oVideoPacket.index() = 0;
     oVideoPacket.id() = self->m_id;

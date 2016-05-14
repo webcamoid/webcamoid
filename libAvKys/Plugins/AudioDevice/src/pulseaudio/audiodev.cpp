@@ -118,7 +118,7 @@ bool AudioDev::preferredFormat(DeviceMode mode,
     pa_context_set_state_callback(context, contextStateCallbackInit, this);
 
     // Connect to PulseAudio server.
-    if (pa_context_connect(context, 0, (pa_context_flags_t) 0, 0) < 0) {
+    if (pa_context_connect(context, 0, static_cast<pa_context_flags_t>(0), 0) < 0) {
         this->m_error = QString(pa_strerror(pa_context_errno(context)));
         emit this->errorChanged(this->m_error);
         pa_context_unref(context);
@@ -208,8 +208,8 @@ bool AudioDev::init(DeviceMode mode,
 
     pa_sample_spec ss;
     ss.format = sampleFormats->value(sampleFormat);
-    ss.channels = channels;
-    ss.rate = sampleRate;
+    ss.channels = uint8_t(channels);
+    ss.rate = uint32_t(sampleRate);
     this->m_curBps = AkAudioCaps::bitsPerSample(sampleFormat) / 8;
     this->m_curChannels = channels;
 
@@ -247,7 +247,7 @@ QByteArray AudioDev::read(int samples)
 
     if (pa_simple_read(this->m_paSimple,
                        buffer.data(),
-                       buffer.size(),
+                       size_t(buffer.size()),
                        &error) < 0) {
         this->m_error = QString(pa_strerror(error));
         emit this->errorChanged(this->m_error);
@@ -267,7 +267,7 @@ bool AudioDev::write(const QByteArray &frame)
 
     if (pa_simple_write(this->m_paSimple,
                         frame.data(),
-                        frame.size(),
+                        size_t(frame.size()),
                         &error) < 0) {
         this->m_error = QString(pa_strerror(error));
         emit this->errorChanged(this->m_error);
@@ -356,7 +356,7 @@ void AudioDev::sourceInfoCallback(pa_context *context,
     if (audioDevice->m_defaultSource == QString(info->name)) {
         audioDevice->m_defaultFormat = info->sample_spec.format;
         audioDevice->m_defaultChannels = info->sample_spec.channels;
-        audioDevice->m_defaultRate = info->sample_spec.rate;
+        audioDevice->m_defaultRate = int(info->sample_spec.rate);
     }
 }
 
@@ -386,6 +386,6 @@ void AudioDev::sinkInfoCallback(pa_context *context,
     if (audioDevice->m_defaultSink == QString(info->name)) {
         audioDevice->m_defaultFormat = info->sample_spec.format;
         audioDevice->m_defaultChannels = info->sample_spec.channels;
-        audioDevice->m_defaultRate = info->sample_spec.rate;
+        audioDevice->m_defaultRate = int(info->sample_spec.rate);
     }
 }

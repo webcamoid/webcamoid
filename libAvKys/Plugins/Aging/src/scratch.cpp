@@ -39,18 +39,18 @@ Scratch::Scratch(qreal minLife, qreal maxLife,
     this->m_life = this->m_life0 = qrand() * (maxLife - minLife) / RAND_MAX + minLife;
     this->m_dlife = qrand() * (maxDLife - minDLife) / RAND_MAX + minDLife;
 
-    if (!this->m_dlife)
+    if (!qIsNull(this->m_dlife))
         this->m_dlife = maxDLife - minDLife;
 
     this->m_x = qrand() * (maxX - minX) / RAND_MAX + minX;
     this->m_dx = qrand() * (maxDX - minDX) / RAND_MAX + minDX;
 
-    if (!this->m_dx)
+    if (!qIsNull(this->m_dx))
         this->m_dx = maxDX - minDX;
 
 //    this->m_dx *= (qrand() & 0x1? 1.0: -1.0);
 
-    this->m_y = qreal(qrand()) * (maxY - minY) / RAND_MAX + minY;
+    this->m_y = int(qrand() * (maxY - minY) / RAND_MAX) + minY;
 }
 
 Scratch::Scratch(const Scratch &other):

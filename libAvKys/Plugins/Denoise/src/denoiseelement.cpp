@@ -58,7 +58,7 @@ QObject *DenoiseElement::controlInterface(QQmlEngine *engine, const QString &con
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Denoise", (QObject *) this);
+    context->setContextProperty("Denoise", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -102,7 +102,7 @@ void DenoiseElement::integralImage(const QImage &image,
                                    PixelU64 *integral2)
 {
     for (int y = 1; y < oHeight; y++) {
-        const QRgb *line = (const QRgb *) image.constScanLine(y - 1);
+        const QRgb *line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
         PixelU8 *planesLine = planes
                               + (y - 1) * image.width();
 
@@ -140,7 +140,7 @@ void DenoiseElement::denoise(const DenoiseStaticParams &staticParams,
                                params->xp, params->yp, params->kw, params->kh);
     PixelU64 sum2 = integralSum(staticParams.integral2, staticParams.oWidth,
                                 params->xp, params->yp, params->kw, params->kh);
-    quint32 ks = params->kw * params->kh;
+    quint32 ks = quint32(params->kw * params->kh);
 
     PixelU32 mean = sum / ks;
     PixelU32 dev = sqrt(ks * sum2 - pow2(sum)) / ks;
@@ -216,7 +216,7 @@ void DenoiseElement::setMu(int mu)
 
 void DenoiseElement::setSigma(qreal sigma)
 {
-    if (this->m_sigma == sigma)
+    if (qFuzzyCompare(this->m_sigma, sigma))
         return;
 
     this->m_sigma = sigma;
@@ -288,8 +288,8 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
     QThreadPool threadPool;
 
     for (int y = 0, pos = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         int yp = qMax(y - radius, 0);
         int kh = qMin(y + radius, src.height() - 1) - yp + 1;
 

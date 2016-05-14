@@ -129,7 +129,7 @@ class Capture: public QObject
             return fourcc;
         }
 
-        inline int xioctl(int fd, int request, void *arg) const
+        inline int xioctl(int fd, ulong request, void *arg) const
         {
             int r = -1;
 
@@ -143,9 +143,9 @@ class Capture: public QObject
             return r;
         }
 
-        inline AkPacket processFrame(char *buffer, quint32 bufferSize, qint64 pts) const
+        inline AkPacket processFrame(char *buffer, size_t bufferSize, qint64 pts) const
         {
-            QByteArray oBuffer(bufferSize, Qt::Uninitialized);
+            QByteArray oBuffer(int(bufferSize), Qt::Uninitialized);
             memcpy(oBuffer.data(), buffer, bufferSize);
 
             AkPacket oPacket(this->m_caps, oBuffer);

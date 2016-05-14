@@ -48,7 +48,7 @@ QObject *DiceElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Dice", (QObject *) this);
+    context->setContextProperty("Dice", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -116,7 +116,7 @@ AkPacket DiceElement::iStream(const AkPacket &packet)
     painter.begin(&oFrame);
 
     for (int y = 0; y < this->m_diceMap.height(); y++) {
-        const quint8 *diceLine = (const quint8 *) this->m_diceMap.constScanLine(y);
+        const quint8 *diceLine = reinterpret_cast<const quint8 *>(this->m_diceMap.constScanLine(y));
 
         for (int x = 0; x < this->m_diceMap.width(); x++) {
             int xp = this->m_diceSize * x;
@@ -149,7 +149,7 @@ void DiceElement::updateDiceMap()
     QImage diceMap(width, height, QImage::Format_Grayscale8);
 
     for (int y = 0; y < diceMap.height(); y++) {
-        quint8 *oLine = (quint8 *) diceMap.scanLine(y);
+        quint8 *oLine = reinterpret_cast<quint8 *>(diceMap.scanLine(y));
 
         for (int x = 0; x < diceMap.width(); x++)
             oLine[x] = qrand() % 4;

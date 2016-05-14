@@ -63,7 +63,7 @@ QObject *VirtualCameraElement::controlInterface(QQmlEngine *engine, const QStrin
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("VirtualCamera", (QObject *) this);
+    context->setContextProperty("VirtualCamera", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", controlId);
 
     // Create an item with the plugin context.

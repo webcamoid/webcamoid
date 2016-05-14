@@ -71,7 +71,7 @@ QObject *WaveElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Wave", (QObject *) this);
+    context->setContextProperty("Wave", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -110,7 +110,7 @@ QRgb WaveElement::background() const
 
 void WaveElement::setAmplitude(qreal amplitude)
 {
-    if (amplitude == this->m_amplitude)
+    if (qFuzzyCompare(amplitude, this->m_amplitude))
         return;
 
     this->m_amplitude = amplitude;
@@ -119,7 +119,7 @@ void WaveElement::setAmplitude(qreal amplitude)
 
 void WaveElement::setFrequency(qreal frequency)
 {
-    if (frequency == this->m_frequency)
+    if (qFuzzyCompare(frequency, this->m_frequency))
         return;
 
     this->m_frequency = frequency;
@@ -128,7 +128,7 @@ void WaveElement::setFrequency(qreal frequency)
 
 void WaveElement::setPhase(qreal phase)
 {
-    if (this->m_phase == phase)
+    if (qFuzzyCompare(this->m_phase, phase))
         return;
 
     this->m_phase = phase;
@@ -198,13 +198,13 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
 
     for (int y = 0; y < oFrame.height(); y++) {
         // Get input line.
-        int yi = y / (1.0 - amplitude);
+        int yi = int(y / (1.0 - amplitude));
 
         if (yi < 0
             || yi >= src.height())
             continue;
 
-        QRgb *iLine = (QRgb *) src.scanLine(yi);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yi));
 
         for (int x = 0; x < oFrame.width(); x++) {
             // Get output line.
@@ -214,7 +214,7 @@ AkPacket WaveElement::iStream(const AkPacket &packet)
                 || yo >= src.height())
                 continue;
 
-            QRgb *oLine = (QRgb *) oFrame.scanLine(yo);
+            QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(yo));
             oLine[x] = iLine[x];
         }
     }
@@ -234,10 +234,10 @@ void WaveElement::updateSineMap()
     qreal phase = 2.0 * M_PI * this->m_phase;
 
     for (int x = 0; x < width; x++)
-        sineMap[x] = 0.5 * this->m_amplitude * height
-                     * (sin(this->m_frequency * 2.0 * M_PI * x / width
-                            + phase)
-                        + 1.0);
+        sineMap[x] = int(0.5 * this->m_amplitude * height
+                         * (sin(this->m_frequency * 2.0 * M_PI * x / width
+                                + phase)
+                            + 1.0));
 
     this->m_mutex.lock();
     this->m_sineMap = sineMap;

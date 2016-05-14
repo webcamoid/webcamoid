@@ -28,7 +28,7 @@ ScrollElement::ScrollElement(): AkElement()
     this->m_noise = 0.1;
     this->m_offset = 0.0;
 
-    qsrand(QTime::currentTime().msec());
+    qsrand(uint(QTime::currentTime().msec()));
 }
 
 QObject *ScrollElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -52,7 +52,7 @@ QObject *ScrollElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Scroll", (QObject *) this);
+    context->setContextProperty("Scroll", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -84,7 +84,7 @@ QImage ScrollElement::generateNoise(const QSize &size, qreal persent)
     QImage noise = QImage(size, QImage::Format_ARGB32);
     noise.fill(0);
 
-    int peper = persent * size.width() * size.height();
+    int peper = int(persent * size.width() * size.height());
 
     for (int i = 0; i < peper; i++) {
         int gray = qrand() % 256;
@@ -99,7 +99,7 @@ QImage ScrollElement::generateNoise(const QSize &size, qreal persent)
 
 void ScrollElement::setSpeed(qreal speed)
 {
-    if (speed == this->m_speed)
+    if (qFuzzyCompare(speed, this->m_speed))
         return;
 
     this->m_speed = speed;
@@ -108,7 +108,7 @@ void ScrollElement::setSpeed(qreal speed)
 
 void ScrollElement::setNoise(qreal noise)
 {
-    if (this->m_noise == noise)
+    if (qFuzzyCompare(this->m_noise, noise))
         return;
 
     this->m_noise = noise;
@@ -140,15 +140,15 @@ AkPacket ScrollElement::iStream(const AkPacket &packet)
         this->m_curSize = src.size();
     }
 
-    int offset = this->m_offset;
+    int offset = int(this->m_offset);
 
     memcpy(oFrame.scanLine(0),
            src.constScanLine(src.height() - offset - 1),
-           src.bytesPerLine() * offset);
+           size_t(src.bytesPerLine() * offset));
 
     memcpy(oFrame.scanLine(offset),
            src.constScanLine(0),
-           src.bytesPerLine() * (src.height() - offset));
+           size_t(src.bytesPerLine() * (src.height() - offset)));
 
     QPainter painter;
     painter.begin(&oFrame);

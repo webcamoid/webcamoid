@@ -320,7 +320,8 @@ QStringList MediaSink::fileExtensions(const QString &format)
         GstEncodingContainerProfile *prof = gst_encoding_container_profile_new(NULL, NULL, caps, NULL);
         gst_caps_unref(caps);
 
-        const gchar *extension = gst_encoding_profile_get_file_extension((GstEncodingProfile *) prof);
+        const gchar *extension =
+                gst_encoding_profile_get_file_extension(reinterpret_cast<GstEncodingProfile *>(prof));
 
         if (extension && !extensions.contains(extension))
             extensions << extension;
@@ -429,7 +430,8 @@ QStringList MediaSink::supportedCodecs(const QString &format,
                                                                       FALSE);
 
                     for (GList *encoderItem = encoders; encoderItem; encoderItem = g_list_next(encoderItem)) {
-                        GstElementFactory *encoder = (GstElementFactory *) encoderItem->data;
+                        GstElementFactory *encoder =
+                                reinterpret_cast<GstElementFactory *>(encoderItem->data);
 
                         const gchar *klass = gst_element_factory_get_metadata(encoder, GST_ELEMENT_METADATA_KLASS);
                         QString codecType = !strcmp(klass, "Codec/Encoder/Audio")?
@@ -594,7 +596,8 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             const GList *pads = gst_element_factory_get_static_pad_templates(factory);
 
             for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
-                GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
+                GstStaticPadTemplate *padtemplate =
+                        reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
 
                 if (padtemplate->direction == GST_PAD_SINK
                     && padtemplate->presence == GST_PAD_ALWAYS) {
@@ -771,7 +774,8 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             const GList *pads = gst_element_factory_get_static_pad_templates(factory);
 
             for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
-                GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
+                GstStaticPadTemplate *padtemplate =
+                        reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
 
                 if (padtemplate->direction == GST_PAD_SINK
                     && padtemplate->presence == GST_PAD_ALWAYS) {
@@ -1027,7 +1031,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
                 if (diff < maxDiff) {
                     frameRate = rate.value<AkFrac>();
 
-                    if (!diff)
+                    if (qIsNull(diff))
                         break;
 
                     maxDiff = diff;
@@ -1171,7 +1175,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                     if (diff < maxDiff) {
                         frameRate = rate.value<AkFrac>();
 
-                        if (!diff)
+                        if (qIsNull(diff))
                             break;
 
                         maxDiff = diff;
@@ -1253,7 +1257,8 @@ QStringList MediaSink::readCaps(const QString &element)
     QStringList elementCaps;
 
     for (const GList *padItem = pads; padItem; padItem = g_list_next(padItem)) {
-        GstStaticPadTemplate *padtemplate = (GstStaticPadTemplate *) padItem->data;
+        GstStaticPadTemplate *padtemplate =
+                reinterpret_cast<GstStaticPadTemplate *>(padItem->data);
 
         if (padtemplate->direction == GST_PAD_SRC
             && padtemplate->presence == GST_PAD_ALWAYS) {
@@ -1496,7 +1501,7 @@ AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
         if (k < q) {
             nearestCaps = sCaps;
             q = k;
-        } else if (k == q && sCaps.format() == caps.format())
+        } else if (qFuzzyCompare(k, q) && sCaps.format() == caps.format())
             nearestCaps = sCaps;
     }
 
@@ -1918,7 +1923,7 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
-    int size = packet.buffer().size();
+    size_t size = size_t(packet.buffer().size());
 
     GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
     GstMapInfo info;
@@ -1926,7 +1931,7 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
     memcpy(info.data, packet.buffer().constData(), size);
     gst_buffer_unmap(buffer, &info);
 
-    qint64 pts = packet.pts() * packet.timeBase().value() * GST_SECOND;
+    qint64 pts = qint64(packet.pts() * packet.timeBase().value() * GST_SECOND);
 
 #if 0
     GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());
@@ -1939,7 +1944,7 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
 #endif
 
-    this->m_streamParams[streamIndex].nFrame() += packet.caps().samples();
+    this->m_streamParams[streamIndex].nFrame() += quint64(packet.caps().samples());
 
     if (gst_app_src_push_buffer(GST_APP_SRC(source), buffer) != GST_FLOW_OK)
         qWarning() << "Error pushing buffer to GStreamer pipeline";
@@ -1977,8 +1982,8 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
                                              "width", G_TYPE_INT, videoPacket.caps().width(),
                                              "height", G_TYPE_INT, videoPacket.caps().height(),
                                              "framerate", GST_TYPE_FRACTION,
-                                                          (int) videoPacket.caps().fps().num(),
-                                                          (int) videoPacket.caps().fps().den(),
+                                                          int(videoPacket.caps().fps().num()),
+                                                          int(videoPacket.caps().fps().den()),
                                              NULL);
     inputCaps = gst_caps_fixate(inputCaps);
 
@@ -1988,7 +1993,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     gst_caps_unref(inputCaps);
     gst_caps_unref(sourceCaps);
 
-    int size = videoPacket.buffer().size();
+    size_t size = size_t(videoPacket.buffer().size());
 
     GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
     GstMapInfo info;
@@ -1996,7 +2001,7 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     memcpy(info.data, videoPacket.buffer().constData(), size);
     gst_buffer_unmap(buffer, &info);
 
-    qint64 pts = videoPacket.pts() * videoPacket.timeBase().value() * GST_SECOND;
+    qint64 pts = qint64(videoPacket.pts() * videoPacket.timeBase().value() * GST_SECOND);
 
 #if 0
     GST_BUFFER_PTS(buffer) = GST_BUFFER_DTS(buffer) = this->m_streamParams[streamIndex].nextPts(pts, packet.id());

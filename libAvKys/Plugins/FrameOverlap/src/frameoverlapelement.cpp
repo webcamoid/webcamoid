@@ -46,7 +46,7 @@ QObject *FrameOverlapElement::controlInterface(QQmlEngine *engine, const QString
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("FrameOverlap", (QObject *) this);
+    context->setContextProperty("FrameOverlap", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -112,7 +112,7 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
     int videoArea = src.width() * src.height();
 
     QImage oFrame(src.size(), src.format());
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     if (src.size() != this->m_frameSize) {
         this->m_frames.clear();
@@ -129,7 +129,7 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
     int stride = this->m_stride > 0? this->m_stride: 1;
 
     for (int frame = 0; frame < this->m_frames.size(); frame++)
-        framesBits << (QRgb *) this->m_frames[frame].bits();
+        framesBits << reinterpret_cast<QRgb *>(this->m_frames[frame].bits());
 
     for (int i = 0; i < videoArea; i++) {
         int r = 0;

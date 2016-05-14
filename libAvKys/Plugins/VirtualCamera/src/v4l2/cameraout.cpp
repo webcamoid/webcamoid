@@ -158,7 +158,7 @@ QString CameraOut::description(const QString &webcam) const
         this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
 
         if (capability.capabilities & V4L2_CAP_VIDEO_OUTPUT)
-            return QString((const char *) capability.card);
+            return QString(reinterpret_cast<const char *>(capability.card));
 
         device.close();
     }
@@ -170,7 +170,7 @@ void CameraOut::writeFrame(const AkPacket &frame)
 {
     if (write(this->m_fd,
               frame.buffer().constData(),
-              frame.buffer().size()) < 0)
+              size_t(frame.buffer().size())) < 0)
         qDebug() << "Error writing frame";
 }
 
@@ -457,10 +457,10 @@ bool CameraOut::init(int streamIndex, const AkCaps &caps)
     }
 
     AkVideoCaps videoCaps(caps);
-    fmt.fmt.pix.width = videoCaps.width();
-    fmt.fmt.pix.height = videoCaps.height();
+    fmt.fmt.pix.width = __u32(videoCaps.width());
+    fmt.fmt.pix.height = __u32(videoCaps.height());
     fmt.fmt.pix.pixelformat = ffToV4L2->value(videoCaps.format());
-    fmt.fmt.pix.sizeimage = videoCaps.pictureSize();
+    fmt.fmt.pix.sizeimage = __u32(videoCaps.pictureSize());
 
     if (this->xioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
         emit this->error("Can't set format");

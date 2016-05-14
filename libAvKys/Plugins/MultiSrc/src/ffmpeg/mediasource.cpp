@@ -99,7 +99,7 @@ QList<int> MediaSource::listTracks(const QString &mimeType)
 
         if (mimeType.isEmpty()
             || mediaTypeToStr->value(type) == mimeType)
-            tracks << stream;
+            tracks << int(stream);
     }
 
     if (clearContext)
@@ -161,7 +161,7 @@ int MediaSource::defaultStream(const QString &mimeType)
         AVMediaType type = this->m_inputContext->streams[i]->codec->codec_type;
 
         if (mediaTypeToStr->value(type) == mimeType) {
-            stream = i;
+            stream = int(i);
 
             break;
         }
@@ -239,28 +239,28 @@ void MediaSource::deleteFormatContext(AVFormatContext *context)
 
 AbstractStreamPtr MediaSource::createStream(int index, bool noModify)
 {
-    AVMediaType type = AbstractStream::type(this->m_inputContext.data(), index);
+    AVMediaType type = AbstractStream::type(this->m_inputContext.data(), uint(index));
     AbstractStreamPtr stream;
     qint64 id = Ak::id();
 
     if (type == AVMEDIA_TYPE_VIDEO)
         stream = AbstractStreamPtr(new VideoStream(this->m_inputContext.data(),
-                                                   index, id,
+                                                   uint(index), id,
                                                    &this->m_globalClock,
                                                    noModify));
     else if (type == AVMEDIA_TYPE_AUDIO)
         stream = AbstractStreamPtr(new AudioStream(this->m_inputContext.data(),
-                                                   index, id,
+                                                   uint(index), id,
                                                    &this->m_globalClock,
                                                    noModify));
     else if (type == AVMEDIA_TYPE_SUBTITLE)
         stream = AbstractStreamPtr(new SubtitleStream(this->m_inputContext.data(),
-                                                      index, id,
+                                                      uint(index), id,
                                                       &this->m_globalClock,
                                                       noModify));
     else
         stream = AbstractStreamPtr(new AbstractStream(this->m_inputContext.data(),
-                                                      index, id,
+                                                      uint(index), id,
                                                       &this->m_globalClock,
                                                       noModify));
 
@@ -515,7 +515,7 @@ bool MediaSource::setState(AkElement::ElementState state)
 
             return true;
         }
-        default:
+        case AkElement::ElementStatePaused:
             break;
         }
 
@@ -551,14 +551,12 @@ bool MediaSource::setState(AkElement::ElementState state)
 
             break;
         }
-        default:
+        case AkElement::ElementStatePlaying:
             break;
         }
 
         break;
     }
-    default:
-        break;
     }
 
     return false;

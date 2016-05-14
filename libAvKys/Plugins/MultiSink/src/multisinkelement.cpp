@@ -135,7 +135,7 @@ QObject *MultiSinkElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("MultiSink", (QObject *) this);
+    context->setContextProperty("MultiSink", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.

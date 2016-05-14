@@ -47,7 +47,7 @@ QObject *DistortElement::controlInterface(QQmlEngine *engine, const QString &con
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Distort", (QObject *) this);
+    context->setContextProperty("Distort", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -95,7 +95,7 @@ QVector<QPoint> DistortElement::createGrid(int width, int height,
 
 void DistortElement::setAmplitude(qreal amplitude)
 {
-    if (this->m_amplitude == amplitude)
+    if (qFuzzyCompare(this->m_amplitude, amplitude))
         return;
 
     this->m_amplitude = amplitude;
@@ -104,7 +104,7 @@ void DistortElement::setAmplitude(qreal amplitude)
 
 void DistortElement::setFrequency(qreal frequency)
 {
-    if (this->m_frequency == frequency)
+    if (qFuzzyCompare(this->m_frequency, frequency))
         return;
 
     this->m_frequency = frequency;
@@ -145,8 +145,8 @@ AkPacket DistortElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame = QImage(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     int gridSizeLog = this->m_gridSizeLog > 0? this->m_gridSizeLog: 1;
     int gridSize = 1 << gridSizeLog;

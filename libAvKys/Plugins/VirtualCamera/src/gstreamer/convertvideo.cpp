@@ -106,13 +106,13 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
     AkVideoCaps oVideoCaps(oCaps);
 
     GstBuffer *iBuffer = gst_buffer_new_allocate(NULL,
-                                                 videoPacket.buffer().size(),
+                                                 gsize(videoPacket.buffer().size()),
                                                  NULL);
     GstMapInfo info;
     gst_buffer_map(iBuffer, &info, GST_MAP_WRITE);
     memcpy(info.data,
            videoPacket.buffer().constData(),
-           videoPacket.buffer().size());
+           size_t(videoPacket.buffer().size()));
     gst_buffer_unmap(iBuffer, &info);
 
     QString iFormat = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
@@ -122,8 +122,8 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
                                          "width", G_TYPE_INT, videoPacket.caps().width(),
                                          "height", G_TYPE_INT, videoPacket.caps().height(),
                                          "framerate", GST_TYPE_FRACTION,
-                                                      (int) videoPacket.caps().fps().num(),
-                                                      (int) videoPacket.caps().fps().den(),
+                                                      int(videoPacket.caps().fps().num()),
+                                                      int(videoPacket.caps().fps().den()),
                                          NULL);
 
     GstSample *iSample = gst_sample_new(iBuffer,
@@ -161,7 +161,7 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
 
     GstBuffer *bufffer = gst_sample_get_buffer(oSample);
     gst_buffer_map(bufffer, &info, GST_MAP_READ);
-    QByteArray oBuffer(info.size, Qt::Uninitialized);
+    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), info.data, info.size);
     gst_buffer_unmap(bufffer, &info);
 

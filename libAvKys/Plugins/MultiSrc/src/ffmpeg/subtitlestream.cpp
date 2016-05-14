@@ -39,7 +39,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
         return;
 
     if (!packet) {
-        this->dataEnqueue((AVSubtitle *) NULL);
+        this->dataEnqueue(reinterpret_cast<AVSubtitle *>(NULL));
 
         return;
     }
@@ -63,13 +63,13 @@ void SubtitleStream::processPacket(AVPacket *packet)
     caps.setProperty("type", "ass");
 
     QByteArray oBuffer(packet->size, Qt::Uninitialized);
-    memcpy(oBuffer.data(), packet->data, packet->size);
+    memcpy(oBuffer.data(), packet->data, size_t(packet->size));
 
     AkPacket oPacket(caps, oBuffer);
 
     oPacket.setPts(packet->pts);
     oPacket.setTimeBase(this->timeBase());
-    oPacket.setIndex(this->index());
+    oPacket.setIndex(int(this->index()));
     oPacket.setId(this->id());
 
     emit this->oStream(oPacket);
@@ -105,7 +105,7 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
 
             oBuffer.resize(frameSize);
 
-            av_image_copy_to_buffer((uint8_t *) oBuffer.data(),
+            av_image_copy_to_buffer(reinterpret_cast<uint8_t *>(oBuffer.data()),
                                     frameSize,
                                     subtitle->rects[i]->pict.data,
                                     subtitle->rects[i]->pict.linesize,
@@ -118,19 +118,19 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
             int textLenght = sizeof(subtitle->rects[i]->text);
 
             oBuffer.resize(textLenght);
-            memcpy(oBuffer.data(), subtitle->rects[i]->text, textLenght);
+            memcpy(oBuffer.data(), subtitle->rects[i]->text, size_t(textLenght));
         } else if (subtitle->rects[i]->type == SUBTITLE_ASS) {
             caps.setProperty("type", "ass");
             int assLenght = sizeof(subtitle->rects[i]->ass);
 
             oBuffer.resize(assLenght);
-            memcpy(oBuffer.data(), subtitle->rects[i]->ass, assLenght);
+            memcpy(oBuffer.data(), subtitle->rects[i]->ass, size_t(assLenght));
         }
 
         AkPacket oPacket(caps, oBuffer);
         oPacket.setPts(subtitle->pts);
         oPacket.setTimeBase(this->timeBase());
-        oPacket.setIndex(this->index());
+        oPacket.setIndex(int(this->index()));
         oPacket.setId(this->id());
 
         emit this->oStream(oPacket);

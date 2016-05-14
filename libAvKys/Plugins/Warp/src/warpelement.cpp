@@ -48,7 +48,7 @@ QObject *WarpElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Warp", (QObject *) this);
+    context->setContextProperty("Warp", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -72,7 +72,7 @@ qreal WarpElement::ripples() const
 
 void WarpElement::setRipples(qreal ripples)
 {
-    if (this->m_ripples == ripples)
+    if (qFuzzyCompare(this->m_ripples, ripples))
         return;
 
     this->m_ripples = ripples;
@@ -124,18 +124,18 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
     qreal *phiTable = this->m_phiTable.data();
 
     for (int y = 0, i = 0; y < src.height(); y++) {
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++, i++) {
             qreal phi = ripples * phiTable[i];
 
-            int xOrig = dx * cos(phi) + x;
-            int yOrig = dy * sin(phi) + y;
+            int xOrig = int(dx * cos(phi) + x);
+            int yOrig = int(dy * sin(phi) + y);
 
             xOrig = qBound(0, xOrig, src.width());
             yOrig = qBound(0, yOrig, src.height());
 
-            const QRgb *iLine = (const QRgb *) src.constScanLine(yOrig);
+            const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yOrig));
             oLine[x] = iLine[xOrig];
         }
     }

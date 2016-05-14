@@ -72,7 +72,7 @@ QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &con
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Cartoon", (QObject *) this);
+    context->setContextProperty("Cartoon", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -102,7 +102,7 @@ QSize CartoonElement::scanSize() const
 QVector<QRgb> CartoonElement::palette(const QImage &img)
 {
     int imgArea = img.width() * img.height();
-    const QRgb *bits = (const QRgb *) img.constBits();
+    const QRgb *bits = reinterpret_cast<const QRgb *>(img.constBits());
 
     for (int j = 0; j < imgArea; j++) {
         int k = std::numeric_limits<int>::max();
@@ -231,14 +231,7 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
 
     src = src.convertToFormat(QImage::Format_ARGB32);
     QImage oFrame(src.size(), src.format());
-
-    int videoArea = src.width() * src.height();
-    const QRgb *srcPtr = (const QRgb *) src.constBits();
-    QVector<quint8> gray(videoArea);
-    quint8 *grayPtr = gray.data();
-
-    for (int i = 0; i < videoArea; i++)
-        grayPtr[i] = qGray(srcPtr[i]);
+    QImage gray = src.convertToFormat(QImage::Format_Grayscale8);
 
     if (this->m_id != packet.id()) {
         this->m_palette = *defaultPalette;
@@ -250,14 +243,12 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
             this->palette(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     qreal k = log(1531) / 255.;
-    int threshold = exp(k * (255 - this->m_threshold)) - 1;
+    int threshold = int(exp(k * (255 - this->m_threshold)) - 1);
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *srcLine = (const QRgb *) src.constScanLine(y);;
-        QRgb *dstLine = (QRgb *) oFrame.constScanLine(y);;
-
-        size_t yOffset = y * src.width();
-        const quint8 *grayLine = gray.constData() + yOffset;
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        const quint8 *grayLine = gray.scanLine(y);
 
         const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - src.width();
         const quint8 *grayLine_p1 = y >= src.height() - 1? grayLine: grayLine + src.width();

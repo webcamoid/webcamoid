@@ -50,7 +50,7 @@ QObject *ColorFilterElement::controlInterface(QQmlEngine *engine, const QString 
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ColorFilter", (QObject *) this);
+    context->setContextProperty("ColorFilter", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -98,7 +98,7 @@ void ColorFilterElement::setColor(QRgb color)
 
 void ColorFilterElement::setRadius(qreal radius)
 {
-    if (this->m_radius == radius)
+    if (qFuzzyCompare(this->m_radius, radius))
         return;
 
     this->m_radius = radius;
@@ -158,8 +158,8 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
     int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     for (int i = 0; i < videoArea; i++) {
         int r = qRed(srcBits[i]);
@@ -182,9 +182,9 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
 
                 int gray = qGray(srcBits[i]);
 
-                r = p * (gray - r) + r;
-                g = p * (gray - g) + g;
-                b = p * (gray - b) + b;
+                r = int(p * (gray - r) + r);
+                g = int(p * (gray - g) + g);
+                b = int(p * (gray - b) + b);
 
                 destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
             } else

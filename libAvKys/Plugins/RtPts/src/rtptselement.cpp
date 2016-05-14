@@ -24,7 +24,7 @@ RtPtsElement::RtPtsElement(): AkElement()
     this->m_prevPts = -1;
     this->m_fps = AkFrac(30000, 1001);
     this->m_timeBase = this->m_fps.invert();
-    this->m_timer.setInterval(1e3 * this->m_fps.invert().value());
+    this->m_timer.setInterval(int(1e3 * this->m_fps.invert().value()));
 
     QObject::connect(&this->m_timer,
                      &QTimer::timeout,
@@ -65,7 +65,7 @@ void RtPtsElement::setFps(const AkFrac &fps)
 
     this->m_fps = fps.num() && fps.den()? fps: AkFrac(30000, 1001);
     this->m_timeBase = this->m_fps.invert();
-    this->m_timer.setInterval(1e3 * this->m_fps.invert().value());
+    this->m_timer.setInterval(int(1e3 * this->m_fps.invert().value()));
     emit this->fpsChanged(fps);
 }
 
@@ -108,7 +108,7 @@ void RtPtsElement::readPacket()
         if (!this->m_curPacket)
             return;
 
-        qint64 pts = 1.0e-3 * this->m_elapsedTimer.elapsed() * this->m_fps.value();
+        qint64 pts = qint64(1.0e-3 * this->m_elapsedTimer.elapsed() * this->m_fps.value());
 
         if (pts == this->m_prevPts)
             return;

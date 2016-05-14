@@ -71,7 +71,7 @@ QObject *VignetteElement::controlInterface(QQmlEngine *engine, const QString &co
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Vignette", (QObject *) this);
+    context->setContextProperty("Vignette", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -119,7 +119,7 @@ void VignetteElement::setColor(QRgb color)
 
 void VignetteElement::setAspect(qreal aspect)
 {
-    if (this->m_aspect == aspect)
+    if (qFuzzyCompare(this->m_aspect, aspect))
         return;
 
     this->m_aspect = aspect;
@@ -128,7 +128,7 @@ void VignetteElement::setAspect(qreal aspect)
 
 void VignetteElement::setScale(qreal scale)
 {
-    if (this->m_scale == scale)
+    if (qFuzzyCompare(this->m_scale, scale))
         return;
 
     this->m_scale = scale;
@@ -137,7 +137,7 @@ void VignetteElement::setScale(qreal scale)
 
 void VignetteElement::setSoftness(qreal softness)
 {
-    if (this->m_softness == softness)
+    if (qFuzzyCompare(this->m_softness, softness))
         return;
 
     this->m_softness = softness;
@@ -224,7 +224,7 @@ void VignetteElement::updateVignette()
     qreal qb = b * b;
     qreal qab = qa * qb;
 
-    int softness = 255.0 * (2.0 * this->m_softness - 1.0);
+    qreal softness = 255.0 * (2.0 * this->m_softness - 1.0);
 
     int red = qRed(this->m_color);
     int green = qGreen(this->m_color);
@@ -239,7 +239,7 @@ void VignetteElement::updateVignette()
     this->m_mutex.unlock();
 
     for (int y = 0; y < vignette.height(); y++) {
-        QRgb *line = (QRgb *) vignette.scanLine(y);
+        QRgb *line = reinterpret_cast<QRgb *>(vignette.scanLine(y));
         int dy = y - yc;
         qreal qdy = dy * dy;
         qreal dyb = dy / b;
@@ -250,7 +250,7 @@ void VignetteElement::updateVignette()
             qreal dxa = qreal(dx) / a;
 
             if (qb * qdx + qa * qdy < qab
-                && a != 0 && b != 0)
+                && !qIsNull(a) && !qIsNull(b))
                 // If the point is inside the ellipse,
                 // show the original pixel.
                 line[x] = qRgba(0, 0, 0, 0);
@@ -258,7 +258,7 @@ void VignetteElement::updateVignette()
                 // The opacity of the pixel depends on the relation between
                 // it's radius and the corner radius.
                 qreal k = this->radius(dxa, dyb) / maxRadius;
-                int opacity = k * alpha - softness;
+                int opacity = int(k * alpha - softness);
                 opacity = qBound(0, opacity, 255);
                 line[x] = qRgba(red, green, blue, opacity);
             }

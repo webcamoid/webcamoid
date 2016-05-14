@@ -45,7 +45,7 @@ QObject *QuarkElement::controlInterface(QQmlEngine *engine, const QString &contr
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Quark", (QObject *) this);
+    context->setContextProperty("Quark", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -104,11 +104,11 @@ AkPacket QuarkElement::iStream(const AkPacket &packet)
     for (int i = 0; i < diff; i++)
         this->m_frames.takeFirst();
 
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     for (int i = 0; i < videoArea; i++) {
         int frame = qrand() % this->m_frames.size();
-        const QRgb *image = (const QRgb *) this->m_frames[frame].constBits();
+        const QRgb *image = reinterpret_cast<const QRgb *>(this->m_frames[frame].constBits());
         destBits[i] = image[i];
     }
 

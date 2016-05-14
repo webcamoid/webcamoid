@@ -36,7 +36,7 @@ AkPacket EqualizeElement::iStream(const AkPacket &packet)
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
 
-    QRgb *dest = (QRgb *) oFrame.bits();
+    QRgb *dest = reinterpret_cast<QRgb *>(oFrame.bits());
     int count = oFrame.width() * oFrame.height();
 
     for (int i = 0; i < count; i++) {
@@ -65,34 +65,34 @@ AkPacket EqualizeElement::iStream(const AkPacket &packet)
 
     for (int i = 0; i < 256; i++) {
         if (high.red != low.red)
-            equalizeMap[i].red = (uchar)
-                ((255 * (map[i].red - low.red)) / (high.red - low.red));
+            equalizeMap[i].red =
+                uchar ((255 * (map[i].red - low.red)) / (high.red - low.red));
 
         if (high.green != low.green)
-            equalizeMap[i].green = (uchar)
-                ((255 * (map[i].green - low.green)) / (high.green - low.green));
+            equalizeMap[i].green =
+                uchar ((255 * (map[i].green - low.green)) / (high.green - low.green));
 
         if (high.blue != low.blue)
-            equalizeMap[i].blue = (uchar)
-                ((255 * (map[i].blue - low.blue)) / (high.blue - low.blue));
+            equalizeMap[i].blue =
+                uchar ((255 * (map[i].blue - low.blue)) / (high.blue - low.blue));
 
     }
 
     // write
-    dest = (QRgb *) oFrame.bits();
+    dest = reinterpret_cast<QRgb *>(oFrame.bits());
 
     for (int i = 0; i < count; i++){
         QRgb pixel = *dest;
 
-        uchar r = (low.red != high.red)?
+        int r = (low.red != high.red)?
                       equalizeMap[qRed(pixel)].red:
                       qRed(pixel);
 
-        uchar g = (low.green != high.green)?
+        int g = (low.green != high.green)?
                       equalizeMap[qGreen(pixel)].green:
                       qGreen(pixel);
 
-        uchar b = (low.blue != high.blue)?
+        int b = (low.blue != high.blue)?
                       equalizeMap[qBlue(pixel)].blue:
                       qBlue(pixel);
 

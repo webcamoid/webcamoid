@@ -132,7 +132,7 @@ QObject *MatrixElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Matrix", (QObject *) this);
+    context->setContextProperty("Matrix", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -254,7 +254,7 @@ QImage MatrixElement::drawChar(const QChar &chr, const QFont &font,
 int MatrixElement::imageWeight(const QImage &image) const
 {
     int fontArea = image.width() * image.height();
-    const QRgb *imageBits = (const QRgb *) image.constBits();
+    const QRgb *imageBits = reinterpret_cast<const QRgb *>(image.constBits());
     int weight = 0;
 
     for (int i = 0; i < fontArea; i++)
@@ -447,7 +447,7 @@ void MatrixElement::setMaxDropLength(int maxDropLength)
 
 void MatrixElement::setMinSpeed(qreal minSpeed)
 {
-    if (this->m_minSpeed == minSpeed)
+    if (qFuzzyCompare(this->m_minSpeed, minSpeed))
         return;
 
     QMutexLocker(&this->m_mutex);
@@ -457,7 +457,7 @@ void MatrixElement::setMinSpeed(qreal minSpeed)
 
 void MatrixElement::setMaxSpeed(qreal maxSpeed)
 {
-    if (this->m_maxSpeed == maxSpeed)
+    if (qFuzzyCompare(this->m_maxSpeed, maxSpeed))
         return;
 
     QMutexLocker(&this->m_mutex);
@@ -574,7 +574,7 @@ AkPacket MatrixElement::iStream(const AkPacket &packet)
     }
 
     QImage textImage = src.scaled(textWidth, textHeight);
-    QRgb *textImageBits = (QRgb *) textImage.bits();
+    QRgb *textImageBits = reinterpret_cast<QRgb *>(textImage.bits());
     int textArea = textImage.width() * textImage.height();
     QPainter painter;
 

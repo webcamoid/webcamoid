@@ -47,7 +47,7 @@ QObject *MatrixTransformElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("MatrixTransform", (QObject *) this);
+    context->setContextProperty("MatrixTransform", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -120,17 +120,17 @@ AkPacket MatrixTransformElement::iStream(const AkPacket &packet)
     int cy = src.height() >> 1;
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
-            int dx = x - cx - kernel[2];
-            int dy = y - cy - kernel[5];
+            int dx = int(x - cx - kernel[2]);
+            int dy = int(y - cy - kernel[5]);
 
-            int xp = cx + (dx * kernel[4] - dy * kernel[3]) / det;
-            int yp = cy + (dy * kernel[0] - dx * kernel[1]) / det;
+            int xp = int(cx + (dx * kernel[4] - dy * kernel[3]) / det);
+            int yp = int(cy + (dy * kernel[0] - dx * kernel[1]) / det);
 
             if (rect.contains(xp, yp)) {
-                const QRgb *iLine = (const QRgb *) src.constScanLine(yp);
+                const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
                 oLine[x] = iLine[xp];
             } else
                 oLine[x] = qRgba(0, 0, 0, 0);

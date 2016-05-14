@@ -65,9 +65,9 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
     AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays((uint8_t **) iFrame.data,
+    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(iFrame.data),
                          iFrame.linesize,
-                         (const uint8_t *) videoPacket.buffer().constData(),
+                             reinterpret_cast<const uint8_t *>(videoPacket.buffer().constData()),
                          iFormat,
                          videoPacket.caps().width(),
                          videoPacket.caps().height(),
@@ -84,13 +84,13 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays((uint8_t **) oFrame.data,
-                         oFrame.linesize,
-                         (const uint8_t *) oBuffer.constData(),
-                         oFormat,
-                         oVideoCaps.width(),
-                         oVideoCaps.height(),
-                         1) < 0)
+    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(oFrame.data),
+                             oFrame.linesize,
+                             reinterpret_cast<const uint8_t *>(oBuffer.constData()),
+                             oFormat,
+                             oVideoCaps.width(),
+                             oVideoCaps.height(),
+                             1) < 0)
         return AkPacket();
 
     // Convert picture format

@@ -47,7 +47,7 @@ QObject *ImplodeElement::controlInterface(QQmlEngine *engine, const QString &con
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Implode", (QObject *) this);
+    context->setContextProperty("Implode", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -71,7 +71,7 @@ qreal ImplodeElement::amount() const
 
 void ImplodeElement::setAmount(qreal amount)
 {
-    if (this->m_amount == amount)
+    if (qFuzzyCompare(this->m_amount, amount))
         return;
 
     this->m_amount = amount;
@@ -98,8 +98,8 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
     int radius = qMin(xc, yc);
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         int yDiff = y - yc;
 
         for (int x = 0; x < src.width(); x++) {
@@ -111,13 +111,13 @@ AkPacket ImplodeElement::iStream(const AkPacket &packet)
             else {
                 qreal factor = pow(distance / radius, this->m_amount);
 
-                int xp = factor * xDiff + xc;
-                int yp = factor * yDiff + yc;
+                int xp = int(factor * xDiff + xc);
+                int yp = int(factor * yDiff + yc);
 
                 xp = qBound(0, xp, oFrame.width() - 1);
                 yp = qBound(0, yp, oFrame.height() - 1);
 
-                const QRgb *line = (const QRgb *) src.constScanLine(yp);
+                const QRgb *line = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
                 oLine[x] = line[xp];
             }
         }

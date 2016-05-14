@@ -50,7 +50,7 @@ QObject *PhotocopyElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Photocopy", (QObject *) this);
+    context->setContextProperty("Photocopy", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -79,7 +79,7 @@ qreal PhotocopyElement::contrast() const
 
 void PhotocopyElement::setBrightness(qreal brightness)
 {
-    if (this->m_brightness == brightness)
+    if (qFuzzyCompare(this->m_brightness, brightness))
         return;
 
     this->m_brightness = brightness;
@@ -88,7 +88,7 @@ void PhotocopyElement::setBrightness(qreal brightness)
 
 void PhotocopyElement::setContrast(qreal contrast)
 {
-    if (this->m_contrast == contrast)
+    if (qFuzzyCompare(this->m_contrast, contrast))
         return;
 
     this->m_contrast = contrast;
@@ -116,8 +116,8 @@ AkPacket PhotocopyElement::iStream(const AkPacket &packet)
     int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     for (int i = 0; i < videoArea; i++) {
         int r = qRed(srcBits[i]);
@@ -131,7 +131,7 @@ AkPacket PhotocopyElement::iStream(const AkPacket &packet)
         qreal val = luma / 255.0;
         val = 255.0 / (1 + exp(this->m_contrast * (0.5 - val)));
         val = val * this->m_brightness;
-        luma = qBound(0.0, val, 255.0);
+        luma = int(qBound(0.0, val, 255.0));
 
         destBits[i] = qRgba(luma, luma, luma, qAlpha(srcBits[i]));
     }

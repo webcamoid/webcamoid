@@ -62,7 +62,7 @@ QObject *HalftoneElement::controlInterface(QQmlEngine *engine, const QString &co
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Halftone", (QObject *) this);
+    context->setContextProperty("Halftone", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
@@ -135,12 +135,12 @@ void HalftoneElement::updatePattern()
         pattern.setColor(i, qRgb(i, i, i));
 
     image = image.scaled(patternSize).convertToFormat(QImage::Format_RGB32);
-    const QRgb *bits = (const QRgb *) image.constBits();
-    quint8 *patternBits = (quint8 *) pattern.bits();
+    const QRgb *bits = reinterpret_cast<const QRgb *>(image.constBits());
+    quint8 *patternBits = pattern.bits();
     int videoArea = patternSize.width() * patternSize.height();
 
     for (int i = 0; i < videoArea; i++)
-        patternBits[i] = qGray(bits[i]);
+        patternBits[i] = quint8(qGray(bits[i]));
 
     this->m_mutex.lock();
     this->m_patternImage = pattern;
@@ -167,7 +167,7 @@ void HalftoneElement::setPatternSize(const QSize &patternSize)
 
 void HalftoneElement::setLightness(qreal lightness)
 {
-    if (this->m_lightness == lightness)
+    if (qFuzzyCompare(this->m_lightness, lightness))
         return;
 
     this->m_lightness = lightness;
@@ -176,7 +176,7 @@ void HalftoneElement::setLightness(qreal lightness)
 
 void HalftoneElement::setSlope(qreal slope)
 {
-    if (this->m_slope == slope)
+    if (qFuzzyCompare(this->m_slope, slope))
         return;
 
     this->m_slope = slope;
@@ -185,7 +185,7 @@ void HalftoneElement::setSlope(qreal slope)
 
 void HalftoneElement::setIntercept(qreal intercept)
 {
-    if (this->m_intercept == intercept)
+    if (qFuzzyCompare(this->m_intercept, intercept))
         return;
 
     this->m_intercept = intercept;
@@ -239,17 +239,17 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
 
     // filter image
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int col = x % patternImage.width();
             int row = y % patternImage.height();
 
             int gray = qGray(iLine[x]);
-            const quint8 *pattern = (const quint8 *) patternImage.constScanLine(row);
+            const quint8 *pattern = reinterpret_cast<const quint8 *>(patternImage.constScanLine(row));
             int threshold = pattern[col];
-            threshold = this->m_slope * threshold + this->m_intercept;
+            threshold = int(this->m_slope * threshold + this->m_intercept);
             threshold = qBound(0, threshold, 255);
 
             if (gray > threshold)
@@ -259,7 +259,7 @@ AkPacket HalftoneElement::iStream(const AkPacket &packet)
 
                 color.setHsl(color.hue(),
                              color.saturation(),
-                             this->m_lightness * color.lightness(),
+                             int(this->m_lightness * color.lightness()),
                              color.alpha());
 
                 oLine[x] = color.rgba();

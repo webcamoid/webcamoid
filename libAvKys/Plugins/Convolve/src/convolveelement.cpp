@@ -51,7 +51,7 @@ QObject *ConvolveElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Convolve", (QObject *) this);
+    context->setContextProperty("Convolve", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -177,8 +177,8 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
     this->m_mutex.lock();
     QVector<int> kernel = this->m_kernel;
     const int *kernelBits = kernel.constData();
-    int factorNum = this->m_factor.num();
-    int factorDen = this->m_factor.den();
+    qint64 factorNum = this->m_factor.num();
+    qint64 factorDen = this->m_factor.den();
     int kernelWidth = this->m_kernelSize.width();
     int kernelHeight = this->m_kernelSize.height();
     this->m_mutex.unlock();
@@ -189,8 +189,8 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
     int maxJ = (kernelHeight + 1) / 2;
 
     for (int y = 0; y < src.height(); y++) {
-        const QRgb *iLine = (const QRgb *) src.constScanLine(y);
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int r = 0;
@@ -199,7 +199,7 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
 
             for (int j = minJ, k = 0; j < maxJ; j++) {
                 int yp = qBound(0, y + j, src.height() - 1);
-                const QRgb *iLine = (const QRgb *) src.constScanLine(yp);
+                const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
 
                 for (int i = minI; i < maxI; i++, k++) {
                     int xp = qBound(0, x + i, src.width() - 1);
@@ -213,9 +213,9 @@ AkPacket ConvolveElement::iStream(const AkPacket &packet)
             }
 
             if (factorNum) {
-                r = factorNum * r / factorDen + this->m_bias;
-                g = factorNum * g / factorDen + this->m_bias;
-                b = factorNum * b / factorDen + this->m_bias;
+                r = int(factorNum * r / factorDen + this->m_bias);
+                g = int(factorNum * g / factorDen + this->m_bias);
+                b = int(factorNum * b / factorDen + this->m_bias);
 
                 r = qBound(0, r, 255);
                 g = qBound(0, g, 255);

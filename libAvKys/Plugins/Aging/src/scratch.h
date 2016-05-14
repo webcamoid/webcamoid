@@ -76,7 +76,6 @@ class Scratch: public QObject
         qreal m_x;
         qreal m_dx;
         int m_y;
-
         qreal m_life0;
 
     public slots:

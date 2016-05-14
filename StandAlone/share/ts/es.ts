@@ -682,6 +682,34 @@
     </message>
 </context>
 <context>
+    <name>PhotoWidget</name>
+    <message>
+        <location filename="../qml/PhotoWidget.qml" line="35"/>
+        <source>%1 seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PhotoWidget.qml" line="55"/>
+        <source>Now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PhotoWidget.qml" line="79"/>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
+    </message>
+    <message>
+        <location filename="../qml/PhotoWidget.qml" line="79"/>
+        <source>Shot!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/PhotoWidget.qml" line="106"/>
+        <source>Use flash</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PictureBox</name>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/PictureBox.qml" line="123"/>
@@ -1082,52 +1110,57 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="109"/>
+        <location filename="../qml/main.qml" line="108"/>
         <source>Recording</source>
         <translation>Grabando</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="399"/>
+        <location filename="../qml/main.qml" line="518"/>
         <source>Play</source>
         <translation>Reproducir</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="421"/>
+        <location filename="../qml/main.qml" line="540"/>
         <source>Configure streams</source>
         <translation>Configurar los flujos</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="434"/>
+        <location filename="../qml/main.qml" line="553"/>
         <source>Take a photo</source>
         <translation>Tomar una foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="441"/>
+        <location filename="../qml/main.qml" line="188"/>
         <source>Picture %1.%2</source>
         <translation>Imagen %1.%2</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="463"/>
+        <location filename="../qml/main.qml" line="472"/>
+        <source>Go back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="567"/>
         <source>Record video</source>
         <translation>Grabar video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="477"/>
+        <location filename="../qml/main.qml" line="581"/>
         <source>Configure Effects</source>
         <translation>Configurar Efectos</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="490"/>
+        <location filename="../qml/main.qml" line="594"/>
         <source>Preferences</source>
         <translation>Preferencias</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="503"/>
+        <location filename="../qml/main.qml" line="607"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="450"/>
+        <location filename="../qml/main.qml" line="197"/>
         <source>Save photo as...</source>
         <translation>Guardar foto como...</translation>
     </message>

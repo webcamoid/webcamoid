@@ -49,7 +49,7 @@ QObject *WarholElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Warhol", (QObject *) this);
+    context->setContextProperty("Warhol", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -97,7 +97,7 @@ AkPacket WarholElement::iStream(const AkPacket &packet)
     int nFrames = this->m_nFrames;
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++) {
             int p = (x * nFrames) % src.width();
@@ -106,7 +106,7 @@ AkPacket WarholElement::iStream(const AkPacket &packet)
                     ((x * nFrames) / src.width());
 
             i = qBound(0, i, this->m_colorTable.size() - 1);
-            const QRgb *iLine = (const QRgb *) src.constScanLine(q);
+            const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(q));
             oLine[x] = (iLine[p] ^ this->m_colorTable[i]) | 0xff000000;
         }
     }

@@ -97,7 +97,7 @@ QObject *FaceDetectElement::controlInterface(QQmlEngine *engine, const QString &
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("FaceDetect", (QObject *) this);
+    context->setContextProperty("FaceDetect", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
@@ -323,9 +323,9 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
     QImage scanFrame(src.scaled(scanSize, Qt::KeepAspectRatio));
 
     if (scanFrame.width() == scanSize.width())
-        scale = (qreal) src.width() / scanSize.width();
+        scale = qreal(src.width() / scanSize.width());
     else
-        scale = (qreal) src.height() / scanSize.height();
+        scale = qreal(src.height() / scanSize.height());
 
     this->m_cascadeClassifier.setEqualize(true);
     QVector<QRect> vecFaces = this->m_cascadeClassifier.detect(scanFrame);
@@ -337,10 +337,10 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
     painter.begin(&oFrame);
 
     foreach (QRect face, vecFaces) {
-        QRect rect(scale * face.x(),
-                   scale * face.y(),
-                   scale * face.width(),
-                   scale * face.height());
+        QRect rect(int(scale * face.x()),
+                   int(scale * face.y()),
+                   int(scale * face.width()),
+                   int(scale * face.height()));
 
         if (this->m_markerType == MarkerTypeRectangle) {
             painter.setPen(this->m_markerPen);
@@ -355,8 +355,8 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
             qreal sh = 1.0 / this->m_pixelGridSize.height();
             QImage imagePixelate = src.copy(rect);
 
-            imagePixelate = imagePixelate.scaled(sw * imagePixelate.width(),
-                                                 sh * imagePixelate.height(),
+            imagePixelate = imagePixelate.scaled(int(sw * imagePixelate.width()),
+                                                 int(sh * imagePixelate.height()),
                                                  Qt::IgnoreAspectRatio,
                                                  Qt::FastTransformation)
                                          .scaled(imagePixelate.width(),

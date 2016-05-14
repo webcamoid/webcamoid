@@ -50,7 +50,7 @@ QObject *FalseColorElement::controlInterface(QQmlEngine *engine, const QString &
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("FalseColor", (QObject *) this);
+    context->setContextProperty("FalseColor", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -132,17 +132,11 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
     if (src.isNull())
         return AkPacket();
 
-    src = src.convertToFormat(QImage::Format_ARGB32);
+    src = src.convertToFormat(QImage::Format_Grayscale8);
     int videoArea = src.width() * src.height();
-    QImage oFrame(src.size(), src.format());
-
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
-
-    quint8 grayBuffer[videoArea];
-
-    for (int i = 0; i < videoArea; i++)
-        grayBuffer[i] = qGray(srcBits[i]);
+    QImage oFrame(src.size(), QImage::Format_ARGB32);
+    const quint8 *srcBits = src.constBits();
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     QRgb table[256];
     QList<QRgb> tableRgb = this->m_table;
@@ -166,19 +160,18 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
             int l = 255 * low / (tableRgb.size() - 1);
             int h = 255 * high / (tableRgb.size() - 1);
 
-            qreal k = (qreal) (i - l) / (h - l);
+            qreal k = qreal(i - l) / (h - l);
 
-            int r = k * (rh - rl) + rl;
-            int g = k * (gh - gl) + gl;
-            int b = k * (bh - bl) + bl;
+            int r = int(k * (rh - rl) + rl);
+            int g = int(k * (gh - gl) + gl);
+            int b = int(k * (bh - bl) + bl);
 
             r = qBound(0, r, 255);
             g = qBound(0, g, 255);
             b = qBound(0, b, 255);
 
             color = qRgb(r, g, b);
-        }
-        else {
+        } else {
             int t = tableRgb.size() * i / 255;
             t = qBound(0, t, tableRgb.size() - 1);
             color = tableRgb[t];
@@ -188,7 +181,7 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
     }
 
     for (int i = 0; i < videoArea; i++)
-        destBits[i] = table[grayBuffer[i]];
+        destBits[i] = table[srcBits[i]];
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)

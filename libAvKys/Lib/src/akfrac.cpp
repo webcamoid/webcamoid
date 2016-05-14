@@ -28,8 +28,8 @@
 class AkFracPrivate
 {
     public:
-        int m_num;
-        int m_den;
+        qint64 m_num;
+        qint64 m_den;
         bool m_isValid;
 
         static inline qint64 gcd(qint64 num, qint64 den)
@@ -147,7 +147,7 @@ double AkFrac::value() const
     return this->d->m_num / double(this->d->m_den);
 }
 
-int AkFrac::fastValue() const
+qint64 AkFrac::fastValue() const
 {
     return this->d->m_num / this->d->m_den;
 }

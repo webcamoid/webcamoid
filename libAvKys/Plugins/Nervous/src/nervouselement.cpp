@@ -47,7 +47,7 @@ QObject *NervousElement::controlInterface(QQmlEngine *engine, const QString &con
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Nervous", (QObject *) this);
+    context->setContextProperty("Nervous", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.

@@ -97,7 +97,7 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     memset(&iFrame, 0, sizeof(AVFrame));
     iFrame.format = iSampleFormat;
     iFrame.channels = iNChannels;
-    iFrame.channel_layout = iSampleLayout;
+    iFrame.channel_layout = uint64_t(iSampleLayout);
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = iNSamples;
     iFrame.pts = iFrame.pkt_pts = packet.pts();
@@ -105,7 +105,7 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     if (avcodec_fill_audio_frame(&iFrame,
                                  iFrame.channels,
                                  iSampleFormat,
-                                 (const uint8_t *) packet.buffer().constData(),
+                                 reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
                                  packet.buffer().size(),
                                  1) < 0) {
         return AkPacket();
@@ -116,11 +116,11 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     memset(&oFrame, 0, sizeof(AVFrame));
     oFrame.format = oSampleFormat;
     oFrame.channels = oNChannels;
-    oFrame.channel_layout = oSampleLayout;
+    oFrame.channel_layout = uint64_t(oSampleLayout);
     oFrame.sample_rate = oSampleRate;
-    oFrame.nb_samples = swr_get_delay(this->m_resampleContext, oSampleRate)
+    oFrame.nb_samples = int(swr_get_delay(this->m_resampleContext, oSampleRate))
                         + iFrame.nb_samples
-                        * (int64_t) oSampleRate
+                        * oSampleRate
                         / iSampleRate
                         + 3;
     oFrame.pts = oFrame.pkt_pts = iFrame.pts * oSampleRate / iSampleRate;
@@ -137,7 +137,7 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     if (avcodec_fill_audio_frame(&oFrame,
                                  oFrame.channels,
                                  oSampleFormat,
-                                 (const uint8_t *) oBuffer.constData(),
+                                 reinterpret_cast<const uint8_t *>(oBuffer.constData()),
                                  oBuffer.size(),
                                  1) < 0) {
         return AkPacket();

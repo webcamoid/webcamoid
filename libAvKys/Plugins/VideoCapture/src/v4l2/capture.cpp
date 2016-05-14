@@ -213,7 +213,7 @@ QString Capture::description(const QString &webcam) const
         this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
 
         if (capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)
-            return QString((const char *) capability.card);
+            return QString(reinterpret_cast<const char *>(capability.card));
 
         device.close();
     }
@@ -379,7 +379,7 @@ bool Capture::setImageControls(const QVariantMap &imageControls) const
         v4l2_ext_controls ctrls;
         memset(&ctrls, 0, sizeof(v4l2_ext_control));
         ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
-        ctrls.count = mpegCtrls.size();
+        ctrls.count = __u32(mpegCtrls.size());
         ctrls.controls = &mpegCtrls[0];
         this->xioctl(device.handle(), VIDIOC_S_EXT_CTRLS, &ctrls);
     }
@@ -458,7 +458,7 @@ bool Capture::setCameraControls(const QVariantMap &cameraControls) const
         v4l2_ext_controls ctrls;
         memset(&ctrls, 0, sizeof(v4l2_ext_control));
         ctrls.ctrl_class = V4L2_CTRL_CLASS_MPEG;
-        ctrls.count = mpegCtrls.size();
+        ctrls.count = __u32(mpegCtrls.size());
         ctrls.controls = &mpegCtrls[0];
         this->xioctl(device.handle(), VIDIOC_S_EXT_CTRLS, &ctrls);
     }
@@ -498,9 +498,9 @@ AkPacket Capture::readFrame()
         timeval timestamp;
         gettimeofday(&timestamp, NULL);
 
-        qint64 pts = (timestamp.tv_sec
-                      + 1e-6 * timestamp.tv_usec)
-                       * this->m_fps.value();
+        qint64 pts = qint64((timestamp.tv_sec
+                             + 1e-6 * timestamp.tv_usec)
+                            * this->m_fps.value());
 
         return this->processFrame(this->m_buffers[0].start,
                                   this->m_buffers[0].length,
@@ -517,14 +517,14 @@ AkPacket Capture::readFrame()
         if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_DQBUF, &buffer) < 0)
             return AkPacket();
 
-        if (buffer.index >= (quint32) this->m_buffers.size())
+        if (buffer.index >= quint32(this->m_buffers.size()))
             return AkPacket();
 
-        qint64 pts = (buffer.timestamp.tv_sec
-                       + 1e-6 * buffer.timestamp.tv_usec)
-                        * this->m_fps.value();
+        qint64 pts = qint64((buffer.timestamp.tv_sec
+                             + 1e-6 * buffer.timestamp.tv_usec)
+                            * this->m_fps.value());
 
-        AkPacket packet = this->processFrame(this->m_buffers[buffer.index].start,
+        AkPacket packet = this->processFrame(this->m_buffers[int(buffer.index)].start,
                                              buffer.bytesused,
                                              pts);
 
@@ -595,8 +595,8 @@ void Capture::setFps(int fd, const AkFrac &fps)
 
     if (this->xioctl(fd, VIDIOC_G_PARM, &streamparm) >= 0)
         if (streamparm.parm.capture.capability & V4L2_CAP_TIMEPERFRAME) {
-            streamparm.parm.capture.timeperframe.numerator = fps.den();
-            streamparm.parm.capture.timeperframe.denominator = fps.num();
+            streamparm.parm.capture.timeperframe.numerator = __u32(fps.den());
+            streamparm.parm.capture.timeperframe.denominator = __u32(fps.num());
             this->xioctl(fd, VIDIOC_S_PARM, &streamparm);
         }
 }
@@ -629,7 +629,7 @@ QVariantList Capture::controls(const QString &webcam, quint32 controlClass) cons
         return controls;
     }
 
-    for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
+    for (__u32 id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
         queryctrl.id = id;
 
         if (this->xioctl(device.handle(), VIDIOC_QUERYCTRL, &queryctrl) == 0) {
@@ -694,17 +694,17 @@ QVariantList Capture::queryControl(int handle, quint32 controlClass, v4l2_queryc
 
     if (queryctrl->type == V4L2_CTRL_TYPE_MENU)
         for (int i = 0; i < queryctrl->maximum + 1; i++) {
-            qmenu.index = i;
+            qmenu.index = __u32(i);
 
             if (this->xioctl(handle, VIDIOC_QUERYMENU, &qmenu))
                 continue;
 
-            menu << QString((const char *) qmenu.name);
+            menu << QString(reinterpret_cast<const char *>(qmenu.name));
         }
 
     v4l2_ctrl_type type = static_cast<v4l2_ctrl_type>(queryctrl->type);
 
-    return QVariantList() << QString((const char *) queryctrl->name)
+    return QVariantList() << QString(reinterpret_cast<const char *>(queryctrl->name))
                           << ctrlTypeToStr->value(type)
                           << queryctrl->minimum
                           << queryctrl->maximum
@@ -724,7 +724,7 @@ QMap<QString, quint32> Capture::findControls(int handle, quint32 controlClass) c
     while (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
         if (!(qctrl.flags & V4L2_CTRL_FLAG_DISABLED)
             && V4L2_CTRL_ID2CLASS(qctrl.id) == controlClass)
-            controls[QString((const char *) qctrl.name)] = qctrl.id;
+            controls[QString(reinterpret_cast<const char *>(qctrl.name))] = qctrl.id;
 
         qctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
     }
@@ -732,13 +732,13 @@ QMap<QString, quint32> Capture::findControls(int handle, quint32 controlClass) c
     if (qctrl.id != V4L2_CTRL_FLAG_NEXT_CTRL)
         return controls;
 
-    for (int id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
+    for (__u32 id = V4L2_CID_USER_BASE; id < V4L2_CID_LASTP1; id++) {
         qctrl.id = id;
 
         if (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0
             && !(qctrl.flags & V4L2_CTRL_FLAG_DISABLED)
             && V4L2_CTRL_ID2CLASS(qctrl.id) == controlClass)
-            controls[QString((const char *) qctrl.name)] = qctrl.id;
+            controls[QString(reinterpret_cast<const char *>(qctrl.name))] = qctrl.id;
     }
 
     qctrl.id = V4L2_CID_PRIVATE_BASE;
@@ -746,7 +746,7 @@ QMap<QString, quint32> Capture::findControls(int handle, quint32 controlClass) c
     while (this->xioctl(handle, VIDIOC_QUERYCTRL, &qctrl) == 0) {
         if (!(qctrl.flags & V4L2_CTRL_FLAG_DISABLED)
             && V4L2_CTRL_ID2CLASS(qctrl.id) == controlClass)
-            controls[QString((const char *) qctrl.name)] = qctrl.id;
+            controls[QString(reinterpret_cast<const char *>(qctrl.name))] = qctrl.id;
 
         qctrl.id++;
     }
@@ -777,7 +777,7 @@ bool Capture::initMemoryMap()
 
     requestBuffers.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     requestBuffers.memory = V4L2_MEMORY_MMAP;
-    requestBuffers.count = this->m_nBuffers;
+    requestBuffers.count = __u32(this->m_nBuffers);
 
     if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
@@ -785,16 +785,16 @@ bool Capture::initMemoryMap()
     if (requestBuffers.count < 1)
         return false;
 
-    this->m_buffers.resize(requestBuffers.count);
+    this->m_buffers.resize(int(requestBuffers.count));
     bool error = false;
 
-    for (quint32 i = 0; i < requestBuffers.count; i++) {
+    for (int i = 0; i < int(requestBuffers.count); i++) {
         v4l2_buffer buffer;
         memset(&buffer, 0, sizeof(buffer));
 
         buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         buffer.memory = V4L2_MEMORY_MMAP;
-        buffer.index = i;
+        buffer.index = __u32(i);
 
         if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QUERYBUF, &buffer) < 0) {
             error = true;
@@ -804,12 +804,12 @@ bool Capture::initMemoryMap()
 
         this->m_buffers[i].length = buffer.length;
 
-        this->m_buffers[i].start = (char *) mmap(NULL,
-                                                 buffer.length,
-                                                 PROT_READ | PROT_WRITE,
-                                                 MAP_SHARED,
-                                                 this->m_deviceFile.handle(),
-                                                 buffer.m.offset);
+        this->m_buffers[i].start = reinterpret_cast<char *>(mmap(NULL,
+                                                                 buffer.length,
+                                                                 PROT_READ | PROT_WRITE,
+                                                                 MAP_SHARED,
+                                                                 this->m_deviceFile.handle(),
+                                                                 buffer.m.offset));
 
         if (this->m_buffers[i].start == MAP_FAILED) {
             error = true;
@@ -837,15 +837,15 @@ bool Capture::initUserPointer(quint32 bufferSize)
 
     requestBuffers.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     requestBuffers.memory = V4L2_MEMORY_USERPTR;
-    requestBuffers.count = this->m_nBuffers;
+    requestBuffers.count = __u32(this->m_nBuffers);
 
     if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_REQBUFS, &requestBuffers) < 0)
         return false;
 
-    this->m_buffers.resize(requestBuffers.count);
+    this->m_buffers.resize(int(requestBuffers.count));
     bool error = false;
 
-    for (quint32 i = 0; i < requestBuffers.count; i++) {
+    for (int i = 0; i < int(requestBuffers.count); i++) {
         this->m_buffers[i].length = bufferSize;
         this->m_buffers[i].start = new char[bufferSize];
 
@@ -873,13 +873,13 @@ bool Capture::startCapture()
     bool error = false;
 
     if (this->m_ioMethod == IoMethodMemoryMap) {
-        for (qint32 i = 0; i < this->m_buffers.size(); i++) {
+        for (int i = 0; i < this->m_buffers.size(); i++) {
             v4l2_buffer buffer;
             memset(&buffer, 0, sizeof(buffer));
 
             buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
             buffer.memory = V4L2_MEMORY_MMAP;
-            buffer.index = i;
+            buffer.index = __u32(i);
 
             if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QBUF, &buffer) < 0)
                 error = true;
@@ -890,15 +890,15 @@ bool Capture::startCapture()
         if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_STREAMON, &type) < 0)
             error = true;
     } else if (this->m_ioMethod == IoMethodUserPointer) {
-        for (qint32 i = 0; i < this->m_buffers.size(); i++) {
+        for (int i = 0; i < this->m_buffers.size(); i++) {
             v4l2_buffer buffer;
             memset(&buffer, 0, sizeof(buffer));
 
             buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
             buffer.memory = V4L2_MEMORY_USERPTR;
-            buffer.index = i;
-            buffer.m.userptr = (unsigned long) this->m_buffers[i].start;
-            buffer.length = this->m_buffers[i].length;
+            buffer.index = __u32(i);
+            buffer.m.userptr = ulong(this->m_buffers[i].start);
+            buffer.length = __u32(this->m_buffers[i].length);
 
             if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_QBUF, &buffer) < 0)
                 error = true;
@@ -962,8 +962,8 @@ bool Capture::init()
 
     if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_G_FMT, &fmt) == 0) {
         fmt.fmt.pix.pixelformat = this->strToFourCC(caps.property("fourcc").toString());
-        fmt.fmt.pix.width = caps.property("width").toInt();
-        fmt.fmt.pix.height = caps.property("height").toInt();
+        fmt.fmt.pix.width = caps.property("width").toUInt();
+        fmt.fmt.pix.height = caps.property("height").toUInt();
 
         if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_S_FMT, &fmt) < 0) {
             qDebug() << "VideoCapture: Can't set format:" << this->fourccToStr(fmt.fmt.pix.pixelformat);

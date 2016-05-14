@@ -36,11 +36,11 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
     // form histogram
     QVector<HistogramListItem> histogram(256, HistogramListItem());
 
-    QRgb *dest = (QRgb *) oFrame.bits();
+    const QRgb *dest = reinterpret_cast<const QRgb *>(oFrame.constBits());
     int videoArea = oFrame.width() * oFrame.height();
 
     for (int i = 0; i < videoArea; i++) {
-        QRgb pixel = *dest++;
+        QRgb pixel = dest[i];
         histogram[qRed(pixel)].red++;
         histogram[qGreen(pixel)].green++;
         histogram[qBlue(pixel)].blue++;
@@ -49,7 +49,7 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
 
     // find the histogram boundaries by locating the .01 percent levels.
     ShortPixel high, low;
-    uint thresholdIntensity = videoArea / 1e3;
+    qint32 thresholdIntensity = qint32(oFrame.width() * oFrame.height() / 1e3);
     IntegerPixel intensity;
 
     for (low.red = 0; low.red < 256; low.red++) {
@@ -105,7 +105,7 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
     }
 
     // stretch the histogram to create the normalized image mapping.
-    QVector<CharPixel> normalizeMap(256);
+    QVector<IntegerPixel> normalizeMap(256);
 
     for (int i = 0; i < 256; i++) {
         if(i < low.red)
@@ -115,7 +115,7 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
                 normalizeMap[i].red = 255;
             else if (low.red != high.red)
                 normalizeMap[i].red = (255 * (i - low.red)) /
-                    (high.red-low.red);
+                    (high.red - low.red);
         }
 
         if (i < low.green)
@@ -125,7 +125,7 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
                 normalizeMap[i].green = 255;
             else if(low.green != high.green)
                 normalizeMap[i].green = (255 * (i - low.green)) /
-                    (high.green-low.green);
+                    (high.green - low.green);
         }
 
         if (i < low.blue)
@@ -135,26 +135,28 @@ AkPacket NormalizeElement::iStream(const AkPacket &packet)
                 normalizeMap[i].blue = 255;
             else if (low.blue != high.blue)
                 normalizeMap[i].blue = (255*(i-low.blue)) /
-                    (high.blue-low.blue);
+                    (high.blue - low.blue);
         }
     }
 
     // write
-    dest = (QRgb *) oFrame.bits();
+    for (int y = 0; y < oFrame.height(); y++) {
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++){
-        QRgb pixel = *dest;
+        for (int x = 0; x < oFrame.width(); x++) {
+            QRgb pixel = oLine[x];
 
-        uchar r = (low.red != high.red) ? normalizeMap[qRed(pixel)].red :
-                qRed(pixel);
+            int r = (low.red != high.red)? normalizeMap[qRed(pixel)].red:
+                    qRed(pixel);
 
-        uchar g = (low.green != high.green) ? normalizeMap[qGreen(pixel)].green :
-                    qGreen(pixel);
+            int g = (low.green != high.green)? normalizeMap[qGreen(pixel)].green:
+                        qGreen(pixel);
 
-        uchar b = (low.blue != high.blue) ?  normalizeMap[qBlue(pixel)].blue :
-                    qBlue(pixel);
+            int b = (low.blue != high.blue)?  normalizeMap[qBlue(pixel)].blue:
+                        qBlue(pixel);
 
-        *dest++ = qRgba(r, g, b, qAlpha(pixel));
+            oLine[x] = qRgba(r, g, b, qAlpha(pixel));
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

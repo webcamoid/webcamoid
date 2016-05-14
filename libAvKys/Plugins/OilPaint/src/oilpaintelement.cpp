@@ -45,7 +45,7 @@ QObject *OilPaintElement::controlInterface(QQmlEngine *engine, const QString &co
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("OilPaint", (QObject *) this);
+    context->setContextProperty("OilPaint", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -94,14 +94,14 @@ AkPacket OilPaintElement::iStream(const AkPacket &packet)
     QImage oFrame(src.size(), src.format());
     int histogram[256];
     int scanBlockLen = (radius << 1) + 1;
-    const QRgb *scanBlock[scanBlockLen];
+    QVector<const QRgb *> scanBlock(scanBlockLen);
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int j = 0, pos = y - radius; j < scanBlockLen; j++, pos++) {
             int yp = qBound(0, pos, src.height());
-            scanBlock[j] = (const QRgb *) src.constScanLine(yp);
+            scanBlock[j] = reinterpret_cast<const QRgb *>(src.constScanLine(yp));
         }
 
         for (int x = 0; x < src.width(); x++) {

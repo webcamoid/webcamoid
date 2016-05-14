@@ -44,7 +44,7 @@ AkPacket AkUtils::imageToPacket(const QImage &image, const AkPacket &defaultPack
         return AkPacket();
 
     QByteArray oBuffer(image.byteCount(), Qt::Uninitialized);
-    memcpy(oBuffer.data(), image.constBits(), image.byteCount());
+    memcpy(oBuffer.data(), image.constBits(), size_t(image.byteCount()));
 
     AkVideoCaps caps(defaultPacket.caps());
     caps.format() = imageToFormat->value(image.format());
@@ -72,11 +72,11 @@ QImage AkUtils::packetToImage(const AkPacket &packet)
     QImage image(caps.width(),
                  caps.height(),
                  imageToFormat->key(caps.format()));
-    memcpy(image.bits(), packet.buffer().constData(), packet.buffer().size());
+    memcpy(image.bits(), packet.buffer().constData(), size_t(packet.buffer().size()));
 
     if (caps.format() == AkVideoCaps::Format_gray)
         for (int i = 0; i < 256; i++)
-            image.setColor(i, i);
+            image.setColor(i, QRgb(i));
 
     return image;
 }

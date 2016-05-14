@@ -59,8 +59,7 @@ void BinElement::setDescription(const QString &description)
 
     this->setState(ElementStateNull);
 
-    if (this->m_description.isEmpty())
-    {
+    if (this->m_description.isEmpty()) {
         this->m_pipelineDescription.parse(description);
         QString error = this->m_pipelineDescription.error();
 
@@ -158,8 +157,7 @@ void BinElement::connectOutputs()
     QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
     int i = 0;
 
-    foreach (AkElementPtr element, this->m_outputs)
-    {
+    foreach (AkElementPtr element, this->m_outputs) {
         QObject::connect(element.data(),
                          &AkElement::oStream,
                          this,

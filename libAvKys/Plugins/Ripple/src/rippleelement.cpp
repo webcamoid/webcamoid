@@ -65,7 +65,7 @@ QObject *RippleElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Ripple", (QObject *) this);
+    context->setContextProperty("Ripple", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -116,28 +116,30 @@ QImage RippleElement::imageDiff(const QImage &img1,
     int width = qMin(img1.width(), img2.width());
     int height = qMin(img1.height(), img2.height());
     QImage diff(width, height, QImage::Format_ARGB32);
-    QRgb *img1Bits = (QRgb *) img1.bits();
-    QRgb *img2Bits = (QRgb *) img2.bits();
-    int *diffBits = (int *) diff.bits();
+    const QRgb *img1Bits = reinterpret_cast<const QRgb *>(img1.constBits());
+    const QRgb *img2Bits = reinterpret_cast<const QRgb *>(img2.constBits());
+    int *diffBits = reinterpret_cast<int *>(diff.bits());
 
     for (int y = 0; y < height; y++) {
         int i = y * width;
 
         for (int x = 0; x < width; x++, i++) {
-            int r1 = qRed(img1Bits[i]);
-            int g1 = qGreen(img1Bits[i]);
-            int b1 = qBlue(img1Bits[i]);
+            QRgb pixel1 = img1Bits[i];
+            int r1 = qRed(pixel1);
+            int g1 = qGreen(pixel1);
+            int b1 = qBlue(pixel1);
 
-            int r2 = qRed(img2Bits[i]);
-            int g2 = qGreen(img2Bits[i]);
-            int b2 = qBlue(img2Bits[i]);
+            QRgb pixel2 = img2Bits[i];
+            int r2 = qRed(pixel2);
+            int g2 = qGreen(pixel2);
+            int b2 = qBlue(pixel2);
 
             int dr = r1 - r2;
             int dg = g1 - g2;
             int db = b1 - b2;
 
             int s = dr * dr + dg * dg + db * db;
-            s = sqrt(s / 3);
+            s = int(sqrt(s / 3));
             s = s < threshold? 0: s;
 
             int gray = qGray(img2Bits[i]);
@@ -152,8 +154,8 @@ QImage RippleElement::imageDiff(const QImage &img1,
 
 void RippleElement::addDrops(const QImage &buffer, const QImage &drops)
 {
-    int *bufferBits = (int *) buffer.bits();
-    int *dropsBits = (int *) drops.bits();
+    int *bufferBits = const_cast<int *>(reinterpret_cast<const int *>(buffer.bits()));
+    const int *dropsBits = reinterpret_cast<const int *>(drops.constBits());
 
     for (int y = 0; y < buffer.height(); y++) {
         int xOffset = y * buffer.width();
@@ -166,17 +168,17 @@ void RippleElement::addDrops(const QImage &buffer, const QImage &drops)
 void RippleElement::ripple(const QImage &buffer1, const QImage &buffer2, int decay)
 {
     QImage buffer3(buffer1.size(), buffer1.format());
-    int *buffer1Bits = (int *) buffer1.bits();
-    int *buffer2Bits = (int *) buffer2.bits();
-    int *buffer3Bits = (int *) buffer3.bits();
+    const int *buffer1Bits = reinterpret_cast<const int *>(buffer1.constBits());
+    int *buffer2Bits = const_cast<int *>(reinterpret_cast<const int *>(buffer2.bits()));
+    int *buffer3Bits = const_cast<int *>(reinterpret_cast<const int *>(buffer3.bits()));
     int widthM1 = buffer1.width() - 1;
     int widthP1 = buffer1.width() + 1;
     int height = buffer1.height() - 1;
 
-    memset(buffer2Bits, 0, buffer1.bytesPerLine());
-    memset(buffer2Bits + height * buffer1.width(), 0, buffer1.bytesPerLine());
-    memset(buffer3Bits, 0, buffer1.bytesPerLine());
-    memset(buffer3Bits + height * buffer1.width(), 0, buffer1.bytesPerLine());
+    memset(buffer2Bits, 0, size_t(buffer1.bytesPerLine()));
+    memset(buffer2Bits + height * buffer1.width(), 0, size_t(buffer1.bytesPerLine()));
+    memset(buffer3Bits, 0, size_t(buffer1.bytesPerLine()));
+    memset(buffer3Bits + height * buffer1.width(), 0, size_t(buffer1.bytesPerLine()));
 
     for (int y = 1; y < height; y++) {
         buffer2Bits[y * buffer1.width()] = 0;
@@ -233,9 +235,9 @@ void RippleElement::ripple(const QImage &buffer1, const QImage &buffer2, int dec
 QImage RippleElement::applyWater(const QImage &src, const QImage &buffer)
 {
     QImage dest(src.size(), src.format());
-    QRgb *srcBits = (QRgb *) src.bits();
-    int *bufferBits = (int *) buffer.bits();
-    QRgb *destBits = (QRgb *) dest.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    const int *bufferBits = reinterpret_cast<const int *>(buffer.bits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
 
     for (int y = 0; y < src.height(); y++) {
         int xOfftset = y * src.width();
@@ -303,7 +305,7 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
             this->m_rainStat = 4;
         } else if (this->m_rainStat == 4) {
             this->m_period = (qrand() >> 24) + 60;
-            this->m_dropProbIncrement = -this->m_dropProb / this->m_period;
+            this->m_dropProbIncrement = -int(this->m_dropProb) / this->m_period;
             this->m_rainStat = 5;
         } else {
             this->m_period = (qrand() >> 23) + 500;
@@ -317,10 +319,10 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
     if (this->m_rainStat == 1
         || this->m_rainStat == 5) {
 
-        if ((qrand() >> 8) < (int) this->m_dropProb)
+        if ((qrand() >> 8) < int(this->m_dropProb))
             rain = this->drop(width, height, this->m_dropPower);
 
-        this->m_dropProb += this->m_dropProbIncrement;
+        this->m_dropProb += uint(this->m_dropProbIncrement);
     } else if (this->m_rainStat == 2
                || this->m_rainStat == 3
                || this->m_rainStat == 4) {

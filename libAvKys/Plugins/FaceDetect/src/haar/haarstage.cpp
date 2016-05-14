@@ -180,7 +180,7 @@ HaarStage &HaarStage::operator =(const HaarStage &other)
 bool HaarStage::operator ==(const HaarStage &other) const
 {
     if (this->m_trees == other.m_trees
-        && this->m_threshold == other.m_threshold
+        && qFuzzyCompare(this->m_threshold, other.m_threshold)
         && this->m_parentStage == other.m_parentStage
         && this->m_nextStage == other.m_nextStage
         && this->m_childStage == other.m_childStage)
@@ -205,7 +205,7 @@ void HaarStage::setTrees(const HaarTreeVector &trees)
 
 void HaarStage::setThreshold(qreal threshold)
 {
-    if (this->m_threshold == threshold)
+    if (qFuzzyCompare(this->m_threshold, threshold))
         return;
 
     this->m_threshold = threshold;

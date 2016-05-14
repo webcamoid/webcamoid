@@ -156,7 +156,7 @@ QVector<int> HaarDetectorPrivate::makeWeightTable(int factor) const
                 int d = c - m;
                 d *= d;
 
-                weight[(m << 16) | (s << 8) | c] = factor * exp(qreal(d) / h);
+                weight[(m << 16) | (s << 8) | c] = int(factor * exp(qreal(d) / h));
             }
     }
 
@@ -174,12 +174,12 @@ void HaarDetectorPrivate::computeGray(const QImage &src, bool equalize,
     else
         image = src.convertToFormat(QImage::Format_ARGB32);
 
-    QRgb *imageBits = (QRgb *) image.bits();
-    quint8 minGray = 255;
-    quint8 maxGray = 0;
+    const QRgb *imageBits = reinterpret_cast<const QRgb *>(image.constBits());
+    int minGray = 255;
+    int maxGray = 0;
 
     for (int i = 0; i < gray.size(); i++) {
-        quint8 pixel = qGray(imageBits[i]);
+        int pixel = qGray(imageBits[i]);
 
         if (equalize) {
             if (pixel < minGray)
@@ -189,7 +189,7 @@ void HaarDetectorPrivate::computeGray(const QImage &src, bool equalize,
                 maxGray = pixel;
         }
 
-        gray[i] = pixel;
+        gray[i] = quint8(pixel);
     }
 
     if (!equalize || maxGray == minGray)
@@ -198,7 +198,7 @@ void HaarDetectorPrivate::computeGray(const QImage &src, bool equalize,
     int diffGray = maxGray - minGray;
 
     for (int i = 0; i < gray.size(); i++)
-        gray[i] = 255 * (gray[i] - minGray) / diffGray;
+        gray[i] = quint8(255 * (gray[i] - minGray) / diffGray);
 }
 
 void HaarDetectorPrivate::computeIntegral(int width, int height,
@@ -216,7 +216,7 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
     const quint32 *integralPrevLine = integral.constData();
 
     for (int y = 1; y < height; y++) {
-        size_t yOffset = y * width;
+        size_t yOffset = size_t(y * width);
         const quint8 *imageLine = image.constData() + yOffset;
         quint32 *integralLine = integral.data() + yOffset;
 
@@ -255,7 +255,7 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
     const quint32 *integralPrevLine = integralData;
 
     for (int y = 1; y < height; y++) {
-        size_t yOffset = y * width;
+        size_t yOffset = size_t(y * width);
         const quint8 *imageLine = image.data() + yOffset;
         quint32 *integralLine = integralData + yOffset + paddingTL * y;
 
@@ -292,7 +292,7 @@ void HaarDetectorPrivate::computeIntegral(int width, int height,
     const quint64 *integral2PrevLine = integral2.constData();
 
     for (int y = 1; y < height; y++) {
-        size_t yOffset = y * width;
+        size_t yOffset = size_t(y * width);
         const quint8 *imageLine = image.constData() + yOffset;
         quint32 *integralLine = integral.data() + yOffset;
         quint64 *integral2Line = integral2.data() + yOffset;
@@ -412,10 +412,10 @@ QVector<quint8> HaarDetectorPrivate::canny(int width, int height,
         otsu = this->otsuThreshold(width, height, thinned, 6 * 255 + 1, 3);
 
     if (!qIsNaN(this->m_lowCannyThreshold))
-        otsu[0] = this->m_lowCannyThreshold;
+        otsu[0] = int(this->m_lowCannyThreshold);
 
     if (!qIsNaN(this->m_highCannyThreshold))
-        otsu[1] = this->m_highCannyThreshold;
+        otsu[1] = int(this->m_highCannyThreshold);
 
     QVector<int> colors(3);
     colors[0] = 0;
@@ -439,7 +439,7 @@ void HaarDetectorPrivate::imagePadding(int width, int height,
     for (int y = 0; y < height; y++) {
         const quint8 *imageLine = image.constData() + y * width;
         quint8 *paddedLine = padded.data() + y * oWidth + offset;
-        memcpy(paddedLine, imageLine, width);
+        memcpy(paddedLine, imageLine, size_t(width));
     }
 }
 
@@ -484,11 +484,11 @@ void HaarDetectorPrivate::denoise(int width, int height,
                          - integral2_p2[x]
                          - integral2_p3[x];
 
-            quint8 mean = sum / kernelSize2;
-            quint8 stdev = sqrt(sum2 / kernelSize2 - mean * mean);
+            quint8 mean = quint8(sum / uint(kernelSize2));
+            quint8 stdev = quint8(sqrt(sum2 / uint(kernelSize2) - mean * mean));
 
-            mean = qBound(0, mean + mu, 255);
-            stdev = qBound(0, stdev + sigma, 255);
+            mean = quint8(qBound(0, mean + mu, 255));
+            stdev = quint8(qBound(0, stdev + sigma, 255));
 
             int offset = x + y * oWidth;
 
@@ -501,14 +501,14 @@ void HaarDetectorPrivate::denoise(int width, int height,
                 for (int i = 0; i < kernelSize; i++) {
                     quint8 pixel = paddedLine[i];
                     int weight = this->m_weight[(mean << 16) | (stdev << 8) | pixel];
-                    sumPound += weight * pixel;
-                    sumWeights += weight;
+                    sumPound += quint64(weight * pixel);
+                    sumWeights += quint64(weight);
                 }
             }
 
             denoised[pixels] = sumWeights < 1?
                                    gray[pixels]:
-                                   sumPound / sumWeights;
+                                   quint8(sumPound / sumWeights);
         }
     }
 }
@@ -522,7 +522,7 @@ void HaarDetectorPrivate::sobel(int width, int height,
     direction.resize(gray.size());
 
     for (int y = 0; y < height; y++) {
-        size_t yOffset = y * width;
+        size_t yOffset = size_t(y * width);
         const quint8 *grayLine = gray.constData() + yOffset;
 
         const quint8 *grayLine_m1 = y < 1? grayLine: grayLine - width;
@@ -623,8 +623,8 @@ QVector<qreal> HaarDetectorPrivate::otsuTable(int width, int height,
         P[i] = new qreal[levels];
         S[i] = new qreal[levels];
 
-        memset(P[i], 0, levels * sizeof(qreal));
-        memset(S[i], 0, levels * sizeof(qreal));
+        memset(P[i], 0, size_t(levels) * sizeof(qreal));
+        memset(S[i], 0, size_t(levels) * sizeof(qreal));
     }
 
     // diagonal
@@ -651,7 +651,7 @@ QVector<qreal> HaarDetectorPrivate::otsuTable(int width, int height,
     // now calculate H[i][j]
     for (int i = 1; i < levels; i++)
         for (int j = i + 1; j < levels; j++)
-            if (P[i][j] != 0)
+            if (!qIsNull(P[i][j]))
                 H[j + i * levels] =
                         (S[i][j] * S[i][j])
                         / (P[i][j] * imageSize);
@@ -677,8 +677,8 @@ QVector<int> HaarDetectorPrivate::otsuThreshold(int width, int height,
     QVector<qreal> H = this->otsuTable(width, height, histogram, levels);
     const qreal *Hptr = H.constData();
     qreal maxSum = 0;
-    int limits[otsu.size()];
-    int index[otsu.size()];
+    QVector<int> limits(otsu.size());
+    QVector<int> index(otsu.size());
 
     for (int i = 0; i < nClasses - 1; i++) {
         limits[i] = levels - nClasses + i;
@@ -794,7 +794,7 @@ QVector<quint8> HaarDetectorPrivate::threshold(int width, int height,
                 break;
             }
 
-        out[i] = value < 0? map[thresholds.size()]: value;
+        out[i] = quint8(value < 0? map[thresholds.size()]: value);
     }
 
     return out;
@@ -1163,10 +1163,10 @@ QVector<QRect> HaarDetector::detect(const QImage &image, qreal scaleFactor,
             int width = qRound(0.7 * windowWidth);
             int height = qRound(0.7 * windowHeight);
 
-            offset0 = x + y * oWidth;
-            offset1 = x + width + y * oWidth;
-            offset2 = x + (y + height) * oWidth;
-            offset3 = x + width + (y + height) * oWidth;
+            offset0 = size_t(x + y * oWidth);
+            offset1 = size_t(x + width + y * oWidth);
+            offset2 = size_t(x + (y + height) * oWidth);
+            offset3 = size_t(x + width + (y + height) * oWidth);
 
             ip[0] = integral.constData() + offset0;
             ip[1] = integral.constData() + offset1;
@@ -1184,10 +1184,10 @@ QVector<QRect> HaarDetector::detect(const QImage &image, qreal scaleFactor,
         int rectWidth = qRound(scale * (this->d->m_cascade.windowSize().width() - 2 * border));
         int rectHeight = qRound(scale * (this->d->m_cascade.windowSize().height() - 2 * border));
 
-        offset0 = rectX + rectY * oWidth;
-        offset1 = rectX + rectWidth + rectY * oWidth;
-        offset2 = rectX + (rectY + rectHeight) * oWidth;
-        offset3 = rectX + rectWidth + (rectY + rectHeight) * oWidth;
+        offset0 = size_t(rectX + rectY * oWidth);
+        offset1 = size_t(rectX + rectWidth + rectY * oWidth);
+        offset2 = size_t(rectX + (rectY + rectHeight) * oWidth);
+        offset3 = size_t(rectX + rectWidth + (rectY + rectHeight) * oWidth);
 
         p[0] = integral.constData() + offset0;
         p[1] = integral.constData() + offset1;
@@ -1277,7 +1277,7 @@ void HaarDetector::setCannyPruning(bool cannyPruning)
 
 void HaarDetector::setLowCannyThreshold(qreal lowCannyThreshold)
 {
-    if (this->d->m_lowCannyThreshold == lowCannyThreshold)
+    if (qFuzzyCompare(this->d->m_lowCannyThreshold, lowCannyThreshold))
         return;
 
     this->d->m_lowCannyThreshold = lowCannyThreshold;
@@ -1286,7 +1286,7 @@ void HaarDetector::setLowCannyThreshold(qreal lowCannyThreshold)
 
 void HaarDetector::setHighCannyThreshold(qreal highCannyThreshold)
 {
-    if (this->d->m_highCannyThreshold == highCannyThreshold)
+    if (qFuzzyCompare(this->d->m_highCannyThreshold, highCannyThreshold))
         return;
 
     this->d->m_highCannyThreshold = highCannyThreshold;

@@ -26,7 +26,7 @@ AgingElement::AgingElement(): AkElement()
     this->m_scratches.resize(7);
     this->m_addDust = true;
 
-    qsrand(QTime::currentTime().msec());
+    qsrand(uint(QTime::currentTime().msec()));
 }
 
 QObject *AgingElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -50,7 +50,7 @@ QObject *AgingElement::controlInterface(QQmlEngine *engine, const QString &contr
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Aging", (QObject *) this);
+    context->setContextProperty("Aging", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -85,8 +85,8 @@ QImage AgingElement::colorAging(const QImage &src)
     int colorVariance = 24;
     int luma = -32 + qrand() % lumaVariance;
 
-    const QRgb *srcBits = (const QRgb *) src.constBits();
-    QRgb *destBits = (QRgb *) dest.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
     int videoArea = dest.width() * dest.height();
 
     for (int i = 0; i < videoArea; i++) {
@@ -130,7 +130,7 @@ void AgingElement::scratching(QImage &dest)
 
         int lumaVariance = 8;
         int luma = 32 + qrand() % lumaVariance;
-        int x = this->m_scratches[i].x();
+        int x = int(this->m_scratches[i].x());
 
         int y1 = this->m_scratches[i].y();
         int y2 = this->m_scratches[i].isAboutToDie()?
@@ -138,7 +138,7 @@ void AgingElement::scratching(QImage &dest)
                      dest.height();
 
         for (int y = y1; y < y2; y++) {
-            QRgb *line = (QRgb *) dest.scanLine(y);
+            QRgb *line = reinterpret_cast<QRgb *>(dest.scanLine(y));
             int r = qRed(line[x]) + luma;
             int g = qGreen(line[x]) + luma;
             int b = qBlue(line[x]) + luma;
@@ -157,7 +157,7 @@ void AgingElement::scratching(QImage &dest)
 void AgingElement::pits(QImage &dest)
 {
     int pnum;
-    int pnumscale = 0.03 * qMax(dest.width(), dest.height());
+    int pnumscale = int(0.03 * qMax(dest.width(), dest.height()));
     static int pitsInterval = 0;
 
     if (pitsInterval) {
@@ -183,7 +183,7 @@ void AgingElement::pits(QImage &dest)
                 || y < 0 || y >= dest.height())
                 continue;
 
-            QRgb *line = (QRgb *) dest.scanLine(y);
+            QRgb *line = reinterpret_cast<QRgb *>(dest.scanLine(y));
             line[x] = qRgb(192, 192, 192);
         }
     }
@@ -202,7 +202,7 @@ void AgingElement::dusts(QImage &dest)
 
     dustInterval--;
 
-    int areaScale = 0.02 * qMax(dest.width(), dest.height());
+    int areaScale = int(0.02 * qMax(dest.width(), dest.height()));
     int dnum = areaScale * 4 + (qrand() % 32);
 
     for (int i = 0; i < dnum; i++) {
@@ -218,7 +218,7 @@ void AgingElement::dusts(QImage &dest)
                 || y < 0 || y >= dest.height())
                 continue;
 
-            QRgb *line = (QRgb *) dest.scanLine(y);
+            QRgb *line = reinterpret_cast<QRgb *>(dest.scanLine(y));
             line[x] = qRgb(16, 16, 16);
         }
     }

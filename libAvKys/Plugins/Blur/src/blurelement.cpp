@@ -45,7 +45,7 @@ QObject *BlurElement::controlInterface(QQmlEngine *engine, const QString &contro
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Blur", (QObject *) this);
+    context->setContextProperty("Blur", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -72,7 +72,7 @@ void BlurElement::integralImage(const QImage &image,
                                 PixelU32 *integral)
 {
     for (int y = 1; y < oHeight; y++) {
-        const QRgb *line = (const QRgb *) image.constScanLine(y - 1);
+        const QRgb *line = reinterpret_cast<const QRgb *>(image.constScanLine(y - 1));
 
         // Reset current line summation.
         PixelU32 sum;
@@ -128,7 +128,7 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
     int radius = this->m_radius;
 
     for (int y = 0; y < src.height(); y++) {
-        QRgb *oLine = (QRgb *) oFrame.scanLine(y);
+        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
         int yp = qMax(y - radius, 0);
         int kh = qMin(y + radius, src.height() - 1) - yp + 1;
 
@@ -139,7 +139,7 @@ AkPacket BlurElement::iStream(const AkPacket &packet)
             PixelU32 sum = integralSum(integral, oWidth, xp, yp, kw, kh);
             PixelU32 mean = sum / quint32(kw * kh);
 
-            oLine[x] = qRgba(mean.r, mean.g, mean.b, mean.a);
+            oLine[x] = qRgba(int(mean.r), int(mean.g), int(mean.b), int(mean.a));
         }
     }
 

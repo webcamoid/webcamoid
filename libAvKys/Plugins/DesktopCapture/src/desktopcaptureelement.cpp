@@ -34,17 +34,14 @@ DesktopCaptureElement::DesktopCaptureElement():
                      &QGuiApplication::screenAdded,
                      this,
                      &DesktopCaptureElement::screenCountChanged);
-
     QObject::connect(qApp,
                      &QGuiApplication::screenRemoved,
                      this,
                      &DesktopCaptureElement::screenCountChanged);
-
     QObject::connect(QApplication::desktop(),
                      &QDesktopWidget::resized,
                      this,
                      &DesktopCaptureElement::srceenResized);
-
     QObject::connect(&this->m_timer,
                      &QTimer::timeout,
                      this,
@@ -177,7 +174,7 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
             this->m_timer.start();
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStateNull:
             break;
         }
 
@@ -191,7 +188,7 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
             this->m_timer.start();
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStatePaused:
             break;
         }
 
@@ -205,14 +202,12 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
             this->m_threadStatus.waitForFinished();
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStatePlaying:
             break;
         }
 
         break;
     }
-    default:
-        break;
     }
 
     return false;
@@ -238,7 +233,7 @@ void DesktopCaptureElement::readFrame()
     if (!packet)
         return;
 
-    qint64 pts = QTime::currentTime().msecsSinceStartOfDay() * fps.value();
+    qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay() * fps.value());
 
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());

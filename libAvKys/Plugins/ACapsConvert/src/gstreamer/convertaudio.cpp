@@ -208,14 +208,14 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
 
     // Write audio frame to the pipeline.
     GstBuffer *buffer = gst_buffer_new_allocate(NULL,
-                                                packet.buffer().size(),
+                                                gsize(packet.buffer().size()),
                                                 NULL);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
     memcpy(info.data, packet.buffer().constData(), info.size);
     gst_buffer_unmap(buffer, &info);
 
-    GST_BUFFER_PTS(buffer) = packet.pts() * packet.timeBase().value() * GST_SECOND;
+    GST_BUFFER_PTS(buffer) = GstClockTime(packet.pts() * packet.timeBase().value() * GST_SECOND);
     GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
@@ -231,14 +231,14 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     buffer = gst_sample_get_buffer(sample);
 
     gst_buffer_map(buffer, &info, GST_MAP_READ);
-    QByteArray oBuffer(info.size, Qt::Uninitialized);
+    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
     memcpy(oBuffer.data(), info.data, info.size);
     gst_buffer_unmap(buffer, &info);
-    qint64 pts = GST_BUFFER_PTS(buffer) / packet.timeBase().value() / GST_SECOND;
+    qint64 pts = qint64(GST_BUFFER_PTS(buffer) / packet.timeBase().value() / GST_SECOND);
     gst_sample_unref(sample);
 
     // Create a package and return it.
-    int nSamples = 8 * info.size
+    int nSamples = 8 * int(info.size)
                    / AkAudioCaps::bitsPerSample(oAudioCaps.format())
                    / oAudioCaps.channels();
 
@@ -296,7 +296,9 @@ gboolean ConvertAudio::busCallback(GstBus *bus,
 
         GstElement *element = GST_ELEMENT(GST_MESSAGE_SRC(message));
 
-        for (const GList *padItem = GST_ELEMENT_PADS(element); padItem; padItem = g_list_next(padItem)) {
+        for (const GList *padItem = GST_ELEMENT_PADS(element);
+             padItem;
+             padItem = g_list_next(padItem)) {
             GstPad *pad = GST_PAD_CAST(padItem->data);
             GstCaps *curCaps = gst_pad_get_current_caps(pad);
             gchar *curCapsStr = gst_caps_to_string(curCaps);

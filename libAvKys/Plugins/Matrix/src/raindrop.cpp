@@ -104,7 +104,7 @@ RainDrop RainDrop::operator ++(int)
 
 bool RainDrop::isVisible() const
 {
-    return (int) this->m_pos.y() + 1 - this->m_length < this->m_line.size();
+    return int(this->m_pos.y() + 1 - this->m_length) < this->m_line.size();
 }
 
 QImage RainDrop::render(QRgb tailColor, bool showCursor)
@@ -150,7 +150,7 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
     QRgb background;
 
     for (int i = 0; i < this->m_length; i++) {
-        int c = i + this->m_pos.y() + 1 - this->m_length;
+        int c = int(i + this->m_pos.y() + 1 - this->m_length);
 
         if (c >= 0 && c < this->m_line.size()) {
             if (i == this->m_length - 1) {
@@ -192,17 +192,17 @@ QImage RainDrop::render(QRgb tailColor, bool showCursor)
 
 QPoint RainDrop::pos() const
 {
-    int x = this->m_pos.x() * this->m_fontSize.width();
-    int y = ((int) this->m_pos.y() + 1 - this->m_length) * this->m_fontSize.height();
+    int x = int(this->m_pos.x() * this->m_fontSize.width());
+    int y = int(this->m_pos.y() + 1 - this->m_length) * this->m_fontSize.height();
 
     return QPoint(x, y);
 }
 
 QPoint RainDrop::tail() const
 {
-    int y = (int) this->m_pos.y() - this->m_length;
+    int y = int(this->m_pos.y() - this->m_length);
 
-    return QPoint(this->m_pos.x(), y);
+    return QPoint(int(this->m_pos.x()), y);
 }
 
 QImage RainDrop::drawChar(const QChar &chr,

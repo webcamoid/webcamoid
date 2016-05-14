@@ -88,7 +88,7 @@ class CameraOut: public QObject
         QFileSystemWatcher *m_fsWatcher;
         int m_fd;
 
-        inline int xioctl(int fd, int request, void *arg) const
+        inline int xioctl(int fd, ulong request, void *arg) const
         {
             int r = -1;
 

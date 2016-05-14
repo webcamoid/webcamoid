@@ -26,4 +26,4 @@ SOURCES += \
     $$PWD/capture.cpp \
     $$PWD/framegrabber.cpp
 
-LIBS += -lstrmiids -lole32 -loleaut32
+LIBS += -lstrmiids -luuid -lole32 -loleaut32

@@ -17,33 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOFRAME_H
-#define VIDEOFRAME_H
+#include "akplugin.h"
 
-#include <QSGTexture>
-#include <QGLContext>
-
-#include "akutils.h"
-
-class VideoFrame: public QSGTexture
+AkPlugin::~AkPlugin()
 {
-    Q_OBJECT
-
-    public:
-        explicit VideoFrame(const AkPacket &packet=AkPacket());
-        ~VideoFrame();
-
-        VideoFrame &operator =(const AkPacket &packet);
-
-        void bind();
-        bool hasAlphaChannel() const;
-        bool hasMipmaps() const;
-        int textureId() const;
-        QSize textureSize() const;
-
-    private:
-        QImage m_image;
-        GLuint m_textureId;
-};
-
-#endif // VIDEOFRAME_H
+}

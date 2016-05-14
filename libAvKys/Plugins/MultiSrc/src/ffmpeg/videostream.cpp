@@ -66,7 +66,7 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
 
     if (!packet) {
-        this->dataEnqueue((AVFrame *) NULL);
+        this->dataEnqueue(reinterpret_cast<AVFrame *>(NULL));
 
         return;
     }
@@ -111,7 +111,7 @@ void VideoStream::processData(AVFrame *frame)
                 break;
             } else if (diff > syncThreshold) {
                 // Video is ahead the external clock.
-                QThread::usleep(1e6 * (diff - syncThreshold));
+                QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
 
                 continue;
             }
@@ -174,9 +174,9 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays((uint8_t **) oFrame.data,
+    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(oFrame.data),
                              oFrame.linesize,
-                             (const uint8_t *) oBuffer.constData(),
+                             reinterpret_cast<const uint8_t *>(oBuffer.constData()),
                              outPixFormat,
                              iFrame->width,
                              iFrame->height,
@@ -207,7 +207,7 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     oPacket.buffer() = oBuffer;
     oPacket.pts() = av_frame_get_best_effort_timestamp(iFrame);
     oPacket.timeBase() = this->timeBase();
-    oPacket.index() = this->index();
+    oPacket.index() = int(this->index());
     oPacket.id() = this->id();
 
     return oPacket.toPacket();

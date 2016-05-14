@@ -49,7 +49,7 @@ QObject *TemperatureElement::controlInterface(QQmlEngine *engine,
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Temperature", (QObject *) this);
+    context->setContextProperty("Temperature", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -73,7 +73,7 @@ qreal TemperatureElement::temperature() const
 
 void TemperatureElement::setTemperature(qreal temperature)
 {
-    if (this->m_temperature == temperature)
+    if (qFuzzyCompare(this->m_temperature, temperature))
         return;
 
     this->m_temperature = temperature;
@@ -98,13 +98,13 @@ AkPacket TemperatureElement::iStream(const AkPacket &packet)
     int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     for (int i = 0; i < videoArea; i++) {
-        int r = this->m_kr * qRed(srcBits[i]);
-        int g = this->m_kg * qGreen(srcBits[i]);
-        int b = this->m_kb * qBlue(srcBits[i]);
+        int r = int(this->m_kr * qRed(srcBits[i]));
+        int g = int(this->m_kg * qGreen(srcBits[i]));
+        int b = int(this->m_kb * qBlue(srcBits[i]));
 
         r = qBound(0, r, 255);
         g = qBound(0, g, 255);

@@ -47,7 +47,7 @@ QObject *ScanLinesElement::controlInterface(QQmlEngine *engine, const QString &c
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ScanLines", (QObject *) this);
+    context->setContextProperty("ScanLines", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -139,10 +139,10 @@ AkPacket ScanLinesElement::iStream(const AkPacket &packet)
 
     for (int y = 0; y < src.height(); y++) {
         for (int i = 0; i < showSize && y < src.height(); i++, y++)
-            memcpy(oFrame.scanLine(y), src.scanLine(y), src.bytesPerLine());
+            memcpy(oFrame.scanLine(y), src.scanLine(y), size_t(src.bytesPerLine()));
 
         for (int j = 0; j < hideSize && y < src.height(); j++, y++) {
-            QRgb *line = (QRgb *) oFrame.scanLine(y);
+            QRgb *line = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
             for (int x = 0; x < src.width(); x++)
                 line[x] = this->m_hideColor;

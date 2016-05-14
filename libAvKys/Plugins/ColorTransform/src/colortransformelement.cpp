@@ -47,7 +47,7 @@ QObject *ColorTransformElement::controlInterface(QQmlEngine *engine, const QStri
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ColorTransform", (QObject *) this);
+    context->setContextProperty("ColorTransform", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -114,8 +114,8 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
 
     QImage oFrame(src.size(), src.format());
 
-    QRgb *srcBits = (QRgb *) src.bits();
-    QRgb *destBits = (QRgb *) oFrame.bits();
+    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
+    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     QVector<qreal> kernel = this->m_kernel;
 
@@ -124,9 +124,9 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
         int g = qGreen(srcBits[i]);
         int b = qBlue(srcBits[i]);
 
-        int rt = r * kernel[0] + g * kernel[1] + b * kernel[2]  + kernel[3];
-        int gt = r * kernel[4] + g * kernel[5] + b * kernel[6]  + kernel[7];
-        int bt = r * kernel[8] + g * kernel[9] + b * kernel[10] + kernel[11];
+        int rt = int(r * kernel[0] + g * kernel[1] + b * kernel[2]  + kernel[3]);
+        int gt = int(r * kernel[4] + g * kernel[5] + b * kernel[6]  + kernel[7]);
+        int bt = int(r * kernel[8] + g * kernel[9] + b * kernel[10] + kernel[11]);
 
         rt = qBound(0, rt, 255);
         gt = qBound(0, gt, 255);

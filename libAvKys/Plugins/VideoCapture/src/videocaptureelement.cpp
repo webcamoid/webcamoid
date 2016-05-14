@@ -84,7 +84,7 @@ QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("VideoCapture", (QObject *) this);
+    context->setContextProperty("VideoCapture", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", controlId);
 
     // Create an item with the plugin context.
@@ -330,7 +330,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 
             return AkElement::setState(state);
         }
-        default:
+        case AkElement::ElementStateNull:
             break;
         }
 
@@ -349,7 +349,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             this->m_pause = false;
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStatePaused:
             break;
         }
 
@@ -367,14 +367,12 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             this->m_pause = true;
 
             return AkElement::setState(state);
-        default:
+        case AkElement::ElementStatePlaying:
             break;
         }
 
         break;
     }
-    default:
-        break;
     }
 
     return false;

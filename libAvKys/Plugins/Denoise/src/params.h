@@ -30,7 +30,7 @@ struct DenoiseParams
     int kh;
     PixelU8 iPixel;
     QRgb *oPixel;
-    quint8 alpha;
+    int alpha;
 };
 
 struct DenoiseStaticParams

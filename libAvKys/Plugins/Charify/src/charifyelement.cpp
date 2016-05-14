@@ -144,7 +144,7 @@ QObject *CharifyElement::controlInterface(QQmlEngine *engine, const QString &con
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Charify", (QObject *) this);
+    context->setContextProperty("Charify", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -241,7 +241,7 @@ QImage CharifyElement::drawChar(const QChar &chr, const QFont &font,
 int CharifyElement::imageWeight(const QImage &image, bool reversed) const
 {
     int fontArea = image.width() * image.height();
-    const QRgb *imageBits = (const QRgb *) image.constBits();
+    const QRgb *imageBits = reinterpret_cast<const QRgb *>(image.constBits());
     int weight = 0;
 
     for (int i = 0; i < fontArea; i++)
@@ -425,7 +425,7 @@ AkPacket CharifyElement::iStream(const AkPacket &packet)
     }
 
     QImage textImage = src.scaled(textWidth, textHeight);
-    const QRgb *textImageBits = (const QRgb *) textImage.constBits();
+    const QRgb *textImageBits = reinterpret_cast<const QRgb *>(textImage.constBits());
     int textArea = textImage.width() * textImage.height();
     QPainter painter;
 

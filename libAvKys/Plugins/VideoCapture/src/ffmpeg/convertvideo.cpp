@@ -206,8 +206,8 @@ bool ConvertVideo::init(const AkCaps &caps)
     this->m_codecContext->width = caps.property("width").toInt();
     this->m_codecContext->height = caps.property("height").toInt();
     AkFrac fps = caps.property("fps").toString();
-    this->m_codecContext->framerate.num = fps.num();
-    this->m_codecContext->framerate.den = fps.den();
+    this->m_codecContext->framerate.num = int(fps.num());
+    this->m_codecContext->framerate.den = int(fps.den());
     this->m_codecContext->workaround_bugs = 1;
     this->m_codecContext->idct_algo = FF_IDCT_AUTO;
     this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
@@ -276,7 +276,7 @@ void ConvertVideo::packetLoop(ConvertVideo *stream)
 
             AVPacket videoPacket;
             av_init_packet(&videoPacket);
-            videoPacket.data = (uint8_t *) packet.buffer().constData();
+            videoPacket.data = reinterpret_cast<uint8_t *>(packet.buffer().data());
             videoPacket.size = packet.buffer().size();
             videoPacket.pts = packet.pts();
             int gotFrame;
@@ -350,7 +350,7 @@ void ConvertVideo::processData(const FramePtr &frame)
                 break;
             } else if (diff > syncThreshold) {
                 // video is ahead the external clock.
-                QThread::usleep(1e6 * (diff - syncThreshold));
+                QThread::usleep(ulong(1e6 * (diff - syncThreshold)));
 
                 continue;
             }
@@ -395,9 +395,9 @@ void ConvertVideo::convert(const FramePtr &frame)
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays((uint8_t **) oFrame.data,
+    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(oFrame.data),
                              oFrame.linesize,
-                             (const uint8_t *) oBuffer.constData(),
+                             reinterpret_cast<const uint8_t *>(oBuffer.constData()),
                              outPixFormat,
                              frame->width,
                              frame->height,

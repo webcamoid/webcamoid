@@ -145,7 +145,7 @@ bool AudioDev::preferredFormat(DeviceMode mode,
 
     *sampleFormat = sampleFormats->value(fmtStr, AkAudioCaps::SampleFormat_u8);
     *channels = pwfx->nChannels;
-    *sampleRate = pwfx->nSamplesPerSec;
+    *sampleRate = int(pwfx->nSamplesPerSec);
 
     if (!isActivated)
 
@@ -192,7 +192,7 @@ bool AudioDev::init(DeviceMode mode,
                                      NULL,
                                      CLSCTX_ALL,
                                      IID_IMMDeviceEnumerator,
-                                     (void **) &this->m_pEnumerator))) {
+                                     reinterpret_cast<void **>(&this->m_pEnumerator)))) {
         this->m_error = "CoCreateInstance: " + errorCodes->value(hr);
         emit this->errorChanged(this->m_error);
 
@@ -215,7 +215,7 @@ bool AudioDev::init(DeviceMode mode,
     if (FAILED(hr = this->m_pDevice->Activate(IID_IAudioClient,
                                               CLSCTX_ALL,
                                               NULL,
-                                              (void **) &this->m_pAudioClient))) {
+                                              reinterpret_cast<void **>(&this->m_pAudioClient)))) {
         this->m_error = "Activate: " + errorCodes->value(hr);
         emit this->errorChanged(this->m_error);
         this->uninit();
@@ -249,11 +249,11 @@ bool AudioDev::init(DeviceMode mode,
     WAVEFORMATEX wfx;
     wfx.wFormatTag = sampleFormat == AkAudioCaps::SampleFormat_flt?
                          WAVE_FORMAT_IEEE_FLOAT: WAVE_FORMAT_PCM;
-    wfx.nChannels = channels;
-    wfx.nSamplesPerSec = sampleRate;
-    wfx.wBitsPerSample = bps;
-    wfx.nBlockAlign = channels * bps / 8;
-    wfx.nAvgBytesPerSec = sampleRate * wfx.nBlockAlign;
+    wfx.nChannels = WORD(channels);
+    wfx.nSamplesPerSec = DWORD(sampleRate);
+    wfx.wBitsPerSample = WORD(bps);
+    wfx.nBlockAlign = WORD(channels * bps / 8);
+    wfx.nAvgBytesPerSec = DWORD(sampleRate * wfx.nBlockAlign);
     wfx.cbSize = 0;
 
     this->m_curBps = bps / 8;
@@ -296,10 +296,10 @@ bool AudioDev::init(DeviceMode mode,
     // Get audio capture/render client.
     if (mode == DeviceModeCapture)
         hr = this->m_pAudioClient->GetService(IID_IAudioCaptureClient,
-                                              (void **) &this->m_pCaptureClient);
+                                              reinterpret_cast<void **>(&this->m_pCaptureClient));
     else
         hr = this->m_pAudioClient->GetService(IID_IAudioRenderClient,
-                                              (void **) &this->m_pRenderClient);
+                                              reinterpret_cast<void **>(&this->m_pRenderClient));
 
     if (FAILED(hr)) {
         this->m_error = "GetService: " + errorCodes->value(hr);
@@ -369,7 +369,7 @@ QByteArray AudioDev::read(int samples)
             return QByteArray();
         }
 
-        int bufferSize = samplesCount * this->m_curBps * this->m_curChannels;
+        size_t bufferSize = samplesCount * size_t(this->m_curBps * this->m_curChannels);
 
         // This flag means we must ignore the incoming buffer and write zeros
         // to it.
@@ -379,7 +379,7 @@ QByteArray AudioDev::read(int samples)
         }
 
         // Copy audio frame to the audio buffer.
-        QByteArray buffer((const char *) pData, bufferSize);
+        QByteArray buffer(reinterpret_cast<const char *>(pData), int(bufferSize));
 
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
             delete [] pData;
@@ -449,10 +449,10 @@ bool AudioDev::write(const QByteArray &frame)
             continue;
 
         // Check how many samples we can write to the audio buffer.
-        int samplesInBuffer = this->m_audioBuffer.size()
-                              / this->m_curBps
-                              / this->m_curChannels;
-        UINT32 samplesToWrite = qMin<UINT32>(availableSamples, samplesInBuffer);
+        UINT32 samplesInBuffer = UINT32(this->m_audioBuffer.size()
+                                        / this->m_curBps
+                                        / this->m_curChannels);
+        UINT32 samplesToWrite = qMin(availableSamples, samplesInBuffer);
 
         BYTE *pData = NULL;
 
@@ -466,12 +466,12 @@ bool AudioDev::write(const QByteArray &frame)
 
         // Copy the maximum number of audio samples we can write to the audio
         // buffer.
-        int bufferSize = samplesToWrite
-                         * this->m_curBps
-                         * this->m_curChannels;
+        size_t bufferSize = samplesToWrite
+                            * this->m_curBps
+                            * this->m_curChannels;
 
         memcpy(pData, this->m_audioBuffer.constData(), bufferSize);
-        this->m_audioBuffer.remove(0, bufferSize);
+        this->m_audioBuffer.remove(0, int(bufferSize));
 
         // Tell audio device how many samples we had written.
         if (FAILED(hr = this->m_pRenderClient->ReleaseBuffer(samplesToWrite, 0))) {
