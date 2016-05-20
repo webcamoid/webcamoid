@@ -147,7 +147,7 @@ ApplicationWindow {
 
     FileDialog {
         id: fileDialog
-        text: qsTr("Choose the file to add as media")
+        title: qsTr("Choose the file to add as media")
         selectExisting: true
         selectFolder: false
         selectMultiple: false

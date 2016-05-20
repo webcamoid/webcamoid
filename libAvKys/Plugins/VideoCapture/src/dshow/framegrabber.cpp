@@ -61,14 +61,14 @@ HRESULT FrameGrabber::QueryInterface(const IID &riid, void **ppvObject)
 HRESULT FrameGrabber::SampleCB(double time, IMediaSample *sample)
 {
     BYTE *buffer = NULL;
-    ulong bufferSize = sample->GetSize();
+    LONG bufferSize = sample->GetSize();
 
     HRESULT hr = sample->GetPointer(&buffer);
 
     if (FAILED(hr))
         return S_FALSE;
 
-    QByteArray oBuffer((char *) buffer, bufferSize);
+    QByteArray oBuffer(reinterpret_cast<char *>(buffer), bufferSize);
 
     emit this->frameReady(time, oBuffer);
 
@@ -77,7 +77,7 @@ HRESULT FrameGrabber::SampleCB(double time, IMediaSample *sample)
 
 HRESULT FrameGrabber::BufferCB(double time, BYTE *buffer, long bufferSize)
 {
-    QByteArray oBuffer((char *) buffer, bufferSize);
+    QByteArray oBuffer(reinterpret_cast<char *>(buffer), bufferSize);
 
     emit this->frameReady(time, oBuffer);
 
