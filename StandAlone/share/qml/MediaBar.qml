@@ -55,13 +55,22 @@ Rectangle {
         onStreamsChanged: recMediaBar.updateMediaList()
     }
 
+    Label {
+        id: lblNoWebcams
+        height: visible? 32: 0
+        text: qsTr("No webcams found")
+        verticalAlignment: Text.AlignVCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        visible: Webcamoid.webcams.length < 1
+        enabled: false
+    }
     OptionList {
         id: lsvMediaList
         textRole: "description"
         anchors.bottom: recAddMedia.top
         anchors.right: parent.right
         anchors.left: parent.left
-        anchors.top: parent.top
+        anchors.top: lblNoWebcams.bottom
 
         onCurrentIndexChanged: {
             var option = model.get(currentIndex)

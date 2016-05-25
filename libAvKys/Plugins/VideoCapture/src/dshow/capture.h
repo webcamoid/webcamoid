@@ -106,7 +106,6 @@ class Capture: public QObject
         QString m_device;
         QList<int> m_streams;
         qint64 m_id;
-        AkCaps m_caps;
         AkFrac m_timeBase;
         IoMethod m_ioMethod;
         QMap<QString, QSize> m_resolution;
@@ -117,6 +116,7 @@ class Capture: public QObject
         QMutex m_mutex;
         QWaitCondition m_waitCondition;
 
+        AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const;
         AkCaps capsFromMediaType(const MediaTypePtr &mediaType) const;
         HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
         MonikersMap listMonikers() const;

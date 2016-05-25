@@ -626,6 +626,17 @@ bool MediaTools::isPlaying()
     return false;
 }
 
+QStringList MediaTools::webcams()
+{
+    QStringList webcams;
+
+    QMetaObject::invokeMethod(this->m_videoCapture.data(),
+                              "medias",
+                              Q_RETURN_ARG(QStringList, webcams));
+
+    return webcams;
+}
+
 QString MediaTools::fileNameFromUri(const QString &uri) const
 {
     return QFileInfo(uri).baseName();

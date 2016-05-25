@@ -470,6 +470,11 @@ bool Capture::resetCameraControls() const
 
 AkPacket Capture::readFrame()
 {
+    AM_MEDIA_TYPE mediaType;
+    ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
+    this->m_grabber->GetConnectedMediaType(&mediaType);
+    AkCaps caps = this->capsFromMediaType(&mediaType);
+
     AkPacket packet;
 
     timeval timestamp;
@@ -490,7 +495,7 @@ AkPacket Capture::readFrame()
             QByteArray oBuffer(bufferSize, Qt::Uninitialized);
             memcpy(oBuffer.data(), this->m_curBuffer.constData(), size_t(bufferSize));
 
-            packet = AkPacket(this->m_caps, oBuffer);
+            packet = AkPacket(caps, oBuffer);
             packet.setPts(pts);
             packet.setTimeBase(this->m_timeBase);
             packet.setIndex(0);
@@ -514,7 +519,7 @@ AkPacket Capture::readFrame()
         if (FAILED(hr))
             return AkPacket();
 
-        packet = AkPacket(this->m_caps, oBuffer);
+        packet = AkPacket(caps, oBuffer);
         packet.setPts(pts);
         packet.setTimeBase(this->m_timeBase);
         packet.setIndex(0);
@@ -524,7 +529,7 @@ AkPacket Capture::readFrame()
     return packet;
 }
 
-AkCaps Capture::capsFromMediaType(const MediaTypePtr &mediaType) const
+AkCaps Capture::capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const
 {
     if (!mediaType)
         return AkCaps();
@@ -545,6 +550,11 @@ AkCaps Capture::capsFromMediaType(const MediaTypePtr &mediaType) const
     videoCaps.setProperty("fps", fps.toString());
 
     return videoCaps;
+}
+
+AkCaps Capture::capsFromMediaType(const MediaTypePtr &mediaType) const
+{
+    return this->capsFromMediaType(mediaType.data());
 }
 
 HRESULT Capture::enumerateCameras(IEnumMoniker **ppEnum) const
@@ -1027,7 +1037,9 @@ bool Capture::init()
         return false;
     }
 
-    MediaTypePtr mediaType = mediaTypes[streams[0]];
+    MediaTypePtr mediaType = streams[0] < mediaTypes.size()?
+                                mediaTypes[streams[0]]:
+                                mediaTypes.first();
 
     if (FAILED(grabberPtr->SetMediaType(mediaType.data()))) {
         this->m_graph->Release();
@@ -1062,8 +1074,8 @@ bool Capture::init()
     }
 
     this->m_id = Ak::id();
-    this->m_caps = this->capsFromMediaType(mediaType);
-    this->m_timeBase = AkFrac(this->m_caps.property("fps").toString()).invert();
+    AkCaps caps = this->capsFromMediaType(mediaType);
+    this->m_timeBase = AkFrac(caps.property("fps").toString()).invert();
 
     if (FAILED(control->Run())) {
         control->Release();

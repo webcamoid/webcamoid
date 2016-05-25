@@ -63,7 +63,9 @@ Capture::Capture(): QObject()
     this->m_webcams = this->webcams();
     this->m_device = this->m_webcams.value(0, "");
     this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
-    this->m_fsWatcher->addPaths(this->m_webcams);
+
+    if (!this->m_webcams.isEmpty())
+        this->m_fsWatcher->addPaths(this->m_webcams);
 
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
@@ -1140,9 +1142,13 @@ void Capture::onDirectoryChanged(const QString &path)
     if (webcams != this->m_webcams) {
         emit this->webcamsChanged(webcams);
 
-        this->m_fsWatcher->removePaths(this->m_webcams);
+        if (!this->m_webcams.isEmpty())
+            this->m_fsWatcher->removePaths(this->m_webcams);
+
         this->m_webcams = webcams;
-        this->m_fsWatcher->addPaths(webcams);
+
+        if (!webcams.isEmpty())
+            this->m_fsWatcher->addPaths(webcams);
     }
 }
 

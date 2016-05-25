@@ -89,6 +89,9 @@ class MediaTools: public QObject
     Q_PROPERTY(bool isPlaying
                READ isPlaying
                NOTIFY isPlayingChanged)
+    Q_PROPERTY(QStringList webcams
+               READ webcams
+               NOTIFY streamsChanged)
 
     public:
         enum RecordFrom
@@ -137,6 +140,7 @@ class MediaTools: public QObject
         Q_INVOKABLE void setAsPreview(const QString &effectId, bool preview=false);
         Q_INVOKABLE void removePreview(const QString &effectId="");
         Q_INVOKABLE bool isPlaying();
+        Q_INVOKABLE QStringList webcams();
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
