@@ -320,11 +320,13 @@ QString Capture::capsDescription(const AkCaps &caps) const
     if (caps.mimeType() != "video/unknown")
         return QString();
 
-    return QString("%1, %2x%3 %4 fps")
+    AkFrac fps = caps.property("fps").toString();
+
+    return QString("%1, %2x%3, %4 FPS")
                 .arg(caps.property("fourcc").toString())
                 .arg(caps.property("width").toString())
                 .arg(caps.property("height").toString())
-                .arg(caps.property("fps").toString());
+                .arg(qRound(fps.value()));
 }
 
 QVariantList Capture::imageControls() const

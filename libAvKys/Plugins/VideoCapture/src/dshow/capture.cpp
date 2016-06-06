@@ -19,6 +19,8 @@
 
 #include "capture.h"
 
+#define TIME_BASE 1.0e7
+
 typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
 
 inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
@@ -269,11 +271,13 @@ QString Capture::capsDescription(const AkCaps &caps) const
     if (caps.mimeType() != "video/unknown")
         return QString();
 
-    return QString("%1, %2x%3 %4 fps")
+    AkFrac fps = caps.property("fps").toString();
+
+    return QString("%1, %2x%3, %4 FPS")
                 .arg(caps.property("fourcc").toString())
-                .arg(caps.property("width").toInt())
-                .arg(caps.property("height").toInt())
-                .arg(caps.property("fps").toString());
+                .arg(caps.property("width").toString())
+                .arg(caps.property("height").toString())
+                .arg(qRound(fps.value()));
 }
 
 QVariantList Capture::imageControls() const
@@ -546,7 +550,7 @@ AkCaps Capture::capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const
     videoCaps.setProperty("fourcc", fourcc);
     videoCaps.setProperty("width", int(videoInfoHeader->bmiHeader.biWidth));
     videoCaps.setProperty("height", int(videoInfoHeader->bmiHeader.biHeight));
-    AkFrac fps(1.0e8, videoInfoHeader->AvgTimePerFrame);
+    AkFrac fps(TIME_BASE, videoInfoHeader->AvgTimePerFrame);
     videoCaps.setProperty("fps", fps.toString());
 
     return videoCaps;

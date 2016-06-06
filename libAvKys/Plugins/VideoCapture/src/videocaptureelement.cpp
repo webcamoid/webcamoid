@@ -23,11 +23,24 @@
 
 #define PAUSE_TIMEOUT 500
 
+#if defined(Q_OS_WIN32)
+inline QStringList initMirrorFormats()
+{
+    QStringList mirrorFormats;
+    mirrorFormats << "RGB3" << "RGB4";
+
+    return mirrorFormats;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList, mirrorFormats, (initMirrorFormats()))
+#endif
+
 VideoCaptureElement::VideoCaptureElement():
     AkMultimediaSourceElement()
 {
     this->m_runCameraLoop = false;
     this->m_pause = false;
+    this->m_mirror = false;
 
     QObject::connect(&this->m_capture,
                      &Capture::error,
@@ -303,6 +316,11 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             QVariantList supportedCaps = this->m_capture.caps(this->m_capture.device());
             AkCaps caps = supportedCaps.value(streams[0]).value<AkCaps>();
 
+#if defined(Q_OS_WIN32)
+            QString fourcc = caps.property("fourcc").toString();
+            this->m_mirror = mirrorFormats->contains(fourcc);
+#endif
+
             if (!this->m_convertVideo.init(caps))
                 return false;
 
@@ -320,6 +338,11 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 
             QVariantList supportedCaps = this->m_capture.caps(this->m_capture.device());
             AkCaps caps = supportedCaps.value(streams[0]).value<AkCaps>();
+
+#if defined(Q_OS_WIN32)
+            QString fourcc = caps.property("fourcc").toString();
+            this->m_mirror = mirrorFormats->contains(fourcc);
+#endif
 
             if (!this->m_convertVideo.init(caps))
                 return false;
@@ -381,10 +404,11 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
 #if defined(Q_OS_WIN32)
-    QImage oImage = AkUtils::packetToImage(packet).mirrored().rgbSwapped();
+    if (this->m_mirror) {
+        QImage oImage = AkUtils::packetToImage(packet).mirrored().rgbSwapped();
 
-    emit this->oStream(AkUtils::imageToPacket(oImage, packet));
-#else
-    emit this->oStream(packet);
+        emit this->oStream(AkUtils::imageToPacket(oImage, packet));
+    } else
 #endif
+        emit this->oStream(packet);
 }
