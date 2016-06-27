@@ -26,6 +26,10 @@ VirtualCameraElement::VirtualCameraElement():
     this->m_isRunning = false;
 
     QObject::connect(&this->m_cameraOut,
+                     &CameraOut::driverPathChanged,
+                     this,
+                     &VirtualCameraElement::driverPathChanged);
+    QObject::connect(&this->m_cameraOut,
                      &CameraOut::error,
                      this,
                      &VirtualCameraElement::error);
@@ -66,6 +70,14 @@ QObject *VirtualCameraElement::controlInterface(QQmlEngine *engine, const QStrin
     context->setContextProperty("VirtualCamera", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", controlId);
 
+#ifdef Q_OS_LINUX
+    context->setContextProperty("OsName", "linux");
+#elif defined(Q_OS_WIN32)
+    context->setContextProperty("OsName", "windows");
+#else
+    context->setContextProperty("OsName", "");
+#endif
+
     // Create an item with the plugin context.
     QObject *item = component.create(context);
 
@@ -78,6 +90,11 @@ QObject *VirtualCameraElement::controlInterface(QQmlEngine *engine, const QStrin
     context->setParent(item);
 
     return item;
+}
+
+QString VirtualCameraElement::driverPath() const
+{
+    return this->m_cameraOut.driverPath();
 }
 
 QStringList VirtualCameraElement::medias() const
@@ -98,9 +115,9 @@ QList<int> VirtualCameraElement::streams() const
     return streams;
 }
 
-bool VirtualCameraElement::isAvailable() const
+int VirtualCameraElement::maxCameras() const
 {
-    return this->m_cameraOut.isAvailable();
+    return this->m_cameraOut.maxCameras();
 }
 
 bool VirtualCameraElement::needRoot() const
@@ -209,6 +226,15 @@ void VirtualCameraElement::stateChange(AkElement::ElementState from,
     this->m_mutex.unlock();
 }
 
+void VirtualCameraElement::setDriverPath(const QString &driverPath)
+{
+    if (this->m_cameraOut.driverPath() == driverPath)
+        return;
+
+    this->m_cameraOut.setDriverPath(driverPath);
+    emit this->driverPathChanged(driverPath);
+}
+
 void VirtualCameraElement::setMedia(const QString &media)
 {
     if (this->m_cameraOut.device() == media)
@@ -221,6 +247,11 @@ void VirtualCameraElement::setMedia(const QString &media)
 void VirtualCameraElement::setPasswordTimeout(int passwordTimeout)
 {
     this->m_cameraOut.setPasswordTimeout(passwordTimeout);
+}
+
+void VirtualCameraElement::resetDriverPath()
+{
+    this->m_cameraOut.resetDriverPath();
 }
 
 void VirtualCameraElement::resetMedia()

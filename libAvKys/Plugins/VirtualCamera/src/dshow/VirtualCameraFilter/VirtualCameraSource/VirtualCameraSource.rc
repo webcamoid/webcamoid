@@ -1,0 +1,61 @@
+/* Webcamoid, webcam capture application.
+ * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
+ *
+ * Webcamoid is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Webcamoid is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Web-Site: http://webcamoid.github.io/
+ */
+
+# if defined(UNDER_CE)
+#  include <winbase.h>
+# else
+#  include <windows.h>
+# endif
+
+#include "src/resources.h"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION 1,0,0,0
+    PRODUCTVERSION 1,0,0,0
+    FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+    FILEFLAGS VS_FF_DEBUG
+#else
+    FILEFLAGS 0x0L
+#endif
+    FILEOS VOS__WINDOWS32
+    FILETYPE VFT_DLL
+    FILESUBTYPE 0x0L
+    BEGIN
+        BLOCK "StringFileInfo"
+        BEGIN
+            BLOCK "040904b0"
+            BEGIN
+                VALUE "CompanyName", "Webcamoid Project\0"
+                VALUE "FileDescription", "AvKys Virtual Camera Source Filter\0"
+                VALUE "FileVersion", "1.0.0.0\0"
+                VALUE "LegalCopyright", "Copyright (C) 2011-2016  Gonzalo Exequiel Pedone\0"
+                VALUE "OriginalFilename", "VirtualCameraSource.dll\0"
+                VALUE "ProductName", "VirtualCameraSource\0"
+                VALUE "ProductVersion", "1.0.0.0\0"
+            END
+        END
+        BLOCK "VarFileInfo"
+        BEGIN
+            VALUE "Translation", 0x0409, 1200
+        END
+    END
+/* End of Version info */
+
+IDB_PATTERN1 RCDATA "share/data/pattern1.png"

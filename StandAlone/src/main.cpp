@@ -29,18 +29,6 @@
 #include "mediatools.h"
 #include "videodisplay.h"
 
-Q_GLOBAL_STATIC(QDir, applicationDir)
-
-static inline QString convertToAbsolute(const QString &path)
-{
-    if (!QDir::isRelativePath(path))
-        return QDir::cleanPath(path);
-
-    QString absPath = applicationDir->absoluteFilePath(path);
-
-    return QDir::cleanPath(absPath);
-}
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -63,7 +51,7 @@ int main(int argc, char *argv[])
     if (QIcon::themeName().isEmpty())
         QIcon::setThemeName("hicolor");
 
-    applicationDir->setPath(QCoreApplication::applicationDirPath());
+    MediaTools::setApplicationDir(QCoreApplication::applicationDirPath());
 
     QCommandLineParser cliOptions;
     cliOptions.addHelpOption();
@@ -105,7 +93,7 @@ int main(int argc, char *argv[])
         QString path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
-        path = convertToAbsolute(path);
+        path = MediaTools::convertToAbsolute(path);
 #endif
 
         path = QDir::toNativeSeparators(path);
@@ -132,7 +120,7 @@ int main(int argc, char *argv[])
         if (configPath.isEmpty())
             configPath = QCoreApplication::applicationDirPath();
 
-        configPath = convertToAbsolute(configPath);
+        configPath = MediaTools::convertToAbsolute(configPath);
 
         QSettings::setPath(QSettings::IniFormat,
                            QSettings::UserScope,
@@ -144,7 +132,7 @@ int main(int argc, char *argv[])
         qmlPluginPath = cliOptions.value(qmlPathOpt);
 
 #ifdef Q_OS_WIN32
-    qmlPluginPath = convertToAbsolute(qmlPluginPath);
+    qmlPluginPath = MediaTools::convertToAbsolute(qmlPluginPath);
 #endif
 
     Ak::setQmlPluginPath(qmlPluginPath);
@@ -163,7 +151,7 @@ int main(int argc, char *argv[])
 
         foreach (QString path, pluginPaths) {
 #ifdef Q_OS_WIN32
-            path = convertToAbsolute(path);
+            path = MediaTools::convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);
@@ -183,7 +171,7 @@ int main(int argc, char *argv[])
         QString path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
-        path = convertToAbsolute(path);
+        path = MediaTools::convertToAbsolute(path);
 #endif
 
         pluginsCache << path;

@@ -35,6 +35,11 @@
 class CameraOut: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString driverPath
+               READ driverPath
+               WRITE setDriverPath
+               RESET resetDriverPath
+               NOTIFY driverPathChanged)
     Q_PROPERTY(QStringList webcams
                READ webcams
                NOTIFY webcamsChanged)
@@ -47,8 +52,8 @@ class CameraOut: public QObject
                READ streamIndex)
     Q_PROPERTY(AkCaps caps
                READ caps)
-    Q_PROPERTY(bool isAvailable
-               READ isAvailable)
+    Q_PROPERTY(int maxCameras
+               READ maxCameras)
     Q_PROPERTY(bool needRoot
                READ needRoot)
     Q_PROPERTY(int passwordTimeout
@@ -61,13 +66,14 @@ class CameraOut: public QObject
         explicit CameraOut();
         ~CameraOut();
 
+        Q_INVOKABLE QString driverPath() const;
         Q_INVOKABLE QStringList webcams() const;
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE int streamIndex() const;
         Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE void writeFrame(const AkPacket &frame);
-        Q_INVOKABLE bool isAvailable() const;
+        Q_INVOKABLE int maxCameras() const;
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
         Q_INVOKABLE QString createWebcam(const QString &description="",
@@ -80,6 +86,7 @@ class CameraOut: public QObject
         Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
 
     private:
+        QString m_driverPath;
         QStringList m_webcams;
         QString m_device;
         int m_streamIndex;
@@ -105,6 +112,7 @@ class CameraOut: public QObject
         bool sudo(const QString &command, const QString &password) const;
 
     signals:
+        void driverPathChanged(const QString &driverPath);
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
         void passwordTimeoutChanged(int passwordTimeout);
@@ -113,8 +121,10 @@ class CameraOut: public QObject
     public slots:
         bool init(int streamIndex, const AkCaps &caps);
         void uninit();
+        void setDriverPath(const QString &driverPath);
         void setDevice(const QString &device);
         void setPasswordTimeout(int passwordTimeout);
+        void resetDriverPath();
         void resetDevice();
         void resetPasswordTimeout();
 

@@ -21,166 +21,212 @@
 
 #include "akvideocaps.h"
 
-typedef QMap<AkVideoCaps::PixelFormat, int> BitsPerPixelMap;
-
-inline BitsPerPixelMap initBitsPerPixelMap()
+namespace VideoFormat
 {
-    BitsPerPixelMap bitsPerPixel;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p] = 12;
-    bitsPerPixel[AkVideoCaps::Format_yuyv422] = 16;
-    bitsPerPixel[AkVideoCaps::Format_rgb24] = 24;
-    bitsPerPixel[AkVideoCaps::Format_bgr24] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p] = 16;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv410p] = 9;
-    bitsPerPixel[AkVideoCaps::Format_yuv411p] = 12;
-    bitsPerPixel[AkVideoCaps::Format_gray] = 8;
-    bitsPerPixel[AkVideoCaps::Format_monow] = 1;
-    bitsPerPixel[AkVideoCaps::Format_monob] = 1;
-    bitsPerPixel[AkVideoCaps::Format_pal8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_yuvj420p] = 12;
-    bitsPerPixel[AkVideoCaps::Format_yuvj422p] = 16;
-    bitsPerPixel[AkVideoCaps::Format_yuvj444p] = 24;
-    bitsPerPixel[AkVideoCaps::Format_uyvy422] = 16;
-    bitsPerPixel[AkVideoCaps::Format_uyyvyy411] = 12;
-    bitsPerPixel[AkVideoCaps::Format_bgr8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_bgr4] = 4;
-    bitsPerPixel[AkVideoCaps::Format_bgr4_byte] = 4;
-    bitsPerPixel[AkVideoCaps::Format_rgb8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_rgb4] = 4;
-    bitsPerPixel[AkVideoCaps::Format_rgb4_byte] = 4;
-    bitsPerPixel[AkVideoCaps::Format_nv12] = 12;
-    bitsPerPixel[AkVideoCaps::Format_nv21] = 12;
-    bitsPerPixel[AkVideoCaps::Format_argb] = 32;
-    bitsPerPixel[AkVideoCaps::Format_rgba] = 32;
-    bitsPerPixel[AkVideoCaps::Format_abgr] = 32;
-    bitsPerPixel[AkVideoCaps::Format_bgra] = 32;
-    bitsPerPixel[AkVideoCaps::Format_gray16be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_gray16le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_yuv440p] = 16;
-    bitsPerPixel[AkVideoCaps::Format_yuvj440p] = 16;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p] = 20;
-    bitsPerPixel[AkVideoCaps::Format_rgb48be] = 48;
-    bitsPerPixel[AkVideoCaps::Format_rgb48le] = 48;
-    bitsPerPixel[AkVideoCaps::Format_rgb565be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_rgb565le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_rgb555be] = 15;
-    bitsPerPixel[AkVideoCaps::Format_rgb555le] = 15;
-    bitsPerPixel[AkVideoCaps::Format_bgr565be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bgr565le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bgr555be] = 15;
-    bitsPerPixel[AkVideoCaps::Format_bgr555le] = 15;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p16le] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p16be] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p16le] = 32;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p16be] = 32;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p16le] = 48;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p16be] = 48;
-    bitsPerPixel[AkVideoCaps::Format_rgb444le] = 12;
-    bitsPerPixel[AkVideoCaps::Format_rgb444be] = 12;
-    bitsPerPixel[AkVideoCaps::Format_bgr444le] = 12;
-    bitsPerPixel[AkVideoCaps::Format_bgr444be] = 12;
-    bitsPerPixel[AkVideoCaps::Format_ya8] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bgr48be] = 48;
-    bitsPerPixel[AkVideoCaps::Format_bgr48le] = 48;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p9be] = 13;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p9le] = 13;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p10be] = 15;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p10le] = 15;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p10be] = 20;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p10le] = 20;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p9be] = 27;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p9le] = 27;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p10be] = 30;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p10le] = 30;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p9be] = 18;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p9le] = 18;
-    bitsPerPixel[AkVideoCaps::Format_gbrp] = 24;
-    bitsPerPixel[AkVideoCaps::Format_gbrp9be] = 27;
-    bitsPerPixel[AkVideoCaps::Format_gbrp9le] = 27;
-    bitsPerPixel[AkVideoCaps::Format_gbrp10be] = 30;
-    bitsPerPixel[AkVideoCaps::Format_gbrp10le] = 30;
-    bitsPerPixel[AkVideoCaps::Format_gbrp16be] = 48;
-    bitsPerPixel[AkVideoCaps::Format_gbrp16le] = 48;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p9be] = 22;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p9le] = 22;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p9be] = 27;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p9le] = 27;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p9be] = 36;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p9le] = 36;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p10be] = 25;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p10le] = 25;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p10be] = 30;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p10le] = 30;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p10be] = 40;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p10le] = 40;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p16be] = 40;
-    bitsPerPixel[AkVideoCaps::Format_yuva420p16le] = 40;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p16be] = 48;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p16le] = 48;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p16be] = 64;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p16le] = 64;
-    bitsPerPixel[AkVideoCaps::Format_xyz12le] = 36;
-    bitsPerPixel[AkVideoCaps::Format_xyz12be] = 36;
-    bitsPerPixel[AkVideoCaps::Format_nv16] = 16;
-    bitsPerPixel[AkVideoCaps::Format_nv20le] = 20;
-    bitsPerPixel[AkVideoCaps::Format_nv20be] = 20;
-    bitsPerPixel[AkVideoCaps::Format_yvyu422] = 16;
-    bitsPerPixel[AkVideoCaps::Format_ya16be] = 32;
-    bitsPerPixel[AkVideoCaps::Format_ya16le] = 32;
-    bitsPerPixel[AkVideoCaps::Format_rgba64be] = 64;
-    bitsPerPixel[AkVideoCaps::Format_rgba64le] = 64;
-    bitsPerPixel[AkVideoCaps::Format_bgra64be] = 64;
-    bitsPerPixel[AkVideoCaps::Format_bgra64le] = 64;
-    bitsPerPixel[AkVideoCaps::Format_0rgb] = 24;
-    bitsPerPixel[AkVideoCaps::Format_rgb0] = 24;
-    bitsPerPixel[AkVideoCaps::Format_0bgr] = 24;
-    bitsPerPixel[AkVideoCaps::Format_bgr0] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuva444p] = 32;
-    bitsPerPixel[AkVideoCaps::Format_yuva422p] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p12be] = 18;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p12le] = 18;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p14be] = 21;
-    bitsPerPixel[AkVideoCaps::Format_yuv420p14le] = 21;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p12be] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p12le] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p14be] = 28;
-    bitsPerPixel[AkVideoCaps::Format_yuv422p14le] = 28;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p12be] = 36;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p12le] = 36;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p14be] = 42;
-    bitsPerPixel[AkVideoCaps::Format_yuv444p14le] = 42;
-    bitsPerPixel[AkVideoCaps::Format_gbrp12be] = 36;
-    bitsPerPixel[AkVideoCaps::Format_gbrp12le] = 36;
-    bitsPerPixel[AkVideoCaps::Format_gbrp14be] = 42;
-    bitsPerPixel[AkVideoCaps::Format_gbrp14le] = 42;
-    bitsPerPixel[AkVideoCaps::Format_gbrap] = 32;
-    bitsPerPixel[AkVideoCaps::Format_gbrap16be] = 64;
-    bitsPerPixel[AkVideoCaps::Format_gbrap16le] = 64;
-    bitsPerPixel[AkVideoCaps::Format_yuvj411p] = 12;
-    bitsPerPixel[AkVideoCaps::Format_bayer_bggr8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_bayer_rggb8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_bayer_gbrg8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_bayer_grbg8] = 8;
-    bitsPerPixel[AkVideoCaps::Format_bayer_bggr16le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_bggr16be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_rggb16le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_rggb16be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_gbrg16le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_gbrg16be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_grbg16le] = 16;
-    bitsPerPixel[AkVideoCaps::Format_bayer_grbg16be] = 16;
-    bitsPerPixel[AkVideoCaps::Format_yuv440p10le] = 20;
-    bitsPerPixel[AkVideoCaps::Format_yuv440p10be] = 20;
-    bitsPerPixel[AkVideoCaps::Format_yuv440p12le] = 24;
-    bitsPerPixel[AkVideoCaps::Format_yuv440p12be] = 24;
-    bitsPerPixel[AkVideoCaps::Format_ayuv64le] = 64;
-    bitsPerPixel[AkVideoCaps::Format_ayuv64be] = 64;
+    class VideoFormat
+    {
+        public:
+            AkVideoCaps::PixelFormat format;
+            int bpp;
+            quint32 fourCC;
+    };
 
-    return bitsPerPixel;
+    static VideoFormat videoFormats[] = {
+        {AkVideoCaps::Format_yuv420p,        12, AkFourCC('I', '4', '2', '0')},
+        {AkVideoCaps::Format_yuyv422,        16, AkFourCC('Y', 'U', 'Y', '2')},
+        {AkVideoCaps::Format_rgb24,          24, AkFourCC('R', 'G', 'B', '3')},
+        {AkVideoCaps::Format_bgr24,          24, AkFourCC('B', 'G', 'R', '3')},
+        {AkVideoCaps::Format_yuv422p,        16, AkFourCC('Y', '4', '2', 'B')},
+        {AkVideoCaps::Format_yuv444p,        24, AkFourCC('4', '4', '4', 'P')},
+        {AkVideoCaps::Format_yuv410p,        9,  AkFourCC('Y', 'U', 'V', '9')},
+        {AkVideoCaps::Format_yuv411p,        12, AkFourCC('Y', '4', '1', 'B')},
+        {AkVideoCaps::Format_gray,           8,  AkFourCC('Y', '8', '0', '0')},
+        {AkVideoCaps::Format_monow,          1,  AkFourCC('B', '1', 'W', '0')},
+        {AkVideoCaps::Format_monob,          1,  AkFourCC('B', '0', 'W', '1')},
+        {AkVideoCaps::Format_pal8,           8,  AkFourCC('P', 'A', 'L', '\x8')},
+        {AkVideoCaps::Format_yuvj420p,       12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuvj422p,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuvj444p,       24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_uyvy422,        16, AkFourCC('U', 'Y', 'V', 'Y')},
+        {AkVideoCaps::Format_uyyvyy411,      12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr8,           8,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr4,           4,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr4_byte,      4,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb8,           8,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb4,           4,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb4_byte,      4,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_nv12,           12, AkFourCC('N', 'V', '1', '2')},
+        {AkVideoCaps::Format_nv21,           12, AkFourCC('N', 'V', '2', '1')},
+        {AkVideoCaps::Format_argb,           32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgba,           32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_abgr,           32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgra,           32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gray16be,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gray16le,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv440p,        16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuvj440p,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p,       20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb48be,        48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb48le,        48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb565be,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb565le,       16, AkFourCC('R', 'G', 'B', 'P')},
+        {AkVideoCaps::Format_rgb555be,       15, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb555le,       15, AkFourCC('R', 'G', 'B', 'O')},
+        {AkVideoCaps::Format_bgr565be,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr565le,       16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr555be,       15, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr555le,       15, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p16le,    24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p16be,    24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p16le,    32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p16be,    32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p16le,    48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p16be,    48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb444le,       12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgb444be,       12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr444le,       12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr444be,       12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_ya8,            16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr48be,        48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr48le,        48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p9be,     13, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p9le,     13, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p10be,    15, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p10le,    15, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p10be,    20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p10le,    20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p9be,     27, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p9le,     27, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p10be,    30, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p10le,    30, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p9be,     18, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p9le,     18, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp,           24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp9be,        27, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp9le,        27, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp10be,       30, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp10le,       30, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp16be,       48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp16le,       48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p9be,    22, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p9le,    22, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p9be,    27, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p9le,    27, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p9be,    36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p9le,    36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p10be,   25, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p10le,   25, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p10be,   30, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p10le,   30, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p10be,   40, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p10le,   40, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p16be,   40, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva420p16le,   40, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p16be,   48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p16le,   48, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p16be,   64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p16le,   64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_xyz12le,        36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_xyz12be,        36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_nv16,           16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_nv20le,         20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_nv20be,         20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yvyu422,        16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_ya16be,         32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_ya16le,         32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgba64be,       64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_rgba64le,       64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgra64be,       64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgra64le,       64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_0rgb,           24, AkFourCC('R', 'G', 'B', '4')},
+        {AkVideoCaps::Format_rgb0,           24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_0bgr,           24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bgr0,           24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva444p,       32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuva422p,       24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p12be,    18, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p12le,    18, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p14be,    21, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv420p14le,    21, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p12be,    24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p12le,    24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p14be,    28, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv422p14le,    28, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p12be,    36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p12le,    36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p14be,    42, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv444p14le,    42, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp12be,       36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp12le,       36, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp14be,       42, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrp14le,       42, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrap,          32, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrap16be,      64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_gbrap16le,      64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuvj411p,       12, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_bggr8,    8,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_rggb8,    8,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_gbrg8,    8,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_grbg8,    8,  AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_bggr16le, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_bggr16be, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_rggb16le, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_rggb16be, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_gbrg16le, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_gbrg16be, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_grbg16le, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_bayer_grbg16be, 16, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv440p10le,    20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv440p10be,    20, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv440p12le,    24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_yuv440p12be,    24, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_ayuv64le,       64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_ayuv64be,       64, AK_FOURCC_NULL},
+        {AkVideoCaps::Format_none,           0,  AK_FOURCC_NULL}
+    };
+
+    inline int count()
+    {
+        int n = 0;
+
+        for (; videoFormats[n].format != AkVideoCaps::Format_none
+               || videoFormats[n].bpp
+               || videoFormats[n].fourCC
+             ; n++) {
+        }
+
+        return n;
+    }
+
+    static int length = count();
+
+    inline const VideoFormat *byFormat(AkVideoCaps::PixelFormat format)
+    {
+        for (int i = 0; i < length; i++)
+            if (videoFormats[i].format == format)
+                return &videoFormats[i];
+
+        return NULL;
+    }
+
+    inline const VideoFormat *byBpp(int bpp)
+    {
+        for (int i = 0; i < length; i++)
+            if (videoFormats[i].bpp == bpp)
+                return &videoFormats[i];
+
+        return NULL;
+    }
+
+    inline const VideoFormat *byFourCC(quint32 fourCC)
+    {
+        for (int i = 0; i < length; i++)
+            if (videoFormats[i].fourCC == fourCC)
+                return &videoFormats[i];
+
+        return NULL;
+    }
 }
-
-Q_GLOBAL_STATIC_WITH_ARGS(BitsPerPixelMap, toBitsPerPixel, (initBitsPerPixelMap()))
 
 class AkVideoCapsPrivate
 {
@@ -514,7 +560,12 @@ AkCaps AkVideoCaps::toCaps() const
 
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)
 {
-    return toBitsPerPixel->value(pixelFormat, 0);
+    const VideoFormat::VideoFormat *vf = VideoFormat::byFormat(pixelFormat);
+
+    if (vf)
+        return vf->bpp;
+
+    return 0;
 }
 
 int AkVideoCaps::bitsPerPixel(const QString &pixelFormat)
@@ -542,6 +593,21 @@ AkVideoCaps::PixelFormat AkVideoCaps::pixelFormatFromString(const QString &pixel
     int enumValue = enumType.keyToValue(format.toStdString().c_str());
 
     return static_cast<PixelFormat>(enumValue);
+}
+
+quint32 AkVideoCaps::fourCC(AkVideoCaps::PixelFormat pixelFormat)
+{
+    const VideoFormat::VideoFormat *vf = VideoFormat::byFormat(pixelFormat);
+
+    if (vf)
+        return vf->fourCC;
+
+    return AK_FOURCC_NULL;
+}
+
+quint32 AkVideoCaps::fourCC(const QString &pixelFormat)
+{
+    return AkVideoCaps::fourCC(AkVideoCaps::pixelFormatFromString(pixelFormat));
 }
 
 void AkVideoCaps::setFormat(AkVideoCaps::PixelFormat format)

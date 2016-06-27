@@ -166,6 +166,9 @@ class MediaTools: public QObject
         Q_INVOKABLE void removeInterface(const QString &where,
                                          QQmlApplicationEngine *engine=NULL) const;
 
+        static void setApplicationDir(const QString &path);
+        static QString convertToAbsolute(const QString &path);
+
     private:
         QString m_curStream;
         QMap<QString, QString> m_streams;

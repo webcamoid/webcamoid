@@ -92,6 +92,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         bool m_runCameraLoop;
         bool m_pause;
         bool m_mirror;
+        bool m_swapRgb;
 
         static void cameraLoop(VideoCaptureElement *captureElement);
 

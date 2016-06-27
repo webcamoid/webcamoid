@@ -41,6 +41,11 @@
 class VirtualCameraElement: public AkElement
 {
     Q_OBJECT
+    Q_PROPERTY(QString driverPath
+               READ driverPath
+               WRITE setDriverPath
+               RESET resetDriverPath
+               NOTIFY driverPathChanged)
     Q_PROPERTY(QStringList medias
                READ medias
                NOTIFY mediasChanged)
@@ -52,8 +57,8 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(QList<int> streams
                READ streams
                NOTIFY streamsChanged)
-    Q_PROPERTY(bool isAvailable
-               READ isAvailable)
+    Q_PROPERTY(int maxCameras
+               READ maxCameras)
     Q_PROPERTY(bool needRoot
                READ needRoot)
     Q_PROPERTY(int passwordTimeout
@@ -69,10 +74,11 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
+        Q_INVOKABLE QString driverPath() const;
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE bool isAvailable() const;
+        Q_INVOKABLE int maxCameras() const;
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
 
@@ -106,6 +112,7 @@ class VirtualCameraElement: public AkElement
         bool m_isRunning;
 
     signals:
+        void driverPathChanged(const QString &driverPath);
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
@@ -113,8 +120,10 @@ class VirtualCameraElement: public AkElement
         void error(const QString &message);
 
     public slots:
+        void setDriverPath(const QString &driverPath);
         void setMedia(const QString &media);
         void setPasswordTimeout(int passwordTimeout);
+        void resetDriverPath();
         void resetMedia();
         void resetPasswordTimeout();
         void clearStreams();

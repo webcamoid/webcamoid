@@ -50,8 +50,8 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     rawToFF["RGBR"] = AV_PIX_FMT_RGB565BE;
     rawToFF["BGR3"] = AV_PIX_FMT_BGR24;
     rawToFF["RGB3"] = AV_PIX_FMT_RGB24;
-    rawToFF["BGR4"] = AV_PIX_FMT_BGR0;
-    rawToFF["RGB4"] = AV_PIX_FMT_0RGB;
+    rawToFF["BGR4"] = AV_PIX_FMT_RGB0;
+    rawToFF["RGB4"] = AV_PIX_FMT_BGR0;
 
     // Grey formats
     rawToFF["GREY"] = AV_PIX_FMT_GRAY8;
@@ -70,6 +70,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     rawToFF["422P"] = AV_PIX_FMT_YUV422P;
     rawToFF["411P"] = AV_PIX_FMT_YUV411P;
     rawToFF["Y41P"] = AV_PIX_FMT_YUV411P;
+    rawToFF["YUY2"] = AV_PIX_FMT_YUYV422;
     rawToFF["Y444"] = AV_PIX_FMT_YUV444P;
     rawToFF["YUV9"] = AV_PIX_FMT_YUV410P;
     rawToFF["YU12"] = AV_PIX_FMT_YUV420P;

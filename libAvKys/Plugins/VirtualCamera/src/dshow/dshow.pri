@@ -16,6 +16,14 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+INCLUDEPATH += src/dshow/VirtualCameraFilter/ipc/src
+LIBS += \
+    -Lsrc/dshow/VirtualCameraFilter/ipc -lipc \
+    -lstrmiids \
+    -luuid \
+    -lole32 \
+    -loleaut32
+
 HEADERS += \
     $$PWD/cameraout.h
 

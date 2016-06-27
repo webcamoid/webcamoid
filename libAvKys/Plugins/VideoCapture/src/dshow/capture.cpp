@@ -602,6 +602,7 @@ MonikersMap Capture::listMonikers() const
 
             if (FAILED(hr)) {
                 pMoniker->Release();
+
                 continue;
             }
 

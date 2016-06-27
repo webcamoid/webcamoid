@@ -27,12 +27,26 @@
 inline QStringList initMirrorFormats()
 {
     QStringList mirrorFormats;
-    mirrorFormats << "RGB3" << "RGB4";
+    mirrorFormats << "RGB3"
+                  << "RGB4"
+                  << "RGBP"
+                  << "RGBO";
 
     return mirrorFormats;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, mirrorFormats, (initMirrorFormats()))
+
+inline QStringList initSwapRgbFormats()
+{
+    QStringList swapRgbFormats;
+    swapRgbFormats << "RGB3"
+                   << "YV12";
+
+    return swapRgbFormats;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList, swapRgbFormats, (initSwapRgbFormats()))
 #endif
 
 VideoCaptureElement::VideoCaptureElement():
@@ -41,6 +55,7 @@ VideoCaptureElement::VideoCaptureElement():
     this->m_runCameraLoop = false;
     this->m_pause = false;
     this->m_mirror = false;
+    this->m_swapRgb = false;
 
     QObject::connect(&this->m_capture,
                      &Capture::error,
@@ -342,6 +357,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 #if defined(Q_OS_WIN32)
             QString fourcc = caps.property("fourcc").toString();
             this->m_mirror = mirrorFormats->contains(fourcc);
+            this->m_swapRgb = swapRgbFormats->contains(fourcc);
 #endif
 
             if (!this->m_convertVideo.init(caps))
@@ -404,8 +420,14 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
 #if defined(Q_OS_WIN32)
-    if (this->m_mirror) {
-        QImage oImage = AkUtils::packetToImage(packet).mirrored().rgbSwapped();
+    if (this->m_mirror || this->m_swapRgb) {
+        QImage oImage = AkUtils::packetToImage(packet);
+
+        if (this->m_mirror)
+            oImage = oImage.mirrored();
+
+        if (this->m_swapRgb)
+            oImage = oImage.rgbSwapped();
 
         emit this->oStream(AkUtils::imageToPacket(oImage, packet));
     } else

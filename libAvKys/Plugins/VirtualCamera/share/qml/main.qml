@@ -49,9 +49,12 @@ GridLayout {
         onMediasChanged: updateDevices()
     }
     Component.onCompleted: {
-        recCameraControls.state = VirtualCamera.needRoot?
-                    (VirtualCamera.isAvailable? "": "missing"):
-                    "unsupported"
+        if (OsName == "linux")
+            recCameraControls.state = VirtualCamera.maxCameras > 0? "": "missing"
+        else if (OsName == "windows")
+            recCameraControls.state = VirtualCamera.maxCameras > 0? "": "unsupported"
+        else
+            recCameraControls.state = "unsupported"
 
         if (recCameraControls.state == "")
             updateDevices()

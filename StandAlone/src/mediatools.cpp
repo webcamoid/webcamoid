@@ -45,6 +45,8 @@ inline RecordFromMap initRecordFromMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(RecordFromMap, recordFromMap, (initRecordFromMap()))
 
+Q_GLOBAL_STATIC(QDir, applicationDir)
+
 MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
@@ -824,6 +826,21 @@ void MediaTools::removeInterface(const QString &where,
     }
 }
 
+void MediaTools::setApplicationDir(const QString &path)
+{
+    applicationDir->setPath(path);
+}
+
+QString MediaTools::convertToAbsolute(const QString &path)
+{
+    if (!QDir::isRelativePath(path))
+        return QDir::cleanPath(path);
+
+    QString absPath = applicationDir->absoluteFilePath(path);
+
+    return QDir::cleanPath(absPath).replace('/', QDir::separator());
+}
+
 AkElementPtr MediaTools::sourceElement() const
 {
     if (this->isCamera(this->m_curStream))
@@ -1189,7 +1206,12 @@ bool MediaTools::startVirtualCamera(const QString &fileName)
                               "clearStreams");
 
     AkVideoCaps oVideoCaps(videoCaps);
+
+#ifdef Q_OS_WIN32
+    oVideoCaps.format() = AkVideoCaps::Format_rgb24;
+#else
     oVideoCaps.format() = AkVideoCaps::Format_yuv420p;
+#endif
 
     QMetaObject::invokeMethod(this->m_virtualCamera.data(),
                               "addStream",
@@ -1379,6 +1401,15 @@ void MediaTools::loadConfigs()
     this->m_windowWidth = windowSize.width();
     this->m_windowHeight = windowSize.height();
 
+#ifdef Q_OS_WIN32
+    if (this->m_virtualCamera) {
+        QString driverPath = config.value("virtualCameraDriverPath",
+                                          "VirtualCameraSource.dll").toString();
+        this->m_virtualCamera->setProperty("driverPath",
+                                           this->convertToAbsolute(driverPath));
+    }
+#endif
+
     config.endGroup();
 
     config.beginGroup("Effects");
@@ -1455,6 +1486,13 @@ void MediaTools::saveConfigs()
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
 
+#ifdef Q_OS_WIN32
+    if (this->m_virtualCamera) {
+        QString driverPath = this->m_virtualCamera->property("driverPath").toString();
+        config.setValue("virtualCameraDriverPath", applicationDir->relativeFilePath(driverPath));
+    }
+#endif
+
     config.endGroup();
 
     config.beginGroup("Effects");
@@ -1507,8 +1545,7 @@ void MediaTools::saveConfigs()
     config.beginGroup("PluginConfigs");
 
 #ifdef Q_OS_WIN32
-    QDir applicationDir(QCoreApplication::applicationDirPath());
-    QString qmlPluginPath = applicationDir.relativeFilePath(Ak::qmlPluginPath());
+    QString qmlPluginPath = applicationDir->relativeFilePath(Ak::qmlPluginPath());
 #else
     QString qmlPluginPath = Ak::qmlPluginPath();
 #endif
@@ -1524,7 +1561,7 @@ void MediaTools::saveConfigs()
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
-        config.setValue("path", applicationDir.relativeFilePath(path));
+        config.setValue("path", applicationDir->relativeFilePath(path));
 #else
         config.setValue("path", path);
 #endif
@@ -1548,7 +1585,7 @@ void MediaTools::saveConfigs()
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
-        config.setValue("path", applicationDir.relativeFilePath(path));
+        config.setValue("path", applicationDir->relativeFilePath(path));
 #else
         config.setValue("path", path);
 #endif

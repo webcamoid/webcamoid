@@ -20,6 +20,8 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
+win32: SUBDIRS += VirtualCamera/src/dshow/VirtualCameraFilter
+
 SUBDIRS += \
     ACapsConvert \
     Aging \

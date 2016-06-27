@@ -21,6 +21,8 @@
 
 #include "cameraout.h"
 
+#define MAX_CAMERAS 64
+
 typedef QMap<AkVideoCaps::PixelFormat, quint32> V4l2PixFmtMap;
 
 inline V4l2PixFmtMap initV4l2PixFmtMap()
@@ -92,6 +94,11 @@ CameraOut::CameraOut(): QObject()
 CameraOut::~CameraOut()
 {
     delete this->m_fsWatcher;
+}
+
+QString CameraOut::driverPath() const
+{
+    return this->m_driverPath;
 }
 
 QStringList CameraOut::webcams() const
@@ -174,7 +181,7 @@ void CameraOut::writeFrame(const AkPacket &frame)
         qDebug() << "Error writing frame";
 }
 
-bool CameraOut::isAvailable() const
+int CameraOut::maxCameras() const
 {
     QString modules = QString("/lib/modules/%1/modules.dep")
                       .arg(QSysInfo::kernelVersion());
@@ -182,7 +189,7 @@ bool CameraOut::isAvailable() const
     QFile file(modules);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::ReadOnly))
-        return false;
+        return 0;
 
     forever {
         QByteArray line = file.readLine();
@@ -195,13 +202,13 @@ bool CameraOut::isAvailable() const
         if (module == "v4l2loopback") {
             file.close();
 
-            return true;
+            return MAX_CAMERAS;
         }
     }
 
     file.close();
 
-    return false;
+    return 0;
 }
 
 bool CameraOut::needRoot() const
@@ -482,6 +489,15 @@ void CameraOut::uninit()
     this->m_fd = -1;
 }
 
+void CameraOut::setDriverPath(const QString &driverPath)
+{
+    if (this->m_driverPath == driverPath)
+        return;
+
+    this->m_driverPath = driverPath;
+    emit this->driverPathChanged(driverPath);
+}
+
 void CameraOut::setDevice(const QString &device)
 {
     if (this->m_device == device)
@@ -498,6 +514,11 @@ void CameraOut::setPasswordTimeout(int passwordTimeout)
 
     this->m_passwordTimeout = passwordTimeout;
     emit this->passwordTimeoutChanged(passwordTimeout);
+}
+
+void CameraOut::resetDriverPath()
+{
+    this->setDriverPath("");
 }
 
 void CameraOut::resetDevice()

@@ -25,6 +25,13 @@
 #include "akcaps.h"
 #include "akfrac.h"
 
+inline quint32 AkFourCC(quint32 a, quint32 b, quint32 c, quint32 d)
+{
+    return (d << 24) | (c << 16) | (b << 8) | a;
+}
+
+#define AK_FOURCC_NULL AkFourCC('\x0', '\x0', '\x0', '\x0')
+
 class AkVideoCapsPrivate;
 
 class AkVideoCaps: public QObject
@@ -283,6 +290,8 @@ class AkVideoCaps: public QObject
         Q_INVOKABLE static int bitsPerPixel(const QString &pixelFormat);
         Q_INVOKABLE static QString pixelFormatToString(PixelFormat pixelFormat);
         Q_INVOKABLE static PixelFormat pixelFormatFromString(const QString &pixelFormat);
+        Q_INVOKABLE static quint32 fourCC(PixelFormat pixelFormat);
+        Q_INVOKABLE static quint32 fourCC(const QString &pixelFormat);
 
     private:
         AkVideoCapsPrivate *d;
