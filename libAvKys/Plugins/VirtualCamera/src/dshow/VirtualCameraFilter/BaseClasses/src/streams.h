@@ -161,7 +161,7 @@ LONG_PTR _SetWindowLongPtr(HWND hwnd, int nIndex, T p)
 #include <combase.h>    // Base COM classes to support IUnknown
 #include <dllsetup.h>   // Filter registration support functions
 #include <measure.h>    // Performance measurement
-//#include <comlite.h>    // Light weight com function prototypes
+#include <comlite.h>    // Light weight com function prototypes
 
 #include <cache.h>      // Simple cache container class
 #include <wxlist.h>     // Non MFC generic list class

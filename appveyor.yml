@@ -37,7 +37,7 @@ install:
   - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared
 
 build_script:
-  - qmake Webcamoid.pro PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale
+  - qmake Webcamoid.pro COMPILE_VCAM_DRIVER=0 PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale
   - mingw32-make
 
 notifications:
