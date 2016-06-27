@@ -16,9 +16,9 @@ branches:
   - master
 
 environment:
-  QTDIR: C:\Qt\5.5\mingw492_32
+  QTDIR: C:\Qt\5.7\mingw53_32
   MINGW: C:\Qt\Tools\mingw492_32
-  FFMPEG_VERSION: 3.0
+  FFMPEG_VERSION: 3.0.1
 
 install:
   - if "%PLATFORM%" == "x86" (set BUILD_ARCHITECTURE=win32) else (set BUILD_ARCHITECTURE=win64)
