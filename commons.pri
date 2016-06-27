@@ -19,7 +19,7 @@
 COMMONS_APPNAME = "Webcamoid"
 COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
 VER_MAJ = 7
-VER_MIN = 1
+VER_MIN = 2
 VER_PAT = 0
 VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 COMMONS_PROJECT_URL = "http://webcamoid.github.io/"
