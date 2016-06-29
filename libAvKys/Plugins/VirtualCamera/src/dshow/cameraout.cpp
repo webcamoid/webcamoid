@@ -242,7 +242,7 @@ QString CameraOut::createWebcam(const QString &description,
             .arg(reg)
             .arg(desc);
 
-    if (!this->sudo("cmd", params))
+    if (!this->sudo("cmd", params, "", true))
         return QString();
 
     QStringList curWebcams = this->webcams();
@@ -357,7 +357,10 @@ QString CameraOut::iidToString(const IID &iid) const
     return str;
 }
 
-bool CameraOut::sudo(const QString &command, const QString &params, const QString &dir) const
+bool CameraOut::sudo(const QString &command,
+                     const QString &params,
+                     const QString &dir,
+                     bool hide) const
 {
     const static int maxStrLen = 1024;
 
@@ -383,7 +386,7 @@ bool CameraOut::sudo(const QString &command, const QString &params, const QStrin
     execInfo.lpFile = wcommand;
     execInfo.lpParameters = wparams;
     execInfo.lpDirectory = wdir;
-    execInfo.nShow = SW_SHOWNORMAL;
+    execInfo.nShow = hide? SW_HIDE: SW_SHOWNORMAL;
     execInfo.hInstApp = NULL;
     ShellExecuteEx(&execInfo);
 

@@ -92,7 +92,8 @@ class CameraOut: public QObject
         QString iidToString(const IID &iid) const;
         bool sudo(const QString &command,
                   const QString &params,
-                  const QString &dir=QString()) const;
+                  const QString &dir=QString(),
+                  bool hide=false) const;
 
     signals:
         void driverPathChanged(const QString &driverPath);
