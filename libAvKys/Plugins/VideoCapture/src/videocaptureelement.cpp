@@ -207,12 +207,12 @@ QVariantList VideoCaptureElement::imageControls() const
     return this->m_capture.imageControls();
 }
 
-bool VideoCaptureElement::setImageControls(const QVariantMap &imageControls) const
+bool VideoCaptureElement::setImageControls(const QVariantMap &imageControls)
 {
     return this->m_capture.setImageControls(imageControls);
 }
 
-bool VideoCaptureElement::resetImageControls() const
+bool VideoCaptureElement::resetImageControls()
 {
     return this->m_capture.resetImageControls();
 }
@@ -222,12 +222,12 @@ QVariantList VideoCaptureElement::cameraControls() const
     return this->m_capture.cameraControls();
 }
 
-bool VideoCaptureElement::setCameraControls(const QVariantMap &cameraControls) const
+bool VideoCaptureElement::setCameraControls(const QVariantMap &cameraControls)
 {
     return this->m_capture.setCameraControls(cameraControls);
 }
 
-bool VideoCaptureElement::resetCameraControls() const
+bool VideoCaptureElement::resetCameraControls()
 {
     return this->m_capture.resetCameraControls();
 }

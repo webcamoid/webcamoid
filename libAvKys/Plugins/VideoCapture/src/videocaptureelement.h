@@ -78,11 +78,11 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE int nBuffers() const;
 
         Q_INVOKABLE QVariantList imageControls() const;
-        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) const;
-        Q_INVOKABLE bool resetImageControls() const;
+        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
+        Q_INVOKABLE bool resetImageControls();
         Q_INVOKABLE QVariantList cameraControls() const;
-        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) const;
-        Q_INVOKABLE bool resetCameraControls() const;
+        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
+        Q_INVOKABLE bool resetCameraControls();
 
     private:
         Capture m_capture;

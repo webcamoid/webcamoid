@@ -173,13 +173,15 @@ namespace FrameResolution
     static int length = count();
 }
 
+#ifdef GLOGAL_CONTROLS
 // Picture controls
-static int imgprop_brightness = 0;
-static int imgprop_contrast = 0;
-static int imgprop_hue = 0;
-static int imgprop_saturation = 0;
-static int imgprop_gamma = 0;
-static bool imgprop_colorEnable = true;
+static int m_brightness = 0;
+static int m_contrast = 0;
+static int m_hue = 0;
+static int m_saturation = 0;
+static int m_gamma = 0;
+static bool m_colorEnable = true;
+#endif
 
 VirtualCameraSourceStream::VirtualCameraSourceStream(HRESULT *phr,
                                                      CSource *pParent,
@@ -194,6 +196,15 @@ VirtualCameraSourceStream::VirtualCameraSourceStream(HRESULT *phr,
     this->m_gdiFormat = PixelFormatUndefined;
     this->m_convert = NULL;
     this->m_bitmap = NULL;
+
+#ifndef GLOGAL_CONTROLS
+    this->m_brightness = 0;
+    this->m_contrast = 0;
+    this->m_hue = 0;
+    this->m_saturation = 0;
+    this->m_gamma = 0;
+    this->m_colorEnable = true;
+#endif
 
     // Somewhere where it will run once before you need to use GDI:
     Gdiplus::GdiplusStartup(&this->m_gdpToken, &this->m_gdpStartupInput, NULL);
@@ -654,22 +665,22 @@ HRESULT VirtualCameraSourceStream::Set(LONG Property, LONG lValue, LONG Flags)
 
     switch (Property) {
     case VideoProcAmp_Brightness:
-        imgprop_brightness = lValue;
+        m_brightness = lValue;
         break;
     case VideoProcAmp_Contrast:
-        imgprop_contrast = lValue;
+        m_contrast = lValue;
         break;
     case VideoProcAmp_Hue:
-        imgprop_hue = lValue;
+        m_hue = lValue;
         break;
     case VideoProcAmp_Saturation:
-        imgprop_saturation = lValue;
+        m_saturation = lValue;
         break;
     case VideoProcAmp_Gamma:
-        imgprop_gamma = lValue;
+        m_gamma = lValue;
         break;
     case VideoProcAmp_ColorEnable:
-        imgprop_colorEnable = lValue;
+        m_colorEnable = lValue;
         break;
     default:
         return E_PROP_ID_UNSUPPORTED;
@@ -685,22 +696,22 @@ HRESULT VirtualCameraSourceStream::Get(LONG Property, LONG *lValue, LONG *Flags)
 
     switch (Property) {
     case VideoProcAmp_Brightness:
-        *lValue = imgprop_brightness;
+        *lValue = m_brightness;
         break;
     case VideoProcAmp_Contrast:
-        *lValue = imgprop_contrast;
+        *lValue = m_contrast;
         break;
     case VideoProcAmp_Hue:
-        *lValue = imgprop_hue;
+        *lValue = m_hue;
         break;
     case VideoProcAmp_Saturation:
-        *lValue = imgprop_saturation;
+        *lValue = m_saturation;
         break;
     case VideoProcAmp_Gamma:
-        *lValue = imgprop_gamma;
+        *lValue = m_gamma;
         break;
     case VideoProcAmp_ColorEnable:
-        *lValue = imgprop_colorEnable;
+        *lValue = m_colorEnable;
         break;
     default:
         return E_PROP_ID_UNSUPPORTED;
@@ -1012,12 +1023,12 @@ bool VirtualCameraSourceStream::readBitmap(LPCTSTR lpName,
         adjust_image(buffer, buffer,
                      INT(scaledBitmap->GetWidth()),
                      INT(scaledBitmap->GetHeight()),
-                     imgprop_hue,
-                     imgprop_saturation,
-                     imgprop_brightness,
-                     imgprop_gamma,
-                     imgprop_contrast,
-                     !imgprop_colorEnable);
+                     m_hue,
+                     m_saturation,
+                     m_brightness,
+                     m_gamma,
+                     m_contrast,
+                     !m_colorEnable);
 
         if (this->m_convert) {
             this->m_convert(data, buffer,

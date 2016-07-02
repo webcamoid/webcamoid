@@ -24,6 +24,8 @@
 #include <gdiplus.h>
 #include <streams.h>
 
+//#define GLOGAL_CONTROLS
+
 typedef size_t (*convert_func_t)(void *dst, const void *src, int width, int height);
 
 class VirtualCameraSourceStream:
@@ -107,6 +109,16 @@ class VirtualCameraSourceStream:
         ULONG_PTR m_gdpToken;
         Gdiplus::GdiplusStartupInput m_gdpStartupInput;
         Gdiplus::Bitmap *m_bitmap;
+
+#ifndef GLOGAL_CONTROLS
+        // Picture controls
+        int m_brightness;
+        int m_contrast;
+        int m_hue;
+        int m_saturation;
+        int m_gamma;
+        bool m_colorEnable;
+#endif
 
         HRESULT mediaType(int iPosition, CMediaType *pmt) const;
         HRESULT isSupported(const CMediaType *pCurMediaType, const CMediaType *pMediaType) const;

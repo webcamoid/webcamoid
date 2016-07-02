@@ -20,6 +20,7 @@
 #include "capture.h"
 
 #define TIME_BASE 1.0e7
+#define SOURCE_FILTER_NAME L"Source"
 
 typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
 
@@ -282,94 +283,42 @@ QString Capture::capsDescription(const AkCaps &caps) const
 
 QVariantList Capture::imageControls() const
 {
-    BaseFilterPtr filter = this->findFilter(this->m_device);
-
-    if (!filter)
-        return QVariantList();
-
-    qint32 min;
-    qint32 max;
-    qint32 step;
-    qint32 defaultValue;
-    qint32 flags;
-    qint32 value;
-
-    QVariantList controls;
-    IAMVideoProcAmp *pProcAmp = NULL;
-
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
-                                         reinterpret_cast<void **>(&pProcAmp)))) {
-        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
-            if (SUCCEEDED(pProcAmp->GetRange(property,
-                                             reinterpret_cast<LONG *>(&min),
-                                             reinterpret_cast<LONG *>(&max),
-                                             reinterpret_cast<LONG *>(&step),
-                                             reinterpret_cast<LONG *>(&defaultValue),
-                                             reinterpret_cast<LONG *>(&flags))))
-                if (SUCCEEDED(pProcAmp->Get(property,
-                                            reinterpret_cast<LONG *>(&value),
-                                            reinterpret_cast<LONG *>(&flags)))) {
-                    QVariantList control;
-
-                    QString type;
-
-                    if (property == VideoProcAmp_ColorEnable
-                        || property == VideoProcAmp_BacklightCompensation)
-                        type = "boolean";
-                    else
-                        type = "integer";
-
-                    if (value == defaultValue)
-                        defaultValue = (min + max) / 2;
-
-                    control << vpapToStr->value(property)
-                            << type
-                            << min
-                            << max
-                            << step
-                            << defaultValue
-                            << value
-                            << QStringList();
-
-                    controls << QVariant(control);
-                }
-        }
-
-        pProcAmp->Release();
-    }
-
-    return controls;
+    return this->m_globalImageControls;
 }
 
-bool Capture::setImageControls(const QVariantMap &imageControls) const
+bool Capture::setImageControls(const QVariantMap &imageControls)
 {
-    BaseFilterPtr filter = this->findFilter(this->m_device);
+    this->m_controlsMutex.lock();
+    QVariantList globalImageControls = this->m_globalImageControls;
+    this->m_controlsMutex.unlock();
 
-    if (!filter)
-        return false;
+    for (int i = 0; i < globalImageControls.count(); i++) {
+        QVariantList control = globalImageControls[i].toList();
+        QString controlName = control[0].toString();
 
-    IAMVideoProcAmp *pProcAmp = NULL;
-
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
-                                         reinterpret_cast<void **>(&pProcAmp)))) {
-        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
-            QString propertyStr = vpapToStr->value(property);
-
-            if (imageControls.contains(propertyStr))
-                pProcAmp->Set(property,
-                              imageControls[propertyStr].toInt(),
-                              VideoProcAmp_Flags_Manual);
+        if (imageControls.contains(controlName)) {
+            control[6] = imageControls[controlName];
+            globalImageControls[i] = control;
         }
-
-        pProcAmp->Release();
     }
+
+    this->m_controlsMutex.lock();
+
+    if (this->m_globalImageControls == globalImageControls) {
+        this->m_controlsMutex.unlock();
+
+        return false;
+    }
+
+    this->m_globalImageControls = globalImageControls;
+    this->m_controlsMutex.unlock();
 
     emit this->imageControlsChanged(imageControls);
 
     return true;
 }
 
-bool Capture::resetImageControls() const
+bool Capture::resetImageControls()
 {
     QVariantMap controls;
 
@@ -383,83 +332,41 @@ bool Capture::resetImageControls() const
 
 QVariantList Capture::cameraControls() const
 {
-    BaseFilterPtr filter = this->findFilter(this->m_device);
-
-    if (!filter)
-        return QVariantList();
-
-    qint32 min;
-    qint32 max;
-    qint32 step;
-    qint32 defaultValue;
-    qint32 flags;
-    qint32 value;
-
-    QVariantList controls;
-    IAMCameraControl *pCameraControl = NULL;
-
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
-                                         reinterpret_cast<void **>(&pCameraControl)))) {
-        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
-            if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
-                                                   reinterpret_cast<LONG *>(&min),
-                                                   reinterpret_cast<LONG *>(&max),
-                                                   reinterpret_cast<LONG *>(&step),
-                                                   reinterpret_cast<LONG *>(&defaultValue),
-                                                   reinterpret_cast<LONG *>(&flags))))
-                if (SUCCEEDED(pCameraControl->Get(cameraControl,
-                                                  reinterpret_cast<LONG *>(&value),
-                                                  reinterpret_cast<LONG *>(&flags)))) {
-                    QVariantList control;
-
-                    control << ccToStr->value(cameraControl)
-                            << QString("integer")
-                            << min
-                            << max
-                            << step
-                            << defaultValue
-                            << value
-                            << QStringList();
-
-                    controls << QVariant(control);
-                }
-        }
-
-        pCameraControl->Release();
-    }
-
-    return controls;
+    return this->m_globalCameraControls;
 }
 
-bool Capture::setCameraControls(const QVariantMap &cameraControls) const
+bool Capture::setCameraControls(const QVariantMap &cameraControls)
 {
-    BaseFilterPtr filter = this->findFilter(this->m_device);
+    this->m_controlsMutex.lock();
+    QVariantList globalCameraControls = this->m_globalCameraControls;
+    this->m_controlsMutex.unlock();
 
-    if (!filter)
-        return false;
+    for (int i = 0; i < globalCameraControls.count(); i++) {
+        QVariantList control = globalCameraControls[i].toList();
+        QString controlName = control[0].toString();
 
-    IAMCameraControl *pCameraControl = NULL;
-
-    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
-                                         reinterpret_cast<void **>(&pCameraControl)))) {
-        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
-            QString cameraControlStr = ccToStr->value(cameraControl);
-
-            if (cameraControls.contains(cameraControlStr))
-                pCameraControl->Set(cameraControl,
-                                    cameraControls[cameraControlStr].toInt(),
-                                    CameraControl_Flags_Manual);
+        if (cameraControls.contains(controlName)) {
+            control[6] = cameraControls[controlName];
+            globalCameraControls[i] = control;
         }
-
-        pCameraControl->Release();
     }
 
+    this->m_controlsMutex.lock();
+
+    if (this->m_globalCameraControls == globalCameraControls) {
+        this->m_controlsMutex.unlock();
+
+        return false;
+    }
+
+    this->m_globalCameraControls = globalCameraControls;
+    this->m_controlsMutex.unlock();
     emit this->cameraControlsChanged(cameraControls);
 
     return true;
 }
 
-bool Capture::resetCameraControls() const
+bool Capture::resetCameraControls()
 {
     QVariantMap controls;
 
@@ -474,6 +381,33 @@ bool Capture::resetCameraControls() const
 
 AkPacket Capture::readFrame()
 {
+    IBaseFilter *source = NULL;
+    this->m_graph->FindFilterByName(SOURCE_FILTER_NAME, &source);
+
+    if (source) {
+        this->m_controlsMutex.lock();
+        QVariantMap imageControls = this->controlStatus(this->m_globalImageControls);
+        this->m_controlsMutex.unlock();
+
+        if (this->m_localImageControls != imageControls) {
+            QVariantMap controls = this->mapDiff(this->m_localImageControls, imageControls);
+            this->setImageControls(source, controls);
+            this->m_localImageControls = imageControls;
+        }
+
+        this->m_controlsMutex.lock();
+        QVariantMap cameraControls = this->controlStatus(this->m_globalCameraControls);
+        this->m_controlsMutex.unlock();
+
+        if (this->m_localCameraControls != cameraControls) {
+            QVariantMap controls = this->mapDiff(this->m_localCameraControls, cameraControls);
+            this->setCameraControls(source, controls);
+            this->m_localCameraControls = cameraControls;
+        }
+
+        source->Release();
+    }
+
     AM_MEDIA_TYPE mediaType;
     ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
     this->m_grabber->GetConnectedMediaType(&mediaType);
@@ -907,6 +841,189 @@ void Capture::deletePin(IPin *pin)
     pin->Release();
 }
 
+QVariantList Capture::imageControls(IBaseFilter *filter) const
+{
+    if (!filter)
+        return QVariantList();
+
+    qint32 min;
+    qint32 max;
+    qint32 step;
+    qint32 defaultValue;
+    qint32 flags;
+    qint32 value;
+
+    QVariantList controls;
+    IAMVideoProcAmp *pProcAmp = NULL;
+
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
+                                         reinterpret_cast<void **>(&pProcAmp)))) {
+        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
+            if (SUCCEEDED(pProcAmp->GetRange(property,
+                                             reinterpret_cast<LONG *>(&min),
+                                             reinterpret_cast<LONG *>(&max),
+                                             reinterpret_cast<LONG *>(&step),
+                                             reinterpret_cast<LONG *>(&defaultValue),
+                                             reinterpret_cast<LONG *>(&flags))))
+                if (SUCCEEDED(pProcAmp->Get(property,
+                                            reinterpret_cast<LONG *>(&value),
+                                            reinterpret_cast<LONG *>(&flags)))) {
+                    QVariantList control;
+
+                    QString type;
+
+                    if (property == VideoProcAmp_ColorEnable
+                        || property == VideoProcAmp_BacklightCompensation)
+                        type = "boolean";
+                    else
+                        type = "integer";
+
+                    if (value == defaultValue)
+                        defaultValue = (min + max) / 2;
+
+                    control << vpapToStr->value(property)
+                            << type
+                            << min
+                            << max
+                            << step
+                            << defaultValue
+                            << value
+                            << QStringList();
+
+                    controls << QVariant(control);
+                }
+        }
+
+        pProcAmp->Release();
+    }
+
+    return controls;
+}
+
+bool Capture::setImageControls(IBaseFilter *filter,
+                               const QVariantMap &imageControls) const
+{
+    if (!filter)
+        return false;
+
+    IAMVideoProcAmp *pProcAmp = NULL;
+
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
+                                         reinterpret_cast<void **>(&pProcAmp)))) {
+        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
+            QString propertyStr = vpapToStr->value(property);
+
+            if (imageControls.contains(propertyStr))
+                pProcAmp->Set(property,
+                              imageControls[propertyStr].toInt(),
+                              VideoProcAmp_Flags_Manual);
+        }
+
+        pProcAmp->Release();
+    }
+
+    return true;
+}
+
+QVariantList Capture::cameraControls(IBaseFilter *filter) const
+{
+    if (!filter)
+        return QVariantList();
+
+    qint32 min;
+    qint32 max;
+    qint32 step;
+    qint32 defaultValue;
+    qint32 flags;
+    qint32 value;
+
+    QVariantList controls;
+    IAMCameraControl *pCameraControl = NULL;
+
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
+                                         reinterpret_cast<void **>(&pCameraControl)))) {
+        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
+            if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
+                                                   reinterpret_cast<LONG *>(&min),
+                                                   reinterpret_cast<LONG *>(&max),
+                                                   reinterpret_cast<LONG *>(&step),
+                                                   reinterpret_cast<LONG *>(&defaultValue),
+                                                   reinterpret_cast<LONG *>(&flags))))
+                if (SUCCEEDED(pCameraControl->Get(cameraControl,
+                                                  reinterpret_cast<LONG *>(&value),
+                                                  reinterpret_cast<LONG *>(&flags)))) {
+                    QVariantList control;
+
+                    control << ccToStr->value(cameraControl)
+                            << QString("integer")
+                            << min
+                            << max
+                            << step
+                            << defaultValue
+                            << value
+                            << QStringList();
+
+                    controls << QVariant(control);
+                }
+        }
+
+        pCameraControl->Release();
+    }
+
+    return controls;
+}
+
+bool Capture::setCameraControls(IBaseFilter *filter,
+                                const QVariantMap &cameraControls) const
+{
+    if (!filter)
+        return false;
+
+    IAMCameraControl *pCameraControl = NULL;
+
+    if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
+                                         reinterpret_cast<void **>(&pCameraControl)))) {
+        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
+            QString cameraControlStr = ccToStr->value(cameraControl);
+
+            if (cameraControls.contains(cameraControlStr))
+                pCameraControl->Set(cameraControl,
+                                    cameraControls[cameraControlStr].toInt(),
+                                    CameraControl_Flags_Manual);
+        }
+
+        pCameraControl->Release();
+    }
+
+    return true;
+}
+
+QVariantMap Capture::controlStatus(const QVariantList &controls) const
+{
+    QVariantMap controlStatus;
+
+    foreach (QVariant control, controls) {
+        QVariantList params = control.toList();
+        QString controlName = params[0].toString();
+        controlStatus[controlName] = params[6];
+    }
+
+    return controlStatus;
+}
+
+QVariantMap Capture::mapDiff(const QVariantMap &map1, const QVariantMap &map2) const
+{
+    QVariantMap map;
+
+    foreach (QString control, map2.keys())
+        if (!map1.contains(control)
+            || map1[control] != map2[control]) {
+            map[control] = map2[control];
+        }
+
+    return map;
+}
+
 bool Capture::init()
 {
     // Create the pipeline.
@@ -927,7 +1044,7 @@ bool Capture::init()
         return false;
     }
 
-    if (FAILED(this->m_graph->AddFilter(webcamFilter, L"Source"))) {
+    if (FAILED(this->m_graph->AddFilter(webcamFilter, SOURCE_FILTER_NAME))) {
         this->m_graph->Release();
         this->m_graph = NULL;
 
@@ -1092,6 +1209,9 @@ bool Capture::init()
 
     control->Release();
 
+    this->m_localImageControls.clear();
+    this->m_localImageControls.clear();
+
     return true;
 }
 
@@ -1116,7 +1236,29 @@ void Capture::setDevice(const QString &device)
         return;
 
     this->m_device = device;
+
+    if (device.isEmpty()) {
+        this->m_controlsMutex.lock();
+        this->m_globalImageControls.clear();
+        this->m_globalCameraControls.clear();
+        this->m_controlsMutex.unlock();
+    } else {
+        IBaseFilter *camera = this->findFilterP(device);
+        this->m_controlsMutex.lock();
+        this->m_globalImageControls = this->imageControls(camera);
+        this->m_globalCameraControls = this->cameraControls(camera);
+        this->m_controlsMutex.unlock();
+        camera->Release();
+    }
+
+    this->m_controlsMutex.lock();
+    QVariantMap imageStatus = this->controlStatus(this->m_globalImageControls);
+    QVariantMap cameraStatus = this->controlStatus(this->m_globalCameraControls);
+    this->m_controlsMutex.unlock();
+
     emit this->deviceChanged(device);
+    emit this->imageControlsChanged(imageStatus);
+    emit this->cameraControlsChanged(cameraStatus);
 }
 
 void Capture::setStreams(const QList<int> &streams)
