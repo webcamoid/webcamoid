@@ -78,6 +78,31 @@ QObject *AkQml::newCaps(const AkCaps &caps) const
     return new AkCaps(caps);
 }
 
+QObject *AkQml::newVideoCaps() const
+{
+    return new AkVideoCaps();
+}
+
+QObject *AkQml::newVideoCaps(const QVariantMap &caps) const
+{
+    return new AkVideoCaps(caps);
+}
+
+QObject *AkQml::newVideoCaps(const QString &caps) const
+{
+    return new AkVideoCaps(caps);
+}
+
+QObject *AkQml::newVideoCaps(const AkCaps &caps) const
+{
+    return new AkVideoCaps(caps);
+}
+
+QObject *AkQml::newVideoCaps(const AkVideoCaps &caps) const
+{
+    return new AkVideoCaps(caps);
+}
+
 QVariant AkQml::varFrac(AkFrac *frac) const
 {
     return QVariant::fromValue(*frac);

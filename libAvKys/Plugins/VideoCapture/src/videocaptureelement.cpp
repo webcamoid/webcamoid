@@ -181,6 +181,13 @@ AkCaps VideoCaptureElement::caps(int stream) const
     return videoCaps;
 }
 
+AkCaps VideoCaptureElement::rawCaps(int stream) const
+{
+    QVariantList streams = this->m_capture.caps(this->m_capture.device());
+
+    return streams.value(stream).value<AkCaps>();
+}
+
 QStringList VideoCaptureElement::listCapsDescription() const
 {
     QStringList capsDescriptions;

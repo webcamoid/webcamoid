@@ -178,7 +178,7 @@ QList<int> Capture::streams() const
 QList<int> Capture::listTracks(const QString &mimeType)
 {
     if (mimeType != "video/x-raw"
-        || !mimeType.isEmpty())
+        && !mimeType.isEmpty())
         return QList<int>();
 
     QVariantList caps = this->caps(this->m_device);

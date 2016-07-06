@@ -72,6 +72,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream) const;
+        Q_INVOKABLE AkCaps rawCaps(int stream) const;
         Q_INVOKABLE QStringList listCapsDescription() const;
 
         Q_INVOKABLE QString ioMethod() const;
