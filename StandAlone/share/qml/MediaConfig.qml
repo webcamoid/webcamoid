@@ -98,11 +98,16 @@ GridLayout {
         }
     }
 
-    RowLayout {
-        id: itmMediaControls
-        objectName: "itmMediaControls"
+    ScrollView {
+        id: scrollControls
         Layout.fillWidth: true
         Layout.fillHeight: true
+
+        contentItem: RowLayout {
+            id: itmMediaControls
+            objectName: "itmMediaControls"
+            width: scrollControls.viewport.width
+        }
     }
 
     AddMedia {
