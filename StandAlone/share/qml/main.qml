@@ -40,16 +40,37 @@ ApplicationWindow {
 
     property bool showEffectBar: false
 
-    onWidthChanged: Webcamoid.windowWidth = width
-    onHeightChanged: Webcamoid.windowHeight = height
-
     function rgbChangeAlpha(color, alpha)
     {
         return Qt.rgba(color.r, color.g, color.b, alpha)
     }
 
+    function togglePlay() {
+        if (Webcamoid.isPlaying) {
+            Webcamoid.stopVirtualCamera();
+            Webcamoid.stopRecording();
+            Webcamoid.stop();
+
+            if (splitView.state == "showRecordPanels")
+                splitView.state = ""
+        } else {
+            Webcamoid.start();
+
+            if (Webcamoid.enableVirtualCamera)
+                Webcamoid.startVirtualCamera("");
+        }
+    }
+
     SystemPalette {
         id: palette
+    }
+
+    onWidthChanged: Webcamoid.windowWidth = width
+    onHeightChanged: Webcamoid.windowHeight = height
+
+    Component.onCompleted: {
+        if (Webcamoid.playOnStart)
+            togglePlay()
     }
 
     Connections {
@@ -518,21 +539,7 @@ ApplicationWindow {
                     text: qsTr("Play")
                     icon: "qrc:/icons/hicolor/scalable/play.svg"
 
-                    onClicked: {
-                        if (Webcamoid.isPlaying) {
-                            Webcamoid.stopVirtualCamera();
-                            Webcamoid.stopRecording();
-                            Webcamoid.stop();
-
-                            if (splitView.state == "showRecordPanels")
-                                splitView.state = ""
-                        } else {
-                            Webcamoid.start();
-
-                            if (Webcamoid.enableVirtualCamera)
-                                Webcamoid.startVirtualCamera("");
-                        }
-                    }
+                    onClicked: togglePlay()
                 }
                 IconBarItem {
                     width: iconBarRect.height

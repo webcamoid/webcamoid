@@ -23,12 +23,17 @@ import QtQuick.Layouts 1.1
 
 ColumnLayout {
     CheckBox {
+        text: qsTr("Play webcam on start")
+        checked: Webcamoid.playOnStart
+
+        onCheckedChanged: Webcamoid.playOnStart = checked
+    }
+    CheckBox {
         text: qsTr("Enable advanced effects mode")
         checked: Webcamoid.advancedMode
 
         onCheckedChanged: Webcamoid.advancedMode = checked
     }
-
     Label {
         Layout.fillHeight: true
     }

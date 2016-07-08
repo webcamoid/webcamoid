@@ -92,6 +92,11 @@ class MediaTools: public QObject
     Q_PROPERTY(QStringList webcams
                READ webcams
                NOTIFY streamsChanged)
+    Q_PROPERTY(bool playOnStart
+               READ playOnStart
+               WRITE setPlayOnStart
+               RESET resetPlayOnStart
+               NOTIFY playOnStartChanged)
 
     public:
         enum RecordFrom
@@ -141,6 +146,7 @@ class MediaTools: public QObject
         Q_INVOKABLE void removePreview(const QString &effectId="");
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QStringList webcams();
+        Q_INVOKABLE bool playOnStart() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
@@ -179,6 +185,7 @@ class MediaTools: public QObject
         int m_windowHeight;
         bool m_advancedMode;
         bool m_enableVirtualCamera;
+        bool m_playOnStart;
         QQmlApplicationEngine *m_appEngine;
 
         AkElementPtr m_pipeline;
@@ -217,6 +224,7 @@ class MediaTools: public QObject
         void stateChanged(AkElement::ElementState state);
         void advancedModeChanged(bool advancedMode);
         void enableVirtualCameraChanged(bool enableVirtualCamera);
+        void playOnStartChanged(bool playOnStart);
         void currentEffectsChanged();
         void isPlayingChanged();
         void frameReady(const AkPacket &frame);
@@ -243,6 +251,7 @@ class MediaTools: public QObject
         void setWindowHeight(int windowHeight);
         void setAdvancedMode(bool advancedMode);
         void setEnableVirtualCamera(bool enableVirtualCamera);
+        void setPlayOnStart(bool playOnStart);
         void resetCurStream();
         void resetPlayAudioFromSource();
         void resetRecordAudioFrom();
@@ -252,6 +261,7 @@ class MediaTools: public QObject
         void resetWindowHeight();
         void resetAdvancedMode();
         void resetEnableVirtualCamera();
+        void resetPlayOnStart();
         void resetEffects();
         void loadConfigs();
         void saveConfigs();

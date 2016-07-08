@@ -58,6 +58,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_windowHeight = 0;
     this->m_advancedMode = false;
     this->m_enableVirtualCamera = false;
+    this->m_playOnStart = true;
 
     Ak::setQmlEngine(engine);
     this->m_pipeline = AkElement::create("Bin", "pipeline");
@@ -636,6 +637,11 @@ QStringList MediaTools::webcams()
                               Q_RETURN_ARG(QStringList, webcams));
 
     return webcams;
+}
+
+bool MediaTools::playOnStart() const
+{
+    return this->m_playOnStart;
 }
 
 QString MediaTools::fileNameFromUri(const QString &uri) const
@@ -1304,6 +1310,15 @@ void MediaTools::setEnableVirtualCamera(bool enableVirtualCamera)
     emit this->enableVirtualCameraChanged(enableVirtualCamera);
 }
 
+void MediaTools::setPlayOnStart(bool playOnStart)
+{
+    if (this->m_playOnStart == playOnStart)
+        return;
+
+    this->m_playOnStart = playOnStart;
+    emit this->playOnStartChanged(playOnStart);
+}
+
 void MediaTools::resetCurStream()
 {
     this->setCurStream("");
@@ -1347,6 +1362,11 @@ void MediaTools::resetAdvancedMode()
 void MediaTools::resetEnableVirtualCamera()
 {
     this->setEnableVirtualCamera(false);
+}
+
+void MediaTools::resetPlayOnStart()
+{
+    this->setPlayOnStart(true);
 }
 
 void MediaTools::resetEffects()
@@ -1393,6 +1413,7 @@ void MediaTools::loadConfigs()
     config.beginGroup("GeneralConfigs");
 
     this->setAdvancedMode(config.value("advancedMode", false).toBool());
+    this->setPlayOnStart(config.value("playOnStart", true).toBool());
 
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->m_windowWidth = windowSize.width();
@@ -1480,6 +1501,7 @@ void MediaTools::saveConfigs()
     config.beginGroup("GeneralConfigs");
 
     config.setValue("advancedMode", this->advancedMode());
+    config.setValue("playOnStart", this->playOnStart());
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
 
