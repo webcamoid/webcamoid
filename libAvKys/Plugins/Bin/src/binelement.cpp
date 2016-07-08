@@ -19,7 +19,8 @@
 
 #include "binelement.h"
 
-BinElement::BinElement(): AkElement()
+BinElement::BinElement():
+    AkElement()
 {
     this->m_pipelineDescription.setParent(this);
     this->m_blocking = false;
@@ -106,11 +107,16 @@ void BinElement::setDescription(const QString &description)
     }
 
     this->setState(preState);
+    emit this->descriptionChanged(description);
 }
 
 void BinElement::setBlocking(bool blocking)
 {
+    if (this->m_blocking == blocking)
+        return;
+
     this->m_blocking = blocking;
+    emit this->blockingChanged(blocking);
 }
 
 void BinElement::resetDescription()
@@ -125,10 +131,10 @@ void BinElement::resetBlocking()
 
 AkPacket BinElement::iStream(const AkPacket &packet)
 {
-    if (!this->description().isEmpty())
+    if (!this->m_description.isEmpty())
         foreach (AkElementPtr element, this->m_inputs)
             element->iStream(packet);
-    else if (!this->blocking())
+    else if (!this->m_blocking)
         akSend(packet)
 
     return AkPacket();

@@ -133,12 +133,10 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(error(const QString &)),
                              this,
                              SIGNAL(error(const QString &)));
-
             QObject::connect(this->m_source.data(),
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this,
                              SIGNAL(stateChanged(AkElement::ElementState)));
-
             QObject::connect(this->m_source.data(),
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_audioOutput.data(),
@@ -147,49 +145,44 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
         if (this->m_videoCapture) {
             QObject::connect(this->m_videoCapture.data(),
-                             SIGNAL(error(const QString &)),
+                             SIGNAL(mediasChanged(const QStringList &)),
                              this,
-                             SIGNAL(error(const QString &)));
-
+                             SLOT(webcamsChanged(const QStringList &)));
             QObject::connect(this->m_videoCapture.data(),
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this,
                              SIGNAL(stateChanged(AkElement::ElementState)));
+            QObject::connect(this->m_videoCapture.data(),
+                             SIGNAL(error(const QString &)),
+                             this,
+                             SIGNAL(error(const QString &)));
         }
 
         if (this->m_desktopCapture) {
+            QObject::connect(this->m_desktopCapture.data(),
+                             SIGNAL(mediasChanged(const QStringList &)),
+                             this,
+                             SLOT(webcamsChanged(const QStringList &)));
             QObject::connect(this->m_desktopCapture.data(),
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this,
                              SIGNAL(stateChanged(AkElement::ElementState)));
         }
+
+        if (this->m_audioSwitch)
+            this->m_audioSwitch->setProperty("inputIndex", 1);
+
+        if (this->m_record)
+            QObject::connect(this->m_record.data(),
+                             SIGNAL(outputFormatChanged(const QString &)),
+                             this,
+                             SIGNAL(curRecordingFormatChanged(const QString &)));
 
         QObject::connect(this,
                          &MediaTools::stateChanged,
                          this,
                          &MediaTools::isPlayingChanged);
-
-        if (this->m_audioSwitch)
-            this->m_audioSwitch->setProperty("inputIndex", 1);
-
-        if (this->m_videoCapture)
-            QObject::connect(this->m_videoCapture.data(),
-                             SIGNAL(mediasChanged(const QStringList &)),
-                             this,
-                             SLOT(webcamsChanged(const QStringList &)));
-
-        if (this->m_desktopCapture)
-            QObject::connect(this->m_desktopCapture.data(),
-                             SIGNAL(mediasChanged(const QStringList &)),
-                             this,
-                             SLOT(webcamsChanged(const QStringList &)));
     }
-
-    if (this->m_record)
-        QObject::connect(this->m_record.data(),
-                         SIGNAL(outputFormatChanged(const QString &)),
-                         this,
-                         SIGNAL(curRecordingFormatChanged(const QString &)));
 
     this->loadConfigs();
 }
@@ -423,6 +416,9 @@ bool MediaTools::canModify(const QString &stream) const
 
 bool MediaTools::isCamera(const QString &stream) const
 {
+    if (!this->m_videoCapture)
+        return false;
+
     QStringList webcams;
 
     QMetaObject::invokeMethod(this->m_videoCapture.data(),
@@ -434,6 +430,9 @@ bool MediaTools::isCamera(const QString &stream) const
 
 bool MediaTools::isDesktop(const QString &stream) const
 {
+    if (!this->m_desktopCapture)
+        return false;
+
     QStringList screens;
 
     QMetaObject::invokeMethod(this->m_desktopCapture.data(),
@@ -739,10 +738,7 @@ bool MediaTools::embedMediaControls(const QString &where,
                                      const QString &stream,
                                      const QString &name) const
 {
-    if (!this->m_appEngine
-        || !this->m_videoCapture
-        || !this->m_desktopCapture
-        || !this->m_source)
+    if (!this->m_appEngine)
         return false;
 
     QObject *interface = NULL;
@@ -752,9 +748,10 @@ bool MediaTools::embedMediaControls(const QString &where,
                                                            stream);
     else if (this->isDesktop(stream))
         interface = this->m_desktopCapture->controlInterface(this->m_appEngine, "");
-    else if (this->isVideo(stream))
-        interface = this->m_source->controlInterface(this->m_appEngine, "");
-    else
+    else if (this->isVideo(stream)) {
+        if (this->m_source)
+            interface = this->m_source->controlInterface(this->m_appEngine, "");
+    } else
         return false;
 
     if (!interface)
@@ -1011,10 +1008,7 @@ void MediaTools::savePhoto(const QString &fileName)
 
 bool MediaTools::start()
 {
-    if (this->m_curStream.isEmpty()
-        || !this->m_source
-        || !this->m_videoCapture
-        || !this->m_desktopCapture)
+    if (this->m_curStream.isEmpty())
         return false;
 
     // Setup the recording streams caps.
@@ -1024,10 +1018,13 @@ bool MediaTools::start()
         source = this->m_videoCapture;
     else if (this->isDesktop(this->m_curStream))
         source = this->m_desktopCapture;
-    else {
+    else if (this->m_source) {
         source = this->m_source;
         source->setProperty("loop", true);
     }
+
+    if (!source)
+        return false;
 
     QList<int> streams;
     QMetaObject::invokeMethod(source.data(),
@@ -1636,14 +1633,14 @@ void MediaTools::webcamsChanged(const QStringList &webcams)
 
 void MediaTools::updateRecordingParams()
 {
-    if (this->m_curStream.isEmpty()
-        || !this->m_source
-        || !this->m_videoCapture
-        || !this->m_desktopCapture)
+    if (this->m_curStream.isEmpty())
         return;
 
     // Setup the recording streams caps.
     AkElementPtr source = this->sourceElement();
+
+    if (!source)
+        return;
 
     QList<int> streams;
     QMetaObject::invokeMethod(source.data(),

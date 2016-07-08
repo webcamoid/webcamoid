@@ -102,11 +102,16 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    RowLayout {
-        id: itmRecordControls
-        objectName: "itmRecordControls"
+    ScrollView {
+        id: scrollControls
         Layout.fillWidth: true
         Layout.fillHeight: true
+
+        contentItem: RowLayout {
+            id: itmRecordControls
+            objectName: "itmRecordControls"
+            width: scrollControls.viewport.width
+        }
     }
 
     Label {

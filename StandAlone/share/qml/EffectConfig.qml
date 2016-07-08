@@ -105,10 +105,17 @@ ColumnLayout {
             }
         }
     }
-    RowLayout {
-        id: itmEffectControls
-        objectName: "itmEffectControls"
+
+    ScrollView {
+        id: scrollControls
         Layout.fillWidth: true
+        Layout.fillHeight: true
+
+        contentItem: RowLayout {
+            id: itmEffectControls
+            objectName: "itmEffectControls"
+            width: scrollControls.viewport.width
+        }
     }
     Label {
         Layout.fillHeight: true

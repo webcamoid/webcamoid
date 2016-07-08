@@ -25,14 +25,16 @@
 class BinElement: public AkElement
 {
     Q_OBJECT
-
-    Q_PROPERTY(QString description READ description
-                                   WRITE setDescription
-                                   RESET resetDescription)
-
-    Q_PROPERTY(bool blocking READ blocking
-                             WRITE setBlocking
-                             RESET resetBlocking)
+    Q_PROPERTY(QString description
+               READ description
+               WRITE setDescription
+               RESET resetDescription
+               NOTIFY descriptionChanged)
+    Q_PROPERTY(bool blocking
+               READ blocking
+               WRITE setBlocking
+               RESET resetBlocking
+               NOTIFY blockingChanged)
 
     public:
         explicit BinElement();
@@ -50,6 +52,10 @@ class BinElement: public AkElement
         QList<AkElementPtr> m_inputs;
         QList<AkElementPtr> m_outputs;
         Pipeline m_pipelineDescription;
+
+    signals:
+        void descriptionChanged(const QString &description);
+        void blockingChanged(bool blocking);
 
     public slots:
         void setDescription(const QString &description);
