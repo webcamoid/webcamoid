@@ -111,6 +111,7 @@ target.path = $${BINDIR}
     INSTALLS += \
         dllDeps \
         pluginsImageFormats \
+        pluginsScenegraph \
         pluginsPlatform \
         pluginsQml \
         appIcon
@@ -211,6 +212,9 @@ target.path = $${BINDIR}
 
     pluginsImageFormats.files = $$[QT_INSTALL_PLUGINS]/imageformats/*
     pluginsImageFormats.path = $${BINDIR}/imageformats
+
+    pluginsScenegraph.files = $$[QT_INSTALL_PLUGINS]/scenegraph/*
+    pluginsScenegraph.path = $${BINDIR}/scenegraph
 
     pluginsQml.files = $$[QT_INSTALL_QML]/*
     pluginsQml.path = $${LIBDIR}/qt/qml

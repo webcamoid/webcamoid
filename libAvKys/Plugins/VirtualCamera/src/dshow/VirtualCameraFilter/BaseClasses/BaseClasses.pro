@@ -126,12 +126,3 @@ LIBS += \
     -lgdi32
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
-
-INSTALLS += \
-    target \
-    headers
-
-target.path = $${LIBDIR}
-
-headers.files = src/*.h
-headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}

@@ -63,7 +63,6 @@ CONFIG(debug, debug|release) {
     LIBS += -L../BaseClasses -lstrmbase
 }
 
-
 LIBS += \
     -L../ipc -lipc \
     -lstrmiids \
@@ -84,11 +83,6 @@ RC_FILE += VirtualCameraSource.rc
 
 isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
 
-INSTALLS += \
-    target \
-    headers
+INSTALLS += target
 
-target.path = $${LIBDIR}
-
-headers.files = src/*.h
-headers.path = $${INCLUDEDIR}/$${COMMONS_TARGET}
+target.path = $${BINDIR}
