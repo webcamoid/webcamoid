@@ -112,6 +112,12 @@ struct VU
     uint8_t u;
 };
 
+template<typename T>
+T bound(T min, T value, T max)
+{
+    return value < min? min: value > max? max: value;
+}
+
 inline uint8_t rgb_y(int r, int g, int b)
 {
     return uint8_t(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16);
@@ -130,20 +136,24 @@ inline uint8_t rgb_v(int r, int g, int b)
 inline uint8_t yuv_r(int y, int u, int v)
 {
     UNUSED(u)
+    int r = (298 * (y - 16) + 409 * (v - 128) + 128) >> 8;
 
-    return uint8_t((298 * (y - 16) + 409 * (v - 128) + 128) >> 8);
+    return uint8_t(bound(0, r, 255));
 }
 
 inline uint8_t yuv_g(int y, int u, int v)
 {
-    return uint8_t((298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8);
+    int g = (298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8;
+
+    return uint8_t(bound(0, g, 255));
 }
 
 inline uint8_t yuv_b(int y, int u, int v)
 {
     UNUSED(v)
+    int b = (298 * (y - 16) + 516 * (u - 128) + 128) >> 8;
 
-    return uint8_t((298 * (y - 16) + 516 * (u - 128) + 128) >> 8);
+    return uint8_t(bound(0, b, 255));
 }
 
 size_t rgb3_to_bgr3(void *dst, const void *src, int width, int height)
