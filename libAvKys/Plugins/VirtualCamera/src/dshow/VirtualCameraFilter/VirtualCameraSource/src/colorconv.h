@@ -22,12 +22,14 @@
 
 #include <cstdint>
 
-// RGB3 -> YUV
+// RGB3 -> RGB
 size_t rgb3_to_bgr3(void *dst, const void *src, int width, int height);
 size_t rgb3_to_rgb4(void *dst, const void *src, int width, int height);
 size_t rgb3_to_bgr4(void *dst, const void *src, int width, int height);
 size_t rgb3_to_rgbp(void *dst, const void *src, int width, int height);
 size_t rgb3_to_rgbo(void *dst, const void *src, int width, int height);
+
+// RGB3 -> YUV
 size_t rgb3_to_uyvy(void *dst, const void *src, int width, int height);
 size_t rgb3_to_yuy2(void *dst, const void *src, int width, int height);
 size_t rgb3_to_yv12(void *dst, const void *src, int width, int height);
@@ -35,12 +37,26 @@ size_t rgb3_to_y41p(void *dst, const void *src, int width, int height);
 size_t rgb3_to_nv12(void *dst, const void *src, int width, int height);
 size_t rgb3_to_nv21(void *dst, const void *src, int width, int height);
 
-// BGR3 -> YUV
+// BGR3 -> RGB
 size_t bgr3_to_bgr4(void *dst, const void *src, int width, int height);
 size_t bgr3_to_rgbp(void *dst, const void *src, int width, int height);
 size_t bgr3_to_rgbo(void *dst, const void *src, int width, int height);
+
+// BGR3 -> YUV
 size_t bgr3_to_uyvy(void *dst, const void *src, int width, int height);
 size_t bgr3_to_yuy2(void *dst, const void *src, int width, int height);
 size_t bgr3_to_yv12(void *dst, const void *src, int width, int height);
+
+// RGB4 -> RGB
+size_t rgb4_to_rgb3(void *dst, const void *src, int width, int height);
+size_t rgb4_to_bgr3(void *dst, const void *src, int width, int height);
+
+// YUV -> RGB
+size_t yuy2_to_rgb3(void *dst, const void *src, int width, int height);
+size_t i420_to_rgb3(void *dst, const void *src, int width, int height);
+
+// YUV -> RGB
+size_t yuy2_to_bgr3(void *dst, const void *src, int width, int height);
+size_t i420_to_bgr3(void *dst, const void *src, int width, int height);
 
 #endif // COLORCONV_H

@@ -29,6 +29,7 @@ inline StringStringMap initGstToFF()
     gstToFF["I420"] = "yuv420p";
 //    gstToFF["YV12"] = "";
     gstToFF["YUY2"] = "yuyv422";
+    gstToFF["YUYV"] = "yuyv422";
     gstToFF["UYVY"] = "uyvy422";
 //    gstToFF["AYUV"] = "";
     gstToFF["RGBx"] = "rgb0";

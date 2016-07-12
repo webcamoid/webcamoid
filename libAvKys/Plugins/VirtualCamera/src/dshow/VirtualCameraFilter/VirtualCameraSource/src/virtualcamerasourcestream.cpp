@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <vector>
+
 #include "virtualcamerasourcestream.h"
 #include "vcguidef.h"
 #include "resources.h"
@@ -26,152 +28,121 @@
 
 #define TIME_BASE 1.0e7
 
-namespace VideoFormat
+class VideoFormat
 {
-    class VideoFormat
-    {
-        public:
-            DWORD compression;
-            GUID guid;
-            WORD bpp;
-            const DWORD *masks;
-            Gdiplus::PixelFormat gdiFormat;
-            convert_func_t convert;
-    };
+    public:
+        DWORD compression;
+        GUID guid;
+        WORD bpp;
+        const DWORD *masks;
+        Gdiplus::PixelFormat gdiFormat;
+        convert_func_t convert;
 
-    static VideoFormat videoFormats[] = {
-        // RGB formats
-        //{BI_RGB, MEDIASUBTYPE_RGB32, 32, NULL, PixelFormat32bppRGB, bgr3_to_bgr4},
-        {BI_RGB, MEDIASUBTYPE_RGB24, 24, NULL, PixelFormat24bppRGB, NULL},
-        {BI_BITFIELDS, MEDIASUBTYPE_RGB565, 16, bits565, PixelFormat16bppRGB565, rgb3_to_rgbp},
-        {BI_BITFIELDS, MEDIASUBTYPE_RGB555, 16, bits555, PixelFormat16bppRGB555, rgb3_to_rgbo},
+        static inline const std::vector<VideoFormat> &formats()
+        {
+            static const std::vector<VideoFormat> videoFormats = {
+                // RGB formats
+                //{BI_RGB, MEDIASUBTYPE_RGB32, 32, NULL, PixelFormat32bppRGB, bgr3_to_bgr4},
+                {BI_RGB, MEDIASUBTYPE_RGB24, 24, NULL, PixelFormat24bppRGB, NULL},
+                {BI_BITFIELDS, MEDIASUBTYPE_RGB565, 16, bits565, PixelFormat16bppRGB565, rgb3_to_rgbp},
+                {BI_BITFIELDS, MEDIASUBTYPE_RGB555, 16, bits555, PixelFormat16bppRGB555, rgb3_to_rgbo},
 
-        // Luminance+Chrominance formats
-        {MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY, 16, NULL, PixelFormatUndefined, bgr3_to_uyvy},
-        {MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2, 16, NULL, PixelFormatUndefined, bgr3_to_yuy2},
-        //{MAKEFOURCC('Y', 'V', '1', '2'), MEDIASUBTYPE_YV12, 12, NULL, PixelFormatUndefined, bgr3_to_yv12},
+                // Luminance+Chrominance formats
+                {MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY, 16, NULL, PixelFormatUndefined, bgr3_to_uyvy},
+                {MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2, 16, NULL, PixelFormatUndefined, bgr3_to_yuy2},
+                //{MAKEFOURCC('Y', 'V', '1', '2'), MEDIASUBTYPE_YV12, 12, NULL, PixelFormatUndefined, bgr3_to_yv12},
 
-        // two planes -- one Y, one Cr + Cb interleaved
-        //{MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12, 12, NULL, PixelFormatUndefined, rgb3_to_nv12},
-        {0, GUID_NULL, 0, NULL, PixelFormatUndefined, NULL}
-    };
+                // two planes -- one Y, one Cr + Cb interleaved
+                //{MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12, 12, NULL, PixelFormatUndefined, rgb3_to_nv12},
+            };
 
-    inline int count()
-    {
-        int n = 0;
-
-        for (; videoFormats[n].compression
-               || videoFormats[n].guid != GUID_NULL
-               || videoFormats[n].bpp
-               || videoFormats[n].masks
-               || videoFormats[n].gdiFormat != PixelFormatUndefined
-               || videoFormats[n].convert != NULL
-             ; n++) {
+            return videoFormats;
         }
 
-        return n;
-    }
+        static inline const VideoFormat *byGuid(const GUID &guid)
+        {
+            for (size_t i = 0; i < formats().size(); i++)
+                if (formats()[i].guid == guid)
+                    return &formats()[i];
 
-    static int length = count();
-
-    inline const VideoFormat *byGuid(const GUID &guid)
-    {
-        for (int i = 0; i < length; i++)
-            if (videoFormats[i].guid == guid)
-                return &videoFormats[i];
-
-        return NULL;
-    }
-}
-
-namespace FrameResolution
-{
-    class FrameResolution
-    {
-        public:
-            LONG width;
-            LONG height;
-            const char *name;
-    };
-
-    // This supported resolutions list is based on:
-    //
-    // https://en.wikipedia.org/wiki/Graphics_display_resolution
-    //
-    // I just enabled the most common resolutions because enabling all at once will
-    // slowdown the capture program.
-    static FrameResolution frameResolutions[] = {
-        {640, 480, "VGA"},       // Default resolution go first
-        {160, 120, "QQVGA"},
-    //    {240, 160, "HQVGA"},
-        {320, 240, "QVGA"},
-    //    {360, 240, "WQVGA"},
-    //    {384, 240, "WQVGA"},
-    //    {400, 240, "WQVGA"},
-    //    {480, 320, "HVGA"},
-        {640, 360, "nHD"},
-    //    {720, 480, "WVGA"},
-    //    {768, 480, "WVGA"},
-    //    {800, 480, "WVGA"},
-        {800, 600, "SVGA"},
-    //    {854, 480, "FWVGA"},
-    //    {960, 540, "qHD"},
-    //    {960, 640, "DVGA"},
-        {1024, 576, "WSVGA"},
-        {1024, 600, "WSVGA"},
-        {1024, 768, "XGA"},
-    //    {1152, 768, "WXGA"},
-    //    {1152, 864, "XGA+"},
-        {1280, 720, "HD"},
-    //    {1280, 768, "WXGA"},
-    //    {1280, 800, "WXGA"},
-    //    {1280, 1024, "SXGA"},
-    //    {1360, 768, "WXGA"},
-        {1366, 768, "FWXGA"},
-    //    {1400, 1050, "SXGA+"},
-    //    {1440, 900, "WXGA+"},
-    //    {1440, 960, "WSXGA"},
-    //    {1600, 900, "HD+"},
-        {1600, 1200, "UXGA"},
-    //    {1680, 1050, "WSXGA+"},
-        {1920, 1080, "FHD"},
-    //    {1920, 1200, "WUXGA"},
-    //    {2048, 1152, "QWXGA"},
-    //    {2048, 1536, "QXGA"},
-    //    {2560, 1440, "(W)QHD"},
-    //    {2560, 1600, "WQXGA"},
-    //    {2560, 2048, "QSXGA"},
-    //    {3200, 1800, "QHD+"},
-    //    {3200, 2048, "WQSXGA"},
-    //    {3200, 2400, "QUXGA"},
-    //    {3840, 2160, "4K UHD"},
-    //    {3840, 2400, "WQUXGA"},
-    //    {4096, 3072, "HXGA"},
-    //    {5120, 2880, "5K UHD+"},
-    //    {5120, 3200, "WHXGA"},
-    //    {5120, 4096, "HSXGA"},
-    //    {6400, 4096, "WHSXGA"},
-    //    {6400, 4800, "HUXGA"},
-    //    {7680, 4320, "8K UHD"},
-    //    {7680, 4800, "WHUXGA"},
-        {0, 0, NULL}
-    };
-
-    inline int count()
-    {
-        int n = 0;
-
-        for (; frameResolutions[n].width
-               || frameResolutions[n].height
-               || frameResolutions[n].name
-             ; n++) {
+            return NULL;
         }
+};
 
-        return n;
-    }
+class FrameResolution
+{
+    public:
+        LONG width;
+        LONG height;
+        const char *name;
 
-    static int length = count();
-}
+        static inline const std::vector<FrameResolution> &resolutions()
+        {
+            // This supported resolutions list is based on:
+            //
+            // https://en.wikipedia.org/wiki/Graphics_display_resolution
+            //
+            // I just enabled the most common resolutions because enabling all at once will
+            // slowdown the capture program.
+            static const std::vector<FrameResolution> frameResolutions = {
+                {640, 480, "VGA"},       // Default resolution go first
+                {160, 120, "QQVGA"},
+            //    {240, 160, "HQVGA"},
+                {320, 240, "QVGA"},
+            //    {360, 240, "WQVGA"},
+            //    {384, 240, "WQVGA"},
+            //    {400, 240, "WQVGA"},
+            //    {480, 320, "HVGA"},
+                {640, 360, "nHD"},
+            //    {720, 480, "WVGA"},
+            //    {768, 480, "WVGA"},
+            //    {800, 480, "WVGA"},
+                {800, 600, "SVGA"},
+            //    {854, 480, "FWVGA"},
+            //    {960, 540, "qHD"},
+            //    {960, 640, "DVGA"},
+                {1024, 576, "WSVGA"},
+                {1024, 600, "WSVGA"},
+                {1024, 768, "XGA"},
+            //    {1152, 768, "WXGA"},
+            //    {1152, 864, "XGA+"},
+                {1280, 720, "HD"},
+            //    {1280, 768, "WXGA"},
+            //    {1280, 800, "WXGA"},
+            //    {1280, 1024, "SXGA"},
+            //    {1360, 768, "WXGA"},
+                {1366, 768, "FWXGA"},
+            //    {1400, 1050, "SXGA+"},
+            //    {1440, 900, "WXGA+"},
+            //    {1440, 960, "WSXGA"},
+            //    {1600, 900, "HD+"},
+                {1600, 1200, "UXGA"},
+            //    {1680, 1050, "WSXGA+"},
+                {1920, 1080, "FHD"},
+            //    {1920, 1200, "WUXGA"},
+            //    {2048, 1152, "QWXGA"},
+            //    {2048, 1536, "QXGA"},
+            //    {2560, 1440, "(W)QHD"},
+            //    {2560, 1600, "WQXGA"},
+            //    {2560, 2048, "QSXGA"},
+            //    {3200, 1800, "QHD+"},
+            //    {3200, 2048, "WQSXGA"},
+            //    {3200, 2400, "QUXGA"},
+            //    {3840, 2160, "4K UHD"},
+            //    {3840, 2400, "WQUXGA"},
+            //    {4096, 3072, "HXGA"},
+            //    {5120, 2880, "5K UHD+"},
+            //    {5120, 3200, "WHXGA"},
+            //    {5120, 4096, "HSXGA"},
+            //    {6400, 4096, "WHSXGA"},
+            //    {6400, 4800, "HUXGA"},
+            //    {7680, 4320, "8K UHD"},
+            //    {7680, 4800, "WHUXGA"},
+            };
+
+            return frameResolutions;
+        }
+};
 
 #ifdef GLOGAL_CONTROLS
 // Picture controls
@@ -296,7 +267,7 @@ HRESULT VirtualCameraSourceStream::SetMediaType(const CMediaType *pMediaType)
     HRESULT hr = CSourceStream::SetMediaType(pMediaType);
     GUID format = *pMediaType->Subtype();
 
-    const VideoFormat::VideoFormat *vf = VideoFormat::byGuid(format);
+    const VideoFormat *vf = VideoFormat::byGuid(format);
 
     if (!vf)
         return VFW_E_INVALIDMEDIATYPE;
@@ -428,7 +399,7 @@ HRESULT VirtualCameraSourceStream::SetFormat(AM_MEDIA_TYPE *pmt)
     this->m_formatIsSet = TRUE;
     GUID format = *this->m_mt.Subtype();
 
-    const VideoFormat::VideoFormat *vf = VideoFormat::byGuid(format);
+    const VideoFormat *vf = VideoFormat::byGuid(format);
 
     if (!vf)
         return VFW_E_INVALIDMEDIATYPE;
@@ -466,7 +437,7 @@ HRESULT VirtualCameraSourceStream::GetNumberOfCapabilities(int *piCount,
     CheckPointer(piCount, E_POINTER);
     CheckPointer(piSize, E_POINTER);
 
-    *piCount = VideoFormat::length * FrameResolution::length;
+    *piCount = int(VideoFormat::formats().size() * FrameResolution::resolutions().size());
     *piSize = sizeof(VIDEO_STREAM_CONFIG_CAPS);
 
     return S_OK;
@@ -489,23 +460,25 @@ HRESULT VirtualCameraSourceStream::GetStreamCaps(int iIndex,
     VIDEO_STREAM_CONFIG_CAPS *pvscc = reinterpret_cast<VIDEO_STREAM_CONFIG_CAPS *>(pSCC);
     VIDEOINFO *pvi = reinterpret_cast<VIDEOINFO *>((*pmt)->pbFormat);
 
+    size_t lastResolutionIndex = FrameResolution::resolutions().size() - 1;
+
     pvscc->guid = FORMAT_VideoInfo;
     pvscc->VideoStandard = AnalogVideo_None;
     pvscc->InputSize.cx = pvi->bmiHeader.biWidth;
     pvscc->InputSize.cy = pvi->bmiHeader.biHeight;
-    pvscc->MinCroppingSize.cx = FrameResolution::frameResolutions[0].width;
-    pvscc->MinCroppingSize.cy = FrameResolution::frameResolutions[0].height;
-    pvscc->MaxCroppingSize.cx = FrameResolution::frameResolutions[FrameResolution::length - 1].width;
-    pvscc->MaxCroppingSize.cy = FrameResolution::frameResolutions[FrameResolution::length - 1].height;
+    pvscc->MinCroppingSize.cx = FrameResolution::resolutions()[0].width;
+    pvscc->MinCroppingSize.cy = FrameResolution::resolutions()[0].height;
+    pvscc->MaxCroppingSize.cx = FrameResolution::resolutions()[lastResolutionIndex].width;
+    pvscc->MaxCroppingSize.cy = FrameResolution::resolutions()[lastResolutionIndex].height;
     pvscc->CropGranularityX = 1;
     pvscc->CropGranularityY = 1;
     pvscc->CropAlignX = 0;
     pvscc->CropAlignY = 0;
 
-    pvscc->MinOutputSize.cx = FrameResolution::frameResolutions[0].width;
-    pvscc->MinOutputSize.cy = FrameResolution::frameResolutions[0].height;
-    pvscc->MaxOutputSize.cx = FrameResolution::frameResolutions[FrameResolution::length - 1].width;
-    pvscc->MaxOutputSize.cy = FrameResolution::frameResolutions[FrameResolution::length - 1].height;
+    pvscc->MinOutputSize.cx = FrameResolution::resolutions()[0].width;
+    pvscc->MinOutputSize.cy = FrameResolution::resolutions()[0].height;
+    pvscc->MaxOutputSize.cx = FrameResolution::resolutions()[lastResolutionIndex].width;
+    pvscc->MaxOutputSize.cy = FrameResolution::resolutions()[lastResolutionIndex].height;
     pvscc->OutputGranularityX = 1;
     pvscc->OutputGranularityY = 1;
     pvscc->StretchTapsX = 1;
@@ -758,7 +731,9 @@ HRESULT VirtualCameraSourceStream::mediaType(int iPosition, CMediaType *pmt) con
     if (iPosition < 0)
         return E_INVALIDARG;
 
-    if (iPosition >= VideoFormat::length * FrameResolution::length)
+    size_t nResolutions = FrameResolution::resolutions().size();
+
+    if (iPosition >= int(VideoFormat::formats().size() * nResolutions))
         return VFW_S_NO_MORE_ITEMS;
 
     VIDEOINFO *pvi = reinterpret_cast<VIDEOINFO *>(pmt->AllocFormatBuffer(sizeof(VIDEOINFO)));
@@ -768,11 +743,11 @@ HRESULT VirtualCameraSourceStream::mediaType(int iPosition, CMediaType *pmt) con
 
     ZeroMemory(pvi, sizeof(VIDEOINFO));
 
-    int format = iPosition / FrameResolution::length;
-    int resolution = iPosition % FrameResolution::length;
+    size_t format = size_t(iPosition) / nResolutions;
+    size_t resolution = size_t(iPosition) % nResolutions;
 
-    pvi->bmiHeader.biCompression = VideoFormat::videoFormats[format].compression;
-    pvi->bmiHeader.biBitCount = VideoFormat::videoFormats[format].bpp;
+    pvi->bmiHeader.biCompression = VideoFormat::formats()[format].compression;
+    pvi->bmiHeader.biBitCount = VideoFormat::formats()[format].bpp;
 
     if (pvi->bmiHeader.biCompression == BI_RGB
         && pvi->bmiHeader.biBitCount == 8)
@@ -780,7 +755,7 @@ HRESULT VirtualCameraSourceStream::mediaType(int iPosition, CMediaType *pmt) con
 
     if (pvi->bmiHeader.biCompression == BI_BITFIELDS)
         for (int i = 0; i < 3; i++)
-            pvi->TrueColorInfo.dwBitMasks[i] = VideoFormat::videoFormats[format].masks[i];
+            pvi->TrueColorInfo.dwBitMasks[i] = VideoFormat::formats()[format].masks[i];
 
     HDC hdc = GetDC(NULL);
     PALETTEENTRY palette[iPALETTE_COLORS];
@@ -799,8 +774,8 @@ HRESULT VirtualCameraSourceStream::mediaType(int iPosition, CMediaType *pmt) con
     ReleaseDC(NULL, hdc);
 
     pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    pvi->bmiHeader.biWidth = FrameResolution::frameResolutions[resolution].width;
-    pvi->bmiHeader.biHeight = FrameResolution::frameResolutions[resolution].height;
+    pvi->bmiHeader.biWidth = FrameResolution::resolutions()[resolution].width;
+    pvi->bmiHeader.biHeight = FrameResolution::resolutions()[resolution].height;
     pvi->bmiHeader.biPlanes = 1;
     pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
     pvi->bmiHeader.biClrImportant = 0;
@@ -846,9 +821,9 @@ HRESULT VirtualCameraSourceStream::isSupported(const CMediaType *pCurMediaType,
 
     BOOL isSupported = FALSE;
 
-    for (int i = 0; i < FrameResolution::length; i++)
-        if (FrameResolution::frameResolutions[i].width == pvi->bmiHeader.biWidth
-            && FrameResolution::frameResolutions[i].height == abs(pvi->bmiHeader.biHeight)) {
+    for (size_t i = 0; i < FrameResolution::resolutions().size(); i++)
+        if (FrameResolution::resolutions()[i].width == pvi->bmiHeader.biWidth
+            && FrameResolution::resolutions()[i].height == abs(pvi->bmiHeader.biHeight)) {
             isSupported = TRUE;
 
             break;
@@ -949,7 +924,7 @@ Gdiplus::Bitmap *VirtualCameraSourceStream::loadBitmapIPC(LPCTSTR lpName)
                          Gdiplus::ImageLockModeWrite,
                          bitmap->GetPixelFormat(),
                          &bitmapData) == Gdiplus::Ok) {
-        rgb3_to_bgr3(bitmapData.Scan0,
+        yuy2_to_bgr3(bitmapData.Scan0,
                      buffer,
                      INT(bitmap->GetWidth()),
                      INT(bitmap->GetHeight()));

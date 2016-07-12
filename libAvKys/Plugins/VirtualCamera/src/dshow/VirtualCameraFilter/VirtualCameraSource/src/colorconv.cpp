@@ -19,6 +19,8 @@
 
 #include "colorconv.h"
 
+#define UNUSED(x) (void)(x);
+
 struct RGB3
 {
     uint8_t r;
@@ -123,6 +125,25 @@ inline uint8_t rgb_u(int r, int g, int b)
 inline uint8_t rgb_v(int r, int g, int b)
 {
     return uint8_t(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128);
+}
+
+inline uint8_t yuv_r(int y, int u, int v)
+{
+    UNUSED(u)
+
+    return uint8_t((298 * (y - 16) + 409 * (v - 128) + 128) >> 8);
+}
+
+inline uint8_t yuv_g(int y, int u, int v)
+{
+    return uint8_t((298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8);
+}
+
+inline uint8_t yuv_b(int y, int u, int v)
+{
+    UNUSED(v)
+
+    return uint8_t((298 * (y - 16) + 516 * (u - 128) + 128) >> 8);
 }
 
 size_t rgb3_to_bgr3(void *dst, const void *src, int width, int height)
@@ -686,6 +707,186 @@ size_t bgr3_to_yv12(void *dst, const void *src, int width, int height)
 
             line_v[x] = rgb_v(r, g, b);
             line_u[x] = rgb_u(r, g, b);
+        }
+    }
+
+    return osize;
+}
+
+size_t rgb4_to_rgb3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const RGB4 *_src = reinterpret_cast<const RGB4 *>(src);
+    RGB3 *_dst = reinterpret_cast<RGB3 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].r = _src[i].a * _src[i].r / 255;
+        _dst[i].g = _src[i].a * _src[i].g / 255;
+        _dst[i].b = _src[i].a * _src[i].b / 255;
+    }
+
+    return osize;
+}
+
+size_t rgb4_to_bgr3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const RGB4 *_src = reinterpret_cast<const RGB4 *>(src);
+    BGR3 *_dst = reinterpret_cast<BGR3 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].b = _src[i].a * _src[i].b / 255;
+        _dst[i].g = _src[i].a * _src[i].g / 255;
+        _dst[i].r = _src[i].a * _src[i].r / 255;
+    }
+
+    return osize;
+}
+
+size_t yuy2_to_rgb3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const YUY2 *_src = reinterpret_cast<const YUY2 *>(src);
+    RGB3 *_dst = reinterpret_cast<RGB3 *>(dst);
+
+    size_t olen = len >> 1;
+
+    for (size_t i = 0; i < olen; i++) {
+        size_t j = 2 * i;
+
+        uint8_t y0 = _src[i].y0;
+        uint8_t u0 = _src[i].u0;
+        uint8_t y1 = _src[i].y1;
+        uint8_t v0 = _src[i].v0;
+
+        _dst[j].r = yuv_r(y0, u0, v0);
+        _dst[j].g = yuv_g(y0, u0, v0);
+        _dst[j].b = yuv_b(y0, u0, v0);
+
+        j++;
+
+        _dst[j].r = yuv_r(y1, u0, v0);
+        _dst[j].g = yuv_g(y1, u0, v0);
+        _dst[j].b = yuv_b(y1, u0, v0);
+    }
+
+    return osize;
+}
+
+size_t i420_to_rgb3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const uint8_t *src_y = reinterpret_cast<const uint8_t *>(src);
+    const uint8_t *src_u = src_y + len;
+    const uint8_t *src_v = src_u + (len >> 2);
+    RGB3 *_dst = reinterpret_cast<RGB3 *>(dst);
+
+    for (int y = 0; y < height; y++) {
+        const uint8_t *line_y = src_y + y * width;
+        const uint8_t *line_u = src_u + y * width / 2;
+        const uint8_t *line_v = src_v + y * width / 2;
+        RGB3 *line = _dst + y * width;
+
+        for (int x = 0; x < width; x++) {
+            int j = x / 2;
+
+            uint8_t y = line_y[j];
+            uint8_t u = line_u[j];
+            uint8_t v = line_v[j];
+
+            line[x].r = yuv_r(y, u, v);
+            line[x].g = yuv_g(y, u, v);
+            line[x].b = yuv_b(y, u, v);
+        }
+    }
+
+    return osize;
+}
+
+size_t yuy2_to_bgr3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const YUY2 *_src = reinterpret_cast<const YUY2 *>(src);
+    BGR3 *_dst = reinterpret_cast<BGR3 *>(dst);
+
+    size_t olen = len >> 1;
+
+    for (size_t i = 0; i < olen; i++) {
+        size_t j = 2 * i;
+
+        uint8_t y0 = _src[i].y0;
+        uint8_t u0 = _src[i].u0;
+        uint8_t y1 = _src[i].y1;
+        uint8_t v0 = _src[i].v0;
+
+        _dst[j].b = yuv_b(y0, u0, v0);
+        _dst[j].g = yuv_g(y0, u0, v0);
+        _dst[j].r = yuv_r(y0, u0, v0);
+
+        j++;
+
+        _dst[j].b = yuv_b(y1, u0, v0);
+        _dst[j].g = yuv_g(y1, u0, v0);
+        _dst[j].r = yuv_r(y1, u0, v0);
+    }
+
+    return osize;
+}
+
+size_t i420_to_bgr3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const uint8_t *src_y = reinterpret_cast<const uint8_t *>(src);
+    const uint8_t *src_u = src_y + len;
+    const uint8_t *src_v = src_u + (len >> 2);
+    BGR3 *_dst = reinterpret_cast<BGR3 *>(dst);
+
+    for (int y = 0; y < height; y++) {
+        const uint8_t *line_y = src_y + y * width;
+        const uint8_t *line_u = src_u + y * width / 2;
+        const uint8_t *line_v = src_v + y * width / 2;
+        BGR3 *line = _dst + y * width;
+
+        for (int x = 0; x < width; x++) {
+            int j = x / 2;
+
+            uint8_t y = line_y[j];
+            uint8_t u = line_u[j];
+            uint8_t v = line_v[j];
+
+            line[x].b = yuv_b(y, u, v);
+            line[x].g = yuv_g(y, u, v);
+            line[x].r = yuv_r(y, u, v);
         }
     }
 

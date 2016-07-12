@@ -204,6 +204,7 @@ class MediaTools: public QObject
         QMutex m_mutex;
         AkPacket m_curPacket;
         QImage m_photo;
+        bool m_vcamLinked;
 
         AkElementPtr sourceElement() const;
         bool embedInterface(QQmlApplicationEngine *engine,

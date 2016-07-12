@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <vector>
 #include <synchapi.h>
 #include <memoryapi.h>
 #include <handleapi.h>
@@ -28,86 +29,78 @@
 
 #define MUTEX_TIMEOUT 5000
 
-class Frame
+
+struct Frame
 {
-    public:
-        DWORD format;
-        DWORD width;
-        DWORD height;
-        DWORD data;
+    DWORD format;
+    DWORD width;
+    DWORD height;
+    DWORD data;
 };
 
 const int maxBufferSize = sizeof(Frame)      // Frame header
                           + 4 * 1920 * 1080; // Max. frame size
 
-namespace VideoFormat
-{
+namespace IPC {
     class VideoFormat
     {
         public:
             DWORD fourcc;
             GUID guid;
             WORD bpp;
+
+            static inline const std::vector<VideoFormat> &formats()
+            {
+                static const std::vector<VideoFormat> videoFormats = {
+                    // RGB formats
+                    {MAKEFOURCC('R', 'G', 'B', '4'), MEDIASUBTYPE_RGB32, 32},
+                    {MAKEFOURCC('R', 'G', 'B', '3'), MEDIASUBTYPE_RGB24, 24},
+                    {MAKEFOURCC('R', 'G', 'B', 'P'), MEDIASUBTYPE_RGB565, 16},
+                    {MAKEFOURCC('R', 'G', 'B', 'O'), MEDIASUBTYPE_RGB555, 16},
+
+                    // Luminance+Chrominance formats
+                    {MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY, 16},
+                    {MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2, 16},
+                    {MAKEFOURCC('Y', 'U', 'Y', 'V'), MEDIASUBTYPE_YUYV, 16},
+                    {MAKEFOURCC('Y', 'V', '1', '2'), MEDIASUBTYPE_YV12, 12},
+                    {MAKEFOURCC('I', '4', '2', '0'), MEDIASUBTYPE_IYUV, 12},
+                    {MAKEFOURCC('I', 'Y', 'U', 'V'), MEDIASUBTYPE_IYUV, 12},
+
+                    // two planes -- one Y, one Cr + Cb interleaved
+                    {MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12, 12},
+                };
+
+                return videoFormats;
+            }
+
+            static inline const VideoFormat *byFourCC(DWORD fourcc)
+            {
+                for (size_t i = 0; i < formats().size(); i++)
+                    if (formats()[i].fourcc == fourcc)
+                        return &formats()[i];
+
+                return NULL;
+            }
+
+            static inline const VideoFormat *byGuid(const GUID &guid)
+            {
+                for (size_t i = 0; i < formats().size(); i++)
+                    if (formats()[i].guid == guid)
+                        return &formats()[i];
+
+                return NULL;
+            }
+
+            static inline size_t frameSize(DWORD format, DWORD width, DWORD height)
+            {
+                const VideoFormat *vf = byFourCC(format);
+
+                if (!vf)
+                    return 0;
+
+                return vf->bpp * width * height / 8;
+            }
     };
-
-    static VideoFormat videoFormats[] = {
-        // RGB formats
-        {MAKEFOURCC('R', 'G', 'B', '4'), MEDIASUBTYPE_RGB32, 32},
-        {MAKEFOURCC('R', 'G', 'B', '3'), MEDIASUBTYPE_RGB24, 24},
-        {MAKEFOURCC('R', 'G', 'B', 'P'), MEDIASUBTYPE_RGB565, 16},
-        {MAKEFOURCC('R', 'G', 'B', 'O'), MEDIASUBTYPE_RGB555, 16},
-
-        // Luminance+Chrominance formats
-        {MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY, 16},
-        {MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2, 16},
-        {MAKEFOURCC('Y', 'V', '1', '2'), MEDIASUBTYPE_YV12, 12},
-
-        // two planes -- one Y, one Cr + Cb interleaved
-        {MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12, 12},
-        {0, GUID_NULL, 0}
-    };
-
-    inline int count()
-    {
-        int n = 0;
-
-        for (; videoFormats[n].fourcc
-               || videoFormats[n].bpp
-             ; n++) {
-        }
-
-        return n;
-    }
-
-    static int length = count();
-
-    inline const VideoFormat *byFourCC(DWORD fourcc)
-    {
-        for (int i = 0; i < length; i++)
-            if (videoFormats[i].fourcc == fourcc)
-                return &videoFormats[i];
-
-        return NULL;
-    }
-
-    inline const VideoFormat *byGuid(const GUID &guid)
-    {
-        for (int i = 0; i < length; i++)
-            if (videoFormats[i].guid == guid)
-                return &videoFormats[i];
-
-        return NULL;
-    }
-
-    inline size_t frameSize(DWORD format, DWORD width, DWORD height)
-    {
-        const VideoFormat *vf = byFourCC(format);
-
-        if (!vf)
-            return 0;
-
-        return vf->bpp * width * height / 8;
-    }
 }
 
 class IpcBridgePrivate
@@ -126,8 +119,6 @@ IpcBridge::IpcBridge(const std::wstring &pipeName)
     this->d->m_pipeName = pipeName;
     this->d->m_fileHandle = NULL;
     this->d->m_frame = NULL;
-    this->d->m_mutex = Mutex(pipeName + L".mutex");
-    this->d->m_hasFrame = WaitCondition(&this->d->m_mutex);
 }
 
 IpcBridge::~IpcBridge()
@@ -189,6 +180,7 @@ bool IpcBridge::open(IpcBridge::OpenMode mode)
     }
 
     this->d->m_mutex = Mutex(this->d->m_pipeName + L".mutex");
+    this->d->m_hasFrame = WaitCondition(&this->d->m_mutex);
 
     return true;
 }
@@ -229,9 +221,9 @@ size_t IpcBridge::read(DWORD *format, DWORD *width, DWORD *height, BYTE **data)
     *format = this->d->m_frame->format;
     *width = this->d->m_frame->width;
     *height = this->d->m_frame->height;
-    size_t len = VideoFormat::frameSize(this->d->m_frame->format,
-                                        this->d->m_frame->width,
-                                        this->d->m_frame->height);
+    size_t len = IPC::VideoFormat::frameSize(this->d->m_frame->format,
+                                             this->d->m_frame->width,
+                                             this->d->m_frame->height);
 
     if (len < 1 || len > maxBufferSize) {
         this->d->m_mutex.unlock();
@@ -255,7 +247,7 @@ size_t IpcBridge::read(GUID *format, DWORD *width, DWORD *height, BYTE **data)
     if (len < 1)
         return 0;
 
-    const VideoFormat::VideoFormat *vf = VideoFormat::byFourCC(fourCC);
+    const IPC::VideoFormat *vf = IPC::VideoFormat::byFourCC(fourCC);
 
     if (!vf) {
         *format = GUID_NULL;
@@ -273,7 +265,7 @@ size_t IpcBridge::write(DWORD format, DWORD width, DWORD height, const BYTE *dat
     if (!this->d->m_frame)
         return 0;
 
-    size_t len = VideoFormat::frameSize(format, width, height);
+    size_t len = IPC::VideoFormat::frameSize(format, width, height);
 
     if (len < 1 || len > maxBufferSize)
         return 0;
@@ -293,7 +285,7 @@ size_t IpcBridge::write(DWORD format, DWORD width, DWORD height, const BYTE *dat
 
 size_t IpcBridge::write(const GUID &format, DWORD width, DWORD height, const BYTE *data)
 {
-    const VideoFormat::VideoFormat *vf = VideoFormat::byGuid(format);
+    const IPC::VideoFormat *vf = IPC::VideoFormat::byGuid(format);
 
     if (!vf)
         return 0;

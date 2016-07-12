@@ -111,6 +111,8 @@ class VirtualCameraElement: public AkElement
         QMutex m_mutex;
         bool m_isRunning;
 
+        QImage swapChannels(const QImage &image) const;
+
     signals:
         void driverPathChanged(const QString &driverPath);
         void mediasChanged(const QStringList &medias) const;

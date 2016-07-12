@@ -52,10 +52,15 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     rawToFF["RGB3"] = AV_PIX_FMT_RGB24;
     rawToFF["BGR4"] = AV_PIX_FMT_RGB0;
     rawToFF["RGB4"] = AV_PIX_FMT_BGR0;
+    rawToFF["ARGB"] = AV_PIX_FMT_ARGB;
+    rawToFF["RGBA"] = AV_PIX_FMT_RGBA;
 
     // Grey formats
+    rawToFF["Y800"] = AV_PIX_FMT_GRAY8;
     rawToFF["GREY"] = AV_PIX_FMT_GRAY8;
     rawToFF["Y16 "] = AV_PIX_FMT_GRAY16LE;
+    rawToFF["B1W0"] = AV_PIX_FMT_MONOWHITE;
+    rawToFF["B0W1"] = AV_PIX_FMT_MONOBLACK;
 
     // Palette formats
     rawToFF["PAL8"] = AV_PIX_FMT_PAL8;
@@ -63,8 +68,10 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     // Luminance+Chrominance formats
     rawToFF["YVU9"] = AV_PIX_FMT_YUV410P;
     rawToFF["YV12"] = AV_PIX_FMT_YUV420P;
+    rawToFF["I420"] = AV_PIX_FMT_YUV420P;
     rawToFF["YUYV"] = AV_PIX_FMT_YUYV422;
     rawToFF["YYUV"] = AV_PIX_FMT_YUV422P;
+    rawToFF["Y42B"] = AV_PIX_FMT_YUV422P;
     rawToFF["UYVY"] = AV_PIX_FMT_UYVY422;
     rawToFF["VYUY"] = AV_PIX_FMT_YUV422P;
     rawToFF["422P"] = AV_PIX_FMT_YUV422P;
@@ -72,6 +79,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
     rawToFF["Y41P"] = AV_PIX_FMT_YUV411P;
     rawToFF["YUY2"] = AV_PIX_FMT_YUYV422;
     rawToFF["Y444"] = AV_PIX_FMT_YUV444P;
+    rawToFF["444P"] = AV_PIX_FMT_YUV444P;
     rawToFF["YUV9"] = AV_PIX_FMT_YUV410P;
     rawToFF["YU12"] = AV_PIX_FMT_YUV420P;
 

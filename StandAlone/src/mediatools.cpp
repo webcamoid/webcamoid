@@ -59,6 +59,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_advancedMode = false;
     this->m_enableVirtualCamera = false;
     this->m_playOnStart = true;
+    this->m_vcamLinked = false;
 
     Ak::setQmlEngine(engine);
     this->m_pipeline = AkElement::create("Bin", "pipeline");
@@ -178,6 +179,9 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
                              SIGNAL(outputFormatChanged(const QString &)),
                              this,
                              SIGNAL(curRecordingFormatChanged(const QString &)));
+
+        if (this->m_virtualCamera)
+            this->m_vcamLinked = true;
 
         QObject::connect(this,
                          &MediaTools::stateChanged,
@@ -1032,6 +1036,19 @@ bool MediaTools::start()
     if (!source)
         return false;
 
+    // Prevents self blocking.
+    if (this->m_curStream == this->m_virtualCamera->property("media").toString()) {
+        if (this->m_vcamLinked) {
+            this->m_videoOutput->unlink(this->m_virtualCamera);
+            this->m_vcamLinked = false;
+        }
+    } else {
+        if (!this->m_vcamLinked) {
+            this->m_videoOutput->link(this->m_virtualCamera);
+            this->m_vcamLinked = true;
+        }
+    }
+
     QList<int> streams;
     QMetaObject::invokeMethod(source.data(),
                               "streams", Qt::DirectConnection,
@@ -1209,12 +1226,7 @@ bool MediaTools::startVirtualCamera(const QString &fileName)
                               "clearStreams");
 
     AkVideoCaps oVideoCaps(videoCaps);
-
-#ifdef Q_OS_WIN32
-    oVideoCaps.format() = AkVideoCaps::Format_rgb24;
-#else
-    oVideoCaps.format() = AkVideoCaps::Format_yuv420p;
-#endif
+    oVideoCaps.format() = AkVideoCaps::Format_yuyv422;
 
     QMetaObject::invokeMethod(this->m_virtualCamera.data(),
                               "addStream",

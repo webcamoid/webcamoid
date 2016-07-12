@@ -135,7 +135,7 @@ ULongLongToULong(
 
     if (ullOperand <= INTSAFE_ULONG_MAX)
     {
-        *pulResult = (ULONG)ullOperand;
+        *pulResult = ULONG(ullOperand);
         hr = S_OK;
     }
 
@@ -171,7 +171,7 @@ __inline HRESULT SAFE_DIBWIDTHBYTES(__in const BITMAPINFOHEADER *pbi, __out DWOR
         return E_INVALIDARG;
     }
     //  Calculate width in bits
-    hr = DWordMult((DWORD)pbi->biWidth, (DWORD)pbi->biBitCount, &dw);
+    hr = DWordMult(DWORD(pbi->biWidth), DWORD(pbi->biBitCount), &dw);
     if (FAILED(hr)) {
         return hr;
     }
@@ -208,17 +208,7 @@ __inline HRESULT SAFE_DIBSIZE(__in const BITMAPINFOHEADER *pbi, __out DWORD *pcb
     return S_OK;
 }
 #endif
-/*
-template<typename T, typename F>
-struct alias_cast_t
-{
-    union
-    {
-        F raw;
-        T data;
-    };
-};
-*/
+
 #define UNUSED(x) (void)(x);
 
 STDAPI_(BOOL) ContainsPalette(const VIDEOINFOHEADER *pVideoInfo);

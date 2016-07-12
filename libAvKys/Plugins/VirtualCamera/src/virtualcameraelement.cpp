@@ -17,7 +17,25 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akutils.h>
+
 #include "virtualcameraelement.h"
+
+struct XRGB
+{
+    quint8 x;
+    quint8 r;
+    quint8 g;
+    quint8 b;
+};
+
+struct BGRX
+{
+    quint8 b;
+    quint8 g;
+    quint8 r;
+    quint8 x;
+};
 
 VirtualCameraElement::VirtualCameraElement():
     AkElement()
@@ -226,6 +244,25 @@ void VirtualCameraElement::stateChange(AkElement::ElementState from,
     this->m_mutex.unlock();
 }
 
+QImage VirtualCameraElement::swapChannels(const QImage &image) const
+{
+    QImage swapped(image.size(), image.format());
+
+    for (int y = 0; y < image.height(); y++) {
+        const XRGB *src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
+        BGRX *dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
+
+        for (int x = 0; x < image.width(); x++) {
+            dst[x].x = src[x].x;
+            dst[x].r = src[x].r;
+            dst[x].g = src[x].g;
+            dst[x].b = src[x].b;
+        }
+    }
+
+    return swapped;
+}
+
 void VirtualCameraElement::setDriverPath(const QString &driverPath)
 {
     if (this->m_cameraOut.driverPath() == driverPath)
@@ -279,7 +316,13 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
     this->m_mutex.lock();
 
     if (this->m_isRunning) {
-        AkPacket oPacket = this->m_convertVideo.convert(packet,
+        AkPacket videoPacket = AkUtils::roundSizeTo(packet, 4);
+        QImage image = AkUtils::packetToImage(videoPacket);
+        image = image.convertToFormat(QImage::Format_RGB32);
+        image = this->swapChannels(image);
+        videoPacket = AkUtils::imageToPacket(image, packet);
+
+        AkPacket oPacket = this->m_convertVideo.convert(videoPacket,
                                                         this->m_cameraOut.caps());
 
         this->m_cameraOut.writeFrame(oPacket);
