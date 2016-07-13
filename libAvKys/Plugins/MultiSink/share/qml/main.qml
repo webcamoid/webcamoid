@@ -160,15 +160,9 @@ ColumnLayout {
 
         onTextChanged: MultiSink.formatOptions = JSON.parse(text)
     }
-
-    ScrollView {
-        id: vwScroll
+    ColumnLayout {
+        id: clyStreamOptions
         Layout.fillWidth: true
         Layout.fillHeight: true
-
-        ColumnLayout {
-            id: clyStreamOptions
-            width: vwScroll.width
-        }
     }
 }

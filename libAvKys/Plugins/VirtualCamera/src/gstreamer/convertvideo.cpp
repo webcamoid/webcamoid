@@ -154,8 +154,11 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
         qDebug() << "Error:" << error->message;
         g_error_free(error);
 
-        if (oSample != NULL)
+        if (oSample)
             gst_sample_unref(oSample);
+
+        if (iBuffer)
+            gst_buffer_unref(iBuffer);
 
         return AkPacket();
     }
@@ -166,11 +169,14 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
     memcpy(oBuffer.data(), info.data, info.size);
     gst_buffer_unmap(bufffer, &info);
 
-    if (iSample != NULL)
+    if (iSample)
         gst_sample_unref(iSample);
 
-    if (oSample != NULL)
+    if (oSample)
         gst_sample_unref(oSample);
+
+    if (iBuffer)
+        gst_buffer_unref(iBuffer);
 
     // Create packet
     AkVideoPacket oPacket(packet);

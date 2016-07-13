@@ -117,7 +117,4 @@ ColumnLayout {
             width: scrollControls.viewport.width
         }
     }
-    Label {
-        Layout.fillHeight: true
-    }
 }
