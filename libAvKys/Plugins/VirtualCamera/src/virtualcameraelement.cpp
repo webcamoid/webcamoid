@@ -190,11 +190,12 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
 
     AkVideoCaps videoCaps(streamCaps);
     videoCaps.format() = PREFERRED_FORMAT;
+    videoCaps.bpp() = AkVideoCaps::bitsPerPixel(PREFERRED_FORMAT);
     videoCaps.width() = roundTo(videoCaps.width(), PREFERRED_ROUNDING);
     videoCaps.height() = roundTo(videoCaps.height(), PREFERRED_ROUNDING);
 
     this->m_streamIndex = streamIndex;
-    this->m_streamCaps = streamCaps;
+    this->m_streamCaps = videoCaps.toCaps();
 
     return QVariantMap();
 }

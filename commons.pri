@@ -130,3 +130,7 @@ win32 {
     CONFIG += skip_target_version_ext
     !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
 }
+
+*clang* {
+    CONFIG += c++11
+}
