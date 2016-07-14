@@ -1225,13 +1225,10 @@ bool MediaTools::startVirtualCamera(const QString &fileName)
     QMetaObject::invokeMethod(this->m_virtualCamera.data(),
                               "clearStreams");
 
-    AkVideoCaps oVideoCaps(videoCaps);
-    oVideoCaps.format() = AkVideoCaps::Format_yuyv422;
-
     QMetaObject::invokeMethod(this->m_virtualCamera.data(),
                               "addStream",
                               Q_ARG(int, 0),
-                              Q_ARG(AkCaps, oVideoCaps.toCaps()));
+                              Q_ARG(AkCaps, videoCaps));
 
     this->m_virtualCamera->setState(AkElement::ElementStatePlaying);
 

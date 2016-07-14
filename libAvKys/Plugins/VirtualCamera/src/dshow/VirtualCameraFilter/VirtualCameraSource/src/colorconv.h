@@ -51,6 +51,10 @@ size_t bgr3_to_yv12(void *dst, const void *src, int width, int height);
 size_t rgb4_to_rgb3(void *dst, const void *src, int width, int height);
 size_t rgb4_to_bgr3(void *dst, const void *src, int width, int height);
 
+// BGR4 -> RGB
+size_t bgr4_to_rgb3(void *dst, const void *src, int width, int height);
+size_t bgr4_to_bgr3(void *dst, const void *src, int width, int height);
+
 // YUV -> RGB
 size_t yuy2_to_rgb3(void *dst, const void *src, int width, int height);
 size_t i420_to_rgb3(void *dst, const void *src, int width, int height);

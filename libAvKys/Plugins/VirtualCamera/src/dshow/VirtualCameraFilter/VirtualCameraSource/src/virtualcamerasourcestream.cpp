@@ -913,7 +913,7 @@ Gdiplus::Bitmap *VirtualCameraSourceStream::loadBitmapIPC(LPCTSTR lpName)
 
     Gdiplus::Bitmap *bitmap = new Gdiplus::Bitmap(INT(width),
                                                   INT(height),
-                                                  PixelFormat24bppRGB);
+                                                  PixelFormat32bppRGB);
     Gdiplus::BitmapData bitmapData;
     Gdiplus::Rect rect(0,
                        0,
@@ -924,10 +924,7 @@ Gdiplus::Bitmap *VirtualCameraSourceStream::loadBitmapIPC(LPCTSTR lpName)
                          Gdiplus::ImageLockModeWrite,
                          bitmap->GetPixelFormat(),
                          &bitmapData) == Gdiplus::Ok) {
-        yuy2_to_bgr3(bitmapData.Scan0,
-                     buffer,
-                     INT(bitmap->GetWidth()),
-                     INT(bitmap->GetHeight()));
+        CopyMemory(bitmapData.Scan0, buffer, frameSize);
         bitmap->UnlockBits(&bitmapData);
     }
 

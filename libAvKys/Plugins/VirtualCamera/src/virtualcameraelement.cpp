@@ -21,6 +21,19 @@
 
 #include "virtualcameraelement.h"
 
+#ifdef Q_OS_WIN32
+    #define PREFERRED_FORMAT AkVideoCaps::Format_0rgb
+#else
+    #define PREFERRED_FORMAT AkVideoCaps::Format_yuv420p
+#endif
+
+#define PREFERRED_ROUNDING 4
+
+inline int roundTo(int value, int n)
+{
+    return n * qRound(value / qreal(n));
+}
+
 struct XRGB
 {
     quint8 x;
@@ -174,6 +187,12 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
                                             const QVariantMap &streamParams)
 {
     Q_UNUSED(streamParams)
+
+    AkVideoCaps videoCaps(streamCaps);
+    videoCaps.format() = PREFERRED_FORMAT;
+    videoCaps.width() = roundTo(videoCaps.width(), PREFERRED_ROUNDING);
+    videoCaps.height() = roundTo(videoCaps.height(), PREFERRED_ROUNDING);
+
     this->m_streamIndex = streamIndex;
     this->m_streamCaps = streamCaps;
 
@@ -316,14 +335,21 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
     this->m_mutex.lock();
 
     if (this->m_isRunning) {
-        AkPacket videoPacket = AkUtils::roundSizeTo(packet, 4);
+        AkPacket videoPacket(packet);
         QImage image = AkUtils::packetToImage(videoPacket);
         image = image.convertToFormat(QImage::Format_RGB32);
+        AkPacket oPacket;
+
+#ifdef Q_OS_WIN32
+        oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
+                                       PREFERRED_ROUNDING);
+#else
         image = this->swapChannels(image);
         videoPacket = AkUtils::imageToPacket(image, packet);
 
-        AkPacket oPacket = this->m_convertVideo.convert(videoPacket,
-                                                        this->m_cameraOut.caps());
+        oPacket = this->m_convertVideo.convert(videoPacket,
+                                               this->m_cameraOut.caps());
+#endif
 
         this->m_cameraOut.writeFrame(oPacket);
     }

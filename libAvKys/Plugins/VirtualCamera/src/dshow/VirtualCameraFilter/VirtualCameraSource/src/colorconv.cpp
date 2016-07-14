@@ -763,6 +763,46 @@ size_t rgb4_to_bgr3(void *dst, const void *src, int width, int height)
     return osize;
 }
 
+size_t bgr4_to_rgb3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const BGR4 *_src = reinterpret_cast<const BGR4 *>(src);
+    RGB3 *_dst = reinterpret_cast<RGB3 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].r = _src[i].a * _src[i].r / 255;
+        _dst[i].g = _src[i].a * _src[i].g / 255;
+        _dst[i].b = _src[i].a * _src[i].b / 255;
+    }
+
+    return osize;
+}
+
+size_t bgr4_to_bgr3(void *dst, const void *src, int width, int height)
+{
+    size_t len = size_t(width * height);
+    size_t osize = 24 * len / 8;
+
+    if (!dst || !src)
+        return osize;
+
+    const BGR4 *_src = reinterpret_cast<const BGR4 *>(src);
+    BGR3 *_dst = reinterpret_cast<BGR3 *>(dst);
+
+    for (size_t i = 0; i < len; i++) {
+        _dst[i].b = _src[i].a * _src[i].b / 255;
+        _dst[i].g = _src[i].a * _src[i].g / 255;
+        _dst[i].r = _src[i].a * _src[i].r / 255;
+    }
+
+    return osize;
+}
+
 size_t yuy2_to_rgb3(void *dst, const void *src, int width, int height)
 {
     size_t len = size_t(width * height);
