@@ -1,7 +1,7 @@
 #!/bin/bash
 
 p7zVersion=920
-ffmpegVersion=2.8.6
+ffmpegVersion=3.0.1
 FGET='wget -c --retry-connrefused --no-check-certificate'
 
 function get7Z()

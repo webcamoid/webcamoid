@@ -3,7 +3,7 @@
     <DisplayName>Webcamoid</DisplayName>
     <Description>The ultimate webcam suite</Description>
     <Version>7.2.0</Version>
-    <ReleaseDate>2016-04-25</ReleaseDate>
+    <ReleaseDate>2016-07-19</ReleaseDate>
     <Name>com.webcamoidprj.webcamoid</Name>
     <Licenses>
         <License name="GNU General Public License v3.0" file="COPYING.txt" />
