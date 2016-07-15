@@ -329,8 +329,10 @@ void OutputParams::resetInputIndex()
 
 bool OutputParams::convert(const AkPacket &packet, AVFrame *frame)
 {
-    Q_UNUSED(packet)
-    Q_UNUSED(frame)
+    if (packet.caps().mimeType() == "audio/x-raw")
+        return this->convert(AkAudioPacket(packet), frame);
+    else if (packet.caps().mimeType() == "video/x-raw")
+        return this->convert(AkVideoPacket(packet), frame);
 
     return false;
 }

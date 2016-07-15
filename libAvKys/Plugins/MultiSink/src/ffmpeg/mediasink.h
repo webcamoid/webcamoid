@@ -111,6 +111,8 @@ class MediaSink: public QObject
         QFuture<void> m_subtitleLoopResult;
 
         void flushStreams();
+        QImage swapChannels(const QImage &image) const;
+
         AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestDNxHDCaps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestH261Caps(const AkVideoCaps &caps) const;

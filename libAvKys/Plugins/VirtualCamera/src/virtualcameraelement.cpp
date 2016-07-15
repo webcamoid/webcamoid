@@ -79,7 +79,8 @@ VirtualCameraElement::~VirtualCameraElement()
     this->setState(AkElement::ElementStateNull);
 }
 
-QObject *VirtualCameraElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QObject *VirtualCameraElement::controlInterface(QQmlEngine *engine,
+                                                const QString &controlId) const
 {
     if (!engine)
         return NULL;
@@ -254,7 +255,8 @@ void VirtualCameraElement::stateChange(AkElement::ElementState from,
             this->m_cameraOut.setDevice(webcams.at(0));
         }
 
-        this->m_isRunning = this->m_cameraOut.init(this->m_streamIndex, this->m_streamCaps);
+        this->m_isRunning = this->m_cameraOut.init(this->m_streamIndex,
+                                                   this->m_streamCaps);
     } else if (from == AkElement::ElementStatePaused
                && to == AkElement::ElementStateNull) {
         this->m_isRunning = false;
@@ -336,8 +338,7 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
     this->m_mutex.lock();
 
     if (this->m_isRunning) {
-        AkPacket videoPacket(packet);
-        QImage image = AkUtils::packetToImage(videoPacket);
+        QImage image = AkUtils::packetToImage(packet);
         image = image.convertToFormat(QImage::Format_RGB32);
         AkPacket oPacket;
 
@@ -346,9 +347,7 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
                                        PREFERRED_ROUNDING);
 #else
         image = this->swapChannels(image);
-        videoPacket = AkUtils::imageToPacket(image, packet);
-
-        oPacket = this->m_convertVideo.convert(videoPacket,
+        oPacket = this->m_convertVideo.convert(AkUtils::imageToPacket(image, packet),
                                                this->m_cameraOut.caps());
 #endif
 

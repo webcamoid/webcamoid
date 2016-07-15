@@ -28,6 +28,22 @@
 //#define CODEC_COMPLIANCE FF_COMPLIANCE_EXPERIMENTAL
 #define THREAD_WAIT_LIMIT 500
 
+struct XRGB
+{
+    quint8 x;
+    quint8 r;
+    quint8 g;
+    quint8 b;
+};
+
+struct BGRX
+{
+    quint8 b;
+    quint8 g;
+    quint8 r;
+    quint8 x;
+};
+
 typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 
 inline AvMediaTypeStrMap initAvMediaTypeStrMap()
@@ -1048,6 +1064,25 @@ void MediaSink::flushStreams()
     }
 }
 
+QImage MediaSink::swapChannels(const QImage &image) const
+{
+    QImage swapped(image.size(), image.format());
+
+    for (int y = 0; y < image.height(); y++) {
+        const XRGB *src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
+        BGRX *dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
+
+        for (int x = 0; x < image.width(); x++) {
+            dst[x].x = src[x].x;
+            dst[x].r = src[x].r;
+            dst[x].g = src[x].g;
+            dst[x].b = src[x].b;
+        }
+    }
+
+    return swapped;
+}
+
 AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
@@ -1813,8 +1848,11 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     oFrame.width = codecContext->width;
     oFrame.height = codecContext->height;
 
-    AkVideoPacket videoPacket = AkUtils::roundSizeTo(packet.toPacket(), 4);
-    videoPacket = AkUtils::convertVideo(videoPacket, AkVideoCaps::Format_rgb24);
+    AkPacket videoPacket = packet.toPacket();
+    QImage image = AkUtils::packetToImage(videoPacket);
+    image = image.convertToFormat(QImage::Format_RGB32);
+    image = this->swapChannels(image);
+    videoPacket = AkUtils::imageToPacket(image, videoPacket);
 
     if (!this->m_streamParams[streamIndex].convert(videoPacket, &oFrame)) {
         av_frame_unref(&oFrame);
