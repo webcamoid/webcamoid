@@ -1,3 +1,16 @@
+Webcamoid 7.2.0:
+
+- Fixed problems when recording.
+- Added timer and flash when taking photos.
+- Better virtual camera management.
+- Added Virtual camera support for Windows.
+- Added GIF recording support (FFmpeg only).
+- Improved webcam format selection.
+- UI improvements.
+- Included QtQuick software renderer in intallation (Windows).
+- Added play on start option. Start playing the webcam by default.
+- Added C++11 support for Clang build.
+
 Webcamoid 7.1.0:
 
 - Reworked audio system.
