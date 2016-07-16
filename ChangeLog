@@ -8,7 +8,7 @@ Webcamoid 7.2.0:
 - Improved webcam format selection.
 - UI improvements.
 - Included QtQuick software renderer in intallation (Windows).
-- Added play on start option. Start playing the webcam by default.
+- Added play on start option.
 - Added C++11 support for Clang build.
 
 Webcamoid 7.1.0:

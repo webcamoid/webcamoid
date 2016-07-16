@@ -58,7 +58,7 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
     this->m_windowHeight = 0;
     this->m_advancedMode = false;
     this->m_enableVirtualCamera = false;
-    this->m_playOnStart = true;
+    this->m_playOnStart = false;
     this->m_vcamLinked = false;
 
     Ak::setQmlEngine(engine);
@@ -1375,7 +1375,7 @@ void MediaTools::resetEnableVirtualCamera()
 
 void MediaTools::resetPlayOnStart()
 {
-    this->setPlayOnStart(true);
+    this->setPlayOnStart(false);
 }
 
 void MediaTools::resetEffects()
@@ -1422,7 +1422,7 @@ void MediaTools::loadConfigs()
     config.beginGroup("GeneralConfigs");
 
     this->setAdvancedMode(config.value("advancedMode", false).toBool());
-    this->setPlayOnStart(config.value("playOnStart", true).toBool());
+    this->setPlayOnStart(config.value("playOnStart", false).toBool());
 
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
     this->m_windowWidth = windowSize.width();

@@ -417,8 +417,9 @@ QStringList AkElement::listPluginPaths()
     for (int i = akElementGlobalStuff->m_pluginsSearchPaths.length() - 1; i >= 0; i--) {
         QStringList paths = AkElement::listPluginPaths(akElementGlobalStuff->m_pluginsSearchPaths[i]);
 
-        if (!paths.isEmpty())
-            searchPaths << paths;
+        foreach (QString path, paths)
+            if (!searchPaths.contains(path))
+                searchPaths << path;
     }
 
     akElementGlobalStuff->m_pluginsCache = searchPaths;
