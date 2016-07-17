@@ -1,3 +1,6 @@
+os:
+  - linux
+
 sudo: required
 dist: trusty
 
@@ -7,8 +10,12 @@ compiler:
   - gcc
   - clang
 
+env:
+  matrix:
+    - QTVER=57
+
 before_install:
-  - sudo add-apt-repository --yes ppa:beineri/opt-qt57-trusty
+  - sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
   - sudo add-apt-repository --yes ppa:mc3man/trusty-media
   - sudo add-apt-repository --yes ppa:dan-witt/gstreamer
   - sudo apt-get update -qq
@@ -16,16 +23,22 @@ before_install:
 install:
   - sudo apt-get -y install pkg-config
   - sudo apt-get -y install linux-libc-dev
-  - sudo apt-get -y install qt57tools
-  - sudo apt-get -y install qt57declarative
-  - sudo apt-get -y install qt57svg
+  - sudo apt-get -y install qt${QTVER}tools
+  - sudo apt-get -y install qt${QTVER}declarative
+  - sudo apt-get -y install qt${QTVER}svg
   - sudo apt-get -y install libgstreamer-plugins-base1.0-dev
   - sudo apt-get -y install libpulse-dev
   - sudo apt-get -y install libv4l-dev
 
+before_script:
+  - source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
+  - if [ ${TRAVIS_OS_NAME} = linux ] && [ ${CXX} = g++ ];     then export QMAKESPEC=linux-g++;   fi
+  - if [ ${TRAVIS_OS_NAME} = linux ] && [ ${CXX} = clang++ ]; then export QMAKESPEC=linux-clang; fi
+  - if [ ${TRAVIS_OS_NAME} = osx ]   && [ ${CXX} = g++ ];     then export QMAKESPEC=macx-g++;    fi
+  - if [ ${TRAVIS_OS_NAME} = osx ]   && [ ${CXX} = clang++ ]; then export QMAKESPEC=macx-clang;  fi
+
 script:
-  - source /opt/qt57/bin/qt57-env.sh
-  - /opt/qt57/bin/qmake Webcamoid.pro USE_GSTREAMER=1
+  - /opt/qt${QTVER}/bin/qmake Webcamoid.pro USE_GSTREAMER=1
   - make
 
 branches:
