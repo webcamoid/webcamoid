@@ -1,44 +1,60 @@
-os:
-  - linux
-
-sudo: required
-dist: trusty
-
 language: cpp
 
-compiler:
-  - gcc
-  - clang
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: gcc
+      env:
+      - QTVER=57
+    - os: linux
+      dist: trusty
+      sudo: required
+      compiler: clang
+      env:
+      - QTVER=57
 
-env:
-  matrix:
-    - QTVER=57
+before_install: |
+  if [ ${TRAVIS_OS_NAME} == linux ]; then
+    sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
+    sudo add-apt-repository --yes ppa:mc3man/trusty-media
+    sudo add-apt-repository --yes ppa:dan-witt/gstreamer
+    sudo apt-get update -qq
+  elif [ ${TRAVIS_OS_NAME} == osx ]; then
+  fi
 
-before_install:
-  - sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
-  - sudo add-apt-repository --yes ppa:mc3man/trusty-media
-  - sudo add-apt-repository --yes ppa:dan-witt/gstreamer
-  - sudo apt-get update -qq
+install: |
+  if [ ${TRAVIS_OS_NAME} = linux ]; then
+    sudo apt-get -y install pkg-config
+    sudo apt-get -y install linux-libc-dev
+    sudo apt-get -y install qt${QTVER}tools
+    sudo apt-get -y install qt${QTVER}declarative
+    sudo apt-get -y install qt${QTVER}svg
+    sudo apt-get -y install libgstreamer-plugins-base1.0-dev
+    sudo apt-get -y install libpulse-dev
+    sudo apt-get -y install libv4l-dev
+  elif [ ${TRAVIS_OS_NAME} = osx ]; then
+  fi
 
-install:
-  - sudo apt-get -y install pkg-config
-  - sudo apt-get -y install linux-libc-dev
-  - sudo apt-get -y install qt${QTVER}tools
-  - sudo apt-get -y install qt${QTVER}declarative
-  - sudo apt-get -y install qt${QTVER}svg
-  - sudo apt-get -y install libgstreamer-plugins-base1.0-dev
-  - sudo apt-get -y install libpulse-dev
-  - sudo apt-get -y install libv4l-dev
-
-before_script:
-  - source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
-  - if [ ${TRAVIS_OS_NAME} = linux ] && [ ${CXX} = g++ ];     then export QMAKESPEC=linux-g++;   fi
-  - if [ ${TRAVIS_OS_NAME} = linux ] && [ ${CXX} = clang++ ]; then export QMAKESPEC=linux-clang; fi
-  - if [ ${TRAVIS_OS_NAME} = osx ]   && [ ${CXX} = g++ ];     then export QMAKESPEC=macx-g++;    fi
-  - if [ ${TRAVIS_OS_NAME} = osx ]   && [ ${CXX} = clang++ ]; then export QMAKESPEC=macx-clang;  fi
+before_script: |
+  if [ ${TRAVIS_OS_NAME} = linux ]; then
+    source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
+    if [ ${CXX} = g++ ]; then
+      export QMAKESPEC=linux-g++
+    elif [ ${CXX} = clang ]; then
+      export QMAKESPEC=linux-clang
+    fi
+  elif [ ${TRAVIS_OS_NAME} = osx ]; then
+    if [ ${CXX} = g++ ]; then
+      export QMAKESPEC=macx-g++
+    elif [ ${CXX} = clang ]; then
+      export QMAKESPEC=macx-clang
+    fi
+  fi
 
 script:
-  - /opt/qt${QTVER}/bin/qmake Webcamoid.pro USE_GSTREAMER=1
+  - qmake Webcamoid.pro USE_GSTREAMER=1
   - make
 
 branches:
