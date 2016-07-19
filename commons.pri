@@ -131,6 +131,5 @@ win32 {
     !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
 }
 
-*clang* {
-    CONFIG += c++11
-}
+# Enable c++11 support in all platforms
+CONFIG += c++11
