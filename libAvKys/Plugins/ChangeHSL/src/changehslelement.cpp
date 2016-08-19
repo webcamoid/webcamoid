@@ -132,7 +132,7 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
         int st = int(h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7]);
         int lt = int(h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11]);
 
-        ht = qMax(0, ht);
+        ht = qBound(0, ht, 359);
         st = qBound(0, st, 255);
         lt = qBound(0, lt, 255);
 

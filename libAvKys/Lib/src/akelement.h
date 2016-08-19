@@ -111,6 +111,10 @@ class AkElement: public QObject
         Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
         Q_INVOKABLE static void clearCache();
 
+        virtual AkPacket operator ()(const AkPacket &packet);
+        virtual AkPacket operator ()(const AkAudioPacket &packet);
+        virtual AkPacket operator ()(const AkVideoPacket &packet);
+
     private:
         AkElementPrivate *d;
 

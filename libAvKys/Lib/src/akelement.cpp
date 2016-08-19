@@ -473,6 +473,21 @@ void AkElement::clearCache()
     akElementGlobalStuff->m_pluginsCache.clear();
 }
 
+AkPacket AkElement::operator ()(const AkPacket &packet)
+{
+    return this->iStream(packet);
+}
+
+AkPacket AkElement::operator ()(const AkAudioPacket &packet)
+{
+    return this->iStream(packet);
+}
+
+AkPacket AkElement::operator ()(const AkVideoPacket &packet)
+{
+    return this->iStream(packet);
+}
+
 void AkElement::stateChange(AkElement::ElementState from, AkElement::ElementState to)
 {
     Q_UNUSED(from)

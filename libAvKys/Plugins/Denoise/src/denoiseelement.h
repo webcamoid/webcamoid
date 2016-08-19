@@ -87,7 +87,7 @@ class DenoiseElement: public AkElement
                         int d = c - m;
                         d *= d;
 
-                        this->m_weight[(m << 16) | (s << 8) | c] = factor * exp(qreal(d) / h);
+                        this->m_weight[(m << 16) | (s << 8) | c] = qRound(factor * exp(qreal(d) / h));
                     }
             }
         }
