@@ -43,7 +43,6 @@ install: |
     sudo apt-get -y install libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew install qt5 ffmpeg
-    brew linkapps qt5
   fi
 
 before_script: |
@@ -55,6 +54,7 @@ before_script: |
       export QMAKESPEC=linux-clang
     fi
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    brew link --force qt5
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=macx-g++
     elif [ "${CXX}" = clang++ ]; then
