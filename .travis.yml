@@ -14,6 +14,12 @@ matrix:
       compiler: clang
       env:
       - QTVER=57
+    - os: osx
+      osx_image: xcode8
+      compiler: gcc
+    - os: osx
+      osx_image: xcode8
+      compiler: clang
 
 before_install: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
@@ -22,7 +28,7 @@ before_install: |
     sudo add-apt-repository --yes ppa:dan-witt/gstreamer
     sudo apt-get update -qq
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    echo
+    brew update
   fi
 
 install: |
@@ -36,7 +42,7 @@ install: |
     sudo apt-get -y install libpulse-dev
     sudo apt-get -y install libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    echo
+    brew install qt5 ffmpeg
   fi
 
 before_script: |
@@ -55,9 +61,13 @@ before_script: |
     fi
   fi
 
-script:
-  - qmake Webcamoid.pro USE_GSTREAMER=1
-  - make
+script: |
+  if [ "${TRAVIS_OS_NAME}" = linux ]; then
+    qmake Webcamoid.pro USE_GSTREAMER=1
+  elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    qmake Webcamoid.pro
+  fi
+  make
 
 branches:
   only:
