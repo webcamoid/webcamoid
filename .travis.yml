@@ -74,7 +74,7 @@ script: |
         FFMPEG+=-lavdevice \
         FFMPEGLIBS+=-lavformat \
         FFMPEGLIBS+=-lavutil \
-        FFMPEGLIBS+=-lavswresample \
+        FFMPEGLIBS+=-lavresample \
         FFMPEGLIBS+=-lavswscale
   fi
   make
