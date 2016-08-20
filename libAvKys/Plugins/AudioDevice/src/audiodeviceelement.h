@@ -29,6 +29,8 @@
 #include "pulseaudio/audiodev.h"
 #elif defined(Q_OS_WIN32)
 #include "wasapi/audiodev.h"
+#elif Q_OS_MAC
+#include "coreaudio/audiodev.h"
 #endif
 
 class AudioDeviceElement: public AkElement
