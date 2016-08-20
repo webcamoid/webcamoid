@@ -16,9 +16,6 @@ matrix:
       - QTVER=57
     - os: osx
       osx_image: xcode7.3
-      compiler: gcc
-    - os: osx
-      osx_image: xcode7.3
       compiler: clang
 
 before_install: |
@@ -74,8 +71,8 @@ script: |
         FFMPEG+=-lavdevice \
         FFMPEGLIBS+=-lavformat \
         FFMPEGLIBS+=-lavutil \
-        FFMPEGLIBS+=-lavresample \
-        FFMPEGLIBS+=-lavswscale
+        FFMPEGLIBS+=-lswresample \
+        FFMPEGLIBS+=-lswscale
   fi
   make
 
