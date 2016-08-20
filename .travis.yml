@@ -55,6 +55,7 @@ before_script: |
     fi
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew link --force qt5
+    FFVER=$(ffmpeg -version | head -n 1 | awk '{print $3}')
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=macx-g++
     elif [ "${CXX}" = clang++ ]; then
@@ -66,7 +67,15 @@ script: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
     qmake Webcamoid.pro USE_GSTREAMER=1
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    qmake Webcamoid.pro
+    qmake Webcamoid.pro \
+        FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/${FFVER}/include" \
+        FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/${FFVER}/lib" \
+        FFMPEGLIBS+=-lavcodec \
+        FFMPEG+=-lavdevice \
+        FFMPEGLIBS+=-lavformat \
+        FFMPEGLIBS+=-lavutil \
+        FFMPEGLIBS+=-lavswresample \
+        FFMPEGLIBS+=-lavswscale
   fi
   make
 
