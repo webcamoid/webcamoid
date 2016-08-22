@@ -24,3 +24,8 @@ SOURCES += \
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libv4l2
+
+isEmpty(ROOT_METHOD): ROOT_METHOD = su
+
+DEFINES += \
+    ROOT_METHOD=\"\\\"$$ROOT_METHOD\\\"\"

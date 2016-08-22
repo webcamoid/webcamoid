@@ -72,6 +72,10 @@ VirtualCameraElement::VirtualCameraElement():
                      &CameraOut::passwordTimeoutChanged,
                      this,
                      &VirtualCameraElement::passwordTimeoutChanged);
+    QObject::connect(&this->m_cameraOut,
+                     &CameraOut::rootMethodChanged,
+                     this,
+                     &VirtualCameraElement::rootMethodChanged);
 }
 
 VirtualCameraElement::~VirtualCameraElement()
@@ -160,6 +164,11 @@ bool VirtualCameraElement::needRoot() const
 int VirtualCameraElement::passwordTimeout() const
 {
     return this->m_cameraOut.passwordTimeout();
+}
+
+QString VirtualCameraElement::rootMethod() const
+{
+    return this->m_cameraOut.rootMethod();
 }
 
 int VirtualCameraElement::defaultStream(const QString &mimeType) const
@@ -308,6 +317,11 @@ void VirtualCameraElement::setPasswordTimeout(int passwordTimeout)
     this->m_cameraOut.setPasswordTimeout(passwordTimeout);
 }
 
+void VirtualCameraElement::setRootMethod(const QString &rootMethod)
+{
+    this->m_cameraOut.setRootMethod(rootMethod);
+}
+
 void VirtualCameraElement::resetDriverPath()
 {
     this->m_cameraOut.resetDriverPath();
@@ -325,6 +339,11 @@ void VirtualCameraElement::resetMedia()
 void VirtualCameraElement::resetPasswordTimeout()
 {
     this->m_cameraOut.resetPasswordTimeout();
+}
+
+void VirtualCameraElement::resetRootMethod()
+{
+    this->m_cameraOut.resetRootMethod();
 }
 
 void VirtualCameraElement::clearStreams()

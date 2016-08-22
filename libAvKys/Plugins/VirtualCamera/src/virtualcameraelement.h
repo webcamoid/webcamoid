@@ -66,6 +66,11 @@ class VirtualCameraElement: public AkElement
                WRITE setPasswordTimeout
                RESET resetPasswordTimeout
                NOTIFY passwordTimeoutChanged)
+    Q_PROPERTY(QString rootMethod
+               READ rootMethod
+               WRITE setRootMethod
+               RESET resetRootMethod
+               NOTIFY rootMethodChanged)
 
     public:
         explicit VirtualCameraElement();
@@ -81,6 +86,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE int maxCameras() const;
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
+        Q_INVOKABLE QString rootMethod() const;
 
         Q_INVOKABLE int defaultStream(const QString &mimeType) const;
         Q_INVOKABLE QString description(const QString &media) const;
@@ -119,15 +125,18 @@ class VirtualCameraElement: public AkElement
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void passwordTimeoutChanged(int passwordTimeout);
+        void rootMethodChanged(const QString &rootMethod);
         void error(const QString &message);
 
     public slots:
         void setDriverPath(const QString &driverPath);
         void setMedia(const QString &media);
         void setPasswordTimeout(int passwordTimeout);
+        void setRootMethod(const QString &rootMethod);
         void resetDriverPath();
         void resetMedia();
         void resetPasswordTimeout();
+        void resetRootMethod();
         void clearStreams();
 
         AkPacket iStream(const AkPacket &packet);

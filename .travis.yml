@@ -26,6 +26,7 @@ before_install: |
     sudo apt-get update -qq
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew update
+    brew upgrade
   fi
 
 install: |

@@ -22,17 +22,6 @@
 
 #include "audiodev.h"
 
-typedef QMap<AkAudioCaps::SampleFormat, pa_sample_format_t> SampleFormatMap;
-
-inline SampleFormatMap initSampleFormatMap()
-{
-    SampleFormatMap sampleFormat;
-
-    return sampleFormat;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
-
 AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {

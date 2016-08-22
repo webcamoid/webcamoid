@@ -30,9 +30,9 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 Use Webcamoid until an abnormal event happen, write a list with the following information:
 
 1. Your Webcamoid version.
-2. Your distribution name and version (numeric, please).
+2. Your operating system.
 3. Your Qt version.
-4. Your GCC version.
+4. Your GCC/Clang version.
 5. Your DE/WM version.
 6. Any other useful information.
 

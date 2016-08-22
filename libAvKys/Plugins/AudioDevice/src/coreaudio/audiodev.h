@@ -21,6 +21,8 @@
 #define AUDIODEV_H
 
 #include <akaudiocaps.h>
+#include <CoreAudio/CoreAudio.h>
+#include <CoreServices/CoreServices.h>
 
 class AudioDev: public QObject
 {

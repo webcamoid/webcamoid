@@ -214,8 +214,13 @@ int CameraOut::passwordTimeout() const
     return this->m_passwordTimeout;
 }
 
+QString CameraOut::rootMethod() const
+{
+    return this->m_rootMethod;
+}
+
 QString CameraOut::createWebcam(const QString &description,
-                              const QString &password) const
+                                const QString &password) const
 {
     Q_UNUSED(password)
 
@@ -446,6 +451,15 @@ void CameraOut::setPasswordTimeout(int passwordTimeout)
     emit this->passwordTimeoutChanged(passwordTimeout);
 }
 
+void CameraOut::setRootMethod(const QString &rootMethod)
+{
+    if (this->m_rootMethod == rootMethod)
+        return;
+
+    this->m_rootMethod = rootMethod;
+    emit this->rootMethodChanged(rootMethod);
+}
+
 void CameraOut::resetDriverPath()
 {
     this->setDriverPath("");
@@ -459,4 +473,9 @@ void CameraOut::resetDevice()
 void CameraOut::resetPasswordTimeout()
 {
     this->setPasswordTimeout(5000);
+}
+
+void CameraOut::resetRootMethod()
+{
+    this->setRootMethod("");
 }

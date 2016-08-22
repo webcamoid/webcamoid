@@ -23,6 +23,23 @@
 
 #define MAX_CAMERAS 64
 
+#ifndef ROOT_METHOD
+#define ROOT_METHOD "su"
+#endif
+
+typedef QMap<CameraOut::RootMethod, QString> RootMethodMap;
+
+inline RootMethodMap initRootMethodMap()
+{
+    RootMethodMap rootMethodToStr;
+    rootMethodToStr[CameraOut::RootMethodSu] = "su";
+    rootMethodToStr[CameraOut::RootMethodSudo] = "sudo";
+
+    return rootMethodToStr;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(RootMethodMap, rootMethodToStr, (initRootMethodMap()))
+
 typedef QMap<AkVideoCaps::PixelFormat, quint32> V4l2PixFmtMap;
 
 inline V4l2PixFmtMap initV4l2PixFmtMap()
@@ -81,6 +98,7 @@ CameraOut::CameraOut(): QObject()
     this->m_streamIndex = -1;
     this->m_fd = -1;
     this->m_passwordTimeout = 2500;
+    this->m_rootMethod = rootMethodToStr->key(ROOT_METHOD, RootMethodSu);
     this->m_webcams = this->webcams();
     this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
     this->m_fsWatcher->setParent(this);
@@ -221,6 +239,11 @@ int CameraOut::passwordTimeout() const
     return this->m_passwordTimeout;
 }
 
+QString CameraOut::rootMethod() const
+{
+    return rootMethodToStr->value(this->m_rootMethod);
+}
+
 QString CameraOut::createWebcam(const QString &description,
                                 const QString &password) const
 {
@@ -232,7 +255,7 @@ QString CameraOut::createWebcam(const QString &description,
     QStringList webcamIds;
 
     foreach (QString webcam, webcams) {
-        webcamDescriptions << QString("'%1'").arg(this->description(webcam));
+        webcamDescriptions << this->description(webcam);
         int id = webcam.indexOf(QRegExp("[0-9]+"));
         webcamIds << webcam.mid(id);
     }
@@ -249,15 +272,16 @@ QString CameraOut::createWebcam(const QString &description,
     else
         deviceDescription = description;
 
-    webcamDescriptions << QString("'%1'").arg(deviceDescription);
+    webcamDescriptions << deviceDescription;
     webcamIds << QString("%1").arg(id);
 
-    QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
-                       .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
+    this->sudo("rmmod", {"v4l2loopback"}, password);
 
-    this->sudo("rmmod v4l2loopback", password);
-
-    if (!this->sudo(modprobe, password))
+    if (!this->sudo("modprobe",
+                    {"v4l2loopback",
+                     QString("video_nr=%1").arg(webcamIds.join(',')),
+                     QString("card_label=%1").arg(webcamDescriptions.join(','))},
+                    password))
         return QString();
 
     QStringList curWebcams = this->webcams();
@@ -288,7 +312,7 @@ bool CameraOut::changeDescription(const QString &webcam,
     QStringList webcamIds;
 
     foreach (QString webcam, webcams) {
-        webcamDescriptions << QString("'%1'").arg(this->description(webcam));
+        webcamDescriptions << this->description(webcam);
         int id = webcam.indexOf(QRegExp("[0-9]+"));
         webcamIds << webcam.mid(id);
     }
@@ -312,14 +336,14 @@ bool CameraOut::changeDescription(const QString &webcam,
     if (index < 0)
         return false;
 
-    webcamDescriptions[index] = QString("'%1'").arg(deviceDescription);
+    webcamDescriptions[index] = deviceDescription;
+    this->sudo("rmmod", {"v4l2loopback"}, password);
 
-    QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
-                       .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
-
-    this->sudo("rmmod v4l2loopback", password);
-
-    if (!this->sudo(modprobe, password))
+    if (!this->sudo("modprobe",
+                    {"v4l2loopback",
+                     QString("video_nr=%1").arg(webcamIds.join(',')),
+                     QString("card_label=%1").arg(webcamDescriptions.join(','))},
+                    password))
         return false;
 
     QStringList curWebcams = this->webcams();
@@ -349,7 +373,7 @@ bool CameraOut::removeWebcam(const QString &webcam,
     QStringList webcamIds;
 
     foreach (QString webcam, webcams) {
-        webcamDescriptions << QString("'%1'").arg(this->description(webcam));
+        webcamDescriptions << this->description(webcam);
         int id = webcam.indexOf(QRegExp("[0-9]+"));
         webcamIds << webcam.mid(id);
     }
@@ -369,13 +393,14 @@ bool CameraOut::removeWebcam(const QString &webcam,
     webcamDescriptions.removeAt(index);
     webcamIds.removeAt(index);
 
-    this->sudo("rmmod v4l2loopback", password);
+    this->sudo("rmmod", {"v4l2loopback"}, password);
 
     if (!webcamIds.isEmpty()) {
-        QString modprobe = QString("modprobe v4l2loopback video_nr=%1 card_label=%2")
-                           .arg(webcamIds.join(',')).arg(webcamDescriptions.join(','));
-
-        if (!this->sudo(modprobe, password))
+        if (!this->sudo("modprobe",
+                        {"v4l2loopback",
+                         QString("video_nr=%1").arg(webcamIds.join(',')),
+                         QString("card_label=%1").arg(webcamDescriptions.join(','))},
+                        password))
             return false;
     }
 
@@ -397,7 +422,7 @@ bool CameraOut::removeAllWebcams(const QString &password) const
     if (webcams.isEmpty())
         return false;
 
-    this->sudo("rmmod v4l2loopback", password);
+    this->sudo("rmmod", {"v4l2loopback"}, password);
 
     QStringList curWebcams = this->webcams();
 
@@ -407,7 +432,9 @@ bool CameraOut::removeAllWebcams(const QString &password) const
     return true;
 }
 
-bool CameraOut::sudo(const QString &command, const QString &password) const
+bool CameraOut::sudo(const QString &command,
+                     const QStringList &argumments,
+                     const QString &password) const
 {
     if (password.isEmpty())
         return false;
@@ -417,13 +444,27 @@ bool CameraOut::sudo(const QString &command, const QString &password) const
 
     echo.setStandardOutputProcess(&su);
 
-    QStringList arguments;
-    arguments << "-c" << command;
+    switch (this->m_rootMethod) {
+        case RootMethodSu: {
+            QStringList args;
 
-    echo.start("echo", QStringList() << password);
-    su.start("su", arguments);
+            foreach (QString arg, argumments)
+                args << arg.replace(" ", "\\ ");
+
+            echo.start("echo", {password});
+            su.start("su", {"-c", command + " " + args.join(" ")});
+
+            break;
+        }
+        case RootMethodSudo: {
+            echo.start("echo", {password});
+            su.start("sudo", QStringList{"-S", command} << argumments);
+
+            break;
+        }
+    }
+
     su.setProcessChannelMode(QProcess::ForwardedChannels);
-
     echo.waitForStarted();
 
     if (!su.waitForFinished(this->m_passwordTimeout)) {
@@ -435,8 +476,19 @@ bool CameraOut::sudo(const QString &command, const QString &password) const
 
     echo.waitForFinished();
 
-    if (su.exitCode())
+    if (su.exitCode()) {
+        QByteArray outMsg = su.readAllStandardOutput();
+
+        if (!outMsg.isEmpty())
+            qDebug() << outMsg.toStdString().c_str();
+
+        QByteArray errorMsg = su.readAllStandardError();
+
+        if (!errorMsg.isEmpty())
+            qDebug() << errorMsg.toStdString().c_str();
+
         return false;
+    }
 
     return true;
 }
@@ -516,6 +568,17 @@ void CameraOut::setPasswordTimeout(int passwordTimeout)
     emit this->passwordTimeoutChanged(passwordTimeout);
 }
 
+void CameraOut::setRootMethod(const QString &rootMethod)
+{
+    RootMethod methodEnum = rootMethodToStr->key(rootMethod, RootMethodSu);
+
+    if (this->m_rootMethod == methodEnum)
+        return;
+
+    this->m_rootMethod = methodEnum;
+    emit this->rootMethodChanged(rootMethod);
+}
+
 void CameraOut::resetDriverPath()
 {
     this->setDriverPath("");
@@ -529,6 +592,11 @@ void CameraOut::resetDevice()
 void CameraOut::resetPasswordTimeout()
 {
     this->setPasswordTimeout(2500);
+}
+
+void CameraOut::resetRootMethod()
+{
+    this->setRootMethod(ROOT_METHOD);
 }
 
 void CameraOut::onDirectoryChanged(const QString &path)

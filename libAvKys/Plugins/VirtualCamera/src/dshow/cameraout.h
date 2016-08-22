@@ -56,6 +56,11 @@ class CameraOut: public QObject
                WRITE setPasswordTimeout
                RESET resetPasswordTimeout
                NOTIFY passwordTimeoutChanged)
+    Q_PROPERTY(QString rootMethod
+               READ rootMethod
+               WRITE setRootMethod
+               RESET resetRootMethod
+               NOTIFY rootMethodChanged)
 
     public:
         explicit CameraOut();
@@ -70,6 +75,7 @@ class CameraOut: public QObject
         Q_INVOKABLE int maxCameras() const;
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
+        Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QString createWebcam(const QString &description="",
                                          const QString &password="") const;
         Q_INVOKABLE bool changeDescription(const QString &webcam,
@@ -86,6 +92,7 @@ class CameraOut: public QObject
         int m_streamIndex;
         AkCaps m_caps;
         int m_passwordTimeout;
+        QString m_rootMethod;
         IpcBridge m_ipcBridge;
 
         HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
@@ -100,6 +107,7 @@ class CameraOut: public QObject
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
         void passwordTimeoutChanged(int passwordTimeout);
+        void rootMethodChanged(QString rootMethod);
         void error(const QString &message);
 
     public slots:
@@ -108,9 +116,11 @@ class CameraOut: public QObject
         void setDriverPath(const QString &driverPath);
         void setDevice(const QString &device);
         void setPasswordTimeout(int passwordTimeout);
+        void setRootMethod(const QString &rootMethod);
         void resetDriverPath();
         void resetDevice();
         void resetPasswordTimeout();
+        void resetRootMethod();
 };
 
 #endif // CAMERAOUT_H
