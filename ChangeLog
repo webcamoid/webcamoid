@@ -1,3 +1,9 @@
+Webcamoid 7.2.1:
+- Added alternative root method (VirtualCamera). See ROOT_METHOD at project
+  Wiki.
+- C++11 support enabled by default.
+- Using new algorithm for Cartoon plugin.
+
 Webcamoid 7.2.0:
 
 - Fixed problems when recording.
