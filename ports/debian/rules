@@ -16,7 +16,7 @@ build-stamp:
 	# Add here commands to compile the package.
 	mkdir -p build
 
-	qmake -qt=5 Webcamoid.pro
+	qmake -qt=5 Webcamoid.pro ROOT_METHOD=sudo
 
 	$(MAKE)
 	# --- end custom part for compiling

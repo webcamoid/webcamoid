@@ -24,7 +24,7 @@ import QtQuick.Layouts 1.1
 
 ApplicationWindow {
     id: recAbout
-    title: qsTr("Add new media")
+    title: qsTr("About %1").arg(Webcamoid.applicationName())
     color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
