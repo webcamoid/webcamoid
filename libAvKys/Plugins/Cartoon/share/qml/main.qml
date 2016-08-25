@@ -177,6 +177,19 @@ GridLayout {
     Label {
     }
 
+    // Scan block.
+    Label {
+        text: qsTr("Scan block")
+    }
+    TextField {
+        text: Cartoon.scanSize.width + "x" + Cartoon.scanSize.height
+        validator: RegExpValidator {
+            regExp: /\d+x\d+/
+        }
+
+        onTextChanged: Cartoon.scanSize = strToSize(text)
+    }
+
     ColorDialog {
         id: colorDialog
         title: qsTr("Choose a color")

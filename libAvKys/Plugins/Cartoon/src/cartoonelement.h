@@ -25,8 +25,6 @@
 #include <ak.h>
 #include <akutils.h>
 
-#include "pixel.h"
-
 class CartoonElement: public AkElement
 {
     Q_OBJECT
@@ -55,6 +53,11 @@ class CartoonElement: public AkElement
                WRITE setLineColor
                RESET resetLineColor
                NOTIFY lineColorChanged)
+    Q_PROPERTY(QSize scanSize
+               READ scanSize
+               WRITE setScanSize
+               RESET resetScanSize
+               NOTIFY scanSizeChanged)
 
     public:
         explicit CartoonElement();
@@ -67,6 +70,7 @@ class CartoonElement: public AkElement
         Q_INVOKABLE int thresholdLow() const;
         Q_INVOKABLE int thresholdHi() const;
         Q_INVOKABLE QRgb lineColor() const;
+        Q_INVOKABLE QSize scanSize() const;
 
     private:
         int m_ncolors;
@@ -74,6 +78,7 @@ class CartoonElement: public AkElement
         int m_thresholdLow;
         int m_thresholdHi;
         QRgb m_lineColor;
+        QSize m_scanSize;
         QVector<QRgb> m_palette;
         qint64 m_id;
         qint64 m_lastTime;
@@ -115,6 +120,7 @@ class CartoonElement: public AkElement
         void thresholdLowChanged(int thresholdLow);
         void thresholdHiChanged(int thresholdHi);
         void lineColorChanged(QRgb lineColor);
+        void scanSizeChanged(const QSize &scanSize);
 
     public slots:
         void setNColors(int ncolors);
@@ -122,11 +128,13 @@ class CartoonElement: public AkElement
         void setThresholdLow(int thresholdLow);
         void setThresholdHi(int thresholdHi);
         void setLineColor(QRgb lineColor);
+        void setScanSize(const QSize &scanSize);
         void resetNColors();
         void resetColorDiff();
         void resetThresholdLow();
         void resetThresholdHi();
         void resetLineColor();
+        void resetScanSize();
         AkPacket iStream(const AkPacket &packet);
 };
 

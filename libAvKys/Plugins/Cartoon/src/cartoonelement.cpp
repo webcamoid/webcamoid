@@ -31,6 +31,7 @@ CartoonElement::CartoonElement(): AkElement()
     this->m_thresholdLow = 85;
     this->m_thresholdHi = 171;
     this->m_lineColor = qRgb(0, 0, 0);
+    this->m_scanSize = QSize(320, 240);
     this->m_id = -1;
     this->m_lastTime = 0;
 }
@@ -96,6 +97,11 @@ int CartoonElement::thresholdHi() const
 QRgb CartoonElement::lineColor() const
 {
     return this->m_lineColor;
+}
+
+QSize CartoonElement::scanSize() const
+{
+    return this->m_scanSize;
 }
 
 QVector<QRgb> CartoonElement::palette(const QImage &img,
@@ -314,6 +320,15 @@ void CartoonElement::setLineColor(QRgb lineColor)
     emit this->lineColorChanged(lineColor);
 }
 
+void CartoonElement::setScanSize(const QSize &scanSize)
+{
+    if (this->m_scanSize == scanSize)
+        return;
+
+    this->m_scanSize = scanSize;
+    emit this->scanSizeChanged(scanSize);
+}
+
 void CartoonElement::resetNColors()
 {
     this->setNColors(8);
@@ -339,8 +354,18 @@ void CartoonElement::resetLineColor()
     this->setLineColor(qRgb(0, 0, 0));
 }
 
+void CartoonElement::resetScanSize()
+{
+    this->setScanSize(QSize(320, 240));
+}
+
 AkPacket CartoonElement::iStream(const AkPacket &packet)
 {
+    QSize scanSize(this->m_scanSize);
+
+    if (scanSize.isEmpty())
+        akSend(packet)
+
     QImage src = AkUtils::packetToImage(packet);
 
     if (src.isNull())
@@ -357,7 +382,7 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
 
     // Palettize image.
     QVector<QRgb> palette =
-            this->palette(src, this->m_ncolors, this->m_colorDiff);
+            this->palette(src.scaled(scanSize, Qt::KeepAspectRatio), this->m_ncolors, this->m_colorDiff);
 
     for (int y = 0; y < src.height(); y++) {
         const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
