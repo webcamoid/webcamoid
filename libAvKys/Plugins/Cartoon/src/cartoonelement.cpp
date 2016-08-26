@@ -28,12 +28,18 @@ CartoonElement::CartoonElement(): AkElement()
 {
     this->m_ncolors = 8;
     this->m_colorDiff = 95;
+    this->m_showEdges = true;
     this->m_thresholdLow = 85;
     this->m_thresholdHi = 171;
     this->m_lineColor = qRgb(0, 0, 0);
     this->m_scanSize = QSize(320, 240);
     this->m_id = -1;
     this->m_lastTime = 0;
+}
+
+CartoonElement::~CartoonElement()
+{
+
 }
 
 QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -82,6 +88,11 @@ int CartoonElement::ncolors() const
 int CartoonElement::colorDiff() const
 {
     return this->m_colorDiff;
+}
+
+bool CartoonElement::showEdges() const
+{
+    return this->m_showEdges;
 }
 
 int CartoonElement::thresholdLow() const
@@ -293,6 +304,15 @@ void CartoonElement::setColorDiff(int colorDiff)
     emit this->colorDiffChanged(colorDiff);
 }
 
+void CartoonElement::setShowEdges(bool showEdges)
+{
+    if (this->m_showEdges == showEdges)
+        return;
+
+    this->m_showEdges = showEdges;
+    emit this->showEdgesChanged(showEdges);
+}
+
 void CartoonElement::setThresholdLow(int thresholdLow)
 {
     if (this->m_thresholdLow == thresholdLow)
@@ -325,7 +345,9 @@ void CartoonElement::setScanSize(const QSize &scanSize)
     if (this->m_scanSize == scanSize)
         return;
 
+    this->m_mutex.lock();
     this->m_scanSize = scanSize;
+    this->m_mutex.unlock();
     emit this->scanSizeChanged(scanSize);
 }
 
@@ -337,6 +359,11 @@ void CartoonElement::resetNColors()
 void CartoonElement::resetColorDiff()
 {
     this->setColorDiff(95);
+}
+
+void CartoonElement::resetShowEdges()
+{
+    this->setShowEdges(true);
 }
 
 void CartoonElement::resetThresholdLow()
@@ -361,7 +388,9 @@ void CartoonElement::resetScanSize()
 
 AkPacket CartoonElement::iStream(const AkPacket &packet)
 {
+    this->m_mutex.lock();
     QSize scanSize(this->m_scanSize);
+    this->m_mutex.unlock();
 
     if (scanSize.isEmpty())
         akSend(packet)
@@ -393,14 +422,16 @@ AkPacket CartoonElement::iStream(const AkPacket &packet)
     }
 
     // Draw the edges.
-    QPainter painter;
-    painter.begin(&oFrame);
-    QImage edges = this->edges(src,
-                               this->m_thresholdLow,
-                               this->m_thresholdHi,
-                               this->m_lineColor);
-    painter.drawImage(0, 0, edges);
-    painter.end();
+    if (this->m_showEdges) {
+        QPainter painter;
+        painter.begin(&oFrame);
+        QImage edges = this->edges(src,
+                                   this->m_thresholdLow,
+                                   this->m_thresholdHi,
+                                   this->m_lineColor);
+        painter.drawImage(0, 0, edges);
+        painter.end();
+    }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)

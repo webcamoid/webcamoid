@@ -22,6 +22,7 @@
 
 #include <QQmlComponent>
 #include <QQmlContext>
+#include <QMutex>
 #include <ak.h>
 #include <akutils.h>
 
@@ -38,6 +39,11 @@ class CartoonElement: public AkElement
                WRITE setColorDiff
                RESET resetColorDiff
                NOTIFY colorDiffChanged)
+    Q_PROPERTY(bool showEdges
+               READ showEdges
+               WRITE setShowEdges
+               RESET resetShowEdges
+               NOTIFY showEdgesChanged)
     Q_PROPERTY(int thresholdLow
                READ thresholdLow
                WRITE setThresholdLow
@@ -61,12 +67,14 @@ class CartoonElement: public AkElement
 
     public:
         explicit CartoonElement();
+        ~CartoonElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
         Q_INVOKABLE int ncolors() const;
         Q_INVOKABLE int colorDiff() const;
+        Q_INVOKABLE bool showEdges() const;
         Q_INVOKABLE int thresholdLow() const;
         Q_INVOKABLE int thresholdHi() const;
         Q_INVOKABLE QRgb lineColor() const;
@@ -75,6 +83,7 @@ class CartoonElement: public AkElement
     private:
         int m_ncolors;
         int m_colorDiff;
+        bool m_showEdges;
         int m_thresholdLow;
         int m_thresholdHi;
         QRgb m_lineColor;
@@ -82,6 +91,7 @@ class CartoonElement: public AkElement
         QVector<QRgb> m_palette;
         qint64 m_id;
         qint64 m_lastTime;
+        QMutex m_mutex;
 
         QVector<QRgb> palette(const QImage &img, int ncolors, int colorDiff);
         QRgb nearestColor(int *index, int *diff, const QVector<QRgb> &palette, QRgb color) const;
@@ -117,6 +127,7 @@ class CartoonElement: public AkElement
     signals:
         void ncolorsChanged(int ncolors);
         void colorDiffChanged(int colorDiff);
+        void showEdgesChanged(bool showEdges);
         void thresholdLowChanged(int thresholdLow);
         void thresholdHiChanged(int thresholdHi);
         void lineColorChanged(QRgb lineColor);
@@ -125,12 +136,14 @@ class CartoonElement: public AkElement
     public slots:
         void setNColors(int ncolors);
         void setColorDiff(int colorDiff);
+        void setShowEdges(bool showEdges);
         void setThresholdLow(int thresholdLow);
         void setThresholdHi(int thresholdHi);
         void setLineColor(QRgb lineColor);
         void setScanSize(const QSize &scanSize);
         void resetNColors();
         void resetColorDiff();
+        void resetShowEdges();
         void resetThresholdLow();
         void resetThresholdHi();
         void resetLineColor();

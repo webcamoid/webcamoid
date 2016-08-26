@@ -105,16 +105,29 @@ GridLayout {
         onValueChanged: sldColorDiff.value = value
     }
 
+    Label {
+        text: qsTr("Show edges")
+    }
+    CheckBox {
+        id: chkShowEdges
+        checked: Cartoon.showEdges
+        Layout.columnSpan: 2
+
+        onCheckedChanged: Cartoon.showEdges = checked
+    }
+
     // Configure edge thresholds.
     Label {
         id: lblThresholdLow
         text: qsTr("Threshold low")
+        enabled: chkShowEdges.checked
     }
     Slider {
         id: sldThresholdLow
         value: Cartoon.thresholdLow
         stepSize: 1
         maximumValue: 255
+        enabled: chkShowEdges.checked
 
         onValueChanged: Cartoon.thresholdLow = value
     }
@@ -123,6 +136,7 @@ GridLayout {
         value: sldThresholdLow.value
         maximumValue: sldThresholdLow.maximumValue
         stepSize: sldThresholdLow.stepSize
+        enabled: chkShowEdges.checked
 
         onValueChanged: sldThresholdLow.value = value
     }
@@ -130,12 +144,14 @@ GridLayout {
     Label {
         id: lblThresholdHi
         text: qsTr("Threshold high")
+        enabled: chkShowEdges.checked
     }
     Slider {
         id: sldThresholdHi
         value: Cartoon.thresholdHi
         stepSize: 1
         maximumValue: 255
+        enabled: chkShowEdges.checked
 
         onValueChanged: Cartoon.thresholdHi = value
     }
@@ -144,16 +160,19 @@ GridLayout {
         value: sldThresholdHi.value
         maximumValue: sldThresholdHi.maximumValue
         stepSize: sldThresholdHi.stepSize
+        enabled: chkShowEdges.checked
 
         onValueChanged: sldThresholdHi.value = value
     }
 
     Label {
         text: qsTr("Line color")
+        enabled: chkShowEdges.checked
     }
     Button {
         Layout.preferredWidth: 32
         Layout.preferredHeight: 32
+        enabled: chkShowEdges.checked
 
         style: ButtonStyle {
             background: Rectangle {
@@ -183,6 +202,7 @@ GridLayout {
     }
     TextField {
         text: Cartoon.scanSize.width + "x" + Cartoon.scanSize.height
+        Layout.columnSpan: 2
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
