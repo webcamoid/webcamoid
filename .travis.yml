@@ -69,7 +69,7 @@ script: |
         FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/${FFVER}/include" \
         FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/${FFVER}/lib" \
         FFMPEGLIBS+=-lavcodec \
-        FFMPEG+=-lavdevice \
+        FFMPEGLIBS+=-lavdevice \
         FFMPEGLIBS+=-lavformat \
         FFMPEGLIBS+=-lavutil \
         FFMPEGLIBS+=-lswresample \
