@@ -161,6 +161,7 @@ find . -name ".gitignore" -exec rm {} \;
 %endif
 %if !%{defined fedora} && !%{defined suse_version} && !%{defined mgaversion}
   qmake -qt=5 Webcamoid.pro \
+      ROOT_METHOD=sudo \
       INSTALLDEVHEADERS=1
 %endif
 

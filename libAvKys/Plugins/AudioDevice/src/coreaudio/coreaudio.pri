@@ -17,4 +17,7 @@
 # Web-Site: http://webcamoid.github.io/
 
 HEADERS += $$PWD/audiodev.h
-SOURCES += $$PWD/audiodev.cpp
+OBJECTIVE_SOURCES += $$PWD/audiodev.mm
+
+LIBS += \
+    -framework CoreAudio
