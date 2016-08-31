@@ -29,7 +29,7 @@
 #include "pulseaudio/audiodev.h"
 #elif defined(Q_OS_WIN32)
 #include "wasapi/audiodev.h"
-#elif Q_OS_MAC
+#elif Q_OS_OSX
 #include "coreaudio/audiodev.h"
 #endif
 
