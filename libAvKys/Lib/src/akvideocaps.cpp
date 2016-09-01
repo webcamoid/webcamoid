@@ -31,29 +31,30 @@ class VideoFormat
         static inline const QVector<VideoFormat> &formats()
         {
             static const QVector<VideoFormat> videoFormats = {
+                {AkVideoCaps::Format_none,            0, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_yuv420p,        12, AkFourCC('I', '4', '2', '0')},
                 {AkVideoCaps::Format_yuyv422,        16, AkFourCC('Y', 'U', 'Y', '2')},
                 {AkVideoCaps::Format_rgb24,          24, AkFourCC('R', 'G', 'B', '3')},
                 {AkVideoCaps::Format_bgr24,          24, AkFourCC('B', 'G', 'R', '3')},
                 {AkVideoCaps::Format_yuv422p,        16, AkFourCC('Y', '4', '2', 'B')},
                 {AkVideoCaps::Format_yuv444p,        24, AkFourCC('4', '4', '4', 'P')},
-                {AkVideoCaps::Format_yuv410p,        9,  AkFourCC('Y', 'U', 'V', '9')},
+                {AkVideoCaps::Format_yuv410p,         9, AkFourCC('Y', 'U', 'V', '9')},
                 {AkVideoCaps::Format_yuv411p,        12, AkFourCC('Y', '4', '1', 'B')},
-                {AkVideoCaps::Format_gray,           8,  AkFourCC('Y', '8', '0', '0')},
-                {AkVideoCaps::Format_monow,          1,  AkFourCC('B', '1', 'W', '0')},
-                {AkVideoCaps::Format_monob,          1,  AkFourCC('B', '0', 'W', '1')},
-                {AkVideoCaps::Format_pal8,           8,  AkFourCC('P', 'A', 'L', '\x8')},
+                {AkVideoCaps::Format_gray,            8, AkFourCC('Y', '8', '0', '0')},
+                {AkVideoCaps::Format_monow,           1, AkFourCC('B', '1', 'W', '0')},
+                {AkVideoCaps::Format_monob,           1, AkFourCC('B', '0', 'W', '1')},
+                {AkVideoCaps::Format_pal8,            8, AkFourCC('P', 'A', 'L', '\x8')},
                 {AkVideoCaps::Format_yuvj420p,       12, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_yuvj422p,       16, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_yuvj444p,       24, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_uyvy422,        16, AkFourCC('U', 'Y', 'V', 'Y')},
                 {AkVideoCaps::Format_uyyvyy411,      12, AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bgr8,           8,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bgr4,           4,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bgr4_byte,      4,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_rgb8,           8,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_rgb4,           4,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_rgb4_byte,      4,  AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bgr8,            8, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bgr4,            4, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bgr4_byte,       4, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_rgb8,            8, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_rgb4,            4, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_rgb4_byte,       4, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_nv12,           12, AkFourCC('N', 'V', '1', '2')},
                 {AkVideoCaps::Format_nv21,           12, AkFourCC('N', 'V', '2', '1')},
                 {AkVideoCaps::Format_argb,           32, AK_FOURCC_NULL},
@@ -163,10 +164,10 @@ class VideoFormat
                 {AkVideoCaps::Format_gbrap16be,      64, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_gbrap16le,      64, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_yuvj411p,       12, AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bayer_bggr8,    8,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bayer_rggb8,    8,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bayer_gbrg8,    8,  AK_FOURCC_NULL},
-                {AkVideoCaps::Format_bayer_grbg8,    8,  AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bayer_bggr8,     8, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bayer_rggb8,     8, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bayer_gbrg8,     8, AK_FOURCC_NULL},
+                {AkVideoCaps::Format_bayer_grbg8,     8, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_bayer_bggr16le, 16, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_bayer_bggr16be, 16, AK_FOURCC_NULL},
                 {AkVideoCaps::Format_bayer_rggb16le, 16, AK_FOURCC_NULL},
@@ -192,7 +193,7 @@ class VideoFormat
                 if (formats()[i].format == format)
                     return &formats()[i];
 
-            return NULL;
+            return &formats()[0];
         }
 
         static inline const VideoFormat *byBpp(int bpp)
@@ -201,7 +202,7 @@ class VideoFormat
                 if (formats()[i].bpp == bpp)
                     return &formats()[i];
 
-            return NULL;
+            return &formats()[0];
         }
 
         static inline const VideoFormat *byFourCC(quint32 fourCC)
@@ -210,7 +211,7 @@ class VideoFormat
                 if (formats()[i].fourCC == fourCC)
                     return &formats()[i];
 
-            return NULL;
+            return &formats()[0];
         }
 };
 
@@ -546,12 +547,7 @@ AkCaps AkVideoCaps::toCaps() const
 
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)
 {
-    const VideoFormat *vf = VideoFormat::byFormat(pixelFormat);
-
-    if (vf)
-        return vf->bpp;
-
-    return 0;
+    return VideoFormat::byFormat(pixelFormat)->bpp;
 }
 
 int AkVideoCaps::bitsPerPixel(const QString &pixelFormat)
@@ -583,12 +579,7 @@ AkVideoCaps::PixelFormat AkVideoCaps::pixelFormatFromString(const QString &pixel
 
 quint32 AkVideoCaps::fourCC(AkVideoCaps::PixelFormat pixelFormat)
 {
-    const VideoFormat *vf = VideoFormat::byFormat(pixelFormat);
-
-    if (vf)
-        return vf->fourCC;
-
-    return AK_FOURCC_NULL;
+    return VideoFormat::byFormat(pixelFormat)->fourCC;
 }
 
 quint32 AkVideoCaps::fourCC(const QString &pixelFormat)

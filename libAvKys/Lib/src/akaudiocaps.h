@@ -182,6 +182,8 @@ class AkAudioCaps: public QObject
         Q_INVOKABLE static ChannelLayout channelLayoutFromString(const QString &channelLayout);
         Q_INVOKABLE static int channelCount(ChannelLayout channelLayout);
         Q_INVOKABLE static int channelCount(const QString &channelLayout);
+        Q_INVOKABLE static int endianness(SampleFormat sampleFormat);
+        Q_INVOKABLE static int endianness(const QString &sampleFormat);
         Q_INVOKABLE static ChannelLayout defaultChannelLayout(int channelCount);
         Q_INVOKABLE static QString defaultChannelLayoutString(int channelCount);
 
