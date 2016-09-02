@@ -28,6 +28,7 @@ class AkAudioCaps: public QObject
 {
     Q_OBJECT
     Q_ENUMS(SampleFormat)
+    Q_ENUMS(SampleType)
     Q_ENUMS(ChannelLayout)
     Q_PROPERTY(bool isValid
                READ isValid)
@@ -104,6 +105,14 @@ class AkAudioCaps: public QObject
             SampleFormat_dblp
         };
 
+        enum SampleType
+        {
+            SampleType_unknown = -1,
+            SampleType_int,
+            SampleType_uint,
+            SampleType_float
+        };
+
         enum ChannelLayout
         {
             Layout_none = -1,
@@ -178,6 +187,8 @@ class AkAudioCaps: public QObject
         Q_INVOKABLE static int bitsPerSample(const QString &sampleFormat);
         Q_INVOKABLE static QString sampleFormatToString(SampleFormat sampleFormat);
         Q_INVOKABLE static SampleFormat sampleFormatFromString(const QString &sampleFormat);
+        Q_INVOKABLE static SampleType sampleType(SampleFormat sampleFormat);
+        Q_INVOKABLE static SampleType sampleType(const QString &sampleFormat);
         Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);
         Q_INVOKABLE static ChannelLayout channelLayoutFromString(const QString &channelLayout);
         Q_INVOKABLE static int channelCount(ChannelLayout channelLayout);
