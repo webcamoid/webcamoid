@@ -20,6 +20,9 @@
 #ifndef AUDIODEV_H
 #define AUDIODEV_H
 
+#include <CoreAudio/CoreAudio.h>
+#include <AudioUnit/AudioUnit.h>
+
 #include <akaudiocaps.h>
 
 class AudioDev: public QObject
@@ -55,15 +58,21 @@ class AudioDev: public QObject
 
     private:
         QString m_error;
-        QString m_defaultSink;
-        QString m_defaultSource;
-        int m_defaultChannels;
-        int m_defaultRate;
-        int m_curBps;
-        int m_curChannels;
+        AudioUnit m_audioUnit;
+        UInt32 m_bufferSize;
+
+        static QString statusToStr(OSStatus status);
+        static AudioDeviceID defaultDevice(AudioDev::DeviceMode mode,
+                                           bool *ok=NULL);
+        static OSStatus audioCallback(void *audioDev,
+                                      AudioUnitRenderActionFlags *actionFlags,
+                                      const AudioTimeStamp *timeStamp,
+                                      UInt32 busNumber,
+                                      UInt32 nFrames,
+                                      AudioBufferList *data);
 
     signals:
-        void errorChanged(const QString & error);
+        void errorChanged(const QString &error);
 };
 
 #endif // AUDIODEV_H
