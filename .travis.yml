@@ -44,6 +44,7 @@ install: |
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew install qt5 ffmpeg
   fi
+  export PATH="/usr/lib/ccache/:$PATH"
 
 before_script: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
