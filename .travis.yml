@@ -44,7 +44,6 @@ install: |
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew install qt5 ffmpeg
   fi
-  export PATH="/usr/lib/ccache/:$PATH"
 
 before_script: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
@@ -63,12 +62,14 @@ before_script: |
       export QMAKESPEC=macx-clang
     fi
   fi
-
 script: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
-    qmake Webcamoid.pro USE_GSTREAMER=1
+    qmake Webcamoid.pro \
+        QMAKE_CXX="ccache ${CXX}" \
+        USE_GSTREAMER=1
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     qmake Webcamoid.pro \
+        QMAKE_CXX="ccache ${CXX}" \
         FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/${FFVER}/include" \
         FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/${FFVER}/lib" \
         FFMPEGLIBS+=-lavcodec \
