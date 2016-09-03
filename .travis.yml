@@ -1,6 +1,9 @@
 language: cpp
 
-cache: ccache
+cache:
+  ccache: true
+  apt: true
+  timeout: 1000
 
 matrix:
   include:
@@ -42,7 +45,7 @@ install: |
     sudo apt-get -y install libpulse-dev
     sudo apt-get -y install libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew install qt5 ffmpeg
+    brew install ccache qt5 ffmpeg
   fi
 
 before_script: |
