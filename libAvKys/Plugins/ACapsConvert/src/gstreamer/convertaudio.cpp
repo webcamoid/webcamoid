@@ -23,53 +23,52 @@ typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initGstToFF()
 {
-    StringStringMap gstToFF;
-
-    // Audio
-    gstToFF["S8"] = "s8";
-    gstToFF["U8"] = "u8";
-    gstToFF["S16LE"] = "s16le";
-    gstToFF["S16BE"] = "s16be";
-    gstToFF["U16LE"] = "u16le";
-    gstToFF["U16BE"] = "u16be";
-    gstToFF["S24_32LE"] = "s2432le";
-    gstToFF["S24_32BE"] = "s2432be";
-    gstToFF["U24_32LE"] = "u2432le";
-    gstToFF["U24_32BE"] = "u2432be";
-    gstToFF["S32LE"] = "s32le";
-    gstToFF["S32BE"] = "s32be";
-    gstToFF["U32LE"] = "u32le";
-    gstToFF["U32BE"] = "u32be";
-    gstToFF["S24LE"] = "s24le";
-    gstToFF["S24BE"] = "s24be";
-    gstToFF["U24LE"] = "u24le";
-    gstToFF["U24BE"] = "u24be";
-    gstToFF["S20LE"] = "s20le";
-    gstToFF["S20BE"] = "s20be";
-    gstToFF["U20LE"] = "u20le";
-    gstToFF["U20BE"] = "u20be";
-    gstToFF["S18LE"] = "s18le";
-    gstToFF["S18BE"] = "s18be";
-    gstToFF["U18LE"] = "u18le";
-    gstToFF["U18BE"] = "u18le";
-    gstToFF["F32LE"] = "fltle";
-    gstToFF["F32BE"] = "fltbe";
-    gstToFF["F64LE"] = "dblle";
-    gstToFF["F64BE"] = "dblbe";
-    gstToFF["S16"] = "s16";
-    gstToFF["U16"] = "u16";
-    gstToFF["S24_32"] = "s2432";
-    gstToFF["U24_32"] = "u2432";
-    gstToFF["S32"] = "s32";
-    gstToFF["U32"] = "u32";
-    gstToFF["S24"] = "s24";
-    gstToFF["U24"] = "u24";
-    gstToFF["S20"] = "s20";
-    gstToFF["U20"] = "u20";
-    gstToFF["S18"] = "s18";
-    gstToFF["U18"] = "u18";
-    gstToFF["F32"] = "flt";
-    gstToFF["F64"] = "dbl";
+    StringStringMap gstToFF = {
+        {"S8"      , "s8"     },
+        {"U8"      , "u8"     },
+        {"S16LE"   , "s16le"  },
+        {"S16BE"   , "s16be"  },
+        {"U16LE"   , "u16le"  },
+        {"U16BE"   , "u16be"  },
+        {"S24_32LE", "s2432le"},
+        {"S24_32BE", "s2432be"},
+        {"U24_32LE", "u2432le"},
+        {"U24_32BE", "u2432be"},
+        {"S32LE"   , "s32le"  },
+        {"S32BE"   , "s32be"  },
+        {"U32LE"   , "u32le"  },
+        {"U32BE"   , "u32be"  },
+        {"S24LE"   , "s24le"  },
+        {"S24BE"   , "s24be"  },
+        {"U24LE"   , "u24le"  },
+        {"U24BE"   , "u24be"  },
+        {"S20LE"   , "s20le"  },
+        {"S20BE"   , "s20be"  },
+        {"U20LE"   , "u20le"  },
+        {"U20BE"   , "u20be"  },
+        {"S18LE"   , "s18le"  },
+        {"S18BE"   , "s18be"  },
+        {"U18LE"   , "u18le"  },
+        {"U18BE"   , "u18le"  },
+        {"F32LE"   , "fltle"  },
+        {"F32BE"   , "fltbe"  },
+        {"F64LE"   , "dblle"  },
+        {"F64BE"   , "dblbe"  },
+        {"S16"     , "s16"    },
+        {"U16"     , "u16"    },
+        {"S24_32"  , "s2432"  },
+        {"U24_32"  , "u2432"  },
+        {"S32"     , "s32"    },
+        {"U32"     , "u32"    },
+        {"S24"     , "s24"    },
+        {"U24"     , "u24"    },
+        {"S20"     , "s20"    },
+        {"U20"     , "u20"    },
+        {"S18"     , "s18"    },
+        {"U18"     , "u18"    },
+        {"F32"     , "flt"    },
+        {"F64"     , "dbl"    }
+    };
 
     return gstToFF;
 }

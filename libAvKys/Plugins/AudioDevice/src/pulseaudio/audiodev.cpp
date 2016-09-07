@@ -26,11 +26,12 @@ typedef QMap<AkAudioCaps::SampleFormat, pa_sample_format_t> SampleFormatMap;
 
 inline SampleFormatMap initSampleFormatMap()
 {
-    SampleFormatMap sampleFormat;
-    sampleFormat[AkAudioCaps::SampleFormat_u8] = PA_SAMPLE_U8;
-    sampleFormat[AkAudioCaps::SampleFormat_s16] = PA_SAMPLE_S16LE;
-    sampleFormat[AkAudioCaps::SampleFormat_s32] = PA_SAMPLE_S32LE;
-    sampleFormat[AkAudioCaps::SampleFormat_flt] = PA_SAMPLE_FLOAT32LE;
+    SampleFormatMap sampleFormat = {
+        {AkAudioCaps::SampleFormat_u8 , PA_SAMPLE_U8       },
+        {AkAudioCaps::SampleFormat_s16, PA_SAMPLE_S16LE    },
+        {AkAudioCaps::SampleFormat_s32, PA_SAMPLE_S32LE    },
+        {AkAudioCaps::SampleFormat_flt, PA_SAMPLE_FLOAT32LE}
+    };
 
     return sampleFormat;
 }

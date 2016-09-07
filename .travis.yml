@@ -66,13 +66,15 @@ before_script: |
     fi
   fi
 script: |
+  [[ "${CXX}" = clang++ ]] && UNUSEDARGS="-Qunused-arguments" || UNUSEDARGS=""
+  COMPILER="ccache ${CXX} ${UNUSEDARGS}"
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
     qmake Webcamoid.pro \
-        QMAKE_CXX="ccache ${CXX}" \
+        QMAKE_CXX="${COMPILER}" \
         USE_GSTREAMER=1
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     qmake Webcamoid.pro \
-        QMAKE_CXX="ccache ${CXX}" \
+        QMAKE_CXX="${COMPILER}" \
         FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/${FFVER}/include" \
         FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/${FFVER}/lib" \
         FFMPEGLIBS+=-lavcodec \

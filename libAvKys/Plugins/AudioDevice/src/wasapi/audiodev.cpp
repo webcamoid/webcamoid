@@ -28,42 +28,42 @@ typedef QMap<HRESULT, QString> ErrorCodesMap;
 
 inline ErrorCodesMap initErrorCodesMap()
 {
-    ErrorCodesMap errorCodes;
+    ErrorCodesMap errorCodes = {
+        // COM library errors.
+        {REGDB_E_CLASSNOTREG  , "REGDB_E_CLASSNOTREG"  },
+        {CLASS_E_NOAGGREGATION, "CLASS_E_NOAGGREGATION"},
+        {E_NOINTERFACE        , "E_NOINTERFACE"        },
+        {E_POINTER            , "E_POINTER"            },
 
-    // COM library errors.
-    errorCodes[REGDB_E_CLASSNOTREG] = "REGDB_E_CLASSNOTREG";
-    errorCodes[CLASS_E_NOAGGREGATION] = "CLASS_E_NOAGGREGATION";
-    errorCodes[E_NOINTERFACE] = "E_NOINTERFACE";
-    errorCodes[E_POINTER] = "E_POINTER";
+        // IMMDeviceEnumerator errors.
+        {E_INVALIDARG , "E_INVALIDARG" },
+        {E_NOTFOUND   , "E_NOTFOUND"   },
+        {E_OUTOFMEMORY, "E_OUTOFMEMORY"},
 
-    // IMMDeviceEnumerator errors.
-    errorCodes[E_INVALIDARG] = "E_INVALIDARG";
-    errorCodes[E_NOTFOUND] = "E_NOTFOUND";
-    errorCodes[E_OUTOFMEMORY] = "E_OUTOFMEMORY";
-
-    // IAudioClient errors.
-    errorCodes[AUDCLNT_E_ALREADY_INITIALIZED] = "AUDCLNT_E_ALREADY_INITIALIZED";
-    errorCodes[AUDCLNT_E_WRONG_ENDPOINT_TYPE] = "AUDCLNT_E_WRONG_ENDPOINT_TYPE";
-    errorCodes[AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED] = "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED";
-    errorCodes[AUDCLNT_E_BUFFER_SIZE_ERROR] = "AUDCLNT_E_BUFFER_SIZE_ERROR";
-    errorCodes[AUDCLNT_E_CPUUSAGE_EXCEEDED] = "AUDCLNT_E_CPUUSAGE_EXCEEDED";
-    errorCodes[AUDCLNT_E_DEVICE_INVALIDATED] = "AUDCLNT_E_DEVICE_INVALIDATED";
-    errorCodes[AUDCLNT_E_DEVICE_IN_USE] = "AUDCLNT_E_DEVICE_IN_USE";
-    errorCodes[AUDCLNT_E_ENDPOINT_CREATE_FAILED] = "AUDCLNT_E_ENDPOINT_CREATE_FAILED";
-    errorCodes[AUDCLNT_E_INVALID_DEVICE_PERIOD] = "AUDCLNT_E_INVALID_DEVICE_PERIOD";
-    errorCodes[AUDCLNT_E_UNSUPPORTED_FORMAT] = "AUDCLNT_E_UNSUPPORTED_FORMAT";
-    errorCodes[AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED] = "AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED";
-    errorCodes[AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL] = "AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL";
-    errorCodes[AUDCLNT_E_SERVICE_NOT_RUNNING] = "AUDCLNT_E_SERVICE_NOT_RUNNING";
-    errorCodes[AUDCLNT_E_NOT_INITIALIZED] = "AUDCLNT_E_NOT_INITIALIZED";
-    errorCodes[AUDCLNT_E_NOT_STOPPED] = "AUDCLNT_E_NOT_STOPPED";
-    errorCodes[AUDCLNT_E_EVENTHANDLE_NOT_SET] = "AUDCLNT_E_EVENTHANDLE_NOT_SET";
-    errorCodes[AUDCLNT_E_INVALID_SIZE] = "AUDCLNT_E_INVALID_SIZE";
-    errorCodes[AUDCLNT_E_OUT_OF_ORDER] = "AUDCLNT_E_OUT_OF_ORDER";
-    errorCodes[AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED] = "AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED";
-    errorCodes[AUDCLNT_E_BUFFER_ERROR] = "AUDCLNT_E_BUFFER_ERROR";
-    errorCodes[AUDCLNT_E_BUFFER_TOO_LARGE] = "AUDCLNT_E_BUFFER_TOO_LARGE";
-    errorCodes[AUDCLNT_E_BUFFER_OPERATION_PENDING] = "AUDCLNT_E_BUFFER_OPERATION_PENDING";
+        // IAudioClient errors.
+        {AUDCLNT_E_ALREADY_INITIALIZED         , "AUDCLNT_E_ALREADY_INITIALIZED"         },
+        {AUDCLNT_E_WRONG_ENDPOINT_TYPE         , "AUDCLNT_E_WRONG_ENDPOINT_TYPE"         },
+        {AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED     , "AUDCLNT_E_BUFFER_SIZE_NOT_ALIGNED"     },
+        {AUDCLNT_E_BUFFER_SIZE_ERROR           , "AUDCLNT_E_BUFFER_SIZE_ERROR"           },
+        {AUDCLNT_E_CPUUSAGE_EXCEEDED           , "AUDCLNT_E_CPUUSAGE_EXCEEDED"           },
+        {AUDCLNT_E_DEVICE_INVALIDATED          , "AUDCLNT_E_DEVICE_INVALIDATED"          },
+        {AUDCLNT_E_DEVICE_IN_USE               , "AUDCLNT_E_DEVICE_IN_USE"               },
+        {AUDCLNT_E_ENDPOINT_CREATE_FAILED      , "AUDCLNT_E_ENDPOINT_CREATE_FAILED"      },
+        {AUDCLNT_E_INVALID_DEVICE_PERIOD       , "AUDCLNT_E_INVALID_DEVICE_PERIOD"       },
+        {AUDCLNT_E_UNSUPPORTED_FORMAT          , "AUDCLNT_E_UNSUPPORTED_FORMAT"          },
+        {AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED  , "AUDCLNT_E_EXCLUSIVE_MODE_NOT_ALLOWED"  },
+        {AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL, "AUDCLNT_E_BUFDURATION_PERIOD_NOT_EQUAL"},
+        {AUDCLNT_E_SERVICE_NOT_RUNNING         , "AUDCLNT_E_SERVICE_NOT_RUNNING"         },
+        {AUDCLNT_E_NOT_INITIALIZED             , "AUDCLNT_E_NOT_INITIALIZED"             },
+        {AUDCLNT_E_NOT_STOPPED                 , "AUDCLNT_E_NOT_STOPPED"                 },
+        {AUDCLNT_E_EVENTHANDLE_NOT_SET         , "AUDCLNT_E_EVENTHANDLE_NOT_SET"         },
+        {AUDCLNT_E_INVALID_SIZE                , "AUDCLNT_E_INVALID_SIZE"                },
+        {AUDCLNT_E_OUT_OF_ORDER                , "AUDCLNT_E_OUT_OF_ORDER"                },
+        {AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED    , "AUDCLNT_E_EVENTHANDLE_NOT_EXPECTED"    },
+        {AUDCLNT_E_BUFFER_ERROR                , "AUDCLNT_E_BUFFER_ERROR"                },
+        {AUDCLNT_E_BUFFER_TOO_LARGE            , "AUDCLNT_E_BUFFER_TOO_LARGE"            },
+        {AUDCLNT_E_BUFFER_OPERATION_PENDING    , "AUDCLNT_E_BUFFER_OPERATION_PENDING"    }
+    };
 
     return errorCodes;
 }
@@ -74,11 +74,12 @@ typedef QMap<QString, AkAudioCaps::SampleFormat> SampleFormatsMap;
 
 inline SampleFormatsMap initSampleFormatsMap()
 {
-    SampleFormatsMap sampleFormats;
-    sampleFormats[QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(8)] = AkAudioCaps::SampleFormat_u8;
-    sampleFormats[QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(16)] = AkAudioCaps::SampleFormat_s16;
-    sampleFormats[QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(32)] = AkAudioCaps::SampleFormat_s32;
-    sampleFormats[QString("%1_%2").arg(WAVE_FORMAT_IEEE_FLOAT).arg(32)] = AkAudioCaps::SampleFormat_flt;
+    SampleFormatsMap sampleFormats = {
+        {QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(8)        , AkAudioCaps::SampleFormat_u8 },
+        {QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(16)       , AkAudioCaps::SampleFormat_s16},
+        {QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(32)       , AkAudioCaps::SampleFormat_s32},
+        {QString("%1_%2").arg(WAVE_FORMAT_IEEE_FLOAT).arg(32), AkAudioCaps::SampleFormat_flt}
+    };
 
     return sampleFormats;
 }
@@ -156,11 +157,12 @@ bool AudioDev::preferredFormat(DeviceMode mode,
         // Workaround for buggy drivers. Test if format is really supported.
         if (!this->init(mode, *sampleFormat, *channels, *sampleRate)) {
             // Test sample formats from highest sample resolusion to lowest.
-            QVector<AkAudioCaps::SampleFormat> preferredFormats;
-            preferredFormats << AkAudioCaps::SampleFormat_flt;
-            preferredFormats << AkAudioCaps::SampleFormat_s32;
-            preferredFormats << AkAudioCaps::SampleFormat_s16;
-            preferredFormats << AkAudioCaps::SampleFormat_u8;
+            QVector<AkAudioCaps::SampleFormat> preferredFormats = {
+                AkAudioCaps::SampleFormat_flt,
+                AkAudioCaps::SampleFormat_s32,
+                AkAudioCaps::SampleFormat_s16,
+                AkAudioCaps::SampleFormat_u8
+            };
 
             foreach (AkAudioCaps::SampleFormat format, preferredFormats)
                 if (this->init(mode, format, *channels, *sampleRate)) {

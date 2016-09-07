@@ -22,6 +22,7 @@
 
 #include <CoreAudio/CoreAudio.h>
 #include <AudioUnit/AudioUnit.h>
+#include <QWaitCondition>
 
 #include <akaudiocaps.h>
 
@@ -60,10 +61,20 @@ class AudioDev: public QObject
         QString m_error;
         AudioUnit m_audioUnit;
         UInt32 m_bufferSize;
+        AudioBufferList *m_bufferList;
+        QByteArray m_buffer;
+        QMutex m_mutex;
+        QWaitCondition m_canWrite;
+        QWaitCondition m_samplesAvailable;
+        int m_maxBufferSize;
+        int m_curBps;
+        int m_curChannels;
+        DeviceMode m_curMode;
 
         static QString statusToStr(OSStatus status);
-        static AudioDeviceID defaultDevice(AudioDev::DeviceMode mode,
+        static AudioDeviceID defaultDevice(DeviceMode mode,
                                            bool *ok=NULL);
+        void clearBuffer();
         static OSStatus audioCallback(void *audioDev,
                                       AudioUnitRenderActionFlags *actionFlags,
                                       const AudioTimeStamp *timeStamp,

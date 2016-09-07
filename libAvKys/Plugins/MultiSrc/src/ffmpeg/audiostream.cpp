@@ -32,11 +32,12 @@ typedef QMap<AVSampleFormat, AkAudioCaps::SampleFormat> SampleFormatMap;
 
 inline SampleFormatMap initSampleFormatMap()
 {
-    SampleFormatMap sampleFormat;
-    sampleFormat[AV_SAMPLE_FMT_U8] = AkAudioCaps::SampleFormat_u8;
-    sampleFormat[AV_SAMPLE_FMT_S16] = AkAudioCaps::SampleFormat_s16;
-    sampleFormat[AV_SAMPLE_FMT_S32] = AkAudioCaps::SampleFormat_s32;
-    sampleFormat[AV_SAMPLE_FMT_FLT] = AkAudioCaps::SampleFormat_flt;
+    SampleFormatMap sampleFormat = {
+        {AV_SAMPLE_FMT_U8 , AkAudioCaps::SampleFormat_u8 },
+        {AV_SAMPLE_FMT_S16, AkAudioCaps::SampleFormat_s16},
+        {AV_SAMPLE_FMT_S32, AkAudioCaps::SampleFormat_s32},
+        {AV_SAMPLE_FMT_FLT, AkAudioCaps::SampleFormat_flt}
+    };
 
     return sampleFormat;
 }
@@ -47,9 +48,10 @@ typedef QMap<uint64_t, AkAudioCaps::ChannelLayout> ChannelLayoutsMap;
 
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
-    ChannelLayoutsMap channelLayouts;
-    channelLayouts[AV_CH_LAYOUT_MONO] = AkAudioCaps::Layout_mono;
-    channelLayouts[AV_CH_LAYOUT_STEREO] = AkAudioCaps::Layout_stereo;
+    ChannelLayoutsMap channelLayouts = {
+        {AV_CH_LAYOUT_MONO  , AkAudioCaps::Layout_mono  },
+        {AV_CH_LAYOUT_STEREO, AkAudioCaps::Layout_stereo}
+    };
 
     return channelLayouts;
 }

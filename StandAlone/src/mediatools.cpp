@@ -35,10 +35,11 @@ typedef QMap<MediaTools::RecordFrom, QString> RecordFromMap;
 
 inline RecordFromMap initRecordFromMap()
 {
-    RecordFromMap recordFromMap;
-    recordFromMap[MediaTools::RecordFromNone] = "none";
-    recordFromMap[MediaTools::RecordFromSource] = "source";
-    recordFromMap[MediaTools::RecordFromMic] = "mic";
+    RecordFromMap recordFromMap = {
+        {MediaTools::RecordFromNone  , "none"  },
+        {MediaTools::RecordFromSource, "source"},
+        {MediaTools::RecordFromMic   , "mic"   }
+    };
 
     return recordFromMap;
 }

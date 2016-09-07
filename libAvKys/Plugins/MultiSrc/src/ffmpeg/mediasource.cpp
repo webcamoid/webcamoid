@@ -29,14 +29,15 @@ typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 
 inline AvMediaTypeStrMap initAvMediaTypeStrMap()
 {
-    AvMediaTypeStrMap mediaTypeToStr;
-    mediaTypeToStr[AVMEDIA_TYPE_UNKNOWN] = "unknown/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_VIDEO] = "video/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_AUDIO] = "audio/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_DATA] = "data/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_SUBTITLE] = "text/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_ATTACHMENT] = "attachment/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_NB] = "nb/x-raw";
+    AvMediaTypeStrMap mediaTypeToStr = {
+        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
+        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
+        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
+        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
+        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
+        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
+        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
+    };
 
     return mediaTypeToStr;
 }

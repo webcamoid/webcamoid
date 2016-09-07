@@ -48,14 +48,15 @@ typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 
 inline AvMediaTypeStrMap initAvMediaTypeStrMap()
 {
-    AvMediaTypeStrMap mediaTypeToStr;
-    mediaTypeToStr[AVMEDIA_TYPE_UNKNOWN] = "unknown/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_VIDEO] = "video/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_AUDIO] = "audio/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_DATA] = "data/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_SUBTITLE] = "text/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_ATTACHMENT] = "attachment/x-raw";
-    mediaTypeToStr[AVMEDIA_TYPE_NB] = "nb/x-raw";
+    AvMediaTypeStrMap mediaTypeToStr = {
+        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
+        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
+        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
+        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
+        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
+        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
+        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
+    };
 
     return mediaTypeToStr;
 }
@@ -66,18 +67,18 @@ typedef QVector<AkVideoCaps> VectorVideoCaps;
 
 inline VectorVideoCaps initDVSupportedCaps()
 {
-    QStringList supportedCaps;
-
-    // Digital Video doesn't support height > 576 yet.
-    supportedCaps /*<< "video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1"
-                  << "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1"*/
-                  << "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1"
-                  << "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1"
-                  << "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1"
-                  << "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001"
-                  << "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001";
+    QStringList supportedCaps = {
+        // Digital Video doesn't support height > 576 yet.
+        /*"video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1",
+          "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001",
+          "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001",
+          "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1",*/
+        "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1",
+        "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1",
+        "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1",
+        "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001",
+        "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001"
+    };
 
     VectorVideoCaps dvSupportedCaps(supportedCaps.size());
 
@@ -91,42 +92,43 @@ Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps
 
 inline VectorVideoCaps initDNxHDSupportedCaps()
 {
-    QStringList supportedCaps;
-    supportedCaps << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=440000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=365000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=290000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=240000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=220000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=185000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=175000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=145000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=120000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=115000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=90000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=36000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=36000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=45000000"
-                  << "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=75000000"
-                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=110000000"
-                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=100000000"
-                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=90000000"
-                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=84000000"
-                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=80000000"
-                  << "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=63000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=220000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=180000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=145000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=120000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=110000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=90000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=90000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=75000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=60000000"
-                  << "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=60000000"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=115000000"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=75000000"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=60000000"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=42000000";
+    QStringList supportedCaps = {
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=440000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=365000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=290000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=240000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=220000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=185000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=175000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=145000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=120000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=115000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=90000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=36000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=36000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=45000000",
+        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=75000000",
+        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=110000000",
+        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=100000000",
+        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=90000000",
+        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=84000000",
+        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=80000000",
+        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=63000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=220000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=180000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=145000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=120000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=110000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=90000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=90000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=75000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=60000000",
+        "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=60000000",
+        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=115000000",
+        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=75000000",
+        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=60000000",
+        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=42000000"
+    };
 
     VectorVideoCaps dnXhdSupportedCaps(supportedCaps.size());
 
@@ -142,36 +144,39 @@ typedef QVector<QSize> VectorSize;
 
 inline VectorSize initH261SupportedSize()
 {
-    QList<QSize> supportedSize;
-    supportedSize << QSize(352, 288)
-                  << QSize(176, 144);
+    VectorSize supportedSize = {
+        QSize(352, 288),
+        QSize(176, 144)
+    };
 
-    return supportedSize.toVector();
+    return supportedSize;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h261SupportedSize, (initH261SupportedSize()))
 
 inline VectorSize initH263SupportedSize()
 {
-    QList<QSize> supportedSize;
-    supportedSize << QSize(1408, 1152)
-                  << QSize(704, 576)
-                  << QSize(352, 288)
-                  << QSize(176, 144)
-                  << QSize(128, 96);
+    VectorSize supportedSize = {
+        QSize(1408, 1152),
+        QSize(704, 576),
+        QSize(352, 288),
+        QSize(176, 144),
+        QSize(128, 96)
+    };
 
-    return supportedSize.toVector();
+    return supportedSize;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h263SupportedSize, (initH263SupportedSize()))
 
 inline VectorSize initGXFSupportedSize()
 {
-    QList<QSize> supportedSize;
-    supportedSize << QSize(768, 576)  // PAL
-                  << QSize(640, 480); // NTSC
+    VectorSize supportedSize = {
+        QSize(768, 576), // PAL
+        QSize(640, 480)  // NTSC
+    };
 
-    return supportedSize.toVector();
+    return supportedSize;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, gxfSupportedSize, (initGXFSupportedSize()))
@@ -180,12 +185,13 @@ typedef QVector<int> VectorInt;
 
 inline VectorInt initSWFSupportedSampleRates()
 {
-    QList<int> supportedSampleRates;
-    supportedSampleRates << 44100
-                         << 22050
-                         << 11025;
+    QVector<int> supportedSampleRates = {
+        44100,
+        22050,
+        11025
+    };
 
-    return supportedSampleRates.toVector();
+    return supportedSampleRates;
 }
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorInt, swfSupportedSampleRates, (initSWFSupportedSampleRates()))

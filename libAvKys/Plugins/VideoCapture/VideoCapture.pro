@@ -26,7 +26,7 @@ exists(commons.pri) {
     }
 }
 
-!win32: include(src/v4l2/v4l2.pri)
+unix:!macx: include(src/v4l2/v4l2.pri)
 win32: include(src/dshow/dshow.pri)
 
 #USE_GSTREAMER = 1
