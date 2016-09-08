@@ -17,7 +17,30 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#import <AVFoundation/AVFoundation.h>
+
 #include "capture.h"
+
+class CapturePrivate
+{
+    public:
+        static inline QString fourccToStr(FourCharCode format)
+        {
+            char fourcc[5];
+            memcpy(fourcc, &format, sizeof(FourCharCode));
+            fourcc[4] = 0;
+
+            return QString(fourcc);
+        }
+
+        static inline FourCharCode strToFourCC(const QString &format)
+        {
+            FourCharCode fourcc;
+            memcpy(&fourcc, format.toStdString().c_str(), sizeof(FourCharCode));
+
+            return fourcc;
+        }
+};
 
 Capture::Capture(): QObject()
 {
@@ -34,7 +57,13 @@ Capture::~Capture()
 
 QStringList Capture::webcams() const
 {
-    return QStringList();
+    QStringList webcams;
+    NSArray *cameras = [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
+
+    for (AVCaptureDevice *camera in cameras)
+        webcams << camera.uniqueID.UTF8String;
+
+    return webcams;
 }
 
 QString Capture::device() const
@@ -44,7 +73,15 @@ QString Capture::device() const
 
 QList<int> Capture::streams() const
 {
-    return QList<int>();
+    if (!this->m_streams.isEmpty())
+        return this->m_streams;
+
+    QVariantList caps = this->caps(this->m_device);
+
+    if (caps.isEmpty())
+        return QList<int>();
+
+    return QList<int>() << 0;
 }
 
 QList<int> Capture::listTracks(const QString &mimeType)
@@ -74,12 +111,47 @@ int Capture::nBuffers() const
 
 QString Capture::description(const QString &webcam) const
 {
-    return QString();
+    NSString *uniqueID = [[NSString alloc]
+                          initWithUTF8String: webcam.toStdString().c_str()];
+    AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+
+    if (!camera)
+        return QString();
+
+    return QString(camera.localizedName.UTF8String);
 }
 
 QVariantList Capture::caps(const QString &webcam) const
 {
-    return QVariantList();
+    QVariantList caps;
+    NSString *uniqueID = [[NSString alloc]
+                          initWithUTF8String: webcam.toStdString().c_str()];
+    AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+
+    if (!camera)
+        return caps;
+
+    for (AVCaptureDeviceFormat *format in camera.formats) {
+        if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
+            continue;
+
+        FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+        CMVideoDimensions size =
+                CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+        videoCaps.setProperty("fourcc", CapturePrivate::fourccToStr(fourCC));
+        videoCaps.setProperty("width", size.width);
+        videoCaps.setProperty("height", size.height);
+
+        for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
+            videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
+            caps << QVariant::fromValue(videoCaps);
+        }
+    }
+
+    return caps;
 }
 
 QString Capture::capsDescription(const AkCaps &caps) const

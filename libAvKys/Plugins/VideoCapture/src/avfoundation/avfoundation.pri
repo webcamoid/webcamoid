@@ -18,3 +18,8 @@
 
 HEADERS += $$PWD/capture.h
 OBJECTIVE_SOURCES += $$PWD/capture.mm
+
+LIBS += \
+    -framework CoreMedia \
+    -framework Foundation \
+    -framework AVFoundation
