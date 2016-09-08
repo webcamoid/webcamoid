@@ -109,10 +109,7 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     if (src.size() != this->m_frameSize) {
         this->m_frames.clear();
@@ -123,39 +120,39 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
     int diff = this->m_frames.size() - this->m_nFrames;
 
     for (int i = 0; i < diff; i++)
-        this->m_frames.takeFirst();
+        this->m_frames.removeFirst();
 
-    QVector<QRgb *> framesBits;
     int stride = this->m_stride > 0? this->m_stride: 1;
 
-    for (int frame = 0; frame < this->m_frames.size(); frame++)
-        framesBits << reinterpret_cast<QRgb *>(this->m_frames[frame].bits());
+    for (int y = 0; y < oFrame.height(); y++) {
+        QRgb *dstBits = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int a = 0;
-        int n = 0;
+        for (int x = 0; x < oFrame.width(); x++) {
+            int r = 0;
+            int g = 0;
+            int b = 0;
+            int a = 0;
+            int n = 0;
 
-        for (int frame = this->m_frames.size() - 1;
-             frame >= 0;
-             frame -= stride) {
-            QRgb pixel = framesBits[frame][i];
+            for (int frame = this->m_frames.size() - 1;
+                 frame >= 0;
+                 frame -= stride) {
+                QRgb pixel = this->m_frames[frame].pixel(x, y);
 
-            r += qRed(pixel);
-            g += qGreen(pixel);
-            b += qBlue(pixel);
-            a += qAlpha(pixel);
-            n++;
+                r += qRed(pixel);
+                g += qGreen(pixel);
+                b += qBlue(pixel);
+                a += qAlpha(pixel);
+                n++;
+            }
+
+            r /= n;
+            g /= n;
+            b /= n;
+            a /= n;
+
+            dstBits[x] = qRgba(r, g, b, a);
         }
-
-        r /= n;
-        g /= n;
-        b /= n;
-        a /= n;
-
-        destBits[i] = qRgba(r, g, b, a);
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

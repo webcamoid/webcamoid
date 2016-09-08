@@ -110,29 +110,28 @@ AkPacket ColorTransformElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
-
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
-
     QVector<qreal> kernel = this->m_kernel;
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = qRed(srcBits[i]);
-        int g = qGreen(srcBits[i]);
-        int b = qBlue(srcBits[i]);
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-        int rt = int(r * kernel[0] + g * kernel[1] + b * kernel[2]  + kernel[3]);
-        int gt = int(r * kernel[4] + g * kernel[5] + b * kernel[6]  + kernel[7]);
-        int bt = int(r * kernel[8] + g * kernel[9] + b * kernel[10] + kernel[11]);
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
 
-        rt = qBound(0, rt, 255);
-        gt = qBound(0, gt, 255);
-        bt = qBound(0, bt, 255);
+            int rt = int(r * kernel[0] + g * kernel[1] + b * kernel[2]  + kernel[3]);
+            int gt = int(r * kernel[4] + g * kernel[5] + b * kernel[6]  + kernel[7]);
+            int bt = int(r * kernel[8] + g * kernel[9] + b * kernel[10] + kernel[11]);
 
-        destBits[i] = qRgba(rt, gt, bt, qAlpha(srcBits[i]));
+            rt = qBound(0, rt, 255);
+            gt = qBound(0, gt, 255);
+            bt = qBound(0, bt, 255);
+
+            dstLine[x] = qRgba(rt, gt, bt, qAlpha(srcLine[x]));
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

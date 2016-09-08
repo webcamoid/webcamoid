@@ -224,13 +224,14 @@ AkPacket LifeElement::iStream(const AkPacket &packet)
                                       this->m_lumaThreshold);
 
         this->m_lifeBuffer.setColor(1, this->m_lifeColor);
-        int videoArea = this->m_lifeBuffer.width()
-                        * this->m_lifeBuffer.height();
-        quint8 *lifeBufferBits = this->m_lifeBuffer.bits();
-        const quint8 *diffBits = diff.constBits();
 
-        for (int i = 0; i < videoArea; i++)
-            lifeBufferBits[i] |= diffBits[i];
+        for (int y = 0; y < this->m_lifeBuffer.height(); y++) {
+            const quint8 *diffLine = diff.constScanLine(y);
+            quint8 *lifeBufferLine = this->m_lifeBuffer.scanLine(y);
+
+            for (int x = 0; x < this->m_lifeBuffer.width(); x++)
+                lifeBufferLine[x] |= diffLine[x];
+        }
 
         this->updateLife();
 

@@ -133,10 +133,7 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_Grayscale8);
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), QImage::Format_ARGB32);
-    const quint8 *srcBits = src.constBits();
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     QRgb table[256];
     QList<QRgb> tableRgb = this->m_table;
@@ -180,8 +177,13 @@ AkPacket FalseColorElement::iStream(const AkPacket &packet)
         table[i] = color;
     }
 
-    for (int i = 0; i < videoArea; i++)
-        destBits[i] = table[srcBits[i]];
+    for (int y = 0; y < src.height(); y++) {
+        const quint8 *srcLine = src.constScanLine(y);
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++)
+            dstLine[x] = table[srcLine[x]];
+    }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)

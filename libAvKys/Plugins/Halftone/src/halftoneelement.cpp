@@ -135,12 +135,14 @@ void HalftoneElement::updatePattern()
         pattern.setColor(i, qRgb(i, i, i));
 
     image = image.scaled(patternSize).convertToFormat(QImage::Format_RGB32);
-    const QRgb *bits = reinterpret_cast<const QRgb *>(image.constBits());
-    quint8 *patternBits = pattern.bits();
-    int videoArea = patternSize.width() * patternSize.height();
 
-    for (int i = 0; i < videoArea; i++)
-        patternBits[i] = quint8(qGray(bits[i]));
+    for (int y = 0; y < patternSize.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
+        quint8 *dstLine = pattern.scanLine(y);
+
+        for (int x = 0; x < patternSize.width(); x++)
+            dstLine[x] = quint8(qGray(srcLine[x]));
+    }
 
     this->m_mutex.lock();
     this->m_patternImage = pattern;

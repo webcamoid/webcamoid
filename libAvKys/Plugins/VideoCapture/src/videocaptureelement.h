@@ -32,6 +32,8 @@
 #include "v4l2/capture.h"
 #elif defined(Q_OS_WIN32)
 #include "dshow/capture.h"
+#elif defined(Q_OS_OSX)
+#include "avfoundation/capture.h"
 #endif
 
 #ifdef USE_GSTREAMER

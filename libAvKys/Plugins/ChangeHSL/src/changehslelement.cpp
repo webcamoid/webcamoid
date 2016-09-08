@@ -112,34 +112,34 @@ AkPacket ChangeHSLElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
-
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
-
     QVector<qreal> kernel = this->m_kernel;
 
-    for (int i = 0; i < videoArea; i++) {
-        int h;
-        int s;
-        int l;
-        int a;
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-        QColor(srcBits[i]).getHsl(&h, &s, &l, &a);
+        for (int x = 0; x < src.width(); x++) {
+            int h;
+            int s;
+            int l;
+            int a;
 
-        int ht = int(h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3]);
-        int st = int(h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7]);
-        int lt = int(h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11]);
+            QColor(srcLine[x]).getHsl(&h, &s, &l, &a);
 
-        ht = qBound(0, ht, 359);
-        st = qBound(0, st, 255);
-        lt = qBound(0, lt, 255);
+            int ht = int(h * kernel[0] + s * kernel[1] + l * kernel[2]  + kernel[3]);
+            int st = int(h * kernel[4] + s * kernel[5] + l * kernel[6]  + kernel[7]);
+            int lt = int(h * kernel[8] + s * kernel[9] + l * kernel[10] + kernel[11]);
 
-        QColor color;
-        color.setHsl(ht, st, lt, a);
+            ht = qBound(0, ht, 359);
+            st = qBound(0, st, 255);
+            lt = qBound(0, lt, 255);
 
-        destBits[i] = color.rgba();
+            QColor color;
+            color.setHsl(ht, st, lt, a);
+
+            dstLine[x] = color.rgba();
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

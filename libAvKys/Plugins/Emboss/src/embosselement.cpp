@@ -23,8 +23,8 @@
 
 EmbossElement::EmbossElement(): AkElement()
 {
-    this->m_factor = 1;
-    this->m_bias = 128;
+    this->m_factor = 1.0;
+    this->m_bias = 128.0;
 }
 
 QObject *EmbossElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -48,7 +48,7 @@ QObject *EmbossElement::controlInterface(QQmlEngine *engine, const QString &cont
 
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Emboss", (QObject *) this);
+    context->setContextProperty("Emboss", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -77,7 +77,7 @@ qreal EmbossElement::bias() const
 
 void EmbossElement::setFactor(qreal factor)
 {
-    if (this->m_factor == factor)
+    if (qFuzzyCompare(this->m_factor, factor))
         return;
 
     this->m_factor = factor;
@@ -86,7 +86,7 @@ void EmbossElement::setFactor(qreal factor)
 
 void EmbossElement::setBias(qreal bias)
 {
-    if (bias != this->m_bias)
+    if (qFuzzyCompare(this->m_bias, bias))
         return;
 
     this->m_bias = bias;
@@ -113,44 +113,40 @@ AkPacket EmbossElement::iStream(const AkPacket &packet)
     src = src.convertToFormat(QImage::Format_Grayscale8);
     QImage oFrame(src.size(), src.format());
 
-    quint8 *srcBits = (quint8 *) src.bits();
-    quint8 *destBits = (quint8 *) oFrame.bits();
-
-    int widthMin = src.width() - 1;
-    int widthMax = src.width() + 1;
-    int heightMin = src.height() - 1;
-
-    memcpy(oFrame.scanLine(0),
-           src.constScanLine(0),
-           src.width());
-
-    memcpy(oFrame.scanLine(heightMin),
-           src.constScanLine(0),
-           src.width());
-
     for (int y = 0; y < src.height(); y++) {
-        int xOffset = y * src.width();
+        int y_m1 = y - 1;
+        int y_p1 = y + 1;
 
-        destBits[xOffset] = srcBits[xOffset];
-        destBits[xOffset + widthMin] = srcBits[xOffset + widthMin];
-    }
+        if (y_m1 < 0)
+            y_m1 = 0;
 
-    for (int y = 1; y < heightMin; y++) {
-        int xOffset = y * src.width();
+        if (y_p1 >= src.height())
+            y_p1 = src.height() - 1;
 
-        for (int x = 1; x < widthMin; x++) {
-            int pixel = x + xOffset;
+        const quint8 *srcLine_m1 = src.constScanLine(y_m1);
+        const quint8 *srcLine = src.constScanLine(y);
+        const quint8 *srcLine_p1 = src.constScanLine(y_p1);
+        quint8 *dstLine = oFrame.scanLine(y);
 
-            int gray = - srcBits[pixel - widthMax]
-                       - srcBits[pixel - src.width()]
-                       - srcBits[pixel - 1]
-                       + srcBits[pixel + 1]
-                       + srcBits[pixel + src.width()]
-                       + srcBits[pixel + widthMax];
+        for (int x = 0; x < src.width(); x++) {
+            int x_m1 = x - 1;
+            int x_p1 = x + 1;
 
-            gray = this->m_factor * gray + this->m_bias;
+            if (x_m1 < 0)
+                x_m1 = 0;
 
-            destBits[pixel] = qBound(0, gray, 255);
+            if (x_p1 >= src.width())
+                x_p1 = src.width() - 1;
+
+            int gray =   srcLine_m1[x_m1] * 2
+                       + srcLine_m1[x]
+                       + srcLine[x_m1]
+                       - srcLine[x_p1]
+                       - srcLine_p1[x]
+                       - srcLine_p1[x_p1] * 2;
+
+            gray = qRound(this->m_factor * gray + this->m_bias);
+            dstLine[x] = quint8(qBound(0, gray, 255));
         }
     }
 

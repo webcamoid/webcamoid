@@ -79,30 +79,31 @@ int AgingElement::addDust() const
 
 QImage AgingElement::colorAging(const QImage &src)
 {
-    QImage dest(src.size(), src.format());
+    QImage dst(src.size(), src.format());
 
     int lumaVariance = 8;
     int colorVariance = 24;
     int luma = -32 + qrand() % lumaVariance;
 
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
-    int videoArea = dest.width() * dest.height();
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(dst.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int c = qrand() % colorVariance;
-        int r = qRed(srcBits[i]) + luma + c;
-        int g = qGreen(srcBits[i]) + luma + c;
-        int b = qBlue(srcBits[i]) + luma + c;
+        for (int x = 0; x < src.width(); x++) {
+            int c = qrand() % colorVariance;
+            int r = qRed(srcLine[x]) + luma + c;
+            int g = qGreen(srcLine[x]) + luma + c;
+            int b = qBlue(srcLine[x]) + luma + c;
 
-        r = qBound(0, r, 255);
-        g = qBound(0, g, 255);
-        b = qBound(0, b, 255);
+            r = qBound(0, r, 255);
+            g = qBound(0, g, 255);
+            b = qBound(0, b, 255);
 
-        destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
+            dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        }
     }
 
-    return dest;
+    return dst;
 }
 
 void AgingElement::scratching(QImage &dest)

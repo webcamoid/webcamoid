@@ -116,20 +116,19 @@ QImage RippleElement::imageDiff(const QImage &img1,
     int width = qMin(img1.width(), img2.width());
     int height = qMin(img1.height(), img2.height());
     QImage diff(width, height, QImage::Format_ARGB32);
-    const QRgb *img1Bits = reinterpret_cast<const QRgb *>(img1.constBits());
-    const QRgb *img2Bits = reinterpret_cast<const QRgb *>(img2.constBits());
-    int *diffBits = reinterpret_cast<int *>(diff.bits());
 
     for (int y = 0; y < height; y++) {
-        int i = y * width;
+        const QRgb *img1Line = reinterpret_cast<const QRgb *>(img1.constScanLine(y));
+        const QRgb *img2Line = reinterpret_cast<const QRgb *>(img2.constScanLine(y));
+        int *diffLine = reinterpret_cast<int *>(diff.scanLine(y));
 
-        for (int x = 0; x < width; x++, i++) {
-            QRgb pixel1 = img1Bits[i];
+        for (int x = 0; x < width; x++) {
+            QRgb pixel1 = img1Line[x];
             int r1 = qRed(pixel1);
             int g1 = qGreen(pixel1);
             int b1 = qBlue(pixel1);
 
-            QRgb pixel2 = img2Bits[i];
+            QRgb pixel2 = img2Line[x];
             int r2 = qRed(pixel2);
             int g2 = qGreen(pixel2);
             int b2 = qBlue(pixel2);
@@ -142,10 +141,10 @@ QImage RippleElement::imageDiff(const QImage &img1,
             s = int(sqrt(s / 3));
             s = s < threshold? 0: s;
 
-            int gray = qGray(img2Bits[i]);
+            int gray = qGray(img2Line[x]);
             s = gray < lumaThreshold? 0: s;
 
-            diffBits[i] = (strength * s) >> 8;
+            diffLine[x] = (strength * s) >> 8;
         }
     }
 
@@ -154,14 +153,12 @@ QImage RippleElement::imageDiff(const QImage &img1,
 
 void RippleElement::addDrops(const QImage &buffer, const QImage &drops)
 {
-    int *bufferBits = const_cast<int *>(reinterpret_cast<const int *>(buffer.bits()));
-    const int *dropsBits = reinterpret_cast<const int *>(drops.constBits());
-
     for (int y = 0; y < buffer.height(); y++) {
-        int xOffset = y * buffer.width();
+        const int *dropsLine = reinterpret_cast<const int *>(drops.constScanLine(y));
+        int *bufferLine = const_cast<int *>(reinterpret_cast<const int *>(buffer.scanLine(y)));
 
         for (int x = 0; x < buffer.width(); x++)
-            bufferBits[x + xOffset] += dropsBits[x + xOffset];
+            bufferLine[x] += dropsLine[x];
     }
 }
 

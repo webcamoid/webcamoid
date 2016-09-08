@@ -183,7 +183,7 @@ AkPacket DelayGrabElement::iStream(const AkPacket &packet)
     int diff = this->m_frames.size() - nFrames;
 
     for (int i = 0; i < diff; i++)
-        this->m_frames.takeFirst();
+        this->m_frames.removeFirst();
 
     if (this->m_frames.isEmpty())
         akSend(packet)

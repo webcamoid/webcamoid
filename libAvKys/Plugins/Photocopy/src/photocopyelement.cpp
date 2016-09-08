@@ -113,27 +113,28 @@ AkPacket PhotocopyElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = qRed(srcBits[i]);
-        int g = qGreen(srcBits[i]);
-        int b = qBlue(srcBits[i]);
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
 
-        //desaturate
-        int luma = this->rgbToLuma(r, g, b);
+            //desaturate
+            int luma = this->rgbToLuma(r, g, b);
 
-        //compute sigmoidal transfer
-        qreal val = luma / 255.0;
-        val = 255.0 / (1 + exp(this->m_contrast * (0.5 - val)));
-        val = val * this->m_brightness;
-        luma = int(qBound(0.0, val, 255.0));
+            //compute sigmoidal transfer
+            qreal val = luma / 255.0;
+            val = 255.0 / (1 + exp(this->m_contrast * (0.5 - val)));
+            val = val * this->m_brightness;
+            luma = int(qBound(0.0, val, 255.0));
 
-        destBits[i] = qRgba(luma, luma, luma, qAlpha(srcBits[i]));
+            dstLine[x] = qRgba(luma, luma, luma, qAlpha(srcLine[x]));
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

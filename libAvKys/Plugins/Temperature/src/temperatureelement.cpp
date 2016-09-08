@@ -95,22 +95,23 @@ AkPacket TemperatureElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = int(this->m_kr * qRed(srcBits[i]));
-        int g = int(this->m_kg * qGreen(srcBits[i]));
-        int b = int(this->m_kb * qBlue(srcBits[i]));
+        for (int x = 0; x < src.width(); x++) {
+            int r = int(this->m_kr * qRed(srcLine[x]));
+            int g = int(this->m_kg * qGreen(srcLine[x]));
+            int b = int(this->m_kb * qBlue(srcLine[x]));
 
-        r = qBound(0, r, 255);
-        g = qBound(0, g, 255);
-        b = qBound(0, b, 255);
+            r = qBound(0, r, 255);
+            g = qBound(0, g, 255);
+            b = qBound(0, b, 255);
 
-        destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
+            destLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

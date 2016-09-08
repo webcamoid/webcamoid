@@ -123,24 +123,24 @@ AkPacket ColorTapElement::iStream(const AkPacket &packet)
     }
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
-
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
     const QRgb *tableBits = reinterpret_cast<const QRgb *>(this->m_table.constBits());
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = qRed(srcBits[i]);
-        int g = qGreen(srcBits[i]);
-        int b = qBlue(srcBits[i]);
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-        int ro = qRed(tableBits[r]);
-        int go = qGreen(tableBits[g]);
-        int bo = qBlue(tableBits[b]);
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
 
-        destBits[i] = qRgb(ro, go, bo);
+            int ro = qRed(tableBits[r]);
+            int go = qGreen(tableBits[g]);
+            int bo = qBlue(tableBits[b]);
+
+            dstLine[x] = qRgb(ro, go, bo);
+        }
     }
 
     this->m_mutex.unlock();

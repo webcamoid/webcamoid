@@ -253,14 +253,16 @@ QImage MatrixElement::drawChar(const QChar &chr, const QFont &font,
 
 int MatrixElement::imageWeight(const QImage &image) const
 {
-    int fontArea = image.width() * image.height();
-    const QRgb *imageBits = reinterpret_cast<const QRgb *>(image.constBits());
     int weight = 0;
 
-    for (int i = 0; i < fontArea; i++)
-        weight += qGray(imageBits[i]);
+    for (int y = 0; y < image.height(); y++) {
+        const QRgb *imageLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
 
-    weight /= fontArea;
+        for (int x = 0; x < image.width(); x++)
+            weight += qGray(imageLine[x]);
+    }
+
+    weight /= image.width() * image.height();
 
     return weight;
 }

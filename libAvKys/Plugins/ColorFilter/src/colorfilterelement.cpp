@@ -154,44 +154,44 @@ AkPacket ColorFilterElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = qRed(srcBits[i]);
-        int g = qGreen(srcBits[i]);
-        int b = qBlue(srcBits[i]);
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
 
-        int rf = qRed(this->m_color);
-        int gf = qGreen(this->m_color);
-        int bf = qBlue(this->m_color);
+            int rf = qRed(this->m_color);
+            int gf = qGreen(this->m_color);
+            int bf = qBlue(this->m_color);
 
-        int rd = r - rf;
-        int gd = g - gf;
-        int bd = b - bf;
+            int rd = r - rf;
+            int gd = g - gf;
+            int bd = b - bf;
 
-        qreal k = sqrt(rd * rd + gd * gd + bd * bd);
+            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
 
-        if (k <= this->m_radius) {
-            if (this->m_soft) {
-                qreal p = k / this->m_radius;
+            if (k <= this->m_radius) {
+                if (this->m_soft) {
+                    qreal p = k / this->m_radius;
 
-                int gray = qGray(srcBits[i]);
+                    int gray = qGray(srcLine[x]);
 
-                r = int(p * (gray - r) + r);
-                g = int(p * (gray - g) + g);
-                b = int(p * (gray - b) + b);
+                    r = int(p * (gray - r) + r);
+                    g = int(p * (gray - g) + g);
+                    b = int(p * (gray - b) + b);
 
-                destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
-            } else
-                destBits[i] = srcBits[i];
-        } else {
-            int gray = qGray(srcBits[i]);
-            destBits[i] = qRgba(gray, gray, gray, qAlpha(srcBits[i]));
+                    dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+                } else
+                    dstLine[x] = srcLine[x];
+            } else {
+                int gray = qGray(srcLine[x]);
+                dstLine[x] = qRgba(gray, gray, gray, qAlpha(srcLine[x]));
+            }
         }
     }
 

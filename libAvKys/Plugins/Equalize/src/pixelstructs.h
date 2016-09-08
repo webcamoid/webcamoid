@@ -26,29 +26,38 @@ template<typename T>
 struct Pixel
 {
     Pixel():
-        red(0), green(0), blue(0), alpha(0)
+        r(0), g(0), b(0), a(0)
     {
     }
 
     Pixel(T red, T green, T blue, T alpha):
-        red(red), green(green), blue(blue), alpha(alpha)
+        r(red), g(green), b(blue), a(alpha)
     {
     }
 
-    void clear() {
-        this->red = 0;
-        this->green = 0;
-        this->blue = 0;
-        this->alpha = 0;
+    Pixel operator +(const Pixel &other)
+    {
+        return Pixel(this->r + other.r,
+                     this->g + other.g,
+                     this->b + other.b,
+                     this->a + other.a);
     }
 
-    T red;
-    T green;
-    T blue;
-    T alpha;
+    void clear() {
+        this->r = 0;
+        this->g = 0;
+        this->b = 0;
+        this->a = 0;
+    }
+
+    T r;
+    T g;
+    T b;
+    T a;
 };
 
 // These are used as accumulators
+typedef struct Pixel<quint64> Integer64Pixel;
 typedef struct Pixel<quint32> IntegerPixel;
 typedef struct Pixel<quint16> ShortPixel;
 typedef struct Pixel<quint8>  CharPixel;

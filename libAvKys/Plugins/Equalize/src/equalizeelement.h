@@ -23,12 +23,19 @@
 #include <ak.h>
 #include <akutils.h>
 
+#include "pixelstructs.h"
+
 class EqualizeElement: public AkElement
 {
     Q_OBJECT
 
     public:
         explicit EqualizeElement();
+
+    private:
+        QVector<quint64> histogram(const QImage &img) const;
+        QVector<quint64> cumulativeHistogram(const QVector<quint64> &histogram) const;
+        QVector<quint8> equalizationTable(const QImage &img) const;
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

@@ -215,60 +215,64 @@ QImage FireElement::zoomImage(const QImage &src, qreal factor)
     return zoom;
 }
 
-void FireElement::coolImage(const QImage &src, int colorDiff)
+void FireElement::coolImage(QImage &src, int colorDiff)
 {
-    int videoArea = src.width() * src.height();
-    QRgb *srcBits = const_cast<QRgb *>(reinterpret_cast<const QRgb *>(src.bits()));
+    for (int y = 0; y < src.height(); y++) {
+        QRgb *srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int b = qBound(0, qBlue(srcBits[i]) + colorDiff, 255);
-        srcBits[i] = qRgba(0, 0, b, qAlpha(srcBits[i]));
+        for (int x = 0; x < src.width(); x++) {
+            int b = qBound(0, qBlue(srcLine[x]) + colorDiff, 255);
+            srcLine[x] = qRgba(0, 0, b, qAlpha(srcLine[x]));
+        }
     }
 }
 
-void FireElement::imageAlphaDiff(const QImage &src, int alphaDiff)
+void FireElement::imageAlphaDiff(QImage &src, int alphaDiff)
 {
-    int videoArea = src.width() * src.height();
-    QRgb *srcBits = const_cast<QRgb *>(reinterpret_cast<const QRgb *>(src.bits()));
+    for (int y = 0; y < src.height(); y++) {
+        QRgb *srcLine = reinterpret_cast<QRgb *>(src.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        QRgb pixel = srcBits[i];
-        int b = qBlue(pixel);
-        int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
-        srcBits[i] = qRgba(0, 0, b, a);
+        for (int x = 0; x < src.width(); x++) {
+            QRgb pixel = srcLine[x];
+            int b = qBlue(pixel);
+            int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
+            srcLine[x] = qRgba(0, 0, b, a);
+        }
     }
 }
 
-void FireElement::disolveImage(const QImage &src, qreal amount)
+void FireElement::disolveImage(QImage &src, qreal amount)
 {
-    int videoArea = src.width() * src.height();
-    int n = int(amount * videoArea);
-    QRgb *srcBits = const_cast<QRgb *>(reinterpret_cast<const QRgb *>(src.bits()));
+    qint64 videoArea = src.width() * src.height();
+    qint64 n = qint64(amount * videoArea);
 
-    for (int i = 0; i < n; i++) {
-        int index = qrand() % videoArea;
-        QRgb pixel = srcBits[index];
+    for (qint64 i = 0; i < n; i++) {
+        int x = qrand() % src.width();
+        int y = qrand() % src.height();
+        QRgb pixel = src.pixel(x, y);
         int b = qBlue(pixel);
         int a = qAlpha(pixel) < 1? 0: qrand() % qAlpha(pixel);
 
-        srcBits[index] = qRgba(0, 0, b, a);
+        src.setPixel(x, y, qRgba(0, 0, b, a));
     }
 }
 
 QImage FireElement::burn(const QImage &src, const QVector<QRgb> &palette)
 {
-    int videoArea = src.width() * src.height();
     QImage dest(src.size(), src.format());
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
 
-    for (int i = 0; i < videoArea; i++) {
-        int index = qBlue(srcBits[i]);
-        int r = qRed(palette[index]);
-        int g = qGreen(palette[index]);
-        int b = qBlue(palette[index]);
-        int a = qAlpha(srcBits[i]);
-        destBits[i] = qRgba(r, g, b, a);
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            int index = qBlue(srcLine[x]);
+            int r = qRed(palette[index]);
+            int g = qGreen(palette[index]);
+            int b = qBlue(palette[index]);
+
+            dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+        }
     }
 
     return dest;

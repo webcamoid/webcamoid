@@ -154,43 +154,42 @@ AkPacket ColorReplaceElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
-
     QImage oFrame(src.size(), src.format());
 
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int r = qRed(srcBits[i]);
-        int g = qGreen(srcBits[i]);
-        int b = qBlue(srcBits[i]);
+        for (int x = 0; x < src.width(); x++) {
+            int r = qRed(srcLine[x]);
+            int g = qGreen(srcLine[x]);
+            int b = qBlue(srcLine[x]);
 
-        int rf = qRed(this->m_from);
-        int gf = qGreen(this->m_from);
-        int bf = qBlue(this->m_from);
+            int rf = qRed(this->m_from);
+            int gf = qGreen(this->m_from);
+            int bf = qBlue(this->m_from);
 
-        int rd = r - rf;
-        int gd = g - gf;
-        int bd = b - bf;
+            int rd = r - rf;
+            int gd = g - gf;
+            int bd = b - bf;
 
-        qreal k = sqrt(rd * rd + gd * gd + bd * bd);
+            qreal k = sqrt(rd * rd + gd * gd + bd * bd);
 
-        if (k <= this->m_radius) {
-            qreal p = k / this->m_radius;
+            if (k <= this->m_radius) {
+                qreal p = k / this->m_radius;
 
-            int rt = qRed(this->m_to);
-            int gt = qGreen(this->m_to);
-            int bt = qBlue(this->m_to);
+                int rt = qRed(this->m_to);
+                int gt = qGreen(this->m_to);
+                int bt = qBlue(this->m_to);
 
-            r = int(p * (r - rt) + rt);
-            g = int(p * (g - gt) + gt);
-            b = int(p * (b - bt) + bt);
+                r = int(p * (r - rt) + rt);
+                g = int(p * (g - gt) + gt);
+                b = int(p * (b - bt) + bt);
 
-            destBits[i] = qRgba(r, g, b, qAlpha(srcBits[i]));
+                dstLine[x] = qRgba(r, g, b, qAlpha(srcLine[x]));
+            } else
+                dstLine[x] = srcLine[x];
         }
-        else
-            destBits[i] = srcBits[i];
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

@@ -18,10 +18,54 @@
  */
 
 #include "equalizeelement.h"
-#include "pixelstructs.h"
 
 EqualizeElement::EqualizeElement(): AkElement()
 {
+}
+
+QVector<quint64> EqualizeElement::histogram(const QImage &img) const
+{
+    QVector<quint64> histogram(256, 0);
+
+    for (int y = 0; y < img.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(img.constScanLine(y));
+
+        for (int x = 0; x < img.width(); x++)
+            histogram[qGray(srcLine[x])]++;
+    }
+
+    return histogram;
+}
+
+QVector<quint64> EqualizeElement::cumulativeHistogram(const QVector<quint64> &histogram) const
+{
+    QVector<quint64> cumulativeHistogram(histogram.size());
+    quint64 sum = 0;
+
+    for (int i = 0; i < histogram.size(); i++) {
+        sum += histogram[i];
+        cumulativeHistogram[i] = sum;
+    }
+
+    return cumulativeHistogram;
+}
+
+QVector<quint8> EqualizeElement::equalizationTable(const QImage &img) const
+{
+    QVector<quint64> cumHist = this->cumulativeHistogram(this->histogram(img));
+    QVector<quint8> equalizationTable(cumHist.size());
+    int maxLevel = cumHist.size() - 1;
+    quint64 q = cumHist[maxLevel] - cumHist[0];
+
+    for (int i = 0; i < cumHist.size(); i++)
+        if (cumHist[i] > cumHist[0])
+            equalizationTable[i] = quint8(qRound(qreal(maxLevel)
+                                                 * (cumHist[i] - cumHist[0])
+                                                 / q));
+        else
+            equalizationTable[i] = 0;
+
+    return equalizationTable;
 }
 
 AkPacket EqualizeElement::iStream(const AkPacket &packet)
@@ -31,72 +75,22 @@ AkPacket EqualizeElement::iStream(const AkPacket &packet)
     if (src.isNull())
         return AkPacket();
 
-    QImage oFrame = src.convertToFormat(QImage::Format_ARGB32);
+    src = src.convertToFormat(QImage::Format_ARGB32);
+    QImage oFrame(src.size(), src.format());
+    QVector<quint8> equTable = this->equalizationTable(src);
 
-    // form histogram
-    QVector<HistogramListItem> histogram(256, HistogramListItem());
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    QRgb *dest = reinterpret_cast<QRgb *>(oFrame.bits());
-    int count = oFrame.width() * oFrame.height();
+        for (int x = 0; x < src.width(); x++){
+            int r = equTable[qRed(srcLine[x])];
+            int g = equTable[qGreen(srcLine[x])];
+            int b = equTable[qBlue(srcLine[x])];
+            int a = equTable[qAlpha(srcLine[x])];
 
-    for (int i = 0; i < count; i++) {
-        QRgb pixel = *dest++;
-        histogram[qRed(pixel)].red++;
-        histogram[qGreen(pixel)].green++;
-        histogram[qBlue(pixel)].blue++;
-        histogram[qAlpha(pixel)].alpha++;
-    }
-
-    // integrate the histogram to get the equalization map
-    IntegerPixel intensity;
-    QVector<IntegerPixel> map(256);
-
-    for (int i = 0; i < 256; i++) {
-        intensity.red += histogram[i].red;
-        intensity.green += histogram[i].green;
-        intensity.blue += histogram[i].blue;
-        map[i] = intensity;
-    }
-
-    // stretch the histogram to create the equalized image mapping.
-    IntegerPixel low = map[0];
-    IntegerPixel high = map[255];
-    QVector<CharPixel> equalizeMap(256, CharPixel());
-
-    for (int i = 0; i < 256; i++) {
-        if (high.red != low.red)
-            equalizeMap[i].red =
-                uchar ((255 * (map[i].red - low.red)) / (high.red - low.red));
-
-        if (high.green != low.green)
-            equalizeMap[i].green =
-                uchar ((255 * (map[i].green - low.green)) / (high.green - low.green));
-
-        if (high.blue != low.blue)
-            equalizeMap[i].blue =
-                uchar ((255 * (map[i].blue - low.blue)) / (high.blue - low.blue));
-
-    }
-
-    // write
-    dest = reinterpret_cast<QRgb *>(oFrame.bits());
-
-    for (int i = 0; i < count; i++){
-        QRgb pixel = *dest;
-
-        int r = (low.red != high.red)?
-                      equalizeMap[qRed(pixel)].red:
-                      qRed(pixel);
-
-        int g = (low.green != high.green)?
-                      equalizeMap[qGreen(pixel)].green:
-                      qGreen(pixel);
-
-        int b = (low.blue != high.blue)?
-                      equalizeMap[qBlue(pixel)].blue:
-                      qBlue(pixel);
-
-        *dest++ = qRgba(r, g, b, qAlpha(pixel));
+            dstLine[x] = qRgba(r, g, b, a);
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

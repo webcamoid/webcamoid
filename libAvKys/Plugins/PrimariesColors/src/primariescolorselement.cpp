@@ -89,11 +89,7 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
-
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
 
     int f = this->m_factor + 1;
     int factor127 = (f * f - 3) * 127;
@@ -104,25 +100,30 @@ AkPacket PrimariesColorsElement::iStream(const AkPacket &packet)
         factorTot = 3;
     }
 
-    for (int i = 0; i < videoArea; i++) {
-        QRgb pixel = srcBits[i];
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *destLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-        int ri = qRed(pixel);
-        int gi = qGreen(pixel);
-        int bi = qBlue(pixel);
+        for (int x = 0; x < src.width(); x++) {
+            QRgb pixel = srcLine[x];
 
-        int mean;
+            int ri = qRed(pixel);
+            int gi = qGreen(pixel);
+            int bi = qBlue(pixel);
 
-        if (f > 32)
-            mean = 127;
-        else
-            mean = (ri + gi + bi + factor127) / factorTot;
+            int mean;
 
-        int r = ri > mean? 255: 0;
-        int g = gi > mean? 255: 0;
-        int b = bi > mean? 255: 0;
+            if (f > 32)
+                mean = 127;
+            else
+                mean = (ri + gi + bi + factor127) / factorTot;
 
-        destBits[i] = qRgba(r, g, b, qAlpha(pixel));
+            int r = ri > mean? 255: 0;
+            int g = gi > mean? 255: 0;
+            int b = bi > mean? 255: 0;
+
+            destLine[x] = qRgba(r, g, b, qAlpha(pixel));
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

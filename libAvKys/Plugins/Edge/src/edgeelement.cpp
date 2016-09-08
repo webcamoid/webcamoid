@@ -432,11 +432,11 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
     QImage oFrame(src.size(), src.format());
 
     QVector<quint8> in;
-    int videoArea = src.width() * src.height();
 
     if (this->m_equalize)
         in = this->equalize(src);
     else {
+        int videoArea = src.width() * src.height();
         in.resize(videoArea);
         memcpy(in.data(), src.constBits(), size_t(videoArea));
     }
@@ -444,8 +444,6 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
     QVector<quint16> gradient;
     QVector<quint8> direction;
     this->sobel(src.width(), src.height(), in, gradient, direction);
-
-    quint8 *dstBits = reinterpret_cast<quint8 *>(oFrame.bits());
 
     if (this->m_canny) {
         QVector<quint16> thinned = this->thinning(src.width(), src.height(),
@@ -465,24 +463,23 @@ AkPacket EdgeElement::iStream(const AkPacket &packet)
         QVector<quint8> canny = this->hysteresisThresholding(src.width(), src.height(),
                                                              thresholded);
 
-        for (int i = 0; i < videoArea; i++) {
-            if (this->m_invert)
-                dstBits[i] = 255 - canny[i];
-            else
-                dstBits[i] = canny[i];
-        }
-    } else {
-        const quint16 *srcBits = gradient.constData();
+        for (int y = 0; y < src.height(); y++) {
+            const quint8 *srcLine = canny.constData() + y * src.width();
+            quint8 *dstLine = oFrame.scanLine(y);
 
-        for (int i = 0; i < videoArea; i++) {
-            int gray = qBound(0, int(srcBits[i]), 255);
-
-            if (this->m_invert)
-                dstBits[i] = quint8(255 - gray);
-            else
-                dstBits[i] = quint8(gray);
+            for (int x = 0; x < src.width(); x++)
+                dstLine[x] = this->m_invert? 255 - srcLine[x]: srcLine[x];
         }
-    }
+    } else
+        for (int y = 0; y < src.height(); y++) {
+            const quint16 *srcLine = gradient.constData() + y * src.width();
+            quint8 *dstLine = oFrame.scanLine(y);
+
+            for (int x = 0; x < src.width(); x++) {
+                int gray = qBound<int>(0, srcLine[x], 255);
+                dstLine[x] = this->m_invert? quint8(255 - gray): quint8(gray);
+            }
+        }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);
     akSend(oPacket)

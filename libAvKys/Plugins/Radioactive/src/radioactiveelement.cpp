@@ -194,18 +194,20 @@ QImage RadioactiveElement::imageDiff(const QImage &img1,
 
 QImage RadioactiveElement::imageAlphaDiff(const QImage &src, int alphaDiff)
 {
-    int videoArea = src.width() * src.height();
     QImage dest(src.size(), src.format());
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constBits());
-    QRgb *destBits = reinterpret_cast<QRgb *>(dest.bits());
 
-    for (int i = 0; i < videoArea; i++) {
-        QRgb pixel = srcBits[i];
-        int r = qRed(pixel);
-        int g = qGreen(pixel);
-        int b = qBlue(pixel);
-        int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
-        destBits[i] = qRgba(r, g, b, a);
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        QRgb *dstLine = reinterpret_cast<QRgb *>(dest.scanLine(y));
+
+        for (int x = 0; x < src.width(); x++) {
+            QRgb pixel = srcLine[x];
+            int r = qRed(pixel);
+            int g = qGreen(pixel);
+            int b = qBlue(pixel);
+            int a = qBound(0, qAlpha(pixel) + alphaDiff, 255);
+            dstLine[x] = qRgba(r, g, b, a);
+        }
     }
 
     return dest;

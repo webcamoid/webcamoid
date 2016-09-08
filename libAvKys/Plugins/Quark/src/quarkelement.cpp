@@ -89,7 +89,6 @@ AkPacket QuarkElement::iStream(const AkPacket &packet)
         return AkPacket();
 
     src = src.convertToFormat(QImage::Format_ARGB32);
-    int videoArea = src.width() * src.height();
     QImage oFrame(src.size(), src.format());
 
     if (src.size() != this->m_frameSize) {
@@ -102,14 +101,15 @@ AkPacket QuarkElement::iStream(const AkPacket &packet)
     int diff = this->m_frames.size() - nFrames;
 
     for (int i = 0; i < diff; i++)
-        this->m_frames.takeFirst();
+        this->m_frames.removeFirst();
 
-    QRgb *destBits = reinterpret_cast<QRgb *>(oFrame.bits());
+    for (int y = 0; y < src.height(); y++) {
+        QRgb *dstLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
-    for (int i = 0; i < videoArea; i++) {
-        int frame = qrand() % this->m_frames.size();
-        const QRgb *image = reinterpret_cast<const QRgb *>(this->m_frames[frame].constBits());
-        destBits[i] = image[i];
+        for (int x = 0; x < src.width(); x++) {
+            int frame = qrand() % this->m_frames.size();
+            dstLine[x] = this->m_frames[frame].pixel(x, y);
+        }
     }
 
     AkPacket oPacket = AkUtils::imageToPacket(oFrame, packet);

@@ -160,13 +160,15 @@ HypnoticElement::OpticalMap HypnoticElement::createOpticalMap(const QSize &size)
 
 QImage HypnoticElement::imageThreshold(const QImage &src, int threshold)
 {
-    const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.bits());
     QImage diff(src.size(), QImage::Format_Grayscale8);
-    quint8 *diffBits = diff.bits();
-    int videoArea = src.width() * src.height();
 
-    for (int i = 0; i < videoArea; i++)
-        diffBits[i] = qGray(srcBits[i]) >= threshold? 255: 0;
+    for (int y = 0; y < src.height(); y++) {
+        const QRgb *srcBits = reinterpret_cast<const QRgb *>(src.constScanLine(y));
+        quint8 *diffBits = diff.scanLine(y);
+
+        for (int x = 0; x < src.width(); x++)
+            diffBits[x] = qGray(srcBits[x]) >= threshold? 255: 0;
+    }
 
     return diff;
 }
