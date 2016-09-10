@@ -20,10 +20,46 @@
 #import <AVFoundation/AVFoundation.h>
 
 #include "capture.h"
+#include "devicewatcher.h"
+
+typedef QMap<FourCharCode, QString> FourCharCodeToStrMap;
+
+inline FourCharCodeToStrMap initFourCharCodeToStrMap()
+{
+    FourCharCodeToStrMap fourccToStrMap = {
+        // Raw formats
+        {kCMPixelFormat_32ARGB         , "BGRA"},
+        {kCMPixelFormat_24RGB          , "RGB3"},
+        {kCMPixelFormat_16BE555        , "RGBQ"},
+        {kCMPixelFormat_16BE565        , "RGBR"},
+        {kCMPixelFormat_16LE555        , "RGBO"},
+        {kCMPixelFormat_16LE565        , "RGBP"},
+        {kCMPixelFormat_16LE5551       , "AR15"},
+        {kCMPixelFormat_422YpCbCr8     , "UYVY"},
+        {kCMPixelFormat_422YpCbCr8_yuvs, "YUY2"},
+
+        // Compressed formats
+        {kCMVideoCodecType_422YpCbCr8  , "UYVY"},
+        {kCMVideoCodecType_JPEG        , "JPEG"},
+        {kCMVideoCodecType_JPEG_OpenDML, "MJPG"},
+        {kCMVideoCodecType_H263        , "H263"},
+        {kCMVideoCodecType_H264        , "H264"},
+        {kCMVideoCodecType_HEVC        , "HEVC"},
+        {kCMVideoCodecType_MPEG4Video  , "MPG4"},
+        {kCMVideoCodecType_MPEG2Video  , "MPG2"},
+        {kCMVideoCodecType_MPEG1Video  , "MPG1"}
+    };
+
+    return fourccToStrMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(FourCharCodeToStrMap, fourccToStrMap, (initFourCharCodeToStrMap()))
 
 class CapturePrivate
 {
     public:
+        DeviceWatcher *m_deviceWatcher;
+
         static inline QString fourccToStr(FourCharCode format)
         {
             char fourcc[5];
@@ -40,6 +76,26 @@ class CapturePrivate
 
             return fourcc;
         }
+
+        static inline QVariantList imageControls(AVCaptureDevice *camera)
+        {
+            // Exposure
+            // Low Light
+            // Image Exposure
+            // White Balance
+
+            return QVariantList();
+        }
+
+        static inline QVariantList cameraControls(AVCaptureDevice *camera)
+        {
+            // Focus
+            // Zoom
+            // Flash
+            // Torch
+
+            return QVariantList();
+        }
 };
 
 Capture::Capture(): QObject()
@@ -49,10 +105,45 @@ Capture::Capture(): QObject()
     this->m_nBuffers = 32;
     this->m_webcams = this->webcams();
     this->m_device = this->m_webcams.value(0, "");
+    this->d = new CapturePrivate();
+    this->d->m_deviceWatcher = [[DeviceWatcher alloc]
+                               initWithCaptureObject: this];
+
+    [[NSNotificationCenter defaultCenter]
+     addObserver: this->d->m_deviceWatcher
+     selector: @selector(cameraConnected:)
+     name: AVCaptureDeviceWasConnectedNotification
+     object: nil];
+
+    [[NSNotificationCenter defaultCenter]
+     addObserver: this->d->m_deviceWatcher
+     selector: @selector(cameraDisconnected:)
+     name: AVCaptureDeviceWasDisconnectedNotification
+     object: nil];
+
+    // I've added this code is case AVCaptureDeviceWasDisconnectedNotification
+    // signal doesn't works. Need more tests here.
+    this->m_timer.setInterval(1000);
+
+    QObject::connect(&this->m_timer,
+                     &QTimer::timeout,
+                     this,
+                     &Capture::updateWebcams);
+
+    //this->m_timer.start();
 }
 
 Capture::~Capture()
 {
+    //this->m_timer.stop();
+
+    [[NSNotificationCenter defaultCenter]
+     removeObserver: this->d->m_deviceWatcher];
+
+    [this->d->m_deviceWatcher disconnect];
+    [this->d->m_deviceWatcher release];
+
+    delete this->d;
 }
 
 QStringList Capture::webcams() const
@@ -114,6 +205,7 @@ QString Capture::description(const QString &webcam) const
     NSString *uniqueID = [[NSString alloc]
                           initWithUTF8String: webcam.toStdString().c_str()];
     AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+    [uniqueID release];
 
     if (!camera)
         return QString();
@@ -127,6 +219,7 @@ QVariantList Capture::caps(const QString &webcam) const
     NSString *uniqueID = [[NSString alloc]
                           initWithUTF8String: webcam.toStdString().c_str()];
     AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+    [uniqueID release];
 
     if (!camera)
         return caps;
@@ -139,9 +232,13 @@ QVariantList Capture::caps(const QString &webcam) const
         CMVideoDimensions size =
                 CMVideoFormatDescriptionGetDimensions(format.formatDescription);
 
+        QString fourccStr =
+                fourccToStrMap->value(fourCC,
+                                      CapturePrivate::fourccToStr(fourCC));
+
         AkCaps videoCaps;
         videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", CapturePrivate::fourccToStr(fourCC));
+        videoCaps.setProperty("fourcc", fourccStr);
         videoCaps.setProperty("width", size.width);
         videoCaps.setProperty("height", size.height);
 
@@ -170,21 +267,47 @@ QString Capture::capsDescription(const AkCaps &caps) const
 
 QVariantList Capture::imageControls() const
 {
-    return QVariantList();
+    return this->m_globalImageControls;
 }
 
-bool Capture::setImageControls(const QVariantMap &imageControls) const
+bool Capture::setImageControls(const QVariantMap &imageControls)
 {
-    return false;
+    this->m_controlsMutex.lock();
+    QVariantList globalImageControls = this->m_globalImageControls;
+    this->m_controlsMutex.unlock();
+
+    for (int i = 0; i < globalImageControls.count(); i++) {
+        QVariantList control = globalImageControls[i].toList();
+        QString controlName = control[0].toString();
+
+        if (imageControls.contains(controlName)) {
+            control[6] = imageControls[controlName];
+            globalImageControls[i] = control;
+        }
+    }
+
+    this->m_controlsMutex.lock();
+
+    if (this->m_globalImageControls == globalImageControls) {
+        this->m_controlsMutex.unlock();
+
+        return false;
+    }
+
+    this->m_globalImageControls = globalImageControls;
+    this->m_controlsMutex.unlock();
+
+    emit this->imageControlsChanged(imageControls);
+
+    return true;
 }
 
-bool Capture::resetImageControls() const
+bool Capture::resetImageControls()
 {
     QVariantMap controls;
 
     foreach (QVariant control, this->imageControls()) {
         QVariantList params = control.toList();
-
         controls[params[0].toString()] = params[5].toInt();
     }
 
@@ -193,15 +316,42 @@ bool Capture::resetImageControls() const
 
 QVariantList Capture::cameraControls() const
 {
-    return QVariantList();
+    return this->m_globalCameraControls;
 }
 
-bool Capture::setCameraControls(const QVariantMap &cameraControls) const
+bool Capture::setCameraControls(const QVariantMap &cameraControls)
 {
-    return false;
+    this->m_controlsMutex.lock();
+    QVariantList globalCameraControls = this->m_globalCameraControls;
+    this->m_controlsMutex.unlock();
+
+    for (int i = 0; i < globalCameraControls.count(); i++) {
+        QVariantList control = globalCameraControls[i].toList();
+        QString controlName = control[0].toString();
+
+        if (cameraControls.contains(controlName)) {
+            control[6] = cameraControls[controlName];
+            globalCameraControls[i] = control;
+        }
+    }
+
+    this->m_controlsMutex.lock();
+
+    if (this->m_globalCameraControls == globalCameraControls) {
+        this->m_controlsMutex.unlock();
+
+        return false;
+    }
+
+    this->m_globalCameraControls = globalCameraControls;
+    this->m_controlsMutex.unlock();
+
+    emit this->cameraControlsChanged(cameraControls);
+
+    return true;
 }
 
-bool Capture::resetCameraControls() const
+bool Capture::resetCameraControls()
 {
     QVariantMap controls;
 
@@ -219,6 +369,19 @@ AkPacket Capture::readFrame()
     return AkPacket();
 }
 
+QVariantMap Capture::controlStatus(const QVariantList &controls) const
+{
+    QVariantMap controlStatus;
+
+    foreach (QVariant control, controls) {
+        QVariantList params = control.toList();
+        QString controlName = params[0].toString();
+        controlStatus[controlName] = params[0];
+    }
+
+    return controlStatus;
+}
+
 bool Capture::init()
 {
     return false;
@@ -234,7 +397,31 @@ void Capture::setDevice(const QString &device)
         return;
 
     this->m_device = device;
+
+    if (device.isEmpty()) {
+        this->m_controlsMutex.lock();
+        this->m_globalImageControls.clear();
+        this->m_globalCameraControls.clear();
+        this->m_controlsMutex.unlock();
+    } else {
+        NSString *uniqueID = [[NSString alloc]
+                              initWithUTF8String: device.toStdString().c_str()];
+        AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+        [uniqueID release];
+        this->m_controlsMutex.lock();
+        this->m_globalImageControls = this->d->imageControls(camera);
+        this->m_globalCameraControls = this->d->cameraControls(camera);
+        this->m_controlsMutex.unlock();
+    }
+
+    this->m_controlsMutex.lock();
+    QVariantMap imageStatus = this->controlStatus(this->m_globalImageControls);
+    QVariantMap cameraStatus = this->controlStatus(this->m_globalCameraControls);
+    this->m_controlsMutex.unlock();
+
     emit this->deviceChanged(device);
+    emit this->imageControlsChanged(imageStatus);
+    emit this->cameraControlsChanged(cameraStatus);
 }
 
 void Capture::setStreams(const QList<int> &streams)
@@ -264,6 +451,7 @@ void Capture::setStreams(const QList<int> &streams)
 
 void Capture::setIoMethod(const QString &ioMethod)
 {
+    Q_UNUSED(ioMethod)
 }
 
 void Capture::setNBuffers(int nBuffers)
@@ -306,4 +494,24 @@ void Capture::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
+}
+
+void Capture::cameraConnected()
+{
+    this->updateWebcams();
+}
+
+void Capture::cameraDisconnected()
+{
+    this->updateWebcams();
+}
+
+void Capture::updateWebcams()
+{
+    QStringList webcams = this->webcams();
+
+    if (this->m_webcams != webcams) {
+        this->m_webcams = webcams;
+        emit this->webcamsChanged(webcams);
+    }
 }

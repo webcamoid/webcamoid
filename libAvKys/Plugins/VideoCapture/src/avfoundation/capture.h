@@ -20,7 +20,11 @@
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
+#include <QMutex>
+#include <QTimer>
 #include <ak.h>
+
+class CapturePrivate;
 
 class Capture: public QObject
 {
@@ -66,11 +70,11 @@ class Capture: public QObject
         Q_INVOKABLE QVariantList caps(const QString &webcam) const;
         Q_INVOKABLE QString capsDescription(const AkCaps &caps) const;
         Q_INVOKABLE QVariantList imageControls() const;
-        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls) const;
-        Q_INVOKABLE bool resetImageControls() const;
+        Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
+        Q_INVOKABLE bool resetImageControls();
         Q_INVOKABLE QVariantList cameraControls() const;
-        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls) const;
-        Q_INVOKABLE bool resetCameraControls() const;
+        Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
+        Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
 
     private:
@@ -79,10 +83,20 @@ class Capture: public QObject
         QList<int> m_streams;
         IoMethod m_ioMethod;
         int m_nBuffers;
+        QTimer m_timer;
+        QMutex m_controlsMutex;
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkCaps m_caps;
         qint64 m_id;
+        CapturePrivate *d;
+
+        QVariantList m_globalImageControls;
+        QVariantList m_globalCameraControls;
+        QVariantMap m_localImageControls;
+        QVariantMap m_localCameraControls;
+
+        QVariantMap controlStatus(const QVariantList &controls) const;
 
     signals:
         void webcamsChanged(const QStringList &webcams) const;
@@ -106,6 +120,12 @@ class Capture: public QObject
         void resetIoMethod();
         void resetNBuffers();
         void reset();
+
+        void cameraConnected();
+        void cameraDisconnected();
+
+    private slots:
+        void updateWebcams();
 };
 
 #endif // CAPTURE_H

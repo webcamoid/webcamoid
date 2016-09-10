@@ -16,8 +16,13 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-HEADERS += $$PWD/capture.h
-OBJECTIVE_SOURCES += $$PWD/capture.mm
+HEADERS += \
+    $$PWD/capture.h \
+    $$PWD/devicewatcher.h
+
+OBJECTIVE_SOURCES += \
+    $$PWD/capture.mm \
+    $$PWD/devicewatcher.mm
 
 LIBS += \
     -framework CoreMedia \

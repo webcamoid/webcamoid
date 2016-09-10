@@ -26,17 +26,18 @@ typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
 
 inline VideoProcAmpPropertyMap initVideoProcAmpPropertyMap()
 {
-    VideoProcAmpPropertyMap vpapToStr;
-    vpapToStr[VideoProcAmp_Brightness] = "Brightness";
-    vpapToStr[VideoProcAmp_Contrast] = "Contrast";
-    vpapToStr[VideoProcAmp_Hue] = "Hue";
-    vpapToStr[VideoProcAmp_Saturation] = "Saturation";
-    vpapToStr[VideoProcAmp_Sharpness] = "Sharpness";
-    vpapToStr[VideoProcAmp_Gamma] = "Gamma";
-    vpapToStr[VideoProcAmp_ColorEnable] = "Color Enable";
-    vpapToStr[VideoProcAmp_WhiteBalance] = "White Balance";
-    vpapToStr[VideoProcAmp_BacklightCompensation] = "Backlight Compensation";
-    vpapToStr[VideoProcAmp_Gain] = "Gain";
+    VideoProcAmpPropertyMap vpapToStr = {
+        {VideoProcAmp_Brightness           , "Brightness"            },
+        {VideoProcAmp_Contrast             , "Contrast"              },
+        {VideoProcAmp_Hue                  , "Hue"                   },
+        {VideoProcAmp_Saturation           , "Saturation"            },
+        {VideoProcAmp_Sharpness            , "Sharpness"             },
+        {VideoProcAmp_Gamma                , "Gamma"                 },
+        {VideoProcAmp_ColorEnable          , "Color Enable"          },
+        {VideoProcAmp_WhiteBalance         , "White Balance"         },
+        {VideoProcAmp_BacklightCompensation, "Backlight Compensation"},
+        {VideoProcAmp_Gain                 , "Gain"                  }
+    };
 
     return vpapToStr;
 }
@@ -47,14 +48,15 @@ typedef QMap<CameraControlProperty, QString> CameraControlMap;
 
 inline CameraControlMap initCameraControlMap()
 {
-    CameraControlMap ccToStr;
-    ccToStr[CameraControl_Pan] = "Pan";
-    ccToStr[CameraControl_Tilt] = "Tilt";
-    ccToStr[CameraControl_Roll] = "Roll";
-    ccToStr[CameraControl_Zoom] = "Zoom";
-    ccToStr[CameraControl_Exposure] = "Exposure";
-    ccToStr[CameraControl_Iris] = "Iris";
-    ccToStr[CameraControl_Focus] = "Focus";
+    CameraControlMap ccToStr = {
+        {CameraControl_Pan     , "Pan"     },
+        {CameraControl_Tilt    , "Tilt"    },
+        {CameraControl_Roll    , "Roll"    },
+        {CameraControl_Zoom    , "Zoom"    },
+        {CameraControl_Exposure, "Exposure"},
+        {CameraControl_Iris    , "Iris"    },
+        {CameraControl_Focus   , "Focus"   }
+    };
 
     return ccToStr;
 }
@@ -65,70 +67,71 @@ typedef QMap<GUID, QString> GuidToStrMap;
 
 inline GuidToStrMap initGuidToStrMap()
 {
-    GuidToStrMap guidToStr;
-    guidToStr[MEDIASUBTYPE_CLPL] = "CLPL";
-    guidToStr[MEDIASUBTYPE_YUYV] = "YUYV";
-    guidToStr[MEDIASUBTYPE_IYUV] = "IYUV";
-    guidToStr[MEDIASUBTYPE_YVU9] = "YVU9";
-    guidToStr[MEDIASUBTYPE_Y411] = "Y411";
-    guidToStr[MEDIASUBTYPE_Y41P] = "Y41P";
-    guidToStr[MEDIASUBTYPE_YUY2] = "YUY2";
-    guidToStr[MEDIASUBTYPE_YVYU] = "YVYU";
-    guidToStr[MEDIASUBTYPE_UYVY] = "UYVY";
-    guidToStr[MEDIASUBTYPE_Y211] = "Y211";
-    guidToStr[MEDIASUBTYPE_CLJR] = "CLJR";
-    guidToStr[MEDIASUBTYPE_IF09] = "IF09";
-    guidToStr[MEDIASUBTYPE_CPLA] = "CPLA";
-    guidToStr[MEDIASUBTYPE_MJPG] = "MJPG";
-    guidToStr[MEDIASUBTYPE_TVMJ] = "TVMJ";
-    guidToStr[MEDIASUBTYPE_WAKE] = "WAKE";
-    guidToStr[MEDIASUBTYPE_CFCC] = "CFCC";
-    guidToStr[MEDIASUBTYPE_IJPG] = "IJPG";
-    guidToStr[MEDIASUBTYPE_Plum] = "Plum";
-    guidToStr[MEDIASUBTYPE_DVCS] = "DVCS";
-    guidToStr[MEDIASUBTYPE_DVSD] = "DVSD";
-    guidToStr[MEDIASUBTYPE_MDVF] = "MDVF";
-    guidToStr[MEDIASUBTYPE_RGB1] = "RGB1";
-    guidToStr[MEDIASUBTYPE_RGB4] = "RGB4";
-    guidToStr[MEDIASUBTYPE_RGB8] = "RGB8";
-    guidToStr[MEDIASUBTYPE_RGB565] = "RGBP";
-    guidToStr[MEDIASUBTYPE_RGB555] = "RGBO";
-    guidToStr[MEDIASUBTYPE_RGB24] = "RGB3";
-    guidToStr[MEDIASUBTYPE_RGB32] = "RGB4";
-    guidToStr[MEDIASUBTYPE_ARGB1555] = "AR15";
-    guidToStr[MEDIASUBTYPE_ARGB4444] = "AR12";
-    guidToStr[MEDIASUBTYPE_ARGB32] = "BA24";
-    guidToStr[MEDIASUBTYPE_AYUV] = "AYUV";
-    guidToStr[MEDIASUBTYPE_AI44] = "AI44";
-    guidToStr[MEDIASUBTYPE_IA44] = "IA44";
-    guidToStr[MEDIASUBTYPE_RGB32_D3D_DX7_RT] = "7R32";
-    guidToStr[MEDIASUBTYPE_RGB16_D3D_DX7_RT] = "7R16";
-    guidToStr[MEDIASUBTYPE_ARGB32_D3D_DX7_RT] = "7A88";
-    guidToStr[MEDIASUBTYPE_ARGB4444_D3D_DX7_RT] = "7A44";
-    guidToStr[MEDIASUBTYPE_ARGB1555_D3D_DX7_RT] = "7A15";
-    guidToStr[MEDIASUBTYPE_RGB32_D3D_DX9_RT] = "9R32";
-    guidToStr[MEDIASUBTYPE_RGB16_D3D_DX9_RT] = "9R16";
-    guidToStr[MEDIASUBTYPE_ARGB32_D3D_DX9_RT] = "9A88";
-    guidToStr[MEDIASUBTYPE_ARGB4444_D3D_DX9_RT] = "9A44";
-    guidToStr[MEDIASUBTYPE_ARGB1555_D3D_DX9_RT] = "9A15";
-    guidToStr[MEDIASUBTYPE_YV12] = "YV12";
-    guidToStr[MEDIASUBTYPE_NV12] = "NV12";
-    guidToStr[MEDIASUBTYPE_IMC1] = "IMC1";
-    guidToStr[MEDIASUBTYPE_IMC2] = "IMC2";
-    guidToStr[MEDIASUBTYPE_IMC3] = "IMC3";
-    guidToStr[MEDIASUBTYPE_IMC4] = "IMC4";
-    guidToStr[MEDIASUBTYPE_S340] = "S340";
-    guidToStr[MEDIASUBTYPE_S342] = "S342";
-    guidToStr[MEDIASUBTYPE_QTRpza] = "rpza";
-    guidToStr[MEDIASUBTYPE_QTSmc] = "smc ";
-    guidToStr[MEDIASUBTYPE_QTRle] = "rle ";
-    guidToStr[MEDIASUBTYPE_QTJpeg] = "jpeg";
-    guidToStr[MEDIASUBTYPE_dvsd] = "dvsd";
-    guidToStr[MEDIASUBTYPE_dvhd] = "dvhd";
-    guidToStr[MEDIASUBTYPE_dvsl] = "dvsl";
-    guidToStr[MEDIASUBTYPE_dv25] = "dv25";
-    guidToStr[MEDIASUBTYPE_dv50] = "dv50";
-    guidToStr[MEDIASUBTYPE_dvh1] = "dvh1";
+    GuidToStrMap guidToStr = {
+        {MEDIASUBTYPE_CLPL               , "CLPL"},
+        {MEDIASUBTYPE_YUYV               , "YUYV"},
+        {MEDIASUBTYPE_IYUV               , "IYUV"},
+        {MEDIASUBTYPE_YVU9               , "YVU9"},
+        {MEDIASUBTYPE_Y411               , "Y411"},
+        {MEDIASUBTYPE_Y41P               , "Y41P"},
+        {MEDIASUBTYPE_YUY2               , "YUY2"},
+        {MEDIASUBTYPE_YVYU               , "YVYU"},
+        {MEDIASUBTYPE_UYVY               , "UYVY"},
+        {MEDIASUBTYPE_Y211               , "Y211"},
+        {MEDIASUBTYPE_CLJR               , "CLJR"},
+        {MEDIASUBTYPE_IF09               , "IF09"},
+        {MEDIASUBTYPE_CPLA               , "CPLA"},
+        {MEDIASUBTYPE_MJPG               , "MJPG"},
+        {MEDIASUBTYPE_TVMJ               , "TVMJ"},
+        {MEDIASUBTYPE_WAKE               , "WAKE"},
+        {MEDIASUBTYPE_CFCC               , "CFCC"},
+        {MEDIASUBTYPE_IJPG               , "IJPG"},
+        {MEDIASUBTYPE_Plum               , "Plum"},
+        {MEDIASUBTYPE_DVCS               , "DVCS"},
+        {MEDIASUBTYPE_DVSD               , "DVSD"},
+        {MEDIASUBTYPE_MDVF               , "MDVF"},
+        {MEDIASUBTYPE_RGB1               , "RGB1"},
+        {MEDIASUBTYPE_RGB4               , "RGB4"},
+        {MEDIASUBTYPE_RGB8               , "RGB8"},
+        {MEDIASUBTYPE_RGB565             , "RGBP"},
+        {MEDIASUBTYPE_RGB555             , "RGBO"},
+        {MEDIASUBTYPE_RGB24              , "RGB3"},
+        {MEDIASUBTYPE_RGB32              , "RGB4"},
+        {MEDIASUBTYPE_ARGB1555           , "AR15"},
+        {MEDIASUBTYPE_ARGB4444           , "AR12"},
+        {MEDIASUBTYPE_ARGB32             , "BA24"},
+        {MEDIASUBTYPE_AYUV               , "AYUV"},
+        {MEDIASUBTYPE_AI44               , "AI44"},
+        {MEDIASUBTYPE_IA44               , "IA44"},
+        {MEDIASUBTYPE_RGB32_D3D_DX7_RT   , "7R32"},
+        {MEDIASUBTYPE_RGB16_D3D_DX7_RT   , "7R16"},
+        {MEDIASUBTYPE_ARGB32_D3D_DX7_RT  , "7A88"},
+        {MEDIASUBTYPE_ARGB4444_D3D_DX7_RT, "7A44"},
+        {MEDIASUBTYPE_ARGB1555_D3D_DX7_RT, "7A15"},
+        {MEDIASUBTYPE_RGB32_D3D_DX9_RT   , "9R32"},
+        {MEDIASUBTYPE_RGB16_D3D_DX9_RT   , "9R16"},
+        {MEDIASUBTYPE_ARGB32_D3D_DX9_RT  , "9A88"},
+        {MEDIASUBTYPE_ARGB4444_D3D_DX9_RT, "9A44"},
+        {MEDIASUBTYPE_ARGB1555_D3D_DX9_RT, "9A15"},
+        {MEDIASUBTYPE_YV12               , "YV12"},
+        {MEDIASUBTYPE_NV12               , "NV12"},
+        {MEDIASUBTYPE_IMC1               , "IMC1"},
+        {MEDIASUBTYPE_IMC2               , "IMC2"},
+        {MEDIASUBTYPE_IMC3               , "IMC3"},
+        {MEDIASUBTYPE_IMC4               , "IMC4"},
+        {MEDIASUBTYPE_S340               , "S340"},
+        {MEDIASUBTYPE_S342               , "S342"},
+        {MEDIASUBTYPE_QTRpza             , "rpza"},
+        {MEDIASUBTYPE_QTSmc              , "smc "},
+        {MEDIASUBTYPE_QTRle              , "rle "},
+        {MEDIASUBTYPE_QTJpeg             , "jpeg"},
+        {MEDIASUBTYPE_dvsd               , "dvsd"},
+        {MEDIASUBTYPE_dvhd               , "dvhd"},
+        {MEDIASUBTYPE_dvsl               , "dvsl"},
+        {MEDIASUBTYPE_dv25               , "dv25"},
+        {MEDIASUBTYPE_dv50               , "dv50"},
+        {MEDIASUBTYPE_dvh1               , "dvh1"}
+    };
 
     return guidToStr;
 }
@@ -139,10 +142,11 @@ typedef QMap<Capture::IoMethod, QString> IoMethodMap;
 
 inline IoMethodMap initIoMethodMap()
 {
-    IoMethodMap ioMethodToStr;
-    ioMethodToStr[Capture::IoMethodDirectRead] = "directRead";
-    ioMethodToStr[Capture::IoMethodGrabSample] = "grabSample";
-    ioMethodToStr[Capture::IoMethodGrabBuffer] = "grabBuffer";
+    IoMethodMap ioMethodToStr = {
+        {Capture::IoMethodDirectRead, "directRead"},
+        {Capture::IoMethodGrabSample, "grabSample"},
+        {Capture::IoMethodGrabBuffer, "grabBuffer"}
+    };
 
     return ioMethodToStr;
 }

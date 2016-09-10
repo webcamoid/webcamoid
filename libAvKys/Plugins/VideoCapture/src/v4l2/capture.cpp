@@ -23,18 +23,18 @@ typedef QMap<v4l2_ctrl_type, QString> V4l2CtrlTypeMap;
 
 inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
 {
-    V4l2CtrlTypeMap ctrlTypeToStr;
-
-    // V4L2 controls
-    ctrlTypeToStr[V4L2_CTRL_TYPE_INTEGER] = "integer";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_BOOLEAN] = "boolean";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_MENU] = "menu";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_BUTTON] = "button";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_INTEGER64] = "integer64";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_CTRL_CLASS] = "ctrlClass";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_STRING] = "string";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_BITMASK] = "bitmask";
-    ctrlTypeToStr[V4L2_CTRL_TYPE_INTEGER_MENU] = "integerMenu";
+    V4l2CtrlTypeMap ctrlTypeToStr = {
+        // V4L2 controls
+        {V4L2_CTRL_TYPE_INTEGER     , "integer"    },
+        {V4L2_CTRL_TYPE_BOOLEAN     , "boolean"    },
+        {V4L2_CTRL_TYPE_MENU        , "menu"       },
+        {V4L2_CTRL_TYPE_BUTTON      , "button"     },
+        {V4L2_CTRL_TYPE_INTEGER64   , "integer64"  },
+        {V4L2_CTRL_TYPE_CTRL_CLASS  , "ctrlClass"  },
+        {V4L2_CTRL_TYPE_STRING      , "string"     },
+        {V4L2_CTRL_TYPE_BITMASK     , "bitmask"    },
+        {V4L2_CTRL_TYPE_INTEGER_MENU, "integerMenu"}
+    };
 
     return ctrlTypeToStr;
 }
@@ -45,10 +45,11 @@ typedef QMap<Capture::IoMethod, QString> IoMethodMap;
 
 inline IoMethodMap initIoMethodMap()
 {
-    IoMethodMap ioMethodToStr;
-    ioMethodToStr[Capture::IoMethodReadWrite] = "readWrite";
-    ioMethodToStr[Capture::IoMethodMemoryMap] = "memoryMap";
-    ioMethodToStr[Capture::IoMethodUserPointer] = "userPointer";
+    IoMethodMap ioMethodToStr = {
+        {Capture::IoMethodReadWrite  , "readWrite"  },
+        {Capture::IoMethodMemoryMap  , "memoryMap"  },
+        {Capture::IoMethodUserPointer, "userPointer"}
+    };
 
     return ioMethodToStr;
 }
@@ -267,11 +268,11 @@ QVariantList Capture::caps(const QString &webcam) const
     if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
         return caps;
 
-    QList<v4l2_buf_type> bufType;
-
-    bufType << V4L2_BUF_TYPE_VIDEO_CAPTURE
-            << V4L2_BUF_TYPE_VIDEO_OUTPUT
-            << V4L2_BUF_TYPE_VIDEO_OVERLAY;
+    QList<v4l2_buf_type> bufType = {
+        V4L2_BUF_TYPE_VIDEO_CAPTURE,
+        V4L2_BUF_TYPE_VIDEO_OUTPUT,
+        V4L2_BUF_TYPE_VIDEO_OVERLAY
+    };
 
     foreach (v4l2_buf_type type, bufType) {
         v4l2_fmtdesc fmt;
