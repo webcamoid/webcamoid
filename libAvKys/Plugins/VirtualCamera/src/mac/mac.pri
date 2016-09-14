@@ -17,15 +17,7 @@
 # Web-Site: http://webcamoid.github.io/
 
 HEADERS += \
-    $$PWD/capture.h \
-    $$PWD/deviceobserver.h
+    $$PWD/cameraout.h
 
-OBJECTIVE_SOURCES += \
-    $$PWD/capture.mm \
-    $$PWD/deviceobserver.mm
-
-LIBS += \
-    -framework CoreMedia \
-    -framework CoreVideo \
-    -framework Foundation \
-    -framework AVFoundation
+SOURCES += \
+    $$PWD/cameraout.cpp

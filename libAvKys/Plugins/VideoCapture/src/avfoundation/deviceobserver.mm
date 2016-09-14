@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "devicewatcher.h"
+#include "deviceobserver.h"
 
-@implementation DeviceWatcher
+@implementation DeviceObserver
 
 - (id) initWithCaptureObject: (Capture *) object
 {
@@ -31,6 +31,32 @@
     m_capture = object;
 
     return self;
+}
+
+- (void) captureOutput: (AVCaptureOutput *) captureOutput
+         didOutputSampleBuffer: (CMSampleBufferRef) videoFrame
+         fromConnection: (AVCaptureConnection *) connection
+{
+    Q_UNUSED(captureOutput)
+    Q_UNUSED(connection)
+
+    m_capture->mutex().lock();
+
+    CMSampleBufferRef *frame =
+            reinterpret_cast<CMSampleBufferRef *>(m_capture->curFrame());
+
+    if (!frame) {
+        m_capture->mutex().unlock();
+
+        return;
+    }
+
+    if (*frame)
+        CFRelease(*frame);
+
+    *frame = (CMSampleBufferRef) CFRetain(videoFrame);
+    m_capture->frameReady().wakeAll();
+    m_capture->mutex().unlock();
 }
 
 - (void) cameraConnected: (NSNotification *) notification

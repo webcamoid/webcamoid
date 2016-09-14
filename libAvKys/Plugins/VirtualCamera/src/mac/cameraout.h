@@ -17,30 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIRTUALCAMERAELEMENT_H
-#define VIRTUALCAMERAELEMENT_H
+#ifndef CAMERAOUT_H
+#define CAMERAOUT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <QMutex>
+#include <akpacket.h>
+#include <akvideocaps.h>
 
-#include <akmultimediasourceelement.h>
-
-#ifdef Q_OS_LINUX
-#include "v4l2/cameraout.h"
-#elif defined(Q_OS_WIN32)
-#include "dshow/cameraout.h"
-#elif defined(Q_OS_OSX)
-#include "mac/cameraout.h"
-#endif
-
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertvideo.h"
-#else
-#include "ffmpeg/convertvideo.h"
-#endif
-
-class VirtualCameraElement: public AkElement
+class CameraOut: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString driverPath
@@ -48,17 +31,18 @@ class VirtualCameraElement: public AkElement
                WRITE setDriverPath
                RESET resetDriverPath
                NOTIFY driverPathChanged)
-    Q_PROPERTY(QStringList medias
-               READ medias
-               NOTIFY mediasChanged)
-    Q_PROPERTY(QString media
-               READ media
-               WRITE setMedia
-               RESET resetMedia
-               NOTIFY mediaChanged)
-    Q_PROPERTY(QList<int> streams
-               READ streams
-               NOTIFY streamsChanged)
+    Q_PROPERTY(QStringList webcams
+               READ webcams
+               NOTIFY webcamsChanged)
+    Q_PROPERTY(QString device
+               READ device
+               WRITE setDevice
+               RESET resetDevice
+               NOTIFY deviceChanged)
+    Q_PROPERTY(int streamIndex
+               READ streamIndex)
+    Q_PROPERTY(AkCaps caps
+               READ caps)
     Q_PROPERTY(int maxCameras
                READ maxCameras)
     Q_PROPERTY(bool needRoot
@@ -75,29 +59,26 @@ class VirtualCameraElement: public AkElement
                NOTIFY rootMethodChanged)
 
     public:
-        explicit VirtualCameraElement();
-        ~VirtualCameraElement();
+        enum RootMethod
+        {
+            RootMethodSu,
+            RootMethodSudo
+        };
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
+        explicit CameraOut();
+        ~CameraOut();
 
         Q_INVOKABLE QString driverPath() const;
-        Q_INVOKABLE QStringList medias() const;
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
+        Q_INVOKABLE QStringList webcams() const;
+        Q_INVOKABLE QString device() const;
+        Q_INVOKABLE int streamIndex() const;
+        Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE QString description(const QString &webcam) const;
+        Q_INVOKABLE void writeFrame(const AkPacket &frame);
         Q_INVOKABLE int maxCameras() const;
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
         Q_INVOKABLE QString rootMethod() const;
-
-        Q_INVOKABLE int defaultStream(const QString &mimeType) const;
-        Q_INVOKABLE QString description(const QString &media) const;
-        Q_INVOKABLE AkCaps caps(int stream) const;
-        Q_INVOKABLE QVariantMap addStream(int streamIndex,
-                                          const AkCaps &streamCaps,
-                                          const QVariantMap &streamParams=QVariantMap());
-        Q_INVOKABLE QVariantMap updateStream(int streamIndex,
-                                             const QVariantMap &streamParams=QVariantMap());
         Q_INVOKABLE QString createWebcam(const QString &description="",
                                          const QString &password="") const;
         Q_INVOKABLE bool changeDescription(const QString &webcam,
@@ -107,41 +88,34 @@ class VirtualCameraElement: public AkElement
                                       const QString &password="") const;
         Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
 
-    protected:
-        void stateChange(AkElement::ElementState from,
-                         AkElement::ElementState to);
-
     private:
-        CameraOut m_cameraOut;
-        ConvertVideo m_convertVideo;
+        QString m_driverPath;
+        QStringList m_webcams;
+        QString m_device;
         int m_streamIndex;
-        AkCaps m_streamCaps;
-        QMutex m_mutex;
-        bool m_isRunning;
-
-        QImage swapChannels(const QImage &image) const;
+        AkCaps m_caps;
+        int m_passwordTimeout;
+        RootMethod m_rootMethod;
 
     signals:
         void driverPathChanged(const QString &driverPath);
-        void mediasChanged(const QStringList &medias) const;
-        void mediaChanged(const QString &media);
-        void streamsChanged(const QList<int> &streams);
+        void webcamsChanged(const QStringList &webcams) const;
+        void deviceChanged(const QString &device);
         void passwordTimeoutChanged(int passwordTimeout);
-        void rootMethodChanged(const QString &rootMethod);
+        void rootMethodChanged(QString rootMethod);
         void error(const QString &message);
 
     public slots:
+        bool init(int streamIndex, const AkCaps &caps);
+        void uninit();
         void setDriverPath(const QString &driverPath);
-        void setMedia(const QString &media);
+        void setDevice(const QString &device);
         void setPasswordTimeout(int passwordTimeout);
         void setRootMethod(const QString &rootMethod);
         void resetDriverPath();
-        void resetMedia();
+        void resetDevice();
         void resetPasswordTimeout();
         void resetRootMethod();
-        void clearStreams();
-
-        AkPacket iStream(const AkPacket &packet);
 };
 
-#endif // VIRTUALCAMERAELEMENT_H
+#endif // CAMERAOUT_H

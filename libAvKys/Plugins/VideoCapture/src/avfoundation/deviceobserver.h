@@ -17,18 +17,21 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef DEVICEWATCHER_H
-#define DEVICEWATCHER_H
+#ifndef DEVICEOBSERVER_H
+#define DEVICEOBSERVER_H
 
-#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
 
 #include "capture.h"
 
-@interface DeviceWatcher: NSObject {
+@interface DeviceObserver: NSObject {
     Capture *m_capture;
 }
 
 - (id) initWithCaptureObject: (Capture *) object;
+- (void) captureOutput: (AVCaptureOutput *) captureOutput
+         didOutputSampleBuffer: (CMSampleBufferRef) videoFrame
+         fromConnection: (AVCaptureConnection *) connection;
 - (void) cameraConnected: (NSNotification *) notification;
 - (void) cameraDisconnected: (NSNotification *) notification;
 - (void) disconnect;

@@ -28,6 +28,7 @@ exists(commons.pri) {
 
 unix:!macx: include(src/v4l2/v4l2.pri)
 win32: include(src/dshow/dshow.pri)
+macx: include(src/mac/mac.pri)
 
 #USE_GSTREAMER = 1
 

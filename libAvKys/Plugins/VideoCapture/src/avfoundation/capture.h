@@ -20,6 +20,7 @@
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
+#include <QWaitCondition>
 #include <QMutex>
 #include <QTimer>
 #include <ak.h>
@@ -77,6 +78,10 @@ class Capture: public QObject
         Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
 
+        QMutex &mutex();
+        QWaitCondition &frameReady();
+        void *curFrame();
+
     private:
         QStringList m_webcams;
         QString m_device;
@@ -84,7 +89,9 @@ class Capture: public QObject
         IoMethod m_ioMethod;
         int m_nBuffers;
         QTimer m_timer;
+        QMutex m_mutex;
         QMutex m_controlsMutex;
+        QWaitCondition m_frameReady;
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkCaps m_caps;

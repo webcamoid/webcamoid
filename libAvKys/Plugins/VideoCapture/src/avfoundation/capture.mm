@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <sys/time.h>
 #import <AVFoundation/AVFoundation.h>
 
 #include "capture.h"
-#include "devicewatcher.h"
+#include "deviceobserver.h"
 
 typedef QMap<FourCharCode, QString> FourCharCodeToStrMap;
 
@@ -58,7 +59,11 @@ Q_GLOBAL_STATIC_WITH_ARGS(FourCharCodeToStrMap, fourccToStrMap, (initFourCharCod
 class CapturePrivate
 {
     public:
-        DeviceWatcher *m_deviceWatcher;
+        id m_deviceObserver;
+        AVCaptureDeviceInput *m_deviceInput;
+        AVCaptureVideoDataOutput *m_dataOutput;
+        AVCaptureSession *m_session;
+        CMSampleBufferRef m_curFrame;
 
         static inline QString fourccToStr(FourCharCode format)
         {
@@ -79,22 +84,74 @@ class CapturePrivate
 
         static inline QVariantList imageControls(AVCaptureDevice *camera)
         {
-            // Exposure
-            // Low Light
-            // Image Exposure
-            // White Balance
+            QVariantList controls;
 
-            return QVariantList();
+            if ([camera lockForConfiguration: nil] == NO)
+                return controls;
+
+            // This controls will be not implemented since Apple doesn't
+            // provides an interface for controlling camera controls
+            // (ie. UVC controls).
+
+            [camera unlockForConfiguration];
+
+            return controls;
         }
 
         static inline QVariantList cameraControls(AVCaptureDevice *camera)
         {
-            // Focus
-            // Zoom
-            // Flash
-            // Torch
+            QVariantList controls;
 
-            return QVariantList();
+            if ([camera lockForConfiguration: nil] == NO)
+                return controls;
+
+            // Same as above.
+
+            [camera unlockForConfiguration];
+
+            return controls;
+        }
+
+        static inline AVCaptureDeviceFormat *formatFromCaps(AVCaptureDevice *camera,
+                                                            const AkCaps &caps)
+        {
+            for (AVCaptureDeviceFormat *format in camera.formats) {
+                if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
+                    continue;
+
+                FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+                CMVideoDimensions size =
+                        CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+
+                QString fourccStr =
+                        fourccToStrMap->value(fourCC,
+                                              CapturePrivate::fourccToStr(fourCC));
+
+                AkCaps videoCaps;
+                videoCaps.setMimeType("video/unknown");
+                videoCaps.setProperty("fourcc", fourccStr);
+                videoCaps.setProperty("width", size.width);
+                videoCaps.setProperty("height", size.height);
+
+                for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
+                    videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
+
+                    if (videoCaps == caps)
+                        return format;
+                }
+            }
+
+            return nil;
+        }
+
+        static inline AVFrameRateRange *frameRateRangeFromFps(AVCaptureDeviceFormat *format,
+                                                              const AkFrac &fps)
+        {
+            for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges)
+                if (AkFrac(1e3 * fpsRange.maxFrameRate, 1e3) == fps)
+                    return fpsRange;
+
+            return nil;
         }
 };
 
@@ -106,17 +163,21 @@ Capture::Capture(): QObject()
     this->m_webcams = this->webcams();
     this->m_device = this->m_webcams.value(0, "");
     this->d = new CapturePrivate();
-    this->d->m_deviceWatcher = [[DeviceWatcher alloc]
-                               initWithCaptureObject: this];
+    this->d->m_deviceInput = nil;
+    this->d->m_dataOutput = nil;
+    this->d->m_session = nil;
+    this->d->m_curFrame = nil;
+    this->d->m_deviceObserver = [[DeviceObserver alloc]
+                                 initWithCaptureObject: this];
 
     [[NSNotificationCenter defaultCenter]
-     addObserver: this->d->m_deviceWatcher
+     addObserver: this->d->m_deviceObserver
      selector: @selector(cameraConnected:)
      name: AVCaptureDeviceWasConnectedNotification
      object: nil];
 
     [[NSNotificationCenter defaultCenter]
-     addObserver: this->d->m_deviceWatcher
+     addObserver: this->d->m_deviceObserver
      selector: @selector(cameraDisconnected:)
      name: AVCaptureDeviceWasDisconnectedNotification
      object: nil];
@@ -135,13 +196,14 @@ Capture::Capture(): QObject()
 
 Capture::~Capture()
 {
+    this->uninit();
     //this->m_timer.stop();
 
     [[NSNotificationCenter defaultCenter]
-     removeObserver: this->d->m_deviceWatcher];
+     removeObserver: this->d->m_deviceObserver];
 
-    [this->d->m_deviceWatcher disconnect];
-    [this->d->m_deviceWatcher release];
+    [this->d->m_deviceObserver disconnect];
+    [this->d->m_deviceObserver release];
 
     delete this->d;
 }
@@ -224,6 +286,7 @@ QVariantList Capture::caps(const QString &webcam) const
     if (!camera)
         return caps;
 
+    // List supported frame formats.
     for (AVCaptureDeviceFormat *format in camera.formats) {
         if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
             continue;
@@ -242,6 +305,7 @@ QVariantList Capture::caps(const QString &webcam) const
         videoCaps.setProperty("width", size.width);
         videoCaps.setProperty("height", size.height);
 
+        // List all supported frame rates for the format.
         for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
             videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
             caps << QVariant::fromValue(videoCaps);
@@ -366,7 +430,76 @@ bool Capture::resetCameraControls()
 
 AkPacket Capture::readFrame()
 {
-    return AkPacket();
+    this->m_mutex.lock();
+
+    if (!this->d->m_curFrame)
+        if (!this->m_frameReady.wait(&this->m_mutex, 1000)) {
+            this->m_mutex.unlock();
+
+            return AkPacket();
+        }
+
+    // Read frame data.
+    CVImageBufferRef imageBuffer =
+            CMSampleBufferGetImageBuffer(this->d->m_curFrame);
+    size_t dataSize = CVPixelBufferGetDataSize(imageBuffer);
+
+    QByteArray oBuffer(dataSize, Qt::Uninitialized);
+
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    void *data = CVPixelBufferGetBaseAddress(imageBuffer);
+    memcpy(oBuffer.data(), data, dataSize);
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+
+    // Read pts.
+    CMItemCount count = 0;
+    CMSampleTimingInfo timingInfo;
+    qint64 pts;
+    AkFrac timeBase;
+
+    if (CMSampleBufferGetOutputSampleTimingInfoArray(this->d->m_curFrame,
+                                                     1,
+                                                     &timingInfo,
+                                                     &count) == noErr) {
+        pts = timingInfo.presentationTimeStamp.value;
+        timeBase = AkFrac(1, timingInfo.presentationTimeStamp.timescale);
+    } else {
+        timeval timestamp;
+        gettimeofday(&timestamp, NULL);
+        pts = qint64((timestamp.tv_sec
+                      + 1e-6 * timestamp.tv_usec)
+                     * this->m_timeBase.invert().value());
+        timeBase = this->m_timeBase;
+    }
+
+    // Create package.
+    AkPacket packet(this->m_caps, oBuffer);
+    packet.setPts(pts);
+    packet.setTimeBase(this->m_timeBase);
+    packet.setIndex(0);
+    packet.setId(this->m_id);
+
+    CFRelease(this->d->m_curFrame);
+    this->d->m_curFrame = nil;
+
+    this->m_mutex.unlock();
+
+    return packet;
+}
+
+QMutex &Capture::mutex()
+{
+    return this->m_mutex;
+}
+
+QWaitCondition &Capture::frameReady()
+{
+    return this->m_frameReady;
+}
+
+void *Capture::curFrame()
+{
+    return &this->d->m_curFrame;
 }
 
 QVariantMap Capture::controlStatus(const QVariantList &controls) const
@@ -384,11 +517,146 @@ QVariantMap Capture::controlStatus(const QVariantList &controls) const
 
 bool Capture::init()
 {
-    return false;
+    QString webcam = this->m_device;
+
+    if (webcam.isEmpty())
+        return false;
+
+    // Read selected caps.
+    QList<int> streams = this->streams();
+
+    if (streams.isEmpty())
+        return false;
+
+    QVariantList supportedCaps = this->caps(webcam);
+
+    if (supportedCaps.isEmpty())
+        return false;
+
+    AkCaps caps = streams[0] < supportedCaps.size()?
+                    supportedCaps[streams[0]].value<AkCaps>():
+                    supportedCaps.first().value<AkCaps>();
+
+    // Get camera input.
+    NSString *uniqueID = [[NSString alloc]
+                          initWithUTF8String: webcam.toStdString().c_str()];
+    AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
+    [uniqueID release];
+
+    if (!camera)
+        return false;
+
+    // Add camera input unit.
+    this->d->m_deviceInput = [AVCaptureDeviceInput
+                              deviceInputWithDevice: camera
+                              error: nil];
+
+    if (!this->d->m_deviceInput)
+        return false;
+
+    // Create capture session.
+    this->d->m_session = [AVCaptureSession new];
+    [this->d->m_session beginConfiguration];
+
+    if ([this->d->m_session canAddInput: this->d->m_deviceInput] == NO) {
+        [this->d->m_session release];
+
+        return false;
+    }
+
+    [this->d->m_session addInput: this->d->m_deviceInput];
+
+    // Add data output unit.
+    this->d->m_dataOutput = [AVCaptureVideoDataOutput new];
+    this->d->m_dataOutput.videoSettings = nil;
+    this->d->m_dataOutput.alwaysDiscardsLateVideoFrames = YES;
+
+    dispatch_queue_t queue = dispatch_queue_create("frameQueue", NULL);
+    [this->d->m_dataOutput
+     setSampleBufferDelegate: this->d->m_deviceObserver
+     queue: queue];
+    dispatch_release(queue);
+
+    if ([this->d->m_session canAddOutput: this->d->m_dataOutput] == NO) {
+        [this->d->m_dataOutput release];
+        [this->d->m_session release];
+
+        return false;
+    }
+
+    [this->d->m_session addOutput: this->d->m_dataOutput];
+    [this->d->m_session commitConfiguration];
+
+    if ([camera lockForConfiguration: nil] == NO) {
+        [this->d->m_session release];
+
+        return false;
+    }
+
+    // Configure camera format.
+    AVCaptureDeviceFormat *format = CapturePrivate::formatFromCaps(camera, caps);
+
+    if (!format) {
+        [camera unlockForConfiguration];
+        [this->d->m_session release];
+
+        return false;
+    }
+
+    AkFrac fps = caps.property("fps").toString();
+    AVFrameRateRange *fpsRange = CapturePrivate::frameRateRangeFromFps(format, fps);
+
+    camera.activeFormat = format;
+    camera.activeVideoMinFrameDuration = fpsRange.minFrameDuration;
+    camera.activeVideoMaxFrameDuration = fpsRange.maxFrameDuration;
+
+    // Start capturing from the camera.
+    [this->d->m_session startRunning];
+    [camera unlockForConfiguration];
+    [this->d->m_deviceInput retain];
+
+    this->m_caps = caps;
+    this->m_timeBase = fps.invert();
+    this->m_id = Ak::id();
+
+    return true;
 }
 
 void Capture::uninit()
 {
+    if (this->d->m_session) {
+        [this->d->m_session stopRunning];
+        [this->d->m_session beginConfiguration];
+
+        if (this->d->m_deviceInput)
+            [this->d->m_session removeInput: this->d->m_deviceInput];
+
+        if (this->d->m_dataOutput)
+            [this->d->m_session removeOutput: this->d->m_dataOutput];
+
+        [this->d->m_session commitConfiguration];
+        [this->d->m_session release];
+        this->d->m_session = nil;
+    }
+
+    if (this->d->m_deviceInput) {
+        [this->d->m_deviceInput release];
+        this->d->m_deviceInput = nil;
+    }
+
+    if (this->d->m_dataOutput) {
+        [this->d->m_dataOutput release];
+        this->d->m_dataOutput = nil;
+    }
+
+    this->m_mutex.lock();
+
+    if (this->d->m_curFrame) {
+        CFRelease(this->d->m_curFrame);
+        this->d->m_curFrame = nil;
+    }
+
+    this->m_mutex.unlock();
 }
 
 void Capture::setDevice(const QString &device)

@@ -45,7 +45,7 @@ install: |
     sudo apt-get -y install libpulse-dev
     sudo apt-get -y install libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew install ccache qt5 ffmpeg
+    brew install ccache pkg-config qt5 ffmpeg libuvc
   fi
 
 before_script: |
