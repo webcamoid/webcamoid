@@ -193,5 +193,5 @@ void CameraOut::resetPasswordTimeout()
 
 void CameraOut::resetRootMethod()
 {
-    this->setRootMethod(ROOT_METHOD);
+    this->setRootMethod("");
 }
