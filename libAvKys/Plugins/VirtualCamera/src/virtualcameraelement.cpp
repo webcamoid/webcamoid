@@ -108,6 +108,8 @@ QObject *VirtualCameraElement::controlInterface(QQmlEngine *engine,
 
 #ifdef Q_OS_LINUX
     context->setContextProperty("OsName", "linux");
+#elif defined(Q_OS_OSX)
+    context->setContextProperty("OsName", "mac");
 #elif defined(Q_OS_WIN32)
     context->setContextProperty("OsName", "windows");
 #else

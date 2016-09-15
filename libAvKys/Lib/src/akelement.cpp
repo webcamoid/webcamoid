@@ -348,7 +348,9 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
     QStringList searchPaths(searchDir);
     QStringList files;
 
-#ifdef Q_OS_WIN32
+#ifdef Q_OS_OSX
+    QString pattern("lib*.dylib");
+#elif defined(Q_OS_WIN32)
     QString pattern("*.dll");
 #else
     QString pattern("lib*.so");
