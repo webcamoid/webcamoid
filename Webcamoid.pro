@@ -42,7 +42,7 @@ INSTALLS += \
 license.files = COPYING
 license.path = $${LICENSEDIR}
 
-unix {
+unix:!macx {
     INSTALLS += desktop
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications

@@ -223,7 +223,7 @@ target.path = $${BINDIR}
     appIcon.path = $${PREFIX}
 }
 
-unix {
+unix:!macx {
     INSTALLS += \
         manpage \
         appIcon8x8 \

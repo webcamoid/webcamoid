@@ -113,18 +113,18 @@ void Ak::setQmlEngine(QQmlEngine *engine)
 
 QString Ak::qmlPluginPath()
 {
-#ifdef Q_OS_WIN32
     if (akGlobalStuff->m_globalQmlPluginPath.isEmpty()) {
+#ifdef Q_OS_WIN32
         QString qmlPluginPath = QString("%1/../lib/qt/qml")
                                 .arg(QCoreApplication::applicationDirPath());
-        qmlPluginPath = akGlobalStuff->convertToAbsolute(qmlPluginPath);
 
-        return qmlPluginPath;
-    }
+        return akGlobalStuff->convertToAbsolute(qmlPluginPath);
+#elif defined(Q_OS_OSX)
+        return QString("%1/qt/qml").arg(LIBDIR);
 #else
-    if (akGlobalStuff->m_globalQmlPluginPath.isEmpty())
         return QString(QT_INSTALL_QML);
 #endif
+    }
 
     return akGlobalStuff->m_globalQmlPluginPath;
 }
@@ -154,6 +154,9 @@ void Ak::resetQmlPluginPath()
     QString qmlPluginPath = QString("%1/../lib/qt/qml")
                             .arg(QCoreApplication::applicationDirPath());
     qmlPluginPath = akGlobalStuff->convertToAbsolute(qmlPluginPath);
+    Ak::setQmlPluginPath(qmlPluginPath);
+#elif defined(Q_OS_OSX)
+    QString qmlPluginPath = QString("%1/qt/qml").arg(LIBDIR);
     Ak::setQmlPluginPath(qmlPluginPath);
 #else
     Ak::setQmlPluginPath(QT_INSTALL_QML);
