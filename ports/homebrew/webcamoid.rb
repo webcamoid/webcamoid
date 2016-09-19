@@ -1,14 +1,13 @@
 class Webcamoid < Formula
     desc "Webcamoid is a full featured webcam capture application."
     homepage "https://webcamoid.github.io/"
-    url "https://github.com/webcamoid/webcamoid/archive/a804b82d488f99feacbb59c50880cc34cac5dc16.zip"
+    url "https://github.com/webcamoid/webcamoid/archive/43f71ff0420d89dc27b236b0e52fa37fb4af7b72.zip"
     version "8.0.0"
-    sha256 "d6fc13352a0e5f5ab4f910f69a7f4e3bedf0655193f833e3443a0ae6b0142a3d"
+    sha256 "b8ee97a40a3d6c6a522b5e544c67af2dacae0a606b341716cacc62a21d90b68b"
 
-    depends_on qt5
-    depends_on ffmpeg
-    depends_on libuvc => :optional
-    depends_on :x11
+    depends_on "qt5"
+    depends_on "ffmpeg"
+    depends_on "libuvc" => :optional
 
     def install
         if ENV.compiler == :clang
@@ -19,7 +18,7 @@ class Webcamoid < Formula
 
         ffver = `ffmpeg -version | head -n 1 | awk '{print $3}'`
 
-        args = %W [
+        args = %W[
             -config release
             -spec #{spec}
             PREFIX=#{prefix}

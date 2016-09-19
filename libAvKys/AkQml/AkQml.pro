@@ -57,8 +57,8 @@ INSTALLS += \
     target \
     qmldir
 
-unix: installPath = $$[QT_INSTALL_QML]/AkQml
-!unix: installPath = $${LIBDIR}/qt/qml/AkQml
+unix:!macx: installPath = $$[QT_INSTALL_QML]/AkQml
+else: installPath = $${LIBDIR}/qt/qml/AkQml
 
 target.path = $$installPath
 
