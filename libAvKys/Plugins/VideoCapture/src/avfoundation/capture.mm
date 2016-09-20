@@ -440,16 +440,29 @@ AkPacket Capture::readFrame()
         }
 
     // Read frame data.
-    CVImageBufferRef imageBuffer =
-            CMSampleBufferGetImageBuffer(this->d->m_curFrame);
-    size_t dataSize = CVPixelBufferGetDataSize(imageBuffer);
+    QByteArray oBuffer;
 
-    QByteArray oBuffer(dataSize, Qt::Uninitialized);
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(this->d->m_curFrame);
+    CMBlockBufferRef dataBuffer = CMSampleBufferGetDataBuffer(this->d->m_curFrame);
 
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    void *data = CVPixelBufferGetBaseAddress(imageBuffer);
-    memcpy(oBuffer.data(), data, dataSize);
-    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+    if (imageBuffer) {
+        size_t dataSize = CVPixelBufferGetDataSize(imageBuffer);
+        oBuffer.resize(int(dataSize));
+        CVPixelBufferLockBaseAddress(imageBuffer, 0);
+        void *data = CVPixelBufferGetBaseAddress(imageBuffer);
+        memcpy(oBuffer.data(), data, dataSize);
+        CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+    } else if (dataBuffer) {
+        size_t dataSize = 0;
+        char *data = NULL;
+        CMBlockBufferGetDataPointer(dataBuffer,
+                                    0,
+                                    NULL,
+                                    &dataSize,
+                                    &data);
+        oBuffer.resize(int(dataSize));
+        memcpy(oBuffer.data(), data, dataSize);
+    }
 
     // Read pts.
     CMItemCount count = 0;
