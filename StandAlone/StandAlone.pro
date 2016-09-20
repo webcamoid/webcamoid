@@ -94,6 +94,7 @@ DESTDIR = $${PWD}
 
 TARGET = $${COMMONS_TARGET}
 
+macx: ICON = share/icons/webcamoid.icns
 !unix: RC_ICONS = share/icons/hicolor/256x256/webcamoid.ico
 
 TEMPLATE = app
