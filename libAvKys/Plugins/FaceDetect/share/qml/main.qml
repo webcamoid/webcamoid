@@ -327,6 +327,170 @@ GridLayout {
 
     // Marker picture.
     Label {
+        text: qsTr("Masks")
+    }
+    ComboBox {
+        id: cbxMasks
+
+        model: ListModel {
+            ListElement {
+                text: qsTr("Angel")
+                mask: ":/FaceDetect/share/masks/angel.png"
+            }
+            ListElement {
+                text: qsTr("Bear")
+                mask: ":/FaceDetect/share/masks/bear.png"
+            }
+            ListElement {
+                text: qsTr("Beaver")
+                mask: ":/FaceDetect/share/masks/beaver.png"
+            }
+            ListElement {
+                text: qsTr("Cat")
+                mask: ":/FaceDetect/share/masks/cat.png"
+            }
+            ListElement {
+                text: qsTr("Chicken")
+                mask: ":/FaceDetect/share/masks/chicken.png"
+            }
+            ListElement {
+                text: qsTr("Cow")
+                mask: ":/FaceDetect/share/masks/cow.png"
+            }
+            ListElement {
+                text: qsTr("Devil")
+                mask: ":/FaceDetect/share/masks/devil.png"
+            }
+            ListElement {
+                text: qsTr("Dog")
+                mask: ":/FaceDetect/share/masks/dog.png"
+            }
+            ListElement {
+                text: qsTr("Dalmatian dog")
+                mask: ":/FaceDetect/share/masks/dog-dalmatian.png"
+            }
+            ListElement {
+                text: qsTr("Happy dog")
+                mask: ":/FaceDetect/share/masks/dog-happy.png"
+            }
+            ListElement {
+                text: qsTr("Dragon")
+                mask: ":/FaceDetect/share/masks/dragon.png"
+            }
+            ListElement {
+                text: qsTr("Elephant 1")
+                mask: ":/FaceDetect/share/masks/elephant1.png"
+            }
+            ListElement {
+                text: qsTr("Elephant 2")
+                mask: ":/FaceDetect/share/masks/elephant2.png"
+            }
+            ListElement {
+                text: qsTr("Elk")
+                mask: ":/FaceDetect/share/masks/elk.png"
+            }
+            ListElement {
+                text: qsTr("Frog")
+                mask: ":/FaceDetect/share/masks/frog.png"
+            }
+            ListElement {
+                text: qsTr("Ghost")
+                mask: ":/FaceDetect/share/masks/ghost.png"
+            }
+            ListElement {
+                text: qsTr("Giraffe")
+                mask: ":/FaceDetect/share/masks/giraffe.png"
+            }
+            ListElement {
+                text: qsTr("Gnu")
+                mask: ":/FaceDetect/share/masks/gnu.png"
+            }
+            ListElement {
+                text: qsTr("Goat")
+                mask: ":/FaceDetect/share/masks/goat.png"
+            }
+            ListElement {
+                text: qsTr("Hippo")
+                mask: ":/FaceDetect/share/masks/hippo.png"
+            }
+            ListElement {
+                text: qsTr("Horse")
+                mask: ":/FaceDetect/share/masks/horse.png"
+            }
+            ListElement {
+                text: qsTr("Gray horse")
+                mask: ":/FaceDetect/share/masks/horse-gray.png"
+            }
+            ListElement {
+                text: qsTr("Koala")
+                mask: ":/FaceDetect/share/masks/koala.png"
+            }
+            ListElement {
+                text: qsTr("Monkey")
+                mask: ":/FaceDetect/share/masks/monkey.png"
+            }
+            ListElement {
+                text: qsTr("Gray mouse")
+                mask: ":/FaceDetect/share/masks/mouse-gray.png"
+            }
+            ListElement {
+                text: qsTr("White mouse")
+                mask: ":/FaceDetect/share/masks/mouse-white.png"
+            }
+            ListElement {
+                text: qsTr("Panda")
+                mask: ":/FaceDetect/share/masks/panda.png"
+            }
+            ListElement {
+                text: qsTr("Penguin")
+                mask: ":/FaceDetect/share/masks/penguin.png"
+            }
+            ListElement {
+                text: qsTr("Pumpkin 1")
+                mask: ":/FaceDetect/share/masks/pumpkin1.png"
+            }
+            ListElement {
+                text: qsTr("Pumpkin 2")
+                mask: ":/FaceDetect/share/masks/pumpkin2.png"
+            }
+            ListElement {
+                text: qsTr("Raccoon")
+                mask: ":/FaceDetect/share/masks/raccoon.png"
+            }
+            ListElement {
+                text: qsTr("Rhino")
+                mask: ":/FaceDetect/share/masks/rhino.png"
+            }
+            ListElement {
+                text: qsTr("Sheep")
+                mask: ":/FaceDetect/share/masks/sheep.png"
+            }
+            ListElement {
+                text: qsTr("Skull 1")
+                mask: ":/FaceDetect/share/masks/skull1.png"
+            }
+            ListElement {
+                text: qsTr("Skull 2")
+                mask: ":/FaceDetect/share/masks/skull2.png"
+            }
+            ListElement {
+                text: qsTr("Triceratops")
+                mask: ":/FaceDetect/share/masks/triceratops.png"
+            }
+            ListElement {
+                text: qsTr("Zebra")
+                mask: ":/FaceDetect/share/masks/zebra.png"
+            }
+            ListElement {
+                text: qsTr("Custom")
+                mask: ""
+            }
+        }
+
+        onCurrentIndexChanged: FaceDetect.markerImage = cbxMasks.model.get(currentIndex).mask
+    }
+
+    Label {
         text: qsTr("Marker picture")
     }
     RowLayout {
@@ -343,6 +507,21 @@ GridLayout {
             text: FaceDetect.markerImage
             placeholderText: qsTr("Replace face with this picture.")
             Layout.fillWidth: true
+
+            onTextChanged: {
+                for (var i = 0; i < cbxMasks.model.count; i++) {
+                    if (cbxMasks.model.get(i).mask === FaceDetect.markerImage) {
+                        cbxMasks.currentIndex = i
+
+                        break
+                    } else if (i == cbxMasks.model.count - 1) {
+                        cbxMasks.model.get(i).mask = FaceDetect.markerImage
+                        cbxMasks.currentIndex = i
+
+                        break
+                    }
+                }
+            }
         }
         Button {
             text: qsTr("Search")

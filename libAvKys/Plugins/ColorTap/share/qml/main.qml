@@ -106,8 +106,7 @@ ColumnLayout {
                         cbxTable.currentIndex = i
 
                         break
-                    }
-                    else if (i == cbxTable.model.count - 1) {
+                    } else if (i == cbxTable.model.count - 1) {
                         cbxTable.model.get(i).table = ColorTap.table
                         cbxTable.currentIndex = i
 
