@@ -210,23 +210,11 @@ Capture::Capture(): QObject()
      selector: @selector(cameraDisconnected:)
      name: AVCaptureDeviceWasDisconnectedNotification
      object: nil];
-
-    // I've added this code is case AVCaptureDeviceWasDisconnectedNotification
-    // signal doesn't works. Need more tests here.
-    this->m_timer.setInterval(1000);
-
-    QObject::connect(&this->m_timer,
-                     &QTimer::timeout,
-                     this,
-                     &Capture::updateWebcams);
-
-    //this->m_timer.start();
 }
 
 Capture::~Capture()
 {
     this->uninit();
-    //this->m_timer.stop();
 
     [[NSNotificationCenter defaultCenter]
      removeObserver: this->d->m_deviceObserver];

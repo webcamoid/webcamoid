@@ -23,14 +23,10 @@
 
 #define PAUSE_TIMEOUT 500
 
-#if defined(Q_OS_WIN32)
+#ifdef Q_OS_WIN32
 inline QStringList initMirrorFormats()
 {
-    QStringList mirrorFormats;
-    mirrorFormats << "RGB3"
-                  << "RGB4"
-                  << "RGBP"
-                  << "RGBO";
+    QStringList mirrorFormats = {"RGB3", "RGB4", "RGBP", "RGBO"};
 
     return mirrorFormats;
 }
@@ -39,9 +35,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QStringList, mirrorFormats, (initMirrorFormats()))
 
 inline QStringList initSwapRgbFormats()
 {
-    QStringList swapRgbFormats;
-    swapRgbFormats << "RGB3"
-                   << "YV12";
+    QStringList swapRgbFormats = {"RGB3", "YV12"};
 
     return swapRgbFormats;
 }
@@ -246,6 +240,8 @@ void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
 #endif
 
+    bool initConvert = true;
+
     if (captureElement->m_capture.init()) {
         while (captureElement->m_runCameraLoop) {
             if (captureElement->m_pause) {
@@ -259,9 +255,25 @@ void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
             if (!packet)
                 continue;
 
+            if (initConvert) {
+                AkCaps caps = packet.caps();
+
+#ifdef Q_OS_WIN32
+                QString fourcc = caps.property("fourcc").toString();
+                captureElement->m_mirror = mirrorFormats->contains(fourcc);
+                captureElement->m_swapRgb = swapRgbFormats->contains(fourcc);
+#endif
+
+                if (!captureElement->m_convertVideo.init(caps))
+                    break;
+
+                initConvert = false;
+            }
+
             captureElement->m_convertVideo.packetEnqueue(packet);
         }
 
+        captureElement->m_convertVideo.uninit();
         captureElement->m_capture.uninit();
     }
 
@@ -330,22 +342,6 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused: {
-            QList<int> streams = this->m_capture.streams();
-
-            if (streams.isEmpty())
-                return false;
-
-            QVariantList supportedCaps = this->m_capture.caps(this->m_capture.device());
-            AkCaps caps = supportedCaps.value(streams[0]).value<AkCaps>();
-
-#if defined(Q_OS_WIN32)
-            QString fourcc = caps.property("fourcc").toString();
-            this->m_mirror = mirrorFormats->contains(fourcc);
-#endif
-
-            if (!this->m_convertVideo.init(caps))
-                return false;
-
             this->m_pause = true;
             this->m_runCameraLoop = true;
             this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool, this->cameraLoop, this);
@@ -353,23 +349,6 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             return AkElement::setState(state);
         }
         case AkElement::ElementStatePlaying: {
-            QList<int> streams = this->m_capture.streams();
-
-            if (streams.isEmpty())
-                return false;
-
-            QVariantList supportedCaps = this->m_capture.caps(this->m_capture.device());
-            AkCaps caps = supportedCaps.value(streams[0]).value<AkCaps>();
-
-#if defined(Q_OS_WIN32)
-            QString fourcc = caps.property("fourcc").toString();
-            this->m_mirror = mirrorFormats->contains(fourcc);
-            this->m_swapRgb = swapRgbFormats->contains(fourcc);
-#endif
-
-            if (!this->m_convertVideo.init(caps))
-                return false;
-
             this->m_pause = false;
             this->m_runCameraLoop = true;
             this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool, this->cameraLoop, this);
@@ -388,7 +367,6 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
             this->m_pause = false;
             this->m_runCameraLoop = false;
             this->m_cameraLoopResult.waitForFinished();
-            this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
@@ -406,7 +384,6 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull:
             this->m_runCameraLoop = false;
             this->m_cameraLoopResult.waitForFinished();
-            this->m_convertVideo.uninit();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
@@ -426,7 +403,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 
 void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
-#if defined(Q_OS_WIN32)
+#ifdef Q_OS_WIN32
     if (this->m_mirror || this->m_swapRgb) {
         QImage oImage = AkUtils::packetToImage(packet);
 

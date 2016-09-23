@@ -88,7 +88,6 @@ class Capture: public QObject
         QList<int> m_streams;
         IoMethod m_ioMethod;
         int m_nBuffers;
-        QTimer m_timer;
         QMutex m_mutex;
         QMutex m_controlsMutex;
         QWaitCondition m_frameReady;
