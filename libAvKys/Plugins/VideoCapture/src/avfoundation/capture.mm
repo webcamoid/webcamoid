@@ -56,6 +56,35 @@ inline FourCharCodeToStrMap initFourCharCodeToStrMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(FourCharCodeToStrMap, fourccToStrMap, (initFourCharCodeToStrMap()))
 
+typedef QMap<OSType, QString> PixelFormatToStrMap;
+
+inline PixelFormatToStrMap initPixelFormatToStrMap()
+{
+    FourCharCodeToStrMap pixelFormatToStrMap = {
+        {kCVPixelFormatType_1Monochrome                 , "B0W1"},
+        {kCVPixelFormatType_16BE555                     , "RGBQ"},
+        {kCVPixelFormatType_16LE555                     , "RGBO"},
+        {kCVPixelFormatType_16LE5551                    , "AR15"},
+        {kCVPixelFormatType_16BE565                     , "RGBR"},
+        {kCVPixelFormatType_16LE565                     , "RGBP"},
+        {kCVPixelFormatType_24RGB                       , "RGB3"},
+        {kCVPixelFormatType_24BGR                       , "BGR3"},
+        {kCVPixelFormatType_32ARGB                      , "BGRA"},
+        {kCVPixelFormatType_32BGRA                      , "RGB4"},
+        {kCVPixelFormatType_32RGBA                      , "BGR4"},
+        {kCVPixelFormatType_422YpCbCr8                  , "UYVY"},
+        {kCVPixelFormatType_444YpCbCr8                  , "Y444"},
+        {kCVPixelFormatType_420YpCbCr8Planar            , "YV12"},
+        {kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange, "NV12"},
+        {kCVPixelFormatType_422YpCbCr8_yuvs             , "YUY2"},
+        {kCVPixelFormatType_OneComponent8               , "Y800"}
+    };
+
+    return pixelFormatToStrMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(PixelFormatToStrMap, pixelFormatToStrMap, (initPixelFormatToStrMap()))
+
 class CapturePrivate
 {
     public:
@@ -444,6 +473,7 @@ AkPacket Capture::readFrame()
 
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(this->d->m_curFrame);
     CMBlockBufferRef dataBuffer = CMSampleBufferGetDataBuffer(this->d->m_curFrame);
+    QString fourcc;
 
     if (imageBuffer) {
         size_t dataSize = CVPixelBufferGetDataSize(imageBuffer);
@@ -452,6 +482,10 @@ AkPacket Capture::readFrame()
         void *data = CVPixelBufferGetBaseAddress(imageBuffer);
         memcpy(oBuffer.data(), data, dataSize);
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+
+        OSType format = CVPixelBufferGetPixelFormatType(imageBuffer);
+        fourcc = pixelFormatToStrMap->value(format,
+                                            CapturePrivate::fourccToStr(format));
     } else if (dataBuffer) {
         size_t dataSize = 0;
         char *data = NULL;
@@ -485,8 +519,13 @@ AkPacket Capture::readFrame()
         timeBase = this->m_timeBase;
     }
 
+    AkCaps caps(this->m_caps);
+
+    if (!fourcc.isEmpty())
+        caps.setProperty("fourcc", fourcc);
+
     // Create package.
-    AkPacket packet(this->m_caps, oBuffer);
+    AkPacket packet(caps, oBuffer);
     packet.setPts(pts);
     packet.setTimeBase(this->m_timeBase);
     packet.setIndex(0);

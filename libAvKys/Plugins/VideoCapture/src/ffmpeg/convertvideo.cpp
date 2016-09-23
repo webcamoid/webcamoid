@@ -39,63 +39,63 @@ typedef QMap<QString, AVPixelFormat> V4l2PixFmtMap;
 
 inline V4l2PixFmtMap initV4l2PixFmtMap()
 {
-    V4l2PixFmtMap rawToFF;
+    V4l2PixFmtMap rawToFF = {
+        // RGB formats
+        {"RGB1", AV_PIX_FMT_RGB8    },
+        {"R444", AV_PIX_FMT_RGB444LE},
+        {"RGBO", AV_PIX_FMT_RGB555LE},
+        {"RGBP", AV_PIX_FMT_RGB565LE},
+        {"RGBQ", AV_PIX_FMT_RGB555BE},
+        {"RGBR", AV_PIX_FMT_RGB565BE},
+        {"BGR3", AV_PIX_FMT_BGR24   },
+        {"RGB3", AV_PIX_FMT_RGB24   },
+        {"BGR4", AV_PIX_FMT_RGB0    },
+        {"RGB4", AV_PIX_FMT_BGR0    },
+        {"ARGB", AV_PIX_FMT_ARGB    },
+        {"RGBA", AV_PIX_FMT_RGBA    },
 
-    // RGB formats
-    rawToFF["RGB1"] = AV_PIX_FMT_RGB8;
-    rawToFF["R444"] = AV_PIX_FMT_RGB444LE;
-    rawToFF["RGBO"] = AV_PIX_FMT_RGB555LE;
-    rawToFF["RGBP"] = AV_PIX_FMT_RGB565LE;
-    rawToFF["RGBQ"] = AV_PIX_FMT_RGB555BE;
-    rawToFF["RGBR"] = AV_PIX_FMT_RGB565BE;
-    rawToFF["BGR3"] = AV_PIX_FMT_BGR24;
-    rawToFF["RGB3"] = AV_PIX_FMT_RGB24;
-    rawToFF["BGR4"] = AV_PIX_FMT_RGB0;
-    rawToFF["RGB4"] = AV_PIX_FMT_BGR0;
-    rawToFF["ARGB"] = AV_PIX_FMT_ARGB;
-    rawToFF["RGBA"] = AV_PIX_FMT_RGBA;
+        // Grey formats
+        {"Y800", AV_PIX_FMT_GRAY8    },
+        {"GREY", AV_PIX_FMT_GRAY8    },
+        {"Y16 ", AV_PIX_FMT_GRAY16LE },
+        {"B1W0", AV_PIX_FMT_MONOWHITE},
+        {"B0W1", AV_PIX_FMT_MONOBLACK},
 
-    // Grey formats
-    rawToFF["Y800"] = AV_PIX_FMT_GRAY8;
-    rawToFF["GREY"] = AV_PIX_FMT_GRAY8;
-    rawToFF["Y16 "] = AV_PIX_FMT_GRAY16LE;
-    rawToFF["B1W0"] = AV_PIX_FMT_MONOWHITE;
-    rawToFF["B0W1"] = AV_PIX_FMT_MONOBLACK;
+        // Palette formats
+        {"PAL8", AV_PIX_FMT_PAL8},
 
-    // Palette formats
-    rawToFF["PAL8"] = AV_PIX_FMT_PAL8;
+        // Luminance+Chrominance formats
+        {"YVU9", AV_PIX_FMT_YUV410P},
+        {"YV12", AV_PIX_FMT_YUV420P},
+        {"I420", AV_PIX_FMT_YUV420P},
+        {"YUYV", AV_PIX_FMT_YUYV422},
+        {"YYUV", AV_PIX_FMT_YUV422P},
+        {"Y42B", AV_PIX_FMT_YUV422P},
+        {"UYVY", AV_PIX_FMT_UYVY422},
+        {"VYUY", AV_PIX_FMT_YUV422P},
+        {"422P", AV_PIX_FMT_YUV422P},
+        {"411P", AV_PIX_FMT_YUV411P},
+        {"Y41P", AV_PIX_FMT_YUV411P},
+        {"YUY2", AV_PIX_FMT_YUYV422},
+        {"Y444", AV_PIX_FMT_YUV444P},
+        {"444P", AV_PIX_FMT_YUV444P},
+        {"YUV9", AV_PIX_FMT_YUV410P},
+        {"YU12", AV_PIX_FMT_YUV420P},
 
-    // Luminance+Chrominance formats
-    rawToFF["YVU9"] = AV_PIX_FMT_YUV410P;
-    rawToFF["YV12"] = AV_PIX_FMT_YUV420P;
-    rawToFF["I420"] = AV_PIX_FMT_YUV420P;
-    rawToFF["YUYV"] = AV_PIX_FMT_YUYV422;
-    rawToFF["YYUV"] = AV_PIX_FMT_YUV422P;
-    rawToFF["Y42B"] = AV_PIX_FMT_YUV422P;
-    rawToFF["UYVY"] = AV_PIX_FMT_UYVY422;
-    rawToFF["VYUY"] = AV_PIX_FMT_YUV422P;
-    rawToFF["422P"] = AV_PIX_FMT_YUV422P;
-    rawToFF["411P"] = AV_PIX_FMT_YUV411P;
-    rawToFF["Y41P"] = AV_PIX_FMT_YUV411P;
-    rawToFF["YUY2"] = AV_PIX_FMT_YUYV422;
-    rawToFF["Y444"] = AV_PIX_FMT_YUV444P;
-    rawToFF["444P"] = AV_PIX_FMT_YUV444P;
-    rawToFF["YUV9"] = AV_PIX_FMT_YUV410P;
-    rawToFF["YU12"] = AV_PIX_FMT_YUV420P;
+        // two planes -- one Y, one Cr + Cb interleaved
+        {"NV12", AV_PIX_FMT_NV12},
+        {"NV21", AV_PIX_FMT_NV21},
+        {"NV16", AV_PIX_FMT_NV16},
 
-    // two planes -- one Y, one Cr + Cb interleaved
-    rawToFF["NV12"] = AV_PIX_FMT_NV12;
-    rawToFF["NV21"] = AV_PIX_FMT_NV21;
-    rawToFF["NV16"] = AV_PIX_FMT_NV16;
+        // Bayer formats
+        {"BA81", AV_PIX_FMT_BAYER_BGGR8},
+        {"GBRG", AV_PIX_FMT_BAYER_GBRG8},
+        {"GRBG", AV_PIX_FMT_BAYER_GRBG8},
+        {"RGGB", AV_PIX_FMT_BAYER_RGGB8},
 
-    // Bayer formats
-    rawToFF["BA81"] = AV_PIX_FMT_BAYER_BGGR8;
-    rawToFF["GBRG"] = AV_PIX_FMT_BAYER_GBRG8;
-    rawToFF["GRBG"] = AV_PIX_FMT_BAYER_GRBG8;
-    rawToFF["RGGB"] = AV_PIX_FMT_BAYER_RGGB8;
-
-    // 10bit raw bayer, expanded to 16 bits
-    rawToFF["BYR2"] = AV_PIX_FMT_BAYER_BGGR16LE;
+        // 10bit raw bayer, expanded to 16 bits
+        {"BYR2", AV_PIX_FMT_BAYER_BGGR16LE}
+    };
 
     return rawToFF;
 }
@@ -106,27 +106,26 @@ typedef QMap<QString, AVCodecID> V4l2CodecMap;
 
 inline V4l2CodecMap initCompressedMap()
 {
-    V4l2CodecMap compressedToFF;
+    V4l2CodecMap compressedToFF = {
+        // compressed formats
+        {"MJPG", AV_CODEC_ID_MJPEG     },
+        {"JPEG", AV_CODEC_ID_MJPEG     },
+        {"dvsd", AV_CODEC_ID_DVVIDEO   },
+        {"H264", AV_CODEC_ID_H264      },
+        {"AVC1", AV_CODEC_ID_H264      },
+        {"M264", AV_CODEC_ID_H264      },
+        {"H263", AV_CODEC_ID_H263      },
+        {"MPG1", AV_CODEC_ID_MPEG1VIDEO},
+        {"MPG2", AV_CODEC_ID_MPEG2VIDEO},
+        {"MPG4", AV_CODEC_ID_MPEG4     },
+        {"XVID", AV_CODEC_ID_MPEG4     },
+        {"VC1G", AV_CODEC_ID_VC1       },
+        {"VC1L", AV_CODEC_ID_VC1       },
+        {"VP80", AV_CODEC_ID_VP8       },
 
-    // compressed formats
-    compressedToFF["MJPG"] = AV_CODEC_ID_MJPEG;
-    compressedToFF["JPEG"] = AV_CODEC_ID_MJPEG;
-    compressedToFF["dvsd"] = AV_CODEC_ID_DVVIDEO;
-    //compressedToFF["MPEG"] = "";
-    compressedToFF["H264"] = AV_CODEC_ID_H264;
-    compressedToFF["AVC1"] = AV_CODEC_ID_H264;
-    compressedToFF["M264"] = AV_CODEC_ID_H264;
-    compressedToFF["H263"] = AV_CODEC_ID_H263;
-    compressedToFF["MPG1"] = AV_CODEC_ID_MPEG1VIDEO;
-    compressedToFF["MPG2"] = AV_CODEC_ID_MPEG2VIDEO;
-    compressedToFF["MPG4"] = AV_CODEC_ID_MPEG4;
-    compressedToFF["XVID"] = AV_CODEC_ID_MPEG4;
-    compressedToFF["VC1G"] = AV_CODEC_ID_VC1;
-    compressedToFF["VC1L"] = AV_CODEC_ID_VC1;
-    compressedToFF["VP80"] = AV_CODEC_ID_VP8;
-
-    //  Vendor-specific formats
-    compressedToFF["CPIA"] = AV_CODEC_ID_CPIA;
+        //  Vendor-specific formats
+        {"CPIA", AV_CODEC_ID_CPIA}
+    };
 
     return compressedToFF;
 }

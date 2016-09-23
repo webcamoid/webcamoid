@@ -25,64 +25,64 @@ typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initFourCCToGst()
 {
-    StringStringMap fourCCToGst;
+    StringStringMap fourCCToGst = {
+        // RGB formats
+        {"RGBO", "video/x-raw,format=RGB15"},
+        {"RGBP", "video/x-raw,format=RGB16"},
+        {"BGR3", "video/x-raw,format=BGR"  },
+        {"RGB3", "video/x-raw,format=RGB"  },
+        {"BGR4", "video/x-raw,format=BGRx" },
+        {"RGB4", "video/x-raw,format=xRGB" },
 
-    // RGB formats
-    fourCCToGst["RGBO"] = "video/x-raw,format=RGB15";
-    fourCCToGst["RGBP"] = "video/x-raw,format=RGB16";
-    fourCCToGst["BGR3"] = "video/x-raw,format=BGR";
-    fourCCToGst["RGB3"] = "video/x-raw,format=RGB";
-    fourCCToGst["BGR4"] = "video/x-raw,format=BGRx";
-    fourCCToGst["RGB4"] = "video/x-raw,format=xRGB";
+        // Grey formats
+        {"GREY", "video/x-raw,format=GRAY8"},
+        {"Y04 ", "video/x-raw,format=Y41P" },
 
-    // Grey formats
-    fourCCToGst["GREY"] = "video/x-raw,format=GRAY8";
-    fourCCToGst["Y04 "] = "video/x-raw,format=Y41P";
+        // Luminance+Chrominance formats
+        {"YVU9", "video/x-raw,format=YVU9"},
+        {"YV12", "video/x-raw,format=YV12"},
+        {"YUYV", "video/x-raw,format=YUY2"},
+        {"YVYU", "video/x-raw,format=YVYU"},
+        {"UYVY", "video/x-raw,format=UYVY"},
+        {"422P", "video/x-raw,format=Y42B"},
+        {"411P", "video/x-raw,format=Y41B"},
+        {"Y41P", "video/x-raw,format=Y41P"},
+        {"YUV9", "video/x-raw,format=YUV9"},
+        {"YU12", "video/x-raw,format=I420"},
 
-    // Luminance+Chrominance formats
-    fourCCToGst["YVU9"] = "video/x-raw,format=YVU9";
-    fourCCToGst["YV12"] = "video/x-raw,format=YV12";
-    fourCCToGst["YUYV"] = "video/x-raw,format=YUY2";
-    fourCCToGst["YVYU"] = "video/x-raw,format=YVYU";
-    fourCCToGst["UYVY"] = "video/x-raw,format=UYVY";
-    fourCCToGst["422P"] = "video/x-raw,format=Y42B";
-    fourCCToGst["411P"] = "video/x-raw,format=Y41B";
-    fourCCToGst["Y41P"] = "video/x-raw,format=Y41P";
-    fourCCToGst["YUV9"] = "video/x-raw,format=YUV9";
-    fourCCToGst["YU12"] = "video/x-raw,format=I420";
+        // two planes -- one Y, one Cr + Cb interleaved
+        {"NV12", "video/x-raw,format=NV12"},
+        {"NV21", "video/x-raw,format=NV21"},
 
-    // two planes -- one Y, one Cr + Cb interleaved
-    fourCCToGst["NV12"] = "video/x-raw,format=NV12";
-    fourCCToGst["NV21"] = "video/x-raw,format=NV21";
+        // two non contiguous planes - one Y, one Cr + Cb interleaved
+        {"NM12", "video/x-raw,format=NV12"      },
+        {"NM21", "video/x-raw,format=NV21"      },
+        {"TM12", "video/x-raw,format=NV12_64Z32"},
 
-    // two non contiguous planes - one Y, one Cr + Cb interleaved
-    fourCCToGst["NM12"] = "video/x-raw,format=NV12";
-    fourCCToGst["NM21"] = "video/x-raw,format=NV21";
-    fourCCToGst["TM12"] = "video/x-raw,format=NV12_64Z32";
+        // Bayer formats - see http://www.siliconimaging.com/RGB%20Bayer.htm
+        {"BA81", "video/x-bayer,format=bggr"},
+        {"GBRG", "video/x-bayer,format=gbrg"},
+        {"GRBG", "video/x-bayer,format=grbg"},
+        {"RGGB", "video/x-bayer,format=rggb"},
 
-    // Bayer formats - see http://www.siliconimaging.com/RGB%20Bayer.htm
-    fourCCToGst["BA81"] = "video/x-bayer,format=bggr";
-    fourCCToGst["GBRG"] = "video/x-bayer,format=gbrg";
-    fourCCToGst["GRBG"] = "video/x-bayer,format=grbg";
-    fourCCToGst["RGGB"] = "video/x-bayer,format=rggb";
+        // compressed formats
+        {"MJPG", "image/jpeg"                                         },
+        {"JPEG", "image/jpeg"                                         },
+        {"dvsd", "video/x-dv,systemstream=true"                       },
+        {"MPEG", "video/mpegts,systemstream=true"                     },
+        {"H264", "video/x-h264,stream-format=byte-stream,alignment=au"},
+        {"H263", "video/x-h263,variant=itu"                           },
+        {"MPG1", "video/mpeg,mpegversion=2"                           },
+        {"MPG2", "video/mpeg,mpegversion=2"                           },
+        {"MPG4", "video/mpeg,mpegversion=4,systemstream=false"        },
+        {"VP80", "video/x-vp8"                                        },
 
-    // compressed formats
-    fourCCToGst["MJPG"] = "image/jpeg";
-    fourCCToGst["JPEG"] = "image/jpeg";
-    fourCCToGst["dvsd"] = "video/x-dv,systemstream=true";
-    fourCCToGst["MPEG"] = "video/mpegts,systemstream=true";
-    fourCCToGst["H264"] = "video/x-h264,stream-format=byte-stream,alignment=au";
-    fourCCToGst["H263"] = "video/x-h263,variant=itu";
-    fourCCToGst["MPG1"] = "video/mpeg,mpegversion=2";
-    fourCCToGst["MPG2"] = "video/mpeg,mpegversion=2";
-    fourCCToGst["MPG4"] = "video/mpeg,mpegversion=4,systemstream=false";
-    fourCCToGst["VP80"] = "video/x-vp8";
-
-    // Vendor-specific formats
-    fourCCToGst["S910"] = "video/x-sonix";
-    fourCCToGst["PWC1"] = "video/x-pwc1";
-    fourCCToGst["PWC2"] = "video/x-pwc2";
-    fourCCToGst["PJPG"] = "image/jpeg";
+        // Vendor-specific formats
+        {"S910", "video/x-sonix"},
+        {"PWC1", "video/x-pwc1" },
+        {"PWC2", "video/x-pwc2" },
+        {"PJPG", "image/jpeg"   }
+    };
 
     return fourCCToGst;
 }
