@@ -31,15 +31,25 @@ inline SampleFormatsMap initSampleFormatsMap()
 {
     SampleFormatsMap sampleFormats = {
         {MKKEY( 8, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s8   },
+        {MKKEY( 8, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u8   },
         {MKKEY(16, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s16  },
         {MKKEY(16, AkAudioCaps::SampleType_int  , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_s16le},
         {MKKEY(16, AkAudioCaps::SampleType_int  , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_s16be},
+        {MKKEY(16, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u16  },
+        {MKKEY(16, AkAudioCaps::SampleType_uint , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_u16le},
+        {MKKEY(16, AkAudioCaps::SampleType_uint , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_u16be},
         {MKKEY(24, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s24  },
         {MKKEY(24, AkAudioCaps::SampleType_int  , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_s24le},
         {MKKEY(24, AkAudioCaps::SampleType_int  , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_s24be},
+        {MKKEY(24, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u24  },
+        {MKKEY(24, AkAudioCaps::SampleType_uint , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_u24le},
+        {MKKEY(24, AkAudioCaps::SampleType_uint , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_u24be},
         {MKKEY(32, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s32  },
         {MKKEY(32, AkAudioCaps::SampleType_int  , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_s32le},
         {MKKEY(32, AkAudioCaps::SampleType_int  , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_s32be},
+        {MKKEY(32, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u32  },
+        {MKKEY(32, AkAudioCaps::SampleType_uint , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_u32le},
+        {MKKEY(32, AkAudioCaps::SampleType_uint , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_u32be},
         {MKKEY(32, AkAudioCaps::SampleType_float, Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_flt  },
         {MKKEY(32, AkAudioCaps::SampleType_float, Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_fltle},
         {MKKEY(32, AkAudioCaps::SampleType_float, Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_fltbe}
@@ -180,10 +190,11 @@ bool AudioDev::preferredFormat(DeviceMode mode,
 
     UInt32 bps = streamDescription.mBitsPerChannel;
     AkAudioCaps::SampleType formatType =
+            streamDescription.mFormatFlags & kAudioFormatFlagIsFloat?
+            AkAudioCaps::SampleType_float:
             streamDescription.mFormatFlags & kAudioFormatFlagIsSignedInteger?
             AkAudioCaps::SampleType_int:
-            streamDescription.mFormatFlags & kAudioFormatFlagIsFloat?
-            AkAudioCaps::SampleType_float: AkAudioCaps::SampleType_unknown;
+            AkAudioCaps::SampleType_uint;
     int endian =
             streamDescription.mBitsPerChannel == 8?
             Q_BYTE_ORDER:
@@ -314,10 +325,10 @@ bool AudioDev::init(DeviceMode mode,
 
     AudioFormatFlags sampleType =
             AkAudioCaps::sampleType(sampleFormat) == AkAudioCaps::SampleType_float?
-                kAudioFormatFlagIsFloat
-            : AkAudioCaps::sampleType(sampleFormat) == AkAudioCaps::SampleType_int?
-                kAudioFormatFlagIsSignedInteger
-            : 0;
+            kAudioFormatFlagIsFloat:
+            AkAudioCaps::sampleType(sampleFormat) == AkAudioCaps::SampleType_int?
+            kAudioFormatFlagIsSignedInteger:
+            0;
 
     AudioFormatFlags sampleEndianness =
             AkAudioCaps::endianness(sampleFormat)?
@@ -494,12 +505,13 @@ AudioDeviceID AudioDev::defaultDevice(AudioDev::DeviceMode mode, bool *ok)
 {
     AudioDeviceID deviceId = 0;
     UInt32 deviceIdSize = sizeof(AudioDeviceID);
-    AudioObjectPropertyAddress propAddress =
-    {mode == AudioDev::DeviceModeCapture?
-     kAudioHardwarePropertyDefaultInputDevice:
-     kAudioHardwarePropertyDefaultOutputDevice,
-     kAudioObjectPropertyScopeGlobal,
-     kAudioObjectPropertyElementMaster};
+    AudioObjectPropertyAddress propAddress = {
+        mode == AudioDev::DeviceModeCapture?
+            kAudioHardwarePropertyDefaultInputDevice:
+            kAudioHardwarePropertyDefaultOutputDevice,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
 
     OSStatus status =
             AudioObjectGetPropertyData(kAudioObjectSystemObject,

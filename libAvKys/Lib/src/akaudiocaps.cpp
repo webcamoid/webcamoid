@@ -28,42 +28,43 @@ class SampleFormats
         AkAudioCaps::SampleType type;
         int bps;
         int endianness;
+        bool planar;
 
         static inline const QVector<SampleFormats> &formats()
         {
             static const QVector<SampleFormats> sampleFormats = {
-                {AkAudioCaps::SampleFormat_none , AkAudioCaps::SampleType_unknown,  0, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s8   , AkAudioCaps::SampleType_int    ,  8, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u8   , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s16  , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s16le, AkAudioCaps::SampleType_int    , 16, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_s16be, AkAudioCaps::SampleType_int    , 16, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_u16  , AkAudioCaps::SampleType_uint   , 16, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u16le, AkAudioCaps::SampleType_uint   , 16, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_u16be, AkAudioCaps::SampleType_uint   , 16, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_s24  , AkAudioCaps::SampleType_int    , 24, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s24le, AkAudioCaps::SampleType_int    , 24, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_s24be, AkAudioCaps::SampleType_int    , 24, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_u24  , AkAudioCaps::SampleType_uint   , 24, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u24le, AkAudioCaps::SampleType_uint   , 24, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_u24be, AkAudioCaps::SampleType_uint   , 24, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_s32  , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s32le, AkAudioCaps::SampleType_int    , 32, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_s32be, AkAudioCaps::SampleType_int    , 32, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_u32  , AkAudioCaps::SampleType_uint   , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_u32le, AkAudioCaps::SampleType_uint   , 32, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_u32be, AkAudioCaps::SampleType_uint   , 32, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_flt  , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_fltle, AkAudioCaps::SampleType_float  , 32, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_fltbe, AkAudioCaps::SampleType_float  , 32, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_dbl  , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_dblle, AkAudioCaps::SampleType_float  , 64, Q_LITTLE_ENDIAN},
-                {AkAudioCaps::SampleFormat_dblbe, AkAudioCaps::SampleType_float  , 64, Q_BIG_ENDIAN   },
-                {AkAudioCaps::SampleFormat_u8p  , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s16p , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_s32p , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_fltp , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   },
-                {AkAudioCaps::SampleFormat_dblp , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   },
+                {AkAudioCaps::SampleFormat_none , AkAudioCaps::SampleType_unknown,  0, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_s8   , AkAudioCaps::SampleType_int    ,  8, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_u8   , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_s16  , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_s16le, AkAudioCaps::SampleType_int    , 16, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_s16be, AkAudioCaps::SampleType_int    , 16, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_u16  , AkAudioCaps::SampleType_uint   , 16, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_u16le, AkAudioCaps::SampleType_uint   , 16, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_u16be, AkAudioCaps::SampleType_uint   , 16, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_s24  , AkAudioCaps::SampleType_int    , 24, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_s24le, AkAudioCaps::SampleType_int    , 24, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_s24be, AkAudioCaps::SampleType_int    , 24, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_u24  , AkAudioCaps::SampleType_uint   , 24, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_u24le, AkAudioCaps::SampleType_uint   , 24, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_u24be, AkAudioCaps::SampleType_uint   , 24, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_s32  , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_s32le, AkAudioCaps::SampleType_int    , 32, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_s32be, AkAudioCaps::SampleType_int    , 32, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_u32  , AkAudioCaps::SampleType_uint   , 32, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_u32le, AkAudioCaps::SampleType_uint   , 32, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_u32be, AkAudioCaps::SampleType_uint   , 32, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_flt  , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_fltle, AkAudioCaps::SampleType_float  , 32, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_fltbe, AkAudioCaps::SampleType_float  , 32, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_dbl  , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   , false},
+                {AkAudioCaps::SampleFormat_dblle, AkAudioCaps::SampleType_float  , 64, Q_LITTLE_ENDIAN, false},
+                {AkAudioCaps::SampleFormat_dblbe, AkAudioCaps::SampleType_float  , 64, Q_BIG_ENDIAN   , false},
+                {AkAudioCaps::SampleFormat_u8p  , AkAudioCaps::SampleType_uint   ,  8, Q_BYTE_ORDER   ,  true},
+                {AkAudioCaps::SampleFormat_s16p , AkAudioCaps::SampleType_int    , 16, Q_BYTE_ORDER   ,  true},
+                {AkAudioCaps::SampleFormat_s32p , AkAudioCaps::SampleType_int    , 32, Q_BYTE_ORDER   ,  true},
+                {AkAudioCaps::SampleFormat_fltp , AkAudioCaps::SampleType_float  , 32, Q_BYTE_ORDER   ,  true},
+                {AkAudioCaps::SampleFormat_dblp , AkAudioCaps::SampleType_float  , 64, Q_BYTE_ORDER   ,  true},
             };
 
             return sampleFormats;
@@ -100,6 +101,15 @@ class SampleFormats
         {
             for (int i = 0; i < formats().size(); i++)
                 if (formats()[i].endianness == endianness)
+                    return &formats()[i];
+
+            return &formats()[0];
+        }
+
+        static inline const SampleFormats *byPlanar(bool planar)
+        {
+            for (int i = 0; i < formats().size(); i++)
+                if (formats()[i].planar == planar)
                     return &formats()[i];
 
             return &formats()[0];
@@ -180,7 +190,6 @@ class ChannelLayouts
 class AkAudioCapsPrivate
 {
     public:
-        bool m_isValid;
         AkAudioCaps::SampleFormat m_format;
         int m_bps;
         int m_channels;
@@ -188,6 +197,7 @@ class AkAudioCapsPrivate
         AkAudioCaps::ChannelLayout m_layout;
         int m_samples;
         bool m_align;
+        bool m_isValid;
 };
 
 AkAudioCaps::AkAudioCaps(QObject *parent):
@@ -602,6 +612,16 @@ int AkAudioCaps::endianness(AkAudioCaps::SampleFormat sampleFormat)
 int AkAudioCaps::endianness(const QString &sampleFormat)
 {
     return AkAudioCaps::endianness(AkAudioCaps::sampleFormatFromString(sampleFormat));
+}
+
+bool AkAudioCaps::isPlanar(AkAudioCaps::SampleFormat sampleFormat)
+{
+    return SampleFormats::byFormat(sampleFormat)->planar;
+}
+
+bool AkAudioCaps::isPlanar(const QString &sampleFormat)
+{
+    return AkAudioCaps::isPlanar(AkAudioCaps::sampleFormatFromString(sampleFormat));
 }
 
 AkAudioCaps::ChannelLayout AkAudioCaps::defaultChannelLayout(int channelCount)
