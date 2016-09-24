@@ -224,12 +224,14 @@ bool AudioDev::init(DeviceMode mode,
         return false;
     }
 
-    AudioComponentDescription componentDescription =
-        {kAudioUnitType_Output,
-         kAudioUnitSubType_HALOutput,
-         kAudioUnitManufacturer_Apple,
-         0,
-         0};
+    AudioComponentDescription componentDescription = {
+        kAudioUnitType_Output,
+        kAudioUnitSubType_HALOutput,
+        kAudioUnitManufacturer_Apple,
+        0,
+        0
+    };
+
     AudioComponent component = AudioComponentFindNext(NULL,
                                                       &componentDescription);
 
@@ -287,9 +289,10 @@ bool AudioDev::init(DeviceMode mode,
     }
 
     // Set callback.
-    AURenderCallbackStruct callback =
-        {AudioDev::audioCallback,
-         this};
+    AURenderCallbackStruct callback = {
+        AudioDev::audioCallback,
+        this
+    };
 
     status = AudioUnitSetProperty(this->m_audioUnit,
                                   mode == AudioDev::DeviceModeCapture?

@@ -19,28 +19,14 @@
 
 #include "convertaudio.h"
 
-typedef QMap<AkAudioCaps::SampleFormat, AVSampleFormat> SampleFormatMap;
-
-inline SampleFormatMap initSampleFormatMap()
-{
-    SampleFormatMap sampleFormat;
-    sampleFormat[AkAudioCaps::SampleFormat_u8] = AV_SAMPLE_FMT_U8;
-    sampleFormat[AkAudioCaps::SampleFormat_s16] = AV_SAMPLE_FMT_S16;
-    sampleFormat[AkAudioCaps::SampleFormat_s32] = AV_SAMPLE_FMT_S32;
-    sampleFormat[AkAudioCaps::SampleFormat_flt] = AV_SAMPLE_FMT_FLT;
-
-    return sampleFormat;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
-
 typedef QMap<AkAudioCaps::ChannelLayout, int64_t> ChannelLayoutsMap;
 
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
-    ChannelLayoutsMap channelLayouts;
-    channelLayouts[AkAudioCaps::Layout_mono] = AV_CH_LAYOUT_MONO;
-    channelLayouts[AkAudioCaps::Layout_stereo] = AV_CH_LAYOUT_STEREO;
+    ChannelLayoutsMap channelLayouts = {
+        {AkAudioCaps::Layout_mono  , AV_CH_LAYOUT_MONO  },
+        {AkAudioCaps::Layout_stereo, AV_CH_LAYOUT_STEREO}
+    };
 
     return channelLayouts;
 }
@@ -65,16 +51,22 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     AkAudioCaps oAudioCaps(oCaps);
 
     int64_t iSampleLayout = channelLayouts->value(packet.caps().layout(), 0);
-    AVSampleFormat iSampleFormat = sampleFormats->value(packet.caps().format(),
-                                                        AV_SAMPLE_FMT_NONE);
+
+    AVSampleFormat iSampleFormat =
+            av_get_sample_fmt(AkAudioCaps::sampleFormatToString(packet.caps().format())
+                              .toStdString().c_str());
+
     int iSampleRate = packet.caps().rate();
     int iNChannels = packet.caps().channels();
     int iNSamples = packet.caps().samples();
 
     int64_t oSampleLayout = channelLayouts->value(oAudioCaps.layout(),
                                                   AV_CH_LAYOUT_STEREO);
-    AVSampleFormat oSampleFormat = sampleFormats->value(oAudioCaps.format(),
-                                                        AV_SAMPLE_FMT_FLT);
+
+    AVSampleFormat oSampleFormat =
+            av_get_sample_fmt(AkAudioCaps::sampleFormatToString(oAudioCaps.format())
+                              .toStdString().c_str());
+
     int oSampleRate = oAudioCaps.rate();
     int oNChannels = oAudioCaps.channels();
 
