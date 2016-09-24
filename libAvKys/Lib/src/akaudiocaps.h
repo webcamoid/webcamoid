@@ -187,6 +187,20 @@ class AkAudioCaps: public QObject
         Q_INVOKABLE static int bitsPerSample(const QString &sampleFormat);
         Q_INVOKABLE static QString sampleFormatToString(SampleFormat sampleFormat);
         Q_INVOKABLE static SampleFormat sampleFormatFromString(const QString &sampleFormat);
+        Q_INVOKABLE static SampleFormat sampleFormatFromProperties(AkAudioCaps::SampleType type,
+                                                                   int bps,
+                                                                   int endianness,
+                                                                   bool planar);
+        Q_INVOKABLE static bool sampleFormatProperties(SampleFormat sampleFormat,
+                                                       AkAudioCaps::SampleType *type=NULL,
+                                                       int *bps=NULL,
+                                                       int *endianness=NULL,
+                                                       bool *planar=NULL);
+        Q_INVOKABLE static bool sampleFormatProperties(const QString &sampleFormat,
+                                                       AkAudioCaps::SampleType *type=NULL,
+                                                       int *bps=NULL,
+                                                       int *endianness=NULL,
+                                                       bool *planar=NULL);
         Q_INVOKABLE static SampleType sampleType(SampleFormat sampleFormat);
         Q_INVOKABLE static SampleType sampleType(const QString &sampleFormat);
         Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);

@@ -574,6 +574,61 @@ AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromString(const QString &sam
     return static_cast<SampleFormat>(formatInt);
 }
 
+AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(AkAudioCaps::SampleType type,
+                                                                  int bps,
+                                                                  int endianness,
+                                                                  bool planar)
+{
+    foreach (const SampleFormats sampleFormat, SampleFormats::formats())
+        if (sampleFormat.type == type
+            && sampleFormat.bps == bps
+            && sampleFormat.endianness == endianness
+            && sampleFormat.planar == planar) {
+            return sampleFormat.format;
+        }
+
+    return AkAudioCaps::SampleFormat_none;
+}
+
+bool AkAudioCaps::sampleFormatProperties(AkAudioCaps::SampleFormat sampleFormat,
+                                         AkAudioCaps::SampleType *type,
+                                         int *bps,
+                                         int *endianness,
+                                         bool *planar)
+{
+    const SampleFormats *format = SampleFormats::byFormat(sampleFormat);
+
+    if (!format)
+        return false;
+
+    if (type)
+        *type = format->type;
+
+    if (bps)
+        *bps = format->bps;
+
+    if (endianness)
+        *endianness = format->endianness;
+
+    if (planar)
+        *planar = format->planar;
+
+    return true;
+}
+
+bool AkAudioCaps::sampleFormatProperties(const QString &sampleFormat,
+                                         AkAudioCaps::SampleType *type,
+                                         int *bps,
+                                         int *endianness,
+                                         bool *planar)
+{
+    return AkAudioCaps::sampleFormatProperties(AkAudioCaps::sampleFormatFromString(sampleFormat),
+                                               type,
+                                               bps,
+                                               endianness,
+                                               planar);
+}
+
 AkAudioCaps::SampleType AkAudioCaps::sampleType(AkAudioCaps::SampleFormat sampleFormat)
 {
     return SampleFormats::byFormat(sampleFormat)->type;

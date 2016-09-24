@@ -22,44 +22,6 @@
 #define OUTPUT_DEVICE 0
 #define INPUT_DEVICE  1
 
-#define MKKEY(bps, type, endianness) \
-    QString("%1_%2_%3").arg(bps).arg(type).arg(endianness)
-
-typedef QMap<QString, AkAudioCaps::SampleFormat> SampleFormatsMap;
-
-inline SampleFormatsMap initSampleFormatsMap()
-{
-    SampleFormatsMap sampleFormats = {
-        {MKKEY( 8, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s8   },
-        {MKKEY( 8, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u8   },
-        {MKKEY(16, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s16  },
-        {MKKEY(16, AkAudioCaps::SampleType_int  , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_s16le},
-        {MKKEY(16, AkAudioCaps::SampleType_int  , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_s16be},
-        {MKKEY(16, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u16  },
-        {MKKEY(16, AkAudioCaps::SampleType_uint , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_u16le},
-        {MKKEY(16, AkAudioCaps::SampleType_uint , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_u16be},
-        {MKKEY(24, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s24  },
-        {MKKEY(24, AkAudioCaps::SampleType_int  , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_s24le},
-        {MKKEY(24, AkAudioCaps::SampleType_int  , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_s24be},
-        {MKKEY(24, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u24  },
-        {MKKEY(24, AkAudioCaps::SampleType_uint , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_u24le},
-        {MKKEY(24, AkAudioCaps::SampleType_uint , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_u24be},
-        {MKKEY(32, AkAudioCaps::SampleType_int  , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_s32  },
-        {MKKEY(32, AkAudioCaps::SampleType_int  , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_s32le},
-        {MKKEY(32, AkAudioCaps::SampleType_int  , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_s32be},
-        {MKKEY(32, AkAudioCaps::SampleType_uint , Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_u32  },
-        {MKKEY(32, AkAudioCaps::SampleType_uint , Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_u32le},
-        {MKKEY(32, AkAudioCaps::SampleType_uint , Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_u32be},
-        {MKKEY(32, AkAudioCaps::SampleType_float, Q_BYTE_ORDER   ), AkAudioCaps::SampleFormat_flt  },
-        {MKKEY(32, AkAudioCaps::SampleType_float, Q_LITTLE_ENDIAN), AkAudioCaps::SampleFormat_fltle},
-        {MKKEY(32, AkAudioCaps::SampleType_float, Q_BIG_ENDIAN   ), AkAudioCaps::SampleFormat_fltbe}
-    };
-
-    return sampleFormats;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatsMap, sampleFormats, (initSampleFormatsMap()))
-
 AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
@@ -100,11 +62,12 @@ bool AudioDev::preferredFormat(DeviceMode mode,
     }
 
     UInt32 propSize = 0;
-    AudioObjectPropertyAddress propAddress =
-        {kAudioDevicePropertyStreams,
-         mode == DeviceModeCapture?
+    AudioObjectPropertyAddress propAddress = {
+        kAudioDevicePropertyStreams,
+        mode == DeviceModeCapture?
             kAudioDevicePropertyScopeInput: kAudioDevicePropertyScopeOutput,
-         kAudioObjectPropertyElementMaster};
+        kAudioObjectPropertyElementMaster
+    };
 
     OSStatus status = AudioObjectGetPropertyDataSize(deviceID,
                                                      &propAddress,
@@ -145,10 +108,11 @@ bool AudioDev::preferredFormat(DeviceMode mode,
         return false;
     }
 
-    AudioObjectPropertyAddress physicalPropAddress =
-        {kAudioStreamPropertyPhysicalFormat,
-         kAudioObjectPropertyScopeGlobal,
-         kAudioObjectPropertyElementMaster};
+    AudioObjectPropertyAddress physicalPropAddress = {
+        kAudioStreamPropertyPhysicalFormat,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
 
     ok = false;
     AudioStreamBasicDescription streamDescription;
@@ -200,9 +164,12 @@ bool AudioDev::preferredFormat(DeviceMode mode,
             Q_BYTE_ORDER:
             streamDescription.mFormatFlags & kAudioFormatFlagIsBigEndian?
             Q_BIG_ENDIAN: Q_LITTLE_ENDIAN;
+    bool planar = streamDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved;
 
-    *sampleFormat = sampleFormats->value(MKKEY(bps, formatType, endian),
-                                         AkAudioCaps::SampleFormat_none);
+    *sampleFormat = AkAudioCaps::sampleFormatFromProperties(formatType,
+                                                            bps,
+                                                            endian,
+                                                            planar);
     *channels = streamDescription.mChannelsPerFrame;
     *sampleRate = streamDescription.mSampleRate;
 
@@ -332,17 +299,20 @@ bool AudioDev::init(DeviceMode mode,
             AkAudioCaps::sampleType(sampleFormat) == AkAudioCaps::SampleType_int?
             kAudioFormatFlagIsSignedInteger:
             0;
-
     AudioFormatFlags sampleEndianness =
             AkAudioCaps::endianness(sampleFormat)?
                 kAudioFormatFlagIsBigEndian: 0;
+    AudioFormatFlags sampleIsPlanar =
+            AkAudioCaps::isPlanar(sampleFormat)?
+                kAudioFormatFlagIsNonInterleaved: 0;
 
     AudioStreamBasicDescription streamDescription;
     streamDescription.mSampleRate = sampleRate;
     streamDescription.mFormatID = kAudioFormatLinearPCM;
     streamDescription.mFormatFlags = kAudioFormatFlagIsPacked
                                    | sampleType
-                                   | sampleEndianness;
+                                   | sampleEndianness
+                                   | sampleIsPlanar;
     streamDescription.mFramesPerPacket = 1;
     streamDescription.mChannelsPerFrame = channels;
     streamDescription.mBitsPerChannel = AkAudioCaps::bitsPerSample(sampleFormat);
