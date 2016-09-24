@@ -86,18 +86,12 @@ AkCaps &AkCaps::operator =(const QString &other)
 
 bool AkCaps::operator ==(const AkCaps &other) const
 {
-    if (this->toString() == other.toString())
-        return true;
-
-    return false;
+    return this->toString() == other.toString();
 }
 
 bool AkCaps::operator ==(const QString &caps) const
 {
-    if (this->toString() == caps)
-        return true;
-
-    return false;
+    return this->toString() == caps;
 }
 
 bool AkCaps::operator !=(const AkCaps &other) const

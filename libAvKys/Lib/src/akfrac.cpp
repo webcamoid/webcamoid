@@ -115,10 +115,7 @@ AkFrac &AkFrac::operator =(const AkFrac &other)
 
 bool AkFrac::operator ==(const AkFrac &other) const
 {
-    if (this->toString() == other.toString())
-        return true;
-
-    return false;
+    return this->toString() == other.toString();
 }
 
 bool AkFrac::operator !=(const AkFrac &other) const

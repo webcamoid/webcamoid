@@ -344,10 +344,7 @@ AkVideoCaps &AkVideoCaps::operator =(const QString &caps)
 
 bool AkVideoCaps::operator ==(const AkVideoCaps &other) const
 {
-    if (this->toString() == other.toString())
-        return true;
-
-    return false;
+    return this->toString() == other.toString();
 }
 
 bool AkVideoCaps::operator !=(const AkVideoCaps &other) const

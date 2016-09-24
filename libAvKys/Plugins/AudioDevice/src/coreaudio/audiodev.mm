@@ -22,6 +22,31 @@
 #define OUTPUT_DEVICE 0
 #define INPUT_DEVICE  1
 
+class FormatInfo
+{
+    public:
+        AkAudioCaps::SampleFormat sampleFormat;
+        int channels;
+        int sampleRate;
+
+        FormatInfo(AkAudioCaps::SampleFormat sampleFormat=AkAudioCaps::SampleFormat_none,
+                   int channels=0,
+                   int sampleRate=0):
+            sampleFormat(sampleFormat),
+            channels(channels),
+            sampleRate(sampleRate)
+        {
+
+        }
+
+        bool operator ==(const FormatInfo &other) const
+        {
+            return this->sampleFormat == other.sampleFormat
+                   && this->channels == other.channels
+                   && this->sampleRate == other.sampleRate;
+        }
+};
+
 AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
@@ -114,10 +139,45 @@ bool AudioDev::preferredFormat(DeviceMode mode,
         kAudioObjectPropertyElementMaster
     };
 
-    ok = false;
-    AudioStreamBasicDescription streamDescription;
+    FormatInfo defaultFormat;
+    QVector<FormatInfo> supportedFormats;
+
+    static const QVector<AudioObjectPropertySelector> selectors = {
+        kAudioStreamPropertyAvailablePhysicalFormats,
+        kAudioStreamPropertyAvailableVirtualFormats,
+    };
+
+    // These are all common formats supported by the audio converter.
+    static const QVector<AkAudioCaps::SampleFormat> recommendedFormats = {
+        AkAudioCaps::SampleFormat_flt,
+        AkAudioCaps::SampleFormat_s32,
+        AkAudioCaps::SampleFormat_s16,
+        AkAudioCaps::SampleFormat_u8,
+        AkAudioCaps::SampleFormat_fltp,
+        AkAudioCaps::SampleFormat_s32p,
+        AkAudioCaps::SampleFormat_s16p,
+        AkAudioCaps::SampleFormat_u8p,
+    };
 
     foreach (AudioStreamID stream, streams) {
+        // Create a list of all supported output formats.
+        foreach (AudioObjectPropertySelector selector, selectors)
+            foreach (AudioStreamRangedDescription description,
+                     this->supportedFormats(stream, selector)) {
+                AkAudioCaps::SampleFormat sampleFormat =
+                        this->descriptionToSampleFormat(description.mFormat);
+                FormatInfo formatInfo(sampleFormat,
+                                      description.mFormat.mChannelsPerFrame,
+                                      description.mFormat.mSampleRate);
+
+                // Formats not supported by the converter are excluded.
+                if (recommendedFormats.contains(sampleFormat)
+                    && !supportedFormats.contains(formatInfo)) {
+                    supportedFormats << formatInfo;
+                }
+            }
+
+        // Find default format.
         status = AudioObjectGetPropertyDataSize(stream,
                                                 &physicalPropAddress,
                                                 0,
@@ -127,6 +187,8 @@ bool AudioDev::preferredFormat(DeviceMode mode,
         if (status != noErr)
             continue;
 
+        AudioStreamBasicDescription streamDescription;
+
         status = AudioObjectGetPropertyData(stream,
                                             &physicalPropAddress,
                                             0,
@@ -134,44 +196,50 @@ bool AudioDev::preferredFormat(DeviceMode mode,
                                             &propSize,
                                             &streamDescription);
 
-        if (status == noErr) {
-            ok = true;
+        if (status == noErr
+            && defaultFormat.sampleFormat == AkAudioCaps::SampleFormat_none) {
+            AkAudioCaps::SampleFormat sampleFormat = this->descriptionToSampleFormat(streamDescription);
 
-            break;
+            // If the format is not supported by the converter,
+            // find another one.
+            if (recommendedFormats.contains(sampleFormat)) {
+                defaultFormat.sampleFormat = sampleFormat;
+                defaultFormat.channels = streamDescription.mChannelsPerFrame;
+                defaultFormat.sampleRate = streamDescription.mSampleRate;
+            }
         }
     }
 
-    if (!ok) {
-        *sampleFormat = AkAudioCaps::SampleFormat_none;
-        *channels = 0;
-        *sampleRate = 0;
-        this->m_error = QString("Can't read default format: %1")
-                        .arg(this->statusToStr(status));
-        emit this->errorChanged(this->m_error);
+    if (defaultFormat.sampleFormat == AkAudioCaps::SampleFormat_none) {
+        if (supportedFormats.isEmpty()) {
+            // There is no suitable output format.
 
-        return false;
+            *sampleFormat = AkAudioCaps::SampleFormat_none;
+            *channels = 0;
+            *sampleRate = 0;
+            this->m_error = QString("Can't read default format: %1")
+                            .arg(this->statusToStr(status));
+            emit this->errorChanged(this->m_error);
+
+            return false;
+        } else foreach (AkAudioCaps::SampleFormat sampleFormat, recommendedFormats) {
+            // Select the best output format.
+
+            if (defaultFormat.sampleFormat != AkAudioCaps::SampleFormat_none)
+                break;
+
+            foreach (FormatInfo formatInfo, supportedFormats)
+                if (formatInfo.sampleFormat == sampleFormat) {
+                    defaultFormat = formatInfo;
+
+                    break;
+                }
+        }
     }
 
-    UInt32 bps = streamDescription.mBitsPerChannel;
-    AkAudioCaps::SampleType formatType =
-            streamDescription.mFormatFlags & kAudioFormatFlagIsFloat?
-            AkAudioCaps::SampleType_float:
-            streamDescription.mFormatFlags & kAudioFormatFlagIsSignedInteger?
-            AkAudioCaps::SampleType_int:
-            AkAudioCaps::SampleType_uint;
-    int endian =
-            streamDescription.mBitsPerChannel == 8?
-            Q_BYTE_ORDER:
-            streamDescription.mFormatFlags & kAudioFormatFlagIsBigEndian?
-            Q_BIG_ENDIAN: Q_LITTLE_ENDIAN;
-    bool planar = streamDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved;
-
-    *sampleFormat = AkAudioCaps::sampleFormatFromProperties(formatType,
-                                                            bps,
-                                                            endian,
-                                                            planar);
-    *channels = streamDescription.mChannelsPerFrame;
-    *sampleRate = streamDescription.mSampleRate;
+    *sampleFormat = defaultFormat.sampleFormat;
+    *channels = defaultFormat.channels;
+    *sampleRate = defaultFormat.sampleRate;
 
     return true;
 }
@@ -300,7 +368,7 @@ bool AudioDev::init(DeviceMode mode,
             kAudioFormatFlagIsSignedInteger:
             0;
     AudioFormatFlags sampleEndianness =
-            AkAudioCaps::endianness(sampleFormat)?
+            AkAudioCaps::endianness(sampleFormat) == Q_BIG_ENDIAN?
                 kAudioFormatFlagIsBigEndian: 0;
     AudioFormatFlags sampleIsPlanar =
             AkAudioCaps::isPlanar(sampleFormat)?
@@ -513,6 +581,63 @@ void AudioDev::clearBuffer()
         this->m_bufferList->mBuffers[i].mDataByteSize = 0;
         this->m_bufferList->mBuffers[i].mData = 0;
     }
+}
+
+QVector<AudioStreamRangedDescription> AudioDev::supportedFormats(AudioStreamID stream,
+                                                                 AudioObjectPropertySelector selector)
+{
+    AudioObjectPropertyAddress physicalPropAddress = {
+        selector,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+
+    UInt32 propSize = 0;
+    OSStatus status = AudioObjectGetPropertyDataSize(stream,
+                                                     &physicalPropAddress,
+                                                     0,
+                                                     NULL,
+                                                     &propSize);
+
+    if (status != noErr || !propSize)
+        return QVector<AudioStreamRangedDescription>();
+
+    UInt32 count = propSize / sizeof(AudioStreamRangedDescription);
+    QVector<AudioStreamRangedDescription> supportedFormats(count);
+
+    status = AudioObjectGetPropertyData(stream,
+                                        &physicalPropAddress,
+                                        0,
+                                        NULL,
+                                        &propSize,
+                                        supportedFormats.data());
+
+    if (status != noErr || !propSize)
+        return QVector<AudioStreamRangedDescription>();
+
+    return supportedFormats;
+}
+
+AkAudioCaps::SampleFormat AudioDev::descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription)
+{
+    UInt32 bps = streamDescription.mBitsPerChannel;
+    AkAudioCaps::SampleType formatType =
+            streamDescription.mFormatFlags & kAudioFormatFlagIsFloat?
+            AkAudioCaps::SampleType_float:
+            streamDescription.mFormatFlags & kAudioFormatFlagIsSignedInteger?
+            AkAudioCaps::SampleType_int:
+            AkAudioCaps::SampleType_uint;
+    int endian =
+            streamDescription.mBitsPerChannel == 8?
+            Q_BYTE_ORDER:
+            streamDescription.mFormatFlags & kAudioFormatFlagIsBigEndian?
+            Q_BIG_ENDIAN: Q_LITTLE_ENDIAN;
+    bool planar = streamDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved;
+
+    return AkAudioCaps::sampleFormatFromProperties(formatType,
+                                                   bps,
+                                                   endian,
+                                                   planar);
 }
 
 OSStatus AudioDev::audioCallback(void *audioDev,

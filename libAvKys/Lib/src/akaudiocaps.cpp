@@ -341,17 +341,14 @@ AkAudioCaps &AkAudioCaps::operator =(const QString &caps)
 
 bool AkAudioCaps::operator ==(const AkAudioCaps &other) const
 {
-    if (this->d->m_isValid == other.d->m_isValid
+    return this->d->m_isValid == other.d->m_isValid
         && this->d->m_format == other.d->m_format
         && this->d->m_bps == other.d->m_bps
         && this->d->m_channels == other.d->m_channels
         && this->d->m_rate == other.d->m_rate
         && this->d->m_layout == other.d->m_layout
         && this->d->m_samples == other.d->m_samples
-        && this->d->m_align == other.d->m_align)
-        return true;
-
-    return false;
+        && this->d->m_align == other.d->m_align;
 }
 
 bool AkAudioCaps::operator !=(const AkAudioCaps &other) const

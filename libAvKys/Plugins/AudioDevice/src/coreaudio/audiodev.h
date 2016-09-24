@@ -75,6 +75,9 @@ class AudioDev: public QObject
         static AudioDeviceID defaultDevice(DeviceMode mode,
                                            bool *ok=NULL);
         void clearBuffer();
+        QVector<AudioStreamRangedDescription> supportedFormats(AudioStreamID stream,
+                                                               AudioObjectPropertySelector selector);
+        AkAudioCaps::SampleFormat descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription);
         static OSStatus audioCallback(void *audioDev,
                                       AudioUnitRenderActionFlags *actionFlags,
                                       const AudioTimeStamp *timeStamp,
