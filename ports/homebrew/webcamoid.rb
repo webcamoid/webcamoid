@@ -16,14 +16,14 @@ class Webcamoid < Formula
             spec = "macx-g++"
         end
 
-        ffver = `ffmpeg -version | head -n 1 | awk '{print $3}'`
+        ffver = `ffmpeg -version | head -n 1 | awk '{printf "%s", $3}'`
 
         args = %W[
             -config release
             -spec #{spec}
             PREFIX=#{prefix}
-            FFMPEGINCLUDES=/usr/local/Cellar/ffmpeg/#{ffver}/include
-            FFMPEGLIBS=-L/usr/local/Cellar/ffmpeg/#{ffver}/lib
+            FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/#{ffver}/include"
+            FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/#{ffver}/lib"
             FFMPEGLIBS+=-lavcodec
             FFMPEGLIBS+=-lavdevice
             FFMPEGLIBS+=-lavformat
