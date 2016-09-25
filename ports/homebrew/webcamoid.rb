@@ -21,6 +21,7 @@ class Webcamoid < Formula
         args = %W[
             -config release
             -spec #{spec}
+            CONFIG-=app_bundle
             PREFIX=#{prefix}
             FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/#{ffver}/include"
             FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/#{ffver}/lib"

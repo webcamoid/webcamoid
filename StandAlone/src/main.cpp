@@ -51,6 +51,16 @@ int main(int argc, char *argv[])
     if (QIcon::themeName().isEmpty())
         QIcon::setThemeName("hicolor");
 
+#ifdef Q_OS_OSX
+    QIcon fallbackIcon(":/icons/webcamoid.icns");
+#elif defined(Q_OS_WIN32)
+    QIcon fallbackIcon(":/icons/hicolor/256x256/webcamoid.ico");
+#else
+    QIcon fallbackIcon(":/icons/hicolor/scalable/webcamoid.svg");
+#endif
+
+    app.setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
+
     MediaTools::setApplicationDir(QCoreApplication::applicationDirPath());
 
     QCommandLineParser cliOptions;
@@ -194,12 +204,6 @@ int main(int argc, char *argv[])
     emit mediaTools.interfaceLoaded();
 
     foreach (QObject *obj, engine.rootObjects()) {
-        QWindow *applicationWindow = qobject_cast<QWindow *>(obj);
-
-        // Set window icon.
-        applicationWindow->setIcon(QIcon::fromTheme("webcamoid",
-                                                    QIcon(":/icons/hicolor/scalable/webcamoid.svg")));
-
         // First, find where to enbed the UI.
         VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
+        <file>webcamoid.icns</file>
         <file>hicolor/index.theme</file>
         <file>hicolor/scalable/add.svg</file>
         <file>hicolor/scalable/applications-internet.svg</file>
