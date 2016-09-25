@@ -23,8 +23,12 @@ matrix:
       osx_image: xcode7.3
       compiler: clang
       env:
-      - USE_GSTREAMER=true
       - USE_GSTREAMER=false
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+      env:
+      - USE_GSTREAMER=true
 
 before_install: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
