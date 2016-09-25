@@ -58,7 +58,7 @@ before_script: |
     fi
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew link --force qt5
-    FFVER=$(ffmpeg -version | head -n 1 | awk '{print $3}')
+    FFVER=$(ffmpeg -version | head -n 1 | awk '{printf "%s", $3}')
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=macx-g++
     elif [ "${CXX}" = clang++ ]; then

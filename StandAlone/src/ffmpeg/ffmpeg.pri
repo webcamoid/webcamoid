@@ -22,10 +22,15 @@ DEFINES += __STDC_CONSTANT_MACROS
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
+    macx {
+        LIBS += \
+            -lavutil
+    } else {
+        CONFIG += link_pkgconfig
 
-    PKGCONFIG += \
-        libavutil
+        PKGCONFIG += \
+            libavutil
+    }
 }
 
 HEADERS += \

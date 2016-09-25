@@ -25,10 +25,17 @@ SOURCES += $$PWD/convertaudio.cpp
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
+    macx {
+        LIBS += \
+            -lavcodec \
+            -lswresample \
+            -lavutil
+    } else {
+        CONFIG += link_pkgconfig
 
-    PKGCONFIG += \
-        libavcodec \
-        libswresample \
-        libavutil
+        PKGCONFIG += \
+            libavcodec \
+            libswresample \
+            libavutil
+    }
 }

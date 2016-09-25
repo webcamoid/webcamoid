@@ -24,14 +24,23 @@ DEFINES += __STDC_CONSTANT_MACROS
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
+    macx {
+        LIBS += \
+            -lavformat \
+            -lavcodec \
+            -lswresample \
+            -lswscale \
+            -lavutil
+    } else {
+        CONFIG += link_pkgconfig
 
-    PKGCONFIG += \
-        libavformat \
-        libavcodec \
-        libswresample \
-        libswscale \
-        libavutil
+        PKGCONFIG += \
+            libavformat \
+            libavcodec \
+            libswresample \
+            libswscale \
+            libavutil
+    }
 }
 
 HEADERS += \

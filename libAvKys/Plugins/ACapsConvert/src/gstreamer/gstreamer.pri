@@ -20,13 +20,29 @@ QT += concurrent
 
 DEFINES += USE_GSTREAMER
 
-CONFIG += link_pkgconfig
+!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
+!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
 
-PKGCONFIG += \
-    gstreamer-1.0 \
-    gstreamer-app-1.0 \
-    gstreamer-audio-1.0 \
-    gstreamer-pbutils-1.0
+isEmpty(GSTREAMERLIBS) {
+    macx {
+        LIBS += \
+            -lgstapp-1.0 \
+            -lgstaudio-1.0 \
+            -lgstbase-1.0 \
+            -lgstpbutils-1.0 \
+            -lgstreamer-1.0 \
+            -lgobject-2.0 \
+            -lglib-2.0
+    } else {
+        CONFIG += link_pkgconfig
+
+        PKGCONFIG += \
+            gstreamer-1.0 \
+            gstreamer-app-1.0 \
+            gstreamer-audio-1.0 \
+            gstreamer-pbutils-1.0
+    }
+}
 
 HEADERS += $$PWD/convertaudio.h
 SOURCES += $$PWD/convertaudio.cpp
