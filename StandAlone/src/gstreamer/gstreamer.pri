@@ -16,23 +16,26 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
+
 DEFINES += USE_GSTREAMER
 
 !isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
 !isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
 
 isEmpty(GSTREAMERLIBS) {
-    macx {
-        LIBS += \
-            -lgstreamer-1.0 \
-            -lgobject-2.0 \
-            -lglib-2.0
-    } else {
-        CONFIG += link_pkgconfig
+    CONFIG += link_pkgconfig
 
-        PKGCONFIG += \
-            gstreamer-1.0
-    }
+    PKGCONFIG += \
+        gstreamer-1.0
 }
 
 HEADERS += \

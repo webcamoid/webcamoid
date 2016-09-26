@@ -16,6 +16,16 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
+
 QT += concurrent
 
 DEFINES += __STDC_CONSTANT_MACROS
@@ -24,23 +34,14 @@ DEFINES += __STDC_CONSTANT_MACROS
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 isEmpty(FFMPEGLIBS) {
-    macx {
-        LIBS += \
-            -lavformat \
-            -lavcodec \
-            -lswresample \
-            -lswscale \
-            -lavutil
-    } else {
-        CONFIG += link_pkgconfig
+    CONFIG += link_pkgconfig
 
-        PKGCONFIG += \
-            libavformat \
-            libavcodec \
-            libswresample \
-            libswscale \
-            libavutil
-    }
+    PKGCONFIG += \
+        libavformat \
+        libavcodec \
+        libswresample \
+        libswscale \
+        libavutil
 }
 
 HEADERS += \

@@ -16,21 +16,26 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
+
 DEFINES += __STDC_CONSTANT_MACROS
 
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
 !isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
 
 isEmpty(FFMPEGLIBS) {
-    macx {
-        LIBS += \
-            -lavutil
-    } else {
-        CONFIG += link_pkgconfig
+    CONFIG += link_pkgconfig
 
-        PKGCONFIG += \
-            libavutil
-    }
+    PKGCONFIG += \
+        libavutil
 }
 
 HEADERS += \
