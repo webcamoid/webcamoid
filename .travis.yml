@@ -99,7 +99,7 @@ script: |
         qmake Webcamoid.pro \
             QMAKE_CXX="${COMPILER}" \
             USE_GSTREAMER=1 \
-            GSTREAMERINCLUDES="/usr/local/Cellar/gstreamer/${GSTVER}/include" \
+            GSTREAMERINCLUDES="/usr/local/Cellar/gstreamer/${GSTVER}/include/gstreamer-1.0" \
             GSTREAMERLIBS=-L"/usr/local/Cellar/gstreamer/${GSTVER}/lib" \
             GSTREAMERLIBS+=-lgstapp-1.0 \
             GSTREAMERLIBS+=-lgstaudio-1.0 \
