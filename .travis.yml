@@ -65,12 +65,6 @@ before_script: |
     fi
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew link --force qt5
-    if [ "${USE_GSTREAMER}" = false ]; then
-        FFVER=$(ffmpeg -version | head -n 1 | awk '{printf "%s", $3}')
-    else
-        GLIBVER=$(gapplication version)
-        GSTVER=$(gst-inspect-1.0 --version | head -n 1 | awk '{printf "%s", $3}')
-    fi
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=macx-g++
     elif [ "${CXX}" = clang++ ]; then
@@ -87,33 +81,11 @@ script: |
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     if [ "${USE_GSTREAMER}" = false ]; then
         qmake Webcamoid.pro \
-            QMAKE_CXX="${COMPILER}" \
-            FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/${FFVER}/include" \
-            FFMPEGLIBS=-L"/usr/local/Cellar/ffmpeg/${FFVER}/lib" \
-            FFMPEGLIBS+=-lavcodec \
-            FFMPEGLIBS+=-lavdevice \
-            FFMPEGLIBS+=-lavformat \
-            FFMPEGLIBS+=-lavutil \
-            FFMPEGLIBS+=-lswresample \
-            FFMPEGLIBS+=-lswscale
+            QMAKE_CXX="${COMPILER}"
     else
         qmake Webcamoid.pro \
             QMAKE_CXX="${COMPILER}" \
-            USE_GSTREAMER=1 \
-            GSTREAMERINCLUDES+="/usr/local/Cellar/glib/${GLIBVER}/include" \
-            GSTREAMERINCLUDES+="/usr/local/Cellar/gstreamer/${GSTVER}/include/gstreamer-1.0" \
-            GSTREAMERINCLUDES+="/usr/local/Cellar/gst-plugins-base/${GSTVER}_1/include/gstreamer-1.0" \
-            GSTREAMERLIBS=-L"/usr/local/Cellar/glib/${GLIBVER}/lib" \
-            GSTREAMERLIBS+=-L"/usr/local/Cellar/gstreamer/${GSTVER}/lib" \
-            GSTREAMERLIBS+=-L"/usr/local/Cellar/gst-plugins-base/${GSTVER}_1/lib" \
-            GSTREAMERLIBS+=-lgstapp-1.0 \
-            GSTREAMERLIBS+=-lgstaudio-1.0 \
-            GSTREAMERLIBS+=-lgstvideo-1.0 \
-            GSTREAMERLIBS+=-lgstbase-1.0 \
-            GSTREAMERLIBS+=-lgstpbutils-1.0 \
-            GSTREAMERLIBS+=-lgstreamer-1.0 \
-            GSTREAMERLIBS+=-lgobject-2.0 \
-            GSTREAMERLIBS+=-lglib-2.0
+            USE_GSTREAMER=1
     fi
   fi
   make
