@@ -65,7 +65,7 @@ before_script: |
     fi
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew link --force qt5
-    if [ "USE_GSTREAMER" = false ]; then
+    if [ "${USE_GSTREAMER}" = false ]; then
         FFVER=$(ffmpeg -version | head -n 1 | awk '{printf "%s", $3}')
     else
         GSTVER=$(gst-inspect-1.0 --version | head -n 1 | awk '{printf "%s", $3}')
@@ -84,7 +84,7 @@ script: |
         QMAKE_CXX="${COMPILER}" \
         USE_GSTREAMER=1
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    if [ "USE_GSTREAMER" = false ]; then
+    if [ "${USE_GSTREAMER}" = false ]; then
         qmake Webcamoid.pro \
             QMAKE_CXX="${COMPILER}" \
             FFMPEGINCLUDES="/usr/local/Cellar/ffmpeg/${FFVER}/include" \
