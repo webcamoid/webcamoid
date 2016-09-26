@@ -52,7 +52,7 @@ install: |
     sudo apt-get -y install libpulse-dev
     sudo apt-get -y install libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew install ccache pkg-config qt5 ffmpeg gstreamer libuvc
+    brew install ccache pkg-config qt5 ffmpeg gstreamer gst-plugins-base libuvc
   fi
 
 before_script: |
@@ -100,7 +100,9 @@ script: |
             QMAKE_CXX="${COMPILER}" \
             USE_GSTREAMER=1 \
             GSTREAMERINCLUDES="/usr/local/Cellar/gstreamer/${GSTVER}/include/gstreamer-1.0" \
+            GSTREAMERINCLUDES+="/usr/local/Cellar/gst-plugins-base/${GSTVER}_1/include/gstreamer-1.0" \
             GSTREAMERLIBS=-L"/usr/local/Cellar/gstreamer/${GSTVER}/lib" \
+            GSTREAMERLIBS+=-L"/usr/local/Cellar/gst-plugins-base/${GSTVER}_1/lib" \
             GSTREAMERLIBS+=-lgstapp-1.0 \
             GSTREAMERLIBS+=-lgstaudio-1.0 \
             GSTREAMERLIBS+=-lgstvideo-1.0 \
