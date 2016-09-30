@@ -87,6 +87,29 @@
     ],
     [
         {
+            "pluginId": "AudioGen",
+            "properties": {
+                "objectName": "audioGenerator",
+                "waveType": "silence"
+            }
+        },
+        "DirectConnection",
+        {
+            "pluginId": "Multiplex",
+            "properties": {
+                "outputIndex": 2
+            },
+            "connections": [
+                ["audioGenerator", "stateChanged", "", "setState"]
+            ]
+        },
+        "DirectConnection",
+        {
+            "alias": "audioSwitch"
+        }
+    ],
+    [
+        {
             "alias": "videoOutput"
         },
         {

@@ -25,10 +25,11 @@ typedef QMap<AudioDeviceElement::DeviceMode, QString> DeviceModeMap;
 
 inline DeviceModeMap initDeviceModeMap()
 {
-    DeviceModeMap deviceModeToStr;
-    deviceModeToStr[AudioDeviceElement::DeviceModeInput] = "input";
-    deviceModeToStr[AudioDeviceElement::DeviceModeOutput] = "output";
-    deviceModeToStr[AudioDeviceElement::DeviceModeDummyOutput] = "dummyoutput";
+    DeviceModeMap deviceModeToStr = {
+        {AudioDeviceElement::DeviceModeInput      , "input"      },
+        {AudioDeviceElement::DeviceModeOutput     , "output"     },
+        {AudioDeviceElement::DeviceModeDummyOutput, "dummyoutput"}
+    };
 
     return deviceModeToStr;
 }
@@ -127,7 +128,7 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
             AkAudioPacket packet(caps, oBuffer);
 
             qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                                / timeBase.value());
+                                / timeBase.value() / 1e3);
 
             packet.setPts(pts);
             packet.setTimeBase(timeBase);

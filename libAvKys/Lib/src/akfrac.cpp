@@ -139,9 +139,9 @@ qint64 AkFrac::den() const
     return this->d->m_den;
 }
 
-double AkFrac::value() const
+qreal AkFrac::value() const
 {
-    return this->d->m_num / double(this->d->m_den);
+    return this->d->m_num / qreal(this->d->m_den);
 }
 
 qint64 AkFrac::fastValue() const

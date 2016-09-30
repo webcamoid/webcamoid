@@ -20,6 +20,7 @@
 #ifndef ACAPSCONVERTELEMENT_H
 #define ACAPSCONVERTELEMENT_H
 
+#include <QMutex>
 #include <ak.h>
 
 #ifdef USE_GSTREAMER
@@ -45,6 +46,7 @@ class ACapsConvertElement: public AkElement
     private:
         AkCaps m_caps;
         ConvertAudio m_convertAudio;
+        QMutex m_mutex;
 
     signals:
         void capsChanged(const QString &caps);

@@ -193,6 +193,7 @@ class MediaTools: public QObject
         AkElementPtr m_audioSwitch;
         AkElementPtr m_audioOutput;
         AkElementPtr m_mic;
+        AkElementPtr m_audioGenerator;
         AkElementPtr m_record;
         AkElementPtr m_videoCapture;
         AkElementPtr m_desktopCapture;

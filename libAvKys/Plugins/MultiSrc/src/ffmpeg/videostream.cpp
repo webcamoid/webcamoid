@@ -96,9 +96,9 @@ void VideoStream::processData(AVFrame *frame)
         // Skip or repeat frame. We take into account the
         // delay to compute the threshold. I still don't know
         // if it is the best guess.
-        double syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
-                                      delay,
-                                      AV_SYNC_THRESHOLD_MAX);
+        qreal syncThreshold = qBound(AV_SYNC_THRESHOLD_MIN,
+                                     delay,
+                                     AV_SYNC_THRESHOLD_MAX);
 
         if (!qIsNaN(diff)
             && qAbs(diff) < AV_NOSYNC_THRESHOLD

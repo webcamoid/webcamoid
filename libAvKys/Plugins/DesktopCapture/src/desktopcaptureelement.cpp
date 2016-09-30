@@ -233,7 +233,8 @@ void DesktopCaptureElement::readFrame()
     if (!packet)
         return;
 
-    qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay() * fps.value());
+    qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
+                        * fps.value() / 1e3);
 
     packet.setPts(pts);
     packet.setTimeBase(fps.invert());

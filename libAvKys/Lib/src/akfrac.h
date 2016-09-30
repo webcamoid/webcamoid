@@ -41,7 +41,7 @@ class AkFrac: public QObject
     Q_PROPERTY(bool isValid
                READ isValid
                NOTIFY isValidChanged)
-    Q_PROPERTY(double value
+    Q_PROPERTY(qreal value
                READ value
                NOTIFY valueChanged)
     Q_PROPERTY(QString string
@@ -61,7 +61,7 @@ class AkFrac: public QObject
 
         Q_INVOKABLE qint64 num() const;
         Q_INVOKABLE qint64 den() const;
-        Q_INVOKABLE double value() const;
+        Q_INVOKABLE qreal value() const;
         Q_INVOKABLE qint64 fastValue() const;
         Q_INVOKABLE bool isValid() const;
         Q_INVOKABLE QString toString() const;

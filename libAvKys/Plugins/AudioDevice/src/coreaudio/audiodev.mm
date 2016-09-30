@@ -152,11 +152,11 @@ bool AudioDev::preferredFormat(DeviceMode mode,
         AkAudioCaps::SampleFormat_flt,
         AkAudioCaps::SampleFormat_s32,
         AkAudioCaps::SampleFormat_s16,
-        AkAudioCaps::SampleFormat_u8,
-        AkAudioCaps::SampleFormat_fltp,
+        AkAudioCaps::SampleFormat_u8
+/*        AkAudioCaps::SampleFormat_fltp,
         AkAudioCaps::SampleFormat_s32p,
         AkAudioCaps::SampleFormat_s16p,
-        AkAudioCaps::SampleFormat_u8p,
+        AkAudioCaps::SampleFormat_u8p,*/
     };
 
     foreach (AudioStreamID stream, streams) {

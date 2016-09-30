@@ -95,6 +95,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine, QObject *parent):
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
+                                  Q_RETURN_ARG(AkElementPtr, m_audioGenerator),
+                                  Q_ARG(QString, "audioGenerator"));
+
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
                                   Q_RETURN_ARG(AkElementPtr, this->m_record),
                                   Q_ARG(QString, "record"));
 

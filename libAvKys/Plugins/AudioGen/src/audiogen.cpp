@@ -17,39 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "acapsconvertelement.h"
+#include "audiogen.h"
+#include "audiogenelement.h"
 
-ACapsConvertElement::ACapsConvertElement(): AkElement()
+QObject *AudioGen::create(const QString &key, const QString &specification)
 {
+    Q_UNUSED(key)
+    Q_UNUSED(specification)
+
+    return new AudioGenElement();
 }
 
-QString ACapsConvertElement::caps() const
+QStringList AudioGen::keys() const
 {
-    return this->m_caps.toString();
-}
-
-void ACapsConvertElement::setCaps(const QString &caps)
-{
-    if (this->m_caps == caps)
-        return;
-
-    this->m_mutex.lock();
-    this->m_caps = caps;
-    this->m_mutex.unlock();
-    emit this->capsChanged(caps);
-}
-
-void ACapsConvertElement::resetCaps()
-{
-    this->setCaps("");
-}
-
-AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)
-{
-    this->m_mutex.lock();
-    AkCaps caps = this->m_caps;
-    this->m_mutex.unlock();
-    AkPacket oPacket = this->m_convertAudio.convert(packet, caps);
-
-    akSend(oPacket)
+    return QStringList();
 }

@@ -26,6 +26,7 @@ SUBDIRS += \
     ACapsConvert \
     Aging \
     AudioDevice \
+    AudioGen \
     Bin \
     Blur \
     Cartoon \

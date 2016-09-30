@@ -26,11 +26,12 @@ typedef QMap<RadioactiveElement::RadiationMode, QString> RadiationModeMap;
 
 inline RadiationModeMap initRadiationModeMap()
 {
-    RadiationModeMap radiationModeToStr;
-    radiationModeToStr[RadioactiveElement::RadiationModeSoftNormal] = "softNormal";
-    radiationModeToStr[RadioactiveElement::RadiationModeHardNormal] = "hardNormal";
-    radiationModeToStr[RadioactiveElement::RadiationModeSoftColor] = "softColor";
-    radiationModeToStr[RadioactiveElement::RadiationModeHardColor] = "hardColor";
+    RadiationModeMap radiationModeToStr = {
+        {RadioactiveElement::RadiationModeSoftNormal, "softNormal"},
+        {RadioactiveElement::RadiationModeHardNormal, "hardNormal"},
+        {RadioactiveElement::RadiationModeSoftColor , "softColor" },
+        {RadioactiveElement::RadiationModeHardColor , "hardColor" }
+    };
 
     return radiationModeToStr;
 }
