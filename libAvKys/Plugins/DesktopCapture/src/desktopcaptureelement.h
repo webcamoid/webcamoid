@@ -31,10 +31,17 @@
 class DesktopCaptureElement: public AkMultimediaSourceElement
 {
     Q_OBJECT
+    Q_PROPERTY(AkFrac fps
+               READ fps
+               WRITE setFps
+               RESET resetFps
+               NOTIFY fpsChanged)
 
     public:
         explicit DesktopCaptureElement();
         ~DesktopCaptureElement();
+
+        Q_INVOKABLE AkFrac fps() const;
 
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
@@ -45,6 +52,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE AkCaps caps(int stream) const;
 
     private:
+        AkFrac m_fps;
         QString m_curScreen;
         int m_curScreenNumber;
         qint64 m_id;
@@ -58,9 +66,12 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
                                const AkPacket &packet);
 
     signals:
-        void sizeChanged(const QString &media, const QSize &size) const;
+        void fpsChanged(const AkFrac &fps);
+        void sizeChanged(const QString &media, const QSize &size);
 
     public slots:
+        void setFps(const AkFrac &fps);
+        void resetFps();
         void setMedia(const QString &media);
         void resetMedia();
         bool setState(AkElement::ElementState state);

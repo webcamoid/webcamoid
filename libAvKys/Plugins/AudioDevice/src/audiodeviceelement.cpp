@@ -44,11 +44,58 @@ AudioDeviceElement::AudioDeviceElement(): AkElement()
     this->m_caps = audioCaps.toCaps();
     this->m_readFramesLoop = false;
     this->m_pause = false;
+
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::defaultInputChanged,
+                     this,
+                     &AudioDeviceElement::defaultInputChanged);
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::defaultOutputChanged,
+                     this,
+                     &AudioDeviceElement::defaultOutputChanged);
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::inputsChanged,
+                     this,
+                     &AudioDeviceElement::inputsChanged);
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::outputsChanged,
+                     this,
+                     &AudioDeviceElement::outputsChanged);
 }
 
 AudioDeviceElement::~AudioDeviceElement()
 {
     this->setState(AkElement::ElementStateNull);
+}
+
+QString AudioDeviceElement::defaultInput()
+{
+    return this->m_audioDevice.defaultInput();
+}
+
+QString AudioDeviceElement::defaultOutput()
+{
+    return this->m_audioDevice.defaultOutput();
+}
+
+QStringList AudioDeviceElement::inputs()
+{
+    return this->m_audioDevice.inputs();
+}
+
+QStringList AudioDeviceElement::outputs()
+{
+    return this->m_audioDevice.outputs();
+}
+
+QString AudioDeviceElement::description(const QString &device)
+{
+    return this->m_audioDevice.description(device);
+}
+
+QString AudioDeviceElement::device() const
+{
+    return this->m_device;
 }
 
 int AudioDeviceElement::bufferSize() const
@@ -71,26 +118,9 @@ AkAudioCaps AudioDeviceElement::defaultCaps(AudioDeviceElement::DeviceMode mode)
     if (mode == AudioDeviceElement::DeviceModeDummyOutput)
         return AkAudioCaps("audio/x-raw,format=s16,bps=2,channels=2,rate=44100,layout=stereo,align=false");
 
-    AkAudioCaps::SampleFormat sampleFormat;
-    int channels;
-    int sampleRate;
-    this->m_audioDevice.preferredFormat(mode == DeviceModeOutput?
-                                            AudioDev::DeviceModePlayback:
-                                            AudioDev::DeviceModeCapture,
-                                        &sampleFormat,
-                                        &channels,
-                                        &sampleRate);
-
-    AkAudioCaps caps;
-    caps.isValid() = true;
-    caps.format() = sampleFormat;
-    caps.bps() = AkAudioCaps::bitsPerSample(sampleFormat);
-    caps.channels() = channels;
-    caps.rate() = sampleRate;
-    caps.layout() = AkAudioCaps::defaultChannelLayout(channels);
-    caps.align() = false;
-
-    return caps;
+    return this->m_audioDevice.preferredFormat(mode == DeviceModeInput?
+                                                   this->m_audioDevice.defaultInput():
+                                                   this->m_audioDevice.defaultOutput());
 }
 
 void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
@@ -100,14 +130,12 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
 #endif
 
+    QString defaultDevice = self->defaultInput();
     AkAudioCaps caps(self->m_caps);
     qint64 streamId = Ak::id();
     AkFrac timeBase(1, caps.rate());
 
-    if (self->m_audioDevice.init(AudioDev::DeviceModeCapture,
-                                 caps.format(),
-                                 caps.channels(),
-                                 caps.rate())) {
+    if (self->m_audioDevice.init(defaultDevice, caps)) {
         while (self->m_readFramesLoop) {
             if (self->m_pause) {
                 QThread::msleep(PAUSE_TIMEOUT);
@@ -147,6 +175,15 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
 #endif
 }
 
+void AudioDeviceElement::setDevice(const QString &device)
+{
+    if (this->m_device == device)
+        return;
+
+    this->m_device = device;
+    emit this->deviceChanged(device);
+}
+
 void AudioDeviceElement::setBufferSize(int bufferSize)
 {
     if (this->m_bufferSize == bufferSize)
@@ -175,6 +212,11 @@ void AudioDeviceElement::setMode(const QString &mode)
     this->m_mode = modeEnum;
     this->setCaps(this->defaultCaps(this->m_mode).toCaps());
     emit this->modeChanged(mode);
+}
+
+void AudioDeviceElement::resetDevice()
+{
+    this->setDevice("");
 }
 
 void AudioDeviceElement::resetBufferSize()
@@ -239,6 +281,7 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeOutput: {
                 this->m_mutex.lock();
 
+                QString defaulDevice = this->defaultOutput();
                 AkAudioCaps caps(this->m_caps);
                 this->m_convert = AkElement::create("ACapsConvert");
 
@@ -249,10 +292,7 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
 
                 this->m_convert->setProperty("caps", caps.toString());
 
-                if (!this->m_audioDevice.init(AudioDev::DeviceModePlayback,
-                                              caps.format(),
-                                              caps.channels(),
-                                              caps.rate())) {
+                if (!this->m_audioDevice.init(defaulDevice, caps)) {
                     this->m_convert.clear();
                     this->m_mutex.unlock();
 
@@ -308,6 +348,7 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             case DeviceModeOutput: {
                 this->m_mutex.lock();
 
+                QString defaultDevice = this->defaultOutput();
                 AkAudioCaps caps(this->m_caps);
                 this->m_convert = AkElement::create("ACapsConvert");
 
@@ -318,10 +359,7 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
 
                 this->m_convert->setProperty("caps", caps.toString());
 
-                if (!this->m_audioDevice.init(AudioDev::DeviceModePlayback,
-                                              caps.format(),
-                                              caps.channels(),
-                                              caps.rate())) {
+                if (!this->m_audioDevice.init(defaultDevice, caps)) {
                     this->m_convert.clear();
                     this->m_mutex.unlock();
 

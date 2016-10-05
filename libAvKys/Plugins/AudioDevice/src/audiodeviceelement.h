@@ -37,6 +37,23 @@ class AudioDeviceElement: public AkElement
 {
     Q_OBJECT
     Q_ENUMS(DeviceMode)
+    Q_PROPERTY(QString defaultInput
+               READ defaultInput
+               NOTIFY defaultInputChanged)
+    Q_PROPERTY(QString defaultOutput
+               READ defaultOutput
+               NOTIFY defaultOutputChanged)
+    Q_PROPERTY(QStringList inputs
+               READ inputs
+               NOTIFY inputsChanged)
+    Q_PROPERTY(QStringList outputs
+               READ outputs
+               NOTIFY outputsChanged)
+    Q_PROPERTY(QString device
+               READ device
+               WRITE setDevice
+               RESET resetDevice
+               NOTIFY deviceChanged)
     // Buffer size in samples.
     Q_PROPERTY(int bufferSize
                READ bufferSize
@@ -65,11 +82,18 @@ class AudioDeviceElement: public AkElement
         explicit AudioDeviceElement();
         ~AudioDeviceElement();
 
+        Q_INVOKABLE QString defaultInput();
+        Q_INVOKABLE QString defaultOutput();
+        Q_INVOKABLE QStringList inputs();
+        Q_INVOKABLE QStringList outputs();
+        Q_INVOKABLE QString description(const QString &device);
+        Q_INVOKABLE QString device() const;
         Q_INVOKABLE int bufferSize() const;
         Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE QString mode() const;
 
     private:
+        QString m_device;
         int m_bufferSize;
         AkCaps m_caps;
         DeviceMode m_mode;
@@ -85,14 +109,21 @@ class AudioDeviceElement: public AkElement
         static void readFramesLoop(AudioDeviceElement *self);
 
     signals:
+        void defaultInputChanged(const QString &defaultInput);
+        void defaultOutputChanged(const QString &defaultOutput);
+        void inputsChanged(const QStringList &inputs);
+        void outputsChanged(const QStringList &outputs);
+        void deviceChanged(const QString &device);
         void bufferSizeChanged(int bufferSize);
         void capsChanged(const AkCaps &caps);
         void modeChanged(const QString &mode);
 
     public slots:
+        void setDevice(const QString &device);
         void setBufferSize(int bufferSize);
         void setCaps(const AkCaps &caps);
         void setMode(const QString &mode);
+        void resetDevice();
         void resetBufferSize();
         void resetCaps();
         void resetMode();
