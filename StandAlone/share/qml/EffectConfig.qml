@@ -87,8 +87,8 @@ ColumnLayout {
             id: btnAddRemove
             text: inUse? qsTr("Remove"): qsTr("Add")
             iconName: inUse? "remove": "add"
-            iconSource: inUse? "qrc:/icons/hicolor/scalable/remove.svg":
-                               "qrc:/icons/hicolor/scalable/add.svg"
+            iconSource: inUse? "image://icons/remove":
+                               "image://icons/add"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {

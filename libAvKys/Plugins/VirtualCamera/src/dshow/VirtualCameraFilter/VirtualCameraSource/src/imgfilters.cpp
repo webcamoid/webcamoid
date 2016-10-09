@@ -17,8 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <vector>
 #include <algorithm>
 #include <list>
+#include <cmath>
 
 #include "imgfilters.h"
 

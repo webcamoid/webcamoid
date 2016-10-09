@@ -69,6 +69,7 @@ MouseArea {
 
     Image {
         id: icon
+        sourceSize: Qt.size(width, height)
         anchors.fill: parent
         source: mouseArea.icon
         opacity: mouseArea.enabled? 1: 0.25

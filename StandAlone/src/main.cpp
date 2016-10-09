@@ -28,6 +28,7 @@
 
 #include "mediatools.h"
 #include "videodisplay.h"
+#include "iconsprovider.h"
 
 int main(int argc, char *argv[])
 {
@@ -75,50 +76,20 @@ int main(int argc, char *argv[])
                                      "PATH", "");
     cliOptions.addOption(configPathOpt);
 
-    QSettings config;
-
-    config.beginGroup("PluginConfigs");
-
-    QString qmlPluginPath = config.value("qmlPluginPath", Ak::qmlPluginPath())
-                                  .toString();
-
     QCommandLineOption qmlPathOpt(QStringList() << "q" << "qmlpath",
                                   QObject::tr("Path to search the Qml interface."),
-                                  "PATH", qmlPluginPath);
+                                  "PATH", Ak::qmlPluginPath());
     cliOptions.addOption(qmlPathOpt);
 
     // Set recursive plugin path search.
-    bool recursive = config.value("recursive", false).toBool();
-
     QCommandLineOption recursiveOpt(QStringList() << "r" << "recursive",
                                     QObject::tr("Search in the specified plugins paths recursively."));
     cliOptions.addOption(recursiveOpt);
-
-    // Set the paths for plugins search.
-    QStringList defaultPluginPaths = AkElement::searchPaths();
-    int size = config.beginReadArray("paths");
-
-    for (int i = 0; i < size; i++) {
-        config.setArrayIndex(i);
-        QString path = config.value("path").toString();
-
-#ifdef Q_OS_WIN32
-        path = MediaTools::convertToAbsolute(path);
-#endif
-
-        path = QDir::toNativeSeparators(path);
-
-        if (!defaultPluginPaths.contains(path))
-            AkElement::addSearchPath(path);
-    }
 
     QCommandLineOption pluginPathsOpt(QStringList() << "p" << "paths",
                                       QObject::tr("Semi-colon separated list of paths to search for plugins."),
                                       "PATH1;PATH2;PATH3;...");
     cliOptions.addOption(pluginPathsOpt);
-
-    config.endArray();
-    config.endGroup();
 
     cliOptions.process(app);
 
@@ -137,25 +108,36 @@ int main(int argc, char *argv[])
                            configPath);
     }
 
+    QSettings config;
+
+    config.beginGroup("PluginConfigs");
+
     // Set Qml plugins search path.
+    QString qmlPluginPath;
+
     if (cliOptions.isSet(qmlPathOpt))
         qmlPluginPath = cliOptions.value(qmlPathOpt);
+    else if (config.contains("qmlPluginPath"))
+        qmlPluginPath = config.value("qmlPluginPath").toString();
 
+    if (!qmlPluginPath.isEmpty()) {
 #ifdef Q_OS_WIN32
-    qmlPluginPath = MediaTools::convertToAbsolute(qmlPluginPath);
+        qmlPluginPath = MediaTools::convertToAbsolute(qmlPluginPath);
 #endif
 
-    Ak::setQmlPluginPath(qmlPluginPath);
+        Ak::setQmlPluginPath(qmlPluginPath);
+    }
 
     // Set recusive search.
     if (cliOptions.isSet(recursiveOpt))
-        recursive = true;
-
-    AkElement::setRecursiveSearch(recursive);
+        AkElement::setRecursiveSearch(true);
+    else if (config.contains("recursive"))
+        AkElement::setRecursiveSearch(config.value("recursive").toBool());
 
     // Set alternative paths to search for plugins.
+    QStringList searchPaths = AkElement::searchPaths();
+
     if (cliOptions.isSet(pluginPathsOpt)) {
-        QStringList defaultPluginPaths = AkElement::searchPaths();
         QStringList pluginPaths = cliOptions.value(pluginPathsOpt)
                                              .split(';');
 
@@ -166,14 +148,37 @@ int main(int argc, char *argv[])
 
             path = QDir::toNativeSeparators(path);
 
-            if (!defaultPluginPaths.contains(path))
-                AkElement::addSearchPath(path);
+            if (!searchPaths.contains(path))
+                searchPaths << path;
         }
+    } else {
+        // Set the paths for plugins search.
+        int size = config.beginReadArray("paths");
+
+        for (int i = 0; i < size; i++) {
+            config.setArrayIndex(i);
+            QString path = config.value("path").toString();
+
+#ifdef Q_OS_WIN32
+            path = MediaTools::convertToAbsolute(path);
+#endif
+
+            path = QDir::toNativeSeparators(path);
+
+            if (!searchPaths.contains(path))
+                searchPaths << path;
+        }
+
+        config.endArray();
     }
+
+    AkElement::setSearchPaths(searchPaths);
+
+    config.endGroup();
 
     // Load cache
     config.beginGroup("PluginsCache");
-    size = config.beginReadArray("paths");
+    int size = config.beginReadArray("paths");
     QStringList pluginsCache;
 
     for (int i = 0; i < size; i++) {
@@ -193,6 +198,7 @@ int main(int argc, char *argv[])
 
     // Initialize environment.
     QQmlApplicationEngine engine;
+    engine.addImageProvider(QLatin1String("icons"), new IconsProvider);
     MediaTools mediaTools(&engine);
 
     // @uri Webcamoid

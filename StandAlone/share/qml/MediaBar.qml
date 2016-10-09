@@ -111,7 +111,8 @@ Rectangle {
             height: 32
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "qrc:/icons/hicolor/scalable/effect-add.svg"
+            source: "image://icons/webcamoid-add"
+            sourceSize: Qt.size(width, height)
         }
 
         MouseArea {

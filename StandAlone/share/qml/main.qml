@@ -77,11 +77,11 @@ ApplicationWindow {
         target: Webcamoid
         onStateChanged: {
             if (Webcamoid.isPlaying) {
-                itmPlayStopButton.icon = "qrc:/icons/hicolor/scalable/stop.svg"
+                itmPlayStopButton.icon = "image://icons/webcamoid-stop"
                 videoDisplay.visible = true
             }
             else {
-                itmPlayStopButton.icon = "qrc:/icons/hicolor/scalable/play.svg"
+                itmPlayStopButton.icon = "image://icons/webcamoid-play"
                 videoDisplay.visible = false
             }
         }
@@ -117,7 +117,8 @@ ApplicationWindow {
 
         Image {
             id: recordingIcon
-            source: "qrc:/icons/hicolor/scalable/recording.svg"
+            source: "image://icons/webcamoid-recording"
+            sourceSize: Qt.size(width, height)
             width: height
             anchors.left: parent.left
             anchors.leftMargin: 8
@@ -486,7 +487,8 @@ ApplicationWindow {
                     anchors.leftMargin: btnGoBack.margins
                     anchors.verticalCenter: parent.verticalCenter
                     width: height
-                    source: "qrc:/icons/hicolor/scalable/go-back.svg"
+                    source: "image://icons/webcamoid-go-back"
+                    sourceSize: Qt.size(width, height)
                 }
                 Text {
                     id: txtGoBack
@@ -537,7 +539,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Play")
-                    icon: "qrc:/icons/hicolor/scalable/play.svg"
+                    icon: "image://icons/webcamoid-play"
 
                     onClicked: togglePlay()
                 }
@@ -545,7 +547,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure streams")
-                    icon: "qrc:/icons/hicolor/scalable/camera-web.svg"
+                    icon: "image://icons/webcamoid-camera-web"
 
                     onClicked: {
                         if (splitView.state == "showMediaPanels")
@@ -558,7 +560,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Take a photo")
-                    icon: "qrc:/icons/hicolor/scalable/picture.svg"
+                    icon: "image://icons/webcamoid-picture"
                     enabled: Webcamoid.isPlaying
 
                     onClicked: {
@@ -572,7 +574,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Record video")
-                    icon: "qrc:/icons/hicolor/scalable/video.svg"
+                    icon: "image://icons/webcamoid-video"
                     enabled: Webcamoid.isPlaying
 
                     onClicked: {
@@ -586,7 +588,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Configure Effects")
-                    icon: "qrc:/icons/hicolor/scalable/effects.svg"
+                    icon: "image://icons/webcamoid-effects"
 
                     onClicked: {
                         if (splitView.state == "showEffectPanels")
@@ -599,7 +601,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("Preferences")
-                    icon: "qrc:/icons/hicolor/scalable/setup.svg"
+                    icon: "image://icons/webcamoid-setup"
 
                     onClicked: {
                         if (splitView.state == "showConfigPanels")
@@ -612,7 +614,7 @@ ApplicationWindow {
                     width: iconBarRect.height
                     height: iconBarRect.height
                     text: qsTr("About")
-                    icon: "qrc:/icons/hicolor/scalable/help-about.svg"
+                    icon: "image://icons/webcamoid-help-about"
 
                     onClicked: about.show()
                 }
