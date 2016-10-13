@@ -259,6 +259,7 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
 
             foreach (AkAudioCaps::SampleFormat format, preferredFormats) {
                 audioCaps.format() = format;
+                audioCaps.bps() = AkAudioCaps::bitsPerSample(format);
 
                 if (this->init(device, audioCaps)) {
                     isValidFormat = true;
