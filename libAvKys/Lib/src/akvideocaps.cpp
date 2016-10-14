@@ -290,7 +290,7 @@ AkVideoCaps::AkVideoCaps(const AkVideoCaps &other):
 
     QList<QByteArray> properties = other.dynamicPropertyNames();
 
-    foreach (QByteArray property, properties)
+    for (const QByteArray &property: properties)
         this->setProperty(property, other.property(property));
 }
 
@@ -313,7 +313,7 @@ AkVideoCaps &AkVideoCaps::operator =(const AkVideoCaps &other)
 
         QList<QByteArray> properties = other.dynamicPropertyNames();
 
-        foreach (QByteArray property, properties)
+        for (const QByteArray &property: properties)
             this->setProperty(property, other.property(property));
     }
 
@@ -436,7 +436,7 @@ AkVideoCaps &AkVideoCaps::fromMap(const QVariantMap &caps)
 {
     QList<QByteArray> properties = this->dynamicPropertyNames();
 
-    foreach (QByteArray property, properties)
+    for (const QByteArray &property: properties)
         this->setProperty(property, QVariant());
 
     if (!caps.contains("mimeType")) {
@@ -445,7 +445,7 @@ AkVideoCaps &AkVideoCaps::fromMap(const QVariantMap &caps)
         return *this;
     }
 
-    foreach (QString key, caps.keys())
+    for (const QString &key: caps.keys())
         if (key == "mimeType") {
             this->d->m_isValid = caps[key].toString() == "video/x-raw";
 
@@ -464,14 +464,15 @@ AkVideoCaps &AkVideoCaps::fromString(const QString &caps)
 
 QVariantMap AkVideoCaps::toMap() const
 {
-    QVariantMap map;
-    map["format"] = this->pixelFormatToString(this->d->m_format);
-    map["bpp"] = this->d->m_bpp;
-    map["width"] = this->d->m_width;
-    map["height"] = this->d->m_height;
-    map["fps"] = QVariant::fromValue(this->d->m_fps);
+    QVariantMap map = {
+        {"format", this->pixelFormatToString(this->d->m_format)},
+        {"bpp"   , this->d->m_bpp                              },
+        {"width" , this->d->m_width                            },
+        {"height", this->d->m_height                           },
+        {"fps"   , QVariant::fromValue(this->d->m_fps)         }
+    };
 
-    foreach (QByteArray property, this->dynamicPropertyNames()) {
+    for (const QByteArray &property: this->dynamicPropertyNames()) {
         QString key = QString::fromUtf8(property.constData());
         map[key] = this->property(property);
     }
@@ -499,12 +500,12 @@ QString AkVideoCaps::toString() const
 
     QStringList properties;
 
-    foreach (QByteArray property, this->dynamicPropertyNames())
+    for (const QByteArray &property: this->dynamicPropertyNames())
         properties << QString::fromUtf8(property.constData());
 
     properties.sort();
 
-    foreach (QString property, properties)
+    for (const QString &property: properties)
         caps.append(QString(",%1=%2").arg(property)
                                      .arg(this->property(property.toStdString().c_str()).toString()));
 
@@ -520,7 +521,7 @@ AkVideoCaps &AkVideoCaps::update(const AkCaps &caps)
 
     QList<QByteArray> properties = caps.dynamicPropertyNames();
 
-    foreach (QByteArray property, properties)
+    for (const QByteArray &property: properties)
         if (property == "format")
             this->d->m_format = this->pixelFormatFromString(caps.property(property).toString());
         else if (property == "bpp")
@@ -675,7 +676,7 @@ void AkVideoCaps::clear()
 {
     QList<QByteArray> properties = this->dynamicPropertyNames();
 
-    foreach (QByteArray property, properties)
+    for (const QByteArray &property: properties)
         this->setProperty(property.constData(), QVariant());
 }
 

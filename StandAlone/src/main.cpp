@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         QStringList pluginPaths = cliOptions.value(pluginPathsOpt)
                                              .split(';');
 
-        foreach (QString path, pluginPaths) {
+        for (QString path: pluginPaths) {
 #ifdef Q_OS_WIN32
             path = MediaTools::convertToAbsolute(path);
 #endif
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 
     emit mediaTools.interfaceLoaded();
 
-    foreach (QObject *obj, engine.rootObjects()) {
+    for (const QObject *obj: engine.rootObjects()) {
         // First, find where to enbed the UI.
         VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 

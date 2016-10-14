@@ -140,8 +140,8 @@ bool AkElement::link(const QObject *dstElement,
     QList<QMetaMethod> signalList = AkElementPrivate::methodsByName(this, "oStream");
     QList<QMetaMethod> slotList = AkElementPrivate::methodsByName(dstElement, "iStream");
 
-    foreach (QMetaMethod signal, signalList)
-        foreach (QMetaMethod slot, slotList)
+    for (const QMetaMethod &signal: signalList)
+        for (const QMetaMethod &slot: slotList)
             if (AkElementPrivate::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
@@ -160,8 +160,8 @@ bool AkElement::unlink(const QObject *dstElement) const
     if (!dstElement)
         return false;
 
-    foreach (QMetaMethod signal, AkElementPrivate::methodsByName(this, "oStream"))
-        foreach (QMetaMethod slot, AkElementPrivate::methodsByName(dstElement, "iStream"))
+    for (const QMetaMethod &signal: AkElementPrivate::methodsByName(this, "oStream"))
+        for (const QMetaMethod &slot: AkElementPrivate::methodsByName(dstElement, "iStream"))
             if (AkElementPrivate::methodCompat(signal, slot) &&
                 signal.methodType() == QMetaMethod::Signal &&
                 slot.methodType() == QMetaMethod::Slot)
@@ -265,7 +265,7 @@ QStringList AkElement::searchPaths(SearchPaths pathType)
 
     QStringList extras = akElementGlobalStuff->m_pluginsSearchPaths;
 
-    foreach (QString path, defaults)
+    for (const QString &path: defaults)
         extras.removeAll(path);
 
     return extras;
@@ -281,7 +281,7 @@ void AkElement::setSearchPaths(const QStringList &searchPaths)
 {
     akElementGlobalStuff->m_pluginsSearchPaths.clear();
 
-    foreach (QString path, searchPaths)
+    for (const QString &path: searchPaths)
         if (QDir(path).exists())
             akElementGlobalStuff->m_pluginsSearchPaths << path;
 }
@@ -309,7 +309,7 @@ QStringList AkElement::listPlugins(const QString &type)
     QStringList plugins;
     QStringList pluginPaths = AkElement::listPluginPaths();
 
-    foreach (QString path, pluginPaths) {
+    for (const QString &path: pluginPaths) {
         QPluginLoader pluginLoader(path);
         QJsonObject metaData = pluginLoader.metaData();
 
@@ -377,7 +377,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
             QStringList fileList = dir.entryList(QDir::Files,
                                                  QDir::Name);
 
-            foreach (QString file, fileList)
+            for (const QString &file: fileList)
                 if (QRegExp(pattern,
                             Qt::CaseSensitive,
                             QRegExp::Wildcard).exactMatch(file)) {
@@ -399,7 +399,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
                                                 | QDir::NoDotAndDotDot,
                                                 QDir::Name);
 
-            foreach (QString dir, dirList)
+            for (const QString &dir: dirList)
                 searchPaths << QString("%1%2%3").arg(path)
                                                 .arg(QDir::separator())
                                                 .arg(dir);
@@ -419,7 +419,7 @@ QStringList AkElement::listPluginPaths()
     for (int i = akElementGlobalStuff->m_pluginsSearchPaths.length() - 1; i >= 0; i--) {
         QStringList paths = AkElement::listPluginPaths(akElementGlobalStuff->m_pluginsSearchPaths[i]);
 
-        foreach (QString path, paths)
+        for (const QString &path: paths)
             if (!searchPaths.contains(path))
                 searchPaths << path;
     }
@@ -443,7 +443,7 @@ QString AkElement::pluginPath(const QString &pluginId)
 {
     QStringList pluginPaths = AkElement::listPluginPaths();
 
-    foreach (QString path, pluginPaths) {
+    for (const QString &path: pluginPaths) {
         QString baseName = QFileInfo(path).baseName();
 
 #ifdef Q_OS_WIN32

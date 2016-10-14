@@ -576,7 +576,7 @@ AkAudioCaps::SampleFormat AkAudioCaps::sampleFormatFromProperties(AkAudioCaps::S
                                                                   int endianness,
                                                                   bool planar)
 {
-    foreach (const SampleFormats sampleFormat, SampleFormats::formats())
+    for (const SampleFormats &sampleFormat: SampleFormats::formats())
         if (sampleFormat.type == type
             && sampleFormat.bps == bps
             && sampleFormat.endianness == endianness

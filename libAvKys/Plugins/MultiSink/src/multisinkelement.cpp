@@ -34,12 +34,12 @@ class MultiSinkElementPrivate
         {
             MediaSink mediaSink;
 
-            foreach (QString format, mediaSink.supportedFormats()) {
+            for (const QString &format: mediaSink.supportedFormats()) {
                 this->m_supportedFormats << format;
                 this->m_fileExtensions[format] = mediaSink.fileExtensions(format);
                 this->m_formatDescription[format] = mediaSink.formatDescription(format);
 
-                foreach (QString codec, mediaSink.supportedCodecs(format))
+                for (const QString &codec: mediaSink.supportedCodecs(format))
                     if (!this->m_supportedCodecs.contains(codec)) {
                         this->m_supportedCodecs << codec;
                         this->m_codecDescription[codec] = mediaSink.codecDescription(codec);

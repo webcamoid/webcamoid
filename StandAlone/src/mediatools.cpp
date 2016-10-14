@@ -35,7 +35,7 @@ typedef QMap<MediaTools::RecordFrom, QString> RecordFromMap;
 
 inline RecordFromMap initRecordFromMap()
 {
-    RecordFromMap recordFromMap = {
+    static const RecordFromMap recordFromMap = {
         {MediaTools::RecordFromNone  , "none"  },
         {MediaTools::RecordFromSource, "source"},
         {MediaTools::RecordFromMic   , "mic"   }
@@ -257,7 +257,7 @@ QStringList MediaTools::recordingFormats() const
                               "supportedFormats",
                               Q_RETURN_ARG(QStringList, supportedFormats));
 
-    foreach (QString format, supportedFormats) {
+    for (const QString &format: supportedFormats) {
 #ifndef USE_GSTREAMER
         if (format == "gif") {
             formats << format;
@@ -463,7 +463,7 @@ QStringList MediaTools::availableEffects() const
     QStringList effects = AkElement::listPlugins("VideoFilter");
 
     if (this->m_advancedMode)
-        foreach (AkElementPtr effect, this->m_effectsList) {
+        for (const AkElementPtr &effect: this->m_effectsList) {
             int i = effects.indexOf(effect->pluginId());
 
             if (i < 0
@@ -496,7 +496,7 @@ QStringList MediaTools::currentEffects() const
 {
     QStringList effects;
 
-    foreach (AkElementPtr effect, this->m_effectsList)
+    for (const AkElementPtr &effect: this->m_effectsList)
         if (!effect->property("preview").toBool())
             effects << effect->pluginId();
 
@@ -613,7 +613,7 @@ void MediaTools::removePreview(const QString &effectId)
 {
     QList<AkElementPtr> effectsList = this->m_effectsList;
 
-    foreach (AkElementPtr effect, effectsList)
+    for (const AkElementPtr &effect: effectsList)
         if (effect->property("preview").toBool()
             && (effectId.isEmpty()
                 || effect->pluginId() == effectId)) {
@@ -664,7 +664,7 @@ bool MediaTools::matches(const QString &pattern, const QStringList &strings) con
     if (pattern.isEmpty())
         return true;
 
-    foreach (QString str, strings)
+    for (const QString &str: strings)
         if (str.contains(QRegExp(pattern,
                                  Qt::CaseInsensitive,
                                  QRegExp::Wildcard)))
@@ -822,7 +822,7 @@ void MediaTools::removeInterface(const QString &where,
     if (!engine)
         return;
 
-    foreach (QObject *obj, engine->rootObjects()) {
+    for (const QObject *obj: engine->rootObjects()) {
         QQuickItem *item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
@@ -830,7 +830,7 @@ void MediaTools::removeInterface(const QString &where,
 
         QList<QQuickItem *> childItems = item->childItems();
 
-        foreach (QQuickItem *child, childItems) {
+        for (QQuickItem *child: childItems) {
             child->setParentItem(NULL);
             child->setParent(NULL);
 
@@ -871,7 +871,7 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
     if (!engine || !interface)
         return false;
 
-    foreach (QObject *obj, engine->rootObjects()) {
+    for (const QObject *obj: engine->rootObjects()) {
         // First, find where to embed the UI.
         QQuickItem *item = obj->findChild<QQuickItem *>(where);
 
@@ -1099,7 +1099,7 @@ bool MediaTools::start()
                                   "setStreams", Qt::DirectConnection,
                                   Q_ARG(QList<int>, streams));
     } else {
-        foreach (int stream, streams) {
+        for (const int &stream: streams) {
             AkCaps caps;
             QMetaObject::invokeMethod(source.data(),
                                       "caps", Qt::DirectConnection,
@@ -1211,7 +1211,7 @@ bool MediaTools::startVirtualCamera(const QString &fileName)
                                       Q_ARG(int, videoStream));
         }
     } else {
-        foreach (int stream, streams) {
+        for (const int &stream: streams) {
             AkCaps caps;
             QMetaObject::invokeMethod(source.data(),
                                       "caps", Qt::DirectConnection,
@@ -1460,7 +1460,7 @@ void MediaTools::loadConfigs()
     config.endArray();
     config.endGroup();
 
-    foreach (QString effectId, effects) {
+    for (const QString &effectId: effects) {
         AkElementPtr effect = this->appendEffect(effectId);
 
         if (!effect)
@@ -1468,7 +1468,7 @@ void MediaTools::loadConfigs()
 
         config.beginGroup("Effects_" + effectId);
 
-        foreach (QString key, config.allKeys())
+        for (const QString &key: config.allKeys())
             effect->setProperty(key.toStdString().c_str(), config.value(key));
 
         config.endGroup();
@@ -1534,7 +1534,7 @@ void MediaTools::saveConfigs()
 
     int ei = 0;
 
-    foreach (AkElementPtr effect, this->m_effectsList)
+    for (const AkElementPtr &effect: this->m_effectsList)
         if (!effect->property("preview").toBool()) {
             config.setArrayIndex(ei);
             config.setValue("effect", effect->pluginId());
@@ -1544,7 +1544,7 @@ void MediaTools::saveConfigs()
     config.endArray();
     config.endGroup();
 
-    foreach (AkElementPtr effect, this->m_effectsList) {
+    for (const AkElementPtr &effect: this->m_effectsList) {
         config.beginGroup("Effects_" + effect->pluginId());
 
         for (int property = 0;
@@ -1566,7 +1566,7 @@ void MediaTools::saveConfigs()
 
     int i = 0;
 
-    foreach (QString stream, this->m_streams.keys()) {
+    for (const QString &stream: this->m_streams.keys()) {
         config.setArrayIndex(i);
         config.setValue("dev", stream);
         config.setValue("description", this->m_streams[stream]);
@@ -1591,7 +1591,7 @@ void MediaTools::saveConfigs()
 
     i = 0;
 
-    foreach (QString path, AkElement::searchPaths(AkElement::SearchPathsExtras)) {
+    for (const QString &path: AkElement::searchPaths(AkElement::SearchPathsExtras)) {
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
@@ -1615,7 +1615,7 @@ void MediaTools::saveConfigs()
 
     i = 0;
 
-    foreach (QString path, AkElement::pluginsCache()) {
+    for (const QString &path: AkElement::pluginsCache()) {
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
@@ -1724,7 +1724,7 @@ void MediaTools::updateRecordingParams()
             streamCaps[1] = audioCaps;
         }
     } else {
-        foreach (int stream, streams) {
+        for (const int &stream: streams) {
             AkCaps caps;
 
             QMetaObject::invokeMethod(source.data(),
@@ -1767,7 +1767,7 @@ void MediaTools::updateRecordingParams()
             configKeys.removeOne("index");
             configKeys.removeOne("timeBase");
 
-            foreach (QString key, configKeys)
+            for (const QString &key: configKeys)
                 streamConfigs[key] = config.value(key);
 
             QString mimeType = streamCaps[stream].mimeType();
@@ -1791,7 +1791,7 @@ void MediaTools::updateRecordingParams()
             configKeys.removeOne("index");
             configKeys.removeOne("timeBase");
 
-            foreach (QString key, configKeys)
+            for (const QString &key: configKeys)
                 config.setValue(key, streamConfigs[key]);
 
             config.endGroup();

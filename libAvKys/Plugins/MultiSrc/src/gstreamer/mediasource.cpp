@@ -959,7 +959,7 @@ void MediaSource::updateStreams()
         }
 
     } else
-        foreach (int stream, this->m_streams) {
+        for (const int &stream: this->m_streams) {
             if (stream < audioTracks) {
                 this->m_audioIndex = stream;
 

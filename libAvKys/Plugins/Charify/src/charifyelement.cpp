@@ -207,7 +207,7 @@ QSize CharifyElement::fontSize(const QString &chrTable, const QFont &font) const
     int width = -1;
     int height = -1;
 
-    foreach (QChar chr, chrTable) {
+    for (const QChar &chr: chrTable) {
         QSize size = metrics.size(Qt::TextSingleLine, chr);
 
         if (size.width() > width)
@@ -463,7 +463,7 @@ void CharifyElement::updateCharTable()
     for (int i = 0; i < 256; i++)
         colorTable[i] = qRgb(i, i, i);
 
-    foreach (QChar chr, this->m_charTable) {
+    for (const QChar &chr: this->m_charTable) {
         QImage image = this->drawChar(chr,
                                       this->m_font,
                                       fontSize,

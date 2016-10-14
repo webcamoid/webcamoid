@@ -271,10 +271,10 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
 //      AkAudioCaps::SampleFormat_u8p,
     };
 
-    foreach (AudioStreamID stream, streams) {
+    for (const AudioStreamID &stream: streams) {
         // Create a list of all supported output formats.
-        foreach (AudioObjectPropertySelector selector, selectors)
-            foreach (AudioStreamRangedDescription description,
+        for (const AudioObjectPropertySelector &selector: selectors)
+            for (const AudioStreamRangedDescription &description:
                      this->supportedFormats(stream, selector)) {
                 AkAudioCaps audioCaps;
                 audioCaps.isValid() = true;
@@ -336,12 +336,12 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
             emit this->errorChanged(this->m_error);
 
             return AkAudioCaps();
-        } else foreach (AkAudioCaps::SampleFormat sampleFormat, recommendedFormats) {
+        } else for (const AkAudioCaps::SampleFormat &sampleFormat: recommendedFormats) {
             // Select the best output format.
             if (defaultCaps)
                 break;
 
-            foreach (AkAudioCaps caps, supportedCaps)
+            for (const AkAudioCaps &caps: supportedCaps)
                 if (caps.format() == sampleFormat) {
                     defaultCaps = caps;
 

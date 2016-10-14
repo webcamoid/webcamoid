@@ -45,7 +45,7 @@ bool Pipeline::parse(const QString &description)
     }
 
     // Parse main array.
-    foreach (QJsonValue pipe, jsonFile.array()) {
+    for (const QJsonValue &pipe: jsonFile.array()) {
         if (pipe.isArray()) {
             QJsonArray pipeArray = pipe.toArray();
             QStringList pipeStr;
@@ -96,7 +96,7 @@ bool Pipeline::parse(const QString &description)
                                                      .toObject()
                                                      .toVariantMap();
 
-                            foreach (QString key, properties.keys())
+                            for (const QString &key: properties.keys())
                                 element->setProperty(key.toStdString().c_str(),
                                                      this->solveProperty(properties[key]));
                         }
@@ -121,7 +121,7 @@ bool Pipeline::parse(const QString &description)
                                                        .toArray()
                                                        .toVariantList();
 
-                            foreach (QVariant connection, connections) {
+                            for (const QVariant &connection: connections) {
                                 QStringList connectionStr = connection.toStringList();
 
                                 if (connectionStr.size() != 4) {
@@ -279,7 +279,7 @@ void Pipeline::removeElement(const QString &elementName)
 {
     QList<QStringList> connections = this->m_connections;
 
-    foreach (QStringList connection, connections)
+    for (const QStringList &connection: connections)
         if (connection[0] == elementName
             || connection[2] == elementName) {
             AkElement *sender = this->m_elements[connection[0]].data();
@@ -294,7 +294,7 @@ void Pipeline::removeElement(const QString &elementName)
 
     QList<QStringList> links = this->m_links;
 
-    foreach (QStringList link, links)
+    for (const QStringList &link: links)
         if (link[0] == elementName
             || link[1] == elementName) {
             this->m_elements[link[0]]->unlink(this->m_elements[link[1]]);
@@ -308,7 +308,7 @@ QList<AkElementPtr> Pipeline::inputs() const
 {
     QList<AkElementPtr> inputs;
 
-    foreach (QStringList link, this->m_links)
+    for (const QStringList &link: this->m_links)
         if (link[0] == "IN.")
             inputs << this->m_elements[link[1]];
 
@@ -319,7 +319,7 @@ QList<AkElementPtr> Pipeline::outputs() const
 {
     QList<AkElementPtr> outputs;
 
-    foreach (QStringList link, this->m_links)
+    for (const QStringList &link: this->m_links)
         if (link[1] == "OUT.")
             outputs << this->m_elements[link[0]];
 
@@ -333,7 +333,7 @@ QList<Qt::ConnectionType> Pipeline::outputConnectionTypes() const
     int index = this->staticQtMetaObject.indexOfEnumerator("ConnectionType");
     QMetaEnum enumerator = this->staticQtMetaObject.enumerator(index);
 
-    foreach (QStringList link, this->m_links)
+    for (const QStringList &link: this->m_links)
         if (link[1] == "OUT.") {
             QString connectionTypeString;
 
@@ -616,7 +616,7 @@ void Pipeline::addLinks(const QStringList &links)
     QStringList link;
     QString connectionType = "AutoConnection";
 
-    foreach (QString element,  links) {
+    for (QString element:  links) {
         if (element.endsWith("?"))
             connectionType = element.remove("?");
         else
@@ -633,7 +633,7 @@ void Pipeline::addLinks(const QStringList &links)
 
 bool Pipeline::linkAll()
 {
-    foreach (QStringList link, this->m_links)
+    for (const QStringList &link: this->m_links)
         if (link[0] != "IN."
             && link[1] != "OUT.") {
             if (!this->m_elements.contains(link[0])) {
@@ -674,7 +674,7 @@ bool Pipeline::linkAll()
 
 bool Pipeline::unlinkAll()
 {
-    foreach (QStringList link, this->m_links)
+    for (const QStringList &link: this->m_links)
         if (link[0] != "IN."
             && link[1] != "OUT.") {
             if (!this->m_elements.contains(link[0])) {
@@ -694,7 +694,7 @@ bool Pipeline::unlinkAll()
 
 bool Pipeline::connectAll()
 {
-    foreach (QStringList connection, this->m_connections) {
+    for (const QStringList &connection: this->m_connections) {
         AkElement *sender = this->m_elements[connection[0]].data();
         AkElement *receiver = this->m_elements[connection[2]].data();
 
@@ -721,7 +721,7 @@ bool Pipeline::connectAll()
 
 bool Pipeline::disconnectAll()
 {
-    foreach (QStringList connection, this->m_connections) {
+    for (const QStringList &connection: this->m_connections) {
         AkElement *sender = this->m_elements[connection[0]].data();
         AkElement *receiver = this->m_elements[connection[2]].data();
 

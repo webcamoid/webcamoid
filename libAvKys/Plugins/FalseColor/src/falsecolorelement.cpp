@@ -21,10 +21,12 @@
 
 FalseColorElement::FalseColorElement(): AkElement()
 {
-    this->m_table << qRgb(0, 0, 0)
-                  << qRgb(255, 0, 0)
-                  << qRgb(255, 255, 255)
-                  << qRgb(255, 255, 255);
+    this->m_table = {
+        qRgb(0, 0, 0),
+        qRgb(255, 0, 0),
+        qRgb(255, 255, 255),
+        qRgb(255, 255, 255)
+    };
 
     this->m_soft = false;
 }
@@ -71,7 +73,7 @@ QVariantList FalseColorElement::table() const
 {
     QVariantList table;
 
-    foreach (QRgb color, this->m_table)
+    for (const QRgb &color: this->m_table)
         table << color;
 
     return table;
@@ -86,7 +88,7 @@ void FalseColorElement::setTable(const QVariantList &table)
 {
     QList<QRgb> tableRgb;
 
-    foreach (QVariant color, table)
+    for (const QVariant &color: table)
         tableRgb << color.value<QRgb>();
 
     if (this->m_table == tableRgb)
@@ -107,12 +109,12 @@ void FalseColorElement::setSoft(bool soft)
 
 void FalseColorElement::resetTable()
 {
-    QVariantList table;
-
-    table << qRgb(0, 0, 0)
-          << qRgb(255, 0, 0)
-          << qRgb(255, 255, 255)
-          << qRgb(255, 255, 255);
+    static const QVariantList table = {
+        qRgb(0, 0, 0),
+        qRgb(255, 0, 0),
+        qRgb(255, 255, 255),
+        qRgb(255, 255, 255)
+    };
 
     this->setTable(table);
 }

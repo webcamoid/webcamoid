@@ -80,7 +80,7 @@ void BinElement::setDescription(const QString &description)
         this->m_pipelineDescription.cleanAll();
         this->m_description = description;
     } else {
-        foreach (AkElementPtr element, this->m_outputs)
+        for (const AkElementPtr &element: this->m_outputs)
             QObject::disconnect(element.data(),
                                 &AkElement::oStream,
                                 this,
@@ -132,7 +132,7 @@ void BinElement::resetBlocking()
 AkPacket BinElement::iStream(const AkPacket &packet)
 {
     if (!this->m_description.isEmpty())
-        foreach (AkElementPtr element, this->m_inputs)
+        for (const AkElementPtr &element: this->m_inputs)
             element->iStream(packet);
     else if (!this->m_blocking)
         akSend(packet)
@@ -145,7 +145,7 @@ bool BinElement::setState(AkElement::ElementState state)
     AkElement::setState(state);
     bool ok = true;
 
-    foreach (AkElementPtr element, this->m_elements) {
+    for (const AkElementPtr &element: this->m_elements) {
         bool ret = false;
         QMetaObject::invokeMethod(element.data(),
                                   "setState",
@@ -163,7 +163,7 @@ void BinElement::connectOutputs()
     QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
     int i = 0;
 
-    foreach (AkElementPtr element, this->m_outputs) {
+    for (const AkElementPtr &element: this->m_outputs) {
         QObject::connect(element.data(),
                          &AkElement::oStream,
                          this,
@@ -176,7 +176,7 @@ void BinElement::connectOutputs()
 
 void BinElement::disconnectOutputs()
 {
-    foreach (AkElementPtr element, this->m_outputs)
+    for (const AkElementPtr &element: this->m_outputs)
         QObject::disconnect(element.data(),
                             &AkElement::oStream,
                             this,

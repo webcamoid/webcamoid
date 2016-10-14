@@ -137,7 +137,7 @@ QStringList CameraOut::webcams() const
     v4l2_capability capability;
     memset(&capability, 0, sizeof(v4l2_capability));
 
-    foreach (QString devicePath, devices) {
+    for (const QString &devicePath: devices) {
         device.setFileName(devicesDir.absoluteFilePath(devicePath));
 
         if (device.open(QIODevice::ReadWrite)) {
@@ -254,7 +254,7 @@ QString CameraOut::createWebcam(const QString &description,
     QStringList webcamDescriptions;
     QStringList webcamIds;
 
-    foreach (QString webcam, webcams) {
+    for (const QString &webcam: webcams) {
         webcamDescriptions << this->description(webcam);
         int id = webcam.indexOf(QRegExp("[0-9]+"));
         webcamIds << webcam.mid(id);
@@ -311,7 +311,7 @@ bool CameraOut::changeDescription(const QString &webcam,
     QStringList webcamDescriptions;
     QStringList webcamIds;
 
-    foreach (QString webcam, webcams) {
+    for (const QString &webcam: webcams) {
         webcamDescriptions << this->description(webcam);
         int id = webcam.indexOf(QRegExp("[0-9]+"));
         webcamIds << webcam.mid(id);
@@ -372,7 +372,7 @@ bool CameraOut::removeWebcam(const QString &webcam,
     QStringList webcamDescriptions;
     QStringList webcamIds;
 
-    foreach (QString webcam, webcams) {
+    for (const QString &webcam: webcams) {
         webcamDescriptions << this->description(webcam);
         int id = webcam.indexOf(QRegExp("[0-9]+"));
         webcamIds << webcam.mid(id);
@@ -448,7 +448,7 @@ bool CameraOut::sudo(const QString &command,
         case RootMethodSu: {
             QStringList args;
 
-            foreach (QString arg, argumments)
+            for (QString arg: argumments)
                 args << arg.replace(" ", "\\ ");
 
             echo.start("echo", {password});
