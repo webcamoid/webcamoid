@@ -8,8 +8,7 @@
                 "audioAlign": true
             },
             "connections": [
-                ["", "stateChanged", "videoMux", "setState"],
-                ["", "stateChanged", "muxAudioInput", "setState"]
+                ["", "stateChanged", "videoMux", "setState"]
             ]
         },
         "DirectConnection",
@@ -26,86 +25,6 @@
             "properties": {
                 "objectName": "videoOutput"
             }
-        }
-    ],
-    [
-        {
-            "alias": "source"
-        },
-        "DirectConnection",
-        {
-            "pluginId": "Multiplex",
-            "properties": {
-                "objectName": "muxAudioInput",
-                "caps": "audio/x-raw",
-                "outputIndex": 0
-            }
-        },
-        {
-            "pluginId": "Multiplex",
-            "properties": {
-                "objectName": "audioSwitch",
-                "outputIndex": 1
-            }
-        }
-    ],
-    [
-        {
-            "alias": "muxAudioInput"
-        },
-        "DirectConnection",
-        {
-            "pluginId": "AudioDevice",
-            "properties": {
-                "objectName": "audioOutput",
-                "mode": "output"
-            }
-        }
-    ],
-    [
-        {
-            "pluginId": "AudioDevice",
-            "properties": {
-                "objectName": "mic",
-                "mode": "input"
-            }
-        },
-        "DirectConnection",
-        {
-            "pluginId": "Multiplex",
-            "properties": {
-                "outputIndex": 1
-            },
-            "connections": [
-                ["mic", "stateChanged", "", "setState"]
-            ]
-        },
-        "DirectConnection",
-        {
-            "alias": "audioSwitch"
-        }
-    ],
-    [
-        {
-            "pluginId": "AudioGen",
-            "properties": {
-                "objectName": "audioGenerator",
-                "waveType": "silence"
-            }
-        },
-        "DirectConnection",
-        {
-            "pluginId": "Multiplex",
-            "properties": {
-                "outputIndex": 2
-            },
-            "connections": [
-                ["audioGenerator", "stateChanged", "", "setState"]
-            ]
-        },
-        "DirectConnection",
-        {
-            "alias": "audioSwitch"
         }
     ],
     [
@@ -131,22 +50,12 @@
     ],
     [
         {
-            "alias": "audioSwitch"
-        },
-        "DirectConnection",
-        {
-            "alias": "record"
-        }
-    ],
-    [
-        {
             "pluginId": "VideoCapture",
             "properties": {
                 "objectName": "videoCapture"
             },
             "connections": [
-                ["", "stateChanged", "videoMux", "setState"],
-                ["", "stateChanged", "muxAudioInput", "setState"]
+                ["", "stateChanged", "videoMux", "setState"]
             ]
         },
         "DirectConnection",
@@ -161,8 +70,7 @@
                 "objectName": "desktopCapture"
             },
             "connections": [
-                ["", "stateChanged", "videoMux", "setState"],
-                ["", "stateChanged", "muxAudioInput", "setState"]
+                ["", "stateChanged", "videoMux", "setState"]
             ]
         },
         "DirectConnection",

@@ -255,6 +255,11 @@ ApplicationWindow {
                     visible: false
                     anchors.fill: parent
                 }
+                AudioConfig {
+                    id: audioConfig
+                    visible: false
+                    anchors.fill: parent
+                }
                 EffectBar {
                     id: effectBar
                     visible: false
@@ -276,7 +281,6 @@ ApplicationWindow {
                             generalConfig.children[0].destroy()
 
                         var options = {
-                            "audio": "AudioConfig.qml",
                             "output": "OutputConfig.qml",
                             "general": "GeneralConfig.qml"
                         }
@@ -310,6 +314,12 @@ ApplicationWindow {
                     id: mediaConfig
                     visible: false
                     anchors.fill: parent
+                }
+                AudioInfo {
+                    id: audioInfo
+                    visible: false
+                    anchors.fill: parent
+                    state: audioConfig.state
                 }
                 EffectConfig {
                     id: effectConfig
@@ -348,6 +358,25 @@ ApplicationWindow {
                 }
                 PropertyChanges {
                     target: mediaConfig
+                    visible: true
+                }
+            },
+            State {
+                name: "showAudioPanels"
+                PropertyChanges {
+                    target: leftPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: rightPanel
+                    visible: true
+                }
+                PropertyChanges {
+                    target: audioConfig
+                    visible: true
+                }
+                PropertyChanges {
+                    target: audioInfo
                     visible: true
                 }
             },
@@ -427,7 +456,7 @@ ApplicationWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         opacity: 0.5
 
-        property real nIcons: 7
+        property real nIcons: 8
 
         gradient: Gradient {
             GradientStop {
@@ -546,7 +575,7 @@ ApplicationWindow {
                 IconBarItem {
                     width: iconBarRect.height
                     height: iconBarRect.height
-                    text: qsTr("Configure streams")
+                    text: qsTr("Configure sources")
                     icon: "image://icons/webcamoid-camera-web"
 
                     onClicked: {
@@ -554,6 +583,19 @@ ApplicationWindow {
                             splitView.state = ""
                         else
                             splitView.state = "showMediaPanels"
+                    }
+                }
+                IconBarItem {
+                    width: iconBarRect.height
+                    height: iconBarRect.height
+                    text: qsTr("Configure audio")
+                    icon: "image://icons/webcamoid-sound"
+
+                    onClicked: {
+                        if (splitView.state == "showAudioPanels")
+                            splitView.state = ""
+                        else
+                            splitView.state = "showAudioPanels"
                     }
                 }
                 IconBarItem {

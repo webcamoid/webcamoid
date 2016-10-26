@@ -16,13 +16,16 @@
         <file>hicolor/scalable/webcamoid-down.svg</file>
         <file>hicolor/scalable/webcamoid-effects.svg</file>
         <file>hicolor/scalable/webcamoid-go-back.svg</file>
+        <file>hicolor/scalable/webcamoid-headphones.svg</file>
         <file>hicolor/scalable/webcamoid-help-about.svg</file>
+        <file>hicolor/scalable/webcamoid-mic.svg</file>
         <file>hicolor/scalable/webcamoid-picture.svg</file>
         <file>hicolor/scalable/webcamoid-play.svg</file>
         <file>hicolor/scalable/webcamoid-recording.svg</file>
         <file>hicolor/scalable/webcamoid-record-start.svg</file>
         <file>hicolor/scalable/webcamoid-record-stop.svg</file>
         <file>hicolor/scalable/webcamoid-setup.svg</file>
+        <file>hicolor/scalable/webcamoid-sound.svg</file>
         <file>hicolor/scalable/webcamoid-stop.svg</file>
         <file>hicolor/scalable/webcamoid.svg</file>
         <file>hicolor/scalable/webcamoid-video.svg</file>
@@ -43,8 +46,10 @@
         <file>hicolor/8x8/webcamoid-down.png</file>
         <file>hicolor/8x8/webcamoid-effects.png</file>
         <file>hicolor/8x8/webcamoid-go-back.png</file>
+        <file>hicolor/8x8/webcamoid-headphones.png</file>
         <file>hicolor/8x8/webcamoid-help-about.png</file>
         <file>hicolor/8x8/webcamoid.ico</file>
+        <file>hicolor/8x8/webcamoid-mic.png</file>
         <file>hicolor/8x8/webcamoid-picture.png</file>
         <file>hicolor/8x8/webcamoid-play.png</file>
         <file>hicolor/8x8/webcamoid.png</file>
@@ -52,6 +57,7 @@
         <file>hicolor/8x8/webcamoid-record-start.png</file>
         <file>hicolor/8x8/webcamoid-record-stop.png</file>
         <file>hicolor/8x8/webcamoid-setup.png</file>
+        <file>hicolor/8x8/webcamoid-sound.png</file>
         <file>hicolor/8x8/webcamoid-stop.png</file>
         <file>hicolor/8x8/webcamoid-video.png</file>
         <file>hicolor/8x8/window-close.png</file>
@@ -69,8 +75,10 @@
         <file>hicolor/16x16/webcamoid-down.png</file>
         <file>hicolor/16x16/webcamoid-effects.png</file>
         <file>hicolor/16x16/webcamoid-go-back.png</file>
+        <file>hicolor/16x16/webcamoid-headphones.png</file>
         <file>hicolor/16x16/webcamoid-help-about.png</file>
         <file>hicolor/16x16/webcamoid.ico</file>
+        <file>hicolor/16x16/webcamoid-mic.png</file>
         <file>hicolor/16x16/webcamoid-picture.png</file>
         <file>hicolor/16x16/webcamoid-play.png</file>
         <file>hicolor/16x16/webcamoid.png</file>
@@ -78,6 +86,7 @@
         <file>hicolor/16x16/webcamoid-record-start.png</file>
         <file>hicolor/16x16/webcamoid-record-stop.png</file>
         <file>hicolor/16x16/webcamoid-setup.png</file>
+        <file>hicolor/16x16/webcamoid-sound.png</file>
         <file>hicolor/16x16/webcamoid-stop.png</file>
         <file>hicolor/16x16/webcamoid-video.png</file>
         <file>hicolor/16x16/window-close.png</file>
@@ -95,8 +104,10 @@
         <file>hicolor/22x22/webcamoid-down.png</file>
         <file>hicolor/22x22/webcamoid-effects.png</file>
         <file>hicolor/22x22/webcamoid-go-back.png</file>
+        <file>hicolor/22x22/webcamoid-headphones.png</file>
         <file>hicolor/22x22/webcamoid-help-about.png</file>
         <file>hicolor/22x22/webcamoid.ico</file>
+        <file>hicolor/22x22/webcamoid-mic.png</file>
         <file>hicolor/22x22/webcamoid-picture.png</file>
         <file>hicolor/22x22/webcamoid-play.png</file>
         <file>hicolor/22x22/webcamoid.png</file>
@@ -104,6 +115,7 @@
         <file>hicolor/22x22/webcamoid-record-start.png</file>
         <file>hicolor/22x22/webcamoid-record-stop.png</file>
         <file>hicolor/22x22/webcamoid-setup.png</file>
+        <file>hicolor/22x22/webcamoid-sound.png</file>
         <file>hicolor/22x22/webcamoid-stop.png</file>
         <file>hicolor/22x22/webcamoid-video.png</file>
         <file>hicolor/22x22/window-close.png</file>
@@ -121,8 +133,10 @@
         <file>hicolor/32x32/webcamoid-down.png</file>
         <file>hicolor/32x32/webcamoid-effects.png</file>
         <file>hicolor/32x32/webcamoid-go-back.png</file>
+        <file>hicolor/32x32/webcamoid-headphones.png</file>
         <file>hicolor/32x32/webcamoid-help-about.png</file>
         <file>hicolor/32x32/webcamoid.ico</file>
+        <file>hicolor/32x32/webcamoid-mic.png</file>
         <file>hicolor/32x32/webcamoid-picture.png</file>
         <file>hicolor/32x32/webcamoid-play.png</file>
         <file>hicolor/32x32/webcamoid.png</file>
@@ -130,6 +144,7 @@
         <file>hicolor/32x32/webcamoid-record-start.png</file>
         <file>hicolor/32x32/webcamoid-record-stop.png</file>
         <file>hicolor/32x32/webcamoid-setup.png</file>
+        <file>hicolor/32x32/webcamoid-sound.png</file>
         <file>hicolor/32x32/webcamoid-stop.png</file>
         <file>hicolor/32x32/webcamoid-video.png</file>
         <file>hicolor/32x32/window-close.png</file>
@@ -147,8 +162,10 @@
         <file>hicolor/48x48/webcamoid-down.png</file>
         <file>hicolor/48x48/webcamoid-effects.png</file>
         <file>hicolor/48x48/webcamoid-go-back.png</file>
+        <file>hicolor/48x48/webcamoid-headphones.png</file>
         <file>hicolor/48x48/webcamoid-help-about.png</file>
         <file>hicolor/48x48/webcamoid.ico</file>
+        <file>hicolor/48x48/webcamoid-mic.png</file>
         <file>hicolor/48x48/webcamoid-picture.png</file>
         <file>hicolor/48x48/webcamoid-play.png</file>
         <file>hicolor/48x48/webcamoid.png</file>
@@ -156,6 +173,7 @@
         <file>hicolor/48x48/webcamoid-record-start.png</file>
         <file>hicolor/48x48/webcamoid-record-stop.png</file>
         <file>hicolor/48x48/webcamoid-setup.png</file>
+        <file>hicolor/48x48/webcamoid-sound.png</file>
         <file>hicolor/48x48/webcamoid-stop.png</file>
         <file>hicolor/48x48/webcamoid-video.png</file>
         <file>hicolor/48x48/window-close.png</file>
@@ -173,8 +191,10 @@
         <file>hicolor/64x64/webcamoid-down.png</file>
         <file>hicolor/64x64/webcamoid-effects.png</file>
         <file>hicolor/64x64/webcamoid-go-back.png</file>
+        <file>hicolor/64x64/webcamoid-headphones.png</file>
         <file>hicolor/64x64/webcamoid-help-about.png</file>
         <file>hicolor/64x64/webcamoid.ico</file>
+        <file>hicolor/64x64/webcamoid-mic.png</file>
         <file>hicolor/64x64/webcamoid-picture.png</file>
         <file>hicolor/64x64/webcamoid-play.png</file>
         <file>hicolor/64x64/webcamoid.png</file>
@@ -182,6 +202,7 @@
         <file>hicolor/64x64/webcamoid-record-start.png</file>
         <file>hicolor/64x64/webcamoid-record-stop.png</file>
         <file>hicolor/64x64/webcamoid-setup.png</file>
+        <file>hicolor/64x64/webcamoid-sound.png</file>
         <file>hicolor/64x64/webcamoid-stop.png</file>
         <file>hicolor/64x64/webcamoid-video.png</file>
         <file>hicolor/64x64/window-close.png</file>
@@ -199,8 +220,10 @@
         <file>hicolor/128x128/webcamoid-down.png</file>
         <file>hicolor/128x128/webcamoid-effects.png</file>
         <file>hicolor/128x128/webcamoid-go-back.png</file>
+        <file>hicolor/128x128/webcamoid-headphones.png</file>
         <file>hicolor/128x128/webcamoid-help-about.png</file>
         <file>hicolor/128x128/webcamoid.ico</file>
+        <file>hicolor/128x128/webcamoid-mic.png</file>
         <file>hicolor/128x128/webcamoid-picture.png</file>
         <file>hicolor/128x128/webcamoid-play.png</file>
         <file>hicolor/128x128/webcamoid.png</file>
@@ -208,6 +231,7 @@
         <file>hicolor/128x128/webcamoid-record-start.png</file>
         <file>hicolor/128x128/webcamoid-record-stop.png</file>
         <file>hicolor/128x128/webcamoid-setup.png</file>
+        <file>hicolor/128x128/webcamoid-sound.png</file>
         <file>hicolor/128x128/webcamoid-stop.png</file>
         <file>hicolor/128x128/webcamoid-video.png</file>
         <file>hicolor/128x128/window-close.png</file>
@@ -225,8 +249,10 @@
         <file>hicolor/256x256/webcamoid-down.png</file>
         <file>hicolor/256x256/webcamoid-effects.png</file>
         <file>hicolor/256x256/webcamoid-go-back.png</file>
+        <file>hicolor/256x256/webcamoid-headphones.png</file>
         <file>hicolor/256x256/webcamoid-help-about.png</file>
         <file>hicolor/256x256/webcamoid.ico</file>
+        <file>hicolor/256x256/webcamoid-mic.png</file>
         <file>hicolor/256x256/webcamoid-picture.png</file>
         <file>hicolor/256x256/webcamoid-play.png</file>
         <file>hicolor/256x256/webcamoid.png</file>
@@ -234,6 +260,7 @@
         <file>hicolor/256x256/webcamoid-record-start.png</file>
         <file>hicolor/256x256/webcamoid-record-stop.png</file>
         <file>hicolor/256x256/webcamoid-setup.png</file>
+        <file>hicolor/256x256/webcamoid-sound.png</file>
         <file>hicolor/256x256/webcamoid-stop.png</file>
         <file>hicolor/256x256/webcamoid-video.png</file>
         <file>hicolor/256x256/window-close.png</file>

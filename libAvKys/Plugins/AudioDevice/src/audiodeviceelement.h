@@ -25,18 +25,17 @@
 #include <QtConcurrent>
 #include <ak.h>
 
-#ifdef Q_OS_LINUX
-#include "pulseaudio/audiodev.h"
-#elif defined(Q_OS_WIN32)
+#ifdef Q_OS_WIN32
 #include "wasapi/audiodev.h"
 #elif defined(Q_OS_OSX)
 #include "coreaudio/audiodev.h"
+#else
+#include "pulseaudio/audiodev.h"
 #endif
 
 class AudioDeviceElement: public AkElement
 {
     Q_OBJECT
-    Q_ENUMS(DeviceMode)
     Q_PROPERTY(QString defaultInput
                READ defaultInput
                NOTIFY defaultInputChanged)
@@ -65,20 +64,8 @@ class AudioDeviceElement: public AkElement
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
-    Q_PROPERTY(QString mode
-               READ mode
-               WRITE setMode
-               RESET resetMode
-               NOTIFY modeChanged)
 
     public:
-        enum DeviceMode
-        {
-            DeviceModeInput,
-            DeviceModeOutput,
-            DeviceModeDummyOutput
-        };
-
         explicit AudioDeviceElement();
         ~AudioDeviceElement();
 
@@ -90,13 +77,11 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE int bufferSize() const;
         Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE QString mode() const;
 
     private:
         QString m_device;
         int m_bufferSize;
         AkCaps m_caps;
-        DeviceMode m_mode;
         AudioDev m_audioDevice;
         AkElementPtr m_convert;
         QThreadPool m_threadPool;
@@ -105,7 +90,6 @@ class AudioDeviceElement: public AkElement
         bool m_readFramesLoop;
         bool m_pause;
 
-        AkAudioCaps defaultCaps(DeviceMode mode);
         static void readFramesLoop(AudioDeviceElement *self);
 
     signals:
@@ -116,17 +100,14 @@ class AudioDeviceElement: public AkElement
         void deviceChanged(const QString &device);
         void bufferSizeChanged(int bufferSize);
         void capsChanged(const AkCaps &caps);
-        void modeChanged(const QString &mode);
 
     public slots:
         void setDevice(const QString &device);
         void setBufferSize(int bufferSize);
         void setCaps(const AkCaps &caps);
-        void setMode(const QString &mode);
         void resetDevice();
         void resetBufferSize();
         void resetCaps();
-        void resetMode();
         AkPacket iStream(const AkAudioPacket &packet);
         bool setState(AkElement::ElementState state);
 };

@@ -28,10 +28,11 @@
 #include <ak.h>
 #include <akutils.h>
 
+#include "audiolayer.h"
+
 class MediaTools: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(RecordFrom)
     Q_PROPERTY(QString curStream
                READ curStream
                WRITE setCurStream
@@ -41,16 +42,6 @@ class MediaTools: public QObject
                READ streams
                RESET resetStreams
                NOTIFY streamsChanged)
-    Q_PROPERTY(bool playAudioFromSource
-               READ playAudioFromSource
-               WRITE setPlayAudioFromSource
-               RESET resetPlayAudioFromSource
-               NOTIFY playAudioFromSourceChanged)
-    Q_PROPERTY(QString recordAudioFrom
-               READ recordAudioFrom
-               WRITE setRecordAudioFrom
-               RESET resetRecordAudioFrom
-               NOTIFY recordAudioFromChanged)
     Q_PROPERTY(QString curRecordingFormat
                READ curRecordingFormat
                WRITE setCurRecordingFormat
@@ -99,19 +90,12 @@ class MediaTools: public QObject
                NOTIFY playOnStartChanged)
 
     public:
-        enum RecordFrom
-        {
-            RecordFromNone,
-            RecordFromSource,
-            RecordFromMic
-        };
-
-        explicit MediaTools(QQmlApplicationEngine *engine=NULL, QObject *parent=NULL);
+        explicit MediaTools(QQmlApplicationEngine *engine=NULL,
+                            AudioLayer *audioLayer=NULL,
+                            QObject *parent=NULL);
         ~MediaTools();
 
         Q_INVOKABLE QString curStream() const;
-        Q_INVOKABLE bool playAudioFromSource() const;
-        Q_INVOKABLE QString recordAudioFrom() const;
         Q_INVOKABLE QString curRecordingFormat() const;
         Q_INVOKABLE bool recording() const;
         Q_INVOKABLE QStringList recordingFormats() const;
@@ -176,24 +160,19 @@ class MediaTools: public QObject
         static QString convertToAbsolute(const QString &path);
 
     private:
+        QQmlApplicationEngine *m_appEngine;
+        AudioLayer *m_audioLayer;
         QString m_curStream;
         QMap<QString, QString> m_streams;
-        bool m_playAudioFromSource;
-        RecordFrom m_recordAudioFrom;
         bool m_recording;
         int m_windowWidth;
         int m_windowHeight;
         bool m_advancedMode;
         bool m_enableVirtualCamera;
         bool m_playOnStart;
-        QQmlApplicationEngine *m_appEngine;
 
         AkElementPtr m_pipeline;
         AkElementPtr m_source;
-        AkElementPtr m_audioSwitch;
-        AkElementPtr m_audioOutput;
-        AkElementPtr m_mic;
-        AkElementPtr m_audioGenerator;
         AkElementPtr m_record;
         AkElementPtr m_videoCapture;
         AkElementPtr m_desktopCapture;
@@ -245,8 +224,6 @@ class MediaTools: public QObject
         bool startVirtualCamera(const QString &fileName);
         void stopVirtualCamera();
         void setCurStream(const QString &stream);
-        void setPlayAudioFromSource(bool playAudioFromSource);
-        void setRecordAudioFrom(const QString &recordAudioFrom);
         void setCurRecordingFormat(const QString &curRecordingFormat);
         void setRecording(bool recording);
         void setWindowWidth(int windowWidth);
@@ -255,8 +232,6 @@ class MediaTools: public QObject
         void setEnableVirtualCamera(bool enableVirtualCamera);
         void setPlayOnStart(bool playOnStart);
         void resetCurStream();
-        void resetPlayAudioFromSource();
-        void resetRecordAudioFrom();
         void resetCurRecordingFormat();
         void resetRecording();
         void resetWindowWidth();
@@ -276,6 +251,7 @@ class MediaTools: public QObject
         void iStream(const AkPacket &packet);
         void webcamsChanged(const QStringList &webcams);
         void updateRecordingParams();
+        void updateAudioParams();
 };
 
 #endif // MEDIATOOLS_H

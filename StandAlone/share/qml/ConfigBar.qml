@@ -40,10 +40,6 @@ Rectangle {
             id: lstConfigs
 
             ListElement {
-                option: "audio"
-                description: qsTr("Audio")
-            }
-            ListElement {
                 option: "output"
                 description: qsTr("Output")
             }

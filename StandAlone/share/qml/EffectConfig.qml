@@ -49,19 +49,6 @@ ColumnLayout {
     }
 
     Label {
-        id: lblEffect
-        text: qsTr("Plugin id")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    TextField {
-        id: txtEffect
-        text: recEffectConfig.curEffect
-        placeholderText: qsTr("Plugin id")
-        readOnly: true
-        Layout.fillWidth: true
-    }
-    Label {
         id: lblDescription
         text: qsTr("Description")
         font.bold: true
@@ -74,6 +61,20 @@ ColumnLayout {
         readOnly: true
         Layout.fillWidth: true
     }
+    Label {
+        id: lblEffect
+        text: qsTr("Plugin id")
+        font.bold: true
+        Layout.fillWidth: true
+    }
+    TextField {
+        id: txtEffect
+        text: recEffectConfig.curEffect
+        placeholderText: qsTr("Plugin id")
+        readOnly: true
+        Layout.fillWidth: true
+    }
+
     RowLayout {
         id: rowControls
         Layout.fillWidth: true

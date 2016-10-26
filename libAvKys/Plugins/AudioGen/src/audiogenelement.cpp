@@ -61,6 +61,12 @@ AudioGenElement::AudioGenElement(): AkElement()
     this->m_audioConvert = AkElement::create("ACapsConvert");
     this->m_readFramesLoop = false;
     this->m_pause = false;
+
+    QObject::connect(this->m_audioConvert.data(),
+                     SIGNAL(oStream(const AkPacket &)),
+                     this,
+                     SIGNAL(oStream(const AkPacket &)),
+                     Qt::DirectConnection);
 }
 
 QString AudioGenElement::caps() const
@@ -211,7 +217,7 @@ void AudioGenElement::readFramesLoop(AudioGenElement *self)
         iPacket.index() = 0;
         iPacket.id() = self->m_id;
 
-        emit self->oStream((*self->m_audioConvert)(iPacket.toPacket()));
+        (*self->m_audioConvert)(iPacket.toPacket());
 
         pts += nSamples;
     }

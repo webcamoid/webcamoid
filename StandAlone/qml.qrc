@@ -3,6 +3,7 @@
         <file>share/qml/About.qml</file>
         <file>share/qml/AddMedia.qml</file>
         <file>share/qml/AudioConfig.qml</file>
+        <file>share/qml/AudioInfo.qml</file>
         <file>share/qml/ConfigBar.qml</file>
         <file>share/qml/DialogBox.qml</file>
         <file>share/qml/EffectBar.qml</file>

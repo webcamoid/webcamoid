@@ -848,14 +848,14 @@ OSStatus AudioDev::devicesChangedCallback(AudioObjectID objectId,
     AudioDev *self = static_cast<AudioDev *>(audioDev);
     QStringList inputs = self->listDevices(true);
 
-    if (self->m_inputs == inputs) {
+    if (self->m_inputs != inputs) {
         self->m_inputs = inputs;
         emit self->inputsChanged(inputs);
     }
 
     QStringList outputs = self->listDevices(false);
 
-    if (self->m_outputs == outputs) {
+    if (self->m_outputs != outputs) {
         self->m_outputs = outputs;
         emit self->outputsChanged(outputs);
     }
