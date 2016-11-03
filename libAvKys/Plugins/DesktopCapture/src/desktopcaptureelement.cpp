@@ -27,6 +27,7 @@
 DesktopCaptureElement::DesktopCaptureElement():
     AkMultimediaSourceElement()
 {
+    this->m_fps = AkFrac(30000, 1001);
     this->m_curScreenNumber = -1;
     this->m_threadedRead = true;
 
@@ -51,6 +52,11 @@ DesktopCaptureElement::DesktopCaptureElement():
 DesktopCaptureElement::~DesktopCaptureElement()
 {
     this->setState(AkElement::ElementStateNull);
+}
+
+AkFrac DesktopCaptureElement::fps() const
+{
+    return this->m_fps;
 }
 
 QStringList DesktopCaptureElement::medias() const
@@ -115,7 +121,7 @@ AkCaps DesktopCaptureElement::caps(int stream) const
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = screen->size().width();
     caps.height() = screen->size().height();
-    caps.fps() = AkFrac(30000, 1001);
+    caps.fps() = this->m_fps;
 
     return caps.toCaps();
 }
@@ -124,6 +130,20 @@ void DesktopCaptureElement::sendPacket(DesktopCaptureElement *element,
                                        const AkPacket &packet)
 {
     emit element->oStream(packet);
+}
+
+void DesktopCaptureElement::setFps(const AkFrac &fps)
+{
+    if (this->m_fps == fps)
+        return;
+
+    this->m_fps = fps;
+    emit this->fpsChanged(fps);
+}
+
+void DesktopCaptureElement::resetFps()
+{
+    this->setFps(AkFrac(30000, 1001));
 }
 
 void DesktopCaptureElement::setMedia(const QString &media)
@@ -171,6 +191,7 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
             this->m_id = Ak::id();
+            this->m_timer.setInterval(qRound(1.e3 * this->m_fps.invert().value()));
             this->m_timer.start();
 
             return AkElement::setState(state);
@@ -185,6 +206,7 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull:
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->m_timer.setInterval(qRound(1.e3 * this->m_fps.invert().value()));
             this->m_timer.start();
 
             return AkElement::setState(state);

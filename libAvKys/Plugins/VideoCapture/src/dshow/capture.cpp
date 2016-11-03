@@ -259,7 +259,7 @@ QVariantList Capture::caps(const QString &webcam) const
     QVariantList caps;
     MediaTypesList mediaTypes = this->listMediaTypes(webcam);
 
-    foreach (MediaTypePtr mediaType, mediaTypes) {
+    for (const MediaTypePtr &mediaType: mediaTypes) {
         AkCaps videoCaps = this->capsFromMediaType(mediaType);
 
         if (!videoCaps)
@@ -326,7 +326,7 @@ bool Capture::resetImageControls()
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->imageControls()) {
+    for (const QVariant &control: this->imageControls()) {
         QVariantList params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
@@ -374,7 +374,7 @@ bool Capture::resetCameraControls()
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->cameraControls()) {
+    for (const QVariant &control: this->cameraControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
@@ -619,7 +619,7 @@ MediaTypesList Capture::listMediaTypes(IBaseFilter *filter) const
     PinList pins = this->enumPins(filter, PINDIR_OUTPUT);
     MediaTypesList mediaTypes;
 
-    foreach (PinPtr pin, pins) {
+    for (const PinPtr &pin: pins) {
         IEnumMediaTypes *pEnum = NULL;
         pin->EnumMediaTypes(&pEnum);
         AM_MEDIA_TYPE *mediaType = NULL;
@@ -862,7 +862,7 @@ QVariantList Capture::imageControls(IBaseFilter *filter) const
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
-        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
+        for (const VideoProcAmpProperty &property: vpapToStr->keys()) {
             if (SUCCEEDED(pProcAmp->GetRange(property,
                                              reinterpret_cast<LONG *>(&min),
                                              reinterpret_cast<LONG *>(&max),
@@ -914,7 +914,7 @@ bool Capture::setImageControls(IBaseFilter *filter,
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMVideoProcAmp,
                                          reinterpret_cast<void **>(&pProcAmp)))) {
-        foreach (VideoProcAmpProperty property, vpapToStr->keys()) {
+        for (const VideoProcAmpProperty &property: vpapToStr->keys()) {
             QString propertyStr = vpapToStr->value(property);
 
             if (imageControls.contains(propertyStr))
@@ -946,7 +946,7 @@ QVariantList Capture::cameraControls(IBaseFilter *filter) const
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
-        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
+        for (const CameraControlProperty &cameraControl: ccToStr->keys()) {
             if (SUCCEEDED(pCameraControl->GetRange(cameraControl,
                                                    reinterpret_cast<LONG *>(&min),
                                                    reinterpret_cast<LONG *>(&max),
@@ -987,7 +987,7 @@ bool Capture::setCameraControls(IBaseFilter *filter,
 
     if (SUCCEEDED(filter->QueryInterface(IID_IAMCameraControl,
                                          reinterpret_cast<void **>(&pCameraControl)))) {
-        foreach (CameraControlProperty cameraControl, ccToStr->keys()) {
+        for (const CameraControlProperty &cameraControl: ccToStr->keys()) {
             QString cameraControlStr = ccToStr->value(cameraControl);
 
             if (cameraControls.contains(cameraControlStr))
@@ -1006,7 +1006,7 @@ QVariantMap Capture::controlStatus(const QVariantList &controls) const
 {
     QVariantMap controlStatus;
 
-    foreach (QVariant control, controls) {
+    for (const QVariant &control: controls) {
         QVariantList params = control.toList();
         QString controlName = params[0].toString();
         controlStatus[controlName] = params[6];
@@ -1019,7 +1019,7 @@ QVariantMap Capture::mapDiff(const QVariantMap &map1, const QVariantMap &map2) c
 {
     QVariantMap map;
 
-    foreach (QString control, map2.keys())
+    for (const QString &control: map2.keys())
         if (!map1.contains(control)
             || map1[control] != map2[control]) {
             map[control] = map2[control];
@@ -1176,7 +1176,7 @@ bool Capture::init()
 
     PinList pins = this->enumPins(webcamFilter, PINDIR_OUTPUT);
 
-    foreach (PinPtr pin, pins) {
+    for (const PinPtr &pin: pins) {
         IAMStreamConfig *pStreamConfig = NULL;
         HRESULT hr = pin->QueryInterface(IID_IAMStreamConfig,
                                          reinterpret_cast<void **>(&pStreamConfig));

@@ -25,53 +25,70 @@
 #include <initguid.h>
 #include <audioclient.h>
 #include <mmdeviceapi.h>
+#include <functiondiscoverykeys_devpkey.h>
 
-class AudioDev: public QObject
+class AudioDev: public QObject, public IMMNotificationClient
 {
     Q_OBJECT
-    Q_ENUMS(DeviceMode)
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
 
     public:
-        enum DeviceMode
-        {
-            DeviceModeCapture,
-            DeviceModePlayback
-        };
-
         explicit AudioDev(QObject *parent=NULL);
         ~AudioDev();
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE bool preferredFormat(DeviceMode mode,
-                                         AkAudioCaps::SampleFormat *sampleFormat,
-                                         int *channels,
-                                         int *sampleRate);
-        Q_INVOKABLE bool init(DeviceMode mode,
-                              AkAudioCaps::SampleFormat sampleFormat,
-                              int channels,
-                              int sampleRate,
+        Q_INVOKABLE QString defaultInput();
+        Q_INVOKABLE QString defaultOutput();
+        Q_INVOKABLE QStringList inputs();
+        Q_INVOKABLE QStringList outputs();
+        Q_INVOKABLE QString description(const QString &device);
+        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE bool init(const QString &device,
+                              const AkAudioCaps &caps,
                               bool justActivate=false);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const QByteArray &frame);
         Q_INVOKABLE bool uninit();
 
+        HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject);
+        ULONG STDMETHODCALLTYPE AddRef();
+        ULONG STDMETHODCALLTYPE Release();
+
     private:
         QString m_error;
+        QStringList m_inputs;
+        QStringList m_outputs;
         QByteArray m_audioBuffer;
-        IMMDeviceEnumerator *m_pEnumerator;
+        IMMDeviceEnumerator *m_deviceEnumerator;
         IMMDevice *m_pDevice;
         IAudioClient *m_pAudioClient;
         IAudioCaptureClient *m_pCaptureClient;
         IAudioRenderClient *m_pRenderClient;
         HANDLE m_hEvent;
-        int m_curBps;
-        int m_curChannels;
+        ULONG m_cRef;
+        AkAudioCaps m_curCaps;
+
+        QString defaultDevice(EDataFlow dataFlow);
+        QStringList listDevices(EDataFlow dataFlow);
+
+        HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
+                                                       DWORD dwNewState);
+        HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId);
+        HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId);
+        HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow flow,
+                                                         ERole role,
+                                                         LPCWSTR pwstrDeviceId);
+        HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
+                                                         const PROPERTYKEY key);
 
     signals:
         void errorChanged(const QString &error);
+        void defaultInputChanged(const QString &defaultInput);
+        void defaultOutputChanged(const QString &defaultOutput);
+        void inputsChanged(const QStringList &inputs);
+        void outputsChanged(const QStringList &outputs);
 };
 
 #endif // AUDIODEV_H

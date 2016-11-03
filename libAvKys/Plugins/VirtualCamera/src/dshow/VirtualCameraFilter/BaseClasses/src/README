@@ -1,0 +1,4 @@
+Since Ms-LPL is a non-free license, if your operating system requires you to
+redistribute the source code for a package, then you can safely remove this
+folder from source code distribution. If you do that and the operating system
+is WinNT based, compile Webcamoid with COMPILE_VCAM_DRIVER=0 flag.

@@ -154,6 +154,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
             text: qsTr("None")
+            color: effectResetButton.selected? Qt.rgba(1, 1, 1, 1): Qt.rgba(0.75, 0.75, 0.75, 1)
         }
 
         MouseArea {
@@ -293,7 +294,8 @@ Rectangle {
             height: 32
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "qrc:/icons/hicolor/scalable/effect-add.svg"
+            source: "image://icons/webcamoid-add"
+            sourceSize: Qt.size(width, height)
         }
 
         MouseArea {
@@ -333,7 +335,7 @@ Rectangle {
             }
             PropertyChanges {
                 target: imgAddEffect
-                source: "qrc:/icons/hicolor/scalable/down.svg"
+                source: "image://icons/webcamoid-down"
             }
             PropertyChanges {
                 target: recEffectBar

@@ -93,7 +93,7 @@ ApplicationWindow {
                 id: btnAddMedia
                 text: qsTr("Search")
                 iconName: "edit-find"
-                iconSource: "qrc:/icons/hicolor/scalable/edit-find.svg"
+                iconSource: "image://icons/edit-find"
                 width: 30
 
                 onClicked: fileDialog.open()
@@ -115,7 +115,7 @@ ApplicationWindow {
                 id: btnOk
                 text: qsTr("Ok")
                 iconName: "ok"
-                iconSource: "qrc:/icons/hicolor/scalable/ok.svg"
+                iconSource: "image://icons/ok"
 
                 onClicked: {
                     if (txtMedia.text.length > 0) {
@@ -138,7 +138,7 @@ ApplicationWindow {
                 id: btnCancel
                 text: qsTr("Cancel")
                 iconName: "cancel"
-                iconSource: "qrc:/icons/hicolor/scalable/cancel.svg"
+                iconSource: "image://icons/cancel"
 
                 onClicked: recAddMedia.visible = false
             }

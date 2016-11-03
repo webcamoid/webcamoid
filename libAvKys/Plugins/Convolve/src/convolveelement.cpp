@@ -21,9 +21,12 @@
 
 ConvolveElement::ConvolveElement(): AkElement()
 {
-    this->m_kernel << 0 << 0 << 0
-                   << 0 << 1 << 0
-                   << 0 << 0 << 0;
+    this->m_kernel = {
+        0, 0, 0,
+        0, 1, 0,
+        0, 0, 0
+    };
+
     this->m_kernelSize = QSize(3, 3);
     this->m_factor = AkFrac(1, 1);
     this->m_bias = 0;
@@ -72,7 +75,7 @@ QVariantList ConvolveElement::kernel() const
 {
     QVariantList kernel;
 
-    foreach (int e, this->m_kernel)
+    for (const int &e: this->m_kernel)
         kernel << e;
 
     return kernel;
@@ -97,7 +100,7 @@ void ConvolveElement::setKernel(const QVariantList &kernel)
 {
     QVector<int> k;
 
-    foreach (QVariant e, kernel)
+    for (const QVariant &e: kernel)
         k << e.toInt();
 
     if (this->m_kernel == k)
@@ -140,11 +143,11 @@ void ConvolveElement::setBias(int bias)
 
 void ConvolveElement::resetKernel()
 {
-    QVariantList kernel;
-
-    kernel << 0 << 0 << 0
-           << 0 << 1 << 0
-           << 0 << 0 << 0;
+    static const QVariantList kernel = {
+        0, 0, 0,
+        0, 1, 0,
+        0, 0, 0
+    };
 
     this->setKernel(kernel);
 }

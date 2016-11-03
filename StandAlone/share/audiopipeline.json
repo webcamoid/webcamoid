@@ -1,0 +1,44 @@
+[
+    [
+        {
+            "pluginId": "AudioDevice",
+            "properties": {
+                "objectName": "audioOut"
+            }
+        }
+    ],
+    [
+        {
+            "pluginId": "Multiplex",
+            "properties": {
+                "objectName": "audioSwitch",
+                "outputIndex": 1
+            }
+        }
+    ],
+    [
+        {
+            "pluginId": "AudioDevice",
+            "properties": {
+                "objectName": "audioIn"
+            }
+        },
+        "DirectConnection",
+        {
+            "alias": "audioSwitch"
+        }
+    ],
+    [
+        {
+            "pluginId": "AudioGen",
+            "properties": {
+                "objectName": "audioGenerator",
+                "waveType": "silence"
+            }
+        },
+        "DirectConnection",
+        {
+            "alias": "audioSwitch"
+        }
+    ]
+]

@@ -187,7 +187,7 @@ QStringList VideoCaptureElement::listCapsDescription() const
     QStringList capsDescriptions;
     QVariantList streams = this->m_capture.caps(this->m_capture.device());
 
-    foreach (QVariant caps, streams)
+    for (const QVariant &caps: streams)
         capsDescriptions << this->m_capture.capsDescription(caps.value<AkCaps>());
 
     return capsDescriptions;

@@ -101,7 +101,7 @@ QStringList Capture::webcams() const
     v4l2_capability capability;
     memset(&capability, 0, sizeof(v4l2_capability));
 
-    foreach (QString devicePath, devices) {
+    for (const QString &devicePath: devices) {
         device.setFileName(devicesDir.absoluteFilePath(devicePath));
 
         if (device.open(QIODevice::ReadWrite)) {
@@ -274,7 +274,7 @@ QVariantList Capture::caps(const QString &webcam) const
         V4L2_BUF_TYPE_VIDEO_OVERLAY
     };
 
-    foreach (v4l2_buf_type type, bufType) {
+    for (const v4l2_buf_type &type: bufType) {
         v4l2_fmtdesc fmt;
         memset(&fmt, 0, sizeof(v4l2_fmtdesc));
         fmt.type = type;
@@ -339,7 +339,7 @@ bool Capture::setImageControls(const QVariantMap &imageControls) const
 {
     QVariantMap imageControlsDiff;
 
-    foreach (QVariant control, this->imageControls()) {
+    for (const QVariant &control: this->imageControls()) {
         QVariantList params = control.toList();
         QString ctrlName = params[0].toString();
 
@@ -361,7 +361,7 @@ bool Capture::setImageControls(const QVariantMap &imageControls) const
     QVector<v4l2_ext_control> mpegCtrls;
     QVector<v4l2_ext_control> userCtrls;
 
-    foreach (QString control, imageControlsDiff.keys()) {
+    for (const QString &control: imageControlsDiff.keys()) {
         v4l2_ext_control ctrl;
         ctrl.id = ctrl2id[control];
         ctrl.value = imageControlsDiff[control].toInt();
@@ -372,7 +372,7 @@ bool Capture::setImageControls(const QVariantMap &imageControls) const
             userCtrls << ctrl;
     }
 
-    foreach (v4l2_ext_control user_ctrl, userCtrls) {
+    for (const v4l2_ext_control &user_ctrl: userCtrls) {
         v4l2_control ctrl;
         memset(&ctrl, 0, sizeof(v4l2_control));
         ctrl.id = user_ctrl.id;
@@ -400,7 +400,7 @@ bool Capture::resetImageControls() const
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->imageControls()) {
+    for (const QVariant &control: this->imageControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
@@ -418,7 +418,7 @@ bool Capture::setCameraControls(const QVariantMap &cameraControls) const
 {
     QVariantMap cameraControlsDiff;
 
-    foreach (QVariant control, this->cameraControls()) {
+    for (const QVariant &control: this->cameraControls()) {
         QVariantList params = control.toList();
         QString ctrlName = params[0].toString();
 
@@ -440,7 +440,7 @@ bool Capture::setCameraControls(const QVariantMap &cameraControls) const
     QVector<v4l2_ext_control> mpegCtrls;
     QVector<v4l2_ext_control> userCtrls;
 
-    foreach (QString control, cameraControlsDiff.keys()) {
+    for (const QString &control: cameraControlsDiff.keys()) {
         v4l2_ext_control ctrl;
         ctrl.id = ctrl2id[control];
         ctrl.value = cameraControlsDiff[control].toInt();
@@ -451,7 +451,7 @@ bool Capture::setCameraControls(const QVariantMap &cameraControls) const
             userCtrls << ctrl;
     }
 
-    foreach (v4l2_ext_control user_ctrl, userCtrls) {
+    for (const v4l2_ext_control &user_ctrl: userCtrls) {
         v4l2_control ctrl;
         memset(&ctrl, 0, sizeof(v4l2_control));
         ctrl.id = user_ctrl.id;
@@ -479,7 +479,7 @@ bool Capture::resetCameraControls() const
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->cameraControls()) {
+    for (const QVariant &control: this->cameraControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();

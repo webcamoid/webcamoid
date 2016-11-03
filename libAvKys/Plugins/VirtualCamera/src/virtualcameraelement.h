@@ -62,7 +62,8 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(int maxCameras
                READ maxCameras)
     Q_PROPERTY(bool needRoot
-               READ needRoot)
+               READ needRoot
+               NOTIFY needRootChanged)
     Q_PROPERTY(int passwordTimeout
                READ passwordTimeout
                WRITE setPasswordTimeout
@@ -126,6 +127,7 @@ class VirtualCameraElement: public AkElement
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
+        void needRootChanged(bool needRoot);
         void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(const QString &rootMethod);
         void error(const QString &message);

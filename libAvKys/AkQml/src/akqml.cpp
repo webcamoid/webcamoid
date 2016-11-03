@@ -78,6 +78,31 @@ QObject *AkQml::newCaps(const AkCaps &caps) const
     return new AkCaps(caps);
 }
 
+QObject *AkQml::newAudioCaps() const
+{
+    return new AkAudioCaps();
+}
+
+QObject *AkQml::newAudioCaps(const QVariantMap &caps) const
+{
+    return new AkAudioCaps(caps);
+}
+
+QObject *AkQml::newAudioCaps(const QString &caps) const
+{
+    return new AkAudioCaps(caps);
+}
+
+QObject *AkQml::newAudioCaps(const AkCaps &caps) const
+{
+    return new AkAudioCaps(caps);
+}
+
+QObject *AkQml::newAudioCaps(const AkAudioCaps &caps) const
+{
+    return new AkAudioCaps(caps);
+}
+
 QObject *AkQml::newVideoCaps() const
 {
     return new AkVideoCaps();

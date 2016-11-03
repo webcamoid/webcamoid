@@ -89,17 +89,42 @@ Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatsMap, sampleFormats, (initSampleFormatsMap
 AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
-    this->m_pEnumerator = NULL;
+    this->m_deviceEnumerator = NULL;
     this->m_pDevice = NULL;
     this->m_pAudioClient = NULL;
     this->m_pCaptureClient = NULL;
     this->m_pRenderClient = NULL;
     this->m_hEvent = NULL;
+    this->m_cRef = 1;
+
+    // Create DeviceEnumerator
+    HRESULT hr;
+
+    // Get device enumerator.
+    if (FAILED(hr = CoCreateInstance(CLSID_MMDeviceEnumerator,
+                                     NULL,
+                                     CLSCTX_ALL,
+                                     IID_IMMDeviceEnumerator,
+                                     reinterpret_cast<void **>(&this->m_deviceEnumerator)))) {
+        return;
+    }
+
+    if (FAILED(hr = this->m_deviceEnumerator->RegisterEndpointNotificationCallback(this))) {
+        this->m_deviceEnumerator->Release();
+        this->m_deviceEnumerator = NULL;
+
+        return;
+    }
+
+    this->m_inputs = this->listDevices(eCapture);
+    this->m_outputs = this->listDevices(eRender);
 }
 
 AudioDev::~AudioDev()
 {
     this->uninit();
+    this->m_deviceEnumerator->UnregisterEndpointNotificationCallback(this);
+    this->m_deviceEnumerator->Release();
 }
 
 QString AudioDev::error() const
@@ -107,19 +132,82 @@ QString AudioDev::error() const
     return this->m_error;
 }
 
+QString AudioDev::defaultInput()
+{
+    return this->defaultDevice(eCapture);
+}
+
+QString AudioDev::defaultOutput()
+{
+    return this->defaultDevice(eRender);
+}
+
+QStringList AudioDev::inputs()
+{
+    return this->m_inputs;
+}
+
+QStringList AudioDev::outputs()
+{
+    return this->m_outputs;
+}
+
+QString AudioDev::AudioDev::description(const QString &device)
+{
+    if (!this->m_deviceEnumerator) {
+        this->m_error = "Device enumerator not created.";
+        emit this->errorChanged(this->m_error);
+
+        return QString();
+    }
+
+    HRESULT hr;
+    IMMDevice *pDevice = NULL;
+
+    if (FAILED(hr = this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
+                                                        &pDevice))) {
+        this->m_error = "GetDevice: " + errorCodes->value(hr);
+        emit this->errorChanged(this->m_error);
+
+        return QString();
+    }
+
+    IPropertyStore *properties = NULL;
+
+    if (FAILED(hr = pDevice->OpenPropertyStore(STGM_READ, &properties))) {
+        this->m_error = "OpenPropertyStore: " + errorCodes->value(hr);
+        emit this->errorChanged(this->m_error);
+        pDevice->Release();
+
+        return QString();
+    }
+
+    PROPVARIANT friendlyName;
+    PropVariantInit(&friendlyName);
+
+    if (FAILED(hr = properties->GetValue(PKEY_Device_FriendlyName,
+                                         &friendlyName))) {
+    }
+
+    QString description = QString::fromWCharArray(friendlyName.pwszVal);
+
+    PropVariantClear(&friendlyName);
+    properties->Release();
+    pDevice->Release();
+
+    return description;
+}
+
 // Get native format for the default audio device.
-bool AudioDev::preferredFormat(DeviceMode mode,
-                                  AkAudioCaps::SampleFormat *sampleFormat,
-                                  int *channels,
-                                  int *sampleRate)
+AkAudioCaps AudioDev::preferredFormat(const QString &device)
 {
     // Test if the device is already running,
     bool isActivated = this->m_pAudioClient? true: false;
 
     // if not activate it and get an audio client instance.
     if (!isActivated)
-        if (!this->init(mode, AkAudioCaps::SampleFormat_none, 0, 0, true))
-            return false;
+        if (!this->init(device, AkAudioCaps(), true))
+            return AkAudioCaps();
 
     HRESULT hr;
     WAVEFORMATEX *pwfx = NULL;
@@ -132,7 +220,7 @@ bool AudioDev::preferredFormat(DeviceMode mode,
         if (!isActivated)
             this->uninit();
 
-        return false;
+        return AkAudioCaps();
     }
 
     // Convert device format to a supported one.
@@ -144,69 +232,72 @@ bool AudioDev::preferredFormat(DeviceMode mode,
                      .arg(formatTag)
                      .arg(pwfx->wBitsPerSample);
 
-    *sampleFormat = sampleFormats->value(fmtStr, AkAudioCaps::SampleFormat_u8);
-    *channels = pwfx->nChannels;
-    *sampleRate = int(pwfx->nSamplesPerSec);
-
-    if (!isActivated)
+    AkAudioCaps audioCaps;
+    audioCaps.isValid() = true;
+    audioCaps.format() = sampleFormats->value(fmtStr, AkAudioCaps::SampleFormat_u8);
+    audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
+    audioCaps.channels() = pwfx->nChannels;
+    audioCaps.rate() = int(pwfx->nSamplesPerSec);
+    audioCaps.layout() = AkAudioCaps::defaultChannelLayout(pwfx->nChannels);
+    audioCaps.align() = false;
 
     if (!isActivated) {
         // Stop audio device if required.
         this->uninit();
 
         // Workaround for buggy drivers. Test if format is really supported.
-        if (!this->init(mode, *sampleFormat, *channels, *sampleRate)) {
+        if (!this->init(device, audioCaps)) {
             // Test sample formats from highest sample resolusion to lowest.
-            QVector<AkAudioCaps::SampleFormat> preferredFormats = {
+            static const QVector<AkAudioCaps::SampleFormat> preferredFormats = {
                 AkAudioCaps::SampleFormat_flt,
                 AkAudioCaps::SampleFormat_s32,
                 AkAudioCaps::SampleFormat_s16,
                 AkAudioCaps::SampleFormat_u8
             };
 
-            foreach (AkAudioCaps::SampleFormat format, preferredFormats)
-                if (this->init(mode, format, *channels, *sampleRate)) {
-                    *sampleFormat = format;
+            bool isValidFormat = false;
+
+            for (const AkAudioCaps::SampleFormat &format: preferredFormats) {
+                audioCaps.format() = format;
+                audioCaps.bps() = AkAudioCaps::bitsPerSample(format);
+
+                if (this->init(device, audioCaps)) {
+                    isValidFormat = true;
 
                     break;
                 }
+            }
+
+            if (!isValidFormat)
+                audioCaps = AkAudioCaps();
         }
 
         this->uninit();
     }
 
-    return true;
+    return audioCaps;
 }
 
-bool AudioDev::init(DeviceMode mode,
-                    AkAudioCaps::SampleFormat sampleFormat,
-                    int channels,
-                    int sampleRate,
+bool AudioDev::init(const QString &device,
+                    const AkAudioCaps &caps,
                     bool justActivate)
 {
-    HRESULT hr;
-
-    // Clear audio buffer.
-    this->m_audioBuffer.clear();
-
-    // Get device enumerator.
-    if (FAILED(hr = CoCreateInstance(CLSID_MMDeviceEnumerator,
-                                     NULL,
-                                     CLSCTX_ALL,
-                                     IID_IMMDeviceEnumerator,
-                                     reinterpret_cast<void **>(&this->m_pEnumerator)))) {
-        this->m_error = "CoCreateInstance: " + errorCodes->value(hr);
+    if (!this->m_deviceEnumerator) {
+        this->m_error = "Device enumerator not created.";
         emit this->errorChanged(this->m_error);
 
         return false;
     }
 
-    // Get default input/output audio device.
-    if (FAILED(hr = this->m_pEnumerator->GetDefaultAudioEndpoint(mode == DeviceModeCapture?
-                                                                     eCapture: eRender,
-                                                                 eMultimedia,
-                                                                 &this->m_pDevice))) {
-        this->m_error = "GetDefaultAudioEndpoint: " + errorCodes->value(hr);
+    // Clear audio buffer.
+    this->m_audioBuffer.clear();
+
+    HRESULT hr;
+
+    // Get audio device.
+    if (FAILED(hr = this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
+                                                   &this->m_pDevice))) {
+        this->m_error = "GetDevice: " + errorCodes->value(hr);
         emit this->errorChanged(this->m_error);
         this->uninit();
 
@@ -229,13 +320,13 @@ bool AudioDev::init(DeviceMode mode,
     if (justActivate)
         return true;
 
-    /* Get the minimum size of the buffer in 100-nanosecond units,
-       this means you must do:
-
-       bufferSize(seconds) = 100e-9 * hnsRequestedDuration
-
-       to get the size of the buffer in seconds.
-    */
+    // Get the minimum size of the buffer in 100-nanosecond units,
+    // this means you must do:
+    //
+    // bufferSize(seconds) = 100e-9 * hnsRequestedDuration
+    //
+    // to get the size of the buffer in seconds.
+    //
     REFERENCE_TIME hnsRequestedDuration;
     this->m_pAudioClient->GetDevicePeriod(NULL, &hnsRequestedDuration);
 
@@ -245,21 +336,18 @@ bool AudioDev::init(DeviceMode mode,
     if (hnsRequestedDuration < minDuration)
         hnsRequestedDuration = minDuration;
 
-    int bps = AkAudioCaps::bitsPerSample(sampleFormat);
-
     // Set audio device format.
     WAVEFORMATEX wfx;
-    wfx.wFormatTag = sampleFormat == AkAudioCaps::SampleFormat_flt?
+    wfx.wFormatTag = caps.format() == AkAudioCaps::SampleFormat_flt?
                          WAVE_FORMAT_IEEE_FLOAT: WAVE_FORMAT_PCM;
-    wfx.nChannels = WORD(channels);
-    wfx.nSamplesPerSec = DWORD(sampleRate);
-    wfx.wBitsPerSample = WORD(bps);
-    wfx.nBlockAlign = WORD(channels * bps / 8);
-    wfx.nAvgBytesPerSec = DWORD(sampleRate * wfx.nBlockAlign);
+    wfx.nChannels = WORD(caps.channels());
+    wfx.nSamplesPerSec = DWORD(caps.rate());
+    wfx.wBitsPerSample = WORD(caps.bps());
+    wfx.nBlockAlign = WORD(caps.channels() * caps.bps() / 8);
+    wfx.nAvgBytesPerSec = DWORD(caps.rate() * wfx.nBlockAlign);
     wfx.cbSize = 0;
 
-    this->m_curBps = bps / 8;
-    this->m_curChannels = channels;
+    this->m_curCaps = caps;
 
     if (FAILED(hr = this->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
                                                      AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
@@ -296,7 +384,7 @@ bool AudioDev::init(DeviceMode mode,
     }
 
     // Get audio capture/render client.
-    if (mode == DeviceModeCapture)
+    if (this->inputs().contains(device))
         hr = this->m_pAudioClient->GetService(IID_IAudioCaptureClient,
                                               reinterpret_cast<void **>(&this->m_pCaptureClient));
     else
@@ -326,8 +414,9 @@ bool AudioDev::init(DeviceMode mode,
 QByteArray AudioDev::read(int samples)
 {
     int bufferSize = samples
-                     * this->m_curBps
-                     * this->m_curChannels;
+                     * this->m_curCaps.bps()
+                     * this->m_curCaps.channels()
+                     / 8;
 
     int nErrors = 0;
 
@@ -371,7 +460,10 @@ QByteArray AudioDev::read(int samples)
             return QByteArray();
         }
 
-        size_t bufferSize = samplesCount * size_t(this->m_curBps * this->m_curChannels);
+        size_t bufferSize = samplesCount
+                            * size_t(this->m_curCaps.bps()
+                                     * this->m_curCaps.channels())
+                            / 8;
 
         // This flag means we must ignore the incoming buffer and write zeros
         // to it.
@@ -409,7 +501,7 @@ QByteArray AudioDev::read(int samples)
 
 bool AudioDev::write(const QByteArray &frame)
 {
-    this->m_audioBuffer = frame;
+    this->m_audioBuffer.append(frame);
     int nErrors = 0;
 
     while (!this->m_audioBuffer.isEmpty()
@@ -452,8 +544,9 @@ bool AudioDev::write(const QByteArray &frame)
 
         // Check how many samples we can write to the audio buffer.
         UINT32 samplesInBuffer = UINT32(this->m_audioBuffer.size()
-                                        / this->m_curBps
-                                        / this->m_curChannels);
+                                        * 8
+                                        / this->m_curCaps.bps()
+                                        / this->m_curCaps.channels());
         UINT32 samplesToWrite = qMin(availableSamples, samplesInBuffer);
 
         BYTE *pData = NULL;
@@ -469,8 +562,9 @@ bool AudioDev::write(const QByteArray &frame)
         // Copy the maximum number of audio samples we can write to the audio
         // buffer.
         size_t bufferSize = samplesToWrite
-                            * this->m_curBps
-                            * this->m_curChannels;
+                            * size_t(this->m_curCaps.bps()
+                                     * this->m_curCaps.channels())
+                            / 8;
 
         memcpy(pData, this->m_audioBuffer.constData(), bufferSize);
         this->m_audioBuffer.remove(0, int(bufferSize));
@@ -520,15 +614,202 @@ bool AudioDev::uninit()
         this->m_pDevice = NULL;
     }
 
-    if (this->m_pEnumerator) {
-        this->m_pEnumerator->Release();
-        this->m_pEnumerator = NULL;
-    }
-
     if (this->m_hEvent) {
         CloseHandle(this->m_hEvent);
         this->m_hEvent = NULL;
     }
 
     return ok;
+}
+
+HRESULT AudioDev::QueryInterface(const IID &riid, void **ppvObject)
+{
+    if (riid == __uuidof(IUnknown)
+        || riid == __uuidof(IMMNotificationClient))
+        *ppvObject = static_cast<IMMNotificationClient *>(this);
+    else {
+        *ppvObject = NULL;
+
+        return E_NOINTERFACE;
+    }
+
+    this->AddRef();
+
+    return S_OK;
+}
+
+ULONG AudioDev::AddRef()
+{
+    return InterlockedIncrement(&this->m_cRef);
+}
+
+ULONG AudioDev::Release()
+{
+    ULONG lRef = InterlockedDecrement(&this->m_cRef);
+
+    if (lRef == 0)
+        delete this;
+
+    return lRef;
+}
+
+QString AudioDev::defaultDevice(EDataFlow dataFlow)
+{
+    if (!this->m_deviceEnumerator) {
+        this->m_error = "Device enumerator not created.";
+        emit this->errorChanged(this->m_error);
+
+        return QString();
+    }
+
+    HRESULT hr;
+    IMMDevice *defaultDevice = NULL;
+
+    if (FAILED(hr = this->m_deviceEnumerator->GetDefaultAudioEndpoint(dataFlow,
+                                                                      eMultimedia,
+                                                                      &defaultDevice))) {
+        this->m_error = "GetDefaultAudioEndpoint: " + errorCodes->value(hr);
+        emit this->errorChanged(this->m_error);
+
+        return QString();
+    }
+
+    LPWSTR deviceId;
+
+    if (FAILED(hr = defaultDevice->GetId(&deviceId))) {
+        this->m_error = "GetId: " + errorCodes->value(hr);
+        emit this->errorChanged(this->m_error);
+        defaultDevice->Release();
+
+        return QString();
+    }
+
+    QString id = QString::fromWCharArray(deviceId);
+
+    CoTaskMemFree(deviceId);
+    defaultDevice->Release();
+
+    return id;
+}
+
+QStringList AudioDev::listDevices(EDataFlow dataFlow)
+{
+    if (!this->m_deviceEnumerator) {
+        this->m_error = "Device enumerator not created.";
+        emit this->errorChanged(this->m_error);
+
+        return QStringList();
+    }
+
+    HRESULT hr;
+    IMMDeviceCollection *endPoints = NULL;
+
+    if (FAILED(hr = this->m_deviceEnumerator->EnumAudioEndpoints(dataFlow,
+                                                                 eMultimedia,
+                                                                 &endPoints))) {
+        this->m_error = "EnumAudioEndpoints: " + errorCodes->value(hr);
+        emit this->errorChanged(this->m_error);
+
+        return QStringList();
+    }
+
+    UINT nDevices = 0;
+
+    if (FAILED(hr = endPoints->GetCount(&nDevices))) {
+        this->m_error = "GetCount: " + errorCodes->value(hr);
+        emit this->errorChanged(this->m_error);
+        endPoints->Release();
+
+        return QStringList();
+    }
+
+    QStringList devices;
+
+    for (UINT i = 0; i < nDevices; i++) {
+        IMMDevice *device = NULL;
+
+        if (FAILED(endPoints->Item(i, &device)))
+            continue;
+
+        LPWSTR deviceId;
+
+        if (FAILED(hr = device->GetId(&deviceId))) {
+            device->Release();
+
+            continue;
+        }
+
+        devices << QString::fromWCharArray(deviceId);
+        CoTaskMemFree(deviceId);
+        device->Release();
+    }
+
+    endPoints->Release();
+
+    return devices;
+}
+
+HRESULT AudioDev::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
+{
+    Q_UNUSED(pwstrDeviceId)
+    Q_UNUSED(dwNewState)
+
+    return S_OK;
+}
+
+HRESULT AudioDev::OnDeviceAdded(LPCWSTR pwstrDeviceId)
+{
+    Q_UNUSED(pwstrDeviceId)
+
+    // Device was installed
+
+    return S_OK;
+}
+
+HRESULT AudioDev::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
+{
+    Q_UNUSED(pwstrDeviceId)
+
+    // Device was uninstalled
+
+    return S_OK;
+}
+
+HRESULT AudioDev::OnDefaultDeviceChanged(EDataFlow flow,
+                                         ERole role,
+                                         LPCWSTR pwstrDeviceId)
+{
+    if (role != eMultimedia)
+        return S_OK;
+
+    QString deviceId = QString::fromWCharArray(pwstrDeviceId);
+
+    if (flow == eCapture)
+        emit this->defaultInputChanged(deviceId);
+    else if (flow == eRender)
+        emit this->defaultOutputChanged(deviceId);
+
+    return S_OK;
+}
+
+HRESULT AudioDev::OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key)
+{
+    Q_UNUSED(pwstrDeviceId)
+    Q_UNUSED(key)
+
+    QStringList inputs = this->listDevices(eCapture);
+
+    if (this->m_inputs != inputs) {
+        this->m_inputs = inputs;
+        emit this->inputsChanged(inputs);
+    }
+
+    QStringList outputs = this->listDevices(eRender);
+
+    if (this->m_outputs != outputs) {
+        this->m_outputs = outputs;
+        emit this->outputsChanged(outputs);
+    }
+
+    return S_OK;
 }

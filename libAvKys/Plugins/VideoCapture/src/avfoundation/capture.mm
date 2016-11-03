@@ -387,7 +387,7 @@ bool Capture::resetImageControls()
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->imageControls()) {
+    for (const QVariant &control: this->imageControls()) {
         QVariantList params = control.toList();
         controls[params[0].toString()] = params[5].toInt();
     }
@@ -436,7 +436,7 @@ bool Capture::resetCameraControls()
 {
     QVariantMap controls;
 
-    foreach (QVariant control, this->cameraControls()) {
+    for (const QVariant &control: this->cameraControls()) {
         QVariantList params = control.toList();
 
         controls[params[0].toString()] = params[5].toInt();
@@ -546,7 +546,7 @@ QVariantMap Capture::controlStatus(const QVariantList &controls) const
 {
     QVariantMap controlStatus;
 
-    foreach (QVariant control, controls) {
+    for (const QVariant &control: controls) {
         QVariantList params = control.toList();
         QString controlName = params[0].toString();
         controlStatus[controlName] = params[0];

@@ -20,35 +20,73 @@
 #include "audiodeviceelement.h"
 
 #define PAUSE_TIMEOUT 500
-
-typedef QMap<AudioDeviceElement::DeviceMode, QString> DeviceModeMap;
-
-inline DeviceModeMap initDeviceModeMap()
-{
-    DeviceModeMap deviceModeToStr = {
-        {AudioDeviceElement::DeviceModeInput      , "input"      },
-        {AudioDeviceElement::DeviceModeOutput     , "output"     },
-        {AudioDeviceElement::DeviceModeDummyOutput, "dummyoutput"}
-    };
-
-    return deviceModeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(DeviceModeMap, deviceModeToStr, (initDeviceModeMap()))
+#define DUMMY_OUTPUT_DEVICE ":dummyout:"
 
 AudioDeviceElement::AudioDeviceElement(): AkElement()
 {
     this->m_bufferSize = 1024;
-    this->m_mode = DeviceModeOutput;
-    AkAudioCaps audioCaps = this->defaultCaps(this->m_mode);
-    this->m_caps = audioCaps.toCaps();
     this->m_readFramesLoop = false;
     this->m_pause = false;
+    this->m_convert = AkElement::create("ACapsConvert");
+
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::defaultInputChanged,
+                     this,
+                     &AudioDeviceElement::defaultInputChanged);
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::defaultOutputChanged,
+                     this,
+                     &AudioDeviceElement::defaultOutputChanged);
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::inputsChanged,
+                     this,
+                     &AudioDeviceElement::inputsChanged);
+    QObject::connect(&this->m_audioDevice,
+                     &AudioDev::outputsChanged,
+                     this,
+                     &AudioDeviceElement::outputsChanged);
+    QObject::connect(this,
+                     SIGNAL(stateChanged(AkElement::ElementState)),
+                     this->m_convert.data(),
+                     SLOT(setState(AkElement::ElementState)));
 }
 
 AudioDeviceElement::~AudioDeviceElement()
 {
     this->setState(AkElement::ElementStateNull);
+}
+
+QString AudioDeviceElement::defaultInput()
+{
+    return this->m_audioDevice.defaultInput();
+}
+
+QString AudioDeviceElement::defaultOutput()
+{
+    return this->m_audioDevice.defaultOutput();
+}
+
+QStringList AudioDeviceElement::inputs()
+{
+    return this->m_audioDevice.inputs();
+}
+
+QStringList AudioDeviceElement::outputs()
+{
+    return this->m_audioDevice.outputs() + QStringList {DUMMY_OUTPUT_DEVICE};
+}
+
+QString AudioDeviceElement::description(const QString &device)
+{
+    if (device == DUMMY_OUTPUT_DEVICE)
+        return QString("Dummy Output");
+
+    return this->m_audioDevice.description(device);
+}
+
+QString AudioDeviceElement::device() const
+{
+    return this->m_device;
 }
 
 int AudioDeviceElement::bufferSize() const
@@ -61,38 +99,6 @@ AkCaps AudioDeviceElement::caps() const
     return this->m_caps;
 }
 
-QString AudioDeviceElement::mode() const
-{
-    return deviceModeToStr->value(this->m_mode);
-}
-
-AkAudioCaps AudioDeviceElement::defaultCaps(AudioDeviceElement::DeviceMode mode)
-{
-    if (mode == AudioDeviceElement::DeviceModeDummyOutput)
-        return AkAudioCaps("audio/x-raw,format=s16,bps=2,channels=2,rate=44100,layout=stereo,align=false");
-
-    AkAudioCaps::SampleFormat sampleFormat;
-    int channels;
-    int sampleRate;
-    this->m_audioDevice.preferredFormat(mode == DeviceModeOutput?
-                                            AudioDev::DeviceModePlayback:
-                                            AudioDev::DeviceModeCapture,
-                                        &sampleFormat,
-                                        &channels,
-                                        &sampleRate);
-
-    AkAudioCaps caps;
-    caps.isValid() = true;
-    caps.format() = sampleFormat;
-    caps.bps() = AkAudioCaps::bitsPerSample(sampleFormat);
-    caps.channels() = channels;
-    caps.rate() = sampleRate;
-    caps.layout() = AkAudioCaps::defaultChannelLayout(channels);
-    caps.align() = false;
-
-    return caps;
-}
-
 void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
 {
 #ifdef Q_OS_WIN32
@@ -100,14 +106,12 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
 #endif
 
+    QString device = self->m_device;
     AkAudioCaps caps(self->m_caps);
     qint64 streamId = Ak::id();
     AkFrac timeBase(1, caps.rate());
 
-    if (self->m_audioDevice.init(AudioDev::DeviceModeCapture,
-                                 caps.format(),
-                                 caps.channels(),
-                                 caps.rate())) {
+    if (self->m_audioDevice.init(device, caps)) {
         while (self->m_readFramesLoop) {
             if (self->m_pause) {
                 QThread::msleep(PAUSE_TIMEOUT);
@@ -147,6 +151,27 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
 #endif
 }
 
+void AudioDeviceElement::setDevice(const QString &device)
+{
+    if (this->m_device == device)
+        return;
+
+    this->m_device = device;
+    emit this->deviceChanged(device);
+
+    AkAudioCaps audioCaps = device == DUMMY_OUTPUT_DEVICE?
+                                AkAudioCaps("audio/x-raw,"
+                                            "format=s16,"
+                                            "bps=2,"
+                                            "channels=2,"
+                                            "rate=44100,"
+                                            "layout=stereo,"
+                                            "align=false"):
+                                this->m_audioDevice.preferredFormat(device);
+
+    this->setCaps(audioCaps.toCaps());
+}
+
 void AudioDeviceElement::setBufferSize(int bufferSize)
 {
     if (this->m_bufferSize == bufferSize)
@@ -165,16 +190,9 @@ void AudioDeviceElement::setCaps(const AkCaps &caps)
     emit this->capsChanged(caps);
 }
 
-void AudioDeviceElement::setMode(const QString &mode)
+void AudioDeviceElement::resetDevice()
 {
-    DeviceMode modeEnum = deviceModeToStr->key(mode, DeviceModeOutput);
-
-    if (this->m_mode == modeEnum)
-        return;
-
-    this->m_mode = modeEnum;
-    this->setCaps(this->defaultCaps(this->m_mode).toCaps());
-    emit this->modeChanged(mode);
+    this->setDevice("");
 }
 
 void AudioDeviceElement::resetBufferSize()
@@ -184,19 +202,30 @@ void AudioDeviceElement::resetBufferSize()
 
 void AudioDeviceElement::resetCaps()
 {
-    this->setCaps(this->defaultCaps(this->m_mode).toCaps());
-}
+    AkAudioCaps audioCaps = this->m_device == DUMMY_OUTPUT_DEVICE?
+                                AkAudioCaps("audio/x-raw,"
+                                            "format=s16,"
+                                            "bps=2,"
+                                            "channels=2,"
+                                            "rate=44100,"
+                                            "layout=stereo,"
+                                            "align=false"):
+                                this->m_audioDevice.preferredFormat(this->m_device);
 
-void AudioDeviceElement::resetMode()
-{
-    this->setMode("output");
+    this->setCaps(audioCaps.toCaps());
 }
 
 AkPacket AudioDeviceElement::iStream(const AkAudioPacket &packet)
 {
     this->m_mutex.lock();
 
-    if (this->m_mode == AudioDeviceElement::DeviceModeDummyOutput)
+    if (this->state() != ElementStatePlaying) {
+        this->m_mutex.unlock();
+
+        return AkPacket();
+    }
+
+    if (this->m_device == DUMMY_OUTPUT_DEVICE)
         QThread::usleep(ulong(1e6 * packet.caps().samples() / packet.caps().rate()));
     else if (this->m_convert) {
         AkPacket iPacket = this->m_convert->iStream(packet.toPacket());
@@ -216,7 +245,7 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused: {
-            if (this->m_mode == DeviceModeInput) {
+            if (this->m_audioDevice.inputs().contains(this->m_device)) {
                 this->m_pause = true;
                 this->m_readFramesLoop = true;
                 this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
@@ -227,45 +256,27 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
             return AkElement::setState(state);
         }
         case AkElement::ElementStatePlaying: {
-            switch (this->m_mode) {
-            case DeviceModeInput: {
+            if (this->m_audioDevice.inputs().contains(this->m_device)) {
                 this->m_pause = false;
                 this->m_readFramesLoop = true;
                 this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
                                                                  this->readFramesLoop,
                                                                  this);
-                break;
-            }
-            case DeviceModeOutput: {
+            } else if (this->m_device != DUMMY_OUTPUT_DEVICE
+                       && this->m_audioDevice.outputs().contains(this->m_device)) {
                 this->m_mutex.lock();
 
+                QString device = this->m_device;
                 AkAudioCaps caps(this->m_caps);
-                this->m_convert = AkElement::create("ACapsConvert");
-
-                QObject::connect(this,
-                                 SIGNAL(stateChanged(AkElement::ElementState)),
-                                 this->m_convert.data(),
-                                 SLOT(setState(AkElement::ElementState)));
-
                 this->m_convert->setProperty("caps", caps.toString());
 
-                if (!this->m_audioDevice.init(AudioDev::DeviceModePlayback,
-                                              caps.format(),
-                                              caps.channels(),
-                                              caps.rate())) {
-                    this->m_convert.clear();
+                if (!this->m_audioDevice.init(device, caps)) {
                     this->m_mutex.unlock();
 
                     return false;
-                } else {
-                    this->m_mutex.unlock();
-
-                    break;
                 }
-            }
-            case DeviceModeDummyOutput: {
-                break;
-            }
+
+                this->m_mutex.unlock();
             }
 
             return AkElement::setState(state);
@@ -279,62 +290,34 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePaused: {
         switch (state) {
         case AkElement::ElementStateNull:
-            switch (this->m_mode) {
-            case DeviceModeInput: {
+            if (this->m_audioDevice.inputs().contains(this->m_device)) {
                 this->m_pause = false;
                 this->m_readFramesLoop = false;
                 this->m_readFramesLoopResult.waitForFinished();
-
-                break;
-            }
-            case DeviceModeOutput: {
+            } else if (this->m_device != DUMMY_OUTPUT_DEVICE
+                       && this->m_audioDevice.outputs().contains(this->m_device)) {
                 this->m_audioDevice.uninit();
-
-                break;
-            }
-            case DeviceModeDummyOutput: {
-                break;
-            }
             }
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
-            switch (this->m_mode) {
-            case DeviceModeInput: {
+            if (this->m_audioDevice.inputs().contains(this->m_device)) {
                 this->m_pause = false;
-
-                break;
-            }
-            case DeviceModeOutput: {
+            } else if (this->m_device != DUMMY_OUTPUT_DEVICE
+                       && this->m_audioDevice.outputs().contains(this->m_device)) {
                 this->m_mutex.lock();
 
+                QString device = this->m_device;
                 AkAudioCaps caps(this->m_caps);
-                this->m_convert = AkElement::create("ACapsConvert");
-
-                QObject::connect(this,
-                                 SIGNAL(stateChanged(AkElement::ElementState)),
-                                 this->m_convert.data(),
-                                 SLOT(setState(AkElement::ElementState)));
-
                 this->m_convert->setProperty("caps", caps.toString());
 
-                if (!this->m_audioDevice.init(AudioDev::DeviceModePlayback,
-                                              caps.format(),
-                                              caps.channels(),
-                                              caps.rate())) {
-                    this->m_convert.clear();
+                if (!this->m_audioDevice.init(device, caps)) {
                     this->m_mutex.unlock();
 
                     return false;
-                } else {
-                    this->m_mutex.unlock();
-
-                    break;
                 }
-            }
-            case DeviceModeDummyOutput: {
-                break;
-            }
+
+                this->m_mutex.unlock();
             }
 
             return AkElement::setState(state);
@@ -347,41 +330,31 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePlaying: {
         switch (state) {
         case AkElement::ElementStateNull:
-            switch (this->m_mode) {
-            case DeviceModeInput: {
+            this->m_mutex.lock();
+
+            if (this->m_audioDevice.inputs().contains(this->m_device)) {
                 this->m_pause = false;
                 this->m_readFramesLoop = false;
                 this->m_readFramesLoopResult.waitForFinished();
-
-                break;
-            }
-            case DeviceModeOutput: {
+            } else if (this->m_device != DUMMY_OUTPUT_DEVICE
+                       && this->m_audioDevice.outputs().contains(this->m_device)) {
                 this->m_audioDevice.uninit();
+            }
 
-                break;
-            }
-            case DeviceModeDummyOutput: {
-                break;
-            }
-            }
+            this->m_mutex.unlock();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
-            switch (this->m_mode) {
-            case DeviceModeInput: {
+            this->m_mutex.lock();
+
+            if (this->m_audioDevice.inputs().contains(this->m_device)) {
                 this->m_pause = true;
-
-                break;
-            }
-            case DeviceModeOutput: {
+            } else if (this->m_device != DUMMY_OUTPUT_DEVICE
+                       && this->m_audioDevice.outputs().contains(this->m_device)) {
                 this->m_audioDevice.uninit();
+            }
 
-                break;
-            }
-            case DeviceModeDummyOutput: {
-                break;
-            }
-            }
+            this->m_mutex.unlock();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:

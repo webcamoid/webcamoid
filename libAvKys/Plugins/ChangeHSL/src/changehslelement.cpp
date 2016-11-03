@@ -23,9 +23,11 @@
 
 ChangeHSLElement::ChangeHSLElement(): AkElement()
 {
-    this->m_kernel << 1 << 0 << 0 << 0
-                   << 0 << 1 << 0 << 0
-                   << 0 << 0 << 1 << 0;
+    this->m_kernel = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0
+    };
 }
 
 QObject *ChangeHSLElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
@@ -70,7 +72,7 @@ QVariantList ChangeHSLElement::kernel() const
 {
     QVariantList kernel;
 
-    foreach (qreal e, this->m_kernel)
+    for (const qreal &e: this->m_kernel)
         kernel << e;
 
     return kernel;
@@ -80,7 +82,7 @@ void ChangeHSLElement::setKernel(const QVariantList &kernel)
 {
     QVector<qreal> k;
 
-    foreach (QVariant e, kernel)
+    for (const QVariant &e: kernel)
         k << e.toReal();
 
     if (this->m_kernel == k)
@@ -92,11 +94,11 @@ void ChangeHSLElement::setKernel(const QVariantList &kernel)
 
 void ChangeHSLElement::resetKernel()
 {
-    QVariantList kernel;
-
-    kernel << 1 << 0 << 0 << 0
-           << 0 << 1 << 0 << 0
-           << 0 << 0 << 1 << 0;
+    static const QVariantList kernel = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0
+    };
 
     this->setKernel(kernel);
 }

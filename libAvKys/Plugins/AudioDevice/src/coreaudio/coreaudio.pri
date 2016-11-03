@@ -20,5 +20,6 @@ HEADERS += $$PWD/audiodev.h
 OBJECTIVE_SOURCES += $$PWD/audiodev.mm
 
 LIBS += \
+    -framework CoreFoundation \
     -framework CoreAudio \
     -framework AudioUnit

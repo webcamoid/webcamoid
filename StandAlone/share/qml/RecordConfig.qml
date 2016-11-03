@@ -76,10 +76,10 @@ ColumnLayout {
         onRecordingChanged: {
             if (recording) {
                 lblRecordLabel.text = qsTr("Stop recording video")
-                imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-stop.svg"
+                imgRecordIcon.source = "image://icons/webcamoid-record-stop"
             } else {
                 lblRecordLabel.text = qsTr("Start recording video")
-                imgRecordIcon.source = "qrc:/icons/hicolor/scalable/record-start.svg"
+                imgRecordIcon.source = "image://icons/webcamoid-record-start"
             }
         }
 
@@ -152,7 +152,8 @@ ColumnLayout {
             height: 32
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "qrc:/icons/hicolor/scalable/record-start.svg"
+            source: "image://icons/webcamoid-record-start"
+            sourceSize: Qt.size(width, height)
         }
 
         MouseArea {

@@ -20,40 +20,34 @@
 #ifndef AUDIODEV_H
 #define AUDIODEV_H
 
+#include <QMutex>
 #include <akaudiocaps.h>
 #include <pulse/simple.h>
 #include <pulse/context.h>
 #include <pulse/introspect.h>
+#include <pulse/subscribe.h>
 #include <pulse/thread-mainloop.h>
 #include <pulse/error.h>
 
 class AudioDev: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(DeviceMode)
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
 
     public:
-        enum DeviceMode
-        {
-            DeviceModeCapture,
-            DeviceModePlayback
-        };
-
         explicit AudioDev(QObject *parent=NULL);
         ~AudioDev();
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE bool preferredFormat(DeviceMode mode,
-                                         AkAudioCaps::SampleFormat *sampleFormat,
-                                         int *channels,
-                                         int *sampleRate);
-        Q_INVOKABLE bool init(DeviceMode mode,
-                              AkAudioCaps::SampleFormat sampleFormat,
-                              int channels,
-                              int sampleRate);
+        Q_INVOKABLE QString defaultInput();
+        Q_INVOKABLE QString defaultOutput();
+        Q_INVOKABLE QStringList inputs();
+        Q_INVOKABLE QStringList outputs();
+        Q_INVOKABLE QString description(const QString &device);
+        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const QByteArray &frame);
         Q_INVOKABLE bool uninit();
@@ -62,14 +56,21 @@ class AudioDev: public QObject
         QString m_error;
         pa_simple *m_paSimple;
         pa_threaded_mainloop *m_mainLoop;
+        pa_context *m_context;
         QString m_defaultSink;
         QString m_defaultSource;
-        pa_sample_format_t m_defaultFormat;
-        int m_defaultChannels;
-        int m_defaultRate;
+        QMap<uint32_t, QString> m_sinks;
+        QMap<uint32_t, QString> m_sources;
+        QMap<QString, AkAudioCaps> m_pinCapsMap;
+        QMap<QString, QString> m_pinDescriptionMap;
+        QMutex m_mutex;
         int m_curBps;
         int m_curChannels;
 
+        static void deviceUpdateCallback(pa_context *context,
+                                         pa_subscription_event_type_t eventType,
+                                         uint32_t index,
+                                         void *userData);
         static void contextStateCallbackInit(pa_context *context,
                                              void *userdata);
         static void serverInfoCallback(pa_context *context,
@@ -85,7 +86,11 @@ class AudioDev: public QObject
                                      void *userdata);
 
     signals:
-        void errorChanged(const QString & error);
+        void errorChanged(const QString &error);
+        void defaultInputChanged(const QString &defaultInput);
+        void defaultOutputChanged(const QString &defaultOutput);
+        void inputsChanged(const QStringList &inputs);
+        void outputsChanged(const QStringList &outputs);
 };
 
 #endif // AUDIODEV_H

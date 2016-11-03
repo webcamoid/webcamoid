@@ -58,7 +58,9 @@ CONFIG += qt
 HEADERS = \
     src/mediatools.h \
     src/videodisplay.h \
-    src/videoframe.h
+    src/videoframe.h \
+    src/iconsprovider.h \
+    src/audiolayer.h
 
 INCLUDEPATH += \
     ../libAvKys/Lib/src
@@ -82,7 +84,9 @@ SOURCES = \
     src/main.cpp \
     src/mediatools.cpp \
     src/videodisplay.cpp \
-    src/videoframe.cpp
+    src/videoframe.cpp \
+    src/iconsprovider.cpp \
+    src/audiolayer.cpp
 
 lupdate_only {
     SOURCES = $$files(share/qml/*.qml)

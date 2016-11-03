@@ -323,7 +323,7 @@ bool CameraOut::removeAllWebcams(const QString &password) const
 {
     Q_UNUSED(password)
 
-    foreach (QString webcam, this->webcams())
+    for (const QString &webcam: this->webcams())
         this->removeWebcam(webcam, password);
 
     return true;

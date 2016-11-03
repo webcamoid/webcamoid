@@ -48,7 +48,7 @@ typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 
 inline AvMediaTypeStrMap initAvMediaTypeStrMap()
 {
-    AvMediaTypeStrMap mediaTypeToStr = {
+    static const AvMediaTypeStrMap mediaTypeToStr = {
         {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
         {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
         {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
@@ -67,7 +67,7 @@ typedef QVector<AkVideoCaps> VectorVideoCaps;
 
 inline VectorVideoCaps initDVSupportedCaps()
 {
-    QStringList supportedCaps = {
+    static const QStringList supportedCaps = {
         // Digital Video doesn't support height > 576 yet.
         /*"video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1",
           "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001",
@@ -92,7 +92,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps
 
 inline VectorVideoCaps initDNxHDSupportedCaps()
 {
-    QStringList supportedCaps = {
+    static const QStringList supportedCaps = {
         "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=440000000",
         "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=365000000",
         "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=290000000",
@@ -144,7 +144,7 @@ typedef QVector<QSize> VectorSize;
 
 inline VectorSize initH261SupportedSize()
 {
-    VectorSize supportedSize = {
+    static const VectorSize supportedSize = {
         QSize(352, 288),
         QSize(176, 144)
     };
@@ -156,7 +156,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h261SupportedSize, (initH261SupportedSize(
 
 inline VectorSize initH263SupportedSize()
 {
-    VectorSize supportedSize = {
+    static const VectorSize supportedSize = {
         QSize(1408, 1152),
         QSize(704, 576),
         QSize(352, 288),
@@ -171,7 +171,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h263SupportedSize, (initH263SupportedSize(
 
 inline VectorSize initGXFSupportedSize()
 {
-    VectorSize supportedSize = {
+    static const VectorSize supportedSize = {
         QSize(768, 576), // PAL
         QSize(640, 480)  // NTSC
     };
@@ -185,7 +185,7 @@ typedef QVector<int> VectorInt;
 
 inline VectorInt initSWFSupportedSampleRates()
 {
-    QVector<int> supportedSampleRates = {
+    static const QVector<int> supportedSampleRates = {
         44100,
         22050,
         11025
@@ -241,7 +241,7 @@ QVariantList MediaSink::streams() const
 {
     QVariantList streams;
 
-    foreach (QVariantMap stream, this->m_streamConfigs)
+    for (const QVariantMap &stream: this->m_streamConfigs)
         streams << stream;
 
     return streams;
@@ -659,7 +659,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
             int sampleRate = 0;
             int maxDiff = std::numeric_limits<int>::max();
 
-            foreach (QVariant rate, supportedSampleRates) {
+            for (const QVariant &rate: supportedSampleRates) {
                 int diff = qAbs(audioCaps.rate() - rate.toInt());
 
                 if (diff < maxDiff) {
@@ -724,7 +724,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
             AkFrac frameRate;
             qreal maxDiff = std::numeric_limits<qreal>::max();
 
-            foreach (QVariant rate, supportedFrameRates) {
+            for (const QVariant &rate: supportedFrameRates) {
                 qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
 
                 if (diff < maxDiff) {
@@ -848,7 +848,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 int sampleRate = 0;
                 int maxDiff = std::numeric_limits<int>::max();
 
-                foreach (QVariant rate, supportedSampleRates) {
+                for (const QVariant &rate: supportedSampleRates) {
                     int diff = qAbs(audioCaps.rate() - rate.toInt());
 
                     if (diff < maxDiff) {
@@ -903,7 +903,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 AkFrac frameRate;
                 qreal maxDiff = std::numeric_limits<qreal>::max();
 
-                foreach (QVariant rate, supportedFrameRates) {
+                for (const QVariant &rate: supportedFrameRates) {
                     qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
 
                     if (diff < maxDiff) {
@@ -1094,7 +1094,7 @@ AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (AkVideoCaps sCaps, *dvSupportedCaps) {
+    for (const AkVideoCaps &sCaps: *dvSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         qreal df = sCaps.fps().value() - caps.fps().value();
@@ -1115,7 +1115,7 @@ AkVideoCaps MediaSink::nearestDNxHDCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (AkVideoCaps sCaps, *dnXhdSupportedCaps) {
+    for (const AkVideoCaps &sCaps: *dnXhdSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         AkFrac fps = sCaps.fps().isValid()? sCaps.fps(): caps.fps();
@@ -1139,7 +1139,7 @@ AkVideoCaps MediaSink::nearestH261Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (QSize size, *h261SupportedSize) {
+    for (const QSize &size: *h261SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1165,7 +1165,7 @@ AkVideoCaps MediaSink::nearestH263Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (QSize size, *h263SupportedSize) {
+    for (const QSize &size: *h263SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1191,7 +1191,7 @@ AkVideoCaps MediaSink::nearestGXFCaps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (QSize size, *gxfSupportedSize) {
+    for (const QSize &size: *gxfSupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1217,7 +1217,7 @@ AkAudioCaps MediaSink::nearestSWFCaps(const AkAudioCaps &caps) const
     int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
 
-    foreach (int sampleRate, *swfSupportedSampleRates) {
+    for (const int &sampleRate: *swfSupportedSampleRates) {
         int k = qAbs(sampleRate - caps.rate());
 
         if (k < q) {
@@ -1431,7 +1431,7 @@ bool MediaSink::init()
     if (!strcmp(this->m_formatContext->oformat->name, "mxf_opatom")) {
         QList<QVariantMap> mxfConfigs;
 
-        foreach (QVariantMap configs, streamConfigs) {
+        for (const QVariantMap &configs: streamConfigs) {
             AkCaps streamCaps = configs["caps"].value<AkCaps>();
 
             if (streamCaps.mimeType() == "video/x-raw") {
@@ -1442,7 +1442,7 @@ bool MediaSink::init()
         }
 
         if (mxfConfigs.isEmpty())
-            foreach (QVariantMap configs, streamConfigs) {
+            for (const QVariantMap &configs: streamConfigs) {
                 AkCaps streamCaps = configs["caps"].value<AkCaps>();
 
                 if (streamCaps.mimeType() == "audio/x-raw") {
@@ -1571,7 +1571,7 @@ bool MediaSink::init()
         AVDictionary *options = NULL;
         QVariantMap codecOptions = configs.value("codecOptions").toMap();
 
-        foreach (QString key, codecOptions.keys()) {
+        for (const QString &key: codecOptions.keys()) {
             QString value = codecOptions[key].toString();
 
             av_dict_set(&options,
@@ -1628,7 +1628,7 @@ bool MediaSink::init()
     // Set format options.
     AVDictionary *formatOptions = NULL;
 
-    foreach (QString key, this->m_formatOptions.keys()) {
+    for (const QString &key: this->m_formatOptions.keys()) {
         QString value = this->m_formatOptions[key].toString();
 
         av_dict_set(&formatOptions,
@@ -1940,7 +1940,7 @@ void MediaSink::updateStreams()
     QList<QVariantMap> streamConfigs = this->m_streamConfigs;
     this->clearStreams();
 
-    foreach (QVariantMap configs, streamConfigs) {
+    for (const QVariantMap &configs: streamConfigs) {
         AkCaps caps = configs["caps"].value<AkCaps>();
         int index = configs["index"].toInt();
         this->addStream(index, caps, configs);

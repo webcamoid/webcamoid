@@ -25,11 +25,12 @@ typedef QMap<QFont::HintingPreference, QString> HintingPreferenceToStr;
 
 inline HintingPreferenceToStr initHintingPreferenceToStr()
 {
-    HintingPreferenceToStr hintingPreferenceToStr;
-    hintingPreferenceToStr[QFont::PreferDefaultHinting] = "PreferDefaultHinting";
-    hintingPreferenceToStr[QFont::PreferNoHinting] = "PreferNoHinting";
-    hintingPreferenceToStr[QFont::PreferVerticalHinting] = "PreferVerticalHinting";
-    hintingPreferenceToStr[QFont::PreferFullHinting] = "PreferFullHinting";
+    static const HintingPreferenceToStr hintingPreferenceToStr = {
+        {QFont::PreferDefaultHinting , "PreferDefaultHinting" },
+        {QFont::PreferNoHinting      , "PreferNoHinting"      },
+        {QFont::PreferVerticalHinting, "PreferVerticalHinting"},
+        {QFont::PreferFullHinting    , "PreferFullHinting"    }
+    };
 
     return hintingPreferenceToStr;
 }
@@ -40,20 +41,21 @@ typedef QMap<QFont::StyleStrategy, QString> StyleStrategyToStr;
 
 inline StyleStrategyToStr initStyleStrategyToStr()
 {
-    StyleStrategyToStr styleStrategyToStr;
-    styleStrategyToStr[QFont::PreferDefault] = "PreferDefault";
-    styleStrategyToStr[QFont::PreferBitmap] = "PreferBitmap";
-    styleStrategyToStr[QFont::PreferDevice] = "PreferDevice";
-    styleStrategyToStr[QFont::PreferOutline] = "PreferOutline";
-    styleStrategyToStr[QFont::ForceOutline] = "ForceOutline";
-    styleStrategyToStr[QFont::PreferMatch] = "PreferMatch";
-    styleStrategyToStr[QFont::PreferQuality] = "PreferQuality";
-    styleStrategyToStr[QFont::PreferAntialias] = "PreferAntialias";
-    styleStrategyToStr[QFont::NoAntialias] = "NoAntialias";
-    styleStrategyToStr[QFont::OpenGLCompatible] = "OpenGLCompatible";
-    styleStrategyToStr[QFont::ForceIntegerMetrics] = "ForceIntegerMetrics";
-    styleStrategyToStr[QFont::NoSubpixelAntialias] = "NoSubpixelAntialias";
-    styleStrategyToStr[QFont::NoFontMerging] = "NoFontMerging";
+    static const StyleStrategyToStr styleStrategyToStr = {
+        {QFont::PreferDefault      , "PreferDefault"      },
+        {QFont::PreferBitmap       , "PreferBitmap"       },
+        {QFont::PreferDevice       , "PreferDevice"       },
+        {QFont::PreferOutline      , "PreferOutline"      },
+        {QFont::ForceOutline       , "ForceOutline"       },
+        {QFont::PreferMatch        , "PreferMatch"        },
+        {QFont::PreferQuality      , "PreferQuality"      },
+        {QFont::PreferAntialias    , "PreferAntialias"    },
+        {QFont::NoAntialias        , "NoAntialias"        },
+        {QFont::OpenGLCompatible   , "OpenGLCompatible"   },
+        {QFont::ForceIntegerMetrics, "ForceIntegerMetrics"},
+        {QFont::NoSubpixelAntialias, "NoSubpixelAntialias"},
+        {QFont::NoFontMerging      , "NoFontMerging"      }
+    };
 
     return styleStrategyToStr;
 }
@@ -220,7 +222,7 @@ QSize MatrixElement::fontSize(const QString &chrTable, const QFont &font) const
     int width = -1;
     int height = -1;
 
-    foreach (QChar chr, chrTable) {
+    for (const QChar &chr: chrTable) {
         QSize size = metrics.size(Qt::TextSingleLine, chr);
 
         if (size.width() > width)
@@ -609,7 +611,7 @@ void MatrixElement::updateCharTable()
     for (int i = 0; i < 256; i++)
         colorTable[i] = qRgb(i, i, i);
 
-    foreach (QChar chr, this->m_charTable) {
+    for (const QChar &chr: this->m_charTable) {
         QImage image = drawChar(chr,
                                 this->m_font,
                                 this->m_fontSize,

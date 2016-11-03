@@ -336,7 +336,7 @@ AkPacket FaceDetectElement::iStream(const AkPacket &packet)
     QPainter painter;
     painter.begin(&oFrame);
 
-    foreach (QRect face, vecFaces) {
+    for (const QRect &face: vecFaces) {
         QRect rect(int(scale * face.x()),
                    int(scale * face.y()),
                    int(scale * face.width()),

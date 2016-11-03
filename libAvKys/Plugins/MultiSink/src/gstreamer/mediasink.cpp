@@ -29,114 +29,114 @@ typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initGstToFF()
 {
-    StringStringMap gstToFF;
+    StringStringMap gstToFF = {
+        // Audio
+        {"S8"      , "s8"     },
+        {"U8"      , "u8"     },
+        {"S16LE"   , "s16le"  },
+        {"S16BE"   , "s16be"  },
+        {"U16LE"   , "u16le"  },
+        {"U16BE"   , "u16be"  },
+        {"S24_32LE", "s2432le"},
+        {"S24_32BE", "s2432be"},
+        {"U24_32LE", "u2432le"},
+        {"U24_32BE", "u2432be"},
+        {"S32LE"   , "s32le"  },
+        {"S32BE"   , "s32be"  },
+        {"U32LE"   , "u32le"  },
+        {"U32BE"   , "u32be"  },
+        {"S24LE"   , "s24le"  },
+        {"S24BE"   , "s24be"  },
+        {"U24LE"   , "u24le"  },
+        {"U24BE"   , "u24be"  },
+        {"S20LE"   , "s20le"  },
+        {"S20BE"   , "s20be"  },
+        {"U20LE"   , "u20le"  },
+        {"U20BE"   , "u20be"  },
+        {"S18LE"   , "s18le"  },
+        {"S18BE"   , "s18be"  },
+        {"U18LE"   , "u18le"  },
+        {"U18BE"   , "u18le"  },
+        {"F32LE"   , "fltle"  },
+        {"F32BE"   , "fltbe"  },
+        {"F64LE"   , "dblle"  },
+        {"F64BE"   , "dblbe"  },
+        {"S16"     , "s16"    },
+        {"U16"     , "u16"    },
+        {"S24_32"  , "s2432"  },
+        {"U24_32"  , "u2432"  },
+        {"S32"     , "s32"    },
+        {"U32"     , "u32"    },
+        {"S24"     , "s24"    },
+        {"U24"     , "u24"    },
+        {"S20"     , "s20"    },
+        {"U20"     , "u20"    },
+        {"S18"     , "s18"    },
+        {"U18"     , "u18"    },
+        {"F32"     , "flt"    },
+        {"F64"     , "dbl"    },
 
-    // Audio
-    gstToFF["S8"] = "s8";
-    gstToFF["U8"] = "u8";
-    gstToFF["S16LE"] = "s16le";
-    gstToFF["S16BE"] = "s16be";
-    gstToFF["U16LE"] = "u16le";
-    gstToFF["U16BE"] = "u16be";
-    gstToFF["S24_32LE"] = "s2432le";
-    gstToFF["S24_32BE"] = "s2432be";
-    gstToFF["U24_32LE"] = "u2432le";
-    gstToFF["U24_32BE"] = "u2432be";
-    gstToFF["S32LE"] = "s32le";
-    gstToFF["S32BE"] = "s32be";
-    gstToFF["U32LE"] = "u32le";
-    gstToFF["U32BE"] = "u32be";
-    gstToFF["S24LE"] = "s24le";
-    gstToFF["S24BE"] = "s24be";
-    gstToFF["U24LE"] = "u24le";
-    gstToFF["U24BE"] = "u24be";
-    gstToFF["S20LE"] = "s20le";
-    gstToFF["S20BE"] = "s20be";
-    gstToFF["U20LE"] = "u20le";
-    gstToFF["U20BE"] = "u20be";
-    gstToFF["S18LE"] = "s18le";
-    gstToFF["S18BE"] = "s18be";
-    gstToFF["U18LE"] = "u18le";
-    gstToFF["U18BE"] = "u18le";
-    gstToFF["F32LE"] = "fltle";
-    gstToFF["F32BE"] = "fltbe";
-    gstToFF["F64LE"] = "dblle";
-    gstToFF["F64BE"] = "dblbe";
-    gstToFF["S16"] = "s16";
-    gstToFF["U16"] = "u16";
-    gstToFF["S24_32"] = "s2432";
-    gstToFF["U24_32"] = "u2432";
-    gstToFF["S32"] = "s32";
-    gstToFF["U32"] = "u32";
-    gstToFF["S24"] = "s24";
-    gstToFF["U24"] = "u24";
-    gstToFF["S20"] = "s20";
-    gstToFF["U20"] = "u20";
-    gstToFF["S18"] = "s18";
-    gstToFF["U18"] = "u18";
-    gstToFF["F32"] = "flt";
-    gstToFF["F64"] = "dbl";
-
-    // Video
-    gstToFF["I420"] = "yuv420p";
-//    gstToFF["YV12"] = "";
-    gstToFF["YUY2"] = "yuyv422";
-    gstToFF["UYVY"] = "uyvy422";
-//    gstToFF["AYUV"] = "";
-    gstToFF["RGBx"] = "rgb0";
-    gstToFF["BGRx"] = "bgr0";
-    gstToFF["xRGB"] = "0rgb";
-    gstToFF["xBGR"] = "0bgr";
-    gstToFF["RGBA"] = "rgba";
-    gstToFF["BGRA"] = "bgra";
-    gstToFF["ARGB"] = "argb";
-    gstToFF["ABGR"] = "abgr";
-    gstToFF["RGB"] = "rgb24";
-    gstToFF["BGR"] = "bgr24";
-    gstToFF["Y41B"] = "yuv411p";
-    gstToFF["Y42B"] = "yuv422p";
-//    gstToFF["YVYU"] = "";
-    gstToFF["Y444"] = "yuv444p";
-    gstToFF["v210"] = "v210";
-    gstToFF["v216"] = "v216";
-    gstToFF["NV12"] = "nv12";
-    gstToFF["NV21"] = "nv21";
-    gstToFF["GRAY8"] = "gray8";
-    gstToFF["GRAY16_BE"] = "gray16be";
-    gstToFF["GRAY16_LE"] = "gray16le";
-    gstToFF["V308"] = "v308";
-    gstToFF["RGB16"] = "rgb565";
-    gstToFF["BGR16"] = "bgr565le";
-    gstToFF["RGB15"] = "rgb555";
-    gstToFF["BGR15"] = "rgb555le";
-//    gstToFF["UYVP"] = "";
-    gstToFF["A420"] = "yuva420p";
-    gstToFF["RGB8P"] = "pal8";
-    gstToFF["YUV9"] = "yuv410p";
-//    gstToFF["YVU9"] = "";
-//    gstToFF["IYU1"] = "";
-//    gstToFF["ARGB64"] = "";
-    gstToFF["AYUV64"] = "ayuv64le";
-//    gstToFF["r210"] = "";
-    gstToFF["I420_10BE"] = "yuv420p10be";
-    gstToFF["I420_10LE"] = "yuv420p10le";
-    gstToFF["I422_10BE"] = "yuv422p10be";
-    gstToFF["I422_10LE"] = "yuv422p10le";
-    gstToFF["Y444_10BE"] = "yuv444p10be";
-    gstToFF["Y444_10LE"] = "yuv444p10le";
-    gstToFF["GBR"] = "gbrp";
-    gstToFF["GBR_10BE"] = "gbrp10be";
-    gstToFF["GBR_10LE"] = "gbrp10le";
-    gstToFF["NV16"] = "nv16";
-//    gstToFF["NV24"] = "";
-//    gstToFF["NV12_64Z32"] = "";
-    gstToFF["A420_10BE"] = "yuva420p10be";
-    gstToFF["A420_10LE"] = "yuva420p10le";
-    gstToFF["A422_10BE"] = "yuva422p10be";
-    gstToFF["A422_10LE"] = "yuva422p10le";
-    gstToFF["A444_10BE"] = "yuva444p10be";
-    gstToFF["A444_10LE"] = "yuva444p10le";
-//    gstToFF["NV61"] = "";
+        // Video
+        {"I420", "yuv420p"},
+        //{"YV12", ""},
+        {"YUY2", "yuyv422"},
+        {"UYVY", "uyvy422"},
+        //{"AYUV", ""},
+        {"RGBx", "rgb0"   },
+        {"BGRx", "bgr0"   },
+        {"xRGB", "0rgb"   },
+        {"xBGR", "0bgr"   },
+        {"RGBA", "rgba"   },
+        {"BGRA", "bgra"   },
+        {"ARGB", "argb"   },
+        {"ABGR", "abgr"   },
+        {"RGB" , "rgb24"  },
+        {"BGR" , "bgr24"  },
+        {"Y41B", "yuv411p"},
+        {"Y42B", "yuv422p"},
+        //{"YVYU", ""},
+        {"Y444"     , "yuv444p" },
+        {"v210"     , "v210"    },
+        {"v216"     , "v216"    },
+        {"NV12"     , "nv12"    },
+        {"NV21"     , "nv21"    },
+        {"GRAY8"    , "gray8"   },
+        {"GRAY16_BE", "gray16be"},
+        {"GRAY16_LE", "gray16le"},
+        {"V308"     , "v308"    },
+        {"RGB16"    , "rgb565"  },
+        {"BGR16"    , "bgr565le"},
+        {"RGB15"    , "rgb555"  },
+        {"BGR15"    , "rgb555le"},
+        //{"UYVP", ""},
+        {"A420" , "yuva420p"},
+        {"RGB8P", "pal8"    },
+        {"YUV9" , "yuv410p" },
+        //{"YVU9"  , ""},
+        //{"IYU1"  , ""},
+        //{"ARGB64", ""},
+        {"AYUV64", "ayuv64le"},
+        //{"r210", ""},
+        {"I420_10BE", "yuv420p10be"},
+        {"I420_10LE", "yuv420p10le"},
+        {"I422_10BE", "yuv422p10be"},
+        {"I422_10LE", "yuv422p10le"},
+        {"Y444_10BE", "yuv444p10be"},
+        {"Y444_10LE", "yuv444p10le"},
+        {"GBR"      , "gbrp"       },
+        {"GBR_10BE" , "gbrp10be"   },
+        {"GBR_10LE" , "gbrp10le"   },
+        {"NV16"     , "nv16"       },
+        //{"NV24"      , ""},
+        //{"NV12_64Z32", ""},
+        {"A420_10BE", "yuva420p10be"},
+        {"A420_10LE", "yuva420p10le"},
+        {"A422_10BE", "yuva422p10be"},
+        {"A422_10LE", "yuva422p10le"},
+        {"A444_10BE", "yuva444p10be"},
+        {"A444_10LE", "yuva444p10le"},
+        //{"NV61", ""},
+    };
 
     return gstToFF;
 }
@@ -147,18 +147,18 @@ typedef QVector<AkVideoCaps> VectorVideoCaps;
 
 inline VectorVideoCaps initDVSupportedCaps()
 {
-    QStringList supportedCaps;
-
-    // Digital Video doesn't support height > 576 yet.
-    supportedCaps /*<< "video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1"
-                  << "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001"
-                  << "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1"*/
-                  << "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1"
-                  << "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1"
-                  << "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1"
-                  << "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001"
-                  << "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001";
+    QStringList supportedCaps = {
+        // Digital Video doesn't support height > 576 yet.
+        /*"video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1",
+        "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001",
+        "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001",
+        "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1",*/
+        "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1",
+        "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1",
+        "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1",
+        "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001",
+        "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001"
+    };
 
     VectorVideoCaps dvSupportedCaps(supportedCaps.size());
 
@@ -174,12 +174,13 @@ typedef QVector<QSize> VectorSize;
 
 inline VectorSize initH263SupportedSize()
 {
-    QList<QSize> supportedSize;
-    supportedSize << QSize(1408, 1152)
-                  << QSize(704, 576)
-                  << QSize(352, 288)
-                  << QSize(176, 144)
-                  << QSize(128, 96);
+    QList<QSize> supportedSize = {
+        QSize(1408, 1152),
+        QSize(704, 576),
+        QSize(352, 288),
+        QSize(176, 144),
+        QSize(128, 96)
+    };
 
     return supportedSize.toVector();
 }
@@ -191,23 +192,16 @@ typedef QMap<QString, VectorInt> StringVectorIntMap;
 
 inline StringVectorIntMap initFLVSupportedSampleRates()
 {
-    StringVectorIntMap flvSupportedSampleRates;
-    flvSupportedSampleRates["avenc_adpcm_swf"] =
-            VectorInt() << 5512 << 11025 << 22050 << 44100;
-    flvSupportedSampleRates["lamemp3enc"] =
-            VectorInt() << 5512 << 8000 << 11025 << 22050 << 44100;
-    flvSupportedSampleRates["faac"] =
-            VectorInt();
-    flvSupportedSampleRates["avenc_nellymoser"] =
-            VectorInt() << 5512 << 8000 << 11025 << 16000 << 22050 << 44100;
-    flvSupportedSampleRates["identity"] =
-            VectorInt() << 5512 << 11025 << 22050 << 44100;
-    flvSupportedSampleRates["alawenc"] =
-            VectorInt() << 5512 << 11025 << 22050 << 44100;
-    flvSupportedSampleRates["mulawenc"] =
-            VectorInt() << 5512 << 11025 << 22050 << 44100;
-    flvSupportedSampleRates["speexenc"] =
-            VectorInt() << 16000;
+    StringVectorIntMap flvSupportedSampleRates = {
+        {"avenc_adpcm_swf" , {5512, 11025, 22050, 44100              }},
+        {"lamemp3enc"      , {5512, 8000 , 11025, 22050, 44100       }},
+        {"faac"            , {                                       }},
+        {"avenc_nellymoser", {5512, 8000 , 11025, 16000, 22050, 44100}},
+        {"identity"        , {5512, 11025, 22050, 44100              }},
+        {"alawenc"         , {5512, 11025, 22050, 44100              }},
+        {"mulawenc"        , {5512, 11025, 22050, 44100              }},
+        {"speexenc"        , {16000                                  }}
+    };
 
     return flvSupportedSampleRates;
 }
@@ -254,7 +248,7 @@ QVariantList MediaSink::streams() const
 {
     QVariantList streams;
 
-    foreach (QVariantMap stream, this->m_streamConfigs)
+    for (const QVariantMap &stream: this->m_streamConfigs)
         streams << stream;
 
     return streams;
@@ -278,43 +272,47 @@ QStringList MediaSink::supportedFormats()
 
     gst_plugin_list_free(factoryList);
 
+    static const QStringList unsupportedFormats = {
+        "avmux_3gp",
+        "avmux_aiff",
+        "avmux_asf",
+        "avmux_avi",
+        "avmux_flv",
+        "avmux_gxf",
+        "avmux_mov",
+        "avmux_mpegts",
+        "avmux_mp4",
+        "avmux_mxf",
+        "avmux_mxf_d10"
+    };
+
     // Disable conflictive formats
-    supportedFormats.removeAll("avmux_3gp");
-    supportedFormats.removeAll("avmux_aiff");
-    supportedFormats.removeAll("avmux_asf");
-    supportedFormats.removeAll("avmux_avi");
-    supportedFormats.removeAll("avmux_flv");
-    supportedFormats.removeAll("avmux_gxf");
-    supportedFormats.removeAll("avmux_mov");
-    supportedFormats.removeAll("avmux_mpegts");
-    supportedFormats.removeAll("avmux_mp4");
-    supportedFormats.removeAll("avmux_mxf");
-    supportedFormats.removeAll("avmux_mxf_d10");
+    for (const QString &format: unsupportedFormats)
+        supportedFormats.removeAll(format);
 
     return supportedFormats;
 }
 
 QStringList MediaSink::fileExtensions(const QString &format)
 {
-    if (format == "3gppmux"
-        || format == "avmux_3gp")
-        return QStringList() << "3gp";
-    else if (format == "avmux_3g2")
-        return QStringList() << "3g2";
-    else if (format == "ismlmux")
-        return QStringList() << "isml" << "ismv" << "isma";
-    else if (format == "mp4mux"
-             || format == "avmux_mp4")
-        return QStringList() << "mp4";
-    else if (format == "avmux_psp")
-        return QStringList() << "psp" << "mp4";
-    else if (format == "avmux_ipod")
-        return QStringList() << "m4v" << "m4a";
+    static const QMap<QString, QStringList> alternativeExtensions = {
+        {"3gppmux"   , {"3gp"                 }},
+        {"avmux_3gp" , {"3gp"                 }},
+        {"avmux_3g2" , {"3g2"                 }},
+        {"ismlmux"   , {"isml", "ismv", "isma"}},
+        {"mp4mux"    , {"mp4"                 }},
+        {"avmux_mp4" , {"mp4"                 }},
+        {"avmux_psp" , {"psp" , "mp4"         }},
+        {"avmux_ipod", {"m4v" , "m4a"         }},
+    };
+
+    if (alternativeExtensions.contains(format))
+        return alternativeExtensions[format];
 
     QStringList supportedCaps = this->readCaps(format);
     QStringList extensions;
 
-    foreach (QString formatCaps, supportedCaps) {
+    for (const QString &formatCaps: supportedCaps) {
         GstCaps *caps = gst_caps_from_string(formatCaps.toStdString().c_str());
         caps = gst_caps_fixate(caps);
         GstEncodingContainerProfile *prof = gst_encoding_container_profile_new(NULL, NULL, caps, NULL);
@@ -463,19 +461,18 @@ QStringList MediaSink::supportedCodecs(const QString &format,
     gst_object_unref(factory);
 
     // Disable conflictive codecs
-    if (format == "mp4mux") {
-        supportedCodecs.removeAll("schroenc");
-    } else if (format == "flvmux") {
-        supportedCodecs.removeAll("lamemp3enc");
-    } else if (format == "avmux_3gp"
-               || format == "avmux_3g2") {
-        supportedCodecs.removeAll("avenc_h263p");
-    } else if (format == "matroskamux") {
-        supportedCodecs.removeAll("avenc_tta");
-    }
+    static const QMap<QString, QStringList> unsupportedCodecs = {
+        {"mp4mux"     , {"schroenc"              }},
+        {"flvmux"     , {"lamemp3enc"            }},
+        {"avmux_3gp"  , {"avenc_h263p"           }},
+        {"avmux_3g2"  , {"avenc_h263p"           }},
+        {"matroskamux", {"avenc_tta"             }},
+        {"*"          , {"avenc_alac", "mpeg2enc"}},
+    };
 
-    supportedCodecs.removeAll("avenc_alac");
-    supportedCodecs.removeAll("mpeg2enc");
+    for (const QString &codec: unsupportedCodecs.value(format)
+                             + unsupportedCodecs["*"])
+        supportedCodecs.removeAll(codec);
 
     return supportedCodecs;
 }
@@ -487,7 +484,7 @@ QString MediaSink::defaultCodec(const QString &format, const QString &type)
     if (codecs.isEmpty())
         return QString();
 
-    return codecs.at(0);
+    return codecs.first();
 }
 
 QString MediaSink::codecDescription(const QString &codec)
@@ -954,7 +951,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
             int sampleRate = 0;
             int maxDiff = std::numeric_limits<int>::max();
 
-            foreach (QVariant rate, supportedSampleRates) {
+            for (const QVariant &rate: supportedSampleRates) {
                 int diff = qAbs(audioCaps.rate() - rate.toInt());
 
                 if (diff < maxDiff) {
@@ -1025,7 +1022,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
             AkFrac frameRate;
             qreal maxDiff = std::numeric_limits<qreal>::max();
 
-            foreach (QVariant rate, supportedFrameRates) {
+            for (const QVariant &rate: supportedFrameRates) {
                 qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
 
                 if (diff < maxDiff) {
@@ -1108,7 +1105,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 int sampleRate = 0;
                 int maxDiff = std::numeric_limits<int>::max();
 
-                foreach (QVariant rate, supportedSampleRates) {
+                for (const QVariant &rate: supportedSampleRates) {
                     int diff = qAbs(audioCaps.rate() - rate.toInt());
 
                     if (diff < maxDiff) {
@@ -1169,7 +1166,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
                 AkFrac frameRate;
                 qreal maxDiff = std::numeric_limits<qreal>::max();
 
-                foreach (QVariant rate, supportedFrameRates) {
+                for (const QVariant &rate: supportedFrameRates) {
                     qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
 
                     if (diff < maxDiff) {
@@ -1234,7 +1231,7 @@ QString MediaSink::guessFormat(const QString &fileName)
 {
     QString ext = QFileInfo(fileName).suffix();
 
-    foreach (QString format, this->supportedFormats())
+    for (const QString &format: this->supportedFormats())
         if (this->fileExtensions(format).contains(ext))
             return format;
 
@@ -1466,7 +1463,7 @@ gboolean MediaSink::busCallback(GstBus *bus,
 
 void MediaSink::setElementOptions(GstElement *element, const QVariantMap &options)
 {
-    foreach (QString key, options.keys()) {
+    for (const QString &key: options.keys()) {
         GParamSpec *paramSpec = g_object_class_find_property(G_OBJECT_GET_CLASS(element),
                                                              key.toStdString().c_str());
 
@@ -1492,7 +1489,7 @@ AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (AkVideoCaps sCaps, *dvSupportedCaps) {
+    for (const AkVideoCaps &sCaps: *dvSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         qreal df = sCaps.fps().value() - caps.fps().value();
@@ -1513,7 +1510,7 @@ AkVideoCaps MediaSink::nearestH263Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    foreach (QSize size, *h263SupportedSize) {
+    for (const QSize &size: *h263SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1540,7 +1537,7 @@ AkAudioCaps MediaSink::nearestFLVAudioCaps(const AkAudioCaps &caps,
     int nearestSampleRate = caps.rate();
     int q = std::numeric_limits<int>::max();
 
-    foreach (int sampleRate, flvSupportedSampleRates->value(codec)) {
+    for (const int &sampleRate: flvSupportedSampleRates->value(codec)) {
         int k = qAbs(sampleRate - caps.rate());
 
         if (k < q) {
@@ -2030,7 +2027,7 @@ void MediaSink::updateStreams()
     QList<QVariantMap> streamConfigs = this->m_streamConfigs;
     this->clearStreams();
 
-    foreach (QVariantMap configs, streamConfigs) {
+    for (const QVariantMap &configs: streamConfigs) {
         AkCaps caps = configs["caps"].value<AkCaps>();
         int index = configs["index"].toInt();
         this->addStream(index, caps, configs);

@@ -227,7 +227,7 @@ qint64 MediaSource::packetQueueSize()
 {
     qint64 size = 0;
 
-    foreach (AbstractStreamPtr stream, this->m_streamsMap.values())
+    for (const AbstractStreamPtr &stream: this->m_streamsMap.values())
         size += stream->queueSize();
 
     return size;
@@ -302,7 +302,7 @@ void MediaSource::readPackets(MediaSource *element)
 
         if (r < 0) {
             if (element->loop()) {
-                foreach (AbstractStreamPtr stream, element->m_streamsMap.values())
+                for (const AbstractStreamPtr &stream: element->m_streamsMap.values())
                     stream->packetEnqueue(NULL);
             }
 
@@ -434,7 +434,7 @@ bool MediaSource::setState(AkElement::ElementState state)
             else
                 filterStreams = this->m_streams;
 
-            foreach (int i, filterStreams) {
+            for (const int &i: filterStreams) {
                 AbstractStreamPtr stream = this->createStream(i);
 
                 if (stream) {
@@ -486,7 +486,7 @@ bool MediaSource::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull: {
             this->m_globalClock.setClock(this->m_curClockTime);
 
-            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+            for (const AbstractStreamPtr &stream: this->m_streamsMap)
                 stream->setPaused(false);
 
             this->m_run = false;
@@ -497,7 +497,7 @@ bool MediaSource::setState(AkElement::ElementState state)
             this->m_packetQueueEmpty.wakeAll();
             this->m_dataMutex.unlock();
 
-            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+            for (const AbstractStreamPtr &stream: this->m_streamsMap)
                 stream->uninit();
 
             this->m_streamsMap.clear();
@@ -509,7 +509,7 @@ bool MediaSource::setState(AkElement::ElementState state)
         case AkElement::ElementStatePlaying: {
             this->m_globalClock.setClock(this->m_curClockTime);
 
-            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+            for (const AbstractStreamPtr &stream: this->m_streamsMap)
                 stream->setPaused(false);
 
             this->m_curState = state;
@@ -533,7 +533,7 @@ bool MediaSource::setState(AkElement::ElementState state)
             this->m_packetQueueEmpty.wakeAll();
             this->m_dataMutex.unlock();
 
-            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+            for (const AbstractStreamPtr &stream: this->m_streamsMap)
                 stream->uninit();
 
             this->m_streamsMap.clear();
@@ -545,7 +545,7 @@ bool MediaSource::setState(AkElement::ElementState state)
         case AkElement::ElementStatePaused: {
             this->m_curClockTime = this->m_globalClock.clock();
 
-            foreach (AbstractStreamPtr stream, this->m_streamsMap)
+            for (const AbstractStreamPtr &stream: this->m_streamsMap)
                 stream->setPaused(true);
 
             this->m_curState = state;
@@ -612,10 +612,10 @@ bool MediaSource::initContext()
 
     AVFormatContext *inputContext = NULL;
 
-    foreach (QString scheme, mmsSchemes) {
+    for (const QString &scheme: mmsSchemes) {
         QString uriCopy = uri;
 
-        foreach (QString schemer, mmsSchemes)
+        for (const QString &schemer: mmsSchemes)
             uriCopy.replace(QRegExp(QString("^%1").arg(schemer)),
                             scheme);
 
@@ -650,7 +650,7 @@ void MediaSource::log()
     AbstractStreamPtr audioStream;
     AbstractStreamPtr videoStream;
 
-    foreach (int streamId, this->m_streamsMap.keys()) {
+    for (const int &streamId: this->m_streamsMap.keys()) {
         AVMediaType mediaType = this->m_streamsMap[streamId]->mediaType();
 
         if (mediaType == AVMEDIA_TYPE_AUDIO && !audioStream)
