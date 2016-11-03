@@ -1033,7 +1033,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="37"/>
         <source>Session</source>
-        <translation>sesión</translation>
+        <translation>Sesión</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="38"/>
