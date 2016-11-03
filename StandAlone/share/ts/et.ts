@@ -481,7 +481,7 @@
         <location filename="../qml/EffectConfig.qml" line="53"/>
         <location filename="../qml/EffectConfig.qml" line="60"/>
         <source>Plugin id</source>
-        <translation>Pistiku ID</translation>
+        <translation>Pistiku id</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="66"/>
