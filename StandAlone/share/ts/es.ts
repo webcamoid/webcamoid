@@ -36,7 +36,7 @@
     <message>
         <location filename="../qml/About.qml" line="72"/>
         <source>Using Qt %1 with %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Usando Qt %1 con %2</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="104"/>
@@ -102,27 +102,27 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="38"/>
         <source>Record audio from</source>
-        <translation type="unfinished">Grabar audio desde</translation>
+        <translation>Grabar audio desde</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="46"/>
         <source>Source</source>
-        <translation type="unfinished">Fuente</translation>
+        <translation>Fuente</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="56"/>
         <source>Mic</source>
-        <translation type="unfinished">Micrófono</translation>
+        <translation>Micrófono</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="66"/>
         <source>None</source>
-        <translation type="unfinished">Ninguno</translation>
+        <translation>Ninguno</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="77"/>
         <source>Play audio from source</source>
-        <translation type="unfinished">Regroducir audio desde la fuente</translation>
+        <translation>Reproducir audio desde la fuente</translation>
     </message>
 </context>
 <context>
@@ -135,7 +135,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/Qt/labs/controls/designer/BusyIndicatorSpecifics.qml" line="50"/>
         <source>Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Corriendo</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/Qt/labs/controls/designer/BusyIndicatorSpecifics.qml" line="51"/>
@@ -696,7 +696,7 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="79"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="79"/>
@@ -728,7 +728,7 @@
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="54"/>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="55"/>
         <source>Source</source>
-        <translation type="unfinished">Fuente</translation>
+        <translation>Fuente</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="71"/>
