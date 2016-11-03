@@ -481,7 +481,7 @@
         <location filename="../qml/EffectConfig.qml" line="53"/>
         <location filename="../qml/EffectConfig.qml" line="60"/>
         <source>Plugin id</source>
-        <translation>ID Plugin</translation>
+        <translation>id plugin</translation>
     </message>
     <message>
         <location filename="../qml/EffectConfig.qml" line="66"/>

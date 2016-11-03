@@ -26,7 +26,7 @@
     <message>
         <location filename="../qml/About.qml" line="90"/>
         <source>A simple webcam application for picture and video capture.</source>
-        <translation>Un logiciel de webcam simple pour la capture d&apos;images et de vidéo.</translation>
+        <translation>Un logiciel de webcam simple pour la capture d'images et de vidéo.</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="79"/>
@@ -102,7 +102,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="38"/>
         <source>Record audio from</source>
-        <translation>Enregistrer l&apos;audio à partir de</translation>
+        <translation>Enregistrer l'audio à partir de</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="46"/>
@@ -122,7 +122,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="77"/>
         <source>Play audio from source</source>
-        <translation type="unfinished">Lire l&apos;audio de la source</translation>
+        <translation type="unfinished">Lire l'audio de la source</translation>
     </message>
 </context>
 <context>
@@ -820,18 +820,18 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="69"/>
         <source>Video %1.%2</source>
-        <translation>Vidéo %1. %2</translation>
+        <translation>Vidéo %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="78"/>
         <source>Stop recording video</source>
-        <translation>Arrêter l&apos;enregistrement vidéo</translation>
+        <translation>Arrêter l'enregistrement vidéo</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="81"/>
         <location filename="../qml/RecordConfig.qml" line="114"/>
         <source>Start recording video</source>
-        <translation>Démarrer l&apos;enregistrement vidéo</translation>
+        <translation>Démarrer l'enregistrement vidéo</translation>
     </message>
     <message>
         <location filename="../qml/RecordConfig.qml" line="93"/>
@@ -988,7 +988,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="28"/>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Attention, Verr Maj est activée !</translation>
+        <translation>Attention, Verr Maj est activée!</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="29"/>
@@ -1018,12 +1018,12 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="34"/>
         <source>Enter your username and password</source>
-        <translation>Entrez votre nom d&apos;utilisateur et votre mot de passe</translation>
+        <translation>Entrez votre nom d'utilisateur et votre mot de passe</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="35"/>
         <source>Select your user and enter password</source>
-        <translation>Sélectionnez votre nom d&apos;utilisateur et entrez votre mot de passe</translation>
+        <translation>Sélectionnez votre nom d'utilisateur et entrez votre mot de passe</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="36"/>
@@ -1043,7 +1043,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="39"/>
         <source>User name</source>
-        <translation>Nom d&apos;utilisateur</translation>
+        <translation>Nom d'utilisateur</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="40"/>
@@ -1132,7 +1132,7 @@
     <message>
         <location filename="../qml/main.qml" line="188"/>
         <source>Picture %1.%2</source>
-        <translation>Photo %1. %2</translation>
+        <translation>Photo %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="472"/>

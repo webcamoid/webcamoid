@@ -84,7 +84,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="116"/>
         <source>Ok</source>
-        <translation>D&apos;acord</translation>
+        <translation>D'acord</translation>
     </message>
     <message>
         <location filename="../qml/AddMedia.qml" line="139"/>
@@ -94,7 +94,7 @@
     <message>
         <location filename="../qml/AddMedia.qml" line="150"/>
         <source>Choose the file to add as media</source>
-        <translation>Seleccioneu l&apos;arxiu a afegir com mitjà</translation>
+        <translation>Seleccioneu l'arxiu a afegir com mitjà</translation>
     </message>
 </context>
 <context>
@@ -122,7 +122,7 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="77"/>
         <source>Play audio from source</source>
-        <translation type="unfinished">Reproduïu l&apos;àudio des la font</translation>
+        <translation type="unfinished">Reproduïu l'àudio des la font</translation>
     </message>
 </context>
 <context>
@@ -467,7 +467,7 @@
     <message>
         <location filename="../qml/EffectBar.qml" line="110"/>
         <source>Search effect...</source>
-        <translation>Cerca d&apos;efecte...</translation>
+        <translation>Cerca d'efecte...</translation>
     </message>
     <message>
         <location filename="../qml/EffectBar.qml" line="156"/>
@@ -1018,7 +1018,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="34"/>
         <source>Enter your username and password</source>
-        <translation>Indiqueu el vostre nom d&apos;usuari i la seva paraula de pas</translation>
+        <translation>Indiqueu el vostre nom d'usuari i la seva paraula de pas</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="35"/>
@@ -1043,7 +1043,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="39"/>
         <source>User name</source>
-        <translation>Nom d&apos;usuari</translation>
+        <translation>Nom d'usuari</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="40"/>
@@ -1132,7 +1132,7 @@
     <message>
         <location filename="../qml/main.qml" line="188"/>
         <source>Picture %1.%2</source>
-        <translation>Imatge %1. %2</translation>
+        <translation>Imatge %1.%2</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="472"/>
