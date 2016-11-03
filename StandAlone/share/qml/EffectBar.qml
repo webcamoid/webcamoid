@@ -29,10 +29,11 @@ Rectangle {
 
     property string curEffect: ""
     property bool editMode: false
-    property bool advancedMode: Webcamoid.advancedMode
+    property bool advancedMode: VideoEffects.advancedMode
+    property bool lock: false
 
     function updateAppliedEffectList() {
-        var effects = Webcamoid.currentEffects
+        var effects = VideoEffects.effects
 
         var option = lsvAppliedEffectList.model.get(lsvAppliedEffectList.currentIndex)
         var curEffect = option? option.effect: ""
@@ -45,16 +46,16 @@ Rectangle {
 
             lsvAppliedEffectList.model.append({
                 effect: effects[effect],
-                description: Webcamoid.effectInfo(effects[effect])["MetaData"]["description"]})
+                description: VideoEffects.effectInfo(effects[effect])["MetaData"]["description"]})
         }
 
         lsvAppliedEffectList.currentIndex = currentIndex < 0? 0: currentIndex
     }
 
     function updateEffectList() {
-        var effects = Webcamoid.availableEffects()
+        var effects = VideoEffects.availableEffects
 
-        var curEffects = Webcamoid.currentEffects
+        var curEffects = VideoEffects.effects
         var option = lsvEffectList.model.get(lsvEffectList.currentIndex)
         var curEffect = option? option.effect: curEffects.length > 0? curEffects[0]: ""
         var currentIndex = -1
@@ -66,7 +67,7 @@ Rectangle {
 
             lsvEffectList.model.append({
                 effect: effects[effect],
-                description: Webcamoid.effectInfo(effects[effect])["MetaData"]["description"]})
+                description: VideoEffects.effectInfo(effects[effect])["MetaData"]["description"]})
         }
 
         lsvEffectList.currentIndex = currentIndex >= 0 || !advancedMode?
@@ -88,13 +89,13 @@ Rectangle {
     }
 
     Connections {
-        target: Webcamoid
-        onCurrentEffectsChanged: {
-            if (advancedMode) {
-                recEffectBar.updateAppliedEffectList()
-                recEffectBar.updateEffectList()
-            }
+        target: VideoEffects
+        onEffectsChanged: {
+            if (lock)
+                return
 
+            recEffectBar.updateAppliedEffectList()
+            recEffectBar.updateEffectList()
             recEffectBar.editMode = false
         }
     }
@@ -119,7 +120,7 @@ Rectangle {
         anchors.top: txtSearchEffect.bottom
         visible: advancedMode? false: true
 
-        property bool selected: Webcamoid.currentEffects.length < 1
+        property bool selected: VideoEffects.effects.length < 1
 
         property color gradUp: selected?
                                    Qt.rgba(0.75, 0, 0, 1):
@@ -186,7 +187,7 @@ Rectangle {
             onReleased: txtEffectResetButton.scale = 1
             onClicked: {
                 lsvEffectList.currentIndex = -1
-                Webcamoid.resetEffects()
+                VideoEffects.effects = []
                 recEffectBar.curEffect = ""
             }
         }
@@ -231,11 +232,11 @@ Rectangle {
             if (visible) {
                 var option = lsvEffectList.model.get(lsvEffectList.currentIndex)
                 var effect = option? option.effect: ""
-                Webcamoid.showPreview(effect)
+                VideoEffects.showPreview(effect)
                 recEffectBar.curEffect = effect
             }
             else
-                Webcamoid.removePreview()
+                VideoEffects.removeAllPreviews()
         }
 
         OptionList {
@@ -249,19 +250,21 @@ Rectangle {
                 if (!option)
                     return
 
+                recEffectBar.lock = true
                 var effect = option.effect
 
                 if (scrollEffects.visible) {
                     if (advancedMode)
-                        Webcamoid.showPreview(effect)
+                        VideoEffects.showPreview(effect)
                     else {
-                        Webcamoid.resetEffects()
-                        Webcamoid.appendEffect(effect, false)
+                        VideoEffects.effects = []
+                        VideoEffects.appendEffect(effect, false)
                     }
                 }
 
                 recEffectBar.curEffect = effect
                 txtSearchEffect.text = ""
+                recEffectBar.lock = false
             }
         }
     }

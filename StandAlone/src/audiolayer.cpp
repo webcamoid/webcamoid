@@ -106,7 +106,8 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
         QObject::connect(this->m_audioSwitch.data(),
                          SIGNAL(oStream(const AkPacket &)),
                          this,
-                         SIGNAL(oStream(const AkPacket &)));
+                         SIGNAL(oStream(const AkPacket &)),
+                         Qt::DirectConnection);
     }
 
     QObject::connect(this,
@@ -121,34 +122,23 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
                      &AudioLayer::audioOutputChanged,
                      this,
                      &AudioLayer::updateOutputState);
+    QObject::connect(this,
+                     &AudioLayer::audioInputChanged,
+                     this,
+                     &AudioLayer::saveAudioInput);
+    QObject::connect(this,
+                     &AudioLayer::audioOutputChanged,
+                     this,
+                     &AudioLayer::saveAudioOutput);
 
-    QSettings config;
-
-    config.beginGroup("AudioConfigs");
-
-    QString confInput = config.value("audioInput").toString();
-
-    if (this->inputs().contains(confInput))
-        this->setAudioInput({confInput});
-
-    QString confOutput = config.value("audioOutput").toString();
-
-    if (this->outputs().contains(confOutput))
-        this->setAudioOutput(confOutput);
-
-    config.endGroup();
+    this->loadProperties();
 }
 
 AudioLayer::~AudioLayer()
 {
     this->resetInputState();
     this->resetOutputState();
-
-    QSettings config;
-    config.beginGroup("AudioConfigs");
-    config.setValue("audioInput", this->audioInput().value(0));
-    config.setValue("audioOutput", this->audioOutput());
-    config.endGroup();
+    this->saveProperties();
 
     this->m_sourceMutex.lock();
     this->m_audioOut.clear();
@@ -273,11 +263,6 @@ void AudioLayer::setAudioInput(const QStringList &audioInput)
     this->m_audioInput = audioInput;
     this->m_sourceMutex.unlock();
     emit this->audioInputChanged(audioInput);
-
-    QSettings config;
-    config.beginGroup("AudioConfigs");
-    config.setValue("audioInput", audioInput);
-    config.endGroup();
 }
 
 void AudioLayer::setAudioOutput(const QString &audioOutput)
@@ -288,11 +273,6 @@ void AudioLayer::setAudioOutput(const QString &audioOutput)
         this->m_audioOut->setProperty("device", audioOutput);
         this->m_audioOut->setState(state);
     }
-
-    QSettings config;
-    config.beginGroup("AudioConfigs");
-    config.setValue("audioOutput", audioOutput);
-    config.endGroup();
 }
 
 void AudioLayer::setInputCaps(const AkCaps &inputCaps)
@@ -478,4 +458,46 @@ void AudioLayer::updateOutputState()
     AkElement::ElementState state = this->outputState();
     this->setOutputState(AkElement::ElementStateNull);
     this->setOutputState(state);
+}
+
+void AudioLayer::loadProperties()
+{
+    QSettings config;
+    config.beginGroup("AudioConfigs");
+    QString confInput = config.value("audioInput").toString();
+
+    if (this->inputs().contains(confInput))
+        this->setAudioInput({confInput});
+
+    QString confOutput = config.value("audioOutput").toString();
+
+    if (this->outputs().contains(confOutput))
+        this->setAudioOutput(confOutput);
+
+    config.endGroup();
+}
+
+void AudioLayer::saveAudioInput(const QStringList &audioInput)
+{
+    QSettings config;
+    config.beginGroup("AudioConfigs");
+    config.setValue("audioInput", audioInput);
+    config.endGroup();
+}
+
+void AudioLayer::saveAudioOutput(const QString &audioOutput)
+{
+    QSettings config;
+    config.beginGroup("AudioConfigs");
+    config.setValue("audioOutput", audioOutput);
+    config.endGroup();
+}
+
+void AudioLayer::saveProperties()
+{
+    QSettings config;
+    config.beginGroup("AudioConfigs");
+    config.setValue("audioInput", this->audioInput().value(0));
+    config.setValue("audioOutput", this->audioOutput());
+    config.endGroup();
 }

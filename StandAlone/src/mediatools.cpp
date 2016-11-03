@@ -35,15 +35,16 @@ Q_GLOBAL_STATIC(QDir, applicationDir)
 
 MediaTools::MediaTools(QQmlApplicationEngine *engine,
                        AudioLayer *audioLayer,
+                       VideoEffects *videoEffects,
                        QObject *parent):
     QObject(parent)
 {
     this->m_appEngine = engine;
     this->m_audioLayer = audioLayer;
+    this->m_videoEffects = videoEffects;
     this->m_recording = false;
     this->m_windowWidth = 0;
     this->m_windowHeight = 0;
-    this->m_advancedMode = false;
     this->m_enableVirtualCamera = false;
     this->m_playOnStart = false;
     this->m_vcamLinked = false;
@@ -80,16 +81,6 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine,
 
         QMetaObject::invokeMethod(this->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->m_videoMux),
-                                  Q_ARG(QString, "videoMux"));
-
-        QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->m_videoOutput),
-                                  Q_ARG(QString, "videoOutput"));
-
-        QMetaObject::invokeMethod(this->m_pipeline.data(),
-                                  "element",
                                   Q_RETURN_ARG(AkElementPtr, this->m_videoGen),
                                   Q_ARG(QString, "videoGen"));
 
@@ -98,8 +89,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine,
                                   Q_RETURN_ARG(AkElementPtr, this->m_virtualCamera),
                                   Q_ARG(QString, "virtualCamera"));
 
-        if (this->m_videoOutput)
-            this->m_videoOutput->link(this);
+        QObject::connect(this->m_videoEffects,
+                         SIGNAL(oStream(const AkPacket &)),
+                         this,
+                         SLOT(iStream(const AkPacket &)),
+                         Qt::DirectConnection);
 
         if (this->m_source) {
             QObject::connect(this->m_source.data(),
@@ -115,6 +109,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine,
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_audioLayer,
                              SLOT(setOutputState(AkElement::ElementState)));
+            this->m_source->link(this->m_videoEffects, Qt::DirectConnection);
+            QObject::connect(this->m_source.data(),
+                             SIGNAL(stateChanged(AkElement::ElementState)),
+                             this->m_videoEffects,
+                             SLOT(setState(AkElement::ElementState)));
         }
 
         if (this->m_videoCapture) {
@@ -135,6 +134,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine,
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_audioLayer,
                              SLOT(setOutputState(AkElement::ElementState)));
+            this->m_videoCapture->link(this->m_videoEffects, Qt::DirectConnection);
+            QObject::connect(this->m_videoCapture.data(),
+                             SIGNAL(stateChanged(AkElement::ElementState)),
+                             this->m_videoEffects,
+                             SLOT(setState(AkElement::ElementState)));
         }
 
         if (this->m_desktopCapture) {
@@ -151,6 +155,11 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine,
                              SIGNAL(stateChanged(AkElement::ElementState)),
                              this->m_audioLayer,
                              SLOT(setOutputState(AkElement::ElementState)));
+            this->m_desktopCapture->link(this->m_videoEffects, Qt::DirectConnection);
+            QObject::connect(this->m_desktopCapture.data(),
+                             SIGNAL(stateChanged(AkElement::ElementState)),
+                             this->m_videoEffects,
+                             SLOT(setState(AkElement::ElementState)));
         }
 
         if (this->m_record) {
@@ -164,8 +173,23 @@ MediaTools::MediaTools(QQmlApplicationEngine *engine,
                              SLOT(setInputState(AkElement::ElementState)));
         }
 
-        if (this->m_virtualCamera)
+        if (this->m_videoGen) {
+            QObject::connect(this->m_videoEffects,
+                             SIGNAL(oStream(const AkPacket &)),
+                             this->m_videoGen.data(),
+                             SLOT(iStream(const AkPacket &)),
+                             Qt::DirectConnection);
+        }
+
+        if (this->m_virtualCamera) {
+            QObject::connect(this->m_videoEffects,
+                             SIGNAL(oStream(const AkPacket &)),
+                             this->m_virtualCamera.data(),
+                             SLOT(iStream(const AkPacket &)),
+                             Qt::DirectConnection);
+
             this->m_vcamLinked = true;
+        }
 
         QObject::connect(this,
                          &MediaTools::stateChanged,
@@ -194,18 +218,8 @@ MediaTools::~MediaTools()
 
 void MediaTools::iStream(const AkPacket &packet)
 {
-    if (packet.caps().mimeType() != "video/x-raw")
-        return;
-
-    if (!this->sender())
-        return;
-
-    QString sender = this->sender()->objectName();
-
-    if (sender == "videoOutput") {
-        this->m_curPacket = packet;
-        emit this->frameReady(packet);
-    }
+    this->m_curPacket = packet;
+    emit this->frameReady(packet);
 }
 
 QString MediaTools::curStream() const
@@ -323,11 +337,6 @@ int MediaTools::windowHeight() const
     return this->m_windowHeight;
 }
 
-bool MediaTools::advancedMode() const
-{
-    return this->m_advancedMode;
-}
-
 bool MediaTools::enableVirtualCamera() const
 {
     return this->m_enableVirtualCamera;
@@ -435,169 +444,6 @@ bool MediaTools::isVideo(const QString &stream) const
     return this->m_streams.contains(stream);
 }
 
-QStringList MediaTools::availableEffects() const
-{
-    QStringList effects = AkElement::listPlugins("VideoFilter");
-
-    if (this->m_advancedMode)
-        for (const AkElementPtr &effect: this->m_effectsList) {
-            int i = effects.indexOf(effect->pluginId());
-
-            if (i < 0
-                || effect->property("preview").toBool())
-                continue;
-
-            effects.removeAt(i);
-        }
-
-    qSort(effects.begin(), effects.end(), sortByDescription);
-
-    return effects;
-}
-
-QVariantMap MediaTools::effectInfo(const QString &effectId) const
-{
-    return AkElement::pluginInfo(effectId);
-}
-
-QString MediaTools::effectDescription(const QString &effectId) const
-{
-    if (effectId.isEmpty())
-        return QString();
-
-    return AkElement::pluginInfo(effectId)["MetaData"].toMap()
-                                          ["description"].toString();
-}
-
-QStringList MediaTools::currentEffects() const
-{
-    QStringList effects;
-
-    for (const AkElementPtr &effect: this->m_effectsList)
-        if (!effect->property("preview").toBool())
-            effects << effect->pluginId();
-
-    return effects;
-}
-
-AkElementPtr MediaTools::appendEffect(const QString &effectId, bool preview)
-{
-    int i = this->m_effectsList.size() - 1;
-    AkElementPtr effect = AkElement::create(effectId);
-
-    if (!effect)
-        return AkElementPtr();
-
-    if (preview)
-        effect->setProperty("preview", preview);
-
-    this->m_effectsList << effect;
-    AkElementPtr source = this->sourceElement();
-    bool playing = this->isPlaying();
-
-    if (playing)
-        source->setState(AkElement::ElementStatePaused);
-
-    if (i < 0) {
-        if (this->m_videoMux) {
-            this->m_videoMux->unlink(this->m_videoOutput);
-            this->m_videoMux->link(effect, Qt::DirectConnection);
-        }
-    } else {
-        this->m_effectsList[i]->unlink(this->m_videoOutput);
-        this->m_effectsList[i]->link(effect, Qt::DirectConnection);
-    }
-
-    effect->link(this->m_videoOutput, Qt::DirectConnection);
-
-    if (playing)
-        source->setState(AkElement::ElementStatePlaying);
-
-    if (!preview)
-        emit this->currentEffectsChanged();
-
-    return effect;
-}
-
-void MediaTools::removeEffect(const QString &effectId)
-{
-    AkElementPtr source = this->sourceElement();
-    bool playing = this->isPlaying();
-
-    if (playing)
-        source->setState(AkElement::ElementStatePaused);
-
-    for (int i = 0; i < this->m_effectsList.size(); i++)
-        if (this->m_effectsList[i]->pluginId() == effectId) {
-            if (i == 0) {
-                if (this->m_effectsList.size() == 1) {
-                    if (this->m_videoMux)
-                        this->m_videoMux->link(this->m_videoOutput, Qt::DirectConnection);
-                }
-                else
-                    this->m_videoMux->link(this->m_effectsList[i + 1], Qt::DirectConnection);
-            } else if (i == this->m_effectsList.size() - 1)
-                this->m_effectsList[i - 1]->link(this->m_videoOutput, Qt::DirectConnection);
-            else
-                this->m_effectsList[i - 1]->link(this->m_effectsList[i + 1], Qt::DirectConnection);
-
-            bool isPreview = this->m_effectsList[i]->property("preview").toBool();
-            this->m_effectsList.removeAt(i);
-
-            if (!isPreview)
-                emit this->currentEffectsChanged();
-
-            break;
-        }
-
-    if (playing)
-        source->setState(AkElement::ElementStatePlaying);
-}
-
-void MediaTools::moveEffect(const QString &effectId, int index)
-{
-    for (int i = 0; i < this->m_effectsList.size(); i++)
-        if (this->m_effectsList[i]->pluginId() == effectId) {
-            AkElementPtr effect = this->m_effectsList.takeAt(i);
-            this->m_effectsList.insert(index, effect);
-
-            break;
-        }
-
-    emit this->currentEffectsChanged();
-}
-
-void MediaTools::showPreview(const QString &effectId)
-{
-    this->removePreview();
-    this->appendEffect(effectId, true);
-}
-
-void MediaTools::setAsPreview(const QString &effectId, bool preview)
-{
-    for (int i = 0; i < this->m_effectsList.size(); i++)
-        if (this->m_effectsList[i]->pluginId() == effectId) {
-            this->m_effectsList[i]->setProperty("preview", preview);
-
-            if (!preview)
-                emit this->currentEffectsChanged();
-
-            break;
-        }
-}
-
-void MediaTools::removePreview(const QString &effectId)
-{
-    QList<AkElementPtr> effectsList = this->m_effectsList;
-
-    for (const AkElementPtr &effect: effectsList)
-        if (effect->property("preview").toBool()
-            && (effectId.isEmpty()
-                || effect->pluginId() == effectId)) {
-            this->removeEffect(effect->pluginId());
-        }
-}
-
 bool MediaTools::isPlaying()
 {
     if (this->m_source
@@ -703,28 +549,6 @@ QString MediaTools::readFile(const QString &fileName) const
 QString MediaTools::urlToLocalFile(const QUrl &url) const
 {
     return url.toLocalFile();
-}
-
-bool MediaTools::embedEffectControls(const QString &where,
-                                     const QString &effectId,
-                                     const QString &name) const
-{
-    for (int i = 0; i < this->m_effectsList.size(); i++)
-        if (this->m_effectsList[i]->pluginId() == effectId) {
-            QObject *interface =
-                    this->m_effectsList[i]->controlInterface(this->m_appEngine,
-                                                             effectId);
-
-            if (!interface)
-                return false;
-
-            if (!name.isEmpty())
-                interface->setObjectName(name);
-
-            return this->embedInterface(this->m_appEngine, interface, where);
-        }
-
-    return false;
 }
 
 bool MediaTools::embedMediaControls(const QString &where,
@@ -872,18 +696,6 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
     return false;
 }
 
-bool MediaTools::sortByDescription(const QString &pluginId1,
-                                   const QString &pluginId2)
-{
-    QString desc1 = AkElement::pluginInfo(pluginId1)["MetaData"].toMap()
-                                                    ["description"].toString();
-
-    QString desc2 = AkElement::pluginInfo(pluginId2)["MetaData"].toMap()
-                                                    ["description"].toString();
-
-    return desc1 < desc2;
-}
-
 void MediaTools::setCurRecordingFormat(const QString &curRecordingFormat)
 {
     if (this->m_record)
@@ -948,12 +760,19 @@ bool MediaTools::start()
     // Prevents self blocking.
     if (this->m_curStream == this->m_virtualCamera->property("media").toString()) {
         if (this->m_vcamLinked) {
-            this->m_videoOutput->unlink(this->m_virtualCamera);
+            QObject::disconnect(this->m_videoEffects,
+                                SIGNAL(oStream(const AkPacket &)),
+                                this->m_virtualCamera.data(),
+                                SLOT(iStream(const AkPacket &)));
             this->m_vcamLinked = false;
         }
     } else {
         if (!this->m_vcamLinked) {
-            this->m_videoOutput->link(this->m_virtualCamera);
+            QObject::connect(this->m_videoEffects,
+                             SIGNAL(oStream(const AkPacket &)),
+                             this->m_virtualCamera.data(),
+                             SLOT(iStream(const AkPacket &)),
+                             Qt::DirectConnection);
             this->m_vcamLinked = true;
         }
     }
@@ -1176,15 +995,6 @@ void MediaTools::setWindowHeight(int windowHeight)
     emit this->windowHeightChanged(windowHeight);
 }
 
-void MediaTools::setAdvancedMode(bool advancedMode)
-{
-    if (this->m_advancedMode == advancedMode)
-        return;
-
-    this->m_advancedMode = advancedMode;
-    emit this->advancedModeChanged(advancedMode);
-}
-
 void MediaTools::setEnableVirtualCamera(bool enableVirtualCamera)
 {
     if (this->m_enableVirtualCamera == enableVirtualCamera)
@@ -1228,11 +1038,6 @@ void MediaTools::resetWindowHeight()
     this->setWindowHeight(0);
 }
 
-void MediaTools::resetAdvancedMode()
-{
-    this->setAdvancedMode(false);
-}
-
 void MediaTools::resetEnableVirtualCamera()
 {
     this->setEnableVirtualCamera(false);
@@ -1241,34 +1046,6 @@ void MediaTools::resetEnableVirtualCamera()
 void MediaTools::resetPlayOnStart()
 {
     this->setPlayOnStart(false);
-}
-
-void MediaTools::resetEffects()
-{
-    if (this->m_effectsList.isEmpty())
-        return;
-
-    AkElementPtr source = this->sourceElement();
-    bool playing = this->isPlaying();
-
-    if (playing)
-        source->setState(AkElement::ElementStatePaused);
-
-    if (this->m_videoMux)
-        this->m_videoMux->unlink(this->m_effectsList.first());
-
-    if (this->m_videoOutput)
-        this->m_effectsList.last()->unlink(this->m_videoOutput);
-
-    if (this->m_videoMux
-        && this->m_videoOutput)
-        this->m_videoMux->link(this->m_videoOutput, Qt::DirectConnection);
-
-    if (playing)
-        source->setState(AkElement::ElementStatePlaying);
-
-    this->m_effectsList.clear();
-    emit this->currentEffectsChanged();
 }
 
 void MediaTools::loadConfigs()
@@ -1280,8 +1057,6 @@ void MediaTools::loadConfigs()
     config.endGroup();
 
     config.beginGroup("GeneralConfigs");
-
-    this->setAdvancedMode(config.value("advancedMode", false).toBool());
     this->setPlayOnStart(config.value("playOnStart", false).toBool());
 
     QSize windowSize = config.value("windowSize", QSize(1024, 600)).toSize();
@@ -1299,37 +1074,8 @@ void MediaTools::loadConfigs()
 
     config.endGroup();
 
-    config.beginGroup("Effects");
-    int size = config.beginReadArray("effects");
-    QStringList effects;
-
-    for (int i = 0; i < size; i++) {
-        config.setArrayIndex(i);
-        effects << config.value("effect").toString();
-
-        if (!this->m_advancedMode)
-            break;
-    }
-
-    config.endArray();
-    config.endGroup();
-
-    for (const QString &effectId: effects) {
-        AkElementPtr effect = this->appendEffect(effectId);
-
-        if (!effect)
-            continue;
-
-        config.beginGroup("Effects_" + effectId);
-
-        for (const QString &key: config.allKeys())
-            effect->setProperty(key.toStdString().c_str(), config.value(key));
-
-        config.endGroup();
-    }
-
     config.beginGroup("CustomStreams");
-    size = config.beginReadArray("streams");
+    int size = config.beginReadArray("streams");
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
@@ -1364,7 +1110,6 @@ void MediaTools::saveConfigs()
 
     config.beginGroup("GeneralConfigs");
 
-    config.setValue("advancedMode", this->advancedMode());
     config.setValue("playOnStart", this->playOnStart());
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
@@ -1377,38 +1122,6 @@ void MediaTools::saveConfigs()
 #endif
 
     config.endGroup();
-
-    config.beginGroup("Effects");
-    config.beginWriteArray("effects");
-
-    int ei = 0;
-
-    for (const AkElementPtr &effect: this->m_effectsList)
-        if (!effect->property("preview").toBool()) {
-            config.setArrayIndex(ei);
-            config.setValue("effect", effect->pluginId());
-            ei++;
-        }
-
-    config.endArray();
-    config.endGroup();
-
-    for (const AkElementPtr &effect: this->m_effectsList) {
-        config.beginGroup("Effects_" + effect->pluginId());
-
-        for (int property = 0;
-             property < effect->metaObject()->propertyCount();
-             property++) {
-            QMetaProperty metaProperty = effect->metaObject()->property(property);
-
-            if (metaProperty.isWritable()) {
-                const char *propertyName = metaProperty.name();
-                config.setValue(propertyName, effect->property(propertyName));
-            }
-        }
-
-        config.endGroup();
-    }
 
     config.beginGroup("CustomStreams");
     config.beginWriteArray("streams");

@@ -29,6 +29,7 @@
 #include <akutils.h>
 
 #include "audiolayer.h"
+#include "videoeffects.h"
 
 class MediaTools: public QObject
 {
@@ -64,19 +65,11 @@ class MediaTools: public QObject
                WRITE setWindowHeight
                RESET resetWindowHeight
                NOTIFY windowHeightChanged)
-    Q_PROPERTY(bool advancedMode
-               READ advancedMode
-               WRITE setAdvancedMode
-               RESET resetAdvancedMode
-               NOTIFY advancedModeChanged)
     Q_PROPERTY(bool enableVirtualCamera
                READ enableVirtualCamera
                WRITE setEnableVirtualCamera
                RESET resetEnableVirtualCamera
                NOTIFY enableVirtualCameraChanged)
-    Q_PROPERTY(QStringList currentEffects
-               READ currentEffects
-               NOTIFY currentEffectsChanged)
     Q_PROPERTY(bool isPlaying
                READ isPlaying
                NOTIFY isPlayingChanged)
@@ -92,6 +85,7 @@ class MediaTools: public QObject
     public:
         explicit MediaTools(QQmlApplicationEngine *engine=NULL,
                             AudioLayer *audioLayer=NULL,
+                            VideoEffects *videoEffects=NULL,
                             QObject *parent=NULL);
         ~MediaTools();
 
@@ -104,7 +98,6 @@ class MediaTools: public QObject
         Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
-        Q_INVOKABLE bool advancedMode() const;
         Q_INVOKABLE bool enableVirtualCamera() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
@@ -118,16 +111,6 @@ class MediaTools: public QObject
         Q_INVOKABLE bool isCamera(const QString &stream) const;
         Q_INVOKABLE bool isDesktop(const QString &stream) const;
         Q_INVOKABLE bool isVideo(const QString &stream) const;
-        Q_INVOKABLE QStringList availableEffects() const;
-        Q_INVOKABLE QVariantMap effectInfo(const QString &effectId) const;
-        Q_INVOKABLE QString effectDescription(const QString &effectId) const;
-        Q_INVOKABLE QStringList currentEffects() const;
-        Q_INVOKABLE AkElementPtr appendEffect(const QString &effectId, bool preview=false);
-        Q_INVOKABLE void removeEffect(const QString &effectId);
-        Q_INVOKABLE void moveEffect(const QString &effectId, int index);
-        Q_INVOKABLE void showPreview(const QString &effectId);
-        Q_INVOKABLE void setAsPreview(const QString &effectId, bool preview=false);
-        Q_INVOKABLE void removePreview(const QString &effectId="");
         Q_INVOKABLE bool isPlaying();
         Q_INVOKABLE QStringList webcams();
         Q_INVOKABLE bool playOnStart() const;
@@ -142,9 +125,6 @@ class MediaTools: public QObject
                                            const QString &filters="") const;
         Q_INVOKABLE QString readFile(const QString &fileName) const;
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
-        Q_INVOKABLE bool embedEffectControls(const QString &where,
-                                             const QString &effectId,
-                                             const QString &name="") const;
         Q_INVOKABLE bool embedMediaControls(const QString &where,
                                             const QString &stream="",
                                             const QString &name="") const;
@@ -155,19 +135,18 @@ class MediaTools: public QObject
                                                     const QString &name="") const;
         Q_INVOKABLE void removeInterface(const QString &where,
                                          QQmlApplicationEngine *engine=NULL) const;
-
         static void setApplicationDir(const QString &path);
         static QString convertToAbsolute(const QString &path);
 
     private:
         QQmlApplicationEngine *m_appEngine;
         AudioLayer *m_audioLayer;
+        VideoEffects *m_videoEffects;
         QString m_curStream;
         QMap<QString, QString> m_streams;
         bool m_recording;
         int m_windowWidth;
         int m_windowHeight;
-        bool m_advancedMode;
         bool m_enableVirtualCamera;
         bool m_playOnStart;
 
@@ -176,11 +155,8 @@ class MediaTools: public QObject
         AkElementPtr m_record;
         AkElementPtr m_videoCapture;
         AkElementPtr m_desktopCapture;
-        AkElementPtr m_videoMux;
-        AkElementPtr m_videoOutput;
         AkElementPtr m_videoGen;
         AkElementPtr m_virtualCamera;
-        QList<AkElementPtr> m_effectsList;
         QMutex m_mutex;
         AkPacket m_curPacket;
         QImage m_photo;
@@ -190,23 +166,17 @@ class MediaTools: public QObject
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *interface,
                             const QString &where) const;
-        static bool sortByDescription(const QString &pluginId1,
-                                      const QString &pluginId2);
 
     signals:
         void curStreamChanged(const QString &curStream);
         void streamsChanged();
-        void playAudioFromSourceChanged(bool playAudioFromSource);
-        void recordAudioFromChanged(const QString &recordAudioFrom);
         void curRecordingFormatChanged(const QString &curRecordingFormat);
         void recordingChanged(bool recording);
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
         void stateChanged(AkElement::ElementState state);
-        void advancedModeChanged(bool advancedMode);
         void enableVirtualCameraChanged(bool enableVirtualCamera);
         void playOnStartChanged(bool playOnStart);
-        void currentEffectsChanged();
         void isPlayingChanged();
         void frameReady(const AkPacket &frame);
         void error(const QString &message);
@@ -228,7 +198,6 @@ class MediaTools: public QObject
         void setRecording(bool recording);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
-        void setAdvancedMode(bool advancedMode);
         void setEnableVirtualCamera(bool enableVirtualCamera);
         void setPlayOnStart(bool playOnStart);
         void resetCurStream();
@@ -236,10 +205,8 @@ class MediaTools: public QObject
         void resetRecording();
         void resetWindowWidth();
         void resetWindowHeight();
-        void resetAdvancedMode();
         void resetEnableVirtualCamera();
         void resetPlayOnStart();
-        void resetEffects();
         void loadConfigs();
         void saveConfigs();
         void setStream(const QString &stream, const QString &description);
