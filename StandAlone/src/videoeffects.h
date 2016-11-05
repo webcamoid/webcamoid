@@ -81,7 +81,7 @@ class VideoEffects: public QObject
         void advancedModeChanged(bool advancedMode);
 
     public slots:
-        void setEffects(const QStringList &effects);
+        void setEffects(const QStringList &effects, bool emitSignal=true);
         void setState(AkElement::ElementState state);
         void setAdvancedMode(bool advancedMode);
         void resetEffects();

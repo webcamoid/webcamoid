@@ -265,6 +265,7 @@ ApplicationWindow {
                     visible: false
                     anchors.fill: parent
                     onCurEffectChanged: effectConfig.curEffect = curEffect
+                    onCurEffectIndexChanged: effectConfig.curEffectIndex = curEffectIndex
                 }
                 RecordBar {
                     id: recordBar
@@ -324,7 +325,8 @@ ApplicationWindow {
                 EffectConfig {
                     id: effectConfig
                     curEffect: effectBar.curEffect
-                    inUse: !effectBar.editMode
+                    curEffectIndex: effectBar.curEffectIndex
+                    editMode: !effectBar.editMode
                     visible: false
                     anchors.fill: parent
                 }

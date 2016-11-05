@@ -25,32 +25,56 @@ ColumnLayout {
     id: recEffectConfig
 
     property string curEffect: ""
+    property int curEffectIndex: -1
     property bool inUse: false
+    property bool editMode: false
     property bool advancedMode: VideoEffects.advancedMode
 
     signal effectAdded(string effectId)
 
+    function showDefaultEffect()
+    {
+        var currentEffects = VideoEffects.effects
+
+        if (currentEffects.length > 0) {
+            VideoEffects.removeInterface("itmEffectControls")
+            VideoEffects.embedControls("itmEffectControls", 0)
+            curEffect = currentEffects[0]
+            curEffectIndex = 0
+            inUse = true
+        } else {
+            curEffect = ""
+            curEffectIndex = -1
+            inUse = false
+        }
+    }
+
     Connections {
         target: Webcamoid
 
-        onInterfaceLoaded: {
-            var currentEffects = VideoEffects.effects
+        onInterfaceLoaded: showDefaultEffect()
+    }
+    Connections {
+        target: VideoEffects
 
-            if (currentEffects.length > 0) {
-                VideoEffects.removeInterface("itmEffectControls")
-                VideoEffects.embedControls("itmEffectControls", 0)
-            }
-        }
+        onEffectsChanged: showDefaultEffect()
     }
 
     onCurEffectChanged: {
         VideoEffects.removeInterface("itmEffectControls")
-        var effectIndex = VideoEffects.effects.indexOf(curEffect)
 
-        if (effectIndex < 0)
-            effectIndex = VideoEffects.effects.length
+        recEffectConfig.curEffect = curEffect
+        recEffectConfig.curEffectIndex = VideoEffects.effects.indexOf(curEffect)
+        recEffectConfig.inUse = recEffectConfig.curEffectIndex >= 0
 
-        VideoEffects.embedControls("itmEffectControls", effectIndex)
+        if (curEffect.length > 0) {
+            var effectIndex = recEffectConfig.curEffectIndex
+
+            if (effectIndex < 0)
+                effectIndex = VideoEffects.effects.length
+
+            VideoEffects.embedControls("itmEffectControls", effectIndex)
+        }
     }
 
     Label {
@@ -94,7 +118,7 @@ ColumnLayout {
             text: inUse? qsTr("Remove"): qsTr("Add")
             iconName: inUse? "remove": "add"
             iconSource: inUse? "image://icons/remove":
-                               "image://icons/add"
+                                  "image://icons/add"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {

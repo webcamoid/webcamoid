@@ -189,7 +189,7 @@ void VideoEffects::removeInterface(const QString &where) const
     }
 }
 
-void VideoEffects::setEffects(const QStringList &effects)
+void VideoEffects::setEffects(const QStringList &effects, bool emitSignal)
 {
     if (this->m_effectsId == effects)
         return;
@@ -229,7 +229,9 @@ void VideoEffects::setEffects(const QStringList &effects)
 
     this->m_mutex.unlock();
     this->setState(state);
-    emit this->effectsChanged(curEffects);
+
+    if (emitSignal)
+        emit this->effectsChanged(curEffects);
 }
 
 void VideoEffects::setState(AkElement::ElementState state)
@@ -508,7 +510,6 @@ void VideoEffects::advancedModeUpdated(bool advancedMode)
         return;
 
     auto effect = this->m_effects.last();
-    auto hasPreview = effect->property("preview").toBool();
     effect->setProperty("preview", QVariant());
 
     auto state = this->state();
@@ -522,9 +523,7 @@ void VideoEffects::advancedModeUpdated(bool advancedMode)
     this->m_mutex.unlock();
 
     this->setState(state);
-
-    if (hasPreview)
-        emit this->effectsChanged(this->m_effectsId);
+    emit this->effectsChanged(this->m_effectsId);
 }
 
 void VideoEffects::loadProperties()
@@ -545,7 +544,7 @@ void VideoEffects::loadProperties()
     config.endArray();
     config.endGroup();
 
-    this->setEffects(effects);
+    this->setEffects(effects, false);
 
     for (AkElementPtr &effect: this->m_effects) {
         config.beginGroup("VideoEffects_" + effect->pluginId());

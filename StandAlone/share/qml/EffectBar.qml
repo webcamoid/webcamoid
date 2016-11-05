@@ -28,6 +28,7 @@ Rectangle {
     height: 400
 
     property string curEffect: ""
+    property int curEffectIndex: -1
     property bool editMode: false
     property bool advancedMode: VideoEffects.advancedMode
     property bool lock: false
@@ -54,10 +55,10 @@ Rectangle {
 
     function updateEffectList() {
         var effects = VideoEffects.availableEffects
-
         var curEffects = VideoEffects.effects
-        var option = lsvEffectList.model.get(lsvEffectList.currentIndex)
-        var curEffect = option? option.effect: curEffects.length > 0? curEffects[0]: ""
+        var curEffect = curEffects.length > 0?
+                    curEffects[curEffects.length - 1]: advancedMode?
+                        effects[0]: ""
         var currentIndex = -1
         lsvEffectList.model.clear()
 
@@ -71,7 +72,7 @@ Rectangle {
         }
 
         lsvEffectList.currentIndex = currentIndex >= 0 || !advancedMode?
-                                     currentIndex: 0
+                                     currentIndex: -1
     }
 
     onEditModeChanged: {
@@ -90,6 +91,7 @@ Rectangle {
 
     Connections {
         target: VideoEffects
+
         onEffectsChanged: {
             if (lock)
                 return
@@ -97,6 +99,10 @@ Rectangle {
             recEffectBar.updateAppliedEffectList()
             recEffectBar.updateEffectList()
             recEffectBar.editMode = false
+        }
+        onAdvancedModeChanged: {
+            updateAppliedEffectList()
+            updateEffectList()
         }
     }
 
@@ -189,6 +195,7 @@ Rectangle {
                 lsvEffectList.currentIndex = -1
                 VideoEffects.effects = []
                 recEffectBar.curEffect = ""
+                recEffectBar.curEffectIndex = -1
             }
         }
     }
@@ -206,12 +213,14 @@ Rectangle {
         onCurrentIndexChanged: {
             var option = model.get(currentIndex)
             recEffectBar.curEffect = option? option.effect: ""
+            recEffectBar.curEffectIndex = currentIndex
             txtSearchEffect.text = ""
         }
         onVisibleChanged: {
             if (visible) {
                 var option = model.get(currentIndex)
                 recEffectBar.curEffect = option? option.effect: ""
+                recEffectBar.curEffectIndex = currentIndex
                 txtSearchEffect.text = ""
             }
         }
@@ -234,8 +243,8 @@ Rectangle {
                 var effect = option? option.effect: ""
                 VideoEffects.showPreview(effect)
                 recEffectBar.curEffect = effect
-            }
-            else
+                recEffectBar.curEffectIndex = 0
+            } else
                 VideoEffects.removeAllPreviews()
         }
 
@@ -263,6 +272,10 @@ Rectangle {
                 }
 
                 recEffectBar.curEffect = effect
+
+                if (!advancedMode)
+                    recEffectBar.curEffectIndex = 0
+
                 txtSearchEffect.text = ""
                 recEffectBar.lock = false
             }
