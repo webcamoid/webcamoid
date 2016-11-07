@@ -198,7 +198,7 @@
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/Qt/labs/controls/designer/ButtonSection.qml" line="106"/>
         <source>Repeat</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ripetere</translation>
     </message>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/Qt/labs/controls/designer/ButtonSection.qml" line="107"/>
