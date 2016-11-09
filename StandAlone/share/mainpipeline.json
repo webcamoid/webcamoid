@@ -1,36 +1,31 @@
 [
     [
         {
-            "pluginId": "MultiSrc",
+            "pluginId": "VideoCapture",
             "properties": {
-                "objectName": "source",
-                "loop": true,
-                "audioAlign": true
-            },
-            "connections": [
-                ["", "stateChanged", "videoMux", "setState"]
-            ]
-        },
-        "DirectConnection",
-        {
-            "pluginId": "Multiplex",
-            "properties": {
-                "objectName": "videoMux",
-                "caps": "video/x-raw",
-                "outputIndex": 0
-            }
-        },
-        {
-            "pluginId": "Probe",
-            "properties": {
-                "objectName": "videoOutput"
+                "objectName": "videoCapture"
             }
         }
     ],
     [
         {
-            "alias": "videoOutput"
-        },
+            "pluginId": "DesktopCapture",
+            "properties": {
+                "objectName": "desktopCapture"
+            }
+        }
+    ],
+    [
+        {
+            "pluginId": "MultiSrc",
+            "properties": {
+                "objectName": "source",
+                "loop": true,
+                "audioAlign": true
+            }
+        }
+    ],
+    [
         {
             "pluginId": "RtPts",
             "properties": {
@@ -49,40 +44,6 @@
         }
     ],
     [
-        {
-            "pluginId": "VideoCapture",
-            "properties": {
-                "objectName": "videoCapture"
-            },
-            "connections": [
-                ["", "stateChanged", "videoMux", "setState"]
-            ]
-        },
-        "DirectConnection",
-        {
-            "alias": "videoMux"
-        }
-    ],
-    [
-        {
-            "pluginId": "DesktopCapture",
-            "properties": {
-                "objectName": "desktopCapture"
-            },
-            "connections": [
-                ["", "stateChanged", "videoMux", "setState"]
-            ]
-        },
-        "DirectConnection",
-        {
-            "alias": "videoMux"
-        }
-    ],
-    [
-        {
-            "alias": "videoOutput"
-        },
-        "DirectConnection",
         {
             "pluginId": "VirtualCamera",
             "properties": {

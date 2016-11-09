@@ -30,9 +30,9 @@ ColumnLayout {
     }
     CheckBox {
         text: qsTr("Enable advanced effects mode")
-        checked: Webcamoid.advancedMode
+        checked: VideoEffects.advancedMode
 
-        onCheckedChanged: Webcamoid.advancedMode = checked
+        onCheckedChanged: VideoEffects.advancedMode = checked
     }
     Label {
         Layout.fillHeight: true

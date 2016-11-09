@@ -27,6 +27,7 @@
 #include <QDir>
 
 #include "audiolayer.h"
+#include "videoeffects.h"
 #include "mediatools.h"
 #include "videodisplay.h"
 #include "iconsprovider.h"
@@ -202,7 +203,8 @@ int main(int argc, char *argv[])
     engine.addImageProvider(QLatin1String("icons"), new IconsProvider);
     Ak::setQmlEngine(&engine);
     AudioLayer audioLayer(&engine);
-    MediaTools mediaTools(&engine, &audioLayer);
+    VideoEffects videoEffects(&engine);
+    MediaTools mediaTools(&engine, &audioLayer, &videoEffects);
 
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
