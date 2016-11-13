@@ -54,7 +54,6 @@ VirtualCameraElement::VirtualCameraElement():
     AkElement()
 {
     this->m_streamIndex = -1;
-    this->m_isRunning = false;
 
     QObject::connect(&this->m_cameraOut,
                      &CameraOut::driverPathChanged,
@@ -245,38 +244,6 @@ bool VirtualCameraElement::removeAllWebcams(const QString &password) const
     return this->m_cameraOut.removeAllWebcams(password);
 }
 
-void VirtualCameraElement::stateChange(AkElement::ElementState from,
-                                       AkElement::ElementState to)
-{
-    this->m_mutex.lock();
-
-    if (from == AkElement::ElementStateNull
-        && to == AkElement::ElementStatePaused) {
-        QString device = this->m_cameraOut.device();
-
-        if (device.isEmpty()) {
-            QStringList webcams = this->m_cameraOut.webcams();
-
-            if (webcams.isEmpty()) {
-                this->m_mutex.unlock();
-
-                return;
-            }
-
-            this->m_cameraOut.setDevice(webcams.at(0));
-        }
-
-        this->m_isRunning = this->m_cameraOut.init(this->m_streamIndex,
-                                                   this->m_streamCaps);
-    } else if (from == AkElement::ElementStatePaused
-               && to == AkElement::ElementStateNull) {
-        this->m_isRunning = false;
-        this->m_cameraOut.uninit();
-    }
-
-    this->m_mutex.unlock();
-}
-
 QImage VirtualCameraElement::swapChannels(const QImage &image) const
 {
     QImage swapped(image.size(), image.format());
@@ -354,11 +321,89 @@ void VirtualCameraElement::clearStreams()
     this->m_streamCaps = AkCaps();
 }
 
+bool VirtualCameraElement::setState(AkElement::ElementState state)
+{
+    AkElement::ElementState curState = this->state();
+
+    switch (curState) {
+    case AkElement::ElementStateNull: {
+        switch (state) {
+        case AkElement::ElementStatePaused:
+        case AkElement::ElementStatePlaying: {
+            this->m_mutex.lock();
+            QString device = this->m_cameraOut.device();
+
+            if (device.isEmpty()) {
+                QStringList webcams = this->m_cameraOut.webcams();
+
+                if (webcams.isEmpty()) {
+                    this->m_mutex.unlock();
+
+                    return false;
+                }
+
+                this->m_cameraOut.setDevice(webcams.at(0));
+            }
+
+            if (!this->m_cameraOut.init(this->m_streamIndex,
+                                        this->m_streamCaps)) {
+                this->m_mutex.unlock();
+
+                return false;
+            }
+
+            this->m_mutex.unlock();
+
+            return AkElement::setState(state);
+        }
+        case AkElement::ElementStateNull:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePaused: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            this->m_mutex.lock();
+            this->m_cameraOut.uninit();
+            this->m_mutex.unlock();
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            return AkElement::setState(state);
+        case AkElement::ElementStatePaused:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePlaying: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            this->m_mutex.lock();
+            this->m_cameraOut.uninit();
+            this->m_mutex.unlock();
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePaused:
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            break;
+        }
+
+        break;
+    }
+    }
+
+    return false;
+}
+
 AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 {
     this->m_mutex.lock();
 
-    if (this->m_isRunning) {
+    if (this->state() == AkElement::ElementStatePlaying) {
         QImage image = AkUtils::packetToImage(packet);
         image = image.convertToFormat(QImage::Format_RGB32);
         AkPacket oPacket;

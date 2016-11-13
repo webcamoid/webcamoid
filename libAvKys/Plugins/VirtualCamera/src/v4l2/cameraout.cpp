@@ -27,13 +27,16 @@
 #define ROOT_METHOD "su"
 #endif
 
+#define LOOPBACK_DEVICE "v4l2loopback"
+
 typedef QMap<CameraOut::RootMethod, QString> RootMethodMap;
 
 inline RootMethodMap initRootMethodMap()
 {
-    RootMethodMap rootMethodToStr;
-    rootMethodToStr[CameraOut::RootMethodSu] = "su";
-    rootMethodToStr[CameraOut::RootMethodSudo] = "sudo";
+    RootMethodMap rootMethodToStr = {
+        {CameraOut::RootMethodSu  , "su"  },
+        {CameraOut::RootMethodSudo, "sudo"}
+    };
 
     return rootMethodToStr;
 }
@@ -44,49 +47,49 @@ typedef QMap<AkVideoCaps::PixelFormat, quint32> V4l2PixFmtMap;
 
 inline V4l2PixFmtMap initV4l2PixFmtMap()
 {
-    V4l2PixFmtMap ffToV4L2;
+    V4l2PixFmtMap ffToV4L2 = {
+        // RGB formats
+        {AkVideoCaps::Format_rgb444le, V4L2_PIX_FMT_RGB444 },
+        {AkVideoCaps::Format_rgb555le, V4L2_PIX_FMT_RGB555 },
+        {AkVideoCaps::Format_rgb565le, V4L2_PIX_FMT_RGB565 },
+        {AkVideoCaps::Format_rgb555be, V4L2_PIX_FMT_RGB555X},
+        {AkVideoCaps::Format_rgb565be, V4L2_PIX_FMT_RGB565X},
+        {AkVideoCaps::Format_bgr24   , V4L2_PIX_FMT_BGR24  },
+        {AkVideoCaps::Format_rgb24   , V4L2_PIX_FMT_RGB24  },
+        {AkVideoCaps::Format_bgr0    , V4L2_PIX_FMT_BGR32  },
+        {AkVideoCaps::Format_0rgb    , V4L2_PIX_FMT_RGB32  },
 
-    // RGB formats
-    ffToV4L2[AkVideoCaps::Format_rgb444le] = V4L2_PIX_FMT_RGB444;
-    ffToV4L2[AkVideoCaps::Format_rgb555le] = V4L2_PIX_FMT_RGB555;
-    ffToV4L2[AkVideoCaps::Format_rgb565le] = V4L2_PIX_FMT_RGB565;
-    ffToV4L2[AkVideoCaps::Format_rgb555be] = V4L2_PIX_FMT_RGB555X;
-    ffToV4L2[AkVideoCaps::Format_rgb565be] = V4L2_PIX_FMT_RGB565X;
-    ffToV4L2[AkVideoCaps::Format_bgr24] = V4L2_PIX_FMT_BGR24;
-    ffToV4L2[AkVideoCaps::Format_rgb24] = V4L2_PIX_FMT_RGB24;
-    ffToV4L2[AkVideoCaps::Format_bgr0] = V4L2_PIX_FMT_BGR32;
-    ffToV4L2[AkVideoCaps::Format_0rgb] = V4L2_PIX_FMT_RGB32;
+        // Grey formats
+        {AkVideoCaps::Format_gray    , V4L2_PIX_FMT_GREY},
+        {AkVideoCaps::Format_gray16le, V4L2_PIX_FMT_Y16 },
 
-    // Grey formats
-    ffToV4L2[AkVideoCaps::Format_gray] = V4L2_PIX_FMT_GREY;
-    ffToV4L2[AkVideoCaps::Format_gray16le] = V4L2_PIX_FMT_Y16;
+        // Luminance+Chrominance formats
+        {AkVideoCaps::Format_yuv410p, V4L2_PIX_FMT_YVU410 },
+        {AkVideoCaps::Format_yuv420p, V4L2_PIX_FMT_YVU420 },
+        {AkVideoCaps::Format_yuyv422, V4L2_PIX_FMT_YUYV   },
+        {AkVideoCaps::Format_yuv422p, V4L2_PIX_FMT_YYUV   },
+        {AkVideoCaps::Format_uyvy422, V4L2_PIX_FMT_UYVY   },
+        {AkVideoCaps::Format_yuv422p, V4L2_PIX_FMT_VYUY   },
+        {AkVideoCaps::Format_yuv422p, V4L2_PIX_FMT_YUV422P},
+        {AkVideoCaps::Format_yuv411p, V4L2_PIX_FMT_YUV411P},
+        {AkVideoCaps::Format_yuv411p, V4L2_PIX_FMT_Y41P   },
+        {AkVideoCaps::Format_yuv410p, V4L2_PIX_FMT_YUV410 },
+        {AkVideoCaps::Format_yuv420p, V4L2_PIX_FMT_YUV420 },
 
-    // Luminance+Chrominance formats
-    ffToV4L2[AkVideoCaps::Format_yuv410p] = V4L2_PIX_FMT_YVU410;
-    ffToV4L2[AkVideoCaps::Format_yuv420p] = V4L2_PIX_FMT_YVU420;
-    ffToV4L2[AkVideoCaps::Format_yuyv422] = V4L2_PIX_FMT_YUYV;
-    ffToV4L2[AkVideoCaps::Format_yuv422p] = V4L2_PIX_FMT_YYUV;
-    ffToV4L2[AkVideoCaps::Format_uyvy422] = V4L2_PIX_FMT_UYVY;
-    ffToV4L2[AkVideoCaps::Format_yuv422p] = V4L2_PIX_FMT_VYUY;
-    ffToV4L2[AkVideoCaps::Format_yuv422p] = V4L2_PIX_FMT_YUV422P;
-    ffToV4L2[AkVideoCaps::Format_yuv411p] = V4L2_PIX_FMT_YUV411P;
-    ffToV4L2[AkVideoCaps::Format_yuv411p] = V4L2_PIX_FMT_Y41P;
-    ffToV4L2[AkVideoCaps::Format_yuv410p] = V4L2_PIX_FMT_YUV410;
-    ffToV4L2[AkVideoCaps::Format_yuv420p] = V4L2_PIX_FMT_YUV420;
+        // two planes -- one Y, one Cr + Cb interleaved
+        {AkVideoCaps::Format_nv12, V4L2_PIX_FMT_NV12},
+        {AkVideoCaps::Format_nv21, V4L2_PIX_FMT_NV21},
+        {AkVideoCaps::Format_nv16, V4L2_PIX_FMT_NV16},
 
-    // two planes -- one Y, one Cr + Cb interleaved
-    ffToV4L2[AkVideoCaps::Format_nv12] = V4L2_PIX_FMT_NV12;
-    ffToV4L2[AkVideoCaps::Format_nv21] = V4L2_PIX_FMT_NV21;
-    ffToV4L2[AkVideoCaps::Format_nv16] = V4L2_PIX_FMT_NV16;
+        // Bayer formats
+        {AkVideoCaps::Format_bayer_bggr8, V4L2_PIX_FMT_SBGGR8},
+        {AkVideoCaps::Format_bayer_gbrg8, V4L2_PIX_FMT_SGBRG8},
+        {AkVideoCaps::Format_bayer_grbg8, V4L2_PIX_FMT_SGRBG8},
+        {AkVideoCaps::Format_bayer_rggb8, V4L2_PIX_FMT_SRGGB8},
 
-    // Bayer formats
-    ffToV4L2[AkVideoCaps::Format_bayer_bggr8] = V4L2_PIX_FMT_SBGGR8;
-    ffToV4L2[AkVideoCaps::Format_bayer_gbrg8] = V4L2_PIX_FMT_SGBRG8;
-    ffToV4L2[AkVideoCaps::Format_bayer_grbg8] = V4L2_PIX_FMT_SGRBG8;
-    ffToV4L2[AkVideoCaps::Format_bayer_rggb8] = V4L2_PIX_FMT_SRGGB8;
-
-    // 10bit raw bayer, expanded to 16 bits
-    ffToV4L2[AkVideoCaps::Format_bayer_bggr16le] = V4L2_PIX_FMT_SBGGR16;
+        // 10bit raw bayer, expanded to 16 bits
+        {AkVideoCaps::Format_bayer_bggr16le, V4L2_PIX_FMT_SBGGR16}
+    };
 
     return ffToV4L2;
 }
@@ -193,6 +196,9 @@ QString CameraOut::description(const QString &webcam) const
 
 void CameraOut::writeFrame(const AkPacket &frame)
 {
+    if (this->m_fd < 0)
+        return;
+
     if (write(this->m_fd,
               frame.buffer().constData(),
               size_t(frame.buffer().size())) < 0)
@@ -217,7 +223,7 @@ int CameraOut::maxCameras() const
 
         QString module = QFileInfo(line.left(line.indexOf(':'))).baseName();
 
-        if (module == "v4l2loopback") {
+        if (module == LOOPBACK_DEVICE) {
             file.close();
 
             return MAX_CAMERAS;
@@ -275,10 +281,10 @@ QString CameraOut::createWebcam(const QString &description,
     webcamDescriptions << deviceDescription;
     webcamIds << QString("%1").arg(id);
 
-    this->sudo("rmmod", {"v4l2loopback"}, password);
+    this->rmmod(password);
 
     if (!this->sudo("modprobe",
-                    {"v4l2loopback",
+                    {LOOPBACK_DEVICE,
                      QString("video_nr=%1").arg(webcamIds.join(',')),
                      QString("card_label=%1").arg(webcamDescriptions.join(','))},
                     password))
@@ -337,10 +343,10 @@ bool CameraOut::changeDescription(const QString &webcam,
         return false;
 
     webcamDescriptions[index] = deviceDescription;
-    this->sudo("rmmod", {"v4l2loopback"}, password);
+    this->rmmod(password);
 
     if (!this->sudo("modprobe",
-                    {"v4l2loopback",
+                    {LOOPBACK_DEVICE,
                      QString("video_nr=%1").arg(webcamIds.join(',')),
                      QString("card_label=%1").arg(webcamDescriptions.join(','))},
                     password))
@@ -393,11 +399,11 @@ bool CameraOut::removeWebcam(const QString &webcam,
     webcamDescriptions.removeAt(index);
     webcamIds.removeAt(index);
 
-    this->sudo("rmmod", {"v4l2loopback"}, password);
+    this->rmmod(password);
 
     if (!webcamIds.isEmpty()) {
         if (!this->sudo("modprobe",
-                        {"v4l2loopback",
+                        {LOOPBACK_DEVICE,
                          QString("video_nr=%1").arg(webcamIds.join(',')),
                          QString("card_label=%1").arg(webcamDescriptions.join(','))},
                         password))
@@ -422,7 +428,7 @@ bool CameraOut::removeAllWebcams(const QString &password) const
     if (webcams.isEmpty())
         return false;
 
-    this->sudo("rmmod", {"v4l2loopback"}, password);
+    this->rmmod(password);
 
     QStringList curWebcams = this->webcams();
 
@@ -430,6 +436,24 @@ bool CameraOut::removeAllWebcams(const QString &password) const
         emit this->webcamsChanged(curWebcams);
 
     return true;
+}
+
+bool CameraOut::isModuleLoaded() const
+{
+    QProcess lsmod;
+    lsmod.start("lsmod");
+    lsmod.waitForFinished();
+
+    // If for whatever reason the command failed to execute, we will assume
+    // that the module is loaded.
+    if (lsmod.exitCode() != 0)
+        return true;
+
+    for (const QByteArray &line: lsmod.readAllStandardOutput().split('\n'))
+        if (line.trimmed().startsWith(LOOPBACK_DEVICE))
+            return true;
+
+    return false;
 }
 
 bool CameraOut::sudo(const QString &command,
@@ -493,8 +517,17 @@ bool CameraOut::sudo(const QString &command,
     return true;
 }
 
+void CameraOut::rmmod(const QString &password) const
+{
+    if (this->isModuleLoaded())
+        this->sudo("rmmod", {LOOPBACK_DEVICE}, password);
+}
+
 bool CameraOut::init(int streamIndex, const AkCaps &caps)
 {
+    if (!caps)
+        return false;
+
     this->m_fd = open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK);
 
     if (this->m_fd < 0) {

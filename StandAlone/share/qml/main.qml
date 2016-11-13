@@ -22,6 +22,7 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.0
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
+import AkQml 1.0
 import Webcamoid 1.0
 
 ApplicationWindow {
@@ -30,7 +31,7 @@ ApplicationWindow {
            + " "
            + Webcamoid.applicationVersion()
            + " - "
-           + Webcamoid.streamDescription(Webcamoid.curStream)
+           + MediaSource.description(MediaSource.stream)
     visible: true
     x: (Screen.desktopAvailableWidth - width) / 2
     y: (Screen.desktopAvailableHeight - height) / 2
@@ -46,18 +47,18 @@ ApplicationWindow {
     }
 
     function togglePlay() {
-        if (Webcamoid.isPlaying) {
-            Webcamoid.stopVirtualCamera();
+        if (MediaSource.state === AkElement.ElementStatePlaying) {
+            Webcamoid.virtualCameraState = AkElement.ElementStateNull;
             Webcamoid.stopRecording();
-            Webcamoid.stop();
+            MediaSource.state = AkElement.ElementStateNull;
 
             if (splitView.state == "showRecordPanels")
                 splitView.state = ""
         } else {
-            Webcamoid.start();
+            MediaSource.state = AkElement.ElementStatePlaying;
 
             if (Webcamoid.enableVirtualCamera)
-                Webcamoid.startVirtualCamera("");
+                Webcamoid.virtualCameraState = AkElement.ElementStatePlaying;
         }
     }
 
@@ -69,22 +70,27 @@ ApplicationWindow {
     onHeightChanged: Webcamoid.windowHeight = height
 
     Component.onCompleted: {
-        if (Webcamoid.playOnStart)
+        if (MediaSource.playOnStart)
             togglePlay()
     }
 
     Connections {
-        target: Webcamoid
+        target: MediaSource
+
         onStateChanged: {
-            if (Webcamoid.isPlaying) {
+            if (state === AkElement.ElementStatePlaying) {
                 itmPlayStopButton.icon = "image://icons/webcamoid-stop"
                 videoDisplay.visible = true
-            }
-            else {
+            } else {
                 itmPlayStopButton.icon = "image://icons/webcamoid-play"
                 videoDisplay.visible = false
             }
         }
+    }
+
+    Connections {
+        target: Webcamoid
+
         onRecordingChanged: recordingNotice.visible = recording
     }
 
@@ -605,7 +611,7 @@ ApplicationWindow {
                     height: iconBarRect.height
                     text: qsTr("Take a photo")
                     icon: "image://icons/webcamoid-picture"
-                    enabled: Webcamoid.isPlaying
+                    enabled: MediaSource.state === AkElement.ElementStatePlaying
 
                     onClicked: {
                         if (splitView.state == "showPhotoWidget")
@@ -619,7 +625,7 @@ ApplicationWindow {
                     height: iconBarRect.height
                     text: qsTr("Record video")
                     icon: "image://icons/webcamoid-video"
-                    enabled: Webcamoid.isPlaying
+                    enabled: MediaSource.state === AkElement.ElementStatePlaying
 
                     onClicked: {
                         if (splitView.state == "showRecordPanels")

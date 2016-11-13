@@ -634,8 +634,7 @@ void Pipeline::addLinks(const QStringList &links)
 bool Pipeline::linkAll()
 {
     for (const QStringList &link: this->m_links)
-        if (link[0] != "IN."
-            && link[1] != "OUT.") {
+        if (link[0] != "IN." && link[1] != "OUT.") {
             if (!this->m_elements.contains(link[0])) {
                 this->m_error = QString("No element named '%1'").arg(link[0]);
 

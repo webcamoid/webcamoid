@@ -68,6 +68,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
     signals:
         void fpsChanged(const AkFrac &fps);
         void sizeChanged(const QString &media, const QSize &size);
+        void error(const QString &message);
 
     public slots:
         void setFps(const AkFrac &fps);

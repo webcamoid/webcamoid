@@ -42,8 +42,7 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
         QObject::connect(this->m_videoMux.data(),
                          SIGNAL(oStream(const AkPacket &)),
                          this,
-                         SIGNAL(oStream(const AkPacket &)),
-                         Qt::DirectConnection);
+                         SIGNAL(oStream(const AkPacket &)));
     }
 
     this->m_availableEffects = AkElement::listPlugins("VideoFilter");
@@ -164,7 +163,6 @@ bool VideoEffects::embedControls(const QString &where,
     }
 
     return false;
-
 }
 
 void VideoEffects::removeInterface(const QString &where) const
@@ -493,9 +491,10 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
     this->m_mutex.lock();
 
     if (this->m_state == AkElement::ElementStatePlaying) {
-        if (this->m_effects.isEmpty())
-            (*this->m_videoMux)(packet);
-        else
+        if (this->m_effects.isEmpty()) {
+            if (this->m_videoMux)
+                (*this->m_videoMux)(packet);
+        } else
             (*this->m_effects.first())(packet);
     }
 

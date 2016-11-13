@@ -35,9 +35,14 @@ bool VideoDisplay::fillDisplay() const
     return this->m_fillDisplay;
 }
 
-QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
+QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
+                                       QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_UNUSED(updatePaintNodeData)
+
+    this->m_mutex.lock();
+    this->m_videoFrame = this->m_packet;
+    this->m_mutex.unlock();
 
     if (this->m_videoFrame.textureSize().isEmpty()) {
         if (oldNode)
@@ -69,10 +74,13 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode, QQuickItem::UpdatePaint
     return node;
 }
 
-void VideoDisplay::setFrame(const AkPacket &packet)
+void VideoDisplay::iStream(const AkPacket &packet)
 {
-    this->m_videoFrame = packet;
-    this->update();
+    this->m_mutex.lock();
+    this->m_packet = packet;
+    this->m_mutex.unlock();
+
+    QMetaObject::invokeMethod(this, "update");
 }
 
 void VideoDisplay::setFillDisplay(bool fillDisplay)

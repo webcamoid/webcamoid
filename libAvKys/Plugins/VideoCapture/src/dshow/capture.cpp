@@ -1247,12 +1247,16 @@ void Capture::setDevice(const QString &device)
         this->m_globalCameraControls.clear();
         this->m_controlsMutex.unlock();
     } else {
-        IBaseFilter *camera = this->findFilterP(device);
         this->m_controlsMutex.lock();
-        this->m_globalImageControls = this->imageControls(camera);
-        this->m_globalCameraControls = this->cameraControls(camera);
+        auto camera = this->findFilterP(device);
+
+        if (camera) {
+            this->m_globalImageControls = this->imageControls(camera);
+            this->m_globalCameraControls = this->cameraControls(camera);
+            camera->Release();
+        }
+
         this->m_controlsMutex.unlock();
-        camera->Release();
     }
 
     this->m_controlsMutex.lock();

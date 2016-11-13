@@ -20,6 +20,7 @@
 #ifndef VIDEODISPLAY_H
 #define VIDEODISPLAY_H
 
+#include <QMutex>
 #include <QQuickItem>
 #include <QSGSimpleTextureNode>
 
@@ -37,7 +38,7 @@ class VideoDisplay: public QQuickItem
                NOTIFY fillDisplayChanged)
 
     public:
-        VideoDisplay(QQuickItem *parent = NULL);
+        VideoDisplay(QQuickItem *parent=NULL);
         ~VideoDisplay();
 
         Q_INVOKABLE bool fillDisplay() const;
@@ -45,6 +46,8 @@ class VideoDisplay: public QQuickItem
     private:
         bool m_fillDisplay;
         VideoFrame m_videoFrame;
+        AkPacket m_packet;
+        QMutex m_mutex;
 
     protected:
         QSGNode *updatePaintNode(QSGNode *oldNode,
@@ -54,7 +57,7 @@ class VideoDisplay: public QQuickItem
         void fillDisplayChanged();
 
     public slots:
-        void setFrame(const AkPacket &packet);
+        void iStream(const AkPacket &packet);
         void setFillDisplay(bool fillDisplay);
         void resetFillDisplay();
 };

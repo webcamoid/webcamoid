@@ -19,6 +19,7 @@
 
 import QtQuick 2.5
 import QtQuick.Controls 1.4
+import AkQml 1.0
 
 Rectangle {
     id: recMediaBar
@@ -28,29 +29,29 @@ Rectangle {
     height: 400
 
     function updateMediaList() {
-        var curStream = Webcamoid.curStream
-        var streams = Webcamoid.streams
+        var curStream = MediaSource.stream
+        var streams = MediaSource.streams
         lsvMediaList.model.clear()
 
         if (streams.length > 0)
-            Webcamoid.curStream = streams.indexOf(curStream) < 0?
+            MediaSource.stream = streams.indexOf(curStream) < 0?
                         streams[0]: curStream
         else
-            Webcamoid.curStream = ""
+            MediaSource.stream = ""
 
         for (var stream in streams) {
             lsvMediaList.model.append({
                 stream: streams[stream],
-                description: Webcamoid.streamDescription(streams[stream])})
+                description: MediaSource.description(streams[stream])})
         }
 
-        lsvMediaList.currentIndex = streams.indexOf(Webcamoid.curStream)
+        lsvMediaList.currentIndex = streams.indexOf(MediaSource.stream)
     }
 
     Component.onCompleted: recMediaBar.updateMediaList()
 
     Connections {
-        target: Webcamoid
+        target: MediaSource
 
         onStreamsChanged: recMediaBar.updateMediaList()
     }
@@ -61,7 +62,7 @@ Rectangle {
         text: qsTr("No webcams found")
         verticalAlignment: Text.AlignVCenter
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: Webcamoid.webcams.length < 1
+        visible: MediaSource.cameras.length < 1
         enabled: false
     }
     OptionList {
@@ -74,12 +75,12 @@ Rectangle {
 
         onCurrentIndexChanged: {
             var option = model.get(currentIndex)
-            var playing = Webcamoid.isPlaying
-            Webcamoid.stop()
-            Webcamoid.curStream = option? option.stream: ""
+            var playing = MediaSource.state === AkElement.ElementStatePlaying
+            MediaSource.state = AkElement.ElementStateNull
+            MediaSource.stream = option? option.stream: ""
 
             if (playing)
-                Webcamoid.start()
+                MediaSource.state = AkElement.ElementStatePlaying
         }
     }
 

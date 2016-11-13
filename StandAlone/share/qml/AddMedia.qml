@@ -34,9 +34,9 @@ ApplicationWindow {
 
     function defaultDescription(url)
     {
-        return Webcamoid.streams.indexOf(url) < 0?
+        return MediaSource.streams.indexOf(url) < 0?
                     Webcamoid.fileNameFromUri(url):
-                    Webcamoid.streamDescription(url)
+                    MediaSource.description(url)
     }
 
     SystemPalette {
@@ -48,9 +48,9 @@ ApplicationWindow {
             return
 
         txtDescription.text = recAddMedia.editMode?
-                    Webcamoid.streamDescription(Webcamoid.curStream): ""
+                    MediaSource.description(MediaSource.stream): ""
         txtMedia.text = recAddMedia.editMode?
-                    Webcamoid.curStream: ""
+                    MediaSource.stream: ""
     }
 
     ColumnLayout {
@@ -70,7 +70,7 @@ ApplicationWindow {
         TextField {
             id: txtDescription
             placeholderText: qsTr("Insert media description")
-            text: recAddMedia.editMode? Webcamoid.streamDescription(Webcamoid.curStream): ""
+            text: recAddMedia.editMode? MediaSource.description(MediaSource.stream): ""
             Layout.fillWidth: true
         }
 
@@ -85,7 +85,7 @@ ApplicationWindow {
             TextField {
                 id: txtMedia
                 placeholderText: qsTr("Select media file")
-                text: recAddMedia.editMode? Webcamoid.curStream: ""
+                text: recAddMedia.editMode? MediaSource.stream: ""
                 Layout.fillWidth: true
             }
 
@@ -119,15 +119,18 @@ ApplicationWindow {
 
                 onClicked: {
                     if (txtMedia.text.length > 0) {
+                        var uris = MediaSource.uris;
+
                         if (recAddMedia.editMode
-                            && Webcamoid.curStream !== txtMedia.text.toString())
-                            Webcamoid.removeStream(Webcamoid.curStream)
+                            && MediaSource.stream !== txtMedia.text.toString())
+                            delete uris[MediaSource.stream];
 
                         if (txtDescription.text.length < 1)
-                            txtDescription.text = recAddMedia.defaultDescription(txtMedia.text)
+                            txtDescription.text = recAddMedia.defaultDescription(txtMedia.text);
 
-                        Webcamoid.setStream(txtMedia.text, txtDescription.text)
-                        Webcamoid.curStream = txtMedia.text
+                        uris[txtMedia.text] = txtDescription.text;
+                        MediaSource.uris = uris;
+                        MediaSource.stream = txtMedia.text;
                     }
 
                     recAddMedia.visible = false

@@ -32,7 +32,7 @@ VideoFrame::~VideoFrame()
     if (this->m_textureId < 1)
         return;
 
-    QGLContext *context = const_cast<QGLContext *>(QGLContext::currentContext());
+    auto context = const_cast<QGLContext *>(QGLContext::currentContext());
 
     if (!context)
         return;
@@ -42,7 +42,7 @@ VideoFrame::~VideoFrame()
 
 VideoFrame &VideoFrame::operator =(const AkPacket &packet)
 {
-    QImage image = AkUtils::packetToImage(packet);
+    auto image = AkUtils::packetToImage(packet);
 
     if (!image.isNull())
         this->m_image = image.convertToFormat(QImage::Format_ARGB32).mirrored();
@@ -55,7 +55,7 @@ void VideoFrame::bind()
     if (this->m_image.isNull())
         return;
 
-    QGLContext *context = const_cast<QGLContext *>(QGLContext::currentContext());
+    auto context = const_cast<QGLContext *>(QGLContext::currentContext());
 
     if (!context)
         return;

@@ -165,9 +165,9 @@ void BinElement::connectOutputs()
 
     for (const AkElementPtr &element: this->m_outputs) {
         QObject::connect(element.data(),
-                         &AkElement::oStream,
+                         SIGNAL(oStream(const AkPacket &)),
                          this,
-                         &BinElement::oStream,
+                         SIGNAL(oStream(const AkPacket &)),
                          connectionTypes[i]);
 
         i++;

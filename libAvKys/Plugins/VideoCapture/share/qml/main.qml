@@ -105,12 +105,12 @@ GridLayout {
 
     function updateStreams()
     {
-        VideoCapture.streams = [indexOf({fourcc: cbxFormat.model[cbxFormat.currentIndex < 0?
-                                                                 0: cbxFormat.currentIndex].value,
-                                         size: cbxResolution.model[cbxResolution.currentIndex < 0?
-                                                                 0: cbxResolution.currentIndex].value,
-                                         fps: cbxFps.model[cbxFps.currentIndex < 0?
-                                                                 0: cbxFps.currentIndex].value})]
+        VideoCapture.streams = [indexOf({fourcc: cbxFormat.model[cbxFormat.currentIndex]?
+                                                 cbxFormat.model[cbxFormat.currentIndex].value: "",
+                                         size: cbxResolution.model[cbxResolution.currentIndex]?
+                                               cbxResolution.model[cbxResolution.currentIndex].value: Qt.size(-1, -1),
+                                         fps: cbxFps.model[cbxFps.currentIndex]?
+                                              cbxFps.model[cbxFps.currentIndex].value: Ak.newFrac()})]
     }
 
     function controlsUpdated(controls)
@@ -131,6 +131,11 @@ GridLayout {
         var minimumLeftWidth = lblFormat.width
         var minimumRightWidth = btnReset.width
 
+        // Remove old controls.
+        for(var i = where.children.length - 1; i >= 0 ; i--)
+            where.children[i].destroy()
+
+        // Create new ones.
         for (var control in controls) {
             var component = Qt.createComponent("CameraControl.qml")
 
@@ -185,34 +190,37 @@ GridLayout {
         caps = rawCaps
     }
 
+    function updateParams(streams)
+    {
+        if (streams.length > 0) {
+            var videoCaps = recCameraControls.caps[streams[0] < 0? 0: streams[0]]
+
+            if (typeof videoCaps == "undefined")
+                return
+
+            cbxFormat.currentIndex = indexBy(cbxFormat.model,
+                                             videoCaps.fourcc)
+            cbxResolution.currentIndex = indexBy(cbxResolution.model,
+                                                 Qt.size(videoCaps.width,
+                                                         videoCaps.height))
+            cbxFps.currentIndex = indexBy(cbxFps.model,
+                                          videoCaps.fps)
+        } else {
+            cbxFormat.currentIndex = -1
+            cbxResolution.currentIndex = -1
+            cbxFps.currentIndex = -1
+        }
+    }
+
     Component.onCompleted: createInterface()
 
     Connections {
-        id: conVideoCapture
         target: VideoCapture
 
         onImageControlsChanged: controlsUpdated(imageControls)
         onCameraControlsChanged: controlsUpdated(cameraControls)
-        onStreamsChanged: {
-            if (streams.length > 0) {
-                var videoCaps = recCameraControls.caps[streams[0] < 0? 0: streams[0]]
-
-                if (typeof videoCaps == "undefined")
-                    return
-
-                cbxFormat.currentIndex = indexBy(cbxFormat.model,
-                                                 videoCaps.fourcc)
-                cbxResolution.currentIndex = indexBy(cbxResolution.model,
-                                                     Qt.size(videoCaps.width,
-                                                             videoCaps.height))
-                cbxFps.currentIndex = indexBy(cbxFps.model,
-                                              videoCaps.fps)
-            } else {
-                cbxFormat.currentIndex = -1
-                cbxResolution.currentIndex = -1
-                cbxFps.currentIndex = -1
-            }
-        }
+        onMediaChanged: createInterface()
+        onStreamsChanged: updateParams(streams)
     }
 
     Label {

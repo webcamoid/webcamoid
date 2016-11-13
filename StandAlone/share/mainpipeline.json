@@ -1,32 +1,6 @@
 [
     [
         {
-            "pluginId": "VideoCapture",
-            "properties": {
-                "objectName": "videoCapture"
-            }
-        }
-    ],
-    [
-        {
-            "pluginId": "DesktopCapture",
-            "properties": {
-                "objectName": "desktopCapture"
-            }
-        }
-    ],
-    [
-        {
-            "pluginId": "MultiSrc",
-            "properties": {
-                "objectName": "source",
-                "loop": true,
-                "audioAlign": true
-            }
-        }
-    ],
-    [
-        {
             "pluginId": "RtPts",
             "properties": {
                 "objectName": "videoGen"

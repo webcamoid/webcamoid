@@ -24,9 +24,9 @@ import QtQuick.Layouts 1.1
 ColumnLayout {
     CheckBox {
         text: qsTr("Play webcam on start")
-        checked: Webcamoid.playOnStart
+        checked: MediaSource.playOnStart
 
-        onCheckedChanged: Webcamoid.playOnStart = checked
+        onCheckedChanged: MediaSource.playOnStart = checked
     }
     CheckBox {
         text: qsTr("Enable advanced effects mode")

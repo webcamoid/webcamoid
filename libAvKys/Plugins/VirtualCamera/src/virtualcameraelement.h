@@ -108,17 +108,12 @@ class VirtualCameraElement: public AkElement
                                       const QString &password="") const;
         Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
 
-    protected:
-        void stateChange(AkElement::ElementState from,
-                         AkElement::ElementState to);
-
     private:
         CameraOut m_cameraOut;
         ConvertVideo m_convertVideo;
         int m_streamIndex;
         AkCaps m_streamCaps;
         QMutex m_mutex;
-        bool m_isRunning;
 
         QImage swapChannels(const QImage &image) const;
 
@@ -143,6 +138,7 @@ class VirtualCameraElement: public AkElement
         void resetRootMethod();
         void clearStreams();
 
+        bool setState(AkElement::ElementState state);
         AkPacket iStream(const AkPacket &packet);
 };
 

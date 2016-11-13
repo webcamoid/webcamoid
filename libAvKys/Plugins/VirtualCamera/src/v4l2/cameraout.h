@@ -122,9 +122,11 @@ class CameraOut: public QObject
             return r;
         }
 
+        bool isModuleLoaded() const;
         bool sudo(const QString &command,
                   const QStringList &argumments,
                   const QString &password) const;
+        void rmmod(const QString &password) const;
 
     signals:
         void driverPathChanged(const QString &driverPath);

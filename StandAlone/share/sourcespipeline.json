@@ -1,0 +1,40 @@
+[
+    [
+        {
+            "pluginId": "VideoCapture",
+            "properties": {
+                "objectName": "cameraCapture"
+            }
+        },
+        "DirectConnection",
+        {
+            "alias": "OUT"
+        }
+    ],
+    [
+        {
+            "pluginId": "DesktopCapture",
+            "properties": {
+                "objectName": "desktopCapture"
+            }
+        },
+        "DirectConnection",
+        {
+            "alias": "OUT"
+        }
+    ],
+    [
+        {
+            "pluginId": "MultiSrc",
+            "properties": {
+                "objectName": "uriCapture",
+                "loop": true,
+                "audioAlign": true
+            }
+        },
+        "DirectConnection",
+        {
+            "alias": "OUT"
+        }
+    ]
+]

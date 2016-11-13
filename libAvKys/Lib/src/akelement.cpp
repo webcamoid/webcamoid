@@ -134,20 +134,7 @@ QObject *AkElement::controlInterface(QQmlEngine *engine,
 bool AkElement::link(const QObject *dstElement,
                      Qt::ConnectionType connectionType) const
 {
-    if (!dstElement)
-        return false;
-
-    QList<QMetaMethod> signalList = AkElementPrivate::methodsByName(this, "oStream");
-    QList<QMetaMethod> slotList = AkElementPrivate::methodsByName(dstElement, "iStream");
-
-    for (const QMetaMethod &signal: signalList)
-        for (const QMetaMethod &slot: slotList)
-            if (AkElementPrivate::methodCompat(signal, slot) &&
-                signal.methodType() == QMetaMethod::Signal &&
-                slot.methodType() == QMetaMethod::Slot)
-                QObject::connect(this, signal, dstElement, slot, connectionType);
-
-    return true;
+    return this->link(this, dstElement, connectionType);
 }
 
 bool AkElement::link(const AkElementPtr &dstElement, Qt::ConnectionType connectionType) const
@@ -157,17 +144,7 @@ bool AkElement::link(const AkElementPtr &dstElement, Qt::ConnectionType connecti
 
 bool AkElement::unlink(const QObject *dstElement) const
 {
-    if (!dstElement)
-        return false;
-
-    for (const QMetaMethod &signal: AkElementPrivate::methodsByName(this, "oStream"))
-        for (const QMetaMethod &slot: AkElementPrivate::methodsByName(dstElement, "iStream"))
-            if (AkElementPrivate::methodCompat(signal, slot) &&
-                signal.methodType() == QMetaMethod::Signal &&
-                slot.methodType() == QMetaMethod::Slot)
-                QObject::disconnect(this, signal, dstElement, slot);
-
-    return true;
+    return this->unlink(this, dstElement);
 }
 
 bool AkElement::unlink(const AkElementPtr &dstElement) const
@@ -189,6 +166,26 @@ bool AkElement::link(const AkElementPtr &srcElement,
     return srcElement->link(dstElement, connectionType);
 }
 
+bool AkElement::link(const QObject *srcElement,
+                     const QObject *dstElement,
+                     Qt::ConnectionType connectionType)
+{
+    if (!srcElement || !dstElement)
+        return false;
+
+    QList<QMetaMethod> signalList = AkElementPrivate::methodsByName(srcElement, "oStream");
+    QList<QMetaMethod> slotList = AkElementPrivate::methodsByName(dstElement, "iStream");
+
+    for (const QMetaMethod &signal: signalList)
+        for (const QMetaMethod &slot: slotList)
+            if (AkElementPrivate::methodCompat(signal, slot) &&
+                signal.methodType() == QMetaMethod::Signal &&
+                slot.methodType() == QMetaMethod::Slot)
+                QObject::connect(srcElement, signal, dstElement, slot, connectionType);
+
+    return true;
+}
+
 bool AkElement::unlink(const AkElementPtr &srcElement,
                        const QObject *dstElement)
 {
@@ -199,6 +196,21 @@ bool AkElement::unlink(const AkElementPtr &srcElement,
                        const AkElementPtr &dstElement)
 {
     return srcElement->unlink(dstElement);
+}
+
+bool AkElement::unlink(const QObject *srcElement, const QObject *dstElement)
+{
+    if (!srcElement || !dstElement)
+        return false;
+
+    for (const QMetaMethod &signal: AkElementPrivate::methodsByName(srcElement, "oStream"))
+        for (const QMetaMethod &slot: AkElementPrivate::methodsByName(dstElement, "iStream"))
+            if (AkElementPrivate::methodCompat(signal, slot) &&
+                signal.methodType() == QMetaMethod::Signal &&
+                slot.methodType() == QMetaMethod::Slot)
+                QObject::disconnect(srcElement, signal, dstElement, slot);
+
+    return true;
 }
 
 AkElementPtr AkElement::create(const QString &pluginId,

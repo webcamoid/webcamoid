@@ -90,10 +90,15 @@ class AkElement: public QObject
         Q_INVOKABLE static bool link(const AkElementPtr &srcElement,
                                      const AkElementPtr &dstElement,
                                      Qt::ConnectionType connectionType=Qt::AutoConnection);
+        Q_INVOKABLE static bool link(const QObject *srcElement,
+                                     const QObject *dstElement,
+                                     Qt::ConnectionType connectionType=Qt::AutoConnection);
         Q_INVOKABLE static bool unlink(const AkElementPtr &srcElement,
                                        const QObject *dstElement);
         Q_INVOKABLE static bool unlink(const AkElementPtr &srcElement,
                                        const AkElementPtr &dstElement);
+        Q_INVOKABLE static bool unlink(const QObject *srcElement,
+                                       const QObject *dstElement);
         Q_INVOKABLE static AkElementPtr create(const QString &pluginId,
                                                const QString &elementName="");
         Q_INVOKABLE static bool recursiveSearch();

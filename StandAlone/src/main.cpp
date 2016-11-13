@@ -26,8 +26,6 @@
 #include <QSettings>
 #include <QDir>
 
-#include "audiolayer.h"
-#include "videoeffects.h"
 #include "mediatools.h"
 #include "videodisplay.h"
 #include "iconsprovider.h"
@@ -137,13 +135,12 @@ int main(int argc, char *argv[])
         AkElement::setRecursiveSearch(config.value("recursive").toBool());
 
     // Set alternative paths to search for plugins.
-    QStringList searchPaths = AkElement::searchPaths();
+    auto searchPaths = AkElement::searchPaths();
 
     if (cliOptions.isSet(pluginPathsOpt)) {
-        QStringList pluginPaths = cliOptions.value(pluginPathsOpt)
-                                             .split(';');
+        auto pluginPaths = cliOptions.value(pluginPathsOpt).split(';');
 
-        for (QString path: pluginPaths) {
+        for (QString &path: pluginPaths) {
 #ifdef Q_OS_WIN32
             path = MediaTools::convertToAbsolute(path);
 #endif
@@ -159,7 +156,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < size; i++) {
             config.setArrayIndex(i);
-            QString path = config.value("path").toString();
+            auto path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
             path = MediaTools::convertToAbsolute(path);
@@ -202,9 +199,13 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.addImageProvider(QLatin1String("icons"), new IconsProvider);
     Ak::setQmlEngine(&engine);
+    MediaSource mediaSource(&engine);
     AudioLayer audioLayer(&engine);
     VideoEffects videoEffects(&engine);
-    MediaTools mediaTools(&engine, &audioLayer, &videoEffects);
+    MediaTools mediaTools(&engine,
+                          &mediaSource,
+                          &audioLayer,
+                          &videoEffects);
 
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
@@ -216,16 +217,12 @@ int main(int argc, char *argv[])
 
     for (const QObject *obj: engine.rootObjects()) {
         // First, find where to enbed the UI.
-        VideoDisplay *videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
+        auto videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 
         if (!videoDisplay)
             continue;
 
-        QObject::connect(&mediaTools,
-                         &MediaTools::frameReady,
-                         videoDisplay,
-                         &VideoDisplay::setFrame);
-
+        AkElement::link(&videoEffects, videoDisplay, Qt::DirectConnection);
         break;
     }
 

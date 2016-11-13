@@ -26,6 +26,7 @@ void AkQmlPlugin::registerTypes(const char *uri)
 {
     // @uri AkQml
     qmlRegisterSingletonType<AkQml>(uri, 1, 0, "Ak", &AkQmlPlugin::akProvider);
+    qmlRegisterType<AkElement>(uri, 1, 0, "AkElement");
 }
 
 QObject *AkQmlPlugin::akProvider(QQmlEngine *qmlEngine, QJSEngine *jsEngine)

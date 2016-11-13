@@ -45,6 +45,9 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
     format = AkVideoCaps::pixelFormatToString(oVideoCaps.format());
     AVPixelFormat oFormat = av_get_pix_fmt(format.toStdString().c_str());
 
+    if (oFormat == AV_PIX_FMT_NONE)
+        return AkPacket();
+
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
                                                 videoPacket.caps().width(),

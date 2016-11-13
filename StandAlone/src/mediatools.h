@@ -28,21 +28,13 @@
 #include <ak.h>
 #include <akutils.h>
 
+#include "mediasource.h"
 #include "audiolayer.h"
 #include "videoeffects.h"
 
 class MediaTools: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString curStream
-               READ curStream
-               WRITE setCurStream
-               RESET resetCurStream
-               NOTIFY curStreamChanged)
-    Q_PROPERTY(QStringList streams
-               READ streams
-               RESET resetStreams
-               NOTIFY streamsChanged)
     Q_PROPERTY(QString curRecordingFormat
                READ curRecordingFormat
                WRITE setCurRecordingFormat
@@ -70,35 +62,29 @@ class MediaTools: public QObject
                WRITE setEnableVirtualCamera
                RESET resetEnableVirtualCamera
                NOTIFY enableVirtualCameraChanged)
-    Q_PROPERTY(bool isPlaying
-               READ isPlaying
-               NOTIFY isPlayingChanged)
-    Q_PROPERTY(QStringList webcams
-               READ webcams
-               NOTIFY streamsChanged)
-    Q_PROPERTY(bool playOnStart
-               READ playOnStart
-               WRITE setPlayOnStart
-               RESET resetPlayOnStart
-               NOTIFY playOnStartChanged)
+    Q_PROPERTY(AkElement::ElementState virtualCameraState
+               READ virtualCameraState
+               WRITE setVirtualCameraState
+               RESET resetVirtualCameraState
+               NOTIFY virtualCameraStateChanged)
 
     public:
         explicit MediaTools(QQmlApplicationEngine *engine=NULL,
+                            MediaSource *mediaSource=NULL,
                             AudioLayer *audioLayer=NULL,
                             VideoEffects *videoEffects=NULL,
                             QObject *parent=NULL);
         ~MediaTools();
 
-        Q_INVOKABLE QString curStream() const;
         Q_INVOKABLE QString curRecordingFormat() const;
         Q_INVOKABLE bool recording() const;
         Q_INVOKABLE QStringList recordingFormats() const;
         Q_INVOKABLE QString recordingFormatDescription(const QString &formatId) const;
         Q_INVOKABLE QStringList recordingFormatSuffix(const QString &formatId) const;
-        Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
         Q_INVOKABLE bool enableVirtualCamera() const;
+        Q_INVOKABLE AkElement::ElementState virtualCameraState() const;
         Q_INVOKABLE QString applicationName() const;
         Q_INVOKABLE QString applicationVersion() const;
         Q_INVOKABLE QString qtVersion() const;
@@ -106,14 +92,6 @@ class MediaTools: public QObject
         Q_INVOKABLE QString copyrightNotice() const;
         Q_INVOKABLE QString projectUrl() const;
         Q_INVOKABLE QString projectLicenseUrl() const;
-        Q_INVOKABLE QString streamDescription(const QString &stream) const;
-        Q_INVOKABLE bool canModify(const QString &stream) const;
-        Q_INVOKABLE bool isCamera(const QString &stream) const;
-        Q_INVOKABLE bool isDesktop(const QString &stream) const;
-        Q_INVOKABLE bool isVideo(const QString &stream) const;
-        Q_INVOKABLE bool isPlaying();
-        Q_INVOKABLE QStringList webcams();
-        Q_INVOKABLE bool playOnStart() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
@@ -125,9 +103,6 @@ class MediaTools: public QObject
                                            const QString &filters="") const;
         Q_INVOKABLE QString readFile(const QString &fileName) const;
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
-        Q_INVOKABLE bool embedMediaControls(const QString &where,
-                                            const QString &stream="",
-                                            const QString &name="") const;
         Q_INVOKABLE bool embedRecordControls(const QString &where,
                                              const QString &format="",
                                              const QString &name="") const;
@@ -140,85 +115,61 @@ class MediaTools: public QObject
 
     private:
         QQmlApplicationEngine *m_appEngine;
+        MediaSource *m_mediaSource;
         AudioLayer *m_audioLayer;
         VideoEffects *m_videoEffects;
-        QString m_curStream;
-        QMap<QString, QString> m_streams;
         bool m_recording;
         int m_windowWidth;
         int m_windowHeight;
         bool m_enableVirtualCamera;
-        bool m_playOnStart;
 
         AkElementPtr m_pipeline;
-        AkElementPtr m_source;
-        AkElementPtr m_record;
-        AkElementPtr m_videoCapture;
-        AkElementPtr m_desktopCapture;
         AkElementPtr m_videoGen;
+        AkElementPtr m_record;
         AkElementPtr m_virtualCamera;
         QMutex m_mutex;
         AkPacket m_curPacket;
         QImage m_photo;
-        bool m_vcamLinked;
 
-        AkElementPtr sourceElement() const;
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *interface,
                             const QString &where) const;
 
     signals:
-        void curStreamChanged(const QString &curStream);
-        void streamsChanged();
         void curRecordingFormatChanged(const QString &curRecordingFormat);
         void recordingChanged(bool recording);
         void windowWidthChanged(int windowWidth);
         void windowHeightChanged(int windowHeight);
-        void stateChanged(AkElement::ElementState state);
         void enableVirtualCameraChanged(bool enableVirtualCamera);
-        void playOnStartChanged(bool playOnStart);
-        void isPlayingChanged();
-        void frameReady(const AkPacket &frame);
+        void virtualCameraStateChanged(AkElement::ElementState virtualCameraState);
         void error(const QString &message);
         void interfaceLoaded();
 
     public slots:
-        void mutexLock();
-        void mutexUnlock();
         void takePhoto();
         void savePhoto(const QString &fileName);
-        bool start();
-        void stop();
         bool startRecording(const QString &fileName);
         void stopRecording();
-        bool startVirtualCamera(const QString &fileName);
-        void stopVirtualCamera();
-        void setCurStream(const QString &stream);
         void setCurRecordingFormat(const QString &curRecordingFormat);
         void setRecording(bool recording);
         void setWindowWidth(int windowWidth);
         void setWindowHeight(int windowHeight);
         void setEnableVirtualCamera(bool enableVirtualCamera);
-        void setPlayOnStart(bool playOnStart);
-        void resetCurStream();
+        void setVirtualCameraState(AkElement::ElementState virtualCameraState);
         void resetCurRecordingFormat();
         void resetRecording();
         void resetWindowWidth();
         void resetWindowHeight();
         void resetEnableVirtualCamera();
-        void resetPlayOnStart();
+        void resetVirtualCameraState();
         void loadConfigs();
         void saveConfigs();
-        void setStream(const QString &stream, const QString &description);
-        void removeStream(const QString &stream);
-        void resetStreams();
-        void cleanAll();
 
     private slots:
         void iStream(const AkPacket &packet);
-        void webcamsChanged(const QStringList &webcams);
         void updateRecordingParams();
-        void updateAudioParams();
+        void updateVCamCaps(const AkCaps &videoCaps);
+        void updateVCamState();
 };
 
 #endif // MEDIATOOLS_H
