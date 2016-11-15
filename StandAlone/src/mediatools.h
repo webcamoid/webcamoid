@@ -28,9 +28,15 @@
 #include <ak.h>
 #include <akutils.h>
 
+#include "pluginconfigs.h"
 #include "mediasource.h"
 #include "audiolayer.h"
 #include "videoeffects.h"
+
+typedef QSharedPointer<PluginConfigs> PluginConfigsPtr;
+typedef QSharedPointer<MediaSource> MediaSourcePtr;
+typedef QSharedPointer<AudioLayer> AudioLayerPtr;
+typedef QSharedPointer<VideoEffects> VideoEffectsPtr;
 
 class MediaTools: public QObject
 {
@@ -69,11 +75,7 @@ class MediaTools: public QObject
                NOTIFY virtualCameraStateChanged)
 
     public:
-        explicit MediaTools(QQmlApplicationEngine *engine=NULL,
-                            MediaSource *mediaSource=NULL,
-                            AudioLayer *audioLayer=NULL,
-                            VideoEffects *videoEffects=NULL,
-                            QObject *parent=NULL);
+        explicit MediaTools(QObject *parent=NULL);
         ~MediaTools();
 
         Q_INVOKABLE QString curRecordingFormat() const;
@@ -105,19 +107,19 @@ class MediaTools: public QObject
         Q_INVOKABLE QString urlToLocalFile(const QUrl &url) const;
         Q_INVOKABLE bool embedRecordControls(const QString &where,
                                              const QString &format="",
-                                             const QString &name="") const;
+                                             const QString &name="");
         Q_INVOKABLE bool embedVirtualCameraControls(const QString &where,
-                                                    const QString &name="") const;
+                                                    const QString &name="");
         Q_INVOKABLE void removeInterface(const QString &where,
-                                         QQmlApplicationEngine *engine=NULL) const;
-        static void setApplicationDir(const QString &path);
+                                         QQmlApplicationEngine *engine=NULL);
         static QString convertToAbsolute(const QString &path);
 
     private:
-        QQmlApplicationEngine *m_appEngine;
-        MediaSource *m_mediaSource;
-        AudioLayer *m_audioLayer;
-        VideoEffects *m_videoEffects;
+        QQmlApplicationEngine m_engine;
+        PluginConfigsPtr m_pluginConfigs;
+        MediaSourcePtr m_mediaSource;
+        AudioLayerPtr m_audioLayer;
+        VideoEffectsPtr m_videoEffects;
         bool m_recording;
         int m_windowWidth;
         int m_windowHeight;
@@ -164,6 +166,7 @@ class MediaTools: public QObject
         void resetVirtualCameraState();
         void loadConfigs();
         void saveConfigs();
+        void show();
 
     private slots:
         void iStream(const AkPacket &packet);

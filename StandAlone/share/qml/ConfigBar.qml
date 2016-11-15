@@ -47,6 +47,10 @@ Rectangle {
                 option: "general"
                 description: qsTr("General Options")
             }
+            ListElement {
+                option: "plugins"
+                description: qsTr("Plugins Configs")
+            }
         }
 
         onCurrentIndexChanged: recConfigBar.option = lstConfigs.get(optConfigs.currentIndex).option

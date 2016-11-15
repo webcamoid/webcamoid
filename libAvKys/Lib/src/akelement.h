@@ -112,6 +112,8 @@ class AkElement: public QObject
         Q_INVOKABLE static QStringList listPluginPaths();
         Q_INVOKABLE static QStringList pluginsCache();
         Q_INVOKABLE static void setPluginsCache(const QStringList &paths);
+        Q_INVOKABLE static QStringList pluginsBlackList();
+        Q_INVOKABLE static void setPluginsBlackList(const QStringList &blackList);
         Q_INVOKABLE static QString pluginPath(const QString &pluginId);
         Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
         Q_INVOKABLE static void clearCache();

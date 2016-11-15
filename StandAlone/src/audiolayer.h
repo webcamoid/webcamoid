@@ -135,6 +135,7 @@ class AudioLayer: public QObject
         void resetInputState();
         void resetOutputState();
         AkPacket iStream(const AkPacket &packet);
+        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
 
     private slots:
         void privInputsChanged(const QStringList &inputs);

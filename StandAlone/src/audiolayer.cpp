@@ -29,13 +29,11 @@
 
 AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent),
-    m_engine(engine)
+    m_engine(nullptr)
 {
     this->m_inputState = AkElement::ElementStateNull;
+    this->setQmlEngine(engine);
     this->m_pipeline = AkElement::create("Bin", "pipeline");
-
-    if (engine)
-        engine->rootContext()->setContextProperty("AudioLayer", this);
 
     if (!this->m_pipeline)
         return;
@@ -410,6 +408,17 @@ AkPacket AudioLayer::iStream(const AkPacket &packet)
     this->m_sourceMutex.unlock();
 
     return AkPacket();
+}
+
+void AudioLayer::setQmlEngine(QQmlApplicationEngine *engine)
+{
+    if (this->m_engine == engine)
+        return;
+
+    this->m_engine = engine;
+
+    if (engine)
+        engine->rootContext()->setContextProperty("AudioLayer", this);
 }
 
 void AudioLayer::privInputsChanged(const QStringList &inputs)

@@ -94,6 +94,7 @@ class VideoEffects: public QObject
         void removeEffect(int index);
         void removeAllPreviews();
         AkPacket iStream(const AkPacket &packet);
+        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
 
     private slots:
         void advancedModeUpdated(bool advancedMode);

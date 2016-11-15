@@ -289,7 +289,8 @@ ApplicationWindow {
 
                         var options = {
                             "output": "OutputConfig.qml",
-                            "general": "GeneralConfig.qml"
+                            "general": "GeneralConfig.qml",
+                            "plugins": "PluginConfig.qml"
                         }
 
                         if (options[option]) {

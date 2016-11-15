@@ -26,14 +26,12 @@
 
 MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent),
-    m_engine(engine)
+    m_engine(nullptr)
 {
     this->m_inputState = AkElement::ElementStateNull;
-    this->m_pipeline = AkElement::create("Bin", "pipeline");
     this->m_playOnStart = false;
-
-    if (engine)
-        engine->rootContext()->setContextProperty("MediaSource", this);
+    this->setQmlEngine(engine);
+    this->m_pipeline = AkElement::create("Bin", "pipeline");
 
     if (!this->m_pipeline)
         return;
@@ -377,6 +375,17 @@ void MediaSource::resetState()
 void MediaSource::resetPlayOnStart()
 {
     this->setPlayOnStart(false);
+}
+
+void MediaSource::setQmlEngine(QQmlApplicationEngine *engine)
+{
+    if (this->m_engine == engine)
+        return;
+
+    this->m_engine = engine;
+
+    if (engine)
+        engine->rootContext()->setContextProperty("MediaSource", this);
 }
 
 void MediaSource::streamUpdated(const QString &stream)

@@ -32,11 +32,12 @@ class AkElementPrivate
 {
     public:
         QString m_pluginId;
-        AkElement::ElementState m_state;
         QStringList m_pluginsSearchPaths;
-        bool m_recursiveSearchPaths;
         QStringList m_pluginsCache;
+        QStringList m_pluginsBlackList;
         QDir m_applicationDir;
+        AkElement::ElementState m_state;
+        bool m_recursiveSearchPaths;
 
         AkElementPrivate()
         {
@@ -371,6 +372,9 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
     while (!searchPaths.isEmpty()) {
         QString path = searchPaths.takeFirst();
 
+        if (akElementGlobalStuff->m_pluginsBlackList.contains(path))
+            continue;
+
         if (QFileInfo(path).isFile()) {
             QString fileName = QFileInfo(path).fileName();
 
@@ -396,6 +400,10 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
                     QString pluginPath = QString("%1%2%3").arg(path)
                                                           .arg(QDir::separator())
                                                           .arg(file);
+
+                    if (akElementGlobalStuff->m_pluginsBlackList.contains(pluginPath))
+                        continue;
+
                     QPluginLoader pluginLoader(pluginPath);
 
                     if (pluginLoader.load()) {
@@ -449,6 +457,16 @@ QStringList AkElement::pluginsCache()
 void AkElement::setPluginsCache(const QStringList &paths)
 {
     akElementGlobalStuff->m_pluginsCache = paths;
+}
+
+QStringList AkElement::pluginsBlackList()
+{
+    return akElementGlobalStuff->m_pluginsBlackList;
+}
+
+void AkElement::setPluginsBlackList(const QStringList &blackList)
+{
+    akElementGlobalStuff->m_pluginsBlackList = blackList;
 }
 
 QString AkElement::pluginPath(const QString &pluginId)

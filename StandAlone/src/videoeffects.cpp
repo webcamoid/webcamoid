@@ -25,14 +25,11 @@
 
 VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent),
-    m_engine(engine)
+    m_engine(nullptr)
 {
     this->m_state = AkElement::ElementStateNull;
-
-    if (engine)
-        engine->rootContext()->setContextProperty("VideoEffects", this);
-
     this->m_advancedMode = false;
+    this->setQmlEngine(engine);
     this->m_videoMux = AkElement::create("Multiplex");
 
     if (this->m_videoMux) {
@@ -501,6 +498,17 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
     this->m_mutex.unlock();
 
     return AkPacket();
+}
+
+void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
+{
+    if (this->m_engine == engine)
+        return;
+
+    this->m_engine = engine;
+
+    if (engine)
+        engine->rootContext()->setContextProperty("VideoEffects", this);
 }
 
 void VideoEffects::advancedModeUpdated(bool advancedMode)

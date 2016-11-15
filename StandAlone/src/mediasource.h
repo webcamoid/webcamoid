@@ -125,6 +125,7 @@ class MediaSource: public QObject
         void resetUris();
         void resetState();
         void resetPlayOnStart();
+        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
 
     private slots:
         void streamUpdated(const QString &stream);
