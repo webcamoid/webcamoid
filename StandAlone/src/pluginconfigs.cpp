@@ -201,6 +201,8 @@ void PluginConfigs::saveProperties()
 {
     QSettings config;
 
+    static const QDir applicationDir(QCoreApplication::applicationDirPath());
+
     config.beginGroup("PluginBlackList");
     config.beginWriteArray("paths");
 
@@ -210,7 +212,7 @@ void PluginConfigs::saveProperties()
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
-        config.setValue("path", applicationDir->relativeFilePath(path));
+        config.setValue("path", applicationDir.relativeFilePath(path));
 #else
         config.setValue("path", path);
 #endif
@@ -224,7 +226,7 @@ void PluginConfigs::saveProperties()
     config.beginGroup("PluginConfigs");
 
 #ifdef Q_OS_WIN32
-    QString qmlPluginPath = applicationDir->relativeFilePath(Ak::qmlPluginPath());
+    QString qmlPluginPath = applicationDir.relativeFilePath(Ak::qmlPluginPath());
 #else
     QString qmlPluginPath = Ak::qmlPluginPath();
 #endif
@@ -240,7 +242,7 @@ void PluginConfigs::saveProperties()
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
-        config.setValue("path", applicationDir->relativeFilePath(path));
+        config.setValue("path", applicationDir.relativeFilePath(path));
 #else
         config.setValue("path", path);
 #endif
@@ -260,7 +262,7 @@ void PluginConfigs::saveProperties()
         config.setArrayIndex(i);
 
 #ifdef Q_OS_WIN32
-        config.setValue("path", applicationDir->relativeFilePath(path));
+        config.setValue("path", applicationDir.relativeFilePath(path));
 #else
         config.setValue("path", path);
 #endif

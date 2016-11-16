@@ -134,7 +134,7 @@ class MediaTools: public QObject
         QImage m_photo;
 
         bool embedInterface(QQmlApplicationEngine *engine,
-                            QObject *interface,
+                            QObject *ctrlInterface,
                             const QString &where) const;
 
     signals:

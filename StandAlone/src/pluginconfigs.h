@@ -49,8 +49,6 @@ class PluginConfigs: public QObject
     public slots:
         void setQmlEngine(QQmlApplicationEngine *engine=NULL);
         void loadProperties(const CliOptions &cliOptions);
-
-    private slots:
         void saveProperties();
 };
 

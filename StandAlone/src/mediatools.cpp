@@ -383,16 +383,16 @@ bool MediaTools::embedRecordControls(const QString &where,
     if (!this->m_record)
         return false;
 
-    auto interface = this->m_record->controlInterface(&this->m_engine,
+    auto ctrlInterface = this->m_record->controlInterface(&this->m_engine,
                                                       format);
 
-    if (!interface)
+    if (!ctrlInterface)
         return false;
 
     if (!name.isEmpty())
-        interface->setObjectName(name);
+        ctrlInterface->setObjectName(name);
 
-    return this->embedInterface(&this->m_engine, interface, where);
+    return this->embedInterface(&this->m_engine, ctrlInterface, where);
 }
 
 bool MediaTools::embedVirtualCameraControls(const QString &where,
@@ -401,15 +401,15 @@ bool MediaTools::embedVirtualCameraControls(const QString &where,
     if (!this->m_virtualCamera)
         return false;
 
-    auto interface = this->m_virtualCamera->controlInterface(&this->m_engine, "");
+    auto ctrlInterface = this->m_virtualCamera->controlInterface(&this->m_engine, "");
 
-    if (!interface)
+    if (!ctrlInterface)
         return false;
 
     if (!name.isEmpty())
-        interface->setObjectName(name);
+        ctrlInterface->setObjectName(name);
 
-    return this->embedInterface(&this->m_engine, interface, where);
+    return this->embedInterface(&this->m_engine, ctrlInterface, where);
 }
 
 void MediaTools::removeInterface(const QString &where,
@@ -450,10 +450,10 @@ QString MediaTools::convertToAbsolute(const QString &path)
 }
 
 bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
-                                QObject *interface,
+                                QObject *ctrlInterface,
                                 const QString &where) const
 {
-    if (!engine || !interface)
+    if (!engine || !ctrlInterface)
         return false;
 
     for (const QObject *obj: engine->rootObjects()) {
@@ -464,7 +464,7 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
             continue;
 
         // Create an item with the plugin context.
-        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
+        auto interfaceItem = qobject_cast<QQuickItem *>(ctrlInterface);
 
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);

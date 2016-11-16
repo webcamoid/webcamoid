@@ -18,6 +18,7 @@
  */
 
 import QtQuick 2.5
+import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import AkQml 1.0
@@ -26,67 +27,146 @@ ColumnLayout {
     width: 400
     height: 450
 
+    function fillSearchPaths()
+    {
+        searchPathsTable.model.clear()
+        var searchPaths = globalElement.searchPaths()
+
+        for (var path in searchPaths) {
+            searchPathsTable.model.append({
+                path: searchPaths[path]
+            })
+        }
+    }
+
+    function fillPluginList()
+    {
+        pluginsTable.model.clear()
+        var pluginsPaths = globalElement.listPluginPaths()
+
+        for (var path in pluginsPaths) {
+            pluginsTable.model.append({
+                path: pluginsPaths[path]
+            })
+        }
+    }
+
+    function refreshCache()
+    {
+        globalElement.clearCache()
+        fillPluginList()
+        PluginConfigs.saveProperties()
+    }
+
     AkElement {
         id: globalElement
     }
 
+    Component.onCompleted: {
+        fillSearchPaths()
+        fillPluginList()
+    }
+
+    Label {
+        text: qsTr("Use this page for configuring the plugins search paths.<br /><b>Don't touch nothing unless you know what you are doing</b>.")
+        wrapMode: Text.WordWrap
+        Layout.fillWidth: true
+    }
     GroupBox {
         title: qsTr("Search paths")
         Layout.fillWidth: true
 
         GridLayout {
-            columns: 2
+            columns: 3
             anchors.fill: parent
 
             CheckBox {
                 text: qsTr("Search plugins in subfolders.")
+                checked: globalElement.recursiveSearch()
                 Layout.fillWidth: true
+
+                onCheckedChanged: {
+                    globalElement.setRecursiveSearch(checked)
+                    refreshCache()
+                }
             }
             Button {
                 text: qsTr("Add")
+                iconName: "add"
+                iconSource: "image://icons/add"
+
+                onClicked: fileDialog.open()
+            }
+            Button {
+                text: qsTr("Remove")
+                iconName: "remove"
+                iconSource: "image://icons/remove"
             }
             TableView {
-                Layout.columnSpan: 2
+                id: searchPathsTable
+                headerVisible: false
+                Layout.columnSpan: 3
                 Layout.fillWidth: true
+                model: ListModel {
+                }
 
                 TableViewColumn {
                     role: "path"
                     title: qsTr("Search path")
                 }
-                TableViewColumn {
-                    role: "action"
-                    title: qsTr("Action")
-                }
             }
         }
     }
-
     GroupBox {
         title: qsTr("Plugins list")
         Layout.fillWidth: true
 
-        ColumnLayout {
+        GridLayout {
+            columns: 3
             anchors.fill: parent
 
             Button {
                 text: qsTr("Refresh")
+                iconName: "reset"
+                iconSource: "image://icons/reset"
+
+                onClicked: refreshCache()
+            }
+            Label {
+                Layout.fillWidth: true
+            }
+            Button {
+                text: qsTr("Disable")
             }
             TableView {
+                id: pluginsTable
+                headerVisible: false
+                Layout.columnSpan: 3
                 Layout.fillWidth: true
+                model: ListModel {
+                }
 
                 TableViewColumn {
-                    role: "pluginPath"
-                    title: qsTr("Search path")
-                }
-                TableViewColumn {
-                    role: "action"
-                    title: qsTr("Enable/Disable")
+                    role: "path"
+                    title: qsTr("Plugin path")
                 }
             }
         }
     }
-
     Label {
         Layout.fillHeight: true
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: qsTr("Add plugins search path")
+        selectFolder: true
+
+        onAccepted: {
+            var path = Webcamoid.urlToLocalFile(folder)
+            globalElement.addSearchPath(path)
+            fillSearchPaths()
+            refreshCache()
+        }
     }
 }
