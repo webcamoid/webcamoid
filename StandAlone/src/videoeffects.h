@@ -93,6 +93,7 @@ class VideoEffects: public QObject
         void moveEffect(int from, int to);
         void removeEffect(int index);
         void removeAllPreviews();
+        void updateEffects();
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=NULL);
 

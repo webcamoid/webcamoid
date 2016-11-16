@@ -46,7 +46,17 @@ ColumnLayout {
 
         for (var path in pluginsPaths) {
             pluginsTable.model.append({
-                path: pluginsPaths[path]
+                path: pluginsPaths[path],
+                enabled: true
+            })
+        }
+
+        var blackList = globalElement.pluginsBlackList()
+
+        for (var path in blackList) {
+            pluginsTable.model.append({
+                path: blackList[path],
+                enabled: false
             })
         }
     }
@@ -58,8 +68,18 @@ ColumnLayout {
         PluginConfigs.saveProperties()
     }
 
+    function refreshAll()
+    {
+        fillSearchPaths()
+        refreshCache()
+    }
+
     AkElement {
         id: globalElement
+    }
+    SystemPalette {
+        id: systemPalette
+        colorGroup: SystemPalette.Disabled
     }
 
     Component.onCompleted: {
@@ -98,21 +118,46 @@ ColumnLayout {
                 onClicked: fileDialog.open()
             }
             Button {
+                id: btnRemove
                 text: qsTr("Remove")
                 iconName: "remove"
                 iconSource: "image://icons/remove"
+                enabled: searchPathsTable.currentRow >= 0
+
+                onClicked: {
+                    var removeIndex = []
+
+                    searchPathsTable.selection.forEach(function (rowIndex) {
+                        removeIndex.push(rowIndex)
+                    })
+
+                    var searchPaths = globalElement.searchPaths();
+                    var sp = []
+
+                    for (var path in searchPaths)
+                        if (removeIndex.indexOf(parseInt(path)) < 0)
+                            sp.push(searchPaths[path])
+
+                    globalElement.setSearchPaths(sp);
+                    refreshAll()
+                    searchPathsTable.selection.clear()
+                    searchPathsTable.currentRow = -1
+                }
             }
             TableView {
                 id: searchPathsTable
                 headerVisible: false
+                selectionMode: SelectionMode.SingleSelection
                 Layout.columnSpan: 3
                 Layout.fillWidth: true
                 model: ListModel {
+                    id: searchPathsModel
                 }
 
                 TableViewColumn {
                     role: "path"
                     title: qsTr("Search path")
+                    elideMode: Text.ElideLeft
                 }
             }
         }
@@ -136,19 +181,79 @@ ColumnLayout {
                 Layout.fillWidth: true
             }
             Button {
-                text: qsTr("Disable")
+                id: btnEnableDisable
+                text: pluginIsEnabled? qsTr("Disable"): qsTr("Enable")
+                enabled: pluginsTable.currentRow >= 0
+
+                property bool pluginIsEnabled: false
+
+                onClicked: {
+                    var blackList = globalElement.pluginsBlackList()
+
+                    if (pluginIsEnabled) {
+                        pluginsTable.selection.forEach(function (rowIndex) {
+                            var path = pluginsTable.model.get(rowIndex).path
+
+                            if (blackList.indexOf(path) < 0)
+                                blackList.push(path)
+                        })
+                    } else {
+                        pluginsTable.selection.forEach(function (rowIndex) {
+                            var path = pluginsTable.model.get(rowIndex).path
+                            var index = blackList.indexOf(path)
+
+                            if (index >= 0)
+                                blackList.splice(index, 1)
+                        })
+                    }
+
+                    globalElement.setPluginsBlackList(blackList)
+                    refreshCache()
+                    pluginsTable.selection.clear()
+                    pluginsTable.currentRow = -1
+                }
             }
             TableView {
                 id: pluginsTable
                 headerVisible: false
+                selectionMode: SelectionMode.SingleSelection
                 Layout.columnSpan: 3
                 Layout.fillWidth: true
                 model: ListModel {
+                    id: pluginsModel
+                }
+                itemDelegate: Item {
+                    height: Math.max(16, label.implicitHeight)
+                    property int implicitWidth: label.implicitWidth + 20
+
+                    Text {
+                        id: label
+                        enabled: false
+                        objectName: "label"
+                        width: parent.width
+                        anchors.leftMargin: 12
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        horizontalAlignment: styleData.textAlignment
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: 1
+                        elide: styleData.elideMode
+                        text: styleData.value !== undefined? styleData.value: ""
+                        color: styleData.row >= 0 && pluginsTable.model.get(styleData.row).enabled?
+                                   styleData.textColor: systemPalette.text
+                        renderType: Text.NativeRendering
+                    }
+                }
+
+                onCurrentRowChanged: {
+                    btnEnableDisable.pluginIsEnabled =
+                        currentRow < 0? false: pluginsTable.model.get(currentRow).enabled
                 }
 
                 TableViewColumn {
                     role: "path"
                     title: qsTr("Plugin path")
+                    elideMode: Text.ElideLeft
                 }
             }
         }
@@ -165,8 +270,7 @@ ColumnLayout {
         onAccepted: {
             var path = Webcamoid.urlToLocalFile(folder)
             globalElement.addSearchPath(path)
-            fillSearchPaths()
-            refreshCache()
+            refreshAll()
         }
     }
 }

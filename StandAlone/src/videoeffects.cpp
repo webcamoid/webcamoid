@@ -483,6 +483,23 @@ void VideoEffects::removeAllPreviews()
     this->setState(state);
 }
 
+void VideoEffects::updateEffects()
+{
+    QStringList availableEffects = AkElement::listPlugins("VideoFilter");
+
+    if (this->m_availableEffects != availableEffects) {
+        this->m_availableEffects = availableEffects;
+        emit this->availableEffectsChanged(availableEffects);
+        QStringList effects;
+
+        for (const QString &effectId: this->m_effectsId)
+            if (availableEffects.contains(effectId))
+                effects << effectId;
+
+        this->setEffects(effects);
+    }
+}
+
 AkPacket VideoEffects::iStream(const AkPacket &packet)
 {
     this->m_mutex.lock();

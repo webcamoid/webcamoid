@@ -40,11 +40,12 @@ class PluginConfigs: public QObject
 
     private:
         QQmlApplicationEngine *m_engine;
+        QStringList m_plugins;
 
         QString convertToAbsolute(const QString &path) const;
 
     signals:
-        void pluginsChanged();
+        void pluginsChanged(const QStringList &plugins);
 
     public slots:
         void setQmlEngine(QQmlApplicationEngine *engine=NULL);

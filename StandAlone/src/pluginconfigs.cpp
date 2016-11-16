@@ -195,13 +195,17 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
     AkElement::setPluginsCache(pluginsCache);
     config.endArray();
     config.endGroup();
+
+    this->m_plugins = AkElement::listPluginPaths();
 }
 
 void PluginConfigs::saveProperties()
 {
     QSettings config;
 
+#ifdef Q_OS_WIN32
     static const QDir applicationDir(QCoreApplication::applicationDirPath());
+#endif
 
     config.beginGroup("PluginBlackList");
     config.beginWriteArray("paths");
@@ -272,4 +276,11 @@ void PluginConfigs::saveProperties()
 
     config.endArray();
     config.endGroup();
+
+    QStringList plugins = AkElement::listPluginPaths();
+
+    if (this->m_plugins != plugins) {
+        this->m_plugins = plugins;
+        emit this->pluginsChanged(plugins);
+    }
 }

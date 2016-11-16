@@ -92,6 +92,10 @@ Rectangle {
     Connections {
         target: VideoEffects
 
+        onAvailableEffectsChanged: {
+            recEffectBar.updateAppliedEffectList()
+            recEffectBar.updateEffectList()
+        }
         onEffectsChanged: {
             if (lock)
                 return

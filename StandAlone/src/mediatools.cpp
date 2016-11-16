@@ -152,6 +152,10 @@ MediaTools::MediaTools(QObject *parent):
                      &MediaTools::enableVirtualCameraChanged,
                      this,
                      &MediaTools::updateVCamState);
+    QObject::connect(this->m_pluginConfigs.data(),
+                     &PluginConfigs::pluginsChanged,
+                     this->m_videoEffects.data(),
+                     &VideoEffects::updateEffects);
 
     this->loadConfigs();
     this->updateVCamCaps(this->m_mediaSource->videoCaps());
