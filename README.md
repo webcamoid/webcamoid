@@ -1,6 +1,6 @@
-# Webcamoid, webcam capture application #
+# Webcamoid, The ultimate webcam suite! #
 
-[Webcamoid](https://webcamoid.github.io/) is a full featured webcam capture application.
+[Webcamoid](https://webcamoid.github.io/) is a full featured and multiplatform webcam suite.
 
 <a target="_blank" href="https://webcamoid.github.io/"><img src="https://raw.githubusercontent.com/webcamoid/webcamoid.github.io/master/data/screenshots/cap01.png" style="height: 240px;" /></a>
 
