@@ -16,13 +16,5 @@
                 "objectName": "record"
             }
         }
-    ],
-    [
-        {
-            "pluginId": "VirtualCamera",
-            "properties": {
-                "objectName": "virtualCamera"
-            }
-        }
     ]
 ]

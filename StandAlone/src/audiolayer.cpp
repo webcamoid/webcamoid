@@ -35,32 +35,31 @@ AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
     this->setQmlEngine(engine);
     this->m_pipeline = AkElement::create("Bin", "pipeline");
 
-    if (!this->m_pipeline)
-        return;
+    if (this->m_pipeline) {
+        QFile jsonFile(":/Webcamoid/share/audiopipeline.json");
+        jsonFile.open(QFile::ReadOnly);
+        QString description(jsonFile.readAll());
+        jsonFile.close();
 
-    QFile jsonFile(":/Webcamoid/share/audiopipeline.json");
-    jsonFile.open(QFile::ReadOnly);
-    QString description(jsonFile.readAll());
-    jsonFile.close();
+        this->m_pipeline->setProperty("description", description);
 
-    this->m_pipeline->setProperty("description", description);
-
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_audioOut),
-                              Q_ARG(QString, "audioOut"));
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_audioIn),
-                              Q_ARG(QString, "audioIn"));
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_audioGenerator),
-                              Q_ARG(QString, "audioGenerator"));
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_audioSwitch),
-                              Q_ARG(QString, "audioSwitch"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_audioOut),
+                                  Q_ARG(QString, "audioOut"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_audioIn),
+                                  Q_ARG(QString, "audioIn"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_audioGenerator),
+                                  Q_ARG(QString, "audioGenerator"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_audioSwitch),
+                                  Q_ARG(QString, "audioSwitch"));
+    }
 
     if (this->m_audioOut) {
         QString device = this->m_audioOut->property("defaultOutput").toString();

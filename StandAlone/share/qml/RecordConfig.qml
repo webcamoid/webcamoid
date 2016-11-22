@@ -21,23 +21,24 @@ import QtQuick 2.5
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
+import AkQml 1.0
 
 ColumnLayout {
     id: recRecordConfig
 
     function updateFields()
     {
-        txtDescription.text = Webcamoid.recordingFormatDescription(Webcamoid.curRecordingFormat)
+        txtDescription.text = Recording.formatDescription(Recording.format)
     }
 
     function makeFilters()
     {
         var filters = []
-        var recordingFormats = Webcamoid.recordingFormats;
+        var recordingFormats = Recording.availableFormats;
 
         for (var format in recordingFormats) {
-            var suffix = Webcamoid.recordingFormatSuffix(recordingFormats[format])
-            var filter = Webcamoid.recordingFormatDescription(recordingFormats[format])
+            var suffix = Recording.formatSuffix(recordingFormats[format])
+            var filter = Recording.formatDescription(recordingFormats[format])
                          + " (*."
                          + suffix.join(" *.")
                          + ")"
@@ -50,8 +51,8 @@ ColumnLayout {
 
     function makeDefaultFilter()
     {
-        var suffix = Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)
-        var filter = Webcamoid.recordingFormatDescription(Webcamoid.curRecordingFormat)
+        var suffix = Recording.formatSuffix(Recording.format)
+        var filter = Recording.formatDescription(Recording.format)
                      + " (*."
                      + suffix.join(" *.")
                      + ")"
@@ -61,7 +62,7 @@ ColumnLayout {
 
     function defaultSuffix()
     {
-        return Webcamoid.recordingFormatSuffix(Webcamoid.curRecordingFormat)[0]
+        return Recording.formatSuffix(Recording.format)[0]
     }
 
     function makeFileName()
@@ -71,10 +72,18 @@ ColumnLayout {
 
     Connections {
         target: Webcamoid
-        onCurRecordingFormatChanged: updateFields()
 
-        onRecordingChanged: {
-            if (recording) {
+        onInterfaceLoaded: {
+            Recording.removeInterface("itmRecordControls");
+            Recording.embedControls("itmRecordControls", "");
+        }
+    }
+    Connections {
+        target: Recording
+
+        onFormatChanged: updateFields()
+        onStateChanged: {
+            if (state === AkElement.ElementStatePlaying) {
                 lblRecordLabel.text = qsTr("Stop recording video")
                 imgRecordIcon.source = "image://icons/webcamoid-record-stop"
             } else {
@@ -83,10 +92,6 @@ ColumnLayout {
             }
         }
 
-        onInterfaceLoaded: {
-            Webcamoid.removeInterface("itmRecordControls");
-            Webcamoid.embedRecordControls("itmRecordControls", "");
-        }
     }
 
     Label {
@@ -96,12 +101,11 @@ ColumnLayout {
     }
     TextField {
         id: txtDescription
-        text: Webcamoid.recordingFormatDescription(Webcamoid.curRecordingFormat)
+        text: Recording.formatDescription(Recording.format)
         placeholderText: qsTr("Insert format description")
         readOnly: true
         Layout.fillWidth: true
     }
-
     ScrollView {
         id: scrollControls
         Layout.fillWidth: true
@@ -176,8 +180,8 @@ ColumnLayout {
             onPressed: imgRecordIcon.scale = 0.75
             onReleased: imgRecordIcon.scale = 1
             onClicked: {
-                if (Webcamoid.recording)
-                    Webcamoid.stopRecording();
+                if (Recording.state === AkElement.ElementStatePlaying)
+                    Recording.state = AkElement.ElementStateNull
                 else {
                     var filters = recRecordConfig.makeFilters()
 
@@ -187,8 +191,10 @@ ColumnLayout {
                                              "." + recRecordConfig.defaultSuffix(),
                                              recRecordConfig.makeDefaultFilter())
 
-                    if (fileUrl !== "")
-                        Webcamoid.startRecording(fileUrl)
+                    if (fileUrl !== "") {
+                        Recording.videoFileName = fileUrl
+                        Recording.state = AkElement.ElementStatePlaying
+                    }
                 }
             }
         }

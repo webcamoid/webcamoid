@@ -786,7 +786,7 @@ QVariantMap MediaSink::addStream(int streamIndex,
     }
 
     this->m_streamConfigs << outputParams;
-    this->streamsChanged(this->streams());
+    emit this->streamsChanged(this->streams());
 
     return outputParams;
 }
@@ -1414,7 +1414,7 @@ void MediaSink::enqueuePacket(const AkPacket &packet)
 void MediaSink::clearStreams()
 {
     this->m_streamConfigs.clear();
-    this->streamsChanged(this->streams());
+    emit this->streamsChanged(this->streams());
 }
 
 bool MediaSink::init()
@@ -1623,7 +1623,6 @@ bool MediaSink::init()
             return false;
         }
     }
-
 
     // Set format options.
     AVDictionary *formatOptions = NULL;

@@ -49,7 +49,7 @@ ApplicationWindow {
     function togglePlay() {
         if (MediaSource.state === AkElement.ElementStatePlaying) {
             Webcamoid.virtualCameraState = AkElement.ElementStateNull;
-            Webcamoid.stopRecording();
+            Recording.state = AkElement.ElementStateNull
             MediaSource.state = AkElement.ElementStateNull;
 
             if (splitView.state == "showRecordPanels")
@@ -89,9 +89,9 @@ ApplicationWindow {
     }
 
     Connections {
-        target: Webcamoid
+        target: Recording
 
-        onRecordingChanged: recordingNotice.visible = recording
+        onStateChanged: recordingNotice.visible = state === AkElement.ElementStatePlaying
     }
 
     VideoDisplay {
@@ -211,7 +211,7 @@ ApplicationWindow {
 
         function savePhoto()
         {
-            Webcamoid.takePhoto()
+            Recording.takePhoto()
             var suffix = "png";
             var fileName = qsTr("Picture %1.%2")
                                 .arg(Webcamoid.currentTime())
@@ -229,7 +229,7 @@ ApplicationWindow {
                                      filters.join(";;"))
 
             if (fileUrl !== "")
-                Webcamoid.savePhoto(fileUrl)
+                Recording.savePhoto(fileUrl)
         }
 
         onTakePhoto: {

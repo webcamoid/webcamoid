@@ -23,6 +23,81 @@ import QtQuick.Layouts 1.1
 import AkQml 1.0
 
 ColumnLayout {
+    function updateStreams()
+    {
+        // Clear old options
+        for (var i = 0; i < clyStreamOptions.children.length; i++)
+          clyStreamOptions.children[i].destroy()
+
+        var streams = MultiSink.streams;
+
+        for (var stream in streams) {
+            var streamConfig = streams[stream]
+            var streamOptions = classStreamOptions.createObject(clyStreamOptions)
+            streamOptions.Layout.fillWidth = true
+
+            var streamCaps = Ak.newCaps(streamConfig.caps)
+
+            if (streamCaps.mimeType === "audio/x-raw")
+                streamOptions.state = "audio"
+            else if (streamCaps.mimeType === "video/x-raw")
+                streamOptions.state = "video"
+
+            streamOptions.outputIndex = stream
+            streamOptions.streamIndex = streamConfig.index
+
+            if (streamConfig.label)
+                streamOptions.streamLabel = streamConfig.label
+
+            streamOptions.codecsTextRole = "description"
+
+            var supportedCodecs =
+                    MultiSink.supportedCodecs(MultiSink.outputFormat,
+                                              streamCaps.mimeType)
+
+            for (var codec in supportedCodecs)
+                streamOptions.codecList.append({codec: supportedCodecs[codec],
+                                                description: supportedCodecs[codec]
+                                                             + " - "
+                                                             + MultiSink.codecDescription(supportedCodecs[codec])})
+
+            streamOptions.codec = streamConfig.codec
+
+            if (streamConfig.bitrate)
+                streamOptions.bitrate = streamConfig.bitrate
+
+            if (streamConfig.gop)
+                streamOptions.videoGOP = streamConfig.gop
+
+            streamOptions.codecOptions = streamConfig.codecOptions
+            streamOptions.streamOptionsChanged.connect(MultiSink.updateStream)
+        }
+    }
+
+    function createControls(controls, where)
+    {
+        // Remove old controls.
+        for(var i = where.children.length - 1; i >= 0 ; i--)
+            where.children[i].destroy()
+
+        // Create new ones.
+        for (var control in controls) {
+            var component = Qt.createComponent("UserControl.qml")
+
+            if (component.status !== Component.Ready)
+                continue
+
+            var obj = component.createObject(where)
+            obj.controlParams = controls[control]
+            obj.onControlChanged.connect(function (controlName, value)
+            {
+                var ctrl = {}
+                ctrl[controlName] = value
+                MultiSink.setUserControlsValues(ctrl)
+            })
+        }
+    }
+
     Component.onCompleted: {
         var supportedFormats = MultiSink.supportedFormats()
         var outputFormatIndex = -1
@@ -43,6 +118,8 @@ ColumnLayout {
         }
 
         cbxOutputFormats.currentIndex = outputFormatIndex
+        updateStreams()
+        createControls(MultiSink.userControls, clyUserControls)
     }
 
     Component {
@@ -64,54 +141,9 @@ ColumnLayout {
                     break
                 }
         }
-        onStreamsChanged: {
-            // Clear old options
-            for (var i = 0; i < clyStreamOptions.children.length; i++)
-              clyStreamOptions.children[i].destroy()
-
-            var streams = MultiSink.streams;
-
-            for (var stream in streams) {
-                var streamConfig = streams[stream]
-                var streamOptions = classStreamOptions.createObject(clyStreamOptions)
-                streamOptions.Layout.fillWidth = true
-
-                var streamCaps = Ak.newCaps(streamConfig.caps)
-
-                if (streamCaps.mimeType === "audio/x-raw")
-                    streamOptions.state = "audio"
-                else if (streamCaps.mimeType === "video/x-raw")
-                    streamOptions.state = "video"
-
-                streamOptions.outputIndex = stream
-                streamOptions.streamIndex = streamConfig.index
-
-                if (streamConfig.label)
-                    streamOptions.streamLabel = streamConfig.label
-
-                streamOptions.codecsTextRole = "description"
-
-                var supportedCodecs =
-                        MultiSink.supportedCodecs(MultiSink.outputFormat,
-                                                  streamCaps.mimeType)
-
-                for (var codec in supportedCodecs)
-                    streamOptions.codecList.append({codec: supportedCodecs[codec],
-                                                    description: supportedCodecs[codec]
-                                                                 + " - "
-                                                                 + MultiSink.codecDescription(supportedCodecs[codec])})
-
-                streamOptions.codec = streamConfig.codec
-
-                if (streamConfig.bitrate)
-                    streamOptions.bitrate = streamConfig.bitrate
-
-                if (streamConfig.gop)
-                    streamOptions.videoGOP = streamConfig.gop
-
-                streamOptions.codecOptions = streamConfig.codecOptions
-                streamOptions.streamOptionsChanged.connect(MultiSink.updateStream)
-            }
+        onStreamsChanged: updateStreams()
+        onUserControlsChanged: createControls(userControls, clyUserControls)
+        onUserControlsValuesChanged: {
         }
     }
 
@@ -159,6 +191,10 @@ ColumnLayout {
         text: JSON.stringify(MultiSink.formatOptions)
 
         onTextChanged: MultiSink.formatOptions = JSON.parse(text)
+    }
+    ColumnLayout {
+        id: clyUserControls
+        Layout.fillWidth: true
     }
     ColumnLayout {
         id: clyStreamOptions

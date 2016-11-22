@@ -64,7 +64,8 @@ HEADERS = \
     src/videoeffects.h \
     src/mediasource.h \
     src/pluginconfigs.h \
-    src/clioptions.h
+    src/clioptions.h \
+    src/recording.h
 
 INCLUDEPATH += \
     ../libAvKys/Lib/src
@@ -94,7 +95,8 @@ SOURCES = \
     src/videoeffects.cpp \
     src/mediasource.cpp \
     src/pluginconfigs.cpp \
-    src/clioptions.cpp
+    src/clioptions.cpp \
+    src/recording.cpp
 
 lupdate_only {
     SOURCES = $$files(share/qml/*.qml)

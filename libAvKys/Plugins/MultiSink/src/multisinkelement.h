@@ -56,6 +56,16 @@ class MultiSinkElement: public AkElement
                WRITE setShowFormatOptions
                RESET resetShowFormatOptions
                NOTIFY showFormatOptionsChanged)
+    Q_PROPERTY(QVariantList userControls
+               READ userControls
+               WRITE setUserControls
+               RESET resetUserControls
+               NOTIFY userControlsChanged)
+    Q_PROPERTY(QVariantMap userControlsValues
+               READ userControlsValues
+               WRITE setUserControlsValues
+               RESET resetUserControlsValues
+               NOTIFY userControlsValuesChanged)
 
     public:
         explicit MultiSinkElement();
@@ -69,6 +79,8 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE bool showFormatOptions() const;
+        Q_INVOKABLE QVariantList userControls() const;
+        Q_INVOKABLE QVariantMap userControlsValues() const;
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);
@@ -91,6 +103,8 @@ class MultiSinkElement: public AkElement
 
     private:
         bool m_showFormatOptions;
+        QVariantList m_userControls;
+        QVariantMap m_userControlsValues;
         MediaSink m_mediaSink;
 
     signals:
@@ -99,6 +113,8 @@ class MultiSinkElement: public AkElement
         void formatOptionsChanged(const QVariantMap &formatOptions);
         void streamsChanged(const QVariantList &streams);
         void showFormatOptionsChanged(bool showFormatOptions);
+        void userControlsChanged(const QVariantList &userControls);
+        void userControlsValuesChanged(const QVariantMap &userControlsValues);
         void streamUpdated(int index);
 
     public slots:
@@ -106,10 +122,14 @@ class MultiSinkElement: public AkElement
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
         void setShowFormatOptions(bool showFormatOptions);
+        void setUserControls(const QVariantList &userControls);
+        void setUserControlsValues(const QVariantMap &userControlsValues);
         void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
         void resetShowFormatOptions();
+        void resetUserControls();
+        void resetUserControlsValues();
         void clearStreams();
 
         AkPacket iStream(const AkPacket &packet);

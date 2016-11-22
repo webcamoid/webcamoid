@@ -33,34 +33,34 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
     this->setQmlEngine(engine);
     this->m_pipeline = AkElement::create("Bin", "pipeline");
 
-    if (!this->m_pipeline)
-        return;
+    if (this->m_pipeline) {
+        QFile jsonFile(":/Webcamoid/share/sourcespipeline.json");
+        jsonFile.open(QFile::ReadOnly);
+        QString description(jsonFile.readAll());
+        jsonFile.close();
 
-    QFile jsonFile(":/Webcamoid/share/sourcespipeline.json");
-    jsonFile.open(QFile::ReadOnly);
-    QString description(jsonFile.readAll());
-    jsonFile.close();
+        this->m_pipeline->setProperty("description", description);
 
-    this->m_pipeline->setProperty("description", description);
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_cameraCapture),
+                                  Q_ARG(QString, "cameraCapture"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_desktopCapture),
+                                  Q_ARG(QString, "desktopCapture"));
+        QMetaObject::invokeMethod(this->m_pipeline.data(),
+                                  "element",
+                                  Q_RETURN_ARG(AkElementPtr, this->m_uriCapture),
+                                  Q_ARG(QString, "uriCapture"));
 
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_cameraCapture),
-                              Q_ARG(QString, "cameraCapture"));
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_desktopCapture),
-                              Q_ARG(QString, "desktopCapture"));
-    QMetaObject::invokeMethod(this->m_pipeline.data(),
-                              "element",
-                              Q_RETURN_ARG(AkElementPtr, this->m_uriCapture),
-                              Q_ARG(QString, "uriCapture"));
+        QObject::connect(this->m_pipeline.data(),
+                         SIGNAL(oStream(const AkPacket &)),
+                         this,
+                         SIGNAL(oStream(const AkPacket &)),
+                         Qt::DirectConnection);
+    }
 
-    QObject::connect(this->m_pipeline.data(),
-                     SIGNAL(oStream(const AkPacket &)),
-                     this,
-                     SIGNAL(oStream(const AkPacket &)),
-                     Qt::DirectConnection);
     QObject::connect(this,
                      &MediaSource::urisChanged,
                      this,

@@ -68,31 +68,31 @@ Rectangle {
 
     function updateRecordingFormatList()
     {
-        var curRecordingFormat = Webcamoid.curRecordingFormat
-        var formats = Webcamoid.recordingFormats
+        var recordingFormat = Recording.format
+        var formats = Recording.availableFormats
         lsvRecordingFormatList.model.clear()
 
         if (formats.length > 0)
-            Webcamoid.curRecordingFormat = formats.indexOf(curRecordingFormat) < 0?
-                        formats[0]: curRecordingFormat
+            Recording.format = formats.indexOf(recordingFormat) < 0?
+                        formats[0]: recordingFormat
         else
-            Webcamoid.curRecordingFormat = ""
+            Recording.format = ""
 
         for (var format in formats) {
             lsvRecordingFormatList.model.append({
                 format: formats[format],
-                description: Webcamoid.recordingFormatDescription(formats[format])})
+                description: Recording.formatDescription(formats[format])})
         }
 
         sort(lsvRecordingFormatList.model, 0, lsvRecordingFormatList.model.count)
-        lsvRecordingFormatList.currentIndex = indexOfFormat(Webcamoid.curRecordingFormat)
+        lsvRecordingFormatList.currentIndex = indexOfFormat(Recording.format)
     }
 
     Component.onCompleted: recRecordBar.updateRecordingFormatList()
 
     Connections {
-        target: Webcamoid
-        onCurRecordingFormatChanged: lsvRecordingFormatList.currentIndex = recRecordBar.indexOfFormat(curRecordingFormat)
+        target: Recording
+        onFormatChanged: lsvRecordingFormatList.currentIndex = recRecordBar.indexOfFormat(format)
     }
 
     TextField {
@@ -121,7 +121,7 @@ Rectangle {
                 var option = model.get(currentIndex)
 
                 if (option)
-                    Webcamoid.curRecordingFormat = option.format
+                    Recording.format = option.format
 
                 txtSearchFormat.text = ""
             }

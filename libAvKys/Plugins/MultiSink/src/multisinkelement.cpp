@@ -177,6 +177,16 @@ bool MultiSinkElement::showFormatOptions() const
     return this->m_showFormatOptions;
 }
 
+QVariantList MultiSinkElement::userControls() const
+{
+    return this->m_userControls;
+}
+
+QVariantMap MultiSinkElement::userControlsValues() const
+{
+    return this->m_userControlsValues;
+}
+
 QStringList MultiSinkElement::supportedFormats()
 {
     return multiSinkGlobalStuff->supportedFormats();
@@ -268,6 +278,24 @@ void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
     emit this->showFormatOptionsChanged(showFormatOptions);
 }
 
+void MultiSinkElement::setUserControls(const QVariantList &userControls)
+{
+    if (this->m_userControls == userControls)
+        return;
+
+    this->m_userControls = userControls;
+    emit this->userControlsChanged(userControls);
+}
+
+void MultiSinkElement::setUserControlsValues(const QVariantMap &userControlsValues)
+{
+    if (this->m_userControlsValues == userControlsValues)
+        return;
+
+    this->m_userControlsValues = userControlsValues;
+    emit this->userControlsValuesChanged(userControlsValues);
+}
+
 void MultiSinkElement::resetLocation()
 {
     this->m_mediaSink.resetLocation();
@@ -286,6 +314,16 @@ void MultiSinkElement::resetFormatOptions()
 void MultiSinkElement::resetShowFormatOptions()
 {
     this->setShowFormatOptions(false);
+}
+
+void MultiSinkElement::resetUserControls()
+{
+    this->setUserControls({});
+}
+
+void MultiSinkElement::resetUserControlsValues()
+{
+    this->setUserControlsValues({});
 }
 
 void MultiSinkElement::clearStreams()
