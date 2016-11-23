@@ -70,9 +70,8 @@ ApplicationWindow {
                                     font.bold: true
                                 }
                                 Label {
-                                    text: qsTr("Using Qt %1 with %2")
+                                    text: qsTr("Using Qt %1")
                                             .arg(Webcamoid.qtVersion())
-                                            .arg(Webcamoid.codecFramework())
                                 }
                                 Button {
                                     iconName: "applications-internet"

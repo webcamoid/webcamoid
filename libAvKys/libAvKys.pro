@@ -36,6 +36,18 @@ exists(commons.pri) {
     PRE_TARGETDEPS += compiler_builddocs_make_all
 }
 
+# Check what libraries and frameworks are available
+load(configure)
+QMAKE_CONFIG_TESTS_DIR=$$PWD/Tests
+qtCompileTest(avfoundation)
+qtCompileTest(coreaudio)
+qtCompileTest(dshow)
+qtCompileTest(ffmpeg)
+qtCompileTest(gstreamer)
+qtCompileTest(pulseaudio)
+qtCompileTest(v4l2)
+qtCompileTest(wasapi)
+
 TEMPLATE = subdirs
 
 CONFIG += ordered

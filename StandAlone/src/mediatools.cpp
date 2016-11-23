@@ -27,12 +27,6 @@
 #include "iconsprovider.h"
 #include "mediatools.h"
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/cfwinfo.h"
-#else
-#include "ffmpeg/cfwinfo.h"
-#endif
-
 MediaTools::MediaTools(QObject *parent):
     QObject(parent),
     m_windowWidth(0),
@@ -170,11 +164,6 @@ QString MediaTools::applicationVersion() const
 QString MediaTools::qtVersion() const
 {
     return QT_VERSION_STR;
-}
-
-QString MediaTools::codecFramework() const
-{
-    return CodecFramework::info();
 }
 
 QString MediaTools::copyrightNotice() const

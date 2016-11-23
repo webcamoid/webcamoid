@@ -54,6 +54,7 @@ Makefile*
 *.qmlproject.user*
 *.autosave
 .qmake.stash
+.qmake.cache
 
 # VIM temporary files #
 #######################

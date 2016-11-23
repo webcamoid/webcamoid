@@ -57,27 +57,27 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="119"/>
+        <location filename="../qml/main.qml" line="151"/>
         <source>Output format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="141"/>
+        <location filename="../qml/main.qml" line="173"/>
         <source>File extensions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="147"/>
+        <location filename="../qml/main.qml" line="179"/>
         <source>This output format has not specific extensions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="152"/>
+        <location filename="../qml/main.qml" line="184"/>
         <source>Format options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="157"/>
+        <location filename="../qml/main.qml" line="189"/>
         <source>Encoding options for this format.</source>
         <translation type="unfinished"></translation>
     </message>

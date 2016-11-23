@@ -64,12 +64,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="120"/>
+        <location filename="../qml/main.qml" line="119"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="129"/>
+        <location filename="../qml/main.qml" line="128"/>
         <source>Please choose an image file</source>
         <translation type="unfinished"></translation>
     </message>
