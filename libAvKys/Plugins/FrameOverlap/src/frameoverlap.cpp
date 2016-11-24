@@ -22,10 +22,12 @@
 
 QObject *FrameOverlap::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new FrameOverlapElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new FrameOverlapElement();
+
+    return nullptr;
 }
 
 QStringList FrameOverlap::keys() const

@@ -22,10 +22,12 @@
 
 QObject *AudioDevice::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new AudioDeviceElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new AudioDeviceElement();
+
+    return nullptr;
 }
 
 QStringList AudioDevice::keys() const

@@ -22,10 +22,12 @@
 
 QObject *Nervous::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new NervousElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new NervousElement();
+
+    return nullptr;
 }
 
 QStringList Nervous::keys() const

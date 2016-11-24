@@ -22,10 +22,12 @@
 
 QObject *ColorTransform::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ColorTransformElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ColorTransformElement();
+
+    return nullptr;
 }
 
 QStringList ColorTransform::keys() const

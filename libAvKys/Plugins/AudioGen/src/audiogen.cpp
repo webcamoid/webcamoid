@@ -22,10 +22,12 @@
 
 QObject *AudioGen::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new AudioGenElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new AudioGenElement();
+
+    return nullptr;
 }
 
 QStringList AudioGen::keys() const

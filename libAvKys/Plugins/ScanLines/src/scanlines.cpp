@@ -22,10 +22,12 @@
 
 QObject *ScanLines::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ScanLinesElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ScanLinesElement();
+
+    return nullptr;
 }
 
 QStringList ScanLines::keys() const

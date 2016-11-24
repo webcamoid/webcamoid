@@ -22,10 +22,12 @@
 
 QObject *Life::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new LifeElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new LifeElement();
+
+    return nullptr;
 }
 
 QStringList Life::keys() const

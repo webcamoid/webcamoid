@@ -22,10 +22,12 @@
 
 QObject *Equalize::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new EqualizeElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new EqualizeElement();
+
+    return nullptr;
 }
 
 QStringList Equalize::keys() const

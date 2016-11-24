@@ -28,13 +28,18 @@
 
 #include "ak.h"
 
+#define SUBMODULES_PATH "submodules"
+
 class AkElementPrivate
 {
     public:
         QString m_pluginId;
+        QString m_pluginPath;
+        QString m_pluginFilePattern;
         QStringList m_pluginsSearchPaths;
         QStringList m_pluginsCache;
         QStringList m_pluginsBlackList;
+        QString m_subModulesPath;
         QDir m_applicationDir;
         AkElement::ElementState m_state;
         bool m_recursiveSearchPaths;
@@ -55,6 +60,15 @@ class AkElementPrivate
 
             this->m_pluginsSearchPaths << this->convertToAbsolute(defaultPath);
             this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
+            this->m_subModulesPath = SUBMODULES_PATH;
+
+#ifdef Q_OS_OSX
+            this->m_pluginFilePattern = "lib*.dylib";
+#elif defined(Q_OS_WIN32)
+            this->m_pluginFilePattern = "*.dll";
+#else
+            this->m_pluginFilePattern = "lib*.so";
+#endif
         }
 
         static inline QList<QMetaMethod> methodsByName(const QObject *object,
@@ -87,6 +101,18 @@ class AkElementPrivate
             return false;
         }
 
+        static inline QString pluginId(const QString &fileName)
+        {
+            auto pluginId = QFileInfo(fileName).baseName();
+
+#ifdef Q_OS_WIN32
+            return pluginId;
+                                              ;
+#else
+            return pluginId.remove(QRegExp("^lib"));
+#endif
+        }
+
         inline QString convertToAbsolute(const QString &path) const
         {
             if (!QDir::isRelativePath(path))
@@ -116,6 +142,11 @@ AkElement::~AkElement()
 QString AkElement::pluginId() const
 {
     return this->d->m_pluginId;
+}
+
+QString AkElement::pluginPath() const
+{
+    return this->d->m_pluginPath;
 }
 
 AkElement::ElementState AkElement::state() const
@@ -230,8 +261,12 @@ AkElementPtr AkElement::create(const QString &pluginId,
         return AkElementPtr();
     }
 
-    AkPlugin *plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
-    AkElement *element = qobject_cast<AkElement *>(plugin->create("", ""));
+    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+    if (!plugin)
+        return AkElementPtr();
+
+    auto element = qobject_cast<AkElement *>(plugin->create(AK_PLUGIN_TYPE_ELEMENT, ""));
     delete plugin;
 
     if (!element)
@@ -241,8 +276,110 @@ AkElementPtr AkElement::create(const QString &pluginId,
         element->setObjectName(elementName);
 
     element->d->m_pluginId = pluginId;
+    element->d->m_pluginPath = filePath;
 
     return AkElementPtr(element);
+}
+
+QStringList AkElement::listSubModules(const QString &pluginId)
+{
+    QStringList subModules;
+    auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
+
+    for (const QString &path: subModulesPaths)
+        subModules << AkElementPrivate::pluginId(path);
+
+    subModules.sort();
+
+    return subModules;
+}
+
+QStringList AkElement::listSubModules()
+{
+    return AkElement::listSubModules(this->d->m_pluginId);
+}
+
+QStringList AkElement::listSubModulesPaths(const QString &pluginId)
+{
+    auto filePath = AkElement::pluginPath(pluginId);
+
+    if (filePath.isEmpty())
+        return QStringList();
+
+    auto pluginDir = QFileInfo(filePath).absoluteDir();
+
+    if (!pluginDir.cd(akElementGlobalStuff->m_subModulesPath
+                      + QDir::separator()
+                      + pluginId))
+        return QStringList();
+
+    QStringList subModulesPaths;
+    auto plugins = pluginDir.entryList({akElementGlobalStuff->m_pluginFilePattern},
+                                       QDir::Files
+                                       | QDir::AllDirs
+                                       | QDir::NoDotAndDotDot,
+                                       QDir::Name);
+
+    for (const QString &pluginFile: plugins) {
+        auto pluginPath = pluginDir.absoluteFilePath(pluginFile);
+        QPluginLoader pluginLoader(pluginPath);
+
+        if (!pluginLoader.load())
+            continue;
+
+        if (auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance())) {
+            if (auto obj = plugin->create(AK_PLUGIN_TYPE_SUBMODULE, "")) {
+                subModulesPaths << pluginPath;
+                delete obj;
+            }
+
+            delete plugin;
+        }
+    }
+
+    return subModulesPaths;
+}
+
+QStringList AkElement::listSubModulesPaths()
+{
+    return AkElement::listSubModulesPaths(this->d->m_pluginId);
+}
+
+QObject *AkElement::loadSubModule(const QString &pluginId,
+                                  const QString &subModule)
+{
+    auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
+
+    for (const QString &subModulesPath: subModulesPaths)
+        if (AkElementPrivate::pluginId(subModulesPath) == subModule) {
+            QPluginLoader pluginLoader(subModulesPath);
+
+            if (!pluginLoader.load()) {
+                qDebug() << QString("Error loading submodule '%1' for '%2' plugin: %3")
+                                .arg(subModule)
+                                .arg(pluginId)
+                                .arg(pluginLoader.errorString());
+
+                return nullptr;
+            }
+
+            auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+            if (!plugin)
+                return nullptr;
+
+            auto obj = plugin->create(AK_PLUGIN_TYPE_SUBMODULE, "");
+            delete plugin;
+
+            return obj;
+        }
+
+    return nullptr;
+}
+
+QObject *AkElement::loadSubModule(const QString &subModule)
+{
+    return AkElement::loadSubModule(this->d->m_pluginId, subModule);
 }
 
 bool AkElement::recursiveSearch()
@@ -317,6 +454,21 @@ void AkElement::resetSearchPaths()
             << akElementGlobalStuff->convertToAbsolute(defaultPath);
 }
 
+QString AkElement::subModulesPath()
+{
+    return akElementGlobalStuff->m_subModulesPath;
+}
+
+void AkElement::setSubModulesPath(const QString &subModulesPath)
+{
+    akElementGlobalStuff->m_subModulesPath = subModulesPath;
+}
+
+void AkElement::resetSubModulesPath()
+{
+    akElementGlobalStuff->m_subModulesPath = SUBMODULES_PATH;
+}
+
 QStringList AkElement::listPlugins(const QString &type)
 {
     QStringList plugins;
@@ -325,13 +477,7 @@ QStringList AkElement::listPlugins(const QString &type)
     for (const QString &path: pluginPaths) {
         QPluginLoader pluginLoader(path);
         QJsonObject metaData = pluginLoader.metaData();
-
-#ifdef Q_OS_WIN32
-        QString pluginId = QFileInfo(path).baseName();
-#else
-        QString pluginId = QFileInfo(path).baseName()
-                                          .remove(QRegExp("^lib"));
-#endif
+        QString pluginId = AkElementPrivate::pluginId(path);
 
         if (!type.isEmpty()
             && metaData["MetaData"].toObject().contains("type")
@@ -361,14 +507,6 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
     QStringList searchPaths(searchDir);
     QStringList files;
 
-#ifdef Q_OS_OSX
-    QString pattern("lib*.dylib");
-#elif defined(Q_OS_WIN32)
-    QString pattern("*.dll");
-#else
-    QString pattern("lib*.so");
-#endif
-
     while (!searchPaths.isEmpty()) {
         QString path = searchPaths.takeFirst();
 
@@ -378,7 +516,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
         if (QFileInfo(path).isFile()) {
             QString fileName = QFileInfo(path).fileName();
 
-            if (QRegExp(pattern,
+            if (QRegExp(akElementGlobalStuff->m_pluginFilePattern,
                         Qt::CaseSensitive,
                         QRegExp::Wildcard).exactMatch(fileName)) {
                 QPluginLoader pluginLoader(path);
@@ -394,7 +532,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
                                                  QDir::Name);
 
             for (const QString &file: fileList)
-                if (QRegExp(pattern,
+                if (QRegExp(akElementGlobalStuff->m_pluginFilePattern,
                             Qt::CaseSensitive,
                             QRegExp::Wildcard).exactMatch(file)) {
                     QString pluginPath = QString("%1%2%3").arg(path)

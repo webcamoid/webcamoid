@@ -22,10 +22,12 @@
 
 QObject *Matrix::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new MatrixElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new MatrixElement();
+
+    return nullptr;
 }
 
 QStringList Matrix::keys() const

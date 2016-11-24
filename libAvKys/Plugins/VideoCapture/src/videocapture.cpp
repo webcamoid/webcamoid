@@ -22,10 +22,12 @@
 
 QObject *VideoCapture::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new VideoCaptureElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new VideoCaptureElement();
+
+    return nullptr;
 }
 
 QStringList VideoCapture::keys() const

@@ -22,10 +22,12 @@
 
 QObject *Bin::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new BinElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new BinElement();
+
+    return nullptr;
 }
 
 QStringList Bin::keys() const

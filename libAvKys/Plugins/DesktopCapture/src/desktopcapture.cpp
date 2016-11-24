@@ -22,10 +22,12 @@
 
 QObject *DesktopCapture::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new DesktopCaptureElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new DesktopCaptureElement();
+
+    return nullptr;
 }
 
 QStringList DesktopCapture::keys() const

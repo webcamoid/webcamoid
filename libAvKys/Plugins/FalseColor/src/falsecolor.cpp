@@ -22,10 +22,12 @@
 
 QObject *FalseColor::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new FalseColorElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new FalseColorElement();
+
+    return nullptr;
 }
 
 QStringList FalseColor::keys() const

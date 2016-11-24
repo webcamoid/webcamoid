@@ -22,10 +22,12 @@
 
 QObject *Quark::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new QuarkElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new QuarkElement();
+
+    return nullptr;
 }
 
 QStringList Quark::keys() const

@@ -22,10 +22,12 @@
 
 QObject *Cartoon::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new CartoonElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new CartoonElement();
+
+    return nullptr;
 }
 
 QStringList Cartoon::keys() const

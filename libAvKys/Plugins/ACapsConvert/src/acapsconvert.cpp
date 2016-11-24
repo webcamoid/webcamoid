@@ -22,10 +22,12 @@
 
 QObject *ACapsConvert::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ACapsConvertElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ACapsConvertElement();
+
+    return nullptr;
 }
 
 QStringList ACapsConvert::keys() const

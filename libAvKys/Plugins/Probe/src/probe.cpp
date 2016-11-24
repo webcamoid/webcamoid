@@ -22,10 +22,12 @@
 
 QObject *Probe::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ProbeElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ProbeElement();
+
+    return nullptr;
 }
 
 QStringList Probe::keys() const

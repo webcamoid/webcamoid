@@ -22,10 +22,12 @@
 
 QObject *Aging::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new AgingElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new AgingElement();
+
+    return nullptr;
 }
 
 QStringList Aging::keys() const

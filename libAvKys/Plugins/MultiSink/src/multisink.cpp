@@ -22,10 +22,12 @@
 
 QObject *MultiSink::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new MultiSinkElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new MultiSinkElement();
+
+    return nullptr;
 }
 
 QStringList MultiSink::keys() const

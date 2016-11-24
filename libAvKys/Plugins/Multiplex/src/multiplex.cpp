@@ -22,10 +22,12 @@
 
 QObject *Multiplex::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new MultiplexElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new MultiplexElement();
+
+    return nullptr;
 }
 
 QStringList Multiplex::keys() const

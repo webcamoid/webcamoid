@@ -22,10 +22,12 @@
 
 QObject *Wave::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new WaveElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new WaveElement();
+
+    return nullptr;
 }
 
 QStringList Wave::keys() const

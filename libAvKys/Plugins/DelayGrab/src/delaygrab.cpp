@@ -22,10 +22,12 @@
 
 QObject *DelayGrab::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new DelayGrabElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new DelayGrabElement();
+
+    return nullptr;
 }
 
 QStringList DelayGrab::keys() const

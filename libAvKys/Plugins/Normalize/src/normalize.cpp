@@ -22,10 +22,12 @@
 
 QObject *Normalize::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new NormalizeElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new NormalizeElement();
+
+    return nullptr;
 }
 
 QStringList Normalize::keys() const

@@ -22,10 +22,12 @@
 
 QObject *Emboss::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new EmbossElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new EmbossElement();
+
+    return nullptr;
 }
 
 QStringList Emboss::keys() const

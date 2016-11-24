@@ -22,10 +22,12 @@
 
 QObject *Vignette::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new VignetteElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new VignetteElement();
+
+    return nullptr;
 }
 
 QStringList Vignette::keys() const

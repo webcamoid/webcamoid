@@ -22,10 +22,12 @@
 
 QObject *Fire::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new FireElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new FireElement();
+
+    return nullptr;
 }
 
 QStringList Fire::keys() const

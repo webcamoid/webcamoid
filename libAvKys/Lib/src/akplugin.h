@@ -22,6 +22,9 @@
 
 #include <QtPlugin>
 
+#define AK_PLUGIN_TYPE_ELEMENT   "Ak.Element"
+#define AK_PLUGIN_TYPE_SUBMODULE "Ak.SubModule"
+
 class AkPlugin
 {
     public:

@@ -22,10 +22,12 @@
 
 QObject *Warp::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new WarpElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new WarpElement();
+
+    return nullptr;
 }
 
 QStringList Warp::keys() const

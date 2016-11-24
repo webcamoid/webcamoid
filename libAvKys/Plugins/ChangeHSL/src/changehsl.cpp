@@ -22,10 +22,12 @@
 
 QObject *ChangeHSL::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ChangeHSLElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ChangeHSLElement();
+
+    return nullptr;
 }
 
 QStringList ChangeHSL::keys() const

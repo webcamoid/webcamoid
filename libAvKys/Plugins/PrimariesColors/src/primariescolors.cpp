@@ -22,10 +22,12 @@
 
 QObject *PrimariesColors::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new PrimariesColorsElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new PrimariesColorsElement();
+
+    return nullptr;
 }
 
 QStringList PrimariesColors::keys() const

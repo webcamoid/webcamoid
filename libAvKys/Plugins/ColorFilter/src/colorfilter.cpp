@@ -22,10 +22,12 @@
 
 QObject *ColorFilter::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ColorFilterElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ColorFilterElement();
+
+    return nullptr;
 }
 
 QStringList ColorFilter::keys() const

@@ -22,10 +22,12 @@
 
 QObject *MultiSrc::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new MultiSrcElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new MultiSrcElement();
+
+    return nullptr;
 }
 
 QStringList MultiSrc::keys() const

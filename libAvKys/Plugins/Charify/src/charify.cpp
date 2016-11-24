@@ -22,10 +22,12 @@
 
 QObject *Charify::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new CharifyElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new CharifyElement();
+
+    return nullptr;
 }
 
 QStringList Charify::keys() const

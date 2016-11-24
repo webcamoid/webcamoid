@@ -46,6 +46,8 @@ class AkElement: public QObject
     Q_ENUMS(SearchPaths)
     Q_PROPERTY(QString pluginId
                READ pluginId)
+    Q_PROPERTY(QString pluginPath
+               READ pluginPath)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -71,6 +73,7 @@ class AkElement: public QObject
         virtual ~AkElement();
 
         Q_INVOKABLE QString pluginId() const;
+        Q_INVOKABLE QString pluginPath() const;
         Q_INVOKABLE virtual AkElement::ElementState state() const;
         Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,
                                                       const QString &controlId) const;
@@ -101,12 +104,22 @@ class AkElement: public QObject
                                        const QObject *dstElement);
         Q_INVOKABLE static AkElementPtr create(const QString &pluginId,
                                                const QString &elementName="");
+        Q_INVOKABLE static QStringList listSubModules(const QString &pluginId);
+        Q_INVOKABLE QStringList listSubModules();
+        Q_INVOKABLE static QStringList listSubModulesPaths(const QString &pluginId);
+        Q_INVOKABLE QStringList listSubModulesPaths();
+        Q_INVOKABLE static QObject *loadSubModule(const QString &pluginId,
+                                                  const QString &subModule);
+        Q_INVOKABLE QObject *loadSubModule(const QString &subModule);
         Q_INVOKABLE static bool recursiveSearch();
         Q_INVOKABLE static void setRecursiveSearch(bool enable);
         Q_INVOKABLE static QStringList searchPaths(SearchPaths pathType=SearchPathsAll);
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();
+        Q_INVOKABLE static QString subModulesPath();
+        Q_INVOKABLE static void setSubModulesPath(const QString &subModulesPath);
+        Q_INVOKABLE static void resetSubModulesPath();
         Q_INVOKABLE static QStringList listPlugins(const QString &type="");
         Q_INVOKABLE static QStringList listPluginPaths(const QString &searchPath);
         Q_INVOKABLE static QStringList listPluginPaths();

@@ -22,10 +22,12 @@
 
 QObject *ColorReplace::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new ColorReplaceElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new ColorReplaceElement();
+
+    return nullptr;
 }
 
 QStringList ColorReplace::keys() const

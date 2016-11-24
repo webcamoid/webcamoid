@@ -22,10 +22,12 @@
 
 QObject *VirtualCamera::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new VirtualCameraElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new VirtualCameraElement();
+
+    return nullptr;
 }
 
 QStringList VirtualCamera::keys() const

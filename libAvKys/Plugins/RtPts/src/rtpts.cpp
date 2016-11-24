@@ -22,10 +22,12 @@
 
 QObject *RtPts::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new RtPtsElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new RtPtsElement();
+
+    return nullptr;
 }
 
 QStringList RtPts::keys() const

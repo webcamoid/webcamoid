@@ -22,10 +22,12 @@
 
 QObject *Cinema::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new CinemaElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new CinemaElement();
+
+    return nullptr;
 }
 
 QStringList Cinema::keys() const

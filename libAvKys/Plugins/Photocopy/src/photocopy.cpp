@@ -22,10 +22,12 @@
 
 QObject *Photocopy::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new PhotocopyElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new PhotocopyElement();
+
+    return nullptr;
 }
 
 QStringList Photocopy::keys() const

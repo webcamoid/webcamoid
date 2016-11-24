@@ -22,10 +22,12 @@
 
 QObject *Temperature::create(const QString &key, const QString &specification)
 {
-    Q_UNUSED(key)
     Q_UNUSED(specification)
 
-    return new TemperatureElement();
+    if (key == AK_PLUGIN_TYPE_ELEMENT)
+        return new TemperatureElement();
+
+    return nullptr;
 }
 
 QStringList Temperature::keys() const
