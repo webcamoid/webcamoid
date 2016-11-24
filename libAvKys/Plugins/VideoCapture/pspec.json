@@ -1,4 +1,5 @@
 {
+    "pluginType": "Ak.Element",
     "type": "Multimedia",
     "description": "Capture video from a webcam"
 }

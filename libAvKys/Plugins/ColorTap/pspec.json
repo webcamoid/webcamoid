@@ -1,4 +1,5 @@
 {
+    "pluginType": "Ak.Element",
     "type": "VideoFilter",
     "description": "Color from Palette"
 }

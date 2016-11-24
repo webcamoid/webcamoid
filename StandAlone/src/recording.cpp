@@ -86,28 +86,32 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                      &Recording::recordAudioChanged,
                      this,
                      &Recording::capsUpdated);
-    QObject::connect(this->m_record.data(),
-                     SIGNAL(userControlsValuesChanged(const QVariantMap &)),
-                     this,
-                     SLOT(userControlsUpdated(const QVariantMap &)));
+
+    if (this->m_record)
+        QObject::connect(this->m_record.data(),
+                         SIGNAL(userControlsValuesChanged(const QVariantMap &)),
+                         this,
+                         SLOT(userControlsUpdated(const QVariantMap &)));
 
     this->m_availableFormats = this->recordingFormats();
     this->loadProperties();
 
-    QVariantList controls {
-        QVariantList {
-            tr(AUDIO_RECORDING_KEY),
-            "boolean",
-            0,
-            1,
-            1,
-            DEFAULT_RECORD_AUDIO,
-            this->m_recordAudio,
-            QStringList()
-        }
-    };
+    if (this->m_record) {
+        QVariantList controls {
+            QVariantList {
+                tr(AUDIO_RECORDING_KEY),
+                "boolean",
+                0,
+                1,
+                1,
+                DEFAULT_RECORD_AUDIO,
+                this->m_recordAudio,
+                QStringList()
+            }
+        };
 
-    this->m_record->setProperty("userControls", controls);
+        this->m_record->setProperty("userControls", controls);
+    }
 }
 
 Recording::~Recording()

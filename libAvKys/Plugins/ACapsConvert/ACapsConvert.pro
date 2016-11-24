@@ -20,7 +20,6 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-SUBDIRS += \
-    src/ffmpeg \
-    src/gstreamer \
-    src
+SUBDIRS += src
+CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
+CONFIG(config_gstreamer): SUBDIRS += src/gstreamer

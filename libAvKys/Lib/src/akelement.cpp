@@ -328,9 +328,11 @@ QStringList AkElement::listSubModulesPaths(const QString &pluginId)
             continue;
 
         if (auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance())) {
-            if (auto obj = plugin->create(AK_PLUGIN_TYPE_SUBMODULE, "")) {
+            auto metaData = pluginLoader.metaData();
+
+            if (metaData["MetaData"].toObject().contains("pluginType")
+                && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_SUBMODULE) {
                 subModulesPaths << pluginPath;
-                delete obj;
             }
 
             delete plugin;
@@ -499,7 +501,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
 {
     QString searchDir(searchPath);
 
-    searchDir = searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
+    searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
                                   QDir::separator());
 
     while (searchDir.endsWith(QDir::separator()))
@@ -523,45 +525,40 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
                 QPluginLoader pluginLoader(path);
 
                 if (pluginLoader.load()) {
+                    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+                    if (plugin) {
+                        auto metaData = pluginLoader.metaData();
+
+                        if (metaData["MetaData"].toObject().contains("pluginType")
+                            && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
+                            files << path;
+                        }
+
+                        delete plugin;
+                    }
+
                     pluginLoader.unload();
-                    files << path;
                 }
             }
         } else {
             QDir dir(path);
-            QStringList fileList = dir.entryList(QDir::Files,
-                                                 QDir::Name);
+            auto fileList = dir.entryList({akElementGlobalStuff->m_pluginFilePattern},
+                                          QDir::Files
+                                          | QDir::CaseSensitive,
+                                          QDir::Name);
 
             for (const QString &file: fileList)
-                if (QRegExp(akElementGlobalStuff->m_pluginFilePattern,
-                            Qt::CaseSensitive,
-                            QRegExp::Wildcard).exactMatch(file)) {
-                    QString pluginPath = QString("%1%2%3").arg(path)
-                                                          .arg(QDir::separator())
-                                                          .arg(file);
+                searchPaths << dir.absoluteFilePath(file);
 
-                    if (akElementGlobalStuff->m_pluginsBlackList.contains(pluginPath))
-                        continue;
+            if (akElementGlobalStuff->m_recursiveSearchPaths) {
+                auto dirList = dir.entryList(QDir::Dirs
+                                             | QDir::NoDotAndDotDot,
+                                             QDir::Name);
 
-                    QPluginLoader pluginLoader(pluginPath);
-
-                    if (pluginLoader.load()) {
-                        pluginLoader.unload();
-                        files << pluginPath;
-                    }
-                }
-
-            if (!akElementGlobalStuff->m_recursiveSearchPaths)
-                break;
-
-            QStringList dirList = dir.entryList(QDir::Dirs
-                                                | QDir::NoDotAndDotDot,
-                                                QDir::Name);
-
-            for (const QString &dir: dirList)
-                searchPaths << QString("%1%2%3").arg(path)
-                                                .arg(QDir::separator())
-                                                .arg(dir);
+                for (const QString &path: dirList)
+                    searchPaths << dir.absoluteFilePath(path);
+            }
         }
     }
 
