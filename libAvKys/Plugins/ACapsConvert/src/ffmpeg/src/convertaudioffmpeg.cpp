@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "convertaudio.h"
+#include "convertaudioffmpeg.h"
 
 typedef QMap<AkAudioCaps::ChannelLayout, int64_t> ChannelLayoutsMap;
 
@@ -33,20 +33,20 @@ inline ChannelLayoutsMap initChannelFormatsMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormatsMap()))
 
-ConvertAudio::ConvertAudio(QObject *parent):
-    QObject(parent)
+ConvertAudioFFmpeg::ConvertAudioFFmpeg(QObject *parent):
+    ConvertAudio(parent)
 {
     this->m_resampleContext = NULL;
 }
 
-ConvertAudio::~ConvertAudio()
+ConvertAudioFFmpeg::~ConvertAudioFFmpeg()
 {
     if (this->m_resampleContext)
         swr_free(&this->m_resampleContext);
 }
 
-AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
-                               const AkCaps &oCaps)
+AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet,
+                                     const AkCaps &oCaps)
 {
     AkAudioCaps oAudioCaps(oCaps);
 

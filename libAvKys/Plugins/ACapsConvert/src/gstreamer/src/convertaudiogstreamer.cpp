@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "convertaudio.h"
+#include "convertaudiogstreamer.h"
 
 typedef QMap<QString, QString> StringStringMap;
 
@@ -75,8 +75,8 @@ inline StringStringMap initGstToFF()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
-ConvertAudio::ConvertAudio(QObject *parent):
-    QObject(parent)
+ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
+    ConvertAudio(parent)
 {
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(NULL, NULL);
@@ -114,7 +114,7 @@ ConvertAudio::ConvertAudio(QObject *parent):
     gst_object_unref(bus);
 }
 
-ConvertAudio::~ConvertAudio()
+ConvertAudioGStreamer::~ConvertAudioGStreamer()
 {
     if (this->m_pipeline) {
         gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
@@ -132,8 +132,8 @@ ConvertAudio::~ConvertAudio()
     }
 }
 
-AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
-                               const AkCaps &oCaps)
+AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet,
+                                        const AkCaps &oCaps)
 {
     QString iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
     QString gstIFormat = gstToFF->key(iFormat, "S16");
@@ -253,7 +253,7 @@ AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
     return oAudioPacket.toPacket();
 }
 
-void ConvertAudio::waitState(GstState state)
+void ConvertAudioGStreamer::waitState(GstState state)
 {
     forever {
         GstState curState;
@@ -271,12 +271,12 @@ void ConvertAudio::waitState(GstState state)
     }
 }
 
-gboolean ConvertAudio::busCallback(GstBus *bus,
+gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
                                    GstMessage *message,
                                    gpointer userData)
 {
     Q_UNUSED(bus)
-    ConvertAudio *self = static_cast<ConvertAudio *>(userData);
+    ConvertAudioGStreamer *self = static_cast<ConvertAudioGStreamer *>(userData);
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {

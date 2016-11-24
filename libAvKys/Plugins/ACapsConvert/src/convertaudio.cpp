@@ -17,20 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef ACAPSCONVERT_H
-#define ACAPSCONVERT_H
+#include "convertaudio.h"
 
-#include <ak.h>
-
-class ACapsConvert: public QObject, public AkPlugin
+ConvertAudio::ConvertAudio(QObject *parent):
+    QObject(parent)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+}
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+ConvertAudio::~ConvertAudio()
+{
+}
 
-#endif // ACAPSCONVERT_H
+AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
+                               const AkCaps &oCaps)
+{
+    Q_UNUSED(packet)
+    Q_UNUSED(oCaps)
+
+    return AkPacket();
+}

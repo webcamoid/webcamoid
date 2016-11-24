@@ -17,20 +17,33 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef ACAPSCONVERT_H
-#define ACAPSCONVERT_H
+#ifndef CONVERTAUDIOFFMPEG_H
+#define CONVERTAUDIOFFMPEG_H
 
-#include <ak.h>
+#include <akaudiopacket.h>
 
-class ACapsConvert: public QObject, public AkPlugin
+extern "C"
+{
+    #include <libavcodec/avcodec.h>
+    #include <libavutil/channel_layout.h>
+    #include <libswresample/swresample.h>
+}
+
+#include "convertaudio.h"
+
+class ConvertAudioFFmpeg: public ConvertAudio
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
 
     public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
+        explicit ConvertAudioFFmpeg(QObject *parent=NULL);
+        ~ConvertAudioFFmpeg();
+
+        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet,
+                                     const AkCaps &oCaps);
+
+    private:
+        SwrContext *m_resampleContext;
 };
 
-#endif // ACAPSCONVERT_H
+#endif // CONVERTAUDIOFFMPEG_H

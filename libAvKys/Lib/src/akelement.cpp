@@ -350,7 +350,7 @@ QObject *AkElement::loadSubModule(const QString &pluginId,
 {
     auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
 
-    for (const QString &subModulesPath: subModulesPaths)
+    for (const QString &subModulesPath: subModulesPaths) {
         if (AkElementPrivate::pluginId(subModulesPath) == subModule) {
             QPluginLoader pluginLoader(subModulesPath);
 
@@ -373,6 +373,7 @@ QObject *AkElement::loadSubModule(const QString &pluginId,
 
             return obj;
         }
+    }
 
     return nullptr;
 }

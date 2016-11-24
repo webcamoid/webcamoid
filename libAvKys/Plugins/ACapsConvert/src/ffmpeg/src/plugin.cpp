@@ -17,31 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CONVERTAUDIO_H
-#define CONVERTAUDIO_H
+#include "plugin.h"
+#include "convertaudioffmpeg.h"
 
-#include <akaudiopacket.h>
-
-extern "C"
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/channel_layout.h>
-    #include <libswresample/swresample.h>
+    Q_UNUSED(specification)
+
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new ConvertAudioFFmpeg();
+
+    return nullptr;
 }
 
-class ConvertAudio: public QObject
+QStringList Plugin::keys() const
 {
-    Q_OBJECT
-
-    public:
-        explicit ConvertAudio(QObject *parent=NULL);
-        ~ConvertAudio();
-
-        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet,
-                                     const AkCaps &oCaps);
-
-    private:
-        SwrContext *m_resampleContext;
-};
-
-#endif // CONVERTAUDIO_H
+    return QStringList();
+}

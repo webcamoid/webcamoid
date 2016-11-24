@@ -26,19 +26,45 @@ exists(commons.pri) {
     }
 }
 
-DEFINES += __STDC_CONSTANT_MACROS
+CONFIG += plugin
 
-HEADERS += $$PWD/convertaudio.h
-SOURCES += $$PWD/convertaudio.cpp
+HEADERS += \
+    src/plugin.h \
+    src/convertaudiogstreamer.h \
+    ../convertaudio.h
 
-!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
-!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
 
-isEmpty(FFMPEGLIBS) {
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
+!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
+
+isEmpty(GSTREAMERLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        libavcodec \
-        libswresample \
-        libavutil
+        gstreamer-1.0 \
+        gstreamer-app-1.0 \
+        gstreamer-audio-1.0 \
+        gstreamer-pbutils-1.0
 }
+
+QT += qml concurrent
+
+SOURCES += \
+    src/plugin.cpp \
+    src/convertaudiogstreamer.cpp \
+    ../convertaudio.cpp
+
+DESTDIR = $${PWD}/../../submodules/ACapsConvert
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/ACapsConvert

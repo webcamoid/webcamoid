@@ -20,11 +20,7 @@
 #ifndef CONVERTAUDIO_H
 #define CONVERTAUDIO_H
 
-#include <QtConcurrent>
 #include <akaudiopacket.h>
-#include <gst/audio/audio.h>
-#include <gst/app/gstappsrc.h>
-#include <gst/app/gstappsink.h>
 
 class ConvertAudio: public QObject
 {
@@ -32,23 +28,10 @@ class ConvertAudio: public QObject
 
     public:
         explicit ConvertAudio(QObject *parent=NULL);
-        ~ConvertAudio();
+        virtual ~ConvertAudio();
 
-        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet,
-                                     const AkCaps &oCaps);
-
-    private:
-        QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GstElement *m_source;
-        GstElement *m_sink;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
-
-        void waitState(GstState state);
-        static gboolean busCallback(GstBus *bus,
-                                    GstMessage *message,
-                                    gpointer userData);
+        virtual AkPacket convert(const AkAudioPacket &packet,
+                                 const AkCaps &oCaps);
 };
 
 #endif // CONVERTAUDIO_H

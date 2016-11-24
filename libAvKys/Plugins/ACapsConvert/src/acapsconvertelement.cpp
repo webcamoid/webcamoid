@@ -19,13 +19,27 @@
 
 #include "acapsconvertelement.h"
 
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
+
+template<typename T>
+inline QSharedPointer<T> obj_cast(QObject *obj)
+{
+    return QSharedPointer<T>(dynamic_cast<T *>(obj));
+}
+
 ACapsConvertElement::ACapsConvertElement(): AkElement()
 {
+    this->resetConvertLib();
 }
 
 QString ACapsConvertElement::caps() const
 {
     return this->m_caps.toString();
+}
+
+QString ACapsConvertElement::convertLib() const
+{
+    return this->m_convertLib;
 }
 
 void ACapsConvertElement::setCaps(const QString &caps)
@@ -39,9 +53,42 @@ void ACapsConvertElement::setCaps(const QString &caps)
     emit this->capsChanged(caps);
 }
 
+void ACapsConvertElement::setConvertLib(const QString &convertLib)
+{
+    if (this->m_convertLib == convertLib)
+        return;
+
+    this->m_mutex.lock();
+    this->m_convertLib = convertLib;
+
+    this->m_convertAudio =
+            obj_cast<ConvertAudio>(this->loadSubModule("ACapsConvert",
+                                                       convertLib));
+    this->m_mutex.unlock();
+
+    emit this->convertLibChanged(convertLib);
+}
+
 void ACapsConvertElement::resetCaps()
 {
     this->setCaps("");
+}
+
+void ACapsConvertElement::resetConvertLib()
+{
+    auto subModules = this->listSubModules("ACapsConvert");
+
+    for (const QString &framework: *preferredFramework)
+        if (subModules.contains(framework)) {
+            this->setConvertLib(framework);
+
+            return;
+        }
+
+    if (this->m_convertLib.isEmpty() && !subModules.isEmpty())
+        this->setConvertLib(subModules.first());
+    else
+        this->setConvertLib("");
 }
 
 AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)
@@ -49,7 +96,15 @@ AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)
     this->m_mutex.lock();
     AkCaps caps = this->m_caps;
     this->m_mutex.unlock();
-    AkPacket oPacket = this->m_convertAudio.convert(packet, caps);
+
+    AkPacket oPacket;
+
+    this->m_mutex.lock();
+
+    if (this->m_convertAudio)
+        oPacket = this->m_convertAudio->convert(packet, caps);
+
+    this->m_mutex.unlock();
 
     akSend(oPacket)
 }

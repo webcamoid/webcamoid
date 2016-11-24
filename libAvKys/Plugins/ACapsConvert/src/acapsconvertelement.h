@@ -23,11 +23,9 @@
 #include <QMutex>
 #include <ak.h>
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertaudio.h"
-#else
-#include "ffmpeg/convertaudio.h"
-#endif
+#include "convertaudio.h"
+
+typedef QSharedPointer<ConvertAudio> ConvertAudioPtr;
 
 class ACapsConvertElement: public AkElement
 {
@@ -37,23 +35,33 @@ class ACapsConvertElement: public AkElement
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
+    Q_PROPERTY(QString convertLib
+               READ convertLib
+               WRITE setConvertLib
+               RESET resetConvertLib
+               NOTIFY convertLibChanged)
 
     public:
         explicit ACapsConvertElement();
 
         Q_INVOKABLE QString caps() const;
+        Q_INVOKABLE QString convertLib() const;
 
     private:
         AkCaps m_caps;
-        ConvertAudio m_convertAudio;
+        QString m_convertLib;
+        ConvertAudioPtr m_convertAudio;
         QMutex m_mutex;
 
     signals:
         void capsChanged(const QString &caps);
+        void convertLibChanged(const QString &convertLib);
 
     public slots:
         void setCaps(const QString &caps);
+        void setConvertLib(const QString &convertLib);
         void resetCaps();
+        void resetConvertLib();
 
         AkPacket iStream(const AkAudioPacket &packet);
 };

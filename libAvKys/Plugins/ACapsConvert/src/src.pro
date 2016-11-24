@@ -16,11 +16,42 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS += \
-    src/ffmpeg \
-    src/gstreamer \
-    src
+HEADERS += \
+    acapsconvert.h \
+    acapsconvertelement.h \
+    convertaudio.h
+
+INCLUDEPATH += \
+    ../../../Lib/src
+
+LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += ../pspec.json
+
+QT += qml
+
+SOURCES += \
+    acapsconvert.cpp \
+    acapsconvertelement.cpp \
+    convertaudio.cpp
+
+DESTDIR = $${PWD}/..
+TARGET = ACapsConvert
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}
