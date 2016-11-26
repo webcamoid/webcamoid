@@ -16,8 +16,42 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-HEADERS += $$PWD/audiodev.h
-SOURCES += $$PWD/audiodev.cpp
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += link_pkgconfig
-PKGCONFIG += libpulse-simple
+CONFIG += plugin
+
+HEADERS += \
+    audiodevice.h \
+    audiodeviceelement.h \
+    audiodev.h
+
+INCLUDEPATH += \
+    ../../../Lib/src
+
+LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += ../pspec.json
+
+QT += qml concurrent
+
+SOURCES += \
+    audiodevice.cpp \
+    audiodeviceelement.cpp \
+    audiodev.cpp
+
+DESTDIR = $${PWD}/..
+TARGET = AudioDevice
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}

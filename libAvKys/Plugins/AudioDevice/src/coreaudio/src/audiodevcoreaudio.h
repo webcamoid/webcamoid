@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEV_H
-#define AUDIODEV_H
+#ifndef AUDIODEVCOREAUDIO_H
+#define AUDIODEVCOREAUDIO_H
 
 #include <CoreAudio/CoreAudio.h>
 #include <AudioUnit/AudioUnit.h>
@@ -26,16 +26,15 @@
 
 #include <akaudiocaps.h>
 
-class AudioDev: public QObject
+#include "audiodev.h"
+
+class AudioDevCoreAudio: public AudioDev
 {
     Q_OBJECT
-    Q_PROPERTY(QString error
-               READ error
-               NOTIFY errorChanged)
 
     public:
-        explicit AudioDev(QObject *parent=NULL);
-        ~AudioDev();
+        explicit AudioDevCoreAudio(QObject *parent=NULL);
+        ~AudioDevCoreAudio();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString defaultInput();
@@ -90,13 +89,6 @@ class AudioDev: public QObject
                                       UInt32 busNumber,
                                       UInt32 nFrames,
                                       AudioBufferList *data);
-
-    signals:
-        void errorChanged(const QString &error);
-        void defaultInputChanged(const QString &defaultInput);
-        void defaultOutputChanged(const QString &defaultOutput);
-        void inputsChanged(const QStringList &inputs);
-        void outputsChanged(const QStringList &outputs);
 };
 
-#endif // AUDIODEV_H
+#endif // AUDIODEVCOREAUDIO_H

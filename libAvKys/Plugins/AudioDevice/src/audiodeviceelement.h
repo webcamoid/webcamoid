@@ -25,13 +25,9 @@
 #include <QtConcurrent>
 #include <ak.h>
 
-#ifdef Q_OS_WIN32
-#include "wasapi/audiodev.h"
-#elif defined(Q_OS_OSX)
-#include "coreaudio/audiodev.h"
-#else
-#include "pulseaudio/audiodev.h"
-#endif
+#include "audiodev.h"
+
+typedef QSharedPointer<AudioDev> AudioDevPtr;
 
 class AudioDeviceElement: public AkElement
 {
@@ -64,6 +60,11 @@ class AudioDeviceElement: public AkElement
                WRITE setCaps
                RESET resetCaps
                NOTIFY capsChanged)
+    Q_PROPERTY(QString audioLib
+               READ audioLib
+               WRITE setAudioLib
+               RESET resetAudioLib
+               NOTIFY audioLibChanged)
 
     public:
         explicit AudioDeviceElement();
@@ -77,16 +78,19 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE int bufferSize() const;
         Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE QString audioLib() const;
 
     private:
         QString m_device;
         int m_bufferSize;
         AkCaps m_caps;
-        AudioDev m_audioDevice;
+        QString m_audioLib;
+        AudioDevPtr m_audioDevice;
         AkElementPtr m_convert;
         QThreadPool m_threadPool;
         QFuture<void> m_readFramesLoopResult;
         QMutex m_mutex;
+        QMutex m_mutexLib;
         bool m_readFramesLoop;
         bool m_pause;
 
@@ -100,16 +104,22 @@ class AudioDeviceElement: public AkElement
         void deviceChanged(const QString &device);
         void bufferSizeChanged(int bufferSize);
         void capsChanged(const AkCaps &caps);
+        void audioLibChanged(const QString &audioLib);
 
     public slots:
         void setDevice(const QString &device);
         void setBufferSize(int bufferSize);
         void setCaps(const AkCaps &caps);
+        void setAudioLib(const QString &audioLib);
         void resetDevice();
         void resetBufferSize();
         void resetCaps();
+        void resetAudioLib();
         AkPacket iStream(const AkAudioPacket &packet);
         bool setState(AkElement::ElementState state);
+
+    private slots:
+        void audioLibUpdated(const QString &audioLib);
 };
 
 #endif // AUDIODEVICEELEMENT_H

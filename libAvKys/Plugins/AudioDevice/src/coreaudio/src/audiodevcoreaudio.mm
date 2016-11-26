@@ -17,13 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "audiodev.h"
+#include "audiodevcoreaudio.h"
 
 #define OUTPUT_DEVICE 0
 #define INPUT_DEVICE  1
 
-AudioDev::AudioDev(QObject *parent):
-    QObject(parent)
+AudioDevCoreAudio::AudioDevCoreAudio(QObject *parent):
+    AudioDev(parent)
 {
     this->m_audioUnit = NULL;
     this->m_bufferSize = 0;
@@ -67,7 +67,7 @@ AudioDev::AudioDev(QObject *parent):
                                    this);
 }
 
-AudioDev::~AudioDev()
+AudioDevCoreAudio::~AudioDevCoreAudio()
 {
     this->uninit();
 
@@ -105,12 +105,12 @@ AudioDev::~AudioDev()
                                       this);
 }
 
-QString AudioDev::error() const
+QString AudioDevCoreAudio::error() const
 {
     return this->m_error;
 }
 
-QString AudioDev::defaultInput()
+QString AudioDevCoreAudio::defaultInput()
 {
     bool ok = false;
     QString deviceId = defaultDevice(true, &ok);
@@ -118,7 +118,7 @@ QString AudioDev::defaultInput()
     return ok? deviceId: QString();
 }
 
-QString AudioDev::defaultOutput()
+QString AudioDevCoreAudio::defaultOutput()
 {
     bool ok = false;
     QString deviceId = defaultDevice(false, &ok);
@@ -126,17 +126,17 @@ QString AudioDev::defaultOutput()
     return ok? deviceId: QString();
 }
 
-QStringList AudioDev::inputs()
+QStringList AudioDevCoreAudio::inputs()
 {
     return this->m_inputs;
 }
 
-QStringList AudioDev::outputs()
+QStringList AudioDevCoreAudio::outputs()
 {
     return this->m_outputs;
 }
 
-QString AudioDev::description(const QString &device)
+QString AudioDevCoreAudio::description(const QString &device)
 {
     QStringList deviceParts = device.split(':');
 
@@ -180,7 +180,7 @@ QString AudioDev::description(const QString &device)
 }
 
 // Get native format for the default audio device.
-AkAudioCaps AudioDev::preferredFormat(const QString &device)
+AkAudioCaps AudioDevCoreAudio::preferredFormat(const QString &device)
 {
     QStringList deviceParts = device.split(':');
 
@@ -353,7 +353,7 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
     return defaultCaps;
 }
 
-bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
+bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
 {
     QStringList deviceParts = device.split(':');
 
@@ -442,7 +442,7 @@ bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
 
     // Set callback.
     AURenderCallbackStruct callback = {
-        AudioDev::audioCallback,
+        AudioDevCoreAudio::audioCallback,
         this
     };
 
@@ -591,7 +591,7 @@ bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
     return true;
 }
 
-QByteArray AudioDev::read(int samples)
+QByteArray AudioDevCoreAudio::read(int samples)
 {
     int bufferSize = this->m_curCaps.bps() * this->m_curCaps.channels() * samples / 8;
     QByteArray audioData;
@@ -613,7 +613,7 @@ QByteArray AudioDev::read(int samples)
     return audioData;
 }
 
-bool AudioDev::write(const QByteArray &frame)
+bool AudioDevCoreAudio::write(const QByteArray &frame)
 {
     this->m_mutex.lock();
 
@@ -626,7 +626,7 @@ bool AudioDev::write(const QByteArray &frame)
     return true;
 }
 
-bool AudioDev::uninit()
+bool AudioDevCoreAudio::uninit()
 {
     if (this->m_bufferList) {
         free(this->m_bufferList);
@@ -648,7 +648,7 @@ bool AudioDev::uninit()
     return true;
 }
 
-QString AudioDev::statusToStr(OSStatus status)
+QString AudioDevCoreAudio::statusToStr(OSStatus status)
 {
     QString statusStr = QString::fromUtf8(reinterpret_cast<char *>(&status), 4);
     std::reverse(statusStr.begin(), statusStr.end());
@@ -656,7 +656,7 @@ QString AudioDev::statusToStr(OSStatus status)
     return statusStr;
 }
 
-QString AudioDev::CFStringToString(const CFStringRef &cfstr)
+QString AudioDevCoreAudio::CFStringToString(const CFStringRef &cfstr)
 {
     CFIndex len = CFStringGetLength(cfstr);
     const UniChar *data = CFStringGetCharactersPtr(cfstr);
@@ -670,7 +670,7 @@ QString AudioDev::CFStringToString(const CFStringRef &cfstr)
     return QString(reinterpret_cast<const QChar *>(str), len);
 }
 
-QString AudioDev::defaultDevice(bool input, bool *ok)
+QString AudioDevCoreAudio::defaultDevice(bool input, bool *ok)
 {
     const AudioObjectPropertyAddress propDefaultDevice = {
         input?
@@ -704,7 +704,7 @@ QString AudioDev::defaultDevice(bool input, bool *ok)
     return QString("%1:%2").arg(input).arg(deviceId);
 }
 
-QStringList AudioDev::listDevices(bool input)
+QStringList AudioDevCoreAudio::listDevices(bool input)
 {
     static const AudioObjectPropertyAddress propDevices = {
         kAudioHardwarePropertyDevices,
@@ -771,7 +771,7 @@ QStringList AudioDev::listDevices(bool input)
     return deviceList;
 }
 
-void AudioDev::clearBuffer()
+void AudioDevCoreAudio::clearBuffer()
 {
     for (UInt32 i = 0; i < this->m_bufferList->mNumberBuffers; i++) {
         this->m_bufferList->mBuffers[i].mDataByteSize = 0;
@@ -779,8 +779,8 @@ void AudioDev::clearBuffer()
     }
 }
 
-QVector<AudioStreamRangedDescription> AudioDev::supportedFormats(AudioStreamID stream,
-                                                                 AudioObjectPropertySelector selector)
+QVector<AudioStreamRangedDescription> AudioDevCoreAudio::supportedFormats(AudioStreamID stream,
+                                                                          AudioObjectPropertySelector selector)
 {
     AudioObjectPropertyAddress physicalPropAddress = {
         selector,
@@ -814,7 +814,7 @@ QVector<AudioStreamRangedDescription> AudioDev::supportedFormats(AudioStreamID s
     return supportedFormats;
 }
 
-AkAudioCaps::SampleFormat AudioDev::descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription)
+AkAudioCaps::SampleFormat AudioDevCoreAudio::descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription)
 {
     UInt32 bps = streamDescription.mBitsPerChannel;
     AkAudioCaps::SampleType formatType =
@@ -836,16 +836,16 @@ AkAudioCaps::SampleFormat AudioDev::descriptionToSampleFormat(const AudioStreamB
                                                    planar);
 }
 
-OSStatus AudioDev::devicesChangedCallback(AudioObjectID objectId,
-                                          UInt32 nProps,
-                                          const AudioObjectPropertyAddress *properties,
-                                          void *audioDev)
+OSStatus AudioDevCoreAudio::devicesChangedCallback(AudioObjectID objectId,
+                                                   UInt32 nProps,
+                                                   const AudioObjectPropertyAddress *properties,
+                                                   void *audioDev)
 {
     Q_UNUSED(objectId)
     Q_UNUSED(nProps)
     Q_UNUSED(properties)
 
-    AudioDev *self = static_cast<AudioDev *>(audioDev);
+    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
     QStringList inputs = self->listDevices(true);
 
     if (self->m_inputs != inputs) {
@@ -863,13 +863,16 @@ OSStatus AudioDev::devicesChangedCallback(AudioObjectID objectId,
     return noErr;
 }
 
-OSStatus AudioDev::defaultInputDeviceChangedCallback(AudioObjectID objectId, UInt32 nProps, const AudioObjectPropertyAddress *properties, void *audioDev)
+OSStatus AudioDevCoreAudio::defaultInputDeviceChangedCallback(AudioObjectID objectId,
+                                                              UInt32 nProps,
+                                                              const AudioObjectPropertyAddress *properties,
+                                                              void *audioDev)
 {
     Q_UNUSED(objectId)
     Q_UNUSED(nProps)
     Q_UNUSED(properties)
 
-    AudioDev *self = static_cast<AudioDev *>(audioDev);
+    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
 
     if (self)
         emit self->defaultInputChanged(self->defaultInput());
@@ -877,13 +880,16 @@ OSStatus AudioDev::defaultInputDeviceChangedCallback(AudioObjectID objectId, UIn
     return noErr;
 }
 
-OSStatus AudioDev::defaultOutputDeviceChangedCallback(AudioObjectID objectId, UInt32 nProps, const AudioObjectPropertyAddress *properties, void *audioDev)
+OSStatus AudioDevCoreAudio::defaultOutputDeviceChangedCallback(AudioObjectID objectId,
+                                                               UInt32 nProps,
+                                                               const AudioObjectPropertyAddress *properties,
+                                                               void *audioDev)
 {
     Q_UNUSED(objectId)
     Q_UNUSED(nProps)
     Q_UNUSED(properties)
 
-    AudioDev *self = static_cast<AudioDev *>(audioDev);
+    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
 
     if (self)
         emit self->defaultOutputChanged(self->defaultOutput());
@@ -891,14 +897,14 @@ OSStatus AudioDev::defaultOutputDeviceChangedCallback(AudioObjectID objectId, UI
     return noErr;
 }
 
-OSStatus AudioDev::audioCallback(void *audioDev,
-                                 AudioUnitRenderActionFlags *actionFlags,
-                                 const AudioTimeStamp *timeStamp,
-                                 UInt32 busNumber,
-                                 UInt32 nFrames,
-                                 AudioBufferList *data)
+OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
+                                          AudioUnitRenderActionFlags *actionFlags,
+                                          const AudioTimeStamp *timeStamp,
+                                          UInt32 busNumber,
+                                          UInt32 nFrames,
+                                          AudioBufferList *data)
 {
-    AudioDev *self = static_cast<AudioDev *>(audioDev);
+    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
 
     if (!self)
         return noErr;

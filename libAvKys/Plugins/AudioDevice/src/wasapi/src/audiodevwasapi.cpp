@@ -19,7 +19,7 @@
 
 #include <QMap>
 
-#include "audiodev.h"
+#include "audiodevwasapi.h"
 
 #define MAX_ERRORS_READ_WRITE 5
 #define EVENT_TIMEOUT 1000
@@ -86,8 +86,8 @@ inline SampleFormatsMap initSampleFormatsMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatsMap, sampleFormats, (initSampleFormatsMap()))
 
-AudioDev::AudioDev(QObject *parent):
-    QObject(parent)
+AudioDevWasapi::AudioDevWasapi(QObject *parent):
+    AudioDev(parent)
 {
     this->m_deviceEnumerator = NULL;
     this->m_pDevice = NULL;
@@ -120,39 +120,39 @@ AudioDev::AudioDev(QObject *parent):
     this->m_outputs = this->listDevices(eRender);
 }
 
-AudioDev::~AudioDev()
+AudioDevWasapi::~AudioDevWasapi()
 {
     this->uninit();
     this->m_deviceEnumerator->UnregisterEndpointNotificationCallback(this);
     this->m_deviceEnumerator->Release();
 }
 
-QString AudioDev::error() const
+QString AudioDevWasapi::error() const
 {
     return this->m_error;
 }
 
-QString AudioDev::defaultInput()
+QString AudioDevWasapi::defaultInput()
 {
     return this->defaultDevice(eCapture);
 }
 
-QString AudioDev::defaultOutput()
+QString AudioDevWasapi::defaultOutput()
 {
     return this->defaultDevice(eRender);
 }
 
-QStringList AudioDev::inputs()
+QStringList AudioDevWasapi::inputs()
 {
     return this->m_inputs;
 }
 
-QStringList AudioDev::outputs()
+QStringList AudioDevWasapi::outputs()
 {
     return this->m_outputs;
 }
 
-QString AudioDev::AudioDev::description(const QString &device)
+QString AudioDevWasapi::AudioDevWasapi::description(const QString &device)
 {
     if (!this->m_deviceEnumerator) {
         this->m_error = "Device enumerator not created.";
@@ -199,7 +199,7 @@ QString AudioDev::AudioDev::description(const QString &device)
 }
 
 // Get native format for the default audio device.
-AkAudioCaps AudioDev::preferredFormat(const QString &device)
+AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
 {
     // Test if the device is already running,
     bool isActivated = this->m_pAudioClient? true: false;
@@ -278,9 +278,9 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
     return audioCaps;
 }
 
-bool AudioDev::init(const QString &device,
-                    const AkAudioCaps &caps,
-                    bool justActivate)
+bool AudioDevWasapi::init(const QString &device,
+                          const AkAudioCaps &caps,
+                          bool justActivate)
 {
     if (!this->m_deviceEnumerator) {
         this->m_error = "Device enumerator not created.";
@@ -411,7 +411,7 @@ bool AudioDev::init(const QString &device,
     return true;
 }
 
-QByteArray AudioDev::read(int samples)
+QByteArray AudioDevWasapi::read(int samples)
 {
     int bufferSize = samples
                      * this->m_curCaps.bps()
@@ -499,7 +499,7 @@ QByteArray AudioDev::read(int samples)
     return buffer;
 }
 
-bool AudioDev::write(const QByteArray &frame)
+bool AudioDevWasapi::write(const QByteArray &frame)
 {
     this->m_audioBuffer.append(frame);
     int nErrors = 0;
@@ -581,7 +581,7 @@ bool AudioDev::write(const QByteArray &frame)
     return true;
 }
 
-bool AudioDev::uninit()
+bool AudioDevWasapi::uninit()
 {
     bool ok = true;
     HRESULT hr;
@@ -622,7 +622,7 @@ bool AudioDev::uninit()
     return ok;
 }
 
-HRESULT AudioDev::QueryInterface(const IID &riid, void **ppvObject)
+HRESULT AudioDevWasapi::QueryInterface(const IID &riid, void **ppvObject)
 {
     if (riid == __uuidof(IUnknown)
         || riid == __uuidof(IMMNotificationClient))
@@ -638,12 +638,12 @@ HRESULT AudioDev::QueryInterface(const IID &riid, void **ppvObject)
     return S_OK;
 }
 
-ULONG AudioDev::AddRef()
+ULONG AudioDevWasapi::AddRef()
 {
     return InterlockedIncrement(&this->m_cRef);
 }
 
-ULONG AudioDev::Release()
+ULONG AudioDevWasapi::Release()
 {
     ULONG lRef = InterlockedDecrement(&this->m_cRef);
 
@@ -653,7 +653,7 @@ ULONG AudioDev::Release()
     return lRef;
 }
 
-QString AudioDev::defaultDevice(EDataFlow dataFlow)
+QString AudioDevWasapi::defaultDevice(EDataFlow dataFlow)
 {
     if (!this->m_deviceEnumerator) {
         this->m_error = "Device enumerator not created.";
@@ -692,7 +692,7 @@ QString AudioDev::defaultDevice(EDataFlow dataFlow)
     return id;
 }
 
-QStringList AudioDev::listDevices(EDataFlow dataFlow)
+QStringList AudioDevWasapi::listDevices(EDataFlow dataFlow)
 {
     if (!this->m_deviceEnumerator) {
         this->m_error = "Device enumerator not created.";
@@ -749,7 +749,8 @@ QStringList AudioDev::listDevices(EDataFlow dataFlow)
     return devices;
 }
 
-HRESULT AudioDev::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
+HRESULT AudioDevWasapi::OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
+                                             DWORD dwNewState)
 {
     Q_UNUSED(pwstrDeviceId)
     Q_UNUSED(dwNewState)
@@ -757,7 +758,7 @@ HRESULT AudioDev::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
     return S_OK;
 }
 
-HRESULT AudioDev::OnDeviceAdded(LPCWSTR pwstrDeviceId)
+HRESULT AudioDevWasapi::OnDeviceAdded(LPCWSTR pwstrDeviceId)
 {
     Q_UNUSED(pwstrDeviceId)
 
@@ -766,7 +767,7 @@ HRESULT AudioDev::OnDeviceAdded(LPCWSTR pwstrDeviceId)
     return S_OK;
 }
 
-HRESULT AudioDev::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
+HRESULT AudioDevWasapi::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
 {
     Q_UNUSED(pwstrDeviceId)
 
@@ -775,9 +776,9 @@ HRESULT AudioDev::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
     return S_OK;
 }
 
-HRESULT AudioDev::OnDefaultDeviceChanged(EDataFlow flow,
-                                         ERole role,
-                                         LPCWSTR pwstrDeviceId)
+HRESULT AudioDevWasapi::OnDefaultDeviceChanged(EDataFlow flow,
+                                               ERole role,
+                                               LPCWSTR pwstrDeviceId)
 {
     if (role != eMultimedia)
         return S_OK;
@@ -792,7 +793,8 @@ HRESULT AudioDev::OnDefaultDeviceChanged(EDataFlow flow,
     return S_OK;
 }
 
-HRESULT AudioDev::OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key)
+HRESULT AudioDevWasapi::OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
+                                               const PROPERTYKEY key)
 {
     Q_UNUSED(pwstrDeviceId)
     Q_UNUSED(key)

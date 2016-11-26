@@ -20,7 +20,7 @@
 #include <QCoreApplication>
 #include <QMap>
 
-#include "audiodev.h"
+#include "audiodevpulseaudio.h"
 
 typedef QMap<AkAudioCaps::SampleFormat, pa_sample_format_t> SampleFormatMap;
 
@@ -38,8 +38,8 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
-AudioDev::AudioDev(QObject *parent):
-    QObject(parent)
+AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
+    AudioDev(parent)
 {
     this->m_paSimple = NULL;
     this->m_curBps = 0;
@@ -180,7 +180,7 @@ AudioDev::AudioDev(QObject *parent):
     pa_threaded_mainloop_unlock(this->m_mainLoop);
 }
 
-AudioDev::~AudioDev()
+AudioDevPulseAudio::~AudioDevPulseAudio()
 {
     this->uninit();
 
@@ -195,12 +195,12 @@ AudioDev::~AudioDev()
     }
 }
 
-QString AudioDev::error() const
+QString AudioDevPulseAudio::error() const
 {
     return this->m_error;
 }
 
-QString AudioDev::defaultInput()
+QString AudioDevPulseAudio::defaultInput()
 {
     this->m_mutex.lock();
     QString defaultSource = this->m_defaultSource;
@@ -209,7 +209,7 @@ QString AudioDev::defaultInput()
     return defaultSource;
 }
 
-QString AudioDev::defaultOutput()
+QString AudioDevPulseAudio::defaultOutput()
 {
     this->m_mutex.lock();
     QString defaultSink = this->m_defaultSink;
@@ -218,7 +218,7 @@ QString AudioDev::defaultOutput()
     return defaultSink;
 }
 
-QStringList AudioDev::inputs()
+QStringList AudioDevPulseAudio::inputs()
 {
     this->m_mutex.lock();
     QStringList inputs = this->m_sources.values();
@@ -227,7 +227,7 @@ QStringList AudioDev::inputs()
     return inputs;
 }
 
-QStringList AudioDev::outputs()
+QStringList AudioDevPulseAudio::outputs()
 {
     this->m_mutex.lock();
     QStringList outputs = this->m_sinks.values();
@@ -236,7 +236,7 @@ QStringList AudioDev::outputs()
     return outputs;
 }
 
-QString AudioDev::description(const QString &device)
+QString AudioDevPulseAudio::description(const QString &device)
 {
     this->m_mutex.lock();
     QString description = this->m_pinDescriptionMap.value(device, QString());
@@ -245,7 +245,7 @@ QString AudioDev::description(const QString &device)
     return description;
 }
 
-AkAudioCaps AudioDev::preferredFormat(const QString &device)
+AkAudioCaps AudioDevPulseAudio::preferredFormat(const QString &device)
 {
     this->m_mutex.lock();
     AkAudioCaps caps = this->m_pinCapsMap.value(device, AkAudioCaps());
@@ -254,7 +254,7 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
     return caps;
 }
 
-bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
+bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
 {
     int error;
 
@@ -289,7 +289,7 @@ bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
     return true;
 }
 
-QByteArray AudioDev::read(int samples)
+QByteArray AudioDevPulseAudio::read(int samples)
 {
     if (!this->m_paSimple)
         return QByteArray();
@@ -314,7 +314,7 @@ QByteArray AudioDev::read(int samples)
     return buffer;
 }
 
-bool AudioDev::write(const QByteArray &frame)
+bool AudioDevPulseAudio::write(const QByteArray &frame)
 {
     if (!this->m_paSimple)
         return false;
@@ -334,7 +334,7 @@ bool AudioDev::write(const QByteArray &frame)
     return true;
 }
 
-bool AudioDev::uninit()
+bool AudioDevPulseAudio::uninit()
 {
     bool ok = true;
 
@@ -358,12 +358,12 @@ bool AudioDev::uninit()
     return ok;
 }
 
-void AudioDev::deviceUpdateCallback(pa_context *context,
-                                    pa_subscription_event_type_t eventType,
-                                    uint32_t index,
-                                    void *userData)
+void AudioDevPulseAudio::deviceUpdateCallback(pa_context *context,
+                                              pa_subscription_event_type_t eventType,
+                                              uint32_t index,
+                                              void *userData)
 {
-    AudioDev *audioDevice = static_cast<AudioDev *>(userData);
+    AudioDevPulseAudio *audioDevice = static_cast<AudioDevPulseAudio *>(userData);
 
     int type = eventType & PA_SUBSCRIPTION_EVENT_TYPE_MASK;
     int facility = eventType & PA_SUBSCRIPTION_EVENT_FACILITY_MASK;
@@ -421,24 +421,25 @@ void AudioDev::deviceUpdateCallback(pa_context *context,
     }
 }
 
-void AudioDev::contextStateCallbackInit(pa_context *context, void *userdata)
+void AudioDevPulseAudio::contextStateCallbackInit(pa_context *context,
+                                                  void *userdata)
 {
     Q_UNUSED(context)
 
-    AudioDev *audioDevice = reinterpret_cast<AudioDev *>(userdata);
+    AudioDevPulseAudio *audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     // Return as soon as possible.
     pa_threaded_mainloop_signal(audioDevice->m_mainLoop, 0);
 }
 
-void AudioDev::serverInfoCallback(pa_context *context,
-                                  const pa_server_info *info,
-                                  void *userdata)
+void AudioDevPulseAudio::serverInfoCallback(pa_context *context,
+                                            const pa_server_info *info,
+                                            void *userdata)
 {
     Q_UNUSED(context)
 
     // Get default input and output devices.
-    AudioDev *audioDevice = static_cast<AudioDev *>(userdata);
+    AudioDevPulseAudio *audioDevice = static_cast<AudioDevPulseAudio *>(userdata);
 
     audioDevice->m_mutex.lock();
 
@@ -459,12 +460,12 @@ void AudioDev::serverInfoCallback(pa_context *context,
     pa_threaded_mainloop_signal(audioDevice->m_mainLoop, 0);
 }
 
-void AudioDev::sourceInfoCallback(pa_context *context,
-                                  const pa_source_info *info,
-                                  int isLast,
-                                  void *userdata)
+void AudioDevPulseAudio::sourceInfoCallback(pa_context *context,
+                                            const pa_source_info *info,
+                                            int isLast,
+                                            void *userdata)
 {
-    AudioDev *audioDevice = reinterpret_cast<AudioDev *>(userdata);
+    AudioDevPulseAudio *audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     if (isLast < 0) {
         audioDevice->m_error = QString(pa_strerror(pa_context_errno(context)));
@@ -513,12 +514,12 @@ void AudioDev::sourceInfoCallback(pa_context *context,
     audioDevice->m_mutex.unlock();
 }
 
-void AudioDev::sinkInfoCallback(pa_context *context,
-                                const pa_sink_info *info,
-                                int isLast,
-                                void *userdata)
+void AudioDevPulseAudio::sinkInfoCallback(pa_context *context,
+                                          const pa_sink_info *info,
+                                          int isLast,
+                                          void *userdata)
 {
-    AudioDev *audioDevice = reinterpret_cast<AudioDev *>(userdata);
+    AudioDevPulseAudio *audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     if (isLast < 0) {
         audioDevice->m_error = QString(pa_strerror(pa_context_errno(context)));

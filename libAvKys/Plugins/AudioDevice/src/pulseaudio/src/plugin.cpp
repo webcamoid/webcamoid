@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVICE_H
-#define AUDIODEVICE_H
+#include "plugin.h"
+#include "audiodevpulseaudio.h"
 
-#include <ak.h>
-
-class AudioDevice: public QObject, public AkPlugin
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+    Q_UNUSED(specification)
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new AudioDevPulseAudio();
 
-#endif // AUDIODEVICE_H
+    return nullptr;
+}
+
+QStringList Plugin::keys() const
+{
+    return QStringList();
+}

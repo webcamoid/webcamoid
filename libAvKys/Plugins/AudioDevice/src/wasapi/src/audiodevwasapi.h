@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEV_H
-#define AUDIODEV_H
+#ifndef AUDIODEVWASAPI_H
+#define AUDIODEVWASAPI_H
 
 #include <akaudiocaps.h>
 #include <objbase.h>
@@ -27,16 +27,15 @@
 #include <mmdeviceapi.h>
 #include <functiondiscoverykeys_devpkey.h>
 
-class AudioDev: public QObject, public IMMNotificationClient
+#include "audiodev.h"
+
+class AudioDevWasapi: public AudioDev, public IMMNotificationClient
 {
     Q_OBJECT
-    Q_PROPERTY(QString error
-               READ error
-               NOTIFY errorChanged)
 
     public:
-        explicit AudioDev(QObject *parent=NULL);
-        ~AudioDev();
+        explicit AudioDevWasapi(QObject *parent=NULL);
+        ~AudioDevWasapi();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString defaultInput();
@@ -82,13 +81,6 @@ class AudioDev: public QObject, public IMMNotificationClient
                                                          LPCWSTR pwstrDeviceId);
         HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
                                                          const PROPERTYKEY key);
-
-    signals:
-        void errorChanged(const QString &error);
-        void defaultInputChanged(const QString &defaultInput);
-        void defaultOutputChanged(const QString &defaultOutput);
-        void inputsChanged(const QStringList &inputs);
-        void outputsChanged(const QStringList &outputs);
 };
 
-#endif // AUDIODEV_H
+#endif // AUDIODEVWASAPI_H

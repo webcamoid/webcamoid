@@ -16,43 +16,11 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+TEMPLATE = subdirs
 
-unix:!macx: include(src/pulseaudio/pulseaudio.pri)
-win32: include(src/wasapi/wasapi.pri)
-macx: include(src/coreaudio/coreaudio.pri)
+CONFIG += ordered
 
-CONFIG += plugin
-
-HEADERS += \
-    src/audiodevice.h \
-    src/audiodeviceelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-QT += qml concurrent
-
-SOURCES += \
-    src/audiodevice.cpp \
-    src/audiodeviceelement.cpp
-
-DESTDIR = $${PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+SUBDIRS = src
+CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
+CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
+CONFIG(config_wasapi): SUBDIRS += src/wasapi

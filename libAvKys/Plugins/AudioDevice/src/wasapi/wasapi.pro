@@ -16,10 +16,44 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-HEADERS += $$PWD/audiodev.h
-OBJECTIVE_SOURCES += $$PWD/audiodev.mm
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-LIBS += \
-    -framework CoreFoundation \
-    -framework CoreAudio \
-    -framework AudioUnit
+CONFIG += plugin
+
+HEADERS += \
+    src/plugin.h \
+    src/audiodevwasapi.h \
+    ../audiodev.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+LIBS += -lole32 -lwinmm
+
+QT += qml
+
+SOURCES += \
+    src/plugin.cpp \
+    src/audiodevwasapi.cpp \
+    ../audiodev.cpp
+
+DESTDIR = $${PWD}/../../submodules/AudioDevice
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice

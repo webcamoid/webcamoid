@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEV_H
-#define AUDIODEV_H
+#ifndef AUDIODEVPULSEAUDIO_H
+#define AUDIODEVPULSEAUDIO_H
 
 #include <QMutex>
 #include <akaudiocaps.h>
@@ -29,16 +29,15 @@
 #include <pulse/thread-mainloop.h>
 #include <pulse/error.h>
 
-class AudioDev: public QObject
+#include "audiodev.h"
+
+class AudioDevPulseAudio: public AudioDev
 {
     Q_OBJECT
-    Q_PROPERTY(QString error
-               READ error
-               NOTIFY errorChanged)
 
     public:
-        explicit AudioDev(QObject *parent=NULL);
-        ~AudioDev();
+        explicit AudioDevPulseAudio(QObject *parent=NULL);
+        ~AudioDevPulseAudio();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString defaultInput();
@@ -84,13 +83,6 @@ class AudioDev: public QObject
                                      const pa_sink_info *info,
                                      int isLast,
                                      void *userdata);
-
-    signals:
-        void errorChanged(const QString &error);
-        void defaultInputChanged(const QString &defaultInput);
-        void defaultOutputChanged(const QString &defaultOutput);
-        void inputsChanged(const QStringList &inputs);
-        void outputsChanged(const QStringList &outputs);
 };
 
-#endif // AUDIODEV_H
+#endif // AUDIODEVPULSEAUDIO_H
