@@ -278,6 +278,11 @@ AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
     return audioCaps;
 }
 
+bool AudioDevWasapi::init(const QString &device, const AkAudioCaps &caps)
+{
+    return this->init(device, caps, false);
+}
+
 bool AudioDevWasapi::init(const QString &device,
                           const AkAudioCaps &caps,
                           bool justActivate)

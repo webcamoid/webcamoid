@@ -45,8 +45,10 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE bool init(const QString &device,
+                              const AkAudioCaps &caps);
+        Q_INVOKABLE bool init(const QString &device,
                               const AkAudioCaps &caps,
-                              bool justActivate=false);
+                              bool justActivate);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const QByteArray &frame);
         Q_INVOKABLE bool uninit();
