@@ -23,6 +23,8 @@
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
 
 #ifdef Q_OS_WIN32
+#include <combaseapi.h>
+
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"wasapi"}))
 #elif defined(Q_OS_OSX)
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"coreaudio"}))
