@@ -28,7 +28,7 @@ LIBS += \
     -lgdiplus \
     -lksguid
 
-SOURCES += \
-    $$PWD/test.cpp
+SOURCES = \
+    test.cpp
 
 TARGET = test_auto

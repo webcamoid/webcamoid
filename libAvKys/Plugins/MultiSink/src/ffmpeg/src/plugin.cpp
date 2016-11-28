@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef MULTISINK_H
-#define MULTISINK_H
+#include "plugin.h"
+#include "mediawriterffmpeg.h"
 
-#include <ak.h>
-
-class MultiSink: public QObject, public AkPlugin
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+    Q_UNUSED(specification)
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new MediaWriterFFmpeg();
 
-#endif // MULTISINK_H
+    return nullptr;
+}
+
+QStringList Plugin::keys() const
+{
+    return QStringList();
+}

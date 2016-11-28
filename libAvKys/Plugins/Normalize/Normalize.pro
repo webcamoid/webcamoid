@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/normalize.h \
     src/normalizeelement.h \
     src/pixelstructs.h
@@ -42,7 +42,7 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/normalize.cpp \
     src/normalizeelement.cpp
 

@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/plugin.h \
     src/convertaudioffmpeg.h \
     ../convertaudio.h
@@ -57,7 +57,7 @@ isEmpty(FFMPEGLIBS) {
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/plugin.cpp \
     src/convertaudioffmpeg.cpp \
     ../convertaudio.cpp

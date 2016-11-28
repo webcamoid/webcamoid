@@ -30,7 +30,7 @@ isEmpty(GSTREAMERLIBS) {
         gstreamer-pbutils-1.0
 }
 
-SOURCES += \
-    $$PWD/test.cpp
+SOURCES = \
+    test.cpp
 
 TARGET = test_auto

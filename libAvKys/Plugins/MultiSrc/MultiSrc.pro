@@ -28,15 +28,9 @@ exists(commons.pri) {
 
 #USE_GSTREAMER = 1
 
-isEmpty(USE_GSTREAMER) {
-    include(src/ffmpeg/ffmpeg.pri)
-} else {
-    include(src/gstreamer/gstreamer.pri)
-}
-
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/multisrc.h \
     src/multisrcelement.h
 
@@ -54,12 +48,18 @@ RESOURCES += \
     MultiSrc.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/multisrc.cpp \
     src/multisrcelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
+}
+
+isEmpty(USE_GSTREAMER) {
+    include(src/ffmpeg/ffmpeg.pri)
+} else {
+    include(src/gstreamer/gstreamer.pri)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

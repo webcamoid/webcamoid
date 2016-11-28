@@ -99,7 +99,7 @@ SOURCES = \
     src/recording.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/fire.h \
     src/fireelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Fire.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/fire.cpp \
     src/fireelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

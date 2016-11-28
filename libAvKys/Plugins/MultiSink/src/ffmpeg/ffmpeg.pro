@@ -26,28 +26,50 @@ exists(commons.pri) {
     }
 }
 
-QT += concurrent
+CONFIG += plugin
 
-DEFINES += USE_GSTREAMER
+HEADERS = \
+    src/plugin.h \
+    src/mediawriterffmpeg.h \
+    src/outputparams.h \
+    ../mediawriter.h
 
-!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
-!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
 
-isEmpty(GSTREAMERLIBS) {
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+DEFINES += __STDC_CONSTANT_MACROS
+
+!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
+!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+
+isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        gstreamer-1.0 \
-        gstreamer-app-1.0 \
-        gstreamer-audio-1.0 \
-        gstreamer-video-1.0 \
-        gstreamer-pbutils-1.0
+        libavformat \
+        libavcodec \
+        libswresample \
+        libswscale \
+        libavutil
 }
 
-HEADERS += \
-    $$PWD/mediasink.h \
-    $$PWD/outputparams.h
+QT += qml concurrent
 
-SOURCES += \
-    $$PWD/mediasink.cpp \
-    $$PWD/outputparams.cpp
+SOURCES = \
+    src/plugin.cpp \
+    src/mediawriterffmpeg.cpp \
+    src/outputparams.cpp \
+    ../mediawriter.cpp
+
+DESTDIR = $${PWD}/../../submodules/MultiSink
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/MultiSink

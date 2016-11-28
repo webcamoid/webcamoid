@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/bin.h \
     src/binelement.h \
     src/pipeline.h
@@ -43,7 +43,7 @@ OTHER_FILES += \
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/bin.cpp \
     src/binelement.cpp \
     src/pipeline.cpp

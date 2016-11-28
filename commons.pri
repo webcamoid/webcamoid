@@ -133,4 +133,4 @@ win32 {
 macx: QT_CONFIG -= no-pkg-config
 
 # Enable c++11 support in all platforms
-CONFIG += c++11
+!CONFIG(c++11): CONFIG += c++11

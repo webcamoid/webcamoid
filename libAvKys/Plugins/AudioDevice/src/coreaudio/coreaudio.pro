@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/plugin.h \
     src/audiodevcoreaudio.h \
     ../audiodev.h
@@ -48,7 +48,7 @@ LIBS += \
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/plugin.cpp \
     ../audiodev.cpp
 

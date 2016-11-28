@@ -39,7 +39,7 @@ CONFIG(debug, debug|release) {
 
 TEMPLATE = lib
 
-SOURCES += \
+SOURCES = \
     src/amextra.cpp \
     src/amfilter.cpp \
     src/amvideo.cpp \

@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/charify.h \
     src/charifyelement.h \
     src/character.h
@@ -46,12 +46,12 @@ RESOURCES += \
     Charify.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/charify.cpp \
     src/charifyelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

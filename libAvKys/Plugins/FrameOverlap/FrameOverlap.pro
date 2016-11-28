@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/frameoverlap.h \
     src/frameoverlapelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     FrameOverlap.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/frameoverlap.cpp \
     src/frameoverlapelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

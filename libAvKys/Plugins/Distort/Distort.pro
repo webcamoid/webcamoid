@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/distort.h \
     src/distortelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Distort.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/distort.cpp \
     src/distortelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

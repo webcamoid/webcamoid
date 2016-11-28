@@ -33,7 +33,7 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
-SOURCES += \
-    $$PWD/test.cpp
+SOURCES = \
+    test.cpp
 
 TARGET = test_auto

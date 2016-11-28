@@ -16,8 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-SOURCES += \
-    $$PWD/test.cpp
+SOURCES = \
+    test.cpp
 
 LIBS += \
     -lole32 \

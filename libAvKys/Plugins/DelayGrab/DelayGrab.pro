@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/delaygrab.h \
     src/delaygrabelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     DelayGrab.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/delaygrab.cpp \
     src/delaygrabelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

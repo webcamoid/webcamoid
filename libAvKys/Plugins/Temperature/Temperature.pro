@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/temperature.h \
     src/temperatureelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Temperature.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/temperature.cpp \
     src/temperatureelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

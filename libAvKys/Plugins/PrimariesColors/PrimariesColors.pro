@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/primariescolors.h \
     src/primariescolorselement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     PrimariesColors.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/primariescolors.cpp \
     src/primariescolorselement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

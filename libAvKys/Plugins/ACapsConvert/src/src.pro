@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     acapsconvert.h \
     acapsconvertelement.h \
     convertaudio.h
@@ -42,7 +42,7 @@ OTHER_FILES += ../pspec.json
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     acapsconvert.cpp \
     acapsconvertelement.cpp \
     convertaudio.cpp

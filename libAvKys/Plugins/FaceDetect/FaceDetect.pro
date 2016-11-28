@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/facedetect.h \
     src/facedetectelement.h \
     src/haar/haarcascade.h \
@@ -50,7 +50,7 @@ RESOURCES += \
     FaceDetect.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/facedetect.cpp \
     src/facedetectelement.cpp \
     src/haar/haarcascade.cpp \
@@ -60,7 +60,7 @@ SOURCES += \
     src/haar/haartree.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

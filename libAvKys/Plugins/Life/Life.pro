@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/life.h \
     src/lifeelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Life.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/life.cpp \
     src/lifeelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

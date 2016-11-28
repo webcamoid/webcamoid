@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/warp.h \
     src/warpelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Warp.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/warp.cpp \
     src/warpelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

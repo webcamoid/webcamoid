@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/plugin.h \
     src/audiodevpulseaudio.h \
     ../audiodev.h
@@ -46,7 +46,7 @@ PKGCONFIG += libpulse-simple
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/plugin.cpp \
     src/audiodevpulseaudio.cpp \
     ../audiodev.cpp

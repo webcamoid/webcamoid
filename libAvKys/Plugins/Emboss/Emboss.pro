@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/emboss.h \
     src/embosselement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Emboss.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/emboss.cpp \
     src/embosselement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

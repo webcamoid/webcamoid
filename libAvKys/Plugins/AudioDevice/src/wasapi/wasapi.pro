@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/plugin.h \
     src/audiodevwasapi.h \
     ../audiodev.h
@@ -45,7 +45,7 @@ LIBS += -lole32 -lwinmm
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/plugin.cpp \
     src/audiodevwasapi.cpp \
     ../audiodev.cpp

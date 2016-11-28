@@ -17,46 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef MEDIASINK_H
-#define MEDIASINK_H
+#ifndef MEDIAWRITERFFMPEG_H
+#define MEDIAWRITERFFMPEG_H
 
 #include <QtConcurrent>
 #include <QQueue>
 #include <QMutex>
 #include <QWaitCondition>
 
+#include "mediawriter.h"
 #include "outputparams.h"
 
-class MediaSink: public QObject
+class MediaWriterFFmpeg: public MediaWriter
 {
     Q_OBJECT
-    Q_PROPERTY(QString location
-               READ location
-               WRITE setLocation
-               RESET resetLocation
-               NOTIFY locationChanged)
-    Q_PROPERTY(QString outputFormat
-               READ outputFormat
-               WRITE setOutputFormat
-               RESET resetOutputFormat
-               NOTIFY outputFormatChanged)
-    Q_PROPERTY(QVariantMap formatOptions
-               READ formatOptions
-               WRITE setFormatOptions
-               RESET resetFormatOptions
-               NOTIFY formatOptionsChanged)
-    Q_PROPERTY(QVariantList streams
-               READ streams
-               NOTIFY streamsChanged)
-    Q_PROPERTY(qint64 maxPacketQueueSize
-               READ maxPacketQueueSize
-               WRITE setMaxPacketQueueSize
-               RESET resetMaxPacketQueueSize
-               NOTIFY maxPacketQueueSizeChanged)
 
     public:
-        explicit MediaSink(QObject *parent=NULL);
-        ~MediaSink();
+        explicit MediaWriterFFmpeg(QObject *parent=NULL);
+        ~MediaWriterFFmpeg();
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
@@ -67,18 +45,22 @@ class MediaSink: public QObject
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);
+        Q_INVOKABLE QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
-                                                const QString &type="");
+                                                const QString &type);
         Q_INVOKABLE QString defaultCodec(const QString &format,
                                          const QString &type);
         Q_INVOKABLE QString codecDescription(const QString &codec);
         Q_INVOKABLE QString codecType(const QString &codec);
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
+                                          const AkCaps &streamCaps);
+        Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
-                                          const QVariantMap &codecParams=QVariantMap());
+                                          const QVariantMap &codecParams);
+        Q_INVOKABLE QVariantMap updateStream(int index);
         Q_INVOKABLE QVariantMap updateStream(int index,
-                                             const QVariantMap &codecParams=QVariantMap());
+                                             const QVariantMap &codecParams);
 
     private:
         QString m_location;
@@ -120,18 +102,10 @@ class MediaSink: public QObject
         AkVideoCaps nearestGXFCaps(const AkVideoCaps &caps) const;
         AkAudioCaps nearestSWFCaps(const AkAudioCaps &caps) const;
 
-        static void writeAudioLoop(MediaSink *self);
-        static void writeVideoLoop(MediaSink *self);
-        static void writeSubtitleLoop(MediaSink *self);
+        static void writeAudioLoop(MediaWriterFFmpeg *self);
+        static void writeVideoLoop(MediaWriterFFmpeg *self);
+        static void writeSubtitleLoop(MediaWriterFFmpeg *self);
         void decreasePacketQueue(int packetSize);
-
-    signals:
-        void locationChanged(const QString &location);
-        void outputFormatChanged(const QString &outputFormat);
-        void formatOptionsChanged(const QVariantMap &formatOptions);
-        void streamsChanged(const QVariantList &streams);
-        void maxPacketQueueSizeChanged(qint64 maxPacketQueueSize);
-        void streamUpdated(int index);
 
     public slots:
         void setLocation(const QString &location);
@@ -154,4 +128,4 @@ class MediaSink: public QObject
         void updateStreams();
 };
 
-#endif // MEDIASINK_H
+#endif // MEDIAWRITERFFMPEG_H

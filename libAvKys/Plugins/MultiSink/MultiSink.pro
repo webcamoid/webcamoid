@@ -16,57 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+TEMPLATE = subdirs
 
-#USE_GSTREAMER = 1
+CONFIG += ordered
 
-isEmpty(USE_GSTREAMER) {
-    include(src/ffmpeg/ffmpeg.pri)
-} else {
-    include(src/gstreamer/gstreamer.pri)
-}
-
-CONFIG += plugin
-
-HEADERS += \
-    src/multisink.h \
-    src/multisinkelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-QT += qml
-
-RESOURCES += \
-    MultiSink.qrc \
-    translations.qrc
-
-SOURCES += \
-    src/multisink.cpp \
-    src/multisinkelement.cpp
-
-lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
-}
-
-TRANSLATIONS = $$files(share/ts/*.ts)
-
-DESTDIR = $${PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+SUBDIRS = src
+CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
+CONFIG(config_gstreamer): SUBDIRS += src/gstreamer

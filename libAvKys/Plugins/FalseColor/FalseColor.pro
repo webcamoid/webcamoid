@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/falsecolor.h \
     src/falsecolorelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     FalseColor.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/falsecolor.cpp \
     src/falsecolorelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

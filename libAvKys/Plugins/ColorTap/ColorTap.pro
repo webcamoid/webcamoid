@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/colortap.h \
     src/colortapelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     ColorTap.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/colortap.cpp \
     src/colortapelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

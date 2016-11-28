@@ -99,7 +99,7 @@ ColumnLayout {
     }
 
     Component.onCompleted: {
-        var supportedFormats = MultiSink.supportedFormats()
+        var supportedFormats = MultiSink.supportedFormats
         var outputFormatIndex = -1
 
         for (var format in supportedFormats) {

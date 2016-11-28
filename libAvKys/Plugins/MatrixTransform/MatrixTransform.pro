@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/matrixtransform.h \
     src/matrixtransformelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     MatrixTransform.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/matrixtransform.cpp \
     src/matrixtransformelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

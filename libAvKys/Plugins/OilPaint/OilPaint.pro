@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/oilpaint.h \
     src/oilpaintelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     OilPaint.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/oilpaint.cpp \
     src/oilpaintelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

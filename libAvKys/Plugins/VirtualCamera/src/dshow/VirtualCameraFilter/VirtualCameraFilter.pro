@@ -19,7 +19,7 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-SUBDIRS += \
+SUBDIRS = \
     ipc
 
 isEmpty(COMPILE_VCAM_DRIVER) {

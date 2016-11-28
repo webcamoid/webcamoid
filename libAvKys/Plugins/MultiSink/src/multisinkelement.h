@@ -20,15 +20,14 @@
 #ifndef MULTISINKELEMENT_H
 #define MULTISINKELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <ak.h>
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/mediasink.h"
-#else
-#include "ffmpeg/mediasink.h"
-#endif
+#include "mediawriter.h"
+
+typedef QSharedPointer<MediaWriter> MediaWriterPtr;
 
 class MultiSinkElement: public AkElement
 {
@@ -38,6 +37,9 @@ class MultiSinkElement: public AkElement
                WRITE setLocation
                RESET resetLocation
                NOTIFY locationChanged)
+    Q_PROPERTY(QStringList supportedFormats
+               READ supportedFormats
+               NOTIFY supportedFormatsChanged)
     Q_PROPERTY(QString outputFormat
                READ outputFormat
                WRITE setOutputFormat
@@ -51,6 +53,11 @@ class MultiSinkElement: public AkElement
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
+    Q_PROPERTY(QString codecLib
+               READ codecLib
+               WRITE setCodecLib
+               RESET resetCodecLib
+               NOTIFY codecLibChanged)
     Q_PROPERTY(bool showFormatOptions
                READ showFormatOptions
                WRITE setShowFormatOptions
@@ -75,43 +82,57 @@ class MultiSinkElement: public AkElement
                                               const QString &controlId) const;
 
         Q_INVOKABLE QString location() const;
+        Q_INVOKABLE QStringList supportedFormats() const;
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantMap formatOptions() const;
-        Q_INVOKABLE QVariantList streams() const;
+        Q_INVOKABLE QVariantList streams();
+        Q_INVOKABLE QString codecLib() const;
         Q_INVOKABLE bool showFormatOptions() const;
         Q_INVOKABLE QVariantList userControls() const;
         Q_INVOKABLE QVariantMap userControlsValues() const;
-        Q_INVOKABLE QStringList supportedFormats();
-        Q_INVOKABLE QStringList fileExtensions(const QString &format);
-        Q_INVOKABLE QString formatDescription(const QString &format);
+        Q_INVOKABLE QStringList fileExtensions(const QString &format) const;
+        Q_INVOKABLE QString formatDescription(const QString &format) const;
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 const QString &type="");
         Q_INVOKABLE QString defaultCodec(const QString &format,
                                          const QString &type);
-        Q_INVOKABLE QString codecDescription(const QString &codec);
-        Q_INVOKABLE QString codecType(const QString &codec);
-        Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
+        Q_INVOKABLE QString codecDescription(const QString &codec) const;
+        Q_INVOKABLE QString codecType(const QString &codec) const;
+        Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec) const;
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());
         Q_INVOKABLE QVariantMap updateStream(int index,
                                              const QVariantMap &codecParams=QVariantMap());
 
-    protected:
-        void stateChange(AkElement::ElementState from,
-                         AkElement::ElementState to);
-
     private:
+        QString m_location;
+        QString m_outputFormat;
+        QVariantMap m_formatOptions;
+        QString m_codecLib;
         bool m_showFormatOptions;
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;
-        MediaSink m_mediaSink;
+        MediaWriterPtr m_mediaWriter;
+        QMutex m_mutex;
+        QMutex m_mutexLib;
+
+        // Formats and codecs info cache.
+        QStringList m_supportedFormats;
+        QMap<QString, QStringList> m_fileExtensions;
+        QMap<QString, QString> m_formatDescription;
+        QStringList m_supportedCodecs;
+        QMap<QString, QString> m_codecDescription;
+        QMap<QString, QString> m_codecType;
+        QMap<QString, QVariantMap> m_defaultCodecParams;
 
     signals:
         void locationChanged(const QString &location);
+        void supportedFormatsChanged(const QStringList &supportedFormats);
         void outputFormatChanged(const QString &outputFormat);
         void formatOptionsChanged(const QVariantMap &formatOptions);
         void streamsChanged(const QVariantList &streams);
+        void codecLibChanged(const QString &codecLib);
         void showFormatOptionsChanged(bool showFormatOptions);
         void userControlsChanged(const QVariantList &userControls);
         void userControlsValuesChanged(const QVariantMap &userControlsValues);
@@ -121,18 +142,24 @@ class MultiSinkElement: public AkElement
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
+        void setCodecLib(const QString &codecLib);
         void setShowFormatOptions(bool showFormatOptions);
         void setUserControls(const QVariantList &userControls);
         void setUserControlsValues(const QVariantMap &userControlsValues);
         void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
+        void resetCodecLib();
         void resetShowFormatOptions();
         void resetUserControls();
         void resetUserControlsValues();
         void clearStreams();
 
         AkPacket iStream(const AkPacket &packet);
+        bool setState(AkElement::ElementState state);
+
+    private slots:
+        void codecLibUpdated(const QString &codecLib);
 };
 
 #endif // MULTISINKELEMENT_H

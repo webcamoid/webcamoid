@@ -16,8 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-OBJECTIVE_SOURCES += \
-    $$PWD/test.mm
+OBJECTIVE_SOURCES = \
+    test.mm
 
 LIBS += \
     -framework CoreMedia \

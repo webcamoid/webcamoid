@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/audiogen.h \
     src/audiogenelement.h
 
@@ -41,7 +41,7 @@ OTHER_FILES += pspec.json
 
 QT += qml concurrent
 
-SOURCES += \
+SOURCES = \
     src/audiogen.cpp \
     src/audiogenelement.cpp
 

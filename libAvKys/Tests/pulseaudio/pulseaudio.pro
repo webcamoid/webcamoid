@@ -16,7 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-SOURCES += $$PWD/test.cpp
+SOURCES = \
+    test.cpp
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libpulse-simple

@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/desktopcapture.h \
     src/desktopcaptureelement.h
 
@@ -42,7 +42,7 @@ OTHER_FILES += pspec.json
 
 QT += widgets qml concurrent
 
-SOURCES += \
+SOURCES = \
     src/desktopcapture.cpp \
     src/desktopcaptureelement.cpp
 

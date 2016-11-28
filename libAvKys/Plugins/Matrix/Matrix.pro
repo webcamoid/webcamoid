@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/matrix.h \
     src/matrixelement.h \
     src/character.h \
@@ -47,13 +47,13 @@ RESOURCES += \
     Matrix.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/matrix.cpp \
     src/matrixelement.cpp \
     src/raindrop.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

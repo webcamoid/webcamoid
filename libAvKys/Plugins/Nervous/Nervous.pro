@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/nervous.h \
     src/nervouselement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Nervous.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/nervous.cpp \
     src/nervouselement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

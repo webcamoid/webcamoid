@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/grayscale.h \
     src/grayscaleelement.h
 
@@ -41,7 +41,7 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/grayscale.cpp \
     src/grayscaleelement.cpp
 

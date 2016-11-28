@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/halftone.h \
     src/halftoneelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Halftone.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/halftone.cpp \
     src/halftoneelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

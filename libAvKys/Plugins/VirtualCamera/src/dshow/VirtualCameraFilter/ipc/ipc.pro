@@ -35,7 +35,7 @@ TARGET = "ipc"
 
 TEMPLATE = lib
 
-SOURCES += \
+SOURCES = \
     src/mutex.cpp \
     src/waitcondition.cpp \
     src/ipcbridge.cpp

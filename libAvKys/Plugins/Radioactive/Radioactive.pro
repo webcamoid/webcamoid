@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/radioactive.h \
     src/radioactiveelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Radioactive.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/radioactive.cpp \
     src/radioactiveelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

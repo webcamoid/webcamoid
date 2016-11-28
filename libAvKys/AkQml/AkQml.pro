@@ -37,11 +37,11 @@ DESTDIR = $${PWD}
 TARGET = $$qtLibraryTarget(AkQml)
 
 # Input
-SOURCES += \
+SOURCES = \
     src/akqml.cpp \
     src/akqmlplugin.cpp
 
-HEADERS += \
+HEADERS = \
     src/akqml.h \
     src/akqmlplugin.h
 

@@ -26,21 +26,9 @@ exists(commons.pri) {
     }
 }
 
-unix:!macx: include(src/v4l2/v4l2.pri)
-win32: include(src/dshow/dshow.pri)
-macx: include(src/mac/mac.pri)
-
-#USE_GSTREAMER = 1
-
-isEmpty(USE_GSTREAMER) {
-    include(src/ffmpeg/ffmpeg.pri)
-} else {
-    include(src/gstreamer/gstreamer.pri)
-}
-
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/virtualcamera.h \
     src/virtualcameraelement.h
 
@@ -57,12 +45,24 @@ RESOURCES += \
     VirtualCamera.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/virtualcamera.cpp \
     src/virtualcameraelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
+}
+
+unix:!macx: include(src/v4l2/v4l2.pri)
+win32: include(src/dshow/dshow.pri)
+macx: include(src/mac/mac.pri)
+
+#USE_GSTREAMER = 1
+
+isEmpty(USE_GSTREAMER) {
+    include(src/ffmpeg/ffmpeg.pri)
+} else {
+    include(src/gstreamer/gstreamer.pri)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

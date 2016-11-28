@@ -35,7 +35,7 @@ TARGET = "VirtualCameraSource"
 
 TEMPLATE = lib
 
-SOURCES += \
+SOURCES = \
     src/dllmain.cpp \
     src/vcguidef.cpp \
     src/virtualcamerasource.cpp \

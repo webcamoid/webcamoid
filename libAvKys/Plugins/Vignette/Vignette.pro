@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/vignette.h \
     src/vignetteelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Vignette.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/vignette.cpp \
     src/vignetteelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

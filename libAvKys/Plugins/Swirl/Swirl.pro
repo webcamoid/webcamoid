@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/swirl.h \
     src/swirlelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Swirl.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/swirl.cpp \
     src/swirlelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

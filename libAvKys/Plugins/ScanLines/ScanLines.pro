@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/scanlines.h \
     src/scanlineselement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     ScanLines.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/scanlines.cpp \
     src/scanlineselement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

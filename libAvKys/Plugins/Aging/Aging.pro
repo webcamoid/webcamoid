@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/aging.h \
     src/agingelement.h \
     src/scratch.h
@@ -46,13 +46,13 @@ RESOURCES += \
     Aging.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/aging.cpp \
     src/agingelement.cpp \
     src/scratch.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

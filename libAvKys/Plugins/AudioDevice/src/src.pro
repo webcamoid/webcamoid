@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     audiodevice.h \
     audiodeviceelement.h \
     audiodev.h
@@ -43,7 +43,7 @@ OTHER_FILES += ../pspec.json
 
 QT += qml concurrent
 
-SOURCES += \
+SOURCES = \
     audiodevice.cpp \
     audiodeviceelement.cpp \
     audiodev.cpp

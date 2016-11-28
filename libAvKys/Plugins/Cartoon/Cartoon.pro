@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/cartoon.h \
     src/cartoonelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Cartoon.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/cartoon.cpp \
     src/cartoonelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

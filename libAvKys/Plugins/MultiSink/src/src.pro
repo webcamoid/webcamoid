@@ -19,8 +19,8 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
     } else {
         error("commons.pri file not found.")
     }
@@ -29,33 +29,36 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS = \
-    src/scroll.h \
-    src/scrollelement.h
+    multisink.h \
+    multisinkelement.h \
+    mediawriter.h
 
 INCLUDEPATH += \
-    ../../Lib/src
+    ../../../Lib/src
 
-LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
 
-OTHER_FILES += pspec.json
+OTHER_FILES += ../pspec.json
 
 QT += qml
 
 RESOURCES += \
-    Scroll.qrc \
-    translations.qrc
+    ../MultiSink.qrc \
+    ../translations.qrc
 
 SOURCES = \
-    src/scroll.cpp \
-    src/scrollelement.cpp
+    multisink.cpp \
+    multisinkelement.cpp \
+    mediawriter.cpp
 
 lupdate_only {
-    SOURCES += $$files(share/qml/*.qml)
+    SOURCES += $$files(../share/qml/*.qml)
 }
 
-TRANSLATIONS = $$files(share/ts/*.ts)
+TRANSLATIONS = $$files(../share/ts/*.ts)
 
-DESTDIR = $${PWD}
+DESTDIR = $${PWD}/..
+TARGET = MultiSink
 
 TEMPLATE = lib
 

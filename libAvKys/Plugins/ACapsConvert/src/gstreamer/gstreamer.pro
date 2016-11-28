@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/plugin.h \
     src/convertaudiogstreamer.h \
     ../convertaudio.h
@@ -56,7 +56,7 @@ isEmpty(GSTREAMERLIBS) {
 
 QT += qml concurrent
 
-SOURCES += \
+SOURCES = \
     src/plugin.cpp \
     src/convertaudiogstreamer.cpp \
     ../convertaudio.cpp

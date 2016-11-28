@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/equalize.h \
     src/equalizeelement.h \
     src/pixelstructs.h
@@ -42,7 +42,7 @@ OTHER_FILES += pspec.json
 
 QT += qml
 
-SOURCES += \
+SOURCES = \
     src/equalize.cpp \
     src/equalizeelement.cpp
 

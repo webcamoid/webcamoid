@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/dizzy.h \
     src/dizzyelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Dizzy.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/dizzy.cpp \
     src/dizzyelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

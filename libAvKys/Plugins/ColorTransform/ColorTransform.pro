@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/colortransform.h \
     src/colortransformelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     ColorTransform.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/colortransform.cpp \
     src/colortransformelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/implode.h \
     src/implodeelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Implode.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/implode.cpp \
     src/implodeelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/denoise.h \
     src/denoiseelement.h \
     src/pixel.h \
@@ -47,12 +47,12 @@ RESOURCES += \
     Denoise.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/denoise.cpp \
     src/denoiseelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

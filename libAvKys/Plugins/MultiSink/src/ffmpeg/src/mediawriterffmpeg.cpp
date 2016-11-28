@@ -22,7 +22,7 @@
 #include <QtMath>
 #include <akutils.h>
 
-#include "mediasink.h"
+#include "mediawriterffmpeg.h"
 
 #define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
 //#define CODEC_COMPLIANCE FF_COMPLIANCE_EXPERIMENTAL
@@ -196,7 +196,8 @@ inline VectorInt initSWFSupportedSampleRates()
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorInt, swfSupportedSampleRates, (initSWFSupportedSampleRates()))
 
-MediaSink::MediaSink(QObject *parent): QObject(parent)
+MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
+    MediaWriter(parent)
 {
     av_register_all();
     avcodec_register_all();
@@ -211,33 +212,33 @@ MediaSink::MediaSink(QObject *parent): QObject(parent)
     this->m_isRecording = false;
 
     QObject::connect(this,
-                     &MediaSink::outputFormatChanged,
+                     &MediaWriterFFmpeg::outputFormatChanged,
                      this,
-                     &MediaSink::updateStreams);
+                     &MediaWriterFFmpeg::updateStreams);
 }
 
-MediaSink::~MediaSink()
+MediaWriterFFmpeg::~MediaWriterFFmpeg()
 {
     this->uninit();
     avformat_network_deinit();
 }
 
-QString MediaSink::location() const
+QString MediaWriterFFmpeg::location() const
 {
     return this->m_location;
 }
 
-QString MediaSink::outputFormat() const
+QString MediaWriterFFmpeg::outputFormat() const
 {
     return this->m_outputFormat;
 }
 
-QVariantMap MediaSink::formatOptions() const
+QVariantMap MediaWriterFFmpeg::formatOptions() const
 {
     return this->m_formatOptions;
 }
 
-QVariantList MediaSink::streams() const
+QVariantList MediaWriterFFmpeg::streams() const
 {
     QVariantList streams;
 
@@ -247,12 +248,12 @@ QVariantList MediaSink::streams() const
     return streams;
 }
 
-qint64 MediaSink::maxPacketQueueSize() const
+qint64 MediaWriterFFmpeg::maxPacketQueueSize() const
 {
     return this->m_maxPacketQueueSize;
 }
 
-QStringList MediaSink::supportedFormats()
+QStringList MediaWriterFFmpeg::supportedFormats()
 {
     QStringList formats;
     AVOutputFormat *outputFormat = NULL;
@@ -267,7 +268,7 @@ QStringList MediaSink::supportedFormats()
     return formats;
 }
 
-QStringList MediaSink::fileExtensions(const QString &format)
+QStringList MediaWriterFFmpeg::fileExtensions(const QString &format)
 {
     AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
                                                    NULL,
@@ -284,7 +285,7 @@ QStringList MediaSink::fileExtensions(const QString &format)
     return extensions.split(",");
 }
 
-QString MediaSink::formatDescription(const QString &format)
+QString MediaWriterFFmpeg::formatDescription(const QString &format)
 {
     AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
                                                    NULL,
@@ -296,8 +297,13 @@ QString MediaSink::formatDescription(const QString &format)
     return QString(outputFormat->long_name);
 }
 
-QStringList MediaSink::supportedCodecs(const QString &format,
-                                       const QString &type)
+QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format)
+{
+    return this->supportedCodecs(format, "");
+}
+
+QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
+                                               const QString &type)
 {
     AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
                                                    NULL,
@@ -356,7 +362,8 @@ QStringList MediaSink::supportedCodecs(const QString &format,
     return codecs;
 }
 
-QString MediaSink::defaultCodec(const QString &format, const QString &type)
+QString MediaWriterFFmpeg::defaultCodec(const QString &format,
+                                        const QString &type)
 {
     AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
                                                    NULL,
@@ -390,7 +397,7 @@ QString MediaSink::defaultCodec(const QString &format, const QString &type)
     return codecName;
 }
 
-QString MediaSink::codecDescription(const QString &codec)
+QString MediaWriterFFmpeg::codecDescription(const QString &codec)
 {
     AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
 
@@ -400,7 +407,7 @@ QString MediaSink::codecDescription(const QString &codec)
     return QString(avCodec->long_name);
 }
 
-QString MediaSink::codecType(const QString &codec)
+QString MediaWriterFFmpeg::codecType(const QString &codec)
 {
     AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
 
@@ -421,7 +428,7 @@ QString MediaSink::codecType(const QString &codec)
     return QString();
 }
 
-QVariantMap MediaSink::defaultCodecParams(const QString &codec)
+QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
 {
     AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
 
@@ -444,22 +451,28 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
             case AV_CODEC_ID_ADPCM_G726:
             case AV_CODEC_ID_GSM_MS:
             case AV_CODEC_ID_AMR_NB:
-                supportedSampleRates << 8000;
+                supportedSampleRates = {8000};
                 break;
             case AV_CODEC_ID_ROQ_DPCM:
-                supportedSampleRates << 22050;
+                supportedSampleRates = {22050};
                 break;
             case AV_CODEC_ID_ADPCM_SWF:
-                supportedSampleRates << 44100
-                                     << 22050
-                                     << 11025;
+                supportedSampleRates = {
+                    44100,
+                    22050,
+                    11025
+                };
+
                 break;
             case AV_CODEC_ID_NELLYMOSER:
-                supportedSampleRates << 8000
-                                     << 11025
-                                     << 16000
-                                     << 22050
-                                     << 44100;
+                supportedSampleRates = {
+                    8000,
+                    11025,
+                    16000,
+                    22050,
+                    44100
+                };
+
                 break;
             default:
                 break;
@@ -592,9 +605,15 @@ QVariantMap MediaSink::defaultCodecParams(const QString &codec)
     return codecParams;
 }
 
-QVariantMap MediaSink::addStream(int streamIndex,
-                                 const AkCaps &streamCaps,
-                                 const QVariantMap &codecParams)
+QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
+                                         const AkCaps &streamCaps)
+{
+    return this->addStream(streamIndex, streamCaps, {});
+}
+
+QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
+                                         const AkCaps &streamCaps,
+                                         const QVariantMap &codecParams)
 {
     QString outputFormat;
 
@@ -791,7 +810,13 @@ QVariantMap MediaSink::addStream(int streamIndex,
     return outputParams;
 }
 
-QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
+QVariantMap MediaWriterFFmpeg::updateStream(int index)
+{
+    return this->updateStream(index, {});
+}
+
+QVariantMap MediaWriterFFmpeg::updateStream(int index,
+                                            const QVariantMap &codecParams)
 {
     QString outputFormat;
 
@@ -998,7 +1023,7 @@ QVariantMap MediaSink::updateStream(int index, const QVariantMap &codecParams)
     return this->m_streamConfigs[index];
 }
 
-void MediaSink::flushStreams()
+void MediaWriterFFmpeg::flushStreams()
 {
     for (uint i = 0; i < this->m_formatContext->nb_streams; i++) {
         AVStream *stream = this->m_formatContext->streams[i];
@@ -1070,7 +1095,7 @@ void MediaSink::flushStreams()
     }
 }
 
-QImage MediaSink::swapChannels(const QImage &image) const
+QImage MediaWriterFFmpeg::swapChannels(const QImage &image) const
 {
     QImage swapped(image.size(), image.format());
 
@@ -1089,7 +1114,7 @@ QImage MediaSink::swapChannels(const QImage &image) const
     return swapped;
 }
 
-AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
+AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
@@ -1110,7 +1135,7 @@ AkVideoCaps MediaSink::nearestDVCaps(const AkVideoCaps &caps) const
     return nearestCaps;
 }
 
-AkVideoCaps MediaSink::nearestDNxHDCaps(const AkVideoCaps &caps) const
+AkVideoCaps MediaWriterFFmpeg::nearestDNxHDCaps(const AkVideoCaps &caps) const
 {
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
@@ -1134,7 +1159,7 @@ AkVideoCaps MediaSink::nearestDNxHDCaps(const AkVideoCaps &caps) const
     return nearestCaps;
 }
 
-AkVideoCaps MediaSink::nearestH261Caps(const AkVideoCaps &caps) const
+AkVideoCaps MediaWriterFFmpeg::nearestH261Caps(const AkVideoCaps &caps) const
 {
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
@@ -1160,7 +1185,7 @@ AkVideoCaps MediaSink::nearestH261Caps(const AkVideoCaps &caps) const
     return nearestCaps;
 }
 
-AkVideoCaps MediaSink::nearestH263Caps(const AkVideoCaps &caps) const
+AkVideoCaps MediaWriterFFmpeg::nearestH263Caps(const AkVideoCaps &caps) const
 {
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
@@ -1186,7 +1211,7 @@ AkVideoCaps MediaSink::nearestH263Caps(const AkVideoCaps &caps) const
     return nearestCaps;
 }
 
-AkVideoCaps MediaSink::nearestGXFCaps(const AkVideoCaps &caps) const
+AkVideoCaps MediaWriterFFmpeg::nearestGXFCaps(const AkVideoCaps &caps) const
 {
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
@@ -1212,7 +1237,7 @@ AkVideoCaps MediaSink::nearestGXFCaps(const AkVideoCaps &caps) const
     return nearestCaps;
 }
 
-AkAudioCaps MediaSink::nearestSWFCaps(const AkAudioCaps &caps) const
+AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
 {
     int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
@@ -1235,7 +1260,7 @@ AkAudioCaps MediaSink::nearestSWFCaps(const AkAudioCaps &caps) const
     return nearestCaps;
 }
 
-void MediaSink::writeAudioLoop(MediaSink *self)
+void MediaWriterFFmpeg::writeAudioLoop(MediaWriterFFmpeg *self)
 {
     while (self->m_runAudioLoop) {
         self->m_audioMutex.lock();
@@ -1259,7 +1284,7 @@ void MediaSink::writeAudioLoop(MediaSink *self)
     }
 }
 
-void MediaSink::writeVideoLoop(MediaSink *self)
+void MediaWriterFFmpeg::writeVideoLoop(MediaWriterFFmpeg *self)
 {
     while (self->m_runVideoLoop) {
         self->m_videoMutex.lock();
@@ -1283,7 +1308,7 @@ void MediaSink::writeVideoLoop(MediaSink *self)
     }
 }
 
-void MediaSink::writeSubtitleLoop(MediaSink *self)
+void MediaWriterFFmpeg::writeSubtitleLoop(MediaWriterFFmpeg *self)
 {
     while (self->m_runSubtitleLoop) {
         self->m_subtitleMutex.lock();
@@ -1307,7 +1332,7 @@ void MediaSink::writeSubtitleLoop(MediaSink *self)
     }
 }
 
-void MediaSink::decreasePacketQueue(int packetSize)
+void MediaWriterFFmpeg::decreasePacketQueue(int packetSize)
 {
     this->m_packetMutex.lock();
     this->m_packetQueueSize -= packetSize;
@@ -1318,7 +1343,7 @@ void MediaSink::decreasePacketQueue(int packetSize)
     this->m_packetMutex.unlock();
 }
 
-void MediaSink::setLocation(const QString &location)
+void MediaWriterFFmpeg::setLocation(const QString &location)
 {
     if (this->m_location == location)
         return;
@@ -1327,7 +1352,7 @@ void MediaSink::setLocation(const QString &location)
     emit this->locationChanged(location);
 }
 
-void MediaSink::setOutputFormat(const QString &outputFormat)
+void MediaWriterFFmpeg::setOutputFormat(const QString &outputFormat)
 {
     if (this->m_outputFormat == outputFormat)
         return;
@@ -1336,7 +1361,7 @@ void MediaSink::setOutputFormat(const QString &outputFormat)
     emit this->outputFormatChanged(outputFormat);
 }
 
-void MediaSink::setFormatOptions(const QVariantMap &formatOptions)
+void MediaWriterFFmpeg::setFormatOptions(const QVariantMap &formatOptions)
 {
     if (this->m_formatOptions == formatOptions)
         return;
@@ -1345,7 +1370,7 @@ void MediaSink::setFormatOptions(const QVariantMap &formatOptions)
     emit this->formatOptionsChanged(formatOptions);
 }
 
-void MediaSink::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
+void MediaWriterFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
     if (this->m_maxPacketQueueSize == maxPacketQueueSize)
         return;
@@ -1354,27 +1379,27 @@ void MediaSink::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
     emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
 }
 
-void MediaSink::resetLocation()
+void MediaWriterFFmpeg::resetLocation()
 {
     this->setLocation("");
 }
 
-void MediaSink::resetOutputFormat()
+void MediaWriterFFmpeg::resetOutputFormat()
 {
     this->setOutputFormat("");
 }
 
-void MediaSink::resetFormatOptions()
+void MediaWriterFFmpeg::resetFormatOptions()
 {
     this->setFormatOptions(QVariantMap());
 }
 
-void MediaSink::resetMaxPacketQueueSize()
+void MediaWriterFFmpeg::resetMaxPacketQueueSize()
 {
     this->setMaxPacketQueueSize(15 * 1024 * 1024);
 }
 
-void MediaSink::enqueuePacket(const AkPacket &packet)
+void MediaWriterFFmpeg::enqueuePacket(const AkPacket &packet)
 {
     forever {
         if (!this->m_isRecording)
@@ -1384,7 +1409,9 @@ void MediaSink::enqueuePacket(const AkPacket &packet)
         bool canEnqueue = true;
 
         if (this->m_packetQueueSize >= this->m_maxPacketQueueSize)
-            canEnqueue = this->m_packetQueueNotFull.wait(&this->m_packetMutex, THREAD_WAIT_LIMIT);
+            canEnqueue =
+                this->m_packetQueueNotFull.wait(&this->m_packetMutex,
+                                                THREAD_WAIT_LIMIT);
 
         if (canEnqueue) {
             if (packet.caps().mimeType() == "audio/x-raw") {
@@ -1411,13 +1438,13 @@ void MediaSink::enqueuePacket(const AkPacket &packet)
     }
 }
 
-void MediaSink::clearStreams()
+void MediaWriterFFmpeg::clearStreams()
 {
     this->m_streamConfigs.clear();
     emit this->streamsChanged(this->streams());
 }
 
-bool MediaSink::init()
+bool MediaWriterFFmpeg::init()
 {
     if (avformat_alloc_output_context2(&this->m_formatContext,
                                        NULL,
@@ -1673,7 +1700,7 @@ bool MediaSink::init()
     return true;
 }
 
-void MediaSink::uninit()
+void MediaWriterFFmpeg::uninit()
 {
     if (!this->m_formatContext)
         return;
@@ -1712,7 +1739,7 @@ void MediaSink::uninit()
     this->m_formatContext = NULL;
 }
 
-void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
+void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
 {
     if (!this->m_formatContext)
         return;
@@ -1827,7 +1854,7 @@ void MediaSink::writeAudioPacket(const AkAudioPacket &packet)
     }
 }
 
-void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
+void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
 {
     if (!this->m_formatContext)
         return;
@@ -1928,13 +1955,13 @@ void MediaSink::writeVideoPacket(const AkVideoPacket &packet)
     av_frame_unref(&oFrame);
 }
 
-void MediaSink::writeSubtitlePacket(const AkPacket &packet)
+void MediaWriterFFmpeg::writeSubtitlePacket(const AkPacket &packet)
 {
     Q_UNUSED(packet)
     // TODO: Implement this.
 }
 
-void MediaSink::updateStreams()
+void MediaWriterFFmpeg::updateStreams()
 {
     QList<QVariantMap> streamConfigs = this->m_streamConfigs;
     this->clearStreams();

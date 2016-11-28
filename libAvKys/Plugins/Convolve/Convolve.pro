@@ -28,7 +28,7 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/convolve.h \
     src/convolveelement.h
 
@@ -45,12 +45,12 @@ RESOURCES += \
     Convolve.qrc \
     translations.qrc
 
-SOURCES += \
+SOURCES = \
     src/convolve.cpp \
     src/convolveelement.cpp
 
 lupdate_only {
-    SOURCES = $$files(share/qml/*.qml)
+    SOURCES += $$files(share/qml/*.qml)
 }
 
 TRANSLATIONS = $$files(share/ts/*.ts)

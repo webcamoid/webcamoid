@@ -17,38 +17,21 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef MEDIASINK_H
-#define MEDIASINK_H
+#ifndef MEDIAWRITERGSTREAMER_H
+#define MEDIAWRITERGSTREAMER_H
 
 #include <QtConcurrent>
 
+#include "mediawriter.h"
 #include "outputparams.h"
 
-class MediaSink: public QObject
+class MediaWriterGStreamer: public MediaWriter
 {
     Q_OBJECT
-    Q_PROPERTY(QString location
-               READ location
-               WRITE setLocation
-               RESET resetLocation
-               NOTIFY locationChanged)
-    Q_PROPERTY(QString outputFormat
-               READ outputFormat
-               WRITE setOutputFormat
-               RESET resetOutputFormat
-               NOTIFY outputFormatChanged)
-    Q_PROPERTY(QVariantMap formatOptions
-               READ formatOptions
-               WRITE setFormatOptions
-               RESET resetFormatOptions
-               NOTIFY formatOptionsChanged)
-    Q_PROPERTY(QVariantList streams
-               READ streams
-               NOTIFY streamsChanged)
 
     public:
-        explicit MediaSink(QObject *parent=NULL);
-        ~MediaSink();
+        explicit MediaWriterGStreamer(QObject *parent=NULL);
+        ~MediaWriterGStreamer();
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
@@ -58,18 +41,22 @@ class MediaSink: public QObject
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);
+        Q_INVOKABLE QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
-                                                const QString &type="");
+                                                const QString &type);
         Q_INVOKABLE QString defaultCodec(const QString &format,
                                          const QString &type);
         Q_INVOKABLE QString codecDescription(const QString &codec);
         Q_INVOKABLE QString codecType(const QString &codec);
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
+                                          const AkCaps &streamCaps);
+        Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
-                                          const QVariantMap &codecParams=QVariantMap());
+                                          const QVariantMap &codecParams);
+        Q_INVOKABLE QVariantMap updateStream(int index);
         Q_INVOKABLE QVariantMap updateStream(int index,
-                                             const QVariantMap &codecParams=QVariantMap());
+                                             const QVariantMap &codecParams);
 
     private:
         QString m_location;
@@ -97,13 +84,6 @@ class MediaSink: public QObject
         AkAudioCaps nearestFLVAudioCaps(const AkAudioCaps &caps,
                                         const QString &codec) const;
 
-    signals:
-        void locationChanged(const QString &location);
-        void outputFormatChanged(const QString &outputFormat);
-        void formatOptionsChanged(const QVariantMap &formatOptions);
-        void streamsChanged(const QVariantList &streams);
-        void streamUpdated(int index);
-
     public slots:
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
@@ -123,4 +103,4 @@ class MediaSink: public QObject
         void updateStreams();
 };
 
-#endif // MEDIASINK_H
+#endif // MEDIAWRITERGSTREAMER_H
