@@ -17,33 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef MEDIASOURCE_H
-#define MEDIASOURCE_H
+#ifndef MEDIASOURCEGSTREAMER_H
+#define MEDIASOURCEGSTREAMER_H
 
-#include <QObject>
+#include <QtConcurrent>
+#include <gst/gst.h>
 
-#include "abstractstream.h"
+#include "mediasource.h"
+#include "stream.h"
 
-typedef QSharedPointer<AVFormatContext> FormatContextPtr;
-typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
-
-class MediaSource: public QObject
+class MediaSourceGStreamer: public MediaSource
 {
     Q_OBJECT
-    Q_PROPERTY(qint64 maxPacketQueueSize
-               READ maxPacketQueueSize
-               WRITE setMaxPacketQueueSize
-               RESET resetMaxPacketQueueSize
-               NOTIFY maxPacketQueueSizeChanged)
-    Q_PROPERTY(bool showLog
-               READ showLog
-               WRITE setShowLog
-               RESET resetShowLog
-               NOTIFY showLogChanged)
 
     public:
-        explicit MediaSource(QObject *parent=NULL);
-        ~MediaSource();
+        explicit MediaSourceGStreamer(QObject *parent=NULL);
+        ~MediaSourceGStreamer();
 
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
@@ -65,38 +54,33 @@ class MediaSource: public QObject
         bool m_run;
 
         AkElement::ElementState m_curState;
-        FormatContextPtr m_inputContext;
         qint64 m_maxPacketQueueSize;
         bool m_showLog;
         QThreadPool m_threadPool;
-        QMutex m_dataMutex;
-        QWaitCondition m_packetQueueNotFull;
-        QWaitCondition m_packetQueueEmpty;
-        QMap<int, AbstractStreamPtr> m_streamsMap;
-        Clock m_globalClock;
-        qreal m_curClockTime;
-        QFuture<void> m_readPacketsLoopResult;
+        GstElement *m_pipeline;
+        GMainLoop *m_mainLoop;
+        guint m_busWatchId;
+        qint64 m_audioIndex;
+        qint64 m_videoIndex;
+        qint64 m_subtitlesIndex;
+        qint64 m_audioId;
+        qint64 m_videoId;
+        qint64 m_subtitlesId;
+        QList<Stream> m_streamInfo;
 
-        qint64 packetQueueSize();
-        static void deleteFormatContext(AVFormatContext *context);
-        AbstractStreamPtr createStream(int index, bool noModify=false);
-        static void readPackets(MediaSource *element);
-        static void unlockQueue(MediaSource *element);
-
-        inline int roundDown(int value, int multiply)
-        {
-            return value - value % multiply;
-        }
-
-    signals:
-        void oStream(const AkPacket &packet);
-        void error(const QString &message);
-        void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
-        void showLogChanged(bool showLog);
-        void loopChanged(bool loop);
-        void mediasChanged(const QStringList &medias);
-        void mediaChanged(const QString &media);
-        void streamsChanged(const QList<int> &streams);
+        void waitState(GstState state);
+        static gboolean busCallback(GstBus *bus,
+                                    GstMessage *message,
+                                    gpointer userData);
+        static GstFlowReturn audioBufferCallback(GstElement *audioOutput,
+                                                 gpointer userData);
+        static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
+                                                 gpointer userData);
+        static GstFlowReturn subtitlesBufferCallback(GstElement *subtitlesOutput,
+                                                     gpointer userData);
+        static void aboutToFinish(GstElement *object, gpointer userData);
+        QStringList languageCodes(const QString &type);
+        QStringList languageCodes();
 
     public slots:
         void setMedia(const QString &media);
@@ -112,10 +96,7 @@ class MediaSource: public QObject
         bool setState(AkElement::ElementState state);
 
     private slots:
-        void doLoop();
-        void packetConsumed();
-        bool initContext();
-        void log();
+        void updateStreams();
 };
 
-#endif // MEDIASOURCE_H
+#endif // MEDIASOURCEGSTREAMER_H

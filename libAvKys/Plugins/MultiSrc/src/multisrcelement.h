@@ -20,15 +20,14 @@
 #ifndef MULTISRCELEMENT_H
 #define MULTISRCELEMENT_H
 
+#include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <akmultimediasourceelement.h>
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/mediasource.h"
-#else
-#include "ffmpeg/mediasource.h"
-#endif
+#include "mediasource.h"
+
+typedef QSharedPointer<MediaSource> MediaSourcePtr;
 
 class MultiSrcElement: public AkMultimediaSourceElement
 {
@@ -61,6 +60,11 @@ class MultiSrcElement: public AkMultimediaSourceElement
                WRITE setShowLog
                RESET resetShowLog
                NOTIFY showLogChanged)
+    Q_PROPERTY(QString codecLib
+               READ codecLib
+               WRITE setCodecLib
+               RESET resetCodecLib
+               NOTIFY codecLibChanged)
 
     public:
         explicit MultiSrcElement();
@@ -84,9 +88,12 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE AkCaps caps(int stream);
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
         Q_INVOKABLE bool showLog() const;
+        Q_INVOKABLE QString codecLib() const;
 
     private:
-        MediaSource m_mediaSource;
+        QString m_codecLib;
+        MediaSourcePtr m_mediaSource;
+        QMutex m_mutexLib;
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -96,6 +103,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void error(const QString &message);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
         void showLogChanged(bool showLog);
+        void codecLibChanged(const QString &codecLib);
 
     public slots:
         void setMedia(const QString &media);
@@ -103,12 +111,17 @@ class MultiSrcElement: public AkMultimediaSourceElement
         void setLoop(bool loop);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void setShowLog(bool showLog);
+        void setCodecLib(const QString &codecLib);
         void resetMedia();
         void resetStreams();
         void resetLoop();
         void resetMaxPacketQueueSize();
         void resetShowLog();
+        void resetCodecLib();
         bool setState(AkElement::ElementState state);
+
+    private slots:
+        void codecLibUpdated(const QString &codecLib);
 };
 
 #endif // MULTISRCELEMENT_H

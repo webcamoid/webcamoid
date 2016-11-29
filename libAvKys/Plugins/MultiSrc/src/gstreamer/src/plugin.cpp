@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef MULTISRC_H
-#define MULTISRC_H
+#include "plugin.h"
+#include "mediasourcegstreamer.h"
 
-#include <ak.h>
-
-class MultiSrc: public QObject, public AkPlugin
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+    Q_UNUSED(specification)
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new MediaSourceGStreamer();
 
-#endif // MULTISRC_H
+    return nullptr;
+}
+
+QStringList Plugin::keys() const
+{
+    return QStringList();
+}

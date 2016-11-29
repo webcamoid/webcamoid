@@ -26,7 +26,25 @@ exists(commons.pri) {
     }
 }
 
-QT += concurrent widgets
+CONFIG += plugin
+
+HEADERS = \
+    src/plugin.h \
+    src/mediasourceffmpeg.h \
+    src/abstractstream.h \
+    src/audiostream.h \
+    src/subtitlestream.h \
+    src/videostream.h \
+    src/clock.h \
+    ../mediasource.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
 
 DEFINES += __STDC_CONSTANT_MACROS
 
@@ -45,18 +63,22 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
-HEADERS += \
-    $$PWD/mediasource.h \
-    $$PWD/abstractstream.h \
-    $$PWD/audiostream.h \
-    $$PWD/subtitlestream.h \
-    $$PWD/videostream.h \
-    $$PWD/clock.h
+QT += qml concurrent widgets
 
-SOURCES += \
-    $$PWD/mediasource.cpp \
-    $$PWD/abstractstream.cpp \
-    $$PWD/audiostream.cpp \
-    $$PWD/subtitlestream.cpp \
-    $$PWD/videostream.cpp \
-    $$PWD/clock.cpp
+SOURCES = \
+    src/plugin.cpp \
+    src/mediasourceffmpeg.cpp \
+    src/abstractstream.cpp \
+    src/audiostream.cpp \
+    src/subtitlestream.cpp \
+    src/videostream.cpp \
+    src/clock.cpp \
+    ../mediasource.cpp
+
+DESTDIR = $${PWD}/../../submodules/MultiSrc
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/MultiSrc

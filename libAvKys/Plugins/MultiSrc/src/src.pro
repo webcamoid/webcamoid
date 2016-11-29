@@ -19,33 +19,49 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    exists(../../../../commons.pri) {
-        include(../../../../commons.pri)
+    exists(../../../commons.pri) {
+        include(../../../commons.pri)
     } else {
         error("commons.pri file not found.")
     }
 }
 
-QT += concurrent
+CONFIG += plugin
 
-DEFINES += USE_GSTREAMER
+HEADERS = \
+    multisrc.h \
+    multisrcelement.h \
+    mediasource.h
 
-!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
-!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
+INCLUDEPATH += \
+    ../../../Lib/src
 
-isEmpty(GSTREAMERLIBS) {
-    CONFIG += link_pkgconfig
+LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
 
-    PKGCONFIG += \
-        gstreamer-1.0 \
-        gstreamer-app-1.0 \
-        gstreamer-audio-1.0 \
-        gstreamer-video-1.0
+OTHER_FILES += ../pspec.json
+
+QT += qml
+
+RESOURCES += \
+    ../MultiSrc.qrc \
+    ../translations.qrc
+
+SOURCES = \
+    multisrc.cpp \
+    multisrcelement.cpp \
+    mediasource.cpp
+
+lupdate_only {
+    SOURCES += $$files(../share/qml/*.qml)
 }
 
-HEADERS += \
-    $$PWD/mediasource.h \
-    $$PWD/stream.h
+TRANSLATIONS = $$files(../share/ts/*.ts)
 
-SOURCES += \
-    $$PWD/mediasource.cpp
+DESTDIR = $${PWD}/..
+TARGET = MultiSrc
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}

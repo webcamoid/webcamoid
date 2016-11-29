@@ -21,9 +21,10 @@
 #include <gst/audio/audio.h>
 #include <gst/video/video.h>
 
-#include "mediasource.h"
+#include "mediasourcegstreamer.h"
 
-MediaSource::MediaSource(QObject *parent): QObject(parent)
+MediaSourceGStreamer::MediaSourceGStreamer(QObject *parent):
+    MediaSource(parent)
 {
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(NULL, NULL);
@@ -39,12 +40,12 @@ MediaSource::MediaSource(QObject *parent): QObject(parent)
     this->m_busWatchId = 0;
 }
 
-MediaSource::~MediaSource()
+MediaSourceGStreamer::~MediaSourceGStreamer()
 {
     this->setState(AkElement::ElementStateNull);
 }
 
-QStringList MediaSource::medias() const
+QStringList MediaSourceGStreamer::medias() const
 {
     QStringList medias;
 
@@ -54,17 +55,17 @@ QStringList MediaSource::medias() const
     return medias;
 }
 
-QString MediaSource::media() const
+QString MediaSourceGStreamer::media() const
 {
     return this->m_media;
 }
 
-QList<int> MediaSource::streams() const
+QList<int> MediaSourceGStreamer::streams() const
 {
     return this->m_streams;
 }
 
-QList<int> MediaSource::listTracks(const QString &mimeType)
+QList<int> MediaSourceGStreamer::listTracks(const QString &mimeType)
 {
     QList<int> tracks;
 
@@ -84,7 +85,7 @@ QList<int> MediaSource::listTracks(const QString &mimeType)
     return tracks;
 }
 
-QString MediaSource::streamLanguage(int stream)
+QString MediaSourceGStreamer::streamLanguage(int stream)
 {
     bool isRunning = this->m_run;
 
@@ -99,12 +100,12 @@ QString MediaSource::streamLanguage(int stream)
     return streamInfo.language;
 }
 
-bool MediaSource::loop() const
+bool MediaSourceGStreamer::loop() const
 {
     return this->m_loop;
 }
 
-int MediaSource::defaultStream(const QString &mimeType)
+int MediaSourceGStreamer::defaultStream(const QString &mimeType)
 {
     bool isRunning = this->m_run;
 
@@ -126,7 +127,7 @@ int MediaSource::defaultStream(const QString &mimeType)
     return defaultStream;
 }
 
-QString MediaSource::description(const QString &media) const
+QString MediaSourceGStreamer::description(const QString &media) const
 {
     if (this->m_media != media)
         return QString();
@@ -134,7 +135,7 @@ QString MediaSource::description(const QString &media) const
     return QFileInfo(media).baseName();
 }
 
-AkCaps MediaSource::caps(int stream)
+AkCaps MediaSourceGStreamer::caps(int stream)
 {
     bool isRunning = this->m_run;
 
@@ -149,17 +150,17 @@ AkCaps MediaSource::caps(int stream)
     return streamInfo.caps;
 }
 
-qint64 MediaSource::maxPacketQueueSize() const
+qint64 MediaSourceGStreamer::maxPacketQueueSize() const
 {
     return this->m_maxPacketQueueSize;
 }
 
-bool MediaSource::showLog() const
+bool MediaSourceGStreamer::showLog() const
 {
     return this->m_showLog;
 }
 
-void MediaSource::waitState(GstState state)
+void MediaSourceGStreamer::waitState(GstState state)
 {
     forever {
         GstState curState;
@@ -177,11 +178,11 @@ void MediaSource::waitState(GstState state)
     }
 }
 
-gboolean MediaSource::busCallback(GstBus *bus, GstMessage *message,
+gboolean MediaSourceGStreamer::busCallback(GstBus *bus, GstMessage *message,
                                   gpointer userData)
 {
     Q_UNUSED(bus)
-    MediaSource *self = static_cast<MediaSource *>(userData);
+    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {
@@ -321,10 +322,10 @@ gboolean MediaSource::busCallback(GstBus *bus, GstMessage *message,
     return TRUE;
 }
 
-GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
+GstFlowReturn MediaSourceGStreamer::audioBufferCallback(GstElement *audioOutput,
                                                gpointer userData)
 {
-    MediaSource *self = static_cast<MediaSource *>(userData);
+    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (self->m_audioIndex < 0)
         return GST_FLOW_OK;
@@ -372,10 +373,10 @@ GstFlowReturn MediaSource::audioBufferCallback(GstElement *audioOutput,
     return GST_FLOW_OK;
 }
 
-GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
-                                               gpointer userData)
+GstFlowReturn MediaSourceGStreamer::videoBufferCallback(GstElement *videoOutput,
+                                                        gpointer userData)
 {
-    MediaSource *self = static_cast<MediaSource *>(userData);
+    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (self->m_videoIndex < 0)
         return GST_FLOW_OK;
@@ -421,10 +422,10 @@ GstFlowReturn MediaSource::videoBufferCallback(GstElement *videoOutput,
     return GST_FLOW_OK;
 }
 
-GstFlowReturn MediaSource::subtitlesBufferCallback(GstElement *subtitlesOutput,
-                                                   gpointer userData)
+GstFlowReturn MediaSourceGStreamer::subtitlesBufferCallback(GstElement *subtitlesOutput,
+                                                            gpointer userData)
 {
-    MediaSource *self = static_cast<MediaSource *>(userData);
+    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (self->m_subtitlesIndex < 0)
         return GST_FLOW_OK;
@@ -465,9 +466,9 @@ GstFlowReturn MediaSource::subtitlesBufferCallback(GstElement *subtitlesOutput,
     return GST_FLOW_OK;
 }
 
-void MediaSource::aboutToFinish(GstElement *object, gpointer userData)
+void MediaSourceGStreamer::aboutToFinish(GstElement *object, gpointer userData)
 {
-    MediaSource *self = static_cast<MediaSource *>(userData);
+    MediaSourceGStreamer *self = static_cast<MediaSourceGStreamer *>(userData);
 
     if (!self->m_loop)
         return;
@@ -486,7 +487,7 @@ void MediaSource::aboutToFinish(GstElement *object, gpointer userData)
 
 }
 
-QStringList MediaSource::languageCodes(const QString &type)
+QStringList MediaSourceGStreamer::languageCodes(const QString &type)
 {
     QStringList languages;
 
@@ -523,7 +524,7 @@ QStringList MediaSource::languageCodes(const QString &type)
     return languages;
 }
 
-QStringList MediaSource::languageCodes()
+QStringList MediaSourceGStreamer::languageCodes()
 {
     QStringList languages;
     languages << languageCodes("audio");
@@ -533,7 +534,7 @@ QStringList MediaSource::languageCodes()
     return languages;
 }
 
-void MediaSource::setMedia(const QString &media)
+void MediaSourceGStreamer::setMedia(const QString &media)
 {
     if (media == this->m_media)
         return;
@@ -549,7 +550,7 @@ void MediaSource::setMedia(const QString &media)
     emit this->mediasChanged(this->medias());
 }
 
-void MediaSource::setStreams(const QList<int> &streams)
+void MediaSourceGStreamer::setStreams(const QList<int> &streams)
 {
     if (this->m_streams == streams)
         return;
@@ -562,7 +563,7 @@ void MediaSource::setStreams(const QList<int> &streams)
     emit this->streamsChanged(streams);
 }
 
-void MediaSource::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
+void MediaSourceGStreamer::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
     if (this->m_maxPacketQueueSize == maxPacketQueueSize)
         return;
@@ -571,7 +572,7 @@ void MediaSource::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
     emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
 }
 
-void MediaSource::setShowLog(bool showLog)
+void MediaSourceGStreamer::setShowLog(bool showLog)
 {
     if (this->m_showLog == showLog)
         return;
@@ -580,7 +581,7 @@ void MediaSource::setShowLog(bool showLog)
     emit this->showLogChanged(showLog);
 }
 
-void MediaSource::setLoop(bool loop)
+void MediaSourceGStreamer::setLoop(bool loop)
 {
     if (this->m_loop == loop)
         return;
@@ -589,12 +590,12 @@ void MediaSource::setLoop(bool loop)
     emit this->loopChanged(loop);
 }
 
-void MediaSource::resetMedia()
+void MediaSourceGStreamer::resetMedia()
 {
     this->setMedia("");
 }
 
-void MediaSource::resetStreams()
+void MediaSourceGStreamer::resetStreams()
 {
     if  (this->m_streams.isEmpty())
         return;
@@ -603,22 +604,22 @@ void MediaSource::resetStreams()
     emit this->streamsChanged(this->m_streams);
 }
 
-void MediaSource::resetMaxPacketQueueSize()
+void MediaSourceGStreamer::resetMaxPacketQueueSize()
 {
     this->setMaxPacketQueueSize(15 * 1024 * 1024);
 }
 
-void MediaSource::resetShowLog()
+void MediaSourceGStreamer::resetShowLog()
 {
     this->setShowLog(false);
 }
 
-void MediaSource::resetLoop()
+void MediaSourceGStreamer::resetLoop()
 {
     this->setLoop(false);
 }
 
-bool MediaSource::setState(AkElement::ElementState state)
+bool MediaSourceGStreamer::setState(AkElement::ElementState state)
 {
     switch (this->m_curState) {
     case AkElement::ElementStateNull: {
@@ -932,7 +933,7 @@ bool MediaSource::setState(AkElement::ElementState state)
     return false;
 }
 
-void MediaSource::updateStreams()
+void MediaSourceGStreamer::updateStreams()
 {
     // Read the number of tracks in the file.
     int audioTracks = 0;
