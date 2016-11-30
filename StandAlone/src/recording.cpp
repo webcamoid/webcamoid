@@ -25,12 +25,6 @@
 
 #include "recording.h"
 
-#ifdef USE_GSTREAMER
-#define DEFAULT_FORMAT "webmmux"
-#else
-#define DEFAULT_FORMAT "webm"
-#endif
-
 #define DEFAULT_RECORD_AUDIO true
 #define AUDIO_RECORDING_KEY "Enable audio recording"
 
@@ -38,7 +32,6 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent),
     m_engine(nullptr)
 {
-    this->m_format = DEFAULT_FORMAT;
     this->m_recordAudio = DEFAULT_RECORD_AUDIO;
     this->m_state = AkElement::ElementStateNull;
     this->setQmlEngine(engine);
@@ -87,11 +80,16 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                      this,
                      &Recording::capsUpdated);
 
-    if (this->m_record)
+    if (this->m_record) {
         QObject::connect(this->m_record.data(),
                          SIGNAL(userControlsValuesChanged(const QVariantMap &)),
                          this,
                          SLOT(userControlsUpdated(const QVariantMap &)));
+
+        this->m_format =
+                this->m_record->property("codecLib").toString() == "gstreamer"?
+                    "webmmux": "webm";
+    }
 
     this->m_availableFormats = this->recordingFormats();
     this->loadProperties();
@@ -255,13 +253,11 @@ QStringList Recording::recordingFormats() const
                               Q_RETURN_ARG(QStringList, supportedFormats));
 
     for (const QString &format: supportedFormats) {
-#ifndef USE_GSTREAMER
         if (format == "gif") {
             formats << format;
 
             continue;
         }
-#endif
 
         QStringList audioCodecs;
         QMetaObject::invokeMethod(this->m_record.data(),
@@ -357,7 +353,14 @@ void Recording::setState(AkElement::ElementState state)
 
 void Recording::resetFormat()
 {
-    this->setFormat(DEFAULT_FORMAT);
+    QString defaultFormat;
+
+    if (this->m_record)
+        defaultFormat =
+                this->m_record->property("codecLib").toString() == "gstreamer"?
+                    "webmmux": "webm";
+
+    this->setFormat(defaultFormat);
 }
 
 void Recording::resetAudioCaps()
@@ -510,10 +513,17 @@ void Recording::capsUpdated()
 
 void Recording::loadProperties()
 {
+    QString defaultFormat;
+
+    if (this->m_record)
+        defaultFormat =
+                this->m_record->property("codecLib").toString() == "gstreamer"?
+                    "webmmux": "webm";
+
     QString format =
             this->m_availableFormats.isEmpty()
-            || this->m_availableFormats.contains(DEFAULT_FORMAT)?
-                DEFAULT_FORMAT: this->m_availableFormats.first();
+            || this->m_availableFormats.contains(defaultFormat)?
+                defaultFormat: this->m_availableFormats.first();
 
     QSettings config;
     config.beginGroup("RecordConfigs");

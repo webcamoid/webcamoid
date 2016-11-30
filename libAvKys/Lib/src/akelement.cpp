@@ -281,22 +281,43 @@ AkElementPtr AkElement::create(const QString &pluginId,
     return AkElementPtr(element);
 }
 
-QStringList AkElement::listSubModules(const QString &pluginId)
+QStringList AkElement::listSubModules(const QString &pluginId,
+                                      const QString &type)
 {
     QStringList subModules;
     auto subModulesPaths = AkElement::listSubModulesPaths(pluginId);
 
-    for (const QString &path: subModulesPaths)
-        subModules << AkElementPrivate::pluginId(path);
+    for (const QString &path: subModulesPaths) {
+        QPluginLoader pluginLoader(path);
+        QJsonObject metaData = pluginLoader.metaData();
+        QString pluginId = AkElementPrivate::pluginId(path);
+
+        if (!type.isEmpty()
+            && metaData["MetaData"].toObject().contains("type")
+            && metaData["MetaData"].toObject()["type"] == type
+            && !subModules.contains(pluginId))
+            subModules << pluginId;
+        else if (type.isEmpty()
+                 && !subModules.contains(pluginId))
+            subModules << pluginId;
+    }
 
     subModules.sort();
 
     return subModules;
 }
 
-QStringList AkElement::listSubModules()
+QStringList AkElement::listSubModules(const QStringList &types)
 {
-    return AkElement::listSubModules(this->d->m_pluginId);
+    if (types.isEmpty())
+        return AkElement::listSubModules(this->d->m_pluginId);
+
+    QStringList subModules;
+
+    for (const QString &type: types)
+        subModules << AkElement::listSubModules(this->d->m_pluginId, type);
+
+    return subModules;
 }
 
 QStringList AkElement::listSubModulesPaths(const QString &pluginId)

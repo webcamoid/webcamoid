@@ -31,7 +31,7 @@ class AudioDev: public QObject
 
     public:
         explicit AudioDev(QObject *parent=NULL);
-        ~AudioDev();
+        virtual ~AudioDev();
 
         Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual QString defaultInput();

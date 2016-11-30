@@ -22,13 +22,23 @@
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
 
 template<typename T>
-inline QSharedPointer<T> obj_cast(QObject *obj)
+inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
 {
+    if (!obj)
+        return QSharedPointer<T>(new T());
+
     return QSharedPointer<T>(dynamic_cast<T *>(obj));
 }
 
-ACapsConvertElement::ACapsConvertElement(): AkElement()
+ACapsConvertElement::ACapsConvertElement():
+    AkElement(),
+    m_convertAudio(ptr_init<ConvertAudio>())
 {
+    QObject::connect(this,
+                     &ACapsConvertElement::convertLibChanged,
+                     this,
+                     &ACapsConvertElement::convertLibUpdated);
+
     this->resetConvertLib();
 }
 
@@ -58,14 +68,7 @@ void ACapsConvertElement::setConvertLib(const QString &convertLib)
     if (this->m_convertLib == convertLib)
         return;
 
-    this->m_mutex.lock();
     this->m_convertLib = convertLib;
-
-    this->m_convertAudio =
-            obj_cast<ConvertAudio>(this->loadSubModule("ACapsConvert",
-                                                       convertLib));
-    this->m_mutex.unlock();
-
     emit this->convertLibChanged(convertLib);
 }
 
@@ -94,17 +97,22 @@ void ACapsConvertElement::resetConvertLib()
 AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)
 {
     this->m_mutex.lock();
-    AkCaps caps = this->m_caps;
+    auto caps = this->m_caps;
     this->m_mutex.unlock();
 
-    AkPacket oPacket;
-
     this->m_mutex.lock();
-
-    if (this->m_convertAudio)
-        oPacket = this->m_convertAudio->convert(packet, caps);
-
+    auto oPacket = this->m_convertAudio->convert(packet, caps);
     this->m_mutex.unlock();
 
     akSend(oPacket)
+}
+
+void ACapsConvertElement::convertLibUpdated(const QString &convertLib)
+{
+    this->m_mutex.lock();
+
+    this->m_convertAudio =
+            ptr_init<ConvertAudio>(this->loadSubModule("ACapsConvert",
+                                                       convertLib));
+    this->m_mutex.unlock();
 }

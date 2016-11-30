@@ -290,11 +290,3 @@ unix:!macx {
     docs.path = $${HTMLDIR}
     docs.CONFIG += no_check_exist
 }
-
-#USE_GSTREAMER = 1
-
-isEmpty(USE_GSTREAMER) {
-    include(src/ffmpeg/ffmpeg.pri)
-} else {
-    include(src/gstreamer/gstreamer.pri)
-}

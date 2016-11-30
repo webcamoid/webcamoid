@@ -38,7 +38,7 @@ class MediaSource: public QObject
 
     public:
         explicit MediaSource(QObject *parent=NULL);
-        ~MediaSource();
+        virtual ~MediaSource();
 
         Q_INVOKABLE virtual QStringList medias() const;
         Q_INVOKABLE virtual QString media() const;

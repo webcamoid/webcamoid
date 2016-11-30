@@ -16,13 +16,46 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS = src
-CONFIG(config_avfoundation): SUBDIRS += src/avfoundation
-CONFIG(config_dshow): SUBDIRS += src/dshow
-CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
-CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
-CONFIG(config_v4l2): SUBDIRS += src/v4l2
+HEADERS = \
+    src/plugin.h \
+    src/capturev4l2.h \
+    src/capturebuffer.h \
+    ../capture.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+CONFIG += link_pkgconfig
+PKGCONFIG += libv4l2
+
+QT += qml
+
+SOURCES = \
+    src/plugin.cpp \
+    src/capturev4l2.cpp \
+    ../capture.cpp
+
+DESTDIR = $${PWD}/../../submodules/VideoCapture
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VideoCapture

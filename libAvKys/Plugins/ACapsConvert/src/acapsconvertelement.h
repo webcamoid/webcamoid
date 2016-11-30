@@ -64,6 +64,9 @@ class ACapsConvertElement: public AkElement
         void resetConvertLib();
 
         AkPacket iStream(const AkAudioPacket &packet);
+
+    private slots:
+        void convertLibUpdated(const QString &convertLib);
 };
 
 #endif // ACAPSCONVERTELEMENT_H

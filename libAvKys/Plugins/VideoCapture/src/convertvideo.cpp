@@ -17,20 +17,29 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOCAPTURE_H
-#define VIDEOCAPTURE_H
+#include "convertvideo.h"
 
-#include <ak.h>
-
-class VideoCapture: public QObject, public AkPlugin
+ConvertVideo::ConvertVideo(QObject *parent):
+    QObject(parent)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+}
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+ConvertVideo::~ConvertVideo()
+{
+}
 
-#endif // VIDEOCAPTURE_H
+void ConvertVideo::packetEnqueue(const AkPacket &packet)
+{
+    Q_UNUSED(packet)
+}
+
+bool ConvertVideo::init(const AkCaps &caps)
+{
+    Q_UNUSED(caps)
+
+    return false;
+}
+
+void ConvertVideo::uninit()
+{
+}

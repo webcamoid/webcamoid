@@ -28,19 +28,11 @@
 
 #include <akmultimediasourceelement.h>
 
-#ifdef Q_OS_LINUX
-#include "v4l2/capture.h"
-#elif defined(Q_OS_WIN32)
-#include "dshow/capture.h"
-#elif defined(Q_OS_OSX)
-#include "avfoundation/capture.h"
-#endif
+#include "convertvideo.h"
+#include "capture.h"
 
-#ifdef USE_GSTREAMER
-#include "gstreamer/convertvideo.h"
-#else
-#include "ffmpeg/convertvideo.h"
-#endif
+typedef QSharedPointer<ConvertVideo> ConvertVideoPtr;
+typedef QSharedPointer<Capture> CapturePtr;
 
 class VideoCaptureElement: public AkMultimediaSourceElement
 {
@@ -58,6 +50,16 @@ class VideoCaptureElement: public AkMultimediaSourceElement
                READ nBuffers
                WRITE setNBuffers
                RESET resetNBuffers)
+    Q_PROPERTY(QString codecLib
+               READ codecLib
+               WRITE setCodecLib
+               RESET resetCodecLib
+               NOTIFY codecLibChanged)
+    Q_PROPERTY(QString captureLib
+               READ captureLib
+               WRITE setCaptureLib
+               RESET resetCaptureLib
+               NOTIFY captureLibChanged)
 
     public:
         explicit VideoCaptureElement();
@@ -76,10 +78,10 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE AkCaps caps(int stream) const;
         Q_INVOKABLE AkCaps rawCaps(int stream) const;
         Q_INVOKABLE QStringList listCapsDescription() const;
-
         Q_INVOKABLE QString ioMethod() const;
         Q_INVOKABLE int nBuffers() const;
-
+        Q_INVOKABLE QString codecLib() const;
+        Q_INVOKABLE QString captureLib() const;
         Q_INVOKABLE QVariantList imageControls() const;
         Q_INVOKABLE bool setImageControls(const QVariantMap &imageControls);
         Q_INVOKABLE bool resetImageControls();
@@ -88,10 +90,13 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE bool resetCameraControls();
 
     private:
-        Capture m_capture;
-        ConvertVideo m_convertVideo;
+        QString m_codecLib;
+        QString m_captureLib;
+        ConvertVideoPtr m_convertVideo;
+        CapturePtr m_capture;
         QThreadPool m_threadPool;
         QFuture<void> m_cameraLoopResult;
+        QMutex m_mutexLib;
         bool m_runCameraLoop;
         bool m_pause;
         bool m_mirror;
@@ -101,23 +106,32 @@ class VideoCaptureElement: public AkMultimediaSourceElement
 
     signals:
         void error(const QString &message);
-        void sizeChanged(const QString &webcam, const QSize &size) const;
+        void streamsChanged(const QList<int> &streams);
+        void codecLibChanged(const QString &codecLib);
+        void captureLibChanged(const QString &captureLib);
         void imageControlsChanged(const QVariantMap &imageControls) const;
         void cameraControlsChanged(const QVariantMap &cameraControls) const;
-        void streamsChanged(const QList<int> &streams);
 
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);
         void setIoMethod(const QString &ioMethod);
         void setNBuffers(int nBuffers);
+        void setCodecLib(const QString &codecLib);
+        void setCaptureLib(const QString &captureLib);
         void resetMedia();
         void resetStreams();
         void resetIoMethod();
         void resetNBuffers();
+        void resetCodecLib();
+        void resetCaptureLib();
         void reset();
         bool setState(AkElement::ElementState state);
         void frameReady(const AkPacket &packet);
+
+    private slots:
+        void codecLibUpdated(const QString &codecLib);
+        void captureLibUpdated(const QString &captureLib);
 };
 
 #endif // VIDEOCAPTUREELEMENT_H
