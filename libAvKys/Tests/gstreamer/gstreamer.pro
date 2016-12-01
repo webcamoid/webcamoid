@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+macx: QT_CONFIG -= no-pkg-config
+
 !isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
 !isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
 

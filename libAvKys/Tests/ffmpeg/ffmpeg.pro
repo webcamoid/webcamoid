@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+macx: QT_CONFIG -= no-pkg-config
+
 DEFINES += __STDC_CONSTANT_MACROS
 
 !isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}

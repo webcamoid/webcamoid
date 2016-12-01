@@ -51,7 +51,7 @@ LIBS += \
 QT += qml
 
 SOURCES = \
-    src/plugin.cpp
+    src/plugin.cpp \
     ../capture.cpp
 
 OBJECTIVE_SOURCES = \
