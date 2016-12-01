@@ -61,7 +61,7 @@ inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
     if (!obj)
         return QSharedPointer<T>(new T());
 
-    return QSharedPointer<T>(dynamic_cast<T *>(obj));
+    return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
 VideoCaptureElement::VideoCaptureElement():
