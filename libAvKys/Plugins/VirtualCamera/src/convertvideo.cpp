@@ -17,20 +17,21 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIRTUALCAMERA_H
-#define VIRTUALCAMERA_H
+#include "convertvideo.h"
 
-#include <ak.h>
-
-class VirtualCamera: public QObject, public AkPlugin
+ConvertVideo::ConvertVideo(QObject *parent):
+    QObject(parent)
 {
-    Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+}
 
-    public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
-};
+ConvertVideo::~ConvertVideo()
+{
+}
 
-#endif // VIRTUALCAMERA_H
+AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
+{
+    Q_UNUSED(packet)
+    Q_UNUSED(oCaps)
+
+    return AkPacket();
+}

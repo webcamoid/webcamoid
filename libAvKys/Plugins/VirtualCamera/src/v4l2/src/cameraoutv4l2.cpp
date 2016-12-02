@@ -18,8 +18,9 @@
  */
 
 #include <QProcess>
+#include <akvideopacket.h>
 
-#include "cameraout.h"
+#include "cameraoutv4l2.h"
 
 #define MAX_CAMERAS 64
 
@@ -29,13 +30,13 @@
 
 #define LOOPBACK_DEVICE "v4l2loopback"
 
-typedef QMap<CameraOut::RootMethod, QString> RootMethodMap;
+typedef QMap<CameraOutV4L2::RootMethod, QString> RootMethodMap;
 
 inline RootMethodMap initRootMethodMap()
 {
     RootMethodMap rootMethodToStr = {
-        {CameraOut::RootMethodSu  , "su"  },
-        {CameraOut::RootMethodSudo, "sudo"}
+        {CameraOutV4L2::RootMethodSu  , "su"  },
+        {CameraOutV4L2::RootMethodSudo, "sudo"}
     };
 
     return rootMethodToStr;
@@ -96,7 +97,8 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4l2PixFmtMap, ffToV4L2, (initV4l2PixFmtMap()))
 
-CameraOut::CameraOut(): QObject()
+CameraOutV4L2::CameraOutV4L2(QObject *parent):
+    CameraOut(parent)
 {
     this->m_streamIndex = -1;
     this->m_fd = -1;
@@ -109,20 +111,20 @@ CameraOut::CameraOut(): QObject()
     QObject::connect(this->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
                      this,
-                     &CameraOut::onDirectoryChanged);
+                     &CameraOutV4L2::onDirectoryChanged);
 }
 
-CameraOut::~CameraOut()
+CameraOutV4L2::~CameraOutV4L2()
 {
     delete this->m_fsWatcher;
 }
 
-QString CameraOut::driverPath() const
+QString CameraOutV4L2::driverPath() const
 {
     return this->m_driverPath;
 }
 
-QStringList CameraOut::webcams() const
+QStringList CameraOutV4L2::webcams() const
 {
     QDir devicesDir("/dev");
 
@@ -156,22 +158,22 @@ QStringList CameraOut::webcams() const
     return webcams;
 }
 
-QString CameraOut::device() const
+QString CameraOutV4L2::device() const
 {
     return this->m_device;
 }
 
-int CameraOut::streamIndex() const
+int CameraOutV4L2::streamIndex() const
 {
     return this->m_streamIndex;
 }
 
-AkCaps CameraOut::caps() const
+AkCaps CameraOutV4L2::caps() const
 {
     return this->m_caps;
 }
 
-QString CameraOut::description(const QString &webcam) const
+QString CameraOutV4L2::description(const QString &webcam) const
 {
     if (webcam.isEmpty())
         return QString();
@@ -194,7 +196,7 @@ QString CameraOut::description(const QString &webcam) const
     return QString();
 }
 
-void CameraOut::writeFrame(const AkPacket &frame)
+void CameraOutV4L2::writeFrame(const AkPacket &frame)
 {
     if (this->m_fd < 0)
         return;
@@ -205,7 +207,7 @@ void CameraOut::writeFrame(const AkPacket &frame)
         qDebug() << "Error writing frame";
 }
 
-int CameraOut::maxCameras() const
+int CameraOutV4L2::maxCameras() const
 {
     QString modules = QString("/lib/modules/%1/modules.dep")
                       .arg(QSysInfo::kernelVersion());
@@ -235,23 +237,23 @@ int CameraOut::maxCameras() const
     return 0;
 }
 
-bool CameraOut::needRoot() const
+bool CameraOutV4L2::needRoot() const
 {
     return true;
 }
 
-int CameraOut::passwordTimeout() const
+int CameraOutV4L2::passwordTimeout() const
 {
     return this->m_passwordTimeout;
 }
 
-QString CameraOut::rootMethod() const
+QString CameraOutV4L2::rootMethod() const
 {
     return rootMethodToStr->value(this->m_rootMethod);
 }
 
-QString CameraOut::createWebcam(const QString &description,
-                                const QString &password) const
+QString CameraOutV4L2::createWebcam(const QString &description,
+                                    const QString &password) const
 {
     if (password.isEmpty())
         return QString();
@@ -298,9 +300,9 @@ QString CameraOut::createWebcam(const QString &description,
     return QString("/dev/video%1").arg(id);
 }
 
-bool CameraOut::changeDescription(const QString &webcam,
-                                  const QString &description,
-                                  const QString &password) const
+bool CameraOutV4L2::changeDescription(const QString &webcam,
+                                      const QString &description,
+                                      const QString &password) const
 {
     if (password.isEmpty())
         return false;
@@ -360,8 +362,8 @@ bool CameraOut::changeDescription(const QString &webcam,
     return true;
 }
 
-bool CameraOut::removeWebcam(const QString &webcam,
-                             const QString &password) const
+bool CameraOutV4L2::removeWebcam(const QString &webcam,
+                                 const QString &password) const
 {
     if (password.isEmpty())
         return false;
@@ -418,7 +420,7 @@ bool CameraOut::removeWebcam(const QString &webcam,
     return true;
 }
 
-bool CameraOut::removeAllWebcams(const QString &password) const
+bool CameraOutV4L2::removeAllWebcams(const QString &password) const
 {
     if (password.isEmpty())
         return false;
@@ -438,7 +440,7 @@ bool CameraOut::removeAllWebcams(const QString &password) const
     return true;
 }
 
-bool CameraOut::isModuleLoaded() const
+bool CameraOutV4L2::isModuleLoaded() const
 {
     QProcess lsmod;
     lsmod.start("lsmod");
@@ -456,9 +458,9 @@ bool CameraOut::isModuleLoaded() const
     return false;
 }
 
-bool CameraOut::sudo(const QString &command,
-                     const QStringList &argumments,
-                     const QString &password) const
+bool CameraOutV4L2::sudo(const QString &command,
+                         const QStringList &argumments,
+                         const QString &password) const
 {
     if (password.isEmpty())
         return false;
@@ -517,13 +519,13 @@ bool CameraOut::sudo(const QString &command,
     return true;
 }
 
-void CameraOut::rmmod(const QString &password) const
+void CameraOutV4L2::rmmod(const QString &password) const
 {
     if (this->isModuleLoaded())
         this->sudo("rmmod", {LOOPBACK_DEVICE}, password);
 }
 
-bool CameraOut::init(int streamIndex, const AkCaps &caps)
+bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
 {
     if (!caps)
         return false;
@@ -568,13 +570,13 @@ bool CameraOut::init(int streamIndex, const AkCaps &caps)
     return true;
 }
 
-void CameraOut::uninit()
+void CameraOutV4L2::uninit()
 {
     close(this->m_fd);
     this->m_fd = -1;
 }
 
-void CameraOut::setDriverPath(const QString &driverPath)
+void CameraOutV4L2::setDriverPath(const QString &driverPath)
 {
     if (this->m_driverPath == driverPath)
         return;
@@ -583,7 +585,7 @@ void CameraOut::setDriverPath(const QString &driverPath)
     emit this->driverPathChanged(driverPath);
 }
 
-void CameraOut::setDevice(const QString &device)
+void CameraOutV4L2::setDevice(const QString &device)
 {
     if (this->m_device == device)
         return;
@@ -592,7 +594,7 @@ void CameraOut::setDevice(const QString &device)
     emit this->deviceChanged(device);
 }
 
-void CameraOut::setPasswordTimeout(int passwordTimeout)
+void CameraOutV4L2::setPasswordTimeout(int passwordTimeout)
 {
     if (this->m_passwordTimeout == passwordTimeout)
         return;
@@ -601,7 +603,7 @@ void CameraOut::setPasswordTimeout(int passwordTimeout)
     emit this->passwordTimeoutChanged(passwordTimeout);
 }
 
-void CameraOut::setRootMethod(const QString &rootMethod)
+void CameraOutV4L2::setRootMethod(const QString &rootMethod)
 {
     RootMethod methodEnum = rootMethodToStr->key(rootMethod, RootMethodSu);
 
@@ -612,27 +614,27 @@ void CameraOut::setRootMethod(const QString &rootMethod)
     emit this->rootMethodChanged(rootMethod);
 }
 
-void CameraOut::resetDriverPath()
+void CameraOutV4L2::resetDriverPath()
 {
     this->setDriverPath("");
 }
 
-void CameraOut::resetDevice()
+void CameraOutV4L2::resetDevice()
 {
     this->setDevice("");
 }
 
-void CameraOut::resetPasswordTimeout()
+void CameraOutV4L2::resetPasswordTimeout()
 {
     this->setPasswordTimeout(2500);
 }
 
-void CameraOut::resetRootMethod()
+void CameraOutV4L2::resetRootMethod()
 {
     this->setRootMethod(ROOT_METHOD);
 }
 
-void CameraOut::onDirectoryChanged(const QString &path)
+void CameraOutV4L2::onDirectoryChanged(const QString &path)
 {
     Q_UNUSED(path)
 

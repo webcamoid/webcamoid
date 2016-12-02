@@ -19,21 +19,21 @@
 
 #include <QMetaEnum>
 
-#include "convertvideo.h"
+#include "convertvideoffmpeg.h"
 
-ConvertVideo::ConvertVideo(QObject *parent):
-    QObject(parent)
+ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
+    ConvertVideo(parent)
 {
     this->m_scaleContext = NULL;
 }
 
-ConvertVideo::~ConvertVideo()
+ConvertVideoFFmpeg::~ConvertVideoFFmpeg()
 {
     if (this->m_scaleContext)
         sws_freeContext(this->m_scaleContext);
 }
 
-AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
+AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps)
 {
     AkVideoPacket videoPacket(packet);
     AkVideoCaps oVideoCaps(oCaps);

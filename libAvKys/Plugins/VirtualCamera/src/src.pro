@@ -29,27 +29,29 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS = \
-    multisink.h \
-    multisinkelement.h \
-    mediawriter.h
+    virtualcamera.h \
+    virtualcameraelement.h \
+    cameraout.h \
+    convertvideo.h
 
 INCLUDEPATH += \
     ../../../Lib/src
 
 LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
 
-OTHER_FILES += ../pspec.json
+OTHER_FILES += pspec.json
 
-QT += qml
+QT += qml concurrent
 
 RESOURCES = \
-    ../MultiSink.qrc \
+    ../VirtualCamera.qrc \
     ../translations.qrc
 
 SOURCES = \
-    multisink.cpp \
-    multisinkelement.cpp \
-    mediawriter.cpp
+    virtualcamera.cpp \
+    virtualcameraelement.cpp \
+    cameraout.cpp \
+    convertvideo.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)
@@ -58,7 +60,7 @@ lupdate_only {
 TRANSLATIONS = $$files(../share/ts/*.ts)
 
 DESTDIR = $${PWD}/..
-TARGET = MultiSink
+TARGET = VirtualCamera
 
 TEMPLATE = lib
 

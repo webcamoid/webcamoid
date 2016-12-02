@@ -17,32 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CONVERTVIDEO_H
-#define CONVERTVIDEO_H
+#include "plugin.h"
+#include "cameraoutdshow.h"
 
-#include <akvideopacket.h>
-
-extern "C"
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    #include <libavcodec/avcodec.h>
-    #include <libswscale/swscale.h>
-    #include <libavutil/imgutils.h>
-    #include <libavutil/pixdesc.h>
+    Q_UNUSED(specification)
+
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new CameraOutDShow();
+
+    return nullptr;
 }
 
-class ConvertVideo: public QObject
+QStringList Plugin::keys() const
 {
-    Q_OBJECT
-
-    public:
-        explicit ConvertVideo(QObject *parent=NULL);
-        ~ConvertVideo();
-
-        Q_INVOKABLE AkPacket convert(const AkPacket &packet,
-                                     const AkCaps &oCaps);
-
-    private:
-        SwsContext *m_scaleContext;
-};
-
-#endif // CONVERTVIDEO_H
+    return QStringList();
+}

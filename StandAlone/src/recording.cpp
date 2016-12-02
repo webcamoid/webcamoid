@@ -96,7 +96,7 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
 
     if (this->m_record) {
         QVariantList controls {
-            QVariantList {
+            QVariant(QVariantList {
                 tr(AUDIO_RECORDING_KEY),
                 "boolean",
                 0,
@@ -105,7 +105,7 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                 DEFAULT_RECORD_AUDIO,
                 this->m_recordAudio,
                 QStringList()
-            }
+            })
         };
 
         this->m_record->setProperty("userControls", controls);

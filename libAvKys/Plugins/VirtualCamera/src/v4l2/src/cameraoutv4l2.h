@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CAMERAOUT_H
-#define CAMERAOUT_H
+#ifndef CAMERAOUTV4L2_H
+#define CAMERAOUTV4L2_H
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -29,43 +29,11 @@
 #include <QDir>
 #include <QSize>
 
-#include <akpacket.h>
-#include <akvideocaps.h>
+#include "cameraout.h"
 
-class CameraOut: public QObject
+class CameraOutV4L2: public CameraOut
 {
     Q_OBJECT
-    Q_PROPERTY(QString driverPath
-               READ driverPath
-               WRITE setDriverPath
-               RESET resetDriverPath
-               NOTIFY driverPathChanged)
-    Q_PROPERTY(QStringList webcams
-               READ webcams
-               NOTIFY webcamsChanged)
-    Q_PROPERTY(QString device
-               READ device
-               WRITE setDevice
-               RESET resetDevice
-               NOTIFY deviceChanged)
-    Q_PROPERTY(int streamIndex
-               READ streamIndex)
-    Q_PROPERTY(AkCaps caps
-               READ caps)
-    Q_PROPERTY(int maxCameras
-               READ maxCameras)
-    Q_PROPERTY(bool needRoot
-               READ needRoot)
-    Q_PROPERTY(int passwordTimeout
-               READ passwordTimeout
-               WRITE setPasswordTimeout
-               RESET resetPasswordTimeout
-               NOTIFY passwordTimeoutChanged)
-    Q_PROPERTY(QString rootMethod
-               READ rootMethod
-               WRITE setRootMethod
-               RESET resetRootMethod
-               NOTIFY rootMethodChanged)
 
     public:
         enum RootMethod
@@ -74,8 +42,8 @@ class CameraOut: public QObject
             RootMethodSudo
         };
 
-        explicit CameraOut();
-        ~CameraOut();
+        explicit CameraOutV4L2(QObject *parent=NULL);
+        ~CameraOutV4L2();
 
         Q_INVOKABLE QString driverPath() const;
         Q_INVOKABLE QStringList webcams() const;
@@ -88,14 +56,14 @@ class CameraOut: public QObject
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
         Q_INVOKABLE QString rootMethod() const;
-        Q_INVOKABLE QString createWebcam(const QString &description="",
-                                         const QString &password="") const;
+        Q_INVOKABLE QString createWebcam(const QString &description,
+                                         const QString &password) const;
         Q_INVOKABLE bool changeDescription(const QString &webcam,
-                                           const QString &description="",
-                                           const QString &password="") const;
+                                           const QString &description,
+                                           const QString &password) const;
         Q_INVOKABLE bool removeWebcam(const QString &webcam,
-                                      const QString &password="") const;
-        Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
+                                      const QString &password) const;
+        Q_INVOKABLE bool removeAllWebcams(const QString &password) const;
 
     private:
         QString m_driverPath;
@@ -128,14 +96,6 @@ class CameraOut: public QObject
                   const QString &password) const;
         void rmmod(const QString &password) const;
 
-    signals:
-        void driverPathChanged(const QString &driverPath);
-        void webcamsChanged(const QStringList &webcams) const;
-        void deviceChanged(const QString &device);
-        void passwordTimeoutChanged(int passwordTimeout);
-        void rootMethodChanged(QString rootMethod);
-        void error(const QString &message);
-
     public slots:
         bool init(int streamIndex, const AkCaps &caps);
         void uninit();
@@ -152,4 +112,4 @@ class CameraOut: public QObject
         void onDirectoryChanged(const QString &path);
 };
 
-#endif // CAMERAOUT_H
+#endif // CAMERAOUTV4L2_H

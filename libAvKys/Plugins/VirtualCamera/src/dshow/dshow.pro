@@ -26,21 +26,40 @@ exists(commons.pri) {
     }
 }
 
-DEFINES += USE_GSTREAMER
+CONFIG += plugin
 
-!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
-!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
+HEADERS = \
+    src/plugin.h \
+    src/cameraoutdshow.h \
+    ../cameraout.h
 
-isEmpty(GSTREAMERLIBS) {
-    CONFIG += link_pkgconfig
+INCLUDEPATH += \
+    VirtualCameraFilter/ipc/src \
+    ../../../../Lib/src \
+    ../
 
-    PKGCONFIG += \
-        gstreamer-1.0 \
-        gstreamer-video-1.0
-}
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
-HEADERS += \
-    $$PWD/convertvideo.h
+OTHER_FILES += pspec.json
 
-SOURCES += \
-    $$PWD/convertvideo.cpp
+LIBS += \
+    -LVirtualCameraFilter/ipc -lipc \
+    -lstrmiids \
+    -luuid \
+    -lole32 \
+    -loleaut32
+
+QT += qml
+
+SOURCES = \
+    src/plugin.cpp \
+    src/cameraoutdshow.cpp \
+    ../cameraout.cpp
+
+DESTDIR = $${PWD}/../../submodules/VirtualCamera
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera

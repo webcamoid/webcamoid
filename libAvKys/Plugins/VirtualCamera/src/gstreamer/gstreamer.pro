@@ -19,8 +19,8 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    exists(../../../commons.pri) {
-        include(../../../commons.pri)
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
     } else {
         error("commons.pri file not found.")
     }
@@ -28,40 +28,41 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS = \
-    multisink.h \
-    multisinkelement.h \
-    mediawriter.h
+HEADERS += \
+    src/plugin.h \
+    src/convertvideogstreamer.h \
+    ../convertvideo.h
 
 INCLUDEPATH += \
-    ../../../Lib/src
+    ../../../../Lib/src \
+    ../
 
-LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
-OTHER_FILES += ../pspec.json
+OTHER_FILES += pspec.json
+
+!isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}
+!isEmpty(GSTREAMERLIBS): LIBS += $${GSTREAMERLIBS}
+
+isEmpty(GSTREAMERLIBS) {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        gstreamer-1.0 \
+        gstreamer-video-1.0
+}
 
 QT += qml
 
-RESOURCES = \
-    ../MultiSink.qrc \
-    ../translations.qrc
+SOURCES += \
+    src/plugin.cpp \
+    src/convertvideogstreamer.cpp \
+    ../convertvideo.cpp
 
-SOURCES = \
-    multisink.cpp \
-    multisinkelement.cpp \
-    mediawriter.cpp
-
-lupdate_only {
-    SOURCES += $$files(../share/qml/*.qml)
-}
-
-TRANSLATIONS = $$files(../share/ts/*.ts)
-
-DESTDIR = $${PWD}/..
-TARGET = MultiSink
+DESTDIR = $${PWD}/../../submodules/VirtualCamera
 
 TEMPLATE = lib
 
 INSTALLS += target
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera

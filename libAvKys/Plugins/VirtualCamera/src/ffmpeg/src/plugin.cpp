@@ -17,24 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CONVERTVIDEO_H
-#define CONVERTVIDEO_H
+#include "plugin.h"
+#include "convertvideoffmpeg.h"
 
-#include <akvideopacket.h>
-#include <gst/video/video.h>
-
-class ConvertVideo: public QObject
+QObject *Plugin::create(const QString &key, const QString &specification)
 {
-    Q_OBJECT
+    Q_UNUSED(specification)
 
-    public:
-        explicit ConvertVideo(QObject *parent=NULL);
-        ~ConvertVideo();
+    if (key == AK_PLUGIN_TYPE_SUBMODULE)
+        return new ConvertVideoFFmpeg();
 
-        Q_INVOKABLE AkPacket convert(const AkPacket &packet,
-                                     const AkCaps &oCaps);
+    return nullptr;
+}
 
-    private:
-};
-
-#endif // CONVERTVIDEO_H
+QStringList Plugin::keys() const
+{
+    return QStringList();
+}

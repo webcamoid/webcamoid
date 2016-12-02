@@ -19,7 +19,7 @@
 
 #include <QMetaEnum>
 
-#include "convertvideo.h"
+#include "convertvideogstreamer.h"
 
 typedef QMap<QString, QString> StringStringMap;
 
@@ -92,16 +92,16 @@ inline StringStringMap initGstToFF()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
-ConvertVideo::ConvertVideo(QObject *parent):
-    QObject(parent)
+ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
+    ConvertVideo(parent)
 {
 }
 
-ConvertVideo::~ConvertVideo()
+ConvertVideoGStreamer::~ConvertVideoGStreamer()
 {
 }
 
-AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
+AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oCaps)
 {
     AkVideoPacket videoPacket(packet);
     AkVideoCaps oVideoCaps(oCaps);

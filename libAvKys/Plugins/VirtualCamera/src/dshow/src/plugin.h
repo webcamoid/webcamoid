@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIRTUALCAMERA_H
-#define VIRTUALCAMERA_H
+#ifndef PLUGIN_H
+#define PLUGIN_H
 
 #include <ak.h>
 
-class VirtualCamera: public QObject, public AkPlugin
+class Plugin: public QObject, public AkPlugin
 {
     Q_OBJECT
     Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "pspec.json")
 
     public:
         QObject *create(const QString &key, const QString &specification);
         QStringList keys() const;
 };
 
-#endif // VIRTUALCAMERA_H
+#endif // PLUGIN_H

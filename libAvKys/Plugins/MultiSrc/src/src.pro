@@ -42,7 +42,7 @@ OTHER_FILES += ../pspec.json
 
 QT += qml
 
-RESOURCES += \
+RESOURCES = \
     ../MultiSrc.qrc \
     ../translations.qrc
 

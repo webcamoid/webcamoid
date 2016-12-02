@@ -21,7 +21,6 @@
 #define CAMERAOUT_H
 
 #include <akpacket.h>
-#include <akvideocaps.h>
 
 class CameraOut: public QObject
 {
@@ -59,43 +58,28 @@ class CameraOut: public QObject
                NOTIFY rootMethodChanged)
 
     public:
-        enum RootMethod
-        {
-            RootMethodSu,
-            RootMethodSudo
-        };
+        explicit CameraOut(QObject *parent=NULL);
+        virtual ~CameraOut();
 
-        explicit CameraOut();
-        ~CameraOut();
-
-        Q_INVOKABLE QString driverPath() const;
-        Q_INVOKABLE QStringList webcams() const;
-        Q_INVOKABLE QString device() const;
-        Q_INVOKABLE int streamIndex() const;
-        Q_INVOKABLE AkCaps caps() const;
-        Q_INVOKABLE QString description(const QString &webcam) const;
-        Q_INVOKABLE void writeFrame(const AkPacket &frame);
-        Q_INVOKABLE int maxCameras() const;
-        Q_INVOKABLE bool needRoot() const;
-        Q_INVOKABLE int passwordTimeout() const;
-        Q_INVOKABLE QString rootMethod() const;
-        Q_INVOKABLE QString createWebcam(const QString &description="",
-                                         const QString &password="") const;
-        Q_INVOKABLE bool changeDescription(const QString &webcam,
-                                           const QString &description="",
-                                           const QString &password="") const;
-        Q_INVOKABLE bool removeWebcam(const QString &webcam,
-                                      const QString &password="") const;
-        Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
-
-    private:
-        QString m_driverPath;
-        QStringList m_webcams;
-        QString m_device;
-        int m_streamIndex;
-        AkCaps m_caps;
-        int m_passwordTimeout;
-        RootMethod m_rootMethod;
+        Q_INVOKABLE virtual QString driverPath() const;
+        Q_INVOKABLE virtual QStringList webcams() const;
+        Q_INVOKABLE virtual QString device() const;
+        Q_INVOKABLE virtual int streamIndex() const;
+        Q_INVOKABLE virtual AkCaps caps() const;
+        Q_INVOKABLE virtual QString description(const QString &webcam) const;
+        Q_INVOKABLE virtual void writeFrame(const AkPacket &frame);
+        Q_INVOKABLE virtual int maxCameras() const;
+        Q_INVOKABLE virtual bool needRoot() const;
+        Q_INVOKABLE virtual int passwordTimeout() const;
+        Q_INVOKABLE virtual QString rootMethod() const;
+        Q_INVOKABLE virtual QString createWebcam(const QString &description="",
+                                                 const QString &password="") const;
+        Q_INVOKABLE virtual bool changeDescription(const QString &webcam,
+                                                   const QString &description="",
+                                                   const QString &password="") const;
+        Q_INVOKABLE virtual bool removeWebcam(const QString &webcam,
+                                              const QString &password="") const;
+        Q_INVOKABLE virtual bool removeAllWebcams(const QString &password="") const;
 
     signals:
         void driverPathChanged(const QString &driverPath);
@@ -106,16 +90,16 @@ class CameraOut: public QObject
         void error(const QString &message);
 
     public slots:
-        bool init(int streamIndex, const AkCaps &caps);
-        void uninit();
-        void setDriverPath(const QString &driverPath);
-        void setDevice(const QString &device);
-        void setPasswordTimeout(int passwordTimeout);
-        void setRootMethod(const QString &rootMethod);
-        void resetDriverPath();
-        void resetDevice();
-        void resetPasswordTimeout();
-        void resetRootMethod();
+        virtual bool init(int streamIndex, const AkCaps &caps);
+        virtual void uninit();
+        virtual void setDriverPath(const QString &driverPath);
+        virtual void setDevice(const QString &device);
+        virtual void setPasswordTimeout(int passwordTimeout);
+        virtual void setRootMethod(const QString &rootMethod);
+        virtual void resetDriverPath();
+        virtual void resetDevice();
+        virtual void resetPasswordTimeout();
+        virtual void resetRootMethod();
 };
 
 #endif // CAMERAOUT_H

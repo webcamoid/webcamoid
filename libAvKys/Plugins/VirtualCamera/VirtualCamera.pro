@@ -16,61 +16,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../commons.pri) {
-        include(../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+TEMPLATE = subdirs
 
-CONFIG += plugin
+CONFIG += ordered
 
-HEADERS = \
-    src/virtualcamera.h \
-    src/virtualcameraelement.h
-
-INCLUDEPATH += \
-    ../../Lib/src
-
-LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-QT += qml concurrent
-
-RESOURCES += \
-    VirtualCamera.qrc \
-    translations.qrc
-
-SOURCES = \
-    src/virtualcamera.cpp \
-    src/virtualcameraelement.cpp
-
-lupdate_only {
-    SOURCES += $$files(share/qml/*.qml)
-}
-
-unix:!macx: include(src/v4l2/v4l2.pri)
-win32: include(src/dshow/dshow.pri)
-macx: include(src/mac/mac.pri)
-
-#USE_GSTREAMER = 1
-
-isEmpty(USE_GSTREAMER) {
-    include(src/ffmpeg/ffmpeg.pri)
-} else {
-    include(src/gstreamer/gstreamer.pri)
-}
-
-TRANSLATIONS = $$files(share/ts/*.ts)
-
-DESTDIR = $${PWD}
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+SUBDIRS = src
+CONFIG(config_dshow): SUBDIRS += src/dshow
+CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
+CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
+CONFIG(config_v4l2): SUBDIRS += src/v4l2

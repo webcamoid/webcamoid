@@ -19,14 +19,9 @@
 
 #include "cameraout.h"
 
-#define MAX_CAMERAS 0
-
-CameraOut::CameraOut(): QObject()
+CameraOut::CameraOut(QObject *parent):
+    QObject(parent)
 {
-    this->m_streamIndex = -1;
-    this->m_passwordTimeout = 2500;
-    this->m_rootMethod = RootMethodSu;
-    this->m_webcams = this->webcams();
 }
 
 CameraOut::~CameraOut()
@@ -35,7 +30,7 @@ CameraOut::~CameraOut()
 
 QString CameraOut::driverPath() const
 {
-    return this->m_driverPath;
+    return QString();
 }
 
 QStringList CameraOut::webcams() const
@@ -45,17 +40,17 @@ QStringList CameraOut::webcams() const
 
 QString CameraOut::device() const
 {
-    return this->m_device;
+    return QString();
 }
 
 int CameraOut::streamIndex() const
 {
-    return this->m_streamIndex;
+    return -1;
 }
 
 AkCaps CameraOut::caps() const
 {
-    return this->m_caps;
+    return AkCaps();
 }
 
 QString CameraOut::description(const QString &webcam) const
@@ -72,7 +67,7 @@ void CameraOut::writeFrame(const AkPacket &frame)
 
 int CameraOut::maxCameras() const
 {
-    return MAX_CAMERAS;
+    return 0;
 }
 
 bool CameraOut::needRoot() const
@@ -82,7 +77,7 @@ bool CameraOut::needRoot() const
 
 int CameraOut::passwordTimeout() const
 {
-    return this->m_passwordTimeout;
+    return 2500;
 }
 
 QString CameraOut::rootMethod() const
@@ -140,58 +135,36 @@ void CameraOut::uninit()
 
 void CameraOut::setDriverPath(const QString &driverPath)
 {
-    if (this->m_driverPath == driverPath)
-        return;
-
-    this->m_driverPath = driverPath;
-    emit this->driverPathChanged(driverPath);
+    Q_UNUSED(driverPath)
 }
 
 void CameraOut::setDevice(const QString &device)
 {
-    if (this->m_device == device)
-        return;
-
-    this->m_device = device;
-    emit this->deviceChanged(device);
+    Q_UNUSED(device)
 }
 
 void CameraOut::setPasswordTimeout(int passwordTimeout)
 {
-    if (this->m_passwordTimeout == passwordTimeout)
-        return;
-
-    this->m_passwordTimeout = passwordTimeout;
-    emit this->passwordTimeoutChanged(passwordTimeout);
+    Q_UNUSED(passwordTimeout)
 }
 
 void CameraOut::setRootMethod(const QString &rootMethod)
 {
-    RootMethod methodEnum = RootMethodSu;
-
-    if (this->m_rootMethod == methodEnum)
-        return;
-
-    this->m_rootMethod = methodEnum;
-    emit this->rootMethodChanged(rootMethod);
+    Q_UNUSED(rootMethod)
 }
 
 void CameraOut::resetDriverPath()
 {
-    this->setDriverPath("");
 }
 
 void CameraOut::resetDevice()
 {
-    this->setDevice("");
 }
 
 void CameraOut::resetPasswordTimeout()
 {
-    this->setPasswordTimeout(2500);
 }
 
 void CameraOut::resetRootMethod()
 {
-    this->setRootMethod("");
 }

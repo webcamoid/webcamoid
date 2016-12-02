@@ -26,22 +26,40 @@ exists(commons.pri) {
     }
 }
 
-DEFINES += __STDC_CONSTANT_MACROS
-
-!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
-!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
-
-isEmpty(FFMPEGLIBS) {
-    CONFIG += link_pkgconfig
-
-    PKGCONFIG += \
-        libavcodec \
-        libswscale \
-        libavutil
-}
+CONFIG += plugin
 
 HEADERS += \
-    $$PWD/convertvideo.h
+    src/plugin.h \
+    src/cameraoutv4l2.h \
+    ../cameraout.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+CONFIG += link_pkgconfig
+PKGCONFIG += libv4l2
+
+QT += qml
 
 SOURCES += \
-    $$PWD/convertvideo.cpp
+    src/plugin.cpp \
+    src/cameraoutv4l2.cpp \
+    ../cameraout.cpp
+
+DESTDIR = $${PWD}/../../submodules/VirtualCamera
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+
+isEmpty(ROOT_METHOD): ROOT_METHOD = su
+
+DEFINES += \
+    ROOT_METHOD=\"\\\"$$ROOT_METHOD\\\"\"

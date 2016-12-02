@@ -19,8 +19,8 @@
 exists(commons.pri) {
     include(commons.pri)
 } else {
-    exists(../../../commons.pri) {
-        include(../../../commons.pri)
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
     } else {
         error("commons.pri file not found.")
     }
@@ -29,39 +29,43 @@ exists(commons.pri) {
 CONFIG += plugin
 
 HEADERS = \
-    multisink.h \
-    multisinkelement.h \
-    mediawriter.h
+    src/plugin.h \
+    src/convertvideoffmpeg.h \
+    ../convertvideo.h
 
 INCLUDEPATH += \
-    ../../../Lib/src
+    ../../../../Lib/src \
+    ../
 
-LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
-OTHER_FILES += ../pspec.json
+OTHER_FILES += pspec.json
+
+DEFINES += __STDC_CONSTANT_MACROS
+
+!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
+!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+
+isEmpty(FFMPEGLIBS) {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        libavcodec \
+        libswscale \
+        libavutil
+}
 
 QT += qml
 
-RESOURCES = \
-    ../MultiSink.qrc \
-    ../translations.qrc
-
 SOURCES = \
-    multisink.cpp \
-    multisinkelement.cpp \
-    mediawriter.cpp
+    src/plugin.cpp \
+    src/convertvideoffmpeg.cpp \
+    ../convertvideo.cpp
 
-lupdate_only {
-    SOURCES += $$files(../share/qml/*.qml)
-}
-
-TRANSLATIONS = $$files(../share/ts/*.ts)
-
-DESTDIR = $${PWD}/..
-TARGET = MultiSink
+DESTDIR = $${PWD}/../../submodules/VirtualCamera
 
 TEMPLATE = lib
 
 INSTALLS += target
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
