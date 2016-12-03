@@ -104,6 +104,8 @@ class AkElement: public QObject
                                        const QObject *dstElement);
         Q_INVOKABLE static AkElementPtr create(const QString &pluginId,
                                                const QString &elementName="");
+        Q_INVOKABLE static AkElement *createPtr(const QString &pluginId,
+                                                const QString &elementName="");
         Q_INVOKABLE static QStringList listSubModules(const QString &pluginId,
                                                       const QString &type="");
         Q_INVOKABLE QStringList listSubModules(const QStringList &types={});

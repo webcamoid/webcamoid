@@ -109,7 +109,6 @@ class MultiSinkElement: public AkElement
         QString m_location;
         QString m_outputFormat;
         QVariantMap m_formatOptions;
-        QString m_codecLib;
         bool m_showFormatOptions;
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;

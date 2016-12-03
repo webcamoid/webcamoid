@@ -18,8 +18,9 @@
  */
 
 #include "multisinkelement.h"
+#include "multisinkglobals.h"
 
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
+Q_GLOBAL_STATIC(MultiSinkGlobals, globalMultiSink)
 
 template<typename T>
 inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
@@ -36,12 +37,12 @@ MultiSinkElement::MultiSinkElement():
 {
     this->m_showFormatOptions = false;
 
-    QObject::connect(this,
-                     &MultiSinkElement::codecLibChanged,
+    QObject::connect(globalMultiSink,
+                     &MultiSinkGlobals::codecLibChanged,
                      this,
                      &MultiSinkElement::codecLibUpdated);
 
-    this->resetCodecLib();
+    this->codecLibUpdated(globalMultiSink->codecLib());
 }
 
 MultiSinkElement::~MultiSinkElement()
@@ -115,7 +116,7 @@ QVariantList MultiSinkElement::streams()
 
 QString MultiSinkElement::codecLib() const
 {
-    return this->m_codecLib;
+    return globalMultiSink->codecLib();
 }
 
 bool MultiSinkElement::showFormatOptions() const
@@ -214,11 +215,7 @@ void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
 
 void MultiSinkElement::setCodecLib(const QString &codecLib)
 {
-    if (this->m_codecLib == codecLib)
-        return;
-
-    this->m_codecLib = codecLib;
-    emit this->codecLibChanged(codecLib);
+    globalMultiSink->setCodecLib(codecLib);
 }
 
 void MultiSinkElement::setShowFormatOptions(bool showFormatOptions)
@@ -265,19 +262,7 @@ void MultiSinkElement::resetFormatOptions()
 
 void MultiSinkElement::resetCodecLib()
 {
-    auto subModules = this->listSubModules("MultiSink");
-
-    for (const QString &framework: *preferredFramework)
-        if (subModules.contains(framework)) {
-            this->setCodecLib(framework);
-
-            return;
-        }
-
-    if (this->m_codecLib.isEmpty() && !subModules.isEmpty())
-        this->setCodecLib(subModules.first());
-    else
-        this->setCodecLib("");
+    globalMultiSink->resetCodecLib();
 }
 
 void MultiSinkElement::resetShowFormatOptions()
@@ -346,6 +331,9 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
 
+    auto location = this->m_mediaWriter->location();
+    auto streams = this->m_mediaWriter->streams();
+
     this->m_mutexLib.lock();
 
     this->m_mediaWriter =
@@ -408,11 +396,18 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
 
     this->m_mutexLib.unlock();
 
-    emit this->locationChanged(this->location());
+    this->m_mediaWriter->setLocation(location);
+
+    if (!this->m_supportedFormats.isEmpty())
+        this->setOutputFormat(this->m_supportedFormats.first());
+
+    for (int i = 0; i < streams.size(); i++) {
+        auto stream = streams[i].toMap();
+        this->m_mediaWriter->addStream(stream["index"].toInt(),
+                                       stream["caps"].value<AkCaps>());
+    }
+
     emit this->supportedFormatsChanged(this->supportedFormats());
-    emit this->outputFormatChanged(this->outputFormat());
-    emit this->formatOptionsChanged(this->formatOptions());
-    emit this->streamsChanged(this->streams());
 
     this->setState(state);
 }

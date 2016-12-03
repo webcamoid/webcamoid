@@ -17,55 +17,46 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef ACAPSCONVERTELEMENT_H
-#define ACAPSCONVERTELEMENT_H
+#ifndef VIRTUALCAMERAGLOBALS_H
+#define VIRTUALCAMERAGLOBALS_H
 
-#include <QMutex>
-#include <ak.h>
+#include <QObject>
 
-#include "convertaudio.h"
-
-typedef QSharedPointer<ConvertAudio> ConvertAudioPtr;
-
-class ACapsConvertElement: public AkElement
+class VirtualCameraGlobals: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString caps
-               READ caps
-               WRITE setCaps
-               RESET resetCaps
-               NOTIFY capsChanged)
     Q_PROPERTY(QString convertLib
                READ convertLib
                WRITE setConvertLib
                RESET resetConvertLib
                NOTIFY convertLibChanged)
+    Q_PROPERTY(QString outputLib
+               READ outputLib
+               WRITE setOutputLib
+               RESET resetOutputLib
+               NOTIFY outputLibChanged)
 
     public:
-        explicit ACapsConvertElement();
+        explicit VirtualCameraGlobals(QObject *parent=NULL);
 
-        Q_INVOKABLE QString caps() const;
         Q_INVOKABLE QString convertLib() const;
+        Q_INVOKABLE QString outputLib() const;
 
     private:
-        AkCaps m_caps;
-        ConvertAudioPtr m_convertAudio;
-        QMutex m_mutex;
+        QString m_convertLib;
+        QString m_outputLib;
+        QStringList m_preferredFramework;
+        QStringList m_preferredLibrary;
 
     signals:
-        void capsChanged(const QString &caps);
         void convertLibChanged(const QString &convertLib);
+        void outputLibChanged(const QString &outputLib);
 
     public slots:
-        void setCaps(const QString &caps);
         void setConvertLib(const QString &convertLib);
-        void resetCaps();
+        void setOutputLib(const QString &outputLib);
         void resetConvertLib();
-
-        AkPacket iStream(const AkAudioPacket &packet);
-
-    private slots:
-        void convertLibUpdated(const QString &convertLib);
+        void resetOutputLib();
 };
 
-#endif // ACAPSCONVERTELEMENT_H
+#endif // VIRTUALCAMERAGLOBALS_H

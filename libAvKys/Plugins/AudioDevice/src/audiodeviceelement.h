@@ -84,7 +84,6 @@ class AudioDeviceElement: public AkElement
         QString m_device;
         int m_bufferSize;
         AkCaps m_caps;
-        QString m_audioLib;
         AudioDevPtr m_audioDevice;
         AkElementPtr m_convert;
         QThreadPool m_threadPool;

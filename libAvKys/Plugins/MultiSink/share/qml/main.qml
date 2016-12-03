@@ -23,6 +23,31 @@ import QtQuick.Layouts 1.1
 import AkQml 1.0
 
 ColumnLayout {
+    function updateSupportedFormats(supportedFormats)
+    {
+        var outputFormatIndex = -1
+        lstOutputFormats.clear()
+
+        for (var format in supportedFormats) {
+            var formatId = supportedFormats[format]
+            var description = formatId
+                              + " - "
+                              + MultiSink.formatDescription(formatId)
+
+            if (formatId === MultiSink.outputFormat) {
+                outputFormatIndex = format
+                txtFileExtensions.text = MultiSink.fileExtensions(formatId).join(", ")
+            }
+
+            lstOutputFormats.append({format: formatId,
+                                     description: description})
+        }
+
+        cbxOutputFormats.currentIndex = outputFormatIndex
+        updateStreams()
+        createControls(MultiSink.userControls, clyUserControls)
+    }
+
     function updateStreams()
     {
         // Clear old options
@@ -99,27 +124,7 @@ ColumnLayout {
     }
 
     Component.onCompleted: {
-        var supportedFormats = MultiSink.supportedFormats
-        var outputFormatIndex = -1
-
-        for (var format in supportedFormats) {
-            var formatId = supportedFormats[format]
-            var description = formatId
-                              + " - "
-                              + MultiSink.formatDescription(formatId)
-
-            if (formatId === MultiSink.outputFormat) {
-                outputFormatIndex = format
-                txtFileExtensions.text = MultiSink.fileExtensions(formatId).join(", ")
-            }
-
-            lstOutputFormats.append({format: formatId,
-                                     description: description})
-        }
-
-        cbxOutputFormats.currentIndex = outputFormatIndex
-        updateStreams()
-        createControls(MultiSink.userControls, clyUserControls)
+        updateSupportedFormats(MultiSink.supportedFormats)
     }
 
     Component {
@@ -132,6 +137,7 @@ ColumnLayout {
     Connections {
         target: MultiSink
 
+        onSupportedFormatsChanged : updateSupportedFormats(supportedFormats)
         onOutputFormatChanged: {
             for (var i = 0; i < lstOutputFormats.count; i++)
                 if (lstOutputFormats.get(i).format === outputFormat) {

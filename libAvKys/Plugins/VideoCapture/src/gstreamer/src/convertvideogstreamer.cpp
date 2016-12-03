@@ -222,6 +222,7 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
 void ConvertVideoGStreamer::uninit()
 {
     if (this->m_pipeline) {
+        gst_app_src_end_of_stream(GST_APP_SRC(this->m_source));
         gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
         this->waitState(GST_STATE_NULL);
         gst_object_unref(GST_OBJECT(this->m_pipeline));
@@ -240,11 +241,12 @@ void ConvertVideoGStreamer::uninit()
 GstElement *ConvertVideoGStreamer::decoderFromCaps(const GstCaps *caps) const
 {
     GstElement *decoder = NULL;
-    static GstStaticCaps staticRawCaps = GST_STATIC_CAPS("video/x-raw;"
-                                                         "audio/x-raw;"
-                                                         "text/x-raw;"
-                                                         "subpicture/x-dvd;"
-                                                         "subpicture/x-pgs");
+    static GstStaticCaps staticRawCaps =
+            GST_STATIC_CAPS("video/x-raw;"
+                            "audio/x-raw;"
+                            "text/x-raw;"
+                            "subpicture/x-dvd;"
+                            "subpicture/x-pgs");
 
     GstCaps *rawCaps = gst_static_caps_get(&staticRawCaps);
 

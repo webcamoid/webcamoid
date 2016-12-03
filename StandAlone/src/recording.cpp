@@ -85,6 +85,10 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(userControlsValuesChanged(const QVariantMap &)),
                          this,
                          SLOT(userControlsUpdated(const QVariantMap &)));
+        QObject::connect(this->m_record.data(),
+                         SIGNAL(supportedFormatsChanged(const QStringList &)),
+                         this,
+                         SLOT(supportedFormatsUpdated(const QStringList &)));
 
         this->m_format =
                 this->m_record->property("codecLib").toString() == "gstreamer"?
@@ -432,6 +436,19 @@ void Recording::setQmlEngine(QQmlApplicationEngine *engine)
 
     if (engine)
         engine->rootContext()->setContextProperty("Recording", this);
+}
+
+void Recording::supportedFormatsUpdated(const QStringList &availableFormats)
+{
+    Q_UNUSED(availableFormats)
+
+    auto recordingFormats = this->recordingFormats();
+
+    if (this->m_availableFormats == recordingFormats)
+        return;
+
+    this->m_availableFormats = recordingFormats;
+    emit this->availableFormatsChanged(recordingFormats);
 }
 
 void Recording::userControlsUpdated(const QVariantMap &userControls)

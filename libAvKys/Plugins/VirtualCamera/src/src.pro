@@ -32,7 +32,8 @@ HEADERS = \
     virtualcamera.h \
     virtualcameraelement.h \
     cameraout.h \
-    convertvideo.h
+    convertvideo.h \
+    virtualcameraglobals.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -51,7 +52,8 @@ SOURCES = \
     virtualcamera.cpp \
     virtualcameraelement.cpp \
     cameraout.cpp \
-    convertvideo.cpp
+    convertvideo.cpp \
+    virtualcameraglobals.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)

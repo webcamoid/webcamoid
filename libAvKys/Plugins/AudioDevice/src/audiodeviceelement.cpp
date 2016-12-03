@@ -18,19 +18,16 @@
  */
 
 #include "audiodeviceelement.h"
+#include "audiodeviceglobals.h"
 
 #define PAUSE_TIMEOUT 500
 #define DUMMY_OUTPUT_DEVICE ":dummyout:"
 
 #ifdef Q_OS_WIN32
 #include <combaseapi.h>
-
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"wasapi"}))
-#elif defined(Q_OS_OSX)
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"coreaudio"}))
-#else
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"pulseaudio", "jack", "alsa"}))
 #endif
+
+Q_GLOBAL_STATIC(AudioDeviceGlobals, globalAudioDevice)
 
 template<typename T>
 inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
@@ -54,12 +51,12 @@ AudioDeviceElement::AudioDeviceElement():
                      SIGNAL(stateChanged(AkElement::ElementState)),
                      this->m_convert.data(),
                      SLOT(setState(AkElement::ElementState)));
-    QObject::connect(this,
-                     &AudioDeviceElement::audioLibChanged,
+    QObject::connect(globalAudioDevice,
+                     &AudioDeviceGlobals::audioLibChanged,
                      this,
                      &AudioDeviceElement::audioLibUpdated);
 
-    this->resetAudioLib();
+    this->audioLibUpdated(globalAudioDevice->audioLib());
 }
 
 AudioDeviceElement::~AudioDeviceElement()
@@ -132,7 +129,7 @@ AkCaps AudioDeviceElement::caps() const
 
 QString AudioDeviceElement::audioLib() const
 {
-    return this->m_audioLib;
+    return globalAudioDevice->audioLib();
 }
 
 void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
@@ -232,11 +229,7 @@ void AudioDeviceElement::setCaps(const AkCaps &caps)
 
 void AudioDeviceElement::setAudioLib(const QString &audioLib)
 {
-    if (this->m_audioLib == audioLib)
-        return;
-
-    this->m_audioLib = audioLib;
-    emit this->audioLibChanged(audioLib);
+    globalAudioDevice->setAudioLib(audioLib);
 }
 
 void AudioDeviceElement::resetDevice()
@@ -270,19 +263,7 @@ void AudioDeviceElement::resetCaps()
 
 void AudioDeviceElement::resetAudioLib()
 {
-    auto subModules = this->listSubModules("AudioDevice");
-
-    for (const QString &framework: *preferredLibrary)
-        if (subModules.contains(framework)) {
-            this->setAudioLib(framework);
-
-            return;
-        }
-
-    if (this->m_audioLib.isEmpty() && !subModules.isEmpty())
-        this->setAudioLib(subModules.first());
-    else
-        this->setAudioLib("");
+    globalAudioDevice->resetAudioLib();
 }
 
 AkPacket AudioDeviceElement::iStream(const AkAudioPacket &packet)

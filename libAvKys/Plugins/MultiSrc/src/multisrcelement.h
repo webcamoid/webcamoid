@@ -91,7 +91,6 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE QString codecLib() const;
 
     private:
-        QString m_codecLib;
         MediaSourcePtr m_mediaSource;
         QMutex m_mutexLib;
 

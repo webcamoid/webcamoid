@@ -248,29 +248,39 @@ bool AkElement::unlink(const QObject *srcElement, const QObject *dstElement)
 AkElementPtr AkElement::create(const QString &pluginId,
                                const QString &elementName)
 {
+    auto element = AkElement::createPtr(pluginId, elementName);
+
+    if (!element)
+        return AkElementPtr();
+
+    return AkElementPtr(element);
+}
+
+AkElement *AkElement::createPtr(const QString &pluginId, const QString &elementName)
+{
     QString filePath = AkElement::pluginPath(pluginId);
 
     if (filePath.isEmpty())
-        return AkElementPtr();
+        return NULL;
 
     QPluginLoader pluginLoader(filePath);
 
     if (!pluginLoader.load()) {
         qDebug() << "Error loading plugin " << pluginId << ":" << pluginLoader.errorString();
 
-        return AkElementPtr();
+        return NULL;
     }
 
     auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
 
     if (!plugin)
-        return AkElementPtr();
+        return NULL;
 
     auto element = qobject_cast<AkElement *>(plugin->create(AK_PLUGIN_TYPE_ELEMENT, ""));
     delete plugin;
 
     if (!element)
-        return AkElementPtr();
+        return NULL;
 
     if (!elementName.isEmpty())
         element->setObjectName(elementName);
@@ -278,7 +288,7 @@ AkElementPtr AkElement::create(const QString &pluginId,
     element->d->m_pluginId = pluginId;
     element->d->m_pluginPath = filePath;
 
-    return AkElementPtr(element);
+    return element;
 }
 
 QStringList AkElement::listSubModules(const QString &pluginId,

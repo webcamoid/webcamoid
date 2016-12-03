@@ -20,6 +20,7 @@
 #include <akutils.h>
 
 #include "virtualcameraelement.h"
+#include "virtualcameraglobals.h"
 
 #ifdef Q_OS_WIN32
     #define PREFERRED_FORMAT AkVideoCaps::Format_0rgb
@@ -27,15 +28,7 @@
     #define PREFERRED_FORMAT AkVideoCaps::Format_yuv420p
 #endif
 
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
-
-#ifdef Q_OS_WIN32
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"dshow"}))
-#elif defined(Q_OS_OSX)
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"avfoundation"}))
-#else
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"v4l2"}))
-#endif
+Q_GLOBAL_STATIC(VirtualCameraGlobals, globalVirtualCamera)
 
 template<typename T>
 inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
@@ -76,17 +69,17 @@ VirtualCameraElement::VirtualCameraElement():
 {
     this->m_streamIndex = -1;
 
-    QObject::connect(this,
-                     &VirtualCameraElement::convertLibChanged,
+    QObject::connect(globalVirtualCamera,
+                     &VirtualCameraGlobals::convertLibChanged,
                      this,
                      &VirtualCameraElement::convertLibUpdated);
-    QObject::connect(this,
-                     &VirtualCameraElement::outputLibChanged,
+    QObject::connect(globalVirtualCamera,
+                     &VirtualCameraGlobals::outputLibChanged,
                      this,
                      &VirtualCameraElement::outputLibUpdated);
 
-    this->resetConvertLib();
-    this->resetOutputLib();
+    this->convertLibUpdated(globalVirtualCamera->convertLib());
+    this->outputLibUpdated(globalVirtualCamera->outputLib());
 }
 
 VirtualCameraElement::~VirtualCameraElement()
@@ -186,12 +179,12 @@ QString VirtualCameraElement::rootMethod() const
 
 QString VirtualCameraElement::convertLib() const
 {
-    return this->m_convertLib;
+    return globalVirtualCamera->convertLib();
 }
 
 QString VirtualCameraElement::outputLib() const
 {
-    return this->m_outputLib;
+    return globalVirtualCamera->outputLib();
 }
 
 int VirtualCameraElement::defaultStream(const QString &mimeType) const
@@ -315,20 +308,12 @@ void VirtualCameraElement::setRootMethod(const QString &rootMethod)
 
 void VirtualCameraElement::setConvertLib(const QString &convertLib)
 {
-    if (this->m_convertLib == convertLib)
-        return;
-
-    this->m_convertLib = convertLib;
-    emit this->convertLibChanged(convertLib);
+    globalVirtualCamera->setConvertLib(convertLib);
 }
 
 void VirtualCameraElement::setOutputLib(const QString &outputLib)
 {
-    if (this->m_outputLib == outputLib)
-        return;
-
-    this->m_outputLib = outputLib;
-    emit this->outputLibChanged(outputLib);
+    globalVirtualCamera->setOutputLib(outputLib);
 }
 
 void VirtualCameraElement::resetDriverPath()
@@ -357,36 +342,12 @@ void VirtualCameraElement::resetRootMethod()
 
 void VirtualCameraElement::resetConvertLib()
 {
-    auto subModules = this->listSubModules("VirtualCamera", "convert");
-
-    for (const QString &framework: *preferredFramework)
-        if (subModules.contains(framework)) {
-            this->setConvertLib(framework);
-
-            return;
-        }
-
-    if (this->m_convertLib.isEmpty() && !subModules.isEmpty())
-        this->setConvertLib(subModules.first());
-    else
-        this->setConvertLib("");
+    globalVirtualCamera->resetConvertLib();
 }
 
 void VirtualCameraElement::resetOutputLib()
 {
-    auto subModules = this->listSubModules("VirtualCamera", "output");
-
-    for (const QString &framework: *preferredLibrary)
-        if (subModules.contains(framework)) {
-            this->setOutputLib(framework);
-
-            return;
-        }
-
-    if (this->m_outputLib.isEmpty() && !subModules.isEmpty())
-        this->setOutputLib(subModules.first());
-    else
-        this->setOutputLib("");
+    globalVirtualCamera->resetOutputLib();
 }
 
 void VirtualCameraElement::clearStreams()

@@ -90,8 +90,6 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE bool resetCameraControls();
 
     private:
-        QString m_codecLib;
-        QString m_captureLib;
         ConvertVideoPtr m_convertVideo;
         CapturePtr m_capture;
         QThreadPool m_threadPool;

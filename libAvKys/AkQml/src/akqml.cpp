@@ -128,6 +128,12 @@ QObject *AkQml::newVideoCaps(const AkVideoCaps &caps) const
     return new AkVideoCaps(caps);
 }
 
+QObject *AkQml::newElement(const QString &pluginId,
+                           const QString &elementName) const
+{
+    return AkElement::createPtr(pluginId, elementName);
+}
+
 QVariant AkQml::varFrac(AkFrac *frac) const
 {
     return QVariant::fromValue(*frac);

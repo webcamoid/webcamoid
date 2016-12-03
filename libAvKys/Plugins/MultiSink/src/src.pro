@@ -31,7 +31,8 @@ CONFIG += plugin
 HEADERS = \
     multisink.h \
     multisinkelement.h \
-    mediawriter.h
+    mediawriter.h \
+    multisinkglobals.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -49,7 +50,8 @@ RESOURCES = \
 SOURCES = \
     multisink.cpp \
     multisinkelement.cpp \
-    mediawriter.cpp
+    mediawriter.cpp \
+    multisinkglobals.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)

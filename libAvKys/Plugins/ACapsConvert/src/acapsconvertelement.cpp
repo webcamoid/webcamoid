@@ -18,8 +18,9 @@
  */
 
 #include "acapsconvertelement.h"
+#include "acapsconvertglobals.h"
 
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
+Q_GLOBAL_STATIC(ACapsConvertGlobals, globalACapsConvert)
 
 template<typename T>
 inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
@@ -34,12 +35,12 @@ ACapsConvertElement::ACapsConvertElement():
     AkElement(),
     m_convertAudio(ptr_init<ConvertAudio>())
 {
-    QObject::connect(this,
-                     &ACapsConvertElement::convertLibChanged,
+    QObject::connect(globalACapsConvert,
+                     &ACapsConvertGlobals::convertLibChanged,
                      this,
-                     &ACapsConvertElement::convertLibUpdated);
+                     &ACapsConvertElement::convertLibChanged);
 
-    this->resetConvertLib();
+    this->convertLibUpdated(globalACapsConvert->convertLib());
 }
 
 QString ACapsConvertElement::caps() const
@@ -49,7 +50,7 @@ QString ACapsConvertElement::caps() const
 
 QString ACapsConvertElement::convertLib() const
 {
-    return this->m_convertLib;
+    return globalACapsConvert->convertLib();
 }
 
 void ACapsConvertElement::setCaps(const QString &caps)
@@ -65,11 +66,7 @@ void ACapsConvertElement::setCaps(const QString &caps)
 
 void ACapsConvertElement::setConvertLib(const QString &convertLib)
 {
-    if (this->m_convertLib == convertLib)
-        return;
-
-    this->m_convertLib = convertLib;
-    emit this->convertLibChanged(convertLib);
+    globalACapsConvert->setConvertLib(convertLib);
 }
 
 void ACapsConvertElement::resetCaps()
@@ -79,19 +76,7 @@ void ACapsConvertElement::resetCaps()
 
 void ACapsConvertElement::resetConvertLib()
 {
-    auto subModules = this->listSubModules("ACapsConvert");
-
-    for (const QString &framework: *preferredFramework)
-        if (subModules.contains(framework)) {
-            this->setConvertLib(framework);
-
-            return;
-        }
-
-    if (this->m_convertLib.isEmpty() && !subModules.isEmpty())
-        this->setConvertLib(subModules.first());
-    else
-        this->setConvertLib("");
+    globalACapsConvert->resetConvertLib();
 }
 
 AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)

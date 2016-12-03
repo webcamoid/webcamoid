@@ -56,6 +56,9 @@ class AkQml: public QQuickItem
         Q_INVOKABLE QObject *newVideoCaps(const AkCaps &caps) const;
         Q_INVOKABLE QObject *newVideoCaps(const AkVideoCaps &caps) const;
 
+        Q_INVOKABLE QObject *newElement(const QString &pluginId,
+                                        const QString &elementName="") const;
+
         Q_INVOKABLE QVariant varFrac(AkFrac *frac) const;
         Q_INVOKABLE QVariant varCaps(AkCaps *caps) const;
 };

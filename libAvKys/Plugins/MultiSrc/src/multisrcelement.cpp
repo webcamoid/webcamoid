@@ -18,8 +18,9 @@
  */
 
 #include "multisrcelement.h"
+#include "multisrcglobals.h"
 
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
+Q_GLOBAL_STATIC(MultiSrcGlobals, globalMultiSrc)
 
 template<typename T>
 inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
@@ -34,12 +35,12 @@ MultiSrcElement::MultiSrcElement():
     AkMultimediaSourceElement(),
     m_mediaSource(ptr_init<MediaSource>())
 {
-    QObject::connect(this,
-                     &MultiSrcElement::codecLibChanged,
+    QObject::connect(globalMultiSrc,
+                     &MultiSrcGlobals::codecLibChanged,
                      this,
                      &MultiSrcElement::codecLibUpdated);
 
-    this->resetCodecLib();
+    this->codecLibUpdated(globalMultiSrc->codecLib());
 }
 
 MultiSrcElement::~MultiSrcElement()
@@ -143,7 +144,7 @@ bool MultiSrcElement::showLog() const
 
 QString MultiSrcElement::codecLib() const
 {
-    return this->m_codecLib;
+    return globalMultiSrc->codecLib();
 }
 
 void MultiSrcElement::setMedia(const QString &media)
@@ -173,11 +174,7 @@ void MultiSrcElement::setShowLog(bool showLog)
 
 void MultiSrcElement::setCodecLib(const QString &codecLib)
 {
-    if (this->m_codecLib == codecLib)
-        return;
-
-    this->m_codecLib = codecLib;
-    emit this->codecLibChanged(codecLib);
+    globalMultiSrc->setCodecLib(codecLib);
 }
 
 void MultiSrcElement::resetMedia()
@@ -207,19 +204,7 @@ void MultiSrcElement::resetShowLog()
 
 void MultiSrcElement::resetCodecLib()
 {
-    auto subModules = this->listSubModules("MultiSrc");
-
-    for (const QString &framework: *preferredFramework)
-        if (subModules.contains(framework)) {
-            this->setCodecLib(framework);
-
-            return;
-        }
-
-    if (this->m_codecLib.isEmpty() && !subModules.isEmpty())
-        this->setCodecLib(subModules.first());
-    else
-        this->setCodecLib("");
+    globalMultiSrc->resetCodecLib();
 }
 
 bool MultiSrcElement::setState(AkElement::ElementState state)
@@ -234,6 +219,10 @@ void MultiSrcElement::codecLibUpdated(const QString &codecLib)
 {
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
+
+    auto media = this->m_mediaSource->media();
+    auto loop = this->m_mediaSource->loop();
+    auto showLog = this->m_mediaSource->showLog();
 
     this->m_mutexLib.lock();
 
@@ -276,12 +265,12 @@ void MultiSrcElement::codecLibUpdated(const QString &codecLib)
 
     this->m_mutexLib.unlock();
 
-    emit this->mediasChanged(this->medias());
-    emit this->mediaChanged(this->media());
+    this->m_mediaSource->setMedia(media);
+    this->m_mediaSource->setLoop(loop);
+    this->m_mediaSource->setShowLog(showLog);
+
     emit this->streamsChanged(this->streams());
-    emit this->loopChanged(this->loop());
     emit this->maxPacketQueueSizeChanged(this->maxPacketQueueSize());
-    emit this->showLogChanged(this->showLog());
 
     this->setState(state);
 }

@@ -113,8 +113,6 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
 
     private:
-        QString m_convertLib;
-        QString m_outputLib;
         ConvertVideoPtr m_convertVideo;
         CameraOutPtr m_cameraOut;
         int m_streamIndex;

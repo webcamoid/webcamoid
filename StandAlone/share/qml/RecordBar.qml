@@ -66,33 +66,34 @@ Rectangle {
         return -1
     }
 
-    function updateRecordingFormatList()
+    function updateRecordingFormatList(availableFormats)
     {
         var recordingFormat = Recording.format
-        var formats = Recording.availableFormats
         lsvRecordingFormatList.model.clear()
 
-        if (formats.length > 0)
-            Recording.format = formats.indexOf(recordingFormat) < 0?
-                        formats[0]: recordingFormat
+        if (availableFormats.length > 0)
+            Recording.format = availableFormats.indexOf(recordingFormat) < 0?
+                        availableFormats[0]: recordingFormat
         else
             Recording.format = ""
 
-        for (var format in formats) {
+        for (var format in availableFormats) {
             lsvRecordingFormatList.model.append({
-                format: formats[format],
-                description: Recording.formatDescription(formats[format])})
+                format: availableFormats[format],
+                description: Recording.formatDescription(availableFormats[format])})
         }
 
         sort(lsvRecordingFormatList.model, 0, lsvRecordingFormatList.model.count)
         lsvRecordingFormatList.currentIndex = indexOfFormat(Recording.format)
     }
 
-    Component.onCompleted: recRecordBar.updateRecordingFormatList()
+    Component.onCompleted: updateRecordingFormatList(Recording.availableFormats)
 
     Connections {
         target: Recording
+
         onFormatChanged: lsvRecordingFormatList.currentIndex = recRecordBar.indexOfFormat(format)
+        onAvailableFormatsChanged: updateRecordingFormatList(availableFormats)
     }
 
     TextField {

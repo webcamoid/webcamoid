@@ -95,6 +95,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
     ConvertVideo(parent)
 {
+//    setenv("GST_DEBUG", "2", 1);
+    gst_init(NULL, NULL);
 }
 
 ConvertVideoGStreamer::~ConvertVideoGStreamer()
@@ -109,6 +111,7 @@ AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oC
     GstBuffer *iBuffer = gst_buffer_new_allocate(NULL,
                                                  gsize(videoPacket.buffer().size()),
                                                  NULL);
+
     GstMapInfo info;
     gst_buffer_map(iBuffer, &info, GST_MAP_WRITE);
     memcpy(info.data,

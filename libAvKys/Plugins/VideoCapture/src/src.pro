@@ -32,7 +32,8 @@ HEADERS = \
     videocapture.h \
     videocaptureelement.h \
     capture.h \
-    convertvideo.h
+    convertvideo.h \
+    videocaptureglobals.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -52,7 +53,8 @@ SOURCES = \
     videocapture.cpp \
     videocaptureelement.cpp \
     capture.cpp \
-    convertvideo.cpp
+    convertvideo.cpp \
+    videocaptureglobals.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)

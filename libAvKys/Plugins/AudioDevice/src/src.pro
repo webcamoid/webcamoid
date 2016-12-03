@@ -31,7 +31,8 @@ CONFIG += plugin
 HEADERS = \
     audiodevice.h \
     audiodeviceelement.h \
-    audiodev.h
+    audiodev.h \
+    audiodeviceglobals.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -46,7 +47,8 @@ QT += qml concurrent
 SOURCES = \
     audiodevice.cpp \
     audiodeviceelement.cpp \
-    audiodev.cpp
+    audiodev.cpp \
+    audiodeviceglobals.cpp
 
 DESTDIR = $${PWD}/..
 TARGET = AudioDevice

@@ -129,6 +129,7 @@ class Recording: public QObject
         void setQmlEngine(QQmlApplicationEngine *engine=NULL);
 
     private slots:
+        void supportedFormatsUpdated(const QStringList &availableFormats);
         void userControlsUpdated(const QVariantMap &userControls);
         void capsUpdated();
         void loadProperties();

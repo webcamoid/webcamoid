@@ -20,6 +20,7 @@
 #include <akutils.h>
 
 #include "videocaptureelement.h"
+#include "videocaptureglobals.h"
 
 #define PAUSE_TIMEOUT 500
 
@@ -45,15 +46,7 @@ inline QStringList initSwapRgbFormats()
 Q_GLOBAL_STATIC_WITH_ARGS(QStringList, swapRgbFormats, (initSwapRgbFormats()))
 #endif
 
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredFramework, ({"ffmpeg", "gstreamer"}))
-
-#ifdef Q_OS_WIN32
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"dshow", "libuvc"}))
-#elif defined(Q_OS_OSX)
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"libuvc", "avfoundation"}))
-#else
-Q_GLOBAL_STATIC_WITH_ARGS(QStringList, preferredLibrary, ({"v4l2", "libuvc", "v4l2compat"}))
-#endif
+Q_GLOBAL_STATIC(VideoCaptureGlobals, globalVideoCapture)
 
 template<typename T>
 inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
@@ -74,17 +67,17 @@ VideoCaptureElement::VideoCaptureElement():
     this->m_mirror = false;
     this->m_swapRgb = false;
 
-    QObject::connect(this,
-                     &VideoCaptureElement::codecLibChanged,
+    QObject::connect(globalVideoCapture,
+                     &VideoCaptureGlobals::codecLibChanged,
                      this,
                      &VideoCaptureElement::codecLibUpdated);
-    QObject::connect(this,
-                     &VideoCaptureElement::captureLibChanged,
+    QObject::connect(globalVideoCapture,
+                     &VideoCaptureGlobals::captureLibChanged,
                      this,
                      &VideoCaptureElement::captureLibUpdated);
 
-    this->resetCodecLib();
-    this->resetCaptureLib();
+    this->codecLibUpdated(globalVideoCapture->codecLib());
+    this->captureLibUpdated(globalVideoCapture->captureLib());
 }
 
 VideoCaptureElement::~VideoCaptureElement()
@@ -210,12 +203,12 @@ int VideoCaptureElement::nBuffers() const
 
 QString VideoCaptureElement::codecLib() const
 {
-    return this->m_codecLib;
+    return globalVideoCapture->codecLib();
 }
 
 QString VideoCaptureElement::captureLib() const
 {
-    return this->m_captureLib;
+    return globalVideoCapture->captureLib();
 }
 
 QVariantList VideoCaptureElement::imageControls() const
@@ -326,20 +319,12 @@ void VideoCaptureElement::setNBuffers(int nBuffers)
 
 void VideoCaptureElement::setCodecLib(const QString &codecLib)
 {
-    if (this->m_codecLib == codecLib)
-        return;
-
-    this->m_codecLib = codecLib;
-    emit this->codecLibChanged(codecLib);
+    globalVideoCapture->setCodecLib(codecLib);
 }
 
 void VideoCaptureElement::setCaptureLib(const QString &captureLib)
 {
-    if (this->m_captureLib == captureLib)
-        return;
-
-    this->m_captureLib = captureLib;
-    emit this->captureLibChanged(captureLib);
+    globalVideoCapture->setCaptureLib(captureLib);
 }
 
 void VideoCaptureElement::resetMedia()
@@ -364,36 +349,12 @@ void VideoCaptureElement::resetNBuffers()
 
 void VideoCaptureElement::resetCodecLib()
 {
-    auto subModules = this->listSubModules("VideoCapture", "convert");
-
-    for (const QString &framework: *preferredFramework)
-        if (subModules.contains(framework)) {
-            this->setCodecLib(framework);
-
-            return;
-        }
-
-    if (this->m_codecLib.isEmpty() && !subModules.isEmpty())
-        this->setCodecLib(subModules.first());
-    else
-        this->setCodecLib("");
+    globalVideoCapture->resetCodecLib();
 }
 
 void VideoCaptureElement::resetCaptureLib()
 {
-    auto subModules = this->listSubModules("VideoCapture", "capture");
-
-    for (const QString &framework: *preferredLibrary)
-        if (subModules.contains(framework)) {
-            this->setCaptureLib(framework);
-
-            return;
-        }
-
-    if (this->m_codecLib.isEmpty() && !subModules.isEmpty())
-        this->setCaptureLib(subModules.first());
-    else
-        this->setCaptureLib("");
+    globalVideoCapture->resetCaptureLib();
 }
 
 void VideoCaptureElement::reset()
@@ -448,11 +409,12 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     }
     case AkElement::ElementStatePlaying: {
         switch (state) {
-        case AkElement::ElementStateNull:
+        case AkElement::ElementStateNull: {
             this->m_runCameraLoop = false;
             this->m_cameraLoopResult.waitForFinished();
 
             return AkElement::setState(state);
+        }
         case AkElement::ElementStatePaused:
             this->m_pause = true;
 
