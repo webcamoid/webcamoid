@@ -52,9 +52,13 @@ AudioDeviceElement::AudioDeviceElement():
                      this->m_convert.data(),
                      SLOT(setState(AkElement::ElementState)));
     QObject::connect(globalAudioDevice,
-                     &AudioDeviceGlobals::audioLibChanged,
+                     SIGNAL(audioLibChanged(const QString &)),
                      this,
-                     &AudioDeviceElement::audioLibUpdated);
+                     SIGNAL(audioLibChanged(const QString &)));
+    QObject::connect(globalAudioDevice,
+                     SIGNAL(audioLibChanged(const QString &)),
+                     this,
+                     SLOT(audioLibUpdated(const QString &)));
 
     this->audioLibUpdated(globalAudioDevice->audioLib());
 }

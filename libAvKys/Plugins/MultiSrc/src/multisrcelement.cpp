@@ -36,9 +36,13 @@ MultiSrcElement::MultiSrcElement():
     m_mediaSource(ptr_init<MediaSource>())
 {
     QObject::connect(globalMultiSrc,
-                     &MultiSrcGlobals::codecLibChanged,
+                     SIGNAL(codecLibChanged(const QString &)),
                      this,
-                     &MultiSrcElement::codecLibUpdated);
+                     SIGNAL(codecLibChanged(const QString &)));
+    QObject::connect(globalMultiSrc,
+                     SIGNAL(codecLibChanged(const QString &)),
+                     this,
+                     SLOT(codecLibUpdated(const QString &)));
 
     this->codecLibUpdated(globalMultiSrc->codecLib());
 }

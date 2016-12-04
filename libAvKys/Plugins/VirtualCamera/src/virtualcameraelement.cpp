@@ -70,13 +70,21 @@ VirtualCameraElement::VirtualCameraElement():
     this->m_streamIndex = -1;
 
     QObject::connect(globalVirtualCamera,
-                     &VirtualCameraGlobals::convertLibChanged,
+                     SIGNAL(convertLibChanged(const QString &)),
                      this,
-                     &VirtualCameraElement::convertLibUpdated);
+                     SIGNAL(convertLibChanged(const QString &)));
     QObject::connect(globalVirtualCamera,
-                     &VirtualCameraGlobals::outputLibChanged,
+                     SIGNAL(convertLibChanged(const QString &)),
                      this,
-                     &VirtualCameraElement::outputLibUpdated);
+                     SLOT(convertLibUpdated(const QString &)));
+    QObject::connect(globalVirtualCamera,
+                     SIGNAL(outputLibChanged(const QString &)),
+                     this,
+                     SIGNAL(outputLibChanged(const QString &)));
+    QObject::connect(globalVirtualCamera,
+                     SIGNAL(outputLibChanged(const QString &)),
+                     this,
+                     SLOT(outputLibUpdated(const QString &)));
 
     this->convertLibUpdated(globalVirtualCamera->convertLib());
     this->outputLibUpdated(globalVirtualCamera->outputLib());

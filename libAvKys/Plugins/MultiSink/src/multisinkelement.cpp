@@ -38,9 +38,13 @@ MultiSinkElement::MultiSinkElement():
     this->m_showFormatOptions = false;
 
     QObject::connect(globalMultiSink,
-                     &MultiSinkGlobals::codecLibChanged,
+                     SIGNAL(codecLibChanged(const QString &)),
                      this,
-                     &MultiSinkElement::codecLibUpdated);
+                     SIGNAL(codecLibChanged(const QString &)));
+    QObject::connect(globalMultiSink,
+                     SIGNAL(codecLibChanged(const QString &)),
+                     this,
+                     SLOT(codecLibUpdated(const QString &)));
 
     this->codecLibUpdated(globalMultiSink->codecLib());
 }

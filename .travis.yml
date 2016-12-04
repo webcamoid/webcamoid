@@ -12,42 +12,6 @@ matrix:
       sudo: required
       compiler: gcc
       env:
-      - QTVER=542
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: clang
-      env:
-      - QTVER=542
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: gcc
-      env:
-      - QTVER=551
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: clang
-      env:
-      - QTVER=551
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: gcc
-      env:
-      - QTVER=562
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: clang
-      env:
-      - QTVER=562
-    - os: linux
-      dist: trusty
-      sudo: required
-      compiler: gcc
-      env:
       - QTVER=57
     - os: linux
       dist: trusty

@@ -39,6 +39,10 @@ ACapsConvertElement::ACapsConvertElement():
                      SIGNAL(convertLibChanged(const QString &)),
                      this,
                      SIGNAL(convertLibChanged(const QString &)));
+    QObject::connect(globalACapsConvert,
+                     SIGNAL(convertLibChanged(const QString &)),
+                     this,
+                     SLOT(convertLibUpdated(const QString &)));
 
     this->convertLibUpdated(globalACapsConvert->convertLib());
 }

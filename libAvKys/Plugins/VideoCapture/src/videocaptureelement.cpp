@@ -68,13 +68,21 @@ VideoCaptureElement::VideoCaptureElement():
     this->m_swapRgb = false;
 
     QObject::connect(globalVideoCapture,
-                     &VideoCaptureGlobals::codecLibChanged,
+                     SIGNAL(codecLibChanged(const QString &)),
                      this,
-                     &VideoCaptureElement::codecLibUpdated);
+                     SIGNAL(codecLibChanged(const QString &)));
     QObject::connect(globalVideoCapture,
-                     &VideoCaptureGlobals::captureLibChanged,
+                     SIGNAL(codecLibChanged(const QString &)),
                      this,
-                     &VideoCaptureElement::captureLibUpdated);
+                     SLOT(codecLibUpdated(const QString &)));
+    QObject::connect(globalVideoCapture,
+                     SIGNAL(captureLibChanged(const QString &)),
+                     this,
+                     SIGNAL(captureLibChanged(const QString &)));
+    QObject::connect(globalVideoCapture,
+                     SIGNAL(captureLibChanged(const QString &)),
+                     this,
+                     SLOT(captureLibUpdated(const QString &)));
 
     this->codecLibUpdated(globalVideoCapture->codecLib());
     this->captureLibUpdated(globalVideoCapture->captureLib());
