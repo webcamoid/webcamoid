@@ -17,21 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <thread>
-#include <gst/gst.h>
-#include <gst/audio/audio.h>
-#include <gst/video/video.h>
-#include <gst/app/gstappsrc.h>
-#include <gst/app/gstappsink.h>
-#include <gst/pbutils/encoding-profile.h>
+#include <comlite.h>
 
 int main()
 {
-    gst_init(NULL, NULL);
-
-    // This checks if GStreamer was compiled with the same compiler version as
-    // Qt. Useful for Windows build.
-    std::thread([] () {}).join();
-
     return 0;
 }

@@ -16,14 +16,7 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
-CONFIG += ordered
+SOURCES = \
+    test.cpp
 
-SUBDIRS = \
-    ipc
-
-CONFIG(config_vcamwin) {
-    SUBDIRS += \
-        BaseClasses \
-        VirtualCameraSource
-}
+TARGET = test_auto

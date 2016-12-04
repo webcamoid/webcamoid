@@ -50,6 +50,7 @@ qtCompileTest(ffmpeg)
 qtCompileTest(gstreamer)
 qtCompileTest(pulseaudio)
 qtCompileTest(v4l2)
+qtCompileTest(vcamwin)
 qtCompileTest(wasapi)
 
 TEMPLATE = subdirs

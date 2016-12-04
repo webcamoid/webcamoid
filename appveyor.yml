@@ -16,10 +16,15 @@ branches:
   - master
 
 environment:
-  QTDIR: C:\Qt\5.7\mingw53_32
-  MINGW: C:\Qt\Tools\mingw530_32
-  FFMPEG_VERSION: 3.2
-  GSTREAMER_VERSION: 1.10.2
+  global:
+    QTDIR: C:\Qt\5.7\mingw53_32
+    FFMPEG_VERSION: 3.2
+    GSTREAMER_VERSION: 1.10.2
+  matrix:
+    - MINGW: C:\Qt\Tools\mingw482_32
+    - MINGW: C:\Qt\Tools\mingw491_32
+    - MINGW: C:\Qt\Tools\mingw492_32
+    - MINGW: C:\Qt\Tools\mingw530_32
 
 install:
   - if "%PLATFORM%" == "x86" (set BUILD_ARCHITECTURE=win32) else (set BUILD_ARCHITECTURE=win64)
@@ -28,21 +33,44 @@ install:
   - set PATH="C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%PATH%
   # Configuring Qt
   - set PATH=%PATH%;%QTDIR%\bin;%MINGW%\bin;
-  # Installing ffmpeg dev
+  # Installing FFmpeg dev
   - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/dev/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.zip
   - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.zip
   - set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev
-  # Installing ffmpeg shared
+  # Installing FFmpeg shared
   - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/shared/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.zip
   - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.zip
   - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared
+  # Installing GStreamer
   - curl -kLO https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
   - msiexec /a %CD%\gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi /qn TARGETDIR=%CD%\gstreamer-1.0
   - set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\x86
 
-build_script:
-  - qmake Webcamoid.pro PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib" GSTREAMERLIBS+=-lgstreamer-1.0
-  - mingw32-make
+build_script: |
+  qmake Webcamoid.pro \
+    PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" \
+    FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" \
+    FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" \
+    FFMPEGLIBS+=-lavcodec \
+    FFMPEGLIBS+=-lavdevice \
+    FFMPEGLIBS+=-lavformat \
+    FFMPEGLIBS+=-lavutil \
+    FFMPEGLIBS+=-lswresample \
+    FFMPEGLIBS+=-lswscale \
+    GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" \
+    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" \
+    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" \
+    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" \
+    GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib" \
+    GSTREAMERLIBS+=-lgstapp-1.0 \
+    GSTREAMERLIBS+=-lgstaudio-1.0 \
+    GSTREAMERLIBS+=-lgstbase-1.0 \
+    GSTREAMERLIBS+=-lgstpbutils-1.0 \
+    GSTREAMERLIBS+=-lgstreamer-1.0 \
+    GSTREAMERLIBS+=-lgobject-2.0 \
+    GSTREAMERLIBS+=-lglib-2.0 \
+    GSTREAMERLIBS+=-lintl
+  mingw32-make
 
 notifications:
   - provider: Email
