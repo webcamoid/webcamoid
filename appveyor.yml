@@ -18,7 +18,8 @@ branches:
 environment:
   QTDIR: C:\Qt\5.7\mingw53_32
   MINGW: C:\Qt\Tools\mingw530_32
-  FFMPEG_VERSION: 3.0.1
+  FFMPEG_VERSION: 3.2
+  GSTREAMER_VERSION: 1.10.2
 
 install:
   - if "%PLATFORM%" == "x86" (set BUILD_ARCHITECTURE=win32) else (set BUILD_ARCHITECTURE=win64)
@@ -35,6 +36,10 @@ install:
   - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/shared/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.7z
   - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.7z
   - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared
+  - curl -kLO https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
+  - msiexec /a %CD%\gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi /qb TARGETDIR=%CD%\gstreamer-1.0
+  - set GSTREAMER_PATH=%CD%\gstreamer-1.0
+  - dir %CD%\gstreamer-1.0
 
 build_script:
   - qmake Webcamoid.pro PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale
