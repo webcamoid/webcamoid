@@ -36,9 +36,9 @@ ACapsConvertElement::ACapsConvertElement():
     m_convertAudio(ptr_init<ConvertAudio>())
 {
     QObject::connect(globalACapsConvert,
-                     &ACapsConvertGlobals::convertLibChanged,
+                     SIGNAL(convertLibChanged(const QString &)),
                      this,
-                     &ACapsConvertElement::convertLibChanged);
+                     SIGNAL(convertLibChanged(const QString &)));
 
     this->convertLibUpdated(globalACapsConvert->convertLib());
 }
