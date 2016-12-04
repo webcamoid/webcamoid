@@ -8,8 +8,8 @@ build:
   verbosity: minimal
 
 configuration:
-  - Debug
-  - Release
+  - debug
+  - release
 
 branches:
   only:
@@ -46,31 +46,9 @@ install:
   - msiexec /a %CD%\gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi /qn TARGETDIR=%CD%\gstreamer-1.0
   - set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\x86
 
-build_script: |
-  qmake Webcamoid.pro \
-    PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" \
-    FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" \
-    FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" \
-    FFMPEGLIBS+=-lavcodec \
-    FFMPEGLIBS+=-lavdevice \
-    FFMPEGLIBS+=-lavformat \
-    FFMPEGLIBS+=-lavutil \
-    FFMPEGLIBS+=-lswresample \
-    FFMPEGLIBS+=-lswscale \
-    GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" \
-    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" \
-    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" \
-    GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" \
-    GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib" \
-    GSTREAMERLIBS+=-lgstapp-1.0 \
-    GSTREAMERLIBS+=-lgstaudio-1.0 \
-    GSTREAMERLIBS+=-lgstbase-1.0 \
-    GSTREAMERLIBS+=-lgstpbutils-1.0 \
-    GSTREAMERLIBS+=-lgstreamer-1.0 \
-    GSTREAMERLIBS+=-lgobject-2.0 \
-    GSTREAMERLIBS+=-lglib-2.0 \
-    GSTREAMERLIBS+=-lintl
-  mingw32-make
+build_script:
+  - qmake Webcamoid.pro CONFIG+=%CONFIGURATION% PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib" GSTREAMERLIBS+=-lgstapp-1.0 GSTREAMERLIBS+=-lgstaudio-1.0 GSTREAMERLIBS+=-lgstbase-1.0 GSTREAMERLIBS+=-lgstpbutils-1.0 GSTREAMERLIBS+=-lgstreamer-1.0 GSTREAMERLIBS+=-lgobject-2.0 GSTREAMERLIBS+=-lglib-2.0 GSTREAMERLIBS+=-lintl
+  - mingw32-make
 
 notifications:
   - provider: Email
