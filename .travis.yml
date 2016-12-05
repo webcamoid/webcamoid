@@ -83,6 +83,7 @@ script: |
     qmake Webcamoid.pro \
         QMAKE_CXX="${COMPILER}"
   fi
+  cat "${PWD}/libAvKys/config.log"
   make
 
 branches:
