@@ -21,7 +21,7 @@
 #include <initguid.h>
 #include <audioclient.h>
 #include <mmdeviceapi.h>
-#include <functiondiscoverykeys_devpkey.h>
+#include <propkeydef.h>
 
 int main()
 {
