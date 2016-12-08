@@ -70,14 +70,14 @@ class AkFrac: public QObject
     private:
         AkFracPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void numChanged();
         void denChanged();
         void isValidChanged();
         void valueChanged();
         void stringChanged();
 
-    public slots:
+    public Q_SLOTS:
         void setNumDen(qint64 num, qint64 den);
         void setNumDen(const QString &fracString);
         void setNum(qint64 num);

@@ -65,13 +65,13 @@ class AkMultimediaSourceElement: public AkElement
     private:
         AkMultimediaSourceElementPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
 
-    public slots:
+    public Q_SLOTS:
         virtual void setMedia(const QString &media);
         virtual void setStreams(const QList<int> &streams);
         virtual void setLoop(bool loop);

@@ -22,6 +22,6 @@ SOURCES = \
     test.cpp
 
 CONFIG += link_pkgconfig
-PKGCONFIG += libpulse-simple
+PKGCONFIG += jack
 
 TARGET = test_auto

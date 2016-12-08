@@ -73,10 +73,10 @@ class AkCaps: public QObject
     private:
         AkCapsPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void mimeTypeChanged(const QString &mimeType);
 
-    public slots:
+    public Q_SLOTS:
         virtual void setMimeType(const QString &mimeType);
         virtual void resetMimeType();
         void clear();

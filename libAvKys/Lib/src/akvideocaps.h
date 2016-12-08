@@ -296,7 +296,7 @@ class AkVideoCaps: public QObject
     private:
         AkVideoCapsPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void formatChanged(PixelFormat format);
         void bppChanged(int bpp);
         void sizeChanged(const QSize &size);
@@ -304,7 +304,7 @@ class AkVideoCaps: public QObject
         void heightChanged(int height);
         void fpsChanged(const AkFrac &fps);
 
-    public slots:
+    public Q_SLOTS:
         void setFormat(PixelFormat format);
         void setBpp(int bpp);
         void setSize(const QSize &size);

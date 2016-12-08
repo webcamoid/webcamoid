@@ -817,7 +817,7 @@ QVector<AudioStreamRangedDescription> AudioDevCoreAudio::supportedFormats(AudioS
 AkAudioCaps::SampleFormat AudioDevCoreAudio::descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription)
 {
     UInt32 bps = streamDescription.mBitsPerChannel;
-    AkAudioCaps::SampleType formatType =
+    auto formatType =
             streamDescription.mFormatFlags & kAudioFormatFlagIsFloat?
             AkAudioCaps::SampleType_float:
             streamDescription.mFormatFlags & kAudioFormatFlagIsSignedInteger?
@@ -845,15 +845,15 @@ OSStatus AudioDevCoreAudio::devicesChangedCallback(AudioObjectID objectId,
     Q_UNUSED(nProps)
     Q_UNUSED(properties)
 
-    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
-    QStringList inputs = self->listDevices(true);
+    auto self = static_cast<AudioDevCoreAudio *>(audioDev);
+    auto inputs = self->listDevices(true);
 
     if (self->m_inputs != inputs) {
         self->m_inputs = inputs;
         emit self->inputsChanged(inputs);
     }
 
-    QStringList outputs = self->listDevices(false);
+    auto outputs = self->listDevices(false);
 
     if (self->m_outputs != outputs) {
         self->m_outputs = outputs;
@@ -872,7 +872,7 @@ OSStatus AudioDevCoreAudio::defaultInputDeviceChangedCallback(AudioObjectID obje
     Q_UNUSED(nProps)
     Q_UNUSED(properties)
 
-    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
+    auto self = static_cast<AudioDevCoreAudio *>(audioDev);
 
     if (self)
         emit self->defaultInputChanged(self->defaultInput());
@@ -889,7 +889,7 @@ OSStatus AudioDevCoreAudio::defaultOutputDeviceChangedCallback(AudioObjectID obj
     Q_UNUSED(nProps)
     Q_UNUSED(properties)
 
-    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
+    auto self = static_cast<AudioDevCoreAudio *>(audioDev);
 
     if (self)
         emit self->defaultOutputChanged(self->defaultOutput());
@@ -904,7 +904,7 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
                                           UInt32 nFrames,
                                           AudioBufferList *data)
 {
-    AudioDevCoreAudio *self = static_cast<AudioDevCoreAudio *>(audioDev);
+    auto self = static_cast<AudioDevCoreAudio *>(audioDev);
 
     if (!self)
         return noErr;
@@ -912,12 +912,13 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
     if (self->m_isInput) {
         self->clearBuffer();
 
-        OSStatus status = AudioUnitRender(self->m_audioUnit,
-                                          actionFlags,
-                                          timeStamp,
-                                          busNumber,
-                                          nFrames,
-                                          self->m_bufferList);
+        auto status =
+                AudioUnitRender(self->m_audioUnit,
+                                actionFlags,
+                                timeStamp,
+                                busNumber,
+                                nFrames,
+                                self->m_bufferList);
 
         if (status != noErr)
             return status;
@@ -932,10 +933,15 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
                                         self->m_bufferList->mBuffers[i].mDataByteSize);
 
         // We use a ring buffer and all old samples are discarded.
-        if (self->m_buffer.size() > self->m_maxBufferSize)
+        if (self->m_buffer.size() > self->m_maxBufferSize) {
+            int k = self->m_curCaps.bps()
+                    * self->m_curCaps.channels();
+            int bufferSize = k * int(self->m_maxBufferSize / k);
+
             self->m_buffer =
-                self->m_buffer.mid(self->m_buffer.size() - self->m_maxBufferSize,
-                                   self->m_maxBufferSize);
+                self->m_buffer.mid(self->m_buffer.size() - bufferSize,
+                                   bufferSize);
+        }
 
         self->m_samplesAvailable.wakeAll();
         self->m_mutex.unlock();

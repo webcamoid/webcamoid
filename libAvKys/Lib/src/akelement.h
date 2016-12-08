@@ -144,11 +144,11 @@ class AkElement: public QObject
     protected:
         virtual void stateChange(AkElement::ElementState from, AkElement::ElementState to);
 
-    signals:
+    Q_SIGNALS:
         void stateChanged(AkElement::ElementState state);
         void oStream(const AkPacket &packet);
 
-    public slots:
+    public Q_SLOTS:
         virtual AkPacket iStream(const AkPacket &packet);
         virtual AkPacket iStream(const AkAudioPacket &packet);
         virtual AkPacket iStream(const AkVideoPacket &packet);

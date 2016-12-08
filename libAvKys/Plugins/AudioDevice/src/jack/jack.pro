@@ -16,12 +16,49 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-macx: QT_CONFIG -= no-pkg-config
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-SOURCES = \
-    test.cpp
+CONFIG += plugin no_keywords
+
+HEADERS = \
+    src/plugin.h \
+    src/audiodevjack.h \
+    ../audiodev.h \
+    src/jackserver.h \
+    src/jackservertypedefs.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += \
+    -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
 
 CONFIG += link_pkgconfig
-PKGCONFIG += libpulse-simple
+PKGCONFIG += jack
 
-TARGET = test_auto
+QT += qml
+
+SOURCES = \
+    src/plugin.cpp \
+    src/audiodevjack.cpp \
+    ../audiodev.cpp \
+    src/jackserver.cpp
+
+DESTDIR = $${PWD}/../../submodules/AudioDevice
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice

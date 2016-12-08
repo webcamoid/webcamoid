@@ -217,7 +217,7 @@ class AkAudioCaps: public QObject
     private:
         AkAudioCapsPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void formatChanged(SampleFormat format);
         void bpsChanged(int bps);
         void channelsChanged(int channels);
@@ -226,7 +226,7 @@ class AkAudioCaps: public QObject
         void samplesChanged(int samples);
         void alignChanged(bool align);
 
-    public slots:
+    public Q_SLOTS:
         void setFormat(SampleFormat format);
         void setBps(int bps);
         void setChannels(int channels);

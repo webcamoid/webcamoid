@@ -426,7 +426,7 @@ void AudioDevPulseAudio::contextStateCallbackInit(pa_context *context,
 {
     Q_UNUSED(context)
 
-    AudioDevPulseAudio *audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
+    auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     // Return as soon as possible.
     pa_threaded_mainloop_signal(audioDevice->m_mainLoop, 0);
@@ -439,7 +439,7 @@ void AudioDevPulseAudio::serverInfoCallback(pa_context *context,
     Q_UNUSED(context)
 
     // Get default input and output devices.
-    AudioDevPulseAudio *audioDevice = static_cast<AudioDevPulseAudio *>(userdata);
+    auto audioDevice = static_cast<AudioDevPulseAudio *>(userdata);
 
     audioDevice->m_mutex.lock();
 
@@ -465,7 +465,7 @@ void AudioDevPulseAudio::sourceInfoCallback(pa_context *context,
                                             int isLast,
                                             void *userdata)
 {
-    AudioDevPulseAudio *audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
+    auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     if (isLast < 0) {
         audioDevice->m_error = QString(pa_strerror(pa_context_errno(context)));
@@ -519,7 +519,7 @@ void AudioDevPulseAudio::sinkInfoCallback(pa_context *context,
                                           int isLast,
                                           void *userdata)
 {
-    AudioDevPulseAudio *audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
+    auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
 
     if (isLast < 0) {
         audioDevice->m_error = QString(pa_strerror(pa_context_errno(context)));

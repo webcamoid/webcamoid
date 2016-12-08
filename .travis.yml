@@ -45,16 +45,26 @@ before_install: |
 
 install: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
-    sudo apt-get -y install pkg-config
-    sudo apt-get -y install linux-libc-dev
-    sudo apt-get -y install qt${QTVER}tools
-    sudo apt-get -y install qt${QTVER}declarative
-    sudo apt-get -y install qt${QTVER}svg
-    sudo apt-get -y install libgstreamer-plugins-base1.0-dev
-    sudo apt-get -y install libpulse-dev
-    sudo apt-get -y install libv4l-dev
+    sudo apt-get -y install pkg-config \
+        linux-libc-dev \
+        qt${QTVER}tools \
+        qt${QTVER}declarative \
+        qt${QTVER}svg \
+        libgstreamer-plugins-base1.0-dev \
+        libpulse-dev \
+        libjack-dev \
+        libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew install ccache pkg-config qt5 ffmpeg gstreamer gst-plugins-base libuvc
+    brew install \
+        ccache \
+        pkg-config \
+        qt5 \
+        ffmpeg \
+        gstreamer \
+        gst-plugins-base \
+        pulseaudio \
+        jack \
+        libuvc
   fi
 
 before_script: |

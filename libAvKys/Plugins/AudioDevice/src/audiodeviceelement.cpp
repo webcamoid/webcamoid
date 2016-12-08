@@ -457,12 +457,11 @@ void AudioDeviceElement::audioLibUpdated(const QString &audioLib)
 
     this->m_mutexLib.unlock();
 
-    emit this->inputsChanged(this->inputs());
-    emit this->outputsChanged(this->outputs());
-    emit this->defaultInputChanged(this->defaultInput());
-    emit this->defaultOutputChanged(this->defaultOutput());
-    emit this->deviceChanged(this->device());
-    emit this->capsChanged(this->caps());
+    emit this->inputsChanged(this->m_audioDevice->inputs());
+    emit this->outputsChanged(this->m_audioDevice->outputs());
+    emit this->defaultInputChanged(this->m_audioDevice->defaultInput());
+    emit this->defaultOutputChanged(this->m_audioDevice->defaultOutput());
 
+    this->setDevice(this->m_audioDevice->defaultInput());
     this->setState(state);
 }

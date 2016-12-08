@@ -104,7 +104,7 @@ class AkPacket: public QObject
     private:
         AkPacketPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void capsChanged(const AkCaps &caps);
         void dataChanged(const QVariant &data);
         void bufferChanged(const QByteArray &buffer);
@@ -113,7 +113,7 @@ class AkPacket: public QObject
         void timeBaseChanged(const AkFrac &timeBase);
         void indexChanged(int index);
 
-    public slots:
+    public Q_SLOTS:
         void setCaps(const AkCaps &caps);
         void setData(const QVariant &data);
         void setBuffer(const QByteArray &buffer);

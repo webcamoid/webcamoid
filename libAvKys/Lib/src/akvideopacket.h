@@ -58,10 +58,10 @@ class AkVideoPacket: public AkPacket
     private:
         AkVideoPacketPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void capsChanged(const AkVideoCaps &caps);
 
-    public slots:
+    public Q_SLOTS:
         void setCaps(const AkVideoCaps &caps);
         void resetCaps();
 

@@ -22,5 +22,6 @@ CONFIG += ordered
 
 SUBDIRS = src
 CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
+CONFIG(config_jack): SUBDIRS += src/jack
 CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
 CONFIG(config_wasapi): SUBDIRS += src/wasapi

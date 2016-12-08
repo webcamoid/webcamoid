@@ -58,10 +58,10 @@ class AkAudioPacket: public AkPacket
     private:
         AkAudioPacketPrivate *d;
 
-    signals:
+    Q_SIGNALS:
         void capsChanged(const AkAudioCaps &caps);
 
-    public slots:
+    public Q_SLOTS:
         void setCaps(const AkAudioCaps &caps);
         void resetCaps();
 

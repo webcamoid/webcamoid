@@ -45,7 +45,7 @@ class AudioDev: public QObject
         Q_INVOKABLE virtual bool write(const QByteArray &frame);
         Q_INVOKABLE virtual bool uninit();
 
-    signals:
+    Q_SIGNALS:
         void errorChanged(const QString &error);
         void defaultInputChanged(const QString &defaultInput);
         void defaultOutputChanged(const QString &defaultOutput);
