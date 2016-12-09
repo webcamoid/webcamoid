@@ -27,24 +27,21 @@ environment:
     - MINGW: C:\Qt\Tools\mingw530_32
 
 install:
-  - if "%PLATFORM%" == "x86" (set BUILD_ARCHITECTURE=win32) else (set BUILD_ARCHITECTURE=win64)
+  - if "%PLATFORM%" == "x86" (set FF_ARCH=win32) else (set FF_ARCH=win64)
+  - if "%PLATFORM%" == "x86" (set GST_ARCH=x86) else (set GST_ARCH=x86_64)
   # Installing various utilities
   - choco install -y curl 7zip InnoSetup
   - set PATH="C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%PATH%
   # Configuring Qt
   - set PATH=%PATH%;%QTDIR%\bin;%MINGW%\bin;
   # Installing FFmpeg dev
-  - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/dev/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.zip
-  - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev.zip
-  - set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-dev
-  # Installing FFmpeg shared
-  - curl -kLO http://ffmpeg.zeranoe.com/builds/%BUILD_ARCHITECTURE%/shared/ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.zip
-  - 7z x ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared.zip
-  - set FFMPEG_SHARED_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%BUILD_ARCHITECTURE%-shared
+  - curl -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
+  - if exist "ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip" 7z x ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
+  - set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
   # Installing GStreamer
-  - curl -kLO https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
-  - msiexec /a %CD%\gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi /qn TARGETDIR=%CD%\gstreamer-1.0
-  - set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\x86
+  - curl -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
+  - if exist "gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi" msiexec /a %CD%\gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi /qn TARGETDIR=%CD%\gstreamer-1.0
+  - set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\%GST_ARCH%
   # Copy necessary libraries to an alternative path to avoid conflicts with Qt's MinGW system libraries
   - xcopy %GSTREAMER_DEV_PATH%\lib\libgobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
   - xcopy %GSTREAMER_DEV_PATH%\lib\libglib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
@@ -55,8 +52,12 @@ install:
   - xcopy %GSTREAMER_DEV_PATH%\lib\libgstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
 
 build_script:
-  - qmake Webcamoid.pro CONFIG+=%CONFIGURATION% PREFIX="%CD%\build\%BUILD_ARCHITECTURE%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib2" GSTREAMERLIBS+=-lgobject-2.0 GSTREAMERLIBS+=-lglib-2.0 GSTREAMERLIBS+=-lgstreamer-1.0 GSTREAMERLIBS+=-lgstapp-1.0 GSTREAMERLIBS+=-lgstpbutils-1.0 GSTREAMERLIBS+=-lgstaudio-1.0 GSTREAMERLIBS+=-lgstvideo-1.0
+  - qmake Webcamoid.pro CONFIG+=%CONFIGURATION% PREFIX="%CD%\build\%PLATFORM%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib2" GSTREAMERLIBS+=-lgobject-2.0 GSTREAMERLIBS+=-lglib-2.0 GSTREAMERLIBS+=-lgstreamer-1.0 GSTREAMERLIBS+=-lgstapp-1.0 GSTREAMERLIBS+=-lgstpbutils-1.0 GSTREAMERLIBS+=-lgstaudio-1.0 GSTREAMERLIBS+=-lgstvideo-1.0
   - mingw32-make
+
+cache:
+  - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
+  - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
 
 notifications:
   - provider: Email
