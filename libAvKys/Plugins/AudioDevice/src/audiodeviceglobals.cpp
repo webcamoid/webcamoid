@@ -31,8 +31,8 @@ AudioDeviceGlobals::AudioDeviceGlobals(QObject *parent):
         "coreaudio"
 #else
         "pulseaudio",
-        "jack",
-        "alsa"
+        "alsa",
+        "jack"
 #endif
     };
 

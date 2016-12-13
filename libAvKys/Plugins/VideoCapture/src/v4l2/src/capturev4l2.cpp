@@ -64,7 +64,7 @@ CaptureV4L2::CaptureV4L2(QObject *parent):
     this->m_nBuffers = 32;
     this->m_webcams = this->webcams();
     this->m_device = this->m_webcams.value(0, "");
-    this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev", this);
+    this->m_fsWatcher = new QFileSystemWatcher({"/dev"}, this);
 
     if (!this->m_webcams.isEmpty())
         this->m_fsWatcher->addPaths(this->m_webcams);

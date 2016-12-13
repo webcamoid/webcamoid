@@ -137,10 +137,10 @@ AudioLayer::~AudioLayer()
     this->resetOutputState();
     this->saveProperties();
 
-    this->m_sourceMutex.lock();
+    this->m_mutex.lock();
     this->m_audioOut.clear();
     this->m_audioSwitch.clear();
-    this->m_sourceMutex.unlock();
+    this->m_mutex.unlock();
 }
 
 QStringList AudioLayer::audioInput() const
@@ -256,19 +256,28 @@ void AudioLayer::setAudioInput(const QStringList &audioInput)
         && !audioInput.contains(DUMMY_INPUT_DEVICE))
         this->m_audioIn->setProperty("device", audioInput.value(0));
 
-    this->m_sourceMutex.lock();
+    this->m_mutex.lock();
     this->m_audioInput = audioInput;
-    this->m_sourceMutex.unlock();
+    this->m_mutex.unlock();
     emit this->audioInputChanged(audioInput);
 }
 
 void AudioLayer::setAudioOutput(const QString &audioOutput)
 {
     if (this->m_audioOut) {
+        this->m_mutex.lock();
         auto state = this->m_audioOut->state();
         this->m_audioOut->setState(AkElement::ElementStateNull);
         this->m_audioOut->setProperty("device", audioOutput);
         this->m_audioOut->setState(state);
+
+        if (this->m_audioOut->state() != state) {
+            this->m_audioOut->setState(AkElement::ElementStateNull);
+            this->m_audioOut->setProperty("device", ":dummyout:");
+            this->m_audioOut->setState(state);
+        }
+
+        this->m_mutex.unlock();
     }
 }
 
@@ -394,7 +403,7 @@ AkPacket AudioLayer::iStream(const AkPacket &packet)
     if (packet.caps().mimeType() != "audio/x-raw")
         return AkPacket();
 
-    this->m_sourceMutex.lock();
+    this->m_mutex.lock();
 
     if (this->m_audioOut)
         (*this->m_audioOut)(packet);
@@ -404,7 +413,7 @@ AkPacket AudioLayer::iStream(const AkPacket &packet)
         (*this->m_audioSwitch)(packet);
     }
 
-    this->m_sourceMutex.unlock();
+    this->m_mutex.unlock();
 
     return AkPacket();
 }

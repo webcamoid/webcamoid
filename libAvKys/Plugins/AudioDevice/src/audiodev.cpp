@@ -82,9 +82,9 @@ QByteArray AudioDev::read(int samples)
     return QByteArray();
 }
 
-bool AudioDev::write(const QByteArray &frame)
+bool AudioDev::write(const AkAudioPacket &packet)
 {
-    Q_UNUSED(frame)
+    Q_UNUSED(packet)
 
     return false;
 }

@@ -292,14 +292,14 @@ QByteArray AudioDevJack::read(int samples)
     return audioData;
 }
 
-bool AudioDevJack::write(const QByteArray &frame)
+bool AudioDevJack::write(const AkAudioPacket &packet)
 {
     this->m_mutex.lock();
 
     if (this->m_buffer.size() >= this->m_maxBufferSize)
         this->m_canWrite.wait(&this->m_mutex);
 
-    this->m_buffer += frame;
+    this->m_buffer += packet.buffer();
     this->m_mutex.unlock();
 
     return true;

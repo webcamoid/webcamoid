@@ -50,7 +50,7 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
                               const AkAudioCaps &caps,
                               bool justActivate);
         Q_INVOKABLE QByteArray read(int samples);
-        Q_INVOKABLE bool write(const QByteArray &frame);
+        Q_INVOKABLE bool write(const AkAudioPacket &packet);
         Q_INVOKABLE bool uninit();
 
         HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject);

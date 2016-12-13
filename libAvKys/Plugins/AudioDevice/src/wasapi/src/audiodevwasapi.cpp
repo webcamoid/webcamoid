@@ -506,9 +506,9 @@ QByteArray AudioDevWasapi::read(int samples)
     return buffer;
 }
 
-bool AudioDevWasapi::write(const QByteArray &frame)
+bool AudioDevWasapi::write(const AkAudioPacket &packet)
 {
-    this->m_audioBuffer.append(frame);
+    this->m_audioBuffer.append(packet.buffer());
     int nErrors = 0;
 
     while (!this->m_audioBuffer.isEmpty()

@@ -281,12 +281,14 @@ AkPacket AudioDeviceElement::iStream(const AkAudioPacket &packet)
     }
 
     if (this->m_device == DUMMY_OUTPUT_DEVICE)
-        QThread::usleep(ulong(1e6 * packet.caps().samples() / packet.caps().rate()));
+        QThread::usleep(ulong(1e6
+                              * packet.caps().samples()
+                              / packet.caps().rate()));
     else if (this->m_convert) {
         AkPacket iPacket = this->m_convert->iStream(packet.toPacket());
 
         this->m_mutexLib.lock();
-        this->m_audioDevice->write(iPacket.buffer());
+        this->m_audioDevice->write(iPacket);
         this->m_mutexLib.unlock();
     }
 

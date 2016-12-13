@@ -239,7 +239,7 @@ QStringList AudioDevPulseAudio::outputs()
 QString AudioDevPulseAudio::description(const QString &device)
 {
     this->m_mutex.lock();
-    QString description = this->m_pinDescriptionMap.value(device, QString());
+    QString description = this->m_pinDescriptionMap.value(device);
     this->m_mutex.unlock();
 
     return description;
@@ -248,7 +248,7 @@ QString AudioDevPulseAudio::description(const QString &device)
 AkAudioCaps AudioDevPulseAudio::preferredFormat(const QString &device)
 {
     this->m_mutex.lock();
-    AkAudioCaps caps = this->m_pinCapsMap.value(device, AkAudioCaps());
+    AkAudioCaps caps = this->m_pinCapsMap.value(device);
     this->m_mutex.unlock();
 
     return caps;
@@ -314,7 +314,7 @@ QByteArray AudioDevPulseAudio::read(int samples)
     return buffer;
 }
 
-bool AudioDevPulseAudio::write(const QByteArray &frame)
+bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
 {
     if (!this->m_paSimple)
         return false;
@@ -322,8 +322,8 @@ bool AudioDevPulseAudio::write(const QByteArray &frame)
     int error;
 
     if (pa_simple_write(this->m_paSimple,
-                        frame.data(),
-                        size_t(frame.size()),
+                        packet.buffer().constData(),
+                        size_t(packet.buffer().size()),
                         &error) < 0) {
         this->m_error = QString(pa_strerror(error));
         emit this->errorChanged(this->m_error);

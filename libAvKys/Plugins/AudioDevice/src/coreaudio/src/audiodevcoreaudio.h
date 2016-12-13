@@ -45,7 +45,7 @@ class AudioDevCoreAudio: public AudioDev
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE QByteArray read(int samples);
-        Q_INVOKABLE bool write(const QByteArray &frame);
+        Q_INVOKABLE bool write(const AkAudioPacket &packet);
         Q_INVOKABLE bool uninit();
 
     private:

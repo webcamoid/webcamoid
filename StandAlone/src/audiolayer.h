@@ -104,7 +104,7 @@ class AudioLayer: public QObject
         AkElementPtr m_audioIn;
         AkElementPtr m_audioGenerator;
         AkElementPtr m_audioSwitch;
-        QMutex m_sourceMutex;
+        QMutex m_mutex;
 
     signals:
         void audioInputChanged(const QStringList &audioInput);

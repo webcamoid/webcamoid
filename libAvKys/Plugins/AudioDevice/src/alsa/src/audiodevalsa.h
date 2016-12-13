@@ -17,23 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVJACK_H
-#define AUDIODEVJACK_H
+#ifndef AUDIODEVALSA_H
+#define AUDIODEVALSA_H
 
-#include <QWaitCondition>
 #include <QMutex>
-#include <ak.h>
-#include <jack/jack.h>
+#include <QTimer>
+#include <QFileSystemWatcher>
+#include <akaudiocaps.h>
+#include <alsa/asoundlib.h>
 
 #include "audiodev.h"
 
-class AudioDevJack: public AudioDev
+class AudioDevAlsa: public AudioDev
 {
     Q_OBJECT
 
     public:
-        explicit AudioDevJack(QObject *parent=NULL);
-        ~AudioDevJack();
+        explicit AudioDevAlsa(QObject *parent=NULL);
+        ~AudioDevAlsa();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString defaultInput();
@@ -49,23 +50,22 @@ class AudioDevJack: public AudioDev
 
     private:
         QString m_error;
-        QMap<QString, QString> m_descriptions;
-        QMap<QString, AkAudioCaps> m_caps;
-        QMap<QString, QStringList> m_devicePorts;
-        QList<jack_port_t *> m_appPorts;
-        QString m_curDevice;
-        int m_curChannels;
-        int m_curSampleRate;
-        int m_maxBufferSize;
-        bool m_isInput;
-        QByteArray m_buffer;
-        jack_client_t *m_client;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QStringList m_sinks;
+        QStringList m_sources;
+        QMap<QString, AkAudioCaps> m_pinCapsMap;
+        QMap<QString, QString> m_pinDescriptionMap;
         QMutex m_mutex;
-        QWaitCondition m_canWrite;
-        QWaitCondition m_samplesAvailable;
+        AkAudioCaps m_curCaps;
+        snd_pcm_t *m_pcmHnd;
+        QFileSystemWatcher *m_fsWatcher;
+        QTimer m_timer;
 
-        static int onProcessCallback(jack_nframes_t nframes, void *userData);
-        static void onShutdownCallback(void *userData);
+        AkAudioCaps deviceCaps(const QString &device) const;
+
+    private slots:
+        void updateDevices();
 };
 
-#endif // AUDIODEVJACK_H
+#endif // AUDIODEVALSA_H

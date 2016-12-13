@@ -16,13 +16,45 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS = src
-CONFIG(config_alsa): SUBDIRS += src/alsa
-CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
-CONFIG(config_jack): SUBDIRS += src/jack
-CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
-CONFIG(config_wasapi): SUBDIRS += src/wasapi
+HEADERS = \
+    src/plugin.h \
+    src/audiodevalsa.h \
+    ../audiodev.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+CONFIG += link_pkgconfig
+PKGCONFIG += alsa
+
+QT += qml concurrent
+
+SOURCES = \
+    src/plugin.cpp \
+    src/audiodevalsa.cpp \
+    ../audiodev.cpp
+
+DESTDIR = $${PWD}/../../submodules/AudioDevice
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice

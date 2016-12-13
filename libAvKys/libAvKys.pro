@@ -39,6 +39,7 @@ exists(commons.pri) {
 # Check what libraries and frameworks are available
 load(configure)
 QMAKE_CONFIG_TESTS_DIR=$$PWD/Tests
+qtCompileTest(alsa)
 qtCompileTest(avfoundation)
 qtCompileTest(coreaudio)
 qtCompileTest(dshow)

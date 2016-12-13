@@ -20,7 +20,7 @@
 #ifndef AUDIODEV_H
 #define AUDIODEV_H
 
-#include <akaudiocaps.h>
+#include <akaudiopacket.h>
 
 class AudioDev: public QObject
 {
@@ -42,7 +42,7 @@ class AudioDev: public QObject
         Q_INVOKABLE virtual AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE virtual bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE virtual QByteArray read(int samples);
-        Q_INVOKABLE virtual bool write(const QByteArray &frame);
+        Q_INVOKABLE virtual bool write(const AkAudioPacket &packet);
         Q_INVOKABLE virtual bool uninit();
 
     Q_SIGNALS:
