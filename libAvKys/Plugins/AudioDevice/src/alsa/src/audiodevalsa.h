@@ -56,8 +56,6 @@ class AudioDevAlsa: public AudioDev
         QStringList m_sources;
         QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
-        QMutex m_mutex;
-        AkAudioCaps m_curCaps;
         snd_pcm_t *m_pcmHnd;
         QFileSystemWatcher *m_fsWatcher;
         QTimer m_timer;

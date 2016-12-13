@@ -17,12 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QMap>
+#include <cstdarg>
 #include <alsa/error.h>
 
 #include "audiodevalsa.h"
-
-#define ALSA_BUFFER_SIZE_MAX 65536
 
 typedef QMap<AkAudioCaps::SampleFormat, snd_pcm_format_t> SampleFormatMap;
 
@@ -74,7 +72,7 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
                      this,
                      &AudioDevAlsa::updateDevices);
 
-#if 0
+#if 1
     this->m_fsWatcher = new QFileSystemWatcher({"/dev/snd"}, this);
 
     QObject::connect(this->m_fsWatcher,
@@ -85,7 +83,7 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
     this->updateDevices();
 #else
     this->updateDevices();
-//    this->m_timer.start();
+    this->m_timer.start();
 #endif
 }
 
@@ -158,8 +156,6 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     if (error < 0)
         goto init_fail;
 
-    this->m_curCaps = caps;
-
     return true;
 
 init_fail:
@@ -172,7 +168,31 @@ init_fail:
 
 QByteArray AudioDevAlsa::read(int samples)
 {
-    return QByteArray();
+    auto bufferSize = snd_pcm_frames_to_bytes(this->m_pcmHnd, samples);
+    QByteArray buffer(int(bufferSize), Qt::Uninitialized);
+    auto data = buffer.data();
+
+    while (samples > 0) {
+        auto rsamples = snd_pcm_readi(this->m_pcmHnd,
+                                      data,
+                                      snd_pcm_uframes_t(samples));
+
+        if (rsamples >= 0) {
+            auto dataRead = snd_pcm_frames_to_bytes(this->m_pcmHnd, rsamples);
+            data += dataRead;
+            samples -= rsamples;
+        } else {
+            if (rsamples == -EAGAIN) {
+                snd_pcm_wait(this->m_pcmHnd, 1000);
+
+                continue;
+            }
+
+            return QByteArray();
+        }
+    }
+
+    return buffer;
 }
 
 bool AudioDevAlsa::write(const AkAudioPacket &packet)
@@ -180,16 +200,10 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
     if (!this->m_pcmHnd)
         return false;
 
-    if (packet.caps().format() != this->m_curCaps.format()
-        || packet.caps().channels() != this->m_curCaps.channels()
-        || packet.caps().rate() != this->m_curCaps.rate())
-        return false;
-
     auto data = packet.buffer().constData();
     int dataSize = packet.buffer().size();
-    int tries = 5;
 
-    while (dataSize > 0 && tries > 0) {
+    while (dataSize > 0) {
         auto samples = snd_pcm_bytes_to_frames(this->m_pcmHnd, dataSize);
         samples = snd_pcm_writei(this->m_pcmHnd,
                                  data,
@@ -202,7 +216,6 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
         } else {
             if (samples == -EAGAIN) {
                 snd_pcm_wait(this->m_pcmHnd, 1000);
-                tries--;
 
                 continue;
             }
@@ -223,8 +236,6 @@ bool AudioDevAlsa::uninit()
         snd_pcm_close(this->m_pcmHnd);
         this->m_pcmHnd = NULL;
     }
-
-    this->m_curCaps = AkAudioCaps();
 
     return true;
 }
@@ -372,7 +383,7 @@ void AudioDevAlsa::updateDevices()
         }
 
         QString deviceId =
-                QString("hw:CARD=%1,DEV=0")
+                QString("plughw:CARD=%1,DEV=0")
                     .arg(snd_ctl_card_info_get_id(ctlInfo));
         QString description = snd_ctl_card_info_get_name(ctlInfo);
 
@@ -380,6 +391,9 @@ void AudioDevAlsa::updateDevices()
 
         auto input = deviceId + ":Input";
         auto caps = this->deviceCaps(input);
+
+        if (!caps)
+            caps = this->m_pinCapsMap.value(input);
 
         if (caps) {
             inputs << input;
@@ -389,6 +403,9 @@ void AudioDevAlsa::updateDevices()
 
         auto output = deviceId + ":Output";
         caps = this->deviceCaps(output);
+
+        if (!caps)
+            caps = this->m_pinCapsMap.value(output);
 
         if (caps) {
             outputs << output;
