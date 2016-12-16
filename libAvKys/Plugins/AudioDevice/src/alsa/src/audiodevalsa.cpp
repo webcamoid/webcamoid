@@ -132,6 +132,8 @@ AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 
 bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 {
+    QMutexLocker mutexLockeer(&this->m_mutex);
+
     this->m_pcmHnd = NULL;
     int error = snd_pcm_open(&this->m_pcmHnd,
                              QString(device)
@@ -168,6 +170,8 @@ init_fail:
 
 QByteArray AudioDevAlsa::read(int samples)
 {
+    QMutexLocker mutexLockeer(&this->m_mutex);
+
     auto bufferSize = snd_pcm_frames_to_bytes(this->m_pcmHnd, samples);
     QByteArray buffer(int(bufferSize), Qt::Uninitialized);
     auto data = buffer.data();
@@ -197,6 +201,8 @@ QByteArray AudioDevAlsa::read(int samples)
 
 bool AudioDevAlsa::write(const AkAudioPacket &packet)
 {
+    QMutexLocker mutexLockeer(&this->m_mutex);
+
     if (!this->m_pcmHnd)
         return false;
 
@@ -333,7 +339,7 @@ AkAudioCaps AudioDevAlsa::deviceCaps(const QString &device) const
         audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
         audioCaps.channels() = int(channels);
         audioCaps.rate() = int(sampleRate);
-        audioCaps.layout() = AkAudioCaps::defaultChannelLayout(int(channels));
+        audioCaps.layout() = AkAudioCaps::defaultChannelLayout(audioCaps.channels());
         audioCaps.align() = false;
 
         return audioCaps;

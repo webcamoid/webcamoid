@@ -16,14 +16,44 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS = src
-CONFIG(config_alsa): SUBDIRS += src/alsa
-CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
-CONFIG(config_jack): SUBDIRS += src/jack
-CONFIG(config_oss): SUBDIRS += src/oss
-CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
-CONFIG(config_wasapi): SUBDIRS += src/wasapi
+HEADERS = \
+    src/plugin.h \
+    src/audiodevoss.h \
+    ../audiodev.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+exists($${INCLUDEDIR}/linux/soundcard.h): DEFINES += HAVE_OSS_LINUX
+
+QT += qml
+
+SOURCES = \
+    src/plugin.cpp \
+    src/audiodevoss.cpp \
+    ../audiodev.cpp
+
+DESTDIR = $${PWD}/../../submodules/AudioDevice
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice

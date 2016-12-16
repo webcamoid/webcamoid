@@ -101,7 +101,6 @@ CameraOutV4L2::CameraOutV4L2(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
-    this->m_fd = -1;
     this->m_passwordTimeout = 2500;
     this->m_rootMethod = rootMethodToStr->key(ROOT_METHOD, RootMethodSu);
     this->m_webcams = this->webcams();
@@ -198,12 +197,10 @@ QString CameraOutV4L2::description(const QString &webcam) const
 
 void CameraOutV4L2::writeFrame(const AkPacket &frame)
 {
-    if (this->m_fd < 0)
+    if (!this->m_deviceFile.isOpen())
         return;
 
-    if (write(this->m_fd,
-              frame.buffer().constData(),
-              size_t(frame.buffer().size())) < 0)
+    if (this->m_deviceFile.write(frame.buffer()) < 0)
         qDebug() << "Error writing frame";
 }
 
@@ -530,10 +527,16 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
     if (!caps)
         return false;
 
-    this->m_fd = open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK);
+    this->m_deviceFile.setFileName(this->m_device);
 
-    if (this->m_fd < 0) {
+    if (!this->m_deviceFile.open(QIODevice::WriteOnly)) {
         emit this->error(QString("Unable to open V4L2 device %1").arg(this->m_device));
+
+        return false;
+    }
+
+    if (fcntl(this->m_deviceFile.handle(), F_SETFL, O_NONBLOCK) < 0) {
+        emit this->error(QString("Can't set V4L2 device %1 in blocking mode").arg(this->m_device));
 
         return false;
     }
@@ -542,10 +545,9 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
-    if (this->xioctl(this->m_fd, VIDIOC_G_FMT, &fmt) < 0) {
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_G_FMT, &fmt) < 0) {
         emit this->error("Can't read default format");
-        close(this->m_fd);
-        this->m_fd = -1;
+        this->m_deviceFile.close();
 
         return false;
     }
@@ -556,10 +558,9 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
     fmt.fmt.pix.pixelformat = ffToV4L2->value(videoCaps.format());
     fmt.fmt.pix.sizeimage = __u32(videoCaps.pictureSize());
 
-    if (this->xioctl(this->m_fd, VIDIOC_S_FMT, &fmt) < 0) {
+    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_S_FMT, &fmt) < 0) {
         emit this->error("Can't set format");
-        close(this->m_fd);
-        this->m_fd = -1;
+        this->m_deviceFile.close();
 
         return false;
     }
@@ -572,8 +573,7 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
 
 void CameraOutV4L2::uninit()
 {
-    close(this->m_fd);
-    this->m_fd = -1;
+    this->m_deviceFile.close();
 }
 
 void CameraOutV4L2::setDriverPath(const QString &driverPath)

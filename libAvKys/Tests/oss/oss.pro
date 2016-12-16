@@ -16,14 +16,9 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists($${INCLUDEDIR}/linux/soundcard.h): DEFINES += HAVE_OSS_LINUX
 
-CONFIG += ordered
+SOURCES = \
+    test.cpp
 
-SUBDIRS = src
-CONFIG(config_alsa): SUBDIRS += src/alsa
-CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
-CONFIG(config_jack): SUBDIRS += src/jack
-CONFIG(config_oss): SUBDIRS += src/oss
-CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
-CONFIG(config_wasapi): SUBDIRS += src/wasapi
+TARGET = test_auto

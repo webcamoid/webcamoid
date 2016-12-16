@@ -17,24 +17,34 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AUDIODEVALSA_H
-#define AUDIODEVALSA_H
+#ifndef AUDIODEVPULSEAUDIO_H
+#define AUDIODEVPULSEAUDIO_H
 
 #include <QMutex>
-#include <QTimer>
+#include <QFile>
 #include <QFileSystemWatcher>
 #include <akaudiocaps.h>
-#include <alsa/asoundlib.h>
+
+#ifdef HAVE_OSS_LINUX
+#include <linux/soundcard.h>
+#else
+#include <sys/soundcard.h>
+#endif
 
 #include "audiodev.h"
 
-class AudioDevAlsa: public AudioDev
+/* In GNU/Linux load the OSS drivers as:
+ *
+ * sudo modprobe snd_pcm_oss snd_mixer_oss snd_seq_oss
+ */
+
+class AudioDevOSS: public AudioDev
 {
     Q_OBJECT
 
     public:
-        explicit AudioDevAlsa(QObject *parent=NULL);
-        ~AudioDevAlsa();
+        explicit AudioDevOSS(QObject *parent=NULL);
+        ~AudioDevOSS();
 
         Q_INVOKABLE QString error() const;
         Q_INVOKABLE QString defaultInput();
@@ -45,7 +55,7 @@ class AudioDevAlsa: public AudioDev
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE QByteArray read(int samples);
-        Q_INVOKABLE bool write(const AkAudioPacket &packet);
+        Q_INVOKABLE bool write(const AkAudioPacket &frame);
         Q_INVOKABLE bool uninit();
 
     private:
@@ -56,15 +66,17 @@ class AudioDevAlsa: public AudioDev
         QStringList m_sources;
         QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
-        snd_pcm_t *m_pcmHnd;
+        QMap<QString, int> m_fragmentSizeMap;
+        AkAudioCaps m_curCaps;
+        QFile m_deviceFile;
         QFileSystemWatcher *m_fsWatcher;
-        QTimer m_timer;
         QMutex m_mutex;
 
-        AkAudioCaps deviceCaps(const QString &device) const;
+        AkAudioCaps deviceCaps(const QString &device,
+                               int *fragmentSize=NULL) const;
 
-    private slots:
+    public slots:
         void updateDevices();
 };
 
-#endif // AUDIODEVALSA_H
+#endif // AUDIODEVPULSEAUDIO_H

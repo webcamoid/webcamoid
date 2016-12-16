@@ -28,10 +28,13 @@ AudioDeviceGlobals::AudioDeviceGlobals(QObject *parent):
 #ifdef Q_OS_WIN32
         "wasapi"
 #elif defined(Q_OS_OSX)
-        "coreaudio"
+        "coreaudio",
+        "pulseaudio",
+        "jack"
 #else
         "pulseaudio",
         "alsa",
+        "oss"
         "jack"
 #endif
     };

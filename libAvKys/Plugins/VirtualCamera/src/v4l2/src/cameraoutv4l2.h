@@ -74,7 +74,7 @@ class CameraOutV4L2: public CameraOut
         int m_passwordTimeout;
         RootMethod m_rootMethod;
         QFileSystemWatcher *m_fsWatcher;
-        int m_fd;
+        QFile m_deviceFile;
 
         inline int xioctl(int fd, ulong request, void *arg) const
         {
