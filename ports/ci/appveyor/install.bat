@@ -10,9 +10,15 @@ rem Installing various utilities
 
 choco install -y curl 7zip InnoSetup
 
-set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin
+set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 
-if "%QMAKESPEC%" == "win32-g++" set PATH=%PATH%;%MINGW%\bin
+rem Install JOM
+
+set JOM_FILE=jom.zip
+
+if not exist %JOM_FILE%  curl -kLOC - https://download.qt.io/official_releases/jom/%JOM_FILE%
+
+rem if exist %JOM_FILE% 7z x %JOM_FILE%
 
 rem Installing FFmpeg dev
 

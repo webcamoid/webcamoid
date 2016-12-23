@@ -24,24 +24,28 @@ environment:
     MAKETOOL: mingw32-make
 
   matrix:
-    - MINGW: C:\Qt\Tools\mingw482_32
-    - MINGW: C:\Qt\Tools\mingw491_32
-    - MINGW: C:\Qt\Tools\mingw492_32
-    - MINGW: C:\Qt\Tools\mingw530_32
     - QTDIR: C:\Qt\5.7\msvc2013
+      TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2013
       MAKETOOL: jom
     - PLATFORM: x64
       QTDIR: C:\Qt\5.7\msvc2013_64
+      TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2013
       MAKETOOL: jom
     - QTDIR: C:\Qt\5.7\msvc2015
+      TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2015
       MAKETOOL: jom
     - PLATFORM: x64
       QTDIR: C:\Qt\5.7\msvc2015_64
+      TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2015
       MAKETOOL: jom
+    - TOOLSDIR: C:\Qt\Tools\mingw482_32
+    - TOOLSDIR: C:\Qt\Tools\mingw491_32
+    - TOOLSDIR: C:\Qt\Tools\mingw492_32
+    - TOOLSDIR: C:\Qt\Tools\mingw530_32
 
 install:
   - ports\ci\appveyor\install.bat
@@ -50,6 +54,7 @@ build_script:
   - ports\ci\appveyor\build.bat
 
 cache:
+  - jom.zip
   - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
   - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
 
