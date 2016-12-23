@@ -10,19 +10,11 @@ rem Installing various utilities
 
 choco install -y curl 7zip InnoSetup
 
-echo Test point 1 %QMAKESPEC%
-
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin
 
-echo Test point 2 %MINGW%
-
-rem  if %QMAKESPEC% == "win32-g++" (
-rem      set PATH=%PATH%;%MINGW%\bin
-rem  )
-
-set PATH=%PATH%;%MINGW%\bin
-
-echo Test point 3
+if %QMAKESPEC% == "win32-g++" (
+    set PATH=%PATH%;%MINGW%\bin
+    )
 
 rem Installing FFmpeg dev
 
@@ -30,11 +22,11 @@ set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
 
 if not exist %FFMPEG_FILE% (
     curl -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_FILE%
-)
+    )
 
 if exist %FFMPEG_FILE% (
     7z x %FFMPEG_FILE%
-)
+    )
 
 set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 
@@ -44,11 +36,11 @@ set GSTREAMER_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
 
 if not exist %GSTREAMER_FILE% (
     curl -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_FILE%
-)
+    )
 
 if exist %GSTREAMER_FILE% (
     msiexec /a %CD%\%GSTREAMER_FILE% /qn TARGETDIR=%CD%\gstreamer-1.0
-)
+    )
 
 set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\%GST_ARCH%
 
