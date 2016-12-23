@@ -20,9 +20,6 @@ matrix:
       env:
       - QTVER=57
     - os: osx
-      osx_image: xcode7.3
-      compiler: clang
-    - os: osx
       osx_image: xcode8
       compiler: clang
     - os: osx
@@ -50,6 +47,7 @@ install: |
         qt${QTVER}tools \
         qt${QTVER}declarative \
         qt${QTVER}svg \
+        qt${QTVER}multimedia \
         libgstreamer-plugins-base1.0-dev \
         libpulse-dev \
         libjack-dev \
