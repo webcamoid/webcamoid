@@ -1,3 +1,6 @@
+echo The platform is "%PLATFORM%"
+echo QTDIR is %QTDIR%
+
 if "%PLATFORM%" == "x86" (
     set FF_ARCH=win32
     set GST_ARCH=x86
