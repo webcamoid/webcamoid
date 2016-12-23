@@ -12,9 +12,13 @@ choco install -y curl 7zip InnoSetup
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin
 
+echo Test point 1
+
 if %QMAKESPEC% == "win32-g++" (
     set PATH=%PATH%;%MINGW%\bin
 )
+
+echo Test point 2
 
 rem Installing FFmpeg dev
 
@@ -23,6 +27,8 @@ set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
 if not exist %FFMPEG_FILE% (
     curl -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_FILE%
 )
+
+echo Test point 3
 
 if exist %FFMPEG_FILE% (
     7z x %FFMPEG_FILE%
