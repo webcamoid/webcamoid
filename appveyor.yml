@@ -5,7 +5,7 @@ platform:
   - x86
 
 build:
-  verbosity: minimal
+  verbosity: detailed
 
 configuration:
   - debug
