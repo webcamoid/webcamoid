@@ -10,14 +10,14 @@ rem Installing various utilities
 
 choco install -y curl 7zip InnoSetup
 
+echo Test point 1 %QMAKESPEC%
+
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin
 
+echo Test point 2
+
 if %QMAKESPEC% == "win32-g++" (
-    echo Test point 1
-
     set PATH=%PATH%;%MINGW%\bin
-
-    echo Test point 2
 )
 
 rem Installing FFmpeg dev
