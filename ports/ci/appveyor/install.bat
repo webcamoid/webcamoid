@@ -1,4 +1,4 @@
-if %PLATFORM% == "x86" (
+if "%PLATFORM%" == "x86" (
     set FF_ARCH=win32
     set GST_ARCH=x86
 ) else (
@@ -12,7 +12,7 @@ choco install -y curl 7zip InnoSetup
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin
 
-if %QMAKESPEC% == "win32-g++" set PATH=%PATH%;%MINGW%\bin
+if "%QMAKESPEC%" == "win32-g++" set PATH=%PATH%;%MINGW%\bin
 
 rem Installing FFmpeg dev
 
