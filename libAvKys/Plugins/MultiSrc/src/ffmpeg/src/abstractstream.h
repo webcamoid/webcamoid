@@ -114,8 +114,8 @@ class AbstractStream: public QObject
         QFuture<void> m_packetLoopResult;
         QFuture<void> m_dataLoopResult;
 
-        static void packetLoop(AbstractStream *stream);
-        static void dataLoop(AbstractStream *stream);
+        void packetLoop();
+        void dataLoop();
         static void deletePacket(AVPacket *packet);
         static void deleteFrame(AVFrame *frame);
         static void deleteSubtitle(AVSubtitle *subtitle);

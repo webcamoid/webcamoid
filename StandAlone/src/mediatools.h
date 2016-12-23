@@ -34,12 +34,6 @@
 #include "videoeffects.h"
 #include "recording.h"
 
-typedef QSharedPointer<PluginConfigs> PluginConfigsPtr;
-typedef QSharedPointer<MediaSource> MediaSourcePtr;
-typedef QSharedPointer<AudioLayer> AudioLayerPtr;
-typedef QSharedPointer<VideoEffects> VideoEffectsPtr;
-typedef QSharedPointer<Recording> RecordingPtr;
-
 class MediaTools: public QObject
 {
     Q_OBJECT

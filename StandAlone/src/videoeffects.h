@@ -26,6 +26,10 @@
 #include <QQmlApplicationEngine>
 #include <akelement.h>
 
+class VideoEffects;
+
+typedef QSharedPointer<VideoEffects> VideoEffectsPtr;
+
 class VideoEffects: public QObject
 {
     Q_OBJECT

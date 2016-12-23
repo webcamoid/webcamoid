@@ -53,6 +53,7 @@ install: |
         libgstreamer-plugins-base1.0-dev \
         libpulse-dev \
         libjack-dev \
+        libasound2-dev \
         libv4l-dev
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew install \

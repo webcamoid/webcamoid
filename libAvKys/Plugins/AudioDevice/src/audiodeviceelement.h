@@ -81,6 +81,8 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString audioLib() const;
 
     private:
+        QStringList m_inputs;
+        QStringList m_outputs;
         QString m_device;
         int m_bufferSize;
         AkCaps m_caps;
@@ -118,6 +120,8 @@ class AudioDeviceElement: public AkElement
         bool setState(AkElement::ElementState state);
 
     private slots:
+        void setInputs(const QStringList &inputs);
+        void setOutputs(const QStringList &outputs);
         void audioLibUpdated(const QString &audioLib);
 };
 

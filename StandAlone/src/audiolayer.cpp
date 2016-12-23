@@ -18,6 +18,8 @@
  */
 
 #include <QFile>
+#include <QThread>
+#include <QAbstractEventDispatcher>
 #include <QSettings>
 #include <QQuickItem>
 #include <QQmlProperty>
@@ -241,7 +243,7 @@ AkElement::ElementState AudioLayer::inputState() const
 AkElement::ElementState AudioLayer::outputState() const
 {
     if (this->m_audioOut)
-        return this->m_audioOut->state();
+        return this->m_audioOut->property("state").value<AkElement::ElementState>();
 
     return AkElement::ElementStateNull;
 }
@@ -265,16 +267,22 @@ void AudioLayer::setAudioInput(const QStringList &audioInput)
 void AudioLayer::setAudioOutput(const QString &audioOutput)
 {
     if (this->m_audioOut) {
-        this->m_mutex.lock();
-        auto state = this->m_audioOut->state();
-        this->m_audioOut->setState(AkElement::ElementStateNull);
-        this->m_audioOut->setProperty("device", audioOutput);
-        this->m_audioOut->setState(state);
+        while (!this->m_mutex.tryLock()) {
+            auto eventDispatcher = QThread::currentThread()->eventDispatcher();
 
-        if (this->m_audioOut->state() != state) {
-            this->m_audioOut->setState(AkElement::ElementStateNull);
+            if (eventDispatcher)
+                eventDispatcher->processEvents(QEventLoop::AllEvents);
+        }
+
+        auto state = this->m_audioOut->property("state");
+        this->m_audioOut->setProperty("state", AkElement::ElementStateNull);
+        this->m_audioOut->setProperty("device", audioOutput);
+        this->m_audioOut->setProperty("state", state);
+
+        if (this->m_audioOut->property("state") != state) {
+            this->m_audioOut->setProperty("state", AkElement::ElementStateNull);
             this->m_audioOut->setProperty("device", ":dummyout:");
-            this->m_audioOut->setState(state);
+            this->m_audioOut->setProperty("state", state);
         }
 
         this->m_mutex.unlock();
@@ -348,7 +356,7 @@ void AudioLayer::setInputState(AkElement::ElementState inputState)
 bool AudioLayer::setOutputState(AkElement::ElementState outputState)
 {
     if (this->m_audioOut)
-        return this->m_audioOut->setState(outputState);
+        return this->m_audioOut->setProperty("state", outputState);
 
     return false;
 }

@@ -26,6 +26,10 @@
 
 #include "clioptions.h"
 
+class PluginConfigs;
+
+typedef QSharedPointer<PluginConfigs> PluginConfigsPtr;
+
 class PluginConfigs: public QObject
 {
     Q_OBJECT

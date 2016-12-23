@@ -19,7 +19,9 @@
 SOURCES = \
     test.cpp
 
-CONFIG += link_pkgconfig
-PKGCONFIG += libv4l2
+!android  {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libv4l2
+}
 
 TARGET = test_auto

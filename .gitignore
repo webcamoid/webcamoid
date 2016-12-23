@@ -56,6 +56,11 @@ Makefile*
 .qmake.stash
 .qmake.cache
 
+# Android files #
+#################
+android-build
+android-*-deployment-settings.json
+
 # VIM temporary files #
 #######################
 .*.swp

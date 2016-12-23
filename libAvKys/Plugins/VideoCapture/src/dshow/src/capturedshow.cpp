@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
+
 #include "capturedshow.h"
 
 #define TIME_BASE 1.0e7
@@ -154,7 +156,8 @@ inline IoMethodMap initIoMethodMap()
 Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
 CaptureDShow::CaptureDShow(QObject *parent):
-    Capture(parent)
+    Capture(parent),
+    QAbstractNativeEventFilter()
 {
     this->m_id = -1;
     this->m_ioMethod = IoMethodGrabSample;
@@ -166,11 +169,12 @@ CaptureDShow::CaptureDShow(QObject *parent):
                      &CaptureDShow::frameReceived,
                      Qt::DirectConnection);
 
-    this->createDeviceNotifier();
+    qApp->installNativeEventFilter(this);
 }
 
 CaptureDShow::~CaptureDShow()
 {
+    qApp->removeNativeEventFilter(this);
 }
 
 QStringList CaptureDShow::webcams() const
@@ -480,6 +484,43 @@ AkPacket CaptureDShow::readFrame()
     return packet;
 }
 
+bool CaptureDShow::nativeEventFilter(const QByteArray &eventType,
+                                     void *message,
+                                     long *result)
+{
+    Q_UNUSED(eventType);
+
+    if (!message)
+        return false;
+
+    auto msg = reinterpret_cast<MSG *>(message);
+
+    if (msg->message == WM_DEVICECHANGE) {
+        switch (msg->wParam) {
+        case DBT_DEVICEARRIVAL:
+        case DBT_DEVICEREMOVECOMPLETE:
+        case DBT_DEVNODES_CHANGED: {
+            auto webcams = this->webcams();
+
+            if (webcams != this->m_webcams) {
+                emit this->webcamsChanged(webcams);
+
+                this->m_webcams = webcams;
+            }
+
+            if (result)
+                *result = TRUE;
+
+            return true;
+        }
+        default:
+            break;
+        }
+    }
+
+    return false;
+}
+
 AkCaps CaptureDShow::capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const
 {
     if (!mediaType)
@@ -764,78 +805,6 @@ PinList CaptureDShow::enumPins(IBaseFilter *filter,
     enumPins->Release();
 
     return pinList;
-}
-
-bool CaptureDShow::createDeviceNotifier()
-{
-    QString className("HiddenWindow");
-    HINSTANCE instance = qWinAppInst();
-
-    WNDCLASS wc;
-    wc.style = 0;
-    wc.lpfnWndProc = this->deviceEvents;
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = instance;
-    wc.hIcon = 0;
-    wc.hCursor = 0;
-    wc.hbrBackground = 0;
-    wc.lpszMenuName = NULL;
-    wc.lpszClassName = reinterpret_cast<const wchar_t *>(className.utf16());
-    RegisterClass(&wc);
-
-    HWND hwnd = CreateWindow(wc.lpszClassName,
-                             wc.lpszClassName,
-                             0,
-                             0, 0, 0, 0,
-                             0,
-                             0,
-                             instance,
-                             0);
-
-    if (!hwnd)
-        return false;
-
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, LONG_PTR(this));
-
-    DEV_BROADCAST_DEVICEINTERFACE NotificationFilter;
-    ZeroMemory(&NotificationFilter, sizeof(NotificationFilter));
-
-    NotificationFilter.dbcc_size = sizeof(DEV_BROADCAST_DEVICEINTERFACE);
-    NotificationFilter.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-    NotificationFilter.dbcc_classguid = GUID_DEVINTERFACE_USB_DEVICE;
-
-    HDEVNOTIFY result =
-            RegisterDeviceNotification(hwnd,
-                                       &NotificationFilter,
-                                       DEVICE_NOTIFY_WINDOW_HANDLE);
-
-    if (!result)
-        return false;
-
-    return true;
-}
-
-LRESULT CaptureDShow::deviceEvents(HWND hwnd,
-                                   UINT message,
-                                   WPARAM wParam,
-                                   LPARAM lParam)
-{
-    if (wParam == DBT_DEVICEARRIVAL
-        || wParam == DBT_DEVICEREMOVECOMPLETE) {
-        auto thisPtr =
-                reinterpret_cast<CaptureDShow *>(GetWindowLongPtr(hwnd,
-                                                                  GWLP_USERDATA));
-        QStringList webcams = thisPtr->webcams();
-
-        if (webcams != thisPtr->m_webcams) {
-            emit thisPtr->webcamsChanged(webcams);
-
-            thisPtr->m_webcams = webcams;
-        }
-    }
-
-    return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 void CaptureDShow::deleteUnknown(IUnknown *unknown)

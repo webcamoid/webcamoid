@@ -117,6 +117,11 @@ MediaTools::MediaTools(QObject *parent):
                      &MediaSource::videoCapsChanged,
                      this->m_recording.data(),
                      &Recording::setVideoCaps);
+    QObject::connect(qApp,
+                     &QCoreApplication::aboutToQuit,
+                     [this] () {
+                        this->m_mediaSource->setState(AkElement::ElementStateNull);
+                     });
 
     this->loadConfigs();
     this->updateVCamCaps(this->m_mediaSource->videoCaps());

@@ -17,45 +17,41 @@ branches:
 
 environment:
   global:
-    QTDIR: C:\Qt\5.7\mingw53_32
     FFMPEG_VERSION: 3.2
     GSTREAMER_VERSION: 1.10.2
+    QTDIR: C:\Qt\5.7\mingw53_32
+    QMAKESPEC: win32-g++
+    MAKETOOL: mingw32-make
+
   matrix:
     - MINGW: C:\Qt\Tools\mingw482_32
+    - MINGW: C:\Qt\Tools\mingw482_32
+    - MINGW: C:\Qt\Tools\mingw491_32
     - MINGW: C:\Qt\Tools\mingw491_32
     - MINGW: C:\Qt\Tools\mingw492_32
+    - MINGW: C:\Qt\Tools\mingw492_32
     - MINGW: C:\Qt\Tools\mingw530_32
+    - MINGW: C:\Qt\Tools\mingw530_32
+    - QTDIR: C:\Qt\5.7\msvc2013
+      QMAKESPEC: win32-msvc2013
+      MAKETOOL: jom
+    - PLATFORM: x64
+      QTDIR: C:\Qt\5.7\msvc2013_64
+      QMAKESPEC: win32-msvc2013
+      MAKETOOL: jom
+    - QTDIR: C:\Qt\5.7\msvc2015
+      QMAKESPEC: win32-msvc2015
+      MAKETOOL: jom
+    - PLATFORM: x64
+      QTDIR: C:\Qt\5.7\msvc2015_64
+      QMAKESPEC: win32-msvc2015
+      MAKETOOL: jom
 
 install:
-  - if "%PLATFORM%" == "x86" (set FF_ARCH=win32) else (set FF_ARCH=win64)
-  - if "%PLATFORM%" == "x86" (set GST_ARCH=x86) else (set GST_ARCH=x86_64)
-  # Installing various utilities
-  - choco install -y curl 7zip InnoSetup
-  - set PATH="C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%PATH%
-  # Configuring Qt
-  - set PATH=%PATH%;%QTDIR%\bin;%MINGW%\bin;
-  # Installing FFmpeg dev
-  - set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
-  - if not exist %FFMPEG_FILE% curl -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_FILE%
-  - if exist %FFMPEG_FILE% 7z x %FFMPEG_FILE%
-  - set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
-  # Installing GStreamer
-  - set GSTREAMER_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
-  - if not exist %GSTREAMER_FILE% curl -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_FILE%
-  - if exist %GSTREAMER_FILE% msiexec /a %CD%\%GSTREAMER_FILE% /qn TARGETDIR=%CD%\gstreamer-1.0
-  - set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\%GST_ARCH%
-  # Copy necessary libraries to an alternative path to avoid conflicts with Qt's MinGW system libraries
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libgobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libglib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libgstreamer-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libgstapp-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libgstpbutils-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libgstaudio-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-  - xcopy %GSTREAMER_DEV_PATH%\lib\libgstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+  - ports\ci\appveyor\install.bat
 
 build_script:
-  - qmake Webcamoid.pro CONFIG+=%CONFIGURATION% PREFIX="%CD%\build\%PLATFORM%" FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" FFMPEGLIBS+=-lavcodec FFMPEGLIBS+=-lavdevice FFMPEGLIBS+=-lavformat FFMPEGLIBS+=-lavutil FFMPEGLIBS+=-lswresample FFMPEGLIBS+=-lswscale GSTREAMERINCLUDES="%GSTREAMER_DEV_PATH%\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\glib-2.0" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\lib\glib-2.0\include" GSTREAMERINCLUDES+="%GSTREAMER_DEV_PATH%\include\gstreamer-1.0" GSTREAMERLIBS=-L"%GSTREAMER_DEV_PATH%\lib2" GSTREAMERLIBS+=-lgobject-2.0 GSTREAMERLIBS+=-lglib-2.0 GSTREAMERLIBS+=-lgstreamer-1.0 GSTREAMERLIBS+=-lgstapp-1.0 GSTREAMERLIBS+=-lgstpbutils-1.0 GSTREAMERLIBS+=-lgstaudio-1.0 GSTREAMERLIBS+=-lgstvideo-1.0
-  - mingw32-make
+  - ports\ci\appveyor\build.bat
 
 cache:
   - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip

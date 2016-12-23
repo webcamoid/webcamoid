@@ -26,6 +26,10 @@
 #include <QQmlApplicationEngine>
 #include <akelement.h>
 
+class MediaSource;
+
+typedef QSharedPointer<MediaSource> MediaSourcePtr;
+
 class MediaSource: public QObject
 {
     Q_OBJECT

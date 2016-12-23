@@ -28,10 +28,11 @@ exists(commons.pri) {
 
 CONFIG += plugin
 
-HEADERS += \
+HEADERS = \
     src/plugin.h \
-    src/cameraoutv4l2.h \
-    ../cameraout.h
+    src/audiodevqtaudio.h \
+    ../audiodev.h \
+    src/audiodevicebuffer.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \
@@ -41,27 +42,18 @@ LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-!android {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += libv4l2
-}
+QT += qml multimedia
 
-QT += qml
-
-SOURCES += \
+SOURCES = \
     src/plugin.cpp \
-    src/cameraoutv4l2.cpp \
-    ../cameraout.cpp
+    src/audiodevqtaudio.cpp \
+    ../audiodev.cpp \
+    src/audiodevicebuffer.cpp
 
-DESTDIR = $${PWD}/../../submodules/VirtualCamera
+DESTDIR = $${PWD}/../../submodules/AudioDevice
 
 TEMPLATE = lib
 
 INSTALLS += target
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
-
-isEmpty(ROOT_METHOD): ROOT_METHOD = su
-
-DEFINES += \
-    ROOT_METHOD=\"\\\"$$ROOT_METHOD\\\"\"
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/AudioDevice

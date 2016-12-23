@@ -19,6 +19,17 @@
 
 #include "abstractstream.h"
 
+template <typename T>
+inline void waitLoop(const QFuture<T> &loop)
+{
+    while (!loop.isFinished()) {
+        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+        if (eventDispatcher)
+            eventDispatcher->processEvents(QEventLoop::AllEvents);
+    }
+}
+
 AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                                uint index, qint64 id, Clock *globalClock,
                                bool noModify,
@@ -214,98 +225,98 @@ void AbstractStream::processData(AVSubtitle *subtitle)
     Q_UNUSED(subtitle)
 }
 
-void AbstractStream::packetLoop(AbstractStream *stream)
+void AbstractStream::packetLoop()
 {
-    while (stream->m_runPacketLoop) {
-        stream->m_packetMutex.lock();
+    while (this->m_runPacketLoop) {
+        this->m_packetMutex.lock();
         bool gotPacket = true;
 
-        if (stream->m_packets.isEmpty())
-            gotPacket = stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex,
-                                                          THREAD_WAIT_LIMIT);
+        if (this->m_packets.isEmpty())
+            gotPacket = this->m_packetQueueNotEmpty.wait(&this->m_packetMutex,
+                                                         THREAD_WAIT_LIMIT);
 
         PacketPtr packet;
 
         if (gotPacket) {
-            packet = stream->m_packets.dequeue();
+            packet = this->m_packets.dequeue();
 
             if (packet)
-                stream->m_packetQueueSize -= packet->size;
+                this->m_packetQueueSize -= packet->size;
         }
 
-        stream->m_packetMutex.unlock();
+        this->m_packetMutex.unlock();
 
         if (gotPacket) {
-            stream->processPacket(packet.data());
-            emit stream->notify();
+            this->processPacket(packet.data());
+            emit this->notify();
         }
 
         if (!packet)
-            stream->m_runPacketLoop = false;
+            this->m_runPacketLoop = false;
     }
 }
 
-void AbstractStream::dataLoop(AbstractStream *stream)
+void AbstractStream::dataLoop()
 {
-    switch (stream->mediaType()) {
+    switch (this->mediaType()) {
     case AVMEDIA_TYPE_VIDEO:
     case AVMEDIA_TYPE_AUDIO:
-        while (stream->m_runDataLoop) {
-            stream->m_dataMutex.lock();
+        while (this->m_runDataLoop) {
+            this->m_dataMutex.lock();
             bool gotFrame = true;
 
-            if (stream->m_frames.isEmpty())
-                gotFrame = stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
-                                                            THREAD_WAIT_LIMIT);
+            if (this->m_frames.isEmpty())
+                gotFrame = this->m_dataQueueNotEmpty.wait(&this->m_dataMutex,
+                                                          THREAD_WAIT_LIMIT);
 
             FramePtr frame;
 
             if (gotFrame) {
-                frame = stream->m_frames.dequeue();
+                frame = this->m_frames.dequeue();
 
-                if (stream->m_frames.size() < stream->m_maxData)
-                    stream->m_dataQueueNotFull.wakeAll();
+                if (this->m_frames.size() < this->m_maxData)
+                    this->m_dataQueueNotFull.wakeAll();
             }
 
-            stream->m_dataMutex.unlock();
+            this->m_dataMutex.unlock();
 
             if (gotFrame) {
                 if (frame)
-                    stream->processData(frame.data());
+                    this->processData(frame.data());
                 else {
-                    emit stream->eof();
-                    stream->m_runDataLoop = false;
+                    emit this->eof();
+                    this->m_runDataLoop = false;
                 }
             }
         }
 
         break;
     case AVMEDIA_TYPE_SUBTITLE:
-        while (stream->m_runDataLoop) {
-            stream->m_dataMutex.lock();
+        while (this->m_runDataLoop) {
+            this->m_dataMutex.lock();
             bool gotSubtitle = true;
 
-            if (stream->m_subtitles.isEmpty())
-                gotSubtitle = stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
-                                                               THREAD_WAIT_LIMIT);
+            if (this->m_subtitles.isEmpty())
+                gotSubtitle = this->m_dataQueueNotEmpty.wait(&this->m_dataMutex,
+                                                             THREAD_WAIT_LIMIT);
 
             SubtitlePtr subtitle;
 
             if (gotSubtitle) {
-                subtitle = stream->m_subtitles.dequeue();
+                subtitle = this->m_subtitles.dequeue();
 
-                if (stream->m_subtitles.size() < stream->m_maxData)
-                    stream->m_dataQueueNotFull.wakeAll();
+                if (this->m_subtitles.size() < this->m_maxData)
+                    this->m_dataQueueNotFull.wakeAll();
             }
 
-            stream->m_dataMutex.unlock();
+            this->m_dataMutex.unlock();
 
             if (gotSubtitle) {
                 if (subtitle)
-                    stream->processData(subtitle.data());
+                    this->processData(subtitle.data());
                 else {
-                    emit stream->eof();
-                    stream->m_runDataLoop = false;
+                    emit this->eof();
+                    this->m_runDataLoop = false;
                 }
             }
         }
@@ -344,7 +355,10 @@ void AbstractStream::setPaused(bool paused)
     if (paused)
         this->m_dataLoopResult.waitForFinished();
     else
-        this->m_dataLoopResult = QtConcurrent::run(&this->m_threadPool, this->dataLoop, this);
+        this->m_dataLoopResult =
+            QtConcurrent::run(&this->m_threadPool,
+                              this,
+                              &AbstractStream::dataLoop);
 
     this->m_paused = paused;
     emit this->pausedChanged(paused);
@@ -369,8 +383,14 @@ bool AbstractStream::init()
     this->m_clockDiff = 0;
     this->m_runPacketLoop = true;
     this->m_runDataLoop = true;
-    this->m_packetLoopResult = QtConcurrent::run(&this->m_threadPool, this->packetLoop, this);
-    this->m_dataLoopResult = QtConcurrent::run(&this->m_threadPool, this->dataLoop, this);
+    this->m_packetLoopResult =
+            QtConcurrent::run(&this->m_threadPool,
+                              this,
+                              &AbstractStream::packetLoop);
+    this->m_dataLoopResult =
+            QtConcurrent::run(&this->m_threadPool,
+                              this,
+                              &AbstractStream::dataLoop);
 
     return true;
 }
@@ -378,10 +398,10 @@ bool AbstractStream::init()
 void AbstractStream::uninit()
 {
     this->m_runPacketLoop = false;
-    this->m_packetLoopResult.waitForFinished();
+    waitLoop(this->m_packetLoopResult);
 
     this->m_runDataLoop = false;
-    this->m_dataLoopResult.waitForFinished();
+    waitLoop(this->m_dataLoopResult);
 
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);

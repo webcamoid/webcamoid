@@ -235,7 +235,7 @@ AkAudioCaps AudioDevOSS::deviceCaps(const QString &device, int *fragmentSize) co
     if (ioctl(pcmFile.handle(), SNDCTL_DSP_STEREO, &stereo) < 0)
         goto deviceCaps_fail;
 
-    static const QVector<int> preferredSampleRates{
+    static const QVector<int> preferredSampleRates {
         48000,
         44100,
         22050,

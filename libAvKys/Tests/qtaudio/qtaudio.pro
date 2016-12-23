@@ -16,15 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+SOURCES = \
+    test.cpp
 
-CONFIG += ordered
+CONFIG += qt
+QT += multimedia
 
-SUBDIRS = src
-CONFIG(config_alsa): SUBDIRS += src/alsa
-CONFIG(config_coreaudio): SUBDIRS += src/coreaudio
-CONFIG(config_jack): SUBDIRS += src/jack
-CONFIG(config_oss): SUBDIRS += src/oss
-CONFIG(config_pulseaudio): SUBDIRS += src/pulseaudio
-CONFIG(config_qtaudio): SUBDIRS += src/qtaudio
-CONFIG(config_wasapi): SUBDIRS += src/wasapi
+TARGET = test_auto

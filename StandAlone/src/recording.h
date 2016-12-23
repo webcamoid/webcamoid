@@ -27,6 +27,10 @@
 #include <QImage>
 #include <akelement.h>
 
+class Recording;
+
+typedef QSharedPointer<Recording> RecordingPtr;
+
 class Recording: public QObject
 {
     Q_OBJECT

@@ -41,7 +41,9 @@ LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-LIBS += -lole32 -lwinmm
+LIBS += \
+    -lole32 \
+    -lwinmm
 
 QT += qml
 

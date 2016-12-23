@@ -74,8 +74,8 @@ ColumnLayout {
         text: qsTr("Color table")
     }
     Rectangle {
+        height: 400
         Layout.fillWidth: true
-        Layout.fillHeight: true
         color: palette.base
 
         ScrollView {

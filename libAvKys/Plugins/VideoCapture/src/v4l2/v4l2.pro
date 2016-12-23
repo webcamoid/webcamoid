@@ -42,8 +42,10 @@ LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-CONFIG += link_pkgconfig
-PKGCONFIG += libv4l2
+!android {
+    CONFIG += link_pkgconfig
+    PKGCONFIG += libv4l2
+}
 
 QT += qml
 

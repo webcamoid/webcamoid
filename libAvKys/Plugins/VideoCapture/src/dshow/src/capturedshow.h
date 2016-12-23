@@ -24,6 +24,7 @@
 #include <QSize>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QAbstractNativeEventFilter>
 
 #include <ak.h>
 
@@ -52,7 +53,7 @@ __inline bool operator <(REFGUID guid1, REFGUID guid2)
     return guid1.Data1 < guid2.Data1;
 }
 
-class CaptureDShow: public Capture
+class CaptureDShow: public Capture, QAbstractNativeEventFilter
 {
     Q_OBJECT
 
@@ -84,6 +85,10 @@ class CaptureDShow: public Capture
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
+
+        bool nativeEventFilter(const QByteArray &eventType,
+                               void *message,
+                               long *result);
 
     private:
         QStringList m_webcams;
@@ -119,8 +124,6 @@ class CaptureDShow: public Capture
         PinPtr findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const;
         bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
-        bool createDeviceNotifier();
-        static LRESULT CALLBACK deviceEvents(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
         static void deleteUnknown(IUnknown *unknown);
         static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
         static void deletePin(IPin *pin);

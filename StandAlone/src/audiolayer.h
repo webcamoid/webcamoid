@@ -26,6 +26,10 @@
 #include <QQmlApplicationEngine>
 #include <akelement.h>
 
+class AudioLayer;
+
+typedef QSharedPointer<AudioLayer> AudioLayerPtr;
+
 class AudioLayer: public QObject
 {
     Q_OBJECT
