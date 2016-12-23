@@ -16,9 +16,13 @@ set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%
 
 echo Test point 2 %MINGW%
 
-if %QMAKESPEC% == "win32-g++" (
-    set PATH=%PATH%;%MINGW%\bin
-)
+rem  if %QMAKESPEC% == "win32-g++" (
+rem      set PATH=%PATH%;%MINGW%\bin
+rem  )
+
+set PATH=%PATH%;%MINGW%\bin
+
+echo Test point 3
 
 rem Installing FFmpeg dev
 
