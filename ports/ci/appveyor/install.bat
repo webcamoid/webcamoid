@@ -1,6 +1,3 @@
-echo The platform is "%PLATFORM%"
-echo QTDIR is %QTDIR%
-
 if "%PLATFORM%" == "x86" (
     set FF_ARCH=win32
     set GST_ARCH=x86
@@ -15,12 +12,18 @@ choco install -y curl 7zip InnoSetup
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin
 
+echo Test point 1 "%QMAKESPEC%"
+
 if "%QMAKESPEC%" == "win32-g++" ^
     set PATH=%PATH%;%MINGW%\bin
+
+echo Test point 2 "%PATH%"
 
 rem Installing FFmpeg dev
 
 set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
+
+echo Test point 3 "%FFMPEG_FILE%"
 
 if not exist %FFMPEG_FILE% ^
     curl -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_FILE%
