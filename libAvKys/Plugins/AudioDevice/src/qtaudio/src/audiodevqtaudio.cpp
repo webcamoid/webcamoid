@@ -60,7 +60,7 @@ QStringList AudioDevQtAudio::outputs()
     return this->m_sinks.values();
 }
 
-QString AudioDevQtAudio::AudioDevQtAudio::description(const QString &device)
+QString AudioDevQtAudio::description(const QString &device)
 {
     return this->m_pinDescriptionMap.value(device);
 }

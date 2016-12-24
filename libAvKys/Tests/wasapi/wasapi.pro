@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+CONFIG += console c++11
+
 SOURCES = \
     test.cpp
 

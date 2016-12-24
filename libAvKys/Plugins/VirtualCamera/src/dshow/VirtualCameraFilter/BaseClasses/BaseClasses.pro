@@ -122,7 +122,11 @@ LIBS += \
     -luuid \
     -lole32 \
     -loleaut32 \
+    -ladvapi32 \
+    -luser32 \
     -lwinmm \
     -lgdi32
 
-isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
+    win32-g++: QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+}

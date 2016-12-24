@@ -46,4 +46,6 @@ HEADERS =  \
     src/waitcondition.h \
     src/ipcbridge.h
 
-isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
+    win32-g++: QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+}

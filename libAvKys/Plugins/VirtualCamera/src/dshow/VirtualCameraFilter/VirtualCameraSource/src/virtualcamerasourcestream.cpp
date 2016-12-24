@@ -653,7 +653,7 @@ HRESULT VirtualCameraSourceStream::Set(LONG Property, LONG lValue, LONG Flags)
         m_gamma = lValue;
         break;
     case VideoProcAmp_ColorEnable:
-        m_colorEnable = lValue;
+        m_colorEnable = lValue != 0;
         break;
     default:
         return E_PROP_ID_UNSUPPORTED;

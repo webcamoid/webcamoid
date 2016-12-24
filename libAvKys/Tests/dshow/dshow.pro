@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+CONFIG += console c++11
+
 DEFINES += __STDC_CONSTANT_MACROS NO_DSHOW_STRSAFE
 
 LIBS += \

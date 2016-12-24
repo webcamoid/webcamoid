@@ -128,7 +128,9 @@ UI_DIR = $${COMMONS_BUILD_PATH}/ui
 
 win32 {
     CONFIG += skip_target_version_ext
-    !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+    !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0) {
+        win32-g++: QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+    }
 }
 macx: QT_CONFIG -= no-pkg-config
 

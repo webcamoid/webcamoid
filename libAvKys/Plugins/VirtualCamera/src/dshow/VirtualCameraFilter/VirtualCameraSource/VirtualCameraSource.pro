@@ -69,10 +69,12 @@ LIBS += \
     -luuid \
     -lole32 \
     -loleaut32 \
+    -ladvapi32 \
+    -luser32 \
     -lwinmm \
     -lgdi32 \
-    -lgdiplus \
-    -lksguid
+    -lgdiplus
+win32-g++: LIBS += -lksguid
 
 OTHER_FILES = \
     VirtualCameraSource.def \
@@ -81,7 +83,9 @@ OTHER_FILES = \
 DEF_FILE = VirtualCameraSource.def
 RC_FILE += VirtualCameraSource.rc
 
-isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0): QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+isEmpty(STATIC_BUILD) | isEqual(STATIC_BUILD, 0) {
+    win32-g++: QMAKE_LFLAGS = -static-libgcc -static-libstdc++
+}
 
 INSTALLS += target
 

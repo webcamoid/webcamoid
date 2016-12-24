@@ -21,10 +21,10 @@
 #define AUDIODEVWASAPI_H
 
 #include <akaudiocaps.h>
-#include <objbase.h>
-#include <initguid.h>
 #include <audioclient.h>
 #include <mmdeviceapi.h>
+#include <objbase.h>
+#include <initguid.h>
 #include <propkeydef.h>
 
 #include "audiodev.h"

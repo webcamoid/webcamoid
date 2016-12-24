@@ -103,10 +103,10 @@ AudioDevWasapi::AudioDevWasapi(QObject *parent):
     HRESULT hr;
 
     // Get device enumerator.
-    if (FAILED(hr = CoCreateInstance(CLSID_MMDeviceEnumerator,
+    if (FAILED(hr = CoCreateInstance(__uuidof(MMDeviceEnumerator),
                                      NULL,
                                      CLSCTX_ALL,
-                                     IID_IMMDeviceEnumerator,
+                                     __uuidof(IMMDeviceEnumerator),
                                      reinterpret_cast<void **>(&this->m_deviceEnumerator)))) {
         return;
     }
@@ -312,7 +312,7 @@ bool AudioDevWasapi::init(const QString &device,
     }
 
     // Get an instance for the audio client.
-    if (FAILED(hr = this->m_pDevice->Activate(IID_IAudioClient,
+    if (FAILED(hr = this->m_pDevice->Activate(__uuidof(IAudioClient),
                                               CLSCTX_ALL,
                                               NULL,
                                               reinterpret_cast<void **>(&this->m_pAudioClient)))) {
@@ -392,10 +392,10 @@ bool AudioDevWasapi::init(const QString &device,
 
     // Get audio capture/render client.
     if (this->inputs().contains(device))
-        hr = this->m_pAudioClient->GetService(IID_IAudioCaptureClient,
+        hr = this->m_pAudioClient->GetService(__uuidof(IAudioCaptureClient),
                                               reinterpret_cast<void **>(&this->m_pCaptureClient));
     else
-        hr = this->m_pAudioClient->GetService(IID_IAudioRenderClient,
+        hr = this->m_pAudioClient->GetService(__uuidof(IAudioRenderClient),
                                               reinterpret_cast<void **>(&this->m_pRenderClient));
 
     if (FAILED(hr)) {

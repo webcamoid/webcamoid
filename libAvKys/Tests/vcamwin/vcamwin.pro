@@ -16,7 +16,21 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+CONFIG += console c++11
+
 SOURCES = \
     test.cpp
+
+LIBS += \
+    -lstrmiids \
+    -luuid \
+    -lole32 \
+    -loleaut32 \
+    -ladvapi32 \
+    -luser32 \
+    -lwinmm \
+    -lgdi32 \
+    -lgdiplus
+win32-g++: LIBS += -lksguid
 
 TARGET = test_auto

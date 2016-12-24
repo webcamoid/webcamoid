@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+CONFIG += console c++11
+
 macx: QT_CONFIG -= no-pkg-config
 
 !isEmpty(GSTREAMERINCLUDES): INCLUDEPATH += $${GSTREAMERINCLUDES}

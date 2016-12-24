@@ -7,27 +7,81 @@ using std::max;
 
 #include <dshow.h>
 #include <driverspecs.h>
+#include <ks.h>
 #include <ksmedia.h>
 #include <initguid.h>
 
+#ifndef __inout_opt
 #define __inout_opt
+#endif
+
+#ifndef __deref_out
 #define __deref_out
+#endif
+
+#ifndef __deref_in
 #define __deref_in
+#endif
+
+#ifndef __deref_inout_opt
 #define __deref_inout_opt
+#endif
+
+#ifndef __in_opt
 #define __in_opt
+#endif
+
+#ifndef __out_opt
 #define __out_opt
+#endif
+
+#ifndef __deref_out_opt
 #define __deref_out_opt
+#endif
+
+#ifndef __out_ecount_part
 #define __out_ecount_part(size,length)
+#endif
+
+#ifndef __field_ecount_opt
 #define __field_ecount_opt(buffer)
+#endif
+
+#ifndef __in_bcount_opt
 #define __in_bcount_opt(size)
+#endif
+
+#ifndef __in_ecount_opt
 #define __in_ecount_opt(size)
+#endif
+
+#ifndef __inout_ecount_full
 #define __inout_ecount_full(size)
+#endif
+
+#ifndef __control_entrypoint
 #define __control_entrypoint(category)
+#endif
+
+#ifndef __success
 #define __success(expr)
+#endif
+
+#ifndef __format_string
 #define __format_string
+#endif
+
+#ifndef __deref_out_range
 #define __deref_out_range(x, y)
+#endif
+
+#ifndef __range
 #define __range(x, y)
+#endif
+
+#ifndef __out_range
 #define __out_range(x, y)
+#endif
 
 #ifndef _Deref_out_range_
 #define _Deref_out_range_(x, y)
