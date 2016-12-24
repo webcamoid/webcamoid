@@ -23,9 +23,11 @@
 #include <QObject>
 #include <QDebug>
 
+#include "akcommons.h"
+
 class AkFracPrivate;
 
-class AkFrac: public QObject
+class AKCOMMONS_EXPORT AkFrac: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int num

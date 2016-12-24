@@ -30,13 +30,15 @@ CONFIG += qt
 !isEmpty(STATIC_BUILD):!isEqual(STATIC_BUILD, 0): CONFIG += static
 
 DEFINES += \
-    COMMONS_LIBRARY \
+    QT_DEPRECATED_WARNINGS \
+    AKCOMMONS_LIBRARY \
     QT_INSTALL_QML=\"\\\"$$[QT_INSTALL_QML]\\\"\"
 
 HEADERS = \
     src/ak.h \
     src/akutils.h \
     src/akcaps.h \
+    src/akcommons.h \
     src/akelement.h \
     src/akfrac.h \
     src/akpacket.h \

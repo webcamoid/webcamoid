@@ -74,6 +74,13 @@ android-*-deployment-settings.json
 *.Debug
 *.Release
 
+# MSVC files #
+##############
+*.exp
+*.ilk
+*.lib
+*.pdb
+
 # Failed patch #
 ################
 *.orig

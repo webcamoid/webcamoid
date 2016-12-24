@@ -33,7 +33,7 @@ inline T AkNoPts()
     return T(0x1) << (sizeof(T) - 1);
 }
 
-class AkPacket: public QObject
+class AKCOMMONS_EXPORT AkPacket: public QObject
 {
     Q_OBJECT
     Q_PROPERTY(AkCaps caps

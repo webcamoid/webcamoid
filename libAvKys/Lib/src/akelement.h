@@ -39,7 +39,7 @@ class AkElementPrivate;
 typedef QSharedPointer<AkElement> AkElementPtr;
 
 /// Plugin template.
-class AkElement: public QObject
+class AKCOMMONS_EXPORT AkElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)

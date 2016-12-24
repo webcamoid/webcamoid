@@ -24,7 +24,7 @@
 
 class AkAudioCapsPrivate;
 
-class AkAudioCaps: public QObject
+class AKCOMMONS_EXPORT AkAudioCaps: public QObject
 {
     Q_OBJECT
     Q_ENUMS(SampleFormat)

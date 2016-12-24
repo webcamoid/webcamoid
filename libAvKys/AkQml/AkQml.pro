@@ -30,7 +30,6 @@ TEMPLATE = lib
 
 QT += qml quick
 CONFIG += qt plugin
-win32: CONFIG += skip_target_version_ext
 
 DESTDIR = $${PWD}
 

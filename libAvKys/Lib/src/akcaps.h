@@ -24,9 +24,11 @@
 #include <QDataStream>
 #include <QDebug>
 
+#include "akcommons.h"
+
 class AkCapsPrivate;
 
-class AkCaps: public QObject
+class AKCOMMONS_EXPORT AkCaps: public QObject
 {
     Q_OBJECT
     Q_ENUMS(CapsType)

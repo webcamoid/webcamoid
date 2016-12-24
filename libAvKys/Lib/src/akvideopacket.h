@@ -25,7 +25,7 @@
 
 class AkVideoPacketPrivate;
 
-class AkVideoPacket: public AkPacket
+class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
 {
     Q_OBJECT
     Q_PROPERTY(AkVideoCaps caps

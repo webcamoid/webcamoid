@@ -25,7 +25,7 @@
 
 class AkAudioPacketPrivate;
 
-class AkAudioPacket: public AkPacket
+class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
 {
     Q_OBJECT
     Q_PROPERTY(AkAudioCaps caps

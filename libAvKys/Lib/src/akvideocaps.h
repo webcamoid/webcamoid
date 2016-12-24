@@ -34,7 +34,7 @@ inline quint32 AkFourCC(quint32 a, quint32 b, quint32 c, quint32 d)
 
 class AkVideoCapsPrivate;
 
-class AkVideoCaps: public QObject
+class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 {
     Q_OBJECT
     Q_ENUMS(PixelFormat)

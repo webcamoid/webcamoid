@@ -27,7 +27,7 @@ class AkMultimediaSourceElementPrivate;
 
 typedef QSharedPointer<AkMultimediaSourceElement> AkMultimediaSourceElementPtr;
 
-class AkMultimediaSourceElement: public AkElement
+class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
 {
     Q_OBJECT
     Q_PROPERTY(QStringList medias
