@@ -26,12 +26,13 @@
 
 namespace AkUtils
 {
-    AkPacket imageToPacket(const QImage &image, const AkPacket &defaultPacket);
-    QImage packetToImage(const AkPacket &packet);
-    AkPacket roundSizeTo(const AkPacket &packet, int n);
-    AkVideoPacket convertVideo(const AkVideoPacket &packet,
-                          AkVideoCaps::PixelFormat format,
-                          const QSize &size=QSize());
+    AKCOMMONS_EXPORT AkPacket imageToPacket(const QImage &image,
+                                            const AkPacket &defaultPacket);
+    AKCOMMONS_EXPORT QImage packetToImage(const AkPacket &packet);
+    AKCOMMONS_EXPORT AkPacket roundSizeTo(const AkPacket &packet, int n);
+    AKCOMMONS_EXPORT AkVideoPacket convertVideo(const AkVideoPacket &packet,
+                                                AkVideoCaps::PixelFormat format,
+                                                const QSize &size=QSize());
 }
 
 #endif // AKUTILS_H

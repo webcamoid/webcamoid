@@ -25,11 +25,11 @@
 
 namespace Ak
 {
-    qint64 id();
-    void setQmlEngine(QQmlEngine *engine);
-    QString qmlPluginPath();
-    void setQmlPluginPath(const QString &qmlPluginPath);
-    void resetQmlPluginPath();
+    AKCOMMONS_EXPORT qint64 id();
+    AKCOMMONS_EXPORT void setQmlEngine(QQmlEngine *engine);
+    AKCOMMONS_EXPORT QString qmlPluginPath();
+    AKCOMMONS_EXPORT void setQmlPluginPath(const QString &qmlPluginPath);
+    AKCOMMONS_EXPORT void resetQmlPluginPath();
 }
 
 #endif // AK_H
