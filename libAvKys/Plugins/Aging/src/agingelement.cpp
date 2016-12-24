@@ -72,7 +72,7 @@ int AgingElement::nScratches() const
     return this->m_scratches.size();
 }
 
-int AgingElement::addDust() const
+bool AgingElement::addDust() const
 {
     return this->m_addDust;
 }
@@ -235,7 +235,7 @@ void AgingElement::setNScratches(int nScratches)
     emit this->nScratchesChanged(nScratches);
 }
 
-void AgingElement::setAddDust(int addDust)
+void AgingElement::setAddDust(bool addDust)
 {
     if (this->m_addDust == addDust)
         return;

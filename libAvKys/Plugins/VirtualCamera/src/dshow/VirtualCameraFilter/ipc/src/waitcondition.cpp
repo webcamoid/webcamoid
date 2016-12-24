@@ -17,8 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <windef.h>
-#include <winbase.h>
+#include <windows.h>
 
 #include "waitcondition.h"
 

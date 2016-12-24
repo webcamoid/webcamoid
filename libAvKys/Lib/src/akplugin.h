@@ -22,10 +22,12 @@
 
 #include <QtPlugin>
 
+#include "akcommons.h"
+
 #define AK_PLUGIN_TYPE_ELEMENT   "Ak.Element"
 #define AK_PLUGIN_TYPE_SUBMODULE "Ak.SubModule"
 
-class AkPlugin
+class AKCOMMONS_EXPORT AkPlugin
 {
     public:
         virtual ~AkPlugin();

@@ -24,6 +24,10 @@ environment:
     MAKETOOL: mingw32-make
 
   matrix:
+    - TOOLSDIR: C:\Qt\Tools\mingw482_32
+    - TOOLSDIR: C:\Qt\Tools\mingw491_32
+    - TOOLSDIR: C:\Qt\Tools\mingw492_32
+    - TOOLSDIR: C:\Qt\Tools\mingw530_32
     - QTDIR: C:\Qt\5.7\msvc2013
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2013
@@ -46,10 +50,6 @@ environment:
       QMAKESPEC: win32-msvc2015
       VSVER: 14
       MAKETOOL: jom
-    - TOOLSDIR: C:\Qt\Tools\mingw482_32
-    - TOOLSDIR: C:\Qt\Tools\mingw491_32
-    - TOOLSDIR: C:\Qt\Tools\mingw492_32
-    - TOOLSDIR: C:\Qt\Tools\mingw530_32
 
 install:
   - ports\ci\appveyor\install.bat

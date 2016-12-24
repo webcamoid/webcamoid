@@ -22,9 +22,7 @@
 
 #include <string>
 #include <cstdint>
-#include <windef.h>
-#include <winbase.h>
-#include <mmsystem.h>
+#include <windows.h>
 
 class IpcBridgePrivate;
 

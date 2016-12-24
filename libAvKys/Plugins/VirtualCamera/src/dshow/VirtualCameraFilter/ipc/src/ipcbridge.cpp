@@ -18,9 +18,7 @@
  */
 
 #include <vector>
-#include <synchapi.h>
-#include <memoryapi.h>
-#include <handleapi.h>
+#include <windows.h>
 #include <uuids.h>
 #include <ks.h>
 

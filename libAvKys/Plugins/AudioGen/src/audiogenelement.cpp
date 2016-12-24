@@ -161,10 +161,10 @@ void AudioGenElement::readFramesLoop(AudioGenElement *self)
             iBuffer.fill(0);
         } else if (self->m_waveType == WaveTypeWhiteNoise) {
             static std::default_random_engine engine;
-            static std::uniform_int_distribution<char> distribution(-128, 127);
+            static std::uniform_int_distribution<int> distribution(-128, 127);
 
             for (int i = 0; i < iBuffer.size(); i++)
-                iBuffer[i] = distribution(engine);
+                iBuffer[i] = char(distribution(engine));
         } else {
             qint32 ampMax = qint32(self->m_volume * std::numeric_limits<qint32>::max());
             qint32 ampMin = qint32(self->m_volume * std::numeric_limits<qint32>::min());
