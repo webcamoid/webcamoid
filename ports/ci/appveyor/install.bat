@@ -1,14 +1,18 @@
 if "%PLATFORM%" == "x86" (
     set FF_ARCH=win32
     set GST_ARCH=x86
+    set VC_ARGS=x86
 ) else (
     set FF_ARCH=win64
     set GST_ARCH=x86_64
+    set VC_ARGS=amd64
 )
 
 rem Installing various utilities
 
 choco install -y curl 7zip InnoSetup
+
+if not "%VSVER%" == "" call "C:\Program Files (x86)\Microsoft Visual Studio %VSVER%.0\VC\vcvarsall" %VC_ARGS%
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 

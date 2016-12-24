@@ -27,20 +27,24 @@ environment:
     - QTDIR: C:\Qt\5.7\msvc2013
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2013
+      VSVER: 12
       MAKETOOL: jom
     - PLATFORM: x64
       QTDIR: C:\Qt\5.7\msvc2013_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2013
+      VSVER: 12
       MAKETOOL: jom
     - QTDIR: C:\Qt\5.7\msvc2015
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2015
+      VSVER: 14
       MAKETOOL: jom
     - PLATFORM: x64
       QTDIR: C:\Qt\5.7\msvc2015_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc2015
+      VSVER: 14
       MAKETOOL: jom
     - TOOLSDIR: C:\Qt\Tools\mingw482_32
     - TOOLSDIR: C:\Qt\Tools\mingw491_32
