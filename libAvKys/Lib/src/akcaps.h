@@ -21,6 +21,7 @@
 #define AKCAPS_H
 
 #include <QObject>
+#include <QDataStream>
 #include <QDebug>
 
 class AkCapsPrivate;
