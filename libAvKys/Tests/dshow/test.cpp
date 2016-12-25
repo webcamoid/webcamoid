@@ -18,7 +18,6 @@
  */
 
 #include <dshow.h>
-#include <qedit.h>
 #include <dbt.h>
 #include <usbiodef.h>
 

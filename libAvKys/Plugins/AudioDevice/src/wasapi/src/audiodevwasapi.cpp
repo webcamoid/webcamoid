@@ -154,7 +154,7 @@ QStringList AudioDevWasapi::outputs()
     return this->m_outputs;
 }
 
-QString AudioDevWasapi::AudioDevWasapi::description(const QString &device)
+QString AudioDevWasapi::description(const QString &device)
 {
     if (!this->m_deviceEnumerator) {
         this->m_error = "Device enumerator not created.";

@@ -20,7 +20,6 @@
 #ifndef CAPTUREDSHOW_H
 #define CAPTUREDSHOW_H
 
-#include <sys/time.h>
 #include <QSize>
 #include <QMutex>
 #include <QWaitCondition>

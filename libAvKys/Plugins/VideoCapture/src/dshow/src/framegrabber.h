@@ -22,9 +22,10 @@
 
 #include <QObject>
 #include <dshow.h>
-#include <qedit.h>
 #include <dbt.h>
 #include <usbiodef.h>
+
+#include "samplegrabber.h"
 
 class FrameGrabber: public QObject, public ISampleGrabberCB
 {

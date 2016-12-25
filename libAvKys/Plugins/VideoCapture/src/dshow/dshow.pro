@@ -32,7 +32,8 @@ HEADERS = \
     src/plugin.h \
     src/capturedshow.h \
     src/framegrabber.h \
-    ../capture.h
+    ../capture.h \
+    src/samplegrabber.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \

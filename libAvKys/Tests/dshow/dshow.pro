@@ -24,11 +24,7 @@ LIBS += \
     -lstrmiids \
     -luuid \
     -lole32 \
-    -loleaut32 \
-    -lwinmm \
-    -lgdi32 \
-    -lgdiplus \
-    -lksguid
+    -loleaut32
 
 SOURCES = \
     test.cpp

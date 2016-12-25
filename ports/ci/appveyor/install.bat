@@ -47,10 +47,10 @@ set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\%GST_ARCH%
 rem Copy necessary libraries to an alternative path to avoid conflicts with
 rem Qt's MinGW system libraries
 
-xcopy %GSTREAMER_DEV_PATH%\lib\libgobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-xcopy %GSTREAMER_DEV_PATH%\lib\libglib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-xcopy %GSTREAMER_DEV_PATH%\lib\libgstreamer-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-xcopy %GSTREAMER_DEV_PATH%\lib\libgstapp-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-xcopy %GSTREAMER_DEV_PATH%\lib\libgstpbutils-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-xcopy %GSTREAMER_DEV_PATH%\lib\libgstaudio-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-xcopy %GSTREAMER_DEV_PATH%\lib\libgstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*gobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*glib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*gstreamer-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*gstapp-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*gstpbutils-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*gstaudio-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
+xcopy %GSTREAMER_DEV_PATH%\lib\*gstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y

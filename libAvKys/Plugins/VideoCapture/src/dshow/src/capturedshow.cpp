@@ -18,6 +18,7 @@
  */
 
 #include <QCoreApplication>
+#include <QDateTime>
 
 #include "capturedshow.h"
 
@@ -430,12 +431,11 @@ AkPacket CaptureDShow::readFrame()
 
     AkPacket packet;
 
-    timeval timestamp;
-    gettimeofday(&timestamp, NULL);
+    auto timestamp = QDateTime::currentMSecsSinceEpoch();
 
-    qint64 pts = qint64((timestamp.tv_sec
-                         + 1e-6 * timestamp.tv_usec)
-                        * this->m_timeBase.invert().value());
+    qint64 pts = qint64(timestamp
+                        * this->m_timeBase.invert().value()
+                        / 1e3);
 
     if (this->m_ioMethod != IoMethodDirectRead) {
         this->m_mutex.lock();
