@@ -1,0 +1,26 @@
+<RCC>
+    <qresource prefix="/FaceDetect">
+        <file>share/haarcascades/haarcascade_eye.xml</file>
+        <file>share/haarcascades/haarcascade_eye_tree_eyeglasses.xml</file>
+        <file>share/haarcascades/haarcascade_frontalface_alt.xml</file>
+        <file>share/haarcascades/haarcascade_frontalface_alt2.xml</file>
+        <file>share/haarcascades/haarcascade_frontalface_alt_tree.xml</file>
+        <file>share/haarcascades/haarcascade_frontalface_default.xml</file>
+        <file>share/haarcascades/haarcascade_fullbody.xml</file>
+        <file>share/haarcascades/haarcascade_lefteye_2splits.xml</file>
+        <file>share/haarcascades/haarcascade_lowerbody.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_eyepair_big.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_eyepair_small.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_leftear.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_lefteye.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_mouth.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_nose.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_rightear.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_righteye.xml</file>
+        <file>share/haarcascades/haarcascade_mcs_upperbody.xml</file>
+        <file>share/haarcascades/haarcascade_profileface.xml</file>
+        <file>share/haarcascades/haarcascade_righteye_2splits.xml</file>
+        <file>share/haarcascades/haarcascade_smile.xml</file>
+        <file>share/haarcascades/haarcascade_upperbody.xml</file>
+    </qresource>
+</RCC>

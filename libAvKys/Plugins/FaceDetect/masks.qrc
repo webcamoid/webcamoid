@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/FaceDetect">
+        <file>share/masks/angel.png</file>
+        <file>share/masks/bear.png</file>
+        <file>share/masks/beaver.png</file>
+        <file>share/masks/cat.png</file>
+        <file>share/masks/chicken.png</file>
+        <file>share/masks/cow.png</file>
+        <file>share/masks/devil.png</file>
+        <file>share/masks/dog-dalmatian.png</file>
+        <file>share/masks/dog-happy.png</file>
+        <file>share/masks/dog.png</file>
+        <file>share/masks/dragon.png</file>
+        <file>share/masks/elephant1.png</file>
+        <file>share/masks/elephant2.png</file>
+        <file>share/masks/elk.png</file>
+        <file>share/masks/frog.png</file>
+        <file>share/masks/ghost.png</file>
+        <file>share/masks/giraffe.png</file>
+        <file>share/masks/gnu.png</file>
+        <file>share/masks/goat.png</file>
+        <file>share/masks/hippo.png</file>
+        <file>share/masks/horse-gray.png</file>
+        <file>share/masks/horse.png</file>
+        <file>share/masks/koala.png</file>
+        <file>share/masks/monkey.png</file>
+        <file>share/masks/mouse-gray.png</file>
+        <file>share/masks/mouse-white.png</file>
+        <file>share/masks/panda.png</file>
+        <file>share/masks/penguin.png</file>
+        <file>share/masks/pumpkin1.png</file>
+        <file>share/masks/pumpkin2.png</file>
+        <file>share/masks/raccoon.png</file>
+        <file>share/masks/rhino.png</file>
+        <file>share/masks/sheep.png</file>
+        <file>share/masks/skull1.png</file>
+        <file>share/masks/skull2.png</file>
+        <file>share/masks/triceratops.png</file>
+        <file>share/masks/zebra.png</file>
+    </qresource>
+</RCC>

@@ -47,7 +47,8 @@ LIBS += \
     -lstrmiids \
     -luuid \
     -lole32 \
-    -loleaut32
+    -loleaut32 \
+    -lshell32
 
 QT += qml
 

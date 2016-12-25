@@ -48,6 +48,8 @@ QT += qml widgets concurrent
 
 RESOURCES += \
     FaceDetect.qrc \
+    haarcascades.qrc \
+    masks.qrc \
     translations.qrc
 
 SOURCES = \
