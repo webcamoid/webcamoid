@@ -36,7 +36,7 @@
     <message>
         <location filename="../qml/About.qml" line="72"/>
         <source>Using Qt %1 with %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendung von Qt "% 1" mit %2</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="104"/>
