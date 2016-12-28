@@ -39,6 +39,11 @@
         <translation>Webseite</translation>
     </message>
     <message>
+        <location filename="../qml/About.qml" line="72"/>
+        <source>Using Qt %1 with %2</source>
+        <translation>Verwendung von Qt "% 1" mit %2</translation>
+    </message>
+    <message>
         <location filename="../qml/About.qml" line="104"/>
         <source>License</source>
         <translation>Lizenz</translation>
