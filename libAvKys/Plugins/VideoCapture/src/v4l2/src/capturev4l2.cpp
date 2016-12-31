@@ -305,8 +305,8 @@ bool CaptureV4L2::setImageControls(const QVariantMap &imageControls)
     QVariantMap imageControlsDiff;
 
     for (const QVariant &control: this->imageControls()) {
-        QVariantList params = control.toList();
-        QString ctrlName = params[0].toString();
+        auto params = control.toList();
+        auto ctrlName = params[0].toString();
 
         if (imageControls.contains(ctrlName)
             && imageControls[ctrlName] != params[6]) {
@@ -322,7 +322,7 @@ bool CaptureV4L2::setImageControls(const QVariantMap &imageControls)
     if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
         return false;
 
-    QMap<QString, uint> ctrl2id = this->findControls(device.handle(), V4L2_CTRL_CLASS_USER);
+    auto ctrl2id = this->findControls(device.handle(), V4L2_CTRL_CLASS_USER);
     QVector<v4l2_ext_control> mpegCtrls;
     QVector<v4l2_ext_control> userCtrls;
 
@@ -384,8 +384,8 @@ bool CaptureV4L2::setCameraControls(const QVariantMap &cameraControls)
     QVariantMap cameraControlsDiff;
 
     for (const QVariant &control: this->cameraControls()) {
-        QVariantList params = control.toList();
-        QString ctrlName = params[0].toString();
+        auto params = control.toList();
+        auto ctrlName = params[0].toString();
 
         if (cameraControls.contains(ctrlName)
             && cameraControls[ctrlName] != params[6]) {
@@ -401,7 +401,7 @@ bool CaptureV4L2::setCameraControls(const QVariantMap &cameraControls)
     if (!device.open(QIODevice::ReadWrite | QIODevice::Unbuffered))
         return false;
 
-    QMap<QString, uint> ctrl2id = this->findControls(device.handle(), V4L2_CTRL_CLASS_CAMERA);
+    auto ctrl2id = this->findControls(device.handle(), V4L2_CTRL_CLASS_CAMERA);
     QVector<v4l2_ext_control> mpegCtrls;
     QVector<v4l2_ext_control> userCtrls;
 

@@ -57,6 +57,17 @@ inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
+template <typename T>
+inline void waitLoop(const QFuture<T> &loop)
+{
+    while (!loop.isFinished()) {
+        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+        if (eventDispatcher)
+            eventDispatcher->processEvents(QEventLoop::AllEvents);
+    }
+}
+
 VideoCaptureElement::VideoCaptureElement():
     AkMultimediaSourceElement(),
     m_convertVideo(ptr_init<ConvertVideo>()),
@@ -367,7 +378,7 @@ void VideoCaptureElement::resetCaptureLib()
 
 void VideoCaptureElement::reset()
 {
-    this->m_capture.reset();
+    this->m_capture->reset();
 }
 
 bool VideoCaptureElement::setState(AkElement::ElementState state)
@@ -402,7 +413,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
         case AkElement::ElementStateNull:
             this->m_pause = false;
             this->m_runCameraLoop = false;
-            this->m_cameraLoopResult.waitForFinished();
+            waitLoop(this->m_cameraLoopResult);
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
@@ -419,7 +430,7 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull: {
             this->m_runCameraLoop = false;
-            this->m_cameraLoopResult.waitForFinished();
+            waitLoop(this->m_cameraLoopResult);
 
             return AkElement::setState(state);
         }
@@ -487,6 +498,8 @@ void VideoCaptureElement::captureLibUpdated(const QString &captureLib)
     this->m_capture =
             ptr_init<Capture>(this->loadSubModule("VideoCapture", captureLib));
 
+    this->m_mutexLib.unlock();
+
     QObject::connect(this->m_capture.data(),
                      &Capture::error,
                      this,
@@ -512,8 +525,7 @@ void VideoCaptureElement::captureLibUpdated(const QString &captureLib)
                      this,
                      &VideoCaptureElement::streamsChanged);
 
-    this->m_mutexLib.unlock();
-
+    emit this->mediasChanged(this->medias());
     emit this->streamsChanged(this->streams());
 
     this->setState(state);

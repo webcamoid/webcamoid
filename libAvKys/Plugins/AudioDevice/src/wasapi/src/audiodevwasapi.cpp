@@ -350,8 +350,8 @@ bool AudioDevWasapi::init(const QString &device,
     wfx.nChannels = WORD(caps.channels());
     wfx.nSamplesPerSec = DWORD(caps.rate());
     wfx.wBitsPerSample = WORD(caps.bps());
-    wfx.nBlockAlign = WORD(caps.channels() * caps.bps() / 8);
-    wfx.nAvgBytesPerSec = DWORD(caps.rate() * wfx.nBlockAlign);
+    wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
+    wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
     wfx.cbSize = 0;
 
     this->m_curCaps = caps;

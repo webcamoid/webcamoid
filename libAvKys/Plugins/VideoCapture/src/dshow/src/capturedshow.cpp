@@ -584,7 +584,7 @@ MonikersMap CaptureDShow::listMonikers() const
         IMoniker *pMoniker = NULL;
 
         for (int i = 0; pEnum->Next(1, &pMoniker, NULL) == S_OK; i++) {
-            IPropertyBag *pPropBag;
+            IPropertyBag *pPropBag = NULL;
             HRESULT hr = pMoniker->BindToStorage(0,
                                                  0,
                                                  IID_IPropertyBag,
