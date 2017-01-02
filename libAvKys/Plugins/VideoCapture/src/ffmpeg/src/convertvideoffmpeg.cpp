@@ -144,6 +144,10 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     this->m_id = -1;
     this->m_lastPts = 0;
     this->m_showLog = false;
+
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_QUIET);
+#endif
 }
 
 ConvertVideoFFmpeg::~ConvertVideoFFmpeg()

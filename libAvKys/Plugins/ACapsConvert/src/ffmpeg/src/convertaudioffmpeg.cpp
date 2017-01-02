@@ -37,6 +37,10 @@ ConvertAudioFFmpeg::ConvertAudioFFmpeg(QObject *parent):
     ConvertAudio(parent)
 {
     this->m_resampleContext = NULL;
+
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_QUIET);
+#endif
 }
 
 ConvertAudioFFmpeg::~ConvertAudioFFmpeg()

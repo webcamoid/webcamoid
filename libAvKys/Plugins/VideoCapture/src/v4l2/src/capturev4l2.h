@@ -20,21 +20,39 @@
 #ifndef CAPTUREV4L2_H
 #define CAPTUREV4L2_H
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/time.h>
+#include <fcntl.h>
 #include <linux/videodev2.h>
 #include <QFileSystemWatcher>
 #include <QDir>
 #include <QSize>
+#include <ak.h>
 
 #include <ak.h>
 
 #include "capture.h"
 #include "capturebuffer.h"
+
+#ifdef HAVE_V4LUTILS
+#include <libv4l2.h>
+
+#define x_ioctl v4l2_ioctl
+#define x_open v4l2_open
+#define x_close v4l2_close
+#define x_read v4l2_read
+#define x_mmap v4l2_mmap
+#define x_munmap v4l2_munmap
+#else
+#include <unistd.h>
+#include <sys/ioctl.h>
+
+#define x_ioctl ioctl
+#define x_open open
+#define x_close close
+#define x_read read
+#define x_mmap mmap
+#define x_munmap munmap
+#endif
 
 class CaptureV4L2: public Capture
 {
@@ -70,13 +88,17 @@ class CaptureV4L2: public Capture
         Q_INVOKABLE AkPacket readFrame();
 
     private:
-        QStringList m_webcams;
         QString m_device;
         QList<int> m_streams;
+        QStringList m_devices;
+        QMap<QString, QString> m_descriptions;
+        QMap<QString, QVariantList> m_devicesCaps;
+        QMap<QString, QVariantList> m_imageControls;
+        QMap<QString, QVariantList> m_cameraControls;
         IoMethod m_ioMethod;
         int m_nBuffers;
         QFileSystemWatcher *m_fsWatcher;
-        QFile m_deviceFile;
+        int m_fd;
         AkFrac m_fps;
         AkFrac m_timeBase;
         AkCaps m_caps;
@@ -89,7 +111,8 @@ class CaptureV4L2: public Capture
                                          __u32 height) const;
         AkFrac fps(int fd) const;
         void setFps(int fd, const AkFrac &fps);
-        QVariantList controls(const QString &webcam, quint32 controlClass) const;
+        QVariantList controls(int fd, quint32 controlClass) const;
+        bool setControls(int fd, quint32 controlClass, const QVariantMap &controls) const;
         QVariantList queryControl(int handle, quint32 controlClass, v4l2_queryctrl *queryctrl) const;
         QMap<QString, quint32> findControls(int handle, quint32 controlClass) const;
         bool initReadWrite(quint32 bufferSize);
@@ -120,7 +143,7 @@ class CaptureV4L2: public Capture
             int r = -1;
 
             forever {
-                r = ioctl(fd, request, arg);
+                r = x_ioctl(fd, request, arg);
 
                 if (r != -1 || errno != EINTR)
                     break;
@@ -129,11 +152,11 @@ class CaptureV4L2: public Capture
             return r;
         }
 
-        inline AkPacket processFrame(char *buffer, size_t bufferSize, qint64 pts) const
+        inline AkPacket processFrame(const char *buffer,
+                                     size_t bufferSize,
+                                     qint64 pts) const
         {
-            QByteArray oBuffer(int(bufferSize), Qt::Uninitialized);
-            memcpy(oBuffer.data(), buffer, bufferSize);
-
+            QByteArray oBuffer(buffer, int(bufferSize));
             AkPacket oPacket(this->m_caps, oBuffer);
 
             oPacket.setPts(pts);
@@ -158,6 +181,7 @@ class CaptureV4L2: public Capture
         void reset();
 
     private slots:
+        void updateDevices();
         void onDirectoryChanged(const QString &path);
         void onFileChanged(const QString &fileName);
 };

@@ -42,7 +42,9 @@ LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-!android {
+CONFIG(config_v4lutils) {
+    DEFINES += HAVE_V4LUTILS
+
     CONFIG += link_pkgconfig
     PKGCONFIG += libv4l2
 }

@@ -152,7 +152,9 @@ inline PixFmtToUvcMap initPixFmtToUvcMap()
         {"BGR3", UVC_FRAME_FORMAT_BGR  },
         {"MJPG", UVC_FRAME_FORMAT_MJPEG},
         {"Y800", UVC_FRAME_FORMAT_GRAY8},
-        {"BY8 ", UVC_FRAME_FORMAT_BY8  }
+#ifdef UVC_FRAME_FORMAT_BY8
+        {"BY8 ", UVC_FRAME_FORMAT_BY8  },
+#endif
     };
 
     return fourccToUvc;
@@ -848,7 +850,7 @@ void CaptureLibUVC::setNBuffers(int nBuffers)
 
 void CaptureLibUVC::resetDevice()
 {
-    this->setDevice(this->m_webcams.value(0, ""));
+    this->setDevice("");
 }
 
 void CaptureLibUVC::resetStreams()

@@ -25,6 +25,10 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
     this->m_scaleContext = NULL;
+
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_QUIET);
+#endif
 }
 
 ConvertVideoFFmpeg::~ConvertVideoFFmpeg()

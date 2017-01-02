@@ -17,12 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <libusb.h>
-#include <libuvc/libuvc.h>
+#include <libv4l2.h>
 
 int main()
 {
-    uvc_get_format_descs(NULL);
-
     return 0;
 }

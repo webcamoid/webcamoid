@@ -57,6 +57,10 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
     this->m_showLog = false;
     this->m_curState = AkElement::ElementStateNull;
     this->m_curClockTime = 0.;
+
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_QUIET);
+#endif
 }
 
 MediaSourceFFmpeg::~MediaSourceFFmpeg()

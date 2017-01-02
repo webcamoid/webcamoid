@@ -60,6 +60,7 @@ qtCompileTest(oss)
 qtCompileTest(pulseaudio)
 qtCompileTest(qtaudio)
 qtCompileTest(v4l2)
+qtCompileTest(v4lutils)
 qtCompileTest(vcamwin)
 qtCompileTest(wasapi)
 

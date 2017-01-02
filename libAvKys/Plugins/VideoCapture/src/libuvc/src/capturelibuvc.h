@@ -76,7 +76,6 @@ class CaptureLibUVC: public Capture
         Q_INVOKABLE AkPacket readFrame();
 
     private:
-        QStringList m_webcams;
         QString m_device;
         QList<int> m_streams;
         QMap<quint32, QString> m_devices;

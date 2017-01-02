@@ -203,6 +203,10 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     avcodec_register_all();
     avformat_network_init();
 
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_QUIET);
+#endif
+
     this->m_formatContext = NULL;
     this->m_packetQueueSize = 0;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
