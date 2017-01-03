@@ -528,5 +528,10 @@ void VideoCaptureElement::captureLibUpdated(const QString &captureLib)
     emit this->mediasChanged(this->medias());
     emit this->streamsChanged(this->streams());
 
+    auto medias = this->medias();
+
+    if (!medias.isEmpty())
+        this->setMedia(medias.first());
+
     this->setState(state);
 }

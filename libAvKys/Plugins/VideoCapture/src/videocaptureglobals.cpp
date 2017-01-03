@@ -38,7 +38,6 @@ VideoCaptureGlobals::VideoCaptureGlobals(QObject *parent):
         "libuvc",
 #else
         "v4l2",
-        "v4l2conv",
         "libuvc",
 #endif
     };

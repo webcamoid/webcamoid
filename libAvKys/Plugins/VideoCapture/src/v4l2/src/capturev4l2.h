@@ -24,10 +24,6 @@
 #include <fcntl.h>
 #include <linux/videodev2.h>
 #include <QFileSystemWatcher>
-#include <QDir>
-#include <QSize>
-#include <ak.h>
-
 #include <ak.h>
 
 #include "capture.h"

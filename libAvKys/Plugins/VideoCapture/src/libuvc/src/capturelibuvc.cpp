@@ -140,7 +140,6 @@ class UvcControl
         }
 };
 
-
 typedef QMap<QString, uvc_frame_format> PixFmtToUvcMap;
 
 inline PixFmtToUvcMap initPixFmtToUvcMap()

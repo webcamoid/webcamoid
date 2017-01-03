@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDir>
+
 #include "capturev4l2.h"
 
 typedef QMap<v4l2_ctrl_type, QString> V4l2CtrlTypeMap;
