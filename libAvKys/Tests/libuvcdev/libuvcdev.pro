@@ -16,31 +16,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../../../commons.pri) {
-        include(../../../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+CONFIG += console c++11
 
-CONFIG += plugin
+macx: QT_CONFIG -= no-pkg-config
 
-HEADERS = \
-    src/plugin.h \
-    src/capturelibuvc.h \
-    ../capture.h \
-    src/usbids.h
-
-INCLUDEPATH += \
-    ../../../../Lib/src \
-    ../
-
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
+SOURCES = \
+    test.cpp
 
 !isEmpty(LIBUSBINCLUDES): INCLUDEPATH += $${LIBUSBINCLUDES}
 !isEmpty(LIBUSBLIBS): LIBS += $${LIBUSBLIBS}
@@ -57,23 +38,4 @@ isEmpty(LIBUVCLIBS) {
     LIBS += -luvc
 }
 
-CONFIG(config_libuvcdev): DEFINES += HAVE_LIBUVCDEV
-
-QT += qml concurrent
-
-RESOURCES = \
-    libuvc.qrc
-
-SOURCES = \
-    src/plugin.cpp \
-    src/capturelibuvc.cpp \
-    ../capture.cpp \
-    src/usbids.cpp
-
-DESTDIR = $${PWD}/../../submodules/VideoCapture
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VideoCapture
+TARGET = test_auto

@@ -928,6 +928,7 @@ void CaptureLibUVC::updateDevices()
             }
         }
 
+#ifdef HAVE_LIBUVCDEV
         auto formatDescription = uvc_get_format_descs(deviceHnd);
 
         if (!formatDescription) {
@@ -940,6 +941,7 @@ void CaptureLibUVC::updateDevices()
 
             continue;
         }
+#endif
 
         auto description =
                 usbIds->description(descriptor->idVendor, descriptor->idProduct);
@@ -967,6 +969,7 @@ void CaptureLibUVC::updateDevices()
         AkCaps videoCaps;
         videoCaps.setMimeType("video/unknown");
 
+#ifdef HAVE_LIBUVCDEV
         for (; formatDescription; formatDescription = formatDescription->next) {
             auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
 
@@ -1019,6 +1022,15 @@ void CaptureLibUVC::updateDevices()
                 }
             }
         }
+#else
+        // This is just a guess, most webcams supports this format.
+        videoCaps.setProperty("fourcc", "YUY2");
+        videoCaps.setProperty("width", 640);
+        videoCaps.setProperty("height", 480);
+        videoCaps.setProperty("fps", "30/1");
+
+        devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+#endif
 
         QVariantList deviceControls;
 
