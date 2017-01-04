@@ -32,7 +32,8 @@ HEADERS = \
     src/plugin.h \
     src/capturelibuvc.h \
     ../capture.h \
-    src/usbids.h
+    src/usbids.h \
+    src/usbglobals.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \
@@ -68,7 +69,8 @@ SOURCES = \
     src/plugin.cpp \
     src/capturelibuvc.cpp \
     ../capture.cpp \
-    src/usbids.cpp
+    src/usbids.cpp \
+    src/usbglobals.cpp
 
 DESTDIR = $${PWD}/../../submodules/VideoCapture
 

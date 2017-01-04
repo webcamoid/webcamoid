@@ -18,6 +18,7 @@
  */
 
 #include "capturelibuvc.h"
+#include "usbglobals.h"
 #include "usbids.h"
 
 Q_GLOBAL_STATIC(UsbIds, usbIds)
@@ -140,6 +141,8 @@ class UvcControl
         }
 };
 
+Q_GLOBAL_STATIC(UsbGlobals, usbGlobals)
+
 typedef QMap<QString, uvc_frame_format> PixFmtToUvcMap;
 
 inline PixFmtToUvcMap initPixFmtToUvcMap()
@@ -161,25 +164,56 @@ inline PixFmtToUvcMap initPixFmtToUvcMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(PixFmtToUvcMap, fourccToUvc, (initPixFmtToUvcMap()))
 
+#ifndef HAVE_LIBUVCDEV
+
+typedef QVector<QSize> SupportedResolutions;
+
+inline SupportedResolutions initSupportedResolutions()
+{
+    QVector<QSize> supportedResolutions {
+        { 640,  480},
+        { 160,   90},
+        { 160,  120},
+        { 176,  144},
+        { 320,  180},
+        { 320,  240},
+        { 352,  288},
+        { 640,  360},
+        { 800,  448},
+        { 800,  600},
+        { 864,  480},
+        { 960,  720},
+        {1024,  576},
+        {1280,  720},
+        {1600,  896},
+        {1920, 1080},
+        {2304, 1296},
+        {2304, 1536},
+    };
+
+    return supportedResolutions;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(SupportedResolutions, supportedResolutions, (initSupportedResolutions()))
+
+typedef QVector<int> SupportedFrameRates;
+
+inline SupportedFrameRates initSupportedFrameRates()
+{
+    return QVector<int> {30, 24, 20, 15, 10, 5, 2, 1};
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(SupportedFrameRates, supportedFrameRates, (initSupportedFrameRates()))
+
+#endif
+
 CaptureLibUVC::CaptureLibUVC(QObject *parent):
     Capture(parent),
-    m_usbContext(NULL),
     m_uvcContext(NULL),
     m_deviceHnd(NULL),
-    m_hotplugCallbackHnd(0),
-    m_processsUsbEventsLoop(false),
-    m_updateDevices(false),
     m_id(-1)
 {
-    auto usbError = libusb_init(&this->m_usbContext);
-
-    if (usbError != LIBUSB_SUCCESS) {
-        qDebug() << "CaptureLibUVC:" << libusb_strerror(libusb_error(usbError));
-
-        return;
-    }
-
-    auto uvcError = uvc_init(&this->m_uvcContext, this->m_usbContext);
+    auto uvcError = uvc_init(&this->m_uvcContext, usbGlobals->context());
 
     if (uvcError != UVC_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << uvc_strerror(uvcError);
@@ -187,53 +221,18 @@ CaptureLibUVC::CaptureLibUVC(QObject *parent):
         return;
     }
 
-    if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
-        usbError = libusb_hotplug_register_callback(this->m_usbContext,
-                                                    libusb_hotplug_event(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED
-                                                                         | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
-                                                    LIBUSB_HOTPLUG_ENUMERATE,
-                                                    LIBUSB_HOTPLUG_MATCH_ANY,
-                                                    LIBUSB_HOTPLUG_MATCH_ANY,
-                                                    LIBUSB_HOTPLUG_MATCH_ANY,
-                                                    this->hotplugCallback,
-                                                    this,
-                                                    &this->m_hotplugCallbackHnd);
-
-        if (usbError != LIBUSB_SUCCESS)
-            qDebug() << "CaptureLibUVC:" << libusb_strerror(libusb_error(usbError));
-
-        this->m_processsUsbEventsLoop = true;
-        this->m_processsUsbEvents =
-                QtConcurrent::run(&this->m_threadPool,
-                                  [this] () {
-                                        while (this->m_processsUsbEventsLoop) {
-                                            timeval tv {0, 500000};
-                                            libusb_handle_events_timeout_completed(this->m_usbContext,
-                                                                                   &tv, NULL);
-                                        }
-                                  });
-    }
-
-    this->m_updateDevices = true;
+    QObject::connect(usbGlobals,
+                     &UsbGlobals::devicesUpdated,
+                     this,
+                     &CaptureLibUVC::updateDevices);
 
     this->updateDevices();
 }
 
 CaptureLibUVC::~CaptureLibUVC()
 {
-    if (libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG)) {
-        this->m_processsUsbEventsLoop = false;
-        waitLoop(this->m_processsUsbEvents);
-
-        libusb_hotplug_deregister_callback(this->m_usbContext,
-                                           this->m_hotplugCallbackHnd);
-    }
-
     if (this->m_uvcContext)
         uvc_exit(this->m_uvcContext);
-
-    if (this->m_usbContext)
-        libusb_exit(this->m_usbContext);
 }
 
 QStringList CaptureLibUVC::webcams() const
@@ -650,23 +649,6 @@ void CaptureLibUVC::setControls(uvc_device_handle_t *deviceHnd,
     }
 }
 
-int CaptureLibUVC::hotplugCallback(libusb_context *context,
-                                   libusb_device *device,
-                                   libusb_hotplug_event event,
-                                   void *userData)
-{
-    Q_UNUSED(context)
-    Q_UNUSED(device)
-    Q_UNUSED(event)
-
-    auto self = reinterpret_cast<CaptureLibUVC *>(userData);
-
-    if (self->m_updateDevices)
-        QMetaObject::invokeMethod(self, "updateDevices");
-
-    return 0;
-}
-
 void CaptureLibUVC::frameCallback(uvc_frame *frame, void *userData)
 {
     if (!frame || !userData)
@@ -1023,13 +1005,30 @@ void CaptureLibUVC::updateDevices()
             }
         }
 #else
-        // This is just a guess, most webcams supports this format.
-        videoCaps.setProperty("fourcc", "YUY2");
-        videoCaps.setProperty("width", 640);
-        videoCaps.setProperty("height", 480);
-        videoCaps.setProperty("fps", "30/1");
+        for (auto &format: fourccToUvc->values()) {
+            for (const auto &resolution: *supportedResolutions) {
+                for (auto &fps: *supportedFrameRates) {
+                    uvc_stream_ctrl_t streamCtrl;
+                    error = uvc_get_stream_ctrl_format_size(deviceHnd,
+                                                            &streamCtrl,
+                                                            format,
+                                                            resolution.width(),
+                                                            resolution.height(),
+                                                            fps);
 
-        devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                    if (error != UVC_SUCCESS)
+                        continue;
+
+                    // This is just a guess, most webcams supports this format.
+                    videoCaps.setProperty("fourcc", fourccToUvc->key(format));
+                    videoCaps.setProperty("width", resolution.width());
+                    videoCaps.setProperty("height", resolution.height());
+                    videoCaps.setProperty("fps", QString("%1/1").arg(fps));
+
+                    devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+                }
+            }
+        }
 #endif
 
         QVariantList deviceControls;

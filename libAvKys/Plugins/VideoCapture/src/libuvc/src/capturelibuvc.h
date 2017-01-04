@@ -21,7 +21,6 @@
 #define CAPTURELIBUVC_H
 
 #include <QtConcurrent>
-#include <libusb.h>
 #include <libuvc/libuvc.h>
 #include <ak.h>
 
@@ -85,16 +84,11 @@ class CaptureLibUVC: public Capture
         QMap<QString, QVariantList> m_cameraControls;
         QString m_curDevice;
         AkPacket m_curPacket;
-        libusb_context *m_usbContext;
         uvc_context_t *m_uvcContext;
         uvc_device_handle_t *m_deviceHnd;
-        libusb_hotplug_callback_handle m_hotplugCallbackHnd;
         QThreadPool m_threadPool;
         QWaitCondition m_packetNotReady;
-        QFuture<void> m_processsUsbEvents;
         QMutex m_mutex;
-        bool m_processsUsbEventsLoop;
-        bool m_updateDevices;
         qint64 m_id;
         AkFrac m_fps;
 
@@ -107,10 +101,6 @@ class CaptureLibUVC: public Capture
                          uint8_t control,
                          int controlType,
                          const QVariantMap &values);
-        static int hotplugCallback(libusb_context *context,
-                                   libusb_device *device,
-                                   libusb_hotplug_event event,
-                                   void *userData);
         static void frameCallback(struct uvc_frame *frame, void *userData);
 
         inline QString fourccToStr(const uint8_t *format) const
