@@ -82,17 +82,8 @@ before_script: |
       export QMAKESPEC=macx-clang
     fi
   fi
-script: |
-  [[ "${CXX}" = clang++ ]] && UNUSEDARGS="-Qunused-arguments" || UNUSEDARGS=""
-  COMPILER="ccache ${CXX} ${UNUSEDARGS}"
-  if [ "${TRAVIS_OS_NAME}" = linux ]; then
-    qmake Webcamoid.pro \
-        QMAKE_CXX="${COMPILER}"
-  elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    qmake Webcamoid.pro \
-        QMAKE_CXX="${COMPILER}"
-  fi
-  make
+script:
+  - ports/ci/travis/build.sh
 
 branches:
   only:

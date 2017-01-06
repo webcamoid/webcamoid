@@ -28,17 +28,6 @@ Q_GLOBAL_STATIC(UsbIds, usbIds)
 #define PROCESSING_UNIT 0
 #define CAMERA_TERMINAL 1
 
-template <typename T>
-inline void waitLoop(const QFuture<T> &loop)
-{
-    while (!loop.isFinished()) {
-        auto eventDispatcher = QThread::currentThread()->eventDispatcher();
-
-        if (eventDispatcher)
-            eventDispatcher->processEvents(QEventLoop::AllEvents);
-    }
-}
-
 class UvcControl
 {
     public:

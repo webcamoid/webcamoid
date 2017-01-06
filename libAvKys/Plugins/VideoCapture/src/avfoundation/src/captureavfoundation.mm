@@ -190,8 +190,6 @@ CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
     this->m_id = -1;
     this->m_ioMethod = IoMethodUnknown;
     this->m_nBuffers = 32;
-    this->m_webcams = this->webcams();
-    this->m_device = this->m_webcams.value(0, "");
     this->d = new CaptureAvFoundationPrivate();
     this->d->m_deviceInput = nil;
     this->d->m_dataOutput = nil;
@@ -211,6 +209,8 @@ CaptureAvFoundation::CaptureAvFoundation(QObject *parent):
      selector: @selector(cameraDisconnected:)
      name: AVCaptureDeviceWasDisconnectedNotification
      object: nil];
+
+    this->updateDevices();
 }
 
 CaptureAvFoundation::~CaptureAvFoundation()
@@ -228,13 +228,7 @@ CaptureAvFoundation::~CaptureAvFoundation()
 
 QStringList CaptureAvFoundation::webcams() const
 {
-    QStringList webcams;
-    NSArray *cameras = [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
-
-    for (AVCaptureDevice *camera in cameras)
-        webcams << camera.uniqueID.UTF8String;
-
-    return webcams;
+    return this->m_devices;
 }
 
 QString CaptureAvFoundation::device() const
@@ -247,12 +241,12 @@ QList<int> CaptureAvFoundation::streams() const
     if (!this->m_streams.isEmpty())
         return this->m_streams;
 
-    QVariantList caps = this->caps(this->m_device);
+    auto caps = this->caps(this->m_device);
 
     if (caps.isEmpty())
         return QList<int>();
 
-    return QList<int>() << 0;
+    return QList<int>() {0};
 }
 
 QList<int> CaptureAvFoundation::listTracks(const QString &mimeType)
@@ -261,7 +255,7 @@ QList<int> CaptureAvFoundation::listTracks(const QString &mimeType)
         && !mimeType.isEmpty())
         return QList<int>();
 
-    QVariantList caps = this->caps(this->m_device);
+    auto caps = this->caps(this->m_device);
     QList<int> streams;
 
     for (int i = 0; i < caps.count(); i++)
@@ -282,55 +276,12 @@ int CaptureAvFoundation::nBuffers() const
 
 QString CaptureAvFoundation::description(const QString &webcam) const
 {
-    NSString *uniqueID = [[NSString alloc]
-                          initWithUTF8String: webcam.toStdString().c_str()];
-    AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
-    [uniqueID release];
-
-    if (!camera)
-        return QString();
-
-    return QString(camera.localizedName.UTF8String);
+    return this->m_descriptions.value(webcam);
 }
 
 QVariantList CaptureAvFoundation::caps(const QString &webcam) const
 {
-    QVariantList caps;
-    NSString *uniqueID = [[NSString alloc]
-                          initWithUTF8String: webcam.toStdString().c_str()];
-    AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
-    [uniqueID release];
-
-    if (!camera)
-        return caps;
-
-    // List supported frame formats.
-    for (AVCaptureDeviceFormat *format in camera.formats) {
-        if ([format.mediaType isEqualToString: AVMediaTypeVideo] == NO)
-            continue;
-
-        FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
-        CMVideoDimensions size =
-                CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-
-        QString fourccStr =
-                fourccToStrMap->value(fourCC,
-                                      CaptureAvFoundationPrivate::fourccToStr(fourCC));
-
-        AkCaps videoCaps;
-        videoCaps.setMimeType("video/unknown");
-        videoCaps.setProperty("fourcc", fourccStr);
-        videoCaps.setProperty("width", size.width);
-        videoCaps.setProperty("height", size.height);
-
-        // List all supported frame rates for the format.
-        for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
-            videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
-            caps << QVariant::fromValue(videoCaps);
-        }
-    }
-
-    return caps;
+    return this->m_devicesCaps.value(webcam);
 }
 
 QString CaptureAvFoundation::capsDescription(const AkCaps &caps) const
@@ -355,7 +306,7 @@ QVariantList CaptureAvFoundation::imageControls() const
 bool CaptureAvFoundation::setImageControls(const QVariantMap &imageControls)
 {
     this->m_controlsMutex.lock();
-    QVariantList globalImageControls = this->m_globalImageControls;
+    auto globalImageControls = this->m_globalImageControls;
     this->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalImageControls.count(); i++) {
@@ -404,7 +355,7 @@ QVariantList CaptureAvFoundation::cameraControls() const
 bool CaptureAvFoundation::setCameraControls(const QVariantMap &cameraControls)
 {
     this->m_controlsMutex.lock();
-    QVariantList globalCameraControls = this->m_globalCameraControls;
+    auto globalCameraControls = this->m_globalCameraControls;
     this->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalCameraControls.count(); i++) {
@@ -528,6 +479,11 @@ AkPacket CaptureAvFoundation::readFrame()
     return packet;
 }
 
+quint32 CaptureAvFoundation::modelId(const QString &webcam)
+{
+    return this->m_modelId.value(webcam);
+}
+
 QMutex &CaptureAvFoundation::mutex()
 {
     return this->m_mutex;
@@ -564,12 +520,12 @@ bool CaptureAvFoundation::init()
         return false;
 
     // Read selected caps.
-    QList<int> streams = this->streams();
+    auto streams = this->streams();
 
     if (streams.isEmpty())
         return false;
 
-    QVariantList supportedCaps = this->caps(webcam);
+    auto supportedCaps = this->caps(webcam);
 
     if (supportedCaps.isEmpty())
         return false;
@@ -635,7 +591,7 @@ bool CaptureAvFoundation::init()
     }
 
     // Configure camera format.
-    AVCaptureDeviceFormat *format = CaptureAvFoundationPrivate::formatFromCaps(camera, caps);
+    auto format = CaptureAvFoundationPrivate::formatFromCaps(camera, caps);
 
     if (!format) {
         [camera unlockForConfiguration];
@@ -645,7 +601,8 @@ bool CaptureAvFoundation::init()
     }
 
     AkFrac fps = caps.property("fps").toString();
-    AVFrameRateRange *fpsRange = CaptureAvFoundationPrivate::frameRateRangeFromFps(format, fps);
+    auto fpsRange = CaptureAvFoundationPrivate::frameRateRangeFromFps(format,
+                                                                      fps);
 
     camera.activeFormat = format;
     camera.activeVideoMinFrameDuration = fpsRange.minFrameDuration;
@@ -706,31 +663,7 @@ void CaptureAvFoundation::setDevice(const QString &device)
         return;
 
     this->m_device = device;
-
-    if (device.isEmpty()) {
-        this->m_controlsMutex.lock();
-        this->m_globalImageControls.clear();
-        this->m_globalCameraControls.clear();
-        this->m_controlsMutex.unlock();
-    } else {
-        NSString *uniqueID = [[NSString alloc]
-                              initWithUTF8String: device.toStdString().c_str()];
-        AVCaptureDevice *camera = [AVCaptureDevice deviceWithUniqueID: uniqueID];
-        [uniqueID release];
-        this->m_controlsMutex.lock();
-        this->m_globalImageControls = this->d->imageControls(camera);
-        this->m_globalCameraControls = this->d->cameraControls(camera);
-        this->m_controlsMutex.unlock();
-    }
-
-    this->m_controlsMutex.lock();
-    QVariantMap imageStatus = this->controlStatus(this->m_globalImageControls);
-    QVariantMap cameraStatus = this->controlStatus(this->m_globalCameraControls);
-    this->m_controlsMutex.unlock();
-
     emit this->deviceChanged(device);
-    emit this->imageControlsChanged(imageStatus);
-    emit this->cameraControlsChanged(cameraStatus);
 }
 
 void CaptureAvFoundation::setStreams(const QList<int> &streams)
@@ -743,7 +676,7 @@ void CaptureAvFoundation::setStreams(const QList<int> &streams)
     if (stream < 0)
         return;
 
-    QVariantList supportedCaps = this->caps(this->m_device);
+    auto supportedCaps = this->caps(this->m_device);
 
     if (stream >= supportedCaps.length())
         return;
@@ -774,7 +707,7 @@ void CaptureAvFoundation::setNBuffers(int nBuffers)
 
 void CaptureAvFoundation::resetDevice()
 {
-    this->setDevice(this->m_webcams.value(0, ""));
+    this->setDevice(this->m_devices.value(0, ""));
 }
 
 void CaptureAvFoundation::resetStreams()
@@ -807,20 +740,77 @@ void CaptureAvFoundation::reset()
 
 void CaptureAvFoundation::cameraConnected()
 {
-    this->updateWebcams();
+    this->updateDevices();
 }
 
 void CaptureAvFoundation::cameraDisconnected()
 {
-    this->updateWebcams();
+    this->updateDevices();
 }
 
-void CaptureAvFoundation::updateWebcams()
+void CaptureAvFoundation::updateDevices()
 {
-    QStringList webcams = this->webcams();
+    decltype(this->m_devices) devices;
+    decltype(this->m_modelId) modelId;
+    decltype(this->m_descriptions) descriptions;
+    decltype(this->m_devicesCaps) devicesCaps;
 
-    if (this->m_webcams != webcams) {
-        this->m_webcams = webcams;
-        emit this->webcamsChanged(webcams);
+    NSArray *cameras = [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
+
+    for (AVCaptureDevice *camera in cameras) {
+        QString deviceId = camera.uniqueID.UTF8String;
+        devices << deviceId;
+        descriptions[deviceId] = camera.localizedName.UTF8String;
+        QString modelIdStr = camera.modelID.UTF8String;
+        QRegExp vpMatch("VendorID_(\\d+) ProductID_(\\d+)");
+        quint16 vendorId = 0;
+        quint16 productId = 0;
+        int pos = 0;
+
+        forever {
+            pos = vpMatch.indexIn(modelIdStr, pos);
+
+            if (pos < 0)
+                break;
+
+            vendorId = vpMatch.cap(1).toUShort();
+            productId = vpMatch.cap(2).toUShort();
+            pos += vpMatch.matchedLength();
+        }
+
+        modelId[deviceId] = (vendorId << 16) | productId;
+
+        // List supported frame formats.
+        for (AVCaptureDeviceFormat *format in camera.formats) {
+            FourCharCode fourCC = CMFormatDescriptionGetMediaSubType(format.formatDescription);
+            CMVideoDimensions size =
+                    CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+
+            QString fourccStr =
+                    fourccToStrMap->value(fourCC,
+                                          CaptureAvFoundationPrivate::fourccToStr(fourCC));
+
+            AkCaps videoCaps;
+            videoCaps.setMimeType("video/unknown");
+            videoCaps.setProperty("fourcc", fourccStr);
+            videoCaps.setProperty("width", size.width);
+            videoCaps.setProperty("height", size.height);
+
+            // List all supported frame rates for the format.
+            for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
+                videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
+                devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
+            }
+        }
     }
+
+    if (this->m_devices != devices) {
+        this->m_devices = devices;
+        emit this->webcamsChanged(devices);
+    }
+
+    this->m_devices = devices;
+    this->m_modelId = modelId;
+    this->m_descriptions = descriptions;
+    this->m_devicesCaps = devicesCaps;
 }

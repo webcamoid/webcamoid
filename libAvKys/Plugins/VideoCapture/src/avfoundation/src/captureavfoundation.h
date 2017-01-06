@@ -61,15 +61,19 @@ class CaptureAvFoundation: public Capture
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
+        Q_INVOKABLE quint32 modelId(const QString &webcam);
 
         QMutex &mutex();
         QWaitCondition &frameReady();
         void *curFrame();
 
     private:
-        QStringList m_webcams;
         QString m_device;
         QList<int> m_streams;
+        QStringList m_devices;
+        QMap<QString, quint32> m_modelId;
+        QMap<QString, QString> m_descriptions;
+        QMap<QString, QVariantList> m_devicesCaps;
         IoMethod m_ioMethod;
         int m_nBuffers;
         QMutex m_mutex;
@@ -105,7 +109,7 @@ class CaptureAvFoundation: public Capture
         void cameraDisconnected();
 
     private slots:
-        void updateWebcams();
+        void updateDevices();
 };
 
 #endif // CAPTUREAVFOUNDATION_H

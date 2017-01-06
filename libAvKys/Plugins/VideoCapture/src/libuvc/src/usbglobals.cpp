@@ -121,14 +121,7 @@ void UsbGlobals::stopUSBEvents()
 
 void UsbGlobals::processUSBEvents()
 {
-    forever {
-        this->m_mutex.lock();
-        auto processsUsbEventsLoop = this->m_processsUsbEventsLoop;
-        this->m_mutex.unlock();
-
-        if (!processsUsbEventsLoop)
-            break;
-
+    while (this->m_processsUsbEventsLoop) {
         timeval tv {0, 500000};
         libusb_handle_events_timeout_completed(this->m_context, &tv, NULL);
     }
