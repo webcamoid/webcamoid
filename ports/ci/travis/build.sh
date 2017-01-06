@@ -2,6 +2,7 @@
 
 if [ "${CXX}" = clang++ ]; then
     UNUSEDARGS="-Qunused-arguments"
+fi
 
 COMPILER="ccache ${CXX} ${UNUSEDARGS}"
 
