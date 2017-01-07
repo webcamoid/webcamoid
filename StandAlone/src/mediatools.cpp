@@ -53,6 +53,14 @@ MediaTools::MediaTools(QObject *parent):
                          SIGNAL(stateChanged(AkElement::ElementState)),
                          this,
                          SIGNAL(virtualCameraStateChanged(AkElement::ElementState)));
+        QObject::connect(this->m_virtualCamera.data(),
+                         SIGNAL(convertLibChanged(const QString &)),
+                         this,
+                         SLOT(saveVirtualCameraConvertLib(const QString &)));
+        QObject::connect(this->m_virtualCamera.data(),
+                         SIGNAL(outputLibChanged(const QString &)),
+                         this,
+                         SLOT(saveVirtualCameraOutputLib(const QString &)));
     }
 
     AkElement::link(this->m_mediaSource.data(),
@@ -416,6 +424,19 @@ void MediaTools::loadConfigs()
 {
     QSettings config;
 
+    config.beginGroup("Libraries");
+
+    if (this->m_virtualCamera) {
+        this->m_virtualCamera->setProperty("convertLib",
+                                           config.value("VirtualCamera.convertLib",
+                                                        this->m_virtualCamera->property("convertLib")));
+        this->m_virtualCamera->setProperty("outputLib",
+                                           config.value("VirtualCamera.outputLib",
+                                                        this->m_virtualCamera->property("outputLib")));
+    }
+
+    config.endGroup();
+
     config.beginGroup("OutputConfigs");
     this->setEnableVirtualCamera(config.value("enableVirtualCamera", false).toBool());
     config.endGroup();
@@ -434,6 +455,22 @@ void MediaTools::loadConfigs()
     }
 #endif
 
+    config.endGroup();
+}
+
+void MediaTools::saveVirtualCameraConvertLib(const QString &convertLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VirtualCamera.convertLib", convertLib);
+    config.endGroup();
+}
+
+void MediaTools::saveVirtualCameraOutputLib(const QString &outputLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VirtualCamera.outputLib", outputLib);
     config.endGroup();
 }
 
@@ -456,6 +493,15 @@ void MediaTools::saveConfigs()
         config.setValue("virtualCameraDriverPath", applicationDir.relativeFilePath(driverPath));
     }
 #endif
+
+    config.endGroup();
+
+    config.beginGroup("Libraries");
+
+    if (this->m_virtualCamera) {
+        config.setValue("VirtualCamera.convertLib", this->m_virtualCamera->property("convertLib"));
+        config.setValue("VirtualCamera.outputLib", this->m_virtualCamera->property("outputLib"));
+    }
 
     config.endGroup();
 }

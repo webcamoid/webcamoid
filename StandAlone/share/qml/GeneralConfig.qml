@@ -116,7 +116,7 @@ ColumnLayout {
             onCurrentIndexChanged: virtualCamera.convertLib = model[currentIndex]
         }
         Label {
-            text: qsTr("Video play")
+            text: qsTr("Video playback")
         }
         ComboBox {
             Layout.fillWidth: true

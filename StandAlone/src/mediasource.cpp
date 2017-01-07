@@ -87,6 +87,14 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(codecLibChanged(const QString &)),
+                         this,
+                         SLOT(saveVideoCaptureCodecLib(const QString &)));
+        QObject::connect(this->m_cameraCapture.data(),
+                         SIGNAL(captureLibChanged(const QString &)),
+                         this,
+                         SLOT(saveVideoCaptureCaptureLib(const QString &)));
     }
 
     if (this->m_desktopCapture) {
@@ -105,6 +113,10 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
+        QObject::connect(this->m_uriCapture.data(),
+                         SIGNAL(codecLibChanged(const QString &)),
+                         this,
+                         SLOT(saveMultiSrcCodecLib(const QString &)));
     }
 
     // Setup streams
@@ -578,6 +590,25 @@ void MediaSource::setVideoCaps(const AkCaps &videoCaps)
 void MediaSource::loadProperties()
 {
     QSettings config;
+
+    config.beginGroup("Libraries");
+
+    if (this->m_cameraCapture) {
+        this->m_cameraCapture->setProperty("codecLib",
+                                           config.value("VideoCapture.codecLib",
+                                                        this->m_cameraCapture->property("codecLib")));
+        this->m_cameraCapture->setProperty("captureLib",
+                                           config.value("VideoCapture.captureLib",
+                                                        this->m_cameraCapture->property("captureLib")));
+    }
+
+    if (this->m_uriCapture)
+        this->m_uriCapture->setProperty("codecLib",
+                                        config.value("MultiSrc.codecLib",
+                                                     this->m_uriCapture->property("codecLib")));
+
+    config.endGroup();
+
     config.beginGroup("StreamConfigs");
     auto stream = config.value("stream").toString();
     this->setPlayOnStart(config.value("playOnStart").toBool());
@@ -637,6 +668,30 @@ void MediaSource::savePlayOnStart(bool playOnStart)
     config.endGroup();
 }
 
+void MediaSource::saveVideoCaptureCodecLib(const QString &codecLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VideoCapture.codecLib", codecLib);
+    config.endGroup();
+}
+
+void MediaSource::saveVideoCaptureCaptureLib(const QString &captureLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VideoCapture.captureLib", captureLib);
+    config.endGroup();
+}
+
+void MediaSource::saveMultiSrcCodecLib(const QString &codecLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("MultiSrc.codecLib", codecLib);
+    config.endGroup();
+}
+
 void MediaSource::saveProperties()
 {
     QSettings config;
@@ -655,5 +710,17 @@ void MediaSource::saveProperties()
     }
 
     config.endArray();
+    config.endGroup();
+
+    config.beginGroup("Libraries");
+
+    if (this->m_cameraCapture) {
+        config.setValue("VideoCapture.codecLib", this->m_cameraCapture->property("codecLib"));
+        config.setValue("VideoCapture.captureLib", this->m_cameraCapture->property("captureLib"));
+    }
+
+    if (this->m_uriCapture)
+        config.setValue("MultiSrc.codecLib", this->m_uriCapture->property("codecLib"));
+
     config.endGroup();
 }

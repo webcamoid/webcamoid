@@ -106,6 +106,7 @@ class AudioLayer: public QObject
         AkElementPtr m_pipeline;
         AkElementPtr m_audioOut;
         AkElementPtr m_audioIn;
+        AkElementPtr m_audioConvert;
         AkElementPtr m_audioGenerator;
         AkElementPtr m_audioSwitch;
         QMutex m_mutex;
@@ -148,6 +149,8 @@ class AudioLayer: public QObject
         void loadProperties();
         void saveAudioInput(const QStringList &audioInput);
         void saveAudioOutput(const QString &audioOutput);
+        void saveAudioDeviceAudioLib(const QString &audioLib);
+        void saveAudioConvertConvertLib(const QString &convertLib);
         void saveProperties();
 };
 

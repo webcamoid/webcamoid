@@ -143,6 +143,9 @@ class MediaSource: public QObject
         void saveStream(const QString &stream);
         void saveUris(const QVariantMap &uris);
         void savePlayOnStart(bool playOnStart);
+        void saveVideoCaptureCodecLib(const QString &codecLib);
+        void saveVideoCaptureCaptureLib(const QString &captureLib);
+        void saveMultiSrcCodecLib(const QString &codecLib);
         void saveProperties();
 };
 
