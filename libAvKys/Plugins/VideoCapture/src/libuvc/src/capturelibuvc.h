@@ -73,6 +73,7 @@ class CaptureLibUVC: public Capture
         Q_INVOKABLE bool setCameraControls(const QVariantMap &cameraControls);
         Q_INVOKABLE bool resetCameraControls();
         Q_INVOKABLE AkPacket readFrame();
+        Q_INVOKABLE QString uvcId(quint16 vendorId, quint16 productId) const;
 
     private:
         QString m_device;

@@ -246,7 +246,7 @@ QList<int> CaptureAvFoundation::streams() const
     if (caps.isEmpty())
         return QList<int>();
 
-    return QList<int>() {0};
+    return QList<int> {0};
 }
 
 QList<int> CaptureAvFoundation::listTracks(const QString &mimeType)
@@ -479,7 +479,7 @@ AkPacket CaptureAvFoundation::readFrame()
     return packet;
 }
 
-quint32 CaptureAvFoundation::modelId(const QString &webcam)
+quint32 CaptureAvFoundation::modelId(const QString &webcam) const
 {
     return this->m_modelId.value(webcam);
 }

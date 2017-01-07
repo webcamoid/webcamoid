@@ -501,6 +501,13 @@ AkPacket CaptureLibUVC::readFrame()
     return packet;
 }
 
+QString CaptureLibUVC::uvcId(quint16 vendorId, quint16 productId) const
+{
+    return QString("USB\\VID_v%1&PID_d%2")
+            .arg(vendorId, 4, 16, QChar('0'))
+            .arg(productId, 4, 16, QChar('0'));
+}
+
 QVariantList CaptureLibUVC::controlsList(uvc_device_handle_t *deviceHnd,
                                          uint8_t unit,
                                          uint8_t control,
@@ -879,11 +886,8 @@ void CaptureLibUVC::updateDevices()
             continue;
         }
 
-        auto deviceId
-                = QString("USB\\VID_v%1&PID_d%2")
-                    .arg(descriptor->idVendor, 4, 16, QChar('0'))
-                    .arg(descriptor->idProduct, 4, 16, QChar('0'));
-
+        auto deviceId = this->uvcId(descriptor->idVendor,
+                                    descriptor->idProduct);
         uvc_device_handle_t *deviceHnd = NULL;
 
         if (this->m_deviceHnd && this->m_curDevice == deviceId)
