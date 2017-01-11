@@ -19,7 +19,9 @@
 
 #include "outputparams.h"
 
-OutputParams::OutputParams(int inputIndex, QObject *parent):
+OutputParams::OutputParams(int inputIndex,
+                           AVCodecContext *codecContext,
+                           QObject *parent):
     QObject(parent),
     m_inputIndex(inputIndex),
     m_audioFormat(AV_SAMPLE_FMT_NONE),
@@ -31,6 +33,8 @@ OutputParams::OutputParams(int inputIndex, QObject *parent):
     m_resampleContext(NULL),
     m_scaleContext(NULL)
 {
+    this->m_codecContext = CodecContextPtr(codecContext,
+                                           this->deleteCodecContext);
 }
 
 OutputParams::OutputParams(const OutputParams &other):
@@ -43,6 +47,7 @@ OutputParams::OutputParams(const OutputParams &other):
     m_pts(other.m_pts),
     m_ptsDiff(other.m_ptsDiff),
     m_ptsDrift(other.m_ptsDrift),
+    m_codecContext(other.m_codecContext),
     m_resampleContext(NULL),
     m_scaleContext(NULL)
 {
@@ -68,6 +73,7 @@ OutputParams &OutputParams::operator =(const OutputParams &other)
         this->m_pts = other.m_pts;
         this->m_ptsDiff = other.m_ptsDiff;
         this->m_ptsDrift = other.m_ptsDrift;
+        this->m_codecContext = other.m_codecContext;
     }
 
     return *this;
@@ -311,6 +317,16 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
 qint64 OutputParams::audioPts() const
 {
     return this->m_pts;
+}
+
+CodecContextPtr OutputParams::codecContext() const
+{
+    return this->m_codecContext;
+}
+
+void OutputParams::deleteCodecContext(AVCodecContext *codecContext)
+{
+    avcodec_free_context(&codecContext);
 }
 
 void OutputParams::setInputIndex(int inputIndex)

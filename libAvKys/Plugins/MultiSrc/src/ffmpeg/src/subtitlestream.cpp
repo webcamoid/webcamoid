@@ -107,8 +107,8 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
 
             av_image_copy_to_buffer(reinterpret_cast<uint8_t *>(oBuffer.data()),
                                     frameSize,
-                                    subtitle->rects[i]->pict.data,
-                                    subtitle->rects[i]->pict.linesize,
+                                    subtitle->rects[i]->data,
+                                    subtitle->rects[i]->linesize,
                                     pixFmt,
                                     subtitle->rects[i]->w,
                                     subtitle->rects[i]->h,

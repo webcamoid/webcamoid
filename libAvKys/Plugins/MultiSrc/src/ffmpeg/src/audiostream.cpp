@@ -111,27 +111,25 @@ void AudioStream::processPacket(AVPacket *packet)
         return;
     }
 
-    AVFrame *iFrame = av_frame_alloc();
-    int gotFrame;
-
-    avcodec_decode_audio4(this->codecContext(),
-                          iFrame,
-                          &gotFrame,
-                          packet);
-
-    if (!gotFrame)
+    if (avcodec_send_packet(this->codecContext(), packet) < 0)
         return;
 
-    this->dataEnqueue(iFrame);
+    forever {
+        AVFrame *iFrame = av_frame_alloc();
+
+        if (avcodec_receive_frame(this->codecContext(), iFrame) < 0) {
+            av_frame_free(&iFrame);
+
+            break;
+        }
+
+        this->dataEnqueue(iFrame);
+    }
 }
 
 void AudioStream::processData(AVFrame *frame)
 {
-    qint64 pts = (frame->pts != AV_NOPTS_VALUE) ? frame->pts :
-                  (frame->pkt_pts != AV_NOPTS_VALUE) ? frame->pkt_pts :
-                  this->m_pts;
-    frame->pts = frame->pkt_pts = pts;
-
+    frame->pts = frame->pts != AV_NOPTS_VALUE? frame->pts: this->m_pts;
     AkPacket oPacket = this->convert(frame);
     emit this->oStream(oPacket);
     emit this->frameSent();
@@ -218,7 +216,7 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
     oFrame.channel_layout = oLayout;
     oFrame.sample_rate = oSampleRate;
     oFrame.nb_samples = wantedSamples;
-    oFrame.pts = oFrame.pkt_pts = iFrame->pts;
+    oFrame.pts = iFrame->pts;
 
     // Calculate the size of the audio buffer.
     int frameSize = av_samples_get_buffer_size(oFrame.linesize,

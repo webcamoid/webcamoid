@@ -48,10 +48,18 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                          formatContext->streams[index]: NULL;
 
     this->m_mediaType = this->m_stream?
-                            this->m_stream->codec->codec_type:
+                            this->m_stream->codecpar->codec_type:
                             AVMEDIA_TYPE_UNKNOWN;
 
-    this->m_codecContext = this->m_stream? this->m_stream->codec: NULL;
+    this->m_codecContext = NULL;
+
+    if (this->m_stream) {
+        this->m_codecContext = avcodec_alloc_context3(NULL);
+
+        if (avcodec_parameters_to_context(this->m_codecContext,
+                                          this->m_stream->codecpar) < 0)
+            avcodec_free_context(&this->m_codecContext);
+    }
 
     this->m_codec = this->m_codecContext?
                         avcodec_find_decoder(this->m_codecContext->codec_id):
@@ -81,6 +89,12 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     }
 
     this->m_isValid = true;
+}
+
+AbstractStream::~AbstractStream()
+{
+    if (this->m_codecContext)
+        avcodec_free_context(&this->m_codecContext);
 }
 
 bool AbstractStream::paused() const
@@ -206,7 +220,7 @@ AVMediaType AbstractStream::type(const AVFormatContext *formatContext,
                                  uint index)
 {
     return index < formatContext->nb_streams?
-                formatContext->streams[index]->codec->codec_type:
+                formatContext->streams[index]->codecpar->codec_type:
                 AVMEDIA_TYPE_UNKNOWN;
 }
 

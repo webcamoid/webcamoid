@@ -71,18 +71,20 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
     }
 
-    AVFrame *iFrame = av_frame_alloc();
-    int gotFrame;
-
-    avcodec_decode_video2(this->codecContext(),
-                          iFrame,
-                          &gotFrame,
-                          packet);
-
-    if (!gotFrame)
+    if (avcodec_send_packet(this->codecContext(), packet) < 0)
         return;
 
-    this->dataEnqueue(iFrame);
+    forever {
+        AVFrame *iFrame = av_frame_alloc();
+
+        if (avcodec_receive_frame(this->codecContext(), iFrame) < 0) {
+            av_frame_free(&iFrame);
+
+            break;
+        }
+
+        this->dataEnqueue(iFrame);
+    }
 }
 
 void VideoStream::processData(AVFrame *frame)

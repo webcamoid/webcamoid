@@ -96,7 +96,7 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet,
     iFrame.channel_layout = uint64_t(iSampleLayout);
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = iNSamples;
-    iFrame.pts = iFrame.pkt_pts = packet.pts();
+    iFrame.pts = packet.pts();
 
     if (avcodec_fill_audio_frame(&iFrame,
                                  iFrame.channels,
@@ -119,7 +119,7 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet,
                         * oSampleRate
                         / iSampleRate
                         + 3;
-    oFrame.pts = oFrame.pkt_pts = iFrame.pts * oSampleRate / iSampleRate;
+    oFrame.pts = iFrame.pts * oSampleRate / iSampleRate;
 
     // Calculate the size of the audio buffer.
     int frameSize = av_samples_get_buffer_size(oFrame.linesize,

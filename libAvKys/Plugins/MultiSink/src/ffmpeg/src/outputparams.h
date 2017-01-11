@@ -32,6 +32,8 @@ extern "C"
     #include <libavutil/channel_layout.h>
 }
 
+typedef QSharedPointer<AVCodecContext> CodecContextPtr;
+
 class OutputParams: public QObject
 {
     Q_OBJECT
@@ -42,7 +44,9 @@ class OutputParams: public QObject
                NOTIFY inputIndexChanged)
 
     public:
-        explicit OutputParams(int inputIndex=0, QObject *parent=NULL);
+        explicit OutputParams(int inputIndex=0,
+                              AVCodecContext *codecContext=NULL,
+                              QObject *parent=NULL);
         OutputParams(const OutputParams &other);
         ~OutputParams();
 
@@ -56,6 +60,8 @@ class OutputParams: public QObject
         Q_INVOKABLE int readAudioSamples(int samples, uint8_t **buffer);
         Q_INVOKABLE qint64 audioPts() const;
 
+        Q_INVOKABLE CodecContextPtr codecContext() const;
+
     private:
         int m_inputIndex;
 
@@ -68,8 +74,11 @@ class OutputParams: public QObject
         qint64 m_ptsDiff;
         qint64 m_ptsDrift;
 
+        CodecContextPtr m_codecContext;
         SwrContext *m_resampleContext;
         SwsContext *m_scaleContext;
+
+        static void deleteCodecContext(AVCodecContext *codecContext);
 
     signals:
         void inputIndexChanged(int inputIndex);

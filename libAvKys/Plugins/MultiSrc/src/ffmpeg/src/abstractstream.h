@@ -57,6 +57,7 @@ class AbstractStream: public QObject
                                 Clock *globalClock=NULL,
                                 bool noModify=false,
                                 QObject *parent=NULL);
+        virtual ~AbstractStream();
 
         Q_INVOKABLE bool paused() const;
         Q_INVOKABLE bool isValid() const;

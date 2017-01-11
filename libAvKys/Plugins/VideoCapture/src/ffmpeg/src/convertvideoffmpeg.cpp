@@ -284,19 +284,25 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
 
         if (!stream->m_packets.isEmpty()) {
             AkPacket packet = stream->m_packets.dequeue();
-            AVFrame *iFrame = av_frame_alloc();
 
             AVPacket videoPacket;
             av_init_packet(&videoPacket);
             videoPacket.data = reinterpret_cast<uint8_t *>(packet.buffer().data());
             videoPacket.size = packet.buffer().size();
             videoPacket.pts = packet.pts();
-            int gotFrame;
 
-            avcodec_decode_video2(stream->m_codecContext, iFrame, &gotFrame, &videoPacket);
+            if (avcodec_send_packet(stream->m_codecContext, &videoPacket) >= 0)
+                forever {
+                    AVFrame *iFrame = av_frame_alloc();
 
-            if (gotFrame)
-                stream->dataEnqueue(iFrame);
+                    if (avcodec_receive_frame(stream->m_codecContext, iFrame) < 0) {
+                        av_frame_free(&iFrame);
+
+                        break;
+                    }
+
+                    stream->dataEnqueue(iFrame);
+                }
 
             stream->m_packetQueueSize -= packet.buffer().size();
 

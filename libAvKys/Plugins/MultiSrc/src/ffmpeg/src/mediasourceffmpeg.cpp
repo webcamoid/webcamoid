@@ -101,7 +101,7 @@ QList<int> MediaSourceFFmpeg::listTracks(const QString &mimeType)
     }
 
     for (uint stream = 0; stream < this->m_inputContext->nb_streams; stream++) {
-        AVMediaType type = this->m_inputContext->streams[stream]->codec->codec_type;
+        auto type = this->m_inputContext->streams[stream]->codecpar->codec_type;
 
         if (mimeType.isEmpty()
             || mediaTypeToStr->value(type) == mimeType)
@@ -164,7 +164,7 @@ int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
     }
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++) {
-        AVMediaType type = this->m_inputContext->streams[i]->codec->codec_type;
+        AVMediaType type = this->m_inputContext->streams[i]->codecpar->codec_type;
 
         if (mediaTypeToStr->value(type) == mimeType) {
             stream = int(i);
