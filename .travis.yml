@@ -41,6 +41,8 @@ before_install: |
     docker pull ubuntu:zesty
     docker run --name ubuntu -it -d ubuntu:zesty /bin/sh
     docker ps -a
+    docker exec ubuntu apt-get -y update
+    docker exec ubuntu apt-get -y upgrade
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
     sudo add-apt-repository --yes ppa:mc3man/trusty-media
