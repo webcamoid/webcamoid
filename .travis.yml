@@ -39,7 +39,6 @@ matrix:
 before_install: |
   if [ "${DOCKERSYS}" = ubuntu ]; then
     docker pull ${DOCKERSYS}:${DOCKERVER}
-    docker run --name ${DOCKERSYS} -it -d ${DOCKERSYS}:${DOCKERVER} /bin/sh
     docker ps -a
     docker exec ${DOCKERSYS} apt-get -y update
     docker exec ${DOCKERSYS} apt-get -y upgrade
@@ -107,8 +106,9 @@ before_script: |
     elif [ "${CXX}" = clang++ ]; then
       export QMAKESPEC=linux-clang
     fi
-    docker exec ${DOCKERSYS} git clone https://github.com/webcamoid/webcamoid.git
-    docker exec ${DOCKERSYS} sh -c 'cd webcamoid'
+    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERSYS}:${DOCKERVER} /bin/sh -c true
+#    docker exec ${DOCKERSYS} git clone https://github.com/webcamoid/webcamoid.git
+#    docker exec ${DOCKERSYS} sh -c 'cd webcamoid'
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
     if [ "${CXX}" = g++ ]; then
