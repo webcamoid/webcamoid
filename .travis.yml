@@ -12,13 +12,20 @@ matrix:
       sudo: required
       compiler: gcc
       env:
-      - QTVER=57
+        - QTVER=57
     - os: linux
       dist: trusty
       sudo: required
       compiler: clang
       env:
-      - QTVER=57
+        - QTVER=57
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: gcc
+      env:
+        - USE_DOCKER=1
     - os: osx
       osx_image: xcode8
       compiler: clang
@@ -30,7 +37,11 @@ matrix:
       compiler: clang
 
 before_install: |
-  if [ "${TRAVIS_OS_NAME}" = linux ]; then
+  if [ "${USE_DOCKER}" = 1 ]; then
+    docker pull ubuntu:zesty
+    docker run -it -d ubuntu:zesty /bin/sh
+    docker ps -a
+  elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
     sudo add-apt-repository --yes ppa:mc3man/trusty-media
     sudo add-apt-repository --yes ppa:dan-witt/gstreamer
@@ -41,8 +52,22 @@ before_install: |
   fi
 
 install: |
-  if [ "${TRAVIS_OS_NAME}" = linux ]; then
-    sudo apt-get -y install pkg-config \
+  if [ "${USE_DOCKER}" = 1 ]; then
+    docker exec ubuntu:zesty apt-get -y install \
+        pkg-config \
+        linux-libc-dev \
+        qt5tools \
+        qt5declarative \
+        qt5svg \
+        qt5multimedia \
+        libgstreamer-plugins-base1.0-dev \
+        libpulse-dev \
+        libjack-dev \
+        libasound2-dev \
+        libv4l-dev
+  elif [ "${TRAVIS_OS_NAME}" = linux ]; then
+    sudo apt-get -y install \
+        pkg-config \
         linux-libc-dev \
         qt${QTVER}tools \
         qt${QTVER}declarative \
@@ -67,7 +92,8 @@ install: |
   fi
 
 before_script: |
-  if [ "${TRAVIS_OS_NAME}" = linux ]; then
+  if [ "${USE_DOCKER}" = 1 ]; then
+  elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=linux-g++
