@@ -40,7 +40,7 @@ before_install: |
   if [ "${DOCKERSYS}" = ubuntu ]; then
     docker pull ${DOCKERSYS}:${DOCKERVER}
     docker ps -a
-    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERSYS}:${DOCKERVER} /bin/sh -c true
+    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERSYS}:${DOCKERVER} /bin/sh
     docker exec ${DOCKERSYS} apt-get -y update
     docker exec ${DOCKERSYS} apt-get -y upgrade
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
