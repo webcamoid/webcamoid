@@ -7,8 +7,13 @@ fi
 COMPILER="ccache ${CXX} ${UNUSEDARGS}"
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
-    docker exec ${DOCKERSYS} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
-        QMAKE_CXX="${COMPILER}"
+    if [ "${DOCKERSYS}" = debian ]; then
+        docker exec ${DOCKERSYS} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
+            QMAKE_CXX="${COMPILER}"
+    else
+        docker exec ${DOCKERSYS} qmake-qt5 -spec ${COMPILESPEC} Webcamoid.pro \
+            QMAKE_CXX="${COMPILER}"
+    fi
 
     docker exec ${DOCKERSYS} make
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then

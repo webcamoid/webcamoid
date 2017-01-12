@@ -28,28 +28,28 @@ matrix:
         - docker
       compiler: gcc
       env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:24
+        - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAFER=24
     - os: linux
       sudo: required
       services:
         - docker
       compiler: clang
       env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:24
+        - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAFER=24
     - os: linux
       sudo: required
       services:
         - docker
       compiler: gcc
       env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:25
+        - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAFER=25
     - os: linux
       sudo: required
       services:
         - docker
       compiler: clang
       env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:25
+        - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAFER=25
     # OpenSUSE
     - os: linux
       sudo: required

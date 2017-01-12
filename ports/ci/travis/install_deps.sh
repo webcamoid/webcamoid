@@ -26,6 +26,8 @@ if [ "${DOCKERSYS}" = debian ]; then
         libasound2-dev \
         libv4l-dev
 elif [ "${DOCKERSYS}" = fedora ]; then
+    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAFER}.noarch.rpm
+    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAFER}.noarch.rpm
     docker exec ${DOCKERSYS} yum -y update
 
     docker exec ${DOCKERSYS} yum -y install \
