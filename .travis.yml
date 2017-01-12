@@ -39,7 +39,7 @@ matrix:
 before_install: |
   if [ "${USE_DOCKER}" = 1 ]; then
     docker pull ubuntu:zesty
-    docker run -it -d ubuntu:zesty /bin/sh
+    docker run --name ubuntu -it -d ubuntu:zesty /bin/sh
     docker ps -a
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
@@ -53,7 +53,7 @@ before_install: |
 
 install: |
   if [ "${USE_DOCKER}" = 1 ]; then
-    docker exec ubuntu:zesty apt-get -y install \
+    docker exec ubuntu apt-get -y install \
         pkg-config \
         linux-libc-dev \
         qt5tools \
