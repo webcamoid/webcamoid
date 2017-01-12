@@ -40,6 +40,7 @@ before_install: |
   if [ "${DOCKERSYS}" = ubuntu ]; then
     docker pull ${DOCKERSYS}:${DOCKERVER}
     docker ps -a
+    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERSYS}:${DOCKERVER} /bin/sh -c true
     docker exec ${DOCKERSYS} apt-get -y update
     docker exec ${DOCKERSYS} apt-get -y upgrade
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
@@ -106,7 +107,6 @@ before_script: |
     elif [ "${CXX}" = clang++ ]; then
       export QMAKESPEC=linux-clang
     fi
-    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERSYS}:${DOCKERVER} /bin/sh -c true
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
     if [ "${CXX}" = g++ ]; then
