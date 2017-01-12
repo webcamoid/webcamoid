@@ -8,6 +8,13 @@ cache:
 matrix:
   include:
     - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: gcc
+      env:
+        - DOCKERSYS=ubuntu DOCKERVER=zesty
+    - os: linux
       dist: trusty
       sudo: required
       compiler: gcc
@@ -19,13 +26,6 @@ matrix:
       compiler: clang
       env:
         - QTVER=57
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - USE_DOCKER=1
     - os: osx
       osx_image: xcode8
       compiler: clang
@@ -37,12 +37,12 @@ matrix:
       compiler: clang
 
 before_install: |
-  if [ "${USE_DOCKER}" = 1 ]; then
-    docker pull ubuntu:zesty
-    docker run --name ubuntu -it -d ubuntu:zesty /bin/sh
+  if [ "${DOCKERSYS}" = ubuntu ]; then
+    docker pull ${DOCKERSYS}:${DOCKERVER}
+    docker run --name ${DOCKERSYS} -it -d ${DOCKERSYS}:${DOCKERVER} /bin/sh
     docker ps -a
-    docker exec ubuntu apt-get -y update
-    docker exec ubuntu apt-get -y upgrade
+    docker exec ${DOCKERSYS} apt-get -y update
+    docker exec ${DOCKERSYS} apt-get -y upgrade
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
     sudo add-apt-repository --yes ppa:mc3man/trusty-media
@@ -54,14 +54,20 @@ before_install: |
   fi
 
 install: |
-  if [ "${USE_DOCKER}" = 1 ]; then
-    docker exec ubuntu apt-get -y install \
+  if [ "${DOCKERSYS}" = ubuntu ]; then
+    docker exec ${DOCKERSYS} apt-get -y install \
         pkg-config \
         linux-libc-dev \
-        qt5tools \
-        qt5declarative \
-        qt5svg \
-        qt5multimedia \
+        qt5-qmake \
+        qtdeclarative5-dev \
+        libqt5opengl5-dev \
+        libqt5svg5-dev \
+        libavcodec-dev \
+        libavdevice-dev \
+        libavformat-dev \
+        libavutil-dev \
+        libswresample-dev \
+        libswscale-dev \
         libgstreamer-plugins-base1.0-dev \
         libpulse-dev \
         libjack-dev \
@@ -94,7 +100,13 @@ install: |
   fi
 
 before_script: |
-  if [ "${USE_DOCKER}" = 1 ]; then
+  if [ "${DOCKERSYS}" = ubuntu ]; then
+    if [ "${CXX}" = g++ ]; then
+      export QMAKESPEC=linux-g++
+    elif [ "${CXX}" = clang++ ]; then
+      export QMAKESPEC=linux-clang
+    fi
+    docker exec ${DOCKERSYS} git clone https://github.com/webcamoid/webcamoid.git
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
     if [ "${CXX}" = g++ ]; then
@@ -110,8 +122,13 @@ before_script: |
       export QMAKESPEC=macx-clang
     fi
   fi
-script:
-  - ports/ci/travis/build.sh
+script: |
+  if [ "${DOCKERSYS}" = ubuntu ]; then
+    docker exec ${DOCKERSYS} qmake Webcamoid.pro \
+        QMAKE_CXX="${CXX}"
+  else
+    ports/ci/travis/build.sh
+  fi
 
 branches:
   only:
