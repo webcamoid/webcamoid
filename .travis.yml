@@ -56,6 +56,7 @@ before_install: |
 install: |
   if [ "${DOCKERSYS}" = ubuntu ]; then
     docker exec ${DOCKERSYS} apt-get -y install \
+        git \
         pkg-config \
         linux-libc-dev \
         qt5-qmake \
@@ -126,6 +127,7 @@ script: |
   if [ "${DOCKERSYS}" = ubuntu ]; then
     docker exec ${DOCKERSYS} qmake Webcamoid.pro \
         QMAKE_CXX="${CXX}"
+    make
   else
     ports/ci/travis/build.sh
   fi
