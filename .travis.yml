@@ -11,12 +11,30 @@ matrix:
       sudo: required
       services:
         - docker
-      compiler:
-        - gcc
-        - clang
+      compiler: gcc
+      env:
+        - DOCKERPKG=debian DOCKERSYS=ubuntu:yakkety
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: clang
+      env:
+        - DOCKERPKG=debian DOCKERSYS=ubuntu:yakkety
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: gcc
       env:
         - DOCKERPKG=debian DOCKERSYS=ubuntu:zesty
-        - DOCKERPKG=debian DOCKERSYS=ubuntu:yakkety
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: clang
+      env:
+        - DOCKERPKG=debian DOCKERSYS=ubuntu:zesty
     - os: linux
       dist: trusty
       sudo: required
