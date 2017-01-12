@@ -125,7 +125,7 @@ before_script: |
   fi
 script: |
   if [ "${DOCKERSYS}" = ubuntu ]; then
-    docker exec ${DOCKERSYS} qmake Webcamoid.pro \
+    docker exec ${DOCKERSYS} qmake -qt=5 Webcamoid.pro \
         QMAKE_CXX="${CXX}"
     make
   else
