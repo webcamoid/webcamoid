@@ -13,28 +13,42 @@ matrix:
         - docker
       compiler: gcc
       env:
-        - DOCKERPKG=debian DOCKERSYS=ubuntu:yakkety
+        - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
     - os: linux
       sudo: required
       services:
         - docker
       compiler: clang
       env:
-        - DOCKERPKG=debian DOCKERSYS=ubuntu:yakkety
+        - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
     - os: linux
       sudo: required
       services:
         - docker
       compiler: gcc
       env:
-        - DOCKERPKG=debian DOCKERSYS=ubuntu:zesty
+        - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
     - os: linux
       sudo: required
       services:
         - docker
       compiler: clang
       env:
-        - DOCKERPKG=debian DOCKERSYS=ubuntu:zesty
+        - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: gcc
+      env:
+        - DOCKERSYS=debian DOCKERIMG=debian:stretch
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: clang
+      env:
+        - DOCKERSYS=debian DOCKERIMG=debian:stretch
     - os: linux
       dist: trusty
       sudo: required
@@ -58,12 +72,12 @@ matrix:
       compiler: clang
 
 before_install: |
-  if [ "${DOCKERPKG}" = debian ]; then
-    docker pull ${DOCKERSYS}
+  if [ "${DOCKERSYS}" = debian ]; then
+    docker pull ${DOCKERIMG}
     docker ps -a
-    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERPKG} ${DOCKERSYS} /bin/sh
-    docker exec ${DOCKERPKG} apt-get -y update
-    docker exec ${DOCKERPKG} apt-get -y upgrade
+    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
+    docker exec ${DOCKERSYS} apt-get -y update
+    docker exec ${DOCKERSYS} apt-get -y upgrade
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
     sudo add-apt-repository --yes ppa:mc3man/trusty-media
@@ -75,9 +89,10 @@ before_install: |
   fi
 
 install: |
-  if [ "${DOCKERPKG}" = debian ]; then
-    docker exec ${DOCKERPKG} apt-get -y install \
+  if [ "${DOCKERSYS}" = debian ]; then
+    docker exec ${DOCKERSYS} apt-get -y install \
         git \
+        ccache \
         clang \
         pkg-config \
         linux-libc-dev \
@@ -124,7 +139,7 @@ install: |
   fi
 
 before_script: |
-  if [ "${DOCKERPKG}" = debian ]; then
+  if [ "${DOCKERSYS}" = debian ]; then
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=linux-g++
     elif [ "${CXX}" = clang++ ]; then

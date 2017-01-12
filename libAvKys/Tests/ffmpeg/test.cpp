@@ -31,5 +31,7 @@ extern "C"
 
 int main()
 {
+    avcodec_receive_packet(NULL, NULL);
+
     return 0;
 }

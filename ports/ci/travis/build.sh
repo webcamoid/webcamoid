@@ -6,11 +6,11 @@ fi
 
 COMPILER="ccache ${CXX} ${UNUSEDARGS}"
 
-if [ "${DOCKERPKG}" = debian ]; then
-    docker exec ${DOCKERPKG} qmake -qt=5 Webcamoid.pro \
-        QMAKE_CXX="${CXX}"
+if [ "${DOCKERSYS}" = debian ]; then
+    docker exec ${DOCKERSYS} qmake -qt=5 Webcamoid.pro \
+        QMAKE_CXX="${COMPILER}"
 
-    docker exec ${DOCKERPKG} make
+    docker exec ${DOCKERSYS} make
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     qmake Webcamoid.pro \
         QMAKE_CXX="${COMPILER}"
