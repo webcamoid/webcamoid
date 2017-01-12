@@ -108,6 +108,7 @@ before_script: |
       export QMAKESPEC=linux-clang
     fi
     docker exec ${DOCKERSYS} git clone https://github.com/webcamoid/webcamoid.git
+    docker exec ${DOCKERSYS} cd webcamoid
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     source /opt/qt${QTVER}/bin/qt${QTVER}-env.sh
     if [ "${CXX}" = g++ ]; then
