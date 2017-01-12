@@ -26,20 +26,25 @@ if [ "${DOCKERSYS}" = debian ]; then
         libasound2-dev \
         libv4l-dev
 elif [ "${DOCKERSYS}" = fedora ]; then
-    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAFER}.noarch.rpm
-    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAFER}.noarch.rpm
+    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
+    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
     docker exec ${DOCKERSYS} yum -y update
 
     docker exec ${DOCKERSYS} yum -y install \
         ccache \
         clang \
+        make \
         gcc-c++ \
         qt5-qttools-devel \
         qt5-qtdeclarative-devel \
+        qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
         ffmpeg-devel \
+        gstreamer1-plugins-base-devel \
         libv4l-devel \
-        pulseaudio-libs-devel
+        alsa-lib-devel \
+        pulseaudio-libs-devel \
+        jack-audio-connection-kit-devel
 elif [ "${DOCKERSYS}" = opensuse ]; then
     docker exec ${DOCKERSYS} zypper -n update
 
@@ -49,10 +54,14 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-linguist \
         libqt5-qtbase-devel \
         libqt5-qtdeclarative-devel \
+        libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
         ffmpeg-devel \
+        gstreamer-plugins-base-devel \
         libv4l-devel \
-        libpulse-devel
+        alsa-devel \
+        libpulse-devel \
+        libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew install \
         ccache \
