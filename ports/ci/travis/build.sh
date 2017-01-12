@@ -6,16 +6,11 @@ fi
 
 COMPILER="ccache ${CXX} ${UNUSEDARGS}"
 
-if [ "${DOCKERSYS}" = debian ]; then
-    docker exec ${DOCKERSYS} qmake -qt=5 Webcamoid.pro \
+if [ "${TRAVIS_OS_NAME}" = linux ]; then
+    docker exec ${DOCKERSYS} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
         QMAKE_CXX="${COMPILER}"
 
     docker exec ${DOCKERSYS} make
-elif [ "${TRAVIS_OS_NAME}" = linux ]; then
-    qmake Webcamoid.pro \
-        QMAKE_CXX="${COMPILER}"
-
-    make
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     LIBUSBVER=$(ls /usr/local/Cellar/libusb | tail -n 1)
     LIBUVCVER=$(ls /usr/local/Cellar/libuvc | tail -n 1)
