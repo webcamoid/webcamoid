@@ -6,9 +6,16 @@ fi
 
 COMPILER="ccache ${CXX} ${UNUSEDARGS}"
 
-if [ "${TRAVIS_OS_NAME}" = linux ]; then
+if [ "${DOCKERPKG}" = debian ]; then
+    docker exec ${DOCKERPKG} qmake -qt=5 Webcamoid.pro \
+        QMAKE_CXX="${CXX}"
+
+    docker exec ${DOCKERPKG} make
+elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     qmake Webcamoid.pro \
         QMAKE_CXX="${COMPILER}"
+
+    make
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     LIBUSBVER=$(ls /usr/local/Cellar/libusb | tail -n 1)
     LIBUVCVER=$(ls /usr/local/Cellar/libuvc | tail -n 1)
@@ -19,6 +26,6 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         LIBUVCINCLUDES=/usr/local/Cellar/libuvc/${LIBUVCVER}/include \
         LIBUVCLIBS=-L/usr/local/Cellar/libuvc/${LIBUVCVER}/lib \
         LIBUVCLIBS+=-luvc
-fi
 
-make
+    make
+fi

@@ -11,9 +11,12 @@ matrix:
       sudo: required
       services:
         - docker
-      compiler: gcc
+      compiler:
+        - gcc
+        - clang
       env:
-        - DOCKERSYS=ubuntu DOCKERVER=zesty
+        - DOCKERPKG=debian DOCKERSYS=ubuntu:zesty
+        - DOCKERPKG=debian DOCKERSYS=ubuntu:yakkety
     - os: linux
       dist: trusty
       sudo: required
@@ -37,12 +40,12 @@ matrix:
       compiler: clang
 
 before_install: |
-  if [ "${DOCKERSYS}" = ubuntu ]; then
-    docker pull ${DOCKERSYS}:${DOCKERVER}
+  if [ "${DOCKERPKG}" = debian ]; then
+    docker pull ${DOCKERSYS}
     docker ps -a
-    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERSYS}:${DOCKERVER} /bin/sh
-    docker exec ${DOCKERSYS} apt-get -y update
-    docker exec ${DOCKERSYS} apt-get -y upgrade
+    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERPKG} ${DOCKERSYS} /bin/sh
+    docker exec ${DOCKERPKG} apt-get -y update
+    docker exec ${DOCKERPKG} apt-get -y upgrade
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     sudo add-apt-repository --yes ppa:beineri/opt-qt${QTVER}-trusty
     sudo add-apt-repository --yes ppa:mc3man/trusty-media
@@ -54,13 +57,15 @@ before_install: |
   fi
 
 install: |
-  if [ "${DOCKERSYS}" = ubuntu ]; then
-    docker exec ${DOCKERSYS} apt-get -y install \
+  if [ "${DOCKERPKG}" = debian ]; then
+    docker exec ${DOCKERPKG} apt-get -y install \
         git \
+        clang \
         pkg-config \
         linux-libc-dev \
         qt5-qmake \
         qtdeclarative5-dev \
+        qtmultimedia5-dev \
         libqt5opengl5-dev \
         libqt5svg5-dev \
         libavcodec-dev \
@@ -101,7 +106,7 @@ install: |
   fi
 
 before_script: |
-  if [ "${DOCKERSYS}" = ubuntu ]; then
+  if [ "${DOCKERPKG}" = debian ]; then
     if [ "${CXX}" = g++ ]; then
       export QMAKESPEC=linux-g++
     elif [ "${CXX}" = clang++ ]; then
@@ -122,14 +127,9 @@ before_script: |
       export QMAKESPEC=macx-clang
     fi
   fi
-script: |
-  if [ "${DOCKERSYS}" = ubuntu ]; then
-    docker exec ${DOCKERSYS} qmake -qt=5 Webcamoid.pro \
-        QMAKE_CXX="${CXX}"
-    docker exec ${DOCKERSYS} make
-  else
-    ports/ci/travis/build.sh
-  fi
+
+script:
+  - ports/ci/travis/build.sh
 
 branches:
   only:
