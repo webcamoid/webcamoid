@@ -4,6 +4,7 @@ cache:
   ccache: true
   apt: true
   timeout: 1000
+
 matrix:
   include:
     # Debian
@@ -64,6 +65,20 @@ matrix:
         - docker
       compiler: clang
       env:
+        - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: gcc
+      env:
+        - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
+    - os: linux
+      sudo: required
+      services:
+        - docker
+      compiler: clang
+      env:
         - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
     # Ubuntu
     - os: linux
@@ -109,7 +124,8 @@ before_install: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
     docker pull ${DOCKERIMG}
     docker ps -a
-    docker run -it -d -v `pwd`:`pwd` -w `pwd` --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
+    docker run -it -d -v ${pwd}:/sources -v $HOME/.ccache:/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
+    docker exec ${DOCKERSYS} sh -c 'export CCACHE_DIR=/ccache'
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew update
     brew upgrade
