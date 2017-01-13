@@ -124,8 +124,7 @@ before_install: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
     docker pull ${DOCKERIMG}
     docker ps -a
-    docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
-    docker exec ${DOCKERSYS} sh -c 'export CCACHE_DIR=/ccache'
+    docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew update
     brew upgrade
