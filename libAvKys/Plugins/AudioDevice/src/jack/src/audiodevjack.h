@@ -42,6 +42,9 @@ class AudioDevJack: public AudioDev
         Q_INVOKABLE QStringList outputs();
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
+        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const AkAudioPacket &packet);
@@ -54,8 +57,8 @@ class AudioDevJack: public AudioDev
         QMap<QString, QStringList> m_devicePorts;
         QList<jack_port_t *> m_appPorts;
         QString m_curDevice;
+        int m_sampleRate;
         int m_curChannels;
-        int m_curSampleRate;
         int m_maxBufferSize;
         bool m_isInput;
         QByteArray m_buffer;

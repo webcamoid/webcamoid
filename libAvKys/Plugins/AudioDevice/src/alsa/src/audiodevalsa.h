@@ -43,6 +43,9 @@ class AudioDevAlsa: public AudioDev
         Q_INVOKABLE QStringList outputs();
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
+        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const AkAudioPacket &packet);
@@ -54,14 +57,19 @@ class AudioDevAlsa: public AudioDev
         QString m_defaultSource;
         QStringList m_sinks;
         QStringList m_sources;
-        QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
         snd_pcm_t *m_pcmHnd;
         QFileSystemWatcher *m_fsWatcher;
         QTimer m_timer;
         QMutex m_mutex;
 
-        AkAudioCaps deviceCaps(const QString &device) const;
+        void fillDeviceInfo(const QString &device,
+                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                            QList<int> *supportedChannels,
+                            QList<int> *supportedSampleRates) const;
 
     private slots:
         void updateDevices();

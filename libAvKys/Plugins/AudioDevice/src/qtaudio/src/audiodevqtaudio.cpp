@@ -70,6 +70,21 @@ AkAudioCaps AudioDevQtAudio::preferredFormat(const QString &device)
     return this->m_pinCapsMap.value(device);
 }
 
+QList<AkAudioCaps::SampleFormat> AudioDevQtAudio::supportedFormats(const QString &device)
+{
+    return this->m_supportedFormats.value(device);
+}
+
+QList<int> AudioDevQtAudio::supportedChannels(const QString &device)
+{
+    return this->m_supportedChannels.value(device);
+}
+
+QList<int> AudioDevQtAudio::supportedSampleRates(const QString &device)
+{
+    return this->m_supportedSampleRates.value(device);
+}
+
 bool AudioDevQtAudio::init(const QString &device, const AkAudioCaps &caps)
 {
     int blockSize = BUFFER_SIZE
@@ -178,7 +193,7 @@ bool AudioDevQtAudio::uninit()
     return true;
 }
 
-AkAudioCaps::SampleFormat AudioDevQtAudio::qtFormatToAk(const QAudioFormat &format)
+AkAudioCaps::SampleFormat AudioDevQtAudio::qtFormatToAk(const QAudioFormat &format) const
 {
     return AkAudioCaps::sampleFormatFromProperties(
                 format.sampleType() == QAudioFormat::SignedInt?
@@ -194,7 +209,7 @@ AkAudioCaps::SampleFormat AudioDevQtAudio::qtFormatToAk(const QAudioFormat &form
                 false);
 }
 
-QAudioFormat AudioDevQtAudio::qtFormatFromCaps(const AkAudioCaps &caps)
+QAudioFormat AudioDevQtAudio::qtFormatFromCaps(const AkAudioCaps &caps) const
 {
     QAudioFormat audioFormat;
     audioFormat.setByteOrder(AkAudioCaps::endianness(caps.format()) == Q_LITTLE_ENDIAN?
@@ -223,6 +238,9 @@ void AudioDevQtAudio::updateDevices()
     decltype(this->m_sources) sources;
     decltype(this->m_pinCapsMap) pinCapsMap;
     decltype(this->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->m_supportedFormats) supportedFormats;
+    decltype(this->m_supportedChannels) supportedChannels;
+    decltype(this->m_supportedSampleRates) supportedSampleRates;
 
     for (auto &mode: QVector<QAudio::Mode> {QAudio::AudioInput,
                                             QAudio::AudioOutput}) {
@@ -240,17 +258,32 @@ void AudioDevQtAudio::updateDevices()
 
             auto preferredFormat = device.preferredFormat();
 
-            AkAudioCaps audioCaps;
-            audioCaps.isValid() = true;
-            audioCaps.format() = this->qtFormatToAk(preferredFormat);
-            audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-            audioCaps.channels() = preferredFormat.channelCount();
-            audioCaps.rate() = preferredFormat.sampleRate();
-            audioCaps.layout() = AkAudioCaps::defaultChannelLayout(audioCaps.channels());
-            audioCaps.align() = false;
-
-            pinCapsMap[deviceName] = audioCaps;
+            pinCapsMap[deviceName] =
+                    AkAudioCaps(this->qtFormatToAk(preferredFormat),
+                                preferredFormat.channelCount(),
+                                preferredFormat.sampleRate());
             pinDescriptionMap[deviceName] = description;
+            QList<AkAudioCaps::SampleFormat> _supportedFormats;
+            QAudioFormat audioFormat;
+            audioFormat.setChannelCount(2);
+            audioFormat.setCodec("audio/pcm");
+            audioFormat.setSampleRate(44100);
+
+            for (auto &endianness: device.supportedByteOrders())
+                for (auto &sampleSize: device.supportedSampleSizes())
+                    for (auto &sampleType: device.supportedSampleTypes()) {
+                        audioFormat.setByteOrder(endianness);
+                        audioFormat.setSampleSize(sampleSize);
+                        audioFormat.setSampleType(sampleType);
+                        auto format = this->qtFormatToAk(audioFormat);
+
+                        if (format != AkAudioCaps::SampleFormat_none)
+                            _supportedFormats << format;
+                    }
+
+            supportedFormats[deviceName] = _supportedFormats;
+            supportedChannels[deviceName] = device.supportedChannelCounts();
+            supportedSampleRates[deviceName] = device.supportedSampleRates();
         }
     }
 
@@ -259,6 +292,15 @@ void AudioDevQtAudio::updateDevices()
 
     if (this->m_pinCapsMap != pinCapsMap)
         this->m_pinCapsMap = pinCapsMap;
+
+    if (this->m_supportedFormats != supportedFormats)
+        this->m_supportedFormats = supportedFormats;
+
+    if (this->m_supportedChannels != supportedChannels)
+        this->m_supportedChannels = supportedChannels;
+
+    if (this->m_supportedSampleRates != supportedSampleRates)
+        this->m_supportedSampleRates = supportedSampleRates;
 
     if (this->m_pinDescriptionMap != pinDescriptionMap)
         this->m_pinDescriptionMap = pinDescriptionMap;

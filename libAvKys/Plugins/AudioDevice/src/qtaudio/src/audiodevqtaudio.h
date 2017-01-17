@@ -51,14 +51,14 @@ class AudioDevQtAudio: public AudioDev
         Q_INVOKABLE QStringList outputs();
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
+        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE bool init(const QString &device,
                               const AkAudioCaps &caps);
         Q_INVOKABLE QByteArray read(int samples);
         Q_INVOKABLE bool write(const AkAudioPacket &packet);
         Q_INVOKABLE bool uninit();
-
-        AkAudioCaps::SampleFormat qtFormatToAk(const QAudioFormat &format);
-        QAudioFormat qtFormatFromCaps(const AkAudioCaps &caps);
 
     private:
         QString m_error;
@@ -68,6 +68,9 @@ class AudioDevQtAudio: public AudioDev
         QMap<QAudioDeviceInfo, QString> m_sources;
         QMap<QString, AkAudioCaps> m_pinCapsMap;
         QMap<QString, QString> m_pinDescriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
         AudioDeviceBuffer m_outputDeviceBuffer;
         QIODevice *m_inputDeviceBuffer;
         QAudioInput *m_input;
@@ -75,7 +78,10 @@ class AudioDevQtAudio: public AudioDev
         QMutex m_mutex;
         int m_maxAudioBuffer;
 
-    public slots:
+        AkAudioCaps::SampleFormat qtFormatToAk(const QAudioFormat &format) const;
+        QAudioFormat qtFormatFromCaps(const AkAudioCaps &caps) const;
+
+    private slots:
         void updateDevices();
 };
 

@@ -254,6 +254,27 @@ AkAudioCaps AudioDevPulseAudio::preferredFormat(const QString &device)
     return caps;
 }
 
+QList<AkAudioCaps::SampleFormat> AudioDevPulseAudio::supportedFormats(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return sampleFormats->keys();
+}
+
+QList<int> AudioDevPulseAudio::supportedChannels(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<int> {1, 2};
+}
+
+QList<int> AudioDevPulseAudio::supportedSampleRates(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return this->m_commonSampleRates.toList();
+}
+
 bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
 {
     int error;
@@ -495,16 +516,10 @@ void AudioDevPulseAudio::sourceInfoCallback(pa_context *context,
             strlen(info->description) < 1?
                   info->name: info->description;
 
-    AkAudioCaps audioCaps;
-    audioCaps.isValid() = true;
-    audioCaps.format() = sampleFormats->key(info->sample_spec.format);
-    audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-    audioCaps.channels() = info->sample_spec.channels;
-    audioCaps.rate() = int(info->sample_spec.rate);
-    audioCaps.layout() = AkAudioCaps::defaultChannelLayout(info->sample_spec.channels);
-    audioCaps.align() = false;
-
-    audioDevice->m_pinCapsMap[info->name] = audioCaps;
+    audioDevice->m_pinCapsMap[info->name] =
+            AkAudioCaps(sampleFormats->key(info->sample_spec.format),
+                        info->sample_spec.channels,
+                        int(info->sample_spec.rate));
 
     if (sources != audioDevice->m_sources
         || pinCapsMap != audioDevice->m_pinCapsMap
@@ -549,16 +564,10 @@ void AudioDevPulseAudio::sinkInfoCallback(pa_context *context,
             strlen(info->description) < 1?
                   info->name: info->description;
 
-    AkAudioCaps audioCaps;
-    audioCaps.isValid() = true;
-    audioCaps.format() = sampleFormats->key(info->sample_spec.format);
-    audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-    audioCaps.channels() = info->sample_spec.channels;
-    audioCaps.rate() = int(info->sample_spec.rate);
-    audioCaps.layout() = AkAudioCaps::defaultChannelLayout(info->sample_spec.channels);
-    audioCaps.align() = false;
-
-    audioDevice->m_pinCapsMap[info->name] = audioCaps;
+    audioDevice->m_pinCapsMap[info->name] =
+            AkAudioCaps(sampleFormats->key(info->sample_spec.format),
+                        info->sample_spec.channels,
+                        int(info->sample_spec.rate));
 
     if (sinks != audioDevice->m_sinks
         || pinCapsMap != audioDevice->m_pinCapsMap

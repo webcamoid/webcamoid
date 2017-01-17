@@ -29,53 +29,100 @@ Rectangle {
     width: 200
     height: 400
 
-    property variant iFormat: []
-    property variant iChannels: []
-    property variant iSampleRate: []
-    property variant oFormat: []
-    property variant oChannels: []
-    property variant oSampleRate: []
+    property string iDevice: ""
+    property string iDescription: ""
+    property string oDescription: ""
+
+    function updateInputInfo()
+    {
+        iDevice = AudioLayer.audioInput.length > 0?
+                    AudioLayer.audioInput[0]: "";
+        iDescription = AudioLayer.description(iDevice);
+
+        var supportedFormats = AudioLayer.supportedFormats(iDevice);
+        iSampleFormats.clear();
+
+        for (var format in supportedFormats)
+            iSampleFormats.append({channels: supportedFormats[format],
+                                   description: supportedFormats[format]});
+
+        var audioCaps = Ak.newAudioCaps();
+        var supportedChannels = AudioLayer.supportedChannels(iDevice);
+        iChannels.clear();
+
+        for (var channels in supportedChannels) {
+            var description =
+                    supportedChannels[channels]
+                    + " - "
+                    + audioCaps.defaultChannelLayoutString(supportedChannels[channels]);
+
+            iChannels.append({channels: supportedChannels[channels],
+                              description: description});
+        }
+
+        var supportedSampleRates = AudioLayer.supportedSampleRates(iDevice);
+        iSampleRates.clear();
+
+        for (var rate in supportedSampleRates)
+            iSampleRates.append({sampleRate: supportedSampleRates[rate],
+                                 description: supportedSampleRates[rate]});
+
+        var preferredFormat = Ak.newAudioCaps(AudioLayer.preferredFormat(iDevice));
+
+        cbxISampleFormats.currentIndex = supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format));
+        cbxIChannels.currentIndex = supportedChannels.indexOf(preferredFormat.channels);
+        cbxISampleRates.currentIndex = supportedSampleRates.indexOf(preferredFormat.rate);
+    }
+
+    function updateOutputInfo()
+    {
+        oDescription = AudioLayer.description(AudioLayer.audioOutput);
+
+        var supportedFormats = AudioLayer.supportedFormats(AudioLayer.audioOutput);
+        oSampleFormats.clear();
+
+        for (var format in supportedFormats)
+            oSampleFormats.append({channels: supportedFormats[format],
+                                   description: supportedFormats[format]});
+
+        var audioCaps = Ak.newAudioCaps();
+        var supportedChannels = AudioLayer.supportedChannels(AudioLayer.audioOutput);
+        oChannels.clear();
+
+        for (var channels in supportedChannels) {
+            var description =
+                    supportedChannels[channels]
+                    + " - "
+                    + audioCaps.defaultChannelLayoutString(supportedChannels[channels]);
+
+            oChannels.append({channels: supportedChannels[channels],
+                              description: description});
+        }
+
+        var supportedSampleRates = AudioLayer.supportedSampleRates(AudioLayer.audioOutput);
+        oSampleRates.clear();
+
+        for (var rate in supportedSampleRates)
+            oSampleRates.append({sampleRate: supportedSampleRates[rate],
+                                 description: supportedSampleRates[rate]});
+
+        var preferredFormat = Ak.newAudioCaps(AudioLayer.preferredFormat(AudioLayer.audioOutput));
+
+        cbxOSampleFormats.currentIndex = supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format));
+        cbxOChannels.currentIndex = supportedChannels.indexOf(preferredFormat.channels);
+        cbxOSampleRates.currentIndex = supportedSampleRates.indexOf(preferredFormat.rate);
+    }
 
     Component.onCompleted: {
-        var inCaps = Ak.newCaps(AudioLayer.outputCaps).toMap()
-        iFormat = inCaps.format? [inCaps.format]: []
-        iChannels = inCaps.channels? [inCaps.channels]: []
-        iSampleRate = inCaps.rate? [inCaps.rate]: []
-
-        var outCaps = Ak.newCaps(AudioLayer.outputDeviceCaps).toMap()
-        oFormat = outCaps.format? [outCaps.format]: []
-        oChannels = outCaps.channels? [outCaps.channels]: []
-        oSampleRate = outCaps.rate? [outCaps.rate]: []
+        updateInputInfo();
+        updateOutputInfo();
     }
 
     Connections {
         target: AudioLayer
 
-        onAudioOutputChanged: {
-            if (state === "") {
-                txtDescription.text = AudioLayer.description(audioOutput)
-                txtDevice.text = audioOutput
-            }
-        }
-        onOutputDeviceCapsChanged: {
-            var inCaps = Ak.newCaps(outputDeviceCaps).toMap()
-            oFormat = inCaps.format? [inCaps.format]: []
-            oChannels = inCaps.channels? [inCaps.channels]: []
-            oSampleRate = inCaps.rate? [inCaps.rate]: []
-        }
-        onOutputCapsChanged: {
-            var outCaps = Ak.newCaps(outputCaps).toMap()
-            iFormat = outCaps.format? [outCaps.format]: []
-            iChannels = outCaps.channels? [outCaps.channels]: []
-            iSampleRate = outCaps.rate? [outCaps.rate]: []
-        }
-    }
-
-    onStateChanged: {
-        if (state === "") {
-            txtDescription.text = AudioLayer.description(AudioLayer.audioOutput)
-            txtDevice.text = AudioLayer.audioOutput
-        }
+        onAudioInputChanged: updateInputInfo()
+        onAudioOutputChanged: updateOutputInfo()
     }
 
     Label {
@@ -88,7 +135,7 @@ Rectangle {
     }
     TextField {
         id: txtDescription
-        text: AudioLayer.description(AudioLayer.audioOutput)
+        text: oDescription
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: lblDescription.bottom
@@ -114,6 +161,7 @@ Rectangle {
     }
 
     GridLayout {
+        id: glyOutputs
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.bottom: parent.bottom
@@ -124,8 +172,58 @@ Rectangle {
             text: qsTr("Sample Format")
         }
         ComboBox {
-            id: cbxSampleFormat
-            model: oFormat
+            id: cbxOSampleFormats
+            model: ListModel {
+                id: oSampleFormats
+            }
+            textRole: "description"
+            Layout.fillWidth: true
+        }
+        Label {
+            text: qsTr("Channels")
+        }
+        ComboBox {
+            id: cbxOChannels
+            model: ListModel {
+                id: oChannels
+            }
+            textRole: "description"
+            Layout.fillWidth: true
+        }
+        Label {
+            text: qsTr("Sample Rate")
+        }
+        ComboBox {
+            id: cbxOSampleRates
+            model: ListModel {
+                id: oSampleRates
+            }
+            textRole: "description"
+            Layout.fillWidth: true
+        }
+        Label {
+            Layout.fillHeight: true
+        }
+    }
+
+    GridLayout {
+        id: glyInputs
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.top: txtDevice.bottom
+        columns: 2
+        visible: false
+
+        Label {
+            text: qsTr("Sample Format")
+        }
+        ComboBox {
+            id: cbxISampleFormats
+            model: ListModel {
+                id: iSampleFormats
+            }
+            textRole: "description"
             Layout.fillWidth: true
         }
 
@@ -133,8 +231,11 @@ Rectangle {
             text: qsTr("Channels")
         }
         ComboBox {
-            id: cbxChannels
-            model: oChannels
+            id: cbxIChannels
+            model: ListModel {
+                id: iChannels
+            }
+            textRole: "description"
             Layout.fillWidth: true
         }
 
@@ -142,8 +243,11 @@ Rectangle {
             text: qsTr("Sample Rate")
         }
         ComboBox {
-            id: cbxSampleRate
-            model: oSampleRate
+            id: cbxISampleRates
+            model: ListModel {
+                id: iSampleRates
+            }
+            textRole: "description"
             Layout.fillWidth: true
         }
 
@@ -158,23 +262,19 @@ Rectangle {
 
             PropertyChanges {
                 target: txtDescription
-                text: AudioLayer.audioInput.length > 0? AudioLayer.description(AudioLayer.audioInput[0]): ""
+                text: iDescription
             }
             PropertyChanges {
                 target: txtDevice
-                text: AudioLayer.audioInput.length > 0? AudioLayer.audioInput[0]: ""
+                text: iDevice
             }
             PropertyChanges {
-                target: cbxSampleFormat
-                model: iFormat
+                target: glyOutputs
+                visible: false
             }
             PropertyChanges {
-                target: cbxChannels
-                model: iChannels
-            }
-            PropertyChanges {
-                target: cbxSampleRate
-                model: iSampleRate
+                target: glyInputs
+                visible: true
             }
         }
     ]

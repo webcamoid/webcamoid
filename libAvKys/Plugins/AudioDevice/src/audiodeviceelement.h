@@ -78,6 +78,10 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE int bufferSize() const;
         Q_INVOKABLE AkCaps caps() const;
+        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
+        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE QString audioLib() const;
 
     private:

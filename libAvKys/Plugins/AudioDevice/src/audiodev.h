@@ -22,6 +22,8 @@
 
 #include <akaudiopacket.h>
 
+class AudioDeviceElement;
+
 class AudioDev: public QObject
 {
     Q_OBJECT
@@ -40,10 +42,16 @@ class AudioDev: public QObject
         Q_INVOKABLE virtual QStringList outputs();
         Q_INVOKABLE virtual QString description(const QString &device);
         Q_INVOKABLE virtual AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE virtual QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
+        Q_INVOKABLE virtual QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE virtual QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE virtual bool init(const QString &device, const AkAudioCaps &caps);
         Q_INVOKABLE virtual QByteArray read(int samples);
         Q_INVOKABLE virtual bool write(const AkAudioPacket &packet);
         Q_INVOKABLE virtual bool uninit();
+
+    protected:
+        QVector<int> m_commonSampleRates;
 
     Q_SIGNALS:
         void errorChanged(const QString &error);
@@ -51,6 +59,8 @@ class AudioDev: public QObject
         void defaultOutputChanged(const QString &defaultOutput);
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
+
+    friend class AudioDeviceElement;
 };
 
 #endif // AUDIODEV_H

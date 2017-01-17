@@ -127,7 +127,28 @@ QString AudioDevAlsa::description(const QString &device)
 
 AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 {
-    return this->m_pinCapsMap.value(device);
+    return this->m_sinks.contains(device)?
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
+                            2,
+                            44100):
+                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
+                            1,
+                            8000);
+}
+
+QList<AkAudioCaps::SampleFormat> AudioDevAlsa::supportedFormats(const QString &device)
+{
+    return this->m_supportedFormats.value(device);
+}
+
+QList<int> AudioDevAlsa::supportedChannels(const QString &device)
+{
+    return this->m_supportedChannels.value(device);
+}
+
+QList<int> AudioDevAlsa::supportedSampleRates(const QString &device)
+{
+    return this->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
@@ -246,7 +267,10 @@ bool AudioDevAlsa::uninit()
     return true;
 }
 
-AkAudioCaps AudioDevAlsa::deviceCaps(const QString &device) const
+void AudioDevAlsa::fillDeviceInfo(const QString &device,
+                                  QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                  QList<int> *supportedChannels,
+                                  QList<int> *supportedSampleRates) const
 {
     snd_pcm_t *pcmHnd = NULL;
     int error = snd_pcm_open(&pcmHnd,
@@ -258,7 +282,7 @@ AkAudioCaps AudioDevAlsa::deviceCaps(const QString &device) const
                              SND_PCM_NONBLOCK);
 
     if (error < 0)
-        return AkAudioCaps();
+        return;
 
     snd_pcm_hw_params_t *hwParams = NULL;
     snd_pcm_hw_params_malloc(&hwParams);
@@ -281,85 +305,33 @@ AkAudioCaps AudioDevAlsa::deviceCaps(const QString &device) const
         SND_PCM_FORMAT_U8
     };
 
-    snd_pcm_format_t format;
-    format = SND_PCM_FORMAT_UNKNOWN;
-
     for (auto fmt: preferredFormats)
-        if (snd_pcm_hw_params_test_format(pcmHnd, hwParams, fmt) >= 0) {
-            format = fmt;
+        if (snd_pcm_hw_params_test_format(pcmHnd, hwParams, fmt) >= 0)
+            supportedFormats->append(sampleFormats->key(fmt));
 
-            break;
-        }
+    for (int channels = 1; channels < 3; channels++)
+        if (snd_pcm_hw_params_test_channels(pcmHnd, hwParams, uint(channels)) >= 0)
+            supportedChannels->append(channels);
 
-    if (format == SND_PCM_FORMAT_UNKNOWN)
-        goto deviceCaps_fail;
-
-    uint channels;
-    channels = 0;
-
-    for (uint n: QVector<uint>{2, 1})
-        if (snd_pcm_hw_params_test_channels(pcmHnd, hwParams, n) >= 0) {
-            channels = n;
-
-            break;
-        }
-
-    if (channels < 1)
-        goto deviceCaps_fail;
-
-    static const QVector<uint> preferredSampleRates{
-        48000,
-        44100,
-        22050,
-        11025,
-        8000
-    };
-
-    uint sampleRate;
-    sampleRate = 0;
-
-    for (uint rate: preferredSampleRates)
-        if (snd_pcm_hw_params_test_rate(pcmHnd, hwParams, rate, 0) >= 0) {
-            sampleRate = rate;
-
-            break;
-        }
-
-    if (sampleRate < 1)
-        goto deviceCaps_fail;
-
-    snd_pcm_hw_params_free(hwParams);
-    snd_pcm_close(pcmHnd);
-
-    {
-        AkAudioCaps audioCaps;
-        audioCaps.isValid() = true;
-        audioCaps.format() = sampleFormats->key(format,
-                                                AkAudioCaps::SampleFormat_none);
-        audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-        audioCaps.channels() = int(channels);
-        audioCaps.rate() = int(sampleRate);
-        audioCaps.layout() = AkAudioCaps::defaultChannelLayout(audioCaps.channels());
-        audioCaps.align() = false;
-
-        return audioCaps;
-    }
+    for (auto &rate: this->m_commonSampleRates)
+        if (snd_pcm_hw_params_test_rate(pcmHnd, hwParams, uint(rate), 0) >= 0)
+            supportedSampleRates->append(rate);
 
 deviceCaps_fail:
     snd_pcm_hw_params_free(hwParams);
 
     if (pcmHnd)
         snd_pcm_close(pcmHnd);
-
-    return AkAudioCaps();
 }
 
 void AudioDevAlsa::updateDevices()
 {
-    QStringList inputs;
-    QStringList outputs;
-    QMap<QString, AkAudioCaps> pinCapsMap;
-    QMap<QString, QString> pinDescriptionMap;
+    decltype(this->m_sources) inputs;
+    decltype(this->m_sinks) outputs;
+    decltype(this->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->m_supportedFormats) supportedFormats;
+    decltype(this->m_supportedChannels) supportedChannels;
+    decltype(this->m_supportedSampleRates) supportedSampleRates;
 
     int card = -1;
     snd_ctl_card_info_t *ctlInfo = NULL;
@@ -395,35 +367,75 @@ void AudioDevAlsa::updateDevices()
 
         snd_ctl_close(ctlHnd);
 
+        QList<AkAudioCaps::SampleFormat> _supportedFormats;
+        QList<int> _supportedChannels;
+        QList<int> _supportedSampleRates;
+
         auto input = deviceId + ":Input";
-        auto caps = this->deviceCaps(input);
+        this->fillDeviceInfo(input,
+                             &_supportedFormats,
+                             &_supportedChannels,
+                             &_supportedSampleRates);
 
-        if (!caps)
-            caps = this->m_pinCapsMap.value(input);
+        if (_supportedFormats.isEmpty())
+            _supportedFormats = this->m_supportedFormats.value(input);
 
-        if (caps) {
+        if (_supportedChannels.isEmpty())
+            _supportedChannels = this->m_supportedChannels.value(input);
+
+        if (_supportedSampleRates.isEmpty())
+            _supportedSampleRates = this->m_supportedSampleRates.value(input);
+
+        if (!_supportedFormats.isEmpty()
+            && !_supportedChannels.isEmpty()
+            && !_supportedSampleRates.isEmpty()) {
             inputs << input;
             pinDescriptionMap[input] = description;
-            pinCapsMap[input] = caps;
+            supportedFormats[input] = _supportedFormats;
+            supportedChannels[input] = _supportedChannels;
+            supportedSampleRates[input] = _supportedSampleRates;
         }
 
+        _supportedFormats.clear();
+        _supportedChannels.clear();
+        _supportedSampleRates.clear();
+
         auto output = deviceId + ":Output";
-        caps = this->deviceCaps(output);
+        this->fillDeviceInfo(output,
+                             &_supportedFormats,
+                             &_supportedChannels,
+                             &_supportedSampleRates);
 
-        if (!caps)
-            caps = this->m_pinCapsMap.value(output);
+        if (_supportedFormats.isEmpty())
+            _supportedFormats = this->m_supportedFormats.value(output);
 
-        if (caps) {
+        if (_supportedChannels.isEmpty())
+            _supportedChannels = this->m_supportedChannels.value(output);
+
+        if (_supportedSampleRates.isEmpty())
+            _supportedSampleRates = this->m_supportedSampleRates.value(output);
+
+        if (!_supportedFormats.isEmpty()
+            && !_supportedChannels.isEmpty()
+            && !_supportedSampleRates.isEmpty()) {
             outputs << output;
             pinDescriptionMap[output] = description;
-            pinCapsMap[output] = caps;
+            supportedFormats[output] = _supportedFormats;
+            supportedChannels[output] = _supportedChannels;
+            supportedSampleRates[output] = _supportedSampleRates;
         }
     }
 
     snd_ctl_card_info_free(ctlInfo);
 
-    if (this->m_pinCapsMap != pinCapsMap)
-        this->m_pinCapsMap = pinCapsMap;
+    if (this->m_supportedFormats != supportedFormats)
+        this->m_supportedFormats = supportedFormats;
+
+    if (this->m_supportedChannels != supportedChannels)
+        this->m_supportedChannels = supportedChannels;
+
+    if (this->m_supportedSampleRates != supportedSampleRates)
+        this->m_supportedSampleRates = supportedSampleRates;
 
     if (this->m_pinDescriptionMap != pinDescriptionMap)
         this->m_pinDescriptionMap = pinDescriptionMap;

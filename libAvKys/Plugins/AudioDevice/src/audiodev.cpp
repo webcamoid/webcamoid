@@ -19,9 +19,24 @@
 
 #include "audiodev.h"
 
+#define MAX_SAMPLE_RATE 512e3
+
 AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
+    // Multiples of 8k sample rates
+    for (int rate = 4000; rate < MAX_SAMPLE_RATE; rate *= 2)
+        this->m_commonSampleRates << rate;
+
+    // Multiples of 48k sample rates
+    for (int rate = 6000; rate < MAX_SAMPLE_RATE; rate *= 2)
+        this->m_commonSampleRates << rate;
+
+    // Multiples of 44.1k sample rates
+    for (int rate = 11025; rate < MAX_SAMPLE_RATE; rate *= 2)
+        this->m_commonSampleRates << rate;
+
+    qSort(this->m_commonSampleRates);
 }
 
 AudioDev::~AudioDev()
@@ -65,6 +80,27 @@ AkAudioCaps AudioDev::preferredFormat(const QString &device)
     Q_UNUSED(device)
 
     return AkAudioCaps();
+}
+
+QList<AkAudioCaps::SampleFormat> AudioDev::supportedFormats(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<AkAudioCaps::SampleFormat>();
+}
+
+QList<int> AudioDev::supportedChannels(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<int>();
+}
+
+QList<int> AudioDev::supportedSampleRates(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<int>();
 }
 
 bool AudioDev::init(const QString &device, const AkAudioCaps &caps)

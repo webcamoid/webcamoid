@@ -218,7 +218,7 @@ AkAudioCaps::AkAudioCaps(const QVariantMap &caps)
 {
     this->d = new AkAudioCapsPrivate();
     this->d->m_format = caps["format"].value<SampleFormat>();
-    this->d->m_isValid = this->d->m_format == SampleFormat_none? false: false;
+    this->d->m_isValid = this->d->m_format != SampleFormat_none;
     this->d->m_bps = caps["bps"].toInt();
     this->d->m_channels = caps["channels"].toInt();
     this->d->m_rate = caps["rate"].toInt();
@@ -282,6 +282,21 @@ AkAudioCaps::AkAudioCaps(const AkAudioCaps &other):
     this->d->m_layout = other.d->m_layout;
     this->d->m_samples = other.d->m_samples;
     this->d->m_align = other.d->m_align;
+}
+
+AkAudioCaps::AkAudioCaps(AkAudioCaps::SampleFormat format,
+                         int channels,
+                         int rate)
+{
+    this->d = new AkAudioCapsPrivate();
+    this->d->m_format = format;
+    this->d->m_isValid = this->d->m_format != SampleFormat_none;
+    this->d->m_bps = this->bitsPerSample(format);
+    this->d->m_channels = channels;
+    this->d->m_rate = rate;
+    this->d->m_layout = this->defaultChannelLayout(channels);
+    this->d->m_samples = 0;
+    this->d->m_align = false;
 }
 
 AkAudioCaps::~AkAudioCaps()
@@ -444,7 +459,7 @@ bool &AkAudioCaps::align()
 AkAudioCaps &AkAudioCaps::fromMap(const QVariantMap &caps)
 {
     this->d->m_format = caps["format"].value<SampleFormat>();
-    this->d->m_isValid = this->d->m_format == AkAudioCaps::SampleFormat_none? false: false;
+    this->d->m_isValid = this->d->m_format != AkAudioCaps::SampleFormat_none;
     this->d->m_bps = caps["bps"].toInt();
     this->d->m_channels = caps["channels"].toInt();
     this->d->m_rate = caps["rate"].toInt();
@@ -467,16 +482,15 @@ AkAudioCaps &AkAudioCaps::fromString(const QString &caps)
 
 QVariantMap AkAudioCaps::toMap() const
 {
-    QVariantMap map;
-    map["format"] = this->d->m_format;
-    map["bps"] = this->d->m_bps;
-    map["channels"] = this->d->m_channels;
-    map["rate"] = this->d->m_rate;
-    map["layout"] = this->d->m_layout;
-    map["samples"] = this->d->m_samples;
-    map["align"] = this->d->m_align;
-
-    return map;
+    return QVariantMap {
+        {"format"  , this->d->m_format  },
+        {"bps"     , this->d->m_bps     },
+        {"channels", this->d->m_channels},
+        {"rate"    , this->d->m_rate    },
+        {"layout"  , this->d->m_layout  },
+        {"samples" , this->d->m_samples },
+        {"align"   , this->d->m_align   }
+    };
 }
 
 QString AkAudioCaps::toString() const
@@ -593,7 +607,7 @@ bool AkAudioCaps::sampleFormatProperties(AkAudioCaps::SampleFormat sampleFormat,
                                          int *endianness,
                                          bool *planar)
 {
-    const SampleFormats *format = SampleFormats::byFormat(sampleFormat);
+    auto format = SampleFormats::byFormat(sampleFormat);
 
     if (!format)
         return false;

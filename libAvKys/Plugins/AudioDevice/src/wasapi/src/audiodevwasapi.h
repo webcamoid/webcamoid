@@ -44,6 +44,9 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         Q_INVOKABLE QStringList outputs();
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
+        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE bool init(const QString &device,
                               const AkAudioCaps &caps);
         Q_INVOKABLE bool init(const QString &device,
@@ -59,8 +62,14 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
 
     private:
         QString m_error;
-        QStringList m_inputs;
-        QStringList m_outputs;
+        QStringList m_sources;
+        QStringList m_sinks;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QMap<QString, QString> m_descriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
         QByteArray m_audioBuffer;
         IMMDeviceEnumerator *m_deviceEnumerator;
         IMMDevice *m_pDevice;
@@ -70,9 +79,15 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         HANDLE m_hEvent;
         ULONG m_cRef;
         AkAudioCaps m_curCaps;
+        QString m_curDevice;
 
-        QString defaultDevice(EDataFlow dataFlow);
-        QStringList listDevices(EDataFlow dataFlow);
+        bool waveFormatFromAk(WAVEFORMATEX *wfx,
+                              const AkAudioCaps &caps) const;
+        void fillDeviceInfo(const QString &device,
+                            EDataFlow dataFlow,
+                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                            QList<int> *supportedChannels,
+                            QList<int> *supportedSampleRates) const;
 
         HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
                                                        DWORD dwNewState);
@@ -83,6 +98,9 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
                                                          LPCWSTR pwstrDeviceId);
         HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
                                                          const PROPERTYKEY key);
+
+    private slots:
+        void updateDevices();
 };
 
 #endif // AUDIODEVWASAPI_H

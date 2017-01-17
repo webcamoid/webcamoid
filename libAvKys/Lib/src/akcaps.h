@@ -94,5 +94,6 @@ QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
 QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
 
 Q_DECLARE_METATYPE(AkCaps)
+Q_DECLARE_METATYPE(AkCaps::CapsType)
 
 #endif // AKCAPS_H

@@ -49,14 +49,13 @@ inline JackErrorCodes initJackErrorCodes()
 Q_GLOBAL_STATIC_WITH_ARGS(JackErrorCodes, jackErrorCodes, (initJackErrorCodes()))
 
 AudioDevJack::AudioDevJack(QObject *parent):
-    AudioDev(parent)
+    AudioDev(parent),
+    m_sampleRate(0),
+    m_curChannels(0),
+    m_maxBufferSize(0),
+    m_isInput(false),
+    m_client(NULL)
 {
-    this->m_curChannels = 0;
-    this->m_curSampleRate = 0;
-    this->m_maxBufferSize = 0;
-    this->m_isInput = false;
-    this->m_client = NULL;
-
     this->m_descriptions = {
         {":jackinput:" , "JACK Audio Connection Kit Input" },
         {":jackoutput:", "JACK Audio Connection Kit Output"},
@@ -90,20 +89,13 @@ AudioDevJack::AudioDevJack(QObject *parent):
                      AudioDevJack::onShutdownCallback,
                      this);
 
-    AkAudioCaps audioCaps;
-    audioCaps.isValid() = true;
-    audioCaps.format() = AkAudioCaps::SampleFormat_flt;
-    audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-    audioCaps.rate() = int(jack_get_sample_rate(this->m_client));
-    audioCaps.layout() = AkAudioCaps::defaultChannelLayout(audioCaps.channels());
-    audioCaps.align() = false;
-
     QMap<QString, JackPortFlags> portTypeMap = {
         {":jackinput:" , JackPortIsOutput},
         {":jackoutput:", JackPortIsInput }
     };
 
-    // Query the number orr channels
+    // Query the number of channels
+    this->m_sampleRate = int(jack_get_sample_rate(this->m_client));
 
     for (auto deviceId: portTypeMap.keys()) {
         auto ports = jack_get_ports(this->m_client,
@@ -118,10 +110,11 @@ AudioDevJack::AudioDevJack(QObject *parent):
         if (ports)
             jack_free(ports);
 
-        if (channels > 0) {
-            audioCaps.channels() = channels;
-            this->m_caps[deviceId] = audioCaps;
-        }
+        if (channels > 0)
+            this->m_caps[deviceId] =
+                    AkAudioCaps(AkAudioCaps::SampleFormat_flt,
+                                channels,
+                                this->m_sampleRate);
     }
 }
 
@@ -173,18 +166,41 @@ AkAudioCaps AudioDevJack::preferredFormat(const QString &device)
     return this->m_caps.value(device);
 }
 
+QList<AkAudioCaps::SampleFormat> AudioDevJack::supportedFormats(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<AkAudioCaps::SampleFormat> {AkAudioCaps::SampleFormat_flt};
+}
+
+QList<int> AudioDevJack::supportedChannels(const QString &device)
+{
+    QList<int> supportedChannels;
+
+    for (int i = 0; i < this->m_devicePorts.value(device).size(); i++)
+        supportedChannels << i + 1;
+
+    return supportedChannels;
+}
+
+QList<int> AudioDevJack::supportedSampleRates(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<int> {this->m_sampleRate};
+}
+
 bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
 {
     if (!this->m_caps.contains(device)
         || caps.channels() < 1
         || caps.channels() > 2
-        || caps.rate() != int(jack_get_sample_rate(this->m_client))
+        || caps.rate() != this->m_sampleRate
         || caps.format() != AkAudioCaps::SampleFormat_flt)
         return false;
 
     this->m_appPorts.clear();
     this->m_curChannels = 0;
-    this->m_curSampleRate = 0;
     this->m_buffer.clear();
 
     QString portName = device == ":jackinput:"?
@@ -256,7 +272,6 @@ bool AudioDevJack::init(const QString &device, const AkAudioCaps &caps)
 
     this->m_curDevice = device;
     this->m_curChannels = caps.channels();
-    this->m_curSampleRate = caps.rate();
     this->m_maxBufferSize = int(2
                                 * sizeof(jack_default_audio_sample_t)
                                 * uint(caps.channels())
@@ -314,7 +329,6 @@ bool AudioDevJack::uninit()
 
     this->m_appPorts.clear();
     this->m_curChannels = 0;
-    this->m_curSampleRate = 0;
     this->m_buffer.clear();
 
     return true;

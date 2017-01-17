@@ -28,11 +28,26 @@
 
 #define DUMMY_INPUT_DEVICE ":dummyin:"
 #define EXTERNAL_MEDIA_INPUT ":externalinput:"
+#define MAX_SAMPLE_RATE 512e3
 
 AudioLayer::AudioLayer(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent),
     m_engine(nullptr)
 {
+    // Multiples of 8k sample rates
+    for (int rate = 4000; rate < MAX_SAMPLE_RATE; rate *= 2)
+        this->m_commonSampleRates << rate;
+
+    // Multiples of 48k sample rates
+    for (int rate = 6000; rate < MAX_SAMPLE_RATE; rate *= 2)
+        this->m_commonSampleRates << rate;
+
+    // Multiples of 44.1k sample rates
+    for (int rate = 11025; rate < MAX_SAMPLE_RATE; rate *= 2)
+        this->m_commonSampleRates << rate;
+
+    qSort(this->m_commonSampleRates);
+
     this->m_inputState = AkElement::ElementStateNull;
     this->setQmlEngine(engine);
     this->m_pipeline = AkElement::create("Bin", "pipeline");
@@ -269,6 +284,93 @@ AkElement::ElementState AudioLayer::outputState() const
         return this->m_audioOut->property("state").value<AkElement::ElementState>();
 
     return AkElement::ElementStateNull;
+}
+
+AkAudioCaps AudioLayer::preferredFormat(const QString &device)
+{
+    if (device == DUMMY_INPUT_DEVICE) {
+        return AkAudioCaps(AkAudioCaps::SampleFormat_s16, 1, 8000);
+    } else if (device == EXTERNAL_MEDIA_INPUT) {
+        return AkAudioCaps(this->m_inputCaps);
+    } else if (this->m_audioOut) {
+        AkAudioCaps preferredFormat;
+        QMetaObject::invokeMethod(this->m_audioOut.data(),
+                                  "preferredFormat",
+                                  Q_RETURN_ARG(AkAudioCaps, preferredFormat),
+                                  Q_ARG(QString, device));
+
+        return preferredFormat;
+    }
+
+    return AkAudioCaps();
+}
+
+QStringList AudioLayer::supportedFormats(const QString &device)
+{
+    if (device == DUMMY_INPUT_DEVICE) {
+        return QStringList {"flt", "s32", "s16", "u8"};
+    } else if (device == EXTERNAL_MEDIA_INPUT) {
+        AkAudioCaps audioCaps(this->m_inputCaps);
+
+        return QStringList {AkAudioCaps::sampleFormatToString(audioCaps.format())};
+    } else if (this->m_audioOut) {
+        QList<AkAudioCaps::SampleFormat> supportedFormats;
+        QMetaObject::invokeMethod(this->m_audioOut.data(),
+                                  "supportedFormats",
+                                  Q_RETURN_ARG(QList<AkAudioCaps::SampleFormat>, supportedFormats),
+                                  Q_ARG(QString, device));
+
+        QStringList supportedFormatsStr;
+
+        for (auto &format: supportedFormats)
+            supportedFormatsStr << AkAudioCaps::sampleFormatToString(format);
+
+        return supportedFormatsStr;
+    }
+
+    return QStringList();
+}
+
+QList<int> AudioLayer::supportedChannels(const QString &device)
+{
+    if (device == DUMMY_INPUT_DEVICE) {
+        return QList<int> {1, 2};
+    } else if (device == EXTERNAL_MEDIA_INPUT) {
+        AkAudioCaps audioCaps(this->m_inputCaps);
+
+        return QList<int> {audioCaps.channels()};
+    } else if (this->m_audioOut) {
+        QList<int> supportedChannels;
+        QMetaObject::invokeMethod(this->m_audioOut.data(),
+                                  "supportedChannels",
+                                  Q_RETURN_ARG(QList<int>, supportedChannels),
+                                  Q_ARG(QString, device));
+
+        return supportedChannels;
+    }
+
+    return QList<int>();
+}
+
+QList<int> AudioLayer::supportedSampleRates(const QString &device)
+{
+    if (device == DUMMY_INPUT_DEVICE) {
+        return this->m_commonSampleRates.toList();
+    } else if (device == EXTERNAL_MEDIA_INPUT) {
+        AkAudioCaps audioCaps(this->m_inputCaps);
+
+        return QList<int> {audioCaps.rate()};
+    } else if (this->m_audioOut) {
+        QList<int> supportedSampleRates;
+        QMetaObject::invokeMethod(this->m_audioOut.data(),
+                                  "supportedSampleRates",
+                                  Q_RETURN_ARG(QList<int>, supportedSampleRates),
+                                  Q_ARG(QString, device));
+
+        return supportedSampleRates;
+    }
+
+    return QList<int>();
 }
 
 void AudioLayer::setAudioInput(const QStringList &audioInput)

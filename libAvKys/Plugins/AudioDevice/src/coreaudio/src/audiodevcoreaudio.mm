@@ -353,6 +353,27 @@ AkAudioCaps AudioDevCoreAudio::preferredFormat(const QString &device)
     return defaultCaps;
 }
 
+QList<AkAudioCaps::SampleFormat> AudioDevCoreAudio::supportedFormats(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<AkAudioCaps::SampleFormat>();
+}
+
+QList<int> AudioDevCoreAudio::supportedChannels(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<int>();
+}
+
+QList<int> AudioDevCoreAudio::supportedSampleRates(const QString &device)
+{
+    Q_UNUSED(device)
+
+    return QList<int>();
+}
+
 bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
 {
     QStringList deviceParts = device.split(':');

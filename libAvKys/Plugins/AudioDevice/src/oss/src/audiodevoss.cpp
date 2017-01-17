@@ -97,12 +97,38 @@ QString AudioDevOSS::description(const QString &device)
 
 AkAudioCaps AudioDevOSS::preferredFormat(const QString &device)
 {
-    return this->m_pinCapsMap.value(device);
+    return this->m_sinks.contains(device)?
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
+                            2,
+                            44100):
+                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
+                            1,
+                            8000);
+}
+
+QList<AkAudioCaps::SampleFormat> AudioDevOSS::supportedFormats(const QString &device)
+{
+    return this->m_supportedFormats.value(device);
+}
+
+QList<int> AudioDevOSS::supportedChannels(const QString &device)
+{
+    return this->m_supportedChannels.value(device);
+}
+
+QList<int> AudioDevOSS::supportedSampleRates(const QString &device)
+{
+    return this->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevOSS::init(const QString &device, const AkAudioCaps &caps)
 {
     QMutexLocker mutexLockeer(&this->m_mutex);
+
+    int fragmentSize = this->fragmentSize(device, caps);
+
+    if (fragmentSize < 1)
+        return false;
 
     this->m_deviceFile.setFileName(QString(device)
                                    .remove(QRegExp(":Input$|:Output$")));
@@ -129,10 +155,8 @@ bool AudioDevOSS::init(const QString &device, const AkAudioCaps &caps)
     if (ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_SPEED, &sampleRate) < 0)
         goto init_fail;
 
-    if (device.endsWith(":Output")) {
-        int fragment = this->m_fragmentSizeMap.value(device);
-        ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_SETFRAGMENT, &fragment);
-    }
+    if (device.endsWith(":Output"))
+        ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_SETFRAGMENT, &fragmentSize);
 
     this->m_curCaps = caps;
 
@@ -189,14 +213,80 @@ bool AudioDevOSS::uninit()
     return true;
 }
 
-AkAudioCaps AudioDevOSS::deviceCaps(const QString &device, int *fragmentSize) const
+int AudioDevOSS::fragmentSize(const QString &device, const AkAudioCaps &caps)
+{
+    if (!device.endsWith(":Output"))
+        return 0;
+
+    QFile deviceFile;
+
+    deviceFile.setFileName(QString(device).remove(":Output"));
+
+    if (!deviceFile.open(QIODevice::WriteOnly))
+        return 0;
+
+    int format;
+    format = sampleFormats->value(caps.format(), AFMT_QUERY);
+
+    if (ioctl(deviceFile.handle(), SNDCTL_DSP_SETFMT, &format) < 0) {
+        deviceFile.close();
+
+        return 0;
+    }
+
+    int stereo;
+    stereo = caps.channels() > 1? 1: 0;
+
+    if (ioctl(deviceFile.handle(), SNDCTL_DSP_STEREO, &stereo) < 0) {
+        deviceFile.close();
+
+        return 0;
+    }
+
+    int sampleRate;
+    sampleRate = caps.rate();
+
+    if (ioctl(deviceFile.handle(), SNDCTL_DSP_SPEED, &sampleRate) < 0) {
+        deviceFile.close();
+
+        return 0;
+    }
+
+    // Set the buffer to a maximum of 1024 samples.
+    int bufferSize =
+            BUFFER_SIZE
+            * caps.channels()
+            * AkAudioCaps::bitsPerSample(caps.format())
+            / 8;
+
+    // Let's try setting the fragmet to just 2 pieces, and the half of the
+    // buffer size, for low latency.
+    int fragmentSize = (2 << 16) | (bufferSize / 2);
+    ioctl(deviceFile.handle(), SNDCTL_DSP_SETFRAGMENT, &fragmentSize);
+
+    // Let's see what OSS did actually set,
+    audio_buf_info info;
+    ioctl(deviceFile.handle(), SNDCTL_DSP_GETOSPACE, &info);
+
+    fragmentSize = info.fragsize > 0?
+                       ((bufferSize / info.fragsize) << 16) | info.fragsize:
+                       0;
+    deviceFile.close();
+
+    return fragmentSize;
+}
+
+void AudioDevOSS::fillDeviceInfo(const QString &device,
+                                 QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                 QList<int> *supportedChannels,
+                                 QList<int> *supportedSampleRates) const
 {
     QFile pcmFile(QString(device)
                     .remove(QRegExp(":Input$|:Output$")));
 
     if (!pcmFile.open(device.endsWith(":Input")?
                       QIODevice::ReadOnly: QIODevice::WriteOnly))
-        return AkAudioCaps();
+        return;
 
     int formats = AFMT_QUERY;
 
@@ -204,7 +294,6 @@ AkAudioCaps AudioDevOSS::deviceCaps(const QString &device, int *fragmentSize) co
         goto deviceCaps_fail;
 
     static const QVector<int> preferredFormats = {
-        AFMT_S16_NE,
         AFMT_S16_LE,
         AFMT_S16_BE,
         AFMT_U16_LE,
@@ -218,9 +307,10 @@ AkAudioCaps AudioDevOSS::deviceCaps(const QString &device, int *fragmentSize) co
 
     for (const auto &fmt: preferredFormats)
         if (formats & fmt) {
-            format = fmt;
+            if (format == AFMT_QUERY)
+                format = fmt;
 
-            break;
+            supportedFormats->append(sampleFormats->key(fmt));
         }
 
     if (format == AFMT_QUERY)
@@ -229,91 +319,26 @@ AkAudioCaps AudioDevOSS::deviceCaps(const QString &device, int *fragmentSize) co
     if (ioctl(pcmFile.handle(), SNDCTL_DSP_SETFMT, &format) < 0)
         goto deviceCaps_fail;
 
-    int stereo;
-    stereo = 1;
+    for (int channels = 0; channels < 2; channels++)
+        if (ioctl(pcmFile.handle(), SNDCTL_DSP_STEREO, &channels) >= 0)
+            supportedChannels->append(channels + 1);
 
-    if (ioctl(pcmFile.handle(), SNDCTL_DSP_STEREO, &stereo) < 0)
-        goto deviceCaps_fail;
-
-    static const QVector<int> preferredSampleRates {
-        48000,
-        44100,
-        22050,
-        11025,
-        8000
-    };
-
-    int sampleRate;
-    sampleRate = 0;
-
-    for (int rate: preferredSampleRates)
-        if (ioctl(pcmFile.handle(), SNDCTL_DSP_SPEED, &rate) >= 0){
-            sampleRate = rate;
-
-            break;
-        }
-
-    if (sampleRate < 1)
-        goto deviceCaps_fail;
-
-    int channels;
-    channels = stereo? 2: 1;
-    AkAudioCaps::SampleFormat sampleFormat;
-    sampleFormat = sampleFormats->key(format,
-                                      AkAudioCaps::SampleFormat_none);
-
-    if (fragmentSize
-        && device.endsWith(":Output")) {
-        // Set the buffer to a maximum of 1024 samples.
-        int bufferSize;
-        bufferSize = BUFFER_SIZE
-                     * channels
-                     * AkAudioCaps::bitsPerSample(sampleFormat)
-                     / 8;
-
-        // Let's try setting the fragmet to just 2 pieces, and the half of the
-        // buffer size, for low latency.
-        int fragment;
-        fragment = (2 << 16) | (bufferSize / 2);
-        ioctl(pcmFile.handle(), SNDCTL_DSP_SETFRAGMENT, &fragment);
-
-        // Let's see what OSS did actually set,
-        audio_buf_info info;
-        ioctl(pcmFile.handle(), SNDCTL_DSP_GETOSPACE, &info);
-
-        *fragmentSize = info.fragsize > 0?
-                            ((bufferSize / info.fragsize) << 16) | info.fragsize:
-                            0;
-    }
-
-    pcmFile.close();
-
-    {
-        AkAudioCaps audioCaps;
-        audioCaps.isValid() = true;
-        audioCaps.format() = sampleFormat;
-        audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-        audioCaps.channels() = channels;
-        audioCaps.rate() = int(sampleRate);
-        audioCaps.layout() = AkAudioCaps::defaultChannelLayout(audioCaps.channels());
-        audioCaps.align() = false;
-
-        return audioCaps;
-    }
+    for (auto &rate: this->m_commonSampleRates)
+        if (ioctl(pcmFile.handle(), SNDCTL_DSP_SPEED, &rate) >= 0)
+            supportedSampleRates->append(rate);
 
 deviceCaps_fail:
     pcmFile.close();
-
-    return AkAudioCaps();
 }
 
 void AudioDevOSS::updateDevices()
 {
-    QStringList inputs;
-    QStringList outputs;
-    QMap<QString, AkAudioCaps> pinCapsMap;
-    QMap<QString, QString> pinDescriptionMap;
-    QMap<QString, int> fragmentSizeMap;
+    decltype(this->m_sources) inputs;
+    decltype(this->m_sinks) outputs;
+    decltype(this->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->m_supportedFormats) supportedFormats;
+    decltype(this->m_supportedChannels) supportedChannels;
+    decltype(this->m_supportedSampleRates) supportedSampleRates;
 
     QDir devicesDir("/dev");
 
@@ -351,46 +376,76 @@ void AudioDevOSS::updateDevices()
         mixerFile.close();
         description = QString("%1, %2").arg(mixerInfo.id).arg(mixerInfo.name);
 
+        QList<AkAudioCaps::SampleFormat> _supportedFormats;
+        QList<int> _supportedChannels;
+        QList<int> _supportedSampleRates;
+
         auto input = dspDevice + ":Input";
-        int fragmentSize = 0;
-        auto caps = this->deviceCaps(input, &fragmentSize);
+        this->fillDeviceInfo(input,
+                             &_supportedFormats,
+                             &_supportedChannels,
+                             &_supportedSampleRates);
 
-        if (!caps) {
-            fragmentSize = this->m_fragmentSizeMap.value(input);
-            caps = this->m_pinCapsMap.value(input);
-        }
+        if (_supportedFormats.isEmpty())
+            _supportedFormats = this->m_supportedFormats.value(input);
 
-        if (caps) {
+        if (_supportedChannels.isEmpty())
+            _supportedChannels = this->m_supportedChannels.value(input);
+
+        if (_supportedSampleRates.isEmpty())
+            _supportedSampleRates = this->m_supportedSampleRates.value(input);
+
+        if (!_supportedFormats.isEmpty()
+            && !_supportedChannels.isEmpty()
+            && !_supportedSampleRates.isEmpty()) {
             inputs << input;
             pinDescriptionMap[input] = description;
-            fragmentSizeMap[input] = fragmentSize;
-            pinCapsMap[input] = caps;
+            supportedFormats[input] = _supportedFormats;
+            supportedChannels[input] = _supportedChannels;
+            supportedSampleRates[input] = _supportedSampleRates;
         }
+
+        _supportedFormats.clear();
+        _supportedChannels.clear();
+        _supportedSampleRates.clear();
 
         auto output = dspDevice + ":Output";
-        caps = this->deviceCaps(output, &fragmentSize);
+        this->fillDeviceInfo(output,
+                             &_supportedFormats,
+                             &_supportedChannels,
+                             &_supportedSampleRates);
 
-        if (!caps) {
-            fragmentSize = this->m_fragmentSizeMap.value(output);
-            caps = this->m_pinCapsMap.value(output);
-        }
+        if (_supportedFormats.isEmpty())
+            _supportedFormats = this->m_supportedFormats.value(output);
 
-        if (caps) {
+        if (_supportedChannels.isEmpty())
+            _supportedChannels = this->m_supportedChannels.value(output);
+
+        if (_supportedSampleRates.isEmpty())
+            _supportedSampleRates = this->m_supportedSampleRates.value(output);
+
+        if (!_supportedFormats.isEmpty()
+            && !_supportedChannels.isEmpty()
+            && !_supportedSampleRates.isEmpty()) {
             outputs << output;
             pinDescriptionMap[output] = description;
-            fragmentSizeMap[output] = fragmentSize;
-            pinCapsMap[output] = caps;
+            supportedFormats[output] = _supportedFormats;
+            supportedChannels[output] = _supportedChannels;
+            supportedSampleRates[output] = _supportedSampleRates;
         }
     }
 
-    if (this->m_pinCapsMap != pinCapsMap)
-        this->m_pinCapsMap = pinCapsMap;
+    if (this->m_supportedFormats != supportedFormats)
+        this->m_supportedFormats = supportedFormats;
+
+    if (this->m_supportedChannels != supportedChannels)
+        this->m_supportedChannels = supportedChannels;
+
+    if (this->m_supportedSampleRates != supportedSampleRates)
+        this->m_supportedSampleRates = supportedSampleRates;
 
     if (this->m_pinDescriptionMap != pinDescriptionMap)
         this->m_pinDescriptionMap = pinDescriptionMap;
-
-    if (this->m_fragmentSizeMap != fragmentSizeMap)
-        this->m_fragmentSizeMap = fragmentSizeMap;
 
     if (this->m_sources != inputs) {
         this->m_sources = inputs;

@@ -150,6 +150,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
         AkAudioCaps(const QString &caps);
         AkAudioCaps(const AkCaps &caps);
         AkAudioCaps(const AkAudioCaps &other);
+        AkAudioCaps(SampleFormat format, int channels, int rate);
          ~AkAudioCaps();
         AkAudioCaps &operator =(const AkAudioCaps &other);
         AkAudioCaps &operator =(const AkCaps &caps);

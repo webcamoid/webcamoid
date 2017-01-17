@@ -72,22 +72,6 @@ inline ErrorCodesMap initErrorCodesMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ErrorCodesMap, errorCodes, (initErrorCodesMap()))
 
-typedef QMap<QString, AkAudioCaps::SampleFormat> SampleFormatsMap;
-
-inline SampleFormatsMap initSampleFormatsMap()
-{
-    SampleFormatsMap sampleFormats = {
-        {QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(8)        , AkAudioCaps::SampleFormat_u8 },
-        {QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(16)       , AkAudioCaps::SampleFormat_s16},
-        {QString("%1_%2").arg(WAVE_FORMAT_PCM).arg(32)       , AkAudioCaps::SampleFormat_s32},
-        {QString("%1_%2").arg(WAVE_FORMAT_IEEE_FLOAT).arg(32), AkAudioCaps::SampleFormat_flt}
-    };
-
-    return sampleFormats;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatsMap, sampleFormats, (initSampleFormatsMap()))
-
 AudioDevWasapi::AudioDevWasapi(QObject *parent):
     AudioDev(parent)
 {
@@ -118,8 +102,7 @@ AudioDevWasapi::AudioDevWasapi(QObject *parent):
         return;
     }
 
-    this->m_inputs = this->listDevices(eCapture);
-    this->m_outputs = this->listDevices(eRender);
+    this->updateDevices();
 }
 
 AudioDevWasapi::~AudioDevWasapi()
@@ -136,148 +119,60 @@ QString AudioDevWasapi::error() const
 
 QString AudioDevWasapi::defaultInput()
 {
-    return this->defaultDevice(eCapture);
+    return this->m_defaultSource;
 }
 
 QString AudioDevWasapi::defaultOutput()
 {
-    return this->defaultDevice(eRender);
+    return this->m_defaultSink;
 }
 
 QStringList AudioDevWasapi::inputs()
 {
-    return this->m_inputs;
+    return this->m_sources;
 }
 
 QStringList AudioDevWasapi::outputs()
 {
-    return this->m_outputs;
+    return this->m_sinks;
 }
 
 QString AudioDevWasapi::description(const QString &device)
 {
-    if (!this->m_deviceEnumerator) {
-        this->m_error = "Device enumerator not created.";
-        emit this->errorChanged(this->m_error);
-
-        return QString();
-    }
-
-    HRESULT hr;
-    IMMDevice *pDevice = NULL;
-
-    if (FAILED(hr = this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
-                                                        &pDevice))) {
-        this->m_error = "GetDevice: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
-
-        return QString();
-    }
-
-    IPropertyStore *properties = NULL;
-
-    if (FAILED(hr = pDevice->OpenPropertyStore(STGM_READ, &properties))) {
-        this->m_error = "OpenPropertyStore: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
-        pDevice->Release();
-
-        return QString();
-    }
-
-    PROPVARIANT friendlyName;
-    PropVariantInit(&friendlyName);
-
-    if (FAILED(hr = properties->GetValue(PKEY_Device_FriendlyName,
-                                         &friendlyName))) {
-    }
-
-    QString description = QString::fromWCharArray(friendlyName.pwszVal);
-
-    PropVariantClear(&friendlyName);
-    properties->Release();
-    pDevice->Release();
-
-    return description;
+    return this->m_descriptionMap.value(device);
 }
 
 // Get native format for the default audio device.
 AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
 {
-    // Test if the device is already running,
-    bool isActivated = this->m_pAudioClient? true: false;
+    return this->m_sinks.contains(device)?
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
+                            2,
+                            44100):
+                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
+                            1,
+                            8000);
+}
 
-    // if not activate it and get an audio client instance.
-    if (!isActivated)
-        if (!this->init(device, AkAudioCaps(), true))
-            return AkAudioCaps();
+QList<AkAudioCaps::SampleFormat> AudioDevWasapi::supportedFormats(const QString &device)
+{
+    Q_UNUSED(device)
 
-    HRESULT hr;
-    WAVEFORMATEX *pwfx = NULL;
+    return QList<AkAudioCaps::SampleFormat>();
+}
 
-    // Get default format.
-    if (FAILED(hr = this->m_pAudioClient->GetMixFormat(&pwfx))) {
-        this->m_error = "GetMixFormat: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+QList<int> AudioDevWasapi::supportedChannels(const QString &device)
+{
+    Q_UNUSED(device)
 
-        if (!isActivated)
-            this->uninit();
+    return QList<int>();
+}
 
-        return AkAudioCaps();
-    }
+QList<int> AudioDevWasapi::supportedSampleRates(const QString &device)
+{
+    Q_UNUSED(device)
 
-    // Convert device format to a supported one.
-    WORD formatTag = pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT?
-                         WAVE_FORMAT_IEEE_FLOAT:
-                         WAVE_FORMAT_PCM;
-
-    QString fmtStr = QString("%1_%2")
-                     .arg(formatTag)
-                     .arg(pwfx->wBitsPerSample);
-
-    AkAudioCaps audioCaps;
-    audioCaps.isValid() = true;
-    audioCaps.format() = sampleFormats->value(fmtStr, AkAudioCaps::SampleFormat_u8);
-    audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-    audioCaps.channels() = pwfx->nChannels;
-    audioCaps.rate() = int(pwfx->nSamplesPerSec);
-    audioCaps.layout() = AkAudioCaps::defaultChannelLayout(pwfx->nChannels);
-    audioCaps.align() = false;
-
-    if (!isActivated) {
-        // Stop audio device if required.
-        this->uninit();
-
-        // Workaround for buggy drivers. Test if format is really supported.
-        if (!this->init(device, audioCaps)) {
-            // Test sample formats from highest sample resolusion to lowest.
-            static const QVector<AkAudioCaps::SampleFormat> preferredFormats = {
-                AkAudioCaps::SampleFormat_flt,
-                AkAudioCaps::SampleFormat_s32,
-                AkAudioCaps::SampleFormat_s16,
-                AkAudioCaps::SampleFormat_u8
-            };
-
-            bool isValidFormat = false;
-
-            for (const AkAudioCaps::SampleFormat &format: preferredFormats) {
-                audioCaps.format() = format;
-                audioCaps.bps() = AkAudioCaps::bitsPerSample(format);
-
-                if (this->init(device, audioCaps)) {
-                    isValidFormat = true;
-
-                    break;
-                }
-            }
-
-            if (!isValidFormat)
-                audioCaps = AkAudioCaps();
-        }
-
-        this->uninit();
-    }
-
-    return audioCaps;
+    return QList<int>();
 }
 
 bool AudioDevWasapi::init(const QString &device, const AkAudioCaps &caps)
@@ -345,15 +240,7 @@ bool AudioDevWasapi::init(const QString &device,
 
     // Set audio device format.
     WAVEFORMATEX wfx;
-    wfx.wFormatTag = caps.format() == AkAudioCaps::SampleFormat_flt?
-                         WAVE_FORMAT_IEEE_FLOAT: WAVE_FORMAT_PCM;
-    wfx.nChannels = WORD(caps.channels());
-    wfx.nSamplesPerSec = DWORD(caps.rate());
-    wfx.wBitsPerSample = WORD(caps.bps());
-    wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
-    wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-    wfx.cbSize = 0;
-
+    this->waveFormatFromAk(&wfx, caps);
     this->m_curCaps = caps;
 
     if (FAILED(hr = this->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
@@ -414,6 +301,8 @@ bool AudioDevWasapi::init(const QString &device,
 
         return false;
     }
+
+    this->m_curDevice = device;
 
     return true;
 }
@@ -626,6 +515,8 @@ bool AudioDevWasapi::uninit()
         this->m_hEvent = NULL;
     }
 
+    this->m_curDevice.clear();
+
     return ok;
 }
 
@@ -660,100 +551,116 @@ ULONG AudioDevWasapi::Release()
     return lRef;
 }
 
-QString AudioDevWasapi::defaultDevice(EDataFlow dataFlow)
+bool AudioDevWasapi::waveFormatFromAk(WAVEFORMATEX *wfx,
+                                      const AkAudioCaps &caps) const
 {
-    if (!this->m_deviceEnumerator) {
-        this->m_error = "Device enumerator not created.";
-        emit this->errorChanged(this->m_error);
+    if (!wfx)
+        return false;
 
-        return QString();
-    }
+    wfx->wFormatTag = caps.format() == AkAudioCaps::SampleFormat_flt?
+                          WAVE_FORMAT_IEEE_FLOAT: WAVE_FORMAT_PCM;
+    wfx->nChannels = WORD(caps.channels());
+    wfx->nSamplesPerSec = DWORD(caps.rate());
+    wfx->wBitsPerSample = WORD(caps.bps());
+    wfx->nBlockAlign = wfx->nChannels * wfx->wBitsPerSample / 8;
+    wfx->nAvgBytesPerSec = wfx->nSamplesPerSec * wfx->nBlockAlign;
+    wfx->cbSize = 0;
 
-    HRESULT hr;
-    IMMDevice *defaultDevice = NULL;
-
-    if (FAILED(hr = this->m_deviceEnumerator->GetDefaultAudioEndpoint(dataFlow,
-                                                                      eMultimedia,
-                                                                      &defaultDevice))) {
-        this->m_error = "GetDefaultAudioEndpoint: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
-
-        return QString();
-    }
-
-    LPWSTR deviceId;
-
-    if (FAILED(hr = defaultDevice->GetId(&deviceId))) {
-        this->m_error = "GetId: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
-        defaultDevice->Release();
-
-        return QString();
-    }
-
-    QString id = QString::fromWCharArray(deviceId);
-
-    CoTaskMemFree(deviceId);
-    defaultDevice->Release();
-
-    return id;
+    return true;
 }
 
-QStringList AudioDevWasapi::listDevices(EDataFlow dataFlow)
+void AudioDevWasapi::fillDeviceInfo(const QString &device,
+                                    EDataFlow dataFlow,
+                                    QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                    QList<int> *supportedChannels,
+                                    QList<int> *supportedSampleRates) const
 {
-    if (!this->m_deviceEnumerator) {
-        this->m_error = "Device enumerator not created.";
-        emit this->errorChanged(this->m_error);
-
-        return QStringList();
-    }
+    if (!this->m_deviceEnumerator)
+        return;
 
     HRESULT hr;
-    IMMDeviceCollection *endPoints = NULL;
+    IMMDevice *pDevice = NULL;
+    IAudioClient *pAudioClient = NULL;
 
-    if (FAILED(hr = this->m_deviceEnumerator->EnumAudioEndpoints(dataFlow,
-                                                                 eMultimedia,
-                                                                 &endPoints))) {
-        this->m_error = "EnumAudioEndpoints: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    // Test if the device is already running,
+    if (this->m_curDevice != device) {
+        // Get audio device.
+        if (FAILED(hr = this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
+                                                            &pDevice)))
+            return;
 
-        return QStringList();
-    }
+        // Get an instance for the audio client.
+        if (FAILED(hr = pDevice->Activate(__uuidof(IAudioClient),
+                                          CLSCTX_ALL,
+                                          NULL,
+                                          reinterpret_cast<void **>(&pAudioClient)))) {
+            pDevice->Release();
 
-    UINT nDevices = 0;
-
-    if (FAILED(hr = endPoints->GetCount(&nDevices))) {
-        this->m_error = "GetCount: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
-        endPoints->Release();
-
-        return QStringList();
-    }
-
-    QStringList devices;
-
-    for (UINT i = 0; i < nDevices; i++) {
-        IMMDevice *device = NULL;
-
-        if (FAILED(endPoints->Item(i, &device)))
-            continue;
-
-        LPWSTR deviceId;
-
-        if (FAILED(hr = device->GetId(&deviceId))) {
-            device->Release();
-
-            continue;
+            return;
         }
-
-        devices << QString::fromWCharArray(deviceId);
-        CoTaskMemFree(deviceId);
-        device->Release();
+    } else {
+        pDevice = this->m_pDevice;
+        pAudioClient = this->m_pAudioClient;
     }
 
-    endPoints->Release();
+    static const QVector<AkAudioCaps::SampleFormat> preferredFormats = {
+        AkAudioCaps::SampleFormat_flt,
+        AkAudioCaps::SampleFormat_s32,
+        AkAudioCaps::SampleFormat_s16,
+        AkAudioCaps::SampleFormat_u8
+    };
 
-    return devices;
+    for (auto &format: preferredFormats) {
+        AkAudioCaps audioCaps(format, 1, 44100);
+        WAVEFORMATEX wfx;
+        WAVEFORMATEX *closestWfx = NULL;
+        this->waveFormatFromAk(&wfx, audioCaps);
+
+        if (SUCCEEDED(hr = pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
+                                                           &wfx,
+                                                           &closestWfx))) {
+            supportedFormats->append(format);
+            CoTaskMemFree(closestWfx);
+        }
+    }
+
+    AkAudioCaps::SampleFormat format =
+            dataFlow == eCapture?
+                AkAudioCaps::SampleFormat_u8:
+                AkAudioCaps::SampleFormat_s16;
+
+    for (int channels = 1; channels < 3; channels++) {
+        AkAudioCaps audioCaps(format, channels, 44100);
+        WAVEFORMATEX wfx;
+        WAVEFORMATEX *closestWfx = NULL;
+        this->waveFormatFromAk(&wfx, audioCaps);
+
+        if (SUCCEEDED(hr = pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
+                                                           &wfx,
+                                                           &closestWfx))) {
+            supportedChannels->append(channels);
+            CoTaskMemFree(closestWfx);
+        }
+    }
+
+    for (auto &rate: this->m_commonSampleRates) {
+        AkAudioCaps audioCaps(format, 1, rate);
+        WAVEFORMATEX wfx;
+        WAVEFORMATEX *closestWfx = NULL;
+        this->waveFormatFromAk(&wfx, audioCaps);
+
+        if (SUCCEEDED(hr = pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED,
+                                                           &wfx,
+                                                           &closestWfx))) {
+            supportedSampleRates->append(rate);
+            CoTaskMemFree(closestWfx);
+        }
+    }
+
+    if (this->m_curDevice != device) {
+        pAudioClient->Release();
+        pDevice->Release();
+    }
 }
 
 HRESULT AudioDevWasapi::OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
@@ -792,10 +699,13 @@ HRESULT AudioDevWasapi::OnDefaultDeviceChanged(EDataFlow flow,
 
     QString deviceId = QString::fromWCharArray(pwstrDeviceId);
 
-    if (flow == eCapture)
+    if (flow == eCapture) {
+        this->m_defaultSource = deviceId;
         emit this->defaultInputChanged(deviceId);
-    else if (flow == eRender)
+    } else if (flow == eRender) {
+        this->m_defaultSink = deviceId;
         emit this->defaultOutputChanged(deviceId);
+    }
 
     return S_OK;
 }
@@ -806,19 +716,163 @@ HRESULT AudioDevWasapi::OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
     Q_UNUSED(pwstrDeviceId)
     Q_UNUSED(key)
 
-    QStringList inputs = this->listDevices(eCapture);
+    this->updateDevices();
 
-    if (this->m_inputs != inputs) {
-        this->m_inputs = inputs;
+    return S_OK;
+}
+
+void AudioDevWasapi::updateDevices()
+{
+    if (!this->m_deviceEnumerator) {
+        this->m_error = "Device enumerator not created.";
+        emit this->errorChanged(this->m_error);
+
+        return;
+    }
+
+    decltype(this->m_sources) inputs;
+    decltype(this->m_sinks) outputs;
+    decltype(this->m_defaultSink) defaultSink;
+    decltype(this->m_defaultSource) defaultSource;
+    decltype(this->m_descriptionMap) descriptionMap;
+    decltype(this->m_supportedFormats) supportedFormats;
+    decltype(this->m_supportedChannels) supportedChannels;
+    decltype(this->m_supportedSampleRates) supportedSampleRates;
+
+    for (auto &dataFlow: QVector<EDataFlow> {eCapture, eRender}) {
+        HRESULT hr;
+        IMMDevice *defaultDevice = NULL;
+
+        if (SUCCEEDED(hr = this->m_deviceEnumerator->GetDefaultAudioEndpoint(dataFlow,
+                                                                             eMultimedia,
+                                                                             &defaultDevice))) {
+            LPWSTR deviceId;
+
+            if (SUCCEEDED(hr = defaultDevice->GetId(&deviceId))) {
+                if (dataFlow == eCapture)
+                    defaultSource = QString::fromWCharArray(deviceId);
+                else
+                    defaultSink = QString::fromWCharArray(deviceId);
+
+                CoTaskMemFree(deviceId);
+            }
+
+            defaultDevice->Release();
+        }
+
+        IMMDeviceCollection *endPoints = NULL;
+
+        if (SUCCEEDED(hr = this->m_deviceEnumerator->EnumAudioEndpoints(dataFlow,
+                                                                        eMultimedia,
+                                                                        &endPoints))) {
+            UINT nDevices = 0;
+
+            if (SUCCEEDED(hr = endPoints->GetCount(&nDevices)))
+                for (UINT i = 0; i < nDevices; i++) {
+                    IMMDevice *device = NULL;
+
+                    if (SUCCEEDED(endPoints->Item(i, &device))) {
+                        LPWSTR deviceId;
+
+                        if (SUCCEEDED(hr = device->GetId(&deviceId))) {
+                            IPropertyStore *properties = NULL;
+
+                            if (SUCCEEDED(hr = device->OpenPropertyStore(STGM_READ, &properties))) {
+                                PROPVARIANT friendlyName;
+                                PropVariantInit(&friendlyName);
+
+                                if (SUCCEEDED(hr = properties->GetValue(PKEY_Device_FriendlyName,
+                                                                        &friendlyName))) {
+                                    auto devId = QString::fromWCharArray(deviceId);
+
+                                    QList<AkAudioCaps::SampleFormat> _supportedFormats;
+                                    QList<int> _supportedChannels;
+                                    QList<int> _supportedSampleRates;
+                                    this->fillDeviceInfo(devId,
+                                                         dataFlow,
+                                                         &_supportedFormats,
+                                                         &_supportedChannels,
+                                                         &_supportedSampleRates);
+
+                                    if (_supportedFormats.isEmpty())
+                                        _supportedFormats =
+                                                this->m_supportedFormats.value(devId);
+
+                                    if (_supportedChannels.isEmpty())
+                                        _supportedChannels =
+                                                this->m_supportedChannels.value(devId);
+
+                                    if (_supportedSampleRates.isEmpty())
+                                        _supportedSampleRates =
+                                                this->m_supportedSampleRates.value(devId);
+
+                                    if (!_supportedFormats.isEmpty()
+                                        && !_supportedChannels.isEmpty()
+                                        && !_supportedSampleRates.isEmpty()) {
+                                        if (dataFlow == eCapture)
+                                            inputs << devId;
+                                        else
+                                            outputs << devId;
+
+                                        descriptionMap[devId] =
+                                                QString::fromWCharArray(friendlyName.pwszVal);
+                                        supportedFormats[devId] = _supportedFormats;
+                                        supportedChannels[devId] = _supportedChannels;
+                                        supportedSampleRates[devId] = _supportedSampleRates;
+                                    }
+
+                                    PropVariantClear(&friendlyName);
+                                }
+
+                                properties->Release();
+                            }
+
+                            CoTaskMemFree(deviceId);
+                        }
+
+                        device->Release();
+                    }
+                }
+
+            endPoints->Release();
+        }
+    }
+
+    if (this->m_supportedFormats != supportedFormats)
+        this->m_supportedFormats = supportedFormats;
+
+    if (this->m_supportedChannels != supportedChannels)
+        this->m_supportedChannels = supportedChannels;
+
+    if (this->m_supportedSampleRates != supportedSampleRates)
+        this->m_supportedSampleRates = supportedSampleRates;
+
+    if (this->m_descriptionMap != descriptionMap)
+        this->m_descriptionMap = descriptionMap;
+
+    if (this->m_sources != inputs) {
+        this->m_sources = inputs;
         emit this->inputsChanged(inputs);
     }
 
-    QStringList outputs = this->listDevices(eRender);
-
-    if (this->m_outputs != outputs) {
-        this->m_outputs = outputs;
+    if (this->m_sinks != outputs) {
+        this->m_sinks = outputs;
         emit this->outputsChanged(outputs);
     }
 
-    return S_OK;
+    if (defaultSource.isEmpty() && !inputs.isEmpty())
+        defaultSource = inputs.first();
+
+    if (defaultSink.isEmpty() && !outputs.isEmpty())
+        defaultSink = outputs.first();
+
+    if (this->m_defaultSource != defaultSource) {
+        this->m_defaultSource = defaultSource;
+        emit this->defaultInputChanged(defaultSource);
+    }
+
+    if (this->m_defaultSink != defaultSink) {
+        this->m_defaultSink = defaultSink;
+        emit this->defaultOutputChanged(defaultSink);
+    }
 }

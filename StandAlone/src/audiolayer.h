@@ -93,6 +93,10 @@ class AudioLayer: public QObject
         Q_INVOKABLE QString description(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState inputState() const;
         Q_INVOKABLE AkElement::ElementState outputState() const;
+        Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
+        Q_INVOKABLE QStringList supportedFormats(const QString &device);
+        Q_INVOKABLE QList<int> supportedChannels(const QString &device);
+        Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
 
     private:
         QQmlApplicationEngine *m_engine;
@@ -110,6 +114,7 @@ class AudioLayer: public QObject
         AkElementPtr m_audioGenerator;
         AkElementPtr m_audioSwitch;
         QMutex m_mutex;
+        QVector<int> m_commonSampleRates;
 
     signals:
         void audioInputChanged(const QStringList &audioInput);
