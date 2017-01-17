@@ -156,23 +156,17 @@ AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
 
 QList<AkAudioCaps::SampleFormat> AudioDevWasapi::supportedFormats(const QString &device)
 {
-    Q_UNUSED(device)
-
-    return QList<AkAudioCaps::SampleFormat>();
+    return this->m_supportedFormats.value(device);
 }
 
 QList<int> AudioDevWasapi::supportedChannels(const QString &device)
 {
-    Q_UNUSED(device)
-
-    return QList<int>();
+    return this->m_supportedChannels.value(device);
 }
 
 QList<int> AudioDevWasapi::supportedSampleRates(const QString &device)
 {
-    Q_UNUSED(device)
-
-    return QList<int>();
+    return this->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevWasapi::init(const QString &device, const AkAudioCaps &caps)
