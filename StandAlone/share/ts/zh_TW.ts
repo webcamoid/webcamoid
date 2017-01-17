@@ -161,6 +161,34 @@
     </message>
 </context>
 <context>
+    <name>AuthenticationDialog</name>
+    <message>
+        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="51"/>
+        <source>Authentication Required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="84"/>
+        <source>Username:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="94"/>
+        <source>Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="112"/>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="119"/>
+        <source>&amp;Log In</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BusyIndicatorSpecifics</name>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/BusyIndicatorSpecifics.qml" line="46"/>
@@ -584,13 +612,58 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="26"/>
+        <location filename="../qml/GeneralConfig.qml" line="37"/>
         <source>Play webcam on start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="32"/>
+        <location filename="../qml/GeneralConfig.qml" line="43"/>
         <source>Enable advanced effects mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="49"/>
+        <source>Frameworks &amp; libraries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="59"/>
+        <source>Video capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="69"/>
+        <source>Audio capture/play</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="79"/>
+        <source>Video convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="89"/>
+        <source>Audio convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="99"/>
+        <source>Video output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="109"/>
+        <source>Video output convert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="119"/>
+        <source>Video playback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="129"/>
+        <source>Video record</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -935,6 +1008,39 @@
     </message>
 </context>
 <context>
+    <name>QObject</name>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="32"/>
+        <source>Webcam capture application.</source>
+        <translation type="unfinished">網路攝影機抓取應用程式。</translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="36"/>
+        <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="44"/>
+        <source>Path to search the Qml interface.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="52"/>
+        <source>Search in the specified plugins paths recursively.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="58"/>
+        <source>Semi-colon separated list of paths to search for plugins.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="65"/>
+        <source>Semi-colon separated list of paths to avoid loading.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>RadioButtonSpecifics</name>
     <message>
         <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/RadioButtonSpecifics.qml" line="45"/>
@@ -953,7 +1059,7 @@
 <context>
     <name>RecordBar</name>
     <message>
-        <location filename="../qml/RecordBar.qml" line="106"/>
+        <location filename="../qml/RecordBar.qml" line="107"/>
         <source>Search format...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -989,6 +1095,24 @@
     <message>
         <location filename="../qml/RecordConfig.qml" line="188"/>
         <source>Save video as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Recording</name>
+    <message>
+        <location filename="../../src/recording.cpp" line="491"/>
+        <source>Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/recording.cpp" line="492"/>
+        <source>Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/recording.cpp" line="493"/>
+        <source>Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

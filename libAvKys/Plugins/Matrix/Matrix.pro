@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+TRANSLATIONS = $$files(share/ts/*.ts)
+
 exists(commons.pri) {
     include(commons.pri)
 } else {
@@ -55,8 +57,6 @@ SOURCES = \
 lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
 }
-
-TRANSLATIONS = $$files(share/ts/*.ts)
 
 DESTDIR = $${PWD}
 
