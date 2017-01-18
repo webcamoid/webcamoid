@@ -5,6 +5,7 @@ platform:
   - x86
 
 build:
+  parallel: true
   verbosity: detailed
 
 configuration:
@@ -57,11 +58,11 @@ install:
 build_script:
   - ports\ci\appveyor\build.bat
 
-cache:
-  - ../webcamoid-shadow-build -> libAvKys/libAvKys.pro
-  - ../webcamoid-shadow-build -> appveyor.yml
-  - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
-  - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
+#cache:
+#  - ../webcamoid-shadow-build -> libAvKys/libAvKys.pro
+#  - ../webcamoid-shadow-build -> appveyor.yml
+#  - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
+#  - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
 
 notifications:
   - provider: Email
