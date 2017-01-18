@@ -35,7 +35,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../Lib/src
 
-LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -45,7 +45,7 @@ SOURCES = \
     src/probe.cpp \
     src/probeelement.cpp
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}
 
 TEMPLATE = lib
 

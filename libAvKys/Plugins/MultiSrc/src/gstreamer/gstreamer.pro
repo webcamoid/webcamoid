@@ -38,7 +38,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -62,7 +62,7 @@ SOURCES += \
     src/mediasourcegstreamer.cpp \
     ../mediasource.cpp
 
-DESTDIR = $${PWD}/../../submodules/MultiSrc
+DESTDIR = $${OUT_PWD}/../../submodules/MultiSrc
 
 TEMPLATE = lib
 

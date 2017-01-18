@@ -37,7 +37,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../../Lib/src
 
-LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../Lib/ -l$${COMMONS_TARGET}
 win32: LIBS += -lole32
 
 OTHER_FILES += ../pspec.json
@@ -50,7 +50,7 @@ SOURCES = \
     audiodev.cpp \
     audiodeviceglobals.cpp
 
-DESTDIR = $${PWD}/..
+DESTDIR = $${OUT_PWD}/..
 TARGET = AudioDevice
 
 TEMPLATE = lib

@@ -29,7 +29,7 @@ exists(commons.pri) {
 CONFIG += staticlib c++11
 CONFIG -= qt
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}
 
 TARGET = "ipc"
 

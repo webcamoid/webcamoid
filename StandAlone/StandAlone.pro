@@ -72,7 +72,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../libAvKys/Lib/src
 
-LIBS += -L../libAvKys/Lib -lavkys
+LIBS += -L$${PWD}/../libAvKys/Lib -lavkys
 win32: LIBS += -lole32
 
 OTHER_FILES = \
@@ -104,7 +104,7 @@ lupdate_only {
     SOURCES += $$files(share/qml/*.qml)
 }
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}
 
 TARGET = $${COMMONS_TARGET}
 

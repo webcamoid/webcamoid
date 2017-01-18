@@ -37,7 +37,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -62,7 +62,7 @@ SOURCES = \
     src/convertvideoffmpeg.cpp \
     ../convertvideo.cpp
 
-DESTDIR = $${PWD}/../../submodules/VirtualCamera
+DESTDIR = $${OUT_PWD}/../../submodules/VirtualCamera
 
 TEMPLATE = lib
 

@@ -16,14 +16,6 @@ if not "%VSVER%" == "" call "C:\Program Files (x86)\Microsoft Visual Studio %VSV
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 
-rem Install JOM
-
-set JOM_FILE=jom.zip
-
-if not exist %JOM_FILE%  curl -kLOC - https://download.qt.io/official_releases/jom/%JOM_FILE%
-
-rem if exist %JOM_FILE% 7z x %JOM_FILE%
-
 rem Installing FFmpeg dev
 
 set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip

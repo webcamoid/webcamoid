@@ -37,7 +37,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -61,7 +61,7 @@ SOURCES = \
     src/convertaudiogstreamer.cpp \
     ../convertaudio.cpp
 
-DESTDIR = $${PWD}/../../submodules/ACapsConvert
+DESTDIR = $${OUT_PWD}/../../submodules/ACapsConvert
 
 TEMPLATE = lib
 

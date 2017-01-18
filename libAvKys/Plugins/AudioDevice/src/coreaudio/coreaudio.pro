@@ -37,7 +37,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -55,7 +55,7 @@ SOURCES = \
 OBJECTIVE_SOURCES = \
     src/audiodevcoreaudio.mm
 
-DESTDIR = $${PWD}/../../submodules/AudioDevice
+DESTDIR = $${OUT_PWD}/../../submodules/AudioDevice
 
 TEMPLATE = lib
 

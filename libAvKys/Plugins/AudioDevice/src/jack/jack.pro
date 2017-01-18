@@ -40,7 +40,7 @@ INCLUDEPATH += \
     ../
 
 LIBS += \
-    -L../../../../Lib/ -l$${COMMONS_TARGET}
+    -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -55,7 +55,7 @@ SOURCES = \
     ../audiodev.cpp \
     src/jackserver.cpp
 
-DESTDIR = $${PWD}/../../submodules/AudioDevice
+DESTDIR = $${OUT_PWD}/../../submodules/AudioDevice
 
 TEMPLATE = lib
 

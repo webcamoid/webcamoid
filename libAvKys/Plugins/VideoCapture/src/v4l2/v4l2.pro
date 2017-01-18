@@ -38,7 +38,7 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -56,7 +56,7 @@ SOURCES = \
     src/capturev4l2.cpp \
     ../capture.cpp
 
-DESTDIR = $${PWD}/../../submodules/VideoCapture
+DESTDIR = $${OUT_PWD}/../../submodules/VideoCapture
 
 TEMPLATE = lib
 

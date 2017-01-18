@@ -31,7 +31,7 @@ TEMPLATE = lib
 QT += qml quick
 CONFIG += qt plugin
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}
 
 TARGET = $$qtLibraryTarget(AkQml)
 
@@ -47,7 +47,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../Lib/src
 
-LIBS += -L../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../Lib/ -l$${COMMONS_TARGET}
 win32: LIBS += -lole32
 
 DISTFILES = qmldir

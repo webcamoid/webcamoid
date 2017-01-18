@@ -29,7 +29,7 @@ exists(commons.pri) {
 CONFIG += c++11
 CONFIG -= qt
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}
 
 TARGET = "VirtualCameraSource"
 
@@ -58,13 +58,13 @@ INCLUDEPATH += \
     ../ipc/src
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../BaseClasses -lstrmbasd
+    LIBS += -L$${OUT_PWD}/../BaseClasses -lstrmbasd
 } else {
-    LIBS += -L../BaseClasses -lstrmbase
+    LIBS += -L$${OUT_PWD}/../BaseClasses -lstrmbase
 }
 
 LIBS += \
-    -L../ipc -lipc \
+    -L$${OUT_PWD}/../ipc -lipc \
     -lstrmiids \
     -luuid \
     -lole32 \

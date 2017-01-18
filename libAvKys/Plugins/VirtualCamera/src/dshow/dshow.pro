@@ -38,12 +38,12 @@ INCLUDEPATH += \
     ../../../../Lib/src \
     ../
 
-LIBS += -L../../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
 LIBS += \
-    -LVirtualCameraFilter/ipc -lipc \
+    -L$${OUT_PWD}/VirtualCameraFilter/ipc -lipc \
     -lstrmiids \
     -luuid \
     -lole32 \
@@ -57,7 +57,7 @@ SOURCES = \
     src/cameraoutdshow.cpp \
     ../cameraout.cpp
 
-DESTDIR = $${PWD}/../../submodules/VirtualCamera
+DESTDIR = $${OUT_PWD}/../../submodules/VirtualCamera
 
 TEMPLATE = lib
 

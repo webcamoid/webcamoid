@@ -1,4 +1,8 @@
-qmake Webcamoid.pro ^
+set SOURCES_DIR=%CD%
+mkdir ..\webcamoid-shadow-build
+cd ..\webcamoid-shadow-build
+
+qmake %SOURCES_DIR%\Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
     PREFIX="%CD%\build\%PLATFORM%" ^
     FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^

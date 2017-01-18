@@ -37,7 +37,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../../Lib/src
 
-LIBS += -L../../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += ../pspec.json
 
@@ -49,7 +49,7 @@ SOURCES = \
     convertaudio.cpp \
     acapsconvertglobals.cpp
 
-DESTDIR = $${PWD}/..
+DESTDIR = $${OUT_PWD}/..
 TARGET = ACapsConvert
 
 TEMPLATE = lib

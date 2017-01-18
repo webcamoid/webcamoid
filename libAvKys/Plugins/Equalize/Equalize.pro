@@ -36,7 +36,7 @@ HEADERS = \
 INCLUDEPATH += \
     ../../Lib/src
 
-LIBS += -L../../Lib/ -l$${COMMONS_TARGET}
+LIBS += -L$${PWD}/../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
@@ -46,7 +46,7 @@ SOURCES = \
     src/equalize.cpp \
     src/equalizeelement.cpp
 
-DESTDIR = $${PWD}
+DESTDIR = $${OUT_PWD}
 
 TEMPLATE = lib
 
