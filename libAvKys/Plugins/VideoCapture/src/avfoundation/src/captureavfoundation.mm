@@ -163,7 +163,7 @@ class CaptureAvFoundationPrivate
                 videoCaps.setProperty("height", size.height);
 
                 for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
-                    videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
+                    videoCaps.setProperty("fps", AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3).toString());
 
                     if (videoCaps == caps)
                         return format;
@@ -177,7 +177,7 @@ class CaptureAvFoundationPrivate
                                                               const AkFrac &fps)
         {
             for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges)
-                if (AkFrac(1e3 * fpsRange.maxFrameRate, 1e3) == fps)
+                if (AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3) == fps)
                     return fpsRange;
 
             return nil;
@@ -778,7 +778,7 @@ void CaptureAvFoundation::updateDevices()
             pos += vpMatch.matchedLength();
         }
 
-        modelId[deviceId] = (vendorId << 16) | productId;
+        modelId[deviceId] = quint32(vendorId << 16) | productId;
 
         // List supported frame formats.
         for (AVCaptureDeviceFormat *format in camera.formats) {
@@ -798,7 +798,7 @@ void CaptureAvFoundation::updateDevices()
 
             // List all supported frame rates for the format.
             for (AVFrameRateRange *fpsRange in format.videoSupportedFrameRateRanges) {
-                videoCaps.setProperty("fps", AkFrac(1e3 * fpsRange.maxFrameRate, 1e3).toString());
+                videoCaps.setProperty("fps", AkFrac(qRound(1e3 * fpsRange.maxFrameRate), 1e3).toString());
                 devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
             }
         }

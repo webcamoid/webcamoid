@@ -15,7 +15,7 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
             QMAKE_CXX="${COMPILER}"
     fi
 
-    docker exec ${DOCKERSYS} make
+    docker exec ${DOCKERSYS} make -j2
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     LIBUSBVER=$(ls /usr/local/Cellar/libusb | tail -n 1)
     LIBUVCVER=$(ls /usr/local/Cellar/libuvc | tail -n 1)
@@ -27,5 +27,5 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         LIBUVCLIBS=-L/usr/local/Cellar/libuvc/${LIBUVCVER}/lib \
         LIBUVCLIBS+=-luvc
 
-    make
+    make -j2
 fi

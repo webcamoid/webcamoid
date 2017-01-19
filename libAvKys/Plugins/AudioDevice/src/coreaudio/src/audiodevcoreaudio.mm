@@ -30,9 +30,6 @@ AudioDevCoreAudio::AudioDevCoreAudio(QObject *parent):
     this->m_bufferList = NULL;
     this->m_isInput = false;
 
-    this->m_inputs  = this->listDevices(true);
-    this->m_outputs = this->listDevices(false);
-
     static const AudioObjectPropertyAddress propDevices = {
         kAudioHardwarePropertyDevices,
         kAudioObjectPropertyScopeGlobal,
@@ -65,6 +62,8 @@ AudioDevCoreAudio::AudioDevCoreAudio(QObject *parent):
                                    &propDefaultOutputDevice,
                                    this->defaultOutputDeviceChangedCallback,
                                    this);
+
+    this->updateDevices();
 }
 
 AudioDevCoreAudio::~AudioDevCoreAudio()
@@ -112,266 +111,47 @@ QString AudioDevCoreAudio::error() const
 
 QString AudioDevCoreAudio::defaultInput()
 {
-    bool ok = false;
-    QString deviceId = defaultDevice(true, &ok);
-
-    return ok? deviceId: QString();
+    return this->m_defaultSource;
 }
 
 QString AudioDevCoreAudio::defaultOutput()
 {
-    bool ok = false;
-    QString deviceId = defaultDevice(false, &ok);
-
-    return ok? deviceId: QString();
+    return this->m_defaultSink;
 }
 
 QStringList AudioDevCoreAudio::inputs()
 {
-    return this->m_inputs;
+    return this->m_sources;
 }
 
 QStringList AudioDevCoreAudio::outputs()
 {
-    return this->m_outputs;
+    return this->m_sinks;
 }
 
 QString AudioDevCoreAudio::description(const QString &device)
 {
-    QStringList deviceParts = device.split(':');
-
-    if (deviceParts.size() < 2)
-        return QString();
-
-    bool ok = false;
-    AudioDeviceID deviceId = deviceParts[1].toUInt(&ok);
-
-    if (!ok)
-        return QString();
-
-    bool input = device.startsWith('1');
-
-    AudioObjectPropertyAddress propName = {
-        kAudioObjectPropertyName,
-        input?
-            kAudioDevicePropertyScopeInput:
-            kAudioDevicePropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
-    };
-
-    UInt32 propSize = sizeof(CFStringRef);
-    CFStringRef name;
-
-    OSStatus status =
-            AudioObjectGetPropertyData(deviceId,
-                                       &propName,
-                                       0,
-                                       NULL,
-                                       &propSize,
-                                       &name);
-
-    if (status != noErr)
-        return QString();
-
-    QString deviceName = this->CFStringToString(name);
-    CFRelease(name);
-
-    return deviceName;
+    return this->m_descriptionMap.value(device);
 }
 
-// Get native format for the default audio device.
 AkAudioCaps AudioDevCoreAudio::preferredFormat(const QString &device)
 {
-    QStringList deviceParts = device.split(':');
-
-    if (deviceParts.size() < 2) {
-        this->m_error = "Invalid device ID format";
-        emit this->errorChanged(this->m_error);
-
-        return AkAudioCaps();
-    }
-
-    bool ok = false;
-    AudioDeviceID deviceID = deviceParts[1].toUInt(&ok);
-
-    if (!ok) {
-        this->m_error = "Invalid device ID format";
-        emit this->errorChanged(this->m_error);
-
-        return AkAudioCaps();
-    }
-
-    bool input = device.startsWith('1');
-
-    UInt32 propSize = 0;
-    AudioObjectPropertyAddress propStreams = {
-        kAudioDevicePropertyStreams,
-        input?
-            kAudioDevicePropertyScopeInput:
-            kAudioDevicePropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
-    };
-
-    OSStatus status = AudioObjectGetPropertyDataSize(deviceID,
-                                                     &propStreams,
-                                                     0,
-                                                     NULL,
-                                                     &propSize);
-
-    int nStreams = propSize / sizeof(AudioStreamID);
-
-    if (status != noErr || nStreams < 1) {
-        this->m_error = QString("Can't read the number of streams: %1")
-                        .arg(this->statusToStr(status));
-        emit this->errorChanged(this->m_error);
-
-        return AkAudioCaps();
-    }
-
-    QVector<AudioStreamID> streams(nStreams);
-
-    status = AudioObjectGetPropertyData(deviceID,
-                                        &propStreams,
-                                        0,
-                                        NULL,
-                                        &propSize,
-                                        streams.data());
-
-    if (status != noErr) {
-        this->m_error = QString("Can't read streams: %1")
-                        .arg(this->statusToStr(status));
-        emit this->errorChanged(this->m_error);
-
-        return AkAudioCaps();
-    }
-
-    static const AudioObjectPropertyAddress propPhysicalFormat = {
-        kAudioStreamPropertyPhysicalFormat,
-        kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
-    };
-
-    AkAudioCaps defaultCaps;
-    QVector<AkAudioCaps> supportedCaps;
-
-    static const QVector<AudioObjectPropertySelector> selectors = {
-        kAudioStreamPropertyAvailablePhysicalFormats,
-        kAudioStreamPropertyAvailableVirtualFormats,
-    };
-
-    // These are all common formats supported by the audio converter.
-    static const QVector<AkAudioCaps::SampleFormat> recommendedFormats = {
-        AkAudioCaps::SampleFormat_flt,
-        AkAudioCaps::SampleFormat_s32,
-        AkAudioCaps::SampleFormat_s16,
-        AkAudioCaps::SampleFormat_u8
-//      AkAudioCaps::SampleFormat_fltp,
-//      AkAudioCaps::SampleFormat_s32p,
-//      AkAudioCaps::SampleFormat_s16p,
-//      AkAudioCaps::SampleFormat_u8p,
-    };
-
-    for (const AudioStreamID &stream: streams) {
-        // Create a list of all supported output formats.
-        for (const AudioObjectPropertySelector &selector: selectors)
-            for (const AudioStreamRangedDescription &description:
-                     this->supportedFormats(stream, selector)) {
-                AkAudioCaps audioCaps;
-                audioCaps.isValid() = true;
-                audioCaps.format() = this->descriptionToSampleFormat(description.mFormat);
-                audioCaps.bps() = AkAudioCaps::bitsPerSample(audioCaps.format());
-                audioCaps.channels() = description.mFormat.mChannelsPerFrame;
-                audioCaps.rate() = int(description.mFormat.mSampleRate);
-                audioCaps.layout() = AkAudioCaps::defaultChannelLayout(description.mFormat.mChannelsPerFrame);
-                audioCaps.align() = false;
-
-                // Formats not supported by the converter are excluded.
-                if (recommendedFormats.contains(audioCaps.format())
-                    && !supportedCaps.contains(audioCaps)) {
-                    supportedCaps << audioCaps;
-                }
-            }
-
-        // Find default format.
-        status = AudioObjectGetPropertyDataSize(stream,
-                                                &propPhysicalFormat,
-                                                0,
-                                                NULL,
-                                                &propSize);
-
-        if (status != noErr)
-            continue;
-
-        AudioStreamBasicDescription streamDescription;
-
-        status = AudioObjectGetPropertyData(stream,
-                                            &propPhysicalFormat,
-                                            0,
-                                            NULL,
-                                            &propSize,
-                                            &streamDescription);
-
-        if (status == noErr && !defaultCaps) {
-            AkAudioCaps::SampleFormat sampleFormat = this->descriptionToSampleFormat(streamDescription);
-
-            // If the format is not supported by the converter,
-            // find another one.
-            if (recommendedFormats.contains(sampleFormat)) {
-                defaultCaps.isValid() = true;
-                defaultCaps.format() = sampleFormat;
-                defaultCaps.bps() = AkAudioCaps::bitsPerSample(defaultCaps.format());
-                defaultCaps.channels() = streamDescription.mChannelsPerFrame;
-                defaultCaps.rate() = int(streamDescription.mSampleRate);
-                defaultCaps.layout() = AkAudioCaps::defaultChannelLayout(streamDescription.mChannelsPerFrame);
-                defaultCaps.align() = false;
-            }
-        }
-    }
-
-    if (!defaultCaps) {
-        if (supportedCaps.isEmpty()) {
-            // There is no suitable output format.
-            this->m_error = QString("Can't read default format: %1")
-                            .arg(this->statusToStr(status));
-            emit this->errorChanged(this->m_error);
-
-            return AkAudioCaps();
-        } else for (const AkAudioCaps::SampleFormat &sampleFormat: recommendedFormats) {
-            // Select the best output format.
-            if (defaultCaps)
-                break;
-
-            for (const AkAudioCaps &caps: supportedCaps)
-                if (caps.format() == sampleFormat) {
-                    defaultCaps = caps;
-
-                    break;
-                }
-        }
-    }
-
-    return defaultCaps;
+    return this->m_defaultCaps.value(device);
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDevCoreAudio::supportedFormats(const QString &device)
 {
-    Q_UNUSED(device)
-
-    return QList<AkAudioCaps::SampleFormat>();
+    return this->m_supportedFormats.value(device);
 }
 
 QList<int> AudioDevCoreAudio::supportedChannels(const QString &device)
 {
-    Q_UNUSED(device)
-
-    return QList<int>();
+    return this->m_supportedChannels.value(device);
 }
 
 QList<int> AudioDevCoreAudio::supportedSampleRates(const QString &device)
 {
-    Q_UNUSED(device)
-
-    return QList<int>();
+    return this->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
@@ -520,8 +300,8 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
                                    | sampleEndianness
                                    | sampleIsPlanar;
     streamDescription.mFramesPerPacket = 1;
-    streamDescription.mChannelsPerFrame = caps.channels();
-    streamDescription.mBitsPerChannel = AkAudioCaps::bitsPerSample(caps.format());
+    streamDescription.mChannelsPerFrame = UInt32(caps.channels());
+    streamDescription.mBitsPerChannel = UInt32(AkAudioCaps::bitsPerSample(caps.format()));
     streamDescription.mBytesPerFrame = streamDescription.mChannelsPerFrame
                                      * streamDescription.mBitsPerChannel
                                      / 8;
@@ -587,11 +367,14 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
 
     this->m_curCaps = caps;
     this->m_isInput = input;
-    this->m_maxBufferSize = 2 * caps.bps() * caps.channels() * bufferSize / 8;
+    this->m_maxBufferSize = 2
+                          * caps.bps()
+                          * caps.channels()
+                          * int(bufferSize) / 8;
 
-    int nBuffers = streamDescription.mFormatFlags
-                   & kAudioFormatFlagIsNonInterleaved?
-                    streamDescription.mChannelsPerFrame: 1;
+    UInt32 nBuffers = streamDescription.mFormatFlags
+                    & kAudioFormatFlagIsNonInterleaved?
+                        streamDescription.mChannelsPerFrame: 1;
 
     this->m_bufferSize = bufferSize;
     this->m_bufferList =
@@ -600,7 +383,7 @@ bool AudioDevCoreAudio::init(const QString &device, const AkAudioCaps &caps)
                                                        * nBuffers));
     this->m_bufferList->mNumberBuffers = nBuffers;
 
-    for (int i = 0; i < nBuffers; i++) {
+    for (UInt32 i = 0; i < nBuffers; i++) {
         this->m_bufferList->mBuffers[i].mNumberChannels =
                 streamDescription.mFormatFlags
                 & kAudioFormatFlagIsNonInterleaved?
@@ -683,12 +466,12 @@ QString AudioDevCoreAudio::CFStringToString(const CFStringRef &cfstr)
     const UniChar *data = CFStringGetCharactersPtr(cfstr);
 
     if (data)
-        return QString(reinterpret_cast<const QChar *>(data), len);
+        return QString(reinterpret_cast<const QChar *>(data), int(len));
 
-    UniChar str[len];
-    CFStringGetCharacters(cfstr, CFRangeMake(0, len), str);
+    QVector<UniChar> str((int(len)));
+    CFStringGetCharacters(cfstr, CFRangeMake(0, len), str.data());
 
-    return QString(reinterpret_cast<const QChar *>(str), len);
+    return QString(reinterpret_cast<const QChar *>(str.data()), str.size());
 }
 
 QString AudioDevCoreAudio::defaultDevice(bool input, bool *ok)
@@ -725,73 +508,6 @@ QString AudioDevCoreAudio::defaultDevice(bool input, bool *ok)
     return QString("%1:%2").arg(input).arg(deviceId);
 }
 
-QStringList AudioDevCoreAudio::listDevices(bool input)
-{
-    static const AudioObjectPropertyAddress propDevices = {
-        kAudioHardwarePropertyDevices,
-        kAudioObjectPropertyScopeGlobal,
-        kAudioObjectPropertyElementMaster
-    };
-
-    UInt32 propSize = 0;
-
-    OSStatus status =
-            AudioObjectGetPropertyDataSize(kAudioObjectSystemObject,
-                                           &propDevices,
-                                           0,
-                                           NULL,
-                                           &propSize);
-
-    if (status != noErr)
-        return QStringList();
-
-    int nDevices = propSize / sizeof(AudioDeviceID);
-
-    if (nDevices < 1)
-        return QStringList();
-
-    QVector<AudioDeviceID> devices(nDevices);
-
-    status = AudioObjectGetPropertyData(kAudioObjectSystemObject,
-                                        &propDevices,
-                                        0,
-                                        NULL,
-                                        &propSize,
-                                        devices.data());
-
-    if (status != noErr)
-        return QStringList();
-
-    AudioObjectPropertyAddress propStreamFormat = {
-        kAudioDevicePropertyStreamFormat,
-        input?
-            kAudioObjectPropertyScopeInput:
-            kAudioObjectPropertyScopeOutput,
-        kAudioObjectPropertyElementMaster
-    };
-
-    QStringList deviceList;
-
-    for (AudioDeviceID &deviceId: devices) {
-        propSize = sizeof(AudioStreamBasicDescription);
-        AudioStreamBasicDescription streamDescription;
-
-        status = AudioObjectGetPropertyData(deviceId,
-                                            &propStreamFormat,
-                                            0,
-                                            NULL,
-                                            &propSize,
-                                            &streamDescription);
-
-        if (status != noErr)
-            continue;
-
-        deviceList << QString("%1:%2").arg(input).arg(deviceId);
-    }
-
-    return deviceList;
-}
-
 void AudioDevCoreAudio::clearBuffer()
 {
     for (UInt32 i = 0; i < this->m_bufferList->mNumberBuffers; i++) {
@@ -800,39 +516,211 @@ void AudioDevCoreAudio::clearBuffer()
     }
 }
 
-QVector<AudioStreamRangedDescription> AudioDevCoreAudio::supportedFormats(AudioStreamID stream,
-                                                                          AudioObjectPropertySelector selector)
+QList<AkAudioCaps::SampleFormat> AudioDevCoreAudio::supportedCAFormats(AudioDeviceID deviceId,
+                                                                       AudioObjectPropertyScope scope)
 {
-    AudioObjectPropertyAddress physicalPropAddress = {
-        selector,
-        kAudioObjectPropertyScopeGlobal,
+    // Read stream properties of the device.
+    UInt32 propSize = 0;
+
+    AudioObjectPropertyAddress propStreams = {
+        kAudioDevicePropertyStreams,
+        scope,
         kAudioObjectPropertyElementMaster
     };
 
-    UInt32 propSize = 0;
-    OSStatus status = AudioObjectGetPropertyDataSize(stream,
-                                                     &physicalPropAddress,
-                                                     0,
-                                                     NULL,
-                                                     &propSize);
+    auto status = AudioObjectGetPropertyDataSize(deviceId,
+                                                 &propStreams,
+                                                 0,
+                                                 NULL,
+                                                 &propSize);
 
-    if (status != noErr || !propSize)
-        return QVector<AudioStreamRangedDescription>();
+    int nStreams = propSize / sizeof(AudioStreamID);
 
-    UInt32 count = propSize / sizeof(AudioStreamRangedDescription);
-    QVector<AudioStreamRangedDescription> supportedFormats(count);
+    if (status != noErr || nStreams < 1)
+        return QList<AkAudioCaps::SampleFormat>();
 
-    status = AudioObjectGetPropertyData(stream,
-                                        &physicalPropAddress,
+    QVector<AudioStreamID> streams(nStreams);
+
+    status = AudioObjectGetPropertyData(deviceId,
+                                        &propStreams,
                                         0,
                                         NULL,
                                         &propSize,
-                                        supportedFormats.data());
+                                        streams.data());
 
-    if (status != noErr || !propSize)
-        return QVector<AudioStreamRangedDescription>();
+    if (status != noErr)
+        return QList<AkAudioCaps::SampleFormat>();
+
+    // These are all common formats supported by the audio converter.
+    static const QVector<AkAudioCaps::SampleFormat> recommendedFormats = {
+        AkAudioCaps::SampleFormat_flt,
+        AkAudioCaps::SampleFormat_s32,
+        AkAudioCaps::SampleFormat_s16,
+        AkAudioCaps::SampleFormat_u8
+//      AkAudioCaps::SampleFormat_fltp,
+//      AkAudioCaps::SampleFormat_s32p,
+//      AkAudioCaps::SampleFormat_s16p,
+//      AkAudioCaps::SampleFormat_u8p,
+    };
+
+    static const QVector<AudioObjectPropertySelector> selectorType {
+        kAudioStreamPropertyAvailablePhysicalFormats,
+//        kAudioStreamPropertyAvailableVirtualFormats,
+    };
+
+    QList<AkAudioCaps::SampleFormat> supportedFormats;
+
+    // Enumerate all formats supported by each stream.
+    for (const AudioStreamID &stream: streams) {
+        for (auto &selector: selectorType) {
+            AudioObjectPropertyAddress availableFormats {
+                selector,
+                kAudioObjectPropertyScopeGlobal,
+                kAudioObjectPropertyElementMaster
+            };
+
+            UInt32 propSize = 0;
+            OSStatus status = AudioObjectGetPropertyDataSize(stream,
+                                                             &availableFormats,
+                                                             0,
+                                                             NULL,
+                                                             &propSize);
+
+            if (status != noErr || !propSize)
+                continue;
+
+            UInt32 count = propSize / sizeof(AudioStreamRangedDescription);
+            QVector<AudioStreamRangedDescription> streamDescriptions((int(count)));
+
+            status = AudioObjectGetPropertyData(stream,
+                                                &availableFormats,
+                                                0,
+                                                NULL,
+                                                &propSize,
+                                                streamDescriptions.data());
+
+            if (status != noErr || !propSize)
+                continue;
+
+            for (auto &description: streamDescriptions) {
+                auto format = this->descriptionToSampleFormat(description.mFormat);
+
+                // Formats not supported by the converter are excluded.
+                if (recommendedFormats.contains(format)
+                    && !supportedFormats.contains(format)) {
+                    supportedFormats << format;
+                }
+            }
+        }
+    }
 
     return supportedFormats;
+}
+
+QList<int> AudioDevCoreAudio::supportedCAChannels(AudioDeviceID deviceId,
+                                                  AudioObjectPropertyScope scope)
+{
+    UInt32 propSize = 0;
+    AudioObjectPropertyAddress streamConfiguration = {
+        kAudioDevicePropertyStreamConfiguration,
+        scope,
+        kAudioObjectPropertyElementMaster
+    };
+
+    auto status = AudioObjectGetPropertyDataSize(deviceId,
+                                                 &streamConfiguration,
+                                                 0,
+                                                 NULL,
+                                                 &propSize);
+
+    if (status != noErr)
+        return QList<int>();
+
+    int nBuffers = propSize / sizeof(AudioBufferList);
+
+    if (nBuffers < 1)
+        return QList<int>();
+
+    QVector<AudioBufferList> buffers(nBuffers);
+
+    status = AudioObjectGetPropertyData(deviceId,
+                                        &streamConfiguration,
+                                        0,
+                                        NULL,
+                                        &propSize,
+                                        buffers.data());
+
+    if (status != noErr)
+        return QList<int>();
+
+    QList<int> supportedCAChannels;
+
+    for (auto &buffer: buffers) {
+        int channels = 0;
+
+        for (UInt32 i = 0; i < buffer.mNumberBuffers; i++)
+            channels += buffer.mBuffers[i].mNumberChannels;
+
+        if (!supportedCAChannels.contains(channels))
+            supportedCAChannels << channels;
+    }
+
+    return supportedCAChannels;
+}
+
+QList<int> AudioDevCoreAudio::supportedCASampleRates(AudioDeviceID deviceId,
+                                                     AudioObjectPropertyScope scope)
+{
+    UInt32 propSize = 0;
+    AudioObjectPropertyAddress nominalSampleRates = {
+        kAudioDevicePropertyAvailableNominalSampleRates,
+        scope,
+        kAudioObjectPropertyElementMaster
+    };
+
+    auto status = AudioObjectGetPropertyDataSize(deviceId,
+                                                 &nominalSampleRates,
+                                                 0,
+                                                 NULL,
+                                                 &propSize);
+
+    if (status != noErr)
+        return QList<int>();
+
+    int nSampleRates = propSize / sizeof(AudioValueRange);
+
+    if (nSampleRates < 1)
+        return QList<int>();
+
+    QVector<AudioValueRange> sampleRates(nSampleRates);
+
+    status = AudioObjectGetPropertyData(deviceId,
+                                        &nominalSampleRates,
+                                        0,
+                                        NULL,
+                                        &propSize,
+                                        sampleRates.data());
+
+    if (status != noErr)
+        return QList<int>();
+
+    QList<int> supportedSampleRates;
+
+    for (auto &rate: sampleRates) {
+        auto minRate = qRound(rate.mMinimum);
+
+        if (!supportedSampleRates.contains(minRate))
+            supportedSampleRates << minRate;
+
+        auto maxRate = qRound(rate.mMaximum);
+
+        if (!supportedSampleRates.contains(maxRate))
+            supportedSampleRates << maxRate;
+    }
+
+    qSort(supportedSampleRates);
+
+    return supportedSampleRates;
 }
 
 AkAudioCaps::SampleFormat AudioDevCoreAudio::descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription)
@@ -852,7 +740,7 @@ AkAudioCaps::SampleFormat AudioDevCoreAudio::descriptionToSampleFormat(const Aud
     bool planar = streamDescription.mFormatFlags & kAudioFormatFlagIsNonInterleaved;
 
     return AkAudioCaps::sampleFormatFromProperties(formatType,
-                                                   bps,
+                                                   int(bps),
                                                    endian,
                                                    planar);
 }
@@ -867,19 +755,7 @@ OSStatus AudioDevCoreAudio::devicesChangedCallback(AudioObjectID objectId,
     Q_UNUSED(properties)
 
     auto self = static_cast<AudioDevCoreAudio *>(audioDev);
-    auto inputs = self->listDevices(true);
-
-    if (self->m_inputs != inputs) {
-        self->m_inputs = inputs;
-        emit self->inputsChanged(inputs);
-    }
-
-    auto outputs = self->listDevices(false);
-
-    if (self->m_outputs != outputs) {
-        self->m_outputs = outputs;
-        emit self->outputsChanged(outputs);
-    }
+    self->updateDevices();
 
     return noErr;
 }
@@ -895,8 +771,17 @@ OSStatus AudioDevCoreAudio::defaultInputDeviceChangedCallback(AudioObjectID obje
 
     auto self = static_cast<AudioDevCoreAudio *>(audioDev);
 
-    if (self)
-        emit self->defaultInputChanged(self->defaultInput());
+    if (self) {
+        auto defaultInput = self->defaultDevice(true, NULL);
+
+        if (defaultInput.isEmpty() && !self->m_sources.isEmpty())
+            defaultInput = self->m_sources.first();
+
+        if (self->m_defaultSource != defaultInput) {
+            self->m_defaultSource = defaultInput;
+            emit self->defaultInputChanged(defaultInput);
+        }
+    }
 
     return noErr;
 }
@@ -912,8 +797,17 @@ OSStatus AudioDevCoreAudio::defaultOutputDeviceChangedCallback(AudioObjectID obj
 
     auto self = static_cast<AudioDevCoreAudio *>(audioDev);
 
-    if (self)
-        emit self->defaultOutputChanged(self->defaultOutput());
+    if (self) {
+        auto defaultOutput = self->defaultDevice(false, NULL);
+
+        if (defaultOutput.isEmpty() && !self->m_sinks.isEmpty())
+            defaultOutput = self->m_sinks.first();
+
+        if (self->m_defaultSink != defaultOutput) {
+            self->m_defaultSink = defaultOutput;
+            emit self->defaultOutputChanged(defaultOutput);
+        }
+    }
 
     return noErr;
 }
@@ -951,7 +845,7 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
         for (UInt32 i = 0; i < self->m_bufferList->mNumberBuffers; i++)
             self->m_buffer +=
                 QByteArray::fromRawData(static_cast<const char *>(self->m_bufferList->mBuffers[i].mData),
-                                        self->m_bufferList->mBuffers[i].mDataByteSize);
+                                        int(self->m_bufferList->mBuffers[i].mDataByteSize));
 
         // We use a ring buffer and all old samples are discarded.
         if (self->m_buffer.size() > self->m_maxBufferSize) {
@@ -976,13 +870,13 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
                    data->mBuffers[i].mDataByteSize);
 
             self->m_mutex.lock();
-            int copyBytes = qMin<int>(data->mBuffers[i].mDataByteSize,
-                                      self->m_buffer.size());
+            int copyBytes = qMin(int(data->mBuffers[i].mDataByteSize),
+                                  self->m_buffer.size());
 
             if (copyBytes > 0) {
                 memcpy(data->mBuffers[i].mData,
                        self->m_buffer.constData(),
-                       copyBytes);
+                       size_t(copyBytes));
                 self->m_buffer.remove(0, copyBytes);
             }
 
@@ -994,4 +888,173 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
     }
 
     return noErr;
+}
+
+void AudioDevCoreAudio::updateDevices()
+{    
+    decltype(this->m_defaultSink) defaultOutput;
+    decltype(this->m_defaultSource) defaultInput;
+    decltype(this->m_sources) inputs;
+    decltype(this->m_sinks) outputs;
+    decltype(this->m_descriptionMap) descriptionMap;
+    decltype(this->m_defaultCaps) defaultCaps;
+    decltype(this->m_supportedFormats) supportedFormats;
+    decltype(this->m_supportedChannels) supportedChannels;
+    decltype(this->m_supportedSampleRates) supportedSampleRates;
+
+    // List default devices
+    defaultInput = this->defaultDevice(true, NULL);
+    defaultOutput = this->defaultDevice(false, NULL);
+
+    // List all devices
+    static const AudioObjectPropertyAddress propDevices = {
+        kAudioHardwarePropertyDevices,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+
+    UInt32 propSize = 0;
+
+    if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject,
+                                       &propDevices,
+                                       0,
+                                       NULL,
+                                       &propSize) == noErr) {
+        int nDevices = propSize / sizeof(AudioDeviceID);
+
+        if (nDevices > 0) {
+            QVector<AudioDeviceID> devices(nDevices);
+
+            if (AudioObjectGetPropertyData(kAudioObjectSystemObject,
+                                                &propDevices,
+                                                0,
+                                                NULL,
+                                                &propSize,
+                                                devices.data()) == noErr) {
+                for (auto &deviceType: QVector<AudioObjectPropertyScope> {
+                                           kAudioObjectPropertyScopeInput,
+                                           kAudioObjectPropertyScopeOutput
+                                       }) {
+                    AudioObjectPropertyAddress propStreamFormat = {
+                        kAudioDevicePropertyStreamFormat,
+                        deviceType,
+                        kAudioObjectPropertyElementMaster
+                    };
+
+                    for (auto &deviceId: devices) {
+                        // Check if we can use this device.
+                        propSize = sizeof(AudioStreamBasicDescription);
+                        AudioStreamBasicDescription streamDescription;
+
+                        auto status =
+                                AudioObjectGetPropertyData(deviceId,
+                                                           &propStreamFormat,
+                                                           0,
+                                                           NULL,
+                                                           &propSize,
+                                                           &streamDescription);
+
+                        if (status != noErr)
+                            continue;
+
+                        // Get device description.
+                        AudioObjectPropertyAddress propName = {
+                            kAudioObjectPropertyName,
+                            deviceType == kAudioObjectPropertyScopeInput?
+                                kAudioDevicePropertyScopeInput:
+                                kAudioDevicePropertyScopeInput,
+                            kAudioObjectPropertyElementMaster
+                        };
+
+                        UInt32 propSize = sizeof(CFStringRef);
+                        CFStringRef name;
+
+                        status = AudioObjectGetPropertyData(deviceId,
+                                                            &propName,
+                                                            0,
+                                                            NULL,
+                                                            &propSize,
+                                                            &name);
+
+                        if (status != noErr)
+                            continue;
+
+                        auto description = this->CFStringToString(name);
+                        CFRelease(name);
+                        auto formats = this->supportedCAFormats(deviceId,
+                                                                deviceType);
+                        auto channels = this->supportedCAChannels(deviceId,
+                                                                  deviceType);
+                        auto sampleRates = this->supportedCASampleRates(deviceId,
+                                                                        deviceType);
+
+                        if (formats.isEmpty()
+                            || channels.isEmpty()
+                            || sampleRates.isEmpty())
+                            continue;
+
+                        QString devId;
+
+                        // Append device to the list.
+                        if (deviceType == kAudioObjectPropertyScopeInput) {
+                            devId = QString("%1:%2").arg(INPUT_DEVICE).arg(deviceId);
+                            inputs << devId;
+                        } else {
+                            devId = QString("%1:%2").arg(OUTPUT_DEVICE).arg(deviceId);
+                            outputs << devId;
+                        }
+
+                        descriptionMap[devId] = description;
+                        supportedFormats[devId] = formats;
+                        supportedChannels[devId] = channels;
+                        supportedSampleRates[devId] = sampleRates;
+                        defaultCaps[devId] = AkAudioCaps(formats.first(),
+                                                         channels.first(),
+                                                         sampleRates.first());
+                    }
+                }
+            }
+        }
+    }
+
+    if (this->m_defaultCaps != defaultCaps)
+        this->m_defaultCaps = defaultCaps;
+
+    if (this->m_supportedFormats != supportedFormats)
+        this->m_supportedFormats = supportedFormats;
+
+    if (this->m_supportedChannels != supportedChannels)
+        this->m_supportedChannels = supportedChannels;
+
+    if (this->m_supportedSampleRates != supportedSampleRates)
+        this->m_supportedSampleRates = supportedSampleRates;
+
+    if (this->m_descriptionMap != descriptionMap)
+        this->m_descriptionMap = descriptionMap;
+
+    if (this->m_sources != inputs) {
+        this->m_sources = inputs;
+        emit this->inputsChanged(inputs);
+    }
+
+    if (this->m_sinks != outputs) {
+        this->m_sinks = outputs;
+        emit this->outputsChanged(outputs);
+    }
+
+    if (defaultInput.isEmpty() && !inputs.isEmpty())
+        defaultInput = inputs.first();
+
+    if (defaultOutput.isEmpty() && !outputs.isEmpty())
+        defaultOutput = outputs.first();
+
+    if (this->m_defaultSource != defaultInput) {
+        this->m_defaultSource = defaultInput;
+        emit this->defaultInputChanged(defaultInput);
+    }
+
+    if (this->m_defaultSink != defaultOutput) {
+        this->m_defaultSink = defaultOutput;
+        emit this->defaultOutputChanged(defaultOutput);
+    }
 }

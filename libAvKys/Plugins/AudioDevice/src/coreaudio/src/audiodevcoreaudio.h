@@ -53,8 +53,15 @@ class AudioDevCoreAudio: public AudioDev
 
     private:
         QString m_error;
-        QStringList m_inputs;
-        QStringList m_outputs;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QStringList m_sources;
+        QStringList m_sinks;
+        QMap<QString, QString> m_descriptionMap;
+        QMap<QString, AkAudioCaps> m_defaultCaps;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
         AudioUnit m_audioUnit;
         UInt32 m_bufferSize;
         AudioBufferList *m_bufferList;
@@ -69,10 +76,13 @@ class AudioDevCoreAudio: public AudioDev
         static QString statusToStr(OSStatus status);
         static QString CFStringToString(const CFStringRef &cfstr);
         static QString defaultDevice(bool input, bool *ok=NULL);
-        static QStringList listDevices(bool input);
         void clearBuffer();
-        QVector<AudioStreamRangedDescription> supportedFormats(AudioStreamID stream,
-                                                               AudioObjectPropertySelector selector);
+        QList<AkAudioCaps::SampleFormat> supportedCAFormats(AudioDeviceID deviceId,
+                                                            AudioObjectPropertyScope scope);
+        QList<int> supportedCAChannels(AudioDeviceID deviceId,
+                                       AudioObjectPropertyScope scope);
+        QList<int> supportedCASampleRates(AudioDeviceID deviceId,
+                                          AudioObjectPropertyScope scope);
         AkAudioCaps::SampleFormat descriptionToSampleFormat(const AudioStreamBasicDescription &streamDescription);
         static OSStatus devicesChangedCallback(AudioObjectID objectId,
                                                UInt32 nProps,
@@ -92,6 +102,9 @@ class AudioDevCoreAudio: public AudioDev
                                       UInt32 busNumber,
                                       UInt32 nFrames,
                                       AudioBufferList *data);
+
+    private slots:
+        void updateDevices();
 };
 
 #endif // AUDIODEVCOREAUDIO_H
