@@ -76,13 +76,27 @@ inline StringStringMap initGstToFF()
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
 ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
-    ConvertAudio(parent)
+    ConvertAudio(parent),
+    m_pipeline(NULL),
+    m_source(NULL),
+    m_sink(NULL),
+    m_mainLoop(NULL),
+    m_busWatchId(0)
 {
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(NULL, NULL);
+}
+
+ConvertAudioGStreamer::~ConvertAudioGStreamer()
+{
+    this->uninit();
+}
+
+bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
+{
+    QMutexLocker mutexLocker(&this->m_mutex);
 
     this->m_pipeline = gst_pipeline_new(NULL);
-    this->m_mainLoop = NULL;
 
     this->m_source = gst_element_factory_make("appsrc", NULL);
     gst_app_src_set_stream_type(GST_APP_SRC(this->m_source), GST_APP_STREAM_TYPE_STREAM);
@@ -112,29 +126,22 @@ ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
     GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_pipeline));
     this->m_busWatchId = gst_bus_add_watch(bus, this->busCallback, this);
     gst_object_unref(bus);
+
+    this->m_caps = caps;
+
+    return true;
 }
 
-ConvertAudioGStreamer::~ConvertAudioGStreamer()
+AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 {
-    if (this->m_pipeline) {
-        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
-        this->waitState(GST_STATE_NULL);
-        gst_object_unref(GST_OBJECT(this->m_pipeline));
-        g_source_remove(this->m_busWatchId);
-        this->m_pipeline = NULL;
-        this->m_busWatchId = 0;
-    }
+    QMutexLocker mutexLocker(&this->m_mutex);
 
-    if (this->m_mainLoop) {
-        g_main_loop_quit(this->m_mainLoop);
-        g_main_loop_unref(this->m_mainLoop);
-        this->m_mainLoop = NULL;
-    }
-}
+    if (!this->m_pipeline
+        || !this->m_source
+        || !this->m_sink
+        || !this->m_caps)
+        return AkPacket();
 
-AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet,
-                                        const AkCaps &oCaps)
-{
     QString iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
     QString gstIFormat = gstToFF->key(iFormat, "S16");
 
@@ -165,9 +172,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet,
     if (sourceCaps)
         gst_caps_unref(sourceCaps);
 
-    AkAudioCaps oAudioCaps(oCaps);
-
-    QString oFormat = AkAudioCaps::sampleFormatToString(oAudioCaps.format());
+    QString oFormat = AkAudioCaps::sampleFormatToString(this->m_caps.format());
     QString gstOFormat = gstToFF->key(oFormat, "S16");
 
     if (!gstOFormat.endsWith(fEnd))
@@ -176,8 +181,8 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet,
     GstCaps *outCaps = gst_caps_new_simple("audio/x-raw",
                                            "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
                                            "layout", G_TYPE_STRING, "interleaved",
-                                           "rate", G_TYPE_INT, oAudioCaps.rate(),
-                                           "channels", G_TYPE_INT, oAudioCaps.channels(),
+                                           "rate", G_TYPE_INT, this->m_caps.rate(),
+                                           "channels", G_TYPE_INT, this->m_caps.channels(),
                                            NULL);
 
     outCaps = gst_caps_fixate(outCaps);
@@ -238,19 +243,41 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet,
 
     // Create a package and return it.
     int nSamples = 8 * int(info.size)
-                   / AkAudioCaps::bitsPerSample(oAudioCaps.format())
-                   / oAudioCaps.channels();
+                   / AkAudioCaps::bitsPerSample(this->m_caps.format())
+                   / this->m_caps.channels();
 
     AkAudioPacket oAudioPacket;
-    oAudioPacket.caps() = oAudioCaps;
+    oAudioPacket.caps() = this->m_caps;
     oAudioPacket.caps().samples() = nSamples;
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = pts;
-    oAudioPacket.timeBase() = AkFrac(1, oAudioCaps.rate());
+    oAudioPacket.timeBase() = AkFrac(1, this->m_caps.rate());
     oAudioPacket.index() = packet.index();
     oAudioPacket.id() = packet.id();
 
     return oAudioPacket.toPacket();
+}
+
+void ConvertAudioGStreamer::uninit()
+{
+    QMutexLocker mutexLocker(&this->m_mutex);
+
+    this->m_caps = AkAudioCaps();
+
+    if (this->m_pipeline) {
+        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
+        this->waitState(GST_STATE_NULL);
+        gst_object_unref(GST_OBJECT(this->m_pipeline));
+        g_source_remove(this->m_busWatchId);
+        this->m_pipeline = NULL;
+        this->m_busWatchId = 0;
+    }
+
+    if (this->m_mainLoop) {
+        g_main_loop_quit(this->m_mainLoop);
+        g_main_loop_unref(this->m_mainLoop);
+        this->m_mainLoop = NULL;
+    }
 }
 
 void ConvertAudioGStreamer::waitState(GstState state)

@@ -63,6 +63,7 @@ class ACapsConvertElement: public AkElement
         void resetConvertLib();
 
         AkPacket iStream(const AkAudioPacket &packet);
+        bool setState(AkElement::ElementState state);
 
     private slots:
         void convertLibUpdated(const QString &convertLib);

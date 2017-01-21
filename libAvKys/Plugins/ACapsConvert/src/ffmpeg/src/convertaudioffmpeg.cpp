@@ -45,14 +45,23 @@ ConvertAudioFFmpeg::ConvertAudioFFmpeg(QObject *parent):
 
 ConvertAudioFFmpeg::~ConvertAudioFFmpeg()
 {
-    if (this->m_resampleContext)
-        swr_free(&this->m_resampleContext);
+    this->uninit();
 }
 
-AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet,
-                                     const AkCaps &oCaps)
+bool ConvertAudioFFmpeg::init(const AkAudioCaps &caps)
 {
-    AkAudioCaps oAudioCaps(oCaps);
+    QMutexLocker mutexLocker(&this->m_mutex);
+    this->m_caps = caps;
+
+    return true;
+}
+
+AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet)
+{
+    QMutexLocker mutexLocker(&this->m_mutex);
+
+    if (!this->m_caps)
+        return AkPacket();
 
     int64_t iSampleLayout = channelLayouts->value(packet.caps().layout(), 0);
 
@@ -64,15 +73,15 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet,
     int iNChannels = packet.caps().channels();
     int iNSamples = packet.caps().samples();
 
-    int64_t oSampleLayout = channelLayouts->value(oAudioCaps.layout(),
+    int64_t oSampleLayout = channelLayouts->value(this->m_caps.layout(),
                                                   AV_CH_LAYOUT_STEREO);
 
     AVSampleFormat oSampleFormat =
-            av_get_sample_fmt(AkAudioCaps::sampleFormatToString(oAudioCaps.format())
+            av_get_sample_fmt(AkAudioCaps::sampleFormatToString(this->m_caps.format())
                               .toStdString().c_str());
 
-    int oSampleRate = oAudioCaps.rate();
-    int oNChannels = oAudioCaps.channels();
+    int oSampleRate = this->m_caps.rate();
+    int oNChannels = this->m_caps.channels();
 
     this->m_resampleContext =
             swr_alloc_set_opts(this->m_resampleContext,
@@ -154,13 +163,22 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet,
     oBuffer.resize(frameSize);
 
     AkAudioPacket oAudioPacket;
-    oAudioPacket.caps() = oAudioCaps;
+    oAudioPacket.caps() = this->m_caps;
     oAudioPacket.caps().samples() = oFrame.nb_samples;
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = oFrame.pts;
-    oAudioPacket.timeBase() = AkFrac(1, oAudioCaps.rate());
+    oAudioPacket.timeBase() = AkFrac(1, this->m_caps.rate());
     oAudioPacket.index() = packet.index();
     oAudioPacket.id() = packet.id();
 
     return oAudioPacket.toPacket();
+}
+
+void ConvertAudioFFmpeg::uninit()
+{
+    QMutexLocker mutexLocker(&this->m_mutex);
+    this->m_caps = AkAudioCaps();
+
+    if (this->m_resampleContext)
+        swr_free(&this->m_resampleContext);
 }

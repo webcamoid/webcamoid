@@ -36,16 +36,19 @@ class ConvertAudioGStreamer: public ConvertAudio
         explicit ConvertAudioGStreamer(QObject *parent=NULL);
         ~ConvertAudioGStreamer();
 
-        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet,
-                                     const AkCaps &oCaps);
+        Q_INVOKABLE bool init(const AkAudioCaps &caps);
+        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet);
+        Q_INVOKABLE void uninit();
 
     private:
+        AkAudioCaps m_caps;
         QThreadPool m_threadPool;
         GstElement *m_pipeline;
         GstElement *m_source;
         GstElement *m_sink;
         GMainLoop *m_mainLoop;
         guint m_busWatchId;
+        QMutex m_mutex;
 
         void waitState(GstState state);
         static gboolean busCallback(GstBus *bus,

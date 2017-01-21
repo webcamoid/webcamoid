@@ -309,6 +309,7 @@ bool AudioGenElement::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused: {
+            this->m_audioConvert->setState(state);
             this->m_pause = true;
             this->m_readFramesLoop = true;
             this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
@@ -318,6 +319,7 @@ bool AudioGenElement::setState(AkElement::ElementState state)
             return AkElement::setState(state);
         }
         case AkElement::ElementStatePlaying: {
+            this->m_audioConvert->setState(state);
             this->m_id = Ak::id();
             this->m_pause = false;
             this->m_readFramesLoop = true;
@@ -339,9 +341,11 @@ bool AudioGenElement::setState(AkElement::ElementState state)
             this->m_pause = false;
             this->m_readFramesLoop = false;
             this->m_readFramesLoopResult.waitForFinished();
+            this->m_audioConvert->setState(state);
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
+            this->m_audioConvert->setState(state);
             this->m_pause = false;
 
             return AkElement::setState(state);
@@ -357,10 +361,12 @@ bool AudioGenElement::setState(AkElement::ElementState state)
             this->m_pause = false;
             this->m_readFramesLoop = false;
             this->m_readFramesLoopResult.waitForFinished();
+            this->m_audioConvert->setState(state);
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
             this->m_pause = true;
+            this->m_audioConvert->setState(state);
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:

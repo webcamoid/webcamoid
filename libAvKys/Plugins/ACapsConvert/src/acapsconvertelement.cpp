@@ -62,9 +62,7 @@ void ACapsConvertElement::setCaps(const QString &caps)
     if (this->m_caps == caps)
         return;
 
-    this->m_mutex.lock();
     this->m_caps = caps;
-    this->m_mutex.unlock();
     emit this->capsChanged(caps);
 }
 
@@ -86,22 +84,76 @@ void ACapsConvertElement::resetConvertLib()
 AkPacket ACapsConvertElement::iStream(const AkAudioPacket &packet)
 {
     this->m_mutex.lock();
-    auto caps = this->m_caps;
-    this->m_mutex.unlock();
-
-    this->m_mutex.lock();
-    auto oPacket = this->m_convertAudio->convert(packet, caps);
+    auto oPacket = this->m_convertAudio->convert(packet);
     this->m_mutex.unlock();
 
     akSend(oPacket)
 }
 
+bool ACapsConvertElement::setState(AkElement::ElementState state)
+{
+    AkElement::ElementState curState = this->state();
+
+    switch (curState) {
+    case AkElement::ElementStateNull: {
+        switch (state) {
+        case AkElement::ElementStatePaused:
+        case AkElement::ElementStatePlaying: {
+            if (!this->m_convertAudio->init(this->m_caps))
+                return false;
+
+            return AkElement::setState(state);
+        }
+        case AkElement::ElementStateNull:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePaused: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            this->m_convertAudio->uninit();
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            return AkElement::setState(state);
+        case AkElement::ElementStatePaused:
+            break;
+        }
+
+        break;
+    }
+    case AkElement::ElementStatePlaying: {
+        switch (state) {
+        case AkElement::ElementStateNull:
+            this->m_convertAudio->uninit();
+
+            return AkElement::setState(state);
+        case AkElement::ElementStatePaused:
+            return AkElement::setState(state);
+        case AkElement::ElementStatePlaying:
+            break;
+        }
+
+        break;
+    }
+    }
+
+    return false;
+}
+
 void ACapsConvertElement::convertLibUpdated(const QString &convertLib)
 {
+    auto state = this->state();
+    this->setState(AkElement::ElementStateNull);
+
     this->m_mutex.lock();
 
     this->m_convertAudio =
             ptr_init<ConvertAudio>(this->loadSubModule("ACapsConvert",
                                                        convertLib));
     this->m_mutex.unlock();
+
+    this->setState(state);
 }

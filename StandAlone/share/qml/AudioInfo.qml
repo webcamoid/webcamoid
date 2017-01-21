@@ -39,14 +39,14 @@ Rectangle {
                     AudioLayer.audioInput[0]: "";
         iDescription = AudioLayer.description(iDevice);
 
+        var audioCaps = Ak.newAudioCaps();
         var supportedFormats = AudioLayer.supportedFormats(iDevice);
         iSampleFormats.clear();
 
         for (var format in supportedFormats)
-            iSampleFormats.append({channels: supportedFormats[format],
+            iSampleFormats.append({format: audioCaps.sampleFormatFromString(supportedFormats[format]),
                                    description: supportedFormats[format]});
 
-        var audioCaps = Ak.newAudioCaps();
         var supportedChannels = AudioLayer.supportedChannels(iDevice);
         iChannels.clear();
 
@@ -67,7 +67,7 @@ Rectangle {
             iSampleRates.append({sampleRate: supportedSampleRates[rate],
                                  description: supportedSampleRates[rate]});
 
-        var preferredFormat = Ak.newAudioCaps(AudioLayer.preferredFormat(iDevice));
+        var preferredFormat = Ak.newAudioCaps(AudioLayer.inputDeviceCaps);
 
         cbxISampleFormats.currentIndex = supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format));
         cbxIChannels.currentIndex = supportedChannels.indexOf(preferredFormat.channels);
@@ -78,14 +78,14 @@ Rectangle {
     {
         oDescription = AudioLayer.description(AudioLayer.audioOutput);
 
+        var audioCaps = Ak.newAudioCaps();
         var supportedFormats = AudioLayer.supportedFormats(AudioLayer.audioOutput);
         oSampleFormats.clear();
 
         for (var format in supportedFormats)
-            oSampleFormats.append({channels: supportedFormats[format],
+            oSampleFormats.append({format: audioCaps.sampleFormatFromString(supportedFormats[format]),
                                    description: supportedFormats[format]});
 
-        var audioCaps = Ak.newAudioCaps();
         var supportedChannels = AudioLayer.supportedChannels(AudioLayer.audioOutput);
         oChannels.clear();
 
@@ -106,11 +106,43 @@ Rectangle {
             oSampleRates.append({sampleRate: supportedSampleRates[rate],
                                  description: supportedSampleRates[rate]});
 
-        var preferredFormat = Ak.newAudioCaps(AudioLayer.preferredFormat(AudioLayer.audioOutput));
+        var preferredFormat = Ak.newAudioCaps(AudioLayer.outputDeviceCaps);
 
         cbxOSampleFormats.currentIndex = supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format));
         cbxOChannels.currentIndex = supportedChannels.indexOf(preferredFormat.channels);
         cbxOSampleRates.currentIndex = supportedSampleRates.indexOf(preferredFormat.rate);
+    }
+
+    function updateCaps(isInput)
+    {
+        var cbxSampleFormats = isInput? cbxISampleFormats: cbxOSampleFormats;
+        var cbxChannels = isInput? cbxIChannels: cbxOChannels;
+        var cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates;
+
+        var bound = function (min, value, max) {
+            return Math.max(min, Math.min(value, max));
+        };
+
+        var sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1);
+        var channelsCI = bound(0, cbxChannels.currentIndex, cbxChannels.model.count - 1);
+        var sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1);
+
+        var audioCaps =
+                Ak.newAkAudioCaps(cbxSampleFormats.model.get(sampleFormatsCI).format,
+                                  cbxChannels.model.get(channelsCI).channels,
+                                  cbxSampleRates.model.get(sampleRatesCI).sampleRate);
+
+        if (isInput) {
+            var state = AudioLayer.inputState;
+            AudioLayer.inputState = AkElement.ElementStateNull;
+            AudioLayer.inputDeviceCaps = audioCaps.toCaps();
+            AudioLayer.inputState = state;
+        } else {
+            var state = AudioLayer.outputState;
+            AudioLayer.outputState = AkElement.ElementStateNull;
+            AudioLayer.outputDeviceCaps = audioCaps.toCaps();
+            AudioLayer.outputState = state;
+        }
     }
 
     Component.onCompleted: {
@@ -178,6 +210,8 @@ Rectangle {
             }
             textRole: "description"
             Layout.fillWidth: true
+
+            onCurrentIndexChanged: updateCaps(false)
         }
         Label {
             text: qsTr("Channels")
@@ -189,6 +223,8 @@ Rectangle {
             }
             textRole: "description"
             Layout.fillWidth: true
+
+            onCurrentIndexChanged: updateCaps(false)
         }
         Label {
             text: qsTr("Sample Rate")
@@ -200,6 +236,8 @@ Rectangle {
             }
             textRole: "description"
             Layout.fillWidth: true
+
+            onCurrentIndexChanged: updateCaps(false)
         }
         Label {
             Layout.fillHeight: true
@@ -225,8 +263,9 @@ Rectangle {
             }
             textRole: "description"
             Layout.fillWidth: true
-        }
 
+            onCurrentIndexChanged: updateCaps(true)
+        }
         Label {
             text: qsTr("Channels")
         }
@@ -237,8 +276,9 @@ Rectangle {
             }
             textRole: "description"
             Layout.fillWidth: true
-        }
 
+            onCurrentIndexChanged: updateCaps(true)
+        }
         Label {
             text: qsTr("Sample Rate")
         }
@@ -249,8 +289,9 @@ Rectangle {
             }
             textRole: "description"
             Layout.fillWidth: true
-        }
 
+            onCurrentIndexChanged: updateCaps(true)
+        }
         Label {
             Layout.fillHeight: true
         }

@@ -28,11 +28,21 @@ ConvertAudio::~ConvertAudio()
 {
 }
 
-AkPacket ConvertAudio::convert(const AkAudioPacket &packet,
-                               const AkCaps &oCaps)
+bool ConvertAudio::init(const AkAudioCaps &caps)
+{
+    Q_UNUSED(caps)
+
+    return false;
+}
+
+AkPacket ConvertAudio::convert(const AkAudioPacket &packet)
 {
     Q_UNUSED(packet)
-    Q_UNUSED(oCaps)
 
     return AkPacket();
+}
+
+void ConvertAudio::uninit()
+{
+
 }

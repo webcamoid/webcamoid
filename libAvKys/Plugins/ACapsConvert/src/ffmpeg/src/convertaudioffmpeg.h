@@ -20,6 +20,7 @@
 #ifndef CONVERTAUDIOFFMPEG_H
 #define CONVERTAUDIOFFMPEG_H
 
+#include <QMutexLocker>
 #include <akaudiopacket.h>
 
 extern "C"
@@ -39,11 +40,14 @@ class ConvertAudioFFmpeg: public ConvertAudio
         explicit ConvertAudioFFmpeg(QObject *parent=NULL);
         ~ConvertAudioFFmpeg();
 
-        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet,
-                                     const AkCaps &oCaps);
+        Q_INVOKABLE bool init(const AkAudioCaps &caps);
+        Q_INVOKABLE AkPacket convert(const AkAudioPacket &packet);
+        Q_INVOKABLE void uninit();
 
     private:
+        AkAudioCaps m_caps;
         SwrContext *m_resampleContext;
+        QMutex m_mutex;
 };
 
 #endif // CONVERTAUDIOFFMPEG_H

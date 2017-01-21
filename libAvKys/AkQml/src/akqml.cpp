@@ -103,6 +103,13 @@ QObject *AkQml::newAudioCaps(const AkAudioCaps &caps) const
     return new AkAudioCaps(caps);
 }
 
+QObject *AkQml::newAkAudioCaps(AkAudioCaps::SampleFormat format,
+                               int channels,
+                               int rate)
+{
+    return new AkAudioCaps(format, channels, rate);
+}
+
 QObject *AkQml::newVideoCaps() const
 {
     return new AkVideoCaps();

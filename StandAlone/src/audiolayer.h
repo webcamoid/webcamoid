@@ -57,6 +57,11 @@ class AudioLayer: public QObject
     Q_PROPERTY(AkCaps outputCaps
                READ outputCaps
                NOTIFY outputCapsChanged)
+    Q_PROPERTY(AkCaps inputDeviceCaps
+               READ inputDeviceCaps
+               WRITE setInputDeviceCaps
+               RESET resetInputDeviceCaps
+               NOTIFY inputDeviceCapsChanged)
     Q_PROPERTY(AkCaps outputDeviceCaps
                READ outputDeviceCaps
                WRITE setOutputDeviceCaps
@@ -88,6 +93,7 @@ class AudioLayer: public QObject
         Q_INVOKABLE QStringList outputs() const;
         Q_INVOKABLE AkCaps inputCaps() const;
         Q_INVOKABLE AkCaps outputCaps() const;
+        Q_INVOKABLE AkCaps inputDeviceCaps() const;
         Q_INVOKABLE AkCaps outputDeviceCaps() const;
         Q_INVOKABLE QString inputDescription() const;
         Q_INVOKABLE QString description(const QString &device) const;
@@ -104,7 +110,6 @@ class AudioLayer: public QObject
         QStringList m_inputs;
         AkCaps m_inputCaps;
         AkCaps m_outputCaps;
-        AkCaps m_outputDeviceCaps;
         QString m_inputDescription;
         AkElement::ElementState m_inputState;
         AkElementPtr m_pipeline;
@@ -123,6 +128,7 @@ class AudioLayer: public QObject
         void outputsChanged(const QStringList &outputs);
         void inputCapsChanged(const AkCaps &inputCaps);
         void outputCapsChanged(const AkCaps &outputCaps);
+        void inputDeviceCapsChanged(const AkCaps &inputDeviceCaps);
         void outputDeviceCapsChanged(const AkCaps &outputDeviceCaps);
         void inputDescriptionChanged(const QString &inputDescription);
         void inputStateChanged(AkElement::ElementState inputState);
@@ -133,6 +139,7 @@ class AudioLayer: public QObject
         void setAudioInput(const QStringList &audioInput);
         void setAudioOutput(const QString &audioOutput);
         void setInputCaps(const AkCaps &inputCaps);
+        void setInputDeviceCaps(const AkCaps &inputDeviceCaps);
         void setOutputDeviceCaps(const AkCaps &outputDeviceCaps);
         void setInputDescription(const QString &inputDescription);
         void setInputState(AkElement::ElementState inputState);
@@ -140,6 +147,7 @@ class AudioLayer: public QObject
         void resetAudioInput();
         void resetAudioOutput();
         void resetInputCaps();
+        void resetInputDeviceCaps();
         void resetOutputDeviceCaps();
         void resetInputDescription();
         void resetInputState();
