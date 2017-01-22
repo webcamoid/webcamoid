@@ -12,10 +12,12 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
-        ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
+        ${EXEC} qmake -qt=5 Webcamoid.pro \
+            -spec ${COMPILESPEC} \
             QMAKE_CXX="${COMPILER}"
     else
-        ${EXEC} qmake-qt5 -spec ${COMPILESPEC} Webcamoid.pro \
+        ${EXEC} qmake-qt5 Webcamoid.pro \
+            -spec ${COMPILESPEC} \
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
@@ -23,6 +25,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     LIBUVCVER=$(ls /usr/local/Cellar/libuvc | tail -n 1)
 
     ${EXEC} qmake Webcamoid.pro \
+        -spec ${COMPILESPEC} \
         QMAKE_CXX="${COMPILER}" \
         LIBUSBINCLUDES=/usr/local/Cellar/libusb/${LIBUSBVER}/include \
         LIBUVCINCLUDES=/usr/local/Cellar/libuvc/${LIBUVCVER}/include \
@@ -31,4 +34,4 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
 
 fi
 
-${EXEC} make -j4
+${EXEC} make -j${NJOBS}

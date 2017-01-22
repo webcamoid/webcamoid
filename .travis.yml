@@ -2,8 +2,10 @@ language: cpp
 
 cache:
   ccache: true
-  apt: true
   timeout: 1000
+
+env:
+  - NJOBS=4
 
 matrix:
   include:
@@ -113,6 +115,8 @@ matrix:
     - os: osx
       osx_image: xcode8
       compiler: clang
+      env:
+        - NJOBS=2
     - os: osx
       osx_image: xcode8.1
       compiler: clang
@@ -143,9 +147,9 @@ before_script: |
   elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     brew link --force qt5
     if [ "${CXX}" = g++ ]; then
-      export QMAKESPEC=macx-g++
+      export COMPILESPEC=macx-g++
     elif [ "${CXX}" = clang++ ]; then
-      export QMAKESPEC=macx-clang
+      export COMPILESPECz=macx-clang
     fi
   fi
 
