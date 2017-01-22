@@ -34,4 +34,8 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
 
 fi
 
+if [ -z "${NJOBS}" ]; then
+    NJOBS=4
+fi
+
 ${EXEC} make -j${NJOBS}

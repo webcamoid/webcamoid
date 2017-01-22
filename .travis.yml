@@ -4,9 +4,6 @@ cache:
   ccache: true
   timeout: 1000
 
-env:
-  - NJOBS=4
-
 matrix:
   include:
     # Debian
