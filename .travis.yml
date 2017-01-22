@@ -146,7 +146,7 @@ before_script: |
     if [ "${CXX}" = g++ ]; then
       export COMPILESPEC=macx-g++
     elif [ "${CXX}" = clang++ ]; then
-      export COMPILESPECz=macx-clang
+      export COMPILESPEC=macx-clang
     fi
   fi
 
