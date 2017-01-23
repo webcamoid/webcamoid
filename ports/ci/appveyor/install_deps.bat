@@ -1,3 +1,5 @@
+SetLocal EnableDelayedExpansion
+
 if "%PLATFORM%" == "x86" (
     set FF_ARCH=win32
     set GST_ARCH=x86
@@ -36,18 +38,16 @@ if exist %GSTREAMER_FILE% (
     start /b /wait msiexec /i %CD%\%GSTREAMER_FILE% /quiet /qn /norestart
 
     set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
-    dir %GSTREAMER_DEV_PATH%
+    echo !GSTREAMER_DEV_PATH!
 
     rem Copy necessary libraries to an alternative path to avoid conflicts with
     rem Qt's MinGW system libraries
 
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gobject-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*glib-2.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstreamer-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstapp-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstpbutils-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstaudio-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-    xcopy %GSTREAMER_DEV_PATH%\lib\*gstvideo-1.0.* %GSTREAMER_DEV_PATH%\lib2 /i /y
-) else (
-    echo
+    xcopy !GSTREAMER_DEV_PATH!\lib\*gobject-2.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
+    xcopy !GSTREAMER_DEV_PATH!\lib\*glib-2.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
+    xcopy !GSTREAMER_DEV_PATH!\lib\*gstreamer-1.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
+    xcopy !GSTREAMER_DEV_PATH!\lib\*gstapp-1.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
+    xcopy !GSTREAMER_DEV_PATH!\lib\*gstpbutils-1.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
+    xcopy !GSTREAMER_DEV_PATH!\lib\*gstaudio-1.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
+    xcopy !GSTREAMER_DEV_PATH!\lib\*gstvideo-1.0.* !GSTREAMER_DEV_PATH!\lib2 /i /y
 )
