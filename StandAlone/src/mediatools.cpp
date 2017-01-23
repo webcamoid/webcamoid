@@ -134,6 +134,8 @@ MediaTools::MediaTools(QObject *parent):
     this->loadConfigs();
     this->updateVCamCaps(this->m_mediaSource->videoCaps());
     this->m_recording->setAudioCaps(this->m_audioLayer->outputCaps());
+    this->m_audioLayer->setInputCaps(this->m_mediaSource->audioCaps());
+    this->m_audioLayer->setInputDescription(this->m_mediaSource->description(this->m_mediaSource->stream()));
 }
 
 MediaTools::~MediaTools()

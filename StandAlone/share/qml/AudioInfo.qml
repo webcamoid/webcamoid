@@ -165,132 +165,143 @@ Rectangle {
         anchors.top: parent.top
         font.bold: true
     }
-    TextField {
-        id: txtDescription
-        text: oDescription
+    ColumnLayout {
+        id: clyDescription
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: lblDescription.bottom
-        placeholderText: qsTr("Device description")
-        readOnly: true
+
+        TextField {
+            id: txtODescription
+            text: oDescription
+            placeholderText: qsTr("Device description")
+            readOnly: true
+            Layout.fillWidth: true
+        }
+        TextField {
+            id: txtIDescription
+            text: iDescription
+            placeholderText: qsTr("Device description")
+            readOnly: true
+            Layout.fillWidth: true
+            visible: false
+        }
     }
     Label {
         id: lblDevice
         text: qsTr("Device id")
         anchors.right: parent.right
         anchors.left: parent.left
-        anchors.top: txtDescription.bottom
+        anchors.top: clyDescription.bottom
         font.bold: true
     }
-    TextField {
-        id: txtDevice
-        text: AudioLayer.audioOutput
+    ColumnLayout {
+        id: clyDevice
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: lblDevice.bottom
-        placeholderText: qsTr("Device id")
-        readOnly: true
+
+        TextField {
+            id: txtODevice
+            text: AudioLayer.audioOutput
+            placeholderText: qsTr("Device id")
+            readOnly: true
+            Layout.fillWidth: true
+        }
+        TextField {
+            id: txtIDevice
+            text: AudioLayer.audioInput
+            placeholderText: qsTr("Device id")
+            readOnly: true
+            Layout.fillWidth: true
+            visible: false
+        }
     }
 
     GridLayout {
-        id: glyOutputs
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.top: txtDevice.bottom
+        anchors.top: clyDevice.bottom
         columns: 2
 
         Label {
             text: qsTr("Sample Format")
         }
-        ComboBox {
-            id: cbxOSampleFormats
-            model: ListModel {
-                id: oSampleFormats
-            }
-            textRole: "description"
-            Layout.fillWidth: true
+        ColumnLayout {
+            ComboBox {
+                id: cbxOSampleFormats
+                model: ListModel {
+                    id: oSampleFormats
+                }
+                textRole: "description"
+                Layout.fillWidth: true
 
-            onCurrentIndexChanged: updateCaps(false)
+                onCurrentIndexChanged: updateCaps(false)
+            }
+            ComboBox {
+                id: cbxISampleFormats
+                model: ListModel {
+                    id: iSampleFormats
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+                visible: false
+
+                onCurrentIndexChanged: updateCaps(true)
+            }
         }
         Label {
             text: qsTr("Channels")
         }
-        ComboBox {
-            id: cbxOChannels
-            model: ListModel {
-                id: oChannels
-            }
-            textRole: "description"
-            Layout.fillWidth: true
+        ColumnLayout {
+            ComboBox {
+                id: cbxOChannels
+                model: ListModel {
+                    id: oChannels
+                }
+                textRole: "description"
+                Layout.fillWidth: true
 
-            onCurrentIndexChanged: updateCaps(false)
+                onCurrentIndexChanged: updateCaps(false)
+            }
+            ComboBox {
+                id: cbxIChannels
+                model: ListModel {
+                    id: iChannels
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+                visible: false
+
+                onCurrentIndexChanged: updateCaps(true)
+            }
         }
         Label {
             text: qsTr("Sample Rate")
         }
-        ComboBox {
-            id: cbxOSampleRates
-            model: ListModel {
-                id: oSampleRates
+        ColumnLayout {
+            ComboBox {
+                id: cbxOSampleRates
+                model: ListModel {
+                    id: oSampleRates
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+
+                onCurrentIndexChanged: updateCaps(false)
             }
-            textRole: "description"
-            Layout.fillWidth: true
+            ComboBox {
+                id: cbxISampleRates
+                model: ListModel {
+                    id: iSampleRates
+                }
+                textRole: "description"
+                Layout.fillWidth: true
+                visible: false
 
-            onCurrentIndexChanged: updateCaps(false)
-        }
-        Label {
-            Layout.fillHeight: true
-        }
-    }
-
-    GridLayout {
-        id: glyInputs
-        anchors.right: parent.right
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.top: txtDevice.bottom
-        columns: 2
-        visible: false
-
-        Label {
-            text: qsTr("Sample Format")
-        }
-        ComboBox {
-            id: cbxISampleFormats
-            model: ListModel {
-                id: iSampleFormats
+                onCurrentIndexChanged: updateCaps(true)
             }
-            textRole: "description"
-            Layout.fillWidth: true
-
-            onCurrentIndexChanged: updateCaps(true)
-        }
-        Label {
-            text: qsTr("Channels")
-        }
-        ComboBox {
-            id: cbxIChannels
-            model: ListModel {
-                id: iChannels
-            }
-            textRole: "description"
-            Layout.fillWidth: true
-
-            onCurrentIndexChanged: updateCaps(true)
-        }
-        Label {
-            text: qsTr("Sample Rate")
-        }
-        ComboBox {
-            id: cbxISampleRates
-            model: ListModel {
-                id: iSampleRates
-            }
-            textRole: "description"
-            Layout.fillWidth: true
-
-            onCurrentIndexChanged: updateCaps(true)
         }
         Label {
             Layout.fillHeight: true
@@ -302,19 +313,43 @@ Rectangle {
             name: "showInputs"
 
             PropertyChanges {
-                target: txtDescription
-                text: iDescription
-            }
-            PropertyChanges {
-                target: txtDevice
-                text: iDevice
-            }
-            PropertyChanges {
-                target: glyOutputs
+                target: txtODescription
                 visible: false
             }
             PropertyChanges {
-                target: glyInputs
+                target: txtIDescription
+                visible: true
+            }
+            PropertyChanges {
+                target: txtODevice
+                visible: false
+            }
+            PropertyChanges {
+                target: txtIDevice
+                visible: true
+            }
+            PropertyChanges {
+                target: cbxOSampleFormats
+                visible: false
+            }
+            PropertyChanges {
+                target: cbxISampleFormats
+                visible: true
+            }
+            PropertyChanges {
+                target: cbxOChannels
+                visible: false
+            }
+            PropertyChanges {
+                target: cbxIChannels
+                visible: true
+            }
+            PropertyChanges {
+                target: cbxOSampleRates
+                visible: false
+            }
+            PropertyChanges {
+                target: cbxISampleRates
                 visible: true
             }
         }

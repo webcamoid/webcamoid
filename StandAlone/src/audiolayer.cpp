@@ -298,7 +298,15 @@ AkAudioCaps AudioLayer::preferredFormat(const QString &device)
     if (device == DUMMY_INPUT_DEVICE) {
         return AkAudioCaps(AkAudioCaps::SampleFormat_s16, 1, 8000);
     } else if (device == EXTERNAL_MEDIA_INPUT) {
-        return AkAudioCaps(this->m_inputCaps);
+        if (this->m_inputCaps)
+            return AkAudioCaps(this->m_inputCaps);
+
+        AkAudioCaps caps;
+
+        if (this->m_audioGenerator)
+            caps = this->m_audioGenerator->property("caps").toString();
+
+        return caps;
     } else if (this->m_audioOut) {
         AkAudioCaps preferredFormat;
         QMetaObject::invokeMethod(this->m_audioOut.data(),
@@ -317,9 +325,15 @@ QStringList AudioLayer::supportedFormats(const QString &device)
     if (device == DUMMY_INPUT_DEVICE) {
         return QStringList {"flt", "s32", "s16", "u8"};
     } else if (device == EXTERNAL_MEDIA_INPUT) {
-        AkAudioCaps audioCaps(this->m_inputCaps);
+        AkAudioCaps caps;
 
-        return QStringList {AkAudioCaps::sampleFormatToString(audioCaps.format())};
+        if (this->m_inputCaps)
+            caps = this->m_inputCaps;
+        else if (this->m_audioGenerator)
+            caps = this->m_audioGenerator->property("caps").toString();
+
+        if (caps)
+            return QStringList {AkAudioCaps::sampleFormatToString(caps.format())};
     } else if (this->m_audioOut) {
         QList<AkAudioCaps::SampleFormat> supportedFormats;
         QMetaObject::invokeMethod(this->m_audioOut.data(),
@@ -343,9 +357,15 @@ QList<int> AudioLayer::supportedChannels(const QString &device)
     if (device == DUMMY_INPUT_DEVICE) {
         return QList<int> {1, 2};
     } else if (device == EXTERNAL_MEDIA_INPUT) {
-        AkAudioCaps audioCaps(this->m_inputCaps);
+        AkAudioCaps caps;
 
-        return QList<int> {audioCaps.channels()};
+        if (this->m_inputCaps)
+            caps = this->m_inputCaps;
+        else if (this->m_audioGenerator)
+            caps = this->m_audioGenerator->property("caps").toString();
+
+        if (caps)
+            return QList<int> {caps.channels()};
     } else if (this->m_audioOut) {
         QList<int> supportedChannels;
         QMetaObject::invokeMethod(this->m_audioOut.data(),
@@ -364,9 +384,15 @@ QList<int> AudioLayer::supportedSampleRates(const QString &device)
     if (device == DUMMY_INPUT_DEVICE) {
         return this->m_commonSampleRates.toList();
     } else if (device == EXTERNAL_MEDIA_INPUT) {
-        AkAudioCaps audioCaps(this->m_inputCaps);
+        AkAudioCaps caps;
 
-        return QList<int> {audioCaps.rate()};
+        if (this->m_inputCaps)
+            caps = this->m_inputCaps;
+        else if (this->m_audioGenerator)
+            caps = this->m_audioGenerator->property("caps").toString();
+
+        if (caps)
+            return QList<int> {caps.rate()};
     } else if (this->m_audioOut) {
         QList<int> supportedSampleRates;
         QMetaObject::invokeMethod(this->m_audioOut.data(),
