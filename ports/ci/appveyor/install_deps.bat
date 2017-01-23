@@ -33,9 +33,9 @@ set GSTREAMER_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
 if not exist %GSTREAMER_FILE% curl -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_FILE%
 
 if exist %GSTREAMER_FILE% (
-    start /b /wait msiexec /a %CD%\%GSTREAMER_FILE% /qn TARGETDIR=%CD%\gstreamer-1.0
+    start /b /wait msiexec /i %CD%\%GSTREAMER_FILE% /quiet /qn /norestart
 
-    set GSTREAMER_DEV_PATH=%CD%\gstreamer-1.0\gstreamer\1.0\%GST_ARCH%
+    set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
 
     rem Copy necessary libraries to an alternative path to avoid conflicts with
     rem Qt's MinGW system libraries
