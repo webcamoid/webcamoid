@@ -39,31 +39,49 @@ exists(commons.pri) {
 # Check what libraries and frameworks are available
 load(configure)
 QMAKE_CONFIG_TESTS_DIR=$$PWD/Tests
-qtCompileTest(alsa)
-qtCompileTest(avfoundation)
-qtCompileTest(coreaudio)
-qtCompileTest(dshow)
-!isEmpty(FFMPEGINCLUDES): cache(FFMPEGINCLUDES)
-!isEmpty(FFMPEGLIBS): cache(FFMPEGLIBS)
-qtCompileTest(ffmpeg)
-!isEmpty(GSTREAMERINCLUDES): cache(GSTREAMERINCLUDES)
-!isEmpty(GSTREAMERLIBS): cache(GSTREAMERLIBS)
-qtCompileTest(gstreamer)
-qtCompileTest(jack)
-!isEmpty(LIBUSBINCLUDES): cache(LIBUSBINCLUDES)
-!isEmpty(LIBUSBLIBS): cache(LIBUSBLIBS)
-!isEmpty(LIBUVCINCLUDES): cache(LIBUVCINCLUDES)
-!isEmpty(LIBUVCLIBS): cache(LIBUVCLIBS)
-qtCompileTest(libuvc)
-qtCompileTest(libuvcdev)
-cache(INCLUDEDIR)
-qtCompileTest(oss)
-qtCompileTest(pulseaudio)
-qtCompileTest(qtaudio)
-qtCompileTest(v4l2)
-qtCompileTest(v4lutils)
-qtCompileTest(vcamwin)
-qtCompileTest(wasapi)
+isEmpty(NOALSA): qtCompileTest(alsa)
+isEmpty(NOAVFOUNDATION): qtCompileTest(avfoundation)
+isEmpty(NOCOREAUDIO): qtCompileTest(coreaudio)
+isEmpty(NODSHOW): qtCompileTest(dshow)
+
+isEmpty(NOFFMPEG) {
+    !isEmpty(FFMPEGINCLUDES): cache(FFMPEGINCLUDES)
+    !isEmpty(FFMPEGLIBS): cache(FFMPEGLIBS)
+    qtCompileTest(ffmpeg)
+}
+
+isEmpty(NOGSTREAMER) {
+    !isEmpty(GSTREAMERINCLUDES): cache(GSTREAMERINCLUDES)
+    !isEmpty(GSTREAMERLIBS): cache(GSTREAMERLIBS)
+    qtCompileTest(gstreamer)
+}
+
+isEmpty(NOJACK): qtCompileTest(jack)
+
+isEmpty(NOLIBUVC) {
+    !isEmpty(LIBUSBINCLUDES): cache(LIBUSBINCLUDES)
+    !isEmpty(LIBUSBLIBS): cache(LIBUSBLIBS)
+    !isEmpty(LIBUVCINCLUDES): cache(LIBUVCINCLUDES)
+    !isEmpty(LIBUVCLIBS): cache(LIBUVCLIBS)
+    qtCompileTest(libuvc)
+    qtCompileTest(libuvcdev)
+}
+
+isEmpty(NOOSS) {
+    cache(INCLUDEDIR)
+    qtCompileTest(oss)
+}
+
+isEmpty(NOPULSEAUDIO): qtCompileTest(pulseaudio)
+isEmpty(NOQTAUDIO): qtCompileTest(qtaudio)
+
+isEmpty(NOV4L2) {
+    qtCompileTest(v4l2)
+    isEmpty(NOV4LUTILS): qtCompileTest(v4lutils)
+}
+
+isEmpty(NOVCAMWIN): qtCompileTest(vcamwin)
+isEmpty(NOWASAPI): qtCompileTest(wasapi)
 
 TEMPLATE = subdirs
 
