@@ -36,6 +36,7 @@ if exist %GSTREAMER_FILE% (
     start /b /wait msiexec /i %CD%\%GSTREAMER_FILE% /quiet /qn /norestart
 
     set GSTREAMER_DEV_PATH=C:\gstreamer\1.0\%GST_ARCH%
+    dir %GSTREAMER_DEV_PATH%
 
     rem Copy necessary libraries to an alternative path to avoid conflicts with
     rem Qt's MinGW system libraries
