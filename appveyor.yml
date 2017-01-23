@@ -86,7 +86,7 @@ environment:
       MAKETOOL: jom
 
 install:
-  - ports\ci\appveyor\install.bat
+  - ports\ci\appveyor\install_deps.bat
 
 build_script:
   - ports\ci\appveyor\build.bat
