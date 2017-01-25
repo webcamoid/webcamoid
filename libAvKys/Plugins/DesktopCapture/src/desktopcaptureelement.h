@@ -20,6 +20,8 @@
 #ifndef DESKTOPCAPTUREELEMENT_H
 #define DESKTOPCAPTUREELEMENT_H
 
+#include <QQmlComponent>
+#include <QQmlContext>
 #include <QTimer>
 #include <QThreadPool>
 #include <QtConcurrent>
@@ -41,6 +43,9 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         explicit DesktopCaptureElement();
         ~DesktopCaptureElement();
 
+        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
+                                              const QString &controlId) const;
+
         Q_INVOKABLE AkFrac fps() const;
 
         Q_INVOKABLE QStringList medias() const;
@@ -60,10 +65,10 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         QTimer m_timer;
         QThreadPool m_threadPool;
         QFuture<void> m_threadStatus;
+        QMutex m_mutex;
         AkPacket m_curPacket;
 
-        static void sendPacket(DesktopCaptureElement *element,
-                               const AkPacket &packet);
+        void sendPacket(const AkPacket &packet);
 
     signals:
         void fpsChanged(const AkFrac &fps);

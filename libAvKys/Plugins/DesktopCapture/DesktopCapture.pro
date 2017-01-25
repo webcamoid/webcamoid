@@ -16,6 +16,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+TRANSLATIONS = $$files(share/ts/*.ts)
+
 exists(commons.pri) {
     include(commons.pri)
 } else {
@@ -42,9 +44,17 @@ OTHER_FILES += pspec.json
 
 QT += widgets qml concurrent
 
+RESOURCES += \
+    DesktopCapture.qrc \
+    translations.qrc
+
 SOURCES = \
     src/desktopcapture.cpp \
     src/desktopcaptureelement.cpp
+
+lupdate_only {
+    SOURCES += $$files(share/qml/*.qml)
+}
 
 DESTDIR = $${OUT_PWD}
 

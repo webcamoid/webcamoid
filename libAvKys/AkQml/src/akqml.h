@@ -63,6 +63,8 @@ class AkQml: public QQuickItem
                                         const QString &elementName="") const;
 
         Q_INVOKABLE QVariant varFrac(AkFrac *frac) const;
+        Q_INVOKABLE QVariant varFrac(qint64 num, qint64 den) const;
+
         Q_INVOKABLE QVariant varCaps(AkCaps *caps) const;
 };
 

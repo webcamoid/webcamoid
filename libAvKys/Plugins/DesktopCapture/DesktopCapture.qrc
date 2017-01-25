@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/DesktopCapture">
+        <file>share/qml/main.qml</file>
+    </qresource>
+</RCC>
