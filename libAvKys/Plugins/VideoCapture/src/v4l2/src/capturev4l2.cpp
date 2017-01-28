@@ -820,7 +820,10 @@ void CaptureV4L2::stopCapture()
 
 bool CaptureV4L2::init()
 {
-    this->m_fd = x_open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
+    // Frames read must be blocking so we does not waste CPU time.
+    this->m_fd = x_open(this->m_device.toStdString().c_str(),
+                        O_RDWR, // | O_NONBLOCK,
+                        0);
 
     if (this->m_fd < 0)
         return false;
