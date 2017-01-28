@@ -1,5 +1,5 @@
 # Webcamoid, webcam capture application.
-# Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
+# Copyright (C) 2011-2017  Gonzalo Exequiel Pedone
 #
 # Webcamoid is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@
 
 COMMONS_APPNAME = "Webcamoid"
 COMMONS_TARGET = $$lower($${COMMONS_APPNAME})
-VER_MAJ = 7
-VER_MIN = 2
-VER_PAT = 1
+VER_MAJ = 8
+VER_MIN = 0
+VER_PAT = 0
 VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
 COMMONS_PROJECT_URL = "http://webcamoid.github.io/"
 COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
-COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2016  Gonzalo Exequiel Pedone"
+COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone"
 
 isEmpty(BUILDDOCS): BUILDDOCS = 0
 isEmpty(QDOCTOOL): {

@@ -1,5 +1,5 @@
 /* Webcamoid, webcam capture application.
- * Copyright (C) 2011-2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2011-2017  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,11 +44,11 @@ VS_VERSION_INFO VERSIONINFO
             BEGIN
                 VALUE "CompanyName", "Webcamoid Project\0"
                 VALUE "FileDescription", "AvKys Virtual Camera Source Filter\0"
-                VALUE "FileVersion", "7.2.1\0"
-                VALUE "LegalCopyright", "Copyright (C) 2011-2016  Gonzalo Exequiel Pedone\0"
+                VALUE "FileVersion", "8.0.0\0"
+                VALUE "LegalCopyright", "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone\0"
                 VALUE "OriginalFilename", "VirtualCameraSource.dll\0"
                 VALUE "ProductName", "VirtualCameraSource\0"
-                VALUE "ProductVersion", "7.2.1\0"
+                VALUE "ProductVersion", "8.0.0\0"
             END
         END
         BLOCK "VarFileInfo"

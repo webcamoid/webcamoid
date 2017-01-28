@@ -40,7 +40,7 @@ function buildWebcamoid()
     cd ..
 
     /qttools/qmake Webcamoid.pro \
-        PREFIX="${PWD}/build/webcamoid-7.2.1-win32" \
+        PREFIX="${PWD}/build/webcamoid-8.0.0-win32" \
         FFMPEGINCLUDES="${PWD}/build/win32/include" \
         FFMPEGLIBS=-L"${PWD}/build/win32/lib" \
         FFMPEGLIBS+=-lavcodec \

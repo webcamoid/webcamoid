@@ -3,7 +3,7 @@
 %endif
 
 Name: webcamoid
-Version: 7.2.1
+Version: 8.0.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -96,21 +96,21 @@ Features:
     * Virtual webcam support for feeding other programs.
 
 %package -n libavkys7
-Version: 7.2.1
+Version: 8.0.0
 Summary: Modular audio and video processing library
 
 %description -n libavkys7
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
 %package -n akqml
-Version: 7.2.1
+Version: 8.0.0
 Summary: Modular audio and video processing library (qml files)
 
 %description -n akqml
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
 %package -n libavkys-devel
-Version: 7.2.1
+Version: 8.0.0
 Summary: Modular audio and video processing library (development files)
 
 %if %{defined fedora}
@@ -129,7 +129,7 @@ Group: Development/KDE and Qt
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
 %package -n avkys-plugins
-Version: 7.2.1
+Version: 8.0.0
 Summary: Modular audio and video processing library (plugins)
 
 %description -n avkys-plugins
@@ -219,7 +219,7 @@ rm -rf %{buildroot}
 
 %files -n libavkys7
 %defattr(-,root,root,-)
-%{_libdir}/libavkys.so.7.2.1
+%{_libdir}/libavkys.so.8.0.0
 %{_defaultdocdir}/avkys/COPYING
 
 %files -n akqml
@@ -242,5 +242,5 @@ rm -rf %{buildroot}
 %{_libdir}/avkys/lib*.so
 
 %changelog
-* Tue Aug 30 2016 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 7.2.1-1
+* Tue Aug 30 2016 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 8.0.0-1
 - New release

@@ -2,7 +2,7 @@
 <Package>
     <DisplayName>Webcamoid</DisplayName>
     <Description>The ultimate webcam suite</Description>
-    <Version>7.2.1</Version>
+    <Version>8.0.0</Version>
     <ReleaseDate>2016-07-19</ReleaseDate>
     <Name>com.webcamoidprj.webcamoid</Name>
     <Licenses>

@@ -1,3 +1,18 @@
+Webcamoid 8.0.0:
+- Added support for Mac (virtual camera is not supported yet).
+- Added new masks to the FaceDetect plugin.
+- Now is possible to Switch between FFmpeg and GStreamer on runtime.
+- Added support for ALSA, OSS, JACK and QAudio.
+- Added support for libuvc.
+- Now is possible to select the desired input and output device, and configure
+  playback and capture formats.
+- More translations updates.
+- Added options for configuring plugins search paths and blacklist in GUI.
+- Added options for configuring the desired frameworks and libraries.
+- FFmpeg >= 3.1 required.
+- Added support MSVC2013 and MSVC2015 build.
+- Added option for configure FPS in DesktopCapture plugin.
+
 Webcamoid 7.2.1:
 - Added alternative root method (VirtualCamera). See ROOT_METHOD at project
   Wiki.
