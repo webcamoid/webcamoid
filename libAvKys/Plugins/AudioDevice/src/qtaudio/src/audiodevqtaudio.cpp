@@ -171,7 +171,7 @@ bool AudioDevQtAudio::write(const AkAudioPacket &packet)
 
 bool AudioDevQtAudio::uninit()
 {
-    this->m_mutex.unlock();
+    this->m_mutex.lock();
 
     this->m_outputDeviceBuffer.close();
 

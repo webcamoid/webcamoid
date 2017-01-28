@@ -1,10 +1,14 @@
 #!/bin/sh
 
-if [ "${CXX}" = clang++ ]; then
-    UNUSEDARGS="-Qunused-arguments"
-fi
+if [ -z "${DISABLE_CCACHE}" ]; then
+    if [ "${CXX}" = clang++ ]; then
+        UNUSEDARGS="-Qunused-arguments"
+    fi
 
-COMPILER="ccache ${CXX} ${UNUSEDARGS}"
+    COMPILER="ccache ${CXX} ${UNUSEDARGS}"
+else
+    COMPILER=${CXX}
+fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
     EXEC="docker exec ${DOCKERSYS}"

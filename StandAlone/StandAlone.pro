@@ -125,9 +125,12 @@ target.path = $${BINDIR}
 !unix {
     INSTALLS += \
         dllDeps \
+        pluginsAudio \
+        pluginsIconengines \
         pluginsImageFormats \
-        pluginsScenegraph \
+        pluginsMediaservice \
         pluginsPlatform \
+        pluginsScenegraph \
         pluginsQml \
         appIcon
 
@@ -135,6 +138,7 @@ target.path = $${BINDIR}
         \ # Qt
         $$[QT_INSTALL_BINS]/Qt5Core.dll \
         $$[QT_INSTALL_BINS]/Qt5Gui.dll \
+        $$[QT_INSTALL_BINS]/Qt5Multimedia.dll \
         $$[QT_INSTALL_BINS]/Qt5Network.dll \
         $$[QT_INSTALL_BINS]/Qt5OpenGL.dll \
         $$[QT_INSTALL_BINS]/Qt5Qml.dll \
@@ -149,6 +153,7 @@ target.path = $${BINDIR}
         $$[QT_INSTALL_BINS]/libgcc_s_seh-*.dll \
         $$[QT_INSTALL_BINS]/libgcc_s_sjlj-*.dll \
         $$[QT_INSTALL_BINS]/libglib-*.dll \
+        $$[QT_INSTALL_BINS]/libgraphite2.dll \
         $$[QT_INSTALL_BINS]/libharfbuzz-?.dll \
         $$[QT_INSTALL_BINS]/libiconv-*.dll \
         $$[QT_INSTALL_BINS]/libintl-*.dll \
@@ -222,11 +227,20 @@ target.path = $${BINDIR}
     dllDeps.files = $${DLLFILES}
     dllDeps.path = $${BINDIR}
 
-    pluginsPlatform.files = $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
-    pluginsPlatform.path = $${BINDIR}/platforms
+    pluginsAudio.files = $$[QT_INSTALL_PLUGINS]/audio/*
+    pluginsAudio.path = $${BINDIR}/audio
+
+    pluginsIconengines.files = $$[QT_INSTALL_PLUGINS]/iconengines/*
+    pluginsIconengines.path = $${BINDIR}/iconengines
 
     pluginsImageFormats.files = $$[QT_INSTALL_PLUGINS]/imageformats/*
     pluginsImageFormats.path = $${BINDIR}/imageformats
+
+    pluginsMediaservice.files = $$[QT_INSTALL_PLUGINS]/mediaservice/*
+    pluginsMediaservice.path = $${BINDIR}/mediaservice
+
+    pluginsPlatform.files = $$[QT_INSTALL_PLUGINS]/platforms/qwindows.dll
+    pluginsPlatform.path = $${BINDIR}/platforms
 
     pluginsScenegraph.files = $$[QT_INSTALL_PLUGINS]/scenegraph/*
     pluginsScenegraph.path = $${BINDIR}/scenegraph
