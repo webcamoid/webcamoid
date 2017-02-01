@@ -26,7 +26,9 @@ JackServer::JackServer(on_device_acquire_t onDeviceAcquire,
     QObject(parent)
 {
     this->m_library.setFileName("jackserver");
-    this->m_library.load();
+
+    if (!this->m_library.load())
+        return;
 
     LOAD_FUNC(this->m_library, jackctl_server_create);
     LOAD_FUNC(this->m_library, jackctl_server_destroy);
@@ -53,10 +55,12 @@ JackServer::JackServer(on_device_acquire_t onDeviceAcquire,
 
 JackServer::~JackServer()
 {
-    if (this->m_server)
-        this->jackctl_server_destroy(this->m_server);
+    if (this->m_library.isLoaded()) {
+        if (this->m_server)
+            this->jackctl_server_destroy(this->m_server);
 
-    this->m_library.unload();
+        this->m_library.unload();
+    }
 }
 
 bool JackServer::start(jackctl_driver_t *driver)

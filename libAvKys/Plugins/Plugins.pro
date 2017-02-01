@@ -22,12 +22,24 @@ CONFIG += ordered
 
 win32: SUBDIRS += VirtualCamera/src/dshow/VirtualCameraFilter
 
+# Base plugins
 SUBDIRS += \
     ACapsConvert \
-    Aging \
     AudioDevice \
     AudioGen \
     Bin \
+    DesktopCapture \
+    Multiplex \
+    MultiSink \
+    MultiSrc \
+    Probe \
+    RtPts \
+    VideoCapture \
+    VirtualCamera
+
+# Video effects
+isEmpty(NOVIDEOEFFECTS): SUBDIRS += \
+    Aging \
     Blur \
     Cartoon \
     ChangeHSL \
@@ -40,7 +52,6 @@ SUBDIRS += \
     Convolve \
     DelayGrab \
     Denoise \
-    DesktopCapture \
     Dice \
     Distort \
     Dizzy \
@@ -59,28 +70,21 @@ SUBDIRS += \
     Life \
     Matrix \
     MatrixTransform \
-    Multiplex \
-    MultiSink \
-    MultiSrc \
     Nervous \
     Normalize \
     OilPaint \
     Photocopy \
     Pixelate \
     PrimariesColors \
-    Probe \
     Quark \
     Radioactive \
     Ripple \
-    RtPts \
     ScanLines \
     Scroll \
     Shagadelic \
     Swirl \
     Temperature \
-    VideoCapture \
     Vignette \
-    VirtualCamera \
     Warhol \
     Warp \
     Wave

@@ -196,6 +196,21 @@ inline VectorInt initSWFSupportedSampleRates()
 
 Q_GLOBAL_STATIC_WITH_ARGS(VectorInt, swfSupportedSampleRates, (initSWFSupportedSampleRates()))
 
+inline bool initHasCudaSupport()
+{
+    QLibrary lib("cuda");
+
+    if (lib.load()) {
+        lib.unload();
+
+        return true;
+    }
+
+    return false;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(bool, hasCudaSupport, (initHasCudaSupport()))
+
 MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     MediaWriter(parent)
 {
@@ -325,10 +340,20 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
             continue;
 
         // Real Video codecs are not supported by Matroska.
-        if (!strcmp(outputFormat->name, "matroska"))
+        if (!strcmp(outputFormat->name, "matroska")) {
             if (codec->id == AV_CODEC_ID_RV10
                 || codec->id == AV_CODEC_ID_RV20)
                 continue;
+        } else if (!strcmp(outputFormat->name, "mp4")) {
+            if (codec->id == AV_CODEC_ID_VP9)
+                continue;
+        }
+
+        QString codecName(codec->name);
+
+        if ((codecName.contains("nvenc") && !*hasCudaSupport)
+            || codecName == "vc2")
+            continue;
 
         if ((type.isEmpty() || mediaTypeToStr->value(codec->type) == type)
             && av_codec_is_encoder(codec)
@@ -359,7 +384,7 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
                     continue;
             }
 
-            codecs << QString(codec->name);
+            codecs << codecName;
         }
     }
 
@@ -1070,6 +1095,11 @@ void MediaWriterFFmpeg::flushStreams()
                 pkt.stream_index = int(i);
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
                 av_packet_unref(&pkt);
+
+                auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+                if (eventDispatcher)
+                    eventDispatcher->processEvents(QEventLoop::AllEvents);
             }
         } else if (mediaType == AVMEDIA_TYPE_VIDEO) {
             if (this->m_formatContext->oformat->flags & AVFMT_RAWPICTURE
@@ -1102,6 +1132,11 @@ void MediaWriterFFmpeg::flushStreams()
                 pkt.stream_index = int(i);
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
                 av_packet_unref(&pkt);
+
+                auto eventDispatcher = QThread::currentThread()->eventDispatcher();
+
+                if (eventDispatcher)
+                    eventDispatcher->processEvents(QEventLoop::AllEvents);
             }
         }
     }
@@ -1508,7 +1543,6 @@ bool MediaWriterFFmpeg::init()
         if (this->m_formatContext->oformat->flags & AVFMT_GLOBALHEADER)
             codecContext->flags |= CODEC_FLAG_GLOBAL_HEADER;
 
-        // Use experimental codecs by default
         codecContext->strict_std_compliance = CODEC_COMPLIANCE;
 
         // Confihure streams parameters.
@@ -1606,8 +1640,6 @@ bool MediaWriterFFmpeg::init()
         } else if (streamCaps.mimeType() == "text/x-raw") {
         }
 
-        avcodec_parameters_from_context(stream->codecpar, codecContext);
-
         // Set codec options.
         AVDictionary *options = NULL;
         QVariantMap codecOptions = configs.value("codecOptions").toMap();
@@ -1636,6 +1668,7 @@ bool MediaWriterFFmpeg::init()
             return false;
         }
 
+        avcodec_parameters_from_context(stream->codecpar, codecContext);
         this->m_streamParams << OutputParams(configs["index"].toInt(), codecContext);
     }
 
