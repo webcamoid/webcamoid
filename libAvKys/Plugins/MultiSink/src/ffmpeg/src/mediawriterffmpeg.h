@@ -45,6 +45,7 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);
+        Q_INVOKABLE QVariantList formatOptions(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 const QString &type);
@@ -53,6 +54,7 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QString codecDescription(const QString &codec);
         Q_INVOKABLE QString codecType(const QString &codec);
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
+        Q_INVOKABLE QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
@@ -94,6 +96,7 @@ class MediaWriterFFmpeg: public MediaWriter
 
         void flushStreams();
         QImage swapChannels(const QImage &image) const;
+        QVariantList parseOptions(const AVClass *avClass) const;
 
         AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestDNxHDCaps(const AkVideoCaps &caps) const;

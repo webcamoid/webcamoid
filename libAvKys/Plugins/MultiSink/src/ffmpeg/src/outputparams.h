@@ -30,6 +30,8 @@ extern "C"
     #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
     #include <libavutil/channel_layout.h>
+    #include <libavutil/opt.h>
+    #include <libavutil/parseutils.h>
 }
 
 typedef QSharedPointer<AVCodecContext> CodecContextPtr;

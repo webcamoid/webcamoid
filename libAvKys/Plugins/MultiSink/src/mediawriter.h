@@ -62,6 +62,7 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QStringList supportedFormats();
         Q_INVOKABLE virtual QStringList fileExtensions(const QString &format);
         Q_INVOKABLE virtual QString formatDescription(const QString &format);
+        Q_INVOKABLE virtual QVariantList formatOptions(const QString &format);
         Q_INVOKABLE virtual QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE virtual QStringList supportedCodecs(const QString &format,
                                                         const QString &type);
@@ -70,6 +71,7 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QString codecDescription(const QString &codec);
         Q_INVOKABLE virtual QString codecType(const QString &codec);
         Q_INVOKABLE virtual QVariantMap defaultCodecParams(const QString &codec);
+        Q_INVOKABLE virtual QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE virtual QVariantMap addStream(int streamIndex,
                                                   const AkCaps &streamCaps);
         Q_INVOKABLE virtual QVariantMap addStream(int streamIndex,

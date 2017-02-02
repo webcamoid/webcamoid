@@ -72,6 +72,13 @@ QString MediaWriter::formatDescription(const QString &format)
     return QString();
 }
 
+QVariantList MediaWriter::formatOptions(const QString &format)
+{
+    Q_UNUSED(format)
+
+    return QVariantList();
+}
+
 QStringList MediaWriter::supportedCodecs(const QString &format)
 {
     Q_UNUSED(format)
@@ -115,6 +122,13 @@ QVariantMap MediaWriter::defaultCodecParams(const QString &codec)
     Q_UNUSED(codec)
 
     return QVariantMap();
+}
+
+QVariantList MediaWriter::codecOptions(const QString &codec)
+{
+    Q_UNUSED(codec)
+
+    return QVariantList();
 }
 
 QVariantMap MediaWriter::addStream(int streamIndex, const AkCaps &streamCaps)

@@ -211,6 +211,36 @@ inline bool initHasCudaSupport()
 
 Q_GLOBAL_STATIC_WITH_ARGS(bool, hasCudaSupport, (initHasCudaSupport()))
 
+typedef QMap<AVOptionType, QString> OptionTypeStrMap;
+
+inline OptionTypeStrMap initOptionTypeStrMap()
+{
+    static const OptionTypeStrMap optionTypeStrMap = {
+        {AV_OPT_TYPE_FLAGS         , "flags"         },
+        {AV_OPT_TYPE_INT           , "int"           },
+        {AV_OPT_TYPE_INT64         , "int64"         },
+        {AV_OPT_TYPE_DOUBLE        , "double"        },
+        {AV_OPT_TYPE_FLOAT         , "float"         },
+        {AV_OPT_TYPE_STRING        , "string"        },
+        {AV_OPT_TYPE_RATIONAL      , "rational"      },
+        {AV_OPT_TYPE_BINARY        , "binary"        },
+        {AV_OPT_TYPE_DICT          , "dict"          },
+        {AV_OPT_TYPE_CONST         , "const"         },
+        {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
+        {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
+        {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
+        {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
+        {AV_OPT_TYPE_DURATION      , "duration"      },
+        {AV_OPT_TYPE_COLOR         , "color"         },
+        {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
+        {AV_OPT_TYPE_BOOL          , "bool"          },
+    };
+
+    return optionTypeStrMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecOptionTypeToStr, (initOptionTypeStrMap()))
+
 MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     MediaWriter(parent)
 {
@@ -314,6 +344,18 @@ QString MediaWriterFFmpeg::formatDescription(const QString &format)
         return QString();
 
     return QString(outputFormat->long_name);
+}
+
+QVariantList MediaWriterFFmpeg::formatOptions(const QString &format)
+{
+    AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
+                                                   NULL,
+                                                   NULL);
+
+    if (!outputFormat)
+        return QVariantList();
+
+    return this->parseOptions(outputFormat->priv_class);
 }
 
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format)
@@ -631,6 +673,16 @@ QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
     av_free(codecContext);
 
     return codecParams;
+}
+
+QVariantList MediaWriterFFmpeg::codecOptions(const QString &codec)
+{
+    auto avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
+
+    if (!avCodec)
+        return QVariantList();
+
+    return this->parseOptions(avCodec->priv_class);
 }
 
 QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
@@ -1159,6 +1211,148 @@ QImage MediaWriterFFmpeg::swapChannels(const QImage &image) const
     }
 
     return swapped;
+}
+
+QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
+{
+    if (!avClass)
+        return QVariantList();
+
+    QList<QVariantList> avOptions;
+    QMap<QString, QVariantMap> menu;
+
+    for (auto option = avClass->option;
+         option;
+         option = av_opt_next(&avClass, option)) {
+        QVariant value;
+        qreal step = 0;
+
+        switch (option->type) {
+            case AV_OPT_TYPE_FLAGS:
+            case AV_OPT_TYPE_INT:
+            case AV_OPT_TYPE_INT64:
+            case AV_OPT_TYPE_CONST:
+            case AV_OPT_TYPE_PIXEL_FMT:
+            case AV_OPT_TYPE_SAMPLE_FMT:
+            case AV_OPT_TYPE_DURATION:
+            case AV_OPT_TYPE_CHANNEL_LAYOUT:
+            case AV_OPT_TYPE_BOOL:
+                value = qint64(option->default_val.i64);
+                step = 1;
+                break;
+            case AV_OPT_TYPE_DOUBLE:
+            case AV_OPT_TYPE_FLOAT:
+                value = option->default_val.dbl;
+                step = 0.01;
+                break;
+            case AV_OPT_TYPE_STRING:
+                value = option->default_val.str;
+                break;
+            case AV_OPT_TYPE_IMAGE_SIZE: {
+                int width = 0;
+                int height = 0;
+
+                if (av_parse_video_size(&width, &height, option->default_val.str) < 0)
+                    value = QSize();
+
+                value = QSize(width, height);
+                break;
+            }
+            case AV_OPT_TYPE_VIDEO_RATE: {
+                AVRational rate;
+
+                if (av_parse_video_rate(&rate, option->default_val.str) < 0)
+                    value = QVariant::fromValue(AkFrac());
+
+                value = QVariant::fromValue(AkFrac(rate.num, rate.den));
+                break;
+            }
+            case AV_OPT_TYPE_COLOR: {
+                uint8_t color[4];
+
+                if (av_parse_color(color, option->default_val.str, -1, NULL) < 0)
+                    value = qRgba(0, 0, 0, 0);
+
+                value = qRgba(color[0], color[1], color[2], color[3]);
+                break;
+            }
+            case AV_OPT_TYPE_RATIONAL:
+                value = QVariant::fromValue(AkFrac(option->default_val.q.num,
+                                                   option->default_val.q.den));
+                break;
+            default:
+                continue;
+        }
+
+        if (option->type == AV_OPT_TYPE_CONST) {
+            if (menu.contains(option->unit)) {
+                menu[option->unit][option->name] = value;
+            } else {
+                menu[option->unit] = QVariantMap {
+                    {option->name, value}
+                };
+            }
+        } else {
+            avOptions << QVariantList {
+                                    option->name,
+                                    option->help,
+                                    codecOptionTypeToStr->value(option->type),
+                                    option->min,
+                                    option->max,
+                                    step,
+                                    value,
+                                    value,
+                                    option->unit?
+                                        QVariantMap {{option->unit, QVariant()}}:
+                                        QVariantMap()
+                                };
+        }
+
+        /*
+        // I've not idea what's the point of range values since these are the
+        // same as AVOption.min AVOption.max, but I will leave the code here
+        // just in case it could be useful in the future.
+        AVOptionRanges *optionRanges = NULL;
+        int nranges = av_opt_query_ranges(&optionRanges,
+                                          &avCodec->priv_class,
+                                          option->name,
+                                          0);
+
+        for (int i = 0; i < nranges; i++) {
+            auto ors = optionRanges + i;
+
+            for (int j = 0; j < ors->nb_components; j++) {
+                auto range = ors->range + ors->nb_ranges * j;
+
+                for (int k = 0; k < ors->nb_ranges; k++) {
+                    qreal min =
+                            range[k]->is_range?
+                                range[k]->value_min: range[k]->component_min;
+                    qreal max =
+                            range[k]->is_range?
+                                range[k]->value_max: range[k]->component_max;
+                    qDebug() << range[k]->str << min << max;
+                }
+            }
+        }
+
+        if (optionRanges)
+            av_opt_freep_ranges(&optionRanges);
+        */
+    }
+
+    QVariantList options;
+
+    for (auto option: avOptions) {
+        auto unitMap = option.last().toMap();
+
+        if (!unitMap.isEmpty())
+            option[8] = menu[unitMap.firstKey()];
+
+        options << QVariant(option);
+    }
+
+    return options;
 }
 
 AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
