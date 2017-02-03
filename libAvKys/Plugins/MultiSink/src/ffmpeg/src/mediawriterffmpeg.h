@@ -38,7 +38,6 @@ class MediaWriterFFmpeg: public MediaWriter
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
-        Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
 

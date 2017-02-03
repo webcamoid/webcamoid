@@ -38,11 +38,6 @@ QString MediaWriter::outputFormat() const
     return QString();
 }
 
-QVariantMap MediaWriter::formatOptions() const
-{
-    return QVariantMap();
-}
-
 QVariantList MediaWriter::streams() const
 {
     return QVariantList();

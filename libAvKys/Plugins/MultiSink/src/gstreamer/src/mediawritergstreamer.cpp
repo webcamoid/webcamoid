@@ -208,6 +208,35 @@ inline StringVectorIntMap initFLVSupportedSampleRates()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringVectorIntMap, flvSupportedSampleRates, (initFLVSupportedSampleRates()))
 
+typedef QMap<GType, QString> OptionTypeStrMap;
+
+inline OptionTypeStrMap initOptionTypeStrMap()
+{
+    static const OptionTypeStrMap optionTypeStrMap = {
+        {G_TYPE_STRING          , "string"  },
+        {G_TYPE_BOOLEAN         , "boolean" },
+        {G_TYPE_ULONG           , "integer" },
+        {G_TYPE_LONG            , "integer" },
+        {G_TYPE_UINT            , "integer" },
+        {G_TYPE_INT             , "integer" },
+        {G_TYPE_UINT64          , "integer" },
+        {G_TYPE_INT64           , "integer" },
+        {G_TYPE_FLOAT           , "float"   },
+        {G_TYPE_DOUBLE          , "float"   },
+        {G_TYPE_CHAR            , "integer" },
+        {G_TYPE_UCHAR           , "integer" },
+        {G_TYPE_PARAM_ENUM      , "menu"    },
+        {G_TYPE_PARAM_FLAGS     , "flags"   },
+        {G_TYPE_VALUE_ARRAY     , "array"   },
+        {GST_TYPE_CAPS          , "caps"    },
+        {GST_TYPE_PARAM_FRACTION, "frac"    },
+    };
+
+    return optionTypeStrMap;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecOptionTypeToStr, (initOptionTypeStrMap()))
+
 MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     MediaWriter(parent)
 {
@@ -223,6 +252,8 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
                      &MediaWriterGStreamer::outputFormatChanged,
                      this,
                      &MediaWriterGStreamer::updateStreams);
+
+    codecOptions("webmmux");
 }
 
 MediaWriterGStreamer::~MediaWriterGStreamer()
@@ -238,11 +269,6 @@ QString MediaWriterGStreamer::location() const
 QString MediaWriterGStreamer::outputFormat() const
 {
     return this->m_outputFormat;
-}
-
-QVariantMap MediaWriterGStreamer::formatOptions() const
-{
-    return this->m_formatOptions;
 }
 
 QVariantList MediaWriterGStreamer::streams() const
@@ -351,6 +377,20 @@ QString MediaWriterGStreamer::formatDescription(const QString &format)
     gst_object_unref(factory);
 
     return description;
+}
+
+QVariantList MediaWriterGStreamer::formatOptions(const QString &format)
+{
+    auto element = gst_element_factory_make(format.toStdString().c_str(),
+                                            NULL);
+
+    if (!element)
+        return QVariantList();
+
+    auto codecOptions = this->parseOptions(element);
+    gst_object_unref(element);
+
+    return codecOptions;
 }
 
 QStringList MediaWriterGStreamer::supportedCodecs(const QString &format)
@@ -917,6 +957,20 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
     return codecParams;
 }
 
+QVariantList MediaWriterGStreamer::codecOptions(const QString &codec)
+{
+    auto element = gst_element_factory_make(codec.toStdString().c_str(),
+                                            NULL);
+
+    if (!element)
+        return QVariantList();
+
+    auto codecOptions = this->parseOptions(element);
+    gst_object_unref(element);
+
+    return codecOptions;
+}
+
 QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
                                             const AkCaps &streamCaps)
 {
@@ -1312,6 +1366,206 @@ QStringList MediaWriterGStreamer::readCaps(const QString &element)
     gst_object_unref(factory);
 
     return elementCaps;
+}
+
+QVariantList MediaWriterGStreamer::parseOptions(const GstElement *element) const
+{
+    QVariantList options;
+    guint nprops = 0;
+
+    auto propSpecs =
+            g_object_class_list_properties(G_OBJECT_GET_CLASS(element),
+                                           &nprops);
+
+    for (guint i = 0; i < nprops; i++) {
+        GParamSpec *param = propSpecs[i];
+
+        if (!(param->flags & G_PARAM_READWRITE))
+            continue;
+
+#if 0
+        if (param->flags & G_PARAM_DEPRECATED)
+            continue;
+#endif
+
+        auto name = g_param_spec_get_name(param);
+
+        if (!strcmp(name, "name"))
+            continue;
+
+        QVariant defaultValue;
+        QVariant value;
+        qreal min = 0;
+        qreal max = 0;
+        qreal step = 0;
+        QVariantMap menu;
+        auto paramType = codecOptionTypeToStr->value(param->value_type);
+
+        GValue gValue;
+        memset(&gValue, 0, sizeof(GValue));
+        g_value_init(&gValue, param->value_type);
+        g_object_get_property(G_OBJECT (element), param->name, &gValue);
+
+        switch (param->value_type) {
+            case G_TYPE_STRING: {
+                value = g_value_get_string(&gValue);
+                auto spec = G_PARAM_SPEC_STRING(param);
+                defaultValue = spec->default_value;
+                break;
+            }
+            case G_TYPE_BOOLEAN: {
+                value = g_value_get_boolean(&gValue);
+                auto spec = G_PARAM_SPEC_BOOLEAN(param);
+                defaultValue = spec->default_value;
+                break;
+            }
+            case G_TYPE_ULONG: {
+                value = quint64(g_value_get_ulong(&gValue));
+                auto spec = G_PARAM_SPEC_ULONG(param);
+                defaultValue = quint64(spec->default_value);
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_LONG: {
+                value = qint64(g_value_get_long(&gValue));
+                auto spec = G_PARAM_SPEC_LONG(param);
+                defaultValue = qint64(spec->default_value);
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_UINT: {
+                value = g_value_get_uint(&gValue);
+                auto spec = G_PARAM_SPEC_UINT(param);
+                defaultValue = spec->default_value;
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_INT: {
+                value = g_value_get_int(&gValue);
+                auto spec = G_PARAM_SPEC_INT(param);
+                defaultValue = spec->default_value;
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_UINT64: {
+                value = quint64(g_value_get_uint64(&gValue));
+                auto spec = G_PARAM_SPEC_UINT64(param);
+                defaultValue = quint64(spec->default_value);
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_INT64: {
+                value = qint64(g_value_get_int64(&gValue));
+                auto spec = G_PARAM_SPEC_INT64(param);
+                defaultValue = qint64(spec->default_value);
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_FLOAT: {
+                value = g_value_get_float(&gValue);
+                auto spec = G_PARAM_SPEC_FLOAT(param);
+                defaultValue = spec->default_value;
+                min = qreal(spec->minimum);
+                max = qreal(spec->maximum);
+                step = 0.01;
+                break;
+            }
+            case G_TYPE_DOUBLE: {
+                value = g_value_get_double(&gValue);
+                auto spec = G_PARAM_SPEC_DOUBLE(param);
+                defaultValue = spec->default_value;
+                min = qreal(spec->minimum);
+                max = qreal(spec->maximum);
+                step = 0.01;
+                break;
+            }
+            case G_TYPE_CHAR: {
+                value = g_value_get_schar(&gValue);
+                auto spec = G_PARAM_SPEC_CHAR(param);
+                defaultValue = spec->default_value;
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            case G_TYPE_UCHAR: {
+                value = g_value_get_uchar(&gValue);
+                auto spec = G_PARAM_SPEC_UCHAR(param);
+                defaultValue = spec->default_value;
+                min = spec->minimum;
+                max = spec->maximum;
+                step = 1;
+                break;
+            }
+            default:
+                if (G_IS_PARAM_SPEC_ENUM(param)) {
+                    value = g_value_get_enum(&gValue);
+                    auto spec = G_PARAM_SPEC_ENUM(param);
+                    defaultValue = spec->default_value;
+                    auto value = G_ENUM_CLASS(g_type_class_ref(param->value_type))->values;
+
+                    if (value)
+                        for (; value->value_name; value++)
+                            menu[value->value_nick] = value->value;
+
+                    paramType = "menu";
+                } else if (G_IS_PARAM_SPEC_FLAGS(param)) {
+                    value = g_value_get_flags(&gValue);
+                    auto spec = G_PARAM_SPEC_FLAGS(param);
+                    defaultValue = spec->default_value;
+                    auto value = spec->flags_class->values;
+
+                    if (value)
+                        for (; value->value_name; value++)
+                            menu[value->value_nick] = value->value;
+
+                    paramType = "flags";
+                } else if (GST_IS_PARAM_SPEC_FRACTION(param)) {
+                    auto num = gst_value_get_fraction_numerator(&gValue);
+                    auto den = gst_value_get_fraction_denominator(&gValue);
+                    value = QVariant::fromValue(AkFrac(num, den));
+                    defaultValue = value;
+                    paramType = "frac";
+                } else if (param->value_type == GST_TYPE_CAPS) {
+                    auto caps = gst_caps_to_string(gst_value_get_caps(&gValue));
+                    value = QVariant::fromValue(AkCaps(caps));
+                    g_free(caps);
+                    defaultValue = value;
+                    paramType = "caps";
+                } else
+                    continue;
+
+                break;
+        }
+
+        options << QVariant(QVariantList {
+                                name,
+                                g_param_spec_get_blurb(param),
+                                paramType,
+                                min,
+                                max,
+                                step,
+                                defaultValue,
+                                value,
+                                menu
+                            });
+    }
+
+    g_free(propSpecs);
+
+    return options;
 }
 
 void MediaWriterGStreamer::waitState(GstState state)

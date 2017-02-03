@@ -217,12 +217,12 @@ inline OptionTypeStrMap initOptionTypeStrMap()
 {
     static const OptionTypeStrMap optionTypeStrMap = {
         {AV_OPT_TYPE_FLAGS         , "flags"         },
-        {AV_OPT_TYPE_INT           , "int"           },
-        {AV_OPT_TYPE_INT64         , "int64"         },
-        {AV_OPT_TYPE_DOUBLE        , "double"        },
+        {AV_OPT_TYPE_INT           , "integer"       },
+        {AV_OPT_TYPE_INT64         , "integer"       },
+        {AV_OPT_TYPE_DOUBLE        , "float"         },
         {AV_OPT_TYPE_FLOAT         , "float"         },
         {AV_OPT_TYPE_STRING        , "string"        },
-        {AV_OPT_TYPE_RATIONAL      , "rational"      },
+        {AV_OPT_TYPE_RATIONAL      , "frac"          },
         {AV_OPT_TYPE_BINARY        , "binary"        },
         {AV_OPT_TYPE_DICT          , "dict"          },
         {AV_OPT_TYPE_CONST         , "const"         },
@@ -233,7 +233,7 @@ inline OptionTypeStrMap initOptionTypeStrMap()
         {AV_OPT_TYPE_DURATION      , "duration"      },
         {AV_OPT_TYPE_COLOR         , "color"         },
         {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
-        {AV_OPT_TYPE_BOOL          , "bool"          },
+        {AV_OPT_TYPE_BOOL          , "boolean"       },
     };
 
     return optionTypeStrMap;
@@ -280,11 +280,6 @@ QString MediaWriterFFmpeg::location() const
 QString MediaWriterFFmpeg::outputFormat() const
 {
     return this->m_outputFormat;
-}
-
-QVariantMap MediaWriterFFmpeg::formatOptions() const
-{
-    return this->m_formatOptions;
 }
 
 QVariantList MediaWriterFFmpeg::streams() const

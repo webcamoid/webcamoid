@@ -35,12 +35,12 @@ class MediaWriterGStreamer: public MediaWriter
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
-        Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams() const;
 
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);
+        Q_INVOKABLE QVariantList formatOptions(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 const QString &type);
@@ -49,6 +49,7 @@ class MediaWriterGStreamer: public MediaWriter
         Q_INVOKABLE QString codecDescription(const QString &codec);
         Q_INVOKABLE QString codecType(const QString &codec);
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
+        Q_INVOKABLE QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
@@ -74,6 +75,7 @@ class MediaWriterGStreamer: public MediaWriter
 
         QString guessFormat(const QString &fileName);
         QStringList readCaps(const QString &element);
+        QVariantList parseOptions(const GstElement *element) const;
         void waitState(GstState state);
         static gboolean busCallback(GstBus *bus,
                                     GstMessage *message,

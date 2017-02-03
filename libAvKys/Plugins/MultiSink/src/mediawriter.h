@@ -35,11 +35,6 @@ class MediaWriter: public QObject
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
-    Q_PROPERTY(QVariantMap formatOptions
-               READ formatOptions
-               WRITE setFormatOptions
-               RESET resetFormatOptions
-               NOTIFY formatOptionsChanged)
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
@@ -55,7 +50,6 @@ class MediaWriter: public QObject
 
         Q_INVOKABLE virtual QString location() const;
         Q_INVOKABLE virtual QString outputFormat() const;
-        Q_INVOKABLE virtual QVariantMap formatOptions() const;
         Q_INVOKABLE virtual QVariantList streams() const;
         Q_INVOKABLE virtual qint64 maxPacketQueueSize() const;
 
