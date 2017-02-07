@@ -213,23 +213,23 @@ typedef QMap<GType, QString> OptionTypeStrMap;
 inline OptionTypeStrMap initOptionTypeStrMap()
 {
     static const OptionTypeStrMap optionTypeStrMap = {
-        {G_TYPE_STRING          , "string"  },
-        {G_TYPE_BOOLEAN         , "boolean" },
-        {G_TYPE_ULONG           , "integer" },
-        {G_TYPE_LONG            , "integer" },
-        {G_TYPE_UINT            , "integer" },
-        {G_TYPE_INT             , "integer" },
-        {G_TYPE_UINT64          , "integer" },
-        {G_TYPE_INT64           , "integer" },
-        {G_TYPE_FLOAT           , "float"   },
-        {G_TYPE_DOUBLE          , "float"   },
-        {G_TYPE_CHAR            , "integer" },
-        {G_TYPE_UCHAR           , "integer" },
-        {G_TYPE_PARAM_ENUM      , "menu"    },
-        {G_TYPE_PARAM_FLAGS     , "flags"   },
-        {G_TYPE_VALUE_ARRAY     , "array"   },
-        {GST_TYPE_CAPS          , "caps"    },
-        {GST_TYPE_PARAM_FRACTION, "frac"    },
+        {G_TYPE_STRING          , "string" },
+        {G_TYPE_BOOLEAN         , "boolean"},
+        {G_TYPE_ULONG           , "number" },
+        {G_TYPE_LONG            , "number" },
+        {G_TYPE_UINT            , "number" },
+        {G_TYPE_INT             , "number" },
+        {G_TYPE_UINT64          , "number" },
+        {G_TYPE_INT64           , "number" },
+        {G_TYPE_FLOAT           , "number" },
+        {G_TYPE_DOUBLE          , "number" },
+        {G_TYPE_CHAR            , "number" },
+        {G_TYPE_UCHAR           , "number" },
+        {G_TYPE_PARAM_ENUM      , "menu"   },
+        {G_TYPE_PARAM_FLAGS     , "flags"  },
+        {G_TYPE_VALUE_ARRAY     , "array"  },
+        {GST_TYPE_CAPS          , "caps"   },
+        {GST_TYPE_PARAM_FRACTION, "frac"   },
     };
 
     return optionTypeStrMap;
@@ -1398,7 +1398,7 @@ QVariantList MediaWriterGStreamer::parseOptions(const GstElement *element) const
         qreal min = 0;
         qreal max = 0;
         qreal step = 0;
-        QVariantMap menu;
+        QVariantList menu;
         auto paramType = codecOptionTypeToStr->value(param->value_type);
 
         GValue gValue;
@@ -1511,31 +1511,64 @@ QVariantList MediaWriterGStreamer::parseOptions(const GstElement *element) const
             }
             default:
                 if (G_IS_PARAM_SPEC_ENUM(param)) {
-                    value = g_value_get_enum(&gValue);
+                    auto curValue = g_value_get_enum(&gValue);
+                    value = curValue;
                     auto spec = G_PARAM_SPEC_ENUM(param);
-                    defaultValue = spec->default_value;
-                    auto value = G_ENUM_CLASS(g_type_class_ref(param->value_type))->values;
+                    auto gValue = G_ENUM_CLASS(g_type_class_ref(param->value_type))->values;
 
-                    if (value)
-                        for (; value->value_name; value++)
-                            menu[value->value_nick] = value->value;
+                    if (gValue) {
+                        for (; gValue->value_name; gValue++) {
+                            if (spec->default_value == gValue->value)
+                                defaultValue = gValue->value_nick;
+
+                            if (curValue == gValue->value)
+                                value = gValue->value_nick;
+
+                            menu << QVariant(QVariantList {
+                                gValue->value_nick,
+                                gValue->value_name,
+                                gValue->value
+                            });
+                        }
+
+                        if (!defaultValue.isNull())
+                            defaultValue = menu.first().toList().first();
+
+                        if (!value.isNull())
+                            value = defaultValue;
+                    }
 
                     paramType = "menu";
                 } else if (G_IS_PARAM_SPEC_FLAGS(param)) {
-                    value = g_value_get_flags(&gValue);
+                    // flag1+flag2+flags3+...
+                    auto flags = g_value_get_flags(&gValue);
                     auto spec = G_PARAM_SPEC_FLAGS(param);
-                    defaultValue = spec->default_value;
-                    auto value = spec->flags_class->values;
+                    auto gValue = spec->flags_class->values;
+                    QStringList defaultFlagList;
+                    QStringList flagList;
 
-                    if (value)
-                        for (; value->value_name; value++)
-                            menu[value->value_nick] = value->value;
+                    if (gValue)
+                        for (; gValue->value_name; gValue++) {
+                            if ((spec->default_value & gValue->value) == gValue->value)
+                                defaultFlagList << gValue->value_nick;
 
+                            if ((flags & gValue->value) == gValue->value)
+                                flagList << gValue->value_nick;
+
+                            menu << QVariant(QVariantList {
+                                gValue->value_nick,
+                                gValue->value_name,
+                                gValue->value
+                            });
+                        }
+
+                    defaultValue = defaultFlagList;
+                    value = flagList;
                     paramType = "flags";
                 } else if (GST_IS_PARAM_SPEC_FRACTION(param)) {
                     auto num = gst_value_get_fraction_numerator(&gValue);
                     auto den = gst_value_get_fraction_denominator(&gValue);
-                    value = QVariant::fromValue(AkFrac(num, den));
+                    value = AkFrac(num, den).toString();
                     defaultValue = value;
                     paramType = "frac";
                 } else if (param->value_type == GST_TYPE_CAPS) {

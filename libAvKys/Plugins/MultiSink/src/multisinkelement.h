@@ -45,11 +45,6 @@ class MultiSinkElement: public AkElement
                WRITE setOutputFormat
                RESET resetOutputFormat
                NOTIFY outputFormatChanged)
-    Q_PROPERTY(QVariantMap formatOptions
-               READ formatOptions
-               WRITE setFormatOptions
-               RESET resetFormatOptions
-               NOTIFY formatOptionsChanged)
     Q_PROPERTY(QVariantList streams
                READ streams
                NOTIFY streamsChanged)
@@ -84,7 +79,6 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QStringList supportedFormats() const;
         Q_INVOKABLE QString outputFormat() const;
-        Q_INVOKABLE QVariantMap formatOptions() const;
         Q_INVOKABLE QVariantList streams();
         Q_INVOKABLE QString codecLib() const;
         Q_INVOKABLE bool showFormatOptions() const;
@@ -92,6 +86,7 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QVariantMap userControlsValues() const;
         Q_INVOKABLE QStringList fileExtensions(const QString &format) const;
         Q_INVOKABLE QString formatDescription(const QString &format) const;
+        Q_INVOKABLE QVariantList formatOptions(const QString &format) const;
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 const QString &type="");
         Q_INVOKABLE QString defaultCodec(const QString &format,
@@ -99,6 +94,7 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
         Q_INVOKABLE QString codecType(const QString &codec) const;
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec) const;
+        Q_INVOKABLE QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());

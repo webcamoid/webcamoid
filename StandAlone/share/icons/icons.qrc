@@ -5,6 +5,7 @@
         <file>hicolor/scalable/add.svg</file>
         <file>hicolor/scalable/applications-internet.svg</file>
         <file>hicolor/scalable/cancel.svg</file>
+        <file>hicolor/scalable/configure.svg</file>
         <file>hicolor/scalable/edit-find.svg</file>
         <file>hicolor/scalable/edit.svg</file>
         <file>hicolor/scalable/ok.svg</file>
@@ -35,6 +36,7 @@
         <file>hicolor/8x8/add.png</file>
         <file>hicolor/8x8/applications-internet.png</file>
         <file>hicolor/8x8/cancel.png</file>
+        <file>hicolor/8x8/configure.png</file>
         <file>hicolor/8x8/edit-find.png</file>
         <file>hicolor/8x8/edit.png</file>
         <file>hicolor/8x8/ok.png</file>
@@ -64,6 +66,7 @@
         <file>hicolor/16x16/add.png</file>
         <file>hicolor/16x16/applications-internet.png</file>
         <file>hicolor/16x16/cancel.png</file>
+        <file>hicolor/16x16/configure.png</file>
         <file>hicolor/16x16/edit-find.png</file>
         <file>hicolor/16x16/edit.png</file>
         <file>hicolor/16x16/ok.png</file>
@@ -93,6 +96,7 @@
         <file>hicolor/22x22/add.png</file>
         <file>hicolor/22x22/applications-internet.png</file>
         <file>hicolor/22x22/cancel.png</file>
+        <file>hicolor/22x22/configure.png</file>
         <file>hicolor/22x22/edit-find.png</file>
         <file>hicolor/22x22/edit.png</file>
         <file>hicolor/22x22/ok.png</file>
@@ -122,6 +126,7 @@
         <file>hicolor/32x32/add.png</file>
         <file>hicolor/32x32/applications-internet.png</file>
         <file>hicolor/32x32/cancel.png</file>
+        <file>hicolor/32x32/configure.png</file>
         <file>hicolor/32x32/edit-find.png</file>
         <file>hicolor/32x32/edit.png</file>
         <file>hicolor/32x32/ok.png</file>
@@ -151,6 +156,7 @@
         <file>hicolor/48x48/add.png</file>
         <file>hicolor/48x48/applications-internet.png</file>
         <file>hicolor/48x48/cancel.png</file>
+        <file>hicolor/48x48/configure.png</file>
         <file>hicolor/48x48/edit-find.png</file>
         <file>hicolor/48x48/edit.png</file>
         <file>hicolor/48x48/ok.png</file>
@@ -180,6 +186,7 @@
         <file>hicolor/64x64/add.png</file>
         <file>hicolor/64x64/applications-internet.png</file>
         <file>hicolor/64x64/cancel.png</file>
+        <file>hicolor/64x64/configure.png</file>
         <file>hicolor/64x64/edit-find.png</file>
         <file>hicolor/64x64/edit.png</file>
         <file>hicolor/64x64/ok.png</file>
@@ -209,6 +216,7 @@
         <file>hicolor/128x128/add.png</file>
         <file>hicolor/128x128/applications-internet.png</file>
         <file>hicolor/128x128/cancel.png</file>
+        <file>hicolor/128x128/configure.png</file>
         <file>hicolor/128x128/edit-find.png</file>
         <file>hicolor/128x128/edit.png</file>
         <file>hicolor/128x128/ok.png</file>
@@ -238,6 +246,7 @@
         <file>hicolor/256x256/add.png</file>
         <file>hicolor/256x256/applications-internet.png</file>
         <file>hicolor/256x256/cancel.png</file>
+        <file>hicolor/256x256/configure.png</file>
         <file>hicolor/256x256/edit-find.png</file>
         <file>hicolor/256x256/edit.png</file>
         <file>hicolor/256x256/ok.png</file>

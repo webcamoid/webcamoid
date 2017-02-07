@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/MultiSink">
         <file>share/qml/main.qml</file>
+        <file>share/qml/CodecConfigs.qml</file>
+        <file>share/qml/CodecControl.qml</file>
         <file>share/qml/StreamOptions.qml</file>
         <file>share/qml/UserControl.qml</file>
     </qresource>

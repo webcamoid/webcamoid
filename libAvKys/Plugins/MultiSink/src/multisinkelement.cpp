@@ -108,11 +108,6 @@ QString MultiSinkElement::outputFormat() const
     return this->m_outputFormat;
 }
 
-QVariantMap MultiSinkElement::formatOptions() const
-{
-    return this->m_formatOptions;
-}
-
 QVariantList MultiSinkElement::streams()
 {
     return this->m_mediaWriter->streams();
@@ -148,6 +143,11 @@ QString MultiSinkElement::formatDescription(const QString &format) const
     return this->m_formatDescription.value(format);
 }
 
+QVariantList MultiSinkElement::formatOptions(const QString &format) const
+{
+    return this->m_mediaWriter->formatOptions(format);
+}
+
 QStringList MultiSinkElement::supportedCodecs(const QString &format,
                                               const QString &type)
 {
@@ -173,6 +173,11 @@ QString MultiSinkElement::codecType(const QString &codec) const
 QVariantMap MultiSinkElement::defaultCodecParams(const QString &codec) const
 {
     return this->m_defaultCodecParams.value(codec);
+}
+
+QVariantList MultiSinkElement::codecOptions(const QString &codec)
+{
+    return this->m_mediaWriter->codecOptions(codec);
 }
 
 QVariantMap MultiSinkElement::addStream(int streamIndex,

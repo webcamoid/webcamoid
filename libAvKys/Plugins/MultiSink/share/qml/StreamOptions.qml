@@ -121,22 +121,19 @@ GroupBox {
             }
         }
 
-        Label {
-            text: qsTr("Options")
-        }
-        TextField {
-            text: JSON.stringify(gbxStreamOptions.codecOptions)
-            placeholderText: qsTr("{\"opt1\": \"val1\", \"opt2\": \"val2\", \"opt3\": \"val3\"...}")
+        Button {
+            text: qsTr("Advanced Codec Options")
+            iconName: "configure"
+            iconSource: "image://icons/configure"
             Layout.fillWidth: true
+            Layout.columnSpan: 2
+            enabled: MultiSink.codecOptions(gbxStreamOptions.codec).length > 0
 
-            onTextChanged: {
-                gbxStreamOptions.codecOptions = JSON.parse(text)
-                notifyOptions()
+            onClicked: {
+                codecConfigs.codecName =
+                        cbxCodec.model.get(cbxCodec.currentIndex).codec;
+                codecConfigs.show()
             }
-        }
-
-        Label {
-            Layout.fillHeight: true
         }
     }
     states: [
@@ -175,4 +172,8 @@ GroupBox {
             }
         }
     ]
+
+    CodecConfigs {
+        id: codecConfigs
+    }
 }

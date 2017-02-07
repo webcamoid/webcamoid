@@ -217,10 +217,10 @@ inline OptionTypeStrMap initOptionTypeStrMap()
 {
     static const OptionTypeStrMap optionTypeStrMap = {
         {AV_OPT_TYPE_FLAGS         , "flags"         },
-        {AV_OPT_TYPE_INT           , "integer"       },
-        {AV_OPT_TYPE_INT64         , "integer"       },
-        {AV_OPT_TYPE_DOUBLE        , "float"         },
-        {AV_OPT_TYPE_FLOAT         , "float"         },
+        {AV_OPT_TYPE_INT           , "number"        },
+        {AV_OPT_TYPE_INT64         , "number"        },
+        {AV_OPT_TYPE_DOUBLE        , "number"        },
+        {AV_OPT_TYPE_FLOAT         , "number"        },
         {AV_OPT_TYPE_STRING        , "string"        },
         {AV_OPT_TYPE_RATIONAL      , "frac"          },
         {AV_OPT_TYPE_BINARY        , "binary"        },
@@ -1214,7 +1214,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
         return QVariantList();
 
     QList<QVariantList> avOptions;
-    QMap<QString, QVariantMap> menu;
+    QMap<QString, QVariantList> menu;
 
     for (auto option = avClass->option;
          option;
@@ -1272,21 +1272,20 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
                 break;
             }
             case AV_OPT_TYPE_RATIONAL:
-                value = QVariant::fromValue(AkFrac(option->default_val.q.num,
-                                                   option->default_val.q.den));
+                value = AkFrac(option->default_val.q.num,
+                               option->default_val.q.den).toString();
                 break;
             default:
                 continue;
         }
 
         if (option->type == AV_OPT_TYPE_CONST) {
+            QVariantList menuOption = {option->name, option->help, value};
+
             if (menu.contains(option->unit)) {
-                menu[option->unit][option->name] = value;
-            } else {
-                menu[option->unit] = QVariantMap {
-                    {option->name, value}
-                };
-            }
+                menu[option->unit] << QVariant(menuOption);
+            } else
+                menu[option->unit] = QVariantList {menuOption};
         } else {
             avOptions << QVariantList {
                                     option->name,
@@ -1298,8 +1297,8 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
                                     value,
                                     value,
                                     option->unit?
-                                        QVariantMap {{option->unit, QVariant()}}:
-                                        QVariantMap()
+                                        QVariantList {option->unit}:
+                                        QVariantList()
                                 };
         }
 
@@ -1339,10 +1338,60 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
     QVariantList options;
 
     for (auto option: avOptions) {
-        auto unitMap = option.last().toMap();
+        auto unitMap = option.last().toList();
 
-        if (!unitMap.isEmpty())
-            option[8] = menu[unitMap.firstKey()];
+        if (!unitMap.isEmpty()) {
+            auto optionMenu = menu[unitMap.first().toString()];
+
+            if (option[2].toString() == "flags") {
+                QStringList defaultValues;
+                QStringList values;
+
+                for (auto &opt: optionMenu) {
+                    auto optList = opt.toList();
+                    auto flag = optList[2].toUInt();
+
+                    if ((option[6].toUInt() & flag) == flag)
+                        defaultValues << optList[0].toString();
+
+                    if ((option[7].toUInt() & flag) == flag)
+                        values << optList[0].toString();
+                }
+
+                option[6] = defaultValues;
+                option[7] = values;
+            } else {
+                option[2] = "menu";
+                bool defaultFound = false;
+                bool valueFound = false;
+                QVariant defaultValue;
+
+                for (auto &opt: optionMenu) {
+                    auto optList = opt.toList();
+
+                    if (!defaultValue.isValid())
+                        defaultValue = optList[0];
+
+                    if (optList[2] == option[6]) {
+                        option[6] = optList[0];
+                        defaultFound = true;
+                    }
+
+                    if (optList[2] == option[7]) {
+                        option[7] = optList[0];
+                        valueFound = true;
+                    }
+                }
+
+                if (!defaultFound)
+                    option[6] = defaultValue;
+
+                if (!valueFound)
+                    option[7] = option[6];
+            }
+
+            option[8] = optionMenu;
+        }
 
         options << QVariant(option);
     }

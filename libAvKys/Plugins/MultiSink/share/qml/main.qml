@@ -186,17 +186,19 @@ ColumnLayout {
         Layout.fillWidth: true
     }
 
-    Label {
-        text: qsTr("Format options")
+    Button {
+        text: qsTr("Advanced Format Options")
+        iconName: "configure"
+        iconSource: "image://icons/configure"
         Layout.fillWidth: true
-    }
-    TextField {
-        id: txtFormatOptions
-        placeholderText: qsTr("Encoding options for this format.")
-        Layout.fillWidth: true
-        text: JSON.stringify(MultiSink.formatOptions)
+        enabled: MultiSink.formatOptions(MultiSink.outputFormat).length > 0
 
-        onTextChanged: MultiSink.formatOptions = JSON.parse(text)
+        onClicked: {
+            formatConfigs.isCodec = false;
+            formatConfigs.codecName =
+                    lstOutputFormats.get(cbxOutputFormats.currentIndex).format;
+            formatConfigs.show();
+        }
     }
     ColumnLayout {
         id: clyUserControls
@@ -206,5 +208,9 @@ ColumnLayout {
         id: clyStreamOptions
         Layout.fillWidth: true
         Layout.fillHeight: true
+    }
+
+    CodecConfigs {
+        id: formatConfigs
     }
 }
