@@ -138,7 +138,9 @@ class Recording: public QObject
         void capsUpdated();
         void updateFormat(const QString &codecLib);
         void loadProperties();
+        void loadFormatOptions(const QString &format);
         void saveFormat(const QString &format);
+        void saveFormatOptions(const QVariantMap &formatOptions);
         void saveRecordAudio(bool recordAudio);
         void saveMultiSinkCodecLib(const QString &codecLib);
         void saveProperties();

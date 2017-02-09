@@ -77,6 +77,7 @@ QObject *MultiSinkElement::controlInterface(QQmlEngine *engine,
     // Create a context for the plugin.
     QQmlContext *context = new QQmlContext(engine->rootContext());
     context->setContextProperty("MultiSink", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("MultiSinkUtils", const_cast<QObject *>(qobject_cast<const QObject *>(&this->m_utils)));
     context->setContextProperty("controlId", this->objectName());
 
     // Create an item with the plugin context.
@@ -105,7 +106,7 @@ QStringList MultiSinkElement::supportedFormats() const
 
 QString MultiSinkElement::outputFormat() const
 {
-    return this->m_outputFormat;
+    return this->m_mediaWriter->outputFormat();
 }
 
 QVariantList MultiSinkElement::streams()
@@ -143,9 +144,9 @@ QString MultiSinkElement::formatDescription(const QString &format) const
     return this->m_formatDescription.value(format);
 }
 
-QVariantList MultiSinkElement::formatOptions(const QString &format) const
+QVariantList MultiSinkElement::formatOptions() const
 {
-    return this->m_mediaWriter->formatOptions(format);
+    return this->m_mediaWriter->formatOptions();
 }
 
 QStringList MultiSinkElement::supportedCodecs(const QString &format,
@@ -206,20 +207,12 @@ void MultiSinkElement::setLocation(const QString &location)
 
 void MultiSinkElement::setOutputFormat(const QString &outputFormat)
 {
-    if (this->m_outputFormat == outputFormat)
-        return;
-
-    this->m_outputFormat = outputFormat;
-    emit this->outputFormatChanged(outputFormat);
+    this->m_mediaWriter->setOutputFormat(outputFormat);
 }
 
 void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
 {
-    if (this->m_formatOptions == formatOptions)
-        return;
-
-    this->m_formatOptions = formatOptions;
-    emit this->formatOptionsChanged(formatOptions);
+    this->m_mediaWriter->setFormatOptions(formatOptions);
 }
 
 void MultiSinkElement::setCodecLib(const QString &codecLib)
@@ -261,12 +254,12 @@ void MultiSinkElement::resetLocation()
 
 void MultiSinkElement::resetOutputFormat()
 {
-    this->setOutputFormat("");
+    this->m_mediaWriter->resetOutputFormat();
 }
 
 void MultiSinkElement::resetFormatOptions()
 {
-    this->setFormatOptions({});
+    this->m_mediaWriter->resetFormatOptions();
 }
 
 void MultiSinkElement::resetCodecLib()
@@ -394,10 +387,6 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
                      &MultiSinkElement::locationChanged,
                      this->m_mediaWriter.data(),
                      &MediaWriter::setLocation);
-    QObject::connect(this,
-                     &MultiSinkElement::outputFormatChanged,
-                     this->m_mediaWriter.data(),
-                     &MediaWriter::setOutputFormat);
     QObject::connect(this,
                      &MultiSinkElement::formatOptionsChanged,
                      this->m_mediaWriter.data(),

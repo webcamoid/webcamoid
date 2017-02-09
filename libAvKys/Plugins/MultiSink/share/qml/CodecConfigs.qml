@@ -34,6 +34,8 @@ ApplicationWindow {
     property bool isCodec: true
     property string codecName: ""
 
+    signal controlChanged(string controlName, variant value)
+
     SystemPalette {
         id: palette
     }
@@ -49,17 +51,18 @@ ApplicationWindow {
     {
         // Remove old controls.
         for(var i = clyCodecOptions.children.length - 1; i >= 0 ; i--)
-            clyCodecOptions.children[i].destroy()
+            clyCodecOptions.children[i].destroy();
 
         var options = isCodec?
                     MultiSink.codecOptions(codecName):
-                    MultiSink.formatOptions(codecName);
+                    MultiSink.formatOptions();
         var minimumLeftWidth = 0;
         var minimumRightWidth = 0;
 
         for (var i in options) {
             var codecOptions = classCodecControl.createObject(clyCodecOptions);
             codecOptions.controlParams = options[i];
+            codecOptions.onControlChanged.connect(controlChanged);
 
             if (codecOptions.leftWidth > minimumLeftWidth)
                 minimumLeftWidth = codecOptions.leftWidth
@@ -69,8 +72,8 @@ ApplicationWindow {
         }
 
         for (var i in clyCodecOptions.children) {
-            clyCodecOptions.children[i].minimumLeftWidth = minimumLeftWidth
-            clyCodecOptions.children[i].minimumRightWidth = minimumRightWidth
+            clyCodecOptions.children[i].minimumLeftWidth = minimumLeftWidth;
+            clyCodecOptions.children[i].minimumRightWidth = minimumRightWidth;
         }
     }
 
@@ -91,12 +94,45 @@ ApplicationWindow {
             }
         }
 
-        Button {
-            text: qsTr("Close")
-            iconName: "window-close"
-            iconSource: "image://icons/window-close"
+        RowLayout {
             Layout.alignment: Qt.AlignRight
-            onClicked: recAbout.close()
+
+            TextField {
+                id: optionFilter
+                placeholderText: qsTr("Search option")
+                Layout.fillWidth: true
+
+                onTextChanged: {
+                    for (var i in clyCodecOptions.children) {
+                        var opt = clyCodecOptions.children[i];
+                        opt.visible =
+                                MultiSinkUtils.matches(text,
+                                                       [opt.controlName,
+                                                        opt.controlDescription]);
+                    }
+                }
+            }
+            Button {
+                text: qsTr("Reset")
+                iconName: "reset"
+                iconSource: "image://icons/reset"
+                onClicked: {
+                    if (!isCodec)
+                        MultiSink.resetFormatOptions();
+
+                    optionFilter.text = "";
+                    updateOptions();
+                }
+            }
+            Button {
+                text: qsTr("Close")
+                iconName: "window-close"
+                iconSource: "image://icons/window-close"
+                onClicked: {
+                    optionFilter.text = ""
+                    recAbout.close()
+                }
+            }
         }
     }
 }

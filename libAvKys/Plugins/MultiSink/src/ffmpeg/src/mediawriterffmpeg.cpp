@@ -198,12 +198,14 @@ Q_GLOBAL_STATIC_WITH_ARGS(VectorInt, swfSupportedSampleRates, (initSWFSupportedS
 
 inline bool initHasCudaSupport()
 {
-    QLibrary lib("cuda");
+    for (auto &libName: QStringList {"cuda", "nvcuda"}) {
+        QLibrary lib(libName);
 
-    if (lib.load()) {
-        lib.unload();
+        if (lib.load()) {
+            lib.unload();
 
-        return true;
+            return true;
+        }
     }
 
     return false;
@@ -341,16 +343,35 @@ QString MediaWriterFFmpeg::formatDescription(const QString &format)
     return QString(outputFormat->long_name);
 }
 
-QVariantList MediaWriterFFmpeg::formatOptions(const QString &format)
+QVariantList MediaWriterFFmpeg::formatOptions()
 {
-    AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
+    auto outFormat = this->guessFormat();
+
+    if (outFormat.isEmpty())
+        return QVariantList();
+
+    AVOutputFormat *outputFormat = av_guess_format(outFormat.toStdString().c_str(),
                                                    NULL,
                                                    NULL);
 
     if (!outputFormat)
         return QVariantList();
 
-    return this->parseOptions(outputFormat->priv_class);
+    auto options = this->parseOptions(outputFormat->priv_class);
+    auto globalFormatOptions = this->m_formatOptions.value(outFormat);
+    QVariantList formatOptions;
+
+    for (auto &option: options) {
+        auto optionList = option.toList();
+        auto key = optionList[0].toString();
+
+        if (globalFormatOptions.contains(key))
+            optionList[7] = globalFormatOptions[key];
+
+        formatOptions << QVariant(optionList);
+    }
+
+    return formatOptions;
 }
 
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format)
@@ -690,19 +711,7 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
                                          const AkCaps &streamCaps,
                                          const QVariantMap &codecParams)
 {
-    QString outputFormat;
-
-    if (this->supportedFormats().contains(this->m_outputFormat))
-        outputFormat = this->m_outputFormat;
-    else {
-        auto format =
-                av_guess_format(NULL,
-                                this->m_location.toStdString().c_str(),
-                                NULL);
-
-        if (format)
-            outputFormat = QString(format->name);
-    }
+    QString outputFormat = this->guessFormat();
 
     if (outputFormat.isEmpty())
         return QVariantMap();
@@ -893,19 +902,7 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index)
 QVariantMap MediaWriterFFmpeg::updateStream(int index,
                                             const QVariantMap &codecParams)
 {
-    QString outputFormat;
-
-    if (this->supportedFormats().contains(this->m_outputFormat))
-        outputFormat = this->m_outputFormat;
-    else {
-        AVOutputFormat *format =
-                av_guess_format(NULL,
-                                this->m_location.toStdString().c_str(),
-                                NULL);
-
-        if (format)
-            outputFormat = QString(format->name);
-    }
+    QString outputFormat = this->guessFormat();
 
     if (outputFormat.isEmpty())
         return QVariantMap();
@@ -1208,6 +1205,25 @@ QImage MediaWriterFFmpeg::swapChannels(const QImage &image) const
     return swapped;
 }
 
+QString MediaWriterFFmpeg::guessFormat()
+{
+    QString outputFormat;
+
+    if (this->supportedFormats().contains(this->m_outputFormat))
+        outputFormat = this->m_outputFormat;
+    else {
+        auto format =
+                av_guess_format(NULL,
+                                this->m_location.toStdString().c_str(),
+                                NULL);
+
+        if (format)
+            outputFormat = QString(format->name);
+    }
+
+    return outputFormat;
+}
+
 QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
 {
     if (!avClass)
@@ -1397,6 +1413,40 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
     }
 
     return options;
+}
+
+AVDictionary *MediaWriterFFmpeg::formatContextOptions(AVFormatContext *formatContext,
+                                                      const QVariantMap &options)
+{
+    auto avClass = formatContext->oformat->priv_class;
+    QStringList flagType;
+
+    for (auto option = avClass->option;
+         option;
+         option = av_opt_next(&avClass, option)) {
+        if (option->type == AV_OPT_TYPE_FLAGS)
+            flagType << option->name;
+    }
+
+    AVDictionary *formatOptions = NULL;
+
+    for (const QString &key: options.keys()) {
+        QString value;
+
+        if (flagType.contains(key)) {
+            auto flags = options[key].toStringList();
+            value = flags.join('+');
+        } else {
+            value = options[key].toString();
+        }
+
+        av_dict_set(&formatOptions,
+                    key.toStdString().c_str(),
+                    value.toStdString().c_str(),
+                    0);
+    }
+
+    return formatOptions;
 }
 
 AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
@@ -1648,11 +1698,17 @@ void MediaWriterFFmpeg::setOutputFormat(const QString &outputFormat)
 
 void MediaWriterFFmpeg::setFormatOptions(const QVariantMap &formatOptions)
 {
-    if (this->m_formatOptions == formatOptions)
-        return;
+    auto outputFormat = this->guessFormat();
+    bool modified = false;
 
-    this->m_formatOptions = formatOptions;
-    emit this->formatOptionsChanged(formatOptions);
+    for (auto &key: formatOptions.keys())
+        if (formatOptions[key] != this->m_formatOptions.value(outputFormat).value(key)) {
+            this->m_formatOptions[outputFormat][key] = formatOptions[key];
+            modified = true;
+        }
+
+    if (modified)
+        emit this->formatOptionsChanged(this->m_formatOptions.value(outputFormat));
 }
 
 void MediaWriterFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
@@ -1676,7 +1732,13 @@ void MediaWriterFFmpeg::resetOutputFormat()
 
 void MediaWriterFFmpeg::resetFormatOptions()
 {
-    this->setFormatOptions(QVariantMap());
+    auto outputFormat = this->guessFormat();
+
+    if (this->m_formatOptions.value(outputFormat).isEmpty())
+        return;
+
+    this->m_formatOptions[outputFormat].clear();
+    emit this->formatOptionsChanged(QVariantMap());
 }
 
 void MediaWriterFFmpeg::resetMaxPacketQueueSize()
@@ -1731,6 +1793,8 @@ void MediaWriterFFmpeg::clearStreams()
 
 bool MediaWriterFFmpeg::init()
 {
+    auto outputFormat = this->guessFormat();
+
     if (avformat_alloc_output_context2(&this->m_formatContext,
                                        NULL,
                                        this->m_outputFormat.isEmpty()?
@@ -1939,16 +2003,9 @@ bool MediaWriterFFmpeg::init()
     }
 
     // Set format options.
-    AVDictionary *formatOptions = NULL;
-
-    for (const QString &key: this->m_formatOptions.keys()) {
-        QString value = this->m_formatOptions[key].toString();
-
-        av_dict_set(&formatOptions,
-                    key.toStdString().c_str(),
-                    value.toStdString().c_str(),
-                    0);
-    }
+    auto formatOptions =
+            this->formatContextOptions(this->m_formatContext,
+                                       this->m_formatOptions.value(outputFormat));
 
     // Write file header.
     int error = avformat_write_header(this->m_formatContext, &formatOptions);

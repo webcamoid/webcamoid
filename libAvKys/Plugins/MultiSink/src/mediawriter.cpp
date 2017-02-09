@@ -67,10 +67,8 @@ QString MediaWriter::formatDescription(const QString &format)
     return QString();
 }
 
-QVariantList MediaWriter::formatOptions(const QString &format)
+QVariantList MediaWriter::formatOptions()
 {
-    Q_UNUSED(format)
-
     return QVariantList();
 }
 

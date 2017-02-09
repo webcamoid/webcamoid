@@ -26,6 +26,7 @@
 #include <ak.h>
 
 #include "mediawriter.h"
+#include "multisinkutils.h"
 
 typedef QSharedPointer<MediaWriter> MediaWriterPtr;
 
@@ -86,7 +87,7 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QVariantMap userControlsValues() const;
         Q_INVOKABLE QStringList fileExtensions(const QString &format) const;
         Q_INVOKABLE QString formatDescription(const QString &format) const;
-        Q_INVOKABLE QVariantList formatOptions(const QString &format) const;
+        Q_INVOKABLE QVariantList formatOptions() const;
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 const QString &type="");
         Q_INVOKABLE QString defaultCodec(const QString &format,
@@ -103,14 +104,13 @@ class MultiSinkElement: public AkElement
 
     private:
         QString m_location;
-        QString m_outputFormat;
-        QVariantMap m_formatOptions;
         bool m_showFormatOptions;
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;
         MediaWriterPtr m_mediaWriter;
         QMutex m_mutex;
         QMutex m_mutexLib;
+        MultiSinkUtils m_utils;
 
         // Formats and codecs info cache.
         QStringList m_supportedFormats;

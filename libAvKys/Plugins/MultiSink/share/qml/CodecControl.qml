@@ -28,6 +28,7 @@ GridLayout {
 
     property variant controlParams: []
     property string controlName: controlParams.length > 0? controlParams[0]: ""
+    property string controlDescription: controlParams.length > 1? controlParams[1]: ""
     property real minimumValue: controlParams.length > 3? controlParams[3]: 0
     property real maximumValue: controlParams.length > 4? controlParams[4]: 0
     property real stepSize: controlParams.length > 5? controlParams[5]: 0
@@ -107,19 +108,6 @@ GridLayout {
     onControlParamsChanged: {
         updateMenu();
         updateFlags();
-    }
-
-    onValueChanged: {
-        var controlType = controlParams[2];
-
-        if (controlType == "number") {
-            sldRange.value = value;
-            txtRange.text = value;
-        } else if (controlType == "boolean") {
-            chkBool.checked = value !== 0;
-        } else if (controlType == "menu") {
-            cbxMenu.currentIndex = currentMenuIndex(controlParams);
-        }
     }
 
     Component.onCompleted: {

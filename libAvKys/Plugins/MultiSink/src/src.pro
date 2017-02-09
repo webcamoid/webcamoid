@@ -34,7 +34,8 @@ HEADERS = \
     multisink.h \
     multisinkelement.h \
     mediawriter.h \
-    multisinkglobals.h
+    multisinkglobals.h \
+    multisinkutils.h
 
 INCLUDEPATH += \
     ../../../Lib/src
@@ -53,7 +54,8 @@ SOURCES = \
     multisink.cpp \
     multisinkelement.cpp \
     mediawriter.cpp \
-    multisinkglobals.cpp
+    multisinkglobals.cpp \
+    multisinkutils.cpp
 
 lupdate_only {
     SOURCES += $$files(../share/qml/*.qml)

@@ -56,7 +56,7 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QStringList supportedFormats();
         Q_INVOKABLE virtual QStringList fileExtensions(const QString &format);
         Q_INVOKABLE virtual QString formatDescription(const QString &format);
-        Q_INVOKABLE virtual QVariantList formatOptions(const QString &format);
+        Q_INVOKABLE virtual QVariantList formatOptions();
         Q_INVOKABLE virtual QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE virtual QStringList supportedCodecs(const QString &format,
                                                         const QString &type);

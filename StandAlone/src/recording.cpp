@@ -55,32 +55,15 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                                   Q_ARG(QString, "record"));
     }
 
-    QObject::connect(this,
-                     &Recording::formatChanged,
-                     this,
-                     &Recording::saveFormat);
-    QObject::connect(this,
-                     &Recording::recordAudioChanged,
-                     this,
-                     &Recording::saveRecordAudio);
-    QObject::connect(this,
-                     &Recording::audioCapsChanged,
-                     this,
-                     &Recording::capsUpdated);
-    QObject::connect(this,
-                     &Recording::videoCapsChanged,
-                     this,
-                     &Recording::capsUpdated);
-    QObject::connect(this,
-                     &Recording::formatChanged,
-                     this,
-                     &Recording::capsUpdated);
-    QObject::connect(this,
-                     &Recording::recordAudioChanged,
-                     this,
-                     &Recording::capsUpdated);
-
     if (this->m_record) {
+        QObject::connect(this->m_record.data(),
+                         SIGNAL(outputFormatChanged(const QString &)),
+                         this,
+                         SLOT(loadFormatOptions(const QString &)));
+        QObject::connect(this->m_record.data(),
+                         SIGNAL(formatOptionsChanged(const QVariantMap &)),
+                         this,
+                         SLOT(saveFormatOptions(const QVariantMap &)));
         QObject::connect(this->m_record.data(),
                          SIGNAL(userControlsValuesChanged(const QVariantMap &)),
                          this,
@@ -120,6 +103,31 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
 
         this->m_record->setProperty("userControls", controls);
     }
+
+    QObject::connect(this,
+                     &Recording::formatChanged,
+                     this,
+                     &Recording::saveFormat);
+    QObject::connect(this,
+                     &Recording::recordAudioChanged,
+                     this,
+                     &Recording::saveRecordAudio);
+    QObject::connect(this,
+                     &Recording::audioCapsChanged,
+                     this,
+                     &Recording::capsUpdated);
+    QObject::connect(this,
+                     &Recording::videoCapsChanged,
+                     this,
+                     &Recording::capsUpdated);
+    QObject::connect(this,
+                     &Recording::formatChanged,
+                     this,
+                     &Recording::capsUpdated);
+    QObject::connect(this,
+                     &Recording::recordAudioChanged,
+                     this,
+                     &Recording::capsUpdated);
 }
 
 Recording::~Recording()
@@ -566,7 +574,30 @@ void Recording::loadProperties()
 
     config.beginGroup("RecordConfigs");
     this->m_format = config.value("format", format).toString();
+
+    if (this->m_record)
+        this->m_record->setProperty("outputFormat", this->m_format);
+
     this->m_recordAudio = config.value("recordAudio", DEFAULT_RECORD_AUDIO).toBool();
+    config.endGroup();
+}
+
+void Recording::loadFormatOptions(const QString &format)
+{
+    if (!this->m_record || this->m_format.isEmpty())
+        return;
+
+    QSettings config;
+    config.beginGroup(QString("RecordConfigs_%1_options").arg(format));
+    QVariantMap formatOptions;
+
+    for (auto &key: config.allKeys())
+        formatOptions[key] = config.value(key);
+
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "setFormatOptions",
+                              Q_ARG(QVariantMap, formatOptions));
+
     config.endGroup();
 }
 
@@ -575,6 +606,34 @@ void Recording::saveFormat(const QString &format)
     QSettings config;
     config.beginGroup("RecordConfigs");
     config.setValue("format", format);
+    config.endGroup();
+}
+
+void Recording::saveFormatOptions(const QVariantMap &formatOptions)
+{
+    Q_UNUSED(formatOptions)
+
+    if (!this->m_record)
+        return;
+
+    auto format = this->m_record->property("outputFormat").toString();
+
+    if (format.isEmpty())
+        return;
+
+    QSettings config;
+    config.beginGroup(QString("RecordConfigs_%1_options").arg(format));
+
+    QVariantList options;
+    QMetaObject::invokeMethod(this->m_record.data(),
+                              "formatOptions",
+                              Q_RETURN_ARG(QVariantList, options));
+
+    for (auto &option: options) {
+        auto optList = option.toList();
+        config.setValue(optList[0].toString(), optList[7]);
+    }
+
     config.endGroup();
 }
 

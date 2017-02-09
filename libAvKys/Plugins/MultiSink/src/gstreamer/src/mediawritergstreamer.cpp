@@ -379,18 +379,38 @@ QString MediaWriterGStreamer::formatDescription(const QString &format)
     return description;
 }
 
-QVariantList MediaWriterGStreamer::formatOptions(const QString &format)
+QVariantList MediaWriterGStreamer::formatOptions()
 {
-    auto element = gst_element_factory_make(format.toStdString().c_str(),
+    QString outputFormat = this->m_outputFormat.isEmpty()?
+                               this->guessFormat(this->m_location):
+                               this->m_outputFormat;
+
+    if (outputFormat.isEmpty())
+        return QVariantList();
+
+    auto element = gst_element_factory_make(outputFormat.toStdString().c_str(),
                                             NULL);
 
     if (!element)
         return QVariantList();
 
-    auto codecOptions = this->parseOptions(element);
+    auto options = this->parseOptions(element);
     gst_object_unref(element);
+    auto globalFormatOptions =
+            this->m_formatOptions.value(outputFormat);
+    QVariantList formatOptions;
 
-    return codecOptions;
+    for (auto &option: options) {
+        auto optionList = option.toList();
+        auto key = optionList[0].toString();
+
+        if (globalFormatOptions.contains(key))
+            optionList[7] = globalFormatOptions[key];
+
+        formatOptions << QVariant(optionList);
+    }
+
+    return formatOptions;
 }
 
 QStringList MediaWriterGStreamer::supportedCodecs(const QString &format)
@@ -1802,7 +1822,14 @@ void MediaWriterGStreamer::setElementOptions(GstElement *element,
         GValue gValue;
         memset(&gValue, 0, sizeof(GValue));
         g_value_init(&gValue, paramSpec->value_type);
-        QString value = options[key].toString();
+        QString value;
+
+        if (G_IS_PARAM_SPEC_FLAGS(paramSpec)) {
+            auto flags = options[key].toStringList();
+            value = flags.join('+');
+        } else {
+            value = options[key].toString();
+        }
 
         if (!gst_value_deserialize(&gValue, value.toStdString().c_str()))
             continue;
@@ -1904,11 +1931,19 @@ void MediaWriterGStreamer::setOutputFormat(const QString &outputFormat)
 
 void MediaWriterGStreamer::setFormatOptions(const QVariantMap &formatOptions)
 {
-    if (this->m_formatOptions == formatOptions)
-        return;
+    QString outputFormat = this->m_outputFormat.isEmpty()?
+                               this->guessFormat(this->m_location):
+                               this->m_outputFormat;
+    bool modified = false;
 
-    this->m_formatOptions = formatOptions;
-    emit this->formatOptionsChanged(formatOptions);
+    for (auto &key: formatOptions.keys())
+        if (formatOptions[key] != this->m_formatOptions.value(outputFormat).value(key)) {
+            this->m_formatOptions[outputFormat][key] = formatOptions[key];
+            modified = true;
+        }
+
+    if (modified)
+        emit this->formatOptionsChanged(this->m_formatOptions.value(outputFormat));
 }
 
 void MediaWriterGStreamer::resetLocation()
@@ -1923,7 +1958,15 @@ void MediaWriterGStreamer::resetOutputFormat()
 
 void MediaWriterGStreamer::resetFormatOptions()
 {
-    this->setFormatOptions(QVariantMap());
+    QString outputFormat = this->m_outputFormat.isEmpty()?
+                               this->guessFormat(this->m_location):
+                               this->m_outputFormat;
+
+    if (this->m_formatOptions.value(outputFormat).isEmpty())
+        return;
+
+    this->m_formatOptions[outputFormat].clear();
+    emit this->formatOptionsChanged(QVariantMap());
 }
 
 void MediaWriterGStreamer::enqueuePacket(const AkPacket &packet)
@@ -1961,7 +2004,7 @@ bool MediaWriterGStreamer::init()
         return false;
 
     // Set format options.
-    this->setElementOptions(muxer, this->m_formatOptions);
+    this->setElementOptions(muxer, this->m_formatOptions.value(outputFormat));
 
     GstElement *filesink = gst_element_factory_make("filesink", NULL);
     g_object_set(G_OBJECT(filesink), "location", this->m_location.toStdString().c_str(), NULL);

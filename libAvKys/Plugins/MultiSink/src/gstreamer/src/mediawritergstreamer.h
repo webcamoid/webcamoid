@@ -40,7 +40,7 @@ class MediaWriterGStreamer: public MediaWriter
         Q_INVOKABLE QStringList supportedFormats();
         Q_INVOKABLE QStringList fileExtensions(const QString &format);
         Q_INVOKABLE QString formatDescription(const QString &format);
-        Q_INVOKABLE QVariantList formatOptions(const QString &format);
+        Q_INVOKABLE QVariantList formatOptions();
         Q_INVOKABLE QStringList supportedCodecs(const QString &format);
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 const QString &type);
@@ -62,12 +62,11 @@ class MediaWriterGStreamer: public MediaWriter
     private:
         QString m_location;
         QString m_outputFormat;
-        QVariantMap m_formatOptions;
+        QMap<QString, QVariantMap> m_formatOptions;
         bool m_isRecording;
 
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
-
         QThreadPool m_threadPool;
         GstElement *m_pipeline;
         GMainLoop *m_mainLoop;

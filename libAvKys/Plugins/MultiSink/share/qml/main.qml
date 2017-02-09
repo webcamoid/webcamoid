@@ -191,7 +191,7 @@ ColumnLayout {
         iconName: "configure"
         iconSource: "image://icons/configure"
         Layout.fillWidth: true
-        enabled: MultiSink.formatOptions(MultiSink.outputFormat).length > 0
+        enabled: MultiSink.formatOptions().length > 0
 
         onClicked: {
             formatConfigs.isCodec = false;
@@ -212,5 +212,11 @@ ColumnLayout {
 
     CodecConfigs {
         id: formatConfigs
+
+        onControlChanged: {
+            var opt = {};
+            opt[controlName] = value;
+            MultiSink.setFormatOptions(opt);
+        }
     }
 }
