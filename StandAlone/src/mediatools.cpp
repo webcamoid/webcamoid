@@ -27,6 +27,10 @@
 #include "iconsprovider.h"
 #include "mediatools.h"
 
+#define COMMONS_PROJECT_URL "http://webcamoid.github.io/"
+#define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
+#define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone"
+
 MediaTools::MediaTools(QObject *parent):
     QObject(parent),
     m_windowWidth(0),
@@ -36,13 +40,14 @@ MediaTools::MediaTools(QObject *parent):
     // Initialize environment.
     CliOptions cliOptions;
 
-    this->m_engine.addImageProvider(QLatin1String("icons"), new IconsProvider);
-    Ak::setQmlEngine(&this->m_engine);
-    this->m_pluginConfigs = PluginConfigsPtr(new PluginConfigs(cliOptions, &this->m_engine));
-    this->m_mediaSource = MediaSourcePtr(new MediaSource(&this->m_engine));
-    this->m_audioLayer = AudioLayerPtr(new AudioLayer(&this->m_engine));
-    this->m_videoEffects = VideoEffectsPtr(new VideoEffects(&this->m_engine));
-    this->m_recording = RecordingPtr(new Recording(&this->m_engine));
+    this->m_engine = new QQmlApplicationEngine();
+    this->m_engine->addImageProvider(QLatin1String("icons"), new IconsProvider);
+    Ak::setQmlEngine(this->m_engine);
+    this->m_pluginConfigs = PluginConfigsPtr(new PluginConfigs(cliOptions, this->m_engine));
+    this->m_mediaSource = MediaSourcePtr(new MediaSource(this->m_engine));
+    this->m_audioLayer = AudioLayerPtr(new AudioLayer(this->m_engine));
+    this->m_videoEffects = VideoEffectsPtr(new VideoEffects(this->m_engine));
+    this->m_recording = RecordingPtr(new Recording(this->m_engine));
     this->m_virtualCamera = AkElement::create("VirtualCamera");
 
     if (this->m_virtualCamera) {
@@ -133,6 +138,7 @@ MediaTools::MediaTools(QObject *parent):
 
     this->loadConfigs();
     this->updateVCamCaps(this->m_mediaSource->videoCaps());
+    this->m_recording->setVideoCaps(this->m_mediaSource->videoCaps());
     this->m_recording->setAudioCaps(this->m_audioLayer->outputCaps());
     this->m_audioLayer->setInputCaps(this->m_mediaSource->audioCaps());
     this->m_audioLayer->setInputDescription(this->m_mediaSource->description(this->m_mediaSource->stream()));
@@ -141,6 +147,7 @@ MediaTools::MediaTools(QObject *parent):
 MediaTools::~MediaTools()
 {
     this->saveConfigs();
+    delete this->m_engine;
 }
 
 int MediaTools::windowWidth() const
@@ -278,7 +285,7 @@ bool MediaTools::embedVirtualCameraControls(const QString &where,
     if (!this->m_virtualCamera)
         return false;
 
-    auto ctrlInterface = this->m_virtualCamera->controlInterface(&this->m_engine, "");
+    auto ctrlInterface = this->m_virtualCamera->controlInterface(this->m_engine, "");
 
     if (!ctrlInterface)
         return false;
@@ -286,14 +293,14 @@ bool MediaTools::embedVirtualCameraControls(const QString &where,
     if (!name.isEmpty())
         ctrlInterface->setObjectName(name);
 
-    return this->embedInterface(&this->m_engine, ctrlInterface, where);
+    return this->embedInterface(this->m_engine, ctrlInterface, where);
 }
 
 void MediaTools::removeInterface(const QString &where,
                                  QQmlApplicationEngine *engine)
 {
     if (!engine)
-        engine = &this->m_engine;
+        engine = this->m_engine;
 
     if (!engine)
         return;
@@ -512,10 +519,10 @@ void MediaTools::show()
 {
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
-    this->m_engine.rootContext()->setContextProperty("Webcamoid", this);
-    this->m_engine.load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
+    this->m_engine->rootContext()->setContextProperty("Webcamoid", this);
+    this->m_engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
-    for (const QObject *obj: this->m_engine.rootObjects()) {
+    for (const QObject *obj: this->m_engine->rootObjects()) {
         // First, find where to enbed the UI.
         auto videoDisplay = obj->findChild<VideoDisplay *>("videoDisplay");
 

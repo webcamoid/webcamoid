@@ -94,7 +94,6 @@ ColumnLayout {
             if (streamConfig.gop)
                 streamOptions.videoGOP = streamConfig.gop
 
-            streamOptions.codecOptions = streamConfig.codecOptions
             streamOptions.streamOptionsChanged.connect(MultiSink.updateStream)
         }
     }
@@ -107,12 +106,7 @@ ColumnLayout {
 
         // Create new ones.
         for (var control in controls) {
-            var component = Qt.createComponent("UserControl.qml")
-
-            if (component.status !== Component.Ready)
-                continue
-
-            var obj = component.createObject(where)
+            var obj = classUserControl.createObject(where)
             obj.controlParams = controls[control]
             obj.onControlChanged.connect(function (controlName, value)
             {
@@ -131,6 +125,12 @@ ColumnLayout {
         id: classStreamOptions
 
         StreamOptions {
+        }
+    }
+    Component {
+        id: classUserControl
+
+        UserControl {
         }
     }
 
@@ -213,10 +213,6 @@ ColumnLayout {
     CodecConfigs {
         id: formatConfigs
 
-        onControlChanged: {
-            var opt = {};
-            opt[controlName] = value;
-            MultiSink.setFormatOptions(opt);
-        }
+        onFormatControlsChanged: MultiSink.setFormatOptions(controlValues);
     }
 }

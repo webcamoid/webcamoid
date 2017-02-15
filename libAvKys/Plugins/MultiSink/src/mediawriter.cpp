@@ -117,13 +117,6 @@ QVariantMap MediaWriter::defaultCodecParams(const QString &codec)
     return QVariantMap();
 }
 
-QVariantList MediaWriter::codecOptions(const QString &codec)
-{
-    Q_UNUSED(codec)
-
-    return QVariantList();
-}
-
 QVariantMap MediaWriter::addStream(int streamIndex, const AkCaps &streamCaps)
 {
     Q_UNUSED(streamIndex)
@@ -158,6 +151,13 @@ QVariantMap MediaWriter::updateStream(int index, const QVariantMap &codecParams)
     return QVariantMap();
 }
 
+QVariantList MediaWriter::codecOptions(int index)
+{
+    Q_UNUSED(index)
+
+    return QVariantList();
+}
+
 void MediaWriter::setLocation(const QString &location)
 {
     Q_UNUSED(location);
@@ -171,6 +171,12 @@ void MediaWriter::setOutputFormat(const QString &outputFormat)
 void MediaWriter::setFormatOptions(const QVariantMap &formatOptions)
 {
     Q_UNUSED(formatOptions);
+}
+
+void MediaWriter::setCodecOptions(int index, const QVariantMap &codecOptions)
+{
+    Q_UNUSED(index)
+    Q_UNUSED(codecOptions)
 }
 
 void MediaWriter::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
@@ -188,6 +194,11 @@ void MediaWriter::resetOutputFormat()
 
 void MediaWriter::resetFormatOptions()
 {
+}
+
+void MediaWriter::resetCodecOptions(int index)
+{
+    Q_UNUSED(index)
 }
 
 void MediaWriter::resetMaxPacketQueueSize()

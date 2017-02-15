@@ -247,13 +247,6 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     this->m_pipeline = NULL;
     this->m_mainLoop = NULL;
     this->m_busWatchId = 0;
-
-    QObject::connect(this,
-                     &MediaWriterGStreamer::outputFormatChanged,
-                     this,
-                     &MediaWriterGStreamer::updateStreams);
-
-    codecOptions("webmmux");
 }
 
 MediaWriterGStreamer::~MediaWriterGStreamer()
@@ -977,20 +970,6 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
     return codecParams;
 }
 
-QVariantList MediaWriterGStreamer::codecOptions(const QString &codec)
-{
-    auto element = gst_element_factory_make(codec.toStdString().c_str(),
-                                            NULL);
-
-    if (!element)
-        return QVariantList();
-
-    auto codecOptions = this->parseOptions(element);
-    gst_object_unref(element);
-
-    return codecOptions;
-}
-
 QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
                                             const AkCaps &streamCaps)
 {
@@ -1014,22 +993,14 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
         outputParams["label"] = codecParams["label"];
 
     outputParams["index"] = streamIndex;
-    QString codec;
+    auto codec = codecParams.value("codec").toString();
+    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
 
-    if (codecParams.contains("codec")) {
-        if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
-            .contains(codecParams["codec"].toString())) {
-            codec = codecParams["codec"].toString();
-        } else
-            codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
-    } else
+    if (codec.isEmpty() || !supportedCodecs.contains(codec))
         codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
 
     outputParams["codec"] = codec;
-
     QVariantMap codecDefaults = this->defaultCodecParams(codec);
-
-    outputParams["codecOptions"] = codecParams.value("codecOptions", QVariantMap());
 
     if (streamCaps.mimeType() == "audio/x-raw") {
         int bitRate = codecParams.value("bitrate",
@@ -1325,15 +1296,49 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
         streamChanged |= true;
     }
 
-    if (codecParams.contains("codecOptions")) {
-        this->m_streamConfigs[index]["codecOptions"] = codecParams["codecOptions"];
-        streamChanged |= true;
-    }
-
     if (streamChanged)
-        this->streamUpdated(index);
+        emit this->streamsChanged(this->streams());
 
     return this->m_streamConfigs[index];
+}
+
+QVariantList MediaWriterGStreamer::codecOptions(int index)
+{
+    QString outputFormat =
+            this->supportedFormats().contains(this->m_outputFormat)?
+                this->m_outputFormat: guessFormat(this->m_location);
+
+    if (outputFormat.isEmpty())
+        return QVariantList();
+
+    auto codec = this->m_streamConfigs.value(index).value("codec").toString();
+
+    if (codec.isEmpty())
+        return QVariantList();
+
+    auto element = gst_element_factory_make(codec.toStdString().c_str(),
+                                            NULL);
+
+    if (!element)
+        return QVariantList();
+
+    auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
+    auto options = this->parseOptions(element);
+    gst_object_unref(element);
+    auto globalCodecOptions = this->m_codecOptions.value(optKey);
+    QVariantList codecOptions;
+
+    for (auto &option: options) {
+        auto optionList = option.toList();
+        auto key = optionList[0].toString();
+
+        if (globalCodecOptions.contains(key))
+            optionList[7] = globalCodecOptions[key];
+
+        codecOptions << QVariant(optionList);
+    }
+
+    return codecOptions;
 }
 
 QString MediaWriterGStreamer::guessFormat(const QString &fileName)
@@ -1946,6 +1951,34 @@ void MediaWriterGStreamer::setFormatOptions(const QVariantMap &formatOptions)
         emit this->formatOptionsChanged(this->m_formatOptions.value(outputFormat));
 }
 
+void MediaWriterGStreamer::setCodecOptions(int index,
+                                           const QVariantMap &codecOptions)
+{
+    auto outputFormat = this->m_outputFormat.isEmpty()?
+                            this->guessFormat(this->m_location):
+                            this->m_outputFormat;
+
+    if (outputFormat.isEmpty())
+        return;
+
+    auto codec = this->m_streamConfigs.value(index).value("codec").toString();
+
+    if (codec.isEmpty())
+        return;
+
+    auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
+    bool modified = false;
+
+    for (auto &key: codecOptions.keys())
+        if (codecOptions[key] != this->m_codecOptions.value(optKey).value(key)) {
+            this->m_codecOptions[optKey][key] = codecOptions[key];
+            modified = true;
+        }
+
+    if (modified)
+        emit this->codecOptionsChanged(optKey, this->m_formatOptions.value(optKey));
+}
+
 void MediaWriterGStreamer::resetLocation()
 {
     this->setLocation("");
@@ -1965,8 +1998,31 @@ void MediaWriterGStreamer::resetFormatOptions()
     if (this->m_formatOptions.value(outputFormat).isEmpty())
         return;
 
-    this->m_formatOptions[outputFormat].clear();
+    this->m_formatOptions.remove(outputFormat);
     emit this->formatOptionsChanged(QVariantMap());
+}
+
+void MediaWriterGStreamer::resetCodecOptions(int index)
+{
+    auto outputFormat = this->m_outputFormat.isEmpty()?
+                            this->guessFormat(this->m_location):
+                            this->m_outputFormat;
+
+    if (outputFormat.isEmpty())
+        return;
+
+    auto codec = this->m_streamConfigs.value(index).value("codec").toString();
+
+    if (codec.isEmpty())
+        return;
+
+    auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
+
+    if (this->m_codecOptions.value(optKey).isEmpty())
+        return;
+
+    this->m_codecOptions.remove(optKey);
+    emit this->codecOptionsChanged(optKey, QVariantMap());
 }
 
 void MediaWriterGStreamer::enqueuePacket(const AkPacket &packet)
@@ -2021,6 +2077,8 @@ bool MediaWriterGStreamer::init()
 
         if (codec.startsWith("identity/"))
             codec = "identity";
+
+        auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(i).arg(codec);
 
         if (streamCaps.mimeType() == "audio/x-raw") {
             QString sourceName = QString("audio_%1").arg(i);
@@ -2081,7 +2139,7 @@ bool MediaWriterGStreamer::init()
                     g_object_set(G_OBJECT(audioCodec), "bitrate", G_TYPE_INT, bitrate, NULL);
             }
 #endif
-            QVariantMap codecOptions = configs.value("codecOptions").toMap();
+            QVariantMap codecOptions = this->m_codecOptions.value(optKey);
             this->setElementOptions(audioCodec, codecOptions);
 
             GstElement *queue = gst_element_factory_make("queue", NULL);
@@ -2152,7 +2210,7 @@ bool MediaWriterGStreamer::init()
                     g_object_set(G_OBJECT(videoCodec), "bitrate", G_TYPE_INT, bitrate, NULL);
             }
 #endif
-            QVariantMap codecOptions = configs.value("codecOptions").toMap();
+            QVariantMap codecOptions = this->m_codecOptions.value(optKey);
             this->setElementOptions(videoCodec, codecOptions);
 
             GstElement *queue = gst_element_factory_make("queue", NULL);
@@ -2397,16 +2455,4 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
 void MediaWriterGStreamer::writeSubtitlePacket(const AkPacket &packet)
 {
     Q_UNUSED(packet)
-}
-
-void MediaWriterGStreamer::updateStreams()
-{
-    QList<QVariantMap> streamConfigs = this->m_streamConfigs;
-    this->clearStreams();
-
-    for (const QVariantMap &configs: streamConfigs) {
-        AkCaps caps = configs["caps"].value<AkCaps>();
-        int index = configs["index"].toInt();
-        this->addStream(index, caps, configs);
-    }
 }

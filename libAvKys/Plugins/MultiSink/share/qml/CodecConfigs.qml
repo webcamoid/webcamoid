@@ -31,10 +31,12 @@ ApplicationWindow {
     width: 400
     height: 500
 
+    property int outputIndex: 0
     property bool isCodec: true
     property string codecName: ""
 
-    signal controlChanged(string controlName, variant value)
+    signal formatControlsChanged(variant controlValues)
+    signal codecControlsChanged(int streamIndex, variant controlValues)
 
     SystemPalette {
         id: palette
@@ -54,7 +56,7 @@ ApplicationWindow {
             clyCodecOptions.children[i].destroy();
 
         var options = isCodec?
-                    MultiSink.codecOptions(codecName):
+                    MultiSink.codecOptions(outputIndex):
                     MultiSink.formatOptions();
         var minimumLeftWidth = 0;
         var minimumRightWidth = 0;
@@ -62,7 +64,7 @@ ApplicationWindow {
         for (var i in options) {
             var codecOptions = classCodecControl.createObject(clyCodecOptions);
             codecOptions.controlParams = options[i];
-            codecOptions.onControlChanged.connect(controlChanged);
+            codecOptions.onControlChanged.connect(updateValues);
 
             if (codecOptions.leftWidth > minimumLeftWidth)
                 minimumLeftWidth = codecOptions.leftWidth
@@ -75,6 +77,10 @@ ApplicationWindow {
             clyCodecOptions.children[i].minimumLeftWidth = minimumLeftWidth;
             clyCodecOptions.children[i].minimumRightWidth = minimumRightWidth;
         }
+    }
+
+    function updateValues(controlName, value) {
+        btnOk.controlValues[controlName] = value;
     }
 
     Component.onCompleted: updateOptions()
@@ -117,7 +123,11 @@ ApplicationWindow {
                 iconName: "reset"
                 iconSource: "image://icons/reset"
                 onClicked: {
-                    if (!isCodec)
+                    btnOk.controlValues = {};
+
+                    if (isCodec)
+                        MultiSink.resetCodecOptions(outputIndex);
+                    else
                         MultiSink.resetFormatOptions();
 
                     optionFilter.text = "";
@@ -125,10 +135,30 @@ ApplicationWindow {
                 }
             }
             Button {
-                text: qsTr("Close")
-                iconName: "window-close"
-                iconSource: "image://icons/window-close"
+                text: qsTr("Cancel")
+                iconName: "cancel"
+                iconSource: "image://icons/cancel"
                 onClicked: {
+                    optionFilter.text = ""
+                    recAbout.close()
+                    btnOk.controlValues = {};
+                }
+            }
+            Button {
+                id: btnOk
+                text: qsTr("Ok")
+                iconName: "ok"
+                iconSource: "image://icons/ok"
+
+                property variant controlValues: ({})
+
+                onClicked: {
+                    if (isCodec)
+                        codecControlsChanged(outputIndex, controlValues);
+                    else
+                        formatControlsChanged(controlValues);
+
+                    controlValues = {};
                     optionFilter.text = ""
                     recAbout.close()
                 }

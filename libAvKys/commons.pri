@@ -23,9 +23,6 @@ VER_MAJ = 8
 VER_MIN = 0
 VER_PAT = 0
 VERSION = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
-COMMONS_PROJECT_URL = "http://webcamoid.github.io/"
-COMMONS_PROJECT_LICENSE_URL = "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
-COMMONS_COPYRIGHT_NOTICE = "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone"
 
 isEmpty(BUILDDOCS): BUILDDOCS = 0
 isEmpty(QDOCTOOL): {
@@ -78,9 +75,6 @@ DEFINES += \
     COMMONS_TARGET=\"\\\"$$COMMONS_TARGET\\\"\" \
     COMMONS_VER_MAJ=\"\\\"$$VER_MAJ\\\"\" \
     COMMONS_VERSION=\"\\\"$$VERSION\\\"\" \
-    COMMONS_PROJECT_URL=\"\\\"$$COMMONS_PROJECT_URL\\\"\" \
-    COMMONS_PROJECT_LICENSE_URL=\"\\\"$$COMMONS_PROJECT_LICENSE_URL\\\"\" \
-    COMMONS_COPYRIGHT_NOTICE=\"\\\"$$COMMONS_COPYRIGHT_NOTICE\\\"\" \
     PREFIX=\"\\\"$$PREFIX\\\"\" \
     EXECPREFIX=\"\\\"$$EXECPREFIX\\\"\" \
     BINDIR=\"\\\"$$BINDIR\\\"\" \

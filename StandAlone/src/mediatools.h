@@ -90,7 +90,7 @@ class MediaTools: public QObject
         static QString convertToAbsolute(const QString &path);
 
     private:
-        QQmlApplicationEngine m_engine;
+        QQmlApplicationEngine *m_engine;
         PluginConfigsPtr m_pluginConfigs;
         MediaSourcePtr m_mediaSource;
         AudioLayerPtr m_audioLayer;

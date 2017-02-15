@@ -90,7 +90,6 @@ class Recording: public QObject
     private:
         QQmlApplicationEngine *m_engine;
         QStringList m_availableFormats;
-        QString m_format;
         AkCaps m_audioCaps;
         AkCaps m_videoCaps;
         bool m_recordAudio;
@@ -139,8 +138,13 @@ class Recording: public QObject
         void updateFormat(const QString &codecLib);
         void loadProperties();
         void loadFormatOptions(const QString &format);
-        void saveFormat(const QString &format);
+        void loadStreams(const QString &format);
+        void loadCodecOptions(const QVariantList &streams);
+        void saveOutputFormat(const QString &format);
         void saveFormatOptions(const QVariantMap &formatOptions);
+        void saveStreams(const QVariantList &streams);
+        void saveCodecParams();
+        void saveCodecOptions();
         void saveRecordAudio(bool recordAudio);
         void saveMultiSinkCodecLib(const QString &codecLib);
         void saveProperties();

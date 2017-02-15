@@ -176,11 +176,6 @@ QVariantMap MultiSinkElement::defaultCodecParams(const QString &codec) const
     return this->m_defaultCodecParams.value(codec);
 }
 
-QVariantList MultiSinkElement::codecOptions(const QString &codec)
-{
-    return this->m_mediaWriter->codecOptions(codec);
-}
-
 QVariantMap MultiSinkElement::addStream(int streamIndex,
                                         const AkCaps &streamCaps,
                                         const QVariantMap &codecParams)
@@ -194,6 +189,11 @@ QVariantMap MultiSinkElement::updateStream(int index,
                                            const QVariantMap &codecParams)
 {
     return this->m_mediaWriter->updateStream(index, codecParams);
+}
+
+QVariantList MultiSinkElement::codecOptions(int index)
+{
+    return this->m_mediaWriter->codecOptions(index);
 }
 
 void MultiSinkElement::setLocation(const QString &location)
@@ -213,6 +213,12 @@ void MultiSinkElement::setOutputFormat(const QString &outputFormat)
 void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
 {
     this->m_mediaWriter->setFormatOptions(formatOptions);
+}
+
+void MultiSinkElement::setCodecOptions(int index,
+                                       const QVariantMap &codecOptions)
+{
+    this->m_mediaWriter->setCodecOptions(index, codecOptions);
 }
 
 void MultiSinkElement::setCodecLib(const QString &codecLib)
@@ -260,6 +266,11 @@ void MultiSinkElement::resetOutputFormat()
 void MultiSinkElement::resetFormatOptions()
 {
     this->m_mediaWriter->resetFormatOptions();
+}
+
+void MultiSinkElement::resetCodecOptions(int index)
+{
+    this->m_mediaWriter->resetCodecOptions(index);
 }
 
 void MultiSinkElement::resetCodecLib()
@@ -376,13 +387,13 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
                      this,
                      &MultiSinkElement::formatOptionsChanged);
     QObject::connect(this->m_mediaWriter.data(),
+                     &MediaWriter::codecOptionsChanged,
+                     this,
+                     &MultiSinkElement::codecOptionsChanged);
+    QObject::connect(this->m_mediaWriter.data(),
                      &MediaWriter::streamsChanged,
                      this,
                      &MultiSinkElement::streamsChanged);
-    QObject::connect(this->m_mediaWriter.data(),
-                     &MediaWriter::streamUpdated,
-                     this,
-                     &MultiSinkElement::streamUpdated);
     QObject::connect(this,
                      &MultiSinkElement::locationChanged,
                      this->m_mediaWriter.data(),

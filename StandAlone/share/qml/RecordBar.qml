@@ -30,36 +30,36 @@ Rectangle {
     function sort(model, lo, hi)
     {
         if (lo >= hi)
-            return
+            return;
 
-        var pivot = lo
-        var pivotDesc = model.get(pivot).description.toLowerCase()
+        var pivot = lo;
+        var pivotDesc = model.get(pivot).description.toLowerCase();
 
         for (var j = pivot + 1; j < hi; j++)
             if (model.get(j).description.toLowerCase() < pivotDesc) {
-                model.move(j, lo, 1)
-                pivot++
+                model.move(j, lo, 1);
+                pivot++;
             }
 
-        sort(model, lo, pivot)
-        sort(model, pivot + 1, hi)
+        sort(model, lo, pivot);
+        sort(model, pivot + 1, hi);
     }
 
     function indexOfFormat(format)
     {
-        var lo = 0
-        var mid = lsvRecordingFormatList.model.count >> 1
-        var hi = lsvRecordingFormatList.model.count
+        var lo = 0;
+        var mid = lsvRecordingFormatList.model.count >> 1;
+        var hi = lsvRecordingFormatList.model.count;
 
         while (mid !== lo || mid !== hi) {
             if (lsvRecordingFormatList.model.get(mid).format == format)
-                return mid
+                return mid;
             else if (lsvRecordingFormatList.model.get(mid).format < format) {
-                lo = mid + 1
-                mid = (lo + hi) >> 1
+                lo = mid + 1;
+                mid = (lo + hi) >> 1;
             } else if (lsvRecordingFormatList.model.get(mid).format > format) {
-                hi = mid
-                mid = (lo + hi) >> 1
+                hi = mid;
+                mid = (lo + hi) >> 1;
             }
         }
 
@@ -68,23 +68,17 @@ Rectangle {
 
     function updateRecordingFormatList(availableFormats)
     {
-        var recordingFormat = Recording.format
-        lsvRecordingFormatList.model.clear()
-
-        if (availableFormats.length > 0)
-            Recording.format = availableFormats.indexOf(recordingFormat) < 0?
-                        availableFormats[0]: recordingFormat
-        else
-            Recording.format = ""
+        var recordingFormat = Recording.format;
+        lsvRecordingFormatList.model.clear();
 
         for (var format in availableFormats) {
             lsvRecordingFormatList.model.append({
                 format: availableFormats[format],
-                description: Recording.formatDescription(availableFormats[format])})
+                description: Recording.formatDescription(availableFormats[format])});
         }
 
-        sort(lsvRecordingFormatList.model, 0, lsvRecordingFormatList.model.count)
-        lsvRecordingFormatList.currentIndex = indexOfFormat(Recording.format)
+        sort(lsvRecordingFormatList.model, 0, lsvRecordingFormatList.model.count);
+        lsvRecordingFormatList.currentIndex = indexOfFormat(recordingFormat);
     }
 
     Component.onCompleted: updateRecordingFormatList(Recording.availableFormats)
@@ -92,7 +86,6 @@ Rectangle {
     Connections {
         target: Recording
 
-        onFormatChanged: lsvRecordingFormatList.currentIndex = recRecordBar.indexOfFormat(format)
         onAvailableFormatsChanged: updateRecordingFormatList(availableFormats)
     }
 
@@ -119,12 +112,12 @@ Rectangle {
             textRole: "description"
 
             onCurrentIndexChanged: {
-                var option = model.get(currentIndex)
+                var option = model.get(currentIndex);
 
                 if (option)
                     Recording.format = option.format
 
-                txtSearchFormat.text = ""
+                txtSearchFormat.text = "";
             }
         }
     }

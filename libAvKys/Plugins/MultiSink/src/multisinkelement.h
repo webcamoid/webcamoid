@@ -95,12 +95,12 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
         Q_INVOKABLE QString codecType(const QString &codec) const;
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec) const;
-        Q_INVOKABLE QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps,
                                           const QVariantMap &codecParams=QVariantMap());
         Q_INVOKABLE QVariantMap updateStream(int index,
                                              const QVariantMap &codecParams=QVariantMap());
+        Q_INVOKABLE QVariantList codecOptions(int index);
 
     private:
         QString m_location;
@@ -126,17 +126,19 @@ class MultiSinkElement: public AkElement
         void supportedFormatsChanged(const QStringList &supportedFormats);
         void outputFormatChanged(const QString &outputFormat);
         void formatOptionsChanged(const QVariantMap &formatOptions);
+        void codecOptionsChanged(const QString &key,
+                                 const QVariantMap &codecOptions);
         void streamsChanged(const QVariantList &streams);
         void codecLibChanged(const QString &codecLib);
         void showFormatOptionsChanged(bool showFormatOptions);
         void userControlsChanged(const QVariantList &userControls);
         void userControlsValuesChanged(const QVariantMap &userControlsValues);
-        void streamUpdated(int index);
 
     public slots:
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
+        void setCodecOptions(int index, const QVariantMap &codecOptions);
         void setCodecLib(const QString &codecLib);
         void setShowFormatOptions(bool showFormatOptions);
         void setUserControls(const QVariantList &userControls);
@@ -144,6 +146,7 @@ class MultiSinkElement: public AkElement
         void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
+        void resetCodecOptions(int index);
         void resetCodecLib();
         void resetShowFormatOptions();
         void resetUserControls();

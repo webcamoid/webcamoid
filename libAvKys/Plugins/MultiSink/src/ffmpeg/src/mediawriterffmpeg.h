@@ -53,7 +53,6 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QString codecDescription(const QString &codec);
         Q_INVOKABLE QString codecType(const QString &codec);
         Q_INVOKABLE QVariantMap defaultCodecParams(const QString &codec);
-        Q_INVOKABLE QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
                                           const AkCaps &streamCaps);
         Q_INVOKABLE QVariantMap addStream(int streamIndex,
@@ -62,11 +61,13 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QVariantMap updateStream(int index);
         Q_INVOKABLE QVariantMap updateStream(int index,
                                              const QVariantMap &codecParams);
+        Q_INVOKABLE QVariantList codecOptions(int index);
 
     private:
         QString m_location;
         QString m_outputFormat;
         QMap<QString, QVariantMap> m_formatOptions;
+        QMap<QString, QVariantMap> m_codecOptions;
         QList<QVariantMap> m_streamConfigs;
         QList<OutputParams> m_streamParams;
         AVFormatContext *m_formatContext;
@@ -116,10 +117,12 @@ class MediaWriterFFmpeg: public MediaWriter
         void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
+        void setCodecOptions(int index, const QVariantMap &codecOptions);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
+        void resetCodecOptions(int index);
         void resetMaxPacketQueueSize();
         void enqueuePacket(const AkPacket &packet);
         void clearStreams();
@@ -130,7 +133,6 @@ class MediaWriterFFmpeg: public MediaWriter
         void writeAudioPacket(const AkAudioPacket &packet);
         void writeVideoPacket(const AkVideoPacket &packet);
         void writeSubtitlePacket(const AkPacket &packet);
-        void updateStreams();
 };
 
 #endif // MEDIAWRITERFFMPEG_H

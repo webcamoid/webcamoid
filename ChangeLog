@@ -9,6 +9,7 @@ Webcamoid 8.0.0:
 - More translations updates.
 - Added options for configuring plugins search paths and blacklist in GUI.
 - Added options for configuring the desired frameworks and libraries.
+- Added formats and codecs config in recording options.
 - FFmpeg >= 3.1 required.
 - Added support MSVC2013 and MSVC2015 build.
 - Added option for configure FPS in DesktopCapture plugin.

@@ -261,11 +261,6 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     this->m_runVideoLoop = false;
     this->m_runSubtitleLoop = false;
     this->m_isRecording = false;
-
-    QObject::connect(this,
-                     &MediaWriterFFmpeg::outputFormatChanged,
-                     this,
-                     &MediaWriterFFmpeg::updateStreams);
 }
 
 MediaWriterFFmpeg::~MediaWriterFFmpeg()
@@ -691,16 +686,6 @@ QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
     return codecParams;
 }
 
-QVariantList MediaWriterFFmpeg::codecOptions(const QString &codec)
-{
-    auto avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
-
-    if (!avCodec)
-        return QVariantList();
-
-    return this->parseOptions(avCodec->priv_class);
-}
-
 QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
                                          const AkCaps &streamCaps)
 {
@@ -722,22 +707,14 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
         outputParams["label"] = codecParams["label"];
 
     outputParams["index"] = streamIndex;
-    QString codec;
+    auto codec = codecParams.value("codec").toString();
+    auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
 
-    if (codecParams.contains("codec")) {
-        if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
-            .contains(codecParams["codec"].toString())) {
-            codec = codecParams["codec"].toString();
-        } else
-            codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
-    } else
+    if (codec.isEmpty() || !supportedCodecs.contains(codec))
         codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
 
     outputParams["codec"] = codec;
-
     QVariantMap codecDefaults = this->defaultCodecParams(codec);
-
-    outputParams["codecOptions"] = codecParams.value("codecOptions", QVariantMap());
 
     if (streamCaps.mimeType() == "audio/x-raw") {
         int bitRate = codecParams.value("bitrate",
@@ -1084,15 +1061,45 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
         streamChanged |= true;
     }
 
-    if (codecParams.contains("codecOptions")) {
-        this->m_streamConfigs[index]["codecOptions"] = codecParams["codecOptions"];
-        streamChanged |= true;
-    }
-
     if (streamChanged)
-        this->streamUpdated(index);
+        emit this->streamsChanged(this->streams());
 
     return this->m_streamConfigs[index];
+}
+
+QVariantList MediaWriterFFmpeg::codecOptions(int index)
+{
+    auto outputFormat = this->guessFormat();
+
+    if (outputFormat.isEmpty())
+        return QVariantList();
+
+    auto codec = this->m_streamConfigs.value(index).value("codec").toString();
+
+    if (codec.isEmpty())
+        return QVariantList();
+
+    auto avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
+
+    if (!avCodec)
+        return QVariantList();
+
+    auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
+    auto options = this->parseOptions(avCodec->priv_class);
+    auto globalCodecOptions = this->m_codecOptions.value(optKey);
+    QVariantList codecOptions;
+
+    for (auto &option: options) {
+        auto optionList = option.toList();
+        auto key = optionList[0].toString();
+
+        if (globalCodecOptions.contains(key))
+            optionList[7] = globalCodecOptions[key];
+
+        codecOptions << QVariant(optionList);
+    }
+
+    return codecOptions;
 }
 
 void MediaWriterFFmpeg::flushStreams()
@@ -1711,6 +1718,32 @@ void MediaWriterFFmpeg::setFormatOptions(const QVariantMap &formatOptions)
         emit this->formatOptionsChanged(this->m_formatOptions.value(outputFormat));
 }
 
+void MediaWriterFFmpeg::setCodecOptions(int index,
+                                        const QVariantMap &codecOptions)
+{
+    auto outputFormat = this->guessFormat();
+
+    if (outputFormat.isEmpty())
+        return;
+
+    auto codec = this->m_streamConfigs.value(index).value("codec").toString();
+
+    if (codec.isEmpty())
+        return;
+
+    auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
+    bool modified = false;
+
+    for (auto &key: codecOptions.keys())
+        if (codecOptions[key] != this->m_codecOptions.value(optKey).value(key)) {
+            this->m_codecOptions[optKey][key] = codecOptions[key];
+            modified = true;
+        }
+
+    if (modified)
+        emit this->codecOptionsChanged(optKey, this->m_formatOptions.value(optKey));
+}
+
 void MediaWriterFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
     if (this->m_maxPacketQueueSize == maxPacketQueueSize)
@@ -1737,8 +1770,29 @@ void MediaWriterFFmpeg::resetFormatOptions()
     if (this->m_formatOptions.value(outputFormat).isEmpty())
         return;
 
-    this->m_formatOptions[outputFormat].clear();
+    this->m_formatOptions.remove(outputFormat);
     emit this->formatOptionsChanged(QVariantMap());
+}
+
+void MediaWriterFFmpeg::resetCodecOptions(int index)
+{
+    auto outputFormat = this->guessFormat();
+
+    if (outputFormat.isEmpty())
+        return;
+
+    auto codec = this->m_streamConfigs.value(index).value("codec").toString();
+
+    if (codec.isEmpty())
+        return;
+
+    auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(index).arg(codec);
+
+    if (this->m_codecOptions.value(optKey).isEmpty())
+        return;
+
+    this->m_codecOptions.remove(optKey);
+    emit this->codecOptionsChanged(optKey, QVariantMap());
 }
 
 void MediaWriterFFmpeg::resetMaxPacketQueueSize()
@@ -1944,7 +1998,8 @@ bool MediaWriterFFmpeg::init()
 
         // Set codec options.
         AVDictionary *options = NULL;
-        QVariantMap codecOptions = configs.value("codecOptions").toMap();
+        auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(i).arg(codecName);
+        QVariantMap codecOptions = this->m_codecOptions.value(optKey);
 
         for (const QString &key: codecOptions.keys()) {
             QString value = codecOptions[key].toString();
@@ -2306,16 +2361,4 @@ void MediaWriterFFmpeg::writeSubtitlePacket(const AkPacket &packet)
 {
     Q_UNUSED(packet)
     // TODO: Implement this.
-}
-
-void MediaWriterFFmpeg::updateStreams()
-{
-    QList<QVariantMap> streamConfigs = this->m_streamConfigs;
-    this->clearStreams();
-
-    for (const QVariantMap &configs: streamConfigs) {
-        AkCaps caps = configs["caps"].value<AkCaps>();
-        int index = configs["index"].toInt();
-        this->addStream(index, caps, configs);
-    }
 }

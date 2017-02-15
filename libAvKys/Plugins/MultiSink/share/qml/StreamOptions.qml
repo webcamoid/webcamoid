@@ -35,7 +35,6 @@ GroupBox {
     property string codec: ""
     property int bitrate: 0
     property int videoGOP: 0
-    property variant codecOptions: ({})
 
     signal streamOptionsChanged(int index, variant options)
 
@@ -44,16 +43,15 @@ GroupBox {
         streamOptionsChanged(outputIndex,
                              {codec: codec,
                               bitrate: bitrate,
-                              gop: videoGOP,
-                              codecOptions: codecOptions})
+                              gop: videoGOP});
     }
 
     onCodecChanged: {
         for (var i = 0; i < cbxCodec.count; i++)
             if (cbxCodec.model.get(i).codec === codec) {
-                cbxCodec.currentIndex = i
+                cbxCodec.currentIndex = i;
 
-                return
+                return;
             }
     }
 
@@ -71,11 +69,12 @@ GroupBox {
             Layout.fillWidth: true
 
             onCurrentIndexChanged: {
-                var option = model.get(currentIndex)
+                var option = model.get(currentIndex);
 
                 if (option) {
-                    gbxStreamOptions.codec = option.codec
-                    notifyOptions()
+                    gbxStreamOptions.codec = option.codec;
+                    notifyOptions();
+                    advancedOptions.enabled = MultiSink.codecOptions(outputIndex).length > 0;
                 }
             }
         }
@@ -95,8 +94,8 @@ GroupBox {
             Layout.fillWidth: true
 
             onTextChanged: {
-                gbxStreamOptions.bitrate = text
-                notifyOptions()
+                gbxStreamOptions.bitrate = text;
+                notifyOptions();
             }
         }
 
@@ -116,23 +115,25 @@ GroupBox {
             Layout.fillWidth: true
 
             onTextChanged: {
-                gbxStreamOptions.videoGOP = text
-                notifyOptions()
+                gbxStreamOptions.videoGOP = text;
+                notifyOptions();
             }
         }
 
         Button {
+            id: advancedOptions
             text: qsTr("Advanced Codec Options")
             iconName: "configure"
             iconSource: "image://icons/configure"
             Layout.fillWidth: true
             Layout.columnSpan: 2
-            enabled: MultiSink.codecOptions(gbxStreamOptions.codec).length > 0
+            enabled: MultiSink.codecOptions(outputIndex).length > 0
 
             onClicked: {
+                codecConfigs.outputIndex = outputIndex;
                 codecConfigs.codecName =
                         cbxCodec.model.get(cbxCodec.currentIndex).codec;
-                codecConfigs.show()
+                codecConfigs.show();
             }
         }
     }
@@ -175,5 +176,8 @@ GroupBox {
 
     CodecConfigs {
         id: codecConfigs
+
+        onCodecControlsChanged: MultiSink.setCodecOptions(streamIndex,
+                                                          controlValues);
     }
 }

@@ -65,7 +65,6 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QString codecDescription(const QString &codec);
         Q_INVOKABLE virtual QString codecType(const QString &codec);
         Q_INVOKABLE virtual QVariantMap defaultCodecParams(const QString &codec);
-        Q_INVOKABLE virtual QVariantList codecOptions(const QString &codec);
         Q_INVOKABLE virtual QVariantMap addStream(int streamIndex,
                                                   const AkCaps &streamCaps);
         Q_INVOKABLE virtual QVariantMap addStream(int streamIndex,
@@ -74,23 +73,27 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QVariantMap updateStream(int index);
         Q_INVOKABLE virtual QVariantMap updateStream(int index,
                                                      const QVariantMap &codecParams);
+        Q_INVOKABLE virtual QVariantList codecOptions(int index);
 
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
         void formatOptionsChanged(const QVariantMap &formatOptions);
+        void codecOptionsChanged(const QString &key,
+                                 const QVariantMap &codecOptions);
         void streamsChanged(const QVariantList &streams);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueueSize);
-        void streamUpdated(int index);
 
     public slots:
         virtual void setLocation(const QString &location);
         virtual void setOutputFormat(const QString &outputFormat);
         virtual void setFormatOptions(const QVariantMap &formatOptions);
+        virtual void setCodecOptions(int index, const QVariantMap &codecOptions);
         virtual void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
         virtual void resetLocation();
         virtual void resetOutputFormat();
         virtual void resetFormatOptions();
+        virtual void resetCodecOptions(int index);
         virtual void resetMaxPacketQueueSize();
         virtual void enqueuePacket(const AkPacket &packet);
         virtual void clearStreams();
