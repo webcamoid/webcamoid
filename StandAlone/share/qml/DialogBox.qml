@@ -42,8 +42,7 @@ Rectangle {
         id: palette
     }
 
-    Rectangle
-    {
+    Rectangle {
         id: recMark
         width: recDialogBox.markSize * Math.SQRT2
         height: recDialogBox.markSize * Math.SQRT2
@@ -53,8 +52,7 @@ Rectangle {
         rotation: 45
     }
 
-    Rectangle
-    {
+    Rectangle {
         id: recTitle
         radius: 16
         anchors.bottomMargin: -recDialogBox.markSize * Math.SQRT1_2
@@ -65,23 +63,19 @@ Rectangle {
         border.width: 4
         border.color: recDialogBox.dialogBorder
 
-        gradient: Gradient
-        {
-            GradientStop
-            {
+        gradient: Gradient {
+            GradientStop {
                 position: 0
                 color: recDialogBox.backgroundUp
             }
 
-            GradientStop
-            {
+            GradientStop {
                 position: 1
                 color: recDialogBox.backgroundDown
             }
         }
 
-        Text
-        {
+        Label {
             id: txtTitle
             text: recDialogBox.text
             color: recDialogBox.textColor

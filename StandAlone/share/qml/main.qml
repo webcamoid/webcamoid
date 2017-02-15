@@ -528,7 +528,7 @@ ApplicationWindow {
                     source: "image://icons/webcamoid-go-back"
                     sourceSize: Qt.size(width, height)
                 }
-                Text {
+                Label {
                     id: txtGoBack
                     text: qsTr("Go back")
                     anchors.verticalCenter: parent.verticalCenter

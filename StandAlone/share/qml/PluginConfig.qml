@@ -226,7 +226,7 @@ ColumnLayout {
                     height: Math.max(16, label.implicitHeight)
                     property int implicitWidth: label.implicitWidth + 20
 
-                    Text {
+                    Label {
                         id: label
                         enabled: false
                         objectName: "label"

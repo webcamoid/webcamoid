@@ -108,7 +108,7 @@ Rectangle {
                 id: chkFlash
                 checked: true
             }
-            Text {
+            Label {
                 text: qsTr("Use flash")
                 color: "white"
                 Layout.fillWidth: true
