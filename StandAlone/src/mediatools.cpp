@@ -75,9 +75,6 @@ MediaTools::MediaTools(QObject *parent):
                     this->m_audioLayer.data(),
                     Qt::DirectConnection);
     AkElement::link(this->m_videoEffects.data(),
-                    this,
-                    Qt::DirectConnection);
-    AkElement::link(this->m_videoEffects.data(),
                     this->m_recording.data(),
                     Qt::DirectConnection);
     QObject::connect(this->m_mediaSource.data(),

@@ -54,7 +54,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     QSGSimpleTextureNode *node = NULL;
 
     if (oldNode)
-        node = dynamic_cast<QSGSimpleTextureNode *>(oldNode);
+        node = static_cast<QSGSimpleTextureNode *>(oldNode);
     else
         node = new QSGSimpleTextureNode();
 
