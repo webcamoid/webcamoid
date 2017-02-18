@@ -30,7 +30,7 @@ MediaWriter::~MediaWriter()
 
 QString MediaWriter::location() const
 {
-    return QString();
+    return this->m_location;
 }
 
 QString MediaWriter::outputFormat() const
@@ -46,6 +46,16 @@ QVariantList MediaWriter::streams() const
 qint64 MediaWriter::maxPacketQueueSize() const
 {
     return 0;
+}
+
+QStringList MediaWriter::formatsBlackList() const
+{
+    return this->m_formatsBlackList;
+}
+
+QStringList MediaWriter::codecsBlackList() const
+{
+    return this->m_codecsBlackList;
 }
 
 QStringList MediaWriter::supportedFormats()
@@ -160,7 +170,11 @@ QVariantList MediaWriter::codecOptions(int index)
 
 void MediaWriter::setLocation(const QString &location)
 {
-    Q_UNUSED(location);
+    if (this->m_location == location)
+        return;
+
+    this->m_location = location;
+    emit this->locationChanged(location);
 }
 
 void MediaWriter::setOutputFormat(const QString &outputFormat)
@@ -184,8 +198,27 @@ void MediaWriter::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
     Q_UNUSED(maxPacketQueueSize);
 }
 
+void MediaWriter::setFormatsBlackList(const QStringList &formatsBlackList)
+{
+    if (this->m_formatsBlackList == formatsBlackList)
+        return;
+
+    this->m_formatsBlackList = formatsBlackList;
+    emit this->formatsBlackListChanged(formatsBlackList);
+}
+
+void MediaWriter::setCodecsBlackList(const QStringList &codecsBlackList)
+{
+    if (this->m_codecsBlackList == codecsBlackList)
+        return;
+
+    this->m_codecsBlackList = codecsBlackList;
+    emit this->codecsBlackListChanged(codecsBlackList);
+}
+
 void MediaWriter::resetLocation()
 {
+    this->setLocation("");
 }
 
 void MediaWriter::resetOutputFormat()
@@ -203,6 +236,16 @@ void MediaWriter::resetCodecOptions(int index)
 
 void MediaWriter::resetMaxPacketQueueSize()
 {
+}
+
+void MediaWriter::resetFormatsBlackList()
+{
+    this->setFormatsBlackList({});
+}
+
+void MediaWriter::resetCodecsBlackList()
+{
+    this->setCodecsBlackList({});
 }
 
 void MediaWriter::enqueuePacket(const AkPacket &packet)

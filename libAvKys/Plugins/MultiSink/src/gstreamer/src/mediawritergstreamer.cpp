@@ -25,6 +25,9 @@
 
 #define MINIMUM_PLUGIN_RANK GST_RANK_PRIMARY
 
+// NOTE: Disabled because GStreamer crash when setting an invalid bitrate.
+//#define SET_CODEC_BITRATE
+
 typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initGstToFF()
@@ -210,7 +213,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(StringVectorIntMap, flvSupportedSampleRates, (initFLVS
 
 typedef QMap<GType, QString> OptionTypeStrMap;
 
-inline OptionTypeStrMap initOptionTypeStrMap()
+inline OptionTypeStrMap initGstOptionTypeStrMap()
 {
     static const OptionTypeStrMap optionTypeStrMap = {
         {G_TYPE_STRING          , "string" },
@@ -235,7 +238,7 @@ inline OptionTypeStrMap initOptionTypeStrMap()
     return optionTypeStrMap;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecOptionTypeToStr, (initOptionTypeStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecGstOptionTypeToStr, (initGstOptionTypeStrMap()))
 
 MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     MediaWriter(parent)
@@ -247,16 +250,25 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     this->m_pipeline = NULL;
     this->m_mainLoop = NULL;
     this->m_busWatchId = 0;
+
+    this->m_formatsBlackList = QStringList {
+        "avmux_3gp",
+        "avmux_aiff",
+        "avmux_asf",
+        "avmux_avi",
+        "avmux_flv",
+        "avmux_gxf",
+        "avmux_mov",
+        "avmux_mpegts",
+        "avmux_mp4",
+        "avmux_mxf",
+        "avmux_mxf_d10"
+    };
 }
 
 MediaWriterGStreamer::~MediaWriterGStreamer()
 {
     this->uninit();
-}
-
-QString MediaWriterGStreamer::location() const
-{
-    return this->m_location;
 }
 
 QString MediaWriterGStreamer::outputFormat() const
@@ -287,29 +299,14 @@ QStringList MediaWriterGStreamer::supportedFormats()
 
         auto factory = GST_ELEMENT_FACTORY(featureItem->data);
 
+        if (this->m_formatsBlackList.contains(GST_OBJECT_NAME(factory)))
+            continue;
+
         if (!supportedFormats.contains(GST_OBJECT_NAME(factory)))
             supportedFormats << GST_OBJECT_NAME(factory);
     }
 
     gst_plugin_list_free(factoryList);
-
-    static const QStringList unsupportedFormats = {
-        "avmux_3gp",
-        "avmux_aiff",
-        "avmux_asf",
-        "avmux_avi",
-        "avmux_flv",
-        "avmux_gxf",
-        "avmux_mov",
-        "avmux_mpegts",
-        "avmux_mp4",
-        "avmux_mxf",
-        "avmux_mxf_d10"
-    };
-
-    // Disable conflictive formats
-    for (const QString &format: unsupportedFormats)
-        supportedFormats.removeAll(format);
 
     return supportedFormats;
 }
@@ -470,7 +467,8 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                             const gchar *format = gst_structure_get_string(capsStructure, "format");
                             QString codecId = QString("identity/%1/%2").arg(codecType).arg(format);
 
-                            if (!supportedCodecs.contains(codecId))
+                            if (!supportedCodecs.contains(codecId)
+                                && !this->m_codecsBlackList.contains(codecId))
                                 supportedCodecs << codecId;
                         } else if (fieldType == GST_TYPE_LIST) {
                             const GValue *formats = gst_structure_get_value(capsStructure, "format");
@@ -482,7 +480,8 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                                             .arg(codecType)
                                             .arg(g_value_get_string(format));
 
-                                if (!supportedCodecs.contains(codecId))
+                                if (!supportedCodecs.contains(codecId)
+                                    && !this->m_codecsBlackList.contains(codecId))
                                     supportedCodecs << codecId;
                             }
                         }
@@ -499,6 +498,9 @@ QStringList MediaWriterGStreamer::supportedCodecs(const QString &format,
                          encoderItem = g_list_next(encoderItem)) {
                         auto encoder =
                                 reinterpret_cast<GstElementFactory *>(encoderItem->data);
+
+                        if (this->m_codecsBlackList.contains(GST_OBJECT_NAME(encoder)))
+                            continue;
 
                         auto klass =
                                 gst_element_factory_get_metadata(encoder,
@@ -938,10 +940,15 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 return QVariantMap();
             }
 
+            // Read default bitrate
             int bitrate = 0;
 
-            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "bitrate"))
-                g_object_get(G_OBJECT(element), "bitrate", &bitrate, NULL);
+            const char *propBitrate =
+                    QRegExp("vp\\d+enc").exactMatch(codec)?
+                        "target-bitrate": "bitrate";
+
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), propBitrate))
+                g_object_get(G_OBJECT(element), propBitrate, &bitrate, NULL);
 
             if (codec == "x264enc"
                 || codec == "x265enc"
@@ -952,8 +959,17 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
             if (bitrate < 1)
                 bitrate = 200000;
 
+            // Read default GOP
+            int gop = 0;
+
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "keyframe-max-dist"))
+                g_object_get(G_OBJECT(element), "keyframe-max-dist", &gop, NULL);
+
+            if (gop < 1)
+                gop = 12;
+
             codecParams["defaultBitRate"] = bitrate;
-            codecParams["defaultGOP"] = 12;
+            codecParams["defaultGOP"] = gop;
             codecParams["supportedFrameRates"] = supportedFramerates;
             codecParams["supportedPixelFormats"] = supportedPixelFormats;
             codecParams["defaultPixelFormat"] = supportedPixelFormats.isEmpty()?
@@ -1003,8 +1019,7 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
     QVariantMap codecDefaults = this->defaultCodecParams(codec);
 
     if (streamCaps.mimeType() == "audio/x-raw") {
-        int bitRate = codecParams.value("bitrate",
-                                        codecDefaults["defaultBitRate"]).toInt();
+        int bitRate = codecParams.value("bitrate").toInt();
         outputParams["bitrate"] = bitRate > 0?
                                       bitRate:
                                       codecDefaults["defaultBitRate"].toInt();
@@ -1069,8 +1084,7 @@ QVariantMap MediaWriterGStreamer::addStream(int streamIndex,
         outputParams["caps"] = QVariant::fromValue(audioCaps.toCaps());
         outputParams["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
     } else if (streamCaps.mimeType() == "video/x-raw") {
-        int bitRate = codecParams.value("bitrate",
-                                        codecDefaults["defaultBitRate"]).toInt();
+        int bitRate = codecParams.value("bitrate").toInt();
         outputParams["bitrate"] = bitRate > 0?
                                       bitRate:
                                       codecDefaults["defaultBitRate"].toInt();
@@ -1281,9 +1295,8 @@ QVariantMap MediaWriterGStreamer::updateStream(int index,
          || streamCaps.mimeType() == "video/x-raw")
         && codecParams.contains("bitrate")) {
         int bitRate = codecParams["bitrate"].toInt();
-        this->m_streamConfigs[index]["bitrate"] = bitRate > 0?
-                                                      bitRate:
-                                                      codecDefaults["defaultBitRate"].toInt();
+        this->m_streamConfigs[index]["bitrate"] =
+                bitRate > 0? bitRate: codecDefaults["defaultBitRate"].toInt();
         streamChanged |= true;
     }
 
@@ -1415,7 +1428,10 @@ QVariantList MediaWriterGStreamer::parseOptions(const GstElement *element) const
 
         auto name = g_param_spec_get_name(param);
 
-        if (!strcmp(name, "name"))
+        if (!strcmp(name, "name")
+            || !strcmp(name, "bitrate")
+            || !strcmp(name, "target-bitrate")
+            || !strcmp(name, "keyframe-max-dist"))
             continue;
 
         QVariant defaultValue;
@@ -1424,7 +1440,7 @@ QVariantList MediaWriterGStreamer::parseOptions(const GstElement *element) const
         qreal max = 0;
         qreal step = 0;
         QVariantList menu;
-        auto paramType = codecOptionTypeToStr->value(param->value_type);
+        auto paramType = codecGstOptionTypeToStr->value(param->value_type);
 
         GValue gValue;
         memset(&gValue, 0, sizeof(GValue));
@@ -1916,15 +1932,6 @@ AkAudioCaps MediaWriterGStreamer::nearestFLVAudioCaps(const AkAudioCaps &caps,
     return nearestCaps;
 }
 
-void MediaWriterGStreamer::setLocation(const QString &location)
-{
-    if (this->m_location == location)
-        return;
-
-    this->m_location = location;
-    emit this->locationChanged(location);
-}
-
 void MediaWriterGStreamer::setOutputFormat(const QString &outputFormat)
 {
     if (this->m_outputFormat == outputFormat)
@@ -1977,11 +1984,6 @@ void MediaWriterGStreamer::setCodecOptions(int index,
 
     if (modified)
         emit this->codecOptionsChanged(optKey, this->m_formatOptions.value(optKey));
-}
-
-void MediaWriterGStreamer::resetLocation()
-{
-    this->setLocation("");
 }
 
 void MediaWriterGStreamer::resetOutputFormat()
@@ -2127,7 +2129,7 @@ bool MediaWriterGStreamer::init()
                 g_object_set(G_OBJECT(audioCodec), "compliance", -2, NULL);
 
             // Set codec options.
-#if 0 // NOTE: Disabled because GStreamer crash when setting an invalid bitrate.
+#ifdef SET_CODEC_BITRATE
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(audioCodec),
                                              "bitrate")) {
                 int bitrate = configs["bitrate"].toInt();
@@ -2179,8 +2181,8 @@ bool MediaWriterGStreamer::init()
                                         "width", G_TYPE_INT, videoCaps.width(),
                                         "height", G_TYPE_INT, videoCaps.height(),
                                         "framerate", GST_TYPE_FRACTION,
-                                                     (int) videoCaps.fps().num(),
-                                                     (int) videoCaps.fps().den(),
+                                                     int(videoCaps.fps().num()),
+                                                     int(videoCaps.fps().den()),
                                         NULL);
 
             gstVideoCaps = gst_caps_fixate(gstVideoCaps);
@@ -2195,9 +2197,14 @@ bool MediaWriterGStreamer::init()
                 g_object_set(G_OBJECT(videoCodec), "compliance", -2, NULL);
 
             // Set codec options.
-#if 0
+#ifdef SET_CODEC_BITRATE
+            // Set bitrate
+            const char *propBitrate =
+                    QRegExp("vp\\d+enc").exactMatch(codec)?
+                        "target-bitrate": "bitrate";
+
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
-                                             "bitrate")) {
+                                             propBitrate)) {
                 int bitrate = configs["bitrate"].toInt();
 
                 if (codec == "x264enc"
@@ -2207,7 +2214,24 @@ bool MediaWriterGStreamer::init()
                     bitrate /= 1000;
 
                 if (bitrate > 0)
-                    g_object_set(G_OBJECT(videoCodec), "bitrate", G_TYPE_INT, bitrate, NULL);
+                    g_object_set(G_OBJECT(videoCodec),
+                                 propBitrate,
+                                 G_TYPE_INT,
+                                 bitrate,
+                                 NULL);
+            }
+
+            // Set GOP
+            if (g_object_class_find_property(G_OBJECT_GET_CLASS(videoCodec),
+                                             "keyframe-max-dist")) {
+                int gop = configs["gop"].toInt();
+
+                if (gop > 0)
+                    g_object_set(G_OBJECT(videoCodec),
+                                 "keyframe-max-dist",
+                                 G_TYPE_INT,
+                                 gop,
+                                 NULL);
             }
 #endif
             QVariantMap codecOptions = this->m_codecOptions.value(optKey);

@@ -135,7 +135,7 @@ class Recording: public QObject
         void supportedFormatsUpdated(const QStringList &availableFormats);
         void userControlsUpdated(const QVariantMap &userControls);
         void capsUpdated();
-        void updateFormat(const QString &codecLib);
+        void updateFormat();
         void loadProperties();
         void loadFormatOptions(const QString &format);
         void loadStreams(const QString &format);

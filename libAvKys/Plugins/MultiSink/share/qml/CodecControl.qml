@@ -60,6 +60,8 @@ GridLayout {
                 description: description
             });
         }
+
+        cbxMenu.currentIndex = currentMenuIndex(controlParams);
     }
 
     function currentMenuIndex(controlParams)
@@ -214,7 +216,6 @@ GridLayout {
             id: menuModel
         }
         textRole: "description"
-        currentIndex: currentMenuIndex(controlParams)
         Layout.fillWidth: true
         visible: false
 

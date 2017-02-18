@@ -215,7 +215,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(bool, hasCudaSupport, (initHasCudaSupport()))
 
 typedef QMap<AVOptionType, QString> OptionTypeStrMap;
 
-inline OptionTypeStrMap initOptionTypeStrMap()
+inline OptionTypeStrMap initFFOptionTypeStrMap()
 {
     static const OptionTypeStrMap optionTypeStrMap = {
         {AV_OPT_TYPE_FLAGS         , "flags"         },
@@ -241,7 +241,7 @@ inline OptionTypeStrMap initOptionTypeStrMap()
     return optionTypeStrMap;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecOptionTypeToStr, (initOptionTypeStrMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecFFOptionTypeToStr, (initFFOptionTypeStrMap()))
 
 MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     MediaWriter(parent)
@@ -261,17 +261,37 @@ MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     this->m_runVideoLoop = false;
     this->m_runSubtitleLoop = false;
     this->m_isRecording = false;
+
+    this->m_codecsBlackList = QStringList {
+        // This codec fail.
+        "vc2",
+
+        // The codecs are too slow for real time recording.
+        "ayuv",
+        "cinepak",
+        "dpx",
+        "jpeg2000",
+        "libopenjpeg",
+        "libschroedinger",
+        "libtheora",
+        "libvpx-vp9",
+        "msvideo1",
+        "prores_ks",
+        "r10k",
+        "r210",
+        "roqvideo",
+        "snow",
+        "svq1",
+        "v210",
+        "v308",
+        "v408",
+    };
 }
 
 MediaWriterFFmpeg::~MediaWriterFFmpeg()
 {
     this->uninit();
     avformat_network_deinit();
-}
-
-QString MediaWriterFFmpeg::location() const
-{
-    return this->m_location;
 }
 
 QString MediaWriterFFmpeg::outputFormat() const
@@ -300,6 +320,9 @@ QStringList MediaWriterFFmpeg::supportedFormats()
     AVOutputFormat *outputFormat = NULL;
 
     while ((outputFormat = av_oformat_next(outputFormat))) {
+        if (this->m_formatsBlackList.contains(outputFormat->name))
+            continue;
+
         QString format(outputFormat->name);
 
         if (!formats.contains(format))
@@ -386,33 +409,65 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
 
     QStringList codecs;
     AVCodec *codec = NULL;
+    auto codecType = mediaTypeToStr->key(type);
 
     while ((codec = av_codec_next(codec))) {
         if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL
             && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
             continue;
 
-        // Real Video codecs are not supported by Matroska.
-        if (!strcmp(outputFormat->name, "matroska")) {
-            if (codec->id == AV_CODEC_ID_RV10
-                || codec->id == AV_CODEC_ID_RV20)
-                continue;
-        } else if (!strcmp(outputFormat->name, "mp4")) {
-            if (codec->id == AV_CODEC_ID_VP9)
-                continue;
-        }
+        if (this->m_codecsBlackList.contains(codec->name))
+            continue;
 
         QString codecName(codec->name);
 
-        if ((codecName.contains("nvenc") && !*hasCudaSupport)
-            || codecName == "vc2")
+        if ((codecName.contains("nvenc") && !*hasCudaSupport))
             continue;
 
-        if ((type.isEmpty() || mediaTypeToStr->value(codec->type) == type)
+        bool codecSupported = avformat_query_codec(outputFormat,
+                                                   codec->id,
+                                                   CODEC_COMPLIANCE) > 0;
+
+        // Fix codecs that are not properly recognized by
+        // avformat_query_codec.
+        if (!strcmp(outputFormat->name, "matroska")) {
+            switch (codec->id) {
+                case AV_CODEC_ID_RV10:
+                case AV_CODEC_ID_RV20:
+                    codecSupported = false;
+                    break;
+                default:
+                    break;
+            }
+        } else if (!strcmp(outputFormat->name, "mp4")) {
+            if (codec->id == AV_CODEC_ID_VP9)
+                codecSupported = false;
+        } else if (!strcmp(outputFormat->name, "ogg")
+                   || !strcmp(outputFormat->name, "ogv")) {
+            switch (codec->id) {
+                case AV_CODEC_ID_SPEEX:
+                case AV_CODEC_ID_FLAC:
+                case AV_CODEC_ID_OPUS:
+                case AV_CODEC_ID_VP8:
+                    codecSupported = true;
+                    break;
+                default:
+                    break;
+            }
+        } else if (!strcmp(outputFormat->name, "webm")) {
+            switch (codec->id) {
+                case AV_CODEC_ID_VORBIS:
+                case AV_CODEC_ID_VP8:
+                    codecSupported = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if ((type.isEmpty() || codec->type == codecType)
             && av_codec_is_encoder(codec)
-            && avformat_query_codec(outputFormat,
-                                    codec->id,
-                                    CODEC_COMPLIANCE) > 0) {
+            && codecSupported) {
             if (codec->type == AVMEDIA_TYPE_VIDEO) {
                 // Skip Codecs with pixel formats that can't be encoded to.
                 int unsupported = 0;
@@ -464,6 +519,9 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
 
     if (codecId == AV_CODEC_ID_NONE)
         return QString();
+
+    if (codecId == AV_CODEC_ID_VP9)
+        codecId = AV_CODEC_ID_VP8;
 
     AVCodec *codec = avcodec_find_encoder(codecId);
     QString codecName(codec->name);
@@ -1089,6 +1147,38 @@ QVariantList MediaWriterFFmpeg::codecOptions(int index)
     auto globalCodecOptions = this->m_codecOptions.value(optKey);
     QVariantList codecOptions;
 
+    if (codec == "libvpx") {
+        quint8 r = 0;
+
+        for (int i = 0; i < options.size(); i++) {
+            auto option = options[i].toList();
+
+            if (option[0] == "deadline") {
+                option[6] = option[7] = "realtime";
+                options[i] = option;
+                r |= 0x1;
+            } else if (option[0] == "quality") {
+                option[6] = option[7] = "realtime";
+                options[i] = option;
+                r |= 0x2;
+            }
+
+            if (r > 2)
+                break;
+        }
+    } else if (codec == "libx265") {
+        for (int i = 0; i < options.size(); i++) {
+            auto option = options[i].toList();
+
+            if (option[0] == "preset") {
+                option[6] = option[7] = "ultrafast";
+                options[i] = option;
+
+                break;
+            }
+        }
+    }
+
     for (auto &option: options) {
         auto optionList = option.toList();
         auto key = optionList[0].toString();
@@ -1313,7 +1403,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
             avOptions << QVariantList {
                                     option->name,
                                     option->help,
-                                    codecOptionTypeToStr->value(option->type),
+                                    codecFFOptionTypeToStr->value(option->type),
                                     option->min,
                                     option->max,
                                     step,
@@ -1383,7 +1473,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
 
                 option[6] = defaultValues;
                 option[7] = values;
-            } else {
+            } else if (!optionMenu.isEmpty()) {
                 option[2] = "menu";
                 bool defaultFound = false;
                 bool valueFound = false;
@@ -1685,15 +1775,6 @@ void MediaWriterFFmpeg::decreasePacketQueue(int packetSize)
     this->m_packetMutex.unlock();
 }
 
-void MediaWriterFFmpeg::setLocation(const QString &location)
-{
-    if (this->m_location == location)
-        return;
-
-    this->m_location = location;
-    emit this->locationChanged(location);
-}
-
 void MediaWriterFFmpeg::setOutputFormat(const QString &outputFormat)
 {
     if (this->m_outputFormat == outputFormat)
@@ -1751,11 +1832,6 @@ void MediaWriterFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 
     this->m_maxPacketQueueSize = maxPacketQueueSize;
     emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
-}
-
-void MediaWriterFFmpeg::resetLocation()
-{
-    this->setLocation("");
 }
 
 void MediaWriterFFmpeg::resetOutputFormat()
@@ -2001,6 +2077,17 @@ bool MediaWriterFFmpeg::init()
         auto optKey = QString("%1/%2/%3").arg(outputFormat).arg(i).arg(codecName);
         QVariantMap codecOptions = this->m_codecOptions.value(optKey);
 
+        if (codecName == "libvpx") {
+            if (!codecOptions.contains("deadline"))
+                codecOptions["deadline"] = "realtime";
+
+            if (!codecOptions.contains("quality"))
+                codecOptions["quality"] = "realtime";
+        } else if (codecName == "libx265") {
+            if (!codecOptions.contains("preset"))
+                codecOptions["preset"] = "ultrafast";
+        }
+
         for (const QString &key: codecOptions.keys()) {
             QString value = codecOptions[key].toString();
 
@@ -2167,6 +2254,7 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
     iFrame.sample_rate = codecContext->sample_rate;
 
     if (!this->m_streamParams[streamIndex].convert(packet, &iFrame)) {
+        av_freep(&iFrame.data[0]);
         av_frame_unref(&iFrame);
 
         return;
@@ -2185,6 +2273,7 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
                         iFrame.nb_samples:
                         codecContext->frame_size;
 
+    av_freep(&iFrame.data[0]);
     av_frame_unref(&iFrame);
 
     forever {
@@ -2284,6 +2373,7 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
     videoPacket = AkUtils::imageToPacket(image, videoPacket);
 
     if (!this->m_streamParams[streamIndex].convert(videoPacket, &oFrame)) {
+        av_freep(&oFrame.data[0]);
         av_frame_unref(&oFrame);
 
         return;
@@ -2300,6 +2390,7 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
             this->m_streamParams[streamIndex].nextPts(pts, packet.id());
 
     if (oFrame.pts < 0) {
+        av_freep(&oFrame.data[0]);
         av_frame_unref(&oFrame);
 
         return;
@@ -2328,6 +2419,7 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
             char errorStr[1024];
             av_strerror(AVERROR(error), errorStr, 1024);
             qDebug() << "Error encoding packets: " << errorStr;
+            av_freep(&oFrame.data[0]);
             av_frame_unref(&oFrame);
 
             return;
@@ -2354,6 +2446,7 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
         }
     }
 
+    av_freep(&oFrame.data[0]);
     av_frame_unref(&oFrame);
 }
 

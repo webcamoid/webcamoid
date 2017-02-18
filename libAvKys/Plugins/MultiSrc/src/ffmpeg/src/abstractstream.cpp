@@ -77,7 +77,9 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                                   this->m_stream->time_base.den);
 
     if (!noModify) {
-        this->m_stream->discard = AVDISCARD_DEFAULT;
+        if (this->m_stream)
+            this->m_stream->discard = AVDISCARD_DEFAULT;
+
         this->m_codecContext->workaround_bugs = 1;
         this->m_codecContext->idct_algo = FF_IDCT_AUTO;
         this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;

@@ -134,6 +134,16 @@ QVariantMap MultiSinkElement::userControlsValues() const
     return this->m_userControlsValues;
 }
 
+QStringList MultiSinkElement::formatsBlackList() const
+{
+    return this->m_mediaWriter->formatsBlackList();
+}
+
+QStringList MultiSinkElement::codecsBlackList() const
+{
+    return this->m_mediaWriter->codecsBlackList();
+}
+
 QStringList MultiSinkElement::fileExtensions(const QString &format) const
 {
     return this->m_fileExtensions.value(format);
@@ -253,6 +263,16 @@ void MultiSinkElement::setUserControlsValues(const QVariantMap &userControlsValu
     emit this->userControlsValuesChanged(userControlsValues);
 }
 
+void MultiSinkElement::setFormatsBlackList(const QStringList &formatsBlackList)
+{
+    this->m_mediaWriter->setFormatsBlackList(formatsBlackList);
+}
+
+void MultiSinkElement::setCodecsBlackList(const QStringList &codecsBlackList)
+{
+    this->m_mediaWriter->setCodecsBlackList(codecsBlackList);
+}
+
 void MultiSinkElement::resetLocation()
 {
     this->setLocation("");
@@ -291,6 +311,16 @@ void MultiSinkElement::resetUserControls()
 void MultiSinkElement::resetUserControlsValues()
 {
     this->setUserControlsValues({});
+}
+
+void MultiSinkElement::resetFormatsBlackList()
+{
+    this->m_mediaWriter->resetFormatsBlackList();
+}
+
+void MultiSinkElement::resetCodecsBlackList()
+{
+    this->m_mediaWriter->resetCodecsBlackList();
 }
 
 void MultiSinkElement::clearStreams()
@@ -343,9 +373,7 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
 {
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
-
     auto location = this->m_mediaWriter->location();
-    auto streams = this->m_mediaWriter->streams();
 
     this->m_mutexLib.lock();
 
@@ -394,6 +422,14 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
                      &MediaWriter::streamsChanged,
                      this,
                      &MultiSinkElement::streamsChanged);
+    QObject::connect(this->m_mediaWriter.data(),
+                     &MediaWriter::formatsBlackListChanged,
+                     this,
+                     &MultiSinkElement::formatsBlackListChanged);
+    QObject::connect(this->m_mediaWriter.data(),
+                     &MediaWriter::codecsBlackListChanged,
+                     this,
+                     &MultiSinkElement::formatsBlackListChanged);
     QObject::connect(this,
                      &MultiSinkElement::locationChanged,
                      this->m_mediaWriter.data(),
@@ -406,16 +442,6 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
     this->m_mutexLib.unlock();
 
     this->m_mediaWriter->setLocation(location);
-
-    if (!this->m_supportedFormats.isEmpty())
-        this->setOutputFormat(this->m_supportedFormats.first());
-
-    for (int i = 0; i < streams.size(); i++) {
-        auto stream = streams[i].toMap();
-        this->m_mediaWriter->addStream(stream["index"].toInt(),
-                                       stream["caps"].value<AkCaps>());
-    }
-
     emit this->supportedFormatsChanged(this->supportedFormats());
 
     this->setState(state);

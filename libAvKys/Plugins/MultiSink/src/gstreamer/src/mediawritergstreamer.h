@@ -33,7 +33,6 @@ class MediaWriterGStreamer: public MediaWriter
         explicit MediaWriterGStreamer(QObject *parent=NULL);
         ~MediaWriterGStreamer();
 
-        Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams() const;
 
@@ -60,7 +59,6 @@ class MediaWriterGStreamer: public MediaWriter
         Q_INVOKABLE QVariantList codecOptions(int index);
 
     private:
-        QString m_location;
         QString m_outputFormat;
         QMap<QString, QVariantMap> m_formatOptions;
         QMap<QString, QVariantMap> m_codecOptions;
@@ -87,11 +85,9 @@ class MediaWriterGStreamer: public MediaWriter
                                         const QString &codec) const;
 
     public slots:
-        void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
         void setCodecOptions(int index, const QVariantMap &codecOptions);
-        void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
         void resetCodecOptions(int index);

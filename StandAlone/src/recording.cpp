@@ -97,6 +97,10 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          this,
                          SLOT(supportedFormatsUpdated(const QStringList &)));
         QObject::connect(this->m_record.data(),
+                         SIGNAL(supportedFormatsChanged(const QStringList &)),
+                         this,
+                         SLOT(updateFormat()));
+        QObject::connect(this->m_record.data(),
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
                          SLOT(saveMultiSinkCodecLib(const QString &)));
@@ -491,8 +495,16 @@ void Recording::capsUpdated()
     this->loadStreams(format);
 }
 
-void Recording::updateFormat(const QString &codecLib)
+void Recording::updateFormat()
 {
+    if (!this->m_record)
+        return;
+
+    auto codecLib = this->m_record->property("codecLib").toString();
+
+    if (codecLib.isEmpty())
+        return;
+
     this->setFormat(codecLib == "gstreamer"? "webmmux": "webm");
 }
 

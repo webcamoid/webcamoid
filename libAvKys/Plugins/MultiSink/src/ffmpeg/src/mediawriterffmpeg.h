@@ -36,7 +36,6 @@ class MediaWriterFFmpeg: public MediaWriter
         explicit MediaWriterFFmpeg(QObject *parent=NULL);
         ~MediaWriterFFmpeg();
 
-        Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString outputFormat() const;
         Q_INVOKABLE QVariantList streams() const;
         Q_INVOKABLE qint64 maxPacketQueueSize() const;
@@ -64,7 +63,6 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QVariantList codecOptions(int index);
 
     private:
-        QString m_location;
         QString m_outputFormat;
         QMap<QString, QVariantMap> m_formatOptions;
         QMap<QString, QVariantMap> m_codecOptions;
@@ -114,12 +112,10 @@ class MediaWriterFFmpeg: public MediaWriter
         void decreasePacketQueue(int packetSize);
 
     public slots:
-        void setLocation(const QString &location);
         void setOutputFormat(const QString &outputFormat);
         void setFormatOptions(const QVariantMap &formatOptions);
         void setCodecOptions(int index, const QVariantMap &codecOptions);
         void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
-        void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
         void resetCodecOptions(int index);

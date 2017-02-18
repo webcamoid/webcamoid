@@ -146,12 +146,16 @@ AkPacket FrameOverlapElement::iStream(const AkPacket &packet)
                 n++;
             }
 
-            r /= n;
-            g /= n;
-            b /= n;
-            a /= n;
+            if (n > 0) {
+                r /= n;
+                g /= n;
+                b /= n;
+                a /= n;
 
-            dstBits[x] = qRgba(r, g, b, a);
+                dstBits[x] = qRgba(r, g, b, a);
+            } else {
+                dstBits[x] = qRgba(0, 0, 0, 0);
+            }
         }
     }
 

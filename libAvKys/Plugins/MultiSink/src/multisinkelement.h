@@ -69,6 +69,16 @@ class MultiSinkElement: public AkElement
                WRITE setUserControlsValues
                RESET resetUserControlsValues
                NOTIFY userControlsValuesChanged)
+    Q_PROPERTY(QStringList formatsBlackList
+               READ formatsBlackList
+               WRITE setFormatsBlackList
+               RESET resetFormatsBlackList
+               NOTIFY formatsBlackListChanged)
+    Q_PROPERTY(QStringList codecsBlackList
+               READ codecsBlackList
+               WRITE setCodecsBlackList
+               RESET resetCodecsBlackList
+               NOTIFY codecsBlackListChanged)
 
     public:
         explicit MultiSinkElement();
@@ -85,6 +95,8 @@ class MultiSinkElement: public AkElement
         Q_INVOKABLE bool showFormatOptions() const;
         Q_INVOKABLE QVariantList userControls() const;
         Q_INVOKABLE QVariantMap userControlsValues() const;
+        Q_INVOKABLE QStringList formatsBlackList() const;
+        Q_INVOKABLE QStringList codecsBlackList() const;
         Q_INVOKABLE QStringList fileExtensions(const QString &format) const;
         Q_INVOKABLE QString formatDescription(const QString &format) const;
         Q_INVOKABLE QVariantList formatOptions() const;
@@ -133,6 +145,8 @@ class MultiSinkElement: public AkElement
         void showFormatOptionsChanged(bool showFormatOptions);
         void userControlsChanged(const QVariantList &userControls);
         void userControlsValuesChanged(const QVariantMap &userControlsValues);
+        void formatsBlackListChanged(const QStringList &formatsBlackList);
+        void codecsBlackListChanged(const QStringList &codecsBlackList);
 
     public slots:
         void setLocation(const QString &location);
@@ -143,6 +157,8 @@ class MultiSinkElement: public AkElement
         void setShowFormatOptions(bool showFormatOptions);
         void setUserControls(const QVariantList &userControls);
         void setUserControlsValues(const QVariantMap &userControlsValues);
+        void setFormatsBlackList(const QStringList &formatsBlackList);
+        void setCodecsBlackList(const QStringList &codecsBlackList);
         void resetLocation();
         void resetOutputFormat();
         void resetFormatOptions();
@@ -151,6 +167,8 @@ class MultiSinkElement: public AkElement
         void resetShowFormatOptions();
         void resetUserControls();
         void resetUserControlsValues();
+        void resetFormatsBlackList();
+        void resetCodecsBlackList();
         void clearStreams();
 
         AkPacket iStream(const AkPacket &packet);

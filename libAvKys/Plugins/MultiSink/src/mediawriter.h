@@ -43,6 +43,16 @@ class MediaWriter: public QObject
                WRITE setMaxPacketQueueSize
                RESET resetMaxPacketQueueSize
                NOTIFY maxPacketQueueSizeChanged)
+    Q_PROPERTY(QStringList formatsBlackList
+               READ formatsBlackList
+               WRITE setFormatsBlackList
+               RESET resetFormatsBlackList
+               NOTIFY formatsBlackListChanged)
+    Q_PROPERTY(QStringList codecsBlackList
+               READ codecsBlackList
+               WRITE setCodecsBlackList
+               RESET resetCodecsBlackList
+               NOTIFY codecsBlackListChanged)
 
     public:
         explicit MediaWriter(QObject *parent=NULL);
@@ -52,6 +62,8 @@ class MediaWriter: public QObject
         Q_INVOKABLE virtual QString outputFormat() const;
         Q_INVOKABLE virtual QVariantList streams() const;
         Q_INVOKABLE virtual qint64 maxPacketQueueSize() const;
+        Q_INVOKABLE virtual QStringList formatsBlackList() const;
+        Q_INVOKABLE virtual QStringList codecsBlackList() const;
 
         Q_INVOKABLE virtual QStringList supportedFormats();
         Q_INVOKABLE virtual QStringList fileExtensions(const QString &format);
@@ -75,6 +87,11 @@ class MediaWriter: public QObject
                                                      const QVariantMap &codecParams);
         Q_INVOKABLE virtual QVariantList codecOptions(int index);
 
+    protected:
+        QString m_location;
+        QStringList m_formatsBlackList;
+        QStringList m_codecsBlackList;
+
     signals:
         void locationChanged(const QString &location);
         void outputFormatChanged(const QString &outputFormat);
@@ -83,6 +100,8 @@ class MediaWriter: public QObject
                                  const QVariantMap &codecOptions);
         void streamsChanged(const QVariantList &streams);
         void maxPacketQueueSizeChanged(qint64 maxPacketQueueSize);
+        void formatsBlackListChanged(const QStringList &formatsBlackList);
+        void codecsBlackListChanged(const QStringList &codecsBlackList);
 
     public slots:
         virtual void setLocation(const QString &location);
@@ -90,11 +109,15 @@ class MediaWriter: public QObject
         virtual void setFormatOptions(const QVariantMap &formatOptions);
         virtual void setCodecOptions(int index, const QVariantMap &codecOptions);
         virtual void setMaxPacketQueueSize(qint64 maxPacketQueueSize);
+        virtual void setFormatsBlackList(const QStringList &formatsBlackList);
+        virtual void setCodecsBlackList(const QStringList &codecsBlackList);
         virtual void resetLocation();
         virtual void resetOutputFormat();
         virtual void resetFormatOptions();
         virtual void resetCodecOptions(int index);
         virtual void resetMaxPacketQueueSize();
+        virtual void resetFormatsBlackList();
+        virtual void resetCodecsBlackList();
         virtual void enqueuePacket(const AkPacket &packet);
         virtual void clearStreams();
         virtual bool init();

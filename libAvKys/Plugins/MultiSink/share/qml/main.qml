@@ -80,11 +80,17 @@ ColumnLayout {
                     MultiSink.supportedCodecs(MultiSink.outputFormat,
                                               streamCaps.mimeType)
 
-            for (var codec in supportedCodecs)
-                streamOptions.codecList.append({codec: supportedCodecs[codec],
-                                                description: supportedCodecs[codec]
-                                                             + " - "
-                                                             + MultiSink.codecDescription(supportedCodecs[codec])})
+            for (var codec in supportedCodecs) {
+                var codecName = supportedCodecs[codec];
+                var codecDescription = MultiSink.codecDescription(supportedCodecs[codec]);
+                var description = codecName;
+
+                if (codecDescription.length > 0)
+                    description += " - " + codecDescription;
+
+                streamOptions.codecList.append({codec: codecName,
+                                                description: description});
+            }
 
             streamOptions.codec = streamConfig.codec
 
@@ -166,11 +172,18 @@ ColumnLayout {
             id: lstOutputFormats
         }
 
-        onCurrentIndexChanged: MultiSink.outputFormat = lstOutputFormats.get(currentIndex).format
+        onCurrentIndexChanged: {
+            var opt = lstOutputFormats.get(currentIndex);
+
+            if (opt)
+                MultiSink.outputFormat = opt.format
+        }
     }
     TextField {
         visible: !MultiSink.showFormatOptions
-        text: lstOutputFormats.get(cbxOutputFormats.currentIndex).description
+        text: lstOutputFormats.get(cbxOutputFormats.currentIndex)?
+                  lstOutputFormats.get(cbxOutputFormats.currentIndex).description:
+                  ""
         readOnly: true
         Layout.fillWidth: true
     }
