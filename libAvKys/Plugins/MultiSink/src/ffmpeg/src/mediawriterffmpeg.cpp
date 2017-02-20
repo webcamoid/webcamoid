@@ -1398,7 +1398,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
             if (menu.contains(option->unit)) {
                 menu[option->unit] << QVariant(menuOption);
             } else
-                menu[option->unit] = QVariantList {menuOption};
+                menu[option->unit] = QVariantList {QVariant(menuOption)};
         } else {
             avOptions << QVariantList {
                                     option->name,

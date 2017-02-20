@@ -36,11 +36,11 @@ isEmpty(QMAKE_LRELEASE) {
 
 win32 {
     !isEmpty(ProgramW6432) {
-        DEFAULT_PREFIX = $(ProgramW6432)\\$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = $(ProgramW6432)\\Webcamoid
     } else: !isEmpty(ProgramFiles) {
-        DEFAULT_PREFIX = $(ProgramFiles)\\$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = $(ProgramFiles)\\Webcamoid
     } else {
-        DEFAULT_PREFIX = C:\\$${COMMONS_APPNAME}
+        DEFAULT_PREFIX = C:\\Webcamoid
     }
 } else {
     DEFAULT_PREFIX = /usr

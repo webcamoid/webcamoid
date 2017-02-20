@@ -4,10 +4,22 @@ post_install() {
 Webcamoid requires at least one of the packages from each of the
 following groups to be installed for fully functioning.
 
+Capture backend:
+
+    - v4l-utils (RECOMMENDED)
+    - libuvc-git
+
 Codec frameworks:
 
     - ffmpeg (RECOMMENDED)
-    - gst-plugins-base-libs
+    - gst-plugins-*
+
+Audio playback:
+
+    - libpulse (RECOMMENDED)
+    - alsa-lib
+    - jack
+    - qt5-multimedia
 
     EOF
 }

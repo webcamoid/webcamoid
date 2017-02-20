@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 8.0.0),
  linux-libc-dev,
  qt5-qmake,
  qtdeclarative5-dev,
+ qtmultimedia5-dev,
  libqt5opengl5-dev,
  libqt5svg5-dev,
  libavcodec-dev,
@@ -15,7 +16,10 @@ Build-Depends: debhelper (>= 8.0.0),
  libavutil-dev,
  libswresample-dev,
  libswscale-dev,
+ libgstreamer-plugins-base1.0-dev,
  libpulse-dev,
+ libjack-dev,
+ libasound2-dev,
  libv4l-dev
 Standards-Version: 3.9.4
 Homepage: https://webcamoid.github.io/
@@ -32,14 +36,17 @@ Depends: ${shlibs:Depends},
  qml-module-qtquick-window2,
  libqt5svg5,
  libqt5opengl5,
- libpulse0,
- libv4l-0,
  libavcodec56,
  libavdevice56,
  libavformat56,
  libavutil54,
  libswresample1,
- libswscale3
+ libswscale3,
+ libgstreamer-plugins-base1.0-0,
+ libpulse0,
+ libjack0,
+ libasound2,
+ libv4l-0
 Suggests:
  v4l2loopback-utils
 Description: Webcamoid is a full featured webcam capture application.
