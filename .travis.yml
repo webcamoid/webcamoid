@@ -6,120 +6,115 @@ cache:
 
 matrix:
   include:
-    # Debian
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=debian DOCKERIMG=debian:stretch
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=debian DOCKERIMG=debian:stretch
-    # Fedora
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAVER=24
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAVER=24
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAVER=25
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAVER=25
-    # OpenSUSE
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
-    # Ubuntu
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: gcc
-      env:
-        - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
-    - os: linux
-      sudo: required
-      services:
-        - docker
-      compiler: clang
-      env:
-        - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
-    # Mac
-    - os: osx
-      osx_image: xcode8
-      compiler: clang
-      env:
-        - DISABLE_CCACHE=1
-    - os: osx
-      osx_image: xcode8.1
-      compiler: clang
-    - os: osx
-      osx_image: xcode8.2
-      compiler: clang
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=debian:stretch
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=debian:stretch
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAVER=24
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAVER=24
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAVER=25
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAVER=25
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+  - os: osx
+    osx_image: xcode8
+    compiler: clang
+    env:
+      - DISABLE_CCACHE=1
+  - os: osx
+    osx_image: xcode8.1
+    compiler: clang
+  - os: osx
+    osx_image: xcode8.2
+    compiler: clang
 
 before_install: |
   if [ "${TRAVIS_OS_NAME}" = linux ]; then
