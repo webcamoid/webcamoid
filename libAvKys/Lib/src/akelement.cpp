@@ -58,7 +58,19 @@ class AkElementPrivate
                                   .arg(COMMONS_TARGET);
 #endif
 
-            this->m_pluginsSearchPaths << this->convertToAbsolute(defaultPath);
+#ifdef Q_OS_OSX
+            if (QCoreApplication::applicationDirPath()
+                    .endsWith(".app/Contents/MacOS")) {
+                QDir appDir(QCoreApplication::applicationDirPath());
+                appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
+                this->m_pluginsSearchPaths << appDir.absolutePath();
+            } else {
+#endif
+                this->m_pluginsSearchPaths << this->convertToAbsolute(defaultPath);
+#ifdef Q_OS_OSX
+            }
+#endif
+
             this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
             this->m_subModulesPath = SUBMODULES_PATH;
 
@@ -442,7 +454,19 @@ QStringList AkElement::searchPaths(SearchPaths pathType)
 #endif
 
     QStringList defaults;
-    defaults << akElementGlobalStuff->convertToAbsolute(defaultPath);
+
+#ifdef Q_OS_OSX
+    if (QCoreApplication::applicationDirPath()
+            .endsWith(".app/Contents/MacOS")) {
+        QDir appDir(QCoreApplication::applicationDirPath());
+        appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
+        defaults << appDir.absolutePath();
+    } else {
+#endif
+        defaults << akElementGlobalStuff->convertToAbsolute(defaultPath);
+#ifdef Q_OS_OSX
+    }
+#endif
 
     if (pathType == SearchPathsDefaults)
         return defaults;
@@ -484,8 +508,20 @@ void AkElement::resetSearchPaths()
                           .arg(COMMONS_TARGET);
 #endif
 
-    akElementGlobalStuff->m_pluginsSearchPaths
-            << akElementGlobalStuff->convertToAbsolute(defaultPath);
+#ifdef Q_OS_OSX
+    if (QCoreApplication::applicationDirPath()
+            .endsWith(".app/Contents/MacOS")) {
+        QDir appDir(QCoreApplication::applicationDirPath());
+        appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
+        akElementGlobalStuff->m_pluginsSearchPaths
+                << appDir.absolutePath();
+    } else {
+#endif
+        akElementGlobalStuff->m_pluginsSearchPaths
+                << akElementGlobalStuff->convertToAbsolute(defaultPath);
+#ifdef Q_OS_OSX
+    }
+#endif
 }
 
 QString AkElement::subModulesPath()

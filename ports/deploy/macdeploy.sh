@@ -6,23 +6,26 @@ QT5PATH=/usr/local/Cellar/qt5/${QTVER}
 QT5OPT=/usr/local/opt/qt5
 
 function deploy {
-    echo Deploying app...
+    echo Deploying app
 
     ${QT5PATH}/bin/macdeployqt \
         ${CURPATH}/../../StandAlone/webcamoid.app \
         -always-overwrite \
         -appstore-compliant \
+        -qmldir=${CURPATH}/../.. \
         -libpath=${CURPATH}/../../libAvKys/Lib
 }
 
 function installplugins {
     pushd ${CURPATH}/../../libAvkys
         make INSTALL_ROOT="${PWD}/bundle-data" install
-        cp -Rvf ${PWD}/bundle-data/usr/lib/qt/qml/AkQml \
-                ${PWD}/../StandAlone/webcamoid.app/Contents/Resources/qml
-        cp -Rvf ${PWD}/bundle-data/usr/lib/avkys \
-                ${PWD}/../StandAlone/webcamoid.app/Contents/Plugins
-        rm -Rvf ${PWD}/bundle-data
+        mkdir -p ${PWD}/../StandAlone/webcamoid.app/Contents/Resources/qml/AkQml
+        cp -rvf ${PWD}/bundle-data/usr/lib/qt/qml/AkQml/* \
+                ${PWD}/../StandAlone/webcamoid.app/Contents/Resources/qml/AkQml
+        mkdir -p ${PWD}/../StandAlone/webcamoid.app/Contents/Plugins/avkys
+        cp -rvf ${PWD}/bundle-data/usr/lib/avkys/* \
+                ${PWD}/../StandAlone/webcamoid.app/Contents/Plugins/avkys
+        rm -rvf ${PWD}/bundle-data/
     popd
 }
 
@@ -47,6 +50,8 @@ function fixlibs {
 
         otool -L $where | \
         while read lib; do
+            lib=$(echo $lib | awk '{print $1}')
+
             if [[ "$lib" == *:*
                   || "$lib" == /usr/lib*
                   || "$lib" == /System/Library/Frameworks/* ]]; then
@@ -58,20 +63,19 @@ function fixlibs {
             changeid=0
             echo '    dep ' $oldpath
 
-            if [[ "$lib" == $QT5PATH\/lib* ]]; then
+            if [[ "$lib" == libavkys.*.dylib ]]; then
+                newpath=@executable_path/../Frameworks/$lib
+                echo '          change path to' $newpath
+            elif [[ "$lib" == $QT5PATH\/lib* ]]; then
                 newpath=${oldpath/$QT5PATH\/lib/$relpath}
                 echo '          change path to' $newpath
-            elif [[ "$lib" == @executable_path/../Frameworks/*$fname* ]]; then
-                newpath=${oldpath/@executable_path\/..\/Frameworks/$relpath}
-                changeid=1
-                echo '          change id to ' $newpath
-            elif [[ "$lib" == @executable_path/../Frameworks* ]]; then
-                newpath=${oldpath/@executable_path\/..\/Frameworks/$relpath}
-                echo '          change path to' $newpath
-            elif [[ "$lib" == $QT5OPT* ]]; then
+            elif [[ "$lib" == $QT5OPT\/*$fname* ]]; then
                 newpath=$(basename $oldpath)
                 changeid=1
                 echo '          change id to' $newpath
+            elif [[ "$lib" == $QT5OPT* ]]; then
+                newpath=${oldpath/$QT5OPT\/lib/$relpath}
+                echo '          change path to' $newpath
             else
                 continue
             fi
@@ -95,3 +99,4 @@ installplugins
 fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/MacOS
 fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/Frameworks
 fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/Plugins
+fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/Resources/qml/AkQml
