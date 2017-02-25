@@ -1,8 +1,9 @@
 #!/bin/sh
 
-QTVER=$(ls /usr/local/Cellar/qt5 | tail -n 1)
-QT5PATH=/usr/local/Cellar/qt5/${QTVER}
 OPTPATH=/usr/local/opt
+CELLARPATH=/usr/local/Cellar
+QTVER=$(ls ${CELLARPATH}/qt5 | tail -n 1)
+QT5PATH=${CELLARPATH}/qt5/${QTVER}
 
 function scriptdir {
     dir=$(dirname $PWD/$0)
@@ -15,7 +16,7 @@ function deploy {
     echo Deploying app
     curpath=$(scriptdir)
 
-    ${QT5PATH}/bin/macdeployqt \
+    ${OPTPATH}/qt5/bin/macdeployqt \
         ${curpath}/../../StandAlone/webcamoid.app \
         -always-overwrite \
         -appstore-compliant \
@@ -46,33 +47,102 @@ function installplugins {
 }
 
 function solvedeps {
+    path=$1
     echo Installing missing dependencies
 
     user=$(whoami)
     group=$(groups $user | awk '{print $1}')
-    frameworks=(QtConcurrent)
     curpath=$(scriptdir)
     contents=${curpath}/../../StandAlone/webcamoid.app/Contents
 
-    for framework in ${frameworks[@]}; do
-        path=${contents}/Frameworks/$framework.framework
-        mkdir -p ${path}
-        cp -Raf ${QT5PATH}/lib/$framework.framework/* ${path}
-        find ${path} \( -name 'Headers' -or -name '*.prl' \) -delete
-        chown -R $user:$group ${path}
-        find ${path} -type d -exec chmod 755 {} \;
-        find ${path} -type f -exec chmod 644 {} \;
+    find ${path} \
+        -name '*.dylib' -or -name '*.framework' -or -name 'webcamoid' | \
+    while read libpath; do
+        libpath=${libpath/${path}\//}
+        fname=$(basename $libpath)
+        echo Solving $libpath
+
+        if [[ $libpath == *.dylib || $libpath == webcamoid ]]; then
+            where=${path}/$libpath
+        else
+            module=${fname%.framework}
+            where=${path}/$libpath/$module
+        fi
+
+        otool -L $where | \
+        while read lib; do
+            lib=$(echo $lib | awk '{print $1}')
+
+            if [[ "$lib" == *:*
+                  || "$lib" == /usr/lib*
+                  || "$lib" == /System/Library/Frameworks/*
+                  || "$lib" == *$fname* ]]; then
+                continue
+            fi
+
+            oldpath=${lib%(*}
+
+            echo '    dep ' $oldpath
+
+            if [[ "$lib" == ${CELLARPATH}/*
+                  || "$lib" == ${OPTPATH}/* ]]; then
+                fname=$(basename $oldpath)
+
+                if [[ "$fname" == *.dylib ]]; then
+                    libname=$(echo $fname | awk -F. '{print $1}')
+                    fname=$libname*.dylib
+                    tfname=$libname.dylib
+                else
+                    fname=$fname.framework
+                    tfname=$fname
+                fi
+
+                pkg=${lib/${CELLARPATH}\//}
+                pkg=${pkg/${OPTPATH}\//}
+                pkg=$(echo $pkg | awk -F/ '{print $1}')
+                dest=${contents}/Frameworks
+
+                if [ ! -e ${dest}/$tfname ]; then
+                    echo '        copying' "${OPTPATH}/$pkg/lib/$fname"
+                    cp -Raf ${OPTPATH}/$pkg/lib/$fname ${dest}/
+
+                    if [ -d ${dest}/$tfname ]; then
+                        find ${dest}/$fname \
+                            \( -name 'Headers' -or -name '*.prl' \) -delete
+                    fi
+
+                    chown -R $user:$group ${dest}/$fname
+
+                    if [ -f ${dest}/$tfname ]; then
+                        chmod 644 ${dest}/$fname
+                    else
+                        find ${dest}/$fname -type d -exec chmod 755 {} \;
+                        find ${dest}/$fname -type f -exec chmod 644 {} \;
+                    fi
+                fi
+            fi
+        done
+    done
+}
+
+function solveall {
+    curpath=$(scriptdir)
+    contents=${curpath}/../../StandAlone/webcamoid.app/Contents
+    paths=(Plugins
+           Frameworks)
+
+    for path in ${paths[@]}; do
+        solvedeps ${contents}/$path
     done
 }
 
 function fixlibs {
     path=$1
+    echo Fixing dependencies paths
 
-    for libpath in $(find ${path} -name '*.dylib' \
-                                  -or \
-                                  -name '*.framework' \
-                                  -or \
-                                  -name 'webcamoid'); do
+    find ${path} \
+        -name '*.dylib' -or -name '*.framework' -or -name 'webcamoid' | \
+    while read libpath; do
         libpath=${libpath/${path}\//}
         fname=$(basename $libpath)
         echo Fixing $libpath
@@ -147,5 +217,5 @@ function fixall {
 
 deploy
 installplugins
-solvedeps
+solveall
 fixall

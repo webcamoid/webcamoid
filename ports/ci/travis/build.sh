@@ -23,14 +23,11 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    LIBUSBVER=$(ls /usr/local/Cellar/libusb | tail -n 1)
-    LIBUVCVER=$(ls /usr/local/Cellar/libuvc | tail -n 1)
-
     ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
         QMAKE_CXX="${COMPILER}" \
-        LIBUSBINCLUDES=/usr/local/Cellar/libusb/${LIBUSBVER}/include \
-        LIBUVCINCLUDES=/usr/local/Cellar/libuvc/${LIBUVCVER}/include \
-        LIBUVCLIBS=-L/usr/local/Cellar/libuvc/${LIBUVCVER}/lib \
+        LIBUSBINCLUDES=/usr/local/opt/libusb/include \
+        LIBUVCINCLUDES=/usr/local/opt/libuvc/include \
+        LIBUVCLIBS=-L/usr/local/opt/libuvc/lib \
         LIBUVCLIBS+=-luvc
 
 fi
