@@ -1,32 +1,68 @@
 #!/bin/sh
 
-CURPATH=$(dirname $0)
 QTVER=$(ls /usr/local/Cellar/qt5 | tail -n 1)
 QT5PATH=/usr/local/Cellar/qt5/${QTVER}
-QT5OPT=/usr/local/opt/qt5
+OPTPATH=/usr/local/opt
+
+function scriptdir {
+    dir=$(dirname $PWD/$0)
+    pushd $dir 1>/dev/null
+    echo $PWD
+    popd 1>/dev/null
+}
 
 function deploy {
     echo Deploying app
+    curpath=$(scriptdir)
 
     ${QT5PATH}/bin/macdeployqt \
-        ${CURPATH}/../../StandAlone/webcamoid.app \
+        ${curpath}/../../StandAlone/webcamoid.app \
         -always-overwrite \
         -appstore-compliant \
-        -qmldir=${CURPATH}/../.. \
-        -libpath=${CURPATH}/../../libAvKys/Lib
+        -qmldir=${curpath}/../.. \
+        -libpath=${curpath}/../../libAvKys/Lib
 }
 
 function installplugins {
-    pushd ${CURPATH}/../../libAvkys
-        make INSTALL_ROOT="${PWD}/bundle-data" install
-        mkdir -p ${PWD}/../StandAlone/webcamoid.app/Contents/Resources/qml/AkQml
-        cp -rvf ${PWD}/bundle-data/usr/lib/qt/qml/AkQml/* \
-                ${PWD}/../StandAlone/webcamoid.app/Contents/Resources/qml/AkQml
-        mkdir -p ${PWD}/../StandAlone/webcamoid.app/Contents/Plugins/avkys
-        cp -rvf ${PWD}/bundle-data/usr/lib/avkys/* \
-                ${PWD}/../StandAlone/webcamoid.app/Contents/Plugins/avkys
-        rm -rvf ${PWD}/bundle-data/
+    echo Installing plugins
+    curpath=$(scriptdir)
+
+    pushd ${curpath}/../../libAvkys
+        contents=${PWD}/../StandAlone/webcamoid.app/Contents
+        bundledata=${PWD}/build/bundle-data
+
+        make INSTALL_ROOT="${bundledata}" install
+
+        mkdir -p ${contents}/Resources/qml/AkQml
+        cp -rf ${bundledata}/usr/lib/qt/qml/AkQml/* \
+               ${contents}/Resources/qml/AkQml
+
+        mkdir -p ${contents}/Plugins/avkys
+        cp -rf ${bundledata}/usr/lib/avkys/* \
+               ${contents}/Plugins/avkys
+
+        rm -rf ${bundledata}
     popd
+}
+
+function solvedeps {
+    echo Installing missing dependencies
+
+    user=$(whoami)
+    group=$(groups $user | awk '{print $1}')
+    frameworks=(QtConcurrent)
+    curpath=$(scriptdir)
+    contents=${curpath}/../../StandAlone/webcamoid.app/Contents
+
+    for framework in ${frameworks[@]}; do
+        path=${contents}/Frameworks/$framework.framework
+        mkdir -p ${path}
+        cp -Raf ${QT5PATH}/lib/$framework.framework/* ${path}
+        find ${path} \( -name 'Headers' -or -name '*.prl' \) -delete
+        chown -R $user:$group ${path}
+        find ${path} -type d -exec chmod 755 {} \;
+        find ${path} -type f -exec chmod 644 {} \;
+    done
 }
 
 function fixlibs {
@@ -67,14 +103,16 @@ function fixlibs {
                 newpath=@executable_path/../Frameworks/$lib
                 echo '          change path to' $newpath
             elif [[ "$lib" == $QT5PATH\/lib* ]]; then
-                newpath=${oldpath/$QT5PATH\/lib/$relpath}
+                dir=$(dirname $lib)
+                newpath=${oldpath/$dir/$relpath}
                 echo '          change path to' $newpath
-            elif [[ "$lib" == $QT5OPT\/*$fname* ]]; then
+            elif [[ "$lib" == $OPTPATH\/*$fname* ]]; then
                 newpath=$(basename $oldpath)
                 changeid=1
                 echo '          change id to' $newpath
-            elif [[ "$lib" == $QT5OPT* ]]; then
-                newpath=${oldpath/$QT5OPT\/lib/$relpath}
+            elif [[ "$lib" == $OPTPATH* ]]; then
+                dir=$(dirname $lib)
+                newpath=${oldpath/$dir/$relpath}
                 echo '          change path to' $newpath
             else
                 continue
@@ -94,9 +132,20 @@ function fixlibs {
     done
 }
 
+function fixall {
+    curpath=$(scriptdir)
+    contents=${curpath}/../../StandAlone/webcamoid.app/Contents
+    paths=(MacOS
+           Frameworks
+           Plugins
+           Resources/qml/AkQml)
+
+    for path in ${paths[@]}; do
+        fixlibs ${contents}/$path
+    done
+}
+
 deploy
 installplugins
-fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/MacOS
-fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/Frameworks
-fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/Plugins
-fixlibs ${CURPATH}/../../StandAlone/webcamoid.app/Contents/Resources/qml/AkQml
+solvedeps
+fixall
