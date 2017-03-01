@@ -1,35 +1,34 @@
 #!/bin/sh
 
+APPNAME=webcamoid
+APPVERSION=8.0.0
 OPTPATH=/usr/local/opt
-CELLARPATH=/usr/local/Cellar
-QTVER=$(ls ${CELLARPATH}/qt5 | tail -n 1)
-QT5PATH=${CELLARPATH}/qt5/${QTVER}
 
 function scriptdir {
-    dir=$(dirname $PWD/$0)
+    dir=$(dirname $PWD/$1)
     pushd $dir 1>/dev/null
     echo $PWD
     popd 1>/dev/null
 }
 
+CURPATH=$(scriptdir $0)
+
 function deploy {
     echo Deploying app
-    curpath=$(scriptdir)
 
     ${OPTPATH}/qt5/bin/macdeployqt \
-        ${curpath}/../../StandAlone/webcamoid.app \
+        ${CURPATH}/../../StandAlone/${APPNAME}.app \
         -always-overwrite \
         -appstore-compliant \
-        -qmldir=${curpath}/../.. \
-        -libpath=${curpath}/../../libAvKys/Lib
+        -qmldir=${CURPATH}/../.. \
+        -libpath=${CURPATH}/../../libAvKys/Lib
 }
 
 function installplugins {
     echo Installing plugins
-    curpath=$(scriptdir)
 
-    pushd ${curpath}/../../libAvkys
-        contents=${PWD}/../StandAlone/webcamoid.app/Contents
+    pushd ${CURPATH}/../../libAvkys
+        contents=${PWD}/../StandAlone/${APPNAME}.app/Contents
         bundledata=${PWD}/build/bundle-data
 
         make INSTALL_ROOT="${bundledata}" install
@@ -52,17 +51,16 @@ function solvedeps {
 
     user=$(whoami)
     group=$(groups $user | awk '{print $1}')
-    curpath=$(scriptdir)
-    contents=${curpath}/../../StandAlone/webcamoid.app/Contents
+    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
 
     find ${path} \
-        -name '*.dylib' -or -name '*.framework' -or -name 'webcamoid' | \
+        -name '*.dylib' -or -name '*.framework' -or -name ${APPNAME} | \
     while read libpath; do
         libpath=${libpath/${path}\//}
         fname=$(basename $libpath)
         echo Solving $libpath
 
-        if [[ $libpath == *.dylib || $libpath == webcamoid ]]; then
+        if [[ $libpath == *.dylib || $libpath == ${APPNAME} ]]; then
             where=${path}/$libpath
         else
             module=${fname%.framework}
@@ -81,44 +79,45 @@ function solvedeps {
             fi
 
             oldpath=${lib%(*}
+            depbasename=$(basename $oldpath)
+            deplibname=$(echo $depbasename | awk -F. '{print $1}')
+            deplibdir=$(dirname $oldpath)
 
             echo '    dep ' $oldpath
 
-            if [[ "$lib" == ${CELLARPATH}/*
-                  || "$lib" == ${OPTPATH}/* ]]; then
-                fname=$(basename $oldpath)
+            if [[ "$deplibdir" == '.' || "$deplibdir" == @* ]]; then
+                continue
+            fi
 
-                if [[ "$fname" == *.dylib ]]; then
-                    libname=$(echo $fname | awk -F. '{print $1}')
-                    fname=$libname*.dylib
-                    tfname=$libname.dylib
-                else
-                    fname=$fname.framework
-                    tfname=$fname
+            if [[ "$depbasename" == *.dylib ]]; then
+                fname=$deplibname*.dylib
+                tfname=$deplibname.dylib
+            else
+                fname=$deplibname.framework
+                tfname=$fname
+                deplibdir=${deplibdir/\/$tfname/:}
+                deplibdir=$(echo $deplibdir | awk -F: '{print $1}')
+            fi
+
+            dest=${contents}/Frameworks
+
+            if [ ! -e ${dest}/$tfname ]; then
+                echo '        copying' "${deplibdir}/$fname"
+                cp -Raf ${deplibdir}/$fname ${dest}/
+
+                if [ -d ${dest}/$tfname ]; then
+                    find ${dest}/$fname -path '*/Headers/*' -delete
+                    find ${dest}/$fname \
+                        \( -name 'Headers' -or -name '*.prl' \) -delete
                 fi
 
-                pkg=${lib/${CELLARPATH}\//}
-                pkg=${pkg/${OPTPATH}\//}
-                pkg=$(echo $pkg | awk -F/ '{print $1}')
-                dest=${contents}/Frameworks
+                chown -R $user:$group ${dest}/$fname
 
-                if [ ! -e ${dest}/$tfname ]; then
-                    echo '        copying' "${OPTPATH}/$pkg/lib/$fname"
-                    cp -Raf ${OPTPATH}/$pkg/lib/$fname ${dest}/
-
-                    if [ -d ${dest}/$tfname ]; then
-                        find ${dest}/$fname \
-                            \( -name 'Headers' -or -name '*.prl' \) -delete
-                    fi
-
-                    chown -R $user:$group ${dest}/$fname
-
-                    if [ -f ${dest}/$tfname ]; then
-                        chmod 644 ${dest}/$fname
-                    else
-                        find ${dest}/$fname -type d -exec chmod 755 {} \;
-                        find ${dest}/$fname -type f -exec chmod 644 {} \;
-                    fi
+                if [ -f ${dest}/$tfname ]; then
+                    chmod 644 ${dest}/$fname
+                else
+                    find ${dest}/$fname -type d -exec chmod 755 {} \;
+                    find ${dest}/$fname -type f -exec chmod 644 {} \;
                 fi
             fi
         done
@@ -126,8 +125,7 @@ function solvedeps {
 }
 
 function solveall {
-    curpath=$(scriptdir)
-    contents=${curpath}/../../StandAlone/webcamoid.app/Contents
+    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
     paths=(Plugins
            Frameworks)
 
@@ -139,15 +137,17 @@ function solveall {
 function fixlibs {
     path=$1
     echo Fixing dependencies paths
+    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
 
     find ${path} \
-        -name '*.dylib' -or -name '*.framework' -or -name 'webcamoid' | \
+        -name '*.dylib' -or -name '*.framework' -or -name ${APPNAME} | \
     while read libpath; do
         libpath=${libpath/${path}\//}
         fname=$(basename $libpath)
+        libname=$(echo $fname | awk -F. '{print $1}')
         echo Fixing $libpath
 
-        if [[ $libpath == *.dylib || $libpath == webcamoid ]]; then
+        if [[ $libpath == *.dylib || $libpath == ${APPNAME} ]]; then
             where=${path}/$libpath
         else
             module=${fname%.framework}
@@ -165,36 +165,56 @@ function fixlibs {
             fi
 
             oldpath=${lib%(*}
+            depbasename=$(basename $oldpath)
+            deplibname=$(echo $depbasename | awk -F. '{print $1}')
             relpath=@executable_path/../Frameworks
-            changeid=0
             echo '    dep ' $oldpath
 
-            if [[ "$lib" == libavkys.*.dylib ]]; then
-                newpath=@executable_path/../Frameworks/$lib
-                echo '          change path to' $newpath
-            elif [[ "$lib" == $QT5PATH\/lib* ]]; then
-                dir=$(dirname $lib)
-                newpath=${oldpath/$dir/$relpath}
-                echo '          change path to' $newpath
-            elif [[ "$lib" == $OPTPATH\/*$fname* ]]; then
-                newpath=$(basename $oldpath)
-                changeid=1
-                echo '          change id to' $newpath
-            elif [[ "$lib" == $OPTPATH* ]]; then
-                dir=$(dirname $lib)
-                newpath=${oldpath/$dir/$relpath}
-                echo '          change path to' $newpath
-            else
-                continue
-            fi
+            if [[ $libname == $deplibname ]]; then
+                olddirpath=$(dirname $oldpath)
 
-            if [ $changeid -eq 0 ]; then
+                if [[ $olddirpath != '.' && $olddirpath != $relpath/* ]]; then
+                    tname=$depbasename
+
+                    if [[ "$tname" != *.dylib ]]; then
+                        tname=$tname.framework
+                    fi
+
+                    if [ -e $contents/Frameworks/$tname ]; then
+                        if [[ "$tname" == *.dylib ]]; then
+                            newpath=$relpath/$tname
+                        else
+                            rel=${oldpath/$tname\//:}
+                            rel=$(echo $rel | awk -F: '{print $2}')
+                            newpath=$relpath/$tname/$rel
+                        fi
+                    else
+                        newpath=$depbasename
+                    fi
+
+                    echo '          change id to' $newpath
+
+                    install_name_tool -id \
+                        $newpath \
+                        $where
+                fi
+            else
+                if [[ "$depbasename" == *.dylib ]]; then
+                    newpath=$relpath/$depbasename
+                else
+                    rel=${oldpath/$depbasename\.framework\//:}
+                    rel=$(echo $rel | awk -F: '{print $2}')
+                    newpath=$relpath/$depbasename.framework/$rel
+                fi
+
+                if [[ $newpath == $oldpath ]]; then
+                    continue
+                fi
+
+                echo '          change path to' $newpath
+
                 install_name_tool -change \
                     $oldpath \
-                    $newpath \
-                    $where
-            else
-                install_name_tool -id \
                     $newpath \
                     $where
             fi
@@ -203,8 +223,7 @@ function fixlibs {
 }
 
 function fixall {
-    curpath=$(scriptdir)
-    contents=${curpath}/../../StandAlone/webcamoid.app/Contents
+    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
     paths=(MacOS
            Frameworks
            Plugins
@@ -215,7 +234,19 @@ function fixall {
     done
 }
 
+function package {
+    cp -rvf \
+        ${CURPATH}/../../StandAlone/${APPNAME}.app/* \
+        ${CURPATH}/../../ports/installer/packages/com.webcamoidprj.webcamoid/data/${APPNAME}.app
+
+    ~/Qt/QtIFW*/bin/binarycreator \
+        -c ${CURPATH}/../../ports/installer/config/config.xml \
+        -p ${CURPATH}/../../ports/installer/packages \
+        ${CURPATH}/../../ports/deploy/${APPNAME}-${APPVERSION}.dmg
+}
+
 deploy
 installplugins
 solveall
 fixall
+package
