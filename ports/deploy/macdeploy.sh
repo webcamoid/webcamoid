@@ -1,7 +1,6 @@
 #!/bin/sh
 
 APPNAME=webcamoid
-APPVERSION=8.0.0
 OPTPATH=/usr/local/opt
 
 function scriptdir {
@@ -235,14 +234,59 @@ function fixall {
 }
 
 function package {
-    cp -rvf \
-        ${CURPATH}/../../StandAlone/${APPNAME}.app/* \
-        ${CURPATH}/../../ports/installer/packages/com.webcamoidprj.webcamoid/data/${APPNAME}.app
+    # The DMG creation script is a modification of:
+    #
+    # https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg/
 
-    ~/Qt/QtIFW*/bin/binarycreator \
-        -c ${CURPATH}/../../ports/installer/config/config.xml \
-        -p ${CURPATH}/../../ports/installer/packages \
-        ${CURPATH}/../../ports/deploy/${APPNAME}-${APPVERSION}.dmg
+    echo Creating dmg
+    staggingdir=${CURPATH}/${APPNAME}
+
+    mkdir -p ${staggingdir}/${APPNAME}.app
+    cp -rf \
+        ${CURPATH}/../../StandAlone/${APPNAME}.app/* \
+        ${staggingdir}/${APPNAME}.app
+
+    program="${staggingdir}/${APPNAME}.app/Contents/MacOS/${APPNAME}"
+    version=$("${program}" --version | awk '{print $2}')
+    dsize=$(du -sh "${staggingdir}" | sed 's/\([0-9\.]*\)M\(.*\)/\1/')
+    dsize=$(echo "${dsize} + 1.0" | bc | awk '{print int($1+0.5)}')
+    tmpdmg=${CURPATH}/${APPNAME}_tmp.dmg
+    volname="${APPNAME} ${version}"
+
+    hdiutil create \
+        -srcfolder "$staggingdir" \
+        -volname "$volname" \
+        -fs HFS+ \
+        -fsargs "-c c=64,a=16,e=16" \
+        -format UDRW \
+        -size ${dsize}M \
+        "${tmpdmg}"
+
+    device=$(hdiutil attach -readwrite -noverify "${tmpdmg}" | \
+             egrep '^/dev/' | sed 1q | awk '{print $1}')
+
+    sleep 2
+
+    cp -vf \
+        ${CURPATH}/../../StandAlone/share/icons/webcamoid.icns \
+        /Volumes/"${volname}"/.VolumeIcon.icns
+    SetFile -c icnC /Volumes/"${volname}"/.VolumeIcon.icns
+    SetFile -a C /Volumes/"${volname}"
+
+    pushd /Volumes/"${volname}"
+        ln -s /Applications
+    popd
+
+    sync
+
+    hdiutil detach "${device}"
+    hdiutil convert \
+        "${CURPATH}/${APPNAME}_tmp.dmg" \
+        -format UDZO \
+        -imagekey zlib-level=9 \
+        -o "${CURPATH}/${APPNAME}-${version}.dmg"
+    rm -rf "${CURPATH}/${APPNAME}_tmp.dmg"
+    rm -rf "$staggingdir"
 }
 
 deploy
