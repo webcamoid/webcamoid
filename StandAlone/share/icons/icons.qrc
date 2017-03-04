@@ -12,6 +12,7 @@
         <file>hicolor/scalable/preferences-desktop-font.svg</file>
         <file>hicolor/scalable/remove.svg</file>
         <file>hicolor/scalable/reset.svg</file>
+        <file>hicolor/scalable/tools-report-bug.svg</file>
         <file>hicolor/scalable/webcamoid-add.svg</file>
         <file>hicolor/scalable/webcamoid-camera-web.svg</file>
         <file>hicolor/scalable/webcamoid-down.svg</file>
@@ -43,6 +44,7 @@
         <file>hicolor/8x8/preferences-desktop-font.png</file>
         <file>hicolor/8x8/remove.png</file>
         <file>hicolor/8x8/reset.png</file>
+        <file>hicolor/8x8/tools-report-bug.png</file>
         <file>hicolor/8x8/webcamoid-add.png</file>
         <file>hicolor/8x8/webcamoid-camera-web.png</file>
         <file>hicolor/8x8/webcamoid-down.png</file>
@@ -73,6 +75,7 @@
         <file>hicolor/16x16/preferences-desktop-font.png</file>
         <file>hicolor/16x16/remove.png</file>
         <file>hicolor/16x16/reset.png</file>
+        <file>hicolor/16x16/tools-report-bug.png</file>
         <file>hicolor/16x16/webcamoid-add.png</file>
         <file>hicolor/16x16/webcamoid-camera-web.png</file>
         <file>hicolor/16x16/webcamoid-down.png</file>
@@ -103,6 +106,7 @@
         <file>hicolor/22x22/preferences-desktop-font.png</file>
         <file>hicolor/22x22/remove.png</file>
         <file>hicolor/22x22/reset.png</file>
+        <file>hicolor/22x22/tools-report-bug.png</file>
         <file>hicolor/22x22/webcamoid-add.png</file>
         <file>hicolor/22x22/webcamoid-camera-web.png</file>
         <file>hicolor/22x22/webcamoid-down.png</file>
@@ -133,6 +137,7 @@
         <file>hicolor/32x32/preferences-desktop-font.png</file>
         <file>hicolor/32x32/remove.png</file>
         <file>hicolor/32x32/reset.png</file>
+        <file>hicolor/32x32/tools-report-bug.png</file>
         <file>hicolor/32x32/webcamoid-add.png</file>
         <file>hicolor/32x32/webcamoid-camera-web.png</file>
         <file>hicolor/32x32/webcamoid-down.png</file>
@@ -163,6 +168,7 @@
         <file>hicolor/48x48/preferences-desktop-font.png</file>
         <file>hicolor/48x48/remove.png</file>
         <file>hicolor/48x48/reset.png</file>
+        <file>hicolor/48x48/tools-report-bug.png</file>
         <file>hicolor/48x48/webcamoid-add.png</file>
         <file>hicolor/48x48/webcamoid-camera-web.png</file>
         <file>hicolor/48x48/webcamoid-down.png</file>
@@ -193,6 +199,7 @@
         <file>hicolor/64x64/preferences-desktop-font.png</file>
         <file>hicolor/64x64/remove.png</file>
         <file>hicolor/64x64/reset.png</file>
+        <file>hicolor/64x64/tools-report-bug.png</file>
         <file>hicolor/64x64/webcamoid-add.png</file>
         <file>hicolor/64x64/webcamoid-camera-web.png</file>
         <file>hicolor/64x64/webcamoid-down.png</file>
@@ -223,6 +230,7 @@
         <file>hicolor/128x128/preferences-desktop-font.png</file>
         <file>hicolor/128x128/remove.png</file>
         <file>hicolor/128x128/reset.png</file>
+        <file>hicolor/128x128/tools-report-bug.png</file>
         <file>hicolor/128x128/webcamoid-add.png</file>
         <file>hicolor/128x128/webcamoid-camera-web.png</file>
         <file>hicolor/128x128/webcamoid-down.png</file>
@@ -253,6 +261,7 @@
         <file>hicolor/256x256/preferences-desktop-font.png</file>
         <file>hicolor/256x256/remove.png</file>
         <file>hicolor/256x256/reset.png</file>
+        <file>hicolor/256x256/tools-report-bug.png</file>
         <file>hicolor/256x256/webcamoid-add.png</file>
         <file>hicolor/256x256/webcamoid-camera-web.png</file>
         <file>hicolor/256x256/webcamoid-down.png</file>

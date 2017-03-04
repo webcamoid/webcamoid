@@ -22,24 +22,29 @@
 #include <QDateTime>
 #include <QStandardPaths>
 #include <QFileDialog>
+#include <QApplication>
 
 #include "videodisplay.h"
 #include "iconsprovider.h"
 #include "mediatools.h"
 
-#define COMMONS_PROJECT_URL "http://webcamoid.github.io/"
+#define COMMONS_PROJECT_URL "https://webcamoid.github.io/"
 #define COMMONS_PROJECT_LICENSE_URL "https://raw.githubusercontent.com/webcamoid/webcamoid/master/COPYING"
+#define COMMONS_PROJECT_DOWNLOADS_URL "https://webcamoid.github.io/#downloads"
+#define COMMONS_PROJECT_ISSUES_URL "https://github.com/webcamoid/webcamoid/issues"
 #define COMMONS_COPYRIGHT_NOTICE "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone"
 
 MediaTools::MediaTools(QObject *parent):
     QObject(parent),
     m_windowWidth(0),
     m_windowHeight(0),
-    m_enableVirtualCamera(false)
+    m_enableVirtualCamera(false),
+    m_trayIcon(NULL)
 {
     // Initialize environment.
     CliOptions cliOptions;
 
+    this->m_trayIcon = new QSystemTrayIcon(QApplication::windowIcon(), this);
     this->m_engine = new QQmlApplicationEngine();
     this->m_engine->addImageProvider(QLatin1String("icons"), new IconsProvider);
     Ak::setQmlEngine(this->m_engine);
@@ -48,6 +53,7 @@ MediaTools::MediaTools(QObject *parent):
     this->m_audioLayer = AudioLayerPtr(new AudioLayer(this->m_engine));
     this->m_videoEffects = VideoEffectsPtr(new VideoEffects(this->m_engine));
     this->m_recording = RecordingPtr(new Recording(this->m_engine));
+    this->m_updates = UpdatesPtr(new Updates(this->m_engine));
     this->m_virtualCamera = AkElement::create("VirtualCamera");
 
     if (this->m_virtualCamera) {
@@ -198,6 +204,16 @@ QString MediaTools::projectUrl() const
 QString MediaTools::projectLicenseUrl() const
 {
     return COMMONS_PROJECT_LICENSE_URL;
+}
+
+QString MediaTools::projectDownloadsUrl() const
+{
+    return COMMONS_PROJECT_DOWNLOADS_URL;
+}
+
+QString MediaTools::projectIssuesUrl() const
+{
+    return COMMONS_PROJECT_ISSUES_URL;
 }
 
 QString MediaTools::fileNameFromUri(const QString &uri) const
@@ -517,6 +533,16 @@ void MediaTools::show()
     // @uri Webcamoid
     qmlRegisterType<VideoDisplay>("Webcamoid", 1, 0, "VideoDisplay");
     this->m_engine->rootContext()->setContextProperty("Webcamoid", this);
+
+    // Map tray icon to QML
+    this->m_engine->rootContext()->setContextProperty("trayIcon", this->m_trayIcon);
+
+    // Map tray icon enums to QML
+    this->m_engine->rootContext()->setContextProperty("TrayIcon_NoIcon", QSystemTrayIcon::NoIcon);
+    this->m_engine->rootContext()->setContextProperty("TrayIcon_Information", QSystemTrayIcon::Information);
+    this->m_engine->rootContext()->setContextProperty("TrayIcon_Warning", QSystemTrayIcon::Warning);
+    this->m_engine->rootContext()->setContextProperty("TrayIcon_Critical", QSystemTrayIcon::Critical);
+
     this->m_engine->load(QUrl(QStringLiteral("qrc:/Webcamoid/share/qml/main.qml")));
 
     for (const QObject *obj: this->m_engine->rootObjects()) {

@@ -19,6 +19,7 @@
         <file>share/qml/PluginConfig.qml</file>
         <file>share/qml/RecordBar.qml</file>
         <file>share/qml/RecordConfig.qml</file>
+        <file>share/qml/UpdatesConfig.qml</file>
         <file>share/qml/main.qml</file>
     </qresource>
 </RCC>

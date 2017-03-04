@@ -24,6 +24,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
 import AkQml 1.0
 import Webcamoid 1.0
+import WebcamoidUpdates 1.0
 
 ApplicationWindow {
     id: wdgMainWidget
@@ -43,17 +44,17 @@ ApplicationWindow {
 
     function rgbChangeAlpha(color, alpha)
     {
-        return Qt.rgba(color.r, color.g, color.b, alpha)
+        return Qt.rgba(color.r, color.g, color.b, alpha);
     }
 
     function togglePlay() {
         if (MediaSource.state === AkElement.ElementStatePlaying) {
             Webcamoid.virtualCameraState = AkElement.ElementStateNull;
-            Recording.state = AkElement.ElementStateNull
+            Recording.state = AkElement.ElementStateNull;
             MediaSource.state = AkElement.ElementStateNull;
 
             if (splitView.state == "showRecordPanels")
-                splitView.state = ""
+                splitView.state = "";
         } else {
             MediaSource.state = AkElement.ElementStatePlaying;
 
@@ -62,16 +63,40 @@ ApplicationWindow {
         }
     }
 
+    function notifyUpdate(versionType)
+    {
+        if (Updates.notifyNewVersion
+            && versionType == UpdatesT.VersionTypeOld) {
+            trayIcon.show();
+            trayIcon.showMessage(qsTr("New version available!"),
+                                 qsTr("Download %1 %2 NOW!")
+                                    .arg(Webcamoid.applicationName())
+                                    .arg(Updates.latestVersion));
+            notifyTimer.start();
+        }
+    }
+
     SystemPalette {
         id: palette
+    }
+    Timer {
+        id: notifyTimer
+        repeat: false
+        triggeredOnStart: false
+        interval: 10000
+
+        onTriggered: trayIcon.hide()
     }
 
     onWidthChanged: Webcamoid.windowWidth = width
     onHeightChanged: Webcamoid.windowHeight = height
+    onClosing: trayIcon.hide()
 
     Component.onCompleted: {
         if (MediaSource.playOnStart)
-            togglePlay()
+            togglePlay();
+
+        notifyUpdate(Updates.versionType);
     }
 
     Connections {
@@ -87,11 +112,20 @@ ApplicationWindow {
             }
         }
     }
-
     Connections {
         target: Recording
 
         onStateChanged: recordingNotice.visible = state === AkElement.ElementStatePlaying
+    }
+    Connections {
+        target: Updates
+
+        onVersionTypeChanged: notifyUpdate(versionType);
+    }
+    Connections {
+        target: trayIcon
+
+        onMessageClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
     }
 
     VideoDisplay {
@@ -290,7 +324,8 @@ ApplicationWindow {
                         var options = {
                             "output": "OutputConfig.qml",
                             "general": "GeneralConfig.qml",
-                            "plugins": "PluginConfig.qml"
+                            "plugins": "PluginConfig.qml",
+                            "updates": "UpdatesConfig.qml",
                         }
 
                         if (options[option]) {

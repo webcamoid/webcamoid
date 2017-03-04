@@ -67,7 +67,8 @@ HEADERS = \
     src/mediasource.h \
     src/pluginconfigs.h \
     src/clioptions.h \
-    src/recording.h
+    src/recording.h \
+    src/updates.h
 
 INCLUDEPATH += \
     ../libAvKys/Lib/src
@@ -98,7 +99,8 @@ SOURCES = \
     src/mediasource.cpp \
     src/pluginconfigs.cpp \
     src/clioptions.cpp \
-    src/recording.cpp
+    src/recording.cpp \
+    src/updates.cpp
 
 lupdate_only {
     SOURCES += $$files(share/qml/*.qml)

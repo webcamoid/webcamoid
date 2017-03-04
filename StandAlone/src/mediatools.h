@@ -25,6 +25,7 @@
 #include <QQuickItem>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
+#include <QSystemTrayIcon>
 #include <ak.h>
 #include <akutils.h>
 
@@ -33,6 +34,7 @@
 #include "audiolayer.h"
 #include "videoeffects.h"
 #include "recording.h"
+#include "updates.h"
 
 class MediaTools: public QObject
 {
@@ -72,6 +74,8 @@ class MediaTools: public QObject
         Q_INVOKABLE QString copyrightNotice() const;
         Q_INVOKABLE QString projectUrl() const;
         Q_INVOKABLE QString projectLicenseUrl() const;
+        Q_INVOKABLE QString projectDownloadsUrl() const;
+        Q_INVOKABLE QString projectIssuesUrl() const;
         Q_INVOKABLE QString fileNameFromUri(const QString &uri) const;
         Q_INVOKABLE bool matches(const QString &pattern, const QStringList &strings) const;
         Q_INVOKABLE QString currentTime() const;
@@ -96,11 +100,12 @@ class MediaTools: public QObject
         AudioLayerPtr m_audioLayer;
         VideoEffectsPtr m_videoEffects;
         RecordingPtr m_recording;
+        UpdatesPtr m_updates;
         int m_windowWidth;
         int m_windowHeight;
         bool m_enableVirtualCamera;
-
         AkElementPtr m_virtualCamera;
+        QSystemTrayIcon *m_trayIcon;
 
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *ctrlInterface,

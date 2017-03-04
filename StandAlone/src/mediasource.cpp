@@ -611,7 +611,7 @@ void MediaSource::loadProperties()
 
     config.beginGroup("StreamConfigs");
     auto stream = config.value("stream").toString();
-    this->setPlayOnStart(config.value("playOnStart").toBool());
+    this->setPlayOnStart(config.value("playOnStart", true).toBool());
 
     QVariantMap uris;
     int size = config.beginReadArray("uris");
