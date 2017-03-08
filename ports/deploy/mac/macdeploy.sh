@@ -3,32 +3,32 @@
 APPNAME=webcamoid
 OPTPATH=/usr/local/opt
 
-function scriptdir {
-    dir=$(dirname $PWD/$1)
+function rootdir {
+    dir=$(dirname $PWD/$1)/../../..
     pushd $dir 1>/dev/null
     echo $PWD
     popd 1>/dev/null
 }
 
-CURPATH=$(scriptdir $0)
+ROOTDIR=$(rootdir $0)
 
 function deploy {
     echo Deploying app
 
     ${OPTPATH}/qt5/bin/macdeployqt \
-        ${CURPATH}/../../StandAlone/${APPNAME}.app \
+        ${ROOTDIR}/StandAlone/${APPNAME}.app \
         -always-overwrite \
         -appstore-compliant \
-        -qmldir=${CURPATH}/../.. \
-        -libpath=${CURPATH}/../../libAvKys/Lib
+        -qmldir=${ROOTDIR} \
+        -libpath=${ROOTDIR}/libAvKys/Lib
 }
 
 function installplugins {
     echo Installing plugins
 
-    pushd ${CURPATH}/../../libAvkys
-        contents=${PWD}/../StandAlone/${APPNAME}.app/Contents
-        bundledata=${PWD}/build/bundle-data
+    pushd ${ROOTDIR}/libAvkys
+        contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
+        bundledata=${ROOTDIR}/build/bundle-data
 
         make INSTALL_ROOT="${bundledata}" install
 
@@ -50,7 +50,7 @@ function solvedeps {
 
     user=$(whoami)
     group=$(groups $user | awk '{print $1}')
-    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
+    contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
 
     find ${path} \
         -name '*.dylib' -or -name '*.framework' -or -name ${APPNAME} | \
@@ -124,7 +124,7 @@ function solvedeps {
 }
 
 function solveall {
-    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
+    contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
     paths=(Plugins
            Frameworks)
 
@@ -136,7 +136,7 @@ function solveall {
 function fixlibs {
     path=$1
     echo Fixing dependencies paths
-    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
+    contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
 
     find ${path} \
         -name '*.dylib' -or -name '*.framework' -or -name ${APPNAME} | \
@@ -222,7 +222,7 @@ function fixlibs {
 }
 
 function fixall {
-    contents=${CURPATH}/../../StandAlone/${APPNAME}.app/Contents
+    contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
     paths=(MacOS
            Frameworks
            Plugins
@@ -233,24 +233,24 @@ function fixall {
     done
 }
 
-function package {
+function createportable {
     # The DMG creation script is a modification of:
     #
     # https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg/
 
     echo Creating dmg
-    staggingdir=${CURPATH}/${APPNAME}
+    staggingdir=${ROOTDIR}/build/${APPNAME}
 
     mkdir -p ${staggingdir}/${APPNAME}.app
     cp -rf \
-        ${CURPATH}/../../StandAlone/${APPNAME}.app/* \
+        ${ROOTDIR}/StandAlone/${APPNAME}.app/* \
         ${staggingdir}/${APPNAME}.app
 
     program="${staggingdir}/${APPNAME}.app/Contents/MacOS/${APPNAME}"
     version=$("${program}" --version | awk '{print $2}')
     dsize=$(du -sh "${staggingdir}" | sed 's/\([0-9\.]*\)M\(.*\)/\1/')
     dsize=$(echo "${dsize} + 1.0" | bc | awk '{print int($1+0.5)}')
-    tmpdmg=${CURPATH}/${APPNAME}_tmp.dmg
+    tmpdmg=${ROOTDIR}/build/${APPNAME}_tmp.dmg
     volname="${APPNAME} ${version}"
 
     hdiutil create \
@@ -268,7 +268,7 @@ function package {
     sleep 2
 
     cp -vf \
-        ${CURPATH}/../../StandAlone/share/icons/webcamoid.icns \
+        ${ROOTDIR}/StandAlone/share/icons/webcamoid.icns \
         /Volumes/"${volname}"/.VolumeIcon.icns
     SetFile -c icnC /Volumes/"${volname}"/.VolumeIcon.icns
     SetFile -a C /Volumes/"${volname}"
@@ -281,12 +281,37 @@ function package {
 
     hdiutil detach "${device}"
     hdiutil convert \
-        "${CURPATH}/${APPNAME}_tmp.dmg" \
+        "$tmpdmg" \
         -format UDZO \
         -imagekey zlib-level=9 \
-        -o "${CURPATH}/${APPNAME}-${version}.dmg"
-    rm -rf "${CURPATH}/${APPNAME}_tmp.dmg"
+        -o "${ROOTDIR}/ports/deploy/mac/${APPNAME}-portable-${version}.dmg"
+    rm -rf "$tmpdmg"
     rm -rf "$staggingdir"
+}
+
+function createintaller {
+    installerDir=${ROOTDIR}/ports/installer
+    dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
+    mkdir -p ${dataDir}/${APPNAME}.app
+    cp -rf \
+        ${ROOTDIR}/StandAlone/${APPNAME}.app/* \
+        ${dataDir}/${APPNAME}.app
+
+    program="${dataDir}/${APPNAME}.app/Contents/MacOS/${APPNAME}"
+    version=$("${program}" --version | awk '{print $2}')
+
+    ~/Qt/QtIFW*/bin/binarycreator \
+         -c ${installerDir}/config/config.xml \
+         -p ${installerDir}/packages \
+         ${ROOTDIR}/ports/deploy/mac/${APPNAME}-${version}.dmg
+
+    rm -rf ${ROOTDIR}/ports/deploy/mac/*.app
+    rm -rf "$dataDir"
+}
+
+function package {
+    createportable
+    createintaller
 }
 
 deploy

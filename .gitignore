@@ -8,6 +8,7 @@
 *.so
 *.so.*
 *.so.debug
+*.run
 
 # Packages #
 ############
@@ -19,6 +20,7 @@
 *.rar
 *.tar
 *.zip
+*.xz
 
 # Logs and databases #
 ######################
