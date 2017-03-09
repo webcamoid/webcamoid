@@ -234,38 +234,38 @@ void MultiSrcElement::codecLibUpdated(const QString &codecLib)
             ptr_init<MediaSource>(this->loadSubModule("MultiSrc", codecLib));
 
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::oStream,
+                     SIGNAL(oStream(const AkPacket &)),
                      this,
-                     &MultiSrcElement::oStream,
+                     SIGNAL(oStream(const AkPacket &)),
                      Qt::DirectConnection);
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::error,
+                     SIGNAL(error(const QString &)),
                      this,
-                     &MultiSrcElement::error);
+                     SIGNAL(error(const QString &)));
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::maxPacketQueueSizeChanged,
+                     SIGNAL(maxPacketQueueSizeChanged(qint64)),
                      this,
-                     &MultiSrcElement::maxPacketQueueSizeChanged);
+                     SIGNAL(maxPacketQueueSizeChanged(qint64)));
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::showLogChanged,
+                     SIGNAL(showLogChanged(bool)),
                      this,
-                     &MultiSrcElement::showLogChanged);
+                     SIGNAL(showLogChanged(bool)));
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::loopChanged,
+                     SIGNAL(loopChanged(bool)),
                      this,
-                     &MultiSrcElement::loopChanged);
+                     SIGNAL(loopChanged(bool)));
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::mediasChanged,
+                     SIGNAL(mediasChanged(const QStringList &)),
                      this,
-                     &MultiSrcElement::mediasChanged);
+                     SIGNAL(mediasChanged(const QStringList &)));
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::mediaChanged,
+                     SIGNAL(mediaChanged(const QString &)),
                      this,
-                     &MultiSrcElement::mediaChanged);
+                     SIGNAL(mediaChanged(const QString &)));
     QObject::connect(this->m_mediaSource.data(),
-                     &MediaSource::streamsChanged,
+                     SIGNAL(streamsChanged(const QList<int> &)),
                      this,
-                     &MultiSrcElement::streamsChanged);
+                     SIGNAL(streamsChanged(const QList<int> &)));
 
     this->m_mutexLib.unlock();
 
