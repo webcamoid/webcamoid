@@ -19,19 +19,10 @@
 
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
-    #include <libavdevice/avdevice.h>
-    #include <libavformat/avformat.h>
-    #include <libavutil/channel_layout.h>
-    #include <libavutil/imgutils.h>
-    #include <libavutil/pixdesc.h>
     #include <libswresample/swresample.h>
-    #include <libswscale/swscale.h>
 }
 
 int main()
 {
-    avcodec_receive_packet(NULL, NULL);
-
     return 0;
 }

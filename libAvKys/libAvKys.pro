@@ -48,8 +48,8 @@ isEmpty(NOFFMPEG) {
     !isEmpty(FFMPEGINCLUDES): cache(FFMPEGINCLUDES)
     !isEmpty(FFMPEGLIBS): cache(FFMPEGLIBS)
     qtCompileTest(ffmpeg)
-    qtCompileTest(avresample)
-    qtCompileTest(swresample)
+    CONFIG(config_ffmpeg): qtCompileTest(avresample)
+    CONFIG(config_ffmpeg): qtCompileTest(swresample)
 }
 
 isEmpty(NOGSTREAMER) {
