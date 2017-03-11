@@ -25,7 +25,8 @@ ACapsConvertGlobals::ACapsConvertGlobals(QObject *parent):
     QObject(parent)
 {
     this->m_preferredFramework = QStringList {
-        "ffmpeg",
+        "ffmpegsw",
+        "ffmpegav",
         "gstreamer"
     };
 

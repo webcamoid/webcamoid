@@ -30,7 +30,7 @@ CONFIG += plugin
 
 HEADERS = \
     src/plugin.h \
-    src/convertaudioffmpeg.h \
+    src/convertaudioffmpegav.h \
     ../convertaudio.h
 
 INCLUDEPATH += \
@@ -51,7 +51,7 @@ isEmpty(FFMPEGLIBS) {
 
     PKGCONFIG += \
         libavcodec \
-        libswresample \
+        libavresample \
         libavutil
 }
 
@@ -59,7 +59,7 @@ QT += qml
 
 SOURCES = \
     src/plugin.cpp \
-    src/convertaudioffmpeg.cpp \
+    src/convertaudioffmpegav.cpp \
     ../convertaudio.cpp
 
 DESTDIR = $${OUT_PWD}/../../submodules/ACapsConvert

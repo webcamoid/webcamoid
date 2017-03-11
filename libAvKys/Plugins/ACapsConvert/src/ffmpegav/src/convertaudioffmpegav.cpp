@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "convertaudioffmpeg.h"
+#include "convertaudioffmpegav.h"
 
 typedef QMap<AkAudioCaps::ChannelLayout, int64_t> ChannelLayoutsMap;
 
@@ -33,7 +33,7 @@ inline ChannelLayoutsMap initChannelFormatsMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormatsMap()))
 
-ConvertAudioFFmpeg::ConvertAudioFFmpeg(QObject *parent):
+ConvertAudioFFmpegAV::ConvertAudioFFmpegAV(QObject *parent):
     ConvertAudio(parent)
 {
     this->m_resampleContext = NULL;
@@ -43,20 +43,21 @@ ConvertAudioFFmpeg::ConvertAudioFFmpeg(QObject *parent):
 #endif
 }
 
-ConvertAudioFFmpeg::~ConvertAudioFFmpeg()
+ConvertAudioFFmpegAV::~ConvertAudioFFmpegAV()
 {
     this->uninit();
 }
 
-bool ConvertAudioFFmpeg::init(const AkAudioCaps &caps)
+bool ConvertAudioFFmpegAV::init(const AkAudioCaps &caps)
 {
     QMutexLocker mutexLocker(&this->m_mutex);
     this->m_caps = caps;
+    this->m_resampleContext = avresample_alloc_context();
 
     return true;
 }
 
-AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet)
+AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
 {
     QMutexLocker mutexLocker(&this->m_mutex);
 
@@ -82,20 +83,6 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet)
 
     int oSampleRate = this->m_caps.rate();
     int oNChannels = this->m_caps.channels();
-
-    this->m_resampleContext =
-            swr_alloc_set_opts(this->m_resampleContext,
-                               oSampleLayout,
-                               oSampleFormat,
-                               oSampleRate,
-                               iSampleLayout,
-                               iSampleFormat,
-                               iSampleRate,
-                               0,
-                               NULL);
-
-    if (!this->m_resampleContext)
-        return AkPacket();
 
     // Create input audio frame.
     static AVFrame iFrame;
@@ -123,7 +110,7 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet)
     oFrame.channels = oNChannels;
     oFrame.channel_layout = uint64_t(oSampleLayout);
     oFrame.sample_rate = oSampleRate;
-    oFrame.nb_samples = int(swr_get_delay(this->m_resampleContext, oSampleRate))
+    oFrame.nb_samples = int(avresample_get_delay(this->m_resampleContext))
                         + iFrame.nb_samples
                         * oSampleRate
                         / iSampleRate
@@ -149,9 +136,9 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet)
     }
 
     // convert to destination format
-    if (swr_convert_frame(this->m_resampleContext,
-                          &oFrame,
-                          &iFrame) < 0)
+    if (avresample_convert_frame(this->m_resampleContext,
+                                 &oFrame,
+                                 &iFrame) < 0)
         return AkPacket();
 
     frameSize = av_samples_get_buffer_size(oFrame.linesize,
@@ -174,11 +161,11 @@ AkPacket ConvertAudioFFmpeg::convert(const AkAudioPacket &packet)
     return oAudioPacket.toPacket();
 }
 
-void ConvertAudioFFmpeg::uninit()
+void ConvertAudioFFmpegAV::uninit()
 {
     QMutexLocker mutexLocker(&this->m_mutex);
     this->m_caps = AkAudioCaps();
 
     if (this->m_resampleContext)
-        swr_free(&this->m_resampleContext);
+        avresample_free(&this->m_resampleContext);
 }

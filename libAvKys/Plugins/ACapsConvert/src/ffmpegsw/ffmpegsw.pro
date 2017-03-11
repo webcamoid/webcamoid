@@ -16,9 +16,30 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-CONFIG += console c++11
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-macx: QT_CONFIG -= no-pkg-config
+CONFIG += plugin
+
+HEADERS = \
+    src/plugin.h \
+    src/convertaudioffmpegsw.h \
+    ../convertaudio.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
 
 DEFINES += __STDC_CONSTANT_MACROS
 
@@ -29,14 +50,22 @@ isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        libavdevice \
-        libavformat \
         libavcodec \
-        libswscale \
+        libswresample \
         libavutil
 }
 
-SOURCES = \
-    test.cpp
+QT += qml
 
-TARGET = test_auto
+SOURCES = \
+    src/plugin.cpp \
+    src/convertaudioffmpegsw.cpp \
+    ../convertaudio.cpp
+
+DESTDIR = $${OUT_PWD}/../../submodules/ACapsConvert
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/ACapsConvert

@@ -3,7 +3,7 @@
 APPNAME=webcamoid
 OPTPATH=/usr/local/opt
 
-function rootdir {
+rootdir() {
     dir=$(dirname $PWD/$1)/../../..
     pushd $dir 1>/dev/null
     echo $PWD
@@ -12,7 +12,7 @@ function rootdir {
 
 ROOTDIR=$(rootdir $0)
 
-function deploy {
+deploy() {
     echo Deploying app
 
     ${OPTPATH}/qt5/bin/macdeployqt \
@@ -23,7 +23,7 @@ function deploy {
         -libpath=${ROOTDIR}/libAvKys/Lib
 }
 
-function installplugins {
+installplugins() {
     echo Installing plugins
 
     pushd ${ROOTDIR}/libAvkys
@@ -44,7 +44,7 @@ function installplugins {
     popd
 }
 
-function solvedeps {
+solvedeps() {
     path=$1
     echo Installing missing dependencies
 
@@ -123,7 +123,7 @@ function solvedeps {
     done
 }
 
-function solveall {
+solveall() {
     contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
     paths=(Plugins
            Frameworks)
@@ -133,7 +133,7 @@ function solveall {
     done
 }
 
-function fixlibs {
+fixlibs() {
     path=$1
     echo Fixing dependencies paths
     contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
@@ -221,7 +221,7 @@ function fixlibs {
     done
 }
 
-function fixall {
+fixall() {
     contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
     paths=(MacOS
            Frameworks
@@ -233,7 +233,7 @@ function fixall {
     done
 }
 
-function createportable {
+createportable() {
     # The DMG creation script is a modification of:
     #
     # https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg/
@@ -289,7 +289,7 @@ function createportable {
     rm -rf "$staggingdir"
 }
 
-function createintaller {
+createintaller() {
     installerDir=${ROOTDIR}/ports/installer
     dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
     mkdir -p ${dataDir}/${APPNAME}.app
@@ -309,7 +309,7 @@ function createintaller {
     rm -rf "$dataDir"
 }
 
-function package {
+package() {
     createportable
     createintaller
 }

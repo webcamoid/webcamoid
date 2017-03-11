@@ -29,11 +29,8 @@ isEmpty(FFMPEGLIBS) {
     CONFIG += link_pkgconfig
 
     PKGCONFIG += \
-        libavdevice \
-        libavformat \
         libavcodec \
-        libswscale \
-        libavutil
+        libavresample
 }
 
 SOURCES = \

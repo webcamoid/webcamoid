@@ -2,16 +2,17 @@
 
 APPNAME=webcamoid
 
-function rootdir {
+rootdir() {
     dir=$(dirname $PWD/$1)/../../..
+
     pushd $dir 1>/dev/null
-    echo $PWD
+        echo $PWD
     popd 1>/dev/null
 }
 
 ROOTDIR=$(rootdir $0)
 
-function prepare {
+prepare() {
     if [ -e "${ROOTDIR}/build/bundle-data/${APPNAME}" ]; then
         return
     fi
@@ -22,7 +23,7 @@ function prepare {
     popd
 }
 
-function listqtmodules {
+listqtmodules() {
     bundleData=${ROOTDIR}/build/bundle-data
     scanpaths=(${APPNAME}/bin
                ${APPNAME}/lib)
@@ -45,28 +46,62 @@ function listqtmodules {
     done
 }
 
-function pluginsdeps {
+scanimports() {
+    find $1 -iname '*.qml' -type f -exec grep "^import \w\{1,\}" {} \;
+    find $1 -iname 'qmldir' -type f -exec grep '^depends ' {} \;
+}
+
+qmldeps() {
+    libpath=${ROOTDIR}/build/bundle-data/${APPNAME}/lib
+    sysqmlpath=$(qmake-qt5 -query QT_INSTALL_QML)
+    qmlsearchdir=(StandAlone/share/qml
+                  libAvKys/Plugins
+                  build/bundle-data/${APPNAME}/lib/qt/qml)
+
+    for searchpath in "${qmlsearchdir[@]}"; do
+        scanimports "${ROOTDIR}/$searchpath" | sort | uniq | \
+        while read qmlmodule; do
+            modulename=$(echo $qmlmodule | awk '{print $2}')
+            moduleversion=$(echo $qmlmodule | awk '{print $3}')
+            modulepath=$(echo $modulename | tr . / )
+            majorversion=$(echo $moduleversion | awk -F. '{print $1}')
+
+            if (( $majorversion > 1 )); then
+                modulepath=$modulepath.$majorversion
+            fi
+
+            if [[ -e $sysqmlpath/$modulepath
+                  && ! -e $libpath/qt/qml/$modulepath ]]; then
+                mkdir -p $libpath/qt/qml/$modulepath
+                cp -rf "$sysqmlpath/$modulepath"/* "$libpath/qt/qml/$modulepath"
+            fi
+        done
+    done
+}
+
+pluginsdeps() {
     bundleData=${ROOTDIR}/build/bundle-data
     libpath=${bundleData}/${APPNAME}/lib
 
-    pluginsMap=('Qt5Core platforms'
-                'Qt5Gui accessible iconengines imageformats platforms platforminputcontexts'
-                'Qt5Network bearer'
-                'Qt5Sql sqldrivers'
-                'Qt5Multimedia audio mediaservice playlistformats'
-                'Qt5PrintSupport printsupport'
-                'Qt5Quick scenegraph qmltooling'
-                'Qt5QmlTooling qmltooling'
+    pluginsMap=('Qt53DRenderer sceneparsers'
                 'Qt5Declarative qml1tooling'
-                'Qt5Positioning position'
+                'Qt5EglFSDeviceIntegration egldeviceintegrations'
+                'Qt5Gui accessible generic iconengines imageformats platforms platforminputcontexts'
                 'Qt5Location geoservices'
+                'Qt5Multimedia audio mediaservice playlistformats'
+                'Qt5Network bearer'
+                'Qt5Positioning position'
+                'Qt5PrintSupport printsupport'
+                'Qt5QmlTooling qmltooling'
+                'Qt5Quick scenegraph qmltooling'
                 'Qt5Sensors sensors sensorgestures'
+                'Qt5SerialBus canbus'
+                'Qt5Sql sqldrivers'
+                'Qt5TextToSpeech texttospeech'
                 'Qt5WebEngine qtwebengine'
                 'Qt5WebEngineCore qtwebengine'
                 'Qt5WebEngineWidgets qtwebengine'
-                'Qt53DRenderer sceneparsers'
-                'Qt5TextToSpeech texttospeech'
-                'Qt5SerialBus canbus')
+                'Qt5XcbQpa xcbglintegrations')
 
     syspluginspath=$(qmake-qt5 -query QT_INSTALL_PLUGINS)
 
@@ -91,60 +126,62 @@ function pluginsdeps {
     done
 }
 
-function qmldeps {
-    libpath=${ROOTDIR}/build/bundle-data/${APPNAME}/lib
-    sysqmlpath=$(qmake-qt5 -query QT_INSTALL_QML)
-    qmlsearchdir=(StandAlone/share/qml
-                  libAvKys/Plugins)
-
-    for searchpath in "${qmlsearchdir[@]}"; do
-        find ${ROOTDIR}/$searchpath -iname '*.qml' -type f -exec grep "^import \w\{1,\}" {} \; | sort | uniq | \
-        while read qmlmodule; do
-            modulename=$(echo $qmlmodule | awk '{print $2}')
-            moduleversion=$(echo $qmlmodule | awk '{print $3}')
-            modulepath=$(echo $modulename | tr . / )
-            majorversion=$(echo $moduleversion | awk -F. '{print $1}')
-
-            if (( $majorversion > 1 )); then
-                modulepath=$modulepath.$majorversion
-            fi
-
-            if [[ -e $sysqmlpath/$modulepath
-                  && ! -e $libpath/qt/qml/$modulepath ]]; then
-                mkdir -p $libpath/qt/qml/$modulepath
-                cp -rf "$sysqmlpath/$modulepath"/* "$libpath/qt/qml/$modulepath"
-            fi
-        done
-    done
-}
-
-function qtdeps {
+qtdeps() {
     qmldeps
     pluginsdeps
 }
 
-function glibdeps {
+excludedeps() {
     which pacman 1>/dev/null 2>/dev/null &&
     (
-        pacman -Ql glibc | grep '\w\{1,\}\-[0-9]\{1,\}\.[0-9]\{1,\}\.so' | awk '{print $2}'
+        packages=(glibc
+                  libglvnd
+                  mesa)
+
+        for package in ${packages[@]}; do
+            pacman -Ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $2}' | \
+            while read lib; do
+                readlink -f $lib
+            done
+        done
 
         return
     )
     which dpkg-query 1>/dev/null 2>/dev/null &&
     (
-        dpkg-query -L libc6  | grep '\w\{1,\}\-[0-9]\{1,\}\.[0-9]\{1,\}\.so' | awk '{print $1}' | sort
+        packages=(libc6
+                  libgl1-mesa-glx
+                  libegl1-mesa
+                  libglapi-mesa)
+
+        for package in ${packages[@]}; do
+            dpkg-query -L $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
+            while read lib; do
+                readlink -f $lib
+            done
+        done
 
         return
     )
     which rpm 1>/dev/null 2>/dev/null &&
     (
-        rpm -ql glibc  | grep '\w\{1,\}\-[0-9]\{1,\}\.[0-9]\{1,\}\.so' | awk '{print $1}' | sort
+        packages=(glibc
+                  mesa-libGL
+                  mesa-libEGL
+                  mesa-libglapi)
+
+        for package in ${packages[@]}; do
+            rpm -ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
+            while read lib; do
+                readlink -f $lib
+            done
+        done
 
         return
     )
 }
 
-function isexcluded {
+isexcluded() {
     lib=$(readlink -f $1)
     exclude=($2)
 
@@ -159,11 +196,11 @@ function isexcluded {
     echo 0
 }
 
-function solvedeps {
+solvedeps() {
     path=$1
     echo Installing missing dependencies
 
-    exclude=($(glibdeps))
+    exclude=($(excludedeps | sort | uniq))
     user=$(whoami)
     group=$(ls -ld ~ | awk '{print $4}')
     bundleData=${ROOTDIR}/build/bundle-data
@@ -208,7 +245,7 @@ function solvedeps {
     done
 }
 
-function solveall {
+solveall() {
     bundleData=${ROOTDIR}/build/bundle-data
     paths=(${APPNAME}/bin
            ${APPNAME}/lib)
@@ -218,13 +255,13 @@ function solveall {
     done
 }
 
-function createlauncher {
+createlauncher() {
     launcher=${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.sh
 
     cat << EOF > "$launcher"
 #!/bin/sh
 
-rootdir () {
+rootdir() {
     dir=\$(dirname \$PWD/\$1)
     cwd=\$PWD
     cd \$dir 1>/dev/null
@@ -239,13 +276,14 @@ export QT_QPA_PLATFORM_PLUGIN_PATH=\${QT_DIR}/platforms
 export QT_PLUGIN_PATH=\${QT_DIR}/plugins
 export QML_IMPORT_PATH=\${QT_DIR}/qml
 export QML2_IMPORT_PATH=\${QT_DIR}/qml
+#export QT_DEBUG_PLUGINS=1
 \${ROOTDIR}/bin/${APPNAME} "\$@"
 EOF
 
     chmod +x "$launcher"
 }
 
-function createportable {
+createportable() {
     pushd "${ROOTDIR}/build/bundle-data"
         version=$(./${APPNAME}/${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
         arch=$(uname -m)
@@ -253,7 +291,12 @@ function createportable {
     popd
 }
 
-function createintaller {
+sources() {
+# cat /etc/*-release
+# LC_ALL=C pacman -Qo /usr/lib/libm-2.24.so | tr ' ' $'\n' | tail -n 2
+}
+
+createintaller() {
     installerDir=${ROOTDIR}/ports/installer
     dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
 
@@ -276,7 +319,7 @@ function createintaller {
     rm -rf ${dataDir}
 }
 
-function package {
+package() {
     createportable
     createintaller
 }
