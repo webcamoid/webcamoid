@@ -99,7 +99,14 @@ ApplicationWindow {
                     }
                 }
             }
+            Tab {
+                title: qsTr("Collaborators")
 
+                TextArea {
+                    text: Webcamoid.readFile(":/Webcamoid/share/COLLABORATORS.txt")
+                    readOnly: true
+                }
+            }
             Tab {
                 title: qsTr("License")
 

@@ -53,7 +53,6 @@ isEmpty(FFMPEGLIBS) {
     PKGCONFIG += \
         libavformat \
         libavcodec \
-        libswresample \
         libswscale \
         libavutil
 }

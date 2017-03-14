@@ -33,10 +33,18 @@ typedef QMap<AVSampleFormat, AkAudioCaps::SampleFormat> SampleFormatMap;
 inline SampleFormatMap initSampleFormatMap()
 {
     SampleFormatMap sampleFormat = {
-        {AV_SAMPLE_FMT_U8 , AkAudioCaps::SampleFormat_u8 },
-        {AV_SAMPLE_FMT_S16, AkAudioCaps::SampleFormat_s16},
-        {AV_SAMPLE_FMT_S32, AkAudioCaps::SampleFormat_s32},
-        {AV_SAMPLE_FMT_FLT, AkAudioCaps::SampleFormat_flt}
+        {AV_SAMPLE_FMT_U8  , AkAudioCaps::SampleFormat_u8  },
+        {AV_SAMPLE_FMT_S16 , AkAudioCaps::SampleFormat_s16 },
+        {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32 },
+        {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64 },
+        {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt },
+        {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl },
+        {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8p },
+        {AV_SAMPLE_FMT_S16P, AkAudioCaps::SampleFormat_s16p},
+        {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32p},
+        {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_fltp},
+        {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dblp},
+        {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64p},
     };
 
     return sampleFormat;
@@ -44,13 +52,39 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
-typedef QMap<uint64_t, AkAudioCaps::ChannelLayout> ChannelLayoutsMap;
+typedef QMap<AkAudioCaps::ChannelLayout, uint64_t> ChannelLayoutsMap;
 
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
     ChannelLayoutsMap channelLayouts = {
-        {AV_CH_LAYOUT_MONO  , AkAudioCaps::Layout_mono  },
-        {AV_CH_LAYOUT_STEREO, AkAudioCaps::Layout_stereo}
+        {AkAudioCaps::Layout_mono         , AV_CH_LAYOUT_MONO             },
+        {AkAudioCaps::Layout_stereo       , AV_CH_LAYOUT_STEREO           },
+        {AkAudioCaps::Layout_2p1          , AV_CH_LAYOUT_2POINT1          },
+        {AkAudioCaps::Layout_3p0          , AV_CH_LAYOUT_SURROUND         },
+        {AkAudioCaps::Layout_3p0_back     , AV_CH_LAYOUT_2_1              },
+        {AkAudioCaps::Layout_3p1          , AV_CH_LAYOUT_3POINT1          },
+        {AkAudioCaps::Layout_4p0          , AV_CH_LAYOUT_4POINT0          },
+        {AkAudioCaps::Layout_quad         , AV_CH_LAYOUT_QUAD             },
+        {AkAudioCaps::Layout_quad_side    , AV_CH_LAYOUT_2_2              },
+        {AkAudioCaps::Layout_4p1          , AV_CH_LAYOUT_4POINT1          },
+        {AkAudioCaps::Layout_5p0          , AV_CH_LAYOUT_5POINT0_BACK     },
+        {AkAudioCaps::Layout_5p0_side     , AV_CH_LAYOUT_5POINT0          },
+        {AkAudioCaps::Layout_5p1          , AV_CH_LAYOUT_5POINT1_BACK     },
+        {AkAudioCaps::Layout_5p1_side     , AV_CH_LAYOUT_5POINT1          },
+        {AkAudioCaps::Layout_6p0          , AV_CH_LAYOUT_6POINT0          },
+        {AkAudioCaps::Layout_6p0_front    , AV_CH_LAYOUT_6POINT0_FRONT    },
+        {AkAudioCaps::Layout_hexagonal    , AV_CH_LAYOUT_HEXAGONAL        },
+        {AkAudioCaps::Layout_6p1          , AV_CH_LAYOUT_6POINT1          },
+        {AkAudioCaps::Layout_6p1_back     , AV_CH_LAYOUT_6POINT1_BACK     },
+        {AkAudioCaps::Layout_6p1_front    , AV_CH_LAYOUT_6POINT1_FRONT    },
+        {AkAudioCaps::Layout_7p0          , AV_CH_LAYOUT_7POINT0          },
+        {AkAudioCaps::Layout_7p0_front    , AV_CH_LAYOUT_7POINT0_FRONT    },
+        {AkAudioCaps::Layout_7p1          , AV_CH_LAYOUT_7POINT1          },
+        {AkAudioCaps::Layout_7p1_wide     , AV_CH_LAYOUT_7POINT1_WIDE     },
+        {AkAudioCaps::Layout_7p1_wide_side, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
+        {AkAudioCaps::Layout_octagonal    , AV_CH_LAYOUT_OCTAGONAL        },
+        {AkAudioCaps::Layout_hexadecagonal, AV_CH_LAYOUT_HEXADECAGONAL    },
+        {AkAudioCaps::Layout_downmix      , AV_CH_LAYOUT_STEREO_DOWNMIX   },
     };
 
     return channelLayouts;
@@ -65,16 +99,14 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
 {
     this->m_maxData = 9;
     this->m_pts = 0;
-    this->m_resampleContext = NULL;
     this->audioDiffCum = 0.0;
     this->audioDiffAvgCoef = exp(log(0.01) / AUDIO_DIFF_AVG_NB);
     this->audioDiffAvgCount = 0;
+    this->m_audioConvert = AkElement::create("ACapsConvert");
 }
 
 AudioStream::~AudioStream()
 {
-    if (this->m_resampleContext)
-        swr_free(&this->m_resampleContext);
 }
 
 AkCaps AudioStream::caps() const
@@ -83,10 +115,10 @@ AkCaps AudioStream::caps() const
     AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
     oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
 
-    AkAudioCaps::ChannelLayout layout = channelLayouts->value(this->codecContext()->channel_layout,
-                                                              AkAudioCaps::Layout_stereo);
-
-    uint64_t channelLayout = channelLayouts->key(layout, AV_CH_LAYOUT_STEREO);
+    AkAudioCaps::ChannelLayout layout = channelLayouts->key(this->codecContext()->channel_layout,
+                                                            AkAudioCaps::Layout_stereo);
+    uint64_t channelLayout =
+            channelLayouts->value(layout, AV_CH_LAYOUT_STEREO);
 
     AkAudioCaps caps;
     caps.isValid() = true;
@@ -137,13 +169,118 @@ void AudioStream::processData(AVFrame *frame)
     this->m_pts = frame->pts + frame->nb_samples;
 }
 
+bool AudioStream::compensate(AVFrame *oFrame,
+                             AVFrame *iFrame,
+                             int wantedSamples)
+{
+    if (wantedSamples == iFrame->nb_samples)
+        return false;
+
+    if (av_samples_alloc(oFrame->data,
+                         iFrame->linesize,
+                         iFrame->channels,
+                         wantedSamples,
+                         AVSampleFormat(iFrame->format),
+                         1) < 0) {
+        return false;
+    }
+
+    if (av_samples_copy(oFrame->data,
+                        iFrame->data,
+                        0,
+                        0,
+                        qMin(wantedSamples, iFrame->nb_samples),
+                        iFrame->channels,
+                        AVSampleFormat(iFrame->format)) < 0) {
+        av_freep(&oFrame->data[0]);
+        av_frame_unref(oFrame);
+
+        return false;
+    }
+
+    oFrame->format = iFrame->format;
+    oFrame->channels = iFrame->channels;
+    oFrame->channel_layout = iFrame->channel_layout;
+    oFrame->sample_rate = iFrame->sample_rate;
+    oFrame->nb_samples = wantedSamples;
+    oFrame->pts = iFrame->pts;
+
+    return true;
+}
+
+AkPacket AudioStream::frameToPacket(AVFrame *iFrame)
+{
+    AVFrame frame;
+    memset(&frame, 0, sizeof(AVFrame));
+
+    int frameSize = av_samples_get_buffer_size(NULL,
+                                               iFrame->channels,
+                                               iFrame->nb_samples,
+                                               AVSampleFormat(iFrame->format),
+                                               1);
+
+    QByteArray iBuffer(frameSize, Qt::Uninitialized);
+
+    if (av_samples_fill_arrays(frame.data,
+                               frame.linesize,
+                               reinterpret_cast<const uint8_t *>(iBuffer.constData()),
+                               iFrame->channels,
+                               iFrame->nb_samples,
+                               AVSampleFormat(iFrame->format),
+                               1) < 0) {
+        return AkPacket();
+    }
+
+    if (av_samples_copy(frame.data,
+                        iFrame->data,
+                        0,
+                        0,
+                        iFrame->nb_samples,
+                        iFrame->channels,
+                        AVSampleFormat(iFrame->format)) < 0) {
+        return AkPacket();
+    }
+
+    AkAudioPacket packet;
+    packet.caps() = AkAudioCaps(sampleFormats->value(AVSampleFormat(iFrame->format)),
+                                iFrame->channels,
+                                iFrame->sample_rate);
+    packet.caps().layout() = channelLayouts->key(iFrame->channel_layout);
+    packet.caps().samples() = iFrame->nb_samples;
+    packet.caps().align() = false;
+
+    packet.buffer() = iBuffer;
+    packet.pts() = iFrame->pts;
+    packet.timeBase() = this->timeBase();
+    packet.index() = int(this->index());
+    packet.id() = this->id();
+
+    return packet.toPacket();
+}
+
 AkPacket AudioStream::convert(AVFrame *iFrame)
 {
+    if (this->m_audioConvert->state() != AkElement::ElementStatePlaying) {
+        auto format = sampleFormats->value(AVSampleFormat(iFrame->format),
+                                           AkAudioCaps::SampleFormat_flt);
+
+        if (AkAudioCaps::bitsPerSample(format) > 32
+            || AkAudioCaps::isPlanar(format))
+            format = AkAudioCaps::SampleFormat_flt;
+
+        AkAudioCaps caps(format,
+                         iFrame->channels > 1? 2: 1,
+                         iFrame->sample_rate);
+        this->m_audioConvert->setProperty("caps", caps.toString());
+        this->m_audioConvert->setState(AkElement::ElementStatePlaying);
+    }
+
+    auto packet = this->frameToPacket(iFrame);
+
     // Synchronize audio
     qreal pts = iFrame->pts * this->timeBase().value();
     qreal diff = pts - this->globalClock()->clock();
     int wantedSamples = iFrame->nb_samples;
-    int oSampleRate = iFrame->sample_rate;
 
     if (!qIsNaN(diff) && qAbs(diff) < AV_NOSYNC_THRESHOLD) {
         this->audioDiffCum = diff + this->audioDiffAvgCoef * this->audioDiffCum;
@@ -165,12 +302,13 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
                 int maxSamples = iFrame->nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100;
                 wantedSamples = qBound(minSamples, wantedSamples, maxSamples);
 
-                if (wantedSamples != iFrame->nb_samples) {
-                    if (swr_set_compensation(this->m_resampleContext,
-                                             wantedSamples - iFrame->nb_samples,
-                                             wantedSamples) < 0) {
-                        return AkPacket();
-                    }
+                AVFrame oFrame;
+                memset(&oFrame, 0, sizeof(AVFrame));
+
+                if (this->compensate(&oFrame, iFrame, wantedSamples)) {
+                    packet = this->frameToPacket(&oFrame);
+                    av_freep(&oFrame.data[0]);
+                    av_frame_unref(&oFrame);
                 }
             }
         }
@@ -186,83 +324,5 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
 
     this->m_clockDiff = diff;
 
-    uint64_t oLayout = channelLayouts->contains(iFrame->channel_layout)?
-                          iFrame->channel_layout:
-                          AV_CH_LAYOUT_STEREO;
-    int oChannels = av_get_channel_layout_nb_channels(oLayout);
-
-    AVSampleFormat iFormat = AVSampleFormat(iFrame->format);
-    AVSampleFormat oFormat = av_get_packed_sample_fmt(iFormat);
-    oFormat = sampleFormats->contains(oFormat)? oFormat: AV_SAMPLE_FMT_FLT;
-
-    this->m_resampleContext =
-            swr_alloc_set_opts(this->m_resampleContext,
-                               int64_t(oLayout),
-                               oFormat,
-                               oSampleRate,
-                               int64_t(iFrame->channel_layout),
-                               iFormat,
-                               iFrame->sample_rate,
-                               0,
-                               NULL);
-
-    if (!this->m_resampleContext)
-        return AkPacket();
-
-    AVFrame oFrame;
-    memset(&oFrame, 0, sizeof(AVFrame));
-    oFrame.format = oFormat;
-    oFrame.channels = oChannels;
-    oFrame.channel_layout = oLayout;
-    oFrame.sample_rate = oSampleRate;
-    oFrame.nb_samples = wantedSamples;
-    oFrame.pts = iFrame->pts;
-
-    // Calculate the size of the audio buffer.
-    int frameSize = av_samples_get_buffer_size(oFrame.linesize,
-                                               oFrame.channels,
-                                               oFrame.nb_samples,
-                                               oFormat,
-                                               1);
-
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
-
-    if (avcodec_fill_audio_frame(&oFrame,
-                                 oFrame.channels,
-                                 oFormat,
-                                 reinterpret_cast<const uint8_t *>(oBuffer.constData()),
-                                 oBuffer.size(),
-                                 1) < 0) {
-        return AkPacket();
-    }
-
-    int error = swr_convert_frame(this->m_resampleContext,
-                                  &oFrame,
-                                  iFrame);
-
-    if (error < 0) {
-        char errorStr[1024];
-        av_strerror(AVERROR(error), errorStr, 1024);
-        qDebug() << "Error converting audio:" << errorStr;
-
-        return AkPacket();
-    }
-
-    AkAudioPacket packet;
-    packet.caps().isValid() = true;
-    packet.caps().format() = sampleFormats->value(oFormat);
-    packet.caps().bps() = 8 * av_get_bytes_per_sample(oFormat);
-    packet.caps().channels() = oChannels;
-    packet.caps().rate() = iFrame->sample_rate;
-    packet.caps().layout() = channelLayouts->value(oLayout);
-    packet.caps().samples() = oFrame.nb_samples;
-    packet.caps().align() = false;
-
-    packet.buffer() = oBuffer;
-    packet.pts() = iFrame->pts;
-    packet.timeBase() = this->timeBase();
-    packet.index() = int(this->index());
-    packet.id() = this->id();
-
-    return packet.toPacket();
+    return this->m_audioConvert->iStream(packet);
 }

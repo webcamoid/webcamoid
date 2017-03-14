@@ -24,8 +24,34 @@ typedef QMap<AkAudioCaps::ChannelLayout, int64_t> ChannelLayoutsMap;
 inline ChannelLayoutsMap initChannelFormatsMap()
 {
     ChannelLayoutsMap channelLayouts = {
-        {AkAudioCaps::Layout_mono  , AV_CH_LAYOUT_MONO  },
-        {AkAudioCaps::Layout_stereo, AV_CH_LAYOUT_STEREO}
+        {AkAudioCaps::Layout_mono         , AV_CH_LAYOUT_MONO             },
+        {AkAudioCaps::Layout_stereo       , AV_CH_LAYOUT_STEREO           },
+        {AkAudioCaps::Layout_2p1          , AV_CH_LAYOUT_2POINT1          },
+        {AkAudioCaps::Layout_3p0          , AV_CH_LAYOUT_SURROUND         },
+        {AkAudioCaps::Layout_3p0_back     , AV_CH_LAYOUT_2_1              },
+        {AkAudioCaps::Layout_3p1          , AV_CH_LAYOUT_3POINT1          },
+        {AkAudioCaps::Layout_4p0          , AV_CH_LAYOUT_4POINT0          },
+        {AkAudioCaps::Layout_quad         , AV_CH_LAYOUT_QUAD             },
+        {AkAudioCaps::Layout_quad_side    , AV_CH_LAYOUT_2_2              },
+        {AkAudioCaps::Layout_4p1          , AV_CH_LAYOUT_4POINT1          },
+        {AkAudioCaps::Layout_5p0          , AV_CH_LAYOUT_5POINT0_BACK     },
+        {AkAudioCaps::Layout_5p0_side     , AV_CH_LAYOUT_5POINT0          },
+        {AkAudioCaps::Layout_5p1          , AV_CH_LAYOUT_5POINT1_BACK     },
+        {AkAudioCaps::Layout_5p1_side     , AV_CH_LAYOUT_5POINT1          },
+        {AkAudioCaps::Layout_6p0          , AV_CH_LAYOUT_6POINT0          },
+        {AkAudioCaps::Layout_6p0_front    , AV_CH_LAYOUT_6POINT0_FRONT    },
+        {AkAudioCaps::Layout_hexagonal    , AV_CH_LAYOUT_HEXAGONAL        },
+        {AkAudioCaps::Layout_6p1          , AV_CH_LAYOUT_6POINT1          },
+        {AkAudioCaps::Layout_6p1_back     , AV_CH_LAYOUT_6POINT1_BACK     },
+        {AkAudioCaps::Layout_6p1_front    , AV_CH_LAYOUT_6POINT1_FRONT    },
+        {AkAudioCaps::Layout_7p0          , AV_CH_LAYOUT_7POINT0          },
+        {AkAudioCaps::Layout_7p0_front    , AV_CH_LAYOUT_7POINT0_FRONT    },
+        {AkAudioCaps::Layout_7p1          , AV_CH_LAYOUT_7POINT1          },
+        {AkAudioCaps::Layout_7p1_wide     , AV_CH_LAYOUT_7POINT1_WIDE     },
+        {AkAudioCaps::Layout_7p1_wide_side, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
+        {AkAudioCaps::Layout_octagonal    , AV_CH_LAYOUT_OCTAGONAL        },
+        {AkAudioCaps::Layout_hexadecagonal, AV_CH_LAYOUT_HEXADECAGONAL    },
+        {AkAudioCaps::Layout_downmix      , AV_CH_LAYOUT_STEREO_DOWNMIX   },
     };
 
     return channelLayouts;

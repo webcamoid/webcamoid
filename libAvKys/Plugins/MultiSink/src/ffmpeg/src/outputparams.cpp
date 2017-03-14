@@ -19,6 +19,46 @@
 
 #include "outputparams.h"
 
+typedef QMap<AkAudioCaps::ChannelLayout, uint64_t> ChannelLayoutsMap;
+
+inline ChannelLayoutsMap initChannelFormatsMap()
+{
+    ChannelLayoutsMap channelLayouts = {
+        {AkAudioCaps::Layout_mono         , AV_CH_LAYOUT_MONO             },
+        {AkAudioCaps::Layout_stereo       , AV_CH_LAYOUT_STEREO           },
+        {AkAudioCaps::Layout_2p1          , AV_CH_LAYOUT_2POINT1          },
+        {AkAudioCaps::Layout_3p0          , AV_CH_LAYOUT_SURROUND         },
+        {AkAudioCaps::Layout_3p0_back     , AV_CH_LAYOUT_2_1              },
+        {AkAudioCaps::Layout_3p1          , AV_CH_LAYOUT_3POINT1          },
+        {AkAudioCaps::Layout_4p0          , AV_CH_LAYOUT_4POINT0          },
+        {AkAudioCaps::Layout_quad         , AV_CH_LAYOUT_QUAD             },
+        {AkAudioCaps::Layout_quad_side    , AV_CH_LAYOUT_2_2              },
+        {AkAudioCaps::Layout_4p1          , AV_CH_LAYOUT_4POINT1          },
+        {AkAudioCaps::Layout_5p0          , AV_CH_LAYOUT_5POINT0_BACK     },
+        {AkAudioCaps::Layout_5p0_side     , AV_CH_LAYOUT_5POINT0          },
+        {AkAudioCaps::Layout_5p1          , AV_CH_LAYOUT_5POINT1_BACK     },
+        {AkAudioCaps::Layout_5p1_side     , AV_CH_LAYOUT_5POINT1          },
+        {AkAudioCaps::Layout_6p0          , AV_CH_LAYOUT_6POINT0          },
+        {AkAudioCaps::Layout_6p0_front    , AV_CH_LAYOUT_6POINT0_FRONT    },
+        {AkAudioCaps::Layout_hexagonal    , AV_CH_LAYOUT_HEXAGONAL        },
+        {AkAudioCaps::Layout_6p1          , AV_CH_LAYOUT_6POINT1          },
+        {AkAudioCaps::Layout_6p1_back     , AV_CH_LAYOUT_6POINT1_BACK     },
+        {AkAudioCaps::Layout_6p1_front    , AV_CH_LAYOUT_6POINT1_FRONT    },
+        {AkAudioCaps::Layout_7p0          , AV_CH_LAYOUT_7POINT0          },
+        {AkAudioCaps::Layout_7p0_front    , AV_CH_LAYOUT_7POINT0_FRONT    },
+        {AkAudioCaps::Layout_7p1          , AV_CH_LAYOUT_7POINT1          },
+        {AkAudioCaps::Layout_7p1_wide     , AV_CH_LAYOUT_7POINT1_WIDE     },
+        {AkAudioCaps::Layout_7p1_wide_side, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
+        {AkAudioCaps::Layout_octagonal    , AV_CH_LAYOUT_OCTAGONAL        },
+        {AkAudioCaps::Layout_hexadecagonal, AV_CH_LAYOUT_HEXADECAGONAL    },
+        {AkAudioCaps::Layout_downmix      , AV_CH_LAYOUT_STEREO_DOWNMIX   },
+    };
+
+    return channelLayouts;
+}
+
+Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormatsMap()))
+
 OutputParams::OutputParams(int inputIndex,
                            AVCodecContext *codecContext,
                            QObject *parent):
@@ -30,11 +70,11 @@ OutputParams::OutputParams(int inputIndex,
     m_pts(0),
     m_ptsDiff(0),
     m_ptsDrift(0),
-    m_resampleContext(NULL),
     m_scaleContext(NULL)
 {
     this->m_codecContext = CodecContextPtr(codecContext,
                                            this->deleteCodecContext);
+    this->m_audioConvert = AkElement::create("ACapsConvert");
 }
 
 OutputParams::OutputParams(const OutputParams &other):
@@ -48,16 +88,13 @@ OutputParams::OutputParams(const OutputParams &other):
     m_ptsDiff(other.m_ptsDiff),
     m_ptsDrift(other.m_ptsDrift),
     m_codecContext(other.m_codecContext),
-    m_resampleContext(NULL),
     m_scaleContext(NULL)
 {
+    this->m_audioConvert = AkElement::create("ACapsConvert");
 }
 
 OutputParams::~OutputParams()
 {
-    if (this->m_resampleContext)
-        swr_free(&this->m_resampleContext);
-
     if (this->m_scaleContext)
         sws_freeContext(this->m_scaleContext);
 }
@@ -355,67 +392,58 @@ bool OutputParams::convert(const AkPacket &packet, AVFrame *frame)
 
 bool OutputParams::convert(const AkAudioPacket &packet, AVFrame *frame)
 {
-    QString layout = AkAudioCaps::channelLayoutToString(packet.caps().layout());
-    uint64_t iLayout = av_get_channel_layout(layout.toStdString().c_str());
-    QString format = AkAudioCaps::sampleFormatToString(packet.caps().format());
-    AVSampleFormat iFormat = av_get_sample_fmt(format.toStdString().c_str());
-    int iSampleRate = packet.caps().rate();
+    if (this->m_audioConvert->state() != AkElement::ElementStatePlaying) {
+        auto fmtName = av_get_sample_fmt_name(AVSampleFormat(frame->format));
+        AkAudioCaps caps(AkAudioCaps::sampleFormatFromString(fmtName),
+                         frame->channels,
+                         frame->sample_rate);
+        caps.layout() = channelLayouts->key(frame->channel_layout);
+        this->m_audioConvert->setProperty("caps", caps.toString());
+        this->m_audioConvert->setState(AkElement::ElementStatePlaying);
+    }
 
-    this->m_resampleContext = swr_alloc_set_opts(this->m_resampleContext,
-                                                 int64_t(frame->channel_layout),
-                                                 AVSampleFormat(frame->format),
-                                                 frame->sample_rate,
-                                                 int64_t(iLayout),
-                                                 iFormat,
-                                                 iSampleRate,
-                                                 0,
-                                                 NULL);
+    auto oPacket = AkAudioPacket(this->m_audioConvert->iStream(packet));
 
-    if (!this->m_resampleContext)
+    if (!oPacket)
         return false;
 
-    if (!swr_is_initialized(this->m_resampleContext))
-        if (swr_init(this->m_resampleContext) < 0)
-            return false;
+    static AVFrame oFrame;
+    memset(&oFrame, 0, sizeof(AVFrame));
 
-    static AVFrame iFrame;
-    memset(&iFrame, 0, sizeof(AVFrame));
-
-    int iChannels = packet.caps().channels();
-    int iSamples = packet.caps().samples();
-
-    if (av_samples_fill_arrays(iFrame.data,
-                               iFrame.linesize,
-                               reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
-                               iChannels,
-                               iSamples,
-                               iFormat,
-                               1) < 0)
+    if (av_samples_fill_arrays(oFrame.data,
+                               oFrame.linesize,
+                               reinterpret_cast<const uint8_t *>(oPacket.buffer().constData()),
+                               frame->channels,
+                               oPacket.caps().samples(),
+                               AVSampleFormat(frame->format),
+                               1) < 0) {
         return false;
+    }
 
-    iFrame.channels = iChannels;
-    iFrame.channel_layout = iLayout;
-    iFrame.format = iFormat;
-    iFrame.sample_rate = iSampleRate;
-    iFrame.nb_samples = packet.caps().samples();
-
-    int oNSamples = int(swr_get_delay(this->m_resampleContext, frame->sample_rate))
-                    + iFrame.nb_samples
-                    * frame->sample_rate / iSampleRate
-                    + 3;
-
-    frame->nb_samples = oNSamples;
-    av_frame_get_buffer(frame, 0);
-
-    // convert to destination format
-    frame->nb_samples = swr_convert(this->m_resampleContext,
-                                    frame->data,
-                                    frame->nb_samples,
-                                    const_cast<const uint8_t **>(iFrame.data),
-                                    iFrame.nb_samples);
-
-    if (frame->nb_samples < 1)
+    if (av_samples_alloc(frame->data,
+                         frame->linesize,
+                         frame->channels,
+                         oPacket.caps().samples(),
+                         AVSampleFormat(frame->format),
+                         1) < 0) {
         return false;
+    }
+
+    frame->nb_samples = oPacket.caps().samples();
+    frame->pts = oPacket.pts();
+
+    if (av_samples_copy(frame->data,
+                        oFrame.data,
+                        0,
+                        0,
+                        frame->nb_samples,
+                        frame->channels,
+                        AVSampleFormat(frame->format)) < 0) {
+        av_freep(&oFrame.data[0]);
+        av_frame_unref(&oFrame);
+
+        return false;
+    }
 
     return true;
 }
@@ -427,17 +455,18 @@ bool OutputParams::convert(const AkVideoPacket &packet, AVFrame *frame)
     int iWidth = packet.caps().width();
     int iHeight = packet.caps().height();
 
-    this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
-                                                iWidth,
-                                                iHeight,
-                                                iFormat,
-                                                frame->width,
-                                                frame->height,
-                                                AVPixelFormat(frame->format),
-                                                SWS_FAST_BILINEAR,
-                                                NULL,
-                                                NULL,
-                                                NULL);
+    this->m_scaleContext =
+            sws_getCachedContext(this->m_scaleContext,
+                                 iWidth,
+                                 iHeight,
+                                 iFormat,
+                                 frame->width,
+                                 frame->height,
+                                 AVPixelFormat(frame->format),
+                                 SWS_FAST_BILINEAR,
+                                 NULL,
+                                 NULL,
+                                 NULL);
 
     if (!this->m_scaleContext)
         return false;

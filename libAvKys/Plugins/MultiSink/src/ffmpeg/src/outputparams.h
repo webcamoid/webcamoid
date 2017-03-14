@@ -25,7 +25,6 @@
 extern "C"
 {
     #include <libavformat/avformat.h>
-    #include <libswresample/swresample.h>
     #include <libswscale/swscale.h>
     #include <libavutil/frame.h>
     #include <libavutil/imgutils.h>
@@ -78,8 +77,8 @@ class OutputParams: public QObject
         qint64 m_ptsDrift;
 
         CodecContextPtr m_codecContext;
-        SwrContext *m_resampleContext;
         SwsContext *m_scaleContext;
+        AkElementPtr m_audioConvert;
 
         static void deleteCodecContext(AVCodecContext *codecContext);
 

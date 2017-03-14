@@ -3,6 +3,7 @@
         <file>share/audiopipeline.json</file>
         <file>share/recordingpipeline.json</file>
         <file>share/sourcespipeline.json</file>
+        <file>share/COLLABORATORS.txt</file>
         <file>../COPYING</file>
     </qresource>
 </RCC>

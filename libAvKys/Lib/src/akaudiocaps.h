@@ -29,6 +29,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
     Q_OBJECT
     Q_ENUMS(SampleFormat)
     Q_ENUMS(SampleType)
+    Q_ENUMS(Position)
     Q_ENUMS(ChannelLayout)
     Q_PROPERTY(bool isValid
                READ isValid)
@@ -92,6 +93,12 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleFormat_u32,
             SampleFormat_u32le,
             SampleFormat_u32be,
+            SampleFormat_s64,
+            SampleFormat_s64le,
+            SampleFormat_s64be,
+            SampleFormat_u64,
+            SampleFormat_u64le,
+            SampleFormat_u64be,
             SampleFormat_flt,
             SampleFormat_fltle,
             SampleFormat_fltbe,
@@ -101,6 +108,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleFormat_u8p,
             SampleFormat_s16p,
             SampleFormat_s32p,
+            SampleFormat_s64p,
             SampleFormat_fltp,
             SampleFormat_dblp
         };
@@ -113,36 +121,78 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             SampleType_float
         };
 
+        enum Position
+        {
+            Position_unknown             = 0x00000000,
+            Position_FrontLeft           = 0x00000001,
+            Position_FrontRight          = 0x00000002,
+            Position_FrontCenter         = 0x00000004,
+            Position_LowFrequency1       = 0x00000008,
+            Position_BackLeft            = 0x00000010,
+            Position_BackRight           = 0x00000020,
+            Position_FrontLeftOfCenter   = 0x00000040,
+            Position_FrontRightOfCenter  = 0x00000080,
+            Position_BackCenter          = 0x00000100,
+            Position_LowFrequency2       = 0x00000200,
+            Position_SideLeft            = 0x00000400,
+            Position_SideRight           = 0x00000800,
+            Position_TopCenter           = 0x00001000,
+            Position_TopFrontLeft        = 0x00002000,
+            Position_TopFrontCenter      = 0x00004000,
+            Position_TopFrontRight       = 0x00008000,
+            Position_TopBackLeft         = 0x00010000,
+            Position_TopBackCenter       = 0x00020000,
+            Position_TopBackRight        = 0x00040000,
+            Position_TopSideLeft         = 0x00080000,
+            Position_TopSideRight        = 0x00100000,
+            Position_BottomFrontCenter   = 0x00200000,
+            Position_BottomFrontLeft     = 0x00400000,
+            Position_BottomFrontRight    = 0x00800000,
+            Position_StereoLeft          = 0x01000000,
+            Position_StereoRight         = 0x02000000,
+            Position_WideLeft            = 0x04000000,
+            Position_WideRight           = 0x08000000,
+            Position_SurroundDirectLeft  = 0x10000000,
+            Position_SurroundDirectRight = 0x20000000
+        };
+        Q_DECLARE_FLAGS(Positions, Position)
+        Q_FLAG(Positions)
+
         enum ChannelLayout
         {
-            Layout_none = -1,
-            Layout_mono,
-            Layout_stereo,
-            Layout_2p1,
-            Layout_3p0,
-            Layout_3p0_back,
-            Layout_3p1,
-            Layout_4p0,
-            Layout_quad,
-            Layout_quad_side,
-            Layout_4p1,
-            Layout_5p0,
-            Layout_5p0_side,
-            Layout_5p1,
-            Layout_5p1_side,
-            Layout_6p0,
-            Layout_6p0_front,
-            Layout_hexagonal,
-            Layout_6p1,
-            Layout_6p1_front,
-            Layout_7p0,
-            Layout_7p0_front,
-            Layout_7p1,
-            Layout_7p1_wide,
-            Layout_7p1_wide_side,
-            Layout_octagonal,
-            Layout_hexadecagonal,
-            Layout_downmix
+            Layout_none          = 0,
+            Layout_mono          = Position_FrontCenter,
+            Layout_stereo        = Position_FrontLeft | Position_FrontRight,
+            Layout_2p1           = Layout_stereo | Position_LowFrequency1,
+            Layout_3p0           = Layout_stereo | Position_FrontCenter,
+            Layout_3p0_back      = Layout_stereo | Position_BackCenter,
+            Layout_3p1           = Layout_3p0 | Position_LowFrequency1,
+            Layout_4p0           = Layout_3p0 | Position_BackCenter,
+            Layout_quad          = Layout_stereo | Position_BackLeft | Position_BackRight,
+            Layout_quad_side     = Layout_stereo | Position_SideLeft | Position_SideRight,
+            Layout_4p1           = Layout_4p0 | Position_LowFrequency1,
+            Layout_5p0           = Layout_3p0 | Position_BackLeft | Position_BackRight,
+            Layout_5p0_side      = Layout_3p0 | Position_SideLeft | Position_SideRight,
+            Layout_5p1           = Layout_5p0 | Position_LowFrequency1,
+            Layout_5p1_side      = Layout_5p0_side | Position_LowFrequency1,
+            Layout_6p0           = Layout_5p0_side | Position_BackCenter,
+            Layout_6p0_front     = Layout_quad_side | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
+            Layout_hexagonal     = Layout_5p0 | Position_BackCenter,
+            Layout_6p1           = Layout_5p1_side | Position_BackCenter,
+            Layout_6p1_back      = Layout_5p1 | Position_BackCenter,
+            Layout_6p1_front     = Layout_6p0_front | Position_LowFrequency1,
+            Layout_7p0           = Layout_5p0_side | Position_BackLeft | Position_BackRight,
+            Layout_7p0_front     = Layout_5p0_side | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
+            Layout_7p1           = Layout_5p1_side | Position_BackLeft | Position_BackRight,
+            Layout_7p1_wide      = Layout_5p1_side | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
+            Layout_7p1_wide_side = Layout_5p1 | Position_FrontLeftOfCenter | Position_FrontRightOfCenter,
+            Layout_octagonal     = Layout_7p0 | Position_BackCenter,
+            Layout_hexadecagonal = Layout_octagonal
+                                 | Position_WideLeft | Position_WideRight
+                                 | Position_BackLeft | Position_BackRight
+                                 | Position_TopBackCenter | Position_TopFrontCenter
+                                 | Position_TopFrontLeft | Position_TopFrontRight,
+            Layout_downmix       = Position_StereoLeft | Position_StereoRight
         };
 
         explicit AkAudioCaps(QObject *parent=NULL);
@@ -255,5 +305,6 @@ QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps);
 Q_DECLARE_METATYPE(AkAudioCaps)
 Q_DECLARE_METATYPE(AkAudioCaps::SampleFormat)
 Q_DECLARE_METATYPE(AkAudioCaps::ChannelLayout)
+Q_DECLARE_OPERATORS_FOR_FLAGS(AkAudioCaps::Positions)
 
 #endif // AKAUDIOCAPS_H

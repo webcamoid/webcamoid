@@ -58,7 +58,6 @@ isEmpty(FFMPEGLIBS) {
         libavdevice \
         libavformat \
         libavcodec \
-        libswresample \
         libswscale \
         libavutil
 }

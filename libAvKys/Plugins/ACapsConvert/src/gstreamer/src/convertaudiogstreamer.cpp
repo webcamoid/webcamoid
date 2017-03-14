@@ -151,12 +151,16 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     QString fEnd = "BE";
 #endif
 
-    if (!gstIFormat.endsWith(fEnd))
+    if (packet.caps().bps() > 8 && !gstIFormat.endsWith(fEnd))
         gstIFormat += fEnd;
+
+    const char *gstInLayout =
+            AkAudioCaps::isPlanar(packet.caps().format())?
+                "non-interleaved": "interleaved";
 
     GstCaps *inCaps = gst_caps_new_simple("audio/x-raw",
                                           "format", G_TYPE_STRING, gstIFormat.toStdString().c_str(),
-                                          "layout", G_TYPE_STRING, "interleaved",
+                                          "layout", G_TYPE_STRING, gstInLayout,
                                           "rate", G_TYPE_INT, packet.caps().rate(),
                                           "channels", G_TYPE_INT, packet.caps().channels(),
                                           NULL);
@@ -175,12 +179,16 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     QString oFormat = AkAudioCaps::sampleFormatToString(this->m_caps.format());
     QString gstOFormat = gstToFF->key(oFormat, "S16");
 
-    if (!gstOFormat.endsWith(fEnd))
+    if (this->m_caps.bps() > 8 && !gstOFormat.endsWith(fEnd))
         gstOFormat += fEnd;
+
+    const char *gstOutLayout =
+            AkAudioCaps::isPlanar(this->m_caps.format())?
+                "non-interleaved": "interleaved";
 
     GstCaps *outCaps = gst_caps_new_simple("audio/x-raw",
                                            "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
-                                           "layout", G_TYPE_STRING, "interleaved",
+                                           "layout", G_TYPE_STRING, gstOutLayout,
                                            "rate", G_TYPE_INT, this->m_caps.rate(),
                                            "channels", G_TYPE_INT, this->m_caps.channels(),
                                            NULL);

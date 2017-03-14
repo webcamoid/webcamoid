@@ -23,7 +23,6 @@
 extern "C"
 {
     #include <libavcodec/avcodec.h>
-    #include <libswresample/swresample.h>
 }
 
 #include "abstractstream.h"
@@ -48,12 +47,14 @@ class AudioStream: public AbstractStream
 
     private:
         qint64 m_pts;
-        SwrContext *m_resampleContext;
+        AkElementPtr m_audioConvert;
 
         qreal audioDiffCum; // used for AV difference average computation
         qreal audioDiffAvgCoef;
         int audioDiffAvgCount;
 
+        bool compensate(AVFrame *oFrame, AVFrame *iFrame, int wantedSamples);
+        AkPacket frameToPacket(AVFrame *iFrame);
         AkPacket convert(AVFrame *iFrame);
 };
 
