@@ -1,25 +1,30 @@
 #!/bin/sh
 
-if [ "${DOCKERSYS}" = debian ]; then
-    docker exec ${DOCKERSYS} apt-get -y install \
-        software-properties-common
+if [ "${TRAVIS_OS_NAME}" = linux ]; then
+    EXEC="docker exec ${DOCKERSYS}"
+fi
 
+if [ "${DOCKERSYS}" = debian ]; then
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-          docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt562
+        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt562/ubuntu precise main >> /etc/apt/sources.list'
+        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt562/ubuntu precise main >> /etc/apt/sources.list'
     elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-          docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt58-trusty
+        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt58-trusty/ubuntu trusty main >> /etc/apt/sources.list'
+        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt58-trusty/ubuntu trusty main >> /etc/apt/sources.list'
     elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-          docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt58-xenial
+        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt58-xenial/ubuntu xenial main >> /etc/apt/sources.list'
+        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt58-xenial/ubuntu xenial main >> /etc/apt/sources.list'
     fi
 
     if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-        add-apt-repository ppa:mc3man/trusty-media
+        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main >> /etc/apt/sources.list'
+        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main >> /etc/apt/sources.list'
     fi
 
-    docker exec ${DOCKERSYS} apt-get -y update
-    docker exec ${DOCKERSYS} apt-get -y upgrade
+    ${EXEC} apt-get -y update
+    ${EXEC} apt-get -y upgrade
 
-    docker exec ${DOCKERSYS} apt-get -y install \
+    ${EXEC} apt-get -y install \
         ccache \
         clang \
         pkg-config \
@@ -32,20 +37,20 @@ if [ "${DOCKERSYS}" = debian ]; then
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-        docker exec ${DOCKERSYS} apt-get -y install \
+        ${EXEC} apt-get -y install \
             qt56tools \
             qt56declarative \
             qt56multimedia \
             qt56svg
     elif [ "${DOCKERIMG}" = ubuntu:trusty ] \
       || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-        docker exec ${DOCKERSYS} apt-get -y install \
+        ${EXEC} apt-get -y install \
             qt58tools \
             qt58declarative \
             qt58multimedia \
             qt58svg
     else
-        docker exec ${DOCKERSYS} apt-get -y install \
+        ${EXEC} apt-get -y install \
             qt5-qmake \
             qtdeclarative5-dev \
             qtmultimedia5-dev \
@@ -58,7 +63,7 @@ if [ "${DOCKERSYS}" = debian ]; then
     || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         echo
     elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-        docker exec ${DOCKERSYS} apt-get -y install \
+        ${EXEC} apt-get -y install \
             libavcodec-dev \
             libavdevice-dev \
             libavformat-dev \
@@ -66,7 +71,7 @@ if [ "${DOCKERSYS}" = debian ]; then
             libavresample-dev \
             libswscale-dev
     else
-        docker exec ${DOCKERSYS} apt-get -y install \
+        ${EXEC} apt-get -y install \
             libavcodec-dev \
             libavdevice-dev \
             libavformat-dev \
@@ -76,11 +81,11 @@ if [ "${DOCKERSYS}" = debian ]; then
             libswscale-dev
     fi
 elif [ "${DOCKERSYS}" = fedora ]; then
-    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
-    docker exec ${DOCKERSYS} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
-    docker exec ${DOCKERSYS} yum -y update
+    ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
+    ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
+    ${EXEC} dnf -y update
 
-    docker exec ${DOCKERSYS} yum -y install \
+    ${EXEC} dnf -y install \
         ccache \
         clang \
         make \
@@ -96,9 +101,9 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         pulseaudio-libs-devel \
         jack-audio-connection-kit-devel
 elif [ "${DOCKERSYS}" = opensuse ]; then
-    docker exec ${DOCKERSYS} zypper -n update
+    ${EXEC} zypper -n update
 
-    docker exec ${DOCKERSYS} zypper -n in \
+    ${EXEC} zypper -n in \
         ccache \
         clang \
         libqt5-linguist \
