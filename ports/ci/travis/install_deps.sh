@@ -21,7 +21,9 @@ if [ "${DOCKERSYS}" = debian ]; then
     if [ "${DOCKERIMG}" = ubuntu:precise ] || \
        [ "${DOCKERIMG}" = ubuntu:trusty ] || \
        [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-        ${EXEC}  add-apt-repository ppa:sergey-dryabzhinsky/ffmpeg
+        ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/packages
+        ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/toolchain
+        ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/ffmpeg
     fi
 
     ${EXEC} apt-get -y update
