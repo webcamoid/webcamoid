@@ -50,7 +50,7 @@ if [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} apt-get -y install \
             g++ \
             clang \
-            libgstreamer-plugins-base1.0-dev\
+            libgstreamer-plugins-base1.0-dev
     else
         ${EXEC} apt-get -y install \
             g++-4.9 \
