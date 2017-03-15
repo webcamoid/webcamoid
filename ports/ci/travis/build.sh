@@ -16,8 +16,8 @@ fi
 
 if [[ "${DOCKERSYS}" == ubuntu:precise ]]; then
     ${EXEC} sh /opt/qt56/bin/qt56-env.sh
-elif [[ "${DOCKERSYS}" == ubuntu:trusty
-        || "${DOCKERSYS}" == ubuntu:xenial ]]; then
+elif [ "${DOCKERSYS}" == ubuntu:trusty ] \
+  || [ "${DOCKERSYS}" == ubuntu:xenial ]; then
     ${EXEC} sh /opt/qt58/bin/qt58-env.sh
 fi
 

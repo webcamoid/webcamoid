@@ -34,8 +34,8 @@ if [ "${DOCKERSYS}" = debian ]; then
             qt56declarative \
             qt56multimedia \
             qt56svg
-    elif [[ "${DOCKERSYS}" == ubuntu:trusty
-            || "${DOCKERSYS}" == ubuntu:xenial ]]; then
+    elif [ "${DOCKERSYS}" == ubuntu:trusty ] \
+      || [ "${DOCKERSYS}" == ubuntu:xenial ]; then
         docker exec ${DOCKERSYS} apt-get -y install \
             qt58tools \
             qt58declarative \
@@ -51,8 +51,8 @@ if [ "${DOCKERSYS}" = debian ]; then
     fi
 
     # Install FFmpeg dev
-    if [[ "${DOCKERSYS}" == ubuntu:precise
-          || "${DOCKERSYS}" == ubuntu:xenial ]]; then
+    if [ "${DOCKERSYS}" == ubuntu:precise ] \
+    || [ "${DOCKERSYS}" == ubuntu:xenial ]; then
         echo
     elif [[ "${DOCKERSYS}" == ubuntu:trusty ]]; then
         docker exec ${DOCKERSYS} apt-get -y install \
