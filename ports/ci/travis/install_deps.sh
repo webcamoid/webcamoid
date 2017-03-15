@@ -34,6 +34,7 @@ if [ "${DOCKERSYS}" = debian ]; then
         ccache \
         clang \
         make \
+        g++ \
         pkg-config \
         linux-libc-dev \
         libgl1-mesa-dev \

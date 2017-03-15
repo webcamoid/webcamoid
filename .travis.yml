@@ -17,13 +17,6 @@ matrix:
     sudo: required
     services:
       - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise
-  - os: linux
-    sudo: required
-    services:
-      - docker
     compiler: gcc
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
