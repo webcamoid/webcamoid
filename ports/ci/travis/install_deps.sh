@@ -28,7 +28,7 @@ if [ "${DOCKERSYS}" = debian ]; then
 
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
         ${EXEC} add-apt-repository ppa:h-rayflood/gcc-upper
-        ${EXEC} add-apt-repository ppa:h-rayflood/llvm
+        ${EXEC} add-apt-repository ppa:h-rayflood/llvm-upper
     fi
 
     ${EXEC} apt-get -y update
@@ -53,8 +53,8 @@ if [ "${DOCKERSYS}" = debian ]; then
             libgstreamer-plugins-base1.0-dev
     else
         ${EXEC} apt-get -y install \
-            g++-4.9 \
-            clang-3.6
+            g++-${GCCVER} \
+            clang-${CLANGVER}
     fi
 
     # Install Qt dev

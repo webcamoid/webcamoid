@@ -12,14 +12,14 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise GCCVER=4.9 CLANGVER=3.6
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise GCCVER=4.9 CLANGVER=3.6
   - os: linux
     sudo: required
     services:
