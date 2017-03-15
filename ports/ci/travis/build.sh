@@ -15,10 +15,10 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
 fi
 
 if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    ${EXEC} sh /opt/qt56/bin/qt56-env.sh
+    ${EXEC} bash /opt/qt56/bin/qt56-env.sh
 elif [ "${DOCKERIMG}" = ubuntu:trusty ] \
   || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-    ${EXEC} sh /opt/qt58/bin/qt58-env.sh
+    ${EXEC} bash /opt/qt58/bin/qt58-env.sh
 fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
