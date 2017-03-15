@@ -9,13 +9,13 @@ if [ "${DOCKERSYS}" = debian ]; then
 
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
         ${EXEC} apt-get -y install python-software-properties
-        ${EXEC}  add-apt-repository ppa:beineri/opt-qt562
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt562
     elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC}  add-apt-repository ppa:beineri/opt-qt58-trusty
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt58-trusty
     elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC}  add-apt-repository ppa:beineri/opt-qt58-xenial
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt58-xenial
     fi
 
     if [ "${DOCKERIMG}" = ubuntu:precise ] || \
@@ -24,6 +24,11 @@ if [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/packages
         ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/toolchain
         ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/ffmpeg
+    fi
+
+    if [ "${DOCKERIMG}" = ubuntu:precise ]; then
+        ${EXEC} add-apt-repository ppa:ubuntu-toolchain-r/test
+        ${EXEC} add-apt-repository ppa:h-rayflood/llvm
     fi
 
     ${EXEC} apt-get -y update
