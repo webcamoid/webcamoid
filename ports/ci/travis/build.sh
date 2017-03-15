@@ -14,6 +14,13 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
     EXEC="docker exec ${DOCKERSYS}"
 fi
 
+if [[ "${DOCKERSYS}" == ubuntu:precise ]]; then
+    ${EXEC} sh /opt/qt56/bin/qt56-env.sh
+elif [[ "${DOCKERSYS}" == ubuntu:trusty
+        || "${DOCKERSYS}" == ubuntu:xenial ]]; then
+    ${EXEC} sh /opt/qt58/bin/qt58-env.sh
+fi
+
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \

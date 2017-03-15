@@ -36,7 +36,6 @@ inline SampleFormatMap initSampleFormatMap()
         {AV_SAMPLE_FMT_U8  , AkAudioCaps::SampleFormat_u8  },
         {AV_SAMPLE_FMT_S16 , AkAudioCaps::SampleFormat_s16 },
         {AV_SAMPLE_FMT_S32 , AkAudioCaps::SampleFormat_s32 },
-        {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64 },
         {AV_SAMPLE_FMT_FLT , AkAudioCaps::SampleFormat_flt },
         {AV_SAMPLE_FMT_DBL , AkAudioCaps::SampleFormat_dbl },
         {AV_SAMPLE_FMT_U8P , AkAudioCaps::SampleFormat_u8p },
@@ -44,7 +43,11 @@ inline SampleFormatMap initSampleFormatMap()
         {AV_SAMPLE_FMT_S32P, AkAudioCaps::SampleFormat_s32p},
         {AV_SAMPLE_FMT_FLTP, AkAudioCaps::SampleFormat_fltp},
         {AV_SAMPLE_FMT_DBLP, AkAudioCaps::SampleFormat_dblp},
+
+#if LIBAVUTIL_VERSION_MAJOR  >= 55 && LIBAVUTIL_VERSION_MINOR >= 29
+        {AV_SAMPLE_FMT_S64 , AkAudioCaps::SampleFormat_s64 },
         {AV_SAMPLE_FMT_S64P, AkAudioCaps::SampleFormat_s64p},
+#endif
     };
 
     return sampleFormat;
