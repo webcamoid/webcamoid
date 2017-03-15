@@ -15,10 +15,18 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
 fi
 
 if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    ${EXEC} source /opt/qt56/bin/qt56-env.sh
-elif [ "${DOCKERIMG}" = ubuntu:trusty ] \
-  || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-    ${EXEC} source /opt/qt58/bin/qt58-env.sh
+#    ${EXEC} source /opt/qt56/bin/qt56-env.sh
+    QT_BASE_DIR=/opt/qt56
+    dockPath=$(${EXEC} bash -c 'echo "$PATH"')
+    docker run --env QTDIR="$QT_BASE_DIR" bash
+    docker run --env PATH="$QT_BASE_DIR/bin:$dockPath" bash
+elif [ "${DOCKERIMG}" = ubuntu:trusty ] || \
+     [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+#    ${EXEC} source /opt/qt58/bin/qt58-env.sh
+    QT_BASE_DIR=/opt/qt58
+    dockPath=$(${EXEC} bash -c 'echo "$PATH"')
+    docker run --env QTDIR="$QT_BASE_DIR" bash
+    docker run --env PATH="$QT_BASE_DIR/bin:$dockPath" bash
 fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then

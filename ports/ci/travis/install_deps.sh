@@ -18,8 +18,10 @@ if [ "${DOCKERSYS}" = debian ]; then
         ${EXEC}  add-apt-repository ppa:beineri/opt-qt58-xenial
     fi
 
-    if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-        ${EXEC}  add-apt-repository ppa:mc3man/trusty-media
+    if [ "${DOCKERIMG}" = ubuntu:precise ] || \
+       [ "${DOCKERIMG}" = ubuntu:trusty ] || \
+       [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+        ${EXEC}  add-apt-repository ppa:sergey-dryabzhinsky/ffmpeg
     fi
 
     ${EXEC} apt-get -y update
@@ -43,8 +45,8 @@ if [ "${DOCKERSYS}" = debian ]; then
             qt56declarative \
             qt56multimedia \
             qt56svg
-    elif [ "${DOCKERIMG}" = ubuntu:trusty ] \
-      || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+    elif [ "${DOCKERIMG}" = ubuntu:trusty ] || \
+         [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install \
             qt58tools \
             qt58declarative \
@@ -60,27 +62,14 @@ if [ "${DOCKERSYS}" = debian ]; then
     fi
 
     # Install FFmpeg dev
-    if [ "${DOCKERIMG}" = ubuntu:precise ] \
-    || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-        echo
-    elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-        ${EXEC} apt-get -y install \
-            libavcodec-dev \
-            libavdevice-dev \
-            libavformat-dev \
-            libavutil-dev \
-            libavresample-dev \
-            libswscale-dev
-    else
-        ${EXEC} apt-get -y install \
-            libavcodec-dev \
-            libavdevice-dev \
-            libavformat-dev \
-            libavutil-dev \
-            libavresample-dev \
-            libswresample-dev \
-            libswscale-dev
-    fi
+    ${EXEC} apt-get -y install \
+        libavcodec-dev \
+        libavdevice-dev \
+        libavformat-dev \
+        libavutil-dev \
+        libavresample-dev \
+        libswresample-dev \
+        libswscale-dev
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
