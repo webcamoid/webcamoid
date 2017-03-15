@@ -6,7 +6,6 @@ fi
 
 if [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
-    #${EXEC} apt-get -y upgrade
 
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
         ${EXEC} apt-get -y install python-software-properties
