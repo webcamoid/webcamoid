@@ -29,6 +29,24 @@ if [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
     ${EXEC} apt-get -y upgrade
 
+    # Install dev tools
+    ${EXEC} apt-get -y install \
+        ccache \
+        clang \
+        make \
+        pkg-config \
+        linux-libc-dev \
+        libgl1-mesa-dev \
+        libpulse-dev \
+        libjack-dev \
+        libasound2-dev \
+        libv4l-dev
+
+    if [ "${DOCKERIMG}" != ubuntu:precise ]; then
+        ${EXEC} apt-get -y install \
+            libgstreamer-plugins-base1.0-dev
+    fi
+
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
         ${EXEC} apt-get -y install \
@@ -61,20 +79,6 @@ if [ "${DOCKERSYS}" = debian ]; then
         libavresample-dev \
         libswresample-dev \
         libswscale-dev
-
-    # Install dev tools
-    ${EXEC} apt-get -y install \
-        ccache \
-        clang \
-        make \
-        pkg-config \
-        linux-libc-dev \
-        libgl1-mesa-dev \
-        libgstreamer-plugins-base1.0-dev \
-        libpulse-dev \
-        libjack-dev \
-        libasound2-dev \
-        libv4l-dev
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
