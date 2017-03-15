@@ -27,7 +27,7 @@ if [ "${DOCKERSYS}" = debian ]; then
     fi
 
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-        ${EXEC} add-apt-repository ppa:ubuntu-toolchain-r/test
+        ${EXEC} add-apt-repository ppa:h-rayflood/gcc-upper
         ${EXEC} add-apt-repository ppa:h-rayflood/llvm
     fi
 
