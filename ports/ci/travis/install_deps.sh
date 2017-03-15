@@ -32,7 +32,6 @@ if [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y install \
         ccache \
         clang \
-        make \
         pkg-config \
         linux-libc-dev \
         libgl1-mesa-dev \
@@ -74,6 +73,8 @@ if [ "${DOCKERSYS}" = debian ]; then
         libavresample-dev \
         libswresample-dev \
         libswscale-dev
+
+    ${EXEC} apt-get -y install --reinstall make
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm

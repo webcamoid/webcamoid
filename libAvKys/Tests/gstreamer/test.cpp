@@ -27,6 +27,7 @@
 int main()
 {
     gst_init(NULL, NULL);
+    gst_video_info_new();
 
     return 0;
 }
