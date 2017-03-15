@@ -1,6 +1,9 @@
 #!/bin/sh
 
 if [ "${DOCKERSYS}" = debian ]; then
+    docker exec ${DOCKERSYS} apt-get -y install \
+        software-properties-common
+
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
           docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt562
     elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
