@@ -5,20 +5,34 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
 fi
 
 if [ "${DOCKERSYS}" = debian ]; then
+    ${EXEC} apt-get -y update
+    ${EXEC} apt-get -y upgrade
+
     if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt562/ubuntu precise main >> /etc/apt/sources.list'
-        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt562/ubuntu precise main >> /etc/apt/sources.list'
+        ${EXEC} apt-get -y install python-software-properties
+        ${EXEC}  add-apt-repository ppa:beineri/opt-qt562
+#         ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt562/ubuntu precise main >> /etc/apt/sources.list'
+#         ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt562/ubuntu precise main >> /etc/apt/sources.list'
+#         ${EXEC} apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 10C56D0DE9977759
     elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt58-trusty/ubuntu trusty main >> /etc/apt/sources.list'
-        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt58-trusty/ubuntu trusty main >> /etc/apt/sources.list'
+        ${EXEC} apt-get -y install software-properties-common
+        ${EXEC}  add-apt-repository ppa:beineri/opt-qt58-trusty
+#         ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt58-trusty/ubuntu trusty main >> /etc/apt/sources.list'
+#         ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt58-trusty/ubuntu trusty main >> /etc/apt/sources.list'
+#         ${EXEC} apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 10C56D0DE9977759
     elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt58-xenial/ubuntu xenial main >> /etc/apt/sources.list'
-        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt58-xenial/ubuntu xenial main >> /etc/apt/sources.list'
+        ${EXEC} apt-get -y install software-properties-common
+        ${EXEC}  add-apt-repository ppa:beineri/opt-qt58-xenial
+#         ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/beineri/opt-qt58-xenial/ubuntu xenial main >> /etc/apt/sources.list'
+#         ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/beineri/opt-qt58-xenial/ubuntu xenial main >> /etc/apt/sources.list'
+#         ${EXEC} apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 10C56D0DE9977759
     fi
 
     if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
-        ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main >> /etc/apt/sources.list'
-        ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main >> /etc/apt/sources.list'
+        ${EXEC}  add-apt-repository ppa:mc3man/trusty-media
+#         ${EXEC} bash -c 'echo deb http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main >> /etc/apt/sources.list'
+#         ${EXEC} bash -c 'echo deb-src http://ppa.launchpad.net/mc3man/trusty-media/ubuntu trusty main >> /etc/apt/sources.list'
+#         ${EXEC} apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 90BD7EACED8E640A
     fi
 
     ${EXEC} apt-get -y update
