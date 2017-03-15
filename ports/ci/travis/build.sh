@@ -39,11 +39,11 @@ fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
-        if [ "${DOCKERIMG}" = ubuntu:precice ] || \
+        if [ "${DOCKERIMG}" = ubuntu:precise ] || \
            [ "${DOCKERIMG}" = ubuntu:trusty ] || \
            [ "${DOCKERIMG}" = ubuntu:xenial ]; then
            cat << EOF >> ${BUILDSCRIPT}
-qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
+qmake -spec ${COMPILESPEC} Webcamoid.pro \
     QMAKE_CXX="${COMPILER}"
 EOF
             ${EXEC} bash ${BUILDSCRIPT}
