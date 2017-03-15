@@ -32,8 +32,10 @@ if [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y install \
         ccache \
         clang \
+        make \
         pkg-config \
         linux-libc-dev \
+        libgl1-mesa-dev \
         libgstreamer-plugins-base1.0-dev \
         libpulse-dev \
         libjack-dev \
