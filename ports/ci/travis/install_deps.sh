@@ -1,15 +1,15 @@
 #!/bin/sh
 
 if [ "${DOCKERSYS}" = debian ]; then
-    if [ "${DOCKERSYS}" = ubuntu:precise ]; then
+    if [ "${DOCKERIMG}" = ubuntu:precise ]; then
           docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt562
-    elif [ "${DOCKERSYS}" = ubuntu:trusty ]; then
+    elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
           docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt58-trusty
-    elif [ "${DOCKERSYS}" = ubuntu:xenial ]; then
+    elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
           docker exec ${DOCKERSYS} add-apt-repository ppa:beineri/opt-qt58-xenial
     fi
 
-    if [ "${DOCKERSYS}" = ubuntu:trusty ]; then
+    if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
         add-apt-repository ppa:mc3man/trusty-media
     fi
 
@@ -28,14 +28,14 @@ if [ "${DOCKERSYS}" = debian ]; then
         libv4l-dev
 
     # Install Qt dev
-    if [ "${DOCKERSYS}" = ubuntu:precise ]; then
+    if [ "${DOCKERIMG}" = ubuntu:precise ]; then
         docker exec ${DOCKERSYS} apt-get -y install \
             qt56tools \
             qt56declarative \
             qt56multimedia \
             qt56svg
-    elif [ "${DOCKERSYS}" = ubuntu:trusty ] \
-      || [ "${DOCKERSYS}" = ubuntu:xenial ]; then
+    elif [ "${DOCKERIMG}" = ubuntu:trusty ] \
+      || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         docker exec ${DOCKERSYS} apt-get -y install \
             qt58tools \
             qt58declarative \
@@ -51,10 +51,10 @@ if [ "${DOCKERSYS}" = debian ]; then
     fi
 
     # Install FFmpeg dev
-    if [ "${DOCKERSYS}" = ubuntu:precise ] \
-    || [ "${DOCKERSYS}" = ubuntu:xenial ]; then
+    if [ "${DOCKERIMG}" = ubuntu:precise ] \
+    || [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         echo
-    elif [ "${DOCKERSYS}" = ubuntu:trusty ]; then
+    elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
         docker exec ${DOCKERSYS} apt-get -y install \
             libavcodec-dev \
             libavdevice-dev \
