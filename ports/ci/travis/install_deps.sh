@@ -37,9 +37,7 @@ if [ "${DOCKERSYS}" = debian ]; then
     # Install dev tools
     ${EXEC} apt-get -y install \
         ccache \
-        clang \
         make \
-        g++ \
         pkg-config \
         linux-libc-dev \
         libgl1-mesa-dev \
@@ -50,7 +48,13 @@ if [ "${DOCKERSYS}" = debian ]; then
 
     if [ "${DOCKERIMG}" != ubuntu:precise ]; then
         ${EXEC} apt-get -y install \
-            libgstreamer-plugins-base1.0-dev
+            g++ \
+            clang \
+            libgstreamer-plugins-base1.0-dev\
+    else
+        ${EXEC} apt-get -y install \
+            g++-4.9 \
+            clang-3.2
     fi
 
     # Install Qt dev

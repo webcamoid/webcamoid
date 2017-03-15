@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ "${DOCKERIMG}" = ubuntu:precise ]; then
+    if [ "${CXX}" = clang++ ]; then
+        CXX=clang++-3.2
+    else
+        CXX=g++-4.9
+    fi
+fi
+
 if [ -z "${DISABLE_CCACHE}" ]; then
     if [ "${CXX}" = clang++ ]; then
         UNUSEDARGS="-Qunused-arguments"
