@@ -1,13 +1,5 @@
 #!/bin/sh
 
-if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    if [ "${CXX}" = clang++ ]; then
-        CXX=clang++-3.2
-    else
-        CXX=g++-4.9
-    fi
-fi
-
 if [ -z "${DISABLE_CCACHE}" ]; then
     if [ "${CXX}" = clang++ ]; then
         UNUSEDARGS="-Qunused-arguments"
@@ -43,6 +35,12 @@ source /opt/qt58/bin/qt58-env.sh
 EOF
 
     chmod +x ${BUILDSCRIPT}
+fi
+
+
+if [ "${DOCKERIMG}" = ubuntu:precise ]; then
+    ${EXEC} ln -sf /usr/bin/g++-4.9 /usr/bin/g++
+    ${EXEC} ln -sf /usr/bin/clang++-3.6 /usr/bin/clang++
 fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then

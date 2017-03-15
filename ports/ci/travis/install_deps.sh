@@ -54,7 +54,7 @@ if [ "${DOCKERSYS}" = debian ]; then
     else
         ${EXEC} apt-get -y install \
             g++-4.9 \
-            clang-3.2
+            clang-3.6
     fi
 
     # Install Qt dev
