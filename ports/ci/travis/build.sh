@@ -14,25 +14,27 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
     EXEC="docker exec ${DOCKERSYS}"
 fi
 
+BUILDSCRIPT=dockerbuild.sh
+
 if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    cat << EOF > dockerbuild.sh
+    cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
 
 source /opt/qt56/bin/qt56-env.sh
 
 EOF
 
-    chmod +x dockerbuild.sh
+    chmod +x ${BUILDSCRIPT}
 elif [ "${DOCKERIMG}" = ubuntu:trusty ] || \
      [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-    cat << EOF > dockerbuild.sh
+    cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
 
 source /opt/qt58/bin/qt58-env.sh
 
 EOF
 
-    chmod +x dockerbuild.sh
+    chmod +x ${BUILDSCRIPT}
 fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
@@ -40,11 +42,11 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
         if [ "${DOCKERIMG}" = ubuntu:precice ] || \
            [ "${DOCKERIMG}" = ubuntu:trusty ] || \
            [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-           cat << EOF >> dockerbuild.sh
-${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
+           cat << EOF >> ${BUILDSCRIPT}
+qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
     QMAKE_CXX="${COMPILER}"
 EOF
-            ${EXEC} bash dockerbuild.sh
+            ${EXEC} bash ${BUILDSCRIPT}
         else
             ${EXEC} qmake -qt=5 -spec ${COMPILESPEC} Webcamoid.pro \
                 QMAKE_CXX="${COMPILER}"
