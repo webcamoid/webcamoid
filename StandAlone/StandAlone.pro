@@ -47,7 +47,7 @@ unix {
 
     buildmanpage.input = MANPAGESOURCES
     buildmanpage.output = ${QMAKE_FILE_IN}.gz
-    buildmanpage.commands = gzip -fk9 ${QMAKE_FILE_IN}
+    buildmanpage.commands = gzip -c9 ${QMAKE_FILE_IN} > ${QMAKE_FILE_IN}.gz
     buildmanpage.CONFIG += no_link
 
     QMAKE_EXTRA_COMPILERS += buildmanpage
