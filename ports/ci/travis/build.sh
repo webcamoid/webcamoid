@@ -37,10 +37,9 @@ EOF
     chmod +x ${BUILDSCRIPT}
 fi
 
-
 if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    ${EXEC} ln -sf /usr/bin/g++-4.9 /usr/bin/g++
-    ${EXEC} ln -sf /usr/bin/clang++-3.6 /usr/bin/clang++
+    ${EXEC} ln -sf /usr/bin/g++-${GCCVER} /usr/bin/g++
+    ${EXEC} ln -sf /usr/bin/clang++-${CLANGVER} /usr/bin/clang++
 fi
 
 if [ "${TRAVIS_OS_NAME}" = linux ]; then

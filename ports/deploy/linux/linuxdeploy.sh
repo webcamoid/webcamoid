@@ -135,8 +135,10 @@ excludedeps() {
     which pacman 1>/dev/null 2>/dev/null &&
     (
         packages=(glibc
+                  gcc-libs
                   libglvnd
-                  mesa)
+                  mesa
+                  p11-kit)
 
         for package in ${packages[@]}; do
             pacman -Ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $2}' | \
@@ -150,9 +152,26 @@ excludedeps() {
     which dpkg-query 1>/dev/null 2>/dev/null &&
     (
         packages=(libc6
+                  libasan3
+                  libatomic1
+                  libcilkrts5
+                  libgcc1
+                  libgfortran3
+                  libgo9
+                  libgomp1
+                  libitm1
+                  liblsan0
+                  libmpx2
+                  libmpxwrappers2
+                  libobjc4
+                  libquadmath0
+                  libstdc++6
+                  libtsan0
+                  libubsan0
                   libgl1-mesa-glx
                   libegl1-mesa
-                  libglapi-mesa)
+                  libglapi-mesa
+                  libp11-kit0)
 
         for package in ${packages[@]}; do
             dpkg-query -L $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
@@ -166,9 +185,26 @@ excludedeps() {
     which rpm 1>/dev/null 2>/dev/null &&
     (
         packages=(glibc
+                  libasan
+                  libatomic
+                  libcilkrts
+                  libgcc
+                  libgfortran
+                  libgo
+                  libgomp
+                  libitm
+                  liblsan
+                  libmpx
+                  libmpxwrappers
+                  libobjc
+                  libquadmath
+                  libstdc++
+                  libtsan
+                  libubsan
                   mesa-libGL
                   mesa-libEGL
-                  mesa-libglapi)
+                  mesa-libglapi
+                  p11-kit)
 
         for package in ${packages[@]}; do
             rpm -ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
@@ -270,14 +306,14 @@ rootdir() {
 }
 
 ROOTDIR=\$(rootdir \$0)
-export LD_LIBRARY_PATH=\${ROOTDIR}/lib:\$LD_LIBRARY_PATH
-export QT_DIR=\${ROOTDIR}/lib/qt
+export LD_LIBRARY_PATH="\${ROOTDIR}"/lib:\$LD_LIBRARY_PATH
+export QT_DIR="\${ROOTDIR}"/lib/qt
 export QT_QPA_PLATFORM_PLUGIN_PATH=\${QT_DIR}/platforms
 export QT_PLUGIN_PATH=\${QT_DIR}/plugins
 export QML_IMPORT_PATH=\${QT_DIR}/qml
 export QML2_IMPORT_PATH=\${QT_DIR}/qml
 #export QT_DEBUG_PLUGINS=1
-\${ROOTDIR}/bin/${APPNAME} "\$@"
+"\${ROOTDIR}"/bin/${APPNAME} "\$@"
 EOF
 
     chmod +x "$launcher"
@@ -294,6 +330,7 @@ createportable() {
 sources() {
 # cat /etc/*-release
 # LC_ALL=C pacman -Qo /usr/lib/libm-2.24.so | tr ' ' $'\n' | tail -n 2
+    echo
 }
 
 createintaller() {
