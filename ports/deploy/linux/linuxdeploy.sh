@@ -2,6 +2,29 @@
 
 APPNAME=webcamoid
 
+detectqmake() {
+    qmake-qt5 -v 2>/dev/null &&
+    (
+        echo qmake-qt5
+
+        return
+    )
+    qmake -qt=5 -v 2>/dev/null &&
+    (
+        echo qmake -qt=5
+
+        return
+    )
+    qmake -v 2>/dev/null &&
+    (
+        echo qmake
+
+        return
+    )
+}
+
+QMAKE=$(detectqmake)
+
 rootdir() {
     dir=$(dirname $PWD/$1)/../../..
 
@@ -53,7 +76,7 @@ scanimports() {
 
 qmldeps() {
     libpath=${ROOTDIR}/build/bundle-data/${APPNAME}/lib
-    sysqmlpath=$(qmake-qt5 -query QT_INSTALL_QML)
+    sysqmlpath=$(${QMAKE} -query QT_INSTALL_QML)
     qmlsearchdir=(StandAlone/share/qml
                   libAvKys/Plugins
                   build/bundle-data/${APPNAME}/lib/qt/qml)
@@ -103,7 +126,7 @@ pluginsdeps() {
                 'Qt5WebEngineWidgets qtwebengine'
                 'Qt5XcbQpa xcbglintegrations')
 
-    syspluginspath=$(qmake-qt5 -query QT_INSTALL_PLUGINS)
+    syspluginspath=$(${QMAKE} -query QT_INSTALL_PLUGINS)
 
     listqtmodules | sort | uniq | \
     while read mod; do
@@ -174,7 +197,7 @@ excludedeps() {
                   libp11-kit0)
 
         for package in ${packages[@]}; do
-            dpkg-query -L $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
+            dpkg-query -L $package 2>/dev/null | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
             while read lib; do
                 readlink -f $lib
             done
@@ -333,7 +356,24 @@ sources() {
     echo
 }
 
+detectqtifw() {
+    which binarycreator 1>/dev/null 2>/dev/null &&
+    (
+        which binarycreator
+
+        return
+    )
+
+    ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort -V | tail -n 1
+}
+
 createintaller() {
+    bincreator=$(detectqtifw)
+
+    if [ -z "$bincreator" ]; then
+        return
+    fi
+
     installerDir=${ROOTDIR}/ports/installer
     dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
 
@@ -348,7 +388,7 @@ createintaller() {
 
     arch=$(uname -m)
 
-    binarycreator \
+    ${bincreator} \
          -c ${installerDir}/config/config.xml \
          -p ${installerDir}/packages \
          ${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run
