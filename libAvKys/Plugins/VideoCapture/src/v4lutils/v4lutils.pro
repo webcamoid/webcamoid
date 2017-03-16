@@ -46,6 +46,8 @@ DEFINES += HAVE_V4LUTILS
 CONFIG += link_pkgconfig
 PKGCONFIG += libv4l2
 
+CONFIG(config_v4l2intmenu): DEFINES += HAVE_INTEGER_MENU
+
 QT += qml
 
 SOURCES = \

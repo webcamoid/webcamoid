@@ -50,6 +50,7 @@ isEmpty(NOFFMPEG) {
     qtCompileTest(ffmpeg)
     CONFIG(config_ffmpeg): qtCompileTest(avresample)
     CONFIG(config_ffmpeg): qtCompileTest(swresample)
+    CONFIG(config_ffmpeg): qtCompileTest(sampleformat64)
 }
 
 isEmpty(NOGSTREAMER) {
@@ -79,7 +80,8 @@ isEmpty(NOQTAUDIO): qtCompileTest(qtaudio)
 
 isEmpty(NOV4L2) {
     qtCompileTest(v4l2)
-    isEmpty(NOV4LUTILS): qtCompileTest(v4lutils)
+    CONFIG(config_v4l2): qtCompileTest(v4l2intmenu)
+    isEmpty(NOV4LUTILS): CONFIG(config_v4l2): qtCompileTest(v4lutils)
 }
 
 isEmpty(NOVCAMWIN): qtCompileTest(vcamwin)

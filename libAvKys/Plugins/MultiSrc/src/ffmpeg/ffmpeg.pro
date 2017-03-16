@@ -62,6 +62,8 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
+CONFIG(config_sampleformat64): DEFINES += HAVE_SAMPLEFORMAT64
+
 QT += qml concurrent widgets
 
 SOURCES = \

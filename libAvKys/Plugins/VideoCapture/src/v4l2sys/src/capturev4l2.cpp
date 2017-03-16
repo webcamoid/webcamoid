@@ -35,7 +35,9 @@ inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
         {V4L2_CTRL_TYPE_CTRL_CLASS  , "ctrlClass"  },
         {V4L2_CTRL_TYPE_STRING      , "string"     },
         {V4L2_CTRL_TYPE_BITMASK     , "bitmask"    },
+#ifdef HAVE_INTEGER_MENU
         {V4L2_CTRL_TYPE_INTEGER_MENU, "integerMenu"}
+#endif
     };
 
     return ctrlTypeToStr;

@@ -12,48 +12,6 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise GCCVER=4.9 CLANGVER=3.6
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise GCCVER=4.9 CLANGVER=3.6
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: gcc
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: gcc
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: gcc
-    env:
       - DOCKERSYS=debian DOCKERIMG=debian:stretch
   - os: linux
     sudo: required
@@ -118,6 +76,48 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=opensuse DOCKERIMG=opensuse:tumbleweed
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise GCCVER=4.9 CLANGVER=3.6
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:precise GCCVER=4.9 CLANGVER=3.6
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:trusty
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: gcc
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    compiler: clang
+    env:
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:xenial
   - os: linux
     sudo: required
     services:

@@ -16,45 +16,23 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../../../commons.pri) {
-        include(../../../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
+CONFIG += console c++11
+
+macx: QT_CONFIG -= no-pkg-config
+
+DEFINES += __STDC_CONSTANT_MACROS
+
+!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
+!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+
+isEmpty(FFMPEGLIBS) {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        libavutil
 }
 
-CONFIG += plugin
-
-HEADERS = \
-    src/plugin.h \
-    src/capturev4l2.h \
-    src/capturebuffer.h \
-    ../capture.h
-
-INCLUDEPATH += \
-    ../../../../Lib/src \
-    ../
-
-LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-CONFIG(config_v4l2intmenu): DEFINES += HAVE_INTEGER_MENU
-
-QT += qml
-
 SOURCES = \
-    src/plugin.cpp \
-    src/capturev4l2.cpp \
-    ../capture.cpp
+    test.cpp
 
-DESTDIR = $${OUT_PWD}/../../submodules/VideoCapture
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VideoCapture
+TARGET = test_auto
