@@ -3,24 +3,13 @@
 APPNAME=webcamoid
 
 detectqmake() {
-    qmake-qt5 -v 2>/dev/null &&
-    (
+    if qmake-qt5 -v 1>/dev/null 2>/dev/null; then
         echo qmake-qt5
-
-        return
-    )
-    qmake -qt=5 -v 2>/dev/null &&
-    (
+    elif qmake -qt=5 -v 1>/dev/null 2>/dev/null; then
         echo qmake -qt=5
-
-        return
-    )
-    qmake -v 2>/dev/null &&
-    (
+    elif qmake -v 1>/dev/null 2>/dev/null; then
         echo qmake
-
-        return
-    )
+    fi
 }
 
 QMAKE=$(detectqmake)
@@ -155,8 +144,7 @@ qtdeps() {
 }
 
 excludedeps() {
-    which pacman 1>/dev/null 2>/dev/null &&
-    (
+    if which pacman 1>/dev/null 2>/dev/null; then
         packages=(glibc
                   gcc-libs
                   libglvnd
@@ -169,11 +157,7 @@ excludedeps() {
                 readlink -f $lib
             done
         done
-
-        return
-    )
-    which dpkg-query 1>/dev/null 2>/dev/null &&
-    (
+    elif which dpkg-query 1>/dev/null 2>/dev/null; then
         packages=(libc6
                   libasan3
                   libatomic1
@@ -202,11 +186,7 @@ excludedeps() {
                 readlink -f $lib
             done
         done
-
-        return
-    )
-    which rpm 1>/dev/null 2>/dev/null &&
-    (
+    elif which rpm 1>/dev/null 2>/dev/null; then
         packages=(glibc
                   libasan
                   libatomic
@@ -235,9 +215,7 @@ excludedeps() {
                 readlink -f $lib
             done
         done
-
-        return
-    )
+    fi
 }
 
 isexcluded() {
@@ -357,14 +335,11 @@ sources() {
 }
 
 detectqtifw() {
-    which binarycreator 1>/dev/null 2>/dev/null &&
-    (
+    if which binarycreator 1>/dev/null 2>/dev/null; then
         which binarycreator
-
-        return
-    )
-
-    ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort -V | tail -n 1
+    else
+        ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort -V | tail -n 1
+    fi
 }
 
 createintaller() {
