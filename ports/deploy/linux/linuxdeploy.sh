@@ -29,9 +29,18 @@ prepare() {
         return
     fi
 
+    sysqmlpath=$(${QMAKE} -query QT_INSTALL_QML)
+    insqmldir=${ROOTDIR}/build/bundle-data/$sysqmlpath
+    dstqmldir=${ROOTDIR}/build/bundle-data/${APPNAME}/lib/qt/qml
+
     pushd ${ROOTDIR}
         make INSTALL_ROOT="${ROOTDIR}/build/bundle-data" install
         mv -f "${ROOTDIR}/build/bundle-data/usr" "${ROOTDIR}/build/bundle-data/${APPNAME}"
+
+        if [ "$insqmldir" != "$dstqmldir" ]; then
+            mkdir -p "$dstqmldir"
+            cp -rf "$insqmldir"/* "$dstqmldir/"
+        fi
     popd
 }
 
@@ -143,74 +152,37 @@ qtdeps() {
     pluginsdeps
 }
 
+readdeps() {
+    cat "${ROOTDIR}/ports/deploy/linux/$1" | cut -d \# -f 1 | sed '/^$/d' | \
+    while read line; do
+        echo $line
+    done
+}
+
 excludedeps() {
     if which pacman 1>/dev/null 2>/dev/null; then
-        packages=(glibc
-                  gcc-libs
-                  libglvnd
-                  mesa
-                  p11-kit)
+        packages=($(readdeps deps-pkgbuild.txt))
 
         for package in ${packages[@]}; do
-            pacman -Ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $2}' | \
+            pacman -Ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{0,1\}$' | awk '{print $2}' | \
             while read lib; do
                 readlink -f $lib
             done
         done
     elif which dpkg-query 1>/dev/null 2>/dev/null; then
-        packages=(libc6
-                  libasan3
-                  libatomic1
-                  libcilkrts5
-                  libgcc1
-                  libgfortran3
-                  libgo9
-                  libgomp1
-                  libitm1
-                  liblsan0
-                  libmpx2
-                  libmpxwrappers2
-                  libobjc4
-                  libquadmath0
-                  libstdc++6
-                  libtsan0
-                  libubsan0
-                  libgl1-mesa-glx
-                  libegl1-mesa
-                  libglapi-mesa
-                  libp11-kit0)
+        packages=($(readdeps deps-deb.txt))
 
         for package in ${packages[@]}; do
-            dpkg-query -L $package 2>/dev/null | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
+            dpkg-query -L $package 2>/dev/null | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{0,1\}$' | awk '{print $1}' | \
             while read lib; do
                 readlink -f $lib
             done
         done
     elif which rpm 1>/dev/null 2>/dev/null; then
-        packages=(glibc
-                  libasan
-                  libatomic
-                  libcilkrts
-                  libgcc
-                  libgfortran
-                  libgo
-                  libgomp
-                  libitm
-                  liblsan
-                  libmpx
-                  libmpxwrappers
-                  libobjc
-                  libquadmath
-                  libstdc++
-                  libtsan
-                  libubsan
-                  mesa-libGL
-                  mesa-libEGL
-                  mesa-libglapi
-                  p11-kit)
+        packages=($(readdeps deps-rpm.txt))
 
         for package in ${packages[@]}; do
-            rpm -ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{1\}$' | awk '{print $1}' | \
+            rpm -ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{0,1\}$' | awk '{print $1}' | \
             while read lib; do
                 readlink -f $lib
             done
@@ -263,8 +235,11 @@ solvedeps() {
             fi
 
             e=$(isexcluded "$oldpath" "${exclude[*]}")
+            realoldpath=$(readlink -f "$oldpath")
 
-            if [[ "$e" == 1 ]]; then
+            if [[ "$e" == 1 ]] ||
+               [[ "$realoldpath" == /var/lib/VBoxGuestAdditions* ]] ||
+               [[ "$realoldpath" == /opt/VBoxGuestAdditions* ]]; then
                 continue
             fi
 

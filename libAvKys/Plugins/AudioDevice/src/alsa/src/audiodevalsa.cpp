@@ -428,6 +428,91 @@ void AudioDevAlsa::updateDevices()
 
     snd_ctl_card_info_free(ctlInfo);
 
+    // In case the first method for detecting the devices didn't worked,
+    // use hints to detect the devices.
+    void **hints = NULL;
+    bool fillInputs = inputs.isEmpty();
+    bool fillOuputs = outputs.isEmpty();
+
+    if (snd_device_name_hint(-1, "pcm", &hints) >= 0) {
+        for (auto hint = hints; *hint != NULL; hint++) {
+            QString deviceId = snd_device_name_get_hint(*hint, "NAME");
+
+            if (deviceId.isEmpty() || deviceId == "null")
+                continue;
+
+            QString description = snd_device_name_get_hint(*hint, "DESC");
+            description.replace('\n', " - ");
+            QString io = snd_device_name_get_hint(*hint, "IOID");
+
+            QList<AkAudioCaps::SampleFormat> _supportedFormats;
+            QList<int> _supportedChannels;
+            QList<int> _supportedSampleRates;
+
+            if (fillInputs && (io.isEmpty() || io == "Input")) {
+                auto input = deviceId + ":Input";
+
+                this->fillDeviceInfo(input,
+                                     &_supportedFormats,
+                                     &_supportedChannels,
+                                     &_supportedSampleRates);
+
+                if (_supportedFormats.isEmpty())
+                    _supportedFormats = this->m_supportedFormats.value(input);
+
+                if (_supportedChannels.isEmpty())
+                    _supportedChannels = this->m_supportedChannels.value(input);
+
+                if (_supportedSampleRates.isEmpty())
+                    _supportedSampleRates = this->m_supportedSampleRates.value(input);
+
+                if (!_supportedFormats.isEmpty()
+                    && !_supportedChannels.isEmpty()
+                    && !_supportedSampleRates.isEmpty()) {
+                    inputs << input;
+                    pinDescriptionMap[input] = description;
+                    supportedFormats[input] = _supportedFormats;
+                    supportedChannels[input] = _supportedChannels;
+                    supportedSampleRates[input] = _supportedSampleRates;
+                }
+            }
+
+            _supportedFormats.clear();
+            _supportedChannels.clear();
+            _supportedSampleRates.clear();
+
+            if (fillOuputs && (io.isEmpty() || io == "Output")) {
+                auto output = deviceId + ":Output";
+
+                this->fillDeviceInfo(output,
+                                     &_supportedFormats,
+                                     &_supportedChannels,
+                                     &_supportedSampleRates);
+
+                if (_supportedFormats.isEmpty())
+                    _supportedFormats = this->m_supportedFormats.value(output);
+
+                if (_supportedChannels.isEmpty())
+                    _supportedChannels = this->m_supportedChannels.value(output);
+
+                if (_supportedSampleRates.isEmpty())
+                    _supportedSampleRates = this->m_supportedSampleRates.value(output);
+
+                if (!_supportedFormats.isEmpty()
+                    && !_supportedChannels.isEmpty()
+                    && !_supportedSampleRates.isEmpty()) {
+                    outputs << output;
+                    pinDescriptionMap[output] = description;
+                    supportedFormats[output] = _supportedFormats;
+                    supportedChannels[output] = _supportedChannels;
+                    supportedSampleRates[output] = _supportedSampleRates;
+                }
+            }
+        }
+
+        snd_device_name_free_hint(hints);
+    }
+
     if (this->m_supportedFormats != supportedFormats)
         this->m_supportedFormats = supportedFormats;
 
