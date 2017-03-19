@@ -62,11 +62,10 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
     pa_threaded_mainloop_lock(this->m_mainLoop);
 
     // Get main loop abstration layer.
-    pa_mainloop_api *mainLoopApi =
-            pa_threaded_mainloop_get_api(this->m_mainLoop);
+    auto mainLoopApi = pa_threaded_mainloop_get_api(this->m_mainLoop);
 
     if (!mainLoopApi) {
-        pa_threaded_mainloop_lock(this->m_mainLoop);
+        pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
         this->m_mainLoop = NULL;
@@ -81,7 +80,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
                                         .c_str());
 
     if (!this->m_context) {
-        pa_threaded_mainloop_lock(this->m_mainLoop);
+        pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
         this->m_mainLoop = NULL;
@@ -95,10 +94,10 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
                                   this);
 
     // Connect to PulseAudio server.
-    if (pa_context_connect(this->m_context, 0, static_cast<pa_context_flags_t>(0), 0) < 0) {
+    if (pa_context_connect(this->m_context, NULL, PA_CONTEXT_NOFLAGS, NULL) < 0) {
         pa_context_unref(this->m_context);
         this->m_context = NULL;
-        pa_threaded_mainloop_lock(this->m_mainLoop);
+        pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
         this->m_mainLoop = NULL;
@@ -128,7 +127,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
         pa_context_disconnect(this->m_context);
         pa_context_unref(this->m_context);
         this->m_context = NULL;
-        pa_threaded_mainloop_lock(this->m_mainLoop);
+        pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
         this->m_mainLoop = NULL;
