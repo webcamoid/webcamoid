@@ -30,17 +30,18 @@ prepare() {
     fi
 
     sysqmlpath=$(${QMAKE} -query QT_INSTALL_QML)
-    insqmldir=${ROOTDIR}/build/bundle-data/$sysqmlpath
-    dstqmldir=${ROOTDIR}/build/bundle-data/${APPNAME}/lib/qt/qml
+    insqmldir=${ROOTDIR}/build/bundle-data/${sysqmlpath#/*}
+    dstqmldir=${ROOTDIR}/build/bundle-data/usr/lib/qt/qml
 
     pushd ${ROOTDIR}
         make INSTALL_ROOT="${ROOTDIR}/build/bundle-data" install
-        mv -f "${ROOTDIR}/build/bundle-data/usr" "${ROOTDIR}/build/bundle-data/${APPNAME}"
 
         if [ "$insqmldir" != "$dstqmldir" ]; then
             mkdir -p "$dstqmldir"
             cp -rf "$insqmldir"/* "$dstqmldir/"
         fi
+
+        mv -f "${ROOTDIR}/build/bundle-data/usr" "${ROOTDIR}/build/bundle-data/${APPNAME}"
     popd
 }
 
@@ -155,64 +156,43 @@ qtdeps() {
 readdeps() {
     cat "${ROOTDIR}/ports/deploy/linux/$1" | cut -d \# -f 1 | sed '/^$/d' | \
     while read line; do
-        echo $line
+        echo $line | awk '{print $1}'
     done
-}
-
-excludedeps() {
-    if which pacman 1>/dev/null 2>/dev/null; then
-        packages=($(readdeps deps-pkgbuild.txt))
-
-        for package in ${packages[@]}; do
-            pacman -Ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{0,1\}$' | awk '{print $2}' | \
-            while read lib; do
-                readlink -f $lib
-            done
-        done
-    elif which dpkg-query 1>/dev/null 2>/dev/null; then
-        packages=($(readdeps deps-deb.txt))
-
-        for package in ${packages[@]}; do
-            dpkg-query -L $package 2>/dev/null | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{0,1\}$' | awk '{print $1}' | \
-            while read lib; do
-                readlink -f $lib
-            done
-        done
-    elif which rpm 1>/dev/null 2>/dev/null; then
-        packages=($(readdeps deps-rpm.txt))
-
-        for package in ${packages[@]}; do
-            rpm -ql $package | grep 'lib.\{1,\}\.so\(\.[0-9]\{1,\}\)\{0,1\}$' | awk '{print $1}' | \
-            while read lib; do
-                readlink -f $lib
-            done
-        done
-    fi
 }
 
 isexcluded() {
-    lib=$(readlink -f $1)
+    lib=$1
     exclude=($2)
 
     for e in ${exclude[@]}; do
-        if [[ "$lib" == "$e" ]]; then
-            echo 1
-
-            return
-        fi
+        [[ "$lib" =~ $e ]] && return 0
     done
 
-    echo 0
+    return 1
+}
+
+packinfo() {
+    if which pacman 1>/dev/null 2>/dev/null; then
+        info=($(LC_ALL=C pacman -Qo $1 | tr ' ' $'\n' | tail -n 2))
+        echo ${info[0]} ${info[1]}
+    elif which dpkg 1>/dev/null 2>/dev/null; then
+        package=$(dpkg -S $1 | awk -F: '{print $1}')
+        version=$(dpkg -s $package | grep '^Version:' | awk '{print $2}')
+        echo $package $version
+    elif which rpm 1>/dev/null 2>/dev/null; then
+        rpm -qf $1
+    fi
 }
 
 solvedeps() {
     path=$1
     echo Installing missing dependencies
 
-    exclude=($(excludedeps | sort | uniq))
+    exclude=($(readdeps deps.txt | sort | uniq))
     user=$(whoami)
     group=$(ls -ld ~ | awk '{print $4}')
     bundleData=${ROOTDIR}/build/bundle-data
+    depsinfo=${bundleData}/${APPNAME}/share/depsinfo.txt
 
     find ${path} -name 'lib*.so*' -or -name ${APPNAME} | \
     while read libpath; do
@@ -234,17 +214,14 @@ solvedeps() {
                 continue
             fi
 
-            e=$(isexcluded "$oldpath" "${exclude[*]}")
-            realoldpath=$(readlink -f "$oldpath")
+            signature=$(echo "$lib" | cut -d '=' -f 1 | cut -d '(' -f 1 | xargs)
 
-            if [[ "$e" == 1 ]] ||
-               [[ "$realoldpath" == /var/lib/VBoxGuestAdditions* ]] ||
-               [[ "$realoldpath" == /opt/VBoxGuestAdditions* ]]; then
+            if isexcluded "$signature" "${exclude[*]}"; then
                 continue
             fi
 
             depbasename=$(basename $oldpath)
-            echo '    dep ' $oldpath
+            echo '    dep ' $signature
 
             dest=${bundleData}/${APPNAME}/lib
 
@@ -252,6 +229,7 @@ solvedeps() {
                 echo '        copying' "$oldpath"
                 cp -f $oldpath ${dest}/
                 chmod +x ${dest}/$depbasename
+                echo $(packinfo $oldpath) >> "$depsinfo"
             fi
         done
     done
@@ -259,12 +237,20 @@ solvedeps() {
 
 solveall() {
     bundleData=${ROOTDIR}/build/bundle-data
+    sysinfo=${bundleData}/${APPNAME}/share/sysinfo.txt
+    depsinfo=${bundleData}/${APPNAME}/share/depsinfo.txt
     paths=(${APPNAME}/bin
            ${APPNAME}/lib)
+
+    cat /etc/*-release > "$sysinfo"
 
     for path in ${paths[@]}; do
         solvedeps ${bundleData}/$path
     done
+
+    cat "$depsinfo" | sort | uniq > "$depsinfo.tmp"
+    cat "$depsinfo.tmp" > "$depsinfo"
+    rm -f "$depsinfo.tmp"
 }
 
 createlauncher() {
@@ -282,6 +268,7 @@ rootdir() {
 }
 
 ROOTDIR=\$(rootdir \$0)
+export PATH="\${ROOTDIR}"/bin:\$PATH
 export LD_LIBRARY_PATH="\${ROOTDIR}"/lib:\$LD_LIBRARY_PATH
 export QT_DIR="\${ROOTDIR}"/lib/qt
 export QT_QPA_PLATFORM_PLUGIN_PATH=\${QT_DIR}/platforms
@@ -289,24 +276,20 @@ export QT_PLUGIN_PATH=\${QT_DIR}/plugins
 export QML_IMPORT_PATH=\${QT_DIR}/qml
 export QML2_IMPORT_PATH=\${QT_DIR}/qml
 #export QT_DEBUG_PLUGINS=1
-"\${ROOTDIR}"/bin/${APPNAME} "\$@"
+${APPNAME} "\$@"
 EOF
 
     chmod +x "$launcher"
 }
 
 createportable() {
+    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-portable-${version}-${arch}.tar.xz"
+
     pushd "${ROOTDIR}/build/bundle-data"
         version=$(./${APPNAME}/${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
         arch=$(uname -m)
         tar -cJf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-portable-${version}-${arch}.tar.xz" ${APPNAME}
     popd
-}
-
-sources() {
-# cat /etc/*-release
-# LC_ALL=C pacman -Qo /usr/lib/libm-2.24.so | tr ' ' $'\n' | tail -n 2
-    echo
 }
 
 detectqtifw() {
@@ -323,6 +306,8 @@ createintaller() {
     if [ -z "$bincreator" ]; then
         return
     fi
+
+    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
 
     installerDir=${ROOTDIR}/ports/installer
     dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
@@ -346,9 +331,21 @@ createintaller() {
     rm -rf ${dataDir}
 }
 
+createappimage() {
+    url="https://github.com/probonopd/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+    dstdir=~/.local/bin
+
+    if [ ! -e $dstdir/appimagetool ]; then
+        mkdir -p $dstdir
+        wget -c -O $dstdir/appimagetool $url
+        chmod a+x $dstdir/appimagetool
+    fi
+}
+
 package() {
     createportable
     createintaller
+#    createappimage
 }
 
 prepare
