@@ -1,6 +1,7 @@
 #!/bin/sh
 
 APPNAME=webcamoid
+INSTALLERICONSIZE=128
 
 detectqmake() {
     if qmake-qt5 -v 1>/dev/null 2>/dev/null; then
@@ -313,6 +314,29 @@ detectqtifw() {
     fi
 }
 
+readchangelog() {
+    version=$2
+    start=0
+
+    cat $1 | \
+    while read line; do
+        if [ "$line" == "Webcamoid $version:" ]; then
+            start=1
+
+            continue
+        fi
+
+        if [[ "$start" == 1 ]]; then
+            # Skip first blank line.
+            start=2
+        elif [[ "$start" == 2 ]]; then
+            [[ "$line" == Webcamoid\ *: ]] && break
+
+            echo $line
+        fi
+    done
+}
+
 createinstaller() {
     bincreator=$(detectqtifw)
 
@@ -326,23 +350,126 @@ createinstaller() {
 
     arch=$(uname -m)
 
-    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
-    createlauncher "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.sh"
-
-    installerDir=${ROOTDIR}/ports/installer
-    dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
-
-    mkdir -p "${dataDir}"
+    # Create layout
+    configdir=${ROOTDIR}/build/bundle-data/installer/config
+    packagedir=${ROOTDIR}/build/bundle-data/installer/packages/com.${APPNAME}prj.${APPNAME}
+    mkdir -p "$configdir"
+    mkdir -p "$packagedir"/{data,meta}
+    cp -vf \
+        "${ROOTDIR}/build/bundle-data/${APPNAME}/$appdir/share/icons/hicolor/${INSTALLERICONSIZE}x${INSTALLERICONSIZE}/apps/${APPNAME}.png" \
+        "$configdir/"
+    cp -vf \
+        "${ROOTDIR}/COPYING" \
+        "$packagedir/meta/COPYING.txt"
     cp -rf \
-        ${ROOTDIR}/build/bundle-data/${APPNAME}/* \
-        ${dataDir}
+        "${ROOTDIR}/build/bundle-data/${APPNAME}/"* \
+        "$packagedir/data/"
+
+    cat << EOF > "$configdir/config.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Webcamoid</Name>
+    <Version>$version</Version>
+    <Title>Webcamoid, The ultimate webcam suite!</Title>
+    <Publisher>Webcamoid</Publisher>
+    <ProductUrl>https://webcamoid.github.io/</ProductUrl>
+    <InstallerWindowIcon>webcamoid</InstallerWindowIcon>
+    <InstallerApplicationIcon>webcamoid</InstallerApplicationIcon>
+    <Logo>webcamoid</Logo>
+    <TitleColor>#3F1F7F</TitleColor>
+    <RunProgram>@TargetDir@/webcamoid.sh</RunProgram>
+    <RunProgramDescription>Launch Webcamoid now!</RunProgramDescription>
+    <StartMenuDir>Webcamoid</StartMenuDir>
+    <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>
+    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>
+    <TargetDir>@HomeDir@/${APPNAME}</TargetDir>
+</Installer>
+EOF
+
+    cat << EOF > "$packagedir/meta/installscript.qs"
+function Component()
+{
+}
+
+Component.prototype.beginInstallation = function()
+{
+    component.beginInstallation();
+}
+
+Component.prototype.createOperations = function()
+{
+    component.createOperations();
+
+    component.addOperation("InstallIcons", "@TargetDir@/share/icons" );
+    component.addOperation("CreateDesktopEntry",
+                            "Webcamoid.desktop",
+                            "Name=Webcamoid\n"
+                            + "GenericName=Webcam Capture Software\n"
+                            + "GenericName[ca]=Programari de Captura de Càmera web\n"
+                            + "GenericName[de]=Webcam-Capture-Software\n"
+                            + "GenericName[el]=κάμερα συλλαμβάνει το λογισμικό\n"
+                            + "GenericName[es]=Programa para Captura de la Webcam\n"
+                            + "GenericName[fr]=Logiciel de Capture Webcam\n"
+                            + "GenericName[gl]=Programa de Captura de Webcam\n"
+                            + "GenericName[it]=Webcam Capture Software\n"
+                            + "GenericName[ja]=ウェブカメラのキャプチャソフトウェア\n"
+                            + "GenericName[ko]=웹캠 캡처 소프트웨어\n"
+                            + "GenericName[pt]=Software de Captura de Webcam\n"
+                            + "GenericName[ru]=Веб-камера захвата программного обеспечения\n"
+                            + "GenericName[zh_CN]=摄像头捕捉软件\n"
+                            + "GenericName[zh_TW]=攝像頭捕捉軟件\n"
+                            + "Comment=Take photos and record videos with your webcam\n"
+                            + "Comment[ca]=Fer fotos i gravar vídeos amb la seva webcam\n"
+                            + "Comment[de]=Maak foto's en video's opnemen met uw webcam\n"
+                            + "Comment[el]=Τραβήξτε φωτογραφίες και εγγραφή βίντεο με την κάμερα σας\n"
+                            + "Comment[es]=Tome fotos y grabe videos con su camara web\n"
+                            + "Comment[fr]=Prenez des photos et enregistrer des vidéos avec votre webcam\n"
+                            + "Comment[gl]=Facer fotos e gravar vídeos coa súa cámara web\n"
+                            + "Comment[it]=Scatta foto e registrare video con la tua webcam\n"
+                            + "Comment[ja]=ウェブカメラで写真や記録ビデオを撮影\n"
+                            + "Comment[ko]=웹캠으로 사진과 기록 비디오를 촬영\n"
+                            + "Comment[pt]=Tirar fotos e gravar vídeos com sua webcam\n"
+                            + "Comment[ru]=Возьмите фотографии и записывать видео с веб-камеры\n"
+                            + "Comment[zh_CN]=拍摄照片和录制视频与您的摄像头\n"
+                            + "Comment[zh_TW]=拍攝照片和錄製視頻與您的攝像頭\n"
+                            + "Keywords=photo;video;webcam;\n"
+                            + "Exec=" + installer.value("RunProgram") + "\n"
+                            + "Icon=webcamoid\n"
+                            + "Terminal=false\n"
+                            + "Type=Application\n"
+                            + "Categories=AudioVideo;Player;Qt;\n"
+                            + "StartupNotify=true\n");
+}
+EOF
+
+    cat << EOF > "$packagedir/meta/package.xml"
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>Webcamoid</DisplayName>
+    <Description>The ultimate webcam suite</Description>
+    <Version>$version</Version>
+    <ReleaseDate>$(date "+%Y-%m-%d")</ReleaseDate>
+    <Name>com.${APPNAME}prj.${APPNAME}</Name>
+    <Licenses>
+        <License name="GNU General Public License v3.0" file="COPYING.txt" />
+    </Licenses>
+    <Script>installscript.qs</Script>
+    <UpdateText>
+$(readchangelog "${ROOTDIR}/ChangeLog" $version | sed '$ d')
+    </UpdateText>
+    <Default>true</Default>
+    <ForcedInstallation>true</ForcedInstallation>
+    <Essential>false</Essential>
+</Package>
+EOF
+
+    # Remove old file
+    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
 
     ${bincreator} \
-         -c ${installerDir}/config/config.xml \
-         -p ${installerDir}/packages \
+         -c "$configdir/config.xml" \
+         -p "${ROOTDIR}/build/bundle-data/installer/packages" \
          ${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run
-
-    rm -rf ${dataDir}
 }
 
 createappimage() {

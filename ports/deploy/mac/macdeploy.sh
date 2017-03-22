@@ -4,9 +4,14 @@ APPNAME=webcamoid
 OPTPATH=/usr/local/opt
 
 rootdir() {
-    dir=$(dirname $PWD/$1)/../../..
+    if [[ "\$1" == /* ]]; then
+        dir=$(dirname $1)/../../..
+    else
+        dir=$(dirname $PWD/$1)/../../..
+    fi
+
     pushd $dir 1>/dev/null
-    echo $PWD
+        echo $PWD
     popd 1>/dev/null
 }
 
@@ -289,24 +294,130 @@ createportable() {
     rm -rf "$staggingdir"
 }
 
-createintaller() {
-    installerDir=${ROOTDIR}/ports/installer
-    dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
-    mkdir -p ${dataDir}/${APPNAME}.app
-    cp -rf \
-        ${ROOTDIR}/StandAlone/${APPNAME}.app/* \
-        ${dataDir}/${APPNAME}.app
+detectqtifw() {
+    if which binarycreator 1>/dev/null 2>/dev/null; then
+        which binarycreator
+    else
+        ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort -V | tail -n 1
+    fi
+}
 
-    program="${dataDir}/${APPNAME}.app/Contents/MacOS/${APPNAME}"
+readchangelog() {
+    version=$2
+    start=0
+
+    cat $1 | \
+    while read line; do
+        if [ "$line" == "Webcamoid $version:" ]; then
+            start=1
+
+            continue
+        fi
+
+        if [[ "$start" == 1 ]]; then
+            # Skip first blank line.
+            start=2
+        elif [[ "$start" == 2 ]]; then
+            [[ "$line" == Webcamoid\ *: ]] && break
+
+            echo $line
+        fi
+    done
+}
+
+createintaller() {
+    bincreator=$(detectqtifw)
+
+    if [ -z "$bincreator" ]; then
+        return
+    fi
+
+    program="${ROOTDIR}/StandAlone/${APPNAME}.app/Contents/MacOS/${APPNAME}"
     version=$("${program}" --version | awk '{print $2}')
 
-    ~/Qt/QtIFW*/bin/binarycreator \
-         -c ${installerDir}/config/config.xml \
-         -p ${installerDir}/packages \
-         ${ROOTDIR}/ports/deploy/mac/${APPNAME}-${version}.dmg
+    # Create layout
+    configdir=${ROOTDIR}/build/installer/config
+    packagedir=${ROOTDIR}/build/installer/packages/com.${APPNAME}prj.${APPNAME}
+    mkdir -p "$configdir"
+    mkdir -p "$packagedir"/data/${APPNAME}.app
+    mkdir -p "$packagedir"/meta
+    cp -vf \
+        "${ROOTDIR}/StandAlone/${APPNAME}/$appdir/share/icons/webcamoid.icns" \
+        "$configdir/"
+    cp -vf \
+        "${ROOTDIR}/COPYING" \
+        "$packagedir/meta/COPYING.txt"
+    cp -rf \
+        "${ROOTDIR}/StandAlone/${APPNAME}.app"/* \
+        "$packagedir/data/${APPNAME}.app/"
 
-    rm -rf ${ROOTDIR}/ports/deploy/mac/*.app
-    rm -rf "$dataDir"
+    cat << EOF > "$configdir/config.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>Webcamoid</Name>
+    <Version>$version</Version>
+    <Title>Webcamoid, The ultimate webcam suite!</Title>
+    <Publisher>Webcamoid</Publisher>
+    <ProductUrl>https://webcamoid.github.io/</ProductUrl>
+    <InstallerWindowIcon>webcamoid</InstallerWindowIcon>
+    <InstallerApplicationIcon>webcamoid</InstallerApplicationIcon>
+    <Logo>webcamoid</Logo>
+    <TitleColor>#3F1F7F</TitleColor>
+    <RunProgram>@TargetDir@/${APPNAME}.app/Contents/MacOS/${APPNAME}</RunProgram>
+    <RunProgramDescription>Launch Webcamoid now!</RunProgramDescription>
+    <StartMenuDir>Webcamoid</StartMenuDir>
+    <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>
+    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>
+    <TargetDir>@ApplicationsDir@/${APPNAME}</TargetDir>
+</Installer>
+EOF
+
+    cat << EOF > "$packagedir/meta/installscript.qs"
+function Component()
+{
+}
+
+Component.prototype.beginInstallation = function()
+{
+    component.beginInstallation();
+}
+
+Component.prototype.createOperations = function()
+{
+    component.createOperations();
+}
+EOF
+
+    cat << EOF > "$packagedir/meta/package.xml"
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>Webcamoid</DisplayName>
+    <Description>The ultimate webcam suite</Description>
+    <Version>$version</Version>
+    <ReleaseDate>$(date "+%Y-%m-%d")</ReleaseDate>
+    <Name>com.${APPNAME}prj.${APPNAME}</Name>
+    <Licenses>
+        <License name="GNU General Public License v3.0" file="COPYING.txt" />
+    </Licenses>
+    <Script>installscript.qs</Script>
+    <UpdateText>
+$(readchangelog "${ROOTDIR}/ChangeLog" $version | sed '$ d')
+    </UpdateText>
+    <Default>true</Default>
+    <ForcedInstallation>true</ForcedInstallation>
+    <Essential>false</Essential>
+</Package>
+EOF
+
+    # Remove old file
+    rm -vf "${ROOTDIR}/ports/deploy/mac/${APPNAME}-${version}.dmg"
+
+    ${bincreator} \
+         -c "$configdir/config.xml" \
+         -p "${ROOTDIR}/build/installer/packages" \
+         "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
+
+    rm -rf "${ROOTDIR}/ports/deploy/mac"/*.app
 }
 
 package() {
