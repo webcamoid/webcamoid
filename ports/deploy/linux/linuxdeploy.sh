@@ -313,7 +313,7 @@ detectqtifw() {
     fi
 }
 
-createintaller() {
+createinstaller() {
     bincreator=$(detectqtifw)
 
     if [ -z "$bincreator" ]; then
@@ -382,7 +382,7 @@ EOF
 
 package() {
     createportable
-    createintaller
+    createinstaller
     createappimage
 }
 
