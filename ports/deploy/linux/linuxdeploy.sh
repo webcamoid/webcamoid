@@ -15,7 +15,11 @@ detectqmake() {
 QMAKE=$(detectqmake)
 
 rootdir() {
-    dir=$(dirname $PWD/$1)/../../..
+    if [[ "\$1" == /* ]]; then
+        dir=$(dirname $1)/../../..
+    else
+        dir=$(dirname $PWD/$1)/../../..
+    fi
 
     pushd $dir 1>/dev/null
         echo $PWD
@@ -254,17 +258,21 @@ solveall() {
 }
 
 createlauncher() {
-    launcher=${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.sh
+    launcher=$1
 
     cat << EOF > "$launcher"
 #!/bin/sh
 
 rootdir() {
-    dir=\$(dirname \$PWD/\$1)
-    cwd=\$PWD
-    cd \$dir 1>/dev/null
-        echo \$PWD
-    cd \$cwd 1>/dev/null
+    if [[ "\$1" == /* ]]; then
+        dirname \$1
+    else
+        dir=\$(dirname \$PWD/\$1)
+        cwd=\$PWD
+        cd \$dir 1>/dev/null
+            echo \$PWD
+        cd \$cwd 1>/dev/null
+    fi
 }
 
 ROOTDIR=\$(rootdir \$0)
@@ -283,11 +291,16 @@ EOF
 }
 
 createportable() {
+    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
+        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
+    popd
+
+    arch=$(uname -m)
+
     rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-portable-${version}-${arch}.tar.xz"
+    createlauncher "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.sh"
 
     pushd "${ROOTDIR}/build/bundle-data"
-        version=$(./${APPNAME}/${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
-        arch=$(uname -m)
         tar -cJf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-portable-${version}-${arch}.tar.xz" ${APPNAME}
     popd
 }
@@ -307,7 +320,14 @@ createintaller() {
         return
     fi
 
+    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
+        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
+    popd
+
+    arch=$(uname -m)
+
     rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
+    createlauncher "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.sh"
 
     installerDir=${ROOTDIR}/ports/installer
     dataDir=${installerDir}/packages/com.webcamoidprj.webcamoid/data
@@ -316,12 +336,6 @@ createintaller() {
     cp -rf \
         ${ROOTDIR}/build/bundle-data/${APPNAME}/* \
         ${dataDir}
-
-    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
-        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
-    popd
-
-    arch=$(uname -m)
 
     ${bincreator} \
          -c ${installerDir}/config/config.xml \
@@ -340,16 +354,39 @@ createappimage() {
         wget -c -O $dstdir/appimagetool $url
         chmod a+x $dstdir/appimagetool
     fi
+
+    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
+        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
+    popd
+
+    arch=$(uname -m)
+
+    appdir=${ROOTDIR}/build/bundle-data/${APPNAME}-${version}-${arch}.AppDir
+    mkdir -p "$appdir"
+    cp -rf "${ROOTDIR}/build/bundle-data/${APPNAME}"/{bin,lib,share} "$appdir"/
+    createlauncher "$appdir/AppRun"
+
+    cat << EOF > "$appdir/${APPNAME}.desktop"
+[Desktop Entry]
+Name=${APPNAME}
+Exec=${APPNAME}
+Icon=${APPNAME}
+EOF
+
+    cp -vf "$appdir/share/icons/hicolor/256x256/apps/${APPNAME}.png" "$appdir/"
+
+    pushd "${ROOTDIR}/ports/deploy/linux"
+        $dstdir/appimagetool "$appdir"
+    popd
 }
 
 package() {
     createportable
     createintaller
-#    createappimage
+    createappimage
 }
 
 prepare
 qtdeps
 solveall
-createlauncher
 package
