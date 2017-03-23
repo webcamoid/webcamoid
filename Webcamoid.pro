@@ -47,8 +47,3 @@ unix:!macx {
     desktop.files = $${COMMONS_TARGET}.desktop
     desktop.path = $${DATAROOTDIR}/applications
 }
-!unix {
-    INSTALLS += launcher
-    launcher.files = webcamoid.bat
-    launcher.path = $${PREFIX}
-}

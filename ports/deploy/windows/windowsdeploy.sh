@@ -17,6 +17,18 @@ rootdir() {
 
 ROOTDIR=$(rootdir $0)
 
+readversion() {
+    cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat"
+    %~dp0bin/webcamoid --version > %~dp0version.txt
+EOF
+
+    wineconsole "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat" 2>/dev/null
+    cat "${ROOTDIR}/build/bundle-data/${APPNAME}/version.txt" | awk '{print $2}' | tr -d '\r'
+    rm "${ROOTDIR}/build/bundle-data/${APPNAME}/version".{bat,txt}
+}
+
+VERSION=$(readversion)
+
 detectarch() {
     arch=$(file -b "${ROOTDIR}/StandAlone/${APPNAME}.exe" | grep x86-64)
 
@@ -198,59 +210,23 @@ solveall() {
 }
 
 createlauncher() {
-    launcher=$1
+    cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.bat"
+@echo off
 
-    cat << EOF > "$launcher"
-#!/bin/sh
-
-rootdir() {
-    if [[ "\$1" == /* ]]; then
-        dirname \$1
-    else
-        dir=\$(dirname \$PWD/\$1)
-        cwd=\$PWD
-        cd \$dir 1>/dev/null
-            echo \$PWD
-        cd \$cwd 1>/dev/null
-    fi
-}
-
-ROOTDIR=\$(rootdir \$0)
-export PATH="\${ROOTDIR}"/bin:\$PATH
-export LD_LIBRARY_PATH="\${ROOTDIR}"/lib:\$LD_LIBRARY_PATH
-export QT_DIR="\${ROOTDIR}"/lib/qt
-export QT_QPA_PLATFORM_PLUGIN_PATH=\${QT_DIR}/platforms
-export QT_PLUGIN_PATH=\${QT_DIR}/plugins
-export QML_IMPORT_PATH=\${QT_DIR}/qml
-export QML2_IMPORT_PATH=\${QT_DIR}/qml
-#export QT_DEBUG_PLUGINS=1
-${APPNAME} "\$@"
+start /b "%~dp0bin\webcamoid" -q "%~dp0lib\qt\qml" -p "%~dp0lib\avkys" -c "%~dp0share\config"
 EOF
-
-    chmod +x "$launcher"
 }
 
 createportable() {
-    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
-        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
-    popd
-
-    arch=$(uname -m)
-
-    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-portable-${version}-${arch}.tar.xz"
-    createlauncher "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.sh"
+    rm -vf "${ROOTDIR}/ports/deploy/windows/${APPNAME}-portable-${VERSION}-${ARCH}.zip"
 
     pushd "${ROOTDIR}/build/bundle-data"
-        tar -cJf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-portable-${version}-${arch}.tar.xz" ${APPNAME}
+        zip -r9 "${ROOTDIR}/ports/deploy/windows/${APPNAME}-portable-${VERSION}-${ARCH}.zip" ${APPNAME}
     popd
 }
 
 detectqtifw() {
-    if which binarycreator 1>/dev/null 2>/dev/null; then
-        which binarycreator
-    else
-        ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort -V | tail -n 1
-    fi
+    ls ~/.wine/drive_c/Qt/QtIFW2.0.3/bin/binarycreator.exe 2>/dev/null | sort -V | tail -n 1
 }
 
 readchangelog() {
@@ -283,19 +259,13 @@ createinstaller() {
         return
     fi
 
-    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
-        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
-    popd
-
-    arch=$(uname -m)
-
     # Create layout
     configdir=${ROOTDIR}/build/bundle-data/installer/config
     packagedir=${ROOTDIR}/build/bundle-data/installer/packages/com.${APPNAME}prj.${APPNAME}
     mkdir -p "$configdir"
     mkdir -p "$packagedir"/{data,meta}
     cp -vf \
-        "${ROOTDIR}/build/bundle-data/${APPNAME}/$appdir/share/icons/hicolor/${INSTALLERICONSIZE}x${INSTALLERICONSIZE}/apps/${APPNAME}.png" \
+        "${ROOTDIR}/StandAlone/share/icons/hicolor/${INSTALLERICONSIZE}x${INSTALLERICONSIZE}/${APPNAME}.ico" \
         "$configdir/"
     cp -vf \
         "${ROOTDIR}/COPYING" \
@@ -308,7 +278,7 @@ createinstaller() {
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>Webcamoid</Name>
-    <Version>$version</Version>
+    <Version>${VERSION}</Version>
     <Title>Webcamoid, The ultimate webcam suite!</Title>
     <Publisher>Webcamoid</Publisher>
     <ProductUrl>https://webcamoid.github.io/</ProductUrl>
@@ -316,12 +286,12 @@ createinstaller() {
     <InstallerApplicationIcon>webcamoid</InstallerApplicationIcon>
     <Logo>webcamoid</Logo>
     <TitleColor>#3F1F7F</TitleColor>
-    <RunProgram>@TargetDir@/webcamoid.sh</RunProgram>
+    <RunProgram>@TargetDir@/bin/webcamoid.exe</RunProgram>
     <RunProgramDescription>Launch Webcamoid now!</RunProgramDescription>
     <StartMenuDir>Webcamoid</StartMenuDir>
     <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>
     <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>
-    <TargetDir>@HomeDir@/${APPNAME}</TargetDir>
+    <TargetDir>@ApplicationsDir@/${APPNAME}</TargetDir>
 </Installer>
 EOF
 
@@ -338,6 +308,14 @@ Component.prototype.beginInstallation = function()
 Component.prototype.createOperations = function()
 {
     component.createOperations();
+
+    // Create shortcuts.
+    var installDir = ["@TargetDir@", "@StartMenuDir@", "@DesktopDir@"];
+
+    for (var dir in installDir)
+        component.addOperation("CreateShortcut",
+                                "@TargetDir@\\bin\\webcamoid.exe",
+                                installDir[dir] + "\\webcamoid.lnk");
 }
 EOF
 
@@ -346,7 +324,7 @@ EOF
 <Package>
     <DisplayName>Webcamoid</DisplayName>
     <Description>The ultimate webcam suite</Description>
-    <Version>$version</Version>
+    <Version>${VERSION}</Version>
     <ReleaseDate>$(date "+%Y-%m-%d")</ReleaseDate>
     <Name>com.${APPNAME}prj.${APPNAME}</Name>
     <Licenses>
@@ -354,7 +332,7 @@ EOF
     </Licenses>
     <Script>installscript.qs</Script>
     <UpdateText>
-$(readchangelog "${ROOTDIR}/ChangeLog" $version | sed '$ d')
+$(readchangelog "${ROOTDIR}/ChangeLog" ${VERSION} | sed '$ d')
     </UpdateText>
     <Default>true</Default>
     <ForcedInstallation>true</ForcedInstallation>
@@ -363,53 +341,17 @@ $(readchangelog "${ROOTDIR}/ChangeLog" $version | sed '$ d')
 EOF
 
     # Remove old file
-    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
+    rm -vf "${ROOTDIR}/ports/deploy/windows/${APPNAME}-${VERSION}-${ARCH}.exe"
 
-    ${bincreator} \
+   wine "${bincreator}" \
          -c "$configdir/config.xml" \
          -p "${ROOTDIR}/build/bundle-data/installer/packages" \
-         ${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run
-}
-
-createappimage() {
-    url="https://github.com/probonopd/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-    dstdir=~/.local/bin
-
-    if [ ! -e $dstdir/appimagetool ]; then
-        mkdir -p $dstdir
-        wget -c -O $dstdir/appimagetool $url
-        chmod a+x $dstdir/appimagetool
-    fi
-
-    pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
-        version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
-    popd
-
-    arch=$(uname -m)
-
-    appdir=${ROOTDIR}/build/bundle-data/${APPNAME}-${version}-${arch}.AppDir
-    mkdir -p "$appdir"
-    cp -rf "${ROOTDIR}/build/bundle-data/${APPNAME}"/{bin,lib,share} "$appdir"/
-    createlauncher "$appdir/AppRun"
-
-    cat << EOF > "$appdir/${APPNAME}.desktop"
-[Desktop Entry]
-Name=${APPNAME}
-Exec=${APPNAME}
-Icon=${APPNAME}
-EOF
-
-    cp -vf "$appdir/share/icons/hicolor/256x256/apps/${APPNAME}.png" "$appdir/"
-
-    pushd "${ROOTDIR}/ports/deploy/linux"
-        $dstdir/appimagetool "$appdir"
-    popd
+         ${ROOTDIR}/ports/deploy/windows/${APPNAME}-${VERSION}-${ARCH}.exe
 }
 
 package() {
     createportable
     createinstaller
-    createappimage
 }
 
 cleanup() {
@@ -420,5 +362,6 @@ cleanup() {
 prepare
 qtdeps
 solveall
-# package
+createlauncher
+package
 cleanup
