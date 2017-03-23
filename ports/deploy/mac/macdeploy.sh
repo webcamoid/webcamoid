@@ -298,7 +298,7 @@ detectqtifw() {
     if which binarycreator 1>/dev/null 2>/dev/null; then
         which binarycreator
     else
-        ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort -V | tail -n 1
+        ls ~/Qt/QtIFW*/bin/binarycreator 2>/dev/null | sort | tail -n 1
     fi
 }
 
@@ -342,7 +342,7 @@ createintaller() {
     mkdir -p "$packagedir"/data/${APPNAME}.app
     mkdir -p "$packagedir"/meta
     cp -vf \
-        "${ROOTDIR}/StandAlone/${APPNAME}/$appdir/share/icons/webcamoid.icns" \
+        "${ROOTDIR}/StandAlone/share/icons/webcamoid.icns" \
         "$configdir/"
     cp -vf \
         "${ROOTDIR}/COPYING" \
@@ -415,7 +415,7 @@ EOF
     ${bincreator} \
          -c "$configdir/config.xml" \
          -p "${ROOTDIR}/build/installer/packages" \
-         "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.run"
+         "${ROOTDIR}/ports/deploy/mac/${APPNAME}-${version}.dmg"
 
     rm -rf "${ROOTDIR}/ports/deploy/mac"/*.app
 }

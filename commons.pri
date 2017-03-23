@@ -34,10 +34,14 @@ isEmpty(QMAKE_LRELEASE) {
 }
 
 win32 {
+    host_name = $$lower($$QMAKE_HOST.os)
+
     !isEmpty(ProgramW6432) {
         DEFAULT_PREFIX = $(ProgramW6432)\\$${COMMONS_APPNAME}
     } else: !isEmpty(ProgramFiles) {
         DEFAULT_PREFIX = $(ProgramFiles)\\$${COMMONS_APPNAME}
+    } else: contains(host_name, linux) {
+        DEFAULT_PREFIX = /$${COMMONS_APPNAME}
     } else {
         DEFAULT_PREFIX = C:\\$${COMMONS_APPNAME}
     }
