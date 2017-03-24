@@ -292,7 +292,12 @@ void DesktopCaptureElement::readFrame()
     caps.height() = screen->size().height();
     caps.fps() = fps;
 
-    QPixmap frame = screen->grabWindow(QApplication::desktop()->winId());
+    auto frame =
+            screen->grabWindow(QApplication::desktop()->winId(),
+                               screen->geometry().x(),
+                               screen->geometry().y(),
+                               screen->geometry().width(),
+                               screen->geometry().height());
     QImage frameImg= frame.toImage().convertToFormat(QImage::Format_RGB888);
     AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
 
