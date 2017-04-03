@@ -2,7 +2,7 @@
 
 [Webcamoid](https://webcamoid.github.io/) is a full featured and multiplatform webcam suite.
 
-<a target="_blank" href="https://webcamoid.github.io/"><img src="https://raw.githubusercontent.com/webcamoid/webcamoid.github.io/master/data/screenshots/cap01.png" style="height: 240px;" /></a>
+<a target="_blank" href="https://webcamoid.github.io/"><img src="http://webcamoid.github.io/theme/images/screenshots/cap01.png" style="height: 240px;" /></a>
 
 ## Features ##
 

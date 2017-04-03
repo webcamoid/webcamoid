@@ -130,8 +130,6 @@ for user in data:
                          'avatar': avatar,
                          'website': website})
 
-contributors = sorted(contributors, key=lambda contributor: contributor['name'])
-
 mimetypes.init()
 rootdir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
