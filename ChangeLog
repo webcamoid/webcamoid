@@ -15,6 +15,7 @@ Webcamoid 8.0.0:
 - Added support for MSVC2013 and MSVC2015 build.
 - Added option for configure FPS in DesktopCapture plugin.
 - Added updates options.
+- AppImage support.
 
 Webcamoid 7.2.1:
 
