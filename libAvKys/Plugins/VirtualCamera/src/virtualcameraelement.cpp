@@ -85,9 +85,14 @@ VirtualCameraElement::VirtualCameraElement():
                      SIGNAL(outputLibChanged(const QString &)),
                      this,
                      SLOT(outputLibUpdated(const QString &)));
+    QObject::connect(globalVirtualCamera,
+                     SIGNAL(rootMethodChanged(const QString &)),
+                     this,
+                     SLOT(rootMethodUpdated(const QString &)));
 
     this->convertLibUpdated(globalVirtualCamera->convertLib());
     this->outputLibUpdated(globalVirtualCamera->outputLib());
+    this->rootMethodUpdated(globalVirtualCamera->rootMethod());
 }
 
 VirtualCameraElement::~VirtualCameraElement()
@@ -182,7 +187,12 @@ int VirtualCameraElement::passwordTimeout() const
 
 QString VirtualCameraElement::rootMethod() const
 {
-    return this->m_cameraOut->rootMethod();
+    return globalVirtualCamera->rootMethod();
+}
+
+QStringList VirtualCameraElement::availableMethods() const
+{
+    return globalVirtualCamera->availableMethods();
 }
 
 QString VirtualCameraElement::convertLib() const
@@ -311,7 +321,7 @@ void VirtualCameraElement::setPasswordTimeout(int passwordTimeout)
 
 void VirtualCameraElement::setRootMethod(const QString &rootMethod)
 {
-    this->m_cameraOut->setRootMethod(rootMethod);
+    globalVirtualCamera->setRootMethod(rootMethod);
 }
 
 void VirtualCameraElement::setConvertLib(const QString &convertLib)
@@ -345,7 +355,7 @@ void VirtualCameraElement::resetPasswordTimeout()
 
 void VirtualCameraElement::resetRootMethod()
 {
-    this->m_cameraOut->resetRootMethod();
+    globalVirtualCamera->resetRootMethod();
 }
 
 void VirtualCameraElement::resetConvertLib()
@@ -515,10 +525,6 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
                      &CameraOut::passwordTimeoutChanged,
                      this,
                      &VirtualCameraElement::passwordTimeoutChanged);
-    QObject::connect(this->m_cameraOut.data(),
-                     &CameraOut::rootMethodChanged,
-                     this,
-                     &VirtualCameraElement::rootMethodChanged);
 
     this->m_mutexLib.unlock();
 
@@ -531,4 +537,9 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
     emit this->rootMethodChanged(this->rootMethod());
 
     this->setState(state);
+}
+
+void VirtualCameraElement::rootMethodUpdated(const QString &rootMethod)
+{
+    this->m_cameraOut->setRootMethod(rootMethod);
 }

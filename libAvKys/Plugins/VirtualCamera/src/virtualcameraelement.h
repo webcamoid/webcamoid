@@ -66,6 +66,9 @@ class VirtualCameraElement: public AkElement
                WRITE setRootMethod
                RESET resetRootMethod
                NOTIFY rootMethodChanged)
+    Q_PROPERTY(QStringList availableMethods
+               READ availableMethods
+               NOTIFY availableMethodsChanged)
     Q_PROPERTY(QString convertLib
                READ convertLib
                WRITE setConvertLib
@@ -92,6 +95,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE bool needRoot() const;
         Q_INVOKABLE int passwordTimeout() const;
         Q_INVOKABLE QString rootMethod() const;
+        Q_INVOKABLE QStringList availableMethods() const;
         Q_INVOKABLE QString convertLib() const;
         Q_INVOKABLE QString outputLib() const;
 
@@ -130,6 +134,7 @@ class VirtualCameraElement: public AkElement
         void needRootChanged(bool needRoot);
         void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(const QString &rootMethod);
+        void availableMethodsChanged(const QStringList &availableMethods);
         void convertLibChanged(const QString &convertLib);
         void outputLibChanged(const QString &outputLib);
         void error(const QString &message);
@@ -155,6 +160,7 @@ class VirtualCameraElement: public AkElement
     private slots:
         void convertLibUpdated(const QString &convertLib);
         void outputLibUpdated(const QString &outputLib);
+        void rootMethodUpdated(const QString &rootMethod);
 };
 
 #endif // VIRTUALCAMERAELEMENT_H

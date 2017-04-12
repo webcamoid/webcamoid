@@ -72,6 +72,10 @@ MediaTools::MediaTools(QObject *parent):
                          SIGNAL(outputLibChanged(const QString &)),
                          this,
                          SLOT(saveVirtualCameraOutputLib(const QString &)));
+        QObject::connect(this->m_virtualCamera.data(),
+                         SIGNAL(rootMethodChanged(const QString &)),
+                         this,
+                         SLOT(saveVirtualCameraRootMethod(const QString &)));
     }
 
     AkElement::link(this->m_mediaSource.data(),
@@ -458,6 +462,9 @@ void MediaTools::loadConfigs()
         this->m_virtualCamera->setProperty("outputLib",
                                            config.value("VirtualCamera.outputLib",
                                                         this->m_virtualCamera->property("outputLib")));
+        this->m_virtualCamera->setProperty("rootMethod",
+                                           config.value("VirtualCamera.rootMethod",
+                                                        this->m_virtualCamera->property("rootMethod")));
     }
 
     config.endGroup();
@@ -499,6 +506,14 @@ void MediaTools::saveVirtualCameraOutputLib(const QString &outputLib)
     config.endGroup();
 }
 
+void MediaTools::saveVirtualCameraRootMethod(const QString &rootMethod)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("VirtualCamera.rootMethod", rootMethod);
+    config.endGroup();
+}
+
 void MediaTools::saveConfigs()
 {
     QSettings config;
@@ -526,6 +541,7 @@ void MediaTools::saveConfigs()
     if (this->m_virtualCamera) {
         config.setValue("VirtualCamera.convertLib", this->m_virtualCamera->property("convertLib"));
         config.setValue("VirtualCamera.outputLib", this->m_virtualCamera->property("outputLib"));
+        config.setValue("VirtualCamera.rootMethod", this->m_virtualCamera->property("rootMethod"));
     }
 
     config.endGroup();

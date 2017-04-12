@@ -41,11 +41,6 @@ LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-!android {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += libv4l2
-}
-
 QT += qml
 
 SOURCES += \
@@ -60,8 +55,3 @@ TEMPLATE = lib
 INSTALLS += target
 
 target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
-
-isEmpty(ROOT_METHOD): ROOT_METHOD = su
-
-DEFINES += \
-    ROOT_METHOD=\"\\\"$$ROOT_METHOD\\\"\"

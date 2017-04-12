@@ -45,7 +45,8 @@ class CameraOut: public QObject
     Q_PROPERTY(int maxCameras
                READ maxCameras)
     Q_PROPERTY(bool needRoot
-               READ needRoot)
+               READ needRoot
+               NOTIFY needRootChanged)
     Q_PROPERTY(int passwordTimeout
                READ passwordTimeout
                WRITE setPasswordTimeout
@@ -85,6 +86,7 @@ class CameraOut: public QObject
         void driverPathChanged(const QString &driverPath);
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
+        void needRootChanged(bool needRoot);
         void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(QString rootMethod);
         void error(const QString &message);

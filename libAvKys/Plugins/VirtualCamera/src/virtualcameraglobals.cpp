@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDir>
+#include <QProcessEnvironment>
 #include <akelement.h>
 
 #include "virtualcameraglobals.h"
@@ -31,16 +33,29 @@ VirtualCameraGlobals::VirtualCameraGlobals(QObject *parent):
 
     this->m_preferredLibrary = QStringList {
 #ifdef Q_OS_WIN32
-    "dshow"
+        "dshow"
 #elif defined(Q_OS_OSX)
-    "avfoundation"
+        "avfoundation"
 #else
-    "v4l2"
+        "v4l2out"
+#endif
+    };
+
+    this->m_preferredRootMethod = QStringList {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
+        "kdesu",
+        "kdesudo",
+        "gksu",
+        "gksudo",
+        "gtksu",
+        "sudo",
+        "su"
 #endif
     };
 
     this->resetConvertLib();
     this->resetOutputLib();
+    this->resetRootMethod();
 }
 
 QString VirtualCameraGlobals::convertLib() const
@@ -51,6 +66,42 @@ QString VirtualCameraGlobals::convertLib() const
 QString VirtualCameraGlobals::outputLib() const
 {
     return this->m_outputLib;
+}
+
+QString VirtualCameraGlobals::rootMethod() const
+{
+    return this->m_rootMethod;
+}
+
+QStringList VirtualCameraGlobals::availableMethods() const
+{
+#if defined(Q_OS_UNIX) && !defined(Q_OS_OSX)
+    auto paths = QProcessEnvironment::systemEnvironment().value("PATH").split(':');
+
+    QStringList sus {
+        "gksu",
+        "gksudo",
+        "gtksu",
+        "kdesu",
+        "kdesudo",
+        "su",
+        "sudo"
+    };
+
+    QStringList methods;
+
+    for (auto &su: sus)
+        for (auto &path: paths)
+            if (QDir(path).exists(su)) {
+                methods << su;
+
+                break;
+            }
+
+    return methods;
+#else
+    return {};
+#endif
 }
 
 void VirtualCameraGlobals::setConvertLib(const QString &convertLib)
@@ -69,6 +120,15 @@ void VirtualCameraGlobals::setOutputLib(const QString &outputLib)
 
     this->m_outputLib = outputLib;
     emit this->outputLibChanged(outputLib);
+}
+
+void VirtualCameraGlobals::setRootMethod(const QString &rootMethod)
+{
+    if (this->m_rootMethod == rootMethod)
+        return;
+
+    this->m_rootMethod = rootMethod;
+    emit this->rootMethodChanged(rootMethod);
 }
 
 void VirtualCameraGlobals::resetConvertLib()
@@ -103,4 +163,21 @@ void VirtualCameraGlobals::resetOutputLib()
         this->setOutputLib(subModules.first());
     else
         this->setOutputLib("");
+}
+
+void VirtualCameraGlobals::resetRootMethod()
+{
+    auto methods = this->availableMethods();
+
+    for (const QString &rootMethod: this->m_preferredRootMethod)
+        if (methods.contains(rootMethod)) {
+            this->setRootMethod(rootMethod);
+
+            return;
+        }
+
+    if (this->m_rootMethod.isEmpty() && !methods.isEmpty())
+        this->setRootMethod(methods.first());
+    else
+        this->setRootMethod("");
 }

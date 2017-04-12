@@ -35,28 +35,42 @@ class VirtualCameraGlobals: public QObject
                WRITE setOutputLib
                RESET resetOutputLib
                NOTIFY outputLibChanged)
+    Q_PROPERTY(QString rootMethod
+               READ rootMethod
+               WRITE setRootMethod
+               RESET resetRootMethod
+               NOTIFY rootMethodChanged)
+    Q_PROPERTY(QStringList availableMethods
+               READ availableMethods)
 
     public:
         explicit VirtualCameraGlobals(QObject *parent=NULL);
 
         Q_INVOKABLE QString convertLib() const;
         Q_INVOKABLE QString outputLib() const;
+        Q_INVOKABLE QString rootMethod() const;
+        Q_INVOKABLE QStringList availableMethods() const;
 
     private:
         QString m_convertLib;
         QString m_outputLib;
+        QString m_rootMethod;
         QStringList m_preferredFramework;
         QStringList m_preferredLibrary;
+        QStringList m_preferredRootMethod;
 
     signals:
         void convertLibChanged(const QString &convertLib);
         void outputLibChanged(const QString &outputLib);
+        void rootMethodChanged(const QString &rootMethod);
 
     public slots:
         void setConvertLib(const QString &convertLib);
         void setOutputLib(const QString &outputLib);
+        void setRootMethod(const QString &rootMethod);
         void resetConvertLib();
         void resetOutputLib();
+        void resetRootMethod();
 };
 
 #endif // VIRTUALCAMERAGLOBALS_H

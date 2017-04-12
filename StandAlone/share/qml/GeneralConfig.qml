@@ -135,6 +135,16 @@ ColumnLayout {
 
             onCurrentIndexChanged: multiSink.codecLib = model[currentIndex]
         }
+        Label {
+            text: qsTr("Root method")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: virtualCamera.availableMethods
+            currentIndex: model.indexOf(virtualCamera.rootMethod)
+
+            onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
+        }
     }
     Label {
         Layout.fillHeight: true
