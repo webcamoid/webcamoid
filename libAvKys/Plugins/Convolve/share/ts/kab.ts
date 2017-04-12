@@ -6,14 +6,17 @@
     <message>
         <location filename="../qml/main.qml" line="37"/>
         <source>Convolve matrix</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="143"/>
         <source>Factor</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="155"/>
         <source>Bias</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

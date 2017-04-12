@@ -6,10 +6,12 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Factor</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="42"/>
         <source>Bias</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

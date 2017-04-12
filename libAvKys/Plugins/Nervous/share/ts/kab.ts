@@ -6,10 +6,12 @@
     <message>
         <location filename="../qml/main.qml" line="28"/>
         <source>N° of frames</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="40"/>
         <source>Simple</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

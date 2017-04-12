@@ -7,7 +7,6 @@ following groups to be installed for fully functioning.
 Capture backend:
 
     - v4l-utils (RECOMMENDED)
-    - libuvc-git
 
 Codec frameworks:
 
@@ -20,6 +19,11 @@ Audio playback:
     - alsa-lib
     - jack
     - qt5-multimedia
+
+Virtual camera management:
+
+    - kde-cli-tools (RECOMMENDED)
+    - gksu
 
     EOF
 }

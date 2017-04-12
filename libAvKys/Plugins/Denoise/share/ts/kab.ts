@@ -6,18 +6,22 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Radius</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="49"/>
         <source>Factor</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="63"/>
         <source>Mu</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="77"/>
         <source>Sigma</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

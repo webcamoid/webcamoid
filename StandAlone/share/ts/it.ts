@@ -39,12 +39,17 @@
         <translation>Sito web</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="104"/>
+        <location filename="../qml/About.qml" line="103"/>
+        <source>Contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/About.qml" line="133"/>
         <source>License</source>
         <translation>Licenza</translation>
     </message>
     <message>
-        <location filename="../qml/About.qml" line="115"/>
+        <location filename="../qml/About.qml" line="144"/>
         <source>Close</source>
         <translation>Chiudi</translation>
     </message>
@@ -163,199 +168,6 @@
     </message>
 </context>
 <context>
-    <name>AuthenticationDialog</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="51"/>
-        <source>Authentication Required</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="84"/>
-        <source>Username:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="94"/>
-        <source>Password:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="112"/>
-        <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtWebEngine/UIDelegates/AuthenticationDialog.qml" line="119"/>
-        <source>&amp;Log In</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>BusyIndicatorSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/BusyIndicatorSpecifics.qml" line="46"/>
-        <source>Busy Indicator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/BusyIndicatorSpecifics.qml" line="50"/>
-        <source>Running</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/BusyIndicatorSpecifics.qml" line="51"/>
-        <source>Whether the busy indicator is currently indicating activity.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSection</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="46"/>
-        <source>Text</source>
-        <translation type="unfinished">Testo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="47"/>
-        <source>The text displayed on the %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="57"/>
-        <source>Highlighted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="58"/>
-        <source>Whether the %1 is highlighted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="70"/>
-        <source>Checkable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="71"/>
-        <source>Whether the %1 is checkable.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="82"/>
-        <source>Checked</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="83"/>
-        <source>Whether the %1 is checked.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="94"/>
-        <source>Exclusive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="95"/>
-        <source>Whether the %1 is exclusive.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="106"/>
-        <source>Repeat</source>
-        <translation type="unfinished">Ripetere</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSection.qml" line="107"/>
-        <source>Whether the %1 repeats while pressed and held down.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ButtonSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ButtonSpecifics.qml" line="45"/>
-        <source>Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CheckBoxSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/CheckBoxSpecifics.qml" line="45"/>
-        <source>Check Box</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CheckDelegateSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/CheckDelegateSpecifics.qml" line="45"/>
-        <source>Check Delegate</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CircularGaugeSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="51"/>
-        <source>CircularGauge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="55"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="56"/>
-        <source>Value</source>
-        <translation>Valore</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="69"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="70"/>
-        <source>Minimum Value</source>
-        <translation>Minimo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="84"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="85"/>
-        <source>Maximum Value</source>
-        <translation>Massimo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="99"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/CircularGaugeSpecifics.qml" line="100"/>
-        <source>Step Size</source>
-        <translation>Step</translation>
-    </message>
-</context>
-<context>
-    <name>ComboBoxSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ComboBoxSpecifics.qml" line="46"/>
-        <source>Combo Box</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ComboBoxSpecifics.qml" line="50"/>
-        <source>Text Role</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ComboBoxSpecifics.qml" line="51"/>
-        <source>The model role used for displaying text.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ComboBoxSpecifics.qml" line="61"/>
-        <source>Current</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ComboBoxSpecifics.qml" line="62"/>
-        <source>The index of the current item.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>ConfigBar</name>
     <message>
         <location filename="../qml/ConfigBar.qml" line="44"/>
@@ -372,174 +184,9 @@
         <source>Plugins Configs</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ContextDrawer</name>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/org/kde/kirigami/ContextDrawer.qml" line="76"/>
-        <source>Actions</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ControlSection</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ControlSection.qml" line="42"/>
-        <source>Control</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ControlSection.qml" line="46"/>
-        <source>Enabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ControlSection.qml" line="47"/>
-        <source>Whether the control is enabled.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ControlSection.qml" line="58"/>
-        <source>Spacing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ControlSection.qml" line="59"/>
-        <source>Spacing between internal elements of the control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DelayButtonSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DelayButtonSpecifics.qml" line="51"/>
-        <source>DelayButton</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DelayButtonSpecifics.qml" line="55"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DelayButtonSpecifics.qml" line="56"/>
-        <source>Text</source>
-        <translation>Testo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DelayButtonSpecifics.qml" line="82"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DelayButtonSpecifics.qml" line="83"/>
-        <source>Delay</source>
-        <translation>Ritardo</translation>
-    </message>
-</context>
-<context>
-    <name>DialSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="46"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="51"/>
-        <source>Dial</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="50"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="55"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="56"/>
-        <source>Value</source>
-        <translation>Valore</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="51"/>
-        <source>The current value of the dial.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="64"/>
-        <source>From</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="65"/>
-        <source>The starting value of the dial range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="78"/>
-        <source>To</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="79"/>
-        <source>The ending value of the dial range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="93"/>
-        <source>The step size of the dial.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="71"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="72"/>
-        <source>Minimum Value</source>
-        <translation type="unfinished">Minimo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="87"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="88"/>
-        <source>Maximum Value</source>
-        <translation type="unfinished">Massimo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/DialSpecifics.qml" line="92"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="103"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="104"/>
-        <source>Step Size</source>
-        <translation type="unfinished">Step</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="119"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/DialSpecifics.qml" line="120"/>
-        <source>Tickmarks Visible</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>EditMenu_base</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="51"/>
-        <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="62"/>
-        <source>&amp;Redo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="73"/>
-        <source>Cu&amp;t</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="87"/>
-        <source>&amp;Copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="101"/>
-        <source>&amp;Paste</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="112"/>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="123"/>
-        <source>Clear</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls/Private/EditMenu_base.qml" line="134"/>
-        <source>Select All</source>
+        <location filename="../qml/ConfigBar.qml" line="56"/>
+        <source>Updates</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -583,32 +230,6 @@
         <location filename="../qml/EffectConfig.qml" line="118"/>
         <source>Add</source>
         <translation>Aggiungi</translation>
-    </message>
-</context>
-<context>
-    <name>GaugeSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="51"/>
-        <source>Gauge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="56"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="57"/>
-        <source>Value</source>
-        <translation type="unfinished">Valore</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="72"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="73"/>
-        <source>Minimum Value</source>
-        <translation type="unfinished">Minimo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="88"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/GaugeSpecifics.qml" line="89"/>
-        <source>Maximum Value</source>
-        <translation type="unfinished">Massimo</translation>
     </message>
 </context>
 <context>
@@ -668,38 +289,9 @@
         <source>Video record</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GlobalDrawer</name>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/org/kde/kirigami/GlobalDrawer.qml" line="361"/>
-        <source>Back</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GroupBoxSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/GroupBoxSpecifics.qml" line="46"/>
-        <source>Group Box</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/GroupBoxSpecifics.qml" line="50"/>
-        <source>Title</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/GroupBoxSpecifics.qml" line="51"/>
-        <source>The title of the group box.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ItemDelegateSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ItemDelegateSpecifics.qml" line="45"/>
-        <source>Item Delegate</source>
+        <location filename="../qml/GeneralConfig.qml" line="139"/>
+        <source>Root method</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -753,82 +345,6 @@
     </message>
 </context>
 <context>
-    <name>PaddingSection</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="42"/>
-        <source>Padding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="46"/>
-        <source>Top</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="47"/>
-        <source>Padding between the content and the top edge of the control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="60"/>
-        <source>Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="61"/>
-        <source>Padding between the content and the left edge of the control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="74"/>
-        <source>Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="75"/>
-        <source>Padding between the content and the right edge of the control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="88"/>
-        <source>Bottom</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PaddingSection.qml" line="89"/>
-        <source>Padding between the content and the bottom edge of the control.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PageIndicatorSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PageIndicatorSpecifics.qml" line="46"/>
-        <source>Indicator</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PageIndicatorSpecifics.qml" line="50"/>
-        <source>Count</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PageIndicatorSpecifics.qml" line="51"/>
-        <source>The number of pages.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PageIndicatorSpecifics.qml" line="64"/>
-        <source>Current</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/PageIndicatorSpecifics.qml" line="65"/>
-        <source>The index of the current page.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PhotoWidget</name>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="36"/>
@@ -853,48 +369,6 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="112"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PictureBox</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/PictureBox.qml" line="123"/>
-        <source>Press to login</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PictureSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="53"/>
-        <source>Picture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="57"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="58"/>
-        <source>Source</source>
-        <translation type="unfinished">Sorgente</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="74"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PictureSpecifics.qml" line="77"/>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PieMenuSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PieMenuSpecifics.qml" line="53"/>
-        <source>PieMenu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PieMenuSpecifics.qml" line="57"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/PieMenuSpecifics.qml" line="58"/>
-        <source>Trigger Mode</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -962,54 +436,6 @@
     </message>
 </context>
 <context>
-    <name>ProgressBarSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="46"/>
-        <source>Progress Bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="50"/>
-        <source>Indeterminate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="51"/>
-        <source>Whether the progress is indeterminate.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="62"/>
-        <source>Value</source>
-        <translation type="unfinished">Valore</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="63"/>
-        <source>The current value of the progress.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="76"/>
-        <source>From</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="77"/>
-        <source>The starting value for the progress.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="90"/>
-        <source>To</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ProgressBarSpecifics.qml" line="91"/>
-        <source>The ending value for the progress.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>QObject</name>
     <message>
         <location filename="../../src/clioptions.cpp" line="32"/>
@@ -1043,25 +469,9 @@
     </message>
 </context>
 <context>
-    <name>RadioButtonSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/RadioButtonSpecifics.qml" line="45"/>
-        <source>Radio Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RadioDelegateSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/RadioDelegateSpecifics.qml" line="45"/>
-        <source>Radio Delegate</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>RecordBar</name>
     <message>
-        <location filename="../qml/RecordBar.qml" line="107"/>
+        <location filename="../qml/RecordBar.qml" line="100"/>
         <source>Search format...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1103,346 +513,182 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="491"/>
+        <location filename="../../src/recording.cpp" line="606"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="492"/>
+        <location filename="../../src/recording.cpp" line="607"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="493"/>
+        <location filename="../../src/recording.cpp" line="608"/>
         <source>Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SliderSpecifics</name>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="46"/>
-        <source>Slider</source>
+        <location filename="../../src/recording.cpp" line="665"/>
+        <location filename="../../src/recording.cpp" line="831"/>
+        <source>audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="50"/>
-        <source>Value</source>
-        <translation type="unfinished">Valore</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="51"/>
-        <source>The current value of the slider.</source>
+        <location filename="../../src/recording.cpp" line="666"/>
+        <location filename="../../src/recording.cpp" line="832"/>
+        <source>video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="64"/>
-        <source>From</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="65"/>
-        <source>The starting value of the slider range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="78"/>
-        <source>To</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="79"/>
-        <source>The ending value of the slider range.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="92"/>
-        <source>Step Size</source>
-        <translation type="unfinished">Step</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="93"/>
-        <source>The step size of the slider.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="106"/>
-        <source>Orientation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SliderSpecifics.qml" line="107"/>
-        <source>The orientation of the slider.</source>
+        <location filename="../../src/recording.cpp" line="667"/>
+        <location filename="../../src/recording.cpp" line="833"/>
+        <source>subtitle</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>SpinBoxSpecifics</name>
+    <name>UpdatesConfig</name>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="46"/>
-        <source>Spin Box</source>
+        <location filename="../qml/UpdatesConfig.qml" line="67"/>
+        <source>Notify about new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="50"/>
-        <source>Value</source>
-        <translation type="unfinished">Valore</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="51"/>
-        <source>The current value of the spinbox.</source>
+        <location filename="../qml/UpdatesConfig.qml" line="77"/>
+        <source>Check new versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="64"/>
-        <source>From</source>
+        <location filename="../qml/UpdatesConfig.qml" line="85"/>
+        <source>Daily</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="65"/>
-        <source>The starting value of the spinbox range.</source>
+        <location filename="../qml/UpdatesConfig.qml" line="89"/>
+        <source>Every two days</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="78"/>
-        <source>To</source>
+        <location filename="../qml/UpdatesConfig.qml" line="93"/>
+        <source>Weekly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="79"/>
-        <source>The ending value of the spinbox range.</source>
+        <location filename="../qml/UpdatesConfig.qml" line="97"/>
+        <source>Every two weeks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="92"/>
-        <source>Step Size</source>
-        <translation type="unfinished">Step</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SpinBoxSpecifics.qml" line="93"/>
-        <source>The step size of the spinbox.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>StatusIndicatorSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/StatusIndicatorSpecifics.qml" line="51"/>
-        <source>StatusIndicator</source>
+        <location filename="../qml/UpdatesConfig.qml" line="101"/>
+        <source>Monthly</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/StatusIndicatorSpecifics.qml" line="55"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/StatusIndicatorSpecifics.qml" line="56"/>
-        <source>Active</source>
+        <location filename="../qml/UpdatesConfig.qml" line="105"/>
+        <source>Never</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/StatusIndicatorSpecifics.qml" line="71"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/StatusIndicatorSpecifics.qml" line="74"/>
-        <source>Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SwipeDelegateSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SwipeDelegateSpecifics.qml" line="45"/>
-        <source>Item Delegate</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SwitchSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/SwitchSpecifics.qml" line="45"/>
-        <source>Switch</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TextConstants</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="28"/>
-        <source>Warning, Caps Lock is ON!</source>
-        <translation>Attenzione, Block Maiusc attivo!</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="29"/>
-        <source>Layout</source>
-        <translation>Layout</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="30"/>
-        <source>Login</source>
-        <translation>Login</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="31"/>
-        <source>Login failed</source>
-        <translation>Login fallito</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="32"/>
-        <source>Login succeeded</source>
-        <translation>Accesso effettuato</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="33"/>
-        <source>Password</source>
-        <translation>Password</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="34"/>
-        <source>Enter your username and password</source>
-        <translation>Inserisci il tuo username e password</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="35"/>
-        <source>Select your user and enter password</source>
-        <translation>Seleziona il tuo user ed inserisci la password</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="36"/>
-        <source>Reboot</source>
-        <translation>Riavvia</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="37"/>
-        <source>Session</source>
-        <translation>Sessione</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="38"/>
-        <source>Shutdown</source>
-        <translation>Spegni</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="39"/>
-        <source>User name</source>
-        <translation>Nome utente</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/SddmComponents/TextConstants.qml" line="40"/>
-        <source>Welcome to %1</source>
-        <translation>Benvenuto a %1</translation>
-    </message>
-</context>
-<context>
-    <name>ToggleButtonSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/ToggleButtonSpecifics.qml" line="51"/>
-        <source>ToggleButton</source>
+        <location filename="../qml/UpdatesConfig.qml" line="116"/>
+        <source>Last updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/ToggleButtonSpecifics.qml" line="55"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/ToggleButtonSpecifics.qml" line="56"/>
-        <source>Text</source>
-        <translation type="unfinished">Testo</translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/ToggleButtonSpecifics.qml" line="82"/>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Extras/designer/ToggleButtonSpecifics.qml" line="83"/>
-        <source>Checked</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ToolButtonSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/ToolButtonSpecifics.qml" line="45"/>
-        <source>Tool Button</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TumblerSpecifics</name>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/TumblerSpecifics.qml" line="46"/>
-        <source>Tumbler</source>
+        <location filename="../qml/UpdatesConfig.qml" line="137"/>
+        <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/TumblerSpecifics.qml" line="50"/>
-        <source>Visible Count</source>
+        <location filename="../qml/UpdatesConfig.qml" line="143"/>
+        <source>Upgrade Now!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/TumblerSpecifics.qml" line="51"/>
-        <source>The count of visible items.</source>
+        <location filename="../qml/UpdatesConfig.qml" line="159"/>
+        <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/TumblerSpecifics.qml" line="64"/>
-        <source>Current</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../../../../../../../usr/lib/qt/qml/QtQuick/Controls.2/designer/TumblerSpecifics.qml" line="65"/>
-        <source>The index of the current item.</source>
+        <location filename="../qml/UpdatesConfig.qml" line="164"/>
+        <source>Report a Bug</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="136"/>
+        <location filename="../qml/main.qml" line="172"/>
         <source>Recording</source>
         <translation>Registrazione</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="579"/>
+        <location filename="../qml/main.qml" line="111"/>
+        <location filename="../qml/main.qml" line="616"/>
         <source>Play</source>
         <translation>Riproduci</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="613"/>
+        <location filename="../qml/main.qml" line="650"/>
         <source>Take a photo</source>
         <translation>Scatta una foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="216"/>
+        <location filename="../qml/main.qml" line="252"/>
         <source>Picture %1.%2</source>
         <translation>Foto %1.%2</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="533"/>
+        <location filename="../qml/main.qml" line="71"/>
+        <source>New version available!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="72"/>
+        <source>Download %1 %2 NOW!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="107"/>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="570"/>
         <source>Go back</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="587"/>
+        <location filename="../qml/main.qml" line="624"/>
         <source>Configure sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="600"/>
+        <location filename="../qml/main.qml" line="637"/>
         <source>Configure audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="627"/>
+        <location filename="../qml/main.qml" line="664"/>
         <source>Record video</source>
         <translation>Registra un video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="641"/>
+        <location filename="../qml/main.qml" line="678"/>
         <source>Configure Effects</source>
         <translation>Configura gli effetti</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="654"/>
+        <location filename="../qml/main.qml" line="691"/>
         <source>Preferences</source>
         <translation>Impostazioni</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="667"/>
+        <location filename="../qml/main.qml" line="704"/>
         <source>About</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="225"/>
+        <location filename="../qml/main.qml" line="261"/>
         <source>Save photo as...</source>
         <translation>Salva foto come...</translation>
     </message>

@@ -6,50 +6,62 @@
     <message>
         <location filename="../qml/main.qml" line="67"/>
         <source>Mode</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="75"/>
         <source>Soft normal</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="79"/>
         <source>Hard normal</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="83"/>
         <source>Soft color</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="87"/>
         <source>Hard color</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="96"/>
         <source>Blur</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="108"/>
         <source>Zoom</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="120"/>
         <source>Threshold</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="132"/>
         <source>Luma threshold</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="144"/>
         <source>Alpha differential</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="156"/>
         <source>Radiation color</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="184"/>
         <source>Choose a color</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

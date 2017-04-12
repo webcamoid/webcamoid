@@ -6,14 +6,17 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Amplitude</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="42"/>
         <source>Frequency</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="55"/>
         <source>Grid size</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

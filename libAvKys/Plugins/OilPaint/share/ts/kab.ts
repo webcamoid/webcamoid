@@ -6,6 +6,7 @@
     <message>
         <location filename="../qml/main.qml" line="28"/>
         <source>Radius</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

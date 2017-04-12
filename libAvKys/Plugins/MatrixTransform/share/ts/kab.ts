@@ -6,6 +6,7 @@
     <message>
         <location filename="../qml/main.qml" line="35"/>
         <source>Transform matrix</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

@@ -6,22 +6,27 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Canny mode</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="42"/>
         <source>Lower Canny threshold</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="69"/>
         <source>Higger Canny threshold</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="96"/>
         <source>Equalize</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="108"/>
         <source>Invert</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

@@ -137,11 +137,14 @@ ColumnLayout {
         }
         Label {
             text: qsTr("Root method")
+            visible: virtualCamera.availableMethods.length > 0
         }
         ComboBox {
             Layout.fillWidth: true
             model: virtualCamera.availableMethods
-            currentIndex: model.indexOf(virtualCamera.rootMethod)
+            currentIndex: virtualCamera.availableMethods.length > 0?
+                              model.indexOf(virtualCamera.rootMethod): -1
+            visible: virtualCamera.availableMethods.length > 0
 
             onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
         }

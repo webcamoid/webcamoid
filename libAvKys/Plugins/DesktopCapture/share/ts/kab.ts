@@ -4,8 +4,9 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="29"/>
+        <location filename="../qml/main.qml" line="48"/>
         <source>Frame rate</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

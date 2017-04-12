@@ -6,18 +6,22 @@
     <message>
         <location filename="../qml/main.qml" line="55"/>
         <source>Color</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="77"/>
         <source>Radius</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="99"/>
         <source>Soft</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="112"/>
         <source>Select the color to filter</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

@@ -6,31 +6,38 @@
     <message>
         <location filename="../qml/main.qml" line="42"/>
         <source>Mode</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="50"/>
         <source>Spiral 1</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="54"/>
         <source>Spiral 2</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="58"/>
         <source>Parabola</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="62"/>
         <source>Horizontal stripe</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="73"/>
         <source>Speed increment</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="87"/>
         <location filename="../qml/main.qml" line="101"/>
         <source>Threshold</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

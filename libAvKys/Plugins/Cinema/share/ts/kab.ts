@@ -6,14 +6,17 @@
     <message>
         <location filename="../qml/main.qml" line="56"/>
         <source>Size</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="78"/>
         <source>Color</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="97"/>
         <source>Choose the strips color</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

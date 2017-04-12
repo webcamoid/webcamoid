@@ -6,14 +6,17 @@
     <message>
         <location filename="../qml/main.qml" line="118"/>
         <source>Video track</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="130"/>
         <source>Audio track</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="142"/>
         <source>Subtitles track</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

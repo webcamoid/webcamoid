@@ -6,10 +6,12 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Vertical Sync</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="53"/>
         <source>Noise</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

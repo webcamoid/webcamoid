@@ -104,9 +104,11 @@ ApplicationWindow {
 
         onStateChanged: {
             if (state === AkElement.ElementStatePlaying) {
+                itmPlayStopButton.text = qsTr("Stop")
                 itmPlayStopButton.icon = "image://icons/webcamoid-stop"
                 videoDisplay.visible = true
             } else {
+                itmPlayStopButton.text = qsTr("Play")
                 itmPlayStopButton.icon = "image://icons/webcamoid-play"
                 videoDisplay.visible = false
             }

@@ -6,14 +6,17 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Speed</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="53"/>
         <source>Zoom rate</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="75"/>
         <source>Strength</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

@@ -6,6 +6,7 @@
     <message>
         <location filename="../qml/main.qml" line="29"/>
         <source>Size</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

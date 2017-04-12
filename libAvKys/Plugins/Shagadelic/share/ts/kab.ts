@@ -6,6 +6,7 @@
     <message>
         <location filename="../qml/main.qml" line="33"/>
         <source>Mask</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

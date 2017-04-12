@@ -6,6 +6,7 @@
     <message>
         <location filename="../qml/main.qml" line="28"/>
         <source>Degrees</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

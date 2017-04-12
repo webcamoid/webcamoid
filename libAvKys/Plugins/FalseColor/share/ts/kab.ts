@@ -6,10 +6,12 @@
     <message>
         <location filename="../qml/main.qml" line="74"/>
         <source>Color table</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="97"/>
         <source>Soft</source>
+        <translation></translation>
     </message>
 </context>
 </TS>

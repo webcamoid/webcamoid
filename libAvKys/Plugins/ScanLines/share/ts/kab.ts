@@ -6,18 +6,22 @@
     <message>
         <location filename="../qml/main.qml" line="54"/>
         <source>Show lines</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="66"/>
         <source>Hide lines</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="78"/>
         <source>Hide color</source>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="106"/>
         <source>Choose the hide color</source>
+        <translation></translation>
     </message>
 </context>
 </TS>
