@@ -40,10 +40,11 @@ CliOptions::CliOptions():
     this->addOption(*this->m_configPathOpt);
 
     this->m_qmlPathOpt =
-            new QCommandLineOption({"q", "qmlpath"},
-                                   QObject::tr("Path to search the Qml "
+            new QCommandLineOption({"q", "qmlpaths"},
+                                   QObject::tr("Semi-colon separated list of "
+                                               "paths to search the Qml "
                                                "interface."),
-                                   "PATH", Ak::qmlPluginPath());
+                                   "PATH1;PATH2;PATH3;...");
     this->addOption(*this->m_qmlPathOpt);
 
     // Set recursive plugin path search.

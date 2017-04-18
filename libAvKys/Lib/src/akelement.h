@@ -43,7 +43,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
 {
     Q_OBJECT
     Q_ENUMS(ElementState)
-    Q_ENUMS(SearchPaths)
     Q_PROPERTY(QString pluginId
                READ pluginId)
     Q_PROPERTY(QString pluginPath
@@ -60,13 +59,6 @@ class AKCOMMONS_EXPORT AkElement: public QObject
             ElementStateNull,
             ElementStatePaused,
             ElementStatePlaying
-        };
-
-        enum SearchPaths
-        {
-            SearchPathsAll,
-            SearchPathsDefaults,
-            SearchPathsExtras
         };
 
         explicit AkElement(QObject *parent=NULL);
@@ -116,7 +108,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE QObject *loadSubModule(const QString &subModule);
         Q_INVOKABLE static bool recursiveSearch();
         Q_INVOKABLE static void setRecursiveSearch(bool enable);
-        Q_INVOKABLE static QStringList searchPaths(SearchPaths pathType=SearchPathsAll);
+        Q_INVOKABLE static QStringList searchPaths();
         Q_INVOKABLE static void addSearchPath(const QString &path);
         Q_INVOKABLE static void setSearchPaths(const QStringList &searchPaths);
         Q_INVOKABLE static void resetSearchPaths();
@@ -128,6 +120,8 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE static QStringList listPluginPaths();
         Q_INVOKABLE static QStringList pluginsCache();
         Q_INVOKABLE static void setPluginsCache(const QStringList &paths);
+        Q_INVOKABLE static QList<QByteArray> pluginsHashes(bool all=false);
+        Q_INVOKABLE static void setPluginsHashes(const QList<QByteArray> &pluginsHashes);
         Q_INVOKABLE static QStringList pluginsBlackList();
         Q_INVOKABLE static void setPluginsBlackList(const QStringList &blackList);
         Q_INVOKABLE static QString pluginPath(const QString &pluginId);

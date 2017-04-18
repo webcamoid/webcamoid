@@ -25,6 +25,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QDataStream>
+#include <QCryptographicHash>
 
 #include "ak.h"
 
@@ -37,8 +38,10 @@ class AkElementPrivate
         QString m_pluginPath;
         QString m_pluginFilePattern;
         QStringList m_pluginsSearchPaths;
+        QStringList m_defaultPluginsSearchPaths;
         QStringList m_pluginsCache;
         QStringList m_pluginsBlackList;
+        QMap<QByteArray, bool> m_pluginsHash;
         QString m_subModulesPath;
         QDir m_applicationDir;
         AkElement::ElementState m_state;
@@ -48,28 +51,27 @@ class AkElementPrivate
         {
             this->m_recursiveSearchPaths = false;
 
-#ifdef Q_OS_WIN32
-            QString defaultPath = QString("%1/../lib/%2")
-                                  .arg(QCoreApplication::applicationDirPath())
-                                  .arg(COMMONS_TARGET);
-#else
-            QString defaultPath = QString("%1/%2")
-                                  .arg(LIBDIR)
-                                  .arg(COMMONS_TARGET);
-#endif
+            this->m_defaultPluginsSearchPaths << QString("%1/%2")
+                                                 .arg(LIBDIR)
+                                                 .arg(COMMONS_TARGET);
 
 #ifdef Q_OS_OSX
+            QString defaultPath;
+
             if (QCoreApplication::applicationDirPath()
                     .endsWith(".app/Contents/MacOS")) {
                 QDir appDir(QCoreApplication::applicationDirPath());
                 appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
-                this->m_pluginsSearchPaths << appDir.absolutePath();
-            } else {
-#endif
-                this->m_pluginsSearchPaths << this->convertToAbsolute(defaultPath);
-#ifdef Q_OS_OSX
+                defaultPath = appDir.absolutePath();
             }
+#else
+            QString defaultPath = QString("%1/../lib/%2")
+                                  .arg(QCoreApplication::applicationDirPath())
+                                  .arg(COMMONS_TARGET);
 #endif
+
+            if (!defaultPath.isEmpty())
+                this->m_defaultPluginsSearchPaths << this->convertToAbsolute(defaultPath);
 
             this->m_applicationDir.setPath(QCoreApplication::applicationDirPath());
             this->m_subModulesPath = SUBMODULES_PATH;
@@ -133,6 +135,21 @@ class AkElementPrivate
             QString absPath = this->m_applicationDir.absoluteFilePath(path);
 
             return QDir::cleanPath(absPath);
+        }
+
+        inline QByteArray hash(const QString &fileName,
+                               QCryptographicHash::Algorithm algorithm=QCryptographicHash::Md5)
+        {
+            QFile file(fileName);
+
+            if (file.open(QFile::ReadOnly)) {
+                QCryptographicHash hash(algorithm);
+
+                if (hash.addData(&file))
+                    return hash.result();
+            }
+
+            return QByteArray();
         }
 };
 
@@ -438,51 +455,19 @@ void AkElement::setRecursiveSearch(bool enable)
     akElementGlobalStuff->m_recursiveSearchPaths = enable;
 }
 
-QStringList AkElement::searchPaths(SearchPaths pathType)
+QStringList AkElement::searchPaths()
 {
-    if (pathType == SearchPathsAll)
-        return akElementGlobalStuff->m_pluginsSearchPaths;
-
-#ifdef Q_OS_WIN32
-    QString defaultPath = QString("%1/../lib/%2")
-                          .arg(QCoreApplication::applicationDirPath())
-                          .arg(COMMONS_TARGET);
-#else
-    QString defaultPath = QString("%1/%2")
-                          .arg(LIBDIR)
-                          .arg(COMMONS_TARGET);
-#endif
-
-    QStringList defaults;
-
-#ifdef Q_OS_OSX
-    if (QCoreApplication::applicationDirPath()
-            .endsWith(".app/Contents/MacOS")) {
-        QDir appDir(QCoreApplication::applicationDirPath());
-        appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
-        defaults << appDir.absolutePath();
-    } else {
-#endif
-        defaults << akElementGlobalStuff->convertToAbsolute(defaultPath);
-#ifdef Q_OS_OSX
-    }
-#endif
-
-    if (pathType == SearchPathsDefaults)
-        return defaults;
-
-    QStringList extras = akElementGlobalStuff->m_pluginsSearchPaths;
-
-    for (const QString &path: defaults)
-        extras.removeAll(path);
-
-    return extras;
+    return akElementGlobalStuff->m_pluginsSearchPaths;
 }
 
 void AkElement::addSearchPath(const QString &path)
 {
-    if (!path.isEmpty() && QDir(path).exists())
-        akElementGlobalStuff->m_pluginsSearchPaths << path;
+    auto absPath = akElementGlobalStuff->convertToAbsolute(path);
+
+    if (!path.isEmpty()
+        && QDir(absPath).exists()
+        && !akElementGlobalStuff->m_pluginsSearchPaths.contains(absPath))
+        akElementGlobalStuff->m_pluginsSearchPaths << absPath;
 }
 
 void AkElement::setSearchPaths(const QStringList &searchPaths)
@@ -490,38 +475,12 @@ void AkElement::setSearchPaths(const QStringList &searchPaths)
     akElementGlobalStuff->m_pluginsSearchPaths.clear();
 
     for (const QString &path: searchPaths)
-        if (QDir(path).exists())
-            akElementGlobalStuff->m_pluginsSearchPaths << path;
+        AkElement::addSearchPath(path);
 }
 
 void AkElement::resetSearchPaths()
 {
     akElementGlobalStuff->m_pluginsSearchPaths.clear();
-
-#ifdef Q_OS_WIN32
-    QString defaultPath = QString("%1/../lib/%2")
-                          .arg(QCoreApplication::applicationDirPath())
-                          .arg(COMMONS_TARGET);
-#else
-    QString defaultPath = QString("%1/%2")
-                          .arg(LIBDIR)
-                          .arg(COMMONS_TARGET);
-#endif
-
-#ifdef Q_OS_OSX
-    if (QCoreApplication::applicationDirPath()
-            .endsWith(".app/Contents/MacOS")) {
-        QDir appDir(QCoreApplication::applicationDirPath());
-        appDir.cd(QString("../Plugins/%1").arg(COMMONS_TARGET));
-        akElementGlobalStuff->m_pluginsSearchPaths
-                << appDir.absolutePath();
-    } else {
-#endif
-        akElementGlobalStuff->m_pluginsSearchPaths
-                << akElementGlobalStuff->convertToAbsolute(defaultPath);
-#ifdef Q_OS_OSX
-    }
-#endif
 }
 
 QString AkElement::subModulesPath()
@@ -583,6 +542,15 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
         if (akElementGlobalStuff->m_pluginsBlackList.contains(path))
             continue;
 
+        auto hash = akElementGlobalStuff->hash(path);
+
+        if (!hash.isEmpty() && akElementGlobalStuff->m_pluginsHash.contains(hash)) {
+            akElementGlobalStuff->m_pluginsHash[hash] = true;
+            files << path;
+
+            continue;
+        }
+
         if (QFileInfo(path).isFile()) {
             QString fileName = QFileInfo(path).fileName();
 
@@ -599,6 +567,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
 
                         if (metaData["MetaData"].toObject().contains("pluginType")
                             && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
+                            akElementGlobalStuff->m_pluginsHash[hash] = true;
                             files << path;
                         }
 
@@ -638,14 +607,19 @@ QStringList AkElement::listPluginPaths()
         return akElementGlobalStuff->m_pluginsCache;
 
     QStringList searchPaths;
+    QVector<QStringList *> sPaths {
+        &akElementGlobalStuff->m_pluginsSearchPaths,
+        &akElementGlobalStuff->m_defaultPluginsSearchPaths
+    };
 
-    for (int i = akElementGlobalStuff->m_pluginsSearchPaths.length() - 1; i >= 0; i--) {
-        QStringList paths = AkElement::listPluginPaths(akElementGlobalStuff->m_pluginsSearchPaths[i]);
+    for (auto sPath: sPaths)
+        for (int i = sPath->length() - 1; i >= 0; i--) {
+            auto paths = AkElement::listPluginPaths(sPath->at(i));
 
-        for (const QString &path: paths)
-            if (!searchPaths.contains(path))
-                searchPaths << path;
-    }
+            for (auto &path: paths)
+                if (!searchPaths.contains(path))
+                    searchPaths << path;
+        }
 
     akElementGlobalStuff->m_pluginsCache = searchPaths;
 
@@ -660,6 +634,27 @@ QStringList AkElement::pluginsCache()
 void AkElement::setPluginsCache(const QStringList &paths)
 {
     akElementGlobalStuff->m_pluginsCache = paths;
+}
+
+QList<QByteArray> AkElement::pluginsHashes(bool all)
+{
+    if (all)
+        return akElementGlobalStuff->m_pluginsHash.keys();
+
+    QList<QByteArray> hashes;
+
+    for (auto &hash: akElementGlobalStuff->m_pluginsHash.keys())
+        if (akElementGlobalStuff->m_pluginsHash[hash])
+            hashes << hash;
+
+    return hashes;
+}
+
+void AkElement::setPluginsHashes(const QList<QByteArray> &pluginsHash)
+{
+    for (auto &hash: pluginsHash)
+        if (!akElementGlobalStuff->m_pluginsHash.contains(hash))
+            akElementGlobalStuff->m_pluginsHash[hash] = false;
 }
 
 QStringList AkElement::pluginsBlackList()

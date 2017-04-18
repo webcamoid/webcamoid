@@ -93,7 +93,7 @@ ColumnLayout {
         Layout.fillWidth: true
     }
     GroupBox {
-        title: qsTr("Search paths")
+        title: qsTr("Extra search paths")
         Layout.fillWidth: true
 
         GridLayout {

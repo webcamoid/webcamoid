@@ -27,9 +27,10 @@ namespace Ak
 {
     AKCOMMONS_EXPORT qint64 id();
     AKCOMMONS_EXPORT void setQmlEngine(QQmlEngine *engine);
-    AKCOMMONS_EXPORT QString qmlPluginPath();
-    AKCOMMONS_EXPORT void setQmlPluginPath(const QString &qmlPluginPath);
-    AKCOMMONS_EXPORT void resetQmlPluginPath();
+    AKCOMMONS_EXPORT QStringList qmlImportPathList();
+    AKCOMMONS_EXPORT void addQmlImportPath(const QString &path);
+    AKCOMMONS_EXPORT void setQmlImportPathList(const QStringList &paths);
+    AKCOMMONS_EXPORT void resetQmlImportPathList();
 }
 
 #endif // AK_H

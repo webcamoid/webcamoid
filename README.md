@@ -6,7 +6,7 @@
 
 ## Features ##
 
-* Cross-platform (GNU/Linux, Windows)
+* Cross-platform (GNU/Linux, Mac, Windows)
 * Take pictures and record videos with the webcam.
 * Manages multiple webcams.
 * Written in C++/Qt.
