@@ -266,17 +266,17 @@ createlauncher() {
 
 rootdir() {
     if [[ "\$1" == /* ]]; then
-        dirname \$1
+        dirname "\$1"
     else
-        dir=\$(dirname \$PWD/\$1)
+        dir=\$(dirname "\$PWD/\$1")
         cwd=\$PWD
-        cd \$dir 1>/dev/null
+        cd "\$dir" 1>/dev/null
             echo \$PWD
-        cd \$cwd 1>/dev/null
+        cd "\$cwd" 1>/dev/null
     fi
 }
 
-ROOTDIR=\$(rootdir \$0)
+ROOTDIR=\$(rootdir "\$0")
 export PATH="\${ROOTDIR}"/bin:\$PATH
 export LD_LIBRARY_PATH="\${ROOTDIR}"/lib:\$LD_LIBRARY_PATH
 export QT_DIR="\${ROOTDIR}"/lib/qt

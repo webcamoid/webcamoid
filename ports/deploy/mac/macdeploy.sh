@@ -20,6 +20,12 @@ ROOTDIR=$(rootdir $0)
 deploy() {
     echo Deploying app
 
+    contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
+
+    if [[ -e "$contents/MacOS/${APPNAME}.run" ]]; then
+        return
+    fi
+
     ${OPTPATH}/qt5/bin/macdeployqt \
         ${ROOTDIR}/StandAlone/${APPNAME}.app \
         -always-overwrite \
@@ -57,14 +63,20 @@ solvedeps() {
     group=$(groups $user | awk '{print $1}')
     contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
 
+    if [[ -e "$contents/MacOS/${APPNAME}.run" ]]; then
+        appName=${APPNAME}.run
+    else
+        appName=${APPNAME}
+    fi
+
     find ${path} \
-        -name '*.dylib' -or -name '*.framework' -or -name ${APPNAME} | \
+        -name '*.dylib' -or -name '*.framework' -or -name "$appName" | \
     while read libpath; do
         libpath=${libpath/${path}\//}
         fname=$(basename $libpath)
         echo Solving $libpath
 
-        if [[ $libpath == *.dylib || $libpath == ${APPNAME} ]]; then
+        if [[ $libpath == *.dylib || $libpath == "$appName" ]]; then
             where=${path}/$libpath
         else
             module=${fname%.framework}
@@ -143,19 +155,33 @@ fixlibs() {
     echo Fixing dependencies paths
     contents=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents
 
+    if [[ -e "$contents/MacOS/${APPNAME}.run" ]]; then
+        appName=${APPNAME}.run
+    else
+        appName=${APPNAME}
+    fi
+
     find ${path} \
-        -name '*.dylib' -or -name '*.framework' -or -name ${APPNAME} | \
+        -name '*.dylib' -or -name '*.framework' -or -name "$appName" | \
     while read libpath; do
         libpath=${libpath/${path}\//}
         fname=$(basename $libpath)
         libname=$(echo $fname | awk -F. '{print $1}')
         echo Fixing $libpath
 
-        if [[ $libpath == *.dylib || $libpath == ${APPNAME} ]]; then
+        if [[ $libpath == *.dylib || $libpath == "$appName" ]]; then
             where=${path}/$libpath
         else
             module=${fname%.framework}
             where=${path}/$libpath/$module
+        fi
+
+        if [[ $libpath == "$appName" ]]; then
+            echo '    Adding rpath @executable_path/../Frameworks'
+
+            install_name_tool -add_rpath \
+                '@executable_path/../Frameworks' \
+                $where
         fi
 
         otool -L $where | \
@@ -171,7 +197,7 @@ fixlibs() {
             oldpath=${lib%(*}
             depbasename=$(basename $oldpath)
             deplibname=$(echo $depbasename | awk -F. '{print $1}')
-            relpath=@executable_path/../Frameworks
+            relpath=@rpath
             echo '    dep ' $oldpath
 
             if [[ $libname == $deplibname ]]; then
@@ -238,6 +264,40 @@ fixall() {
     done
 }
 
+fixExecutable() {
+    executable=${ROOTDIR}/StandAlone/${APPNAME}.app/Contents/MacOS/${APPNAME}
+
+    if [[ -e "$executable.run" ]]; then
+        return
+    fi
+
+    mv -vf "$executable" "$executable.run"
+
+cat << EOF > "$executable"
+#!/bin/sh
+
+rootdir() {
+    if [[ "\$1" == /* ]]; then
+        dirname "\$1"
+    else
+        dir=\$(dirname "\$PWD/\$1")
+        cwd=\$PWD
+        cd "\$dir" 1>/dev/null
+            echo \$PWD
+        cd "\$cwd" 1>/dev/null
+    fi
+}
+
+ROOTDIR=\$(rootdir "\$0")
+export PATH="\${ROOTDIR}":\$PATH
+export DYLD_FRAMEWORK_PATH="\${ROOTDIR}"/../Frameworks
+
+${APPNAME}.run "\$@"
+EOF
+
+    chmod +x "$executable"
+}
+
 createportable() {
     # The DMG creation script is a modification of:
     #
@@ -256,7 +316,7 @@ createportable() {
     dsize=$(du -sh "${staggingdir}" | sed 's/\([0-9\.]*\)M\(.*\)/\1/')
     dsize=$(echo "${dsize} + 1.0" | bc | awk '{print int($1+0.5)}')
     tmpdmg=${ROOTDIR}/build/${APPNAME}_tmp.dmg
-    volname="${APPNAME} ${version}"
+    volname="${APPNAME}-${version}"
 
     hdiutil create \
         -srcfolder "$staggingdir" \
@@ -429,4 +489,5 @@ deploy
 installplugins
 solveall
 fixall
+fixExecutable
 package
