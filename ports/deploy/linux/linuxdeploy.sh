@@ -265,15 +265,16 @@ createlauncher() {
 #!/bin/sh
 
 rootdir() {
-    if [[ "\$1" == /* ]]; then
-        dirname "\$1"
-    else
-        dir=\$(dirname "\$PWD/\$1")
-        cwd=\$PWD
-        cd "\$dir" 1>/dev/null
-            echo \$PWD
-        cd "\$cwd" 1>/dev/null
-    fi
+    case "\$1" in
+        /*) dirname "\$1"
+            ;;
+        *)  dir=\$(dirname "\$PWD/\$1")
+            cwd=\$PWD
+            cd "\$dir" 1>/dev/null
+                echo \$PWD
+            cd "\$cwd" 1>/dev/null
+            ;;
+    esac
 }
 
 ROOTDIR=\$(rootdir "\$0")
@@ -473,7 +474,8 @@ EOF
 }
 
 createappimage() {
-    url="https://github.com/probonopd/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+    arch=$(uname -m)
+    url="https://github.com/probonopd/AppImageKit/releases/download/continuous/appimagetool-${arch}.AppImage"
     dstdir=~/.local/bin
 
     if [ ! -e $dstdir/appimagetool ]; then
@@ -485,8 +487,6 @@ createappimage() {
     pushd "${ROOTDIR}/build/bundle-data/${APPNAME}"
         version=$(./${APPNAME}.sh --version 2>/dev/null | awk '{print $2}')
     popd
-
-    arch=$(uname -m)
 
     appdir=${ROOTDIR}/build/bundle-data/${APPNAME}-${version}-${arch}.AppDir
     mkdir -p "$appdir"
@@ -503,7 +503,7 @@ EOF
     cp -vf "$appdir/share/icons/hicolor/256x256/apps/${APPNAME}.png" "$appdir/"
 
     pushd "${ROOTDIR}/ports/deploy/linux"
-        $dstdir/appimagetool "$appdir"
+        $dstdir/appimagetool -v --comp xz "$appdir" "${APPNAME}-${version}-${arch}.AppImage"
     popd
 }
 
