@@ -502,6 +502,9 @@ EOF
 
     cp -vf "$appdir/share/icons/hicolor/256x256/apps/${APPNAME}.png" "$appdir/"
 
+    # Remove old file
+    rm -vf "${ROOTDIR}/ports/deploy/linux/${APPNAME}-${version}-${arch}.AppImage"
+
     pushd "${ROOTDIR}/ports/deploy/linux"
         $dstdir/appimagetool -v --comp xz "$appdir" "${APPNAME}-${version}-${arch}.AppImage"
     popd
