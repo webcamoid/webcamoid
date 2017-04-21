@@ -27,6 +27,7 @@ extern "C"
 {
     #include <libavcodec/avcodec.h>
     #include <libavutil/channel_layout.h>
+    #include <libavutil/opt.h>
     #include <libavresample/avresample.h>
 }
 
@@ -48,6 +49,7 @@ class ConvertAudioFFmpegAV: public ConvertAudio
         AkAudioCaps m_caps;
         AVAudioResampleContext *m_resampleContext;
         QMutex m_mutex;
+        bool m_contextIsOpen;
 };
 
 #endif // CONVERTAUDIOFFMPEGAV_H

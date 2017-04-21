@@ -50,7 +50,9 @@ inline ChannelLayoutsMap initChannelFormatsMap()
         {AkAudioCaps::Layout_7p1_wide     , AV_CH_LAYOUT_7POINT1_WIDE     },
         {AkAudioCaps::Layout_7p1_wide_side, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
         {AkAudioCaps::Layout_octagonal    , AV_CH_LAYOUT_OCTAGONAL        },
+#ifdef AV_CH_LAYOUT_HEXADECAGONAL
         {AkAudioCaps::Layout_hexadecagonal, AV_CH_LAYOUT_HEXADECAGONAL    },
+#endif
         {AkAudioCaps::Layout_downmix      , AV_CH_LAYOUT_STEREO_DOWNMIX   },
     };
 
@@ -63,6 +65,7 @@ ConvertAudioFFmpegAV::ConvertAudioFFmpegAV(QObject *parent):
     ConvertAudio(parent)
 {
     this->m_resampleContext = NULL;
+    this->m_contextIsOpen = false;
 
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
@@ -114,14 +117,19 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     static AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
     iFrame.format = iSampleFormat;
-    iFrame.channels = iNChannels;
     iFrame.channel_layout = uint64_t(iSampleLayout);
     iFrame.sample_rate = iSampleRate;
     iFrame.nb_samples = iNSamples;
     iFrame.pts = packet.pts();
 
+    int iFrameSize = av_samples_get_buffer_size(iFrame.linesize,
+                                                iNChannels,
+                                                iFrame.nb_samples,
+                                                iSampleFormat,
+                                                1);
+
     if (avcodec_fill_audio_frame(&iFrame,
-                                 iFrame.channels,
+                                 iNChannels,
                                  iSampleFormat,
                                  reinterpret_cast<const uint8_t *>(packet.buffer().constData()),
                                  packet.buffer().size(),
@@ -133,7 +141,6 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
     oFrame.format = oSampleFormat;
-    oFrame.channels = oNChannels;
     oFrame.channel_layout = uint64_t(oSampleLayout);
     oFrame.sample_rate = oSampleRate;
     oFrame.nb_samples = int(avresample_get_delay(this->m_resampleContext))
@@ -144,16 +151,16 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     oFrame.pts = iFrame.pts * oSampleRate / iSampleRate;
 
     // Calculate the size of the audio buffer.
-    int frameSize = av_samples_get_buffer_size(oFrame.linesize,
-                                               oFrame.channels,
-                                               oFrame.nb_samples,
-                                               oSampleFormat,
-                                               1);
+    int oFrameSize = av_samples_get_buffer_size(oFrame.linesize,
+                                                oNChannels,
+                                                oFrame.nb_samples,
+                                                oSampleFormat,
+                                                1);
 
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+    QByteArray oBuffer(oFrameSize, Qt::Uninitialized);
 
     if (avcodec_fill_audio_frame(&oFrame,
-                                 oFrame.channels,
+                                 oNChannels,
                                  oSampleFormat,
                                  reinterpret_cast<const uint8_t *>(oBuffer.constData()),
                                  oBuffer.size(),
@@ -162,18 +169,61 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     }
 
     // convert to destination format
-    if (avresample_convert_frame(this->m_resampleContext,
-                                 &oFrame,
-                                 &iFrame) < 0)
+    if (!this->m_contextIsOpen) {
+        // Configure output context
+        av_opt_set_int(this->m_resampleContext,
+                       "out_sample_fmt",
+                       AVSampleFormat(oFrame.format),
+                       0);
+        av_opt_set_int(this->m_resampleContext,
+                       "out_channel_layout",
+                       int64_t(oFrame.channel_layout),
+                       0);
+        av_opt_set_int(this->m_resampleContext,
+                       "out_sample_rate",
+                       oFrame.sample_rate,
+                       0);
+
+        // Configure input context
+        av_opt_set_int(this->m_resampleContext,
+                       "in_sample_fmt",
+                       AVSampleFormat(iFrame.format),
+                       0);
+        av_opt_set_int(this->m_resampleContext,
+                       "in_channel_layout",
+                       int64_t(iFrame.channel_layout),
+                       0);
+        av_opt_set_int(this->m_resampleContext,
+                       "in_sample_rate",
+                       iFrame.sample_rate,
+                       0);
+
+        if (avresample_open(this->m_resampleContext) < 0)
+            return AkPacket();
+
+        this->m_contextIsOpen = true;
+    }
+
+    int oSamples = avresample_convert(this->m_resampleContext,
+                                      oFrame.data,
+                                      oFrameSize,
+                                      oFrame.nb_samples,
+                                      iFrame.data,
+                                      iFrameSize,
+                                      iFrame.nb_samples);
+
+    if (oSamples < 1)
         return AkPacket();
 
-    frameSize = av_samples_get_buffer_size(oFrame.linesize,
-                                           oFrame.channels,
+    oFrame.nb_samples = oSamples;
+
+    oFrameSize = av_samples_get_buffer_size(oFrame.linesize,
+                                           oNChannels,
                                            oFrame.nb_samples,
                                            oSampleFormat,
                                            1);
 
-    oBuffer.resize(frameSize);
+    oBuffer.resize(oFrameSize);
 
     AkAudioPacket oAudioPacket;
     oAudioPacket.caps() = this->m_caps;
@@ -194,4 +244,6 @@ void ConvertAudioFFmpegAV::uninit()
 
     if (this->m_resampleContext)
         avresample_free(&this->m_resampleContext);
+
+    this->m_contextIsOpen = false;
 }

@@ -44,13 +44,14 @@ isEmpty(NOAVFOUNDATION): qtCompileTest(avfoundation)
 isEmpty(NOCOREAUDIO): qtCompileTest(coreaudio)
 isEmpty(NODSHOW): qtCompileTest(dshow)
 
+# Test FFmpeg
 isEmpty(NOFFMPEG) {
     !isEmpty(FFMPEGINCLUDES): cache(FFMPEGINCLUDES)
     !isEmpty(FFMPEGLIBS): cache(FFMPEGLIBS)
     qtCompileTest(ffmpeg)
-    CONFIG(config_ffmpeg): qtCompileTest(avresample)
-    CONFIG(config_ffmpeg): qtCompileTest(swresample)
-    CONFIG(config_ffmpeg): qtCompileTest(sampleformat64)
+    qtCompileTest(ffmpeg_avutil_sampleformat64)
+    qtCompileTest(ffmpeg_avresample)
+    qtCompileTest(ffmpeg_swresample)
 }
 
 isEmpty(NOGSTREAMER) {
