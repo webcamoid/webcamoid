@@ -59,7 +59,7 @@ if [ "${DOCKERSYS}" = debian ]; then
         libavresample-dev \
         libswscale-dev
 
-    if [ "${DOCKERIMG}" != ubuntu:trusty ] || \
+    if [ "${DOCKERIMG}" != ubuntu:trusty ]; then
         ${EXEC} apt-get -y install \
             libswresample-dev
     fi
