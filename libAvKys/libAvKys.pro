@@ -49,9 +49,14 @@ isEmpty(NOFFMPEG) {
     !isEmpty(FFMPEGINCLUDES): cache(FFMPEGINCLUDES)
     !isEmpty(FFMPEGLIBS): cache(FFMPEGLIBS)
     qtCompileTest(ffmpeg)
-    qtCompileTest(ffmpeg_avutil_sampleformat64)
-    qtCompileTest(ffmpeg_avresample)
-    qtCompileTest(ffmpeg_swresample)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avcodec_contextframerate)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avcodec_extracodecformats)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avcodec_sendrecv)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avutil_extrapixformats)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avutil_framealloc)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avutil_sampleformat64)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_avresample)
+    CONFIG(config_ffmpeg): qtCompileTest(ffmpeg_swresample)
 }
 
 isEmpty(NOGSTREAMER) {

@@ -21,5 +21,5 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = src
-CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
+CONFIG(config_ffmpeg_avcodec_sendrecv): SUBDIRS += src/ffmpeg
 CONFIG(config_gstreamer): SUBDIRS += src/gstreamer

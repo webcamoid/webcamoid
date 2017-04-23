@@ -56,6 +56,15 @@ isEmpty(FFMPEGLIBS) {
         libavutil
 }
 
+CONFIG(config_ffmpeg_avcodec_contextframerate): \
+    DEFINES += HAVE_CONTEXTFRAMERATE
+CONFIG(config_ffmpeg_avcodec_extracodecformats): \
+    DEFINES += HAVE_EXTRACODECFORMATS
+CONFIG(config_ffmpeg_avutil_framealloc): \
+    DEFINES += HAVE_FRAMEALLOC
+CONFIG(config_ffmpeg_avutil_extrapixformats): \
+    DEFINES += HAVE_EXTRAPIXFORMATS
+
 QT += qml concurrent
 
 SOURCES = \

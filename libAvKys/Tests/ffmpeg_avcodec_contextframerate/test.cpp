@@ -17,16 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <iostream>
+
 extern "C"
 {
     #include <libavcodec/avcodec.h>
-    #include <libavdevice/avdevice.h>
-    #include <libavformat/avformat.h>
-    #include <libavutil/avutil.h>
-    #include <libswscale/swscale.h>
 }
 
 int main()
 {
+    AVCodecContext codecContext;
+    std::cout << &codecContext.framerate;
+
     return 0;
 }

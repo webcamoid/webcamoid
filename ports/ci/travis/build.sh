@@ -16,16 +16,7 @@ fi
 
 BUILDSCRIPT=dockerbuild.sh
 
-if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    cat << EOF > ${BUILDSCRIPT}
-#!/bin/bash
-
-source /opt/qt56/bin/qt56-env.sh
-
-EOF
-
-    chmod +x ${BUILDSCRIPT}
-elif [ "${DOCKERIMG}" = ubuntu:trusty ] || \
+if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
      [ "${DOCKERIMG}" = ubuntu:xenial ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
@@ -37,15 +28,9 @@ EOF
     chmod +x ${BUILDSCRIPT}
 fi
 
-if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-    ${EXEC} ln -sf /usr/bin/g++-${GCCVER} /usr/bin/g++
-    ${EXEC} ln -sf /usr/bin/clang++-${CLANGVER} /usr/bin/clang++
-fi
-
 if [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
-        if [ "${DOCKERIMG}" = ubuntu:precise ] || \
-           [ "${DOCKERIMG}" = ubuntu:trusty ] || \
+        if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
            [ "${DOCKERIMG}" = ubuntu:xenial ]; then
            cat << EOF >> ${BUILDSCRIPT}
 qmake -spec ${COMPILESPEC} Webcamoid.pro \

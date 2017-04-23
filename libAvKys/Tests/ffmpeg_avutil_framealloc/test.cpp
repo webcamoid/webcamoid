@@ -17,16 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <iostream>
+
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
-    #include <libavdevice/avdevice.h>
-    #include <libavformat/avformat.h>
-    #include <libavutil/avutil.h>
-    #include <libswscale/swscale.h>
+    #include <libavutil/frame.h>
 }
 
 int main()
 {
+    av_frame_alloc();
+    av_frame_unref(NULL);
+    av_frame_free(NULL);
+
     return 0;
 }

@@ -49,8 +49,10 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         {"RGBR", AV_PIX_FMT_RGB565BE},
         {"BGR3", AV_PIX_FMT_BGR24   },
         {"RGB3", AV_PIX_FMT_RGB24   },
+#ifdef HAVE_EXTRAPIXFORMATS
         {"BGR4", AV_PIX_FMT_RGB0    },
         {"RGB4", AV_PIX_FMT_BGR0    },
+#endif
         {"ARGB", AV_PIX_FMT_ARGB    },
         {"RGBA", AV_PIX_FMT_RGBA    },
 
@@ -85,6 +87,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         // two planes -- one Y, one Cr + Cb interleaved
         {"NV12", AV_PIX_FMT_NV12},
         {"NV21", AV_PIX_FMT_NV21},
+#ifdef HAVE_EXTRAPIXFORMATS
         {"NV16", AV_PIX_FMT_NV16},
 
         // Bayer formats
@@ -95,6 +98,7 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 
         // 10bit raw bayer, expanded to 16 bits
         {"BYR2", AV_PIX_FMT_BAYER_BGGR16LE}
+#endif
     };
 
     return rawToFF;
@@ -123,8 +127,10 @@ inline V4l2CodecMap initCompressedMap()
         {"VC1L", AV_CODEC_ID_VC1       },
         {"VP80", AV_CODEC_ID_VP8       },
 
+#ifdef HAVE_EXTRACODECFORMATS
         //  Vendor-specific formats
         {"CPIA", AV_CODEC_ID_CPIA}
+#endif
     };
 
     return compressedToFF;
@@ -208,8 +214,8 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     if (!this->m_codecContext)
         return false;
 
-    if (codec->capabilities & AV_CODEC_CAP_TRUNCATED)
-        this->m_codecContext->flags |= AV_CODEC_FLAG_TRUNCATED;
+    if (codec->capabilities & CODEC_CAP_TRUNCATED)
+        this->m_codecContext->flags |= CODEC_FLAG_TRUNCATED;
 
     if (codec->capabilities & CODEC_CAP_DR1)
         this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
@@ -217,15 +223,20 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     this->m_codecContext->pix_fmt = rawToFF->value(fourcc, AV_PIX_FMT_NONE);
     this->m_codecContext->width = caps.property("width").toInt();
     this->m_codecContext->height = caps.property("height").toInt();
-    AkFrac fps = caps.property("fps").toString();
-    this->m_codecContext->framerate.num = int(fps.num());
-    this->m_codecContext->framerate.den = int(fps.den());
+    this->m_fps = caps.property("fps").toString();
+#ifdef HAVE_CONTEXTFRAMERATE
+    this->m_codecContext->framerate.num = int(this->m_fps.num());
+    this->m_codecContext->framerate.den = int(this->m_fps.den());
+#else
+    this->m_codecContext->time_base.num = int(this->m_fps.den());
+    this->m_codecContext->time_base.den = int(this->m_fps.num());
+#endif
     this->m_codecContext->workaround_bugs = 1;
     this->m_codecContext->idct_algo = FF_IDCT_AUTO;
     this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
     this->m_codecOptions = NULL;
-    av_dict_set_int(&this->m_codecOptions, "refcounted_frames", 1, 0);
+    av_dict_set(&this->m_codecOptions, "refcounted_frames", "1", 0);
 
     if (avcodec_open2(this->m_codecContext, codec, &this->m_codecOptions) < 0) {
         avcodec_close(this->m_codecContext);
@@ -293,10 +304,18 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
 
             if (avcodec_send_packet(stream->m_codecContext, &videoPacket) >= 0)
                 forever {
+#ifdef HAVE_FRAMEALLOC
                     AVFrame *iFrame = av_frame_alloc();
+#else
+                    AVFrame *iFrame = avcodec_alloc_frame();
+#endif
 
                     if (avcodec_receive_frame(stream->m_codecContext, iFrame) < 0) {
+#ifdef HAVE_FRAMEALLOC
                         av_frame_free(&iFrame);
+#else
+                        avcodec_free_frame(&iFrame);
+#endif
 
                         break;
                     }
@@ -337,16 +356,19 @@ void ConvertVideoFFmpeg::dataLoop(ConvertVideoFFmpeg *stream)
 
 void ConvertVideoFFmpeg::deleteFrame(AVFrame *frame)
 {
+#ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
     av_frame_free(&frame);
+#else
+    avcodec_free_frame(&frame);
+#endif
 }
 
 void ConvertVideoFFmpeg::processData(const FramePtr &frame)
 {
     forever {
-        AkFrac timeBase(this->m_codecContext->framerate.den,
-                        this->m_codecContext->framerate.num);
-        qreal pts = av_frame_get_best_effort_timestamp(frame.data())
+        AkFrac timeBase = this->m_fps.invert();
+        qreal pts = this->bestEffortTimestamp(frame)
                     * timeBase.value();
         qreal diff = pts - this->m_globalClock.clock();
         qreal delay = pts - this->m_lastPts;
@@ -404,22 +426,35 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
         return;
 
     // Create oPicture
-    int frameSize = av_image_get_buffer_size(outPixFormat,
-                                             frame->width,
-                                             frame->height,
-                                             1);
-
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(oFrame.data),
-                             oFrame.linesize,
-                             reinterpret_cast<const uint8_t *>(oBuffer.constData()),
-                             outPixFormat,
-                             frame->width,
-                             frame->height,
-                             1) < 0) {
+    if (av_image_check_size(uint(frame->width),
+                            uint(frame->height),
+                            0,
+                            NULL) < 0)
+        return;
+
+    if (av_image_fill_linesizes(oFrame.linesize,
+                                outPixFormat,
+                                frame->width) < 0)
+        return;
+
+    uint8_t *data[4];
+    memset(data, 0, 4 * sizeof(uint8_t *));
+    int frameSize = av_image_fill_pointers(data,
+                                           outPixFormat,
+                                           frame->height,
+                                           NULL,
+                                           oFrame.linesize);
+
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+
+    if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(oFrame.data),
+                               outPixFormat,
+                               frame->height,
+                               reinterpret_cast<uint8_t *>(oBuffer.data()),
+                               oFrame.linesize) < 0) {
         return;
     }
 
@@ -438,15 +473,14 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = frame->width;
     caps.height() = frame->height;
-    caps.fps() = AkFrac(this->m_codecContext->framerate.num,
-                        this->m_codecContext->framerate.den);
+    caps.fps() = this->m_fps;
 
     // Create packet
     AkVideoPacket oPacket;
     oPacket.caps() = caps;
     oPacket.buffer() = oBuffer;
     oPacket.id() = this->m_id;
-    oPacket.pts() = av_frame_get_best_effort_timestamp(frame.data());
+    oPacket.pts() = this->bestEffortTimestamp(frame);
     oPacket.timeBase() = caps.fps().invert();
     oPacket.index() = 0;
 
@@ -466,6 +500,20 @@ void ConvertVideoFFmpeg::log(qreal diff)
                         .arg(this->m_packetQueueSize / 1024, 5);
 
     qDebug() << log.toStdString().c_str();
+}
+
+int64_t ConvertVideoFFmpeg::bestEffortTimestamp(const FramePtr &frame) const
+{
+#ifdef FF_API_PKT_PTS
+    return av_frame_get_best_effort_timestamp(frame.data());
+#else
+    if (frame->pts != AV_NOPTS_VALUE)
+        return frame->pts;
+    else if (frame->pkt_pts != AV_NOPTS_VALUE)
+        return frame->pkt_pts;
+
+    return frame->pkt_dts;
+#endif
 }
 
 void ConvertVideoFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)

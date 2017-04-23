@@ -16,13 +16,23 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+CONFIG += console c++11
 
-CONFIG += ordered
+macx: QT_CONFIG -= no-pkg-config
 
-SUBDIRS = src
-CONFIG(config_dshow): SUBDIRS += src/dshow
-CONFIG(config_ffmpeg_avcodec_sendrecv): SUBDIRS += src/ffmpeg
-CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
-CONFIG(config_v4l2): SUBDIRS += src/v4l2sys
-CONFIG(config_v4lutils): SUBDIRS += src/v4lutils
+DEFINES += __STDC_CONSTANT_MACROS
+
+!isEmpty(FFMPEGINCLUDES): INCLUDEPATH += $${FFMPEGINCLUDES}
+!isEmpty(FFMPEGLIBS): LIBS += $${FFMPEGLIBS}
+
+isEmpty(FFMPEGLIBS) {
+    CONFIG += link_pkgconfig
+
+    PKGCONFIG += \
+        libavcodec
+}
+
+SOURCES = \
+    test.cpp
+
+TARGET = test_auto

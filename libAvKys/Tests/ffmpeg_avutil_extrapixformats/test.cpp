@@ -17,16 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <iostream>
+
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
-    #include <libavdevice/avdevice.h>
-    #include <libavformat/avformat.h>
-    #include <libavutil/avutil.h>
-    #include <libswscale/swscale.h>
+    #include <libavutil/pixfmt.h>
 }
 
 int main()
 {
+    std::cout << AV_PIX_FMT_RGB0
+              << AV_PIX_FMT_BGR0
+              << AV_PIX_FMT_NV16
+              << AV_PIX_FMT_BAYER_BGGR8
+              << AV_PIX_FMT_BAYER_GBRG8
+              << AV_PIX_FMT_BAYER_GRBG8
+              << AV_PIX_FMT_BAYER_RGGB8
+              << AV_PIX_FMT_BAYER_BGGR16LE;
+
     return 0;
 }

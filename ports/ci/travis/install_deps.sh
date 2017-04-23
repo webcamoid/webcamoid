@@ -7,10 +7,7 @@ fi
 if [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
 
-    if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-        ${EXEC} apt-get -y install python-software-properties
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt562
-    elif [ "${DOCKERIMG}" = ubuntu:trusty ]; then
+    if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
         ${EXEC} apt-get -y install software-properties-common
         ${EXEC} add-apt-repository ppa:beineri/opt-qt58-trusty
     elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
@@ -18,24 +15,13 @@ if [ "${DOCKERSYS}" = debian ]; then
         ${EXEC} add-apt-repository ppa:beineri/opt-qt58-xenial
     fi
 
-    if [ "${DOCKERIMG}" = ubuntu:precise ] || \
-       [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-       [ "${DOCKERIMG}" = ubuntu:xenial ]; then
-        ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/packages
-        ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/toolchain
-        ${EXEC} add-apt-repository ppa:sergey-dryabzhinsky/ffmpeg
-    fi
-
-    if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-        ${EXEC} add-apt-repository ppa:h-rayflood/gcc-upper
-        ${EXEC} add-apt-repository ppa:h-rayflood/llvm-upper
-    fi
-
     ${EXEC} apt-get -y update
     ${EXEC} apt-get -y upgrade
 
     # Install dev tools
     ${EXEC} apt-get -y install \
+        g++ \
+        clang \
         ccache \
         make \
         pkg-config \
@@ -44,27 +30,11 @@ if [ "${DOCKERSYS}" = debian ]; then
         libpulse-dev \
         libjack-dev \
         libasound2-dev \
-        libv4l-dev
-
-    if [ "${DOCKERIMG}" != ubuntu:precise ]; then
-        ${EXEC} apt-get -y install \
-            g++ \
-            clang \
-            libgstreamer-plugins-base1.0-dev
-    else
-        ${EXEC} apt-get -y install \
-            g++-${GCCVER} \
-            clang-${CLANGVER}
-    fi
+        libv4l-dev \
+        libgstreamer-plugins-base1.0-dev
 
     # Install Qt dev
-    if [ "${DOCKERIMG}" = ubuntu:precise ]; then
-        ${EXEC} apt-get -y install \
-            qt56tools \
-            qt56declarative \
-            qt56multimedia \
-            qt56svg
-    elif [ "${DOCKERIMG}" = ubuntu:trusty ] || \
+    if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
          [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install \
             qt58tools \
@@ -87,8 +57,12 @@ if [ "${DOCKERSYS}" = debian ]; then
         libavformat-dev \
         libavutil-dev \
         libavresample-dev \
-        libswresample-dev \
         libswscale-dev
+
+    if [ "${DOCKERIMG}" != ubuntu:trusty ] || \
+        ${EXEC} apt-get -y install \
+            libswresample-dev
+    fi
 elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORAVER}.noarch.rpm
     ${EXEC} dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${FEDORAVER}.noarch.rpm
