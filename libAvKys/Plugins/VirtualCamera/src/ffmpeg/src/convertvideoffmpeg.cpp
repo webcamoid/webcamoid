@@ -24,6 +24,8 @@
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
+    avcodec_register_all();
+
     this->m_scaleContext = NULL;
 
 #ifndef QT_DEBUG
@@ -72,33 +74,49 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
     AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(iFrame.data),
-                         iFrame.linesize,
-                             reinterpret_cast<const uint8_t *>(videoPacket.buffer().constData()),
-                         iFormat,
-                         videoPacket.caps().width(),
-                         videoPacket.caps().height(),
-                         1) < 0)
+    if (av_image_check_size(uint(videoPacket.caps().width()),
+                            uint(videoPacket.caps().height()),
+                            0,
+                            NULL) < 0)
         return AkPacket();
 
-    // Create oPicture
-    int frameSize = av_image_get_buffer_size(oFormat,
-                                             oVideoCaps.width(),
-                                             oVideoCaps.height(),
-                                             1);
+    if (av_image_fill_linesizes(iFrame.linesize,
+                                iFormat,
+                                videoPacket.caps().width()) < 0)
+        return AkPacket();
 
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+    if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(iFrame.data),
+                               iFormat,
+                               videoPacket.caps().height(),
+                               reinterpret_cast<uint8_t *>(videoPacket.buffer().data()),
+                               iFrame.linesize) < 0) {
+        return AkPacket();
+    }
+
+    // Create oPicture
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(oFrame.data),
-                             oFrame.linesize,
-                             reinterpret_cast<const uint8_t *>(oBuffer.constData()),
-                             oFormat,
-                             oVideoCaps.width(),
-                             oVideoCaps.height(),
-                             1) < 0)
+    if (av_image_fill_linesizes(oFrame.linesize,
+                                oFormat,
+                                oVideoCaps.width()) < 0)
         return AkPacket();
+
+    uint8_t *data[4];
+    memset(data, 0, 4 * sizeof(uint8_t *));
+    int frameSize = av_image_fill_pointers(data,
+                                           oFormat,
+                                           oVideoCaps.height(),
+                                           NULL,
+                                           oFrame.linesize);
+
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+
+    av_image_fill_pointers(oFrame.data,
+                           oFormat,
+                           oVideoCaps.height(),
+                           reinterpret_cast<uint8_t *>(oBuffer.data()),
+                           oFrame.linesize);
 
     // Convert picture format
     sws_scale(this->m_scaleContext,

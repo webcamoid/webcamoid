@@ -141,6 +141,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(V4l2CodecMap, compressedToFF, (initCompressedMap()))
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
+    avcodec_register_all();
+
     this->m_scaleContext = NULL;
     this->m_codecOptions = NULL;
     this->m_codecContext = NULL;
@@ -236,7 +238,7 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
     this->m_codecOptions = NULL;
-    av_dict_set(&this->m_codecOptions, "refcounted_frames", "1", 0);
+    av_dict_set(&this->m_codecOptions, "refcounted_frames", "0", 0);
 
     if (avcodec_open2(this->m_codecContext, codec, &this->m_codecOptions) < 0) {
         avcodec_close(this->m_codecContext);
@@ -302,26 +304,45 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
             videoPacket.size = packet.buffer().size();
             videoPacket.pts = packet.pts();
 
+#ifdef HAVE_SENDRECV
             if (avcodec_send_packet(stream->m_codecContext, &videoPacket) >= 0)
                 forever {
-#ifdef HAVE_FRAMEALLOC
-                    AVFrame *iFrame = av_frame_alloc();
-#else
-                    AVFrame *iFrame = avcodec_alloc_frame();
-#endif
+    #ifdef HAVE_FRAMEALLOC
+                    auto iFrame = av_frame_alloc();
+    #else
+                    auto iFrame = avcodec_alloc_frame();
+    #endif
+                    int r = avcodec_receive_frame(stream->m_codecContext, iFrame);
 
-                    if (avcodec_receive_frame(stream->m_codecContext, iFrame) < 0) {
-#ifdef HAVE_FRAMEALLOC
-                        av_frame_free(&iFrame);
-#else
-                        avcodec_free_frame(&iFrame);
-#endif
+                    if (r >= 0)
+                        stream->dataEnqueue(stream->copyFrame(iFrame));
+    #ifdef HAVE_FRAMEALLOC
+                    av_frame_free(&iFrame);
+    #else
+                    avcodec_free_frame(&iFrame);
+    #endif
 
+                    if (r < 0)
                         break;
-                    }
-
-                    stream->dataEnqueue(iFrame);
                 }
+#else
+    #ifdef HAVE_FRAMEALLOC
+                auto iFrame = av_frame_alloc();
+    #else
+                auto iFrame = avcodec_alloc_frame();
+    #endif
+            int gotFrame;
+            avcodec_decode_video2(stream->m_codecContext, iFrame, &gotFrame, &videoPacket);
+
+            if (gotFrame)
+                stream->dataEnqueue(stream->copyFrame(iFrame));
+            else
+    #ifdef HAVE_FRAMEALLOC
+                av_frame_free(&iFrame);
+    #else
+                avcodec_free_frame(&iFrame);
+    #endif
+#endif
 
             stream->m_packetQueueSize -= packet.buffer().size();
 
@@ -356,6 +377,8 @@ void ConvertVideoFFmpeg::dataLoop(ConvertVideoFFmpeg *stream)
 
 void ConvertVideoFFmpeg::deleteFrame(AVFrame *frame)
 {
+    av_freep(&frame->data[0]);
+
 #ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
     av_frame_free(&frame);
@@ -411,16 +434,16 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
 
     // Initialize rescaling context.
     this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
-                                                  frame->width,
-                                                  frame->height,
-                                                  AVPixelFormat(frame->format),
-                                                  frame->width,
-                                                  frame->height,
-                                                  outPixFormat,
-                                                  SWS_FAST_BILINEAR,
-                                                  NULL,
-                                                  NULL,
-                                                  NULL);
+                                                frame->width,
+                                                frame->height,
+                                                AVPixelFormat(frame->format),
+                                                frame->width,
+                                                frame->height,
+                                                outPixFormat,
+                                                SWS_FAST_BILINEAR,
+                                                NULL,
+                                                NULL,
+                                                NULL);
 
     if (!this->m_scaleContext)
         return;
@@ -514,6 +537,35 @@ int64_t ConvertVideoFFmpeg::bestEffortTimestamp(const FramePtr &frame) const
 
     return frame->pkt_dts;
 #endif
+}
+
+AVFrame *ConvertVideoFFmpeg::copyFrame(AVFrame *frame) const
+{
+#ifdef HAVE_FRAMEALLOC
+    auto oFrame = av_frame_alloc();
+#else
+    auto oFrame = avcodec_alloc_frame();
+#endif
+    oFrame->width = frame->width;
+    oFrame->height = frame->height;
+    oFrame->format = frame->format;
+    oFrame->pts = frame->pts;
+
+    av_image_alloc(oFrame->data,
+                   oFrame->linesize,
+                   oFrame->width,
+                   oFrame->height,
+                   AVPixelFormat(oFrame->format),
+                   1);
+    av_image_copy(oFrame->data,
+                  oFrame->linesize,
+                  const_cast<const uint8_t **>(frame->data),
+                  frame->linesize,
+                  AVPixelFormat(oFrame->format),
+                  oFrame->width,
+                  oFrame->height);
+
+    return oFrame;
 }
 
 void ConvertVideoFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)

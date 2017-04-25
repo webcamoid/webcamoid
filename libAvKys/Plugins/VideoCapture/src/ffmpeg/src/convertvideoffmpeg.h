@@ -32,6 +32,7 @@ extern "C"
     #include <libswscale/swscale.h>
     #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
+    #include <libavutil/mem.h>
 }
 
 #include "convertvideo.h"
@@ -100,6 +101,7 @@ class ConvertVideoFFmpeg: public ConvertVideo
         void convert(const FramePtr &frame);
         void log(qreal diff);
         int64_t bestEffortTimestamp(const FramePtr &frame) const;
+        AVFrame *copyFrame(AVFrame *frame) const;
 
     signals:
         void maxPacketQueueSizeChanged(qint64 maxPacketQueueSize);
