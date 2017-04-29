@@ -71,27 +71,55 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
     }
 
-    if (avcodec_send_packet(this->codecContext(), packet) < 0)
-        return;
+#ifdef HAVE_SENDRECV
+    if (avcodec_send_packet(this->codecContext(), packet) >= 0)
+        forever {
+    #ifdef HAVE_FRAMEALLOC
+            auto iFrame = av_frame_alloc();
+    #else
+            auto iFrame = avcodec_alloc_frame();
+    #endif
+            int r = avcodec_receive_frame(this->codecContext(), iFrame);
 
-    forever {
-        AVFrame *iFrame = av_frame_alloc();
-
-        if (avcodec_receive_frame(this->codecContext(), iFrame) < 0) {
+            if (r >= 0) {
+                iFrame->pts = this->bestEffortTimestamp(iFrame);
+                this->dataEnqueue(this->copyFrame(iFrame));
+            }
+    #ifdef HAVE_FRAMEALLOC
             av_frame_free(&iFrame);
+    #else
+            avcodec_free_frame(&iFrame);
+    #endif
 
-            break;
+            if (r < 0)
+                break;
+        }
+#else
+    #ifdef HAVE_FRAMEALLOC
+        auto iFrame = av_frame_alloc();
+    #else
+        auto iFrame = avcodec_alloc_frame();
+    #endif
+        int gotFrame;
+        avcodec_decode_video2(this->codecContext(), iFrame, &gotFrame, packet);
+
+        if (gotFrame) {
+            iFrame->pts = this->bestEffortTimestamp(iFrame);
+            this->dataEnqueue(this->copyFrame(iFrame));
         }
 
-        this->dataEnqueue(iFrame);
-    }
+    #ifdef HAVE_FRAMEALLOC
+        av_frame_free(&iFrame);
+    #else
+        avcodec_free_frame(&iFrame);
+    #endif
+#endif
 }
 
 void VideoStream::processData(AVFrame *frame)
 {
     forever {
-        qreal pts = av_frame_get_best_effort_timestamp(frame)
-                    * this->timeBase().value();
+        qreal pts = frame->pts * this->timeBase().value();
         qreal diff = pts - this->globalClock()->clock();
         qreal delay = pts - this->m_lastPts;
 
@@ -167,22 +195,35 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
         return AkPacket();
 
     // Create oPicture
-    int frameSize = av_image_get_buffer_size(outPixFormat,
-                                             iFrame->width,
-                                             iFrame->height,
-                                             1);
-
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
 
-    if (av_image_fill_arrays(reinterpret_cast<uint8_t **>(oFrame.data),
-                             oFrame.linesize,
-                             reinterpret_cast<const uint8_t *>(oBuffer.constData()),
-                             outPixFormat,
-                             iFrame->width,
-                             iFrame->height,
-                             1) < 0) {
+    if (av_image_check_size(uint(iFrame->width),
+                            uint(iFrame->height),
+                            0,
+                            NULL) < 0)
+        return AkPacket();
+
+    if (av_image_fill_linesizes(oFrame.linesize,
+                                outPixFormat,
+                                iFrame->width) < 0)
+        return AkPacket();
+
+    uint8_t *data[4];
+    memset(data, 0, 4 * sizeof(uint8_t *));
+    int frameSize = av_image_fill_pointers(data,
+                                           outPixFormat,
+                                           iFrame->height,
+                                           NULL,
+                                           oFrame.linesize);
+
+    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+
+    if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(oFrame.data),
+                               outPixFormat,
+                               iFrame->height,
+                               reinterpret_cast<uint8_t *>(oBuffer.data()),
+                               oFrame.linesize) < 0) {
         return AkPacket();
     }
 
@@ -207,10 +248,53 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     AkVideoPacket oPacket;
     oPacket.caps() = caps;
     oPacket.buffer() = oBuffer;
-    oPacket.pts() = av_frame_get_best_effort_timestamp(iFrame);
+    oPacket.pts() = iFrame->pts;
     oPacket.timeBase() = this->timeBase();
     oPacket.index() = int(this->index());
     oPacket.id() = this->id();
 
     return oPacket.toPacket();
+}
+
+int64_t VideoStream::bestEffortTimestamp(const AVFrame *frame) const
+{
+#ifdef FF_API_PKT_PTS
+    return av_frame_get_best_effort_timestamp(frame);
+#else
+    if (frame->pts != AV_NOPTS_VALUE)
+        return frame->pts;
+    else if (frame->pkt_pts != AV_NOPTS_VALUE)
+        return frame->pkt_pts;
+
+    return frame->pkt_dts;
+#endif
+}
+
+AVFrame *VideoStream::copyFrame(AVFrame *frame) const
+{
+#ifdef HAVE_FRAMEALLOC
+    auto oFrame = av_frame_alloc();
+#else
+    auto oFrame = avcodec_alloc_frame();
+#endif
+    oFrame->width = frame->width;
+    oFrame->height = frame->height;
+    oFrame->format = frame->format;
+    oFrame->pts = frame->pts;
+
+    av_image_alloc(oFrame->data,
+                   oFrame->linesize,
+                   oFrame->width,
+                   oFrame->height,
+                   AVPixelFormat(oFrame->format),
+                   1);
+    av_image_copy(oFrame->data,
+                  oFrame->linesize,
+                  const_cast<const uint8_t **>(frame->data),
+                  frame->linesize,
+                  AVPixelFormat(oFrame->format),
+                  oFrame->width,
+                  oFrame->height);
+
+    return oFrame;
 }

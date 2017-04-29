@@ -86,7 +86,9 @@ inline ChannelLayoutsMap initChannelFormatsMap()
         {AkAudioCaps::Layout_7p1_wide     , AV_CH_LAYOUT_7POINT1_WIDE     },
         {AkAudioCaps::Layout_7p1_wide_side, AV_CH_LAYOUT_7POINT1_WIDE_BACK},
         {AkAudioCaps::Layout_octagonal    , AV_CH_LAYOUT_OCTAGONAL        },
+#ifdef AV_CH_LAYOUT_HEXADECAGONAL
         {AkAudioCaps::Layout_hexadecagonal, AV_CH_LAYOUT_HEXADECAGONAL    },
+#endif
         {AkAudioCaps::Layout_downmix      , AV_CH_LAYOUT_STEREO_DOWNMIX   },
     };
 
@@ -146,20 +148,45 @@ void AudioStream::processPacket(AVPacket *packet)
         return;
     }
 
-    if (avcodec_send_packet(this->codecContext(), packet) < 0)
-        return;
+#ifdef HAVE_SENDRECV
+    if (avcodec_send_packet(this->codecContext(), packet) >= 0)
+        forever {
+    #ifdef HAVE_FRAMEALLOC
+            auto iFrame = av_frame_alloc();
+    #else
+            auto iFrame = avcodec_alloc_frame();
+    #endif
+            int r = avcodec_receive_frame(this->codecContext(), iFrame);
 
-    forever {
-        AVFrame *iFrame = av_frame_alloc();
-
-        if (avcodec_receive_frame(this->codecContext(), iFrame) < 0) {
+            if (r >= 0)
+                this->dataEnqueue(this->copyFrame(iFrame));
+    #ifdef HAVE_FRAMEALLOC
             av_frame_free(&iFrame);
+    #else
+            avcodec_free_frame(&iFrame);
+    #endif
 
-            break;
+            if (r < 0)
+                break;
         }
+#else
+    #ifdef HAVE_FRAMEALLOC
+        auto iFrame = av_frame_alloc();
+    #else
+        auto iFrame = avcodec_alloc_frame();
+    #endif
+        int gotFrame;
+        avcodec_decode_audio4(this->codecContext(), iFrame, &gotFrame, packet);
 
-        this->dataEnqueue(iFrame);
-    }
+        if (gotFrame)
+            this->dataEnqueue(this->copyFrame(iFrame));
+
+    #ifdef HAVE_FRAMEALLOC
+        av_frame_free(&iFrame);
+    #else
+        avcodec_free_frame(&iFrame);
+    #endif
+#endif
 }
 
 void AudioStream::processData(AVFrame *frame)
@@ -168,7 +195,6 @@ void AudioStream::processData(AVFrame *frame)
     AkPacket oPacket = this->convert(frame);
     emit this->oStream(oPacket);
     emit this->frameSent();
-
     this->m_pts = frame->pts + frame->nb_samples;
 }
 
@@ -179,9 +205,11 @@ bool AudioStream::compensate(AVFrame *oFrame,
     if (wantedSamples == iFrame->nb_samples)
         return false;
 
+    int iChannels = av_get_channel_layout_nb_channels(iFrame->channel_layout);
+
     if (av_samples_alloc(oFrame->data,
                          iFrame->linesize,
-                         iFrame->channels,
+                         iChannels,
                          wantedSamples,
                          AVSampleFormat(iFrame->format),
                          1) < 0) {
@@ -193,16 +221,19 @@ bool AudioStream::compensate(AVFrame *oFrame,
                         0,
                         0,
                         qMin(wantedSamples, iFrame->nb_samples),
-                        iFrame->channels,
+                        iChannels,
                         AVSampleFormat(iFrame->format)) < 0) {
+#ifdef HAVE_FRAMEALLOC
         av_freep(&oFrame->data[0]);
         av_frame_unref(oFrame);
+#else
+        avcodec_free_frame(&oFrame);
+#endif
 
         return false;
     }
 
     oFrame->format = iFrame->format;
-    oFrame->channels = iFrame->channels;
     oFrame->channel_layout = iFrame->channel_layout;
     oFrame->sample_rate = iFrame->sample_rate;
     oFrame->nb_samples = wantedSamples;
@@ -213,11 +244,13 @@ bool AudioStream::compensate(AVFrame *oFrame,
 
 AkPacket AudioStream::frameToPacket(AVFrame *iFrame)
 {
+    int iChannels = av_get_channel_layout_nb_channels(iFrame->channel_layout);
+
     AVFrame frame;
     memset(&frame, 0, sizeof(AVFrame));
 
     int frameSize = av_samples_get_buffer_size(NULL,
-                                               iFrame->channels,
+                                               iChannels,
                                                iFrame->nb_samples,
                                                AVSampleFormat(iFrame->format),
                                                1);
@@ -227,7 +260,7 @@ AkPacket AudioStream::frameToPacket(AVFrame *iFrame)
     if (av_samples_fill_arrays(frame.data,
                                frame.linesize,
                                reinterpret_cast<const uint8_t *>(iBuffer.constData()),
-                               iFrame->channels,
+                               iChannels,
                                iFrame->nb_samples,
                                AVSampleFormat(iFrame->format),
                                1) < 0) {
@@ -239,14 +272,14 @@ AkPacket AudioStream::frameToPacket(AVFrame *iFrame)
                         0,
                         0,
                         iFrame->nb_samples,
-                        iFrame->channels,
+                        iChannels,
                         AVSampleFormat(iFrame->format)) < 0) {
         return AkPacket();
     }
 
     AkAudioPacket packet;
     packet.caps() = AkAudioCaps(sampleFormats->value(AVSampleFormat(iFrame->format)),
-                                iFrame->channels,
+                                iChannels,
                                 iFrame->sample_rate);
     packet.caps().layout() = channelLayouts->key(iFrame->channel_layout);
     packet.caps().samples() = iFrame->nb_samples;
@@ -271,8 +304,11 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
             || AkAudioCaps::isPlanar(format))
             format = AkAudioCaps::SampleFormat_flt;
 
+        int iChannels =
+                av_get_channel_layout_nb_channels(iFrame->channel_layout);
+
         AkAudioCaps caps(format,
-                         iFrame->channels > 1? 2: 1,
+                         iChannels > 1? 2: 1,
                          iFrame->sample_rate);
         this->m_audioConvert->setProperty("caps", caps.toString());
         this->m_audioConvert->setState(AkElement::ElementStatePlaying);
@@ -311,7 +347,9 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
                 if (this->compensate(&oFrame, iFrame, wantedSamples)) {
                     packet = this->frameToPacket(&oFrame);
                     av_freep(&oFrame.data[0]);
+#ifdef HAVE_FRAMEALLOC
                     av_frame_unref(&oFrame);
+#endif
                 }
             }
         }
@@ -328,4 +366,35 @@ AkPacket AudioStream::convert(AVFrame *iFrame)
     this->m_clockDiff = diff;
 
     return this->m_audioConvert->iStream(packet);
+}
+
+AVFrame *AudioStream::copyFrame(AVFrame *frame) const
+{
+#ifdef HAVE_FRAMEALLOC
+    auto oFrame = av_frame_alloc();
+#else
+    auto oFrame = avcodec_alloc_frame();
+#endif
+    oFrame->format = frame->format;
+    oFrame->channel_layout = frame->channel_layout;
+    oFrame->sample_rate = frame->sample_rate;
+    oFrame->nb_samples = frame->nb_samples;
+    oFrame->pts = frame->pts;
+    int channels = av_get_channel_layout_nb_channels(oFrame->channel_layout);
+
+    av_samples_alloc(oFrame->data,
+                     oFrame->linesize,
+                     channels,
+                     oFrame->nb_samples,
+                     AVSampleFormat(oFrame->format),
+                     1);
+    av_samples_copy(oFrame->data,
+                    frame->data,
+                    0,
+                    0,
+                    oFrame->nb_samples,
+                    channels,
+                    AVSampleFormat(oFrame->format));
+
+    return oFrame;
 }

@@ -314,8 +314,10 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
     #endif
                     int r = avcodec_receive_frame(stream->m_codecContext, iFrame);
 
-                    if (r >= 0)
+                    if (r >= 0) {
+                        iFrame->pts = stream->bestEffortTimestamp(iFrame);
                         stream->dataEnqueue(stream->copyFrame(iFrame));
+                    }
     #ifdef HAVE_FRAMEALLOC
                     av_frame_free(&iFrame);
     #else
@@ -334,13 +336,14 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
             int gotFrame;
             avcodec_decode_video2(stream->m_codecContext, iFrame, &gotFrame, &videoPacket);
 
-            if (gotFrame)
+            if (gotFrame) {
+                iFrame->pts = stream->bestEffortTimestamp(iFrame);
                 stream->dataEnqueue(stream->copyFrame(iFrame));
-            else
+            }
     #ifdef HAVE_FRAMEALLOC
-                av_frame_free(&iFrame);
+            av_frame_free(&iFrame);
     #else
-                avcodec_free_frame(&iFrame);
+            avcodec_free_frame(&iFrame);
     #endif
 #endif
 
@@ -378,6 +381,7 @@ void ConvertVideoFFmpeg::dataLoop(ConvertVideoFFmpeg *stream)
 void ConvertVideoFFmpeg::deleteFrame(AVFrame *frame)
 {
     av_freep(&frame->data[0]);
+    frame->data[0] = NULL;
 
 #ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
@@ -391,8 +395,7 @@ void ConvertVideoFFmpeg::processData(const FramePtr &frame)
 {
     forever {
         AkFrac timeBase = this->m_fps.invert();
-        qreal pts = this->bestEffortTimestamp(frame)
-                    * timeBase.value();
+        qreal pts = frame->pts * timeBase.value();
         qreal diff = pts - this->m_globalClock.clock();
         qreal delay = pts - this->m_lastPts;
 
@@ -503,7 +506,7 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
     oPacket.caps() = caps;
     oPacket.buffer() = oBuffer;
     oPacket.id() = this->m_id;
-    oPacket.pts() = this->bestEffortTimestamp(frame);
+    oPacket.pts() = frame->pts;
     oPacket.timeBase() = caps.fps().invert();
     oPacket.index() = 0;
 
@@ -525,10 +528,10 @@ void ConvertVideoFFmpeg::log(qreal diff)
     qDebug() << log.toStdString().c_str();
 }
 
-int64_t ConvertVideoFFmpeg::bestEffortTimestamp(const FramePtr &frame) const
+int64_t ConvertVideoFFmpeg::bestEffortTimestamp(const AVFrame *frame) const
 {
 #ifdef FF_API_PKT_PTS
-    return av_frame_get_best_effort_timestamp(frame.data());
+    return av_frame_get_best_effort_timestamp(frame);
 #else
     if (frame->pts != AV_NOPTS_VALUE)
         return frame->pts;

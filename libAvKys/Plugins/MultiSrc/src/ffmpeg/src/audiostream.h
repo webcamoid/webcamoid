@@ -23,6 +23,7 @@
 extern "C"
 {
     #include <libavcodec/avcodec.h>
+    #include <libavutil/channel_layout.h>
 }
 
 #include "abstractstream.h"
@@ -33,7 +34,7 @@ class AudioStream: public AbstractStream
 
     public:
         explicit AudioStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1,
+                             uint index=0, qint64 id=-1,
                              Clock *globalClock=NULL,
                              bool noModify=false,
                              QObject *parent=NULL);
@@ -48,7 +49,6 @@ class AudioStream: public AbstractStream
     private:
         qint64 m_pts;
         AkElementPtr m_audioConvert;
-
         qreal audioDiffCum; // used for AV difference average computation
         qreal audioDiffAvgCoef;
         int audioDiffAvgCount;
@@ -56,6 +56,7 @@ class AudioStream: public AbstractStream
         bool compensate(AVFrame *oFrame, AVFrame *iFrame, int wantedSamples);
         AkPacket frameToPacket(AVFrame *iFrame);
         AkPacket convert(AVFrame *iFrame);
+        AVFrame *copyFrame(AVFrame *frame) const;
 };
 
 #endif // AUDIOSTREAM_H

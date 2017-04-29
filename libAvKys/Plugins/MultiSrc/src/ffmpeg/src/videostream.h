@@ -38,7 +38,7 @@ class VideoStream: public AbstractStream
 
     public:
         explicit VideoStream(const AVFormatContext *formatContext=NULL,
-                             uint index=-1, qint64 id=-1,
+                             uint index=0, qint64 id=-1,
                              Clock *globalClock=NULL,
                              bool noModify=false,
                              QObject *parent=NULL);
@@ -58,6 +58,8 @@ class VideoStream: public AbstractStream
 
         AkFrac fps() const;
         AkPacket convert(AVFrame *iFrame);
+        int64_t bestEffortTimestamp(const AVFrame *frame) const;
+        AVFrame *copyFrame(AVFrame *frame) const;
 };
 
 #endif // VIDEOSTREAM_H

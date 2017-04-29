@@ -17,27 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef SUBTITLESTREAM_H
-#define SUBTITLESTREAM_H
+#include <iostream>
 
-#include "abstractstream.h"
-
-class SubtitleStream: public AbstractStream
+extern "C"
 {
-    Q_OBJECT
+    #include <libavformat/avformat.h>
+}
 
-    public:
-        explicit SubtitleStream(const AVFormatContext *formatContext=NULL,
-                                uint index=0, qint64 id=-1,
-                                Clock *globalClock=NULL,
-                                bool noModify=false,
-                                QObject *parent=NULL);
+int main()
+{
+    AVStream stream;
+    std::cout << &stream.codecpar;
 
-        Q_INVOKABLE AkCaps caps() const;
-
-    protected:
-        void processPacket(AVPacket *packet);
-        void processData(AVSubtitle *subtitle);
-};
-
-#endif // SUBTITLESTREAM_H
+    return 0;
+}

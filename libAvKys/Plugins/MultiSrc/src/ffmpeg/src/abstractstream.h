@@ -29,6 +29,8 @@
 extern "C"
 {
     #include <libavdevice/avdevice.h>
+    #include <libavformat/avformat.h>
+    #include <libavcodec/avcodec.h>
     #include <libavutil/imgutils.h>
 }
 
@@ -53,7 +55,7 @@ class AbstractStream: public QObject
 
     public:
         explicit AbstractStream(const AVFormatContext *formatContext=NULL,
-                                uint index=-1, qint64 id=-1,
+                                uint index=0, qint64 id=-1,
                                 Clock *globalClock=NULL,
                                 bool noModify=false,
                                 QObject *parent=NULL);

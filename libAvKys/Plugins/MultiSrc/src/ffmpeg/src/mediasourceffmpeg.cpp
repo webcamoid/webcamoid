@@ -101,7 +101,11 @@ QList<int> MediaSourceFFmpeg::listTracks(const QString &mimeType)
     }
 
     for (uint stream = 0; stream < this->m_inputContext->nb_streams; stream++) {
+#ifdef HAVE_CODECPAR
         auto type = this->m_inputContext->streams[stream]->codecpar->codec_type;
+#else
+        auto type = this->m_inputContext->streams[stream]->codec->codec_type;
+#endif
 
         if (mimeType.isEmpty()
             || mediaTypeToStr->value(type) == mimeType)
@@ -164,7 +168,11 @@ int MediaSourceFFmpeg::defaultStream(const QString &mimeType)
     }
 
     for (uint i = 0; i < this->m_inputContext->nb_streams; i++) {
+#ifdef HAVE_CODECPAR
         AVMediaType type = this->m_inputContext->streams[i]->codecpar->codec_type;
+#else
+        AVMediaType type = this->m_inputContext->streams[i]->codec->codec_type;
+#endif
 
         if (mediaTypeToStr->value(type) == mimeType) {
             stream = int(i);
@@ -288,7 +296,6 @@ void MediaSourceFFmpeg::readPackets(MediaSourceFFmpeg *element)
         AVPacket *packet = new AVPacket();
         av_init_packet(packet);
         bool notuse = true;
-
         int r = av_read_frame(element->m_inputContext.data(), packet);
 
         if (r >= 0) {
@@ -301,7 +308,11 @@ void MediaSourceFFmpeg::readPackets(MediaSourceFFmpeg *element)
         }
 
         if (notuse) {
+#ifdef HAVE_PACKETREF
             av_packet_unref(packet);
+#else
+            av_destruct_packet(packet);
+#endif
             delete packet;
         }
 

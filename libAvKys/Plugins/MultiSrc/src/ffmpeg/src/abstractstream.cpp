@@ -48,7 +48,11 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                          formatContext->streams[index]: NULL;
 
     this->m_mediaType = this->m_stream?
+#ifdef HAVE_CODECPAR
                             this->m_stream->codecpar->codec_type:
+#else
+                            this->m_stream->codec->codec_type:
+#endif
                             AVMEDIA_TYPE_UNKNOWN;
 
     this->m_codecContext = NULL;
@@ -56,9 +60,17 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     if (this->m_stream) {
         this->m_codecContext = avcodec_alloc_context3(NULL);
 
+#ifdef HAVE_CODECPAR
         if (avcodec_parameters_to_context(this->m_codecContext,
                                           this->m_stream->codecpar) < 0)
             avcodec_free_context(&this->m_codecContext);
+#else
+        if (avcodec_copy_context(this->m_codecContext,
+                                 this->m_stream->codec) < 0) {
+            avcodec_close(this->m_codecContext);
+            av_free(this->m_codecContext);
+        }
+#endif
     }
 
     this->m_codec = this->m_codecContext?
@@ -87,7 +99,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
         if (this->m_codec->capabilities & CODEC_CAP_DR1)
             this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
 
-        av_dict_set_int(&this->m_codecOptions, "refcounted_frames", 1, 0);
+        av_dict_set(&this->m_codecOptions, "refcounted_frames", "0", 0);
     }
 
     this->m_isValid = true;
@@ -95,8 +107,14 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
 AbstractStream::~AbstractStream()
 {
-    if (this->m_codecContext)
+    if (this->m_codecContext) {
+#ifdef HAVE_FREECONTEXT
         avcodec_free_context(&this->m_codecContext);
+#else
+        avcodec_close(this->m_codecContext);
+        av_free(this->m_codecContext);
+#endif
+    }
 }
 
 bool AbstractStream::paused() const
@@ -222,7 +240,11 @@ AVMediaType AbstractStream::type(const AVFormatContext *formatContext,
                                  uint index)
 {
     return index < formatContext->nb_streams?
+#ifdef HAVE_CODECPAR
                 formatContext->streams[index]->codecpar->codec_type:
+#else
+                formatContext->streams[index]->codec->codec_type:
+#endif
                 AVMEDIA_TYPE_UNKNOWN;
 }
 
@@ -345,14 +367,25 @@ void AbstractStream::dataLoop()
 
 void AbstractStream::deletePacket(AVPacket *packet)
 {
+#ifdef HAVE_PACKETREF
     av_packet_unref(packet);
+#else
+    av_destruct_packet(packet);
+#endif
     delete packet;
 }
 
 void AbstractStream::deleteFrame(AVFrame *frame)
 {
+    av_freep(&frame->data[0]);
+    frame->data[0] = NULL;
+
+#ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
     av_frame_free(&frame);
+#else
+    avcodec_free_frame(&frame);
+#endif
 }
 
 void AbstractStream::deleteSubtitle(AVSubtitle *subtitle)

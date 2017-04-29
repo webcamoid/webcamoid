@@ -90,7 +90,7 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
                 pixFmt = AV_PIX_FMT_ARGB;
                 format = av_get_pix_fmt_name(pixFmt);
             } else
-                break;
+                continue;
 
             caps.setProperty("type", "bitmap");
             caps.setProperty("x", subtitle->rects[i]->x);
@@ -99,20 +99,51 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
             caps.setProperty("height", subtitle->rects[i]->h);
             caps.setProperty("format", format);
 
-            int frameSize = subtitle->rects[i]->nb_colors *
-                            subtitle->rects[i]->w *
-                            subtitle->rects[i]->h;
+            AVFrame frame;
+            memset(&frame, 0, sizeof(AVFrame));
+
+            if (av_image_check_size(uint(subtitle->rects[i]->w),
+                                    uint(subtitle->rects[i]->h),
+                                    0,
+                                    NULL) < 0)
+                continue;
+
+            if (av_image_fill_linesizes(frame.linesize,
+                                        pixFmt,
+                                        subtitle->rects[i]->h) < 0)
+                continue;
+
+            uint8_t *data[4];
+            memset(data, 0, 4 * sizeof(uint8_t *));
+            int frameSize = av_image_fill_pointers(data,
+                                                   pixFmt,
+                                                   subtitle->rects[i]->h,
+                                                   NULL,
+                                                   frame.linesize);
+
 
             oBuffer.resize(frameSize);
 
-            av_image_copy_to_buffer(reinterpret_cast<uint8_t *>(oBuffer.data()),
-                                    frameSize,
-                                    subtitle->rects[i]->data,
-                                    subtitle->rects[i]->linesize,
-                                    pixFmt,
-                                    subtitle->rects[i]->w,
-                                    subtitle->rects[i]->h,
-                                    1);
+            if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(frame.data),
+                                       pixFmt,
+                                       subtitle->rects[i]->h,
+                                       reinterpret_cast<uint8_t *>(oBuffer.data()),
+                                       frame.linesize) < 0) {
+                continue;
+            }
+
+            av_image_copy(frame.data,
+                          frame.linesize,
+#ifdef HAVE_SUBTITLEDATA
+                          const_cast<const uint8_t **>(subtitle->rects[i]->data),
+                          subtitle->rects[i]->linesize,
+#else
+                          const_cast<const uint8_t **>(subtitle->rects[i]->pict.data),
+                          subtitle->rects[i]->pict.linesize,
+#endif
+                          pixFmt,
+                          subtitle->rects[i]->w,
+                          subtitle->rects[i]->h);
         } else if (subtitle->rects[i]->type == SUBTITLE_TEXT) {
             caps.setProperty("type", "text");
             int textLenght = sizeof(subtitle->rects[i]->text);

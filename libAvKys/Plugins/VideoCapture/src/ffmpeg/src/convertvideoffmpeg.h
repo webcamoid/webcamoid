@@ -100,7 +100,7 @@ class ConvertVideoFFmpeg: public ConvertVideo
         void processData(const FramePtr &frame);
         void convert(const FramePtr &frame);
         void log(qreal diff);
-        int64_t bestEffortTimestamp(const FramePtr &frame) const;
+        int64_t bestEffortTimestamp(const AVFrame *frame) const;
         AVFrame *copyFrame(AVFrame *frame) const;
 
     signals:
