@@ -21,14 +21,20 @@
 
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
+    #include <libavutil/opt.h>
 }
 
 int main()
 {
-    std::cout << AV_CODEC_ID_CPIA
-              << AV_CODEC_ID_VP9
-              << AV_CODEC_ID_XFACE;
+    std::cout << AV_OPT_TYPE_DICT
+              << AV_OPT_TYPE_IMAGE_SIZE
+              << AV_OPT_TYPE_PIXEL_FMT
+              << AV_OPT_TYPE_SAMPLE_FMT
+              << AV_OPT_TYPE_VIDEO_RATE
+              << AV_OPT_TYPE_DURATION
+              << AV_OPT_TYPE_COLOR
+              << AV_OPT_TYPE_CHANNEL_LAYOUT
+              << AV_OPT_TYPE_BOOL;
 
     return 0;
 }

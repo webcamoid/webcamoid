@@ -25,67 +25,68 @@ typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initGstToFF()
 {
-    StringStringMap gstToFF;
-    gstToFF["I420"] = "yuv420p";
-//    gstToFF["YV12"] = "";
-    gstToFF["YUY2"] = "yuyv422";
-    gstToFF["YUYV"] = "yuyv422";
-    gstToFF["UYVY"] = "uyvy422";
-//    gstToFF["AYUV"] = "";
-    gstToFF["RGBx"] = "rgb0";
-    gstToFF["BGRx"] = "bgr0";
-    gstToFF["xRGB"] = "0rgb";
-    gstToFF["xBGR"] = "0bgr";
-    gstToFF["RGBA"] = "rgba";
-    gstToFF["BGRA"] = "bgra";
-    gstToFF["ARGB"] = "argb";
-    gstToFF["ABGR"] = "abgr";
-    gstToFF["RGB"] = "rgb24";
-    gstToFF["BGR"] = "bgr24";
-    gstToFF["Y41B"] = "yuv411p";
-    gstToFF["Y42B"] = "yuv422p";
-//    gstToFF["YVYU"] = "";
-    gstToFF["Y444"] = "yuv444p";
-    gstToFF["v210"] = "v210";
-    gstToFF["v216"] = "v216";
-    gstToFF["NV12"] = "nv12";
-    gstToFF["NV21"] = "nv21";
-    gstToFF["GRAY8"] = "gray8";
-    gstToFF["GRAY16_BE"] = "gray16be";
-    gstToFF["GRAY16_LE"] = "gray16le";
-    gstToFF["V308"] = "v308";
-    gstToFF["RGB16"] = "rgb565";
-    gstToFF["BGR16"] = "bgr565le";
-    gstToFF["RGB15"] = "rgb555";
-    gstToFF["BGR15"] = "rgb555le";
-//    gstToFF["UYVP"] = "";
-    gstToFF["A420"] = "yuva420p";
-    gstToFF["RGB8P"] = "pal8";
-    gstToFF["YUV9"] = "yuv410p";
-//    gstToFF["YVU9"] = "";
-//    gstToFF["IYU1"] = "";
-//    gstToFF["ARGB64"] = "";
-    gstToFF["AYUV64"] = "ayuv64le";
-//    gstToFF["r210"] = "";
-    gstToFF["I420_10BE"] = "yuv420p10be";
-    gstToFF["I420_10LE"] = "yuv420p10le";
-    gstToFF["I422_10BE"] = "yuv422p10be";
-    gstToFF["I422_10LE"] = "yuv422p10le";
-    gstToFF["Y444_10BE"] = "yuv444p10be";
-    gstToFF["Y444_10LE"] = "yuv444p10le";
-    gstToFF["GBR"] = "gbrp";
-    gstToFF["GBR_10BE"] = "gbrp10be";
-    gstToFF["GBR_10LE"] = "gbrp10le";
-    gstToFF["NV16"] = "nv16";
-//    gstToFF["NV24"] = "";
-//    gstToFF["NV12_64Z32"] = "";
-    gstToFF["A420_10BE"] = "yuva420p10be";
-    gstToFF["A420_10LE"] = "yuva420p10le";
-    gstToFF["A422_10BE"] = "yuva422p10be";
-    gstToFF["A422_10LE"] = "yuva422p10le";
-    gstToFF["A444_10BE"] = "yuva444p10be";
-    gstToFF["A444_10LE"] = "yuva444p10le";
-//    gstToFF["NV61"] = "";
+    StringStringMap gstToFF {
+        {"I420", "yuv420p"},
+//        {"YV12", ""},
+        {"YUY2", "yuyv422"},
+        {"YUYV", "yuyv422"},
+        {"UYVY", "uyvy422"},
+//        {"AYUV", ""},
+        {"RGBx", "rgb0"   },
+        {"BGRx", "bgr0"   },
+        {"xRGB", "0rgb"   },
+        {"xBGR", "0bgr"   },
+        {"RGBA", "rgba"   },
+        {"BGRA", "bgra"   },
+        {"ARGB", "argb"   },
+        {"ABGR", "abgr"   },
+        {"RGB" , "rgb24"  },
+        {"BGR" , "bgr24"  },
+        {"Y41B", "yuv411p"},
+        {"Y42B", "yuv422p"},
+//        {"YVYU". ""},
+        {"Y444"     , "yuv444p" },
+        {"v210"     , "v210"    },
+        {"v216"     , "v216"    },
+        {"NV12"     , "nv12"    },
+        {"NV21"     , "nv21"    },
+        {"GRAY8"    , "gray8"   },
+        {"GRAY16_BE", "gray16be"},
+        {"GRAY16_LE", "gray16le"},
+        {"V308"     , "v308"    },
+        {"RGB16"    , "rgb565"  },
+        {"BGR16"    , "bgr565le"},
+        {"RGB15"    , "rgb555"  },
+        {"BGR15"    , "rgb555le"},
+//        {"UYVP", ""},
+        {"A420"     , "yuva420p"},
+        {"RGB8P"    , "pal8"    },
+        {"YUV9"     , "yuv410p" },
+//        {"YVU9"  , ""},
+//        {"IYU1"  , ""},
+//        {"ARGB64", ""},
+        {"AYUV64"   , "ayuv64le"},
+//        {"r210", ""},
+        {"I420_10BE", "yuv420p10be"},
+        {"I420_10LE", "yuv420p10le"},
+        {"I422_10BE", "yuv422p10be"},
+        {"I422_10LE", "yuv422p10le"},
+        {"Y444_10BE", "yuv444p10be"},
+        {"Y444_10LE", "yuv444p10le"},
+        {"GBR"      , "gbrp"       },
+        {"GBR_10BE" , "gbrp10be"   },
+        {"GBR_10LE" , "gbrp10le"   },
+        {"NV16"     , "nv16"       },
+//        {"NV24"      , ""},
+//        {"NV12_64Z32", ""},
+        {"A420_10BE", "yuva420p10be"},
+        {"A420_10LE", "yuva420p10le"},
+        {"A422_10BE", "yuva422p10be"},
+        {"A422_10LE", "yuva422p10le"},
+        {"A444_10BE", "yuva444p10be"},
+        {"A444_10LE", "yuva444p10le"},
+//        {"NV61", ""},
+    };
 
     return gstToFF;
 }

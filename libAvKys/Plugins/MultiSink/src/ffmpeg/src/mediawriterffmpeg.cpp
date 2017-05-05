@@ -226,8 +226,9 @@ inline OptionTypeStrMap initFFOptionTypeStrMap()
         {AV_OPT_TYPE_STRING        , "string"        },
         {AV_OPT_TYPE_RATIONAL      , "frac"          },
         {AV_OPT_TYPE_BINARY        , "binary"        },
-        {AV_OPT_TYPE_DICT          , "dict"          },
         {AV_OPT_TYPE_CONST         , "const"         },
+#ifdef HAVE_EXTRAOPTIONS
+        {AV_OPT_TYPE_DICT          , "dict"          },
         {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
         {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
         {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
@@ -236,6 +237,7 @@ inline OptionTypeStrMap initFFOptionTypeStrMap()
         {AV_OPT_TYPE_COLOR         , "color"         },
         {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
         {AV_OPT_TYPE_BOOL          , "boolean"       },
+#endif
     };
 
     return optionTypeStrMap;
@@ -412,7 +414,7 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
     auto codecType = mediaTypeToStr->key(type);
 
     while ((codec = av_codec_next(codec))) {
-        if (codec->capabilities & AV_CODEC_CAP_EXPERIMENTAL
+        if (codec->capabilities & CODEC_CAP_EXPERIMENTAL
             && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
             continue;
 
@@ -439,9 +441,11 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
                 default:
                     break;
             }
+#ifdef HAVE_EXTRACODECFORMATS
         } else if (!strcmp(outputFormat->name, "mp4")) {
             if (codec->id == AV_CODEC_ID_VP9)
                 codecSupported = false;
+#endif
         } else if (!strcmp(outputFormat->name, "ogg")
                    || !strcmp(outputFormat->name, "ogv")) {
             switch (codec->id) {
@@ -519,10 +523,10 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
 
     if (codecId == AV_CODEC_ID_NONE)
         return QString();
-
+#ifdef HAVE_EXTRACODECFORMATS
     if (codecId == AV_CODEC_ID_VP9)
         codecId = AV_CODEC_ID_VP8;
-
+#endif
     AVCodec *codec = avcodec_find_encoder(codecId);
     QString codecName(codec->name);
 
@@ -766,6 +770,10 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
 
     outputParams["index"] = streamIndex;
     auto codec = codecParams.value("codec").toString();
+
+    if (codec.isEmpty())
+        return QVariantMap();
+
     auto supportedCodecs = this->supportedCodecs(outputFormat, streamCaps.mimeType());
 
     if (codec.isEmpty() || !supportedCodecs.contains(codec))
@@ -906,10 +914,12 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
         case AV_CODEC_ID_AMV:
             videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
             break;
+#ifdef HAVE_EXTRACODECFORMATS
         case AV_CODEC_ID_XFACE:
             videoCaps.width() = 48;
             videoCaps.height() = 48;
             break;
+#endif
         default:
             break;
         }
@@ -1079,10 +1089,12 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
             case AV_CODEC_ID_AMV:
                 videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
                 break;
+#ifdef HAVE_EXTRACODECFORMATS
             case AV_CODEC_ID_XFACE:
                 videoCaps.width() = 48;
                 videoCaps.height() = 48;
                 break;
+#endif
             default:
                 break;
             }
@@ -1205,12 +1217,18 @@ void MediaWriterFFmpeg::flushStreams()
 
             qint64 pts = this->m_streamParams[int(i)].audioPts();
             int ptsDiff = codecContext->codec->capabilities
-                          & AV_CODEC_CAP_VARIABLE_FRAME_SIZE?
+                          & CODEC_CAP_VARIABLE_FRAME_SIZE?
                               1:
+#ifdef HAVE_CODECPAR
                               stream->codecpar->frame_size;
+#else
+                              stream->codec->frame_size;
+#endif
 
+#ifdef HAVE_SENDRECV
             if (avcodec_send_frame(codecContext.data(), NULL) < 0)
                 continue;
+#endif
 
             forever {
                 AVPacket pkt;
@@ -1218,6 +1236,7 @@ void MediaWriterFFmpeg::flushStreams()
                 pkt.data = NULL;
                 pkt.size = 0;
 
+#ifdef HAVE_SENDRECV
                 auto error = avcodec_receive_packet(codecContext.data(), &pkt);
 
                 if (error < 0) {
@@ -1229,14 +1248,30 @@ void MediaWriterFFmpeg::flushStreams()
 
                     break;
                 }
+#else
+                int gotPacket;
 
+                if (avcodec_encode_audio2(codecContext.data(),
+                                          &pkt,
+                                          NULL,
+                                          &gotPacket) < 0)
+                    break;
+
+                if (!gotPacket)
+                    break;
+#endif
                 pkt.pts = pkt.dts = pts;
                 pts += ptsDiff;
-                av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
+                this->rescaleTS(&pkt,
+                                codecContext->time_base,
+                                stream->time_base);
                 pkt.stream_index = int(i);
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
+#ifdef HAVE_PACKETREF
                 av_packet_unref(&pkt);
-
+#else
+                av_destruct_packet(&pkt);
+#endif
                 auto eventDispatcher = QThread::currentThread()->eventDispatcher();
 
                 if (eventDispatcher)
@@ -1247,8 +1282,10 @@ void MediaWriterFFmpeg::flushStreams()
                 && codecContext->codec->id == AV_CODEC_ID_RAWVIDEO)
                 continue;
 
+#ifdef HAVE_SENDRECV
             if (avcodec_send_frame(codecContext.data(), NULL) < 0)
                 continue;
+#endif
 
             forever {
                 AVPacket pkt;
@@ -1256,6 +1293,7 @@ void MediaWriterFFmpeg::flushStreams()
                 pkt.data = NULL;
                 pkt.size = 0;
 
+#ifdef HAVE_SENDRECV
                 auto error = avcodec_receive_packet(codecContext.data(), &pkt);
 
                 if (error < 0) {
@@ -1267,13 +1305,30 @@ void MediaWriterFFmpeg::flushStreams()
 
                     break;
                 }
+#else
+                int gotPacket;
+
+                if (avcodec_encode_video2(codecContext.data(),
+                                          &pkt,
+                                          NULL,
+                                          &gotPacket) < 0)
+                    break;
+
+                if (!gotPacket)
+                    break;
+#endif
 
                 pkt.pts = pkt.dts = this->m_streamParams[int(i)].nextPts(0, 0);
-                av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
+                this->rescaleTS(&pkt,
+                                codecContext->time_base,
+                                stream->time_base);
                 pkt.stream_index = int(i);
                 av_interleaved_write_frame(this->m_formatContext, &pkt);
+#ifdef HAVE_PACKETREF
                 av_packet_unref(&pkt);
-
+#else
+                av_destruct_packet(&pkt);
+#endif
                 auto eventDispatcher = QThread::currentThread()->eventDispatcher();
 
                 if (eventDispatcher)
@@ -1340,11 +1395,13 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
             case AV_OPT_TYPE_INT:
             case AV_OPT_TYPE_INT64:
             case AV_OPT_TYPE_CONST:
+#ifdef HAVE_EXTRAOPTIONS
             case AV_OPT_TYPE_PIXEL_FMT:
             case AV_OPT_TYPE_SAMPLE_FMT:
             case AV_OPT_TYPE_DURATION:
             case AV_OPT_TYPE_CHANNEL_LAYOUT:
             case AV_OPT_TYPE_BOOL:
+#endif
                 value = qint64(option->default_val.i64);
                 step = 1;
                 break;
@@ -1356,6 +1413,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
             case AV_OPT_TYPE_STRING:
                 value = option->default_val.str;
                 break;
+#ifdef HAVE_EXTRAOPTIONS
             case AV_OPT_TYPE_IMAGE_SIZE: {
                 int width = 0;
                 int height = 0;
@@ -1384,6 +1442,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
                 value = qRgba(color[0], color[1], color[2], color[3]);
                 break;
             }
+#endif
             case AV_OPT_TYPE_RATIONAL:
                 value = AkFrac(option->default_val.q.num,
                                option->default_val.q.den).toString();
@@ -1518,12 +1577,13 @@ AVDictionary *MediaWriterFFmpeg::formatContextOptions(AVFormatContext *formatCon
     auto avClass = formatContext->oformat->priv_class;
     QStringList flagType;
 
-    for (auto option = avClass->option;
-         option;
-         option = av_opt_next(&avClass, option)) {
-        if (option->type == AV_OPT_TYPE_FLAGS)
-            flagType << option->name;
-    }
+    if (avClass)
+        for (auto option = avClass->option;
+             option;
+             option = av_opt_next(&avClass, option)) {
+            if (option->type == AV_OPT_TYPE_FLAGS)
+                flagType << option->name;
+        }
 
     AVDictionary *formatOptions = NULL;
 
@@ -1775,6 +1835,34 @@ void MediaWriterFFmpeg::decreasePacketQueue(int packetSize)
     this->m_packetMutex.unlock();
 }
 
+void MediaWriterFFmpeg::deleteFrame(AVFrame *frame)
+{
+    av_freep(&frame->data[0]);
+    frame->data[0] = NULL;
+
+#ifdef HAVE_FRAMEALLOC
+    av_frame_unref(frame);
+#endif
+}
+
+void MediaWriterFFmpeg::rescaleTS(AVPacket *pkt,
+                                  AVRational src,
+                                  AVRational dst)
+{
+#ifdef HAVE_RESCALETS
+    av_packet_rescale_ts(pkt, src, dst);
+#else
+    if (pkt->pts != AV_NOPTS_VALUE)
+        pkt->pts = av_rescale_q(pkt->pts, src, dst);
+
+    if (pkt->dts != AV_NOPTS_VALUE)
+        pkt->dts = av_rescale_q(pkt->dts, src, dst);
+
+    if (pkt->duration > 0)
+        pkt->duration = av_rescale_q(pkt->duration, src, dst);
+#endif
+}
+
 void MediaWriterFFmpeg::setOutputFormat(const QString &outputFormat)
 {
     if (this->m_outputFormat == outputFormat)
@@ -1925,12 +2013,37 @@ bool MediaWriterFFmpeg::init()
 {
     auto outputFormat = this->guessFormat();
 
+#ifdef HAVE_ALLOCOUTPUTCONTEXT
     if (avformat_alloc_output_context2(&this->m_formatContext,
                                        NULL,
                                        this->m_outputFormat.isEmpty()?
                                             NULL: this->m_outputFormat.toStdString().c_str(),
                                        this->m_location.toStdString().c_str()) < 0)
         return false;
+#else
+    this->m_formatContext = avformat_alloc_context();
+
+    if (!this->m_formatContext)
+        return false;
+
+    this->m_formatContext->oformat =
+            av_guess_format(this->m_outputFormat.isEmpty()?
+                                NULL: this->m_outputFormat.toStdString().c_str(),
+                            this->m_location.toStdString().c_str(),
+                            NULL);
+
+    if (!this->m_formatContext->oformat) {
+        avformat_free_context(this->m_formatContext);
+        this->m_formatContext = NULL;
+
+        return false;
+    }
+
+    memset(this->m_formatContext->filename, 0, 1024);
+    memcpy(this->m_formatContext->filename,
+           this->m_location.toStdString().c_str(),
+           size_t(this->m_location.size()));
+#endif
 
     auto streamConfigs = this->m_streamConfigs.toVector();
 
@@ -2046,10 +2159,12 @@ bool MediaWriterFFmpeg::init()
             case AV_CODEC_ID_AMV:
                 videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
                 break;
+#ifdef HAVE_EXTRACODECFORMATS
             case AV_CODEC_ID_XFACE:
                 videoCaps.width() = 48;
                 videoCaps.height() = 48;
                 break;
+#endif
             default:
                 break;
             }
@@ -2105,14 +2220,23 @@ bool MediaWriterFFmpeg::init()
             char errorStr[1024];
             av_strerror(AVERROR(error), errorStr, 1024);
             qDebug() << "Can't open codec " << codec->name << ": " << errorStr;
+#ifdef HAVE_FREECONTEXT
             avcodec_free_context(&codecContext);
+#else
+            avcodec_close(codecContext);
+            av_free(codecContext);
+#endif
             avformat_free_context(this->m_formatContext);
             this->m_formatContext = NULL;
 
             return false;
         }
 
+#ifdef HAVE_CODECPAR
         avcodec_parameters_from_context(stream->codecpar, codecContext);
+#else
+        avcodec_copy_context(stream->codec, codecContext);
+#endif
         this->m_streamParams << OutputParams(configs["index"].toInt(), codecContext);
     }
 
@@ -2249,13 +2373,11 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
     AVFrame iFrame;
     memset(&iFrame, 0, sizeof(AVFrame));
     iFrame.format = codecContext->sample_fmt;
-    iFrame.channels = codecContext->channels;
     iFrame.channel_layout = codecContext->channel_layout;
     iFrame.sample_rate = codecContext->sample_rate;
 
     if (!this->m_streamParams[streamIndex].convert(packet, &iFrame)) {
-        av_freep(&iFrame.data[0]);
-        av_frame_unref(&iFrame);
+        this->deleteFrame(&iFrame);
 
         return;
     }
@@ -2269,12 +2391,11 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
     this->m_streamParams[streamIndex].addAudioSamples(&iFrame, packet.id());
 
     int outSamples = codecContext->codec->capabilities
-                     & AV_CODEC_CAP_VARIABLE_FRAME_SIZE?
+                     & CODEC_CAP_VARIABLE_FRAME_SIZE?
                         iFrame.nb_samples:
                         codecContext->frame_size;
 
-    av_freep(&iFrame.data[0]);
-    av_frame_unref(&iFrame);
+    this->deleteFrame(&iFrame);
 
     forever {
         pts = this->m_streamParams[streamIndex].audioPts();
@@ -2289,7 +2410,6 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
         AVFrame oFrame;
         memset(&oFrame, 0, sizeof(AVFrame));
         oFrame.format = codecContext->sample_fmt;
-        oFrame.channels = codecContext->channels;
         oFrame.channel_layout = codecContext->channel_layout;
         oFrame.sample_rate = codecContext->sample_rate;
         oFrame.nb_samples = outSamples;
@@ -2307,6 +2427,7 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
         }
 
         // Compress audio packet.
+#ifdef HAVE_SENDRECV
         int result = avcodec_send_frame(codecContext.data(), &oFrame);
 
         if (result < 0) {
@@ -2328,13 +2449,48 @@ void MediaWriterFFmpeg::writeAudioPacket(const AkAudioPacket &packet)
                 break;
 
             pkt.stream_index = streamIndex;
-            av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
+            this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
 
             // Write audio packet.
             this->m_writeMutex.lock();
             av_interleaved_write_frame(this->m_formatContext, &pkt);
             this->m_writeMutex.unlock();
         }
+#else
+        // Initialize audio packet.
+        AVPacket pkt;
+        memset(&pkt, 0, sizeof(AVPacket));
+        av_init_packet(&pkt);
+
+        int gotPacket;
+        int result = avcodec_encode_audio2(codecContext.data(),
+                                           &pkt,
+                                           &oFrame,
+                                           &gotPacket);
+
+        if (result < 0) {
+            char error[1024];
+            av_strerror(result, error, 1024);
+            qDebug() << "Error: " << error;
+            delete [] buffer;
+
+            break;
+        }
+
+        if (!gotPacket) {
+            delete [] buffer;
+
+            continue;
+        }
+
+        pkt.stream_index = streamIndex;
+        this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
+
+        // Write audio packet.
+        this->m_writeMutex.lock();
+        av_interleaved_write_frame(this->m_formatContext, &pkt);
+        this->m_writeMutex.unlock();
+#endif
 
         delete [] buffer;
     }
@@ -2368,13 +2524,12 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
 
     AkPacket videoPacket = packet.toPacket();
     QImage image = AkUtils::packetToImage(videoPacket);
-    image = image.convertToFormat(QImage::Format_RGB32);
+    image = image.convertToFormat(QImage::Format_ARGB32);
     image = this->swapChannels(image);
     videoPacket = AkUtils::imageToPacket(image, videoPacket);
 
     if (!this->m_streamParams[streamIndex].convert(videoPacket, &oFrame)) {
-        av_freep(&oFrame.data[0]);
-        av_frame_unref(&oFrame);
+        this->deleteFrame(&oFrame);
 
         return;
     }
@@ -2390,8 +2545,7 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
             this->m_streamParams[streamIndex].nextPts(pts, packet.id());
 
     if (oFrame.pts < 0) {
-        av_freep(&oFrame.data[0]);
-        av_frame_unref(&oFrame);
+        this->deleteFrame(&oFrame);
 
         return;
     }
@@ -2406,21 +2560,21 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
         pkt.pts = oFrame.pts;
         pkt.stream_index = streamIndex;
 
-        av_packet_rescale_ts(&pkt, codecContext->time_base, stream->time_base);
+        this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
 
         this->m_writeMutex.lock();
         av_interleaved_write_frame(this->m_formatContext, &pkt);
         this->m_writeMutex.unlock();
     } else {
         // encode the image
+#ifdef HAVE_SENDRECV
         auto error = avcodec_send_frame(codecContext.data(), &oFrame);
 
         if (error < 0) {
             char errorStr[1024];
             av_strerror(AVERROR(error), errorStr, 1024);
             qDebug() << "Error encoding packets: " << errorStr;
-            av_freep(&oFrame.data[0]);
-            av_frame_unref(&oFrame);
+            this->deleteFrame(&oFrame);
 
             return;
         }
@@ -2435,19 +2589,48 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
                 break;
 
             pkt.stream_index = streamIndex;
-            av_packet_rescale_ts(&pkt,
-                                 codecContext->time_base,
-                                 stream->time_base);
+            this->rescaleTS(&pkt,
+                            codecContext->time_base,
+                            stream->time_base);
 
             // Write the compressed frame to the media file.
             this->m_writeMutex.lock();
             av_interleaved_write_frame(this->m_formatContext, &pkt);
             this->m_writeMutex.unlock();
         }
+#else
+        AVPacket pkt;
+        av_init_packet(&pkt);
+        pkt.data = NULL; // packet data will be allocated by the encoder
+        pkt.size = 0;
+
+        int gotPacket;
+
+        if (avcodec_encode_video2(codecContext.data(),
+                                  &pkt,
+                                  &oFrame,
+                                  &gotPacket) < 0) {
+            this->deleteFrame(&oFrame);
+
+            return;
+        }
+
+        // If size is zero, it means the image was buffered.
+        if (gotPacket) {
+            pkt.stream_index = streamIndex;
+            this->rescaleTS(&pkt,
+                            codecContext->time_base,
+                            stream->time_base);
+
+            // Write the compressed frame to the media file.
+            this->m_writeMutex.lock();
+            av_interleaved_write_frame(this->m_formatContext, &pkt);
+            this->m_writeMutex.unlock();
+        }
+#endif
     }
 
-    av_freep(&oFrame.data[0]);
-    av_frame_unref(&oFrame);
+    this->deleteFrame(&oFrame);
 }
 
 void MediaWriterFFmpeg::writeSubtitlePacket(const AkPacket &packet)

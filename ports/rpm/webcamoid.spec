@@ -211,5 +211,5 @@ rm -rf %{buildroot}
 %{_libdir}/avkys/lib*.so
 
 %changelog
-* Tue Aug 30 2016 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 8.0.0-1
+* Tue May 9 2017 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 8.0.0-1
 - New release

@@ -21,14 +21,12 @@
 
 extern "C"
 {
-    #include <libavcodec/avcodec.h>
+    #include <libavformat/avformat.h>
 }
 
 int main()
 {
-    std::cout << AV_CODEC_ID_CPIA
-              << AV_CODEC_ID_VP9
-              << AV_CODEC_ID_XFACE;
+    avformat_alloc_output_context2(NULL, NULL, NULL, NULL);
 
     return 0;
 }

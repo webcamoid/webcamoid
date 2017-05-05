@@ -145,12 +145,14 @@ ColumnLayout {
 
         onSupportedFormatsChanged : updateSupportedFormats(supportedFormats)
         onOutputFormatChanged: {
+            btnFormatOptions.enabled = MultiSink.formatOptions().length > 0;
+
             for (var i = 0; i < lstOutputFormats.count; i++)
                 if (lstOutputFormats.get(i).format === outputFormat) {
-                    cbxOutputFormats.currentIndex = i
-                    txtFileExtensions.text = MultiSink.fileExtensions(lstOutputFormats.get(i).format).join(", ")
+                    cbxOutputFormats.currentIndex = i;
+                    txtFileExtensions.text = MultiSink.fileExtensions(lstOutputFormats.get(i).format).join(", ");
 
-                    break
+                    break;
                 }
         }
         onStreamsChanged: updateStreams()
@@ -200,6 +202,7 @@ ColumnLayout {
     }
 
     Button {
+        id: btnFormatOptions
         text: qsTr("Advanced Format Options")
         iconName: "configure"
         iconSource: "image://icons/configure"

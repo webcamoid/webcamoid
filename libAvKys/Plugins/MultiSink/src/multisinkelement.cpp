@@ -190,9 +190,15 @@ QVariantMap MultiSinkElement::addStream(int streamIndex,
                                         const AkCaps &streamCaps,
                                         const QVariantMap &codecParams)
 {
-    return this->m_mediaWriter->addStream(streamIndex,
-                                          streamCaps,
-                                          codecParams);
+    auto stream =
+        this->m_mediaWriter->addStream(streamIndex,
+                                       streamCaps,
+                                       codecParams);
+
+    if (!stream.isEmpty())
+        this->m_inputStreams << streamIndex;
+
+    return stream;
 }
 
 QVariantMap MultiSinkElement::updateStream(int index,
@@ -326,6 +332,7 @@ void MultiSinkElement::resetCodecsBlackList()
 void MultiSinkElement::clearStreams()
 {
     this->m_mediaWriter->clearStreams();
+    this->m_inputStreams.clear();
 }
 
 AkPacket MultiSinkElement::iStream(const AkPacket &packet)
@@ -338,9 +345,12 @@ AkPacket MultiSinkElement::iStream(const AkPacket &packet)
         return AkPacket();
     }
 
-    this->m_mutexLib.lock();
-    this->m_mediaWriter->enqueuePacket(packet);
-    this->m_mutexLib.unlock();
+    if (this->m_inputStreams.contains(packet.index())) {
+        this->m_mutexLib.lock();
+        this->m_mediaWriter->enqueuePacket(packet);
+        this->m_mutexLib.unlock();
+    }
+
     this->m_mutex.unlock();
 
     return AkPacket();

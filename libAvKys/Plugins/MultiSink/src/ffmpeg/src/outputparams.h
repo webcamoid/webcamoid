@@ -26,12 +26,12 @@ extern "C"
 {
     #include <libavformat/avformat.h>
     #include <libswscale/swscale.h>
-    #include <libavutil/frame.h>
     #include <libavutil/imgutils.h>
     #include <libavutil/pixdesc.h>
     #include <libavutil/channel_layout.h>
     #include <libavutil/opt.h>
     #include <libavutil/parseutils.h>
+    #include <libavutil/mathematics.h>
 }
 
 typedef QSharedPointer<AVCodecContext> CodecContextPtr;
@@ -81,6 +81,7 @@ class OutputParams: public QObject
         AkElementPtr m_audioConvert;
 
         static void deleteCodecContext(AVCodecContext *codecContext);
+        void deleteFrame(AVFrame *frame);
 
     signals:
         void inputIndexChanged(int inputIndex);

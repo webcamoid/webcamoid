@@ -26,9 +26,7 @@ extern "C"
 
 int main()
 {
-    std::cout << AV_CODEC_ID_CPIA
-              << AV_CODEC_ID_VP9
-              << AV_CODEC_ID_XFACE;
+    av_packet_rescale_ts(NULL, AVRational {}, AVRational {});
 
     return 0;
 }

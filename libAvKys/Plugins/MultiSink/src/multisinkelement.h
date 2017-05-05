@@ -123,6 +123,7 @@ class MultiSinkElement: public AkElement
         QMutex m_mutex;
         QMutex m_mutexLib;
         MultiSinkUtils m_utils;
+        QList<int> m_inputStreams;
 
         // Formats and codecs info cache.
         QStringList m_supportedFormats;

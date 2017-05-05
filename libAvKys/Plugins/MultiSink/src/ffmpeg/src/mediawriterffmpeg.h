@@ -110,6 +110,8 @@ class MediaWriterFFmpeg: public MediaWriter
         static void writeVideoLoop(MediaWriterFFmpeg *self);
         static void writeSubtitleLoop(MediaWriterFFmpeg *self);
         void decreasePacketQueue(int packetSize);
+        void deleteFrame(AVFrame *frame);
+        void rescaleTS(AVPacket *pkt, AVRational src, AVRational dst);
 
     public slots:
         void setOutputFormat(const QString &outputFormat);

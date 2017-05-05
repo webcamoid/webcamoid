@@ -432,14 +432,17 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             if (!this->initContext())
                 return false;
 
-            if (avformat_find_stream_info(this->m_inputContext.data(), NULL) < 0) {
+            if (avformat_find_stream_info(this->m_inputContext.data(),
+                                          NULL) < 0) {
                 this->m_inputContext.clear();
 
                 return false;
             }
 
             QString uri = this->m_media;
-            av_dump_format(this->m_inputContext.data(), 0, uri.toStdString().c_str(),
+            av_dump_format(this->m_inputContext.data(),
+                           0,
+                           uri.toStdString().c_str(),
                            false);
 
             QList<int> filterStreams;
@@ -489,7 +492,10 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
 
             this->m_globalClock.setClock(0.);
             this->m_run = true;
-            this->m_readPacketsLoopResult = QtConcurrent::run(&this->m_threadPool, this->readPackets, this);
+            this->m_readPacketsLoopResult =
+                    QtConcurrent::run(&this->m_threadPool,
+                                      this->readPackets,
+                                      this);
             this->m_curState = state;
 
             return true;

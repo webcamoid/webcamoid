@@ -32,7 +32,7 @@ typedef QMap<QString, QString> StringStringMap;
 
 inline StringStringMap initGstToFF()
 {
-    StringStringMap gstToFF = {
+    StringStringMap gstToFF {
         // Audio
         {"S8"      , "s8"     },
         {"U8"      , "u8"     },

@@ -25,7 +25,7 @@
 
 #include "recording.h"
 
-#define DEFAULT_RECORD_AUDIO true
+#define DEFAULT_RECORD_AUDIO false
 #define AUDIO_RECORDING_KEY "Enable audio recording"
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
@@ -288,12 +288,6 @@ QStringList Recording::recordingFormats() const
                               Q_RETURN_ARG(QStringList, supportedFormats));
 
     for (const QString &format: supportedFormats) {
-        if (format == "gif") {
-            formats << format;
-
-            continue;
-        }
-
         QStringList audioCodecs;
         QMetaObject::invokeMethod(this->m_record.data(),
                                   "supportedCodecs",
@@ -314,7 +308,7 @@ QStringList Recording::recordingFormats() const
                                   Q_RETURN_ARG(QStringList, extensions),
                                   Q_ARG(QString, format));
 
-        if (!audioCodecs.isEmpty()
+        if ((format == "gif" || !audioCodecs.isEmpty())
             && !videoCodecs.isEmpty()
             && !extensions.isEmpty())
             formats << format;
