@@ -27,6 +27,8 @@ libcrypto.so.1.0.0
 libdb-5.3.so
 libdbus-1.so.3
 libexpat.so.1
+libfontconfig.so.1
+libfreetype.so.6
 libgcrypt.so.20
 libgmp.so.10
 libgpg-error.so.0
