@@ -31,6 +31,16 @@ typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 class MediaSourceFFmpeg: public MediaSource
 {
     Q_OBJECT
+    Q_PROPERTY(qint64 maxPacketQueueSize
+               READ maxPacketQueueSize
+               WRITE setMaxPacketQueueSize
+               RESET resetMaxPacketQueueSize
+               NOTIFY maxPacketQueueSizeChanged)
+    Q_PROPERTY(bool showLog
+               READ showLog
+               WRITE setShowLog
+               RESET resetShowLog
+               NOTIFY showLogChanged)
 
     public:
         explicit MediaSourceFFmpeg(QObject *parent=NULL);
@@ -78,6 +88,16 @@ class MediaSourceFFmpeg: public MediaSource
         {
             return value - value % multiply;
         }
+
+    signals:
+        void oStream(const AkPacket &packet);
+        void error(const QString &message);
+        void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
+        void showLogChanged(bool showLog);
+        void loopChanged(bool loop);
+        void mediasChanged(const QStringList &medias);
+        void mediaChanged(const QString &media);
+        void streamsChanged(const QList<int> &streams);
 
     public slots:
         void setMedia(const QString &media);

@@ -119,18 +119,24 @@ Rectangle {
         var cbxChannels = isInput? cbxIChannels: cbxOChannels;
         var cbxSampleRates = isInput? cbxISampleRates: cbxOSampleRates;
 
-        var bound = function (min, value, max) {
-            return Math.max(min, Math.min(value, max));
-        };
+        var audioCaps = Ak.newAudioCaps()
 
-        var sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1);
-        var channelsCI = bound(0, cbxChannels.currentIndex, cbxChannels.model.count - 1);
-        var sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1);
+        if (cbxSampleFormats.model.count > 0
+            && cbxChannels.model.count > 0
+            && cbxSampleRates.model.count > 0) {
+            var bound = function (min, value, max) {
+                return Math.max(min, Math.min(value, max));
+            };
 
-        var audioCaps =
-                Ak.newAkAudioCaps(cbxSampleFormats.model.get(sampleFormatsCI).format,
-                                  cbxChannels.model.get(channelsCI).channels,
-                                  cbxSampleRates.model.get(sampleRatesCI).sampleRate);
+            var sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1);
+            var channelsCI = bound(0, cbxChannels.currentIndex, cbxChannels.model.count - 1);
+            var sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1);
+
+            audioCaps =
+                    Ak.newAudioCaps(cbxSampleFormats.model.get(sampleFormatsCI).format,
+                                    cbxChannels.model.get(channelsCI).channels,
+                                    cbxSampleRates.model.get(sampleRatesCI).sampleRate);
+        }
 
         if (isInput) {
             var state = AudioLayer.inputState;

@@ -29,28 +29,29 @@ detectarch() {
 
 ARCH=$(detectarch)
 
-detectsyssir() {
+detectsysdir() {
     case "${ARCH}" in
         win32) echo /usr/i686-w64-mingw32 ;;
         *) echo /usr/x86_64-w64-mingw32 ;;
     esac
 }
 
-SYSDIR=$(detectsyssir)
+SYSDIR=$(detectsysdir)
 
 readversion() {
     wineRootDir=Z:${ROOTDIR//\//\\}
+    mkdir -p "${ROOTDIR}/build"
 
-    cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat"
+    cat << EOF > "${ROOTDIR}/build/version.bat"
 @echo off
 SET PATH=${wineRootDir}\StandAlone;${wineRootDir}\libAvKys\Lib;Z:\usr\i686-w64-mingw32\bin;%PATH%
 @echo on
-webcamoid --version > ${wineRootDir}\build\bundle-data\\${APPNAME}\version.txt
+webcamoid --version > ${wineRootDir}\build\version.txt
 EOF
 
-    wineconsole "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat" 2>/dev/null
-    cat "${ROOTDIR}/build/bundle-data/${APPNAME}/version.txt" | awk '{print $2}' | tr -d '\r'
-    rm "${ROOTDIR}/build/bundle-data/${APPNAME}/version".{bat,txt}
+    wineconsole "${ROOTDIR}/build/version.bat" 2>/dev/null
+    cat "${ROOTDIR}/build/version.txt" | awk '{print $2}' | tr -d '[:space:]'
+    rm "${ROOTDIR}/build/version".{bat,txt}
 }
 
 VERSION=$(readversion)
@@ -348,7 +349,7 @@ EOF
     # Remove old file
     rm -vf "${ROOTDIR}/ports/deploy/windows/${APPNAME}-${VERSION}-${ARCH}.exe"
 
-   wine "${bincreator}" \
+    wine "${bincreator}" \
          -c "$configdir/config.xml" \
          -p "${ROOTDIR}/build/bundle-data/installer/packages" \
          ${ROOTDIR}/ports/deploy/windows/${APPNAME}-${VERSION}-${ARCH}.exe
