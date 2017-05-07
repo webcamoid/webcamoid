@@ -82,16 +82,6 @@ class MediaSourceGStreamer: public MediaSource
         QStringList languageCodes(const QString &type);
         QStringList languageCodes();
 
-    signals:
-        void oStream(const AkPacket &packet);
-        void error(const QString &message);
-        void maxPacketQueueSizeChanged(qint64 maxPacketQueue);
-        void showLogChanged(bool showLog);
-        void loopChanged(bool loop);
-        void mediasChanged(const QStringList &medias);
-        void mediaChanged(const QString &media);
-        void streamsChanged(const QList<int> &streams);
-
     public slots:
         void setMedia(const QString &media);
         void setStreams(const QList<int> &streams);

@@ -30,24 +30,6 @@ typedef QSharedPointer<AkMultimediaSourceElement> AkMultimediaSourceElementPtr;
 class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList medias
-               READ medias
-               NOTIFY mediasChanged)
-    Q_PROPERTY(QString media
-               READ media
-               WRITE setMedia
-               RESET resetMedia
-               NOTIFY mediaChanged)
-    Q_PROPERTY(QList<int> streams
-               READ streams
-               WRITE setStreams
-               RESET resetStreams
-               NOTIFY streamsChanged)
-    Q_PROPERTY(bool loop
-               READ loop
-               WRITE setLoop
-               RESET resetLoop
-               NOTIFY loopChanged)
 
     public:
         AkMultimediaSourceElement(QObject *parent=NULL);
@@ -64,12 +46,6 @@ class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
 
     private:
         AkMultimediaSourceElementPrivate *d;
-
-    Q_SIGNALS:
-        void mediasChanged(const QStringList &medias);
-        void mediaChanged(const QString &media);
-        void streamsChanged(const QList<int> &streams);
-        void loopChanged(bool loop);
 
     public Q_SLOTS:
         virtual void setMedia(const QString &media);

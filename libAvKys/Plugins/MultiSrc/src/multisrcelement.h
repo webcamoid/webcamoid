@@ -79,10 +79,6 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE bool loop() const;
         Q_INVOKABLE QList<int> listTracks(const QString &type="");
         Q_INVOKABLE QString streamLanguage(int stream);
-
-        using AkMultimediaSourceElement::defaultStream;
-        using AkMultimediaSourceElement::caps;
-
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media) const;
         Q_INVOKABLE AkCaps caps(int stream);

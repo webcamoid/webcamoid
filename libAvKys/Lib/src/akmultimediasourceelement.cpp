@@ -83,29 +83,17 @@ AkCaps AkMultimediaSourceElement::caps(int stream) const
 
 void AkMultimediaSourceElement::setMedia(const QString &media)
 {
-    if (this->d->m_media == media)
-        return;
-
     this->d->m_media = media;
-    emit this->mediaChanged(media);
 }
 
 void AkMultimediaSourceElement::setStreams(const QList<int> &streams)
 {
-    if (this->d->m_streams == streams)
-        return;
-
     this->d->m_streams = streams;
-    emit this->streamsChanged(streams);
 }
 
 void AkMultimediaSourceElement::setLoop(bool loop)
 {
-    if (this->d->m_loop == loop)
-        return;
-
     this->d->m_loop = loop;
-    emit this->loopChanged(loop);
 }
 
 void AkMultimediaSourceElement::resetMedia()

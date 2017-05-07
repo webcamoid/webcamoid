@@ -37,11 +37,24 @@ typedef QSharedPointer<Capture> CapturePtr;
 class VideoCaptureElement: public AkMultimediaSourceElement
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList medias
+               READ medias
+               NOTIFY mediasChanged)
+    Q_PROPERTY(QString media
+               READ media
+               WRITE setMedia
+               RESET resetMedia
+               NOTIFY mediaChanged)
     Q_PROPERTY(QList<int> streams
                READ streams
                WRITE setStreams
                RESET resetStreams
                NOTIFY streamsChanged)
+    Q_PROPERTY(bool loop
+               READ loop
+               WRITE setLoop
+               RESET resetLoop
+               NOTIFY loopChanged)
     Q_PROPERTY(QString ioMethod
                READ ioMethod
                WRITE setIoMethod
@@ -103,8 +116,11 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         static void cameraLoop(VideoCaptureElement *captureElement);
 
     signals:
-        void error(const QString &message);
+        void mediasChanged(const QStringList &medias);
+        void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
+        void loopChanged(bool loop);
+        void error(const QString &message);
         void codecLibChanged(const QString &codecLib);
         void captureLibChanged(const QString &captureLib);
         void imageControlsChanged(const QVariantMap &imageControls) const;

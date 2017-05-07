@@ -33,6 +33,24 @@
 class DesktopCaptureElement: public AkMultimediaSourceElement
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList medias
+               READ medias
+               NOTIFY mediasChanged)
+    Q_PROPERTY(QString media
+               READ media
+               WRITE setMedia
+               RESET resetMedia
+               NOTIFY mediaChanged)
+    Q_PROPERTY(QList<int> streams
+               READ streams
+               WRITE setStreams
+               RESET resetStreams
+               NOTIFY streamsChanged)
+    Q_PROPERTY(bool loop
+               READ loop
+               WRITE setLoop
+               RESET resetLoop
+               NOTIFY loopChanged)
     Q_PROPERTY(AkFrac fps
                READ fps
                WRITE setFps
@@ -71,6 +89,10 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         void sendPacket(const AkPacket &packet);
 
     signals:
+        void mediasChanged(const QStringList &medias);
+        void mediaChanged(const QString &media);
+        void streamsChanged(const QList<int> &streams);
+        void loopChanged(bool loop);
         void fpsChanged(const AkFrac &fps);
         void sizeChanged(const QString &media, const QSize &size);
         void error(const QString &message);

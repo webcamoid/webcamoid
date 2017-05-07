@@ -213,7 +213,7 @@ createlauncher() {
     cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.bat"
 @echo off
 
-start /b "%~dp0bin\webcamoid" -q "%~dp0lib\qt\qml" -p "%~dp0lib\avkys" -c "%~dp0share\config"
+start /b "" "%~dp0bin\webcamoid" -q "%~dp0lib\qt\qml" -p "%~dp0lib\avkys" -c "%~dp0share\config"
 EOF
 }
 
