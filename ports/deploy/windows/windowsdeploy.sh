@@ -17,18 +17,6 @@ rootdir() {
 
 ROOTDIR=$(rootdir $0)
 
-readversion() {
-    cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat"
-    %~dp0bin/webcamoid --version > %~dp0version.txt
-EOF
-
-    wineconsole "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat" 2>/dev/null
-    cat "${ROOTDIR}/build/bundle-data/${APPNAME}/version.txt" | awk '{print $2}' | tr -d '\r'
-    rm "${ROOTDIR}/build/bundle-data/${APPNAME}/version".{bat,txt}
-}
-
-VERSION=$(readversion)
-
 detectarch() {
     arch=$(file -b "${ROOTDIR}/StandAlone/${APPNAME}.exe" | grep x86-64)
 
@@ -49,6 +37,23 @@ detectsyssir() {
 }
 
 SYSDIR=$(detectsyssir)
+
+readversion() {
+    wineRootDir=Z:${ROOTDIR//\//\\}
+
+    cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat"
+@echo off
+SET PATH=${wineRootDir}\StandAlone;${wineRootDir}\libAvKys\Lib;Z:\usr\i686-w64-mingw32\bin;%PATH%
+@echo on
+webcamoid --version > ${wineRootDir}\build\bundle-data\\${APPNAME}\version.txt
+EOF
+
+    wineconsole "${ROOTDIR}/build/bundle-data/${APPNAME}/version.bat" 2>/dev/null
+    cat "${ROOTDIR}/build/bundle-data/${APPNAME}/version.txt" | awk '{print $2}' | tr -d '\r'
+    rm "${ROOTDIR}/build/bundle-data/${APPNAME}/version".{bat,txt}
+}
+
+VERSION=$(readversion)
 QMAKE=${SYSDIR}/lib/qt/bin/qmake
 
 prepare() {
