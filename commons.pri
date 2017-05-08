@@ -115,7 +115,7 @@ RCC_DIR = $${COMMONS_BUILD_PATH}/rcc
 UI_DIR = $${COMMONS_BUILD_PATH}/ui
 
 # Compile translations files.
-!isEmpty(TRANSLATIONS): CONFIG(debug, debug|release) {
+isEmpty(NOLRELEASE): !isEmpty(TRANSLATIONS): CONFIG(debug, debug|release) {
     compiletr.input = TRANSLATIONS
     compiletr.output = ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
     compiletr.commands = $$QMAKE_LRELEASE -removeidentical -compress ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_PATH}/${QMAKE_FILE_BASE}.qm
