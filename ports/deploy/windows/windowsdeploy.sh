@@ -65,6 +65,10 @@ prepare() {
     pushd ${ROOTDIR}
         make INSTALL_ROOT="${ROOTDIR}/build/bundle-data" install
     popd
+
+    cp -vf ${SYSDIR}/bin/libEGL.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
+    cp -vf ${SYSDIR}/bin/libGLESv2.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
+    cp -vf ${SYSDIR}/bin/D3DCompiler_*.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
 }
 
 listdependencies() {
@@ -219,6 +223,7 @@ createlauncher() {
     cat << EOF > "${ROOTDIR}/build/bundle-data/${APPNAME}/${APPNAME}.bat"
 @echo off
 
+rem set QT_QUICK_BACKEND=software
 start /b "" "%~dp0bin\webcamoid" -q "%~dp0lib\qt\qml" -p "%~dp0lib\avkys" -c "%~dp0share\config"
 EOF
 }
