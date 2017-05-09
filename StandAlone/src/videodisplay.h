@@ -24,7 +24,7 @@
 #include <QQuickItem>
 #include <QSGSimpleTextureNode>
 
-#include "videoframe.h"
+#include "akutils.h"
 
 class VideoDisplay: public QQuickItem
 {
@@ -45,8 +45,8 @@ class VideoDisplay: public QQuickItem
 
     private:
         bool m_fillDisplay;
-        VideoFrame m_videoFrame;
-        AkPacket m_packet;
+        QSGTexture *m_videoFrame;
+        QImage m_frame;
         QMutex m_mutex;
 
     protected:

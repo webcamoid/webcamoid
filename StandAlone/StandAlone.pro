@@ -60,7 +60,6 @@ CONFIG += qt
 HEADERS = \
     src/mediatools.h \
     src/videodisplay.h \
-    src/videoframe.h \
     src/iconsprovider.h \
     src/audiolayer.h \
     src/videoeffects.h \
@@ -93,7 +92,6 @@ SOURCES = \
     src/main.cpp \
     src/mediatools.cpp \
     src/videodisplay.cpp \
-    src/videoframe.cpp \
     src/iconsprovider.cpp \
     src/audiolayer.cpp \
     src/videoeffects.cpp \

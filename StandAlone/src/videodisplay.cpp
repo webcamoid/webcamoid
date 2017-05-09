@@ -17,17 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQuickWindow>
+
 #include "videodisplay.h"
 
 VideoDisplay::VideoDisplay(QQuickItem *parent):
     QQuickItem(parent)
 {
     this->m_fillDisplay = false;
+    this->m_videoFrame = NULL;
     this->setFlag(ItemHasContents, true);
 }
 
 VideoDisplay::~VideoDisplay()
 {
+    if (this->m_videoFrame)
+        delete this->m_videoFrame;
 }
 
 bool VideoDisplay::fillDisplay() const
@@ -41,10 +46,14 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     Q_UNUSED(updatePaintNodeData)
 
     this->m_mutex.lock();
-    this->m_videoFrame = this->m_packet;
+
+    if (this->m_videoFrame)
+        delete this->m_videoFrame;
+
+    this->m_videoFrame = this->window()->createTextureFromImage(this->m_frame);
     this->m_mutex.unlock();
 
-    if (this->m_videoFrame.textureSize().isEmpty()) {
+    if (this->m_videoFrame->textureSize().isEmpty()) {
         if (oldNode)
             delete oldNode;
 
@@ -61,7 +70,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     if (this->m_fillDisplay)
         node->setRect(this->boundingRect());
     else {
-        QSizeF size(this->m_videoFrame.textureSize());
+        QSizeF size(this->m_videoFrame->textureSize());
         size.scale(this->boundingRect().size(), Qt::KeepAspectRatio);
         QRectF rect(QPointF(), size);
         rect.moveCenter(this->boundingRect().center());
@@ -69,7 +78,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
         node->setRect(rect);
     }
 
-    node->setTexture(&this->m_videoFrame);
+    node->setTexture(this->m_videoFrame);
 
     return node;
 }
@@ -77,7 +86,8 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
 void VideoDisplay::iStream(const AkPacket &packet)
 {
     this->m_mutex.lock();
-    this->m_packet = packet;
+    this->m_frame = AkUtils::packetToImage(packet)
+                        .convertToFormat(QImage::Format_ARGB32);
     this->m_mutex.unlock();
 
     QMetaObject::invokeMethod(this, "update");
