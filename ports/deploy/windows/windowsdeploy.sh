@@ -42,9 +42,14 @@ readversion() {
     wineRootDir=Z:${ROOTDIR//\//\\}
     mkdir -p "${ROOTDIR}/build"
 
+    case ${ARCH} in
+        win64) where=x86_64-w64-mingw32 ;;
+        *) where=i686-w64-mingw32 ;;
+    esac
+
     cat << EOF > "${ROOTDIR}/build/version.bat"
 @echo off
-SET PATH=${wineRootDir}\StandAlone;${wineRootDir}\libAvKys\Lib;Z:\usr\i686-w64-mingw32\bin;%PATH%
+SET PATH=${wineRootDir}\StandAlone;${wineRootDir}\libAvKys\Lib;Z:\usr\\${where}\bin;%PATH%
 @echo on
 webcamoid --version > ${wineRootDir}\build\version.txt
 EOF
@@ -66,6 +71,8 @@ prepare() {
         make INSTALL_ROOT="${ROOTDIR}/build/bundle-data" install
     popd
 
+    cp -vf ${SYSDIR}/bin/libeay32.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
+    cp -vf ${SYSDIR}/bin/ssleay32.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
     cp -vf ${SYSDIR}/bin/libEGL.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
     cp -vf ${SYSDIR}/bin/libGLESv2.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
     cp -vf ${SYSDIR}/bin/D3DCompiler_*.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"
@@ -333,8 +340,8 @@ Component.prototype.createOperations = function()
 
     for (var dir in installDir)
         component.addOperation("CreateShortcut",
-                                "@TargetDir@\\bin\\webcamoid.exe",
-                                installDir[dir] + "\\webcamoid.lnk");
+                                "@TargetDir@/bin/webcamoid.exe",
+                                installDir[dir] + "/webcamoid.lnk");
 }
 EOF
 

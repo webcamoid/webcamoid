@@ -102,7 +102,10 @@ int Updates::checkInterval() const
 
 QDateTime Updates::lastUpdate() const
 {
-    return this->m_lastUpdate;
+    if (this->m_lastUpdate.isValid())
+        return this->m_lastUpdate;
+
+    return QDateTime::currentDateTime();
 }
 
 QVariantList Updates::vectorize(const QString &version) const
@@ -180,8 +183,9 @@ void Updates::checkUpdates()
 {
     if (this->m_checkInterval > 0
         &&(this->m_lastUpdate.isNull()
-           || this->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->m_checkInterval))
+           || this->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->m_checkInterval)) {
         this->m_manager.get(QNetworkRequest(QUrl(UPDATES_URL)));
+    }
 }
 
 void Updates::setQmlEngine(QQmlApplicationEngine *engine)
@@ -372,8 +376,13 @@ void Updates::saveProperties()
 {
     QSettings config;
 
+    auto lastUpdate = this->m_lastUpdate;
+
+    if (!lastUpdate.isValid())
+        lastUpdate = QDateTime::currentDateTime();
+
     config.beginGroup("Updates");
-    config.setValue("lastUpdate", this->m_lastUpdate);
+    config.setValue("lastUpdate", lastUpdate);
     config.setValue("notify", this->m_notifyNewVersion);
     config.setValue("checkInterval", this->m_checkInterval);
     config.setValue("latestVersion", this->m_latestVersion);

@@ -25,6 +25,7 @@
 #include <QTranslator>
 #include <QSettings>
 #include <QDir>
+#include <QProcessEnvironment>
 
 #include "mediatools.h"
 
@@ -59,6 +60,14 @@ int main(int argc, char *argv[])
 #endif
 
     app.setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
+
+// OpenGL detection in Qt is quite buggy, so use software render by default.
+#if defined(Q_OS_WIN32) && 1
+    auto quickBackend = qgetenv("QT_QUICK_BACKEND");
+
+    if (quickBackend.isEmpty())
+        qputenv("QT_QUICK_BACKEND", "software");
+#endif
 
     MediaTools mediaTools;
     mediaTools.show();
