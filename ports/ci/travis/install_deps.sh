@@ -12,7 +12,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Install Android NDK
     wget -c https://dl.google.com/android/repository/android-ndk-${NDKVER}-linux-x86_64.zip
-    unzip android-ndk-${NDKVER}-linux-x86_64.zip
+    unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
 
     # Install Qt for Android
     cat << EOF > non_interactive_install.qs
