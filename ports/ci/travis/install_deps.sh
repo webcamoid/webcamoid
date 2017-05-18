@@ -9,7 +9,13 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     mkdir -p build
     cd build
-        cat << EOF > non_interactive_install.qs
+
+    # Install Android NDK
+    wget -c https://dl.google.com/android/repository/android-ndk-${NDKVER}-linux-x86_64.zip
+    unzip android-ndk-${NDKVER}-linux-x86_64.zip
+
+    # Install Qt for Android
+    cat << EOF > non_interactive_install.qs
 function Controller() {
     installer.autoRejectMessageBoxes();
     installer.setMessageBoxAutomaticAnswer("OverwriteTargetDirectory", QMessageBox.Yes);

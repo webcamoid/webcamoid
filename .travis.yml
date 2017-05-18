@@ -18,6 +18,7 @@ matrix:
     env:
       - ANDROID_BUILD=1
       - QTVER=5.8.0
+      - NDKVER=r14b
   - os: linux
     sudo: required
     services:
