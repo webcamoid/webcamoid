@@ -5,11 +5,7 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    export DEBIAN_FRONTEND=noninteractive
-
-    sudo apt-get -q -y update
-    sudo apt-get -q -y upgrade
-    sudo apt-get -q -y install make
+    sudo apt-get -y install make
 
     mkdir -p build
     cd build
