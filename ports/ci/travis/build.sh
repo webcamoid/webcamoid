@@ -28,7 +28,7 @@ EOF
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    export PATH=~/webcamoid/build/Qt/5.8/android_armv7/bin:$PATH
+    export PATH=~/build/webcamoid/webcamoid/build/Qt/5.8/android_armv7/bin:$PATH
     qmake -spec ${COMPILESPEC} Webcamoid.pro
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
