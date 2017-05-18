@@ -8,6 +8,7 @@ matrix:
   include:
   - language: android
     jdk: oraclejdk8
+    compiler: gcc
     android:
       components:
         - tools
