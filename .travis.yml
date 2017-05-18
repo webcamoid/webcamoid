@@ -8,7 +8,6 @@ matrix:
   include:
   - language: android
     jdk: oraclejdk8
-    compiler: gcc
     android:
       components:
         - tools
@@ -174,11 +173,7 @@ install:
 
 before_script: |
   if [ "${ANDROID_BUILD}" = 1 ]; then
-    if [ "${CXX}" = g++ ]; then
-      export COMPILESPEC=android-g++
-    elif [ "${CXX}" = clang++ ]; then
-      export COMPILESPEC=android-clang
-    fi
+    export COMPILESPEC=android-g++
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${CXX}" = g++ ]; then
       export COMPILESPEC=linux-g++
