@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QSettings>
 #include <QJsonDocument>
 #include <QJsonObject>

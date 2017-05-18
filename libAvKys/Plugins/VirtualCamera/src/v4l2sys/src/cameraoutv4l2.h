@@ -21,6 +21,7 @@
 #define CAMERAOUTV4L2_H
 
 #include <fcntl.h>
+#include <errno.h>
 #include <linux/videodev2.h>
 #include <QFileSystemWatcher>
 #include <QDir>

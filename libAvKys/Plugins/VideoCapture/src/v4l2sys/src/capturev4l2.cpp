@@ -33,9 +33,9 @@ inline V4l2CtrlTypeMap initV4l2CtrlTypeMap()
         {V4L2_CTRL_TYPE_BUTTON      , "button"     },
         {V4L2_CTRL_TYPE_INTEGER64   , "integer64"  },
         {V4L2_CTRL_TYPE_CTRL_CLASS  , "ctrlClass"  },
+#ifdef HAVE_EXTENDEDCONTROLS
         {V4L2_CTRL_TYPE_STRING      , "string"     },
         {V4L2_CTRL_TYPE_BITMASK     , "bitmask"    },
-#ifdef HAVE_INTEGER_MENU
         {V4L2_CTRL_TYPE_INTEGER_MENU, "integerMenu"}
 #endif
     };
@@ -252,8 +252,10 @@ bool CaptureV4L2::setCameraControls(const QVariantMap &cameraControls)
     else
         fd = x_open(this->m_device.toStdString().c_str(), O_RDWR | O_NONBLOCK, 0);
 
+#ifdef V4L2_CTRL_CLASS_CAMERA
     if (!setControls(fd, V4L2_CTRL_CLASS_CAMERA, cameraControlsDiff))
         return false;
+#endif
 
     if (this->m_fd < 0)
         x_close(fd);
@@ -355,6 +357,7 @@ QVariantList CaptureV4L2::capsFps(int fd,
 {
     QVariantList caps;
 
+#ifdef VIDIOC_ENUM_FRAMEINTERVALS
     struct v4l2_frmivalenum frmival;
     memset(&frmival, 0, sizeof(frmival));
     frmival.pixel_format = format.pixelformat;
@@ -383,6 +386,24 @@ QVariantList CaptureV4L2::capsFps(int fd,
         videoCaps.setProperty("fps", fps.toString());
         caps << QVariant::fromValue(videoCaps);
     }
+#else
+    struct v4l2_standard standard;
+    memset(&standard, 0, sizeof(v4l2_standard));
+
+    for (standard.index = 0;
+         this->xioctl(fd, VIDIOC_ENUMSTD, &standard) >= 0;
+         standard.index++) {
+
+        AkCaps videoCaps;
+        videoCaps.setMimeType("video/unknown");
+        videoCaps.setProperty("fourcc", this->fourccToStr(format.pixelformat));
+        videoCaps.setProperty("width", width);
+        videoCaps.setProperty("height", height);
+        videoCaps.setProperty("fps", AkFrac(standard.frameperiod.denominator,
+                                            standard.frameperiod.numerator).toString());
+        caps << QVariant::fromValue(videoCaps);
+    }
+#endif
 
     return caps;
 }
@@ -1074,6 +1095,18 @@ void CaptureV4L2::updateDevices()
                     descriptions[fileName] = reinterpret_cast<const char *>(capability.card);
                     QVariantList caps;
 
+#ifndef VIDIOC_ENUM_FRAMESIZES
+                    uint width = 0;
+                    uint height = 0;
+                    v4l2_format curFmt;
+                    memset(&curFmt, 0, sizeof(v4l2_format));
+
+                    if (this->xioctl(fd, VIDIOC_G_FMT, &curFmt) >= 0) {
+                        width = curFmt.fmt.pix.width;
+                        height = curFmt.fmt.pix.height;
+                    }
+#endif
+
                     // Enumerate all supported formats.
                     for (const v4l2_buf_type &type: bufType) {
                         v4l2_fmtdesc fmt;
@@ -1083,6 +1116,7 @@ void CaptureV4L2::updateDevices()
                         for (fmt.index = 0;
                              this->xioctl(fd, VIDIOC_ENUM_FMT, &fmt) >= 0;
                              fmt.index++) {
+#ifdef VIDIOC_ENUM_FRAMESIZES
                             v4l2_frmsizeenum frmsize;
                             memset(&frmsize, 0, sizeof(v4l2_frmsizeenum));
                             frmsize.pixel_format = fmt.pixelformat;
@@ -1103,19 +1137,28 @@ void CaptureV4L2::updateDevices()
                                         for (uint width = frmsize.stepwise.min_width;
                                              width < frmsize.stepwise.max_width;
                                              width += frmsize.stepwise.step_width) {
-                                            caps << this->capsFps(device.handle(),
+                                            caps << this->capsFps(fd,
                                                                   fmt,
                                                                   width,
                                                                   height);
                                         }*/
                                 }
                             }
+#else
+                            if (width > 0 && height > 0)
+                                caps << this->capsFps(fd,
+                                                      fmt,
+                                                      width,
+                                                      height);
+#endif
                         }
                     }
 
                     devicesCaps[fileName] = caps;
                     imageControls[fileName] = this->controls(fd, V4L2_CTRL_CLASS_USER);
+#ifdef V4L2_CTRL_CLASS_CAMERA
                     cameraControls[fileName] = this->controls(fd, V4L2_CTRL_CLASS_CAMERA);
+#endif
                 }
             }
 

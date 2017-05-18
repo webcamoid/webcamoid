@@ -4,7 +4,78 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
     EXEC="docker exec ${DOCKERSYS}"
 fi
 
-if [ "${DOCKERSYS}" = debian ]; then
+if [ "${ANDROID_BUILD}" = 1 ]; then
+    mkdir -p build
+    cd build
+        cat << EOF > non_interactive_install.qs
+function Controller() {
+    installer.autoRejectMessageBoxes();
+    installer.setMessageBoxAutomaticAnswer("OverwriteTargetDirectory", QMessageBox.Yes);
+    installer.installationFinished.connect(function() {
+        gui.clickButton(buttons.NextButton);
+    })
+}
+
+Controller.prototype.WelcomePageCallback = function() {
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.CredentialsPageCallback = function() {
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.IntroductionPageCallback = function() {
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.TargetDirectoryPageCallback = function()
+{
+    //gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("HomeDir") + "/Qt");
+    gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("InstallerDirPath") + "/Qt");
+    //gui.currentPageWidget().TargetDirectoryLineEdit.setText("/scratch/Qt");
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.ComponentSelectionPageCallback = function() {
+    var widget = gui.currentPageWidget();
+
+    widget.deselectAll();
+    widget.selectComponent("qt.58.android_armv7");
+    widget.selectComponent("qt.58.android_x86");
+
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.LicenseAgreementPageCallback = function() {
+    gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.StartMenuDirectoryPageCallback = function() {
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.ReadyForInstallationPageCallback = function()
+{
+    gui.clickButton(buttons.NextButton);
+}
+
+Controller.prototype.FinishedPageCallback = function() {
+var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm
+if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
+    checkBoxForm.launchQtCreatorCheckBox.checked = false;
+}
+    gui.clickButton(buttons.FinishButton);
+}
+EOF
+
+    wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-android-${QTVER}.run
+    chmod +x qt-opensource-linux-x64-android-${QTVER}.run
+    ./qt-opensource-linux-x64-android-${QTVER}.run \
+        -platform minimal \
+        --script non_interactive_install.qs \
+        --no-force-installations
+elif [ "${DOCKERSYS}" = debian ]; then
     ${EXEC} apt-get -y update
 
     if [ "${DOCKERIMG}" = ubuntu:trusty ]; then

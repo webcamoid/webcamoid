@@ -22,6 +22,7 @@
 
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <linux/videodev2.h>
 #include <QFileSystemWatcher>
 #include <ak.h>

@@ -31,7 +31,9 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 {
     V4l2PixFmtMap ffToV4L2 = {
         // RGB formats
+#ifdef V4L2_PIX_FMT_RGB444
         {AkVideoCaps::Format_rgb444le, V4L2_PIX_FMT_RGB444 },
+#endif
         {AkVideoCaps::Format_rgb555le, V4L2_PIX_FMT_RGB555 },
         {AkVideoCaps::Format_rgb565le, V4L2_PIX_FMT_RGB565 },
         {AkVideoCaps::Format_rgb555be, V4L2_PIX_FMT_RGB555X},
@@ -43,7 +45,9 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 
         // Grey formats
         {AkVideoCaps::Format_gray    , V4L2_PIX_FMT_GREY},
+#ifdef V4L2_PIX_FMT_Y16
         {AkVideoCaps::Format_gray16le, V4L2_PIX_FMT_Y16 },
+#endif
 
         // Luminance+Chrominance formats
         {AkVideoCaps::Format_yuv410p, V4L2_PIX_FMT_YVU410 },
@@ -51,7 +55,9 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         {AkVideoCaps::Format_yuyv422, V4L2_PIX_FMT_YUYV   },
         {AkVideoCaps::Format_yuv422p, V4L2_PIX_FMT_YYUV   },
         {AkVideoCaps::Format_uyvy422, V4L2_PIX_FMT_UYVY   },
+#ifdef V4L2_PIX_FMT_VYUY
         {AkVideoCaps::Format_yuv422p, V4L2_PIX_FMT_VYUY   },
+#endif
         {AkVideoCaps::Format_yuv422p, V4L2_PIX_FMT_YUV422P},
         {AkVideoCaps::Format_yuv411p, V4L2_PIX_FMT_YUV411P},
         {AkVideoCaps::Format_yuv411p, V4L2_PIX_FMT_Y41P   },
@@ -61,16 +67,28 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
         // two planes -- one Y, one Cr + Cb interleaved
         {AkVideoCaps::Format_nv12, V4L2_PIX_FMT_NV12},
         {AkVideoCaps::Format_nv21, V4L2_PIX_FMT_NV21},
+#ifdef V4L2_PIX_FMT_NV16
         {AkVideoCaps::Format_nv16, V4L2_PIX_FMT_NV16},
+#endif
 
         // Bayer formats
+#ifdef V4L2_PIX_FMT_SBGGR8
         {AkVideoCaps::Format_bayer_bggr8, V4L2_PIX_FMT_SBGGR8},
+#endif
+#ifdef V4L2_PIX_FMT_SGBRG8
         {AkVideoCaps::Format_bayer_gbrg8, V4L2_PIX_FMT_SGBRG8},
+#endif
+#ifdef V4L2_PIX_FMT_SGRBG8
         {AkVideoCaps::Format_bayer_grbg8, V4L2_PIX_FMT_SGRBG8},
+#endif
+#ifdef V4L2_PIX_FMT_SRGGB8
         {AkVideoCaps::Format_bayer_rggb8, V4L2_PIX_FMT_SRGGB8},
+#endif
 
         // 10bit raw bayer, expanded to 16 bits
-        {AkVideoCaps::Format_bayer_bggr16le, V4L2_PIX_FMT_SBGGR16}
+#ifdef V4L2_PIX_FMT_SBGGR16
+        {AkVideoCaps::Format_bayer_bggr16le, V4L2_PIX_FMT_SBGGR16},
+#endif
     };
 
     return ffToV4L2;

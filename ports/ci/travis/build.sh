@@ -22,13 +22,15 @@ if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
 #!/bin/bash
 
 source /opt/qt58/bin/qt58-env.sh
-
 EOF
 
     chmod +x ${BUILDSCRIPT}
 fi
 
-if [ "${TRAVIS_OS_NAME}" = linux ]; then
+if [ "${ANDROID_BUILD}" = 1 ]; then
+    export PATH=~/webcamoid/build/Qt/5.8/android_armv7/bin:$PATH
+    qmake -spec ${COMPILESPEC} Webcamoid.pro
+elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
         if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
            [ "${DOCKERIMG}" = ubuntu:xenial ]; then

@@ -28,7 +28,9 @@
 
 int main()
 {
-    std::cout << V4L2_CTRL_TYPE_INTEGER_MENU;
+    std::cout << V4L2_CTRL_TYPE_STRING
+              << V4L2_CTRL_TYPE_BITMASK
+              << V4L2_CTRL_TYPE_INTEGER_MENU;
 
     return 0;
 }

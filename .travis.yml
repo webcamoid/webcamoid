@@ -143,22 +143,42 @@ matrix:
   - os: osx
     osx_image: xcode8.2
     compiler: clang
+  - language: android
+    jdk: oraclejdk8
+    android:
+      components:
+        - tools
+        - platform-tools
+        - build-tools-22.0.1
+        - android-22
+        - sys-img-armeabi-v7a-android-22
+    env:
+      - ANDROID_BUILD=1
+      - QTVER=5.8.0
 
 before_install: |
-  if [ "${TRAVIS_OS_NAME}" = linux ]; then
-    docker pull ${DOCKERIMG}
-    docker ps -a
-    docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
-  elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    brew update
-    brew upgrade
+  if [ -z "${ANDROID_BUILD}" ]; then
+    if [ "${TRAVIS_OS_NAME}" = linux ]; then
+      docker pull ${DOCKERIMG}
+      docker ps -a
+      docker run -it -d -v ${PWD}:/sources -v $HOME/.ccache:/ccache -e CCACHE_DIR=/ccache -w /sources --name ${DOCKERSYS} ${DOCKERIMG} /bin/sh
+    elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+      brew update
+      brew upgrade
+    fi
   fi
 
 install:
   - ports/ci/travis/install_deps.sh
 
 before_script: |
-  if [ "${TRAVIS_OS_NAME}" = linux ]; then
+  if [ "${ANDROID_BUILD}" = 1 ]; then
+    if [ "${CXX}" = g++ ]; then
+      export COMPILESPEC=android-g++
+    elif [ "${CXX}" = clang++ ]; then
+      export COMPILESPEC=android-clang
+    fi
+  elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${CXX}" = g++ ]; then
       export COMPILESPEC=linux-g++
     elif [ "${CXX}" = clang++ ]; then

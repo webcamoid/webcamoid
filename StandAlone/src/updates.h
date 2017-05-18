@@ -21,6 +21,7 @@
 #define UPDATES_H
 
 #include <QTimer>
+#include <QDateTime>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>

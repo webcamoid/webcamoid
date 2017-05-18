@@ -42,7 +42,7 @@ LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
-CONFIG(config_v4l2intmenu): DEFINES += HAVE_INTEGER_MENU
+CONFIG(config_v4l2_extendedcontrols): DEFINES += HAVE_EXTENDEDCONTROLS
 
 QT += qml
 
