@@ -30,7 +30,7 @@ fi
 if [ "${ANDROID_BUILD}" = 1 ]; then
     export PATH=~/build/webcamoid/webcamoid/build/Qt/5.8/android_armv7/bin:$PATH
     export ANDROID_NDK_ROOT=/usr/local/opt/android-ndk
-    ls -l /usr/local/opt
+    ls -l /opt
     qmake -spec ${COMPILESPEC} Webcamoid.pro
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${DOCKERSYS}" = debian ]; then
