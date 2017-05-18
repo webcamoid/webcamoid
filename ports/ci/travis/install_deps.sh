@@ -5,6 +5,10 @@ if [ "${TRAVIS_OS_NAME}" = linux ]; then
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get -y install make
+
     mkdir -p build
     cd build
         cat << EOF > non_interactive_install.qs

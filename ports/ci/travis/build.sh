@@ -10,7 +10,7 @@ else
     COMPILER=${CXX}
 fi
 
-if [ "${TRAVIS_OS_NAME}" = linux ]; then
+if [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     EXEC="docker exec ${DOCKERSYS}"
 fi
 
