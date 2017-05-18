@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "${DISABLE_CCACHE}" ]; then
     if [ "${CXX}" = clang++ ]; then
