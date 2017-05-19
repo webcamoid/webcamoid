@@ -6,19 +6,6 @@ cache:
 
 matrix:
   include:
-  - language: android
-    jdk: oraclejdk8
-    android:
-      components:
-        - tools
-        - platform-tools
-        - build-tools-22.0.1
-        - android-22
-        - sys-img-armeabi-v7a-android-22
-    env:
-      - ANDROID_BUILD=1
-      - QTVER=5.8.0
-      - NDKVER=r14b
   - os: linux
     sudo: required
     services:
@@ -156,6 +143,36 @@ matrix:
   - os: osx
     osx_image: xcode8.2
     compiler: clang
+  - language: android
+    jdk: oraclejdk8
+    android:
+      components:
+        - tools
+        - platform-tools
+        - build-tools-22.0.1
+        - android-22
+        - sys-img-armeabi-v7a-android-22
+    env:
+      - ANDROID_BUILD=1
+      - COMPILER=g++
+      - QTVER=5.8.0
+      - NDKVER=r14b
+      - TARGET_ARCH=armv7
+  - language: android
+    jdk: oraclejdk8
+    android:
+      components:
+        - tools
+        - platform-tools
+        - build-tools-22.0.1
+        - android-22
+        - sys-img-x86-android-22
+    env:
+      - ANDROID_BUILD=1
+      - COMPILER=g++
+      - QTVER=5.8.0
+      - NDKVER=r14b
+      - TARGET_ARCH=x86
 
 before_install: |
   if [ -z "${ANDROID_BUILD}" ]; then
@@ -174,7 +191,7 @@ install:
 
 before_script: |
   if [ "${ANDROID_BUILD}" = 1 ]; then
-    export COMPILESPEC=android-g++
+    export COMPILESPEC=android-${COMPILER}
   elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     if [ "${CXX}" = g++ ]; then
       export COMPILESPEC=linux-g++
