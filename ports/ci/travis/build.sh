@@ -28,7 +28,7 @@ EOF
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    export PATH=$PWD/build/Qt/${QTVER:0:3}/android_armv7/bin:$PATH
+    export PATH=$PWD/build/Qt/${QTVER:0:3}/android_${TARGET_ARCH}/bin:$PATH
     export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
     qmake -spec ${COMPILESPEC} Webcamoid.pro
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
