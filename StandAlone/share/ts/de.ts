@@ -445,7 +445,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="36"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen aus PATH laden. Konfigurationen aus Anwendungsverzeichnis laden, wenn PATH leer ist.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="44"/>
