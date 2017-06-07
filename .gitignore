@@ -59,6 +59,8 @@ Makefile*
 *.qmlc
 .qmake.stash
 .qmake.cache
+callgrind.out.*
+*.debug
 
 # Android files #
 #################
