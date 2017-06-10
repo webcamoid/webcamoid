@@ -31,6 +31,15 @@
 
 #define SUBMODULES_PATH "submodules"
 
+class AkPluginInfoPrivate
+{
+    public:
+        QString m_id;
+        QString m_path;
+        QByteArray m_hash;
+        QVariantMap m_metaData;
+};
+
 class AkElementPrivate
 {
     public:
@@ -39,17 +48,18 @@ class AkElementPrivate
         QString m_pluginFilePattern;
         QStringList m_pluginsSearchPaths;
         QStringList m_defaultPluginsSearchPaths;
-        QStringList m_pluginsCache;
         QStringList m_pluginsBlackList;
-        QMap<QByteArray, bool> m_pluginsHash;
+        QList<AkPluginInfoPrivate> m_pluginsList;
         QString m_subModulesPath;
         QDir m_applicationDir;
         AkElement::ElementState m_state;
         bool m_recursiveSearchPaths;
+        bool m_pluginsScanned;
 
         AkElementPrivate()
         {
             this->m_recursiveSearchPaths = false;
+            this->m_pluginsScanned = false;
 
             this->m_defaultPluginsSearchPaths << QString("%1/%2")
                                                  .arg(LIBDIR)
@@ -150,6 +160,123 @@ class AkElementPrivate
             }
 
             return QByteArray();
+        }
+
+        inline void listPlugins()
+        {
+            QVector<QStringList *> sPaths {
+                &this->m_pluginsSearchPaths,
+                &this->m_defaultPluginsSearchPaths
+            };
+
+            for (auto sPath: sPaths)
+                for (int i = sPath->length() - 1; i >= 0; i--) {
+                    QString searchDir(sPath->at(i));
+
+                    searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
+                                                  QDir::separator());
+
+                    while (searchDir.endsWith(QDir::separator()))
+                        searchDir.resize(searchDir.size() - 1);
+
+                    QStringList searchPaths(searchDir);
+
+                    while (!searchPaths.isEmpty()) {
+                        QString path = searchPaths.takeFirst();
+
+                        if (this->m_pluginsBlackList.contains(path))
+                            continue;
+
+                        auto pluginId = this->pluginId(path);
+                        auto hash = this->hash(path);
+                        bool found = false;
+
+                        if (!hash.isEmpty())
+                            for (auto &pluginInfo: this->m_pluginsList)
+                                if (pluginInfo.m_hash == hash) {
+                                    pluginInfo.m_id = pluginId;
+                                    pluginInfo.m_path = path;
+
+                                    if (pluginInfo.m_metaData.isEmpty()) {
+                                        QPluginLoader pluginLoader(path);
+
+                                        if (pluginLoader.load()) {
+                                            auto plugin =
+                                                    qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+                                            if (plugin) {
+                                                pluginInfo.m_metaData =
+                                                        pluginLoader.metaData().toVariantMap();
+
+                                                delete plugin;
+                                            }
+
+                                            pluginLoader.unload();
+                                        }
+                                    }
+
+                                    found = true;
+
+                                    break;
+                                }
+
+                        if (found)
+                            continue;
+
+                        if (QFileInfo(path).isFile()) {
+                            QString fileName = QFileInfo(path).fileName();
+
+                            if (QRegExp(this->m_pluginFilePattern,
+                                        Qt::CaseSensitive,
+                                        QRegExp::Wildcard).exactMatch(fileName)) {
+                                QPluginLoader pluginLoader(path);
+
+                                if (pluginLoader.load()) {
+                                    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
+
+                                    if (plugin) {
+                                        auto metaData = pluginLoader.metaData();
+
+                                        if (metaData["MetaData"].toObject().contains("pluginType")
+                                            && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
+                                            this->m_pluginsList <<
+                                                AkPluginInfoPrivate {
+                                                    pluginId,
+                                                    path,
+                                                    hash,
+                                                    metaData.toVariantMap()
+                                                };
+                                        }
+
+                                        delete plugin;
+                                    }
+
+                                    pluginLoader.unload();
+                                }
+                            }
+                        } else {
+                            QDir dir(path);
+                            auto fileList = dir.entryList({this->m_pluginFilePattern},
+                                                          QDir::Files
+                                                          | QDir::CaseSensitive,
+                                                          QDir::Name);
+
+                            for (const QString &file: fileList)
+                                searchPaths << dir.absoluteFilePath(file);
+
+                            if (this->m_recursiveSearchPaths) {
+                                auto dirList = dir.entryList(QDir::Dirs
+                                                             | QDir::NoDotAndDotDot,
+                                                             QDir::Name);
+
+                                for (const QString &path: dirList)
+                                    searchPaths << dir.absoluteFilePath(path);
+                            }
+                        }
+                    }
+                }
+
+            this->m_pluginsScanned = true;
         }
 };
 
@@ -500,22 +627,22 @@ void AkElement::resetSubModulesPath()
 
 QStringList AkElement::listPlugins(const QString &type)
 {
-    QStringList plugins;
-    QStringList pluginPaths = AkElement::listPluginPaths();
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
 
-    for (const QString &path: pluginPaths) {
-        QPluginLoader pluginLoader(path);
-        QJsonObject metaData = pluginLoader.metaData();
-        QString pluginId = AkElementPrivate::pluginId(path);
+    QStringList plugins;
+
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList) {
+        auto metaData = pluginInfo.m_metaData["MetaData"].toMap();
 
         if (!type.isEmpty()
-            && metaData["MetaData"].toObject().contains("type")
-            && metaData["MetaData"].toObject()["type"] == type
-            && !plugins.contains(pluginId))
-            plugins << pluginId;
+            && metaData.contains("type")
+            && metaData["type"] == type
+            && !plugins.contains(pluginInfo.m_id))
+            plugins << pluginInfo.m_id;
         else if (type.isEmpty()
-                 && !plugins.contains(pluginId))
-            plugins << pluginId;
+                 && !plugins.contains(pluginInfo.m_id))
+            plugins << pluginInfo.m_id;
     }
 
     plugins.sort();
@@ -525,136 +652,66 @@ QStringList AkElement::listPlugins(const QString &type)
 
 QStringList AkElement::listPluginPaths(const QString &searchPath)
 {
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
+
     QString searchDir(searchPath);
 
     searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
                                   QDir::separator());
 
-    while (searchDir.endsWith(QDir::separator()))
-        searchDir.resize(searchDir.size() - 1);
-
-    QStringList searchPaths(searchDir);
     QStringList files;
 
-    while (!searchPaths.isEmpty()) {
-        QString path = searchPaths.takeFirst();
-
-        if (akElementGlobalStuff->m_pluginsBlackList.contains(path))
-            continue;
-
-        auto hash = akElementGlobalStuff->hash(path);
-
-        if (!hash.isEmpty() && akElementGlobalStuff->m_pluginsHash.contains(hash)) {
-            akElementGlobalStuff->m_pluginsHash[hash] = true;
-            files << path;
-
-            continue;
-        }
-
-        if (QFileInfo(path).isFile()) {
-            QString fileName = QFileInfo(path).fileName();
-
-            if (QRegExp(akElementGlobalStuff->m_pluginFilePattern,
-                        Qt::CaseSensitive,
-                        QRegExp::Wildcard).exactMatch(fileName)) {
-                QPluginLoader pluginLoader(path);
-
-                if (pluginLoader.load()) {
-                    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
-
-                    if (plugin) {
-                        auto metaData = pluginLoader.metaData();
-
-                        if (metaData["MetaData"].toObject().contains("pluginType")
-                            && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
-                            akElementGlobalStuff->m_pluginsHash[hash] = true;
-                            files << path;
-                        }
-
-                        delete plugin;
-                    }
-
-                    pluginLoader.unload();
-                }
-            }
-        } else {
-            QDir dir(path);
-            auto fileList = dir.entryList({akElementGlobalStuff->m_pluginFilePattern},
-                                          QDir::Files
-                                          | QDir::CaseSensitive,
-                                          QDir::Name);
-
-            for (const QString &file: fileList)
-                searchPaths << dir.absoluteFilePath(file);
-
-            if (akElementGlobalStuff->m_recursiveSearchPaths) {
-                auto dirList = dir.entryList(QDir::Dirs
-                                             | QDir::NoDotAndDotDot,
-                                             QDir::Name);
-
-                for (const QString &path: dirList)
-                    searchPaths << dir.absoluteFilePath(path);
-            }
-        }
-    }
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+        if (pluginInfo.m_path.startsWith(searchDir))
+            files << pluginInfo.m_path;
 
     return files;
 }
 
 QStringList AkElement::listPluginPaths()
 {
-    if (!akElementGlobalStuff->m_pluginsCache.isEmpty())
-        return akElementGlobalStuff->m_pluginsCache;
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
 
-    QStringList searchPaths;
-    QVector<QStringList *> sPaths {
-        &akElementGlobalStuff->m_pluginsSearchPaths,
-        &akElementGlobalStuff->m_defaultPluginsSearchPaths
-    };
+    QStringList files;
 
-    for (auto sPath: sPaths)
-        for (int i = sPath->length() - 1; i >= 0; i--) {
-            auto paths = AkElement::listPluginPaths(sPath->at(i));
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+        files << pluginInfo.m_path;
 
-            for (auto &path: paths)
-                if (!searchPaths.contains(path))
-                    searchPaths << path;
-        }
-
-    akElementGlobalStuff->m_pluginsCache = searchPaths;
-
-    return searchPaths;
-}
-
-QStringList AkElement::pluginsCache()
-{
-    return akElementGlobalStuff->m_pluginsCache;
-}
-
-void AkElement::setPluginsCache(const QStringList &paths)
-{
-    akElementGlobalStuff->m_pluginsCache = paths;
+    return files;
 }
 
 QList<QByteArray> AkElement::pluginsHashes(bool all)
 {
-    if (all)
-        return akElementGlobalStuff->m_pluginsHash.keys();
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
 
     QList<QByteArray> hashes;
 
-    for (auto &hash: akElementGlobalStuff->m_pluginsHash.keys())
-        if (akElementGlobalStuff->m_pluginsHash[hash])
-            hashes << hash;
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+        if (!pluginInfo.m_hash.isEmpty() && (all || !pluginInfo.m_id.isEmpty()))
+            hashes << pluginInfo.m_hash;
 
     return hashes;
 }
 
 void AkElement::setPluginsHashes(const QList<QByteArray> &pluginsHash)
 {
-    for (auto &hash: pluginsHash)
-        if (!akElementGlobalStuff->m_pluginsHash.contains(hash))
-            akElementGlobalStuff->m_pluginsHash[hash] = false;
+    for (auto &hash: pluginsHash) {
+        bool contains = false;
+
+        for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+            if (pluginInfo.m_hash == hash) {
+                contains = true;
+
+                break;
+            }
+
+        if (!contains)
+            akElementGlobalStuff->m_pluginsList
+                    << AkPluginInfoPrivate {"", "", hash, {}};
+    }
 }
 
 QStringList AkElement::pluginsBlackList()
@@ -688,19 +745,46 @@ QString AkElement::pluginPath(const QString &pluginId)
 
 QVariantMap AkElement::pluginInfo(const QString &pluginId)
 {
-    QString filePath = AkElement::pluginPath(pluginId);
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
 
-    if (filePath.isEmpty())
-        return QVariantMap();
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+        if (pluginInfo.m_id == pluginId)
+            return pluginInfo.m_metaData;
 
-    QPluginLoader pluginLoader(filePath);
+    return QVariantMap();
+}
 
-    return pluginLoader.metaData().toVariantMap();
+QVariantMap AkElement::pluginInfo(const QByteArray &hash)
+{
+    if (!akElementGlobalStuff->m_pluginsScanned)
+        akElementGlobalStuff->listPlugins();
+
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+        if (pluginInfo.m_hash == hash)
+            return pluginInfo.m_metaData;
+
+    return QVariantMap();
+}
+
+void AkElement::setPluginInfo(const QByteArray &hash,
+                              const QVariantMap &metaData)
+{
+    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
+        if (pluginInfo.m_hash == hash) {
+            pluginInfo.m_metaData = metaData;
+
+            return;
+        }
+
+    akElementGlobalStuff->m_pluginsList
+            << AkPluginInfoPrivate {"", "", hash, metaData};
 }
 
 void AkElement::clearCache()
 {
-    akElementGlobalStuff->m_pluginsCache.clear();
+    akElementGlobalStuff->m_pluginsList.clear();
+    akElementGlobalStuff->m_pluginsScanned = false;
 }
 
 AkPacket AkElement::operator ()(const AkPacket &packet)

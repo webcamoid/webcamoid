@@ -911,6 +911,8 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
             break;
         case AV_CODEC_ID_RV10:
             videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
+            videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
+            break;
         case AV_CODEC_ID_AMV:
             videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
             break;
@@ -1086,6 +1088,8 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
                 break;
             case AV_CODEC_ID_RV10:
                 videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
+                videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
+                break;
             case AV_CODEC_ID_AMV:
                 videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
                 break;
@@ -2156,6 +2160,8 @@ bool MediaWriterFFmpeg::init()
                 break;
             case AV_CODEC_ID_RV10:
                 videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
+                videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
+                break;
             case AV_CODEC_ID_AMV:
                 videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
                 break;

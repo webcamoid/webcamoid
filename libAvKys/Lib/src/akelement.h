@@ -118,14 +118,15 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE static QStringList listPlugins(const QString &type="");
         Q_INVOKABLE static QStringList listPluginPaths(const QString &searchPath);
         Q_INVOKABLE static QStringList listPluginPaths();
-        Q_INVOKABLE static QStringList pluginsCache();
-        Q_INVOKABLE static void setPluginsCache(const QStringList &paths);
         Q_INVOKABLE static QList<QByteArray> pluginsHashes(bool all=false);
         Q_INVOKABLE static void setPluginsHashes(const QList<QByteArray> &pluginsHashes);
         Q_INVOKABLE static QStringList pluginsBlackList();
         Q_INVOKABLE static void setPluginsBlackList(const QStringList &blackList);
         Q_INVOKABLE static QString pluginPath(const QString &pluginId);
         Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
+        Q_INVOKABLE static QVariantMap pluginInfo(const QByteArray &hash);
+        Q_INVOKABLE static void setPluginInfo(const QByteArray &hash,
+                                              const QVariantMap &metaData);
         Q_INVOKABLE static void clearCache();
 
         virtual AkPacket operator ()(const AkPacket &packet);
