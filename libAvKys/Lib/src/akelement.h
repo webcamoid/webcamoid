@@ -65,6 +65,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         virtual ~AkElement();
 
         Q_INVOKABLE QString pluginId() const;
+        Q_INVOKABLE static QString pluginId(const QString &path);
         Q_INVOKABLE QString pluginPath() const;
         Q_INVOKABLE virtual AkElement::ElementState state() const;
         Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,
@@ -117,15 +118,13 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         Q_INVOKABLE static void resetSubModulesPath();
         Q_INVOKABLE static QStringList listPlugins(const QString &type="");
         Q_INVOKABLE static QStringList listPluginPaths(const QString &searchPath);
-        Q_INVOKABLE static QStringList listPluginPaths();
-        Q_INVOKABLE static QList<QByteArray> pluginsHashes(bool all=false);
-        Q_INVOKABLE static void setPluginsHashes(const QList<QByteArray> &pluginsHashes);
+        Q_INVOKABLE static QStringList listPluginPaths(bool all=false);
+        Q_INVOKABLE static void setPluginPaths(const QStringList &paths);
         Q_INVOKABLE static QStringList pluginsBlackList();
         Q_INVOKABLE static void setPluginsBlackList(const QStringList &blackList);
         Q_INVOKABLE static QString pluginPath(const QString &pluginId);
         Q_INVOKABLE static QVariantMap pluginInfo(const QString &pluginId);
-        Q_INVOKABLE static QVariantMap pluginInfo(const QByteArray &hash);
-        Q_INVOKABLE static void setPluginInfo(const QByteArray &hash,
+        Q_INVOKABLE static void setPluginInfo(const QString &path,
                                               const QVariantMap &metaData);
         Q_INVOKABLE static void clearCache();
 

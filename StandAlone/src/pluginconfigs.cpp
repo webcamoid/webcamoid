@@ -192,27 +192,27 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
     QSettings cacheConfig(COMMONS_APPNAME, "PluginsCache");
 
     // Load plugins hashes
-    cacheConfig.beginGroup("PluginsHashes");
-    int size = cacheConfig.beginReadArray("hashes");
-    QList<QByteArray> pluginsHashes;
+    cacheConfig.beginGroup("PluginsPaths");
+    int size = cacheConfig.beginReadArray("paths");
+    QStringList pluginsPaths;
 
     for (int i = 0; i < size; i++) {
         cacheConfig.setArrayIndex(i);
-        pluginsHashes << cacheConfig.value("hash").toByteArray();
+        pluginsPaths << cacheConfig.value("path").toString();
     }
 
-    AkElement::setPluginsHashes(pluginsHashes);
+    AkElement::setPluginPaths(pluginsPaths);
     cacheConfig.endArray();
     cacheConfig.endGroup();
 
-    for (auto &hash: pluginsHashes) {
-        cacheConfig.beginGroup(QString("Plugin_%1").arg(QString(hash.toHex())));
+    for (auto &path: pluginsPaths) {
+        cacheConfig.beginGroup(QString("Plugin_%1").arg(AkElement::pluginId(path)));
         QVariantMap pluginInfo;
 
         for (auto &key: cacheConfig.allKeys())
             pluginInfo[key] = cacheConfig.value(key);
 
-        AkElement::setPluginInfo(hash, pluginInfo);
+        AkElement::setPluginInfo(path, pluginInfo);
         cacheConfig.endGroup();
     }
 
@@ -290,24 +290,25 @@ void PluginConfigs::saveProperties()
     QSettings cacheConfig(COMMONS_APPNAME, "PluginsCache");
 
     // Save plugins hashes
-    cacheConfig.beginGroup("PluginsHashes");
-    cacheConfig.beginWriteArray("hashes");
+    cacheConfig.beginGroup("PluginsPaths");
+    cacheConfig.beginWriteArray("paths");
 
-    auto pluginsHashes = AkElement::pluginsHashes();
+    auto pluginsPaths = AkElement::listPluginPaths();
     i = 0;
 
-    for (auto &hash: pluginsHashes) {
+    for (auto &path: pluginsPaths) {
         cacheConfig.setArrayIndex(i);
-        cacheConfig.setValue("hash", hash);
+        cacheConfig.setValue("path", path);
         i++;
     }
 
     cacheConfig.endArray();
     cacheConfig.endGroup();
 
-    for (auto &hash: pluginsHashes) {
-        cacheConfig.beginGroup(QString("Plugin_%1").arg(QString(hash.toHex())));
-        auto pluginInfo = AkElement::pluginInfo(hash);
+    for (auto &path: pluginsPaths) {
+        auto pluginId = AkElement::pluginId(path);
+        cacheConfig.beginGroup(QString("Plugin_%1").arg(pluginId));
+        auto pluginInfo = AkElement::pluginInfo(pluginId);
 
         for (auto &key: pluginInfo.keys())
             cacheConfig.setValue(key, pluginInfo[key]);
@@ -315,10 +316,8 @@ void PluginConfigs::saveProperties()
         cacheConfig.endGroup();
     }
 
-    QStringList plugins = AkElement::listPluginPaths();
-
-    if (this->m_plugins != plugins) {
-        this->m_plugins = plugins;
-        emit this->pluginsChanged(plugins);
+    if (this->m_plugins != pluginsPaths) {
+        this->m_plugins = pluginsPaths;
+        emit this->pluginsChanged(pluginsPaths);
     }
 }

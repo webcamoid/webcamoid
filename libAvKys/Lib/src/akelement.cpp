@@ -36,8 +36,8 @@ class AkPluginInfoPrivate
     public:
         QString m_id;
         QString m_path;
-        QByteArray m_hash;
         QVariantMap m_metaData;
+        bool m_used;
 };
 
 class AkElementPrivate
@@ -147,21 +147,6 @@ class AkElementPrivate
             return QDir::cleanPath(absPath);
         }
 
-        inline QByteArray hash(const QString &fileName,
-                               QCryptographicHash::Algorithm algorithm=QCryptographicHash::Md5)
-        {
-            QFile file(fileName);
-
-            if (file.open(QFile::ReadOnly)) {
-                QCryptographicHash hash(algorithm);
-
-                if (hash.addData(&file))
-                    return hash.result();
-            }
-
-            return QByteArray();
-        }
-
         inline void listPlugins()
         {
             QVector<QStringList *> sPaths {
@@ -174,7 +159,7 @@ class AkElementPrivate
                     QString searchDir(sPath->at(i));
 
                     searchDir.replace(QRegExp("((\\\\/?)|(/\\\\?))+"),
-                                                  QDir::separator());
+                                      QDir::separator());
 
                     while (searchDir.endsWith(QDir::separator()))
                         searchDir.resize(searchDir.size() - 1);
@@ -188,37 +173,41 @@ class AkElementPrivate
                             continue;
 
                         auto pluginId = this->pluginId(path);
-                        auto hash = this->hash(path);
                         bool found = false;
 
-                        if (!hash.isEmpty())
-                            for (auto &pluginInfo: this->m_pluginsList)
-                                if (pluginInfo.m_hash == hash) {
-                                    pluginInfo.m_id = pluginId;
-                                    pluginInfo.m_path = path;
+                        for (auto &pluginInfo: this->m_pluginsList)
+                            if (pluginInfo.m_path == path) {
+                                if (pluginInfo.m_metaData.isEmpty()) {
+                                    QPluginLoader pluginLoader(path);
 
-                                    if (pluginInfo.m_metaData.isEmpty()) {
-                                        QPluginLoader pluginLoader(path);
+                                    if (pluginLoader.load()) {
+                                        auto plugin =
+                                                qobject_cast<AkPlugin *>(pluginLoader.instance());
 
-                                        if (pluginLoader.load()) {
-                                            auto plugin =
-                                                    qobject_cast<AkPlugin *>(pluginLoader.instance());
+                                        if (plugin) {
+                                            if (pluginInfo.m_id.isEmpty())
+                                                pluginInfo.m_id = pluginId;
 
-                                            if (plugin) {
-                                                pluginInfo.m_metaData =
-                                                        pluginLoader.metaData().toVariantMap();
+                                            pluginInfo.m_metaData =
+                                                    pluginLoader.metaData().toVariantMap();
+                                            pluginInfo.m_used = true;
 
-                                                delete plugin;
-                                            }
-
-                                            pluginLoader.unload();
+                                            delete plugin;
                                         }
+
+                                        pluginLoader.unload();
                                     }
+                                } else {
+                                    if (pluginInfo.m_id.isEmpty())
+                                        pluginInfo.m_id = pluginId;
 
-                                    found = true;
-
-                                    break;
+                                    pluginInfo.m_used = true;
                                 }
+
+                                found = true;
+
+                                break;
+                            }
 
                         if (found)
                             continue;
@@ -243,8 +232,8 @@ class AkElementPrivate
                                                 AkPluginInfoPrivate {
                                                     pluginId,
                                                     path,
-                                                    hash,
-                                                    metaData.toVariantMap()
+                                                    metaData.toVariantMap(),
+                                                    true
                                                 };
                                         }
 
@@ -298,6 +287,11 @@ AkElement::~AkElement()
 QString AkElement::pluginId() const
 {
     return this->d->m_pluginId;
+}
+
+QString AkElement::pluginId(const QString &path)
+{
+    return akElementGlobalStuff->pluginId(path);
 }
 
 QString AkElement::pluginPath() const
@@ -669,7 +663,7 @@ QStringList AkElement::listPluginPaths(const QString &searchPath)
     return files;
 }
 
-QStringList AkElement::listPluginPaths()
+QStringList AkElement::listPluginPaths(bool all)
 {
     if (!akElementGlobalStuff->m_pluginsScanned)
         akElementGlobalStuff->listPlugins();
@@ -677,32 +671,21 @@ QStringList AkElement::listPluginPaths()
     QStringList files;
 
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        files << pluginInfo.m_path;
+        if (!pluginInfo.m_path.isEmpty()
+            && !pluginInfo.m_id.isEmpty()
+            && (all || pluginInfo.m_used))
+            files << pluginInfo.m_path;
 
     return files;
 }
 
-QList<QByteArray> AkElement::pluginsHashes(bool all)
+void AkElement::setPluginPaths(const QStringList &paths)
 {
-    if (!akElementGlobalStuff->m_pluginsScanned)
-        akElementGlobalStuff->listPlugins();
-
-    QList<QByteArray> hashes;
-
-    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (!pluginInfo.m_hash.isEmpty() && (all || !pluginInfo.m_id.isEmpty()))
-            hashes << pluginInfo.m_hash;
-
-    return hashes;
-}
-
-void AkElement::setPluginsHashes(const QList<QByteArray> &pluginsHash)
-{
-    for (auto &hash: pluginsHash) {
+    for (auto &path: paths) {
         bool contains = false;
 
         for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-            if (pluginInfo.m_hash == hash) {
+            if (pluginInfo.m_path == path) {
                 contains = true;
 
                 break;
@@ -710,7 +693,12 @@ void AkElement::setPluginsHashes(const QList<QByteArray> &pluginsHash)
 
         if (!contains)
             akElementGlobalStuff->m_pluginsList
-                    << AkPluginInfoPrivate {"", "", hash, {}};
+                    << AkPluginInfoPrivate {
+                           akElementGlobalStuff->pluginId(path),
+                           path,
+                           {},
+                           false
+                       };
     }
 }
 
@@ -755,30 +743,23 @@ QVariantMap AkElement::pluginInfo(const QString &pluginId)
     return QVariantMap();
 }
 
-QVariantMap AkElement::pluginInfo(const QByteArray &hash)
-{
-    if (!akElementGlobalStuff->m_pluginsScanned)
-        akElementGlobalStuff->listPlugins();
-
-    for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (pluginInfo.m_hash == hash)
-            return pluginInfo.m_metaData;
-
-    return QVariantMap();
-}
-
-void AkElement::setPluginInfo(const QByteArray &hash,
+void AkElement::setPluginInfo(const QString &path,
                               const QVariantMap &metaData)
 {
     for (auto &pluginInfo: akElementGlobalStuff->m_pluginsList)
-        if (pluginInfo.m_hash == hash) {
+        if (pluginInfo.m_path == path) {
             pluginInfo.m_metaData = metaData;
 
             return;
         }
 
     akElementGlobalStuff->m_pluginsList
-            << AkPluginInfoPrivate {"", "", hash, metaData};
+            << AkPluginInfoPrivate {
+                   akElementGlobalStuff->pluginId(path),
+                   path,
+                   metaData,
+                   false
+               };
 }
 
 void AkElement::clearCache()
