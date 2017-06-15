@@ -45,217 +45,319 @@ struct BGRX
 };
 
 typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
-
-inline AvMediaTypeStrMap initAvMediaTypeStrMap()
-{
-    static const AvMediaTypeStrMap mediaTypeToStr = {
-        {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
-        {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
-        {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
-        {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
-        {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
-        {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
-        {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
-    };
-
-    return mediaTypeToStr;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(AvMediaTypeStrMap, mediaTypeToStr, (initAvMediaTypeStrMap()))
-
 typedef QVector<AkVideoCaps> VectorVideoCaps;
-
-inline VectorVideoCaps initDVSupportedCaps()
-{
-    static const QStringList supportedCaps = {
-        // Digital Video doesn't support height > 576 yet.
-        /*"video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1",
-          "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001",
-          "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001",
-          "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1",*/
-        "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1",
-        "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1",
-        "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1",
-        "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001",
-        "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001"
-    };
-
-    VectorVideoCaps dvSupportedCaps(supportedCaps.size());
-
-    for (int i = 0; i < dvSupportedCaps.size(); i++)
-        dvSupportedCaps[i] = supportedCaps[i];
-
-    return dvSupportedCaps;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dvSupportedCaps, (initDVSupportedCaps()))
-
-inline VectorVideoCaps initDNxHDSupportedCaps()
-{
-    static const QStringList supportedCaps = {
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=440000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=365000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=290000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=240000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=220000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=185000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=175000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=145000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=120000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=115000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=90000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=36000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=36000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=45000000",
-        "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=75000000",
-        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=110000000",
-        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=100000000",
-        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=90000000",
-        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=84000000",
-        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=80000000",
-        "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=63000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=220000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=180000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=145000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=120000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=110000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=90000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=90000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=75000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=60000000",
-        "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=60000000",
-        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=115000000",
-        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=75000000",
-        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=60000000",
-        "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=42000000"
-    };
-
-    VectorVideoCaps dnXhdSupportedCaps(supportedCaps.size());
-
-    for (int i = 0; i < dnXhdSupportedCaps.size(); i++)
-        dnXhdSupportedCaps[i] = supportedCaps[i];
-
-    return dnXhdSupportedCaps;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorVideoCaps, dnXhdSupportedCaps, (initDNxHDSupportedCaps()))
-
-typedef QVector<QSize> VectorSize;
-
-inline VectorSize initH261SupportedSize()
-{
-    static const VectorSize supportedSize = {
-        QSize(352, 288),
-        QSize(176, 144)
-    };
-
-    return supportedSize;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h261SupportedSize, (initH261SupportedSize()))
-
-inline VectorSize initH263SupportedSize()
-{
-    static const VectorSize supportedSize = {
-        QSize(1408, 1152),
-        QSize(704, 576),
-        QSize(352, 288),
-        QSize(176, 144),
-        QSize(128, 96)
-    };
-
-    return supportedSize;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, h263SupportedSize, (initH263SupportedSize()))
-
-inline VectorSize initGXFSupportedSize()
-{
-    static const VectorSize supportedSize = {
-        QSize(768, 576), // PAL
-        QSize(640, 480)  // NTSC
-    };
-
-    return supportedSize;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorSize, gxfSupportedSize, (initGXFSupportedSize()))
-
-typedef QVector<int> VectorInt;
-
-inline VectorInt initSWFSupportedSampleRates()
-{
-    static const QVector<int> supportedSampleRates = {
-        44100,
-        22050,
-        11025
-    };
-
-    return supportedSampleRates;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(VectorInt, swfSupportedSampleRates, (initSWFSupportedSampleRates()))
-
-inline bool initHasCudaSupport()
-{
-    for (auto &libName: QStringList {"cuda", "nvcuda"}) {
-        QLibrary lib(libName);
-
-        if (lib.load()) {
-            lib.unload();
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(bool, hasCudaSupport, (initHasCudaSupport()))
-
 typedef QMap<AVOptionType, QString> OptionTypeStrMap;
+typedef QMap<QString, QMap<AVMediaType, QStringList>> SupportedCodecsType;
 
-inline OptionTypeStrMap initFFOptionTypeStrMap()
+class MediaWriterFFmpegGlobal
 {
-    static const OptionTypeStrMap optionTypeStrMap = {
-        {AV_OPT_TYPE_FLAGS         , "flags"         },
-        {AV_OPT_TYPE_INT           , "number"        },
-        {AV_OPT_TYPE_INT64         , "number"        },
-        {AV_OPT_TYPE_DOUBLE        , "number"        },
-        {AV_OPT_TYPE_FLOAT         , "number"        },
-        {AV_OPT_TYPE_STRING        , "string"        },
-        {AV_OPT_TYPE_RATIONAL      , "frac"          },
-        {AV_OPT_TYPE_BINARY        , "binary"        },
-        {AV_OPT_TYPE_CONST         , "const"         },
-#ifdef HAVE_EXTRAOPTIONS
-        {AV_OPT_TYPE_DICT          , "dict"          },
-        {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
-        {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
-        {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
-        {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
-        {AV_OPT_TYPE_DURATION      , "duration"      },
-        {AV_OPT_TYPE_COLOR         , "color"         },
-        {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
-        {AV_OPT_TYPE_BOOL          , "boolean"       },
+    public:
+        AvMediaTypeStrMap m_mediaTypeToStr;
+        VectorVideoCaps m_dvSupportedCaps;
+        VectorVideoCaps m_dnXhdSupportedCaps;
+        QVector<QSize> m_h261SupportedSize;
+        QVector<QSize> m_h263SupportedSize;
+        QVector<QSize> m_gxfSupportedSize;
+        QVector<int> m_swfSupportedSampleRates;
+        bool m_hasCudaSupport;
+        OptionTypeStrMap m_codecFFOptionTypeToStr;
+        SupportedCodecsType m_supportedCodecs;
+
+        MediaWriterFFmpegGlobal()
+        {
+            av_register_all();
+            avcodec_register_all();
+            avformat_network_init();
+
+#ifndef QT_DEBUG
+            av_log_set_level(AV_LOG_QUIET);
 #endif
-    };
 
-    return optionTypeStrMap;
-}
+            this->m_mediaTypeToStr = this->initAvMediaTypeStrMap();
+            this->m_dvSupportedCaps = this->initDVSupportedCaps();
+            this->m_dnXhdSupportedCaps = this->initDNxHDSupportedCaps();
+            this->m_h261SupportedSize = this->initH261SupportedSize();
+            this->m_h263SupportedSize = this->initH263SupportedSize();
+            this->m_gxfSupportedSize = this->initGXFSupportedSize();
+            this->m_swfSupportedSampleRates = this->initSWFSupportedSampleRates();
+            this->m_hasCudaSupport = this->initHasCudaSupport();
+            this->m_codecFFOptionTypeToStr = this->initFFOptionTypeStrMap();
+            this->m_supportedCodecs = this->initSupportedCodecs();
+        }
 
-Q_GLOBAL_STATIC_WITH_ARGS(OptionTypeStrMap, codecFFOptionTypeToStr, (initFFOptionTypeStrMap()))
+        inline AvMediaTypeStrMap initAvMediaTypeStrMap()
+        {
+            const AvMediaTypeStrMap mediaTypeToStr = {
+                {AVMEDIA_TYPE_UNKNOWN   , "unknown/x-raw"   },
+                {AVMEDIA_TYPE_VIDEO     , "video/x-raw"     },
+                {AVMEDIA_TYPE_AUDIO     , "audio/x-raw"     },
+                {AVMEDIA_TYPE_DATA      , "data/x-raw"      },
+                {AVMEDIA_TYPE_SUBTITLE  , "text/x-raw"      },
+                {AVMEDIA_TYPE_ATTACHMENT, "attachment/x-raw"},
+                {AVMEDIA_TYPE_NB        , "nb/x-raw"        }
+            };
+
+            return mediaTypeToStr;
+        }
+
+        inline VectorVideoCaps initDVSupportedCaps()
+        {
+            const QStringList supportedCaps = {
+                // Digital Video doesn't support height > 576 yet.
+                /*"video/x-raw,format=yuv422p,width=1440,height=1080,fps=25/1",
+                  "video/x-raw,format=yuv422p,width=1280,height=1080,fps=30000/1001",
+                  "video/x-raw,format=yuv422p,width=960,height=720,fps=60000/1001",
+                  "video/x-raw,format=yuv422p,width=960,height=720,fps=50/1",*/
+                "video/x-raw,format=yuv422p,width=720,height=576,fps=25/1",
+                "video/x-raw,format=yuv420p,width=720,height=576,fps=25/1",
+                "video/x-raw,format=yuv411p,width=720,height=576,fps=25/1",
+                "video/x-raw,format=yuv422p,width=720,height=480,fps=30000/1001",
+                "video/x-raw,format=yuv411p,width=720,height=480,fps=30000/1001"
+            };
+
+            VectorVideoCaps dvSupportedCaps(supportedCaps.size());
+
+            for (int i = 0; i < dvSupportedCaps.size(); i++)
+                dvSupportedCaps[i] = supportedCaps[i];
+
+            return dvSupportedCaps;
+        }
+
+        inline VectorVideoCaps initDNxHDSupportedCaps()
+        {
+            const QStringList supportedCaps = {
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=440000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=365000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=290000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=240000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=220000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=185000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=175000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=145000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=120000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=115000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=60000/1001,bitrate=90000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=24000/1001,bitrate=36000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=25/1,bitrate=36000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=30000/1001,bitrate=45000000",
+                "video/x-raw,format=yuv422p,width=1920,height=1080,fps=50/1,bitrate=75000000",
+                "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=110000000",
+                "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=100000000",
+                "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=90000000",
+                "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=84000000",
+                "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=80000000",
+                "video/x-raw,format=yuv422p,width=1440,height=1080,fps=0/0,bitrate=63000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=220000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=180000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=60000/1001,bitrate=145000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=50/1,bitrate=120000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=110000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=90000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=90000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=30000/1001,bitrate=75000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=25/1,bitrate=60000000",
+                "video/x-raw,format=yuv422p,width=1280,height=720,fps=24000/1001,bitrate=60000000",
+                "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=115000000",
+                "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=75000000",
+                "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=60000000",
+                "video/x-raw,format=yuv422p,width=960,height=720,fps=0/0,bitrate=42000000"
+            };
+
+            VectorVideoCaps dnXhdSupportedCaps(supportedCaps.size());
+
+            for (int i = 0; i < dnXhdSupportedCaps.size(); i++)
+                dnXhdSupportedCaps[i] = supportedCaps[i];
+
+            return dnXhdSupportedCaps;
+        }
+
+        inline QVector<QSize> initH261SupportedSize()
+        {
+            const QVector<QSize> supportedSize = {
+                QSize(352, 288),
+                QSize(176, 144)
+            };
+
+            return supportedSize;
+        }
+
+        inline QVector<QSize> initH263SupportedSize()
+        {
+            const QVector<QSize> supportedSize = {
+                QSize(1408, 1152),
+                QSize(704, 576),
+                QSize(352, 288),
+                QSize(176, 144),
+                QSize(128, 96)
+            };
+
+            return supportedSize;
+        }
+
+        inline QVector<QSize> initGXFSupportedSize()
+        {
+            const QVector<QSize> supportedSize = {
+                QSize(768, 576), // PAL
+                QSize(640, 480)  // NTSC
+            };
+
+            return supportedSize;
+        }
+
+        inline QVector<int> initSWFSupportedSampleRates()
+        {
+            const QVector<int> supportedSampleRates = {
+                44100,
+                22050,
+                11025
+            };
+
+            return supportedSampleRates;
+        }
+
+        inline bool initHasCudaSupport()
+        {
+            for (auto &libName: QStringList {"cuda", "nvcuda"}) {
+                QLibrary lib(libName);
+
+                if (lib.load()) {
+                    lib.unload();
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        inline OptionTypeStrMap initFFOptionTypeStrMap()
+        {
+            const OptionTypeStrMap optionTypeStrMap = {
+                {AV_OPT_TYPE_FLAGS         , "flags"         },
+                {AV_OPT_TYPE_INT           , "number"        },
+                {AV_OPT_TYPE_INT64         , "number"        },
+                {AV_OPT_TYPE_DOUBLE        , "number"        },
+                {AV_OPT_TYPE_FLOAT         , "number"        },
+                {AV_OPT_TYPE_STRING        , "string"        },
+                {AV_OPT_TYPE_RATIONAL      , "frac"          },
+                {AV_OPT_TYPE_BINARY        , "binary"        },
+                {AV_OPT_TYPE_CONST         , "const"         },
+#ifdef HAVE_EXTRAOPTIONS
+                {AV_OPT_TYPE_DICT          , "dict"          },
+                {AV_OPT_TYPE_IMAGE_SIZE    , "image_size"    },
+                {AV_OPT_TYPE_PIXEL_FMT     , "pixel_fmt"     },
+                {AV_OPT_TYPE_SAMPLE_FMT    , "sample_fmt"    },
+                {AV_OPT_TYPE_VIDEO_RATE    , "video_rate"    },
+                {AV_OPT_TYPE_DURATION      , "duration"      },
+                {AV_OPT_TYPE_COLOR         , "color"         },
+                {AV_OPT_TYPE_CHANNEL_LAYOUT, "channel_layout"},
+                {AV_OPT_TYPE_BOOL          , "boolean"       },
+#endif
+            };
+
+            return optionTypeStrMap;
+        }
+
+        inline SupportedCodecsType initSupportedCodecs()
+        {
+            SupportedCodecsType supportedCodecs;
+            AVOutputFormat *outputFormat = NULL;
+
+            while ((outputFormat = av_oformat_next(outputFormat))) {
+                AVCodec *codec = NULL;
+
+                while ((codec = av_codec_next(codec))) {
+                    if (codec->capabilities & CODEC_CAP_EXPERIMENTAL
+                        && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
+                        continue;
+
+                    QString codecName(codec->name);
+
+                    if ((codecName.contains("nvenc") && !this->m_hasCudaSupport))
+                        continue;
+
+                    bool codecSupported = avformat_query_codec(outputFormat,
+                                                               codec->id,
+                                                               CODEC_COMPLIANCE) > 0;
+
+                    // Fix codecs that are not properly recognized by
+                    // avformat_query_codec.
+                    if (!strcmp(outputFormat->name, "matroska")) {
+                        switch (codec->id) {
+                            case AV_CODEC_ID_RV10:
+                            case AV_CODEC_ID_RV20:
+                                codecSupported = false;
+                                break;
+                            default:
+                                break;
+                        }
+#ifdef HAVE_EXTRACODECFORMATS
+                    } else if (!strcmp(outputFormat->name, "mp4")) {
+                        if (codec->id == AV_CODEC_ID_VP9)
+                            codecSupported = false;
+#endif
+                    } else if (!strcmp(outputFormat->name, "ogg")
+                               || !strcmp(outputFormat->name, "ogv")) {
+                        switch (codec->id) {
+                            case AV_CODEC_ID_SPEEX:
+                            case AV_CODEC_ID_FLAC:
+                            case AV_CODEC_ID_OPUS:
+                            case AV_CODEC_ID_VP8:
+                                codecSupported = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    } else if (!strcmp(outputFormat->name, "webm")) {
+                        switch (codec->id) {
+                            case AV_CODEC_ID_VORBIS:
+                            case AV_CODEC_ID_VP8:
+                                codecSupported = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    if (av_codec_is_encoder(codec) && codecSupported) {
+                        if (codec->type == AVMEDIA_TYPE_VIDEO) {
+                            // Skip Codecs with pixel formats that can't be encoded to.
+                            int unsupported = 0;
+                            int i = 0;
+
+                            if (codec->pix_fmts)
+                                forever {
+                                    AVPixelFormat sampleFormat = codec->pix_fmts[i];
+
+                                    if (sampleFormat == AV_PIX_FMT_NONE)
+                                        break;
+
+                                    if (!sws_isSupportedOutput(sampleFormat))
+                                        unsupported++;
+
+                                    i++;
+                                }
+
+                            // Keep all codecs that have at least one supported pixel
+                            // format.
+                            if (unsupported == i)
+                                continue;
+                        }
+
+                        supportedCodecs[outputFormat->name][codec->type] << codecName;
+                    }
+                }
+            }
+
+            return supportedCodecs;
+        }
+};
+
+Q_GLOBAL_STATIC(MediaWriterFFmpegGlobal, mediaWriterFFmpegGlobal)
 
 MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     MediaWriter(parent)
 {
-    av_register_all();
-    avcodec_register_all();
-    avformat_network_init();
-
-#ifndef QT_DEBUG
-    av_log_set_level(AV_LOG_QUIET);
-#endif
-
     this->m_formatContext = NULL;
     this->m_packetQueueSize = 0;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
@@ -319,17 +421,10 @@ qint64 MediaWriterFFmpeg::maxPacketQueueSize() const
 QStringList MediaWriterFFmpeg::supportedFormats()
 {
     QStringList formats;
-    AVOutputFormat *outputFormat = NULL;
 
-    while ((outputFormat = av_oformat_next(outputFormat))) {
-        if (this->m_formatsBlackList.contains(outputFormat->name))
-            continue;
-
-        QString format(outputFormat->name);
-
-        if (!formats.contains(format))
+    for (auto &format: mediaWriterFFmpegGlobal->m_supportedCodecs.keys())
+        if (!this->m_formatsBlackList.contains(format))
             formats << format;
-    }
 
     return formats;
 }
@@ -402,105 +497,24 @@ QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format)
 QStringList MediaWriterFFmpeg::supportedCodecs(const QString &format,
                                                const QString &type)
 {
-    AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
-                                                   NULL,
-                                                   NULL);
+    QStringList supportedCodecs;
 
-    if (!outputFormat)
-        return QStringList();
-
-    QStringList codecs;
-    AVCodec *codec = NULL;
-    auto codecType = mediaTypeToStr->key(type);
-
-    while ((codec = av_codec_next(codec))) {
-        if (codec->capabilities & CODEC_CAP_EXPERIMENTAL
-            && CODEC_COMPLIANCE > FF_COMPLIANCE_EXPERIMENTAL)
-            continue;
-
-        if (this->m_codecsBlackList.contains(codec->name))
-            continue;
-
-        QString codecName(codec->name);
-
-        if ((codecName.contains("nvenc") && !*hasCudaSupport))
-            continue;
-
-        bool codecSupported = avformat_query_codec(outputFormat,
-                                                   codec->id,
-                                                   CODEC_COMPLIANCE) > 0;
-
-        // Fix codecs that are not properly recognized by
-        // avformat_query_codec.
-        if (!strcmp(outputFormat->name, "matroska")) {
-            switch (codec->id) {
-                case AV_CODEC_ID_RV10:
-                case AV_CODEC_ID_RV20:
-                    codecSupported = false;
-                    break;
-                default:
-                    break;
-            }
-#ifdef HAVE_EXTRACODECFORMATS
-        } else if (!strcmp(outputFormat->name, "mp4")) {
-            if (codec->id == AV_CODEC_ID_VP9)
-                codecSupported = false;
-#endif
-        } else if (!strcmp(outputFormat->name, "ogg")
-                   || !strcmp(outputFormat->name, "ogv")) {
-            switch (codec->id) {
-                case AV_CODEC_ID_SPEEX:
-                case AV_CODEC_ID_FLAC:
-                case AV_CODEC_ID_OPUS:
-                case AV_CODEC_ID_VP8:
-                    codecSupported = true;
-                    break;
-                default:
-                    break;
-            }
-        } else if (!strcmp(outputFormat->name, "webm")) {
-            switch (codec->id) {
-                case AV_CODEC_ID_VORBIS:
-                case AV_CODEC_ID_VP8:
-                    codecSupported = true;
-                    break;
-                default:
-                    break;
-            }
+    if (type.isEmpty()) {
+        for (auto &codecs: mediaWriterFFmpegGlobal->m_supportedCodecs.value(format)) {
+            for (auto &codec: codecs)
+                if (!this->m_codecsBlackList.contains(codec))
+                    supportedCodecs << codec;
         }
+    } else {
+        auto codecType = mediaWriterFFmpegGlobal->m_mediaTypeToStr.key(type, AVMEDIA_TYPE_UNKNOWN);
+        auto codecs = mediaWriterFFmpegGlobal->m_supportedCodecs.value(format).value(codecType);
 
-        if ((type.isEmpty() || codec->type == codecType)
-            && av_codec_is_encoder(codec)
-            && codecSupported) {
-            if (codec->type == AVMEDIA_TYPE_VIDEO) {
-                // Skip Codecs with pixel formats that can't be encoded to.
-                int unsupported = 0;
-                int i = 0;
-
-                if (codec->pix_fmts)
-                    forever {
-                        AVPixelFormat sampleFormat = codec->pix_fmts[i];
-
-                        if (sampleFormat == AV_PIX_FMT_NONE)
-                            break;
-
-                        if (!sws_isSupportedOutput(sampleFormat))
-                            unsupported++;
-
-                        i++;
-                    }
-
-                // Keep all codecs that have at least one supported pixel
-                // format.
-                if (unsupported == i)
-                    continue;
-            }
-
-            codecs << codecName;
-        }
+        for (auto &codec: codecs)
+            if (!this->m_codecsBlackList.contains(codec))
+                supportedCodecs << codec;
     }
 
-    return codecs;
+    return supportedCodecs;
 }
 
 QString MediaWriterFFmpeg::defaultCodec(const QString &format,
@@ -558,7 +572,7 @@ QString MediaWriterFFmpeg::codecType(const QString &codec)
     if (!avCodec)
         return QString();
 
-    return mediaTypeToStr->value(avCodec->type);
+    return mediaWriterFFmpegGlobal->m_mediaTypeToStr.value(avCodec->type);
 }
 
 QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
@@ -1466,7 +1480,7 @@ QVariantList MediaWriterFFmpeg::parseOptions(const AVClass *avClass) const
             avOptions << QVariantList {
                                     option->name,
                                     option->help,
-                                    codecFFOptionTypeToStr->value(option->type),
+                                    mediaWriterFFmpegGlobal->m_codecFFOptionTypeToStr.value(option->type),
                                     option->min,
                                     option->max,
                                     step,
@@ -1615,7 +1629,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestDVCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const AkVideoCaps &sCaps: *dvSupportedCaps) {
+    for (const AkVideoCaps &sCaps: mediaWriterFFmpegGlobal->m_dvSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         qreal df = sCaps.fps().value() - caps.fps().value();
@@ -1636,7 +1650,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestDNxHDCaps(const AkVideoCaps &caps) const
     AkVideoCaps nearestCaps;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const AkVideoCaps &sCaps: *dnXhdSupportedCaps) {
+    for (const AkVideoCaps &sCaps: mediaWriterFFmpegGlobal->m_dnXhdSupportedCaps) {
         qreal dw = sCaps.width() - caps.width();
         qreal dh = sCaps.height() - caps.height();
         AkFrac fps = sCaps.fps().isValid()? sCaps.fps(): caps.fps();
@@ -1660,7 +1674,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestH261Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: *h261SupportedSize) {
+    for (const QSize &size: mediaWriterFFmpegGlobal->m_h261SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1686,7 +1700,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestH263Caps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: *h263SupportedSize) {
+    for (const QSize &size: mediaWriterFFmpegGlobal->m_h263SupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1712,7 +1726,7 @@ AkVideoCaps MediaWriterFFmpeg::nearestGXFCaps(const AkVideoCaps &caps) const
     QSize nearestSize;
     qreal q = std::numeric_limits<qreal>::max();
 
-    for (const QSize &size: *gxfSupportedSize) {
+    for (const QSize &size: mediaWriterFFmpegGlobal->m_gxfSupportedSize) {
         qreal dw = size.width() - caps.width();
         qreal dh = size.height() - caps.height();
         qreal k = dw * dw + dh * dh;
@@ -1738,7 +1752,7 @@ AkAudioCaps MediaWriterFFmpeg::nearestSWFCaps(const AkAudioCaps &caps) const
     int nearestSampleRate = 0;
     int q = std::numeric_limits<int>::max();
 
-    for (const int &sampleRate: *swfSupportedSampleRates) {
+    for (const int &sampleRate: mediaWriterFFmpegGlobal->m_swfSupportedSampleRates) {
         int k = qAbs(sampleRate - caps.rate());
 
         if (k < q) {

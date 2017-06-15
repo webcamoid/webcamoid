@@ -75,6 +75,11 @@ android-*-deployment-settings.json
 #######################
 .*.kate-swp
 
+# KDevelop generated files #
+############################
+.kdev4
+*.kdev4
+
 # MinGW files #
 ###############
 *.Debug
