@@ -62,6 +62,7 @@ class MediaWriterFFmpegGlobal
         bool m_hasCudaSupport;
         OptionTypeStrMap m_codecFFOptionTypeToStr;
         SupportedCodecsType m_supportedCodecs;
+        QMap<QString, QVariantMap> m_codecDefaults;
 
         MediaWriterFFmpegGlobal()
         {
@@ -83,6 +84,7 @@ class MediaWriterFFmpegGlobal
             this->m_hasCudaSupport = this->initHasCudaSupport();
             this->m_codecFFOptionTypeToStr = this->initFFOptionTypeStrMap();
             this->m_supportedCodecs = this->initSupportedCodecs();
+            this->m_codecDefaults = this->initCodecDefaults();
         }
 
         inline AvMediaTypeStrMap initAvMediaTypeStrMap()
@@ -351,6 +353,203 @@ class MediaWriterFFmpegGlobal
 
             return supportedCodecs;
         }
+
+        inline QMap<QString, QVariantMap> initCodecDefaults()
+        {
+            QMap<QString, QVariantMap> codecDefaults;
+
+            for (auto codec = av_codec_next(NULL);
+                 codec;
+                 codec = av_codec_next(codec)) {
+                if (!av_codec_is_encoder(codec))
+                    continue;
+
+                auto codecContext = avcodec_alloc_context3(codec);
+
+                if (!codecContext)
+                    continue;
+
+                QVariantMap codecParams;
+
+                if (codec->type == AVMEDIA_TYPE_AUDIO) {
+                    QVariantList supportedSampleRates;
+
+                    if (codec->supported_samplerates)
+                        for (int i = 0;
+                             int sampleRate = codec->supported_samplerates[i];
+                             i++)
+                            supportedSampleRates << sampleRate;
+
+                    if (supportedSampleRates.isEmpty())
+                        switch (codec->id) {
+                        case AV_CODEC_ID_G723_1:
+                        case AV_CODEC_ID_ADPCM_G726:
+                        case AV_CODEC_ID_GSM_MS:
+                        case AV_CODEC_ID_AMR_NB:
+                            supportedSampleRates = {8000};
+                            break;
+                        case AV_CODEC_ID_ROQ_DPCM:
+                            supportedSampleRates = {22050};
+                            break;
+                        case AV_CODEC_ID_ADPCM_SWF:
+                            supportedSampleRates = {
+                                44100,
+                                22050,
+                                11025
+                            };
+
+                            break;
+                        case AV_CODEC_ID_NELLYMOSER:
+                            supportedSampleRates = {
+                                8000,
+                                11025,
+                                16000,
+                                22050,
+                                44100
+                            };
+
+                            break;
+                        default:
+                            break;
+                        }
+
+                    QStringList supportedSampleFormats;
+
+                    if (codec->sample_fmts)
+                        for (int i = 0; ; i++) {
+                            AVSampleFormat sampleFormat = codec->sample_fmts[i];
+
+                            if (sampleFormat == AV_SAMPLE_FMT_NONE)
+                                break;
+
+                            supportedSampleFormats << QString(av_get_sample_fmt_name(sampleFormat));
+                        }
+
+                    QStringList supportedChannelLayouts;
+                    char layout[1024];
+
+                    if (codec->channel_layouts)
+                        for (int i = 0; uint64_t channelLayout = codec->channel_layouts[i]; i++) {
+                            int channels = av_get_channel_layout_nb_channels(channelLayout);
+                            av_get_channel_layout_string(layout, 1024, channels, channelLayout);
+                            supportedChannelLayouts << QString(layout);
+                        }
+
+                    if (supportedChannelLayouts.isEmpty())
+                        switch (codec->id) {
+                        case AV_CODEC_ID_AMR_NB:
+                        case AV_CODEC_ID_ADPCM_G722:
+                        case AV_CODEC_ID_ADPCM_G726:
+                        case AV_CODEC_ID_G723_1:
+                        case AV_CODEC_ID_GSM_MS:
+                        case AV_CODEC_ID_NELLYMOSER: {
+                            uint64_t channelLayout = AV_CH_LAYOUT_MONO;
+                            int channels = av_get_channel_layout_nb_channels(channelLayout);
+                            av_get_channel_layout_string(layout, 1024, channels, channelLayout);
+                            supportedChannelLayouts << QString(layout);
+                        }
+                            break;
+                        default:
+                            break;
+                        }
+
+                    switch (codec->id) {
+                    case AV_CODEC_ID_G723_1:
+                        codecContext->bit_rate = 6300;
+                        break;
+                    case AV_CODEC_ID_GSM_MS:
+                        codecContext->bit_rate = 13000;
+                        break;
+                    default:
+                        break;
+                    };
+
+                    codecParams["supportedSampleRates"] = supportedSampleRates;
+                    codecParams["supportedSampleFormats"] = supportedSampleFormats;
+                    codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
+                    codecParams["defaultSampleFormat"] =
+                            codecContext->sample_fmt != AV_SAMPLE_FMT_NONE?
+                                QString(av_get_sample_fmt_name(codecContext->sample_fmt)):
+                                supportedSampleFormats.value(0, "s16");
+                    codecParams["defaultBitRate"] =
+                            codecContext->bit_rate?
+                                qint64(codecContext->bit_rate): 128000;
+                    codecParams["defaultSampleRate"] =
+                            codecContext->sample_rate?
+                                codecContext->sample_rate:
+                                supportedSampleRates.value(0, 44100);
+
+                    int channels =
+                            av_get_channel_layout_nb_channels(codecContext->channel_layout);
+                    av_get_channel_layout_string(layout,
+                                                 1024,
+                                                 channels,
+                                                 codecContext->channel_layout);
+
+                    QString channelLayout = codecContext->channel_layout?
+                                                QString(layout):
+                                                supportedChannelLayouts.value(0, "mono");
+
+                    codecParams["defaultChannelLayout"] = channelLayout;
+
+                    int channelsCount =
+                            av_get_channel_layout_nb_channels(av_get_channel_layout(channelLayout.toStdString().c_str()));
+
+                    codecParams["defaultChannels"] = codecContext->channels?
+                                                         codecContext->channels:
+                                                         channelsCount;
+                } else if (codec->type == AVMEDIA_TYPE_VIDEO) {
+                    QVariantList supportedFrameRates;
+
+                    if (codec->supported_framerates)
+                        for (int i = 0; ; i++) {
+                            AVRational frameRate = codec->supported_framerates[i];
+
+                            if (frameRate.num == 0 && frameRate.den == 0)
+                                break;
+
+                            supportedFrameRates << QVariant::fromValue(AkFrac(frameRate.num, frameRate.den));
+                        }
+
+                    switch (codec->id) {
+                    case AV_CODEC_ID_ROQ:
+                        supportedFrameRates << QVariant::fromValue(AkFrac(30, 1));
+                        break;
+                    default:
+                        break;
+                    }
+
+                    codecParams["supportedFrameRates"] = supportedFrameRates;
+
+                    QStringList supportedPixelFormats;
+
+                    if (codec->pix_fmts)
+                        for (int i = 0; ; i++) {
+                            AVPixelFormat pixelFormat = codec->pix_fmts[i];
+
+                            if (pixelFormat == AV_PIX_FMT_NONE)
+                                break;
+
+                            supportedPixelFormats << QString(av_get_pix_fmt_name(pixelFormat));
+                        }
+
+                    codecParams["supportedPixelFormats"] = supportedPixelFormats;
+                    codecParams["defaultGOP"] = codecContext->gop_size > 0?
+                                                    codecContext->gop_size: 12;
+                    codecParams["defaultBitRate"] = codecContext->bit_rate?
+                                                        qint64(codecContext->bit_rate): 200000;
+                    codecParams["defaultPixelFormat"] = codecContext->pix_fmt != AV_PIX_FMT_NONE?
+                                                        QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
+                                                        supportedPixelFormats.value(0, "yuv420p");
+                }
+
+                codecDefaults[codec->name] = codecParams;
+
+                av_free(codecContext);
+            }
+
+            return codecDefaults;
+        }
 };
 
 Q_GLOBAL_STATIC(MediaWriterFFmpegGlobal, mediaWriterFFmpegGlobal)
@@ -577,189 +776,7 @@ QString MediaWriterFFmpeg::codecType(const QString &codec)
 
 QVariantMap MediaWriterFFmpeg::defaultCodecParams(const QString &codec)
 {
-    auto avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
-
-    if (!avCodec)
-        return QVariantMap();
-
-    QVariantMap codecParams;
-    auto codecContext = avcodec_alloc_context3(avCodec);
-
-    if (avCodec->type == AVMEDIA_TYPE_AUDIO) {
-        QVariantList supportedSampleRates;
-
-        if (avCodec->supported_samplerates)
-            for (int i = 0;
-                 int sampleRate = avCodec->supported_samplerates[i];
-                 i++)
-                supportedSampleRates << sampleRate;
-
-        if (supportedSampleRates.isEmpty())
-            switch (avCodec->id) {
-            case AV_CODEC_ID_G723_1:
-            case AV_CODEC_ID_ADPCM_G726:
-            case AV_CODEC_ID_GSM_MS:
-            case AV_CODEC_ID_AMR_NB:
-                supportedSampleRates = {8000};
-                break;
-            case AV_CODEC_ID_ROQ_DPCM:
-                supportedSampleRates = {22050};
-                break;
-            case AV_CODEC_ID_ADPCM_SWF:
-                supportedSampleRates = {
-                    44100,
-                    22050,
-                    11025
-                };
-
-                break;
-            case AV_CODEC_ID_NELLYMOSER:
-                supportedSampleRates = {
-                    8000,
-                    11025,
-                    16000,
-                    22050,
-                    44100
-                };
-
-                break;
-            default:
-                break;
-            }
-
-        QStringList supportedSampleFormats;
-
-        if (avCodec->sample_fmts)
-            for (int i = 0; ; i++) {
-                AVSampleFormat sampleFormat = avCodec->sample_fmts[i];
-
-                if (sampleFormat == AV_SAMPLE_FMT_NONE)
-                    break;
-
-                supportedSampleFormats << QString(av_get_sample_fmt_name(sampleFormat));
-            }
-
-        QStringList supportedChannelLayouts;
-        char layout[1024];
-
-        if (avCodec->channel_layouts)
-            for (int i = 0; uint64_t channelLayout = avCodec->channel_layouts[i]; i++) {
-                int channels = av_get_channel_layout_nb_channels(channelLayout);
-                av_get_channel_layout_string(layout, 1024, channels, channelLayout);
-                supportedChannelLayouts << QString(layout);
-            }
-
-        if (supportedChannelLayouts.isEmpty())
-            switch (avCodec->id) {
-            case AV_CODEC_ID_AMR_NB:
-            case AV_CODEC_ID_ADPCM_G722:
-            case AV_CODEC_ID_ADPCM_G726:
-            case AV_CODEC_ID_G723_1:
-            case AV_CODEC_ID_GSM_MS:
-            case AV_CODEC_ID_NELLYMOSER: {
-                uint64_t channelLayout = AV_CH_LAYOUT_MONO;
-                int channels = av_get_channel_layout_nb_channels(channelLayout);
-                av_get_channel_layout_string(layout, 1024, channels, channelLayout);
-                supportedChannelLayouts << QString(layout);
-            }
-                break;
-            default:
-                break;
-            }
-
-        switch (avCodec->id) {
-        case AV_CODEC_ID_G723_1:
-            codecContext->bit_rate = 6300;
-            break;
-        case AV_CODEC_ID_GSM_MS:
-            codecContext->bit_rate = 13000;
-            break;
-        default:
-            break;
-        };
-
-        codecParams["supportedSampleRates"] = supportedSampleRates;
-        codecParams["supportedSampleFormats"] = supportedSampleFormats;
-        codecParams["supportedChannelLayouts"] = supportedChannelLayouts;
-        codecParams["defaultSampleFormat"] =
-                codecContext->sample_fmt != AV_SAMPLE_FMT_NONE?
-                    QString(av_get_sample_fmt_name(codecContext->sample_fmt)):
-                    supportedSampleFormats.value(0, "s16");
-        codecParams["defaultBitRate"] =
-                codecContext->bit_rate?
-                    qint64(codecContext->bit_rate): 128000;
-        codecParams["defaultSampleRate"] =
-                codecContext->sample_rate?
-                    codecContext->sample_rate:
-                    supportedSampleRates.value(0, 44100);
-
-        int channels =
-                av_get_channel_layout_nb_channels(codecContext->channel_layout);
-        av_get_channel_layout_string(layout,
-                                     1024,
-                                     channels,
-                                     codecContext->channel_layout);
-
-        QString channelLayout = codecContext->channel_layout?
-                                    QString(layout):
-                                    supportedChannelLayouts.value(0, "mono");
-
-        codecParams["defaultChannelLayout"] = channelLayout;
-
-        int channelsCount =
-                av_get_channel_layout_nb_channels(av_get_channel_layout(channelLayout.toStdString().c_str()));
-
-        codecParams["defaultChannels"] = codecContext->channels?
-                                             codecContext->channels:
-                                             channelsCount;
-    } else if (avCodec->type == AVMEDIA_TYPE_VIDEO) {
-        QVariantList supportedFrameRates;
-
-        if (avCodec->supported_framerates)
-            for (int i = 0; ; i++) {
-                AVRational frameRate = avCodec->supported_framerates[i];
-
-                if (frameRate.num == 0 && frameRate.den == 0)
-                    break;
-
-                supportedFrameRates << QVariant::fromValue(AkFrac(frameRate.num, frameRate.den));
-            }
-
-        switch (avCodec->id) {
-        case AV_CODEC_ID_ROQ:
-            supportedFrameRates << QVariant::fromValue(AkFrac(30, 1));
-            break;
-        default:
-            break;
-        }
-
-        codecParams["supportedFrameRates"] = supportedFrameRates;
-
-        QStringList supportedPixelFormats;
-
-        if (avCodec->pix_fmts)
-            for (int i = 0; ; i++) {
-                AVPixelFormat pixelFormat = avCodec->pix_fmts[i];
-
-                if (pixelFormat == AV_PIX_FMT_NONE)
-                    break;
-
-                supportedPixelFormats << QString(av_get_pix_fmt_name(pixelFormat));
-            }
-
-        codecParams["supportedPixelFormats"] = supportedPixelFormats;
-        codecParams["defaultGOP"] = codecContext->gop_size > 0?
-                                        codecContext->gop_size: 12;
-        codecParams["defaultBitRate"] = codecContext->bit_rate?
-                                            qint64(codecContext->bit_rate): 200000;
-        codecParams["defaultPixelFormat"] = codecContext->pix_fmt != AV_PIX_FMT_NONE?
-                                            QString(av_get_pix_fmt_name(codecContext->pix_fmt)):
-                                            supportedPixelFormats.value(0, "yuv420p");
-    }
-
-    av_free(codecContext);
-
-    return codecParams;
+    return mediaWriterFFmpegGlobal->m_codecDefaults.value(codec);
 }
 
 QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,

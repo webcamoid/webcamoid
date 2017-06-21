@@ -38,7 +38,8 @@ Rectangle {
 
             lsvInputs.model.append({
                 input: inputs[input],
-                description: AudioLayer.description(inputs[input])})
+                description: AudioLayer.description(inputs[input])
+            })
         }
 
         if (AudioLayer.audioInput.indexOf(":dummyin:") >= 0) {
@@ -97,7 +98,12 @@ Rectangle {
 
             lsvOutputs.lock = false
         }
-        onInputDescriptionChanged: updateInputs(AudioLayer.inputs)
+
+        onInputDescriptionChanged: {
+            lsvInputs.lock = true
+            updateInputs(AudioLayer.inputs)
+            lsvInputs.lock = false
+        }
     }
 
     RowLayout {
