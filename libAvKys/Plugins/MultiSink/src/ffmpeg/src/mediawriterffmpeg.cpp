@@ -811,159 +811,27 @@ QVariantMap MediaWriterFFmpeg::addStream(int streamIndex,
         codec = this->defaultCodec(outputFormat, streamCaps.mimeType());
 
     outputParams["codec"] = codec;
-    QVariantMap codecDefaults = this->defaultCodecParams(codec);
+    outputParams["caps"] = QVariant::fromValue(streamCaps);
 
-    if (streamCaps.mimeType() == "audio/x-raw") {
-        int bitRate = codecParams.value("bitrate",
-                                        codecDefaults["defaultBitRate"]).toInt();
-        outputParams["bitrate"] = bitRate > 0?
-                                      bitRate:
-                                      codecDefaults["defaultBitRate"].toInt();
+    auto defaultCodecParams = this->defaultCodecParams(codec);
 
-        AkAudioCaps audioCaps(streamCaps);
-        QString sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
-        QStringList supportedSampleFormats = codecDefaults["supportedSampleFormats"].toStringList();
+    if (streamCaps.mimeType() == "audio/x-raw"
+        || streamCaps.mimeType() == "video/x-raw") {
+        int bitrate = codecParams.value("bitrate").toInt();
 
-        if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
-            QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
-            audioCaps.format() = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
-            audioCaps.bps() = 8 * av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
-        }
+        if (bitrate < 1)
+            bitrate = defaultCodecParams["defaultBitRate"].toInt();
 
-        QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
+        outputParams["bitrate"] = bitrate;
+    }
 
-        if (!supportedSampleRates.isEmpty()) {
-            int sampleRate = 0;
-            int maxDiff = std::numeric_limits<int>::max();
+    if (streamCaps.mimeType() == "video/x-raw") {
+        int gop = codecParams.value("gop").toInt();
 
-            for (const QVariant &rate: supportedSampleRates) {
-                int diff = qAbs(audioCaps.rate() - rate.toInt());
+        if (gop < 1)
+            gop = defaultCodecParams["defaultGOP"].toInt();
 
-                if (diff < maxDiff) {
-                    sampleRate = rate.toInt();
-
-                    if (!diff)
-                        break;
-
-                    maxDiff = diff;
-                }
-            }
-
-            audioCaps.rate() = sampleRate;
-        }
-
-        QString channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
-        QStringList supportedChannelLayouts = codecDefaults["supportedChannelLayouts"].toStringList();
-
-        if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
-            QString defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
-            audioCaps.layout() = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-            audioCaps.channels() = av_get_channel_layout_nb_channels(av_get_channel_layout(defaultChannelLayout.toStdString().c_str()));
-        }
-
-        if (outputFormat == "gxf") {
-            audioCaps.rate() = 48000;
-            audioCaps.layout() = AkAudioCaps::Layout_mono;
-            audioCaps.channels() = 1;
-        } else if (outputFormat == "mxf") {
-            audioCaps.rate() = 48000;
-        } else if (outputFormat == "swf") {
-            audioCaps = this->nearestSWFCaps(audioCaps);
-        }
-
-        outputParams["caps"] = QVariant::fromValue(audioCaps.toCaps());
-        outputParams["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
-    } else if (streamCaps.mimeType() == "video/x-raw") {
-        int bitRate = codecParams.value("bitrate",
-                                        codecDefaults["defaultBitRate"]).toInt();
-        outputParams["bitrate"] = bitRate > 0?
-                                      bitRate:
-                                      codecDefaults["defaultBitRate"].toInt();
-        int gop = codecParams.value("gop",
-                                    codecDefaults["defaultGOP"]).toInt();
-        outputParams["gop"] = gop > 0?
-                                  gop:
-                                  codecDefaults["defaultGOP"].toInt();
-
-        AkVideoCaps videoCaps(streamCaps);
-        QString pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
-        QStringList supportedPixelFormats = codecDefaults["supportedPixelFormats"].toStringList();
-
-        if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
-            QString defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
-            videoCaps.format() = AkVideoCaps::pixelFormatFromString(defaultPixelFormat);
-            videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
-        }
-
-        QVariantList supportedFrameRates = codecDefaults["supportedFrameRates"].toList();
-
-        if (!supportedFrameRates.isEmpty()) {
-            AkFrac frameRate;
-            qreal maxDiff = std::numeric_limits<qreal>::max();
-
-            for (const QVariant &rate: supportedFrameRates) {
-                qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
-
-                if (diff < maxDiff) {
-                    frameRate = rate.value<AkFrac>();
-
-                    if (qIsNull(diff))
-                        break;
-
-                    maxDiff = diff;
-                }
-            }
-
-            videoCaps.fps() = frameRate;
-        }
-
-        AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
-
-        switch (avCodec->id) {
-        case AV_CODEC_ID_H261:
-            videoCaps = this->nearestH261Caps(videoCaps);
-            break;
-        case AV_CODEC_ID_H263:
-            videoCaps = this->nearestH263Caps(videoCaps);
-            break;
-        case AV_CODEC_ID_DVVIDEO:
-            videoCaps = this->nearestDVCaps(videoCaps);
-            break;
-        case AV_CODEC_ID_DNXHD:
-            videoCaps.setProperty("bitrate", outputParams["bitrate"]);
-            videoCaps = this->nearestDNxHDCaps(videoCaps);
-            outputParams["bitrate"] = videoCaps.property("bitrate");
-            videoCaps.setProperty("bitrate", QVariant());
-            break;
-        case AV_CODEC_ID_ROQ:
-            videoCaps.width() = int(qPow(2, qRound(qLn(videoCaps.width()) / qLn(2))));
-            videoCaps.height() = int(qPow(2, qRound(qLn(videoCaps.height()) / qLn(2))));
-            videoCaps.fps() = AkFrac(qRound(videoCaps.fps().value()), 1);
-            break;
-        case AV_CODEC_ID_RV10:
-            videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
-            videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
-            break;
-        case AV_CODEC_ID_AMV:
-            videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
-            break;
-#ifdef HAVE_EXTRACODECFORMATS
-        case AV_CODEC_ID_XFACE:
-            videoCaps.width() = 48;
-            videoCaps.height() = 48;
-            break;
-#endif
-        default:
-            break;
-        }
-
-        if (outputFormat == "gxf")
-            videoCaps = this->nearestGXFCaps(videoCaps);
-
-        outputParams["caps"] = QVariant::fromValue(videoCaps.toCaps());
-        outputParams["timeBase"] = QVariant::fromValue(videoCaps.fps().invert());
-    } else if (streamCaps.mimeType() == "text/x-raw") {
-        outputParams["caps"] = QVariant::fromValue(streamCaps);
+        outputParams["gop"] = gop;
     }
 
     this->m_streamConfigs << outputParams;
@@ -985,12 +853,23 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
     if (outputFormat.isEmpty())
         return QVariantMap();
 
-    if (codecParams.contains("label"))
-        this->m_streamConfigs[index]["label"] = codecParams["label"];
+    bool streamChanged = false;
+
+    if (codecParams.contains("label")
+        && this->m_streamConfigs[index]["label"] != codecParams.value("label")) {
+        this->m_streamConfigs[index]["label"] = codecParams.value("label");
+        streamChanged |= true;
+    }
 
     AkCaps streamCaps = this->m_streamConfigs[index]["caps"].value<AkCaps>();
+
+    if (codecParams.contains("caps")
+        && this->m_streamConfigs[index]["caps"] != codecParams.value("caps")) {
+        this->m_streamConfigs[index]["caps"] = codecParams.value("caps");
+        streamChanged |= true;
+    }
+
     QString codec;
-    bool streamChanged = false;
 
     if (codecParams.contains("codec")) {
         if (this->supportedCodecs(outputFormat, streamCaps.mimeType())
@@ -1001,147 +880,6 @@ QVariantMap MediaWriterFFmpeg::updateStream(int index,
 
         this->m_streamConfigs[index]["codec"] = codec;
         streamChanged |= true;
-
-        // Update sample format.
-        QVariantMap codecDefaults = this->defaultCodecParams(codec);
-
-        if (streamCaps.mimeType() == "audio/x-raw") {
-            AkAudioCaps audioCaps(streamCaps);
-            QString sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
-            QStringList supportedSampleFormats = codecDefaults["supportedSampleFormats"].toStringList();
-
-            if (!supportedSampleFormats.isEmpty()
-                && !supportedSampleFormats.contains(sampleFormat)) {
-                QString defaultSampleFormat = codecDefaults["defaultSampleFormat"].toString();
-                audioCaps.format() = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
-                audioCaps.bps() = 8 * av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
-            }
-
-            QVariantList supportedSampleRates = codecDefaults["supportedSampleRates"].toList();
-
-            if (!supportedSampleRates.isEmpty()) {
-                int sampleRate = 0;
-                int maxDiff = std::numeric_limits<int>::max();
-
-                for (const QVariant &rate: supportedSampleRates) {
-                    int diff = qAbs(audioCaps.rate() - rate.toInt());
-
-                    if (diff < maxDiff) {
-                        sampleRate = rate.toInt();
-
-                        if (!diff)
-                            break;
-
-                        maxDiff = diff;
-                    }
-                }
-
-                audioCaps.rate() = sampleRate;
-            }
-
-            QString channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
-            QStringList supportedChannelLayouts = codecDefaults["supportedChannelLayouts"].toStringList();
-
-            if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
-                QString defaultChannelLayout = codecDefaults["defaultChannelLayout"].toString();
-                audioCaps.layout() = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
-                audioCaps.channels() = av_get_channel_layout_nb_channels(av_get_channel_layout(defaultChannelLayout.toStdString().c_str()));
-            }
-
-            if (outputFormat == "gxf") {
-                audioCaps.rate() = 48000;
-                audioCaps.layout() = AkAudioCaps::Layout_mono;
-                audioCaps.channels() = 1;
-            } else if (outputFormat == "mxf") {
-                audioCaps.rate() = 48000;
-            } else if (outputFormat == "swf") {
-                audioCaps = this->nearestSWFCaps(audioCaps);
-            }
-
-            streamCaps = audioCaps.toCaps();
-            this->m_streamConfigs[index]["timeBase"] = QVariant::fromValue(AkFrac(1, audioCaps.rate()));
-        } else if (streamCaps.mimeType() == "video/x-raw") {
-            AkVideoCaps videoCaps(streamCaps);
-            QString pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
-            QStringList supportedPixelFormats = codecDefaults["supportedPixelFormats"].toStringList();
-
-            if (!supportedPixelFormats.isEmpty()
-                && !supportedPixelFormats.contains(pixelFormat)) {
-                QString defaultPixelFormat = codecDefaults["defaultPixelFormat"].toString();
-                videoCaps.format() = AkVideoCaps::pixelFormatFromString(defaultPixelFormat);
-                videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
-            }
-
-            QVariantList supportedFrameRates = codecDefaults["supportedFrameRates"].toList();
-
-            if (!supportedFrameRates.isEmpty()) {
-                AkFrac frameRate;
-                qreal maxDiff = std::numeric_limits<qreal>::max();
-
-                for (const QVariant &rate: supportedFrameRates) {
-                    qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
-
-                    if (diff < maxDiff) {
-                        frameRate = rate.value<AkFrac>();
-
-                        if (qIsNull(diff))
-                            break;
-
-                        maxDiff = diff;
-                    }
-                }
-
-                videoCaps.fps() = frameRate;
-            }
-
-            AVCodec *avCodec = avcodec_find_encoder_by_name(codec.toStdString().c_str());
-
-            switch (avCodec->id) {
-            case AV_CODEC_ID_H261:
-                videoCaps = this->nearestH261Caps(videoCaps);
-                break;
-            case AV_CODEC_ID_H263:
-                videoCaps = this->nearestH263Caps(videoCaps);
-                break;
-            case AV_CODEC_ID_DVVIDEO:
-                videoCaps = this->nearestDVCaps(videoCaps);
-                break;
-            case AV_CODEC_ID_DNXHD:
-                videoCaps.setProperty("bitrate", this->m_streamConfigs[index]["bitrate"]);
-                videoCaps = this->nearestDNxHDCaps(videoCaps);
-                this->m_streamConfigs[index]["bitrate"] = videoCaps.property("bitrate");
-                videoCaps.setProperty("bitrate", QVariant());
-                break;
-            case AV_CODEC_ID_ROQ:
-                videoCaps.width() = int(qPow(2, qRound(qLn(videoCaps.width()) / qLn(2))));
-                videoCaps.height() = int(qPow(2, qRound(qLn(videoCaps.height()) / qLn(2))));
-                videoCaps.fps() = AkFrac(qRound(videoCaps.fps().value()), 1);
-                break;
-            case AV_CODEC_ID_RV10:
-                videoCaps.width() = 16 * qRound(videoCaps.width() / 16.);
-                videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
-                break;
-            case AV_CODEC_ID_AMV:
-                videoCaps.height() = 16 * qRound(videoCaps.height() / 16.);
-                break;
-#ifdef HAVE_EXTRACODECFORMATS
-            case AV_CODEC_ID_XFACE:
-                videoCaps.width() = 48;
-                videoCaps.height() = 48;
-                break;
-#endif
-            default:
-                break;
-            }
-
-            if (outputFormat == "gxf")
-                videoCaps = this->nearestGXFCaps(videoCaps);
-
-            streamCaps = videoCaps.toCaps();
-            this->m_streamConfigs[index]["timeBase"] = QVariant::fromValue(videoCaps.fps().invert());
-        }
-
-        this->m_streamConfigs[index]["caps"] = QVariant::fromValue(streamCaps);
     } else
         codec = this->m_streamConfigs[index]["codec"].toString();
 
@@ -2112,6 +1850,7 @@ bool MediaWriterFFmpeg::init()
     for (int i = 0; i < streamConfigs.count(); i++) {
         QVariantMap configs = streamConfigs[i];
         QString codecName = configs["codec"].toString();
+        auto defaultCodecParams = this->defaultCodecParams(codecName);
 
         AVCodec *codec = avcodec_find_encoder_by_name(codecName.toStdString().c_str());
         AVStream *stream = avformat_new_stream(this->m_formatContext, NULL);
@@ -2131,6 +1870,9 @@ bool MediaWriterFFmpeg::init()
         if (streamCaps.mimeType() == "audio/x-raw") {
             codecContext->bit_rate = configs["bitrate"].toInt();
 
+            if (codecContext->bit_rate < 1)
+                codecContext->bit_rate = defaultCodecParams["defaultBitRate"].toInt();
+
             switch (codec->id) {
             case AV_CODEC_ID_G723_1:
                 codecContext->bit_rate = 6300;
@@ -2144,6 +1886,46 @@ bool MediaWriterFFmpeg::init()
 
             AkAudioCaps audioCaps(streamCaps);
 
+            QString sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
+            QStringList supportedSampleFormats = defaultCodecParams["supportedSampleFormats"].toStringList();
+
+            if (!supportedSampleFormats.isEmpty() && !supportedSampleFormats.contains(sampleFormat)) {
+                QString defaultSampleFormat = defaultCodecParams["defaultSampleFormat"].toString();
+                audioCaps.format() = AkAudioCaps::sampleFormatFromString(defaultSampleFormat);
+                audioCaps.bps() = 8 * av_get_bytes_per_sample(av_get_sample_fmt(defaultSampleFormat.toStdString().c_str()));
+            }
+
+            QVariantList supportedSampleRates = defaultCodecParams["supportedSampleRates"].toList();
+
+            if (!supportedSampleRates.isEmpty()) {
+                int sampleRate = 0;
+                int maxDiff = std::numeric_limits<int>::max();
+
+                for (const QVariant &rate: supportedSampleRates) {
+                    int diff = qAbs(audioCaps.rate() - rate.toInt());
+
+                    if (diff < maxDiff) {
+                        sampleRate = rate.toInt();
+
+                        if (!diff)
+                            break;
+
+                        maxDiff = diff;
+                    }
+                }
+
+                audioCaps.rate() = sampleRate;
+            }
+
+            QString channelLayout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
+            QStringList supportedChannelLayouts = defaultCodecParams["supportedChannelLayouts"].toStringList();
+
+            if (!supportedChannelLayouts.isEmpty() && !supportedChannelLayouts.contains(channelLayout)) {
+                QString defaultChannelLayout = defaultCodecParams["defaultChannelLayout"].toString();
+                audioCaps.layout() = AkAudioCaps::channelLayoutFromString(defaultChannelLayout);
+                audioCaps.channels() = av_get_channel_layout_nb_channels(av_get_channel_layout(defaultChannelLayout.toStdString().c_str()));
+            }
+
             if (!strcmp(this->m_formatContext->oformat->name, "gxf")) {
                 audioCaps.rate() = 48000;
                 audioCaps.layout() = AkAudioCaps::Layout_mono;
@@ -2154,19 +1936,54 @@ bool MediaWriterFFmpeg::init()
                 audioCaps = this->nearestSWFCaps(audioCaps);
             }
 
-            QString sampleFormat = AkAudioCaps::sampleFormatToString(audioCaps.format());
-            codecContext->sample_fmt = av_get_sample_fmt(sampleFormat.toStdString().c_str());
+            QString sampleFormatStr = AkAudioCaps::sampleFormatToString(audioCaps.format());
+            codecContext->sample_fmt = av_get_sample_fmt(sampleFormatStr.toStdString().c_str());
             codecContext->sample_rate = audioCaps.rate();
             QString layout = AkAudioCaps::channelLayoutToString(audioCaps.layout());
             codecContext->channel_layout = av_get_channel_layout(layout.toStdString().c_str());
             codecContext->channels = audioCaps.channels();
 
-            AkFrac timeBase(configs["timeBase"].value<AkFrac>());
-            stream->time_base.num = int(timeBase.num());
-            stream->time_base.den = int(timeBase.den());
+            stream->time_base.num = 1;
+            stream->time_base.den = audioCaps.rate();
             codecContext->time_base = stream->time_base;
         } else if (streamCaps.mimeType() == "video/x-raw") {
+            codecContext->bit_rate = configs["bitrate"].toInt();
+
+            if (codecContext->bit_rate < 1)
+                codecContext->bit_rate = defaultCodecParams["defaultBitRate"].toInt();
+
             AkVideoCaps videoCaps(streamCaps);
+
+            QString pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
+            QStringList supportedPixelFormats = defaultCodecParams["supportedPixelFormats"].toStringList();
+
+            if (!supportedPixelFormats.isEmpty() && !supportedPixelFormats.contains(pixelFormat)) {
+                QString defaultPixelFormat = defaultCodecParams["defaultPixelFormat"].toString();
+                videoCaps.format() = AkVideoCaps::pixelFormatFromString(defaultPixelFormat);
+                videoCaps.bpp() = AkVideoCaps::bitsPerPixel(videoCaps.format());
+            }
+
+            QVariantList supportedFrameRates = defaultCodecParams["supportedFrameRates"].toList();
+
+            if (!supportedFrameRates.isEmpty()) {
+                AkFrac frameRate;
+                qreal maxDiff = std::numeric_limits<qreal>::max();
+
+                for (const QVariant &rate: supportedFrameRates) {
+                    qreal diff = qAbs(videoCaps.fps().value() - rate.value<AkFrac>().value());
+
+                    if (diff < maxDiff) {
+                        frameRate = rate.value<AkFrac>();
+
+                        if (qIsNull(diff))
+                            break;
+
+                        maxDiff = diff;
+                    }
+                }
+
+                videoCaps.fps() = frameRate;
+            }
 
             switch (codec->id) {
             case AV_CODEC_ID_H261:
@@ -2181,7 +1998,7 @@ bool MediaWriterFFmpeg::init()
             case AV_CODEC_ID_DNXHD:
                 videoCaps.setProperty("bitrate", configs["bitrate"]);
                 videoCaps = this->nearestDNxHDCaps(videoCaps);
-                configs["bitrate"] = videoCaps.property("bitrate");
+                codecContext->bit_rate = videoCaps.property("bitrate").toInt();
                 videoCaps.setProperty("bitrate", QVariant());
                 break;
             case AV_CODEC_ID_ROQ:
@@ -2209,18 +2026,19 @@ bool MediaWriterFFmpeg::init()
             if (!strcmp(this->m_formatContext->oformat->name, "gxf"))
                 videoCaps = this->nearestGXFCaps(videoCaps);
 
-            codecContext->bit_rate = configs["bitrate"].toInt();
-
-            QString pixelFormat = AkVideoCaps::pixelFormatToString(videoCaps.format());
-            codecContext->pix_fmt = av_get_pix_fmt(pixelFormat.toStdString().c_str());
+            QString pixelFormatStr = AkVideoCaps::pixelFormatToString(videoCaps.format());
+            codecContext->pix_fmt = av_get_pix_fmt(pixelFormatStr.toStdString().c_str());
             codecContext->width = videoCaps.width();
             codecContext->height = videoCaps.height();
 
-            AkFrac timeBase(configs["timeBase"].value<AkFrac>());
+            AkFrac timeBase = videoCaps.fps().invert();
             stream->time_base.num = int(timeBase.num());
             stream->time_base.den = int(timeBase.den());
             codecContext->time_base = stream->time_base;
             codecContext->gop_size = configs["gop"].toInt();
+
+            if (codecContext->gop_size < 1)
+                codecContext->gop_size = defaultCodecParams["defaultGOP"].toInt();
         } else if (streamCaps.mimeType() == "text/x-raw") {
         }
 
