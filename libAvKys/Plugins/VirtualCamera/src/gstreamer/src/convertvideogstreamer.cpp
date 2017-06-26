@@ -169,7 +169,7 @@ AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oC
 
     GstBuffer *bufffer = gst_sample_get_buffer(oSample);
     gst_buffer_map(bufffer, &info, GST_MAP_READ);
-    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
+    QByteArray oBuffer(int(info.size), 0);
     memcpy(oBuffer.data(), info.data, info.size);
     gst_buffer_unmap(bufffer, &info);
 

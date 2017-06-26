@@ -217,7 +217,7 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
                                            NULL,
                                            oFrame.linesize);
 
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+    QByteArray oBuffer(frameSize, 0);
 
     if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(oFrame.data),
                                outPixFormat,

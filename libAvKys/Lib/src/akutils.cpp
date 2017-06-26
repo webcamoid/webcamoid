@@ -43,7 +43,7 @@ AkPacket AkUtils::imageToPacket(const QImage &image, const AkPacket &defaultPack
     if (!imageToFormat->contains(image.format()))
         return AkPacket();
 
-    QByteArray oBuffer(image.byteCount(), Qt::Uninitialized);
+    QByteArray oBuffer(image.byteCount(), 0);
     memcpy(oBuffer.data(), image.constBits(), size_t(image.byteCount()));
 
     AkVideoCaps caps(defaultPacket.caps());

@@ -432,7 +432,9 @@ void Recording::savePhoto(const QString &fileName)
 AkPacket Recording::iStream(const AkPacket &packet)
 {
     this->m_mutex.lock();
-    this->m_curPacket = packet;
+
+    if (packet.caps().mimeType() == "video/x-raw")
+        this->m_curPacket = packet;
 
     if (this->m_state == AkElement::ElementStatePlaying) {
         if (packet.caps().mimeType() == "video/x-raw")

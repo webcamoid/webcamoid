@@ -489,7 +489,7 @@ GstFlowReturn ConvertVideoGStreamer::videoBufferCallback(GstElement *videoOutput
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_READ);
 
-    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
+    QByteArray oBuffer(int(info.size), 0);
     memcpy(oBuffer.data(), info.data, info.size);
 
     oVideoPacket.buffer() = oBuffer;

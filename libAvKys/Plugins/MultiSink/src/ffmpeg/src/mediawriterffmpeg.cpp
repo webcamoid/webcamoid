@@ -2369,7 +2369,7 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
         return;
 
     AVStream *stream = this->m_formatContext->streams[streamIndex];
-   auto codecContext = this->m_streamParams[streamIndex].codecContext();
+    auto codecContext = this->m_streamParams[streamIndex].codecContext();
 
     AVFrame oFrame;
     memset(&oFrame, 0, sizeof(AVFrame));
@@ -2393,8 +2393,8 @@ void MediaWriterFFmpeg::writeVideoPacket(const AkVideoPacket &packet)
                        codecContext->time_base.den);
 
     qint64 pts = qRound64(packet.pts()
-                        * packet.timeBase().value()
-                        / outTimeBase.value());
+                          * packet.timeBase().value()
+                          / outTimeBase.value());
 
     oFrame.pts =
             this->m_streamParams[streamIndex].nextPts(pts, packet.id());

@@ -319,7 +319,7 @@ QByteArray AudioDevPulseAudio::read(int samples)
     QByteArray buffer(samples
                       * this->m_curBps
                       * this->m_curChannels,
-                      Qt::Uninitialized);
+                      0);
 
     if (pa_simple_read(this->m_paSimple,
                        buffer.data(),

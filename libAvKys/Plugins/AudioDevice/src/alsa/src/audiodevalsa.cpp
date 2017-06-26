@@ -194,7 +194,7 @@ QByteArray AudioDevAlsa::read(int samples)
     QMutexLocker mutexLockeer(&this->m_mutex);
 
     auto bufferSize = snd_pcm_frames_to_bytes(this->m_pcmHnd, samples);
-    QByteArray buffer(int(bufferSize), Qt::Uninitialized);
+    QByteArray buffer(int(bufferSize), 0);
     auto data = buffer.data();
 
     while (samples > 0) {

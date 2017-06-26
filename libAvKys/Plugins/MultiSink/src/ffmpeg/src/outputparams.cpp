@@ -194,7 +194,7 @@ void OutputParams::addAudioSamples(const AVFrame *frame, qint64 id)
                                                       AVSampleFormat(frame->format),
                                                       1);
 
-    QByteArray joinedBuffer(joinedBufferSize, Qt::Uninitialized);
+    QByteArray joinedBuffer(joinedBufferSize, 0);
 
     AVFrame joinedFrame;
     memset(&joinedFrame, 0, sizeof(AVFrame));
@@ -320,7 +320,7 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
 
     // Create a new audio buffer with the remaining samples.
     QByteArray audioBuffer(this->m_audioBuffer.size() - frameSize,
-                           Qt::Uninitialized);
+                           0);
 
     // Fill new audio buffer.
     AVFrame audioFrame;
@@ -339,7 +339,7 @@ int OutputParams::readAudioSamples(int samples, uint8_t **buffer)
         return 0;
     }
 
-    // Copy remaining samples to the new buffer-
+    // Copy remaining samples to the new buffer.
     av_samples_copy(audioFrame.data,
                     reinterpret_cast<uint8_t * const *>(bufferFrame.data),
                     0,

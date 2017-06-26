@@ -153,7 +153,7 @@ void AudioGenElement::readFramesLoop(AudioGenElement *self)
 
         size_t bufferSize = sizeof(qint32) * size_t(nSamples);
 
-        QByteArray iBuffer(int(bufferSize), Qt::Uninitialized);
+        QByteArray iBuffer(int(bufferSize), 0);
         qreal time = QTime::currentTime().msecsSinceStartOfDay() / 1.e3;
         qreal tdiff = 1. / oAudioCaps.rate();
 

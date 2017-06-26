@@ -62,7 +62,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
     AkCaps caps(this->caps());
     caps.setProperty("type", "ass");
 
-    QByteArray oBuffer(packet->size, Qt::Uninitialized);
+    QByteArray oBuffer(packet->size, 0);
     memcpy(oBuffer.data(), packet->data, size_t(packet->size));
 
     AkPacket oPacket(caps, oBuffer);

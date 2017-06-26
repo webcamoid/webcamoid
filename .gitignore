@@ -28,6 +28,7 @@
 *.log
 *.sql
 *.sqlite
+vgcore.*
 
 # OS generated files #
 ######################

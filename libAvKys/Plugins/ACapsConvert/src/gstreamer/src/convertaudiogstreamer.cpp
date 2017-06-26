@@ -243,7 +243,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     buffer = gst_sample_get_buffer(sample);
 
     gst_buffer_map(buffer, &info, GST_MAP_READ);
-    QByteArray oBuffer(int(info.size), Qt::Uninitialized);
+    QByteArray oBuffer(int(info.size), 0);
     memcpy(oBuffer.data(), info.data, info.size);
     gst_buffer_unmap(buffer, &info);
     qint64 pts = qint64(GST_BUFFER_PTS(buffer) / packet.timeBase().value() / GST_SECOND);

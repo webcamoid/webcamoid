@@ -205,7 +205,7 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
             if (buffer.isEmpty())
                 return;
 
-            QByteArray oBuffer(buffer.size(), Qt::Uninitialized);
+            QByteArray oBuffer(buffer.size(), 0);
             memcpy(oBuffer.data(), buffer.constData(), size_t(buffer.size()));
 
             caps.samples() = bufferSize;

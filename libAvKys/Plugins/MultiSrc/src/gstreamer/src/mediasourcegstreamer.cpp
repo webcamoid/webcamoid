@@ -353,7 +353,7 @@ GstFlowReturn MediaSourceGStreamer::audioBufferCallback(GstElement *audioOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
+    QByteArray oBuffer(int(map.size), 0);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.caps().samples() = gint(map.size) / audioInfo->bpf;
@@ -405,7 +405,7 @@ GstFlowReturn MediaSourceGStreamer::videoBufferCallback(GstElement *videoOutput,
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
+    QByteArray oBuffer(int(map.size), 0);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.buffer() = oBuffer;
@@ -449,7 +449,7 @@ GstFlowReturn MediaSourceGStreamer::subtitlesBufferCallback(GstElement *subtitle
     GstMapInfo map;
     gst_buffer_map(buf, &map, GST_MAP_READ);
 
-    QByteArray oBuffer(int(map.size), Qt::Uninitialized);
+    QByteArray oBuffer(int(map.size), 0);
     memcpy(oBuffer.data(), map.data, map.size);
 
     packet.buffer() = oBuffer;

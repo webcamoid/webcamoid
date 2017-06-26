@@ -110,7 +110,7 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
                                            NULL,
                                            oFrame.linesize);
 
-    QByteArray oBuffer(frameSize, Qt::Uninitialized);
+    QByteArray oBuffer(frameSize, 0);
 
     av_image_fill_pointers(oFrame.data,
                            oFormat,

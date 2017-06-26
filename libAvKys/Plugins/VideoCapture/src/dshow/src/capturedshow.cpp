@@ -445,7 +445,7 @@ AkPacket CaptureDShow::readFrame()
 
         if (!this->m_curBuffer.isEmpty()) {
             int bufferSize = this->m_curBuffer.size();
-            QByteArray oBuffer(bufferSize, Qt::Uninitialized);
+            QByteArray oBuffer(bufferSize, 0);
             memcpy(oBuffer.data(),
                    this->m_curBuffer.constData(),
                    size_t(bufferSize));
@@ -467,7 +467,7 @@ AkPacket CaptureDShow::readFrame()
         if (FAILED(hr))
             return AkPacket();
 
-        QByteArray oBuffer(bufferSize, Qt::Uninitialized);
+        QByteArray oBuffer(bufferSize, 0);
         hr = this->m_grabber->GetCurrentBuffer(&bufferSize,
                                                reinterpret_cast<long *>(oBuffer.data()));
 

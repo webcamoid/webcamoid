@@ -157,7 +157,7 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
                                                 oSampleFormat,
                                                 1);
 
-    QByteArray oBuffer(oFrameSize, Qt::Uninitialized);
+    QByteArray oBuffer(oFrameSize, 0);
 
     if (avcodec_fill_audio_frame(&oFrame,
                                  oNChannels,

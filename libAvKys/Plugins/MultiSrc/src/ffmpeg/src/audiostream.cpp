@@ -255,7 +255,7 @@ AkPacket AudioStream::frameToPacket(AVFrame *iFrame)
                                                AVSampleFormat(iFrame->format),
                                                1);
 
-    QByteArray iBuffer(frameSize, Qt::Uninitialized);
+    QByteArray iBuffer(frameSize, 0);
 
     if (av_samples_fill_arrays(frame.data,
                                frame.linesize,
