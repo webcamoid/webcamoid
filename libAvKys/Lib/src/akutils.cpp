@@ -36,18 +36,18 @@ inline ImageToPixelFormatMap initImageToPixelFormatMap()
     return imageToFormat;
 }
 
-Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, imageToFormat, (initImageToPixelFormatMap()))
+Q_GLOBAL_STATIC_WITH_ARGS(ImageToPixelFormatMap, AkImageToFormat, (initImageToPixelFormatMap()))
 
 AkPacket AkUtils::imageToPacket(const QImage &image, const AkPacket &defaultPacket)
 {
-    if (!imageToFormat->contains(image.format()))
+    if (!AkImageToFormat->contains(image.format()))
         return AkPacket();
 
     QByteArray oBuffer(image.byteCount(), 0);
     memcpy(oBuffer.data(), image.constBits(), size_t(image.byteCount()));
 
     AkVideoCaps caps(defaultPacket.caps());
-    caps.format() = imageToFormat->value(image.format());
+    caps.format() = AkImageToFormat->value(image.format());
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = image.width();
     caps.height() = image.height();
@@ -66,12 +66,12 @@ QImage AkUtils::packetToImage(const AkPacket &packet)
     if (!caps)
         return QImage();
 
-    if (!imageToFormat->values().contains(caps.format()))
+    if (!AkImageToFormat->values().contains(caps.format()))
         return QImage();
 
     QImage image(caps.width(),
                  caps.height(),
-                 imageToFormat->key(caps.format()));
+                 AkImageToFormat->key(caps.format()));
     memcpy(image.bits(), packet.buffer().constData(), size_t(packet.buffer().size()));
 
     if (caps.format() == AkVideoCaps::Format_gray)
@@ -105,7 +105,7 @@ AkVideoPacket AkUtils::convertVideo(const AkVideoPacket &packet,
                                     AkVideoCaps::PixelFormat format,
                                     const QSize &size)
 {
-    if (!imageToFormat->values().contains(format))
+    if (!AkImageToFormat->values().contains(format))
         return AkVideoPacket();
 
     if (packet.caps().format() == format
@@ -120,9 +120,9 @@ AkVideoPacket AkUtils::convertVideo(const AkVideoPacket &packet,
     QImage convertedFrame;
 
     if (size.isEmpty())
-        convertedFrame = frame.convertToFormat(imageToFormat->key(format));
+        convertedFrame = frame.convertToFormat(AkImageToFormat->key(format));
     else
-        convertedFrame = frame.convertToFormat(imageToFormat->key(format)).scaled(size);
+        convertedFrame = frame.convertToFormat(AkImageToFormat->key(format)).scaled(size);
 
     return AkUtils::imageToPacket(convertedFrame, packet.toPacket());
 }

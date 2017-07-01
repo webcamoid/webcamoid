@@ -23,10 +23,7 @@
 #include <akutils.h>
 
 #include "mediawriterffmpeg.h"
-
-#define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
-//#define CODEC_COMPLIANCE FF_COMPLIANCE_EXPERIMENTAL
-#define THREAD_WAIT_LIMIT 500
+#include "abstractstream.h"
 
 struct XRGB
 {
