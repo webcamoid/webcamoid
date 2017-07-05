@@ -38,19 +38,22 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
                                int streamIndex,
                                const QVariantMap &configs,
                                const QMap<QString, QVariantMap> &codecOptions,
+                               MediaWriterFFmpeg *mediaWriter,
                                QObject *parent):
     QObject(parent)
 {
+    Q_UNUSED(mediaWriter)
+
     this->m_maxPacketQueueSize = 9;
     this->m_maxFrameQueueSize = 1;
     this->m_runConvertLoop = false;
     this->m_runEncodeLoop = false;
     this->m_frameQueueSize = 0;
     this->m_index = index;
+    this->m_streamIndex = streamIndex;
     this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
-    this->m_stream = NULL;
     this->m_codecOptions = NULL;
-    this->m_frameQueue = NULL;
+    this->m_formatContext = const_cast<AVFormatContext *>(formatContext);
 
     this->m_stream = (formatContext && index < formatContext->nb_streams)?
                          formatContext->streams[index]: NULL;
@@ -101,6 +104,11 @@ uint AbstractStream::index() const
     return this->m_index;
 }
 
+int AbstractStream::streamIndex() const
+{
+    return this->m_streamIndex;
+}
+
 AVMediaType AbstractStream::mediaType() const
 {
     return this->m_mediaType;
@@ -109,6 +117,11 @@ AVMediaType AbstractStream::mediaType() const
 AVStream *AbstractStream::stream() const
 {
     return this->m_stream;
+}
+
+AVFormatContext *AbstractStream::formatContext() const
+{
+    return this->m_formatContext;
 }
 
 AVCodecContext *AbstractStream::codecContext() const
@@ -140,7 +153,7 @@ void AbstractStream::convertPacket(const AkPacket &packet)
     Q_UNUSED(packet);
 }
 
-void AbstractStream::encodeData(const AVFrame *frame)
+void AbstractStream::encodeData(AVFrame *frame)
 {
     Q_UNUSED(frame);
 }
@@ -148,6 +161,22 @@ void AbstractStream::encodeData(const AVFrame *frame)
 AVFrame *AbstractStream::dequeueFrame()
 {
     return NULL;
+}
+
+void AbstractStream::rescaleTS(AVPacket *pkt, AVRational src, AVRational dst)
+{
+#ifdef HAVE_RESCALETS
+    av_packet_rescale_ts(pkt, src, dst);
+#else
+    if (pkt->pts != AV_NOPTS_VALUE)
+        pkt->pts = av_rescale_q(pkt->pts, src, dst);
+
+    if (pkt->dts != AV_NOPTS_VALUE)
+        pkt->dts = av_rescale_q(pkt->dts, src, dst);
+
+    if (pkt->duration > 0)
+        pkt->duration = av_rescale_q(pkt->duration, src, dst);
+#endif
 }
 
 void AbstractStream::convertLoop()
@@ -197,9 +226,19 @@ void AbstractStream::encodeLoop()
 
         if (frame) {
             this->encodeData(frame);
-            av_frame_free(&frame);
+            this->deleteFrame(frame);
         }
     }
+}
+
+void AbstractStream::deleteFrame(AVFrame *frame)
+{
+    av_freep(&frame->data[0]);
+    frame->data[0] = NULL;
+
+#ifdef HAVE_FRAMEALLOC
+    av_frame_unref(frame);
+#endif
 }
 
 bool AbstractStream::init()
@@ -211,6 +250,13 @@ bool AbstractStream::init()
                       this->m_codecContext->codec,
                       &this->m_codecOptions) < 0)
         return false;
+
+#ifdef HAVE_CODECPAR
+        avcodec_parameters_from_context(this->m_stream->codecpar,
+                                        this->m_codecContext);
+#else
+        avcodec_copy_context(this->m_stream->codec, this->m_codecContext);
+#endif
 
     this->m_runEncodeLoop = true;
 
@@ -246,6 +292,4 @@ void AbstractStream::uninit()
     }
 
     this->m_packetQueue.clear();
-    av_frame_free(&this->m_frameQueue);
-    this->m_frameQueue = NULL;
 }

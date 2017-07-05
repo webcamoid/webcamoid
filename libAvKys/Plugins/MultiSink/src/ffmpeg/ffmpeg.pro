@@ -34,7 +34,8 @@ HEADERS = \
     src/outputparams.h \
     ../mediawriter.h \
     src/abstractstream.h \
-    src/videostream.h
+    src/videostream.h \
+    src/audiostream.h
 
 INCLUDEPATH += \
     ../../../../Lib/src \
@@ -86,7 +87,8 @@ SOURCES = \
     src/outputparams.cpp \
     ../mediawriter.cpp \
     src/abstractstream.cpp \
-    src/videostream.cpp
+    src/videostream.cpp \
+    src/audiostream.cpp
 
 DESTDIR = $${OUT_PWD}/../../submodules/MultiSink
 

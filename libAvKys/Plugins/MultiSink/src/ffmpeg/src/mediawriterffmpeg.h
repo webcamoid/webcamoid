@@ -131,6 +131,8 @@ class MediaWriterFFmpeg: public MediaWriter
         void writeAudioPacket(const AkAudioPacket &packet);
         void writeVideoPacket(const AkVideoPacket &packet);
         void writeSubtitlePacket(const AkPacket &packet);
+
+    friend class VideoStream;
 };
 
 #endif // MEDIAWRITERFFMPEG_H

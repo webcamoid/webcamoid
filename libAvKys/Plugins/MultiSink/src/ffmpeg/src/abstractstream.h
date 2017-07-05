@@ -46,12 +46,15 @@ class AbstractStream: public QObject
                                 uint index=0, int streamIndex=-1,
                                 const QVariantMap &configs={},
                                 const QMap<QString, QVariantMap> &codecOptions={},
-                                QObject *parent=nullptr);
+                                MediaWriterFFmpeg *mediaWriter=NULL,
+                                QObject *parent=NULL);
         virtual ~AbstractStream();
 
         Q_INVOKABLE uint index() const;
+        Q_INVOKABLE int streamIndex() const;
         Q_INVOKABLE AVMediaType mediaType() const;
         Q_INVOKABLE AVStream *stream() const;
+        Q_INVOKABLE AVFormatContext *formatContext() const;
         Q_INVOKABLE AVCodecContext *codecContext() const;
         Q_INVOKABLE void packetEnqueue(const AkPacket &packet);
 
@@ -60,14 +63,17 @@ class AbstractStream: public QObject
         int m_maxFrameQueueSize;
 
         virtual void convertPacket(const AkPacket &packet);
-        virtual void encodeData(const AVFrame *frame);
+        virtual void encodeData(AVFrame *frame);
         virtual AVFrame *dequeueFrame();
+        void rescaleTS(AVPacket *pkt, AVRational src, AVRational dst);
 
     private:
         uint m_index;
+        int m_streamIndex;
         AVMediaType m_mediaType;
-        AVStream *m_stream;
+        AVFormatContext *m_formatContext;
         AVCodecContext *m_codecContext;
+        AVStream *m_stream;
         QThreadPool m_threadPool;
         AVDictionary *m_codecOptions;
 
@@ -80,7 +86,6 @@ class AbstractStream: public QObject
         bool m_runConvertLoop;
 
         // Frame queue and encoding loop.
-        AVFrame *m_frameQueue;
         qint64 m_frameQueueSize;
         QMutex m_encodeMutex;
         QWaitCondition m_frameQueueNotFull;
@@ -90,8 +95,10 @@ class AbstractStream: public QObject
 
         void convertLoop();
         void encodeLoop();
+        void deleteFrame(AVFrame *frame);
 
     signals:
+        void packetReady(const AVPacket *packet);
 
     public slots:
         virtual bool init();

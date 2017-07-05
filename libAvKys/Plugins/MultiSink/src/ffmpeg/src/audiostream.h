@@ -17,38 +17,25 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOSTREAM_H
-#define VIDEOSTREAM_H
+#ifndef AUDIOSTREAM_H
+#define AUDIOSTREAM_H
 
-#include <akvideopacket.h>
-
-extern "C"
-{
-    #include <libswscale/swscale.h>
-}
+#include <akaudiopacket.h>
 
 #include "abstractstream.h"
 
-class VideoStream: public AbstractStream
+class AudioStream: public AbstractStream
 {
-    Q_OBJECT
-
     public:
-        VideoStream(const AVFormatContext *formatContext=NULL,
+        AudioStream(const AVFormatContext *formatContext=NULL,
                     uint index=0, int streamIndex=-1,
                     const QVariantMap &configs={},
                     const QMap<QString, QVariantMap> &codecOptions={},
                     MediaWriterFFmpeg *mediaWriter=NULL,
                     QObject *parent=nullptr);
-        ~VideoStream();
+        ~AudioStream();
 
     private:
-        AVFrame *m_frame;
-        SwsContext *m_scaleContext;
-        int64_t m_lastPts;
-        int64_t m_refPts;
-
-        QImage swapChannels(const QImage &image) const;
 
     protected:
         void convertPacket(const AkPacket &packet);
@@ -56,4 +43,4 @@ class VideoStream: public AbstractStream
         AVFrame *dequeueFrame();
 };
 
-#endif // VIDEOSTREAM_H
+#endif // AUDIOSTREAM_H
