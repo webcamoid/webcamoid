@@ -46,6 +46,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     this->m_maxPacketQueueSize = 9;
     this->m_maxFrameQueueSize = 1;
+    this->m_frameSize = 1;
     this->m_runConvertLoop = false;
     this->m_runEncodeLoop = false;
     this->m_frameQueueSize = 0;
@@ -97,6 +98,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
 AbstractStream::~AbstractStream()
 {
+    this->uninit();
 }
 
 uint AbstractStream::index() const
@@ -209,7 +211,7 @@ void AbstractStream::encodeLoop()
         this->m_encodeMutex.lock();
         bool gotFrame = true;
 
-        if (this->m_frameQueueSize < this->m_maxFrameQueueSize)
+        if (this->m_frameQueueSize < this->m_frameSize)
             gotFrame = this->m_frameQueueNotEmpty.wait(&this->m_encodeMutex,
                                                        THREAD_WAIT_LIMIT);
 

@@ -180,6 +180,9 @@ QImage VideoStream::swapChannels(const QImage &image) const
 
 void VideoStream::convertPacket(const AkPacket &packet)
 {
+    if (!packet)
+        return;
+
     auto codecContext = this->codecContext();
     av_frame_free(&this->m_frame);
     this->m_frame = av_frame_alloc();
@@ -250,6 +253,8 @@ void VideoStream::convertPacket(const AkPacket &packet)
               iHeight,
               this->m_frame->data,
               this->m_frame->linesize);
+
+    this->m_frameQueueSize++;
 }
 
 void VideoStream::encodeData(AVFrame *frame)
@@ -347,5 +352,11 @@ void VideoStream::encodeData(AVFrame *frame)
 
 AVFrame *VideoStream::dequeueFrame()
 {
-    return av_frame_clone(this->m_frame);
+    if (this->m_frame) {
+        this->m_frameQueueSize--;
+
+        return av_frame_clone(this->m_frame);
+    }
+
+    return NULL;
 }

@@ -133,6 +133,7 @@ class MediaWriterFFmpeg: public MediaWriter
         void writeSubtitlePacket(const AkPacket &packet);
 
     friend class VideoStream;
+    friend class AudioStream;
 };
 
 #endif // MEDIAWRITERFFMPEG_H

@@ -20,7 +20,7 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
-#include <akaudiopacket.h>
+#include <akelement.h>
 
 #include "abstractstream.h"
 
@@ -36,11 +36,17 @@ class AudioStream: public AbstractStream
         ~AudioStream();
 
     private:
+        AkElementPtr m_convert;
+        AVFrame *m_frame;
 
     protected:
         void convertPacket(const AkPacket &packet);
         void encodeData(AVFrame *frame);
         AVFrame *dequeueFrame();
+
+    public slots:
+        bool init();
+        void uninit();
 };
 
 #endif // AUDIOSTREAM_H

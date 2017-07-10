@@ -61,6 +61,8 @@ class AbstractStream: public QObject
     protected:
         int m_maxPacketQueueSize;
         int m_maxFrameQueueSize;
+        qint64 m_frameQueueSize;
+        int m_frameSize;
 
         virtual void convertPacket(const AkPacket &packet);
         virtual void encodeData(AVFrame *frame);
@@ -86,7 +88,6 @@ class AbstractStream: public QObject
         bool m_runConvertLoop;
 
         // Frame queue and encoding loop.
-        qint64 m_frameQueueSize;
         QMutex m_encodeMutex;
         QWaitCondition m_frameQueueNotFull;
         QWaitCondition m_frameQueueNotEmpty;
