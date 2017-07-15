@@ -155,9 +155,11 @@ void AbstractStream::convertPacket(const AkPacket &packet)
     Q_UNUSED(packet);
 }
 
-void AbstractStream::encodeData(AVFrame *frame)
+AbstractStream::PacketStatus AbstractStream::encodeData(AVFrame *frame)
 {
     Q_UNUSED(frame);
+
+    return PacketStatusError;
 }
 
 AVFrame *AbstractStream::dequeueFrame()
@@ -231,15 +233,19 @@ void AbstractStream::encodeLoop()
             this->deleteFrame(frame);
         }
     }
+
+    // Flush encoders
+    while (this->encodeData(NULL) == PacketStatusSent) {
+    }
 }
 
 void AbstractStream::deleteFrame(AVFrame *frame)
 {
-    av_freep(&frame->data[0]);
-    frame->data[0] = NULL;
-
 #ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
+    av_frame_free(&frame);
+#else
+    avcodec_free_frame(&frame);
 #endif
 }
 

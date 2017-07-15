@@ -184,11 +184,10 @@ void VideoStream::convertPacket(const AkPacket &packet)
         return;
 
     auto codecContext = this->codecContext();
-    av_frame_free(&this->m_frame);
-    this->m_frame = av_frame_alloc();
-    this->m_frame->format = codecContext->pix_fmt;
-    this->m_frame->width = codecContext->width;
-    this->m_frame->height = codecContext->height;
+    auto oFrame = av_frame_alloc();
+    oFrame->format = codecContext->pix_fmt;
+    oFrame->width = codecContext->width;
+    oFrame->height = codecContext->height;
 
     QImage image = AkUtils::packetToImage(packet);
     image = image.convertToFormat(QImage::Format_ARGB32);
@@ -205,9 +204,9 @@ void VideoStream::convertPacket(const AkPacket &packet)
                                  iWidth,
                                  iHeight,
                                  iFormat,
-                                 this->m_frame->width,
-                                 this->m_frame->height,
-                                 AVPixelFormat(this->m_frame->format),
+                                 oFrame->width,
+                                 oFrame->height,
+                                 AVPixelFormat(oFrame->format),
                                  SWS_FAST_BILINEAR,
                                  NULL,
                                  NULL,
@@ -233,16 +232,16 @@ void VideoStream::convertPacket(const AkPacket &packet)
     if (av_image_fill_pointers(reinterpret_cast<uint8_t **>(iFrame.data),
                                iFormat,
                                iHeight,
-                               reinterpret_cast<uint8_t *>(packet.buffer().data()),
+                               reinterpret_cast<uint8_t *>(videoPacket.buffer().data()),
                                iFrame.linesize) < 0) {
         return;
     }
 
-    if (av_image_alloc(const_cast<uint8_t **>(this->m_frame->data),
-                       this->m_frame->linesize,
-                       this->m_frame->width,
-                       this->m_frame->height,
-                       AVPixelFormat(this->m_frame->format),
+    if (av_image_alloc(oFrame->data,
+                       oFrame->linesize,
+                       oFrame->width,
+                       oFrame->height,
+                       AVPixelFormat(oFrame->format),
                        4) < 0)
         return;
 
@@ -251,13 +250,17 @@ void VideoStream::convertPacket(const AkPacket &packet)
               iFrame.linesize,
               0,
               iHeight,
-              this->m_frame->data,
-              this->m_frame->linesize);
+              oFrame->data,
+              oFrame->linesize);
 
+    this->m_frameMutex.lock();
+    av_frame_free(&this->m_frame);
+    this->m_frame = oFrame;
     this->m_frameQueueSize++;
+    this->m_frameMutex.unlock();
 }
 
-void VideoStream::encodeData(AVFrame *frame)
+AbstractStream::PacketStatus VideoStream::encodeData(AVFrame *frame)
 {
     auto codecContext = this->codecContext();
 
@@ -273,7 +276,7 @@ void VideoStream::encodeData(AVFrame *frame)
     else if (this->m_lastPts != pts)
         this->m_lastPts = pts;
     else
-        return;
+        return PacketStatusError;
 
     frame->pts = this->m_lastPts - this->m_refPts;
     auto formatContext = this->formatContext();
@@ -291,72 +294,88 @@ void VideoStream::encodeData(AVFrame *frame)
 
         this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
         emit this->packetReady(&pkt);
-    } else {
-        // encode the image
+
+        return PacketStatusWritten;
+    }
+
+    // encode the image
 #ifdef HAVE_SENDRECV
-        auto error = avcodec_send_frame(codecContext, frame);
+    auto error = avcodec_send_frame(codecContext, frame);
 
-        if (error < 0) {
-            char errorStr[1024];
-            av_strerror(AVERROR(error), errorStr, 1024);
-            qDebug() << "Error encoding packets: " << errorStr;
+    if (error < 0) {
+        char errorStr[1024];
+        av_strerror(AVERROR(error), errorStr, 1024);
+        qDebug() << "Error encoding packets: " << errorStr;
 
-            return;
-        }
+        return PacketStatusError;
+    }
 
-        forever {
-            AVPacket pkt;
-            av_init_packet(&pkt);
-            pkt.data = NULL; // packet data will be allocated by the encoder
-            pkt.size = 0;
+    auto status = PacketStatusSent;
 
-            if (avcodec_receive_packet(codecContext, &pkt) < 0)
-                break;
-
-            pkt.stream_index = this->streamIndex();
-            this->rescaleTS(&pkt,
-                            codecContext->time_base,
-                            stream->time_base);
-
-            // Write the compressed frame to the media file.
-            emit this->packetReady(&pkt);
-        }
-#else
+    forever {
         AVPacket pkt;
         av_init_packet(&pkt);
         pkt.data = NULL; // packet data will be allocated by the encoder
         pkt.size = 0;
 
-        int gotPacket;
+        if (avcodec_receive_packet(codecContext, &pkt) < 0)
+            break;
 
-        if (avcodec_encode_video2(codecContext,
-                                  &pkt,
-                                  frame,
-                                  &gotPacket) < 0) {
-            return;
-        }
+        pkt.stream_index = this->streamIndex();
+        this->rescaleTS(&pkt,
+                        codecContext->time_base,
+                        stream->time_base);
 
-        // If size is zero, it means the image was buffered.
-        if (gotPacket) {
-            pkt.stream_index = this->streamIndex();
-            this->rescaleTS(&pkt,
-                            codecContext->time_base,
-                            stream->time_base);
-
-            // Write the compressed frame to the media file.
-            emit this->packetReady(&pkt);
-        }
-#endif
+        // Write the compressed frame to the media file.
+        emit this->packetReady(&pkt);
+        status = PacketStatusWritten;
     }
+
+    return status;
+#else
+    AVPacket pkt;
+    av_init_packet(&pkt);
+    pkt.data = NULL; // packet data will be allocated by the encoder
+    pkt.size = 0;
+
+    int gotPacket;
+
+    if (avcodec_encode_video2(codecContext,
+                              &pkt,
+                              frame,
+                              &gotPacket) < 0) {
+        return PacketStatusError;
+    }
+
+    // If size is zero, it means the image was buffered.
+    if (gotPacket) {
+        pkt.stream_index = this->streamIndex();
+        this->rescaleTS(&pkt,
+                        codecContext->time_base,
+                        stream->time_base);
+
+        // Write the compressed frame to the media file.
+        emit this->packetReady(&pkt);
+
+        return PacketStatusWritten;
+    }
+
+    return PacketStatusSent;
+#endif
 }
 
 AVFrame *VideoStream::dequeueFrame()
 {
-    if (this->m_frame) {
-        this->m_frameQueueSize--;
+    AVFrame *frame = NULL;
 
-        return av_frame_clone(this->m_frame);
+    this->m_frameMutex.lock();
+
+    if (this->m_frame) {
+        frame = av_frame_clone(this->m_frame);
+        this->m_frameQueueSize--;
     }
 
-    return NULL;
+    this->m_frameMutex.unlock();
+
+    return frame;
 }

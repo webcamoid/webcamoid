@@ -257,7 +257,7 @@ void AudioStream::convertPacket(const AkPacket &packet)
     this->m_frameQueueSize += iFrame.nb_samples;
 }
 
-void AudioStream::encodeData(AVFrame *frame)
+AbstractStream::PacketStatus AudioStream::encodeData(AVFrame *frame)
 {
     auto codecContext = this->codecContext();
 
@@ -288,10 +288,11 @@ void AudioStream::encodeData(AVFrame *frame)
         av_strerror(result, error, 1024);
         qDebug() << "Error: " << error;
 
-        return;
+        return PacketStatusError;
     }
 
     auto stream = this->stream();
+    auto status = PacketStatusSent;
 
     forever {
         // Initialize audio packet.
@@ -307,7 +308,10 @@ void AudioStream::encodeData(AVFrame *frame)
 
         // Write the compressed frame to the media file.
         emit this->packetReady(&pkt);
+        status = PacketStatusWritten;
     }
+
+    return status;
 #else
     // Initialize audio packet.
     AVPacket pkt;
@@ -325,17 +329,19 @@ void AudioStream::encodeData(AVFrame *frame)
         av_strerror(result, error, 1024);
         qDebug() << "Error: " << error;
 
-        return;
+        return PacketStatusError;
     }
 
     if (!gotPacket)
-        return;
+        return PacketStatusSent;
 
     pkt.stream_index = this->streamIndex();
     this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
 
     // Write the compressed frame to the media file.
     emit this->packetReady(&pkt);
+
+    return PacketStatusWritten;
 #endif
 }
 

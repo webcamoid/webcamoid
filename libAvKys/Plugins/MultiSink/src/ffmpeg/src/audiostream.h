@@ -41,7 +41,7 @@ class AudioStream: public AbstractStream
 
     protected:
         void convertPacket(const AkPacket &packet);
-        void encodeData(AVFrame *frame);
+        PacketStatus encodeData(AVFrame *frame);
         AVFrame *dequeueFrame();
 
     public slots:

@@ -45,6 +45,7 @@ class VideoStream: public AbstractStream
     private:
         AVFrame *m_frame;
         SwsContext *m_scaleContext;
+        QMutex m_frameMutex;
         int64_t m_lastPts;
         int64_t m_refPts;
 
@@ -52,7 +53,7 @@ class VideoStream: public AbstractStream
 
     protected:
         void convertPacket(const AkPacket &packet);
-        void encodeData(AVFrame *frame);
+        PacketStatus encodeData(AVFrame *frame);
         AVFrame *dequeueFrame();
 };
 

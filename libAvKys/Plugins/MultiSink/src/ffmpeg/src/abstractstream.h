@@ -36,12 +36,21 @@ extern "C"
 #define THREAD_WAIT_LIMIT 500
 
 class MediaWriterFFmpeg;
+class AbstractStream;
+
+typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 
 class AbstractStream: public QObject
 {
     Q_OBJECT
 
     public:
+        enum PacketStatus {
+            PacketStatusError = -1,
+            PacketStatusSent,
+            PacketStatusWritten
+        };
+
         explicit AbstractStream(const AVFormatContext *formatContext=NULL,
                                 uint index=0, int streamIndex=-1,
                                 const QVariantMap &configs={},
@@ -65,7 +74,7 @@ class AbstractStream: public QObject
         int m_frameSize;
 
         virtual void convertPacket(const AkPacket &packet);
-        virtual void encodeData(AVFrame *frame);
+        virtual PacketStatus encodeData(AVFrame *frame);
         virtual AVFrame *dequeueFrame();
         void rescaleTS(AVPacket *pkt, AVRational src, AVRational dst);
 
@@ -99,7 +108,7 @@ class AbstractStream: public QObject
         void deleteFrame(AVFrame *frame);
 
     signals:
-        void packetReady(const AVPacket *packet);
+        void packetReady(AVPacket *packet);
 
     public slots:
         virtual bool init();

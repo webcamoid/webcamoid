@@ -24,9 +24,23 @@
 #include <QQueue>
 #include <QMutex>
 #include <QWaitCondition>
+#include <akaudiopacket.h>
+#include <akvideopacket.h>
+
+extern "C"
+{
+    #include <libavformat/avformat.h>
+    #include <libswscale/swscale.h>
+    #include <libavutil/imgutils.h>
+    #include <libavutil/pixdesc.h>
+    #include <libavutil/channel_layout.h>
+    #include <libavutil/opt.h>
+    #include <libavutil/parseutils.h>
+    #include <libavutil/mathematics.h>
+}
 
 #include "mediawriter.h"
-#include "outputparams.h"
+#include "abstractstream.h"
 
 class MediaWriterFFmpeg: public MediaWriter
 {
@@ -67,33 +81,17 @@ class MediaWriterFFmpeg: public MediaWriter
         QMap<QString, QVariantMap> m_formatOptions;
         QMap<QString, QVariantMap> m_codecOptions;
         QList<QVariantMap> m_streamConfigs;
-        QList<OutputParams> m_streamParams;
         AVFormatContext *m_formatContext;
         QThreadPool m_threadPool;
-        qint64 m_packetQueueSize;
         qint64 m_maxPacketQueueSize;
-        bool m_runAudioLoop;
-        bool m_runVideoLoop;
-        bool m_runSubtitleLoop;
         bool m_isRecording;
         QMutex m_packetMutex;
         QMutex m_audioMutex;
         QMutex m_videoMutex;
         QMutex m_subtitleMutex;
         QMutex m_writeMutex;
-        QWaitCondition m_audioQueueNotEmpty;
-        QWaitCondition m_videoQueueNotEmpty;
-        QWaitCondition m_subtitleQueueNotEmpty;
-        QWaitCondition m_packetQueueNotFull;
-        QQueue<AkAudioPacket> m_audioPackets;
-        QQueue<AkVideoPacket> m_videoPackets;
-        QQueue<AkPacket> m_subtitlePackets;
-        QFuture<void> m_audioLoopResult;
-        QFuture<void> m_videoLoopResult;
-        QFuture<void> m_subtitleLoopResult;
+        QMap<int, AbstractStreamPtr> m_streamsMap;
 
-        void flushStreams();
-        QImage swapChannels(const QImage &image) const;
         QString guessFormat();
         QVariantList parseOptions(const AVClass *avClass) const;
         AVDictionary *formatContextOptions(AVFormatContext *formatContext,
@@ -105,13 +103,6 @@ class MediaWriterFFmpeg: public MediaWriter
         AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestGXFCaps(const AkVideoCaps &caps) const;
         AkAudioCaps nearestSWFCaps(const AkAudioCaps &caps) const;
-
-        static void writeAudioLoop(MediaWriterFFmpeg *self);
-        static void writeVideoLoop(MediaWriterFFmpeg *self);
-        static void writeSubtitleLoop(MediaWriterFFmpeg *self);
-        void decreasePacketQueue(int packetSize);
-        void deleteFrame(AVFrame *frame);
-        void rescaleTS(AVPacket *pkt, AVRational src, AVRational dst);
 
     public slots:
         void setOutputFormat(const QString &outputFormat);
@@ -128,9 +119,7 @@ class MediaWriterFFmpeg: public MediaWriter
         void uninit();
 
     private slots:
-        void writeAudioPacket(const AkAudioPacket &packet);
-        void writeVideoPacket(const AkVideoPacket &packet);
-        void writeSubtitlePacket(const AkPacket &packet);
+        void writePacket(AVPacket *packet);
 
     friend class VideoStream;
     friend class AudioStream;
