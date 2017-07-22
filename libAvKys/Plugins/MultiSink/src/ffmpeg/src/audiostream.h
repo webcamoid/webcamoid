@@ -38,10 +38,12 @@ class AudioStream: public AbstractStream
     private:
         AkElementPtr m_convert;
         AVFrame *m_frame;
+        int m_frameSize;
+        qint64 m_frameQueueSize;
 
     protected:
         void convertPacket(const AkPacket &packet);
-        PacketStatus encodeData(AVFrame *frame);
+        int encodeData(AVFrame *frame);
         AVFrame *dequeueFrame();
 
     public slots:

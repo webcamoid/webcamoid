@@ -48,12 +48,13 @@ class VideoStream: public AbstractStream
         QMutex m_frameMutex;
         int64_t m_lastPts;
         int64_t m_refPts;
+        QWaitCondition m_frameReady;
 
         QImage swapChannels(const QImage &image) const;
 
     protected:
         void convertPacket(const AkPacket &packet);
-        PacketStatus encodeData(AVFrame *frame);
+        int encodeData(AVFrame *frame);
         AVFrame *dequeueFrame();
 };
 

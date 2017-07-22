@@ -156,7 +156,8 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
 
 VideoStream::~VideoStream()
 {
-    av_frame_free(&this->m_frame);
+    this->uninit();
+    this->deleteFrame(&this->m_frame);
 }
 
 QImage VideoStream::swapChannels(const QImage &image) const
@@ -188,6 +189,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
     oFrame->format = codecContext->pix_fmt;
     oFrame->width = codecContext->width;
     oFrame->height = codecContext->height;
+    oFrame->pts = packet.pts();
 
     QImage image = AkUtils::packetToImage(packet);
     image = image.convertToFormat(QImage::Format_ARGB32);
@@ -245,8 +247,9 @@ void VideoStream::convertPacket(const AkPacket &packet)
                        4) < 0)
         return;
 
+    // BUG: sws_scale is leaking memory for no reason!
     sws_scale(this->m_scaleContext,
-              const_cast<uint8_t **>(iFrame.data),
+              iFrame.data,
               iFrame.linesize,
               0,
               iHeight,
@@ -254,32 +257,41 @@ void VideoStream::convertPacket(const AkPacket &packet)
               oFrame->linesize);
 
     this->m_frameMutex.lock();
-    av_frame_free(&this->m_frame);
+    this->deleteFrame(&this->m_frame);
     this->m_frame = oFrame;
-    this->m_frameQueueSize++;
+    this->m_frameReady.wakeAll();
     this->m_frameMutex.unlock();
 }
 
-AbstractStream::PacketStatus VideoStream::encodeData(AVFrame *frame)
+int VideoStream::encodeData(AVFrame *frame)
 {
+    auto formatContext = this->formatContext();
+
+    if (!frame && formatContext->oformat->flags & AVFMT_RAWPICTURE)
+        return AVERROR_EOF;
+
     auto codecContext = this->codecContext();
 
     AkFrac outTimeBase(codecContext->time_base.num,
                        codecContext->time_base.den);
 
-    qint64 pts = qRound64(QDateTime::currentMSecsSinceEpoch()
-                          * outTimeBase.value()
-                          / 1000);
+    if (frame) {
+        qint64 pts = qRound64(QDateTime::currentMSecsSinceEpoch()
+                              / outTimeBase.value()
+                              / 1000);
 
-    if (this->m_refPts == AV_NOPTS_VALUE)
-        this->m_lastPts = this->m_refPts = pts;
-    else if (this->m_lastPts != pts)
-        this->m_lastPts = pts;
-    else
-        return PacketStatusError;
+        if (this->m_refPts == AV_NOPTS_VALUE)
+            this->m_lastPts = this->m_refPts = pts;
+        else if (this->m_lastPts != pts)
+            this->m_lastPts = pts;
+        else
+            return AVERROR(EAGAIN);
 
-    frame->pts = this->m_lastPts - this->m_refPts;
-    auto formatContext = this->formatContext();
+        frame->pts = this->m_lastPts - this->m_refPts;
+    } else {
+        this->m_lastPts++;
+    }
+
     auto stream = this->stream();
 
     if (formatContext->oformat->flags & AVFMT_RAWPICTURE) {
@@ -287,38 +299,39 @@ AbstractStream::PacketStatus VideoStream::encodeData(AVFrame *frame)
         AVPacket pkt;
         av_init_packet(&pkt);
         pkt.flags |= AV_PKT_FLAG_KEY;
-        pkt.data = frame->data[0];
+        pkt.data = frame? frame->data[0]: NULL;
         pkt.size = sizeof(AVPicture);
-        pkt.pts = frame->pts;
+        pkt.pts = frame? frame->pts: this->m_lastPts;
         pkt.stream_index = this->streamIndex();
 
         this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
         emit this->packetReady(&pkt);
 
-        return PacketStatusWritten;
+        return 0;
     }
 
     // encode the image
 #ifdef HAVE_SENDRECV
-    auto error = avcodec_send_frame(codecContext, frame);
+    auto result = avcodec_send_frame(codecContext, frame);
 
-    if (error < 0) {
+    if (result == AVERROR_EOF || result == AVERROR(EAGAIN))
+        return result;
+    else if (result < 0) {
         char errorStr[1024];
-        av_strerror(AVERROR(error), errorStr, 1024);
+        av_strerror(AVERROR(result), errorStr, 1024);
         qDebug() << "Error encoding packets: " << errorStr;
 
-        return PacketStatusError;
+        return result;
     }
-
-    auto status = PacketStatusSent;
 
     forever {
         AVPacket pkt;
         av_init_packet(&pkt);
         pkt.data = NULL; // packet data will be allocated by the encoder
         pkt.size = 0;
+        result = avcodec_receive_packet(codecContext, &pkt);
 
-        if (avcodec_receive_packet(codecContext, &pkt) < 0)
+        if (result < 0)
             break;
 
         pkt.stream_index = this->streamIndex();
@@ -328,10 +341,9 @@ AbstractStream::PacketStatus VideoStream::encodeData(AVFrame *frame)
 
         // Write the compressed frame to the media file.
         emit this->packetReady(&pkt);
-        status = PacketStatusWritten;
     }
 
-    return status;
+    return result;
 #else
     AVPacket pkt;
     av_init_packet(&pkt);
@@ -339,13 +351,13 @@ AbstractStream::PacketStatus VideoStream::encodeData(AVFrame *frame)
     pkt.size = 0;
 
     int gotPacket;
+    int result = avcodec_encode_video2(codecContext,
+                                       &pkt,
+                                       frame,
+                                       &gotPacket);
 
-    if (avcodec_encode_video2(codecContext,
-                              &pkt,
-                              frame,
-                              &gotPacket) < 0) {
-        return PacketStatusError;
-    }
+    if (result < 0)
+        return result;
 
     // If size is zero, it means the image was buffered.
     if (gotPacket) {
@@ -356,25 +368,25 @@ AbstractStream::PacketStatus VideoStream::encodeData(AVFrame *frame)
 
         // Write the compressed frame to the media file.
         emit this->packetReady(&pkt);
-
-        return PacketStatusWritten;
     }
 
-    return PacketStatusSent;
+    return 0;
 #endif
 }
 
 AVFrame *VideoStream::dequeueFrame()
 {
-    AVFrame *frame = NULL;
-
     this->m_frameMutex.lock();
 
-    if (this->m_frame) {
-        frame = av_frame_clone(this->m_frame);
-        this->m_frameQueueSize--;
-    }
+    if (!this->m_frame)
+        if (!this->m_frameReady.wait(&this->m_frameMutex, THREAD_WAIT_LIMIT)) {
+            this->m_frameMutex.unlock();
 
+            return NULL;
+        }
+
+    auto frame = this->m_frame;
+    this->m_frame = NULL;
     this->m_frameMutex.unlock();
 
     return frame;

@@ -120,8 +120,6 @@ class MultiSinkElement: public AkElement
         QVariantList m_userControls;
         QVariantMap m_userControlsValues;
         MediaWriterPtr m_mediaWriter;
-        QMutex m_mutex;
-        QMutex m_mutexLib;
         MultiSinkUtils m_utils;
         QList<int> m_inputStreams;
 

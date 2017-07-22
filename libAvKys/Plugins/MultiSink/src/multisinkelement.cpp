@@ -337,21 +337,11 @@ void MultiSinkElement::clearStreams()
 
 AkPacket MultiSinkElement::iStream(const AkPacket &packet)
 {
-    this->m_mutex.lock();
-
-    if (this->state() != ElementStatePlaying) {
-        this->m_mutex.unlock();
-
+    if (this->state() != ElementStatePlaying)
         return AkPacket();
-    }
 
-    if (this->m_inputStreams.contains(packet.index())) {
-        this->m_mutexLib.lock();
+    if (this->m_inputStreams.contains(packet.index()))
         this->m_mediaWriter->enqueuePacket(packet);
-        this->m_mutexLib.unlock();
-    }
-
-    this->m_mutex.unlock();
 
     return AkPacket();
 }
@@ -359,22 +349,16 @@ AkPacket MultiSinkElement::iStream(const AkPacket &packet)
 bool MultiSinkElement::setState(AkElement::ElementState state)
 {
     AkElement::ElementState curState = this->state();
-    QMutexLocker locker(&this->m_mutexLib);
-    this->m_mutex.lock();
 
     if (curState == AkElement::ElementStateNull) {
         if (state != AkElement::ElementStateNull
             && (!this->m_mediaWriter->init())) {
-            this->m_mutex.unlock();
-
             return false;
         }
     } else {
         if (state == AkElement::ElementStateNull)
             this->m_mediaWriter->uninit();
     }
-
-    this->m_mutex.unlock();
 
     return AkElement::setState(state);
 }
@@ -384,8 +368,6 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
     auto location = this->m_mediaWriter->location();
-
-    this->m_mutexLib.lock();
 
     this->m_mediaWriter =
             ptr_init<MediaWriter>(this->loadSubModule("MultiSink", codecLib));
@@ -448,8 +430,6 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
                      &MultiSinkElement::formatOptionsChanged,
                      this->m_mediaWriter.data(),
                      &MediaWriter::setFormatOptions);
-
-    this->m_mutexLib.unlock();
 
     this->m_mediaWriter->setLocation(location);
     emit this->supportedFormatsChanged(this->supportedFormats());

@@ -26,22 +26,6 @@
 #include "audiostream.h"
 #include "videostream.h"
 
-struct XRGB
-{
-    quint8 x;
-    quint8 r;
-    quint8 g;
-    quint8 b;
-};
-
-struct BGRX
-{
-    quint8 b;
-    quint8 g;
-    quint8 r;
-    quint8 x;
-};
-
 typedef QMap<AVMediaType, QString> AvMediaTypeStrMap;
 typedef QVector<AkVideoCaps> VectorVideoCaps;
 typedef QMap<AVOptionType, QString> OptionTypeStrMap;
@@ -1646,6 +1630,10 @@ void MediaWriterFFmpeg::uninit()
 
     this->m_isRecording = false;
 
+//    for (auto stream: this->m_streamsMap)
+//        stream->uninit();
+    this->m_streamsMap.clear();
+
     // Write the trailer, if any. The trailer must be written before you
     // close the CodecContexts open when you wrote the header; otherwise
     // av_write_trailer() may try to use memory that was freed on
@@ -1656,7 +1644,6 @@ void MediaWriterFFmpeg::uninit()
         // Close the output file.
         avio_close(this->m_formatContext->pb);
 
-    this->m_streamsMap.clear();
     avformat_free_context(this->m_formatContext);
     this->m_formatContext = NULL;
 }

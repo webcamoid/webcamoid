@@ -95,8 +95,6 @@ class Recording: public QObject
         bool m_recordAudio;
         QString m_videoFileName;
         AkElement::ElementState m_state;
-        AkElementPtr m_pipeline;
-        AkElementPtr m_videoGen;
         AkElementPtr m_record;
         QMutex m_mutex;
         AkPacket m_curPacket;

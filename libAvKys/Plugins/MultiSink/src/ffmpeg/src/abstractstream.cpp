@@ -46,10 +46,8 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     this->m_maxPacketQueueSize = 9;
     this->m_maxFrameQueueSize = 1;
-    this->m_frameSize = 1;
     this->m_runConvertLoop = false;
     this->m_runEncodeLoop = false;
-    this->m_frameQueueSize = 0;
     this->m_index = index;
     this->m_streamIndex = streamIndex;
     this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
@@ -133,21 +131,22 @@ AVCodecContext *AbstractStream::codecContext() const
 
 void AbstractStream::packetEnqueue(const AkPacket &packet)
 {
-    while (this->m_runConvertLoop) {
-        this->m_convertMutex.lock();
-        bool enqueue = true;
+    if (!this->m_runConvertLoop)
+        return;
 
-        if (this->m_packetQueue.size() >= this->m_maxPacketQueueSize)
-            enqueue = this->m_packetQueueNotFull.wait(&this->m_convertMutex,
-                                                      THREAD_WAIT_LIMIT);
+    this->m_convertMutex.lock();
+    bool enqueue = true;
 
-        if (enqueue) {
-            this->m_packetQueue << packet;
-            this->m_packetQueueNotEmpty.wakeAll();
-        }
+    if (this->m_packetQueue.size() >= this->m_maxPacketQueueSize)
+        enqueue = this->m_packetQueueNotFull.wait(&this->m_convertMutex,
+                                                  THREAD_WAIT_LIMIT);
 
-        this->m_convertMutex.unlock();
+    if (enqueue) {
+        this->m_packetQueue << packet;
+        this->m_packetQueueNotEmpty.wakeAll();
     }
+
+    this->m_convertMutex.unlock();
 }
 
 void AbstractStream::convertPacket(const AkPacket &packet)
@@ -155,11 +154,11 @@ void AbstractStream::convertPacket(const AkPacket &packet)
     Q_UNUSED(packet);
 }
 
-AbstractStream::PacketStatus AbstractStream::encodeData(AVFrame *frame)
+int AbstractStream::encodeData(AVFrame *frame)
 {
     Q_UNUSED(frame);
 
-    return PacketStatusError;
+    return AVERROR_EOF;
 }
 
 AVFrame *AbstractStream::dequeueFrame()
@@ -180,6 +179,16 @@ void AbstractStream::rescaleTS(AVPacket *pkt, AVRational src, AVRational dst)
 
     if (pkt->duration > 0)
         pkt->duration = av_rescale_q(pkt->duration, src, dst);
+#endif
+}
+
+void AbstractStream::deleteFrame(AVFrame **frame)
+{
+#ifdef HAVE_FRAMEALLOC
+    av_frame_unref(*frame);
+    av_frame_free(frame);
+#else
+    avcodec_free_frame(frame);
 #endif
 }
 
@@ -210,43 +219,15 @@ void AbstractStream::convertLoop()
 void AbstractStream::encodeLoop()
 {
     while (this->m_runEncodeLoop) {
-        this->m_encodeMutex.lock();
-        bool gotFrame = true;
-
-        if (this->m_frameQueueSize < this->m_frameSize)
-            gotFrame = this->m_frameQueueNotEmpty.wait(&this->m_encodeMutex,
-                                                       THREAD_WAIT_LIMIT);
-
-        AVFrame *frame = NULL;
-
-        if (gotFrame) {
-            frame = this->dequeueFrame();
-
-            if (this->m_frameQueueSize < this->m_maxFrameQueueSize)
-                this->m_frameQueueNotFull.wakeAll();
-        }
-
-        this->m_encodeMutex.unlock();
-
-        if (frame) {
+        if (auto frame = this->dequeueFrame()) {
             this->encodeData(frame);
-            this->deleteFrame(frame);
+            this->deleteFrame(&frame);
         }
     }
 
     // Flush encoders
-    while (this->encodeData(NULL) == PacketStatusSent) {
+    while (this->encodeData(NULL) == AVERROR(EAGAIN)) {
     }
-}
-
-void AbstractStream::deleteFrame(AVFrame *frame)
-{
-#ifdef HAVE_FRAMEALLOC
-    av_frame_unref(frame);
-    av_frame_free(&frame);
-#else
-    avcodec_free_frame(&frame);
-#endif
 }
 
 bool AbstractStream::init()
@@ -285,6 +266,9 @@ bool AbstractStream::init()
 
 void AbstractStream::uninit()
 {
+    if (!this->m_codecContext)
+        return;
+
     this->m_runConvertLoop = false;
     waitLoop(this->m_convertLoopResult);
 

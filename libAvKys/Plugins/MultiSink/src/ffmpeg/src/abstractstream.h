@@ -45,12 +45,6 @@ class AbstractStream: public QObject
     Q_OBJECT
 
     public:
-        enum PacketStatus {
-            PacketStatusError = -1,
-            PacketStatusSent,
-            PacketStatusWritten
-        };
-
         explicit AbstractStream(const AVFormatContext *formatContext=NULL,
                                 uint index=0, int streamIndex=-1,
                                 const QVariantMap &configs={},
@@ -70,13 +64,12 @@ class AbstractStream: public QObject
     protected:
         int m_maxPacketQueueSize;
         int m_maxFrameQueueSize;
-        qint64 m_frameQueueSize;
-        int m_frameSize;
 
         virtual void convertPacket(const AkPacket &packet);
-        virtual PacketStatus encodeData(AVFrame *frame);
+        virtual int encodeData(AVFrame *frame);
         virtual AVFrame *dequeueFrame();
         void rescaleTS(AVPacket *pkt, AVRational src, AVRational dst);
+        void deleteFrame(AVFrame **frame);
 
     private:
         uint m_index;
@@ -97,15 +90,11 @@ class AbstractStream: public QObject
         bool m_runConvertLoop;
 
         // Frame queue and encoding loop.
-        QMutex m_encodeMutex;
-        QWaitCondition m_frameQueueNotFull;
-        QWaitCondition m_frameQueueNotEmpty;
         QFuture<void> m_encodeLoopResult;
         bool m_runEncodeLoop;
 
         void convertLoop();
         void encodeLoop();
-        void deleteFrame(AVFrame *frame);
 
     signals:
         void packetReady(AVPacket *packet);
