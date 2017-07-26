@@ -158,6 +158,7 @@ VideoStream::~VideoStream()
 {
     this->uninit();
     this->deleteFrame(&this->m_frame);
+    sws_freeContext(this->m_scaleContext);
 }
 
 QImage VideoStream::swapChannels(const QImage &image) const
@@ -247,7 +248,6 @@ void VideoStream::convertPacket(const AkPacket &packet)
                        4) < 0)
         return;
 
-    // BUG: sws_scale is leaking memory for no reason!
     sws_scale(this->m_scaleContext,
               iFrame.data,
               iFrame.linesize,

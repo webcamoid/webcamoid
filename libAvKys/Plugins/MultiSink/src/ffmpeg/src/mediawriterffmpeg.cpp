@@ -527,7 +527,7 @@ class MediaWriterFFmpegGlobal
 
                 codecDefaults[codec->name] = codecParams;
 
-                av_free(codecContext);
+                avcodec_free_context(&codecContext);
             }
 
             return codecDefaults;
@@ -1629,9 +1629,6 @@ void MediaWriterFFmpeg::uninit()
         return;
 
     this->m_isRecording = false;
-
-//    for (auto stream: this->m_streamsMap)
-//        stream->uninit();
     this->m_streamsMap.clear();
 
     // Write the trailer, if any. The trailer must be written before you

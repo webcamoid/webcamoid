@@ -97,6 +97,11 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 AbstractStream::~AbstractStream()
 {
     this->uninit();
+
+    if (this->m_codecContext) {
+        avcodec_close(this->m_codecContext);
+        avcodec_free_context(&this->m_codecContext);
+    }
 }
 
 uint AbstractStream::index() const
@@ -184,6 +189,11 @@ void AbstractStream::rescaleTS(AVPacket *pkt, AVRational src, AVRational dst)
 
 void AbstractStream::deleteFrame(AVFrame **frame)
 {
+    if (frame && *frame) {
+        av_freep(&((*frame)->data[0]));
+        (*frame)->data[0] = NULL;
+    }
+
 #ifdef HAVE_FRAMEALLOC
     av_frame_unref(*frame);
     av_frame_free(frame);
@@ -266,8 +276,6 @@ bool AbstractStream::init()
 
 void AbstractStream::uninit()
 {
-    if (!this->m_codecContext)
-        return;
 
     this->m_runConvertLoop = false;
     waitLoop(this->m_convertLoopResult);
@@ -277,11 +285,6 @@ void AbstractStream::uninit()
 
     if (this->m_codecOptions)
         av_dict_free(&this->m_codecOptions);
-
-    if (this->m_codecContext) {
-        avcodec_close(this->m_codecContext);
-        this->m_codecContext = NULL;
-    }
 
     this->m_packetQueue.clear();
 }

@@ -31,7 +31,6 @@ CONFIG += plugin
 HEADERS = \
     src/plugin.h \
     src/mediawriterffmpeg.h \
-    src/outputparams.h \
     ../mediawriter.h \
     src/abstractstream.h \
     src/videostream.h \
@@ -84,7 +83,6 @@ QT += qml concurrent
 SOURCES = \
     src/plugin.cpp \
     src/mediawriterffmpeg.cpp \
-    src/outputparams.cpp \
     ../mediawriter.cpp \
     src/abstractstream.cpp \
     src/videostream.cpp \
