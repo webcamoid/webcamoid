@@ -38,8 +38,10 @@ class AudioStream: public AbstractStream
     private:
         AkElementPtr m_convert;
         AVFrame *m_frame;
-        int m_frameSize;
-        qint64 m_frameQueueSize;
+        QMutex m_frameMutex;
+        int64_t m_lastPts;
+        int64_t m_refPts;
+        QWaitCondition m_frameReady;
 
     protected:
         void convertPacket(const AkPacket &packet);

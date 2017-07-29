@@ -45,7 +45,6 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     Q_UNUSED(mediaWriter)
 
     this->m_maxPacketQueueSize = 9;
-    this->m_maxFrameQueueSize = 1;
     this->m_runConvertLoop = false;
     this->m_runEncodeLoop = false;
     this->m_index = index;

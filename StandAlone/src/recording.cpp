@@ -25,7 +25,7 @@
 
 #include "recording.h"
 
-#define DEFAULT_RECORD_AUDIO false
+#define DEFAULT_RECORD_AUDIO true
 #define AUDIO_RECORDING_KEY "Enable audio recording"
 
 Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):

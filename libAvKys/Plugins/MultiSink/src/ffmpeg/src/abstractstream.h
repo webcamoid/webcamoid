@@ -63,7 +63,6 @@ class AbstractStream: public QObject
 
     protected:
         int m_maxPacketQueueSize;
-        int m_maxFrameQueueSize;
 
         virtual void convertPacket(const AkPacket &packet);
         virtual int encodeData(AVFrame *frame);
