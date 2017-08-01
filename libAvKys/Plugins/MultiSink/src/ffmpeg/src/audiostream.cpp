@@ -77,8 +77,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
                    parent)
 {
     this->m_frame = NULL;
-    this->m_lastPts = AV_NOPTS_VALUE;
-    this->m_refPts = AV_NOPTS_VALUE;
+    this->m_pts = 0;
     auto codecContext = this->codecContext();
     auto codec = codecContext->codec;
     auto defaultCodecParams = mediaWriter->defaultCodecParams(codec->name);
@@ -280,24 +279,11 @@ int AudioStream::encodeData(AVFrame *frame)
         && codecContext->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE)
         return AVERROR_EOF;
 
-    AkFrac outTimeBase(codecContext->time_base.num,
-                       codecContext->time_base.den);
-
     if (frame) {
-        qint64 pts = qRound64(QDateTime::currentMSecsSinceEpoch()
-                              / outTimeBase.value()
-                              / 1000);
-
-        if (this->m_refPts == AV_NOPTS_VALUE)
-            this->m_lastPts = this->m_refPts = pts;
-        else if (this->m_lastPts != pts)
-            this->m_lastPts = pts;
-        else
-            return AVERROR(EAGAIN);
-
-        frame->pts = this->m_lastPts - this->m_refPts;
+        frame->pts = this->m_pts;
+        this->m_pts += frame->nb_samples;
     } else {
-        this->m_lastPts++;
+        this->m_pts++;
     }
 
     auto stream = this->stream();

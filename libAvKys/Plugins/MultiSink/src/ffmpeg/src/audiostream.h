@@ -39,8 +39,7 @@ class AudioStream: public AbstractStream
         AkElementPtr m_convert;
         AVFrame *m_frame;
         QMutex m_frameMutex;
-        int64_t m_lastPts;
-        int64_t m_refPts;
+        int64_t m_pts;
         QWaitCondition m_frameReady;
 
     protected:
