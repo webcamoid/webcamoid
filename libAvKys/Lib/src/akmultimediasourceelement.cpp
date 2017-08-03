@@ -60,7 +60,7 @@ bool AkMultimediaSourceElement::loop() const
     return this->d->m_loop;
 }
 
-int AkMultimediaSourceElement::defaultStream(const QString &mimeType) const
+int AkMultimediaSourceElement::defaultStream(const QString &mimeType)
 {
     Q_UNUSED(mimeType)
 
@@ -74,7 +74,7 @@ QString AkMultimediaSourceElement::description(const QString &media) const
     return QString();
 }
 
-AkCaps AkMultimediaSourceElement::caps(int stream) const
+AkCaps AkMultimediaSourceElement::caps(int stream)
 {
     Q_UNUSED(stream)
 

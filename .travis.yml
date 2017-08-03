@@ -143,6 +143,12 @@ matrix:
   - os: osx
     osx_image: xcode8.2
     compiler: clang
+  - os: osx
+    osx_image: xcode8.3
+    compiler: clang
+  - os: osx
+    osx_image: xcode9
+    compiler: clang
   - language: android
     jdk: oraclejdk8
     android:

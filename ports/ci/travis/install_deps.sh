@@ -180,6 +180,11 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libpulse-devel \
         libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    wget -c https://github.com/Syphon/Simple/releases/download/version-3/Syphon.Simple.Apps.3.zip
+    unzip Syphon.Simple.Apps.3.zip
+    mkdir -p Syphon
+    cp -Rvf "Syphon Simple Apps/Simple Client.app/Contents/Frameworks/Syphon.framework" ./Syphon
+
     brew install \
         ccache \
         pkg-config \

@@ -49,13 +49,18 @@ EOF
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    syphonFPath="$PWD"
+
     ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
         QMAKE_CXX="${COMPILER}" \
+        SYPHONINCLUDES="$syphonFPath/Syphon.framework/Headers" \
+        SYPHONLIBS=-F"$syphonFPath" \
+        SYPHONLIBS+=-framework \
+        SYPHONLIBS+=Syphon \
         LIBUSBINCLUDES=/usr/local/opt/libusb/include \
         LIBUVCINCLUDES=/usr/local/opt/libuvc/include \
         LIBUVCLIBS=-L/usr/local/opt/libuvc/lib \
         LIBUVCLIBS+=-luvc
-
 fi
 
 if [ -z "${NJOBS}" ]; then

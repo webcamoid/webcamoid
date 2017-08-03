@@ -160,7 +160,7 @@ QList<int> VideoCaptureElement::listTracks(const QString &mimeType)
     return this->m_capture->listTracks(mimeType);
 }
 
-int VideoCaptureElement::defaultStream(const QString &mimeType) const
+int VideoCaptureElement::defaultStream(const QString &mimeType)
 {
     if (mimeType == "video/x-raw")
         return 0;
@@ -173,7 +173,7 @@ QString VideoCaptureElement::description(const QString &media) const
     return this->m_capture->description(media);
 }
 
-AkCaps VideoCaptureElement::caps(int stream) const
+AkCaps VideoCaptureElement::caps(int stream)
 {
     QVariantList streams = this->m_capture->caps(this->m_capture->device());
     AkCaps caps = streams.value(stream).value<AkCaps>();

@@ -127,7 +127,7 @@ QList<int> DesktopCaptureElement::streams() const
     return streams;
 }
 
-int DesktopCaptureElement::defaultStream(const QString &mimeType) const
+int DesktopCaptureElement::defaultStream(const QString &mimeType)
 {
     if (mimeType == "video/x-raw")
         return 0;
@@ -144,7 +144,7 @@ QString DesktopCaptureElement::description(const QString &media) const
     return QString();
 }
 
-AkCaps DesktopCaptureElement::caps(int stream) const
+AkCaps DesktopCaptureElement::caps(int stream)
 {
     if (this->m_curScreenNumber < 0
         || stream != 0)
