@@ -17,20 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef DESKTOPCAPTUREELEMENT_H
-#define DESKTOPCAPTUREELEMENT_H
+#ifndef SWIRLELEMENT_H
+#define SWIRLELEMENT_H
 
 #include <QQmlComponent>
 #include <QQmlContext>
-#include <QTimer>
-#include <QThreadPool>
-#include <QtConcurrent>
-#include <QDesktopWidget>
-
+#include <QMutex>
 #include <ak.h>
 #include <akmultimediasourceelement.h>
 
-class DesktopCaptureElement: public AkMultimediaSourceElement
+class SyphonIOElementPrivate;
+
+class SyphonIOElement: public AkMultimediaSourceElement
 {
     Q_OBJECT
     Q_PROPERTY(QStringList medias
@@ -51,63 +49,58 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
                WRITE setLoop
                RESET resetLoop
                NOTIFY loopChanged)
-    Q_PROPERTY(AkFrac fps
-               READ fps
-               WRITE setFps
-               RESET resetFps
-               NOTIFY fpsChanged)
+    Q_PROPERTY(QString description
+               READ description
+               WRITE setDescription
+               RESET resetDescription
+               NOTIFY descriptionChanged)
+    Q_PROPERTY(bool isOutput
+               READ isOutput
+               WRITE setAsOutput
+               RESET resetAsInput
+               NOTIFY isOutputChanged)
 
     public:
-        explicit DesktopCaptureElement();
-        ~DesktopCaptureElement();
+        explicit SyphonIOElement();
+        ~SyphonIOElement();
 
         Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
                                               const QString &controlId) const;
 
-        Q_INVOKABLE AkFrac fps() const;
-
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
-
+        Q_INVOKABLE bool isOutput() const;
         Q_INVOKABLE int defaultStream(const QString &mimeType);
-        Q_INVOKABLE QString description(const QString &media);
+        Q_INVOKABLE QString description(const QString &media="");
         Q_INVOKABLE AkCaps caps(int stream);
 
-    private:
-        AkFrac m_fps;
-        QString m_curScreen;
-        int m_curScreenNumber;
-        qint64 m_id;
-        bool m_threadedRead;
-        QTimer m_timer;
-        QThreadPool m_threadPool;
-        QFuture<void> m_threadStatus;
-        QMutex m_mutex;
-        AkPacket m_curPacket;
+        void updateServers();
 
-        void sendPacket(const AkPacket &packet);
+    private:
+        SyphonIOElementPrivate *d;
+        QString m_description;
+        QMap<QString, QString> m_servers;
+        QMutex m_mutex;
 
     signals:
         void mediasChanged(const QStringList &medias);
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
         void loopChanged(bool loop);
-        void fpsChanged(const AkFrac &fps);
-        void sizeChanged(const QString &media, const QSize &size);
+        void descriptionChanged(const QString &description);
         void error(const QString &message);
+        void isOutputChanged(bool isOutput);
 
     public slots:
-        void setFps(const AkFrac &fps);
-        void resetFps();
         void setMedia(const QString &media);
+        void setDescription(const QString &description);
+        void setAsOutput(bool isOutput);
         void resetMedia();
+        void resetDescription();
+        void resetAsInput();
         bool setState(AkElement::ElementState state);
-
-    private slots:
-        void readFrame();
-        void screenCountChanged(QScreen *screen);
-        void srceenResized(int screen);
+        AkPacket iStream(const AkPacket &packet);
 };
 
-#endif // DESKTOPCAPTUREELEMENT_H
+#endif // SWIRLELEMENT_H

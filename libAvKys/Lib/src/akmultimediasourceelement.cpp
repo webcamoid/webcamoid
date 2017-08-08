@@ -40,7 +40,7 @@ AkMultimediaSourceElement::~AkMultimediaSourceElement()
     delete this->d;
 }
 
-QStringList AkMultimediaSourceElement::medias() const
+QStringList AkMultimediaSourceElement::medias()
 {
     return this->d->m_medias;
 }
@@ -67,7 +67,7 @@ int AkMultimediaSourceElement::defaultStream(const QString &mimeType)
     return -1;
 }
 
-QString AkMultimediaSourceElement::description(const QString &media) const
+QString AkMultimediaSourceElement::description(const QString &media)
 {
     Q_UNUSED(media)
 

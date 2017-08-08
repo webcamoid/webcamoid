@@ -99,7 +99,7 @@ AkFrac DesktopCaptureElement::fps() const
     return this->m_fps;
 }
 
-QStringList DesktopCaptureElement::medias() const
+QStringList DesktopCaptureElement::medias()
 {
     QStringList screens;
 
@@ -135,7 +135,7 @@ int DesktopCaptureElement::defaultStream(const QString &mimeType)
     return -1;
 }
 
-QString DesktopCaptureElement::description(const QString &media) const
+QString DesktopCaptureElement::description(const QString &media)
 {
     for (int i = 0; i < QGuiApplication::screens().size(); i++)
         if (QString("screen://%1").arg(i) == media)

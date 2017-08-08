@@ -16,6 +16,32 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+TRANSLATIONS = $$files(share/ts/*.ts)
+
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../commons.pri) {
+        include(../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
+
+CONFIG += plugin
+
+HEADERS = \
+    src/syphonio.h \
+    src/syphonioelement.h \
+    src/serverobserver.h
+
+INCLUDEPATH += \
+    ../../Lib/src
+
+LIBS += -L$${PWD}/../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
 !isEmpty(SYPHONINCLUDES): INCLUDEPATH += $${SYPHONINCLUDES}
 
 isEmpty(SYPHONLIBS) {
@@ -26,7 +52,27 @@ isEmpty(SYPHONLIBS) {
 
 LIBS += -framework Foundation
 
-OBJECTIVE_SOURCES = \
-    test.mm
+QT += qml opengl
 
-TARGET = test_auto
+RESOURCES += \
+    syphonio.qrc \
+    translations.qrc
+
+SOURCES = \
+    src/syphonio.cpp
+
+OBJECTIVE_SOURCES = \
+    src/syphonioelement.mm \
+    src/serverobserver.mm
+
+lupdate_only {
+    SOURCES += $$files(share/qml/*.qml)
+}
+
+DESTDIR = $${OUT_PWD}
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}

@@ -35,13 +35,13 @@ class AKCOMMONS_EXPORT AkMultimediaSourceElement: public AkElement
         AkMultimediaSourceElement(QObject *parent=NULL);
         ~AkMultimediaSourceElement();
 
-        Q_INVOKABLE virtual QStringList medias() const;
+        Q_INVOKABLE virtual QStringList medias();
         Q_INVOKABLE virtual QString media() const;
         Q_INVOKABLE virtual QList<int> streams() const;
         Q_INVOKABLE virtual bool loop() const;
 
         Q_INVOKABLE virtual int defaultStream(const QString &mimeType);
-        Q_INVOKABLE virtual QString description(const QString &media) const;
+        Q_INVOKABLE virtual QString description(const QString &media);
         Q_INVOKABLE virtual AkCaps caps(int stream);
 
     private:

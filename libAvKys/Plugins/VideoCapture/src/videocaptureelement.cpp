@@ -140,7 +140,7 @@ QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString
     return item;
 }
 
-QStringList VideoCaptureElement::medias() const
+QStringList VideoCaptureElement::medias()
 {
     return this->m_capture->webcams();
 }
@@ -168,7 +168,7 @@ int VideoCaptureElement::defaultStream(const QString &mimeType)
     return -1;
 }
 
-QString VideoCaptureElement::description(const QString &media) const
+QString VideoCaptureElement::description(const QString &media)
 {
     return this->m_capture->description(media);
 }

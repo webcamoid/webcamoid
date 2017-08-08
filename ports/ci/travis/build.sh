@@ -49,7 +49,7 @@ EOF
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    syphonFPath="$PWD"
+    syphonFPath="$PWD/Syphon"
 
     ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
         QMAKE_CXX="${COMPILER}" \
