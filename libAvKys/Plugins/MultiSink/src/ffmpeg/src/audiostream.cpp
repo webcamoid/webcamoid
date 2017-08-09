@@ -209,7 +209,11 @@ void AudioStream::convertPacket(const AkPacket &packet)
     this->m_frameMutex.lock();
 
     // Create new buffer.
+#ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
+#else
+    auto oFrame = avcodec_alloc_frame();
+#endif
 
     if (av_samples_alloc(oFrame->data,
                          oFrame->linesize,
@@ -379,7 +383,12 @@ AVFrame *AudioStream::dequeueFrame()
         this->m_frame = NULL;
     } else {
         // Create output buffer.
-        oFrame = av_frame_alloc();
+#ifdef HAVE_FRAMEALLOC
+        auto oFrame = av_frame_alloc();
+#else
+        auto oFrame = avcodec_alloc_frame();
+#endif
+
         oFrame->format = codecContext->sample_fmt;
         oFrame->channel_layout = codecContext->channel_layout;
         oFrame->sample_rate = codecContext->sample_rate;
@@ -414,7 +423,12 @@ AVFrame *AudioStream::dequeueFrame()
         }
 
         // Create new buffer.
+#ifdef HAVE_FRAMEALLOC
         auto frame = av_frame_alloc();
+#else
+        auto frame = avcodec_alloc_frame();
+#endif
+
         frame->format = codecContext->sample_fmt;
         frame->channel_layout = codecContext->channel_layout;
         frame->sample_rate = codecContext->sample_rate;
