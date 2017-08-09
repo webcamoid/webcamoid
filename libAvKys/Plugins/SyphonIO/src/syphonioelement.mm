@@ -220,5 +220,5 @@ bool SyphonIOElement::setState(AkElement::ElementState state)
 
 AkPacket SyphonIOElement::iStream(const AkPacket &packet)
 {
-    return AkPacket()
+    return AkPacket();
 }
