@@ -126,22 +126,22 @@ QStringList SyphonIOElement::medias()
 
 QString SyphonIOElement::media() const
 {
-
+    return QString();
 }
 
 QList<int> SyphonIOElement::streams() const
 {
-
+    return QList<int>();
 }
 
 bool SyphonIOElement::isOutput() const
 {
-
+    return false;
 }
 
 int SyphonIOElement::defaultStream(const QString &mimeType)
 {
-
+    return -1;
 }
 
 QString SyphonIOElement::description(const QString &media)
@@ -155,7 +155,7 @@ QString SyphonIOElement::description(const QString &media)
 
 AkCaps SyphonIOElement::caps(int stream)
 {
-
+    return AkCaps();
 }
 
 void SyphonIOElement::updateServers()
@@ -220,4 +220,5 @@ bool SyphonIOElement::setState(AkElement::ElementState state)
 
 AkPacket SyphonIOElement::iStream(const AkPacket &packet)
 {
+    return AkPacket()
 }
