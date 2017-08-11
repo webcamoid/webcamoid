@@ -76,12 +76,17 @@ class SyphonIOElement: public AkMultimediaSourceElement
         Q_INVOKABLE AkCaps caps(int stream);
 
         void updateServers();
+        void frameReady(const QImage &frame);
 
     private:
+        QString m_media;
+        bool m_isOutput;
         SyphonIOElementPrivate *d;
         QString m_description;
         QMap<QString, QString> m_servers;
         QMutex m_mutex;
+        qint64 m_id;
+        AkFrac m_fps;
 
     signals:
         void mediasChanged(const QStringList &medias);

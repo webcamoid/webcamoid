@@ -17,41 +17,35 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#import "serverobserver.h"
+#ifndef RENDERWIDGET_H
+#define RENDERWIDGET_H
 
-@implementation ServerObserver
+#include <QOpenGLWidget>
+#include <QOpenGLFramebufferObject>
 
-- (id) initWithIOElement: (SyphonIOElement *) element
+class RenderWidget: public QOpenGLWidget
 {
-    self = [super init];
+    Q_OBJECT
 
-    if (!self)
-        return nil;
+    public:
+        explicit RenderWidget();
+        ~RenderWidget();
 
-    m_ioElement = element;
+        Q_INVOKABLE GLuint texture() const;
+        Q_INVOKABLE QImage grabFrame();
 
-    return self;
-}
+    protected:
+        void initializeGL();
+        void resizeGL(int width, int height);
+        void paintGL();
 
-- (void) serverAdded: (NSNotification *) notification
-{
-    Q_UNUSED(notification)
+    private:
+        GLuint m_texture;
+        bool m_initialized;
+        QOpenGLFramebufferObject *m_fbo;
 
-    m_ioElement->updateServers();
-}
+    public slots:
+        void setTexture(GLuint texture);
+};
 
-- (void) serverChanged: (NSNotification *) notification
-{
-    Q_UNUSED(notification)
-
-    m_ioElement->updateServers();
-}
-
-- (void) serverRemoved: (NSNotification *) notification
-{
-    Q_UNUSED(notification)
-
-    m_ioElement->updateServers();
-}
-
-@end
+#endif // RENDERWIDGET_H

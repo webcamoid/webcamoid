@@ -33,7 +33,8 @@ CONFIG += plugin
 HEADERS = \
     src/syphonio.h \
     src/syphonioelement.h \
-    src/serverobserver.h
+    src/serverobserver.h \
+    src/renderwidget.h
 
 INCLUDEPATH += \
     ../../Lib/src
@@ -52,14 +53,15 @@ isEmpty(SYPHONLIBS) {
 
 LIBS += -framework Foundation
 
-QT += qml opengl
+QT += qml widgets
 
 RESOURCES += \
     syphonio.qrc \
     translations.qrc
 
 SOURCES = \
-    src/syphonio.cpp
+    src/syphonio.cpp \
+    src/renderwidget.cpp
 
 OBJECTIVE_SOURCES = \
     src/syphonioelement.mm \
