@@ -17,12 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QtDebug>
-
 #include "renderwidget.h"
 
-#define TEXTURE_TARGET GL_TEXTURE_2D
-//#define TEXTURE_TARGET GL_TEXTURE_RECTANGLE_ARB
+//#define TEXTURE_TARGET GL_TEXTURE_2D
+#define TEXTURE_TARGET GL_TEXTURE_RECTANGLE_ARB
 
 RenderWidget::RenderWidget():
     QOpenGLWidget()
@@ -91,18 +89,25 @@ void RenderWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(TEXTURE_TARGET, this->m_texture);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    int texWidth = TEXTURE_TARGET == GL_TEXTURE_2D? 1: this->width();
+    int texHeight = TEXTURE_TARGET == GL_TEXTURE_2D? 1: this->height();
 
     glBegin(GL_QUADS);
         glTexCoord2f(0, 0);
         glVertex2f(0, 0);
 
-        glTexCoord2f(0, 1);
+        glTexCoord2f(0, texHeight);
         glVertex2f(0, 1);
 
-        glTexCoord2f(1, 1);
+        glTexCoord2f(texWidth, texHeight);
         glVertex2f(1, 1);
 
-        glTexCoord2f(1, 0);
+        glTexCoord2f(texWidth, 0);
         glVertex2f(1, 0);
     glEnd();
 }
