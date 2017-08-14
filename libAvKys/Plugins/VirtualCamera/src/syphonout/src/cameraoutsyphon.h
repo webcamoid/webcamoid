@@ -17,24 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef CAMERAOUTDSHOW_H
-#define CAMERAOUTDSHOW_H
+#ifndef CAMERAOUTSYPHON_H
+#define CAMERAOUTSYPHON_H
 
-#include <strmif.h>
-#include <initguid.h>
-#include <uuids.h>
-#include <vfwmsgs.h>
-#include <ipcbridge.h>
+#include <akelement.h>
 
 #include "cameraout.h"
 
-class CameraOutDShow: public CameraOut
+class CameraOutSyphon: public CameraOut
 {
     Q_OBJECT
 
     public:
-        explicit CameraOutDShow(QObject *parent=NULL);
-        ~CameraOutDShow();
+        explicit CameraOutSyphon(QObject *parent=NULL);
+        ~CameraOutSyphon();
 
         Q_INVOKABLE QString driverPath() const;
         Q_INVOKABLE QStringList webcams() const;
@@ -57,21 +53,11 @@ class CameraOutDShow: public CameraOut
         Q_INVOKABLE bool removeAllWebcams(const QString &password);
 
     private:
-        QString m_driverPath;
-        QStringList m_webcams;
+        QList<AkElementPtr> m_webcams;
+        AkElementPtr m_webcam;
         QString m_device;
         int m_streamIndex;
         AkCaps m_caps;
-        int m_passwordTimeout;
-        QString m_rootMethod;
-        IpcBridge m_ipcBridge;
-
-        HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
-        QString iidToString(const IID &iid) const;
-        bool sudo(const QString &command,
-                  const QString &params,
-                  const QString &dir=QString(),
-                  bool hide=false) const;
 
     public slots:
         bool init(int streamIndex, const AkCaps &caps);
@@ -86,4 +72,4 @@ class CameraOutDShow: public CameraOut
         void resetRootMethod();
 };
 
-#endif // CAMERAOUTDSHOW_H
+#endif // CAMERAOUTSYPHON_H

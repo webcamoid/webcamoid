@@ -66,13 +66,13 @@ class CameraOutV4L2: public CameraOut
         Q_INVOKABLE int passwordTimeout() const;
         Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QString createWebcam(const QString &description,
-                                         const QString &password) const;
+                                         const QString &password);
         Q_INVOKABLE bool changeDescription(const QString &webcam,
                                            const QString &description,
                                            const QString &password) const;
         Q_INVOKABLE bool removeWebcam(const QString &webcam,
-                                      const QString &password) const;
-        Q_INVOKABLE bool removeAllWebcams(const QString &password) const;
+                                      const QString &password);
+        Q_INVOKABLE bool removeAllWebcams(const QString &password);
 
     private:
         QString m_driverPath;

@@ -226,7 +226,7 @@ QString CameraOutDShow::rootMethod() const
 }
 
 QString CameraOutDShow::createWebcam(const QString &description,
-                                     const QString &password) const
+                                     const QString &password)
 {
     Q_UNUSED(password)
 
@@ -298,7 +298,7 @@ bool CameraOutDShow::changeDescription(const QString &webcam,
 }
 
 bool CameraOutDShow::removeWebcam(const QString &webcam,
-                                  const QString &password) const
+                                  const QString &password)
 {
     Q_UNUSED(password)
 
@@ -325,7 +325,7 @@ bool CameraOutDShow::removeWebcam(const QString &webcam,
     return true;
 }
 
-bool CameraOutDShow::removeAllWebcams(const QString &password) const
+bool CameraOutDShow::removeAllWebcams(const QString &password)
 {
     Q_UNUSED(password)
 

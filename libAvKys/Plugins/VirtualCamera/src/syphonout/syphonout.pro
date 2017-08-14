@@ -16,14 +16,42 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS = src
-CONFIG(config_dshow): SUBDIRS += src/dshow
-CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg
-CONFIG(config_gstreamer): SUBDIRS += src/gstreamer
-CONFIG(config_syphon): SUBDIRS += src/syphonout
-CONFIG(config_v4l2): SUBDIRS += src/v4l2sys
-CONFIG(config_v4lutils): SUBDIRS += src/v4lutils
+HEADERS += \
+    src/plugin.h \
+    src/cameraoutsyphon.h \
+    ../cameraout.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+QT += qml
+
+SOURCES += \
+    src/plugin.cpp \
+    src/cameraoutsyphon.cpp \
+    ../cameraout.cpp
+
+DESTDIR = $${OUT_PWD}/../../submodules/VirtualCamera
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera

@@ -258,7 +258,7 @@ QString CameraOutV4L2::rootMethod() const
 }
 
 QString CameraOutV4L2::createWebcam(const QString &description,
-                                    const QString &password) const
+                                    const QString &password)
 {
     if ((this->m_rootMethod == "su" || this->m_rootMethod == "sudo")
         && password.isEmpty())
@@ -359,7 +359,7 @@ bool CameraOutV4L2::changeDescription(const QString &webcam,
 }
 
 bool CameraOutV4L2::removeWebcam(const QString &webcam,
-                                 const QString &password) const
+                                 const QString &password)
 {
     if ((this->m_rootMethod == "su" || this->m_rootMethod == "sudo")
         && password.isEmpty())
@@ -409,7 +409,7 @@ bool CameraOutV4L2::removeWebcam(const QString &webcam,
     return true;
 }
 
-bool CameraOutV4L2::removeAllWebcams(const QString &password) const
+bool CameraOutV4L2::removeAllWebcams(const QString &password)
 {
     if ((this->m_rootMethod == "su" || this->m_rootMethod == "sudo")
         && password.isEmpty())

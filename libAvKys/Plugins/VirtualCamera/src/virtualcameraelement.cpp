@@ -24,6 +24,8 @@
 
 #ifdef Q_OS_WIN32
     #define PREFERRED_FORMAT AkVideoCaps::Format_0rgb
+#elif defined(Q_OS_OSX)
+    #define PREFERRED_FORMAT AkVideoCaps::Format_argb
 #else
     #define PREFERRED_FORMAT AkVideoCaps::Format_yuv420p
 #endif
@@ -254,7 +256,7 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
 }
 
 QString VirtualCameraElement::createWebcam(const QString &description,
-                                           const QString &password) const
+                                           const QString &password)
 {
     return this->m_cameraOut->createWebcam(description, password);
 }
@@ -267,7 +269,7 @@ bool VirtualCameraElement::changeDescription(const QString &webcam,
 }
 
 bool VirtualCameraElement::removeWebcam(const QString &webcam,
-                                        const QString &password) const
+                                        const QString &password)
 {
     return this->m_cameraOut->removeWebcam(webcam, password);
 }
@@ -465,6 +467,8 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 #ifdef Q_OS_WIN32
         oPacket = AkUtils::roundSizeTo(AkUtils::imageToPacket(image, packet),
                                        PREFERRED_ROUNDING);
+#elif defined(Q_OS_OSX)
+        oPacket = packet;
 #else
         image = this->swapChannels(image);
 
