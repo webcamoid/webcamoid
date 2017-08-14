@@ -274,7 +274,7 @@ bool VirtualCameraElement::removeWebcam(const QString &webcam,
     return this->m_cameraOut->removeWebcam(webcam, password);
 }
 
-bool VirtualCameraElement::removeAllWebcams(const QString &password) const
+bool VirtualCameraElement::removeAllWebcams(const QString &password)
 {
     return this->m_cameraOut->removeAllWebcams(password);
 }
