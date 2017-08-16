@@ -19,9 +19,6 @@
 
 #include "renderwidget.h"
 
-//#define TEXTURE_TARGET GL_TEXTURE_2D
-#define TEXTURE_TARGET GL_TEXTURE_RECTANGLE_ARB
-
 RenderWidget::RenderWidget():
     QOpenGLWidget()
 {

@@ -21,7 +21,7 @@
 
 #include "cameraoutsyphon.h"
 
-#define MAX_CAMERAS 64
+#define MAX_CAMERAS 1
 
 CameraOutSyphon::CameraOutSyphon(QObject *parent):
     CameraOut(parent)
@@ -110,11 +110,11 @@ QString CameraOutSyphon::rootMethod() const
 }
 
 QString CameraOutSyphon::createWebcam(const QString &description,
-                                    const QString &password)
+                                      const QString &password)
 {
     Q_UNUSED(password)
 
-    if (description.isEmpty() || this->m_webcams.size() >= MAX_CAMERAS)
+    if (this->m_webcams.size() >= MAX_CAMERAS)
         return QString();
 
     auto webcam = AkElement::create("SyphonIO");
@@ -123,7 +123,9 @@ QString CameraOutSyphon::createWebcam(const QString &description,
         return QString();
 
     webcam->setProperty("isOutput", true);
-    webcam->setProperty("description", description);
+    webcam->setProperty("description",
+                        description.isEmpty()?
+                            QString("Syphon Virtual Webcam"): description);
     this->m_webcams << webcam;
 
     auto webcams = this->webcams();
@@ -133,8 +135,8 @@ QString CameraOutSyphon::createWebcam(const QString &description,
 }
 
 bool CameraOutSyphon::changeDescription(const QString &webcam,
-                                      const QString &description,
-                                      const QString &password) const
+                                        const QString &description,
+                                        const QString &password) const
 {
     Q_UNUSED(password)
 
@@ -163,7 +165,7 @@ bool CameraOutSyphon::changeDescription(const QString &webcam,
 }
 
 bool CameraOutSyphon::removeWebcam(const QString &webcam,
-                                 const QString &password)
+                                   const QString &password)
 {
     Q_UNUSED(password)
 

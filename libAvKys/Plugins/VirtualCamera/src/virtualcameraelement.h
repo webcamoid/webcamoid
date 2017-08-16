@@ -52,7 +52,8 @@ class VirtualCameraElement: public AkElement
                READ streams
                NOTIFY streamsChanged)
     Q_PROPERTY(int maxCameras
-               READ maxCameras)
+               READ maxCameras
+               NOTIFY maxCamerasChanged)
     Q_PROPERTY(bool needRoot
                READ needRoot
                NOTIFY needRootChanged)
@@ -131,6 +132,7 @@ class VirtualCameraElement: public AkElement
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
+        void maxCamerasChanged(int maxCameras);
         void needRootChanged(bool needRoot);
         void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(const QString &rootMethod);

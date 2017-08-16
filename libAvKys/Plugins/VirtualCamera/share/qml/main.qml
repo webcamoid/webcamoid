@@ -79,6 +79,7 @@ GridLayout {
         Button {
             text: qsTr("Add")
             iconName: "add"
+            enabled: cbxDevices.count < VirtualCamera.maxCameras
 
             onClicked: {
                 glyCommitChanges.operation = "add"

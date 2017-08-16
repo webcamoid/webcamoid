@@ -106,6 +106,9 @@ class SyphonIOElement: public AkMultimediaSourceElement
         void resetAsInput();
         bool setState(AkElement::ElementState state);
         AkPacket iStream(const AkPacket &packet);
+
+    private slots:
+        void isServerChanged(bool isOutput);
 };
 
 #endif // SWIRLELEMENT_H

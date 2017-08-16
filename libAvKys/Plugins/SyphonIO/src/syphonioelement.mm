@@ -81,6 +81,11 @@ class SyphonIOElementPrivate
              removeObserver: this->m_serverObserver];
 
             [this->m_serverObserver release];
+
+            if (this->m_syphonServer) {
+                [this->m_syphonServer stop];
+                [this->m_syphonServer release];
+            }
         }
 
         NSDictionary *descriptionFromMedia(const QString &media)
@@ -120,10 +125,16 @@ SyphonIOElement::SyphonIOElement(): AkMultimediaSourceElement()
     this->m_isOutput = false;
     this->m_fps = AkFrac(30, 1);
     this->d = new SyphonIOElementPrivate(this);
+
+    QObject::connect(this,
+                     &SyphonIOElement::isOutputChanged,
+                     this,
+                     &SyphonIOElement::isServerChanged);
 }
 
 SyphonIOElement::~SyphonIOElement()
 {
+    this->setState(AkElement::ElementStateNull);
     delete this->d;
 }
 
@@ -178,6 +189,17 @@ QStringList SyphonIOElement::medias()
 
 QString SyphonIOElement::media() const
 {
+    if (this->m_isOutput) {
+        if (!this->d->m_syphonServer)
+            return QString();
+
+        NSString *serverId =
+                [this->d->m_syphonServer.serverDescription
+                 objectForKey: SyphonServerDescriptionUUIDKey];
+
+        return QString::fromNSString(serverId);
+    }
+
     return this->m_media;
 }
 
@@ -386,12 +408,6 @@ bool SyphonIOElement::setState(AkElement::ElementState state)
                 this->d->m_syphonClient = nil;
             }
 
-            if (this->d->m_syphonServer) {
-                [this->d->m_syphonServer stop];
-                [this->d->m_syphonServer release];
-                this->d->m_syphonServer = nil;
-            }
-
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
             break;
@@ -406,5 +422,60 @@ bool SyphonIOElement::setState(AkElement::ElementState state)
 
 AkPacket SyphonIOElement::iStream(const AkPacket &packet)
 {
-    return AkPacket();
+    if (!this->d->m_syphonServer
+        || this->d->m_syphonServer.hasClients == NO
+        || this->state() != AkElement::ElementStatePlaying)
+        return AkPacket();
+
+    auto frame = AkUtils::packetToImage(packet)
+                    .convertToFormat(QImage::Format_ARGB32);
+
+    this->d->m_ogl.makeCurrent();
+    glEnable(TEXTURE_TARGET);
+    GLuint texture = 0;
+    glGenTextures(1, &texture);
+    glBindTexture(TEXTURE_TARGET, texture);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(TEXTURE_TARGET,
+                 0,
+                 GL_RGBA,
+                 frame.width(),
+                 frame.height(),
+                 0,
+                 GL_BGRA,
+                 GL_UNSIGNED_BYTE,
+                 frame.constBits());
+
+    [this->d->m_syphonServer
+     publishFrameTexture: texture
+     textureTarget: TEXTURE_TARGET
+     imageRegion: NSMakeRect(0, 0, frame.width(), frame.height())
+     textureDimensions: NSMakeSize(frame.width(), frame.height())
+     flipped: YES];
+
+    glBindTexture(TEXTURE_TARGET, 0);
+    glDeleteTextures(1, &texture);
+    glDisable(TEXTURE_TARGET);
+
+    return packet;
+}
+
+void SyphonIOElement::isServerChanged(bool isOutput)
+{
+    this->setState(AkElement::ElementStateNull);
+
+    if (isOutput) {
+        this->d->m_syphonServer
+                = [[SyphonServer alloc]
+                   initWithName: this->m_description.toNSString()
+                   context: this->d->m_oglContext
+                   options: nil];
+    } else if (this->d->m_syphonServer) {
+        [this->d->m_syphonServer stop];
+        [this->d->m_syphonServer release];
+        this->d->m_syphonServer = nil;
+    }
 }

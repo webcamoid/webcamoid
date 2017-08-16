@@ -23,6 +23,9 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFramebufferObject>
 
+//#define TEXTURE_TARGET GL_TEXTURE_2D
+#define TEXTURE_TARGET GL_TEXTURE_RECTANGLE_ARB
+
 class RenderWidget: public QOpenGLWidget
 {
     Q_OBJECT
