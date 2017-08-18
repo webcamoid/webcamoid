@@ -70,6 +70,8 @@ void RenderWidget::initializeGL()
 {
     glEnable(TEXTURE_TARGET);
     glDisable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void RenderWidget::resizeGL(int width, int height)
@@ -77,13 +79,14 @@ void RenderWidget::resizeGL(int width, int height)
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0.0, 1.0, 1.0, 0.0, -1.0, 1.0);
+    glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
 
 void RenderWidget::paintGL()
 {
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindTexture(TEXTURE_TARGET, this->m_texture);
     glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_REPEAT);

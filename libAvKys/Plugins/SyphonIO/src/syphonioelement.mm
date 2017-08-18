@@ -232,11 +232,10 @@ QString SyphonIOElement::description(const QString &media)
 
 AkCaps SyphonIOElement::caps(int stream)
 {
-    // Temporary caps, I need to read a first frame and then construct the caps
-    // according to that.
-    AkVideoCaps caps("video/x-raw,format=rgb0,width=640,height=480,fps=30/1");
+    if (stream != 0)
+        return AkCaps();
 
-    return caps.toCaps();
+    return this->m_caps;
 }
 
 void SyphonIOElement::updateServers()
@@ -284,6 +283,7 @@ void SyphonIOElement::frameReady(const QImage &frame)
     packet.setTimeBase(caps.fps().invert());
     packet.setIndex(0);
     packet.setId(this->m_id);
+    this->m_caps = packet.caps();
 
     emit this->oStream(packet);
 }

@@ -87,6 +87,7 @@ class SyphonIOElement: public AkMultimediaSourceElement
         QMutex m_mutex;
         qint64 m_id;
         AkFrac m_fps;
+        AkCaps m_caps;
 
     signals:
         void mediasChanged(const QStringList &medias);
