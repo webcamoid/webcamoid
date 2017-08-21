@@ -860,7 +860,7 @@ size_t i420_to_rgb3(void *dst, const void *src, int width, int height)
         for (int x = 0; x < width; x++) {
             int j = x / 2;
 
-            uint8_t y = line_y[j];
+            uint8_t y = line_y[x];
             uint8_t u = line_u[j];
             uint8_t v = line_v[j];
 
@@ -930,7 +930,7 @@ size_t i420_to_bgr3(void *dst, const void *src, int width, int height)
         for (int x = 0; x < width; x++) {
             int j = x / 2;
 
-            uint8_t y = line_y[j];
+            uint8_t y = line_y[x];
             uint8_t u = line_u[j];
             uint8_t v = line_v[j];
 
