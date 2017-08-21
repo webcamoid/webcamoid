@@ -52,7 +52,8 @@ class VirtualCameraElement: public AkElement
                READ streams
                NOTIFY streamsChanged)
     Q_PROPERTY(int maxCameras
-               READ maxCameras)
+               READ maxCameras
+               NOTIFY maxCamerasChanged)
     Q_PROPERTY(bool needRoot
                READ needRoot
                NOTIFY needRootChanged)
@@ -108,13 +109,13 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE QVariantMap updateStream(int streamIndex,
                                              const QVariantMap &streamParams=QVariantMap());
         Q_INVOKABLE QString createWebcam(const QString &description="",
-                                         const QString &password="") const;
+                                         const QString &password="");
         Q_INVOKABLE bool changeDescription(const QString &webcam,
                                            const QString &description="",
                                            const QString &password="") const;
         Q_INVOKABLE bool removeWebcam(const QString &webcam,
-                                      const QString &password="") const;
-        Q_INVOKABLE bool removeAllWebcams(const QString &password="") const;
+                                      const QString &password="");
+        Q_INVOKABLE bool removeAllWebcams(const QString &password="");
 
     private:
         ConvertVideoPtr m_convertVideo;
@@ -131,6 +132,7 @@ class VirtualCameraElement: public AkElement
         void mediasChanged(const QStringList &medias) const;
         void mediaChanged(const QString &media);
         void streamsChanged(const QList<int> &streams);
+        void maxCamerasChanged(int maxCameras);
         void needRootChanged(bool needRoot);
         void passwordTimeoutChanged(int passwordTimeout);
         void rootMethodChanged(const QString &rootMethod);

@@ -99,7 +99,7 @@ AkFrac DesktopCaptureElement::fps() const
     return this->m_fps;
 }
 
-QStringList DesktopCaptureElement::medias() const
+QStringList DesktopCaptureElement::medias()
 {
     QStringList screens;
 
@@ -127,7 +127,7 @@ QList<int> DesktopCaptureElement::streams() const
     return streams;
 }
 
-int DesktopCaptureElement::defaultStream(const QString &mimeType) const
+int DesktopCaptureElement::defaultStream(const QString &mimeType)
 {
     if (mimeType == "video/x-raw")
         return 0;
@@ -135,7 +135,7 @@ int DesktopCaptureElement::defaultStream(const QString &mimeType) const
     return -1;
 }
 
-QString DesktopCaptureElement::description(const QString &media) const
+QString DesktopCaptureElement::description(const QString &media)
 {
     for (int i = 0; i < QGuiApplication::screens().size(); i++)
         if (QString("screen://%1").arg(i) == media)
@@ -144,7 +144,7 @@ QString DesktopCaptureElement::description(const QString &media) const
     return QString();
 }
 
-AkCaps DesktopCaptureElement::caps(int stream) const
+AkCaps DesktopCaptureElement::caps(int stream)
 {
     if (this->m_curScreenNumber < 0
         || stream != 0)

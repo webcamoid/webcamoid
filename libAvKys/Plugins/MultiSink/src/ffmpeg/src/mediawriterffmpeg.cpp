@@ -527,7 +527,11 @@ class MediaWriterFFmpegGlobal
 
                 codecDefaults[codec->name] = codecParams;
 
+#ifdef HAVE_FREECONTEXT
                 avcodec_free_context(&codecContext);
+#else
+                av_free(codecContext);
+#endif
             }
 
             return codecDefaults;

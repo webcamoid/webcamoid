@@ -140,7 +140,7 @@ QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString
     return item;
 }
 
-QStringList VideoCaptureElement::medias() const
+QStringList VideoCaptureElement::medias()
 {
     return this->m_capture->webcams();
 }
@@ -160,7 +160,7 @@ QList<int> VideoCaptureElement::listTracks(const QString &mimeType)
     return this->m_capture->listTracks(mimeType);
 }
 
-int VideoCaptureElement::defaultStream(const QString &mimeType) const
+int VideoCaptureElement::defaultStream(const QString &mimeType)
 {
     if (mimeType == "video/x-raw")
         return 0;
@@ -168,12 +168,12 @@ int VideoCaptureElement::defaultStream(const QString &mimeType) const
     return -1;
 }
 
-QString VideoCaptureElement::description(const QString &media) const
+QString VideoCaptureElement::description(const QString &media)
 {
     return this->m_capture->description(media);
 }
 
-AkCaps VideoCaptureElement::caps(int stream) const
+AkCaps VideoCaptureElement::caps(int stream)
 {
     QVariantList streams = this->m_capture->caps(this->m_capture->device());
     AkCaps caps = streams.value(stream).value<AkCaps>();

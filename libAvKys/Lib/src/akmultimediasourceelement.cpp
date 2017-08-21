@@ -40,7 +40,7 @@ AkMultimediaSourceElement::~AkMultimediaSourceElement()
     delete this->d;
 }
 
-QStringList AkMultimediaSourceElement::medias() const
+QStringList AkMultimediaSourceElement::medias()
 {
     return this->d->m_medias;
 }
@@ -60,21 +60,21 @@ bool AkMultimediaSourceElement::loop() const
     return this->d->m_loop;
 }
 
-int AkMultimediaSourceElement::defaultStream(const QString &mimeType) const
+int AkMultimediaSourceElement::defaultStream(const QString &mimeType)
 {
     Q_UNUSED(mimeType)
 
     return -1;
 }
 
-QString AkMultimediaSourceElement::description(const QString &media) const
+QString AkMultimediaSourceElement::description(const QString &media)
 {
     Q_UNUSED(media)
 
     return QString();
 }
 
-AkCaps AkMultimediaSourceElement::caps(int stream) const
+AkCaps AkMultimediaSourceElement::caps(int stream)
 {
     Q_UNUSED(stream)
 

@@ -98,8 +98,12 @@ AbstractStream::~AbstractStream()
     this->uninit();
 
     if (this->m_codecContext) {
-        avcodec_close(this->m_codecContext);
+#ifdef HAVE_FREECONTEXT
         avcodec_free_context(&this->m_codecContext);
+#else
+        avcodec_close(this->m_codecContext);
+        av_free(this->m_codecContext);
+#endif
     }
 }
 

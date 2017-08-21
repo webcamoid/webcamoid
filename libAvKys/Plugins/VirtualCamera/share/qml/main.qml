@@ -51,10 +51,8 @@ GridLayout {
     Component.onCompleted: {
         if (OsName == "linux")
             recCameraControls.state = VirtualCamera.maxCameras > 0? "": "missing"
-        else if (OsName == "windows")
-            recCameraControls.state = VirtualCamera.maxCameras > 0? "": "unsupported"
         else
-            recCameraControls.state = "unsupported"
+            recCameraControls.state = VirtualCamera.maxCameras > 0? "": "unsupported"
 
         if (recCameraControls.state == "")
             updateDevices()
@@ -81,6 +79,7 @@ GridLayout {
         Button {
             text: qsTr("Add")
             iconName: "add"
+            enabled: cbxDevices.count < VirtualCamera.maxCameras
 
             onClicked: {
                 glyCommitChanges.operation = "add"

@@ -186,7 +186,13 @@ void VideoStream::convertPacket(const AkPacket &packet)
         return;
 
     auto codecContext = this->codecContext();
+
+#ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
+#else
+    auto oFrame = avcodec_alloc_frame();
+#endif
+
     oFrame->format = codecContext->pix_fmt;
     oFrame->width = codecContext->width;
     oFrame->height = codecContext->height;

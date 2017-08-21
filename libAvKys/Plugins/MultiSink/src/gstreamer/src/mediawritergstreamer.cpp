@@ -230,7 +230,6 @@ inline OptionTypeStrMap initGstOptionTypeStrMap()
         {G_TYPE_UCHAR           , "number" },
         {G_TYPE_PARAM_ENUM      , "menu"   },
         {G_TYPE_PARAM_FLAGS     , "flags"  },
-        {G_TYPE_VALUE_ARRAY     , "array"  },
         {GST_TYPE_CAPS          , "caps"   },
         {GST_TYPE_PARAM_FRACTION, "frac"   },
     };

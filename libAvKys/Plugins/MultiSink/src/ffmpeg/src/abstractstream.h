@@ -28,7 +28,7 @@
 extern "C"
 {
     #include <libavformat/avformat.h>
-    #include <libavutil/frame.h>
+    #include <libavcodec/avcodec.h>
 }
 
 #define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT

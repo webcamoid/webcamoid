@@ -44,6 +44,9 @@ class MediaSource: public QObject
     Q_PROPERTY(QStringList cameras
                READ cameras
                NOTIFY camerasChanged)
+    Q_PROPERTY(QStringList syphonServers
+               READ syphonServers
+               NOTIFY syphonServersChanged)
     Q_PROPERTY(QStringList desktops
                READ desktops
                NOTIFY desktopsChanged)
@@ -76,6 +79,7 @@ class MediaSource: public QObject
         Q_INVOKABLE QString stream() const;
         Q_INVOKABLE QStringList streams() const;
         Q_INVOKABLE QStringList cameras() const;
+        Q_INVOKABLE QStringList syphonServers() const;
         Q_INVOKABLE QStringList desktops() const;
         Q_INVOKABLE QVariantMap uris() const;
         Q_INVOKABLE AkCaps audioCaps() const;
@@ -94,6 +98,7 @@ class MediaSource: public QObject
         QStringList m_streams;
         QStringList m_cameras;
         QStringList m_desktops;
+        QStringList m_syphonServers;
         QVariantMap m_uris;
         QMap<QString, QString> m_descriptions;
         AkCaps m_audioCaps;
@@ -104,6 +109,7 @@ class MediaSource: public QObject
         AkElementPtr m_cameraCapture;
         AkElementPtr m_desktopCapture;
         AkElementPtr m_uriCapture;
+        AkElementPtr m_syphonCapture;
 
         AkElementPtr sourceElement(const QString &stream) const;
 
@@ -111,6 +117,7 @@ class MediaSource: public QObject
         void streamChanged(const QString &stream);
         void streamsChanged(const QStringList &streams);
         void camerasChanged(const QStringList &cameras);
+        void syphonServersChanged(const QStringList &servers);
         void desktopsChanged(const QStringList &desktops);
         void urisChanged(const QVariantMap &uris);
         void audioCapsChanged(const AkCaps &audioCaps);
@@ -136,6 +143,7 @@ class MediaSource: public QObject
         void updateStreams();
         bool setStreams(const QStringList &streams);
         bool setCameras(const QStringList &cameras);
+        bool setSyphonServers(const QStringList &servers);
         bool setDesktops(const QStringList &desktops);
         void setAudioCaps(const AkCaps &audioCaps);
         void setVideoCaps(const AkCaps &videoCaps);

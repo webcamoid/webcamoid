@@ -91,7 +91,7 @@ QObject *MultiSrcElement::controlInterface(QQmlEngine *engine,
     return item;
 }
 
-QStringList MultiSrcElement::medias() const
+QStringList MultiSrcElement::medias()
 {
     return this->m_mediaSource->medias();
 }
@@ -126,7 +126,7 @@ int MultiSrcElement::defaultStream(const QString &mimeType)
     return this->m_mediaSource->defaultStream(mimeType);
 }
 
-QString MultiSrcElement::description(const QString &media) const
+QString MultiSrcElement::description(const QString &media)
 {
     return this->m_mediaSource->description(media);
 }

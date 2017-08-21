@@ -133,15 +133,10 @@ matrix:
     env:
       - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
   - os: osx
-    osx_image: xcode8
-    compiler: clang
-    env:
-      - DISABLE_CCACHE=1
-  - os: osx
-    osx_image: xcode8.1
+    osx_image: xcode8.3
     compiler: clang
   - os: osx
-    osx_image: xcode8.2
+    osx_image: xcode9
     compiler: clang
   - language: android
     jdk: oraclejdk8

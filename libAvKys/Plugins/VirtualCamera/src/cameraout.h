@@ -74,13 +74,13 @@ class CameraOut: public QObject
         Q_INVOKABLE virtual int passwordTimeout() const;
         Q_INVOKABLE virtual QString rootMethod() const;
         Q_INVOKABLE virtual QString createWebcam(const QString &description="",
-                                                 const QString &password="") const;
+                                                 const QString &password="");
         Q_INVOKABLE virtual bool changeDescription(const QString &webcam,
                                                    const QString &description="",
                                                    const QString &password="") const;
         Q_INVOKABLE virtual bool removeWebcam(const QString &webcam,
-                                              const QString &password="") const;
-        Q_INVOKABLE virtual bool removeAllWebcams(const QString &password="") const;
+                                              const QString &password="");
+        Q_INVOKABLE virtual bool removeAllWebcams(const QString &password="");
 
     signals:
         void driverPathChanged(const QString &driverPath);

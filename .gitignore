@@ -10,6 +10,7 @@
 *.so.debug
 *.run
 *.AppImage
+*.framework
 
 # Packages #
 ############
