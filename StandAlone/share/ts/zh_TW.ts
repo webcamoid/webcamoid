@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>關於 %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../qml/About.qml" line="73"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>使用 Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="87"/>
@@ -41,7 +41,7 @@
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>貢獻者</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="133"/>
@@ -107,28 +107,28 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="110"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>輸出</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="113"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇用於播放音訊的輸出設備</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="127"/>
         <source>Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation>輸入</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="129"/>
         <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇用於音訊擷取的裝置</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="186"/>
         <location filename="../qml/AudioConfig.qml" line="288"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>靜音</translation>
     </message>
 </context>
 <context>
@@ -136,35 +136,35 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="162"/>
         <source>Description</source>
-        <translation type="unfinished">說明</translation>
+        <translation>說明</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="177"/>
         <location filename="../qml/AudioInfo.qml" line="184"/>
         <source>Device description</source>
-        <translation type="unfinished"></translation>
+        <translation>裝置說明</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="192"/>
         <location filename="../qml/AudioInfo.qml" line="207"/>
         <location filename="../qml/AudioInfo.qml" line="214"/>
         <source>Device id</source>
-        <translation type="unfinished"></translation>
+        <translation>裝置 id</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="229"/>
         <source>Sample Format</source>
-        <translation type="unfinished"></translation>
+        <translation>樣本格式</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="255"/>
         <source>Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>頻道</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="281"/>
         <source>Sample Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>採樣率</translation>
     </message>
 </context>
 <context>
@@ -172,22 +172,22 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="44"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>輸出</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="48"/>
         <source>General Options</source>
-        <translation type="unfinished"></translation>
+        <translation>一般選項</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Configs</source>
-        <translation type="unfinished"></translation>
+        <translation>外掛配置</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
         <source>Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>更新</translation>
     </message>
 </context>
 <context>
@@ -237,12 +237,12 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="37"/>
         <source>Play webcam on start</source>
-        <translation type="unfinished"></translation>
+        <translation>在開始時播放網路攝影機</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="43"/>
         <source>Enable advanced effects mode</source>
-        <translation type="unfinished"></translation>
+        <translation>啟用進階效果模式</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="49"/>
