@@ -24,6 +24,7 @@ import AkQml 1.0
 
 ColumnLayout {
     property variant videoCapture: Ak.newElement("VideoCapture")
+    property variant desktopCapture: Ak.newElement("DesktopCapture")
     property variant audioDevice: Ak.newElement("AudioDevice")
     property variant audioConvert: Ak.newElement("ACapsConvert")
     property variant virtualCamera: Ak.newElement("VirtualCamera")
@@ -64,6 +65,16 @@ ColumnLayout {
             currentIndex: model.indexOf(videoCapture.captureLib)
 
             onCurrentIndexChanged: videoCapture.captureLib = model[currentIndex]
+        }
+        Label {
+            text: qsTr("Desktop capture")
+        }
+        ComboBox {
+            Layout.fillWidth: true
+            model: desktopCapture.listSubModules()
+            currentIndex: model.indexOf(desktopCapture.captureLib)
+
+            onCurrentIndexChanged: desktopCapture.captureLib = model[currentIndex]
         }
         Label {
             text: qsTr("Audio capture/play")

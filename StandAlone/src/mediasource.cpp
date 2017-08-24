@@ -106,6 +106,10 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
+        QObject::connect(this->m_desktopCapture.data(),
+                         SIGNAL(captureLibChanged(const QString &)),
+                         this,
+                         SLOT(saveDesktopCaptureCaptureLib(const QString &)));
     }
 
     if (this->m_uriCapture) {
@@ -697,6 +701,12 @@ void MediaSource::loadProperties()
                                                         this->m_cameraCapture->property("captureLib")));
     }
 
+    if (this->m_desktopCapture)
+        this->m_desktopCapture->setProperty("captureLib",
+                                            config.value("DesktopCapture.captureLib",
+                                                         this->m_cameraCapture->property("captureLib")));
+
+
     if (this->m_uriCapture)
         this->m_uriCapture->setProperty("codecLib",
                                         config.value("MultiSrc.codecLib",
@@ -779,6 +789,14 @@ void MediaSource::saveVideoCaptureCaptureLib(const QString &captureLib)
     config.endGroup();
 }
 
+void MediaSource::saveDesktopCaptureCaptureLib(const QString &captureLib)
+{
+    QSettings config;
+    config.beginGroup("Libraries");
+    config.setValue("DesktopCapture.captureLib", captureLib);
+    config.endGroup();
+}
+
 void MediaSource::saveMultiSrcCodecLib(const QString &codecLib)
 {
     QSettings config;
@@ -813,6 +831,9 @@ void MediaSource::saveProperties()
         config.setValue("VideoCapture.codecLib", this->m_cameraCapture->property("codecLib"));
         config.setValue("VideoCapture.captureLib", this->m_cameraCapture->property("captureLib"));
     }
+
+    if (this->m_desktopCapture)
+        config.setValue("DesktopCapture.captureLib", this->m_desktopCapture->property("captureLib"));
 
     if (this->m_uriCapture)
         config.setValue("MultiSrc.codecLib", this->m_uriCapture->property("codecLib"));

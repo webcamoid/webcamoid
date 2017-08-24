@@ -17,20 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef DESKTOPCAPTUREELEMENT_H
-#define DESKTOPCAPTUREELEMENT_H
+#ifndef AVFOUNDATIONSCREENDEV_H
+#define AVFOUNDATIONSCREENDEV_H
 
+#include <QTimer>
 #include <QThreadPool>
 #include <QtConcurrent>
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <akmultimediasourceelement.h>
+#include <QMutex>
+#include <QDesktopWidget>
+#include <ak.h>
+#include <akvideopacket.h>
 
 #include "screendev.h"
 
-typedef QSharedPointer<ScreenDev> ScreenDevPtr;
-
-class DesktopCaptureElement: public AkMultimediaSourceElement
+class AVFoundationScreenDev: public ScreenDev
 {
     Q_OBJECT
     Q_PROPERTY(QStringList medias
@@ -46,28 +46,15 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
                WRITE setStreams
                RESET resetStreams
                NOTIFY streamsChanged)
-    Q_PROPERTY(bool loop
-               READ loop
-               WRITE setLoop
-               RESET resetLoop
-               NOTIFY loopChanged)
     Q_PROPERTY(AkFrac fps
                READ fps
                WRITE setFps
                RESET resetFps
                NOTIFY fpsChanged)
-    Q_PROPERTY(QString captureLib
-               READ captureLib
-               WRITE setCaptureLib
-               RESET resetCaptureLib
-               NOTIFY captureLibChanged)
 
     public:
-        explicit DesktopCaptureElement();
-        ~DesktopCaptureElement();
-
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
+        explicit AVFoundationScreenDev();
+        ~AVFoundationScreenDev();
 
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE QStringList medias();
@@ -76,10 +63,20 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE int defaultStream(const QString &mimeType);
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
-        Q_INVOKABLE QString captureLib() const;
 
     private:
-        ScreenDevPtr m_screenCapture;
+        AkFrac m_fps;
+        QString m_curScreen;
+        int m_curScreenNumber;
+        qint64 m_id;
+        bool m_threadedRead;
+        QTimer m_timer;
+        QThreadPool m_threadPool;
+        QFuture<void> m_threadStatus;
+        QMutex m_mutex;
+        AkPacket m_curPacket;
+
+        void sendPacket(const AkPacket &packet);
 
     signals:
         void mediasChanged(const QStringList &medias);
@@ -89,19 +86,21 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         void fpsChanged(const AkFrac &fps);
         void sizeChanged(const QString &media, const QSize &size);
         void error(const QString &message);
-        void captureLibChanged(const QString &captureLib);
 
     public slots:
         void setFps(const AkFrac &fps);
         void resetFps();
         void setMedia(const QString &media);
         void resetMedia();
-        void setCaptureLib(const QString &captureLib);
-        void resetCaptureLib();
-        bool setState(AkElement::ElementState state);
+        void setStreams(const QList<int> &streams);
+        void resetStreams();
+        bool init();
+        bool uninit();
 
     private slots:
-        void captureLibUpdated(const QString &captureLib);
+        void readFrame();
+        void screenCountChanged(QScreen *screen);
+        void srceenResized(int screen);
 };
 
-#endif // DESKTOPCAPTUREELEMENT_H
+#endif // AVFOUNDATIONSCREENDEV_H

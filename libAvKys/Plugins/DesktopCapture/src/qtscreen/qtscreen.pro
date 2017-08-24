@@ -16,9 +16,42 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../commons.pri) {
+        include(../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += plugin
 
-SUBDIRS = src src/qtscreen
-CONFIG(config_avfoundation): SUBDIRS += src/avfoundation
+HEADERS = \
+    src/plugin.h \
+    src/qtscreendev.h \
+    ../screendev.h
+
+INCLUDEPATH += \
+    ../../../../Lib/src \
+    ../
+
+LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += pspec.json
+
+QT += qml concurrent widgets
+
+SOURCES = \
+    src/plugin.cpp \
+    src/qtscreendev.cpp \
+    ../screendev.cpp
+
+DESTDIR = $${OUT_PWD}/../../submodules/DesktopCapture
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/DesktopCapture

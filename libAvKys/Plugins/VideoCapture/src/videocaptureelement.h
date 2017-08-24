@@ -20,7 +20,6 @@
 #ifndef VIDEOCAPTUREELEMENT_H
 #define VIDEOCAPTUREELEMENT_H
 
-#include <QTimer>
 #include <QThreadPool>
 #include <QtConcurrent>
 #include <QQmlComponent>

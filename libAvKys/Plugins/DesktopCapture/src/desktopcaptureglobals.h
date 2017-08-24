@@ -17,20 +17,35 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef DESKTOPCAPTURE_H
-#define DESKTOPCAPTURE_H
+#ifndef DESKTOPCAPTUREGLOBALS_H
+#define DESKTOPCAPTUREGLOBALS_H
 
-#include <ak.h>
+#include <QObject>
 
-class DesktopCapture: public QObject, public AkPlugin
+class DesktopCaptureGlobals: public QObject
 {
     Q_OBJECT
-    Q_INTERFACES(AkPlugin)
-    Q_PLUGIN_METADATA(IID "org.avkys.plugin" FILE "../pspec.json")
+    Q_PROPERTY(QString captureLib
+               READ captureLib
+               WRITE setCaptureLib
+               RESET resetCaptureLib
+               NOTIFY captureLibChanged)
 
     public:
-        QObject *create(const QString &key, const QString &specification);
-        QStringList keys() const;
+        explicit DesktopCaptureGlobals(QObject *parent=NULL);
+
+        Q_INVOKABLE QString captureLib() const;
+
+    private:
+        QString m_captureLib;
+        QStringList m_preferredLibrary;
+
+    signals:
+        void captureLibChanged(const QString &captureLib);
+
+    public slots:
+        void setCaptureLib(const QString &captureLib);
+        void resetCaptureLib();
 };
 
-#endif // DESKTOPCAPTURE_H
+#endif // DESKTOPCAPTUREGLOBALS_H

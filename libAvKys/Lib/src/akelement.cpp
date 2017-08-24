@@ -469,13 +469,22 @@ QStringList AkElement::listSubModules(const QString &pluginId,
 
 QStringList AkElement::listSubModules(const QStringList &types)
 {
+    QString pluginId;
+
+    if (this->d->m_pluginId.isEmpty()) {
+        pluginId = this->metaObject()->className();
+        pluginId.replace(QRegExp("Element$"), "");
+    } else {
+        pluginId = this->d->m_pluginId;
+    }
+
     if (types.isEmpty())
-        return AkElement::listSubModules(this->d->m_pluginId);
+        return AkElement::listSubModules(pluginId);
 
     QStringList subModules;
 
     for (const QString &type: types)
-        subModules << AkElement::listSubModules(this->d->m_pluginId, type);
+        subModules << AkElement::listSubModules(pluginId, type);
 
     return subModules;
 }
@@ -525,7 +534,16 @@ QStringList AkElement::listSubModulesPaths(const QString &pluginId)
 
 QStringList AkElement::listSubModulesPaths()
 {
-    return AkElement::listSubModulesPaths(this->d->m_pluginId);
+    QString pluginId;
+
+    if (this->d->m_pluginId.isEmpty()) {
+        pluginId = this->metaObject()->className();
+        pluginId.replace(QRegExp("Element$"), "");
+    } else {
+        pluginId = this->d->m_pluginId;
+    }
+
+    return AkElement::listSubModulesPaths(pluginId);
 }
 
 QObject *AkElement::loadSubModule(const QString &pluginId,
@@ -563,7 +581,16 @@ QObject *AkElement::loadSubModule(const QString &pluginId,
 
 QObject *AkElement::loadSubModule(const QString &subModule)
 {
-    return AkElement::loadSubModule(this->d->m_pluginId, subModule);
+    QString pluginId;
+
+    if (this->d->m_pluginId.isEmpty()) {
+        pluginId = this->metaObject()->className();
+        pluginId.replace(QRegExp("Element$"), "");
+    } else {
+        pluginId = this->d->m_pluginId;
+    }
+
+    return AkElement::loadSubModule(pluginId, subModule);
 }
 
 bool AkElement::recursiveSearch()
