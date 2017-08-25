@@ -31,6 +31,7 @@ CONFIG += plugin
 HEADERS = \
     src/plugin.h \
     src/avfoundationscreendev.h \
+    src/framegrabber.h \
     ../screendev.h
 
 INCLUDEPATH += \
@@ -39,14 +40,24 @@ INCLUDEPATH += \
 
 LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
+LIBS += \
+    -framework Foundation \
+    -framework AVFoundation \
+    -framework CoreGraphics \
+    -framework CoreMedia \
+    -framework CoreVideo
+
 OTHER_FILES += pspec.json
 
 QT += qml concurrent widgets
 
 SOURCES = \
     src/plugin.cpp \
-    src/avfoundationscreendev.cpp \
-    ../screendev.cpp
+    ../screendev.cpp \
+
+OBJECTIVE_SOURCES = \
+    src/avfoundationscreendev.mm \
+    src/framegrabber.mm
 
 DESTDIR = $${OUT_PWD}/../../submodules/DesktopCapture
 

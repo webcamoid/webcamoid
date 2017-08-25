@@ -229,7 +229,7 @@ void QtScreenDev::readFrame()
                                screen->geometry().y(),
                                screen->geometry().width(),
                                screen->geometry().height());
-    QImage frameImg= frame.toImage().convertToFormat(QImage::Format_RGB888);
+    QImage frameImg = frame.toImage().convertToFormat(QImage::Format_RGB888);
     AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
 
     if (!packet)

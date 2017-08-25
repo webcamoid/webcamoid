@@ -23,14 +23,40 @@
 #include <akutils.h>
 
 #include "avfoundationscreendev.h"
+#import "framegrabber.h"
+
+class AVFoundationScreenDevPrivate
+{
+    public:
+        AVCaptureScreenInput *m_screenInput;
+        AVCaptureSession *m_captureSession;
+        AVCaptureVideoDataOutput *m_videoOutput;
+        id m_frameGrabber;
+
+        explicit AVFoundationScreenDevPrivate()
+        {
+            this->m_screenInput = nil;
+            this->m_captureSession = nil;
+            this->m_videoOutput = nil;
+            this->m_frameGrabber = nil;
+        }
+
+        ~AVFoundationScreenDevPrivate()
+        {
+            [this->m_captureSession stopRunning];
+            [this->m_frameGrabber release];
+            [this->m_videoOutput release];
+            [this->m_captureSession release];
+            [this->m_screenInput release];
+        }
+};
 
 AVFoundationScreenDev::AVFoundationScreenDev():
     ScreenDev()
 {
+    this->d = new AVFoundationScreenDevPrivate();
     this->m_fps = AkFrac(30000, 1001);
-    this->m_timer.setInterval(qRound(1.e3 * this->m_fps.invert().value()));
     this->m_curScreenNumber = -1;
-    this->m_threadedRead = true;
 
     QObject::connect(qApp,
                      &QGuiApplication::screenAdded,
@@ -44,15 +70,12 @@ AVFoundationScreenDev::AVFoundationScreenDev():
                      &QDesktopWidget::resized,
                      this,
                      &AVFoundationScreenDev::srceenResized);
-    QObject::connect(&this->m_timer,
-                     &QTimer::timeout,
-                     this,
-                     &AVFoundationScreenDev::readFrame);
 }
 
 AVFoundationScreenDev::~AVFoundationScreenDev()
 {
     this->uninit();
+    delete this->d;
 }
 
 AkFrac AVFoundationScreenDev::fps() const
@@ -118,13 +141,47 @@ AkCaps AVFoundationScreenDev::caps(int stream)
 
     AkVideoCaps caps;
     caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_rgb24;
+    caps.format() = AkVideoCaps::Format_argb;
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = screen->size().width();
     caps.height() = screen->size().height();
     caps.fps() = this->m_fps;
 
     return caps.toCaps();
+}
+
+void AVFoundationScreenDev::frameReceived(CGDirectDisplayID screen,
+                                          const QByteArray &buffer,
+                                          qint64 pts,
+                                          const AkFrac &fps,
+                                          qint64 id)
+{
+    CGImageRef image = CGDisplayCreateImage(screen);
+    QImage frameImg(int(CGImageGetWidth(image)),
+                    int(CGImageGetHeight(image)),
+                    QImage::Format_RGB32);
+    auto bufferSize = size_t(qMin(buffer.size(), frameImg.byteCount()));
+    memcpy(frameImg.bits(), buffer.constData(), bufferSize);
+
+    AkVideoCaps caps;
+    caps.isValid() = true;
+    caps.format() = AkVideoCaps::Format_argb;
+    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
+    caps.width() = frameImg.width();
+    caps.height() = frameImg.height();
+    caps.fps() = fps;
+
+    AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
+
+    if (!packet)
+        return;
+
+    packet.setPts(pts);
+    packet.setTimeBase(fps.invert());
+    packet.setIndex(0);
+    packet.setId(id);
+
+    emit this->oStream(packet);
 }
 
 void AVFoundationScreenDev::sendPacket(const AkPacket &packet)
@@ -137,11 +194,8 @@ void AVFoundationScreenDev::setFps(const AkFrac &fps)
     if (this->m_fps == fps)
         return;
 
-    this->m_mutex.lock();
     this->m_fps = fps;
-    this->m_mutex.unlock();
     emit this->fpsChanged(fps);
-    this->m_timer.setInterval(qRound(1.e3 * this->m_fps.invert().value()));
 }
 
 void AVFoundationScreenDev::resetFps()
@@ -193,70 +247,91 @@ void AVFoundationScreenDev::resetStreams()
 
 bool AVFoundationScreenDev::init()
 {
-    this->m_id = Ak::id();
-    this->m_timer.setInterval(qRound(1.e3 * this->m_fps.invert().value()));
-    this->m_timer.start();
+    uint32_t nScreens = 0;
+    CGGetActiveDisplayList(0, NULL, &nScreens);
+    QVector<CGDirectDisplayID> screens;
+    screens.resize(int(nScreens));
+    CGGetActiveDisplayList(nScreens, screens.data(), &nScreens);
+
+    if (this->m_curScreenNumber >= screens.size())
+        return false;
+
+    CGDirectDisplayID screen = screens[this->m_curScreenNumber < 0?
+                                       0: this->m_curScreenNumber];
+
+    this->d->m_screenInput = [[AVCaptureScreenInput alloc]
+                              initWithDisplayID: screen];
+
+    if (!this->d->m_screenInput)
+        return false;
+
+    auto fps = this->m_fps;
+
+    this->d->m_screenInput.minFrameDuration = CMTimeMake(int(fps.den()),
+                                                         int(fps.num()));
+    this->d->m_screenInput.capturesCursor = NO;
+    this->d->m_screenInput.capturesMouseClicks = NO;
+
+    this->d->m_captureSession = [[AVCaptureSession alloc] init];
+
+    if ([this->d->m_captureSession canAddInput: this->d->m_screenInput]) {
+        [this->d->m_captureSession addInput: this->d->m_screenInput];
+    } else {
+        [this->d->m_captureSession release];
+        [this->d->m_screenInput release];
+
+        return false;
+    }
+
+    this->d->m_videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+
+    auto videoOutputSettings =
+            [NSDictionary
+             dictionaryWithObject: [NSNumber numberWithUnsignedInt: kCVPixelFormatType_32BGRA]
+             forKey: id(kCVPixelBufferPixelFormatTypeKey)];
+    [this->d->m_videoOutput setVideoSettings: videoOutputSettings];
+    [this->d->m_videoOutput setAlwaysDiscardsLateVideoFrames: YES];
+
+    this->d->m_frameGrabber = [[FrameGrabber alloc]
+                               initWithScreenDev: this
+                               onScreen: screen
+                               withFps: fps];
+    auto queue = dispatch_queue_create("frame_queue", NULL);
+    [this->d->m_videoOutput setSampleBufferDelegate: this->d->m_frameGrabber queue: queue];
+    dispatch_release(queue);
+
+    if ([this->d->m_captureSession canAddOutput: this->d->m_videoOutput]) {
+        [this->d->m_captureSession addOutput: this->d->m_videoOutput];
+    } else {
+        [this->d->m_frameGrabber release];
+        [this->d->m_videoOutput release];
+        [this->d->m_captureSession release];
+        [this->d->m_screenInput release];
+
+        return false;
+    }
+
+    [this->d->m_captureSession startRunning];
 
     return true;
 }
 
 bool AVFoundationScreenDev::uninit()
 {
-    this->m_timer.stop();
-    this->m_threadStatus.waitForFinished();
+    if (this->d->m_captureSession)
+        [this->d->m_captureSession stopRunning];
+
+    [this->d->m_frameGrabber release];
+    [this->d->m_videoOutput release];
+    [this->d->m_captureSession release];
+    [this->d->m_screenInput release];
+
+    this->d->m_frameGrabber = nil;
+    this->d->m_videoOutput = nil;
+    this->d->m_captureSession = nil;
+    this->d->m_screenInput = nil;
 
     return true;
-}
-
-void AVFoundationScreenDev::readFrame()
-{
-    QScreen *screen = QGuiApplication::screens()[this->m_curScreenNumber];
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
-
-    AkVideoCaps caps;
-    caps.isValid() = true;
-    caps.format() = AkVideoCaps::Format_rgb24;
-    caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
-    caps.width() = screen->size().width();
-    caps.height() = screen->size().height();
-    caps.fps() = fps;
-
-    auto frame =
-            screen->grabWindow(QApplication::desktop()->winId(),
-                               screen->geometry().x(),
-                               screen->geometry().y(),
-                               screen->geometry().width(),
-                               screen->geometry().height());
-    QImage frameImg= frame.toImage().convertToFormat(QImage::Format_RGB888);
-    AkPacket packet = AkUtils::imageToPacket(frameImg, caps.toCaps());
-
-    if (!packet)
-        return;
-
-    qint64 pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                        * fps.value() / 1e3);
-
-    packet.setPts(pts);
-    packet.setTimeBase(fps.invert());
-    packet.setIndex(0);
-    packet.setId(this->m_id);
-
-    if (!this->m_threadedRead) {
-        emit this->oStream(packet);
-
-        return;
-    }
-
-    if (!this->m_threadStatus.isRunning()) {
-        this->m_curPacket = packet;
-
-        this->m_threadStatus = QtConcurrent::run(&this->m_threadPool,
-                                                 this,
-                                                 &AVFoundationScreenDev::sendPacket,
-                                                 this->m_curPacket);
-    }
 }
 
 void AVFoundationScreenDev::screenCountChanged(QScreen *screen)

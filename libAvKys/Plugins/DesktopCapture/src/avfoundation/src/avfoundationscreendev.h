@@ -27,8 +27,11 @@
 #include <QDesktopWidget>
 #include <ak.h>
 #include <akvideopacket.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 #include "screendev.h"
+
+class AVFoundationScreenDevPrivate;
 
 class AVFoundationScreenDev: public ScreenDev
 {
@@ -64,17 +67,17 @@ class AVFoundationScreenDev: public ScreenDev
         Q_INVOKABLE QString description(const QString &media);
         Q_INVOKABLE AkCaps caps(int stream);
 
+        void frameReceived(CGDirectDisplayID screen,
+                           const QByteArray &buffer,
+                           qint64 pts,
+                           const AkFrac &fps,
+                           qint64 id);
+
     private:
+        AVFoundationScreenDevPrivate *d;
         AkFrac m_fps;
         QString m_curScreen;
         int m_curScreenNumber;
-        qint64 m_id;
-        bool m_threadedRead;
-        QTimer m_timer;
-        QThreadPool m_threadPool;
-        QFuture<void> m_threadStatus;
-        QMutex m_mutex;
-        AkPacket m_curPacket;
 
         void sendPacket(const AkPacket &packet);
 
@@ -98,7 +101,6 @@ class AVFoundationScreenDev: public ScreenDev
         bool uninit();
 
     private slots:
-        void readFrame();
         void screenCountChanged(QScreen *screen);
         void srceenResized(int screen);
 };
