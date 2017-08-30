@@ -4,7 +4,7 @@ cd ..\webcamoid-shadow-build
 
 qmake %SOURCES_DIR%\Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
-    PREFIX="%CD%\build\%PLATFORM%" ^
+    PREFIX="/webcamoid" ^
     FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
     FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" ^
     FFMPEGLIBS+=-lavcodec ^
