@@ -28,6 +28,7 @@ class Deploy:
     def __init__(self, rootDir, system, arch):
         self.scanPaths = ['StandAlone\\webcamoid.exe']
         self.rootDir = rootDir
+        self.buildDir = os.environ['BUILD_DIR'] if 'BUILD_DIR' in os.environ else rootDir
         self.system = system
         self.arch = arch
         self.targetSystem = system
@@ -37,17 +38,17 @@ class Deploy:
         self.make = self.detectMake()
 
     def detectArch(self):
-        exeFile = os.path.join(self.rootDir, self.scanPaths[0])
+        exeFile = os.path.join(self.buildDir, self.scanPaths[0])
 
         return platform.architecture(exeFile)[0]
 
     def readVersion(self):
         process = subprocess.Popen([self.qmake, '-query', 'QT_INSTALL_BINS'], stdout=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        os.environ['PATH'] = ';'.join([os.path.join(self.rootDir, 'libAvKys\\Lib'),
+        os.environ['PATH'] = ';'.join([os.path.join(self.buildDir, 'libAvKys\\Lib'),
                                        stdout.strip().decode('utf-8'),
                                        os.environ['PATH']])
-        programPath = os.path.join(self.rootDir, self.scanPaths[0])
+        programPath = os.path.join(self.buildDir, self.scanPaths[0])
         process = subprocess.Popen([programPath, '--version'],
                                    stdout=subprocess.PIPE)
         stdout, stderr = process.communicate()
@@ -58,7 +59,7 @@ class Deploy:
             return 'unknown'
 
     def detectQmake(self):
-        with open(os.path.join(self.rootDir, 'StandAlone\\Makefile')) as f:
+        with open(os.path.join(self.buildDir, 'StandAlone\\Makefile')) as f:
             for line in f:
                 if line.startswith('QMAKE'):
                     return line.split('=')[1].strip()
@@ -80,9 +81,9 @@ class Deploy:
         return ''
 
     def prepare(self):
-        installDir = os.path.join(self.rootDir, 'ports\\deploy\\temp_priv\\root')
+        installDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
         previousDir = os.getcwd()
-        os.chdir(self.rootDir)
+        os.chdir(self.buildDir)
         process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
                                    stdout=subprocess.PIPE)
         process.communicate()

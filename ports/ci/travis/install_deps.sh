@@ -149,6 +149,8 @@ elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf -y update
 
     ${EXEC} dnf -y install \
+        which \
+        xorg-x11-xauth \
         xorg-x11-server-Xvfb \
         ccache \
         clang \
@@ -168,6 +170,8 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
     ${EXEC} zypper -n update
 
     ${EXEC} zypper -n in \
+        which \
+        xauth \
         xvfb-run \
         python3 \
         ccache \

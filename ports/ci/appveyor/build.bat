@@ -27,3 +27,4 @@ qmake %SOURCES_DIR%\Webcamoid.pro ^
     GSTREAMERLIBS+=-lgstvideo-1.0
 
 %MAKETOOL% -j4
+cd %SOURCES_DIR%
