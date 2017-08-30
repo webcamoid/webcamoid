@@ -33,7 +33,6 @@ SUBDIRS += \
     MultiSink \
     MultiSrc \
     Probe \
-    RtPts \
     VideoCapture \
     VirtualCamera
 

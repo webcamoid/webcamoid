@@ -1,0 +1,105 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Webcamoid, webcam capture application.
+# Copyright (C) 2011-2017  Gonzalo Exequiel Pedone
+#
+# Webcamoid is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Webcamoid is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
+#
+# Web-Site: http://webcamoid.github.io/
+
+import os
+import platform
+import subprocess
+import shutil
+
+class Deploy:
+    def __init__(self, rootDir, system, arch):
+        self.scanPaths = ['StandAlone\\webcamoid.exe']
+        self.rootDir = rootDir
+        self.system = system
+        self.arch = arch
+        self.targetSystem = system
+        self.targetArch = self.detectArch()
+        self.qmake = self.detectQmake()
+        self.programVersion = self.readVersion()
+        self.make = self.detectMake()
+
+    def detectArch(self):
+        exeFile = os.path.join(self.rootDir, self.scanPaths[0])
+
+        return platform.architecture(exeFile)[0]
+
+    def readVersion(self):
+        result = subprocess.run([self.qmake, '-query', 'QT_INSTALL_BINS'], stdout=subprocess.PIPE)
+        os.environ['PATH'] = ';'.join([os.path.join(self.rootDir, 'libAvKys\\Lib'),
+                                       result.stdout.strip().decode('utf-8'),
+                                       os.environ['PATH']])
+        programPath = os.path.join(self.rootDir, self.scanPaths[0])
+        result = subprocess.run([programPath, '--version'],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+
+        return result.stdout.split()[1].strip().decode('utf-8')
+
+    def detectQmake(self):
+        with open(os.path.join(self.rootDir, 'StandAlone\\Makefile')) as f:
+            for line in f:
+                if line.startswith('QMAKE'):
+                    return line.split('=')[1].strip()
+
+        return ''
+
+    def detectMake(self):
+        if 'MAKE_PATH' in os.environ:
+            return os.environ['MAKE_PATH']
+
+        defaultPath = os.path.dirname(self.qmake)
+        makePaths = [os.path.join(defaultPath, 'make.exe'),
+                     'C:\\MinGW\\bin\\mingw32-make.exe']
+
+        for path in makePaths:
+            if os.path.exists(path):
+                return path
+
+        return ''
+
+    def prepare(self):
+        installDir = os.path.join(self.rootDir, 'ports\\deploy\\temp_priv\\root')
+        previousDir = os.getcwd()
+        os.chdir(self.rootDir)
+        result = subprocess.run([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        os.chdir(previousDir)
+
+        if result.returncode != 0:
+            print(result.stderr.decode('utf-8'))
+
+            return
+
+        binPath = os.path.join(installDir, 'webcamoid\\bin')
+        files = [directory for directory in os.listdir(binPath) if directory.endswith('.a')]
+
+        for f in files:
+            os.remove(os.path.join(binPath, f))
+
+    def solvedeps(self):
+        pass
+
+    def package(self):
+        pass
+
+    def finish(self):
+        pass

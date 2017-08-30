@@ -205,6 +205,9 @@ before_script: |
 script:
   - ports/ci/travis/build.sh
 
+after_success:
+  - python3 ports/deploy/deploy.py
+
 branches:
   only:
     - master
