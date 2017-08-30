@@ -47,8 +47,7 @@ class Deploy:
         os.environ['LD_LIBRARY_PATH'] = os.path.join(self.rootDir, 'libAvKys/Lib')
         programPath = os.path.join(self.rootDir, self.scanPaths[0])
         result = subprocess.run([programPath, '--version'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
 
         return result.stdout.split()[1].strip().decode('utf-8')
 
@@ -62,8 +61,7 @@ class Deploy:
 
     def prepare(self):
         result = subprocess.run([self.qmake, '-query', 'QT_INSTALL_QML'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
         self.sysQmlPath = result.stdout.strip().decode('utf-8')
         installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
         insQmlDir = os.path.join(installDir, self.sysQmlPath)
@@ -73,14 +71,11 @@ class Deploy:
         os.chdir(self.rootDir)
 
         result = subprocess.run(['make', 'INSTALL_ROOT={}'.format(installDir), 'install'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
 
         os.chdir(previousDir)
 
         if result.returncode != 0:
-            print(result.stderr.decode('utf-8'))
-
             return
 
         if insQmlDir != dstQmlDir:

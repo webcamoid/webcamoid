@@ -48,8 +48,7 @@ class Deploy:
                                        os.environ['PATH']])
         programPath = os.path.join(self.rootDir, self.scanPaths[0])
         result = subprocess.run([programPath, '--version'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
 
         return result.stdout.split()[1].strip().decode('utf-8')
 
@@ -80,13 +79,10 @@ class Deploy:
         previousDir = os.getcwd()
         os.chdir(self.rootDir)
         result = subprocess.run([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
         os.chdir(previousDir)
 
         if result.returncode != 0:
-            print(result.stderr.decode('utf-8'))
-
             return
 
         binPath = os.path.join(installDir, 'webcamoid\\bin')

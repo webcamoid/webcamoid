@@ -44,8 +44,7 @@ class Deploy:
                                    'Contents/MacOS',
                                    self.programName)
         result = subprocess.run([programPath, '--version'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
 
         return result.stdout.split()[1].strip().decode('utf-8')
 
@@ -76,12 +75,9 @@ class Deploy:
                                  '-appstore-compliant',
                                  '-qmldir={}'.format(self.rootDir),
                                  '-libpath={}'.format(libDir)],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
 
         if result.returncode != 0:
-            print(result.stderr.decode('utf-8'))
-
             return
 
         contents = os.path.join(appPath, 'Contents')
@@ -92,13 +88,10 @@ class Deploy:
         result = subprocess.run(['make',
                                  'INSTALL_ROOT={}'.format(installDir),
                                  'install'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE)
         os.chdir(previousDir)
 
         if result.returncode != 0:
-            print(result.stderr.decode('utf-8'))
-
             return
 
         qmlPath = os.path.join(contents, 'Resources/qml')

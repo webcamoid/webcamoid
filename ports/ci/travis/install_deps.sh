@@ -186,6 +186,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     cp -Rvf "Syphon Simple Apps/Simple Client.app/Contents/Frameworks/Syphon.framework" ./Syphon
 
     brew install \
+        python3 \
         ccache \
         pkg-config \
         qt5 \
