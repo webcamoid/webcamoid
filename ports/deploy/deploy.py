@@ -53,7 +53,8 @@ class Deploy:
         self.qmake = self.platformDeploy.qmake
 
     def __str__(self):
-        deployInfo = 'Root directory: {}\n' \
+        deployInfo = 'Python version: {}\n' \
+                     'Root directory: {}\n' \
                      'System: {}\n' \
                      'Architecture: {}\n' \
                      'Target system: {}\n' \
@@ -61,7 +62,8 @@ class Deploy:
                      'Scan paths: {}\n' \
                      'Program version: {}\n' \
                      'Qmake executable: {}'. \
-                        format(self.rootDir,
+                        format(platform.python_version(),
+                               self.rootDir,
                                self.system,
                                self.arch,
                                self.targetSystem,

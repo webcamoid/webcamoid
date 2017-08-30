@@ -99,6 +99,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
     # Install dev tools
     ${EXEC} apt-get -y install \
+        xvfb \
         g++ \
         clang \
         ccache \
@@ -148,6 +149,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf -y update
 
     ${EXEC} dnf -y install \
+        xorg-x11-server-Xvfb \
         ccache \
         clang \
         make \
@@ -166,6 +168,8 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
     ${EXEC} zypper -n update
 
     ${EXEC} zypper -n in \
+        xvfb-run \
+        python3 \
         ccache \
         clang \
         libqt5-linguist \

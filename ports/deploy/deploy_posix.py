@@ -46,10 +46,14 @@ class Deploy:
 
         os.environ['LD_LIBRARY_PATH'] = os.path.join(self.rootDir, 'libAvKys/Lib')
         programPath = os.path.join(self.rootDir, self.scanPaths[0])
-        result = subprocess.run([programPath, '--version'],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen([programPath, '--version'],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
 
-        return result.stdout.split()[1].strip().decode('utf-8')
+        try:
+            return stdout.split()[1].strip().decode('utf-8')
+        except:
+            return 'unknown'
 
     def detectQmake(self):
         with open(os.path.join(self.rootDir, 'StandAlone/Makefile')) as f:
@@ -60,22 +64,22 @@ class Deploy:
         return ''
 
     def prepare(self):
-        result = subprocess.run([self.qmake, '-query', 'QT_INSTALL_QML'],
-                                stdout=subprocess.PIPE)
-        self.sysQmlPath = result.stdout.strip().decode('utf-8')
+        process = subprocess.Popen([self.qmake, '-query', 'QT_INSTALL_QML'],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        self.sysQmlPath = stdout.strip().decode('utf-8')
         installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
         insQmlDir = os.path.join(installDir, self.sysQmlPath)
         dstQmlDir = os.path.join(installDir, 'usr/lib/qt/qml')
 
         previousDir = os.getcwd()
         os.chdir(self.rootDir)
-
-        result = subprocess.run(['make', 'INSTALL_ROOT={}'.format(installDir), 'install'],
-                                stdout=subprocess.PIPE)
-
+        process = subprocess.Popen(['make', 'INSTALL_ROOT={}'.format(installDir), 'install'],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
         os.chdir(previousDir)
 
-        if result.returncode != 0:
+        if process.returncode != 0:
             return
 
         if insQmlDir != dstQmlDir:

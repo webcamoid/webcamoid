@@ -43,10 +43,14 @@ class Deploy:
         programPath = os.path.join(self.appPath,
                                    'Contents/MacOS',
                                    self.programName)
-        result = subprocess.run([programPath, '--version'],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen([programPath, '--version'],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
 
-        return result.stdout.split()[1].strip().decode('utf-8')
+        try:
+            return stdout.split()[1].strip().decode('utf-8')
+        except:
+            return 'unknown'
 
     def detectQmake(self):
         with open(os.path.join(self.rootDir, 'StandAlone/Makefile')) as f:
@@ -69,15 +73,16 @@ class Deploy:
         if not os.path.exists(appPath):
             shutil.copytree(self.appPath, appPath)
 
-        result = subprocess.run([macdeploy,
-                                 appPath,
-                                 '-always-overwrite',
-                                 '-appstore-compliant',
-                                 '-qmldir={}'.format(self.rootDir),
-                                 '-libpath={}'.format(libDir)],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen([macdeploy,
+                                    appPath,
+                                    '-always-overwrite',
+                                    '-appstore-compliant',
+                                    '-qmldir={}'.format(self.rootDir),
+                                    '-libpath={}'.format(libDir)],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
 
-        if result.returncode != 0:
+        if process.returncode != 0:
             return
 
         contents = os.path.join(appPath, 'Contents')
@@ -85,13 +90,14 @@ class Deploy:
 
         previousDir = os.getcwd()
         os.chdir(os.path.join(self.rootDir, 'libAvkys'))
-        result = subprocess.run(['make',
-                                 'INSTALL_ROOT={}'.format(installDir),
-                                 'install'],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen(['make',
+                                    'INSTALL_ROOT={}'.format(installDir),
+                                    'install'],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
         os.chdir(previousDir)
 
-        if result.returncode != 0:
+        if process.returncode != 0:
             return
 
         qmlPath = os.path.join(contents, 'Resources/qml')

@@ -92,7 +92,7 @@ build_script:
   - ports\ci\appveyor\build.bat
 
 on_success:
-  - C:\Python36\python.exe ports\deploy\deploy.py
+  - ports\ci\appveyor\deploy.bat
 
 cache:
   - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip

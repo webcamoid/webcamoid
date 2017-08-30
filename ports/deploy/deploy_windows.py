@@ -42,15 +42,20 @@ class Deploy:
         return platform.architecture(exeFile)[0]
 
     def readVersion(self):
-        result = subprocess.run([self.qmake, '-query', 'QT_INSTALL_BINS'], stdout=subprocess.PIPE)
+        process = subprocess.Popen([self.qmake, '-query', 'QT_INSTALL_BINS'], stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
         os.environ['PATH'] = ';'.join([os.path.join(self.rootDir, 'libAvKys\\Lib'),
-                                       result.stdout.strip().decode('utf-8'),
+                                       stdout.strip().decode('utf-8'),
                                        os.environ['PATH']])
         programPath = os.path.join(self.rootDir, self.scanPaths[0])
-        result = subprocess.run([programPath, '--version'],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen([programPath, '--version'],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
 
-        return result.stdout.split()[1].strip().decode('utf-8')
+        try:
+            return stdout.split()[1].strip().decode('utf-8')
+        except:
+            return 'unknown'
 
     def detectQmake(self):
         with open(os.path.join(self.rootDir, 'StandAlone\\Makefile')) as f:
@@ -78,11 +83,12 @@ class Deploy:
         installDir = os.path.join(self.rootDir, 'ports\\deploy\\temp_priv\\root')
         previousDir = os.getcwd()
         os.chdir(self.rootDir)
-        result = subprocess.run([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
-                                stdout=subprocess.PIPE)
+        process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
         os.chdir(previousDir)
 
-        if result.returncode != 0:
+        if process.returncode != 0:
             return
 
         binPath = os.path.join(installDir, 'webcamoid\\bin')

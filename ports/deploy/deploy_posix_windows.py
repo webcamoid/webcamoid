@@ -37,8 +37,11 @@ class Deploy:
 
     def detectArch(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0])
-        result = subprocess.run(['file', '-b', exeFile], stdout=subprocess.PIPE)
-        return '64bit' if 'x86-64' in str(result.stdout) else '32bit'
+        process = subprocess.Popen(['file', '-b', exeFile],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+
+        return '64bit' if b'x86-64' in stdout else '32bit'
 
     def readVersion(self):
         tempDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
@@ -48,8 +51,10 @@ class Deploy:
         if not os.path.exists(tempDir):
             os.makedirs(tempDir)
 
-        result = subprocess.run([self.qmake, '-query', 'QT_INSTALL_BINS'], stdout=subprocess.PIPE)
-        where = 'Z:{}'.format(result.stdout.strip().decode('utf-8').replace('/', '\\'))
+        process = subprocess.Popen([self.qmake, '-query', 'QT_INSTALL_BINS'],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        where = 'Z:{}'.format(stdout.strip().decode('utf-8').replace('/', '\\'))
         versionBat = os.path.join(tempDir, 'version.bat')
         programName = os.path.basename(self.scanPaths[0]).replace('.exe', '')
 
@@ -62,11 +67,14 @@ class Deploy:
         subprocess.run(['wineconsole', versionBat], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         with open(os.path.join(tempDir, 'version.txt')) as f:
-            version = f.readline().split()[1];
+            version = f.readline();
 
         shutil.rmtree(tempDir)
 
-        return version.strip()
+        try:
+            return version.split()[1].strip()
+        except:
+            return 'unknown'
 
     def detectQmake(self):
         with open(os.path.join(self.rootDir, 'StandAlone/Makefile')) as f:
@@ -80,14 +88,12 @@ class Deploy:
         installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
         previousDir = os.getcwd()
         os.chdir(self.rootDir)
-        result = subprocess.run(['make', 'INSTALL_ROOT={}'.format(installDir), 'install'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+        process = subprocess.Popen(['make', 'INSTALL_ROOT={}'.format(installDir), 'install'],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
         os.chdir(previousDir)
 
-        if result.returncode != 0:
-            print(result.stderr.decode('utf-8'))
-
+        if process.returncode != 0:
             return
 
         binPath = os.path.join(installDir, 'webcamoid/bin')
