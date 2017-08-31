@@ -99,8 +99,6 @@ class Deploy:
         if process.returncode != 0:
             return
 
-        print(stdout.decode('utf-8'))
-
         binPath = os.path.join(installDir, 'webcamoid\\bin')
 
         if os.path.exists(binPath):

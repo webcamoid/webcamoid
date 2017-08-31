@@ -87,9 +87,11 @@ class Deploy:
     def finish(self):
         self.platformDeploy.finish()
 
-deploy = Deploy()
-print(deploy)
-deploy.prepare()
-deploy.solvedeps()
-deploy.package()
-deploy.finish()
+if __name__ =='__main__':
+    deploy = Deploy()
+    print('\nDeploy info\n')
+    print(deploy)
+    deploy.prepare()
+    deploy.solvedeps()
+    deploy.package()
+    deploy.finish()
