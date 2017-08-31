@@ -18,8 +18,8 @@ branches:
 
 environment:
   global:
-    FFMPEG_VERSION: 3.2.2
-    GSTREAMER_VERSION: 1.11.1
+    FFMPEG_VERSION: 3.3.3
+    GSTREAMER_VERSION: 1.12.2
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
 
@@ -95,7 +95,7 @@ on_success:
   - ports\ci\appveyor\deploy.bat
 
 cache:
-  - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
+#  - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
 #  - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
 
 notifications:
