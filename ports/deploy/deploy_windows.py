@@ -89,7 +89,7 @@ class Deploy:
         if 'NO_USE_INSTALL_ROOT' in os.environ:
             process = subprocess.Popen([self.make, 'install'],
                                     stdout=subprocess.PIPE)
-        else
+        else:
             process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
                                     stdout=subprocess.PIPE)
 
