@@ -71,7 +71,8 @@ class Deploy:
             return os.environ['MAKE_PATH']
 
         defaultPath = os.path.dirname(self.qmake)
-        makePaths = [os.path.join(defaultPath, 'make.exe'),
+        makePaths = [os.path.join(defaultPath, 'mingw32-make.exe'),
+                     os.path.join(defaultPath, 'make.exe'),
                      'C:\\MinGW\\bin\\mingw32-make.exe']
 
         for path in makePaths:
@@ -93,10 +94,12 @@ class Deploy:
             return
 
         binPath = os.path.join(installDir, 'webcamoid\\bin')
-        files = [directory for directory in os.listdir(binPath) if directory.endswith('.a')]
 
-        for f in files:
-            os.remove(os.path.join(binPath, f))
+        if os.path.exists(binPath):
+            files = [directory for directory in os.listdir(binPath) if directory.endswith('.a')]
+
+            for f in files:
+                os.remove(os.path.join(binPath, f))
 
     def solvedeps(self):
         pass

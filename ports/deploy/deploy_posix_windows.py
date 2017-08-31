@@ -97,10 +97,12 @@ class Deploy:
             return
 
         binPath = os.path.join(installDir, 'webcamoid/bin')
-        files = [directory for directory in os.listdir(binPath) if directory.endswith('.a')]
 
-        for f in files:
-            os.remove(os.path.join(binPath, f))
+        if os.path.exists(binPath):
+            files = [directory for directory in os.listdir(binPath) if directory.endswith('.a')]
+
+            for f in files:
+                os.remove(os.path.join(binPath, f))
 
     def solvedeps(self):
         #cp -vf ${SYSDIR}/bin/libeay32.dll "${ROOTDIR}/build/bundle-data/${APPNAME}/bin/"

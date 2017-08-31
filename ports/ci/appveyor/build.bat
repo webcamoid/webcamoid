@@ -22,4 +22,5 @@ qmake Webcamoid.pro ^
     GSTREAMERLIBS+=-lgstaudio-1.0 ^
     GSTREAMERLIBS+=-lgstvideo-1.0
 
+%MAKETOOL% -f Makefile qmake_all
 %MAKETOOL% -j4
