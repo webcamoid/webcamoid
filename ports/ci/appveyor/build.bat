@@ -1,10 +1,4 @@
-set SOURCES_DIR=%CD%
-mkdir ..\webcamoid-shadow-build
-cd ..\webcamoid-shadow-build
-
-set
-
-qmake %SOURCES_DIR%\Webcamoid.pro ^
+qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
     PREFIX="/webcamoid" ^
     FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
@@ -29,4 +23,3 @@ qmake %SOURCES_DIR%\Webcamoid.pro ^
     GSTREAMERLIBS+=-lgstvideo-1.0
 
 %MAKETOOL% -j4
-cd %SOURCES_DIR%

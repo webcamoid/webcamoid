@@ -96,8 +96,6 @@ on_success:
 
 cache:
   - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
-#  - ../webcamoid-shadow-build -> libAvKys/libAvKys.pro
-#  - ../webcamoid-shadow-build -> appveyor.yml
 #  - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
 
 notifications:
