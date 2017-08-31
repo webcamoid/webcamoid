@@ -2,6 +2,8 @@ set SOURCES_DIR=%CD%
 mkdir ..\webcamoid-shadow-build
 cd ..\webcamoid-shadow-build
 
+set
+
 qmake %SOURCES_DIR%\Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
     PREFIX="/webcamoid" ^

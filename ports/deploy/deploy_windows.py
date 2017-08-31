@@ -32,15 +32,10 @@ class Deploy:
         self.system = system
         self.arch = arch
         self.targetSystem = system
-        print("TESTPOINT 1")
         self.targetArch = self.detectArch()
-        print("TESTPOINT 2")
         self.qmake = self.detectQmake()
-        print("TESTPOINT 3")
         self.programVersion = self.readVersion()
-        print("TESTPOINT 4")
         self.make = self.detectMake()
-        print("TESTPOINT 5")
 
     def detectArch(self):
         exeFile = os.path.join(self.buildDir, self.scanPaths[0])
