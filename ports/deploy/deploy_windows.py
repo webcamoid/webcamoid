@@ -87,11 +87,13 @@ class Deploy:
         os.chdir(self.buildDir)
         process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
                                    stdout=subprocess.PIPE)
-        process.communicate()
+        stdout, stderr = process.communicate()
         os.chdir(previousDir)
 
         if process.returncode != 0:
             return
+
+        print(stdout.decode('utf-8'))
 
         binPath = os.path.join(installDir, 'webcamoid\\bin')
 
