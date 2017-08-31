@@ -81,6 +81,8 @@ class Deploy:
         return ''
 
     def prepare(self):
+        print(os.environ['PATH'])
+
         installDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
         previousDir = os.getcwd()
         os.chdir(self.buildDir)
