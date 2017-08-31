@@ -85,8 +85,14 @@ class Deploy:
         installDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
         previousDir = os.getcwd()
         os.chdir(self.buildDir)
-        process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
-                                   stdout=subprocess.PIPE)
+
+        if 'NO_USE_INSTALL_ROOT' in os.environ:
+            process = subprocess.Popen([self.make, 'install'],
+                                    stdout=subprocess.PIPE)
+        else
+            process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(installDir), 'install'],
+                                    stdout=subprocess.PIPE)
+
         stdout, stderr = process.communicate()
         os.chdir(previousDir)
 
