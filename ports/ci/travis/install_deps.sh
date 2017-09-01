@@ -149,6 +149,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
     ${EXEC} dnf -y update
 
     ${EXEC} dnf -y install \
+        file \
         which \
         xorg-x11-xauth \
         xorg-x11-server-Xvfb \

@@ -118,16 +118,29 @@ class Deploy:
         fileName = os.path.basename(path)
         imports = set()
 
+        encodings = [sys.getdefaultencoding()]
+
+        if sys.getdefaultencoding() != 'utf-8':
+            encodings.append('utf-8')
+
         if fileName.endswith('.qml'):
-            with open(path, encoding=sys.getdefaultencoding()) as f:
-                for line in f:
-                    if re.match('^import \\w+' , line):
-                        imports.add(self.modulePath(line))
+            for enc in encodings:
+                try:
+                    with open(path, encoding=enc) as f:
+                        for line in f:
+                            if re.match('^import \\w+' , line):
+                                imports.add(self.modulePath(line))
+                except:
+                    pass
         elif fileName == 'qmldir':
-            with open(path, encoding=sys.getdefaultencoding()) as f:
-                for line in f:
-                    if re.match('^depends ' , line):
-                        imports.add(self.modulePath(line))
+            for enc in encodings:
+                try:
+                    with open(path, encoding=enc) as f:
+                        for line in f:
+                            if re.match('^depends ' , line):
+                                imports.add(self.modulePath(line))
+                except:
+                    pass
 
         return list(imports)
 
