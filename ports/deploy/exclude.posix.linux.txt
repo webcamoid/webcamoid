@@ -16,7 +16,7 @@ librt.so.1
 # GCC
 libgcc_s.so.1
 libgomp.so.1
-libstdc\\+\\+.so.6
+libstdc\+\+.so.6
 
 # Core libraries
 libSM.so.6

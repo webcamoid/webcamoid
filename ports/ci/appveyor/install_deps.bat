@@ -22,7 +22,7 @@ set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
 
 if not exist %FFMPEG_FILE% curl -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_FILE%
 
-if exist %FFMPEG_FILE% 7z x %FFMPEG_FILE%
+if exist %FFMPEG_FILE% 7z x -y -aoa %FFMPEG_FILE%
 
 set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 
@@ -30,7 +30,7 @@ rem Installing GStreamer
 
 set GSTREAMER_FILE=gstreamer-1.0-devel-%GST_ARCH%-%GSTREAMER_VERSION%.msi
 
-if not exist %GSTREAMER_FILE% curl -kLOC - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_FILE%
+if not exist %GSTREAMER_FILE% curl -kLOC --retry 10 - https://gstreamer.freedesktop.org/data/pkg/windows/%GSTREAMER_VERSION%/%GSTREAMER_FILE%
 
 if exist %GSTREAMER_FILE% (
     start /b /wait msiexec /i %CD%\%GSTREAMER_FILE% /quiet /qn /norestart

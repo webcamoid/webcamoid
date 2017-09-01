@@ -20,13 +20,17 @@
 # Web-Site: http://webcamoid.github.io/
 
 import os
+import sys
 import platform
 import subprocess
 import shutil
+import re
 
 class Deploy:
     def __init__(self, rootDir, system, arch):
-        self.scanPaths = ['StandAlone/webcamoid']
+        self.scanPaths = ['StandAlone/webcamoid',
+                          'StandAlone/share/qml',
+                          'libAvKys/Plugins']
         self.rootDir = rootDir
         self.system = system
         self.arch = arch
@@ -34,6 +38,7 @@ class Deploy:
         self.targetSystem = self.detectSystem()
         self.programVersion = self.readVersion()
         self.qmake = self.detectQmake()
+        self.excludes = self.readExcludeList()
 
     def detectSystem(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0] + '.exe')
@@ -63,18 +68,23 @@ class Deploy:
 
         return ''
 
-    def prepare(self):
-        process = subprocess.Popen([self.qmake, '-query', 'QT_INSTALL_QML'],
+    def qmakeQuery(self, var):
+        process = subprocess.Popen([self.qmake, '-query', var],
                                    stdout=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        self.sysQmlPath = stdout.strip().decode('utf-8')
-        installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
-        insQmlDir = os.path.join(installDir, self.sysQmlPath)
-        dstQmlDir = os.path.join(installDir, 'usr/lib/qt/qml')
+
+        return stdout.strip().decode('utf-8')
+
+    def prepare(self):
+        self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
+        self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
+        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        insQmlDir = os.path.join(self.installDir, self.sysQmlPath)
+        dstQmlDir = os.path.join(self.installDir, 'usr/lib/qt/qml')
 
         previousDir = os.getcwd()
         os.chdir(self.rootDir)
-        process = subprocess.Popen(['make', 'INSTALL_ROOT={}'.format(installDir), 'install'],
+        process = subprocess.Popen(['make', 'INSTALL_ROOT={}'.format(self.installDir), 'install'],
                                    stdout=subprocess.PIPE)
         process.communicate()
         os.chdir(previousDir)
@@ -91,8 +101,275 @@ class Deploy:
             except:
                 pass
 
+    def modulePath(self, importLine):
+        imp = importLine.strip().split()
+        path = imp[1].replace('.', '/')
+        majorVersion = imp[2].split('.')[0]
+
+        if int(majorVersion) > 1:
+            path += '.{}'.format(majorVersion)
+
+        return path
+
+    def scanImports(self, path):
+        if not os.path.isfile(path):
+            return []
+
+        fileName = os.path.basename(path)
+        imports = set()
+
+        if fileName.endswith('.qml'):
+            with open(path) as f:
+                for line in f:
+                    if re.match('^import \\w+' , line):
+                        imports.add(self.modulePath(line))
+        elif fileName == 'qmldir':
+            with open(path) as f:
+                for line in f:
+                    if re.match('^depends ' , line):
+                        imports.add(self.modulePath(line))
+
+        return list(imports)
+
+    def listQmlFiles(self, path):
+        qmlFiles = set()
+
+        if os.path.isfile(path):
+            baseName = os.path.basename(path)
+
+            if baseName == 'qmldir' or path.endswith('.qml'):
+                qmlFiles.add(path)
+        else:
+            for root, dirs, files in os.walk(os.path.join(self.rootDir, path)):
+                for f in files:
+                    if f == 'qmldir' or f.endswith('.qml'):
+                        qmlFiles.add(os.path.join(root, f))
+
+        return list(qmlFiles)
+
+    def solvedepsQml(self):
+        print("Copying Qml modules\n")
+        qmlFiles = set()
+
+        for path in self.scanPaths:
+            path = os.path.join(self.rootDir, path)
+
+            for f in self.listQmlFiles(path):
+                qmlFiles.add(f)
+
+        qmlPath = os.path.join(self.installDir, 'usr/lib/qt/qml')
+        solved = set()
+        solvedImports = set()
+
+        while len(qmlFiles) > 0:
+            qmlFile = qmlFiles.pop()
+
+            for imp in self.scanImports(qmlFile):
+                if imp in solvedImports:
+                    continue
+
+                sysModulePath = os.path.join(self.sysQmlPath, imp)
+                installModulePath = os.path.join(qmlPath, imp)
+
+                if os.path.exists(sysModulePath):
+                    print('    {} -> {}'.format(sysModulePath, installModulePath))
+                    path = installModulePath[: installModulePath.rfind(os.sep)]
+
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+
+                    try:
+                        shutil.copytree(sysModulePath, installModulePath)
+                    except:
+                        pass
+
+                    solvedImports.add(imp)
+
+                    for f in self.listQmlFiles(sysModulePath):
+                        if not f in solved:
+                            qmlFiles.add(f)
+
+            solved.add(qmlFile)
+
+    def isElf(self, path):
+        process = subprocess.Popen(['file', '-bi', path],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            return False
+
+        if b'application/x-sharedlib' in stdout:
+            return True
+
+        return False
+
+    def findElfs(self, path):
+        elfs = []
+
+        for root, dirs, files in os.walk(path):
+            for f in files:
+                elfPath = os.path.join(root, f)
+
+                if self.isElf(elfPath):
+                    elfs.append(elfPath)
+
+        return elfs
+
+    def listDependencies(self, path):
+        process = subprocess.Popen(['ldd', path],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            return []
+
+        libs = []
+
+        for line in stdout.decode('utf-8').split('\n'):
+            if '=>' in line:
+                lib = line.split('=>')[1]
+                i = lib.rfind('(')
+
+                if i >= 0:
+                    lib = lib[: i]
+
+                lib = lib.strip()
+
+                if os.path.exists(lib):
+                    libs.append(lib)
+
+        return libs
+
+    def libName(self, lib):
+        dep = os.path.basename(lib)[3:]
+
+        return dep[: dep.find('.')]
+
+    def solvedepsPlugins(self):
+        print("\nCopying required plugins\n")
+
+        pluginsMap = {
+            'Qt53DRenderer': ['sceneparsers'],
+            'Qt5Declarative': ['qml1tooling'],
+            'Qt5EglFSDeviceIntegration': ['egldeviceintegrations'],
+            'Qt5Gui': ['accessible', 'generic', 'iconengines', 'imageformats', 'platforms', 'platforminputcontexts'],
+            'Qt5Location': ['geoservices'],
+            'Qt5Multimedia': ['audio', 'mediaservice', 'playlistformats'],
+            'Qt5Network': ['bearer'],
+            'Qt5Positioning': ['position'],
+            'Qt5PrintSupport': ['printsupport'],
+            'Qt5QmlTooling': ['qmltooling'],
+            'Qt5Quick': ['scenegraph', 'qmltooling'],
+            'Qt5Sensors': ['sensors', 'sensorgestures'],
+            'Qt5SerialBus': ['canbus'],
+            'Qt5Sql': ['sqldrivers'],
+            'Qt5TextToSpeech': ['texttospeech'],
+            'Qt5WebEngine': ['qtwebengine'],
+            'Qt5WebEngineCore': ['qtwebengine'],
+            'Qt5WebEngineWidgets': ['qtwebengine'],
+            'Qt5XcbQpa': ['xcbglintegrations']
+        }
+
+        qtDeps = set()
+
+        for elfPath in self.findElfs(self.installDir):
+            for dep in self.listDependencies(elfPath):
+                if self.libName(dep) in pluginsMap:
+                    qtDeps.add(dep)
+
+        solved = set()
+        plugins = []
+
+        while len(qtDeps) > 0:
+            dep = qtDeps.pop()
+
+            for qtDep in self.listDependencies(dep):
+                if self.libName(qtDep) in pluginsMap and not qtDep in solved:
+                    qtDeps.add(qtDep)
+
+            for plugin in pluginsMap[self.libName(dep)]:
+                if not plugin in plugins:
+                    sysPluginPath = os.path.join(self.sysPluginsPath, plugin)
+                    pluginPath = os.path.join(self.installDir, 'usr/lib/qt/plugins')
+                    print('    {} -> {}'.format(sysPluginPath, pluginPath))
+
+                    if not os.path.exists(pluginPath):
+                        os.makedirs(pluginPath)
+
+                    try:
+                        shutil.copytree(sysPluginPath, os.path.join(pluginPath, plugin))
+                    except:
+                        pass
+
+                    for elfPath in self.findElfs(sysPluginPath):
+                        for elfDep in self.listDependencies(elfPath):
+                            if self.libName(elfDep) in pluginsMap \
+                               and elfDep != dep \
+                               and not elfDep in solved:
+                                qtDeps.add(elfDep)
+
+                    plugins.append(plugin)
+
+            solved.add(dep)
+
+    def readExcludeList(self):
+        excludeFile = 'exclude.{}.{}.txt'.format(os.name, sys.platform)
+        excludePath = os.path.join(self.rootDir, 'ports/deploy', excludeFile)
+        excludes = []
+
+        if os.path.exists(excludePath):
+            with open(excludePath) as f:
+                for line in f:
+                    line = line.strip()
+
+                    if len(line) > 0 and line[0] != '#':
+                        i = line.find('#')
+
+                        if i >= 0:
+                            line = line[: i]
+
+                        line = line.strip()
+
+                        if len(line) > 0:
+                            excludes.append(line)
+
+        return excludes
+
+    def isExcluded(self, path):
+        for exclude in self.excludes:
+            if re.search(exclude, path):
+                return True
+
+        return False
+
+    def solvedepsLibs(self):
+        print("\nCopying required libs\n")
+        deps = set()
+
+        for elfPath in self.findElfs(self.installDir):
+            for dep in self.listDependencies(elfPath):
+                deps.add(dep)
+
+        _deps = set()
+
+        for dep in deps:
+            if not self.isExcluded(dep):
+                _deps.add(dep)
+
+        for dep in _deps:
+            libPath = os.path.join(self.installDir, 'usr/lib', os.path.basename(dep))
+            print('    {} -> {}'.format(dep, libPath))
+
+            if not os.path.exists(libPath):
+                shutil.copy(dep, libPath)
+
     def solvedeps(self):
-        pass
+        self.solvedepsQml()
+        self.solvedepsPlugins()
+        self.solvedepsLibs()
 
     def package(self):
         pass
