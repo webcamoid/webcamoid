@@ -56,7 +56,7 @@ class Deploy:
         stdout, stderr = process.communicate()
 
         try:
-            return stdout.split()[1].strip().decode('utf-8')
+            return stdout.split()[1].strip().decode(sys.getdefaultencoding())
         except:
             return 'unknown'
 
@@ -73,7 +73,7 @@ class Deploy:
                                    stdout=subprocess.PIPE)
         stdout, stderr = process.communicate()
 
-        return stdout.strip().decode('utf-8')
+        return stdout.strip().decode(sys.getdefaultencoding())
 
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
@@ -119,12 +119,12 @@ class Deploy:
         imports = set()
 
         if fileName.endswith('.qml'):
-            with open(path) as f:
+            with open(path, encoding=sys.getdefaultencoding()) as f:
                 for line in f:
                     if re.match('^import \\w+' , line):
                         imports.add(self.modulePath(line))
         elif fileName == 'qmldir':
-            with open(path) as f:
+            with open(path, encoding=sys.getdefaultencoding()) as f:
                 for line in f:
                     if re.match('^depends ' , line):
                         imports.add(self.modulePath(line))
@@ -228,7 +228,7 @@ class Deploy:
 
         libs = []
 
-        for line in stdout.decode('utf-8').split('\n'):
+        for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
             if '=>' in line:
                 lib = line.split('=>')[1]
                 i = lib.rfind('(')
