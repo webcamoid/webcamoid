@@ -39,7 +39,6 @@ class Deploy:
         self.programVersion = self.readVersion()
         self.qmake = self.detectQmake()
         self.excludes = self.readExcludeList()
-        self.readEncoding = os.environ['DEPLOY_ENCODING_READ'] if 'DEPLOY_ENCODING_READ' in os.environ else sys.getdefaultencoding()
 
     def detectSystem(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0] + '.exe')
@@ -122,23 +121,15 @@ class Deploy:
         if fileName.endswith('.qml'):
             with open(path, 'rb') as f:
                 for line in f:
-                    try:
-                        line = line.decode(sys.getdefaultencoding())
-
-                        if re.match('^import \\w+' , line):
-                            imports.add(self.modulePath(line))
-                    except:
-                        pass
+                    if re.match(b'^import \\w+' , line):
+                        print(line)
+                        imports.add(self.modulePath(line.decode(sys.getdefaultencoding())))
         elif fileName == 'qmldir':
             with open(path, 'rb') as f:
                 for line in f:
-                    try:
-                        line = line.decode(sys.getdefaultencoding())
-
-                        if re.match('^depends ' , line):
-                            imports.add(self.modulePath(line))
-                    except:
-                        pass
+                    if re.match(b'^depends ' , line):
+                        print(line)
+                        imports.add(self.modulePath(line.decode(sys.getdefaultencoding())))
 
         return list(imports)
 
