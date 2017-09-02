@@ -13,7 +13,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/bash
 
-export DEPLOY_ENCODING_READ=utf-16
+export DEPLOY_ENCODING_READ=utf-16-le
 xvfb-run --auto-servernum python3 ports/deploy/deploy.py
 EOF
 
