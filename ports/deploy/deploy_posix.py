@@ -123,13 +123,13 @@ class Deploy:
                 for line in f:
                     if re.match(b'^import \\w+' , line):
                         print(line)
-                        imports.add(self.modulePath(line.decode(sys.getdefaultencoding())))
+                        imports.add(self.modulePath(line.strip().decode(sys.getdefaultencoding())))
         elif fileName == 'qmldir':
             with open(path, 'rb') as f:
                 for line in f:
                     if re.match(b'^depends ' , line):
                         print(line)
-                        imports.add(self.modulePath(line.decode(sys.getdefaultencoding())))
+                        imports.add(self.modulePath(line.strip().decode(sys.getdefaultencoding())))
 
         return list(imports)
 
