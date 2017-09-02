@@ -171,8 +171,8 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qtdeclarative-devel \
         qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
-        qt5-quickcontrols \
-        qt5-graphicaleffects \
+        qt5-qtquickcontrols \
+        qt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer1-plugins-base-devel \
         libv4l-devel \
