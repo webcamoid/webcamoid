@@ -148,7 +148,7 @@ class Deploy:
         return list(qmlFiles)
 
     def solvedepsQml(self):
-        print("Copying Qml modules\n")
+        print('Copying Qml modules\n')
         qmlFiles = set()
 
         for path in self.scanPaths:
@@ -249,7 +249,7 @@ class Deploy:
         return dep[: dep.find('.')]
 
     def solvedepsPlugins(self):
-        print("\nCopying required plugins\n")
+        print('\nCopying required plugins\n')
 
         pluginsMap = {
             'Qt53DRenderer': ['sceneparsers'],
@@ -346,7 +346,7 @@ class Deploy:
         return False
 
     def solvedepsLibs(self):
-        print("\nCopying required libs\n")
+        print('\nCopying required libs\n')
         deps = set()
 
         for elfPath in self.findElfs(self.installDir):
@@ -359,12 +359,21 @@ class Deploy:
             if not self.isExcluded(dep):
                 _deps.add(dep)
 
-        for dep in _deps:
+        solved = set()
+
+        while len(_deps) > 0:
+            dep = _deps.pop()
             libPath = os.path.join(self.installDir, 'usr/lib', os.path.basename(dep))
             print('    {} -> {}'.format(dep, libPath))
 
             if not os.path.exists(libPath):
                 shutil.copy(dep, libPath)
+
+            for elfDep in self.listDependencies(dep):
+                if elfDep != dep and not elfDep in solved:
+                    _deps.add(elfDep)
+
+            solved.add(_dep)
 
     def solvedeps(self):
         self.solvedepsQml()

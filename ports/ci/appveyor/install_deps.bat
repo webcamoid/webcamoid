@@ -22,7 +22,7 @@ set FFMPEG_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
 
 if not exist %FFMPEG_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_FILE%
 
-if exist %FFMPEG_FILE% 7z x -y -aoa %FFMPEG_FILE%
+if exist %FFMPEG_FILE% 7z x %FFMPEG_FILE% -aoa
 
 set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 
