@@ -120,14 +120,24 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qt58tools \
             qt58declarative \
             qt58multimedia \
-            qt58svg
+            qt58svg \
+            qt58quickcontrols \
+            qt58quickcontrols2 \
+            qt58graphicaleffects
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
             qtdeclarative5-dev \
             qtmultimedia5-dev \
             libqt5opengl5-dev \
-            libqt5svg5-dev
+            libqt5svg5-dev \
+            qml-module-qt-labs-folderlistmodel \
+            qml-module-qt-labs-settings \
+            qml-module-qtqml-models2 \
+            qml-module-qtquick-controls \
+            qml-module-qtquick-dialogs \
+            qml-module-qtquick-extras \
+            qml-module-qtquick-privatewidgets
     fi
 
     # Install FFmpeg dev
@@ -161,6 +171,8 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qtdeclarative-devel \
         qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
+        qt5-quickcontrols \
+        qt5-graphicaleffects \
         ffmpeg-devel \
         gstreamer1-plugins-base-devel \
         libv4l-devel \
@@ -182,6 +194,8 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-qtdeclarative-devel \
         libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
+        libqt5-qtquickcontrols \
+        libqt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer-plugins-base-devel \
         libv4l-devel \
