@@ -120,15 +120,25 @@ class Deploy:
         imports = set()
 
         if fileName.endswith('.qml'):
-            with open(path, encoding=self.readEncoding) as f:
+            with open(path, 'rb') as f:
                 for line in f:
-                    if re.match('^import \\w+' , line):
-                        imports.add(self.modulePath(line))
+                    try:
+                        line = line.decode(sys.getdefaultencoding())
+
+                        if re.match('^import \\w+' , line):
+                            imports.add(self.modulePath(line))
+                    except:
+                        pass
         elif fileName == 'qmldir':
-            with open(path, encoding=self.readEncoding) as f:
+            with open(path, 'rb') as f:
                 for line in f:
-                    if re.match('^depends ' , line):
-                        imports.add(self.modulePath(line))
+                    try:
+                        line = line.decode(sys.getdefaultencoding())
+
+                        if re.match('^depends ' , line):
+                            imports.add(self.modulePath(line))
+                    except:
+                        pass
 
         return list(imports)
 
