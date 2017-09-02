@@ -4,12 +4,22 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ -z "${ANDROID_BUILD}" ]; then
     EXEC="docker exec ${DOCKERSYS}"
 fi
 
-BUILDSCRIPT=dockerbuild.sh
-
 if [ "${ANDROID_BUILD}" = 1 ]; then
     echo "Deploy not supported for Android"
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
-    ${EXEC} xvfb-run --auto-servernum python3 ports/deploy/deploy.py
+
+    DEPLOYSCRIPT=dockerbuild.sh
+
+    cat << EOF > ${DEPLOYSCRIPT}
+#!/bin/bash
+
+export DEPLOY_ENCODING_READ=utf-16
+xvfb-run --auto-servernum python3 ports/deploy/deploy.py
+EOF
+
+    chmod +x ${DEPLOYSCRIPT}
+
+    ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     ${EXEC} python3 ports/deploy/deploy.py
 fi
