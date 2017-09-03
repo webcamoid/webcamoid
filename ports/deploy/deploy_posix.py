@@ -370,10 +370,12 @@ class Deploy:
                 shutil.copy(dep, libPath)
 
             for elfDep in self.listDependencies(dep):
-                if elfDep != dep and not elfDep in solved:
+                if elfDep != dep \
+                   and not elfDep in solved \
+                   and not self.isExcluded(elfDep):
                     _deps.add(elfDep)
 
-            solved.add(_dep)
+            solved.add(dep)
 
     def solvedeps(self):
         self.solvedepsQml()
