@@ -94,10 +94,6 @@ build_script:
 on_success:
   - ports\ci\appveyor\deploy.bat
 
-cache:
-#  - ffmpeg-%FFMPEG_VERSION%-win32-dev.zip
-#  - gstreamer-1.0-devel-x86-%GSTREAMER_VERSION%.msi
-
 notifications:
   - provider: Email
     to:
