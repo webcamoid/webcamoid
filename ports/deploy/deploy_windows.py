@@ -405,14 +405,14 @@ class Deploy:
         solved = set()
         plugins = []
 
+        pluginsPath = os.path.join(self.installDir, 'webcamoid\\bin')
+
         while len(qtDeps) > 0:
             dep = qtDeps.pop()
 
             for qtDep in self.listDependencies(dep):
                 if self.libName(qtDep) in pluginsMap and not qtDep in solved:
                     qtDeps.add(qtDep)
-
-            pluginsPath = os.path.join(self.installDir, 'webcamoid\\bin')
 
             for plugin in pluginsMap[self.libName(dep)]:
                 if not plugin in plugins:
