@@ -21,6 +21,8 @@
 
 import os
 import sys
+import struct
+import mimetypes
 import platform
 import subprocess
 import shutil
@@ -47,10 +49,9 @@ class Deploy:
         return platform.architecture(exeFile)[0]
 
     def readVersion(self):
-        process = subprocess.Popen([self.qmake, '-query', 'QT_INSTALL_BINS'], stdout=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        self.sysBinsPath = self.qmakeQuery('QT_INSTALL_BINS')
         os.environ['PATH'] = ';'.join([os.path.join(self.buildDir, 'libAvKys\\Lib'),
-                                       stdout.strip().decode('utf-8'),
+                                       self.sysBinsPath,
                                        os.environ['PATH']])
         programPath = os.path.join(self.buildDir, self.scanPaths[0])
         process = subprocess.Popen([programPath, '--version'],
@@ -104,7 +105,6 @@ class Deploy:
             os.remove(afile)
 
     def prepare(self):
-        self.sysBinsPath = self.qmakeQuery('QT_INSTALL_BINS')
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
         self.installDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
@@ -219,9 +219,9 @@ class Deploy:
         self.removeUnneededFiles(qmlPath)
 
     def isExe(self, path):
-        path = path.lower()
+        mimetype, encoding = mimetypes.guess_type(path)
 
-        if path.endswith('.exe') or path.endswith('.dll'):
+        if mimetype == 'application/x-msdownload':
             return True
 
         return False
@@ -239,36 +239,129 @@ class Deploy:
         return elfs
 
     def whereExe(self, exe):
-        process = subprocess.Popen(['where', exe],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-
-        if process.returncode != 0:
+        if not 'PATH' in os.environ or len(os.environ['PATH']) < 1:
             return ''
 
-        return stdout.decode(sys.getdefaultencoding()).strip()
+        for path in os.environ['PATH'].split(';'):
+            path = os.path.join(path.strip(), exe)
+
+            if os.path.exists(path):
+                return path
+
+        return ''
+
+    # https://msdn.microsoft.com/en-us/library/windows/desktop/ms680547(v=vs.85).aspx
+    # https://upload.wikimedia.org/wikipedia/commons/1/1b/Portable_Executable_32_bit_Structure_in_SVG_fixed.svg
+    def exeDump(self, exe):
+        dllImports = []
+
+        with open(exe, 'rb') as f:
+            # Check DOS header signature.
+            if f.read(2) != b'MZ':
+                return []
+
+            # Move to COFF header.
+            f.seek(0x3c, os.SEEK_SET)
+            peHeaderOffset = struct.unpack('I', f.read(4))
+            f.seek(peHeaderOffset[0], os.SEEK_SET)
+            peSignatue = f.read(4)
+
+            # Check COFF header signature.
+            if peSignatue != b'PE\x00\x00':
+                return []
+
+            # Read COFF header.
+            coffHeader = struct.unpack('HHIIIHH', f.read(20))
+            nSections = coffHeader[1]
+            sectionTablePos = coffHeader[5] + f.tell()
+
+            # Read magic signature in standard COFF fields.
+            peType = 'PE32' if f.read(2) == b'\x0b\x01' else 'PE32+'
+
+            # Move to data directories.
+            f.seek(102 if peType == 'PE32' else 118, os.SEEK_CUR)
+
+            # Read the import table.
+            importTablePos, importTableSize = struct.unpack('II', f.read(8))
+
+            # Move to Sections table.
+            f.seek(sectionTablePos, os.SEEK_SET)
+            sections = []
+            idataTableVirtual = -1
+            idataTablePhysical = -1
+
+            # Search for 'idata' section.
+            for i in range(nSections):
+                # Read section.
+                section = struct.unpack('8pIIIIIIHHI', f.read(40))
+                sectionName = section[0].replace(b'\x00', b'')
+
+                # Save a reference to the sections.
+                sections += [section]
+
+                if sectionName == b'idata':
+                    idataTableVirtual = section[2]
+                    idataTablePhysical = section[4]
+
+                    # If import table was defined calculate it's position in
+                    # the file in relation to the address given by 'idata'.
+                    if importTableSize > 0:
+                        idataTablePhysical += importTablePos - section[2]
+
+            if idataTablePhysical < 0:
+                return []
+
+            # Move to 'idata' section.
+            f.seek(idataTablePhysical, os.SEEK_SET)
+            dllList = set()
+
+            # Read 'idata' directory table.
+            while True:
+                # Read DLL entries.
+                dllImport = struct.unpack('IIIII', f.read(20))
+
+                # Null directory entry.
+                if dllImport[0] | dllImport[1] | dllImport[2] | dllImport[3] | dllImport[4] == 0:
+                    break
+
+                # Locate where is located the DLL name in relation to the
+                # sections.
+                for section in sections:
+                    if dllImport[3] >= section[2] \
+                        and dllImport[3] < section[1] + section[2]:
+                        dllList.add(dllImport[3] - section[2] + section[4])
+
+                        break
+
+            for dll in dllList:
+                # Move to DLL name.
+                f.seek(dll, os.SEEK_SET)
+                dllName = b''
+
+                # Read string until null character.
+                while True:
+                    c = f.read(1)
+
+                    if c == b'\x00':
+                        break
+
+                    dllName += c
+
+                dllImports.append(dllName.decode(sys.getdefaultencoding()))
+
+        return dllImports
 
     def listDependencies(self, path):
-        process = subprocess.Popen([os.path.join(os.path.dirname(self.make), 'objdump.exe'), '-x', path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-
-        if process.returncode != 0:
-            return []
-
         libs = []
 
-        for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
-            if re.search('DLL Name:', line):
-                lib = line.split('DLL Name:')[1]
-                lib = self.whereExe(lib.strip())
+        for exe in self.exeDump(path):
+            lib = self.whereExe(exe)
+            dirname = os.path.dirname(lib).replace('/', '\\').lower()
 
-                if len(lib) > 0 \
-                   and os.path.exists(lib) \
-                   and os.path.dirname(lib).replace('/', '\\') != 'C:\\Windows\\System32':
-                    libs.append(lib)
+            if len(lib) > 0 \
+                and os.path.exists(lib) \
+                and dirname != 'c:\\windows\\system32':
+                libs.append(lib)
 
         return libs
 
