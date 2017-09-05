@@ -294,6 +294,7 @@ class Deploy:
             'Qt5XcbQpa': ['xcbglintegrations']
         }
 
+        pluginsMap.update({lib + 'd': plugins for lib, plugins in pluginsMap})
         qtDeps = set()
 
         for elfPath in self.findExes(self.installDir):

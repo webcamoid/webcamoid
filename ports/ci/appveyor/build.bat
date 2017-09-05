@@ -1,6 +1,6 @@
 qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
-    PREFIX="C:/projects/webcamoid/ports/deploy/temp_priv/root" ^
+    PREFIX="%INSTALL_PREFIX%" ^
     FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
     FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" ^
     FFMPEGLIBS+=-lavcodec ^

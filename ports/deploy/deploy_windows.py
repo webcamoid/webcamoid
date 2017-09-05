@@ -98,7 +98,9 @@ class Deploy:
 
         for root, dirs, files in os.walk(path):
             for f in files:
-                if f.endswith('.a') or f.endswith('.static.prl'):
+                if f.endswith('.a') \
+                    or f.endswith('.static.prl') \
+                    or f.endswith('.pdb'):
                     afiles.add(os.path.join(root, f))
 
         for afile in afiles:
@@ -107,16 +109,12 @@ class Deploy:
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
-        self.installDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
+        self.installDir = os.environ['INSTALL_PREFIX'] if 'INSTALL_PREFIX' in os.environ else os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
         previousDir = os.getcwd()
         os.chdir(self.buildDir)
 
-        if 'NO_USE_INSTALL_ROOT' in os.environ:
-            process = subprocess.Popen([self.make, 'install'],
-                                    stdout=subprocess.PIPE)
-        else:
-            process = subprocess.Popen([self.make, 'INSTALL_ROOT={}'.format(self.installDir), 'install'],
-                                    stdout=subprocess.PIPE)
+        process = subprocess.Popen([self.make, 'install'],
+                                   stdout=subprocess.PIPE)
 
         stdout, stderr = process.communicate()
         os.chdir(previousDir)
@@ -124,7 +122,7 @@ class Deploy:
         if process.returncode != 0:
             return
 
-        self.removeUnneededFiles(os.path.join(self.installDir, 'webcamoid\\bin'))
+        self.removeUnneededFiles(os.path.join(self.installDir, 'bin'))
 
     def modulePath(self, importLine):
         imp = importLine.strip().split()
@@ -182,7 +180,7 @@ class Deploy:
             for f in self.listQmlFiles(path):
                 qmlFiles.add(f)
 
-        qmlPath = os.path.join(self.installDir, 'webcamoid\\lib\\qt\\qml')
+        qmlPath = os.path.join(self.installDir, 'lib\\qt\\qml')
         solved = set()
         solvedImports = set()
 
@@ -395,17 +393,18 @@ class Deploy:
             'Qt5XcbQpa': ['xcbglintegrations']
         }
 
+        pluginsMap.update({lib + 'd': pluginsMap[lib] for lib in pluginsMap})
         qtDeps = set()
 
-        for elfPath in self.findExes(self.installDir):
-            for dep in self.listDependencies(elfPath):
+        for exePath in self.findExes(self.installDir):
+            for dep in self.listDependencies(exePath):
                 if self.libName(dep) in pluginsMap:
                     qtDeps.add(dep)
 
         solved = set()
         plugins = []
 
-        pluginsPath = os.path.join(self.installDir, 'webcamoid\\bin')
+        pluginsPath = os.path.join(self.installDir, 'bin')
 
         while len(qtDeps) > 0:
             dep = qtDeps.pop()
@@ -467,7 +466,7 @@ class Deploy:
         while len(deps) > 0:
             dep = deps.pop()
 
-            libPath = os.path.join(self.installDir, 'webcamoid\\bin', os.path.basename(dep))
+            libPath = os.path.join(self.installDir, 'bin', os.path.basename(dep))
             print('    {} -> {}'.format(dep, libPath))
 
             if not os.path.exists(libPath):

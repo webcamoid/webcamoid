@@ -22,6 +22,7 @@ environment:
     GSTREAMER_VERSION: 1.12.2
     QMAKESPEC: win32-g++
     MAKETOOL: mingw32-make
+    INSTALL_PREFIX: C:/projects/webcamoid/ports/deploy/temp_priv/root
 
   matrix:
     - QTDIR: C:\Qt\5.6\mingw49_32
