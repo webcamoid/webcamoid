@@ -403,7 +403,6 @@ class Deploy:
 
         solved = set()
         plugins = []
-
         pluginsPath = os.path.join(self.installDir, 'bin')
 
         while len(qtDeps) > 0:
@@ -483,8 +482,11 @@ class Deploy:
         self.solvedepsPlugins()
         self.solvedepsLibs()
 
+    def finish(self):
+        pass
+
     def package(self):
         pass
 
-    def finish(self):
+    def cleanup(self):
         pass

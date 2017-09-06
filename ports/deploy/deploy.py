@@ -81,11 +81,14 @@ class Deploy:
     def solvedeps(self):
         self.platformDeploy.solvedeps()
 
+    def finish(self):
+        self.platformDeploy.finish()
+
     def package(self):
         self.platformDeploy.package()
 
-    def finish(self):
-        self.platformDeploy.finish()
+    def cleanup(self):
+        self.platformDeploy.cleanup()
 
 if __name__ =='__main__':
     deploy = Deploy()
@@ -93,5 +96,6 @@ if __name__ =='__main__':
     print(deploy)
     deploy.prepare()
     deploy.solvedeps()
-    deploy.package()
     deploy.finish()
+    deploy.package()
+    deploy.cleanup()

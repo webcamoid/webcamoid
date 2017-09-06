@@ -273,7 +273,7 @@ class Deploy:
             'Qt5XcbQpa': ['xcbglintegrations']
         }
 
-        pluginsMap.update({lib + 'd': plugins for lib, plugins in pluginsMap})
+        pluginsMap.update({lib + 'd': pluginsMap[lib] for lib in pluginsMap})
         qtDeps = set()
 
         for elfPath in self.findElfs(self.installDir):
@@ -283,6 +283,7 @@ class Deploy:
 
         solved = set()
         plugins = []
+        pluginsPath = os.path.join(self.installDir, 'usr/lib/qt/plugins')
 
         while len(qtDeps) > 0:
             dep = qtDeps.pop()
@@ -294,14 +295,14 @@ class Deploy:
             for plugin in pluginsMap[self.libName(dep)]:
                 if not plugin in plugins:
                     sysPluginPath = os.path.join(self.sysPluginsPath, plugin)
-                    pluginPath = os.path.join(self.installDir, 'usr/lib/qt/plugins')
+                    pluginPath = os.path.join(pluginPath, plugin)
                     print('    {} -> {}'.format(sysPluginPath, pluginPath))
 
-                    if not os.path.exists(pluginPath):
-                        os.makedirs(pluginPath)
+                    if not os.path.exists(pluginsPath):
+                        os.makedirs(pluginsPath)
 
                     try:
-                        shutil.copytree(sysPluginPath, os.path.join(pluginPath, plugin))
+                        shutil.copytree(sysPluginPath, pluginPath))
                     except:
                         pass
 
@@ -383,8 +384,11 @@ class Deploy:
         self.solvedepsPlugins()
         self.solvedepsLibs()
 
+    def finish(self):
+        pass
+
     def package(self):
         pass
 
-    def finish(self):
+    def cleanup(self):
         pass
