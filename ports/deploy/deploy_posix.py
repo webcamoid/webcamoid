@@ -433,7 +433,7 @@ class Deploy:
             if process.returncode != 0:
                 return ''
 
-            package = stdout.split(':')[0].decode(sys.getdefaultencoding()).strip()
+            package = stdout.split(b':')[0].decode(sys.getdefaultencoding()).strip()
 
             process = subprocess.Popen([dpkg, '-s', path],
                                        stdout=subprocess.PIPE,
