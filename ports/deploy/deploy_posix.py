@@ -295,7 +295,7 @@ class Deploy:
             for plugin in pluginsMap[self.libName(dep)]:
                 if not plugin in plugins:
                     sysPluginPath = os.path.join(self.sysPluginsPath, plugin)
-                    pluginPath = os.path.join(pluginPath, plugin)
+                    pluginPath = os.path.join(pluginsPath, plugin)
                     print('    {} -> {}'.format(sysPluginPath, pluginPath))
 
                     if not os.path.exists(pluginsPath):
