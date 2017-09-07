@@ -302,7 +302,7 @@ class Deploy:
                         os.makedirs(pluginsPath)
 
                     try:
-                        shutil.copytree(sysPluginPath, pluginPath))
+                        shutil.copytree(sysPluginPath, pluginPath)
                     except:
                         pass
 

@@ -21,6 +21,7 @@
 
 import os
 import sys
+import struct
 import platform
 import subprocess
 import shutil
@@ -40,7 +41,14 @@ class Deploy:
         self.programName = os.path.basename(self.scanPaths[0])
         self.programVersion = self.readVersion()
         self.qmake = self.detectQmake()
-        self.optPath = '/usr/local/opt'
+
+        # 32 bits magic number.
+        self.MH_MAGIC = 0xfeedface # Native endian
+        self.MH_CIGAM = 0xcefaedfe # Reverse endian
+
+        # 64 bits magic number.
+        self.MH_MAGIC_64 = 0xfeedfacf # Native endian
+        self.MH_CIGAM_64 = 0xcffaedfe # Reverse endian
 
     def readVersion(self):
         os.environ['DYLD_LIBRARY_PATH'] = os.path.join(self.rootDir, 'libAvKys/Lib')
@@ -74,7 +82,6 @@ class Deploy:
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
-        macdeploy = os.path.join(self.optPath, 'qt5/bin/macdeployqt')
         libDir = os.path.join(self.rootDir, 'libAvKys/Lib')
         tempDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
 
@@ -229,16 +236,18 @@ class Deploy:
             solved.add(qmlFile)
 
     def isMach(self, path):
-        process = subprocess.Popen(['file', '-bI', path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        try:
+            with open(path, 'rb') as f:
+                # Read magic number.
+                magic = struct.unpack('I', f.read(4))[0]
 
-        if process.returncode != 0:
-            return False
-
-        if b'application/x-mach-binary' in stdout:
-            return True
+                if magic == self.MH_MAGIC \
+                    or magic == self.MH_CIGAM \
+                    or magic == self.MH_MAGIC_64 \
+                    or magic == self.MH_CIGAM_64:
+                    return True
+        except:
+            pass
 
         return False
 
@@ -254,36 +263,91 @@ class Deploy:
 
         return machs
 
+    # https://github.com/aidansteele/osx-abi-macho-file-format-reference
+    def machDump(self, mach):
+        # Commands definitions
+        LC_LOAD_DYLIB = 0xc
+
+        dylibImports = []
+
+        with open(mach, 'rb') as f:
+            # Read magic number.
+            magic = struct.unpack('I', f.read(4))[0]
+
+            if magic == self.MH_MAGIC or magic == self.MH_CIGAM:
+                is32bits = True
+            elif magic == self.MH_MAGIC_64 or magic == self.MH_CIGAM_64:
+                is32bits = False
+            else:
+                return []
+
+            # Read number of commands.
+            f.seek(12, os.SEEK_CUR)
+            ncmds = struct.unpack('I', f.read(4))[0]
+
+            # Move to load commands
+            f.seek(8 if is32bits else 12, os.SEEK_CUR)
+
+            for i in range(ncmds):
+                # Read a load command and store it's position in the file.
+                loadCommandStart = f.tell()
+                loadCommand = struct.unpack('II', f.read(8))
+
+                # If the command list a library
+                if loadCommand[0] == LC_LOAD_DYLIB:
+                    # Save the position of the next command.
+                    nextCommand = f.tell() + loadCommand[1] - 8
+
+                    # Move to library name
+                    f.seek(loadCommandStart + struct.unpack('I', f.read(4))[0], os.SEEK_SET)
+                    dylib = b''
+
+                    # Read string until null character.
+                    while True:
+                        c = f.read(1)
+
+                        if c == b'\x00':
+                            break
+
+                        dylib += c
+
+                    dylibImports.append(dylib.decode(sys.getdefaultencoding()))
+                    f.seek(nextCommand, os.SEEK_SET)
+                else:
+                    f.seek(loadCommand[1] - 8, os.SEEK_CUR)
+
+        return dylibImports
+
+    def solveRefpath(self, path):
+        if not path.startswith('@'):
+            return path
+
+        if not 'FRAMEWORKS_PATH' in os.environ:
+            return ''
+
+        basename = os.path.basename(path)
+
+        for fpath in os.environ['FRAMEWORKS_PATH'].split(':'):
+            realPath = os.path.join(fpath, basename)
+
+            if os.path.exists(realPath):
+                return realPath
+
+        return ''
+
     def listDependencies(self, path):
-        process = subprocess.Popen(['otool', '-L', path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-
-        if process.returncode != 0:
-            return []
-
         libs = []
 
-        for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
-            line = line.strip()
+        for mach in self.machDump(path):
+            mach = self.solveRefpath(mach)
 
-            if len(line) < 1 \
-               or line.endswith(':'):
+            if len(mach) < 1 \
+               or mach == path \
+               or os.path.basename(mach) == os.path.basename(path) \
+               or not os.path.exists(mach):
                 continue
 
-            i = line.rfind('(')
-
-            if i >= 0:
-                line = line[: i]
-
-            dep = line.strip()
-
-            if dep == path \
-               or os.path.basename(dep) == os.path.basename(path):
-                continue
-
-            libs.append(dep)
+            libs.append(mach)
 
         return libs
 
@@ -375,31 +439,12 @@ class Deploy:
 
         return False
 
-    def solveRefpath(self, path):
-        if not path.startswith('@'):
-            return path
-
-        if not 'FRAMEWORKS_PATH' in os.environ:
-            return ''
-
-        basename = os.path.basename(path)
-
-        for fpath in os.environ['FRAMEWORKS_PATH'].split(':'):
-            realPath = os.path.join(fpath, basename)
-
-            if os.path.exists(realPath):
-                return realPath
-
-        return ''
-
     def solvedepsLibs(self):
         print('\nCopying required libs\n')
         deps = set()
 
         for machPath in self.findMachs(self.appInstallPath):
             for dep in self.listDependencies(machPath):
-                dep = self.solveRefpath(dep)
-
                 if len(dep) > 0:
                     deps.add(dep)
 
@@ -442,8 +487,6 @@ class Deploy:
                     pass
 
             for machDep in self.listDependencies(dep):
-                machDep = self.solveRefpath(machDep)
-
                 if len(machDep) > 0 \
                    and machDep != dep \
                    and not machDep in solved \
