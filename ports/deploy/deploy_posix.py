@@ -39,6 +39,7 @@ class Deploy:
         self.programVersion = self.readVersion()
         self.qmake = self.detectQmake()
         self.excludes = self.readExcludeList()
+        self.dependencies = []
 
     def detectSystem(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0] + '.exe')
@@ -184,6 +185,7 @@ class Deploy:
                         pass
 
                     solvedImports.add(imp)
+                    self.dependencies.append(os.path.join(sysModulePath, 'qmldir'))
 
                     for f in self.listQmlFiles(sysModulePath):
                         if not f in solved:
@@ -314,6 +316,7 @@ class Deploy:
                                 qtDeps.add(elfDep)
 
                     plugins.append(plugin)
+                    self.dependencies.append(sysPluginPath)
 
             solved.add(dep)
 
@@ -378,14 +381,147 @@ class Deploy:
                     _deps.add(elfDep)
 
             solved.add(dep)
+            self.dependencies.append(dep)
 
     def solvedeps(self):
         self.solvedepsQml()
         self.solvedepsPlugins()
         self.solvedepsLibs()
 
+    def whereBin(self, binary):
+        if not 'PATH' in os.environ or len(os.environ['PATH']) < 1:
+            return ''
+
+        for path in os.environ['PATH'].split(':'):
+            path = os.path.join(path.strip(), binary)
+
+            if os.path.exists(path):
+                return path
+
+        return ''
+
+    def searchPackageFor(self, path):
+        os.environ['LC_ALL'] = 'C'
+        pacman = self.whereBin('pacman')
+
+        if len(pacman) > 0:
+            process = subprocess.Popen([pacman, '-Qo', path],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            info = stdout.decode(sys.getdefaultencoding()).split(' ')
+
+            if len(info) < 2:
+                return ''
+
+            package, version = info[-2:]
+
+            return ' '.join([package.strip(), version.strip()])
+
+        dpkg = self.whereBin('dpkg')
+
+        if len(dpkg) > 0:
+            process = subprocess.Popen([dpkg, '-S', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            package = stdout.split(':')[0].decode(sys.getdefaultencoding()).strip()
+
+            process = subprocess.Popen([dpkg, '-s', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
+                line = line.strip()
+
+                if line.startswith('Version:'):
+                    return ' '.join(package, line.split()[1].strip())
+
+            return ''
+
+        rpm = self.whereBin('rpm')
+
+        if len(rpm) > 0:
+            process = subprocess.Popen([rpm, '-qf', path],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                return ''
+
+            return stdout.decode(sys.getdefaultencoding()).strip()
+
+        return ''
+
+    def sysInfo(self):
+        info = ''
+
+        for f in os.listdir('/etc'):
+            if f.endswith('-release'):
+                with open(os.path.join('/etc' , f)) as releaseFile:
+                    info += releaseFile.read()
+
+        return info
+
+    def writeBuildInfo(self):
+        print('\nWritting build system information\n')
+
+        depsInfoFile = os.path.join(self.installDir, 'usr/share/build-info.txt')
+        info = self.sysInfo()
+
+        with open(depsInfoFile, 'w') as f:
+            for line in info.split('\n'):
+                if len(line) > 0:
+                    print('    ' + line)
+                    f.write(line + '\n')
+
+            print()
+            f.write('\n')
+
+        packages = set()
+
+        for dep in self.dependencies:
+            packageInfo = self.searchPackageFor(dep)
+
+            if len(packageInfo) > 0:
+                packages.add(packageInfo)
+
+        packages = sorted(packages)
+
+        with open(depsInfoFile, 'a') as f:
+            for packge in packages:
+                print('    ' + packge)
+                f.write(packge + '\n')
+
+    def writeQtConf(self):
+        print('Writting qt.conf file')
+
+        paths = {'Plugins': '../lib/qt/plugins',
+                 'Qml2Imports': '../lib/qt/qml'}
+
+        with open(os.path.join(self.installDir, 'usr/bin/qt.conf'), 'w') as qtconf:
+            qtconf.write('[Paths]\n')
+
+            for path in paths:
+                qtconf.write('{} = {}\n'.format(path, paths[path]))
+
     def finish(self):
-        pass
+        print('\nCompleting final package structure\n')
+        self.writeQtConf()
+        self.writeBuildInfo()
 
     def package(self):
         pass
