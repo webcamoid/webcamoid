@@ -435,7 +435,7 @@ class Deploy:
 
             package = stdout.split(b':')[0].decode(sys.getdefaultencoding()).strip()
 
-            process = subprocess.Popen([dpkg, '-s', path],
+            process = subprocess.Popen([dpkg, '-s', package],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
             stdout, stderr = process.communicate()
@@ -447,7 +447,7 @@ class Deploy:
                 line = line.strip()
 
                 if line.startswith('Version:'):
-                    return ' '.join(package, line.split()[1].strip())
+                    return ' '.join([package, line.split()[1].strip()])
 
             return ''
 
