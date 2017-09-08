@@ -518,9 +518,27 @@ class Deploy:
             for path in paths:
                 qtconf.write('{} = {}\n'.format(path, paths[path]))
 
+    def stripSymbols(self):
+        print('Stripping symbols')
+        path = os.path.join(self.installDir, 'usr')
+        elfs = set()
+
+        for root, dirs, files in os.walk(path):
+            for f in files:
+                path = os.path.join(root, f)
+
+                if self.isElf(path):
+                    elfs.add(path)
+
+        for elf in elfs:
+            process = subprocess.Popen(['strip', elf],
+                                       stdout=subprocess.PIPE)
+            process.communicate()
+
     def finish(self):
         print('\nCompleting final package structure\n')
         self.writeQtConf()
+        self.stripSymbols()
         self.writeBuildInfo()
 
     def package(self):
