@@ -93,6 +93,24 @@ class Deploy:
 
         return stdout.strip().decode(sys.getdefaultencoding())
 
+    def copy(self, src, dst):
+        basename = os.path.basename(src)
+        dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
+        dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)
+
+        if os.path.islink(src):
+            rsrc = os.path.realpath(src)
+            rbasename = os.path.basename(rsrc)
+            rdstpath = os.path.join(dstdir, rbasename)
+
+            if not os.path.exists(rdstpath):
+                shutil.copy(rsrc, rdstpath)
+
+            if not os.path.exists(dstpath):
+                os.symlink(os.path.join('.', rbasename), dstpath)
+        elif not os.path.exists(dstpath):
+            shutil.copy(src, dst)
+
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
@@ -184,7 +202,7 @@ class Deploy:
                         os.makedirs(path)
 
                     try:
-                        shutil.copytree(sysModulePath, installModulePath)
+                        shutil.copytree(sysModulePath, installModulePath, True)
                     except:
                         pass
 
@@ -402,7 +420,7 @@ class Deploy:
                         os.makedirs(pluginsPath)
 
                     try:
-                        shutil.copytree(sysPluginPath, pluginPath)
+                        shutil.copytree(sysPluginPath, pluginPath, True)
                     except:
                         pass
 
@@ -446,8 +464,7 @@ class Deploy:
             libPath = os.path.join(self.installDir, 'bin', os.path.basename(dep))
             print('    {} -> {}'.format(dep, libPath))
 
-            if not os.path.exists(libPath):
-                shutil.copy(dep, libPath)
+            self.copy(dep, libPath)
 
             for exeDep in self.listDependencies(dep):
                 if exeDep != dep and not exeDep in solved:
@@ -464,6 +481,7 @@ class Deploy:
         print('Writting qt.conf file')
 
         paths = {'Plugins': '../lib/qt/plugins',
+                 'Imports': '../lib/qt/qml',
                  'Qml2Imports': '../lib/qt/qml'}
 
         with open(os.path.join(self.installDir, 'bin/qt.conf'), 'w') as qtconf:
@@ -510,18 +528,9 @@ class Deploy:
             return
 
         print('Stripping symbols')
-
         path = os.path.join(self.installDir)
-        exes = set()
 
-        for root, dirs, files in os.walk(path):
-            for f in files:
-                path = os.path.join(root, f)
-
-                if self.isExe(path):
-                    exes.add(path)
-
-        for exe in exes:
+        for exe in self.findExes(path):
             process = subprocess.Popen([strip, exe],
                                        stdout=subprocess.PIPE)
             process.communicate()

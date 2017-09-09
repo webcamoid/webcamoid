@@ -79,6 +79,24 @@ class Deploy:
 
         return stdout.strip().decode(sys.getdefaultencoding())
 
+    def copy(self, src, dst):
+        basename = os.path.basename(src)
+        dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
+        dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)
+
+        if os.path.islink(src):
+            rsrc = os.path.realpath(src)
+            rbasename = os.path.basename(rsrc)
+            rdstpath = os.path.join(dstdir, rbasename)
+
+            if not os.path.exists(rdstpath):
+                shutil.copy(rsrc, rdstpath)
+
+            if not os.path.exists(dstpath):
+                os.symlink(os.path.join('.', rbasename), dstpath)
+        elif not os.path.exists(dstpath):
+            shutil.copy(src, dst)
+
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
@@ -91,7 +109,7 @@ class Deploy:
         self.appInstallPath = os.path.join(tempDir, os.path.basename(self.appPath))
 
         if not os.path.exists(self.appInstallPath):
-            shutil.copytree(self.appPath, self.appInstallPath)
+            shutil.copytree(self.appPath, self.appInstallPath, True)
 
         contents = os.path.join(self.appInstallPath, 'Contents')
         installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
@@ -117,11 +135,8 @@ class Deploy:
 
         for f in os.listdir(installLibDir):
             if f.endswith('.dylib'):
-                try:
-                    shutil.copy(os.path.join(installLibDir, f),
-                                frameworksPath)
-                except:
-                    pass
+                self.copy(os.path.join(installLibDir, f),
+                          frameworksPath)
 
         qmlPath = os.path.join(contents, 'Resources/qml')
 
@@ -130,7 +145,8 @@ class Deploy:
 
         try:
             shutil.copytree(os.path.join(installLibDir, 'qt/qml/AkQml'),
-                            os.path.join(qmlPath, 'AkQml'))
+                            os.path.join(qmlPath, 'AkQml'),
+                            True)
         except:
             pass
 
@@ -141,7 +157,8 @@ class Deploy:
 
         try:
             shutil.copytree(os.path.join(installLibDir, 'avkys'),
-                            os.path.join(pluginsPath, 'avkys'))
+                            os.path.join(pluginsPath, 'avkys'),
+                            True)
         except:
             pass
 
@@ -223,7 +240,7 @@ class Deploy:
                         os.makedirs(path)
 
                     try:
-                        shutil.copytree(sysModulePath, installModulePath)
+                        shutil.copytree(sysModulePath, installModulePath, True)
                     except:
                         pass
 
@@ -258,7 +275,7 @@ class Deploy:
             for f in files:
                 machPath = os.path.join(root, f)
 
-                if self.isMach(machPath):
+                if not os.path.islink(machPath) and self.isMach(machPath):
                     machs.append(machPath)
 
         return machs
@@ -266,9 +283,14 @@ class Deploy:
     # https://github.com/aidansteele/osx-abi-macho-file-format-reference
     def machDump(self, mach):
         # Commands definitions
+        LC_REQ_DYLD = 0x80000000
         LC_LOAD_DYLIB = 0xc
+        LC_RPATH = 0x1c | LC_REQ_DYLD
+        LC_ID_DYLIB = 0xd
 
         dylibImports = []
+        rpaths = []
+        dylibId = ''
 
         with open(mach, 'rb') as f:
             # Read magic number.
@@ -279,7 +301,7 @@ class Deploy:
             elif magic == self.MH_MAGIC_64 or magic == self.MH_CIGAM_64:
                 is32bits = False
             else:
-                return []
+                return {}
 
             # Read number of commands.
             f.seek(12, os.SEEK_CUR)
@@ -294,11 +316,11 @@ class Deploy:
                 loadCommand = struct.unpack('II', f.read(8))
 
                 # If the command list a library
-                if loadCommand[0] == LC_LOAD_DYLIB:
+                if loadCommand[0] in [LC_LOAD_DYLIB, LC_RPATH, LC_ID_DYLIB]:
                     # Save the position of the next command.
                     nextCommand = f.tell() + loadCommand[1] - 8
 
-                    # Move to library name
+                    # Move to the string
                     f.seek(loadCommandStart + struct.unpack('I', f.read(4))[0], os.SEEK_SET)
                     dylib = b''
 
@@ -310,13 +332,20 @@ class Deploy:
                             break
 
                         dylib += c
+                    s = dylib.decode(sys.getdefaultencoding())
 
-                    dylibImports.append(dylib.decode(sys.getdefaultencoding()))
+                    if loadCommand[0] == LC_LOAD_DYLIB:
+                        dylibImports.append(s)
+                    elif loadCommand[0] == LC_RPATH:
+                        rpaths.append(s)
+                    elif loadCommand[0] == LC_ID_DYLIB:
+                        dylibId = s
+
                     f.seek(nextCommand, os.SEEK_SET)
                 else:
                     f.seek(loadCommand[1] - 8, os.SEEK_CUR)
 
-        return dylibImports
+        return {'imports': dylibImports, 'rpaths': rpaths, 'id': dylibId}
 
     def solveRefpath(self, path):
         if not path.startswith('@'):
@@ -335,16 +364,22 @@ class Deploy:
 
         return ''
 
-    def listDependencies(self, path):
+    def listDependencies(self, path, solve=True):
+        machInfo = self.machDump(path)
+
+        if not machInfo:
+            return []
+
         libs = []
 
-        for mach in self.machDump(path):
-            mach = self.solveRefpath(mach)
+        for mach in machInfo['imports']:
+            if solve:
+                mach = self.solveRefpath(mach)
 
-            if len(mach) < 1 \
-               or mach == path \
-               or os.path.basename(mach) == os.path.basename(path) \
-               or not os.path.exists(mach):
+            if len(mach) < 1:
+                continue
+
+            if not mach.startswith('@') and not os.path.exists(mach):
                 continue
 
             libs.append(mach)
@@ -417,7 +452,7 @@ class Deploy:
                         os.makedirs(pluginsPath)
 
                     try:
-                        shutil.copytree(sysPluginPath, pluginPath)
+                        shutil.copytree(sysPluginPath, pluginPath, True)
                     except:
                         pass
 
@@ -472,8 +507,7 @@ class Deploy:
                 libPath = os.path.join(frameworksInstallPath, basename)
                 print('    {} -> {}'.format(dep, libPath))
 
-                if not os.path.exists(libPath):
-                    shutil.copy(dep, libPath)
+                self.copy(dep, libPath)
             else:
                 libPath = os.path.join(frameworksInstallPath, framework)
                 print('    {} -> {}'.format(frameworkPath, libPath))
@@ -482,7 +516,7 @@ class Deploy:
                     os.makedirs(frameworksInstallPath)
 
                 try:
-                    shutil.copytree(frameworkPath, libPath)
+                    shutil.copytree(frameworkPath, libPath, True)
                 except:
                     pass
 
@@ -500,8 +534,154 @@ class Deploy:
         self.solvedepsPlugins()
         self.solvedepsLibs()
 
+    def writeQtConf(self):
+        print('Writting qt.conf file')
+
+        paths = {'Plugins': '../Plugins',
+                 'Imports': '../Resources/qml',
+                 'Qml2Imports': '../Resources/qml'}
+
+        with open(os.path.join(self.appInstallPath, 'Contents/Resources/qt.conf'), 'w') as qtconf:
+            qtconf.write('[Paths]\n')
+
+            for path in paths:
+                qtconf.write('{} = {}\n'.format(path, paths[path]))
+
+    def removeUnneededFiles(self, path):
+        adirs = set()
+        afiles = set()
+
+        for root, dirs, files in os.walk(path):
+            for d in dirs:
+                if d == 'Headers':
+                    adirs.add(os.path.join(root, d))
+
+            for f in files:
+                if f == 'Headers' or f.endswith('.prl'):
+                    afiles.add(os.path.join(root, f))
+
+        for adir in adirs:
+            try:
+                shutil.rmtree(adir, True)
+            except:
+                pass
+
+        for afile in afiles:
+            try:
+                if os.path.islink(afile):
+                    os.unlink(afile)
+                else:
+                    os.remove(afile)
+            except:
+                pass
+
+    def stripSymbols(self):
+        print('Stripping symbols')
+        path = os.path.join(self.appInstallPath, 'Contents')
+
+        for mach in self.findMachs(path):
+            process = subprocess.Popen(['strip', mach],
+                                       stdout=subprocess.PIPE)
+            process.communicate()
+
+    def resetFilePermissions(self):
+        print('Resetting file permissions')
+        rootPath = os.path.join(self.appInstallPath, 'Contents')
+        binariesPath = os.path.join(rootPath, 'MacOS')
+
+        for root, dirs, files in os.walk(rootPath):
+            for d in dirs:
+                os.chmod(os.path.join(root, d), 0o755, follow_symlinks=False)
+
+            for f in files:
+                permissions = 0o644
+
+                if root == binariesPath:
+                    permissions = 0o744
+
+                os.chmod(os.path.join(root, f), permissions, follow_symlinks=False)
+
+    def fixRpaths(self):
+        print('Fixing rpaths')
+        path = os.path.join(self.appInstallPath, 'Contents')
+        binariesPath = os.path.join(path, 'MacOS')
+        frameworksPath = os.path.join(path, 'Frameworks')
+        rpath = os.path.join('@executable_path', os.path.relpath(frameworksPath, binariesPath))
+
+        for mach in self.findMachs(path):
+            print(4 * ' ' + 'Fixing ' + mach)
+            print()
+
+            machInfo = self.machDump(mach)
+
+            # Change rpath
+            if mach.startswith(binariesPath):
+                print(8 * ' ' + 'Changing rpath to {}'.format(rpath))
+
+                for oldRpath in machInfo['rpaths']:
+                    process = subprocess.Popen(['install_name_tool',
+                                                '-delete_rpath', oldRpath, mach],
+                                               stdout=subprocess.PIPE)
+                    process.communicate()
+
+                process = subprocess.Popen(['install_name_tool',
+                                            '-add_rpath', rpath, mach],
+                                           stdout=subprocess.PIPE)
+                process.communicate()
+
+            # Change ID
+            if mach.startswith(binariesPath):
+                newMachId = machInfo['id']
+            elif mach.startswith(frameworksPath):
+                newMachId = mach.replace(frameworksPath, rpath)
+            else:
+                newMachId = os.path.basename(mach)
+
+            if newMachId != machInfo['id']:
+                print(8 * ' ' + 'Changing ID to {}'.format(newMachId))
+
+                process = subprocess.Popen(['install_name_tool',
+                                            '-id', newMachId, mach],
+                                           stdout=subprocess.PIPE)
+                process.communicate()
+
+            # Change library links
+            for dep in machInfo['imports']:
+                if dep.startswith(rpath):
+                    continue
+
+                if self.isExcluded(dep):
+                    continue
+
+                basename = os.path.basename(dep)
+                framework = ''
+                inFrameworkPath = ''
+
+                if not basename.endswith('.dylib'):
+                    frameworkPath = dep[: dep.rfind('.framework')] + '.framework'
+                    framework = os.path.basename(frameworkPath)
+                    inFrameworkPath = os.path.join(framework, dep.replace(frameworkPath + '/', ''))
+
+                newDepPath = os.path.join(rpath, basename if len(framework) < 1 else inFrameworkPath)
+
+                if dep != newDepPath:
+                    print(8 * ' ' + '{} -> {}'.format(dep, newDepPath))
+
+                    process = subprocess.Popen(['install_name_tool',
+                                                '-change', dep, newDepPath, mach],
+                                               stdout=subprocess.PIPE)
+                    process.communicate()
+
+            print()
+
     def finish(self):
-        pass
+        print('\nCompleting final package structure\n')
+        self.writeQtConf()
+        print('Removing unnecessary files')
+        self.removeUnneededFiles(os.path.join(self.appInstallPath, 'Contents/Frameworks'))
+        self.stripSymbols()
+        self.resetFilePermissions()
+        self.fixRpaths()
 
     def package(self):
         pass
