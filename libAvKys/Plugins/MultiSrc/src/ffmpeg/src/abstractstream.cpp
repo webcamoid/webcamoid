@@ -205,7 +205,7 @@ void AbstractStream::dataEnqueue(AVFrame *frame)
     this->m_dataMutex.unlock();
 }
 
-void AbstractStream::dataEnqueue(AVSubtitle *subtitle)
+void AbstractStream::subtitleEnqueue(AVSubtitle *subtitle)
 {
     this->m_dataMutex.lock();
 

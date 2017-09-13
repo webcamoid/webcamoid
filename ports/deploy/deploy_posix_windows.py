@@ -246,16 +246,16 @@ class Deploy:
         return False
 
     def findExes(self, path):
-        elfs = []
+        exes = []
 
         for root, dirs, files in os.walk(path):
             for f in files:
-                elfPath = os.path.join(root, f)
+                exePath = os.path.join(root, f)
 
-                if self.isExe(elfPath):
-                    elfs.append(elfPath)
+                if not os.path.islink(exePath) self.isExe(exePath):
+                    exes.append(exePath)
 
-        return elfs
+        return exes
 
     def whereExe(self, exe):
         path = os.path.join(self.sysBinsPath, exe)
