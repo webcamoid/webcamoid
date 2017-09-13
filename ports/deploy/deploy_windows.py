@@ -229,7 +229,7 @@ class Deploy:
             for f in files:
                 exePath = os.path.join(root, f)
 
-                if not os.path.islink(exePath) self.isExe(exePath):
+                if not os.path.islink(exePath) and self.isExe(exePath):
                     exes.append(exePath)
 
         return exes
