@@ -44,7 +44,8 @@ class Deploy:
         self.excludes = self.readExcludeList()
         self.dependencies = []
         self.ldLibraryPath = os.environ['LD_LIBRARY_PATH'].split(':') if 'LD_LIBRARY_PATH' in os.environ else []
-        self.libsSeachPaths = self.readLdconf() + ['/usr/lib', '/lib']
+        self.libsSeachPaths = self.readLdconf() \
+                            + ['/usr/lib', '/usr/lib64', '/lib', '/lib64']
 
     def detectSystem(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0] + '.exe')
@@ -70,6 +71,7 @@ class Deploy:
         if not os.path.exists(ldconf):
             return []
 
+        confDir = os.path.dirname(ldconf)
         libpaths = []
 
         with open(ldconf) as f:
@@ -89,13 +91,18 @@ class Deploy:
 
                 if line.startswith('include'):
                     conf = line.split()[1]
+
+                    if not conf.startswith('/'):
+                        conf = os.path.join(confDir, conf)
+
                     dirname = os.path.dirname(conf)
 
-                    for f in os.listdir(dirname):
-                        path = os.path.join(dirname, f)
+                    if os.path.exists(dirname):
+                        for f in os.listdir(dirname):
+                            path = os.path.join(dirname, f)
 
-                        if fnmatch.fnmatch(path, conf):
-                            libpaths += self.readLdconf(path)
+                            if fnmatch.fnmatch(path, conf):
+                                libpaths += self.readLdconf(path)
                 else:
                     libpaths.append(line)
 
@@ -468,7 +475,7 @@ class Deploy:
         return rpaths, runpaths
 
     def libPath(self, lib, machine, rpaths, runpaths):
-        # https://blog.qt.io/blog/2011/10/28/rpath-and-runpath/
+        # man ld.so
         searchPaths = rpaths \
                     + self.ldLibraryPath \
                     + runpaths \
