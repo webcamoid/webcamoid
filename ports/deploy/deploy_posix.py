@@ -294,22 +294,10 @@ class Deploy:
         return struct.unpack('Q', f.read(8))[0]
 
     def readDynamicEntry(self, f, arch):
-        # NOTE: Docummentation says each entry is composed by 3 integers of
-        # 4 bytes each, for 32 bits; and 3 integers of 8 bytes each,
-        # for 64 bits. glibc/elf/elf.h also says the same.
-        #
-        # But in practical, and after several tests (Ubuntu Trusty 32 bits,
-        # Arch Linux 64 bits and TrueOS 64 bits), each entry is composed by
-        # 2 shorts (2 bytes each) followed by 1 integer of 4 bytes, for 32 bits;
-        # and 2 integers (4 bytes each) followed by 1 long of 8 bytes,
-        # for 64 bits.
-        #
-        # May it be a bug in docummentation or glib? I didn't found an
-        # explanation for this.
         if arch == '32bits':
-            return struct.unpack('hHI', f.read(8))
+            return struct.unpack('iI', f.read(8))
 
-        return struct.unpack('iIQ', f.read(16))
+        return struct.unpack('qQ', f.read(16))
 
     # https://refspecs.linuxfoundation.org/lsb.shtml (See Core, Generic)
     # https://en.wikipedia.org/wiki/Executable_and_Linkable_Format
@@ -389,20 +377,20 @@ class Deploy:
                     # Read dynamic sections.
                     while True:
                         # Read dynamic entries.
-                        dTag, dVal, dPtr = self.readDynamicEntry(f, eiClass)
+                        dTag, dVal = self.readDynamicEntry(f, eiClass)
 
                         if dTag == DT_NULL:
                             # End of dynamic sections.
                             break
                         elif dTag == DT_NEEDED:
                             # Dynamically imported libraries.
-                            neededPtr.append(dPtr)
+                            neededPtr.append(dVal)
                         elif dTag == DT_RPATH:
                             # RPATHs.
-                            rpathsPtr.append(dPtr)
+                            rpathsPtr.append(dVal)
                         elif dTag == DT_RUNPATH:
                             # RUNPATHs.
-                            runpathsPtr.append(dPtr)
+                            runpathsPtr.append(dVal)
                 elif sectionType == SHT_STRTAB:
                     # Read string tables.
                     if section == shstrtabIndex:

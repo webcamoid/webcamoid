@@ -581,7 +581,8 @@ class Deploy:
 
         for mach in self.findMachs(path):
             process = subprocess.Popen(['strip', mach],
-                                       stdout=subprocess.PIPE)
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
             process.communicate()
 
     def resetFilePermissions(self):
