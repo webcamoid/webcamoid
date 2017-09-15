@@ -39,7 +39,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
         return;
 
     if (!packet) {
-        this->dataEnqueue(reinterpret_cast<AVSubtitle *>(NULL));
+        this->subtitleEnqueue(NULL);
 
         return;
     }
@@ -53,7 +53,7 @@ void SubtitleStream::processPacket(AVPacket *packet)
                              packet);
 
     if (gotSubtitle) {
-        this->dataEnqueue(subtitle);
+        this->subtitleEnqueue(subtitle);
 
         return;
     }

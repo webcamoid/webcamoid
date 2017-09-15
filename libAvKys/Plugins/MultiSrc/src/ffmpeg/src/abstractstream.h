@@ -74,7 +74,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE virtual AkCaps caps() const;
         Q_INVOKABLE void packetEnqueue(AVPacket *packet);
         Q_INVOKABLE void dataEnqueue(AVFrame *frame);
-        Q_INVOKABLE void dataEnqueue(AVSubtitle *subtitle);
+        Q_INVOKABLE void subtitleEnqueue(AVSubtitle *subtitle);
         Q_INVOKABLE qint64 queueSize();
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;

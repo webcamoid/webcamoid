@@ -19,14 +19,16 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-import os
-import sys
-import struct
 import mimetypes
+import os
 import platform
-import subprocess
-import shutil
 import re
+import shutil
+import struct
+import subprocess
+import sys
+import threading
+import time
 
 class Deploy:
     def __init__(self, rootDir, system, arch):
@@ -93,18 +95,23 @@ class Deploy:
 
         return stdout.strip().decode(sys.getdefaultencoding())
 
-    def removeUnneededFiles(self, path):
-        afiles = set()
+    def copy(self, src, dst):
+        basename = os.path.basename(src)
+        dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
+        dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)
 
-        for root, dirs, files in os.walk(path):
-            for f in files:
-                if f.endswith('.a') \
-                    or f.endswith('.static.prl') \
-                    or f.endswith('.pdb'):
-                    afiles.add(os.path.join(root, f))
+        if os.path.islink(src):
+            rsrc = os.path.realpath(src)
+            rbasename = os.path.basename(rsrc)
+            rdstpath = os.path.join(dstdir, rbasename)
 
-        for afile in afiles:
-            os.remove(afile)
+            if not os.path.exists(rdstpath):
+                shutil.copy(rsrc, rdstpath)
+
+            if not os.path.exists(dstpath):
+                os.symlink(os.path.join('.', rbasename), dstpath)
+        elif not os.path.exists(dstpath):
+            shutil.copy(src, dst)
 
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
@@ -118,11 +125,6 @@ class Deploy:
 
         stdout, stderr = process.communicate()
         os.chdir(previousDir)
-
-        if process.returncode != 0:
-            return
-
-        self.removeUnneededFiles(os.path.join(self.installDir, 'bin'))
 
     def modulePath(self, importLine):
         imp = importLine.strip().split()
@@ -202,7 +204,7 @@ class Deploy:
                         os.makedirs(path)
 
                     try:
-                        shutil.copytree(sysModulePath, installModulePath)
+                        shutil.copytree(sysModulePath, installModulePath, True)
                     except:
                         pass
 
@@ -214,8 +216,6 @@ class Deploy:
 
             solved.add(qmlFile)
 
-        self.removeUnneededFiles(qmlPath)
-
     def isExe(self, path):
         mimetype, encoding = mimetypes.guess_type(path)
 
@@ -225,16 +225,16 @@ class Deploy:
         return False
 
     def findExes(self, path):
-        elfs = []
+        exes = []
 
         for root, dirs, files in os.walk(path):
             for f in files:
-                elfPath = os.path.join(root, f)
+                exePath = os.path.join(root, f)
 
-                if self.isExe(elfPath):
-                    elfs.append(elfPath)
+                if not os.path.islink(exePath) and self.isExe(exePath):
+                    exes.append(exePath)
 
-        return elfs
+        return exes
 
     def whereExe(self, exe):
         if not 'PATH' in os.environ or len(os.environ['PATH']) < 1:
@@ -403,7 +403,7 @@ class Deploy:
 
         solved = set()
         plugins = []
-        pluginsPath = os.path.join(self.installDir, 'bin')
+        pluginsPath = os.path.join(self.installDir, 'lib/qt/plugins')
 
         while len(qtDeps) > 0:
             dep = qtDeps.pop()
@@ -422,7 +422,7 @@ class Deploy:
                         os.makedirs(pluginsPath)
 
                     try:
-                        shutil.copytree(sysPluginPath, pluginPath)
+                        shutil.copytree(sysPluginPath, pluginPath, True)
                     except:
                         pass
 
@@ -436,8 +436,6 @@ class Deploy:
                     plugins.append(plugin)
 
             solved.add(dep)
-
-        self.removeUnneededFiles(pluginsPath)
 
     def solvedepsLibs(self):
         print('\nCopying required libs\n')
@@ -468,8 +466,7 @@ class Deploy:
             libPath = os.path.join(self.installDir, 'bin', os.path.basename(dep))
             print('    {} -> {}'.format(dep, libPath))
 
-            if not os.path.exists(libPath):
-                shutil.copy(dep, libPath)
+            self.copy(dep, libPath)
 
             for exeDep in self.listDependencies(dep):
                 if exeDep != dep and not exeDep in solved:
@@ -482,8 +479,85 @@ class Deploy:
         self.solvedepsPlugins()
         self.solvedepsLibs()
 
+    def writeQtConf(self):
+        print('Writting qt.conf file')
+
+        paths = {'Plugins': '../lib/qt/plugins',
+                 'Imports': '../lib/qt/qml',
+                 'Qml2Imports': '../lib/qt/qml'}
+
+        with open(os.path.join(self.installDir, 'bin/qt.conf'), 'w') as qtconf:
+            qtconf.write('[Paths]\n')
+
+            for path in paths:
+                qtconf.write('{} = {}\n'.format(path, paths[path]))
+
+    def createLauncher(self):
+        print('Writting launcher file')
+
+        with open(os.path.join(self.installDir, 'webcamoid.bat'), 'w') as launcher:
+            launcher.write('@echo off\n')
+            launcher.write('\n')
+            launcher.write('rem Default values: desktop | angle | software\n')
+            launcher.write('rem set QT_OPENGL=angle\n')
+            launcher.write('\n')
+            launcher.write('rem Default values: d3d11 | d3d9 | warp\n')
+            launcher.write('rem set QT_ANGLE_PLATFORM=d3d11\n')
+            launcher.write('\n')
+            launcher.write('rem Default values: software | d3d12 | openvg\n')
+            launcher.write('rem set QT_QUICK_BACKEND=""\n')
+            launcher.write('\n')
+            launcher.write('start /b "" "%~dp0bin\\webcamoid" -q "%~dp0lib\\qt\\qml" -p "%~dp0lib\\avkys" -c "%~dp0share\\config"\n')
+
+    def removeUnneededFiles(self, path):
+        afiles = set()
+
+        for root, dirs, files in os.walk(path):
+            for f in files:
+                if f.endswith('.a') \
+                    or f.endswith('.static.prl') \
+                    or f.endswith('.pdb') \
+                    or f.endswith('.lib'):
+                    afiles.add(os.path.join(root, f))
+
+        for afile in afiles:
+            os.remove(afile)
+
+    def strip(self, strip, binary):
+        process = subprocess.Popen([strip, binary],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
+    def stripSymbols(self):
+        strip = self.whereExe('strip.exe')
+
+        if len(strip) < 1:
+            return
+
+        print('Stripping symbols')
+        path = os.path.join(self.installDir)
+        threads = []
+
+        for exe in self.findExes(path):
+            thread = threading.Thread(target=self.strip, args=(strip, exe,))
+            threads.append(thread)
+
+            while threading.active_count() >= 64:
+                time.sleep(0.25)
+
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
     def finish(self):
-        pass
+        print('\nCompleting final package structure\n')
+        self.writeQtConf()
+        self.createLauncher()
+        self.stripSymbols()
+        print('Removing unnecessary files')
+        self.removeUnneededFiles(self.installDir)
 
     def package(self):
         pass

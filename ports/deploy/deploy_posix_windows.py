@@ -19,12 +19,16 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import mimetypes
 import os
-import sys
 import platform
-import subprocess
-import shutil
 import re
+import shutil
+import struct
+import subprocess
+import sys
+import threading
+import time
 
 class Deploy:
     def __init__(self, rootDir, system, targetSystem, arch):
@@ -94,6 +98,24 @@ class Deploy:
         stdout, stderr = process.communicate()
 
         return stdout.strip().decode(sys.getdefaultencoding())
+
+    def copy(self, src, dst):
+        basename = os.path.basename(src)
+        dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
+        dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)
+
+        if os.path.islink(src):
+            rsrc = os.path.realpath(src)
+            rbasename = os.path.basename(rsrc)
+            rdstpath = os.path.join(dstdir, rbasename)
+
+            if not os.path.exists(rdstpath):
+                shutil.copy(rsrc, rdstpath)
+
+            if not os.path.exists(dstpath):
+                os.symlink(os.path.join('.', rbasename), dstpath)
+        elif not os.path.exists(dstpath):
+            shutil.copy(src, dst)
 
     def removeUnneededFiles(self, path):
         afiles = set()
@@ -203,7 +225,7 @@ class Deploy:
                         os.makedirs(path)
 
                     try:
-                        shutil.copytree(sysModulePath, installModulePath)
+                        shutil.copytree(sysModulePath, installModulePath, True)
                     except:
                         pass
 
@@ -218,49 +240,139 @@ class Deploy:
         self.removeUnneededFiles(qmlPath)
 
     def isExe(self, path):
-        process = subprocess.Popen(['file', '-bi', path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        mimetype, encoding = mimetypes.guess_type(path)
 
-        if process.returncode != 0:
-            return False
-
-        if b'application/x-dosexec' in stdout:
+        if mimetype == 'application/x-msdownload':
             return True
 
         return False
 
     def findExes(self, path):
-        elfs = []
+        exes = []
 
         for root, dirs, files in os.walk(path):
             for f in files:
-                elfPath = os.path.join(root, f)
+                exePath = os.path.join(root, f)
 
-                if self.isExe(elfPath):
-                    elfs.append(elfPath)
+                if not os.path.islink(exePath) and self.isExe(exePath):
+                    exes.append(exePath)
 
-        return elfs
+        return exes
+
+    def whereExe(self, exe):
+        path = os.path.join(self.sysBinsPath, exe)
+
+        return path if os.path.exists(path) else ''
+
+    # https://msdn.microsoft.com/en-us/library/windows/desktop/ms680547(v=vs.85).aspx
+    # https://upload.wikimedia.org/wikipedia/commons/1/1b/Portable_Executable_32_bit_Structure_in_SVG_fixed.svg
+    def exeDump(self, exe):
+        dllImports = []
+
+        with open(exe, 'rb') as f:
+            # Check DOS header signature.
+            if f.read(2) != b'MZ':
+                return []
+
+            # Move to COFF header.
+            f.seek(0x3c, os.SEEK_SET)
+            peHeaderOffset = struct.unpack('I', f.read(4))
+            f.seek(peHeaderOffset[0], os.SEEK_SET)
+            peSignatue = f.read(4)
+
+            # Check COFF header signature.
+            if peSignatue != b'PE\x00\x00':
+                return []
+
+            # Read COFF header.
+            coffHeader = struct.unpack('HHIIIHH', f.read(20))
+            nSections = coffHeader[1]
+            sectionTablePos = coffHeader[5] + f.tell()
+
+            # Read magic signature in standard COFF fields.
+            peType = 'PE32' if f.read(2) == b'\x0b\x01' else 'PE32+'
+
+            # Move to data directories.
+            f.seek(102 if peType == 'PE32' else 118, os.SEEK_CUR)
+
+            # Read the import table.
+            importTablePos, importTableSize = struct.unpack('II', f.read(8))
+
+            # Move to Sections table.
+            f.seek(sectionTablePos, os.SEEK_SET)
+            sections = []
+            idataTableVirtual = -1
+            idataTablePhysical = -1
+
+            # Search for 'idata' section.
+            for i in range(nSections):
+                # Read section.
+                section = struct.unpack('8pIIIIIIHHI', f.read(40))
+                sectionName = section[0].replace(b'\x00', b'')
+
+                # Save a reference to the sections.
+                sections += [section]
+
+                if sectionName == b'idata':
+                    idataTableVirtual = section[2]
+                    idataTablePhysical = section[4]
+
+                    # If import table was defined calculate it's position in
+                    # the file in relation to the address given by 'idata'.
+                    if importTableSize > 0:
+                        idataTablePhysical += importTablePos - section[2]
+
+            if idataTablePhysical < 0:
+                return []
+
+            # Move to 'idata' section.
+            f.seek(idataTablePhysical, os.SEEK_SET)
+            dllList = set()
+
+            # Read 'idata' directory table.
+            while True:
+                # Read DLL entries.
+                dllImport = struct.unpack('IIIII', f.read(20))
+
+                # Null directory entry.
+                if dllImport[0] | dllImport[1] | dllImport[2] | dllImport[3] | dllImport[4] == 0:
+                    break
+
+                # Locate where is located the DLL name in relation to the
+                # sections.
+                for section in sections:
+                    if dllImport[3] >= section[2] \
+                        and dllImport[3] < section[1] + section[2]:
+                        dllList.add(dllImport[3] - section[2] + section[4])
+
+                        break
+
+            for dll in dllList:
+                # Move to DLL name.
+                f.seek(dll, os.SEEK_SET)
+                dllName = b''
+
+                # Read string until null character.
+                while True:
+                    c = f.read(1)
+
+                    if c == b'\x00':
+                        break
+
+                    dllName += c
+
+                dllImports.append(dllName.decode(sys.getdefaultencoding()))
+
+        return dllImports
 
     def listDependencies(self, path):
-        process = subprocess.Popen([os.path.join(self.sysBinsPath, 'objdump'), '-x', path],
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-
-        if process.returncode != 0:
-            return []
-
         libs = []
 
-        for line in stdout.decode(sys.getdefaultencoding()).split('\n'):
-            if re.search('DLL Name:', line):
-                lib = line.split('DLL Name:')[1]
-                lib = os.path.join(self.sysBinsPath, lib.strip())
+        for exe in self.exeDump(path):
+            lib = self.whereExe(exe)
 
-                if os.path.exists(lib):
-                    libs.append(lib)
+            if len(lib) > 0:
+                libs.append(lib)
 
         return libs
 
@@ -304,7 +416,7 @@ class Deploy:
 
         solved = set()
         plugins = []
-        pluginsPath = os.path.join(self.installDir, 'webcamoid/bin')
+        pluginsPath = os.path.join(self.installDir, 'webcamoid/lib/qt/plugins')
 
         while len(qtDeps) > 0:
             dep = qtDeps.pop()
@@ -323,7 +435,7 @@ class Deploy:
                         os.makedirs(pluginsPath)
 
                     try:
-                        shutil.copytree(sysPluginPath, pluginPath)
+                        shutil.copytree(sysPluginPath, pluginPath, True)
                     except:
                         pass
 
@@ -369,8 +481,7 @@ class Deploy:
             libPath = os.path.join(self.installDir, 'webcamoid/bin', os.path.basename(dep))
             print('    {} -> {}'.format(dep, libPath))
 
-            if not os.path.exists(libPath):
-                shutil.copy(dep, libPath)
+            self.copy(dep, libPath)
 
             for exeDep in self.listDependencies(dep):
                 if exeDep != dep and not exeDep in solved:
@@ -383,8 +494,65 @@ class Deploy:
         self.solvedepsPlugins()
         self.solvedepsLibs()
 
+    def writeQtConf(self):
+        print('Writting qt.conf file')
+
+        paths = {'Plugins': '../lib/qt/plugins',
+                 'Imports': '../lib/qt/qml',
+                 'Qml2Imports': '../lib/qt/qml'}
+
+        with open(os.path.join(self.installDir, 'webcamoid/bin/qt.conf'), 'w') as qtconf:
+            qtconf.write('[Paths]\n')
+
+            for path in paths:
+                qtconf.write('{} = {}\n'.format(path, paths[path]))
+
+    def createLauncher(self):
+        print('Writting launcher file')
+
+        with open(os.path.join(self.installDir, 'webcamoid/webcamoid.bat'), 'w') as launcher:
+            launcher.write('@echo off\n')
+            launcher.write('\n')
+            launcher.write('rem Default values: desktop | angle | software\n')
+            launcher.write('rem set QT_OPENGL=angle\n')
+            launcher.write('\n')
+            launcher.write('rem Default values: d3d11 | d3d9 | warp\n')
+            launcher.write('rem set QT_ANGLE_PLATFORM=d3d11\n')
+            launcher.write('\n')
+            launcher.write('rem Default values: software | d3d12 | openvg\n')
+            launcher.write('rem set QT_QUICK_BACKEND=""\n')
+            launcher.write('\n')
+            launcher.write('start /b "" "%~dp0bin\\webcamoid" -q "%~dp0lib\\qt\\qml" -p "%~dp0lib\\avkys" -c "%~dp0share\\config"\n')
+
+    def strip(self, binary):
+        process = subprocess.Popen([os.path.join(self.sysBinsPath, 'strip'),
+                                    binary],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
+    def stripSymbols(self):
+        print('Stripping symbols')
+        path = os.path.join(self.installDir, 'webcamoid')
+        threads = []
+
+        for exe in self.findExes(path):
+            thread = threading.Thread(target=self.strip, args=(exe,))
+            threads.append(thread)
+
+            while threading.active_count() >= 64:
+                time.sleep(0.25)
+
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
     def finish(self):
-        pass
+        print('\nCompleting final package structure\n')
+        self.writeQtConf()
+        self.createLauncher()
+        self.stripSymbols()
 
     def package(self):
         pass

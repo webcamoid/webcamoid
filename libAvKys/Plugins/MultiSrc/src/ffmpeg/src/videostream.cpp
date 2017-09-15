@@ -66,7 +66,7 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
 
     if (!packet) {
-        this->dataEnqueue(reinterpret_cast<AVFrame *>(NULL));
+        this->dataEnqueue(NULL);
 
         return;
     }
