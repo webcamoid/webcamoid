@@ -41,7 +41,7 @@
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Contributions</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="133"/>
@@ -107,22 +107,22 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="110"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorties</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="113"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le périphérique de sortie audio</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="127"/>
         <source>Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrées</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="129"/>
         <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le périphérique de capture audio</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="186"/>
