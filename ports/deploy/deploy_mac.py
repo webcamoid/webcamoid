@@ -20,12 +20,14 @@
 # Web-Site: http://webcamoid.github.io/
 
 import os
-import sys
-import struct
 import platform
-import subprocess
-import shutil
 import re
+import shutil
+import struct
+import subprocess
+import sys
+import threading
+import time
 
 class Deploy:
     def __init__(self, rootDir, system, arch):
