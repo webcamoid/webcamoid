@@ -521,6 +521,12 @@ class Deploy:
         for afile in afiles:
             os.remove(afile)
 
+    def strip(self, strip, binary):
+        process = subprocess.Popen([strip, binary],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
     def stripSymbols(self):
         strip = self.whereExe('strip.exe')
 
@@ -529,11 +535,19 @@ class Deploy:
 
         print('Stripping symbols')
         path = os.path.join(self.installDir)
+        threads = []
 
         for exe in self.findExes(path):
-            process = subprocess.Popen([strip, exe],
-                                       stdout=subprocess.PIPE)
-            process.communicate()
+            thread = threading.Thread(target=self.strip, args=(strip, exe,))
+            threads.append(thread)
+
+            while threading.active_count() >= 64:
+                time.sleep(0.25)
+
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
     def finish(self):
         print('\nCompleting final package structure\n')

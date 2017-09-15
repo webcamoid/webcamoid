@@ -575,15 +575,28 @@ class Deploy:
             except:
                 pass
 
+    def strip(self, binary):
+        process = subprocess.Popen(['strip', binary],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
     def stripSymbols(self):
         print('Stripping symbols')
         path = os.path.join(self.appInstallPath, 'Contents')
+        threads = []
 
         for mach in self.findMachs(path):
-            process = subprocess.Popen(['strip', mach],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            process.communicate()
+            thread = threading.Thread(target=self.strip, args=(mach,))
+            threads.append(thread)
+
+            while threading.active_count() >= 64:
+                time.sleep(0.25)
+
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
     def resetFilePermissions(self):
         print('Resetting file permissions')

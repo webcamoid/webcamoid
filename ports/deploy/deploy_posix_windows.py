@@ -522,14 +522,29 @@ class Deploy:
             launcher.write('\n')
             launcher.write('start /b "" "%~dp0bin\\webcamoid" -q "%~dp0lib\\qt\\qml" -p "%~dp0lib\\avkys" -c "%~dp0share\\config"\n')
 
+    def strip(self, binary):
+        process = subprocess.Popen([os.path.join(self.sysBinsPath, 'strip'),
+                                    binary],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        process.communicate()
+
     def stripSymbols(self):
         print('Stripping symbols')
         path = os.path.join(self.installDir, 'webcamoid')
+        threads = []
 
         for exe in self.findExes(path):
-            process = subprocess.Popen([os.path.join(self.sysBinsPath, 'strip'), exe],
-                                       stdout=subprocess.PIPE)
-            process.communicate()
+            thread = threading.Thread(target=self.strip, args=(exe,))
+            threads.append(thread)
+
+            while threading.active_count() >= 64:
+                time.sleep(0.25)
+
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
     def finish(self):
         print('\nCompleting final package structure\n')
