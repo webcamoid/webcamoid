@@ -29,6 +29,7 @@ import sys
 import threading
 import time
 
+
 class Deploy:
     def __init__(self, rootDir, system, arch):
         self.scanPaths = ['StandAlone/webcamoid',
@@ -82,6 +83,9 @@ class Deploy:
         return stdout.strip().decode(sys.getdefaultencoding())
 
     def copy(self, src, dst):
+        if not os.path.exists(src):
+            return
+
         basename = os.path.basename(src)
         dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
         dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)

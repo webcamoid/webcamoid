@@ -19,19 +19,19 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-import os
-import sys
-import math
-import struct
-import platform
-import subprocess
-import shutil
-import re
-import fnmatch
-import tarfile
-import time
-import threading
 import configparser
+import fnmatch
+import math
+import os
+import platform
+import re
+import shutil
+import struct
+import subprocess
+import sys
+import tarfile
+import threading
+import time
 
 
 class Deploy:
@@ -128,8 +128,6 @@ class Deploy:
         if 'BINARYCREATOR' in os.environ:
             return os.environ['BINARYCREATOR']
 
-        binarycreator = ''
-
         # Try official Qt binarycreator because it is statically linked.
         homeQt = os.path.expanduser('~/Qt')
 
@@ -141,15 +139,12 @@ class Deploy:
                     bcPath = os.path.join(path, 'bin/binarycreator')
 
                     if os.path.exists(bcPath):
-                        binarycreator = bcPath
+                        return bcPath
 
         # binarycreator offered by the system is most probably dynamically
         # linked, so it's useful for test purposes only, but not recommended
         # for distribution.
-        if len(binarycreator) < 1:
-            binarycreator = self.whereBin('binarycreator')
-
-        return binarycreator
+        return self.whereBin('binarycreator')
 
     def detectAppImage(self):
         if 'APPIMAGETOOL' in os.environ:
@@ -165,6 +160,9 @@ class Deploy:
         return stdout.strip().decode(sys.getdefaultencoding())
 
     def copy(self, src, dst):
+        if not os.path.exists(src):
+            return
+
         basename = os.path.basename(src)
         dstpath = os.path.join(dst, basename) if os.path.isdir(dst) else dst
         dstdir = dst if os.path.isdir(dst) else os.path.dirname(dst)
@@ -911,7 +909,7 @@ class Deploy:
         print('   ', os.path.basename(path),
               self.hrSize(os.path.getsize(path)))
 
-    def createportable(self, mutex):
+    def createPortable(self, mutex):
         path = os.path.join(self.installDir, 'usr')
         packagePath = \
             os.path.join(self.pkgsDir,
@@ -929,7 +927,7 @@ class Deploy:
         self.printPackageInfo(packagePath)
         mutex.release()
 
-    def readchangelog(self, changeLog, version):
+    def readChangeLog(self, changeLog, version):
         if os.path.exists(changeLog):
             with open(changeLog) as f:
                 for line in f:
@@ -955,7 +953,7 @@ class Deploy:
 
         return ''
 
-    def createinstaller(self, mutex):
+    def createInstaller(self, mutex):
         if not os.path.exists(self.qtIFW):
             return
 
@@ -1020,7 +1018,7 @@ class Deploy:
             f.write('    </Licenses>\n')
             f.write('    <Script>installscript.qs</Script>\n')
             f.write('    <UpdateText>\n')
-            f.write(self.readchangelog(os.path.join(self.rootDir, 'ChangeLog'),
+            f.write(self.readChangeLog(os.path.join(self.rootDir, 'ChangeLog'),
                                        self.programVersion))
             f.write('    </UpdateText>\n')
             f.write('    <Default>true</Default>\n')
@@ -1124,8 +1122,8 @@ class Deploy:
         print('\nCreating packages\n')
         mutex = threading.Lock()
 
-        threads = [threading.Thread(target=self.createportable, args=(mutex,)),
-                   threading.Thread(target=self.createinstaller, args=(mutex,)),
+        threads = [threading.Thread(target=self.createPortable, args=(mutex,)),
+                   threading.Thread(target=self.createInstaller, args=(mutex,)),
                    threading.Thread(target=self.createAppImage, args=(mutex,))]
 
         for thread in threads:
