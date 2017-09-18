@@ -28,7 +28,7 @@ set FFMPEG_DEV_PATH=%CD%\ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev
 rem Install FFmpeg binaries
 set FFMPEG_BIN_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-shared.zip
 
-if not exist %FFMPEG_BIN_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/dev/%FFMPEG_BIN_FILE%
+if not exist %FFMPEG_BIN_FILE% curl --retry 10 -kLOC - https://ffmpeg.zeranoe.com/builds/%FF_ARCH%/shared/%FFMPEG_BIN_FILE%
 
 if exist %FFMPEG_BIN_FILE% 7z x %FFMPEG_BIN_FILE% -aoa
 
