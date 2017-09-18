@@ -19,6 +19,8 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
+import fnmatch
+import math
 import os
 import platform
 import re
@@ -44,6 +46,7 @@ class Deploy:
         self.programName = os.path.basename(self.scanPaths[0])
         self.programVersion = self.readVersion()
         self.qmake = self.detectQmake()
+        self.qtIFW = self.detectQtIFW()
 
         # 32 bits magic number.
         self.MH_MAGIC = 0xfeedface # Native endian
@@ -74,6 +77,28 @@ class Deploy:
                     return line.split('=')[1].strip()
 
         return ''
+
+    def detectQtIFW(self):
+        if 'BINARYCREATOR' in os.environ:
+            return os.environ['BINARYCREATOR']
+
+        # Try official Qt binarycreator because it is statically linked.
+        homeQt = os.path.expanduser('~/Qt')
+
+        if os.path.exists(homeQt):
+            for f in os.listdir(homeQt):
+                path = os.path.join(homeQt, f)
+
+                if fnmatch.fnmatch(path, os.path.join(homeQt, 'QtIFW*')):
+                    bcPath = os.path.join(path, 'bin/binarycreator')
+
+                    if os.path.exists(bcPath):
+                        return bcPath
+
+        # binarycreator offered by the system is most probably dynamically
+        # linked, so it's useful for test purposes only, but not recommended
+        # for distribution.
+        return self.whereBin('binarycreator')
 
     def qmakeQuery(self, var):
         process = subprocess.Popen([self.qmake, '-query', var],
@@ -107,23 +132,24 @@ class Deploy:
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
         libDir = os.path.join(self.rootDir, 'libAvKys/Lib')
-        tempDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
+        self.installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv')
+        self.pkgsDir = os.path.join(self.rootDir, 'ports/deploy/packages_auto/mac')
 
-        if not os.path.exists(tempDir):
-            os.makedirs(tempDir)
+        if not os.path.exists(self.installDir):
+            os.makedirs(self.installDir)
 
-        self.appInstallPath = os.path.join(tempDir, os.path.basename(self.appPath))
+        self.appInstallPath = os.path.join(self.installDir, os.path.basename(self.appPath))
 
         if not os.path.exists(self.appInstallPath):
             shutil.copytree(self.appPath, self.appInstallPath, True)
 
         contents = os.path.join(self.appInstallPath, 'Contents')
-        installDir = os.path.join(self.rootDir, 'ports/deploy/temp_priv/root')
+        rootInstallDir = os.path.join(self.installDir, 'root')
 
         previousDir = os.getcwd()
         os.chdir(os.path.join(self.rootDir, 'libAvkys'))
         process = subprocess.Popen(['make',
-                                    'INSTALL_ROOT={}'.format(installDir),
+                                    'INSTALL_ROOT={}'.format(rootInstallDir),
                                     'install'],
                                    stdout=subprocess.PIPE)
         process.communicate()
@@ -137,7 +163,7 @@ class Deploy:
         if not os.path.exists(frameworksPath):
             os.makedirs(frameworksPath)
 
-        installLibDir = os.path.join(installDir, 'usr/lib')
+        installLibDir = os.path.join(rootInstallDir, 'usr/lib')
 
         for f in os.listdir(installLibDir):
             if f.endswith('.dylib'):
@@ -535,6 +561,18 @@ class Deploy:
 
             solved.add(dep)
 
+    def whereBin(self, binary):
+        if not 'PATH' in os.environ or len(os.environ['PATH']) < 1:
+            return ''
+
+        for path in os.environ['PATH'].split(':'):
+            path = os.path.join(path.strip(), binary)
+
+            if os.path.exists(path):
+                return path
+
+        return ''
+
     def solvedeps(self):
         self.solvedepsQml()
         self.solvedepsPlugins()
@@ -621,78 +659,93 @@ class Deploy:
 
                 os.chmod(os.path.join(root, f), permissions, follow_symlinks=False)
 
-    def fixRpaths(self):
-        print('Fixing rpaths')
+    def fixLibRpath(self, mutex, mach):
         path = os.path.join(self.appInstallPath, 'Contents')
         binariesPath = os.path.join(path, 'MacOS')
         frameworksPath = os.path.join(path, 'Frameworks')
         rpath = os.path.join('@executable_path', os.path.relpath(frameworksPath, binariesPath))
+        log = '\tFixed {}\n\n'.format(mach)
+        machInfo = self.machDump(mach)
+
+        # Change rpath
+        if mach.startswith(binariesPath):
+            log += '\t\tChanging rpath to {}\n'.format(rpath)
+
+            for oldRpath in machInfo['rpaths']:
+                process = subprocess.Popen(['install_name_tool',
+                                            '-delete_rpath', oldRpath, mach],
+                                           stdout=subprocess.PIPE)
+                process.communicate()
+
+            process = subprocess.Popen(['install_name_tool',
+                                        '-add_rpath', rpath, mach],
+                                       stdout=subprocess.PIPE)
+            process.communicate()
+
+        # Change ID
+        if mach.startswith(binariesPath):
+            newMachId = machInfo['id']
+        elif mach.startswith(frameworksPath):
+            newMachId = mach.replace(frameworksPath, rpath)
+        else:
+            newMachId = os.path.basename(mach)
+
+        if newMachId != machInfo['id']:
+            log += '\t\tChanging ID to {}\n'.format(newMachId)
+
+            process = subprocess.Popen(['install_name_tool',
+                                        '-id', newMachId, mach],
+                                       stdout=subprocess.PIPE)
+            process.communicate()
+
+        # Change library links
+        for dep in machInfo['imports']:
+            if dep.startswith(rpath):
+                continue
+
+            if self.isExcluded(dep):
+                continue
+
+            basename = os.path.basename(dep)
+            framework = ''
+            inFrameworkPath = ''
+
+            if not basename.endswith('.dylib'):
+                frameworkPath = dep[: dep.rfind('.framework')] + '.framework'
+                framework = os.path.basename(frameworkPath)
+                inFrameworkPath = os.path.join(framework, dep.replace(frameworkPath + '/', ''))
+
+            newDepPath = os.path.join(rpath, basename if len(framework) < 1 else inFrameworkPath)
+
+            if dep != newDepPath:
+                log += '\t\t{} -> {}\n'.format(dep, newDepPath)
+
+                process = subprocess.Popen(['install_name_tool',
+                                            '-change', dep, newDepPath, mach],
+                                           stdout=subprocess.PIPE)
+                process.communicate()
+
+        mutex.acquire()
+        print(log)
+        mutex.release()
+
+    def fixRpaths(self):
+        print('Fixing rpaths')
+        path = os.path.join(self.appInstallPath, 'Contents')
+        mutex = threading.Lock()
+        threads = []
 
         for mach in self.findMachs(path):
-            print(4 * ' ' + 'Fixing ' + mach)
-            print()
+            thread = threading.Thread(target=self.fixLibRpath, args=(mutex, mach,))
+            threads.append(thread)
 
-            machInfo = self.machDump(mach)
+            while threading.active_count() >= 64:
+                time.sleep(0.25)
 
-            # Change rpath
-            if mach.startswith(binariesPath):
-                print(8 * ' ' + 'Changing rpath to {}'.format(rpath))
+            thread.start()
 
-                for oldRpath in machInfo['rpaths']:
-                    process = subprocess.Popen(['install_name_tool',
-                                                '-delete_rpath', oldRpath, mach],
-                                               stdout=subprocess.PIPE)
-                    process.communicate()
-
-                process = subprocess.Popen(['install_name_tool',
-                                            '-add_rpath', rpath, mach],
-                                           stdout=subprocess.PIPE)
-                process.communicate()
-
-            # Change ID
-            if mach.startswith(binariesPath):
-                newMachId = machInfo['id']
-            elif mach.startswith(frameworksPath):
-                newMachId = mach.replace(frameworksPath, rpath)
-            else:
-                newMachId = os.path.basename(mach)
-
-            if newMachId != machInfo['id']:
-                print(8 * ' ' + 'Changing ID to {}'.format(newMachId))
-
-                process = subprocess.Popen(['install_name_tool',
-                                            '-id', newMachId, mach],
-                                           stdout=subprocess.PIPE)
-                process.communicate()
-
-            # Change library links
-            for dep in machInfo['imports']:
-                if dep.startswith(rpath):
-                    continue
-
-                if self.isExcluded(dep):
-                    continue
-
-                basename = os.path.basename(dep)
-                framework = ''
-                inFrameworkPath = ''
-
-                if not basename.endswith('.dylib'):
-                    frameworkPath = dep[: dep.rfind('.framework')] + '.framework'
-                    framework = os.path.basename(frameworkPath)
-                    inFrameworkPath = os.path.join(framework, dep.replace(frameworkPath + '/', ''))
-
-                newDepPath = os.path.join(rpath, basename if len(framework) < 1 else inFrameworkPath)
-
-                if dep != newDepPath:
-                    print(8 * ' ' + '{} -> {}'.format(dep, newDepPath))
-
-                    process = subprocess.Popen(['install_name_tool',
-                                                '-change', dep, newDepPath, mach],
-                                               stdout=subprocess.PIPE)
-                    process.communicate()
-
-            print()
+        for thread in threads:
+            thread.join()
 
     def finish(self):
         print('\nCompleting final package structure\n')
@@ -703,8 +756,286 @@ class Deploy:
         self.resetFilePermissions()
         self.fixRpaths()
 
+    def hrSize(self, size):
+        i = int(math.log(size) // math.log(1024))
+
+        if i < 1:
+            return '{} B'.format(size)
+
+        units = ['KiB', 'MiB', 'GiB', 'TiB']
+        sizeKiB = size / (1024 ** i)
+
+        return '{:.2f} {}'.format(sizeKiB, units[i - 1])
+
+    def printPackageInfo(self, path):
+        print('   ', os.path.basename(path),
+              self.hrSize(os.path.getsize(path)))
+
+    def dirSize(self, path):
+        size = 0
+
+        for root, dirs, files in os.walk(path):
+            for f in files:
+                fpath = os.path.join(root, f)
+
+                if not os.path.islink(fpath):
+                    size += os.path.getsize(fpath)
+
+        return size
+
+    # https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg/
+    def createPortable(self, mutex):
+        staggingDir = os.path.join(self.installDir, 'stagging')
+
+        if not os.path.exists(staggingDir):
+            os.makedirs(staggingDir)
+
+        try:
+            shutil.copytree(self.appInstallPath,
+                            os.path.join(staggingDir, self.programName + '.app'),
+                            True)
+        except:
+            pass
+
+        imageSize = self.dirSize(staggingDir)
+        tmpDmg = os.path.join(self.installDir, self.programName + '_tmp.dmg')
+        volumeName = "{}-portable-{}".format(self.programName,
+                                    self.programVersion)
+
+        process = subprocess.Popen(['hdiutil', 'create',
+                                    '-srcfolder', staggingDir,
+                                    '-volname', volumeName,
+                                    '-fs', 'HFS+',
+                                    '-fsargs', '-c c=64,a=16,e=16',
+                                    '-format', 'UDRW',
+                                    '-size', str(math.ceil(imageSize * 1.1)),
+                                    tmpDmg],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+
+        process = subprocess.Popen(['hdiutil',
+                                    'attach',
+                                    '-readwrite',
+                                    '-noverify',
+                                    tmpDmg],
+                                   stdout=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        device = ''
+
+        for line in stdout.split(b'\n'):
+            line = line.strip()
+
+            if len(line) < 1:
+                continue
+
+            dev = line.split()
+
+            if len(dev) > 2:
+                device = dev[0].decode(sys.getdefaultencoding())
+
+                break
+
+        time.sleep(2)
+        volumePath = os.path.join('/Volumes', volumeName)
+        volumeIcon = os.path.join(volumePath, '.VolumeIcon.icns')
+        self.copy(os.path.join(self.rootDir, 'StandAlone/share/icons/webcamoid.icns'),
+                  volumeIcon)
+
+        process = subprocess.Popen(['SetFile',
+                                    '-c', 'icnC',
+                                    volumeIcon],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+
+        process = subprocess.Popen(['SetFile',
+                                    '-a', 'C',
+                                    volumePath],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+
+        appsShortcut = os.path.join(volumePath, 'Applications')
+
+        if not os.path.exists(appsShortcut):
+            os.symlink('/Applications', appsShortcut)
+
+        os.sync()
+
+        process = subprocess.Popen(['hdiutil',
+                                    'detach',
+                                    device],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+
+        packagePath = \
+            os.path.join(self.pkgsDir,
+                         '{}-portable-{}-{}.dmg'.format(self.programName,
+                                                        self.programVersion,
+                                                        platform.machine()))
+
+        if not os.path.exists(self.pkgsDir):
+            os.makedirs(self.pkgsDir)
+
+        if os.path.exists(packagePath):
+            os.remove(packagePath)
+
+        process = subprocess.Popen(['hdiutil',
+                                    'convert',
+                                    tmpDmg,
+                                    '-format', 'UDZO',
+                                    '-imagekey', 'zlib-level=9',
+                                    '-o', packagePath],
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+
+        mutex.acquire()
+        print('Created portable package:')
+        self.printPackageInfo(packagePath)
+        mutex.release()
+
+    def readChangeLog(self, changeLog, version):
+        if os.path.exists(changeLog):
+            with open(changeLog) as f:
+                for line in f:
+                    if not line.startswith('Webcamoid {}:'.format(version)):
+                        continue
+
+                    # Skip first line.
+                    f.readline()
+                    changeLogText = ''
+
+                    for line in f:
+                        if re.match('Webcamoid \d+\.\d+\.\d+:', line):
+                            # Remove last line.
+                            i = changeLogText.rfind('\n')
+
+                            if i >= 0:
+                                changeLogText = changeLogText[: i]
+
+                            print(changeLogText)
+                            return changeLogText
+
+                        changeLogText += line
+
+        return ''
+
+    def createInstaller(self, mutex):
+        if not os.path.exists(self.qtIFW):
+            return
+
+        # Create layout
+        configDir = os.path.join(self.installDir, 'installer/config')
+        packageDir = os.path.join(self.installDir, 'installer/packages/com.webcamoidprj.webcamoid')
+
+        if not os.path.exists(configDir):
+            os.makedirs(configDir)
+
+        dataDir = os.path.join(packageDir, 'data')
+        metaDir = os.path.join(packageDir, 'meta')
+
+        if not os.path.exists(metaDir):
+            os.makedirs(metaDir)
+
+        appIconSrc = os.path.join(self.rootDir,
+                                  'StandAlone/share/icons/{}.icns'.format(self.programName))
+        self.copy(appIconSrc, configDir)
+        self.copy(os.path.join(self.rootDir, 'COPYING'),
+                  os.path.join(metaDir, 'COPYING.txt'))
+
+        try:
+            shutil.copytree(self.appInstallPath,
+                            os.path.join(dataDir, self.programName + '.app'),
+                            True)
+        except:
+            pass
+
+        configXml = os.path.join(configDir, 'config.xml')
+
+        with open(configXml, 'w') as config:
+            config.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            config.write('<Installer>\n')
+            config.write('    <Name>Webcamoid</Name>\n')
+            config.write('    <Version>{}</Version>\n'.format(self.programVersion))
+            config.write('    <Title>Webcamoid, The ultimate webcam suite!</Title>\n')
+            config.write('    <Publisher>Webcamoid</Publisher>\n')
+            config.write('    <ProductUrl>https://webcamoid.github.io/</ProductUrl>\n')
+            config.write('    <InstallerWindowIcon>webcamoid</InstallerWindowIcon>\n')
+            config.write('    <InstallerApplicationIcon>webcamoid</InstallerApplicationIcon>\n')
+            config.write('    <Logo>webcamoid</Logo>\n')
+            config.write('    <TitleColor>#3F1F7F</TitleColor>\n')
+            config.write('    <RunProgram>@TargetDir@/{0}.app/Contents/MacOS/{0}</RunProgram>\n'.format(self.programName))
+            config.write('    <RunProgramDescription>Launch Webcamoid now!</RunProgramDescription>\n')
+            config.write('    <StartMenuDir>Webcamoid</StartMenuDir>\n')
+            config.write('    <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>\n')
+            config.write('    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>\n')
+            config.write('    <TargetDir>@ApplicationsDir@/{}</TargetDir>\n'.format(self.programName))
+            config.write('</Installer>\n')
+
+        self.copy(os.path.join(self.rootDir, 'ports/deploy/installscript.mac.qs'),
+                  os.path.join(metaDir, 'installscript.qs'))
+
+        with open(os.path.join(metaDir, 'package.xml'), 'w') as f:
+            f.write('<?xml version="1.0"?>\n')
+            f.write('<Package>\n')
+            f.write('    <DisplayName>Webcamoid</DisplayName>\n')
+            f.write('    <Description>The ultimate webcam suite</Description>\n')
+            f.write('    <Version>{}</Version>\n'.format(self.programVersion))
+            f.write('    <ReleaseDate>{}</ReleaseDate>\n'.format(time.strftime('%Y-%m-%d')))
+            f.write('    <Name>com.webcamoidprj.webcamoid</Name>\n')
+            f.write('    <Licenses>\n')
+            f.write('        <License name="GNU General Public License v3.0" file="COPYING.txt" />\n')
+            f.write('    </Licenses>\n')
+            f.write('    <Script>installscript.qs</Script>\n')
+            f.write('    <UpdateText>\n')
+            f.write(self.readChangeLog(os.path.join(self.rootDir, 'ChangeLog'),
+                                       self.programVersion))
+            f.write('    </UpdateText>\n')
+            f.write('    <Default>true</Default>\n')
+            f.write('    <ForcedInstallation>true</ForcedInstallation>\n')
+            f.write('    <Essential>false</Essential>\n')
+            f.write('</Package>\n')
+
+        # Remove old file
+        packagePath = os.path.join(self.pkgsDir,
+                                   '{}-{}.dmg'.format(self.programName,
+                                                      self.programVersion))
+
+        if not os.path.exists(self.pkgsDir):
+            os.makedirs(self.pkgsDir)
+
+        if os.path.exists(packagePath):
+            os.remove(packagePath)
+
+        process = subprocess.Popen([self.qtIFW,
+                                    '-c', configXml,
+                                    '-p', os.path.join(self.installDir,
+                                                       'installer/packages'),
+                                    packagePath],
+                                   cwd=os.path.join(self.installDir, 'installer'),
+                                   stdout=subprocess.PIPE)
+        process.communicate()
+        shutil.rmtree(packagePath.replace('.dmg', '.app'), True)
+
+        if not os.path.exists(packagePath):
+            return
+
+        mutex.acquire()
+        print('Created installable package:')
+        self.printPackageInfo(packagePath)
+        mutex.release()
+
     def package(self):
-        pass
+        print('\nCreating packages\n')
+        mutex = threading.Lock()
+
+        threads = [threading.Thread(target=self.createPortable, args=(mutex,)),
+                   threading.Thread(target=self.createInstaller, args=(mutex,))]
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
 
     def cleanup(self):
-        pass
+        shutil.rmtree(os.path.join(self.rootDir, 'ports/deploy/temp_priv'),
+                      True)
