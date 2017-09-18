@@ -4,6 +4,10 @@ cache:
   ccache: true
   timeout: 1000
 
+env:
+  global:
+    - QTIFWVER=2.0.5-1
+
 matrix:
   include:
   - os: linux

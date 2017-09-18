@@ -20,5 +20,6 @@ EOF
 
     ${EXEC} bash ${DEPLOYSCRIPT}
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    export FRAMEWORKS_PATH="$PWD/Syphon"
     ${EXEC} python3 ports/deploy/deploy.py
 fi

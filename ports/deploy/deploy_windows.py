@@ -671,13 +671,14 @@ class Deploy:
         except:
             pass
 
+        version = '1.0.0' if self.programVersion == 'unknown' else self.programVersion
         configXml = os.path.join(configDir, 'config.xml')
 
         with open(configXml, 'w') as config:
             config.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             config.write('<Installer>\n')
             config.write('    <Name>Webcamoid</Name>\n')
-            config.write('    <Version>{}</Version>\n'.format(self.programVersion))
+            config.write('    <Version>{}</Version>\n'.format(version))
             config.write('    <Title>Webcamoid, The ultimate webcam suite!</Title>\n')
             config.write('    <Publisher>Webcamoid</Publisher>\n')
             config.write('    <ProductUrl>https://webcamoid.github.io/</ProductUrl>\n')
@@ -701,7 +702,7 @@ class Deploy:
             f.write('<Package>\n')
             f.write('    <DisplayName>Webcamoid</DisplayName>\n')
             f.write('    <Description>The ultimate webcam suite</Description>\n')
-            f.write('    <Version>{}</Version>\n'.format(self.programVersion))
+            f.write('    <Version>{}</Version>\n'.format(version))
             f.write('    <ReleaseDate>{}</ReleaseDate>\n'.format(time.strftime('%Y-%m-%d')))
             f.write('    <Name>com.webcamoidprj.webcamoid</Name>\n')
             f.write('    <Licenses>\n')
@@ -710,7 +711,7 @@ class Deploy:
             f.write('    <Script>installscript.qs</Script>\n')
             f.write('    <UpdateText>\n')
             f.write(self.readChangeLog(os.path.join(self.rootDir, 'ChangeLog'),
-                                       self.programVersion))
+                                       version))
             f.write('    </UpdateText>\n')
             f.write('    <Default>true</Default>\n')
             f.write('    <ForcedInstallation>true</ForcedInstallation>\n')
@@ -720,7 +721,7 @@ class Deploy:
         # Remove old file
         arch = 'win32' if self.targetArch == '32bit' else 'win64'
         packagePath = os.path.join(self.pkgsDir,
-                                   'webcamoid-{}-{}.exe'.format(self.programVersion,
+                                   'webcamoid-{}-{}.exe'.format(version,
                                                                 arch))
 
         if not os.path.exists(self.pkgsDir):

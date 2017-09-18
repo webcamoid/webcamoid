@@ -730,7 +730,7 @@ class Deploy:
         mutex.release()
 
     def fixRpaths(self):
-        print('Fixing rpaths')
+        print('Fixing rpaths\n')
         path = os.path.join(self.appInstallPath, 'Contents')
         mutex = threading.Lock()
         threads = []

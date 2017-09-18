@@ -32,6 +32,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
     qmake -spec ${COMPILESPEC} Webcamoid.pro
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
+    export PATH=$HOME/.local/bin:$PATH
+
     if [ "${DOCKERSYS}" = debian ]; then
         if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
            [ "${DOCKERIMG}" = ubuntu:xenial ]; then

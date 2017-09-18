@@ -15,75 +15,25 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
 
     # Install Qt for Android
-    cat << EOF > non_interactive_install.qs
-function Controller() {
-    installer.autoRejectMessageBoxes();
-    installer.setMessageBoxAutomaticAnswer("OverwriteTargetDirectory", QMessageBox.Yes);
-    installer.installationFinished.connect(function() {
-        gui.clickButton(buttons.NextButton);
-    })
-}
-
-Controller.prototype.WelcomePageCallback = function() {
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.CredentialsPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.IntroductionPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.TargetDirectoryPageCallback = function()
-{
-    //gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("HomeDir") + "/Qt");
-    gui.currentPageWidget().TargetDirectoryLineEdit.setText(installer.value("InstallerDirPath") + "/Qt");
-    //gui.currentPageWidget().TargetDirectoryLineEdit.setText("/scratch/Qt");
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.ComponentSelectionPageCallback = function() {
-    var widget = gui.currentPageWidget();
-
-    widget.deselectAll();
-    widget.selectComponent("qt.58.android_armv7");
-    widget.selectComponent("qt.58.android_x86");
-
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.LicenseAgreementPageCallback = function() {
-    gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.StartMenuDirectoryPageCallback = function() {
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.ReadyForInstallationPageCallback = function()
-{
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.FinishedPageCallback = function() {
-var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm
-if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
-    checkBoxForm.launchQtCreatorCheckBox.checked = false;
-}
-    gui.clickButton(buttons.FinishButton);
-}
-EOF
-
     wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-android-${QTVER}.run
     chmod +x qt-opensource-linux-x64-android-${QTVER}.run
     ./qt-opensource-linux-x64-android-${QTVER}.run \
         -platform minimal \
-        --script non_interactive_install.qs \
+        --script "$PWD/ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 elif [ "${DOCKERSYS}" = debian ]; then
+    # Install Qt Installer Framework
+    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-linux-x64.run
+
+    ./QtInstallerFramework-linux-x64.run \
+        -platform minimal \
+        --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
+        --no-force-installations
+
+    # Install AppImageTool
+    mkdir -p ~/.local/bin
+    wget -c -O ~/.local/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
+
     ${EXEC} apt-get -y update
 
     if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
@@ -203,6 +153,19 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libpulse-devel \
         libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
+    # Install Qt Installer Framework
+    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-mac-x64.dmg
+    device=$(hdiutil attach -readwrite -noverify QtInstallerFramework-mac-x64.dmg | \
+             egrep '^/dev/' | sed 1q | awk '{print $1}')
+
+    /Volumes/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
+        -platform minimal \
+        --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
+        --no-force-installations
+
+    hdiutil detach "${device}"
+
+    # Install Syphon framework
     wget -c https://github.com/Syphon/Simple/releases/download/version-3/Syphon.Simple.Apps.3.zip
     unzip Syphon.Simple.Apps.3.zip
     mkdir -p Syphon
