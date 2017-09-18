@@ -66,5 +66,6 @@ if not exist %GSTREAMER_BIN_FILE% curl --retry 10 -kLOC - https://gstreamer.free
 if exist %GSTREAMER_BIN_FILE% (
     start /b /wait msiexec /i %CD%\%GSTREAMER_BIN_FILE% /quiet /qn /norestart
     set GSTREAMER_BIN_PATH=C:\gstreamer\1.0\%GST_ARCH%
-    set PATH=%PATH%;%GSTREAMER_BIN_PATH%\bin
 )
+
+set PATH=%PATH%;%GSTREAMER_BIN_PATH%\bin
