@@ -1087,7 +1087,7 @@ class Deploy:
         config.read(desktopFile, 'utf-8')
         config['Desktop Entry']['Exec'] = 'AppRun'
 
-        with open(desktopFile, 'w', 'utf-8') as configFile:
+        with open(desktopFile, 'w', encoding='utf-8') as configFile:
             config.write(configFile, space_around_delimiters=False)
 
         icon = os.path.join(appDir, 'webcamoid.png')
