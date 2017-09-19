@@ -1066,6 +1066,9 @@ class Deploy:
         except:
             pass
 
+        if not os.path.exists(appDir):
+            return
+
         launcher = os.path.join(appDir, 'AppRun')
 
         if not os.path.exists(launcher):
@@ -1079,7 +1082,7 @@ class Deploy:
         self.copy(os.path.join(appDir, 'share/applications/webcamoid.desktop'), desktopFile)
         config = configparser.ConfigParser()
         config.optionxform=str
-        config.read(desktopFile)
+        config.read(desktopFile, 'utf-8')
         config['Desktop Entry']['Exec'] = 'AppRun'
 
         with open(desktopFile, 'w') as configFile:
