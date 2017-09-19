@@ -66,7 +66,12 @@ class Deploy:
         if self.targetSystem != 'posix':
             return ''
 
-        os.environ['LD_LIBRARY_PATH'] = os.path.join(self.rootDir, 'libAvKys/Lib')
+        if 'LD_LIBRARY_PATH' in os.environ:
+            os.environ['LD_LIBRARY_PATH'] = ':'.join([os.path.join(self.rootDir, 'libAvKys/Lib'),
+                                                      os.environ['LD_LIBRARY_PATH']])
+        else:
+            os.environ['LD_LIBRARY_PATH'] = os.path.join(self.rootDir, 'libAvKys/Lib')
+
         programPath = os.path.join(self.rootDir, self.scanPaths[0])
         process = subprocess.Popen([programPath, '--version'],
                                    stdout=subprocess.PIPE)

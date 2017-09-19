@@ -1,4 +1,6 @@
 # VDSO
+ld-linux.so.2
+ld-linux-x86-64.so.2
 /lib/ld-linux.so.2
 /lib64/ld-linux-x86-64.so.2
 /usr/lib/ld-linux.so.2
@@ -97,6 +99,7 @@ libxkbcommon-x11.so.0
 libxshmfence.so.1
 
 # OpenGL
+libdrm.so.2
 libgbm.so.1
 libEGL.so.1
 libGL.so.1
@@ -105,3 +108,7 @@ libGLdispatch.so.0
 
 # Use system library instead
 libasound.so.2
+libpulse.so.0
+libpulse-simple.so.0
+libjack.so.0
+libv4l2.so.0
