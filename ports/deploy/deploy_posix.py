@@ -857,36 +857,30 @@ class Deploy:
     def createLauncher(self):
         print('Writting launcher file')
         path = os.path.join(self.installDir, 'usr/webcamoid')
-        elf = os.path.join(self.rootDir, self.scanPaths[0])
-        elfInfo = self.elfDump(elf)
 
-        if len(elfInfo['rpath']) > 0 or len(elfInfo['runpath']) > 0:
-            if not os.path.exists(path):
-                os.symlink('./bin/webcamoid', path)
-        else:
-            with open(path + '.sh', 'w') as launcher:
-                launcher.write('#!/bin/sh\n')
-                launcher.write('\n')
-                launcher.write('rootdir() {\n')
-                launcher.write('    case "$1" in\n')
-                launcher.write('        /*) dirname "$1"\n')
-                launcher.write('            ;;\n')
-                launcher.write('        *)  dir=$(dirname "$PWD/$1")\n')
-                launcher.write('            cwd=$PWD\n')
-                launcher.write('            cd "$dir" 1>/dev/null\n')
-                launcher.write('                echo $PWD\n')
-                launcher.write('            cd "$cwd" 1>/dev/null\n')
-                launcher.write('            ;;\n')
-                launcher.write('    esac\n')
-                launcher.write('}\n')
-                launcher.write('\n')
-                launcher.write('ROOTDIR=$(rootdir "$0")\n')
-                launcher.write('export PATH="${ROOTDIR}/bin:$PATH"\n')
-                launcher.write('export LD_LIBRARY_PATH="${ROOTDIR}/lib:$LD_LIBRARY_PATH"\n')
-                launcher.write('#export QT_DEBUG_PLUGINS=1\n')
-                launcher.write('webcamoid "$@"\n')
+        with open(path + '.sh', 'w') as launcher:
+            launcher.write('#!/bin/sh\n')
+            launcher.write('\n')
+            launcher.write('rootdir() {\n')
+            launcher.write('    case "$1" in\n')
+            launcher.write('        /*) dirname "$1"\n')
+            launcher.write('            ;;\n')
+            launcher.write('        *)  dir=$(dirname "$PWD/$1")\n')
+            launcher.write('            cwd=$PWD\n')
+            launcher.write('            cd "$dir" 1>/dev/null\n')
+            launcher.write('                echo $PWD\n')
+            launcher.write('            cd "$cwd" 1>/dev/null\n')
+            launcher.write('            ;;\n')
+            launcher.write('    esac\n')
+            launcher.write('}\n')
+            launcher.write('\n')
+            launcher.write('ROOTDIR=$(rootdir "$0")\n')
+            launcher.write('export PATH="${ROOTDIR}/bin:$PATH"\n')
+            launcher.write('export LD_LIBRARY_PATH="${ROOTDIR}/lib:$LD_LIBRARY_PATH"\n')
+            launcher.write('#export QT_DEBUG_PLUGINS=1\n')
+            launcher.write('webcamoid "$@"\n')
 
-            os.chmod(path + '.sh', 0o744)
+        os.chmod(path + '.sh', 0o744)
 
     def finish(self):
         print('\nCompleting final package structure\n')
@@ -1067,9 +1061,6 @@ class Deploy:
                             True)
         except:
             pass
-
-        if not os.path.exists(appDir):
-            return
 
         launcher = os.path.join(appDir, 'AppRun')
 
