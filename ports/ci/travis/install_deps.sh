@@ -15,8 +15,13 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     cp -vf ~/Qt/QtIFW${QTIFWVER/-*/}/bin/* .local/bin/
 
     # Install AppImageTool
-    wget -c -O .local/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
-    chmod +x .local/bin/appimagetool
+    wget -c -O .local/bin/appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
+    chmod +x .local/bin/appimagetool-x86_64.AppImage
+
+    cd .local/bin
+    ./appimagetool-x86_64.AppImage --appimage-extract
+    cp -vf squashfs-root/usr/bin/* .
+    cd ../..
 
     # Set default Docker command
     EXEC="docker exec ${DOCKERSYS}"
@@ -177,6 +182,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-mac-x64.dmg
     7z x -oqtifw QtInstallerFramework-mac-x64.dmg
     7z x -oqtifw qtifw/5.hfsx
+    chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
     export QT_QPA_PLATFORM=minimal
 
