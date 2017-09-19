@@ -21,6 +21,7 @@
 
 import math
 import mimetypes
+import multiprocessing
 import os
 import platform
 import re
@@ -49,6 +50,7 @@ class Deploy:
         self.programVersion = self.readVersion()
         self.make = self.detectMake()
         self.installerIconSize = 256
+        self.njobs = multiprocessing.cpu_count()
 
     def detectArch(self):
         exeFile = os.path.join(self.buildDir, self.scanPaths[0])
@@ -563,7 +565,7 @@ class Deploy:
             thread = threading.Thread(target=self.strip, args=(strip, exe,))
             threads.append(thread)
 
-            while threading.active_count() >= 64:
+            while threading.active_count() >= self.njobs:
                 time.sleep(0.25)
 
             thread.start()

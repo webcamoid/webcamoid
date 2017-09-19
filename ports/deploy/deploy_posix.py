@@ -22,6 +22,7 @@
 import configparser
 import fnmatch
 import math
+import multiprocessing
 import os
 import platform
 import re
@@ -54,6 +55,7 @@ class Deploy:
         self.libsSeachPaths = self.readLdconf() \
                             + ['/usr/lib', '/usr/lib64', '/lib', '/lib64']
         self.installerIconSize = 128
+        self.njobs = multiprocessing.cpu_count()
 
     def detectSystem(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0] + '.exe')
@@ -826,7 +828,7 @@ class Deploy:
             thread = threading.Thread(target=self.strip, args=(elf,))
             threads.append(thread)
 
-            while threading.active_count() >= 64:
+            while threading.active_count() >= self.njobs:
                 time.sleep(0.25)
 
             thread.start()
@@ -1085,7 +1087,7 @@ class Deploy:
         config.read(desktopFile, 'utf-8')
         config['Desktop Entry']['Exec'] = 'AppRun'
 
-        with open(desktopFile, 'w') as configFile:
+        with open(desktopFile, 'w', 'utf-8') as configFile:
             config.write(configFile, space_around_delimiters=False)
 
         icon = os.path.join(appDir, 'webcamoid.png')

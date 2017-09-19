@@ -21,6 +21,7 @@
 
 import fnmatch
 import math
+import multiprocessing
 import os
 import platform
 import re
@@ -47,6 +48,7 @@ class Deploy:
         self.programVersion = self.readVersion()
         self.qmake = self.detectQmake()
         self.qtIFW = self.detectQtIFW()
+        self.njobs = multiprocessing.cpu_count()
 
         # 32 bits magic number.
         self.MH_MAGIC = 0xfeedface # Native endian
@@ -634,7 +636,7 @@ class Deploy:
             thread = threading.Thread(target=self.strip, args=(mach,))
             threads.append(thread)
 
-            while threading.active_count() >= 64:
+            while threading.active_count() >= self.njobs:
                 time.sleep(0.25)
 
             thread.start()
@@ -739,7 +741,7 @@ class Deploy:
             thread = threading.Thread(target=self.fixLibRpath, args=(mutex, mach,))
             threads.append(thread)
 
-            while threading.active_count() >= 64:
+            while threading.active_count() >= self.njobs:
                 time.sleep(0.25)
 
             thread.start()
