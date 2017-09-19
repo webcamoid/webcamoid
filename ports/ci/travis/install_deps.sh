@@ -17,22 +17,25 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     # Install Qt for Android
     wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-android-${QTVER}.run
     chmod +x qt-opensource-linux-x64-android-${QTVER}.run
+    export QT_QPA_PLATFORM=minimal
+
     ./qt-opensource-linux-x64-android-${QTVER}.run \
-        -platform minimal \
-        --script "$PWD/ports/ci/travis/qt_non_interactive_install.qs" \
+        --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 elif [ "${DOCKERSYS}" = debian ]; then
     # Install Qt Installer Framework
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-linux-x64.run
+    chmod +x QtInstallerFramework-linux-x64.run
+    export QT_QPA_PLATFORM=minimal
 
     ./QtInstallerFramework-linux-x64.run \
-        -platform minimal \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
 
     # Install AppImageTool
     mkdir -p ~/.local/bin
     wget -c -O ~/.local/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
+    chmod +x ~/.local/bin/appimagetool
 
     ${EXEC} apt-get -y update
 
@@ -153,25 +156,8 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libpulse-devel \
         libjack-devel
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    # Install Qt Installer Framework
-    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-mac-x64.dmg
-    device=$(hdiutil attach -readwrite -noverify QtInstallerFramework-mac-x64.dmg | \
-             egrep '^/dev/' | sed 1q | awk '{print $1}')
-
-    /Volumes/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
-        -platform minimal \
-        --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
-        --no-force-installations
-
-    hdiutil detach "${device}"
-
-    # Install Syphon framework
-    wget -c https://github.com/Syphon/Simple/releases/download/version-3/Syphon.Simple.Apps.3.zip
-    unzip Syphon.Simple.Apps.3.zip
-    mkdir -p Syphon
-    cp -Rvf "Syphon Simple Apps/Simple Client.app/Contents/Frameworks/Syphon.framework" ./Syphon
-
     brew install \
+        p7zip \
         python3 \
         ccache \
         pkg-config \
@@ -182,4 +168,21 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         pulseaudio \
         jack \
         libuvc
+
+    # Install Qt Installer Framework
+    wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-mac-x64.dmg
+    7z x -oqtifw QtInstallerFramework-mac-x64.dmg
+    7z x -oqtifw qtifw/5.hfsx
+
+    export QT_QPA_PLATFORM=minimal
+
+    qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
+        --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
+        --no-force-installations
+
+    # Install Syphon framework
+    wget -c https://github.com/Syphon/Simple/releases/download/version-3/Syphon.Simple.Apps.3.zip
+    unzip Syphon.Simple.Apps.3.zip
+    mkdir -p Syphon
+    cp -Rvf "Syphon Simple Apps/Simple Client.app/Contents/Frameworks/Syphon.framework" ./Syphon
 fi
