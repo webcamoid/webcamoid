@@ -23,6 +23,8 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 elif [ "${DOCKERSYS}" = debian ]; then
+    mkdir -p .local/bin
+
     # Install Qt Installer Framework
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-linux-x64.run
     chmod +x QtInstallerFramework-linux-x64.run
@@ -32,10 +34,11 @@ elif [ "${DOCKERSYS}" = debian ]; then
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
 
+    cp -vf ~/Qt/QtIFW${QTIFWVER/-*/}/bin/* .local/bin/
+
     # Install AppImageTool
-    mkdir -p ~/.local/bin
-    wget -c -O ~/.local/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
-    chmod +x ~/.local/bin/appimagetool
+    wget -c -O .local/bin/appimagetool https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
+    chmod +x .local/bin/appimagetool
 
     ${EXEC} apt-get -y update
 

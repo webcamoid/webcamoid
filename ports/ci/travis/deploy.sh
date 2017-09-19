@@ -13,6 +13,7 @@ elif [ "${TRAVIS_OS_NAME}" = linux ]; then
     cat << EOF > ${DEPLOYSCRIPT}
 #!/bin/bash
 
+export PATH="\$PWD/.local/bin:\$PATH"
 xvfb-run --auto-servernum python3 ports/deploy/deploy.py
 EOF
 
