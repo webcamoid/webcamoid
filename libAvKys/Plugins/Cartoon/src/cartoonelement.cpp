@@ -138,7 +138,7 @@ QVector<QRgb> CartoonElement::palette(const QImage &img,
         }
 
         // Sort the histogram by weights.
-        qSort(histogram);
+        std::sort(histogram.begin(), histogram.end());
         QVector<QRgb> palette;
 
         if (ncolors < 1)

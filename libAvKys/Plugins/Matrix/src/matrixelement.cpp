@@ -621,7 +621,7 @@ void MatrixElement::updateCharTable()
         characters.append(Character(chr, QImage(), weight));
     }
 
-    qSort(characters.begin(), characters.end(), this->chrLessThan);
+    std::sort(characters.begin(), characters.end(), this->chrLessThan);
 
     this->m_characters.clear();
 

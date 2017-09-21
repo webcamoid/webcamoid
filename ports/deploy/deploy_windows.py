@@ -73,6 +73,9 @@ class Deploy:
             return 'unknown'
 
     def detectQmake(self):
+        if 'QMAKE_PATH' in os.environ:
+            return os.environ['QMAKE_PATH']
+
         with open(os.path.join(self.buildDir, 'StandAlone\\Makefile')) as f:
             for line in f:
                 if line.startswith('QMAKE'):

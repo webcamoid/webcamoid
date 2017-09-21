@@ -73,6 +73,9 @@ class Deploy:
             return 'unknown'
 
     def detectQmake(self):
+        if 'QMAKE_PATH' in os.environ:
+            return os.environ['QMAKE_PATH']
+
         with open(os.path.join(self.rootDir, 'StandAlone/Makefile')) as f:
             for line in f:
                 if line.startswith('QMAKE'):
@@ -385,12 +388,17 @@ class Deploy:
         if not path.startswith('@'):
             return path
 
-        if not 'FRAMEWORKS_PATH' in os.environ:
-            return ''
+        searchPaths = []
+
+        if 'DYLD_LIBRARY_PATH' in os.environ:
+            searchPaths += os.environ['DYLD_LIBRARY_PATH'].split(':')
+
+        if 'DYLD_FRAMEWORK_PATH' in os.environ:
+            searchPaths += os.environ['DYLD_FRAMEWORK_PATH'].split(':')
 
         basename = os.path.basename(path)
 
-        for fpath in os.environ['FRAMEWORKS_PATH'].split(':'):
+        for fpath in searchPaths:
             realPath = os.path.join(fpath, basename)
 
             if os.path.exists(realPath):

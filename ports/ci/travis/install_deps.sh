@@ -184,8 +184,6 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     7z x -oqtifw qtifw/5.hfsx
     chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
-    # export QT_QPA_PLATFORM=minimal
-
     qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations

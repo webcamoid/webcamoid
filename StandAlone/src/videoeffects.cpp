@@ -44,8 +44,8 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
 
     this->m_availableEffects = AkElement::listPlugins("VideoFilter");
 
-    qSort(this->m_availableEffects.begin(), this->m_availableEffects.end(),
-          [this] (const QString &pluginId1, const QString &pluginId2) {
+    std::sort(this->m_availableEffects.begin(), this->m_availableEffects.end(),
+              [this] (const QString &pluginId1, const QString &pluginId2) {
         auto desc1 = this->effectDescription(pluginId1);
         auto desc2 = this->effectDescription(pluginId2);
 

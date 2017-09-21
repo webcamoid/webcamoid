@@ -36,7 +36,8 @@ AudioDev::AudioDev(QObject *parent):
     for (int rate = 11025; rate < MAX_SAMPLE_RATE; rate *= 2)
         this->m_commonSampleRates << rate;
 
-    qSort(this->m_commonSampleRates);
+    std::sort(this->m_commonSampleRates.begin(),
+              this->m_commonSampleRates.end());
 }
 
 AudioDev::~AudioDev()

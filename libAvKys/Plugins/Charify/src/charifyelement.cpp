@@ -488,7 +488,7 @@ void CharifyElement::updateCharTable()
     }
 
     this->m_characters.resize(256);
-    qSort(characters.begin(), characters.end(), this->chrLessThan);
+    std::sort(characters.begin(), characters.end(), this->chrLessThan);
 
     for (int i = 0; i < 256; i++) {
         int c = i * (characters.size() - 1) / 255;

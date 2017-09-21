@@ -6,7 +6,7 @@ cache:
 
 env:
   global:
-    - QTIFWVER=2.0.5-1
+    - QTIFWVER=3.0.1
 
 matrix:
   include:

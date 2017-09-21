@@ -290,7 +290,7 @@ void Updates::replyFinished(QNetworkReply *reply)
 
     auto isOldVersion =
             this->compare(version, COMMONS_VERSION,
-                          [this] (const QVariant &a, const QVariant &b) {
+                          [] (const QVariant &a, const QVariant &b) {
                                 return a > b;
                           });
 
@@ -324,7 +324,7 @@ void Updates::loadProperties()
 
    auto isOldVersion =
            this->compare(this->m_latestVersion, COMMONS_VERSION,
-                         [this] (const QVariant &a, const QVariant &b) {
+                         [] (const QVariant &a, const QVariant &b) {
                                return a > b;
                          });
 
