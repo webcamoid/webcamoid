@@ -19,7 +19,7 @@
 
 #include <QDebug>
 #include <QSettings>
-#include <QQmlEngine>
+#include <QtQml>
 #include <QQmlContext>
 #include <QJsonDocument>
 #include <QJsonObject>
