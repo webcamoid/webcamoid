@@ -74,7 +74,7 @@ const UsbIdsElement *UsbIds::operator [](quint16 vendorId) const
         if (id.vendorId == vendorId)
             return &id;
 
-    return NULL;
+    return nullptr;
 }
 
 QString UsbIds::description(quint16 vendorId, quint16 productId) const

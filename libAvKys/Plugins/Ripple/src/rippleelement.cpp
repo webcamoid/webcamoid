@@ -26,9 +26,10 @@ typedef QMap<RippleElement::RippleMode, QString> RippleModeToStr;
 
 inline RippleModeToStr initRippleModeToStr()
 {
-    RippleModeToStr rippleModeToStr;
-    rippleModeToStr[RippleElement::RippleModeMotionDetect] = "motionDetect";
-    rippleModeToStr[RippleElement::RippleModeRain] = "rain";
+    RippleModeToStr rippleModeToStr {
+        {RippleElement::RippleModeMotionDetect, "motionDetect"},
+        {RippleElement::RippleModeRain        , "rain"        }
+    };
 
     return rippleModeToStr;
 }
@@ -42,44 +43,6 @@ RippleElement::RippleElement(): AkElement()
     this->m_decay = 8;
     this->m_threshold = 15;
     this->m_lumaThreshold = 15;
-}
-
-QObject *RippleElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Ripple/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Ripple", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
 }
 
 QString RippleElement::mode() const
@@ -337,6 +300,22 @@ QImage RippleElement::rainDrop(int width, int height, int strength)
     }
 
     return rain;
+}
+
+QString RippleElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Ripple/share/qml/main.qml");
+}
+
+void RippleElement::controlInterfaceConfigure(QQmlContext *context,
+                                              const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Ripple", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void RippleElement::setMode(const QString &mode)

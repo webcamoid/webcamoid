@@ -52,45 +52,6 @@ DesktopCaptureElement::~DesktopCaptureElement()
     this->setState(AkElement::ElementStateNull);
 }
 
-QObject *DesktopCaptureElement::controlInterface(QQmlEngine *engine,
-                                                 const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/DesktopCapture/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("DesktopCapture", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 AkFrac DesktopCaptureElement::fps() const
 {
     return this->m_screenCapture->fps();
@@ -129,6 +90,22 @@ AkCaps DesktopCaptureElement::caps(int stream)
 QString DesktopCaptureElement::captureLib() const
 {
     return globalDesktopCapture->captureLib();
+}
+
+QString DesktopCaptureElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/DesktopCapture/share/qml/main.qml");
+}
+
+void DesktopCaptureElement::controlInterfaceConfigure(QQmlContext *context,
+                                                      const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("DesktopCapture", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void DesktopCaptureElement::setFps(const AkFrac &fps)
@@ -220,7 +197,8 @@ void DesktopCaptureElement::captureLibUpdated(const QString &captureLib)
     this->setState(AkElement::ElementStateNull);
 
     this->m_screenCapture =
-            ptr_init<ScreenDev>(this->loadSubModule("DesktopCapture", captureLib));
+            ptr_init<ScreenDev>(this->loadSubModule("DesktopCapture",
+                                                    captureLib));
 
     QObject::connect(this->m_screenCapture.data(),
                      &ScreenDev::mediasChanged,

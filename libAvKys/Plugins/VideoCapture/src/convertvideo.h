@@ -27,7 +27,7 @@ class ConvertVideo: public QObject
     Q_OBJECT
 
     public:
-        explicit ConvertVideo(QObject *parent=NULL);
+        explicit ConvertVideo(QObject *parent=nullptr);
         virtual ~ConvertVideo();
 
         Q_INVOKABLE virtual void packetEnqueue(const AkPacket &packet);

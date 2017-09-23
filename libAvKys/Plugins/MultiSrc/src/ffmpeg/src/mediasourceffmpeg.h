@@ -43,7 +43,7 @@ class MediaSourceFFmpeg: public MediaSource
                NOTIFY showLogChanged)
 
     public:
-        explicit MediaSourceFFmpeg(QObject *parent=NULL);
+        explicit MediaSourceFFmpeg(QObject *parent=nullptr);
         ~MediaSourceFFmpeg();
 
         Q_INVOKABLE QStringList medias() const;

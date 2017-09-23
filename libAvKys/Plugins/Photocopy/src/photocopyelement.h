@@ -20,8 +20,6 @@
 #ifndef PHOTOCOPYELEMENT_H
 #define PHOTOCOPYELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -41,9 +39,6 @@ class PhotocopyElement: public AkElement
 
     public:
         explicit PhotocopyElement();
-
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
 
         Q_INVOKABLE qreal brightness() const;
         Q_INVOKABLE qreal contrast() const;
@@ -67,6 +62,11 @@ class PhotocopyElement: public AkElement
 
             return qRound((max + min) / 2.0);
         }
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void brightnessChanged(qreal brightness);

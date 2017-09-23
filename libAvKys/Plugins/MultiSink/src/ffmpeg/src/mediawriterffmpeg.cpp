@@ -245,10 +245,10 @@ class MediaWriterFFmpegGlobal
         inline SupportedCodecsType initSupportedCodecs()
         {
             SupportedCodecsType supportedCodecs;
-            AVOutputFormat *outputFormat = NULL;
+            AVOutputFormat *outputFormat = nullptr;
 
             while ((outputFormat = av_oformat_next(outputFormat))) {
-                AVCodec *codec = NULL;
+                AVCodec *codec = nullptr;
 
                 while ((codec = av_codec_next(codec))) {
                     if (codec->capabilities & CODEC_CAP_EXPERIMENTAL
@@ -340,7 +340,7 @@ class MediaWriterFFmpegGlobal
         {
             QMap<QString, QVariantMap> codecDefaults;
 
-            for (auto codec = av_codec_next(NULL);
+            for (auto codec = av_codec_next(nullptr);
                  codec;
                  codec = av_codec_next(codec)) {
                 if (!av_codec_is_encoder(codec))
@@ -543,7 +543,7 @@ Q_GLOBAL_STATIC(MediaWriterFFmpegGlobal, mediaWriterFFmpegGlobal)
 MediaWriterFFmpeg::MediaWriterFFmpeg(QObject *parent):
     MediaWriter(parent)
 {
-    this->m_formatContext = NULL;
+    this->m_formatContext = nullptr;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
     this->m_isRecording = false;
 
@@ -613,8 +613,8 @@ QStringList MediaWriterFFmpeg::supportedFormats()
 QStringList MediaWriterFFmpeg::fileExtensions(const QString &format)
 {
     AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
-                                                   NULL,
-                                                   NULL);
+                                                   nullptr,
+                                                   nullptr);
 
     if (!outputFormat)
         return QStringList();
@@ -630,8 +630,8 @@ QStringList MediaWriterFFmpeg::fileExtensions(const QString &format)
 QString MediaWriterFFmpeg::formatDescription(const QString &format)
 {
     AVOutputFormat *outputFormat = av_guess_format(format.toStdString().c_str(),
-                                                   NULL,
-                                                   NULL);
+                                                   nullptr,
+                                                   nullptr);
 
     if (!outputFormat)
         return QString();
@@ -647,8 +647,8 @@ QVariantList MediaWriterFFmpeg::formatOptions()
         return QVariantList();
 
     AVOutputFormat *outputFormat = av_guess_format(outFormat.toStdString().c_str(),
-                                                   NULL,
-                                                   NULL);
+                                                   nullptr,
+                                                   nullptr);
 
     if (!outputFormat)
         return QVariantList();
@@ -702,8 +702,8 @@ QString MediaWriterFFmpeg::defaultCodec(const QString &format,
                                         const QString &type)
 {
     auto outputFormat = av_guess_format(format.toStdString().c_str(),
-                                        NULL,
-                                        NULL);
+                                        nullptr,
+                                        nullptr);
 
     if (!outputFormat)
         return QString();
@@ -967,9 +967,9 @@ QString MediaWriterFFmpeg::guessFormat()
         outputFormat = this->m_outputFormat;
     else {
         auto format =
-                av_guess_format(NULL,
+                av_guess_format(nullptr,
                                 this->m_location.toStdString().c_str(),
-                                NULL);
+                                nullptr);
 
         if (format)
             outputFormat = QString(format->name);
@@ -1187,7 +1187,7 @@ AVDictionary *MediaWriterFFmpeg::formatContextOptions(AVFormatContext *formatCon
                 flagType << option->name;
         }
 
-    AVDictionary *formatOptions = NULL;
+    AVDictionary *formatOptions = nullptr;
 
     for (const QString &key: options.keys()) {
         QString value;
@@ -1486,13 +1486,13 @@ bool MediaWriterFFmpeg::init()
 
     this->m_formatContext->oformat =
             av_guess_format(this->m_outputFormat.isEmpty()?
-                                NULL: this->m_outputFormat.toStdString().c_str(),
+                                nullptr: this->m_outputFormat.toStdString().c_str(),
                             this->m_location.toStdString().c_str(),
-                            NULL);
+                            nullptr);
 
     if (!this->m_formatContext->oformat) {
         avformat_free_context(this->m_formatContext);
-        this->m_formatContext = NULL;
+        this->m_formatContext = nullptr;
 
         return false;
     }
@@ -1534,7 +1534,7 @@ bool MediaWriterFFmpeg::init()
 
     for (int i = 0; i < streamConfigs.count(); i++) {
         QVariantMap configs = streamConfigs[i];
-        AVStream *stream = avformat_new_stream(this->m_formatContext, NULL);
+        AVStream *stream = avformat_new_stream(this->m_formatContext, nullptr);
         stream->id = i;
 
         // Confihure streams parameters.
@@ -1591,7 +1591,7 @@ bool MediaWriterFFmpeg::init()
 
             this->m_streamsMap.clear();
             avformat_free_context(this->m_formatContext);
-            this->m_formatContext = NULL;
+            this->m_formatContext = nullptr;
 
             return false;
         }
@@ -1617,7 +1617,7 @@ bool MediaWriterFFmpeg::init()
 
         this->m_streamsMap.clear();
         avformat_free_context(this->m_formatContext);
-        this->m_formatContext = NULL;
+        this->m_formatContext = nullptr;
 
         return false;
     }
@@ -1646,7 +1646,7 @@ void MediaWriterFFmpeg::uninit()
         avio_close(this->m_formatContext->pb);
 
     avformat_free_context(this->m_formatContext);
-    this->m_formatContext = NULL;
+    this->m_formatContext = nullptr;
 }
 
 void MediaWriterFFmpeg::writePacket(AVPacket *packet)

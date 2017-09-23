@@ -134,7 +134,7 @@ STDAPI WriteInt(IStream *pIStream, int n)
 {
     WCHAR Buff[13];  // Allows for trailing null that we don't write
     (void)StringCchPrintfW(Buff, NUMELMS(Buff),L"%011d ",n);
-    return pIStream->Write(&(Buff[0]), 12*sizeof(WCHAR), NULL);
+    return pIStream->Write(&(Buff[0]), 12*sizeof(WCHAR), nullptr);
 } // WriteInt
 
 
@@ -152,14 +152,14 @@ STDAPI_(int) ReadInt(IStream *pIStream, __out HRESULT &hr)
     unsigned int n = 0;    // result wil be n*Sign
     WCHAR wch;
 
-    hr = pIStream->Read( &wch, sizeof(wch), NULL);
+    hr = pIStream->Read( &wch, sizeof(wch), nullptr);
     if (FAILED(hr)) {
         return 0;
     }
 
     if (wch==L'-'){
         Sign = -1;
-        hr = pIStream->Read( &wch, sizeof(wch), NULL);
+        hr = pIStream->Read( &wch, sizeof(wch), nullptr);
         if (FAILED(hr)) {
             return 0;
         }
@@ -180,7 +180,7 @@ STDAPI_(int) ReadInt(IStream *pIStream, __out HRESULT &hr)
             return 0;
         }
 
-        hr = pIStream->Read( &wch, sizeof(wch), NULL);
+        hr = pIStream->Read( &wch, sizeof(wch), nullptr);
         if (FAILED(hr)) {
             return 0;
         }

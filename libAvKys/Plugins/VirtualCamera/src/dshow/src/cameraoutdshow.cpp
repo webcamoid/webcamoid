@@ -44,25 +44,25 @@ QString CameraOutDShow::driverPath() const
 
 QStringList CameraOutDShow::webcams() const
 {
-    IEnumMoniker *pEnum = NULL;
+    IEnumMoniker *pEnum = nullptr;
     HRESULT hr = this->enumerateCameras(&pEnum);
 
     if (FAILED(hr))
         return QStringList();
 
-    IMoniker *pMoniker = NULL;
+    IMoniker *pMoniker = nullptr;
     QString devicePath;
 
-    for (int i = 0; pEnum->Next(1, &pMoniker, NULL) == S_OK; i++) {
-        IBaseFilter *filter = NULL;
-        hr = pMoniker->BindToObject(NULL,
-                                    NULL,
+    for (int i = 0; pEnum->Next(1, &pMoniker, nullptr) == S_OK; i++) {
+        IBaseFilter *filter = nullptr;
+        hr = pMoniker->BindToObject(nullptr,
+                                    nullptr,
                                     IID_IBaseFilter,
                                     reinterpret_cast<void **>(&filter));
 
         if (FAILED(hr)) {
             pMoniker->Release();
-            pMoniker = NULL;
+            pMoniker = nullptr;
 
             continue;
         }
@@ -72,7 +72,7 @@ QStringList CameraOutDShow::webcams() const
         if (FAILED(filter->GetClassID(&clsid))) {
             filter->Release();
             pMoniker->Release();
-            pMoniker = NULL;
+            pMoniker = nullptr;
 
             continue;
         }
@@ -81,14 +81,14 @@ QStringList CameraOutDShow::webcams() const
 
         if (clsid != CLSID_VirtualCameraSource) {
             pMoniker->Release();
-            pMoniker = NULL;
+            pMoniker = nullptr;
 
             continue;
         }
 
-        IPropertyBag *pPropBag = NULL;
-        hr = pMoniker->BindToStorage(NULL,
-                                     NULL,
+        IPropertyBag *pPropBag = nullptr;
+        hr = pMoniker->BindToStorage(nullptr,
+                                     nullptr,
                                      IID_IPropertyBag,
                                      reinterpret_cast<void **>(&pPropBag));
 
@@ -106,7 +106,7 @@ QStringList CameraOutDShow::webcams() const
         }
 
         pMoniker->Release();
-        pMoniker = NULL;
+        pMoniker = nullptr;
 
         break;
     }
@@ -138,18 +138,18 @@ AkCaps CameraOutDShow::caps() const
 
 QString CameraOutDShow::description(const QString &webcam) const
 {
-    IEnumMoniker *pEnum = NULL;
+    IEnumMoniker *pEnum = nullptr;
     HRESULT hr = this->enumerateCameras(&pEnum);
 
     if (FAILED(hr))
         return QString();
 
-    IMoniker *pMoniker = NULL;
+    IMoniker *pMoniker = nullptr;
 
-    for (int i = 0; pEnum->Next(1, &pMoniker, NULL) == S_OK; i++) {
-        IPropertyBag *pPropBag = NULL;
-        hr = pMoniker->BindToStorage(NULL,
-                                     NULL,
+    for (int i = 0; pEnum->Next(1, &pMoniker, nullptr) == S_OK; i++) {
+        IPropertyBag *pPropBag = nullptr;
+        hr = pMoniker->BindToStorage(nullptr,
+                                     nullptr,
                                      IID_IPropertyBag,
                                      reinterpret_cast<void **>(&pPropBag));
 
@@ -187,7 +187,7 @@ QString CameraOutDShow::description(const QString &webcam) const
         }
 
         pMoniker->Release();
-        pMoniker = NULL;
+        pMoniker = nullptr;
     }
 
     pEnum->Release();
@@ -338,9 +338,9 @@ bool CameraOutDShow::removeAllWebcams(const QString &password)
 HRESULT CameraOutDShow::enumerateCameras(IEnumMoniker **ppEnum) const
 {
     // Create the System Device Enumerator.
-    ICreateDevEnum *pDevEnum = NULL;
+    ICreateDevEnum *pDevEnum = nullptr;
     HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
-                                  NULL,
+                                  nullptr,
                                   CLSCTX_INPROC_SERVER,
                                   IID_ICreateDevEnum,
                                   reinterpret_cast<void **>(&pDevEnum));
@@ -360,7 +360,7 @@ HRESULT CameraOutDShow::enumerateCameras(IEnumMoniker **ppEnum) const
 
 QString CameraOutDShow::iidToString(const IID &iid) const
 {
-    LPWSTR strIID = NULL;
+    LPWSTR strIID = nullptr;
     StringFromIID(iid, &strIID);
     QString str = QString::fromWCharArray(strIID);
     CoTaskMemFree(strIID);
@@ -392,13 +392,13 @@ bool CameraOutDShow::sudo(const QString &command,
 
     execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
     execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-    execInfo.hwnd = NULL;
+    execInfo.hwnd = nullptr;
     execInfo.lpVerb = L"runas";
     execInfo.lpFile = wcommand;
     execInfo.lpParameters = wparams;
     execInfo.lpDirectory = wdir;
     execInfo.nShow = hide? SW_HIDE: SW_SHOWNORMAL;
-    execInfo.hInstApp = NULL;
+    execInfo.hInstApp = nullptr;
     ShellExecuteEx(&execInfo);
 
     if (!execInfo.hProcess)

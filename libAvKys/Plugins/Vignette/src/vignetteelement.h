@@ -22,8 +22,6 @@
 
 #include <QtMath>
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -54,9 +52,6 @@ class VignetteElement: public AkElement
     public:
         explicit VignetteElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QRgb color() const;
         Q_INVOKABLE qreal aspect() const;
         Q_INVOKABLE qreal scale() const;
@@ -76,6 +71,11 @@ class VignetteElement: public AkElement
         {
             return sqrt(x * x + y * y);
         }
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void colorChanged(QRgb color);

@@ -20,8 +20,6 @@
 #ifndef CARTOONELEMENT_H
 #define CARTOONELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QMutex>
 #include <ak.h>
 #include <akutils.h>
@@ -68,9 +66,6 @@ class CartoonElement: public AkElement
     public:
         explicit CartoonElement();
         ~CartoonElement();
-
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
 
         Q_INVOKABLE int ncolors() const;
         Q_INVOKABLE int colorDiff() const;
@@ -123,6 +118,11 @@ class CartoonElement: public AkElement
 
             return qRgb(r, g, b);
         }
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void ncolorsChanged(int ncolors);

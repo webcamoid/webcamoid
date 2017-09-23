@@ -27,7 +27,7 @@ class MultiSinkUtils: public QObject
     Q_OBJECT
 
     public:
-        explicit MultiSinkUtils(QObject *parent=NULL);
+        explicit MultiSinkUtils(QObject *parent=nullptr);
 
         Q_INVOKABLE bool matches(const QString &pattern,
                                  const QStringList &strings) const;

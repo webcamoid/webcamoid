@@ -42,18 +42,18 @@ class VideoFormat
         {
             static const std::vector<VideoFormat> videoFormats = {
                 // RGB formats
-                //{BI_RGB, MEDIASUBTYPE_RGB32, 32, NULL, PixelFormat32bppRGB, bgr3_to_bgr4},
-                {BI_RGB, MEDIASUBTYPE_RGB24, 24, NULL, PixelFormat24bppRGB, NULL},
+                //{BI_RGB, MEDIASUBTYPE_RGB32, 32, nullptr, PixelFormat32bppRGB, bgr3_to_bgr4},
+                {BI_RGB, MEDIASUBTYPE_RGB24, 24, nullptr, PixelFormat24bppRGB, nullptr},
                 {BI_BITFIELDS, MEDIASUBTYPE_RGB565, 16, bits565, PixelFormat16bppRGB565, rgb3_to_rgbp},
                 {BI_BITFIELDS, MEDIASUBTYPE_RGB555, 16, bits555, PixelFormat16bppRGB555, rgb3_to_rgbo},
 
                 // Luminance+Chrominance formats
-                {MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY, 16, NULL, PixelFormatUndefined, bgr3_to_uyvy},
-                {MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2, 16, NULL, PixelFormatUndefined, bgr3_to_yuy2},
-                //{MAKEFOURCC('Y', 'V', '1', '2'), MEDIASUBTYPE_YV12, 12, NULL, PixelFormatUndefined, bgr3_to_yv12},
+                {MAKEFOURCC('U', 'Y', 'V', 'Y'), MEDIASUBTYPE_UYVY, 16, nullptr, PixelFormatUndefined, bgr3_to_uyvy},
+                {MAKEFOURCC('Y', 'U', 'Y', '2'), MEDIASUBTYPE_YUY2, 16, nullptr, PixelFormatUndefined, bgr3_to_yuy2},
+                //{MAKEFOURCC('Y', 'V', '1', '2'), MEDIASUBTYPE_YV12, 12, nullptr, PixelFormatUndefined, bgr3_to_yv12},
 
                 // two planes -- one Y, one Cr + Cb interleaved
-                //{MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12, 12, NULL, PixelFormatUndefined, rgb3_to_nv12},
+                //{MAKEFOURCC('N', 'V', '1', '2'), MEDIASUBTYPE_NV12, 12, nullptr, PixelFormatUndefined, rgb3_to_nv12},
             };
 
             return videoFormats;
@@ -65,7 +65,7 @@ class VideoFormat
                 if (formats()[i].guid == guid)
                     return &formats()[i];
 
-            return NULL;
+            return nullptr;
         }
 };
 
@@ -165,8 +165,8 @@ VirtualCameraSourceStream::VirtualCameraSourceStream(HRESULT *phr,
     this->m_fps = 30;
     this->m_formatIsSet = FALSE;
     this->m_gdiFormat = PixelFormatUndefined;
-    this->m_convert = NULL;
-    this->m_bitmap = NULL;
+    this->m_convert = nullptr;
+    this->m_bitmap = nullptr;
 
 #ifndef GLOGAL_CONTROLS
     this->m_brightness = 0;
@@ -178,7 +178,7 @@ VirtualCameraSourceStream::VirtualCameraSourceStream(HRESULT *phr,
 #endif
 
     // Somewhere where it will run once before you need to use GDI:
-    Gdiplus::GdiplusStartup(&this->m_gdpToken, &this->m_gdpStartupInput, NULL);
+    Gdiplus::GdiplusStartup(&this->m_gdpToken, &this->m_gdpStartupInput, nullptr);
 }
 
 VirtualCameraSourceStream::~VirtualCameraSourceStream()
@@ -200,7 +200,7 @@ HRESULT VirtualCameraSourceStream::FillBuffer(IMediaSample *mediaSample)
     if (!lDataLen)
         return S_FALSE;
 
-    BYTE *pData = NULL;
+    BYTE *pData = nullptr;
 
     if (FAILED(mediaSample->GetPointer(&pData)) || !pData)
         return S_FALSE;
@@ -292,7 +292,7 @@ HRESULT VirtualCameraSourceStream::CheckMediaType(const CMediaType *pMediaType)
 
     return this->m_formatIsSet?
                 this->isSupported(&this->m_mt, pMediaType):
-                this->isSupported(NULL, pMediaType);
+                this->isSupported(nullptr, pMediaType);
 }
 
 HRESULT VirtualCameraSourceStream::GetMediaType(int iPosition, CMediaType *pmt)
@@ -390,7 +390,7 @@ HRESULT VirtualCameraSourceStream::SetFormat(AM_MEDIA_TYPE *pmt)
     if (curState != State_Stopped)
         return VFW_E_NOT_STOPPED;
 
-    HRESULT hr = this->isSupported(NULL, reinterpret_cast<CMediaType *>(pmt));
+    HRESULT hr = this->isSupported(nullptr, reinterpret_cast<CMediaType *>(pmt));
 
     if (hr != S_OK)
         return hr;
@@ -406,7 +406,7 @@ HRESULT VirtualCameraSourceStream::SetFormat(AM_MEDIA_TYPE *pmt)
 
     this->m_gdiFormat = vf->gdiFormat;
     this->m_convert = vf->convert;
-    IPin* pin = NULL;
+    IPin* pin = nullptr;
     this->ConnectedTo(&pin);
 
     if (pin) {
@@ -530,13 +530,13 @@ HRESULT VirtualCameraSourceStream::Get(const GUID &guidPropSet,
     if (dwPropID != AMPROPERTY_PIN_CATEGORY)
         return E_PROP_ID_UNSUPPORTED;
 
-    if (pPropData == NULL && pcbReturned == NULL)
+    if (pPropData == nullptr && pcbReturned == nullptr)
         return E_POINTER;
 
     if (pcbReturned)
         *pcbReturned = sizeof(GUID);
 
-    if (pPropData == NULL)
+    if (pPropData == nullptr)
         return S_OK; // Caller just wants to know the size.
 
     if (cbPropData < sizeof(GUID))
@@ -703,7 +703,7 @@ HRESULT VirtualCameraSourceStream::CompleteConnect(IPin *pReceivePin)
                                                                    OUTPUT_PIN_NAME);
 
     UNUSED(pin)
-    ASSERT(pin != NULL);
+    ASSERT(pin != nullptr);
 
     return CSourceStream::CompleteConnect(pReceivePin);
 }
@@ -757,7 +757,7 @@ HRESULT VirtualCameraSourceStream::mediaType(int iPosition, CMediaType *pmt) con
         for (int i = 0; i < 3; i++)
             pvi->TrueColorInfo.dwBitMasks[i] = VideoFormat::formats()[format].masks[i];
 
-    HDC hdc = GetDC(NULL);
+    HDC hdc = GetDC(nullptr);
     PALETTEENTRY palette[iPALETTE_COLORS];
 
     if (GetSystemPaletteEntries(hdc,
@@ -771,7 +771,7 @@ HRESULT VirtualCameraSourceStream::mediaType(int iPosition, CMediaType *pmt) con
             pvi->TrueColorInfo.bmiColors[i].rgbReserved = 0;
         }
 
-    ReleaseDC(NULL, hdc);
+    ReleaseDC(nullptr, hdc);
 
     pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     pvi->bmiHeader.biWidth = FrameResolution::resolutions()[resolution].width;
@@ -808,12 +808,12 @@ HRESULT VirtualCameraSourceStream::isSupported(const CMediaType *pCurMediaType,
 
     VIDEOINFO *pvi = reinterpret_cast<VIDEOINFO *>(pMediaType->Format());
 
-    if (pvi == NULL)
+    if (pvi == nullptr)
         return E_INVALIDARG;
 
     const GUID *SubType = pMediaType->Subtype();
 
-    if (SubType == NULL)
+    if (SubType == nullptr)
         return E_INVALIDARG;
 
     if (!VideoFormat::byGuid(*SubType))
@@ -843,40 +843,40 @@ Gdiplus::Bitmap *VirtualCameraSourceStream::loadBitmapRC(LPCTSTR lpName)
                                         RT_RCDATA);
 
     if (!bitmapResource)
-        return NULL;
+        return nullptr;
 
     // Read the size of the embedded file.
     DWORD bitmapSize = SizeofResource(g_hInst, bitmapResource);
 
     if (!bitmapSize)
-        return NULL;
+        return nullptr;
 
     // Load file resource.
     HGLOBAL resource = LoadResource(g_hInst, bitmapResource);
 
     if (!resource)
-        return NULL;
+        return nullptr;
 
     // Lock resource for reading.
     LPVOID bitmapData = LockResource(resource);
 
     if (!bitmapData)
-        return NULL;
+        return nullptr;
 
     // Get a handler to the resource data.
     HANDLE bitmapBuffer = GlobalAlloc(GMEM_MOVEABLE, bitmapSize);
 
     if (!bitmapBuffer)
-        return NULL;
+        return nullptr;
 
     // Get a buffer for reading the raw resource data.
-    Gdiplus::Bitmap *bitmap = NULL;
+    Gdiplus::Bitmap *bitmap = nullptr;
     LPVOID buffer = GlobalLock(bitmapBuffer);
 
     if (buffer) {
         // Copy the resource data to the buffer.
         CopyMemory(buffer, bitmapData, bitmapSize);
-        IStream *stream = NULL;
+        IStream *stream = nullptr;
 
         // Create a stream for reading the bitmap from the buffer.
         if (CreateStreamOnHGlobal(bitmapBuffer, FALSE, &stream) == S_OK) {
@@ -890,7 +890,7 @@ Gdiplus::Bitmap *VirtualCameraSourceStream::loadBitmapRC(LPCTSTR lpName)
     GlobalFree(bitmapBuffer);
 
     if (!bitmap)
-        return NULL;
+        return nullptr;
 
     return bitmap;
 }
@@ -900,16 +900,16 @@ Gdiplus::Bitmap *VirtualCameraSourceStream::loadBitmapIPC(LPCTSTR lpName)
     IpcBridge ipcBridge;
 
     if (!ipcBridge.open(lpName))
-        return NULL;
+        return nullptr;
 
     GUID format;
     DWORD width;
     DWORD height;
-    BYTE *buffer = NULL;
+    BYTE *buffer = nullptr;
     size_t frameSize = ipcBridge.read(&format, &width, &height, &buffer);
 
     if (!buffer || frameSize < 1)
-        return NULL;
+        return nullptr;
 
     Gdiplus::Bitmap *bitmap = new Gdiplus::Bitmap(INT(width),
                                                   INT(height),

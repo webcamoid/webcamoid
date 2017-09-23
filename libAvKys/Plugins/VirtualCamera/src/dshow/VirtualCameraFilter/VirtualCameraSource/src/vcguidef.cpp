@@ -62,12 +62,12 @@ STDAPI RegisterFilters(BOOL bRegister)
         hr = RegisterAllServers(achFileName, TRUE);
 
     if (SUCCEEDED(hr)) {
-        hr = CoInitialize(LPVOID(NULL));
+        hr = CoInitialize(LPVOID(nullptr));
         ASSERT(SUCCEEDED(hr));
 
-        IFilterMapper2 *filterMapper = NULL;
+        IFilterMapper2 *filterMapper = nullptr;
         hr = CoCreateInstance(CLSID_FilterMapper2,
-                              NULL,
+                              nullptr,
                               CLSCTX_INPROC_SERVER,
                               IID_IFilterMapper2,
                               reinterpret_cast<void **>(&filterMapper));
@@ -76,13 +76,13 @@ STDAPI RegisterFilters(BOOL bRegister)
             for (int i = 0; i < g_cTemplates; i++) {
                 const CFactoryTemplate *templ = &g_Templates[i];
 
-                if (templ->m_pAMovieSetup_Filter != NULL) {
+                if (templ->m_pAMovieSetup_Filter != nullptr) {
                     hr = filterMapper->UnregisterFilter(&CLSID_VideoInputDeviceCategory,
-                                                        NULL,
+                                                        nullptr,
                                                         *templ->m_pAMovieSetup_Filter->clsID);
 
                     if (bRegister) {
-                        IMoniker *pMoniker = NULL;
+                        IMoniker *pMoniker = nullptr;
                         REGFILTER2 rf2;
                         rf2.dwVersion = 1;
                         rf2.dwMerit = templ->m_pAMovieSetup_Filter->dwMerit;
@@ -93,7 +93,7 @@ STDAPI RegisterFilters(BOOL bRegister)
                                                           templ->m_pAMovieSetup_Filter->strName,
                                                           &pMoniker,
                                                           &CLSID_VideoInputDeviceCategory,
-                                                          NULL,
+                                                          nullptr,
                                                           &rf2);
                     }
 
@@ -124,14 +124,14 @@ std::string wstrToString(LPWSTR wstr)
     int strLen = WideCharToMultiByte(codepage, 0, wstr, -1, 0, 0, 0, 0) - 1;
 
     std::string str(size_t(strLen), '\0');
-    WideCharToMultiByte(codepage, 0, wstr, -1, &str[0], strLen, NULL, FALSE);
+    WideCharToMultiByte(codepage, 0, wstr, -1, &str[0], strLen, nullptr, FALSE);
 
     return str;
 }
 
 std::string iidToString(const IID &iid)
 {
-    LPWSTR strIID = NULL;
+    LPWSTR strIID = nullptr;
     StringFromIID(iid, &strIID);
     std::string str = wstrToString(strIID);
     CoTaskMemFree(strIID);
@@ -179,9 +179,9 @@ std::string createHID()
 std::vector<int> enumerateCurrentIds()
 {
     // Create the System Device Enumerator.
-    ICreateDevEnum *pDevEnum = NULL;
+    ICreateDevEnum *pDevEnum = nullptr;
     HRESULT hr = CoCreateInstance(CLSID_SystemDeviceEnum,
-                                  NULL,
+                                  nullptr,
                                   CLSCTX_INPROC_SERVER,
                                   IID_ICreateDevEnum,
                                   reinterpret_cast<void **>(&pDevEnum));
@@ -189,14 +189,14 @@ std::vector<int> enumerateCurrentIds()
     std::list<int> ids;
 
     if (SUCCEEDED(hr)) {
-        IEnumMoniker *pEnum = NULL;
+        IEnumMoniker *pEnum = nullptr;
         // Create an enumerator for the category.
         hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &pEnum, 0);
 
         if (SUCCEEDED(hr)) {
-            IMoniker *pMoniker = NULL;
+            IMoniker *pMoniker = nullptr;
 
-            while (pEnum->Next(1, &pMoniker, NULL) == S_OK) {
+            while (pEnum->Next(1, &pMoniker, nullptr) == S_OK) {
                 IPropertyBag *pPropBag;
                 hr = pMoniker->BindToStorage(0,
                                              0,

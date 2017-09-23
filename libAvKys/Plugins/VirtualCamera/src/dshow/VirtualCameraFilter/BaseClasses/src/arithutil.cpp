@@ -31,7 +31,7 @@ EnlargedUnsignedDivide (
     )
 {
         // return remainder if necessary
-        if (Remainder != NULL)
+        if (Remainder != nullptr)
                 *Remainder = (ULONG)(LLtoU64(Dividend) % Divisor);
         return (ULONG)(LLtoU64(Dividend) / Divisor);
 }
@@ -354,7 +354,7 @@ LONGLONG WINAPI Int64x32Div32(LONGLONG a, LONG b, LONG c, LONG d)
     uliResult.LowPart = EnlargedUnsignedDivide(
                              p0,
                              dwDivisor,
-                             NULL);
+                             nullptr);
     return bSign ? -(LONGLONG)uliResult.QuadPart :
                     (LONGLONG)uliResult.QuadPart;
 }

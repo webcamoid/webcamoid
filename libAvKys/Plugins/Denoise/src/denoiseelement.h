@@ -21,8 +21,6 @@
 #define DENOISEELEMENT_H
 
 #include <QtMath>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -55,9 +53,6 @@ class DenoiseElement: public AkElement
     public:
         explicit DenoiseElement();
         ~DenoiseElement();
-
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
 
         Q_INVOKABLE int radius() const;
         Q_INVOKABLE int factor() const;
@@ -99,6 +94,11 @@ class DenoiseElement: public AkElement
                            PixelU64 *integral2);
         static void denoise(const DenoiseStaticParams &staticParams,
                             const DenoiseParams *params);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void radiusChanged(int radius);

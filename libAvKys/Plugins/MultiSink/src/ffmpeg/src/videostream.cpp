@@ -52,8 +52,8 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
                    mediaWriter,
                    parent)
 {
-    this->m_frame = NULL;
-    this->m_scaleContext = NULL;
+    this->m_frame = nullptr;
+    this->m_scaleContext = nullptr;
     this->m_lastPts = AV_NOPTS_VALUE;
     this->m_refPts = AV_NOPTS_VALUE;
     auto codecContext = this->codecContext();
@@ -217,9 +217,9 @@ void VideoStream::convertPacket(const AkPacket &packet)
                                  oFrame->height,
                                  AVPixelFormat(oFrame->format),
                                  SWS_FAST_BILINEAR,
-                                 NULL,
-                                 NULL,
-                                 NULL);
+                                 nullptr,
+                                 nullptr,
+                                 nullptr);
 
     if (!this->m_scaleContext)
         return;
@@ -230,7 +230,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
     if (av_image_check_size(uint(iWidth),
                             uint(iHeight),
                             0,
-                            NULL) < 0)
+                            nullptr) < 0)
         return;
 
     if (av_image_fill_linesizes(iFrame.linesize,
@@ -305,7 +305,7 @@ int VideoStream::encodeData(AVFrame *frame)
         AVPacket pkt;
         av_init_packet(&pkt);
         pkt.flags |= AV_PKT_FLAG_KEY;
-        pkt.data = frame? frame->data[0]: NULL;
+        pkt.data = frame? frame->data[0]: nullptr;
         pkt.size = sizeof(AVPicture);
         pkt.pts = frame? frame->pts: this->m_lastPts;
         pkt.stream_index = this->streamIndex();
@@ -333,7 +333,7 @@ int VideoStream::encodeData(AVFrame *frame)
     forever {
         AVPacket pkt;
         av_init_packet(&pkt);
-        pkt.data = NULL; // packet data will be allocated by the encoder
+        pkt.data = nullptr; // packet data will be allocated by the encoder
         pkt.size = 0;
         result = avcodec_receive_packet(codecContext, &pkt);
 
@@ -353,7 +353,7 @@ int VideoStream::encodeData(AVFrame *frame)
 #else
     AVPacket pkt;
     av_init_packet(&pkt);
-    pkt.data = NULL; // packet data will be allocated by the encoder
+    pkt.data = nullptr; // packet data will be allocated by the encoder
     pkt.size = 0;
 
     int gotPacket;
@@ -388,11 +388,11 @@ AVFrame *VideoStream::dequeueFrame()
         if (!this->m_frameReady.wait(&this->m_frameMutex, THREAD_WAIT_LIMIT)) {
             this->m_frameMutex.unlock();
 
-            return NULL;
+            return nullptr;
         }
 
     auto frame = this->m_frame;
-    this->m_frame = NULL;
+    this->m_frame = nullptr;
     this->m_frameMutex.unlock();
 
     return frame;

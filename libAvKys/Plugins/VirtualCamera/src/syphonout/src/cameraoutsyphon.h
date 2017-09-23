@@ -29,7 +29,7 @@ class CameraOutSyphon: public CameraOut
     Q_OBJECT
 
     public:
-        explicit CameraOutSyphon(QObject *parent=NULL);
+        explicit CameraOutSyphon(QObject *parent=nullptr);
         ~CameraOutSyphon();
 
         Q_INVOKABLE QString driverPath() const;

@@ -20,8 +20,6 @@
 #ifndef COLORREPLACEELEMENT_H
 #define COLORREPLACEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -52,9 +50,6 @@ class ColorReplaceElement: public AkElement
     public:
         explicit ColorReplaceElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QRgb from() const;
         Q_INVOKABLE QRgb to() const;
         Q_INVOKABLE qreal radius() const;
@@ -65,6 +60,11 @@ class ColorReplaceElement: public AkElement
         QRgb m_to;
         qreal m_radius;
         bool m_disable;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void fromChanged(QRgb from);

@@ -32,7 +32,7 @@ class ACapsConvertGlobals: public QObject
                NOTIFY convertLibChanged)
 
     public:
-        explicit ACapsConvertGlobals(QObject *parent=NULL);
+        explicit ACapsConvertGlobals(QObject *parent=nullptr);
 
         Q_INVOKABLE QString convertLib() const;
 

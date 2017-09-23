@@ -118,7 +118,7 @@ HRESULT CVideoTransformFilter::Receive(IMediaSample *pSample)
     IMediaSample * pOutSample;
 
     // If no output pin to deliver to then no point sending us data
-    ASSERT (m_pOutput != NULL) ;
+    ASSERT (m_pOutput != nullptr) ;
 
     // The source filter may dynamically ask us to start transforming from a
     // different media type than the one we're using now.  If we don't, we'll
@@ -130,7 +130,7 @@ HRESULT CVideoTransformFilter::Receive(IMediaSample *pSample)
 #define rcT1 ((VIDEOINFOHEADER *)(pmt->pbFormat))->rcTarget
 
     pSample->GetMediaType(&pmt);
-    if (pmt != NULL && pmt->pbFormat != NULL) {
+    if (pmt != nullptr && pmt->pbFormat != nullptr) {
 
     // spew some debug output
     ASSERT(!IsEqualGUID(pmt->majortype, GUID_NULL));
@@ -190,7 +190,7 @@ HRESULT CVideoTransformFilter::Receive(IMediaSample *pSample)
 #define rcT ((VIDEOINFOHEADER *)(pmtOut->pbFormat))->rcTarget
 
     pOutSample->GetMediaType(&pmtOut);
-    if (pmtOut != NULL && pmtOut->pbFormat != NULL) {
+    if (pmtOut != nullptr && pmtOut->pbFormat != nullptr) {
 
     // spew some debug output
     ASSERT(!IsEqualGUID(pmtOut->majortype, GUID_NULL));

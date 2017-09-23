@@ -54,46 +54,6 @@ MultiSinkElement::~MultiSinkElement()
     this->setState(AkElement::ElementStateNull);
 }
 
-QObject *MultiSinkElement::controlInterface(QQmlEngine *engine,
-                                            const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/MultiSink/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("MultiSink", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("MultiSinkUtils", const_cast<QObject *>(qobject_cast<const QObject *>(&this->m_utils)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 QString MultiSinkElement::location() const
 {
     return this->m_location;
@@ -210,6 +170,23 @@ QVariantMap MultiSinkElement::updateStream(int index,
 QVariantList MultiSinkElement::codecOptions(int index)
 {
     return this->m_mediaWriter->codecOptions(index);
+}
+
+QString MultiSinkElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/MultiSink/share/qml/main.qml");
+}
+
+void MultiSinkElement::controlInterfaceConfigure(QQmlContext *context,
+                                                 const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("MultiSink", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("MultiSinkUtils", const_cast<QObject *>(qobject_cast<const QObject *>(&this->m_utils)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void MultiSinkElement::setLocation(const QString &location)

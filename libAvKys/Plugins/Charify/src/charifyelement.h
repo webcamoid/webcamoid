@@ -22,8 +22,6 @@
 
 #include <QPainter>
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -83,9 +81,6 @@ class CharifyElement: public AkElement
 
         explicit CharifyElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE QString charTable() const;
         Q_INVOKABLE QFont font() const;
@@ -113,6 +108,11 @@ class CharifyElement: public AkElement
                         QRgb foreground, QRgb background) const;
         int imageWeight(const QImage &image, bool reversed) const;
         static bool chrLessThan(const Character &chr1, const Character &chr2);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void modeChanged(const QString &mode);

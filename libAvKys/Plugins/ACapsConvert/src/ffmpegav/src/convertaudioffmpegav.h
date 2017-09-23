@@ -38,7 +38,7 @@ class ConvertAudioFFmpegAV: public ConvertAudio
     Q_OBJECT
 
     public:
-        explicit ConvertAudioFFmpegAV(QObject *parent=NULL);
+        explicit ConvertAudioFFmpegAV(QObject *parent=nullptr);
         ~ConvertAudioFFmpegAV();
 
         Q_INVOKABLE bool init(const AkAudioCaps &caps);

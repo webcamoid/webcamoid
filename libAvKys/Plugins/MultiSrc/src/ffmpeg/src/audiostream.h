@@ -33,11 +33,11 @@ class AudioStream: public AbstractStream
     Q_OBJECT
 
     public:
-        explicit AudioStream(const AVFormatContext *formatContext=NULL,
+        explicit AudioStream(const AVFormatContext *formatContext=nullptr,
                              uint index=0, qint64 id=-1,
-                             Clock *globalClock=NULL,
+                             Clock *globalClock=nullptr,
                              bool noModify=false,
-                             QObject *parent=NULL);
+                             QObject *parent=nullptr);
         ~AudioStream();
 
         Q_INVOKABLE AkCaps caps() const;

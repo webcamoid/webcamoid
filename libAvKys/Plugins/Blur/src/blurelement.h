@@ -20,8 +20,6 @@
 #ifndef BLURELEMENT_H
 #define BLURELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -39,9 +37,6 @@ class BlurElement: public AkElement
     public:
         explicit BlurElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int radius() const;
 
     private:
@@ -50,6 +45,11 @@ class BlurElement: public AkElement
         void integralImage(const QImage &image,
                            int oWidth, int oHeight,
                            PixelU32 *integral);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void radiusChanged(int radius);

@@ -65,19 +65,19 @@ CBaseDispatch::GetTypeInfo(
     ValidateReadWritePtr(pptinfo,sizeof(ITypeInfo *));
     HRESULT hr;
 
-    *pptinfo = NULL;
+    *pptinfo = nullptr;
 
     // we only support one type element
     if (0 != itinfo) {
     return TYPE_E_ELEMENTNOTFOUND;
     }
 
-    if (NULL == pptinfo) {
+    if (nullptr == pptinfo) {
     return E_POINTER;
     }
 
     // always look for neutral
-    if (NULL == m_pti) {
+    if (nullptr == m_pti) {
 
     LPLOADTYPELIB	    lpfnLoadTypeLib;
     LPLOADREGTYPELIB    lpfnLoadRegTypeLib;
@@ -93,13 +93,13 @@ CBaseDispatch::GetTypeInfo(
     //
 
     hInst = LoadOLEAut32();
-    if (hInst == NULL) {
+    if (hInst == nullptr) {
         DWORD dwError = GetLastError();
         return AmHresultFromWin32(dwError);
     }
     lpfnLoadRegTypeLib = (LPLOADREGTYPELIB)GetProcAddress(hInst,
                                   szRegTypeLib);
-    if (lpfnLoadRegTypeLib == NULL) {
+    if (lpfnLoadRegTypeLib == nullptr) {
         DWORD dwError = GetLastError();
         return AmHresultFromWin32(dwError);
     }
@@ -113,7 +113,7 @@ CBaseDispatch::GetTypeInfo(
         // registry in if it finds it
 
         lpfnLoadTypeLib = (LPLOADTYPELIB)GetProcAddress(hInst, szTypeLib);
-        if (lpfnLoadTypeLib == NULL) {
+        if (lpfnLoadTypeLib == nullptr) {
         DWORD dwError = GetLastError();
         return AmHresultFromWin32(dwError);
         }
@@ -489,7 +489,7 @@ CPosPassThru::CPosPassThru(__in_opt LPCTSTR pName,
     CMediaPosition(pName,pUnk),
     m_pPin(pPin)
 {
-    if (pPin == NULL) {
+    if (pPin == nullptr) {
     *phr = E_POINTER;
     return;
     }
@@ -502,7 +502,7 @@ STDMETHODIMP
 CPosPassThru::NonDelegatingQueryInterface(REFIID riid,__deref_out void **ppv)
 {
     CheckPointer(ppv,E_POINTER);
-    *ppv = NULL;
+    *ppv = nullptr;
 
     if (riid == IID_IMediaSeeking) {
     return GetInterface( static_cast<IMediaSeeking *>(this), ppv);
@@ -516,7 +516,7 @@ CPosPassThru::NonDelegatingQueryInterface(REFIID riid,__deref_out void **ppv)
 HRESULT
 CPosPassThru::GetPeer(IMediaPosition ** ppMP)
 {
-    *ppMP = NULL;
+    *ppMP = nullptr;
 
     IPin *pConnected;
     HRESULT hr = m_pPin->ConnectedTo(&pConnected);
@@ -540,7 +540,7 @@ CPosPassThru::GetPeer(IMediaPosition ** ppMP)
 HRESULT
 CPosPassThru::GetPeerSeeking(__deref_out IMediaSeeking ** ppMS)
 {
-    *ppMS = NULL;
+    *ppMS = nullptr;
 
     IPin *pConnected;
     HRESULT hr = m_pPin->ConnectedTo(&pConnected);
@@ -736,7 +736,7 @@ STDMETHODIMP
 CPosPassThru::GetCurrentPosition(__out LONGLONG *pCurrent)
 {
     // Can we report the current position
-    HRESULT hr = GetMediaTime(pCurrent,NULL);
+    HRESULT hr = GetMediaTime(pCurrent,nullptr);
     if (SUCCEEDED(hr)) hr = NOERROR;
     else hr = GetSeekingLongLong( &IMediaSeeking::GetCurrentPosition, pCurrent );
     return hr;
@@ -1770,12 +1770,12 @@ CBaseBasicVideo::Invoke(
 CDispParams::CDispParams(UINT nArgs, __in_ecount(nArgs) VARIANT* pArgs, __inout_opt HRESULT *phr)
 {
    cNamedArgs = 0;
-   rgdispidNamedArgs = NULL;
+   rgdispidNamedArgs = nullptr;
    cArgs = nArgs;
 
     if (cArgs) {
     rgvarg = new VARIANT[cArgs];
-        if (NULL == rgvarg) {
+        if (nullptr == rgvarg) {
             cArgs = 0;
             if (phr) {
                 *phr = E_OUTOFMEMORY;
@@ -1830,8 +1830,8 @@ CDispParams::CDispParams(UINT nArgs, __in_ecount(nArgs) VARIANT* pArgs, __inout_
         break;
 
         case VT_BSTR:
-        if ((PVOID)pSrc->bstrVal == NULL) {
-            pDest->bstrVal = NULL;
+        if ((PVOID)pSrc->bstrVal == nullptr) {
+            pDest->bstrVal = nullptr;
         } else {
 
             // a BSTR is a WORD followed by a UNICODE string.
@@ -1871,7 +1871,7 @@ CDispParams::CDispParams(UINT nArgs, __in_ecount(nArgs) VARIANT* pArgs, __inout_
     }
 
     } else {
-    rgvarg = NULL;
+    rgvarg = nullptr;
     }
 
 }
@@ -1883,7 +1883,7 @@ CDispParams::~CDispParams()
     switch(rgvarg[i].vt) {
         case VT_BSTR:
             //  Explicitly cast BSTR to PVOID to tell code scanning tools we really mean to test the pointer
-        if ((PVOID)rgvarg[i].bstrVal != NULL) {
+        if ((PVOID)rgvarg[i].bstrVal != nullptr) {
         OLECHAR * pch = rgvarg[i].bstrVal - (sizeof(WORD)/sizeof(OLECHAR));
         delete pch;
         }
@@ -2020,7 +2020,7 @@ CDeferredCommand::NonDelegatingQueryInterface(REFIID riid, __out void **ppv)
 STDMETHODIMP
 CDeferredCommand::Cancel()
 {
-    if (m_pQueue == NULL) {
+    if (m_pQueue == nullptr) {
     return VFW_E_ALREADY_CANCELLED;
     }
 
@@ -2029,7 +2029,7 @@ CDeferredCommand::Cancel()
     return hr;
     }
 
-    m_pQueue = NULL;
+    m_pQueue = nullptr;
     return S_OK;
 }
 
@@ -2048,7 +2048,7 @@ CDeferredCommand::GetHResult(__out HRESULT * phrResult)
     CheckPointer(phrResult,E_POINTER);
     ValidateReadWritePtr(phrResult,sizeof(HRESULT));
 
-    if (m_pQueue != NULL) {
+    if (m_pQueue != nullptr) {
     return E_ABORT;
     }
     *phrResult = m_hrResult;
@@ -2092,7 +2092,7 @@ HRESULT
 CDeferredCommand::Invoke()
 {
     // check that we are still outstanding
-    if (m_pQueue == NULL) {
+    if (m_pQueue == nullptr) {
     return VFW_E_ALREADY_CANCELLED;
     }
 
@@ -2132,7 +2132,7 @@ CDeferredCommand::Invoke()
     // remove from list whether or not successful
     // or we loop indefinitely
     hr = m_pQueue->Remove(this);
-    m_pQueue = NULL;
+    m_pQueue = nullptr;
     return hr;
 }
 
@@ -2146,7 +2146,7 @@ CCmdQueue::CCmdQueue(__inout_opt HRESULT *phr) :
     m_listStream(NAME("Stream time command list")),
     m_evDue(TRUE, phr),    // manual reset
     m_dwAdvise(0),
-    m_pClock(NULL),
+    m_pClock(nullptr),
     m_bRunning(FALSE)
 {
 }
@@ -2207,12 +2207,12 @@ CCmdQueue::New(
     CAutoLock lock(&m_Lock);
 
     HRESULT hr = S_OK;
-    *ppCmd = NULL;
+    *ppCmd = nullptr;
 
     CDeferredCommand* pCmd;
     pCmd = new CDeferredCommand(
             this,
-            NULL,	    // not aggregated
+            nullptr,	    // not aggregated
             &hr,
             pUnk,	    // this guy will execute
             time,
@@ -2225,7 +2225,7 @@ CCmdQueue::New(
             puArgErr,
             bStream);
 
-    if (pCmd == NULL) {
+    if (pCmd == nullptr) {
     hr = E_OUTOFMEMORY;
     } else {
     *ppCmd = pCmd;
@@ -2352,7 +2352,7 @@ CCmdQueue::SetTimeAdvise(void)
 
     // find the earliest presentation time
     POSITION pos = m_listPresentation.GetHeadPosition();
-    if (pos != NULL) {
+    if (pos != nullptr) {
     current = m_listPresentation.GetValid(pos)->GetTime();
     }
 
@@ -2361,7 +2361,7 @@ CCmdQueue::SetTimeAdvise(void)
 
     CRefTime t;
         pos = m_listStream.GetHeadPosition();
-    if (NULL != pos) {
+    if (nullptr != pos) {
         t = m_listStream.GetValid(pos)->GetTime();
 
         // add on stream time offset to get presentation time
@@ -2448,20 +2448,20 @@ CCmdQueue::GetDueCommand(__out CDeferredCommand ** ppCmd, long msTimeout)
 
 
         // find the earliest command
-        CDeferredCommand * pCmd = NULL;
+        CDeferredCommand * pCmd = nullptr;
 
         // check the presentation time and the
         // stream time list to find the earliest
 
             POSITION pos = m_listPresentation.GetHeadPosition();
 
-        if (NULL != pos) {
+        if (nullptr != pos) {
         pCmd = m_listPresentation.GetValid(pos);
         }
 
         if (m_bRunning) {
         pos = m_listStream.GetHeadPosition();
-                if (NULL != pos) {
+                if (nullptr != pos) {
                     CDeferredCommand* pStrm = m_listStream.GetValid(pos);
 
                     CRefTime t = pStrm->GetTime() + m_StreamTimeOffset;
@@ -2508,14 +2508,14 @@ CCmdQueue::GetCommandDueFor(REFERENCE_TIME rtStream, __out CDeferredCommand**ppC
     CRefTime tStream(rtStream);
 
     // find the earliest stream and presentation time commands
-    CDeferredCommand* pStream = NULL;
+    CDeferredCommand* pStream = nullptr;
     POSITION pos = m_listStream.GetHeadPosition();
-    if (NULL != pos) {
+    if (nullptr != pos) {
     pStream = m_listStream.GetValid(pos);
     }
-    CDeferredCommand* pPresent = NULL;
+    CDeferredCommand* pPresent = nullptr;
     pos = m_listPresentation.GetHeadPosition();
-    if (NULL != pos) {
+    if (nullptr != pos) {
     pPresent = m_listPresentation.GetValid(pos);
     }
 

@@ -20,8 +20,6 @@
 #ifndef PIXELATEELEMENT_H
 #define PIXELATEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,13 +35,15 @@ class PixelateElement: public AkElement
     public:
         explicit PixelateElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QSize blockSize() const;
 
     private:
         QSize m_blockSize;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void blockSizeChanged(const QSize &blockSize);

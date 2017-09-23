@@ -64,7 +64,7 @@ class CaptureV4L2: public Capture
             IoMethodUserPointer
         };
 
-        explicit CaptureV4L2(QObject *parent=NULL);
+        explicit CaptureV4L2(QObject *parent=nullptr);
         ~CaptureV4L2();
 
         Q_INVOKABLE QStringList webcams() const;

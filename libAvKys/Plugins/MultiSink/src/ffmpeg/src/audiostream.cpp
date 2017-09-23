@@ -76,7 +76,7 @@ AudioStream::AudioStream(const AVFormatContext *formatContext,
                    mediaWriter,
                    parent)
 {
-    this->m_frame = NULL;
+    this->m_frame = nullptr;
     this->m_pts = 0;
     auto codecContext = this->codecContext();
     auto codec = codecContext->codec;
@@ -371,16 +371,16 @@ AVFrame *AudioStream::dequeueFrame()
         if (!this->m_frameReady.wait(&this->m_frameMutex, THREAD_WAIT_LIMIT)) {
             this->m_frameMutex.unlock();
 
-            return NULL;
+            return nullptr;
         }
     }
 
-    AVFrame *oFrame = NULL;
+    AVFrame *oFrame = nullptr;
 
     if (codecContext->codec->capabilities & CODEC_CAP_VARIABLE_FRAME_SIZE
         || this->m_frame->nb_samples == codecContext->frame_size) {
         oFrame = this->m_frame;
-        this->m_frame = NULL;
+        this->m_frame = nullptr;
     } else {
         // Create output buffer.
 #ifdef HAVE_FRAMEALLOC
@@ -405,7 +405,7 @@ AVFrame *AudioStream::dequeueFrame()
             this->deleteFrame(&oFrame);
             this->m_frameMutex.unlock();
 
-            return NULL;
+            return nullptr;
         }
 
         // Copy samples to the output buffer.
@@ -419,7 +419,7 @@ AVFrame *AudioStream::dequeueFrame()
             this->deleteFrame(&oFrame);
             this->m_frameMutex.unlock();
 
-            return NULL;
+            return nullptr;
         }
 
         // Create new buffer.
@@ -445,7 +445,7 @@ AVFrame *AudioStream::dequeueFrame()
             this->deleteFrame(&frame);
             this->m_frameMutex.unlock();
 
-            return NULL;
+            return nullptr;
         }
 
         // Copy samples to the output buffer.
@@ -460,7 +460,7 @@ AVFrame *AudioStream::dequeueFrame()
             this->deleteFrame(&frame);
             this->m_frameMutex.unlock();
 
-            return NULL;
+            return nullptr;
         }
 
         this->deleteFrame(&this->m_frame);

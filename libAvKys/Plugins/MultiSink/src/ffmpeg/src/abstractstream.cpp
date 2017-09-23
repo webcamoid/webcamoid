@@ -50,11 +50,11 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     this->m_index = index;
     this->m_streamIndex = streamIndex;
     this->m_mediaType = AVMEDIA_TYPE_UNKNOWN;
-    this->m_codecOptions = NULL;
+    this->m_codecOptions = nullptr;
     this->m_formatContext = const_cast<AVFormatContext *>(formatContext);
 
     this->m_stream = (formatContext && index < formatContext->nb_streams)?
-                         formatContext->streams[index]: NULL;
+                         formatContext->streams[index]: nullptr;
 
     QString codecName = configs["codec"].toString();
     AVCodec *codec = avcodec_find_encoder_by_name(codecName.toStdString().c_str());
@@ -171,7 +171,7 @@ int AbstractStream::encodeData(AVFrame *frame)
 
 AVFrame *AbstractStream::dequeueFrame()
 {
-    return NULL;
+    return nullptr;
 }
 
 void AbstractStream::rescaleTS(AVPacket *pkt, AVRational src, AVRational dst)
@@ -194,7 +194,7 @@ void AbstractStream::deleteFrame(AVFrame **frame)
 {
     if (frame && *frame) {
         av_freep(&((*frame)->data[0]));
-        (*frame)->data[0] = NULL;
+        (*frame)->data[0] = nullptr;
     }
 
 #ifdef HAVE_FRAMEALLOC
@@ -239,7 +239,7 @@ void AbstractStream::encodeLoop()
     }
 
     // Flush encoders
-    while (this->encodeData(NULL) == AVERROR(EAGAIN)) {
+    while (this->encodeData(nullptr) == AVERROR(EAGAIN)) {
     }
 }
 

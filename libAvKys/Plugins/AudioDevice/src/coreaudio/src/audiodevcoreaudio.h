@@ -33,7 +33,7 @@ class AudioDevCoreAudio: public AudioDev
     Q_OBJECT
 
     public:
-        explicit AudioDevCoreAudio(QObject *parent=NULL);
+        explicit AudioDevCoreAudio(QObject *parent=nullptr);
         ~AudioDevCoreAudio();
 
         Q_INVOKABLE QString error() const;
@@ -75,7 +75,7 @@ class AudioDevCoreAudio: public AudioDev
 
         static QString statusToStr(OSStatus status);
         static QString CFStringToString(const CFStringRef &cfstr);
-        static QString defaultDevice(bool input, bool *ok=NULL);
+        static QString defaultDevice(bool input, bool *ok=nullptr);
         void clearBuffer();
         QList<AkAudioCaps::SampleFormat> supportedCAFormats(AudioDeviceID deviceId,
                                                             AudioObjectPropertyScope scope);

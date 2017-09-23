@@ -20,8 +20,6 @@
 #ifndef SCANLINESELEMENT_H
 #define SCANLINESELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -47,9 +45,6 @@ class ScanLinesElement: public AkElement
     public:
         explicit ScanLinesElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int showSize() const;
         Q_INVOKABLE int hideSize() const;
         Q_INVOKABLE QRgb hideColor() const;
@@ -58,6 +53,11 @@ class ScanLinesElement: public AkElement
         int m_showSize;
         int m_hideSize;
         QRgb m_hideColor;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void showSizeChanged(int showSize);

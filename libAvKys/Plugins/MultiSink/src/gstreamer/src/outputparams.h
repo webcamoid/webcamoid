@@ -40,7 +40,7 @@ class OutputParams: public QObject
                NOTIFY nFrameChanged)
 
     public:
-        explicit OutputParams(int inputIndex=0, QObject *parent=NULL);
+        explicit OutputParams(int inputIndex=0, QObject *parent=nullptr);
         OutputParams(const OutputParams &other);
         ~OutputParams();
 

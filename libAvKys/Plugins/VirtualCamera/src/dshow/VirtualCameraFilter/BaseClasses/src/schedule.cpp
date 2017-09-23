@@ -164,7 +164,7 @@ REFERENCE_TIME CAMSchedule::Advise( const REFERENCE_TIME & rtTime )
 
         if (pAdvise->m_bPeriodic == TRUE)
         {
-            ReleaseSemaphore(pAdvise->m_hNotify,1,NULL);
+            ReleaseSemaphore(pAdvise->m_hNotify,1,nullptr);
             pAdvise->m_rtEventTime += pAdvise->m_rtPeriod;
             ShuntHead();
         }

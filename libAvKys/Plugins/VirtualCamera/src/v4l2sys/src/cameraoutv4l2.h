@@ -51,7 +51,7 @@ class CameraOutV4L2: public CameraOut
     Q_OBJECT
 
     public:
-        explicit CameraOutV4L2(QObject *parent=NULL);
+        explicit CameraOutV4L2(QObject *parent=nullptr);
         ~CameraOutV4L2();
 
         Q_INVOKABLE QString driverPath() const;

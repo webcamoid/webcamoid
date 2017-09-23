@@ -130,7 +130,7 @@ QString MediaSourceFFmpeg::streamLanguage(int stream)
     }
 
     AVDictionary *metadata = this->m_inputContext->streams[stream]->metadata;
-    AVDictionaryEntry *dicEntry = NULL;
+    AVDictionaryEntry *dicEntry = nullptr;
     QString language;
 
     while ((dicEntry = av_dict_get(metadata, "", dicEntry, AV_DICT_IGNORE_SUFFIX))) {
@@ -203,7 +203,7 @@ AkCaps MediaSourceFFmpeg::caps(int stream)
         if (!this->initContext())
             return AkCaps();
 
-        if (avformat_find_stream_info(this->m_inputContext.data(), NULL) < 0) {
+        if (avformat_find_stream_info(this->m_inputContext.data(), nullptr) < 0) {
             this->m_inputContext.clear();
 
             return AkCaps();
@@ -319,7 +319,7 @@ void MediaSourceFFmpeg::readPackets(MediaSourceFFmpeg *element)
         if (r < 0) {
             if (element->loop()) {
                 for (const AbstractStreamPtr &stream: element->m_streamsMap.values())
-                    stream->packetEnqueue(NULL);
+                    stream->packetEnqueue(nullptr);
             }
 
             element->m_run = false;
@@ -433,7 +433,7 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
                 return false;
 
             if (avformat_find_stream_info(this->m_inputContext.data(),
-                                          NULL) < 0) {
+                                          nullptr) < 0) {
                 this->m_inputContext.clear();
 
                 return false;
@@ -603,8 +603,8 @@ bool MediaSourceFFmpeg::initContext()
     if (uri.isEmpty())
         return false;
 
-    AVInputFormat *inputFormat = NULL;
-    AVDictionary *inputOptions = NULL;
+    AVInputFormat *inputFormat = nullptr;
+    AVDictionary *inputOptions = nullptr;
 
     if (QRegExp("/dev/video\\d*").exactMatch(uri))
         inputFormat = av_find_input_format("v4l2");
@@ -632,7 +632,7 @@ bool MediaSourceFFmpeg::initContext()
     QStringList mmsSchemes;
     mmsSchemes << "mms://" << "mmsh://" << "mmst://";
 
-    AVFormatContext *inputContext = NULL;
+    AVFormatContext *inputContext = nullptr;
 
     for (const QString &scheme: mmsSchemes) {
         QString uriCopy = uri;
@@ -641,7 +641,7 @@ bool MediaSourceFFmpeg::initContext()
             uriCopy.replace(QRegExp(QString("^%1").arg(schemer)),
                             scheme);
 
-        inputContext = NULL;
+        inputContext = nullptr;
 
         if (avformat_open_input(&inputContext,
                                 uriCopy.toStdString().c_str(),

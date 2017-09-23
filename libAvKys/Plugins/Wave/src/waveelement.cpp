@@ -50,44 +50,6 @@ WaveElement::WaveElement(): AkElement()
                      &WaveElement::updateSineMap);
 }
 
-QObject *WaveElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Wave/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Wave", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal WaveElement::amplitude() const
 {
     return this->m_amplitude;
@@ -106,6 +68,22 @@ qreal WaveElement::phase() const
 QRgb WaveElement::background() const
 {
     return this->m_background;
+}
+
+QString WaveElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Wave/share/qml/main.qml");
+}
+
+void WaveElement::controlInterfaceConfigure(QQmlContext *context,
+                                            const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Wave", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void WaveElement::setAmplitude(qreal amplitude)

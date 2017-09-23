@@ -1185,7 +1185,7 @@ CDisp::CDisp(IPin *pPin)
        QueryPinInfoReleaseFilter(pi);
       #ifndef UNICODE
        WideCharToMultiByte(GetACP(), 0, pi.achName, lstrlenW(pi.achName) + 1,
-                           str, MAX_PIN_NAME, NULL, NULL);
+                           str, MAX_PIN_NAME, nullptr, nullptr);
       #else
        (void)StringCchCopy(str, NUMELMS(str), pi.achName);
       #endif

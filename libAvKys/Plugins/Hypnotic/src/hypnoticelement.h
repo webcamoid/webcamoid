@@ -20,8 +20,6 @@
 #ifndef HYPNOTICELEMENT_H
 #define HYPNOTICELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -57,9 +55,6 @@ class HypnoticElement: public AkElement
 
         explicit HypnoticElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int speedInc() const;
         Q_INVOKABLE int threshold() const;
@@ -68,7 +63,6 @@ class HypnoticElement: public AkElement
         OpticMode m_mode;
         int m_speedInc;
         int m_threshold;
-
         QSize m_frameSize;
         QVector<QRgb> m_palette;
         OpticalMap m_opticalMap;
@@ -78,6 +72,11 @@ class HypnoticElement: public AkElement
         QVector<QRgb> createPalette();
         OpticalMap createOpticalMap(const QSize &size);
         QImage imageThreshold(const QImage &src, int threshold);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void modeChanged(const QString &mode);

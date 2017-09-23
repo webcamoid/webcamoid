@@ -45,7 +45,7 @@ class Capture: public QObject
                NOTIFY nBuffersChanged)
 
     public:
-        explicit Capture(QObject *parent=NULL);
+        explicit Capture(QObject *parent=nullptr);
         virtual ~Capture();
 
         Q_INVOKABLE virtual QStringList webcams() const;

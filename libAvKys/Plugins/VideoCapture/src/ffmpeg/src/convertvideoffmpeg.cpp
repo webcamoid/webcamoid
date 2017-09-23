@@ -143,9 +143,9 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
 {
     avcodec_register_all();
 
-    this->m_scaleContext = NULL;
-    this->m_codecOptions = NULL;
-    this->m_codecContext = NULL;
+    this->m_scaleContext = nullptr;
+    this->m_codecOptions = nullptr;
+    this->m_codecContext = nullptr;
     this->m_packetQueueSize = 0;
     this->m_maxPacketQueueSize = 15 * 1024 * 1024;
     this->m_maxData = 3;
@@ -237,12 +237,12 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     this->m_codecContext->idct_algo = FF_IDCT_AUTO;
     this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
-    this->m_codecOptions = NULL;
+    this->m_codecOptions = nullptr;
     av_dict_set(&this->m_codecOptions, "refcounted_frames", "0", 0);
 
     if (avcodec_open2(this->m_codecContext, codec, &this->m_codecOptions) < 0) {
         avcodec_close(this->m_codecContext);
-        this->m_codecContext = NULL;
+        this->m_codecContext = nullptr;
 
         return false;
     }
@@ -274,7 +274,7 @@ void ConvertVideoFFmpeg::uninit()
 
     if (this->m_scaleContext) {
         sws_freeContext(this->m_scaleContext);
-        this->m_scaleContext = NULL;
+        this->m_scaleContext = nullptr;
     }
 
     if (this->m_codecOptions)
@@ -282,7 +282,7 @@ void ConvertVideoFFmpeg::uninit()
 
     if (this->m_codecContext) {
         avcodec_close(this->m_codecContext);
-        this->m_codecContext = NULL;
+        this->m_codecContext = nullptr;
     }
 }
 
@@ -381,7 +381,7 @@ void ConvertVideoFFmpeg::dataLoop(ConvertVideoFFmpeg *stream)
 void ConvertVideoFFmpeg::deleteFrame(AVFrame *frame)
 {
     av_freep(&frame->data[0]);
-    frame->data[0] = NULL;
+    frame->data[0] = nullptr;
 
 #ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
@@ -444,9 +444,9 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
                                                 frame->height,
                                                 outPixFormat,
                                                 SWS_FAST_BILINEAR,
-                                                NULL,
-                                                NULL,
-                                                NULL);
+                                                nullptr,
+                                                nullptr,
+                                                nullptr);
 
     if (!this->m_scaleContext)
         return;
@@ -458,7 +458,7 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
     if (av_image_check_size(uint(frame->width),
                             uint(frame->height),
                             0,
-                            NULL) < 0)
+                            nullptr) < 0)
         return;
 
     if (av_image_fill_linesizes(oFrame.linesize,
@@ -471,7 +471,7 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
     int frameSize = av_image_fill_pointers(data,
                                            outPixFormat,
                                            frame->height,
-                                           NULL,
+                                           nullptr,
                                            oFrame.linesize);
 
     QByteArray oBuffer(frameSize, 0);

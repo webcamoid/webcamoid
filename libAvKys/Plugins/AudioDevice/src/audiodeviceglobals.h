@@ -32,7 +32,7 @@ class AudioDeviceGlobals: public QObject
                NOTIFY audioLibChanged)
 
     public:
-        explicit AudioDeviceGlobals(QObject *parent=NULL);
+        explicit AudioDeviceGlobals(QObject *parent=nullptr);
 
         Q_INVOKABLE QString audioLib() const;
 

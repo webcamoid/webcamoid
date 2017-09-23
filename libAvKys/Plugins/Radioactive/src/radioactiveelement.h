@@ -20,8 +20,6 @@
 #ifndef RADIOACTIVEELEMENT_H
 #define RADIOACTIVEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -76,9 +74,6 @@ class RadioactiveElement: public AkElement
 
         explicit RadioactiveElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int blur() const;
         Q_INVOKABLE qreal zoom() const;
@@ -108,6 +103,11 @@ class RadioactiveElement: public AkElement
                          RadiationMode mode);
 
         QImage imageAlphaDiff(const QImage &src, int alphaDiff);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void modeChanged(const QString &mode);

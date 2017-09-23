@@ -16,9 +16,9 @@
 // --- CAMEvent -----------------------
 CAMEvent::CAMEvent(BOOL fManualReset, __inout_opt HRESULT *phr)
 {
-    m_hEvent = CreateEvent(NULL, fManualReset, FALSE, NULL);
-    if (NULL == m_hEvent) {
-        if (NULL != phr && SUCCEEDED(*phr)) {
+    m_hEvent = CreateEvent(nullptr, fManualReset, FALSE, nullptr);
+    if (nullptr == m_hEvent) {
+        if (nullptr != phr && SUCCEEDED(*phr)) {
             *phr = E_OUTOFMEMORY;
         }
     }
@@ -26,9 +26,9 @@ CAMEvent::CAMEvent(BOOL fManualReset, __inout_opt HRESULT *phr)
 
 CAMEvent::CAMEvent(__inout_opt HRESULT *phr)
 {
-    m_hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (NULL == m_hEvent) {
-        if (NULL != phr && SUCCEEDED(*phr)) {
+    m_hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (nullptr == m_hEvent) {
+        if (nullptr != phr && SUCCEEDED(*phr)) {
             *phr = E_OUTOFMEMORY;
         }
     }
@@ -37,7 +37,7 @@ CAMEvent::CAMEvent(__inout_opt HRESULT *phr)
 CAMEvent::~CAMEvent()
 {
     if (m_hEvent) {
-	EXECUTE_ASSERT(CloseHandle(m_hEvent));
+    EXECUTE_ASSERT(CloseHandle(m_hEvent));
     }
 }
 
@@ -70,21 +70,21 @@ BOOL CAMMsgEvent::WaitMsg(DWORD dwTimeout)
     do {
         dwWait = MsgWaitForMultipleObjects(1,&m_hEvent,FALSE, dwWaitTime, QS_SENDMESSAGE);
         if (dwWait == WAIT_OBJECT_0 + 1) {
-	    MSG Message;
-            PeekMessage(&Message,NULL,0,0,PM_NOREMOVE);
+        MSG Message;
+            PeekMessage(&Message,nullptr,0,0,PM_NOREMOVE);
 
-	    // If we have an explicit length of time to wait calculate
-	    // the next wake up point - which might be now.
-	    // If dwTimeout is INFINITE, it stays INFINITE
-	    if (dwWaitTime != INFINITE) {
+        // If we have an explicit length of time to wait calculate
+        // the next wake up point - which might be now.
+        // If dwTimeout is INFINITE, it stays INFINITE
+        if (dwWaitTime != INFINITE) {
 
-		DWORD dwElapsed = timeGetTime()-dwStartTime;
+        DWORD dwElapsed = timeGetTime()-dwStartTime;
 
-		dwWaitTime =
-		    (dwElapsed >= dwTimeout)
-			? 0  // wake up with WAIT_TIMEOUT
-			: dwTimeout-dwElapsed;
-	    }
+        dwWaitTime =
+            (dwElapsed >= dwTimeout)
+            ? 0  // wake up with WAIT_TIMEOUT
+            : dwTimeout-dwElapsed;
+        }
         }
     } while (dwWait == WAIT_OBJECT_0 + 1);
 
@@ -100,7 +100,7 @@ CAMThread::CAMThread(__inout_opt HRESULT *phr)
     : m_EventSend(TRUE, phr),     // must be manual-reset for CheckRequest()
       m_EventComplete(FALSE, phr)
 {
-    m_hThread = NULL;
+    m_hThread = nullptr;
 }
 
 CAMThread::~CAMThread() {
@@ -137,19 +137,19 @@ CAMThread::Create()
     CAutoLock lock(&m_AccessLock);
 
     if (ThreadExists()) {
-	return FALSE;
+    return FALSE;
     }
 
     m_hThread = CreateThread(
-		    NULL,
-		    0,
-		    CAMThread::InitialThreadProc,
-		    this,
-		    0,
-		    &threadid);
+            nullptr,
+            0,
+            CAMThread::InitialThreadProc,
+            this,
+            0,
+            &threadid);
 
     if (!m_hThread) {
-	return FALSE;
+    return FALSE;
     }
 
     return TRUE;
@@ -162,7 +162,7 @@ CAMThread::CallWorker(DWORD dwParam)
     CAutoLock lock(&m_AccessLock);
 
     if (!ThreadExists()) {
-	return (DWORD) E_FAIL;
+    return (DWORD) E_FAIL;
     }
 
     // set the parameter
@@ -191,12 +191,12 @@ BOOL
 CAMThread::CheckRequest(__out_opt DWORD * pParam)
 {
     if (!m_EventSend.Check()) {
-	return FALSE;
+    return FALSE;
     } else {
-	if (pParam) {
-	    *pParam = m_dwParam;
-	}
-	return TRUE;
+    if (pParam) {
+        *pParam = m_dwParam;
+    }
+    return TRUE;
     }
 }
 
@@ -261,7 +261,7 @@ HRESULT CAMThread::CoInitializeHelper()
 // queue when the thread exited
 CMsgThread::~CMsgThread()
 {
-    if (m_hThread != NULL) {
+    if (m_hThread != nullptr) {
         WaitForSingleObject(m_hThread, INFINITE);
         EXECUTE_ASSERT(CloseHandle(m_hThread));
     }
@@ -273,7 +273,7 @@ CMsgThread::~CMsgThread()
     }
     m_ThreadQueue.RemoveAll();
 
-    if (m_hSem != NULL) {
+    if (m_hSem != nullptr) {
         EXECUTE_ASSERT(CloseHandle(m_hSem));
     }
 }
@@ -282,14 +282,14 @@ BOOL
 CMsgThread::CreateThread(
     )
 {
-    m_hSem = CreateSemaphore(NULL, 0, 0x7FFFFFFF, NULL);
-    if (m_hSem == NULL) {
+    m_hSem = CreateSemaphore(nullptr, 0, 0x7FFFFFFF, nullptr);
+    if (m_hSem == nullptr) {
         return FALSE;
     }
 
-    m_hThread = ::CreateThread(NULL, 0, DefaultThreadProc,
-			       (LPVOID)this, 0, &m_ThreadId);
-    return m_hThread != NULL;
+    m_hThread = ::CreateThread(nullptr, 0, DefaultThreadProc,
+                   (LPVOID)this, 0, &m_ThreadId);
+    return m_hThread != nullptr;
 }
 
 
@@ -308,15 +308,15 @@ CMsgThread::DefaultThreadProc(
     LRESULT lResult;
 
     // !!!
-    CoInitialize(NULL);
+    CoInitialize(nullptr);
 
     // allow a derived class to handle thread startup
     lpThis->OnThreadInit();
 
     do {
-	lpThis->GetThreadMsg(&msg);
-	lResult = lpThis->ThreadMessageProc(msg.uMsg,msg.dwFlags,
-					    msg.lpParam, msg.pEvent);
+    lpThis->GetThreadMsg(&msg);
+    lResult = lpThis->ThreadMessageProc(msg.uMsg,msg.dwFlags,
+                        msg.lpParam, msg.pEvent);
     } while (lResult == 0L);
 
     // !!!
@@ -331,14 +331,14 @@ CMsgThread::DefaultThreadProc(
 void
 CMsgThread::GetThreadMsg(__out CMsg *msg)
 {
-    CMsg * pmsg = NULL;
+    CMsg * pmsg = nullptr;
 
     // keep trying until a message appears
     while (TRUE) {
         {
             CAutoLock lck(&m_Lock);
             pmsg = m_ThreadQueue.RemoveHead();
-            if (pmsg == NULL) {
+            if (pmsg == nullptr) {
                 m_lWaiting++;
             } else {
                 break;
@@ -492,9 +492,9 @@ void CCritSec::Lock()
             DbgLog((LOG_LOCKING, 2, TEXT("Thread %d about to wait for lock %x owned by %d"),
                 GetCurrentThreadId(), &m_CritSec, currentOwner));
             tracelevel=2;
-	        // if we saw the message about waiting for the critical
-	        // section we ensure we see the message when we get the
-	        // critical section
+            // if we saw the message about waiting for the critical
+            // section we ensure we see the message when we get the
+            // critical section
         }
     }
     EnterCriticalSection(&m_CritSec);
@@ -557,7 +557,7 @@ STDAPI WriteBSTR(__deref_out BSTR *pstrDest, LPCWSTR szSrc)
 
 STDAPI FreeBSTR(__deref_in BSTR* pstr)
 {
-    if( (PVOID)*pstr == NULL ) return S_FALSE;
+    if( (PVOID)*pstr == nullptr ) return S_FALSE;
     SysFreeString( *pstr );
     return NOERROR;
 }
@@ -572,14 +572,14 @@ STDAPI AMGetWideString(LPCWSTR psz, __deref_out LPWSTR *ppszReturn)
 {
     CheckPointer(ppszReturn, E_POINTER);
     ValidateReadWritePtr(ppszReturn, sizeof(LPWSTR));
-    *ppszReturn = NULL;
+    *ppszReturn = nullptr;
     size_t nameLen;
     HRESULT hr = StringCbLengthW(psz, 100000, &nameLen);
     if (FAILED(hr)) {
         return hr;
     }
     *ppszReturn = (LPWSTR)CoTaskMemAlloc(nameLen + sizeof(WCHAR));
-    if (*ppszReturn == NULL) {
+    if (*ppszReturn == nullptr) {
        return E_OUTOFMEMORY;
     }
     CopyMemory(*ppszReturn, psz, nameLen + sizeof(WCHAR));
@@ -610,7 +610,7 @@ DWORD WINAPI WaitDispatchingMessages(
         dwStart = GetTickCount();
     }
     for (; ; ) {
-        DWORD nCount = NULL != hEvent ? 2 : 1;
+        DWORD nCount = nullptr != hEvent ? 2 : 1;
 
         //  Minimize the chance of actually dispatching any messages
         //  by seeing if we can lock immediately.
@@ -628,19 +628,19 @@ DWORD WINAPI WaitDispatchingMessages(
                              hObjects,
                              FALSE,
                              dwTimeOut,
-                             hwnd == NULL ? QS_SENDMESSAGE :
+                             hwnd == nullptr ? QS_SENDMESSAGE :
                                             QS_SENDMESSAGE + QS_POSTMESSAGE);
         if (dwResult == WAIT_OBJECT_0 + nCount ||
             (dwResult == WAIT_TIMEOUT && dwTimeOut != dwWait)) {
             MSG msg;
-            if (hwnd != NULL) {
+            if (hwnd != nullptr) {
                 while (PeekMessage(&msg, hwnd, uMsg, uMsg, PM_REMOVE)) {
                     DispatchMessage(&msg);
                 }
             }
             // Do this anyway - the previous peek doesn't flush out the
             // messages
-            PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+            PeekMessage(&msg, nullptr, 0, 0, PM_NOREMOVE);
 
             if (dwWait != INFINITE && dwWait != 0) {
                 DWORD dwNow = GetTickCount();
@@ -700,7 +700,7 @@ HRESULT AmGetLastErrorToHResult()
 
 IUnknown* QzAtlComPtrAssign(__deref_inout_opt IUnknown** pp, __in_opt IUnknown* lp)
 {
-    if (lp != NULL)
+    if (lp != nullptr)
         lp->AddRef();
     if (*pp)
         (*pp)->Release();
@@ -717,11 +717,11 @@ timeSetEvent() if the current operating system supports it.  TIME_KILL_SYNCHRONO
 is supported on Windows XP and later operating systems.
 
 Parameters:
-- The same parameters as timeSetEvent().  See timeSetEvent()'s documentation in 
+- The same parameters as timeSetEvent().  See timeSetEvent()'s documentation in
 the Platform SDK for more information.
 
 Return Value:
-- The same return value as timeSetEvent().  See timeSetEvent()'s documentation in 
+- The same return value as timeSetEvent().  See timeSetEvent()'s documentation in
 the Platform SDK for more information.
 
 ******************************************************************************/
@@ -730,7 +730,7 @@ MMRESULT CompatibleTimeSetEvent( UINT uDelay, UINT uResolution, __in LPTIMECALLB
     #if WINVER >= 0x0501
     {
         static bool fCheckedVersion = false;
-        static bool fTimeKillSynchronousFlagAvailable = false; 
+        static bool fTimeKillSynchronousFlagAvailable = false;
 
         if( !fCheckedVersion ) {
             fTimeKillSynchronousFlagAvailable = TimeKillSynchronousFlagAvailable();
@@ -753,11 +753,11 @@ bool TimeKillSynchronousFlagAvailable( void )
     osverinfo.dwOSVersionInfoSize = sizeof(osverinfo);
 
     if( GetVersionEx( &osverinfo ) ) {
-        
+
         // Windows XP's major version is 5 and its' minor version is 1.
         // timeSetEvent() started supporting the TIME_KILL_SYNCHRONOUS flag
         // in Windows XP.
-        if( (osverinfo.dwMajorVersion > 5) || 
+        if( (osverinfo.dwMajorVersion > 5) ||
             ( (osverinfo.dwMajorVersion == 5) && (osverinfo.dwMinorVersion >= 1) ) ) {
             return true;
         }

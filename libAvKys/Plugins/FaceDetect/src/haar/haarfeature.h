@@ -75,7 +75,7 @@ class HaarFeature: public QObject
     Q_OBJECT
 
     public:
-        explicit HaarFeature(QObject *parent = NULL);
+        explicit HaarFeature(QObject *parent=nullptr);
         HaarFeature(const HaarFeature &other);
         ~HaarFeature();
 

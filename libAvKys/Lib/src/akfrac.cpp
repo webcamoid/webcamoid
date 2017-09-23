@@ -67,7 +67,7 @@ AkFrac::AkFrac(QObject *parent):
 }
 
 AkFrac::AkFrac(qint64 num, qint64 den):
-    QObject(NULL)
+    QObject(nullptr)
 {
     this->d = new AkFracPrivate();
     this->d->m_num = 0;
@@ -78,7 +78,7 @@ AkFrac::AkFrac(qint64 num, qint64 den):
 }
 
 AkFrac::AkFrac(const QString &fracString):
-    QObject(NULL)
+    QObject(nullptr)
 {
     this->d = new AkFracPrivate();
     this->d->m_num = 0;

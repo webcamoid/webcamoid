@@ -23,9 +23,9 @@
 
 AudioDevQtAudio::AudioDevQtAudio(QObject *parent):
     AudioDev(parent),
-    m_inputDeviceBuffer(NULL),
-    m_input(NULL),
-    m_output(NULL)
+    m_inputDeviceBuffer(nullptr),
+    m_input(nullptr),
+    m_output(nullptr)
 {
     this->updateDevices();
 }
@@ -178,16 +178,16 @@ bool AudioDevQtAudio::uninit()
     if (this->m_input) {
         this->m_input->stop();
         delete this->m_input;
-        this->m_input = NULL;
+        this->m_input = nullptr;
     }
 
     if (this->m_output) {
         this->m_output->stop();
         delete this->m_output;
-        this->m_output = NULL;
+        this->m_output = nullptr;
     }
 
-    this->m_inputDeviceBuffer = NULL;
+    this->m_inputDeviceBuffer = nullptr;
     this->m_mutex.unlock();
 
     return true;

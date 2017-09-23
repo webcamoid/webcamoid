@@ -306,7 +306,7 @@ AkPacket CaptureV4L2::readFrame()
             return AkPacket();
 
         timeval timestamp;
-        gettimeofday(&timestamp, NULL);
+        gettimeofday(&timestamp, nullptr);
 
         qint64 pts = qint64((timestamp.tv_sec
                              + 1e-6 * timestamp.tv_usec)
@@ -715,7 +715,7 @@ bool CaptureV4L2::initMemoryMap()
 
         this->m_buffers[i].length = buffer.length;
 
-        this->m_buffers[i].start = reinterpret_cast<char *>(x_mmap(NULL,
+        this->m_buffers[i].start = reinterpret_cast<char *>(x_mmap(nullptr,
                                                                    buffer.length,
                                                                    PROT_READ | PROT_WRITE,
                                                                    MAP_SHARED,

@@ -27,44 +27,6 @@ EmbossElement::EmbossElement(): AkElement()
     this->m_bias = 128.0;
 }
 
-QObject *EmbossElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Emboss/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Emboss", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal EmbossElement::factor() const
 {
     return this->m_factor;
@@ -73,6 +35,22 @@ qreal EmbossElement::factor() const
 qreal EmbossElement::bias() const
 {
     return this->m_bias;
+}
+
+QString EmbossElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Emboss/share/qml/main.qml");
+}
+
+void EmbossElement::controlInterfaceConfigure(QQmlContext *context,
+                                              const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Emboss", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void EmbossElement::setFactor(qreal factor)
@@ -138,12 +116,12 @@ AkPacket EmbossElement::iStream(const AkPacket &packet)
             if (x_p1 >= src.width())
                 x_p1 = src.width() - 1;
 
-            int gray =   srcLine_m1[x_m1] * 2
-                       + srcLine_m1[x]
-                       + srcLine[x_m1]
-                       - srcLine[x_p1]
-                       - srcLine_p1[x]
-                       - srcLine_p1[x_p1] * 2;
+            int gray = srcLine_m1[x_m1] * 2
+                     + srcLine_m1[x]
+                     + srcLine[x_m1]
+                     - srcLine[x_p1]
+                     - srcLine_p1[x]
+                     - srcLine_p1[x_p1] * 2;
 
             gray = qRound(this->m_factor * gray + this->m_bias);
             dstLine[x] = quint8(qBound(0, gray, 255));

@@ -28,7 +28,7 @@ class UsbGlobals: public QObject
     Q_OBJECT
 
     public:
-        explicit UsbGlobals(QObject *parent=NULL);
+        explicit UsbGlobals(QObject *parent=nullptr);
         ~UsbGlobals();
 
         libusb_context *context();

@@ -21,8 +21,6 @@
 #define CONVOLVEELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -53,9 +51,6 @@ class ConvolveElement: public AkElement
     public:
         explicit ConvolveElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QVariantList kernel() const;
         Q_INVOKABLE QSize kernelSize() const;
         Q_INVOKABLE AkFrac factor() const;
@@ -68,6 +63,11 @@ class ConvolveElement: public AkElement
         int m_bias;
 
         QMutex m_mutex;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void kernelChanged(const QVariantList &kernel);

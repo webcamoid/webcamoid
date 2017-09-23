@@ -17,9 +17,9 @@
 
 
 CPullPin::CPullPin()
-  : m_pReader(NULL),
+  : m_pReader(nullptr),
     m_State(TM_Exit),
-    m_pAlloc(NULL)
+    m_pAlloc(nullptr)
 {
 #ifdef DXMPERF
     PERFLOG_CTOR( L"CPullPin", this );
@@ -63,7 +63,7 @@ CPullPin::Connect(IUnknown* pUnk, IMemAllocator* pAlloc, BOOL bSync)
     return(hr);
     }
 
-    hr = DecideAllocator(pAlloc, NULL);
+    hr = DecideAllocator(pAlloc, nullptr);
     if (FAILED(hr)) {
     Disconnect();
 
@@ -126,12 +126,12 @@ CPullPin::Disconnect()
 
     if (m_pReader) {
     m_pReader->Release();
-    m_pReader = NULL;
+    m_pReader = nullptr;
     }
 
     if (m_pAlloc) {
     m_pAlloc->Release();
-    m_pAlloc = NULL;
+    m_pAlloc = nullptr;
     }
 
     return S_OK;
@@ -149,7 +149,7 @@ CPullPin::DecideAllocator(
 {
     ALLOCATOR_PROPERTIES *pRequest;
     ALLOCATOR_PROPERTIES Request;
-    if (pProps == NULL) {
+    if (pProps == nullptr) {
     Request.cBuffers = 3;
     Request.cbBuffer = 64*1024;
     Request.cbAlign = 0;
@@ -341,7 +341,7 @@ CPullPin::QueueSample(
 {
     IMediaSample* pSample;
 
-    HRESULT hr = m_pAlloc->GetBuffer(&pSample, NULL, NULL, 0);
+    HRESULT hr = m_pAlloc->GetBuffer(&pSample, nullptr, nullptr, 0);
     if (FAILED(hr)) {
     return hr;
     }
@@ -372,7 +372,7 @@ CPullPin::CollectAndDeliver(
     REFERENCE_TIME tStart,
     REFERENCE_TIME tStop)
 {
-    IMediaSample* pSample = NULL;   // better be sure pSample is set
+    IMediaSample* pSample = nullptr;   // better be sure pSample is set
     DWORD_PTR dwUnused;
     HRESULT hr = m_pReader->WaitForNext(
             INFINITE,
@@ -526,7 +526,7 @@ CPullPin::Process(void)
 
         IMediaSample* pSample;
 
-        hr = m_pAlloc->GetBuffer(&pSample, NULL, NULL, 0);
+        hr = m_pAlloc->GetBuffer(&pSample, nullptr, nullptr, 0);
         if (FAILED(hr)) {
         OnError(hr);
         return;

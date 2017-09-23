@@ -76,7 +76,7 @@ class HaarTree: public QObject
     Q_OBJECT
 
     public:
-        explicit HaarTree(QObject *parent = NULL);
+        explicit HaarTree(QObject *parent=nullptr);
         HaarTree(const HaarTree &other);
         ~HaarTree();
 

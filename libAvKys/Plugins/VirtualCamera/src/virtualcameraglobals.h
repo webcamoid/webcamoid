@@ -44,7 +44,7 @@ class VirtualCameraGlobals: public QObject
                READ availableMethods)
 
     public:
-        explicit VirtualCameraGlobals(QObject *parent=NULL);
+        explicit VirtualCameraGlobals(QObject *parent=nullptr);
 
         Q_INVOKABLE QString convertLib() const;
         Q_INVOKABLE QString outputLib() const;

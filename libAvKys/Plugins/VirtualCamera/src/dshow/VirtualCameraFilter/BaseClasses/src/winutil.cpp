@@ -19,17 +19,17 @@ static UINT MsgDestroy;
 
 CBaseWindow::CBaseWindow(BOOL bDoGetDC, bool bDoPostToDestroy) :
     m_hInstance(g_hInst),
-    m_hwnd(NULL),
-    m_hdc(NULL),
+    m_hwnd(nullptr),
+    m_hdc(nullptr),
     m_bActivated(FALSE),
-    m_pClassName(NULL),
+    m_pClassName(nullptr),
     m_ClassStyles(0),
     m_WindowStyles(0),
     m_WindowStylesEx(0),
     m_ShowStageMessage(0),
     m_ShowStageTop(0),
-    m_MemoryDC(NULL),
-    m_hPalette(NULL),
+    m_MemoryDC(nullptr),
+    m_hPalette(nullptr),
     m_bNoRealize(FALSE),
     m_bBackground(FALSE),
     #ifdef DEBUG
@@ -51,15 +51,15 @@ CBaseWindow::CBaseWindow(BOOL bDoGetDC, bool bDoPostToDestroy) :
 HRESULT CBaseWindow::PrepareWindow()
 {
     if (m_hwnd) return NOERROR;
-    ASSERT(m_hwnd == NULL);
-    ASSERT(m_hdc == NULL);
+    ASSERT(m_hwnd == nullptr);
+    ASSERT(m_hdc == nullptr);
 
     // Get the derived object's window and class styles
 
     m_pClassName = GetClassWindowStyles(&m_ClassStyles,
                                         &m_WindowStyles,
                                         &m_WindowStylesEx);
-    if (m_pClassName == NULL) {
+    if (m_pClassName == nullptr) {
         return E_FAIL;
     }
 
@@ -112,13 +112,13 @@ CBaseWindow::~CBaseWindow()
 
 HRESULT CBaseWindow::DoneWithWindow()
 {
-    if (!IsWindow(m_hwnd) || (GetWindowThreadProcessId(m_hwnd, NULL) != GetCurrentThreadId())) {
+    if (!IsWindow(m_hwnd) || (GetWindowThreadProcessId(m_hwnd, nullptr) != GetCurrentThreadId())) {
 
         if (IsWindow(m_hwnd)) {
 
             // This code should only be executed if the window exists and if the window's
             // messages are processed on a different thread.
-            ASSERT(GetWindowThreadProcessId(m_hwnd, NULL) != GetCurrentThreadId());
+            ASSERT(GetWindowThreadProcessId(m_hwnd, nullptr) != GetCurrentThreadId());
 
             if (m_bDoPostToDestroy) {
 
@@ -144,7 +144,7 @@ HRESULT CBaseWindow::DoneWithWindow()
         // hdc's that were got via GetDC, which is the case here.
         // We set it to NULL so that we don't get any asserts later.
         //
-        m_hdc = NULL;
+        m_hdc = nullptr;
 
         //
         // We need to free this DC though because USER32 does not know
@@ -153,16 +153,16 @@ HRESULT CBaseWindow::DoneWithWindow()
         if (m_MemoryDC)
         {
             EXECUTE_ASSERT(DeleteDC(m_MemoryDC));
-            m_MemoryDC = NULL;
+            m_MemoryDC = nullptr;
         }
 
         // Reset the window variables
-        m_hwnd = NULL;
+        m_hwnd = nullptr;
 
         return NOERROR;
     }
     const HWND hwnd = m_hwnd;
-    if (hwnd == NULL) {
+    if (hwnd == nullptr) {
         return NOERROR;
     }
 
@@ -172,7 +172,7 @@ HRESULT CBaseWindow::DoneWithWindow()
     // Reset the window styles before destruction
 
     SetWindowLong(hwnd,GWL_STYLE,m_WindowStyles);
-    ASSERT(GetParent(hwnd) == NULL);
+    ASSERT(GetParent(hwnd) == nullptr);
     NOTE1("Reset window styles %d",m_WindowStyles);
 
     //  UnintialiseWindow sets m_hwnd to NULL so save a copy
@@ -186,7 +186,7 @@ HRESULT CBaseWindow::DoneWithWindow()
 
     // Reset our state so we can be prepared again
 
-    m_pClassName = NULL;
+    m_pClassName = nullptr;
     m_ClassStyles = 0;
     m_WindowStyles = 0;
     m_WindowStylesEx = 0;
@@ -233,7 +233,7 @@ HRESULT CBaseWindow::ActivateWindow()
 {
     // Has the window been sized and positioned already
 
-    if (m_bActivated == TRUE || GetParent(m_hwnd) != NULL) {
+    if (m_bActivated == TRUE || GetParent(m_hwnd) != nullptr) {
 
         SetWindowPos(m_hwnd,            // Our window handle
                      HWND_TOP,          // Put it at the top
@@ -355,7 +355,7 @@ void CBaseWindow::UnsetPalette()
     SelectPalette(GetWindowHDC(), hPalette, TRUE);
     SelectPalette(GetMemoryHDC(), hPalette, TRUE);
 
-    m_hPalette = NULL;
+    m_hPalette = nullptr;
 }
 
 
@@ -378,7 +378,7 @@ HRESULT CBaseWindow::DoRealisePalette(BOOL bForceBackground)
     {
         CAutoLock cPaletteLock(&m_PaletteLock);
 
-        if (m_hPalette == NULL) {
+        if (m_hPalette == nullptr) {
             return NOERROR;
         }
 
@@ -427,7 +427,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,         // Window handle
 
     CBaseWindow *pBaseWindow = _GetWindowLongPtr<CBaseWindow*>(hwnd,0);
 
-    if (pBaseWindow == NULL) {
+    if (pBaseWindow == nullptr) {
 
         // Get the structure pointer from the create struct.
         // We can only do this for WM_NCCREATE which should be one of
@@ -443,7 +443,7 @@ LRESULT CALLBACK WndProc(HWND hwnd,         // Window handle
         }
 
         if ((uMsg != WM_NCCREATE)
-            || (NULL == (pBaseWindow = *(CBaseWindow**) ((LPCREATESTRUCT)lParam)->lpCreateParams)))
+            || (nullptr == (pBaseWindow = *(CBaseWindow**) ((LPCREATESTRUCT)lParam)->lpCreateParams)))
         {
             return(DefWindowProc(hwnd, uMsg, wParam, lParam));
         }
@@ -510,9 +510,9 @@ HRESULT CBaseWindow::UninitialiseWindow()
 {
     // Have we already cleaned up
 
-    if (m_hwnd == NULL) {
-        ASSERT(m_hdc == NULL);
-        ASSERT(m_MemoryDC == NULL);
+    if (m_hwnd == nullptr) {
+        ASSERT(m_hdc == nullptr);
+        ASSERT(m_MemoryDC == nullptr);
         return NOERROR;
     }
 
@@ -523,17 +523,17 @@ HRESULT CBaseWindow::UninitialiseWindow()
     if (m_hdc)
     {
         EXECUTE_ASSERT(ReleaseDC(m_hwnd,m_hdc));
-        m_hdc = NULL;
+        m_hdc = nullptr;
     }
 
     if (m_MemoryDC)
     {
         EXECUTE_ASSERT(DeleteDC(m_MemoryDC));
-        m_MemoryDC = NULL;
+        m_MemoryDC = nullptr;
     }
 
     // Reset the window variables
-    m_hwnd = NULL;
+    m_hwnd = nullptr;
 
     return NOERROR;
 }
@@ -594,10 +594,10 @@ HRESULT CBaseWindow::DoCreateWindow()
         wndclass.cbClsExtra    = 0;
         wndclass.cbWndExtra    = sizeof(CBaseWindow *);
         wndclass.hInstance     = m_hInstance;
-        wndclass.hIcon         = NULL;
-        wndclass.hCursor       = LoadCursor (NULL, IDC_ARROW);
-        wndclass.hbrBackground = (HBRUSH) NULL;
-        wndclass.lpszMenuName  = NULL;
+        wndclass.hIcon         = nullptr;
+        wndclass.hCursor       = LoadCursor (nullptr, IDC_ARROW);
+        wndclass.hbrBackground = (HBRUSH) nullptr;
+        wndclass.lpszMenuName  = nullptr;
 
         RegisterClass(&wndclass);
     }
@@ -615,8 +615,8 @@ HRESULT CBaseWindow::DoCreateWindow()
                           CW_USEDEFAULT,                  // Start y position
                           DEFWIDTH,                       // Window width
                           DEFHEIGHT,                      // Window height
-                          NULL,                           // Parent handle
-                          NULL,                           // Menu handle
+                          nullptr,                           // Parent handle
+                          nullptr,                           // Menu handle
                           m_hInstance,                    // Instance handle
                           &pBaseWindow);                  // Creation data
 
@@ -624,7 +624,7 @@ HRESULT CBaseWindow::DoCreateWindow()
     // last Win32 error on this thread) then signal the constructor thread
     // to continue, release the mutex to let others have a go and exit
 
-    if (hwnd == NULL) {
+    if (hwnd == nullptr) {
         DWORD Error = GetLastError();
         return AmHresultFromWin32(Error);
     }
@@ -707,7 +707,7 @@ LRESULT CBaseWindow::OnReceiveMessage(HWND hwnd,         // Window handle
 
     case WM_SYSCOLORCHANGE:
 
-        InvalidateRect(hwnd,NULL,FALSE);
+        InvalidateRect(hwnd,nullptr,FALSE);
         return (LRESULT) 1;
 
     // Somebody has changed the palette
@@ -763,7 +763,7 @@ LRESULT CBaseWindow::OnPaletteChange(HWND hwnd,UINT Message)
 {
     // First check we are not changing the palette during closedown
 
-    if (m_hwnd == NULL || hwnd == NULL) {
+    if (m_hwnd == nullptr || hwnd == nullptr) {
         return (LRESULT) 0;
     }
     ASSERT(!m_bRealizing);
@@ -791,7 +791,7 @@ LRESULT CBaseWindow::OnPaletteChange(HWND hwnd,UINT Message)
 
         // Should we redraw the window with the new palette
         if (Message == WM_PALETTECHANGED) {
-            InvalidateRect(m_hwnd,NULL,FALSE);
+            InvalidateRect(m_hwnd,nullptr,FALSE);
         }
     }
 
@@ -894,7 +894,7 @@ HRESULT CBaseWindow::DoShowWindow(LONG ShowCmd)
 
 void CBaseWindow::PaintWindow(BOOL bErase)
 {
-    InvalidateRect(m_hwnd,NULL,bErase);
+    InvalidateRect(m_hwnd,nullptr,bErase);
 }
 
 
@@ -917,11 +917,11 @@ void CBaseWindow::DoSetWindowForeground(BOOL bFocus)
 
 CDrawImage::CDrawImage(__inout CBaseWindow *pBaseWindow) :
     m_pBaseWindow(pBaseWindow),
-    m_hdc(NULL),
-    m_MemoryDC(NULL),
+    m_hdc(nullptr),
+    m_MemoryDC(nullptr),
     m_bStretch(FALSE),
     m_bUsingImageAllocator(FALSE),
-    m_pMediaType(NULL)
+    m_pMediaType(nullptr)
 {
     ASSERT(pBaseWindow);
     ResetPaletteVersion();
@@ -1450,7 +1450,7 @@ void CDrawImage::IncrementPaletteVersion()
 CImageAllocator::CImageAllocator(__inout CBaseFilter *pFilter,
                                  __in_opt LPCTSTR pName,
                                  __inout HRESULT *phr) :
-    CBaseAllocator(pName,NULL,phr,TRUE,TRUE),
+    CBaseAllocator(pName,nullptr,phr,TRUE,TRUE),
     m_pFilter(pFilter)
 {
     ASSERT(phr);
@@ -1498,7 +1498,7 @@ STDMETHODIMP CImageAllocator::CheckSizes(__in ALLOCATOR_PROPERTIES *pRequest)
 {
     // Check we have a valid connection
 
-    if (m_pMediaType == NULL) {
+    if (m_pMediaType == nullptr) {
         return VFW_E_NOT_CONNECTED;
     }
 
@@ -1588,7 +1588,7 @@ HRESULT CImageAllocator::Alloc(void)
         // Create the sample object and pass it the DIBDATA
 
         pSample = CreateImageSample(DibData.pBase,m_lSize);
-        if (pSample == NULL) {
+        if (pSample == nullptr) {
             EXECUTE_ASSERT(DeleteObject(DibData.hBitmap));
             EXECUTE_ASSERT(CloseHandle(DibData.hMapping));
             return E_OUTOFMEMORY;
@@ -1621,9 +1621,9 @@ CImageSample *CImageAllocator::CreateImageSample(__in_bcount(Length) LPBYTE pDat
                                (LPBYTE) pData,            // DIB address
                                (LONG) Length);            // Size of DIB
 
-    if (pSample == NULL || FAILED(hr)) {
+    if (pSample == nullptr || FAILED(hr)) {
         delete pSample;
-        return NULL;
+        return nullptr;
     }
     return pSample;
 }
@@ -1643,12 +1643,12 @@ HRESULT CImageAllocator::CreateDIB(LONG InSize,DIBDATA &DibData)
     // Create a file mapping object and map into our address space
 
     hMapping = CreateFileMapping(hMEMORY,         // Use system page file
-                                 NULL,            // No security attributes
+                                 nullptr,            // No security attributes
                                  PAGE_READWRITE,  // Full access to memory
                                  (DWORD) 0,       // Less than 4Gb in size
                                  InSize,          // Size of buffer
-                                 NULL);           // No name to section
-    if (hMapping == NULL) {
+                                 nullptr);           // No name to section
+    if (hMapping == nullptr) {
         DWORD Error = GetLastError();
         return MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, Error);
     }
@@ -1659,18 +1659,18 @@ HRESULT CImageAllocator::CreateDIB(LONG InSize,DIBDATA &DibData)
     // have the focus) in which case GDI will do after the palette mapping
 
     pbmi = (BITMAPINFO *) HEADER(m_pMediaType->Format());
-    if (m_pMediaType == NULL) {
+    if (m_pMediaType == nullptr) {
         DbgBreak("Invalid media type");
     }
 
-    hBitmap = CreateDIBSection((HDC) NULL,          // NO device context
+    hBitmap = CreateDIBSection((HDC) nullptr,          // NO device context
                                pbmi,                // Format information
                                DIB_RGB_COLORS,      // Use the palette
                                (VOID **) &pBase,    // Pointer to image data
                                hMapping,            // Mapped memory handle
                                (DWORD) 0);          // Offset into memory
 
-    if (hBitmap == NULL || pBase == NULL) {
+    if (hBitmap == nullptr || pBase == nullptr) {
         EXECUTE_ASSERT(CloseHandle(hMapping));
         DWORD Error = GetLastError();
         return MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, Error);
@@ -1775,7 +1775,7 @@ CImagePalette::CImagePalette(__inout CBaseFilter *pBaseFilter,
     m_pBaseWindow(pBaseWindow),
     m_pFilter(pBaseFilter),
     m_pDrawImage(pDrawImage),
-    m_hPalette(NULL)
+    m_hPalette(nullptr)
 {
     ASSERT(m_pFilter);
 }
@@ -1804,7 +1804,7 @@ BOOL CImagePalette::ShouldUpdate(const VIDEOINFOHEADER *pNewInfo,
 {
     // We may not have a current format yet
 
-    if (pOldInfo == NULL) {
+    if (pOldInfo == nullptr) {
         return TRUE;
     }
 
@@ -1886,7 +1886,7 @@ HRESULT CImagePalette::PreparePalette(const CMediaType *pmtNew,
 
     NOTE("Making new colour palette");
     m_hPalette = MakePalette(pNewInfo, szDevice);
-    ASSERT(m_hPalette != NULL);
+    ASSERT(m_hPalette != nullptr);
 
     if (m_pBaseWindow) {
         m_pBaseWindow->UnlockPaletteLock();
@@ -1982,7 +1982,7 @@ HRESULT CImagePalette::RemovePalette()
 
     // Do we have a palette to remove
 
-    if (m_hPalette != NULL) {
+    if (m_hPalette != nullptr) {
 
         if (m_pBaseWindow) {
             // Make sure that the window's palette handle matches
@@ -1993,7 +1993,7 @@ HRESULT CImagePalette::RemovePalette()
         }
 
         EXECUTE_ASSERT(DeleteObject(m_hPalette));
-        m_hPalette = NULL;
+        m_hPalette = nullptr;
     }
 
     if (m_pBaseWindow) {
@@ -2024,8 +2024,8 @@ HPALETTE CImagePalette::MakePalette(const VIDEOINFOHEADER *pVideoInfo, __in LPST
     HPALETTE hPalette;                  // Logical palette object
 
     lp = (LOGPALETTE *) new BYTE[sizeof(LOGPALETTE) + SIZE_PALETTE];
-    if (lp == NULL) {
-        return NULL;
+    if (lp == nullptr) {
+        return nullptr;
     }
 
     // Unfortunately for some hare brained reason a GDI palette entry (a
@@ -2051,7 +2051,7 @@ HPALETTE CImagePalette::MakePalette(const VIDEOINFOHEADER *pVideoInfo, __in LPST
     // Create a logical palette
 
     hPalette = CreatePalette(lp);
-    ASSERT(hPalette != NULL);
+    ASSERT(hPalette != nullptr);
     delete[] lp;
     return hPalette;
 }
@@ -2086,11 +2086,11 @@ HRESULT CImagePalette::MakeIdentityPalette(__inout_ecount_full(iColours) PALETTE
     // Get a DC on the right monitor - it's ugly, but this is the way you have
     // to do it
     HDC hdc;
-    if (szDevice == NULL || lstrcmpiLocaleIndependentA(szDevice, "DISPLAY") == 0)
-        hdc = CreateDCA("DISPLAY", NULL, NULL, NULL);
+    if (szDevice == nullptr || lstrcmpiLocaleIndependentA(szDevice, "DISPLAY") == 0)
+        hdc = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
     else
-        hdc = CreateDCA(NULL, szDevice, NULL, NULL);
-    if (NULL == hdc) {
+        hdc = CreateDCA(nullptr, szDevice, nullptr, nullptr);
+    if (nullptr == hdc) {
         return E_OUTOFMEMORY;
     }
     INT Reserved = GetDeviceCaps(hdc,NUMRESERVED);
@@ -2149,7 +2149,7 @@ HRESULT CImagePalette::MakeIdentityPalette(__inout_ecount_full(iColours) PALETTE
 
 CImageDisplay::CImageDisplay()
 {
-    RefreshDisplayType(NULL);
+    RefreshDisplayType(nullptr);
 }
 
 
@@ -2178,11 +2178,11 @@ HRESULT CImageDisplay::RefreshDisplayType(__in_opt LPSTR szDeviceName)
     // get caps of whichever monitor they are interested in (multi monitor)
     HDC hdcDisplay;
     // it's ugly, but this is the way you have to do it
-    if (szDeviceName == NULL || lstrcmpiLocaleIndependentA(szDeviceName, "DISPLAY") == 0)
-        hdcDisplay = CreateDCA("DISPLAY", NULL, NULL, NULL);
+    if (szDeviceName == nullptr || lstrcmpiLocaleIndependentA(szDeviceName, "DISPLAY") == 0)
+        hdcDisplay = CreateDCA("DISPLAY", nullptr, nullptr, nullptr);
     else
-        hdcDisplay = CreateDCA(NULL, szDeviceName, NULL, NULL);
-    if (hdcDisplay == NULL) {
+        hdcDisplay = CreateDCA(nullptr, szDeviceName, nullptr, nullptr);
+    if (hdcDisplay == nullptr) {
     ASSERT(FALSE);
     DbgLog((LOG_ERROR,1,TEXT("ACK! Can't get a DC for %hs"),
                 szDeviceName ? szDeviceName : "<NULL>"));
@@ -2194,10 +2194,10 @@ HRESULT CImageDisplay::RefreshDisplayType(__in_opt LPSTR szDeviceName)
     HBITMAP hbm = CreateCompatibleBitmap(hdcDisplay,1,1);
     if ( hbm )
     {
-        GetDIBits(hdcDisplay,hbm,0,1,NULL,(BITMAPINFO *)&m_Display.bmiHeader,DIB_RGB_COLORS);
+        GetDIBits(hdcDisplay,hbm,0,1,nullptr,(BITMAPINFO *)&m_Display.bmiHeader,DIB_RGB_COLORS);
 
         // This call will get the colour table or the proper bitfields
-        GetDIBits(hdcDisplay,hbm,0,1,NULL,(BITMAPINFO *)&m_Display.bmiHeader,DIB_RGB_COLORS);
+        GetDIBits(hdcDisplay,hbm,0,1,nullptr,(BITMAPINFO *)&m_Display.bmiHeader,DIB_RGB_COLORS);
         DeleteObject(hbm);
     }
     DeleteDC(hdcDisplay);
@@ -2673,7 +2673,7 @@ STDAPI ConvertVideoInfoToVideoInfo2(__inout AM_MEDIA_TYPE *pmt)
     if (pmt->formattype != FORMAT_VideoInfo) {
         return E_INVALIDARG;
     }
-    if (NULL == pmt->pbFormat || pmt->cbFormat < sizeof(VIDEOINFOHEADER)) {
+    if (nullptr == pmt->pbFormat || pmt->cbFormat < sizeof(VIDEOINFOHEADER)) {
         return E_INVALIDARG;
     }
 //    VIDEOINFO *pVideoInfo = (VIDEOINFO *)pmt->pbFormat;
@@ -2683,7 +2683,7 @@ STDAPI ConvertVideoInfoToVideoInfo2(__inout AM_MEDIA_TYPE *pmt)
         return hr;
     }
     PVOID pvNew = CoTaskMemAlloc(dwNewSize);
-    if (pvNew == NULL) {
+    if (pvNew == nullptr) {
         return E_OUTOFMEMORY;
     }
     CopyMemory(pvNew, pmt->pbFormat, FIELD_OFFSET(VIDEOINFOHEADER, bmiHeader));
@@ -2706,7 +2706,7 @@ STDAPI ConvertVideoInfoToVideoInfo2(__inout AM_MEDIA_TYPE *pmt)
 //  Check a media type containing VIDEOINFOHEADER
 STDAPI CheckVideoInfoType(const AM_MEDIA_TYPE *pmt)
 {
-    if (NULL == pmt || NULL == pmt->pbFormat) {
+    if (nullptr == pmt || nullptr == pmt->pbFormat) {
         return E_POINTER;
     }
     if (pmt->majortype != MEDIATYPE_Video ||
@@ -2727,7 +2727,7 @@ STDAPI CheckVideoInfoType(const AM_MEDIA_TYPE *pmt)
 //  Check a media type containing VIDEOINFOHEADER2
 STDAPI CheckVideoInfo2Type(const AM_MEDIA_TYPE *pmt)
 {
-    if (NULL == pmt || NULL == pmt->pbFormat) {
+    if (nullptr == pmt || nullptr == pmt->pbFormat) {
         return E_POINTER;
     }
     if (pmt->majortype != MEDIATYPE_Video ||

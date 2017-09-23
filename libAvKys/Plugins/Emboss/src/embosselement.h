@@ -20,8 +20,6 @@
 #ifndef EmbossELEMENT_H
 #define EmbossELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -42,15 +40,17 @@ class EmbossElement: public AkElement
     public:
         explicit EmbossElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal factor() const;
         Q_INVOKABLE qreal bias() const;
 
     private:
         qreal m_factor;
         qreal m_bias;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void factorChanged(qreal factor);

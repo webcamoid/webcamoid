@@ -27,44 +27,6 @@ CinemaElement::CinemaElement(): AkElement()
     this->m_stripColor = qRgb(0, 0, 0);
 }
 
-QObject *CinemaElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Cinema/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Cinema", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal CinemaElement::stripSize() const
 {
     return this->m_stripSize;
@@ -73,6 +35,22 @@ qreal CinemaElement::stripSize() const
 QRgb CinemaElement::stripColor() const
 {
     return this->m_stripColor;
+}
+
+QString CinemaElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Cinema/share/qml/main.qml");
+}
+
+void CinemaElement::controlInterfaceConfigure(QQmlContext *context,
+                                              const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Cinema", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void CinemaElement::setStripSize(qreal stripSize)

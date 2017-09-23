@@ -20,8 +20,6 @@
 #ifndef FACEDETECTELEMENT_H
 #define FACEDETECTELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QPainter>
 #include <ak.h>
 #include <akutils.h>
@@ -90,9 +88,6 @@ class FaceDetectElement: public AkElement
 
         explicit FaceDetectElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString haarFile() const;
         Q_INVOKABLE QString markerType() const;
         Q_INVOKABLE QRgb markerColor() const;
@@ -112,8 +107,12 @@ class FaceDetectElement: public AkElement
         QSize m_pixelGridSize;
         QSize m_scanSize;
         AkElementPtr m_blurFilter;
-
         HaarDetector m_cascadeClassifier;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void haarFileChanged(const QString &haarFile);

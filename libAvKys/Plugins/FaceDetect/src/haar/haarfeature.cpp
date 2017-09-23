@@ -138,7 +138,7 @@ HaarFeature::HaarFeature(QObject *parent):
 }
 
 HaarFeature::HaarFeature(const HaarFeature &other):
-    QObject(NULL)
+    QObject(nullptr)
 {
     this->m_count = other.m_count;
     this->m_tilted = other.m_tilted;

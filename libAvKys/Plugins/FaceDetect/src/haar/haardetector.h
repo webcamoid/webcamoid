@@ -69,7 +69,7 @@ class HaarDetector: public QObject
                NOTIFY minNeighborsChanged)
 
     public:
-        explicit HaarDetector(QObject *parent=NULL);
+        explicit HaarDetector(QObject *parent=nullptr);
         ~HaarDetector();
 
         Q_INVOKABLE bool equalize() const;

@@ -21,8 +21,6 @@
 #define TEMPERATUREELEMENT_H
 
 #include <QtMath>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -38,14 +36,10 @@ class TemperatureElement: public AkElement
     public:
         explicit TemperatureElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal temperature() const;
 
     private:
         qreal m_temperature;
-
         qreal m_kr;
         qreal m_kg;
         qreal m_kb;
@@ -78,6 +72,11 @@ class TemperatureElement: public AkElement
             else
                 *b = 0.54320679 * log(temperature - 10) - 1.1962541;
         }
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void temperatureChanged(qreal temperature);

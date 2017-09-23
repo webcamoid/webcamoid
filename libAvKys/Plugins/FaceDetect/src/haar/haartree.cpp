@@ -91,7 +91,7 @@ HaarTree::HaarTree(QObject *parent): QObject(parent)
 }
 
 HaarTree::HaarTree(const HaarTree &other):
-    QObject(NULL)
+    QObject(nullptr)
 {
     this->m_features = other.m_features;
 }

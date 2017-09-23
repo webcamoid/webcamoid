@@ -250,7 +250,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_v308
         };
 
-        explicit AkVideoCaps(QObject *parent=NULL);
+        explicit AkVideoCaps(QObject *parent=nullptr);
         AkVideoCaps(const QVariantMap &caps);
         AkVideoCaps(const QString &caps);
         AkVideoCaps(const AkCaps &caps);

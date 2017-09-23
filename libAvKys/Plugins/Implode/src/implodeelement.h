@@ -20,8 +20,6 @@
 #ifndef IMPLODEELEMENT_H
 #define IMPLODEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,10 +35,12 @@ class ImplodeElement: public AkElement
     public:
         explicit ImplodeElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal amount() const;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     private:
         qreal m_amount;

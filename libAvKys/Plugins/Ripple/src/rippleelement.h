@@ -20,8 +20,6 @@
 #ifndef RIPPLEELEMENT_H
 #define RIPPLEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -64,9 +62,6 @@ class RippleElement: public AkElement
 
         explicit RippleElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int amplitude() const;
         Q_INVOKABLE int decay() const;
@@ -106,7 +101,7 @@ class RippleElement: public AkElement
         inline QImage drop(int width, int height, int power)
         {
             QImage drops(width, height, QImage::Format_ARGB32);
-            int *dropsBits = (int *) drops.bits();
+            auto dropsBits = reinterpret_cast<int *>(drops.bits());
 
             drops.fill(qRgba(0, 0, 0, 0));
 
@@ -130,6 +125,11 @@ class RippleElement: public AkElement
 
             return drops;
         }
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void modeChanged(const QString &mode);

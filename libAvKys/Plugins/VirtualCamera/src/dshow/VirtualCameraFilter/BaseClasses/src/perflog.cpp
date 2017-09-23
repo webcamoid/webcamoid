@@ -132,7 +132,7 @@ PerflogReadModuleLevel(
     DWORD dwKeySize, dwKeyType, dwKeyValue;
 
     DWORD dwSize = GetModuleFileName(
-        (hInstance ? hInstance : GetModuleHandle( NULL )),
+        (hInstance ? hInstance : GetModuleHandle( nullptr )),
         szFullName,
         iDEBUGINFO );
 
@@ -143,7 +143,7 @@ PerflogReadModuleLevel(
     char bufFullName[iDEBUGINFO]={0};
     strcpy_s(bufFullName, (const char *) szFullName);
     pName = (LPTSTR) _tcsrchr(bufFullName,'\\');
-    if (pName == NULL) {
+    if (pName == nullptr) {
         pName = szFullName;
     } else {
         pName++;
@@ -169,7 +169,7 @@ PerflogReadModuleLevel(
     lReturn = RegQueryValueEx(
         hModuleKey,                 // Handle to an open key
         TEXT("PERFLOG"),
-        NULL,                       // Reserved field
+        nullptr,                       // Reserved field
         &dwKeyType,                 // Returns the field type
         (LPBYTE) &dwKeyValue,       // Returns the field's value
         &dwKeySize );               // Number of bytes transferred
@@ -211,7 +211,7 @@ PerflogInitialize (
     //
 
     _Advapi32 = GetModuleHandle (_T(L"ADVAPI32.DLL"));
-    if (_Advapi32 == NULL) {
+    if (_Advapi32 == nullptr) {
         return FALSE;
     }
 
@@ -222,11 +222,11 @@ PerflogInitialize (
     *reinterpret_cast<FARPROC*>(&_GetTraceEnableFlags) = GetProcAddress (_Advapi32, "GetTraceEnableFlags");
     *reinterpret_cast<FARPROC*>(&_TraceEvent) = GetProcAddress (_Advapi32, "TraceEvent");
 
-    if (_RegisterTraceGuids == NULL ||
-        _UnregisterTraceGuids == NULL ||
-        _GetTraceEnableLevel == NULL ||
-        _GetTraceEnableFlags == NULL ||
-        _TraceEvent == NULL) {
+    if (_RegisterTraceGuids == nullptr ||
+        _UnregisterTraceGuids == nullptr ||
+        _GetTraceEnableLevel == nullptr ||
+        _GetTraceEnableFlags == nullptr ||
+        _TraceEvent == nullptr) {
 
         return FALSE;
     }
@@ -244,8 +244,8 @@ PerflogInitialize (
                                   &LogParams->ControlGuid,
                                   LogParams->NumberOfTraceGuids,
                                   LogParams->TraceGuids,
-                                  NULL,
-                                  NULL,
+                                  nullptr,
+                                  nullptr,
                                   &PerflogRegHandle);
 
     return (status == ERROR_SUCCESS);
@@ -309,7 +309,7 @@ PerflogCallback (
         status = ERROR_INVALID_PARAMETER;
     }
 
-    if (OnStateChanged != NULL) {
+    if (OnStateChanged != nullptr) {
         OnStateChanged();
     }
 

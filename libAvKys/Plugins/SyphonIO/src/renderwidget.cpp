@@ -23,7 +23,7 @@ RenderWidget::RenderWidget():
     QOpenGLWidget()
 {
     this->m_initialized = false;
-    this->m_fbo = NULL;
+    this->m_fbo = nullptr;
 }
 
 RenderWidget::~RenderWidget()

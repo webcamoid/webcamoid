@@ -55,7 +55,7 @@ class ConvertVideoFFmpeg: public ConvertVideo
                NOTIFY showLogChanged)
 
     public:
-        explicit ConvertVideoFFmpeg(QObject *parent=NULL);
+        explicit ConvertVideoFFmpeg(QObject *parent=nullptr);
         ~ConvertVideoFFmpeg();
 
         Q_INVOKABLE qint64 maxPacketQueueSize() const;

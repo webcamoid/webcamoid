@@ -51,7 +51,7 @@ class AKCOMMONS_EXPORT AkFrac: public QObject
                NOTIFY stringChanged)
 
     public:
-        explicit AkFrac(QObject *parent=NULL);
+        explicit AkFrac(QObject *parent=nullptr);
         AkFrac(qint64 num, qint64 den);
         AkFrac(const QString &fracString);
         AkFrac(const AkFrac &other);

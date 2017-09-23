@@ -28,44 +28,6 @@ ColorTransformElement::ColorTransformElement(): AkElement()
     };
 }
 
-QObject *ColorTransformElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ColorTransform/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ColorTransform", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 QVariantList ColorTransformElement::kernel() const
 {
     QVariantList kernel;
@@ -74,6 +36,22 @@ QVariantList ColorTransformElement::kernel() const
         kernel << e;
 
     return kernel;
+}
+
+QString ColorTransformElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/ColorTransform/share/qml/main.qml");
+}
+
+void ColorTransformElement::controlInterfaceConfigure(QQmlContext *context,
+                                                      const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("ColorTransform", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void ColorTransformElement::setKernel(const QVariantList &kernel)

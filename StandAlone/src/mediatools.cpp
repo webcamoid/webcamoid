@@ -39,7 +39,7 @@ MediaTools::MediaTools(QObject *parent):
     m_windowWidth(0),
     m_windowHeight(0),
     m_enableVirtualCamera(false),
-    m_trayIcon(NULL)
+    m_trayIcon(nullptr)
 {
     // Initialize environment.
     CliOptions cliOptions;
@@ -271,7 +271,7 @@ QString MediaTools::saveFileDialog(const QString &caption,
                                    const QString &suffix,
                                    const QString &filters) const
 {
-    QFileDialog saveFileDialog(NULL,
+    QFileDialog saveFileDialog(nullptr,
                                caption,
                                fileName,
                                filters);
@@ -338,8 +338,8 @@ void MediaTools::removeInterface(const QString &where,
         auto childItems = item->childItems();
 
         for (QQuickItem *child: childItems) {
-            child->setParentItem(NULL);
-            child->setParent(NULL);
+            child->setParentItem(nullptr);
+            child->setParent(nullptr);
 
             delete child;
         }
@@ -376,7 +376,6 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
 
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
-        interfaceItem->setParent(item);
 
         QQmlProperty::write(interfaceItem,
                             "anchors.fill",

@@ -45,7 +45,7 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     this->m_id = id;
 
     this->m_stream = (formatContext && index < formatContext->nb_streams)?
-                         formatContext->streams[index]: NULL;
+                         formatContext->streams[index]: nullptr;
 
     this->m_mediaType = this->m_stream?
 #ifdef HAVE_CODECPAR
@@ -55,10 +55,10 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 #endif
                             AVMEDIA_TYPE_UNKNOWN;
 
-    this->m_codecContext = NULL;
+    this->m_codecContext = nullptr;
 
     if (this->m_stream) {
-        this->m_codecContext = avcodec_alloc_context3(NULL);
+        this->m_codecContext = avcodec_alloc_context3(nullptr);
 
 #ifdef HAVE_CODECPAR
         if (avcodec_parameters_to_context(this->m_codecContext,
@@ -75,9 +75,9 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
 
     this->m_codec = this->m_codecContext?
                         avcodec_find_decoder(this->m_codecContext->codec_id):
-                        NULL;
+                        nullptr;
 
-    this->m_codecOptions = NULL;
+    this->m_codecOptions = nullptr;
     this->m_packetQueueSize = 0;
     this->m_globalClock = globalClock;
 
@@ -378,7 +378,7 @@ void AbstractStream::deletePacket(AVPacket *packet)
 void AbstractStream::deleteFrame(AVFrame *frame)
 {
     av_freep(&frame->data[0]);
-    frame->data[0] = NULL;
+    frame->data[0] = nullptr;
 
 #ifdef HAVE_FRAMEALLOC
     av_frame_unref(frame);
@@ -457,7 +457,7 @@ void AbstractStream::uninit()
 
     if (this->m_codecContext) {
         avcodec_close(this->m_codecContext);
-        this->m_codecContext = NULL;
+        this->m_codecContext = nullptr;
     }
 
     this->m_packets.clear();

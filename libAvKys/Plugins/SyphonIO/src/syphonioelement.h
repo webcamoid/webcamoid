@@ -20,8 +20,6 @@
 #ifndef SWIRLELEMENT_H
 #define SWIRLELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QMutex>
 #include <ak.h>
 #include <akmultimediasourceelement.h>
@@ -64,9 +62,6 @@ class SyphonIOElement: public AkMultimediaSourceElement
         explicit SyphonIOElement();
         ~SyphonIOElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
@@ -88,6 +83,11 @@ class SyphonIOElement: public AkMultimediaSourceElement
         qint64 m_id;
         AkFrac m_fps;
         AkCaps m_caps;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void mediasChanged(const QStringList &medias);

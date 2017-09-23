@@ -26,49 +26,25 @@ TemperatureElement::TemperatureElement(): AkElement()
                                &this->m_kr, &this->m_kg, &this->m_kb);
 }
 
-QObject *TemperatureElement::controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine,
-                            QUrl(QStringLiteral("qrc:/Temperature/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Temperature", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal TemperatureElement::temperature() const
 {
     return this->m_temperature;
+}
+
+QString TemperatureElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Temperature/share/qml/main.qml");
+}
+
+void TemperatureElement::controlInterfaceConfigure(QQmlContext *context,
+                                                   const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Temperature", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void TemperatureElement::setTemperature(qreal temperature)

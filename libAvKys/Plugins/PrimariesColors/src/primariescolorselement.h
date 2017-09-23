@@ -20,8 +20,6 @@
 #ifndef PRIMARIESCOLORSELEMENT_H
 #define PRIMARIESCOLORSELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,13 +35,15 @@ class PrimariesColorsElement: public AkElement
     public:
         explicit PrimariesColorsElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int factor() const;
 
     private:
         int m_factor;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void factorChanged(int factor);

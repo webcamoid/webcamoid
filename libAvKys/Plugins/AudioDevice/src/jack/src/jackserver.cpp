@@ -105,7 +105,7 @@ jackctl_driver_t *JackServer::driverByName(const QString &name) const
         if (this->name(driver) == name)
             return  driver;
 
-    return NULL;
+    return nullptr;
 }
 
 QString JackServer::name(jackctl_driver_t *driver) const
@@ -166,7 +166,7 @@ jackctl_parameter_t *JackServer::parameterByName(const QString &name) const
         if (this->name(parameter) == name)
             return  parameter;
 
-    return NULL;
+    return nullptr;
 }
 
 jackctl_parameter_t *JackServer::parameterByName(jackctl_driver_t *driver,
@@ -176,7 +176,7 @@ jackctl_parameter_t *JackServer::parameterByName(jackctl_driver_t *driver,
         if (this->name(parameter) == name)
             return  parameter;
 
-    return NULL;
+    return nullptr;
 }
 
 QString JackServer::name(jackctl_parameter_t *parameter) const
@@ -267,7 +267,7 @@ jackctl_server_t *JackServer::jackctl_server_create(on_device_acquire_t on_devic
     if (this->m_jackctl_server_create)
         return this->m_jackctl_server_create(on_device_acquire, on_device_release);
 
-    return NULL;
+    return nullptr;
 }
 
 void JackServer::jackctl_server_destroy(jackctl_server_t *server) const
@@ -298,7 +298,7 @@ const JSList *JackServer::jackctl_server_get_drivers_list(jackctl_server_t *serv
     if (this->m_jackctl_server_get_drivers_list)
         return this->m_jackctl_server_get_drivers_list(server);
 
-    return NULL;
+    return nullptr;
 }
 
 const JSList *JackServer::jackctl_server_get_parameters(jackctl_server_t *server) const
@@ -306,7 +306,7 @@ const JSList *JackServer::jackctl_server_get_parameters(jackctl_server_t *server
     if (this->m_jackctl_server_get_parameters)
         return this->m_jackctl_server_get_parameters(server);
 
-    return NULL;
+    return nullptr;
 }
 
 bool JackServer::jackctl_server_switch_master(jackctl_server_t *server,
@@ -323,7 +323,7 @@ const char *JackServer::jackctl_driver_get_name(jackctl_driver_t *driver) const
     if (this->m_jackctl_driver_get_name)
         return this->m_jackctl_driver_get_name(driver);
 
-    return NULL;
+    return nullptr;
 }
 
 const JSList *JackServer::jackctl_driver_get_parameters(jackctl_driver_t *driver) const
@@ -331,7 +331,7 @@ const JSList *JackServer::jackctl_driver_get_parameters(jackctl_driver_t *driver
     if (this->m_jackctl_driver_get_parameters)
         return this->m_jackctl_driver_get_parameters(driver);
 
-    return NULL;
+    return nullptr;
 }
 
 const char *JackServer::jackctl_parameter_get_name(jackctl_parameter_t *parameter) const
@@ -339,7 +339,7 @@ const char *JackServer::jackctl_parameter_get_name(jackctl_parameter_t *paramete
     if (this->m_jackctl_parameter_get_name)
         return this->m_jackctl_parameter_get_name(parameter);
 
-    return NULL;
+    return nullptr;
 }
 
 const char *JackServer::jackctl_parameter_get_short_description(jackctl_parameter_t *parameter) const
@@ -347,7 +347,7 @@ const char *JackServer::jackctl_parameter_get_short_description(jackctl_paramete
     if (this->m_jackctl_parameter_get_short_description)
         return this->m_jackctl_parameter_get_short_description(parameter);
 
-    return NULL;
+    return nullptr;
 }
 
 const char *JackServer::jackctl_parameter_get_long_description(jackctl_parameter_t *parameter) const
@@ -355,7 +355,7 @@ const char *JackServer::jackctl_parameter_get_long_description(jackctl_parameter
     if (this->m_jackctl_parameter_get_long_description)
         return this->m_jackctl_parameter_get_long_description(parameter);
 
-    return NULL;
+    return nullptr;
 }
 
 jackctl_param_type_t JackServer::jackctl_parameter_get_type(jackctl_parameter_t *parameter) const

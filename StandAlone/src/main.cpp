@@ -20,7 +20,6 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
 #include <QWindow>
 #include <QTranslator>
 #include <QSettings>

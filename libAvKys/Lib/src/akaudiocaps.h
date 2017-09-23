@@ -195,7 +195,7 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
             Layout_downmix       = Position_StereoLeft | Position_StereoRight
         };
 
-        explicit AkAudioCaps(QObject *parent=NULL);
+        explicit AkAudioCaps(QObject *parent=nullptr);
         AkAudioCaps(const QVariantMap &caps);
         AkAudioCaps(const QString &caps);
         AkAudioCaps(const AkCaps &caps);
@@ -243,15 +243,15 @@ class AKCOMMONS_EXPORT AkAudioCaps: public QObject
                                                                    int endianness,
                                                                    bool planar);
         Q_INVOKABLE static bool sampleFormatProperties(SampleFormat sampleFormat,
-                                                       AkAudioCaps::SampleType *type=NULL,
-                                                       int *bps=NULL,
-                                                       int *endianness=NULL,
-                                                       bool *planar=NULL);
+                                                       AkAudioCaps::SampleType *type=nullptr,
+                                                       int *bps=nullptr,
+                                                       int *endianness=nullptr,
+                                                       bool *planar=nullptr);
         Q_INVOKABLE static bool sampleFormatProperties(const QString &sampleFormat,
-                                                       AkAudioCaps::SampleType *type=NULL,
-                                                       int *bps=NULL,
-                                                       int *endianness=NULL,
-                                                       bool *planar=NULL);
+                                                       AkAudioCaps::SampleType *type=nullptr,
+                                                       int *bps=nullptr,
+                                                       int *endianness=nullptr,
+                                                       bool *planar=nullptr);
         Q_INVOKABLE static SampleType sampleType(SampleFormat sampleFormat);
         Q_INVOKABLE static SampleType sampleType(const QString &sampleFormat);
         Q_INVOKABLE static QString channelLayoutToString(ChannelLayout channelLayout);

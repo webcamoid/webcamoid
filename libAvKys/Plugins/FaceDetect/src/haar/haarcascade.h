@@ -98,7 +98,7 @@ class HaarCascade: public QObject
                NOTIFY errorStringChanged)
 
     public:
-        explicit HaarCascade(QObject *parent = NULL);
+        explicit HaarCascade(QObject *parent=nullptr);
         HaarCascade(const HaarCascade &other);
         ~HaarCascade();
 

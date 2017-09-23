@@ -133,7 +133,7 @@ class HaarDetectorPrivate
                            QVector<int> &labels,
                            int i, int label, qreal eps) const;
         QVector<int> classifyRectangles(const QVector<QRect> &rectangles,
-                                        qreal eps, int *nClasses=NULL) const;
+                                        qreal eps, int *nClasses=nullptr) const;
         RectVector groupRectangles(const RectVector &rects, int minNeighbors=3,
                                    qreal eps=0.2) const;
 };

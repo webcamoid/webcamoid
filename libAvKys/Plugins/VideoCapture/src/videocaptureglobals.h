@@ -37,7 +37,7 @@ class VideoCaptureGlobals : public QObject
                NOTIFY captureLibChanged)
 
     public:
-        explicit VideoCaptureGlobals(QObject *parent=NULL);
+        explicit VideoCaptureGlobals(QObject *parent=nullptr);
 
         Q_INVOKABLE QString codecLib() const;
         Q_INVOKABLE QString captureLib() const;

@@ -22,8 +22,6 @@
 
 #include <QThreadPool>
 #include <QtConcurrent>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <akmultimediasourceelement.h>
 
 #include "screendev.h"
@@ -66,9 +64,6 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         explicit DesktopCaptureElement();
         ~DesktopCaptureElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE AkFrac fps() const;
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
@@ -80,6 +75,11 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
 
     private:
         ScreenDevPtr m_screenCapture;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void mediasChanged(const QStringList &medias);

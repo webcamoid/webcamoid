@@ -20,8 +20,6 @@
 #ifndef FRAMEOVERLAPELEMENT_H
 #define FRAMEOVERLAPELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -42,18 +40,19 @@ class FrameOverlapElement: public AkElement
     public:
         explicit FrameOverlapElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE int stride() const;
 
     private:
         int m_nFrames;
         int m_stride;
-
         QVector<QImage> m_frames;
         QSize m_frameSize;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void nFramesChanged(int nFrames);

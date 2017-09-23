@@ -54,7 +54,7 @@ class CaptureLibUVC: public Capture
             IoMethodUserPointer
         };
 
-        explicit CaptureLibUVC(QObject *parent=NULL);
+        explicit CaptureLibUVC(QObject *parent=nullptr);
         ~CaptureLibUVC();
 
         Q_INVOKABLE QStringList webcams() const;

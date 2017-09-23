@@ -42,44 +42,6 @@ CartoonElement::~CartoonElement()
 
 }
 
-QObject *CartoonElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Cartoon/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Cartoon", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 int CartoonElement::ncolors() const
 {
     return this->m_ncolors;
@@ -176,8 +138,8 @@ QVector<QRgb> CartoonElement::palette(const QImage &img,
         this->m_palette.resize(1 << 16);
 
         for (int i = 0; i < this->m_palette.size(); i++)
-            this->m_palette[i] = this->nearestColor(NULL,
-                                                    NULL,
+            this->m_palette[i] = this->nearestColor(nullptr,
+                                                    nullptr,
                                                     palette,
                                                     this->rgb16Torgb24(i));
 
@@ -284,6 +246,22 @@ QImage CartoonElement::edges(const QImage &src, int thLow, int thHi, QRgb color)
     }
 
     return dst;
+}
+
+QString CartoonElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Cartoon/share/qml/main.qml");
+}
+
+void CartoonElement::controlInterfaceConfigure(QQmlContext *context,
+                                               const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Cartoon", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void CartoonElement::setNColors(int ncolors)

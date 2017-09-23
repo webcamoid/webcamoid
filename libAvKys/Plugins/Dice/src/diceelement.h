@@ -21,8 +21,6 @@
 #define DICEELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -38,9 +36,6 @@ class DiceElement: public AkElement
     public:
         explicit DiceElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int diceSize() const;
 
     private:
@@ -49,6 +44,11 @@ class DiceElement: public AkElement
         QMutex m_mutex;
         QImage m_diceMap;
         QSize m_frameSize;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void diceSizeChanged(int diceSize);

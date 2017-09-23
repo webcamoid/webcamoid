@@ -27,46 +27,6 @@ PhotocopyElement::PhotocopyElement(): AkElement()
     this->m_contrast = 20;
 }
 
-QObject *PhotocopyElement::controlInterface(QQmlEngine *engine,
-                                            const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine,
-                            QUrl(QStringLiteral("qrc:/Photocopy/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Photocopy", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal PhotocopyElement::brightness() const
 {
     return this->m_brightness;
@@ -75,6 +35,22 @@ qreal PhotocopyElement::brightness() const
 qreal PhotocopyElement::contrast() const
 {
     return this->m_contrast;
+}
+
+QString PhotocopyElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Photocopy/share/qml/main.qml");
+}
+
+void PhotocopyElement::controlInterfaceConfigure(QQmlContext *context,
+                                                 const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Photocopy", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void PhotocopyElement::setBrightness(qreal brightness)

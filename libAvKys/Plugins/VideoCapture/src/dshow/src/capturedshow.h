@@ -65,7 +65,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
             IoMethodGrabBuffer
         };
 
-        explicit CaptureDShow(QObject *parent=NULL);
+        explicit CaptureDShow(QObject *parent=nullptr);
         ~CaptureDShow();
 
         Q_INVOKABLE QStringList webcams() const;
@@ -119,7 +119,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         BaseFilterPtr findFilter(const QString &webcam) const;
         MediaTypesList listMediaTypes(const QString &webcam) const;
         MediaTypesList listMediaTypes(IBaseFilter *filter) const;
-        bool isPinConnected(IPin *pPin, bool *ok=NULL) const;
+        bool isPinConnected(IPin *pPin, bool *ok=nullptr) const;
         PinPtr findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const;
         bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;

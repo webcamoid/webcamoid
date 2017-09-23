@@ -39,7 +39,7 @@ class AudioDeviceBuffer: public QIODevice
                NOTIFY maxBufferSizeChanged)
 
     public:
-        AudioDeviceBuffer(QObject *parent=NULL);
+        AudioDeviceBuffer(QObject *parent=nullptr);
         ~AudioDeviceBuffer();
 
         Q_INVOKABLE qint64 blockSize() const;

@@ -21,8 +21,6 @@
 #define VIDEOEFFECTS_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <akelement.h>
 
@@ -53,7 +51,8 @@ class VideoEffects: public QObject
                NOTIFY advancedModeChanged)
 
     public:
-        explicit VideoEffects(QQmlApplicationEngine *engine=NULL, QObject *parent=NULL);
+        explicit VideoEffects(QQmlApplicationEngine *engine=nullptr,
+                              QObject *parent=nullptr);
         ~VideoEffects();
 
         Q_INVOKABLE QStringList availableEffects() const;
@@ -99,7 +98,7 @@ class VideoEffects: public QObject
         void removeAllPreviews();
         void updateEffects();
         AkPacket iStream(const AkPacket &packet);
-        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
+        void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
         void advancedModeUpdated(bool advancedMode);

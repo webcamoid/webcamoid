@@ -20,8 +20,6 @@
 #ifndef SCROLLELEMENT_H
 #define SCROLLELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -42,20 +40,21 @@ class ScrollElement: public AkElement
     public:
         explicit ScrollElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal speed() const;
         Q_INVOKABLE qreal noise() const;
 
     private:
         qreal m_speed;
         qreal m_noise;
-
         qreal m_offset;
         QSize m_curSize;
 
         QImage generateNoise(const QSize &size, qreal persent);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void speedChanged(qreal speed);

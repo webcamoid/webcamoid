@@ -61,7 +61,7 @@ class MediaTools: public QObject
                NOTIFY virtualCameraStateChanged)
 
     public:
-        explicit MediaTools(QObject *parent=NULL);
+        explicit MediaTools(QObject *parent=nullptr);
         ~MediaTools();
 
         Q_INVOKABLE int windowWidth() const;
@@ -90,7 +90,7 @@ class MediaTools: public QObject
         Q_INVOKABLE bool embedVirtualCameraControls(const QString &where,
                                                     const QString &name="");
         Q_INVOKABLE void removeInterface(const QString &where,
-                                         QQmlApplicationEngine *engine=NULL);
+                                         QQmlApplicationEngine *engine=nullptr);
         static QString convertToAbsolute(const QString &path);
 
     private:

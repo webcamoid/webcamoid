@@ -26,6 +26,8 @@
 
 #include "akutils.h"
 
+typedef QSharedPointer<QSGTexture> TexturePtr;
+
 class VideoDisplay: public QQuickItem
 {
     Q_OBJECT
@@ -38,14 +40,14 @@ class VideoDisplay: public QQuickItem
                NOTIFY fillDisplayChanged)
 
     public:
-        VideoDisplay(QQuickItem *parent=NULL);
+        VideoDisplay(QQuickItem *parent=nullptr);
         ~VideoDisplay();
 
         Q_INVOKABLE bool fillDisplay() const;
 
     private:
         bool m_fillDisplay;
-        QSGTexture *m_videoFrame;
+        TexturePtr m_videoFrame;
         QImage m_frame;
         QMutex m_mutex;
 

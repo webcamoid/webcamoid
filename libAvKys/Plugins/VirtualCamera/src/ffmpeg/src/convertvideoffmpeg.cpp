@@ -26,7 +26,7 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
 {
     avcodec_register_all();
 
-    this->m_scaleContext = NULL;
+    this->m_scaleContext = nullptr;
 
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
@@ -63,9 +63,9 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
                                                 oVideoCaps.height(),
                                                 oFormat,
                                                 SWS_FAST_BILINEAR,
-                                                NULL,
-                                                NULL,
-                                                NULL);
+                                                nullptr,
+                                                nullptr,
+                                                nullptr);
 
     if (!this->m_scaleContext)
         return AkPacket();
@@ -77,7 +77,7 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
     if (av_image_check_size(uint(videoPacket.caps().width()),
                             uint(videoPacket.caps().height()),
                             0,
-                            NULL) < 0)
+                            nullptr) < 0)
         return AkPacket();
 
     if (av_image_fill_linesizes(iFrame.linesize,
@@ -107,7 +107,7 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
     int frameSize = av_image_fill_pointers(data,
                                            oFormat,
                                            oVideoCaps.height(),
-                                           NULL,
+                                           nullptr,
                                            oFrame.linesize);
 
     QByteArray oBuffer(frameSize, 0);

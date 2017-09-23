@@ -20,8 +20,6 @@
 #ifndef SWIRLELEMENT_H
 #define SWIRLELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,13 +35,15 @@ class SwirlElement: public AkElement
     public:
         explicit SwirlElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal degrees() const;
 
     private:
         qreal m_degrees;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void degreesChanged(qreal degrees);

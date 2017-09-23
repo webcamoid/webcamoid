@@ -50,44 +50,6 @@ VignetteElement::VignetteElement(): AkElement()
                      &VignetteElement::updateVignette);
 }
 
-QObject *VignetteElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Vignette/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Vignette", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 QRgb VignetteElement::color() const
 {
     return this->m_color;
@@ -106,6 +68,22 @@ qreal VignetteElement::scale() const
 qreal VignetteElement::softness() const
 {
     return this->m_softness;
+}
+
+QString VignetteElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Vignette/share/qml/main.qml");
+}
+
+void VignetteElement::controlInterfaceConfigure(QQmlContext *context,
+                                                const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Vignette", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void VignetteElement::setColor(QRgb color)

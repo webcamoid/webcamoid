@@ -54,7 +54,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
     m_curChannels(0),
     m_maxBufferSize(0),
     m_isInput(false),
-    m_client(NULL)
+    m_client(nullptr)
 {
     this->m_descriptions = {
         {":jackinput:" , "JACK Audio Connection Kit Input" },
@@ -99,7 +99,7 @@ AudioDevJack::AudioDevJack(QObject *parent):
 
     for (auto deviceId: portTypeMap.keys()) {
         auto ports = jack_get_ports(this->m_client,
-                                    NULL,
+                                    nullptr,
                                     JACK_DEFAULT_AUDIO_TYPE,
                                     JackPortIsPhysical | portTypeMap[deviceId]);
         int channels = 0;

@@ -29,7 +29,7 @@ class AkQml: public QQuickItem
     Q_DISABLE_COPY(AkQml)
 
     public:
-        AkQml(QQuickItem *parent=NULL);
+        AkQml(QQuickItem *parent=nullptr);
         ~AkQml();
 
         Q_INVOKABLE qint64 id() const;
@@ -60,7 +60,7 @@ class AkQml: public QQuickItem
         Q_INVOKABLE QObject *newVideoCaps(const AkVideoCaps &caps) const;
 
         Q_INVOKABLE QObject *newElement(const QString &pluginId,
-                                        const QString &elementName="") const;
+                                        const QString &elementName={}) const;
 
         Q_INVOKABLE QVariant varFrac(AkFrac *frac) const;
         Q_INVOKABLE QVariant varFrac(qint64 num, qint64 den) const;

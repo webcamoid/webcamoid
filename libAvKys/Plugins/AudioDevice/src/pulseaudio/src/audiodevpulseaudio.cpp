@@ -41,7 +41,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()
 AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
     AudioDev(parent)
 {
-    this->m_paSimple = NULL;
+    this->m_paSimple = nullptr;
     this->m_curBps = 0;
     this->m_curChannels = 0;
 
@@ -54,7 +54,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
     // Start main loop.
     if (pa_threaded_mainloop_start(this->m_mainLoop) != 0) {
         pa_threaded_mainloop_free(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
 
         return;
     }
@@ -68,7 +68,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
         pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
 
         return;
     }
@@ -83,7 +83,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
         pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
 
         return;
     }
@@ -94,13 +94,16 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
                                   this);
 
     // Connect to PulseAudio server.
-    if (pa_context_connect(this->m_context, NULL, PA_CONTEXT_NOFLAGS, NULL) < 0) {
+    if (pa_context_connect(this->m_context,
+                           nullptr,
+                           PA_CONTEXT_NOFLAGS,
+                           nullptr) < 0) {
         pa_context_unref(this->m_context);
-        this->m_context = NULL;
+        this->m_context = nullptr;
         pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
 
         return;
     }
@@ -126,11 +129,11 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
     if (state != PA_CONTEXT_READY) {
         pa_context_disconnect(this->m_context);
         pa_context_unref(this->m_context);
-        this->m_context = NULL;
+        this->m_context = nullptr;
         pa_threaded_mainloop_unlock(this->m_mainLoop);
         pa_threaded_mainloop_stop(this->m_mainLoop);
         pa_threaded_mainloop_free(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
 
         return;
     }
@@ -173,7 +176,7 @@ AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
                                             pa_subscription_mask_t(PA_SUBSCRIPTION_MASK_SINK
                                                                    | PA_SUBSCRIPTION_MASK_SOURCE
                                                                    | PA_SUBSCRIPTION_MASK_SERVER),
-                                            NULL,
+                                            nullptr,
                                             this));
 
     pa_threaded_mainloop_unlock(this->m_mainLoop);
@@ -289,14 +292,14 @@ bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
     bool isInput = this->m_sources.values().contains(device);
     this->m_mutex.unlock();
 
-    this->m_paSimple = pa_simple_new(NULL,
+    this->m_paSimple = pa_simple_new(nullptr,
                                      QCoreApplication::applicationName().toStdString().c_str(),
                                      isInput? PA_STREAM_RECORD: PA_STREAM_PLAYBACK,
                                      device.toStdString().c_str(),
                                      QCoreApplication::organizationName().toStdString().c_str(),
                                      &ss,
-                                     NULL,
-                                     NULL,
+                                     nullptr,
+                                     nullptr,
                                      &error);
 
     if (!this->m_paSimple) {
@@ -371,7 +374,7 @@ bool AudioDevPulseAudio::uninit()
     } else
         ok = false;
 
-    this->m_paSimple = NULL;
+    this->m_paSimple = nullptr;
     this->m_curBps = 0;
     this->m_curChannels = 0;
 

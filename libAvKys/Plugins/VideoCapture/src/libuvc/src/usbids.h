@@ -36,7 +36,7 @@ class UsbIds: public QObject
     Q_OBJECT
 
     public:
-        explicit UsbIds(QObject *parent=NULL);
+        explicit UsbIds(QObject *parent=nullptr);
 
         const UsbIdsElement *operator [](quint16 vendorId) const;
         QString description(quint16 vendorId, quint16 productId) const;

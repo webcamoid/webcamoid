@@ -20,8 +20,6 @@
 #ifndef OILPAINTELEMENT_H
 #define OILPAINTELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,13 +35,15 @@ class OilPaintElement: public AkElement
     public:
         explicit OilPaintElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int radius() const;
 
     private:
         int m_radius;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void radiusChanged(int radius);

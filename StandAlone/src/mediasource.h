@@ -21,8 +21,6 @@
 #define MEDIASOURCE_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <akelement.h>
 
@@ -73,7 +71,8 @@ class MediaSource: public QObject
                NOTIFY playOnStartChanged)
 
     public:
-        explicit MediaSource(QQmlApplicationEngine *engine=NULL, QObject *parent=NULL);
+        explicit MediaSource(QQmlApplicationEngine *engine=nullptr,
+                             QObject *parent=nullptr);
         ~MediaSource();
 
         Q_INVOKABLE QString stream() const;
@@ -136,7 +135,7 @@ class MediaSource: public QObject
         void resetUris();
         void resetState();
         void resetPlayOnStart();
-        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
+        void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
         void streamUpdated(const QString &stream);

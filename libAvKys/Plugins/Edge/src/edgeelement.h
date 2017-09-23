@@ -20,8 +20,6 @@
 #ifndef EDGEELEMENT_H
 #define EDGEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -58,9 +56,6 @@ class EdgeElement: public AkElement
         explicit EdgeElement();
         ~EdgeElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE bool canny() const;
         Q_INVOKABLE int thLow() const;
         Q_INVOKABLE int thHi() const;
@@ -88,6 +83,11 @@ class EdgeElement: public AkElement
                    int x, int y) const;
         QVector<quint8> hysteresisThresholding(int width, int height,
                                                const QVector<quint8> &thresholded) const;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void cannyChanged(bool canny);

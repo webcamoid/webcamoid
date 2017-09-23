@@ -26,12 +26,13 @@ typedef QMap<FaceDetectElement::MarkerType, QString> MarkerTypeMap;
 
 inline MarkerTypeMap initMarkerTypeMap()
 {
-    MarkerTypeMap markerTypeToStr;
-    markerTypeToStr[FaceDetectElement::MarkerTypeRectangle] = "rectangle";
-    markerTypeToStr[FaceDetectElement::MarkerTypeEllipse] = "ellipse";
-    markerTypeToStr[FaceDetectElement::MarkerTypeImage] = "image";
-    markerTypeToStr[FaceDetectElement::MarkerTypePixelate] = "pixelate";
-    markerTypeToStr[FaceDetectElement::MarkerTypeBlur] = "blur";
+    MarkerTypeMap markerTypeToStr {
+        {FaceDetectElement::MarkerTypeRectangle, "rectangle"},
+        {FaceDetectElement::MarkerTypeEllipse  , "ellipse"  },
+        {FaceDetectElement::MarkerTypeImage    , "image"    },
+        {FaceDetectElement::MarkerTypePixelate , "pixelate" },
+        {FaceDetectElement::MarkerTypeBlur     , "blur"     }
+    };
 
     return markerTypeToStr;
 }
@@ -42,12 +43,13 @@ typedef QMap<Qt::PenStyle, QString> PenStyleMap;
 
 inline PenStyleMap initPenStyleMap()
 {
-    PenStyleMap markerStyleToStr;
-    markerStyleToStr[Qt::SolidLine] = "solid";
-    markerStyleToStr[Qt::DashLine] = "dash";
-    markerStyleToStr[Qt::DotLine] = "dot";
-    markerStyleToStr[Qt::DashDotLine] = "dashDot";
-    markerStyleToStr[Qt::DashDotDotLine] = "dashDotDot";
+    PenStyleMap markerStyleToStr {
+        {Qt::SolidLine     , "solid"     },
+        {Qt::DashLine      , "dash"      },
+        {Qt::DotLine       , "dot"       },
+        {Qt::DashDotLine   , "dashDot"   },
+        {Qt::DashDotDotLine, "dashDotDot"}
+    };
 
     return markerStyleToStr;
 }
@@ -74,47 +76,6 @@ FaceDetectElement::FaceDetectElement(): AkElement()
                      SIGNAL(radiusChanged(int)),
                      this,
                      SIGNAL(blurRadiusChanged(int)));
-}
-
-QObject *FaceDetectElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/FaceDetect/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("FaceDetect", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-    context->setContextProperty("picturesPath", picturesPath[0]);
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
 }
 
 QString FaceDetectElement::haarFile() const
@@ -163,6 +124,25 @@ int FaceDetectElement::blurRadius() const
 QSize FaceDetectElement::scanSize() const
 {
     return this->m_scanSize;
+}
+
+QString FaceDetectElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/FaceDetect/share/qml/main.qml");
+}
+
+void FaceDetectElement::controlInterfaceConfigure(QQmlContext *context,
+                                                  const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("FaceDetect", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
+
+    QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    context->setContextProperty("picturesPath", picturesPath[0]);
 }
 
 void FaceDetectElement::setHaarFile(const QString &haarFile)

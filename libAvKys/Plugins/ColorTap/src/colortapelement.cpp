@@ -27,50 +27,28 @@ ColorTapElement::ColorTapElement(): AkElement()
     this->m_table = QImage(this->m_tableName).scaled(16, 16);
 }
 
-QObject *ColorTapElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
+QString ColorTapElement::table() const
+{
+    return this->m_tableName;
+}
+
+QString ColorTapElement::controlInterfaceProvide(const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
-    if (!engine)
-        return NULL;
+    return QString("qrc:/ColorTap/share/qml/main.qml");
+}
 
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ColorTap/share/qml/main.qml")));
+void ColorTapElement::controlInterfaceConfigure(QQmlContext *context,
+                                                const QString &controlId) const
+{
+    Q_UNUSED(controlId)
 
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
     context->setContextProperty("ColorTap", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
     context->setContextProperty("controlId", this->objectName());
 
     QStringList picturesPath = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
     context->setContextProperty("picturesPath", picturesPath[0]);
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
-QString ColorTapElement::table() const
-{
-    return this->m_tableName;
 }
 
 void ColorTapElement::setTable(const QString &table)

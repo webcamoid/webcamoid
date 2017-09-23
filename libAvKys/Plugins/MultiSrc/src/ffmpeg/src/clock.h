@@ -34,7 +34,7 @@ class Clock: public QObject
                RESET resetClock)
 
     public:
-        Clock(QObject *parent=NULL);
+        Clock(QObject *parent=nullptr);
 
         Q_INVOKABLE qreal clock();
 

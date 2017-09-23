@@ -120,11 +120,11 @@ HaarCascadeHID::HaarCascadeHID(const HaarCascade &cascade,
 
     for (int i = 0; i < this->m_count; i++) {
         int parent = cascade.m_stages[i].parentStage();
-        this->m_stages[i]->m_parentStagePtr = parent < 0? NULL: this->m_stages[parent];
+        this->m_stages[i]->m_parentStagePtr = parent < 0? nullptr: this->m_stages[parent];
         int next = cascade.m_stages[i].nextStage();
-        this->m_stages[i]->m_nextStagePtr = next < 0? NULL: this->m_stages[next];
+        this->m_stages[i]->m_nextStagePtr = next < 0? nullptr: this->m_stages[next];
         int child = cascade.m_stages[i].childStage();
-        this->m_stages[i]->m_childStagePtr = child < 0? NULL: this->m_stages[child];
+        this->m_stages[i]->m_childStagePtr = child < 0? nullptr: this->m_stages[child];
     }
 }
 
@@ -186,10 +186,10 @@ void HaarCascadeHID::run(HaarCascadeHID *cascade)
                     if (haarStage->pass(offset, varianceNormFactor))
                         haarStage = haarStage->m_childStagePtr;
                     else {
-                        while (haarStage && haarStage->m_nextStagePtr == NULL)
+                        while (haarStage && haarStage->m_nextStagePtr == nullptr)
                             haarStage = haarStage->m_parentStagePtr;
 
-                        if (haarStage == NULL) {
+                        if (haarStage == nullptr) {
                             stageResult = 0;
 
                             break;
@@ -228,7 +228,7 @@ HaarCascade::HaarCascade(QObject *parent):
 }
 
 HaarCascade::HaarCascade(const HaarCascade &other):
-    QObject(NULL)
+    QObject(nullptr)
 {
     this->m_name = other.m_name;
     this->m_windowSize = other.m_windowSize;

@@ -20,8 +20,6 @@
 #ifndef COLORFILTERELEMENT_H
 #define COLORFILTERELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -52,9 +50,6 @@ class ColorFilterElement: public AkElement
     public:
         explicit ColorFilterElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QRgb color() const;
         Q_INVOKABLE qreal radius() const;
         Q_INVOKABLE bool soft() const;
@@ -65,6 +60,11 @@ class ColorFilterElement: public AkElement
         qreal m_radius;
         bool m_soft;
         bool m_disable;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void colorChanged(QRgb color);

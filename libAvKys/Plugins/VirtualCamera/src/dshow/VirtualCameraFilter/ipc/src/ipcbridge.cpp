@@ -77,7 +77,7 @@ namespace IPC {
                     if (formats()[i].fourcc == fourcc)
                         return &formats()[i];
 
-                return NULL;
+                return nullptr;
             }
 
             static inline const VideoFormat *byGuid(const GUID &guid)
@@ -86,7 +86,7 @@ namespace IPC {
                     if (formats()[i].guid == guid)
                         return &formats()[i];
 
-                return NULL;
+                return nullptr;
             }
 
             static inline size_t frameSize(DWORD format, DWORD width, DWORD height)
@@ -115,8 +115,8 @@ IpcBridge::IpcBridge(const std::wstring &pipeName)
 {
     this->d = new IpcBridgePrivate();
     this->d->m_pipeName = pipeName;
-    this->d->m_fileHandle = NULL;
-    this->d->m_frame = NULL;
+    this->d->m_fileHandle = nullptr;
+    this->d->m_frame = nullptr;
 }
 
 IpcBridge::~IpcBridge()
@@ -153,7 +153,7 @@ bool IpcBridge::open(IpcBridge::OpenMode mode)
     } else {
         this->d->m_fileHandle =
                 CreateFileMapping(INVALID_HANDLE_VALUE,
-                                  NULL,
+                                  nullptr,
                                   PAGE_READWRITE,
                                   0,
                                   maxBufferSize,
@@ -172,7 +172,7 @@ bool IpcBridge::open(IpcBridge::OpenMode mode)
 
     if (!this->d->m_frame) {
         CloseHandle(this->d->m_fileHandle);
-        this->d->m_fileHandle = NULL;
+        this->d->m_fileHandle = nullptr;
 
         return false;
     }
@@ -194,12 +194,12 @@ void IpcBridge::close()
 {
     if (this->d->m_frame) {
         UnmapViewOfFile(this->d->m_frame);
-        this->d->m_frame = NULL;
+        this->d->m_frame = nullptr;
     }
 
     if (this->d->m_fileHandle) {
         CloseHandle(this->d->m_fileHandle);
-        this->d->m_fileHandle = NULL;
+        this->d->m_fileHandle = nullptr;
     }
 }
 

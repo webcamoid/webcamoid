@@ -20,8 +20,6 @@
 #ifndef CINEMAELEMENT_H
 #define CINEMAELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -42,15 +40,17 @@ class CinemaElement: public AkElement
     public:
         explicit CinemaElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal stripSize() const;
         Q_INVOKABLE QRgb stripColor() const;
 
     private:
         qreal m_stripSize;
         QRgb m_stripColor;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void stripSizeChanged(qreal stripSize);

@@ -25,44 +25,6 @@ FrameOverlapElement::FrameOverlapElement(): AkElement()
     this->m_stride = 4;
 }
 
-QObject *FrameOverlapElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/FrameOverlap/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("FrameOverlap", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 int FrameOverlapElement::nFrames() const
 {
     return this->m_nFrames;
@@ -71,6 +33,22 @@ int FrameOverlapElement::nFrames() const
 int FrameOverlapElement::stride() const
 {
     return this->m_stride;
+}
+
+QString FrameOverlapElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/FrameOverlap/share/qml/main.qml");
+}
+
+void FrameOverlapElement::controlInterfaceConfigure(QQmlContext *context,
+                                                    const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("FrameOverlap", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void FrameOverlapElement::setNFrames(int nFrames)

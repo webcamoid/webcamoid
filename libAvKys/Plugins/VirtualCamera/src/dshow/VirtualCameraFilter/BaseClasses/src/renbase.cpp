@@ -33,18 +33,18 @@ CBaseRenderer::CBaseRenderer(REFCLSID RenderClass, // CLSID for this renderer
                              __inout HRESULT *phr) :       // General OLE return code
 
     CBaseFilter(pName,pUnk,&m_InterfaceLock,RenderClass),
-    m_pPosition(NULL),
+    m_pPosition(nullptr),
     m_RenderEvent(FALSE, phr),
     m_ThreadSignal(TRUE, phr),
     m_evComplete(TRUE, phr),
     m_bAbort(FALSE),
     m_bStreaming(FALSE),
     m_dwAdvise(0),
-    m_pMediaSample(NULL),
+    m_pMediaSample(nullptr),
     m_bEOS(FALSE),
     m_bEOSDelivered(FALSE),
-    m_pInputPin(NULL),
-    m_pQSink(NULL),
+    m_pInputPin(nullptr),
+    m_pQSink(nullptr),
     m_bRepaintStatus(TRUE),
     m_bInReceive(FALSE),
     m_SignalTime(0),
@@ -78,19 +78,19 @@ CBaseRenderer::~CBaseRenderer()
 
     if (m_pPosition) {
         delete m_pPosition;
-        m_pPosition = NULL;
+        m_pPosition = nullptr;
     }
 
     // Delete any input pin created
 
     if (m_pInputPin) {
         delete m_pInputPin;
-        m_pInputPin = NULL;
+        m_pInputPin = nullptr;
     }
 
     // Release any Quality sink
 
-    ASSERT(m_pQSink == NULL);
+    ASSERT(m_pQSink == nullptr);
 }
 
 
@@ -104,7 +104,7 @@ HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid, __deref_out void *
     }
 
     CBasePin *pPin = GetPin(0);
-    if (NULL == pPin) {
+    if (nullptr == pPin) {
         return E_OUTOFMEMORY;
     }
 
@@ -119,13 +119,13 @@ HRESULT CBaseRenderer::GetMediaPositionInterface(REFIID riid, __deref_out void *
                                            CBaseFilter::GetOwner(),
                                            (HRESULT *) &hr,
                                            pPin);
-    if (m_pPosition == NULL) {
+    if (m_pPosition == nullptr) {
         return E_OUTOFMEMORY;
     }
 
     if (FAILED(hr)) {
         delete m_pPosition;
-        m_pPosition = NULL;
+        m_pPosition = nullptr;
         return E_NOINTERFACE;
     }
     return GetMediaPositionInterface(riid,ppv);
@@ -296,7 +296,7 @@ void CBaseRenderer::WaitForReceiveToComplete()
 
         MSG msg;
         //  Receive all interthread snedmessages
-        PeekMessage(&msg, NULL, WM_NULL, WM_NULL, PM_NOREMOVE);
+        PeekMessage(&msg, nullptr, WM_NULL, WM_NULL, PM_NOREMOVE);
 
         Sleep(1);
     }
@@ -590,11 +590,11 @@ STDMETHODIMP CBaseRenderer::Run(REFERENCE_TIME StartTime)
 
 int CBaseRenderer::GetPinCount()
 {
-    if (m_pInputPin == NULL) {
+    if (m_pInputPin == nullptr) {
         //  Try to create it
         (void)GetPin(0);
     }
-    return m_pInputPin != NULL ? 1 : 0;
+    return m_pInputPin != nullptr ? 1 : 0;
 }
 
 
@@ -608,12 +608,12 @@ CBasePin *CBaseRenderer::GetPin(int n)
     ASSERT(n == 0);
 
     if (n != 0) {
-        return NULL;
+        return nullptr;
     }
 
     // Create the input pin if not already done so
 
-    if (m_pInputPin == NULL) {
+    if (m_pInputPin == nullptr) {
 
         // hr must be initialized to NOERROR because
         // CRendererInputPin's constructor only changes
@@ -621,14 +621,14 @@ CBasePin *CBaseRenderer::GetPin(int n)
         HRESULT hr = NOERROR;
 
         m_pInputPin = new CRendererInputPin(this,&hr,L"In");
-        if (NULL == m_pInputPin) {
-            return NULL;
+        if (nullptr == m_pInputPin) {
+            return nullptr;
         }
 
         if (FAILED(hr)) {
             delete m_pInputPin;
-            m_pInputPin = NULL;
-            return NULL;
+            m_pInputPin = nullptr;
+            return nullptr;
         }
     }
     return m_pInputPin;
@@ -649,7 +649,7 @@ STDMETHODIMP CBaseRenderer::FindPin(LPCWSTR Id, __deref_out IPin **ppPin)
             return E_OUTOFMEMORY;
         }
     } else {
-        *ppPin = NULL;
+        *ppPin = nullptr;
         return VFW_E_NOT_FOUND;
     }
     return NOERROR;
@@ -798,7 +798,7 @@ HRESULT CBaseRenderer::BreakConnect()
 
     if (m_pQSink) {
         m_pQSink->Release();
-        m_pQSink = NULL;
+        m_pQSink = nullptr;
     }
 
     // Check we have a valid connection
@@ -854,7 +854,7 @@ HRESULT CBaseRenderer::GetSampleTimes(IMediaSample *pMediaSample,
     // caller that the sample should be rendered immediately without going
     // through the overhead of setting a timer advise link with the clock
 
-    if (m_pClock == NULL) {
+    if (m_pClock == nullptr) {
         return S_OK;
     }
     return ShouldDrawSampleNow(pMediaSample,pStartTime,pEndTime);
@@ -925,7 +925,7 @@ BOOL CBaseRenderer::ScheduleSample(IMediaSample *pMediaSample)
 
     // Is someone pulling our leg
 
-    if (pMediaSample == NULL) {
+    if (pMediaSample == nullptr) {
         return FALSE;
     }
 
@@ -987,7 +987,7 @@ HRESULT CBaseRenderer::Render(IMediaSample *pMediaSample)
     // clock that another sample is ready but in the mean time someone has
     // stopped us streaming which causes the next sample to be released
 
-    if (pMediaSample == NULL) {
+    if (pMediaSample == nullptr) {
         return S_FALSE;
     }
 
@@ -1014,7 +1014,7 @@ HRESULT CBaseRenderer::Render(IMediaSample *pMediaSample)
 BOOL CBaseRenderer::HaveCurrentSample()
 {
     CAutoLock cRendererLock(&m_RendererLock);
-    return (m_pMediaSample == NULL ? FALSE : TRUE);
+    return (m_pMediaSample == nullptr ? FALSE : TRUE);
 }
 
 
@@ -1079,7 +1079,7 @@ HRESULT CBaseRenderer::PrepareReceive(IMediaSample *pMediaSample)
     ASSERT(IsActive() == TRUE);
     ASSERT(m_pInputPin->IsFlushing() == FALSE);
     ASSERT(m_pInputPin->IsConnected() == TRUE);
-    ASSERT(m_pMediaSample == NULL);
+    ASSERT(m_pMediaSample == nullptr);
 
     // Return an error if we already have a sample waiting for rendering
     // source pins must serialise the Receive calls - we also check that
@@ -1210,7 +1210,7 @@ HRESULT CBaseRenderer::ClearPendingSample()
     CAutoLock cRendererLock(&m_RendererLock);
     if (m_pMediaSample) {
         m_pMediaSample->Release();
-        m_pMediaSample = NULL;
+        m_pMediaSample = nullptr;
     }
     return NOERROR;
 }
@@ -1266,7 +1266,7 @@ HRESULT CBaseRenderer::SendEndOfStream()
     }
 
     // If there is no clock then signal immediately
-    if (m_pClock == NULL) {
+    if (m_pClock == nullptr) {
         return NotifyEndOfStream();
     }
 
@@ -1392,7 +1392,7 @@ HRESULT CBaseRenderer::StartStreaming()
 
     // If we have an EOS and no data then deliver it now
 
-    if (m_pMediaSample == NULL) {
+    if (m_pMediaSample == nullptr) {
         return SendEndOfStream();
     }
 
@@ -1718,7 +1718,7 @@ STDMETHODIMP CRendererInputPin::QueryId(__deref_out LPWSTR *Id)
     const WCHAR szIn[] = L"In";
 
     *Id = (LPWSTR)CoTaskMemAlloc(sizeof(szIn));
-    if (*Id == NULL) {
+    if (*Id == nullptr) {
         return E_OUTOFMEMORY;
     }
     CopyMemory(*Id, szIn, sizeof(szIn));
@@ -2277,14 +2277,14 @@ HRESULT CBaseVideoRenderer::SendQuality(REFERENCE_TIME trLate,
 
     // A specific sink interface may be set through IPin
 
-    if (m_pQSink==NULL) {
+    if (m_pQSink==nullptr) {
         // Get our input pin's peer.  We send quality management messages
         // to any nominated receiver of these things (set in the IPin
         // interface), or else to our source filter.
 
-        IQualityControl *pQC = NULL;
+        IQualityControl *pQC = nullptr;
         IPin *pOutputPin = m_pInputPin->GetConnected();
-        ASSERT(pOutputPin != NULL);
+        ASSERT(pOutputPin != nullptr);
 
         // And get an AddRef'd quality control interface
 
@@ -2705,7 +2705,7 @@ STDMETHODIMP CBaseVideoRenderer::get_AvgSyncOffset(__out int *piAvg)
     CheckPointer(piAvg,E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
 
-    if (NULL==m_pClock) {
+    if (nullptr==m_pClock) {
         *piAvg = 0;
         return NOERROR;
     }
@@ -2776,7 +2776,7 @@ HRESULT CBaseVideoRenderer::GetStdDev(
     CheckPointer(piResult,E_POINTER);
     CAutoLock cVideoLock(&m_InterfaceLock);
 
-    if (NULL==m_pClock) {
+    if (nullptr==m_pClock) {
         *piResult = 0;
         return NOERROR;
     }

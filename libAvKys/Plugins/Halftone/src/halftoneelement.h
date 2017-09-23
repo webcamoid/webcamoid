@@ -21,8 +21,6 @@
 #define HALFTONEELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -58,9 +56,6 @@ class HalftoneElement: public AkElement
     public:
         explicit HalftoneElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString pattern() const;
         Q_INVOKABLE QSize patternSize() const;
         Q_INVOKABLE qreal lightness() const;
@@ -73,12 +68,16 @@ class HalftoneElement: public AkElement
         qreal m_lightness;
         qreal m_slope;
         qreal m_intercept;
-
         QMutex m_mutex;
         QSize m_frameSize;
         QImage m_patternImage;
 
         void updatePattern();
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void patternChanged(const QString &pattern);

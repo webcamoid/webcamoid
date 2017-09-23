@@ -21,8 +21,6 @@
 #define DISTORTELEMENT_H
 
 #include <QtMath>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -48,9 +46,6 @@ class DistortElement: public AkElement
     public:
         explicit DistortElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal amplitude() const;
         Q_INVOKABLE qreal frequency() const;
         Q_INVOKABLE int gridSizeLog() const;
@@ -71,11 +66,11 @@ class DistortElement: public AkElement
             qreal dx = (-4.0 / (w * w) * point.x() + 4.0 / w) * point.x();
             qreal dy = (-4.0 / (h * h) * point.y() + 4.0 / h) * point.y();
 
-            int x = point.x() + amp * (size.width() / 4.0) * dx
-                    * sin(freq * point.y() / size.height() + time);
+            int x = qRound(point.x() + amp * (size.width() / 4.0) * dx
+                           * sin(freq * point.y() / size.height() + time));
 
-            int y = point.y() + amp * (size.height() / 4.0) * dy
-                    * sin(freq * point.x() / size.width() + time);
+            int y = qRound(point.y() + amp * (size.height() / 4.0) * dy
+                           * sin(freq * point.x() / size.width() + time));
 
             return QPoint(qBound(0, x, size.width() - 1),
                           qBound(0, y, size.height() - 1));
@@ -83,6 +78,11 @@ class DistortElement: public AkElement
 
         QVector<QPoint> createGrid(int width, int height,
                                    int gridSize, qreal time);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void amplitudeChanged(qreal amplitude);

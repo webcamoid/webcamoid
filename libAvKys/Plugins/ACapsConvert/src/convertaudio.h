@@ -27,7 +27,7 @@ class ConvertAudio: public QObject
     Q_OBJECT
 
     public:
-        explicit ConvertAudio(QObject *parent=NULL);
+        explicit ConvertAudio(QObject *parent=nullptr);
         virtual ~ConvertAudio();
 
         virtual bool init(const AkAudioCaps &caps);

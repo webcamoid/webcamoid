@@ -43,7 +43,7 @@ class AudioDevOSS: public AudioDev
     Q_OBJECT
 
     public:
-        explicit AudioDevOSS(QObject *parent=NULL);
+        explicit AudioDevOSS(QObject *parent=nullptr);
         ~AudioDevOSS();
 
         Q_INVOKABLE QString error() const;

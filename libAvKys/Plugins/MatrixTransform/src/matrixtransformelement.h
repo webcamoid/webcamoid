@@ -21,8 +21,6 @@
 #define MATRIXTRANSFORMELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -38,15 +36,16 @@ class MatrixTransformElement: public AkElement
     public:
         explicit MatrixTransformElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QVariantList kernel() const;
 
     private:
         QVector<qreal> m_kernel;
-
         QMutex m_mutex;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void kernelChanged(const QVariantList &kernel);

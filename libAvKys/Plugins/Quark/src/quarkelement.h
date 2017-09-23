@@ -20,8 +20,6 @@
 #ifndef QUARKELEMENT_H
 #define QUARKELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,9 +35,6 @@ class QuarkElement: public AkElement
     public:
         explicit QuarkElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int nFrames() const;
 
     private:
@@ -47,6 +42,11 @@ class QuarkElement: public AkElement
 
         QVector<QImage> m_frames;
         QSize m_frameSize;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void nFramesChanged(int nFrames);

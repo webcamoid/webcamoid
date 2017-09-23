@@ -198,8 +198,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(SupportedFrameRates, supportedFrameRates, (initSupport
 
 CaptureLibUVC::CaptureLibUVC(QObject *parent):
     Capture(parent),
-    m_uvcContext(NULL),
-    m_deviceHnd(NULL),
+    m_uvcContext(nullptr),
+    m_deviceHnd(nullptr),
     m_id(-1)
 {
     auto uvcError = uvc_init(&this->m_uvcContext, usbGlobals->context());
@@ -318,7 +318,7 @@ bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
     if (imageControlsDiff.isEmpty())
         return false;
 
-    uvc_device_handle_t *deviceHnd = NULL;
+    uvc_device_handle_t *deviceHnd = nullptr;
 
     if (this->m_deviceHnd) {
         deviceHnd = this->m_deviceHnd;
@@ -327,12 +327,12 @@ bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
         auto vendorId = deviceVP >> 16;
         auto productId = deviceVP & 0xFFFF;
 
-        uvc_device_t *device = NULL;
+        uvc_device_t *device = nullptr;
         auto error = uvc_find_device(this->m_uvcContext,
                                      &device,
                                      int(vendorId),
                                      int(productId),
-                                     NULL);
+                                     nullptr);
 
         if (error != UVC_SUCCESS)
             return false;
@@ -411,7 +411,7 @@ bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
     if (cameraControlsDiff.isEmpty())
         return false;
 
-    uvc_device_handle_t *deviceHnd = NULL;
+    uvc_device_handle_t *deviceHnd = nullptr;
 
     if (this->m_deviceHnd) {
         deviceHnd = this->m_deviceHnd;
@@ -420,12 +420,12 @@ bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
         auto vendorId = deviceVP >> 16;
         auto productId = deviceVP & 0xFFFF;
 
-        uvc_device_t *device = NULL;
+        uvc_device_t *device = nullptr;
         auto error = uvc_find_device(this->m_uvcContext,
                                      &device,
                                      int(vendorId),
                                      int(productId),
-                                     NULL);
+                                     nullptr);
 
         if (error != UVC_SUCCESS)
             return false;
@@ -695,12 +695,12 @@ bool CaptureLibUVC::init()
     auto vendorId = deviceVP >> 16;
     auto productId = deviceVP & 0xFFFF;
 
-    uvc_device_t *device = NULL;
+    uvc_device_t *device = nullptr;
     auto error = uvc_find_device(this->m_uvcContext,
                                  &device,
                                  int(vendorId),
                                  int(productId),
-                                 NULL);
+                                 nullptr);
 
     if (error != UVC_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
@@ -755,7 +755,7 @@ bool CaptureLibUVC::init()
 
 init_failed:
     uvc_close(this->m_deviceHnd);
-    this->m_deviceHnd = NULL;
+    this->m_deviceHnd = nullptr;
 
     return false;
 }
@@ -772,7 +772,7 @@ void CaptureLibUVC::uninit()
          */
         uvc_stop_streaming(this->m_deviceHnd);
         uvc_close(this->m_deviceHnd);
-        this->m_deviceHnd = NULL;
+        this->m_deviceHnd = nullptr;
     }
 
     this->m_curPacket = AkPacket();
@@ -867,7 +867,7 @@ void CaptureLibUVC::updateDevices()
     decltype(this->m_imageControls) imageControls;
     decltype(this->m_cameraControls) cameraControls;
 
-    uvc_device_t **devices = NULL;
+    uvc_device_t **devices = nullptr;
     auto error = uvc_get_device_list(this->m_uvcContext, &devices);
 
     if (error != UVC_SUCCESS) {
@@ -876,8 +876,8 @@ void CaptureLibUVC::updateDevices()
         goto updateDevices_failed;
     }
 
-    for (int i = 0; devices[i] != NULL; i++) {
-        uvc_device_descriptor_t *descriptor = NULL;
+    for (int i = 0; devices[i] != nullptr; i++) {
+        uvc_device_descriptor_t *descriptor = nullptr;
         error = uvc_get_device_descriptor(devices[i], &descriptor);
 
         if (error != UVC_SUCCESS) {
@@ -888,7 +888,7 @@ void CaptureLibUVC::updateDevices()
 
         auto deviceId = this->uvcId(descriptor->idVendor,
                                     descriptor->idProduct);
-        uvc_device_handle_t *deviceHnd = NULL;
+        uvc_device_handle_t *deviceHnd = nullptr;
 
         if (this->m_deviceHnd && this->m_curDevice == deviceId)
             deviceHnd = this->m_deviceHnd;

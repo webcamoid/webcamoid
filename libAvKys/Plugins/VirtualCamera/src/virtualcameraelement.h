@@ -20,8 +20,6 @@
 #ifndef VIRTUALCAMERAELEMENT_H
 #define VIRTUALCAMERAELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QMutex>
 
 #include <akmultimediasourceelement.h>
@@ -85,9 +83,6 @@ class VirtualCameraElement: public AkElement
         explicit VirtualCameraElement();
         ~VirtualCameraElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString driverPath() const;
         Q_INVOKABLE QStringList medias() const;
         Q_INVOKABLE QString media() const;
@@ -126,6 +121,11 @@ class VirtualCameraElement: public AkElement
         QMutex m_mutexLib;
 
         QImage swapChannels(const QImage &image) const;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void driverPathChanged(const QString &driverPath);

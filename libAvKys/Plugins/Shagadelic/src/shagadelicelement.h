@@ -20,8 +20,6 @@
 #ifndef SHAGADELICELEMENT_H
 #define SHAGADELICELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,9 +35,6 @@ class ShagadelicElement: public AkElement
     public:
         explicit ShagadelicElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE quint32 mask() const;
 
     private:
@@ -54,7 +49,6 @@ class ShagadelicElement: public AkElement
         int m_bvx;
         int m_bvy;
         uchar m_phase;
-
         QImage m_ripple;
         QImage m_spiral;
         QSize m_curSize;
@@ -62,6 +56,11 @@ class ShagadelicElement: public AkElement
         QImage makeRipple(const QSize &size) const;
         QImage makeSpiral(const QSize &size) const;
         void init(const QSize &size);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void maskChanged(quint32 mask);

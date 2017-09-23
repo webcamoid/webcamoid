@@ -77,12 +77,12 @@ CClassFactory::QueryInterface(REFIID riid,__deref_out void **ppv)
 {
     CheckPointer(ppv,E_POINTER)
     ValidateReadWritePtr(ppv,sizeof(PVOID));
-    *ppv = NULL;
+    *ppv = nullptr;
 
     // any interface on this object is the object pointer.
     if ((riid == IID_IUnknown) || (riid == IID_IClassFactory)) {
         *ppv = (LPVOID) this;
-	// AddRef returned interface pointer
+    // AddRef returned interface pointer
         ((LPUNKNOWN) *ppv)->AddRef();
         return NOERROR;
     }
@@ -117,13 +117,13 @@ CClassFactory::CreateInstance(
 {
     CheckPointer(pv,E_POINTER)
     ValidateReadWritePtr(pv,sizeof(void *));
-    *pv = NULL;
+    *pv = nullptr;
 
     /* Enforce the normal OLE rules regarding interfaces and delegation */
 
-    if (pUnkOuter != NULL) {
+    if (pUnkOuter != nullptr) {
         if (IsEqualIID(riid,IID_IUnknown) == FALSE) {
-            *pv = NULL;
+            *pv = nullptr;
             return ResultFromScode(E_NOINTERFACE);
         }
     }
@@ -133,19 +133,19 @@ CClassFactory::CreateInstance(
     HRESULT hr = NOERROR;
     CUnknown *pObj = m_pTemplate->CreateInstance(pUnkOuter, &hr);
 
-    if (pObj == NULL) {
-        *pv = NULL;
-	if (SUCCEEDED(hr)) {
-	    hr = E_OUTOFMEMORY;
-	}
-	return hr;
+    if (pObj == nullptr) {
+        *pv = nullptr;
+    if (SUCCEEDED(hr)) {
+        hr = E_OUTOFMEMORY;
+    }
+    return hr;
     }
 
     /* Delete the object if we got a construction error */
 
     if (FAILED(hr)) {
         delete pObj;
-        *pv = NULL;
+        *pv = nullptr;
         return hr;
     }
 
@@ -192,7 +192,7 @@ DllGetClassObject(
     __in REFIID riid,
     __deref_out void **pv)
 {
-    *pv = NULL;
+    *pv = nullptr;
     if (!(riid == IID_IUnknown) && !(riid == IID_IClassFactory)) {
             return E_NOINTERFACE;
     }
@@ -207,7 +207,7 @@ DllGetClassObject(
             // template
 
             *pv = (LPVOID) (LPUNKNOWN) new CClassFactory(pT);
-            if (*pv == NULL) {
+            if (*pv == nullptr) {
                 return E_OUTOFMEMORY;
             }
             ((LPUNKNOWN)*pv)->AddRef();
@@ -229,7 +229,7 @@ DllInitClasses(BOOL bLoading)
     // if they have one
     for (i = 0; i < g_cTemplates; i++) {
         const CFactoryTemplate * pT = &g_Templates[i];
-        if (pT->m_lpfnInit != NULL) {
+        if (pT->m_lpfnInit != nullptr) {
             (*pT->m_lpfnInit)(bLoading, pT->m_ClsID);
         }
     }
@@ -251,7 +251,7 @@ DllCanUnloadNow()
         CBaseObject::ObjectsActive()));
 
     if (CClassFactory::IsLocked() || CBaseObject::ObjectsActive()) {
-	return S_FALSE;
+    return S_FALSE;
     } else {
         return S_OK;
     }
@@ -267,11 +267,11 @@ extern "C" BOOL WINAPI _DllEntryPoint(HINSTANCE, ULONG, __inout_opt LPVOID);
 
 extern "C"
 DECLSPEC_NOINLINE
-BOOL 
+BOOL
 WINAPI
 DllEntryPoint(
-    HINSTANCE hInstance, 
-    ULONG ulReason, 
+    HINSTANCE hInstance,
+    ULONG ulReason,
     __inout_opt LPVOID pv
     )
 {
@@ -284,11 +284,11 @@ DllEntryPoint(
 
 
 DECLSPEC_NOINLINE
-BOOL 
+BOOL
 WINAPI
 _DllEntryPoint(
-    HINSTANCE hInstance, 
-    ULONG ulReason, 
+    HINSTANCE hInstance,
+    ULONG ulReason,
     __inout_opt LPVOID pv
     )
 {
@@ -305,19 +305,19 @@ _DllEntryPoint(
         DisableThreadLibraryCalls(hInstance);
         DbgInitialise(hInstance);
 
-    	{
-    	    // The platform identifier is used to work out whether
-    	    // full unicode support is available or not.  Hence the
-    	    // default will be the lowest common denominator - i.e. N/A
+        {
+            // The platform identifier is used to work out whether
+            // full unicode support is available or not.  Hence the
+            // default will be the lowest common denominator - i.e. N/A
                 g_amPlatform = VER_PLATFORM_WIN32_WINDOWS; // win95 assumed in case GetVersionEx fails
-    
+
                 g_osInfo.dwOSVersionInfoSize = sizeof(g_osInfo);
                 if (GetVersionEx(&g_osInfo)) {
-            	g_amPlatform = g_osInfo.dwPlatformId;
-    	    } else {
-    		DbgLog((LOG_ERROR, 1, TEXT("Failed to get the OS platform, assuming Win95")));
-    	    }
-    	}
+                g_amPlatform = g_osInfo.dwPlatformId;
+            } else {
+            DbgLog((LOG_ERROR, 1, TEXT("Failed to get the OS platform, assuming Win95")));
+            }
+        }
 
         g_hInst = hInstance;
         DllInitClasses(TRUE);
@@ -344,14 +344,14 @@ _DllEntryPoint(
             }
 
             (void)StringCchPrintf(szInfo, NUMELMS(szInfo), TEXT("Executable: %s  Pid %x  Tid %x. "),
-			    pName, GetCurrentProcessId(), GetCurrentThreadId());
+                pName, GetCurrentProcessId(), GetCurrentThreadId());
 
             (void)StringCchPrintf(szInfo+lstrlen(szInfo), NUMELMS(szInfo) - lstrlen(szInfo), TEXT("Module %s, %d objects left active!"),
                      m_ModuleName, CBaseObject::ObjectsActive());
             DbgAssert(szInfo, TEXT(__FILE__),__LINE__);
 
-	    // If running remotely wait for the Assert to be acknowledged
-	    // before dumping out the object register
+        // If running remotely wait for the Assert to be acknowledged
+        // before dumping out the object register
             DbgDumpObjectRegister();
         }
         DbgTerminate();

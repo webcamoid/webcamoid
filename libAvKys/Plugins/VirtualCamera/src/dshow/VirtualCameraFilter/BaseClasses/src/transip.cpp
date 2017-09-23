@@ -313,7 +313,7 @@ CTransInPlaceFilter::GetPin(int n)
 
     // Create an input pin if not already done
 
-    if (m_pInput == NULL) {
+    if (m_pInput == nullptr) {
 
         m_pInput = new CTransInPlaceInputPin( NAME("TransInPlace input pin")
                                             , this        // Owner filter
@@ -327,7 +327,7 @@ CTransInPlaceFilter::GetPin(int n)
 
     // Create an output pin if not already done
 
-    if (m_pInput!=NULL && m_pOutput == NULL) {
+    if (m_pInput!=nullptr && m_pOutput == nullptr) {
 
         m_pOutput = new CTransInPlaceOutputPin( NAME("TransInPlace output pin")
                                               , this       // Owner filter
@@ -338,9 +338,9 @@ CTransInPlaceFilter::GetPin(int n)
         // a failed return code should delete the object
 
         ASSERT(SUCCEEDED(hr));
-        if (m_pOutput == NULL) {
+        if (m_pOutput == nullptr) {
             delete m_pInput;
-            m_pInput = NULL;
+            m_pInput = nullptr;
         }
     }
 
@@ -352,7 +352,7 @@ CTransInPlaceFilter::GetPin(int n)
     } else if (n==1) {
         return m_pOutput;
     } else {
-        return NULL;
+        return nullptr;
     }
 
 } // GetPin
@@ -492,13 +492,13 @@ __out_opt IMediaSample * CTransInPlaceFilter::Copy(IMediaSample *pSource)
     // this may block for an indeterminate amount of time
     hr = OutputPin()->PeekAllocator()->GetBuffer(
               &pDest
-              , bTime ? &tStart : NULL
-              , bTime ? &tStop : NULL
+              , bTime ? &tStart : nullptr
+              , bTime ? &tStop : nullptr
               , m_bSampleSkipped ? AM_GBF_PREVFRAMESKIPPED : 0
               );
 
     if (FAILED(hr)) {
-        return NULL;
+        return nullptr;
     }
 
     ASSERT(pDest);
@@ -510,7 +510,7 @@ __out_opt IMediaSample * CTransInPlaceFilter::Copy(IMediaSample *pSource)
         pSample2->Release();
         if (FAILED(hrProps)) {
             pDest->Release();
-            return NULL;
+            return nullptr;
         }
     } else {
         if (bTime) {
@@ -549,7 +549,7 @@ __out_opt IMediaSample * CTransInPlaceFilter::Copy(IMediaSample *pSource)
         const long lDataLength = pSource->GetActualDataLength();
         if (FAILED(pDest->SetActualDataLength(lDataLength))) {
             pDest->Release();
-            return NULL;
+            return nullptr;
         }
 
         // Copy the sample data
@@ -566,9 +566,9 @@ __out_opt IMediaSample * CTransInPlaceFilter::Copy(IMediaSample *pSource)
                 lDestSize < lDataLength ||
                 lDataLength < 0) {
                 pDest->Release();
-                return NULL;
+                return nullptr;
             }
-            ASSERT(lDestSize == 0 || (pSourceBuffer != NULL && pDestBuffer != NULL));
+            ASSERT(lDestSize == 0 || (pSourceBuffer != nullptr && pDestBuffer != nullptr));
 
             CopyMemory( (PVOID) pDestBuffer, (PVOID) pSourceBuffer, lDataLength );
         }
@@ -600,7 +600,7 @@ CTransInPlaceFilter::Receive(IMediaSample *pSample)
 
         pSample = Copy(pSample);
 
-        if (pSample==NULL) {
+        if (pSample==nullptr) {
             MSR_STOP(m_idTransInPlace);
             return E_UNEXPECTED;
         }
@@ -756,7 +756,7 @@ CTransInPlaceInputPin::NotifyAllocator(
             m_pTIPFilter->OutputPin()->PeekAllocator();
 
         //  Make sure we have an output allocator
-        if (pOutputAllocator == NULL) {
+        if (pOutputAllocator == nullptr) {
             hr = m_pTIPFilter->OutputPin()->ConnectedIMemInputPin()->
                                       GetAllocator(&pOutputAllocator);
             if(FAILED(hr)) {
@@ -805,7 +805,7 @@ CTransInPlaceInputPin::NotifyAllocator(
         // AddRef before release ensures that we don't unload it.
         pAllocator->AddRef();
 
-        if( m_pAllocator != NULL )
+        if( m_pAllocator != nullptr )
             m_pAllocator->Release();
 
         m_pAllocator = pAllocator;    // We have an allocator for the input pin

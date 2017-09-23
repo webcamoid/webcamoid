@@ -63,8 +63,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()
 AudioDevAlsa::AudioDevAlsa(QObject *parent):
     AudioDev(parent)
 {
-    this->m_pcmHnd = NULL;
-    this->m_fsWatcher = NULL;
+    this->m_pcmHnd = nullptr;
+    this->m_fsWatcher = nullptr;
     this->m_timer.setInterval(3000);
 
     QObject::connect(&this->m_timer,
@@ -155,7 +155,7 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 {
     QMutexLocker mutexLockeer(&this->m_mutex);
 
-    this->m_pcmHnd = NULL;
+    this->m_pcmHnd = nullptr;
     int error = snd_pcm_open(&this->m_pcmHnd,
                              QString(device)
                                  .remove(QRegExp(":Input$|:Output$"))
@@ -261,7 +261,7 @@ bool AudioDevAlsa::uninit()
 {
     if (this->m_pcmHnd) {
         snd_pcm_close(this->m_pcmHnd);
-        this->m_pcmHnd = NULL;
+        this->m_pcmHnd = nullptr;
     }
 
     return true;
@@ -272,7 +272,7 @@ void AudioDevAlsa::fillDeviceInfo(const QString &device,
                                   QList<int> *supportedChannels,
                                   QList<int> *supportedSampleRates) const
 {
-    snd_pcm_t *pcmHnd = NULL;
+    snd_pcm_t *pcmHnd = nullptr;
     int error = snd_pcm_open(&pcmHnd,
                              QString(device)
                                  .remove(QRegExp(":Input$|:Output$"))
@@ -284,7 +284,7 @@ void AudioDevAlsa::fillDeviceInfo(const QString &device,
     if (error < 0)
         return;
 
-    snd_pcm_hw_params_t *hwParams = NULL;
+    snd_pcm_hw_params_t *hwParams = nullptr;
     snd_pcm_hw_params_malloc(&hwParams);
     snd_pcm_hw_params_any(pcmHnd, hwParams);
 
@@ -334,13 +334,13 @@ void AudioDevAlsa::updateDevices()
     decltype(this->m_supportedSampleRates) supportedSampleRates;
 
     int card = -1;
-    snd_ctl_card_info_t *ctlInfo = NULL;
+    snd_ctl_card_info_t *ctlInfo = nullptr;
     snd_ctl_card_info_malloc(&ctlInfo);
 
     while (snd_card_next(&card) >= 0 && card >= 0) {
         char name[32];
         sprintf(name, "hw:%d", card);
-        snd_ctl_t *ctlHnd = NULL;
+        snd_ctl_t *ctlHnd = nullptr;
 
         if (snd_ctl_open(&ctlHnd, name, SND_PCM_NONBLOCK) < 0)
             continue;
@@ -430,12 +430,12 @@ void AudioDevAlsa::updateDevices()
 
     // In case the first method for detecting the devices didn't worked,
     // use hints to detect the devices.
-    void **hints = NULL;
+    void **hints = nullptr;
     bool fillInputs = inputs.isEmpty();
     bool fillOuputs = outputs.isEmpty();
 
     if (snd_device_name_hint(-1, "pcm", &hints) >= 0) {
-        for (auto hint = hints; *hint != NULL; hint++) {
+        for (auto hint = hints; *hint != nullptr; hint++) {
             QString deviceId = snd_device_name_get_hint(*hint, "NAME");
 
             if (deviceId.isEmpty() || deviceId == "null")

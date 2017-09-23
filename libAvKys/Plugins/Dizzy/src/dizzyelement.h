@@ -20,8 +20,6 @@
 #ifndef DIZZYELEMENT_H
 #define DIZZYELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -47,9 +45,6 @@ class DizzyElement: public AkElement
     public:
         explicit DizzyElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal speed() const;
         Q_INVOKABLE qreal zoomRate() const;
         Q_INVOKABLE qreal strength() const;
@@ -65,6 +60,11 @@ class DizzyElement: public AkElement
                        int *sx, int *sy,
                        int width, int height,
                        qreal phase, qreal zoomRate);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void speedChanged(qreal speed);

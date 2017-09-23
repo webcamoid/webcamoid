@@ -60,7 +60,7 @@ class HaarStage: public QObject
     Q_OBJECT
 
     public:
-        explicit HaarStage(QObject *parent = NULL);
+        explicit HaarStage(QObject *parent=nullptr);
         HaarStage(const HaarStage &other);
         ~HaarStage();
 

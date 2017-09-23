@@ -45,12 +45,12 @@ class AbstractStream: public QObject
     Q_OBJECT
 
     public:
-        explicit AbstractStream(const AVFormatContext *formatContext=NULL,
+        explicit AbstractStream(const AVFormatContext *formatContext=nullptr,
                                 uint index=0, int streamIndex=-1,
                                 const QVariantMap &configs={},
                                 const QMap<QString, QVariantMap> &codecOptions={},
-                                MediaWriterFFmpeg *mediaWriter=NULL,
-                                QObject *parent=NULL);
+                                MediaWriterFFmpeg *mediaWriter=nullptr,
+                                QObject *parent=nullptr);
         virtual ~AbstractStream();
 
         Q_INVOKABLE uint index() const;

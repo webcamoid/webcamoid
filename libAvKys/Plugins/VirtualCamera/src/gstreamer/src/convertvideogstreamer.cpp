@@ -97,7 +97,7 @@ ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
     ConvertVideo(parent)
 {
 //    setenv("GST_DEBUG", "2", 1);
-    gst_init(NULL, NULL);
+    gst_init(nullptr, nullptr);
 }
 
 ConvertVideoGStreamer::~ConvertVideoGStreamer()
@@ -109,9 +109,9 @@ AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oC
     AkVideoPacket videoPacket(packet);
     AkVideoCaps oVideoCaps(oCaps);
 
-    GstBuffer *iBuffer = gst_buffer_new_allocate(NULL,
+    GstBuffer *iBuffer = gst_buffer_new_allocate(nullptr,
                                                  gsize(videoPacket.buffer().size()),
-                                                 NULL);
+                                                 nullptr);
 
     GstMapInfo info;
     gst_buffer_map(iBuffer, &info, GST_MAP_WRITE);
@@ -129,12 +129,12 @@ AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oC
                                          "framerate", GST_TYPE_FRACTION,
                                                       int(videoPacket.caps().fps().num()),
                                                       int(videoPacket.caps().fps().den()),
-                                         NULL);
+                                         nullptr);
 
     GstSample *iSample = gst_sample_new(iBuffer,
                                         iCaps,
-                                        NULL,
-                                        NULL);
+                                        nullptr,
+                                        nullptr);
 
     gst_caps_unref(iCaps);
 
@@ -144,9 +144,9 @@ AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oC
                                             "format", G_TYPE_STRING, oFormat.toStdString().c_str(),
                                             "width", G_TYPE_INT, oVideoCaps.width(),
                                             "height", G_TYPE_INT, oVideoCaps.height(),
-                                            NULL);
+                                            nullptr);
 
-    GError *error = NULL;
+    GError *error = nullptr;
     GstSample *oSample = gst_video_convert_sample(iSample,
                                                   oGstCaps,
                                                   GST_CLOCK_TIME_NONE,

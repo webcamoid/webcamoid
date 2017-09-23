@@ -243,11 +243,11 @@ MediaWriterGStreamer::MediaWriterGStreamer(QObject *parent):
     MediaWriter(parent)
 {
 //    setenv("GST_DEBUG", "2", 1);
-    gst_init(NULL, NULL);
+    gst_init(nullptr, nullptr);
 
     this->m_isRecording = false;
-    this->m_pipeline = NULL;
-    this->m_mainLoop = NULL;
+    this->m_pipeline = nullptr;
+    this->m_mainLoop = nullptr;
     this->m_busWatchId = 0;
 
     this->m_formatsBlackList = QStringList {
@@ -293,7 +293,7 @@ QStringList MediaWriterGStreamer::supportedFormats()
                                                   MINIMUM_PLUGIN_RANK);
 
     for (GList *featureItem = factoryList; featureItem; featureItem = g_list_next(featureItem)) {
-        if (G_UNLIKELY (featureItem->data == NULL))
+        if (G_UNLIKELY(featureItem->data == nullptr))
           continue;
 
         auto factory = GST_ELEMENT_FACTORY(featureItem->data);
@@ -332,7 +332,10 @@ QStringList MediaWriterGStreamer::fileExtensions(const QString &format)
     for (const QString &formatCaps: supportedCaps) {
         auto caps = gst_caps_from_string(formatCaps.toStdString().c_str());
         caps = gst_caps_fixate(caps);
-        auto prof = gst_encoding_container_profile_new(NULL, NULL, caps, NULL);
+        auto prof = gst_encoding_container_profile_new(nullptr,
+                                                       nullptr,
+                                                       caps,
+                                                       nullptr);
         gst_caps_unref(caps);
 
         const gchar *extension =
@@ -378,7 +381,7 @@ QVariantList MediaWriterGStreamer::formatOptions()
         return QVariantList();
 
     auto element = gst_element_factory_make(outputFormat.toStdString().c_str(),
-                                            NULL);
+                                            nullptr);
 
     if (!element)
         return QVariantList();
@@ -781,7 +784,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 }
             }
 
-            GstElement *element = gst_element_factory_create(factory, NULL);
+            GstElement *element = gst_element_factory_create(factory, nullptr);
 
             if (!element) {
                 gst_object_unref(factory);
@@ -793,7 +796,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
             int bitrate = 0;
 
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "bitrate"))
-                g_object_get(G_OBJECT(element), "bitrate", &bitrate, NULL);
+                g_object_get(G_OBJECT(element), "bitrate", &bitrate, nullptr);
 
             if (codec == "lamemp3enc")
                 bitrate *= 1000;
@@ -930,7 +933,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                 }
             }
 
-            GstElement *element = gst_element_factory_create(factory, NULL);
+            GstElement *element = gst_element_factory_create(factory, nullptr);
 
             if (!element) {
                 gst_object_unref(factory);
@@ -947,7 +950,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
                         "target-bitrate": "bitrate";
 
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), propBitrate))
-                g_object_get(G_OBJECT(element), propBitrate, &bitrate, NULL);
+                g_object_get(G_OBJECT(element), propBitrate, &bitrate, nullptr);
 
             if (codec == "x264enc"
                 || codec == "x265enc"
@@ -962,7 +965,7 @@ QVariantMap MediaWriterGStreamer::defaultCodecParams(const QString &codec)
             int gop = 0;
 
             if (g_object_class_find_property(G_OBJECT_GET_CLASS(element), "keyframe-max-dist"))
-                g_object_get(G_OBJECT(element), "keyframe-max-dist", &gop, NULL);
+                g_object_get(G_OBJECT(element), "keyframe-max-dist", &gop, nullptr);
 
             if (gop < 1)
                 gop = 12;
@@ -1329,7 +1332,7 @@ QVariantList MediaWriterGStreamer::codecOptions(int index)
         return QVariantList();
 
     auto element = gst_element_factory_make(codec.toStdString().c_str(),
-                                            NULL);
+                                            nullptr);
 
     if (!element)
         return QVariantList();
@@ -1647,7 +1650,7 @@ void MediaWriterGStreamer::waitState(GstState state)
         GstState curState;
         auto ret = gst_element_get_state(this->m_pipeline,
                                          &curState,
-                                         NULL,
+                                         nullptr,
                                          GST_CLOCK_TIME_NONE);
 
         if (ret == GST_STATE_CHANGE_FAILURE)
@@ -1668,8 +1671,8 @@ gboolean MediaWriterGStreamer::busCallback(GstBus *bus,
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {
-        GError *err = NULL;
-        gchar *debug = NULL;
+        GError *err = nullptr;
+        gchar *debug = nullptr;
         gst_message_parse_error(message, &err, &debug);
 
         qDebug() << "ERROR: from element"
@@ -1725,7 +1728,7 @@ gboolean MediaWriterGStreamer::busCallback(GstBus *bus,
     }
     case GST_MESSAGE_STREAM_STATUS: {
         GstStreamStatusType type;
-        GstElement *owner = NULL;
+        GstElement *owner = nullptr;
         gst_message_parse_stream_status(message, &type, &owner);
         qDebug() << "Stream Status:"
                  << GST_ELEMENT_NAME(owner)
@@ -1750,7 +1753,7 @@ gboolean MediaWriterGStreamer::busCallback(GstBus *bus,
         break;
     }
     case GST_MESSAGE_NEW_CLOCK: {
-        GstClock *clock = NULL;
+        GstClock *clock = nullptr;
         gst_message_parse_new_clock(message, &clock);
         qDebug() << "New clock:" << (clock? GST_OBJECT_NAME(clock): "NULL");
         break;
@@ -1766,7 +1769,7 @@ gboolean MediaWriterGStreamer::busCallback(GstBus *bus,
         break;
     }
     case GST_MESSAGE_TAG: {
-        GstTagList *tagList = NULL;
+        GstTagList *tagList = nullptr;
         gst_message_parse_tag(message, &tagList);
         gchar *tags = gst_tag_list_to_string(tagList);
 //        qDebug() << "Tags:" << tags;
@@ -2052,10 +2055,10 @@ bool MediaWriterGStreamer::init()
                                this->guessFormat(this->m_location):
                                this->m_outputFormat;
 
-    this->m_pipeline = gst_pipeline_new(NULL);
+    this->m_pipeline = gst_pipeline_new(nullptr);
 
     auto muxer = gst_element_factory_make(outputFormat.toStdString().c_str(),
-                                          NULL);
+                                          nullptr);
 
     if (!muxer)
         return false;
@@ -2063,11 +2066,13 @@ bool MediaWriterGStreamer::init()
     // Set format options.
     this->setElementOptions(muxer, this->m_formatOptions.value(outputFormat));
 
-    GstElement *filesink = gst_element_factory_make("filesink", NULL);
-    g_object_set(G_OBJECT(filesink), "location", this->m_location.toStdString().c_str(), NULL);
-
-    gst_bin_add_many(GST_BIN(this->m_pipeline), muxer, filesink, NULL);
-    gst_element_link_many(muxer, filesink, NULL);
+    GstElement *filesink = gst_element_factory_make("filesink", nullptr);
+    g_object_set(G_OBJECT(filesink),
+                 "location",
+                 this->m_location.toStdString().c_str(),
+                 nullptr);
+    gst_bin_add_many(GST_BIN(this->m_pipeline), muxer, filesink, nullptr);
+    gst_element_link_many(muxer, filesink, nullptr);
 
     QVector<QVariantMap> streamConfigs = this->m_streamConfigs.toVector();
 
@@ -2085,7 +2090,7 @@ bool MediaWriterGStreamer::init()
             QString sourceName = QString("audio_%1").arg(i);
             GstElement *source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
             gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
-            g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, NULL);
+            g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
 
             AkAudioCaps audioCaps(streamCaps);
 
@@ -2114,18 +2119,18 @@ bool MediaWriterGStreamer::init()
                                         "layout", G_TYPE_STRING, "interleaved",
                                         "rate", G_TYPE_INT, audioCaps.rate(),
                                         "channels", G_TYPE_INT, audioCaps.channels(),
-                                        NULL);
+                                        nullptr);
 
             gstAudioCaps = gst_caps_fixate(gstAudioCaps);
             gst_app_src_set_caps(GST_APP_SRC(source), gstAudioCaps);
 
-            auto audioConvert = gst_element_factory_make("audioconvert", NULL);
-            auto audioResample = gst_element_factory_make("audioresample", NULL);
-            auto audioRate = gst_element_factory_make("audiorate", NULL);
-            auto audioCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
+            auto audioConvert = gst_element_factory_make("audioconvert", nullptr);
+            auto audioResample = gst_element_factory_make("audioresample", nullptr);
+            auto audioRate = gst_element_factory_make("audiorate", nullptr);
+            auto audioCodec = gst_element_factory_make(codec.toStdString().c_str(), nullptr);
 
             if (codec.startsWith("avenc_"))
-                g_object_set(G_OBJECT(audioCodec), "compliance", -2, NULL);
+                g_object_set(G_OBJECT(audioCodec), "compliance", -2, nullptr);
 
             // Set codec options.
 #ifdef SET_CODEC_BITRATE
@@ -2143,7 +2148,7 @@ bool MediaWriterGStreamer::init()
             QVariantMap codecOptions = this->m_codecOptions.value(optKey);
             this->setElementOptions(audioCodec, codecOptions);
 
-            GstElement *queue = gst_element_factory_make("queue", NULL);
+            GstElement *queue = gst_element_factory_make("queue", nullptr);
 
             gst_bin_add_many(GST_BIN(this->m_pipeline),
                              source,
@@ -2152,17 +2157,21 @@ bool MediaWriterGStreamer::init()
                              audioConvert,
                              audioCodec,
                              queue,
-                             NULL);
+                             nullptr);
 
-            gst_element_link_many(source, audioResample, audioRate, audioConvert, NULL);
+            gst_element_link_many(source,
+                                  audioResample,
+                                  audioRate,
+                                  audioConvert,
+                                  nullptr);
             gst_element_link_filtered(audioConvert, audioCodec, gstAudioCaps);
             gst_caps_unref(gstAudioCaps);
-            gst_element_link_many(audioCodec, queue, muxer, NULL);
+            gst_element_link_many(audioCodec, queue, muxer, nullptr);
         } else if (streamCaps.mimeType() == "video/x-raw") {
             QString sourceName = QString("video_%1").arg(i);
             GstElement *source = gst_element_factory_make("appsrc", sourceName.toStdString().c_str());
             gst_app_src_set_stream_type(GST_APP_SRC(source), GST_APP_STREAM_TYPE_STREAM);
-            g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, NULL);
+            g_object_set(G_OBJECT(source), "format", GST_FORMAT_TIME, nullptr);
 
             AkVideoCaps videoCaps(streamCaps);
 
@@ -2182,18 +2191,18 @@ bool MediaWriterGStreamer::init()
                                         "framerate", GST_TYPE_FRACTION,
                                                      int(videoCaps.fps().num()),
                                                      int(videoCaps.fps().den()),
-                                        NULL);
+                                        nullptr);
 
             gstVideoCaps = gst_caps_fixate(gstVideoCaps);
             gst_app_src_set_caps(GST_APP_SRC(source), gstVideoCaps);
 
-            auto videoScale = gst_element_factory_make("videoscale", NULL);
-            auto videoRate = gst_element_factory_make("videorate", NULL);
-            auto videoConvert = gst_element_factory_make("videoconvert", NULL);
-            auto videoCodec = gst_element_factory_make(codec.toStdString().c_str(), NULL);
+            auto videoScale = gst_element_factory_make("videoscale", nullptr);
+            auto videoRate = gst_element_factory_make("videorate", nullptr);
+            auto videoConvert = gst_element_factory_make("videoconvert", nullptr);
+            auto videoCodec = gst_element_factory_make(codec.toStdString().c_str(), nullptr);
 
             if (codec.startsWith("avenc_"))
-                g_object_set(G_OBJECT(videoCodec), "compliance", -2, NULL);
+                g_object_set(G_OBJECT(videoCodec), "compliance", -2, nullptr);
 
             // Set codec options.
 #ifdef SET_CODEC_BITRATE
@@ -2236,7 +2245,7 @@ bool MediaWriterGStreamer::init()
             QVariantMap codecOptions = this->m_codecOptions.value(optKey);
             this->setElementOptions(videoCodec, codecOptions);
 
-            GstElement *queue = gst_element_factory_make("queue", NULL);
+            GstElement *queue = gst_element_factory_make("queue", nullptr);
 
             gst_bin_add_many(GST_BIN(this->m_pipeline),
                              source,
@@ -2245,12 +2254,16 @@ bool MediaWriterGStreamer::init()
                              videoConvert,
                              videoCodec,
                              queue,
-                             NULL);
+                             nullptr);
 
-            gst_element_link_many(source, videoScale, videoRate, videoConvert, NULL);
+            gst_element_link_many(source,
+                                  videoScale,
+                                  videoRate,
+                                  videoConvert,
+                                  nullptr);
             gst_element_link_filtered(videoConvert, videoCodec, gstVideoCaps);
             gst_caps_unref(gstVideoCaps);
-            gst_element_link_many(videoCodec, queue, muxer, NULL);
+            gst_element_link_many(videoCodec, queue, muxer, nullptr);
         }
 
         this->m_streamParams << OutputParams(configs["index"].toInt());
@@ -2262,7 +2275,7 @@ bool MediaWriterGStreamer::init()
     gst_object_unref(bus);
 
     // Run the main GStreamer loop.
-    this->m_mainLoop = g_main_loop_new(NULL, FALSE);
+    this->m_mainLoop = g_main_loop_new(nullptr, FALSE);
     QtConcurrent::run(&this->m_threadPool, g_main_loop_run, this->m_mainLoop);
     gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
     this->m_isRecording = true;
@@ -2317,14 +2330,14 @@ void MediaWriterGStreamer::uninit()
         this->waitState(GST_STATE_NULL);
         gst_object_unref(GST_OBJECT(this->m_pipeline));
         g_source_remove(this->m_busWatchId);
-        this->m_pipeline = NULL;
+        this->m_pipeline = nullptr;
         this->m_busWatchId = 0;
     }
 
     if (this->m_mainLoop) {
         g_main_loop_quit(this->m_mainLoop);
         g_main_loop_unref(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
     }
 }
 
@@ -2368,7 +2381,7 @@ void MediaWriterGStreamer::writeAudioPacket(const AkAudioPacket &packet)
                                 "layout", G_TYPE_STRING, "interleaved",
                                 "rate", G_TYPE_INT, packet.caps().rate(),
                                 "channels", G_TYPE_INT, packet.caps().channels(),
-                                NULL);
+                                nullptr);
     inputCaps = gst_caps_fixate(inputCaps);
 
     if (!gst_caps_is_equal(sourceCaps, inputCaps))
@@ -2379,7 +2392,7 @@ void MediaWriterGStreamer::writeAudioPacket(const AkAudioPacket &packet)
 
     size_t size = size_t(packet.buffer().size());
 
-    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
+    GstBuffer *buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
     memcpy(info.data, packet.buffer().constData(), size);
@@ -2439,7 +2452,7 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
                                 "framerate", GST_TYPE_FRACTION,
                                              int(videoPacket.caps().fps().num()),
                                              int(videoPacket.caps().fps().den()),
-                                NULL);
+                                nullptr);
     inputCaps = gst_caps_fixate(inputCaps);
 
     if (!gst_caps_is_equal(sourceCaps, inputCaps))
@@ -2450,7 +2463,7 @@ void MediaWriterGStreamer::writeVideoPacket(const AkVideoPacket &packet)
 
     size_t size = size_t(videoPacket.buffer().size());
 
-    GstBuffer *buffer = gst_buffer_new_allocate(NULL, size, NULL);
+    GstBuffer *buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
     memcpy(info.data, videoPacket.buffer().constData(), size);

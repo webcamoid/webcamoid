@@ -37,7 +37,7 @@ class ConvertAudioFFmpegSW: public ConvertAudio
     Q_OBJECT
 
     public:
-        explicit ConvertAudioFFmpegSW(QObject *parent=NULL);
+        explicit ConvertAudioFFmpegSW(QObject *parent=nullptr);
         ~ConvertAudioFFmpegSW();
 
         Q_INVOKABLE bool init(const AkAudioCaps &caps);

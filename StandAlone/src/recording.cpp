@@ -225,7 +225,6 @@ bool Recording::embedControls(const QString &where,
 
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
-        interfaceItem->setParent(item);
 
         QQmlProperty::write(interfaceItem,
                             "anchors.fill",
@@ -251,8 +250,8 @@ void Recording::removeInterface(const QString &where)
         QList<decltype(item)> childItems = item->childItems();
 
         for (auto child: childItems) {
-            child->setParentItem(NULL);
-            child->setParent(NULL);
+            child->setParentItem(nullptr);
+            child->setParent(nullptr);
 
             delete child;
         }

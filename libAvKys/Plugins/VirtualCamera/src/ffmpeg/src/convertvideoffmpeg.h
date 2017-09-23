@@ -37,7 +37,7 @@ class ConvertVideoFFmpeg: public ConvertVideo
     Q_OBJECT
 
     public:
-        explicit ConvertVideoFFmpeg(QObject *parent=NULL);
+        explicit ConvertVideoFFmpeg(QObject *parent=nullptr);
         ~ConvertVideoFFmpeg();
 
         Q_INVOKABLE AkPacket convert(const AkPacket &packet,

@@ -27,47 +27,25 @@ DiceElement::DiceElement(): AkElement()
     this->m_diceSize = 24;
 }
 
-QObject *DiceElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Dice/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Dice", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 int DiceElement::diceSize() const
 {
     return this->m_diceSize;
+}
+
+QString DiceElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Dice/share/qml/main.qml");
+}
+
+void DiceElement::controlInterfaceConfigure(QQmlContext *context,
+                                            const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Dice", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void DiceElement::setDiceSize(int diceSize)

@@ -33,7 +33,7 @@ class AudioDevAlsa: public AudioDev
     Q_OBJECT
 
     public:
-        explicit AudioDevAlsa(QObject *parent=NULL);
+        explicit AudioDevAlsa(QObject *parent=nullptr);
         ~AudioDevAlsa();
 
         Q_INVOKABLE QString error() const;

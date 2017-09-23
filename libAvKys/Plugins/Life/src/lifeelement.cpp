@@ -29,44 +29,6 @@ LifeElement::LifeElement(): AkElement()
     this->m_lumaThreshold = 15;
 }
 
-QObject *LifeElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Life/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Life", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 QRgb LifeElement::lifeColor() const
 {
     return this->m_lifeColor;
@@ -148,6 +110,22 @@ void LifeElement::updateLife()
     memcpy(this->m_lifeBuffer.bits(),
            lifeBuffer.constBits(),
            size_t(lifeBuffer.byteCount()));
+}
+
+QString LifeElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Life/share/qml/main.qml");
+}
+
+void LifeElement::controlInterfaceConfigure(QQmlContext *context,
+                                            const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Life", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void LifeElement::setLifeColor(QRgb lifeColor)

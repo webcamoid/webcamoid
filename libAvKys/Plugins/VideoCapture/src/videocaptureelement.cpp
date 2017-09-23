@@ -104,42 +104,6 @@ VideoCaptureElement::~VideoCaptureElement()
     this->setState(AkElement::ElementStateNull);
 }
 
-QObject *VideoCaptureElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/VideoCapture/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("VideoCapture", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", controlId);
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 QStringList VideoCaptureElement::medias()
 {
     return this->m_capture->webcams();
@@ -308,6 +272,22 @@ void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
     // Close COM library.
     CoUninitialize();
 #endif
+}
+
+QString VideoCaptureElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/VideoCapture/share/qml/main.qml");
+}
+
+void VideoCaptureElement::controlInterfaceConfigure(QQmlContext *context,
+                                                    const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("VideoCapture", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", controlId);
 }
 
 void VideoCaptureElement::setMedia(const QString &media)

@@ -15,7 +15,7 @@
 
 #define CheckConnected(pin,code)                    \
 {                                                   \
-    if (pin == NULL) {                              \
+    if (pin == nullptr) {                              \
         ASSERT(!TEXT("Pin not set"));               \
     } else if (pin->IsConnected() == FALSE) {       \
         return (code);                              \
@@ -30,7 +30,7 @@
 
 BOOL WINAPI PossiblyEatMessage(HWND hwndDrain, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (hwndDrain != NULL && !InSendMessage())
+    if (hwndDrain != nullptr && !InSendMessage())
     {
         switch (uMsg)
         {
@@ -92,11 +92,11 @@ CBaseControlWindow::CBaseControlWindow(
 
     CBaseVideoWindow(pName,pUnk),
     m_pFilter(pFilter),
-    m_pPin(NULL),
+    m_pPin(nullptr),
     m_pInterfaceLock(pInterfaceLock),
     m_bAutoShow(TRUE),
-    m_hwndOwner(NULL),
-    m_hwndDrain(NULL),
+    m_hwndOwner(nullptr),
+    m_hwndDrain(nullptr),
     m_bCursorHidden(FALSE)
 {
     UNUSED(phr)
@@ -121,7 +121,7 @@ STDMETHODIMP CBaseControlWindow::put_Caption(__in BSTR strCaption)
 #else
     CHAR Caption[CAPTION];
 
-    WideCharToMultiByte(CP_ACP,0,strCaption,-1,Caption,CAPTION,NULL,NULL);
+    WideCharToMultiByte(CP_ACP,0,strCaption,-1,Caption,CAPTION,nullptr,nullptr);
     SetWindowText(m_hwnd, Caption);
 #endif
     return NOERROR;
@@ -676,7 +676,7 @@ STDMETHODIMP CBaseControlWindow::put_Owner(OAHWND Owner)
     // Add or remove WS_CHILD as appropriate
 
     LONG Style = GetWindowLong(m_hwnd,GWL_STYLE);
-    if (Owner == OAHWND(NULL)) {
+    if (Owner == OAHWND(nullptr)) {
         Style &= (~WS_CHILD);
     } else {
         Style |= (WS_CHILD);
@@ -765,7 +765,7 @@ CBaseControlWindow::NotifyOwnerMessage(OAHWND hwnd,    // Window handle
 
             // If we do not have an owner then ignore
 
-            if (m_hwndOwner == NULL) {
+            if (m_hwndOwner == nullptr) {
                 return NOERROR;
             }
             SendMessage(m_hwnd,uMsg,(WPARAM)wParam,(LPARAM)lParam);
@@ -900,7 +900,7 @@ CBaseControlWindow::GetRestorePosition(__out long *pLeft,__out long *pTop,__out 
     // We must take into account any task bar present
 
     if (SystemParametersInfo(SPI_GETWORKAREA,0,&WorkArea,FALSE) == TRUE) {
-        if (GetParent(m_hwnd) == NULL) {
+        if (GetParent(m_hwnd) == nullptr) {
             Place.rcNormalPosition.top += WorkArea.top;
             Place.rcNormalPosition.bottom += WorkArea.top;
             Place.rcNormalPosition.left += WorkArea.left;
@@ -1102,7 +1102,7 @@ CBaseControlVideo::CBaseControlVideo(
 
     CBaseBasicVideo(pName,pUnk),
     m_pFilter(pFilter),
-    m_pPin(NULL),
+    m_pPin(nullptr),
     m_pInterfaceLock(pInterfaceLock)
 {
     UNUSED(phr)
@@ -1120,7 +1120,7 @@ STDMETHODIMP CBaseControlVideo::get_AvgTimePerFrame(__out REFTIME *pAvgTimePerFr
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     COARefTime AvgTime(pVideoInfo->AvgTimePerFrame);
     *pAvgTimePerFrame = (REFTIME) AvgTime;
@@ -1138,7 +1138,7 @@ STDMETHODIMP CBaseControlVideo::get_BitRate(__out long *pBitRate)
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     *pBitRate = pVideoInfo->dwBitRate;
     return NOERROR;
@@ -1154,7 +1154,7 @@ STDMETHODIMP CBaseControlVideo::get_BitErrorRate(__out long *pBitErrorRate)
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     *pBitErrorRate = pVideoInfo->dwBitErrorRate;
     return NOERROR;
@@ -1170,7 +1170,7 @@ STDMETHODIMP CBaseControlVideo::get_VideoWidth(__out long *pVideoWidth)
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     *pVideoWidth = pVideoInfo->bmiHeader.biWidth;
     return NOERROR;
@@ -1186,7 +1186,7 @@ STDMETHODIMP CBaseControlVideo::get_VideoHeight(__out long *pVideoHeight)
     CAutoLock cInterfaceLock(m_pInterfaceLock);
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     *pVideoHeight = pVideoInfo->bmiHeader.biHeight;
     return NOERROR;
@@ -1213,7 +1213,7 @@ STDMETHODIMP CBaseControlVideo::GetVideoPaletteEntries(long StartIndex,
     // Get the video format from the derived class
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     BITMAPINFOHEADER *pHeader = HEADER(pVideoInfo);
 
@@ -1226,7 +1226,7 @@ STDMETHODIMP CBaseControlVideo::GetVideoPaletteEntries(long StartIndex,
 
     // Do they just want to know how many are available
 
-    if (pPalette == NULL) {
+    if (pPalette == nullptr) {
         *pRetrieved = pHeader->biClrUsed;
         return NOERROR;
     }
@@ -1275,7 +1275,7 @@ STDMETHODIMP CBaseControlVideo::GetVideoSize(__out long *pWidth,__out long *pHei
 
     // Get the video format from the derived class
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     *pWidth = pVideoInfo->bmiHeader.biWidth;
     *pHeight = pVideoInfo->bmiHeader.biHeight;
@@ -1818,7 +1818,7 @@ CBaseControlVideo::GetCurrentImage(__inout long *pBufferSize,__out_bcount_part(*
 
     // Make sure we are in a paused state
 
-    if (pVideoImage != NULL) {
+    if (pVideoImage != nullptr) {
         m_pFilter->GetState(0,&State);
         if (State != State_Paused) {
             return VFW_E_NOT_PAUSED;
@@ -1829,7 +1829,7 @@ CBaseControlVideo::GetCurrentImage(__inout long *pBufferSize,__out_bcount_part(*
     // Just return the memory required
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     RECT SourceRect;
     GetSourceRect(&SourceRect);
@@ -1853,9 +1853,9 @@ HRESULT CBaseControlVideo::GetImageSize(__in VIDEOINFOHEADER *pVideoInfo,
 
     // Check we have the correct input parameters
 
-    if (pSourceRect == NULL ||
-            pVideoInfo == NULL ||
-            pBufferSize == NULL) {
+    if (pSourceRect == nullptr ||
+            pVideoInfo == nullptr ||
+            pBufferSize == nullptr) {
 
         return E_UNEXPECTED;
     }
@@ -1901,9 +1901,9 @@ HRESULT CBaseControlVideo::CopyImage(IMediaSample *pMediaSample,
 
     // Check we have an image to copy
 
-    if (pMediaSample == NULL || pSourceRect == NULL ||
-            pVideoInfo == NULL || pVideoImage == NULL ||
-            pBufferSize == NULL) {
+    if (pMediaSample == nullptr || pSourceRect == nullptr ||
+            pVideoInfo == nullptr || pVideoImage == nullptr ||
+            pBufferSize == nullptr) {
 
         return E_UNEXPECTED;
     }
@@ -2002,7 +2002,7 @@ HRESULT CBaseControlVideo::OnVideoSizeChange()
     // Get the video format from the derived class
 
     VIDEOINFOHEADER *pVideoInfo = GetVideoFormat();
-    if (pVideoInfo == NULL)
+    if (pVideoInfo == nullptr)
     return E_OUTOFMEMORY;
     WORD Width = (WORD) pVideoInfo->bmiHeader.biWidth;
     WORD Height = (WORD) pVideoInfo->bmiHeader.biHeight;
@@ -2062,7 +2062,7 @@ HRESULT CBaseControlVideo::CheckTargetRect(__in RECT *pTargetRect)
 {
     // Check the pointer is valid
 
-    if (pTargetRect == NULL) {
+    if (pTargetRect == nullptr) {
         return E_POINTER;
     }
 

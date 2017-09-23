@@ -23,52 +23,32 @@ WarholElement::WarholElement(): AkElement()
 {
     this->m_nFrames = 3;
 
-    this->m_colorTable << 0x000080 << 0x008000 << 0x800000
-                       << 0x00e000 << 0x808000 << 0x800080
-                       << 0x808080 << 0x008080 << 0xe0e000;
-}
-
-QObject *WarholElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Warhol/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Warhol", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
+    this->m_colorTable = {
+        0x000080, 0x008000, 0x800000,
+        0x00e000, 0x808000, 0x800080,
+        0x808080, 0x008080, 0xe0e000
+    };
 }
 
 int WarholElement::nFrames() const
 {
     return this->m_nFrames;
+}
+
+QString WarholElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Warhol/share/qml/main.qml");
+}
+
+void WarholElement::controlInterfaceConfigure(QQmlContext *context,
+                                              const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Warhol", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void WarholElement::setNFrames(int nFrames)

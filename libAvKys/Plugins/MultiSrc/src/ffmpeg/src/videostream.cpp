@@ -37,7 +37,7 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
     AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
     this->m_maxData = 3;
-    this->m_scaleContext = NULL;
+    this->m_scaleContext = nullptr;
     this->m_lastPts = 0;
 }
 
@@ -66,7 +66,7 @@ void VideoStream::processPacket(AVPacket *packet)
         return;
 
     if (!packet) {
-        this->dataEnqueue(NULL);
+        this->dataEnqueue(nullptr);
 
         return;
     }
@@ -187,9 +187,9 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
                                                   iFrame->height,
                                                   outPixFormat,
                                                   SWS_FAST_BILINEAR,
-                                                  NULL,
-                                                  NULL,
-                                                  NULL);
+                                                  nullptr,
+                                                  nullptr,
+                                                  nullptr);
 
     if (!this->m_scaleContext)
         return AkPacket();
@@ -201,7 +201,7 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     if (av_image_check_size(uint(iFrame->width),
                             uint(iFrame->height),
                             0,
-                            NULL) < 0)
+                            nullptr) < 0)
         return AkPacket();
 
     if (av_image_fill_linesizes(oFrame.linesize,
@@ -214,7 +214,7 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     int frameSize = av_image_fill_pointers(data,
                                            outPixFormat,
                                            iFrame->height,
-                                           NULL,
+                                           nullptr,
                                            oFrame.linesize);
 
     QByteArray oBuffer(frameSize, 0);

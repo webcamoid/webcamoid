@@ -38,7 +38,7 @@ class AkPrivate
 
         AkPrivate()
         {
-            this->m_globalEngine = NULL;
+            this->m_globalEngine = nullptr;
 
             qRegisterMetaType<QRgb>("QRgb");
             qRegisterMetaType<QColor>("QColor");
@@ -132,7 +132,7 @@ void Ak::setQmlEngine(QQmlEngine *engine)
 
     if (akGlobalStuff->m_globalEngine) {
         akGlobalStuff->m_globalEngine->setImportPathList(akGlobalStuff->m_qmlDefaultImportPathList);
-        akGlobalStuff->m_globalEngine = NULL;
+        akGlobalStuff->m_globalEngine = nullptr;
     }
 
     if (!engine)

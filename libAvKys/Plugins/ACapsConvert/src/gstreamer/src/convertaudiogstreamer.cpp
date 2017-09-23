@@ -77,14 +77,14 @@ Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
 ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
     ConvertAudio(parent),
-    m_pipeline(NULL),
-    m_source(NULL),
-    m_sink(NULL),
-    m_mainLoop(NULL),
+    m_pipeline(nullptr),
+    m_source(nullptr),
+    m_sink(nullptr),
+    m_mainLoop(nullptr),
     m_busWatchId(0)
 {
 //    setenv("GST_DEBUG", "2", 1);
-    gst_init(NULL, NULL);
+    gst_init(nullptr, nullptr);
 }
 
 ConvertAudioGStreamer::~ConvertAudioGStreamer()
@@ -96,16 +96,16 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
 {
     QMutexLocker mutexLocker(&this->m_mutex);
 
-    this->m_pipeline = gst_pipeline_new(NULL);
+    this->m_pipeline = gst_pipeline_new(nullptr);
 
-    this->m_source = gst_element_factory_make("appsrc", NULL);
+    this->m_source = gst_element_factory_make("appsrc", nullptr);
     gst_app_src_set_stream_type(GST_APP_SRC(this->m_source), GST_APP_STREAM_TYPE_STREAM);
-    g_object_set(G_OBJECT(this->m_source), "format", GST_FORMAT_TIME, NULL);
+    g_object_set(G_OBJECT(this->m_source), "format", GST_FORMAT_TIME, nullptr);
 
-    GstElement *audioConvert = gst_element_factory_make("audioconvert", NULL);
-    GstElement *audioResample = gst_element_factory_make("audioresample", NULL);
-    GstElement *audioRate = gst_element_factory_make("audiorate", NULL);
-    this->m_sink = gst_element_factory_make("appsink", NULL);
+    GstElement *audioConvert = gst_element_factory_make("audioconvert", nullptr);
+    GstElement *audioResample = gst_element_factory_make("audioresample", nullptr);
+    GstElement *audioRate = gst_element_factory_make("audiorate", nullptr);
+    this->m_sink = gst_element_factory_make("appsink", nullptr);
 
     gst_bin_add_many(GST_BIN(this->m_pipeline),
                      this->m_source,
@@ -113,14 +113,14 @@ bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
                      audioRate,
                      audioConvert,
                      this->m_sink,
-                     NULL);
+                     nullptr);
 
     gst_element_link_many(this->m_source,
                           audioResample,
                           audioRate,
                           audioConvert,
                           this->m_sink,
-                          NULL);
+                          nullptr);
 
     // Configure the message bus.
     GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_pipeline));
@@ -163,7 +163,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
                                           "layout", G_TYPE_STRING, gstInLayout,
                                           "rate", G_TYPE_INT, packet.caps().rate(),
                                           "channels", G_TYPE_INT, packet.caps().channels(),
-                                          NULL);
+                                          nullptr);
 
     inCaps = gst_caps_fixate(inCaps);
     GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->m_source));
@@ -191,7 +191,7 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
                                            "layout", G_TYPE_STRING, gstOutLayout,
                                            "rate", G_TYPE_INT, this->m_caps.rate(),
                                            "channels", G_TYPE_INT, this->m_caps.channels(),
-                                           NULL);
+                                           nullptr);
 
     outCaps = gst_caps_fixate(outCaps);
     GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->m_sink));
@@ -208,20 +208,20 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     GstState state;
     gst_element_get_state(this->m_pipeline,
                           &state,
-                          NULL,
+                          nullptr,
                           GST_CLOCK_TIME_NONE);
 
     if (state != GST_STATE_PLAYING) {
         // Run the main GStreamer loop.
-        this->m_mainLoop = g_main_loop_new(NULL, FALSE);
+        this->m_mainLoop = g_main_loop_new(nullptr, FALSE);
         QtConcurrent::run(&this->m_threadPool, g_main_loop_run, this->m_mainLoop);
         gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
     }
 
     // Write audio frame to the pipeline.
-    GstBuffer *buffer = gst_buffer_new_allocate(NULL,
+    GstBuffer *buffer = gst_buffer_new_allocate(nullptr,
                                                 gsize(packet.buffer().size()),
-                                                NULL);
+                                                nullptr);
     GstMapInfo info;
     gst_buffer_map(buffer, &info, GST_MAP_WRITE);
     memcpy(info.data, packet.buffer().constData(), info.size);
@@ -277,14 +277,14 @@ void ConvertAudioGStreamer::uninit()
         this->waitState(GST_STATE_NULL);
         gst_object_unref(GST_OBJECT(this->m_pipeline));
         g_source_remove(this->m_busWatchId);
-        this->m_pipeline = NULL;
+        this->m_pipeline = nullptr;
         this->m_busWatchId = 0;
     }
 
     if (this->m_mainLoop) {
         g_main_loop_quit(this->m_mainLoop);
         g_main_loop_unref(this->m_mainLoop);
-        this->m_mainLoop = NULL;
+        this->m_mainLoop = nullptr;
     }
 }
 
@@ -294,7 +294,7 @@ void ConvertAudioGStreamer::waitState(GstState state)
         GstState curState;
         GstStateChangeReturn ret = gst_element_get_state(this->m_pipeline,
                                                          &curState,
-                                                         NULL,
+                                                         nullptr,
                                                          GST_CLOCK_TIME_NONE);
 
         if (ret == GST_STATE_CHANGE_FAILURE)
@@ -315,8 +315,8 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
 
     switch (GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_ERROR: {
-        GError *err = NULL;
-        gchar *debug = NULL;
+        GError *err = nullptr;
+        gchar *debug = nullptr;
         gst_message_parse_error(message, &err, &debug);
 
         qDebug() << "ERROR: from element"
@@ -374,7 +374,7 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
     }
     case GST_MESSAGE_STREAM_STATUS: {
         GstStreamStatusType type;
-        GstElement *owner = NULL;
+        GstElement *owner = nullptr;
         gst_message_parse_stream_status(message, &type, &owner);
         qDebug() << "Stream Status:"
                  << GST_ELEMENT_NAME(owner)
@@ -399,7 +399,7 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
         break;
     }
     case GST_MESSAGE_NEW_CLOCK: {
-        GstClock *clock = NULL;
+        GstClock *clock = nullptr;
         gst_message_parse_new_clock(message, &clock);
         qDebug() << "New clock:" << (clock? GST_OBJECT_NAME(clock): "NULL");
         break;
@@ -415,7 +415,7 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
         break;
     }
     case GST_MESSAGE_TAG: {
-        GstTagList *tagList = NULL;
+        GstTagList *tagList = nullptr;
         gst_message_parse_tag(message, &tagList);
         gchar *tags = gst_tag_list_to_string(tagList);
 //        qDebug() << "Tags:" << tags;

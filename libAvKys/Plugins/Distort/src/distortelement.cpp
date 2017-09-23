@@ -26,44 +26,6 @@ DistortElement::DistortElement(): AkElement()
     this->m_gridSizeLog = 1;
 }
 
-QObject *DistortElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Distort/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Distort", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal DistortElement::amplitude() const
 {
     return this->m_amplitude;
@@ -91,6 +53,22 @@ QVector<QPoint> DistortElement::createGrid(int width, int height,
                                          time);
 
     return grid;
+}
+
+QString DistortElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Distort/share/qml/main.qml");
+}
+
+void DistortElement::controlInterfaceConfigure(QQmlContext *context,
+                                               const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Distort", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void DistortElement::setAmplitude(qreal amplitude)

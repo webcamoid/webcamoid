@@ -296,7 +296,6 @@ bool MediaSource::embedControls(const QString &where,
 
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
-        interfaceItem->setParent(item);
 
         QQmlProperty::write(interfaceItem,
                             "anchors.fill",
@@ -322,8 +321,8 @@ void MediaSource::removeInterface(const QString &where) const
         QList<decltype(item)> childItems = item->childItems();
 
         for (auto child: childItems) {
-            child->setParentItem(NULL);
-            child->setParent(NULL);
+            child->setParentItem(nullptr);
+            child->setParent(nullptr);
             delete child;
         }
     }
@@ -704,7 +703,7 @@ void MediaSource::loadProperties()
     if (this->m_desktopCapture)
         this->m_desktopCapture->setProperty("captureLib",
                                             config.value("DesktopCapture.captureLib",
-                                                         this->m_cameraCapture->property("captureLib")));
+                                                         this->m_desktopCapture->property("captureLib")));
 
 
     if (this->m_uriCapture)

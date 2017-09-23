@@ -54,7 +54,7 @@ class Pipeline: public QObject
                READ outputs)
 
     public:
-        explicit Pipeline(QObject *parent=NULL);
+        explicit Pipeline(QObject *parent=nullptr);
         Q_INVOKABLE bool parse(const QString &description);
         Q_INVOKABLE QMap<QString, AkElementPtr> elements() const;
         Q_INVOKABLE QList<QStringList> links() const;

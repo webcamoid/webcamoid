@@ -20,8 +20,6 @@
 #ifndef FIREELEMENT_H
 #define FIREELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -89,9 +87,6 @@ class FireElement: public AkElement
 
         explicit FireElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int cool() const;
         Q_INVOKABLE qreal disolve() const;
@@ -133,6 +128,11 @@ class FireElement: public AkElement
         void disolveImage(QImage &src, qreal amount);
         QImage burn(const QImage &src, const QVector<QRgb> &palette);
         QVector<QRgb> createPalette();
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void modeChanged(const QString &mode);

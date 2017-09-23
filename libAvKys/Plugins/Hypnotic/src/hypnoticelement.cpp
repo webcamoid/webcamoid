@@ -25,11 +25,12 @@ typedef QMap<HypnoticElement::OpticMode, QString> OpticModeMap;
 
 inline OpticModeMap initOpticModeMap()
 {
-    OpticModeMap opticModeToStr;
-    opticModeToStr[HypnoticElement::OpticModeSpiral1] = "spiral1";
-    opticModeToStr[HypnoticElement::OpticModeSpiral2] = "spiral2";
-    opticModeToStr[HypnoticElement::OpticModeParabola] = "parabola";
-    opticModeToStr[HypnoticElement::OpticModeHorizontalStripe] = "horizontalStripe";
+    OpticModeMap opticModeToStr {
+        {HypnoticElement::OpticModeSpiral1         , "spiral1"         },
+        {HypnoticElement::OpticModeSpiral2         , "spiral2"         },
+        {HypnoticElement::OpticModeParabola        , "parabola"        },
+        {HypnoticElement::OpticModeHorizontalStripe, "horizontalStripe"}
+    };
 
     return opticModeToStr;
 }
@@ -43,44 +44,6 @@ HypnoticElement::HypnoticElement(): AkElement()
     this->m_threshold = 127;
 
     this->m_palette = this->createPalette();
-}
-
-QObject *HypnoticElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Hypnotic/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Hypnotic", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
 }
 
 QString HypnoticElement::mode() const
@@ -171,6 +134,22 @@ QImage HypnoticElement::imageThreshold(const QImage &src, int threshold)
     }
 
     return diff;
+}
+
+QString HypnoticElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Hypnotic/share/qml/main.qml");
+}
+
+void HypnoticElement::controlInterfaceConfigure(QQmlContext *context,
+                                                const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Hypnotic", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void HypnoticElement::setMode(const QString &mode)

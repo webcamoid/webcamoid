@@ -20,8 +20,6 @@
 #ifndef NERVOUSELEMENT_H
 #define NERVOUSELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -42,9 +40,6 @@ class NervousElement: public AkElement
     public:
         explicit NervousElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int nFrames() const;
         Q_INVOKABLE bool simple() const;
 
@@ -55,6 +50,11 @@ class NervousElement: public AkElement
         QVector<QImage> m_frames;
         QSize m_frameSize;
         int m_stride;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void nFramesChanged(int nFrames);

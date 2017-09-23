@@ -307,10 +307,45 @@ AkElement::ElementState AkElement::state() const
 QObject *AkElement::controlInterface(QQmlEngine *engine,
                                      const QString &controlId) const
 {
-    Q_UNUSED(engine)
     Q_UNUSED(controlId)
 
-    return NULL;
+    if (!engine)
+        return nullptr;
+
+    auto qmlFile = this->controlInterfaceProvide(controlId);
+
+    if (qmlFile.isEmpty())
+        return nullptr;
+
+    // Load the UI from the plugin.
+    QQmlComponent component(engine, qmlFile);
+
+    if (component.isError()) {
+        qDebug() << "Error in plugin "
+                 << this->metaObject()->className()
+                 << ":"
+                 << component.errorString();
+
+        return nullptr;
+    }
+
+    // Create a context for the plugin.
+    QQmlContext *context = new QQmlContext(engine->rootContext());
+    this->controlInterfaceConfigure(context, controlId);
+
+    // Create an item with the plugin context.
+    QObject *item = component.create(context);
+
+    if (!item) {
+        delete context;
+
+        return nullptr;
+    }
+
+    QQmlEngine::setObjectOwnership(item, QQmlEngine::JavaScriptOwnership);
+    context->setParent(item);
+
+    return item;
 }
 
 bool AkElement::link(const QObject *dstElement,
@@ -411,26 +446,26 @@ AkElement *AkElement::createPtr(const QString &pluginId, const QString &elementN
     QString filePath = AkElement::pluginPath(pluginId);
 
     if (filePath.isEmpty())
-        return NULL;
+        return nullptr;
 
     QPluginLoader pluginLoader(filePath);
 
     if (!pluginLoader.load()) {
         qDebug() << "Error loading plugin " << pluginId << ":" << pluginLoader.errorString();
 
-        return NULL;
+        return nullptr;
     }
 
     auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
 
     if (!plugin)
-        return NULL;
+        return nullptr;
 
     auto element = qobject_cast<AkElement *>(plugin->create(AK_PLUGIN_TYPE_ELEMENT, ""));
     delete plugin;
 
     if (!element)
-        return NULL;
+        return nullptr;
 
     if (!elementName.isEmpty())
         element->setObjectName(elementName);
@@ -808,6 +843,20 @@ AkPacket AkElement::operator ()(const AkAudioPacket &packet)
 AkPacket AkElement::operator ()(const AkVideoPacket &packet)
 {
     return this->iStream(packet);
+}
+
+QString AkElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString();
+}
+
+void AkElement::controlInterfaceConfigure(QQmlContext *context,
+                                          const QString &controlId) const
+{
+    Q_UNUSED(context)
+    Q_UNUSED(controlId)
 }
 
 void AkElement::stateChange(AkElement::ElementState from, AkElement::ElementState to)

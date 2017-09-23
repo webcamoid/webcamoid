@@ -27,11 +27,11 @@
 class AudioStream: public AbstractStream
 {
     public:
-        AudioStream(const AVFormatContext *formatContext=NULL,
+        AudioStream(const AVFormatContext *formatContext=nullptr,
                     uint index=0, int streamIndex=-1,
                     const QVariantMap &configs={},
                     const QMap<QString, QVariantMap> &codecOptions={},
-                    MediaWriterFFmpeg *mediaWriter=NULL,
+                    MediaWriterFFmpeg *mediaWriter=nullptr,
                     QObject *parent=nullptr);
         ~AudioStream();
 

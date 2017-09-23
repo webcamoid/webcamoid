@@ -21,8 +21,6 @@
 #define MULTISRCELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <akmultimediasourceelement.h>
 
 #include "mediasource.h"
@@ -70,9 +68,6 @@ class MultiSrcElement: public AkMultimediaSourceElement
         explicit MultiSrcElement();
         ~MultiSrcElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QStringList medias();
         Q_INVOKABLE QString media() const;
         Q_INVOKABLE QList<int> streams() const;
@@ -89,6 +84,11 @@ class MultiSrcElement: public AkMultimediaSourceElement
     private:
         MediaSourcePtr m_mediaSource;
         QMutex m_mutexLib;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void mediasChanged(const QStringList &medias);

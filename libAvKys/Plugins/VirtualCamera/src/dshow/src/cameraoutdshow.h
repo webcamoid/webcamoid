@@ -33,7 +33,7 @@ class CameraOutDShow: public CameraOut
     Q_OBJECT
 
     public:
-        explicit CameraOutDShow(QObject *parent=NULL);
+        explicit CameraOutDShow(QObject *parent=nullptr);
         ~CameraOutDShow();
 
         Q_INVOKABLE QString driverPath() const;

@@ -33,7 +33,7 @@ const AMOVIESETUP_PIN pinSetup = {
     FALSE,                   // Can we have none
     FALSE,                   // Can we have many
     &CLSID_NULL,             // Connects to filter
-    NULL,                    // Connects to pin
+    nullptr,                    // Connects to pin
     1,                       // Number of types
     &sudOpPinTypes           // Pin details
 };
@@ -50,7 +50,7 @@ CFactoryTemplate g_Templates[] = {
     {FILTER_NAME,
      &CLSID_VirtualCameraSource,
      VirtualCameraSource::CreateInstance,
-     NULL,
+     nullptr,
      &filterSetup}
 };
 

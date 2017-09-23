@@ -20,8 +20,6 @@
 #ifndef LIFEELEMENT_H
 #define LIFEELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -47,9 +45,6 @@ class LifeElement: public AkElement
     public:
         explicit LifeElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QRgb lifeColor() const;
         Q_INVOKABLE int threshold() const;
         Q_INVOKABLE int lumaThreshold() const;
@@ -68,6 +63,11 @@ class LifeElement: public AkElement
                          int threshold,
                          int lumaThreshold);
         void updateLife();
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void lifeColorChanged(QRgb lifeColor);

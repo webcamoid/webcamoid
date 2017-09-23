@@ -31,20 +31,20 @@ class MutexPrivate
 Mutex::Mutex(const std::wstring &name)
 {
     this->d = new MutexPrivate();
-    this->d->m_mutex = CreateMutex(NULL,
+    this->d->m_mutex = CreateMutex(nullptr,
                                    FALSE,
                                    name.empty()?
-                                       NULL: name.c_str());
+                                       nullptr: name.c_str());
     this->d->m_name = name;
 }
 
 Mutex::Mutex(const Mutex &other)
 {
     this->d = new MutexPrivate();
-    this->d->m_mutex = CreateMutex(NULL,
+    this->d->m_mutex = CreateMutex(nullptr,
                                    FALSE,
                                    other.d->m_name.empty()?
-                                       NULL: other.d->m_name.c_str());
+                                       nullptr: other.d->m_name.c_str());
     this->d->m_name = other.d->m_name;
 }
 
@@ -64,10 +64,10 @@ Mutex &Mutex::operator =(const Mutex &other)
         if (this->d->m_mutex)
             CloseHandle(this->d->m_mutex);
 
-        this->d->m_mutex = CreateMutex(NULL,
+        this->d->m_mutex = CreateMutex(nullptr,
                                        FALSE,
                                        other.d->m_name.empty()?
-                                           NULL: other.d->m_name.c_str());
+                                           nullptr: other.d->m_name.c_str());
         this->d->m_name = other.d->m_name;
     }
 

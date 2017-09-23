@@ -34,7 +34,7 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
     Q_OBJECT
 
     public:
-        explicit AudioDevWasapi(QObject *parent=NULL);
+        explicit AudioDevWasapi(QObject *parent=nullptr);
         ~AudioDevWasapi();
 
         Q_INVOKABLE QString error() const;

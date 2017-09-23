@@ -21,8 +21,6 @@
 #define MATRIXELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -101,9 +99,6 @@ class MatrixElement: public AkElement
     public:
         explicit MatrixElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int nDrops() const;
         Q_INVOKABLE QString charTable() const;
         Q_INVOKABLE QFont font() const;
@@ -143,6 +138,11 @@ class MatrixElement: public AkElement
         int imageWeight(const QImage &image) const;
         static bool chrLessThan(const Character &chr1, const Character &chr2);
         QImage renderRain(const QSize &frameSize, const QImage &textImage);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void nDropsChanged(int nDrops);

@@ -21,8 +21,6 @@
 #define AUDIOLAYER_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <akelement.h>
 
@@ -84,7 +82,8 @@ class AudioLayer: public QObject
                NOTIFY inputStateChanged)
 
     public:
-        explicit AudioLayer(QQmlApplicationEngine *engine=NULL, QObject *parent=NULL);
+        explicit AudioLayer(QQmlApplicationEngine *engine=nullptr,
+                            QObject *parent=nullptr);
         ~AudioLayer();
 
         Q_INVOKABLE QStringList audioInput() const;
@@ -153,7 +152,7 @@ class AudioLayer: public QObject
         void resetInputState();
         void resetOutputState();
         AkPacket iStream(const AkPacket &packet);
-        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
+        void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
         void privInputsChanged(const QStringList &inputs);

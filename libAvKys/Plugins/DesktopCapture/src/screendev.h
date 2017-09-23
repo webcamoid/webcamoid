@@ -29,7 +29,7 @@ class ScreenDev: public QObject
     Q_OBJECT
 
     public:
-        explicit ScreenDev(QObject *parent=NULL);
+        explicit ScreenDev(QObject *parent=nullptr);
         virtual ~ScreenDev();
 
         Q_INVOKABLE virtual AkFrac fps() const;

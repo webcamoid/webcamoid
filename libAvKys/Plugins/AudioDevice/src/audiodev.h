@@ -32,7 +32,7 @@ class AudioDev: public QObject
                NOTIFY errorChanged)
 
     public:
-        explicit AudioDev(QObject *parent=NULL);
+        explicit AudioDev(QObject *parent=nullptr);
         virtual ~AudioDev();
 
         Q_INVOKABLE virtual QString error() const;

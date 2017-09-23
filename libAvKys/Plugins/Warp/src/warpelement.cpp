@@ -26,48 +26,25 @@ WarpElement::WarpElement(): AkElement()
     this->m_ripples = 4;
 }
 
-QObject *WarpElement::controlInterface(QQmlEngine *engine,
-                                       const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Warp/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Warp", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 qreal WarpElement::ripples() const
 {
     return this->m_ripples;
+}
+
+QString WarpElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Warp/share/qml/main.qml");
+}
+
+void WarpElement::controlInterfaceConfigure(QQmlContext *context,
+                                            const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Warp", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void WarpElement::setRipples(qreal ripples)
@@ -124,7 +101,7 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
     qreal *phiTable = this->m_phiTable.data();
 
     for (int y = 0, i = 0; y < src.height(); y++) {
-        QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
+        auto oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));
 
         for (int x = 0; x < src.width(); x++, i++) {
             qreal phi = ripples * phiTable[i];
@@ -135,7 +112,7 @@ AkPacket WarpElement::iStream(const AkPacket &packet)
             xOrig = qBound(0, xOrig, src.width());
             yOrig = qBound(0, yOrig, src.height());
 
-            const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yOrig));
+            auto iLine = reinterpret_cast<const QRgb *>(src.constScanLine(yOrig));
             oLine[x] = iLine[xOrig];
         }
     }

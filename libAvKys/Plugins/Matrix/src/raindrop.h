@@ -37,7 +37,7 @@ class RainDrop: public QObject
                           int maxLength,
                           qreal minSpeed,
                           qreal maxSpeed,
-                          bool randomStart, QObject *parent = NULL);
+                          bool randomStart, QObject *parent=nullptr);
         RainDrop(const RainDrop &other);
         RainDrop &operator =(const RainDrop &other);
         RainDrop operator ++(int);

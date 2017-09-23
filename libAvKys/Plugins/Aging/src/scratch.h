@@ -47,7 +47,7 @@ class Scratch: public QObject
                RESET resetY)
 
     public:
-        explicit Scratch(QObject *parent=NULL);
+        explicit Scratch(QObject *parent=nullptr);
         Scratch(qreal minLife, qreal maxLife,
                 qreal minDLife, qreal maxDLife,
                 qreal minX, qreal maxX,

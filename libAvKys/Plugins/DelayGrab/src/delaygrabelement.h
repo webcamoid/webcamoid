@@ -21,8 +21,6 @@
 #define DELAYGRABELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -61,9 +59,6 @@ class DelayGrabElement: public AkElement
 
         explicit DelayGrabElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString mode() const;
         Q_INVOKABLE int blockSize() const;
         Q_INVOKABLE int nFrames() const;
@@ -77,6 +72,11 @@ class DelayGrabElement: public AkElement
         QSize m_frameSize;
         QVector<QImage> m_frames;
         QVector<int> m_delayMap;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void modeChanged(const QString &mode);

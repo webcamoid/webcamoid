@@ -32,7 +32,7 @@ inline void waitLoop(const QFuture<T> &loop)
 
 UsbGlobals::UsbGlobals(QObject *parent):
     QObject(parent),
-    m_context(NULL),
+    m_context(nullptr),
     m_hotplugCallbackHnd(0),
     m_processsUsbEventsLoop(false)
 {
@@ -123,6 +123,6 @@ void UsbGlobals::processUSBEvents()
 {
     while (this->m_processsUsbEventsLoop) {
         timeval tv {0, 500000};
-        libusb_handle_events_timeout_completed(this->m_context, &tv, NULL);
+        libusb_handle_events_timeout_completed(this->m_context, &tv, nullptr);
     }
 }

@@ -61,23 +61,23 @@ CBaseReferenceClock::~CBaseReferenceClock()
         EXECUTE_ASSERT( CloseHandle(m_hThread) );
         m_hThread = 0;
         EXECUTE_ASSERT( CloseHandle(m_pSchedule->GetEvent()) );
-	delete m_pSchedule;
+    delete m_pSchedule;
     }
 }
 
 // A derived class may supply a hThreadEvent if it has its own thread that will take care
 // of calling the schedulers Advise method.  (Refere to CBaseReferenceClock::AdviseThread()
 // to see what such a thread has to do.)
-CBaseReferenceClock::CBaseReferenceClock( __in_opt LPCTSTR pName, 
-                                          __inout_opt LPUNKNOWN pUnk, 
-                                          __inout HRESULT *phr, 
+CBaseReferenceClock::CBaseReferenceClock( __in_opt LPCTSTR pName,
+                                          __inout_opt LPUNKNOWN pUnk,
+                                          __inout HRESULT *phr,
                                           __inout_opt CAMSchedule * pShed )
 : CUnknown( pName, pUnk )
 , m_rtLastGotTime(0)
 , m_TimerResolution(0)
 , m_bAbort( FALSE )
 , m_hThread(0)
-, m_pSchedule( pShed ? pShed : new CAMSchedule(CreateEvent(NULL, FALSE, FALSE, NULL)) )
+, m_pSchedule( pShed ? pShed : new CAMSchedule(CreateEvent(nullptr, FALSE, FALSE, nullptr)) )
 {
 
 #ifdef DXMPERF
@@ -110,7 +110,7 @@ CBaseReferenceClock::CBaseReferenceClock( __in_opt LPCTSTR pName,
         if ( !pShed )
         {
             DWORD ThreadID;
-            m_hThread = ::CreateThread(NULL,                  // Security attributes
+            m_hThread = ::CreateThread(nullptr,                  // Security attributes
                                        (DWORD) 0,             // Initial stack size
                                        AdviseThreadFunction,  // Thread start address
                                        (LPVOID) this,         // Thread parameter
@@ -126,7 +126,7 @@ CBaseReferenceClock::CBaseReferenceClock( __in_opt LPCTSTR pName,
                 *phr = E_FAIL;
                 EXECUTE_ASSERT( CloseHandle(m_pSchedule->GetEvent()) );
                 delete m_pSchedule;
-                m_pSchedule = NULL;
+                m_pSchedule = nullptr;
             }
         }
     }

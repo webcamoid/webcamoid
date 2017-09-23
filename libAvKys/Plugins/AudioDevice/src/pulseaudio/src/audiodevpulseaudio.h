@@ -36,7 +36,7 @@ class AudioDevPulseAudio: public AudioDev
     Q_OBJECT
 
     public:
-        explicit AudioDevPulseAudio(QObject *parent=NULL);
+        explicit AudioDevPulseAudio(QObject *parent=nullptr);
         ~AudioDevPulseAudio();
 
         Q_INVOKABLE QString error() const;

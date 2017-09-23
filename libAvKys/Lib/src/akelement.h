@@ -22,6 +22,8 @@
 
 #include <QStringList>
 #include <QQmlEngine>
+#include <QQmlComponent>
+#include <QQmlContext>
 
 #include "akaudiopacket.h"
 #include "akvideopacket.h"
@@ -61,7 +63,7 @@ class AKCOMMONS_EXPORT AkElement: public QObject
             ElementStatePlaying
         };
 
-        explicit AkElement(QObject *parent=NULL);
+        explicit AkElement(QObject *parent=nullptr);
         virtual ~AkElement();
 
         Q_INVOKABLE QString pluginId() const;
@@ -136,6 +138,9 @@ class AKCOMMONS_EXPORT AkElement: public QObject
         AkElementPrivate *d;
 
     protected:
+        virtual QString controlInterfaceProvide(const QString &controlId) const;
+        virtual void controlInterfaceConfigure(QQmlContext *context,
+                                               const QString &controlId) const;
         virtual void stateChange(AkElement::ElementState from, AkElement::ElementState to);
 
     Q_SIGNALS:

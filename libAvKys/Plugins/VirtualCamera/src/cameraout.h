@@ -59,7 +59,7 @@ class CameraOut: public QObject
                NOTIFY rootMethodChanged)
 
     public:
-        explicit CameraOut(QObject *parent=NULL);
+        explicit CameraOut(QObject *parent=nullptr);
         virtual ~CameraOut();
 
         Q_INVOKABLE virtual QString driverPath() const;

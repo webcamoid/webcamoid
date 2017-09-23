@@ -20,8 +20,6 @@
 #ifndef PLUGINCONFIGS_H
 #define PLUGINCONFIGS_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QQmlApplicationEngine>
 
 #include "clioptions.h"
@@ -35,11 +33,11 @@ class PluginConfigs: public QObject
     Q_OBJECT
 
     public:
-        explicit PluginConfigs(QQmlApplicationEngine *engine=NULL,
-                               QObject *parent=NULL);
+        explicit PluginConfigs(QQmlApplicationEngine *engine=nullptr,
+                               QObject *parent=nullptr);
         explicit PluginConfigs(const CliOptions &cliOptions,
-                               QQmlApplicationEngine *engine=NULL,
-                               QObject *parent=NULL);
+                               QQmlApplicationEngine *engine=nullptr,
+                               QObject *parent=nullptr);
         ~PluginConfigs();
 
     private:
@@ -52,7 +50,7 @@ class PluginConfigs: public QObject
         void pluginsChanged(const QStringList &plugins);
 
     public slots:
-        void setQmlEngine(QQmlApplicationEngine *engine=NULL);
+        void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         void loadProperties(const CliOptions &cliOptions);
         void saveProperties();
 };

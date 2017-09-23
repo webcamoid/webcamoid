@@ -20,8 +20,6 @@
 #ifndef WARPELEMENT_H
 #define WARPELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -37,9 +35,6 @@ class WarpElement: public AkElement
     public:
         explicit WarpElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         qreal ripples() const;
 
     private:
@@ -47,6 +42,11 @@ class WarpElement: public AkElement
 
         QSize m_frameSize;
         QVector<qreal> m_phiTable;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void ripplesChanged(qreal ripples);

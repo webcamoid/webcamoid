@@ -21,8 +21,6 @@
 #define WAVEELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -53,9 +51,6 @@ class WaveElement: public AkElement
     public:
         explicit WaveElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE qreal amplitude() const;
         Q_INVOKABLE qreal frequency() const;
         Q_INVOKABLE qreal phase() const;
@@ -66,10 +61,14 @@ class WaveElement: public AkElement
         qreal m_frequency;
         qreal m_phase;
         QRgb m_background;
-
         QSize m_frameSize;
         QVector<int> m_sineMap;
         QMutex m_mutex;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void amplitudeChanged(qreal amplitude);

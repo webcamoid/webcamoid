@@ -64,7 +64,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormats
 ConvertAudioFFmpegAV::ConvertAudioFFmpegAV(QObject *parent):
     ConvertAudio(parent)
 {
-    this->m_resampleContext = NULL;
+    this->m_resampleContext = nullptr;
     this->m_contextIsOpen = false;
 
 #ifndef QT_DEBUG

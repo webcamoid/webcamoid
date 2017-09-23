@@ -30,7 +30,7 @@ class ConvertVideoGStreamer: public ConvertVideo
     Q_OBJECT
 
     public:
-        explicit ConvertVideoGStreamer(QObject *parent=NULL);
+        explicit ConvertVideoGStreamer(QObject *parent=nullptr);
         ~ConvertVideoGStreamer();
 
         Q_INVOKABLE AkPacket convert(const AkPacket &packet,

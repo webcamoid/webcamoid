@@ -26,44 +26,6 @@ ScanLinesElement::ScanLinesElement(): AkElement()
     this->m_hideColor = qRgb(0, 0, 0);
 }
 
-QObject *ScanLinesElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/ScanLines/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("ScanLines", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
-}
-
 int ScanLinesElement::showSize() const
 {
     return this->m_showSize;
@@ -77,6 +39,22 @@ int ScanLinesElement::hideSize() const
 QRgb ScanLinesElement::hideColor() const
 {
     return this->m_hideColor;
+}
+
+QString ScanLinesElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/ScanLines/share/qml/main.qml");
+}
+
+void ScanLinesElement::controlInterfaceConfigure(QQmlContext *context,
+                                                 const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("ScanLines", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void ScanLinesElement::setShowSize(int showSize)

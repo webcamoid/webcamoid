@@ -71,9 +71,9 @@ HaarStageHID::HaarStageHID(const HaarStage &stage,
     static const qreal thresholdBias = 0.0001;
     this->m_threshold = stage.m_threshold - thresholdBias;
 
-    this->m_parentStagePtr = NULL;
-    this->m_nextStagePtr = NULL;
-    this->m_childStagePtr = NULL;
+    this->m_parentStagePtr = nullptr;
+    this->m_nextStagePtr = nullptr;
+    this->m_childStagePtr = nullptr;
 
     for (int i = 0; i < this->m_count; i++)
         this->m_trees[i] = new HaarTreeHID(stage.m_trees[i],
@@ -101,7 +101,7 @@ HaarStage::HaarStage(QObject *parent): QObject(parent)
 }
 
 HaarStage::HaarStage(const HaarStage &other):
-    QObject(NULL)
+    QObject(nullptr)
 {
     this->m_trees = other.m_trees;
     this->m_threshold = other.m_threshold;

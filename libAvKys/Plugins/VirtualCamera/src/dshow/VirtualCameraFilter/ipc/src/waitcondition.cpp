@@ -31,11 +31,11 @@ class WaitConditionPrivate
 WaitCondition::WaitCondition(const std::wstring &name)
 {
     this->d = new WaitConditionPrivate();
-    this->d->m_event = CreateEvent(NULL,
+    this->d->m_event = CreateEvent(nullptr,
                                    TRUE,
                                    FALSE,
                                    name.empty()?
-                                       NULL: name.c_str());
+                                       nullptr: name.c_str());
     this->d->m_name = name;
 }
 
@@ -44,21 +44,21 @@ WaitCondition::WaitCondition(Mutex *mutex)
     this->d = new WaitConditionPrivate();
     this->d->m_name = mutex->name().empty()?
                           std::wstring(): mutex->name() + L".wait";
-    this->d->m_event = CreateEvent(NULL,
+    this->d->m_event = CreateEvent(nullptr,
                                    TRUE,
                                    FALSE,
                                    mutex->name().empty()?
-                                       NULL: this->d->m_name.c_str());
+                                       nullptr: this->d->m_name.c_str());
 }
 
 WaitCondition::WaitCondition(const WaitCondition &other)
 {
     this->d = new WaitConditionPrivate();
-    this->d->m_event = CreateEvent(NULL,
+    this->d->m_event = CreateEvent(nullptr,
                                    TRUE,
                                    FALSE,
                                    other.d->m_name.empty()?
-                                       NULL: other.d->m_name.c_str());
+                                       nullptr: other.d->m_name.c_str());
     this->d->m_name = other.d->m_name;
 }
 
@@ -76,11 +76,11 @@ WaitCondition &WaitCondition::operator =(const WaitCondition &other)
         if (this->d->m_event)
             CloseHandle(this->d->m_event);
 
-        this->d->m_event = CreateEvent(NULL,
+        this->d->m_event = CreateEvent(nullptr,
                                        TRUE,
                                        FALSE,
                                        other.d->m_name.empty()?
-                                           NULL: other.d->m_name.c_str());
+                                           nullptr: other.d->m_name.c_str());
         this->d->m_name = other.d->m_name;
     }
 

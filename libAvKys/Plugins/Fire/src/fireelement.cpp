@@ -26,9 +26,10 @@ typedef QMap<FireElement::FireMode, QString> FireModeMap;
 
 inline FireModeMap initFireModeMap()
 {
-    FireModeMap fireModeToStr;
-    fireModeToStr[FireElement::FireModeSoft] = "soft";
-    fireModeToStr[FireElement::FireModeHard] = "hard";
+    FireModeMap fireModeToStr {
+        {FireElement::FireModeSoft, "soft"},
+        {FireElement::FireModeHard, "hard"}
+    };
 
     return fireModeToStr;
 }
@@ -55,44 +56,6 @@ FireElement::FireElement(): AkElement()
                      SIGNAL(radiusChanged(int)),
                      this,
                      SIGNAL(blurChanged(int)));
-}
-
-QObject *FireElement::controlInterface(QQmlEngine *engine, const QString &controlId) const
-{
-    Q_UNUSED(controlId)
-
-    if (!engine)
-        return NULL;
-
-    // Load the UI from the plugin.
-    QQmlComponent component(engine, QUrl(QStringLiteral("qrc:/Fire/share/qml/main.qml")));
-
-    if (component.isError()) {
-        qDebug() << "Error in plugin "
-                 << this->metaObject()->className()
-                 << ":"
-                 << component.errorString();
-
-        return NULL;
-    }
-
-    // Create a context for the plugin.
-    QQmlContext *context = new QQmlContext(engine->rootContext());
-    context->setContextProperty("Fire", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
-    context->setContextProperty("controlId", this->objectName());
-
-    // Create an item with the plugin context.
-    QObject *item = component.create(context);
-
-    if (!item) {
-        delete context;
-
-        return NULL;
-    }
-
-    context->setParent(item);
-
-    return item;
 }
 
 QString FireElement::mode() const
@@ -293,6 +256,22 @@ QVector<QRgb> FireElement::createPalette()
                         (3 * i +  128) >> 1);
 
     return palette;
+}
+
+QString FireElement::controlInterfaceProvide(const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    return QString("qrc:/Fire/share/qml/main.qml");
+}
+
+void FireElement::controlInterfaceConfigure(QQmlContext *context,
+                                            const QString &controlId) const
+{
+    Q_UNUSED(controlId)
+
+    context->setContextProperty("Fire", const_cast<QObject *>(qobject_cast<const QObject *>(this)));
+    context->setContextProperty("controlId", this->objectName());
 }
 
 void FireElement::setMode(const QString &mode)

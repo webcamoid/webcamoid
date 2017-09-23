@@ -21,8 +21,6 @@
 #define AGINGELEMENT_H
 
 #include <QMutex>
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <ak.h>
 #include <akutils.h>
 
@@ -45,9 +43,6 @@ class AgingElement: public AkElement
     public:
         explicit AgingElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE int nScratches() const;
         Q_INVOKABLE bool addDust() const;
 
@@ -61,6 +56,11 @@ class AgingElement: public AkElement
         void scratching(QImage &dest);
         void pits(QImage &dest);
         void dusts(QImage &dest);
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void nScratchesChanged(int nScratches);

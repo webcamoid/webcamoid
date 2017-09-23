@@ -20,8 +20,6 @@
 #ifndef COLORTAPELEMENT_H
 #define COLORTAPELEMENT_H
 
-#include <QQmlComponent>
-#include <QQmlContext>
 #include <QMutex>
 #include <ak.h>
 #include <akutils.h>
@@ -38,15 +36,17 @@ class ColorTapElement: public AkElement
     public:
         explicit ColorTapElement();
 
-        Q_INVOKABLE QObject *controlInterface(QQmlEngine *engine,
-                                              const QString &controlId) const;
-
         Q_INVOKABLE QString table() const;
 
     private:
         QImage m_table;
         QString m_tableName;
         QMutex m_mutex;
+
+    protected:
+        QString controlInterfaceProvide(const QString &controlId) const;
+        void controlInterfaceConfigure(QQmlContext *context,
+                                       const QString &controlId) const;
 
     signals:
         void tableChanged(const QString &table);
