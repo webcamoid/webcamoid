@@ -12,7 +12,7 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
 
-    cp -vf ~/Qt/QtIFW${QTIFWVER/-*/}/bin/* .local/bin/
+    cp -vf ~/Qt/QtIFW-${QTIFWVER/-*/}/bin/* .local/bin/
 
     # Install AppImageTool
     wget -c -O .local/bin/appimagetool-x86_64.AppImage https://github.com/AppImage/AppImageKit/releases/download/9/appimagetool-x86_64.AppImage
