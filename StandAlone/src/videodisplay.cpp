@@ -18,6 +18,7 @@
  */
 
 #include <QQuickWindow>
+#include <QSGSimpleTextureNode>
 
 #include "videodisplay.h"
 
@@ -25,7 +26,6 @@ VideoDisplay::VideoDisplay(QQuickItem *parent):
     QQuickItem(parent)
 {
     this->m_fillDisplay = false;
-    this->m_videoFrame = nullptr;
     this->setFlag(ItemHasContents, true);
 }
 
@@ -49,7 +49,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
                      this->m_frame.convertToFormat(QImage::Format_ARGB32);
     this->m_mutex.unlock();
 
-    auto videoFrame = TexturePtr(this->window()->createTextureFromImage(frame));
+    auto videoFrame = this->window()->createTextureFromImage(frame);
 
     if (!videoFrame || videoFrame->textureSize().isEmpty()) {
         if (oldNode)
@@ -65,6 +65,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     else
         node = new QSGSimpleTextureNode();
 
+    node->setOwnsTexture(true);
     node->setFiltering(QSGTexture::Linear);
 
     if (this->m_fillDisplay)
@@ -78,8 +79,7 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
         node->setRect(rect);
     }
 
-    node->setTexture(videoFrame.data());
-    this->m_videoFrame = videoFrame;
+    node->setTexture(videoFrame);
 
     return node;
 }

@@ -718,7 +718,7 @@ QList<int> AudioDevCoreAudio::supportedCASampleRates(AudioDeviceID deviceId,
             supportedSampleRates << maxRate;
     }
 
-    qSort(supportedSampleRates);
+    std::sort(supportedSampleRates.begin(), supportedSampleRates.end());
 
     return supportedSampleRates;
 }
@@ -891,7 +891,7 @@ OSStatus AudioDevCoreAudio::audioCallback(void *audioDev,
 }
 
 void AudioDevCoreAudio::updateDevices()
-{    
+{
     decltype(this->m_defaultSink) defaultOutput;
     decltype(this->m_defaultSource) defaultInput;
     decltype(this->m_sources) inputs;

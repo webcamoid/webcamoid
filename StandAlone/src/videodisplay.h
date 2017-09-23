@@ -22,11 +22,8 @@
 
 #include <QMutex>
 #include <QQuickItem>
-#include <QSGSimpleTextureNode>
 
 #include "akutils.h"
-
-typedef QSharedPointer<QSGTexture> TexturePtr;
 
 class VideoDisplay: public QQuickItem
 {
@@ -47,7 +44,6 @@ class VideoDisplay: public QQuickItem
 
     private:
         bool m_fillDisplay;
-        TexturePtr m_videoFrame;
         QImage m_frame;
         QMutex m_mutex;
 

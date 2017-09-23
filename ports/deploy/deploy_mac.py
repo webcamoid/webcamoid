@@ -396,10 +396,14 @@ class Deploy:
         if 'DYLD_FRAMEWORK_PATH' in os.environ:
             searchPaths += os.environ['DYLD_FRAMEWORK_PATH'].split(':')
 
-        basename = os.path.basename(path)
+        if path.endswith('.dylib'):
+            dep = os.path.basename(path)
+        else:
+            i = path.rfind(os.sep, 0, path.rfind('.framework'))
+            dep = path[i + 1:]
 
         for fpath in searchPaths:
-            realPath = os.path.join(fpath, basename)
+            realPath = os.path.join(fpath, dep)
 
             if os.path.exists(realPath):
                 return realPath
