@@ -676,7 +676,7 @@ STDMETHODIMP CBaseControlWindow::put_Owner(OAHWND Owner)
     // Add or remove WS_CHILD as appropriate
 
     LONG Style = GetWindowLong(m_hwnd,GWL_STYLE);
-    if (Owner == OAHWND(nullptr)) {
+    if (Owner == OAHWND(NULL)) {
         Style &= (~WS_CHILD);
     } else {
         Style |= (WS_CHILD);

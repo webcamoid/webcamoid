@@ -50,6 +50,9 @@ class Deploy:
         self.qtIFW = self.detectQtIFW()
         self.njobs = multiprocessing.cpu_count()
 
+        if self.njobs < 4:
+            self.njobs = 4
+
         # 32 bits magic number.
         self.MH_MAGIC = 0xfeedface # Native endian
         self.MH_CIGAM = 0xcefaedfe # Reverse endian

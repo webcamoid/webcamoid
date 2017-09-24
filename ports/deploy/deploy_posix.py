@@ -57,6 +57,9 @@ class Deploy:
         self.installerIconSize = 128
         self.njobs = multiprocessing.cpu_count()
 
+        if self.njobs < 4:
+            self.njobs = 4
+
     def detectSystem(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0] + '.exe')
 

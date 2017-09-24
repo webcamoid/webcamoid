@@ -50,6 +50,9 @@ class Deploy:
         self.installerIconSize = 256
         self.njobs = multiprocessing.cpu_count()
 
+        if self.njobs < 4:
+            self.njobs = 4
+
     def detectArch(self):
         exeFile = os.path.join(self.rootDir, self.scanPaths[0])
         process = subprocess.Popen(['file', '-b', exeFile],
@@ -508,9 +511,26 @@ class Deploy:
 
             solved.add(dep)
 
+    def removeDebugs(self):
+        dbgFiles = set()
+
+        for root, dirs, files in os.walk(os.path.join(self.installDir,
+                                                      'webcamoid/lib/qt')):
+            for f in files:
+                if f.endswith('.dll'):
+                    fname, ext = os.path.splitext(f)
+                    dbgFile = os.path.join(root, '{}d{}'.format(fname, ext))
+
+                    if os.path.exists(dbgFile):
+                        dbgFiles.add(dbgFile)
+
+        for f in dbgFiles:
+            os.remove(f)
+
     def solvedeps(self):
         self.solvedepsQml()
         self.solvedepsPlugins()
+        self.removeDebugs()
         self.solvedepsLibs()
 
     def writeQtConf(self):

@@ -52,6 +52,9 @@ class Deploy:
         self.installerIconSize = 256
         self.njobs = multiprocessing.cpu_count()
 
+        if self.njobs < 4:
+            self.njobs = 4
+
     def detectArch(self):
         exeFile = os.path.join(self.buildDir, self.scanPaths[0])
 
@@ -140,7 +143,8 @@ class Deploy:
     def prepare(self):
         self.sysQmlPath = self.qmakeQuery('QT_INSTALL_QML')
         self.sysPluginsPath = self.qmakeQuery('QT_INSTALL_PLUGINS')
-        self.installDir = os.environ['INSTALL_PREFIX'] if 'INSTALL_PREFIX' in os.environ else os.path.join(self.buildDir, 'ports\\deploy\\temp_priv\\root')
+        self.tempDir = os.path.join(self.buildDir, 'ports\\deploy\\temp_priv')
+        self.installDir = os.environ['INSTALL_PREFIX'] if 'INSTALL_PREFIX' in os.environ else os.path.join(self.tempDir, 'root')
         self.pkgsDir = os.path.join(self.rootDir, 'ports\\deploy\\packages_auto', sys.platform)
         previousDir = os.getcwd()
         os.chdir(self.buildDir)
@@ -428,7 +432,7 @@ class Deploy:
 
         solved = set()
         plugins = []
-        pluginsPath = os.path.join(self.installDir, 'lib/qt/plugins')
+        pluginsPath = os.path.join(self.installDir, 'lib\\qt\\plugins')
 
         while len(qtDeps) > 0:
             dep = qtDeps.pop()
@@ -499,9 +503,26 @@ class Deploy:
 
             solved.add(dep)
 
+    def removeDebugs(self):
+        dbgFiles = set()
+
+        for root, dirs, files in os.walk(os.path.join(self.installDir,
+                                                      'lib\\qt')):
+            for f in files:
+                if f.endswith('.dll'):
+                    fname, ext = os.path.splitext(f)
+                    dbgFile = os.path.join(root, '{}d{}'.format(fname, ext))
+
+                    if os.path.exists(dbgFile):
+                        dbgFiles.add(dbgFile)
+
+        for f in dbgFiles:
+            os.remove(f)
+
     def solvedeps(self):
         self.solvedepsQml()
         self.solvedepsPlugins()
+        self.removeDebugs()
         self.solvedepsLibs()
 
     def writeQtConf(self):
@@ -511,7 +532,7 @@ class Deploy:
                  'Imports': '../lib/qt/qml',
                  'Qml2Imports': '../lib/qt/qml'}
 
-        with open(os.path.join(self.installDir, 'bin/qt.conf'), 'w') as qtconf:
+        with open(os.path.join(self.installDir, 'bin\\qt.conf'), 'w') as qtconf:
             qtconf.write('[Paths]\n')
 
             for path in paths:
@@ -654,8 +675,8 @@ class Deploy:
             return
 
         # Create layout
-        configDir = os.path.join(self.installDir, 'installer\\config')
-        packageDir = os.path.join(self.installDir, 'installer\\packages\\com.webcamoidprj.webcamoid')
+        configDir = os.path.join(self.tempDir, 'installer\\config')
+        packageDir = os.path.join(self.tempDir, 'installer\\packages\\com.webcamoidprj.webcamoid')
 
         if not os.path.exists(configDir):
             os.makedirs(configDir)
@@ -672,7 +693,7 @@ class Deploy:
                   os.path.join(metaDir, 'COPYING.txt'))
 
         try:
-            shutil.copytree(os.path.join(self.installDir, 'webcamoid'), dataDir, True)
+            shutil.copytree(self.installDir, dataDir, True)
         except:
             pass
 
@@ -737,7 +758,7 @@ class Deploy:
 
         process = subprocess.Popen([self.qtIFW,
                                     '-c', configXml,
-                                    '-p', os.path.join(self.installDir,
+                                    '-p', os.path.join(self.tempDir,
                                                        'installer\\packages'),
                                     packagePath],
                                    stdout=subprocess.PIPE)
