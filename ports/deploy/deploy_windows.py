@@ -280,7 +280,7 @@ class Deploy:
     # https://msdn.microsoft.com/en-us/library/windows/desktop/ms680547(v=vs.85).aspx
     # https://upload.wikimedia.org/wikipedia/commons/1/1b/Portable_Executable_32_bit_Structure_in_SVG_fixed.svg
     def exeDump(self, exe):
-        dllImports = []
+        dllImports = set()
 
         with open(exe, 'rb') as f:
             # Check DOS header signature.
@@ -326,7 +326,7 @@ class Deploy:
                 # Save a reference to the sections.
                 sections += [section]
 
-                if sectionName == b'idata':
+                if sectionName == b'idata' or sectionName == b'rdata':
                     idataTableVirtual = section[2]
                     idataTablePhysical = section[4]
 
@@ -374,7 +374,7 @@ class Deploy:
 
                     dllName += c
 
-                dllImports.append(dllName.decode(sys.getdefaultencoding()))
+                dllImports.add(dllName.decode(sys.getdefaultencoding()))
 
         return dllImports
 
