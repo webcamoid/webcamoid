@@ -156,6 +156,9 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
 #endif
+
+    if (this->m_threadPool.maxThreadCount() < 2)
+        this->m_threadPool.setMaxThreadCount(2);
 }
 
 ConvertVideoFFmpeg::~ConvertVideoFFmpeg()

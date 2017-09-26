@@ -61,6 +61,9 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
 #endif
+
+    if (this->m_threadPool.maxThreadCount() < 2)
+        this->m_threadPool.setMaxThreadCount(2);
 }
 
 MediaSourceFFmpeg::~MediaSourceFFmpeg()
@@ -281,14 +284,14 @@ AbstractStreamPtr MediaSourceFFmpeg::createStream(int index, bool noModify)
     return stream;
 }
 
-void MediaSourceFFmpeg::readPackets(MediaSourceFFmpeg *element)
+void MediaSourceFFmpeg::readPackets()
 {
-    while (element->m_run) {
-        element->m_dataMutex.lock();
+    while (this->m_run) {
+        this->m_dataMutex.lock();
 
-        if (element->packetQueueSize() >= element->m_maxPacketQueueSize)
-            if (!element->m_packetQueueNotFull.wait(&element->m_dataMutex, THREAD_WAIT_LIMIT)) {
-                element->m_dataMutex.unlock();
+        if (this->packetQueueSize() >= this->m_maxPacketQueueSize)
+            if (!this->m_packetQueueNotFull.wait(&this->m_dataMutex, THREAD_WAIT_LIMIT)) {
+                this->m_dataMutex.unlock();
 
                 continue;
             }
@@ -296,13 +299,13 @@ void MediaSourceFFmpeg::readPackets(MediaSourceFFmpeg *element)
         AVPacket *packet = new AVPacket();
         av_init_packet(packet);
         bool notuse = true;
-        int r = av_read_frame(element->m_inputContext.data(), packet);
+        int r = av_read_frame(this->m_inputContext.data(), packet);
 
         if (r >= 0) {
-            if (element->m_streamsMap.contains(packet->stream_index)
-                && (element->m_streams.isEmpty()
-                    || element->m_streams.contains(packet->stream_index))) {
-                element->m_streamsMap[packet->stream_index]->packetEnqueue(packet);
+            if (this->m_streamsMap.contains(packet->stream_index)
+                && (this->m_streams.isEmpty()
+                    || this->m_streams.contains(packet->stream_index))) {
+                this->m_streamsMap[packet->stream_index]->packetEnqueue(packet);
                 notuse = false;
             }
         }
@@ -317,29 +320,29 @@ void MediaSourceFFmpeg::readPackets(MediaSourceFFmpeg *element)
         }
 
         if (r < 0) {
-            if (element->loop()) {
-                for (const AbstractStreamPtr &stream: element->m_streamsMap.values())
+            if (this->loop()) {
+                for (const AbstractStreamPtr &stream: this->m_streamsMap.values())
                     stream->packetEnqueue(nullptr);
             }
 
-            element->m_run = false;
+            this->m_run = false;
         }
 
-        element->m_dataMutex.unlock();
+        this->m_dataMutex.unlock();
     }
 }
 
-void MediaSourceFFmpeg::unlockQueue(MediaSourceFFmpeg *element)
+void MediaSourceFFmpeg::unlockQueue()
 {
-    element->m_dataMutex.lock();
+    this->m_dataMutex.lock();
 
-    if (element->packetQueueSize() < element->m_maxPacketQueueSize)
-        element->m_packetQueueNotFull.wakeAll();
+    if (this->packetQueueSize() < this->m_maxPacketQueueSize)
+        this->m_packetQueueNotFull.wakeAll();
 
-    if (element->packetQueueSize() < 1)
-        element->m_packetQueueEmpty.wakeAll();
+    if (this->packetQueueSize() < 1)
+        this->m_packetQueueEmpty.wakeAll();
 
-    element->m_dataMutex.unlock();
+    this->m_dataMutex.unlock();
 }
 
 void MediaSourceFFmpeg::setMedia(const QString &media)
@@ -494,8 +497,8 @@ bool MediaSourceFFmpeg::setState(AkElement::ElementState state)
             this->m_run = true;
             this->m_readPacketsLoopResult =
                     QtConcurrent::run(&this->m_threadPool,
-                                      this->readPackets,
-                                      this);
+                                      this,
+                                      &MediaSourceFFmpeg::readPackets);
             this->m_curState = state;
 
             return true;
@@ -593,7 +596,9 @@ void MediaSourceFFmpeg::doLoop()
 
 void MediaSourceFFmpeg::packetConsumed()
 {
-    QtConcurrent::run(&this->m_threadPool, this->unlockQueue, this);
+    QtConcurrent::run(&this->m_threadPool,
+                      this,
+                      &MediaSourceFFmpeg::unlockQueue);
 }
 
 bool MediaSourceFFmpeg::initContext()

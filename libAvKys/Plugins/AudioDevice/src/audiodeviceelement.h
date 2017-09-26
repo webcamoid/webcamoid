@@ -99,7 +99,7 @@ class AudioDeviceElement: public AkElement
         bool m_readFramesLoop;
         bool m_pause;
 
-        static void readFramesLoop(AudioDeviceElement *self);
+        void readFramesLoop();
 
     signals:
         void defaultInputChanged(const QString &defaultInput);

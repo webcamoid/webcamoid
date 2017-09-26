@@ -224,7 +224,7 @@ bool VideoCaptureElement::resetCameraControls()
     return this->m_capture->resetCameraControls();
 }
 
-void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
+void VideoCaptureElement::cameraLoop()
 {
 #ifdef Q_OS_WIN32
     // Initialize the COM library in multithread mode.
@@ -233,15 +233,15 @@ void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
 
     bool initConvert = true;
 
-    if (captureElement->m_capture->init()) {
-        while (captureElement->m_runCameraLoop) {
-            if (captureElement->m_pause) {
+    if (this->m_capture->init()) {
+        while (this->m_runCameraLoop) {
+            if (this->m_pause) {
                 QThread::msleep(PAUSE_TIMEOUT);
 
                 continue;
             }
 
-            AkPacket packet = captureElement->m_capture->readFrame();
+            AkPacket packet = this->m_capture->readFrame();
 
             if (!packet)
                 continue;
@@ -251,21 +251,21 @@ void VideoCaptureElement::cameraLoop(VideoCaptureElement *captureElement)
 
 #ifdef Q_OS_WIN32
                 QString fourcc = caps.property("fourcc").toString();
-                captureElement->m_mirror = mirrorFormats->contains(fourcc);
-                captureElement->m_swapRgb = swapRgbFormats->contains(fourcc);
+                this->m_mirror = mirrorFormats->contains(fourcc);
+                this->m_swapRgb = swapRgbFormats->contains(fourcc);
 #endif
 
-                if (!captureElement->m_convertVideo->init(caps))
+                if (!this->m_convertVideo->init(caps))
                     break;
 
                 initConvert = false;
             }
 
-            captureElement->m_convertVideo->packetEnqueue(packet);
+            this->m_convertVideo->packetEnqueue(packet);
         }
 
-        captureElement->m_convertVideo->uninit();
-        captureElement->m_capture->uninit();
+        this->m_convertVideo->uninit();
+        this->m_capture->uninit();
     }
 
 #ifdef Q_OS_WIN32
@@ -371,14 +371,18 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
         case AkElement::ElementStatePaused: {
             this->m_pause = true;
             this->m_runCameraLoop = true;
-            this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool, this->cameraLoop, this);
+            this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool,
+                                                         this,
+                                                         &VideoCaptureElement::cameraLoop);
 
             return AkElement::setState(state);
         }
         case AkElement::ElementStatePlaying: {
             this->m_pause = false;
             this->m_runCameraLoop = true;
-            this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool, this->cameraLoop, this);
+            this->m_cameraLoopResult = QtConcurrent::run(&this->m_threadPool,
+                                                         this,
+                                                         &VideoCaptureElement::cameraLoop);
 
             return AkElement::setState(state);
         }

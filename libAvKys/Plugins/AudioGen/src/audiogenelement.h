@@ -87,7 +87,7 @@ class AudioGenElement: public AkElement
         bool m_pause;
         qint64 m_id;
 
-        static void readFramesLoop(AudioGenElement *self);
+        void readFramesLoop();
 
     signals:
         void capsChanged(const QString &caps);

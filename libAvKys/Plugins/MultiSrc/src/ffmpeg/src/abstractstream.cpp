@@ -103,6 +103,9 @@ AbstractStream::AbstractStream(const AVFormatContext *formatContext,
     }
 
     this->m_isValid = true;
+
+    if (this->m_threadPool.maxThreadCount() < 2)
+        this->m_threadPool.setMaxThreadCount(2);
 }
 
 AbstractStream::~AbstractStream()

@@ -179,28 +179,28 @@ QString AudioDeviceElement::audioLib() const
     return globalAudioDevice->audioLib();
 }
 
-void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
+void AudioDeviceElement::readFramesLoop()
 {
 #ifdef Q_OS_WIN32
     // Initialize the COM library in multithread mode.
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
 #endif
 
-    QString device = self->m_device;
-    AkAudioCaps caps(self->m_caps);
+    QString device = this->m_device;
+    AkAudioCaps caps(this->m_caps);
     qint64 streamId = Ak::id();
     AkFrac timeBase(1, caps.rate());
 
-    if (self->m_audioDevice->init(device, caps)) {
-        while (self->m_readFramesLoop) {
-            if (self->m_pause) {
+    if (this->m_audioDevice->init(device, caps)) {
+        while (this->m_readFramesLoop) {
+            if (this->m_pause) {
                 QThread::msleep(PAUSE_TIMEOUT);
 
                 continue;
             }
 
-            int bufferSize = self->m_bufferSize;
-            QByteArray buffer = self->m_audioDevice->read(bufferSize);
+            int bufferSize = this->m_bufferSize;
+            QByteArray buffer = this->m_audioDevice->read(bufferSize);
 
             if (buffer.isEmpty())
                 return;
@@ -219,10 +219,10 @@ void AudioDeviceElement::readFramesLoop(AudioDeviceElement *self)
             packet.setIndex(0);
             packet.setId(streamId);
 
-            emit self->oStream(packet.toPacket());
+            emit this->oStream(packet.toPacket());
         }
 
-        self->m_audioDevice->uninit();
+        this->m_audioDevice->uninit();
     }
 
 #ifdef Q_OS_WIN32
@@ -338,8 +338,8 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                 this->m_pause = true;
                 this->m_readFramesLoop = true;
                 this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
-                                                                 this->readFramesLoop,
-                                                                 this);
+                                                                 this,
+                                                                 &AudioDeviceElement::readFramesLoop);
             }
 
             return AkElement::setState(state);
@@ -350,8 +350,8 @@ bool AudioDeviceElement::setState(AkElement::ElementState state)
                 this->m_pause = false;
                 this->m_readFramesLoop = true;
                 this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
-                                                                 this->readFramesLoop,
-                                                                 this);
+                                                                 this,
+                                                                 &AudioDeviceElement::readFramesLoop);
             } else if (this->m_device != DUMMY_OUTPUT_DEVICE
                        && this->m_outputs.contains(this->m_device)) {
                 this->m_convert->setState(state);

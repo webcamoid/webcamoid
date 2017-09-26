@@ -1132,6 +1132,10 @@ QVector<QRect> HaarDetector::detect(const QImage &image, qreal scaleFactor,
     QThreadPool threadPool;
     QMutex mutex;
     static const int border = 1;
+
+    if (threadPool.maxThreadCount() < 8)
+        threadPool.setMaxThreadCount(8);
+
     this->d->m_mutex.lock();
 
     for (qreal scale = 1; ; scale *= scaleFactor) {

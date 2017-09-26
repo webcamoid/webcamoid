@@ -265,6 +265,9 @@ AkPacket DenoiseElement::iStream(const AkPacket &packet)
 
     QThreadPool threadPool;
 
+    if (threadPool.maxThreadCount() < 8)
+        threadPool.setMaxThreadCount(8);
+
     for (int y = 0, pos = 0; y < src.height(); y++) {
         const QRgb *iLine = reinterpret_cast<const QRgb *>(src.constScanLine(y));
         QRgb *oLine = reinterpret_cast<QRgb *>(oFrame.scanLine(y));

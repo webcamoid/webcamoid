@@ -678,6 +678,8 @@ bool CaptureV4L2::initReadWrite(quint32 bufferSize)
         return false;
     }
 
+    memset(this->m_buffers[0].start, 0, bufferSize);
+
     return true;
 }
 
@@ -767,6 +769,8 @@ bool CaptureV4L2::initUserPointer(quint32 bufferSize)
 
             break;
         }
+
+        memset(this->m_buffers[i].start, 0, bufferSize);
     }
 
     if (error) {

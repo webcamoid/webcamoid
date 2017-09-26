@@ -94,7 +94,7 @@ qreal AudioGenElement::sampleDuration() const
     return this->m_sampleDuration;
 }
 
-void AudioGenElement::readFramesLoop(AudioGenElement *self)
+void AudioGenElement::readFramesLoop()
 {
     qint64 pts = 0;
     int t0 = QTime::currentTime().msecsSinceStartOfDay();
@@ -102,17 +102,17 @@ void AudioGenElement::readFramesLoop(AudioGenElement *self)
     qreal avgDiff = 0;
     int frameCount = 0;
 
-    while (self->m_readFramesLoop) {
-        if (self->m_pause) {
+    while (this->m_readFramesLoop) {
+        if (this->m_pause) {
             QThread::msleep(PAUSE_TIMEOUT);
 
             continue;
         }
 
-        self->m_mutex.lock();
-        AkCaps oCaps = self->m_caps;
-        qreal sampleDuration = self->m_sampleDuration;
-        self->m_mutex.unlock();
+        this->m_mutex.lock();
+        AkCaps oCaps = this->m_caps;
+        qreal sampleDuration = this->m_sampleDuration;
+        this->m_mutex.unlock();
 
         AkAudioCaps oAudioCaps(oCaps);
 
@@ -157,45 +157,45 @@ void AudioGenElement::readFramesLoop(AudioGenElement *self)
         qreal time = QTime::currentTime().msecsSinceStartOfDay() / 1.e3;
         qreal tdiff = 1. / oAudioCaps.rate();
 
-        if (self->m_waveType == WaveTypeSilence) {
+        if (this->m_waveType == WaveTypeSilence) {
             iBuffer.fill(0);
-        } else if (self->m_waveType == WaveTypeWhiteNoise) {
+        } else if (this->m_waveType == WaveTypeWhiteNoise) {
             static std::default_random_engine engine;
             static std::uniform_int_distribution<int> distribution(-128, 127);
 
             for (int i = 0; i < iBuffer.size(); i++)
                 iBuffer[i] = char(distribution(engine));
         } else {
-            qint32 ampMax = qint32(self->m_volume * std::numeric_limits<qint32>::max());
-            qint32 ampMin = qint32(self->m_volume * std::numeric_limits<qint32>::min());
+            qint32 ampMax = qint32(this->m_volume * std::numeric_limits<qint32>::max());
+            qint32 ampMin = qint32(this->m_volume * std::numeric_limits<qint32>::min());
             qreal t = time;
             qint32 *buff = reinterpret_cast<qint32 *>(iBuffer.data());
 
-            if (self->m_waveType == WaveTypeSine) {
+            if (this->m_waveType == WaveTypeSine) {
                 for  (int i = 0; i < nSamples; i++, time += tdiff)
-                    buff[i] = qRound(ampMax * qSin(2 * M_PI * self->m_frequency * t));
-            } else if (self->m_waveType == WaveTypeSquare) {
+                    buff[i] = qRound(ampMax * qSin(2 * M_PI * this->m_frequency * t));
+            } else if (this->m_waveType == WaveTypeSquare) {
                 for  (int i = 0; i < nSamples; i++, time += tdiff)
-                    buff[i] = qRound(2 * self->m_frequency * t) & 0x1?
+                    buff[i] = qRound(2 * this->m_frequency * t) & 0x1?
                                   ampMin: ampMax;
             } else {
-                qint32 mod = qRound(oAudioCaps.rate() / self->m_frequency);
+                qint32 mod = qRound(oAudioCaps.rate() / this->m_frequency);
 
-                if (self->m_waveType == WaveTypeSawtooth) {
+                if (this->m_waveType == WaveTypeSawtooth) {
                     qreal k = (qreal(ampMax) - ampMin) / (mod - 1);
 
                     for  (int i = 0; i < nSamples; i++, time += tdiff) {
                         qint32 nsample = qRound(t / tdiff);
                         buff[i] = qRound(k * (nsample % mod) + ampMin);
                     }
-                } else if (self->m_waveType == WaveTypeTriangle) {
+                } else if (this->m_waveType == WaveTypeTriangle) {
                     mod /= 2;
                     qreal k = (qreal(ampMax) - ampMin) / (mod - 1);
 
                     for  (int i = 0; i < nSamples; i++, time += tdiff) {
                         qint32 nsample = qRound(t / tdiff);
 
-                        buff[i] = qRound(2 * self->m_frequency * t) & 0x1?
+                        buff[i] = qRound(2 * this->m_frequency * t) & 0x1?
                                       qRound(-k * (nsample % mod) + ampMax):
                                       qRound( k * (nsample % mod) + ampMin);
                     }
@@ -215,9 +215,9 @@ void AudioGenElement::readFramesLoop(AudioGenElement *self)
         iPacket.pts() = pts;
         iPacket.timeBase() = AkFrac(1, iAudioCaps.rate());
         iPacket.index() = 0;
-        iPacket.id() = self->m_id;
+        iPacket.id() = this->m_id;
 
-        (*self->m_audioConvert)(iPacket.toPacket());
+        (*this->m_audioConvert)(iPacket.toPacket());
 
         pts += nSamples;
     }
@@ -313,8 +313,8 @@ bool AudioGenElement::setState(AkElement::ElementState state)
             this->m_pause = true;
             this->m_readFramesLoop = true;
             this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
-                                                             this->readFramesLoop,
-                                                             this);
+                                                             this,
+                                                             &AudioGenElement::readFramesLoop);
 
             return AkElement::setState(state);
         }
@@ -324,8 +324,8 @@ bool AudioGenElement::setState(AkElement::ElementState state)
             this->m_pause = false;
             this->m_readFramesLoop = true;
             this->m_readFramesLoopResult = QtConcurrent::run(&this->m_threadPool,
-                                                             this->readFramesLoop,
-                                                             this);
+                                                             this,
+                                                             &AudioGenElement::readFramesLoop);
 
             return AkElement::setState(state);
         }

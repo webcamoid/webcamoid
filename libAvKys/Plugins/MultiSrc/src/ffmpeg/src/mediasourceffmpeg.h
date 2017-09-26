@@ -81,8 +81,8 @@ class MediaSourceFFmpeg: public MediaSource
         qint64 packetQueueSize();
         static void deleteFormatContext(AVFormatContext *context);
         AbstractStreamPtr createStream(int index, bool noModify=false);
-        static void readPackets(MediaSourceFFmpeg *element);
-        static void unlockQueue(MediaSourceFFmpeg *element);
+        void readPackets();
+        void unlockQueue();
 
         inline int roundDown(int value, int multiply)
         {

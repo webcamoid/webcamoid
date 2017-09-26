@@ -107,7 +107,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         bool m_mirror;
         bool m_swapRgb;
 
-        static void cameraLoop(VideoCaptureElement *captureElement);
+        void cameraLoop();
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;
