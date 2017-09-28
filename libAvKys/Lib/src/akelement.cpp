@@ -181,19 +181,12 @@ class AkElementPrivate
                                     QPluginLoader pluginLoader(path);
 
                                     if (pluginLoader.load()) {
-                                        auto plugin =
-                                                qobject_cast<AkPlugin *>(pluginLoader.instance());
+                                        if (pluginInfo.m_id.isEmpty())
+                                            pluginInfo.m_id = pluginId;
 
-                                        if (plugin) {
-                                            if (pluginInfo.m_id.isEmpty())
-                                                pluginInfo.m_id = pluginId;
-
-                                            pluginInfo.m_metaData =
-                                                    pluginLoader.metaData().toVariantMap();
-                                            pluginInfo.m_used = true;
-
-                                            delete plugin;
-                                        }
+                                        pluginInfo.m_metaData =
+                                                pluginLoader.metaData().toVariantMap();
+                                        pluginInfo.m_used = true;
 
                                         pluginLoader.unload();
                                     }
@@ -221,23 +214,17 @@ class AkElementPrivate
                                 QPluginLoader pluginLoader(path);
 
                                 if (pluginLoader.load()) {
-                                    auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance());
+                                    auto metaData = pluginLoader.metaData();
 
-                                    if (plugin) {
-                                        auto metaData = pluginLoader.metaData();
-
-                                        if (metaData["MetaData"].toObject().contains("pluginType")
-                                            && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
-                                            this->m_pluginsList <<
-                                                AkPluginInfoPrivate {
-                                                    pluginId,
-                                                    path,
-                                                    metaData.toVariantMap(),
-                                                    true
-                                                };
-                                        }
-
-                                        delete plugin;
+                                    if (metaData["MetaData"].toObject().contains("pluginType")
+                                        && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_ELEMENT) {
+                                        this->m_pluginsList <<
+                                            AkPluginInfoPrivate {
+                                                pluginId,
+                                                path,
+                                                metaData.toVariantMap(),
+                                                true
+                                            };
                                     }
 
                                     pluginLoader.unload();
@@ -552,15 +539,11 @@ QStringList AkElement::listSubModulesPaths(const QString &pluginId)
         if (!pluginLoader.load())
             continue;
 
-        if (auto plugin = qobject_cast<AkPlugin *>(pluginLoader.instance())) {
-            auto metaData = pluginLoader.metaData();
+        auto metaData = pluginLoader.metaData();
 
-            if (metaData["MetaData"].toObject().contains("pluginType")
-                && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_SUBMODULE) {
-                subModulesPaths << pluginPath;
-            }
-
-            delete plugin;
+        if (metaData["MetaData"].toObject().contains("pluginType")
+            && metaData["MetaData"].toObject()["pluginType"] == AK_PLUGIN_TYPE_SUBMODULE) {
+            subModulesPaths << pluginPath;
         }
     }
 
