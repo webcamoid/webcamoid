@@ -97,6 +97,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         AkFrac m_timeBase;
         IoMethod m_ioMethod;
         QMap<QString, QSize> m_resolution;
+        BaseFilterPtr m_webcamFilter;
         IGraphBuilder *m_graph;
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
@@ -124,6 +125,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
         bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
         PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
         static void deleteUnknown(IUnknown *unknown);
+        static void freeMediaType(AM_MEDIA_TYPE &mediaType);
         static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
         static void deletePin(IPin *pin);
         QVariantList imageControls(IBaseFilter *filter) const;

@@ -428,6 +428,7 @@ AkPacket CaptureDShow::readFrame()
     ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
     this->m_grabber->GetConnectedMediaType(&mediaType);
     AkCaps caps = this->capsFromMediaType(&mediaType);
+    this->freeMediaType(mediaType);
 
     AkPacket packet;
 
@@ -812,23 +813,27 @@ void CaptureDShow::deleteUnknown(IUnknown *unknown)
     unknown->Release();
 }
 
+void CaptureDShow::freeMediaType(AM_MEDIA_TYPE &mediaType)
+{
+    if (mediaType.cbFormat) {
+        CoTaskMemFree(PVOID(mediaType.pbFormat));
+        mediaType.cbFormat = 0;
+        mediaType.pbFormat = nullptr;
+    }
+
+    if (mediaType.pUnk) {
+        // pUnk should not be used.
+        mediaType.pUnk->Release();
+        mediaType.pUnk = nullptr;
+    }
+}
+
 void CaptureDShow::deleteMediaType(AM_MEDIA_TYPE *mediaType)
 {
     if (!mediaType)
         return;
 
-    if (mediaType->cbFormat != 0) {
-        CoTaskMemFree(PVOID(mediaType->pbFormat));
-        mediaType->cbFormat = 0;
-        mediaType->pbFormat = nullptr;
-    }
-
-    if (mediaType->pUnk != nullptr) {
-        // pUnk should not be used.
-        mediaType->pUnk->Release();
-        mediaType->pUnk = nullptr;
-    }
-
+    CaptureDShow::freeMediaType(*mediaType);
     CoTaskMemFree(mediaType);
 }
 
@@ -1032,18 +1037,20 @@ bool CaptureDShow::init()
         return false;
 
     // Create the webcam filter.
-    IBaseFilter *webcamFilter = this->findFilterP(this->m_device);
+    this->m_webcamFilter = this->findFilter(this->m_device);
 
-    if (!webcamFilter) {
+    if (!this->m_webcamFilter) {
         this->m_graph->Release();
         this->m_graph = nullptr;
 
         return false;
     }
 
-    if (FAILED(this->m_graph->AddFilter(webcamFilter, SOURCE_FILTER_NAME))) {
+    if (FAILED(this->m_graph->AddFilter(this->m_webcamFilter.data(),
+                                        SOURCE_FILTER_NAME))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1058,6 +1065,7 @@ bool CaptureDShow::init()
                                 reinterpret_cast<void **>(&grabberFilter)))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1065,6 +1073,7 @@ bool CaptureDShow::init()
     if (FAILED(this->m_graph->AddFilter(grabberFilter, L"Grabber"))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1075,6 +1084,7 @@ bool CaptureDShow::init()
                                              reinterpret_cast<void **>(&grabberPtr)))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1082,6 +1092,7 @@ bool CaptureDShow::init()
     if (FAILED(grabberPtr->SetOneShot(FALSE))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1091,6 +1102,7 @@ bool CaptureDShow::init()
     if (FAILED(hr)) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1102,9 +1114,12 @@ bool CaptureDShow::init()
 
     this->m_grabber = SampleGrabberPtr(grabberPtr, this->deleteUnknown);
 
-    if (!this->connectFilters(this->m_graph, webcamFilter, grabberFilter)) {
+    if (!this->connectFilters(this->m_graph,
+                              this->m_webcamFilter.data(),
+                              grabberFilter)) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1119,6 +1134,7 @@ bool CaptureDShow::init()
                                 reinterpret_cast<void **>(&nullFilter)))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1126,6 +1142,7 @@ bool CaptureDShow::init()
     if (FAILED(this->m_graph->AddFilter(nullFilter, L"NullFilter"))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1133,6 +1150,7 @@ bool CaptureDShow::init()
     if (!this->connectFilters(this->m_graph, grabberFilter, nullFilter)) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1143,15 +1161,17 @@ bool CaptureDShow::init()
     if (streams.isEmpty()) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
 
-    MediaTypesList mediaTypes = this->listMediaTypes(webcamFilter);
+    MediaTypesList mediaTypes = this->listMediaTypes(this->m_webcamFilter.data());
 
     if (mediaTypes.isEmpty()) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1163,11 +1183,12 @@ bool CaptureDShow::init()
     if (FAILED(grabberPtr->SetMediaType(mediaType.data()))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
 
-    PinList pins = this->enumPins(webcamFilter, PINDIR_OUTPUT);
+    PinList pins = this->enumPins(this->m_webcamFilter.data(), PINDIR_OUTPUT);
 
     for (const PinPtr &pin: pins) {
         IAMStreamConfig *pStreamConfig = nullptr;
@@ -1189,6 +1210,7 @@ bool CaptureDShow::init()
                                              reinterpret_cast<void **>(&control)))) {
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1201,6 +1223,7 @@ bool CaptureDShow::init()
         control->Release();
         this->m_graph->Release();
         this->m_graph = nullptr;
+        this->m_webcamFilter.clear();
 
         return false;
     }
@@ -1226,6 +1249,7 @@ void CaptureDShow::uninit()
     this->m_grabber.clear();
     this->m_graph->Release();
     this->m_graph = nullptr;
+    this->m_webcamFilter.clear();
 }
 
 void CaptureDShow::setDevice(const QString &device)
