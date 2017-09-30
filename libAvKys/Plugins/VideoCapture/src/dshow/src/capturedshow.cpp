@@ -237,8 +237,8 @@ QString CaptureDShow::description(const QString &webcam) const
         return QString();
 
     IPropertyBag *pPropBag = nullptr;
-    HRESULT hr = moniker->BindToStorage(0,
-                                        0,
+    HRESULT hr = moniker->BindToStorage(nullptr,
+                                        nullptr,
                                         IID_IPropertyBag,
                                         reinterpret_cast<void **>(&pPropBag));
 
@@ -249,10 +249,10 @@ QString CaptureDShow::description(const QString &webcam) const
     VariantInit(&var);
 
     // Get description or friendly name.
-    hr = pPropBag->Read(L"Description", &var, 0);
+    hr = pPropBag->Read(L"Description", &var, nullptr);
 
     if (FAILED(hr))
-        hr = pPropBag->Read(L"FriendlyName", &var, 0);
+        hr = pPropBag->Read(L"FriendlyName", &var, nullptr);
 
     QString description;
 
@@ -586,8 +586,8 @@ MonikersMap CaptureDShow::listMonikers() const
 
         for (int i = 0; pEnum->Next(1, &pMoniker, nullptr) == S_OK; i++) {
             IPropertyBag *pPropBag = nullptr;
-            HRESULT hr = pMoniker->BindToStorage(0,
-                                                 0,
+            HRESULT hr = pMoniker->BindToStorage(nullptr,
+                                                 nullptr,
                                                  IID_IPropertyBag,
                                                  reinterpret_cast<void **>(&pPropBag));
 
@@ -599,7 +599,7 @@ MonikersMap CaptureDShow::listMonikers() const
 
             VARIANT var;
             VariantInit(&var);
-            hr = pPropBag->Read(L"DevicePath", &var, 0);
+            hr = pPropBag->Read(L"DevicePath", &var, nullptr);
 
             QString devicePath;
 
@@ -737,7 +737,7 @@ PinPtr CaptureDShow::findUnconnectedPin(IBaseFilter *pFilter,
             || pinDir != PinDir)
             continue;
 
-        bool ok;
+        bool ok = false;
         bool connected = this->isPinConnected(pPin, &ok);
 
         if (!ok || connected)
@@ -1156,7 +1156,7 @@ bool CaptureDShow::init()
     }
 
     // Set capture format
-    QList<int> streams = this->streams();
+    auto streams = this->streams();
 
     if (streams.isEmpty()) {
         this->m_graph->Release();
@@ -1166,7 +1166,7 @@ bool CaptureDShow::init()
         return false;
     }
 
-    MediaTypesList mediaTypes = this->listMediaTypes(this->m_webcamFilter.data());
+    auto mediaTypes = this->listMediaTypes(this->m_webcamFilter.data());
 
     if (mediaTypes.isEmpty()) {
         this->m_graph->Release();
@@ -1302,8 +1302,7 @@ void CaptureDShow::setStreams(const QList<int> &streams)
     if (stream >= supportedCaps.length())
         return;
 
-    QList<int> inputStreams;
-    inputStreams << stream;
+    QList<int> inputStreams {stream};
 
     if (this->streams() == inputStreams)
         return;

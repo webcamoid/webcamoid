@@ -775,7 +775,7 @@ bool CaptureV4L2::initUserPointer(quint32 bufferSize)
 
     if (error) {
         for (qint32 i = 0; i < this->m_buffers.size(); i++)
-            delete this->m_buffers[i].start;
+            delete [] this->m_buffers[i].start;
 
         this->m_buffers.clear();
 
@@ -947,13 +947,13 @@ void CaptureV4L2::uninit()
 
     if (!this->m_buffers.isEmpty()) {
         if (this->m_ioMethod == IoMethodReadWrite)
-            delete this->m_buffers[0].start;
+            delete [] this->m_buffers[0].start;
         else if (this->m_ioMethod == IoMethodMemoryMap)
             for (qint32 i = 0; i < this->m_buffers.size(); i++)
                 x_munmap(this->m_buffers[i].start, this->m_buffers[i].length);
         else if (this->m_ioMethod == IoMethodUserPointer)
             for (qint32 i = 0; i < this->m_buffers.size(); i++)
-                delete this->m_buffers[i].start;
+                delete [] this->m_buffers[i].start;
     }
 
     x_close(this->m_fd);

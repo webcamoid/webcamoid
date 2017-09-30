@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon::fromTheme("webcamoid", fallbackIcon));
 
 // OpenGL detection in Qt is quite buggy, so use software render by default.
-#if defined(Q_OS_WIN32) && 1
+#if defined(Q_OS_WIN32) || 0
     auto quickBackend = qgetenv("QT_QUICK_BACKEND");
 
     if (quickBackend.isEmpty())

@@ -60,6 +60,9 @@ HRESULT FrameGrabber::QueryInterface(const IID &riid, void **ppvObject)
 
 HRESULT FrameGrabber::SampleCB(double time, IMediaSample *sample)
 {
+    if (!sample)
+        return S_FALSE;
+
     BYTE *buffer = nullptr;
     LONG bufferSize = sample->GetSize();
 
@@ -77,6 +80,9 @@ HRESULT FrameGrabber::SampleCB(double time, IMediaSample *sample)
 
 HRESULT FrameGrabber::BufferCB(double time, BYTE *buffer, long bufferSize)
 {
+    if (!buffer || bufferSize < 1)
+        return S_FALSE;
+
     QByteArray oBuffer(reinterpret_cast<char *>(buffer), bufferSize);
 
     emit this->frameReady(time, oBuffer);

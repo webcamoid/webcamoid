@@ -244,8 +244,13 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     av_dict_set(&this->m_codecOptions, "refcounted_frames", "0", 0);
 
     if (avcodec_open2(this->m_codecContext, codec, &this->m_codecOptions) < 0) {
+#ifdef HAVE_FREECONTEXT
+        avcodec_free_context(&this->m_codecContext);
+#else
         avcodec_close(this->m_codecContext);
+        av_free(this->m_codecContext);
         this->m_codecContext = nullptr;
+#endif
 
         return false;
     }
@@ -284,8 +289,13 @@ void ConvertVideoFFmpeg::uninit()
         av_dict_free(&this->m_codecOptions);
 
     if (this->m_codecContext) {
+#ifdef HAVE_FREECONTEXT
+        avcodec_free_context(&this->m_codecContext);
+#else
         avcodec_close(this->m_codecContext);
+        av_free(this->m_codecContext);
         this->m_codecContext = nullptr;
+#endif
     }
 }
 

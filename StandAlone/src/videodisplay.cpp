@@ -49,11 +49,22 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
                      this->m_frame.convertToFormat(QImage::Format_ARGB32);
     this->m_mutex.unlock();
 
+    if (this->window()->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
+        frame = frame.scaled(this->boundingRect().size().toSize(),
+                             this->m_fillDisplay?
+                                 Qt::IgnoreAspectRatio:
+                                 Qt::KeepAspectRatio,
+                             Qt::SmoothTransformation);
+    }
+
     auto videoFrame = this->window()->createTextureFromImage(frame);
 
     if (!videoFrame || videoFrame->textureSize().isEmpty()) {
         if (oldNode)
             delete oldNode;
+
+        if (videoFrame)
+            delete videoFrame;
 
         return nullptr;
     }
