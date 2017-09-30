@@ -80,22 +80,22 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="163"/>
+        <location filename="../qml/main.qml" line="165"/>
         <source>Output format</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="192"/>
+        <location filename="../qml/main.qml" line="194"/>
         <source>File extensions</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="198"/>
+        <location filename="../qml/main.qml" line="200"/>
         <source>This output format has not specific extensions</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="203"/>
+        <location filename="../qml/main.qml" line="206"/>
         <source>Advanced Format Options</source>
         <translation type="unfinished"></translation>
     </message>

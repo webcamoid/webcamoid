@@ -1,5 +1,5 @@
-webcamoid (8.0.0-1) stable; urgency=low
+webcamoid (8.1.0-1) stable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
 
- -- Gonzalo Pedone <hipersayan.x@gmail.com>  Tue, 16 May 2017 12:00:00 -0300
+ -- Gonzalo Pedone <hipersayan.x@gmail.com>  Tue, 10 Oct 2017 12:00:00 -0300

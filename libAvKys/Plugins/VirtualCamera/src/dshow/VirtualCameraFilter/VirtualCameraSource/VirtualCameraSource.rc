@@ -44,11 +44,11 @@ VS_VERSION_INFO VERSIONINFO
             BEGIN
                 VALUE "CompanyName", "Webcamoid Project\0"
                 VALUE "FileDescription", "AvKys Virtual Camera Source Filter\0"
-                VALUE "FileVersion", "8.0.0\0"
+                VALUE "FileVersion", "8.1.0\0"
                 VALUE "LegalCopyright", "Copyright (C) 2011-2017  Gonzalo Exequiel Pedone\0"
                 VALUE "OriginalFilename", "VirtualCameraSource.dll\0"
                 VALUE "ProductName", "VirtualCameraSource\0"
-                VALUE "ProductVersion", "8.0.0\0"
+                VALUE "ProductVersion", "8.1.0\0"
             END
         END
         BLOCK "VarFileInfo"

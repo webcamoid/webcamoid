@@ -85,8 +85,7 @@ RESOURCES += \
     Webcamoid.qrc \
     qml.qrc \
     translations.qrc \
-    share/icons/icons.qrc \
-    share/contributors/contributors.qrc
+    share/icons/icons.qrc
 
 SOURCES = \
     src/main.cpp \

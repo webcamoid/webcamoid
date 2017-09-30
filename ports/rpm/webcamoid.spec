@@ -1,5 +1,5 @@
 Name: webcamoid
-Version: 8.0.0
+Version: 8.1.0
 Release: 1%{?dist}
 Summary: The full webcam and multimedia suite
 
@@ -75,21 +75,21 @@ Features:
     * Virtual webcam support for feeding other programs.
 
 %package -n libavkys7
-Version: 8.0.0
+Version: 8.1.0
 Summary: Modular audio and video processing library
 
 %description -n libavkys7
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
 %package -n akqml
-Version: 8.0.0
+Version: 8.1.0
 Summary: Modular audio and video processing library (qml files)
 
 %description -n akqml
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
 %package -n libavkys-devel
-Version: 8.0.0
+Version: 8.1.0
 Summary: Modular audio and video processing library (development files)
 
 %if %{defined fedora}
@@ -104,7 +104,7 @@ Group: Development/Libraries/Other
 LibAvKys is a Qt library that provides a wide range of plugins for audio and video playing, recording, capture, and processing.
 
 %package -n avkys-plugins
-Version: 8.0.0
+Version: 8.1.0
 Summary: Modular audio and video processing library (plugins)
 
 %description -n avkys-plugins
@@ -188,7 +188,7 @@ rm -rf %{buildroot}
 
 %files -n libavkys7
 %defattr(-,root,root,-)
-%{_libdir}/libavkys.so.8.0.0
+%{_libdir}/libavkys.so.8.1.0
 %{_defaultdocdir}/avkys/COPYING
 
 %files -n akqml
@@ -203,7 +203,7 @@ rm -rf %{buildroot}
 %{_includedir}/avkys/*.h
 %{_libdir}/libavkys.so
 %{_libdir}/libavkys.so.8
-%{_libdir}/libavkys.so.8.0
+%{_libdir}/libavkys.so.8.1
 
 %files -n avkys-plugins
 %defattr(-,root,root,-)
@@ -211,5 +211,5 @@ rm -rf %{buildroot}
 %{_libdir}/avkys/lib*.so
 
 %changelog
-* Tue May 16 2017 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 8.0.0-1
+* Tue Oct 10 2017 Gonzalo Exequiel Pedone <hipersayan.x@gmail.com> 8.1.0-1
 - New release

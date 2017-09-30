@@ -100,36 +100,6 @@ ApplicationWindow {
                 }
             }
             Tab {
-                title: qsTr("Contributors")
-                clip: true
-
-                ScrollView {
-                    id: svwContributors
-
-                    Flow {
-                        id: flwContributors
-                        width: svwContributors.viewport.width
-
-                        Component.onCompleted: {
-                            var contributors = JSON.parse(Webcamoid.readFile(":/Webcamoid/Contributors/contributors.json"))
-
-                            for (var i in contributors) {
-                                var component = Qt.createComponent("Contributor.qml")
-
-                                if (component.status !== Component.Ready)
-                                    continue
-
-                                var obj = component.createObject(flwContributors);
-                                var contributor = contributors[i];
-                                obj.name = contributor.name;
-                                obj.avatar = "qrc:/Webcamoid/Contributors/" + contributor.avatar;
-                                obj.website = contributor.website;
-                            }
-                        }
-                    }
-                }
-            }
-            Tab {
                 title: qsTr("License")
 
                 TextArea {
