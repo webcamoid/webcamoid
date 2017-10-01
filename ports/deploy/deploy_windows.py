@@ -47,6 +47,7 @@ class Deploy:
         self.targetArch = self.detectArch()
         self.qmake = self.detectQmake()
         self.qtIFW = self.detectQtIFW()
+        self.qtIFWVersion = self.detectQtIFWVersion()
         self.programVersion = self.readVersion()
         self.make = self.detectMake()
         self.installerIconSize = 256
@@ -118,6 +119,27 @@ class Deploy:
                     return os.path.join(root, f)
 
         return self.whereExe('binarycreator.exe')
+
+    def detectQtIFWVersion(self):
+        installerBase = os.path.join(os.path.dirname(self.qtIFW),
+                                     'installerbase.exe')
+
+        version = '2.0.0'
+
+        if not os.path.exists(installerBase):
+            return version
+
+        process = subprocess.Popen([installerBase,
+                                    '--version'],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+
+        for line in stdout.split(b'\n'):
+            if b'IFW Version:' in line:
+                return line.split(b' ')[2].replace(b'"', b'').decode(sys.getdefaultencoding())
+
+        return version
 
     def copy(self, src, dst):
         if not os.path.exists(src):
@@ -617,8 +639,9 @@ class Deploy:
         return '{:.2f} {}'.format(sizeKiB, units[i - 1])
 
     def printPackageInfo(self, path):
-        print('   ', os.path.basename(path),
-              self.hrSize(os.path.getsize(path)))
+        if os.path.exists(path):
+            print('   ', os.path.basename(path),
+                  self.hrSize(os.path.getsize(path)))
 
     def createPortable(self, mutex):
         path = self.installDir
@@ -700,6 +723,14 @@ class Deploy:
         version = '1.0.0' if self.programVersion == 'unknown' else self.programVersion
         configXml = os.path.join(configDir, 'config.xml')
 
+        if int(self.qtIFWVersion.split('.')[0]) < 3:
+            appsDir = '@ApplicationsDir@'
+        else:
+            if self.targetArch == '32bit':
+                appsDir = '@ApplicationsDirX86@'
+            else:
+                appsDir = '@ApplicationsDirX64@'
+
         with open(configXml, 'w') as config:
             config.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             config.write('<Installer>\n')
@@ -717,7 +748,7 @@ class Deploy:
             config.write('    <StartMenuDir>Webcamoid</StartMenuDir>\n')
             config.write('    <MaintenanceToolName>WebcamoidMaintenanceTool</MaintenanceToolName>\n')
             config.write('    <AllowNonAsciiCharacters>true</AllowNonAsciiCharacters>\n')
-            config.write('    <TargetDir>@ApplicationsDir@/webcamoid</TargetDir>\n')
+            config.write('    <TargetDir>{}/webcamoid</TargetDir>\n'.format(appsDir))
             config.write('</Installer>\n')
 
         self.copy(os.path.join(self.rootDir, 'ports/deploy/installscript.windows.qs'),
