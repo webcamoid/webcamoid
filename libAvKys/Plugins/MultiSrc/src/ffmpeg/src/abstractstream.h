@@ -28,7 +28,6 @@
 
 extern "C"
 {
-    #include <libavdevice/avdevice.h>
     #include <libavformat/avformat.h>
     #include <libavcodec/avcodec.h>
     #include <libavutil/imgutils.h>

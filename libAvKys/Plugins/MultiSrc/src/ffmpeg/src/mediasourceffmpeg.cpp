@@ -48,7 +48,6 @@ MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
     MediaSource(parent)
 {
     av_register_all();
-    avdevice_register_all();
     avformat_network_init();
 
     this->m_loop = false;
