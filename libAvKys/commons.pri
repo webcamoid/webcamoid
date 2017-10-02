@@ -73,6 +73,7 @@ isEmpty(MANDIR): MANDIR = $${DATAROOTDIR}/man
 isEmpty(LICENSEDIR): LICENSEDIR = $${DATAROOTDIR}/licenses/$${COMMONS_TARGET}
 isEmpty(LOCALDIR): LOCALDIR = $${PREFIX}/local
 isEmpty(LOCALLIBDIR): LOCALLIBDIR = $${LOCALDIR}/lib
+isEmpty(INSTALLQMLDIR): INSTALLQMLDIR = $${LIBDIR}/qt/qml
 
 DEFINES += \
     COMMONS_APPNAME=\"\\\"$$COMMONS_APPNAME\\\"\" \
@@ -101,7 +102,8 @@ DEFINES += \
     MANDIR=\"\\\"$$MANDIR\\\"\" \
     LICENSEDIR=\"\\\"$$LICENSEDIR\\\"\" \
     LOCALDIR=\"\\\"$$LOCALDIR\\\"\" \
-    LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\"
+    LOCALLIBDIR=\"\\\"$$LOCALLIBDIR\\\"\" \
+    INSTALLQMLDIR=\"\\\"$$INSTALLQMLDIR\\\"\"
 
 CONFIG(debug, debug|release) {
     COMMONS_BUILD_PATH = build/Qt$${QT_VERSION}/$${QMAKE_CC}/debug
