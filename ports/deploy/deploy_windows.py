@@ -686,7 +686,6 @@ class Deploy:
                             if i >= 0:
                                 changeLogText = changeLogText[: i]
 
-                            print(changeLogText)
                             return changeLogText
 
                         changeLogText += line
