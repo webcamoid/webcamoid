@@ -6,7 +6,7 @@
     <message>
         <location filename="../qml/About.qml" line="27"/>
         <source>About %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 info</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="46"/>
@@ -21,7 +21,7 @@
     <message>
         <location filename="../qml/About.qml" line="73"/>
         <source>Using Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasutades Qt %1</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="87"/>
@@ -36,7 +36,7 @@
     <message>
         <location filename="../qml/About.qml" line="103"/>
         <source>Thanks!</source>
-        <translation type="unfinished"></translation>
+        <translation>Aitäh!</translation>
     </message>
     <message>
         <location filename="../qml/About.qml" line="79"/>
@@ -107,28 +107,28 @@
     <message>
         <location filename="../qml/AudioConfig.qml" line="116"/>
         <source>Outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Väljundid</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="119"/>
         <source>Select the output device for audio playing</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali väljundseade heli mängimiseks</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="133"/>
         <source>Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisendid</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="135"/>
         <source>Select the device for audio capturing</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali heli salvestamise seade</translation>
     </message>
     <message>
         <location filename="../qml/AudioConfig.qml" line="192"/>
         <location filename="../qml/AudioConfig.qml" line="294"/>
         <source>Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Vaikus</translation>
     </message>
 </context>
 <context>
@@ -136,35 +136,35 @@
     <message>
         <location filename="../qml/AudioInfo.qml" line="168"/>
         <source>Description</source>
-        <translation type="unfinished">Kirjeldus</translation>
+        <translation>Kirjeldus</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="183"/>
         <location filename="../qml/AudioInfo.qml" line="190"/>
         <source>Device description</source>
-        <translation type="unfinished"></translation>
+        <translation>Seadme kirjeldus</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="198"/>
         <location filename="../qml/AudioInfo.qml" line="213"/>
         <location filename="../qml/AudioInfo.qml" line="220"/>
         <source>Device id</source>
-        <translation type="unfinished"></translation>
+        <translation>Seadme id</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="235"/>
         <source>Sample Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Diskreetimisvorming</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="261"/>
         <source>Channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanalid</translation>
     </message>
     <message>
         <location filename="../qml/AudioInfo.qml" line="287"/>
         <source>Sample Rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Diskreetimissagedus</translation>
     </message>
 </context>
 <context>
@@ -172,22 +172,22 @@
     <message>
         <location filename="../qml/ConfigBar.qml" line="44"/>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Väljund</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="48"/>
         <source>General Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Üldised seaded</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="52"/>
         <source>Plugins Configs</source>
-        <translation type="unfinished"></translation>
+        <translation>Pistikute häälestused</translation>
     </message>
     <message>
         <location filename="../qml/ConfigBar.qml" line="56"/>
         <source>Updates</source>
-        <translation type="unfinished"></translation>
+        <translation>Värskendused</translation>
     </message>
 </context>
 <context>
@@ -364,7 +364,7 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="81"/>
         <source>Cancel</source>
-        <translation type="unfinished">Loobu</translation>
+        <translation>Loobu</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="81"/>
@@ -397,12 +397,12 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="114"/>
         <source>Add</source>
-        <translation type="unfinished">Lisa</translation>
+        <translation>Lisa</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="122"/>
         <source>Remove</source>
-        <translation type="unfinished">Eemalda</translation>
+        <translation>Eemalda</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="159"/>
@@ -445,7 +445,7 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="32"/>
         <source>Webcam capture application.</source>
-        <translation type="unfinished">Veebikaamera salvestusprogramm.</translation>
+        <translation>Veebikaamera salvestusprogramm.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="36"/>
