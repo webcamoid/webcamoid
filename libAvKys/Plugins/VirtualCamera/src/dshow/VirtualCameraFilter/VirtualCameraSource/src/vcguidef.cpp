@@ -121,7 +121,14 @@ STDAPI RegisterFilters(BOOL bRegister)
 std::string wstrToString(LPWSTR wstr)
 {
     UINT codepage = CP_ACP;
-    int strLen = WideCharToMultiByte(codepage, 0, wstr, -1, 0, 0, 0, 0) - 1;
+    int strLen = WideCharToMultiByte(codepage,
+                                     0,
+                                     wstr,
+                                     -1,
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     nullptr) - 1;
 
     std::string str(size_t(strLen), '\0');
     WideCharToMultiByte(codepage, 0, wstr, -1, &str[0], strLen, nullptr, FALSE);
@@ -198,15 +205,15 @@ std::vector<int> enumerateCurrentIds()
 
             while (pEnum->Next(1, &pMoniker, nullptr) == S_OK) {
                 IPropertyBag *pPropBag;
-                hr = pMoniker->BindToStorage(0,
-                                             0,
+                hr = pMoniker->BindToStorage(nullptr,
+                                             nullptr,
                                              IID_IPropertyBag,
                                              reinterpret_cast<void **>(&pPropBag));
 
                 if (SUCCEEDED(hr)) {
                     VARIANT var;
                     VariantInit(&var);
-                    hr = pPropBag->Read(L"DevicePath", &var, 0);
+                    hr = pPropBag->Read(L"DevicePath", &var, nullptr);
 
                     if (SUCCEEDED(hr)) {
                         std::string devicePath = wstrToString(var.bstrVal);
