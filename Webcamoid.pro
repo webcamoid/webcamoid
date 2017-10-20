@@ -32,7 +32,8 @@ SUBDIRS += \
 
 OTHER_FILES = \
     .gitignore \
-    README.md
+    README.md \
+    translations.pri
 
 # Install rules
 

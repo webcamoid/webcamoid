@@ -16,7 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS = $$files(share/ts/*.ts)
+exists(translations.qrc) {
+    TRANSLATIONS = $$files(share/ts/*.ts)
+    RESOURCES += translations.qrc
+}
 
 exists(commons.pri) {
     include(commons.pri)
@@ -44,8 +47,7 @@ OTHER_FILES += pspec.json
 QT += qml
 
 RESOURCES += \
-    Wave.qrc \
-    translations.qrc
+    Wave.qrc
 
 SOURCES = \
     src/wave.cpp \

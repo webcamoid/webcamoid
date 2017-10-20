@@ -11,9 +11,11 @@
         <file>share/ts/ja.qm</file>
         <file>share/ts/kab.qm</file>
         <file>share/ts/ko.qm</file>
+        <file>share/ts/nb_NO.qm</file>
         <file>share/ts/nl.qm</file>
         <file>share/ts/pt.qm</file>
         <file>share/ts/ru.qm</file>
+        <file>share/ts/uk.qm</file>
         <file>share/ts/zh_CN.qm</file>
         <file>share/ts/zh_TW.qm</file>
     </qresource>

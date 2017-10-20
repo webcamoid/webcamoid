@@ -16,7 +16,12 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS = $$files(share/ts/*.ts)
+TRANSLATIONS_PRI = ../translations.pri
+
+exists(translations.qrc) {
+    TRANSLATIONS = $$files(share/ts/*.ts)
+    RESOURCES += translations.qrc
+}
 
 exists(commons.pri) {
     include(commons.pri)
@@ -84,7 +89,6 @@ QT += qml quick opengl widgets svg
 RESOURCES += \
     Webcamoid.qrc \
     qml.qrc \
-    translations.qrc \
     share/icons/icons.qrc
 
 SOURCES = \

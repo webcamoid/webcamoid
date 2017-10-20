@@ -16,7 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS = $$files(share/ts/*.ts)
+exists(translations.qrc) {
+    TRANSLATIONS = $$files(share/ts/*.ts)
+    RESOURCES += translations.qrc
+}
 
 exists(commons.pri) {
     include(commons.pri)
@@ -46,8 +49,7 @@ OTHER_FILES += pspec.json
 QT += qml widgets
 
 RESOURCES += \
-    Matrix.qrc \
-    translations.qrc
+    Matrix.qrc
 
 SOURCES = \
     src/matrix.cpp \

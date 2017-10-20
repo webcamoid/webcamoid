@@ -16,7 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS = $$files(share/ts/*.ts)
+exists(translations.qrc) {
+    TRANSLATIONS = $$files(share/ts/*.ts)
+    RESOURCES += translations.qrc
+}
 
 exists(commons.pri) {
     include(commons.pri)
@@ -51,8 +54,7 @@ QT += qml widgets concurrent
 RESOURCES += \
     FaceDetect.qrc \
     haarcascades.qrc \
-    masks.qrc \
-    translations.qrc
+    masks.qrc
 
 SOURCES = \
     src/facedetect.cpp \

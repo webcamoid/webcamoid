@@ -16,7 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TRANSLATIONS = $$files(share/ts/*.ts)
+exists(translations.qrc) {
+    TRANSLATIONS = $$files(share/ts/*.ts)
+    RESOURCES += translations.qrc
+}
 
 exists(commons.pri) {
     include(commons.pri)
@@ -56,8 +59,7 @@ LIBS += -framework Foundation
 QT += qml widgets
 
 RESOURCES += \
-    syphonio.qrc \
-    translations.qrc
+    syphonio.qrc
 
 SOURCES = \
     src/syphonio.cpp \

@@ -32,6 +32,10 @@ isEmpty(QMAKE_LRELEASE) {
     unix: QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
     !unix: QMAKE_LRELEASE = $$[QT_INSTALL_LIBEXECS]/lrelease
 }
+isEmpty(QMAKE_LUPDATE) {
+    unix: QMAKE_LUPDATE = $$[QT_INSTALL_BINS]/lupdate
+    !unix: QMAKE_LUPDATE = $$[QT_INSTALL_LIBEXECS]/lupdate
+}
 
 win32 {
     host_name = $$lower($$QMAKE_HOST.os)
@@ -115,6 +119,13 @@ MOC_DIR = $${COMMONS_BUILD_PATH}/moc
 OBJECTS_DIR = $${COMMONS_BUILD_PATH}/obj
 RCC_DIR = $${COMMONS_BUILD_PATH}/rcc
 UI_DIR = $${COMMONS_BUILD_PATH}/ui
+
+# Update translations.
+isEmpty(NOLUPDATE): !isEmpty(TRANSLATIONS_PRI): CONFIG(debug, debug|release) {
+    updatetr.commands = $$QMAKE_LUPDATE -no-obsolete $$TRANSLATIONS_PRI
+    QMAKE_EXTRA_TARGETS += updatetr
+    PRE_TARGETDEPS += updatetr
+}
 
 # Compile translations files.
 isEmpty(NOLRELEASE): !isEmpty(TRANSLATIONS): CONFIG(debug, debug|release) {
