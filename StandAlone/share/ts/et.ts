@@ -168,7 +168,7 @@
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="285"/>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="339"/>
         <source>Virtual Camera %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalne kaamera %1</translation>
     </message>
 </context>
 <context>
@@ -176,27 +176,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="27"/>
         <source>Configure %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Seadista %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="108"/>
         <source>Search option</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsinguvalikud</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="122"/>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähtesta</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="138"/>
         <source>Cancel</source>
-        <translation type="unfinished">Loobu</translation>
+        <translation>Loobu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="149"/>
         <source>Ok</source>
-        <translation type="unfinished">ÕK</translation>
+        <translation>ÕK</translation>
     </message>
 </context>
 <context>
@@ -269,67 +269,67 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="38"/>
         <source>Play webcam on start</source>
-        <translation type="unfinished"></translation>
+        <translation>Käivita veebikaamera käivitamisel</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="44"/>
         <source>Enable advanced effects mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Luba täiustatud efektide režiim</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="50"/>
         <source>Frameworks &amp; libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Raamistikud ja teegid</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="60"/>
         <source>Video capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Videohõive</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="70"/>
         <source>Desktop capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Töölaua hõive</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="80"/>
         <source>Audio capture/play</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio hõive/esitamine</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="90"/>
         <source>Video convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Video teisendamine</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="100"/>
         <source>Audio convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio teisendamine</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Video output</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoväljund</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="120"/>
         <source>Video output convert</source>
-        <translation type="unfinished"></translation>
+        <translation>Videoväljundi teisendamine</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="130"/>
         <source>Video playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Video taasesitus</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="140"/>
         <source>Video record</source>
-        <translation type="unfinished"></translation>
+        <translation>Video salvestamine</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Root method</source>
-        <translation type="unfinished"></translation>
+        <translation>Põhimeetod</translation>
     </message>
 </context>
 <context>
@@ -337,7 +337,7 @@
     <message>
         <location filename="../qml/MediaBar.qml" line="62"/>
         <source>No webcams found</source>
-        <translation type="unfinished"></translation>
+        <translation>Veebikaameraid ei leitud</translation>
     </message>
 </context>
 <context>
@@ -378,7 +378,7 @@
     <message>
         <location filename="../qml/OutputConfig.qml" line="40"/>
         <source>Virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuaalne kaamera</translation>
     </message>
 </context>
 <context>
@@ -386,12 +386,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="36"/>
         <source>%1 seconds</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 sekundit</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="57"/>
         <source>Now</source>
-        <translation type="unfinished"></translation>
+        <translation>Nüüd</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="81"/>
@@ -401,12 +401,12 @@
     <message>
         <location filename="../qml/PhotoWidget.qml" line="81"/>
         <source>Shot!</source>
-        <translation type="unfinished"></translation>
+        <translation>Valmis!</translation>
     </message>
     <message>
         <location filename="../qml/PhotoWidget.qml" line="112"/>
         <source>Use flash</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasuta välku</translation>
     </message>
 </context>
 <context>
@@ -414,17 +414,17 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="91"/>
         <source>Use this page for configuring the plugins search paths.&lt;br /&gt;&lt;b&gt;Don&apos;t touch nothing unless you know what you are doing&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasuta seda lehte pistikute otsinguradade seadistamiseks.&lt;br /&gt;&lt;b&gt;Kui sa ei tea, mida teed, siis ära midagi muud puutu&lt;/b&gt;.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="96"/>
         <source>Extra search paths</source>
-        <translation type="unfinished"></translation>
+        <translation>Täiendavad otsingurajad</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="104"/>
         <source>Search plugins in subfolders.</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsi pistikuid alamkataloogidest.</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="114"/>
@@ -439,37 +439,37 @@
     <message>
         <location filename="../qml/PluginConfig.qml" line="159"/>
         <source>Search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsingurada</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="166"/>
         <source>Plugins list</source>
-        <translation type="unfinished"></translation>
+        <translation>Pistikute loetelu</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="174"/>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Värskenda</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="185"/>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Keela</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="185"/>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation>Luba</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="255"/>
         <source>Plugin path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pistikute otsingurada</translation>
     </message>
     <message>
         <location filename="../qml/PluginConfig.qml" line="267"/>
         <source>Add plugins search path</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa pistikud otsingurajale</translation>
     </message>
 </context>
 <context>
@@ -884,7 +884,7 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="527"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="137"/>
         <source>Search</source>
-        <translation type="unfinished">Otsi</translation>
+        <translation>Otsi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Charify/share/qml/main.qml" line="115"/>
@@ -2087,17 +2087,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="80"/>
         <source>Add</source>
-        <translation type="unfinished">Lisa</translation>
+        <translation>Lisa</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="91"/>
         <source>Edit</source>
-        <translation type="unfinished">Muuda</translation>
+        <translation>Muuda</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="104"/>
         <source>Remove</source>
-        <translation type="unfinished">Eemalda</translation>
+        <translation>Eemalda</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="115"/>
@@ -2107,7 +2107,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="136"/>
         <source>Description</source>
-        <translation type="unfinished">Kirjeldus</translation>
+        <translation>Kirjeldus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="142"/>
@@ -2127,12 +2127,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="165"/>
         <source>Ok</source>
-        <translation type="unfinished">ÕK</translation>
+        <translation>ÕK</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="213"/>
         <source>Cancel</source>
-        <translation type="unfinished">Loobu</translation>
+        <translation>Loobu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/qml/main.qml" line="268"/>
