@@ -20,8 +20,6 @@ TEMPLATE = subdirs
 
 CONFIG += ordered
 
-win32: SUBDIRS += VirtualCamera/src/dshow/VirtualCameraFilter
-
 # Base plugins
 SUBDIRS += \
     ACapsConvert \

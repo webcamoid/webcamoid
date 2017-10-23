@@ -16,24 +16,53 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-CONFIG += console c++11
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../../commons.pri) {
+        include(../../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
+
+CONFIG += plugin
+
+HEADERS = \
+    plugin.h \
+    cameraoutdshow.h \
+    ../../cameraout.h
 
 INCLUDEPATH += \
-    ../../Plugins/VirtualCamera/src/dshow/VirtualCameraFilter/BaseClasses/src
+    ../VirtualCameraFilter/ipc/src \
+    ../../../../../Lib/src \
+    ../../
 
-SOURCES = \
-    test.cpp
+LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
+
+OTHER_FILES += ../pspec.json
 
 LIBS += \
+    -L$${OUT_PWD}/../VirtualCameraFilter/ipc -lipc \
     -lstrmiids \
     -luuid \
     -lole32 \
     -loleaut32 \
-    -ladvapi32 \
-    -luser32 \
-    -lwinmm \
-    -lgdi32 \
-    -lgdiplus
-win32-g++: LIBS += -lksguid
+    -lshell32
 
-TARGET = test_auto
+QT += qml
+
+SOURCES = \
+    plugin.cpp \
+    cameraoutdshow.cpp \
+    ../../cameraout.cpp
+
+DESTDIR = $${OUT_PWD}/../../../submodules/VirtualCamera
+
+TARGET = dshow
+
+TEMPLATE = lib
+
+INSTALLS += target
+
+target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera

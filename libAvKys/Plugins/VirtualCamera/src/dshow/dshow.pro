@@ -16,51 +16,10 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../../../commons.pri) {
-        include(../../../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
+TEMPLATE = subdirs
 
-CONFIG += plugin
+CONFIG += ordered
 
-HEADERS = \
-    src/plugin.h \
-    src/cameraoutdshow.h \
-    ../cameraout.h
-
-INCLUDEPATH += \
-    VirtualCameraFilter/ipc/src \
-    ../../../../Lib/src \
-    ../
-
-LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += pspec.json
-
-LIBS += \
-    -L$${OUT_PWD}/VirtualCameraFilter/ipc -lipc \
-    -lstrmiids \
-    -luuid \
-    -lole32 \
-    -loleaut32 \
-    -lshell32
-
-QT += qml
-
-SOURCES = \
-    src/plugin.cpp \
-    src/cameraoutdshow.cpp \
-    ../cameraout.cpp
-
-DESTDIR = $${OUT_PWD}/../../submodules/VirtualCamera
-
-TEMPLATE = lib
-
-INSTALLS += target
-
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+SUBDIRS = \
+    VirtualCameraFilter \
+    src

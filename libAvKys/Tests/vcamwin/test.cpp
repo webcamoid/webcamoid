@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <streams.h>
 #include <comlite.h>
 
 int main()
