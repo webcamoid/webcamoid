@@ -377,10 +377,6 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
 
-        QQmlProperty::write(interfaceItem,
-                            "anchors.fill",
-                            qVariantFromValue(item));
-
         return true;
     }
 

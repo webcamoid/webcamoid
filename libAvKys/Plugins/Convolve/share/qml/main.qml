@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 ColumnLayout {
     id: configs
@@ -31,6 +32,15 @@ ColumnLayout {
         var kernel = Convolve.kernel
         kernel[index] = value
         Convolve.kernel = kernel
+    }
+
+    Connections {
+        target: Convolve
+
+        onBiasChanged: {
+            sldBias.value = bias
+            spbBias.rvalue = bias
+        }
     }
 
     Label {
@@ -137,7 +147,7 @@ ColumnLayout {
     }
 
     GridLayout {
-        columns: 2
+        columns: 3
 
         Label {
             text: qsTr("Factor")
@@ -147,6 +157,8 @@ ColumnLayout {
             validator: RegExpValidator {
                 regExp: /-?\d+\/\d+/
             }
+            Layout.columnSpan: 2
+            Layout.fillWidth: true
 
             onTextChanged: Convolve.factor = Ak.varFrac(Ak.newFrac(text))
         }
@@ -154,13 +166,24 @@ ColumnLayout {
         Label {
             text: qsTr("Bias")
         }
-        SpinBox {
-            stepSize: 1
-            maximumValue: 255
-            minimumValue: -255
+        Slider {
+            id: sldBias
             value: Convolve.bias
+            stepSize: 1
+            from: -255
+            to: 255
+            Layout.fillWidth: true
 
             onValueChanged: Convolve.bias = value
+        }
+        AkSpinBox {
+            id: spbBias
+            rvalue: Convolve.bias
+            step: sldBias.stepSize
+            minimumValue: sldBias.from
+            maximumValue: sldBias.to
+
+            onRvalueChanged: Convolve.bias = rvalue
         }
     }
 }

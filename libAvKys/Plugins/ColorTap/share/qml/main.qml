@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 ColumnLayout {
     function toQrc(uri)
@@ -37,6 +38,8 @@ ColumnLayout {
         }
         ComboBox {
             id: cbxTable
+            textRole: "text"
+            Layout.fillWidth: true
 
             model: ListModel {
                 ListElement {
@@ -115,9 +118,9 @@ ColumnLayout {
                 }
             }
         }
-        Button {
-            text: qsTr("Search")
-            iconName: "edit-find"
+        AkButton {
+            label: qsTr("Search")
+            icon: "image://icons/edit-find"
 
             onClicked: fileDialog.open()
         }

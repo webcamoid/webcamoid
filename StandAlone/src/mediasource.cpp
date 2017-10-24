@@ -297,10 +297,6 @@ bool MediaSource::embedControls(const QString &where,
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
 
-        QQmlProperty::write(interfaceItem,
-                            "anchors.fill",
-                            qVariantFromValue(item));
-
         return true;
     }
 

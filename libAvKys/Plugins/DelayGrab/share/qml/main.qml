@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 
 GridLayout {
     id: configs
@@ -43,7 +43,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxMode
+        textRole: "text"
         currentIndex: modeIndex(DelayGrab.mode)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -75,6 +77,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: DelayGrab.blockSize = text
     }
@@ -87,6 +90,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: DelayGrab.nFrames = text
     }

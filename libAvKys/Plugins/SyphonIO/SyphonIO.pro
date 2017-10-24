@@ -59,7 +59,7 @@ LIBS += -framework Foundation
 QT += qml widgets
 
 RESOURCES += \
-    syphonio.qrc
+    SyphonIO.qrc
 
 SOURCES = \
     src/syphonio.cpp \

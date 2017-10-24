@@ -153,49 +153,6 @@ inline PixFmtToUvcMap initPixFmtToUvcMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(PixFmtToUvcMap, fourccToUvc, (initPixFmtToUvcMap()))
 
-#ifndef HAVE_LIBUVCDEV
-
-typedef QVector<QSize> SupportedResolutions;
-
-inline SupportedResolutions initSupportedResolutions()
-{
-    QVector<QSize> supportedResolutions {
-        { 640,  480},
-        { 160,   90},
-        { 160,  120},
-        { 176,  144},
-        { 320,  180},
-        { 320,  240},
-        { 352,  288},
-        { 640,  360},
-        { 800,  448},
-        { 800,  600},
-        { 864,  480},
-        { 960,  720},
-        {1024,  576},
-        {1280,  720},
-        {1600,  896},
-        {1920, 1080},
-        {2304, 1296},
-        {2304, 1536},
-    };
-
-    return supportedResolutions;
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(SupportedResolutions, supportedResolutions, (initSupportedResolutions()))
-
-typedef QVector<int> SupportedFrameRates;
-
-inline SupportedFrameRates initSupportedFrameRates()
-{
-    return QVector<int> {30, 24, 20, 15, 10, 5, 2, 1};
-}
-
-Q_GLOBAL_STATIC_WITH_ARGS(SupportedFrameRates, supportedFrameRates, (initSupportedFrameRates()))
-
-#endif
-
 CaptureLibUVC::CaptureLibUVC(QObject *parent):
     Capture(parent),
     m_uvcContext(nullptr),
@@ -903,7 +860,6 @@ void CaptureLibUVC::updateDevices()
             }
         }
 
-#ifdef HAVE_LIBUVCDEV
         auto formatDescription = uvc_get_format_descs(deviceHnd);
 
         if (!formatDescription) {
@@ -916,7 +872,6 @@ void CaptureLibUVC::updateDevices()
 
             continue;
         }
-#endif
 
         auto description =
                 usbIds->description(descriptor->idVendor, descriptor->idProduct);
@@ -944,7 +899,6 @@ void CaptureLibUVC::updateDevices()
         AkCaps videoCaps;
         videoCaps.setMimeType("video/unknown");
 
-#ifdef HAVE_LIBUVCDEV
         for (; formatDescription; formatDescription = formatDescription->next) {
             auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
 
@@ -997,32 +951,6 @@ void CaptureLibUVC::updateDevices()
                 }
             }
         }
-#else
-        for (auto &format: fourccToUvc->values()) {
-            for (const auto &resolution: *supportedResolutions) {
-                for (auto &fps: *supportedFrameRates) {
-                    uvc_stream_ctrl_t streamCtrl;
-                    error = uvc_get_stream_ctrl_format_size(deviceHnd,
-                                                            &streamCtrl,
-                                                            format,
-                                                            resolution.width(),
-                                                            resolution.height(),
-                                                            fps);
-
-                    if (error != UVC_SUCCESS)
-                        continue;
-
-                    // This is just a guess, most webcams supports this format.
-                    videoCaps.setProperty("fourcc", fourccToUvc->key(format));
-                    videoCaps.setProperty("width", resolution.width());
-                    videoCaps.setProperty("height", resolution.height());
-                    videoCaps.setProperty("fps", QString("%1/1").arg(fps));
-
-                    devicesCaps[deviceId] << QVariant::fromValue(videoCaps);
-                }
-            }
-        }
-#endif
 
         QVariantList deviceControls;
 

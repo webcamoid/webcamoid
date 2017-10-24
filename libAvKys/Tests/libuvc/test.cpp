@@ -22,5 +22,7 @@
 
 int main()
 {
+    uvc_get_format_descs(NULL);
+
     return 0;
 }

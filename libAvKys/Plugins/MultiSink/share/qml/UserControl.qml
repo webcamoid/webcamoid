@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     id: grdCameraControl
@@ -37,7 +38,7 @@ GridLayout {
 
     onValueChanged: {
         sldRange.value = value
-        spbRange.value = value
+        spbRange.rvalue = value
         chkBool.checked = value !== 0
         cbxMenu.currentIndex = value
     }
@@ -50,8 +51,8 @@ GridLayout {
 
     Slider {
         id: sldRange
-        minimumValue: controlParams.length > 2? controlParams[2]: 0
-        maximumValue: controlParams.length > 3? controlParams[3]: 0
+        from: controlParams.length > 2? controlParams[2]: 0
+        to: controlParams.length > 3? controlParams[3]: 0
         stepSize: controlParams.length > 4? controlParams[4]: 0
         value: grdCameraControl.value
         Layout.fillWidth: true
@@ -59,36 +60,43 @@ GridLayout {
 
         onValueChanged: {
             if (visible) {
-                spbRange.value = value
+                spbRange.rvalue = value
                 grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", value)
             }
         }
     }
-    SpinBox {
+    AkSpinBox {
         id: spbRange
         minimumValue: controlParams.length > 2? controlParams[2]: 0
         maximumValue: controlParams.length > 3? controlParams[3]: 0
-        stepSize: controlParams.length > 4? controlParams[4]: 0
-        value: sldRange.value
+        step: controlParams.length > 4? controlParams[4]: 0
+        rvalue: sldRange.value
         Layout.minimumWidth: minimumRightWidth
         visible: false
 
-        onValueChanged: {
+        onRvalueChanged: {
             if (visible)
-                sldRange.value = value
+                sldRange.value = rvalue
         }
     }
 
-    CheckBox {
-        id: chkBool
-        checked: grdCameraControl.value !== 0
+    RowLayout {
+        id: chkBoolContainer
         Layout.columnSpan: 2
         Layout.fillWidth: true
         visible: false
 
-        onCheckedChanged: {
-            if (visible)
-                grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", checked? 1: 0)
+        CheckBox {
+            id: chkBool
+            checked: grdCameraControl.value !== 0
+
+            onCheckedChanged: {
+                if (visible)
+                    grdCameraControl.controlChanged(controlParams.length > 0? controlParams[0]: "", checked? 1: 0)
+            }
+        }
+        Label {
+            Layout.fillWidth: true
         }
     }
 
@@ -135,7 +143,7 @@ GridLayout {
             name: "boolean"
 
             PropertyChanges {
-                target: chkBool
+                target: chkBoolContainer
                 visible: true
             }
         },

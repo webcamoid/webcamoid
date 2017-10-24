@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     id: recCameraControls
@@ -76,9 +77,9 @@ GridLayout {
         Label {
             Layout.fillWidth: true
         }
-        Button {
-            text: qsTr("Add")
-            iconName: "add"
+        AkButton {
+            label: qsTr("Add")
+            icon: "image://icons/add"
             enabled: cbxDevices.count < VirtualCamera.maxCameras
 
             onClicked: {
@@ -87,9 +88,9 @@ GridLayout {
                 recCameraControls.state = "commitChanges"
             }
         }
-        Button {
-            text: qsTr("Edit")
-            iconName: "edit"
+        AkButton {
+            label: qsTr("Edit")
+            icon: "image://icons/edit"
             enabled: cbxDevices.count > 0
 
             onClicked: {
@@ -100,9 +101,9 @@ GridLayout {
         }
         Label {
         }
-        Button {
-            text: qsTr("Remove")
-            iconName: "remove"
+        AkButton {
+            label: qsTr("Remove")
+            icon: "image://icons/remove"
             enabled: cbxDevices.count > 0
 
             onClicked: {
@@ -111,9 +112,9 @@ GridLayout {
                 recCameraControls.state = "commitChanges"
             }
         }
-        Button {
-            text: qsTr("Remove All")
-            iconName: "remove"
+        AkButton {
+            label: qsTr("Remove All")
+            icon: "image://icons/remove"
             enabled: cbxDevices.count > 0
 
             onClicked: {
@@ -148,7 +149,7 @@ GridLayout {
         }
         TextField {
             id: txtPassword
-            echoMode: 2
+            echoMode: TextInput.Password
             Layout.fillWidth: true
             placeholderText: qsTr("Write root password")
             visible: VirtualCamera.needRoot
@@ -160,10 +161,10 @@ GridLayout {
             Label {
                 Layout.fillWidth: true
             }
-            Button {
+            AkButton {
                 id: btnOk
-                text: qsTr("Ok")
-                iconName: "ok"
+                label: qsTr("Ok")
+                icon: "image://icons/ok"
 
                 function commitChanges()
                 {
@@ -209,9 +210,9 @@ GridLayout {
 
                 onClicked: commitChanges()
             }
-            Button {
-                text: qsTr("Cancel")
-                iconName: "cancel"
+            AkButton {
+                label: qsTr("Cancel")
+                icon: "image://icons/cancel"
 
                 onClicked: {
                     recCameraControls.state = ""

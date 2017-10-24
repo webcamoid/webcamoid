@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Window 2.2
+import QtQuick 2.7
 import QtQuick.Dialogs 1.2
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 ApplicationWindow {
     id: recAddMedia
@@ -29,6 +29,8 @@ ApplicationWindow {
     color: palette.window
     flags: Qt.Dialog
     modality: Qt.ApplicationModal
+    width: 350
+    height: 200
 
     property bool editMode: false
 
@@ -89,12 +91,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-            Button {
+            AkButton {
                 id: btnAddMedia
-                text: qsTr("Search")
-                iconName: "edit-find"
-                iconSource: "image://icons/edit-find"
-                width: 30
+                label: qsTr("Search")
+                icon: "image://icons/edit-find"
 
                 onClicked: fileDialog.open()
             }
@@ -111,11 +111,10 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-            Button {
+            AkButton {
                 id: btnOk
-                text: qsTr("Ok")
-                iconName: "ok"
-                iconSource: "image://icons/ok"
+                label: qsTr("Ok")
+                icon: "image://icons/ok"
 
                 onClicked: {
                     if (txtMedia.text.length > 0) {
@@ -137,11 +136,10 @@ ApplicationWindow {
                 }
             }
 
-            Button {
+            AkButton {
                 id: btnCancel
-                text: qsTr("Cancel")
-                iconName: "cancel"
-                iconSource: "image://icons/cancel"
+                label: qsTr("Cancel")
+                icon: "image://icons/cancel"
 
                 onClicked: recAddMedia.visible = false
             }

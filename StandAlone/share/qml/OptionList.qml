@@ -17,13 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 
 ListView {
     id: lsvOptionList
-    width: 400
-    height: 400
+    width: childrenRect.width
+    height: childrenRect.height
     clip: true
 
     property string filter: ""

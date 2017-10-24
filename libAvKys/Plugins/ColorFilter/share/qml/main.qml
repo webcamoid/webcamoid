@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -46,25 +46,21 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: ColorFilter
+
+        onRadiusChanged: {
+            sldRadius.value = radius
+            spbRadius.rvalue = radius
+        }
     }
 
     // Configure strip color.
     Label {
         text: qsTr("Color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(ColorFilter.colorf)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
+    AkColorButton {
+        curColor: fromRgba(ColorFilter.colorf)
 
         onClicked: colorDialog.open()
     }
@@ -80,17 +76,18 @@ GridLayout {
         id: sldRadius
         value: ColorFilter.radius
         stepSize: 1
-        maximumValue: 256
+        to: 256
+        Layout.fillWidth: true
 
         onValueChanged: ColorFilter.radius = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbRadius
-        value: sldRadius.value
-        maximumValue: sldRadius.maximumValue
-        stepSize: sldRadius.stepSize
+        rvalue: ColorFilter.radius
+        maximumValue: sldRadius.to
+        step: sldRadius.stepSize
 
-        onValueChanged: sldRadius.value = value
+        onRvalueChanged: ColorFilter.radius = rvalue
     }
 
     // Enable soft color replacing.

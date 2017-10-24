@@ -43,22 +43,15 @@ LIBS += -L$${PWD}/../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += pspec.json
 
+isEmpty(LIBUSBLIBS) | isEmpty(LIBUVCLIBS): CONFIG += link_pkgconfig
+
 !isEmpty(LIBUSBINCLUDES): INCLUDEPATH += $${LIBUSBINCLUDES}
 !isEmpty(LIBUSBLIBS): LIBS += $${LIBUSBLIBS}
-
-isEmpty(LIBUSBLIBS) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += libusb-1.0
-}
+isEmpty(LIBUSBLIBS): PKGCONFIG += libusb-1.0
 
 !isEmpty(LIBUVCINCLUDES): INCLUDEPATH += $${LIBUVCINCLUDES}
 !isEmpty(LIBUVCLIBS): LIBS += $${LIBUVCLIBS}
-
-isEmpty(LIBUVCLIBS) {
-    LIBS += -luvc
-}
-
-CONFIG(config_libuvcdev): DEFINES += HAVE_LIBUVCDEV
+isEmpty(LIBUVCLIBS): PKGCONFIG += libuvc
 
 QT += qml concurrent
 

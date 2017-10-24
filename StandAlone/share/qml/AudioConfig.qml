@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 Rectangle {
     id: recAudioConfig
@@ -111,15 +112,15 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        ToolButton {
+        AkToolButton {
             id: btnOutputs
-            text: qsTr("Outputs")
+            label: qsTr("Outputs")
             checked: true
             Layout.fillWidth: true
-            tooltip: qsTr("Select the output device for audio playing")
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Select the output device for audio playing")
             checkable: true
-            iconSource: "image://icons/webcamoid-headphones"
-            iconName: "webcamoid-headphones"
+            icon: "image://icons/webcamoid-headphones"
 
             onCheckedChanged: {
                 if (checked) {
@@ -128,14 +129,14 @@ Rectangle {
                 }
             }
         }
-        ToolButton {
+        AkToolButton {
             id: btnInputs
-            text: qsTr("Inputs")
+            label: qsTr("Inputs")
             Layout.fillWidth: true
-            tooltip: qsTr("Select the device for audio capturing")
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Select the device for audio capturing")
             checkable: true
-            iconSource: "image://icons/webcamoid-mic"
-            iconName: "webcamoid-mic"
+            icon: "image://icons/webcamoid-mic"
 
             onCheckedChanged: {
                 if (checked) {

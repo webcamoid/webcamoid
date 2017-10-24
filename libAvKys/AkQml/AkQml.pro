@@ -50,6 +50,9 @@ INCLUDEPATH += \
 LIBS += -L$${PWD}/../Lib/ -l$${COMMONS_TARGET}
 win32: LIBS += -lole32
 
+RESOURCES += \
+    qml.qrc
+
 DISTFILES = qmldir
 
 INSTALLS += \

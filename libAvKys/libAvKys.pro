@@ -80,7 +80,6 @@ isEmpty(NOLIBUVC) {
     !isEmpty(LIBUVCINCLUDES): cache(LIBUVCINCLUDES)
     !isEmpty(LIBUVCLIBS): cache(LIBUVCLIBS)
     qtCompileTest(libuvc)
-    qtCompileTest(libuvcdev)
 }
 
 isEmpty(NOOSS) {

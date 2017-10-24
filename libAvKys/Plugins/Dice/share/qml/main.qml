@@ -17,12 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
+
+    Connections {
+        target: Dice
+
+        onDiceSizeChanged: {
+            sldDiceSize.value = diceSize
+            spbDiceSize.rvalue = diceSize
+        }
+    }
 
     Label {
         id: lblDiceSize
@@ -32,18 +42,19 @@ GridLayout {
         id: sldDiceSize
         value: Dice.diceSize
         stepSize: 1
-        minimumValue: 1
-        maximumValue: 256
+        from: 1
+        to: 256
+        Layout.fillWidth: true
 
         onValueChanged: Dice.diceSize = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbDiceSize
-        value: sldDiceSize.value
-        minimumValue: sldDiceSize.minimumValue
-        maximumValue: sldDiceSize.maximumValue
-        stepSize: sldDiceSize.stepSize
+        rvalue: Dice.diceSize
+        minimumValue: sldDiceSize.from
+        maximumValue: sldDiceSize.to
+        step: sldDiceSize.stepSize
 
-        onValueChanged: sldDiceSize.value = value
+        onRvalueChanged: Dice.diceSize = rvalue
     }
 }

@@ -17,12 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
-ColumnLayout {
+AkScrollView {
+    id: scrollView
+    clip: true
+    contentHeight: generalConfigs.height
+
     property variant videoCapture: Ak.newElement("VideoCapture")
     property variant desktopCapture: Ak.newElement("DesktopCapture")
     property variant audioDevice: Ak.newElement("AudioDevice")
@@ -31,136 +36,137 @@ ColumnLayout {
     property variant multiSrc: Ak.newElement("MultiSrc")
     property variant multiSink: Ak.newElement("MultiSink")
 
-    Component.onCompleted: {
-    }
+    ColumnLayout {
+        id: generalConfigs
+        width: scrollView.width
+               - (scrollView.ScrollBar.vertical.visible?
+                      scrollView.ScrollBar.vertical.width: 0)
 
-    CheckBox {
-        text: qsTr("Play webcam on start")
-        checked: MediaSource.playOnStart
+        CheckBox {
+            text: qsTr("Play webcam on start")
+            checked: MediaSource.playOnStart
 
-        onCheckedChanged: MediaSource.playOnStart = checked
-    }
-    CheckBox {
-        text: qsTr("Enable advanced effects mode")
-        checked: VideoEffects.advancedMode
-
-        onCheckedChanged: VideoEffects.advancedMode = checked
-    }
-    Label {
-        text: qsTr("Frameworks & libraries")
-        font.pointSize: 1.25 * font.pointSize
-        font.bold: true
-        Layout.topMargin: 10
-        Layout.bottomMargin: 10
-    }
-    GridLayout {
-        columns: 2
-
-        Label {
-            text: qsTr("Video capture")
+            onCheckedChanged: MediaSource.playOnStart = checked
         }
-        ComboBox {
-            Layout.fillWidth: true
-            model: videoCapture.listSubModules(["capture"])
-            currentIndex: model.indexOf(videoCapture.captureLib)
+        CheckBox {
+            text: qsTr("Enable advanced effects mode")
+            checked: VideoEffects.advancedMode
 
-            onCurrentIndexChanged: videoCapture.captureLib = model[currentIndex]
+            onCheckedChanged: VideoEffects.advancedMode = checked
         }
         Label {
-            text: qsTr("Desktop capture")
+            text: qsTr("Frameworks & libraries")
+            font.pointSize: 1.25 * font.pointSize
+            font.bold: true
+            Layout.topMargin: 10
+            Layout.bottomMargin: 10
         }
-        ComboBox {
-            Layout.fillWidth: true
-            model: desktopCapture.listSubModules()
-            currentIndex: model.indexOf(desktopCapture.captureLib)
+        GridLayout {
+            columns: 2
 
-            onCurrentIndexChanged: desktopCapture.captureLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Audio capture/play")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: audioDevice.listSubModules()
-            currentIndex: model.indexOf(audioDevice.audioLib)
+            Label {
+                text: qsTr("Video capture")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: videoCapture.listSubModules(["capture"])
+                currentIndex: model.indexOf(videoCapture.captureLib)
 
-            onCurrentIndexChanged: audioDevice.audioLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Video convert")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: videoCapture.listSubModules(["convert"])
-            currentIndex: model.indexOf(videoCapture.codecLib)
+                onCurrentIndexChanged: videoCapture.captureLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Desktop capture")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: desktopCapture.listSubModules()
+                currentIndex: model.indexOf(desktopCapture.captureLib)
 
-            onCurrentIndexChanged: videoCapture.codecLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Audio convert")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: audioConvert.listSubModules()
-            currentIndex: model.indexOf(audioConvert.convertLib)
+                onCurrentIndexChanged: desktopCapture.captureLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Audio capture/play")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: audioDevice.listSubModules()
+                currentIndex: model.indexOf(audioDevice.audioLib)
 
-            onCurrentIndexChanged: audioConvert.convertLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Video output")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: virtualCamera.listSubModules(["output"])
-            currentIndex: model.indexOf(virtualCamera.outputLib)
+                onCurrentIndexChanged: audioDevice.audioLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Video convert")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: videoCapture.listSubModules(["convert"])
+                currentIndex: model.indexOf(videoCapture.codecLib)
 
-            onCurrentIndexChanged: virtualCamera.outputLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Video output convert")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: virtualCamera.listSubModules(["convert"])
-            currentIndex: model.indexOf(virtualCamera.convertLib)
+                onCurrentIndexChanged: videoCapture.codecLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Audio convert")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: audioConvert.listSubModules()
+                currentIndex: model.indexOf(audioConvert.convertLib)
 
-            onCurrentIndexChanged: virtualCamera.convertLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Video playback")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: multiSrc.listSubModules()
-            currentIndex: model.indexOf(multiSrc.codecLib)
+                onCurrentIndexChanged: audioConvert.convertLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Video output")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: virtualCamera.listSubModules(["output"])
+                currentIndex: model.indexOf(virtualCamera.outputLib)
 
-            onCurrentIndexChanged: multiSrc.codecLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Video record")
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: multiSink.listSubModules()
-            currentIndex: model.indexOf(multiSink.codecLib)
+                onCurrentIndexChanged: virtualCamera.outputLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Video output convert")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: virtualCamera.listSubModules(["convert"])
+                currentIndex: model.indexOf(virtualCamera.convertLib)
 
-            onCurrentIndexChanged: multiSink.codecLib = model[currentIndex]
-        }
-        Label {
-            text: qsTr("Root method")
-            visible: virtualCamera.availableMethods.length > 0
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            model: virtualCamera.availableMethods
-            currentIndex: virtualCamera.availableMethods.length > 0?
-                              model.indexOf(virtualCamera.rootMethod): -1
-            visible: virtualCamera.availableMethods.length > 0
+                onCurrentIndexChanged: virtualCamera.convertLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Video playback")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: multiSrc.listSubModules()
+                currentIndex: model.indexOf(multiSrc.codecLib)
 
-            onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
+                onCurrentIndexChanged: multiSrc.codecLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Video record")
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: multiSink.listSubModules()
+                currentIndex: model.indexOf(multiSink.codecLib)
+
+                onCurrentIndexChanged: multiSink.codecLib = model[currentIndex]
+            }
+            Label {
+                text: qsTr("Root method")
+                visible: virtualCamera.availableMethods.length > 0
+            }
+            ComboBox {
+                Layout.fillWidth: true
+                model: virtualCamera.availableMethods
+                currentIndex: virtualCamera.availableMethods.length > 0?
+                                  model.indexOf(virtualCamera.rootMethod): -1
+                visible: virtualCamera.availableMethods.length > 0
+
+                onCurrentIndexChanged: virtualCamera.rootMethod = model[currentIndex]
+            }
         }
-    }
-    Label {
-        Layout.fillHeight: true
     }
 }

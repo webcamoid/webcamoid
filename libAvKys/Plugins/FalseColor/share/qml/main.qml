@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
+import QtQuick 2.7
 import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
 
 ColumnLayout {
     function fromRgba(rgba)
@@ -79,6 +79,7 @@ ColumnLayout {
         color: palette.base
 
         ScrollView {
+            clip: true
             anchors.fill: parent
 
             TextEdit {

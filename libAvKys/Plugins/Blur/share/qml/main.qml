@@ -17,12 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
+
+    Connections {
+        target: Blur
+
+        onRadiusChanged: {
+            sldRadius.value = radius
+            spbRadius.rvalue = radius
+        }
+    }
 
     // Configure blur radius.
     Label {
@@ -33,16 +43,17 @@ GridLayout {
         id: sldRadius
         value: Blur.radius
         stepSize: 1
-        maximumValue: 128
+        to: 128
+        Layout.fillWidth: true
 
         onValueChanged: Blur.radius = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbRadius
-        value: sldRadius.value
-        maximumValue: sldRadius.maximumValue
-        stepSize: sldRadius.stepSize
+        rvalue: Blur.radius
+        maximumValue: sldRadius.to
+        step: sldRadius.stepSize
 
-        onValueChanged: sldRadius.value = value
+        onRvalueChanged: Blur.radius = rvalue
     }
 }
