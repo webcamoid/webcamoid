@@ -18,7 +18,7 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
 GridLayout {
@@ -42,7 +42,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxMode
+        textRole: "text"
         currentIndex: modeIndex(Ripple.mode)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -66,6 +68,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Ripple.amplitude = text
     }
@@ -78,6 +81,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Ripple.decay = text
     }
@@ -90,6 +94,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Ripple.threshold = text
     }
@@ -102,6 +107,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Ripple.lumaThreshold = text
     }

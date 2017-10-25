@@ -21,18 +21,22 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
+import QtQuick.Dialogs 1.2
 
 Rectangle {
+    id: button
     width: 32
     height: 32
-    color: enabled? curColor: paletteDisabled.window
+    color: enabled? currentColor: paletteDisabled.window
     border.color: contrast(color)
     border.width: 1
 
-    property color curColor: Qt.rgba(0.0, 0.0, 0.0, 1)
+    property color currentColor: Qt.rgba(0.0, 0.0, 0.0, 1)
     property bool enabled: true
-
-    signal clicked(color color)
+    property string title: ""
+    property bool showAlphaChannel: false
+    property int modality: Qt.ApplicationModal
+    property bool isOpen: false
 
     function clamp(min, value, max)
     {
@@ -58,6 +62,17 @@ Rectangle {
         anchors.fill: parent
         enabled: parent.enabled
 
-        onClicked: parent.clicked(parent.color)
+        onClicked: colorDialog.open()
+    }
+
+    ColorDialog {
+        id: colorDialog
+        title: button.title
+        currentColor: button.currentColor
+        showAlphaChannel: button.showAlphaChannel
+        modality: button.modality
+
+        onAccepted: button.currentColor = color
+        onVisibleChanged: button.isOpen = visible
     }
 }

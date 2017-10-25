@@ -84,17 +84,10 @@ GridLayout {
         text: qsTr("Color")
     }
     AkColorButton {
-        curColor: fromRgba(Cinema.stripColor)
-
-        onClicked: colorDialog.open()
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose the strips color")
         currentColor: fromRgba(Cinema.stripColor)
+        title: qsTr("Choose the strips color")
         showAlphaChannel: true
 
-        onAccepted: Cinema.stripColor = toRgba(color)
+        onCurrentColorChanged: Cinema.stripColor = toRgba(currentColor)
     }
 }

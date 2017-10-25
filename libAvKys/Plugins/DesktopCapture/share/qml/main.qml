@@ -49,27 +49,27 @@ GridLayout {
     }
     ComboBox {
         id: cbxFps
+        currentIndex: 10
         Layout.fillWidth: true
-        model: [
-            300,
-            240,
-            144,
-            120,
-            100,
-            90,
-            72,
-            60,
-            50,
-            48,
-            30,
-            25,
-            24,
-            20,
-            15,
-            10,
-            5,
-            2,
-            1]
+        model: [300,
+                240,
+                144,
+                120,
+                100,
+                90,
+                72,
+                60,
+                50,
+                48,
+                30,
+                25,
+                24,
+                20,
+                15,
+                10,
+                5,
+                2,
+                1]
 
         onCurrentIndexChanged: {
             if (currentIndex > -1)

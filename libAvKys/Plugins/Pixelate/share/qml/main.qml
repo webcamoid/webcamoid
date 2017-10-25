@@ -18,7 +18,7 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
 GridLayout {
@@ -45,6 +45,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Pixelate.blockSize = strToSize(text)
     }

@@ -18,10 +18,10 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 2
@@ -59,10 +59,6 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
-    }
-
     Label {
         text: qsTr("N° of drops")
     }
@@ -71,6 +67,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Matrix.nDrops = text
     }
@@ -81,6 +78,7 @@ GridLayout {
     TextField {
         text: Matrix.charTable
         onTextChanged: Matrix.charTable = text
+        Layout.fillWidth: true
     }
 
     Label {
@@ -94,9 +92,9 @@ GridLayout {
             font: Matrix.font
             Layout.fillWidth: true
         }
-        Button {
-            text: qsTr("Select")
-            iconName: "preferences-desktop-font"
+        AkButton {
+            label: qsTr("Select")
+            icon: "image://icons/preferences-desktop-font"
 
             onClicked: fontDialog.open()
         }
@@ -107,7 +105,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxHinting
+        textRole: "text"
         currentIndex: optionIndex(cbxHinting, Matrix.hintingPreference)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -136,7 +136,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxStyle
+        textRole: "text"
         currentIndex: optionIndex(cbxStyle, Matrix.styleStrategy)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -199,82 +201,31 @@ GridLayout {
     Label {
         text: qsTr("Cursor color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Matrix.cursorColor)
+        title: qsTr("Choose the cursor color")
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Matrix.cursorColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             Matrix.cursorColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Matrix.cursorColor)
-            colorDialog.open()
-        }
+        onCurrentColorChanged: Matrix.cursorColor = toRgba(currentColor)
     }
 
     Label {
         text: qsTr("Foreground color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Matrix.foregroundColor)
+        title: qsTr("Choose the foreground color")
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Matrix.foregroundColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             Matrix.foregroundColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Matrix.foregroundColor)
-            colorDialog.open()
-        }
+        onCurrentColorChanged: Matrix.foregroundColor = toRgba(currentColor)
     }
 
     Label {
         text: qsTr("Background color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Matrix.backgroundColor)
+        title: qsTr("Choose the background color")
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Matrix.backgroundColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             Matrix.backgroundColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Matrix.backgroundColor)
-            colorDialog.open()
-        }
+        onCurrentColorChanged: Matrix.backgroundColor = toRgba(currentColor)
     }
 
     Label {
@@ -285,6 +236,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Matrix.minDropLength = text
     }
@@ -297,6 +249,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Matrix.maxDropLength = text
     }
@@ -309,6 +262,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Matrix.minSpeed = text
     }
@@ -321,12 +275,15 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Matrix.maxSpeed = text
     }
 
-    CheckBox {
+    Label {
         text: qsTr("Show cursor")
+    }
+    CheckBox {
         checked: Matrix.showCursor
 
         onCheckedChanged: Matrix.showCursor = checked
@@ -338,14 +295,5 @@ GridLayout {
         font: Matrix.font
 
         onAccepted: Matrix.font = font
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose a color")
-
-        property Item caller: null
-
-        onAccepted: caller.setColor(color)
     }
 }

@@ -60,9 +60,13 @@ GridLayout {
         text: qsTr("Old color")
     }
     AkColorButton {
-        curColor: fromRgba(ColorReplace.from)
+        currentColor: fromRgba(ColorReplace.from)
+        title: qsTr("Select the color to replace")
+        modality: Qt.NonModal
+        showAlphaChannel: true
 
-        onClicked: colorDialogFrom.open()
+        onCurrentColorChanged: ColorReplace.from = toRgba(currentColor)
+        onIsOpenChanged: ColorReplace.disable = isOpen
     }
     Label {
     }
@@ -72,9 +76,13 @@ GridLayout {
         text: qsTr("New color")
     }
     AkColorButton {
-        curColor: fromRgba(ColorReplace.to)
+        currentColor: fromRgba(ColorReplace.to)
+        title: qsTr("Select the new color")
+        modality: Qt.NonModal
+        showAlphaChannel: true
 
-        onClicked: colorDialogTo.open()
+        onCurrentColorChanged: ColorReplace.to = toRgba(currentColor)
+        onIsOpenChanged: ColorReplace.disable = isOpen
     }
     Label {
     }
@@ -100,25 +108,5 @@ GridLayout {
         step: sldRadius.stepSize
 
         onRvalueChanged: ColorReplace.radius = rvalue
-    }
-
-    ColorDialog {
-        id: colorDialogFrom
-        title: qsTr("Select the color to replace")
-        currentColor: fromRgba(ColorReplace.from)
-        showAlphaChannel: true
-
-        onAccepted: ColorReplace.from = toRgba(color)
-        onVisibleChanged: ColorReplace.disable = visible
-    }
-
-    ColorDialog {
-        id: colorDialogTo
-        title: qsTr("Select the new color")
-        currentColor: fromRgba(ColorReplace.to)
-        showAlphaChannel: true
-
-        onAccepted: ColorReplace.to = toRgba(color)
-        onVisibleChanged: ColorReplace.disable = visible
     }
 }

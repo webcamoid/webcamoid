@@ -159,3 +159,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+lessThan(QT_VERSION, 0x050700) | !qtHaveModule(quickcontrols2) {
+    error("Qt 5.7.0 or higher and QtQuick Controls 2 required.")
+}

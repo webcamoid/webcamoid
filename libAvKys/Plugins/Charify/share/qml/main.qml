@@ -213,18 +213,22 @@ GridLayout {
         text: qsTr("Foreground color")
     }
     AkColorButton {
-        curColor: fromRgba(Charify.foregroundColor)
+        currentColor: fromRgba(Charify.foregroundColor)
+        title: qsTr("Choose the foreground color")
+        showAlphaChannel: true
 
-        onClicked: foregroundColorDialog.open()
+        onCurrentColorChanged: Charify.foregroundColor = toRgba(currentColor)
     }
 
     Label {
         text: qsTr("Background color")
     }
     AkColorButton {
-        curColor: fromRgba(Charify.backgroundColor)
+        currentColor: fromRgba(Charify.backgroundColor)
+        title: qsTr("Choose the background color")
+        showAlphaChannel: true
 
-        onClicked: backgroundColorDialog.open()
+        onCurrentColorChanged: Charify.backgroundColor = toRgba(currentColor)
     }
 
     Label {
@@ -242,23 +246,5 @@ GridLayout {
         font: Charify.font
 
         onAccepted: Charify.font = font
-    }
-
-    ColorDialog {
-        id: foregroundColorDialog
-        title: qsTr("Choose the foreground color")
-        currentColor: fromRgba(Charify.foregroundColor)
-        showAlphaChannel: true
-
-        onAccepted: Charify.foregroundColor = toRgba(color)
-    }
-
-    ColorDialog {
-        id: backgroundColorDialog
-        title: qsTr("Choose the background color")
-        currentColor: fromRgba(Charify.backgroundColor)
-        showAlphaChannel: true
-
-        onAccepted: Charify.backgroundColor = toRgba(color)
     }
 }

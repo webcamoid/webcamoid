@@ -18,9 +18,10 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 2
@@ -52,6 +53,8 @@ GridLayout {
     ColumnLayout {
         ComboBox {
             id: cbxPattern
+            textRole: "text"
+            Layout.fillWidth: true
 
             model: ListModel {
                 ListElement {
@@ -133,9 +136,9 @@ GridLayout {
                     }
                 }
             }
-            Button {
-                text: qsTr("Search")
-                iconName: "edit-find"
+            AkButton {
+                label: qsTr("Search")
+                icon: "image://icons/edit-find"
 
                 onClicked: fileDialog.open()
             }
@@ -150,6 +153,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?\d+x-?\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Halftone.patternSize = strToSize(text)
     }
@@ -162,6 +166,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Halftone.lightness = text
     }
@@ -174,6 +179,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Halftone.slope = text
     }
@@ -186,6 +192,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Halftone.intercept = text
     }

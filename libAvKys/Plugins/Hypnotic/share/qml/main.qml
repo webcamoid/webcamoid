@@ -18,8 +18,9 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -37,13 +38,25 @@ GridLayout {
         return index
     }
 
+    Connections {
+        target: Hypnotic
+
+        onThresholdChanged: {
+            sldThreshold.value = threshold
+            spbThreshold.rvalue = threshold
+        }
+    }
+
     // Marker type.
     Label {
         text: qsTr("Mode")
     }
     ComboBox {
         id: cbxMode
+        textRole: "text"
         currentIndex: modeIndex(Hypnotic.mode)
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -66,8 +79,6 @@ GridLayout {
 
         onCurrentIndexChanged: Hypnotic.mode = cbxMode.model.get(currentIndex).mode
     }
-    Label {
-    }
 
     Label {
         text: qsTr("Speed increment")
@@ -77,24 +88,10 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         onTextChanged: Hypnotic.speedInc = text
-    }
-    Label {
-    }
-
-    Label {
-        text: qsTr("Threshold")
-    }
-    TextField {
-        text: Hypnotic.threshold
-        validator: RegExpValidator {
-            regExp: /-?\d+/
-        }
-
-        onTextChanged: Hypnotic.threshold = text
-    }
-    Label {
     }
 
     Label {
@@ -104,16 +101,17 @@ GridLayout {
         id: sldThreshold
         value: Hypnotic.threshold
         stepSize: 1
-        maximumValue: 255
+        to: 255
+        Layout.fillWidth: true
 
         onValueChanged: Hypnotic.threshold = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbThreshold
-        value: sldThreshold.value
-        maximumValue: sldThreshold.maximumValue
-        stepSize: sldThreshold.stepSize
+        rvalue: Hypnotic.threshold
+        maximumValue: sldThreshold.to
+        step: sldThreshold.stepSize
 
-        onValueChanged: sldThreshold.value = value
+        onRvalueChanged: sldThreshold.value = rvalue
     }
 }

@@ -191,19 +191,11 @@ GridLayout {
         enabled: chkShowEdges.checked
     }
     AkColorButton {
-        curColor: fromRgba(Cartoon.lineColor)
+        currentColor: fromRgba(Cartoon.lineColor)
+        title: qsTr("Choose a color")
+
+        onCurrentColorChanged: Cartoon.lineColor = toRgba(currentColor)
         enabled: chkShowEdges.checked
-
-        function setColor(color)
-        {
-             Cartoon.lineColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Cartoon.lineColor)
-            colorDialog.open()
-        }
     }
     Label {
     }
@@ -221,14 +213,5 @@ GridLayout {
         Layout.fillWidth: true
 
         onTextChanged: Cartoon.scanSize = strToSize(text)
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose a color")
-
-        property Item caller: null
-
-        onAccepted: caller.setColor(color)
     }
 }

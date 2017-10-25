@@ -18,10 +18,10 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 2
@@ -59,16 +59,14 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
-    }
-
     Label {
         text: qsTr("Mode")
     }
     ComboBox {
         id: cbxMode
+        textRole: "text"
         currentIndex: modeIndex(Radioactive.mode)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -100,6 +98,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Radioactive.blur = text
     }
@@ -112,6 +111,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+\.\d+|\d+\.|\.\d+|\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Radioactive.zoom = text
     }
@@ -124,6 +124,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Radioactive.threshold = text
     }
@@ -136,6 +137,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Radioactive.lumaThreshold = text
     }
@@ -148,6 +150,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Radioactive.alphaDiff = text
     }
@@ -155,36 +158,11 @@ GridLayout {
     Label {
         text: qsTr("Radiation color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Radioactive.radColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             Radioactive.radColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Radioactive.radColor)
-            colorDialog.open()
-        }
-    }
-
-    ColorDialog {
-        id: colorDialog
+    AkColorButton {
+        currentColor: fromRgba(Radioactive.radColor)
         title: qsTr("Choose a color")
+        showAlphaChannel: true
 
-        property Item caller: null
-
-        onAccepted: caller.setColor(color)
+        onCurrentColorChanged: Radioactive.radColor = toRgba(currentColor)
     }
 }

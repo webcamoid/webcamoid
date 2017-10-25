@@ -18,11 +18,12 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
-    columns: 2
+    columns: 3
 
     function modeIndex(mode)
     {
@@ -37,13 +38,45 @@ GridLayout {
         return index
     }
 
+    Connections {
+        target: Fire
+
+        onCoolChanged: {
+            sldCool.value = cool
+            spbCool.rvalue = cool
+        }
+        onThresholdChanged: {
+            sldThreshold.value = threshold
+            spbThreshold.rvalue = threshold
+        }
+        onLumaThresholdChanged: {
+            sldLumaThreshold.value = lumaThreshold
+            spbLumaThreshold.rvalue = lumaThreshold
+        }
+        onAlphaDiffChanged: {
+            sldAlphaDiff.value = alphaDiff
+            spbAlphaDiff.rvalue = alphaDiff
+        }
+        onAlphaVariationChanged: {
+            sldAlphaVariation.value = alphaVariation
+            spbAlphaVariation.rvalue = alphaVariation
+        }
+        onNColorsChanged: {
+            sldNColors.value = nColors
+            spbNColors.rvalue = nColors
+        }
+    }
+
     // Fire mode.
     Label {
         text: qsTr("Mode")
     }
     ComboBox {
         id: cbxMode
+        textRole: "text"
         currentIndex: modeIndex(Fire.mode)
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -63,13 +96,24 @@ GridLayout {
     Label {
         text: qsTr("Cooling")
     }
-    SpinBox {
+    Slider {
+        id: sldCool
         value: Fire.cool
-        minimumValue: -255
-        maximumValue: 255
         stepSize: 1
+        from: -255
+        to: 255
+        Layout.fillWidth: true
 
         onValueChanged: Fire.cool = value
+    }
+    AkSpinBox {
+        id: spbCool
+        rvalue: Fire.cool
+        minimumValue: sldCool.from
+        maximumValue: sldCool.to
+        step: sldCool.stepSize
+
+        onRvalueChanged: Fire.cool = rvalue
     }
 
     // Disolving factor.
@@ -81,6 +125,8 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         onTextChanged: Fire.disolve = text
     }
@@ -94,6 +140,8 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         onTextChanged: Fire.blur = text
     }
@@ -107,6 +155,8 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?(\d+\.\d+|\d+\.|\.\d+|\d+)/
         }
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         onTextChanged: Fire.zoom = text
     }
@@ -115,60 +165,111 @@ GridLayout {
     Label {
         text: qsTr("Threshold")
     }
-    SpinBox {
+    Slider {
+        id: sldThreshold
         value: Fire.threshold
-        maximumValue: 255
         stepSize: 1
+        to: 255
+        Layout.fillWidth: true
 
         onValueChanged: Fire.threshold = value
+    }
+    AkSpinBox {
+        id: spbThreshold
+        rvalue: Fire.threshold
+        maximumValue: sldThreshold.to
+        step: sldThreshold.stepSize
+
+        onRvalueChanged: Fire.threshold = rvalue
     }
 
     // Luma threshold.
     Label {
         text: qsTr("Luma threshold")
     }
-    SpinBox {
+    Slider {
+        id: sldLumaThreshold
         value: Fire.lumaThreshold
-        maximumValue: 255
         stepSize: 1
+        to: 255
+        Layout.fillWidth: true
 
         onValueChanged: Fire.lumaThreshold = value
+    }
+    AkSpinBox {
+        id: spbLumaThreshold
+        rvalue: Fire.lumaThreshold
+        maximumValue: sldLumaThreshold.to
+        step: sldLumaThreshold.stepSize
+
+        onRvalueChanged: Fire.lumaThreshold = rvalue
     }
 
     // Alpha diff.
     Label {
         text: qsTr("Alpha diff")
     }
-    SpinBox {
+    Slider {
+        id: sldAlphaDiff
         value: Fire.alphaDiff
-        minimumValue: -255
-        maximumValue: 255
         stepSize: 1
+        from: -255
+        to: 255
+        Layout.fillWidth: true
 
         onValueChanged: Fire.alphaDiff = value
+    }
+    AkSpinBox {
+        id: spbAlphaDiff
+        rvalue: Fire.alphaDiff
+        minimumValue: sldAlphaDiff.from
+        maximumValue: sldAlphaDiff.to
+        step: sldAlphaDiff.stepSize
+
+        onRvalueChanged: Fire.alphaDiff = rvalue
     }
 
     // Alpha variation.
     Label {
         text: qsTr("Alpha variation")
     }
-    SpinBox {
+    Slider {
+        id: sldAlphaVariation
         value: Fire.alphaVariation
-        maximumValue: 256
         stepSize: 1
+        to: 256
+        Layout.fillWidth: true
 
         onValueChanged: Fire.alphaVariation = value
+    }
+    AkSpinBox {
+        id: spbAlphaVariation
+        rvalue: Fire.alphaVariation
+        maximumValue: sldAlphaVariation.to
+        step: sldAlphaVariation.stepSize
+
+        onRvalueChanged: Fire.alphaVariation = rvalue
     }
 
     // N° of colors.
     Label {
         text: qsTr("N° of colors")
     }
-    SpinBox {
+    Slider {
+        id: sldNColors
         value: Fire.nColors
-        maximumValue: 256
         stepSize: 1
+        to: 256
+        Layout.fillWidth: true
 
         onValueChanged: Fire.nColors = value
+    }
+    AkSpinBox {
+        id: spbNColors
+        rvalue: Fire.nColors
+        maximumValue: sldNColors.to
+        step: sldNColors.stepSize
+
+        onRvalueChanged: Fire.nColors = rvalue
     }
 }

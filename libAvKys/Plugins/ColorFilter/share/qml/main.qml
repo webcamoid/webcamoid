@@ -60,9 +60,13 @@ GridLayout {
         text: qsTr("Color")
     }
     AkColorButton {
-        curColor: fromRgba(ColorFilter.colorf)
+        currentColor: fromRgba(ColorFilter.colorf)
+        title: qsTr("Select the color to filter")
+        modality: Qt.NonModal
+        showAlphaChannel: true
 
-        onClicked: colorDialog.open()
+        onCurrentColorChanged: ColorFilter.colorf = toRgba(currentColor)
+        onIsOpenChanged: ColorFilter.disable = isOpen
     }
     Label {
     }
@@ -102,15 +106,5 @@ GridLayout {
         onCheckedChanged: ColorFilter.soft = checked
     }
     Label {
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Select the color to filter")
-        currentColor: fromRgba(ColorFilter.colorf)
-        showAlphaChannel: true
-
-        onAccepted: ColorFilter.colorf = toRgba(color)
-        onVisibleChanged: ColorFilter.disable = visible
     }
 }

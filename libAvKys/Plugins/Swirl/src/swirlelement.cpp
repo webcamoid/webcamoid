@@ -23,7 +23,7 @@
 
 SwirlElement::SwirlElement(): AkElement()
 {
-    this->m_degrees = 0;
+    this->m_degrees = 60;
 }
 
 qreal SwirlElement::degrees() const
@@ -58,7 +58,7 @@ void SwirlElement::setDegrees(qreal degrees)
 
 void SwirlElement::resetDegrees()
 {
-    this->setDegrees(0);
+    this->setDegrees(60);
 }
 
 AkPacket SwirlElement::iStream(const AkPacket &packet)
