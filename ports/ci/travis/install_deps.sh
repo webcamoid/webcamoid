@@ -50,10 +50,10 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
     if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt58-trusty
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt${PPAQTVER}-trusty
     elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt58-xenial
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt${PPAQTVER}-xenial
     fi
 
     ${EXEC} apt-get -y update
@@ -77,15 +77,14 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-         [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+       [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install \
-            qt58tools \
-            qt58declarative \
-            qt58multimedia \
-            qt58svg \
-            qt58quickcontrols \
-            qt58quickcontrols2 \
-            qt58graphicaleffects
+            qt${PPAQTVER}tools \
+            qt${PPAQTVER}declarative \
+            qt${PPAQTVER}multimedia \
+            qt${PPAQTVER}svg \
+            qt${PPAQTVER}quickcontrols2 \
+            qt${PPAQTVER}graphicaleffects
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
@@ -96,7 +95,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qt-labs-folderlistmodel \
             qml-module-qt-labs-settings \
             qml-module-qtqml-models2 \
-            qml-module-qtquick-controls \
+            qml-module-qtquick-controls2 \
             qml-module-qtquick-dialogs \
             qml-module-qtquick-extras \
             qml-module-qtquick-privatewidgets
@@ -133,7 +132,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qtdeclarative-devel \
         qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
-        qt5-qtquickcontrols \
+        qt5-qtquickcontrols2 \
         qt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer1-plugins-base-devel \
@@ -156,7 +155,7 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-qtdeclarative-devel \
         libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
-        libqt5-qtquickcontrols \
+        libqt5-qtquickcontrols2 \
         libqt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer-plugins-base-devel \

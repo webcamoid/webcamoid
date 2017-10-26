@@ -17,11 +17,11 @@ fi
 BUILDSCRIPT=dockerbuild.sh
 
 if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-     [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+   [ "${DOCKERIMG}" = ubuntu:xenial ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
 
-source /opt/qt58/bin/qt58-env.sh
+source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
 EOF
 
     chmod +x ${BUILDSCRIPT}

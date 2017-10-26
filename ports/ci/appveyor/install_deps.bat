@@ -9,12 +9,11 @@ if "%PLATFORM%" == "x86" (
 )
 
 rem Installing various utilities
-
 choco install -y curl 7zip InnoSetup
-
-if not "%VSVER%" == "" call "C:\Program Files (x86)\Microsoft Visual Studio %VSVER%.0\VC\vcvarsall" %VC_ARGS%
-
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
+
+rem Visual Studio init
+call "%VSINIT%" %VC_ARGS%
 
 rem Install FFmpeg development headers and libraries
 set FFMPEG_DEV_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
