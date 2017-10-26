@@ -38,7 +38,7 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
 
     # Install Qt for Android
-    wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-android-${QTVER}.run
+    wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
     chmod +x qt-opensource-linux-x64-android-${QTVER}.run
     export QT_QPA_PLATFORM=minimal
 
@@ -79,12 +79,12 @@ elif [ "${DOCKERSYS}" = debian ]; then
     if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
        [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install \
-            qt${PPAQTVER}tools \
-            qt${PPAQTVER}declarative \
-            qt${PPAQTVER}multimedia \
-            qt${PPAQTVER}svg \
-            qt${PPAQTVER}quickcontrols2 \
-            qt${PPAQTVER}graphicaleffects
+            qt${PPAQTVER:0:2}tools \
+            qt${PPAQTVER:0:2}declarative \
+            qt${PPAQTVER:0:2}multimedia \
+            qt${PPAQTVER:0:2}svg \
+            qt${PPAQTVER:0:2}quickcontrols2 \
+            qt${PPAQTVER:0:2}graphicaleffects
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
@@ -92,6 +92,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qtmultimedia5-dev \
             libqt5opengl5-dev \
             libqt5svg5-dev \
+            qtquickcontrols2-5-dev \
             qml-module-qt-labs-folderlistmodel \
             qml-module-qt-labs-settings \
             qml-module-qtqml-models2 \
@@ -132,7 +133,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qtdeclarative-devel \
         qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
-        qt5-qtquickcontrols2 \
+        qt5-qtquickcontrols2-devel \
         qt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer1-plugins-base-devel \
@@ -156,6 +157,7 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
         libqt5-qtquickcontrols2 \
+        libQt5QuickControls2-devel \
         libqt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer-plugins-base-devel \

@@ -6,7 +6,7 @@ cache:
 
 env:
   global:
-    - PPAQTVER=59
+    - PPAQTVER=592
     - QTIFWVER=3.0.1
 
 matrix:
@@ -53,20 +53,6 @@ matrix:
     compiler: clang
     env:
       - DOCKERSYS=fedora DOCKERIMG=fedora:26 FEDORAVER=26
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: gcc
-    env:
-      - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.3
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.3
   - os: linux
     sudo: required
     services:

@@ -21,7 +21,7 @@ if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
 
-source /opt/qt${PPAQTVER}/bin/qt${PPAQTVER}-env.sh
+source /opt/qt${PPAQTVER:0:2}/bin/qt${PPAQTVER:0:2}-env.sh
 EOF
 
     chmod +x ${BUILDSCRIPT}
