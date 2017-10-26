@@ -10,7 +10,7 @@ if "%PLATFORM%" == "x86" (
 
 rem Installing various utilities
 choco install -y curl 7zip InnoSetup
-set PATH="%QTDIR%\bin;%TOOLSDIR%\bin;C:\Program Files\7-Zip;C:\Program Files (x86)\Inno Setup 5;%VSPATH%;%PATH%"
+set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;"C:\Program Files\7-Zip;C:\Program Files (x86)\Inno Setup 5";%VSPATH%;%PATH%
 
 rem Visual Studio init
 if not "%VSPATH%" == "" call vcvarsall %VC_ARGS%
