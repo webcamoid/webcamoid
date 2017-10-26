@@ -6,9 +6,10 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     # Install Qt Installer Framework
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-linux-x64.run
     chmod +x QtInstallerFramework-linux-x64.run
-    export QT_QPA_PLATFORM=minimal
 
+    QT_QPA_PLATFORM=minimal \
     ./QtInstallerFramework-linux-x64.run \
+        -v \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
 
@@ -40,9 +41,10 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     # Install Qt for Android
     wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
     chmod +x qt-opensource-linux-x64-${QTVER}.run
-    export QT_QPA_PLATFORM=minimal
 
+    QT_QPA_PLATFORM=minimal \
     ./qt-opensource-linux-x64-${QTVER}.run \
+        -v \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 elif [ "${DOCKERSYS}" = debian ]; then
@@ -186,6 +188,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
     qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
+        -v \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
 
