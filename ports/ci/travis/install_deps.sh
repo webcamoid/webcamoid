@@ -39,10 +39,10 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
 
     # Install Qt for Android
     wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
-    chmod +x qt-opensource-linux-x64-android-${QTVER}.run
+    chmod +x qt-opensource-linux-x64-${QTVER}.run
     export QT_QPA_PLATFORM=minimal
 
-    ./qt-opensource-linux-x64-android-${QTVER}.run \
+    ./qt-opensource-linux-x64-${QTVER}.run \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 elif [ "${DOCKERSYS}" = debian ]; then
