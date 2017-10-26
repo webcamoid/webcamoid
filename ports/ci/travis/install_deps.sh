@@ -85,6 +85,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qt${PPAQTVER:0:2}declarative \
             qt${PPAQTVER:0:2}multimedia \
             qt${PPAQTVER:0:2}svg \
+            qt${PPAQTVER:0:2}quickcontrols \
             qt${PPAQTVER:0:2}quickcontrols2 \
             qt${PPAQTVER:0:2}graphicaleffects
     else
@@ -98,6 +99,7 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qml-module-qt-labs-folderlistmodel \
             qml-module-qt-labs-settings \
             qml-module-qtqml-models2 \
+            qml-module-qtquick-controls \
             qml-module-qtquick-controls2 \
             qml-module-qtquick-dialogs \
             qml-module-qtquick-extras \
@@ -135,6 +137,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qtdeclarative-devel \
         qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
+        qt5-qtquickcontrols \
         qt5-qtquickcontrols2-devel \
         qt5-qtgraphicaleffects \
         ffmpeg-devel \
@@ -158,6 +161,7 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-qtdeclarative-devel \
         libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
+        libqt5-qtquickcontrols \
         libqt5-qtquickcontrols2 \
         libQt5QuickControls2-devel \
         libqt5-qtgraphicaleffects \

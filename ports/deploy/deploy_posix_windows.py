@@ -233,7 +233,7 @@ class Deploy:
             if baseName == 'qmldir' or path.endswith('.qml'):
                 qmlFiles.add(path)
         else:
-            for root, dirs, files in os.walk(os.path.join(self.rootDir, path)):
+            for root, dirs, files in os.walk(path):
                 for f in files:
                     if f == 'qmldir' or f.endswith('.qml'):
                         qmlFiles.add(os.path.join(root, f))

@@ -37,20 +37,17 @@ environment:
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       PLATFORM: x64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC
       MAKETOOL: jom
     - QTDIR: C:\Qt\5.9\msvc2015
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
       MAKETOOL: jom
     - QTDIR: C:\Qt\5.9\msvc2015_64
       TOOLSDIR: C:\Qt\Tools\QtCreator
       QMAKESPEC: win32-msvc
       PLATFORM: x64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       VSPATH: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC
       MAKETOOL: jom
     - QTDIR: C:\Qt\5.9\msvc2017_64
