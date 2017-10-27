@@ -12,7 +12,7 @@ rem Installing various utilities
 choco install -y curl 7zip InnoSetup
 
 rem Visual Studio init
-if not "%VSPATH%" == "" call %VSPATH%\vcvarsall %VC_ARGS%
+if not "%VSPATH%" == "" call "%VSPATH%\vcvarsall" %VC_ARGS%
 
 set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 
