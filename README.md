@@ -31,16 +31,7 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 
 ## Reporting Bugs ##
 
-Use Webcamoid until an abnormal event happen, write a list with the following information:
-
-1. Your Webcamoid version.
-2. Your operating system.
-3. Your Qt version.
-4. Your GCC/Clang version.
-5. Your DE/WM version.
-6. Any other useful information.
-
-Send this list to the [issues page](http://github.com/webcamoid/webcamoid/issues). Please report **ANY** problem you have with Webcamoid in the official website, help to centralize information in one unique place.
+Report all issues in the [issues tracker](http://github.com/webcamoid/webcamoid/issues).
 
 ## Subscribe ##
 
