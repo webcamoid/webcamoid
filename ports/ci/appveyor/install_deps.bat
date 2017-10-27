@@ -8,15 +8,13 @@ if "%PLATFORM%" == "x86" (
     set VC_ARGS=amd64
 )
 
-rem Visual Studio init
-set PATH=%VSPATH%;%PATH%
-
-if not "%VSPATH%" == "" call vcvarsall %VC_ARGS%
-
 rem Installing various utilities
 choco install -y curl 7zip InnoSetup
 
-set PATH=%QTDIR%\bin;%TOOLSDIR%\bin;"C:\Program Files\7-Zip;C:\Program Files (x86)\Inno Setup 5";%PATH%
+rem Visual Studio init
+if not "%VSPATH%" == "" call %VSPATH%\vcvarsall %VC_ARGS%
+
+set PATH=%PATH%;"C:\Program Files\7-Zip";"C:\Program Files (x86)\Inno Setup 5";%QTDIR%\bin;%TOOLSDIR%\bin
 
 rem Install FFmpeg development headers and libraries
 set FFMPEG_DEV_FILE=ffmpeg-%FFMPEG_VERSION%-%FF_ARCH%-dev.zip
