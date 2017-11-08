@@ -42,6 +42,7 @@ QMAKE_CONFIG_TESTS_DIR=$$PWD/Tests
 isEmpty(NOALSA): qtCompileTest(alsa)
 isEmpty(NOAVFOUNDATION): qtCompileTest(avfoundation)
 isEmpty(NOCOREAUDIO): qtCompileTest(coreaudio)
+isEmpty(NOCOREMEDIAIO): qtCompileTest(cmio)
 isEmpty(NODSHOW): qtCompileTest(dshow)
 
 # Test FFmpeg
