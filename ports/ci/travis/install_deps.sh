@@ -195,10 +195,4 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
         -v \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
-
-    # Install Syphon framework
-    wget -c https://github.com/Syphon/Simple/releases/download/version-3/Syphon.Simple.Apps.3.zip
-    unzip Syphon.Simple.Apps.3.zip
-    mkdir -p Syphon
-    cp -Rvf "Syphon Simple Apps/Simple Client.app/Contents/Frameworks/Syphon.framework" ./Syphon
 fi

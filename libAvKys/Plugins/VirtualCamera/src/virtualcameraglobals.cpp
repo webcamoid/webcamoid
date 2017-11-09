@@ -35,8 +35,8 @@ VirtualCameraGlobals::VirtualCameraGlobals(QObject *parent):
 #ifdef Q_OS_WIN32
         "dshow"
 #elif defined(Q_OS_OSX)
-        "avfoundation"
-#else
+        "cmio"
+|#else
         "v4l2out"
 #endif
     };

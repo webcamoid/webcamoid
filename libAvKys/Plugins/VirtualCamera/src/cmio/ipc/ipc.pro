@@ -16,17 +16,29 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-!isEmpty(SYPHONINCLUDES): INCLUDEPATH += $${SYPHONINCLUDES}
-
-isEmpty(SYPHONLIBS) {
-    LIBS += -framework Syphon
+exists(commons.pri) {
+    include(commons.pri)
 } else {
-    LIBS += $${SYPHONLIBS}
+    exists(../../../../../commons.pri) {
+        include(../../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
 }
 
-LIBS += -framework Foundation
+CONFIG += staticlib c++11
+CONFIG -= qt
 
-OBJECTIVE_SOURCES = \
-    test.mm
+DESTDIR = $${OUT_PWD}
 
-TARGET = test_auto
+TARGET = "ipc"
+
+TEMPLATE = lib
+
+SOURCES = \
+    src/videoformat.cpp \
+    src/ipcbridge.cpp
+
+HEADERS =  \
+    src/videoformat.h \
+    src/ipcbridge.h
