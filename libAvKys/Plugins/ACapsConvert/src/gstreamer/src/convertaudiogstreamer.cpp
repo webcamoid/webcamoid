@@ -292,10 +292,10 @@ void ConvertAudioGStreamer::waitState(GstState state)
 {
     forever {
         GstState curState;
-        GstStateChangeReturn ret = gst_element_get_state(this->m_pipeline,
-                                                         &curState,
-                                                         nullptr,
-                                                         GST_CLOCK_TIME_NONE);
+        auto ret = gst_element_get_state(this->m_pipeline,
+                                         &curState,
+                                         nullptr,
+                                         GST_CLOCK_TIME_NONE);
 
         if (ret == GST_STATE_CHANGE_FAILURE)
             break;

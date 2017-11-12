@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QSettings>
+#include <QProcess>
 #include <QFileInfo>
 #include <akvideopacket.h>
 
@@ -29,26 +29,21 @@ CameraOutCMIO::CameraOutCMIO(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
-    this->m_passwordTimeout = 5000;
+    this->m_ipcBridge.cleanDevices();
 }
 
 CameraOutCMIO::~CameraOutCMIO()
 {
 }
 
-QString CameraOutCMIO::driverPath() const
-{
-    return this->m_driverPath;
-}
-
 QStringList CameraOutCMIO::webcams() const
 {
-    return {};
-}
+    QStringList webcams;
 
-QString CameraOutCMIO::device() const
-{
-    return this->m_device;
+    for (auto &device: this->m_ipcBridge.listDevices(false))
+        webcams << QString::fromStdString(device);
+
+    return webcams;
 }
 
 int CameraOutCMIO::streamIndex() const
@@ -56,20 +51,33 @@ int CameraOutCMIO::streamIndex() const
     return this->m_streamIndex;
 }
 
-AkCaps CameraOutCMIO::caps() const
-{
-    return this->m_caps;
-}
-
 QString CameraOutCMIO::description(const QString &webcam) const
 {
-    Q_UNUSED(webcam)
+    for (auto &device: this->m_ipcBridge.listDevices(false)) {
+        auto deviceId = QString::fromStdString(device);
 
-    return QString();
+        if (deviceId == webcam)
+            return deviceId;
+    }
+
+    return {};
 }
+
 void CameraOutCMIO::writeFrame(const AkPacket &frame)
 {
-    Q_UNUSED(frame)
+    if (this->m_curDevice.isEmpty())
+        return;
+
+    AkVideoPacket videoFrame(frame);
+
+    VideoFormat format(videoFrame.caps().fourCC(),
+                       videoFrame.caps().width(),
+                       videoFrame.caps().height(),
+                       qRound(videoFrame.caps().fps().value()));
+
+    this->m_ipcBridge.write(this->m_curDevice.toStdString(),
+                            format,
+                            videoFrame.buffer().constData());
 }
 
 int CameraOutCMIO::maxCameras() const
@@ -77,48 +85,81 @@ int CameraOutCMIO::maxCameras() const
     return MAX_CAMERAS;
 }
 
-bool CameraOutCMIO::needRoot() const
-{
-    return false;
-}
-
-int CameraOutCMIO::passwordTimeout() const
-{
-    return this->m_passwordTimeout;
-}
-
-QString CameraOutCMIO::rootMethod() const
-{
-    return this->m_rootMethod;
-}
-
 QString CameraOutCMIO::createWebcam(const QString &description,
-                                     const QString &password)
+                                    const QString &password)
 {
-    Q_UNUSED(description)
     Q_UNUSED(password)
 
-    return QString();
+    if (!QFileInfo(this->m_driverPath).exists())
+        return QString();
+
+    auto webcams = this->webcams();
+
+    if (!webcams.isEmpty())
+        return QString();
+
+    QString plugin = QFileInfo(this->m_driverPath).fileName();
+    QString dstPath = "/Library/CoreMediaIO/Plug-Ins/DAL";
+    QString rm = "rm -vf " + dstPath + "/" + plugin;
+    QString cp = "cp -vf '" + this->m_driverPath + "' " + dstPath;
+
+    if (!this->sudo(rm + ";" + cp))
+        return QString();
+
+    AkVideoCaps caps(this->m_caps);
+
+    this->m_ipcBridge.deviceCreate({{caps.fourCC(),
+                                     caps.width(), caps.height(),
+                                     qRound(caps.fps().value())}},
+                                   description.toStdString());
+
+    auto curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
+
+    return curWebcams.isEmpty()? QString(): curWebcams.first();
 }
 
 bool CameraOutCMIO::changeDescription(const QString &webcam,
-                                       const QString &description,
-                                       const QString &password) const
+                                      const QString &description,
+                                      const QString &password)
 {
-    Q_UNUSED(webcam)
-    Q_UNUSED(description)
     Q_UNUSED(password)
 
-    return false;
+    QStringList webcams = this->webcams();
+
+    if (!webcams.contains(webcam))
+        return false;
+
+    this->m_ipcBridge.setDescription(webcam.toStdString(),
+                                     description.toStdString());
+
+    emit this->webcamsChanged(webcams);
+
+    return true;
 }
 
 bool CameraOutCMIO::removeWebcam(const QString &webcam,
-                                  const QString &password)
+                                 const QString &password)
 {
-    Q_UNUSED(webcam)
     Q_UNUSED(password)
 
-    return false;
+    QStringList webcams = this->webcams();
+
+    if (!webcams.contains(webcam))
+        return false;
+
+    QString plugin = QFileInfo(this->m_driverPath).fileName();
+    QString dstPath = "/Library/CoreMediaIO/Plug-Ins/DAL";
+    QString rm = "rm -vf " + dstPath + "/" + plugin;
+
+    if (!this->sudo(rm))
+        return false;
+
+    emit this->webcamsChanged(QStringList());
+
+    return true;
 }
 
 bool CameraOutCMIO::removeAllWebcams(const QString &password)
@@ -131,83 +172,50 @@ bool CameraOutCMIO::removeAllWebcams(const QString &password)
     return true;
 }
 
-bool CameraOutCMIO::sudo(const QString &command,
-                          const QString &params,
-                          const QString &dir,
-                          bool hide) const
+bool CameraOutCMIO::sudo(const QString &command) const
 {
-    Q_UNUSED(command)
-    Q_UNUSED(params)
-    Q_UNUSED(dir)
-    Q_UNUSED(hide)
+    QProcess su;
+    su.start("osascript",
+             {"-e",
+              "do shell script \""
+              + command
+              + "\" with administrator privileges"});
+    su.waitForFinished(-1);
 
-    return false;
+    if (su.exitCode()) {
+        QByteArray outMsg = su.readAllStandardOutput();
+
+        if (!outMsg.isEmpty())
+            qDebug() << outMsg.toStdString().c_str();
+
+        QByteArray errorMsg = su.readAllStandardError();
+
+        if (!errorMsg.isEmpty())
+            qDebug() << errorMsg.toStdString().c_str();
+
+        return false;
+    }
+
+    return true;
 }
 
-bool CameraOutCMIO::init(int streamIndex, const AkCaps &caps)
+bool CameraOutCMIO::init(int streamIndex)
 {
-    this->m_streamIndex = streamIndex;
-    this->m_caps = caps;
+    if (!this->m_ipcBridge.deviceStart(this->m_device.toStdString()))
+        return false;
 
-    return false;
+    this->m_streamIndex = streamIndex;
+    this->m_curDevice = this->m_device;
+
+    return true;
 }
 
 void CameraOutCMIO::uninit()
 {
-}
-
-void CameraOutCMIO::setDriverPath(const QString &driverPath)
-{
-    if (this->m_driverPath == driverPath)
+    if (this->m_curDevice.isEmpty())
         return;
 
-    this->m_driverPath = driverPath;
-    emit this->driverPathChanged(driverPath);
-}
-
-void CameraOutCMIO::setDevice(const QString &device)
-{
-    if (this->m_device == device)
-        return;
-
-    this->m_device = device;
-    emit this->deviceChanged(device);
-}
-
-void CameraOutCMIO::setPasswordTimeout(int passwordTimeout)
-{
-    if (this->m_passwordTimeout == passwordTimeout)
-        return;
-
-    this->m_passwordTimeout = passwordTimeout;
-    emit this->passwordTimeoutChanged(passwordTimeout);
-}
-
-void CameraOutCMIO::setRootMethod(const QString &rootMethod)
-{
-    if (this->m_rootMethod == rootMethod)
-        return;
-
-    this->m_rootMethod = rootMethod;
-    emit this->rootMethodChanged(rootMethod);
-}
-
-void CameraOutCMIO::resetDriverPath()
-{
-    this->setDriverPath("");
-}
-
-void CameraOutCMIO::resetDevice()
-{
-    this->setDevice("");
-}
-
-void CameraOutCMIO::resetPasswordTimeout()
-{
-    this->setPasswordTimeout(5000);
-}
-
-void CameraOutCMIO::resetRootMethod()
-{
-    this->setRootMethod("");
+    this->m_ipcBridge.deviceStop(this->m_curDevice.toStdString());
+    this->m_streamIndex = -1;
+    this->m_curDevice.clear();
 }

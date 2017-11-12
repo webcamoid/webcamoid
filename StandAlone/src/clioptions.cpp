@@ -68,6 +68,12 @@ CliOptions::CliOptions():
                                    "PATH1;PATH2;PATH3;...");
     this->addOption(*this->m_blackListOpt);
 
+    this->m_vcamPathOpt =
+            new QCommandLineOption(QString("vcam"),
+                                   QObject::tr("virtual camera driver path"),
+                                   "PATH", "");
+    this->addOption(*this->m_vcamPathOpt);
+
     this->process(*QCoreApplication::instance());
 
     // Set path for loading user settings.
@@ -93,6 +99,7 @@ CliOptions::~CliOptions()
     delete this->m_recursiveOpt;
     delete this->m_pluginPathsOpt;
     delete this->m_blackListOpt;
+    delete this->m_vcamPathOpt;
 }
 
 QCommandLineOption CliOptions::configPathOpt() const
@@ -118,6 +125,11 @@ QCommandLineOption CliOptions::pluginPathsOpt() const
 QCommandLineOption CliOptions::blackListOpt() const
 {
     return *this->m_blackListOpt;
+}
+
+QCommandLineOption CliOptions::vcamPathOpt() const
+{
+    return *this->m_vcamPathOpt;
 }
 
 QString CliOptions::convertToAbsolute(const QString &path) const

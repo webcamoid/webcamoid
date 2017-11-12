@@ -21,6 +21,7 @@
 #define CAMERAOUTCMIO_H
 
 #include "cameraout.h"
+#include "ipcbridge.h"
 
 class CameraOutCMIO: public CameraOut
 {
@@ -30,51 +31,31 @@ class CameraOutCMIO: public CameraOut
         explicit CameraOutCMIO(QObject *parent=nullptr);
         ~CameraOutCMIO();
 
-        Q_INVOKABLE QString driverPath() const;
         Q_INVOKABLE QStringList webcams() const;
-        Q_INVOKABLE QString device() const;
         Q_INVOKABLE int streamIndex() const;
-        Q_INVOKABLE AkCaps caps() const;
         Q_INVOKABLE QString description(const QString &webcam) const;
         Q_INVOKABLE void writeFrame(const AkPacket &frame);
         Q_INVOKABLE int maxCameras() const;
-        Q_INVOKABLE bool needRoot() const;
-        Q_INVOKABLE int passwordTimeout() const;
-        Q_INVOKABLE QString rootMethod() const;
         Q_INVOKABLE QString createWebcam(const QString &description,
                                          const QString &password);
         Q_INVOKABLE bool changeDescription(const QString &webcam,
                                            const QString &description,
-                                           const QString &password) const;
+                                           const QString &password);
         Q_INVOKABLE bool removeWebcam(const QString &webcam,
                                       const QString &password);
         Q_INVOKABLE bool removeAllWebcams(const QString &password);
 
     private:
-        QString m_driverPath;
         QStringList m_webcams;
-        QString m_device;
         int m_streamIndex;
-        AkCaps m_caps;
-        int m_passwordTimeout;
-        QString m_rootMethod;
+        QString m_curDevice;
+        IpcBridge m_ipcBridge;
 
-        bool sudo(const QString &command,
-                  const QString &params,
-                  const QString &dir=QString(),
-                  bool hide=false) const;
+        bool sudo(const QString &command) const;
 
     public slots:
-        bool init(int streamIndex, const AkCaps &caps);
+        bool init(int streamIndex);
         void uninit();
-        void setDriverPath(const QString &driverPath);
-        void setDevice(const QString &device);
-        void setPasswordTimeout(int passwordTimeout);
-        void setRootMethod(const QString &rootMethod);
-        void resetDriverPath();
-        void resetDevice();
-        void resetPasswordTimeout();
-        void resetRootMethod();
 };
 
 #endif // CAMERAOUTCMIO_H

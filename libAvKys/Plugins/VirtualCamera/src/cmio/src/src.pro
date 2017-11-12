@@ -33,10 +33,9 @@ HEADERS = \
     cameraoutcmio.h \
     ../../cameraout.h
 
-#INCLUDEPATH += \
-#    ../ipc/src
 
 INCLUDEPATH += \
+    ../ipc/src \
     ../../../../../Lib/src \
     ../../
 
@@ -44,10 +43,8 @@ LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
 
 OTHER_FILES += ../pspec.json
 
-#LIBS += \
-#    -L$${OUT_PWD}/../ipc -lipc
-
 LIBS += \
+    -L$${OUT_PWD}/../ipc -lipc \
     -framework CoreFoundation \
     -framework CoreMedia \
     -framework CoreMediaIO \

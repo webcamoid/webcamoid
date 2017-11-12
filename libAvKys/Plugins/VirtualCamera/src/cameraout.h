@@ -41,7 +41,10 @@ class CameraOut: public QObject
     Q_PROPERTY(int streamIndex
                READ streamIndex)
     Q_PROPERTY(AkCaps caps
-               READ caps)
+               READ caps
+               WRITE setCaps
+               RESET resetCaps
+               NOTIFY capsChanged)
     Q_PROPERTY(int maxCameras
                READ maxCameras)
     Q_PROPERTY(bool needRoot
@@ -77,29 +80,39 @@ class CameraOut: public QObject
                                                  const QString &password="");
         Q_INVOKABLE virtual bool changeDescription(const QString &webcam,
                                                    const QString &description="",
-                                                   const QString &password="") const;
+                                                   const QString &password="");
         Q_INVOKABLE virtual bool removeWebcam(const QString &webcam,
                                               const QString &password="");
         Q_INVOKABLE virtual bool removeAllWebcams(const QString &password="");
+
+    protected:
+        QString m_driverPath;
+        QString m_device;
+        AkCaps m_caps;
+        int m_passwordTimeout;
+        QString m_rootMethod;
 
     signals:
         void driverPathChanged(const QString &driverPath);
         void webcamsChanged(const QStringList &webcams) const;
         void deviceChanged(const QString &device);
+        void capsChanged(const AkCaps &caps);
         void needRootChanged(bool needRoot);
         void passwordTimeoutChanged(int passwordTimeout);
-        void rootMethodChanged(QString rootMethod);
+        void rootMethodChanged(const QString &rootMethod);
         void error(const QString &message);
 
     public slots:
-        virtual bool init(int streamIndex, const AkCaps &caps);
+        virtual bool init(int streamIndex);
         virtual void uninit();
         virtual void setDriverPath(const QString &driverPath);
         virtual void setDevice(const QString &device);
+        virtual void setCaps(const AkCaps &caps);
         virtual void setPasswordTimeout(int passwordTimeout);
         virtual void setRootMethod(const QString &rootMethod);
         virtual void resetDriverPath();
         virtual void resetDevice();
+        virtual void resetCaps();
         virtual void resetPasswordTimeout();
         virtual void resetRootMethod();
 };

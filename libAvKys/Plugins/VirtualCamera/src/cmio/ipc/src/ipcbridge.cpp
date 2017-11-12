@@ -34,61 +34,87 @@ IpcBridge::~IpcBridge()
     delete this->d;
 }
 
-std::string IpcBridge::listServers() const
+void IpcBridge::cleanDevices()
 {
 
 }
 
-std::string IpcBridge::deviceId(const std::string &server) const
+std::vector<std::string> IpcBridge::listDevices(bool all) const
 {
-
+    return {};
 }
 
-std::string IpcBridge::serverCreate(const std::vector<VideoFormat> &formats,
+std::string IpcBridge::description(const std::string &deviceId) const
+{
+    return {};
+}
+
+std::string IpcBridge::deviceCreate(const std::vector<VideoFormat> &formats,
                                     const std::string &description)
 {
-
+    return {};
 }
 
-void IpcBridge::serverDestroy(const std::string &server)
+void IpcBridge::deviceDestroy(const std::string &deviceId)
 {
 
 }
 
-void IpcBridge::write(const std::string &server,
+bool IpcBridge::deviceStart(const std::string &deviceId)
+{
+    return false;
+}
+
+void IpcBridge::deviceStop(const std::string &deviceId)
+{
+
+}
+
+void IpcBridge::write(const std::string &deviceId,
                       const VideoFormat &format,
                       const void *data)
 {
 
 }
 
-void IpcBridge::cleanServers()
+void IpcBridge::setDescription(const std::string &deviceId,
+                               const std::string &description)
 {
 
 }
 
-bool IpcBridge::serverOpen(const std::string &server)
+void IpcBridge::setFormats(const std::string &deviceId, const std::vector<VideoFormat> &formats)
 {
 
 }
 
-bool IpcBridge::serverClose(const std::string &server)
+bool IpcBridge::deviceOpen(const std::string &deviceId)
+{
+    return false;
+}
+
+bool IpcBridge::deviceClose(const std::string &deviceId)
+{
+    return false;
+}
+
+void IpcBridge::setFrameReadCallback(const std::string &deviceId,
+                                     FrameReadCallback callback)
 {
 
 }
 
-void IpcBridge::setFrameReadCallback(const std::string &server,
-                                     IpcBridge::FrameReadCallback callback)
+void IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)
 {
 
 }
 
-void IpcBridge::setServerAddedCallback(IpcBridge::ServerAddedCallback callback)
+void IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
 {
 
 }
 
-void IpcBridge::setServerRemovedCallback(IpcBridge::ServerRemovedCallback callback)
+void IpcBridge::setDeviceModifiedCallback(DeviceChangedCallback callback)
 {
 
 }

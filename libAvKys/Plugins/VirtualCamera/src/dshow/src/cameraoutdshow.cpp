@@ -30,16 +30,10 @@ CameraOutDShow::CameraOutDShow(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
-    this->m_passwordTimeout = 5000;
 }
 
 CameraOutDShow::~CameraOutDShow()
 {
-}
-
-QString CameraOutDShow::driverPath() const
-{
-    return this->m_driverPath;
 }
 
 QStringList CameraOutDShow::webcams() const
@@ -121,19 +115,9 @@ QStringList CameraOutDShow::webcams() const
     return webcams;
 }
 
-QString CameraOutDShow::device() const
-{
-    return this->m_device;
-}
-
 int CameraOutDShow::streamIndex() const
 {
     return this->m_streamIndex;
-}
-
-AkCaps CameraOutDShow::caps() const
-{
-    return this->m_caps;
 }
 
 QString CameraOutDShow::description(const QString &webcam) const
@@ -210,21 +194,6 @@ int CameraOutDShow::maxCameras() const
     return MAX_CAMERAS;
 }
 
-bool CameraOutDShow::needRoot() const
-{
-    return false;
-}
-
-int CameraOutDShow::passwordTimeout() const
-{
-    return this->m_passwordTimeout;
-}
-
-QString CameraOutDShow::rootMethod() const
-{
-    return this->m_rootMethod;
-}
-
 QString CameraOutDShow::createWebcam(const QString &description,
                                      const QString &password)
 {
@@ -266,7 +235,7 @@ QString CameraOutDShow::createWebcam(const QString &description,
 
 bool CameraOutDShow::changeDescription(const QString &webcam,
                                        const QString &description,
-                                       const QString &password) const
+                                       const QString &password)
 {
     Q_UNUSED(password)
 
@@ -417,10 +386,9 @@ bool CameraOutDShow::sudo(const QString &command,
     return true;
 }
 
-bool CameraOutDShow::init(int streamIndex, const AkCaps &caps)
+bool CameraOutDShow::init(int streamIndex)
 {
     this->m_streamIndex = streamIndex;
-    this->m_caps = caps;
 
     return this->m_ipcBridge.open(IPC_FILE_NAME, IpcBridge::Write);
 }
@@ -428,60 +396,4 @@ bool CameraOutDShow::init(int streamIndex, const AkCaps &caps)
 void CameraOutDShow::uninit()
 {
     this->m_ipcBridge.close();
-}
-
-void CameraOutDShow::setDriverPath(const QString &driverPath)
-{
-    if (this->m_driverPath == driverPath)
-        return;
-
-    this->m_driverPath = driverPath;
-    emit this->driverPathChanged(driverPath);
-}
-
-void CameraOutDShow::setDevice(const QString &device)
-{
-    if (this->m_device == device)
-        return;
-
-    this->m_device = device;
-    emit this->deviceChanged(device);
-}
-
-void CameraOutDShow::setPasswordTimeout(int passwordTimeout)
-{
-    if (this->m_passwordTimeout == passwordTimeout)
-        return;
-
-    this->m_passwordTimeout = passwordTimeout;
-    emit this->passwordTimeoutChanged(passwordTimeout);
-}
-
-void CameraOutDShow::setRootMethod(const QString &rootMethod)
-{
-    if (this->m_rootMethod == rootMethod)
-        return;
-
-    this->m_rootMethod = rootMethod;
-    emit this->rootMethodChanged(rootMethod);
-}
-
-void CameraOutDShow::resetDriverPath()
-{
-    this->setDriverPath("");
-}
-
-void CameraOutDShow::resetDevice()
-{
-    this->setDevice("");
-}
-
-void CameraOutDShow::resetPasswordTimeout()
-{
-    this->setPasswordTimeout(5000);
-}
-
-void CameraOutDShow::resetRootMethod()
-{
-    this->setRootMethod("");
 }

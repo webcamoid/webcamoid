@@ -165,8 +165,8 @@
 <context>
     <name>CameraOutV4L2</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="285"/>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="339"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="259"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="313"/>
         <source>Virtual Camera %1</source>
         <translation>Virtuaalne kaamera %1</translation>
     </message>
@@ -492,6 +492,11 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="66"/>
         <source>Semi-colon separated list of paths to avoid loading.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/clioptions.cpp" line="73"/>
+        <source>virtual camera driver path</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -80,7 +80,7 @@ GridLayout {
         AkButton {
             label: qsTr("Add")
             icon: "image://icons/add"
-            enabled: cbxDevices.count < VirtualCamera.maxCameras
+            enabled: VirtualCamera.medias.length < VirtualCamera.maxCameras
 
             onClicked: {
                 glyCommitChanges.operation = "add"
@@ -91,7 +91,7 @@ GridLayout {
         AkButton {
             label: qsTr("Edit")
             icon: "image://icons/edit"
-            enabled: cbxDevices.count > 0
+            enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
                 glyCommitChanges.operation = "edit"
@@ -104,7 +104,7 @@ GridLayout {
         AkButton {
             label: qsTr("Remove")
             icon: "image://icons/remove"
-            enabled: cbxDevices.count > 0
+            enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
                 glyCommitChanges.operation = "remove"
@@ -115,7 +115,7 @@ GridLayout {
         AkButton {
             label: qsTr("Remove All")
             icon: "image://icons/remove"
-            enabled: cbxDevices.count > 0
+            enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
                 glyCommitChanges.operation = "removeAll"

@@ -34,6 +34,8 @@ class CliOptions: public QCommandLineParser
                READ pluginPathsOpt)
     Q_PROPERTY(QCommandLineOption blackListOpt
                READ blackListOpt)
+    Q_PROPERTY(QCommandLineOption vcamPathOpt
+               READ vcamPathOpt)
 
     public:
         explicit CliOptions();
@@ -44,6 +46,7 @@ class CliOptions: public QCommandLineParser
         Q_INVOKABLE QCommandLineOption recursiveOpt() const;
         Q_INVOKABLE QCommandLineOption pluginPathsOpt() const;
         Q_INVOKABLE QCommandLineOption blackListOpt() const;
+        Q_INVOKABLE QCommandLineOption vcamPathOpt() const;
 
     private:
         QCommandLineOption *m_configPathOpt;
@@ -51,6 +54,7 @@ class CliOptions: public QCommandLineParser
         QCommandLineOption *m_recursiveOpt;
         QCommandLineOption *m_pluginPathsOpt;
         QCommandLineOption *m_blackListOpt;
+        QCommandLineOption *m_vcamPathOpt;
 
         QString convertToAbsolute(const QString &path) const;
 };

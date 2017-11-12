@@ -19,8 +19,11 @@
 
 #include "cameraout.h"
 
+#define PASSWORD_TIMEOUT 2500
+
 CameraOut::CameraOut(QObject *parent):
-    QObject(parent)
+    QObject(parent),
+    m_passwordTimeout(PASSWORD_TIMEOUT)
 {
 }
 
@@ -30,7 +33,7 @@ CameraOut::~CameraOut()
 
 QString CameraOut::driverPath() const
 {
-    return QString();
+    return this->m_driverPath;
 }
 
 QStringList CameraOut::webcams() const
@@ -40,7 +43,7 @@ QStringList CameraOut::webcams() const
 
 QString CameraOut::device() const
 {
-    return QString();
+    return this->m_device;
 }
 
 int CameraOut::streamIndex() const
@@ -50,7 +53,7 @@ int CameraOut::streamIndex() const
 
 AkCaps CameraOut::caps() const
 {
-    return AkCaps();
+    return this->m_caps;
 }
 
 QString CameraOut::description(const QString &webcam) const
@@ -77,12 +80,12 @@ bool CameraOut::needRoot() const
 
 int CameraOut::passwordTimeout() const
 {
-    return 2500;
+    return this->m_passwordTimeout;
 }
 
 QString CameraOut::rootMethod() const
 {
-    return QString();
+    return this->m_rootMethod;
 }
 
 QString CameraOut::createWebcam(const QString &description,
@@ -96,7 +99,7 @@ QString CameraOut::createWebcam(const QString &description,
 
 bool CameraOut::changeDescription(const QString &webcam,
                                   const QString &description,
-                                  const QString &password) const
+                                  const QString &password)
 {
     Q_UNUSED(webcam)
     Q_UNUSED(description)
@@ -121,10 +124,9 @@ bool CameraOut::removeAllWebcams(const QString &password)
     return true;
 }
 
-bool CameraOut::init(int streamIndex, const AkCaps &caps)
+bool CameraOut::init(int streamIndex)
 {
     Q_UNUSED(streamIndex)
-    Q_UNUSED(caps)
 
     return false;
 }
@@ -135,36 +137,70 @@ void CameraOut::uninit()
 
 void CameraOut::setDriverPath(const QString &driverPath)
 {
-    Q_UNUSED(driverPath)
+    if (this->m_driverPath == driverPath)
+        return;
+
+    this->m_driverPath = driverPath;
+    emit this->driverPathChanged(this->m_driverPath);
 }
 
 void CameraOut::setDevice(const QString &device)
 {
-    Q_UNUSED(device)
+    if (this->m_device == device)
+        return;
+
+    this->m_device = device;
+    emit this->deviceChanged(this->m_device);
+}
+
+void CameraOut::setCaps(const AkCaps &caps)
+{
+    if (this->m_caps == caps)
+        return;
+
+    this->m_caps = caps;
+    emit this->capsChanged(this->m_caps);
 }
 
 void CameraOut::setPasswordTimeout(int passwordTimeout)
 {
-    Q_UNUSED(passwordTimeout)
+    if (this->m_passwordTimeout == passwordTimeout)
+        return;
+
+    this->m_passwordTimeout = passwordTimeout;
+    emit this->passwordTimeoutChanged(this->m_passwordTimeout);
 }
 
 void CameraOut::setRootMethod(const QString &rootMethod)
 {
-    Q_UNUSED(rootMethod)
+    if (this->m_rootMethod == rootMethod)
+        return;
+
+    this->m_rootMethod = rootMethod;
+    emit this->rootMethodChanged(this->m_rootMethod);
 }
 
 void CameraOut::resetDriverPath()
 {
+    this->setDriverPath("");
 }
 
 void CameraOut::resetDevice()
 {
+    this->setDevice("");
+}
+
+void CameraOut::resetCaps()
+{
+    this->setCaps(AkCaps());
 }
 
 void CameraOut::resetPasswordTimeout()
 {
+    this->setPasswordTimeout(PASSWORD_TIMEOUT);
 }
 
 void CameraOut::resetRootMethod()
 {
+    this->setRootMethod("");
 }

@@ -36,7 +36,7 @@ VirtualCameraGlobals::VirtualCameraGlobals(QObject *parent):
         "dshow"
 #elif defined(Q_OS_OSX)
         "cmio"
-|#else
+#else
         "v4l2out"
 #endif
     };
