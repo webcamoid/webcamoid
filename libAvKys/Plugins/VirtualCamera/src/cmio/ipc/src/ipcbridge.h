@@ -20,6 +20,7 @@
 #ifndef IPCBRIDGE_H
 #define IPCBRIDGE_H
 
+#include <string>
 #include <vector>
 #include <functional>
 

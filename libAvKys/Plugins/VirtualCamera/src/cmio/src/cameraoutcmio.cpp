@@ -17,18 +17,23 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QProcess>
 #include <QFileInfo>
+#include <QDir>
 #include <akvideopacket.h>
 
 #include "cameraoutcmio.h"
 
 #define MAX_CAMERAS 1
+#define VCAM_DRIVER "../Resources/AkVirtualCamera.plugin"
 
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+    this->m_driverPath = applicationDir.absoluteFilePath(VCAM_DRIVER);
     this->m_ipcBridge.cleanDevices();
 }
 
@@ -218,4 +223,10 @@ void CameraOutCMIO::uninit()
     this->m_ipcBridge.deviceStop(this->m_curDevice.toStdString());
     this->m_streamIndex = -1;
     this->m_curDevice.clear();
+}
+
+void CameraOutCMIO::resetDriverPath()
+{
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+    this->setDriverPath(applicationDir.absoluteFilePath(VCAM_DRIVER));
 }

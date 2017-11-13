@@ -56,6 +56,7 @@ class CameraOutCMIO: public CameraOut
     public slots:
         bool init(int streamIndex);
         void uninit();
+        void resetDriverPath();
 };
 
 #endif // CAMERAOUTCMIO_H

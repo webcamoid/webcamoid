@@ -65,6 +65,7 @@ class CameraOutDShow: public CameraOut
     public slots:
         bool init(int streamIndex);
         void uninit();
+        void resetDriverPath();
 };
 
 #endif // CAMERAOUTDSHOW_H

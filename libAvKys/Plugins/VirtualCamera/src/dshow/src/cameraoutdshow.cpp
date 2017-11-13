@@ -17,19 +17,24 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QCoreApplication>
 #include <QSettings>
 #include <QFileInfo>
+#include <QDir>
 #include <filtercommons.h>
 #include <akvideopacket.h>
 
 #include "cameraoutdshow.h"
 
 #define MAX_CAMERAS 1
+#define VCAM_DRIVER "VirtualCameraSource.dll"
 
 CameraOutDShow::CameraOutDShow(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+    this->m_driverPath = applicationDir.absoluteFilePath(VCAM_DRIVER);
 }
 
 CameraOutDShow::~CameraOutDShow()
@@ -396,4 +401,10 @@ bool CameraOutDShow::init(int streamIndex)
 void CameraOutDShow::uninit()
 {
     this->m_ipcBridge.close();
+}
+
+void CameraOutDShow::resetDriverPath()
+{
+    QDir applicationDir(QCoreApplication::applicationDirPath());
+    this->setDriverPath(applicationDir.absoluteFilePath(VCAM_DRIVER));
 }

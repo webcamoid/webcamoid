@@ -106,6 +106,7 @@ class MediaTools: public QObject
         bool m_enableVirtualCamera;
         AkElementPtr m_virtualCamera;
         QSystemTrayIcon *m_trayIcon;
+        CliOptions m_cliOptions;
 
         bool embedInterface(QQmlApplicationEngine *engine,
                             QObject *ctrlInterface,
