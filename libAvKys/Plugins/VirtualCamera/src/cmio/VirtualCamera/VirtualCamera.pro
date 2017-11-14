@@ -27,13 +27,20 @@ exists(commons.pri) {
 }
 
 CONFIG -= qt
-CONFIG += unversioned_libname unversioned_soname
+CONFIG += \
+    unversioned_libname \
+    unversioned_soname \
+    resources
 
 debug {
     DEFINES += QT_DEBUG
 }
 
+INCLUDEPATH += \
+    ../resources/src
+
 LIBS = \
+    -L../resources -lresources \
     -framework CoreFoundation \
     -framework CoreMedia \
     -framework CoreMediaIO \
@@ -70,6 +77,9 @@ SOURCES += \
     src/objectproperties.cpp \
     src/videoformat.cpp \
     src/clock.cpp
+
+RESOURCES += \
+    ../../../TestFrame.qrc
 
 OTHER_FILES = \
     Info.plist

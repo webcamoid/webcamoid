@@ -105,8 +105,8 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 
     QString plugin = QFileInfo(this->m_driverPath).fileName();
     QString dstPath = "/Library/CoreMediaIO/Plug-Ins/DAL";
-    QString rm = "rm -vf " + dstPath + "/" + plugin;
-    QString cp = "cp -vf '" + this->m_driverPath + "' " + dstPath;
+    QString rm = "rm -rvf " + dstPath + "/" + plugin;
+    QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
 
     if (!this->sudo(rm + ";" + cp))
         return QString();
@@ -157,7 +157,7 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
 
     QString plugin = QFileInfo(this->m_driverPath).fileName();
     QString dstPath = "/Library/CoreMediaIO/Plug-Ins/DAL";
-    QString rm = "rm -vf " + dstPath + "/" + plugin;
+    QString rm = "rm -rvf " + dstPath + "/" + plugin;
 
     if (!this->sudo(rm))
         return false;

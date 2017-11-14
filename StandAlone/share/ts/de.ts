@@ -627,6 +627,19 @@
     </message>
 </context>
 <context>
+    <name>TestFrame</name>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/TestFrame/TestFrame.qml" line="58"/>
+        <source>Webcamoid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/TestFrame/TestFrame.qml" line="66"/>
+        <source>The ultimate webcam suite!</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>UpdatesConfig</name>
     <message>
         <location filename="../qml/UpdatesConfig.qml" line="68"/>

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/VirtualCamera">
+        <file>share/TestFrame/TestFrame.bmp</file>
+    </qresource>
+</RCC>
