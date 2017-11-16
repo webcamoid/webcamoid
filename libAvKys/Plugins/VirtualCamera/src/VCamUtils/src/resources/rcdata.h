@@ -17,20 +17,21 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef RCDATA_H
+#define RCDATA_H
 
-#include <string>
-#include <CoreMediaIO/CMIOHardwarePlugIn.h>
-
-#ifndef UNUSED
-    #define UNUSED(x) (void)(x);
-#endif
+#include <cstdint>
 
 namespace AkVCam
 {
-    bool uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2);
-    std::string enumToString(UInt32 value);
+    struct RcData
+    {
+        uint32_t m_size;
+        const unsigned char *m_data;
+
+        uint32_t size() const;
+        static RcData read(const unsigned char *rcData);
+    };
 }
 
-#endif // UTILS_H
+#endif // RCDATA_H

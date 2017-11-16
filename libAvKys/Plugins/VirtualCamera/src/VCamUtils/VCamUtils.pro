@@ -26,45 +26,30 @@ exists(commons.pri) {
     }
 }
 
-CONFIG += plugin
+include(VCamUtils.pri)
 
-HEADERS = \
-    plugin.h \
-    cameraoutcmio.h \
-    ../../cameraout.h
+CONFIG += staticlib c++11
+CONFIG -= qt
 
+DESTDIR = $${OUT_PWD}
 
-INCLUDEPATH += \
-    ../VCamIPC/src \
-    ../../../../../Lib/src \
-    ../../
-
-LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
-
-OTHER_FILES += ../pspec.json
-
-LIBS += \
-    -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
-    -framework CoreFoundation \
-    -framework CoreMedia \
-    -framework CoreMediaIO \
-    -framework CoreVideo \
-    -framework IOKit \
-    -framework IOSurface
-
-QT += qml
-
-SOURCES = \
-    plugin.cpp \
-    cameraoutcmio.cpp \
-    ../../cameraout.cpp
-
-DESTDIR = $${OUT_PWD}/../../../submodules/VirtualCamera
-
-TARGET = cmio
+TARGET = VCamUtils
 
 TEMPLATE = lib
 
-INSTALLS += target
+SOURCES += \
+    src/cstream/cstream.cpp \
+    src/resources/rcnode.cpp \
+    src/resources/rcname.cpp \
+    src/resources/rcdata.cpp \
+    src/resources/rcloader.cpp \
+    src/bitmap/bitmap.cpp
 
-target.path = $${LIBDIR}/$${COMMONS_TARGET}/submodules/VirtualCamera
+HEADERS += \
+    src/cstream/cstream.h \
+    src/resources/rcnode.h \
+    src/resources/rcname.h \
+    src/resources/rcdata.h \
+    src/resources/rcloader.h \
+    src/bitmap/color.h \
+    src/bitmap/bitmap.h

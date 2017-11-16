@@ -18,9 +18,9 @@
  */
 
 #include "rcnode.h"
-#include "rcutils.h"
+#include "../cstream/cstream.h"
 
-RcNode::RcNode()
+AkVCam::RcNode::RcNode()
 {
     this->nameOffset = 0;
     this->flags = 0;
@@ -32,7 +32,7 @@ RcNode::RcNode()
     this->lastModified = 0;
 }
 
-RcNode::RcNode(const RcNode &other)
+AkVCam::RcNode::RcNode(const RcNode &other)
 {
     this->nameOffset = other.nameOffset;
     this->flags = other.flags;
@@ -45,28 +45,25 @@ RcNode::RcNode(const RcNode &other)
     this->parent = other.parent;
 }
 
-RcNode RcNode::read(const unsigned char *rcTree)
+AkVCam::RcNode AkVCam::RcNode::read(const unsigned char *rcTree,
+                                    int rcVersion)
 {
+    CStreamRead treeStream(rcTree, true);
     RcNode node;
-    node.nameOffset = RcUtils::fromBigEndian(*reinterpret_cast<const uint32_t *>(rcTree));
-    rcTree += sizeof(uint32_t);
-    node.flags = RcUtils::fromBigEndian(*reinterpret_cast<const uint16_t *>(rcTree));
-    rcTree += sizeof(uint16_t);
+    node.nameOffset = treeStream.read<uint32_t>();
+    node.flags = treeStream.read<uint16_t>();
 
     if (node.flags == NodeType_Folder) {
-        node.fd.count = RcUtils::fromBigEndian(*reinterpret_cast<const uint32_t *>(rcTree));
-        rcTree += sizeof(uint32_t);
-        node.firstChild = RcUtils::fromBigEndian(*reinterpret_cast<const uint32_t *>(rcTree));
+        node.fd.count = treeStream.read<uint32_t>();
+        node.firstChild = treeStream.read<uint32_t>();
     } else {
-        node.fd.locale.country = RcUtils::fromBigEndian(*reinterpret_cast<const uint16_t *>(rcTree));
-        rcTree += sizeof(uint16_t);
-        node.fd.locale.language = RcUtils::fromBigEndian(*reinterpret_cast<const uint16_t *>(rcTree));
-        rcTree += sizeof(uint16_t);
-        node.dataOffset = RcUtils::fromBigEndian(*reinterpret_cast<const uint32_t *>(rcTree));
+        node.fd.locale.country = treeStream.read<uint16_t>();
+        node.fd.locale.language = treeStream.read<uint16_t>();
+        node.dataOffset = treeStream.read<uint32_t>();
     }
 
-    rcTree += sizeof(uint16_t);
-    node.lastModified = RcUtils::fromBigEndian(*reinterpret_cast<const uint64_t *>(rcTree));
+    if (rcVersion > 1)
+        node.lastModified = treeStream.read<uint64_t>();
 
     return node;
 }

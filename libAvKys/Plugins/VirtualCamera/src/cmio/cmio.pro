@@ -21,7 +21,6 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = \
-    resources \
-    ipc \
+    VCamIPC \
     VirtualCamera \
     src

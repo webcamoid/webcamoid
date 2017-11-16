@@ -26,7 +26,7 @@
 #include "clock.h"
 #include "queue.h"
 
-namespace Ak
+namespace AkVCam
 {
     class Stream;
     typedef std::shared_ptr<Stream> StreamPtr;

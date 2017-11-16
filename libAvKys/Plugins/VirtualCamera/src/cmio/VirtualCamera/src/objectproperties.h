@@ -27,7 +27,7 @@
 #include "videoformat.h"
 #include "clock.h"
 
-namespace Ak
+namespace AkVCam
 {
     class Object;
     class ObjectPropertiesPrivate;

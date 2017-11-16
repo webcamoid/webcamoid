@@ -18,16 +18,17 @@
  */
 
 #include "rcname.h"
-#include "rcutils.h"
+#include "../cstream/cstream.h"
 
-std::string RcName::read(const unsigned char *rcName)
+std::string AkVCam::RcName::read(const unsigned char *rcName)
 {
-    auto size = 2 * RcUtils::fromBigEndian(*reinterpret_cast<const uint16_t *>(rcName));
-    rcName += sizeof(uint16_t) + sizeof(uint32_t);
-    std::string str;
+    CStreamRead nameStream(rcName, true);
+    auto size = nameStream.read<uint16_t>();
+    nameStream.seek<uint32_t>();
+    std::wstring wstr;
 
-    for (decltype(size) i = 1; i < size; i += 2)
-        str += char(rcName[i]);
+    for (decltype(size) i = 0; i < size; i++)
+        wstr += nameStream.read<uint16_t>();
 
-    return str;
+    return std::string(wstr.begin(), wstr.end());
 }

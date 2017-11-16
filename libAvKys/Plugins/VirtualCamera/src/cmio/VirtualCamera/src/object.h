@@ -24,7 +24,7 @@
 
 #include "objectinterface.h"
 
-namespace Ak
+namespace AkVCam
 {
     class Object;
     typedef std::shared_ptr<Object> ObjectPtr;

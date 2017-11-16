@@ -21,11 +21,11 @@
 
 #include "clock.h"
 
-Ak::Clock::Clock(const std::string& name,
-                 const CMTime getTimeCallMinimumInterval,
-                 UInt32 numberOfEventsForRateSmoothing,
-                 UInt32 numberOfAveragesForRateSmoothing,
-                 void *parent):
+AkVCam::Clock::Clock(const std::string& name,
+                     const CMTime getTimeCallMinimumInterval,
+                     UInt32 numberOfEventsForRateSmoothing,
+                     UInt32 numberOfAveragesForRateSmoothing,
+                     void *parent):
     m_parent(parent),
     m_clock(nullptr)
 {
@@ -49,7 +49,7 @@ Ak::Clock::Clock(const std::string& name,
     CFRelease(nameRef);
 }
 
-Ak::Clock::~Clock()
+AkVCam::Clock::~Clock()
 {
     if (this->m_clock) {
         CMIOStreamClockInvalidate(this->m_clock);
@@ -57,14 +57,14 @@ Ak::Clock::~Clock()
     }
 }
 
-CFTypeRef Ak::Clock::ref() const
+CFTypeRef AkVCam::Clock::ref() const
 {
     return this->m_clock;
 }
 
-OSStatus Ak::Clock::postTimingEvent(CMTime eventTime,
-                                    UInt64 hostTime,
-                                    Boolean resynchronize)
+OSStatus AkVCam::Clock::postTimingEvent(CMTime eventTime,
+                                        UInt64 hostTime,
+                                        Boolean resynchronize)
 {
     return CMIOStreamClockPostTimingEvent(eventTime,
                                           hostTime,

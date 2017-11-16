@@ -23,40 +23,56 @@
 
 #ifdef QT_DEBUG
 
-namespace Ak
+namespace AkVCam
 {
-    namespace Logger
+    class LoggerPrivate
     {
-        static bool initialized = false;
-        static std::string fileNamePrivate;
-        static std::fstream logFilePrivate;
+        public:
+            bool initialized;
+            std::string fileNamePrivate;
+            std::fstream logFilePrivate;
+
+            LoggerPrivate():
+                initialized(false)
+            {
+            }
+    };
+
+    inline LoggerPrivate *loggerPrivate()
+    {
+        static LoggerPrivate logger;
+
+        return &logger;
     }
 }
 
-void Ak::Logger::start(const std::string &fileName)
+void AkVCam::Logger::start(const std::string &fileName)
 {
-    fileNamePrivate = fileName;
-    initialized = true;
+    loggerPrivate()->fileNamePrivate = fileName;
+    loggerPrivate()->initialized = true;
 }
 
-std::ostream &Ak::Logger::log()
+std::ostream &AkVCam::Logger::log()
 {
-    if (!initialized || fileNamePrivate.empty())
+    if (!loggerPrivate()->initialized
+        || loggerPrivate()->fileNamePrivate.empty())
         return std::cout;
 
-    if (!logFilePrivate.is_open())
-        logFilePrivate.open(fileNamePrivate, std::ios_base::out | std::ios_base::app);
+    if (!loggerPrivate()->logFilePrivate.is_open())
+        loggerPrivate()->logFilePrivate.open(loggerPrivate()->fileNamePrivate,
+                                             std::ios_base::out
+                                             | std::ios_base::app);
 
-    return logFilePrivate;
+    return loggerPrivate()->logFilePrivate;
 }
 
-void Ak::Logger::stop()
+void AkVCam::Logger::stop()
 {
-    initialized = false;
-    fileNamePrivate = {};
+    loggerPrivate()->initialized = false;
+    loggerPrivate()->fileNamePrivate = {};
 
-    if (logFilePrivate.is_open())
-        logFilePrivate.close();
+    if (loggerPrivate()->logFilePrivate.is_open())
+        loggerPrivate()->logFilePrivate.close();
 }
 
 #endif

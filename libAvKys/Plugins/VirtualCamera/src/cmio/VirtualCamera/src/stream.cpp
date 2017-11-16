@@ -22,8 +22,8 @@
 #include "stream.h"
 #include "utils.h"
 
-Ak::Stream::Stream(bool registerObject,
-                   Object *parent):
+AkVCam::Stream::Stream(bool registerObject,
+                       Object *parent):
     Object(parent),
     m_queueAltered(nullptr),
     m_queueAlteredRefCon(nullptr),
@@ -47,12 +47,12 @@ Ak::Stream::Stream(bool registerObject,
     this->m_properties.setProperty(kCMIOStreamPropertyClock, this->m_clock);
 }
 
-Ak::Stream::~Stream()
+AkVCam::Stream::~Stream()
 {
     this->registerObject(false);
 }
 
-OSStatus Ak::Stream::createObject()
+OSStatus AkVCam::Stream::createObject()
 {
     AkObjectLogMethod();
 
@@ -78,7 +78,7 @@ OSStatus Ak::Stream::createObject()
     return status;
 }
 
-OSStatus Ak::Stream::registerObject(bool regist)
+OSStatus AkVCam::Stream::registerObject(bool regist)
 {
     AkObjectLogMethod();
     OSStatus status = kCMIOHardwareUnspecifiedError;
@@ -108,7 +108,7 @@ OSStatus Ak::Stream::registerObject(bool regist)
     return status;
 }
 
-void Ak::Stream::setFormats(const std::vector<Ak::VideoFormat> &formats)
+void AkVCam::Stream::setFormats(const std::vector<VideoFormat> &formats)
 {
     AkObjectLogMethod();
     if (formats.empty())
@@ -119,7 +119,7 @@ void Ak::Stream::setFormats(const std::vector<Ak::VideoFormat> &formats)
     this->setFormat(formats[0]);
 }
 
-void Ak::Stream::setFormat(const Ak::VideoFormat &format)
+void AkVCam::Stream::setFormat(const VideoFormat &format)
 {
     AkObjectLogMethod();
     this->m_properties.setProperty(kCMIOStreamPropertyFormatDescription,
@@ -136,13 +136,13 @@ void Ak::Stream::setFormat(const Ak::VideoFormat &format)
         this->setFrameRate(format.frameRates()[0]);
 }
 
-void Ak::Stream::setFrameRate(Float64 frameRate)
+void AkVCam::Stream::setFrameRate(Float64 frameRate)
 {
     this->m_properties.setProperty(kCMIOStreamPropertyFrameRate,
                                    frameRate);
 }
 
-bool Ak::Stream::start()
+bool AkVCam::Stream::start()
 {
     AkObjectLogMethod();
 
@@ -157,7 +157,7 @@ bool Ak::Stream::start()
                                  interval,
                                  0,
                                  0,
-                                 Ak::Stream::streamLoop,
+                                 Stream::streamLoop,
                                  &context);
 
     if (!this->m_timer)
@@ -171,7 +171,7 @@ bool Ak::Stream::start()
     return true;
 }
 
-void Ak::Stream::stop()
+void AkVCam::Stream::stop()
 {
     AkObjectLogMethod();
 
@@ -188,14 +188,14 @@ void Ak::Stream::stop()
     this->m_timer = nullptr;
 }
 
-bool Ak::Stream::running()
+bool AkVCam::Stream::running()
 {
     return this->m_running;
 }
 
-OSStatus Ak::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
-                                     void *queueAlteredRefCon,
-                                     CMSimpleQueueRef *queue)
+OSStatus AkVCam::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlteredProc,
+                                         void *queueAlteredRefCon,
+                                         CMSimpleQueueRef *queue)
 {
     AkObjectLogMethod();
 
@@ -209,7 +209,7 @@ OSStatus Ak::Stream::copyBufferQueue(CMIODeviceStreamQueueAlteredProc queueAlter
     return kCMIOHardwareNoError;
 }
 
-OSStatus Ak::Stream::deckPlay()
+OSStatus AkVCam::Stream::deckPlay()
 {
     AkObjectLogMethod();
 
@@ -218,7 +218,7 @@ OSStatus Ak::Stream::deckPlay()
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Stream::deckStop()
+OSStatus AkVCam::Stream::deckStop()
 {
     AkObjectLogMethod();
 
@@ -227,7 +227,7 @@ OSStatus Ak::Stream::deckStop()
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Stream::deckJog(SInt32 speed)
+OSStatus AkVCam::Stream::deckJog(SInt32 speed)
 {
     AkObjectLogMethod();
     UNUSED(speed)
@@ -237,7 +237,7 @@ OSStatus Ak::Stream::deckJog(SInt32 speed)
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Stream::deckCueTo(Float64 frameNumber, Boolean playOnCue)
+OSStatus AkVCam::Stream::deckCueTo(Float64 frameNumber, Boolean playOnCue)
 {
     AkObjectLogMethod();
     UNUSED(frameNumber)
@@ -248,7 +248,7 @@ OSStatus Ak::Stream::deckCueTo(Float64 frameNumber, Boolean playOnCue)
     return kCMIOHardwareUnspecifiedError;
 }
 
-void Ak::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
+void AkVCam::Stream::streamLoop(CFRunLoopTimerRef timer, void *info)
 {
     AkLoggerLog("Reading frame");
     UNUSED(timer)

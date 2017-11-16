@@ -20,8 +20,8 @@
 #include "object.h"
 #include "utils.h"
 
-Ak::Object::Object(CMIOHardwarePlugInRef pluginInterface,
-                   Object *parent):
+AkVCam::Object::Object(CMIOHardwarePlugInRef pluginInterface,
+                       Object *parent):
     ObjectInterface(),
     m_pluginInterface(pluginInterface),
     m_parent(parent),
@@ -41,7 +41,7 @@ Ak::Object::Object(CMIOHardwarePlugInRef pluginInterface,
     }
 }
 
-Ak::Object::Object(Object *parent):
+AkVCam::Object::Object(Object *parent):
     ObjectInterface(),
     m_pluginInterface(parent? parent->m_pluginInterface: nullptr),
     m_parent(parent),
@@ -61,7 +61,7 @@ Ak::Object::Object(Object *parent):
     }
 }
 
-Ak::Object::~Object()
+AkVCam::Object::~Object()
 {
     if (this->m_parent) {
         this->m_parent->m_childs.remove(this);
@@ -69,29 +69,29 @@ Ak::Object::~Object()
     }
 }
 
-CMIOObjectID Ak::Object::objectID() const
+CMIOObjectID AkVCam::Object::objectID() const
 {
     return this->m_objectID;
 }
 
-UInt32 Ak::Object::classID() const
+UInt32 AkVCam::Object::classID() const
 {
     return this->m_classID;
 }
 
-OSStatus Ak::Object::createObject()
+OSStatus AkVCam::Object::createObject()
 {
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Object::registerObject(bool regist)
+OSStatus AkVCam::Object::registerObject(bool regist)
 {
     UNUSED(regist)
 
     return kCMIOHardwareNoError;
 }
 
-Ak::Object *Ak::Object::findObject(CMIOObjectID objectID)
+AkVCam::Object *AkVCam::Object::findObject(CMIOObjectID objectID)
 {
     if (this->m_objectID == objectID)
         return this;
@@ -103,8 +103,8 @@ Ak::Object *Ak::Object::findObject(CMIOObjectID objectID)
     return nullptr;
 }
 
-OSStatus Ak::Object::propertyChanged(UInt32 numberAddresses,
-                                     const CMIOObjectPropertyAddress *addresses)
+OSStatus AkVCam::Object::propertyChanged(UInt32 numberAddresses,
+                                         const CMIOObjectPropertyAddress *addresses)
 {
     return CMIOObjectPropertiesChanged(this->m_pluginInterface,
                                        this->m_objectID,
@@ -112,11 +112,11 @@ OSStatus Ak::Object::propertyChanged(UInt32 numberAddresses,
                                        addresses);
 }
 
-OSStatus Ak::Object::setPropertyData(const CMIOObjectPropertyAddress *address,
-                                     UInt32 qualifierDataSize,
-                                     const void *qualifierData,
-                                     UInt32 dataSize,
-                                     const void *data)
+OSStatus AkVCam::Object::setPropertyData(const CMIOObjectPropertyAddress *address,
+                                         UInt32 qualifierDataSize,
+                                         const void *qualifierData,
+                                         UInt32 dataSize,
+                                         const void *data)
 {
     auto status =
             ObjectInterface::setPropertyData(address,
@@ -131,7 +131,7 @@ OSStatus Ak::Object::setPropertyData(const CMIOObjectPropertyAddress *address,
     return status;
 }
 
-void Ak::Object::childsUpdate()
+void AkVCam::Object::childsUpdate()
 {
     std::vector<Object *> objects;
 

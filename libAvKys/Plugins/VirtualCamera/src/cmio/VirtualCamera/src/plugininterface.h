@@ -22,7 +22,7 @@
 
 #include "device.h"
 
-namespace Ak
+namespace AkVCam
 {
     struct PluginInterfacePrivate;
 

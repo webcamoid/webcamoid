@@ -20,53 +20,53 @@
 #include "objectinterface.h"
 #include "utils.h"
 
-Ak::ObjectInterface::ObjectInterface():
+AkVCam::ObjectInterface::ObjectInterface():
     m_objectID(0),
     m_classID(0)
 {
 
 }
 
-Ak::ObjectInterface::~ObjectInterface()
+AkVCam::ObjectInterface::~ObjectInterface()
 {
 
 }
 
-Ak::ObjectProperties Ak::ObjectInterface::properties() const
-{
-    return this->m_properties;
-}
-
-Ak::ObjectProperties &Ak::ObjectInterface::properties()
+AkVCam::ObjectProperties AkVCam::ObjectInterface::properties() const
 {
     return this->m_properties;
 }
 
-void Ak::ObjectInterface::setProperties(const Ak::ObjectProperties &properties)
+AkVCam::ObjectProperties &AkVCam::ObjectInterface::properties()
+{
+    return this->m_properties;
+}
+
+void AkVCam::ObjectInterface::setProperties(const ObjectProperties &properties)
 {
     this->m_properties = properties;
 }
 
-void Ak::ObjectInterface::updateProperties(const Ak::ObjectProperties &properties)
+void AkVCam::ObjectInterface::updateProperties(const ObjectProperties &properties)
 {
     this->m_properties.update(properties);
 }
 
-CMIOObjectPropertyAddress Ak::ObjectInterface::address(CMIOObjectPropertySelector selector,
-                                                       CMIOObjectPropertyScope scope,
-                                                       CMIOObjectPropertyElement element)
+CMIOObjectPropertyAddress AkVCam::ObjectInterface::address(CMIOObjectPropertySelector selector,
+                                                           CMIOObjectPropertyScope scope,
+                                                           CMIOObjectPropertyElement element)
 {
     return CMIOObjectPropertyAddress {selector, scope, element};
 }
 
-void Ak::ObjectInterface::show()
+void AkVCam::ObjectInterface::show()
 {
     AkObjectLogMethod();
 
     AkLoggerLog("STUB");
 }
 
-Boolean Ak::ObjectInterface::hasProperty(const CMIOObjectPropertyAddress *address)
+Boolean AkVCam::ObjectInterface::hasProperty(const CMIOObjectPropertyAddress *address)
 {
     AkObjectLogMethod();
 
@@ -81,8 +81,8 @@ Boolean Ak::ObjectInterface::hasProperty(const CMIOObjectPropertyAddress *addres
     return true;
 }
 
-OSStatus Ak::ObjectInterface::isPropertySettable(const CMIOObjectPropertyAddress *address,
-                                                 Boolean *isSettable)
+OSStatus AkVCam::ObjectInterface::isPropertySettable(const CMIOObjectPropertyAddress *address,
+                                                     Boolean *isSettable)
 {
     AkObjectLogMethod();
 
@@ -105,10 +105,10 @@ OSStatus Ak::ObjectInterface::isPropertySettable(const CMIOObjectPropertyAddress
     return kCMIOHardwareNoError;
 }
 
-OSStatus Ak::ObjectInterface::getPropertyDataSize(const CMIOObjectPropertyAddress *address,
-                                                  UInt32 qualifierDataSize,
-                                                  const void *qualifierData,
-                                                  UInt32 *dataSize)
+OSStatus AkVCam::ObjectInterface::getPropertyDataSize(const CMIOObjectPropertyAddress *address,
+                                                      UInt32 qualifierDataSize,
+                                                      const void *qualifierData,
+                                                      UInt32 *dataSize)
 {
     AkObjectLogMethod();
     AkLoggerLog("Getting property size " << enumToString(address->mSelector));
@@ -126,12 +126,12 @@ OSStatus Ak::ObjectInterface::getPropertyDataSize(const CMIOObjectPropertyAddres
     return kCMIOHardwareNoError;
 }
 
-OSStatus Ak::ObjectInterface::getPropertyData(const CMIOObjectPropertyAddress *address,
-                                              UInt32 qualifierDataSize,
-                                              const void *qualifierData,
-                                              UInt32 dataSize,
-                                              UInt32 *dataUsed,
-                                              void *data)
+OSStatus AkVCam::ObjectInterface::getPropertyData(const CMIOObjectPropertyAddress *address,
+                                                  UInt32 qualifierDataSize,
+                                                  const void *qualifierData,
+                                                  UInt32 dataSize,
+                                                  UInt32 *dataUsed,
+                                                  void *data)
 {
     AkObjectLogMethod();
     AkLoggerLog("Getting property " << enumToString(address->mSelector));
@@ -150,11 +150,11 @@ OSStatus Ak::ObjectInterface::getPropertyData(const CMIOObjectPropertyAddress *a
     return kCMIOHardwareNoError;
 }
 
-OSStatus Ak::ObjectInterface::setPropertyData(const CMIOObjectPropertyAddress *address,
-                                              UInt32 qualifierDataSize,
-                                              const void *qualifierData,
-                                              UInt32 dataSize,
-                                              const void *data)
+OSStatus AkVCam::ObjectInterface::setPropertyData(const CMIOObjectPropertyAddress *address,
+                                                  UInt32 qualifierDataSize,
+                                                  const void *qualifierData,
+                                                  UInt32 dataSize,
+                                                  const void *data)
 {
     AkObjectLogMethod();
     AkLoggerLog("Setting property " << enumToString(address->mSelector));

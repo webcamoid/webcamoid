@@ -16,35 +16,5 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-exists(commons.pri) {
-    include(commons.pri)
-} else {
-    exists(../../../../../commons.pri) {
-        include(../../../../../commons.pri)
-    } else {
-        error("commons.pri file not found.")
-    }
-}
-
-CONFIG += staticlib c++11
-CONFIG -= qt
-
-DESTDIR = $${OUT_PWD}
-
-TARGET = "resources"
-
-TEMPLATE = lib
-
-SOURCES += \
-    src/rcutils.cpp \
-    src/rcnode.cpp \
-    src/rcname.cpp \
-    src/rcdata.cpp \
-    src/rcloader.cpp
-
-HEADERS += \
-    src/rcutils.h \
-    src/rcnode.h \
-    src/rcname.h \
-    src/rcdata.h \
-    src/rcloader.h
+DEFINES += \
+    QT_NAMESPACE=AkVCam

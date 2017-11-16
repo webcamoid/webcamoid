@@ -185,17 +185,26 @@ Rectangle {
         }
 
         // Usage
-        Text {
-            color: "#ffffff"
-            text: "This is a Webcamoid's virtual webcam test.\n"
-                + "Go to Webcamoid, enable virtual webcam output and\n"
-                + "play some webcam, desktop or video, doing so will\n"
-                + "create a new device for the stream, and will make\n"
-                + "this device disappear."
-            topPadding: 8
-            Layout.columnSpan: 2
-            font.family: quickSand.name
-            font.pixelSize: 0.45 * programName.font.pixelSize
+        Rectangle {
+            width: 500
+            height: 125
+            color: "#00000000"
+
+            Text {
+                id: usage
+                color: "#ffffff"
+                text: "This is a Webcamoid's virtual webcam test.\n"
+                    + "Go to Webcamoid, enable virtual webcam output and "
+                    + "play some webcam, desktop or video, doing so will "
+                    + "create a new device for the stream, and will make "
+                    + "this device disappear."
+                wrapMode: Text.WordWrap
+                anchors.fill: parent
+                topPadding: 8
+                Layout.columnSpan: 2
+                font.family: quickSand.name
+                font.pixelSize: 0.45 * programName.font.pixelSize
+            }
         }
     }
 }

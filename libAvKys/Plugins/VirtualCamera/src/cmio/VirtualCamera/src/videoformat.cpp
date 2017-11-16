@@ -19,7 +19,7 @@
 
 #include "videoformat.h"
 
-Ak::VideoFormat::VideoFormat():
+AkVCam::VideoFormat::VideoFormat():
     m_codecType(0),
     m_width(0),
     m_height(0)
@@ -27,10 +27,10 @@ Ak::VideoFormat::VideoFormat():
 
 }
 
-Ak::VideoFormat::VideoFormat(CMVideoCodecType codecType,
-                             int32_t width,
-                             int32_t height,
-                             const std::vector<Float64> &frameRates):
+AkVCam::VideoFormat::VideoFormat(CMVideoCodecType codecType,
+                                 int32_t width,
+                                 int32_t height,
+                                 const std::vector<Float64> &frameRates):
     m_codecType(codecType),
     m_width(width),
     m_height(height),
@@ -39,7 +39,7 @@ Ak::VideoFormat::VideoFormat(CMVideoCodecType codecType,
 
 }
 
-Ak::VideoFormat::VideoFormat(const Ak::VideoFormat &other)
+AkVCam::VideoFormat::VideoFormat(const VideoFormat &other)
 {
     this->m_codecType = other.m_codecType;
     this->m_width = other.m_width;
@@ -47,7 +47,7 @@ Ak::VideoFormat::VideoFormat(const Ak::VideoFormat &other)
     this->m_frameRates = other.m_frameRates;
 }
 
-Ak::VideoFormat &Ak::VideoFormat::operator =(const Ak::VideoFormat &other)
+AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
 {
     if (this != &other) {
         this->m_codecType = other.m_codecType;
@@ -59,52 +59,52 @@ Ak::VideoFormat &Ak::VideoFormat::operator =(const Ak::VideoFormat &other)
     return *this;
 }
 
-Ak::VideoFormat::~VideoFormat()
+AkVCam::VideoFormat::~VideoFormat()
 {
 
 }
 
-CMVideoCodecType Ak::VideoFormat::codecType() const
-{
-    return this->m_codecType;
-}
-
-CMVideoCodecType &Ak::VideoFormat::codecType()
+CMVideoCodecType AkVCam::VideoFormat::codecType() const
 {
     return this->m_codecType;
 }
 
-int32_t Ak::VideoFormat::width() const
+CMVideoCodecType &AkVCam::VideoFormat::codecType()
+{
+    return this->m_codecType;
+}
+
+int32_t AkVCam::VideoFormat::width() const
 {
     return this->m_width;
 }
 
-int32_t &Ak::VideoFormat::width()
+int32_t &AkVCam::VideoFormat::width()
 {
     return this->m_width;
 }
 
-int32_t Ak::VideoFormat::height() const
+int32_t AkVCam::VideoFormat::height() const
 {
     return this->m_height;
 }
 
-int32_t &Ak::VideoFormat::height()
+int32_t &AkVCam::VideoFormat::height()
 {
     return this->m_height;
 }
 
-std::vector<Float64> Ak::VideoFormat::frameRates() const
+std::vector<Float64> AkVCam::VideoFormat::frameRates() const
 {
     return this->m_frameRates;
 }
 
-std::vector<Float64> &Ak::VideoFormat::frameRates()
+std::vector<Float64> &AkVCam::VideoFormat::frameRates()
 {
     return this->m_frameRates;
 }
 
-std::vector<AudioValueRange> Ak::VideoFormat::frameRateRanges() const
+std::vector<AudioValueRange> AkVCam::VideoFormat::frameRateRanges() const
 {
     std::vector<AudioValueRange> ranges;
 
@@ -119,7 +119,7 @@ std::vector<AudioValueRange> Ak::VideoFormat::frameRateRanges() const
     return ranges;
 }
 
-Float64 Ak::VideoFormat::minimumFrameRate() const
+Float64 AkVCam::VideoFormat::minimumFrameRate() const
 {
     if (this->m_frameRates.empty())
         return 0.0;
@@ -128,7 +128,7 @@ Float64 Ak::VideoFormat::minimumFrameRate() const
                              this->m_frameRates.end());
 }
 
-CMFormatDescriptionRef Ak::VideoFormat::create() const
+CMFormatDescriptionRef AkVCam::VideoFormat::create() const
 {
     CMFormatDescriptionRef formatDescription = nullptr;
 

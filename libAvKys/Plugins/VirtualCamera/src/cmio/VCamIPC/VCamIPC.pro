@@ -31,7 +31,7 @@ CONFIG -= qt
 
 DESTDIR = $${OUT_PWD}
 
-TARGET = "ipc"
+TARGET = VCamIPC
 
 TEMPLATE = lib
 

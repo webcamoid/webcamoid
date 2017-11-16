@@ -26,10 +26,9 @@
 
 #include "stream.h"
 
-namespace Ak
+namespace AkVCam
 {
     class Device;
-
     typedef std::shared_ptr<Device> DevicePtr;
 
     class Device: public Object

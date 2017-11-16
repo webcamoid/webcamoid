@@ -27,7 +27,7 @@
     #define AkLoggerLog(data) Ak::Logger::log() << data << std::endl
     #define AkLoggerStop() Ak::Logger::stop(fileName)
 
-    namespace Ak
+    namespace AkVCam
     {
         namespace Logger
         {

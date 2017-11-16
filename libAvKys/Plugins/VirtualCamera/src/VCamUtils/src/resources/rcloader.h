@@ -23,10 +23,15 @@
 #include <string>
 #include <list>
 
-namespace RcLoader
+#include "../cstream/cstream.h"
+
+namespace AkVCam
 {
-    std::list<std::string> list();
-    size_t load(const std::string &resource, const unsigned char **data);
+    namespace RcLoader
+    {
+        std::list<std::string> list();
+        CStreamRead load(const std::string &resource);
+    }
 }
 
 #endif // RCLOADER_H

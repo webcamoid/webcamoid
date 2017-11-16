@@ -17,19 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef RCNAME_H
-#define RCNAME_H
+#include "rcdata.h"
+#include "../cstream/cstream.h"
 
-#include <string>
-#include <cstdint>
-
-struct RcName
+uint32_t AkVCam::RcData::size() const
 {
-    uint16_t m_size;
-    uint32_t m_hash;
-    uint16_t *m_data;
+    return this->m_size;
+}
 
-    static std::string read(const unsigned char *rcName);
-};
+AkVCam::RcData AkVCam::RcData::read(const unsigned char *rcData)
+{
+    CStreamRead dataStream(rcData, true);
+    RcData data;
+    data.m_size = dataStream.read<uint32_t>();
+    data.m_data = dataStream.data<unsigned char>();
 
-#endif // RCNAME_H
+    return data;
+}

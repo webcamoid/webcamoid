@@ -26,6 +26,8 @@ exists(commons.pri) {
     }
 }
 
+include(../../VCamUtils/VCamUtils.pri)
+
 CONFIG -= qt
 CONFIG += \
     unversioned_libname \
@@ -37,10 +39,10 @@ debug {
 }
 
 INCLUDEPATH += \
-    ../resources/src
+    ../..
 
 LIBS = \
-    -L../resources -lresources \
+    -L../../VCamUtils -lVCamUtils \
     -framework CoreFoundation \
     -framework CoreMedia \
     -framework CoreMediaIO \
@@ -80,6 +82,9 @@ SOURCES += \
 
 RESOURCES += \
     ../../../TestFrame.qrc
+
+QMAKE_RESOURCE_FLAGS += \
+    --no-compress
 
 OTHER_FILES = \
     Info.plist

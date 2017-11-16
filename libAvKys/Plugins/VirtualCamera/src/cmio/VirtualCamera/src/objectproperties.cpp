@@ -21,7 +21,7 @@
 
 #include "object.h"
 
-namespace Ak
+namespace AkVCam
 {
     enum PropertyType
     {
@@ -52,8 +52,8 @@ namespace Ak
         } num;
 
         std::string str;
-        std::vector<Ak::Object *> objects;
-        std::vector<Ak::ObjectPtr> objectsPtr;
+        std::vector<Object *> objects;
+        std::vector<ObjectPtr> objectsPtr;
         std::vector<VideoFormat> videoFormats;
         std::vector<Float64> float64Vector;
         std::vector<AudioValueRange> audioValueRangeVector;
@@ -69,18 +69,18 @@ namespace Ak
     };
 }
 
-Ak::ObjectProperties::ObjectProperties()
+AkVCam::ObjectProperties::ObjectProperties()
 {
     this->d = new ObjectPropertiesPrivate();
 }
 
-Ak::ObjectProperties::ObjectProperties(const Ak::ObjectProperties &other)
+AkVCam::ObjectProperties::ObjectProperties(const ObjectProperties &other)
 {
     this->d = new ObjectPropertiesPrivate();
     this->d->m_properties = other.d->m_properties;
 }
 
-Ak::ObjectProperties &Ak::ObjectProperties::operator =(const Ak::ObjectProperties &other)
+AkVCam::ObjectProperties &AkVCam::ObjectProperties::operator =(const ObjectProperties &other)
 {
     if (this != &other)
         this->d->m_properties = other.d->m_properties;
@@ -88,12 +88,12 @@ Ak::ObjectProperties &Ak::ObjectProperties::operator =(const Ak::ObjectPropertie
     return *this;
 }
 
-Ak::ObjectProperties::~ObjectProperties()
+AkVCam::ObjectProperties::~ObjectProperties()
 {
     delete this->d;
 }
 
-std::vector<UInt32> Ak::ObjectProperties::properties() const
+std::vector<UInt32> AkVCam::ObjectProperties::properties() const
 {
     std::vector<UInt32> properties;
 
@@ -103,9 +103,9 @@ std::vector<UInt32> Ak::ObjectProperties::properties() const
     return properties;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const std::string &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::string &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeString;
     this->d->m_properties[property].isSettable = isSettable;
@@ -114,9 +114,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       UInt32 value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           UInt32 value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeUInt32;
     this->d->m_properties[property].isSettable = isSettable;
@@ -125,9 +125,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       Float64 value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           Float64 value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeFloat64;
     this->d->m_properties[property].isSettable = isSettable;
@@ -136,9 +136,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       pid_t value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           pid_t value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypePidT;
     this->d->m_properties[property].isSettable = isSettable;
@@ -147,9 +147,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const std::vector<Ak::Object *> &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<Object *> &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeObjectVector;
     this->d->m_properties[property].isSettable = isSettable;
@@ -158,9 +158,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const std::vector<Ak::ObjectPtr> &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<ObjectPtr> &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeObjectPtrVector;
     this->d->m_properties[property].isSettable = isSettable;
@@ -169,9 +169,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const Ak::VideoFormat &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const VideoFormat &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeVideoFormat;
     this->d->m_properties[property].isSettable = isSettable;
@@ -180,9 +180,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const std::vector<Ak::VideoFormat> &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<VideoFormat> &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeVideoFormatVector;
     this->d->m_properties[property].isSettable = isSettable;
@@ -191,9 +191,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const std::vector<Float64> &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<Float64> &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeFloat64Vector;
     this->d->m_properties[property].isSettable = isSettable;
@@ -202,9 +202,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const std::vector<AudioValueRange> &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<AudioValueRange> &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeAudioValueRangeVector;
     this->d->m_properties[property].isSettable = isSettable;
@@ -213,9 +213,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const ClockPtr &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const ClockPtr &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeClock;
     this->d->m_properties[property].isSettable = isSettable;
@@ -224,9 +224,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       const CMIOObjectPropertyAddress &value,
-                                       bool isSettable)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const CMIOObjectPropertyAddress &value,
+                                           bool isSettable)
 {
     this->d->m_properties[property].type = PropertyTypeAddress;
     this->d->m_properties[property].isSettable = isSettable;
@@ -235,9 +235,9 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return true;
 }
 
-bool Ak::ObjectProperties::setProperty(UInt32 property,
-                                       UInt32 dataSize,
-                                       const void *data)
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           UInt32 dataSize,
+                                           const void *data)
 {
     if (!this->d->m_properties.count(property))
         return false;
@@ -324,7 +324,7 @@ bool Ak::ObjectProperties::setProperty(UInt32 property,
     return ok;
 }
 
-bool Ak::ObjectProperties::getProperty(UInt32 property, UInt32 *value)
+bool AkVCam::ObjectProperties::getProperty(UInt32 property, UInt32 *value)
 {
     if (!value || !this->d->m_properties.count(property))
         return false;
@@ -339,12 +339,12 @@ bool Ak::ObjectProperties::getProperty(UInt32 property, UInt32 *value)
     return true;
 }
 
-bool Ak::ObjectProperties::getProperty(UInt32 property,
-                                       UInt32 qualifierDataSize,
-                                       const void *qualifierData,
-                                       UInt32 dataSize,
-                                       UInt32 *dataUsed,
-                                       void *data)
+bool AkVCam::ObjectProperties::getProperty(UInt32 property,
+                                           UInt32 qualifierDataSize,
+                                           const void *qualifierData,
+                                           UInt32 dataSize,
+                                           UInt32 *dataUsed,
+                                           void *data)
 {
     if (!this->d->m_properties.count(property))
         return false;
@@ -565,18 +565,18 @@ bool Ak::ObjectProperties::getProperty(UInt32 property,
     return ok;
 }
 
-void Ak::ObjectProperties::removeProperty(UInt32 property)
+void AkVCam::ObjectProperties::removeProperty(UInt32 property)
 {
     this->d->m_properties.erase(property);
 }
 
-void Ak::ObjectProperties::update(const Ak::ObjectProperties &other)
+void AkVCam::ObjectProperties::update(const ObjectProperties &other)
 {
     for (auto &property: other.d->m_properties)
         this->d->m_properties[property.first] = property.second;
 }
 
-bool Ak::ObjectProperties::isSettable(UInt32 property)
+bool AkVCam::ObjectProperties::isSettable(UInt32 property)
 {
     if (this->d->m_properties.count(property))
         return this->d->m_properties[property].isSettable;
@@ -584,10 +584,10 @@ bool Ak::ObjectProperties::isSettable(UInt32 property)
     return true;
 }
 
-bool Ak::ObjectProperties::qualify(UInt32 property,
-                                   UInt32 qualifierDataSize,
-                                   const void *qualifierData,
-                                   const void *data)
+bool AkVCam::ObjectProperties::qualify(UInt32 property,
+                                       UInt32 qualifierDataSize,
+                                       const void *qualifierData,
+                                       const void *data)
 {
     if (qualifierDataSize && qualifierData && data)
         switch (property) {

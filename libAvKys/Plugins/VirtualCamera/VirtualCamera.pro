@@ -21,6 +21,7 @@ TEMPLATE = subdirs
 CONFIG += ordered
 
 SUBDIRS = src
+SUBDIRS += src/VCamUtils
 CONFIG(config_cmio): SUBDIRS += src/cmio
 CONFIG(config_dshow): SUBDIRS += src/dshow
 CONFIG(config_ffmpeg): SUBDIRS += src/ffmpeg

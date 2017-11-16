@@ -17,16 +17,33 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef RCUTILS_H
-#define RCUTILS_H
+#ifndef BITMAP_H
+#define BITMAP_H
 
-#include <cstdint>
+#include <iostream>
 
-namespace RcUtils
+#include "color.h"
+#include "../cstream/cstream.h"
+
+namespace AkVCam
 {
-    uint64_t fromBigEndian(uint64_t num);
-    uint32_t fromBigEndian(uint32_t num);
-    uint16_t fromBigEndian(uint16_t num);
+    class BitmapPrivate;
+
+    class Bitmap
+    {
+        public:
+            Bitmap(CStreamRead bitmapStream);
+            ~Bitmap();
+
+            int width() const;
+            int height() const;
+            uint32_t *data() const;
+            uint32_t *line(int y) const;
+            uint32_t pixel(int x, int y) const;
+
+        private:
+            BitmapPrivate *d;
+    };
 }
 
-#endif // RCUTILS_H
+#endif // BITMAP_H

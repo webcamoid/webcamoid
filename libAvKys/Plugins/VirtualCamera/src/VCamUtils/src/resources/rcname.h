@@ -17,19 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "rcdata.h"
-#include "rcutils.h"
+#ifndef RCNAME_H
+#define RCNAME_H
 
-uint32_t RcData::size() const
+#include <string>
+#include <cstdint>
+
+namespace AkVCam
 {
-    return RcUtils::fromBigEndian(this->m_size);
+    struct RcName
+    {
+        uint16_t m_size;
+        uint32_t m_hash;
+        uint16_t *m_data;
+
+        static std::string read(const unsigned char *rcName);
+    };
 }
 
-RcData RcData::read(const unsigned char *rcData)
-{
-    RcData data;
-    data.m_size = RcUtils::fromBigEndian(*reinterpret_cast<const uint32_t *>(rcData));
-    data.m_data = rcData + sizeof(uint32_t);
-
-    return data;
-}
+#endif // RCNAME_H

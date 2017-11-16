@@ -17,18 +17,40 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef RCDATA_H
-#define RCDATA_H
+#ifndef COLOR_H
+#define COLOR_H
 
 #include <cstdint>
 
-struct RcData
+namespace AkVCam
 {
-    uint32_t m_size;
-    const unsigned char *m_data;
+    namespace Color
+    {
+        inline uint32_t rgb(uint32_t r, uint32_t g, uint32_t b, uint32_t a)
+        {
+            return (a << 24) | (r << 16) | (g << 8) | b;
+        }
 
-    uint32_t size() const;
-    static RcData read(const unsigned char *rcData);
-};
+        inline uint32_t red(uint32_t rgba)
+        {
+            return (rgba >> 16) & 0xff;
+        }
 
-#endif // RCDATA_H
+        inline uint32_t green(uint32_t rgba)
+        {
+            return (rgba >> 8) & 0xff;
+        }
+
+        inline uint32_t blue(uint32_t rgba)
+        {
+            return rgba & 0xff;
+        }
+
+        inline uint32_t alpha(uint32_t rgba)
+        {
+            return rgba >> 24;
+        }
+    }
+}
+
+#endif // COLOR_H

@@ -22,7 +22,7 @@
 
 #include "utils.h"
 
-bool Ak::uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2)
+bool AkVCam::uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2)
 {
     auto iid2 = CFUUIDGetUUIDBytes(uuid2);
     auto puuid1 = reinterpret_cast<const UInt8 *>(&uuid1);
@@ -35,7 +35,7 @@ bool Ak::uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2)
     return true;
 }
 
-std::string Ak::enumToString(UInt32 value)
+std::string AkVCam::enumToString(UInt32 value)
 {
     auto valueChr = reinterpret_cast<char *>(&value);
     std::string valueStr(valueChr, 4);

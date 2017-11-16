@@ -30,13 +30,13 @@
                 << __FUNCTION__ \
                 << "(id = " << x << ")")
 
-namespace Ak
+namespace AkVCam
 {
     struct PluginInterfacePrivate
     {
         public:
             CMIOHardwarePlugInInterface *pluginInterface;
-            Ak::PluginInterface *self;
+            PluginInterface *self;
             ULONG m_ref;
             ULONG m_reserved;
 
@@ -493,7 +493,7 @@ namespace Ak
     };
 }
 
-Ak::PluginInterface::PluginInterface():
+AkVCam::PluginInterface::PluginInterface():
     ObjectInterface(),
     m_objectID(0)
 {
@@ -505,31 +505,31 @@ Ak::PluginInterface::PluginInterface():
             NULL,
 
             // IUnknown Routines
-            Ak::PluginInterfacePrivate::QueryInterface,
-            Ak::PluginInterfacePrivate::AddRef,
-            Ak::PluginInterfacePrivate::Release,
+            PluginInterfacePrivate::QueryInterface,
+            PluginInterfacePrivate::AddRef,
+            PluginInterfacePrivate::Release,
 
             // DAL Plug-In Routines
-            Ak::PluginInterfacePrivate::Initialize,
-            Ak::PluginInterfacePrivate::InitializeWithObjectID,
-            Ak::PluginInterfacePrivate::Teardown,
-            Ak::PluginInterfacePrivate::ObjectShow,
-            Ak::PluginInterfacePrivate::ObjectHasProperty,
-            Ak::PluginInterfacePrivate::ObjectIsPropertySettable,
-            Ak::PluginInterfacePrivate::ObjectGetPropertyDataSize,
-            Ak::PluginInterfacePrivate::ObjectGetPropertyData,
-            Ak::PluginInterfacePrivate::ObjectSetPropertyData,
-            Ak::PluginInterfacePrivate::DeviceSuspend,
-            Ak::PluginInterfacePrivate::DeviceResume,
-            Ak::PluginInterfacePrivate::DeviceStartStream,
-            Ak::PluginInterfacePrivate::DeviceStopStream,
-            Ak::PluginInterfacePrivate::DeviceProcessAVCCommand,
-            Ak::PluginInterfacePrivate::DeviceProcessRS422Command,
-            Ak::PluginInterfacePrivate::StreamCopyBufferQueue,
-            Ak::PluginInterfacePrivate::StreamDeckPlay,
-            Ak::PluginInterfacePrivate::StreamDeckStop,
-            Ak::PluginInterfacePrivate::StreamDeckJog,
-            Ak::PluginInterfacePrivate::StreamDeckCueTo
+            PluginInterfacePrivate::Initialize,
+            PluginInterfacePrivate::InitializeWithObjectID,
+            PluginInterfacePrivate::Teardown,
+            PluginInterfacePrivate::ObjectShow,
+            PluginInterfacePrivate::ObjectHasProperty,
+            PluginInterfacePrivate::ObjectIsPropertySettable,
+            PluginInterfacePrivate::ObjectGetPropertyDataSize,
+            PluginInterfacePrivate::ObjectGetPropertyData,
+            PluginInterfacePrivate::ObjectSetPropertyData,
+            PluginInterfacePrivate::DeviceSuspend,
+            PluginInterfacePrivate::DeviceResume,
+            PluginInterfacePrivate::DeviceStartStream,
+            PluginInterfacePrivate::DeviceStopStream,
+            PluginInterfacePrivate::DeviceProcessAVCCommand,
+            PluginInterfacePrivate::DeviceProcessRS422Command,
+            PluginInterfacePrivate::StreamCopyBufferQueue,
+            PluginInterfacePrivate::StreamDeckPlay,
+            PluginInterfacePrivate::StreamDeckStop,
+            PluginInterfacePrivate::StreamDeckJog,
+            PluginInterfacePrivate::StreamDeckCueTo
         },
         this,
         0,
@@ -537,28 +537,28 @@ Ak::PluginInterface::PluginInterface():
     };
 }
 
-Ak::PluginInterface::~PluginInterface()
+AkVCam::PluginInterface::~PluginInterface()
 {
     delete this->d->pluginInterface;
     delete this->d;
 }
 
-CMIOObjectID Ak::PluginInterface::objectID() const
+CMIOObjectID AkVCam::PluginInterface::objectID() const
 {
     return this->m_objectID;
 }
 
-CMIOHardwarePlugInRef Ak::PluginInterface::create()
+CMIOHardwarePlugInRef AkVCam::PluginInterface::create()
 {
     AkLoggerLog("Creating plugin interface.");
 
-    auto pluginInterface = new Ak::PluginInterface();
+    auto pluginInterface = new PluginInterface();
     pluginInterface->d->AddRef(pluginInterface->d);
 
     return reinterpret_cast<CMIOHardwarePlugInRef>(pluginInterface->d);
 }
 
-Ak::Object *Ak::PluginInterface::findObject(CMIOObjectID objectID)
+AkVCam::Object *AkVCam::PluginInterface::findObject(CMIOObjectID objectID)
 {
     for (auto device: this->m_devices)
         if (auto object = device->findObject(objectID))
@@ -567,12 +567,12 @@ Ak::Object *Ak::PluginInterface::findObject(CMIOObjectID objectID)
     return nullptr;
 }
 
-HRESULT Ak::PluginInterface::QueryInterface(REFIID uuid, LPVOID *interface)
+HRESULT AkVCam::PluginInterface::QueryInterface(REFIID uuid, LPVOID *interface)
 {
     if (!interface)
         return E_POINTER;
 
-    AkLoggerLog("Ak::PluginInterface::QueryInterface");
+    AkLoggerLog("AkVCam::PluginInterface::QueryInterface");
 
     if (uuidEqual(uuid, kCMIOHardwarePlugInInterfaceID)
         || uuidEqual(uuid, IUnknownUUID)) {
@@ -586,16 +586,16 @@ HRESULT Ak::PluginInterface::QueryInterface(REFIID uuid, LPVOID *interface)
     return E_NOINTERFACE;
 }
 
-OSStatus Ak::PluginInterface::Initialize()
+OSStatus AkVCam::PluginInterface::Initialize()
 {
-    AkLoggerLog("Ak::PluginInterface::Initialize");
+    AkLoggerLog("AkVCam::PluginInterface::Initialize");
 
     return this->InitializeWithObjectID(kCMIOObjectUnknown);
 }
 
-OSStatus Ak::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
+OSStatus AkVCam::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
 {
-    AkLoggerLog("Ak::PluginInterface::InitializeWithObjectID: " << objectID);
+    AkLoggerLog("AkVCam::PluginInterface::InitializeWithObjectID: " << objectID);
 
     this->m_objectID = objectID;
 
@@ -676,9 +676,9 @@ OSStatus Ak::PluginInterface::InitializeWithObjectID(CMIOObjectID objectID)
     return status;
 }
 
-OSStatus Ak::PluginInterface::Teardown()
+OSStatus AkVCam::PluginInterface::Teardown()
 {
-    AkLoggerLog("Ak::PluginInterface::Teardown");
+    AkLoggerLog("AkVCam::PluginInterface::Teardown");
     AkLoggerLog("STUB");
 /*
     this->m_devices.clear();

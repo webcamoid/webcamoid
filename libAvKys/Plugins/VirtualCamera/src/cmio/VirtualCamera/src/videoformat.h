@@ -23,7 +23,7 @@
 #include <vector>
 #include <CoreMedia/CMFormatDescription.h>
 
-namespace Ak
+namespace AkVCam
 {
     class VideoFormat
     {

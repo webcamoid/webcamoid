@@ -22,9 +22,9 @@
 #include "device.h"
 #include "utils.h"
 
-Ak::Device::Device(CMIOHardwarePlugInRef pluginInterface,
-                   bool registerObject):
-    Ak::Object(pluginInterface)
+AkVCam::Device::Device(CMIOHardwarePlugInRef pluginInterface,
+                       bool registerObject):
+    AkVCam::Object(pluginInterface)
 {
     this->m_className = "Device";
     this->m_classID = kCMIODeviceClassID;
@@ -35,13 +35,13 @@ Ak::Device::Device(CMIOHardwarePlugInRef pluginInterface,
     }
 }
 
-Ak::Device::~Device()
+AkVCam::Device::~Device()
 {
     this->registerStreams(false);
     this->registerObject(false);
 }
 
-OSStatus Ak::Device::createObject()
+OSStatus AkVCam::Device::createObject()
 {
     AkObjectLogMethod();
 
@@ -66,7 +66,7 @@ OSStatus Ak::Device::createObject()
     return status;
 }
 
-OSStatus Ak::Device::registerObject(bool regist)
+OSStatus AkVCam::Device::registerObject(bool regist)
 {
     AkObjectLogMethod();
     OSStatus status = kCMIOHardwareUnspecifiedError;
@@ -95,7 +95,7 @@ OSStatus Ak::Device::registerObject(bool regist)
     return status;
 }
 
-Ak::StreamPtr Ak::Device::addStream()
+AkVCam::StreamPtr AkVCam::Device::addStream()
 {
     AkObjectLogMethod();
     auto stream = StreamPtr(new Stream(false, this));
@@ -110,7 +110,7 @@ Ak::StreamPtr Ak::Device::addStream()
     return StreamPtr();
 }
 
-std::list<Ak::StreamPtr> Ak::Device::addStreams(int n)
+std::list<AkVCam::StreamPtr> AkVCam::Device::addStreams(int n)
 {
     AkObjectLogMethod();
     std::list<StreamPtr> streams;
@@ -132,7 +132,7 @@ std::list<Ak::StreamPtr> Ak::Device::addStreams(int n)
     return streams;
 }
 
-OSStatus Ak::Device::registerStreams(bool regist)
+OSStatus AkVCam::Device::registerStreams(bool regist)
 {
     AkObjectLogMethod();
     OSStatus status = kCMIOHardwareUnspecifiedError;
@@ -167,7 +167,7 @@ OSStatus Ak::Device::registerStreams(bool regist)
     return status;
 }
 
-OSStatus Ak::Device::suspend()
+OSStatus AkVCam::Device::suspend()
 {
     AkObjectLogMethod();
 
@@ -176,7 +176,7 @@ OSStatus Ak::Device::suspend()
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Device::resume()
+OSStatus AkVCam::Device::resume()
 {
     AkObjectLogMethod();
 
@@ -185,7 +185,7 @@ OSStatus Ak::Device::resume()
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Device::startStream(CMIOStreamID stream)
+OSStatus AkVCam::Device::startStream(CMIOStreamID stream)
 {
     AkObjectLogMethod();
 
@@ -217,7 +217,7 @@ OSStatus Ak::Device::startStream(CMIOStreamID stream)
     return kCMIOHardwareNoError;
 }
 
-OSStatus Ak::Device::stopStream(CMIOStreamID stream)
+OSStatus AkVCam::Device::stopStream(CMIOStreamID stream)
 {
     AkObjectLogMethod();
 
@@ -247,7 +247,7 @@ OSStatus Ak::Device::stopStream(CMIOStreamID stream)
     return kCMIOHardwareNoError;
 }
 
-OSStatus Ak::Device::processAVCCommand(CMIODeviceAVCCommand *ioAVCCommand)
+OSStatus AkVCam::Device::processAVCCommand(CMIODeviceAVCCommand *ioAVCCommand)
 {
     AkObjectLogMethod();
     UNUSED(ioAVCCommand)
@@ -257,7 +257,7 @@ OSStatus Ak::Device::processAVCCommand(CMIODeviceAVCCommand *ioAVCCommand)
     return kCMIOHardwareUnspecifiedError;
 }
 
-OSStatus Ak::Device::processRS422Command(CMIODeviceRS422Command *ioRS422Command)
+OSStatus AkVCam::Device::processRS422Command(CMIODeviceRS422Command *ioRS422Command)
 {
     AkObjectLogMethod();
     UNUSED(ioRS422Command)
@@ -267,7 +267,7 @@ OSStatus Ak::Device::processRS422Command(CMIODeviceRS422Command *ioRS422Command)
     return kCMIOHardwareUnspecifiedError;
 }
 
-void Ak::Device::updateStreamsProperty()
+void AkVCam::Device::updateStreamsProperty()
 {
     std::vector<ObjectPtr> streams;
 

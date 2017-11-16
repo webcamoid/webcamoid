@@ -23,41 +23,44 @@
 #include <string>
 #include <cstdint>
 
-struct RcNode
+namespace AkVCam
 {
-    uint32_t nameOffset;
-    uint16_t flags;
-
-    enum
+    struct RcNode
     {
-        NodeType_File,
-        NodeType_Compressed,
-        NodeType_Folder
-    };
-
-    union
-    {
-        uint32_t count;
-
-        struct
+        enum
         {
-            uint16_t country;
-            uint16_t language;
-        } locale;
-    } fd;
+            NodeType_File,
+            NodeType_Compressed,
+            NodeType_Folder
+        };
 
-    union
-    {
-        uint32_t firstChild;
-        uint32_t dataOffset;
+        uint32_t nameOffset;
+        uint16_t flags;
+
+        union
+        {
+            uint32_t count;
+
+            struct
+            {
+                uint16_t country;
+                uint16_t language;
+            } locale;
+        } fd;
+
+        union
+        {
+            uint32_t firstChild;
+            uint32_t dataOffset;
+        };
+
+        uint64_t lastModified;
+        std::string parent;
+
+        RcNode();
+        RcNode(const RcNode &other);
+        static RcNode read(const unsigned char *rcTree, int rcVersion);
     };
-
-    uint64_t lastModified;
-    std::string parent;
-
-    RcNode();
-    RcNode(const RcNode &other);
-    static RcNode read(const unsigned char *rcTree);
-};
+}
 
 #endif // RCNODE_H

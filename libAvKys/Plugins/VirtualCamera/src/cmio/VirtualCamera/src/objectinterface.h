@@ -34,7 +34,7 @@
                 << __FUNCTION__ \
                 << "()")
 
-namespace Ak
+namespace AkVCam
 {
     class ObjectInterface
     {

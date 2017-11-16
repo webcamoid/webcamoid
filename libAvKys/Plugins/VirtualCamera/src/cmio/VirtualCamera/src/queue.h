@@ -23,7 +23,7 @@
 #include <memory>
 #include <CoreMedia/CMSimpleQueue.h>
 
-namespace Ak
+namespace AkVCam
 {
     template <typename T>
     class Queue;

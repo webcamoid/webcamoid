@@ -24,7 +24,7 @@
 #include <memory>
 #include <CoreMedia/CMTime.h>
 
-namespace Ak
+namespace AkVCam
 {
     class Clock;
     typedef std::shared_ptr<Clock> ClockPtr;

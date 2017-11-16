@@ -30,5 +30,5 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
     if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
         return NULL;
 
-    return Ak::PluginInterface::create();
+    return AkVCam::PluginInterface::create();
 }
