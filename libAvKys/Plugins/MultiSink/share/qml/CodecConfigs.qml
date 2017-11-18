@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Webcamoid. If not, see <http://www.gnu.org/licenses/>.
  *
- * Web-Site: http://webcamoid.github.io/
+ * Web-Site: https://webcamoid.github.io/
  */
 
 import QtQuick 2.7
@@ -148,7 +148,7 @@ ApplicationWindow {
             }
             AkButton {
                 id: btnOk
-                label: qsTr("Ok")
+                label: qsTr("OK")
                 icon: "image://icons/ok"
 
                 property variant controlValues: ({})
