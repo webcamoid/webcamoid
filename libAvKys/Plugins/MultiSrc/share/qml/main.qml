@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 
 GridLayout {
     columns: 2
@@ -82,8 +82,9 @@ GridLayout {
             lstSubtitlesTracks.append({stream: streams[stream], language: description})
         }
 
-        cbxAudioTracks.currentIndex = 1
-        cbxVideoTracks.currentIndex = 1
+        cbxAudioTracks.currentIndex = lstAudioTracks.count > 1? 1: 0
+        cbxVideoTracks.currentIndex = lstVideoTracks.count > 1? 1: 0
+        cbxSubtitlesTracks.currentIndex = lstSubtitlesTracks.count > 1? 1: 0
         MultiSrc.streams = [MultiSrc.defaultStream("audio/x-raw"),
                             MultiSrc.defaultStream("video/x-raw")]
 
@@ -123,6 +124,7 @@ GridLayout {
         model: ListModel {
             id: lstVideoTracks
         }
+        Layout.fillWidth: true
         onCurrentIndexChanged: updateStreams()
     }
 
@@ -135,6 +137,7 @@ GridLayout {
         model: ListModel {
             id: lstAudioTracks
         }
+        Layout.fillWidth: true
         onCurrentIndexChanged: updateStreams()
     }
 
@@ -147,10 +150,7 @@ GridLayout {
         model: ListModel {
             id: lstSubtitlesTracks
         }
+        Layout.fillWidth: true
         onCurrentIndexChanged: updateStreams()
-    }
-
-    Label {
-        Layout.fillHeight: true
     }
 }

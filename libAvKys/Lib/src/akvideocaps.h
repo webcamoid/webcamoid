@@ -25,10 +25,11 @@
 #include "akcaps.h"
 #include "akfrac.h"
 
-inline quint32 AkFourCC(quint32 a, quint32 b, quint32 c, quint32 d)
-{
-    return (d << 24) | (c << 16) | (b << 8) | a;
-}
+#define AkFourCC(a, b, c, d) \
+    (((quint32(d) & 0xff) << 24) \
+     | ((quint32(c) & 0xff) << 16) \
+     | ((quint32(b) & 0xff) << 8) \
+     | (quint32(a) & 0xff))
 
 #define AK_FOURCC_NULL AkFourCC('\x0', '\x0', '\x0', '\x0')
 
@@ -245,6 +246,24 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
             Format_yuv440p12be,
             Format_ayuv64le,
             Format_ayuv64be,
+            Format_p010le,
+            Format_p010be,
+            Format_gbrap12be,
+            Format_gbrap12le,
+            Format_gbrap10be,
+            Format_gbrap10le,
+            Format_gray12be,
+            Format_gray12le,
+            Format_gray10be,
+            Format_gray10le,
+            Format_p016le,
+            Format_p016be,
+            Format_gray9be,
+            Format_gray9le,
+            Format_gbrpf32be,
+            Format_gbrpf32le,
+            Format_gbrapf32be,
+            Format_gbrapf32le,
             Format_v210,
             Format_v216,
             Format_v308
@@ -268,6 +287,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
         Q_INVOKABLE bool &isValid();
         Q_INVOKABLE PixelFormat format() const;
         Q_INVOKABLE PixelFormat &format();
+        Q_INVOKABLE quint32 fourCC() const;
         Q_INVOKABLE int bpp() const;
         Q_INVOKABLE int &bpp();
         Q_INVOKABLE QSize size() const;

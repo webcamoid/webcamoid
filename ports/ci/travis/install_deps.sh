@@ -6,9 +6,10 @@ if [ "${TRAVIS_OS_NAME}" = linux ] && [ "${ANDROID_BUILD}" != 1 ]; then
     # Install Qt Installer Framework
     wget -c http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/QtInstallerFramework-linux-x64.run
     chmod +x QtInstallerFramework-linux-x64.run
-    export QT_QPA_PLATFORM=minimal
 
+    QT_QPA_PLATFORM=minimal \
     ./QtInstallerFramework-linux-x64.run \
+        -v \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
 
@@ -38,11 +39,12 @@ if [ "${ANDROID_BUILD}" = 1 ]; then
     unzip -q android-ndk-${NDKVER}-linux-x86_64.zip
 
     # Install Qt for Android
-    wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-android-${QTVER}.run
-    chmod +x qt-opensource-linux-x64-android-${QTVER}.run
-    export QT_QPA_PLATFORM=minimal
+    wget -c https://download.qt.io/archive/qt/${QTVER:0:3}/${QTVER}/qt-opensource-linux-x64-${QTVER}.run
+    chmod +x qt-opensource-linux-x64-${QTVER}.run
 
-    ./qt-opensource-linux-x64-android-${QTVER}.run \
+    QT_QPA_PLATFORM=minimal \
+    ./qt-opensource-linux-x64-${QTVER}.run \
+        -v \
         --script "$PWD/../ports/ci/travis/qt_non_interactive_install.qs" \
         --no-force-installations
 elif [ "${DOCKERSYS}" = debian ]; then
@@ -50,10 +52,10 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
     if [ "${DOCKERIMG}" = ubuntu:trusty ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt58-trusty
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt${PPAQTVER}-trusty
     elif [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install software-properties-common
-        ${EXEC} add-apt-repository ppa:beineri/opt-qt58-xenial
+        ${EXEC} add-apt-repository ppa:beineri/opt-qt${PPAQTVER}-xenial
     fi
 
     ${EXEC} apt-get -y update
@@ -77,15 +79,15 @@ elif [ "${DOCKERSYS}" = debian ]; then
 
     # Install Qt dev
     if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-         [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+       [ "${DOCKERIMG}" = ubuntu:xenial ]; then
         ${EXEC} apt-get -y install \
-            qt58tools \
-            qt58declarative \
-            qt58multimedia \
-            qt58svg \
-            qt58quickcontrols \
-            qt58quickcontrols2 \
-            qt58graphicaleffects
+            qt${PPAQTVER:0:2}tools \
+            qt${PPAQTVER:0:2}declarative \
+            qt${PPAQTVER:0:2}multimedia \
+            qt${PPAQTVER:0:2}svg \
+            qt${PPAQTVER:0:2}quickcontrols \
+            qt${PPAQTVER:0:2}quickcontrols2 \
+            qt${PPAQTVER:0:2}graphicaleffects
     else
         ${EXEC} apt-get -y install \
             qt5-qmake \
@@ -93,10 +95,12 @@ elif [ "${DOCKERSYS}" = debian ]; then
             qtmultimedia5-dev \
             libqt5opengl5-dev \
             libqt5svg5-dev \
+            qtquickcontrols2-5-dev \
             qml-module-qt-labs-folderlistmodel \
             qml-module-qt-labs-settings \
             qml-module-qtqml-models2 \
             qml-module-qtquick-controls \
+            qml-module-qtquick-controls2 \
             qml-module-qtquick-dialogs \
             qml-module-qtquick-extras \
             qml-module-qtquick-privatewidgets
@@ -134,6 +138,7 @@ elif [ "${DOCKERSYS}" = fedora ]; then
         qt5-qtmultimedia-devel \
         qt5-qtsvg-devel \
         qt5-qtquickcontrols \
+        qt5-qtquickcontrols2-devel \
         qt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer1-plugins-base-devel \
@@ -157,6 +162,8 @@ elif [ "${DOCKERSYS}" = opensuse ]; then
         libqt5-qtmultimedia-devel \
         libqt5-qtsvg-devel \
         libqt5-qtquickcontrols \
+        libqt5-qtquickcontrols2 \
+        libQt5QuickControls2-devel \
         libqt5-qtgraphicaleffects \
         ffmpeg-devel \
         gstreamer-plugins-base-devel \
@@ -185,12 +192,7 @@ elif [ "${TRAVIS_OS_NAME}" = osx ]; then
     chmod +x qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64
 
     qtifw/QtInstallerFramework-mac-x64/QtInstallerFramework-mac-x64.app/Contents/MacOS/QtInstallerFramework-mac-x64 \
+        -v \
         --script "$PWD/ports/ci/travis/qtifw_non_interactive_install.qs" \
         --no-force-installations
-
-    # Install Syphon framework
-    wget -c https://github.com/Syphon/Simple/releases/download/version-3/Syphon.Simple.Apps.3.zip
-    unzip Syphon.Simple.Apps.3.zip
-    mkdir -p Syphon
-    cp -Rvf "Syphon Simple Apps/Simple Client.app/Contents/Frameworks/Syphon.framework" ./Syphon
 fi

@@ -17,18 +17,18 @@ fi
 BUILDSCRIPT=dockerbuild.sh
 
 if [ "${DOCKERIMG}" = ubuntu:trusty ] || \
-     [ "${DOCKERIMG}" = ubuntu:xenial ]; then
+   [ "${DOCKERIMG}" = ubuntu:xenial ]; then
     cat << EOF > ${BUILDSCRIPT}
 #!/bin/bash
 
-source /opt/qt58/bin/qt58-env.sh
+source /opt/qt${PPAQTVER:0:2}/bin/qt${PPAQTVER:0:2}-env.sh
 EOF
 
     chmod +x ${BUILDSCRIPT}
 fi
 
 if [ "${ANDROID_BUILD}" = 1 ]; then
-    export PATH=$PWD/build/Qt/${QTVER:0:3}/android_${TARGET_ARCH}/bin:$PATH
+    export PATH=$PWD/build/Qt/${QTVER}/android_${TARGET_ARCH}/bin:$PATH
     export ANDROID_NDK_ROOT=$PWD/build/android-ndk-${NDKVER}
     qmake -spec ${COMPILESPEC} Webcamoid.pro
 elif [ "${TRAVIS_OS_NAME}" = linux ]; then
@@ -51,14 +51,8 @@ EOF
             QMAKE_CXX="${COMPILER}"
     fi
 elif [ "${TRAVIS_OS_NAME}" = osx ]; then
-    syphonFPath="$PWD/Syphon"
-
     ${EXEC} qmake -spec ${COMPILESPEC} Webcamoid.pro \
         QMAKE_CXX="${COMPILER}" \
-        SYPHONINCLUDES="$syphonFPath/Syphon.framework/Headers" \
-        SYPHONLIBS=-F"$syphonFPath" \
-        SYPHONLIBS+=-framework \
-        SYPHONLIBS+=Syphon \
         LIBUSBINCLUDES=/usr/local/opt/libusb/include \
         LIBUVCINCLUDES=/usr/local/opt/libuvc/include \
         LIBUVCLIBS=-L/usr/local/opt/libuvc/lib \

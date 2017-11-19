@@ -195,6 +195,7 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
 
     this->m_streamIndex = streamIndex;
     this->m_streamCaps = videoCaps.toCaps();
+    this->m_cameraOut->setCaps(this->m_streamCaps);
 
     return QVariantMap();
 }
@@ -380,8 +381,7 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
                 this->m_cameraOut->setDevice(webcams.at(0));
             }
 
-            if (!this->m_cameraOut->init(this->m_streamIndex,
-                                         this->m_streamCaps)) {
+            if (!this->m_cameraOut->init(this->m_streamIndex)) {
                 this->m_mutex.unlock();
 
                 return false;

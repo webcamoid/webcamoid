@@ -17,15 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
+import QtQuick 2.7
 import QtQuick.Dialogs 1.2
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
-ColumnLayout {
-    width: 400
-    height: 450
+AkScrollView {
+    id: scrollView
+    clip: true
+    contentHeight: pluginConfigs.height
 
     function fillSearchPaths()
     {
@@ -47,7 +49,7 @@ ColumnLayout {
         for (var path in pluginsPaths) {
             pluginsTable.model.append({
                 path: pluginsPaths[path],
-                enabled: true
+                pluginEnabled: true
             })
         }
 
@@ -56,7 +58,7 @@ ColumnLayout {
         for (var path in blackList) {
             pluginsTable.model.append({
                 path: blackList[path],
-                enabled: false
+                pluginEnabled: false
             })
         }
     }
@@ -74,11 +76,22 @@ ColumnLayout {
         refreshCache()
     }
 
+    function colorForIndex(index, pluginEnabled, table) {
+        var pal = pluginEnabled? palette: paletteDisabled;
+
+        return index === table.currentIndex?
+                           pal.highlight: index & 1?
+                               pal.alternateBase: pal.base
+    }
+
     AkElement {
         id: globalElement
     }
     SystemPalette {
-        id: systemPalette
+        id: palette
+    }
+    SystemPalette {
+        id: paletteDisabled
         colorGroup: SystemPalette.Disabled
     }
 
@@ -87,179 +100,207 @@ ColumnLayout {
         fillPluginList()
     }
 
-    Label {
-        text: qsTr("Use this page for configuring the plugins search paths.<br /><b>Don't touch nothing unless you know what you are doing</b>.")
-        wrapMode: Text.WordWrap
-        Layout.fillWidth: true
-    }
-    GroupBox {
-        title: qsTr("Extra search paths")
-        Layout.fillWidth: true
+    ColumnLayout {
+        id: pluginConfigs
+        width: scrollView.width
+               - (scrollView.ScrollBar.vertical.visible?
+                      scrollView.ScrollBar.vertical.width: 0)
 
-        GridLayout {
-            columns: 3
-            anchors.fill: parent
+        Label {
+            text: qsTr("Use this page for configuring the plugins search paths.<br /><b>Don't touch nothing unless you know what you are doing</b>.")
+            wrapMode: Text.WordWrap
+            Layout.fillWidth: true
+        }
+        GroupBox {
+            title: qsTr("Extra search paths")
+            Layout.fillWidth: true
+            clip: true
 
-            CheckBox {
-                text: qsTr("Search plugins in subfolders.")
-                checked: globalElement.recursiveSearch()
-                Layout.fillWidth: true
+            GridLayout {
+                columns: 3
+                anchors.fill: parent
 
-                onCheckedChanged: {
-                    globalElement.setRecursiveSearch(checked)
-                    refreshCache()
+                CheckBox {
+                    text: qsTr("Search plugins in subfolders.")
+                    checked: globalElement.recursiveSearch()
+                    Layout.fillWidth: true
+
+                    onCheckedChanged: {
+                        globalElement.setRecursiveSearch(checked)
+                        refreshCache()
+                    }
                 }
-            }
-            Button {
-                text: qsTr("Add")
-                iconName: "add"
-                iconSource: "image://icons/add"
+                AkButton {
+                    label: qsTr("Add")
+                    icon: "image://icons/add"
 
-                onClicked: fileDialog.open()
-            }
-            Button {
-                id: btnRemove
-                text: qsTr("Remove")
-                iconName: "remove"
-                iconSource: "image://icons/remove"
-                enabled: searchPathsTable.currentRow >= 0
-
-                onClicked: {
-                    var removeIndex = []
-
-                    searchPathsTable.selection.forEach(function (rowIndex) {
-                        removeIndex.push(rowIndex)
-                    })
-
-                    var searchPaths = globalElement.searchPaths();
-                    var sp = []
-
-                    for (var path in searchPaths)
-                        if (removeIndex.indexOf(parseInt(path)) < 0)
-                            sp.push(searchPaths[path])
-
-                    globalElement.setSearchPaths(sp);
-                    refreshAll()
-                    searchPathsTable.selection.clear()
-                    searchPathsTable.currentRow = -1
+                    onClicked: fileDialog.open()
                 }
-            }
-            TableView {
-                id: searchPathsTable
-                headerVisible: false
-                selectionMode: SelectionMode.SingleSelection
-                Layout.columnSpan: 3
-                Layout.fillWidth: true
-                model: ListModel {
-                    id: searchPathsModel
-                }
+                AkButton {
+                    id: btnRemove
+                    label: qsTr("Remove")
+                    icon: "image://icons/remove"
+                    enabled: searchPathsTable.currentIndex >= 0
 
-                TableViewColumn {
-                    role: "path"
-                    title: qsTr("Search path")
-                    elideMode: Text.ElideLeft
+                    onClicked: {
+                        var searchPaths = globalElement.searchPaths();
+                        var sp = []
+
+                        for (var path in searchPaths)
+                            if (path != searchPathsTable.currentIndex)
+                                sp.push(searchPaths[path])
+
+                        globalElement.setSearchPaths(sp);
+                        refreshAll()
+                        searchPathsTable.currentIndex = -1
+                    }
+                }
+                Rectangle {
+                    color: palette.base
+                    height: 150
+                    Layout.columnSpan: 3
+                    Layout.fillWidth: true
+
+                    AkScrollView {
+                        id: searchPathsTableScroll
+                        clip: true
+                        contentHeight: searchPathsTable.height
+                        anchors.fill: parent
+
+                        ListView {
+                            id: searchPathsTable
+                            height: contentHeight
+                            width: searchPathsTableScroll.width
+                                   - (searchPathsTableScroll.ScrollBar.vertical.visible?
+                                          searchPathsTableScroll.ScrollBar.vertical.width: 0)
+
+                            model: ListModel {
+                                id: searchPathsModel
+                            }
+                            delegate: Rectangle {
+                                color: colorForIndex(index, true, searchPathsTable)
+                                width: parent.width
+                                height: lblPluginSearchPath.height
+
+                                Label {
+                                    id: lblPluginSearchPath
+                                    text: path
+                                    elide: Text.ElideLeft
+                                    width: parent.width
+                                }
+                                MouseArea {
+                                    preventStealing: true
+                                    anchors.fill: parent
+
+                                    onClicked: {
+                                        searchPathsTable.currentIndex = index
+                                        searchPathsTable.positionViewAtIndex(index, ListView.Contain)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-    GroupBox {
-        title: qsTr("Plugins list")
-        Layout.fillWidth: true
+        GroupBox {
+            title: qsTr("Plugins list")
+            Layout.fillWidth: true
+            clip: true
 
-        GridLayout {
-            columns: 3
-            anchors.fill: parent
+            GridLayout {
+                columns: 3
+                anchors.fill: parent
 
-            Button {
-                text: qsTr("Refresh")
-                iconName: "reset"
-                iconSource: "image://icons/reset"
+                AkButton {
+                    label: qsTr("Refresh")
+                    icon: "image://icons/reset"
 
-                onClicked: refreshCache()
-            }
-            Label {
-                Layout.fillWidth: true
-            }
-            Button {
-                id: btnEnableDisable
-                text: pluginIsEnabled? qsTr("Disable"): qsTr("Enable")
-                enabled: pluginsTable.currentRow >= 0
+                    onClicked: refreshCache()
+                }
+                Label {
+                    Layout.fillWidth: true
+                }
+                Button {
+                    id: btnEnableDisable
+                    text: pluginIsEnabled? qsTr("Disable"): qsTr("Enable")
+                    enabled: pluginsTable.currentIndex >= 0
 
-                property bool pluginIsEnabled: false
+                    property bool pluginIsEnabled: false
 
-                onClicked: {
-                    var blackList = globalElement.pluginsBlackList()
+                    onClicked: {
+                        var blackList = globalElement.pluginsBlackList()
+                        var path = pluginsTable.model.get(pluginsTable.currentIndex).path
+                        var index = blackList.indexOf(path)
 
-                    if (pluginIsEnabled) {
-                        pluginsTable.selection.forEach(function (rowIndex) {
-                            var path = pluginsTable.model.get(rowIndex).path
-
-                            if (blackList.indexOf(path) < 0)
+                        if (pluginIsEnabled) {
+                            if (index < 0)
                                 blackList.push(path)
-                        })
-                    } else {
-                        pluginsTable.selection.forEach(function (rowIndex) {
-                            var path = pluginsTable.model.get(rowIndex).path
-                            var index = blackList.indexOf(path)
-
+                        } else {
                             if (index >= 0)
                                 blackList.splice(index, 1)
-                        })
-                    }
+                        }
 
-                    globalElement.setPluginsBlackList(blackList)
-                    refreshCache()
-                    pluginsTable.selection.clear()
-                    pluginsTable.currentRow = -1
-                }
-            }
-            TableView {
-                id: pluginsTable
-                headerVisible: false
-                selectionMode: SelectionMode.SingleSelection
-                Layout.columnSpan: 3
-                Layout.fillWidth: true
-                model: ListModel {
-                    id: pluginsModel
-                }
-                itemDelegate: Item {
-                    height: Math.max(16, label.implicitHeight)
-                    property int implicitWidth: label.implicitWidth + 20
-
-                    Label {
-                        id: label
-                        enabled: false
-                        objectName: "label"
-                        width: parent.width
-                        anchors.leftMargin: 12
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        horizontalAlignment: styleData.textAlignment
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: 1
-                        elide: styleData.elideMode
-                        text: styleData.value !== undefined? styleData.value: ""
-                        color: styleData.row >= 0 && pluginsTable.model.get(styleData.row).enabled?
-                                   styleData.textColor: systemPalette.text
-                        renderType: Text.NativeRendering
+                        globalElement.setPluginsBlackList(blackList)
+                        refreshCache()
+                        pluginsTable.currentIndex = -1
                     }
                 }
+                Rectangle {
+                    color: palette.base
+                    height: 150
+                    Layout.columnSpan: 3
+                    Layout.fillWidth: true
 
-                onCurrentRowChanged: {
-                    btnEnableDisable.pluginIsEnabled =
-                        currentRow < 0? false: pluginsTable.model.get(currentRow).enabled
-                }
+                    AkScrollView {
+                        id: pluginsTableScroll
+                        clip: true
+                        contentHeight: pluginsTable.height
+                        anchors.fill: parent
 
-                TableViewColumn {
-                    role: "path"
-                    title: qsTr("Plugin path")
-                    elideMode: Text.ElideLeft
+                        ListView {
+                            id: pluginsTable
+                            height: contentHeight
+                            width: pluginsTableScroll.width
+                                   - (pluginsTableScroll.ScrollBar.vertical.visible?
+                                          pluginsTableScroll.ScrollBar.vertical.width: 0)
+
+                            model: ListModel {
+                                id: pluginsModel
+                            }
+
+                            delegate: Rectangle {
+                                color: colorForIndex(index, pluginEnabled, pluginsTable)
+                                width: parent.width
+                                height: lblPluginPath.height
+
+                                Label {
+                                    id: lblPluginPath
+                                    text: path
+                                    elide: Text.ElideLeft
+                                    width: parent.width
+                                    enabled: pluginEnabled
+                                }
+                                MouseArea {
+                                    preventStealing: true
+                                    anchors.fill: parent
+
+                                    onClicked: {
+                                        pluginsTable.currentIndex = index
+                                        pluginsTable.positionViewAtIndex(index, ListView.Contain)
+                                    }
+                                }
+                            }
+
+                            onCurrentIndexChanged: {
+                                btnEnableDisable.pluginIsEnabled =
+                                    currentIndex < 0? false: pluginsTable.model.get(currentIndex).pluginEnabled
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-    Label {
-        Layout.fillHeight: true
     }
 
     FileDialog {

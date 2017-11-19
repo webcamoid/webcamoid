@@ -17,13 +17,27 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     id: configs
     columns: 3
+
+    Connections {
+        target: Denoise
+
+        onRadiusChanged: {
+            sldRadius.value = radius
+            spbRadius.rvalue = radius
+        }
+        onSigmaChanged: {
+            sldSigma.value = sigma
+            spbSigma.rvalue = sigma
+        }
+    }
 
     Label {
         text: qsTr("Radius")
@@ -32,17 +46,18 @@ GridLayout {
         id: sldRadius
         value: Denoise.radius
         stepSize: 1
-        maximumValue: 10
+        to: 10
+        Layout.fillWidth: true
 
         onValueChanged: Denoise.radius = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbRadius
-        value: sldRadius.value
-        maximumValue: sldRadius.maximumValue
-        stepSize: sldRadius.stepSize
+        rvalue: Denoise.radius
+        maximumValue: sldRadius.to
+        step: sldRadius.stepSize
 
-        onValueChanged: sldRadius.value = value
+        onRvalueChanged: Denoise.radius = rvalue
     }
 
     Label {
@@ -53,10 +68,10 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         onTextChanged: Denoise.factor = text
-    }
-    Label {
     }
 
     Label {
@@ -67,10 +82,10 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /-?\d+/
         }
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
 
         onTextChanged: Denoise.mu = text
-    }
-    Label {
     }
 
     Label {
@@ -80,19 +95,20 @@ GridLayout {
         id: sldSigma
         value: Denoise.sigma
         stepSize: 0.1
-        minimumValue: 0.1
-        maximumValue: 10
+        to: 10
+        from: 0.1
+        Layout.fillWidth: true
 
         onValueChanged: Denoise.sigma = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbSigma
-        value: sldSigma.value
+        rvalue: Denoise.sigma
         decimals: 1
-        stepSize: sldSigma.stepSize
-        minimumValue: sldSigma.minimumValue
-        maximumValue: sldSigma.maximumValue
+        step: sldSigma.stepSize
+        minimumValue: sldSigma.from
+        maximumValue: sldSigma.to
 
-        onValueChanged: sldSigma.value = value
+        onRvalueChanged: Denoise.sigma = rvalue
     }
 }

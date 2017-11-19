@@ -24,7 +24,7 @@
 
 ScrollElement::ScrollElement(): AkElement()
 {
-    this->m_speed = 0.05;
+    this->m_speed = 0.25;
     this->m_noise = 0.1;
     this->m_offset = 0.0;
 
@@ -95,7 +95,7 @@ void ScrollElement::setNoise(qreal noise)
 
 void ScrollElement::resetSpeed()
 {
-    this->setSpeed(0.05);
+    this->setSpeed(0.25);
 }
 
 void ScrollElement::resetNoise()

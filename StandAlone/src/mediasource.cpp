@@ -123,24 +123,6 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                          SLOT(saveMultiSrcCodecLib(const QString &)));
     }
 
-    this->m_syphonCapture = AkElement::create("SyphonIO");
-
-    if (this->m_syphonCapture) {
-        QObject::connect(this->m_syphonCapture.data(),
-                         SIGNAL(oStream(const AkPacket &)),
-                         this,
-                         SIGNAL(oStream(const AkPacket &)),
-                         Qt::DirectConnection);
-        QObject::connect(this->m_syphonCapture.data(),
-                         SIGNAL(mediasChanged(const QStringList &)),
-                         this,
-                         SLOT(updateStreams()));
-        QObject::connect(this->m_syphonCapture.data(),
-                         SIGNAL(error(const QString &)),
-                         this,
-                         SIGNAL(error(const QString &)));
-    }
-
     // Setup streams
     QStringList cameras;
 
@@ -155,13 +137,6 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
         QMetaObject::invokeMethod(this->m_desktopCapture.data(),
                                   "medias",
                                   Q_RETURN_ARG(QStringList, desktops));
-
-    QStringList syphonServers;
-
-    if (this->m_syphonCapture)
-        QMetaObject::invokeMethod(this->m_syphonCapture.data(),
-                                  "medias",
-                                  Q_RETURN_ARG(QStringList, syphonServers));
 
     for (const QString &camera: cameras) {
         QString description;
@@ -185,22 +160,9 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
         this->m_descriptions[desktop] = description;
     }
 
-    if (this->m_syphonCapture)
-        for (const QString &server: syphonServers) {
-            QString description;
-
-            QMetaObject::invokeMethod(this->m_syphonCapture.data(),
-                                      "description",
-                                      Q_RETURN_ARG(QString, description),
-                                      Q_ARG(QString, server));
-
-            this->m_descriptions[server] = description;
-        }
-
     this->m_cameras = cameras;
     this->m_desktops = desktops;
-    this->m_syphonServers = syphonServers;
-    this->m_streams = cameras + syphonServers + desktops;
+    this->m_streams = cameras + desktops;
 
     this->loadProperties();
 }
@@ -224,11 +186,6 @@ QStringList MediaSource::streams() const
 QStringList MediaSource::cameras() const
 {
     return this->m_cameras;
-}
-
-QStringList MediaSource::syphonServers() const
-{
-    return this->m_syphonServers;
 }
 
 QStringList MediaSource::desktops() const
@@ -297,10 +254,6 @@ bool MediaSource::embedControls(const QString &where,
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
 
-        QQmlProperty::write(interfaceItem,
-                            "anchors.fill",
-                            qVariantFromValue(item));
-
         return true;
     }
 
@@ -336,8 +289,6 @@ AkElementPtr MediaSource::sourceElement(const QString &stream) const
         return this->m_desktopCapture;
     else if (this->m_uris.contains(stream))
         return this->m_uriCapture;
-    else if (this->m_syphonServers.contains(stream))
-        return this->m_syphonCapture;
 
     return AkElementPtr();
 }
@@ -375,9 +326,6 @@ void MediaSource::setState(AkElement::ElementState state)
         if (this->m_uriCapture)
             this->m_uriCapture->setState(AkElement::ElementStateNull);
 
-        if (this->m_syphonCapture)
-            this->m_syphonCapture->setState(AkElement::ElementStateNull);
-
         source = this->m_cameraCapture;
     } else if (this->m_desktops.contains(this->m_stream)) {
         if (this->m_cameraCapture)
@@ -385,9 +333,6 @@ void MediaSource::setState(AkElement::ElementState state)
 
         if (this->m_uriCapture)
             this->m_uriCapture->setState(AkElement::ElementStateNull);
-
-        if (this->m_syphonCapture)
-            this->m_syphonCapture->setState(AkElement::ElementStateNull);
 
         source = this->m_desktopCapture;
     } else if (this->m_uris.contains(this->m_stream)) {
@@ -397,21 +342,7 @@ void MediaSource::setState(AkElement::ElementState state)
         if (this->m_desktopCapture)
             this->m_desktopCapture->setState(AkElement::ElementStateNull);
 
-        if (this->m_syphonCapture)
-            this->m_syphonCapture->setState(AkElement::ElementStateNull);
-
         source = this->m_uriCapture;
-    } else if (this->m_syphonServers.contains(this->m_stream)) {
-        if (this->m_cameraCapture)
-            this->m_cameraCapture->setState(AkElement::ElementStateNull);
-
-        if (this->m_desktopCapture)
-            this->m_desktopCapture->setState(AkElement::ElementStateNull);
-
-        if (this->m_uriCapture)
-            this->m_uriCapture->setState(AkElement::ElementStateNull);
-
-        source = this->m_syphonCapture;
     }
 
     if (source) {
@@ -562,13 +493,6 @@ void MediaSource::updateStreams()
                                   "medias",
                                   Q_RETURN_ARG(QStringList, desktops));
 
-    QStringList syphonServers;
-
-    if (this->m_syphonCapture)
-        QMetaObject::invokeMethod(this->m_syphonCapture.data(),
-                                  "medias",
-                                  Q_RETURN_ARG(QStringList, syphonServers));
-
     this->m_descriptions.clear();
 
     for (const QString &camera: cameras) {
@@ -596,21 +520,9 @@ void MediaSource::updateStreams()
     for (const QString &uri: this->m_uris.keys())
         this->m_descriptions[uri] = this->m_uris[uri].toString();
 
-    for (const QString &server: syphonServers) {
-        QString description;
-
-        QMetaObject::invokeMethod(this->m_syphonCapture.data(),
-                                  "description",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, server));
-
-        this->m_descriptions[server] = description;
-    }
-
     bool isSet = this->setCameras(cameras);
-    isSet |= this->setSyphonServers(syphonServers);
     isSet |= this->setDesktops(desktops);
-    isSet |= this->setStreams(cameras + syphonServers + desktops + this->m_uris.keys());
+    isSet |= this->setStreams(cameras + desktops + this->m_uris.keys());
 
     if (!isSet)
         emit this->streamsChanged(this->m_streams);
@@ -641,17 +553,6 @@ bool MediaSource::setCameras(const QStringList &cameras)
 
     this->m_cameras = cameras;
     emit this->camerasChanged(cameras);
-
-    return true;
-}
-
-bool MediaSource::setSyphonServers(const QStringList &servers)
-{
-    if (this->m_syphonServers == servers)
-        return false;
-
-    this->m_syphonServers = servers;
-    emit this->syphonServersChanged(servers);
 
     return true;
 }

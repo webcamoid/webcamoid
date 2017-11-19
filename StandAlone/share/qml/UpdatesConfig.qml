@@ -17,11 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import WebcamoidUpdates 1.0
 import AkQml 1.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     width: 300
@@ -66,11 +67,15 @@ GridLayout {
     Label {
         text: qsTr("Notify about new versions")
     }
-    CheckBox {
-        checked: Updates.notifyNewVersion
-        Layout.fillWidth: true
+    RowLayout {
+        CheckBox {
+            checked: Updates.notifyNewVersion
 
-        onCheckedChanged: Updates.notifyNewVersion = checked
+            onCheckedChanged: Updates.notifyNewVersion = checked
+        }
+        Label {
+            Layout.fillWidth: true
+        }
     }
 
     Label {
@@ -139,10 +144,9 @@ GridLayout {
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
-        Button {
-            text: qsTr("Upgrade Now!")
-            iconName: "applications-internet"
-            iconSource: "image://icons/applications-internet"
+        AkButton {
+            label: qsTr("Upgrade Now!")
+            icon: "image://icons/applications-internet"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
@@ -160,10 +164,9 @@ GridLayout {
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
-        Button {
-            text: qsTr("Report a Bug")
-            iconName: "tools-report-bug"
-            iconSource: "image://icons/tools-report-bug"
+        AkButton {
+            label: qsTr("Report a Bug")
+            icon: "image://icons/tools-report-bug"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectIssuesUrl())

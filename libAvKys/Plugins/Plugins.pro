@@ -34,8 +34,6 @@ SUBDIRS += \
     VideoCapture \
     VirtualCamera
 
-CONFIG(config_syphon): SUBDIRS += SyphonIO
-
 # Video effects
 isEmpty(NOVIDEOEFFECTS): SUBDIRS += \
     Aging \

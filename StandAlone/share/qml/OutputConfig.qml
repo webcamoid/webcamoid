@@ -17,12 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
-ColumnLayout {
+AkScrollView {
+    id: scrollView
+    clip: true
+    contentHeight: outputConfigs.height
+
     Component.onCompleted: {
         Webcamoid.removeInterface("itmVirtualCameraControls")
         Webcamoid.embedVirtualCameraControls("itmVirtualCameraControls")
@@ -36,23 +41,30 @@ ColumnLayout {
         }
     }
 
-    GroupBox {
-        title: qsTr("Virtual camera")
-        checkable: true
-        checked: Webcamoid.enableVirtualCamera
-        Layout.fillWidth: true
+    ColumnLayout {
+        id: outputConfigs
+        width: scrollView.width
+               - (scrollView.ScrollBar.vertical.visible?
+                      scrollView.ScrollBar.vertical.width: 0)
 
-        onCheckedChanged: Webcamoid.enableVirtualCamera = checked
+        GroupBox {
+            clip: true
+            Layout.fillWidth: true
+            label: CheckBox {
+                id: enableVirtualCamera
+                text: qsTr("Virtual camera")
+                checked: Webcamoid.enableVirtualCamera
+                onCheckedChanged: Webcamoid.enableVirtualCamera = checked
+            }
 
-        GridLayout {
-            id: itmVirtualCameraControls
-            objectName: "itmVirtualCameraControls"
-            anchors.fill: parent
+            GridLayout {
+                enabled: enableVirtualCamera.checked
+                id: itmVirtualCameraControls
+                objectName: "itmVirtualCameraControls"
+                anchors.fill: parent
 
-            onChildrenChanged: children[0].anchors.fill = itmVirtualCameraControls
+                onChildrenChanged: children[0].anchors.fill = itmVirtualCameraControls
+            }
         }
-    }
-    Label {
-        Layout.fillHeight: true
     }
 }

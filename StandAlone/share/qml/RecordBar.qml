@@ -17,8 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 Rectangle {
     id: recRecordBar
@@ -100,16 +101,22 @@ Rectangle {
         placeholderText: qsTr("Search format...")
     }
 
-    ScrollView {
+    AkScrollView {
+        id: scrollFormats
+        clip: true
         anchors.top: txtSearchFormat.bottom
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.left: parent.left
+        contentHeight: lsvRecordingFormatList.height
 
         OptionList {
             id: lsvRecordingFormatList
             filter: txtSearchFormat.text
             textRole: "description"
+            width: scrollFormats.width
+                   - (scrollFormats.ScrollBar.vertical.visible?
+                          scrollFormats.ScrollBar.vertical.width: 0)
 
             onCurrentIndexChanged: {
                 var option = model.get(currentIndex);

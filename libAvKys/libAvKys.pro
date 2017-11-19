@@ -41,6 +41,7 @@ load(configure)
 QMAKE_CONFIG_TESTS_DIR=$$PWD/Tests
 isEmpty(NOALSA): qtCompileTest(alsa)
 isEmpty(NOAVFOUNDATION): qtCompileTest(avfoundation)
+isEmpty(NOCOREMEDIAIO): qtCompileTest(cmio)
 isEmpty(NOCOREAUDIO): qtCompileTest(coreaudio)
 isEmpty(NODSHOW): qtCompileTest(dshow)
 
@@ -80,7 +81,6 @@ isEmpty(NOLIBUVC) {
     !isEmpty(LIBUVCINCLUDES): cache(LIBUVCINCLUDES)
     !isEmpty(LIBUVCLIBS): cache(LIBUVCLIBS)
     qtCompileTest(libuvc)
-    qtCompileTest(libuvcdev)
 }
 
 isEmpty(NOOSS) {
@@ -90,12 +90,6 @@ isEmpty(NOOSS) {
 
 isEmpty(NOPULSEAUDIO): qtCompileTest(pulseaudio)
 isEmpty(NOQTAUDIO): qtCompileTest(qtaudio)
-
-isEmpty(NOSYPHON) {
-    !isEmpty(SYPHONINCLUDES): cache(SYPHONINCLUDES)
-    !isEmpty(SYPHONLIBS): cache(SYPHONLIBS)
-    qtCompileTest(syphon)
-}
 
 isEmpty(NOV4L2) {
     qtCompileTest(v4l2)

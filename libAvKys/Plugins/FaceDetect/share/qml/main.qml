@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 2
@@ -85,10 +85,6 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
-    }
-
     function toQrc(uri)
     {
         if (uri.indexOf(":") === 0)
@@ -116,7 +112,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxHaarFile
+        textRole: "text"
         currentIndex: haarFileIndex(FaceDetect.haarFile)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -221,6 +219,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: FaceDetect.scanSize = strToSize(text)
     }
@@ -231,7 +230,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxMarkerType
+        textRole: "text"
         currentIndex: markerTypeIndex(FaceDetect.markerType)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -265,7 +266,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxMarkerStyle
+        textRole: "text"
         currentIndex: markerStyleIndex(FaceDetect.markerStyle)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -297,19 +300,12 @@ GridLayout {
     Label {
         text: qsTr("Marker color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(FaceDetect.markerColor)
+        title: qsTr("Select marker color")
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(FaceDetect.markerColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: colorDialog.open()
+        onCurrentColorChanged: FaceDetect.markerColor = toRgba(currentColor)
     }
 
     // Marker width.
@@ -321,6 +317,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: FaceDetect.markerWidth = text
     }
@@ -331,6 +328,8 @@ GridLayout {
     }
     ComboBox {
         id: cbxMasks
+        textRole: "text"
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -523,9 +522,9 @@ GridLayout {
                 }
             }
         }
-        Button {
-            text: qsTr("Search")
-            iconName: "edit-find"
+        AkButton {
+            label: qsTr("Search")
+            icon: "image://icons/edit-find"
 
             onClicked: pictureDialog.open()
         }
@@ -540,6 +539,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: FaceDetect.pixelGridSize = strToSize(text)
     }
@@ -553,17 +553,9 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: FaceDetect.blurRadius = text
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Select marker color")
-        currentColor: fromRgba(FaceDetect.markerColor)
-        showAlphaChannel: true
-
-        onAccepted: FaceDetect.markerColor = toRgba(color)
     }
 
     FileDialog {

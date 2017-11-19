@@ -17,12 +17,32 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
+
+    Connections {
+        target: Dizzy
+
+        onSpeedChanged: {
+            sldSpeed.value = speed
+            spbSpeed.rvalue = speed
+        }
+
+        onZoomRateChanged: {
+            sldZoomRate.value = zoomRate
+            spbZoomRate.rvalue = zoomRate
+        }
+
+        onStrengthChanged: {
+            sldStrength.value = strength
+            spbStrength.rvalue = strength
+        }
+    }
 
     Label {
         id: lblSpeed
@@ -32,20 +52,21 @@ GridLayout {
         id: sldSpeed
         value: Dizzy.speed
         stepSize: 0.01
-        minimumValue: 0.01
-        maximumValue: 60
+        from: 0.01
+        to: 60
+        Layout.fillWidth: true
 
         onValueChanged: Dizzy.speed = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbSpeed
         decimals: 2
-        value: sldSpeed.value
-        minimumValue: sldSpeed.minimumValue
-        maximumValue: sldSpeed.maximumValue
-        stepSize: sldSpeed.stepSize
+        rvalue: Dizzy.speed
+        minimumValue: sldSpeed.from
+        maximumValue: sldSpeed.to
+        step: sldSpeed.stepSize
 
-        onValueChanged: sldSpeed.value = value
+        onRvalueChanged: Dizzy.speed = rvalue
     }
 
     Label {
@@ -56,18 +77,19 @@ GridLayout {
         id: sldZoomRate
         value: Dizzy.zoomRate
         stepSize: 0.001
-        maximumValue: 0.25
+        to: 0.25
+        Layout.fillWidth: true
 
         onValueChanged: Dizzy.zoomRate = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbZoomRate
         decimals: 3
-        value: sldZoomRate.value
-        maximumValue: sldZoomRate.maximumValue
-        stepSize: sldZoomRate.stepSize
+        rvalue: Dizzy.zoomRate
+        maximumValue: sldZoomRate.to
+        step: sldZoomRate.stepSize
 
-        onValueChanged: sldZoomRate.value = value
+        onRvalueChanged: Dizzy.zoomRate = rvalue
     }
 
     Label {
@@ -78,17 +100,18 @@ GridLayout {
         id: sldStrength
         value: Dizzy.strength
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Dizzy.strength = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbStrength
         decimals: 2
-        value: sldStrength.value
-        maximumValue: sldStrength.maximumValue
-        stepSize: sldStrength.stepSize
+        rvalue: Dizzy.strength
+        maximumValue: sldStrength.to
+        step: sldStrength.stepSize
 
-        onValueChanged: sldStrength.value = value
+        onRvalueChanged: Dizzy.strength = rvalue
     }
 }

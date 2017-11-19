@@ -1,7 +1,7 @@
 Webcamoid 8.1.0:
 
 - Improved startup time.
-- Deadlock when audio recording is enabled my be solved now. Audio recording
+- Deadlock when audio recording is enabled may be solved now. Audio recording
   enabled by default again.
 - Added Syphon support for Mac.
 - Added AVFoundation support for desktop capture in Mac.

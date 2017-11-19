@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -59,8 +59,25 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: Cartoon
+
+        onNcolorsChanged: {
+            sldNColors.value = ncolors
+            spbNColors.rvalue = ncolors
+        }
+        onColorDiffChanged: {
+            sldColorDiff.value = colorDiff
+            spbColorDiff.rvalue = colorDiff
+        }
+        onThresholdLowChanged: {
+            sldThresholdLow.value = thresholdLow
+            spbThresholdLow.rvalue = thresholdLow
+        }
+        onThresholdHiChanged: {
+            sldThresholdHi.value = thresholdHi
+            spbThresholdHi.rvalue = thresholdHi
+        }
     }
 
     Label {
@@ -71,17 +88,18 @@ GridLayout {
         id: sldNColors
         value: Cartoon.ncolors
         stepSize: 1
-        maximumValue: 32
+        to: 32
+        Layout.fillWidth: true
 
         onValueChanged: Cartoon.ncolors = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbNColors
-        value: sldNColors.value
-        maximumValue: sldNColors.maximumValue
-        stepSize: sldNColors.stepSize
+        rvalue: Cartoon.ncolors
+        maximumValue: sldNColors.to
+        step: sldNColors.stepSize
 
-        onValueChanged: sldNColors.value = value
+        onRvalueChanged: Cartoon.ncolors = rvalue
     }
 
     Label {
@@ -92,17 +110,18 @@ GridLayout {
         id: sldColorDiff
         value: Cartoon.colorDiff
         stepSize: 1
-        maximumValue: 442
+        to: 442
+        Layout.fillWidth: true
 
         onValueChanged: Cartoon.colorDiff = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbColorDiff
-        value: sldColorDiff.value
-        maximumValue: sldColorDiff.maximumValue
-        stepSize: sldColorDiff.stepSize
+        rvalue: Cartoon.colorDiff
+        maximumValue: sldColorDiff.to
+        step: sldColorDiff.stepSize
 
-        onValueChanged: sldColorDiff.value = value
+        onRvalueChanged: Cartoon.colorDiff = rvalue
     }
 
     Label {
@@ -126,19 +145,20 @@ GridLayout {
         id: sldThresholdLow
         value: Cartoon.thresholdLow
         stepSize: 1
-        maximumValue: 255
+        to: 255
         enabled: chkShowEdges.checked
+        Layout.fillWidth: true
 
         onValueChanged: Cartoon.thresholdLow = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbThresholdLow
-        value: sldThresholdLow.value
-        maximumValue: sldThresholdLow.maximumValue
-        stepSize: sldThresholdLow.stepSize
+        rvalue: Cartoon.thresholdLow
+        maximumValue: sldThresholdLow.to
+        step: sldThresholdLow.stepSize
         enabled: chkShowEdges.checked
 
-        onValueChanged: sldThresholdLow.value = value
+        onRvalueChanged: Cartoon.thresholdLow = rvalue
     }
 
     Label {
@@ -150,48 +170,32 @@ GridLayout {
         id: sldThresholdHi
         value: Cartoon.thresholdHi
         stepSize: 1
-        maximumValue: 255
+        to: 255
         enabled: chkShowEdges.checked
+        Layout.fillWidth: true
 
         onValueChanged: Cartoon.thresholdHi = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbThresholdHi
-        value: sldThresholdHi.value
-        maximumValue: sldThresholdHi.maximumValue
-        stepSize: sldThresholdHi.stepSize
+        rvalue: Cartoon.thresholdHi
+        maximumValue: sldThresholdHi.to
+        step: sldThresholdHi.stepSize
         enabled: chkShowEdges.checked
 
-        onValueChanged: sldThresholdHi.value = value
+        onRvalueChanged: Cartoon.thresholdHi = rvalue
     }
 
     Label {
         text: qsTr("Line color")
         enabled: chkShowEdges.checked
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Cartoon.lineColor)
+        title: qsTr("Choose a color")
+
+        onCurrentColorChanged: Cartoon.lineColor = toRgba(currentColor)
         enabled: chkShowEdges.checked
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Cartoon.lineColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             Cartoon.lineColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Cartoon.lineColor)
-            colorDialog.open()
-        }
     }
     Label {
     }
@@ -206,16 +210,8 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+x\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: Cartoon.scanSize = strToSize(text)
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose a color")
-
-        property Item caller: null
-
-        onAccepted: caller.setColor(color)
     }
 }

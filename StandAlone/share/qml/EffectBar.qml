@@ -17,8 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 Rectangle {
     id: recEffectBar
@@ -230,9 +231,11 @@ Rectangle {
         }
     }
 
-    ScrollView {
+    AkScrollView {
         id: scrollEffects
         visible: advancedMode? false: true
+        clip: true
+        contentHeight: lsvEffectList.height
         anchors.bottom: recAddEffect.top
         anchors.right: parent.right
         anchors.left: parent.left
@@ -256,6 +259,9 @@ Rectangle {
             id: lsvEffectList
             filter: txtSearchEffect.text
             textRole: "description"
+            width: scrollEffects.width
+                   - (scrollEffects.ScrollBar.vertical.visible?
+                          scrollEffects.ScrollBar.vertical.width: 0)
 
             onCurrentIndexChanged: {
                 var option = model.get(currentIndex)

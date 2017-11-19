@@ -9,7 +9,7 @@
 * Cross-platform (GNU/Linux, Mac, Windows)
 * Take pictures and record videos with the webcam.
 * Manages multiple webcams.
-* Written in C++/Qt.
+* Written in C++ and Qt.
 * Custom controls for each webcam.
 * Add funny effects to the webcam.
 * +60 effects available.
@@ -25,22 +25,19 @@ Visit the [wiki](https://github.com/webcamoid/webcamoid/wiki) for a comprehensiv
 
 ## Status ##
 
-[![Build Status](https://travis-ci.org/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.org/webcamoid/webcamoid)[![Build status](https://ci.appveyor.com/api/projects/status/hrgbf3qe52ysr8gl?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)[![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)[![Softpedia reviews](https://img.shields.io/badge/review-Softpedia-ff69b4.svg)](http://www.softpedia.com/get/Internet/WebCam/Webcamoid.shtml)[![alternativeTo reviews](https://img.shields.io/badge/review-alternativeTo-ff69b4.svg)](https://alternativeto.net/software/webcamoid/)
+[![Build Status](https://travis-ci.org/webcamoid/webcamoid.svg?branch=master)](https://travis-ci.org/webcamoid/webcamoid)
+[![Build status](https://ci.appveyor.com/api/projects/status/hrgbf3qe52ysr8gl?svg=true)](https://ci.appveyor.com/project/hipersayanX/webcamoid)
+[![Translation status](https://hosted.weblate.org/widgets/webcamoid/-/svg-badge.svg)](https://hosted.weblate.org/engage/webcamoid/?utm_source=widget)
+[![Project Stats](https://www.openhub.net/p/Webcamoid/widgets/project_thin_badge.gif)](https://www.openhub.net/p/Webcamoid)
+[![Total Downloads](https://img.shields.io/github/downloads/webcamoid/webcamoid/total.svg)](https://github.com/webcamoid/webcamoid/releases)
+[![Softpedia reviews](https://img.shields.io/badge/review-Softpedia-ff69b4.svg)](http://www.softpedia.com/get/Internet/WebCam/Webcamoid.shtml)
+[![alternativeTo reviews](https://img.shields.io/badge/review-alternativeTo-ff69b4.svg)](https://alternativeto.net/software/webcamoid/)
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/webcamoid.svg)](https://repology.org/metapackage/webcamoid)
 
 ## Reporting Bugs ##
 
-Use Webcamoid until an abnormal event happen, write a list with the following information:
-
-1. Your Webcamoid version.
-2. Your operating system.
-3. Your Qt version.
-4. Your GCC/Clang version.
-5. Your DE/WM version.
-6. Any other useful information.
-
-Send this list to the [issues page](http://github.com/webcamoid/webcamoid/issues). Please report **ANY** problem you have with Webcamoid in the official website, help to centralize information in one unique place.
+Report all issues in the [issues tracker](http://github.com/webcamoid/webcamoid/issues).
 
 ## Subscribe ##
 

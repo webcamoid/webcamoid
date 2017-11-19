@@ -23,19 +23,14 @@ macx: QT_CONFIG -= no-pkg-config
 SOURCES = \
     test.cpp
 
+isEmpty(LIBUSBLIBS) | isEmpty(LIBUVCLIBS): CONFIG += link_pkgconfig
+
 !isEmpty(LIBUSBINCLUDES): INCLUDEPATH += $${LIBUSBINCLUDES}
 !isEmpty(LIBUSBLIBS): LIBS += $${LIBUSBLIBS}
-
-isEmpty(LIBUSBLIBS) {
-    CONFIG += link_pkgconfig
-    PKGCONFIG += libusb-1.0
-}
+isEmpty(LIBUSBLIBS): PKGCONFIG += libusb-1.0
 
 !isEmpty(LIBUVCINCLUDES): INCLUDEPATH += $${LIBUVCINCLUDES}
 !isEmpty(LIBUVCLIBS): LIBS += $${LIBUVCLIBS}
-
-isEmpty(LIBUVCLIBS) {
-    LIBS += -luvc
-}
+isEmpty(LIBUVCLIBS): PKGCONFIG += libuvc
 
 TARGET = test_auto

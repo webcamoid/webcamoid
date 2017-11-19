@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 ColumnLayout {
     id: recEffectConfig
@@ -113,12 +114,11 @@ ColumnLayout {
             Layout.fillWidth: true
         }
 
-        Button {
+        AkButton {
             id: btnAddRemove
-            text: inUse? qsTr("Remove"): qsTr("Add")
-            iconName: inUse? "remove": "add"
-            iconSource: inUse? "image://icons/remove":
-                                  "image://icons/add"
+            label: inUse? qsTr("Remove"): qsTr("Add")
+            icon: inUse? "image://icons/remove":
+                         "image://icons/add"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {
@@ -140,15 +140,19 @@ ColumnLayout {
         }
     }
 
-    ScrollView {
+    AkScrollView {
         id: scrollControls
+        clip: true
+        contentHeight: itmEffectControls.height
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        contentItem: RowLayout {
+        RowLayout {
             id: itmEffectControls
             objectName: "itmEffectControls"
-            width: scrollControls.viewport.width
+            width: scrollControls.width
+                   - (scrollControls.ScrollBar.vertical.visible?
+                          scrollControls.ScrollBar.vertical.width: 0)
         }
     }
 }

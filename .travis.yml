@@ -6,6 +6,7 @@ cache:
 
 env:
   global:
+    - PPAQTVER=592
     - QTIFWVER=3.0.1
 
 matrix:
@@ -30,20 +31,6 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAVER=24
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: clang
-    env:
-      - DOCKERSYS=fedora DOCKERIMG=fedora:24 FEDORAVER=24
-  - os: linux
-    sudo: required
-    services:
-      - docker
-    compiler: gcc
-    env:
       - DOCKERSYS=fedora DOCKERIMG=fedora:25 FEDORAVER=25
   - os: linux
     sudo: required
@@ -58,14 +45,14 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
+      - DOCKERSYS=fedora DOCKERIMG=fedora:26 FEDORAVER=26
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=opensuse DOCKERIMG=opensuse:42.2
+      - DOCKERSYS=fedora DOCKERIMG=fedora:26 FEDORAVER=26
   - os: linux
     sudo: required
     services:
@@ -114,28 +101,28 @@ matrix:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:yakkety
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
   - os: linux
     sudo: required
     services:
       - docker
     compiler: gcc
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
   - os: linux
     sudo: required
     services:
       - docker
     compiler: clang
     env:
-      - DOCKERSYS=debian DOCKERIMG=ubuntu:zesty
+      - DOCKERSYS=debian DOCKERIMG=ubuntu:artful
   - os: osx
     osx_image: xcode8.3
     compiler: clang
@@ -154,7 +141,7 @@ matrix:
     env:
       - ANDROID_BUILD=1
       - COMPILER=g++
-      - QTVER=5.8.0
+      - QTVER=5.9.2
       - NDKVER=r14b
       - TARGET_ARCH=armv7
   - language: android
@@ -169,7 +156,7 @@ matrix:
     env:
       - ANDROID_BUILD=1
       - COMPILER=g++
-      - QTVER=5.8.0
+      - QTVER=5.9.2
       - NDKVER=r14b
       - TARGET_ARCH=x86
 

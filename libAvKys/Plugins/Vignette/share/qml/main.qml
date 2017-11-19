@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -46,26 +46,34 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: Vignette
+
+        onAspectChanged: {
+            sldAspect.value = aspect
+            spbAspect.rvalue = aspect
+        }
+
+        onScaleChanged: {
+            sldScale.value = scale
+            spbScale.rvalue = scale
+        }
+
+        onSoftnessChanged: {
+            sldSoftness.value = softness
+            spbSoftness.rvalue = softness
+        }
     }
 
     Label {
         text: qsTr("Color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Vignette.color)
+        title: qsTr("Choose the vignette color")
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Vignette.color)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: colorDialog.open()
+        onCurrentColorChanged: Vignette.color = toRgba(currentColor)
     }
     Label {
     }
@@ -78,18 +86,19 @@ GridLayout {
         id: sldAspect
         value: Vignette.aspect
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Vignette.aspect = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbAspect
         decimals: 2
-        value: sldAspect.value
-        maximumValue: sldAspect.maximumValue
-        stepSize: sldAspect.stepSize
+        rvalue: Vignette.aspect
+        maximumValue: sldAspect.to
+        step: sldAspect.stepSize
 
-        onValueChanged: sldAspect.value = value
+        onRvalueChanged: Vignette.aspect = rvalue
     }
 
     Label {
@@ -100,18 +109,19 @@ GridLayout {
         id: sldScale
         value: Vignette.scale
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Vignette.scale = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbScale
         decimals: 2
-        value: sldScale.value
-        maximumValue: sldScale.maximumValue
-        stepSize: sldScale.stepSize
+        rvalue: Vignette.scale
+        maximumValue: sldScale.to
+        step: sldScale.stepSize
 
-        onValueChanged: sldScale.value = value
+        onRvalueChanged: Vignette.scale = rvalue
     }
 
     Label {
@@ -122,26 +132,18 @@ GridLayout {
         id: sldSoftness
         value: Vignette.softness
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Vignette.softness = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbSoftness
         decimals: 2
-        value: sldSoftness.value
-        maximumValue: sldSoftness.maximumValue
-        stepSize: sldSoftness.stepSize
+        rvalue: Vignette.softness
+        maximumValue: sldSoftness.to
+        step: sldSoftness.stepSize
 
-        onValueChanged: sldSoftness.value = value
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose the vignette color")
-        currentColor: fromRgba(Vignette.color)
-        showAlphaChannel: true
-
-        onAccepted: Vignette.color = toRgba(color)
+        onRvalueChanged: Vignette.softness = rvalue
     }
 }

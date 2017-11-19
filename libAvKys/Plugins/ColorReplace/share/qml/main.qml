@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -46,27 +46,27 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: ColorReplace
+
+        onRadiusChanged: {
+            sldRadius.value = radius
+            spbRadius.rvalue = radius
+        }
     }
 
     // Color to replace.
     Label {
         text: qsTr("Old color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(ColorReplace.from)
+        title: qsTr("Select the color to replace")
+        modality: Qt.NonModal
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(ColorReplace.from)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: colorDialogFrom.open()
+        onCurrentColorChanged: ColorReplace.from = toRgba(currentColor)
+        onIsOpenChanged: ColorReplace.disable = isOpen
     }
     Label {
     }
@@ -75,19 +75,14 @@ GridLayout {
     Label {
         text: qsTr("New color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(ColorReplace.to)
+        title: qsTr("Select the new color")
+        modality: Qt.NonModal
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(ColorReplace.to)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: colorDialogTo.open()
+        onCurrentColorChanged: ColorReplace.to = toRgba(currentColor)
+        onIsOpenChanged: ColorReplace.disable = isOpen
     }
     Label {
     }
@@ -101,36 +96,17 @@ GridLayout {
         id: sldRadius
         value: ColorReplace.radius
         stepSize: 1
-        maximumValue: 256
+        to: 256
+        Layout.fillWidth: true
 
         onValueChanged: ColorReplace.radius = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbRadius
-        value: sldRadius.value
-        maximumValue: sldRadius.maximumValue
-        stepSize: sldRadius.stepSize
+        rvalue: ColorReplace.radius
+        maximumValue: sldRadius.to
+        step: sldRadius.stepSize
 
-        onValueChanged: sldRadius.value = value
-    }
-
-    ColorDialog {
-        id: colorDialogFrom
-        title: qsTr("Select the color to replace")
-        currentColor: fromRgba(ColorReplace.from)
-        showAlphaChannel: true
-
-        onAccepted: ColorReplace.from = toRgba(color)
-        onVisibleChanged: ColorReplace.disable = visible
-    }
-
-    ColorDialog {
-        id: colorDialogTo
-        title: qsTr("Select the new color")
-        currentColor: fromRgba(ColorReplace.to)
-        showAlphaChannel: true
-
-        onAccepted: ColorReplace.to = toRgba(color)
-        onVisibleChanged: ColorReplace.disable = visible
+        onRvalueChanged: ColorReplace.radius = rvalue
     }
 }

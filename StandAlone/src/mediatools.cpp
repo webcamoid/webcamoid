@@ -42,13 +42,12 @@ MediaTools::MediaTools(QObject *parent):
     m_trayIcon(nullptr)
 {
     // Initialize environment.
-    CliOptions cliOptions;
-
     this->m_trayIcon = new QSystemTrayIcon(QApplication::windowIcon(), this);
     this->m_engine = new QQmlApplicationEngine();
     this->m_engine->addImageProvider(QLatin1String("icons"), new IconsProvider);
     Ak::setQmlEngine(this->m_engine);
-    this->m_pluginConfigs = PluginConfigsPtr(new PluginConfigs(cliOptions, this->m_engine));
+    this->m_pluginConfigs = PluginConfigsPtr(new PluginConfigs(this->m_cliOptions,
+                                                               this->m_engine));
     this->m_mediaSource = MediaSourcePtr(new MediaSource(this->m_engine));
     this->m_audioLayer = AudioLayerPtr(new AudioLayer(this->m_engine));
     this->m_videoEffects = VideoEffectsPtr(new VideoEffects(this->m_engine));
@@ -377,10 +376,6 @@ bool MediaTools::embedInterface(QQmlApplicationEngine *engine,
         // Finally, embed the plugin item UI in the desired place.
         interfaceItem->setParentItem(item);
 
-        QQmlProperty::write(interfaceItem,
-                            "anchors.fill",
-                            qVariantFromValue(item));
-
         return true;
     }
 
@@ -481,14 +476,18 @@ void MediaTools::loadConfigs()
     this->m_windowWidth = windowSize.width();
     this->m_windowHeight = windowSize.height();
 
-#ifdef Q_OS_WIN32
     if (this->m_virtualCamera) {
-        QString driverPath = config.value("virtualCameraDriverPath",
-                                          "VirtualCameraSource.dll").toString();
-        this->m_virtualCamera->setProperty("driverPath",
-                                           this->convertToAbsolute(driverPath));
+        QString driverPath;
+
+        if (this->m_cliOptions.isSet(this->m_cliOptions.vcamPathOpt()))
+            driverPath = this->m_cliOptions.value(this->m_cliOptions.vcamPathOpt());
+        else
+            driverPath = config.value("virtualCameraDriverPath").toString();
+
+        if (!driverPath.isEmpty() && QFileInfo(driverPath).exists())
+            this->m_virtualCamera->setProperty("driverPath",
+                                               this->convertToAbsolute(driverPath));
     }
-#endif
 
     config.endGroup();
 }
@@ -529,13 +528,11 @@ void MediaTools::saveConfigs()
     config.setValue("windowSize", QSize(this->m_windowWidth,
                                         this->m_windowHeight));
 
-#ifdef Q_OS_WIN32
     if (this->m_virtualCamera) {
-        QString driverPath = this->m_virtualCamera->property("driverPath").toString();
+        auto driverPath = this->m_virtualCamera->property("driverPath").toString();
         static const QDir applicationDir(QCoreApplication::applicationDirPath());
         config.setValue("virtualCameraDriverPath", applicationDir.relativeFilePath(driverPath));
     }
-#endif
 
     config.endGroup();
 

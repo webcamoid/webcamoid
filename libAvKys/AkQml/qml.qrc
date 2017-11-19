@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/Ak">
+        <file>share/qml/AkQmlControls/AkColorButton.qml</file>
+        <file>share/qml/AkQmlControls/AkButton.qml</file>
+        <file>share/qml/AkQmlControls/AkScrollView.qml</file>
+        <file>share/qml/AkQmlControls/AkSpinBox.qml</file>
+        <file>share/qml/AkQmlControls/AkSplitView.qml</file>
+        <file>share/qml/AkQmlControls/AkToolButton.qml</file>
+        <file>share/qml/AkQmlControls/qmldir</file>
+    </qresource>
+</RCC>

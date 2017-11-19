@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
 
 Rectangle {
@@ -32,6 +32,11 @@ Rectangle {
     property string iDevice: ""
     property string iDescription: ""
     property string oDescription: ""
+
+    function bound(min, value, max)
+    {
+        return Math.max(min, Math.min(value, max));
+    }
 
     function updateInputInfo()
     {
@@ -69,9 +74,18 @@ Rectangle {
 
         var preferredFormat = Ak.newAudioCaps(AudioLayer.inputDeviceCaps);
 
-        cbxISampleFormats.currentIndex = supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format));
-        cbxIChannels.currentIndex = supportedChannels.indexOf(preferredFormat.channels);
-        cbxISampleRates.currentIndex = supportedSampleRates.indexOf(preferredFormat.rate);
+        cbxISampleFormats.currentIndex =
+                bound(0,
+                      supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format)),
+                      cbxISampleFormats.model.count - 1);
+        cbxIChannels.currentIndex =
+                bound(0,
+                      supportedChannels.indexOf(preferredFormat.channels),
+                      cbxIChannels.model.count - 1);
+        cbxISampleRates.currentIndex =
+                bound(0,
+                      supportedSampleRates.indexOf(preferredFormat.rate),
+                      cbxISampleRates.model.count - 1);
     }
 
     function updateOutputInfo()
@@ -108,9 +122,18 @@ Rectangle {
 
         var preferredFormat = Ak.newAudioCaps(AudioLayer.outputDeviceCaps);
 
-        cbxOSampleFormats.currentIndex = supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format));
-        cbxOChannels.currentIndex = supportedChannels.indexOf(preferredFormat.channels);
-        cbxOSampleRates.currentIndex = supportedSampleRates.indexOf(preferredFormat.rate);
+        cbxOSampleFormats.currentIndex =
+                bound(0,
+                      supportedFormats.indexOf(audioCaps.sampleFormatToString(preferredFormat.format)),
+                      cbxOSampleFormats.model.count - 1);
+        cbxOChannels.currentIndex =
+                bound(0,
+                      supportedChannels.indexOf(preferredFormat.channels),
+                      cbxOChannels.model.count - 1);
+        cbxOSampleRates.currentIndex =
+                bound(0,
+                      supportedSampleRates.indexOf(preferredFormat.rate),
+                      cbxOSampleRates.model.count - 1);
     }
 
     function updateCaps(isInput)
@@ -124,10 +147,6 @@ Rectangle {
         if (cbxSampleFormats.model.count > 0
             && cbxChannels.model.count > 0
             && cbxSampleRates.model.count > 0) {
-            var bound = function (min, value, max) {
-                return Math.max(min, Math.min(value, max));
-            };
-
             var sampleFormatsCI = bound(0, cbxSampleFormats.currentIndex, cbxSampleFormats.model.count - 1);
             var channelsCI = bound(0, cbxChannels.currentIndex, cbxChannels.model.count - 1);
             var sampleRatesCI = bound(0, cbxSampleRates.currentIndex, cbxSampleRates.model.count - 1);

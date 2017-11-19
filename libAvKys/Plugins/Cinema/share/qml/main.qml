@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -46,8 +46,13 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: Cinema
+
+        onStripSizeChanged: {
+            sldStripSize.value = stripSize
+            spbStripSize.rvalue = stripSize
+        }
     }
 
     // Configure strip size.
@@ -59,45 +64,30 @@ GridLayout {
         id: sldStripSize
         value: Cinema.stripSize
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Cinema.stripSize = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbStripSize
         decimals: 2
-        value: sldStripSize.value
-        maximumValue: sldStripSize.maximumValue
-        stepSize: sldStripSize.stepSize
+        rvalue: Cinema.stripSize
+        maximumValue: sldStripSize.to
+        step: sldStripSize.stepSize
 
-        onValueChanged: sldStripSize.value = value
+        onRvalueChanged: Cinema.stripSize = rvalue
     }
 
     // Configure strip color.
     Label {
         text: qsTr("Color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Cinema.stripColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: colorDialog.open()
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose the strips color")
+    AkColorButton {
         currentColor: fromRgba(Cinema.stripColor)
+        title: qsTr("Choose the strips color")
         showAlphaChannel: true
 
-        onAccepted: Cinema.stripColor = toRgba(color)
+        onCurrentColorChanged: Cinema.stripColor = toRgba(currentColor)
     }
 }

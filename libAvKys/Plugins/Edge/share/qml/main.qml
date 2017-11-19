@@ -17,12 +17,27 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
+
+    Connections {
+        target: Edge
+
+        onThLowChanged: {
+            sldThLow.value = thLow
+            spbThLow.rvalue = thLow
+        }
+
+        onThHiChanged: {
+            sldThHi.value = thHi
+            spbThHi.rvalue = thHi
+        }
+    }
 
     // Canny
     Label {
@@ -47,21 +62,19 @@ GridLayout {
         enabled: chkCanny.checked
         value: Edge.thLow
         stepSize: 1
-        maximumValue: 1530
+        to: 1530
+        Layout.fillWidth: true
 
-        onValueChanged: {
-            value = Math.min(value, sldThHi.value)
-            Edge.thLow = value
-        }
+        onValueChanged: Edge.thLow = Math.min(value, Edge.thHi)
     }
-    SpinBox {
+    AkSpinBox {
         id: spbThLow
         enabled: chkCanny.checked
-        value: sldThLow.value
-        maximumValue: sldThLow.maximumValue
-        stepSize: sldThLow.stepSize
+        rvalue: Edge.thLow
+        maximumValue: sldThLow.to
+        step: sldThLow.stepSize
 
-        onValueChanged: sldThLow.value = value
+        onRvalueChanged: Edge.thLow = Math.min(rvalue, Edge.thHi)
     }
 
     // thHi
@@ -74,21 +87,19 @@ GridLayout {
         enabled: chkCanny.checked
         value: Edge.thHi
         stepSize: 1
-        maximumValue: 1530
+        to: 1530
+        Layout.fillWidth: true
 
-        onValueChanged: {
-            value = Math.max(value, sldThLow.value)
-            Edge.thHi = value
-        }
+        onValueChanged: Edge.thHi = Math.max(value, Edge.thLow)
     }
-    SpinBox {
+    AkSpinBox {
         id: spbThHi
         enabled: chkCanny.checked
-        value: sldThHi.value
-        maximumValue: sldThHi.maximumValue
-        stepSize: sldThHi.stepSize
+        rvalue: Edge.thHi
+        maximumValue: sldThHi.to
+        step: sldThHi.stepSize
 
-        onValueChanged: sldThHi.value = value
+        onRvalueChanged: Edge.thHi = Math.max(rvalue, Edge.thLow)
     }
 
     // Equalize

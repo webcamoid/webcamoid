@@ -116,9 +116,11 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
     // Set Qml plugins search path.
     QStringList qmlImportPaths;
 
-    if (cliOptions.isSet(cliOptions.qmlPathOpt()))
-        qmlImportPaths = cliOptions.value(cliOptions.qmlPathOpt()).split(';');
-    else {
+    if (cliOptions.isSet(cliOptions.qmlPathOpt())) {
+        for (auto &path: cliOptions.value(cliOptions.qmlPathOpt()).split(';'))
+            if (QFileInfo(path).exists())
+                qmlImportPaths << path;
+    } else {
         int size = config.beginReadArray("qmlPaths");
 
         for (int i = 0; i < size; i++) {
@@ -131,7 +133,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
             path = QDir::toNativeSeparators(path);
 
-            if (!qmlImportPaths.contains(path))
+            if (!qmlImportPaths.contains(path) && QFileInfo(path).exists())
                 qmlImportPaths << path;
         }
 

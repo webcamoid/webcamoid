@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 2
@@ -59,16 +59,14 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
-    }
-
     Label {
         text: qsTr("Mode")
     }
     ComboBox {
         id: cbxMode
+        textRole: "text"
         currentIndex: optionIndex(cbxMode, Charify.mode)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -89,6 +87,8 @@ GridLayout {
     }
     TextField {
         text: Charify.charTable
+        Layout.fillWidth: true
+
         onTextChanged: Charify.charTable = text
     }
 
@@ -103,9 +103,9 @@ GridLayout {
             font: Charify.font
             Layout.fillWidth: true
         }
-        Button {
-            text: qsTr("Search")
-            iconName: "edit-find"
+        AkButton {
+            label: qsTr("Search")
+            icon: "image://icons/edit-find"
 
             onClicked: fontDialog.open()
         }
@@ -116,7 +116,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxHinting
+        textRole: "text"
         currentIndex: optionIndex(cbxHinting, Charify.hintingPreference)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -145,7 +147,9 @@ GridLayout {
     }
     ComboBox {
         id: cbxStyle
+        textRole: "text"
         currentIndex: optionIndex(cbxStyle, Charify.styleStrategy)
+        Layout.fillWidth: true
 
         model: ListModel {
             ListElement {
@@ -208,41 +212,29 @@ GridLayout {
     Label {
         text: qsTr("Foreground color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Charify.foregroundColor)
+        title: qsTr("Choose the foreground color")
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Charify.foregroundColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: foregroundColorDialog.open()
+        onCurrentColorChanged: Charify.foregroundColor = toRgba(currentColor)
     }
 
     Label {
         text: qsTr("Background color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Charify.backgroundColor)
+        title: qsTr("Choose the background color")
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Charify.backgroundColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: backgroundColorDialog.open()
+        onCurrentColorChanged: Charify.backgroundColor = toRgba(currentColor)
     }
 
-    CheckBox {
+    Label {
         text: qsTr("Reversed")
+    }
+    CheckBox {
         checked: Charify.reversed
 
         onCheckedChanged: Charify.reversed = checked
@@ -254,23 +246,5 @@ GridLayout {
         font: Charify.font
 
         onAccepted: Charify.font = font
-    }
-
-    ColorDialog {
-        id: foregroundColorDialog
-        title: qsTr("Choose the foreground color")
-        currentColor: fromRgba(Charify.foregroundColor)
-        showAlphaChannel: true
-
-        onAccepted: Charify.foregroundColor = toRgba(color)
-    }
-
-    ColorDialog {
-        id: backgroundColorDialog
-        title: qsTr("Choose the background color")
-        currentColor: fromRgba(Charify.backgroundColor)
-        showAlphaChannel: true
-
-        onAccepted: Charify.backgroundColor = toRgba(color)
     }
 }

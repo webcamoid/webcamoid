@@ -17,9 +17,10 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     id: recMediaConfig
@@ -64,7 +65,7 @@ GridLayout {
 
     Label {
         id: lblMedia
-        text: qsTr("Media file")
+        text: qsTr("Media UID")
         font.bold: true
         Layout.fillWidth: true
     }
@@ -84,20 +85,18 @@ GridLayout {
             Layout.fillWidth: true
         }
 
-        Button {
+        AkButton {
             id: btnEdit
-            text: qsTr("Edit")
-            iconName: "edit"
-            iconSource: "image://icons/edit"
+            label: qsTr("Edit")
+            icon: "image://icons/edit"
 
             onClicked: dlgAddMedia.visible = true
         }
 
-        Button {
+        AkButton {
             id: btnRemove
-            text: qsTr("Remove")
-            iconName: "remove"
-            iconSource: "image://icons/remove"
+            label: qsTr("Remove")
+            icon: "image://icons/remove"
 
             onClicked: {
                 var uris = MediaSource.uris
@@ -107,15 +106,19 @@ GridLayout {
         }
     }
 
-    ScrollView {
+    AkScrollView {
         id: scrollControls
+        clip: true
+        contentHeight: itmMediaControls.height
         Layout.fillWidth: true
         Layout.fillHeight: true
 
-        contentItem: RowLayout {
+        RowLayout {
             id: itmMediaControls
             objectName: "itmMediaControls"
-            width: scrollControls.viewport.width
+            width: scrollControls.width
+                   - (scrollControls.ScrollBar.vertical.visible?
+                          scrollControls.ScrollBar.vertical.width: 0)
         }
     }
 

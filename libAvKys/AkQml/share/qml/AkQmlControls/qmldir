@@ -1,0 +1,15 @@
+module AkQmlControls
+
+AkColorButton 1.0 AkColorButton.qml
+AkButton      1.0 AkButton.qml
+AkScrollView  1.0 AkScrollView.qml
+AkSpinBox     1.0 AkSpinBox.qml
+AkSplitView   1.0 AkSplitView.qml
+AkToolButton  1.0 AkToolButton.qml
+
+depends QtQuick          2.7
+depends QtQuick.Controls 2.0
+depends QtQuick.Layouts  1.3
+depends QtQuick.Window   2.2
+
+designersupported

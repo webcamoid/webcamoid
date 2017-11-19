@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -46,8 +46,23 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: Wave
+
+        onAmplitudeChanged: {
+            sldAmplitude.value = amplitude
+            spbAmplitude.rvalue = amplitude
+        }
+
+        onFrequencyChanged: {
+            sldFrequency.value = frequency
+            spbFrequency.rvalue = frequency
+        }
+
+        onPhaseChanged: {
+            sldPhase.value = phase
+            spbPhase.rvalue = phase
+        }
     }
 
     Label {
@@ -58,18 +73,19 @@ GridLayout {
         id: sldAmplitude
         value: Wave.amplitude
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Wave.amplitude = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbAmplitude
         decimals: 2
-        value: sldAmplitude.value
-        maximumValue: sldAmplitude.maximumValue
-        stepSize: sldAmplitude.stepSize
+        rvalue: Wave.amplitude
+        maximumValue: sldAmplitude.to
+        step: sldAmplitude.stepSize
 
-        onValueChanged: sldAmplitude.value = value
+        onRvalueChanged: Wave.amplitude = rvalue
     }
 
     Label {
@@ -80,18 +96,19 @@ GridLayout {
         id: sldFrequency
         value: Wave.frequency
         stepSize: 0.01
-        maximumValue: 100
+        to: 100
+        Layout.fillWidth: true
 
         onValueChanged: Wave.frequency = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbFrequency
         decimals: 2
-        value: sldFrequency.value
-        maximumValue: sldFrequency.maximumValue
-        stepSize: sldFrequency.stepSize
+        rvalue: Wave.frequency
+        maximumValue: sldFrequency.to
+        step: sldFrequency.stepSize
 
-        onValueChanged: sldFrequency.value = value
+        onRvalueChanged: Wave.frequency = rvalue
     }
 
     Label {
@@ -102,55 +119,30 @@ GridLayout {
         id: sldPhase
         value: Wave.phase
         stepSize: 0.01
-        maximumValue: 1
+        to: 1
+        Layout.fillWidth: true
 
         onValueChanged: Wave.phase = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbPhase
         decimals: 2
-        value: sldPhase.value
-        maximumValue: sldPhase.maximumValue
-        stepSize: sldPhase.stepSize
+        rvalue: Wave.phase
+        maximumValue: sldPhase.to
+        step: sldPhase.stepSize
 
-        onValueChanged: sldPhase.value = value
+        onRvalueChanged: Wave.phase = rvalue
     }
 
     Label {
         text: qsTr("Background color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Wave.background)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             Wave.background = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(Wave.background)
-            colorDialog.open()
-        }
-    }
-    Label {
-    }
-
-    ColorDialog {
-        id: colorDialog
+    AkColorButton {
+        currentColor: fromRgba(Wave.background)
         title: qsTr("Choose the background color")
 
-        property Item caller: null
-
-        onAccepted: caller.setColor(color)
+        onCurrentColorChanged: Wave.background = toRgba(currentColor)
+    }
+    Label {
     }
 }

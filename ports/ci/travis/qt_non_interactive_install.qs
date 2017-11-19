@@ -1,20 +1,25 @@
-function Controller() {
+function Controller()
+{
     installer.autoRejectMessageBoxes();
     installer.setMessageBoxAutomaticAnswer("OverwriteTargetDirectory", QMessageBox.Yes);
+    installer.setMessageBoxAutomaticAnswer("stopProcessesForUpdates", QMessageBox.Ignore);
     installer.installationFinished.connect(function() {
         gui.clickButton(buttons.NextButton);
     })
 }
 
-Controller.prototype.WelcomePageCallback = function() {
+Controller.prototype.WelcomePageCallback = function()
+{
     gui.clickButton(buttons.NextButton);
 }
 
-Controller.prototype.CredentialsPageCallback = function() {
+Controller.prototype.CredentialsPageCallback = function()
+{
     gui.clickButton(buttons.NextButton);
 }
 
-Controller.prototype.IntroductionPageCallback = function() {
+Controller.prototype.IntroductionPageCallback = function()
+{
     gui.clickButton(buttons.NextButton);
 }
 
@@ -26,22 +31,20 @@ Controller.prototype.TargetDirectoryPageCallback = function()
     gui.clickButton(buttons.NextButton);
 }
 
-Controller.prototype.ComponentSelectionPageCallback = function() {
+Controller.prototype.ComponentSelectionPageCallback = function()
+{
     var widget = gui.currentPageWidget();
 
     widget.deselectAll();
-    widget.selectComponent("qt.58.android_armv7");
-    widget.selectComponent("qt.58.android_x86");
+    widget.selectComponent("qt.592.android_armv7");
+    widget.selectComponent("qt.592.android_x86");
 
     gui.clickButton(buttons.NextButton);
 }
 
-Controller.prototype.LicenseAgreementPageCallback = function() {
+Controller.prototype.LicenseAgreementPageCallback = function()
+{
     gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
-    gui.clickButton(buttons.NextButton);
-}
-
-Controller.prototype.StartMenuDirectoryPageCallback = function() {
     gui.clickButton(buttons.NextButton);
 }
 
@@ -50,7 +53,8 @@ Controller.prototype.ReadyForInstallationPageCallback = function()
     gui.clickButton(buttons.NextButton);
 }
 
-Controller.prototype.FinishedPageCallback = function() {
+Controller.prototype.FinishedPageCallback = function()
+{
     var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm
 
     if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox)

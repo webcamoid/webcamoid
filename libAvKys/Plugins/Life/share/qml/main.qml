@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 3
@@ -46,26 +46,29 @@ GridLayout {
         return a | r | g | b
     }
 
-    function invert(color) {
-        return Qt.rgba(1.0 - color.r, 1.0 - color.g, 1.0 - color.b, 1)
+    Connections {
+        target: Life
+
+        onThresholdChanged: {
+            sldThreshold.value = threshold
+            spbThreshold.rvalue = threshold
+        }
+
+        onLumaThresholdChanged: {
+            sldLumaThreshold.value = lumaThreshold
+            spbLumaThreshold.rvalue = lumaThreshold
+        }
     }
 
     Label {
         text: qsTr("Color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
+    AkColorButton {
+        currentColor: fromRgba(Life.lifeColor)
+        title: qsTr("Choose the automata color")
+        showAlphaChannel: true
 
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(Life.lifeColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        onClicked: colorDialog.open()
+        onCurrentColorChanged: Life.lifeColor = toRgba(currentColor)
     }
     Label {
     }
@@ -77,18 +80,19 @@ GridLayout {
     Slider {
         id: sldThreshold
         value: Life.threshold
-        maximumValue: 255
+        to: 255
         stepSize: 1
+        Layout.fillWidth: true
 
         onValueChanged: Life.threshold = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbThreshold
-        value: sldThreshold.value
-        maximumValue: sldThreshold.maximumValue
-        stepSize: sldThreshold.stepSize
+        rvalue: Life.threshold
+        maximumValue: sldThreshold.to
+        step: sldThreshold.stepSize
 
-        onValueChanged: sldThreshold.value = value
+        onRvalueChanged: Life.threshold = rvalue
     }
 
     Label {
@@ -98,26 +102,18 @@ GridLayout {
     Slider {
         id: sldLumaThreshold
         value: Life.lumaThreshold
-        maximumValue: 255
+        to: 255
         stepSize: 1
+        Layout.fillWidth: true
 
         onValueChanged: Life.lumaThreshold = value
     }
-    SpinBox {
+    AkSpinBox {
         id: spbLumaThreshold
-        value: sldLumaThreshold.value
-        maximumValue: sldLumaThreshold.maximumValue
-        stepSize: sldLumaThreshold.stepSize
+        rvalue: Life.lumaThreshold
+        maximumValue: sldLumaThreshold.to
+        step: sldLumaThreshold.stepSize
 
-        onValueChanged: sldLumaThreshold.value = value
-    }
-
-    ColorDialog {
-        id: colorDialog
-        title: qsTr("Choose the automata color")
-        currentColor: fromRgba(Life.lifeColor)
-        showAlphaChannel: true
-
-        onAccepted: Life.lifeColor = toRgba(color)
+        onRvalueChanged: Life.lumaThreshold = rvalue
     }
 }

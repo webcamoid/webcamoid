@@ -17,11 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+import QtQuick 2.7
+import QtQuick.Controls 2.0
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
+import "qrc:/Ak/share/qml/AkQmlControls"
 
 GridLayout {
     columns: 2
@@ -58,6 +58,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: ScanLines.showSize = text
     }
@@ -70,6 +71,7 @@ GridLayout {
         validator: RegExpValidator {
             regExp: /\d+/
         }
+        Layout.fillWidth: true
 
         onTextChanged: ScanLines.hideSize = text
     }
@@ -77,36 +79,10 @@ GridLayout {
     Label {
         text: qsTr("Hide color")
     }
-    Button {
-        Layout.preferredWidth: 32
-        Layout.preferredHeight: 32
-
-        style: ButtonStyle {
-            background: Rectangle {
-                color: fromRgba(ScanLines.hideColor)
-                border.color: invert(color)
-                border.width: 1
-            }
-        }
-
-        function setColor(color)
-        {
-             ScanLines.hideColor = toRgba(color)
-        }
-
-        onClicked: {
-            colorDialog.caller = this
-            colorDialog.currentColor = fromRgba(ScanLines.hideColor)
-            colorDialog.open()
-        }
-    }
-
-    ColorDialog {
-        id: colorDialog
+    AkColorButton {
+        currentColor: fromRgba(ScanLines.hideColor)
         title: qsTr("Choose the hide color")
 
-        property Item caller: null
-
-        onAccepted: caller.setColor(color)
+        onCurrentColorChanged: ScanLines.hideColor = toRgba(currentColor)
     }
 }

@@ -100,7 +100,6 @@ CameraOutV4L2::CameraOutV4L2(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
-    this->m_passwordTimeout = 2500;
     auto methods = this->availableMethods();
 
     if (!methods.isEmpty())
@@ -124,11 +123,6 @@ CameraOutV4L2::CameraOutV4L2(QObject *parent):
 CameraOutV4L2::~CameraOutV4L2()
 {
     delete this->m_fsWatcher;
-}
-
-QString CameraOutV4L2::driverPath() const
-{
-    return this->m_driverPath;
 }
 
 QStringList CameraOutV4L2::webcams() const
@@ -165,19 +159,9 @@ QStringList CameraOutV4L2::webcams() const
     return webcams;
 }
 
-QString CameraOutV4L2::device() const
-{
-    return this->m_device;
-}
-
 int CameraOutV4L2::streamIndex() const
 {
     return this->m_streamIndex;
-}
-
-AkCaps CameraOutV4L2::caps() const
-{
-    return this->m_caps;
 }
 
 QString CameraOutV4L2::description(const QString &webcam) const
@@ -247,16 +231,6 @@ bool CameraOutV4L2::needRoot() const
     return this->m_rootMethod == "su" || this->m_rootMethod == "sudo";
 }
 
-int CameraOutV4L2::passwordTimeout() const
-{
-    return this->m_passwordTimeout;
-}
-
-QString CameraOutV4L2::rootMethod() const
-{
-    return this->m_rootMethod;
-}
-
 QString CameraOutV4L2::createWebcam(const QString &description,
                                     const QString &password)
 {
@@ -302,7 +276,7 @@ QString CameraOutV4L2::createWebcam(const QString &description,
 
 bool CameraOutV4L2::changeDescription(const QString &webcam,
                                       const QString &description,
-                                      const QString &password) const
+                                      const QString &password)
 {
     if ((this->m_rootMethod == "su" || this->m_rootMethod == "sudo")
         && password.isEmpty())
@@ -580,9 +554,9 @@ QString CameraOutV4L2::cleanupDescription(const QString &description) const
     return description;
 }
 
-bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
+bool CameraOutV4L2::init(int streamIndex)
 {
-    if (!caps)
+    if (!this->m_caps)
         return false;
 
     this->m_deviceFile.setFileName(this->m_device);
@@ -610,7 +584,7 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
         return false;
     }
 
-    AkVideoCaps videoCaps(caps);
+    AkVideoCaps videoCaps(this->m_caps);
     fmt.fmt.pix.width = __u32(videoCaps.width());
     fmt.fmt.pix.height = __u32(videoCaps.height());
     fmt.fmt.pix.pixelformat = ffToV4L2->value(videoCaps.format());
@@ -624,7 +598,6 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
     }
 
     this->m_streamIndex = streamIndex;
-    this->m_caps = caps;
 
     return true;
 }
@@ -632,57 +605,6 @@ bool CameraOutV4L2::init(int streamIndex, const AkCaps &caps)
 void CameraOutV4L2::uninit()
 {
     this->m_deviceFile.close();
-}
-
-void CameraOutV4L2::setDriverPath(const QString &driverPath)
-{
-    if (this->m_driverPath == driverPath)
-        return;
-
-    this->m_driverPath = driverPath;
-    emit this->driverPathChanged(driverPath);
-}
-
-void CameraOutV4L2::setDevice(const QString &device)
-{
-    if (this->m_device == device)
-        return;
-
-    this->m_device = device;
-    emit this->deviceChanged(device);
-}
-
-void CameraOutV4L2::setPasswordTimeout(int passwordTimeout)
-{
-    if (this->m_passwordTimeout == passwordTimeout)
-        return;
-
-    this->m_passwordTimeout = passwordTimeout;
-    emit this->passwordTimeoutChanged(passwordTimeout);
-}
-
-void CameraOutV4L2::setRootMethod(const QString &rootMethod)
-{
-    if (this->m_rootMethod == rootMethod)
-        return;
-
-    this->m_rootMethod = rootMethod;
-    emit this->rootMethodChanged(rootMethod);
-}
-
-void CameraOutV4L2::resetDriverPath()
-{
-    this->setDriverPath("");
-}
-
-void CameraOutV4L2::resetDevice()
-{
-    this->setDevice("");
-}
-
-void CameraOutV4L2::resetPasswordTimeout()
-{
-    this->setPasswordTimeout(2500);
 }
 
 void CameraOutV4L2::resetRootMethod()

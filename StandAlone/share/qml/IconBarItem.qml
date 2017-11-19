@@ -17,7 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
+import QtQuick 2.7
 
 MouseArea {
     id: mouseArea

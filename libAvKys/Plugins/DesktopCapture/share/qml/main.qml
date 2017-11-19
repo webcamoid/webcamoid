@@ -17,9 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.7
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
 import AkQml 1.0
 
 GridLayout {
@@ -49,27 +49,27 @@ GridLayout {
     }
     ComboBox {
         id: cbxFps
+        currentIndex: 10
         Layout.fillWidth: true
-        model: [
-            300,
-            240,
-            144,
-            120,
-            100,
-            90,
-            72,
-            60,
-            50,
-            48,
-            30,
-            25,
-            24,
-            20,
-            15,
-            10,
-            5,
-            2,
-            1]
+        model: [300,
+                240,
+                144,
+                120,
+                100,
+                90,
+                72,
+                60,
+                50,
+                48,
+                30,
+                25,
+                24,
+                20,
+                15,
+                10,
+                5,
+                2,
+                1]
 
         onCurrentIndexChanged: {
             if (currentIndex > -1)
