@@ -355,7 +355,7 @@
     <message>
         <location filename="../qml/MediaConfig.qml" line="68"/>
         <source>Media UID</source>
-        <translation type="unfinished"></translation>
+        <translation>Meedia UID</translation>
     </message>
     <message>
         <location filename="../qml/MediaConfig.qml" line="75"/>
@@ -2070,7 +2070,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/share/qml/main.qml" line="339"/>
         <source>Reset</source>
-        <translation type="unfinished">Lähtesta</translation>
+        <translation>Lähtesta</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="83"/>
