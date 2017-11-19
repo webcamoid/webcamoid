@@ -631,12 +631,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/TestFrame/TestFrame.qml" line="58"/>
         <source>Webcamoid</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Webcamoid</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/VirtualCamera/share/TestFrame/TestFrame.qml" line="66"/>
         <source>The ultimate webcam suite!</source>
-        <translation type="unfinished"></translation>
+        <translation>Den ultimate vevkamerapakken.</translation>
     </message>
 </context>
 <context>
@@ -788,12 +788,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="40"/>
         <source>Number of scratches</source>
-        <translation type="unfinished"></translation>
+        <translation>Antall riper</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Aging/share/qml/main.qml" line="62"/>
         <source>Add dust</source>
-        <translation type="unfinished"></translation>
+        <translation>Legg til støv</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="40"/>
