@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <iostream>
 #include <queue>
 #include <map>
 

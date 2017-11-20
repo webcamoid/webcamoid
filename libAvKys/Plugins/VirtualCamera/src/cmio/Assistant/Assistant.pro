@@ -16,12 +16,33 @@
 #
 # Web-Site: http://webcamoid.github.io/
 
-TEMPLATE = subdirs
+exists(commons.pri) {
+    include(commons.pri)
+} else {
+    exists(../../../../../commons.pri) {
+        include(../../../../../commons.pri)
+    } else {
+        error("commons.pri file not found.")
+    }
+}
 
-CONFIG += ordered
+CONFIG += console c++11
+CONFIG -= app_bundle
+CONFIG -= qt
 
-SUBDIRS = \
-    VCamIPC \
-    Assistant \
-    VirtualCamera \
-    src
+DESTDIR = $${OUT_PWD}
+
+TARGET = AkVCamAssistant
+
+TEMPLATE = app
+
+SOURCES += \
+    src/main.cpp \
+    src/assistant.cpp
+
+LIBS += \
+    -framework CoreFoundation
+
+HEADERS += \
+    src/assistantglobals.h \
+    src/assistant.h
