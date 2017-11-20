@@ -99,4 +99,5 @@ QMAKE_POST_LINK = \
     mkdir -p $${TARGET}.plugin/Contents/MacOS && \
     mkdir -p $${TARGET}.plugin/Contents/Resources && \
     cp -vf lib$${TARGET}.dylib $${TARGET}.plugin/Contents/MacOS/$${TARGET} && \
-    cp -vf Info.plist $${TARGET}.plugin/Contents
+    cp -vf Info.plist $${TARGET}.plugin/Contents && \
+    cp -vf ../Assistant/AkVCamAssistant $${TARGET}.plugin/Contents/Resources

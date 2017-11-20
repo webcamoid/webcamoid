@@ -23,9 +23,9 @@
 #include <iostream>
 
 #ifdef QT_DEBUG
-    #define AkLoggerStart(fileName) Ak::Logger::start(fileName)
-    #define AkLoggerLog(data) Ak::Logger::log() << data << std::endl
-    #define AkLoggerStop() Ak::Logger::stop(fileName)
+    #define AkLoggerStart(fileName) AkVCam::Logger::start(fileName)
+    #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
+    #define AkLoggerStop() AkVCam::Logger::stop(fileName)
 
     namespace AkVCam
     {

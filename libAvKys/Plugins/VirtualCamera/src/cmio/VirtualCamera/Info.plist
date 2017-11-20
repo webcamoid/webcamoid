@@ -40,7 +40,7 @@
         </dict>
         <key>CMIOHardwareAssistantServiceNames</key>
         <array>
-            <string>org.webcamoid.cmio.AkVirtualCameraAssistant</string>
+            <string>org.webcamoid.cmio.AkVCam.Assistant</string>
         </array>
     </dict>
 </plist>
