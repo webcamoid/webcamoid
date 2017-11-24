@@ -26,6 +26,8 @@ exists(commons.pri) {
     }
 }
 
+include(../cmio.pri)
+
 CONFIG += plugin
 
 HEADERS = \
@@ -44,6 +46,7 @@ LIBS += -L$${PWD}/../../../../../Lib/ -l$${COMMONS_TARGET}
 OTHER_FILES += ../pspec.json
 
 LIBS += \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
     -framework CoreFoundation \
     -framework CoreMedia \
@@ -52,7 +55,7 @@ LIBS += \
     -framework IOKit \
     -framework IOSurface
 
-QT += qml
+QT += qml xml
 
 SOURCES = \
     plugin.cpp \
@@ -64,6 +67,9 @@ DESTDIR = $${OUT_PWD}/../../../submodules/VirtualCamera
 TARGET = cmio
 
 TEMPLATE = lib
+
+RESOURCES = \
+    ../cmio.qrc
 
 INSTALLS += target
 

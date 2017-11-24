@@ -21,19 +21,25 @@
 #include <QProcess>
 #include <QFileInfo>
 #include <QDir>
+#include <QStandardPaths>
+#include <QDomDocument>
 #include <akvideopacket.h>
 
 #include "cameraoutcmio.h"
+#include "../Assistant/src/assistantglobals.h"
 
 #define MAX_CAMERAS 1
-#define VCAM_DRIVER "../Resources/AkVirtualCamera.plugin"
+
+Q_GLOBAL_STATIC_WITH_ARGS(QString,
+                          akVCamDriver,
+                          (QString("../Resources/%1.plugin").arg(CMIO_PLUGIN_NAME)))
 
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
     CameraOut(parent)
 {
     this->m_streamIndex = -1;
     QDir applicationDir(QCoreApplication::applicationDirPath());
-    this->m_driverPath = applicationDir.absoluteFilePath(VCAM_DRIVER);
+    this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
     this->m_ipcBridge.cleanDevices();
 }
 
@@ -74,11 +80,10 @@ void CameraOutCMIO::writeFrame(const AkPacket &frame)
         return;
 
     AkVideoPacket videoFrame(frame);
-
-    VideoFormat format(videoFrame.caps().fourCC(),
-                       videoFrame.caps().width(),
-                       videoFrame.caps().height(),
-                       qRound(videoFrame.caps().fps().value()));
+    AkVCam::VideoFormat format(videoFrame.caps().fourCC(),
+                               videoFrame.caps().width(),
+                               videoFrame.caps().height(),
+                               {videoFrame.caps().fps().value()});
 
     this->m_ipcBridge.write(this->m_curDevice.toStdString(),
                             format,
@@ -104,18 +109,19 @@ QString CameraOutCMIO::createWebcam(const QString &description,
         return QString();
 
     QString plugin = QFileInfo(this->m_driverPath).fileName();
-    QString dstPath = "/Library/CoreMediaIO/Plug-Ins/DAL";
+    QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString rm = "rm -rvf " + dstPath + "/" + plugin;
     QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
+    QString cpPlist = "cp -vf '" + this->readDaemonPlist() + "' " + CMIO_DAEMONS_PATH;
 
-    if (!this->sudo(rm + ";" + cp))
+    if (!this->sudo(rm + ";" + cp + ";" + cpPlist))
         return QString();
 
     AkVideoCaps caps(this->m_caps);
 
     this->m_ipcBridge.deviceCreate({{caps.fourCC(),
                                      caps.width(), caps.height(),
-                                     qRound(caps.fps().value())}},
+                                     {caps.fps().value()}}},
                                    description.toStdString());
 
     auto curWebcams = this->webcams();
@@ -156,10 +162,13 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
         return false;
 
     QString plugin = QFileInfo(this->m_driverPath).fileName();
-    QString dstPath = "/Library/CoreMediaIO/Plug-Ins/DAL";
+    QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString rm = "rm -rvf " + dstPath + "/" + plugin;
+    QString rmPlist = QString("rm -vf %1/%2.plist")
+                          .arg(CMIO_DAEMONS_PATH)
+                          .arg(AKVCAM_ASSISTANT_NAME);
 
-    if (!this->sudo(rm))
+    if (!this->sudo(rm + ";" + rmPlist))
         return false;
 
     emit this->webcamsChanged(QStringList());
@@ -204,6 +213,68 @@ bool CameraOutCMIO::sudo(const QString &command) const
     return true;
 }
 
+QString CameraOutCMIO::readDaemonPlist() const
+{
+    QFile daemonFile(":/VirtualCameraCMIO/daemon.plist");
+    daemonFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QDomDocument daemonXml;
+    daemonXml.setContent(&daemonFile);
+    auto daemonDict = daemonXml.documentElement().firstChildElement();
+    auto keys = daemonDict.childNodes();
+    auto assistantPath =
+            QString("%1/%2.plugin/Contents/Resources/%3")
+                .arg(CMIO_PLUGINS_DAL_PATH)
+                .arg(CMIO_PLUGIN_NAME)
+                .arg(CMIO_PLUGIN_ASSISTANT_NAME);
+
+    for (int i = 0; i < keys.size(); i++) {
+        if (keys.item(i).nodeName() == "key") {
+            auto keyElement = keys.item(i).toElement();
+            auto valueElement = keyElement.nextSiblingElement();
+
+            if (keyElement.text() == "Label") {
+                if (valueElement.childNodes().isEmpty())
+                    valueElement.appendChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME));
+                else
+                    valueElement.replaceChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME),
+                                              valueElement.firstChild());
+            } else if (keyElement.text() == "ProgramArguments") {
+                auto stringChilds = valueElement.elementsByTagName("string");
+
+                for (int i = 0; i < stringChilds.size(); i++) {
+                    auto item = stringChilds.item(i);
+
+                    if (item.childNodes().isEmpty())
+                        item.appendChild(daemonXml.createTextNode(assistantPath));
+                    else
+                        item.replaceChild(daemonXml.createTextNode(assistantPath),
+                                          item.firstChild());
+                }
+            } else if (keyElement.text() == "MachServices") {
+                auto stringChilds = valueElement.elementsByTagName("key");
+
+                for (int i = 0; i < stringChilds.size(); i++) {
+                    auto item = stringChilds.item(i);
+
+                    if (item.childNodes().isEmpty())
+                        item.appendChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME));
+                    else
+                        item.replaceChild(daemonXml.createTextNode(AKVCAM_ASSISTANT_NAME),
+                                          item.firstChild());
+                }
+            }
+        }
+    }
+
+    auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    QFile plistFile(tempDir + "/" + AKVCAM_ASSISTANT_NAME + ".plist");
+    plistFile.open(QIODevice::ReadWrite | QIODevice::Text);
+    plistFile.write(daemonXml.toString().toUtf8());
+    plistFile.close();
+
+    return plistFile.fileName();
+}
+
 bool CameraOutCMIO::init(int streamIndex)
 {
     if (!this->m_ipcBridge.deviceStart(this->m_device.toStdString()))
@@ -228,5 +299,5 @@ void CameraOutCMIO::uninit()
 void CameraOutCMIO::resetDriverPath()
 {
     QDir applicationDir(QCoreApplication::applicationDirPath());
-    this->setDriverPath(applicationDir.absoluteFilePath(VCAM_DRIVER));
+    this->setDriverPath(applicationDir.absoluteFilePath(*akVCamDriver()));
 }

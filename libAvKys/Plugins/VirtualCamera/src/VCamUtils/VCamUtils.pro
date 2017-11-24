@@ -43,7 +43,8 @@ SOURCES += \
     src/resources/rcname.cpp \
     src/resources/rcdata.cpp \
     src/resources/rcloader.cpp \
-    src/bitmap/bitmap.cpp
+    src/image/bitmap.cpp \
+    src/image/videoformat.cpp
 
 HEADERS += \
     src/cstream/cstream.h \
@@ -51,5 +52,6 @@ HEADERS += \
     src/resources/rcname.h \
     src/resources/rcdata.h \
     src/resources/rcloader.h \
-    src/bitmap/color.h \
-    src/bitmap/bitmap.h
+    src/image/color.h \
+    src/image/bitmap.h \
+    src/image/videoformat.h

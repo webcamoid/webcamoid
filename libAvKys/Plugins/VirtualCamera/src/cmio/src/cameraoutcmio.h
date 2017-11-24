@@ -52,6 +52,7 @@ class CameraOutCMIO: public CameraOut
         IpcBridge m_ipcBridge;
 
         bool sudo(const QString &command) const;
+        QString readDaemonPlist() const;
 
     public slots:
         bool init(int streamIndex);

@@ -35,7 +35,7 @@ namespace AkVCam
             CFDataRef removePort(const std::string &port);
             CFDataRef deviceCreate(const std::string &port,
                                    const std::string &description,
-                                   const std::vector<AssistantVideoFormat> &formats);
+                                   const std::vector<VideoFormat> &formats);
             CFDataRef deviceDestroy(const std::string &deviceId);
             CFDataRef frameReady(CFDataRef data) const;
             CFDataRef devices() const;

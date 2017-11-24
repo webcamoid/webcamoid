@@ -19,8 +19,10 @@
 
 #include <sstream>
 #include <algorithm>
+#include <servers/bootstrap.h>
 
 #include "utils.h"
+#include "../../Assistant/src/assistantglobals.h"
 
 bool AkVCam::uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2)
 {

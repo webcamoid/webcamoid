@@ -19,6 +19,7 @@
 
 #include "plugin.h"
 #include "utils.h"
+#include "VCamIPC/src/ipcbridge.h"
 
 extern "C" void *akPluginMain(CFAllocatorRef allocator,
                               CFUUIDRef requestedTypeUUID)
@@ -28,7 +29,13 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
     AkLoggerStart("~/AkVirtualCameraLog.txt");
 
     if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
-        return NULL;
+        return nullptr;
+
+    if (!IpcBridge::startAssistant()) {
+        AkLoggerLog("Start Assistant Failed");
+
+        return nullptr;
+    }
 
     return AkVCam::PluginInterface::create();
 }

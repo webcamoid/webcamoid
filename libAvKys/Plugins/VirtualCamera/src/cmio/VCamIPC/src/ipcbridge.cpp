@@ -17,7 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <sstream>
+#include <mach/mach.h>
+#include <servers/bootstrap.h>
+
 #include "ipcbridge.h"
+#include "../../Assistant/src/assistantglobals.h"
 
 class IpcBridgePrivate
 {
@@ -49,7 +54,7 @@ std::string IpcBridge::description(const std::string &deviceId) const
     return {};
 }
 
-std::string IpcBridge::deviceCreate(const std::vector<VideoFormat> &formats,
+std::string IpcBridge::deviceCreate(const std::vector<AkVCam::VideoFormat> &formats,
                                     const std::string &description)
 {
     return {};
@@ -71,7 +76,7 @@ void IpcBridge::deviceStop(const std::string &deviceId)
 }
 
 void IpcBridge::write(const std::string &deviceId,
-                      const VideoFormat &format,
+                      const AkVCam::VideoFormat &format,
                       const void *data)
 {
 
@@ -83,7 +88,8 @@ void IpcBridge::setDescription(const std::string &deviceId,
 
 }
 
-void IpcBridge::setFormats(const std::string &deviceId, const std::vector<VideoFormat> &formats)
+void IpcBridge::setFormats(const std::string &deviceId,
+                           const std::vector<AkVCam::VideoFormat> &formats)
 {
 
 }
@@ -117,4 +123,26 @@ void IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
 void IpcBridge::setDeviceModifiedCallback(DeviceChangedCallback callback)
 {
 
+}
+
+bool IpcBridge::startAssistant()
+{
+    mach_port_t assistantServicePort;
+    name_t assistantServiceName = AKVCAM_ASSISTANT_NAME;
+    auto result = bootstrap_look_up(bootstrap_port,
+                                    assistantServiceName,
+                                    &assistantServicePort);
+    mach_port_deallocate(mach_task_self(), assistantServicePort);
+
+    if (result != BOOTSTRAP_SUCCESS) {
+        std::stringstream launchctl;
+        launchctl << "launchctl load -w /Library/LaunchDaemons/"
+                  << AKVCAM_ASSISTANT_NAME
+                  << ".plist";
+        result = system(launchctl.str().c_str());
+
+        return result == BOOTSTRAP_SUCCESS;
+    }
+
+    return true;
 }

@@ -24,7 +24,7 @@
 #include <vector>
 #include <functional>
 
-#include "videoformat.h"
+#include "VCamUtils/src/image/videoformat.h"
 
 /* # Definitions #
  *
@@ -113,7 +113,7 @@ class IpcBridge
 {
     typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
     typedef std::function<void (const std::string &deviceId,
-                                const VideoFormat &format,
+                                const AkVCam::VideoFormat &format,
                                 const void *data)> FrameReadCallback;
 
     public:
@@ -134,7 +134,7 @@ class IpcBridge
         /* Server */
 
         // Create a device definition.
-        std::string deviceCreate(const std::vector<VideoFormat> &formats,
+        std::string deviceCreate(const std::vector<AkVCam::VideoFormat> &formats,
                                  const std::string &description);
 
         // Remove a device definition.
@@ -148,7 +148,7 @@ class IpcBridge
 
         // Transfer a frame to the device.
         void write(const std::string &deviceId,
-                   const VideoFormat &format,
+                   const AkVCam::VideoFormat &format,
                    const void *data);
 
         // Set device description.
@@ -157,7 +157,7 @@ class IpcBridge
 
         // Set the formats that will be available in the clients.
         void setFormats(const std::string &deviceId,
-                        const std::vector<VideoFormat> &formats);
+                        const std::vector<AkVCam::VideoFormat> &formats);
 
         /* Client */
 
@@ -183,6 +183,8 @@ class IpcBridge
         // Set the function that will be called when the parameters on a device
         // definition are changed.
         void setDeviceModifiedCallback(DeviceChangedCallback callback);
+
+        static bool startAssistant();
 
     private:
         IpcBridgePrivate *d;

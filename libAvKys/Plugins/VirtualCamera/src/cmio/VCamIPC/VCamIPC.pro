@@ -35,10 +35,15 @@ TARGET = VCamIPC
 
 TEMPLATE = lib
 
+LIBS = \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils
+
 SOURCES = \
-    src/videoformat.cpp \
     src/ipcbridge.cpp
 
 HEADERS =  \
-    src/videoformat.h \
     src/ipcbridge.h
+
+INCLUDEPATH += \
+    ../.. \
+    ../Assistant/src
