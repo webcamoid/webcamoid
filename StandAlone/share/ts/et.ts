@@ -196,7 +196,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="151"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>ÕK</translation>
     </message>
 </context>
 <context>
@@ -472,12 +472,12 @@
     <message>
         <location filename="../../src/clioptions.cpp" line="36"/>
         <source>Load settings from PATH. If PATH is empty, load configs from application directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Laadi seadistus asukohast PATH. Kui PATH on tühi, laaditakse seadistus rakenduse kataloogist.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="44"/>
         <source>Semi-colon separated list of paths to search the Qml interface.</source>
-        <translation type="unfinished"></translation>
+        <translation>Semikoolonitega eraldatud asukohtade loetelu, millest otsitakse Qml liidest.</translation>
     </message>
     <message>
         <location filename="../../src/clioptions.cpp" line="53"/>
