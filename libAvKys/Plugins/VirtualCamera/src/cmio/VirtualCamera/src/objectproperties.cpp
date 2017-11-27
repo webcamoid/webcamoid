@@ -214,6 +214,18 @@ bool AkVCam::ObjectProperties::setProperty(UInt32 property,
 }
 
 bool AkVCam::ObjectProperties::setProperty(UInt32 property,
+                                           const std::vector<std::pair<double, double> > &value,
+                                           bool isSettable)
+{
+    std::vector<AudioValueRange> valueRanges;
+
+    for (auto &range: value)
+        valueRanges.push_back({range.first, range.second});
+
+    return this->setProperty(property, valueRanges, isSettable);
+}
+
+bool AkVCam::ObjectProperties::setProperty(UInt32 property,
                                            const ClockPtr &value,
                                            bool isSettable)
 {
@@ -425,7 +437,16 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
 
             if (ok && data) {
                 auto videoFormat = this->d->m_properties[property].videoFormat;
-                *static_cast<CMFormatDescriptionRef *>(data) = videoFormat.create();
+                auto status =
+                        CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
+                                                       videoFormat.fourcc(),
+                                                       videoFormat.width(),
+                                                       videoFormat.height(),
+                                                       nullptr,
+                                                       static_cast<CMFormatDescriptionRef *>(data));
+
+                 if (status != noErr)
+                     ok = false;
             }
 
             break;
@@ -441,9 +462,19 @@ bool AkVCam::ObjectProperties::getProperty(UInt32 property,
                 auto videoFormats = this->d->m_properties[property].videoFormats;
                 std::vector<CMFormatDescriptionRef> formats;
 
-                for (auto &format: videoFormats)
-                    if (auto formatRef = format.create())
+                for (auto &format: videoFormats) {
+                    CMFormatDescriptionRef formatRef = nullptr;
+                    auto status =
+                            CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
+                                                           format.fourcc(),
+                                                           format.width(),
+                                                           format.height(),
+                                                           nullptr,
+                                                           &formatRef);
+
+                    if (status == noErr)
                         formats.push_back(formatRef);
+                }
 
                 CFArrayRef array = nullptr;
 

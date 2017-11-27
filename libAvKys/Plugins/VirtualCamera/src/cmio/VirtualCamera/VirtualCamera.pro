@@ -26,6 +26,7 @@ exists(commons.pri) {
     }
 }
 
+include(../cmio.pri)
 include(../../VCamUtils/VCamUtils.pri)
 
 CONFIG -= qt
@@ -39,10 +40,12 @@ debug {
 }
 
 INCLUDEPATH += \
+    .. \
     ../..
 
 LIBS = \
-    -L../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
+    -L$${OUT_PWD}/../VCamIPC -lVCamIPC \
     -framework CoreFoundation \
     -framework CoreMedia \
     -framework CoreMediaIO \
@@ -50,7 +53,7 @@ LIBS = \
     -framework IOKit \
     -framework IOSurface
 
-TARGET = AkVirtualCamera
+TARGET = $${CMIO_PLUGIN_NAME}
 TEMPLATE = lib
 
 HEADERS += \
@@ -63,7 +66,6 @@ HEADERS += \
     src/stream.h \
     src/objectinterface.h \
     src/objectproperties.h \
-    src/videoformat.h \
     src/clock.h \
     src/queue.h
 
@@ -77,7 +79,6 @@ SOURCES += \
     src/stream.cpp \
     src/objectinterface.cpp \
     src/objectproperties.cpp \
-    src/videoformat.cpp \
     src/clock.cpp
 
 RESOURCES += \
@@ -89,10 +90,11 @@ QMAKE_RESOURCE_FLAGS += \
 OTHER_FILES = \
     Info.plist
 
-#unix {
-#    target.path = /Library/CoreMediaIO/Plug-Ins/DAL
-#    INSTALLS += target
-#}
+INSTALLS += plugin
+
+plugin.files = $${TARGET}.plugin
+plugin.path = $${DATAROOTDIR}/$${COMMONS_TARGET}
+plugin.CONFIG += no_check_exist
 
 QMAKE_POST_LINK = \
     rm -rvf $${TARGET}.plugin && \
@@ -100,4 +102,4 @@ QMAKE_POST_LINK = \
     mkdir -p $${TARGET}.plugin/Contents/Resources && \
     cp -vf lib$${TARGET}.dylib $${TARGET}.plugin/Contents/MacOS/$${TARGET} && \
     cp -vf Info.plist $${TARGET}.plugin/Contents && \
-    cp -vf ../Assistant/AkVCamAssistant $${TARGET}.plugin/Contents/Resources
+    cp -rvf ../Assistant/$${CMIO_PLUGIN_ASSISTANT_NAME} $${TARGET}.plugin/Contents/Resources

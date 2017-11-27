@@ -1,4 +1,4 @@
-/* Webcamoid, webcam capture application.
+﻿/* Webcamoid, webcam capture application.
  * Copyright (C) 2011-2017  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -17,21 +17,22 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <algorithm>
+
 #include "videoformat.h"
 
 AkVCam::VideoFormat::VideoFormat():
-    m_codecType(0),
+    m_fourcc(0),
     m_width(0),
     m_height(0)
 {
-
 }
 
-AkVCam::VideoFormat::VideoFormat(CMVideoCodecType codecType,
-                                 int32_t width,
-                                 int32_t height,
-                                 const std::vector<Float64> &frameRates):
-    m_codecType(codecType),
+AkVCam::VideoFormat::VideoFormat(FourCC fourcc,
+                                 int width,
+                                 int height,
+                                 const std::vector<double> &frameRates):
+    m_fourcc(fourcc),
     m_width(width),
     m_height(height),
     m_frameRates(frameRates)
@@ -41,20 +42,38 @@ AkVCam::VideoFormat::VideoFormat(CMVideoCodecType codecType,
 
 AkVCam::VideoFormat::VideoFormat(const VideoFormat &other)
 {
-    this->m_codecType = other.m_codecType;
+    this->m_fourcc = other.m_fourcc;
     this->m_width = other.m_width;
     this->m_height = other.m_height;
     this->m_frameRates = other.m_frameRates;
 }
 
+AkVCam::VideoFormat::VideoFormat(const AkVCam::VideoFormatStruct &videoFormatStruct)
+{
+    this->m_fourcc = videoFormatStruct.fourcc;
+    this->m_width = videoFormatStruct.width;
+    this->m_height = videoFormatStruct.height;
+    this->m_frameRates.push_back(videoFormatStruct.frameRate);
+}
+
 AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormat &other)
 {
     if (this != &other) {
-        this->m_codecType = other.m_codecType;
+        this->m_fourcc = other.m_fourcc;
         this->m_width = other.m_width;
         this->m_height = other.m_height;
         this->m_frameRates = other.m_frameRates;
     }
+
+    return *this;
+}
+
+AkVCam::VideoFormat &AkVCam::VideoFormat::operator =(const VideoFormatStruct &videoFormatStruct)
+{
+    this->m_fourcc = videoFormatStruct.fourcc;
+    this->m_width = videoFormatStruct.width;
+    this->m_height = videoFormatStruct.height;
+    this->m_frameRates.push_back(videoFormatStruct.frameRate);
 
     return *this;
 }
@@ -64,49 +83,49 @@ AkVCam::VideoFormat::~VideoFormat()
 
 }
 
-CMVideoCodecType AkVCam::VideoFormat::codecType() const
+AkVCam::FourCC AkVCam::VideoFormat::fourcc() const
 {
-    return this->m_codecType;
+    return this->m_fourcc;
 }
 
-CMVideoCodecType &AkVCam::VideoFormat::codecType()
+AkVCam::FourCC &AkVCam::VideoFormat::fourcc()
 {
-    return this->m_codecType;
+    return this->m_fourcc;
 }
 
-int32_t AkVCam::VideoFormat::width() const
+int AkVCam::VideoFormat::width() const
 {
     return this->m_width;
 }
 
-int32_t &AkVCam::VideoFormat::width()
+int &AkVCam::VideoFormat::width()
 {
     return this->m_width;
 }
 
-int32_t AkVCam::VideoFormat::height() const
+int AkVCam::VideoFormat::height() const
 {
     return this->m_height;
 }
 
-int32_t &AkVCam::VideoFormat::height()
+int &AkVCam::VideoFormat::height()
 {
     return this->m_height;
 }
 
-std::vector<Float64> AkVCam::VideoFormat::frameRates() const
+std::vector<double> AkVCam::VideoFormat::frameRates() const
 {
     return this->m_frameRates;
 }
 
-std::vector<Float64> &AkVCam::VideoFormat::frameRates()
+std::vector<double> &AkVCam::VideoFormat::frameRates()
 {
     return this->m_frameRates;
 }
 
-std::vector<AudioValueRange> AkVCam::VideoFormat::frameRateRanges() const
+std::vector<std::pair<double, double>> AkVCam::VideoFormat::frameRateRanges() const
 {
-    std::vector<AudioValueRange> ranges;
+    std::vector<std::pair<double, double>> ranges;
 
     if (!this->m_frameRates.empty()) {
         auto min = *std::min_element(this->m_frameRates.begin(),
@@ -119,7 +138,7 @@ std::vector<AudioValueRange> AkVCam::VideoFormat::frameRateRanges() const
     return ranges;
 }
 
-Float64 AkVCam::VideoFormat::minimumFrameRate() const
+double AkVCam::VideoFormat::minimumFrameRate() const
 {
     if (this->m_frameRates.empty())
         return 0.0;
@@ -128,20 +147,12 @@ Float64 AkVCam::VideoFormat::minimumFrameRate() const
                              this->m_frameRates.end());
 }
 
-CMFormatDescriptionRef AkVCam::VideoFormat::create() const
+AkVCam::VideoFormatStruct AkVCam::VideoFormat::toStruct() const
 {
-    CMFormatDescriptionRef formatDescription = nullptr;
-
-    auto status =
-            CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
-                                           this->m_codecType,
-                                           this->m_width,
-                                           this->m_height,
-                                           nullptr,
-                                           &formatDescription);
-
-    if (status != noErr)
-        return nullptr;
-
-    return formatDescription;
+    return {
+        this->m_fourcc,
+        this->m_width,
+        this->m_height,
+        this->minimumFrameRate()
+    };
 }

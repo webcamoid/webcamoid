@@ -163,7 +163,7 @@ CFDataRef AkVCam::Assistant::removePort(const std::string &port)
 
 CFDataRef AkVCam::Assistant::deviceCreate(const std::string &port,
                                           const std::string &description,
-                                          const std::vector<AssistantVideoFormat> &formats)
+                                          const std::vector<VideoFormat> &formats)
 {
     for (auto &server: this->m_servers)
         if (server.first == port) {
@@ -281,9 +281,14 @@ CFDataRef AkVCam::Assistant::formats(const std::string &deviceId) const
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
+                std::vector<VideoFormatStruct> formats;
+
+                for (auto &format: device.formats)
+                    formats.push_back(format.toStruct());
+
                 return CFDataCreate(kCFAllocatorDefault,
-                                    reinterpret_cast<const UInt8 *>(device.formats.data()),
-                                    CFIndex(device.formats.size() * sizeof(AssistantVideoFormat)));
+                                    reinterpret_cast<const UInt8 *>(formats.data()),
+                                    CFIndex(formats.size() * sizeof(VideoFormatStruct)));
             }
 
     return nullptr;
@@ -338,11 +343,14 @@ CFDataRef AkVCam::Assistant::messageReceived(CFMessagePortRef local,
                          - port.size()
                          - description.size()
                          - 2;
-            size_t nformats = bytes / sizeof(AssistantVideoFormat);
-            std::vector<AssistantVideoFormat> formats(nformats);
-            memcpy(formats.data(), cdata, bytes);
+            size_t nformats = bytes / sizeof(VideoFormatStruct);
+            std::vector<VideoFormatStruct> formatStructs(nformats);
+            memcpy(formatStructs.data(), cdata, bytes);
 
-            return self->deviceCreate(port, description, formats);
+            return self->deviceCreate(port,
+                                      description,
+                                      {formatStructs.begin(),
+                                       formatStructs.end()});
         }
 
         case AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY: {

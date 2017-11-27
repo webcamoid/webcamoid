@@ -24,7 +24,7 @@
 #include <string>
 #include <CoreMediaIO/CMIOHardwareObject.h>
 
-#include "videoformat.h"
+#include "VCamUtils/src/image/videoformat.h"
 #include "clock.h"
 
 namespace AkVCam
@@ -73,6 +73,9 @@ namespace AkVCam
                              bool isSettable=true);
             bool setProperty(UInt32 property,
                              const std::vector<AudioValueRange> &value,
+                             bool isSettable=true);
+            bool setProperty(UInt32 property,
+                             const std::vector<std::pair<double, double>> &value,
                              bool isSettable=true);
             bool setProperty(UInt32 property,
                              const ClockPtr &value,

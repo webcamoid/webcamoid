@@ -26,13 +26,16 @@ exists(commons.pri) {
     }
 }
 
+include(../cmio.pri)
+include(../../VCamUtils/VCamUtils.pri)
+
 CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
 DESTDIR = $${OUT_PWD}
 
-TARGET = AkVCamAssistant
+TARGET = $${CMIO_PLUGIN_ASSISTANT_NAME}
 
 TEMPLATE = app
 
@@ -41,8 +44,12 @@ SOURCES += \
     src/assistant.cpp
 
 LIBS += \
+    -L$${OUT_PWD}/../../VCamUtils -lVCamUtils \
     -framework CoreFoundation
 
 HEADERS += \
     src/assistantglobals.h \
     src/assistant.h
+
+INCLUDEPATH += \
+    ../..
