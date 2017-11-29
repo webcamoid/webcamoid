@@ -241,106 +241,106 @@ bool AkVCam::IpcBridge::registerEndPoint(bool asClient)
     CFMessagePortRef messagePort = nullptr;
     CFMessagePortRef serverMessagePort = nullptr;
     CFRunLoopSourceRef runLoopSource = nullptr;
+    CFStringRef serverName = nullptr;
+    CFMessagePortContext context {0, this, nullptr, nullptr, nullptr};
+    CFDataRef data = nullptr;
+    SInt32 status = 0;
 
-    try {
-        serverMessagePort =
-                CFMessagePortCreateRemote(kCFAllocatorDefault,
-                                          CFSTR(AKVCAM_ASSISTANT_NAME));
+    serverMessagePort =
+            CFMessagePortCreateRemote(kCFAllocatorDefault,
+                                      CFSTR(AKVCAM_ASSISTANT_NAME));
 
-        if (!serverMessagePort)
-            throw;
+    if (!serverMessagePort)
+        goto registerEndPoint_failed;
 
-        CFMessagePortSetInvalidationCallBack(serverMessagePort,
-                                             IpcBridgePrivate::serverMessagePortInvalidated);
+    CFMessagePortSetInvalidationCallBack(serverMessagePort,
+                                         IpcBridgePrivate::serverMessagePortInvalidated);
+    data = CFDataCreate(kCFAllocatorDefault,
+                        reinterpret_cast<UInt8 *>(&asClient),
+                        1);
+    status =
+        CFMessagePortSendRequest(serverMessagePort,
+                                 AKVCAM_ASSISTANT_MSG_REQUEST_PORT,
+                                 data,
+                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                 kCFRunLoopDefaultMode,
+                                 &dataServerName);
+    CFRelease(data);
 
-        auto data = CFDataCreate(kCFAllocatorDefault,
-                                 reinterpret_cast<UInt8 *>(&asClient),
-                                 1);
-        auto status =
-            CFMessagePortSendRequest(serverMessagePort,
-                                     AKVCAM_ASSISTANT_MSG_REQUEST_PORT,
-                                     data,
-                                     AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                     AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                     kCFRunLoopDefaultMode,
-                                     &dataServerName);
-        CFRelease(data);
+    if (status != kCFMessagePortSuccess)
+        goto registerEndPoint_failed;
 
-        if (status != kCFMessagePortSuccess)
-            throw;
+    serverName =
+            CFStringCreateWithBytes(kCFAllocatorDefault,
+                                    CFDataGetBytePtr(dataServerName),
+                                    CFDataGetLength(dataServerName),
+                                    kCFStringEncodingUTF8,
+                                    false);
 
-        auto serverName =
-                CFStringCreateWithBytes(kCFAllocatorDefault,
-                                        CFDataGetBytePtr(dataServerName),
-                                        CFDataGetLength(dataServerName),
-                                        kCFStringEncodingUTF8,
-                                        false);
-
-        CFMessagePortContext context {0, this, nullptr, nullptr, nullptr};
-
-        messagePort =
-                CFMessagePortCreateLocal(kCFAllocatorDefault,
-                                         serverName,
-                                         IpcBridgePrivate::messageReceived,
-                                         &context,
-                                         nullptr);
-        CFRelease(serverName);
-
-        if (!messagePort)
-            throw;
-
-        runLoopSource =
-                CFMessagePortCreateRunLoopSource(kCFAllocatorDefault,
-                                                 messagePort,
-                                                 0);
-
-        if (!runLoopSource)
-            throw;
-
-        CFRunLoopAddSource(CFRunLoopGetMain(),
-                           runLoopSource,
-                           kCFRunLoopCommonModes);
-
-        status =
-            CFMessagePortSendRequest(serverMessagePort,
-                                     AKVCAM_ASSISTANT_MSG_ADD_PORT,
-                                     dataServerName,
-                                     AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                     AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
-                                     nullptr,
+    messagePort =
+            CFMessagePortCreateLocal(kCFAllocatorDefault,
+                                     serverName,
+                                     IpcBridgePrivate::messageReceived,
+                                     &context,
                                      nullptr);
-        if (status != kCFMessagePortSuccess)
-            throw;
+    CFRelease(serverName);
 
-        if (dataServerName)
-            CFRelease(dataServerName);
-    } catch (...) {
-        if (dataServerName)
-            CFRelease(dataServerName);
+    if (!messagePort)
+        goto registerEndPoint_failed;
 
-        if (runLoopSource) {
-            CFRunLoopRemoveSource(CFRunLoopGetMain(),
-                                  runLoopSource,
-                                  kCFRunLoopCommonModes);
-            CFRelease(runLoopSource);
-        }
+    runLoopSource =
+            CFMessagePortCreateRunLoopSource(kCFAllocatorDefault,
+                                             messagePort,
+                                             0);
 
-        if (messagePort) {
-            CFMessagePortInvalidate(messagePort);
-            CFRelease(messagePort);
-        }
+    if (!runLoopSource)
+        goto registerEndPoint_failed;
 
-        if (serverMessagePort)
-            CFRelease(serverMessagePort);
+    CFRunLoopAddSource(CFRunLoopGetMain(),
+                       runLoopSource,
+                       kCFRunLoopCommonModes);
 
-        return false;
-    }
+    status =
+        CFMessagePortSendRequest(serverMessagePort,
+                                 AKVCAM_ASSISTANT_MSG_ADD_PORT,
+                                 dataServerName,
+                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                 nullptr,
+                                 nullptr);
+    if (status != kCFMessagePortSuccess)
+        goto registerEndPoint_failed;
+
+    if (dataServerName)
+        CFRelease(dataServerName);
 
     this->d->messagePort = messagePort;
     this->d->serverMessagePort = serverMessagePort;
     this->d->runLoopSource = runLoopSource;
 
     return true;
+
+registerEndPoint_failed:
+    if (dataServerName)
+        CFRelease(dataServerName);
+
+    if (runLoopSource) {
+        CFRunLoopRemoveSource(CFRunLoopGetMain(),
+                              runLoopSource,
+                              kCFRunLoopCommonModes);
+        CFRelease(runLoopSource);
+    }
+
+    if (messagePort) {
+        CFMessagePortInvalidate(messagePort);
+        CFRelease(messagePort);
+    }
+
+    if (serverMessagePort)
+        CFRelease(serverMessagePort);
+
+    return false;
 }
 
 void AkVCam::IpcBridge::unregisterEndPoint()
@@ -470,6 +470,11 @@ std::vector<AkVCam::VideoFormat> AkVCam::IpcBridge::formats(const std::string &d
 std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
                                             const std::vector<VideoFormat> &formats)
 {
+    if (!this->d->startAssistant())
+        return {};
+
+    this->registerEndPoint(false);
+
     if (!this->d->serverMessagePort || !this->d->messagePort)
         return {};
 
