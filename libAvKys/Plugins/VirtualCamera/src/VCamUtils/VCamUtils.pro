@@ -39,19 +39,22 @@ TEMPLATE = lib
 
 SOURCES += \
     src/cstream/cstream.cpp \
-    src/resources/rcnode.cpp \
-    src/resources/rcname.cpp \
+    src/image/bitmap.cpp \
+    src/image/videoformat.cpp \
+    src/logger/logger.cpp \
     src/resources/rcdata.cpp \
     src/resources/rcloader.cpp \
-    src/image/bitmap.cpp \
-    src/image/videoformat.cpp
+    src/resources/rcname.cpp \
+    src/resources/rcnode.cpp
 
 HEADERS += \
+    src/utils.h \
     src/cstream/cstream.h \
-    src/resources/rcnode.h \
-    src/resources/rcname.h \
+    src/image/bitmap.h \
+    src/image/color.h \
+    src/image/videoformat.h \
+    src/logger/logger.h \
     src/resources/rcdata.h \
     src/resources/rcloader.h \
-    src/image/color.h \
-    src/image/bitmap.h \
-    src/image/videoformat.h
+    src/resources/rcname.h \
+    src/resources/rcnode.h
