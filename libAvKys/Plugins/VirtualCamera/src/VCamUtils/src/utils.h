@@ -17,29 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef AKVCAMUTILS_UTILS_H
+#define AKVCAMUTILS_UTILS_H
 
-#include <iostream>
+#include "logger/logger.h"
 
-#ifdef QT_DEBUG
-    #define AkLoggerStart(fileName) AkVCam::Logger::start(fileName)
-    #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
-    #define AkLoggerStop() AkVCam::Logger::stop(fileName)
-
-    namespace AkVCam
-    {
-        namespace Logger
-        {
-            void start(const std::string &fileName=std::string());
-            std::ostream &log();
-            void stop();
-        }
-    }
-#else
-    #define AkLoggerStart(fileName)
-    #define AkLoggerLog(data)
-    #define AkLoggerStop(fileName)
+#ifndef UNUSED
+    #define UNUSED(x) (void)(x);
 #endif
 
-#endif // LOGGER_H
+#endif // AKVCAMUTILS_UTILS_H

@@ -24,7 +24,7 @@
 #include <CoreMediaIO/CMIOHardwarePlugIn.h>
 
 #include "objectproperties.h"
-#include "logger.h"
+#include "VCamUtils/src/utils.h"
 
 #define AkObjectLogMethod() \
     AkLoggerLog(this->m_className \

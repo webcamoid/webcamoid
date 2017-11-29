@@ -59,7 +59,6 @@ TEMPLATE = lib
 HEADERS += \
     src/plugin.h \
     src/plugininterface.h \
-    src/logger.h \
     src/utils.h \
     src/device.h \
     src/object.h \
@@ -72,7 +71,6 @@ HEADERS += \
 SOURCES += \
     src/plugin.cpp \
     src/plugininterface.cpp \
-    src/logger.cpp \
     src/utils.cpp \
     src/device.cpp \
     src/object.cpp \

@@ -17,21 +17,29 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef AKVCAMUTILS_RCLOADER_H
-#define AKVCAMUTILS_RCLOADER_H
+#ifndef AKVCAMUTILS_LOGGER_H
+#define AKVCAMUTILS_LOGGER_H
 
-#include <string>
-#include <list>
+#include <iostream>
 
-#include "../cstream/cstream.h"
+#ifdef QT_DEBUG
+    #define AkLoggerStart(fileName) AkVCam::Logger::start(fileName)
+    #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
+    #define AkLoggerStop() AkVCam::Logger::stop(fileName)
 
-namespace AkVCam
-{
-    namespace RcLoader
+    namespace AkVCam
     {
-        std::list<std::string> list();
-        CStreamRead load(const std::string &resource);
+        namespace Logger
+        {
+            void start(const std::string &fileName=std::string());
+            std::ostream &log();
+            void stop();
+        }
     }
-}
+#else
+    #define AkLoggerStart(fileName)
+    #define AkLoggerLog(data)
+    #define AkLoggerStop(fileName)
+#endif
 
-#endif // AKVCAMUTILS_RCLOADER_H
+#endif // AKVCAMUTILS_LOGGER_H

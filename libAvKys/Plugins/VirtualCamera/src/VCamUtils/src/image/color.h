@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef AKVCAMUTILS_COLOR_H
+#define AKVCAMUTILS_COLOR_H
 
 #include <cstdint>
 
@@ -53,4 +53,4 @@ namespace AkVCam
     }
 }
 
-#endif // COLOR_H
+#endif // AKVCAMUTILS_COLOR_H

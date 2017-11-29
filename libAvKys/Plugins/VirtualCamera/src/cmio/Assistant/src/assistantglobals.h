@@ -50,6 +50,8 @@
 #define AKVCAM_ASSISTANT_MSG_DESCRIPTION      0x201
 #define AKVCAM_ASSISTANT_MSG_FORMATS          0x202
 
+#define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
+
 namespace AkVCam
 {
     struct AssistantDevice

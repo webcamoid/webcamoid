@@ -21,8 +21,6 @@
 
 #include "assistant.h"
 
-#define TIMEOUT 10.0
-
 namespace AkVCam
 {
     class AssistantPrivate;
@@ -180,8 +178,8 @@ CFDataRef AkVCam::Assistant::deviceCreate(const std::string &port,
                 CFMessagePortSendRequest(client.second,
                                          AKVCAM_ASSISTANT_MSG_DEVICE_CREATED,
                                          data,
-                                         TIMEOUT,
-                                         TIMEOUT,
+                                         AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                         AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
                                          nullptr,
                                          nullptr);
 
@@ -204,8 +202,8 @@ CFDataRef AkVCam::Assistant::deviceDestroy(const std::string &deviceId)
                     CFMessagePortSendRequest(client.second,
                                              AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED,
                                              data,
-                                             TIMEOUT,
-                                             TIMEOUT,
+                                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
                                              nullptr,
                                              nullptr);
 
@@ -225,8 +223,8 @@ CFDataRef AkVCam::Assistant::frameReady(CFDataRef data) const
         CFMessagePortSendRequest(client.second,
                                  AKVCAM_ASSISTANT_MSG_FRAME_READY,
                                  data,
-                                 TIMEOUT,
-                                 TIMEOUT,
+                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                 AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
                                  nullptr,
                                  nullptr);
 
