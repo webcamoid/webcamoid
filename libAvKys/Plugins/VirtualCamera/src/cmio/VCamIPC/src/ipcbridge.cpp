@@ -18,8 +18,6 @@
  */
 
 #include <sstream>
-#include <mach/mach.h>
-#include <servers/bootstrap.h>
 
 #include "ipcbridge.h"
 #include "../../Assistant/src/assistantglobals.h"
@@ -47,7 +45,27 @@ namespace AkVCam
                 serverMessagePort(nullptr),
                 runLoopSource(nullptr)
             {
+                this->startAssistant();
+            }
 
+            inline bool startAssistant()
+            {
+                std::stringstream launchctl;
+
+                launchctl << "launchctl list " << AKVCAM_ASSISTANT_NAME;
+                int result = system(launchctl.str().c_str());
+
+                if (result != 0) {
+                    launchctl.str("");
+                    launchctl << "launchctl load -w /Library/LaunchDaemons/"
+                              << AKVCAM_ASSISTANT_NAME
+                              << ".plist";
+                    result = system(launchctl.str().c_str());
+
+                    return result == 0;
+                }
+
+                return true;
             }
 
             inline void add(IpcBridge *bridge)
@@ -563,26 +581,4 @@ void AkVCam::IpcBridge::setDeviceAddedCallback(DeviceChangedCallback callback)
 void AkVCam::IpcBridge::setDeviceRemovedCallback(DeviceChangedCallback callback)
 {
     this->d->deviceRemovedCallback = callback;
-}
-
-bool AkVCam::IpcBridge::startAssistant()
-{
-    mach_port_t assistantServicePort;
-    name_t assistantServiceName = AKVCAM_ASSISTANT_NAME;
-    auto result = bootstrap_look_up(bootstrap_port,
-                                    assistantServiceName,
-                                    &assistantServicePort);
-    mach_port_deallocate(mach_task_self(), assistantServicePort);
-
-    if (result != BOOTSTRAP_SUCCESS) {
-        std::stringstream launchctl;
-        launchctl << "launchctl load -w /Library/LaunchDaemons/"
-                  << AKVCAM_ASSISTANT_NAME
-                  << ".plist";
-        result = system(launchctl.str().c_str());
-
-        return result == BOOTSTRAP_SUCCESS;
-    }
-
-    return true;
 }

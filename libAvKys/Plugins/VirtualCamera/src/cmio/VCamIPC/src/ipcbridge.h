@@ -179,8 +179,6 @@ namespace AkVCam
             // is removed.
             void setDeviceRemovedCallback(DeviceChangedCallback callback);
 
-            static bool startAssistant();
-
         private:
             IpcBridgePrivate *d;
 

@@ -31,11 +31,5 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
     if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
         return nullptr;
 
-    if (!AkVCam::IpcBridge::startAssistant()) {
-        AkLoggerLog("Start Assistant Failed");
-
-        return nullptr;
-    }
-
     return AkVCam::PluginInterface::create();
 }
