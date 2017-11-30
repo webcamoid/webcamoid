@@ -18,3 +18,7 @@
 
 DEFINES += \
     QT_NAMESPACE=AkVCam
+
+debug {
+    DEFINES += QT_DEBUG
+}

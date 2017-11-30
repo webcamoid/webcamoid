@@ -35,10 +35,6 @@ CONFIG += \
     unversioned_soname \
     resources
 
-debug {
-    DEFINES += QT_DEBUG
-}
-
 INCLUDEPATH += \
     .. \
     ../..
