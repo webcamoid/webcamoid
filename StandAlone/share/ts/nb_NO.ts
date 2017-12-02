@@ -196,7 +196,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/CodecConfigs.qml" line="151"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -823,12 +823,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="141"/>
         <source>Threshold low</source>
-        <translation type="unfinished"></translation>
+        <translation>Lav terksel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="166"/>
         <source>Threshold high</source>
-        <translation type="unfinished"></translation>
+        <translation>Høy terskel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Cartoon/share/qml/main.qml" line="190"/>
@@ -1356,17 +1356,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="165"/>
         <source>Left ear</source>
-        <translation type="unfinished"></translation>
+        <translation>Venstre øre</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="169"/>
         <source>Left eye 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Venstre øye 2</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="173"/>
         <source>Mouth</source>
-        <translation type="unfinished"></translation>
+        <translation>Munn</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="177"/>
@@ -1714,7 +1714,7 @@
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="151"/>
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="107"/>
         <source>Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Forstørrelse</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="166"/>
@@ -1723,7 +1723,7 @@
         <location filename="../../../libAvKys/Plugins/Radioactive/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="90"/>
         <source>Threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Terskel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Fire/share/qml/main.qml" line="188"/>
@@ -1870,7 +1870,7 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="63"/>
         <source>N° of drops</source>
-        <translation type="unfinished"></translation>
+        <translation>Antall dråper</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="96"/>
@@ -1885,17 +1885,17 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="206"/>
         <source>Choose the cursor color</source>
-        <translation type="unfinished"></translation>
+        <translation>Velg pekerfargen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="232"/>
         <source>Min. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Min. dråpelengde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="245"/>
         <source>Max. drop length</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. dråpelengde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Matrix/share/qml/main.qml" line="258"/>
@@ -1995,12 +1995,12 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="51"/>
         <source>Motion detect</source>
-        <translation type="unfinished"></translation>
+        <translation>Bevegelsesoppdagelse</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="55"/>
         <source>Rain</source>
-        <translation type="unfinished"></translation>
+        <translation>Regn</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="77"/>
