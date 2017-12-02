@@ -17,19 +17,29 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include "plugin.h"
-#include "utils.h"
-#include "VCamIPC/src/ipcbridge.h"
+#ifndef AKVCAMUTILS_LOGGER_H
+#define AKVCAMUTILS_LOGGER_H
 
-extern "C" void *akPluginMain(CFAllocatorRef allocator,
-                              CFUUIDRef requestedTypeUUID)
-{
-    UNUSED(allocator)
+#include <iostream>
 
-    AkLoggerStart("~/AkVirtualCameraLog.txt");
+#ifdef QT_DEBUG
+    #define AkLoggerStart(fileName) AkVCam::Logger::start(fileName)
+    #define AkLoggerLog(data) AkVCam::Logger::log() << data << std::endl
+    #define AkLoggerStop() AkVCam::Logger::stop(fileName)
 
-    if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
-        return nullptr;
+    namespace AkVCam
+    {
+        namespace Logger
+        {
+            void start(const std::string &fileName=std::string());
+            std::ostream &log();
+            void stop();
+        }
+    }
+#else
+    #define AkLoggerStart(fileName)
+    #define AkLoggerLog(data)
+    #define AkLoggerStop(fileName)
+#endif
 
-    return AkVCam::PluginInterface::create();
-}
+#endif // AKVCAMUTILS_LOGGER_H

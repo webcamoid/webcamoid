@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef VIDEOFORMAT_H
-#define VIDEOFORMAT_H
+#ifndef AKVCAMUTILS_VIDEOFORMAT_H
+#define AKVCAMUTILS_VIDEOFORMAT_H
 
 #include <cstdint>
 #include <vector>
@@ -72,4 +72,4 @@ namespace AkVCam
     };
 }
 
-#endif // VIDEOFORMAT_H
+#endif // AKVCAMUTILS_VIDEOFORMAT_H

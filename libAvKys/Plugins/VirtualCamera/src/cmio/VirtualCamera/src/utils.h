@@ -23,10 +23,6 @@
 #include <string>
 #include <CoreMediaIO/CMIOHardwarePlugIn.h>
 
-#ifndef UNUSED
-    #define UNUSED(x) (void)(x);
-#endif
-
 namespace AkVCam
 {
     bool uuidEqual(const REFIID &uuid1, const CFUUIDRef uuid2);

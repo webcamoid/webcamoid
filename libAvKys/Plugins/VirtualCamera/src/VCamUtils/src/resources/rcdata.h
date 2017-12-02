@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef RCDATA_H
-#define RCDATA_H
+#ifndef AKVCAMUTILS_RCDATA_H
+#define AKVCAMUTILS_RCDATA_H
 
 #include <cstdint>
 
@@ -34,4 +34,4 @@ namespace AkVCam
     };
 }
 
-#endif // RCDATA_H
+#endif // AKVCAMUTILS_RCDATA_H

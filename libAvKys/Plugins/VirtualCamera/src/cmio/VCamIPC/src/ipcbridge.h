@@ -107,87 +107,83 @@
  * 'deviceOpen' after subscribing to start receibing the frames from the bridge.
  */
 
-class IpcBridgePrivate;
-
-class IpcBridge
+namespace AkVCam
 {
-    typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
-    typedef std::function<void (const std::string &deviceId,
-                                const AkVCam::VideoFormat &format,
-                                const void *data)> FrameReadCallback;
+    class IpcBridgePrivate;
 
-    public:
-        IpcBridge();
-        ~IpcBridge();
+    class IpcBridge
+    {
+        typedef std::function<void (const std::string &deviceId)> DeviceChangedCallback;
+        typedef std::function<void (const std::string &deviceId,
+                                    const VideoFormat &format,
+                                    const void *data)> FrameReadCallback;
 
-        /* Server & Client */
+        public:
+            IpcBridge();
+            ~IpcBridge();
 
-        // Remove non-existent devices definitions.
-        void cleanDevices();
+            /* Server & Client */
 
-        // List available servers.
-        std::vector<std::string> listDevices(bool all=true) const;
+            // Register the end point to the global server.
+            bool registerEndPoint(bool asClient);
 
-        // Return human readable description of the device.
-        std::string description(const std::string &deviceId) const;
+            // Unregister the end point to the global server.
+            void unregisterEndPoint();
 
-        /* Server */
+            // List available servers.
+            std::vector<std::string> listDevices(bool all=true) const;
 
-        // Create a device definition.
-        std::string deviceCreate(const std::vector<AkVCam::VideoFormat> &formats,
-                                 const std::string &description);
+            // Return human readable description of the device.
+            std::string description(const std::string &deviceId) const;
 
-        // Remove a device definition.
-        void deviceDestroy(const std::string &deviceId);
+            // Return supported formats for the device.
+            std::vector<VideoFormat> formats(const std::string &deviceId) const;
 
-        // Start frame transfer to the device.
-        bool deviceStart(const std::string &deviceId);
+            /* Server */
 
-        // Stop frame transfer to the device.
-        void deviceStop(const std::string &deviceId);
+            // Create a device definition.
+            std::string deviceCreate(const std::string &description,
+                                     const std::vector<VideoFormat> &formats);
 
-        // Transfer a frame to the device.
-        void write(const std::string &deviceId,
-                   const AkVCam::VideoFormat &format,
-                   const void *data);
+            // Remove a device definition.
+            void deviceDestroy(const std::string &deviceId);
 
-        // Set device description.
-        void setDescription(const std::string &deviceId,
-                            const std::string &description);
+            // Start frame transfer to the device.
+            bool deviceStart(const std::string &deviceId);
 
-        // Set the formats that will be available in the clients.
-        void setFormats(const std::string &deviceId,
-                        const std::vector<AkVCam::VideoFormat> &formats);
+            // Stop frame transfer to the device.
+            void deviceStop(const std::string &deviceId);
 
-        /* Client */
+            // Transfer a frame to the device.
+            void write(const std::string &deviceId,
+                       const VideoFormat &format,
+                       const void *data);
 
-        // Open device for frames reading.
-        bool deviceOpen(const std::string &deviceId);
+            /* Client */
 
-        // Close device for frames reading.
-        bool deviceClose(const std::string &deviceId);
+            // Open device for frames reading.
+            bool deviceOpen(const std::string &deviceId);
 
-        // Set the function that will be called when a new frame is new frame
-        // is available to the client.
-        void setFrameReadCallback(const std::string &deviceId,
-                                  FrameReadCallback callback);
+            // Close device for frames reading.
+            bool deviceClose(const std::string &deviceId);
 
-        // Set the function that will be called when a new device definition
-        // is added.
-        void setDeviceAddedCallback(DeviceChangedCallback callback);
+            // Set the function that will be called when a new frame
+            // is available to the client.
+            void setFrameReadCallback(FrameReadCallback callback);
 
-        // Set the function that will be called when a device definition
-        // is removed.
-        void setDeviceRemovedCallback(DeviceChangedCallback callback);
+            // Set the function that will be called when a new device definition
+            // is added.
+            void setDeviceAddedCallback(DeviceChangedCallback callback);
 
-        // Set the function that will be called when the parameters on a device
-        // definition are changed.
-        void setDeviceModifiedCallback(DeviceChangedCallback callback);
+            // Set the function that will be called when a device definition
+            // is removed.
+            void setDeviceRemovedCallback(DeviceChangedCallback callback);
 
-        static bool startAssistant();
+        private:
+            IpcBridgePrivate *d;
 
-    private:
-        IpcBridgePrivate *d;
-};
+        friend class IpcBridgePrivate;
+    };
+}
 
 #endif // IPCBRIDGE_H

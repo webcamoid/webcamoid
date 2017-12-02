@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef RCLOADER_H
-#define RCLOADER_H
+#ifndef AKVCAMUTILS_RCLOADER_H
+#define AKVCAMUTILS_RCLOADER_H
 
 #include <string>
 #include <list>
@@ -34,4 +34,4 @@ namespace AkVCam
     }
 }
 
-#endif // RCLOADER_H
+#endif // AKVCAMUTILS_RCLOADER_H

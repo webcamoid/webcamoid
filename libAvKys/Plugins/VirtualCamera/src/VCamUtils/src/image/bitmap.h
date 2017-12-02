@@ -17,8 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#ifndef BITMAP_H
-#define BITMAP_H
+#ifndef AKVCAMUTILS_BITMAP_H
+#define AKVCAMUTILS_BITMAP_H
 
 #include <iostream>
 
@@ -46,4 +46,4 @@ namespace AkVCam
     };
 }
 
-#endif // BITMAP_H
+#endif // AKVCAMUTILS_BITMAP_H

@@ -40,11 +40,12 @@ CameraOutCMIO::CameraOutCMIO(QObject *parent):
     this->m_streamIndex = -1;
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
-    this->m_ipcBridge.cleanDevices();
+    this->m_ipcBridge.registerEndPoint(false);
 }
 
 CameraOutCMIO::~CameraOutCMIO()
 {
+    this->m_ipcBridge.unregisterEndPoint();
 }
 
 QStringList CameraOutCMIO::webcams() const
@@ -119,10 +120,10 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 
     AkVideoCaps caps(this->m_caps);
 
-    this->m_ipcBridge.deviceCreate({{caps.fourCC(),
+    this->m_ipcBridge.deviceCreate(description.toStdString(),
+                                   {{caps.fourCC(),
                                      caps.width(), caps.height(),
-                                     {caps.fps().value()}}},
-                                   description.toStdString());
+                                     {caps.fps().value()}}});
 
     auto curWebcams = this->webcams();
 
@@ -143,10 +144,18 @@ bool CameraOutCMIO::changeDescription(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->m_ipcBridge.setDescription(webcam.toStdString(),
-                                     description.toStdString());
+    this->m_ipcBridge.deviceDestroy(webcam.toStdString());
+    AkVideoCaps caps(this->m_caps);
 
-    emit this->webcamsChanged(webcams);
+    this->m_ipcBridge.deviceCreate(description.toStdString(),
+                                   {{caps.fourCC(),
+                                     caps.width(), caps.height(),
+                                     {caps.fps().value()}}});
+
+    auto curWebcams = this->webcams();
+
+    if (curWebcams != webcams)
+        emit this->webcamsChanged(curWebcams);
 
     return true;
 }

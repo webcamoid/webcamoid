@@ -49,7 +49,7 @@ class CameraOutCMIO: public CameraOut
         QStringList m_webcams;
         int m_streamIndex;
         QString m_curDevice;
-        IpcBridge m_ipcBridge;
+        AkVCam::IpcBridge m_ipcBridge;
 
         bool sudo(const QString &command) const;
         QString readDaemonPlist() const;
