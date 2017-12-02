@@ -275,6 +275,38 @@ QString CameraOutCMIO::readDaemonPlist() const
         }
     }
 
+#ifdef QT_DEBUG
+    auto daemonLog = QString("/var/log/%1.log").arg(AKVCAM_ASSISTANT_NAME);
+
+    // StandardOutPath key
+    auto keyStandardOutPath = daemonXml.createElement("key");
+    daemonDict.appendChild(keyStandardOutPath);
+    keyStandardOutPath.appendChild(daemonXml.createTextNode("StandardOutPath"));
+
+    // StandardOutPath value
+    auto valueStandardOutPath = daemonXml.createElement("string");
+    daemonDict.appendChild(valueStandardOutPath);
+    valueStandardOutPath.appendChild(daemonXml.createTextNode(daemonLog));
+
+    // StandardErrorPath key
+    auto keyStandardErrorPath = daemonXml.createElement("key");
+    daemonDict.appendChild(keyStandardErrorPath);
+    keyStandardErrorPath.appendChild(daemonXml.createTextNode("StandardErrorPath"));
+
+    // StandardErrorPath value
+    auto valueStandardErrorPath = daemonXml.createElement("string");
+    daemonDict.appendChild(valueStandardErrorPath);
+    valueStandardErrorPath.appendChild(daemonXml.createTextNode(daemonLog));
+
+    // Debug key
+    auto keyDebug = daemonXml.createElement("key");
+    daemonDict.appendChild(keyDebug);
+    keyDebug.appendChild(daemonXml.createTextNode("Debug"));
+
+    // Debug value
+    daemonDict.appendChild(daemonXml.createElement("true"));
+#endif
+
     auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     QFile plistFile(tempDir + "/" + AKVCAM_ASSISTANT_NAME + ".plist");
     plistFile.open(QIODevice::ReadWrite | QIODevice::Text);

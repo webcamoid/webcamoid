@@ -32,21 +32,28 @@ int main()
                                      assistant.messageReceived,
                                      &context,
                                      nullptr);
-    auto runLoopSource =
-            CFMessagePortCreateRunLoopSource(kCFAllocatorDefault,
-                                             messagePort,
-                                             0);
 
-    CFRunLoopAddSource(CFRunLoopGetMain(),
-                       runLoopSource,
-                       kCFRunLoopCommonModes);
-    CFRunLoopRun();
-    CFRunLoopRemoveSource(CFRunLoopGetMain(),
-                          runLoopSource,
-                          kCFRunLoopCommonModes);
-    CFMessagePortInvalidate(messagePort);
-    CFRelease(runLoopSource);
-    CFRelease(messagePort);
+    if (messagePort) {
+        auto runLoopSource =
+                CFMessagePortCreateRunLoopSource(kCFAllocatorDefault,
+                                                 messagePort,
+                                                 0);
+
+        if (runLoopSource) {
+            CFRunLoopAddSource(CFRunLoopGetMain(),
+                               runLoopSource,
+                               kCFRunLoopCommonModes);
+            CFRunLoopRun();
+
+            CFRunLoopRemoveSource(CFRunLoopGetMain(),
+                                  runLoopSource,
+                                  kCFRunLoopCommonModes);
+            CFRelease(runLoopSource);
+        }
+
+        CFMessagePortInvalidate(messagePort);
+        CFRelease(messagePort);
+    }
 
     return 0;
 }

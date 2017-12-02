@@ -19,6 +19,6 @@
 DEFINES += \
     QT_NAMESPACE=AkVCam
 
-debug {
+CONFIG(debug, debug|release) {
     DEFINES += QT_DEBUG
 }

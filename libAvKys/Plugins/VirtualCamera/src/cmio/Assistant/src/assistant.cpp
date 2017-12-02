@@ -20,6 +20,12 @@
 #include <sstream>
 
 #include "assistant.h"
+#include "VCamUtils/src/utils.h"
+
+#define AkAssistantLogMethod() \
+    AkLoggerLog("Assistant::" \
+                << __FUNCTION__ \
+                << "()")
 
 namespace AkVCam
 {
@@ -91,6 +97,8 @@ AkVCam::Assistant::~Assistant()
 
 CFDataRef AkVCam::Assistant::requestPort(bool asClient) const
 {
+    AkAssistantLogMethod();
+
     std::string portName = asClient?
                 AKVCAM_ASSISTANT_CLIENT_NAME:
                 AKVCAM_ASSISTANT_SERVER_NAME;
@@ -103,6 +111,8 @@ CFDataRef AkVCam::Assistant::requestPort(bool asClient) const
 
 CFDataRef AkVCam::Assistant::addPort(const std::string &portName)
 {
+    AkAssistantLogMethod();
+
     auto cfPortName = CFStringCreateWithCString(kCFAllocatorDefault,
                                                 portName.c_str(),
                                                 kCFStringEncodingUTF8);
@@ -132,6 +142,8 @@ CFDataRef AkVCam::Assistant::addPort(const std::string &portName)
 
 CFDataRef AkVCam::Assistant::removePort(const std::string &port)
 {
+    AkAssistantLogMethod();
+
     for (auto &server: this->m_servers)
         if (server.first == port) {
             std::vector<std::string> devices;
@@ -163,6 +175,8 @@ CFDataRef AkVCam::Assistant::deviceCreate(const std::string &port,
                                           const std::string &description,
                                           const std::vector<VideoFormat> &formats)
 {
+    AkAssistantLogMethod();
+
     for (auto &server: this->m_servers)
         if (server.first == port) {
             std::stringstream ss;
@@ -191,6 +205,8 @@ CFDataRef AkVCam::Assistant::deviceCreate(const std::string &port,
 
 CFDataRef AkVCam::Assistant::deviceDestroy(const std::string &deviceId)
 {
+    AkAssistantLogMethod();
+
     for (auto &server: this->m_servers)
         for (size_t i = 0; i < server.second.devices.size(); i++)
             if (server.second.devices[i].deviceId == deviceId) {
@@ -219,6 +235,8 @@ CFDataRef AkVCam::Assistant::deviceDestroy(const std::string &deviceId)
 
 CFDataRef AkVCam::Assistant::frameReady(CFDataRef data) const
 {
+    AkAssistantLogMethod();
+
     for (auto &client: this->m_clients)
         CFMessagePortSendRequest(client.second,
                                  AKVCAM_ASSISTANT_MSG_FRAME_READY,
@@ -233,6 +251,8 @@ CFDataRef AkVCam::Assistant::frameReady(CFDataRef data) const
 
 CFDataRef AkVCam::Assistant::devices() const
 {
+    AkAssistantLogMethod();
+
     if (this->m_servers.size() < 1)
         return nullptr;
 
@@ -263,6 +283,8 @@ CFDataRef AkVCam::Assistant::devices() const
 
 CFDataRef AkVCam::Assistant::description(const std::string &deviceId) const
 {
+    AkAssistantLogMethod();
+
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
@@ -276,6 +298,8 @@ CFDataRef AkVCam::Assistant::description(const std::string &deviceId) const
 
 CFDataRef AkVCam::Assistant::formats(const std::string &deviceId) const
 {
+    AkAssistantLogMethod();
+
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
