@@ -104,6 +104,8 @@ CFDataRef AkVCam::Assistant::requestPort(bool asClient) const
                 AKVCAM_ASSISTANT_SERVER_NAME;
     portName += std::to_string(this->id());
 
+    AkLoggerLog("Returning Port: " << portName);
+
     return CFDataCreate(kCFAllocatorDefault,
                         reinterpret_cast<const UInt8 *>(portName.c_str()),
                         CFIndex(portName.size()));
@@ -120,6 +122,13 @@ CFDataRef AkVCam::Assistant::addPort(const std::string &portName)
             CFMessagePortCreateRemote(kCFAllocatorDefault,
                                       cfPortName);
     CFRelease(cfPortName);
+
+    if (!messagePort) {
+        AkLoggerLog("Can't create remote port: " << portName);
+
+        return nullptr;
+    }
+
     CFMessagePortSetInvalidationCallBack(messagePort,
                                          AssistantPrivate::messagePortInvalidated);
 
@@ -128,11 +137,15 @@ CFDataRef AkVCam::Assistant::addPort(const std::string &portName)
             if (client.first == portName)
                 return nullptr;
 
+        AkLoggerLog("Adding Client: " << portName);
+
         this->m_clients[portName] = messagePort;
     } else {
         for (auto &server: this->m_servers)
             if (server.first == portName)
                 return nullptr;
+
+        AkLoggerLog("Adding Server: " << portName);
 
         this->m_servers[portName] = {messagePort, {}};
     }

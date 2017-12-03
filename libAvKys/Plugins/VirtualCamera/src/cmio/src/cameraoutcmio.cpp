@@ -111,17 +111,24 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 
     QString plugin = QFileInfo(this->m_driverPath).fileName();
     QString dstPath = CMIO_PLUGINS_DAL_PATH;
-    QString rm = "rm -rvf " + dstPath + "/" + plugin;
-    QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
+    QString pluginInstallPath = dstPath + "/" + plugin;
 
-    if (!this->sudo(rm + ";" + cp))
-        return QString();
+    if (!QFileInfo(pluginInstallPath).exists()) {
+        QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
+
+        if (!this->sudo(cp))
+            return QString();
+    }
 
     auto daemonPlist = this->readDaemonPlist();
     auto daemonPlistFile = QFileInfo(daemonPlist).fileName();
-    QDir().mkpath(CMIO_DAEMONS_PATH);
-    QFile::copy(daemonPlist,
-                QDir(CMIO_DAEMONS_PATH).absoluteFilePath(daemonPlistFile));
+    auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
+    auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlistFile);
+
+    if (!QFileInfo(dstDaemonsPath).exists()) {
+        QDir().mkpath(daemonsPath);
+        QFile::copy(daemonPlist, dstDaemonsPath);
+    }
 
     AkVideoCaps caps(this->m_caps);
 
@@ -182,7 +189,8 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
     if (!this->sudo(rm))
         return false;
 
-    QDir(CMIO_DAEMONS_PATH).remove(QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME));
+    QDir(QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath()))
+            .remove(QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME));
     emit this->webcamsChanged(QStringList());
 
     return true;
