@@ -113,10 +113,15 @@ QString CameraOutCMIO::createWebcam(const QString &description,
     QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString rm = "rm -rvf " + dstPath + "/" + plugin;
     QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
-    QString cpPlist = "cp -vf '" + this->readDaemonPlist() + "' " + CMIO_DAEMONS_PATH;
 
-    if (!this->sudo(rm + ";" + cp + ";" + cpPlist))
+    if (!this->sudo(rm + ";" + cp))
         return QString();
+
+    auto daemonPlist = this->readDaemonPlist();
+    auto daemonPlistFile = QFileInfo(daemonPlist).fileName();
+    QDir().mkpath(CMIO_DAEMONS_PATH);
+    QFile::copy(daemonPlist,
+                QDir(CMIO_DAEMONS_PATH).absoluteFilePath(daemonPlistFile));
 
     AkVideoCaps caps(this->m_caps);
 
@@ -173,13 +178,11 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
     QString plugin = QFileInfo(this->m_driverPath).fileName();
     QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString rm = "rm -rvf " + dstPath + "/" + plugin;
-    QString rmPlist = QString("rm -vf %1/%2.plist")
-                          .arg(CMIO_DAEMONS_PATH)
-                          .arg(AKVCAM_ASSISTANT_NAME);
 
-    if (!this->sudo(rm + ";" + rmPlist))
+    if (!this->sudo(rm))
         return false;
 
+    QDir(CMIO_DAEMONS_PATH).remove(QString("%1.plist").arg(AKVCAM_ASSISTANT_NAME));
     emit this->webcamsChanged(QStringList());
 
     return true;
@@ -276,7 +279,7 @@ QString CameraOutCMIO::readDaemonPlist() const
     }
 
 #ifdef QT_DEBUG
-    auto daemonLog = QString("/var/log/%1.log").arg(AKVCAM_ASSISTANT_NAME);
+    auto daemonLog = QString("/tmp/%1.log").arg(AKVCAM_ASSISTANT_NAME);
 
     // StandardOutPath key
     auto keyStandardOutPath = daemonXml.createElement("key");
@@ -297,14 +300,6 @@ QString CameraOutCMIO::readDaemonPlist() const
     auto valueStandardErrorPath = daemonXml.createElement("string");
     daemonDict.appendChild(valueStandardErrorPath);
     valueStandardErrorPath.appendChild(daemonXml.createTextNode(daemonLog));
-
-    // Debug key
-    auto keyDebug = daemonXml.createElement("key");
-    daemonDict.appendChild(keyDebug);
-    keyDebug.appendChild(daemonXml.createTextNode("Debug"));
-
-    // Debug value
-    daemonDict.appendChild(daemonXml.createElement("true"));
 #endif
 
     auto tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);

@@ -57,7 +57,9 @@ namespace AkVCam
 
                 if (result != 0) {
                     launchctl.str("");
-                    launchctl << "launchctl load -w /Library/LaunchDaemons/"
+                    launchctl << "launchctl load -w "
+                              << CMIO_DAEMONS_PATH
+                              << "/"
                               << AKVCAM_ASSISTANT_NAME
                               << ".plist";
                     result = system(launchctl.str().c_str());

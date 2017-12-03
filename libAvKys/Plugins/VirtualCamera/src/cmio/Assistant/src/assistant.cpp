@@ -106,7 +106,7 @@ CFDataRef AkVCam::Assistant::requestPort(bool asClient) const
 
     return CFDataCreate(kCFAllocatorDefault,
                         reinterpret_cast<const UInt8 *>(portName.c_str()),
-                        CFIndex(portName.data()));
+                        CFIndex(portName.size()));
 }
 
 CFDataRef AkVCam::Assistant::addPort(const std::string &portName)

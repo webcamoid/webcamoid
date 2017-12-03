@@ -26,6 +26,8 @@ exists(commons.pri) {
     }
 }
 
+include(../cmio.pri)
+
 CONFIG += staticlib c++11
 CONFIG -= qt
 

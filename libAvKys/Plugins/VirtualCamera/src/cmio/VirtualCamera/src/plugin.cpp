@@ -26,7 +26,7 @@ extern "C" void *akPluginMain(CFAllocatorRef allocator,
 {
     UNUSED(allocator)
 
-    AkLoggerStart("~/AkVirtualCameraLog.txt");
+    AkLoggerStart("/tmp/AkVirtualCamera.log");
 
     if (not CFEqual(requestedTypeUUID, kCMIOHardwarePlugInTypeID))
         return nullptr;
