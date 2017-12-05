@@ -51,7 +51,6 @@ int main()
             CFRelease(runLoopSource);
         }
 
-        CFMessagePortInvalidate(messagePort);
         CFRelease(messagePort);
     }
 

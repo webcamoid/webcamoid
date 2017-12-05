@@ -301,6 +301,11 @@ CFDataRef AkVCam::Assistant::description(const std::string &deviceId) const
     for (auto &server: this->m_servers)
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
+                AkLoggerLog("Description for device "
+                            << deviceId
+                            << ": "
+                            << device.description);
+
                 return CFDataCreate(kCFAllocatorDefault,
                                     reinterpret_cast<const UInt8 *>(device.description.c_str()),
                                     CFIndex(device.description.length()));

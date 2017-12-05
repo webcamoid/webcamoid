@@ -69,7 +69,7 @@ QString CameraOutCMIO::description(const QString &webcam) const
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)
-            return deviceId;
+            return QString::fromStdString(this->m_ipcBridge.description(device));
     }
 
     return {};
@@ -132,7 +132,9 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 
     AkVideoCaps caps(this->m_caps);
 
-    this->m_ipcBridge.deviceCreate(description.toStdString(),
+    this->m_ipcBridge.deviceCreate(description.isEmpty()?
+                                       "AvKys Virtual Camera":
+                                       description.toStdString(),
                                    {{caps.fourCC(),
                                      caps.width(), caps.height(),
                                      {caps.fps().value()}}});
@@ -159,7 +161,9 @@ bool CameraOutCMIO::changeDescription(const QString &webcam,
     this->m_ipcBridge.deviceDestroy(webcam.toStdString());
     AkVideoCaps caps(this->m_caps);
 
-    this->m_ipcBridge.deviceCreate(description.toStdString(),
+    this->m_ipcBridge.deviceCreate(description.isEmpty()?
+                                       "AvKys Virtual Camera":
+                                       description.toStdString(),
                                    {{caps.fourCC(),
                                      caps.width(), caps.height(),
                                      {caps.fps().value()}}});

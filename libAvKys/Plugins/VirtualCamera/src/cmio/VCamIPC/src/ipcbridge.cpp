@@ -133,41 +133,26 @@ namespace AkVCam
 
             inline CFDataRef stringToData(const CFStringRef cfstr)
             {
-                auto len = CFStringGetLength(cfstr);
-                len = CFStringGetMaximumSizeForEncoding(len,
-                                                        kCFStringEncodingUTF8);
-                std::vector<UInt8> str(len, 0);
-                CFStringGetCString(cfstr,
-                                   reinterpret_cast<char *>(str.data()),
-                                   str.size(),
-                                   kCFStringEncodingUTF8);
+                auto data = CFStringGetCStringPtr(cfstr,
+                                                  kCFStringEncodingUTF8);
 
                 return CFDataCreate(kCFAllocatorDefault,
-                                    str.data(),
-                                    len);
+                                    reinterpret_cast<const UInt8 *>(data),
+                                    CFStringGetLength(cfstr));
             }
 
             inline std::string stringToCppString(const CFStringRef cfstr)
             {
-                auto len = CFStringGetLength(cfstr);
-                len = CFStringGetMaximumSizeForEncoding(len,
-                                                        kCFStringEncodingUTF8);
-                std::vector<UInt8> str(len, 0);
-                CFStringGetCString(cfstr,
-                                   reinterpret_cast<char *>(str.data()),
-                                   str.size(),
-                                   kCFStringEncodingUTF8);
-
-                return std::string(str.begin(), str.end());
+                return std::string(CFStringGetCStringPtr(cfstr,
+                                                         kCFStringEncodingUTF8),
+                                   CFStringGetLength(cfstr));
             }
 
             inline CFDataRef stringToData(const std::string &cppstr)
             {
-                auto data = CFDataCreate(kCFAllocatorDefault,
-                                         reinterpret_cast<const UInt8 *>(cppstr.c_str()),
-                                         cppstr.size());
-
-                return data;
+                return CFDataCreate(kCFAllocatorDefault,
+                                    reinterpret_cast<const UInt8 *>(cppstr.c_str()),
+                                    cppstr.size());
             }
 
             inline std::string dataToCppString(const CFDataRef data)
@@ -311,6 +296,7 @@ bool AkVCam::IpcBridge::registerEndPoint(bool asClient)
                                  AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
                                  nullptr,
                                  nullptr);
+
     if (status != kCFMessagePortSuccess)
         goto registerEndPoint_failed;
 
@@ -358,8 +344,9 @@ void AkVCam::IpcBridge::unregisterEndPoint()
     CFStringRef messagePortName = nullptr;
 
     if (this->d->messagePort) {
-        messagePortName = CFMessagePortGetName(this->d->messagePort);
-        CFMessagePortInvalidate(this->d->messagePort);
+        messagePortName =
+                CFStringCreateCopy(kCFAllocatorDefault,
+                                   CFMessagePortGetName(this->d->messagePort));
         CFRelease(this->d->messagePort);
         this->d->messagePort = nullptr;
     }
@@ -377,6 +364,7 @@ void AkVCam::IpcBridge::unregisterEndPoint()
                                      nullptr,
                                      nullptr);
             CFRelease(dataMessagePortName);
+
         }
 
         CFRelease(this->d->serverMessagePort);
@@ -482,7 +470,6 @@ std::string AkVCam::IpcBridge::deviceCreate(const std::string &description,
 
     auto messagePortName = CFMessagePortGetName(this->d->messagePort);
     auto portName = this->d->stringToCppString(messagePortName);
-    CFRelease(messagePortName);
     std::vector<VideoFormatStruct> formatsStruct;
 
     for (auto &format: formats)
