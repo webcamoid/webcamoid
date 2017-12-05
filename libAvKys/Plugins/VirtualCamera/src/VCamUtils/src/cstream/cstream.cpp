@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <cstdint>
+
 #include "cstream.h"
 
 namespace AkVCam

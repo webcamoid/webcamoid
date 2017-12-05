@@ -23,17 +23,13 @@
 Q_GLOBAL_STATIC(MultiSinkGlobals, globalMultiSink)
 
 template<typename T>
-inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
+inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
 {
-    if (!obj)
-        return QSharedPointer<T>(new T());
-
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
 MultiSinkElement::MultiSinkElement():
-    AkElement(),
-    m_mediaWriter(ptr_init<MediaWriter>())
+    AkElement()
 {
     this->m_showFormatOptions = false;
 
@@ -66,11 +62,17 @@ QStringList MultiSinkElement::supportedFormats() const
 
 QString MultiSinkElement::outputFormat() const
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->outputFormat();
 }
 
 QVariantList MultiSinkElement::streams()
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->streams();
 }
 
@@ -96,11 +98,17 @@ QVariantMap MultiSinkElement::userControlsValues() const
 
 QStringList MultiSinkElement::formatsBlackList() const
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->formatsBlackList();
 }
 
 QStringList MultiSinkElement::codecsBlackList() const
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->codecsBlackList();
 }
 
@@ -116,18 +124,27 @@ QString MultiSinkElement::formatDescription(const QString &format) const
 
 QVariantList MultiSinkElement::formatOptions() const
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->formatOptions();
 }
 
 QStringList MultiSinkElement::supportedCodecs(const QString &format,
                                               const QString &type)
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->supportedCodecs(format, type);
 }
 
 QString MultiSinkElement::defaultCodec(const QString &format,
                                        const QString &type)
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->defaultCodec(format, type);
 }
 
@@ -150,6 +167,9 @@ QVariantMap MultiSinkElement::addStream(int streamIndex,
                                         const AkCaps &streamCaps,
                                         const QVariantMap &codecParams)
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     auto stream =
         this->m_mediaWriter->addStream(streamIndex,
                                        streamCaps,
@@ -164,11 +184,17 @@ QVariantMap MultiSinkElement::addStream(int streamIndex,
 QVariantMap MultiSinkElement::updateStream(int index,
                                            const QVariantMap &codecParams)
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->updateStream(index, codecParams);
 }
 
 QVariantList MultiSinkElement::codecOptions(int index)
 {
+    if (!this->m_mediaWriter)
+        return {};
+
     return this->m_mediaWriter->codecOptions(index);
 }
 
@@ -200,18 +226,21 @@ void MultiSinkElement::setLocation(const QString &location)
 
 void MultiSinkElement::setOutputFormat(const QString &outputFormat)
 {
-    this->m_mediaWriter->setOutputFormat(outputFormat);
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->setOutputFormat(outputFormat);
 }
 
 void MultiSinkElement::setFormatOptions(const QVariantMap &formatOptions)
 {
-    this->m_mediaWriter->setFormatOptions(formatOptions);
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->setFormatOptions(formatOptions);
 }
 
 void MultiSinkElement::setCodecOptions(int index,
                                        const QVariantMap &codecOptions)
 {
-    this->m_mediaWriter->setCodecOptions(index, codecOptions);
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->setCodecOptions(index, codecOptions);
 }
 
 void MultiSinkElement::setCodecLib(const QString &codecLib)
@@ -248,12 +277,14 @@ void MultiSinkElement::setUserControlsValues(const QVariantMap &userControlsValu
 
 void MultiSinkElement::setFormatsBlackList(const QStringList &formatsBlackList)
 {
-    this->m_mediaWriter->setFormatsBlackList(formatsBlackList);
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->setFormatsBlackList(formatsBlackList);
 }
 
 void MultiSinkElement::setCodecsBlackList(const QStringList &codecsBlackList)
 {
-    this->m_mediaWriter->setCodecsBlackList(codecsBlackList);
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->setCodecsBlackList(codecsBlackList);
 }
 
 void MultiSinkElement::resetLocation()
@@ -263,17 +294,20 @@ void MultiSinkElement::resetLocation()
 
 void MultiSinkElement::resetOutputFormat()
 {
-    this->m_mediaWriter->resetOutputFormat();
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->resetOutputFormat();
 }
 
 void MultiSinkElement::resetFormatOptions()
 {
-    this->m_mediaWriter->resetFormatOptions();
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->resetFormatOptions();
 }
 
 void MultiSinkElement::resetCodecOptions(int index)
 {
-    this->m_mediaWriter->resetCodecOptions(index);
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->resetCodecOptions(index);
 }
 
 void MultiSinkElement::resetCodecLib()
@@ -298,17 +332,21 @@ void MultiSinkElement::resetUserControlsValues()
 
 void MultiSinkElement::resetFormatsBlackList()
 {
-    this->m_mediaWriter->resetFormatsBlackList();
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->resetFormatsBlackList();
 }
 
 void MultiSinkElement::resetCodecsBlackList()
 {
-    this->m_mediaWriter->resetCodecsBlackList();
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->resetCodecsBlackList();
 }
 
 void MultiSinkElement::clearStreams()
 {
-    this->m_mediaWriter->clearStreams();
+    if (this->m_mediaWriter)
+        this->m_mediaWriter->clearStreams();
+
     this->m_inputStreams.clear();
 }
 
@@ -317,7 +355,7 @@ AkPacket MultiSinkElement::iStream(const AkPacket &packet)
     if (this->state() != ElementStatePlaying)
         return AkPacket();
 
-    if (this->m_inputStreams.contains(packet.index()))
+    if (this->m_mediaWriter && this->m_inputStreams.contains(packet.index()))
         this->m_mediaWriter->enqueuePacket(packet);
 
     return AkPacket();
@@ -325,6 +363,9 @@ AkPacket MultiSinkElement::iStream(const AkPacket &packet)
 
 bool MultiSinkElement::setState(AkElement::ElementState state)
 {
+    if (!this->m_mediaWriter)
+        return false;
+
     AkElement::ElementState curState = this->state();
 
     if (curState == AkElement::ElementStateNull) {
@@ -344,10 +385,17 @@ void MultiSinkElement::codecLibUpdated(const QString &codecLib)
 {
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
-    auto location = this->m_mediaWriter->location();
+
+    QString location;
+
+    if (this->m_mediaWriter)
+        location = this->m_mediaWriter->location();
 
     this->m_mediaWriter =
-            ptr_init<MediaWriter>(this->loadSubModule("MultiSink", codecLib));
+            ptr_cast<MediaWriter>(this->loadSubModule("MultiSink", codecLib));
+
+    if (!this->m_mediaWriter)
+        return;
 
     this->m_supportedFormats.clear();
     this->m_fileExtensions.clear();

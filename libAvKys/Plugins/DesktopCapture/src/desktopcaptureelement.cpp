@@ -23,17 +23,13 @@
 Q_GLOBAL_STATIC(DesktopCaptureGlobals, globalDesktopCapture)
 
 template<typename T>
-inline QSharedPointer<T> ptr_init(QObject *obj=nullptr)
+inline QSharedPointer<T> ptr_cast(QObject *obj=nullptr)
 {
-    if (!obj)
-        return QSharedPointer<T>(new T());
-
     return QSharedPointer<T>(static_cast<T *>(obj));
 }
 
 DesktopCaptureElement::DesktopCaptureElement():
-    AkMultimediaSourceElement(),
-    m_screenCapture(ptr_init<ScreenDev>())
+    AkMultimediaSourceElement()
 {
     QObject::connect(globalDesktopCapture,
                      SIGNAL(captureLibChanged(const QString &)),
@@ -54,36 +50,57 @@ DesktopCaptureElement::~DesktopCaptureElement()
 
 AkFrac DesktopCaptureElement::fps() const
 {
+    if (!this->m_screenCapture)
+        return AkFrac();
+
     return this->m_screenCapture->fps();
 }
 
 QStringList DesktopCaptureElement::medias()
 {
+    if (!this->m_screenCapture)
+        return {};
+
     return this->m_screenCapture->medias();
 }
 
 QString DesktopCaptureElement::media() const
 {
+    if (!this->m_screenCapture)
+        return {};
+
     return this->m_screenCapture->media();
 }
 
 QList<int> DesktopCaptureElement::streams() const
 {
+    if (!this->m_screenCapture)
+        return {};
+
     return this->m_screenCapture->streams();
 }
 
 int DesktopCaptureElement::defaultStream(const QString &mimeType)
 {
+    if (!this->m_screenCapture)
+        return 0;
+
     return this->m_screenCapture->defaultStream(mimeType);
 }
 
 QString DesktopCaptureElement::description(const QString &media)
 {
+    if (!this->m_screenCapture)
+        return {};
+
     return this->m_screenCapture->description(media);
 }
 
 AkCaps DesktopCaptureElement::caps(int stream)
 {
+    if (!this->m_screenCapture)
+        return AkCaps();
+
     return this->m_screenCapture->caps(stream);
 }
 
@@ -110,22 +127,26 @@ void DesktopCaptureElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DesktopCaptureElement::setFps(const AkFrac &fps)
 {
-    this->m_screenCapture->setFps(fps);
+    if (this->m_screenCapture)
+        this->m_screenCapture->setFps(fps);
 }
 
 void DesktopCaptureElement::resetFps()
 {
-    this->m_screenCapture->resetFps();
+    if (this->m_screenCapture)
+        this->m_screenCapture->resetFps();
 }
 
 void DesktopCaptureElement::setMedia(const QString &media)
 {
-    this->m_screenCapture->setMedia(media);
+    if (this->m_screenCapture)
+        this->m_screenCapture->setMedia(media);
 }
 
 void DesktopCaptureElement::resetMedia()
 {
-    this->m_screenCapture->resetMedia();
+    if (this->m_screenCapture)
+        this->m_screenCapture->resetMedia();
 }
 
 void DesktopCaptureElement::setCaptureLib(const QString &captureLib)
@@ -140,6 +161,9 @@ void DesktopCaptureElement::resetCaptureLib()
 
 bool DesktopCaptureElement::setState(AkElement::ElementState state)
 {
+    if (!this->m_screenCapture)
+        return false;
+
     AkElement::ElementState curState = this->state();
 
     switch (curState) {
@@ -197,8 +221,11 @@ void DesktopCaptureElement::captureLibUpdated(const QString &captureLib)
     this->setState(AkElement::ElementStateNull);
 
     this->m_screenCapture =
-            ptr_init<ScreenDev>(this->loadSubModule("DesktopCapture",
+            ptr_cast<ScreenDev>(this->loadSubModule("DesktopCapture",
                                                     captureLib));
+
+    if (!this->m_screenCapture)
+        return;
 
     QObject::connect(this->m_screenCapture.data(),
                      &ScreenDev::mediasChanged,
