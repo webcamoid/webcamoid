@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
+#include <QVariant>
+
 #include "akpacket.h"
+#include "akcaps.h"
 
 class AkPacketPrivate
 {
@@ -306,3 +310,5 @@ QDebug operator <<(QDebug debug, const AkPacket &packet)
 
     return debug.space();
 }
+
+#include "moc_akpacket.cpp"

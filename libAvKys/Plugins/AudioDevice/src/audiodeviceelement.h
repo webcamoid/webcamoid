@@ -20,14 +20,11 @@
 #ifndef AUDIODEVICEELEMENT_H
 #define AUDIODEVICEELEMENT_H
 
-#include <QTimer>
-#include <QThreadPool>
-#include <QtConcurrent>
-#include <ak.h>
+#include <akelement.h>
+#include <akaudiocaps.h>
 
-#include "audiodev.h"
-
-typedef QSharedPointer<AudioDev> AudioDevPtr;
+class AudioDeviceElementPrivate;
+class AkCaps;
 
 class AudioDeviceElement: public AkElement
 {
@@ -85,21 +82,7 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString audioLib() const;
 
     private:
-        QStringList m_inputs;
-        QStringList m_outputs;
-        QString m_device;
-        int m_bufferSize;
-        AkCaps m_caps;
-        AudioDevPtr m_audioDevice;
-        AkElementPtr m_convert;
-        QThreadPool m_threadPool;
-        QFuture<void> m_readFramesLoopResult;
-        QMutex m_mutex;
-        QMutex m_mutexLib;
-        bool m_readFramesLoop;
-        bool m_pause;
-
-        void readFramesLoop();
+        AudioDeviceElementPrivate *d;
 
     signals:
         void defaultInputChanged(const QString &defaultInput);

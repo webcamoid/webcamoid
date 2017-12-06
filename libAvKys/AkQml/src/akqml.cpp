@@ -18,6 +18,11 @@
  */
 
 #include "akqml.h"
+#include "ak.h"
+#include "akfrac.h"
+#include "akcaps.h"
+#include "akvideocaps.h"
+#include "akelement.h"
 
 AkQml::AkQml(QQuickItem *parent):
     QQuickItem(parent)
@@ -155,3 +160,5 @@ QVariant AkQml::varCaps(AkCaps *caps) const
 {
     return QVariant::fromValue(*caps);
 }
+
+#include "moc_akqml.cpp"

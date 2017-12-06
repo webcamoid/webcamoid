@@ -24,6 +24,7 @@
 
 class AkMultimediaSourceElement;
 class AkMultimediaSourceElementPrivate;
+class AkCaps;
 
 typedef QSharedPointer<AkMultimediaSourceElement> AkMultimediaSourceElementPtr;
 

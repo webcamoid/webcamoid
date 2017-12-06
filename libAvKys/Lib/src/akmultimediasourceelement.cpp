@@ -18,6 +18,7 @@
  */
 
 #include "akmultimediasourceelement.h"
+#include "akcaps.h"
 
 class AkMultimediaSourceElementPrivate
 {
@@ -110,3 +111,5 @@ void AkMultimediaSourceElement::resetLoop()
 {
     this->setLoop(false);
 }
+
+#include "moc_akmultimediasourceelement.cpp"

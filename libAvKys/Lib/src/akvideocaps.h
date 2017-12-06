@@ -20,10 +20,9 @@
 #ifndef AKVIDEOCAPS_H
 #define AKVIDEOCAPS_H
 
-#include <QSize>
+#include <QObject>
 
-#include "akcaps.h"
-#include "akfrac.h"
+#include "akcommons.h"
 
 #define AkFourCC(a, b, c, d) \
     (((quint32(d) & 0xff) << 24) \
@@ -34,6 +33,8 @@
 #define AK_FOURCC_NULL AkFourCC('\x0', '\x0', '\x0', '\x0')
 
 class AkVideoCapsPrivate;
+class AkCaps;
+class AkFrac;
 
 class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 {

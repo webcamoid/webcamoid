@@ -17,7 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+#include <QMap>
+#include <QImage>
+
 #include "akutils.h"
+#include "akcaps.h"
+#include "akvideocaps.h"
+#include "akpacket.h"
+#include "akvideopacket.h"
 
 typedef QMap<QImage::Format, AkVideoCaps::PixelFormat> ImageToPixelFormatMap;
 

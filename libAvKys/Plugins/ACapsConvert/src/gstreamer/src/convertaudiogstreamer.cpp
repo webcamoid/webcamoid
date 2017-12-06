@@ -17,6 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMap>
+#include <QtConcurrent>
+#include <QThreadPool>
+#include <QMutex>
+#include <akaudiocaps.h>
+#include <akpacket.h>
+#include <akaudiopacket.h>
+
+#include <gst/audio/audio.h>
+#include <gst/app/gstappsrc.h>
+#include <gst/app/gstappsink.h>
+
 #include "convertaudiogstreamer.h"
 
 typedef QMap<QString, QString> StringStringMap;
@@ -75,14 +87,37 @@ inline StringStringMap initGstToFF()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, gstToFF, (initGstToFF()))
 
-ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
-    ConvertAudio(parent),
-    m_pipeline(nullptr),
-    m_source(nullptr),
-    m_sink(nullptr),
-    m_mainLoop(nullptr),
-    m_busWatchId(0)
+class ConvertAudioGStreamerPrivate
 {
+    public:
+        AkAudioCaps m_caps;
+        QThreadPool m_threadPool;
+        GstElement *m_pipeline;
+        GstElement *m_source;
+        GstElement *m_sink;
+        GMainLoop *m_mainLoop;
+        guint m_busWatchId;
+        QMutex m_mutex;
+
+        ConvertAudioGStreamerPrivate():
+            m_pipeline(nullptr),
+            m_source(nullptr),
+            m_sink(nullptr),
+            m_mainLoop(nullptr),
+            m_busWatchId(0)
+        {
+        }
+
+        inline void waitState(GstState state);
+        inline static gboolean busCallback(GstBus *bus,
+                                           GstMessage *message,
+                                           gpointer userData);
+};
+
+ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
+    ConvertAudio(parent)
+{
+    this->d = new ConvertAudioGStreamerPrivate;
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(nullptr, nullptr);
 }
@@ -90,56 +125,57 @@ ConvertAudioGStreamer::ConvertAudioGStreamer(QObject *parent):
 ConvertAudioGStreamer::~ConvertAudioGStreamer()
 {
     this->uninit();
+    delete this->d;
 }
 
 bool ConvertAudioGStreamer::init(const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    this->m_pipeline = gst_pipeline_new(nullptr);
+    this->d->m_pipeline = gst_pipeline_new(nullptr);
 
-    this->m_source = gst_element_factory_make("appsrc", nullptr);
-    gst_app_src_set_stream_type(GST_APP_SRC(this->m_source), GST_APP_STREAM_TYPE_STREAM);
-    g_object_set(G_OBJECT(this->m_source), "format", GST_FORMAT_TIME, nullptr);
+    this->d->m_source = gst_element_factory_make("appsrc", nullptr);
+    gst_app_src_set_stream_type(GST_APP_SRC(this->d->m_source), GST_APP_STREAM_TYPE_STREAM);
+    g_object_set(G_OBJECT(this->d->m_source), "format", GST_FORMAT_TIME, nullptr);
 
     GstElement *audioConvert = gst_element_factory_make("audioconvert", nullptr);
     GstElement *audioResample = gst_element_factory_make("audioresample", nullptr);
     GstElement *audioRate = gst_element_factory_make("audiorate", nullptr);
-    this->m_sink = gst_element_factory_make("appsink", nullptr);
+    this->d->m_sink = gst_element_factory_make("appsink", nullptr);
 
-    gst_bin_add_many(GST_BIN(this->m_pipeline),
-                     this->m_source,
+    gst_bin_add_many(GST_BIN(this->d->m_pipeline),
+                     this->d->m_source,
                      audioResample,
                      audioRate,
                      audioConvert,
-                     this->m_sink,
+                     this->d->m_sink,
                      nullptr);
 
-    gst_element_link_many(this->m_source,
+    gst_element_link_many(this->d->m_source,
                           audioResample,
                           audioRate,
                           audioConvert,
-                          this->m_sink,
+                          this->d->m_sink,
                           nullptr);
 
     // Configure the message bus.
-    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_pipeline));
-    this->m_busWatchId = gst_bus_add_watch(bus, this->busCallback, this);
+    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->d->m_pipeline));
+    this->d->m_busWatchId = gst_bus_add_watch(bus, this->d->busCallback, this);
     gst_object_unref(bus);
 
-    this->m_caps = caps;
+    this->d->m_caps = caps;
 
     return true;
 }
 
 AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->m_pipeline
-        || !this->m_source
-        || !this->m_sink
-        || !this->m_caps)
+    if (!this->d->m_pipeline
+        || !this->d->m_source
+        || !this->d->m_sink
+        || !this->d->m_caps)
         return AkPacket();
 
     QString iFormat = AkAudioCaps::sampleFormatToString(packet.caps().format());
@@ -166,38 +202,38 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
                                           nullptr);
 
     inCaps = gst_caps_fixate(inCaps);
-    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->m_source));
+    GstCaps *sourceCaps = gst_app_src_get_caps(GST_APP_SRC(this->d->m_source));
 
     if (!sourceCaps || !gst_caps_is_equal(sourceCaps, inCaps))
-        gst_app_src_set_caps(GST_APP_SRC(this->m_source), inCaps);
+        gst_app_src_set_caps(GST_APP_SRC(this->d->m_source), inCaps);
 
     gst_caps_unref(inCaps);
 
     if (sourceCaps)
         gst_caps_unref(sourceCaps);
 
-    QString oFormat = AkAudioCaps::sampleFormatToString(this->m_caps.format());
+    QString oFormat = AkAudioCaps::sampleFormatToString(this->d->m_caps.format());
     QString gstOFormat = gstToFF->key(oFormat, "S16");
 
-    if (this->m_caps.bps() > 8 && !gstOFormat.endsWith(fEnd))
+    if (this->d->m_caps.bps() > 8 && !gstOFormat.endsWith(fEnd))
         gstOFormat += fEnd;
 
     const char *gstOutLayout =
-            AkAudioCaps::isPlanar(this->m_caps.format())?
+            AkAudioCaps::isPlanar(this->d->m_caps.format())?
                 "non-interleaved": "interleaved";
 
     GstCaps *outCaps = gst_caps_new_simple("audio/x-raw",
                                            "format", G_TYPE_STRING, gstOFormat.toStdString().c_str(),
                                            "layout", G_TYPE_STRING, gstOutLayout,
-                                           "rate", G_TYPE_INT, this->m_caps.rate(),
-                                           "channels", G_TYPE_INT, this->m_caps.channels(),
+                                           "rate", G_TYPE_INT, this->d->m_caps.rate(),
+                                           "channels", G_TYPE_INT, this->d->m_caps.channels(),
                                            nullptr);
 
     outCaps = gst_caps_fixate(outCaps);
-    GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->m_sink));
+    GstCaps *sinkCaps = gst_app_sink_get_caps(GST_APP_SINK(this->d->m_sink));
 
     if (!sinkCaps || !gst_caps_is_equal(sinkCaps, outCaps))
-        gst_app_sink_set_caps(GST_APP_SINK(this->m_sink), outCaps);
+        gst_app_sink_set_caps(GST_APP_SINK(this->d->m_sink), outCaps);
 
     gst_caps_unref(outCaps);
 
@@ -206,16 +242,16 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 
     // Start pipeline if it's not it.
     GstState state;
-    gst_element_get_state(this->m_pipeline,
+    gst_element_get_state(this->d->m_pipeline,
                           &state,
                           nullptr,
                           GST_CLOCK_TIME_NONE);
 
     if (state != GST_STATE_PLAYING) {
         // Run the main GStreamer loop.
-        this->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-        QtConcurrent::run(&this->m_threadPool, g_main_loop_run, this->m_mainLoop);
-        gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
+        this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
+        QtConcurrent::run(&this->d->m_threadPool, g_main_loop_run, this->d->m_mainLoop);
+        gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
     }
 
     // Write audio frame to the pipeline.
@@ -232,10 +268,10 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
 
-    gst_app_src_push_buffer(GST_APP_SRC(this->m_source), buffer);
+    gst_app_src_push_buffer(GST_APP_SRC(this->d->m_source), buffer);
 
     // Read audio frame from the pipeline.
-    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(this->m_sink));
+    GstSample *sample = gst_app_sink_pull_sample(GST_APP_SINK(this->d->m_sink));
 
     if (!sample)
         return AkPacket();
@@ -251,15 +287,15 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 
     // Create a package and return it.
     int nSamples = 8 * int(info.size)
-                   / AkAudioCaps::bitsPerSample(this->m_caps.format())
-                   / this->m_caps.channels();
+                   / AkAudioCaps::bitsPerSample(this->d->m_caps.format())
+                   / this->d->m_caps.channels();
 
     AkAudioPacket oAudioPacket;
-    oAudioPacket.caps() = this->m_caps;
+    oAudioPacket.caps() = this->d->m_caps;
     oAudioPacket.caps().samples() = nSamples;
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = pts;
-    oAudioPacket.timeBase() = AkFrac(1, this->m_caps.rate());
+    oAudioPacket.timeBase() = AkFrac(1, this->d->m_caps.rate());
     oAudioPacket.index() = packet.index();
     oAudioPacket.id() = packet.id();
 
@@ -268,27 +304,27 @@ AkPacket ConvertAudioGStreamer::convert(const AkAudioPacket &packet)
 
 void ConvertAudioGStreamer::uninit()
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    this->m_caps = AkAudioCaps();
+    this->d->m_caps = AkAudioCaps();
 
-    if (this->m_pipeline) {
-        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
-        this->waitState(GST_STATE_NULL);
-        gst_object_unref(GST_OBJECT(this->m_pipeline));
-        g_source_remove(this->m_busWatchId);
-        this->m_pipeline = nullptr;
-        this->m_busWatchId = 0;
+    if (this->d->m_pipeline) {
+        gst_element_set_state(this->d->m_pipeline, GST_STATE_NULL);
+        this->d->waitState(GST_STATE_NULL);
+        gst_object_unref(GST_OBJECT(this->d->m_pipeline));
+        g_source_remove(this->d->m_busWatchId);
+        this->d->m_pipeline = nullptr;
+        this->d->m_busWatchId = 0;
     }
 
-    if (this->m_mainLoop) {
-        g_main_loop_quit(this->m_mainLoop);
-        g_main_loop_unref(this->m_mainLoop);
-        this->m_mainLoop = nullptr;
+    if (this->d->m_mainLoop) {
+        g_main_loop_quit(this->d->m_mainLoop);
+        g_main_loop_unref(this->d->m_mainLoop);
+        this->d->m_mainLoop = nullptr;
     }
 }
 
-void ConvertAudioGStreamer::waitState(GstState state)
+void ConvertAudioGStreamerPrivate::waitState(GstState state)
 {
     forever {
         GstState curState;
@@ -306,9 +342,9 @@ void ConvertAudioGStreamer::waitState(GstState state)
     }
 }
 
-gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
-                                   GstMessage *message,
-                                   gpointer userData)
+gboolean ConvertAudioGStreamerPrivate::busCallback(GstBus *bus,
+                                                   GstMessage *message,
+                                                   gpointer userData)
 {
     Q_UNUSED(bus)
     ConvertAudioGStreamer *self = static_cast<ConvertAudioGStreamer *>(userData);
@@ -353,12 +389,12 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
 
         g_error_free(err);
         g_free(debug);
-        g_main_loop_quit(self->m_mainLoop);
+        g_main_loop_quit(self->d->m_mainLoop);
 
         break;
     }
     case GST_MESSAGE_EOS:
-        g_main_loop_quit(self->m_mainLoop);
+        g_main_loop_quit(self->d->m_mainLoop);
     break;
     case GST_MESSAGE_STATE_CHANGED: {
         GstState oldstate;
@@ -385,7 +421,7 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
     }
     case GST_MESSAGE_LATENCY: {
         qDebug() << "Recalculating latency";
-        gst_bin_recalculate_latency(GST_BIN(self->m_pipeline));
+        gst_bin_recalculate_latency(GST_BIN(self->d->m_pipeline));
         break;
     }
     case GST_MESSAGE_STREAM_START: {
@@ -471,3 +507,5 @@ gboolean ConvertAudioGStreamer::busCallback(GstBus *bus,
 
     return TRUE;
 }
+
+#include "moc_convertaudiogstreamer.cpp"

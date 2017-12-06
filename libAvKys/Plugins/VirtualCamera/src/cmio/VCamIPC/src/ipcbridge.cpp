@@ -21,6 +21,7 @@
 
 #include "ipcbridge.h"
 #include "../../Assistant/src/assistantglobals.h"
+#include "VCamUtils/src/image/videoformat.h"
 
 namespace AkVCam
 {

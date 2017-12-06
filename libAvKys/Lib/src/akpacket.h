@@ -20,12 +20,10 @@
 #ifndef AKPACKET_H
 #define AKPACKET_H
 
-#include <QSharedPointer>
-
-#include "akcaps.h"
 #include "akfrac.h"
 
 class AkPacketPrivate;
+class AkCaps;
 
 template<typename T>
 inline T AkNoPts()

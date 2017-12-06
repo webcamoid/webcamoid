@@ -21,9 +21,9 @@
 #define AKAUDIOPACKET_H
 
 #include "akpacket.h"
-#include "akaudiocaps.h"
 
 class AkAudioPacketPrivate;
+class AkAudioCaps;
 
 class AKCOMMONS_EXPORT AkAudioPacket: public AkPacket
 {

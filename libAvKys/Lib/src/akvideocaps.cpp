@@ -17,9 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
+#include <QSize>
+#include <QVector>
 #include <QMetaEnum>
 
 #include "akvideocaps.h"
+#include "akfrac.h"
+#include "akcaps.h"
 
 class VideoFormat
 {
@@ -725,3 +730,5 @@ QDataStream &operator <<(QDataStream &ostream, const AkVideoCaps &caps)
 
     return ostream;
 }
+
+#include "moc_akvideocaps.cpp"

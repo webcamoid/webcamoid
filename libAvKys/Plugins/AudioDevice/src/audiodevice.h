@@ -20,7 +20,8 @@
 #ifndef AUDIODEVICE_H
 #define AUDIODEVICE_H
 
-#include <ak.h>
+#include <QObject>
+#include <akplugin.h>
 
 class AudioDevice: public QObject, public AkPlugin
 {

@@ -21,7 +21,8 @@
 #define AKQMLPLUGIN_H
 
 #include <QQmlExtensionPlugin>
-#include <QJSEngine>
+
+class QJSEngine;
 
 class AkQmlPlugin: public QQmlExtensionPlugin
 {

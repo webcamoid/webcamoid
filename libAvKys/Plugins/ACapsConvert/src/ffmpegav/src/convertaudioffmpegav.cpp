@@ -17,6 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMap>
+#include <QMutex>
+#include <akaudiocaps.h>
+#include <akpacket.h>
+#include <akaudiopacket.h>
+
+extern "C"
+{
+    #include <libavcodec/avcodec.h>
+    #include <libavutil/channel_layout.h>
+    #include <libavutil/opt.h>
+    #include <libavresample/avresample.h>
+}
+
 #include "convertaudioffmpegav.h"
 
 typedef QMap<AkAudioCaps::ChannelLayout, uint64_t> ChannelLayoutsMap;
@@ -61,11 +75,26 @@ inline ChannelLayoutsMap initChannelFormatsMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ChannelLayoutsMap, channelLayouts, (initChannelFormatsMap()))
 
+
+class ConvertAudioFFmpegAVPrivate
+{
+    public:
+        AkAudioCaps m_caps;
+        AVAudioResampleContext *m_resampleContext;
+        QMutex m_mutex;
+        bool m_contextIsOpen;
+
+        ConvertAudioFFmpegAVPrivate():
+            m_resampleContext(nullptr),
+            m_contextIsOpen(false)
+        {
+        }
+};
+
 ConvertAudioFFmpegAV::ConvertAudioFFmpegAV(QObject *parent):
     ConvertAudio(parent)
 {
-    this->m_resampleContext = nullptr;
-    this->m_contextIsOpen = false;
+    this->d = new ConvertAudioFFmpegAVPrivate;
 
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
@@ -75,22 +104,23 @@ ConvertAudioFFmpegAV::ConvertAudioFFmpegAV(QObject *parent):
 ConvertAudioFFmpegAV::~ConvertAudioFFmpegAV()
 {
     this->uninit();
+    delete this->d;
 }
 
 bool ConvertAudioFFmpegAV::init(const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
-    this->m_caps = caps;
-    this->m_resampleContext = avresample_alloc_context();
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_caps = caps;
+    this->d->m_resampleContext = avresample_alloc_context();
 
     return true;
 }
 
 AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (!this->m_caps)
+    if (!this->d->m_caps)
         return AkPacket();
 
     uint64_t iSampleLayout = channelLayouts->value(packet.caps().layout(), 0);
@@ -103,15 +133,15 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     int iNChannels = packet.caps().channels();
     int iNSamples = packet.caps().samples();
 
-    uint64_t oSampleLayout = channelLayouts->value(this->m_caps.layout(),
+    uint64_t oSampleLayout = channelLayouts->value(this->d->m_caps.layout(),
                                                    AV_CH_LAYOUT_STEREO);
 
     AVSampleFormat oSampleFormat =
-            av_get_sample_fmt(AkAudioCaps::sampleFormatToString(this->m_caps.format())
+            av_get_sample_fmt(AkAudioCaps::sampleFormatToString(this->d->m_caps.format())
                               .toStdString().c_str());
 
-    int oSampleRate = this->m_caps.rate();
-    int oNChannels = this->m_caps.channels();
+    int oSampleRate = this->d->m_caps.rate();
+    int oNChannels = this->d->m_caps.channels();
 
     // Create input audio frame.
     static AVFrame iFrame;
@@ -143,7 +173,7 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     oFrame.format = oSampleFormat;
     oFrame.channel_layout = uint64_t(oSampleLayout);
     oFrame.sample_rate = oSampleRate;
-    oFrame.nb_samples = int(avresample_get_delay(this->m_resampleContext))
+    oFrame.nb_samples = int(avresample_get_delay(this->d->m_resampleContext))
                         + iFrame.nb_samples
                         * oSampleRate
                         / iSampleRate
@@ -169,42 +199,42 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     }
 
     // convert to destination format
-    if (!this->m_contextIsOpen) {
+    if (!this->d->m_contextIsOpen) {
         // Configure output context
-        av_opt_set_int(this->m_resampleContext,
+        av_opt_set_int(this->d->m_resampleContext,
                        "out_sample_fmt",
                        AVSampleFormat(oFrame.format),
                        0);
-        av_opt_set_int(this->m_resampleContext,
+        av_opt_set_int(this->d->m_resampleContext,
                        "out_channel_layout",
                        int64_t(oFrame.channel_layout),
                        0);
-        av_opt_set_int(this->m_resampleContext,
+        av_opt_set_int(this->d->m_resampleContext,
                        "out_sample_rate",
                        oFrame.sample_rate,
                        0);
 
         // Configure input context
-        av_opt_set_int(this->m_resampleContext,
+        av_opt_set_int(this->d->m_resampleContext,
                        "in_sample_fmt",
                        AVSampleFormat(iFrame.format),
                        0);
-        av_opt_set_int(this->m_resampleContext,
+        av_opt_set_int(this->d->m_resampleContext,
                        "in_channel_layout",
                        int64_t(iFrame.channel_layout),
                        0);
-        av_opt_set_int(this->m_resampleContext,
+        av_opt_set_int(this->d->m_resampleContext,
                        "in_sample_rate",
                        iFrame.sample_rate,
                        0);
 
-        if (avresample_open(this->m_resampleContext) < 0)
+        if (avresample_open(this->d->m_resampleContext) < 0)
             return AkPacket();
 
-        this->m_contextIsOpen = true;
+        this->d->m_contextIsOpen = true;
     }
 
-    int oSamples = avresample_convert(this->m_resampleContext,
+    int oSamples = avresample_convert(this->d->m_resampleContext,
                                       oFrame.data,
                                       oFrameSize,
                                       oFrame.nb_samples,
@@ -226,11 +256,11 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
     oBuffer.resize(oFrameSize);
 
     AkAudioPacket oAudioPacket;
-    oAudioPacket.caps() = this->m_caps;
+    oAudioPacket.caps() = this->d->m_caps;
     oAudioPacket.caps().samples() = oFrame.nb_samples;
     oAudioPacket.buffer() = oBuffer;
     oAudioPacket.pts() = oFrame.pts;
-    oAudioPacket.timeBase() = AkFrac(1, this->m_caps.rate());
+    oAudioPacket.timeBase() = AkFrac(1, this->d->m_caps.rate());
     oAudioPacket.index() = packet.index();
     oAudioPacket.id() = packet.id();
 
@@ -239,11 +269,13 @@ AkPacket ConvertAudioFFmpegAV::convert(const AkAudioPacket &packet)
 
 void ConvertAudioFFmpegAV::uninit()
 {
-    QMutexLocker mutexLocker(&this->m_mutex);
-    this->m_caps = AkAudioCaps();
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_caps = AkAudioCaps();
 
-    if (this->m_resampleContext)
-        avresample_free(&this->m_resampleContext);
+    if (this->d->m_resampleContext)
+        avresample_free(&this->d->m_resampleContext);
 
-    this->m_contextIsOpen = false;
+    this->d->m_contextIsOpen = false;
 }
+
+#include "moc_convertaudioffmpegav.cpp"

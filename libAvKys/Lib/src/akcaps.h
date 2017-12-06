@@ -21,8 +21,6 @@
 #define AKCAPS_H
 
 #include <QObject>
-#include <QDataStream>
-#include <QDebug>
 
 #include "akcommons.h"
 

@@ -21,7 +21,6 @@
 #define AKFRAC_H
 
 #include <QObject>
-#include <QDebug>
 
 #include "akcommons.h"
 

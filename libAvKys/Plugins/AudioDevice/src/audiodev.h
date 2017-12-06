@@ -20,9 +20,10 @@
 #ifndef AUDIODEV_H
 #define AUDIODEV_H
 
-#include <akaudiopacket.h>
+#include <akaudiocaps.h>
 
-class AudioDeviceElement;
+class AudioDevPrivate;
+class AkAudioPacket;
 
 class AudioDev: public QObject
 {
@@ -35,6 +36,7 @@ class AudioDev: public QObject
         explicit AudioDev(QObject *parent=nullptr);
         virtual ~AudioDev();
 
+        Q_INVOKABLE QVector<int> &commonSampleRates();
         Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual QString defaultInput();
         Q_INVOKABLE virtual QString defaultOutput();
@@ -50,8 +52,8 @@ class AudioDev: public QObject
         Q_INVOKABLE virtual bool write(const AkAudioPacket &packet);
         Q_INVOKABLE virtual bool uninit();
 
-    protected:
-        QVector<int> m_commonSampleRates;
+    private:
+        AudioDevPrivate *d;
 
     Q_SIGNALS:
         void errorChanged(const QString &error);
@@ -59,8 +61,6 @@ class AudioDev: public QObject
         void defaultOutputChanged(const QString &defaultOutput);
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
-
-    friend class AudioDeviceElement;
 };
 
 #endif // AUDIODEV_H

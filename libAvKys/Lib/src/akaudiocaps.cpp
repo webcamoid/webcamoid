@@ -17,9 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QMetaEnum>
+#include <QVector>
 
 #include "akaudiocaps.h"
+#include "akcaps.h"
 
 class SampleFormats
 {
@@ -828,3 +831,5 @@ QDataStream &operator <<(QDataStream &ostream, const AkAudioCaps &caps)
 
     return ostream;
 }
+
+#include "moc_akaudiocaps.cpp"

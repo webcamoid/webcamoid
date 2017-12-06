@@ -22,12 +22,10 @@
 
 #include <iostream>
 
-#include "color.h"
-#include "../cstream/cstream.h"
-
 namespace AkVCam
 {
     class BitmapPrivate;
+    class CStreamRead;
 
     class Bitmap
     {

@@ -23,10 +23,10 @@
 #include <string>
 #include <list>
 
-#include "../cstream/cstream.h"
-
 namespace AkVCam
 {
+    class CStreamRead;
+
     namespace RcLoader
     {
         std::list<std::string> list();

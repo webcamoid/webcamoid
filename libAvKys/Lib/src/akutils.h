@@ -20,9 +20,12 @@
 #ifndef AKUTILS_H
 #define AKUTILS_H
 
-#include <QImage>
+#include <QSize>
 
-#include "akvideopacket.h"
+#include "akvideocaps.h"
+
+class AkPacket;
+class AkVideoPacket;
 
 namespace AkUtils
 {

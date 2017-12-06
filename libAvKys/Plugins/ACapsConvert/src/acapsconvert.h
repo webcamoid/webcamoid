@@ -20,7 +20,8 @@
 #ifndef ACAPSCONVERT_H
 #define ACAPSCONVERT_H
 
-#include <ak.h>
+#include <QObject>
+#include <akplugin.h>
 
 class ACapsConvert: public QObject, public AkPlugin
 {

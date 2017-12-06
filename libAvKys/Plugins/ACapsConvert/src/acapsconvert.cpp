@@ -34,3 +34,5 @@ QStringList ACapsConvert::keys() const
 {
     return QStringList();
 }
+
+#include "moc_acapsconvert.cpp"

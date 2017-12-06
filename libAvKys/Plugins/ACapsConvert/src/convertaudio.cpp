@@ -18,6 +18,7 @@
  */
 
 #include "convertaudio.h"
+#include "akpacket.h"
 
 ConvertAudio::ConvertAudio(QObject *parent):
     QObject(parent)
@@ -46,3 +47,5 @@ void ConvertAudio::uninit()
 {
 
 }
+
+#include "moc_convertaudio.cpp"

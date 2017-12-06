@@ -20,18 +20,9 @@
 #ifndef CONVERTAUDIOFFMPEGAV_H
 #define CONVERTAUDIOFFMPEGAV_H
 
-#include <QMutexLocker>
-#include <akaudiopacket.h>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/channel_layout.h>
-    #include <libavutil/opt.h>
-    #include <libavresample/avresample.h>
-}
-
 #include "convertaudio.h"
+
+class ConvertAudioFFmpegAVPrivate;
 
 class ConvertAudioFFmpegAV: public ConvertAudio
 {
@@ -46,10 +37,7 @@ class ConvertAudioFFmpegAV: public ConvertAudio
         Q_INVOKABLE void uninit();
 
     private:
-        AkAudioCaps m_caps;
-        AVAudioResampleContext *m_resampleContext;
-        QMutex m_mutex;
-        bool m_contextIsOpen;
+        ConvertAudioFFmpegAVPrivate *d;
 };
 
 #endif // CONVERTAUDIOFFMPEGAV_H

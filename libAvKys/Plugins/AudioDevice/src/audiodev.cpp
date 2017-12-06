@@ -17,31 +17,47 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVector>
+
 #include "audiodev.h"
 
 #define MAX_SAMPLE_RATE 512e3
 
+class AudioDevPrivate
+{
+    public:
+        QVector<int> m_commonSampleRates;
+};
+
 AudioDev::AudioDev(QObject *parent):
     QObject(parent)
 {
+    this->d = new AudioDevPrivate;
+
     // Multiples of 8k sample rates
     for (int rate = 4000; rate < MAX_SAMPLE_RATE; rate *= 2)
-        this->m_commonSampleRates << rate;
+        this->d->m_commonSampleRates << rate;
 
     // Multiples of 48k sample rates
     for (int rate = 6000; rate < MAX_SAMPLE_RATE; rate *= 2)
-        this->m_commonSampleRates << rate;
+        this->d->m_commonSampleRates << rate;
 
     // Multiples of 44.1k sample rates
     for (int rate = 11025; rate < MAX_SAMPLE_RATE; rate *= 2)
-        this->m_commonSampleRates << rate;
+        this->d->m_commonSampleRates << rate;
 
-    std::sort(this->m_commonSampleRates.begin(),
-              this->m_commonSampleRates.end());
+    std::sort(this->d->m_commonSampleRates.begin(),
+              this->d->m_commonSampleRates.end());
 }
 
 AudioDev::~AudioDev()
 {
+    delete this->d;
+}
+
+QVector<int> &AudioDev::commonSampleRates()
+{
+    return this->d->m_commonSampleRates;
 }
 
 QString AudioDev::error() const
@@ -130,3 +146,5 @@ bool AudioDev::uninit()
 {
     return true;
 }
+
+#include "moc_audiodev.cpp"

@@ -21,7 +21,11 @@
 #define AKQML_H
 
 #include <QQuickItem>
-#include <ak.h>
+#include <akaudiocaps.h>
+
+class AkFrac;
+class AkCaps;
+class AkVideoCaps;
 
 class AkQml: public QQuickItem
 {

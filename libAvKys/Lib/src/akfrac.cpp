@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QRegExp>
 #include <QStringList>
 #include <QDataStream>
@@ -328,3 +329,5 @@ AkFrac operator -(const AkFrac &frac1, const AkFrac &frac2)
                   - frac2.d->m_num * frac1.d->m_den,
                   frac1.d->m_den * frac2.d->m_den);
 }
+
+#include "moc_akfrac.cpp"

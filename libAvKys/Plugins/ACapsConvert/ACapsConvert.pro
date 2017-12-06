@@ -23,4 +23,4 @@ CONFIG += ordered
 SUBDIRS = src
 CONFIG(config_ffmpeg_avresample): SUBDIRS += src/ffmpegav
 CONFIG(config_ffmpeg_swresample): SUBDIRS += src/ffmpegsw
-CONFIG(config_ffmpeg_gstreamer): SUBDIRS += src/gstreamer
+CONFIG(config_gstreamer): SUBDIRS += src/gstreamer

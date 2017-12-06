@@ -21,9 +21,9 @@
 #define AKVIDEOPACKET_H
 
 #include "akpacket.h"
-#include "akvideocaps.h"
 
 class AkVideoPacketPrivate;
+class AkVideoCaps;
 
 class AKCOMMONS_EXPORT AkVideoPacket: public AkPacket
 {

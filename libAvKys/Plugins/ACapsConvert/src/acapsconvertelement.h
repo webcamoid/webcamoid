@@ -20,12 +20,10 @@
 #ifndef ACAPSCONVERTELEMENT_H
 #define ACAPSCONVERTELEMENT_H
 
-#include <QMutex>
-#include <ak.h>
+#include "akelement.h"
 
-#include "convertaudio.h"
-
-typedef QSharedPointer<ConvertAudio> ConvertAudioPtr;
+class ACapsConvertElementPrivate;
+class AkCaps;
 
 class ACapsConvertElement: public AkElement
 {
@@ -43,14 +41,13 @@ class ACapsConvertElement: public AkElement
 
     public:
         explicit ACapsConvertElement();
+        ~ACapsConvertElement();
 
         Q_INVOKABLE QString caps() const;
         Q_INVOKABLE QString convertLib() const;
 
     private:
-        AkCaps m_caps;
-        ConvertAudioPtr m_convertAudio;
-        QMutex m_mutex;
+        ACapsConvertElementPrivate *d;
 
     signals:
         void capsChanged(const QString &caps);

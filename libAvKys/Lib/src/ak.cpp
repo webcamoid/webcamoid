@@ -20,13 +20,18 @@
 #include <QDir>
 #include <QColor>
 #include <QCoreApplication>
+#include <QQmlEngine>
 
 #ifdef Q_OS_WIN32
 #include <objbase.h>
 #endif
 
 #include "ak.h"
+#include "akcaps.h"
+#include "akelement.h"
+#include "akaudiocaps.h"
 #include "akvideocaps.h"
+#include "akpacket.h"
 
 class AkPrivate
 {

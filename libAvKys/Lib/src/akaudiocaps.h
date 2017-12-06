@@ -20,9 +20,12 @@
 #ifndef AKAUDIOCAPS_H
 #define AKAUDIOCAPS_H
 
-#include "akcaps.h"
+#include <QObject>
+
+#include "akcommons.h"
 
 class AkAudioCapsPrivate;
+class AkCaps;
 
 class AKCOMMONS_EXPORT AkAudioCaps: public QObject
 {

@@ -24,8 +24,6 @@
 #include <vector>
 #include <functional>
 
-#include "VCamUtils/src/image/videoformat.h"
-
 /* # Definitions #
  *
  * Server: The program sending video frames, in this case Webcamoid. Each
@@ -110,6 +108,7 @@
 namespace AkVCam
 {
     class IpcBridgePrivate;
+    class VideoFormat;
 
     class IpcBridge
     {

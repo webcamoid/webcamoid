@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QRegExp>
 #include <QStringList>
 #include <QVariant>
@@ -295,3 +296,5 @@ QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps)
 
     return ostream;
 }
+
+#include "moc_akcaps.cpp"

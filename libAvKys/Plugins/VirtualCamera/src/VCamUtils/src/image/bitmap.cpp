@@ -18,6 +18,8 @@
  */
 
 #include "bitmap.h"
+#include "color.h"
+#include "../cstream/cstream.h"
 
 namespace AkVCam
 {

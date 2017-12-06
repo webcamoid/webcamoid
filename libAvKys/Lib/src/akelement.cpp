@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVector>
 #include <QRegExp>
 #include <QMetaMethod>
 #include <QPluginLoader>
@@ -26,8 +27,17 @@
 #include <QCoreApplication>
 #include <QDataStream>
 #include <QCryptographicHash>
+#include <QQmlEngine>
+#include <QQmlContext>
+#include <QQmlComponent>
+#include <QDebug>
 
-#include "ak.h"
+#include "akelement.h"
+#include "akplugin.h"
+#include "akcaps.h"
+#include "akpacket.h"
+#include "akaudiopacket.h"
+#include "akvideopacket.h"
 
 #define SUBMODULES_PATH "submodules"
 
@@ -962,3 +972,5 @@ QDataStream &operator <<(QDataStream &ostream, AkElement::ElementState state)
 
     return ostream;
 }
+
+#include "moc_akelement.cpp"

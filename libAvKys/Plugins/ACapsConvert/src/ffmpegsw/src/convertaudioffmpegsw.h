@@ -20,17 +20,9 @@
 #ifndef CONVERTAUDIOFFMPEGSW_H
 #define CONVERTAUDIOFFMPEGSW_H
 
-#include <QMutexLocker>
-#include <akaudiopacket.h>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/channel_layout.h>
-    #include <libswresample/swresample.h>
-}
-
 #include "convertaudio.h"
+
+class ConvertAudioFFmpegSWPrivate;
 
 class ConvertAudioFFmpegSW: public ConvertAudio
 {
@@ -45,9 +37,7 @@ class ConvertAudioFFmpegSW: public ConvertAudio
         Q_INVOKABLE void uninit();
 
     private:
-        AkAudioCaps m_caps;
-        SwrContext *m_resampleContext;
-        QMutex m_mutex;
+        ConvertAudioFFmpegSWPrivate *d;
 };
 
 #endif // CONVERTAUDIOFFMPEGSW_H

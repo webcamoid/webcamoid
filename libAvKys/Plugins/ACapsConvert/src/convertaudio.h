@@ -20,7 +20,12 @@
 #ifndef CONVERTAUDIO_H
 #define CONVERTAUDIO_H
 
-#include <akaudiopacket.h>
+#include <QObject>
+
+class AkCaps;
+class AkAudioCaps;
+class AkPacket;
+class AkAudioPacket;
 
 class ConvertAudio: public QObject
 {

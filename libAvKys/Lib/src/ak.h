@@ -20,8 +20,11 @@
 #ifndef AK_H
 #define AK_H
 
-#include "akplugin.h"
-#include "akelement.h"
+#include "akcommons.h"
+
+class QString;
+class QStringList;
+class QQmlEngine;
 
 namespace Ak
 {

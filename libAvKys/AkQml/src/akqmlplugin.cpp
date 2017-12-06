@@ -17,10 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QJSEngine>
+
 #include "akqmlplugin.h"
 #include "akqml.h"
-
-#include <qqml.h>
+#include "akelement.h"
 
 void AkQmlPlugin::registerTypes(const char *uri)
 {
@@ -36,3 +37,5 @@ QObject *AkQmlPlugin::akProvider(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
 
     return new AkQml();
 }
+
+#include "moc_akqmlplugin.cpp"

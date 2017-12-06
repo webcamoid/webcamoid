@@ -24,6 +24,7 @@
 #include "rcnode.h"
 #include "rcname.h"
 #include "rcdata.h"
+#include "../cstream/cstream.h"
 
 #ifndef UNUSED
     #define UNUSED(x) (void)(x);

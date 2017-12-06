@@ -20,13 +20,9 @@
 #ifndef AKELEMENT_H
 #define AKELEMENT_H
 
-#include <QStringList>
-#include <QQmlEngine>
-#include <QQmlComponent>
-#include <QQmlContext>
+#include <QObject>
 
-#include "akaudiopacket.h"
-#include "akvideopacket.h"
+#include "akcommons.h"
 
 #define akSend(packet) { \
     if (packet) \
@@ -37,6 +33,11 @@
 
 class AkElement;
 class AkElementPrivate;
+class AkPacket;
+class AkAudioPacket;
+class AkVideoPacket;
+class QQmlEngine;
+class QQmlContext;
 
 typedef QSharedPointer<AkElement> AkElementPtr;
 
