@@ -20,7 +20,7 @@
 #ifndef DESKTOPCAPTURE_H
 #define DESKTOPCAPTURE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class DesktopCapture: public QObject, public AkPlugin
 {

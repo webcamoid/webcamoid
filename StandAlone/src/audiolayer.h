@@ -20,11 +20,13 @@
 #ifndef AUDIOLAYER_H
 #define AUDIOLAYER_H
 
-#include <QMutex>
-#include <QQmlApplicationEngine>
 #include <akelement.h>
 
+class AudioLayerPrivate;
 class AudioLayer;
+class AkCaps;
+class AkAudioCaps;
+class QQmlApplicationEngine;
 
 typedef QSharedPointer<AudioLayer> AudioLayerPtr;
 
@@ -104,21 +106,7 @@ class AudioLayer: public QObject
         Q_INVOKABLE QList<int> supportedSampleRates(const QString &device);
 
     private:
-        QQmlApplicationEngine *m_engine;
-        QStringList m_audioInput;
-        QStringList m_inputs;
-        AkCaps m_inputCaps;
-        AkCaps m_outputCaps;
-        QString m_inputDescription;
-        AkElement::ElementState m_inputState;
-        AkElementPtr m_pipeline;
-        AkElementPtr m_audioOut;
-        AkElementPtr m_audioIn;
-        AkElementPtr m_audioConvert;
-        AkElementPtr m_audioGenerator;
-        AkElementPtr m_audioSwitch;
-        QMutex m_mutex;
-        QVector<int> m_commonSampleRates;
+        AudioLayerPrivate *d;
 
     signals:
         void audioInputChanged(const QStringList &audioInput);

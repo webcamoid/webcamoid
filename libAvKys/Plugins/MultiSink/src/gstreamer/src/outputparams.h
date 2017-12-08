@@ -20,10 +20,7 @@
 #ifndef OUTPUTPARAMS_H
 #define OUTPUTPARAMS_H
 
-#include <ak.h>
-#include <gst/gst.h>
-#include <gst/app/gstappsrc.h>
-#include <gst/pbutils/encoding-profile.h>
+#include <QObject>
 
 class OutputParams: public QObject
 {
@@ -55,7 +52,6 @@ class OutputParams: public QObject
     private:
         int m_inputIndex;
         quint64 m_nFrame;
-
         qint64 m_id;
         qint64 m_pts;
         qint64 m_ptsDiff;

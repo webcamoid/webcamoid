@@ -20,10 +20,11 @@
 #ifndef MEDIAWRITERGSTREAMER_H
 #define MEDIAWRITERGSTREAMER_H
 
-#include <QtConcurrent>
-
 #include "mediawriter.h"
-#include "outputparams.h"
+
+class MediaWriterGStreamerPrivate;
+class AkAudioPacket;
+class AkVideoPacket;
 
 class MediaWriterGStreamer: public MediaWriter
 {
@@ -59,30 +60,7 @@ class MediaWriterGStreamer: public MediaWriter
         Q_INVOKABLE QVariantList codecOptions(int index);
 
     private:
-        QString m_outputFormat;
-        QMap<QString, QVariantMap> m_formatOptions;
-        QMap<QString, QVariantMap> m_codecOptions;
-        bool m_isRecording;
-
-        QList<QVariantMap> m_streamConfigs;
-        QList<OutputParams> m_streamParams;
-        QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
-
-        QString guessFormat(const QString &fileName);
-        QStringList readCaps(const QString &element);
-        QVariantList parseOptions(const GstElement *element) const;
-        void waitState(GstState state);
-        static gboolean busCallback(GstBus *bus,
-                                    GstMessage *message,
-                                    gpointer userData);
-        void setElementOptions(GstElement *element, const QVariantMap &options);
-        AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
-        AkVideoCaps nearestH263Caps(const AkVideoCaps &caps) const;
-        AkAudioCaps nearestFLVAudioCaps(const AkAudioCaps &caps,
-                                        const QString &codec) const;
+        MediaWriterGStreamerPrivate *d;
 
     public slots:
         void setOutputFormat(const QString &outputFormat);
@@ -100,6 +78,8 @@ class MediaWriterGStreamer: public MediaWriter
         void writeAudioPacket(const AkAudioPacket &packet);
         void writeVideoPacket(const AkVideoPacket &packet);
         void writeSubtitlePacket(const AkPacket &packet);
+
+        friend class MediaWriterGStreamerPrivate;
 };
 
 #endif // MEDIAWRITERGSTREAMER_H

@@ -18,7 +18,14 @@
  */
 
 #include <cstdarg>
+#include <QMap>
+#include <QVector>
+#include <QTimer>
+#include <QMutex>
+#include <QFileSystemWatcher>
+#include <alsa/asoundlib.h>
 #include <alsa/error.h>
+#include <akaudiopacket.h>
 
 #include "audiodevalsa.h"
 
@@ -60,22 +67,52 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
+class AudioDevAlsaPrivate
+{
+    public:
+        AudioDevAlsa *self;
+        QString m_error;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QStringList m_sinks;
+        QStringList m_sources;
+        QMap<QString, QString> m_pinDescriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
+        snd_pcm_t *m_pcmHnd;
+        QFileSystemWatcher *m_fsWatcher;
+        QTimer m_timer;
+        QMutex m_mutex;
+
+        AudioDevAlsaPrivate(AudioDevAlsa *self):
+            self(self),
+            m_pcmHnd(nullptr),
+            m_fsWatcher(nullptr)
+        {
+        }
+
+        inline void fillDeviceInfo(const QString &device,
+                                   QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                   QList<int> *supportedChannels,
+                                   QList<int> *supportedSampleRates) const;
+};
+
 AudioDevAlsa::AudioDevAlsa(QObject *parent):
     AudioDev(parent)
 {
-    this->m_pcmHnd = nullptr;
-    this->m_fsWatcher = nullptr;
-    this->m_timer.setInterval(3000);
+    this->d = new AudioDevAlsaPrivate(this);
+    this->d->m_timer.setInterval(3000);
 
-    QObject::connect(&this->m_timer,
+    QObject::connect(&this->d->m_timer,
                      &QTimer::timeout,
                      this,
                      &AudioDevAlsa::updateDevices);
 
 #if 1
-    this->m_fsWatcher = new QFileSystemWatcher({"/dev/snd"}, this);
+    this->d->m_fsWatcher = new QFileSystemWatcher({"/dev/snd"}, this);
 
-    QObject::connect(this->m_fsWatcher,
+    QObject::connect(this->d->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
                      this,
                      &AudioDevAlsa::updateDevices);
@@ -83,7 +120,7 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
     this->updateDevices();
 #else
     this->updateDevices();
-    this->m_timer.start();
+    this->d->m_timer.start();
 #endif
 }
 
@@ -91,43 +128,45 @@ AudioDevAlsa::~AudioDevAlsa()
 {
     this->uninit();
 
-    if (this->m_fsWatcher)
-        delete this->m_fsWatcher;
+    if (this->d->m_fsWatcher)
+        delete this->d->m_fsWatcher;
+
+    delete this->d;
 }
 
 QString AudioDevAlsa::error() const
 {
-    return this->m_error;
+    return this->d->m_error;
 }
 
 QString AudioDevAlsa::defaultInput()
 {
-    return this->m_defaultSource;
+    return this->d->m_defaultSource;
 }
 
 QString AudioDevAlsa::defaultOutput()
 {
-    return this->m_defaultSink;
+    return this->d->m_defaultSink;
 }
 
 QStringList AudioDevAlsa::inputs()
 {
-    return this->m_sources;
+    return this->d->m_sources;
 }
 
 QStringList AudioDevAlsa::outputs()
 {
-    return this->m_sinks;
+    return this->d->m_sinks;
 }
 
 QString AudioDevAlsa::description(const QString &device)
 {
-    return this->m_pinDescriptionMap.value(device);
+    return this->d->m_pinDescriptionMap.value(device);
 }
 
 AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 {
-    return this->m_sinks.contains(device)?
+    return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             2,
                             44100):
@@ -138,25 +177,25 @@ AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 
 QList<AkAudioCaps::SampleFormat> AudioDevAlsa::supportedFormats(const QString &device)
 {
-    return this->m_supportedFormats.value(device);
+    return this->d->m_supportedFormats.value(device);
 }
 
 QList<int> AudioDevAlsa::supportedChannels(const QString &device)
 {
-    return this->m_supportedChannels.value(device);
+    return this->d->m_supportedChannels.value(device);
 }
 
 QList<int> AudioDevAlsa::supportedSampleRates(const QString &device)
 {
-    return this->m_supportedSampleRates.value(device);
+    return this->d->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    this->m_pcmHnd = nullptr;
-    int error = snd_pcm_open(&this->m_pcmHnd,
+    this->d->m_pcmHnd = nullptr;
+    int error = snd_pcm_open(&this->d->m_pcmHnd,
                              QString(device)
                                  .remove(QRegExp(":Input$|:Output$"))
                                  .toStdString().c_str(),
@@ -167,7 +206,7 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     if (error < 0)
         goto init_fail;
 
-    error = snd_pcm_set_params(this->m_pcmHnd,
+    error = snd_pcm_set_params(this->d->m_pcmHnd,
                                sampleFormats->value(caps.format(),
                                                     SND_PCM_FORMAT_UNKNOWN),
                                SND_PCM_ACCESS_RW_INTERLEAVED,
@@ -182,8 +221,8 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     return true;
 
 init_fail:
-    this->m_error = snd_strerror(error);
-    emit this->errorChanged(this->m_error);
+    this->d->m_error = snd_strerror(error);
+    emit this->errorChanged(this->d->m_error);
     this->uninit();
 
     return false;
@@ -191,24 +230,25 @@ init_fail:
 
 QByteArray AudioDevAlsa::read(int samples)
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    auto bufferSize = snd_pcm_frames_to_bytes(this->m_pcmHnd, samples);
+    auto bufferSize = snd_pcm_frames_to_bytes(this->d->m_pcmHnd, samples);
     QByteArray buffer(int(bufferSize), 0);
     auto data = buffer.data();
 
     while (samples > 0) {
-        auto rsamples = snd_pcm_readi(this->m_pcmHnd,
+        auto rsamples = snd_pcm_readi(this->d->m_pcmHnd,
                                       data,
                                       snd_pcm_uframes_t(samples));
 
         if (rsamples >= 0) {
-            auto dataRead = snd_pcm_frames_to_bytes(this->m_pcmHnd, rsamples);
+            auto dataRead = snd_pcm_frames_to_bytes(this->d->m_pcmHnd,
+                                                    rsamples);
             data += dataRead;
             samples -= rsamples;
         } else {
             if (rsamples == -EAGAIN) {
-                snd_pcm_wait(this->m_pcmHnd, 1000);
+                snd_pcm_wait(this->d->m_pcmHnd, 1000);
 
                 continue;
             }
@@ -222,32 +262,33 @@ QByteArray AudioDevAlsa::read(int samples)
 
 bool AudioDevAlsa::write(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    if (!this->m_pcmHnd)
+    if (!this->d->m_pcmHnd)
         return false;
 
     auto data = packet.buffer().constData();
     int dataSize = packet.buffer().size();
 
     while (dataSize > 0) {
-        auto samples = snd_pcm_bytes_to_frames(this->m_pcmHnd, dataSize);
-        samples = snd_pcm_writei(this->m_pcmHnd,
+        auto samples = snd_pcm_bytes_to_frames(this->d->m_pcmHnd, dataSize);
+        samples = snd_pcm_writei(this->d->m_pcmHnd,
                                  data,
                                  snd_pcm_uframes_t(samples));
 
         if (samples >= 0) {
-            auto dataWritten = snd_pcm_frames_to_bytes(this->m_pcmHnd, samples);
+            auto dataWritten = snd_pcm_frames_to_bytes(this->d->m_pcmHnd,
+                                                       samples);
             data += dataWritten;
             dataSize -= dataWritten;
         } else {
             if (samples == -EAGAIN) {
-                snd_pcm_wait(this->m_pcmHnd, 1000);
+                snd_pcm_wait(this->d->m_pcmHnd, 1000);
 
                 continue;
             }
 
-            samples = snd_pcm_recover(this->m_pcmHnd, int(samples), 0);
+            samples = snd_pcm_recover(this->d->m_pcmHnd, int(samples), 0);
 
             if (samples < 0)
                 return false;
@@ -259,18 +300,18 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
 
 bool AudioDevAlsa::uninit()
 {
-    if (this->m_pcmHnd) {
-        snd_pcm_close(this->m_pcmHnd);
-        this->m_pcmHnd = nullptr;
+    if (this->d->m_pcmHnd) {
+        snd_pcm_close(this->d->m_pcmHnd);
+        this->d->m_pcmHnd = nullptr;
     }
 
     return true;
 }
 
-void AudioDevAlsa::fillDeviceInfo(const QString &device,
-                                  QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                  QList<int> *supportedChannels,
-                                  QList<int> *supportedSampleRates) const
+void AudioDevAlsaPrivate::fillDeviceInfo(const QString &device,
+                                         QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                         QList<int> *supportedChannels,
+                                         QList<int> *supportedSampleRates) const
 {
     snd_pcm_t *pcmHnd = nullptr;
     int error = snd_pcm_open(&pcmHnd,
@@ -313,7 +354,7 @@ void AudioDevAlsa::fillDeviceInfo(const QString &device,
         if (snd_pcm_hw_params_test_channels(pcmHnd, hwParams, uint(channels)) >= 0)
             supportedChannels->append(channels);
 
-    for (auto &rate: this->m_commonSampleRates)
+    for (auto &rate: self->commonSampleRates())
         if (snd_pcm_hw_params_test_rate(pcmHnd, hwParams, uint(rate), 0) >= 0)
             supportedSampleRates->append(rate);
 
@@ -326,12 +367,12 @@ deviceCaps_fail:
 
 void AudioDevAlsa::updateDevices()
 {
-    decltype(this->m_sources) inputs;
-    decltype(this->m_sinks) outputs;
-    decltype(this->m_pinDescriptionMap) pinDescriptionMap;
-    decltype(this->m_supportedFormats) supportedFormats;
-    decltype(this->m_supportedChannels) supportedChannels;
-    decltype(this->m_supportedSampleRates) supportedSampleRates;
+    decltype(this->d->m_sources) inputs;
+    decltype(this->d->m_sinks) outputs;
+    decltype(this->d->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->d->m_supportedFormats) supportedFormats;
+    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     int card = -1;
     snd_ctl_card_info_t *ctlInfo = nullptr;
@@ -372,19 +413,19 @@ void AudioDevAlsa::updateDevices()
         QList<int> _supportedSampleRates;
 
         auto input = deviceId + ":Input";
-        this->fillDeviceInfo(input,
-                             &_supportedFormats,
-                             &_supportedChannels,
-                             &_supportedSampleRates);
+        this->d->fillDeviceInfo(input,
+                                &_supportedFormats,
+                                &_supportedChannels,
+                                &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
-            _supportedFormats = this->m_supportedFormats.value(input);
+            _supportedFormats = this->d->m_supportedFormats.value(input);
 
         if (_supportedChannels.isEmpty())
-            _supportedChannels = this->m_supportedChannels.value(input);
+            _supportedChannels = this->d->m_supportedChannels.value(input);
 
         if (_supportedSampleRates.isEmpty())
-            _supportedSampleRates = this->m_supportedSampleRates.value(input);
+            _supportedSampleRates = this->d->m_supportedSampleRates.value(input);
 
         if (!_supportedFormats.isEmpty()
             && !_supportedChannels.isEmpty()
@@ -401,19 +442,19 @@ void AudioDevAlsa::updateDevices()
         _supportedSampleRates.clear();
 
         auto output = deviceId + ":Output";
-        this->fillDeviceInfo(output,
-                             &_supportedFormats,
-                             &_supportedChannels,
-                             &_supportedSampleRates);
+        this->d->fillDeviceInfo(output,
+                                &_supportedFormats,
+                                &_supportedChannels,
+                                &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
-            _supportedFormats = this->m_supportedFormats.value(output);
+            _supportedFormats = this->d->m_supportedFormats.value(output);
 
         if (_supportedChannels.isEmpty())
-            _supportedChannels = this->m_supportedChannels.value(output);
+            _supportedChannels = this->d->m_supportedChannels.value(output);
 
         if (_supportedSampleRates.isEmpty())
-            _supportedSampleRates = this->m_supportedSampleRates.value(output);
+            _supportedSampleRates = this->d->m_supportedSampleRates.value(output);
 
         if (!_supportedFormats.isEmpty()
             && !_supportedChannels.isEmpty()
@@ -452,19 +493,19 @@ void AudioDevAlsa::updateDevices()
             if (fillInputs && (io.isEmpty() || io == "Input")) {
                 auto input = deviceId + ":Input";
 
-                this->fillDeviceInfo(input,
-                                     &_supportedFormats,
-                                     &_supportedChannels,
-                                     &_supportedSampleRates);
+                this->d->fillDeviceInfo(input,
+                                        &_supportedFormats,
+                                        &_supportedChannels,
+                                        &_supportedSampleRates);
 
                 if (_supportedFormats.isEmpty())
-                    _supportedFormats = this->m_supportedFormats.value(input);
+                    _supportedFormats = this->d->m_supportedFormats.value(input);
 
                 if (_supportedChannels.isEmpty())
-                    _supportedChannels = this->m_supportedChannels.value(input);
+                    _supportedChannels = this->d->m_supportedChannels.value(input);
 
                 if (_supportedSampleRates.isEmpty())
-                    _supportedSampleRates = this->m_supportedSampleRates.value(input);
+                    _supportedSampleRates = this->d->m_supportedSampleRates.value(input);
 
                 if (!_supportedFormats.isEmpty()
                     && !_supportedChannels.isEmpty()
@@ -484,19 +525,19 @@ void AudioDevAlsa::updateDevices()
             if (fillOuputs && (io.isEmpty() || io == "Output")) {
                 auto output = deviceId + ":Output";
 
-                this->fillDeviceInfo(output,
-                                     &_supportedFormats,
-                                     &_supportedChannels,
-                                     &_supportedSampleRates);
+                this->d->fillDeviceInfo(output,
+                                        &_supportedFormats,
+                                        &_supportedChannels,
+                                        &_supportedSampleRates);
 
                 if (_supportedFormats.isEmpty())
-                    _supportedFormats = this->m_supportedFormats.value(output);
+                    _supportedFormats = this->d->m_supportedFormats.value(output);
 
                 if (_supportedChannels.isEmpty())
-                    _supportedChannels = this->m_supportedChannels.value(output);
+                    _supportedChannels = this->d->m_supportedChannels.value(output);
 
                 if (_supportedSampleRates.isEmpty())
-                    _supportedSampleRates = this->m_supportedSampleRates.value(output);
+                    _supportedSampleRates = this->d->m_supportedSampleRates.value(output);
 
                 if (!_supportedFormats.isEmpty()
                     && !_supportedChannels.isEmpty()
@@ -513,38 +554,40 @@ void AudioDevAlsa::updateDevices()
         snd_device_name_free_hint(hints);
     }
 
-    if (this->m_supportedFormats != supportedFormats)
-        this->m_supportedFormats = supportedFormats;
+    if (this->d->m_supportedFormats != supportedFormats)
+        this->d->m_supportedFormats = supportedFormats;
 
-    if (this->m_supportedChannels != supportedChannels)
-        this->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedChannels != supportedChannels)
+        this->d->m_supportedChannels = supportedChannels;
 
-    if (this->m_supportedSampleRates != supportedSampleRates)
-        this->m_supportedSampleRates = supportedSampleRates;
+    if (this->d->m_supportedSampleRates != supportedSampleRates)
+        this->d->m_supportedSampleRates = supportedSampleRates;
 
-    if (this->m_pinDescriptionMap != pinDescriptionMap)
-        this->m_pinDescriptionMap = pinDescriptionMap;
+    if (this->d->m_pinDescriptionMap != pinDescriptionMap)
+        this->d->m_pinDescriptionMap = pinDescriptionMap;
 
-    if (this->m_sources != inputs) {
-        this->m_sources = inputs;
+    if (this->d->m_sources != inputs) {
+        this->d->m_sources = inputs;
         emit this->inputsChanged(inputs);
     }
 
-    if (this->m_sinks != outputs) {
-        this->m_sinks = outputs;
+    if (this->d->m_sinks != outputs) {
+        this->d->m_sinks = outputs;
         emit this->outputsChanged(outputs);
     }
 
     QString defaultOutput = outputs.isEmpty()? "": outputs.first();
     QString defaultInput = inputs.isEmpty()? "": inputs.first();
 
-    if (this->m_defaultSource != defaultInput) {
-        this->m_defaultSource = defaultInput;
+    if (this->d->m_defaultSource != defaultInput) {
+        this->d->m_defaultSource = defaultInput;
         emit this->defaultInputChanged(defaultInput);
     }
 
-    if (this->m_defaultSink != defaultOutput) {
-        this->m_defaultSink = defaultOutput;
+    if (this->d->m_defaultSink != defaultOutput) {
+        this->d->m_defaultSink = defaultOutput;
         emit this->defaultOutputChanged(defaultOutput);
     }
 }
+
+#include "moc_audiodevalsa.cpp"

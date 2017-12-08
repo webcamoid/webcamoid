@@ -17,8 +17,34 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
+#include <QMap>
+#include <QDir>
+#include <QSize>
 #include <QProcess>
+#include <QFileSystemWatcher>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <linux/videodev2.h>
+
+#ifdef HAVE_V4LUTILS
+#include <libv4l2.h>
+
+#define x_ioctl v4l2_ioctl
+#define x_open v4l2_open
+#define x_close v4l2_close
+#define x_write v4l2_write
+#else
+#include <unistd.h>
+#include <sys/ioctl.h>
+
+#define x_ioctl ioctl
+#define x_open open
+#define x_close close
+#define x_write write
+#endif
 
 #include "cameraoutv4l2.h"
 
@@ -96,20 +122,49 @@ inline V4l2PixFmtMap initV4l2PixFmtMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4l2PixFmtMap, ffToV4L2, (initV4l2PixFmtMap()))
 
+class CameraOutV4L2Private
+{
+    public:
+        CameraOutV4L2 *self;
+        QStringList m_webcams;
+        int m_streamIndex;
+        QFileSystemWatcher *m_fsWatcher;
+        QFile m_deviceFile;
+
+        CameraOutV4L2Private(CameraOutV4L2 *self):
+            self(self),
+            m_streamIndex(1),
+            m_fsWatcher(nullptr)
+        {
+        }
+
+        inline int xioctl(int fd, ulong request, void *arg) const;
+        inline QStringList availableMethods() const;
+        inline bool isModuleLoaded() const;
+        inline bool sudo(const QString &command,
+                         const QStringList &argumments,
+                         const QString &password) const;
+        inline void rmmod(const QString &password) const;
+        inline bool updateCameras(const QStringList &webcamIds,
+                                  const QStringList &webcamDescriptions,
+                                  const QString &password) const;
+        inline QString cleanupDescription(const QString &description) const;
+};
+
 CameraOutV4L2::CameraOutV4L2(QObject *parent):
     CameraOut(parent)
 {
-    this->m_streamIndex = -1;
-    auto methods = this->availableMethods();
+    this->d = new CameraOutV4L2Private(this);
+    auto methods = this->d->availableMethods();
 
     if (!methods.isEmpty())
         this->m_rootMethod = methods.first();
 
-    this->m_webcams = this->webcams();
-    this->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
-    this->m_fsWatcher->setParent(this);
+    this->d->m_webcams = this->webcams();
+    this->d->m_fsWatcher = new QFileSystemWatcher(QStringList() << "/dev");
+    this->d->m_fsWatcher->setParent(this);
 
-    QObject::connect(this->m_fsWatcher,
+    QObject::connect(this->d->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
                      this,
                      &CameraOutV4L2::onDirectoryChanged);
@@ -122,7 +177,8 @@ CameraOutV4L2::CameraOutV4L2(QObject *parent):
 
 CameraOutV4L2::~CameraOutV4L2()
 {
-    delete this->m_fsWatcher;
+    delete this->d->m_fsWatcher;
+    delete this->d;
 }
 
 QStringList CameraOutV4L2::webcams() const
@@ -147,7 +203,7 @@ QStringList CameraOutV4L2::webcams() const
         device.setFileName(devicesDir.absoluteFilePath(devicePath));
 
         if (device.open(QIODevice::ReadWrite)) {
-            this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
+            this->d->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
 
             if (capability.capabilities & V4L2_CAP_VIDEO_OUTPUT)
                 webcams << device.fileName();
@@ -161,7 +217,7 @@ QStringList CameraOutV4L2::webcams() const
 
 int CameraOutV4L2::streamIndex() const
 {
-    return this->m_streamIndex;
+    return this->d->m_streamIndex;
 }
 
 QString CameraOutV4L2::description(const QString &webcam) const
@@ -176,7 +232,7 @@ QString CameraOutV4L2::description(const QString &webcam) const
     device.setFileName(webcam);
 
     if (device.open(QIODevice::ReadWrite)) {
-        this->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
+        this->d->xioctl(device.handle(), VIDIOC_QUERYCAP, &capability);
 
         if (capability.capabilities & V4L2_CAP_VIDEO_OUTPUT)
             return QString(reinterpret_cast<const char *>(capability.card));
@@ -189,10 +245,10 @@ QString CameraOutV4L2::description(const QString &webcam) const
 
 void CameraOutV4L2::writeFrame(const AkPacket &frame)
 {
-    if (!this->m_deviceFile.isOpen())
+    if (!this->d->m_deviceFile.isOpen())
         return;
 
-    if (this->m_deviceFile.write(frame.buffer()) < 0)
+    if (this->d->m_deviceFile.write(frame.buffer()) < 0)
         qDebug() << "Error writing frame";
 }
 
@@ -258,12 +314,12 @@ QString CameraOutV4L2::createWebcam(const QString &description,
     if (description.isEmpty())
         deviceDescription = QString(tr("Virtual Camera %1")).arg(id);
     else
-        deviceDescription = this->cleanupDescription(description);
+        deviceDescription = this->d->cleanupDescription(description);
 
     webcamDescriptions << deviceDescription;
     webcamIds << QString("%1").arg(id);
 
-    if (!this->updateCameras(webcamIds, webcamDescriptions, password))
+    if (!this->d->updateCameras(webcamIds, webcamDescriptions, password))
         return QString();
 
     QStringList curWebcams = this->webcams();
@@ -312,7 +368,7 @@ bool CameraOutV4L2::changeDescription(const QString &webcam,
     if (description.isEmpty())
         deviceDescription = QString(tr("Virtual Camera %1")).arg(id);
     else
-        deviceDescription = this->cleanupDescription(description);
+        deviceDescription = this->d->cleanupDescription(description);
 
     int index = webcamIds.indexOf(QString("%1").arg(id));
 
@@ -321,7 +377,7 @@ bool CameraOutV4L2::changeDescription(const QString &webcam,
 
     webcamDescriptions[index] = deviceDescription;
 
-    if (!this->updateCameras(webcamIds, webcamDescriptions, password))
+    if (!this->d->updateCameras(webcamIds, webcamDescriptions, password))
         return false;
 
     QStringList curWebcams = this->webcams();
@@ -372,7 +428,7 @@ bool CameraOutV4L2::removeWebcam(const QString &webcam,
     webcamDescriptions.removeAt(index);
     webcamIds.removeAt(index);
 
-    if (!this->updateCameras(webcamIds, webcamDescriptions, password))
+    if (!this->d->updateCameras(webcamIds, webcamDescriptions, password))
         return false;
 
     QStringList curWebcams = this->webcams();
@@ -394,7 +450,7 @@ bool CameraOutV4L2::removeAllWebcams(const QString &password)
     if (webcams.isEmpty())
         return false;
 
-    this->rmmod(password);
+    this->d->rmmod(password);
     QStringList curWebcams = this->webcams();
 
     if (curWebcams != webcams)
@@ -403,7 +459,21 @@ bool CameraOutV4L2::removeAllWebcams(const QString &password)
     return true;
 }
 
-QStringList CameraOutV4L2::availableMethods() const
+int CameraOutV4L2Private::xioctl(int fd, ulong request, void *arg) const
+{
+    int r = -1;
+
+    forever {
+        r = x_ioctl(fd, request, arg);
+
+        if (r != -1 || errno != EINTR)
+            break;
+    }
+
+    return r;
+}
+
+QStringList CameraOutV4L2Private::availableMethods() const
 {
     auto paths = QProcessEnvironment::systemEnvironment().value("PATH").split(':');
 
@@ -430,7 +500,7 @@ QStringList CameraOutV4L2::availableMethods() const
     return methods;
 }
 
-bool CameraOutV4L2::isModuleLoaded() const
+bool CameraOutV4L2Private::isModuleLoaded() const
 {
     QProcess lsmod;
     lsmod.start("lsmod");
@@ -448,21 +518,21 @@ bool CameraOutV4L2::isModuleLoaded() const
     return false;
 }
 
-bool CameraOutV4L2::sudo(const QString &command,
-                         const QStringList &argumments,
-                         const QString &password) const
+bool CameraOutV4L2Private::sudo(const QString &command,
+                                const QStringList &argumments,
+                                const QString &password) const
 {
     QProcess su;
 
-    if (this->m_rootMethod == "su"
-        || this->m_rootMethod == "sudo") {
+    if (self->rootMethod() == "su"
+        || self->rootMethod() == "sudo") {
         if (password.isEmpty())
             return false;
 
         QProcess echo;
         echo.setStandardOutputProcess(&su);
 
-        if (this->m_rootMethod == "su") {
+        if (self->rootMethod() == "su") {
             QStringList args;
 
             for (QString arg: argumments)
@@ -478,7 +548,7 @@ bool CameraOutV4L2::sudo(const QString &command,
         su.setProcessChannelMode(QProcess::ForwardedChannels);
         echo.waitForStarted();
 
-        if (!su.waitForFinished(this->m_passwordTimeout)) {
+        if (!su.waitForFinished(self->passwordTimeout())) {
             su.kill();
             echo.waitForFinished();
 
@@ -487,7 +557,7 @@ bool CameraOutV4L2::sudo(const QString &command,
 
         echo.waitForFinished();
     } else {
-        su.start(this->m_rootMethod, QStringList {command} << argumments);
+        su.start(self->rootMethod(), QStringList {command} << argumments);
         su.waitForFinished(-1);
     }
 
@@ -508,15 +578,15 @@ bool CameraOutV4L2::sudo(const QString &command,
     return true;
 }
 
-void CameraOutV4L2::rmmod(const QString &password) const
+void CameraOutV4L2Private::rmmod(const QString &password) const
 {
     if (this->isModuleLoaded())
         this->sudo("rmmod", {LOOPBACK_DEVICE}, password);
 }
 
-bool CameraOutV4L2::updateCameras(const QStringList &webcamIds,
-                                  const QStringList &webcamDescriptions,
-                                  const QString &password) const
+bool CameraOutV4L2Private::updateCameras(const QStringList &webcamIds,
+                                         const QStringList &webcamDescriptions,
+                                         const QString &password) const
 {
     if (this->isModuleLoaded()) {
         if (!this->sudo("sh",
@@ -543,7 +613,7 @@ bool CameraOutV4L2::updateCameras(const QStringList &webcamIds,
     return true;
 }
 
-QString CameraOutV4L2::cleanupDescription(const QString &description) const
+QString CameraOutV4L2Private::cleanupDescription(const QString &description) const
 {
     QString cleanDescription;
 
@@ -559,15 +629,15 @@ bool CameraOutV4L2::init(int streamIndex)
     if (!this->m_caps)
         return false;
 
-    this->m_deviceFile.setFileName(this->m_device);
+    this->d->m_deviceFile.setFileName(this->m_device);
 
-    if (!this->m_deviceFile.open(QIODevice::WriteOnly)) {
+    if (!this->d->m_deviceFile.open(QIODevice::WriteOnly)) {
         emit this->error(QString("Unable to open V4L2 device %1").arg(this->m_device));
 
         return false;
     }
 
-    if (fcntl(this->m_deviceFile.handle(), F_SETFL, O_NONBLOCK) < 0) {
+    if (fcntl(this->d->m_deviceFile.handle(), F_SETFL, O_NONBLOCK) < 0) {
         emit this->error(QString("Can't set V4L2 device %1 in blocking mode").arg(this->m_device));
 
         return false;
@@ -577,9 +647,9 @@ bool CameraOutV4L2::init(int streamIndex)
     memset(&fmt, 0, sizeof(v4l2_format));
     fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
 
-    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_G_FMT, &fmt) < 0) {
+    if (this->d->xioctl(this->d->m_deviceFile.handle(), VIDIOC_G_FMT, &fmt) < 0) {
         emit this->error("Can't read default format");
-        this->m_deviceFile.close();
+        this->d->m_deviceFile.close();
 
         return false;
     }
@@ -590,26 +660,28 @@ bool CameraOutV4L2::init(int streamIndex)
     fmt.fmt.pix.pixelformat = ffToV4L2->value(videoCaps.format());
     fmt.fmt.pix.sizeimage = __u32(videoCaps.pictureSize());
 
-    if (this->xioctl(this->m_deviceFile.handle(), VIDIOC_S_FMT, &fmt) < 0) {
+    if (this->d->xioctl(this->d->m_deviceFile.handle(),
+                        VIDIOC_S_FMT,
+                        &fmt) < 0) {
         emit this->error("Can't set format");
-        this->m_deviceFile.close();
+        this->d->m_deviceFile.close();
 
         return false;
     }
 
-    this->m_streamIndex = streamIndex;
+    this->d->m_streamIndex = streamIndex;
 
     return true;
 }
 
 void CameraOutV4L2::uninit()
 {
-    this->m_deviceFile.close();
+    this->d->m_deviceFile.close();
 }
 
 void CameraOutV4L2::resetRootMethod()
 {
-    auto methods = this->availableMethods();
+    auto methods = this->d->availableMethods();
 
     if (methods.isEmpty())
         this->setRootMethod("");
@@ -623,9 +695,11 @@ void CameraOutV4L2::onDirectoryChanged(const QString &path)
 
     QStringList webcams = this->webcams();
 
-    if (webcams != this->m_webcams) {
+    if (webcams != this->d->m_webcams) {
         emit this->webcamsChanged(webcams);
 
-        this->m_webcams = webcams;
+        this->d->m_webcams = webcams;
     }
 }
+
+#include "moc_cameraoutv4l2.cpp"

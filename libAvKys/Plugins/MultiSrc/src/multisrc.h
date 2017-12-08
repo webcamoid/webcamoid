@@ -20,7 +20,7 @@
 #ifndef MULTISRC_H
 #define MULTISRC_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class MultiSrc: public QObject, public AkPlugin
 {

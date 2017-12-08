@@ -17,6 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QtConcurrent>
+#include <ak.h>
+#include <akfrac.h>
+#include <akcaps.h>
+#include <akpacket.h>
+#include <libuvc/libuvc.h>
+
 #include "capturelibuvc.h"
 #include "usbglobals.h"
 #include "usbids.h"
@@ -153,13 +160,51 @@ inline PixFmtToUvcMap initPixFmtToUvcMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(PixFmtToUvcMap, fourccToUvc, (initPixFmtToUvcMap()))
 
-CaptureLibUVC::CaptureLibUVC(QObject *parent):
-    Capture(parent),
-    m_uvcContext(nullptr),
-    m_deviceHnd(nullptr),
-    m_id(-1)
+class CaptureLibUVCPrivate
 {
-    auto uvcError = uvc_init(&this->m_uvcContext, usbGlobals->context());
+    public:
+        QString m_device;
+        QList<int> m_streams;
+        QMap<quint32, QString> m_devices;
+        QMap<QString, QString> m_descriptions;
+        QMap<QString, QVariantList> m_devicesCaps;
+        QMap<QString, QVariantList> m_imageControls;
+        QMap<QString, QVariantList> m_cameraControls;
+        QString m_curDevice;
+        AkPacket m_curPacket;
+        uvc_context_t *m_uvcContext;
+        uvc_device_handle_t *m_deviceHnd;
+        QThreadPool m_threadPool;
+        QWaitCondition m_packetNotReady;
+        QMutex m_mutex;
+        qint64 m_id;
+        AkFrac m_fps;
+
+        CaptureLibUVCPrivate():
+            m_uvcContext(nullptr),
+            m_deviceHnd(nullptr),
+            m_id(-1)
+        {
+        }
+
+        inline QVariantList controlsList(uvc_device_handle_t *deviceHnd,
+                                         uint8_t unit,
+                                         uint8_t control,
+                                         int controlType) const;
+        inline void setControls(uvc_device_handle_t *deviceHnd,
+                                uint8_t unit,
+                                uint8_t control,
+                                int controlType,
+                                const QVariantMap &values);
+        inline static void frameCallback(struct uvc_frame *frame, void *userData);
+        inline QString fourccToStr(const uint8_t *format) const;
+};
+
+CaptureLibUVC::CaptureLibUVC(QObject *parent):
+    Capture(parent)
+{
+    this->d = new CaptureLibUVCPrivate;
+    auto uvcError = uvc_init(&this->d->m_uvcContext, usbGlobals->context());
 
     if (uvcError != UVC_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << uvc_strerror(uvcError);
@@ -177,26 +222,28 @@ CaptureLibUVC::CaptureLibUVC(QObject *parent):
 
 CaptureLibUVC::~CaptureLibUVC()
 {
-    if (this->m_uvcContext)
-        uvc_exit(this->m_uvcContext);
+    if (this->d->m_uvcContext)
+        uvc_exit(this->d->m_uvcContext);
+
+    delete this->d;
 }
 
 QStringList CaptureLibUVC::webcams() const
 {
-    return this->m_devices.values();
+    return this->d->m_devices.values();
 }
 
 QString CaptureLibUVC::device() const
 {
-    return this->m_device;
+    return this->d->m_device;
 }
 
 QList<int> CaptureLibUVC::streams() const
 {
-    if (!this->m_streams.isEmpty())
-        return this->m_streams;
+    if (!this->d->m_streams.isEmpty())
+        return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->m_device);
+    QVariantList caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
         return QList<int>();
@@ -210,7 +257,7 @@ QList<int> CaptureLibUVC::listTracks(const QString &mimeType)
         && !mimeType.isEmpty())
         return QList<int>();
 
-    QVariantList caps = this->caps(this->m_device);
+    QVariantList caps = this->caps(this->d->m_device);
     QList<int> streams;
 
     for (int i = 0; i < caps.count(); i++)
@@ -231,12 +278,12 @@ int CaptureLibUVC::nBuffers() const
 
 QString CaptureLibUVC::description(const QString &webcam) const
 {
-    return this->m_descriptions.value(webcam);
+    return this->d->m_descriptions.value(webcam);
 }
 
 QVariantList CaptureLibUVC::caps(const QString &webcam) const
 {
-    return this->m_devicesCaps.value(webcam);
+    return this->d->m_devicesCaps.value(webcam);
 }
 
 QString CaptureLibUVC::capsDescription(const AkCaps &caps) const
@@ -255,7 +302,7 @@ QString CaptureLibUVC::capsDescription(const AkCaps &caps) const
 
 QVariantList CaptureLibUVC::imageControls() const
 {
-    return this->m_imageControls.value(this->m_device);
+    return this->d->m_imageControls.value(this->d->m_device);
 }
 
 bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
@@ -277,15 +324,15 @@ bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
 
     uvc_device_handle_t *deviceHnd = nullptr;
 
-    if (this->m_deviceHnd) {
-        deviceHnd = this->m_deviceHnd;
+    if (this->d->m_deviceHnd) {
+        deviceHnd = this->d->m_deviceHnd;
     } else {
-        auto deviceVP = this->m_devices.key(this->m_device);
+        auto deviceVP = this->d->m_devices.key(this->d->m_device);
         auto vendorId = deviceVP >> 16;
         auto productId = deviceVP & 0xFFFF;
 
         uvc_device_t *device = nullptr;
-        auto error = uvc_find_device(this->m_uvcContext,
+        auto error = uvc_find_device(this->d->m_uvcContext,
                                      &device,
                                      int(vendorId),
                                      int(productId),
@@ -304,20 +351,20 @@ bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
     for (auto pu = uvc_get_processing_units(deviceHnd); pu; pu = pu->next) {
         for (auto &control: UvcControl::allSelectors(PROCESSING_UNIT))
             if (pu->bmControls & control) {
-                this->setControls(deviceHnd,
-                                  pu->bUnitID,
-                                  control,
-                                  PROCESSING_UNIT,
-                                  imageControlsDiff);
+                this->d->setControls(deviceHnd,
+                                     pu->bUnitID,
+                                     control,
+                                     PROCESSING_UNIT,
+                                     imageControlsDiff);
             }
     }
 
-    if (!this->m_deviceHnd)
+    if (!this->d->m_deviceHnd)
         uvc_close(deviceHnd);
 
     QVariantList controls;
 
-    for (const auto &control: this->m_imageControls.value(this->m_device)) {
+    for (const auto &control: this->d->m_imageControls.value(this->d->m_device)) {
         auto controlParams = control.toList();
         auto controlName = controlParams[0].toString();
 
@@ -327,7 +374,7 @@ bool CaptureLibUVC::setImageControls(const QVariantMap &imageControls)
         controls << QVariant(controlParams);
     }
 
-    this->m_imageControls[this->m_device] = controls;
+    this->d->m_imageControls[this->d->m_device] = controls;
     emit this->imageControlsChanged(imageControlsDiff);
 
     return true;
@@ -348,7 +395,7 @@ bool CaptureLibUVC::resetImageControls()
 
 QVariantList CaptureLibUVC::cameraControls() const
 {
-    return this->m_cameraControls.value(this->m_device);
+    return this->d->m_cameraControls.value(this->d->m_device);
 }
 
 bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
@@ -370,15 +417,15 @@ bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
 
     uvc_device_handle_t *deviceHnd = nullptr;
 
-    if (this->m_deviceHnd) {
-        deviceHnd = this->m_deviceHnd;
+    if (this->d->m_deviceHnd) {
+        deviceHnd = this->d->m_deviceHnd;
     } else {
-        auto deviceVP = this->m_devices.key(this->m_device);
+        auto deviceVP = this->d->m_devices.key(this->d->m_device);
         auto vendorId = deviceVP >> 16;
         auto productId = deviceVP & 0xFFFF;
 
         uvc_device_t *device = nullptr;
-        auto error = uvc_find_device(this->m_uvcContext,
+        auto error = uvc_find_device(this->d->m_uvcContext,
                                      &device,
                                      int(vendorId),
                                      int(productId),
@@ -397,20 +444,20 @@ bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
     for (auto ca = uvc_get_input_terminals(deviceHnd); ca; ca = ca->next) {
         for (auto &control: UvcControl::allSelectors(CAMERA_TERMINAL))
             if (ca->bmControls & control) {
-                this->setControls(deviceHnd,
-                                  ca->bTerminalID,
-                                  control,
-                                  CAMERA_TERMINAL,
-                                  cameraControlsDiff);
+                this->d->setControls(deviceHnd,
+                                     ca->bTerminalID,
+                                     control,
+                                     CAMERA_TERMINAL,
+                                     cameraControlsDiff);
             }
     }
 
-    if (!this->m_deviceHnd)
+    if (!this->d->m_deviceHnd)
         uvc_close(deviceHnd);
 
     QVariantList controls;
 
-    for (const auto &control: this->m_cameraControls.value(this->m_device)) {
+    for (const auto &control: this->d->m_cameraControls.value(this->d->m_device)) {
         auto controlParams = control.toList();
         auto controlName = controlParams[0].toString();
 
@@ -420,7 +467,7 @@ bool CaptureLibUVC::setCameraControls(const QVariantMap &cameraControls)
         controls << QVariant(controlParams);
     }
 
-    this->m_cameraControls[this->m_device] = controls;
+    this->d->m_cameraControls[this->d->m_device] = controls;
     emit this->cameraControlsChanged(cameraControlsDiff);
 
     return true;
@@ -441,19 +488,19 @@ bool CaptureLibUVC::resetCameraControls()
 
 AkPacket CaptureLibUVC::readFrame()
 {
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    if (!this->m_curPacket)
-        if (!this->m_packetNotReady.wait(&this->m_mutex, TIME_OUT)) {
-            this->m_mutex.unlock();
+    if (!this->d->m_curPacket)
+        if (!this->d->m_packetNotReady.wait(&this->d->m_mutex, TIME_OUT)) {
+            this->d->m_mutex.unlock();
 
             return AkPacket();
         }
 
-    auto packet = this->m_curPacket;
-    this->m_curPacket = AkPacket();
+    auto packet = this->d->m_curPacket;
+    this->d->m_curPacket = AkPacket();
 
-    this->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
     return packet;
 }
@@ -465,10 +512,10 @@ QString CaptureLibUVC::uvcId(quint16 vendorId, quint16 productId) const
             .arg(productId, 4, 16, QChar('0'));
 }
 
-QVariantList CaptureLibUVC::controlsList(uvc_device_handle_t *deviceHnd,
-                                         uint8_t unit,
-                                         uint8_t control,
-                                         int controlType) const
+QVariantList CaptureLibUVCPrivate::controlsList(uvc_device_handle_t *deviceHnd,
+                                                uint8_t unit,
+                                                uint8_t control,
+                                                int controlType) const
 {
     auto selector = UvcControl::bySelector(controlType, control);
     int min = 0;
@@ -553,11 +600,11 @@ QVariantList CaptureLibUVC::controlsList(uvc_device_handle_t *deviceHnd,
     };
 }
 
-void CaptureLibUVC::setControls(uvc_device_handle_t *deviceHnd,
-                                uint8_t unit,
-                                uint8_t control,
-                                int controlType,
-                                const QVariantMap &values)
+void CaptureLibUVCPrivate::setControls(uvc_device_handle_t *deviceHnd,
+                                       uint8_t unit,
+                                       uint8_t control,
+                                       int controlType,
+                                       const QVariantMap &values)
 {
     auto selector = UvcControl::bySelector(controlType,
                                            control);
@@ -602,42 +649,51 @@ void CaptureLibUVC::setControls(uvc_device_handle_t *deviceHnd,
     }
 }
 
-void CaptureLibUVC::frameCallback(uvc_frame *frame, void *userData)
+void CaptureLibUVCPrivate::frameCallback(uvc_frame *frame, void *userData)
 {
     if (!frame || !userData)
         return;
 
     auto self = reinterpret_cast<CaptureLibUVC *>(userData);
 
-    self->m_mutex.lock();
+    self->d->m_mutex.lock();
 
     AkCaps caps;
     caps.setMimeType("video/unknown");
     caps.setProperty("fourcc", fourccToUvc->key(frame->frame_format));
     caps.setProperty("width", frame->width);
     caps.setProperty("height", frame->height);
-    caps.setProperty("fps", self->m_fps.toString());
+    caps.setProperty("fps", self->d->m_fps.toString());
 
     QByteArray buffer(reinterpret_cast<const char *>(frame->data),
                        int(frame->data_bytes));
 
     auto pts = qint64(QTime::currentTime().msecsSinceStartOfDay()
-                      * self->m_fps.value() / 1e3);
+                      * self->d->m_fps.value() / 1e3);
 
     AkPacket packet(caps, buffer);
     packet.setPts(pts);
-    packet.setTimeBase(self->m_fps.invert());
+    packet.setTimeBase(self->d->m_fps.invert());
     packet.setIndex(0);
-    packet.setId(self->m_id);
+    packet.setId(self->d->m_id);
 
-    self->m_curPacket = packet;
-    self->m_packetNotReady.wakeAll();
-    self->m_mutex.unlock();
+    self->d->m_curPacket = packet;
+    self->d->m_packetNotReady.wakeAll();
+    self->d->m_mutex.unlock();
+}
+
+QString CaptureLibUVCPrivate::fourccToStr(const uint8_t *format) const
+{
+    char fourcc[5];
+    memcpy(fourcc, format, sizeof(quint32));
+    fourcc[4] = 0;
+
+    return QString(fourcc);
 }
 
 bool CaptureLibUVC::init()
 {
-    if (this->m_devices.isEmpty() || this->m_device.isEmpty())
+    if (this->d->m_devices.isEmpty() || this->d->m_device.isEmpty())
         return false;
 
     QList<int> streams = this->streams();
@@ -648,12 +704,12 @@ bool CaptureLibUVC::init()
         return false;
     }
 
-    auto deviceVP = this->m_devices.key(this->m_device);
+    auto deviceVP = this->d->m_devices.key(this->d->m_device);
     auto vendorId = deviceVP >> 16;
     auto productId = deviceVP & 0xFFFF;
 
     uvc_device_t *device = nullptr;
-    auto error = uvc_find_device(this->m_uvcContext,
+    auto error = uvc_find_device(this->d->m_uvcContext,
                                  &device,
                                  int(vendorId),
                                  int(productId),
@@ -665,7 +721,7 @@ bool CaptureLibUVC::init()
         return false;
     }
 
-    error = uvc_open(device, &this->m_deviceHnd);
+    error = uvc_open(device, &this->d->m_deviceHnd);
     uvc_unref_device(device);
 
     if (error != UVC_SUCCESS) {
@@ -674,12 +730,12 @@ bool CaptureLibUVC::init()
         return false;
     }
 
-    QVariantList supportedCaps = this->caps(this->m_device);
+    QVariantList supportedCaps = this->caps(this->d->m_device);
     AkCaps caps = supportedCaps[streams[0]].value<AkCaps>();
     int fps = qRound(AkFrac(caps.property("fps").toString()).value());
 
     uvc_stream_ctrl_t streamCtrl;
-    error = uvc_get_stream_ctrl_format_size(this->m_deviceHnd,
+    error = uvc_get_stream_ctrl_format_size(this->d->m_deviceHnd,
                                             &streamCtrl,
                                             fourccToUvc->value(caps.property("fourcc").toString()),
                                             caps.property("width").toInt(),
@@ -692,9 +748,9 @@ bool CaptureLibUVC::init()
         goto init_failed;
     }
 
-    error = uvc_start_streaming(this->m_deviceHnd,
+    error = uvc_start_streaming(this->d->m_deviceHnd,
                                 &streamCtrl,
-                                this->frameCallback,
+                                this->d->frameCallback,
                                 this,
                                 0);
 
@@ -704,47 +760,42 @@ bool CaptureLibUVC::init()
         goto init_failed;
     }
 
-    this->m_curDevice = this->m_device;
-    this->m_id = Ak::id();
-    this->m_fps = AkFrac(fps, 1);
+    this->d->m_curDevice = this->d->m_device;
+    this->d->m_id = Ak::id();
+    this->d->m_fps = AkFrac(fps, 1);
 
     return true;
 
 init_failed:
-    uvc_close(this->m_deviceHnd);
-    this->m_deviceHnd = nullptr;
+    uvc_close(this->d->m_deviceHnd);
+    this->d->m_deviceHnd = nullptr;
 
     return false;
 }
 
 void CaptureLibUVC::uninit()
 {
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    if (this->m_deviceHnd) {
-        /* uvc_stop_streaming implementation from uptream hangs when called,
-         * following patch is required for making it work properly:
-         *
-         * https://github.com/ktossell/libuvc/issues/16#issuecomment-101653441
-         */
-        uvc_stop_streaming(this->m_deviceHnd);
-        uvc_close(this->m_deviceHnd);
-        this->m_deviceHnd = nullptr;
+    if (this->d->m_deviceHnd) {
+        uvc_stop_streaming(this->d->m_deviceHnd);
+        uvc_close(this->d->m_deviceHnd);
+        this->d->m_deviceHnd = nullptr;
     }
 
-    this->m_curPacket = AkPacket();
-    this->m_curDevice.clear();
-    this->m_id = -1;
-    this->m_fps = AkFrac();
-    this->m_mutex.unlock();
+    this->d->m_curPacket = AkPacket();
+    this->d->m_curDevice.clear();
+    this->d->m_id = -1;
+    this->d->m_fps = AkFrac();
+    this->d->m_mutex.unlock();
 }
 
 void CaptureLibUVC::setDevice(const QString &device)
 {
-    if (this->m_device == device)
+    if (this->d->m_device == device)
         return;
 
-    this->m_device = device;
+    this->d->m_device = device;
     emit this->deviceChanged(device);
 }
 
@@ -758,7 +809,7 @@ void CaptureLibUVC::setStreams(const QList<int> &streams)
     if (stream < 0)
         return;
 
-    QVariantList supportedCaps = this->caps(this->m_device);
+    QVariantList supportedCaps = this->caps(this->d->m_device);
 
     if (stream >= supportedCaps.length())
         return;
@@ -768,7 +819,7 @@ void CaptureLibUVC::setStreams(const QList<int> &streams)
     if (this->streams() == inputStreams)
         return;
 
-    this->m_streams = inputStreams;
+    this->d->m_streams = inputStreams;
     emit this->streamsChanged(inputStreams);
 }
 
@@ -789,7 +840,7 @@ void CaptureLibUVC::resetDevice()
 
 void CaptureLibUVC::resetStreams()
 {
-    QVariantList supportedCaps = this->caps(this->m_device);
+    QVariantList supportedCaps = this->caps(this->d->m_device);
     QList<int> streams;
 
     if (!supportedCaps.isEmpty())
@@ -815,17 +866,17 @@ void CaptureLibUVC::reset()
 
 void CaptureLibUVC::updateDevices()
 {
-    if (!this->m_uvcContext)
+    if (!this->d->m_uvcContext)
         return;
 
-    decltype(this->m_devices) devicesList;
-    decltype(this->m_descriptions) descriptions;
-    decltype(this->m_devicesCaps) devicesCaps;
-    decltype(this->m_imageControls) imageControls;
-    decltype(this->m_cameraControls) cameraControls;
+    decltype(this->d->m_devices) devicesList;
+    decltype(this->d->m_descriptions) descriptions;
+    decltype(this->d->m_devicesCaps) devicesCaps;
+    decltype(this->d->m_imageControls) imageControls;
+    decltype(this->d->m_cameraControls) cameraControls;
 
     uvc_device_t **devices = nullptr;
-    auto error = uvc_get_device_list(this->m_uvcContext, &devices);
+    auto error = uvc_get_device_list(this->d->m_uvcContext, &devices);
 
     if (error != UVC_SUCCESS) {
         qDebug() << "CaptureLibUVC:" << uvc_strerror(error);
@@ -847,8 +898,8 @@ void CaptureLibUVC::updateDevices()
                                     descriptor->idProduct);
         uvc_device_handle_t *deviceHnd = nullptr;
 
-        if (this->m_deviceHnd && this->m_curDevice == deviceId)
-            deviceHnd = this->m_deviceHnd;
+        if (this->d->m_deviceHnd && this->d->m_curDevice == deviceId)
+            deviceHnd = this->d->m_deviceHnd;
         else {
             error = uvc_open(devices[i], &deviceHnd);
 
@@ -865,7 +916,7 @@ void CaptureLibUVC::updateDevices()
         if (!formatDescription) {
             qDebug() << "CaptureLibUVC: Can't read format description";
 
-            if (!this->m_deviceHnd || this->m_curDevice != deviceId)
+            if (!this->d->m_deviceHnd || this->d->m_curDevice != deviceId)
                 uvc_close(deviceHnd);
 
             uvc_free_device_descriptor(descriptor);
@@ -900,7 +951,7 @@ void CaptureLibUVC::updateDevices()
         videoCaps.setMimeType("video/unknown");
 
         for (; formatDescription; formatDescription = formatDescription->next) {
-            auto fourCC = this->fourccToStr(formatDescription->fourccFormat);
+            auto fourCC = this->d->fourccToStr(formatDescription->fourccFormat);
 
             if (!fourccToUvc->contains(fourCC))
                 continue;
@@ -957,10 +1008,11 @@ void CaptureLibUVC::updateDevices()
         for (auto pu = uvc_get_processing_units(deviceHnd); pu; pu = pu->next) {
             for (auto &control: UvcControl::allSelectors(PROCESSING_UNIT))
                 if (pu->bmControls & control) {
-                    auto controls = this->controlsList(deviceHnd,
-                                                       pu->bUnitID,
-                                                       control,
-                                                       PROCESSING_UNIT);
+                    auto controls =
+                            this->d->controlsList(deviceHnd,
+                                                  pu->bUnitID,
+                                                  control,
+                                                  PROCESSING_UNIT);
 
                     if (!controls.isEmpty())
                         deviceControls << QVariant(controls);
@@ -973,10 +1025,11 @@ void CaptureLibUVC::updateDevices()
         for (auto ca = uvc_get_input_terminals(deviceHnd); ca; ca = ca->next) {
             for (auto &control: UvcControl::allSelectors(CAMERA_TERMINAL))
                 if (ca->bmControls & control) {
-                    auto controls = this->controlsList(deviceHnd,
-                                                       ca->bTerminalID,
-                                                       control,
-                                                       CAMERA_TERMINAL);
+                    auto controls =
+                            this->d->controlsList(deviceHnd,
+                                                  ca->bTerminalID,
+                                                  control,
+                                                  CAMERA_TERMINAL);
 
                     if (!controls.isEmpty())
                         deviceControls << QVariant(controls);
@@ -985,7 +1038,7 @@ void CaptureLibUVC::updateDevices()
 
         cameraControls[deviceId] = deviceControls;
 
-        if (!this->m_deviceHnd || this->m_curDevice != deviceId)
+        if (!this->d->m_deviceHnd || this->d->m_curDevice != deviceId)
             uvc_close(deviceHnd);
 
         uvc_free_device_descriptor(descriptor);
@@ -995,13 +1048,15 @@ updateDevices_failed:
     if (devices)
         uvc_free_device_list(devices, 1);
 
-    this->m_descriptions = descriptions;
-    this->m_devicesCaps = devicesCaps;
-    this->m_imageControls = imageControls;
-    this->m_cameraControls = cameraControls;
+    this->d->m_descriptions = descriptions;
+    this->d->m_devicesCaps = devicesCaps;
+    this->d->m_imageControls = imageControls;
+    this->d->m_cameraControls = cameraControls;
 
-    if (this->m_devices != devicesList) {
-        this->m_devices = devicesList;
-        emit this->webcamsChanged(this->m_devices.values());
+    if (this->d->m_devices != devicesList) {
+        this->d->m_devices = devicesList;
+        emit this->webcamsChanged(this->d->m_devices.values());
     }
 }
+
+#include "moc_capturelibuvc.cpp"

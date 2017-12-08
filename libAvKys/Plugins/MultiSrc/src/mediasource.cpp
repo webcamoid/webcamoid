@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akcaps.h>
+
 #include "mediasource.h"
 
 MediaSource::MediaSource(QObject *parent):
@@ -144,3 +146,5 @@ bool MediaSource::setState(AkElement::ElementState state)
 
     return false;
 }
+
+#include "moc_mediasource.cpp"

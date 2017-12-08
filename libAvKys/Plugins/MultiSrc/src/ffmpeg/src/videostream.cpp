@@ -17,7 +17,21 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QThread>
+#include <akfrac.h>
+#include <akcaps.h>
+#include <akvideocaps.h>
+#include <akpacket.h>
+#include <akvideopacket.h>
+
+extern "C"
+{
+    #include <libavutil/imgutils.h>
+    #include <libswscale/swscale.h>
+}
+
 #include "videostream.h"
+#include "clock.h"
 
 // no AV sync correction is done if below the minimum AV sync threshold
 #define AV_SYNC_THRESHOLD_MIN 0.04
@@ -31,20 +45,41 @@
 // no AV correction is done if too big error
 #define AV_NOSYNC_THRESHOLD 10.0
 
+class VideoStreamPrivate
+{
+    public:
+        VideoStream *self;
+        SwsContext *m_scaleContext;
+        qreal m_lastPts;
+
+        VideoStreamPrivate(VideoStream *self):
+            self(self),
+            m_scaleContext(nullptr),
+            m_lastPts(0.0)
+        {
+        }
+
+        inline AkFrac fps() const;
+        inline AkPacket convert(AVFrame *iFrame);
+        inline int64_t bestEffortTimestamp(const AVFrame *frame) const;
+        inline AVFrame *copyFrame(AVFrame *frame) const;
+};
+
 VideoStream::VideoStream(const AVFormatContext *formatContext,
                          uint index, qint64 id, Clock *globalClock,
                          bool noModify, QObject *parent):
     AbstractStream(formatContext, index, id, globalClock, noModify, parent)
 {
+    this->d = new VideoStreamPrivate(this);
     this->m_maxData = 3;
-    this->m_scaleContext = nullptr;
-    this->m_lastPts = 0;
 }
 
 VideoStream::~VideoStream()
 {
-    if (this->m_scaleContext)
-        sws_freeContext(this->m_scaleContext);
+    if (this->d->m_scaleContext)
+        sws_freeContext(this->d->m_scaleContext);
+
+    delete this->d;
 }
 
 AkCaps VideoStream::caps() const
@@ -55,7 +90,7 @@ AkCaps VideoStream::caps() const
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = this->codecContext()->width;
     caps.height() = this->codecContext()->height;
-    caps.fps() = this->fps();
+    caps.fps() = this->d->fps();
 
     return caps.toCaps();
 }
@@ -82,8 +117,8 @@ void VideoStream::processPacket(AVPacket *packet)
             int r = avcodec_receive_frame(this->codecContext(), iFrame);
 
             if (r >= 0) {
-                iFrame->pts = this->bestEffortTimestamp(iFrame);
-                this->dataEnqueue(this->copyFrame(iFrame));
+                iFrame->pts = this->d->bestEffortTimestamp(iFrame);
+                this->dataEnqueue(this->d->copyFrame(iFrame));
             }
     #ifdef HAVE_FRAMEALLOC
             av_frame_free(&iFrame);
@@ -104,8 +139,8 @@ void VideoStream::processPacket(AVPacket *packet)
         avcodec_decode_video2(this->codecContext(), iFrame, &gotFrame, packet);
 
         if (gotFrame) {
-            iFrame->pts = this->bestEffortTimestamp(iFrame);
-            this->dataEnqueue(this->copyFrame(iFrame));
+            iFrame->pts = this->d->bestEffortTimestamp(iFrame);
+            this->dataEnqueue(this->d->copyFrame(iFrame));
         }
 
     #ifdef HAVE_FRAMEALLOC
@@ -121,7 +156,7 @@ void VideoStream::processData(AVFrame *frame)
     forever {
         qreal pts = frame->pts * this->timeBase().value();
         qreal diff = pts - this->globalClock()->clock();
-        qreal delay = pts - this->m_lastPts;
+        qreal delay = pts - this->d->m_lastPts;
 
         // Skip or repeat frame. We take into account the
         // delay to compute the threshold. I still don't know
@@ -136,7 +171,7 @@ void VideoStream::processData(AVFrame *frame)
             // Video is backward the external clock.
             if (diff <= -syncThreshold) {
                 // Drop frame.
-                this->m_lastPts = pts;
+                this->d->m_lastPts = pts;
 
                 break;
             } else if (diff > syncThreshold) {
@@ -149,32 +184,32 @@ void VideoStream::processData(AVFrame *frame)
             this->globalClock()->setClock(pts);
 
         this->m_clockDiff = diff;
-        AkPacket oPacket = this->convert(frame);
+        AkPacket oPacket = this->d->convert(frame);
         emit this->oStream(oPacket);
         emit this->frameSent();
 
-        this->m_lastPts = pts;
+        this->d->m_lastPts = pts;
 
         break;
     }
 }
 
-AkFrac VideoStream::fps() const
+AkFrac VideoStreamPrivate::fps() const
 {
     AkFrac fps;
 
-    if (this->stream()->avg_frame_rate.num
-        && this->stream()->avg_frame_rate.den)
-        fps = AkFrac(this->stream()->avg_frame_rate.num,
-                     this->stream()->avg_frame_rate.den);
+    if (self->stream()->avg_frame_rate.num
+        && self->stream()->avg_frame_rate.den)
+        fps = AkFrac(self->stream()->avg_frame_rate.num,
+                     self->stream()->avg_frame_rate.den);
     else
-        fps = AkFrac(this->stream()->r_frame_rate.num,
-                     this->stream()->r_frame_rate.den);
+        fps = AkFrac(self->stream()->r_frame_rate.num,
+                     self->stream()->r_frame_rate.den);
 
     return fps;
 }
 
-AkPacket VideoStream::convert(AVFrame *iFrame)
+AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 {
     AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
@@ -249,14 +284,14 @@ AkPacket VideoStream::convert(AVFrame *iFrame)
     oPacket.caps() = caps;
     oPacket.buffer() = oBuffer;
     oPacket.pts() = iFrame->pts;
-    oPacket.timeBase() = this->timeBase();
-    oPacket.index() = int(this->index());
-    oPacket.id() = this->id();
+    oPacket.timeBase() = self->timeBase();
+    oPacket.index() = int(self->index());
+    oPacket.id() = self->id();
 
     return oPacket.toPacket();
 }
 
-int64_t VideoStream::bestEffortTimestamp(const AVFrame *frame) const
+int64_t VideoStreamPrivate::bestEffortTimestamp(const AVFrame *frame) const
 {
 #ifdef FF_API_PKT_PTS
     return av_frame_get_best_effort_timestamp(frame);
@@ -270,7 +305,7 @@ int64_t VideoStream::bestEffortTimestamp(const AVFrame *frame) const
 #endif
 }
 
-AVFrame *VideoStream::copyFrame(AVFrame *frame) const
+AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const
 {
 #ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
@@ -298,3 +333,5 @@ AVFrame *VideoStream::copyFrame(AVFrame *frame) const
 
     return oFrame;
 }
+
+#include "moc_videostream.cpp"

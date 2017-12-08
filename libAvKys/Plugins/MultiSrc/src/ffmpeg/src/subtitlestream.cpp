@@ -17,6 +17,15 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+#include <akcaps.h>
+#include <akpacket.h>
+
+extern "C"
+{
+    #include <libavutil/imgutils.h>
+}
+
 #include "subtitlestream.h"
 
 SubtitleStream::SubtitleStream(const AVFormatContext *formatContext,
@@ -167,3 +176,5 @@ void SubtitleStream::processData(AVSubtitle *subtitle)
         emit this->oStream(oPacket);
     }
 }
+
+#include "moc_subtitlestream.cpp"

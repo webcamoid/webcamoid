@@ -34,3 +34,5 @@ QStringList Probe::keys() const
 {
     return QStringList();
 }
+
+#include "moc_probe.cpp"

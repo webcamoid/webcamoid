@@ -20,7 +20,7 @@
 #ifndef AUDIOGEN_H
 #define AUDIOGEN_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class AudioGen: public QObject, public AkPlugin
 {

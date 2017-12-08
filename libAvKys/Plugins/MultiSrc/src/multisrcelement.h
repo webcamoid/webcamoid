@@ -20,12 +20,9 @@
 #ifndef MULTISRCELEMENT_H
 #define MULTISRCELEMENT_H
 
-#include <QMutex>
 #include <akmultimediasourceelement.h>
 
-#include "mediasource.h"
-
-typedef QSharedPointer<MediaSource> MediaSourcePtr;
+class MultiSrcElementPrivate;
 
 class MultiSrcElement: public AkMultimediaSourceElement
 {
@@ -82,8 +79,7 @@ class MultiSrcElement: public AkMultimediaSourceElement
         Q_INVOKABLE QString codecLib() const;
 
     private:
-        MediaSourcePtr m_mediaSource;
-        QMutex m_mutexLib;
+        MultiSrcElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

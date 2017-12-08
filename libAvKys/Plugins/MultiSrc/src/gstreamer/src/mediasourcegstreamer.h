@@ -20,11 +20,9 @@
 #ifndef MEDIASOURCEGSTREAMER_H
 #define MEDIASOURCEGSTREAMER_H
 
-#include <QtConcurrent>
-#include <gst/gst.h>
-
 #include "mediasource.h"
-#include "stream.h"
+
+class MediaSourceGStreamerPrivate;
 
 class MediaSourceGStreamer: public MediaSource
 {
@@ -58,39 +56,7 @@ class MediaSourceGStreamer: public MediaSource
         Q_INVOKABLE bool showLog() const;
 
     private:
-        QString m_media;
-        QList<int> m_streams;
-        bool m_loop;
-        bool m_run;
-
-        AkElement::ElementState m_curState;
-        qint64 m_maxPacketQueueSize;
-        bool m_showLog;
-        QThreadPool m_threadPool;
-        GstElement *m_pipeline;
-        GMainLoop *m_mainLoop;
-        guint m_busWatchId;
-        qint64 m_audioIndex;
-        qint64 m_videoIndex;
-        qint64 m_subtitlesIndex;
-        qint64 m_audioId;
-        qint64 m_videoId;
-        qint64 m_subtitlesId;
-        QList<Stream> m_streamInfo;
-
-        void waitState(GstState state);
-        static gboolean busCallback(GstBus *bus,
-                                    GstMessage *message,
-                                    gpointer userData);
-        static GstFlowReturn audioBufferCallback(GstElement *audioOutput,
-                                                 gpointer userData);
-        static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
-                                                 gpointer userData);
-        static GstFlowReturn subtitlesBufferCallback(GstElement *subtitlesOutput,
-                                                     gpointer userData);
-        static void aboutToFinish(GstElement *object, gpointer userData);
-        QStringList languageCodes(const QString &type);
-        QStringList languageCodes();
+        MediaSourceGStreamerPrivate *d;
 
     signals:
         void oStream(const AkPacket &packet);
@@ -117,6 +83,8 @@ class MediaSourceGStreamer: public MediaSource
 
     private slots:
         void updateStreams();
+
+        friend class MediaSourceGStreamerPrivate;
 };
 
 #endif // MEDIASOURCEGSTREAMER_H

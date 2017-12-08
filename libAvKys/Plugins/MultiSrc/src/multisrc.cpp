@@ -34,3 +34,5 @@ QStringList MultiSrc::keys() const
 {
     return QStringList();
 }
+
+#include "moc_multisrc.cpp"

@@ -17,6 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariant>
+#include <akpacket.h>
+
 #include "capture.h"
 
 Capture::Capture(QObject *parent):
@@ -168,3 +171,5 @@ void Capture::resetNBuffers()
 void Capture::reset()
 {
 }
+
+#include "moc_capture.cpp"

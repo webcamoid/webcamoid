@@ -20,31 +20,9 @@
 #ifndef CAMERAOUTV4L2_H
 #define CAMERAOUTV4L2_H
 
-#include <fcntl.h>
-#include <errno.h>
-#include <linux/videodev2.h>
-#include <QFileSystemWatcher>
-#include <QDir>
-#include <QSize>
-
 #include "cameraout.h"
 
-#ifdef HAVE_V4LUTILS
-#include <libv4l2.h>
-
-#define x_ioctl v4l2_ioctl
-#define x_open v4l2_open
-#define x_close v4l2_close
-#define x_write v4l2_write
-#else
-#include <unistd.h>
-#include <sys/ioctl.h>
-
-#define x_ioctl ioctl
-#define x_open open
-#define x_close close
-#define x_write write
-#endif
+class CameraOutV4L2Private;
 
 class CameraOutV4L2: public CameraOut
 {
@@ -70,35 +48,7 @@ class CameraOutV4L2: public CameraOut
         Q_INVOKABLE bool removeAllWebcams(const QString &password);
 
     private:
-        QStringList m_webcams;
-        int m_streamIndex;
-        QFileSystemWatcher *m_fsWatcher;
-        QFile m_deviceFile;
-
-        inline int xioctl(int fd, ulong request, void *arg) const
-        {
-            int r = -1;
-
-            forever {
-                r = x_ioctl(fd, request, arg);
-
-                if (r != -1 || errno != EINTR)
-                    break;
-            }
-
-            return r;
-        }
-
-        QStringList availableMethods() const;
-        bool isModuleLoaded() const;
-        bool sudo(const QString &command,
-                  const QStringList &argumments,
-                  const QString &password) const;
-        void rmmod(const QString &password) const;
-        bool updateCameras(const QStringList &webcamIds,
-                           const QStringList &webcamDescriptions,
-                           const QString &password) const;
-        QString cleanupDescription(const QString &description) const;
+        CameraOutV4L2Private *d;
 
     public slots:
         bool init(int streamIndex);

@@ -18,8 +18,27 @@
  */
 
 #include <QMetaEnum>
+#include <QtConcurrent>
+#include <QQueue>
+#include <QMutex>
+#include <ak.h>
+#include <akfrac.h>
+#include <akcaps.h>
+#include <akvideocaps.h>
+#include <akpacket.h>
+#include <akvideopacket.h>
+
+extern "C"
+{
+    #include <libavcodec/avcodec.h>
+    #include <libswscale/swscale.h>
+    #include <libavutil/imgutils.h>
+    #include <libavutil/pixdesc.h>
+    #include <libavutil/mem.h>
+}
 
 #include "convertvideoffmpeg.h"
+#include "clock.h"
 
 #define THREAD_WAIT_LIMIT 500
 
@@ -138,67 +157,119 @@ inline V4l2CodecMap initCompressedMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(V4l2CodecMap, compressedToFF, (initCompressedMap()))
 
+typedef QSharedPointer<AVFrame> FramePtr;
+
+class ConvertVideoFFmpegPrivate
+{
+    public:
+        ConvertVideoFFmpeg *self;
+        SwsContext *m_scaleContext;
+        AVDictionary *m_codecOptions;
+        AVCodecContext *m_codecContext;
+        qint64 m_maxPacketQueueSize;
+        bool m_showLog;
+        int m_maxData;
+        QThreadPool m_threadPool;
+        QMutex m_packetMutex;
+        QMutex m_dataMutex;
+        QWaitCondition m_packetQueueNotEmpty;
+        QWaitCondition m_packetQueueNotFull;
+        QWaitCondition m_dataQueueNotEmpty;
+        QWaitCondition m_dataQueueNotFull;
+        QQueue<AkPacket> m_packets;
+        QQueue<FramePtr> m_frames;
+        qint64 m_packetQueueSize;
+        bool m_runPacketLoop;
+        bool m_runDataLoop;
+        QFuture<void> m_packetLoopResult;
+        QFuture<void> m_dataLoopResult;
+        qint64 m_id;
+        Clock m_globalClock;
+        AkFrac m_fps;
+
+        // Sync properties.
+        qreal m_lastPts;
+
+        ConvertVideoFFmpegPrivate(ConvertVideoFFmpeg *self):
+            self(self),
+            m_scaleContext(nullptr),
+            m_codecOptions(nullptr),
+            m_codecContext(nullptr),
+            m_maxPacketQueueSize(15 * 1024 * 1024),
+            m_showLog(false),
+            m_maxData(3),
+            m_packetQueueSize(0),
+            m_runPacketLoop(false),
+            m_runDataLoop(false),
+            m_id(-1),
+            m_lastPts(0)
+        {
+        }
+
+        inline static void packetLoop(ConvertVideoFFmpeg *stream);
+        inline static void dataLoop(ConvertVideoFFmpeg *stream);
+        inline static void deleteFrame(AVFrame *frame);
+        inline void processData(const FramePtr &frame);
+        inline void convert(const FramePtr &frame);
+        inline void log(qreal diff);
+        inline int64_t bestEffortTimestamp(const AVFrame *frame) const;
+        inline AVFrame *copyFrame(AVFrame *frame) const;
+};
+
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
     avcodec_register_all();
 
-    this->m_scaleContext = nullptr;
-    this->m_codecOptions = nullptr;
-    this->m_codecContext = nullptr;
-    this->m_packetQueueSize = 0;
-    this->m_maxPacketQueueSize = 15 * 1024 * 1024;
-    this->m_maxData = 3;
-    this->m_id = -1;
-    this->m_lastPts = 0;
-    this->m_showLog = false;
+    this->d = new ConvertVideoFFmpegPrivate(this);
 
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
 #endif
 
-    if (this->m_threadPool.maxThreadCount() < 2)
-        this->m_threadPool.setMaxThreadCount(2);
+    if (this->d->m_threadPool.maxThreadCount() < 2)
+        this->d->m_threadPool.setMaxThreadCount(2);
 }
 
 ConvertVideoFFmpeg::~ConvertVideoFFmpeg()
 {
     this->uninit();
+    delete this->d;
 }
 
 qint64 ConvertVideoFFmpeg::maxPacketQueueSize() const
 {
-    return this->m_maxPacketQueueSize;
+    return this->d->m_maxPacketQueueSize;
 }
 
 bool ConvertVideoFFmpeg::showLog() const
 {
-    return this->m_showLog;
+    return this->d->m_showLog;
 }
 
 void ConvertVideoFFmpeg::packetEnqueue(const AkPacket &packet)
 {
-    this->m_packetMutex.lock();
+    this->d->m_packetMutex.lock();
 
-    if (this->m_packetQueueSize >= this->m_maxPacketQueueSize)
-        this->m_packetQueueNotFull.wait(&this->m_packetMutex);
+    if (this->d->m_packetQueueSize >= this->d->m_maxPacketQueueSize)
+        this->d->m_packetQueueNotFull.wait(&this->d->m_packetMutex);
 
-    this->m_packets.enqueue(packet);
-    this->m_packetQueueSize += packet.buffer().size();
-    this->m_packetQueueNotEmpty.wakeAll();
-    this->m_packetMutex.unlock();
+    this->d->m_packets.enqueue(packet);
+    this->d->m_packetQueueSize += packet.buffer().size();
+    this->d->m_packetQueueNotEmpty.wakeAll();
+    this->d->m_packetMutex.unlock();
 }
 
 void ConvertVideoFFmpeg::dataEnqueue(AVFrame *frame)
 {
-    this->m_dataMutex.lock();
+    this->d->m_dataMutex.lock();
 
-    if (this->m_frames.size() >= this->m_maxData)
-        this->m_dataQueueNotFull.wait(&this->m_dataMutex);
+    if (this->d->m_frames.size() >= this->d->m_maxData)
+        this->d->m_dataQueueNotFull.wait(&this->d->m_dataMutex);
 
-    this->m_frames.enqueue(FramePtr(frame, this->deleteFrame));
-    this->m_dataQueueNotEmpty.wakeAll();
-    this->m_dataMutex.unlock();
+    this->d->m_frames.enqueue(FramePtr(frame, this->d->deleteFrame));
+    this->d->m_dataQueueNotEmpty.wakeAll();
+    this->d->m_dataMutex.unlock();
 }
 
 bool ConvertVideoFFmpeg::init(const AkCaps &caps)
@@ -214,102 +285,110 @@ bool ConvertVideoFFmpeg::init(const AkCaps &caps)
     if (!codec)
         return false;
 
-    this->m_codecContext = avcodec_alloc_context3(codec);
+    this->d->m_codecContext = avcodec_alloc_context3(codec);
 
-    if (!this->m_codecContext)
+    if (!this->d->m_codecContext)
         return false;
 
     if (codec->capabilities & CODEC_CAP_TRUNCATED)
-        this->m_codecContext->flags |= CODEC_FLAG_TRUNCATED;
+        this->d->m_codecContext->flags |= CODEC_FLAG_TRUNCATED;
 
     if (codec->capabilities & CODEC_CAP_DR1)
-        this->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
+        this->d->m_codecContext->flags |= CODEC_FLAG_EMU_EDGE;
 
-    this->m_codecContext->pix_fmt = rawToFF->value(fourcc, AV_PIX_FMT_NONE);
-    this->m_codecContext->width = caps.property("width").toInt();
-    this->m_codecContext->height = caps.property("height").toInt();
-    this->m_fps = caps.property("fps").toString();
+    this->d->m_codecContext->pix_fmt = rawToFF->value(fourcc, AV_PIX_FMT_NONE);
+    this->d->m_codecContext->width = caps.property("width").toInt();
+    this->d->m_codecContext->height = caps.property("height").toInt();
+    this->d->m_fps = caps.property("fps").toString();
 #ifdef HAVE_CONTEXTFRAMERATE
-    this->m_codecContext->framerate.num = int(this->m_fps.num());
-    this->m_codecContext->framerate.den = int(this->m_fps.den());
+    this->d->m_codecContext->framerate.num = int(this->d->m_fps.num());
+    this->d->m_codecContext->framerate.den = int(this->d->m_fps.den());
 #else
-    this->m_codecContext->time_base.num = int(this->m_fps.den());
-    this->m_codecContext->time_base.den = int(this->m_fps.num());
+    this->d->m_codecContext->time_base.num = int(this->d->m_fps.den());
+    this->d->m_codecContext->time_base.den = int(this->d->m_fps.num());
 #endif
-    this->m_codecContext->workaround_bugs = 1;
-    this->m_codecContext->idct_algo = FF_IDCT_AUTO;
-    this->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
+    this->d->m_codecContext->workaround_bugs = 1;
+    this->d->m_codecContext->idct_algo = FF_IDCT_AUTO;
+    this->d->m_codecContext->error_concealment = FF_EC_GUESS_MVS | FF_EC_DEBLOCK;
 
-    this->m_codecOptions = nullptr;
-    av_dict_set(&this->m_codecOptions, "refcounted_frames", "0", 0);
+    this->d->m_codecOptions = nullptr;
+    av_dict_set(&this->d->m_codecOptions, "refcounted_frames", "0", 0);
 
-    if (avcodec_open2(this->m_codecContext, codec, &this->m_codecOptions) < 0) {
+    if (avcodec_open2(this->d->m_codecContext,
+                      codec,
+                      &this->d->m_codecOptions) < 0) {
 #ifdef HAVE_FREECONTEXT
-        avcodec_free_context(&this->m_codecContext);
+        avcodec_free_context(&this->d->m_codecContext);
 #else
-        avcodec_close(this->m_codecContext);
-        av_free(this->m_codecContext);
-        this->m_codecContext = nullptr;
+        avcodec_close(this->d->m_codecContext);
+        av_free(this->d->m_codecContext);
+        this->d->m_codecContext = nullptr;
 #endif
 
         return false;
     }
 
-    this->m_packets.clear();
-    this->m_frames.clear();
-    this->m_lastPts = 0;
-    this->m_id = Ak::id();
-    this->m_packetQueueSize = 0;
-    this->m_runPacketLoop = true;
-    this->m_runDataLoop = true;
-    this->m_globalClock.setClock(0.);
-    this->m_packetLoopResult = QtConcurrent::run(&this->m_threadPool, this->packetLoop, this);
-    this->m_dataLoopResult = QtConcurrent::run(&this->m_threadPool, this->dataLoop, this);
+    this->d->m_packets.clear();
+    this->d->m_frames.clear();
+    this->d->m_lastPts = 0;
+    this->d->m_id = Ak::id();
+    this->d->m_packetQueueSize = 0;
+    this->d->m_runPacketLoop = true;
+    this->d->m_runDataLoop = true;
+    this->d->m_globalClock.setClock(0.);
+    this->d->m_packetLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              this->d->packetLoop,
+                              this);
+    this->d->m_dataLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              this->d->dataLoop,
+                              this);
 
     return true;
 }
 
 void ConvertVideoFFmpeg::uninit()
 {
-    this->m_runPacketLoop = false;
-    this->m_packetLoopResult.waitForFinished();
+    this->d->m_runPacketLoop = false;
+    this->d->m_packetLoopResult.waitForFinished();
 
-    this->m_runDataLoop = false;
-    this->m_dataLoopResult.waitForFinished();
+    this->d->m_runDataLoop = false;
+    this->d->m_dataLoopResult.waitForFinished();
 
-    this->m_packets.clear();
-    this->m_frames.clear();
+    this->d->m_packets.clear();
+    this->d->m_frames.clear();
 
-    if (this->m_scaleContext) {
-        sws_freeContext(this->m_scaleContext);
-        this->m_scaleContext = nullptr;
+    if (this->d->m_scaleContext) {
+        sws_freeContext(this->d->m_scaleContext);
+        this->d->m_scaleContext = nullptr;
     }
 
-    if (this->m_codecOptions)
-        av_dict_free(&this->m_codecOptions);
+    if (this->d->m_codecOptions)
+        av_dict_free(&this->d->m_codecOptions);
 
-    if (this->m_codecContext) {
+    if (this->d->m_codecContext) {
 #ifdef HAVE_FREECONTEXT
-        avcodec_free_context(&this->m_codecContext);
+        avcodec_free_context(&this->d->m_codecContext);
 #else
-        avcodec_close(this->m_codecContext);
-        av_free(this->m_codecContext);
-        this->m_codecContext = nullptr;
+        avcodec_close(this->d->m_codecContext);
+        av_free(this->d->m_codecContext);
+        this->d->m_codecContext = nullptr;
 #endif
     }
 }
 
-void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
+void ConvertVideoFFmpegPrivate::packetLoop(ConvertVideoFFmpeg *stream)
 {
-    while (stream->m_runPacketLoop) {
-        stream->m_packetMutex.lock();
+    while (stream->d->m_runPacketLoop) {
+        stream->d->m_packetMutex.lock();
 
-        if (stream->m_packets.isEmpty())
-            stream->m_packetQueueNotEmpty.wait(&stream->m_packetMutex,
-                                               THREAD_WAIT_LIMIT);
+        if (stream->d->m_packets.isEmpty())
+            stream->d->m_packetQueueNotEmpty.wait(&stream->d->m_packetMutex,
+                                                  THREAD_WAIT_LIMIT);
 
-        if (!stream->m_packets.isEmpty()) {
-            AkPacket packet = stream->m_packets.dequeue();
+        if (!stream->d->m_packets.isEmpty()) {
+            AkPacket packet = stream->d->m_packets.dequeue();
 
             AVPacket videoPacket;
             av_init_packet(&videoPacket);
@@ -318,18 +397,18 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
             videoPacket.pts = packet.pts();
 
 #ifdef HAVE_SENDRECV
-            if (avcodec_send_packet(stream->m_codecContext, &videoPacket) >= 0)
+            if (avcodec_send_packet(stream->d->m_codecContext, &videoPacket) >= 0)
                 forever {
     #ifdef HAVE_FRAMEALLOC
                     auto iFrame = av_frame_alloc();
     #else
                     auto iFrame = avcodec_alloc_frame();
     #endif
-                    int r = avcodec_receive_frame(stream->m_codecContext, iFrame);
+                    int r = avcodec_receive_frame(stream->d->m_codecContext, iFrame);
 
                     if (r >= 0) {
-                        iFrame->pts = stream->bestEffortTimestamp(iFrame);
-                        stream->dataEnqueue(stream->copyFrame(iFrame));
+                        iFrame->pts = stream->d->bestEffortTimestamp(iFrame);
+                        stream->dataEnqueue(stream->d->copyFrame(iFrame));
                     }
     #ifdef HAVE_FRAMEALLOC
                     av_frame_free(&iFrame);
@@ -347,11 +426,11 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
                 auto iFrame = avcodec_alloc_frame();
     #endif
             int gotFrame;
-            avcodec_decode_video2(stream->m_codecContext, iFrame, &gotFrame, &videoPacket);
+            avcodec_decode_video2(stream->d->m_codecContext, iFrame, &gotFrame, &videoPacket);
 
             if (gotFrame) {
-                iFrame->pts = stream->bestEffortTimestamp(iFrame);
-                stream->dataEnqueue(stream->copyFrame(iFrame));
+                iFrame->pts = stream->d->bestEffortTimestamp(iFrame);
+                stream->dataEnqueue(stream->d->copyFrame(iFrame));
             }
     #ifdef HAVE_FRAMEALLOC
             av_frame_free(&iFrame);
@@ -360,38 +439,38 @@ void ConvertVideoFFmpeg::packetLoop(ConvertVideoFFmpeg *stream)
     #endif
 #endif
 
-            stream->m_packetQueueSize -= packet.buffer().size();
+            stream->d->m_packetQueueSize -= packet.buffer().size();
 
-            if (stream->m_packetQueueSize < stream->m_maxPacketQueueSize)
-                stream->m_packetQueueNotFull.wakeAll();
+            if (stream->d->m_packetQueueSize < stream->d->m_maxPacketQueueSize)
+                stream->d->m_packetQueueNotFull.wakeAll();
         }
 
-        stream->m_packetMutex.unlock();
+        stream->d->m_packetMutex.unlock();
     }
 }
 
-void ConvertVideoFFmpeg::dataLoop(ConvertVideoFFmpeg *stream)
+void ConvertVideoFFmpegPrivate::dataLoop(ConvertVideoFFmpeg *stream)
 {
-    while (stream->m_runDataLoop) {
-        stream->m_dataMutex.lock();
+    while (stream->d->m_runDataLoop) {
+        stream->d->m_dataMutex.lock();
 
-        if (stream->m_frames.isEmpty())
-            stream->m_dataQueueNotEmpty.wait(&stream->m_dataMutex,
-                                             THREAD_WAIT_LIMIT);
+        if (stream->d->m_frames.isEmpty())
+            stream->d->m_dataQueueNotEmpty.wait(&stream->d->m_dataMutex,
+                                                THREAD_WAIT_LIMIT);
 
-        if (!stream->m_frames.isEmpty()) {
-            FramePtr frame = stream->m_frames.dequeue();
-            stream->processData(frame);
+        if (!stream->d->m_frames.isEmpty()) {
+            FramePtr frame = stream->d->m_frames.dequeue();
+            stream->d->processData(frame);
 
-            if (stream->m_frames.size() < stream->m_maxData)
-                stream->m_dataQueueNotFull.wakeAll();
+            if (stream->d->m_frames.size() < stream->d->m_maxData)
+                stream->d->m_dataQueueNotFull.wakeAll();
         }
 
-        stream->m_dataMutex.unlock();
+        stream->d->m_dataMutex.unlock();
     }
 }
 
-void ConvertVideoFFmpeg::deleteFrame(AVFrame *frame)
+void ConvertVideoFFmpegPrivate::deleteFrame(AVFrame *frame)
 {
     av_freep(&frame->data[0]);
     frame->data[0] = nullptr;
@@ -404,7 +483,7 @@ void ConvertVideoFFmpeg::deleteFrame(AVFrame *frame)
 #endif
 }
 
-void ConvertVideoFFmpeg::processData(const FramePtr &frame)
+void ConvertVideoFFmpegPrivate::processData(const FramePtr &frame)
 {
     forever {
         AkFrac timeBase = this->m_fps.invert();
@@ -444,7 +523,7 @@ void ConvertVideoFFmpeg::processData(const FramePtr &frame)
     }
 }
 
-void ConvertVideoFFmpeg::convert(const FramePtr &frame)
+void ConvertVideoFFmpegPrivate::convert(const FramePtr &frame)
 {
     AVPixelFormat outPixFormat = AV_PIX_FMT_RGB24;
 
@@ -523,10 +602,10 @@ void ConvertVideoFFmpeg::convert(const FramePtr &frame)
     oPacket.timeBase() = caps.fps().invert();
     oPacket.index() = 0;
 
-    emit this->frameReady(oPacket.toPacket());
+    emit self->frameReady(oPacket.toPacket());
 }
 
-void ConvertVideoFFmpeg::log(qreal diff)
+void ConvertVideoFFmpegPrivate::log(qreal diff)
 {
     if (!this->m_showLog)
         return;
@@ -541,7 +620,7 @@ void ConvertVideoFFmpeg::log(qreal diff)
     qDebug() << log.toStdString().c_str();
 }
 
-int64_t ConvertVideoFFmpeg::bestEffortTimestamp(const AVFrame *frame) const
+int64_t ConvertVideoFFmpegPrivate::bestEffortTimestamp(const AVFrame *frame) const
 {
 #ifdef FF_API_PKT_PTS
     return av_frame_get_best_effort_timestamp(frame);
@@ -555,7 +634,7 @@ int64_t ConvertVideoFFmpeg::bestEffortTimestamp(const AVFrame *frame) const
 #endif
 }
 
-AVFrame *ConvertVideoFFmpeg::copyFrame(AVFrame *frame) const
+AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
 {
 #ifdef HAVE_FRAMEALLOC
     auto oFrame = av_frame_alloc();
@@ -586,19 +665,19 @@ AVFrame *ConvertVideoFFmpeg::copyFrame(AVFrame *frame) const
 
 void ConvertVideoFFmpeg::setMaxPacketQueueSize(qint64 maxPacketQueueSize)
 {
-    if (this->m_maxPacketQueueSize == maxPacketQueueSize)
+    if (this->d->m_maxPacketQueueSize == maxPacketQueueSize)
         return;
 
-    this->m_maxPacketQueueSize = maxPacketQueueSize;
+    this->d->m_maxPacketQueueSize = maxPacketQueueSize;
     emit this->maxPacketQueueSizeChanged(maxPacketQueueSize);
 }
 
 void ConvertVideoFFmpeg::setShowLog(bool showLog)
 {
-    if (this->m_showLog == showLog)
+    if (this->d->m_showLog == showLog)
         return;
 
-    this->m_showLog = showLog;
+    this->d->m_showLog = showLog;
     emit this->showLogChanged(showLog);
 }
 
@@ -611,3 +690,5 @@ void ConvertVideoFFmpeg::resetShowLog()
 {
     this->setShowLog(false);
 }
+
+#include "moc_convertvideoffmpeg.cpp"

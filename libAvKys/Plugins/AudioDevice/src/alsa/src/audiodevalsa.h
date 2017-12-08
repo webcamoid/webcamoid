@@ -20,13 +20,9 @@
 #ifndef AUDIODEVALSA_H
 #define AUDIODEVALSA_H
 
-#include <QMutex>
-#include <QTimer>
-#include <QFileSystemWatcher>
-#include <akaudiocaps.h>
-#include <alsa/asoundlib.h>
-
 #include "audiodev.h"
+
+class AudioDevAlsaPrivate;
 
 class AudioDevAlsa: public AudioDev
 {
@@ -52,24 +48,7 @@ class AudioDevAlsa: public AudioDev
         Q_INVOKABLE bool uninit();
 
     private:
-        QString m_error;
-        QString m_defaultSink;
-        QString m_defaultSource;
-        QStringList m_sinks;
-        QStringList m_sources;
-        QMap<QString, QString> m_pinDescriptionMap;
-        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
-        QMap<QString, QList<int>> m_supportedChannels;
-        QMap<QString, QList<int>> m_supportedSampleRates;
-        snd_pcm_t *m_pcmHnd;
-        QFileSystemWatcher *m_fsWatcher;
-        QTimer m_timer;
-        QMutex m_mutex;
-
-        void fillDeviceInfo(const QString &device,
-                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                            QList<int> *supportedChannels,
-                            QList<int> *supportedSampleRates) const;
+        AudioDevAlsaPrivate *d;
 
     private slots:
         void updateDevices();

@@ -34,3 +34,5 @@ QStringList DesktopCapture::keys() const
 {
     return QStringList();
 }
+
+#include "moc_desktopcapture.cpp"

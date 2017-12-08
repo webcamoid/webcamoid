@@ -20,12 +20,14 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
-#include <akelement.h>
-
 #include "abstractstream.h"
+
+class AudioStreamPrivate;
 
 class AudioStream: public AbstractStream
 {
+    Q_OBJECT
+
     public:
         AudioStream(const AVFormatContext *formatContext=nullptr,
                     uint index=0, int streamIndex=-1,
@@ -36,11 +38,7 @@ class AudioStream: public AbstractStream
         ~AudioStream();
 
     private:
-        AkElementPtr m_convert;
-        AVFrame *m_frame;
-        QMutex m_frameMutex;
-        int64_t m_pts;
-        QWaitCondition m_frameReady;
+        AudioStreamPrivate *d;
 
     protected:
         void convertPacket(const AkPacket &packet);

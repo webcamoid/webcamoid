@@ -34,3 +34,5 @@ QStringList VideoCapture::keys() const
 {
     return QStringList();
 }
+
+#include "moc_videocapture.cpp"

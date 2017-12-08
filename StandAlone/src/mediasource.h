@@ -20,11 +20,12 @@
 #ifndef MEDIASOURCE_H
 #define MEDIASOURCE_H
 
-#include <QMutex>
-#include <QQmlApplicationEngine>
 #include <akelement.h>
 
+class MediaSourcePrivate;
 class MediaSource;
+class AkCaps;
+class QQmlApplicationEngine;
 
 typedef QSharedPointer<MediaSource> MediaSourcePtr;
 
@@ -88,23 +89,7 @@ class MediaSource: public QObject
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
-        QQmlApplicationEngine *m_engine;
-        QString m_stream;
-        QStringList m_streams;
-        QStringList m_cameras;
-        QStringList m_desktops;
-        QVariantMap m_uris;
-        QMap<QString, QString> m_descriptions;
-        AkCaps m_audioCaps;
-        AkCaps m_videoCaps;
-        AkElement::ElementState m_inputState;
-        bool m_playOnStart;
-        AkElementPtr m_pipeline;
-        AkElementPtr m_cameraCapture;
-        AkElementPtr m_desktopCapture;
-        AkElementPtr m_uriCapture;
-
-        AkElementPtr sourceElement(const QString &stream) const;
+        MediaSourcePrivate *d;
 
     signals:
         void streamChanged(const QString &stream);

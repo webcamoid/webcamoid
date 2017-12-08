@@ -20,14 +20,9 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-#include <akvideopacket.h>
-
-extern "C"
-{
-    #include <libswscale/swscale.h>
-}
-
 #include "abstractstream.h"
+
+class VideoStreamPrivate;
 
 class VideoStream: public AbstractStream
 {
@@ -43,14 +38,7 @@ class VideoStream: public AbstractStream
         ~VideoStream();
 
     private:
-        AVFrame *m_frame;
-        SwsContext *m_scaleContext;
-        QMutex m_frameMutex;
-        int64_t m_lastPts;
-        int64_t m_refPts;
-        QWaitCondition m_frameReady;
-
-        QImage swapChannels(const QImage &image) const;
+        VideoStreamPrivate *d;
 
     protected:
         void convertPacket(const AkPacket &packet);

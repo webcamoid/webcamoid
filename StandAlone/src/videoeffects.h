@@ -20,11 +20,11 @@
 #ifndef VIDEOEFFECTS_H
 #define VIDEOEFFECTS_H
 
-#include <QMutex>
-#include <QQmlApplicationEngine>
 #include <akelement.h>
 
+class VideoEffectsPrivate;
 class VideoEffects;
+class QQmlApplicationEngine;
 
 typedef QSharedPointer<VideoEffects> VideoEffectsPtr;
 
@@ -67,14 +67,7 @@ class VideoEffects: public QObject
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
-        QQmlApplicationEngine *m_engine;
-        QStringList m_availableEffects;
-        AkElement::ElementState m_state;
-        bool m_advancedMode;
-        QList<AkElementPtr> m_effects;
-        QStringList m_effectsId;
-        AkElementPtr m_videoMux;
-        QMutex m_mutex;
+        VideoEffectsPrivate *d;
 
     signals:
         void availableEffectsChanged(const QStringList &availableEffects);

@@ -20,11 +20,12 @@
 #ifndef PLUGINCONFIGS_H
 #define PLUGINCONFIGS_H
 
-#include <QQmlApplicationEngine>
+#include <QObject>
 
-#include "clioptions.h"
-
+class PluginConfigsPrivate;
 class PluginConfigs;
+class CliOptions;
+class QQmlApplicationEngine;
 
 typedef QSharedPointer<PluginConfigs> PluginConfigsPtr;
 
@@ -41,10 +42,7 @@ class PluginConfigs: public QObject
         ~PluginConfigs();
 
     private:
-        QQmlApplicationEngine *m_engine;
-        QStringList m_plugins;
-
-        QString convertToAbsolute(const QString &path) const;
+        PluginConfigsPrivate *d;
 
     signals:
         void pluginsChanged(const QStringList &plugins);

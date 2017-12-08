@@ -18,7 +18,7 @@
 
 TEMPLATE = subdirs
 
-CONFIG += ordered
+CONFIG(debug, debug|release): CONFIG += ordered
 
 # Base plugins
 SUBDIRS += \

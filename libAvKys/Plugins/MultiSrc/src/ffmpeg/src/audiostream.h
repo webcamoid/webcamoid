@@ -20,13 +20,9 @@
 #ifndef AUDIOSTREAM_H
 #define AUDIOSTREAM_H
 
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/channel_layout.h>
-}
-
 #include "abstractstream.h"
+
+class AudioStreamPrivate;
 
 class AudioStream: public AbstractStream
 {
@@ -47,16 +43,7 @@ class AudioStream: public AbstractStream
         void processData(AVFrame *frame);
 
     private:
-        qint64 m_pts;
-        AkElementPtr m_audioConvert;
-        qreal audioDiffCum; // used for AV difference average computation
-        qreal audioDiffAvgCoef;
-        int audioDiffAvgCount;
-
-        bool compensate(AVFrame *oFrame, AVFrame *iFrame, int wantedSamples);
-        AkPacket frameToPacket(AVFrame *iFrame);
-        AkPacket convert(AVFrame *iFrame);
-        AVFrame *copyFrame(AVFrame *frame) const;
+        AudioStreamPrivate *d;
 };
 
 #endif // AUDIOSTREAM_H

@@ -18,37 +18,85 @@
  */
 
 #include <QDebug>
+#include <QTimer>
+#include <QDateTime>
 #include <QSettings>
 #include <QtQml>
 #include <QQmlContext>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 #include "updates.h"
 
 #define UPDATES_URL "https://api.github.com/repos/webcamoid/webcamoid/releases/latest"
 
-Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
-    QObject(parent),
-    m_engine(nullptr),
-    m_notifyNewVersion(false),
-    m_versionType(VersionTypeCurrent),
-    m_latestVersion(COMMONS_VERSION),
-    m_checkInterval(0)
+class UpdatesPrivate
 {
+    public:
+        QQmlApplicationEngine *m_engine;
+        QNetworkAccessManager m_manager;
+        bool m_notifyNewVersion;
+        Updates::VersionType m_versionType;
+        QString m_latestVersion;
+        int m_checkInterval;
+        QDateTime m_lastUpdate;
+        QTimer m_timer;
+
+        UpdatesPrivate():
+            m_engine(nullptr),
+            m_notifyNewVersion(false),
+            m_versionType(Updates::VersionTypeCurrent),
+            m_latestVersion(COMMONS_VERSION),
+            m_checkInterval(0)
+        {
+        }
+
+        inline QVariantList vectorize(const QString &version) const;
+        inline void normalize(QVariantList &vector1, QVariantList &vector2) const;
+        template<typename Functor>
+        inline bool compare(const QString &version1,
+                            const QString &version2,
+                            Functor func) const {
+            auto v1 = this->vectorize(version1);
+            auto v2 = this->vectorize(version2);
+            this->normalize(v1, v2);
+            QString sv1;
+            QString sv2;
+
+            for (int i = 0; i < v1.size(); i++) {
+                auto fillChar = v1[i].type() == QVariant::String? ' ': '0';
+                auto a = v1[i].toString();
+                auto b = v2[i].toString();
+                auto width = qMax(a.size(), b.size());
+
+                sv1 += QString("%1").arg(a, width, fillChar);
+                sv2 += QString("%1").arg(b, width, fillChar);
+            }
+
+            return func(sv1, sv2);
+        }
+};
+
+Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
+    QObject(parent)
+{
+    this->d = new UpdatesPrivate;
     this->setQmlEngine(engine);
 
-    QObject::connect(&this->m_manager,
+    QObject::connect(&this->d->m_manager,
                      &QNetworkAccessManager::finished,
                      this,
                      &Updates::replyFinished);
 
     // Check lasUpdate every 10 mins
-    this->m_timer.setInterval(int(1e3 * 60 * 10));
+    this->d->m_timer.setInterval(int(1e3 * 60 * 10));
 
     this->loadProperties();
 
-    QObject::connect(&this->m_timer,
+    QObject::connect(&this->d->m_timer,
                      &QTimer::timeout,
                      this,
                      &Updates::checkUpdates);
@@ -68,9 +116,9 @@ Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
                      &Updates::checkIntervalChanged,
                      [this] (int checkInterval) {
                         if (checkInterval > 0)
-                            this->m_timer.start();
+                            this->d->m_timer.start();
                         else
-                            this->m_timer.stop();
+                            this->d->m_timer.stop();
                      });
     QObject::connect(this,
                      &Updates::lastUpdateChanged,
@@ -81,37 +129,38 @@ Updates::Updates(QQmlApplicationEngine *engine, QObject *parent):
 Updates::~Updates()
 {
     this->saveProperties();
+    delete this->d;
 }
 
 bool Updates::notifyNewVersion() const
 {
-    return this->m_notifyNewVersion;
+    return this->d->m_notifyNewVersion;
 }
 
 Updates::VersionType Updates::versionType() const
 {
-    return this->m_versionType;
+    return this->d->m_versionType;
 }
 
 QString Updates::latestVersion() const
 {
-    return this->m_latestVersion;
+    return this->d->m_latestVersion;
 }
 
 int Updates::checkInterval() const
 {
-    return this->m_checkInterval;
+    return this->d->m_checkInterval;
 }
 
 QDateTime Updates::lastUpdate() const
 {
-    if (this->m_lastUpdate.isValid())
-        return this->m_lastUpdate;
+    if (this->d->m_lastUpdate.isValid())
+        return this->d->m_lastUpdate;
 
     return QDateTime::currentDateTime();
 }
 
-QVariantList Updates::vectorize(const QString &version) const
+QVariantList UpdatesPrivate::vectorize(const QString &version) const
 {
     QVariantList vector;
     QString digs;
@@ -158,7 +207,8 @@ QVariantList Updates::vectorize(const QString &version) const
     return vector;
 }
 
-void Updates::normalize(QVariantList &vector1, QVariantList &vector2) const
+void UpdatesPrivate::normalize(QVariantList &vector1,
+                               QVariantList &vector2) const
 {
     auto diff = vector1.size() - vector2.size();
 
@@ -184,19 +234,19 @@ void Updates::normalize(QVariantList &vector1, QVariantList &vector2) const
 
 void Updates::checkUpdates()
 {
-    if (this->m_checkInterval > 0
-        &&(this->m_lastUpdate.isNull()
-           || this->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->m_checkInterval)) {
-        this->m_manager.get(QNetworkRequest(QUrl(UPDATES_URL)));
+    if (this->d->m_checkInterval > 0
+        &&(this->d->m_lastUpdate.isNull()
+           || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval)) {
+        this->d->m_manager.get(QNetworkRequest(QUrl(UPDATES_URL)));
     }
 }
 
 void Updates::setQmlEngine(QQmlApplicationEngine *engine)
 {
-    if (this->m_engine == engine)
+    if (this->d->m_engine == engine)
         return;
 
-    this->m_engine = engine;
+    this->d->m_engine = engine;
 
     if (engine) {
         engine->rootContext()->setContextProperty("Updates", this);
@@ -206,19 +256,19 @@ void Updates::setQmlEngine(QQmlApplicationEngine *engine)
 
 void Updates::setNotifyNewVersion(bool notifyNewVersion)
 {
-    if (this->m_notifyNewVersion == notifyNewVersion)
+    if (this->d->m_notifyNewVersion == notifyNewVersion)
         return;
 
-    this->m_notifyNewVersion = notifyNewVersion;
+    this->d->m_notifyNewVersion = notifyNewVersion;
     emit this->notifyNewVersionChanged(notifyNewVersion);
 }
 
 void Updates::setCheckInterval(int checkInterval)
 {
-    if (this->m_checkInterval == checkInterval)
+    if (this->d->m_checkInterval == checkInterval)
         return;
 
-    this->m_checkInterval = checkInterval;
+    this->d->m_checkInterval = checkInterval;
     emit this->checkIntervalChanged(checkInterval);
 }
 
@@ -234,28 +284,28 @@ void Updates::resetCheckInterval()
 
 void Updates::setVersionType(Updates::VersionType versionType)
 {
-    if (this->m_versionType == versionType)
+    if (this->d->m_versionType == versionType)
         return;
 
-    this->m_versionType = versionType;
+    this->d->m_versionType = versionType;
     emit this->versionTypeChanged(versionType);
 }
 
 void Updates::setLatestVersion(const QString &latestVersion)
 {
-    if (this->m_latestVersion == latestVersion)
+    if (this->d->m_latestVersion == latestVersion)
         return;
 
-    this->m_latestVersion = latestVersion;
+    this->d->m_latestVersion = latestVersion;
     emit this->latestVersionChanged(latestVersion);
 }
 
 void Updates::setLastUpdate(const QDateTime &lastUpdate)
 {
-    if (this->m_lastUpdate == lastUpdate)
+    if (this->d->m_lastUpdate == lastUpdate)
         return;
 
-    this->m_lastUpdate = lastUpdate;
+    this->d->m_lastUpdate = lastUpdate;
     emit this->lastUpdateChanged(lastUpdate);
 }
 
@@ -291,10 +341,10 @@ void Updates::replyFinished(QNetworkReply *reply)
     auto version = jsonObj.value("tag_name").toString(COMMONS_VERSION);
 
     auto isOldVersion =
-            this->compare(version, COMMONS_VERSION,
-                          [] (const QVariant &a, const QVariant &b) {
-                                return a > b;
-                          });
+            this->d->compare(version, COMMONS_VERSION,
+                             [] (const QVariant &a, const QVariant &b) {
+                                   return a > b;
+                             });
 
     VersionType versionType = isOldVersion?
                                   VersionTypeOld:
@@ -318,21 +368,21 @@ void Updates::loadProperties()
     this->setLatestVersion(config.value("latestVersion", COMMONS_VERSION).toString());
     config.endGroup();
 
-   if (this->m_checkInterval > 0) {
-       this->m_timer.start();
+   if (this->d->m_checkInterval > 0) {
+       this->d->m_timer.start();
        this->checkUpdates();
    } else
-       this->m_timer.stop();
+       this->d->m_timer.stop();
 
    auto isOldVersion =
-           this->compare(this->m_latestVersion, COMMONS_VERSION,
-                         [] (const QVariant &a, const QVariant &b) {
-                               return a > b;
-                         });
+           this->d->compare(this->d->m_latestVersion, COMMONS_VERSION,
+                            [] (const QVariant &a, const QVariant &b) {
+                                  return a > b;
+                            });
 
    VersionType versionType = isOldVersion?
                                  VersionTypeOld:
-                             this->m_latestVersion == COMMONS_VERSION?
+                             this->d->m_latestVersion == COMMONS_VERSION?
                                   VersionTypeCurrent:
                                   VersionTypeDevelopment;
 
@@ -379,15 +429,17 @@ void Updates::saveProperties()
 {
     QSettings config;
 
-    auto lastUpdate = this->m_lastUpdate;
+    auto lastUpdate = this->d->m_lastUpdate;
 
     if (!lastUpdate.isValid())
         lastUpdate = QDateTime::currentDateTime();
 
     config.beginGroup("Updates");
     config.setValue("lastUpdate", lastUpdate);
-    config.setValue("notify", this->m_notifyNewVersion);
-    config.setValue("checkInterval", this->m_checkInterval);
-    config.setValue("latestVersion", this->m_latestVersion);
+    config.setValue("notify", this->d->m_notifyNewVersion);
+    config.setValue("checkInterval", this->d->m_checkInterval);
+    config.setValue("latestVersion", this->d->m_latestVersion);
     config.endGroup();
 }
+
+#include "moc_updates.cpp"

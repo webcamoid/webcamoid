@@ -20,7 +20,13 @@
 #ifndef CONVERTVIDEO_H
 #define CONVERTVIDEO_H
 
-#include <akpacket.h>
+#include <QObject>
+
+class ConvertVideo;
+class AkCaps;
+class AkPacket;
+
+typedef QSharedPointer<ConvertVideo> ConvertVideoPtr;
 
 class ConvertVideo: public QObject
 {

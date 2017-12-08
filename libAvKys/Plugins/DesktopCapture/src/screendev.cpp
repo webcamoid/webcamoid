@@ -17,6 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akfrac.h>
+#include <akcaps.h>
+
 #include "screendev.h"
 
 ScreenDev::ScreenDev(QObject *parent):
@@ -106,3 +109,5 @@ bool ScreenDev::uninit()
 {
     return true;
 }
+
+#include "moc_screendev.cpp"

@@ -20,14 +20,20 @@
 #ifndef CONVERTVIDEO_H
 #define CONVERTVIDEO_H
 
-#include <akpacket.h>
+#include <QObject>
+
+class ConvertVideo;
+class AkCaps;
+class AkPacket;
+
+typedef QSharedPointer<ConvertVideo> ConvertVideoPtr;
 
 class ConvertVideo: public QObject
 {
     Q_OBJECT
 
     public:
-        explicit ConvertVideo(QObject *parent=NULL);
+        explicit ConvertVideo(QObject *parent=nullptr);
         virtual ~ConvertVideo();
 
         Q_INVOKABLE virtual AkPacket convert(const AkPacket &packet,

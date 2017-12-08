@@ -34,3 +34,5 @@ QStringList MultiSink::keys() const
 {
     return QStringList();
 }
+
+#include "moc_multisink.cpp"

@@ -17,16 +17,36 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QMetaEnum>
+#include <akvideocaps.h>
+#include <akpacket.h>
+#include <akvideopacket.h>
+
+extern "C"
+{
+    #include <libavcodec/avcodec.h>
+    #include <libswscale/swscale.h>
+    #include <libavutil/imgutils.h>
+    #include <libavutil/pixdesc.h>
+}
 
 #include "convertvideoffmpeg.h"
+
+class ConvertVideoFFmpegPrivate
+{
+    public:
+        SwsContext *m_scaleContext;
+
+        ConvertVideoFFmpegPrivate():
+            m_scaleContext(nullptr)
+        {
+        }
+};
 
 ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
     ConvertVideo(parent)
 {
     avcodec_register_all();
-
-    this->m_scaleContext = nullptr;
+    this->d = new ConvertVideoFFmpegPrivate;
 
 #ifndef QT_DEBUG
     av_log_set_level(AV_LOG_QUIET);
@@ -35,8 +55,10 @@ ConvertVideoFFmpeg::ConvertVideoFFmpeg(QObject *parent):
 
 ConvertVideoFFmpeg::~ConvertVideoFFmpeg()
 {
-    if (this->m_scaleContext)
-        sws_freeContext(this->m_scaleContext);
+    if (this->d->m_scaleContext)
+        sws_freeContext(this->d->m_scaleContext);
+
+    delete this->d;
 }
 
 AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps)
@@ -55,19 +77,20 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
         return AkPacket();
 
     // Initialize rescaling context.
-    this->m_scaleContext = sws_getCachedContext(this->m_scaleContext,
-                                                videoPacket.caps().width(),
-                                                videoPacket.caps().height(),
-                                                iFormat,
-                                                oVideoCaps.width(),
-                                                oVideoCaps.height(),
-                                                oFormat,
-                                                SWS_FAST_BILINEAR,
-                                                nullptr,
-                                                nullptr,
-                                                nullptr);
+    this->d->m_scaleContext =
+            sws_getCachedContext(this->d->m_scaleContext,
+                                 videoPacket.caps().width(),
+                                 videoPacket.caps().height(),
+                                 iFormat,
+                                 oVideoCaps.width(),
+                                 oVideoCaps.height(),
+                                 oFormat,
+                                 SWS_FAST_BILINEAR,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr);
 
-    if (!this->m_scaleContext)
+    if (!this->d->m_scaleContext)
         return AkPacket();
 
     // Create iPicture.
@@ -119,7 +142,7 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
                            oFrame.linesize);
 
     // Convert picture format
-    sws_scale(this->m_scaleContext,
+    sws_scale(this->d->m_scaleContext,
               iFrame.data,
               iFrame.linesize,
               0,
@@ -134,3 +157,5 @@ AkPacket ConvertVideoFFmpeg::convert(const AkPacket &packet, const AkCaps &oCaps
 
     return oPacket.toPacket();
 }
+
+#include "moc_convertvideoffmpeg.cpp"

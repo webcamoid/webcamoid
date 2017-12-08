@@ -20,13 +20,9 @@
 #ifndef MEDIASOURCEFFMPEG_H
 #define MEDIASOURCEFFMPEG_H
 
-#include <QObject>
-
 #include "mediasource.h"
-#include "abstractstream.h"
 
-typedef QSharedPointer<AVFormatContext> FormatContextPtr;
-typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
+class MediaSourceFFmpegPrivate;
 
 class MediaSourceFFmpeg: public MediaSource
 {
@@ -60,34 +56,7 @@ class MediaSourceFFmpeg: public MediaSource
         Q_INVOKABLE bool showLog() const;
 
     private:
-        QString m_media;
-        QList<int> m_streams;
-        bool m_loop;
-        bool m_run;
-
-        AkElement::ElementState m_curState;
-        FormatContextPtr m_inputContext;
-        qint64 m_maxPacketQueueSize;
-        bool m_showLog;
-        QThreadPool m_threadPool;
-        QMutex m_dataMutex;
-        QWaitCondition m_packetQueueNotFull;
-        QWaitCondition m_packetQueueEmpty;
-        QMap<int, AbstractStreamPtr> m_streamsMap;
-        Clock m_globalClock;
-        qreal m_curClockTime;
-        QFuture<void> m_readPacketsLoopResult;
-
-        qint64 packetQueueSize();
-        static void deleteFormatContext(AVFormatContext *context);
-        AbstractStreamPtr createStream(int index, bool noModify=false);
-        void readPackets();
-        void unlockQueue();
-
-        inline int roundDown(int value, int multiply)
-        {
-            return value - value % multiply;
-        }
+        MediaSourceFFmpegPrivate *d;
 
     signals:
         void oStream(const AkPacket &packet);

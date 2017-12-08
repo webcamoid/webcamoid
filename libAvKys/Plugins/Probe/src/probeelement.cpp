@@ -17,6 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
+#include <akpacket.h>
+
 #include "probeelement.h"
 
 ProbeElement::ProbeElement(): AkElement()
@@ -55,3 +58,5 @@ AkPacket ProbeElement::iStream(const AkPacket &packet)
 
     akSend(packet);
 }
+
+#include "moc_probeelement.cpp"

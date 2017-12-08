@@ -20,12 +20,12 @@
 #ifndef RECORDING_H
 #define RECORDING_H
 
-#include <QMutex>
-#include <QQmlApplicationEngine>
-#include <QImage>
 #include <akelement.h>
 
+class RecordingPrivate;
 class Recording;
+class AkCaps;
+class QQmlApplicationEngine;
 
 typedef QSharedPointer<Recording> RecordingPtr;
 
@@ -86,19 +86,7 @@ class Recording: public QObject
         Q_INVOKABLE void removeInterface(const QString &where);
 
     private:
-        QQmlApplicationEngine *m_engine;
-        QStringList m_availableFormats;
-        AkCaps m_audioCaps;
-        AkCaps m_videoCaps;
-        bool m_recordAudio;
-        QString m_videoFileName;
-        AkElement::ElementState m_state;
-        AkElementPtr m_record;
-        QMutex m_mutex;
-        AkPacket m_curPacket;
-        QImage m_photo;
-
-        QStringList recordingFormats() const;
+        RecordingPrivate *d;
 
     signals:
         void availableFormatsChanged(const QStringList &availableFormats);

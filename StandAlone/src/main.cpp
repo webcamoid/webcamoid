@@ -18,24 +18,22 @@
  */
 
 #include <QApplication>
-#include <QCommandLineParser>
-#include <QQmlApplicationEngine>
-#include <QWindow>
 #include <QTranslator>
-#include <QSettings>
-#include <QDir>
-#include <QProcessEnvironment>
+#include <QPalette>
+#include <QIcon>
 
 #include "mediatools.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-/*
+
+#if 0
     QPalette palette = app.palette();
     palette.setColor(QPalette::WindowText, QColor(255, 255, 255));
     app.setPalette(palette);
-*/
+#endif
+
     QCoreApplication::setApplicationName(COMMONS_APPNAME);
     QCoreApplication::setApplicationVersion(COMMONS_VERSION);
     QCoreApplication::setOrganizationName(COMMONS_APPNAME);

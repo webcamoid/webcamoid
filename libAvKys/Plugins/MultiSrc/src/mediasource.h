@@ -22,6 +22,8 @@
 
 #include <akelement.h>
 
+class AkCaps;
+
 class MediaSource: public QObject
 {
     Q_OBJECT

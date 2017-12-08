@@ -18,6 +18,14 @@
  */
 
 #include <QMetaEnum>
+#include <QtConcurrent>
+#include <ak.h>
+#include <akcaps.h>
+#include <akvideocaps.h>
+#include <akvideopacket.h>
+#include <gst/video/video.h>
+#include <gst/app/gstappsrc.h>
+#include <gst/app/gstappsink.h>
 
 #include "convertvideogstreamer.h"
 
@@ -89,24 +97,51 @@ inline StringStringMap initFourCCToGst()
 
 Q_GLOBAL_STATIC_WITH_ARGS(StringStringMap, fourCCToGst, (initFourCCToGst()))
 
+class ConvertVideoGStreamerPrivate
+{
+    public:
+        QThreadPool m_threadPool;
+        GstElement *m_pipeline;
+        GstElement *m_source;
+        GstElement *m_sink;
+        GMainLoop *m_mainLoop;
+        guint m_busWatchId;
+        qint64 m_id;
+        qint64 m_ptsDiff;
+
+        ConvertVideoGStreamerPrivate():
+            m_pipeline(nullptr),
+            m_source(nullptr),
+            m_sink(nullptr),
+            m_mainLoop(nullptr),
+            m_busWatchId(0),
+            m_id(-1),
+            m_ptsDiff(AkNoPts<qint64>())
+        {
+        }
+
+        inline GstElement *decoderFromCaps(const GstCaps *caps) const;
+        inline void waitState(GstState state);
+        inline static gboolean busCallback(GstBus *bus,
+                                           GstMessage *message,
+                                           gpointer userData);
+        inline static GstFlowReturn videoBufferCallback(GstElement *videoOutput,
+                                                        gpointer userData);
+};
+
 ConvertVideoGStreamer::ConvertVideoGStreamer(QObject *parent):
     ConvertVideo(parent)
 {
 //    setenv("GST_DEBUG", "2", 1);
     gst_init(nullptr, nullptr);
 
-    this->m_pipeline = nullptr;
-    this->m_source = nullptr;
-    this->m_sink = nullptr;
-    this->m_mainLoop = nullptr;
-    this->m_busWatchId = 0;
-    this->m_id = -1;
-    this->m_ptsDiff = AkNoPts<qint64>();
+    this->d = new ConvertVideoGStreamerPrivate;
 }
 
 ConvertVideoGStreamer::~ConvertVideoGStreamer()
 {
     this->uninit();
+    delete this->d;
 }
 
 void ConvertVideoGStreamer::packetEnqueue(const AkPacket &packet)
@@ -120,17 +155,17 @@ void ConvertVideoGStreamer::packetEnqueue(const AkPacket &packet)
     memcpy(info.data, packet.buffer().constData(), info.size);
     gst_buffer_unmap(buffer, &info);
 
-    if (this->m_ptsDiff == AkNoPts<qint64>())
-        this->m_ptsDiff = packet.pts();
+    if (this->d->m_ptsDiff == AkNoPts<qint64>())
+        this->d->m_ptsDiff = packet.pts();
 
-    qint64 pts = packet.pts() - this->m_ptsDiff;
+    qint64 pts = packet.pts() - this->d->m_ptsDiff;
 
     GST_BUFFER_PTS(buffer) = GstClockTime(pts * packet.timeBase().value() * GST_SECOND);
     GST_BUFFER_DTS(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_DURATION(buffer) = GST_CLOCK_TIME_NONE;
     GST_BUFFER_OFFSET(buffer) = GST_BUFFER_OFFSET_NONE;
 
-    gst_app_src_push_buffer(GST_APP_SRC(this->m_source), buffer);
+    gst_app_src_push_buffer(GST_APP_SRC(this->d->m_source), buffer);
 }
 
 bool ConvertVideoGStreamer::init(const AkCaps &caps)
@@ -159,20 +194,21 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
 
     inCaps = gst_caps_fixate(inCaps);
 
-    this->m_source = gst_element_factory_make("appsrc", nullptr);
-    gst_app_src_set_stream_type(GST_APP_SRC(this->m_source), GST_APP_STREAM_TYPE_STREAM);
-    gst_app_src_set_caps(GST_APP_SRC(this->m_source), inCaps);
-    g_object_set(G_OBJECT(this->m_source),
+    this->d->m_source = gst_element_factory_make("appsrc", nullptr);
+    gst_app_src_set_stream_type(GST_APP_SRC(this->d->m_source),
+                                GST_APP_STREAM_TYPE_STREAM);
+    gst_app_src_set_caps(GST_APP_SRC(this->d->m_source), inCaps);
+    g_object_set(G_OBJECT(this->d->m_source),
                  "format", GST_FORMAT_TIME,
                  "do-timestamp", TRUE,
                  "is-live", TRUE,
                  nullptr);
 
-    GstElement *decoder = this->decoderFromCaps(inCaps);
+    GstElement *decoder = this->d->decoderFromCaps(inCaps);
     gst_caps_unref(inCaps);
-    GstElement *videoConvert = gst_element_factory_make("videoconvert", nullptr);
-    this->m_sink = gst_element_factory_make("appsink", nullptr);
-    g_object_set(G_OBJECT(this->m_sink),
+    auto videoConvert = gst_element_factory_make("videoconvert", nullptr);
+    this->d->m_sink = gst_element_factory_make("appsink", nullptr);
+    g_object_set(G_OBJECT(this->d->m_sink),
                  "emit-signals", TRUE,
                  nullptr);
 
@@ -180,65 +216,67 @@ bool ConvertVideoGStreamer::init(const AkCaps &caps)
                                            "format", G_TYPE_STRING, "RGB",
                                            nullptr);
     outCaps = gst_caps_fixate(outCaps);
-    gst_app_sink_set_caps(GST_APP_SINK(this->m_sink), outCaps);
+    gst_app_sink_set_caps(GST_APP_SINK(this->d->m_sink), outCaps);
     gst_caps_unref(outCaps);
 
-    g_signal_connect(this->m_sink,
+    g_signal_connect(this->d->m_sink,
                      "new-sample",
-                     G_CALLBACK(this->videoBufferCallback),
+                     G_CALLBACK(this->d->videoBufferCallback),
                      this);
 
-    this->m_pipeline = gst_pipeline_new(nullptr);
+    this->d->m_pipeline = gst_pipeline_new(nullptr);
 
-    gst_bin_add_many(GST_BIN(this->m_pipeline),
-                     this->m_source,
+    gst_bin_add_many(GST_BIN(this->d->m_pipeline),
+                     this->d->m_source,
                      decoder,
                      videoConvert,
-                     this->m_sink,
+                     this->d->m_sink,
                      nullptr);
 
-    gst_element_link_many(this->m_source,
+    gst_element_link_many(this->d->m_source,
                           decoder,
                           videoConvert,
-                          this->m_sink,
+                          this->d->m_sink,
                           nullptr);
 
     // Configure the message bus.
-    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->m_pipeline));
-    this->m_busWatchId = gst_bus_add_watch(bus, this->busCallback, this);
+    GstBus *bus = gst_pipeline_get_bus(GST_PIPELINE(this->d->m_pipeline));
+    this->d->m_busWatchId = gst_bus_add_watch(bus, this->d->busCallback, this);
     gst_object_unref(bus);
 
-    this->m_id = Ak::id();
-    this->m_ptsDiff = AkNoPts<qint64>();
+    this->d->m_id = Ak::id();
+    this->d->m_ptsDiff = AkNoPts<qint64>();
 
     // Run the main GStreamer loop.
-    this->m_mainLoop = g_main_loop_new(nullptr, FALSE);
-    QtConcurrent::run(&this->m_threadPool, g_main_loop_run, this->m_mainLoop);
-    gst_element_set_state(this->m_pipeline, GST_STATE_PLAYING);
+    this->d->m_mainLoop = g_main_loop_new(nullptr, FALSE);
+    QtConcurrent::run(&this->d->m_threadPool,
+                      g_main_loop_run,
+                      this->d->m_mainLoop);
+    gst_element_set_state(this->d->m_pipeline, GST_STATE_PLAYING);
 
     return true;
 }
 
 void ConvertVideoGStreamer::uninit()
 {
-    if (this->m_pipeline) {
-        gst_app_src_end_of_stream(GST_APP_SRC(this->m_source));
-        gst_element_set_state(this->m_pipeline, GST_STATE_NULL);
-        this->waitState(GST_STATE_NULL);
-        gst_object_unref(GST_OBJECT(this->m_pipeline));
-        g_source_remove(this->m_busWatchId);
-        this->m_pipeline = nullptr;
-        this->m_busWatchId = 0;
+    if (this->d->m_pipeline) {
+        gst_app_src_end_of_stream(GST_APP_SRC(this->d->m_source));
+        gst_element_set_state(this->d->m_pipeline, GST_STATE_NULL);
+        this->d->waitState(GST_STATE_NULL);
+        gst_object_unref(GST_OBJECT(this->d->m_pipeline));
+        g_source_remove(this->d->m_busWatchId);
+        this->d->m_pipeline = nullptr;
+        this->d->m_busWatchId = 0;
     }
 
-    if (this->m_mainLoop) {
-        g_main_loop_quit(this->m_mainLoop);
-        g_main_loop_unref(this->m_mainLoop);
-        this->m_mainLoop = nullptr;
+    if (this->d->m_mainLoop) {
+        g_main_loop_quit(this->d->m_mainLoop);
+        g_main_loop_unref(this->d->m_mainLoop);
+        this->d->m_mainLoop = nullptr;
     }
 }
 
-GstElement *ConvertVideoGStreamer::decoderFromCaps(const GstCaps *caps) const
+GstElement *ConvertVideoGStreamerPrivate::decoderFromCaps(const GstCaps *caps) const
 {
     GstElement *decoder = nullptr;
     static GstStaticCaps staticRawCaps =
@@ -277,7 +315,7 @@ GstElement *ConvertVideoGStreamer::decoderFromCaps(const GstCaps *caps) const
     return decoder;
 }
 
-void ConvertVideoGStreamer::waitState(GstState state)
+void ConvertVideoGStreamerPrivate::waitState(GstState state)
 {
     forever {
         GstState curState;
@@ -295,9 +333,9 @@ void ConvertVideoGStreamer::waitState(GstState state)
     }
 }
 
-gboolean ConvertVideoGStreamer::busCallback(GstBus *bus,
-                                            GstMessage *message,
-                                            gpointer userData)
+gboolean ConvertVideoGStreamerPrivate::busCallback(GstBus *bus,
+                                                   GstMessage *message,
+                                                   gpointer userData)
 {
     Q_UNUSED(bus)
     auto self = static_cast<ConvertVideoGStreamer *>(userData);
@@ -340,12 +378,12 @@ gboolean ConvertVideoGStreamer::busCallback(GstBus *bus,
 
         g_error_free(err);
         g_free(debug);
-        g_main_loop_quit(self->m_mainLoop);
+        g_main_loop_quit(self->d->m_mainLoop);
 
         break;
     }
     case GST_MESSAGE_EOS:
-        g_main_loop_quit(self->m_mainLoop);
+        g_main_loop_quit(self->d->m_mainLoop);
     break;
     case GST_MESSAGE_STATE_CHANGED: {
         GstState oldstate;
@@ -372,7 +410,7 @@ gboolean ConvertVideoGStreamer::busCallback(GstBus *bus,
     }
     case GST_MESSAGE_LATENCY: {
         qDebug() << "Recalculating latency";
-        gst_bin_recalculate_latency(GST_BIN(self->m_pipeline));
+        gst_bin_recalculate_latency(GST_BIN(self->d->m_pipeline));
         break;
     }
     case GST_MESSAGE_STREAM_START: {
@@ -459,8 +497,8 @@ gboolean ConvertVideoGStreamer::busCallback(GstBus *bus,
     return TRUE;
 }
 
-GstFlowReturn ConvertVideoGStreamer::videoBufferCallback(GstElement *videoOutput,
-                                                         gpointer userData)
+GstFlowReturn ConvertVideoGStreamerPrivate::videoBufferCallback(GstElement *videoOutput,
+                                                                gpointer userData)
 {
     auto self = static_cast<ConvertVideoGStreamer *>(userData);
 
@@ -496,7 +534,7 @@ GstFlowReturn ConvertVideoGStreamer::videoBufferCallback(GstElement *videoOutput
     oVideoPacket.pts() = qint64(GST_BUFFER_PTS(buffer));
     oVideoPacket.timeBase() = AkFrac(1, GST_SECOND);
     oVideoPacket.index() = 0;
-    oVideoPacket.id() = self->m_id;
+    oVideoPacket.id() = self->d->m_id;
 
     gst_buffer_unmap(buffer, &info);
     gst_sample_unref(sample);
@@ -505,3 +543,5 @@ GstFlowReturn ConvertVideoGStreamer::videoBufferCallback(GstElement *videoOutput
 
     return GST_FLOW_OK;
 }
+
+#include "moc_convertvideogstreamer.cpp"

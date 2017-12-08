@@ -20,15 +20,10 @@
 #ifndef QTSCREENDEV_H
 #define QTSCREENDEV_H
 
-#include <QTimer>
-#include <QThreadPool>
-#include <QtConcurrent>
-#include <QMutex>
-#include <QDesktopWidget>
-#include <ak.h>
-#include <akvideopacket.h>
-
 #include "screendev.h"
+
+class QtScreenDevPrivate;
+class QScreen;
 
 class QtScreenDev: public ScreenDev
 {
@@ -65,18 +60,7 @@ class QtScreenDev: public ScreenDev
         Q_INVOKABLE AkCaps caps(int stream);
 
     private:
-        AkFrac m_fps;
-        QString m_curScreen;
-        int m_curScreenNumber;
-        qint64 m_id;
-        bool m_threadedRead;
-        QTimer m_timer;
-        QThreadPool m_threadPool;
-        QFuture<void> m_threadStatus;
-        QMutex m_mutex;
-        AkPacket m_curPacket;
-
-        void sendPacket(const AkPacket &packet);
+        QtScreenDevPrivate *d;
 
     signals:
         void mediasChanged(const QStringList &medias);

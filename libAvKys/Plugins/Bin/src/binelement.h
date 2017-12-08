@@ -20,7 +20,9 @@
 #ifndef BINELEMENT_H
 #define BINELEMENT_H
 
-#include "pipeline.h"
+#include <akelement.h>
+
+class BinElementPrivate;
 
 class BinElement: public AkElement
 {
@@ -38,6 +40,7 @@ class BinElement: public AkElement
 
     public:
         explicit BinElement();
+        ~BinElement();
 
         Q_INVOKABLE QString description() const;
         Q_INVOKABLE bool blocking() const;
@@ -46,12 +49,7 @@ class BinElement: public AkElement
         Q_INVOKABLE void remove(const QString &elementName);
 
     private:
-        QString m_description;
-        bool m_blocking;
-        QMap<QString, AkElementPtr> m_elements;
-        QList<AkElementPtr> m_inputs;
-        QList<AkElementPtr> m_outputs;
-        Pipeline m_pipelineDescription;
+        BinElementPrivate *d;
 
     signals:
         void descriptionChanged(const QString &description);

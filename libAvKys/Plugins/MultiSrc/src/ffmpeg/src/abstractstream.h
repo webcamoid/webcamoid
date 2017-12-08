@@ -20,28 +20,24 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
-#include <QtConcurrent>
-#include <QQueue>
-#include <QMutex>
-#include <QWaitCondition>
-#include <ak.h>
+#include <QObject>
 
 extern "C"
 {
     #include <libavformat/avformat.h>
-    #include <libavcodec/avcodec.h>
-    #include <libavutil/imgutils.h>
+//    #include <libavcodec/avcodec.h>
+//    #include <libavutil/imgutils.h>
 }
 
 #ifdef PixelFormat
 #undef PixelFormat
 #endif
 
-#include "clock.h"
-
-typedef QSharedPointer<AVPacket> PacketPtr;
-typedef QSharedPointer<AVFrame> FramePtr;
-typedef QSharedPointer<AVSubtitle> SubtitlePtr;
+class AbstractStreamPrivate;
+class AkFrac;
+class AkCaps;
+class AkPacket;
+class Clock;
 
 class AbstractStream: public QObject
 {
@@ -77,6 +73,7 @@ class AbstractStream: public QObject
         Q_INVOKABLE qint64 queueSize();
         Q_INVOKABLE Clock *globalClock();
         Q_INVOKABLE qreal clockDiff() const;
+        Q_INVOKABLE qreal &clockDiff();
 
         static AVMediaType type(const AVFormatContext *formatContext,
                                 uint index);
@@ -92,35 +89,7 @@ class AbstractStream: public QObject
         virtual void processData(AVSubtitle *subtitle);
 
     private:
-        uint m_index;
-        qint64 m_id;
-        AkFrac m_timeBase;
-        AVMediaType m_mediaType;
-        AVStream *m_stream;
-        AVCodecContext *m_codecContext;
-        AVCodec *m_codec;
-        AVDictionary *m_codecOptions;
-        QThreadPool m_threadPool;
-        QMutex m_packetMutex;
-        QMutex m_dataMutex;
-        QWaitCondition m_packetQueueNotEmpty;
-        QWaitCondition m_dataQueueNotEmpty;
-        QWaitCondition m_dataQueueNotFull;
-        QQueue<PacketPtr> m_packets;
-        QQueue<FramePtr> m_frames;
-        QQueue<SubtitlePtr> m_subtitles;
-        qint64 m_packetQueueSize;
-        Clock *m_globalClock;
-        bool m_runPacketLoop;
-        bool m_runDataLoop;
-        QFuture<void> m_packetLoopResult;
-        QFuture<void> m_dataLoopResult;
-
-        void packetLoop();
-        void dataLoop();
-        static void deletePacket(AVPacket *packet);
-        static void deleteFrame(AVFrame *frame);
-        static void deleteSubtitle(AVSubtitle *subtitle);
+        AbstractStreamPrivate *d;
 
     signals:
         void pausedChanged(bool paused);
@@ -134,6 +103,8 @@ class AbstractStream: public QObject
         void resetPaused();
         virtual bool init();
         virtual void uninit();
+
+        friend class AbstractStreamPrivate;
 };
 
 #endif // ABSTRACTSTREAM_H

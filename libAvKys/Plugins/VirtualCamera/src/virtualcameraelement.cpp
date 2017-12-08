@@ -17,10 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
+#include <QQmlContext>
+#include <QSharedPointer>
+#include <QMutex>
 #include <akutils.h>
+#include <akcaps.h>
+#include <akpacket.h>
 
 #include "virtualcameraelement.h"
 #include "virtualcameraglobals.h"
+#include "convertvideo.h"
+#include "cameraout.h"
 
 #ifdef Q_OS_WIN32
     #define PREFERRED_FORMAT AkVideoCaps::Format_0rgb
@@ -61,10 +69,28 @@ struct BGRX
     quint8 x;
 };
 
+class VirtualCameraElementPrivate
+{
+    public:
+        ConvertVideoPtr m_convertVideo;
+        CameraOutPtr m_cameraOut;
+        int m_streamIndex;
+        AkCaps m_streamCaps;
+        QMutex m_mutex;
+        QMutex m_mutexLib;
+
+        VirtualCameraElementPrivate():
+            m_streamIndex(-1)
+        {
+        }
+
+        inline QImage swapChannels(const QImage &image) const;
+};
+
 VirtualCameraElement::VirtualCameraElement():
     AkElement()
 {
-    this->m_streamIndex = -1;
+    this->d = new VirtualCameraElementPrivate;
 
     QObject::connect(globalVirtualCamera,
                      SIGNAL(convertLibChanged(const QString &)),
@@ -95,30 +121,31 @@ VirtualCameraElement::VirtualCameraElement():
 VirtualCameraElement::~VirtualCameraElement()
 {
     this->setState(AkElement::ElementStateNull);
+    delete this->d;
 }
 
 QString VirtualCameraElement::driverPath() const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return {};
 
-    return this->m_cameraOut->driverPath();
+    return this->d->m_cameraOut->driverPath();
 }
 
 QStringList VirtualCameraElement::medias() const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return {};
 
-    return this->m_cameraOut->webcams();
+    return this->d->m_cameraOut->webcams();
 }
 
 QString VirtualCameraElement::media() const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return {};
 
-    return this->m_cameraOut->device();
+    return this->d->m_cameraOut->device();
 }
 
 QList<int> VirtualCameraElement::streams() const
@@ -131,26 +158,26 @@ QList<int> VirtualCameraElement::streams() const
 
 int VirtualCameraElement::maxCameras() const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return 0;
 
-    return this->m_cameraOut->maxCameras();
+    return this->d->m_cameraOut->maxCameras();
 }
 
 bool VirtualCameraElement::needRoot() const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return false;
 
-    return this->m_cameraOut->needRoot();
+    return this->d->m_cameraOut->needRoot();
 }
 
 int VirtualCameraElement::passwordTimeout() const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return 0;
 
-    return this->m_cameraOut->passwordTimeout();
+    return this->d->m_cameraOut->passwordTimeout();
 }
 
 QString VirtualCameraElement::rootMethod() const
@@ -183,10 +210,10 @@ int VirtualCameraElement::defaultStream(const QString &mimeType) const
 
 QString VirtualCameraElement::description(const QString &media) const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return {};
 
-    return this->m_cameraOut->description(media);
+    return this->d->m_cameraOut->description(media);
 }
 
 AkCaps VirtualCameraElement::caps(int stream) const
@@ -194,7 +221,7 @@ AkCaps VirtualCameraElement::caps(int stream) const
     if (stream != 0)
         return AkCaps();
 
-    return this->m_streamCaps;
+    return this->d->m_streamCaps;
 }
 
 QVariantMap VirtualCameraElement::addStream(int streamIndex,
@@ -203,7 +230,7 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
 {
     Q_UNUSED(streamParams)
 
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return {};
 
     AkVideoCaps videoCaps(streamCaps);
@@ -212,9 +239,9 @@ QVariantMap VirtualCameraElement::addStream(int streamIndex,
     videoCaps.width() = roundTo(videoCaps.width(), PREFERRED_ROUNDING);
     videoCaps.height() = roundTo(videoCaps.height(), PREFERRED_ROUNDING);
 
-    this->m_streamIndex = streamIndex;
-    this->m_streamCaps = videoCaps.toCaps();
-    this->m_cameraOut->setCaps(this->m_streamCaps);
+    this->d->m_streamIndex = streamIndex;
+    this->d->m_streamCaps = videoCaps.toCaps();
+    this->d->m_cameraOut->setCaps(this->d->m_streamCaps);
 
     return QVariantMap();
 }
@@ -223,7 +250,7 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
                                                const QVariantMap &streamParams)
 {
     Q_UNUSED(streamParams)
-    this->m_streamIndex = streamIndex;
+    this->d->m_streamIndex = streamIndex;
 
     return QVariantMap();
 }
@@ -231,46 +258,46 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
 QString VirtualCameraElement::createWebcam(const QString &description,
                                            const QString &password)
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return {};
 
-    return this->m_cameraOut->createWebcam(description, password);
+    return this->d->m_cameraOut->createWebcam(description, password);
 }
 
 bool VirtualCameraElement::changeDescription(const QString &webcam,
                                              const QString &description,
                                              const QString &password) const
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return false;
 
-    return this->m_cameraOut->changeDescription(webcam, description, password);
+    return this->d->m_cameraOut->changeDescription(webcam, description, password);
 }
 
 bool VirtualCameraElement::removeWebcam(const QString &webcam,
                                         const QString &password)
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return false;
 
-    return this->m_cameraOut->removeWebcam(webcam, password);
+    return this->d->m_cameraOut->removeWebcam(webcam, password);
 }
 
 bool VirtualCameraElement::removeAllWebcams(const QString &password)
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return false;
 
-    return this->m_cameraOut->removeAllWebcams(password);
+    return this->d->m_cameraOut->removeAllWebcams(password);
 }
 
-QImage VirtualCameraElement::swapChannels(const QImage &image) const
+QImage VirtualCameraElementPrivate::swapChannels(const QImage &image) const
 {
     QImage swapped(image.size(), image.format());
 
     for (int y = 0; y < image.height(); y++) {
-        const XRGB *src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
-        BGRX *dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
+        auto src = reinterpret_cast<const XRGB *>(image.constScanLine(y));
+        auto dst = reinterpret_cast<BGRX *>(swapped.scanLine(y));
 
         for (int x = 0; x < image.width(); x++) {
             dst[x].x = src[x].x;
@@ -311,32 +338,28 @@ void VirtualCameraElement::controlInterfaceConfigure(QQmlContext *context,
 
 void VirtualCameraElement::setDriverPath(const QString &driverPath)
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut
+        || this->d->m_cameraOut->driverPath() == driverPath)
         return;
 
-    if (this->m_cameraOut->driverPath() == driverPath)
-        return;
-
-    this->m_cameraOut->setDriverPath(driverPath);
+    this->d->m_cameraOut->setDriverPath(driverPath);
     emit this->driverPathChanged(driverPath);
 }
 
 void VirtualCameraElement::setMedia(const QString &media)
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut
+        || this->d->m_cameraOut->device() == media)
         return;
 
-    if (this->m_cameraOut->device() == media)
-        return;
-
-    this->m_cameraOut->setDevice(media);
+    this->d->m_cameraOut->setDevice(media);
     emit this->mediaChanged(media);
 }
 
 void VirtualCameraElement::setPasswordTimeout(int passwordTimeout)
 {
-    if (this->m_cameraOut)
-        this->m_cameraOut->setPasswordTimeout(passwordTimeout);
+    if (this->d->m_cameraOut)
+        this->d->m_cameraOut->setPasswordTimeout(passwordTimeout);
 }
 
 void VirtualCameraElement::setRootMethod(const QString &rootMethod)
@@ -356,26 +379,26 @@ void VirtualCameraElement::setOutputLib(const QString &outputLib)
 
 void VirtualCameraElement::resetDriverPath()
 {
-    if (this->m_cameraOut)
-        this->m_cameraOut->resetDriverPath();
+    if (this->d->m_cameraOut)
+        this->d->m_cameraOut->resetDriverPath();
 }
 
 void VirtualCameraElement::resetMedia()
 {
-    if (!this->m_cameraOut)
+    if (!this->d->m_cameraOut)
         return;
 
-    QString media = this->m_cameraOut->device();
-    this->m_cameraOut->resetDevice();
+    QString media = this->d->m_cameraOut->device();
+    this->d->m_cameraOut->resetDevice();
 
-    if (media != this->m_cameraOut->device())
-        emit this->mediaChanged(this->m_cameraOut->device());
+    if (media != this->d->m_cameraOut->device())
+        emit this->mediaChanged(this->d->m_cameraOut->device());
 }
 
 void VirtualCameraElement::resetPasswordTimeout()
 {
-    if (this->m_cameraOut)
-        this->m_cameraOut->resetPasswordTimeout();
+    if (this->d->m_cameraOut)
+        this->d->m_cameraOut->resetPasswordTimeout();
 }
 
 void VirtualCameraElement::resetRootMethod()
@@ -395,45 +418,45 @@ void VirtualCameraElement::resetOutputLib()
 
 void VirtualCameraElement::clearStreams()
 {
-    this->m_streamIndex = -1;
-    this->m_streamCaps = AkCaps();
+    this->d->m_streamIndex = -1;
+    this->d->m_streamCaps = AkCaps();
 }
 
 bool VirtualCameraElement::setState(AkElement::ElementState state)
 {
-    if (!this->m_convertVideo || !this->m_cameraOut)
+    if (!this->d->m_convertVideo || !this->d->m_cameraOut)
         return false;
 
     AkElement::ElementState curState = this->state();
-    QMutexLocker locker(&this->m_mutexLib);
+    QMutexLocker locker(&this->d->m_mutexLib);
 
     switch (curState) {
     case AkElement::ElementStateNull: {
         switch (state) {
         case AkElement::ElementStatePaused:
         case AkElement::ElementStatePlaying: {
-            this->m_mutex.lock();
-            QString device = this->m_cameraOut->device();
+            this->d->m_mutex.lock();
+            QString device = this->d->m_cameraOut->device();
 
             if (device.isEmpty()) {
-                QStringList webcams = this->m_cameraOut->webcams();
+                QStringList webcams = this->d->m_cameraOut->webcams();
 
                 if (webcams.isEmpty()) {
-                    this->m_mutex.unlock();
+                    this->d->m_mutex.unlock();
 
                     return false;
                 }
 
-                this->m_cameraOut->setDevice(webcams.at(0));
+                this->d->m_cameraOut->setDevice(webcams.at(0));
             }
 
-            if (!this->m_cameraOut->init(this->m_streamIndex)) {
-                this->m_mutex.unlock();
+            if (!this->d->m_cameraOut->init(this->d->m_streamIndex)) {
+                this->d->m_mutex.unlock();
 
                 return false;
             }
 
-            this->m_mutex.unlock();
+            this->d->m_mutex.unlock();
 
             return AkElement::setState(state);
         }
@@ -446,9 +469,9 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePaused: {
         switch (state) {
         case AkElement::ElementStateNull:
-            this->m_mutex.lock();
-            this->m_cameraOut->uninit();
-            this->m_mutex.unlock();
+            this->d->m_mutex.lock();
+            this->d->m_cameraOut->uninit();
+            this->d->m_mutex.unlock();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
@@ -462,9 +485,9 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePlaying: {
         switch (state) {
         case AkElement::ElementStateNull:
-            this->m_mutex.lock();
-            this->m_cameraOut->uninit();
-            this->m_mutex.unlock();
+            this->d->m_mutex.lock();
+            this->d->m_cameraOut->uninit();
+            this->d->m_mutex.unlock();
 
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
@@ -482,10 +505,10 @@ bool VirtualCameraElement::setState(AkElement::ElementState state)
 
 AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 {
-    if (!this->m_convertVideo || !this->m_cameraOut)
+    if (!this->d->m_convertVideo || !this->d->m_cameraOut)
         return AkPacket();
 
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
     if (this->state() == AkElement::ElementStatePlaying) {
         QImage image = AkUtils::packetToImage(packet);
@@ -498,20 +521,20 @@ AkPacket VirtualCameraElement::iStream(const AkPacket &packet)
 #elif defined(Q_OS_OSX)
         oPacket = packet;
 #else
-        image = this->swapChannels(image);
+        image = this->d->swapChannels(image);
 
-        this->m_mutexLib.lock();
-        oPacket = this->m_convertVideo->convert(AkUtils::imageToPacket(image, packet),
-                                                this->m_cameraOut->caps());
-        this->m_mutexLib.unlock();
+        this->d->m_mutexLib.lock();
+        oPacket = this->d->m_convertVideo->convert(AkUtils::imageToPacket(image, packet),
+                                                   this->d->m_cameraOut->caps());
+        this->d->m_mutexLib.unlock();
 #endif
 
-        this->m_mutexLib.lock();
-        this->m_cameraOut->writeFrame(oPacket);
-        this->m_mutexLib.unlock();
+        this->d->m_mutexLib.lock();
+        this->d->m_cameraOut->writeFrame(oPacket);
+        this->d->m_mutexLib.unlock();
     }
 
-    this->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
     akSend(packet)
 }
@@ -521,12 +544,12 @@ void VirtualCameraElement::convertLibUpdated(const QString &convertLib)
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
 
-    this->m_mutexLib.lock();
+    this->d->m_mutexLib.lock();
 
-    this->m_convertVideo =
+    this->d->m_convertVideo =
             ptr_cast<ConvertVideo>(this->loadSubModule("VirtualCamera", convertLib));
 
-    this->m_mutexLib.unlock();
+    this->d->m_mutexLib.unlock();
 
     this->setState(state);
 }
@@ -536,35 +559,35 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
 
-    this->m_mutexLib.lock();
+    this->d->m_mutexLib.lock();
 
-    this->m_cameraOut =
+    this->d->m_cameraOut =
             ptr_cast<CameraOut>(this->loadSubModule("VirtualCamera", outputLib));
 
-    if (!this->m_cameraOut) {
-        this->m_mutexLib.unlock();
+    if (!this->d->m_cameraOut) {
+        this->d->m_mutexLib.unlock();
 
         return;
     }
 
-    QObject::connect(this->m_cameraOut.data(),
+    QObject::connect(this->d->m_cameraOut.data(),
                      &CameraOut::driverPathChanged,
                      this,
                      &VirtualCameraElement::driverPathChanged);
-    QObject::connect(this->m_cameraOut.data(),
+    QObject::connect(this->d->m_cameraOut.data(),
                      &CameraOut::error,
                      this,
                      &VirtualCameraElement::error);
-    QObject::connect(this->m_cameraOut.data(),
+    QObject::connect(this->d->m_cameraOut.data(),
                      &CameraOut::webcamsChanged,
                      this,
                      &VirtualCameraElement::mediasChanged);
-    QObject::connect(this->m_cameraOut.data(),
+    QObject::connect(this->d->m_cameraOut.data(),
                      &CameraOut::passwordTimeoutChanged,
                      this,
                      &VirtualCameraElement::passwordTimeoutChanged);
 
-    this->m_mutexLib.unlock();
+    this->d->m_mutexLib.unlock();
 
     emit this->driverPathChanged(this->driverPath());
     emit this->mediasChanged(this->medias());
@@ -579,6 +602,8 @@ void VirtualCameraElement::outputLibUpdated(const QString &outputLib)
 
 void VirtualCameraElement::rootMethodUpdated(const QString &rootMethod)
 {
-    if (this->m_cameraOut)
-        this->m_cameraOut->setRootMethod(rootMethod);
+    if (this->d->m_cameraOut)
+        this->d->m_cameraOut->setRootMethod(rootMethod);
 }
+
+#include "moc_virtualcameraelement.cpp"

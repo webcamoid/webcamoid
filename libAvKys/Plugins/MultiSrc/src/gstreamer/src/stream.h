@@ -20,7 +20,7 @@
 #ifndef STREAM
 #define STREAM
 
-#include <ak.h>
+#include <akcaps.h>
 
 class Stream
 {

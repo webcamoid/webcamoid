@@ -17,6 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akpacket.h>
+#include <akcaps.h>
+
 #include "multiplexelement.h"
 
 MultiplexElement::MultiplexElement(): AkElement()
@@ -87,3 +90,5 @@ AkPacket MultiplexElement::iStream(const AkPacket &packet)
 
     akSend(oPacket)
 }
+
+#include "moc_multiplexelement.cpp"

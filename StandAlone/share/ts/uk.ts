@@ -165,8 +165,8 @@
 <context>
     <name>CameraOutV4L2</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="259"/>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="313"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="315"/>
+        <location filename="../../../libAvKys/Plugins/VirtualCamera/src/v4l2sys/src/cameraoutv4l2.cpp" line="369"/>
         <source>Virtual Camera %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -545,35 +545,35 @@
 <context>
     <name>Recording</name>
     <message>
-        <location filename="../../src/recording.cpp" line="573"/>
+        <location filename="../../src/recording.cpp" line="605"/>
         <source>Audio</source>
         <translation>Аудіо</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="574"/>
+        <location filename="../../src/recording.cpp" line="606"/>
         <source>Video</source>
         <translation>Відео</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="575"/>
+        <location filename="../../src/recording.cpp" line="607"/>
         <source>Subtitle</source>
         <translation>Субтитри</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="630"/>
-        <location filename="../../src/recording.cpp" line="796"/>
+        <location filename="../../src/recording.cpp" line="662"/>
+        <location filename="../../src/recording.cpp" line="828"/>
         <source>audio</source>
         <translation>аудіо</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="631"/>
-        <location filename="../../src/recording.cpp" line="797"/>
+        <location filename="../../src/recording.cpp" line="663"/>
+        <location filename="../../src/recording.cpp" line="829"/>
         <source>video</source>
         <translation>відео</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="632"/>
-        <location filename="../../src/recording.cpp" line="798"/>
+        <location filename="../../src/recording.cpp" line="664"/>
+        <location filename="../../src/recording.cpp" line="830"/>
         <source>subtitle</source>
         <translation>субтитри</translation>
     </message>
@@ -623,19 +623,6 @@
     <message>
         <location filename="../../../libAvKys/Plugins/MultiSink/share/qml/StreamOptions.qml" line="171"/>
         <source>Size of the video (bits) / duration (seconds)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TestFrame</name>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/TestFrame/TestFrame.qml" line="58"/>
-        <source>Webcamoid</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/VirtualCamera/share/TestFrame/TestFrame.qml" line="66"/>
-        <source>The ultimate webcam suite!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -20,7 +20,7 @@
 #ifndef MULTIPLEX_H
 #define MULTIPLEX_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Multiplex: public QObject, public AkPlugin
 {

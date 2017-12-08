@@ -20,16 +20,9 @@
 #ifndef VIDEOCAPTUREELEMENT_H
 #define VIDEOCAPTUREELEMENT_H
 
-#include <QThreadPool>
-#include <QtConcurrent>
-
 #include <akmultimediasourceelement.h>
 
-#include "convertvideo.h"
-#include "capture.h"
-
-typedef QSharedPointer<ConvertVideo> ConvertVideoPtr;
-typedef QSharedPointer<Capture> CapturePtr;
+class VideoCaptureElementPrivate;
 
 class VideoCaptureElement: public AkMultimediaSourceElement
 {
@@ -97,17 +90,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE bool resetCameraControls();
 
     private:
-        ConvertVideoPtr m_convertVideo;
-        CapturePtr m_capture;
-        QThreadPool m_threadPool;
-        QFuture<void> m_cameraLoopResult;
-        QMutex m_mutexLib;
-        bool m_runCameraLoop;
-        bool m_pause;
-        bool m_mirror;
-        bool m_swapRgb;
-
-        void cameraLoop();
+        VideoCaptureElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

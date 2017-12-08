@@ -20,7 +20,7 @@
 #ifndef BIN_H
 #define BIN_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Bin: public QObject, public AkPlugin
 {

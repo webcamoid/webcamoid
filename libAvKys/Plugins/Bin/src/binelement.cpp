@@ -17,90 +17,114 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
+#include <QSharedPointer>
+#include <akpacket.h>
+
 #include "binelement.h"
+#include "pipeline.h"
+
+class BinElementPrivate
+{
+    public:
+        QString m_description;
+        QMap<QString, AkElementPtr> m_elements;
+        QList<AkElementPtr> m_inputs;
+        QList<AkElementPtr> m_outputs;
+        Pipeline m_pipelineDescription;
+        bool m_blocking;
+
+        BinElementPrivate():
+            m_blocking(false)
+        {
+        }
+};
 
 BinElement::BinElement():
     AkElement()
 {
-    this->m_pipelineDescription.setParent(this);
-    this->m_blocking = false;
+    this->d = new BinElementPrivate;
+    this->d->m_pipelineDescription.setParent(this);
+}
+
+BinElement::~BinElement()
+{
+    delete this->d;
 }
 
 QString BinElement::description() const
 {
-    return this->m_description;
+    return this->d->m_description;
 }
 
 bool BinElement::blocking() const
 {
-    return this->m_blocking;
+    return this->d->m_blocking;
 }
 
 AkElementPtr BinElement::element(const QString &elementName)
 {
-    return this->m_elements[elementName];
+    return this->d->m_elements[elementName];
 }
 
 void BinElement::add(AkElementPtr element)
 {
-    this->m_pipelineDescription.addElement(element);
+    this->d->m_pipelineDescription.addElement(element);
 }
 
 void BinElement::remove(const QString &elementName)
 {
-    this->m_pipelineDescription.removeElement(elementName);
+    this->d->m_pipelineDescription.removeElement(elementName);
 }
 
 void BinElement::setDescription(const QString &description)
 {
-    if (this->m_description == description)
+    if (this->d->m_description == description)
         return;
 
     ElementState preState = this->state();
 
     this->setState(ElementStateNull);
 
-    if (this->m_description.isEmpty()) {
-        this->m_pipelineDescription.parse(description);
-        QString error = this->m_pipelineDescription.error();
+    if (this->d->m_description.isEmpty()) {
+        this->d->m_pipelineDescription.parse(description);
+        QString error = this->d->m_pipelineDescription.error();
 
         if (error.isEmpty()) {
-            this->m_description = description;
+            this->d->m_description = description;
 
-            this->m_elements = this->m_pipelineDescription.elements();
-            this->m_inputs = this->m_pipelineDescription.inputs();
-            this->m_outputs = this->m_pipelineDescription.outputs();
+            this->d->m_elements = this->d->m_pipelineDescription.elements();
+            this->d->m_inputs = this->d->m_pipelineDescription.inputs();
+            this->d->m_outputs = this->d->m_pipelineDescription.outputs();
             this->connectOutputs();
         } else {
-            this->m_pipelineDescription.cleanAll();
+            this->d->m_pipelineDescription.cleanAll();
 
             qDebug() << error;
         }
     } else if (description.isEmpty()) {
-        this->m_pipelineDescription.cleanAll();
-        this->m_description = description;
+        this->d->m_pipelineDescription.cleanAll();
+        this->d->m_description = description;
     } else {
-        for (const AkElementPtr &element: this->m_outputs)
+        for (const AkElementPtr &element: this->d->m_outputs)
             QObject::disconnect(element.data(),
                                 &AkElement::oStream,
                                 this,
                                 &BinElement::oStream);
 
-        this->m_pipelineDescription.cleanAll();
-
-        this->m_pipelineDescription.parse(description);
-        QString error = this->m_pipelineDescription.error();
+        this->d->m_pipelineDescription.cleanAll();
+        this->d->m_pipelineDescription.parse(description);
+        QString error = this->d->m_pipelineDescription.error();
 
         if (error.isEmpty()) {
-            this->m_description = description;
-
-            this->m_elements = this->m_pipelineDescription.elements();
-            this->m_inputs = this->m_pipelineDescription.inputs();
-            this->m_outputs = this->m_pipelineDescription.outputs();
+            this->d->m_description = description;
+            this->d->m_elements = this->d->m_pipelineDescription.elements();
+            this->d->m_inputs = this->d->m_pipelineDescription.inputs();
+            this->d->m_outputs = this->d->m_pipelineDescription.outputs();
             this->connectOutputs();
         } else {
-            this->m_pipelineDescription.cleanAll();
-            this->m_description = "";
+            this->d->m_pipelineDescription.cleanAll();
+            this->d->m_description = "";
 
             qDebug() << error;
         }
@@ -112,10 +136,10 @@ void BinElement::setDescription(const QString &description)
 
 void BinElement::setBlocking(bool blocking)
 {
-    if (this->m_blocking == blocking)
+    if (this->d->m_blocking == blocking)
         return;
 
-    this->m_blocking = blocking;
+    this->d->m_blocking = blocking;
     emit this->blockingChanged(blocking);
 }
 
@@ -131,10 +155,10 @@ void BinElement::resetBlocking()
 
 AkPacket BinElement::iStream(const AkPacket &packet)
 {
-    if (!this->m_description.isEmpty())
-        for (const AkElementPtr &element: this->m_inputs)
+    if (!this->d->m_description.isEmpty())
+        for (const AkElementPtr &element: this->d->m_inputs)
             element->iStream(packet);
-    else if (!this->m_blocking)
+    else if (!this->d->m_blocking)
         akSend(packet)
 
     return AkPacket();
@@ -145,7 +169,7 @@ bool BinElement::setState(AkElement::ElementState state)
     AkElement::setState(state);
     bool ok = true;
 
-    for (const AkElementPtr &element: this->m_elements) {
+    for (const AkElementPtr &element: this->d->m_elements) {
         bool ret = false;
         QMetaObject::invokeMethod(element.data(),
                                   "setState",
@@ -160,10 +184,11 @@ bool BinElement::setState(AkElement::ElementState state)
 
 void BinElement::connectOutputs()
 {
-    QList<Qt::ConnectionType> connectionTypes = this->m_pipelineDescription.outputConnectionTypes();
+    auto connectionTypes =
+            this->d->m_pipelineDescription.outputConnectionTypes();
     int i = 0;
 
-    for (const AkElementPtr &element: this->m_outputs) {
+    for (const AkElementPtr &element: this->d->m_outputs) {
         QObject::connect(element.data(),
                          SIGNAL(oStream(const AkPacket &)),
                          this,
@@ -176,9 +201,11 @@ void BinElement::connectOutputs()
 
 void BinElement::disconnectOutputs()
 {
-    for (const AkElementPtr &element: this->m_outputs)
+    for (const AkElementPtr &element: this->d->m_outputs)
         QObject::disconnect(element.data(),
                             &AkElement::oStream,
                             this,
                             &BinElement::oStream);
 }
+
+#include "moc_binelement.cpp"

@@ -20,10 +20,10 @@
 #ifndef VIDEODISPLAY_H
 #define VIDEODISPLAY_H
 
-#include <QMutex>
 #include <QQuickItem>
 
-#include "akutils.h"
+class VideoDisplayPrivate;
+class AkPacket;
 
 class VideoDisplay: public QQuickItem
 {
@@ -43,9 +43,7 @@ class VideoDisplay: public QQuickItem
         Q_INVOKABLE bool fillDisplay() const;
 
     private:
-        bool m_fillDisplay;
-        QImage m_frame;
-        QMutex m_mutex;
+        VideoDisplayPrivate *d;
 
     protected:
         QSGNode *updatePaintNode(QSGNode *oldNode,

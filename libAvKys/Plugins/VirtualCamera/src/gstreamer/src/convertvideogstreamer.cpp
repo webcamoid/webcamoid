@@ -17,7 +17,11 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QMetaEnum>
+#include <QDebug>
+#include <QMap>
+#include <akvideocaps.h>
+#include <akvideopacket.h>
+#include <gst/video/video.h>
 
 #include "convertvideogstreamer.h"
 
@@ -189,3 +193,5 @@ AkPacket ConvertVideoGStreamer::convert(const AkPacket &packet, const AkCaps &oC
 
     return oPacket.toPacket();
 }
+
+#include "moc_convertvideogstreamer.cpp"

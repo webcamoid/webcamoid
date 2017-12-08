@@ -20,7 +20,13 @@
 #ifndef CAPTURE_H
 #define CAPTURE_H
 
-#include <akpacket.h>
+#include <QObject>
+
+class Capture;
+class AkCaps;
+class AkPacket;
+
+typedef QSharedPointer<Capture> CapturePtr;
 
 class Capture: public QObject
 {

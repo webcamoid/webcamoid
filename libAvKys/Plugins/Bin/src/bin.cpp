@@ -34,3 +34,5 @@ QStringList Bin::keys() const
 {
     return QStringList();
 }
+
+#include "moc_bin.cpp"

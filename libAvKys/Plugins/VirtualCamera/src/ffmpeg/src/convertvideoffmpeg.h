@@ -20,17 +20,9 @@
 #ifndef CONVERTVIDEOFFMPEG_H
 #define CONVERTVIDEOFFMPEG_H
 
-#include <akvideopacket.h>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libswscale/swscale.h>
-    #include <libavutil/imgutils.h>
-    #include <libavutil/pixdesc.h>
-}
-
 #include "convertvideo.h"
+
+class ConvertVideoFFmpegPrivate;
 
 class ConvertVideoFFmpeg: public ConvertVideo
 {
@@ -44,7 +36,7 @@ class ConvertVideoFFmpeg: public ConvertVideo
                                      const AkCaps &oCaps);
 
     private:
-        SwsContext *m_scaleContext;
+        ConvertVideoFFmpegPrivate *d;
 };
 
 #endif // CONVERTVIDEOFFMPEG_H

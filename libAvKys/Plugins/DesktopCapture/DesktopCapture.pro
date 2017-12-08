@@ -18,7 +18,7 @@
 
 TEMPLATE = subdirs
 
-CONFIG += ordered
+CONFIG(debug, debug|release): CONFIG += ordered
 
 SUBDIRS = src src/qtscreen
 CONFIG(config_avfoundation): SUBDIRS += src/avfoundation

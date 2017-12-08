@@ -25,7 +25,7 @@
 
 #include "iconsprovider.h"
 
-bool operator <(const QSize &a, const QSize &b)
+inline bool operator <(const QSize &a, const QSize &b)
 {
     return a.width() * a.width() + a.height() * a.height()
          < b.width() * b.width() + b.height() * b.height();

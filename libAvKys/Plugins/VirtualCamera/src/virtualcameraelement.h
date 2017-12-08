@@ -20,15 +20,11 @@
 #ifndef VIRTUALCAMERAELEMENT_H
 #define VIRTUALCAMERAELEMENT_H
 
-#include <QMutex>
+#include <QVariantMap>
+#include <akelement.h>
 
-#include <akmultimediasourceelement.h>
-
-#include "convertvideo.h"
-#include "cameraout.h"
-
-typedef QSharedPointer<ConvertVideo> ConvertVideoPtr;
-typedef QSharedPointer<CameraOut> CameraOutPtr;
+class VirtualCameraElementPrivate;
+class AkCaps;
 
 class VirtualCameraElement: public AkElement
 {
@@ -113,14 +109,7 @@ class VirtualCameraElement: public AkElement
         Q_INVOKABLE bool removeAllWebcams(const QString &password="");
 
     private:
-        ConvertVideoPtr m_convertVideo;
-        CameraOutPtr m_cameraOut;
-        int m_streamIndex;
-        AkCaps m_streamCaps;
-        QMutex m_mutex;
-        QMutex m_mutexLib;
-
-        QImage swapChannels(const QImage &image) const;
+        VirtualCameraElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

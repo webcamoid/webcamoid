@@ -34,3 +34,5 @@ QStringList Plugin::keys() const
 {
     return QStringList();
 }
+
+#include "moc_plugin.cpp"

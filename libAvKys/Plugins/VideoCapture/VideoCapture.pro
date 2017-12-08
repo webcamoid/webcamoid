@@ -18,7 +18,7 @@
 
 TEMPLATE = subdirs
 
-CONFIG += ordered
+CONFIG(debug, debug|release): CONFIG += ordered
 
 SUBDIRS = src
 CONFIG(config_avfoundation): SUBDIRS += src/avfoundation

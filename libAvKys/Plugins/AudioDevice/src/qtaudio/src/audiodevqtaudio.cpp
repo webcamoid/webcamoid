@@ -17,72 +17,115 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMap>
+#include <QVector>
+#include <QAudioInput>
+#include <QAudioOutput>
+#include <QAudioDeviceInfo>
+#include <akaudiopacket.h>
+
 #include "audiodevqtaudio.h"
+#include "audiodevicebuffer.h"
 
 #define BUFFER_SIZE 1024 // In samples
 
-AudioDevQtAudio::AudioDevQtAudio(QObject *parent):
-    AudioDev(parent),
-    m_inputDeviceBuffer(nullptr),
-    m_input(nullptr),
-    m_output(nullptr)
+inline bool operator <(const QAudioDeviceInfo &info1,
+                       const QAudioDeviceInfo &info2)
 {
+    return info1.deviceName() < info2.deviceName();
+}
+
+class AudioDevQtAudioPrivate
+{
+    public:
+        QString m_error;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QMap<QAudioDeviceInfo, QString> m_sinks;
+        QMap<QAudioDeviceInfo, QString> m_sources;
+        QMap<QString, AkAudioCaps> m_pinCapsMap;
+        QMap<QString, QString> m_pinDescriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
+        AudioDeviceBuffer m_outputDeviceBuffer;
+        QIODevice *m_inputDeviceBuffer;
+        QAudioInput *m_input;
+        QAudioOutput *m_output;
+        QMutex m_mutex;
+
+        AudioDevQtAudioPrivate():
+            m_inputDeviceBuffer(nullptr),
+            m_input(nullptr),
+            m_output(nullptr)
+        {
+        }
+
+        inline AkAudioCaps::SampleFormat qtFormatToAk(const QAudioFormat &format) const;
+        inline QAudioFormat qtFormatFromCaps(const AkAudioCaps &caps) const;
+};
+
+AudioDevQtAudio::AudioDevQtAudio(QObject *parent):
+    AudioDev(parent)
+{
+    this->d = new AudioDevQtAudioPrivate;
     this->updateDevices();
 }
 
 AudioDevQtAudio::~AudioDevQtAudio()
 {
     this->uninit();
+    delete this->d;
 }
 
 QString AudioDevQtAudio::error() const
 {
-    return this->m_error;
+    return this->d->m_error;
 }
 
 QString AudioDevQtAudio::defaultInput()
 {
-    return this->m_defaultSource;
+    return this->d->m_defaultSource;
 }
 
 QString AudioDevQtAudio::defaultOutput()
 {
-    return this->m_defaultSink;
+    return this->d->m_defaultSink;
 }
 
 QStringList AudioDevQtAudio::inputs()
 {
-    return this->m_sources.values();
+    return this->d->m_sources.values();
 }
 
 QStringList AudioDevQtAudio::outputs()
 {
-    return this->m_sinks.values();
+    return this->d->m_sinks.values();
 }
 
 QString AudioDevQtAudio::description(const QString &device)
 {
-    return this->m_pinDescriptionMap.value(device);
+    return this->d->m_pinDescriptionMap.value(device);
 }
 
 AkAudioCaps AudioDevQtAudio::preferredFormat(const QString &device)
 {
-    return this->m_pinCapsMap.value(device);
+    return this->d->m_pinCapsMap.value(device);
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDevQtAudio::supportedFormats(const QString &device)
 {
-    return this->m_supportedFormats.value(device);
+    return this->d->m_supportedFormats.value(device);
 }
 
 QList<int> AudioDevQtAudio::supportedChannels(const QString &device)
 {
-    return this->m_supportedChannels.value(device);
+    return this->d->m_supportedChannels.value(device);
 }
 
 QList<int> AudioDevQtAudio::supportedSampleRates(const QString &device)
 {
-    return this->m_supportedSampleRates.value(device);
+    return this->d->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevQtAudio::init(const QString &device, const AkAudioCaps &caps)
@@ -92,44 +135,44 @@ bool AudioDevQtAudio::init(const QString &device, const AkAudioCaps &caps)
                   * caps.bps()
                   / 8;
 
-    this->m_mutex.lock();
-    this->m_outputDeviceBuffer.setBlockSize(blockSize);
-    this->m_outputDeviceBuffer.setMaxBufferSize(4 * blockSize);
-    this->m_outputDeviceBuffer.open(QIODevice::ReadWrite);
+    this->d->m_mutex.lock();
+    this->d->m_outputDeviceBuffer.setBlockSize(blockSize);
+    this->d->m_outputDeviceBuffer.setMaxBufferSize(4 * blockSize);
+    this->d->m_outputDeviceBuffer.open(QIODevice::ReadWrite);
 
     if (device.endsWith(":Output")) {
-        auto deviceInfo = this->m_sinks.key(device);
-        auto format = this->qtFormatFromCaps(caps);
-        this->m_output = new QAudioOutput(deviceInfo, format);
-        this->m_output->start(&this->m_outputDeviceBuffer);
+        auto deviceInfo = this->d->m_sinks.key(device);
+        auto format = this->d->qtFormatFromCaps(caps);
+        this->d->m_output = new QAudioOutput(deviceInfo, format);
+        this->d->m_output->start(&this->d->m_outputDeviceBuffer);
 
-        if (this->m_output->error() != QAudio::NoError) {
-            this->m_mutex.unlock();
+        if (this->d->m_output->error() != QAudio::NoError) {
+            this->d->m_mutex.unlock();
             this->uninit();
 
             return false;
         }
     } else if (device.endsWith(":Input")) {
-        auto deviceInfo = this->m_sources.key(device);
-        auto format = this->qtFormatFromCaps(caps);
-        this->m_input = new QAudioInput(deviceInfo, format);
-        this->m_inputDeviceBuffer = this->m_input->start();
+        auto deviceInfo = this->d->m_sources.key(device);
+        auto format = this->d->qtFormatFromCaps(caps);
+        this->d->m_input = new QAudioInput(deviceInfo, format);
+        this->d->m_inputDeviceBuffer = this->d->m_input->start();
 
-        if (!this->m_inputDeviceBuffer
-            || this->m_input->error() != QAudio::NoError) {
-            this->m_mutex.unlock();
+        if (!this->d->m_inputDeviceBuffer
+            || this->d->m_input->error() != QAudio::NoError) {
+            this->d->m_mutex.unlock();
             this->uninit();
 
             return false;
         }
     } else {
-        this->m_mutex.unlock();
+        this->d->m_mutex.unlock();
         this->uninit();
 
         return false;
     }
 
-    this->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
     return true;
 }
@@ -138,10 +181,10 @@ QByteArray AudioDevQtAudio::read(int samples)
 {
     QByteArray buffer;
 
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    if (this->m_inputDeviceBuffer) {
-        auto format = this->m_input->format();
+    if (this->d->m_inputDeviceBuffer) {
+        auto format = this->d->m_input->format();
         auto bufferSize = format.channelCount()
                         * format.sampleSize()
                         * samples
@@ -149,51 +192,51 @@ QByteArray AudioDevQtAudio::read(int samples)
         auto readBytes = bufferSize;
 
         while (buffer.size() < bufferSize) {
-            auto data = this->m_inputDeviceBuffer->read(readBytes);
+            auto data = this->d->m_inputDeviceBuffer->read(readBytes);
             buffer.append(data);
             readBytes -= data.size();
         }
     }
 
-    this->m_mutex.unlock();
+    this->d->m_mutex.unlock();
 
     return buffer;
 }
 
 bool AudioDevQtAudio::write(const AkAudioPacket &packet)
 {
-    this->m_mutex.lock();
-    this->m_outputDeviceBuffer.write(packet.buffer());
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    this->d->m_outputDeviceBuffer.write(packet.buffer());
+    this->d->m_mutex.unlock();
 
     return true;
 }
 
 bool AudioDevQtAudio::uninit()
 {
-    this->m_mutex.lock();
+    this->d->m_mutex.lock();
 
-    this->m_outputDeviceBuffer.close();
+    this->d->m_outputDeviceBuffer.close();
 
-    if (this->m_input) {
-        this->m_input->stop();
-        delete this->m_input;
-        this->m_input = nullptr;
+    if (this->d->m_input) {
+        this->d->m_input->stop();
+        delete this->d->m_input;
+        this->d->m_input = nullptr;
     }
 
-    if (this->m_output) {
-        this->m_output->stop();
-        delete this->m_output;
-        this->m_output = nullptr;
+    if (this->d->m_output) {
+        this->d->m_output->stop();
+        delete this->d->m_output;
+        this->d->m_output = nullptr;
     }
 
-    this->m_inputDeviceBuffer = nullptr;
-    this->m_mutex.unlock();
+    this->d->m_inputDeviceBuffer = nullptr;
+    this->d->m_mutex.unlock();
 
     return true;
 }
 
-AkAudioCaps::SampleFormat AudioDevQtAudio::qtFormatToAk(const QAudioFormat &format) const
+AkAudioCaps::SampleFormat AudioDevQtAudioPrivate::qtFormatToAk(const QAudioFormat &format) const
 {
     return AkAudioCaps::sampleFormatFromProperties(
                 format.sampleType() == QAudioFormat::SignedInt?
@@ -209,7 +252,7 @@ AkAudioCaps::SampleFormat AudioDevQtAudio::qtFormatToAk(const QAudioFormat &form
                 false);
 }
 
-QAudioFormat AudioDevQtAudio::qtFormatFromCaps(const AkAudioCaps &caps) const
+QAudioFormat AudioDevQtAudioPrivate::qtFormatFromCaps(const AkAudioCaps &caps) const
 {
     QAudioFormat audioFormat;
     audioFormat.setByteOrder(AkAudioCaps::endianness(caps.format()) == Q_LITTLE_ENDIAN?
@@ -232,15 +275,15 @@ QAudioFormat AudioDevQtAudio::qtFormatFromCaps(const AkAudioCaps &caps) const
 
 void AudioDevQtAudio::updateDevices()
 {
-    decltype(this->m_defaultSink) defaultSink;
-    decltype(this->m_defaultSource) defaultSource;
-    decltype(this->m_sinks) sinks;
-    decltype(this->m_sources) sources;
-    decltype(this->m_pinCapsMap) pinCapsMap;
-    decltype(this->m_pinDescriptionMap) pinDescriptionMap;
-    decltype(this->m_supportedFormats) supportedFormats;
-    decltype(this->m_supportedChannels) supportedChannels;
-    decltype(this->m_supportedSampleRates) supportedSampleRates;
+    decltype(this->d->m_defaultSink) defaultSink;
+    decltype(this->d->m_defaultSource) defaultSource;
+    decltype(this->d->m_sinks) sinks;
+    decltype(this->d->m_sources) sources;
+    decltype(this->d->m_pinCapsMap) pinCapsMap;
+    decltype(this->d->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->d->m_supportedFormats) supportedFormats;
+    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     for (auto &mode: QVector<QAudio::Mode> {QAudio::AudioInput,
                                             QAudio::AudioOutput}) {
@@ -259,7 +302,7 @@ void AudioDevQtAudio::updateDevices()
             auto preferredFormat = device.preferredFormat();
 
             pinCapsMap[deviceName] =
-                    AkAudioCaps(this->qtFormatToAk(preferredFormat),
+                    AkAudioCaps(this->d->qtFormatToAk(preferredFormat),
                                 preferredFormat.channelCount(),
                                 preferredFormat.sampleRate());
             pinDescriptionMap[deviceName] = description;
@@ -275,7 +318,7 @@ void AudioDevQtAudio::updateDevices()
                         audioFormat.setByteOrder(endianness);
                         audioFormat.setSampleSize(sampleSize);
                         audioFormat.setSampleType(sampleType);
-                        auto format = this->qtFormatToAk(audioFormat);
+                        auto format = this->d->qtFormatToAk(audioFormat);
 
                         if (format != AkAudioCaps::SampleFormat_none)
                             _supportedFormats << format;
@@ -290,41 +333,43 @@ void AudioDevQtAudio::updateDevices()
     defaultSource = QAudioDeviceInfo::defaultInputDevice().deviceName() + ":Input";
     defaultSink = QAudioDeviceInfo::defaultOutputDevice().deviceName() + ":Output";
 
-    if (this->m_pinCapsMap != pinCapsMap)
-        this->m_pinCapsMap = pinCapsMap;
+    if (this->d->m_pinCapsMap != pinCapsMap)
+        this->d->m_pinCapsMap = pinCapsMap;
 
-    if (this->m_supportedFormats != supportedFormats)
-        this->m_supportedFormats = supportedFormats;
+    if (this->d->m_supportedFormats != supportedFormats)
+        this->d->m_supportedFormats = supportedFormats;
 
-    if (this->m_supportedChannels != supportedChannels)
-        this->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedChannels != supportedChannels)
+        this->d->m_supportedChannels = supportedChannels;
 
-    if (this->m_supportedSampleRates != supportedSampleRates)
-        this->m_supportedSampleRates = supportedSampleRates;
+    if (this->d->m_supportedSampleRates != supportedSampleRates)
+        this->d->m_supportedSampleRates = supportedSampleRates;
 
-    if (this->m_pinDescriptionMap != pinDescriptionMap)
-        this->m_pinDescriptionMap = pinDescriptionMap;
+    if (this->d->m_pinDescriptionMap != pinDescriptionMap)
+        this->d->m_pinDescriptionMap = pinDescriptionMap;
 
-    if (this->m_sources != sources) {
-        this->m_sources = sources;
+    if (this->d->m_sources != sources) {
+        this->d->m_sources = sources;
         emit this->inputsChanged(sources.values());
     }
 
-    if (this->m_sinks != sinks) {
-        this->m_sinks = sinks;
+    if (this->d->m_sinks != sinks) {
+        this->d->m_sinks = sinks;
         emit this->outputsChanged(sinks.values());
     }
 
     QString defaultOutput = sinks.isEmpty()? "": defaultSink;
     QString defaultInput = sources.isEmpty()? "": defaultSource;
 
-    if (this->m_defaultSource != defaultInput) {
-        this->m_defaultSource = defaultInput;
+    if (this->d->m_defaultSource != defaultInput) {
+        this->d->m_defaultSource = defaultInput;
         emit this->defaultInputChanged(defaultInput);
     }
 
-    if (this->m_defaultSink != defaultOutput) {
-        this->m_defaultSink = defaultOutput;
+    if (this->d->m_defaultSink != defaultOutput) {
+        this->d->m_defaultSink = defaultOutput;
         emit this->defaultOutputChanged(defaultOutput);
     }
 }
+
+#include "moc_audiodevqtaudio.cpp"

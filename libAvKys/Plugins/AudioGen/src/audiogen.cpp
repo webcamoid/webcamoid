@@ -34,3 +34,5 @@ QStringList AudioGen::keys() const
 {
     return QStringList();
 }
+
+#include "moc_audiogen.cpp"

@@ -20,10 +20,7 @@
 #ifndef ABSTRACTSTREAM_H
 #define ABSTRACTSTREAM_H
 
-#include <QQueue>
-#include <QWaitCondition>
-#include <QtConcurrentRun>
-#include <akpacket.h>
+#include <QVariantMap>
 
 extern "C"
 {
@@ -35,8 +32,10 @@ extern "C"
 //#define CODEC_COMPLIANCE FF_COMPLIANCE_EXPERIMENTAL
 #define THREAD_WAIT_LIMIT 500
 
+class AbstractStreamPrivate;
 class MediaWriterFFmpeg;
 class AbstractStream;
+class AkPacket;
 
 typedef QSharedPointer<AbstractStream> AbstractStreamPtr;
 
@@ -71,29 +70,7 @@ class AbstractStream: public QObject
         void deleteFrame(AVFrame **frame);
 
     private:
-        uint m_index;
-        int m_streamIndex;
-        AVMediaType m_mediaType;
-        AVFormatContext *m_formatContext;
-        AVCodecContext *m_codecContext;
-        AVStream *m_stream;
-        QThreadPool m_threadPool;
-        AVDictionary *m_codecOptions;
-
-        // Packet queue and convert loop.
-        QQueue<AkPacket> m_packetQueue;
-        QMutex m_convertMutex;
-        QWaitCondition m_packetQueueNotFull;
-        QWaitCondition m_packetQueueNotEmpty;
-        QFuture<void> m_convertLoopResult;
-        bool m_runConvertLoop;
-
-        // Frame queue and encoding loop.
-        QFuture<void> m_encodeLoopResult;
-        bool m_runEncodeLoop;
-
-        void convertLoop();
-        void encodeLoop();
+        AbstractStreamPrivate *d;
 
     signals:
         void packetReady(AVPacket *packet);
@@ -101,6 +78,8 @@ class AbstractStream: public QObject
     public slots:
         virtual bool init();
         virtual void uninit();
+
+        friend class AbstractStreamPrivate;
 };
 
 #endif // ABSTRACTSTREAM_H

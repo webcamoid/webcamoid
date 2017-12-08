@@ -130,3 +130,5 @@ void OutputParams::resetNFrame()
 {
     this->setNFrame(0);
 }
+
+#include "moc_outputparams.cpp"

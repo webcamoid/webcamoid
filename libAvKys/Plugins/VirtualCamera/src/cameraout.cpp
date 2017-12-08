@@ -204,3 +204,5 @@ void CameraOut::resetRootMethod()
 {
     this->setRootMethod("");
 }
+
+#include "moc_cameraout.cpp"

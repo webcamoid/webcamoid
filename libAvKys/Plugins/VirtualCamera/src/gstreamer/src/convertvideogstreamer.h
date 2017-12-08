@@ -20,9 +20,6 @@
 #ifndef CONVERTVIDEOGSTREAMER_H
 #define CONVERTVIDEOGSTREAMER_H
 
-#include <akvideopacket.h>
-#include <gst/video/video.h>
-
 #include "convertvideo.h"
 
 class ConvertVideoGStreamer: public ConvertVideo

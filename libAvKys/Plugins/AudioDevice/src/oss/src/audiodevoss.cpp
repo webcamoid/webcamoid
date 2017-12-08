@@ -17,9 +17,20 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QDir>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <QMap>
+#include <QVector>
+#include <QDir>
+#include <QMutex>
+#include <QFileSystemWatcher>
+#include <akaudiopacket.h>
+
+#ifdef HAVE_OSS_LINUX
+#include <linux/soundcard.h>
+#else
+#include <sys/soundcard.h>
+#endif
 
 #include "audiodevoss.h"
 
@@ -44,12 +55,43 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
+class AudioDevOSSPrivate
+{
+    public:
+        AudioDevOSS *self;
+        QString m_error;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QStringList m_sinks;
+        QStringList m_sources;
+        QMap<QString, QString> m_pinDescriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
+        AkAudioCaps m_curCaps;
+        QFile m_deviceFile;
+        QFileSystemWatcher *m_fsWatcher;
+        QMutex m_mutex;
+
+        AudioDevOSSPrivate(AudioDevOSS *self):
+            self(self)
+        {
+        }
+
+        inline int fragmentSize(const QString &device, const AkAudioCaps &caps);
+        inline void fillDeviceInfo(const QString &device,
+                                   QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                   QList<int> *supportedChannels,
+                                   QList<int> *supportedSampleRates) const;
+};
+
 AudioDevOSS::AudioDevOSS(QObject *parent):
     AudioDev(parent)
 {
-    this->m_fsWatcher = new QFileSystemWatcher({"/dev"}, this);
+    this->d = new AudioDevOSSPrivate(this);
+    this->d->m_fsWatcher = new QFileSystemWatcher({"/dev"}, this);
 
-    QObject::connect(this->m_fsWatcher,
+    QObject::connect(this->d->m_fsWatcher,
                      &QFileSystemWatcher::directoryChanged,
                      this,
                      &AudioDevOSS::updateDevices);
@@ -61,43 +103,45 @@ AudioDevOSS::~AudioDevOSS()
 {
     this->uninit();
 
-    if (this->m_fsWatcher)
-        delete this->m_fsWatcher;
+    if (this->d->m_fsWatcher)
+        delete this->d->m_fsWatcher;
+
+    delete this->d;
 }
 
 QString AudioDevOSS::error() const
 {
-    return this->m_error;
+    return this->d->m_error;
 }
 
 QString AudioDevOSS::defaultInput()
 {
-    return this->m_defaultSource;
+    return this->d->m_defaultSource;
 }
 
 QString AudioDevOSS::defaultOutput()
 {
-    return this->m_defaultSink;
+    return this->d->m_defaultSink;
 }
 
 QStringList AudioDevOSS::inputs()
 {
-    return this->m_sources;
+    return this->d->m_sources;
 }
 
 QStringList AudioDevOSS::outputs()
 {
-    return this->m_sinks;
+    return this->d->m_sinks;
 }
 
 QString AudioDevOSS::description(const QString &device)
 {
-    return this->m_pinDescriptionMap.value(device);
+    return this->d->m_pinDescriptionMap.value(device);
 }
 
 AkAudioCaps AudioDevOSS::preferredFormat(const QString &device)
 {
-    return this->m_sinks.contains(device)?
+    return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             2,
                             44100):
@@ -108,81 +152,81 @@ AkAudioCaps AudioDevOSS::preferredFormat(const QString &device)
 
 QList<AkAudioCaps::SampleFormat> AudioDevOSS::supportedFormats(const QString &device)
 {
-    return this->m_supportedFormats.value(device);
+    return this->d->m_supportedFormats.value(device);
 }
 
 QList<int> AudioDevOSS::supportedChannels(const QString &device)
 {
-    return this->m_supportedChannels.value(device);
+    return this->d->m_supportedChannels.value(device);
 }
 
 QList<int> AudioDevOSS::supportedSampleRates(const QString &device)
 {
-    return this->m_supportedSampleRates.value(device);
+    return this->d->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevOSS::init(const QString &device, const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    int fragmentSize = this->fragmentSize(device, caps);
+    int fragmentSize = this->d->fragmentSize(device, caps);
 
     if (fragmentSize < 1)
         return false;
 
-    this->m_deviceFile.setFileName(QString(device)
-                                   .remove(QRegExp(":Input$|:Output$")));
+    this->d->m_deviceFile.setFileName(QString(device)
+                                      .remove(QRegExp(":Input$|:Output$")));
 
-    if (!this->m_deviceFile.open(device.endsWith(":Input")?
-                                 QIODevice::ReadOnly: QIODevice::WriteOnly))
+    if (!this->d->m_deviceFile.open(device.endsWith(":Input")?
+                                    QIODevice::ReadOnly: QIODevice::WriteOnly))
         return false;
 
     int format;
     format = sampleFormats->value(caps.format(), AFMT_QUERY);
 
-    if (ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_SETFMT, &format) < 0)
+    if (ioctl(this->d->m_deviceFile.handle(), SNDCTL_DSP_SETFMT, &format) < 0)
         goto init_fail;
 
     int stereo;
     stereo = caps.channels() > 1? 1: 0;
 
-    if (ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_STEREO, &stereo) < 0)
+    if (ioctl(this->d->m_deviceFile.handle(), SNDCTL_DSP_STEREO, &stereo) < 0)
         goto init_fail;
 
     int sampleRate;
     sampleRate = caps.rate();
 
-    if (ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_SPEED, &sampleRate) < 0)
+    if (ioctl(this->d->m_deviceFile.handle(), SNDCTL_DSP_SPEED, &sampleRate) < 0)
         goto init_fail;
 
     if (device.endsWith(":Output"))
-        ioctl(this->m_deviceFile.handle(), SNDCTL_DSP_SETFRAGMENT, &fragmentSize);
+        ioctl(this->d->m_deviceFile.handle(), SNDCTL_DSP_SETFRAGMENT, &fragmentSize);
 
-    this->m_curCaps = caps;
+    this->d->m_curCaps = caps;
 
     return true;
 
 init_fail:
-    this->m_deviceFile.close();
+    this->d->m_deviceFile.close();
 
     return false;
 }
 
 QByteArray AudioDevOSS::read(int samples)
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    if (!this->m_deviceFile.isOpen())
+    if (!this->d->m_deviceFile.isOpen())
         return QByteArray();
 
     QByteArray buffer;
     int bufferSize = samples
-                     * this->m_curCaps.channels()
-                     * AkAudioCaps::bitsPerSample(this->m_curCaps.format())
+                     * this->d->m_curCaps.channels()
+                     * AkAudioCaps::bitsPerSample(this->d->m_curCaps.format())
                      / 8;
 
     while (bufferSize > 0) {
-        auto data = this->m_deviceFile.read(bufferSize);
+        auto data = this->d->m_deviceFile.read(bufferSize);
 
         if (data.size() > 0) {
             buffer += data;
@@ -195,25 +239,26 @@ QByteArray AudioDevOSS::read(int samples)
 
 bool AudioDevOSS::write(const AkAudioPacket &packet)
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    if (!this->m_deviceFile.isOpen())
+    if (!this->d->m_deviceFile.isOpen())
         return false;
 
-    return this->m_deviceFile.write(packet.buffer()) > 0;
+    return this->d->m_deviceFile.write(packet.buffer()) > 0;
 }
 
 bool AudioDevOSS::uninit()
 {
-    QMutexLocker mutexLockeer(&this->m_mutex);
+    QMutexLocker mutexLockeer(&this->d->m_mutex);
 
-    this->m_deviceFile.close();
-    this->m_curCaps = AkAudioCaps();
+    this->d->m_deviceFile.close();
+    this->d->m_curCaps = AkAudioCaps();
 
     return true;
 }
 
-int AudioDevOSS::fragmentSize(const QString &device, const AkAudioCaps &caps)
+int AudioDevOSSPrivate::fragmentSize(const QString &device,
+                                     const AkAudioCaps &caps)
 {
     if (!device.endsWith(":Output"))
         return 0;
@@ -225,8 +270,7 @@ int AudioDevOSS::fragmentSize(const QString &device, const AkAudioCaps &caps)
     if (!deviceFile.open(QIODevice::WriteOnly))
         return 0;
 
-    int format;
-    format = sampleFormats->value(caps.format(), AFMT_QUERY);
+    int format = sampleFormats->value(caps.format(), AFMT_QUERY);
 
     if (ioctl(deviceFile.handle(), SNDCTL_DSP_SETFMT, &format) < 0) {
         deviceFile.close();
@@ -276,10 +320,10 @@ int AudioDevOSS::fragmentSize(const QString &device, const AkAudioCaps &caps)
     return fragmentSize;
 }
 
-void AudioDevOSS::fillDeviceInfo(const QString &device,
-                                 QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                 QList<int> *supportedChannels,
-                                 QList<int> *supportedSampleRates) const
+void AudioDevOSSPrivate::fillDeviceInfo(const QString &device,
+                                        QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                        QList<int> *supportedChannels,
+                                        QList<int> *supportedSampleRates) const
 {
     QFile pcmFile(QString(device)
                     .remove(QRegExp(":Input$|:Output$")));
@@ -323,7 +367,7 @@ void AudioDevOSS::fillDeviceInfo(const QString &device,
         if (ioctl(pcmFile.handle(), SNDCTL_DSP_STEREO, &channels) >= 0)
             supportedChannels->append(channels + 1);
 
-    for (auto &rate: this->m_commonSampleRates)
+    for (auto &rate: self->commonSampleRates())
         if (ioctl(pcmFile.handle(), SNDCTL_DSP_SPEED, &rate) >= 0)
             supportedSampleRates->append(rate);
 
@@ -333,12 +377,12 @@ deviceCaps_fail:
 
 void AudioDevOSS::updateDevices()
 {
-    decltype(this->m_sources) inputs;
-    decltype(this->m_sinks) outputs;
-    decltype(this->m_pinDescriptionMap) pinDescriptionMap;
-    decltype(this->m_supportedFormats) supportedFormats;
-    decltype(this->m_supportedChannels) supportedChannels;
-    decltype(this->m_supportedSampleRates) supportedSampleRates;
+    decltype(this->d->m_sources) inputs;
+    decltype(this->d->m_sinks) outputs;
+    decltype(this->d->m_pinDescriptionMap) pinDescriptionMap;
+    decltype(this->d->m_supportedFormats) supportedFormats;
+    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     QDir devicesDir("/dev");
 
@@ -381,19 +425,19 @@ void AudioDevOSS::updateDevices()
         QList<int> _supportedSampleRates;
 
         auto input = dspDevice + ":Input";
-        this->fillDeviceInfo(input,
-                             &_supportedFormats,
-                             &_supportedChannels,
-                             &_supportedSampleRates);
+        this->d->fillDeviceInfo(input,
+                                &_supportedFormats,
+                                &_supportedChannels,
+                                &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
-            _supportedFormats = this->m_supportedFormats.value(input);
+            _supportedFormats = this->d->m_supportedFormats.value(input);
 
         if (_supportedChannels.isEmpty())
-            _supportedChannels = this->m_supportedChannels.value(input);
+            _supportedChannels = this->d->m_supportedChannels.value(input);
 
         if (_supportedSampleRates.isEmpty())
-            _supportedSampleRates = this->m_supportedSampleRates.value(input);
+            _supportedSampleRates = this->d->m_supportedSampleRates.value(input);
 
         if (!_supportedFormats.isEmpty()
             && !_supportedChannels.isEmpty()
@@ -410,19 +454,19 @@ void AudioDevOSS::updateDevices()
         _supportedSampleRates.clear();
 
         auto output = dspDevice + ":Output";
-        this->fillDeviceInfo(output,
-                             &_supportedFormats,
-                             &_supportedChannels,
-                             &_supportedSampleRates);
+        this->d->fillDeviceInfo(output,
+                                &_supportedFormats,
+                                &_supportedChannels,
+                                &_supportedSampleRates);
 
         if (_supportedFormats.isEmpty())
-            _supportedFormats = this->m_supportedFormats.value(output);
+            _supportedFormats = this->d->m_supportedFormats.value(output);
 
         if (_supportedChannels.isEmpty())
-            _supportedChannels = this->m_supportedChannels.value(output);
+            _supportedChannels = this->d->m_supportedChannels.value(output);
 
         if (_supportedSampleRates.isEmpty())
-            _supportedSampleRates = this->m_supportedSampleRates.value(output);
+            _supportedSampleRates = this->d->m_supportedSampleRates.value(output);
 
         if (!_supportedFormats.isEmpty()
             && !_supportedChannels.isEmpty()
@@ -435,38 +479,40 @@ void AudioDevOSS::updateDevices()
         }
     }
 
-    if (this->m_supportedFormats != supportedFormats)
-        this->m_supportedFormats = supportedFormats;
+    if (this->d->m_supportedFormats != supportedFormats)
+        this->d->m_supportedFormats = supportedFormats;
 
-    if (this->m_supportedChannels != supportedChannels)
-        this->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedChannels != supportedChannels)
+        this->d->m_supportedChannels = supportedChannels;
 
-    if (this->m_supportedSampleRates != supportedSampleRates)
-        this->m_supportedSampleRates = supportedSampleRates;
+    if (this->d->m_supportedSampleRates != supportedSampleRates)
+        this->d->m_supportedSampleRates = supportedSampleRates;
 
-    if (this->m_pinDescriptionMap != pinDescriptionMap)
-        this->m_pinDescriptionMap = pinDescriptionMap;
+    if (this->d->m_pinDescriptionMap != pinDescriptionMap)
+        this->d->m_pinDescriptionMap = pinDescriptionMap;
 
-    if (this->m_sources != inputs) {
-        this->m_sources = inputs;
+    if (this->d->m_sources != inputs) {
+        this->d->m_sources = inputs;
         emit this->inputsChanged(inputs);
     }
 
-    if (this->m_sinks != outputs) {
-        this->m_sinks = outputs;
+    if (this->d->m_sinks != outputs) {
+        this->d->m_sinks = outputs;
         emit this->outputsChanged(outputs);
     }
 
     QString defaultOutput = outputs.isEmpty()? "": outputs.first();
     QString defaultInput = inputs.isEmpty()? "": inputs.first();
 
-    if (this->m_defaultSource != defaultInput) {
-        this->m_defaultSource = defaultInput;
+    if (this->d->m_defaultSource != defaultInput) {
+        this->d->m_defaultSource = defaultInput;
         emit this->defaultInputChanged(defaultInput);
     }
 
-    if (this->m_defaultSink != defaultOutput) {
-        this->m_defaultSink = defaultOutput;
+    if (this->d->m_defaultSink != defaultOutput) {
+        this->d->m_defaultSink = defaultOutput;
         emit this->defaultOutputChanged(defaultOutput);
     }
 }
+
+#include "moc_audiodevoss.cpp"

@@ -17,10 +17,26 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
+#include <QDateTime>
+#include <QImage>
+#include <QMutex>
+#include <QWaitCondition>
+#include <QtMath>
 #include <akutils.h>
+#include <akcaps.h>
+#include <akfrac.h>
+#include <akpacket.h>
+#include <akvideopacket.h>
 
-#include "mediawriterffmpeg.h"
+extern "C"
+{
+    #include <libavutil/imgutils.h>
+    #include <libswscale/swscale.h>
+}
+
 #include "videostream.h"
+#include "mediawriterffmpeg.h"
 
 struct XRGB
 {
@@ -38,6 +54,27 @@ struct BGRX
     quint8 x;
 };
 
+class VideoStreamPrivate
+{
+    public:
+        AVFrame *m_frame;
+        SwsContext *m_scaleContext;
+        QMutex m_frameMutex;
+        int64_t m_lastPts;
+        int64_t m_refPts;
+        QWaitCondition m_frameReady;
+
+        VideoStreamPrivate():
+            m_frame(nullptr),
+            m_scaleContext(nullptr),
+            m_lastPts(AV_NOPTS_VALUE),
+            m_refPts(AV_NOPTS_VALUE)
+        {
+        }
+
+        inline QImage swapChannels(const QImage &image) const;
+};
+
 VideoStream::VideoStream(const AVFormatContext *formatContext,
                          uint index,
                          int streamIndex,
@@ -52,10 +89,7 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
                    mediaWriter,
                    parent)
 {
-    this->m_frame = nullptr;
-    this->m_scaleContext = nullptr;
-    this->m_lastPts = AV_NOPTS_VALUE;
-    this->m_refPts = AV_NOPTS_VALUE;
+    this->d = new VideoStreamPrivate;
     auto codecContext = this->codecContext();
     auto codec = codecContext->codec;
     auto defaultCodecParams = mediaWriter->defaultCodecParams(codec->name);
@@ -157,11 +191,12 @@ VideoStream::VideoStream(const AVFormatContext *formatContext,
 VideoStream::~VideoStream()
 {
     this->uninit();
-    this->deleteFrame(&this->m_frame);
-    sws_freeContext(this->m_scaleContext);
+    this->deleteFrame(&this->d->m_frame);
+    sws_freeContext(this->d->m_scaleContext);
+    delete this->d;
 }
 
-QImage VideoStream::swapChannels(const QImage &image) const
+QImage VideoStreamPrivate::swapChannels(const QImage &image) const
 {
     QImage swapped(image.size(), image.format());
 
@@ -200,7 +235,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
 
     QImage image = AkUtils::packetToImage(packet);
     image = image.convertToFormat(QImage::Format_ARGB32);
-    image = this->swapChannels(image);
+    image = this->d->swapChannels(image);
     AkVideoPacket videoPacket(AkUtils::imageToPacket(image, packet));
 
     QString format = AkVideoCaps::pixelFormatToString(videoPacket.caps().format());
@@ -208,8 +243,8 @@ void VideoStream::convertPacket(const AkPacket &packet)
     int iWidth = videoPacket.caps().width();
     int iHeight = videoPacket.caps().height();
 
-    this->m_scaleContext =
-            sws_getCachedContext(this->m_scaleContext,
+    this->d->m_scaleContext =
+            sws_getCachedContext(this->d->m_scaleContext,
                                  iWidth,
                                  iHeight,
                                  iFormat,
@@ -221,7 +256,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
                                  nullptr,
                                  nullptr);
 
-    if (!this->m_scaleContext)
+    if (!this->d->m_scaleContext)
         return;
 
     AVFrame iFrame;
@@ -254,7 +289,7 @@ void VideoStream::convertPacket(const AkPacket &packet)
                        4) < 0)
         return;
 
-    sws_scale(this->m_scaleContext,
+    sws_scale(this->d->m_scaleContext,
               iFrame.data,
               iFrame.linesize,
               0,
@@ -262,11 +297,11 @@ void VideoStream::convertPacket(const AkPacket &packet)
               oFrame->data,
               oFrame->linesize);
 
-    this->m_frameMutex.lock();
-    this->deleteFrame(&this->m_frame);
-    this->m_frame = oFrame;
-    this->m_frameReady.wakeAll();
-    this->m_frameMutex.unlock();
+    this->d->m_frameMutex.lock();
+    this->deleteFrame(&this->d->m_frame);
+    this->d->m_frame = oFrame;
+    this->d->m_frameReady.wakeAll();
+    this->d->m_frameMutex.unlock();
 }
 
 int VideoStream::encodeData(AVFrame *frame)
@@ -286,16 +321,16 @@ int VideoStream::encodeData(AVFrame *frame)
                               / outTimeBase.value()
                               / 1000);
 
-        if (this->m_refPts == AV_NOPTS_VALUE)
-            this->m_lastPts = this->m_refPts = pts;
-        else if (this->m_lastPts != pts)
-            this->m_lastPts = pts;
+        if (this->d->m_refPts == AV_NOPTS_VALUE)
+            this->d->m_lastPts = this->d->m_refPts = pts;
+        else if (this->d->m_lastPts != pts)
+            this->d->m_lastPts = pts;
         else
             return AVERROR(EAGAIN);
 
-        frame->pts = this->m_lastPts - this->m_refPts;
+        frame->pts = this->d->m_lastPts - this->d->m_refPts;
     } else {
-        this->m_lastPts++;
+        this->d->m_lastPts++;
     }
 
     auto stream = this->stream();
@@ -307,7 +342,7 @@ int VideoStream::encodeData(AVFrame *frame)
         pkt.flags |= AV_PKT_FLAG_KEY;
         pkt.data = frame? frame->data[0]: nullptr;
         pkt.size = sizeof(AVPicture);
-        pkt.pts = frame? frame->pts: this->m_lastPts;
+        pkt.pts = frame? frame->pts: this->d->m_lastPts;
         pkt.stream_index = this->streamIndex();
 
         this->rescaleTS(&pkt, codecContext->time_base, stream->time_base);
@@ -382,18 +417,21 @@ int VideoStream::encodeData(AVFrame *frame)
 
 AVFrame *VideoStream::dequeueFrame()
 {
-    this->m_frameMutex.lock();
+    this->d->m_frameMutex.lock();
 
-    if (!this->m_frame)
-        if (!this->m_frameReady.wait(&this->m_frameMutex, THREAD_WAIT_LIMIT)) {
-            this->m_frameMutex.unlock();
+    if (!this->d->m_frame)
+        if (!this->d->m_frameReady.wait(&this->d->m_frameMutex,
+                                        THREAD_WAIT_LIMIT)) {
+            this->d->m_frameMutex.unlock();
 
             return nullptr;
         }
 
-    auto frame = this->m_frame;
-    this->m_frame = nullptr;
-    this->m_frameMutex.unlock();
+    auto frame = this->d->m_frame;
+    this->d->m_frame = nullptr;
+    this->d->m_frameMutex.unlock();
 
     return frame;
 }
+
+#include "moc_videostream.cpp"

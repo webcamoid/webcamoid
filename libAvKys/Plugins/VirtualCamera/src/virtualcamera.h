@@ -20,7 +20,7 @@
 #ifndef VIRTUALCAMERA_H
 #define VIRTUALCAMERA_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class VirtualCamera: public QObject, public AkPlugin
 {

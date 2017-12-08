@@ -20,17 +20,9 @@
 #ifndef VIDEOSTREAM_H
 #define VIDEOSTREAM_H
 
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libswscale/swscale.h>
-}
-
-#ifdef PixelFormat
-#undef PixelFormat
-#endif
-
 #include "abstractstream.h"
+
+class VideoStreamPrivate;
 
 class VideoStream: public AbstractStream
 {
@@ -51,15 +43,7 @@ class VideoStream: public AbstractStream
         void processData(AVFrame *frame);
 
     private:
-        SwsContext *m_scaleContext;
-
-        // Sync properties.
-        qreal m_lastPts;
-
-        AkFrac fps() const;
-        AkPacket convert(AVFrame *iFrame);
-        int64_t bestEffortTimestamp(const AVFrame *frame) const;
-        AVFrame *copyFrame(AVFrame *frame) const;
+        VideoStreamPrivate *d;
 };
 
 #endif // VIDEOSTREAM_H

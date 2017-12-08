@@ -1,5 +1,6 @@
 qmake Webcamoid.pro ^
     CONFIG+=%CONFIGURATION% ^
+    CONFIG+=silent ^
     PREFIX="%INSTALL_PREFIX%" ^
     FFMPEGINCLUDES="%FFMPEG_DEV_PATH%\include" ^
     FFMPEGLIBS=-L"%FFMPEG_DEV_PATH%\lib" ^

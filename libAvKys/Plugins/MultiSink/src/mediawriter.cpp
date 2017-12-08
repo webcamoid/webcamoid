@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QVariantMap>
+
 #include "mediawriter.h"
 
 MediaWriter::MediaWriter(QObject *parent):
@@ -265,3 +267,5 @@ bool MediaWriter::init()
 void MediaWriter::uninit()
 {
 }
+
+#include "moc_mediawriter.cpp"

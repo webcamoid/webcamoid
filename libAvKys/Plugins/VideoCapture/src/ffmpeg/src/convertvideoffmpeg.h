@@ -20,25 +20,10 @@
 #ifndef CONVERTVIDEOFFMPEG_H
 #define CONVERTVIDEOFFMPEG_H
 
-#include <QtConcurrent>
-#include <QQueue>
-#include <QMutex>
-#include <ak.h>
-#include <akvideopacket.h>
-
-extern "C"
-{
-    #include <libavcodec/avcodec.h>
-    #include <libswscale/swscale.h>
-    #include <libavutil/imgutils.h>
-    #include <libavutil/pixdesc.h>
-    #include <libavutil/mem.h>
-}
-
 #include "convertvideo.h"
-#include "clock.h"
 
-typedef QSharedPointer<AVFrame> FramePtr;
+class ConvertVideoFFmpegPrivate;
+struct AVFrame;
 
 class ConvertVideoFFmpeg: public ConvertVideo
 {
@@ -67,41 +52,7 @@ class ConvertVideoFFmpeg: public ConvertVideo
         Q_INVOKABLE void uninit();
 
     private:
-        SwsContext *m_scaleContext;
-        AVDictionary *m_codecOptions;
-        AVCodecContext *m_codecContext;
-        qint64 m_maxPacketQueueSize;
-        bool m_showLog;
-        int m_maxData;
-        QThreadPool m_threadPool;
-        QMutex m_packetMutex;
-        QMutex m_dataMutex;
-        QWaitCondition m_packetQueueNotEmpty;
-        QWaitCondition m_packetQueueNotFull;
-        QWaitCondition m_dataQueueNotEmpty;
-        QWaitCondition m_dataQueueNotFull;
-        QQueue<AkPacket> m_packets;
-        QQueue<FramePtr> m_frames;
-        qint64 m_packetQueueSize;
-        bool m_runPacketLoop;
-        bool m_runDataLoop;
-        QFuture<void> m_packetLoopResult;
-        QFuture<void> m_dataLoopResult;
-        qint64 m_id;
-        Clock m_globalClock;
-        AkFrac m_fps;
-
-        // Sync properties.
-        qreal m_lastPts;
-
-        static void packetLoop(ConvertVideoFFmpeg *stream);
-        static void dataLoop(ConvertVideoFFmpeg *stream);
-        static void deleteFrame(AVFrame *frame);
-        void processData(const FramePtr &frame);
-        void convert(const FramePtr &frame);
-        void log(qreal diff);
-        int64_t bestEffortTimestamp(const AVFrame *frame) const;
-        AVFrame *copyFrame(AVFrame *frame) const;
+        ConvertVideoFFmpegPrivate *d;
 
     signals:
         void maxPacketQueueSizeChanged(qint64 maxPacketQueueSize);
@@ -112,6 +63,8 @@ class ConvertVideoFFmpeg: public ConvertVideo
         void setShowLog(bool showLog);
         void resetMaxPacketQueueSize();
         void resetShowLog();
+
+        friend class ConvertVideoFFmpegPrivate;
 };
 
 #endif // CONVERTVIDEOFFMPEG_H

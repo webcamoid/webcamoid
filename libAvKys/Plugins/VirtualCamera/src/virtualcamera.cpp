@@ -34,3 +34,5 @@ QStringList VirtualCamera::keys() const
 {
     return QStringList();
 }
+
+#include "moc_virtualcamera.cpp"

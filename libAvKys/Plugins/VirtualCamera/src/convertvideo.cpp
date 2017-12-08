@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <akpacket.h>
+
 #include "convertvideo.h"
 
 ConvertVideo::ConvertVideo(QObject *parent):
@@ -35,3 +37,5 @@ AkPacket ConvertVideo::convert(const AkPacket &packet, const AkCaps &oCaps)
 
     return AkPacket();
 }
+
+#include "moc_convertvideo.cpp"

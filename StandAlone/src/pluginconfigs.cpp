@@ -19,23 +19,41 @@
 
 #include <QDir>
 #include <QSettings>
+#include <QQmlContext>
+#include <QQmlApplicationEngine>
 #include <ak.h>
+#include <akelement.h>
 
 #include "pluginconfigs.h"
+#include "clioptions.h"
+
+class PluginConfigsPrivate
+{
+    public:
+        QQmlApplicationEngine *m_engine;
+        QStringList m_plugins;
+
+        PluginConfigsPrivate():
+            m_engine(nullptr)
+        {
+        }
+
+        inline QString convertToAbsolute(const QString &path) const;
+};
 
 PluginConfigs::PluginConfigs(QQmlApplicationEngine *engine, QObject *parent):
-    QObject(parent),
-    m_engine(nullptr)
+    QObject(parent)
 {
+    this->d = new PluginConfigsPrivate;
     this->setQmlEngine(engine);
 }
 
 PluginConfigs::PluginConfigs(const CliOptions &cliOptions,
                              QQmlApplicationEngine *engine,
                              QObject *parent):
-    QObject(parent),
-    m_engine(nullptr)
+    QObject(parent)
 {
+    this->d = new PluginConfigsPrivate;
     this->setQmlEngine(engine);
     this->loadProperties(cliOptions);
 }
@@ -43,9 +61,10 @@ PluginConfigs::PluginConfigs(const CliOptions &cliOptions,
 PluginConfigs::~PluginConfigs()
 {
     this->saveProperties();
+    delete this->d;
 }
 
-QString PluginConfigs::convertToAbsolute(const QString &path) const
+QString PluginConfigsPrivate::convertToAbsolute(const QString &path) const
 {
     if (!QDir::isRelativePath(path))
         return QDir::cleanPath(path);
@@ -58,10 +77,10 @@ QString PluginConfigs::convertToAbsolute(const QString &path) const
 
 void PluginConfigs::setQmlEngine(QQmlApplicationEngine *engine)
 {
-    if (this->m_engine == engine)
+    if (this->d->m_engine == engine)
         return;
 
-    this->m_engine = engine;
+    this->d->m_engine = engine;
 
     if (engine)
         engine->rootContext()->setContextProperty("PluginConfigs", this);
@@ -218,7 +237,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
         cacheConfig.endGroup();
     }
 
-    this->m_plugins = AkElement::listPluginPaths();
+    this->d->m_plugins = AkElement::listPluginPaths();
 }
 
 void PluginConfigs::saveProperties()
@@ -318,8 +337,10 @@ void PluginConfigs::saveProperties()
         cacheConfig.endGroup();
     }
 
-    if (this->m_plugins != pluginsPaths) {
-        this->m_plugins = pluginsPaths;
+    if (this->d->m_plugins != pluginsPaths) {
+        this->d->m_plugins = pluginsPaths;
         emit this->pluginsChanged(pluginsPaths);
     }
 }
+
+#include "moc_pluginconfigs.cpp"

@@ -21,9 +21,10 @@
 #define CLOCK_H
 
 #include <QObject>
-#include <QReadWriteLock>
 
 #define THREAD_WAIT_LIMIT 500
+
+class ClockPrivate;
 
 class Clock: public QObject
 {
@@ -35,12 +36,12 @@ class Clock: public QObject
 
     public:
         Clock(QObject *parent=nullptr);
+        ~Clock();
 
         Q_INVOKABLE qreal clock();
 
     private:
-        QReadWriteLock m_mutex;
-        qreal m_timeDrift;
+        ClockPrivate *d;
 
     public slots:
         void setClock(qreal clock);

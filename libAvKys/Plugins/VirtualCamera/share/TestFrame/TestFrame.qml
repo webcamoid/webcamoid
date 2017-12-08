@@ -55,7 +55,7 @@ Rectangle {
                 Text {
                     id: programName
                     color: "#ffffff"
-                    text: qsTr("Webcamoid")
+                    text: "Webcamoid"
                     font.weight: Font.Bold
                     font.family: quickSand.name
                     font.pixelSize: 40
@@ -63,7 +63,7 @@ Rectangle {
 
                 Text {
                     color: "#ffffff"
-                    text: qsTr("The ultimate webcam suite!")
+                    text: "The ultimate webcam suite!"
                     leftPadding: 24
                     font.weight: Font.Bold
                     font.family: quickSand.name

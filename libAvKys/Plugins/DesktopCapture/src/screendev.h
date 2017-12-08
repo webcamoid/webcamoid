@@ -20,9 +20,12 @@
 #ifndef SCREENDEV_H
 #define SCREENDEV_H
 
-#include <ak.h>
+#include <QObject>
 
 class DesktopCaptureElement;
+class AkFrac;
+class AkCaps;
+class AkPacket;
 
 class ScreenDev: public QObject
 {

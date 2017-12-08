@@ -20,7 +20,7 @@
 #ifndef PROBE_H
 #define PROBE_H
 
-#include <ak.h>
+#include <akplugin.h>
 
 class Probe: public QObject, public AkPlugin
 {

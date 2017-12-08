@@ -20,7 +20,11 @@
 #ifndef CAMERAOUT_H
 #define CAMERAOUT_H
 
-#include <akpacket.h>
+#include <akcaps.h>
+
+class CameraOut;
+class AkPacket;
+typedef QSharedPointer<CameraOut> CameraOutPtr;
 
 class CameraOut: public QObject
 {

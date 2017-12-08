@@ -20,9 +20,9 @@
 #ifndef AUDIOGENELEMENT_H
 #define AUDIOGENELEMENT_H
 
-#include <QThreadPool>
-#include <QtConcurrent>
-#include <ak.h>
+#include <akelement.h>
+
+class AudioGenElementPrivate;
 
 class AudioGenElement: public AkElement
 {
@@ -66,6 +66,7 @@ class AudioGenElement: public AkElement
         };
 
         explicit AudioGenElement();
+        ~AudioGenElement();
 
         Q_INVOKABLE QString caps() const;
         Q_INVOKABLE QString waveType() const;
@@ -74,20 +75,7 @@ class AudioGenElement: public AkElement
         Q_INVOKABLE qreal sampleDuration() const;
 
     private:
-        AkCaps m_caps;
-        WaveType m_waveType;
-        qreal m_frequency;
-        qreal m_volume;
-        qreal m_sampleDuration;
-        AkElementPtr m_audioConvert;
-        QThreadPool m_threadPool;
-        QFuture<void> m_readFramesLoopResult;
-        QMutex m_mutex;
-        bool m_readFramesLoop;
-        bool m_pause;
-        qint64 m_id;
-
-        void readFramesLoop();
+        AudioGenElementPrivate *d;
 
     signals:
         void capsChanged(const QString &caps);

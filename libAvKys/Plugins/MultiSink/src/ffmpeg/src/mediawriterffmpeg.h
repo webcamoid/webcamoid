@@ -20,27 +20,12 @@
 #ifndef MEDIAWRITERFFMPEG_H
 #define MEDIAWRITERFFMPEG_H
 
-#include <QtConcurrent>
-#include <QQueue>
-#include <QMutex>
-#include <QWaitCondition>
-#include <akaudiopacket.h>
-#include <akvideopacket.h>
-
-extern "C"
-{
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
-    #include <libavutil/imgutils.h>
-    #include <libavutil/pixdesc.h>
-    #include <libavutil/channel_layout.h>
-    #include <libavutil/opt.h>
-    #include <libavutil/parseutils.h>
-    #include <libavutil/mathematics.h>
-}
-
 #include "mediawriter.h"
-#include "abstractstream.h"
+
+class MediaWriterFFmpegPrivate;
+class AkAudioCaps;
+class AkVideoCaps;
+class AVPacket;
 
 class MediaWriterFFmpeg: public MediaWriter
 {
@@ -77,25 +62,7 @@ class MediaWriterFFmpeg: public MediaWriter
         Q_INVOKABLE QVariantList codecOptions(int index);
 
     private:
-        QString m_outputFormat;
-        QMap<QString, QVariantMap> m_formatOptions;
-        QMap<QString, QVariantMap> m_codecOptions;
-        QList<QVariantMap> m_streamConfigs;
-        AVFormatContext *m_formatContext;
-        QThreadPool m_threadPool;
-        qint64 m_maxPacketQueueSize;
-        bool m_isRecording;
-        QMutex m_packetMutex;
-        QMutex m_audioMutex;
-        QMutex m_videoMutex;
-        QMutex m_subtitleMutex;
-        QMutex m_writeMutex;
-        QMap<int, AbstractStreamPtr> m_streamsMap;
-
-        QString guessFormat();
-        QVariantList parseOptions(const AVClass *avClass) const;
-        AVDictionary *formatContextOptions(AVFormatContext *formatContext,
-                                           const QVariantMap &options);
+        MediaWriterFFmpegPrivate *d;
 
         AkVideoCaps nearestDVCaps(const AkVideoCaps &caps) const;
         AkVideoCaps nearestDNxHDCaps(const AkVideoCaps &caps) const;

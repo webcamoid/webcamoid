@@ -19,42 +19,72 @@
 
 #include <QFile>
 #include <QSettings>
+#include <QQmlContext>
 #include <QQuickItem>
 #include <QQmlProperty>
+#include <QQmlApplicationEngine>
+#include <akcaps.h>
 
 #include "mediasource.h"
 
-MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
-    QObject(parent),
-    m_engine(nullptr)
+class MediaSourcePrivate
 {
-    this->m_inputState = AkElement::ElementStateNull;
-    this->m_playOnStart = false;
-    this->setQmlEngine(engine);
-    this->m_pipeline = AkElement::create("Bin", "pipeline");
+    public:
+        QQmlApplicationEngine *m_engine;
+        QString m_stream;
+        QStringList m_streams;
+        QStringList m_cameras;
+        QStringList m_desktops;
+        QVariantMap m_uris;
+        QMap<QString, QString> m_descriptions;
+        AkCaps m_audioCaps;
+        AkCaps m_videoCaps;
+        AkElement::ElementState m_inputState;
+        bool m_playOnStart;
+        AkElementPtr m_pipeline;
+        AkElementPtr m_cameraCapture;
+        AkElementPtr m_desktopCapture;
+        AkElementPtr m_uriCapture;
 
-    if (this->m_pipeline) {
+        MediaSourcePrivate():
+            m_engine(nullptr),
+            m_inputState(AkElement::ElementStateNull),
+            m_playOnStart(false)
+        {
+        }
+
+        inline AkElementPtr sourceElement(const QString &stream) const;
+};
+
+MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
+    QObject(parent)
+{
+    this->d = new MediaSourcePrivate;
+    this->setQmlEngine(engine);
+    this->d->m_pipeline = AkElement::create("Bin", "pipeline");
+
+    if (this->d->m_pipeline) {
         QFile jsonFile(":/Webcamoid/share/sourcespipeline.json");
         jsonFile.open(QFile::ReadOnly);
         QString description(jsonFile.readAll());
         jsonFile.close();
 
-        this->m_pipeline->setProperty("description", description);
+        this->d->m_pipeline->setProperty("description", description);
 
-        QMetaObject::invokeMethod(this->m_pipeline.data(),
+        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->m_cameraCapture),
+                                  Q_RETURN_ARG(AkElementPtr, this->d->m_cameraCapture),
                                   Q_ARG(QString, "cameraCapture"));
-        QMetaObject::invokeMethod(this->m_pipeline.data(),
+        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->m_desktopCapture),
+                                  Q_RETURN_ARG(AkElementPtr, this->d->m_desktopCapture),
                                   Q_ARG(QString, "desktopCapture"));
-        QMetaObject::invokeMethod(this->m_pipeline.data(),
+        QMetaObject::invokeMethod(this->d->m_pipeline.data(),
                                   "element",
-                                  Q_RETURN_ARG(AkElementPtr, this->m_uriCapture),
+                                  Q_RETURN_ARG(AkElementPtr, this->d->m_uriCapture),
                                   Q_ARG(QString, "uriCapture"));
 
-        QObject::connect(this->m_pipeline.data(),
+        QObject::connect(this->d->m_pipeline.data(),
                          SIGNAL(oStream(const AkPacket &)),
                          this,
                          SIGNAL(oStream(const AkPacket &)),
@@ -78,46 +108,46 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
                      this,
                      &MediaSource::savePlayOnStart);
 
-    if (this->m_cameraCapture) {
-        QObject::connect(this->m_cameraCapture.data(),
+    if (this->d->m_cameraCapture) {
+        QObject::connect(this->d->m_cameraCapture.data(),
                          SIGNAL(mediasChanged(const QStringList &)),
                          this,
                          SLOT(updateStreams()));
-        QObject::connect(this->m_cameraCapture.data(),
+        QObject::connect(this->d->m_cameraCapture.data(),
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
-        QObject::connect(this->m_cameraCapture.data(),
+        QObject::connect(this->d->m_cameraCapture.data(),
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
                          SLOT(saveVideoCaptureCodecLib(const QString &)));
-        QObject::connect(this->m_cameraCapture.data(),
+        QObject::connect(this->d->m_cameraCapture.data(),
                          SIGNAL(captureLibChanged(const QString &)),
                          this,
                          SLOT(saveVideoCaptureCaptureLib(const QString &)));
     }
 
-    if (this->m_desktopCapture) {
-        QObject::connect(this->m_desktopCapture.data(),
+    if (this->d->m_desktopCapture) {
+        QObject::connect(this->d->m_desktopCapture.data(),
                          SIGNAL(mediasChanged(const QStringList &)),
                          this,
                          SLOT(updateStreams()));
-        QObject::connect(this->m_desktopCapture.data(),
+        QObject::connect(this->d->m_desktopCapture.data(),
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
-        QObject::connect(this->m_desktopCapture.data(),
+        QObject::connect(this->d->m_desktopCapture.data(),
                          SIGNAL(captureLibChanged(const QString &)),
                          this,
                          SLOT(saveDesktopCaptureCaptureLib(const QString &)));
     }
 
-    if (this->m_uriCapture) {
-        QObject::connect(this->m_uriCapture.data(),
+    if (this->d->m_uriCapture) {
+        QObject::connect(this->d->m_uriCapture.data(),
                          SIGNAL(error(const QString &)),
                          this,
                          SIGNAL(error(const QString &)));
-        QObject::connect(this->m_uriCapture.data(),
+        QObject::connect(this->d->m_uriCapture.data(),
                          SIGNAL(codecLibChanged(const QString &)),
                          this,
                          SLOT(saveMultiSrcCodecLib(const QString &)));
@@ -126,43 +156,43 @@ MediaSource::MediaSource(QQmlApplicationEngine *engine, QObject *parent):
     // Setup streams
     QStringList cameras;
 
-    if (this->m_cameraCapture)
-        QMetaObject::invokeMethod(this->m_cameraCapture.data(),
+    if (this->d->m_cameraCapture)
+        QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
                                   "medias",
                                   Q_RETURN_ARG(QStringList, cameras));
 
     QStringList desktops;
 
-    if (this->m_desktopCapture)
-        QMetaObject::invokeMethod(this->m_desktopCapture.data(),
+    if (this->d->m_desktopCapture)
+        QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
                                   "medias",
                                   Q_RETURN_ARG(QStringList, desktops));
 
     for (const QString &camera: cameras) {
         QString description;
 
-        QMetaObject::invokeMethod(this->m_cameraCapture.data(),
+        QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
                                   "description",
                                   Q_RETURN_ARG(QString, description),
                                   Q_ARG(QString, camera));
 
-        this->m_descriptions[camera] = description;
+        this->d->m_descriptions[camera] = description;
     }
 
     for (const QString &desktop: desktops) {
         QString description;
 
-        QMetaObject::invokeMethod(this->m_desktopCapture.data(),
+        QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
                                   "description",
                                   Q_RETURN_ARG(QString, description),
                                   Q_ARG(QString, desktop));
 
-        this->m_descriptions[desktop] = description;
+        this->d->m_descriptions[desktop] = description;
     }
 
-    this->m_cameras = cameras;
-    this->m_desktops = desktops;
-    this->m_streams = cameras + desktops;
+    this->d->m_cameras = cameras;
+    this->d->m_desktops = desktops;
+    this->d->m_streams = cameras + desktops;
 
     this->loadProperties();
 }
@@ -171,68 +201,69 @@ MediaSource::~MediaSource()
 {
     this->setState(AkElement::ElementStateNull);
     this->saveProperties();
+    delete this->d;
 }
 
 QString MediaSource::stream() const
 {
-    return this->m_stream;
+    return this->d->m_stream;
 }
 
 QStringList MediaSource::streams() const
 {
-    return this->m_streams;
+    return this->d->m_streams;
 }
 
 QStringList MediaSource::cameras() const
 {
-    return this->m_cameras;
+    return this->d->m_cameras;
 }
 
 QStringList MediaSource::desktops() const
 {
-    return this->m_desktops;
+    return this->d->m_desktops;
 }
 
 QVariantMap MediaSource::uris() const
 {
-    return this->m_uris;
+    return this->d->m_uris;
 }
 
 AkCaps MediaSource::audioCaps() const
 {
-    return this->m_audioCaps;
+    return this->d->m_audioCaps;
 }
 
 AkCaps MediaSource::videoCaps() const
 {
-    return this->m_videoCaps;
+    return this->d->m_videoCaps;
 }
 
 AkElement::ElementState MediaSource::state() const
 {
-    return this->m_inputState;
+    return this->d->m_inputState;
 }
 
 bool MediaSource::playOnStart() const
 {
-    return this->m_playOnStart;
+    return this->d->m_playOnStart;
 }
 
 QString MediaSource::description(const QString &stream) const
 {
-    return this->m_descriptions.value(stream);
+    return this->d->m_descriptions.value(stream);
 }
 
 bool MediaSource::embedControls(const QString &where,
                                 const QString &stream,
                                 const QString &name) const
 {
-    auto source = this->sourceElement(stream);
+    auto source = this->d->sourceElement(stream);
 
     if (!source)
         return false;
 
-    auto interface = source->controlInterface(this->m_engine,
+    auto interface = source->controlInterface(this->d->m_engine,
                                               source->pluginId());
 
     if (!interface)
@@ -241,7 +272,7 @@ bool MediaSource::embedControls(const QString &where,
     if (!name.isEmpty())
         interface->setObjectName(name);
 
-    for (auto obj: this->m_engine->rootObjects()) {
+    for (auto obj: this->d->m_engine->rootObjects()) {
         // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
@@ -262,10 +293,10 @@ bool MediaSource::embedControls(const QString &where,
 
 void MediaSource::removeInterface(const QString &where) const
 {
-    if (!this->m_engine)
+    if (!this->d->m_engine)
         return;
 
-    for (const QObject *obj: this->m_engine->rootObjects()) {
+    for (const QObject *obj: this->d->m_engine->rootObjects()) {
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
@@ -281,7 +312,7 @@ void MediaSource::removeInterface(const QString &where) const
     }
 }
 
-AkElementPtr MediaSource::sourceElement(const QString &stream) const
+AkElementPtr MediaSourcePrivate::sourceElement(const QString &stream) const
 {
     if (this->m_cameras.contains(stream))
         return this->m_cameraCapture;
@@ -295,65 +326,65 @@ AkElementPtr MediaSource::sourceElement(const QString &stream) const
 
 void MediaSource::setStream(const QString &stream)
 {
-    if (this->m_stream == stream)
+    if (this->d->m_stream == stream)
         return;
 
-    this->m_stream = stream;
+    this->d->m_stream = stream;
     emit this->streamChanged(stream);
     this->streamUpdated(stream);
 }
 
 void MediaSource::setUris(const QVariantMap &uris)
 {
-    if (this->m_uris == uris)
+    if (this->d->m_uris == uris)
         return;
 
-    this->m_uris = uris;
+    this->d->m_uris = uris;
     emit this->urisChanged(uris);
 }
 
 void MediaSource::setState(AkElement::ElementState state)
 {
-    if (this->m_inputState == state)
+    if (this->d->m_inputState == state)
         return;
 
     AkElementPtr source;
 
-    if (this->m_cameras.contains(this->m_stream)) {
-        if (this->m_desktopCapture)
-            this->m_desktopCapture->setState(AkElement::ElementStateNull);
+    if (this->d->m_cameras.contains(this->d->m_stream)) {
+        if (this->d->m_desktopCapture)
+            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
 
-        if (this->m_uriCapture)
-            this->m_uriCapture->setState(AkElement::ElementStateNull);
+        if (this->d->m_uriCapture)
+            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
-        source = this->m_cameraCapture;
-    } else if (this->m_desktops.contains(this->m_stream)) {
-        if (this->m_cameraCapture)
-            this->m_cameraCapture->setState(AkElement::ElementStateNull);
+        source = this->d->m_cameraCapture;
+    } else if (this->d->m_desktops.contains(this->d->m_stream)) {
+        if (this->d->m_cameraCapture)
+            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
-        if (this->m_uriCapture)
-            this->m_uriCapture->setState(AkElement::ElementStateNull);
+        if (this->d->m_uriCapture)
+            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
 
-        source = this->m_desktopCapture;
-    } else if (this->m_uris.contains(this->m_stream)) {
-        if (this->m_cameraCapture)
-            this->m_cameraCapture->setState(AkElement::ElementStateNull);
+        source = this->d->m_desktopCapture;
+    } else if (this->d->m_uris.contains(this->d->m_stream)) {
+        if (this->d->m_cameraCapture)
+            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
 
-        if (this->m_desktopCapture)
-            this->m_desktopCapture->setState(AkElement::ElementStateNull);
+        if (this->d->m_desktopCapture)
+            this->d->m_desktopCapture->setState(AkElement::ElementStateNull);
 
-        source = this->m_uriCapture;
+        source = this->d->m_uriCapture;
     }
 
     if (source) {
-        if (source->setState(state) || source->state() != this->m_inputState) {
+        if (source->setState(state) || source->state() != this->d->m_inputState) {
             auto state = source->state();
-            this->m_inputState = state;
+            this->d->m_inputState = state;
             emit this->stateChanged(state);
         }
     } else {
-        if (this->m_inputState != AkElement::ElementStateNull) {
-            this->m_inputState = AkElement::ElementStateNull;
+        if (this->d->m_inputState != AkElement::ElementStateNull) {
+            this->d->m_inputState = AkElement::ElementStateNull;
             emit this->stateChanged(AkElement::ElementStateNull);
         }
     }
@@ -361,10 +392,10 @@ void MediaSource::setState(AkElement::ElementState state)
 
 void MediaSource::setPlayOnStart(bool playOnStart)
 {
-    if (this->m_playOnStart == playOnStart)
+    if (this->d->m_playOnStart == playOnStart)
         return;
 
-    this->m_playOnStart = playOnStart;
+    this->d->m_playOnStart = playOnStart;
     emit this->playOnStartChanged(playOnStart);
 }
 
@@ -390,10 +421,10 @@ void MediaSource::resetPlayOnStart()
 
 void MediaSource::setQmlEngine(QQmlApplicationEngine *engine)
 {
-    if (this->m_engine == engine)
+    if (this->d->m_engine == engine)
         return;
 
-    this->m_engine = engine;
+    this->d->m_engine = engine;
 
     if (engine)
         engine->rootContext()->setContextProperty("MediaSource", this);
@@ -403,7 +434,7 @@ void MediaSource::streamUpdated(const QString &stream)
 {
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
-    auto source = this->sourceElement(stream);
+    auto source = this->d->sourceElement(stream);
 
     if (!source) {
         this->setAudioCaps(AkCaps());
@@ -481,66 +512,66 @@ void MediaSource::updateStreams()
 {
     QStringList cameras;
 
-    if (this->m_cameraCapture)
-        QMetaObject::invokeMethod(this->m_cameraCapture.data(),
+    if (this->d->m_cameraCapture)
+        QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
                                   "medias",
                                   Q_RETURN_ARG(QStringList, cameras));
 
     QStringList desktops;
 
-    if (this->m_desktopCapture)
-        QMetaObject::invokeMethod(this->m_desktopCapture.data(),
+    if (this->d->m_desktopCapture)
+        QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
                                   "medias",
                                   Q_RETURN_ARG(QStringList, desktops));
 
-    this->m_descriptions.clear();
+    this->d->m_descriptions.clear();
 
     for (const QString &camera: cameras) {
         QString description;
 
-        QMetaObject::invokeMethod(this->m_cameraCapture.data(),
+        QMetaObject::invokeMethod(this->d->m_cameraCapture.data(),
                                   "description",
                                   Q_RETURN_ARG(QString, description),
                                   Q_ARG(QString, camera));
 
-        this->m_descriptions[camera] = description;
+        this->d->m_descriptions[camera] = description;
     }
 
     for (const QString &desktop: desktops) {
         QString description;
 
-        QMetaObject::invokeMethod(this->m_desktopCapture.data(),
+        QMetaObject::invokeMethod(this->d->m_desktopCapture.data(),
                                   "description",
                                   Q_RETURN_ARG(QString, description),
                                   Q_ARG(QString, desktop));
 
-        this->m_descriptions[desktop] = description;
+        this->d->m_descriptions[desktop] = description;
     }
 
-    for (const QString &uri: this->m_uris.keys())
-        this->m_descriptions[uri] = this->m_uris[uri].toString();
+    for (const QString &uri: this->d->m_uris.keys())
+        this->d->m_descriptions[uri] = this->d->m_uris[uri].toString();
 
     bool isSet = this->setCameras(cameras);
     isSet |= this->setDesktops(desktops);
-    isSet |= this->setStreams(cameras + desktops + this->m_uris.keys());
+    isSet |= this->setStreams(cameras + desktops + this->d->m_uris.keys());
 
     if (!isSet)
-        emit this->streamsChanged(this->m_streams);
+        emit this->streamsChanged(this->d->m_streams);
 
-    if (!this->m_streams.contains(this->m_stream)) {
-        if (this->m_streams.isEmpty())
+    if (!this->d->m_streams.contains(this->d->m_stream)) {
+        if (this->d->m_streams.isEmpty())
             this->resetStream();
         else
-            this->setStream(this->m_streams.first());
+            this->setStream(this->d->m_streams.first());
     }
 }
 
 bool MediaSource::setStreams(const QStringList &streams)
 {
-    if (this->m_streams == streams)
+    if (this->d->m_streams == streams)
         return false;
 
-    this->m_streams = streams;
+    this->d->m_streams = streams;
     emit this->streamsChanged(streams);
 
     return true;
@@ -548,10 +579,10 @@ bool MediaSource::setStreams(const QStringList &streams)
 
 bool MediaSource::setCameras(const QStringList &cameras)
 {
-    if (this->m_cameras == cameras)
+    if (this->d->m_cameras == cameras)
         return false;
 
-    this->m_cameras = cameras;
+    this->d->m_cameras = cameras;
     emit this->camerasChanged(cameras);
 
     return true;
@@ -559,10 +590,10 @@ bool MediaSource::setCameras(const QStringList &cameras)
 
 bool MediaSource::setDesktops(const QStringList &desktops)
 {
-    if (this->m_desktops == desktops)
+    if (this->d->m_desktops == desktops)
         return false;
 
-    this->m_desktops = desktops;
+    this->d->m_desktops = desktops;
     emit this->desktopsChanged(desktops);
 
     return true;
@@ -570,19 +601,19 @@ bool MediaSource::setDesktops(const QStringList &desktops)
 
 void MediaSource::setAudioCaps(const AkCaps &audioCaps)
 {
-    if (this->m_audioCaps == audioCaps)
+    if (this->d->m_audioCaps == audioCaps)
         return;
 
-    this->m_audioCaps = audioCaps;
+    this->d->m_audioCaps = audioCaps;
     emit this->audioCapsChanged(audioCaps);
 }
 
 void MediaSource::setVideoCaps(const AkCaps &videoCaps)
 {
-    if (this->m_videoCaps == videoCaps)
+    if (this->d->m_videoCaps == videoCaps)
         return;
 
-    this->m_videoCaps = videoCaps;
+    this->d->m_videoCaps = videoCaps;
     emit this->videoCapsChanged(videoCaps);
 }
 
@@ -592,25 +623,24 @@ void MediaSource::loadProperties()
 
     config.beginGroup("Libraries");
 
-    if (this->m_cameraCapture) {
-        this->m_cameraCapture->setProperty("codecLib",
-                                           config.value("VideoCapture.codecLib",
-                                                        this->m_cameraCapture->property("codecLib")));
-        this->m_cameraCapture->setProperty("captureLib",
-                                           config.value("VideoCapture.captureLib",
-                                                        this->m_cameraCapture->property("captureLib")));
+    if (this->d->m_cameraCapture) {
+        this->d->m_cameraCapture->setProperty("codecLib",
+                                              config.value("VideoCapture.codecLib",
+                                                           this->d->m_cameraCapture->property("codecLib")));
+        this->d->m_cameraCapture->setProperty("captureLib",
+                                              config.value("VideoCapture.captureLib",
+                                                           this->d->m_cameraCapture->property("captureLib")));
     }
 
-    if (this->m_desktopCapture)
-        this->m_desktopCapture->setProperty("captureLib",
-                                            config.value("DesktopCapture.captureLib",
-                                                         this->m_desktopCapture->property("captureLib")));
+    if (this->d->m_desktopCapture)
+        this->d->m_desktopCapture->setProperty("captureLib",
+                                               config.value("DesktopCapture.captureLib",
+                                                            this->d->m_desktopCapture->property("captureLib")));
 
-
-    if (this->m_uriCapture)
-        this->m_uriCapture->setProperty("codecLib",
-                                        config.value("MultiSrc.codecLib",
-                                                     this->m_uriCapture->property("codecLib")));
+    if (this->d->m_uriCapture)
+        this->d->m_uriCapture->setProperty("codecLib",
+                                           config.value("MultiSrc.codecLib",
+                                                        this->d->m_uriCapture->property("codecLib")));
 
     config.endGroup();
 
@@ -632,10 +662,10 @@ void MediaSource::loadProperties()
     config.endArray();
     config.endGroup();
 
-    if (this->m_streams.contains(stream))
+    if (this->d->m_streams.contains(stream))
         this->setStream(stream);
-    else if (!this->m_streams.isEmpty())
-        this->setStream(this->m_streams.first());
+    else if (!this->d->m_streams.isEmpty())
+        this->setStream(this->d->m_streams.first());
 }
 
 void MediaSource::saveStream(const QString &stream)
@@ -709,16 +739,16 @@ void MediaSource::saveProperties()
 {
     QSettings config;
     config.beginGroup("StreamConfigs");
-    config.setValue("stream", this->m_stream);
-    config.setValue("playOnStart", this->m_playOnStart);
+    config.setValue("stream", this->d->m_stream);
+    config.setValue("playOnStart", this->d->m_playOnStart);
     config.beginWriteArray("uris");
 
     int i = 0;
 
-    for (const QString &uri: this->m_uris.keys()) {
+    for (const QString &uri: this->d->m_uris.keys()) {
         config.setArrayIndex(i);
         config.setValue("uri", uri);
-        config.setValue("description", this->m_uris[uri]);
+        config.setValue("description", this->d->m_uris[uri]);
         i++;
     }
 
@@ -727,16 +757,18 @@ void MediaSource::saveProperties()
 
     config.beginGroup("Libraries");
 
-    if (this->m_cameraCapture) {
-        config.setValue("VideoCapture.codecLib", this->m_cameraCapture->property("codecLib"));
-        config.setValue("VideoCapture.captureLib", this->m_cameraCapture->property("captureLib"));
+    if (this->d->m_cameraCapture) {
+        config.setValue("VideoCapture.codecLib", this->d->m_cameraCapture->property("codecLib"));
+        config.setValue("VideoCapture.captureLib", this->d->m_cameraCapture->property("captureLib"));
     }
 
-    if (this->m_desktopCapture)
-        config.setValue("DesktopCapture.captureLib", this->m_desktopCapture->property("captureLib"));
+    if (this->d->m_desktopCapture)
+        config.setValue("DesktopCapture.captureLib", this->d->m_desktopCapture->property("captureLib"));
 
-    if (this->m_uriCapture)
-        config.setValue("MultiSrc.codecLib", this->m_uriCapture->property("codecLib"));
+    if (this->d->m_uriCapture)
+        config.setValue("MultiSrc.codecLib", this->d->m_uriCapture->property("codecLib"));
 
     config.endGroup();
 }
+
+#include "moc_mediasource.cpp"

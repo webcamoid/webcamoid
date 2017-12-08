@@ -20,13 +20,10 @@
 #ifndef DESKTOPCAPTUREELEMENT_H
 #define DESKTOPCAPTUREELEMENT_H
 
-#include <QThreadPool>
-#include <QtConcurrent>
 #include <akmultimediasourceelement.h>
 
-#include "screendev.h"
-
-typedef QSharedPointer<ScreenDev> ScreenDevPtr;
+class DesktopCaptureElementPrivate;
+class AkFrac;
 
 class DesktopCaptureElement: public AkMultimediaSourceElement
 {
@@ -74,7 +71,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         Q_INVOKABLE QString captureLib() const;
 
     private:
-        ScreenDevPtr m_screenCapture;
+        DesktopCaptureElementPrivate *d;
 
     protected:
         QString controlInterfaceProvide(const QString &controlId) const;

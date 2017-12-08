@@ -20,7 +20,10 @@
 #ifndef MEDIAWRITER_H
 #define MEDIAWRITER_H
 
-#include "akpacket.h"
+#include <QObject>
+
+class AkCaps;
+class AkPacket;
 
 class MediaWriter: public QObject
 {
