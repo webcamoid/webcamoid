@@ -21,9 +21,6 @@
 #define FRAMEGRABBER_H
 
 #include <QObject>
-#include <dshow.h>
-#include <dbt.h>
-#include <usbiodef.h>
 
 #include "samplegrabber.h"
 

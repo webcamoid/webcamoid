@@ -17,22 +17,49 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QCoreApplication>
 #include <QSettings>
 #include <QFileInfo>
 #include <QDir>
-#include <filtercommons.h>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
+#include <strmif.h>
+#include <initguid.h>
+#include <uuids.h>
+#include <vfwmsgs.h>
 
 #include "cameraoutdshow.h"
+#include "filtercommons.h"
+#include "ipcbridge.h"
 
 #define MAX_CAMERAS 1
 #define VCAM_DRIVER "VirtualCameraSource.dll"
 
+class CameraOutDShowPrivate
+{
+    public:
+        QStringList m_webcams;
+        IpcBridge m_ipcBridge;
+        int m_streamIndex;
+
+        CameraOutDShowPrivate():
+            m_streamIndex(-1)
+        {
+        }
+
+        inline HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
+        inline QString iidToString(const IID &iid) const;
+        inline bool sudo(const QString &command,
+                         const QString &params,
+                         const QString &dir=QString(),
+                         bool hide=false) const;
+};
+
 CameraOutDShow::CameraOutDShow(QObject *parent):
     CameraOut(parent)
 {
-    this->m_streamIndex = -1;
+    this->d = new CameraOutDShowPrivate;
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->m_driverPath = applicationDir.absoluteFilePath(VCAM_DRIVER);
 }
@@ -44,7 +71,7 @@ CameraOutDShow::~CameraOutDShow()
 QStringList CameraOutDShow::webcams() const
 {
     IEnumMoniker *pEnum = nullptr;
-    HRESULT hr = this->enumerateCameras(&pEnum);
+    HRESULT hr = this->d->enumerateCameras(&pEnum);
 
     if (FAILED(hr))
         return QStringList();
@@ -94,7 +121,7 @@ QStringList CameraOutDShow::webcams() const
         if (SUCCEEDED(hr)) {
             VARIANT var;
             VariantInit(&var);
-            hr = pPropBag->Read(L"DevicePath", &var, 0);
+            hr = pPropBag->Read(L"DevicePath", &var, nullptr);
 
             if (SUCCEEDED(hr))
                 devicePath = QString::fromWCharArray(var.bstrVal);
@@ -122,13 +149,13 @@ QStringList CameraOutDShow::webcams() const
 
 int CameraOutDShow::streamIndex() const
 {
-    return this->m_streamIndex;
+    return this->d->m_streamIndex;
 }
 
 QString CameraOutDShow::description(const QString &webcam) const
 {
     IEnumMoniker *pEnum = nullptr;
-    HRESULT hr = this->enumerateCameras(&pEnum);
+    HRESULT hr = this->d->enumerateCameras(&pEnum);
 
     if (FAILED(hr))
         return QString();
@@ -145,7 +172,7 @@ QString CameraOutDShow::description(const QString &webcam) const
         if (SUCCEEDED(hr)) {
             VARIANT var;
             VariantInit(&var);
-            hr = pPropBag->Read(L"DevicePath", &var, 0);
+            hr = pPropBag->Read(L"DevicePath", &var, nullptr);
             QString devicePath;
 
             if (SUCCEEDED(hr))
@@ -155,10 +182,10 @@ QString CameraOutDShow::description(const QString &webcam) const
 
             if (devicePath == webcam) {
                 // Get description or friendly name.
-                hr = pPropBag->Read(L"Description", &var, 0);
+                hr = pPropBag->Read(L"Description", &var, nullptr);
 
                 if (FAILED(hr))
-                    hr = pPropBag->Read(L"FriendlyName", &var, 0);
+                    hr = pPropBag->Read(L"FriendlyName", &var, nullptr);
 
                 QString description;
 
@@ -187,10 +214,10 @@ void CameraOutDShow::writeFrame(const AkPacket &frame)
 {
     AkVideoPacket videoFrame = frame;
 
-    if (this->m_ipcBridge.write(AkVideoCaps::fourCC(videoFrame.caps().format()),
-                                DWORD(videoFrame.caps().width()),
-                                DWORD(videoFrame.caps().height()),
-                                reinterpret_cast<const BYTE *>(videoFrame.buffer().constData())) < 1)
+    if (this->d->m_ipcBridge.write(AkVideoCaps::fourCC(videoFrame.caps().format()),
+                                   DWORD(videoFrame.caps().width()),
+                                   DWORD(videoFrame.caps().height()),
+                                   reinterpret_cast<const BYTE *>(videoFrame.buffer().constData())) < 1)
         qDebug() << "Error writing frame";
 }
 
@@ -214,8 +241,8 @@ QString CameraOutDShow::createWebcam(const QString &description,
 
     QString reg =
             QString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%1\\Instance\\%2")
-            .arg(this->iidToString(CLSID_VideoInputDeviceCategory))
-            .arg(this->iidToString(CLSID_VirtualCameraSource));
+            .arg(this->d->iidToString(CLSID_VideoInputDeviceCategory))
+            .arg(this->d->iidToString(CLSID_VirtualCameraSource));
 
     QString desc = description.isEmpty()?
                        QString::fromWCharArray(FILTER_NAME):
@@ -227,7 +254,7 @@ QString CameraOutDShow::createWebcam(const QString &description,
             .arg(reg)
             .arg(desc);
 
-    if (!this->sudo("cmd", params, "", true))
+    if (!this->d->sudo("cmd", params, "", true))
         return QString();
 
     QStringList curWebcams = this->webcams();
@@ -251,8 +278,8 @@ bool CameraOutDShow::changeDescription(const QString &webcam,
 
     QString reg =
             QString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%1\\Instance\\%2")
-            .arg(this->iidToString(CLSID_VideoInputDeviceCategory))
-            .arg(this->iidToString(CLSID_VirtualCameraSource));
+            .arg(this->d->iidToString(CLSID_VideoInputDeviceCategory))
+            .arg(this->d->iidToString(CLSID_VirtualCameraSource));
 
     QString desc = description.isEmpty()?
                        QString::fromWCharArray(FILTER_NAME):
@@ -263,7 +290,7 @@ bool CameraOutDShow::changeDescription(const QString &webcam,
             .arg(reg)
             .arg(desc);
 
-    if (!this->sudo("reg", params))
+    if (!this->d->sudo("reg", params))
         return false;
 
     emit this->webcamsChanged(webcams);
@@ -283,7 +310,7 @@ bool CameraOutDShow::removeWebcam(const QString &webcam,
 
     QString reg =
             QString("HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\%1\\InprocServer32")
-            .arg(this->iidToString(CLSID_VirtualCameraSource));
+            .arg(this->d->iidToString(CLSID_VirtualCameraSource));
 
     QSettings settings(reg, QSettings::NativeFormat);
 
@@ -291,7 +318,7 @@ bool CameraOutDShow::removeWebcam(const QString &webcam,
             QString("/u \"%1\"")
             .arg(settings.value(".").toString());
 
-    if (!this->sudo("regsvr32", params))
+    if (!this->d->sudo("regsvr32", params))
         return false;
 
     emit this->webcamsChanged(QStringList());
@@ -309,7 +336,7 @@ bool CameraOutDShow::removeAllWebcams(const QString &password)
     return true;
 }
 
-HRESULT CameraOutDShow::enumerateCameras(IEnumMoniker **ppEnum) const
+HRESULT CameraOutDShowPrivate::enumerateCameras(IEnumMoniker **ppEnum) const
 {
     // Create the System Device Enumerator.
     ICreateDevEnum *pDevEnum = nullptr;
@@ -332,7 +359,7 @@ HRESULT CameraOutDShow::enumerateCameras(IEnumMoniker **ppEnum) const
     return hr;
 }
 
-QString CameraOutDShow::iidToString(const IID &iid) const
+QString CameraOutDShowPrivate::iidToString(const IID &iid) const
 {
     LPWSTR strIID = nullptr;
     StringFromIID(iid, &strIID);
@@ -342,10 +369,10 @@ QString CameraOutDShow::iidToString(const IID &iid) const
     return str;
 }
 
-bool CameraOutDShow::sudo(const QString &command,
-                          const QString &params,
-                          const QString &dir,
-                          bool hide) const
+bool CameraOutDShowPrivate::sudo(const QString &command,
+                                 const QString &params,
+                                 const QString &dir,
+                                 bool hide) const
 {
     const static int maxStrLen = 1024;
 
@@ -393,14 +420,14 @@ bool CameraOutDShow::sudo(const QString &command,
 
 bool CameraOutDShow::init(int streamIndex)
 {
-    this->m_streamIndex = streamIndex;
+    this->d->m_streamIndex = streamIndex;
 
-    return this->m_ipcBridge.open(IPC_FILE_NAME, IpcBridge::Write);
+    return this->d->m_ipcBridge.open(IPC_FILE_NAME, IpcBridge::Write);
 }
 
 void CameraOutDShow::uninit()
 {
-    this->m_ipcBridge.close();
+    this->d->m_ipcBridge.close();
 }
 
 void CameraOutDShow::resetDriverPath()
@@ -408,3 +435,5 @@ void CameraOutDShow::resetDriverPath()
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->setDriverPath(applicationDir.absoluteFilePath(VCAM_DRIVER));
 }
+
+#include "moc_cameraoutdshow.cpp"

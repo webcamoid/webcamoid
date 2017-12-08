@@ -89,3 +89,5 @@ HRESULT FrameGrabber::BufferCB(double time, BYTE *buffer, long bufferSize)
 
     return S_OK;
 }
+
+#include "moc_framegrabber.cpp"

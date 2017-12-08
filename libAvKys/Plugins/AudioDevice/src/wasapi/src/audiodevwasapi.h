@@ -20,14 +20,11 @@
 #ifndef AUDIODEVWASAPI_H
 #define AUDIODEVWASAPI_H
 
-#include <akaudiocaps.h>
-#include <audioclient.h>
 #include <mmdeviceapi.h>
-#include <objbase.h>
-#include <initguid.h>
-#include <propkeydef.h>
 
 #include "audiodev.h"
+
+class AudioDevWasapiPrivate;
 
 class AudioDevWasapi: public AudioDev, public IMMNotificationClient
 {
@@ -61,33 +58,7 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         ULONG STDMETHODCALLTYPE Release();
 
     private:
-        QString m_error;
-        QStringList m_sources;
-        QStringList m_sinks;
-        QString m_defaultSink;
-        QString m_defaultSource;
-        QMap<QString, QString> m_descriptionMap;
-        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
-        QMap<QString, QList<int>> m_supportedChannels;
-        QMap<QString, QList<int>> m_supportedSampleRates;
-        QByteArray m_audioBuffer;
-        IMMDeviceEnumerator *m_deviceEnumerator;
-        IMMDevice *m_pDevice;
-        IAudioClient *m_pAudioClient;
-        IAudioCaptureClient *m_pCaptureClient;
-        IAudioRenderClient *m_pRenderClient;
-        HANDLE m_hEvent;
-        ULONG m_cRef;
-        AkAudioCaps m_curCaps;
-        QString m_curDevice;
-
-        bool waveFormatFromAk(WAVEFORMATEX *wfx,
-                              const AkAudioCaps &caps) const;
-        void fillDeviceInfo(const QString &device,
-                            EDataFlow dataFlow,
-                            QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                            QList<int> *supportedChannels,
-                            QList<int> *supportedSampleRates) const;
+        AudioDevWasapiPrivate *d;
 
         HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId,
                                                        DWORD dwNewState);

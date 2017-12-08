@@ -18,12 +18,36 @@
  */
 
 #include <QCoreApplication>
+#include <QSharedPointer>
+#include <QMap>
+#include <QSize>
 #include <QDateTime>
+#include <QVariant>
+#include <QMutex>
+#include <QWaitCondition>
+#include <ak.h>
+#include <akfrac.h>
+#include <akcaps.h>
+#include <akpacket.h>
+#include <dshow.h>
+#include <dbt.h>
+#include <usbiodef.h>
 
 #include "capturedshow.h"
+#include "framegrabber.h"
 
 #define TIME_BASE 1.0e7
 #define SOURCE_FILTER_NAME L"Source"
+
+DEFINE_GUID(CLSID_SampleGrabber, 0xc1f400a0, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
+DEFINE_GUID(CLSID_NullRenderer, 0xc1f400a4, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
+
+Q_CORE_EXPORT HINSTANCE qWinAppInst();
+
+__inline bool operator <(REFGUID guid1, REFGUID guid2)
+{
+    return guid1.Data1 < guid2.Data1;
+}
 
 typedef QMap<VideoProcAmpProperty, QString> VideoProcAmpPropertyMap;
 
@@ -156,15 +180,87 @@ inline IoMethodMap initIoMethodMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(IoMethodMap, ioMethodToStr, (initIoMethodMap()))
 
+typedef QSharedPointer<IGraphBuilder> GraphBuilderPtr;
+typedef QSharedPointer<IBaseFilter> BaseFilterPtr;
+typedef QSharedPointer<ISampleGrabber> SampleGrabberPtr;
+typedef QSharedPointer<IAMStreamConfig> StreamConfigPtr;
+typedef QSharedPointer<FrameGrabber> FrameGrabberPtr;
+typedef QSharedPointer<IMoniker> MonikerPtr;
+typedef QMap<QString, MonikerPtr> MonikersMap;
+typedef QSharedPointer<AM_MEDIA_TYPE> MediaTypePtr;
+typedef QList<MediaTypePtr> MediaTypesList;
+typedef QSharedPointer<IPin> PinPtr;
+typedef QList<PinPtr> PinList;
+
+class CaptureDShowPrivate
+{
+    public:
+        QStringList m_webcams;
+        QString m_device;
+        QList<int> m_streams;
+        qint64 m_id;
+        AkFrac m_timeBase;
+        CaptureDShow::IoMethod m_ioMethod;
+        QMap<QString, QSize> m_resolution;
+        BaseFilterPtr m_webcamFilter;
+        IGraphBuilder *m_graph;
+        SampleGrabberPtr m_grabber;
+        FrameGrabber m_frameGrabber;
+        QByteArray m_curBuffer;
+        QMutex m_mutex;
+        QMutex m_controlsMutex;
+        QWaitCondition m_waitCondition;
+        QVariantList m_globalImageControls;
+        QVariantList m_globalCameraControls;
+        QVariantMap m_localImageControls;
+        QVariantMap m_localCameraControls;
+
+        CaptureDShowPrivate():
+            m_id(-1),
+            m_ioMethod(CaptureDShow::IoMethodGrabSample),
+            m_graph(nullptr)
+        {
+        }
+
+        inline AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const;
+        inline AkCaps capsFromMediaType(const MediaTypePtr &mediaType) const;
+        inline HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
+        inline MonikersMap listMonikers() const;
+        inline MonikerPtr findMoniker(const QString &webcam) const;
+        inline IBaseFilter *findFilterP(const QString &webcam) const;
+        inline BaseFilterPtr findFilter(const QString &webcam) const;
+        inline MediaTypesList listMediaTypes(const QString &webcam) const;
+        inline MediaTypesList listMediaTypes(IBaseFilter *filter) const;
+        inline bool isPinConnected(IPin *pPin, bool *ok=nullptr) const;
+        inline PinPtr findUnconnectedPin(IBaseFilter *pFilter,
+                                         PIN_DIRECTION PinDir) const;
+        inline bool connectFilters(IGraphBuilder *pGraph,
+                                   IBaseFilter *pSrc,
+                                   IBaseFilter *pDest) const;
+        inline PinList enumPins(IBaseFilter *filter,
+                                PIN_DIRECTION direction) const;
+        inline static void deleteUnknown(IUnknown *unknown);
+        inline static void freeMediaType(AM_MEDIA_TYPE &mediaType);
+        inline static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
+        inline static void deletePin(IPin *pin);
+        inline QVariantList imageControls(IBaseFilter *filter) const;
+        inline bool setImageControls(IBaseFilter *filter,
+                                     const QVariantMap &imageControls) const;
+        inline QVariantList cameraControls(IBaseFilter *filter) const;
+        inline bool setCameraControls(IBaseFilter *filter,
+                                      const QVariantMap &cameraControls) const;
+        inline QVariantMap controlStatus(const QVariantList &controls) const;
+        inline QVariantMap mapDiff(const QVariantMap &map1,
+                                   const QVariantMap &map2) const;
+};
+
 CaptureDShow::CaptureDShow(QObject *parent):
     Capture(parent),
     QAbstractNativeEventFilter()
 {
-    this->m_id = -1;
-    this->m_ioMethod = IoMethodGrabSample;
-    this->m_graph = nullptr;
+    this->d = new CaptureDShowPrivate;
 
-    QObject::connect(&this->m_frameGrabber,
+    QObject::connect(&this->d->m_frameGrabber,
                      &FrameGrabber::frameReady,
                      this,
                      &CaptureDShow::frameReceived,
@@ -176,24 +272,25 @@ CaptureDShow::CaptureDShow(QObject *parent):
 CaptureDShow::~CaptureDShow()
 {
     qApp->removeNativeEventFilter(this);
+    delete this->d;
 }
 
 QStringList CaptureDShow::webcams() const
 {
-    return this->listMonikers().keys();
+    return this->d->listMonikers().keys();
 }
 
 QString CaptureDShow::device() const
 {
-    return this->m_device;
+    return this->d->m_device;
 }
 
 QList<int> CaptureDShow::streams() const
 {
-    if (!this->m_streams.isEmpty())
-        return this->m_streams;
+    if (!this->d->m_streams.isEmpty())
+        return this->d->m_streams;
 
-    QVariantList caps = this->caps(this->m_device);
+    QVariantList caps = this->caps(this->d->m_device);
 
     if (caps.isEmpty())
         return QList<int>();
@@ -207,7 +304,7 @@ QList<int> CaptureDShow::listTracks(const QString &mimeType)
         && !mimeType.isEmpty())
         return QList<int>();
 
-    QVariantList caps = this->caps(this->m_device);
+    QVariantList caps = this->caps(this->d->m_device);
     QList<int> streams;
 
     for (int i = 0; i < caps.count(); i++)
@@ -218,7 +315,7 @@ QList<int> CaptureDShow::listTracks(const QString &mimeType)
 
 QString CaptureDShow::ioMethod() const
 {
-    return ioMethodToStr->value(this->m_ioMethod, "any");
+    return ioMethodToStr->value(this->d->m_ioMethod, "any");
 }
 
 int CaptureDShow::nBuffers() const
@@ -231,7 +328,7 @@ QString CaptureDShow::description(const QString &webcam) const
     if (webcam.isEmpty())
         return QString();
 
-    MonikerPtr moniker = this->findMoniker(webcam);
+    MonikerPtr moniker = this->d->findMoniker(webcam);
 
     if (!moniker)
         return QString();
@@ -267,10 +364,10 @@ QString CaptureDShow::description(const QString &webcam) const
 QVariantList CaptureDShow::caps(const QString &webcam) const
 {
     QVariantList caps;
-    MediaTypesList mediaTypes = this->listMediaTypes(webcam);
+    MediaTypesList mediaTypes = this->d->listMediaTypes(webcam);
 
     for (const MediaTypePtr &mediaType: mediaTypes) {
-        AkCaps videoCaps = this->capsFromMediaType(mediaType);
+        AkCaps videoCaps = this->d->capsFromMediaType(mediaType);
 
         if (!videoCaps)
             continue;
@@ -297,14 +394,14 @@ QString CaptureDShow::capsDescription(const AkCaps &caps) const
 
 QVariantList CaptureDShow::imageControls() const
 {
-    return this->m_globalImageControls;
+    return this->d->m_globalImageControls;
 }
 
 bool CaptureDShow::setImageControls(const QVariantMap &imageControls)
 {
-    this->m_controlsMutex.lock();
-    QVariantList globalImageControls = this->m_globalImageControls;
-    this->m_controlsMutex.unlock();
+    this->d->m_controlsMutex.lock();
+    auto globalImageControls = this->d->m_globalImageControls;
+    this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalImageControls.count(); i++) {
         QVariantList control = globalImageControls[i].toList();
@@ -316,16 +413,16 @@ bool CaptureDShow::setImageControls(const QVariantMap &imageControls)
         }
     }
 
-    this->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lock();
 
-    if (this->m_globalImageControls == globalImageControls) {
-        this->m_controlsMutex.unlock();
+    if (this->d->m_globalImageControls == globalImageControls) {
+        this->d->m_controlsMutex.unlock();
 
         return false;
     }
 
-    this->m_globalImageControls = globalImageControls;
-    this->m_controlsMutex.unlock();
+    this->d->m_globalImageControls = globalImageControls;
+    this->d->m_controlsMutex.unlock();
 
     emit this->imageControlsChanged(imageControls);
 
@@ -346,14 +443,14 @@ bool CaptureDShow::resetImageControls()
 
 QVariantList CaptureDShow::cameraControls() const
 {
-    return this->m_globalCameraControls;
+    return this->d->m_globalCameraControls;
 }
 
 bool CaptureDShow::setCameraControls(const QVariantMap &cameraControls)
 {
-    this->m_controlsMutex.lock();
-    QVariantList globalCameraControls = this->m_globalCameraControls;
-    this->m_controlsMutex.unlock();
+    this->d->m_controlsMutex.lock();
+    auto globalCameraControls = this->d->m_globalCameraControls;
+    this->d->m_controlsMutex.unlock();
 
     for (int i = 0; i < globalCameraControls.count(); i++) {
         QVariantList control = globalCameraControls[i].toList();
@@ -365,16 +462,16 @@ bool CaptureDShow::setCameraControls(const QVariantMap &cameraControls)
         }
     }
 
-    this->m_controlsMutex.lock();
+    this->d->m_controlsMutex.lock();
 
-    if (this->m_globalCameraControls == globalCameraControls) {
-        this->m_controlsMutex.unlock();
+    if (this->d->m_globalCameraControls == globalCameraControls) {
+        this->d->m_controlsMutex.unlock();
 
         return false;
     }
 
-    this->m_globalCameraControls = globalCameraControls;
-    this->m_controlsMutex.unlock();
+    this->d->m_globalCameraControls = globalCameraControls;
+    this->d->m_controlsMutex.unlock();
     emit this->cameraControlsChanged(cameraControls);
 
     return true;
@@ -396,29 +493,29 @@ bool CaptureDShow::resetCameraControls()
 AkPacket CaptureDShow::readFrame()
 {
     IBaseFilter *source = nullptr;
-    this->m_graph->FindFilterByName(SOURCE_FILTER_NAME, &source);
+    this->d->m_graph->FindFilterByName(SOURCE_FILTER_NAME, &source);
 
     if (source) {
-        this->m_controlsMutex.lock();
-        QVariantMap imageControls = this->controlStatus(this->m_globalImageControls);
-        this->m_controlsMutex.unlock();
+        this->d->m_controlsMutex.lock();
+        auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
+        this->d->m_controlsMutex.unlock();
 
-        if (this->m_localImageControls != imageControls) {
-            QVariantMap controls = this->mapDiff(this->m_localImageControls,
-                                                 imageControls);
-            this->setImageControls(source, controls);
-            this->m_localImageControls = imageControls;
+        if (this->d->m_localImageControls != imageControls) {
+            auto controls = this->d->mapDiff(this->d->m_localImageControls,
+                                             imageControls);
+            this->d->setImageControls(source, controls);
+            this->d->m_localImageControls = imageControls;
         }
 
-        this->m_controlsMutex.lock();
-        QVariantMap cameraControls = this->controlStatus(this->m_globalCameraControls);
-        this->m_controlsMutex.unlock();
+        this->d->m_controlsMutex.lock();
+        auto cameraControls = this->d->controlStatus(this->d->m_globalCameraControls);
+        this->d->m_controlsMutex.unlock();
 
-        if (this->m_localCameraControls != cameraControls) {
-            QVariantMap controls = this->mapDiff(this->m_localCameraControls,
-                                                 cameraControls);
-            this->setCameraControls(source, controls);
-            this->m_localCameraControls = cameraControls;
+        if (this->d->m_localCameraControls != cameraControls) {
+            auto controls = this->d->mapDiff(this->d->m_localCameraControls,
+                                             cameraControls);
+            this->d->setCameraControls(source, controls);
+            this->d->m_localCameraControls = cameraControls;
         }
 
         source->Release();
@@ -426,60 +523,61 @@ AkPacket CaptureDShow::readFrame()
 
     AM_MEDIA_TYPE mediaType;
     ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
-    this->m_grabber->GetConnectedMediaType(&mediaType);
-    AkCaps caps = this->capsFromMediaType(&mediaType);
-    this->freeMediaType(mediaType);
+    this->d->m_grabber->GetConnectedMediaType(&mediaType);
+    AkCaps caps = this->d->capsFromMediaType(&mediaType);
+    this->d->freeMediaType(mediaType);
 
     AkPacket packet;
 
     auto timestamp = QDateTime::currentMSecsSinceEpoch();
 
-    qint64 pts = qint64(timestamp
-                        * this->m_timeBase.invert().value()
-                        / 1e3);
+    auto pts =
+            qint64(timestamp
+                   * this->d->m_timeBase.invert().value()
+                   / 1e3);
 
-    if (this->m_ioMethod != IoMethodDirectRead) {
-        this->m_mutex.lock();
+    if (this->d->m_ioMethod != IoMethodDirectRead) {
+        this->d->m_mutex.lock();
 
-        if (this->m_curBuffer.isEmpty())
-            this->m_waitCondition.wait(&this->m_mutex, 1000);
+        if (this->d->m_curBuffer.isEmpty())
+            this->d->m_waitCondition.wait(&this->d->m_mutex, 1000);
 
-        if (!this->m_curBuffer.isEmpty()) {
-            int bufferSize = this->m_curBuffer.size();
+        if (!this->d->m_curBuffer.isEmpty()) {
+            int bufferSize = this->d->m_curBuffer.size();
             QByteArray oBuffer(bufferSize, 0);
             memcpy(oBuffer.data(),
-                   this->m_curBuffer.constData(),
+                   this->d->m_curBuffer.constData(),
                    size_t(bufferSize));
 
             packet = AkPacket(caps, oBuffer);
             packet.setPts(pts);
-            packet.setTimeBase(this->m_timeBase);
+            packet.setTimeBase(this->d->m_timeBase);
             packet.setIndex(0);
-            packet.setId(this->m_id);
-            this->m_curBuffer.clear();
+            packet.setId(this->d->m_id);
+            this->d->m_curBuffer.clear();
         }
 
-        this->m_mutex.unlock();
+        this->d->m_mutex.unlock();
     } else {
         long bufferSize;
 
-        HRESULT hr = this->m_grabber->GetCurrentBuffer(&bufferSize, nullptr);
+        HRESULT hr = this->d->m_grabber->GetCurrentBuffer(&bufferSize, nullptr);
 
         if (FAILED(hr))
             return AkPacket();
 
         QByteArray oBuffer(bufferSize, 0);
-        hr = this->m_grabber->GetCurrentBuffer(&bufferSize,
-                                               reinterpret_cast<long *>(oBuffer.data()));
+        hr = this->d->m_grabber->GetCurrentBuffer(&bufferSize,
+                                                  reinterpret_cast<long *>(oBuffer.data()));
 
         if (FAILED(hr))
             return AkPacket();
 
         packet = AkPacket(caps, oBuffer);
         packet.setPts(pts);
-        packet.setTimeBase(this->m_timeBase);
+        packet.setTimeBase(this->d->m_timeBase);
         packet.setIndex(0);
-        packet.setId(this->m_id);
+        packet.setId(this->d->m_id);
     }
 
     return packet;
@@ -503,10 +601,10 @@ bool CaptureDShow::nativeEventFilter(const QByteArray &eventType,
         case DBT_DEVNODES_CHANGED: {
             auto webcams = this->webcams();
 
-            if (webcams != this->m_webcams) {
+            if (webcams != this->d->m_webcams) {
                 emit this->webcamsChanged(webcams);
 
-                this->m_webcams = webcams;
+                this->d->m_webcams = webcams;
             }
 
             if (result)
@@ -522,7 +620,7 @@ bool CaptureDShow::nativeEventFilter(const QByteArray &eventType,
     return false;
 }
 
-AkCaps CaptureDShow::capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const
+AkCaps CaptureDShowPrivate::capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const
 {
     if (!mediaType)
         return AkCaps();
@@ -545,12 +643,12 @@ AkCaps CaptureDShow::capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const
     return videoCaps;
 }
 
-AkCaps CaptureDShow::capsFromMediaType(const MediaTypePtr &mediaType) const
+AkCaps CaptureDShowPrivate::capsFromMediaType(const MediaTypePtr &mediaType) const
 {
     return this->capsFromMediaType(mediaType.data());
 }
 
-HRESULT CaptureDShow::enumerateCameras(IEnumMoniker **ppEnum) const
+HRESULT CaptureDShowPrivate::enumerateCameras(IEnumMoniker **ppEnum) const
 {
     // Create the System Device Enumerator.
     ICreateDevEnum *pDevEnum = nullptr;
@@ -575,7 +673,7 @@ HRESULT CaptureDShow::enumerateCameras(IEnumMoniker **ppEnum) const
     return hr;
 }
 
-MonikersMap CaptureDShow::listMonikers() const
+MonikersMap CaptureDShowPrivate::listMonikers() const
 {
     MonikersMap monikers;
     IEnumMoniker *pEnum = nullptr;
@@ -620,7 +718,7 @@ MonikersMap CaptureDShow::listMonikers() const
     return monikers;
 }
 
-MonikerPtr CaptureDShow::findMoniker(const QString &webcam) const
+MonikerPtr CaptureDShowPrivate::findMoniker(const QString &webcam) const
 {
     MonikersMap monikers = this->listMonikers();
 
@@ -630,7 +728,7 @@ MonikerPtr CaptureDShow::findMoniker(const QString &webcam) const
         return MonikerPtr();
 }
 
-IBaseFilter *CaptureDShow::findFilterP(const QString &webcam) const
+IBaseFilter *CaptureDShowPrivate::findFilterP(const QString &webcam) const
 {
     MonikerPtr moniker = this->findMoniker(webcam);
 
@@ -650,7 +748,7 @@ IBaseFilter *CaptureDShow::findFilterP(const QString &webcam) const
     return filter;
 }
 
-BaseFilterPtr CaptureDShow::findFilter(const QString &webcam) const
+BaseFilterPtr CaptureDShowPrivate::findFilter(const QString &webcam) const
 {
     IBaseFilter *filter = this->findFilterP(webcam);
 
@@ -660,14 +758,14 @@ BaseFilterPtr CaptureDShow::findFilter(const QString &webcam) const
     return BaseFilterPtr(filter, this->deleteUnknown);
 }
 
-MediaTypesList CaptureDShow::listMediaTypes(const QString &webcam) const
+MediaTypesList CaptureDShowPrivate::listMediaTypes(const QString &webcam) const
 {
     BaseFilterPtr filter = this->findFilter(webcam);
 
     return this->listMediaTypes(filter.data());
 }
 
-MediaTypesList CaptureDShow::listMediaTypes(IBaseFilter *filter) const
+MediaTypesList CaptureDShowPrivate::listMediaTypes(IBaseFilter *filter) const
 {
     PinList pins = this->enumPins(filter, PINDIR_OUTPUT);
     MediaTypesList mediaTypes;
@@ -693,7 +791,7 @@ MediaTypesList CaptureDShow::listMediaTypes(IBaseFilter *filter) const
     return mediaTypes;
 }
 
-bool CaptureDShow::isPinConnected(IPin *pPin, bool *ok) const
+bool CaptureDShowPrivate::isPinConnected(IPin *pPin, bool *ok) const
 {
     IPin *pTmp = nullptr;
     HRESULT hr = pPin->ConnectedTo(&pTmp);
@@ -719,8 +817,8 @@ bool CaptureDShow::isPinConnected(IPin *pPin, bool *ok) const
     return true;
 }
 
-PinPtr CaptureDShow::findUnconnectedPin(IBaseFilter *pFilter,
-                                        PIN_DIRECTION PinDir) const
+PinPtr CaptureDShowPrivate::findUnconnectedPin(IBaseFilter *pFilter,
+                                               PIN_DIRECTION PinDir) const
 {
     IEnumPins *pEnum = nullptr;
 
@@ -754,9 +852,9 @@ PinPtr CaptureDShow::findUnconnectedPin(IBaseFilter *pFilter,
     return matchedPin;
 }
 
-bool CaptureDShow::connectFilters(IGraphBuilder *pGraph,
-                                  IBaseFilter *pSrc,
-                                  IBaseFilter *pDest) const
+bool CaptureDShowPrivate::connectFilters(IGraphBuilder *pGraph,
+                                         IBaseFilter *pSrc,
+                                         IBaseFilter *pDest) const
 {
     // Find source pin.
     PinPtr srcPin = this->findUnconnectedPin(pSrc, PINDIR_OUTPUT);
@@ -776,8 +874,8 @@ bool CaptureDShow::connectFilters(IGraphBuilder *pGraph,
     return true;
 }
 
-PinList CaptureDShow::enumPins(IBaseFilter *filter,
-                               PIN_DIRECTION direction) const
+PinList CaptureDShowPrivate::enumPins(IBaseFilter *filter,
+                                      PIN_DIRECTION direction) const
 {
     if (!filter)
         return PinList();
@@ -808,12 +906,12 @@ PinList CaptureDShow::enumPins(IBaseFilter *filter,
     return pinList;
 }
 
-void CaptureDShow::deleteUnknown(IUnknown *unknown)
+void CaptureDShowPrivate::deleteUnknown(IUnknown *unknown)
 {
     unknown->Release();
 }
 
-void CaptureDShow::freeMediaType(AM_MEDIA_TYPE &mediaType)
+void CaptureDShowPrivate::freeMediaType(AM_MEDIA_TYPE &mediaType)
 {
     if (mediaType.cbFormat) {
         CoTaskMemFree(PVOID(mediaType.pbFormat));
@@ -828,21 +926,21 @@ void CaptureDShow::freeMediaType(AM_MEDIA_TYPE &mediaType)
     }
 }
 
-void CaptureDShow::deleteMediaType(AM_MEDIA_TYPE *mediaType)
+void CaptureDShowPrivate::deleteMediaType(AM_MEDIA_TYPE *mediaType)
 {
     if (!mediaType)
         return;
 
-    CaptureDShow::freeMediaType(*mediaType);
+    CaptureDShowPrivate::freeMediaType(*mediaType);
     CoTaskMemFree(mediaType);
 }
 
-void CaptureDShow::deletePin(IPin *pin)
+void CaptureDShowPrivate::deletePin(IPin *pin)
 {
     pin->Release();
 }
 
-QVariantList CaptureDShow::imageControls(IBaseFilter *filter) const
+QVariantList CaptureDShowPrivate::imageControls(IBaseFilter *filter) const
 {
     if (!filter)
         return QVariantList();
@@ -901,8 +999,8 @@ QVariantList CaptureDShow::imageControls(IBaseFilter *filter) const
     return controls;
 }
 
-bool CaptureDShow::setImageControls(IBaseFilter *filter,
-                               const QVariantMap &imageControls) const
+bool CaptureDShowPrivate::setImageControls(IBaseFilter *filter,
+                                           const QVariantMap &imageControls) const
 {
     if (!filter)
         return false;
@@ -926,7 +1024,7 @@ bool CaptureDShow::setImageControls(IBaseFilter *filter,
     return true;
 }
 
-QVariantList CaptureDShow::cameraControls(IBaseFilter *filter) const
+QVariantList CaptureDShowPrivate::cameraControls(IBaseFilter *filter) const
 {
     if (!filter)
         return QVariantList();
@@ -974,8 +1072,8 @@ QVariantList CaptureDShow::cameraControls(IBaseFilter *filter) const
     return controls;
 }
 
-bool CaptureDShow::setCameraControls(IBaseFilter *filter,
-                                const QVariantMap &cameraControls) const
+bool CaptureDShowPrivate::setCameraControls(IBaseFilter *filter,
+                                            const QVariantMap &cameraControls) const
 {
     if (!filter)
         return false;
@@ -999,7 +1097,7 @@ bool CaptureDShow::setCameraControls(IBaseFilter *filter,
     return true;
 }
 
-QVariantMap CaptureDShow::controlStatus(const QVariantList &controls) const
+QVariantMap CaptureDShowPrivate::controlStatus(const QVariantList &controls) const
 {
     QVariantMap controlStatus;
 
@@ -1012,8 +1110,8 @@ QVariantMap CaptureDShow::controlStatus(const QVariantList &controls) const
     return controlStatus;
 }
 
-QVariantMap CaptureDShow::mapDiff(const QVariantMap &map1,
-                                  const QVariantMap &map2) const
+QVariantMap CaptureDShowPrivate::mapDiff(const QVariantMap &map1,
+                                         const QVariantMap &map2) const
 {
     QVariantMap map;
 
@@ -1033,24 +1131,24 @@ bool CaptureDShow::init()
                                 nullptr,
                                 CLSCTX_INPROC_SERVER,
                                 IID_IGraphBuilder,
-                                reinterpret_cast<void **>(&this->m_graph))))
+                                reinterpret_cast<void **>(&this->d->m_graph))))
         return false;
 
     // Create the webcam filter.
-    this->m_webcamFilter = this->findFilter(this->m_device);
+    this->d->m_webcamFilter = this->d->findFilter(this->d->m_device);
 
-    if (!this->m_webcamFilter) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
+    if (!this->d->m_webcamFilter) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
 
         return false;
     }
 
-    if (FAILED(this->m_graph->AddFilter(this->m_webcamFilter.data(),
-                                        SOURCE_FILTER_NAME))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+    if (FAILED(this->d->m_graph->AddFilter(this->d->m_webcamFilter.data(),
+                                           SOURCE_FILTER_NAME))) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
@@ -1063,17 +1161,17 @@ bool CaptureDShow::init()
                                 CLSCTX_INPROC_SERVER,
                                 IID_IBaseFilter,
                                 reinterpret_cast<void **>(&grabberFilter)))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    if (FAILED(this->m_graph->AddFilter(grabberFilter, L"Grabber"))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+    if (FAILED(this->d->m_graph->AddFilter(grabberFilter, L"Grabber"))) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
@@ -1082,17 +1180,17 @@ bool CaptureDShow::init()
 
     if (FAILED(grabberFilter->QueryInterface(IID_ISampleGrabber,
                                              reinterpret_cast<void **>(&grabberPtr)))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
     if (FAILED(grabberPtr->SetOneShot(FALSE))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
@@ -1100,26 +1198,26 @@ bool CaptureDShow::init()
     HRESULT hr = grabberPtr->SetBufferSamples(TRUE);
 
     if (FAILED(hr)) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    if (this->m_ioMethod != IoMethodDirectRead) {
-        int type = this->m_ioMethod == IoMethodGrabSample? 0: 1;
-        hr = grabberPtr->SetCallback(&this->m_frameGrabber, type);
+    if (this->d->m_ioMethod != IoMethodDirectRead) {
+        int type = this->d->m_ioMethod == IoMethodGrabSample? 0: 1;
+        hr = grabberPtr->SetCallback(&this->d->m_frameGrabber, type);
     }
 
-    this->m_grabber = SampleGrabberPtr(grabberPtr, this->deleteUnknown);
+    this->d->m_grabber = SampleGrabberPtr(grabberPtr, this->d->deleteUnknown);
 
-    if (!this->connectFilters(this->m_graph,
-                              this->m_webcamFilter.data(),
-                              grabberFilter)) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+    if (!this->d->connectFilters(this->d->m_graph,
+                                 this->d->m_webcamFilter.data(),
+                                 grabberFilter)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
@@ -1132,25 +1230,27 @@ bool CaptureDShow::init()
                                 CLSCTX_INPROC_SERVER,
                                 IID_IBaseFilter,
                                 reinterpret_cast<void **>(&nullFilter)))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    if (FAILED(this->m_graph->AddFilter(nullFilter, L"NullFilter"))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+    if (FAILED(this->d->m_graph->AddFilter(nullFilter, L"NullFilter"))) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    if (!this->connectFilters(this->m_graph, grabberFilter, nullFilter)) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+    if (!this->d->connectFilters(this->d->m_graph,
+                                 grabberFilter,
+                                 nullFilter)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
@@ -1159,19 +1259,19 @@ bool CaptureDShow::init()
     auto streams = this->streams();
 
     if (streams.isEmpty()) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    auto mediaTypes = this->listMediaTypes(this->m_webcamFilter.data());
+    auto mediaTypes = this->d->listMediaTypes(this->d->m_webcamFilter.data());
 
     if (mediaTypes.isEmpty()) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
@@ -1181,14 +1281,15 @@ bool CaptureDShow::init()
                                 mediaTypes.first();
 
     if (FAILED(grabberPtr->SetMediaType(mediaType.data()))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    PinList pins = this->enumPins(this->m_webcamFilter.data(), PINDIR_OUTPUT);
+    auto pins = this->d->enumPins(this->d->m_webcamFilter.data(),
+                                  PINDIR_OUTPUT);
 
     for (const PinPtr &pin: pins) {
         IAMStreamConfig *pStreamConfig = nullptr;
@@ -1206,32 +1307,32 @@ bool CaptureDShow::init()
     // Run the pipeline
     IMediaControl *control = nullptr;
 
-    if (FAILED(this->m_graph->QueryInterface(IID_IMediaControl,
+    if (FAILED(this->d->m_graph->QueryInterface(IID_IMediaControl,
                                              reinterpret_cast<void **>(&control)))) {
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
-    this->m_id = Ak::id();
-    AkCaps caps = this->capsFromMediaType(mediaType);
-    this->m_timeBase = AkFrac(caps.property("fps").toString()).invert();
+    this->d->m_id = Ak::id();
+    AkCaps caps = this->d->capsFromMediaType(mediaType);
+    this->d->m_timeBase = AkFrac(caps.property("fps").toString()).invert();
 
     if (FAILED(control->Run())) {
         control->Release();
-        this->m_graph->Release();
-        this->m_graph = nullptr;
-        this->m_webcamFilter.clear();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
 
         return false;
     }
 
     control->Release();
 
-    this->m_localImageControls.clear();
-    this->m_localImageControls.clear();
+    this->d->m_localImageControls.clear();
+    this->d->m_localCameraControls.clear();
 
     return true;
 }
@@ -1240,47 +1341,47 @@ void CaptureDShow::uninit()
 {
     IMediaControl *control = nullptr;
 
-    if (SUCCEEDED(this->m_graph->QueryInterface(IID_IMediaControl,
-                                                reinterpret_cast<void **>(&control)))) {
+    if (SUCCEEDED(this->d->m_graph->QueryInterface(IID_IMediaControl,
+                                                   reinterpret_cast<void **>(&control)))) {
         control->Stop();
         control->Release();
     }
 
-    this->m_grabber.clear();
-    this->m_graph->Release();
-    this->m_graph = nullptr;
-    this->m_webcamFilter.clear();
+    this->d->m_grabber.clear();
+    this->d->m_graph->Release();
+    this->d->m_graph = nullptr;
+    this->d->m_webcamFilter.clear();
 }
 
 void CaptureDShow::setDevice(const QString &device)
 {
-    if (this->m_device == device)
+    if (this->d->m_device == device)
         return;
 
-    this->m_device = device;
+    this->d->m_device = device;
 
     if (device.isEmpty()) {
-        this->m_controlsMutex.lock();
-        this->m_globalImageControls.clear();
-        this->m_globalCameraControls.clear();
-        this->m_controlsMutex.unlock();
+        this->d->m_controlsMutex.lock();
+        this->d->m_globalImageControls.clear();
+        this->d->m_globalCameraControls.clear();
+        this->d->m_controlsMutex.unlock();
     } else {
-        this->m_controlsMutex.lock();
-        auto camera = this->findFilterP(device);
+        this->d->m_controlsMutex.lock();
+        auto camera = this->d->findFilterP(device);
 
         if (camera) {
-            this->m_globalImageControls = this->imageControls(camera);
-            this->m_globalCameraControls = this->cameraControls(camera);
+            this->d->m_globalImageControls = this->d->imageControls(camera);
+            this->d->m_globalCameraControls = this->d->cameraControls(camera);
             camera->Release();
         }
 
-        this->m_controlsMutex.unlock();
+        this->d->m_controlsMutex.unlock();
     }
 
-    this->m_controlsMutex.lock();
-    QVariantMap imageStatus = this->controlStatus(this->m_globalImageControls);
-    QVariantMap cameraStatus = this->controlStatus(this->m_globalCameraControls);
-    this->m_controlsMutex.unlock();
+    this->d->m_controlsMutex.lock();
+    QVariantMap imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
+    QVariantMap cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
+    this->d->m_controlsMutex.unlock();
 
     emit this->deviceChanged(device);
     emit this->imageControlsChanged(imageStatus);
@@ -1297,7 +1398,7 @@ void CaptureDShow::setStreams(const QList<int> &streams)
     if (stream < 0)
         return;
 
-    QVariantList supportedCaps = this->caps(this->m_device);
+    auto supportedCaps = this->caps(this->d->m_device);
 
     if (stream >= supportedCaps.length())
         return;
@@ -1307,7 +1408,7 @@ void CaptureDShow::setStreams(const QList<int> &streams)
     if (this->streams() == inputStreams)
         return;
 
-    this->m_streams = inputStreams;
+    this->d->m_streams = inputStreams;
     emit this->streamsChanged(inputStreams);
 }
 
@@ -1315,10 +1416,10 @@ void CaptureDShow::setIoMethod(const QString &ioMethod)
 {
     IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodGrabSample);
 
-    if (this->m_ioMethod == ioMethodEnum)
+    if (this->d->m_ioMethod == ioMethodEnum)
         return;
 
-    this->m_ioMethod = ioMethodEnum;
+    this->d->m_ioMethod = ioMethodEnum;
     emit this->ioMethodChanged(ioMethod);
 }
 
@@ -1334,7 +1435,7 @@ void CaptureDShow::resetDevice()
 
 void CaptureDShow::resetStreams()
 {
-    QVariantList supportedCaps = this->caps(this->m_device);
+    QVariantList supportedCaps = this->caps(this->d->m_device);
     QList<int> streams;
 
     if (!supportedCaps.isEmpty())
@@ -1363,8 +1464,10 @@ void CaptureDShow::frameReceived(qreal time, const QByteArray &buffer)
 {
     Q_UNUSED(time)
 
-    this->m_mutex.lock();
-    this->m_curBuffer = buffer;
-    this->m_waitCondition.wakeAll();
-    this->m_mutex.unlock();
+    this->d->m_mutex.lock();
+    this->d->m_curBuffer = buffer;
+    this->d->m_waitCondition.wakeAll();
+    this->d->m_mutex.unlock();
 }
+
+#include "moc_capturedshow.cpp"

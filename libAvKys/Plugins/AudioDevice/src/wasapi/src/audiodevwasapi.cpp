@@ -18,6 +18,12 @@
  */
 
 #include <QMap>
+#include <QVector>
+#include <akaudiopacket.h>
+#include <audioclient.h>
+#include <objbase.h>
+#include <initguid.h>
+#include <propkeydef.h>
 
 #include "audiodevwasapi.h"
 
@@ -72,16 +78,55 @@ inline ErrorCodesMap initErrorCodesMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(ErrorCodesMap, errorCodes, (initErrorCodesMap()))
 
+class AudioDevWasapiPrivate
+{
+    public:
+        AudioDevWasapi *self;
+        QString m_error;
+        QStringList m_sources;
+        QStringList m_sinks;
+        QString m_defaultSink;
+        QString m_defaultSource;
+        QMap<QString, QString> m_descriptionMap;
+        QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
+        QMap<QString, QList<int>> m_supportedChannels;
+        QMap<QString, QList<int>> m_supportedSampleRates;
+        QByteArray m_audioBuffer;
+        IMMDeviceEnumerator *m_deviceEnumerator;
+        IMMDevice *m_pDevice;
+        IAudioClient *m_pAudioClient;
+        IAudioCaptureClient *m_pCaptureClient;
+        IAudioRenderClient *m_pRenderClient;
+        HANDLE m_hEvent;
+        ULONG m_cRef;
+        AkAudioCaps m_curCaps;
+        QString m_curDevice;
+
+        AudioDevWasapiPrivate(AudioDevWasapi *self):
+            self(self),
+            m_deviceEnumerator(nullptr),
+            m_pDevice(nullptr),
+            m_pAudioClient(nullptr),
+            m_pCaptureClient(nullptr),
+            m_pRenderClient(nullptr),
+            m_hEvent(nullptr),
+            m_cRef(1)
+        {
+        }
+
+        inline bool waveFormatFromAk(WAVEFORMATEX *wfx,
+                                     const AkAudioCaps &caps) const;
+        inline void fillDeviceInfo(const QString &device,
+                                   EDataFlow dataFlow,
+                                   QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                   QList<int> *supportedChannels,
+                                   QList<int> *supportedSampleRates) const;
+};
+
 AudioDevWasapi::AudioDevWasapi(QObject *parent):
     AudioDev(parent)
 {
-    this->m_deviceEnumerator = nullptr;
-    this->m_pDevice = nullptr;
-    this->m_pAudioClient = nullptr;
-    this->m_pCaptureClient = nullptr;
-    this->m_pRenderClient = nullptr;
-    this->m_hEvent = nullptr;
-    this->m_cRef = 1;
+    this->d = new AudioDevWasapiPrivate(this);
 
     // Create DeviceEnumerator
     HRESULT hr;
@@ -91,13 +136,13 @@ AudioDevWasapi::AudioDevWasapi(QObject *parent):
                                      nullptr,
                                      CLSCTX_ALL,
                                      __uuidof(IMMDeviceEnumerator),
-                                     reinterpret_cast<void **>(&this->m_deviceEnumerator)))) {
+                                     reinterpret_cast<void **>(&this->d->m_deviceEnumerator)))) {
         return;
     }
 
-    if (FAILED(hr = this->m_deviceEnumerator->RegisterEndpointNotificationCallback(this))) {
-        this->m_deviceEnumerator->Release();
-        this->m_deviceEnumerator = nullptr;
+    if (FAILED(hr = this->d->m_deviceEnumerator->RegisterEndpointNotificationCallback(this))) {
+        this->d->m_deviceEnumerator->Release();
+        this->d->m_deviceEnumerator = nullptr;
 
         return;
     }
@@ -108,44 +153,45 @@ AudioDevWasapi::AudioDevWasapi(QObject *parent):
 AudioDevWasapi::~AudioDevWasapi()
 {
     this->uninit();
-    this->m_deviceEnumerator->UnregisterEndpointNotificationCallback(this);
-    this->m_deviceEnumerator->Release();
+    this->d->m_deviceEnumerator->UnregisterEndpointNotificationCallback(this);
+    this->d->m_deviceEnumerator->Release();
+    delete this->d;
 }
 
 QString AudioDevWasapi::error() const
 {
-    return this->m_error;
+    return this->d->m_error;
 }
 
 QString AudioDevWasapi::defaultInput()
 {
-    return this->m_defaultSource;
+    return this->d->m_defaultSource;
 }
 
 QString AudioDevWasapi::defaultOutput()
 {
-    return this->m_defaultSink;
+    return this->d->m_defaultSink;
 }
 
 QStringList AudioDevWasapi::inputs()
 {
-    return this->m_sources;
+    return this->d->m_sources;
 }
 
 QStringList AudioDevWasapi::outputs()
 {
-    return this->m_sinks;
+    return this->d->m_sinks;
 }
 
 QString AudioDevWasapi::description(const QString &device)
 {
-    return this->m_descriptionMap.value(device);
+    return this->d->m_descriptionMap.value(device);
 }
 
 // Get native format for the default audio device.
 AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
 {
-    return this->m_sinks.contains(device)?
+    return this->d->m_sinks.contains(device)?
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             2,
                             44100):
@@ -156,17 +202,17 @@ AkAudioCaps AudioDevWasapi::preferredFormat(const QString &device)
 
 QList<AkAudioCaps::SampleFormat> AudioDevWasapi::supportedFormats(const QString &device)
 {
-    return this->m_supportedFormats.value(device);
+    return this->d->m_supportedFormats.value(device);
 }
 
 QList<int> AudioDevWasapi::supportedChannels(const QString &device)
 {
-    return this->m_supportedChannels.value(device);
+    return this->d->m_supportedChannels.value(device);
 }
 
 QList<int> AudioDevWasapi::supportedSampleRates(const QString &device)
 {
-    return this->m_supportedSampleRates.value(device);
+    return this->d->m_supportedSampleRates.value(device);
 }
 
 bool AudioDevWasapi::init(const QString &device, const AkAudioCaps &caps)
@@ -178,35 +224,35 @@ bool AudioDevWasapi::init(const QString &device,
                           const AkAudioCaps &caps,
                           bool justActivate)
 {
-    if (!this->m_deviceEnumerator) {
-        this->m_error = "Device enumerator not created.";
-        emit this->errorChanged(this->m_error);
+    if (!this->d->m_deviceEnumerator) {
+        this->d->m_error = "Device enumerator not created.";
+        emit this->errorChanged(this->d->m_error);
 
         return false;
     }
 
     // Clear audio buffer.
-    this->m_audioBuffer.clear();
+    this->d->m_audioBuffer.clear();
 
     HRESULT hr;
 
     // Get audio device.
-    if (FAILED(hr = this->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
-                                                   &this->m_pDevice))) {
-        this->m_error = "GetDevice: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    if (FAILED(hr = this->d->m_deviceEnumerator->GetDevice(device.toStdWString().c_str(),
+                                                           &this->d->m_pDevice))) {
+        this->d->m_error = "GetDevice: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
     }
 
     // Get an instance for the audio client.
-    if (FAILED(hr = this->m_pDevice->Activate(__uuidof(IAudioClient),
-                                              CLSCTX_ALL,
-                                              nullptr,
-                                              reinterpret_cast<void **>(&this->m_pAudioClient)))) {
-        this->m_error = "Activate: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    if (FAILED(hr = this->d->m_pDevice->Activate(__uuidof(IAudioClient),
+                                                 CLSCTX_ALL,
+                                                 nullptr,
+                                                 reinterpret_cast<void **>(&this->d->m_pAudioClient)))) {
+        this->d->m_error = "Activate: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
@@ -224,7 +270,7 @@ bool AudioDevWasapi::init(const QString &device,
     // to get the size of the buffer in seconds.
     //
     REFERENCE_TIME hnsRequestedDuration;
-    this->m_pAudioClient->GetDevicePeriod(nullptr, &hnsRequestedDuration);
+    this->d->m_pAudioClient->GetDevicePeriod(nullptr, &hnsRequestedDuration);
 
     // Accumulate a minimum of 1 sec. of audio in the buffer.
     REFERENCE_TIME minDuration = 10e6;
@@ -234,17 +280,17 @@ bool AudioDevWasapi::init(const QString &device,
 
     // Set audio device format.
     WAVEFORMATEX wfx;
-    this->waveFormatFromAk(&wfx, caps);
-    this->m_curCaps = caps;
+    this->d->waveFormatFromAk(&wfx, caps);
+    this->d->m_curCaps = caps;
 
-    if (FAILED(hr = this->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-                                                     AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
-                                                     hnsRequestedDuration,
-                                                     hnsRequestedDuration,
-                                                     &wfx,
-                                                     nullptr))) {
-        this->m_error = "Initialize: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    if (FAILED(hr = this->d->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
+                                                        AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
+                                                        hnsRequestedDuration,
+                                                        hnsRequestedDuration,
+                                                        &wfx,
+                                                        nullptr))) {
+        this->d->m_error = "Initialize: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
@@ -252,20 +298,20 @@ bool AudioDevWasapi::init(const QString &device,
 
     // Create an event handler for checking when an aundio frame is required
     // for reading or writing.
-    this->m_hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    this->d->m_hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
-    if (!this->m_hEvent) {
-        this->m_error = "CreateEvent: Error creating event handler";
-        emit this->errorChanged(this->m_error);
+    if (!this->d->m_hEvent) {
+        this->d->m_error = "CreateEvent: Error creating event handler";
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
     }
 
     // Set event handler.
-    if (FAILED(this->m_pAudioClient->SetEventHandle(this->m_hEvent))) {
-        this->m_error = "SetEventHandle: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    if (FAILED(this->d->m_pAudioClient->SetEventHandle(this->d->m_hEvent))) {
+        this->d->m_error = "SetEventHandle: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
@@ -273,30 +319,30 @@ bool AudioDevWasapi::init(const QString &device,
 
     // Get audio capture/render client.
     if (this->inputs().contains(device))
-        hr = this->m_pAudioClient->GetService(__uuidof(IAudioCaptureClient),
-                                              reinterpret_cast<void **>(&this->m_pCaptureClient));
+        hr = this->d->m_pAudioClient->GetService(__uuidof(IAudioCaptureClient),
+                                                 reinterpret_cast<void **>(&this->d->m_pCaptureClient));
     else
-        hr = this->m_pAudioClient->GetService(__uuidof(IAudioRenderClient),
-                                              reinterpret_cast<void **>(&this->m_pRenderClient));
+        hr = this->d->m_pAudioClient->GetService(__uuidof(IAudioRenderClient),
+                                                 reinterpret_cast<void **>(&this->d->m_pRenderClient));
 
     if (FAILED(hr)) {
-        this->m_error = "GetService: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+        this->d->m_error = "GetService: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
     }
 
     // Start audio client.
-    if (FAILED(hr = this->m_pAudioClient->Start())) {
-        this->m_error = "Start: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    if (FAILED(hr = this->d->m_pAudioClient->Start())) {
+        this->d->m_error = "Start: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         this->uninit();
 
         return false;
     }
 
-    this->m_curDevice = device;
+    this->d->m_curDevice = device;
 
     return true;
 }
@@ -304,17 +350,17 @@ bool AudioDevWasapi::init(const QString &device,
 QByteArray AudioDevWasapi::read(int samples)
 {
     int bufferSize = samples
-                     * this->m_curCaps.bps()
-                     * this->m_curCaps.channels()
+                     * this->d->m_curCaps.bps()
+                     * this->d->m_curCaps.channels()
                      / 8;
 
     int nErrors = 0;
 
     // Read audio samples until audio buffer is full.
-    while (this->m_audioBuffer.size() < bufferSize
+    while (this->d->m_audioBuffer.size() < bufferSize
            && nErrors < MAX_ERRORS_READ_WRITE) {
         // Wait until an audio frame can be read.
-        if (WaitForSingleObject(this->m_hEvent, EVENT_TIMEOUT) != WAIT_OBJECT_0) {
+        if (WaitForSingleObject(this->d->m_hEvent, EVENT_TIMEOUT) != WAIT_OBJECT_0) {
             nErrors++;
 
             continue;
@@ -324,9 +370,9 @@ QByteArray AudioDevWasapi::read(int samples)
         UINT32 samplesCount = 0;
 
         // Get the size in samples of the captured audio frame.
-        if (FAILED(hr = this->m_pCaptureClient->GetNextPacketSize(&samplesCount))) {
-            this->m_error = "GetNextPacketSize: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pCaptureClient->GetNextPacketSize(&samplesCount))) {
+            this->d->m_error = "GetNextPacketSize: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return QByteArray();
         }
@@ -339,21 +385,22 @@ QByteArray AudioDevWasapi::read(int samples)
         DWORD flags = 0;
 
         // Read audio buffer.
-        if (FAILED(hr = this->m_pCaptureClient->GetBuffer(&pData,
-                                                          &samplesCount,
-                                                          &flags,
-                                                          nullptr,
-                                                          nullptr))) {
-            this->m_error = "GetBuffer: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pCaptureClient->GetBuffer(&pData,
+                                                             &samplesCount,
+                                                             &flags,
+                                                             nullptr,
+                                                             nullptr))) {
+            this->d->m_error = "GetBuffer: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return QByteArray();
         }
 
-        size_t bufferSize = samplesCount
-                            * size_t(this->m_curCaps.bps()
-                                     * this->m_curCaps.channels())
-                            / 8;
+        size_t bufferSize =
+                samplesCount
+                * size_t(this->d->m_curCaps.bps()
+                         * this->d->m_curCaps.channels())
+                / 8;
 
         // This flag means we must ignore the incoming buffer and write zeros
         // to it.
@@ -368,36 +415,36 @@ QByteArray AudioDevWasapi::read(int samples)
         if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
             delete [] pData;
 
-        this->m_audioBuffer.append(buffer);
+        this->d->m_audioBuffer.append(buffer);
 
         // Remove read samples from the audio device.
-        if (FAILED(hr = this->m_pCaptureClient->ReleaseBuffer(samplesCount))) {
-            this->m_error = "ReleaseBuffer: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pCaptureClient->ReleaseBuffer(samplesCount))) {
+            this->d->m_error = "ReleaseBuffer: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return QByteArray();
         }
     }
 
     // In case of error and if the buffer is empty, return.
-    if (this->m_audioBuffer.isEmpty())
+    if (this->d->m_audioBuffer.isEmpty())
         return QByteArray();
 
-    QByteArray buffer = this->m_audioBuffer.mid(0, bufferSize);
-    this->m_audioBuffer.remove(0, bufferSize);
+    QByteArray buffer = this->d->m_audioBuffer.mid(0, bufferSize);
+    this->d->m_audioBuffer.remove(0, bufferSize);
 
     return buffer;
 }
 
 bool AudioDevWasapi::write(const AkAudioPacket &packet)
 {
-    this->m_audioBuffer.append(packet.buffer());
+    this->d->m_audioBuffer.append(packet.buffer());
     int nErrors = 0;
 
-    while (!this->m_audioBuffer.isEmpty()
+    while (!this->d->m_audioBuffer.isEmpty()
            && nErrors < MAX_ERRORS_READ_WRITE) {
         // Wait until an audio frame can be writen.
-        if (WaitForSingleObject(this->m_hEvent, EVENT_TIMEOUT) != WAIT_OBJECT_0) {
+        if (WaitForSingleObject(this->d->m_hEvent, EVENT_TIMEOUT) != WAIT_OBJECT_0) {
             nErrors++;
 
             continue;
@@ -407,9 +454,9 @@ bool AudioDevWasapi::write(const AkAudioPacket &packet)
         UINT32 samplesCount;
 
         // Get audio buffer size in samples.
-        if (FAILED(hr = this->m_pAudioClient->GetBufferSize(&samplesCount))) {
-            this->m_error = "GetBufferSize: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pAudioClient->GetBufferSize(&samplesCount))) {
+            this->d->m_error = "GetBufferSize: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return false;
         }
@@ -417,9 +464,9 @@ bool AudioDevWasapi::write(const AkAudioPacket &packet)
         UINT32 numSamplesPadding;
 
         // Get the number of samples already present in the audio buffer.
-        if (FAILED(hr = this->m_pAudioClient->GetCurrentPadding(&numSamplesPadding))) {
-            this->m_error = "GetCurrentPadding: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pAudioClient->GetCurrentPadding(&numSamplesPadding))) {
+            this->d->m_error = "GetCurrentPadding: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return false;
         }
@@ -433,36 +480,37 @@ bool AudioDevWasapi::write(const AkAudioPacket &packet)
             continue;
 
         // Check how many samples we can write to the audio buffer.
-        UINT32 samplesInBuffer = UINT32(this->m_audioBuffer.size()
+        UINT32 samplesInBuffer = UINT32(this->d->m_audioBuffer.size()
                                         * 8
-                                        / this->m_curCaps.bps()
-                                        / this->m_curCaps.channels());
+                                        / this->d->m_curCaps.bps()
+                                        / this->d->m_curCaps.channels());
         UINT32 samplesToWrite = qMin(availableSamples, samplesInBuffer);
 
         BYTE *pData = nullptr;
 
         // Get the audio buffer.
-        if (FAILED(hr = this->m_pRenderClient->GetBuffer(samplesToWrite, &pData))) {
-            this->m_error = "GetBuffer: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pRenderClient->GetBuffer(samplesToWrite, &pData))) {
+            this->d->m_error = "GetBuffer: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return false;
         }
 
         // Copy the maximum number of audio samples we can write to the audio
         // buffer.
-        size_t bufferSize = samplesToWrite
-                            * size_t(this->m_curCaps.bps()
-                                     * this->m_curCaps.channels())
-                            / 8;
+        size_t bufferSize =
+                samplesToWrite
+                * size_t(this->d->m_curCaps.bps()
+                         * this->d->m_curCaps.channels())
+                / 8;
 
-        memcpy(pData, this->m_audioBuffer.constData(), bufferSize);
-        this->m_audioBuffer.remove(0, int(bufferSize));
+        memcpy(pData, this->d->m_audioBuffer.constData(), bufferSize);
+        this->d->m_audioBuffer.remove(0, int(bufferSize));
 
         // Tell audio device how many samples we had written.
-        if (FAILED(hr = this->m_pRenderClient->ReleaseBuffer(samplesToWrite, 0))) {
-            this->m_error = "ReleaseBuffer: " + errorCodes->value(hr);
-            emit this->errorChanged(this->m_error);
+        if (FAILED(hr = this->d->m_pRenderClient->ReleaseBuffer(samplesToWrite, 0))) {
+            this->d->m_error = "ReleaseBuffer: " + errorCodes->value(hr);
+            emit this->errorChanged(this->d->m_error);
 
             return false;
         }
@@ -477,39 +525,39 @@ bool AudioDevWasapi::uninit()
     HRESULT hr;
 
     // Stop audio device.
-    if (this->m_pAudioClient && FAILED(hr = this->m_pAudioClient->Stop())) {
-        this->m_error = "Stop: " + errorCodes->value(hr);
-        emit this->errorChanged(this->m_error);
+    if (this->d->m_pAudioClient && FAILED(hr = this->d->m_pAudioClient->Stop())) {
+        this->d->m_error = "Stop: " + errorCodes->value(hr);
+        emit this->errorChanged(this->d->m_error);
         ok = false;
     }
 
     // Release interfaces.
-    if (this->m_pCaptureClient) {
-        this->m_pCaptureClient->Release();
-        this->m_pCaptureClient = nullptr;
+    if (this->d->m_pCaptureClient) {
+        this->d->m_pCaptureClient->Release();
+        this->d->m_pCaptureClient = nullptr;
     }
 
-    if (this->m_pRenderClient) {
-        this->m_pRenderClient->Release();
-        this->m_pRenderClient = nullptr;
+    if (this->d->m_pRenderClient) {
+        this->d->m_pRenderClient->Release();
+        this->d->m_pRenderClient = nullptr;
     }
 
-    if (this->m_pAudioClient) {
-        this->m_pAudioClient->Release();
-        this->m_pAudioClient = nullptr;
+    if (this->d->m_pAudioClient) {
+        this->d->m_pAudioClient->Release();
+        this->d->m_pAudioClient = nullptr;
     }
 
-    if (this->m_pDevice) {
-        this->m_pDevice->Release();
-        this->m_pDevice = nullptr;
+    if (this->d->m_pDevice) {
+        this->d->m_pDevice->Release();
+        this->d->m_pDevice = nullptr;
     }
 
-    if (this->m_hEvent) {
-        CloseHandle(this->m_hEvent);
-        this->m_hEvent = nullptr;
+    if (this->d->m_hEvent) {
+        CloseHandle(this->d->m_hEvent);
+        this->d->m_hEvent = nullptr;
     }
 
-    this->m_curDevice.clear();
+    this->d->m_curDevice.clear();
 
     return ok;
 }
@@ -532,12 +580,12 @@ HRESULT AudioDevWasapi::QueryInterface(const IID &riid, void **ppvObject)
 
 ULONG AudioDevWasapi::AddRef()
 {
-    return InterlockedIncrement(&this->m_cRef);
+    return InterlockedIncrement(&this->d->m_cRef);
 }
 
 ULONG AudioDevWasapi::Release()
 {
-    ULONG lRef = InterlockedDecrement(&this->m_cRef);
+    ULONG lRef = InterlockedDecrement(&this->d->m_cRef);
 
     if (lRef == 0)
         delete this;
@@ -545,8 +593,8 @@ ULONG AudioDevWasapi::Release()
     return lRef;
 }
 
-bool AudioDevWasapi::waveFormatFromAk(WAVEFORMATEX *wfx,
-                                      const AkAudioCaps &caps) const
+bool AudioDevWasapiPrivate::waveFormatFromAk(WAVEFORMATEX *wfx,
+                                             const AkAudioCaps &caps) const
 {
     if (!wfx)
         return false;
@@ -563,11 +611,11 @@ bool AudioDevWasapi::waveFormatFromAk(WAVEFORMATEX *wfx,
     return true;
 }
 
-void AudioDevWasapi::fillDeviceInfo(const QString &device,
-                                    EDataFlow dataFlow,
-                                    QList<AkAudioCaps::SampleFormat> *supportedFormats,
-                                    QList<int> *supportedChannels,
-                                    QList<int> *supportedSampleRates) const
+void AudioDevWasapiPrivate::fillDeviceInfo(const QString &device,
+                                           EDataFlow dataFlow,
+                                           QList<AkAudioCaps::SampleFormat> *supportedFormats,
+                                           QList<int> *supportedChannels,
+                                           QList<int> *supportedSampleRates) const
 {
     if (!this->m_deviceEnumerator)
         return;
@@ -637,7 +685,7 @@ void AudioDevWasapi::fillDeviceInfo(const QString &device,
         }
     }
 
-    for (auto &rate: this->m_commonSampleRates) {
+    for (auto &rate: self->commonSampleRates()) {
         AkAudioCaps audioCaps(format, 1, rate);
         WAVEFORMATEX wfx;
         WAVEFORMATEX *closestWfx = nullptr;
@@ -694,10 +742,10 @@ HRESULT AudioDevWasapi::OnDefaultDeviceChanged(EDataFlow flow,
     QString deviceId = QString::fromWCharArray(pwstrDeviceId);
 
     if (flow == eCapture) {
-        this->m_defaultSource = deviceId;
+        this->d->m_defaultSource = deviceId;
         emit this->defaultInputChanged(deviceId);
     } else if (flow == eRender) {
-        this->m_defaultSink = deviceId;
+        this->d->m_defaultSink = deviceId;
         emit this->defaultOutputChanged(deviceId);
     }
 
@@ -717,29 +765,29 @@ HRESULT AudioDevWasapi::OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
 
 void AudioDevWasapi::updateDevices()
 {
-    if (!this->m_deviceEnumerator) {
-        this->m_error = "Device enumerator not created.";
-        emit this->errorChanged(this->m_error);
+    if (!this->d->m_deviceEnumerator) {
+        this->d->m_error = "Device enumerator not created.";
+        emit this->errorChanged(this->d->m_error);
 
         return;
     }
 
-    decltype(this->m_sources) inputs;
-    decltype(this->m_sinks) outputs;
-    decltype(this->m_defaultSink) defaultSink;
-    decltype(this->m_defaultSource) defaultSource;
-    decltype(this->m_descriptionMap) descriptionMap;
-    decltype(this->m_supportedFormats) supportedFormats;
-    decltype(this->m_supportedChannels) supportedChannels;
-    decltype(this->m_supportedSampleRates) supportedSampleRates;
+    decltype(this->d->m_sources) inputs;
+    decltype(this->d->m_sinks) outputs;
+    decltype(this->d->m_defaultSink) defaultSink;
+    decltype(this->d->m_defaultSource) defaultSource;
+    decltype(this->d->m_descriptionMap) descriptionMap;
+    decltype(this->d->m_supportedFormats) supportedFormats;
+    decltype(this->d->m_supportedChannels) supportedChannels;
+    decltype(this->d->m_supportedSampleRates) supportedSampleRates;
 
     for (auto &dataFlow: QVector<EDataFlow> {eCapture, eRender}) {
         HRESULT hr;
         IMMDevice *defaultDevice = nullptr;
 
-        if (SUCCEEDED(hr = this->m_deviceEnumerator->GetDefaultAudioEndpoint(dataFlow,
-                                                                             eMultimedia,
-                                                                             &defaultDevice))) {
+        if (SUCCEEDED(hr = this->d->m_deviceEnumerator->GetDefaultAudioEndpoint(dataFlow,
+                                                                                eMultimedia,
+                                                                                &defaultDevice))) {
             LPWSTR deviceId;
 
             if (SUCCEEDED(hr = defaultDevice->GetId(&deviceId))) {
@@ -756,9 +804,9 @@ void AudioDevWasapi::updateDevices()
 
         IMMDeviceCollection *endPoints = nullptr;
 
-        if (SUCCEEDED(hr = this->m_deviceEnumerator->EnumAudioEndpoints(dataFlow,
-                                                                        eMultimedia,
-                                                                        &endPoints))) {
+        if (SUCCEEDED(hr = this->d->m_deviceEnumerator->EnumAudioEndpoints(dataFlow,
+                                                                           eMultimedia,
+                                                                           &endPoints))) {
             UINT nDevices = 0;
 
             if (SUCCEEDED(hr = endPoints->GetCount(&nDevices)))
@@ -782,23 +830,23 @@ void AudioDevWasapi::updateDevices()
                                     QList<AkAudioCaps::SampleFormat> _supportedFormats;
                                     QList<int> _supportedChannels;
                                     QList<int> _supportedSampleRates;
-                                    this->fillDeviceInfo(devId,
-                                                         dataFlow,
-                                                         &_supportedFormats,
-                                                         &_supportedChannels,
-                                                         &_supportedSampleRates);
+                                    this->d->fillDeviceInfo(devId,
+                                                            dataFlow,
+                                                            &_supportedFormats,
+                                                            &_supportedChannels,
+                                                            &_supportedSampleRates);
 
                                     if (_supportedFormats.isEmpty())
                                         _supportedFormats =
-                                                this->m_supportedFormats.value(devId);
+                                                this->d->m_supportedFormats.value(devId);
 
                                     if (_supportedChannels.isEmpty())
                                         _supportedChannels =
-                                                this->m_supportedChannels.value(devId);
+                                                this->d->m_supportedChannels.value(devId);
 
                                     if (_supportedSampleRates.isEmpty())
                                         _supportedSampleRates =
-                                                this->m_supportedSampleRates.value(devId);
+                                                this->d->m_supportedSampleRates.value(devId);
 
                                     if (!_supportedFormats.isEmpty()
                                         && !_supportedChannels.isEmpty()
@@ -832,25 +880,25 @@ void AudioDevWasapi::updateDevices()
         }
     }
 
-    if (this->m_supportedFormats != supportedFormats)
-        this->m_supportedFormats = supportedFormats;
+    if (this->d->m_supportedFormats != supportedFormats)
+        this->d->m_supportedFormats = supportedFormats;
 
-    if (this->m_supportedChannels != supportedChannels)
-        this->m_supportedChannels = supportedChannels;
+    if (this->d->m_supportedChannels != supportedChannels)
+        this->d->m_supportedChannels = supportedChannels;
 
-    if (this->m_supportedSampleRates != supportedSampleRates)
-        this->m_supportedSampleRates = supportedSampleRates;
+    if (this->d->m_supportedSampleRates != supportedSampleRates)
+        this->d->m_supportedSampleRates = supportedSampleRates;
 
-    if (this->m_descriptionMap != descriptionMap)
-        this->m_descriptionMap = descriptionMap;
+    if (this->d->m_descriptionMap != descriptionMap)
+        this->d->m_descriptionMap = descriptionMap;
 
-    if (this->m_sources != inputs) {
-        this->m_sources = inputs;
+    if (this->d->m_sources != inputs) {
+        this->d->m_sources = inputs;
         emit this->inputsChanged(inputs);
     }
 
-    if (this->m_sinks != outputs) {
-        this->m_sinks = outputs;
+    if (this->d->m_sinks != outputs) {
+        this->d->m_sinks = outputs;
         emit this->outputsChanged(outputs);
     }
 
@@ -860,13 +908,15 @@ void AudioDevWasapi::updateDevices()
     if (defaultSink.isEmpty() && !outputs.isEmpty())
         defaultSink = outputs.first();
 
-    if (this->m_defaultSource != defaultSource) {
-        this->m_defaultSource = defaultSource;
+    if (this->d->m_defaultSource != defaultSource) {
+        this->d->m_defaultSource = defaultSource;
         emit this->defaultInputChanged(defaultSource);
     }
 
-    if (this->m_defaultSink != defaultSink) {
-        this->m_defaultSink = defaultSink;
+    if (this->d->m_defaultSink != defaultSink) {
+        this->d->m_defaultSink = defaultSink;
         emit this->defaultOutputChanged(defaultSink);
     }
 }
+
+#include "moc_audiodevwasapi.cpp"

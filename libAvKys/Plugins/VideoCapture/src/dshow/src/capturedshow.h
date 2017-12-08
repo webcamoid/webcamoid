@@ -20,37 +20,11 @@
 #ifndef CAPTUREDSHOW_H
 #define CAPTUREDSHOW_H
 
-#include <QSize>
-#include <QMutex>
-#include <QWaitCondition>
 #include <QAbstractNativeEventFilter>
 
-#include <ak.h>
-
 #include "capture.h"
-#include "framegrabber.h"
 
-DEFINE_GUID(CLSID_SampleGrabber, 0xc1f400a0, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
-DEFINE_GUID(CLSID_NullRenderer, 0xc1f400a4, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
-
-Q_CORE_EXPORT HINSTANCE qWinAppInst();
-
-typedef QSharedPointer<IGraphBuilder> GraphBuilderPtr;
-typedef QSharedPointer<IBaseFilter> BaseFilterPtr;
-typedef QSharedPointer<ISampleGrabber> SampleGrabberPtr;
-typedef QSharedPointer<IAMStreamConfig> StreamConfigPtr;
-typedef QSharedPointer<FrameGrabber> FrameGrabberPtr;
-typedef QSharedPointer<IMoniker> MonikerPtr;
-typedef QMap<QString, MonikerPtr> MonikersMap;
-typedef QSharedPointer<AM_MEDIA_TYPE> MediaTypePtr;
-typedef QList<MediaTypePtr> MediaTypesList;
-typedef QSharedPointer<IPin> PinPtr;
-typedef QList<PinPtr> PinList;
-
-__inline bool operator <(REFGUID guid1, REFGUID guid2)
-{
-    return guid1.Data1 < guid2.Data1;
-}
+class CaptureDShowPrivate;
 
 class CaptureDShow: public Capture, QAbstractNativeEventFilter
 {
@@ -90,50 +64,7 @@ class CaptureDShow: public Capture, QAbstractNativeEventFilter
                                long *result);
 
     private:
-        QStringList m_webcams;
-        QString m_device;
-        QList<int> m_streams;
-        qint64 m_id;
-        AkFrac m_timeBase;
-        IoMethod m_ioMethod;
-        QMap<QString, QSize> m_resolution;
-        BaseFilterPtr m_webcamFilter;
-        IGraphBuilder *m_graph;
-        SampleGrabberPtr m_grabber;
-        FrameGrabber m_frameGrabber;
-        QByteArray m_curBuffer;
-        QMutex m_mutex;
-        QMutex m_controlsMutex;
-        QWaitCondition m_waitCondition;
-
-        QVariantList m_globalImageControls;
-        QVariantList m_globalCameraControls;
-        QVariantMap m_localImageControls;
-        QVariantMap m_localCameraControls;
-
-        AkCaps capsFromMediaType(const AM_MEDIA_TYPE *mediaType) const;
-        AkCaps capsFromMediaType(const MediaTypePtr &mediaType) const;
-        HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
-        MonikersMap listMonikers() const;
-        MonikerPtr findMoniker(const QString &webcam) const;
-        IBaseFilter *findFilterP(const QString &webcam) const;
-        BaseFilterPtr findFilter(const QString &webcam) const;
-        MediaTypesList listMediaTypes(const QString &webcam) const;
-        MediaTypesList listMediaTypes(IBaseFilter *filter) const;
-        bool isPinConnected(IPin *pPin, bool *ok=nullptr) const;
-        PinPtr findUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir) const;
-        bool connectFilters(IGraphBuilder *pGraph, IBaseFilter *pSrc, IBaseFilter *pDest) const;
-        PinList enumPins(IBaseFilter *filter, PIN_DIRECTION direction) const;
-        static void deleteUnknown(IUnknown *unknown);
-        static void freeMediaType(AM_MEDIA_TYPE &mediaType);
-        static void deleteMediaType(AM_MEDIA_TYPE *mediaType);
-        static void deletePin(IPin *pin);
-        QVariantList imageControls(IBaseFilter *filter) const;
-        bool setImageControls(IBaseFilter *filter, const QVariantMap &imageControls) const;
-        QVariantList cameraControls(IBaseFilter *filter) const;
-        bool setCameraControls(IBaseFilter *filter, const QVariantMap &cameraControls) const;
-        QVariantMap controlStatus(const QVariantList &controls) const;
-        QVariantMap mapDiff(const QVariantMap &map1, const QVariantMap &map2) const;
+        CaptureDShowPrivate *d;
 
     public slots:
         bool init();

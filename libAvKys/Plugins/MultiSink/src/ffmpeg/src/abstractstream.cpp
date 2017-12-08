@@ -26,6 +26,11 @@
 #include <QWaitCondition>
 #include <akpacket.h>
 
+extern "C"
+{
+    #include <libavutil/mathematics.h>
+}
+
 #include "abstractstream.h"
 #include "mediawriterffmpeg.h"
 

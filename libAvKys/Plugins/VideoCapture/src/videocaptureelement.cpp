@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QImage>
 #include <QQmlContext>
 #include <QSharedPointer>
 #include <QAbstractEventDispatcher>
@@ -532,13 +533,13 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
 void VideoCaptureElement::frameReady(const AkPacket &packet)
 {
 #ifdef Q_OS_WIN32
-    if (this->m_mirror || this->m_swapRgb) {
+    if (this->d->m_mirror || this->d->m_swapRgb) {
         QImage oImage = AkUtils::packetToImage(packet);
 
-        if (this->m_mirror)
+        if (this->d->m_mirror)
             oImage = oImage.mirrored();
 
-        if (this->m_swapRgb)
+        if (this->d->m_swapRgb)
             oImage = oImage.rgbSwapped();
 
         emit this->oStream(AkUtils::imageToPacket(oImage, packet));

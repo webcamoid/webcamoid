@@ -99,7 +99,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
         for (QString &path: blackListPaths) {
 #ifdef Q_OS_WIN32
-            path = this->convertToAbsolute(path);
+            path = this->d->convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);
@@ -115,7 +115,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
             auto path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
-            path = this->convertToAbsolute(path);
+            path = this->d->convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);
@@ -147,7 +147,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
             auto path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
-            path = this->convertToAbsolute(path);
+            path = this->d->convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);
@@ -176,7 +176,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
 
         for (QString &path: pluginPaths) {
 #ifdef Q_OS_WIN32
-            path = this->convertToAbsolute(path);
+            path = this->d->convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);
@@ -193,7 +193,7 @@ void PluginConfigs::loadProperties(const CliOptions &cliOptions)
             auto path = config.value("path").toString();
 
 #ifdef Q_OS_WIN32
-            path = this->convertToAbsolute(path);
+            path = this->d->convertToAbsolute(path);
 #endif
 
             path = QDir::toNativeSeparators(path);

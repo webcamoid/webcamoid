@@ -20,13 +20,9 @@
 #ifndef CAMERAOUTDSHOW_H
 #define CAMERAOUTDSHOW_H
 
-#include <strmif.h>
-#include <initguid.h>
-#include <uuids.h>
-#include <vfwmsgs.h>
-#include <ipcbridge.h>
-
 #include "cameraout.h"
+
+class CameraOutDShowPrivate;
 
 class CameraOutDShow: public CameraOut
 {
@@ -51,16 +47,7 @@ class CameraOutDShow: public CameraOut
         Q_INVOKABLE bool removeAllWebcams(const QString &password);
 
     private:
-        QStringList m_webcams;
-        int m_streamIndex;
-        IpcBridge m_ipcBridge;
-
-        HRESULT enumerateCameras(IEnumMoniker **ppEnum) const;
-        QString iidToString(const IID &iid) const;
-        bool sudo(const QString &command,
-                  const QString &params,
-                  const QString &dir=QString(),
-                  bool hide=false) const;
+        CameraOutDShowPrivate *d;
 
     public slots:
         bool init(int streamIndex);

@@ -27,6 +27,11 @@
 #include <akpacket.h>
 #include <akaudiopacket.h>
 
+extern "C"
+{
+    #include <libavutil/channel_layout.h>
+}
+
 #include "audiostream.h"
 #include "mediawriterffmpeg.h"
 
