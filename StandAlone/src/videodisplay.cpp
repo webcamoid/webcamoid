@@ -60,6 +60,13 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     Q_UNUSED(updatePaintNodeData)
 
     this->d->m_mutex.lock();
+
+    if (this->d->m_frame.isNull()) {
+        this->d->m_mutex.unlock();
+
+        return nullptr;
+    }
+
     auto frame = this->d->m_frame.format() == QImage::Format_ARGB32?
                      this->d->m_frame.copy():
                      this->d->m_frame.convertToFormat(QImage::Format_ARGB32);

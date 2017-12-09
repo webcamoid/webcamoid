@@ -57,7 +57,7 @@ Button {
                 height: width
                 sourceSize.width: width
                 sourceSize.height: width
-                source: btnButton.icon
+                source: btnButton.iconRc
             }
             Label {
                 visible: btnButton.buttonStyle & btnButton.showText

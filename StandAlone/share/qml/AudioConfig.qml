@@ -136,7 +136,7 @@ Rectangle {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Select the device for audio capturing")
             checkable: true
-            icon: "image://icons/webcamoid-mic"
+            iconRc: "image://icons/webcamoid-mic"
 
             onCheckedChanged: {
                 if (checked) {

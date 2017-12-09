@@ -25,7 +25,7 @@
 class MediaWriterFFmpegPrivate;
 class AkAudioCaps;
 class AkVideoCaps;
-class AVPacket;
+struct AVPacket;
 
 class MediaWriterFFmpeg: public MediaWriter
 {
