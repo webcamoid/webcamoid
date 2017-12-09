@@ -17,6 +17,9 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QTime>
+#include <ak.h>
+
 #import "framegrabber.h"
 
 @implementation FrameGrabber

@@ -21,6 +21,7 @@
 #define FRAMEGRABBER_H
 
 #import <AVFoundation/AVFoundation.h>
+#include <akfrac.h>
 
 #include "avfoundationscreendev.h"
 

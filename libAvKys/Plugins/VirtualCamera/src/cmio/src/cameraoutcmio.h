@@ -21,7 +21,8 @@
 #define CAMERAOUTCMIO_H
 
 #include "cameraout.h"
-#include "ipcbridge.h"
+
+class CameraOutCMIOPrivate;
 
 class CameraOutCMIO: public CameraOut
 {
@@ -46,13 +47,7 @@ class CameraOutCMIO: public CameraOut
         Q_INVOKABLE bool removeAllWebcams(const QString &password);
 
     private:
-        QStringList m_webcams;
-        int m_streamIndex;
-        QString m_curDevice;
-        AkVCam::IpcBridge m_ipcBridge;
-
-        bool sudo(const QString &command) const;
-        QString readDaemonPlist() const;
+        CameraOutCMIOPrivate *d;
 
     public slots:
         bool init(int streamIndex);

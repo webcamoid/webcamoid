@@ -50,10 +50,8 @@ QT += qml
 
 SOURCES = \
     src/plugin.cpp \
+    src/audiodevcoreaudio.cpp \
     ../audiodev.cpp
-
-OBJECTIVE_SOURCES = \
-    src/audiodevcoreaudio.mm
 
 DESTDIR = $${OUT_PWD}/../../submodules/AudioDevice
 

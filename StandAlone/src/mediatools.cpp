@@ -125,7 +125,8 @@ MediaTools::MediaTools(QObject *parent):
                          SLOT(saveVirtualCameraRootMethod(const QString &)));
 
 #ifdef Q_OS_OSX
-        QMetaObject::invokeMethod(this->m_virtualCamera.data(), "createWebcam");
+        QMetaObject::invokeMethod(this->d->m_virtualCamera.data(),
+                                  "createWebcam");
 #endif
     }
 

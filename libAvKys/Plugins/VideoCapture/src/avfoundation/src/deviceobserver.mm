@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QWaitCondition>
+
 #include "deviceobserver.h"
 
 @implementation DeviceObserver

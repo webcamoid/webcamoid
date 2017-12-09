@@ -18,9 +18,16 @@
  */
 
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QScreen>
-#include <QTime>
+#include <QThreadPool>
+#include <QtConcurrent>
+#include <QMutex>
+#include <ak.h>
 #include <akutils.h>
+#include <akcaps.h>
+#include <akvideopacket.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 #include "avfoundationscreendev.h"
 #import "framegrabber.h"
@@ -32,13 +39,18 @@ class AVFoundationScreenDevPrivate
         AVCaptureSession *m_captureSession;
         AVCaptureVideoDataOutput *m_videoOutput;
         id m_frameGrabber;
+        AkFrac m_fps;
+        QString m_curScreen;
+        int m_curScreenNumber;
 
-        explicit AVFoundationScreenDevPrivate()
+        explicit AVFoundationScreenDevPrivate():
+            m_screenInput(nil),
+            m_captureSession(nil),
+            m_videoOutput(nil),
+            m_frameGrabber(nil),
+            m_fps(AkFrac(30000, 1001)),
+            m_curScreenNumber(-1)
         {
-            this->m_screenInput = nil;
-            this->m_captureSession = nil;
-            this->m_videoOutput = nil;
-            this->m_frameGrabber = nil;
         }
 
         ~AVFoundationScreenDevPrivate()
@@ -55,8 +67,6 @@ AVFoundationScreenDev::AVFoundationScreenDev():
     ScreenDev()
 {
     this->d = new AVFoundationScreenDevPrivate();
-    this->m_fps = AkFrac(30000, 1001);
-    this->m_curScreenNumber = -1;
 
     QObject::connect(qApp,
                      &QGuiApplication::screenAdded,
@@ -80,7 +90,7 @@ AVFoundationScreenDev::~AVFoundationScreenDev()
 
 AkFrac AVFoundationScreenDev::fps() const
 {
-    return this->m_fps;
+    return this->d->m_fps;
 }
 
 QStringList AVFoundationScreenDev::medias()
@@ -95,8 +105,8 @@ QStringList AVFoundationScreenDev::medias()
 
 QString AVFoundationScreenDev::media() const
 {
-    if (!this->m_curScreen.isEmpty())
-        return this->m_curScreen;
+    if (!this->d->m_curScreen.isEmpty())
+        return this->d->m_curScreen;
 
     int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
 
@@ -130,11 +140,11 @@ QString AVFoundationScreenDev::description(const QString &media)
 
 AkCaps AVFoundationScreenDev::caps(int stream)
 {
-    if (this->m_curScreenNumber < 0
+    if (this->d->m_curScreenNumber < 0
         || stream != 0)
         return AkCaps();
 
-    QScreen *screen = QGuiApplication::screens()[this->m_curScreenNumber];
+    QScreen *screen = QGuiApplication::screens()[this->d->m_curScreenNumber];
 
     if (!screen)
         return QString();
@@ -145,7 +155,7 @@ AkCaps AVFoundationScreenDev::caps(int stream)
     caps.bpp() = AkVideoCaps::bitsPerPixel(caps.format());
     caps.width() = screen->size().width();
     caps.height() = screen->size().height();
-    caps.fps() = this->m_fps;
+    caps.fps() = this->d->m_fps;
 
     return caps.toCaps();
 }
@@ -191,10 +201,10 @@ void AVFoundationScreenDev::sendPacket(const AkPacket &packet)
 
 void AVFoundationScreenDev::setFps(const AkFrac &fps)
 {
-    if (this->m_fps == fps)
+    if (this->d->m_fps == fps)
         return;
 
-    this->m_fps = fps;
+    this->d->m_fps = fps;
     emit this->fpsChanged(fps);
 }
 
@@ -209,11 +219,11 @@ void AVFoundationScreenDev::setMedia(const QString &media)
         QString screen = QString("screen://%1").arg(i);
 
         if (screen == media) {
-            if (this->m_curScreenNumber == i)
+            if (this->d->m_curScreenNumber == i)
                 break;
 
-            this->m_curScreen = screen;
-            this->m_curScreenNumber = i;
+            this->d->m_curScreen = screen;
+            this->d->m_curScreenNumber = i;
 
             emit this->mediaChanged(media);
 
@@ -226,13 +236,13 @@ void AVFoundationScreenDev::resetMedia()
 {
     int screen = QGuiApplication::screens().indexOf(QGuiApplication::primaryScreen());
 
-    if (this->m_curScreenNumber == screen)
+    if (this->d->m_curScreenNumber == screen)
         return;
 
-    this->m_curScreen = QString("screen://%1").arg(screen);
-    this->m_curScreenNumber = screen;
+    this->d->m_curScreen = QString("screen://%1").arg(screen);
+    this->d->m_curScreenNumber = screen;
 
-    emit this->mediaChanged(this->m_curScreen);
+    emit this->mediaChanged(this->d->m_curScreen);
 }
 
 void AVFoundationScreenDev::setStreams(const QList<int> &streams)
@@ -253,11 +263,11 @@ bool AVFoundationScreenDev::init()
     screens.resize(int(nScreens));
     CGGetActiveDisplayList(nScreens, screens.data(), &nScreens);
 
-    if (this->m_curScreenNumber >= screens.size())
+    if (this->d->m_curScreenNumber >= screens.size())
         return false;
 
-    CGDirectDisplayID screen = screens[this->m_curScreenNumber < 0?
-                                       0: this->m_curScreenNumber];
+    CGDirectDisplayID screen = screens[this->d->m_curScreenNumber < 0?
+                                       0: this->d->m_curScreenNumber];
 
     this->d->m_screenInput = [[AVCaptureScreenInput alloc]
                               initWithDisplayID: screen];
@@ -265,7 +275,7 @@ bool AVFoundationScreenDev::init()
     if (!this->d->m_screenInput)
         return false;
 
-    auto fps = this->m_fps;
+    auto fps = this->d->m_fps;
 
     this->d->m_screenInput.minFrameDuration = CMTimeMake(int(fps.den()),
                                                          int(fps.num()));
@@ -348,3 +358,5 @@ void AVFoundationScreenDev::srceenResized(int screen)
 
     emit this->sizeChanged(media, widget->size());
 }
+
+#include "moc_avfoundationscreendev.cpp"

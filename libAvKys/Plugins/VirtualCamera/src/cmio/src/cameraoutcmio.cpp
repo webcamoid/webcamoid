@@ -17,15 +17,18 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QDebug>
 #include <QCoreApplication>
 #include <QProcess>
 #include <QFileInfo>
 #include <QDir>
 #include <QStandardPaths>
 #include <QDomDocument>
+#include <akvideocaps.h>
 #include <akvideopacket.h>
 
 #include "cameraoutcmio.h"
+#include "ipcbridge.h"
 #include "../Assistant/src/assistantglobals.h"
 
 #define MAX_CAMERAS 1
@@ -34,25 +37,44 @@ Q_GLOBAL_STATIC_WITH_ARGS(QString,
                           akVCamDriver,
                           (QString("../Resources/%1.plugin").arg(CMIO_PLUGIN_NAME)))
 
+class CameraOutCMIOPrivate
+{
+    public:
+        QStringList m_webcams;
+        QString m_curDevice;
+        AkVCam::IpcBridge m_ipcBridge;
+        int m_streamIndex;
+
+        CameraOutCMIOPrivate():
+            m_streamIndex(-1)
+        {
+
+        }
+
+        inline bool sudo(const QString &command) const;
+        inline QString readDaemonPlist() const;
+};
+
 CameraOutCMIO::CameraOutCMIO(QObject *parent):
     CameraOut(parent)
 {
-    this->m_streamIndex = -1;
+    this->d = new CameraOutCMIOPrivate;
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->m_driverPath = applicationDir.absoluteFilePath(*akVCamDriver());
-    this->m_ipcBridge.registerEndPoint(false);
+    this->d->m_ipcBridge.registerEndPoint(false);
 }
 
 CameraOutCMIO::~CameraOutCMIO()
 {
-    this->m_ipcBridge.unregisterEndPoint();
+    this->d->m_ipcBridge.unregisterEndPoint();
+    delete this->d;
 }
 
 QStringList CameraOutCMIO::webcams() const
 {
     QStringList webcams;
 
-    for (auto &device: this->m_ipcBridge.listDevices(false))
+    for (auto &device: this->d->m_ipcBridge.listDevices(false))
         webcams << QString::fromStdString(device);
 
     return webcams;
@@ -60,16 +82,16 @@ QStringList CameraOutCMIO::webcams() const
 
 int CameraOutCMIO::streamIndex() const
 {
-    return this->m_streamIndex;
+    return this->d->m_streamIndex;
 }
 
 QString CameraOutCMIO::description(const QString &webcam) const
 {
-    for (auto &device: this->m_ipcBridge.listDevices(false)) {
+    for (auto &device: this->d->m_ipcBridge.listDevices(false)) {
         auto deviceId = QString::fromStdString(device);
 
         if (deviceId == webcam)
-            return QString::fromStdString(this->m_ipcBridge.description(device));
+            return QString::fromStdString(this->d->m_ipcBridge.description(device));
     }
 
     return {};
@@ -77,7 +99,7 @@ QString CameraOutCMIO::description(const QString &webcam) const
 
 void CameraOutCMIO::writeFrame(const AkPacket &frame)
 {
-    if (this->m_curDevice.isEmpty())
+    if (this->d->m_curDevice.isEmpty())
         return;
 
     AkVideoPacket videoFrame(frame);
@@ -86,9 +108,9 @@ void CameraOutCMIO::writeFrame(const AkPacket &frame)
                                videoFrame.caps().height(),
                                {videoFrame.caps().fps().value()});
 
-    this->m_ipcBridge.write(this->m_curDevice.toStdString(),
-                            format,
-                            videoFrame.buffer().constData());
+    this->d->m_ipcBridge.write(this->d->m_curDevice.toStdString(),
+                               format,
+                               videoFrame.buffer().constData());
 }
 
 int CameraOutCMIO::maxCameras() const
@@ -116,11 +138,11 @@ QString CameraOutCMIO::createWebcam(const QString &description,
     if (!QFileInfo(pluginInstallPath).exists()) {
         QString cp = "cp -rvf '" + this->m_driverPath + "' " + dstPath;
 
-        if (!this->sudo(cp))
+        if (!this->d->sudo(cp))
             return QString();
     }
 
-    auto daemonPlist = this->readDaemonPlist();
+    auto daemonPlist = this->d->readDaemonPlist();
     auto daemonPlistFile = QFileInfo(daemonPlist).fileName();
     auto daemonsPath = QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath());
     auto dstDaemonsPath = QDir(daemonsPath).absoluteFilePath(daemonPlistFile);
@@ -132,12 +154,12 @@ QString CameraOutCMIO::createWebcam(const QString &description,
 
     AkVideoCaps caps(this->m_caps);
 
-    this->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                       "AvKys Virtual Camera":
-                                       description.toStdString(),
-                                   {{caps.fourCC(),
-                                     caps.width(), caps.height(),
-                                     {caps.fps().value()}}});
+    this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
+                                          "AvKys Virtual Camera":
+                                          description.toStdString(),
+                                      {{caps.fourCC(),
+                                        caps.width(), caps.height(),
+                                        {caps.fps().value()}}});
 
     auto curWebcams = this->webcams();
 
@@ -158,15 +180,15 @@ bool CameraOutCMIO::changeDescription(const QString &webcam,
     if (!webcams.contains(webcam))
         return false;
 
-    this->m_ipcBridge.deviceDestroy(webcam.toStdString());
+    this->d->m_ipcBridge.deviceDestroy(webcam.toStdString());
     AkVideoCaps caps(this->m_caps);
 
-    this->m_ipcBridge.deviceCreate(description.isEmpty()?
-                                       "AvKys Virtual Camera":
-                                       description.toStdString(),
-                                   {{caps.fourCC(),
-                                     caps.width(), caps.height(),
-                                     {caps.fps().value()}}});
+    this->d->m_ipcBridge.deviceCreate(description.isEmpty()?
+                                          "AvKys Virtual Camera":
+                                          description.toStdString(),
+                                      {{caps.fourCC(),
+                                        caps.width(), caps.height(),
+                                        {caps.fps().value()}}});
 
     auto curWebcams = this->webcams();
 
@@ -190,7 +212,7 @@ bool CameraOutCMIO::removeWebcam(const QString &webcam,
     QString dstPath = CMIO_PLUGINS_DAL_PATH;
     QString rm = "rm -rvf " + dstPath + "/" + plugin;
 
-    if (!this->sudo(rm))
+    if (!this->d->sudo(rm))
         return false;
 
     QDir(QString(CMIO_DAEMONS_PATH).replace("~", QDir::homePath()))
@@ -210,7 +232,7 @@ bool CameraOutCMIO::removeAllWebcams(const QString &password)
     return true;
 }
 
-bool CameraOutCMIO::sudo(const QString &command) const
+bool CameraOutCMIOPrivate::sudo(const QString &command) const
 {
     QProcess su;
     su.start("osascript",
@@ -237,7 +259,7 @@ bool CameraOutCMIO::sudo(const QString &command) const
     return true;
 }
 
-QString CameraOutCMIO::readDaemonPlist() const
+QString CameraOutCMIOPrivate::readDaemonPlist() const
 {
     QFile daemonFile(":/VirtualCameraCMIO/daemon.plist");
     daemonFile.open(QIODevice::ReadOnly | QIODevice::Text);
@@ -325,23 +347,23 @@ QString CameraOutCMIO::readDaemonPlist() const
 
 bool CameraOutCMIO::init(int streamIndex)
 {
-    if (!this->m_ipcBridge.deviceStart(this->m_device.toStdString()))
+    if (!this->d->m_ipcBridge.deviceStart(this->m_device.toStdString()))
         return false;
 
-    this->m_streamIndex = streamIndex;
-    this->m_curDevice = this->m_device;
+    this->d->m_streamIndex = streamIndex;
+    this->d->m_curDevice = this->m_device;
 
     return true;
 }
 
 void CameraOutCMIO::uninit()
 {
-    if (this->m_curDevice.isEmpty())
+    if (this->d->m_curDevice.isEmpty())
         return;
 
-    this->m_ipcBridge.deviceStop(this->m_curDevice.toStdString());
-    this->m_streamIndex = -1;
-    this->m_curDevice.clear();
+    this->d->m_ipcBridge.deviceStop(this->d->m_curDevice.toStdString());
+    this->d->m_streamIndex = -1;
+    this->d->m_curDevice.clear();
 }
 
 void CameraOutCMIO::resetDriverPath()
@@ -349,3 +371,5 @@ void CameraOutCMIO::resetDriverPath()
     QDir applicationDir(QCoreApplication::applicationDirPath());
     this->setDriverPath(applicationDir.absoluteFilePath(*akVCamDriver()));
 }
+
+#include "moc_cameraoutcmio.cpp"

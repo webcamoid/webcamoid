@@ -20,14 +20,10 @@
 #ifndef CAPTUREAVFOUNDATION_H
 #define CAPTUREAVFOUNDATION_H
 
-#include <QWaitCondition>
-#include <QMutex>
-#include <QTimer>
-#include <ak.h>
-
 #include "capture.h"
 
 class CaptureAvFoundationPrivate;
+class QWaitCondition;
 
 class CaptureAvFoundation: public Capture
 {
@@ -68,27 +64,7 @@ class CaptureAvFoundation: public Capture
         void *curFrame();
 
     private:
-        QString m_device;
-        QList<int> m_streams;
-        QStringList m_devices;
-        QMap<QString, quint32> m_modelId;
-        QMap<QString, QString> m_descriptions;
-        QMap<QString, QVariantList> m_devicesCaps;
-        IoMethod m_ioMethod;
-        int m_nBuffers;
-        QMutex m_mutex;
-        QMutex m_controlsMutex;
-        QWaitCondition m_frameReady;
-        AkFrac m_fps;
-        AkFrac m_timeBase;
-        AkCaps m_caps;
-        qint64 m_id;
         CaptureAvFoundationPrivate *d;
-
-        QVariantList m_globalImageControls;
-        QVariantList m_globalCameraControls;
-        QVariantMap m_localImageControls;
-        QVariantMap m_localCameraControls;
 
         QVariantMap controlStatus(const QVariantList &controls) const;
 
