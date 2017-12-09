@@ -40,6 +40,10 @@ SOURCES = \
     src/akqml.cpp \
     src/akqmlplugin.cpp
 
+lupdate_only {
+    SOURCES += $$files(share/qml/AkQmlControls/*.qml)
+}
+
 HEADERS = \
     src/akqml.h \
     src/akqmlplugin.h

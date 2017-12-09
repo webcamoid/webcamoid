@@ -32,7 +32,7 @@ Button {
 
     property string label: ""
     property int buttonStyle: showTextAndIcon
-    property string icon: ""
+    property string iconRc: ""
     property int iconSize: 16
     property int iconSpacing: 4
     property int contentsPadding: 8
@@ -50,10 +50,10 @@ Button {
 
             Image {
                 visible: btnButton.buttonStyle & btnButton.showIcon
-                         && btnButton.icon.length > 0
+                         && btnButton.iconRc.length > 0
                 fillMode: Image.PreserveAspectFit
                 width: btnButton.buttonStyle & btnButton.showIcon
-                       && btnButton.icon.length > 0? btnButton.iconSize: 0
+                       && btnButton.iconRc.length > 0? btnButton.iconSize: 0
                 height: width
                 sourceSize.width: width
                 sourceSize.height: width

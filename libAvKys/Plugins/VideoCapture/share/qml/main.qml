@@ -337,7 +337,7 @@ GridLayout {
     AkButton {
         id: btnReset
         label: qsTr("Reset")
-        icon: "image://icons/reset"
+        iconRc: "image://icons/reset"
         Layout.minimumWidth: minimumWidth
 
         property int minimumWidth: 75

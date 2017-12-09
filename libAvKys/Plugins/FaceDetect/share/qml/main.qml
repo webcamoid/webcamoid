@@ -524,7 +524,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Search")
-            icon: "image://icons/edit-find"
+            iconRc: "image://icons/edit-find"
 
             onClicked: pictureDialog.open()
         }

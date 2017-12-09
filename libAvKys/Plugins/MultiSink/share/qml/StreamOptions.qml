@@ -124,7 +124,7 @@ GroupBox {
         AkButton {
             id: advancedOptions
             label: qsTr("Advanced Codec Options")
-            icon: "image://icons/configure"
+            iconRc: "image://icons/configure"
             Layout.fillWidth: true
             Layout.columnSpan: 2
             enabled: MultiSink.codecOptions(outputIndex).length > 0

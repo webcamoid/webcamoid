@@ -146,7 +146,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Upgrade Now!")
-            icon: "image://icons/applications-internet"
+            iconRc: "image://icons/applications-internet"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectDownloadsUrl())
@@ -166,7 +166,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Report a Bug")
-            icon: "image://icons/tools-report-bug"
+            iconRc: "image://icons/tools-report-bug"
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             onClicked: Qt.openUrlExternally(Webcamoid.projectIssuesUrl())

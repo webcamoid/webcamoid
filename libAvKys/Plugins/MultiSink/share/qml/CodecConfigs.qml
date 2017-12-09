@@ -124,7 +124,7 @@ ApplicationWindow {
             }
             AkButton {
                 label: qsTr("Reset")
-                icon: "image://icons/reset"
+                iconRc: "image://icons/reset"
                 onClicked: {
                     btnOk.controlValues = {};
 
@@ -139,7 +139,7 @@ ApplicationWindow {
             }
             AkButton {
                 label: qsTr("Cancel")
-                icon: "image://icons/cancel"
+                iconRc: "image://icons/cancel"
                 onClicked: {
                     optionFilter.text = ""
                     recAbout.close()
@@ -149,7 +149,7 @@ ApplicationWindow {
             AkButton {
                 id: btnOk
                 label: qsTr("OK")
-                icon: "image://icons/ok"
+                iconRc: "image://icons/ok"
 
                 property variant controlValues: ({})
 

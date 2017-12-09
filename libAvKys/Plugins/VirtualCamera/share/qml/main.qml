@@ -79,7 +79,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Add")
-            icon: "image://icons/add"
+            iconRc: "image://icons/add"
             enabled: VirtualCamera.medias.length < VirtualCamera.maxCameras
 
             onClicked: {
@@ -90,7 +90,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Edit")
-            icon: "image://icons/edit"
+            iconRc: "image://icons/edit"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -103,7 +103,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Remove")
-            icon: "image://icons/remove"
+            iconRc: "image://icons/remove"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -114,7 +114,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Remove All")
-            icon: "image://icons/remove"
+            iconRc: "image://icons/remove"
             enabled: VirtualCamera.medias.length > 0
 
             onClicked: {
@@ -164,7 +164,7 @@ GridLayout {
             AkButton {
                 id: btnOk
                 label: qsTr("Ok")
-                icon: "image://icons/ok"
+                iconRc: "image://icons/ok"
 
                 function commitChanges()
                 {
@@ -212,7 +212,7 @@ GridLayout {
             }
             AkButton {
                 label: qsTr("Cancel")
-                icon: "image://icons/cancel"
+                iconRc: "image://icons/cancel"
 
                 onClicked: {
                     recCameraControls.state = ""

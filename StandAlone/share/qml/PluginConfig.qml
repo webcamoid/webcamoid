@@ -132,14 +132,14 @@ AkScrollView {
                 }
                 AkButton {
                     label: qsTr("Add")
-                    icon: "image://icons/add"
+                    iconRc: "image://icons/add"
 
                     onClicked: fileDialog.open()
                 }
                 AkButton {
                     id: btnRemove
                     label: qsTr("Remove")
-                    icon: "image://icons/remove"
+                    iconRc: "image://icons/remove"
                     enabled: searchPathsTable.currentIndex >= 0
 
                     onClicked: {
@@ -214,7 +214,7 @@ AkScrollView {
 
                 AkButton {
                     label: qsTr("Refresh")
-                    icon: "image://icons/reset"
+                    iconRc: "image://icons/reset"
 
                     onClicked: refreshCache()
                 }

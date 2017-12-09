@@ -94,7 +94,7 @@ GridLayout {
         }
         AkButton {
             label: qsTr("Select")
-            icon: "image://icons/preferences-desktop-font"
+            iconRc: "image://icons/preferences-desktop-font"
 
             onClicked: fontDialog.open()
         }

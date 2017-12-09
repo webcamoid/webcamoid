@@ -94,7 +94,7 @@ ApplicationWindow {
             AkButton {
                 id: btnAddMedia
                 label: qsTr("Search")
-                icon: "image://icons/edit-find"
+                iconRc: "image://icons/edit-find"
 
                 onClicked: fileDialog.open()
             }
@@ -114,7 +114,7 @@ ApplicationWindow {
             AkButton {
                 id: btnOk
                 label: qsTr("Ok")
-                icon: "image://icons/ok"
+                iconRc: "image://icons/ok"
 
                 onClicked: {
                     if (txtMedia.text.length > 0) {
@@ -139,7 +139,7 @@ ApplicationWindow {
             AkButton {
                 id: btnCancel
                 label: qsTr("Cancel")
-                icon: "image://icons/cancel"
+                iconRc: "image://icons/cancel"
 
                 onClicked: recAddMedia.visible = false
             }

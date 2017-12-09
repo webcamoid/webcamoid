@@ -120,7 +120,7 @@ Rectangle {
             ToolTip.visible: hovered
             ToolTip.text: qsTr("Select the output device for audio playing")
             checkable: true
-            icon: "image://icons/webcamoid-headphones"
+            iconRc: "image://icons/webcamoid-headphones"
 
             onCheckedChanged: {
                 if (checked) {

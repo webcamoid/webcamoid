@@ -90,7 +90,7 @@ ApplicationWindow {
                             }
                             AkButton {
                                 label: qsTr("Website")
-                                icon: "image://icons/applications-internet"
+                                iconRc: "image://icons/applications-internet"
 
                                 onClicked: Qt.openUrlExternally(Webcamoid.projectUrl())
                             }
@@ -125,7 +125,7 @@ ApplicationWindow {
 
         AkButton {
             label: qsTr("Close")
-            icon: "image://icons/window-close"
+            iconRc: "image://icons/window-close"
             Layout.alignment: Qt.AlignRight
             onClicked: recAbout.close()
         }

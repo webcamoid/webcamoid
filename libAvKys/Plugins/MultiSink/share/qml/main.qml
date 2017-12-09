@@ -205,7 +205,7 @@ ColumnLayout {
     AkButton {
         id: btnFormatOptions
         label: qsTr("Advanced Format Options")
-        icon: "image://icons/configure"
+        iconRc: "image://icons/configure"
         Layout.fillWidth: true
         enabled: MultiSink.formatOptions().length > 0
 

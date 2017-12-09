@@ -88,7 +88,7 @@ GridLayout {
         AkButton {
             id: btnEdit
             label: qsTr("Edit")
-            icon: "image://icons/edit"
+            iconRc: "image://icons/edit"
 
             onClicked: dlgAddMedia.visible = true
         }
@@ -96,7 +96,7 @@ GridLayout {
         AkButton {
             id: btnRemove
             label: qsTr("Remove")
-            icon: "image://icons/remove"
+            iconRc: "image://icons/remove"
 
             onClicked: {
                 var uris = MediaSource.uris

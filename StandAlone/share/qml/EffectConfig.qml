@@ -117,8 +117,8 @@ ColumnLayout {
         AkButton {
             id: btnAddRemove
             label: inUse? qsTr("Remove"): qsTr("Add")
-            icon: inUse? "image://icons/remove":
-                         "image://icons/add"
+            iconRc: inUse? "image://icons/remove":
+                           "image://icons/add"
             enabled: recEffectConfig.curEffect == ""? false: true
 
             onClicked: {
