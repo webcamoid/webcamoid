@@ -148,7 +148,7 @@ QObject *AkQml::newElement(const QString &pluginId,
 
 QVariant AkQml::varFrac(QObject *frac) const
 {
-    return QVariant::fromValue(frac);
+    return QVariant::fromValue(*qobject_cast<AkFrac *>(frac));
 }
 
 QVariant AkQml::varFrac(AkFrac *frac) const
@@ -163,7 +163,7 @@ QVariant AkQml::varFrac(qint64 num, qint64 den) const
 
 QVariant AkQml::varCaps(QObject *caps) const
 {
-    return QVariant::fromValue(*caps);
+    return QVariant::fromValue(*qobject_cast<AkCaps *>(caps));
 }
 
 QVariant AkQml::varCaps(AkCaps *caps) const
