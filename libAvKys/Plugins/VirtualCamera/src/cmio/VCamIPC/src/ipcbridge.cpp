@@ -589,7 +589,8 @@ void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 
 void AkVCam::IpcBridge::write(const std::string &deviceId,
                               const VideoFormat &format,
-                              const void *data)
+                              const void *data,
+                              size_t dataSize)
 {
 
 }

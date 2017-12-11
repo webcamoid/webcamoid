@@ -156,7 +156,8 @@ namespace AkVCam
             // Transfer a frame to the device.
             void write(const std::string &deviceId,
                        const VideoFormat &format,
-                       const void *data);
+                       const void *data,
+                       size_t dataSize);
 
             /* Client */
 

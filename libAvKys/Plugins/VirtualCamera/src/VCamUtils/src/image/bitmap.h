@@ -20,7 +20,7 @@
 #ifndef AKVCAMUTILS_BITMAP_H
 #define AKVCAMUTILS_BITMAP_H
 
-#include <iostream>
+#include <cstdint>
 
 namespace AkVCam
 {

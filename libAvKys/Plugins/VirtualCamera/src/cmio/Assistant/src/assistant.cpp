@@ -195,7 +195,7 @@ CFDataRef AkVCam::Assistant::deviceCreate(const std::string &port,
             std::stringstream ss;
             ss << port << "/Device" << this->id();
             auto deviceId = ss.str();
-            server.second.devices.push_back({deviceId, description, formats});
+            server.second.devices.push_back({deviceId, description, formats, false});
             auto data =
                     CFDataCreate(kCFAllocatorDefault,
                                  reinterpret_cast<const UInt8 *>(deviceId.c_str()),
@@ -256,7 +256,9 @@ CFDataRef AkVCam::Assistant::setBroadcasting(const std::string &deviceId,
         for (auto &device: server.second.devices)
             if (device.deviceId == deviceId) {
                 if (device.broadcasting == broadcasting)
-                    return CFDataCreate(kCFAllocatorDefault, &ok, 1);
+                    return CFDataCreate(kCFAllocatorDefault,
+                                        reinterpret_cast<const UInt8 *>(&ok),
+                                        1);
 
                 device.broadcasting = broadcasting;
                 CFIndex dataBytes = deviceId.size() + 2;
@@ -281,10 +283,14 @@ CFDataRef AkVCam::Assistant::setBroadcasting(const std::string &deviceId,
                 CFRelease(data);
                 ok = true;
 
-                return CFDataCreate(kCFAllocatorDefault, &ok, 1);
+                return CFDataCreate(kCFAllocatorDefault,
+                                    reinterpret_cast<const UInt8 *>(&ok),
+                                    1);
             }
 
-    return CFDataCreate(kCFAllocatorDefault, &ok, 1);
+    return CFDataCreate(kCFAllocatorDefault,
+                        reinterpret_cast<const UInt8 *>(&ok),
+                        1);
 }
 
 CFDataRef AkVCam::Assistant::frameReady(CFDataRef data) const

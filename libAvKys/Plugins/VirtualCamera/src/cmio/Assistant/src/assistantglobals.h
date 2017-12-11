@@ -63,11 +63,6 @@ namespace AkVCam
         std::string description;
         std::vector<VideoFormat> formats;
         bool broadcasting;
-
-        AssistantDevice():
-            broadcasting(false)
-        {
-        }
     };
 
     struct AssistantServer
