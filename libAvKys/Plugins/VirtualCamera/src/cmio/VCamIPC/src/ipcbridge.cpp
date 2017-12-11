@@ -538,12 +538,53 @@ void AkVCam::IpcBridge::deviceDestroy(const std::string &deviceId)
 
 bool AkVCam::IpcBridge::deviceStart(const std::string &deviceId)
 {
-    return false;
+    CFIndex dataBytes = deviceId.size() + 2;
+    std::vector<UInt8> msgData(dataBytes, 0);
+    memcpy(msgData.data(), deviceId.data(), deviceId.size());
+    auto it = msgData.data() + deviceId.size() + 1;
+    *it = false;
+
+    auto data = CFDataCreate(kCFAllocatorDefault,
+                             msgData.data(),
+                             dataBytes);
+
+    CFDataRef dataOk = nullptr;
+
+    CFMessagePortSendRequest(this->d->serverMessagePort,
+                             AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING,
+                             data,
+                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                             kCFRunLoopDefaultMode,
+                             &dataOk);
+    bool broadcasting = *CFDataGetBytePtr(dataOk);
+
+    CFRelease(dataOk);
+    CFRelease(data);
+
+    return broadcasting;
 }
 
 void AkVCam::IpcBridge::deviceStop(const std::string &deviceId)
 {
+    CFIndex dataBytes = deviceId.size() + 2;
+    std::vector<UInt8> msgData(dataBytes, 0);
+    memcpy(msgData.data(), deviceId.data(), deviceId.size());
+    auto it = msgData.data() + deviceId.size() + 1;
+    *it = false;
 
+    auto data = CFDataCreate(kCFAllocatorDefault,
+                             msgData.data(),
+                             dataBytes);
+
+    CFMessagePortSendRequest(this->d->serverMessagePort,
+                             AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING,
+                             data,
+                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                             nullptr,
+                             nullptr);
+    CFRelease(data);
 }
 
 void AkVCam::IpcBridge::write(const std::string &deviceId,

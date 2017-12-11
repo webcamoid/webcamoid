@@ -34,21 +34,24 @@
 #define AKVCAM_ASSISTANT_SERVER_NAME "org.webcamoid.cmio.AkVCam.Server"
 
 // General messages
-#define AKVCAM_ASSISTANT_MSG_REQUEST_PORT     0x0
-#define AKVCAM_ASSISTANT_MSG_ADD_PORT         0x1
-#define AKVCAM_ASSISTANT_MSG_REMOVE_PORT      0x2
+#define AKVCAM_ASSISTANT_MSG_REQUEST_PORT                0x000
+#define AKVCAM_ASSISTANT_MSG_ADD_PORT                    0x001
+#define AKVCAM_ASSISTANT_MSG_REMOVE_PORT                 0x002
 
 // Server messages
-#define AKVCAM_ASSISTANT_MSG_DEVICE_CREATE    0x100
-#define AKVCAM_ASSISTANT_MSG_DEVICE_CREATED   0x101
-#define AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY   0x102
-#define AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED 0x103
-#define AKVCAM_ASSISTANT_MSG_FRAME_READY      0x104
+#define AKVCAM_ASSISTANT_MSG_DEVICE_CREATE               0x100
+#define AKVCAM_ASSISTANT_MSG_DEVICE_CREATED              0x101
+#define AKVCAM_ASSISTANT_MSG_DEVICE_DESTROY              0x102
+#define AKVCAM_ASSISTANT_MSG_DEVICE_DESTROYED            0x103
+#define AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING      0x104
+#define AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED 0x105
+#define AKVCAM_ASSISTANT_MSG_FRAME_READY                 0x106
 
 // Client messages
-#define AKVCAM_ASSISTANT_MSG_DEVICES          0x200
-#define AKVCAM_ASSISTANT_MSG_DESCRIPTION      0x201
-#define AKVCAM_ASSISTANT_MSG_FORMATS          0x202
+#define AKVCAM_ASSISTANT_MSG_DEVICES                     0x200
+#define AKVCAM_ASSISTANT_MSG_DESCRIPTION                 0x201
+#define AKVCAM_ASSISTANT_MSG_FORMATS                     0x202
+#define AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING         0x203
 
 #define AKVCAM_ASSISTANT_REQUEST_TIMEOUT 10.0
 
@@ -59,6 +62,12 @@ namespace AkVCam
         std::string deviceId;
         std::string description;
         std::vector<VideoFormat> formats;
+        bool broadcasting;
+
+        AssistantDevice():
+            broadcasting(false)
+        {
+        }
     };
 
     struct AssistantServer

@@ -37,10 +37,13 @@ namespace AkVCam
                                    const std::string &description,
                                    const std::vector<VideoFormat> &formats);
             CFDataRef deviceDestroy(const std::string &deviceId);
+            CFDataRef setBroadcasting(const std::string &deviceId,
+                                      bool broadcasting);
             CFDataRef frameReady(CFDataRef data) const;
             CFDataRef devices() const;
             CFDataRef description(const std::string &deviceId) const;
             CFDataRef formats(const std::string &deviceId) const;
+            CFDataRef broadcasting(const std::string &deviceId);
             static CFDataRef messageReceived(CFMessagePortRef local,
                                              SInt32 msgid,
                                              CFDataRef data,

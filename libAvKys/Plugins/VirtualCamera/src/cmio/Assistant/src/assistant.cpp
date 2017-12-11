@@ -246,6 +246,47 @@ CFDataRef AkVCam::Assistant::deviceDestroy(const std::string &deviceId)
     return nullptr;
 }
 
+CFDataRef AkVCam::Assistant::setBroadcasting(const std::string &deviceId,
+                                             bool broadcasting)
+{
+    AkAssistantLogMethod();
+    bool ok = false;
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                if (device.broadcasting == broadcasting)
+                    return CFDataCreate(kCFAllocatorDefault, &ok, 1);
+
+                device.broadcasting = broadcasting;
+                CFIndex dataBytes = deviceId.size() + 2;
+                std::vector<UInt8> msgData(dataBytes, 0);
+                memcpy(msgData.data(), deviceId.data(), deviceId.size());
+                auto it = msgData.data() + deviceId.size() + 1;
+                *it = broadcasting;
+
+                auto data = CFDataCreate(kCFAllocatorDefault,
+                                         msgData.data(),
+                                         dataBytes);
+
+                for (auto &client: this->m_clients)
+                    CFMessagePortSendRequest(client.second,
+                                             AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING_CHANGED,
+                                             data,
+                                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                             AKVCAM_ASSISTANT_REQUEST_TIMEOUT,
+                                             nullptr,
+                                             nullptr);
+
+                CFRelease(data);
+                ok = true;
+
+                return CFDataCreate(kCFAllocatorDefault, &ok, 1);
+            }
+
+    return CFDataCreate(kCFAllocatorDefault, &ok, 1);
+}
+
 CFDataRef AkVCam::Assistant::frameReady(CFDataRef data) const
 {
     AkAssistantLogMethod();
@@ -334,6 +375,21 @@ CFDataRef AkVCam::Assistant::formats(const std::string &deviceId) const
     return nullptr;
 }
 
+CFDataRef AkVCam::Assistant::broadcasting(const std::string &deviceId)
+{
+    AkAssistantLogMethod();
+
+    for (auto &server: this->m_servers)
+        for (auto &device: server.second.devices)
+            if (device.deviceId == deviceId) {
+                return CFDataCreate(kCFAllocatorDefault,
+                                    reinterpret_cast<const UInt8 *>(&device.broadcasting),
+                                    1);
+            }
+
+    return nullptr;
+}
+
 CFDataRef AkVCam::Assistant::messageReceived(CFMessagePortRef local,
                                              SInt32 msgid,
                                              CFDataRef data,
@@ -400,6 +456,19 @@ CFDataRef AkVCam::Assistant::messageReceived(CFMessagePortRef local,
             return self->deviceDestroy(deviceId);
         }
 
+        case AKVCAM_ASSISTANT_MSG_DEVICE_SETBROADCASTING: {
+            auto cdata = CFDataGetBytePtr(data);
+            std::string deviceId;
+
+            for (; *cdata != 0; cdata++)
+                deviceId += char(*cdata);
+
+            cdata++;
+            bool broadcasting = *cdata;
+
+            return self->setBroadcasting(deviceId, broadcasting);
+        }
+
         case AKVCAM_ASSISTANT_MSG_FRAME_READY:
             return self->frameReady(data);
 
@@ -418,6 +487,13 @@ CFDataRef AkVCam::Assistant::messageReceived(CFMessagePortRef local,
                                  size_t(CFDataGetLength(data)));
 
             return self->formats(deviceId);
+        }
+
+        case AKVCAM_ASSISTANT_MSG_DEVICE_BROADCASTING: {
+            std::string deviceId(reinterpret_cast<const char *>(CFDataGetBytePtr(data)),
+                                 size_t(CFDataGetLength(data)));
+
+            return self->broadcasting(deviceId);
         }
     }
 
